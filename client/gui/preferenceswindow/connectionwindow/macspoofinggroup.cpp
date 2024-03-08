@@ -75,9 +75,9 @@ void MacSpoofingGroup::onInterfaceItemChanged(const QVariant &value)
 {
     int interfaceIndex = value.toInt();
 
-    for (int i = 0; i < settings_.networkInterfaces.size(); i++) {
-        if (settings_.networkInterfaces[i].interfaceIndex == interfaceIndex) {
-            settings_.selectedNetworkInterface = settings_.networkInterfaces[i];
+    for (const auto &interface : settings_.networkInterfaces) {
+        if (interface.interfaceIndex == interfaceIndex) {
+            settings_.selectedNetworkInterface = interface;
             break;
         }
     }
@@ -135,17 +135,27 @@ void MacSpoofingGroup::updateMode()
 {
     if (settings_.isEnabled) {
         comboBoxInterface_->clear();
-        for (int i = 0; i < settings_.networkInterfaces.size(); i++) {
-            types::NetworkInterface interface = settings_.networkInterfaces[i];
+        bool spoofedAdapterExists = false;
+        for (const auto &interface : settings_.networkInterfaces) {
             if (interface.interfaceName == "No Interface") {
                 comboBoxInterface_->addItem(tr("No Interface"), interface.interfaceIndex);
             } else {
                 comboBoxInterface_->addItem(interface.friendlyName, interface.interfaceIndex);
             }
+
+            if (interface.interfaceIndex == settings_.selectedNetworkInterface.interfaceIndex) {
+                spoofedAdapterExists = true;
+            }
         }
 
         qCDebug(LOG_BASIC) << "Updating Spoofing adapter dropdown with: " << NetworkUtils::networkInterfacesToString(settings_.networkInterfaces, false);
         qCDebug(LOG_BASIC) << "Spoofing selection: " << settings_.selectedNetworkInterface.interfaceName;
+
+        if (!spoofedAdapterExists) {
+            // The adapter may have been unplugged/disabled by the user.  We still want to remember it as the spoofed
+            // adapter, and thus display it as selected in the combobox, until the user elects to pick a different one.
+            comboBoxInterface_->addItem(settings_.selectedNetworkInterface.friendlyName, settings_.selectedNetworkInterface.interfaceIndex);
+        }
 
         comboBoxInterface_->setCurrentItem(settings_.selectedNetworkInterface.interfaceIndex);
         showItems(indexOf(macAddressItem_), size() - 1);

@@ -33,7 +33,7 @@ public:
     bool changeMtu(const QString &adapter, int mtu) override;
     bool executeTaskKill(CmdKillTarget target);
 
-     // WireGuard functions
+    // WireGuard functions
     IHelper::ExecuteError startWireGuard(const QString &exeName, const QString &deviceName) override;
     bool stopWireGuard() override;
     bool configureWireGuard(const WireGuardConfig &config) override;

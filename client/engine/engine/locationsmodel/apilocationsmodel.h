@@ -5,10 +5,9 @@
 
 #include "baselocationinfo.h"
 #include "bestlocation.h"
-#include "engine/apiinfo/location.h"
-#include "engine/apiinfo/staticips.h"
+#include "api_responses/location.h"
+#include "api_responses/staticips.h"
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
-#include "engine/ping/pingmultiplehosts.h"
 #include "engine/ping/pingmanager.h"
 #include "types/location.h"
 #include "types/locationid.h"
@@ -27,9 +26,9 @@ class ApiLocationsModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingMultipleHosts *pingHosts);
+    explicit ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager);
 
-    void setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
+    void setLocations(const QVector<api_responses::Location> &locations, const api_responses::StaticIps &staticIps);
     void clear();
 
     QSharedPointer<BaseLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
@@ -48,8 +47,8 @@ private slots:
     void onPingInfoChanged(const QString &ip, int timems);
 
 private:
-    QVector<apiinfo::Location> locations_;
-    apiinfo::StaticIps staticIps_;
+    QVector<api_responses::Location> locations_;
+    api_responses::StaticIps staticIps_;
     BestLocation bestLocation_;
     PingManager pingManager_;
 
@@ -59,7 +58,7 @@ private:
     void sendLocationsUpdated();
     void whitelistIps();
 
-    bool isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
+    bool isChanged(const QVector<api_responses::Location> &locations, const api_responses::StaticIps &staticIps);
 };
 
 } //namespace locationsmodel

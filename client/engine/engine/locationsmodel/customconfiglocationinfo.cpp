@@ -2,10 +2,11 @@
 #include "utils/ws_assert.h"
 #include "utils/ipvalidation.h"
 #include "utils/logger.h"
-#include "engine/dnsresolver/dnsrequest.h"
-#include "engine/dnsresolver/dnsserversconfiguration.h"
 #include "engine/customconfigs/ovpncustomconfig.h"
 #include "engine/customconfigs/wireguardcustomconfig.h"
+
+using namespace wsnet;
+
 
 namespace locationsmodel {
 
@@ -93,9 +94,14 @@ void CustomConfigLocationInfo::resolveHostnamesForWireGuardConfig()
             rd.isResolved = false;
             isExistsHostnames = true;
 
-            DnsRequest *dnsRequest = new DnsRequest(this, remote, DnsServersConfiguration::instance().getCurrentDnsServers());
-            connect(dnsRequest, &DnsRequest::finished, this, &CustomConfigLocationInfo::onDnsRequestFinished);
-            dnsRequest->lookup();
+            auto callback = [this] (std::uint64_t requestId, const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result)
+            {
+                QMetaObject::invokeMethod(this, [this, hostname, result]
+                {
+                    onDnsRequestFinished(hostname, result);
+                });
+            };
+            WSNet::instance()->dnsResolver()->lookup(remote.toStdString(), 0, callback);
         }
         remotes_ << rd;
     }
@@ -149,9 +155,14 @@ void CustomConfigLocationInfo::resolveHostnamesForOVPNConfig()
 
             isExistsHostnames = true;
 
-            DnsRequest *dnsRequest = new DnsRequest(this, remote.hostname, DnsServersConfiguration::instance().getCurrentDnsServers());
-            connect(dnsRequest, &DnsRequest::finished, this, &CustomConfigLocationInfo::onDnsRequestFinished);
-            dnsRequest->lookup();
+            auto callback = [this] (std::uint64_t requestId, const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result)
+            {
+                QMetaObject::invokeMethod(this, [this, hostname, result]
+                {
+                    onDnsRequestFinished(hostname, result);
+                });
+            };
+            WSNet::instance()->dnsResolver()->lookup(remote.hostname.toStdString(), 0, callback);
         }
     }
     if (!isExistsHostnames)
@@ -289,34 +300,28 @@ QString CustomConfigLocationInfo::getLogString() const
     return ret;
 }
 
-void CustomConfigLocationInfo::onDnsRequestFinished()
+void CustomConfigLocationInfo::onDnsRequestFinished(const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result)
 {
-    DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
-    WS_ASSERT(dnsRequest != nullptr);
-
-    for (int i = 0; i < remotes_.count(); ++i)
-    {
-        if (remotes_[i].isHostname && remotes_[i].ipOrHostname_ == dnsRequest->hostname())
-        {
-            QString strIps;
-            for (const QString &ip : dnsRequest->ips())
+    for (int i = 0; i < remotes_.count(); ++i) {
+        if (remotes_[i].isHostname && remotes_[i].ipOrHostname_ == QString::fromStdString(hostname)) {
+            std::string strIps;
+            auto ips = result->ips();
+            for (const auto &ip : ips)
             {
-                remotes_[i].ipsForHostname_ << ip;
+                remotes_[i].ipsForHostname_ << QString::fromStdString(ip);
                 strIps += ip + "; ";
             }
 
-            qCDebug(LOG_CONNECTION) << "Hostname:" << dnsRequest->hostname() << " resolved -> " << strIps;
+            qCDebug(LOG_CONNECTION) << "Hostname:" << QString::fromStdString(hostname) << " resolved -> " << QString::fromStdString(strIps);
             remotes_[i].isResolved = true;
             break;
         }
     }
 
-    if (isAllResolved())
-    {
+    if (isAllResolved()) {
         bAllResolved_ = true;
         emit hostnamesResolved();
     }
-    dnsRequest->deleteLater();
 }
 
 bool CustomConfigLocationInfo::isAllResolved() const

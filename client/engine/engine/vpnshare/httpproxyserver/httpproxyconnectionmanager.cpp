@@ -40,10 +40,10 @@ void HttpProxyConnectionManager::newConnection(qintptr socketDescriptor)
 
 void HttpProxyConnectionManager::closeAllConnections()
 {
-     for(auto c : connections_.keys())
-     {
-         QMetaObject::invokeMethod(c, "forceClose", Qt::QueuedConnection);
-     }
+    for(auto c : connections_.keys())
+    {
+        QMetaObject::invokeMethod(c, "forceClose", Qt::QueuedConnection);
+    }
 }
 
 void HttpProxyConnectionManager::stop()

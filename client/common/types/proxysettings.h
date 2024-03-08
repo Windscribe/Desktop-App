@@ -30,6 +30,9 @@ public:
     PROXY_OPTION option() const;
     void setOption(PROXY_OPTION option);
 
+    // address example: https://1.2.3.4:8083, details: https://curl.se/libcurl/c/CURLOPT_PROXY.html
+    QString curlAddress() const;
+
     QString address() const;
     void setAddress(const QString &address);
 

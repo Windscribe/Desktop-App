@@ -1,5 +1,6 @@
 #pragma once
 
+#include "backend/preferences/accountinfo.h"
 #include "backend/preferences/preferenceshelper.h"
 #include "backend/preferences/preferences.h"
 #include "commongraphics/basepage.h"
@@ -12,10 +13,11 @@ class HelpWindowItem : public CommonGraphics::BasePage
 {
     Q_OBJECT
 public:
-    explicit HelpWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
+    explicit HelpWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper, AccountInfo *accountInfo);
 
     QString caption() const override;
     void setSendLogResult(bool success);
+    void setLoggedIn(bool loggedIn);
 
 signals:
     void viewLogClick();
@@ -24,6 +26,7 @@ signals:
 private slots:
     void onSendLogClick();
     void onLanguageChanged();
+    void onIsPremiumChanged(bool isPremium);
 
 private:
     enum SEND_LOG_STATE {
@@ -38,8 +41,8 @@ private:
     LinkItem *knowledgeBaseItem_;
     PreferenceGroup *talkToGarryGroup_;
     LinkItem *talkToGarryItem_;
-    PreferenceGroup *sendTicketGroup_;
-    LinkItem *sendTicketItem_;
+    PreferenceGroup *contactHumansGroup_;
+    LinkItem *contactHumansItem_;
     PreferenceGroup *communitySupportGroup_;
     LinkItem *communitySupportItem_;
     LinkItem *redditItem_;
@@ -48,6 +51,12 @@ private:
     LinkItem *viewLogItem_;
     PreferenceGroup *sendLogGroup_;
     LinkItem *sendLogItem_;
+
+    AccountInfo *accountInfo_;
+    bool loggedIn_;
+    bool isPremium_;
+
+    void updateContactHumansVisibility();
 };
 
 } // namespace PreferencesWindow

@@ -1,0 +1,62 @@
+diff --git a/include/curl/curl.h b/include/curl/curl.h
+index 7b7f5a5..3491428 100644
+--- a/include/curl/curl.h
++++ b/include/curl/curl.h
+@@ -939,6 +939,9 @@ typedef enum {
+    a client certificate for authentication. (Schannel) */
+ #define CURLSSLOPT_AUTO_CLIENT_CERT (1<<5)
+ 
++#define CURLSSLOPT_TLSEXT_PADDING (1<<6)
++#define CURLSSLOPT_TLSEXT_PADDING_SUPER (1<<7)
++
+ /* The default connection attempt delay in milliseconds for happy eyeballs.
+    CURLOPT_HAPPY_EYEBALLS_TIMEOUT_MS.3 and happy-eyeballs-timeout-ms.d document
+    this value, keep them in sync. */
+
+diff --git a/lib/setopt.c b/lib/setopt.c
+index 67492ce..f93fe6b 100644
+--- a/lib/setopt.c
++++ b/lib/setopt.c
+@@ -2403,6 +2403,8 @@ CURLcode Curl_vsetopt(struct Curl_easy *data, CURLoption option, va_list param)
+     data->set.ssl.revoke_best_effort = !!(arg & CURLSSLOPT_REVOKE_BEST_EFFORT);
+     data->set.ssl.native_ca_store = !!(arg & CURLSSLOPT_NATIVE_CA);
+     data->set.ssl.auto_client_cert = !!(arg & CURLSSLOPT_AUTO_CLIENT_CERT);
++    data->set.ssl.tlsext_padding = !!(arg & CURLSSLOPT_TLSEXT_PADDING);
++    data->set.ssl.tlsext_padding_super = !!(arg & CURLSSLOPT_TLSEXT_PADDING_SUPER);
+     /* If a setting is added here it should also be added in dohprobe()
+        which sets its own CURLOPT_SSL_OPTIONS based on these settings. */
+     break;
+
+diff --git a/lib/urldata.h b/lib/urldata.h
+index 25379b6..0a60d22 100644
+--- a/lib/urldata.h
++++ b/lib/urldata.h
+@@ -321,6 +321,8 @@ struct ssl_config_data {
+   BIT(native_ca_store); /* use the native ca store of operating system */
+   BIT(auto_client_cert);   /* automatically locate and use a client
+                               certificate for authentication (Schannel) */
++  BIT(tlsext_padding);
++  BIT(tlsext_padding_super);
+ };
+ 
+ struct ssl_general_config {
+
+diff --git a/lib/vtls/openssl.c b/lib/vtls/openssl.c
+index d4fb65a..35ff166 100644
+--- a/lib/vtls/openssl.c
++++ b/lib/vtls/openssl.c
+@@ -3600,6 +3600,14 @@ static CURLcode ossl_connect_step1(struct Curl_cfilter *cf,
+     ctx_options &= ~SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS;
+ #endif
+ 
++  if(ssl_config->tlsext_padding)
++    ctx_options |= SSL_OP_TLSEXT_PADDING;
++
++#ifdef SSL_OP_TLSEXT_PADDING_SUPER
++  if(ssl_config->tlsext_padding_super)
++    ctx_options |= SSL_OP_TLSEXT_PADDING_SUPER;
++#endif
++
+   switch(ssl_version) {
+   case CURL_SSLVERSION_SSLv2:
+   case CURL_SSLVERSION_SSLv3:

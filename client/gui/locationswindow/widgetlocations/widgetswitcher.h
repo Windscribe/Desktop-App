@@ -25,11 +25,11 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private slots:
-     void onEmptyListStateChanged(bool isEmptyList);
+    void onEmptyListStateChanged(bool isEmptyList);
 
 private:
-     gui_locations::LocationsView *locationsView_;
-     EmptyListWidget *emptyListWidget_;
+    gui_locations::LocationsView *locationsView_;
+    EmptyListWidget *emptyListWidget_;
 };
 
 } // namespace GuiLocation

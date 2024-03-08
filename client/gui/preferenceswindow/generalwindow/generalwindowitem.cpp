@@ -151,7 +151,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
 
     updateChannelGroup_ = new PreferenceGroup(this,
                                               QString(),
-                                              QString("https://%1/features/update-channels").arg(HardcodedSettings::instance().serverUrl()));
+                                              QString("https://%1/features/update-channels").arg(HardcodedSettings::instance().windscribeServerUrl()));
     comboBoxUpdateChannel_ = new ComboBoxItem(updateChannelGroup_);
     comboBoxUpdateChannel_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/UPDATE_CHANNEL"));
     connect(comboBoxUpdateChannel_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onUpdateChannelItemChanged);
@@ -428,7 +428,7 @@ void GeneralWindowItem::onVersionInfoClicked()
 
     QDesktopServices::openUrl(QUrl(
         QString("https://%1/changelog/%2")
-            .arg(HardcodedSettings::instance().serverUrl())
+            .arg(HardcodedSettings::instance().windscribeServerUrl())
             .arg(platform)));
 }
 

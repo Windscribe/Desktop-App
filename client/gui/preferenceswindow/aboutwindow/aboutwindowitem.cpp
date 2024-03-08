@@ -17,19 +17,19 @@ AboutWindowItem::AboutWindowItem(ScalableGraphicsObject *parent, Preferences *pr
     group_ = new PreferenceGroup(this, "", "");
 
     statusLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
-                               QString("https://%1/status").arg(HardcodedSettings::instance().serverUrl()));
+                               QString("https://%1/status").arg(HardcodedSettings::instance().windscribeServerUrl()));
     group_->addItem(statusLink_);
 
     aboutUsLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
-                                QString("https://%1/about").arg(HardcodedSettings::instance().serverUrl()));
+                                QString("https://%1/about").arg(HardcodedSettings::instance().windscribeServerUrl()));
     group_->addItem(aboutUsLink_);
 
     privacyLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
-                                QString("https://%1/privacy").arg(HardcodedSettings::instance().serverUrl()));
+                                QString("https://%1/privacy").arg(HardcodedSettings::instance().windscribeServerUrl()));
     group_->addItem(privacyLink_);
 
     termsLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
-                              QString("https://%1/terms").arg(HardcodedSettings::instance().serverUrl()));
+                              QString("https://%1/terms").arg(HardcodedSettings::instance().windscribeServerUrl()));
     group_->addItem(termsLink_);
 
     blogLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
@@ -41,7 +41,7 @@ AboutWindowItem::AboutWindowItem(ScalableGraphicsObject *parent, Preferences *pr
     group_->addItem(jobsLink_);
 
     licensesLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
-                                 QString("https://%1/terms/oss").arg(HardcodedSettings::instance().serverUrl()));
+                                 QString("https://%1/terms/oss").arg(HardcodedSettings::instance().windscribeServerUrl()));
     group_->addItem(licensesLink_);
 
     addItem(group_);

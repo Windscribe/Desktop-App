@@ -88,6 +88,11 @@ void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
     }
 }
 
+void GeneralMessageWindowItem::setStyle(GeneralMessageWindow::Style style)
+{
+    contentItem_->setStyle(style);
+}
+
 void GeneralMessageWindowItem::setTitle(const QString &title)
 {
     contentItem_->setTitle(title);
@@ -106,9 +111,9 @@ void GeneralMessageWindowItem::setDescription(const QString &desc)
     updateHeight();
 }
 
-void GeneralMessageWindowItem::setAcceptText(const QString &text)
+void GeneralMessageWindowItem::setAcceptText(const QString &text, bool showRemember)
 {
-    contentItem_->setAcceptText(text);
+    contentItem_->setAcceptText(text, showRemember);
     updateHeight();
 }
 
@@ -246,6 +251,31 @@ void GeneralMessageWindowItem::updateHeight()
 GeneralMessageWindow::Shape GeneralMessageWindowItem::backgroundShape() const
 {
     return shape_;
+}
+
+void GeneralMessageWindowItem::setShowUsername(bool on)
+{
+    contentItem_->setShowUsername(on);
+}
+
+void GeneralMessageWindowItem::setShowPassword(bool on)
+{
+    contentItem_->setShowPassword(on);
+}
+
+QString GeneralMessageWindowItem::username() const
+{
+    return contentItem_->username();
+}
+
+QString GeneralMessageWindowItem::password() const
+{
+    return contentItem_->password();
+}
+
+void GeneralMessageWindowItem::clear()
+{
+    contentItem_->clear();
 }
 
 } // namespace GeneralMessage

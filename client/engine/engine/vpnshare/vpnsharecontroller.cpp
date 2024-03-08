@@ -169,10 +169,10 @@ void VpnShareController::stopWifiSharing()
 {
     QMutexLocker locker(&mutex_);
 #ifdef Q_OS_WIN
-     if (wifiSharing_->isSharingStarted())
-     {
+    if (wifiSharing_->isSharingStarted())
+    {
         wifiSharing_->stopSharing();
-     }
+    }
 #endif
 }
 

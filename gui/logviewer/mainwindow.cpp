@@ -51,8 +51,7 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
                            logDisplayMode_(LogDisplayMode::SINGLE_COLUMN),
                            logWatcher_(new LogWatcher), logData_(new LogData),
                            checkRangeOnAppend_(CheckRangeMode::NO),
-                           openFilePath_(QStandardPaths::writableLocation(
-                               QStandardPaths::DataLocation)),
+                           openFilePath_(QStandardPaths::writableLocation(QStandardPaths::DataLocation)),
                            isFilterCI_(true), isHideUnmatched_(true), textVisibilityMask_(0),
                            currentFilterMatch_(-1), previousFilterMatch_(-1)
 {
@@ -414,19 +413,19 @@ void MainWindow::appendLogFromFile(const QString &filename)
             QMessageBox::Yes | QMessageBox::No))
             logWatcher_->remove(logType);
     }
-     if (checkRangeOnAppend_ == CheckRangeMode::ASK) {
-         if (logData_->numTypes() != 0 &&
-             QMessageBox::Yes == QMessageBox::question(this, QString(),
-             tr("Do you want to append only those lines that are within the existing time range?"),
-             QMessageBox::Yes | QMessageBox::No))
-             checkRangeOnAppend_ = CheckRangeMode::YES;
-         else
-             checkRangeOnAppend_ = CheckRangeMode::NO;
+    if (checkRangeOnAppend_ == CheckRangeMode::ASK) {
+        if (logData_->numTypes() != 0 &&
+            QMessageBox::Yes == QMessageBox::question(this, QString(),
+            tr("Do you want to append only those lines that are within the existing time range?"),
+            QMessageBox::Yes | QMessageBox::No))
+            checkRangeOnAppend_ = CheckRangeMode::YES;
+        else
+            checkRangeOnAppend_ = CheckRangeMode::NO;
     }
-     if (!logWatcher_->add(filename, logType, (checkRangeOnAppend_ == CheckRangeMode::YES)
-         ? LogRangeCheckType::MIN_TO_MAX : LogRangeCheckType::NONE)) {
-         QMessageBox::warning(this, QString(), tr("Failed to read \"%1\"!").arg(filename));
-     }
+    if (!logWatcher_->add(filename, logType, (checkRangeOnAppend_ == CheckRangeMode::YES)
+        ? LogRangeCheckType::MIN_TO_MAX : LogRangeCheckType::NONE)) {
+        QMessageBox::warning(this, QString(), tr("Failed to read \"%1\"!").arg(filename));
+    }
 }
 
 void MainWindow::setOverrideCursorIfNeeded()
@@ -578,7 +577,7 @@ void MainWindow::updateDisplay()
                 is_filter_match = checkFilter(it->type, it->text);
                 if (!is_filter_match && isHideUnmatched_)
                     continue;
-             }
+            }
             if (it->type == LOG_TYPE_AUX || timestamp != it->timestamp) {
                 if (!timestamp.isEmpty()) {
                     trim_lines(timestamp);

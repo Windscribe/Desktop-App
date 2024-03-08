@@ -120,21 +120,6 @@
     </message>
 </context>
 <context>
-    <name>DialogGetUsernamePassword</name>
-    <message>
-        <source>Enter connection credentials</source>
-        <translation>Nhập thông tin đăng nhập kết nối</translation>
-    </message>
-    <message>
-        <source>Please enter the username</source>
-        <translation>Vui lòng nhập tên người dùng</translation>
-    </message>
-    <message>
-        <source>Please enter the password</source>
-        <translation>Vui lòng nhập mật khẩu</translation>
-    </message>
-</context>
-<context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
@@ -230,6 +215,18 @@
     <message>
         <source>Learn More</source>
         <translation>Tìm hiểu thêm</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Tên đăng nhập</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Mật khẩu</translation>
+    </message>
+    <message>
+        <source>Remember</source>
+        <translation>Nhớ</translation>
     </message>
 </context>
 <context>
@@ -784,6 +781,18 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
         <translation>Không thể mở tệp để viết.  Kiểm tra quyền của bạn và thử lại.</translation>
+    </message>
+    <message>
+        <source>Enter Connection Credentials</source>
+        <translation>Nhập thông tin đăng nhập kết nối</translation>
+    </message>
+    <message>
+        <source>Enter Private Key Password</source>
+        <translation>Nhập mật khẩu khóa cá nhân</translation>
+    </message>
+    <message>
+        <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
+        <translation>Windscribe không thể truy xuất cấu hình máy chủ. Vui lòng thử một giao thức khác.</translation>
     </message>
 </context>
 <context>
@@ -1409,20 +1418,8 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Cơ sở tri thức</translation>
     </message>
     <message>
-        <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>Không thông minh như con người, nhưng vẫn có thể trả lời câu hỏi của bạn.</translation>
-    </message>
-    <message>
         <source>Talk to Garry</source>
         <translation>Nói chuyện với Garry</translation>
-    </message>
-    <message>
-        <source>Stuck? Send us a ticket.</source>
-        <translation>Bị mắc kẹt? Gửi vé cho chúng tôi.</translation>
-    </message>
-    <message>
-        <source>Send Ticket</source>
-        <translation>Gửi vé</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1459,6 +1456,18 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Failed!</source>
         <translation>Thất bại!</translation>
+    </message>
+    <message>
+        <source>Need help? Garry can help you with most issues, go talk to him.</source>
+        <translation>Cần giúp đỡ? Garry có thể giúp bạn với hầu hết các vấn đề, hãy nói chuyện với anh ấy.</translation>
+    </message>
+    <message>
+        <source>Contact Humans</source>
+        <translation>Liên hệ với con người</translation>
+    </message>
+    <message>
+        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
+        <translation>Có một vấn đề mà Garry không thể giải quyết? Liên hệ với bộ phận hỗ trợ của con người.</translation>
     </message>
 </context>
 <context>

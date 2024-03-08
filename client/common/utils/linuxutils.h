@@ -13,6 +13,7 @@ namespace LinuxUtils
 
     QString getOsVersionString();
     QString getLinuxKernelVersion();
+    QString getDistroName();
     const QString getLastInstallPlatform();
 
     // CLI

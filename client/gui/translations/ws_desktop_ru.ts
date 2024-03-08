@@ -120,21 +120,6 @@
     </message>
 </context>
 <context>
-    <name>DialogGetUsernamePassword</name>
-    <message>
-        <source>Enter connection credentials</source>
-        <translation>Ввод учетных данных подключения</translation>
-    </message>
-    <message>
-        <source>Please enter the username</source>
-        <translation>Пожалуйста, введите имя пользователя</translation>
-    </message>
-    <message>
-        <source>Please enter the password</source>
-        <translation>Пожалуйста, введите пароль</translation>
-    </message>
-</context>
-<context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
@@ -230,6 +215,18 @@
     <message>
         <source>Learn More</source>
         <translation>Подробнее</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Имя пользователя</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Пароль</translation>
+    </message>
+    <message>
+        <source>Remember</source>
+        <translation>Помнить</translation>
     </message>
 </context>
 <context>
@@ -784,6 +781,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
         <translation>Не удалось открыть файл для записи.  Проверьте разрешения и повторите попытку.</translation>
+    </message>
+    <message>
+        <source>Enter Connection Credentials</source>
+        <translation>Ввод учетных данных для подключения</translation>
+    </message>
+    <message>
+        <source>Enter Private Key Password</source>
+        <translation>Введите пароль закрытого ключа</translation>
+    </message>
+    <message>
+        <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
+        <translation>Windscribe не удалось получить конфигурацию сервера. Пожалуйста, попробуйте другой протокол.</translation>
     </message>
 </context>
 <context>
@@ -1409,20 +1418,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>База знаний</translation>
     </message>
     <message>
-        <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>Не такой умный, как человек, но все же может ответить на ваши вопросы.</translation>
-    </message>
-    <message>
         <source>Talk to Garry</source>
         <translation>Поговорить с Гарри</translation>
-    </message>
-    <message>
-        <source>Stuck? Send us a ticket.</source>
-        <translation>Возникли сложности? Пришлите сообщение о проблеме.</translation>
-    </message>
-    <message>
-        <source>Send Ticket</source>
-        <translation>Сообщить о проблеме</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1459,6 +1456,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Failed!</source>
         <translation>Ошибка!</translation>
+    </message>
+    <message>
+        <source>Need help? Garry can help you with most issues, go talk to him.</source>
+        <translation>Нужна помощь? Гарри может помочь вам с большинством проблем, поговорите с ним.</translation>
+    </message>
+    <message>
+        <source>Contact Humans</source>
+        <translation>Контакт с людьми</translation>
+    </message>
+    <message>
+        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
+        <translation>У вас есть проблема, которую Гарри не может решить? Обратитесь в службу поддержки.</translation>
     </message>
 </context>
 <context>

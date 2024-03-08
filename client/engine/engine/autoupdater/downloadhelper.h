@@ -5,15 +5,13 @@
 #include <QFile>
 #include <QSharedPointer>
 #include <QMap>
-
-class NetworkAccessManager;
-class NetworkReply;
+#include <wsnet/WSNet.h>
 
 class DownloadHelper : public QObject
 {
     Q_OBJECT
 public:
-    explicit DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager, const QString &platform);
+    explicit DownloadHelper(QObject *parent, const QString &platform);
     ~DownloadHelper();
 
     enum DownloadState {
@@ -29,28 +27,22 @@ public:
     void get(QMap<QString, QString> downloads);
     void stop();
 
-    DownloadState state();
-
 signals:
     void finished(DownloadHelper::DownloadState state);
     void progressChanged(uint progressPercent);
 
-private slots:
-    void onReplyFinished();
-    void onReplyDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
-    void onReplyReadyRead();
-
 private:
-    NetworkAccessManager *networkAccessManager_;
+    std::uint64_t uniqueRequestId_ = 0;
 
     struct FileAndProgress {
-        QSharedPointer<QFile> file;
+        std::shared_ptr<wsnet::WSNetCancelableCallback> request;
+        QFile file;
         qint64 bytesReceived = 0;
         qint64 bytesTotal = 0;
         bool done = false;
     };
 
-    QMap<NetworkReply*, FileAndProgress> replies_;
+    std::map<std::uint64_t, std::unique_ptr<FileAndProgress> > replies_;
     bool busy_;
     const QString platform_;
 
@@ -61,6 +53,11 @@ private:
     void getInner(const QString url, const QString targetFilenamePath);
     void removeAutoUpdateInstallerFiles();
     bool allRepliesDone();
-    void abortAllReplies();
-    void deleteAllReplies();
+    void deleteAllCurrentReplies();
+
+    void onReplyFinished(std::uint64_t requestId,
+                         wsnet::NetworkError errCode, const std::string &data);
+    void onReplyDownloadProgress(std::uint64_t requestId, std::uint64_t bytesReceived,
+                                 std::uint64_t bytesTotal);
+    void onReplyReadyRead(std::uint64_t requestId, const std::string &data);
 };

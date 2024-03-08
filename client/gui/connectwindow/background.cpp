@@ -325,7 +325,7 @@ void Background::setOpacityConnecting(qreal v)
 
 qreal Background::opacityConnected()
 {
-     return opacityConnected_;
+    return opacityConnected_;
 }
 
 void Background::setOpacityConnected(qreal v)

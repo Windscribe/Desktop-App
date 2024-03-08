@@ -54,18 +54,18 @@ ReachAbilityEvents::ReachAbilityEvents(QObject *parent) : QObject(parent)
                                           2,
                                           &kCFTypeArrayCallBacks);
 
-     if (!SCDynamicStoreSetNotificationKeys(dynStore, NULL, watchedKeys))
-     {
+    if (!SCDynamicStoreSetNotificationKeys(dynStore, NULL, watchedKeys))
+    {
         CFRelease(watchedKeys);
         CFRelease(dynStore);
         dynStore = NULL;
         return;
-     }
-     CFRelease(watchedKeys);
+    }
+    CFRelease(watchedKeys);
 
-     CFRunLoopSourceRef rlSrc = SCDynamicStoreCreateRunLoopSource(kCFAllocatorDefault, dynStore, 0);
-     CFRunLoopAddSource(CFRunLoopGetCurrent(), rlSrc, kCFRunLoopDefaultMode);
-     CFRelease(rlSrc);
+    CFRunLoopSourceRef rlSrc = SCDynamicStoreCreateRunLoopSource(kCFAllocatorDefault, dynStore, 0);
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), rlSrc, kCFRunLoopDefaultMode);
+    CFRelease(rlSrc);
 }
 
 ReachAbilityEvents::~ReachAbilityEvents()

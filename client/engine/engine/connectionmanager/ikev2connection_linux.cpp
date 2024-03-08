@@ -17,7 +17,7 @@ void IKEv2Connection_linux::startConnect(const QString &configOrUrl, const QStri
 
 void IKEv2Connection_linux::startDisconnect()
 {
-   emit disconnected();
+    emit disconnected();
 }
 
 bool IKEv2Connection_linux::isDisconnected() const

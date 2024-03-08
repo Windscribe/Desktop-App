@@ -32,7 +32,6 @@
 #include "utils/mergelog.h"
 #include "languagecontroller.h"
 #include "multipleaccountdetection/multipleaccountdetectionfactory.h"
-#include "dialogs/dialoggetusernamepassword.h"
 
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/imageresourcesjpg.h"
@@ -158,6 +157,7 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::splitTunnelingStateChanged, this, &MainWindow::onSplitTunnelingStateChanged);
     connect(backend_, &Backend::statisticsUpdated, this, &MainWindow::onBackendStatisticsUpdated);
     connect(backend_, &Backend::requestCustomOvpnConfigCredentials, this, &MainWindow::onBackendRequestCustomOvpnConfigCredentials);
+    connect(backend_, &Backend::requestCustomOvpnConfigPrivKeyPassword, this, &MainWindow::onBackendRequestCustomOvpnConfigPrivKeyPassword);
     connect(backend_, &Backend::proxySharingInfoChanged, this, &MainWindow::onBackendProxySharingInfoChanged);
     connect(backend_, &Backend::wifiSharingInfoChanged, this, &MainWindow::onBackendWifiSharingInfoChanged);
     connect(backend_, &Backend::cleanupFinished, this, &MainWindow::onBackendCleanupFinished);
@@ -1175,26 +1175,26 @@ void MainWindow::onPreferencesImportSettingsClick()
             return;
         }
 
-		QByteArray jsonData = file.readAll();
-		file.close();
-		QJsonParseError parseError;
-		const QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData, &parseError);
+        QByteArray jsonData = file.readAll();
+        file.close();
+        QJsonParseError parseError;
+        const QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData, &parseError);
 
-		if (parseError.error != QJsonParseError::NoError) {
-			onPreferencesReportErrorToUser(tr("Unable to import preferences"), tr("The selected file's format is incorrect."));
-			qDebug() << "Error parsing JSON while importing preferences from :" << parseError.errorString();
-			return;
-		}
+        if (parseError.error != QJsonParseError::NoError) {
+            onPreferencesReportErrorToUser(tr("Unable to import preferences"), tr("The selected file's format is incorrect."));
+            qDebug() << "Error parsing JSON while importing preferences from :" << parseError.errorString();
+            return;
+        }
 
-		if (!jsonDoc.isObject()) {
-			onPreferencesReportErrorToUser(tr("Unable to import preferences"), tr("The selected file's format is incorrect."));
-			qDebug() << "Expected JSON object not found when importing preferences";
-			return;
-		}
+        if (!jsonDoc.isObject()) {
+            onPreferencesReportErrorToUser(tr("Unable to import preferences"), tr("The selected file's format is incorrect."));
+            qDebug() << "Expected JSON object not found when importing preferences";
+            return;
+        }
 
-		backend_->getPreferences()->updateFromJson(jsonDoc.object());
-		qCDebug(LOG_BASIC) << "Imported preferences from the file.";
-		mainWindowController_->getPreferencesWindow()->setPreferencesImportCompleted();
+        backend_->getPreferences()->updateFromJson(jsonDoc.object());
+        qCDebug(LOG_BASIC) << "Imported preferences from the file.";
+        mainWindowController_->getPreferencesWindow()->setPreferencesImportCompleted();
     }
 }
 
@@ -1360,7 +1360,7 @@ void MainWindow::onEmergencyDisconnectClick()
 
 void MainWindow::onEmergencyWindscribeLinkClick()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/help").arg(HardcodedSettings::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/help").arg(HardcodedSettings::instance().windscribeServerUrl())));
 }
 
 void MainWindow::onExternalConfigWindowNextClick()
@@ -1502,6 +1502,9 @@ void MainWindow::onLocationsAddStaticIpClicked()
 
 void MainWindow::onLocationsClearCustomConfigClicked()
 {
+    if (selectedLocation_->locationdId().isCustomConfigsLocation() && backend_->currentConnectState() != CONNECT_STATE_DISCONNECTED) {
+        backend_->sendDisconnect();
+    }
     backend_->getPreferences()->setCustomOvpnConfigsPath(QString());
 }
 
@@ -1686,7 +1689,7 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
         backend_->recordInstall();
         // open first start URL
         QString curUserId = backend_->getSessionStatus().getUserId();
-        QDesktopServices::openUrl(QUrl( QString("https://%1/installed/desktop?%2").arg(HardcodedSettings::instance().serverUrl()).arg(curUserId)));
+        QDesktopServices::openUrl(QUrl( QString("https://%1/installed/desktop?%2").arg(HardcodedSettings::instance().windscribeServerUrl()).arg(curUserId)));
     }
     PersistentState::instance().setFirstLogin(false);
 }
@@ -1775,9 +1778,8 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
     gotoLoginWindow();
 }
 
-void MainWindow::onBackendSessionStatusChanged(const types::SessionStatus &sessionStatus)
+void MainWindow::onBackendSessionStatusChanged(const api_responses::SessionStatus &sessionStatus)
 {
-    //bFreeSessionStatus_ = sessionStatus->isPremium == 0;
     blockConnect_.setNotBlocking();
     qint32 status = sessionStatus.getStatus();
     // multiple account abuse detection
@@ -1868,31 +1870,31 @@ void MainWindow::onBackendSessionStatusChanged(const types::SessionStatus &sessi
     backend_->setBlockConnect(blockConnect_.isBlocked());
 }
 
-void MainWindow::onBackendCheckUpdateChanged(const types::CheckUpdate &checkUpdateInfo)
+void MainWindow::onBackendCheckUpdateChanged(const api_responses::CheckUpdate &checkUpdateInfo)
 {
-    if (checkUpdateInfo.isAvailable)
+    if (checkUpdateInfo.isAvailable())
     {
         qCDebug(LOG_BASIC) << "Update available";
-        if (!checkUpdateInfo.isSupported)
+        if (!checkUpdateInfo.isSupported())
         {
             blockConnect_.setNeedUpgrade();
         }
 
         QString betaStr;
-        betaStr = "-" + QString::number(checkUpdateInfo.latestBuild);
-        if (checkUpdateInfo.updateChannel == UPDATE_CHANNEL_BETA)
+        betaStr = "-" + QString::number(checkUpdateInfo.latestBuild());
+        if (checkUpdateInfo.updateChannel() == UPDATE_CHANNEL_BETA)
         {
             betaStr += "b";
         }
-        else if (checkUpdateInfo.updateChannel == UPDATE_CHANNEL_GUINEA_PIG)
+        else if (checkUpdateInfo.updateChannel() == UPDATE_CHANNEL_GUINEA_PIG)
         {
             betaStr += "g";
         }
 
         //updateWidget_->setText(tr("Update available - v") + version + betaStr);
 
-        mainWindowController_->getUpdateAppItem()->setVersionAvailable(checkUpdateInfo.version, checkUpdateInfo.latestBuild);
-        mainWindowController_->getUpdateWindow()->setVersion(checkUpdateInfo.version, checkUpdateInfo.latestBuild);
+        mainWindowController_->getUpdateAppItem()->setVersionAvailable(checkUpdateInfo.version(), checkUpdateInfo.latestBuild());
+        mainWindowController_->getUpdateWindow()->setVersion(checkUpdateInfo.version(), checkUpdateInfo.latestBuild());
 
         if (!ignoreUpdateUntilNextRun_)
         {
@@ -1941,6 +1943,21 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
                 qCDebug(LOG_BASIC) << "Fatal error: MainWindow::onBackendConnectStateChanged, WS_ASSERT(selectedLocation_.isValid());";
                 WS_ASSERT(false);
             }
+        }
+    } else {
+        // If we no longer have a valid location, select the best location if possible
+        if (!selectedLocation_->isValid()) {
+            LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
+            if(bestLocation.isValid()) {
+                selectedLocation_->set(bestLocation);
+            } else {
+                // In external config mode, we don't have a best location, so reset back to blank location.
+                selectedLocation_->clear();
+            }
+            mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
+                                                                            selectedLocation_->countryCode(), selectedLocation_->pingTime(),
+                                                                            selectedLocation_->locationdId().isCustomConfigsLocation());
+            PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
         }
     }
 
@@ -2188,15 +2205,38 @@ void MainWindow::onBackendWifiSharingInfoChanged(const types::WifiSharingInfo &w
 
 void MainWindow::onBackendRequestCustomOvpnConfigCredentials()
 {
-    DialogGetUsernamePassword dlg(this, true);
-    if (dlg.exec() == QDialog::Accepted)
-    {
-        backend_->continueWithCredentialsForOvpnConfig(dlg.username(), dlg.password(), dlg.isNeedSave());
-    }
-    else
-    {
-        backend_->continueWithCredentialsForOvpnConfig("", "", false);
-    }
+    GeneralMessageController::instance().showCredentialPrompt(
+        "WARNING_WHITE",
+        tr("Enter Connection Credentials"),
+        "", // description
+        GeneralMessageController::tr(GeneralMessageController::kOk),
+        GeneralMessageController::tr(GeneralMessageController::kCancel),
+        "", // tertiary text
+        [this](const QString &username, const QString &password, bool b) {
+            backend_->continueWithCredentialsForOvpnConfig(username, password, b);
+        },
+        [this](bool b) {
+            backend_->continueWithCredentialsForOvpnConfig("", "", false);
+        });
+}
+
+void MainWindow::onBackendRequestCustomOvpnConfigPrivKeyPassword()
+{
+    GeneralMessageController::instance().showCredentialPrompt(
+        "WARNING_WHITE",
+        tr("Enter Private Key Password"),
+        "", // description
+        GeneralMessageController::tr(GeneralMessageController::kOk),
+        GeneralMessageController::tr(GeneralMessageController::kCancel),
+        "", // tertiary text
+        [this](const QString &username, const QString &password, bool b) {
+            backend_->continueWithPrivKeyPasswordForOvpnConfig(password, b);
+        },
+        [this](bool b) {
+            backend_->continueWithPrivKeyPasswordForOvpnConfig("", false);
+        },
+        std::function<void(bool)>(nullptr),
+        GeneralMessage::kNoUsername);
 }
 
 void MainWindow::onBackendSessionDeleted()
@@ -2303,7 +2343,7 @@ void MainWindow::onBackendHighCpuUsage(const QStringList &processesList)
             [this](bool b) { if (b) PersistentState::instance().setIgnoreCpuUsageWarnings(true); },
             std::function<void(bool)>(nullptr),
             GeneralMessage::kShowBottomPanel,
-            QString("https://%1/support/article/20/tcp-socket-termination").arg(HardcodedSettings::instance().serverUrl()));
+            QString("https://%1/support/article/20/tcp-socket-termination").arg(HardcodedSettings::instance().windscribeServerUrl()));
     }
 }
 
@@ -2365,7 +2405,7 @@ void MainWindow::onPreferencesGetRobertFilters()
     backend_->getRobertFilters();
 }
 
-void MainWindow::onBackendRobertFiltersChanged(bool success, const QVector<types::RobertFilter> &filters)
+void MainWindow::onBackendRobertFiltersChanged(bool success, const QVector<api_responses::RobertFilter> &filters)
 {
     qCDebug(LOG_USER) << "Get ROBERT filters response: " << success;
     if (success)
@@ -2378,7 +2418,7 @@ void MainWindow::onBackendRobertFiltersChanged(bool success, const QVector<types
     }
 }
 
-void MainWindow::onPreferencesSetRobertFilter(const types::RobertFilter &filter)
+void MainWindow::onPreferencesSetRobertFilter(const api_responses::RobertFilter &filter)
 {
     qCDebug(LOG_USER) << "Set ROBERT filter: " << filter.id << ", " << filter.status;
     backend_->setRobertFilter(filter);
@@ -2420,7 +2460,7 @@ void MainWindow::onBackendProtocolStatusChanged(const QVector<types::ProtocolSta
                     tr("Contact Support"),
                     GeneralMessageController::tr(GeneralMessageController::kCancel),
                     "",
-                    [](bool b) { QDesktopServices::openUrl(QUrl(QString("https://%1/support/ticket").arg(HardcodedSettings::instance().serverUrl()))); });
+                    [](bool b) { QDesktopServices::openUrl(QUrl(QString("https://%1/support/ticket").arg(HardcodedSettings::instance().windscribeServerUrl()))); });
             });
     }
 }
@@ -2491,7 +2531,7 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERS
 void MainWindow::openBrowserToMyAccountWithToken(const QString &tempSessionToken)
 {
     QString getUrl = QString("https://%1/myaccount?temp_session=%2")
-                        .arg(HardcodedSettings::instance().serverUrl())
+                        .arg(HardcodedSettings::instance().windscribeServerUrl())
                         .arg(tempSessionToken);
     QDesktopServices::openUrl(QUrl(getUrl));
 }
@@ -2516,7 +2556,7 @@ void MainWindow::onBackendWebSessionTokenForManageRobertRules(const QString &tem
 {
     mainWindowController_->getPreferencesWindow()->setWebSessionCompleted();
     QString getUrl = QString("https://%1/myaccount?temp_session=%2#robertrules")
-                        .arg(HardcodedSettings::instance().serverUrl())
+                        .arg(HardcodedSettings::instance().windscribeServerUrl())
                         .arg(tempSessionToken);
     QDesktopServices::openUrl(QUrl(getUrl));
 }
@@ -3075,7 +3115,7 @@ void MainWindow::onTrayMenuShowHide()
 
 void MainWindow::onTrayMenuHelpMe()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/help").arg(HardcodedSettings::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/help").arg(HardcodedSettings::instance().windscribeServerUrl())));
 }
 
 void MainWindow::onTrayMenuQuit()
@@ -3232,7 +3272,7 @@ void MainWindow::onTrayMenuAboutToHide()
 
 void MainWindow::onLocationsTrayMenuLocationSelected(const LocationID &lid)
 {
-   // close menu
+    // close menu
 #ifdef Q_OS_WIN
     trayMenu_.close();
 #elif !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
@@ -3487,6 +3527,8 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
         msg = tr("WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again,"
                  " please try restarting your computer.\n\nIf the problem persists after a restart, please send a debug log and open"
                  " a support ticket, then switch to a different connection mode.");
+    } else if (connectState.connectError == WIREGUARD_COULD_NOT_RETRIEVE_CONFIG) {
+        msg = tr("Windscribe could not retrieve server configuration. Please try another protocol.");
     } else {
         msg = tr("An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.").arg(connectState.connectError);
     }
@@ -3519,12 +3561,12 @@ void MainWindow::setVariablesToInitState()
 
 void MainWindow::openStaticIpExternalWindow()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/staticips?cpid=app_windows").arg(HardcodedSettings::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/staticips?cpid=app_windows").arg(HardcodedSettings::instance().windscribeServerUrl())));
 }
 
 void MainWindow::openUpgradeExternalWindow()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/upgrade?pcpid=desktop_upgrade").arg(HardcodedSettings::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/upgrade?pcpid=desktop_upgrade").arg(HardcodedSettings::instance().windscribeServerUrl())));
 }
 
 void MainWindow::gotoLoginWindow()
@@ -3634,18 +3676,18 @@ void MainWindow::updateTrayIconType(AppIconType type)
         break;
     }
 
-     if (icon) {
-         // We must call setIcon so calls to QSystemTrayIcon::showMessage will use the
-         // correct icon.  Otherwise, the singleShot call below may cause showMessage
-         // to pick up the old icon.
-         trayIcon_.setIcon(*icon);
+    if (icon) {
+        // We must call setIcon so calls to QSystemTrayIcon::showMessage will use the
+        // correct icon.  Otherwise, the singleShot call below may cause showMessage
+        // to pick up the old icon.
+        trayIcon_.setIcon(*icon);
 #if defined(Q_OS_WIN)
-         const QPixmap pm = icon->pixmap(QSize(16, 16) * G_SCALE);
-         if (!pm.isNull()) {
-             QTimer::singleShot(1, [pm]() {
-                 WidgetUtils_win::updateSystemTrayIcon(pm, QString());
-             });
-         }
+        const QPixmap pm = icon->pixmap(QSize(16, 16) * G_SCALE);
+        if (!pm.isNull()) {
+            QTimer::singleShot(1, [pm]() {
+                WidgetUtils_win::updateSystemTrayIcon(pm, QString());
+            });
+        }
 #endif
     }
 }

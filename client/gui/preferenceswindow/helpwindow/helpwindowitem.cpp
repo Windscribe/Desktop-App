@@ -5,8 +5,8 @@
 
 namespace PreferencesWindow {
 
-HelpWindowItem::HelpWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper)
-  : CommonGraphics::BasePage(parent), sendLogState_(NOT_SENT)
+HelpWindowItem::HelpWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper, AccountInfo *accountInfo)
+  : CommonGraphics::BasePage(parent), sendLogState_(NOT_SENT), accountInfo_(accountInfo), loggedIn_(false), isPremium_(accountInfo->isPremium())
 {
     Q_UNUSED(preferences);
     Q_UNUSED(preferencesHelper);
@@ -14,11 +14,13 @@ HelpWindowItem::HelpWindowItem(ScalableGraphicsObject *parent, Preferences *pref
     setFlag(QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(PREFERENCES_MARGIN);
 
+    connect(accountInfo, &AccountInfo::isPremiumChanged, this, &HelpWindowItem::onIsPremiumChanged);
+
     knowledgeBaseGroup_ = new PreferenceGroup(this);
     knowledgeBaseItem_ = new LinkItem(knowledgeBaseGroup_,
                                       LinkItem::LinkType::EXTERNAL_LINK,
                                       "",
-                                      QString("https://%1/support/knowledgebase").arg(HardcodedSettings::instance().serverUrl()));
+                                      QString("https://%1/support/knowledgebase").arg(HardcodedSettings::instance().windscribeServerUrl()));
     knowledgeBaseItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/KNOWLEDGE_BASE"));
     knowledgeBaseGroup_->addItem(knowledgeBaseItem_);
     addItem(knowledgeBaseGroup_);
@@ -27,19 +29,21 @@ HelpWindowItem::HelpWindowItem(ScalableGraphicsObject *parent, Preferences *pref
     talkToGarryItem_ = new LinkItem(talkToGarryGroup_,
                                     LinkItem::LinkType::EXTERNAL_LINK,
                                     "",
-                                    QString("https://%1/support?garry=1").arg(HardcodedSettings::instance().serverUrl()));
+                                    QString("https://%1/support?garry=1").arg(HardcodedSettings::instance().windscribeServerUrl()));
     talkToGarryItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/TALK_TO_GARRY"));
     talkToGarryGroup_->addItem(talkToGarryItem_);
     addItem(talkToGarryGroup_);
 
-    sendTicketGroup_ = new PreferenceGroup(this);
-    sendTicketItem_ = new LinkItem(sendTicketGroup_,
-                                   LinkItem::LinkType::EXTERNAL_LINK,
-                                   "",
-                                   QString("https://%1/support/ticket").arg(HardcodedSettings::instance().serverUrl()));
-    sendTicketItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/SEND_TICKET"));
-    sendTicketGroup_->addItem(sendTicketItem_);
-    addItem(sendTicketGroup_);
+    contactHumansGroup_ = new PreferenceGroup(this);
+    contactHumansItem_ = new LinkItem(contactHumansGroup_,
+                                      LinkItem::LinkType::EXTERNAL_LINK,
+                                      "",
+
+    QString("https://%1/support/ticket").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    contactHumansItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/SEND_TICKET"));
+    contactHumansGroup_->addItem(contactHumansItem_);
+    addItem(contactHumansGroup_);
+    updateContactHumansVisibility();
 
     communitySupportGroup_ = new PreferenceGroup(this);
     communitySupportItem_ = new LinkItem(communitySupportGroup_, LinkItem::LinkType::TEXT_ONLY);
@@ -102,10 +106,10 @@ void HelpWindowItem::onLanguageChanged()
 {
     knowledgeBaseGroup_->setDescription(tr("All you need to know about Windscribe."));
     knowledgeBaseItem_->setTitle(tr("Knowledge Base"));
-    talkToGarryGroup_->setDescription(tr("Not as smart as a human, but can still answer your questions."));
+    talkToGarryGroup_->setDescription(tr("Need help? Garry can help you with most issues, go talk to him."));
     talkToGarryItem_->setTitle(tr("Talk to Garry"));
-    sendTicketGroup_->setDescription(tr("Stuck? Send us a ticket."));
-    sendTicketItem_->setTitle(tr("Send Ticket"));
+    contactHumansGroup_->setDescription(tr("Have a problem that Garry can't resolve? Contact human support."));
+    contactHumansItem_->setTitle(tr("Contact Humans"));
     communitySupportGroup_->setDescription(tr("Best places to help and get help from other users."));
     communitySupportItem_->setTitle(tr("Community Support"));
     redditItem_->setTitle(tr("Reddit"));
@@ -121,6 +125,23 @@ void HelpWindowItem::onLanguageChanged()
     } else if (sendLogState_ == FAILED) {
         sendLogItem_->setTitle(tr("Failed!"));
     }
+}
+
+void HelpWindowItem::setLoggedIn(bool loggedIn)
+{
+    loggedIn_ = loggedIn;
+    updateContactHumansVisibility();
+}
+
+void HelpWindowItem::onIsPremiumChanged(bool isPremium)
+{
+    isPremium_ = isPremium;
+    updateContactHumansVisibility();
+}
+
+void HelpWindowItem::updateContactHumansVisibility()
+{
+    contactHumansGroup_->setVisible(loggedIn_ && isPremium_);
 }
 
 } // namespace PreferencesWindow

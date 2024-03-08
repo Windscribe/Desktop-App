@@ -1,34 +1,25 @@
 #include "keepalivemanager.h"
 
-#include "engine/dnsresolver/dnsrequest.h"
-#include "engine/dnsresolver/dnsserversconfiguration.h"
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "utils/hardcodedsettings.h"
-#include "utils/logger.h"
 #include "utils/utils.h"
-#include "utils/ws_assert.h"
 
-KeepAliveManager::KeepAliveManager(QObject *parent, IConnectStateController *stateController, NetworkAccessManager *networkAccessManager) : QObject(parent),
-    isEnabled_(false), curConnectState_(CONNECT_STATE_DISCONNECTED), pingHosts_(this, stateController, networkAccessManager)
+using namespace wsnet;
+
+KeepAliveManager::KeepAliveManager(QObject *parent, IConnectStateController *stateController) : QObject(parent),
+    isEnabled_(false), curConnectState_(CONNECT_STATE_DISCONNECTED)
 {
     connect(stateController, &IConnectStateController::stateChanged, this, &KeepAliveManager::onConnectStateChanged);
     connect(&timer_, &QTimer::timeout, this, &KeepAliveManager::onTimer);
-    connect(&pingHosts_, &PingMultipleHosts::pingFinished, this, &KeepAliveManager::onPingFinished);
 }
 
 void KeepAliveManager::setEnabled(bool isEnabled)
 {
     isEnabled_ = isEnabled;
     if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_)
-    {
-        DnsRequest *dnsRequest = new DnsRequest(this, HardcodedSettings::instance().serverUrl(), DnsServersConfiguration::instance().getCurrentDnsServers());
-        connect(dnsRequest, &DnsRequest::finished, this, &KeepAliveManager::onDnsRequestFinished);
-        dnsRequest->lookup();
-    }
+        doDnsRequest();
     else
-    {
         timer_.stop();
-    }
 }
 
 void KeepAliveManager::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location)
@@ -39,76 +30,69 @@ void KeepAliveManager::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REA
 
     curConnectState_ = state;
     if (state == CONNECT_STATE_CONNECTED && isEnabled_)
-    {
-        DnsRequest *dnsRequest = new DnsRequest(this, HardcodedSettings::instance().serverUrl(), DnsServersConfiguration::instance().getCurrentDnsServers());
-        connect(dnsRequest, &DnsRequest::finished, this, &KeepAliveManager::onDnsRequestFinished);
-        dnsRequest->lookup();
-    }
+        doDnsRequest();
     else
-    {
         timer_.stop();
-    }
 }
 
 void KeepAliveManager::onTimer()
 {
-    for (int i = 0; i < ips_.count(); ++i)
-    {
-        if (!ips_[i].bFailed_)
-        {
-            pingHosts_.addHostForPing(ips_[i].ip_, QString(), PingType::kIcmp);
+    using namespace std::placeholders;
+
+    for (int i = 0; i < ips_.count(); ++i) {
+        if (!ips_[i].bFailed_) {
+            WSNet::instance()->pingManager()->ping(ips_[i].ip_.toStdString(), std::string(), wsnet::PingType::kIcmp,
+                                                   std::bind(&KeepAliveManager::onPingFinished, this, _1, _2, _3, _4));
             return;
         }
     }
     // if all failed then select random
-    if (ips_.count() > 0)
-    {
+    if (ips_.count() > 0) {
         int ind = Utils::generateIntegerRandom(0, ips_.count() - 1);
-        pingHosts_.addHostForPing(ips_[ind].ip_, QString(), PingType::kIcmp);
+        WSNet::instance()->pingManager()->ping(ips_[ind].ip_.toStdString(), std::string(), wsnet::PingType::kIcmp,
+                                               std::bind(&KeepAliveManager::onPingFinished, this, _1, _2, _3, _4));
     }
 }
 
-void KeepAliveManager::onDnsRequestFinished()
+void KeepAliveManager::onDnsRequestFinished(std::uint64_t requestId, const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result)
 {
-    DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
-    WS_ASSERT(dnsRequest != nullptr);
-
-    if (!dnsRequest->isError())
-    {
+    if (!result->isError()) {
         ips_.clear();
-        for (const QString &ip : dnsRequest->ips())
-        {
-            ips_ << IP_DESCR(ip);
+        for (const auto &ip : result->ips()) {
+            ips_ << IP_DESCR(QString::fromStdString(ip));
         }
-
-        if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_)
-        {
+        if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_) {
             timer_.start(KEEP_ALIVE_TIMEOUT);
         }
-    }
-    else
-    {
-        if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_)
-        {
-            DnsRequest *request = new DnsRequest(this, HardcodedSettings::instance().serverUrl(), DnsServersConfiguration::instance().getCurrentDnsServers());
-            connect(request, &DnsRequest::finished, this, &KeepAliveManager::onDnsRequestFinished);
-            request->lookup();
+    } else {
+        if (curConnectState_ == CONNECT_STATE_CONNECTED && isEnabled_) {
+            doDnsRequest();
         }
     }
-    dnsRequest->deleteLater();
 }
 
-void KeepAliveManager::onPingFinished(bool bSuccess, int timems, const QString &ip, bool isFromDisconnectedState)
+void KeepAliveManager::onPingFinished(const std::string &ip, bool isSuccess, int32_t timeMs, bool isFromDisconnectedVpnState)
 {
-    Q_UNUSED(timems);
-    Q_UNUSED(isFromDisconnectedState);
+    Q_UNUSED(isSuccess);
+    Q_UNUSED(isFromDisconnectedVpnState);
 
-    for (int i = 0; i < ips_.count(); ++i)
-    {
-        if (ips_[i].ip_ == ip)
-        {
-            ips_[i].bFailed_ = !bSuccess;
+    QString ipStr = QString::fromStdString(ip);
+    for (int i = 0; i < ips_.count(); ++i) {
+        if (ips_[i].ip_ == ipStr) {
+            ips_[i].bFailed_ = !isSuccess;
             break;
         }
     }
+}
+
+void KeepAliveManager::doDnsRequest()
+{
+    auto callback = [this] (std::uint64_t requestId, const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result)
+    {
+        QMetaObject::invokeMethod(this, [this, requestId, hostname, result]
+        {
+            onDnsRequestFinished(requestId, hostname, result);
+        });
+    };
+    WSNet::instance()->dnsResolver()->lookup(HardcodedSettings::instance().windscribeServerUrl().toStdString(), 0, callback);
 }

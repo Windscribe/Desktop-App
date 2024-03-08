@@ -10,7 +10,7 @@
 #include "graphicresources/independentpixmap.h"
 #include "preferenceswindow/linkitem.h"
 #include "preferenceswindow/preferencegroup.h"
-#include "types/robertfilter.h"
+#include "api_responses/robertfilter.h"
 #include "loadingiconitem.h"
 #include "robertitem.h"
 
@@ -27,7 +27,7 @@ public:
 
     void setLoggedIn(bool loggedIn);
     void clearFilters();
-    void setFilters(const QVector<types::RobertFilter> &filters);
+    void setFilters(const QVector<api_responses::RobertFilter> &filters);
     void setError(bool isError);
     void setLoading(bool loading);
     void setWebSessionCompleted();
@@ -35,7 +35,7 @@ public:
 signals:
     void accountLoginClick();
     void manageRobertRulesClick();
-    void setRobertFilter(const types::RobertFilter &filter);
+    void setRobertFilter(const api_responses::RobertFilter &filter);
 
 private slots:
     void onManageRobertRulesClick();

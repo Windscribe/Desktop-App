@@ -6,7 +6,7 @@
 #include "commongraphics/baseitem.h"
 #include "graphicresources/independentpixmap.h"
 #include "messageitem.h"
-#include "types/notification.h"
+#include "api_responses/notification.h"
 
 namespace NewsFeedWindow {
 
@@ -14,7 +14,7 @@ class EntryItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:
-    EntryItem(ScalableGraphicsObject *parent, const types::Notification &item, int width);
+    EntryItem(ScalableGraphicsObject *parent, const api_responses::Notification &item, int width);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
@@ -25,7 +25,7 @@ public:
     int expandedHeight();
     void setExpanded(bool expanded, bool read = true);
 
-    void setItem(const types::Notification &item);
+    void setItem(const api_responses::Notification &item);
     void setAccented(bool accented);
     bool isRead() const;
     void setRead(bool read);
@@ -50,7 +50,7 @@ private:
     static constexpr int ICON_HEIGHT = 16;
     static constexpr int ICON_WIDTH = 16;
 
-    types::Notification item_;
+    api_responses::Notification item_;
     bool expanded_;
     bool accented_;
     double expandAnimationProgress_;

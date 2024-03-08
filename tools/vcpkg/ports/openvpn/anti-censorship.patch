@@ -1,0 +1,136 @@
+diff --git a/src/openvpn/options.c b/src/openvpn/options.c
+index 7ca77a8e..1db60200 100644
+--- a/src/openvpn/options.c
++++ b/src/openvpn/options.c
+@@ -3407,7 +3407,7 @@ options_postprocess_mutate_invariant(struct options *options)
+         /* delay may only be necessary when we perform DHCP handshake */
+         const bool dhcp = (options->tuntap_options.ip_win32_type == IPW32_SET_DHCP_MASQ)
+                           || (options->tuntap_options.ip_win32_type == IPW32_SET_ADAPTIVE);
+-        if ((options->mode == MODE_POINT_TO_POINT) && dhcp)
++        if ((options->mode == MODE_POINT_TO_POINT) && dhcp && (win32_version_info() <= WIN_VISTA))
+         {
+             options->route_delay_defined = true;
+             options->route_delay = 5; /* Vista sometimes has a race without this */
+@@ -7830,6 +7830,16 @@ add_option(struct options *options,
+         VERIFY_PERMISSION(OPT_P_GENERAL);
+         options->server_flags |= SF_TCP_NODELAY_HELPER;
+     }
++    else if (streq(p[0], "tcp-split-reset") && !p[1])
++    {
++        VERIFY_PERMISSION(OPT_P_GENERAL);
++        options->sockflags |= SF_TCP_SPLITRESET;
++    }
++    else if (streq(p[0], "udp-stuffing") && !p[1])
++    {
++        VERIFY_PERMISSION(OPT_P_GENERAL);
++        options->sockflags |= SF_UDP_STUFFING;
++    }
+     else if (streq(p[0], "stale-routes-check") && p[1] && !p[3])
+     {
+         int ageing_time, check_interval;
+diff --git a/src/openvpn/socket.c b/src/openvpn/socket.c
+index 91a6d53d..1110c5a4 100644
+--- a/src/openvpn/socket.c
++++ b/src/openvpn/socket.c
+@@ -3409,7 +3409,43 @@ link_socket_write_tcp(struct link_socket *sock,
+     dmsg(D_STREAM_DEBUG, "STREAM: WRITE %d offset=%d", (int)len, buf->offset);
+     ASSERT(len <= sock->stream_buf.maxlen);
+     len = htonps(len);
++
++    uint8_t opcode = *BPTR(buf) >> P_OPCODE_SHIFT;
++
+     ASSERT(buf_write_prepend(buf, &len, sizeof(len)));
++
++    if (sock->sockflags & SF_TCP_SPLITRESET)
++    {
++        int saved_len;
++        int size;
++        if (opcode == P_CONTROL_HARD_RESET_CLIENT_V2
++            || opcode == P_CONTROL_HARD_RESET_CLIENT_V3)
++        {
++            saved_len = buf->len;
++            buf->len = 1;
++
++            socket_set_tcp_nodelay(sock->sd, 1);
++#ifdef _WIN32
++            size = link_socket_write_win32(sock, buf, to);
++#else
++            size = link_socket_write_tcp_posix(sock, buf, to);
++#endif
++            if (!(sock->sockflags & SF_TCP_NODELAY))
++            {
++                socket_set_tcp_nodelay(sock->sd, 0);
++            }
++            buf->len = saved_len;
++            buf_advance(buf, 1);
++
++#ifdef _WIN32
++            size += link_socket_write_win32(sock, buf, to);
++#else
++            size += link_socket_write_tcp_posix(sock, buf, to);
++#endif
++            return size;
++        }
++    }
++
+ #ifdef _WIN32
+     return link_socket_write_win32(sock, buf, to);
+ #else
+diff --git a/src/openvpn/socket.h b/src/openvpn/socket.h
+index bfc1253b..73635c5f 100644
+--- a/src/openvpn/socket.h
++++ b/src/openvpn/socket.h
+@@ -207,6 +207,8 @@ struct link_socket
+ #define SF_HOST_RANDOMIZE (1<<3)
+ #define SF_GETADDRINFO_DGRAM (1<<4)
+ #define SF_DCO_WIN (1<<5)
++#define SF_TCP_SPLITRESET (1<<6)
++#define SF_UDP_STUFFING (1<<7)
+     unsigned int sockflags;
+     int mark;
+     const char *bind_dev;
+@@ -1173,6 +1175,44 @@ link_socket_write_udp(struct link_socket *sock,
+                       struct buffer *buf,
+                       struct link_socket_actual *to)
+ {
++#ifndef P_CONTROL_HARD_RESET_CLIENT_V2
++#define P_CONTROL_HARD_RESET_CLIENT_V2 7
++#endif
++#ifndef P_CONTROL_HARD_RESET_CLIENT_V3
++#define P_CONTROL_HARD_RESET_CLIENT_V3 10
++#endif
++#ifndef P_OPCODE_SHIFT
++#define P_OPCODE_SHIFT 3
++#endif
++    int rand_bytes(uint8_t *output, int len);
++
++#define STUFFING_LEN_MAX 1200
++
++    uint8_t opcode = *BPTR(buf) >> P_OPCODE_SHIFT;
++    if (
++        sock->sockflags & SF_UDP_STUFFING
++        && (opcode == P_CONTROL_HARD_RESET_CLIENT_V2
++            || opcode == P_CONTROL_HARD_RESET_CLIENT_V3)
++        )
++    {
++        uint16_t stuffing_len;
++        rand_bytes((uint8_t*)&stuffing_len, sizeof(stuffing_len));
++        stuffing_len = (stuffing_len % (STUFFING_LEN_MAX - 10)) + 10;
++
++        uint8_t stuffing_data[STUFFING_LEN_MAX] = {0};
++        rand_bytes(stuffing_data, sizeof(stuffing_data));
++        struct buffer stuffing_buf = alloc_buf(STUFFING_LEN_MAX);
++        buf_write(&stuffing_buf, stuffing_data, stuffing_len);
++
++#ifdef _WIN32
++        link_socket_write_win32(sock, &stuffing_buf, to);
++#else
++    link_socket_write_udp_posix(sock, &stuffing_buf, to);
++#endif
++
++        free_buf(&stuffing_buf);
++    }
++
+ #ifdef _WIN32
+     return link_socket_write_win32(sock, buf, to);
+ #else

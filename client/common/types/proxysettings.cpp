@@ -59,6 +59,16 @@ void ProxySettings::setOption(PROXY_OPTION option)
     option_ = option;
 }
 
+QString ProxySettings::curlAddress() const
+{
+    if (option_ == PROXY_OPTION_HTTP)
+        return "http://" + address_ + ":" + QString::number(port_);
+    else if (option_ == PROXY_OPTION_SOCKS)
+        return "socks5://" + address_ + ":" + QString::number(port_);
+    else
+        return "";
+}
+
 QString ProxySettings::address() const
 {
     return address_;

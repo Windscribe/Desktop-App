@@ -4,6 +4,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(installer_mac)
 
+find_package(Boost REQUIRED COMPONENTS serialization)
+
 find_library(COCOA_LUMBERJACK_LIBS
              NAMES CocoaLumberjack
              PATHS ${CMAKE_SOURCE_DIR}/Frameworks
@@ -53,7 +55,6 @@ set_target_properties(installer
 )
 
 target_include_directories(installer PRIVATE
-                           ../../../build-libs/boost/include
                            ../../../client/common
                            ../../../common
                            ../../common
@@ -62,13 +63,12 @@ target_include_directories(installer PRIVATE
 
 target_link_directories(installer
                         PRIVATE
-                        ../../../build-libs/boost/lib
                         ${CMAKE_SOURCE_DIR}/Frameworks
 )
 
 target_link_libraries(installer
                       PRIVATE
-                      libboost_serialization.a
+                      Boost::serialization
                       "-framework AppKit"
                       "-framework Security"
                       "-framework ServiceManagement"

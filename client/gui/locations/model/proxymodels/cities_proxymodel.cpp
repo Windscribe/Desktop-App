@@ -44,7 +44,7 @@ void CitiesProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 QModelIndex CitiesProxyModel::mapFromSource(const QModelIndex &sourceIndex) const
 {
     if (!sourceIndex.isValid())
-           return QModelIndex();
+        return QModelIndex();
 
     int ind = items_.indexOf(sourceIndex);
     WS_ASSERT(ind != -1);
@@ -54,7 +54,7 @@ QModelIndex CitiesProxyModel::mapFromSource(const QModelIndex &sourceIndex) cons
 QModelIndex CitiesProxyModel::mapToSource(const QModelIndex &proxyIndex) const
 {
     if (!proxyIndex.isValid())
-           return QModelIndex();
+        return QModelIndex();
     WS_ASSERT(proxyIndex.row() >= 0 && proxyIndex.row() < items_.count() && proxyIndex.column() == 0);
     return items_[proxyIndex.row()];
 }

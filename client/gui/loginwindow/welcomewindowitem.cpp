@@ -198,7 +198,7 @@ void WelcomeWindowItem::onGotoLoginButtonClick()
 
 void WelcomeWindowItem::onGetStartedButtonClick()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/signup?cpid=app_windows").arg(HardcodedSettings::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/signup?cpid=app_windows").arg(HardcodedSettings::instance().windscribeServerUrl())));
 }
 
 void WelcomeWindowItem::onSettingsButtonClick()

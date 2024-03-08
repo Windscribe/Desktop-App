@@ -43,7 +43,7 @@ QVector<TAP_ADAPTER_TYPE> PreferencesHelper::getAvailableTapAdapters(const QStri
     return QVector<TAP_ADAPTER_TYPE>() << DCO_ADAPTER << WINTUN_ADAPTER;
 }
 
-void PreferencesHelper::setPortMap(const types::PortMap &portMap)
+void PreferencesHelper::setPortMap(const api_responses::PortMap &portMap)
 {
     portMap_ = portMap;
     emit portMapChanged();

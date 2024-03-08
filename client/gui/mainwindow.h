@@ -19,9 +19,9 @@
 #include "systemtray/locationstraymenunative.h"
 #include "systemtray/locationstraymenu.h"
 #include "dialogs/advancedparametersdialog.h"
-#include "types/checkupdate.h"
 #include "locations/model/selectedlocation.h"
-#include "types/robertfilter.h"
+#include "api_responses/robertfilter.h"
+#include "api_responses/checkupdate.h"
 #include "protocolwindow/protocolwindowmode.h"
 
 #if defined(Q_OS_MAC)
@@ -166,8 +166,8 @@ private slots:
     void onBackendTryingBackupEndpoint(int num, int cnt);
     void onBackendLoginError(LOGIN_RET loginError, const QString &errorMessage);
 
-    void onBackendSessionStatusChanged(const types::SessionStatus &sessionStatus);
-    void onBackendCheckUpdateChanged(const types::CheckUpdate &checkUpdateInfo);
+    void onBackendSessionStatusChanged(const api_responses::SessionStatus &sessionStatus);
+    void onBackendCheckUpdateChanged(const api_responses::CheckUpdate &checkUpdateInfo);
     void onBackendMyIpChanged(QString ip, bool isFromDisconnectedState);
     void onBackendConnectStateChanged(const types::ConnectState &connectState);
     void onBackendEmergencyConnectStateChanged(const types::ConnectState &connectState);
@@ -183,6 +183,7 @@ private slots:
     void onBackendProxySharingInfoChanged(const types::ProxySharingInfo &psi);
     void onBackendWifiSharingInfoChanged(const types::WifiSharingInfo &wsi);
     void onBackendRequestCustomOvpnConfigCredentials();
+    void onBackendRequestCustomOvpnConfigPrivKeyPassword();
     void onBackendSessionDeleted();
     void onBackendTestTunnelResult(bool success);
     void onBackendLostConnectionToHelper();
@@ -195,7 +196,7 @@ private slots:
     void onBackendWebSessionTokenForManageAccount(const QString &tempSessionToken);
     void onBackendWebSessionTokenForAddEmail(const QString &tempSessionToken);
     void onBackendWebSessionTokenForManageRobertRules(const QString &tempSessionToken);
-    void onBackendRobertFiltersChanged(bool success, const QVector<types::RobertFilter> &filters);
+    void onBackendRobertFiltersChanged(bool success, const QVector<api_responses::RobertFilter> &filters);
     void onBackendSetRobertFilterResult(bool success);
     void onBackendSyncRobertResult(bool success);
     void onBackendProtocolStatusChanged(const QVector<types::ProtocolStatus> &status);
@@ -218,7 +219,7 @@ private slots:
     void onPreferencesIsDockedToTrayChanged(bool isDocked);
     void onPreferencesUpdateChannelChanged(UPDATE_CHANNEL updateChannel);
     void onPreferencesGetRobertFilters();
-    void onPreferencesSetRobertFilter(const types::RobertFilter &filter);
+    void onPreferencesSetRobertFilter(const api_responses::RobertFilter &filter);
     void onPreferencesReportErrorToUser(const QString &title, const QString &desc);
 
     void onPreferencesCollapsed();
@@ -370,7 +371,7 @@ private:
 
     bool backendAppActiveState_;
     void setBackendAppActiveState(bool state);
-    
+
     bool trayIconColorWhite_;
 
 #if defined(Q_OS_MAC)

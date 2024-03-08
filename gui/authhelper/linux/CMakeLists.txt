@@ -10,3 +10,7 @@ set(SOURCES
 )
 
 add_executable(windscribe-authhelper ${SOURCES})
+
+install(TARGETS windscribe-authhelper
+    RUNTIME DESTINATION .
+)

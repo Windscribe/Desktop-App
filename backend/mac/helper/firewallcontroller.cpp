@@ -43,7 +43,7 @@ void FirewallController::getRules(const std::string &table, const std::string &g
         Utils::executeCommand("pfctl", {"-a", group.c_str(), "-s", "rules"}, outRules, false);
     }
 }
- 
+
 void FirewallController::disable(bool keepPfEnabled)
 {
     Utils::executeCommand("pfctl", {"-v", "-F", "all", "-f", "/etc/pf.conf"});
@@ -85,7 +85,7 @@ void FirewallController::setSplitTunnelExceptions(const std::vector<std::string>
     } else if (splitTunnelExclude_) {
         for (const auto ip : ips) {
             ipStr += ip + " ";
-        } 
+        }
         ipStr += " }\n";
     } else {
         // For inclusive tunnel, ignore the ips and apply a rule to allow any traffic

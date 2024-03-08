@@ -5,7 +5,7 @@
 #include "commongraphics/togglebutton.h"
 #include "graphicresources/fontdescr.h"
 #include "graphicresources/independentpixmap.h"
-#include "types/robertfilter.h"
+#include "api_responses/robertfilter.h"
 
 namespace PreferencesWindow {
 
@@ -13,7 +13,7 @@ class RobertItem : public CommonGraphics::BaseItem
 {
     Q_OBJECT
 public:
-    explicit RobertItem(ScalableGraphicsObject *parent, const types::RobertFilter &filter);
+    explicit RobertItem(ScalableGraphicsObject *parent, const api_responses::RobertFilter &filter);
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
@@ -29,7 +29,7 @@ public:
     void setCaptionFont(const FontDescr &fontDescr);
 
 signals:
-    void filterChanged(const types::RobertFilter &filter);
+    void filterChanged(const api_responses::RobertFilter &filter);
     void buttonHoverEnter();
     void buttonHoverLeave();
 
@@ -53,7 +53,7 @@ private:
     FontDescr captionFont_;
     QSharedPointer<IndependentPixmap> icon_;
 
-    types::RobertFilter filter_;
+    api_responses::RobertFilter filter_;
 };
 
 } // namespace PreferencesWindow

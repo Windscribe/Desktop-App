@@ -5,12 +5,12 @@
 #include <QVector>
 #include <QSet>
 #include <QMap>
-#include "types/portmap.h"
 #include "servercredentials.h"
 #include "utils/simplecrypt.h"
-#include "location.h"
-#include "staticips.h"
-#include "types/sessionstatus.h"
+#include "api_responses/staticips.h"
+#include "api_responses/sessionstatus.h"
+#include "api_responses/location.h"
+#include "api_responses/portmap.h"
 
 namespace apiinfo {
 
@@ -21,11 +21,11 @@ class ApiInfo
 public:
     explicit ApiInfo();
 
-    types::SessionStatus getSessionStatus() const;
-    void setSessionStatus(const types::SessionStatus &value);
+    api_responses::SessionStatus getSessionStatus() const;
+    void setSessionStatus(const api_responses::SessionStatus &value);
 
-    void setLocations(const QVector<apiinfo::Location> &value);
-    QVector<apiinfo::Location> getLocations() const;
+    void setLocations(const QVector<api_responses::Location> &value);
+    QVector<api_responses::Location> getLocations() const;
 
     QStringList getForceDisconnectNodes() const;
     void setForceDisconnectNodes(const QStringList &value);
@@ -45,11 +45,11 @@ public:
     static QString getAuthHash();
     static void setAuthHash(const QString &authHash);
 
-    types::PortMap getPortMap() const;
-    void setPortMap(const types::PortMap &portMap);
+    api_responses::PortMap getPortMap() const;
+    void setPortMap(const api_responses::PortMap &portMap);
 
-    void setStaticIps(const StaticIps &value);
-    StaticIps getStaticIps() const;
+    void setStaticIps(const api_responses::StaticIps &value);
+    api_responses::StaticIps getStaticIps() const;
 
     bool loadFromSettings();
     void saveToSettings();
@@ -67,13 +67,13 @@ private:
     // remove all not supported protocols on this OS from portMap_
     void checkPortMapForUnavailableProtocolAndFix();
 
-    types::SessionStatus sessionStatus_;
-    QVector<Location> locations_;
+    api_responses::SessionStatus sessionStatus_;
+    QVector<api_responses::Location> locations_;
     QStringList forceDisconnectNodes_;
     ServerCredentials serverCredentials_;
     QString ovpnConfig_;
-    types::PortMap portMap_;
-    StaticIps staticIps_;
+    api_responses::PortMap portMap_;
+    api_responses::StaticIps staticIps_;
 
     bool isSessionStatusInit_ = false;
     bool isLocationsInit_ = false;

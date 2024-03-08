@@ -97,9 +97,9 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
         painter->save();
         painter->translate(QPoint(left_offs + option.rect.width() - LOCATION_ITEM_MARGIN*G_SCALE - expandPixmap->width()/2, top_offs + option.rect.height()/2));
         painter->rotate(45 * option.expandedProgress());
-        expandPixmap->draw( - expandPixmap->width() / 2,
-                           - expandPixmap->height()/ 2,
-                            painter);
+        expandPixmap->draw(-expandPixmap->width() / 2,
+                           -expandPixmap->height()/ 2,
+                           painter);
         painter->restore();
     }
 

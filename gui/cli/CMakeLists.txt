@@ -10,12 +10,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 COMPONENTS Core Network Core5Compat)
-
-if(WIN32 AND "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
-    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs-arm64)
-else()
-    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
-endif()
+find_package(OpenSSL REQUIRED)
 
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
 option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
@@ -39,7 +34,6 @@ set(SOURCES
     ../../client/common/utils/languagesutil.cpp
     ../../client/common/utils/logger.cpp
     ../../client/common/utils/utils.cpp
-    ../../client/common/utils/dga_library.cpp
     ../../client/common/utils/hardcodedsettings.cpp
     ../../client/common/utils/simplecrypt.cpp
     ../../client/common/version/appversion.cpp
@@ -78,8 +72,8 @@ elseif(APPLE)
 else()
     set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
     set(OS_SPECIFIC_LIBS
-        ssl
-        crypto)
+        OpenSSL::Crypto
+    )
     list(APPEND SOURCES
          ../../client/common/utils/executable_signature/executablesignature_linux.cpp
          ../../client/common/utils/linuxutils.cpp)
@@ -91,11 +85,6 @@ if(APPLE)
     set_property(TARGET windscribe-cli APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
 endif()
 
-target_include_directories(windscribe-cli
-                           PRIVATE
-                           ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl_ech_draft/include
-)
-
 target_link_libraries(windscribe-cli
                       PRIVATE
                       ${OS_SPECIFIC_LIBS}
@@ -104,28 +93,11 @@ target_link_libraries(windscribe-cli
                       Qt6::Core5Compat
 )
 
-target_link_directories(windscribe-cli
-                        PRIVATE
-                        ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl_ech_draft/lib
-                        ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl_ech_draft/lib64)
-
 target_include_directories(windscribe-cli PRIVATE
                            ../../client/common
 )
 
-if(UNIX)
-    target_include_directories(windscribe-cli
-                               PRIVATE
-                               ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
-    )
+install(TARGETS windscribe-cli
+    RUNTIME DESTINATION .
+)
 
-    target_link_directories(windscribe-cli
-                            PRIVATE
-                            ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/lib
-    )
-
-    target_link_libraries(windscribe-cli
-                          PRIVATE
-                          libboost_filesystem.a
-    )
-endif()

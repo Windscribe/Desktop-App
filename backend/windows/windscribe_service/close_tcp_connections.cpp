@@ -144,7 +144,7 @@ namespace
 bool CloseTcpConnections::isLocalAddress(DWORD address)
 {
     const std::pair<DWORD,DWORD> kLocalAddressRanges[] = {
-        MakeIpAddressRange(AddressFromBytes<127,0,0,0>(), AddressFromBytes<127,0,0,255>()),
+        MakeIpAddressRange(AddressFromBytes<127,0,0,0>(), AddressFromBytes<127,255,255,255>()),
         MakeIpAddressRange(AddressFromBytes<10,0,0,0>(), AddressFromBytes<10,255,255,255>()),
         MakeIpAddressRange(AddressFromBytes<169,254,0,0>(), AddressFromBytes<169,254,255,255>()),
         MakeIpAddressRange(AddressFromBytes<172,16,0,0>(), AddressFromBytes<172,31,255,255>()),

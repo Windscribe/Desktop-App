@@ -8,7 +8,6 @@
 #include "utils/logger.h"
 #include "utils/openssl_utils.h"
 
-
 WireGuardConfig::WireGuardConfig()
 {
 }

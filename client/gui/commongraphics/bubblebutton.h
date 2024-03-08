@@ -35,6 +35,8 @@ public:
     void setFont(const FontDescr &fontDescr);
     void setWidth(int width);
 
+    void setStyle(Style style);
+
     void hover();
     void unhover();
 

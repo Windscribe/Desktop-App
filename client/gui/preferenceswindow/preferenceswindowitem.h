@@ -51,7 +51,7 @@ public:
     void setPacketSizeDetectionState(bool on);
     void showPacketSizeDetectionError(const QString &title, const QString &message);
 
-    void setRobertFilters(const QVector<types::RobertFilter> &filters);
+    void setRobertFilters(const QVector<api_responses::RobertFilter> &filters);
     void setRobertFiltersError();
     void setSplitTunnelingActive(bool active);
     void setWebSessionCompleted();
@@ -82,7 +82,7 @@ signals:
     void advancedParametersClicked();
 
     void getRobertFilters();
-    void setRobertFilter(const types::RobertFilter &filter);
+    void setRobertFilter(const api_responses::RobertFilter &filter);
 
 #ifdef Q_OS_WIN
     void setIpv6StateInOS(bool bEnabled, bool bRestartNow);

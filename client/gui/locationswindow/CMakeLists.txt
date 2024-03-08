@@ -5,8 +5,6 @@ target_sources(gui PRIVATE
     widgetlocations/configfooterinfo.h
     widgetlocations/emptylistwidget.cpp
     widgetlocations/emptylistwidget.h
-    widgetlocations/footertopstrip.cpp
-    widgetlocations/footertopstrip.h
     widgetlocations/locationstab.cpp
     widgetlocations/locationstab.h
     widgetlocations/staticipdeviceinfo.cpp

@@ -28,7 +28,7 @@ SplitTunnelingWindowItem::SplitTunnelingWindowItem(ScalableGraphicsObject *paren
 
     desc_ = new PreferenceGroup(this,
                                 "",
-                                QString("https://%1/features/split-tunneling/desktop").arg(HardcodedSettings::instance().serverUrl()));
+                                QString("https://%1/features/split-tunneling/desktop").arg(HardcodedSettings::instance().windscribeServerUrl()));
 
     addItem(desc_);
     addItem(splitTunnelingGroup_);

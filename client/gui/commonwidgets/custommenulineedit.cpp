@@ -24,13 +24,13 @@ CustomMenuLineEdit::CustomMenuLineEdit(QWidget *parent) : BlockableQLineEdit (pa
 
 void CustomMenuLineEdit::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::RightButton)
-    {
+    if (event->button() == Qt::RightButton) {
         updateActionsState();
-        menu_->exec(QCursor::pos());
-    }
-    else
-    {
+        QRect globalRect = QRect(mapToGlobal(rect().topLeft()), size());
+        if (globalRect.contains(QCursor::pos())) {
+            menu_->exec(QCursor::pos());
+        }
+    } else {
         BlockableQLineEdit::mousePressEvent(event);
     }
 }

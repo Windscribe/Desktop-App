@@ -2,29 +2,26 @@
 
 #include <QCoreApplication>
 #include <QCryptographicHash>
-#include <QDir>
-
-#include "connectionmanager/connectionmanager.h"
-#include "connectionmanager/finishactiveconnections.h"
-#include "connectstatecontroller/connectstatecontroller.h"
-#include "crossplatformobjectfactory.h"
-#include "dnsresolver/dnsrequest.h"
-#include "dnsresolver/dnsserversconfiguration.h"
-#include "failover/failovercontainer.h"
-#include "firewall/firewallexceptions.h"
-#include "proxy/proxyservercontroller.h"
-#include "serverapi/requests/debuglogrequest.h"
-#include "serverapi/requests/getrobertfiltersrequest.h"
-#include "serverapi/requests/setrobertfiltersrequest.h"
-#include "serverapi/requests/websessionrequest.h"
-#include "types/global_consts.h"
-#include "utils/executable_signature/executable_signature.h"
-#include "utils/extraconfig.h"
-#include "utils/ipvalidation.h"
+#include <wsnet/WSNet.h>
+#include "utils/ws_assert.h"
+#include "utils/utils.h"
+#include "version/appversion.h"
 #include "utils/logger.h"
 #include "utils/mergelog.h"
-#include "utils/utils.h"
-#include "utils/ws_assert.h"
+#include "utils/extraconfig.h"
+#include "utils/ipvalidation.h"
+#include "utils/hardcodedsettings.h"
+#include "utils/executable_signature/executable_signature.h"
+#include "connectionmanager/connectionmanager.h"
+#include "connectionmanager/finishactiveconnections.h"
+#include "wireguardconfig/getwireguardconfig.h"
+#include "proxy/proxyservercontroller.h"
+#include "connectstatecontroller/connectstatecontroller.h"
+#include "dns_utils/dnsserversconfiguration.h"
+#include "crossplatformobjectfactory.h"
+#include "types/global_consts.h"
+#include "api_responses/websession.h"
+#include "firewall/firewallexceptions.h"
 
 #ifdef Q_OS_WIN
     #include <Objbase.h>
@@ -47,11 +44,11 @@
     #include "utils/linuxutils.h"
 #endif
 
+using namespace wsnet;
+
 Engine::Engine() : QObject(nullptr),
     helper_(nullptr),
     firewallController_(nullptr),
-    networkAccessManager_(nullptr),
-    serverAPI_(nullptr),
     connectionManager_(nullptr),
     connectStateController_(nullptr),
     vpnShareController_(nullptr),
@@ -77,7 +74,7 @@ Engine::Engine() : QObject(nullptr),
 #endif
     isBlockConnect_(false),
     isCleanupFinished_(false),
-    isNeedReconnectAfterRequestUsernameAndPassword_(false),
+    isNeedReconnectAfterRequestAuth_(false),
     online_(false),
     packetSizeControllerThread_(nullptr),
     runningPacketDetection_(false),
@@ -88,6 +85,18 @@ Engine::Engine() : QObject(nullptr),
     bPrevNetworkInterfaceInitialized_(false),
     connectionSettingsOverride_(types::Protocol(types::Protocol::TYPE::UNINITIALIZED), 0, true)
 {
+    WSNet::setLogger([](const std::string &logStr) {
+        qCDebug(LOG_WSNET) << logStr;
+    }, false);
+
+    QSettings settings;
+    std::string wsnetSettings = settings.value("wsnetSettings").toString().toStdString();
+    bool bWsnetSuccess = WSNet::initialize(Utils::getPlatformNameSafe().toStdString(), AppVersion::instance().semanticVersionString().toStdString(), AppVersion::instance().isStaging(), wsnetSettings);
+    WS_ASSERT(bWsnetSuccess);
+
+    engineSettings_.loadFromSettings();
+    qCDebug(LOG_BASIC) << "Engine settings" << engineSettings_;
+
     // Skip printing the engine settings if we loaded the defaults.
     if (engineSettings_.loadFromSettings()) {
         qCDebug(LOG_BASIC) << "Engine settings" << engineSettings_;
@@ -185,6 +194,11 @@ void Engine::continueWithUsernameAndPassword(const QString &username, const QStr
 void Engine::continueWithPassword(const QString &password, bool bSave)
 {
     QMetaObject::invokeMethod(this, "continueWithPasswordImpl", Q_ARG(QString, password), Q_ARG(bool, bSave));
+}
+
+void Engine::continueWithPrivKeyPassword(const QString &password, bool bSave)
+{
+    QMetaObject::invokeMethod(this, "continueWithPrivKeyPasswordImpl", Q_ARG(QString, password), Q_ARG(bool, bSave));
 }
 
 void Engine::sendDebugLog()
@@ -535,6 +549,8 @@ void Engine::initPart2()
     networkDetectionManager_ = CrossPlatformObjectFactory::createNetworkDetectionManager(this, helper_);
 
     DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
+    WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
+
     firewallExceptions_.setDnsPolicy(engineSettings_.dnsPolicy());
 
     types::MacAddrSpoofing macAddrSpoofing = engineSettings_.macAddrSpoofing();
@@ -574,25 +590,37 @@ void Engine::initPart2()
 
     firewallController_ = CrossPlatformObjectFactory::createFirewallController(this, helper_);
 
-    networkAccessManager_ = new NetworkAccessManager(this);
-    connect(networkAccessManager_, &NetworkAccessManager::whitelistIpsChanged, this, &Engine::onHostIPsChanged);
+    // do not return from this function until Engine::onHostIPsChanged() is finished
+    // callback comes from another thread, so synchronization is needed
+    WSNet::instance()->httpNetworkManager()->setWhitelistIpsCallback([this](const std::set<std::string> &ips) {
+        mutexForOnHostIPsChanged_.lock();
+        QMetaObject::invokeMethod(this, [this, ips] {
+            QSet<QString> hostIps;
+            for (const auto &ip : ips)
+                hostIps.insert(QString::fromStdString(ip));
+            onHostIPsChanged(hostIps);
+        });
+        waitConditionForOnHostIPsChanged_.wait(&mutexForOnHostIPsChanged_);
+        mutexForOnHostIPsChanged_.unlock();
+    });
 
-    // Ownership of the failover passes to the serverAPI object (in the ServerAPI ctor)
-    failover::IFailoverContainer *failoverContainer = new failover::FailoverContainer(nullptr, networkAccessManager_);
-    serverAPI_ = new server_api::ServerAPI(this, connectStateController_, networkAccessManager_, networkDetectionManager_, failoverContainer);
-    connect(serverAPI_, &server_api::ServerAPI::tryingBackupEndpoint, this, &Engine::onFailOverTryingBackupEndpoint);
-    serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
-    serverAPI_->setApiResolutionsSettings(engineSettings_.apiResolutionSettings());
+    WSNet::instance()->serverAPI()->setTryingBackupEndpointCallback([this](std::uint32_t num, std::uint32_t count) {
+        QMetaObject::invokeMethod(this, [this, num, count] {
+            onFailOverTryingBackupEndpoint(num, count);
+        });
+    });
+    WSNet::instance()->serverAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
+    WSNet::instance()->serverAPI()->setApiResolutionsSettings(engineSettings_.apiResolutionSettings().getIsAutomatic(), engineSettings_.apiResolutionSettings().getManualAddress().toStdString());
 
-    checkUpdateManager_ = new api_resources::CheckUpdateManager(this, serverAPI_);
+    checkUpdateManager_ = new api_resources::CheckUpdateManager(this);
     connect(checkUpdateManager_, &api_resources::CheckUpdateManager::checkUpdateUpdated, this, &Engine::onCheckUpdateUpdated);
 
-    myIpManager_ = new api_resources::MyIpManager(this, serverAPI_, networkDetectionManager_, connectStateController_);
+    myIpManager_ = new api_resources::MyIpManager(this, networkDetectionManager_, connectStateController_);
     connect(myIpManager_, &api_resources::MyIpManager::myIpChanged, this, &Engine::onMyIpManagerIpChanged);
 
     customOvpnAuthCredentialsStorage_ = new CustomOvpnAuthCredentialsStorage();
 
-    connectionManager_ = new ConnectionManager(this, helper_, networkDetectionManager_, serverAPI_, customOvpnAuthCredentialsStorage_);
+    connectionManager_ = new ConnectionManager(this, helper_, networkDetectionManager_, customOvpnAuthCredentialsStorage_);
     connectionManager_->setPacketSize(packetSize_);
     connectionManager_->setConnectedDnsInfo(engineSettings_.connectedDnsInfo());
     connect(connectionManager_, &ConnectionManager::connected, this, &Engine::onConnectionManagerConnected);
@@ -608,9 +636,10 @@ void Engine::initPart2()
     connect(connectionManager_, &ConnectionManager::wireGuardAtKeyLimit, this, &Engine::onConnectionManagerWireGuardAtKeyLimit);
     connect(connectionManager_, &ConnectionManager::requestUsername, this, &Engine::onConnectionManagerRequestUsername);
     connect(connectionManager_, &ConnectionManager::requestPassword, this, &Engine::onConnectionManagerRequestPassword);
+    connect(connectionManager_, &ConnectionManager::requestPrivKeyPassword, this, &Engine::onConnectionManagerRequestPrivKeyPassword);
     connect(connectionManager_, &ConnectionManager::protocolStatusChanged, this, &Engine::protocolStatusChanged);
 
-    locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkDetectionManager_, networkAccessManager_);
+    locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkDetectionManager_);
     connect(locationsModel_, &locationsmodel::LocationsModel::whitelistLocationsIpsChanged, this, &Engine::onLocationsModelWhitelistIpsChanged);
     connect(locationsModel_, &locationsmodel::LocationsModel::whitelistCustomConfigsIpsChanged, this, &Engine::onLocationsModelWhitelistCustomConfigIpsChanged);
 
@@ -618,7 +647,7 @@ void Engine::initPart2()
     connect(vpnShareController_, &VpnShareController::connectedWifiUsersChanged, this, &Engine::wifiSharingStateChanged);
     connect(vpnShareController_, &VpnShareController::connectedProxyUsersChanged, this, &Engine::proxySharingStateChanged);
 
-    keepAliveManager_ = new KeepAliveManager(this, connectStateController_, networkAccessManager_);
+    keepAliveManager_ = new KeepAliveManager(this, connectStateController_);
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());
 
     emergencyController_ = new EmergencyController(this, helper_);
@@ -631,7 +660,7 @@ void Engine::initPart2()
     customConfigs_->changeDir(engineSettings_.customOvpnConfigsPath());
     connect(customConfigs_, &customconfigs::CustomConfigs::changed, this, &Engine::onCustomConfigsChanged);
 
-    downloadHelper_ = new DownloadHelper(this, networkAccessManager_, Utils::getPlatformName());
+    downloadHelper_ = new DownloadHelper(this, Utils::getPlatformName());
     connect(downloadHelper_, &DownloadHelper::finished, this, &Engine::onDownloadHelperFinished);
     connect(downloadHelper_, &DownloadHelper::progressChanged, this, &Engine::onDownloadHelperProgressChanged);
 
@@ -714,6 +743,14 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     }
 
     qCDebug(LOG_BASIC) << "Cleanup started";
+
+    // save wsnet settings
+    QString wsnetSettings = QString::fromStdString(WSNet::instance()->serverAPI()->currentSettings());
+    QSettings settings;
+    settings.setValue("wsnetSettings", wsnetSettings);
+
+    // stop all network requests here, because we won't have callback's called for deleted objects
+    WSNet::cleanup();
 
     apiResourcesManager_.reset();
     SAFE_DELETE(checkUpdateManager_);
@@ -858,11 +895,9 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
 #endif
     SAFE_DELETE(helper_);
     SAFE_DELETE(myIpManager_);
-    SAFE_DELETE(serverAPI_);
     SAFE_DELETE(locationsModel_);
     SAFE_DELETE(networkDetectionManager_);
     SAFE_DELETE(downloadHelper_);
-    SAFE_DELETE(networkAccessManager_);
     isCleanupFinished_ = true;
     qCDebug(LOG_BASIC) << "Cleanup finished";
 
@@ -892,23 +927,24 @@ void Engine::enableBFE_winImpl()
 
 void Engine::setIgnoreSslErrorsImlp(bool bIgnoreSslErrors)
 {
-    serverAPI_->setIgnoreSslErrors(bIgnoreSslErrors);
+    WSNet::instance()->serverAPI()->setIgnoreSslErrors(bIgnoreSslErrors);
 }
 
 void Engine::recordInstallImpl()
 {
-    server_api::BaseRequest *request = serverAPI_->recordInstall();
-    connect(request, &server_api::BaseRequest::finished, this, [this]() {
-        // nothing to do here, just delete the request object
-        QSharedPointer<server_api::BaseRequest> request(static_cast<server_api::BaseRequest *>(sender()), &QObject::deleteLater);
+    WSNet::instance()->serverAPI()->recordInstall(Utils::getBasePlatformName().toStdString(), [](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+        // nothing to do in callback, just log message
+        qCDebug(LOG_BASIC) << "The recordInstall request finished with an answer:" << jsonData;
     });
 }
 
 void Engine::sendConfirmEmailImpl()
 {
     if (apiResourcesManager_) {
-        server_api::BaseRequest *request = serverAPI_->confirmEmail(apiResourcesManager_->authHash());
-        connect(request, &server_api::BaseRequest::finished, this, &Engine::onConfirmEmailAnswer);
+        WSNet::instance()->serverAPI()->confirmEmail(apiResourcesManager_->authHash().toStdString(),
+                                                            [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+            emit confirmEmailFinished(serverApiRetCode == ServerApiRetCode::kSuccess);
+        });
     }
 }
 
@@ -976,14 +1012,28 @@ void Engine::sendDebugLogImpl()
     log += "================================================================================================================================================================================================\n";
     log += MergeLog::mergeLogs(true);
 
-    server_api::BaseRequest *request = serverAPI_->debugLog(userName, log);
-    connect(request, &server_api::BaseRequest::finished, this, &Engine::onDebugLogAnswer);
+    WSNet::instance()->serverAPI()->debugLog(userName.toStdString(), log.toStdString(),
+        [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+            if (serverApiRetCode == ServerApiRetCode::kSuccess)
+                qCDebug(LOG_BASIC) << "DebugLog sent";
+            else
+                qCDebug(LOG_BASIC) << "DebugLog returned failed error code";
+            emit sendDebugLogFinished(serverApiRetCode == ServerApiRetCode::kSuccess);
+    });
 }
 
 void Engine::getWebSessionTokenImpl(WEB_SESSION_PURPOSE purpose)
 {
-    server_api::BaseRequest *request = serverAPI_->webSession(apiResourcesManager_->authHash(), purpose);
-    connect(request, &server_api::BaseRequest::finished, this, &Engine::onWebSessionAnswer);
+    WSNet::instance()->serverAPI()->webSession(apiResourcesManager_->authHash().toStdString(),
+                                             [this, purpose](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+        if (serverApiRetCode == ServerApiRetCode::kSuccess) {
+            api_responses::WebSession webSession(jsonData);
+            emit webSessionToken(purpose, webSession.token());
+        } else {
+            // Failure indicated by empty token
+            emit webSessionToken(purpose, "");
+        }
+    });
 }
 
 // function consists of two parts (first - disconnect if need, second - do other signout stuff)
@@ -1009,14 +1059,14 @@ void Engine::signOutImplAfterDisconnect(bool keepFirewallOn)
 #endif
 
     if (apiResourcesManager_) {
-        apiResourcesManager_->signOut();
+
+        signOutHelper_.reset(new SignOutHelper());
+        signOutHelper_->signOut(apiResourcesManager_->authHash());
         apiResourcesManager_.reset();
         api_resources::ApiResourcesManager::removeFromSettings();
     }
 
-
     GetWireGuardConfig::removeWireGuardSettings();
-
     if (!keepFirewallOn)
     {
         firewallController_->firewallOff();
@@ -1029,34 +1079,39 @@ void Engine::signOutImplAfterDisconnect(bool keepFirewallOn)
 void Engine::continueWithUsernameAndPasswordImpl(const QString &username, const QString &password, bool bSave)
 {
     // if username and password is empty, then disconnect
-    if (username.isEmpty() && password.isEmpty())
-    {
+    if (username.isEmpty() && password.isEmpty()) {
         connectionManager_->clickDisconnect();
-    }
-    else
-    {
-        if (bSave)
-        {
+    } else {
+        if (bSave) {
             customOvpnAuthCredentialsStorage_->setAuthCredentials(connectionManager_->getCustomOvpnConfigFileName(), username, password);
         }
-        connectionManager_->continueWithUsernameAndPassword(username, password, isNeedReconnectAfterRequestUsernameAndPassword_);
+        connectionManager_->continueWithUsernameAndPassword(username, password, isNeedReconnectAfterRequestAuth_);
     }
 }
 
 void Engine::continueWithPasswordImpl(const QString &password, bool bSave)
 {
     // if password is empty, then disconnect
-    if (password.isEmpty())
-    {
+    if (password.isEmpty()) {
         connectionManager_->clickDisconnect();
-    }
-    else
-    {
-        if (bSave)
-        {
+    } else {
+        if (bSave) {
             customOvpnAuthCredentialsStorage_->setAuthCredentials(connectionManager_->getCustomOvpnConfigFileName(), "", password);
         }
-        connectionManager_->continueWithPassword(password, isNeedReconnectAfterRequestUsernameAndPassword_);
+        connectionManager_->continueWithPassword(password, isNeedReconnectAfterRequestAuth_);
+    }
+}
+
+void Engine::continueWithPrivKeyPasswordImpl(const QString &password, bool bSave)
+{
+    // if password is empty, then disconnect
+    if (password.isEmpty()) {
+        connectionManager_->clickDisconnect();
+    } else {
+        if (bSave) {
+            customOvpnAuthCredentialsStorage_->setPrivKeyPassword(connectionManager_->getCustomOvpnConfigFileName(), password);
+        }
+        connectionManager_->continueWithPrivKeyPassword(password, isNeedReconnectAfterRequestAuth_);
     }
 }
 
@@ -1124,11 +1179,10 @@ void Engine::firewallOffImpl()
 
 void Engine::speedRatingImpl(int rating, const QString &localExternalIp)
 {
-    server_api::BaseRequest *request = serverAPI_->speedRating(apiResourcesManager_->authHash(), lastConnectingHostname_, localExternalIp, rating);
-    connect(request, &server_api::BaseRequest::finished, [request]() {
-        // Just delete the request, without any action. We don't need a result.
-        request->deleteLater();
-    });
+    WSNet::instance()->serverAPI()->speedRating(apiResourcesManager_->authHash().toStdString(), lastConnectingHostname_.toStdString(), localExternalIp.toStdString(), rating,
+        [](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+            // We don't need a result.
+        });
 }
 
 void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
@@ -1153,57 +1207,49 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     DnsScripts_linux::instance().setDnsManager(engineSettings.dnsManager());
 #endif
 
-    if (isDnsPolicyChanged)
-    {
+    if (isDnsPolicyChanged) {
         firewallExceptions_.setDnsPolicy(engineSettings_.dnsPolicy());
-        if (connectStateController_->currentState() != CONNECT_STATE_CONNECTED && emergencyConnectStateController_->currentState() != CONNECT_STATE_CONNECTED)
-        {
+        if (connectStateController_->currentState() != CONNECT_STATE_CONNECTED && emergencyConnectStateController_->currentState() != CONNECT_STATE_CONNECTED) {
             DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
+            WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
         }
     }
 
-    if (isDnsWhileConnectedChanged)
-    {
+    if (isDnsWhileConnectedChanged) {
         // tell connection manager about new settings (it will use them onConnect)
         connectionManager_->setConnectedDnsInfo(engineSettings.connectedDnsInfo());
     }
 
     if (isAllowLanTrafficChanged || isDnsPolicyChanged)
-    {
         updateFirewallSettings();
-    }
 
     if (isUpdateChannelChanged)
         doCheckUpdate();
 
-    if (isTerminateSocketsChanged)
-    {
+    if (isTerminateSocketsChanged) {
     #ifdef Q_OS_WIN
         measurementCpuUsage_->setEnabled(engineSettings_.isTerminateSockets());
     #endif
     }
 
-    if (isMACSpoofingChanged)
-    {
+    if (isMACSpoofingChanged) {
         qCDebug(LOG_BASIC) << "Set MAC Spoofing (Engine)";
         macAddressController_->setMacAddrSpoofing(engineSettings_.macAddrSpoofing());
     }
 
-    if (isPacketSizeChanged)
-    {
+    if (isPacketSizeChanged) {
         qCDebug(LOG_BASIC) << "Engine updating packet size controller";
         packetSizeController_->setPacketSize(engineSettings_.packetSize());
     }
 
-    serverAPI_->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
+    WSNet::instance()->serverAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
 
     if (isCustomOvpnConfigsPathChanged)
-    {
         customConfigs_->changeDir(engineSettings_.customOvpnConfigsPath());
-    }
 
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());
-    serverAPI_->setApiResolutionsSettings(engineSettings_.apiResolutionSettings());
+
+    WSNet::instance()->serverAPI()->setApiResolutionsSettings(engineSettings_.apiResolutionSettings().getIsAutomatic(), engineSettings_.apiResolutionSettings().getManualAddress().toStdString());
 
     updateProxySettings();
 }
@@ -1213,74 +1259,30 @@ void Engine::onFailOverTryingBackupEndpoint(int num, int cnt)
     emit tryingBackupEndpoint(num, cnt);
 }
 
-void Engine::onCheckUpdateUpdated(const types::CheckUpdate &checkUpdate)
+void Engine::onCheckUpdateUpdated(const api_responses::CheckUpdate &checkUpdate)
 {
     qCDebug(LOG_BASIC) << "Received Check Update Answer";
 
-    installerUrl_ = checkUpdate.url;
-    installerHash_ = checkUpdate.sha256;
-    if (checkUpdate.isAvailable) {
+    installerUrl_ = checkUpdate.url();
+    installerHash_ = checkUpdate.sha256();
+    if (checkUpdate.isAvailable()) {
         qCDebug(LOG_BASIC) << "Installer URL: " << installerUrl_;
         qCDebug(LOG_BASIC) << "Installer Hash: " << installerHash_;
     }
-    emit checkUpdateUpdated(checkUpdate);
-}
+    emit checkUpdateUpdated(checkUpdate);}
 
 void Engine::onHostIPsChanged(const QSet<QString> &hostIps)
 {
     //qCDebug(LOG_BASIC) << "on host ips changed event:" << hostIps;    // too much spam from this
     firewallExceptions_.setHostIPs(hostIps);
     updateFirewallSettings();
+    // resume callback from wsnet
+    waitConditionForOnHostIPsChanged_.wakeAll();
 }
 
 void Engine::onMyIpManagerIpChanged(const QString &ip, bool isFromDisconnectedState)
 {
     emit myIpUpdated(ip, isFromDisconnectedState);
-}
-
-void Engine::onDebugLogAnswer()
-{
-    QSharedPointer<server_api::DebugLogRequest> request(static_cast<server_api::DebugLogRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS)
-        qCDebug(LOG_BASIC) << "DebugLog sent";
-    else
-        qCDebug(LOG_BASIC) << "DebugLog returned failed error code";
-    emit sendDebugLogFinished(request->networkRetCode() == SERVER_RETURN_SUCCESS);
-}
-
-void Engine::onConfirmEmailAnswer()
-{
-    QSharedPointer<server_api::BaseRequest> request(static_cast<server_api::BaseRequest *>(sender()), &QObject::deleteLater);
-    emit confirmEmailFinished(request->networkRetCode() == SERVER_RETURN_SUCCESS);
-}
-
-void Engine::onWebSessionAnswer()
-{
-    QSharedPointer<server_api::WebSessionRequest> request(static_cast<server_api::WebSessionRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
-        emit webSessionToken(request->purpose(), request->token());
-    } else {
-        // Failure indicated by empty token
-        emit webSessionToken(request->purpose(), "");
-    }
-}
-
-void Engine::onGetRobertFiltersAnswer()
-{
-    QSharedPointer<server_api::GetRobertFiltersRequest> request(static_cast<server_api::GetRobertFiltersRequest *>(sender()), &QObject::deleteLater);
-    emit robertFiltersUpdated(request->networkRetCode() == SERVER_RETURN_SUCCESS, request->filters());
-}
-
-void Engine::onSetRobertFilterAnswer()
-{
-    QSharedPointer<server_api::SetRobertFiltersRequest> request(static_cast<server_api::SetRobertFiltersRequest *>(sender()), &QObject::deleteLater);
-    emit setRobertFilterFinished(request->networkRetCode() == SERVER_RETURN_SUCCESS);
-}
-
-void Engine::onSyncRobertAnswer()
-{
-    QSharedPointer<server_api::BaseRequest> request(static_cast<server_api::BaseRequest *>(sender()), &QObject::deleteLater);
-    emit syncRobertFinished(request->networkRetCode() == SERVER_RETURN_SUCCESS);
 }
 
 void Engine::onConnectionManagerConnected()
@@ -1403,8 +1405,8 @@ void Engine::onConnectionManagerConnected()
         qCDebug(LOG_CONNECTION) << "the firewall rules are added for static IPs location, ports:" << connectionManager_->getStatisIps().getAsStringWithDelimiters();
     }
 
-    networkAccessManager_->disableProxy();
-    locationsModel_->disableProxy();
+    // disable proxy
+    WSNet::instance()->httpNetworkManager()->setProxySettings();
 
     DnsServersConfiguration::instance().setConnectedState(connectionManager_->getVpnAdapterInfo().dnsServers());
 
@@ -1421,6 +1423,11 @@ void Engine::onConnectionManagerConnected()
 
     connectStateController_->setConnectedState(locationId_);
     connectionManager_->startTunnelTests(); // It is important that startTunnelTests() are after setConnectedState().
+
+    // If we have connected and are still not logged in, then try again.
+    if (apiResourcesManager_ && !apiResourcesManager_->isLoggedIn()) {
+        loginImpl(true, QString(), QString(), QString());
+    }
 }
 
 void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
@@ -1517,7 +1524,7 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
         {
             customOvpnAuthCredentialsStorage_->removeCredentials(connectionManager_->getCustomOvpnConfigFileName());
 
-            isNeedReconnectAfterRequestUsernameAndPassword_ = true;
+            isNeedReconnectAfterRequestAuth_ = true;
             emit requestUsername();
         }
         else
@@ -1530,6 +1537,16 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
                 apiResourcesManager_->fetchServerCredentials();
             }
         }
+        return;
+    }
+    else if (err == CONNECT_ERROR::PRIV_KEY_PASSWORD_ERROR)
+    {
+        qCDebug(LOG_BASIC) << "Incorrect priv key password for custom ovpn config";
+        doDisconnectRestoreStuff();
+
+        customOvpnAuthCredentialsStorage_->removePrivKeyPassword(connectionManager_->getCustomOvpnConfigFileName());
+        isNeedReconnectAfterRequestAuth_ = true;
+        emit requestPrivKeyPassword();
         return;
     }
     /*else if (err == IKEV_FAILED_REINSTALL_WAN_WIN)
@@ -1652,13 +1669,10 @@ void Engine::onConnectionManagerRequestUsername(const QString &pathCustomOvpnCon
 {
     CustomOvpnAuthCredentialsStorage::Credentials c = customOvpnAuthCredentialsStorage_->getAuthCredentials(pathCustomOvpnConfig);
 
-    if (!c.username.isEmpty() && !c.password.isEmpty())
-    {
+    if (!c.username.isEmpty() && !c.password.isEmpty()) {
         connectionManager_->continueWithUsernameAndPassword(c.username, c.password, false);
-    }
-    else
-    {
-        isNeedReconnectAfterRequestUsernameAndPassword_ = false;
+    } else {
+        isNeedReconnectAfterRequestAuth_ = false;
         emit requestUsername();
     }
 }
@@ -1667,14 +1681,23 @@ void Engine::onConnectionManagerRequestPassword(const QString &pathCustomOvpnCon
 {
     CustomOvpnAuthCredentialsStorage::Credentials c = customOvpnAuthCredentialsStorage_->getAuthCredentials(pathCustomOvpnConfig);
 
-    if (!c.password.isEmpty())
-    {
+    if (!c.password.isEmpty()) {
         connectionManager_->continueWithPassword(c.password, false);
-    }
-    else
-    {
-        isNeedReconnectAfterRequestUsernameAndPassword_ = false;
+    } else {
+        isNeedReconnectAfterRequestAuth_ = false;
         emit requestPassword();
+    }
+}
+
+void Engine::onConnectionManagerRequestPrivKeyPassword(const QString &pathCustomOvpnConfig)
+{
+    CustomOvpnAuthCredentialsStorage::Credentials c = customOvpnAuthCredentialsStorage_->getAuthCredentials(pathCustomOvpnConfig);
+
+    if (!c.privKeyPassword.isEmpty()) {
+        connectionManager_->continueWithPrivKeyPassword(c.privKeyPassword, false);
+    } else {
+        isNeedReconnectAfterRequestAuth_ = false;
+        emit requestPrivKeyPassword();
     }
 }
 
@@ -1695,11 +1718,11 @@ void Engine::detectAppropriatePacketSizeImpl()
         qCDebug(LOG_PACKET_SIZE) << "Detecting appropriate packet size";
         runningPacketDetection_ = true;
         emit packetSizeDetectionStateChanged(true, false);
-        packetSizeController_->detectAppropriatePacketSize(serverAPI_->getHostname());
+        packetSizeController_->detectAppropriatePacketSize(HardcodedSettings::instance().windscribeHost());
     }
     else
     {
-         qCDebug(LOG_PACKET_SIZE) << "No internet, cannot detect appropriate packet size. Using: " << QString::number(packetSize_.mtu);
+        qCDebug(LOG_PACKET_SIZE) << "No internet, cannot detect appropriate packet size. Using: " << QString::number(packetSize_.mtu);
     }
 }
 
@@ -1739,6 +1762,13 @@ void Engine::updateAdvancedParamsImpl()
         overrideUpdateChannelWithInternal_ = newOverrideUpdateChannel;
         doCheckUpdate();
     }
+
+    // send some parameters to wsnet
+    WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(ExtraConfig::instance().getAPIExtraTLSPadding());
+    WSNet::instance()->advancedParameters()->setLogApiResponce(ExtraConfig::instance().getLogAPIResponse());
+    std::optional<QString> countryOverride = ExtraConfig::instance().serverlistCountryOverride();
+    WSNet::instance()->advancedParameters()->setCountryOverrideValue(countryOverride.has_value() ? countryOverride->toStdString() : "");
+    WSNet::instance()->advancedParameters()->setIgnoreCountryOverride(ExtraConfig::instance().serverListIgnoreCountryOverride());
 }
 
 void Engine::onDownloadHelperProgressChanged(uint progressPercent)
@@ -1883,7 +1913,8 @@ void Engine::onEmergencyControllerConnected()
     AdapterMetricsController_win::updateMetrics(emergencyController_->getVpnAdapterInfo().adapterName(), helper_);
 #endif
 
-    networkAccessManager_->disableProxy();
+    // disable proxy
+    WSNet::instance()->httpNetworkManager()->setProxySettings();
     DnsServersConfiguration::instance().setConnectedState(emergencyController_->getVpnAdapterInfo().dnsServers());
 
     emergencyConnectStateController_->setConnectedState(LocationID());
@@ -1894,7 +1925,9 @@ void Engine::onEmergencyControllerDisconnected(DISCONNECT_REASON reason)
 {
     qCDebug(LOG_BASIC) << "Engine::onEmergencyControllerDisconnected(), reason =" << reason;
 
-    networkAccessManager_->enableProxy();
+    // enable proxy
+    const auto &proxySettings = ProxyServerController::instance().getCurrentProxySettings();
+    WSNet::instance()->httpNetworkManager()->setProxySettings(proxySettings.curlAddress().toStdString(), proxySettings.getUsername().toStdString(), proxySettings.getPassword().toStdString());
     DnsServersConfiguration::instance().setDisconnectedState();
 
     emergencyConnectStateController_->setDisconnectedState(reason, CONNECT_ERROR::NO_CONNECT_ERROR);
@@ -1910,20 +1943,35 @@ void Engine::onEmergencyControllerError(CONNECT_ERROR err)
 
 void Engine::getRobertFiltersImpl()
 {
-    server_api::BaseRequest *request = serverAPI_->getRobertFilters(apiResourcesManager_->authHash());
-    connect(request, &server_api::BaseRequest::finished, this, &Engine::onGetRobertFiltersAnswer);
+    auto callback = [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData)
+    {
+        if (serverApiRetCode == ServerApiRetCode::kSuccess) {
+            api_responses::RobertFilters filters(jsonData);
+            emit robertFiltersUpdated(true, filters.filters());
+        } else {
+            emit robertFiltersUpdated(false, QVector<api_responses::RobertFilter>());
+        }
+    };
+    WSNet::instance()->serverAPI()->getRobertFilters(apiResourcesManager_->authHash().toStdString(), callback);
 }
 
-void Engine::setRobertFilterImpl(const types::RobertFilter &filter)
+void Engine::setRobertFilterImpl(const api_responses::RobertFilter &filter)
 {
-    server_api::BaseRequest *request = serverAPI_->setRobertFilter(apiResourcesManager_->authHash(), filter);
-    connect(request, &server_api::BaseRequest::finished, this, &Engine::onSetRobertFilterAnswer);
+    auto callback = [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData)
+    {
+        emit setRobertFilterFinished(serverApiRetCode == ServerApiRetCode::kSuccess);
+    };
+
+    WSNet::instance()->serverAPI()->setRobertFilter(apiResourcesManager_->authHash().toStdString(), filter.id.toStdString(), filter.status,  callback);
 }
 
 void Engine::syncRobertImpl()
 {
-    server_api::BaseRequest *request = serverAPI_->syncRobert(apiResourcesManager_->authHash());
-    connect(request, &server_api::BaseRequest::finished, this, &Engine::onSyncRobertAnswer);
+    auto callback = [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData)
+    {
+        emit syncRobertFinished(serverApiRetCode == ServerApiRetCode::kSuccess);
+    };
+    WSNet::instance()->serverAPI()->syncRobert(apiResourcesManager_->authHash().toStdString(), callback);
 }
 
 void Engine::getRobertFilters()
@@ -1931,9 +1979,9 @@ void Engine::getRobertFilters()
     QMetaObject::invokeMethod(this, "getRobertFiltersImpl");
 }
 
-void Engine::setRobertFilter(const types::RobertFilter &filter)
+void Engine::setRobertFilter(const api_responses::RobertFilter &filter)
 {
-    QMetaObject::invokeMethod(this, "setRobertFilterImpl", Q_ARG(types::RobertFilter, filter));
+    QMetaObject::invokeMethod(this, "setRobertFilterImpl", Q_ARG(api_responses::RobertFilter, filter));
 }
 
 void Engine::syncRobert()
@@ -1966,6 +2014,7 @@ void Engine::onNetworkOnlineStateChange(bool isOnline)
         qCDebug(LOG_BASIC) << "Internet lost during packet size detection -- stopping";
         stopPacketDetection();
     }
+    WSNet::instance()->setConnectivityState(isOnline);
 }
 
 void Engine::onNetworkChange(const types::NetworkInterface &networkInterface)
@@ -1978,7 +2027,7 @@ void Engine::onNetworkChange(const types::NetworkInterface &networkInterface)
         } else {
             connectionManager_->updateConnectionSettings(
                 engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid),
-                types::PortMap(),
+                api_responses::PortMap(),
                 ProxyServerController::instance().getCurrentProxySettings());
         }
 
@@ -2058,7 +2107,7 @@ void Engine::checkForceDisconnectNode(const QStringList & /*forceDisconnectNodes
     if (!connectionManager_->isDisconnected())
     {
         // check for force_disconnect nodes if we connected
-       /* bool bNeedDisconnect = false;
+        /* bool bNeedDisconnect = false;
         for (const QString &sn : forceDisconnectNodes)
         {
             if (lastConnectingHostname_ == sn)
@@ -2123,6 +2172,7 @@ void Engine::stopWifiSharingImpl()
 void Engine::setSettingsMacAddressSpoofingImpl(const types::MacAddrSpoofing &macAddrSpoofing)
 {
     engineSettings_.setMacAddrSpoofing(macAddrSpoofing);
+    engineSettings_.saveToSettings();
     emit macAddrSpoofingChanged(engineSettings_);
 }
 
@@ -2177,20 +2227,19 @@ void Engine::onApiResourcesManagerSessionDeleted()
     emit sessionDeleted();
 }
 
-void Engine::onApiResourcesManagerSessionUpdated(const types::SessionStatus &sessionStatus)
+void Engine::onApiResourcesManagerSessionUpdated(const api_responses::SessionStatus &sessionStatus)
 {
     emit sessionStatusUpdated(sessionStatus);
 }
 
-void Engine::onApiResourcesManagerLocationsUpdated()
+void Engine::onApiResourcesManagerLocationsUpdated(const QString &countryOverride)
 {
     updateServerLocations();
 
     // Auto-enable anti-censorship for first-run users if the serverlist endpoint returned a country override.
     if (checkAutoEnableAntiCensorship_) {
         checkAutoEnableAntiCensorship_ = false;
-        QSettings settings;
-        if (settings.contains("countryOverride") && !ExtraConfig::instance().haveServerListCountryOverride()) {
+        if (!countryOverride.isEmpty() && !ExtraConfig::instance().haveServerListCountryOverride()) {
             qCDebug(LOG_BASIC) << "Automatically enabled anti-censorship feature due to country override";
             emit autoEnableAntiCensorship();
         }
@@ -2202,7 +2251,7 @@ void Engine::onApiResourcesManagerStaticIpsUpdated()
     updateServerLocations();
 }
 
-void Engine::onApiResourcesManagerNotificationsUpdated(const QVector<types::Notification> &notifications)
+void Engine::onApiResourcesManagerNotificationsUpdated(const QVector<api_responses::Notification> &notifications)
 {
     emit notificationsUpdated(notifications);
 }
@@ -2262,17 +2311,12 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
         {
             // make DNS-resolution for add IP to firewall exceptions
             qCDebug(LOG_BASIC) << "Make DNS-resolution for" << strHost;
-
-            DnsRequest dnsRequest(this, strHost, DnsServersConfiguration::instance().getCurrentDnsServers());
-            dnsRequest.lookupBlocked();
-            if (!dnsRequest.isError())
-            {
-                qCDebug(LOG_BASIC) << "Resolved IP address for" << strHost << ":" << dnsRequest.ips()[0];
-                ip = dnsRequest.ips()[0];
+            auto res = WSNet::instance()->dnsResolver()->lookupBlocked(strHost.toStdString());
+            if (!res->isError() && res->ips().size() > 0) {
+                qCDebug(LOG_BASIC) << "Resolved IP address for" << strHost << ":" << res->ips()[0];
+                ip = QString::fromStdString(res->ips()[0]);
                 ExtraConfig::instance().setDetectedIp(ip);
-            }
-            else
-            {
+            } else {
                 qCDebug(LOG_BASIC) << "Failed to resolve IP for" << strHost;
                 ExtraConfig::instance().setDetectedIp("");
             }
@@ -2347,7 +2391,7 @@ void Engine::doConnect(bool bEmitAuthError)
         Logger::instance().startConnectionMode();
         qCDebug(LOG_CONNECTION) << "Connecting to" << locationName_;
         connectionManager_->clickConnect("", apiinfo::ServerCredentials(), bli,
-            engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), types::PortMap(),
+            engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), api_responses::PortMap(),
             ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.customOvpnConfigsPath());
     }
 }
@@ -2356,8 +2400,9 @@ void Engine::doDisconnectRestoreStuff()
 {
     vpnShareController_->onDisconnectedFromVPNEvent();
 
-    networkAccessManager_->enableProxy();
-    locationsModel_->enableProxy();
+    // enable proxy settings
+    const auto &proxySettings = ProxyServerController::instance().getCurrentProxySettings();
+    WSNet::instance()->httpNetworkManager()->setProxySettings(proxySettings.curlAddress().toStdString(), proxySettings.getUsername().toStdString(), proxySettings.getPassword().toStdString());
     DnsServersConfiguration::instance().setDisconnectedState();
 
 #if defined (Q_OS_MAC) || defined(Q_OS_LINUX)
@@ -2384,6 +2429,11 @@ void Engine::doDisconnectRestoreStuff()
 #ifdef Q_OS_MAC
     Ipv6Controller_mac::instance().restoreIpv6();
 #endif
+
+    // If we have disconnected and are still not logged in and not isIgnoreNoApiConnectivity_ settled, then try again.
+    if (!isIgnoreNoApiConnectivity_ && apiResourcesManager_ && !apiResourcesManager_->isLoggedIn()) {
+        loginImpl(true, QString(), QString(), QString());
+    }
 }
 
 void Engine::stopFetchingServerCredentials()
@@ -2405,14 +2455,14 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
             helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
         }
     }
+    WSNet::instance()->setIsConnectedToVpnState(state == CONNECT_STATE_CONNECTED);
 }
 
 void Engine::updateProxySettings()
 {
     if (ProxyServerController::instance().updateProxySettings(engineSettings_.proxySettings())) {
         const auto &proxySettings = ProxyServerController::instance().getCurrentProxySettings();
-        networkAccessManager_->setProxySettings(proxySettings);
-        locationsModel_->setProxySettings(proxySettings);
+        WSNet::instance()->httpNetworkManager()->setProxySettings(proxySettings.curlAddress().toStdString(), proxySettings.getUsername().toStdString(), proxySettings.getPassword().toStdString());
         firewallExceptions_.setProxyIP(proxySettings);
         updateFirewallSettings();
     }
@@ -2458,8 +2508,8 @@ void Engine::doCheckUpdate()
 
 void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QString &password, const QString &code2fa)
 {
-    serverAPI_->resetFailover();
-    apiResourcesManager_.reset(new api_resources::ApiResourcesManager(this, serverAPI_, connectStateController_, networkDetectionManager_));
+    signOutHelper_.reset();
+    apiResourcesManager_.reset(new api_resources::ApiResourcesManager(this, connectStateController_, networkDetectionManager_));
     connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::loginFailed, this, &Engine::onApiResourcesManagerLoginFailed);
     connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::sessionDeleted, this, &Engine::onApiResourcesManagerSessionDeleted);
     connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::sessionUpdated, this, &Engine::onApiResourcesManagerSessionUpdated);

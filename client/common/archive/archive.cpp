@@ -5,9 +5,9 @@
 #include <codecvt>
 #endif
 
-#include "LZMA_SDK/C/7zAlloc.h"
-#include "LZMA_SDK/C/7zCrc.h"
-#include "LZMA_SDK/C/7zTypes.h"
+#include <7zAlloc.h>
+#include <7zCrc.h>
+#include <7zTypes.h>
 
 static const ISzAlloc g_Alloc = { SzAlloc, SzFree };
 
@@ -40,34 +40,34 @@ Archive::Archive(const wstring &name, uid_t userId, gid_t groupId) : file_size(0
 #else
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-	using convert_type = std::codecvt_utf8<wchar_t>;
-	std::wstring_convert<convert_type, wchar_t> converter;
-	std::string filename = converter.to_bytes( name );
+    using convert_type = std::codecvt_utf8<wchar_t>;
+    std::wstring_convert<convert_type, wchar_t> converter;
+    std::string filename = converter.to_bytes( name );
 #pragma clang diagnostic pop
 
-	FILE *file = fopen(filename.c_str(), "rb");
-	if (file)
-	{
-		// obtain file size:
-		fseek (file , 0 , SEEK_END);
-		file_size = ftell (file);
-		rewind (file);
+    FILE *file = fopen(filename.c_str(), "rb");
+    if (file)
+    {
+        // obtain file size:
+        fseek (file , 0 , SEEK_END);
+        file_size = ftell (file);
+        rewind (file);
 
-		pData = (unsigned char*)malloc(sizeof(char)*file_size);
+        pData = (unsigned char*)malloc(sizeof(char)*file_size);
 
-		size_t readedCount = fread(pData, 1, file_size, file);
-		if (readedCount != file_size)
-		{
-			free(pData);
-			pData = NULL;
-			file_size = 0;
-		}
-		fclose(file);
-	}
-	if (!isCorrect())
-	{
-		return;
-	}
+        size_t readedCount = fread(pData, 1, file_size, file);
+        if (readedCount != file_size)
+        {
+            free(pData);
+            pData = NULL;
+            file_size = 0;
+        }
+        fclose(file);
+    }
+    if (!isCorrect())
+    {
+        return;
+    }
  #endif
 
     SzArEx_Init(&db);
@@ -152,7 +152,7 @@ void Archive::Print(const char *s)
 {
 #ifndef GUI
 #ifdef _WIN32
-	fputs(s, stdout);
+    fputs(s, stdout);
 #endif // _WIN32
 #else
     if (logFunction)
@@ -290,7 +290,7 @@ SRes Archive::Utf16_To_Char(CBuf *buf, const UInt16 *s
     {
 
     }
-    
+
 #ifndef _USE_UTF8
     {
         unsigned size = len * 3 + 100;

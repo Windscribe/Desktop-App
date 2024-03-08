@@ -30,8 +30,8 @@ IconManager::IconManager()
             {IconType::ICON_OVERLAY_CONNECTING,      ":/resources/icons/win/overlay_connecting.ico"},
             {IconType::ICON_OVERLAY_CONNECTED,       ":/resources/icons/win/overlay_connected.ico"},
             {IconType::ICON_OVERLAY_ERROR,           ":/resources/icons/win/overlay_error.ico"},
-         }
-        );
+        }
+    );
 #elif defined(Q_OS_MAC)
     // Windscribe app reflects state either in dock and system tray.
     // Each state is represented by a separate icon.
@@ -137,29 +137,29 @@ const QIcon *IconManager::getIconByType(const IconType& iconType) const
 const QIcon *IconManager::getDisconnectedTrayIcon(bool isDarkMode) const
 {
     return isDarkMode
-               ? getIconByType(IconType::ICON_TRAY_DISCONNECTED_DARK)
-               : getIconByType(IconType::ICON_TRAY_DISCONNECTED_LIGHT);
+        ? getIconByType(IconType::ICON_TRAY_DISCONNECTED_DARK)
+        : getIconByType(IconType::ICON_TRAY_DISCONNECTED_LIGHT);
 }
 
 const QIcon *IconManager::getConnectingTrayIcon(bool isDarkMode) const
 {
     return isDarkMode
-               ? getIconByType(IconType::ICON_TRAY_CONNECTING_DARK)
-               : getIconByType(IconType::ICON_TRAY_CONNECTING_LIGHT);
+        ? getIconByType(IconType::ICON_TRAY_CONNECTING_DARK)
+        : getIconByType(IconType::ICON_TRAY_CONNECTING_LIGHT);
 }
 
 const QIcon *IconManager::getConnectedTrayIcon(bool isDarkMode) const
 {
     return isDarkMode
-               ? getIconByType(IconType::ICON_TRAY_CONNECTED_DARK)
-               : getIconByType(IconType::ICON_TRAY_CONNECTED_LIGHT);
+        ? getIconByType(IconType::ICON_TRAY_CONNECTED_DARK)
+        : getIconByType(IconType::ICON_TRAY_CONNECTED_LIGHT);
 }
 
 const QIcon *IconManager::getErrorTrayIcon(bool isDarkMode) const
 {
     return isDarkMode
-               ? getIconByType(IconType::ICON_TRAY_ERROR_DARK)
-               : getIconByType(IconType::ICON_TRAY_ERROR_LIGHT);
+        ? getIconByType(IconType::ICON_TRAY_ERROR_DARK)
+        : getIconByType(IconType::ICON_TRAY_ERROR_LIGHT);
 }
 
 #if defined(Q_OS_WIN)

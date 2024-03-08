@@ -72,14 +72,14 @@ void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     }
 }
 
-void NewsFeedWindowItem::setMessagesWithCurrentOverride(const QVector<types::Notification> &arr,
+void NewsFeedWindowItem::setMessagesWithCurrentOverride(const QVector<api_responses::Notification> &arr,
                                                         const QSet<qint64> &shownIds,
                                                         int overrideCurrentMessageId)
 {
     contentItem_->setMessagesWithCurrentOverride(arr, shownIds, overrideCurrentMessageId);
 }
 
-void NewsFeedWindowItem::setMessages(const QVector<types::Notification> &arr,
+void NewsFeedWindowItem::setMessages(const QVector<api_responses::Notification> &arr,
                                      const QSet<qint64> &shownIds)
 {
     contentItem_->setMessages(arr, shownIds);

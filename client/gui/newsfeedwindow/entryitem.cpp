@@ -13,7 +13,7 @@
 
 namespace NewsFeedWindow {
 
-EntryItem::EntryItem(ScalableGraphicsObject *parent, const types::Notification &item, int width)
+EntryItem::EntryItem(ScalableGraphicsObject *parent, const api_responses::Notification &item, int width)
     : BaseItem(parent, COLLAPSED_HEIGHT*G_SCALE, "", false, width), item_(item), expanded_(false), accented_(false), expandAnimationProgress_(0),
       opacityAnimationProgress_(0), textOpacity_(OPACITY_HALF), plusIconOpacity_(OPACITY_QUARTER), read_(false),
       icon_(ImageResourcesSvg::instance().getIndependentPixmap("locations/EXPAND_ICON"))
@@ -229,7 +229,7 @@ int EntryItem::id() const
     return item_.id;
 }
 
-void EntryItem::setItem(const types::Notification &item)
+void EntryItem::setItem(const api_responses::Notification &item)
 {
     item_ = item;
     delete messageItem_;

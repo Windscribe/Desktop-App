@@ -14,7 +14,7 @@
 #include "dpiscalemanager.h"
 
 ResizableWindow::ResizableWindow(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper)
-    : ScalableGraphicsObject(parent), preferences_(preferences), curScale_(1.0)
+    : ScalableGraphicsObject(parent), preferences_(preferences), curScale_(G_SCALE)
 {
     setFlags(QGraphicsObject::ItemIsFocusable);
     installEventFilter(this);

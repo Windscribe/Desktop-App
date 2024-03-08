@@ -424,7 +424,7 @@ void LocationsTab::onClickFavoriteLocations()
     widgetAllLocations_->hide();
     widgetConfiguredLocations_->hide();
     widgetStaticIpsLocations_->hide();
-     widgetSearchLocations_->hide();
+    widgetSearchLocations_->hide();
     widgetFavoriteLocations_->show();
     widgetFavoriteLocations_->raise();
     updateRibbonVisibility();

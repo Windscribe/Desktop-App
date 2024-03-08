@@ -919,16 +919,16 @@ void MainWindowController::gotoLoginWindow()
 {
     // qDebug() << "gotoLoginWindow()";
     WS_ASSERT(curWindow_ == WINDOW_ID_UNINITIALIZED
-             || curWindow_ == WINDOW_ID_INITIALIZATION
-             || curWindow_ == WINDOW_ID_EMERGENCY
-             || curWindow_ == WINDOW_ID_LOGGING_IN
-             || curWindow_ == WINDOW_ID_CONNECT
-             || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
-             || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
-             || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH
-             || curWindow_ == WINDOW_ID_UPDATE
-             || curWindow_ == WINDOW_ID_UPGRADE
-             || curWindow_ == WINDOW_ID_LOGOUT);
+              || curWindow_ == WINDOW_ID_INITIALIZATION
+              || curWindow_ == WINDOW_ID_EMERGENCY
+              || curWindow_ == WINDOW_ID_LOGGING_IN
+              || curWindow_ == WINDOW_ID_CONNECT
+              || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
+              || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
+              || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH
+              || curWindow_ == WINDOW_ID_UPDATE
+              || curWindow_ == WINDOW_ID_UPGRADE
+              || curWindow_ == WINDOW_ID_LOGOUT);
 
     for (auto w : windowSizeManager_->windows()) {
         if (windowSizeManager_->state(w) != WindowSizeManager::kWindowCollapsed) {
@@ -1240,10 +1240,10 @@ void MainWindowController::gotoEmergencyWindow()
 void MainWindowController::gotoLoggingInWindow()
 {
     WS_ASSERT(curWindow_ == WINDOW_ID_LOGIN
-             || curWindow_ == WINDOW_ID_INITIALIZATION
-             || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
-             || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
-             || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH);
+              || curWindow_ == WINDOW_ID_INITIALIZATION
+              || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
+              || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
+              || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH);
 
     if (curWindow_ == WINDOW_ID_LOGIN) {
         curWindow_ = WINDOW_ID_LOGGING_IN;
@@ -1428,11 +1428,11 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
 {
     // qDebug() << "gotoConnectWindow()";
     WS_ASSERT(curWindow_ == WINDOW_ID_LOGGING_IN
-             || curWindow_ == WINDOW_ID_INITIALIZATION
-             || curWindow_ == WINDOW_ID_UPDATE
-             || curWindow_ == WINDOW_ID_UPGRADE
-             || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
-             || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG);
+              || curWindow_ == WINDOW_ID_INITIALIZATION
+              || curWindow_ == WINDOW_ID_UPDATE
+              || curWindow_ == WINDOW_ID_UPGRADE
+              || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
+              || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG);
 
     if (curWindow_ == WINDOW_ID_LOGGING_IN) {
         // qDebug() << "LoggingIn -> Connect";
@@ -1768,9 +1768,9 @@ void MainWindowController::gotoTwoFactorAuthWindow()
 void MainWindowController::gotoUpdateWindow()
 {
     WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT
-             || curWindow_ == WINDOW_ID_UPGRADE
-             || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
-             || curWindow_ == WINDOW_ID_EXIT);
+              || curWindow_ == WINDOW_ID_UPGRADE
+              || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
+              || curWindow_ == WINDOW_ID_EXIT);
 
     for (auto w : windowSizeManager_->windows()) {
         if (windowSizeManager_->state(w) != WindowSizeManager::kWindowCollapsed) {
@@ -1997,6 +1997,7 @@ void MainWindowController::gotoGeneralMessageWindow()
         loggingInWindow_->stackBefore(generalMessageWindow_);
         upgradeAccountWindow_->stackBefore(generalMessageWindow_);
         generalMessageWindow_->show();
+        generalMessageWindow_->setFocus();
 
         QPropertyAnimation *anim = new QPropertyAnimation(this);
         anim->setTargetObject(generalMessageWindow_);
@@ -2021,12 +2022,12 @@ void MainWindowController::gotoGeneralMessageWindow()
 void MainWindowController::gotoExitWindow(bool isLogout)
 {
     WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT
-             || curWindow_ == WINDOW_ID_LOGIN
-             || curWindow_ == WINDOW_ID_EMERGENCY
-             || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
-             || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH
-             || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
-             || curWindow_ == WINDOW_ID_LOGOUT);
+              || curWindow_ == WINDOW_ID_LOGIN
+              || curWindow_ == WINDOW_ID_EMERGENCY
+              || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
+              || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH
+              || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
+              || curWindow_ == WINDOW_ID_LOGOUT);
 
     // If we're overriding a logout with a quit (e.g. user pressed alt-f4 while on the logout prompt),
     // close the previous logout window first
@@ -2433,8 +2434,8 @@ void MainWindowController::expandWindow(ResizableWindow *window)
         int start = (int)connectWindow_->boundingRect().height();
         for (auto w : windowSizeManager_->windows()) {
             if (w != window && windowSizeManager_->state(w) == WindowSizeManager::kWindowExpanded) {
-                 start = (int)w->boundingRect().height();
-                 break;
+                start = (int)w->boundingRect().height();
+                break;
             }
         }
         int target = windowSizeManager_->windowHeight(window)*G_SCALE;
@@ -3135,6 +3136,11 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
 
     // qDebug() << "Updating mainwindow geo: " << geo;
     mainWindow_->setGeometry(geo);
+#ifdef Q_OS_LINUX
+    // This is a workaround for #930.  In some DEs on Linux, if the window is completely occluded by another,
+    // the above setGeometry() does not actually resize the window.  Force the window to resize by setting a minimum size.
+    mainWindow_->setMinimumSize(geo.width(), geo.height());
+#endif
     updateViewAndScene(width, height, shadowSize, updateShadow);
 }
 
@@ -3296,9 +3302,9 @@ void MainWindowController::keepWindowInsideScreenCoordinates()
     QRect rcScreen = mainWindow_->screen()->availableGeometry();
 
     if (rcWindow.bottom() > (rcScreen.bottom())) {
-       // qDebug() << "KEEPING MAINWINDOW INSIDE SCREEN COORDINATES";
-       rcWindow.moveBottom(rcScreen.bottom());
-       mainWindow_->setGeometry(rcWindow);
+        // qDebug() << "KEEPING MAINWINDOW INSIDE SCREEN COORDINATES";
+        rcWindow.moveBottom(rcScreen.bottom());
+        mainWindow_->setGeometry(rcWindow);
     }
 }
 

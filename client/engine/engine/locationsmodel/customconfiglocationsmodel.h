@@ -2,12 +2,13 @@
 
 #include <QHostInfo>
 #include <QObject>
-
+#include <wsnet/WSNet.h>
 #include "baselocationinfo.h"
 #include "engine/customconfigs/icustomconfig.h"
 #include "engine/ping/pingmanager.h"
 #include "types/location.h"
 #include "types/locationid.h"
+#include "wsnet/WSNetDnsRequestResult.h"
 
 class INetworkDetectionManager;
 
@@ -19,7 +20,7 @@ class CustomConfigLocationsModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingMultipleHosts *pingHosts);
+    explicit CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager);
 
     void setCustomConfigs(const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs);
     void clear();
@@ -29,15 +30,10 @@ public:
 signals:
     void locationsUpdated( QSharedPointer<types::Location> location);
     void locationPingTimeChanged(const LocationID &id, PingTime timeMs);
-
     void whitelistIpsChanged(const QStringList &ips);
-
-    //void locationInfoChanged(const LocationID &LocationId, const QVector<ServerNode> &nodes, const QString &dnsHostName);
-    //void customOvpnConfgsIpsChanged(const QStringList &ips);
 
 private slots:
     void onPingInfoChanged(const QString &ip, int timems);
-    void onDnsRequestFinished();
 
 private:
     PingManager pingManager_;
@@ -76,6 +72,7 @@ private:
     bool isAllResolved() const;
     void startPingAndWhitelistIps();
     void generateLocationsUpdated();
+    void onDnsRequestFinished(const QString &hostname, std::shared_ptr<wsnet::WSNetDnsRequestResult> result);
 };
 
 } //namespace locationsmodel

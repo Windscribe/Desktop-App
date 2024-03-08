@@ -25,7 +25,7 @@ QString NetworkUtils::generateRandomMacAddress()
             tp &= 0xFE;
         }
 
-        sprintf(buf, "%s%X", tp < 16 ? "0" : "", tp);
+        snprintf(buf, 256, "%s%X", tp < 16 ? "0" : "", tp);
         s += QString::fromStdString(buf);
     }
     return s;
@@ -35,12 +35,13 @@ QString NetworkUtils::formatMacAddress(QString macAddress)
 {
     // WS_ASSERT(macAddress.length() == 12);
 
-    QString formattedMac = QString("%1:%2:%3:%4:%5:%6").arg(macAddress.mid(0,2))
-                               .arg(macAddress.mid(2,2))
-                               .arg(macAddress.mid(4,2))
-                               .arg(macAddress.mid(6,2))
-                               .arg(macAddress.mid(8,2))
-                               .arg(macAddress.mid(10,2));
+    QString formattedMac = QString("%1:%2:%3:%4:%5:%6")
+        .arg(macAddress.mid(0,2))
+        .arg(macAddress.mid(2,2))
+        .arg(macAddress.mid(4,2))
+        .arg(macAddress.mid(6,2))
+        .arg(macAddress.mid(8,2))
+        .arg(macAddress.mid(10,2));
 
     return formattedMac;
 }

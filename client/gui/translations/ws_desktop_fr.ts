@@ -120,21 +120,6 @@
     </message>
 </context>
 <context>
-    <name>DialogGetUsernamePassword</name>
-    <message>
-        <source>Enter connection credentials</source>
-        <translation>Entrez les informations d’identification de connexion</translation>
-    </message>
-    <message>
-        <source>Please enter the username</source>
-        <translation>Veuillez saisir le nom d’utilisateur</translation>
-    </message>
-    <message>
-        <source>Please enter the password</source>
-        <translation>Veuillez saisir le mot de passe</translation>
-    </message>
-</context>
-<context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
@@ -230,6 +215,18 @@
     <message>
         <source>Learn More</source>
         <translation>Pour en savoir plus</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Nom d’utilisateur</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Mot de passe</translation>
+    </message>
+    <message>
+        <source>Remember</source>
+        <translation>Se souvenir</translation>
     </message>
 </context>
 <context>
@@ -784,6 +781,18 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
         <translation>Impossible d’ouvrir le fichier pour l’écriture.  Vérifiez vos autorisations et réessayez.</translation>
+    </message>
+    <message>
+        <source>Enter Connection Credentials</source>
+        <translation>Entrez les informations d’identification de connexion</translation>
+    </message>
+    <message>
+        <source>Enter Private Key Password</source>
+        <translation>Entrez le mot de passe de la clé privée</translation>
+    </message>
+    <message>
+        <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
+        <translation>Windscribe n’a pas pu récupérer la configuration du serveur. Veuillez essayer un autre protocole.</translation>
     </message>
 </context>
 <context>
@@ -1409,20 +1418,8 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>Base de connaissances</translation>
     </message>
     <message>
-        <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>Pas aussi intelligent qu’un humain, mais peut toujours répondre à vos questions.</translation>
-    </message>
-    <message>
         <source>Talk to Garry</source>
         <translation>Parlez à Garry</translation>
-    </message>
-    <message>
-        <source>Stuck? Send us a ticket.</source>
-        <translation>Coincé? Envoyez-nous un billet.</translation>
-    </message>
-    <message>
-        <source>Send Ticket</source>
-        <translation>Envoyer un ticket</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1459,6 +1456,18 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     <message>
         <source>Failed!</source>
         <translation>Raté!</translation>
+    </message>
+    <message>
+        <source>Need help? Garry can help you with most issues, go talk to him.</source>
+        <translation>Besoin d&amp;apos;aide ? Garry peut vous aider avec la plupart des problèmes, allez lui parler.</translation>
+    </message>
+    <message>
+        <source>Contact Humans</source>
+        <translation>Humains de contact</translation>
+    </message>
+    <message>
+        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
+        <translation>Vous avez un problème que Garry n’arrive pas à résoudre ? Contactez l’assistance humaine.</translation>
     </message>
 </context>
 <context>

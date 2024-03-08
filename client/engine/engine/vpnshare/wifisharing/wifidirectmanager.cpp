@@ -195,9 +195,9 @@ void WiFiDirectManager::onConnectionRequested(const winrt::Windows::Devices::WiF
         auto asyncAction = winrt::Windows::Devices::WiFiDirect::WiFiDirectDevice::FromIdAsync(deviceInformation.Id());
 
 
-       auto handler = [this](winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Devices::WiFiDirect::WiFiDirectDevice> const &sender,
+        auto handler = [this](winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Devices::WiFiDirect::WiFiDirectDevice> const &sender,
                               winrt::Windows::Foundation::AsyncStatus const asyncStatus)
-       {
+        {
             if (asyncStatus == winrt::Windows::Foundation::AsyncStatus::Completed) {
                 auto wifiDirectDevice = sender.GetResults();
                 auto connectionStatus = wifiDirectDevice.ConnectionStatus();
@@ -223,9 +223,9 @@ void WiFiDirectManager::onConnectionRequested(const winrt::Windows::Devices::WiF
 
                 wifiDirectDevice.ConnectionStatusChanged(connectionStatusChangedHandler);
             }
-       };
+        };
 
-       asyncAction.Completed(handler);
+        asyncAction.Completed(handler);
 
     } catch(winrt::hresult_error const& ex) {
         winrt::hstring message = ex.message();

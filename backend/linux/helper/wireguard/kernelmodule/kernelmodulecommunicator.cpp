@@ -77,7 +77,7 @@ bool KernelModuleCommunicator::setPeerAllowedIps(wg_peer *peer, const std::vecto
         }
 
         if (i + 1 < ips.size())
-           cur->next_allowedip = &peer->first_allowedip[i+1];
+            cur->next_allowedip = &peer->first_allowedip[i+1];
         cur = cur->next_allowedip;
     }
     peer->last_allowedip = cur;

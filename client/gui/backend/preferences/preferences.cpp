@@ -506,7 +506,7 @@ void Preferences::setDnsManager(DNS_MANAGER_TYPE d)
 
 types::ConnectedDnsInfo Preferences::connectedDnsInfo() const
 {
-   return engineSettings_.connectedDnsInfo();
+    return engineSettings_.connectedDnsInfo();
 }
 
 void Preferences::setConnectedDnsInfo(types::ConnectedDnsInfo d)

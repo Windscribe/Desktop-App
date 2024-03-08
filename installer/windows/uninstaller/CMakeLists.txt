@@ -38,3 +38,7 @@ target_link_libraries(uninstall
                       PRIVATE
                       delayimp
 )
+
+install(TARGETS uninstall
+    RUNTIME DESTINATION .
+)

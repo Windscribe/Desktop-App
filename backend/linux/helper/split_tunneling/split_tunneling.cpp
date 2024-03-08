@@ -22,7 +22,7 @@ bool SplitTunneling::setConnectParams(CMD_SEND_CONNECT_STATUS &connectStatus)
 }
 
 void SplitTunneling::setSplitTunnelingParams(bool isActive, bool isExclude, const std::vector<std::string> &apps,
-                             const std::vector<std::string> &ips, const std::vector<std::string> &hosts, bool isAllowLanTraffic)
+    const std::vector<std::string> &ips, const std::vector<std::string> &hosts, bool isAllowLanTraffic)
 {
     std::lock_guard<std::mutex> guard(mutex_);
     apps_ = apps;
@@ -52,7 +52,7 @@ bool SplitTunneling::updateState()
             if (connectStatus_.protocol == kCmdProtocolOpenvpn || connectStatus_.protocol == kCmdProtocolStunnelOrWstunnel) {
                 gw = connectStatus_.vpnAdapter.gatewayIp;
             }
-             
+
             bool ret = CGroups::instance().enable(connectStatus_, isAllowLanTraffic_, isExclude_);
             if (!ret) {
                 return ret;

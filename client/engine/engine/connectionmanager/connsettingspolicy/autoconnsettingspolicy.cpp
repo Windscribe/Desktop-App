@@ -10,7 +10,7 @@
 types::Protocol AutoConnSettingsPolicy::lastKnownGoodProtocol_;
 
 AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-                                               const types::PortMap &portMap, bool isProxyEnabled,
+                                               const api_responses::PortMap &portMap, bool isProxyEnabled,
                                                const types::Protocol protocol)
 {
     attempts_.clear();

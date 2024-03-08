@@ -131,32 +131,32 @@ QList<InstalledAntiviruses_win::AntivirusInfo> InstalledAntiviruses_win::enumFie
             break;
         }
 
-       VARIANT vtProp;
+        VARIANT vtProp;
 
-       AntivirusInfo ai;
-       // Get the value of the Name property
-       hr = pclsObj->Get(L"displayName", 0, &vtProp, 0, 0);
-       if (FAILED(hr))
-       {
-           continue;
-       }
-       ai.name = QString::fromWCharArray(vtProp.bstrVal);
-       VariantClear(&vtProp);
+        AntivirusInfo ai;
+        // Get the value of the Name property
+        hr = pclsObj->Get(L"displayName", 0, &vtProp, 0, 0);
+        if (FAILED(hr))
+        {
+            continue;
+        }
+        ai.name = QString::fromWCharArray(vtProp.bstrVal);
+        VariantClear(&vtProp);
 
-       // Get the value of the State property
-       hr = pclsObj->Get(L"productState", 0, &vtProp, 0, 0);
-       if (SUCCEEDED(hr))
-       {
-           ai.state = vtProp.uintVal;
-           ai.bStateAvailable = true;
-           VariantClear(&vtProp);
-       }
+        // Get the value of the State property
+        hr = pclsObj->Get(L"productState", 0, &vtProp, 0, 0);
+        if (SUCCEEDED(hr))
+        {
+            ai.state = vtProp.uintVal;
+            ai.bStateAvailable = true;
+            VariantClear(&vtProp);
+        }
 
-       ai.productType = productType;
+        ai.productType = productType;
 
-       listAv << ai;
+        listAv << ai;
 
-       pclsObj->Release();
+        pclsObj->Release();
     }
     return listAv;
 }

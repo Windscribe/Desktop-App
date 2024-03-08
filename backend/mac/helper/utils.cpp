@@ -56,7 +56,7 @@ int executeCommand(const std::string &cmd, const std::vector<std::string> &args,
     proc.close();
     if (proc.rdbuf()->exited())
     {
-         return proc.rdbuf()->status();
+        return proc.rdbuf()->status();
     }
     return 0;
 }

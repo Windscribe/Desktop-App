@@ -107,7 +107,7 @@ void NumbersPixmap::rescale()
     painter2.drawText(QRect(0, 0, itemWidth_, itemHeight_), ".");
     dotPixmap_ = new IndependentPixmap(dotPixmap);
 
-    int naWidth = fm.horizontalAdvance("N/A");
+    int naWidth = fm.horizontalAdvance("---.---.---.---");
     QPixmap naPixmap(QSize(naWidth, itemHeight_) * DpiScaleManager::instance().curDevicePixelRatio());
     naPixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
     naPixmap.fill(QColor(Qt::transparent));
@@ -115,6 +115,6 @@ void NumbersPixmap::rescale()
     painter3.setFont(font_);
     painter3.setPen(Qt::white);
     painter3.setOpacity(0.5);
-    painter3.drawText(QRect(0, 0, naWidth, itemHeight_), "N/A");
+    painter3.drawText(QRect(0, 0, naWidth, itemHeight_), "---.---.---.---");
     naPixmap_ = new IndependentPixmap(naPixmap);
 }

@@ -225,17 +225,17 @@ struct NetworkInterface
 
     friend QDataStream& operator >>(QDataStream &stream, NetworkInterface &o)
     {
-       quint32 version;
-       stream >> version;
-       if (version > o.versionForSerialization_)
-       {
-           stream.setStatus(QDataStream::ReadCorruptData);
-           return stream;
-       }
-       stream >> o.interfaceIndex >> o.interfaceName >> o.interfaceGuid >> o.networkOrSsid >> o.interfaceType >> o.trustType >> o.active >>
-                 o.friendlyName >> o.requested >> o.metric >> o.physicalAddress >> o.mtu >> o.state >> o.dwType >> o.deviceName >>
-                 o.connectorPresent >> o.endPointInterface;
-       return stream;
+        quint32 version;
+        stream >> version;
+        if (version > o.versionForSerialization_)
+        {
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return stream;
+        }
+        stream >> o.interfaceIndex >> o.interfaceName >> o.interfaceGuid >> o.networkOrSsid >> o.interfaceType >> o.trustType >> o.active >>
+                  o.friendlyName >> o.requested >> o.metric >> o.physicalAddress >> o.mtu >> o.state >> o.dwType >> o.deviceName >>
+                  o.connectorPresent >> o.endPointInterface;
+        return stream;
     }
 
 

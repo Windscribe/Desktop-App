@@ -4,14 +4,10 @@
 #include "utils/utils.h"
 #include "engine/connectionmanager/openvpnconnection.h"
 #include "utils/hardcodedsettings.h"
-#include "utils/dga_library.h"
-#include "engine/dnsresolver/dnsrequest.h"
-#include "engine/dnsresolver/dnsserversconfiguration.h"
 #include <QFile>
 #include <QCoreApplication>
 #include "utils/extraconfig.h"
 #include "types/global_consts.h"
-
 #include <random>
 
 #ifdef Q_OS_MAC
@@ -19,32 +15,26 @@
     #include "engine/helper/helper_mac.h"
 #endif
 
+using namespace wsnet;
+
 EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QObject(parent),
     helper_(helper),
     state_(STATE_DISCONNECTED)
 {
-    QFile file(":/resources/ovpn/emergency.ovpn");
-    if (file.open(QIODevice::ReadOnly))
-    {
-        ovpnConfig_ = file.readAll();
-        file.close();
-    }
-    else
-    {
-        qCDebug(LOG_EMERGENCY_CONNECT) << "Failed load emergency.ovpn from resources";
-    }
+    connector_ = new OpenVPNConnection(this, helper_);
+    connect(connector_, &OpenVPNConnection::connected, this, &EmergencyController::onConnectionConnected, Qt::QueuedConnection);
+    connect(connector_, &OpenVPNConnection::disconnected, this, &EmergencyController::onConnectionDisconnected, Qt::QueuedConnection);
+    connect(connector_, &OpenVPNConnection::reconnecting, this, &EmergencyController::onConnectionReconnecting, Qt::QueuedConnection);
+    connect(connector_, &OpenVPNConnection::error, this, &EmergencyController::onConnectionError, Qt::QueuedConnection);
 
-     connector_ = new OpenVPNConnection(this, helper_);
-     connect(connector_, &OpenVPNConnection::connected, this, &EmergencyController::onConnectionConnected, Qt::QueuedConnection);
-     connect(connector_, &OpenVPNConnection::disconnected, this, &EmergencyController::onConnectionDisconnected, Qt::QueuedConnection);
-     connect(connector_, &OpenVPNConnection::reconnecting, this, &EmergencyController::onConnectionReconnecting, Qt::QueuedConnection);
-     connect(connector_, &OpenVPNConnection::error, this, &EmergencyController::onConnectionError, Qt::QueuedConnection);
-
-     makeOVPNFile_ = new MakeOVPNFile();
+    makeOVPNFile_ = new MakeOVPNFile();
 }
 
 EmergencyController::~EmergencyController()
 {
+    if (request_) {
+        request_->cancel();
+    }
     SAFE_DELETE(connector_);
     SAFE_DELETE(makeOVPNFile_);
 }
@@ -56,18 +46,25 @@ void EmergencyController::clickConnect(const types::ProxySettings &proxySettings
 
     proxySettings_ = proxySettings;
 
-    QString hashedDomain = "econnect." + HardcodedSettings::instance().generateDomain();
-    qCDebug(LOG_EMERGENCY_CONNECT) << "Generated hashed domain for emergency connect:" << hashedDomain;
-
-    DnsRequest *dnsRequest = new DnsRequest(this, hashedDomain, DnsServersConfiguration::instance().getCurrentDnsServers());
-    connect(dnsRequest, &DnsRequest::finished, this,&EmergencyController::onDnsRequestFinished);
-    dnsRequest->lookup();
+    auto callback = [this](std::vector<std::shared_ptr<WSNetEmergencyConnectEndpoint>> endpoints) {
+        QMetaObject::invokeMethod(this, [this, endpoints]
+        {
+            endpoints_ = endpoints;
+            doConnect();
+        });
+    };
+    request_ = WSNet::instance()->emergencyConnect()->getIpEndpoints(callback);
 }
 
 void EmergencyController::clickDisconnect()
 {
     WS_ASSERT(state_ == STATE_CONNECTING_FROM_USER_CLICK || state_ == STATE_CONNECTED  ||
              state_ == STATE_DISCONNECTING_FROM_USER_CLICK || state_ == STATE_DISCONNECTED);
+
+    if (request_) {
+        request_->cancel();
+        request_.reset();
+    }
 
     if (state_ != STATE_DISCONNECTING_FROM_USER_CLICK)
     {
@@ -137,55 +134,6 @@ void EmergencyController::setPacketSize(types::PacketSize ps)
     packetSize_ = ps;
 }
 
-void EmergencyController::onDnsRequestFinished()
-{
-    DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
-    WS_ASSERT(dnsRequest != nullptr);
-
-    attempts_.clear();
-
-    if (!dnsRequest->isError())
-    {
-        qCDebug(LOG_EMERGENCY_CONNECT) << "DNS resolved:" << dnsRequest->ips();
-
-        // generate connect attempts array
-        std::vector<QString> randomVecIps;
-        for (const QString &ip :  dnsRequest->ips())
-        {
-            randomVecIps.push_back(ip);
-        }
-
-        std::random_device rd;
-        std::mt19937 g(rd());
-        std::shuffle(randomVecIps.begin(), randomVecIps.end(), rd);
-
-        for (std::vector<QString>::iterator it = randomVecIps.begin(); it != randomVecIps.end(); ++it)
-        {
-            CONNECT_ATTEMPT_INFO info1;
-            info1.ip = *it;
-            info1.port = 443;
-            info1.protocol = "udp";
-
-            CONNECT_ATTEMPT_INFO info2;
-            info2.ip = *it;
-            info2.port = 443;
-            info2.protocol = "tcp";
-
-            attempts_ << info1;
-            attempts_ << info2;
-        }
-
-        addRandomHardcodedIpsToAttempts();
-    }
-    else
-    {
-        qCDebug(LOG_EMERGENCY_CONNECT) << "DNS resolve failed";
-        addRandomHardcodedIpsToAttempts();
-    }
-    doConnect();
-    dnsRequest->deleteLater();
-}
-
 void EmergencyController::onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo)
 {
     qCDebug(LOG_EMERGENCY_CONNECT) << "EmergencyController::onConnectionConnected(), state_ =" << state_;
@@ -212,7 +160,7 @@ void EmergencyController::onConnectionDisconnected()
             break;
         case STATE_CONNECTING_FROM_USER_CLICK:
         case STATE_ERROR_DURING_CONNECTION:
-            if (!attempts_.empty())
+            if (!endpoints_.empty())
             {
                 state_ = STATE_CONNECTING_FROM_USER_CLICK;
                 doConnect();
@@ -279,33 +227,6 @@ void EmergencyController::onConnectionError(CONNECT_ERROR err)
             state_ = STATE_ERROR_DURING_CONNECTION;
             connector_->startDisconnect();
         }
-
-        // bIgnoreConnectionErrors_ need to prevent handle multiple error messages from openvpn
-        /*if (!bIgnoreConnectionErrors_)
-        {
-            bIgnoreConnectionErrors_ = true;
-
-            if (!checkFails())
-            {
-                if (state_ != STATE_RECONNECTING)
-                {
-                    emit reconnecting();
-                    state_ = STATE_RECONNECTING;
-                    startReconnectionTimer();
-                }
-                if (err == INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS)
-                {
-                    bNeedResetTap_ = true;
-                }
-                connector_->startDisconnect();
-            }
-            else
-            {
-                state_ = STATE_AUTO_DISCONNECT;
-                connector_->startDisconnect();
-                emit showFailedAutomaticConnectionMessage();
-            }
-        }*/
     }
     else
     {
@@ -318,9 +239,9 @@ void EmergencyController::doConnect()
     defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo();
     qCDebug(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
 
-    WS_ASSERT(!attempts_.empty());
-    CONNECT_ATTEMPT_INFO attempt = attempts_[0];
-    attempts_.removeFirst();
+    WS_ASSERT(!endpoints_.empty());
+    auto endpoint = endpoints_[0];
+    endpoints_.erase(endpoints_.begin());
 
     int mss = 0;
     if (!packetSize_.isAutomatic)
@@ -346,8 +267,20 @@ void EmergencyController::doConnect()
         qCDebug(LOG_PACKET_SIZE) << "Packet size mode auto - using default MSS (EmergencyController)";
     }
 
+    QString protocol;
+    if (endpoint->protocol() == Protocol::kTcp) {
+        protocol = "TCP";
+    } else if (endpoint->protocol() == Protocol::kUdp) {
+        protocol = "UDP";
+    } else {
+        WS_ASSERT(false);
+        return;
+    }
 
-    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig_, attempt.ip, types::Protocol::fromString(attempt.protocol), attempt.port, 0, mss, defaultAdapterInfo_.gateway(), "", "");
+    QString ovpnConfig = QString::fromStdString(WSNet::instance()->emergencyConnect()->ovpnConfig());
+    WS_ASSERT(!ovpnConfig.isEmpty());
+
+    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig, QString::fromStdString(endpoint->ip()), types::Protocol::fromString(protocol), endpoint->port(), 0, mss, defaultAdapterInfo_.gateway(), "", "");
     if (!bOvpnSuccess )
     {
         qCDebug(LOG_EMERGENCY_CONNECT) << "Failed create ovpn config";
@@ -355,13 +288,16 @@ void EmergencyController::doConnect()
         return;
     }
 
-    qCDebug(LOG_EMERGENCY_CONNECT) << "Connecting to IP:" << attempt.ip << " protocol:" << attempt.protocol << " port:" << attempt.port;
-    DgaLibrary dga;
-    if (dga.load()) {
-        connector_->startConnect(makeOVPNFile_->config(), "", "", dga.getParameter(PAR_EMERGENCY_USERNAME), dga.getParameter(PAR_EMERGENCY_PASSWORD), proxySettings_, nullptr, false, false, false, QString());
-        lastIp_ = attempt.ip;
+    qCDebug(LOG_EMERGENCY_CONNECT) << "Connecting to IP:" << QString::fromStdString(endpoint->ip()) << " protocol:" << protocol << " port:" << endpoint->port();
+
+    QString username = QString::fromStdString(WSNet::instance()->emergencyConnect()->username());
+    QString password = QString::fromStdString(WSNet::instance()->emergencyConnect()->password());
+
+    if (!username.isEmpty() && !password.isEmpty()) {
+        connector_->startConnect(makeOVPNFile_->config(), "", "", username, password, proxySettings_, nullptr, false, false, false, QString());
+        lastIp_ = QString::fromStdString(endpoint->ip());
     } else {
-        qCDebug(LOG_EMERGENCY_CONNECT) << "No dga found";
+        qCDebug(LOG_EMERGENCY_CONNECT) << "Emergency credentials are empty";
         WS_ASSERT(false);
         return;
     }
@@ -374,31 +310,4 @@ void EmergencyController::doMacRestoreProcedures()
     helper_mac->deleteRoute(lastIp_, 32, defaultAdapterInfo_.gateway());
     RestoreDNSManager_mac::restoreState(helper_);
 #endif
-}
-
-void EmergencyController::addRandomHardcodedIpsToAttempts()
-{
-    DgaLibrary dga;
-    QStringList ips;
-    if (dga.load())
-        ips << dga.getParameter(PAR_EMERGENCY_IP1) << dga.getParameter(PAR_EMERGENCY_IP2);
-
-    std::vector<QString> randomVecIps;
-    for (const QString &ip : ips)
-    {
-        randomVecIps.push_back(ip);
-    }
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(randomVecIps.begin(), randomVecIps.end(), rd);
-
-    for (std::vector<QString>::iterator it = randomVecIps.begin(); it != randomVecIps.end(); ++it)
-    {
-        CONNECT_ATTEMPT_INFO info;
-        info.ip = *it;
-        info.port = 1194;
-        info.protocol = "udp";
-
-        attempts_ << info;
-    }
 }

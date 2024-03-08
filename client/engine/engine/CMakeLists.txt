@@ -9,6 +9,7 @@ target_sources(engine PRIVATE
     openvpnversioncontroller.h
     packetsizecontroller.cpp
     packetsizecontroller.h
+    signout_helper.h
 )
 
 if (WIN32)
@@ -36,19 +37,15 @@ add_subdirectory(autoupdater)
 add_subdirectory(connectionmanager)
 add_subdirectory(connectstatecontroller)
 add_subdirectory(customconfigs)
-add_subdirectory(dnsresolver)
+add_subdirectory(dns_utils)
 add_subdirectory(emergencycontroller)
-add_subdirectory(failover)
 add_subdirectory(firewall)
 add_subdirectory(helper)
 add_subdirectory(locationsmodel)
 add_subdirectory(macaddresscontroller)
-add_subdirectory(networkaccessmanager)
 add_subdirectory(networkdetectionmanager)
 add_subdirectory(ping)
 add_subdirectory(proxy)
-add_subdirectory(serverapi)
 add_subdirectory(taputils)
-add_subdirectory(utils)
 add_subdirectory(vpnshare)
 add_subdirectory(wireguardconfig)

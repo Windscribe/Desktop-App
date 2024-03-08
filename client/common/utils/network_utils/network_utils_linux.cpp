@@ -80,7 +80,7 @@ static QString getAdapterIp(QString interface)
     return Utils::execCmd(QString("ip -br -4 show %1 | grep UP | awk '{print $3}").arg(interface)).trimmed();
 }
 
-void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp)
+void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp, bool ignoreTun)
 {
     outInterfaceName.clear();
     outGatewayIp.clear();
@@ -90,6 +90,10 @@ void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &
 
     QList<RoutingTableEntry> entries = getRoutingTable(false);
     for (const RoutingTableEntry& entry : qAsConst(entries)) {
+        // if ignoring tun interfaces, remove them from contention
+        if (ignoreTun && (entry.interface.startsWith("tun") || entry.interface.startsWith("utun"))) {
+            continue;
+        }
         // only consider routes which have a destination of 0.0.0.0.
         // filtering by metric alone is not enough, because when an interface first comes up, network manager will add 20000 to the metric
         // if it has not yet passed a connectivity check

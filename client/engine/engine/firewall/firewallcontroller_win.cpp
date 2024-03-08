@@ -24,13 +24,13 @@ bool FirewallController_win::firewallOn(const QString &connectingIp, const QSet<
         QString ipStr;
         for (const QString &ip : ips)
         {
-           ipStr += ip + ";";
+            ipStr += ip + ";";
         }
 
-         if (ipStr.endsWith(";"))
-         {
+        if (ipStr.endsWith(";"))
+        {
             ipStr = ipStr.remove(ipStr.length() - 1, 1);
-         }
+        }
 
         qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count();
         return helper_win_->firewallOn(connectingIp, ipStr, bAllowLanTraffic, bIsCustomConfig);
@@ -62,7 +62,7 @@ bool FirewallController_win::firewallActualState()
     return helper_win_->firewallActualState();
 }
 
-bool FirewallController_win::whitelistPorts(const apiinfo::StaticIpPortsVector &ports)
+bool FirewallController_win::whitelistPorts(const api_responses::StaticIpPortsVector &ports)
 {
     QMutexLocker locker(&mutex_);
     return helper_win_->whitelistPorts(ports.getAsStringWithDelimiters());

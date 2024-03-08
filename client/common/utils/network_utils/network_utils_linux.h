@@ -18,7 +18,7 @@ public:
     QString destination;
 };
 
-void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp);
+void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp, bool ignoreTun = false);
 QString getLocalIP();
 
 } // namespace NetworkUtils_linux

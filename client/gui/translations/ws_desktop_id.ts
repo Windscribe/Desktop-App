@@ -120,21 +120,6 @@
     </message>
 </context>
 <context>
-    <name>DialogGetUsernamePassword</name>
-    <message>
-        <source>Enter connection credentials</source>
-        <translation>Masukkan kredensial koneksi</translation>
-    </message>
-    <message>
-        <source>Please enter the username</source>
-        <translation>Silakan masukkan nama pengguna</translation>
-    </message>
-    <message>
-        <source>Please enter the password</source>
-        <translation>Silakan masukkan kata sandi</translation>
-    </message>
-</context>
-<context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
@@ -230,6 +215,18 @@
     <message>
         <source>Learn More</source>
         <translation>Pelajari lebih lanjut</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Nama pengguna</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Kata sandi</translation>
+    </message>
+    <message>
+        <source>Remember</source>
+        <translation>Ingat</translation>
     </message>
 </context>
 <context>
@@ -784,6 +781,18 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
         <translation>Tidak dapat membuka file untuk menulis.  Periksa izin Anda dan coba lagi.</translation>
+    </message>
+    <message>
+        <source>Enter Connection Credentials</source>
+        <translation>Masukkan Kredensial Koneksi</translation>
+    </message>
+    <message>
+        <source>Enter Private Key Password</source>
+        <translation>Masukkan Kata Sandi Kunci Pribadi</translation>
+    </message>
+    <message>
+        <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
+        <translation>Windscribe tidak dapat mengambil konfigurasi server. Silakan coba protokol lain.</translation>
     </message>
 </context>
 <context>
@@ -1409,20 +1418,8 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Basis Pengetahuan</translation>
     </message>
     <message>
-        <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>Tidak secerdas manusia, tetapi masih bisa menjawab pertanyaan Anda.</translation>
-    </message>
-    <message>
         <source>Talk to Garry</source>
         <translation>Bicaralah dengan Garry</translation>
-    </message>
-    <message>
-        <source>Stuck? Send us a ticket.</source>
-        <translation>Terjepit? Kirimkan tiket kepada kami.</translation>
-    </message>
-    <message>
-        <source>Send Ticket</source>
-        <translation>Kirim Tiket</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1459,6 +1456,18 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Failed!</source>
         <translation>Gagal!</translation>
+    </message>
+    <message>
+        <source>Need help? Garry can help you with most issues, go talk to him.</source>
+        <translation>Butuh bantuan? Garry dapat membantu Anda dengan sebagian besar masalah, bicaralah dengannya.</translation>
+    </message>
+    <message>
+        <source>Contact Humans</source>
+        <translation>Kontak Manusia</translation>
+    </message>
+    <message>
+        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
+        <translation>Punya masalah yang tidak bisa diselesaikan Garry? Hubungi dukungan manusia.</translation>
     </message>
 </context>
 <context>

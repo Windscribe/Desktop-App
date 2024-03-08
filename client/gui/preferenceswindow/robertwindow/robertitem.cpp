@@ -9,7 +9,7 @@
 
 namespace PreferencesWindow {
 
-RobertItem::RobertItem(ScalableGraphicsObject *parent, const types::RobertFilter &filter)
+RobertItem::RobertItem(ScalableGraphicsObject *parent, const api_responses::RobertFilter &filter)
   : BaseItem(parent, ROBERT_ITEM_HEIGHT*G_SCALE), captionFont_(12, true), icon_(nullptr), filter_(filter)
 {
     checkBoxButton_ = new ToggleButton(this);

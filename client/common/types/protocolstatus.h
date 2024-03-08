@@ -48,14 +48,14 @@ public:
 
     friend QDataStream& operator >>(QDataStream &stream, ProtocolStatus &o)
     {
-       quint32 version;
-       stream >> version;
-       if (version > o.versionForSerialization_) {
-           stream.setStatus(QDataStream::ReadCorruptData);
-           return stream;
-       }
-       stream >> o.protocol >> o.port >> o.status >> o.timeout;
-       return stream;
+        quint32 version;
+        stream >> version;
+        if (version > o.versionForSerialization_) {
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return stream;
+        }
+        stream >> o.protocol >> o.port >> o.status >> o.timeout;
+        return stream;
     }
 
     friend QDebug operator<<(QDebug dbg, const ProtocolStatus &ps)

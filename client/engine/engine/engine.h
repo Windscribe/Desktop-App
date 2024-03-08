@@ -3,31 +3,34 @@
 #include <atomic>
 
 #include <QObject>
-
-#include "apiresources/apiresourcesmanager.h"
-#include "apiresources/checkupdatemanager.h"
-#include "apiresources/myipmanager.h"
-#include "autoupdater/downloadhelper.h"
-#include "connectionmanager/connectionmanager.h"
-#include "connectstatecontroller/connectstatecontroller.h"
-#include "engine/customconfigs/customconfigs.h"
-#include "engine/customconfigs/customovpnauthcredentialsstorage.h"
-#include "engine/emergencycontroller/emergencycontroller.h"
-#include "engine/macaddresscontroller/imacaddresscontroller.h"
-#include "engine/ping/keepalivemanager.h"
-#include "engine/vpnshare/vpnsharecontroller.h"
-#include "firewall/firewallcontroller.h"
+#include <QWaitCondition>
 #include "firewall/firewallexceptions.h"
 #include "helper/ihelper.h"
 #include "helper/initializehelper.h"
-#include "locationsmodel/enginelocationsmodel.h"
-#include "networkaccessmanager/networkaccessmanager.h"
 #include "networkdetectionmanager/inetworkdetectionmanager.h"
-#include "packetsizecontroller.h"
-#include "serverapi/serverapi.h"
-#include "types/checkupdate.h"
+#include "firewall/firewallcontroller.h"
+#include "api_responses/notification.h"
+#include "locationsmodel/enginelocationsmodel.h"
+#include "connectionmanager/connectionmanager.h"
+#include "connectstatecontroller/connectstatecontroller.h"
+#include "engine/vpnshare/vpnsharecontroller.h"
+#include "engine/emergencycontroller/emergencycontroller.h"
+#include "apiresources/myipmanager.h"
 #include "types/enginesettings.h"
-#include "types/notification.h"
+#include "engine/customconfigs/customconfigs.h"
+#include "engine/customconfigs/customovpnauthcredentialsstorage.h"
+#include <atomic>
+#include "engine/macaddresscontroller/imacaddresscontroller.h"
+#include "engine/ping/keepalivemanager.h"
+#include "packetsizecontroller.h"
+#include "signout_helper.h"
+#include "autoupdater/downloadhelper.h"
+#include "autoupdater/autoupdaterhelper_mac.h"
+#include "apiresources/apiresourcesmanager.h"
+#include "apiresources/checkupdatemanager.h"
+#include "api_responses/robertfilter.h"
+#include "api_responses/checkupdate.h"
+
 
 #if defined(Q_OS_WIN)
     #include "measurementcpuusage.h"
@@ -64,13 +67,14 @@ public:
 
     void continueWithUsernameAndPassword(const QString &username, const QString &password, bool bSave);
     void continueWithPassword(const QString &password, bool bSave);
+    void continueWithPrivKeyPassword(const QString &password, bool bSave);
 
     void sendDebugLog();
     void setIPv6EnabledInOS(bool b);
     bool IPv6StateInOS();
     void getWebSessionToken(WEB_SESSION_PURPOSE purpose);
     void getRobertFilters();
-    void setRobertFilter(const types::RobertFilter &filter);
+    void setRobertFilter(const api_responses::RobertFilter &filter);
     void syncRobert();
 
     locationsmodel::LocationsModel *getLocationsModel();
@@ -129,23 +133,25 @@ public slots:
 signals:
     void initFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void bfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
-    void loginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap);
+    void cleanupFinished();
+    void loginFinished(bool isLoginFromSavedSettings, const QString &authHash, const api_responses::PortMap &portMap);
     void tryingBackupEndpoint(int num, int cnt);
     void loginError(LOGIN_RET retCode, const QString &errorMessage);
     void sessionDeleted();
-    void sessionStatusUpdated(const types::SessionStatus &sessionStatus);
-    void notificationsUpdated(const QVector<types::Notification> &notifications);
-    void checkUpdateUpdated(const types::CheckUpdate &checkUpdate);
+    void sessionStatusUpdated(const api_responses::SessionStatus &sessionStatus);
+    void notificationsUpdated(const QVector<api_responses::Notification> &notifications);
+    void checkUpdateUpdated(const api_responses::CheckUpdate &checkUpdate);
     void updateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error);
     void myIpUpdated(const QString &ip, bool isDisconnected);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void protocolPortChanged(const types::Protocol &protocol, const uint port);
-    void robertFiltersUpdated(bool success, const QVector<types::RobertFilter> &filters);
+    void robertFiltersUpdated(bool success, const QVector<api_responses::RobertFilter> &filters);
     void setRobertFilterFinished(bool success);
     void syncRobertFinished(bool success);
 
     void requestUsername();
     void requestPassword();
+    void requestPrivKeyPassword();
 
     void emergencyConnected();
     void emergencyDisconnected();
@@ -201,6 +207,7 @@ private slots:
     void signOutImplAfterDisconnect(bool keepFirewallOn);
     void continueWithUsernameAndPasswordImpl(const QString &username, const QString &password, bool bSave);
     void continueWithPasswordImpl(const QString &password, bool bSave);
+    void continueWithPrivKeyPasswordImpl(const QString &password, bool bSave);
 
     void gotoCustomOvpnConfigModeImpl();
 
@@ -226,23 +233,17 @@ private slots:
     void onApiResourcesManagerReadyForLogin();
     void onApiResourcesManagerLoginFailed(LOGIN_RET retCode, const QString &errorMessage);
     void onApiResourcesManagerSessionDeleted();
-    void onApiResourcesManagerSessionUpdated(const types::SessionStatus &sessionStatus);
-    void onApiResourcesManagerLocationsUpdated();
+    void onApiResourcesManagerSessionUpdated(const api_responses::SessionStatus &sessionStatus);
+    void onApiResourcesManagerLocationsUpdated(const QString &countryOverride);
     void onApiResourcesManagerStaticIpsUpdated();
-    void onApiResourcesManagerNotificationsUpdated(const QVector<types::Notification> &notifications);
+    void onApiResourcesManagerNotificationsUpdated(const QVector<api_responses::Notification> &notifications);
     void onApiResourcesManagerServerCredentialsFetched();
 
     void onFailOverTryingBackupEndpoint(int num, int cnt);
 
-    void onCheckUpdateUpdated(const types::CheckUpdate &checkUpdate);
+    void onCheckUpdateUpdated(const api_responses::CheckUpdate &checkUpdate);
     void onHostIPsChanged(const QSet<QString> &hostIps);
     void onMyIpManagerIpChanged(const QString &ip, bool isFromDisconnectedState);
-    void onDebugLogAnswer();
-    void onConfirmEmailAnswer();
-    void onWebSessionAnswer();
-    void onGetRobertFiltersAnswer();
-    void onSetRobertFilterAnswer();
-    void onSyncRobertAnswer();
 
     void onConnectionManagerConnected();
     void onConnectionManagerDisconnected(DISCONNECT_REASON reason);
@@ -258,6 +259,7 @@ private slots:
 
     void onConnectionManagerRequestUsername(const QString &pathCustomOvpnConfig);
     void onConnectionManagerRequestPassword(const QString &pathCustomOvpnConfig);
+    void onConnectionManagerRequestPrivKeyPassword(const QString &pathCustomOvpnConfig);
 
     void emergencyConnectClickImpl();
     void emergencyDisconnectClickImpl();
@@ -277,9 +279,8 @@ private slots:
     void onEmergencyControllerError(CONNECT_ERROR err);
 
     void getRobertFiltersImpl();
-    void setRobertFilterImpl(const types::RobertFilter &filter);
+    void setRobertFilterImpl(const api_responses::RobertFilter &filter);
     void syncRobertImpl();
-
 
     void onCustomConfigsChanged();
 
@@ -317,8 +318,6 @@ private:
     types::EngineSettings engineSettings_;
     IHelper *helper_;
     FirewallController *firewallController_;
-    NetworkAccessManager *networkAccessManager_;
-    server_api::ServerAPI *serverAPI_;
     ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
     VpnShareController *vpnShareController_;
@@ -334,6 +333,7 @@ private:
     QScopedPointer<api_resources::ApiResourcesManager> apiResourcesManager_;    // can be null for the custom config mode or when we in the logout state
     api_resources::CheckUpdateManager *checkUpdateManager_;
     api_resources::MyIpManager *myIpManager_;
+    std::unique_ptr<SignOutHelper> signOutHelper_;
 
 #ifdef Q_OS_WIN
     MeasurementCpuUsage *measurementCpuUsage_;
@@ -356,6 +356,9 @@ private:
 
     QMutex mutex_;
 
+    QMutex mutexForOnHostIPsChanged_;
+    QWaitCondition waitConditionForOnHostIPsChanged_;
+
     std::atomic<bool> isBlockConnect_;
     std::atomic<bool> isCleanupFinished_;
 
@@ -365,7 +368,7 @@ private:
     QString lastConnectingHostname_;
     types::Protocol lastConnectingProtocol_;
 
-    bool isNeedReconnectAfterRequestUsernameAndPassword_;
+    bool isNeedReconnectAfterRequestAuth_;
 
     bool online_;
 
@@ -397,4 +400,5 @@ private:
     types::ConnectionSettings connectionSettingsOverride_;
 
     bool checkAutoEnableAntiCensorship_ = false;
+    bool isIgnoreNoApiConnectivity_ = false;
 };

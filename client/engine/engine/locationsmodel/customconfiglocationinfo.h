@@ -2,6 +2,7 @@
 
 #include <QHostInfo>
 #include <QSharedPointer>
+#include <wsnet/WSNet.h>
 #include "baselocationinfo.h"
 #include "engine/customconfigs/icustomconfig.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
@@ -38,7 +39,7 @@ signals:
     void hostnamesResolved();
 
 private slots:
-    void onDnsRequestFinished();
+    void onDnsRequestFinished(const std::string &hostname, std::shared_ptr<wsnet::WSNetDnsRequestResult> result);
 
 private:
     struct RemoteDescr

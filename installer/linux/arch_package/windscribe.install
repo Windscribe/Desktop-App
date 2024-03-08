@@ -21,9 +21,9 @@ pre_install() {
         systemctl is-active --quiet firewalld
         if [ $? -eq 0 ]
         then
-           echo "Firewalld service is running. It will be stopped and disabled to avoid conflicts with the Windscribe iptables firewall."
-           systemctl stop firewalld
-           systemctl disable firewalld
+            echo "Firewalld service is running. It will be stopped and disabled to avoid conflicts with the Windscribe iptables firewall."
+            systemctl stop firewalld
+            systemctl disable firewalld
         fi
 
         echo "Finish pre-install script"

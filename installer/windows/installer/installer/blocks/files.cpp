@@ -157,7 +157,7 @@ bool Files::copyLibs()
         if (entry.is_regular_file() && entry.path().extension() == ".dll") {
             filesystem::copy_file(entry.path(), installPath / entry.path().filename(), ec);
             if (ec) {
-                Log::instance().out(L"Could not copy DLL %ls", entry.path().wstring().c_str());
+                Log::instance().out(L"Could not copy DLL %ls: %hs", entry.path().wstring().c_str(), ec.message().c_str());
                 return false;
             }
         }
@@ -168,7 +168,7 @@ bool Files::copyLibs()
     for (auto p : paths) {
         filesystem::copy(exePath / p, installPath / p, ec);
         if (ec) {
-            Log::instance().out(L"Could not copy %ls", p.c_str());
+            Log::instance().out(L"Could not copy %ls: %hs", p.c_str(), ec.message().c_str());
             return false;
         }
     }
@@ -178,7 +178,7 @@ bool Files::copyLibs()
 wstring Files::getExePath()
 {
     wchar_t path[MAX_PATH];
-	int ret = GetModuleFileName(NULL, path, MAX_PATH);
+    int ret = GetModuleFileName(NULL, path, MAX_PATH);
     if (ret == 0) {
         return wstring();
     }

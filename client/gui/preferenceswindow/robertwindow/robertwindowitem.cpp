@@ -20,7 +20,7 @@ RobertWindowItem::RobertWindowItem(ScalableGraphicsObject *parent, Preferences *
 
     desc_ = new PreferenceGroup(this,
                                 "",
-                                QString("https://%1/features/robert").arg(HardcodedSettings::instance().serverUrl()));
+                                QString("https://%1/features/robert").arg(HardcodedSettings::instance().windscribeServerUrl()));
     addItem(desc_);
 
     // Loading items
@@ -71,7 +71,7 @@ void RobertWindowItem::clearFilters()
     groups_.clear();
 }
 
-void RobertWindowItem::setFilters(const QVector<types::RobertFilter> &filters)
+void RobertWindowItem::setFilters(const QVector<api_responses::RobertFilter> &filters)
 {
     loading_ = false;
 

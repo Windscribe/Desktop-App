@@ -120,21 +120,6 @@
     </message>
 </context>
 <context>
-    <name>DialogGetUsernamePassword</name>
-    <message>
-        <source>Enter connection credentials</source>
-        <translation>Bağlantı kimlik bilgilerini girme</translation>
-    </message>
-    <message>
-        <source>Please enter the username</source>
-        <translation>Lütfen kullanıcı adını giriniz</translation>
-    </message>
-    <message>
-        <source>Please enter the password</source>
-        <translation>Lütfen şifreyi giriniz</translation>
-    </message>
-</context>
-<context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
@@ -230,6 +215,18 @@
     <message>
         <source>Learn More</source>
         <translation>Daha fazla bilgi edinin</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Kullanıcı adı</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Parola</translation>
+    </message>
+    <message>
+        <source>Remember</source>
+        <translation>Hatırlamak</translation>
     </message>
 </context>
 <context>
@@ -784,6 +781,18 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
         <translation>Dosya yazmak için açılamadı.  İzinlerinizi kontrol edin ve tekrar deneyin.</translation>
+    </message>
+    <message>
+        <source>Enter Connection Credentials</source>
+        <translation>Bağlantı Kimlik Bilgilerini Girin</translation>
+    </message>
+    <message>
+        <source>Enter Private Key Password</source>
+        <translation>Özel Anahtar Parolasını Girin</translation>
+    </message>
+    <message>
+        <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
+        <translation>Windscribe sunucu yapılandırmasını alamadı. Lütfen başka bir protokol deneyin.</translation>
     </message>
 </context>
 <context>
@@ -1409,20 +1418,8 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Bilgi bankası</translation>
     </message>
     <message>
-        <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>Bir insan kadar akıllı değil, ama yine de sorularınızı cevaplayabilir.</translation>
-    </message>
-    <message>
         <source>Talk to Garry</source>
         <translation>Garry ile konuş</translation>
-    </message>
-    <message>
-        <source>Stuck? Send us a ticket.</source>
-        <translation>Sıkış -mış? Bize bir bilet gönderin.</translation>
-    </message>
-    <message>
-        <source>Send Ticket</source>
-        <translation>Bilet Gönder</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1459,6 +1456,18 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Failed!</source>
         <translation>Başarısız!</translation>
+    </message>
+    <message>
+        <source>Need help? Garry can help you with most issues, go talk to him.</source>
+        <translation>Yardıma mı ihtiyacınız var? Garry çoğu konuda sana yardımcı olabilir, git onunla konuş.</translation>
+    </message>
+    <message>
+        <source>Contact Humans</source>
+        <translation>İnsanlarla İletişime Geçin</translation>
+    </message>
+    <message>
+        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
+        <translation>Garry&apos;nin çözemediği bir sorununuz mu var? İnsan desteğine başvurun.</translation>
     </message>
 </context>
 <context>

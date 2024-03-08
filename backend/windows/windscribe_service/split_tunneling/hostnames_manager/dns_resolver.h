@@ -1,14 +1,9 @@
 #pragma once
 
 #include <string>
-#include <vector>
 #include <map>
-#include <functional>
-#include <mutex>
-#include <set>
-
-#include "ares_library_init.h"
-#include "ares.h"
+#include <BS_thread_pool.hpp>
+#include <wsnet/WSNet.h>
 
 class DnsResolver
 {
@@ -18,49 +13,25 @@ public:
     {
         std::string hostname;
         std::vector<std::string> addresses;
-        bool error;
-
-        HostInfo() : error(false) {}
+        bool error = false;
     };
 
-    explicit DnsResolver();
+    explicit DnsResolver(std::function<void(std::map<std::string, HostInfo>)> resolveDomainsCallback);
     ~DnsResolver();
     DnsResolver(const DnsResolver &) = delete;
     DnsResolver &operator=(const DnsResolver &) = delete;
 
-    void stop();
-
     void resolveDomains(const std::vector<std::string> &hostnames);
     void cancelAll();
-    void setResolveDomainsCallbackHandler(std::function<void(std::map<std::string, HostInfo>)> resolveDomainsCallback);
 
 private:
-
     std::function<void(std::map<std::string, HostInfo>)> resolveDomainsCallback_;
+    BS::thread_pool taskQueue_;
 
-    struct USER_ARG
-    {
-        std::string hostname;
-    };
+    uint64_t curRequestId_ = 0;
+    std::map<uint64_t, std::shared_ptr<wsnet::WSNetCancelableCallback>> activeRequests_;
+    std::map<std::string, HostInfo> results_;
 
-    bool bStopCalled_;
-    std::mutex mutex_;
-    std::condition_variable waitCondition_;
-    bool bNeedFinish_;
-
-    AresLibraryInit aresLibraryInit_;
-    ares_channel channel_;
-
-    static DnsResolver *this_;
-
-    std::map<std::string, HostInfo> hostinfoResults_;
-    std::set<std::string> hostnamesInProgress_;
-
-    // thread specific
-    HANDLE hThread_;
-    static DWORD WINAPI threadFunc(LPVOID n);
-    static void aresLookupFinishedCallback(void *arg, int status, int timeouts, struct hostent *host);
-
-    bool processChannel(ares_channel channel);
+    void onDnsResolved(std::uint64_t requestId, const std::string &hostname, std::shared_ptr<wsnet::WSNetDnsRequestResult> result);
 };
 

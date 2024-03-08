@@ -1,15 +1,16 @@
 #pragma once
 
 #include <QObject>
+#include <wsnet/WSNet.h>
 #include "wireguardconfig.h"
 #include "utils/simplecrypt.h"
-#include "../serverapi/requests/baserequest.h"
 
 namespace server_api {
 class ServerAPI;
 }
 
-enum class WireGuardConfigRetCode { kSuccess, kKeyLimit, kFailed };
+// kFailoverFailed - this means that all API failovers fail and the API-connection cannot be established.
+enum class WireGuardConfigRetCode { kSuccess, kKeyLimit, kFailoverFailed, kFailed };
 
 // manages the logic of getting a WireGuard config using ServerAPI (wgConfigsInit(...) and wgConfigsConnect(...) functions)
 // also saves/restores some values of WireGuard config as permanent in settings
@@ -19,7 +20,8 @@ class GetWireGuardConfig : public QObject
 {
     Q_OBJECT
 public:
-    GetWireGuardConfig(QObject *parent, server_api::ServerAPI *serverAPI);
+    GetWireGuardConfig(QObject *parent);
+    ~GetWireGuardConfig();
 
     void getWireGuardConfig(const QString &serverName, bool deleteOldestKey, const QString &deviceId);
     static void removeWireGuardSettings();
@@ -28,13 +30,12 @@ signals:
     void getWireGuardConfigAnswer(WireGuardConfigRetCode retCode, const WireGuardConfig &config);
 
 private slots:
-    void onWgConfigsInitAnswer();
-    void onWgConfigsConnectAnswer();
+    void onWgConfigsInitAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
+    void onWgConfigsConnectAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
 
 
 private:
     static const QString KEY_WIREGUARD_CONFIG;
-    server_api::ServerAPI *serverAPI_;
     WireGuardConfig wireGuardConfig_;
     QString serverName_;
     bool deleteOldestKey_;
@@ -42,9 +43,10 @@ private:
     bool isErrorCode1311Guard_;
     bool isRetryConnectRequest_;
     bool isRetryInitRequest_;
-    server_api::BaseRequest *request_;
+    std::shared_ptr<wsnet::WSNetCancelableCallback> request_;
     SimpleCrypt simpleCrypt_;
 
+    void submitWireguardConnectRequest();
     void submitWireGuardInitRequest(bool generateKeyPair);
 
     bool getWireGuardKeyPair(QString &publicKey, QString &privateKey);

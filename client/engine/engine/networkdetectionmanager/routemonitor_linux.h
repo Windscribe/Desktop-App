@@ -5,7 +5,7 @@
 
 class RouteMonitor_linux : public QObject
 {
-   Q_OBJECT
+    Q_OBJECT
 public:
     explicit RouteMonitor_linux(QObject *parent = nullptr);
     ~RouteMonitor_linux();

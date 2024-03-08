@@ -18,6 +18,7 @@ public:
 
     void setText(const QString &text);
     void setRadius(int radius);
+    void setStyle(Style style);
 
     void hover();
     void unhover();

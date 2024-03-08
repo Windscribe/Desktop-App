@@ -67,7 +67,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
     firewallGroup_ = new FirewallGroup(this,
                                        "",
-                                       QString("https://%1/features/firewall").arg(HardcodedSettings::instance().serverUrl()));
+                                       QString("https://%1/features/firewall").arg(HardcodedSettings::instance().windscribeServerUrl()));
     connect(firewallGroup_, &FirewallGroup::firewallPreferencesChanged, this, &ConnectionWindowItem::onFirewallPreferencesChangedByUser);
     firewallGroup_->setFirewallSettings(preferences->firewallSettings());
     addItem(firewallGroup_);
@@ -78,7 +78,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
                                              "preferences/CONNECTION_MODE",
                                              ProtocolGroup::SelectionType::COMBO_BOX,
                                              "",
-                                             QString("https://%1/features/flexible-connectivity").arg(HardcodedSettings::instance().serverUrl()));
+                                             QString("https://%1/features/flexible-connectivity").arg(HardcodedSettings::instance().windscribeServerUrl()));
     connectionModeGroup_->setConnectionSettings(preferences->connectionSettings());
     connect(connectionModeGroup_, &ProtocolGroup::connectionModePreferencesChanged, this, &ConnectionWindowItem::onConnectionModePreferencesChangedByUser);
     addItem(connectionModeGroup_);
@@ -86,7 +86,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 #ifndef Q_OS_LINUX
     packetSizeGroup_ = new PacketSizeGroup(this,
                                            "",
-                                           QString("https://%1/features/packet-size").arg(HardcodedSettings::instance().serverUrl()));
+                                           QString("https://%1/features/packet-size").arg(HardcodedSettings::instance().windscribeServerUrl()));
     packetSizeGroup_->setPacketSizeSettings(preferences->packetSize());
     connect(packetSizeGroup_, &PacketSizeGroup::packetSizeChanged, this, &ConnectionWindowItem::onPacketSizePreferencesChangedByUser);
     connect(packetSizeGroup_, &PacketSizeGroup::detectPacketSize, this, &ConnectionWindowItem::detectPacketSize);
@@ -95,14 +95,14 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
     connectedDnsGroup_ = new ConnectedDnsGroup(this,
                                                "",
-                                               QString("https://%1/features/flexible-dns").arg(HardcodedSettings::instance().serverUrl()));
+                                               QString("https://%1/features/flexible-dns").arg(HardcodedSettings::instance().windscribeServerUrl()));
     connectedDnsGroup_->setConnectedDnsInfo(preferences->connectedDnsInfo());
     connect(connectedDnsGroup_, &ConnectedDnsGroup::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser);
     connect(connectedDnsGroup_, &ConnectedDnsGroup::domainsClick, this, &ConnectionWindowItem::connectedDnsDomainsClick);
     addItem(connectedDnsGroup_);
     allowLanTrafficGroup_ = new PreferenceGroup(this,
                                                 "",
-                                                QString("https://%1/features/lan-traffic").arg(HardcodedSettings::instance().serverUrl()));
+                                                QString("https://%1/features/lan-traffic").arg(HardcodedSettings::instance().windscribeServerUrl()));
     checkBoxAllowLanTraffic_ = new ToggleItem(allowLanTrafficGroup_, tr("Allow LAN Traffic"));
     checkBoxAllowLanTraffic_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/ALLOW_LAN_TRAFFIC"));
     checkBoxAllowLanTraffic_->setState(preferences->isAllowLanTraffic());
@@ -114,7 +114,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 #ifndef Q_OS_LINUX
     macSpoofingGroup_ = new MacSpoofingGroup(this,
                                              "",
-                                             QString("https://%1/features/mac-spoofing").arg(HardcodedSettings::instance().serverUrl()));
+                                             QString("https://%1/features/mac-spoofing").arg(HardcodedSettings::instance().windscribeServerUrl()));
     connect(macSpoofingGroup_, &MacSpoofingGroup::macAddrSpoofingChanged, this, &ConnectionWindowItem::onMacAddrSpoofingPreferencesChangedByUser);
     connect(macSpoofingGroup_, &MacSpoofingGroup::cycleMacAddressClick, this, &ConnectionWindowItem::cycleMacAddressClick);
     macSpoofingGroup_->setMacSpoofingSettings(preferences->macAddrSpoofing());
@@ -124,7 +124,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 #if defined(Q_OS_WIN)
     terminateSocketsGroup_ = new PreferenceGroup(this,
                                                  "",
-                                                 QString("https://%1/features/tcp-socket-termination").arg(HardcodedSettings::instance().serverUrl()));
+                                                 QString("https://%1/features/tcp-socket-termination").arg(HardcodedSettings::instance().windscribeServerUrl()));
     terminateSocketsItem_ = new ToggleItem(terminateSocketsGroup_, tr("Terminate Sockets"));
     terminateSocketsItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/TERMINATE_SOCKETS"));
     terminateSocketsItem_->setState(preferences->isTerminateSockets());
@@ -136,7 +136,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 #ifndef Q_OS_LINUX
     secureHotspotGroup_ = new SecureHotspotGroup(this,
                                                  "",
-                                                 QString("https://%1/features/secure-hotspot").arg(HardcodedSettings::instance().serverUrl()));
+                                                 QString("https://%1/features/secure-hotspot").arg(HardcodedSettings::instance().windscribeServerUrl()));
     connect(secureHotspotGroup_, &SecureHotspotGroup::secureHotspotPreferencesChanged, this, &ConnectionWindowItem::onSecureHotspotPreferencesChangedByUser);
     secureHotspotGroup_->setSecureHotspotSettings(preferences->shareSecureHotspot());
     updateIsSupported(preferencesHelper_->isWifiSharingSupported(), isIkev2(preferences_->connectionSettings()));
@@ -145,7 +145,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
     proxyGatewayGroup_ = new ProxyGatewayGroup(this,
                                                "",
-                                               QString("https://%1/features/proxy-gateway").arg(HardcodedSettings::instance().serverUrl()));
+                                               QString("https://%1/features/proxy-gateway").arg(HardcodedSettings::instance().windscribeServerUrl()));
     connect(proxyGatewayGroup_, &ProxyGatewayGroup::proxyGatewayPreferencesChanged, this, &ConnectionWindowItem::onProxyGatewayPreferencesChangedByUser);
     proxyGatewayGroup_->setProxyGatewaySettings(preferences->shareProxyGateway());
     addItem(proxyGatewayGroup_);

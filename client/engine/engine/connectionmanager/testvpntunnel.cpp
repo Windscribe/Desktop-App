@@ -1,20 +1,21 @@
 #include "testvpntunnel.h"
-#include "engine/serverapi/serverapi.h"
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 #include "utils/extraconfig.h"
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
-#include "engine/serverapi/requests/pingtestrequest.h"
 
+using namespace wsnet;
 
-TestVPNTunnel::TestVPNTunnel(QObject *parent, server_api::ServerAPI *serverAPI) : QObject(parent),
-    serverAPI_(serverAPI), bRunning_(false), curTest_(1), cmdId_(0), doCustomTunnelTest_(false), curRequest_(nullptr)
+TestVPNTunnel::TestVPNTunnel(QObject *parent) : QObject(parent),
+    bRunning_(false), curTest_(1), cmdId_(0), doCustomTunnelTest_(false)
 {
 }
 
 TestVPNTunnel::~TestVPNTunnel()
 {
+    if (curRequest_)
+        curRequest_->cancel();
 }
 
 void TestVPNTunnel::startTests(const types::Protocol &protocol)
@@ -100,71 +101,55 @@ void TestVPNTunnel::startTestImpl()
     lastTimeForCallWithLog_ = QTime::currentTime();
 
     WS_ASSERT(curRequest_ == nullptr);
-    curRequest_ = serverAPI_->pingTest(timeouts_[curTest_ - 1], true);
-    connect(curRequest_, &server_api::BaseRequest::finished, this, &TestVPNTunnel::onPingTestAnswer);
+    curRequest_ = callPingTest(timeouts_[curTest_ - 1]);
 }
 
 void TestVPNTunnel::stopTests()
 {
-    if (bRunning_)
-    {
+    if (bRunning_) {
         bRunning_ = false;
-        SAFE_DELETE(curRequest_);
+        if (curRequest_) {
+            curRequest_->cancel();
+            curRequest_.reset();
+        }
         qCDebug(LOG_CONNECTION) << "Tunnel tests stopped";
     }
 }
 
-void TestVPNTunnel::onPingTestAnswer()
+void TestVPNTunnel::onPingTestAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &ipAddress)
 {
-    QSharedPointer<server_api::PingTestRequest> request(static_cast<server_api::PingTestRequest *>(sender()), &QObject::deleteLater);
     WS_ASSERT(curRequest_ != nullptr);
-    curRequest_ = nullptr;
+    curRequest_.reset();
 
-    if (bRunning_)
-    {
-        const QString trimmedData = request->data().trimmed();
-        if (request->networkRetCode() == SERVER_RETURN_SUCCESS && IpValidation::isIp(trimmedData))
-        {
+    if (bRunning_) {
+        const QString trimmedData = QString::fromStdString(ipAddress).trimmed();
+        if (serverApiRetCode == ServerApiRetCode::kSuccess && IpValidation::isIp(trimmedData)) {
             qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "successfully finished with IP:" << trimmedData << ", total test time =" << elapsedOverallTimer_.elapsed();
             bRunning_ = false;
             emit testsFinished(true, trimmedData);
-        }
-        else
-        {
-            if (doCustomTunnelTest_)
-            {
+        } else {
+            if (doCustomTunnelTest_) {
                 qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "failed";
 
-                if (curTest_ < timeouts_.size())
-                {
+                if (curTest_ < timeouts_.size()) {
                     curTest_++;
                     QTimer::singleShot(testRetryDelay_, this, &TestVPNTunnel::doNextPingTest);
-                }
-                else
-                {
+                } else {
                     bRunning_ = false;
                     emit testsFinished(false, "");
                 }
-            }
-            else
-            {
-                if (elapsed_.elapsed() < timeouts_[curTest_-1])
-                {
+            } else {
+                if (elapsed_.elapsed() < timeouts_[curTest_-1]) {
                     // next ping attempt after 100 ms
                     QTimer::singleShot(100, this, &TestVPNTunnel::doNextPingTest);
-                }
-                else
-                {
+                } else {
                     qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "failed";
 
-                    if (curTest_ < timeouts_.size())
-                    {
+                    if (curTest_ < timeouts_.size()) {
                         curTest_++;
                         elapsed_.start();
                         doNextPingTest();
-                    }
-                    else
-                    {
+                    } else {
                         bRunning_ = false;
                         emit testsFinished(false, "");
                     }
@@ -176,35 +161,22 @@ void TestVPNTunnel::onPingTestAnswer()
 
 void TestVPNTunnel::doNextPingTest()
 {
-    if (bRunning_ && curTest_ >= 1 && curTest_ <= timeouts_.size())
-    {
+    if (bRunning_ && curTest_ >= 1 && curTest_ <= timeouts_.size()) {
         WS_ASSERT(curRequest_ == nullptr);
-
         cmdId_++;
 
-        if (doCustomTunnelTest_)
-        {
-            curRequest_ = serverAPI_->pingTest(timeouts_[curTest_ - 1], true);
-            connect(curRequest_, &server_api::BaseRequest::finished, this, &TestVPNTunnel::onPingTestAnswer);
-        }
-        else
-        {
+        if (doCustomTunnelTest_) {
+            curRequest_ = callPingTest(timeouts_[curTest_ - 1]);
+        } else {
             // reduce log output (maximum 1 log output per 1 sec)
             bool bWriteLog = lastTimeForCallWithLog_.msecsTo(QTime::currentTime()) > 1000;
-            if (bWriteLog)
-            {
+            if (bWriteLog) {
                 lastTimeForCallWithLog_ = QTime::currentTime();
             }
-
-            if ((timeouts_[curTest_-1] - elapsed_.elapsed()) > 0)
-            {
-                curRequest_ = serverAPI_->pingTest(timeouts_[curTest_-1] - elapsed_.elapsed(), bWriteLog);
-                connect(curRequest_, &server_api::BaseRequest::finished, this, &TestVPNTunnel::onPingTestAnswer);
-            }
-            else
-            {
-                curRequest_ = serverAPI_->pingTest(100, bWriteLog);
-                connect(curRequest_, &server_api::BaseRequest::finished, this, &TestVPNTunnel::onPingTestAnswer);
+            if ((timeouts_[curTest_-1] - elapsed_.elapsed()) > 0) {
+                curRequest_ = callPingTest(timeouts_[curTest_-1] - elapsed_.elapsed());
+            } else {
+                curRequest_ = callPingTest(100);
             }
         }
     }
@@ -215,4 +187,16 @@ void TestVPNTunnel::onTestsSkipped()
 {
     qCDebug(LOG_CONNECTION) << "Tunnel tests disabled";
     emit testsFinished(true, "");
+}
+
+std::shared_ptr<WSNetCancelableCallback> TestVPNTunnel::callPingTest(std::uint32_t timeoutMs)
+{
+    auto request = WSNet::instance()->serverAPI()->pingTest(timeoutMs, [this](wsnet::ServerApiRetCode serverApiRetCode, const std::string &ipAddress)
+    {
+        // put in message loop
+        QMetaObject::invokeMethod(this, [this, serverApiRetCode, ipAddress]() {
+            onPingTestAnswer(serverApiRetCode, ipAddress);
+        });
+    });
+    return request;
 }

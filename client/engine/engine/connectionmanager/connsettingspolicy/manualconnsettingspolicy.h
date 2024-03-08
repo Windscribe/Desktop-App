@@ -2,6 +2,7 @@
 
 #include "baseconnsettingspolicy.h"
 #include "types/connectionsettings.h"
+#include "api_responses/portmap.h"
 #include "engine/locationsmodel/mutablelocationinfo.h"
 
 // // manage manual connection mode (only for API and static ips locations)
@@ -10,7 +11,7 @@ class ManualConnSettingsPolicy : public BaseConnSettingsPolicy
     Q_OBJECT
 public:
     ManualConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const types::ConnectionSettings &connectionSettings,
-                             const types::PortMap &portMap);
+                             const api_responses::PortMap &portMap);
 
 
     void reset() override;
@@ -24,7 +25,7 @@ public:
 
 private:
     QSharedPointer<locationsmodel::MutableLocationInfo> locationInfo_;
-    types::PortMap portMap_;
+    api_responses::PortMap portMap_;
     types::ConnectionSettings connectionSettings_;
     int failedManualModeCounter_;
 };

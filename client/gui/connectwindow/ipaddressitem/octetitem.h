@@ -24,7 +24,7 @@ signals:
     void widthChanged();
 
 private slots:
-     void onTimer();
+    void onTimer();
 
 private:
     void setNums(int input, int &n1, int &n2, int &n3);

@@ -37,9 +37,9 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 signals:
-     void selected(const LocationID &lid);
-     void clickedOnPremiumStarCity();
-     void emptyListStateChanged(bool isEmptyList);
+    void selected(const LocationID &lid);
+    void clickedOnPremiumStarCity();
+    void emptyListStateChanged(bool isEmptyList);
 
 private slots:
     void onScrollBarActionTriggered(int action);

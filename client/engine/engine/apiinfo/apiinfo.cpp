@@ -16,13 +16,13 @@ ApiInfo::ApiInfo() : simpleCrypt_(SIMPLE_CRYPT_KEY)
 {
 }
 
-types::SessionStatus ApiInfo::getSessionStatus() const
+api_responses::SessionStatus ApiInfo::getSessionStatus() const
 {
     WS_ASSERT(isSessionStatusInit_);
     return sessionStatus_;
 }
 
-void ApiInfo::setSessionStatus(const types::SessionStatus &value)
+void ApiInfo::setSessionStatus(const api_responses::SessionStatus &value)
 {
     isSessionStatusInit_ = true;
     sessionStatus_ = value;
@@ -30,14 +30,14 @@ void ApiInfo::setSessionStatus(const types::SessionStatus &value)
     settings.setValue("userId", sessionStatus_.getUserId());    // need for uninstaller program for open post uninstall webpage
 }
 
-void ApiInfo::setLocations(const QVector<apiinfo::Location> &value)
+void ApiInfo::setLocations(const QVector<api_responses::Location> &value)
 {
     isLocationsInit_ = true;
     locations_ = value;
     mergeWindflixLocations();
 }
 
-QVector<apiinfo::Location> ApiInfo::getLocations() const
+QVector<api_responses::Location> ApiInfo::getLocations() const
 {
     return locations_;
 }
@@ -116,26 +116,26 @@ void ApiInfo::setAuthHash(const QString &authHash)
     settings.setValue("authHash", authHash);
 }
 
-types::PortMap ApiInfo::getPortMap() const
+api_responses::PortMap ApiInfo::getPortMap() const
 {
     WS_ASSERT(isPortMapInit_);
     return portMap_;
 }
 
-void ApiInfo::setPortMap(const types::PortMap &portMap)
+void ApiInfo::setPortMap(const api_responses::PortMap &portMap)
 {
     isPortMapInit_ = true;
     portMap_ = portMap;
     checkPortMapForUnavailableProtocolAndFix();
 }
 
-void ApiInfo::setStaticIps(const StaticIps &value)
+void ApiInfo::setStaticIps(const api_responses::StaticIps &value)
 {
     isStaticIpsInit_ = true;
     staticIps_ = value;
 }
 
-StaticIps ApiInfo::getStaticIps() const
+api_responses::StaticIps ApiInfo::getStaticIps() const
 {
     return staticIps_;
 }
@@ -224,10 +224,10 @@ void ApiInfo::mergeWindflixLocations()
 {
     // Build a new list of server locations to merge, removing them from the old list.
     // Currently we merge all WindFlix locations into the corresponding global locations.
-    QVector<apiinfo::Location> locationsToMerge;
-    QMutableVectorIterator<apiinfo::Location> it(locations_);
+    QVector<api_responses::Location> locationsToMerge;
+    QMutableVectorIterator<api_responses::Location> it(locations_);
     while (it.hasNext()) {
-        apiinfo::Location &location = it.next();
+        api_responses::Location &location = it.next();
         if (location.getName().startsWith("WINDFLIX")) {
             locationsToMerge.append(location);
             it.remove();
@@ -237,24 +237,24 @@ void ApiInfo::mergeWindflixLocations()
         return;
 
     // Map city names to locations for faster lookups.
-    QHash<QString, apiinfo::Location *> location_hash;
+    QHash<QString, api_responses::Location *> location_hash;
     for (auto &location: locations_) {
         for (int i = 0; i < location.groupsCount(); ++i)
         {
-            const apiinfo::Group group = location.getGroup(i);
+            const api_responses::Group group = location.getGroup(i);
             location_hash.insert(location.getCountryCode() + group.getCity(), &location);
         }
     }
 
     // Merge the locations.
-    QMutableVectorIterator<apiinfo::Location> itm(locationsToMerge);
+    QMutableVectorIterator<api_responses::Location> itm(locationsToMerge);
     while (itm.hasNext()) {
-        apiinfo::Location &location = itm.next();
+        api_responses::Location &location = itm.next();
         const auto country_code = location.getCountryCode();
 
         for (int i = 0; i < location.groupsCount(); ++i)
         {
-            apiinfo::Group group = location.getGroup(i);
+            api_responses::Group group = location.getGroup(i);
             group.setOverrideDnsHostName(location.getDnsHostName());
 
             auto target = location_hash.find(country_code + group.getCity());

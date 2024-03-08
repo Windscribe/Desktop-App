@@ -5,27 +5,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 project(bootstrap)
 
+find_package(7zip CONFIG REQUIRED)
+
 add_definitions(-DUNICODE -D_UNICODE /wd4090 -D_CRT_SECURE_NO_WARNINGS -D_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING)
 
 set(SOURCES
-    archive/archive.cpp
-    archive/LZMA_SDK/C/7zAlloc.c
-    archive/LZMA_SDK/C/7zArcIn.c
-    archive/LZMA_SDK/C/7zBuf.c
-    archive/LZMA_SDK/C/7zCrc.c
-    archive/LZMA_SDK/C/7zCrcOpt.c
-    archive/LZMA_SDK/C/7zDec.c
-    archive/LZMA_SDK/C/7zFile.c
-    archive/LZMA_SDK/C/7zStream.c
-    archive/LZMA_SDK/C/Bcj2.c
-    archive/LZMA_SDK/C/Bra.c
-    archive/LZMA_SDK/C/Bra86.c
-    archive/LZMA_SDK/C/BraIA64.c
-    archive/LZMA_SDK/C/CpuArch.c
-    archive/LZMA_SDK/C/Delta.c
-    archive/LZMA_SDK/C/Lzma2Dec.c
-    archive/LZMA_SDK/C/LzmaDec.c
-    archive/LZMA_SDK/C/Ppmd7.c
+    ../../../client/common/archive/archive.cpp
     installer.rc
     main.cpp
     ossupport.manifest
@@ -49,6 +34,7 @@ set_property(TARGET windscribe_installer PROPERTY LINK_FLAGS "/DELAYLOAD:dwmapi.
 target_link_libraries(windscribe_installer
     PRIVATE
     delayimp
+    7zip::7zip
 )
 
 target_include_directories(windscribe_installer
@@ -56,4 +42,8 @@ target_include_directories(windscribe_installer
     ../../utils
     ../../../client/common/types
     ../../../client/common/utils
+)
+
+install(TARGETS windscribe_installer
+    RUNTIME DESTINATION .
 )

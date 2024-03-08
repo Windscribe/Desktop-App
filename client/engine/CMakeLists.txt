@@ -13,19 +13,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Network Core5Compat)
 
-if(WIN32 AND "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
-    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs-arm64)
-else()
-    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
-endif()
+add_library(engine STATIC)
 
-set(PROJECT_SOURCES
-    engine.qrc
+target_link_libraries(engine PRIVATE Qt6::Core Qt6::Network Qt6::Core5Compat wsnet::wsnet OpenSSL::Crypto Boost::serialization
 )
-
-add_library(engine STATIC ${PROJECT_SOURCES})
-
-target_link_libraries(engine PRIVATE Qt6::Core Qt6::Network Qt6::Core5Compat)
 target_compile_definitions(engine PRIVATE CMAKE_LIBRARY_LIBRARY
                                   WINVER=0x0601
                                   _WIN32_WINNT=0x0601
@@ -35,10 +26,6 @@ target_compile_definitions(engine PRIVATE CMAKE_LIBRARY_LIBRARY
 
 target_include_directories(engine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../common
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/curl/include
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/include
-    ${WINDSCRIBE_BUILD_LIBS_PATH}/openssl_ech_draft/include
 )
 
 add_subdirectory(engine)

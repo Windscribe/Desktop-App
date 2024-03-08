@@ -4,11 +4,13 @@
 #include <QGraphicsProxyWidget>
 #include <QSet>
 
+#include "buttonwithcheckbox.h"
 #include "commongraphics/basepage.h"
 #include "commongraphics/checkbox.h"
 #include "commongraphics/imageitem.h"
 #include "commongraphics/listbutton.h"
 #include "commongraphics/textbutton.h"
+#include "credentiallineedit.h"
 #include "generalmessagetypes.h"
 #include "languagecontroller.h"
 
@@ -23,12 +25,12 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void updateScaling() override;
 
+    void setStyle(GeneralMessageWindow::Style style);
     void setIcon(const QString &icon);
     void setTitle(const QString &title);
     void setDescription(const QString &desc);
 
-    void setAcceptButtonStyle(GeneralMessageWindow::Style style);
-    void setAcceptText(const QString &text);
+    void setAcceptText(const QString &text, bool showRemember = false);
     void setRejectText(const QString &text);
     void setTertiaryText(const QString &text);
 
@@ -36,7 +38,13 @@ public:
 
     void setShowBottomPanel(bool on);
     void setLearnMoreUrl(const QString &url);
+    void setShowUsername(bool on);
+    void setShowPassword(bool on);
+
     bool isRememberChecked();
+    QString username() const;
+    QString password() const;
+    void clear();
 
 signals:
     void acceptClick();
@@ -46,6 +54,7 @@ signals:
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     bool sceneEvent(QEvent *event) override;
+    void focusInEvent(QFocusEvent *event) override;
 
 private slots:
     void onHoverAccept();
@@ -54,6 +63,7 @@ private slots:
     void onHoverLeave();
     void onLearnMoreClick();
     void onLanguageChanged();
+    void onCredentialEditingFinished();
 
 private:
     GeneralMessageWindow::Style style_;
@@ -69,11 +79,14 @@ private:
     int titleHeight_;
     int descHeight_;
 
-    CommonGraphics::ListButton *acceptButton_;
+    ButtonWithCheckbox *acceptButton_;
     CommonGraphics::ListButton *rejectButton_;
     CommonGraphics::ListButton *tertiaryButton_;
+    CredentialLineEdit *username_;
+    CredentialLineEdit *password_;
 
     bool showBottomPanel_;
+    bool showRemember_;
     Checkbox *checkbox_;
     QString learnMoreUrl_;
     CommonGraphics::TextButton *learnMoreLink_;

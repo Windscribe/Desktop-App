@@ -11,7 +11,7 @@ if [[ "${PRI_IFACE}" == "" ]]; then
     echo "Error: Primary interface not found"
     echo
     if [ "$1" != "-down" ] ; then
-       exit 1
+        exit 1
     fi
 else
     echo "Primary interface: ${PRI_IFACE}"

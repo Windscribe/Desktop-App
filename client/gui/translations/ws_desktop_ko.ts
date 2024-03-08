@@ -120,21 +120,6 @@
     </message>
 </context>
 <context>
-    <name>DialogGetUsernamePassword</name>
-    <message>
-        <source>Enter connection credentials</source>
-        <translation>연결 자격 증명 입력</translation>
-    </message>
-    <message>
-        <source>Please enter the username</source>
-        <translation>사용자 이름을 입력해 주세요</translation>
-    </message>
-    <message>
-        <source>Please enter the password</source>
-        <translation>비밀번호를 입력해 주세요</translation>
-    </message>
-</context>
-<context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
@@ -230,6 +215,18 @@
     <message>
         <source>Learn More</source>
         <translation>더 알아보세요</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>사용자 이름</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>암호</translation>
+    </message>
+    <message>
+        <source>Remember</source>
+        <translation>기억하다</translation>
     </message>
 </context>
 <context>
@@ -784,6 +781,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
         <translation>쓰기 위해 파일을 열 수 없습니다.  권한을 확인하고 다시 시도하세요.</translation>
+    </message>
+    <message>
+        <source>Enter Connection Credentials</source>
+        <translation>연결 자격 증명 입력</translation>
+    </message>
+    <message>
+        <source>Enter Private Key Password</source>
+        <translation>개인 키 암호 입력</translation>
+    </message>
+    <message>
+        <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
+        <translation>Windscribe가 서버 구성을 검색할 수 없습니다. 다른 프로토콜을 사용해 보십시오.</translation>
     </message>
 </context>
 <context>
@@ -1409,20 +1418,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>기술 자료</translation>
     </message>
     <message>
-        <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>인간만큼 똑똑하지는 않지만 여전히 질문에 답할 수 있습니다.</translation>
-    </message>
-    <message>
         <source>Talk to Garry</source>
         <translation>게리와 대화하기</translation>
-    </message>
-    <message>
-        <source>Stuck? Send us a ticket.</source>
-        <translation>붙어? 티켓을 보내주세요.</translation>
-    </message>
-    <message>
-        <source>Send Ticket</source>
-        <translation>티켓 보내기</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1459,6 +1456,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Failed!</source>
         <translation>실패!</translation>
+    </message>
+    <message>
+        <source>Need help? Garry can help you with most issues, go talk to him.</source>
+        <translation>도움이 필요하신가요? Garry는 대부분의 문제에 대해 당신을 도울 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Contact Humans</source>
+        <translation>인간과의 접촉</translation>
+    </message>
+    <message>
+        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
+        <translation>Garry가 해결할 수 없는 문제가 있습니까? 인적 지원에 문의하세요.</translation>
     </message>
 </context>
 <context>

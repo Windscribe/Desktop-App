@@ -28,12 +28,12 @@ private slots:
     void onBarPosYChanged(const QVariant &value);
 
 protected:
-     void paintEvent(QPaintEvent *event)        override;
-     void mousePressEvent(QMouseEvent *event)   override;
-     void mouseReleaseEvent(QMouseEvent *event) override;
-     void mouseMoveEvent(QMouseEvent *event)    override;
-     void enterEvent(QEnterEvent *event) override;
-     void leaveEvent(QEvent *event) override;
+    void paintEvent(QPaintEvent *event)        override;
+    void mousePressEvent(QMouseEvent *event)   override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event)    override;
+    void enterEvent(QEnterEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 
 private:
     int width_;

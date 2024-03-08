@@ -13,22 +13,9 @@ namespace CommonGraphics {
 
 BubbleButton::BubbleButton(ScalableGraphicsObject *parent, Style style, int width, int height, int radius)
     : ClickableGraphicsObject(parent), style_(style), width_(width), height_(height), radius_(radius),
-      fontDescr_(16, false), text_(""), curOutlineFillOpacity_(0), curTextOpacity_(OPACITY_FULL),
-      curFillColor_(FontManager::instance().getSeaGreenColor()),
-      curTextColor_(FontManager::instance().getMidnightColor()), fillColor_(curFillColor_), textColor_(curTextColor_)
+      fontDescr_(16, false), text_(""), curOutlineFillOpacity_(0), curTextOpacity_(OPACITY_FULL)
 {
-    if (style == kDark) {
-        curFillColor_ = QColor(255, 255, 255, 35);
-        fillColor_ = curFillColor_;
-        curTextColor_ = QColor(255, 255, 255);
-        textColor_ = curTextColor_;
-    } else if (style == kOutline) {
-        curFillColor_ = FontManager::instance().getMidnightColor();
-        fillColor_ = curFillColor_;
-        curTextColor_ = QColor(255, 255, 255);
-        textColor_ = curTextColor_;
-        curOutlineFillOpacity_ = OPACITY_UNHOVER_ICON_STANDALONE;
-    }
+    setStyle(style);
     connect(&textOpacityAnimation_, &QVariantAnimation::valueChanged, this, &BubbleButton::onTextOpacityChanged);
     connect(&outlineOpacityAnimation_, &QVariantAnimation::valueChanged, this, &BubbleButton::onOutlineOpacityChanged);
     connect(&textColorAnimation_, &QVariantAnimation::valueChanged, this, &BubbleButton::onTextColorChanged);
@@ -69,6 +56,28 @@ void BubbleButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     painter->setFont(*font);
     QRectF textRect(0, 0, width_*G_SCALE, height_*G_SCALE);
     painter->drawText(textRect, Qt::AlignCenter, text_);
+}
+
+void BubbleButton::setStyle(Style style)
+{
+    style_ = style;
+
+    if (style == kBright) {
+        curFillColor_ = FontManager::instance().getSeaGreenColor();
+        curTextColor_ = FontManager::instance().getMidnightColor();
+    } else if (style == kDark) {
+        curFillColor_ = QColor(255, 255, 255, 35);
+        curTextColor_ = QColor(255, 255, 255);
+    } else if (style == kOutline) {
+        curFillColor_ = FontManager::instance().getMidnightColor();
+        curTextColor_ = QColor(255, 255, 255);
+        curOutlineFillOpacity_ = OPACITY_UNHOVER_ICON_STANDALONE;
+    }
+
+    fillColor_ = curFillColor_;
+    textColor_ = curTextColor_;
+
+    update();
 }
 
 void BubbleButton::animateHide(int animationSpeed)

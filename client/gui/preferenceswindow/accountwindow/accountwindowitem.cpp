@@ -178,7 +178,7 @@ void AccountWindowItem::onTrafficUsedChanged(qint64 used)
 
 void AccountWindowItem::onUpgradeClicked()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/upgrade?pcpid=desktop_upgrade").arg(HardcodedSettings::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/upgrade?pcpid=desktop_upgrade").arg(HardcodedSettings::instance().windscribeServerUrl())));
 }
 
 void AccountWindowItem::onLanguageChanged()

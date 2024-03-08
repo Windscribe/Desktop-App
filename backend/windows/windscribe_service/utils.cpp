@@ -144,64 +144,64 @@ bool verifyWindscribeProcessPath(HANDLE hPipe)
 #if defined(USE_SIGNATURE_CHECK)
     // NOTE: a test project is archived with issue 546 for testing this method.
 
-   static DWORD pidVerified = 0;
+    static DWORD pidVerified = 0;
 
-   std::wostringstream output;
+    std::wostringstream output;
 
-   DWORD pidClient = 0;
-   BOOL result = ::GetNamedPipeClientProcessId(hPipe, &pidClient);
-   if (result == FALSE)
-   {
-      output << "GetNamedPipeClientProcessId failed. Err = " << ::GetLastError();
-      Logger::instance().out(output.str().c_str());
-      return false;
-   }
+    DWORD pidClient = 0;
+    BOOL result = ::GetNamedPipeClientProcessId(hPipe, &pidClient);
+    if (result == FALSE)
+    {
+        output << "GetNamedPipeClientProcessId failed. Err = " << ::GetLastError();
+        Logger::instance().out(output.str().c_str());
+        return false;
+    }
 
-   if ((pidClient > 0) && (pidClient == pidVerified)) {
-      return true;
-   }
+    if ((pidClient > 0) && (pidClient == pidVerified)) {
+        return true;
+    }
 
-   wsl::Win32Handle processHandle(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pidClient));
-   if (!processHandle.isValid())
-   {
-      output << "OpenProcess failed. Err = " << ::GetLastError();
-      Logger::instance().out(output.str().c_str());
-      return false;
-   }
+    wsl::Win32Handle processHandle(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pidClient));
+    if (!processHandle.isValid())
+    {
+        output << "OpenProcess failed. Err = " << ::GetLastError();
+        Logger::instance().out(output.str().c_str());
+        return false;
+    }
 
-   wchar_t path[MAX_PATH];
-   if (::GetModuleFileNameEx(processHandle.getHandle(), NULL, path, MAX_PATH) == 0)
-   {
-      output << "GetModuleFileNameEx failed. Err = " << ::GetLastError();
-      Logger::instance().out(output.str().c_str());
-      return false;
-   }
+    wchar_t path[MAX_PATH];
+    if (::GetModuleFileNameEx(processHandle.getHandle(), NULL, path, MAX_PATH) == 0)
+    {
+        output << "GetModuleFileNameEx failed. Err = " << ::GetLastError();
+        Logger::instance().out(output.str().c_str());
+        return false;
+    }
 
-   std::wstring windscribeExePath = getExePath() + std::wstring(L"\\Windscribe.exe");
+    std::wstring windscribeExePath = getExePath() + std::wstring(L"\\Windscribe.exe");
 
-   if (!iequals(windscribeExePath, path))
-   {
-      output << "verifyWindscribeProcessPath invalid process path: " << std::wstring(path);
-      Logger::instance().out(output.str().c_str());
-      return false;
-   }
+    if (!iequals(windscribeExePath, path))
+    {
+        output << "verifyWindscribeProcessPath invalid process path: " << std::wstring(path);
+        Logger::instance().out(output.str().c_str());
+        return false;
+    }
 
-   ExecutableSignature sigCheck;
-   if (!sigCheck.verify(path))
-   {
-      output << "verifyWindscribeProcessPath signature verify failed. Err = " << sigCheck.lastError().c_str();
-      Logger::instance().out(output.str().c_str());
-      return false;
-   }
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(path))
+    {
+        output << "verifyWindscribeProcessPath signature verify failed. Err = " << sigCheck.lastError().c_str();
+        Logger::instance().out(output.str().c_str());
+        return false;
+    }
 
-   //output << "verifyWindscribeProcessPath signature verified for " << std::wstring(path);
-   //Logger::instance().out(output.str().c_str());
+    //output << "verifyWindscribeProcessPath signature verified for " << std::wstring(path);
+    //Logger::instance().out(output.str().c_str());
 
-   pidVerified = pidClient;
-   return true;
+    pidVerified = pidClient;
+    return true;
 #else
     (void)hPipe;
-   return true;
+    return true;
 #endif
 }
 

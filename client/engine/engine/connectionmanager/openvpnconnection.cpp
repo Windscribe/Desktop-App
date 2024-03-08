@@ -22,7 +22,7 @@
 
 OpenVPNConnection::OpenVPNConnection(QObject *parent, IHelper *helper) : IConnection(parent), helper_(helper),
     bStopThread_(false), currentState_(STATUS_DISCONNECTED),
-    isAllowFirewallAfterCustomConfigConnection_(false)
+    isAllowFirewallAfterCustomConfigConnection_(false), privKeyPassword_("")
 {
     connect(&killControllerTimer_, &QTimer::timeout, this, &OpenVPNConnection::onKillControllerTimer);
 }
@@ -102,6 +102,12 @@ void OpenVPNConnection::continueWithPassword(const QString &password)
 {
     password_ = password;
     io_service_.post(boost::bind( &OpenVPNConnection::continueWithPasswordImpl, this ));
+}
+
+void OpenVPNConnection::continueWithPrivKeyPassword(const QString &password)
+{
+    privKeyPassword_ = password;
+    io_service_.post(boost::bind( &OpenVPNConnection::continueWithPrivKeyPasswordImpl, this ));
 }
 
 void OpenVPNConnection::setCurrentState(CONNECTION_STATUS state)
@@ -198,6 +204,8 @@ void OpenVPNConnection::run()
 #ifdef Q_OS_WIN
     helper_win->disableDnsLeaksProtection();
     helper_win->removeOpenVpnAdapter();
+    // This prevents the adapter/network number from increasing on each connection.
+    helper_win->removeWindscribeNetworkProfiles();
 #endif
 }
 
@@ -387,6 +395,19 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 emit requestUsername();
             }
         }
+        else if (serverReply.contains("PASSWORD:Need 'Private Key' password", Qt::CaseInsensitive))
+        {
+            if (!privKeyPassword_.isEmpty())
+            {
+                char message[1024];
+                snprintf(message, 1024, "password \"Private Key\" %s\n", privKeyPassword_.toUtf8().data());
+                boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message,strlen(message)), boost::asio::transfer_all(), write_error);
+            }
+            else
+            {
+                emit requestPrivKeyPassword();
+            }
+        }
         else if (serverReply.contains("PASSWORD:Need 'HTTP Proxy' username/password", Qt::CaseInsensitive))
         {
             char message[1024];
@@ -421,6 +442,16 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         else if (serverReply.contains("PASSWORD:Verification Failed: 'Auth'", Qt::CaseInsensitive))
         {
             emit error(CONNECT_ERROR::AUTH_ERROR);
+            if (!stateVariables_.bSigTermSent)
+            {
+                boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), write_error);
+                helper_->clearUnblockingCmd(stateVariables_.lastCmdId);
+                stateVariables_.bSigTermSent = true;
+            }
+        }
+        else if (serverReply.contains("FATAL:Error: private key password verification failed", Qt::CaseInsensitive))
+        {
+            emit error(CONNECT_ERROR::PRIV_KEY_PASSWORD_ERROR);
             if (!stateVariables_.bSigTermSent)
             {
                 boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), write_error);
@@ -663,6 +694,21 @@ void OpenVPNConnection::continueWithPasswordImpl()
     boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message, strlen(message)), boost::asio::transfer_all(), write_error);
 
     checkErrorAndContinue(write_error, false);
+}
+
+void OpenVPNConnection::continueWithPrivKeyPasswordImpl()
+{
+    boost::system::error_code write_error;
+    char message[1024];
+    snprintf(message, 1024, "password \"Private Key\" %s\n", privKeyPassword_.toUtf8().data());
+    boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message, strlen(message)), boost::asio::transfer_all(), write_error);
+
+    checkErrorAndContinue(write_error, false);
+}
+
+void OpenVPNConnection::setPrivKeyPassword(const QString &password)
+{
+    privKeyPassword_ = password;
 }
 
 bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo &outConnectionAdapterInfo, bool &outRedirectDefaultGateway)

@@ -1,19 +1,16 @@
 #include "apiresourcesmanager.h"
-
 #include "engine/getdeviceid.h"
-#include "engine/serverapi/requests/loginrequest.h"
-#include "engine/serverapi/requests/sessionrequest.h"
-#include "engine/serverapi/requests/serverconfigsrequest.h"
-#include "engine/serverapi/requests/servercredentialsrequest.h"
-#include "engine/serverapi/requests/serverlistrequest.h"
-#include "engine/serverapi/requests/portmaprequest.h"
-#include "engine/serverapi/requests/staticipsrequest.h"
-#include "engine/serverapi/requests/notificationsrequest.h"
+#include "engine/openvpnversioncontroller.h"
+#include "api_responses/servercredentials.h"
+#include "api_responses/serverlist.h"
+#include "utils/utils.h"
 
 namespace api_resources {
 
-ApiResourcesManager::ApiResourcesManager(QObject *parent, server_api::ServerAPI *serverAPI, IConnectStateController *connectStateController, INetworkDetectionManager *networkDetectionManager) : QObject(parent),
-    serverAPI_(serverAPI), connectStateController_(connectStateController)
+using namespace wsnet;
+
+ApiResourcesManager::ApiResourcesManager(QObject *parent, IConnectStateController *connectStateController, INetworkDetectionManager *networkDetectionManager) : QObject(parent),
+    connectStateController_(connectStateController)
 {
     waitForNetworkConnectivity_ = new WaitForNetworkConnectivity(this, networkDetectionManager);
     connect(waitForNetworkConnectivity_, &WaitForNetworkConnectivity::connectivityOnline, this, &ApiResourcesManager::onConnectivityOnline);
@@ -25,11 +22,8 @@ ApiResourcesManager::ApiResourcesManager(QObject *parent, server_api::ServerAPI 
 
 ApiResourcesManager::~ApiResourcesManager()
 {
-    for (const auto &it : requestsInProgress_) {
-        if (it)
-            delete it;
-    }
-    requestsInProgress_.clear();
+    for (auto &it : requestsInProgress_)
+        it->cancel();
 }
 
 void ApiResourcesManager::fetchAllWithAuthHash()
@@ -45,15 +39,6 @@ void ApiResourcesManager::login(const QString &username, const QString &password
     waitForNetworkConnectivity_->setProperty("password", password);
     waitForNetworkConnectivity_->setProperty("code2fa", code2fa);
     waitForNetworkConnectivity_->wait(kWaitTimeForNoNetwork);
-}
-
-void ApiResourcesManager::signOut()
-{
-    server_api::BaseRequest *request = serverAPI_->deleteSession(apiInfo_.getAuthHash());
-    connect(request, &server_api::BaseRequest::finished, [request]() {
-        // Just delete the request, without any action. We don't need a result.
-        request->deleteLater();
-    });
 }
 
 void ApiResourcesManager::fetchSession()
@@ -83,6 +68,11 @@ bool ApiResourcesManager::loadFromSettings()
     return apiInfo_.loadFromSettings();
 }
 
+bool ApiResourcesManager::isLoggedIn() const
+{
+    return fetchTimer_->isActive();
+}
+
 void ApiResourcesManager::setServerCredentials(const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig)
 {
     apiInfo_.setServerCredentials(serverCredentials);
@@ -99,35 +89,34 @@ bool ApiResourcesManager::isCanBeLoadFromSettings()
     return false;
 }
 
-void ApiResourcesManager::onInitialSessionAnswer()
+void ApiResourcesManager::onInitialSessionAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData)
 {
     requestsInProgress_.remove(RequestType::kSessionStatus);
-    QSharedPointer<server_api::SessionRequest> request(static_cast<server_api::SessionRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_NETWORK_ERROR) {
+    if (serverApiRetCode == ServerApiRetCode::kNetworkError) {
         // repeat the request
         fetchAllWithAuthHash();
     } else {
-        handleLoginOrSessionAnswer(request->networkRetCode(), request->sessionErrorCode(), request->sessionStatus(), request->authHash(), QString());
+        handleLoginOrSessionAnswer(serverApiRetCode, jsonData);
     }
 }
 
-void ApiResourcesManager::onLoginAnswer()
+void ApiResourcesManager::onLoginAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData,
+                                        const QString &username, const QString &password, const QString &code2fa)
 {
     requestsInProgress_.remove(RequestType::kSessionStatus);
-    QSharedPointer<server_api::LoginRequest> request(static_cast<server_api::LoginRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_NETWORK_ERROR) {
+    if (serverApiRetCode == ServerApiRetCode::kNetworkError) {
         // repeat the request
-        loginImpl(request->property("username").toString(), request->property("password").toString(), request->property("code2fa").toString());
+        loginImpl(username, password, code2fa);
     } else {
-        handleLoginOrSessionAnswer(request->networkRetCode(), request->sessionErrorCode(), request->sessionStatus(), request->authHash(), request->errorMessage());
+        handleLoginOrSessionAnswer(serverApiRetCode, jsonData);
     }
 }
 
-void ApiResourcesManager::onServerConfigsAnswer()
+void ApiResourcesManager::onServerConfigsAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData)
 {
-    QSharedPointer<server_api::ServerConfigsRequest> request(static_cast<server_api::ServerConfigsRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
-        apiInfo_.setOvpnConfig(request->ovpnConfig());
+    if (serverApiRetCode == ServerApiRetCode::kSuccess) {
+        QByteArray ovpnConfig = QByteArray::fromBase64(QByteArray(jsonData.c_str()));
+        apiInfo_.setOvpnConfig(ovpnConfig);
         saveApiInfoToSettings();
         lastUpdateTimeMs_[RequestType::kServerConfigs] = QDateTime::currentMSecsSinceEpoch();
         isServerConfigsReceived_ = true;
@@ -137,11 +126,11 @@ void ApiResourcesManager::onServerConfigsAnswer()
     requestsInProgress_.remove(RequestType::kServerConfigs);
 }
 
-void ApiResourcesManager::onServerCredentialsOpenVpnAnswer()
+void ApiResourcesManager::onServerCredentialsOpenVpnAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData)
 {
-    QSharedPointer<server_api::ServerCredentialsRequest> request(static_cast<server_api::ServerCredentialsRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
-        apiInfo_.setServerCredentialsOpenVpn(request->radiusUsername(), request->radiusPassword());
+    if (serverApiRetCode == ServerApiRetCode::kSuccess) {
+        api_responses::ServerCredentials sc(jsonData);
+        apiInfo_.setServerCredentialsOpenVpn(sc.username(), sc.password());
         saveApiInfoToSettings();
         lastUpdateTimeMs_[RequestType::kServerCredentialsOpenVPN] = QDateTime::currentMSecsSinceEpoch();
         isOpenVpnCredentialsReceived_ = true;
@@ -151,11 +140,11 @@ void ApiResourcesManager::onServerCredentialsOpenVpnAnswer()
     requestsInProgress_.remove(RequestType::kServerCredentialsOpenVPN);
 }
 
-void ApiResourcesManager::onServerCredentialsIkev2Answer()
+void ApiResourcesManager::onServerCredentialsIkev2Answer(ServerApiRetCode serverApiRetCode, const std::string &jsonData)
 {
-    QSharedPointer<server_api::ServerCredentialsRequest> request(static_cast<server_api::ServerCredentialsRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
-        apiInfo_.setServerCredentialsIkev2(request->radiusUsername(), request->radiusPassword());
+    if (serverApiRetCode == ServerApiRetCode::kSuccess) {
+        api_responses::ServerCredentials sc(jsonData);
+        apiInfo_.setServerCredentialsIkev2(sc.username(), sc.password());
         saveApiInfoToSettings();
         lastUpdateTimeMs_[RequestType::kServerCredentialsIkev2] = QDateTime::currentMSecsSinceEpoch();
         isIkev2CredentialsReceived_ = true;
@@ -165,25 +154,25 @@ void ApiResourcesManager::onServerCredentialsIkev2Answer()
     requestsInProgress_.remove(RequestType::kServerCredentialsIkev2);
 }
 
-void ApiResourcesManager::onServerLocationsAnswer()
+void ApiResourcesManager::onServerLocationsAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData)
 {
-    QSharedPointer<server_api::ServerListRequest> request(static_cast<server_api::ServerListRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
-        apiInfo_.setLocations(request->locations());
-        apiInfo_.setForceDisconnectNodes(request->forceDisconnectNodes());
+    if (serverApiRetCode == ServerApiRetCode::kSuccess) {
+        api_responses::ServerList sl(jsonData);
+        apiInfo_.setLocations(sl.locations());
+        apiInfo_.setForceDisconnectNodes(sl.forceDisconnectNodes());
         saveApiInfoToSettings();
         lastUpdateTimeMs_[RequestType::kLocations] = QDateTime::currentMSecsSinceEpoch();
-        emit locationsUpdated();
+        emit locationsUpdated(sl.countryOverride());
         checkForReadyLogin();
     }
     requestsInProgress_.remove(RequestType::kLocations);
 }
 
-void ApiResourcesManager::onPortMapAnswer()
+void ApiResourcesManager::onPortMapAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData)
 {
-    QSharedPointer<server_api::PortMapRequest> request(static_cast<server_api::PortMapRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
-        apiInfo_.setPortMap(request->portMap());
+    if (serverApiRetCode == ServerApiRetCode::kSuccess) {
+        api_responses::PortMap portMap(jsonData);
+        apiInfo_.setPortMap(portMap);
         saveApiInfoToSettings();
         lastUpdateTimeMs_[RequestType::kPortMap] = QDateTime::currentMSecsSinceEpoch();
         checkForReadyLogin();
@@ -191,11 +180,11 @@ void ApiResourcesManager::onPortMapAnswer()
     requestsInProgress_.remove(RequestType::kPortMap);
 }
 
-void ApiResourcesManager::onStaticIpsAnswer()
+void ApiResourcesManager::onStaticIpsAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData)
 {
-    QSharedPointer<server_api::StaticIpsRequest> request(static_cast<server_api::StaticIpsRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
-        apiInfo_.setStaticIps(request->staticIps());
+    if (serverApiRetCode == ServerApiRetCode::kSuccess) {
+        api_responses::StaticIps si(jsonData);
+        apiInfo_.setStaticIps(si);
         saveApiInfoToSettings();
         lastUpdateTimeMs_[RequestType::kStaticIps] = QDateTime::currentMSecsSinceEpoch();
         emit staticIpsUpdated();
@@ -204,25 +193,25 @@ void ApiResourcesManager::onStaticIpsAnswer()
     requestsInProgress_.remove(RequestType::kStaticIps);
 }
 
-void ApiResourcesManager::onNotificationsAnswer()
+void ApiResourcesManager::onNotificationsAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData)
 {
-    QSharedPointer<server_api::NotificationsRequest> request(static_cast<server_api::NotificationsRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
-        emit notificationsUpdated(request->notifications());
+    if (serverApiRetCode == ServerApiRetCode::kSuccess) {
+            api_responses::Notifications n(jsonData);
+        emit notificationsUpdated(n.notifications());
         lastUpdateTimeMs_[RequestType::kNotifications] = QDateTime::currentMSecsSinceEpoch();
     }
     requestsInProgress_.remove(RequestType::kNotifications);
 }
 
-void ApiResourcesManager::onSessionAnswer()
+void ApiResourcesManager::onSessionAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData)
 {
-    QSharedPointer<server_api::SessionRequest> request(static_cast<server_api::SessionRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
-        if (request->sessionErrorCode() == server_api::SessionErrorCode::kSuccess) {
-            apiInfo_.setSessionStatus(request->sessionStatus());
+    if (serverApiRetCode == ServerApiRetCode::kSuccess) {
+        api_responses::SessionStatus ss(jsonData);
+        if (ss.getSessionErrorCode() == api_responses::SessionErrorCode::kSuccess) {
+            apiInfo_.setSessionStatus(ss);
             saveApiInfoToSettings();
             updateSessionStatus();
-        } else if (request->sessionErrorCode() == server_api::SessionErrorCode::kSessionInvalid) {
+        } else if (ss.getSessionErrorCode() == api_responses::SessionErrorCode::kSessionInvalid) {
             emit sessionDeleted();
         }
         lastUpdateTimeMs_[RequestType::kSessionStatus] = QDateTime::currentMSecsSinceEpoch();
@@ -232,9 +221,9 @@ void ApiResourcesManager::onSessionAnswer()
 
 void ApiResourcesManager::onFetchTimer()
 {
-     WS_ASSERT(!apiInfo_.getAuthHash().isEmpty());
-     if (!apiInfo_.getAuthHash().isEmpty())
-         fetchAll(apiInfo_.getAuthHash());
+    WS_ASSERT(!apiInfo_.getAuthHash().isEmpty());
+    if (!apiInfo_.getAuthHash().isEmpty())
+        fetchAll(apiInfo_.getAuthHash());
 }
 
 void ApiResourcesManager::onConnectivityOnline()
@@ -252,39 +241,43 @@ void ApiResourcesManager::onConnectivityTimeoutExpired()
     emit loginFailed(LOGIN_RET_NO_CONNECTIVITY, QString());
 }
 
-void ApiResourcesManager::handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, server_api::SessionErrorCode sessionErrorCode, const types::SessionStatus &sessionStatus, const QString &authHash, const QString &errorMessage)
+void ApiResourcesManager::handleLoginOrSessionAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData)
 {
-    if (retCode == SERVER_RETURN_SUCCESS)  {
-        if (sessionErrorCode == server_api::SessionErrorCode::kSuccess) {
-            apiInfo_.setAuthHash(authHash);
-            apiInfo_.setSessionStatus(sessionStatus);
+    if (serverApiRetCode == ServerApiRetCode::kSuccess)  {
+        api_responses::SessionStatus ss(jsonData);
+
+        if (ss.getSessionErrorCode() == api_responses::SessionErrorCode::kSuccess) {
+            if (!ss.getAuthHash().isEmpty()) {
+                apiInfo_.setAuthHash(ss.getAuthHash());
+            }
+            apiInfo_.setSessionStatus(ss);
             saveApiInfoToSettings();
             lastUpdateTimeMs_[RequestType::kSessionStatus] = QDateTime::currentMSecsSinceEpoch();
             updateSessionStatus();
             checkForReadyLogin();
-            fetchAll(authHash);
+            fetchAll(ss.getAuthHash());
             fetchTimer_->start(1000);
-        } else if (sessionErrorCode == server_api::SessionErrorCode::kBadUsername) {
-            emit loginFailed(LOGIN_RET_BAD_USERNAME, errorMessage);
-        } else if (sessionErrorCode == server_api::SessionErrorCode::kMissingCode2FA) {
-            emit loginFailed(LOGIN_RET_MISSING_CODE2FA, errorMessage);
-        } else if (sessionErrorCode == server_api::SessionErrorCode::kBadCode2FA) {
-            emit loginFailed(LOGIN_RET_BAD_CODE2FA, errorMessage);
-        } else if (sessionErrorCode == server_api::SessionErrorCode::kAccountDisabled) {
-            emit loginFailed(LOGIN_RET_ACCOUNT_DISABLED, errorMessage);
-        } else if (sessionErrorCode == server_api::SessionErrorCode::kSessionInvalid) {
-            emit loginFailed(LOGIN_RET_SESSION_INVALID, errorMessage);
-        } else if (sessionErrorCode == server_api::SessionErrorCode::kRateLimited) {
-            emit loginFailed(LOGIN_RET_RATE_LIMITED, errorMessage);
+        } else if (ss.getSessionErrorCode() == api_responses::SessionErrorCode::kBadUsername) {
+            emit loginFailed(LOGIN_RET_BAD_USERNAME, ss.getErrorMessage());
+        } else if (ss.getSessionErrorCode() == api_responses::SessionErrorCode::kMissingCode2FA) {
+            emit loginFailed(LOGIN_RET_MISSING_CODE2FA, ss.getErrorMessage());
+        } else if (ss.getSessionErrorCode() == api_responses::SessionErrorCode::kBadCode2FA) {
+            emit loginFailed(LOGIN_RET_BAD_CODE2FA, ss.getErrorMessage());
+        } else if (ss.getSessionErrorCode() == api_responses::SessionErrorCode::kAccountDisabled) {
+            emit loginFailed(LOGIN_RET_ACCOUNT_DISABLED, ss.getErrorMessage());
+        } else if (ss.getSessionErrorCode() == api_responses::SessionErrorCode::kSessionInvalid) {
+            emit loginFailed(LOGIN_RET_SESSION_INVALID, ss.getErrorMessage());
+        } else if (ss.getSessionErrorCode() == api_responses::SessionErrorCode::kRateLimited) {
+            emit loginFailed(LOGIN_RET_RATE_LIMITED, ss.getErrorMessage());
         } else {
             WS_ASSERT(false);
             emit loginFailed(LOGIN_RET_NO_API_CONNECTIVITY, QString());
         }
-    } else if (retCode == SERVER_RETURN_NO_NETWORK_CONNECTION) {
+    } else if (serverApiRetCode == ServerApiRetCode::kNoNetworkConnection) {
         emit loginFailed(LOGIN_RET_NO_CONNECTIVITY, QString());
-    } else if (retCode == SERVER_RETURN_INCORRECT_JSON) {
+    } else if (serverApiRetCode == ServerApiRetCode::kIncorrectJson) {
         emit loginFailed(LOGIN_RET_INCORRECT_JSON, QString());
-    } else if (retCode == SERVER_RETURN_FAILOVER_FAILED) {
+    } else if (serverApiRetCode == ServerApiRetCode::kFailoverFailed) {
         emit loginFailed(LOGIN_RET_NO_API_CONNECTIVITY, QString());
     } else {
         WS_ASSERT(false);
@@ -351,59 +344,103 @@ void ApiResourcesManager::fetchAllWithAuthHashImpl()
     WS_ASSERT(!apiInfo_.getAuthHash().isEmpty());
     WS_ASSERT(!requestsInProgress_.contains(RequestType::kSessionStatus));
 
-    requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->session(apiInfo_.getAuthHash());
-    connect(requestsInProgress_[RequestType::kSessionStatus], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onInitialSessionAnswer);
+    auto callback = [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+        QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData] {
+            onInitialSessionAnswer(serverApiRetCode, jsonData);
+        });
+    };
+    requestsInProgress_[RequestType::kSessionStatus] = WSNet::instance()->serverAPI()->session(apiInfo_.getAuthHash().toStdString(), callback);
 }
 
 void ApiResourcesManager::loginImpl(const QString &username, const QString &password, const QString &code2fa)
 {
     WS_ASSERT(!requestsInProgress_.contains(RequestType::kSessionStatus));
 
-    requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->login(username, password, code2fa);
-    requestsInProgress_[RequestType::kSessionStatus]->setProperty("username", username);
-    requestsInProgress_[RequestType::kSessionStatus]->setProperty("password", password);
-    requestsInProgress_[RequestType::kSessionStatus]->setProperty("code2fa", code2fa);
-    connect(requestsInProgress_[RequestType::kSessionStatus], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onLoginAnswer);
+    auto callback = [this, username, password, code2fa](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+        QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData, username, password, code2fa] {
+            onLoginAnswer(serverApiRetCode, jsonData, username, password, code2fa);
+        });
+    };
+    requestsInProgress_[RequestType::kSessionStatus] = WSNet::instance()->serverAPI()->login(username.toStdString(),
+                                                                                             password.toStdString(),
+                                                                                             code2fa.toStdString(),
+                                                                                             callback);
 }
 
 void ApiResourcesManager::fetchServerConfigs(const QString &authHash)
 {
     if (requestsInProgress_.contains(RequestType::kServerConfigs))
         return;
-    requestsInProgress_[RequestType::kServerConfigs] = serverAPI_->serverConfigs(authHash);
-    connect(requestsInProgress_[RequestType::kServerConfigs], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onServerConfigsAnswer);
+
+    auto callback = [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+        QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData] {
+            onServerConfigsAnswer(serverApiRetCode, jsonData);
+        });
+    };
+    requestsInProgress_[RequestType::kServerConfigs] = WSNet::instance()->serverAPI()->serverConfigs(apiInfo_.getAuthHash().toStdString(),
+                                                                                                     OpenVpnVersionController::instance().getOpenVpnVersion().toStdString(),
+                                                                                                     callback);
 }
 
 void ApiResourcesManager::fetchServerCredentialsOpenVpn(const QString &authHash)
 {
     if (requestsInProgress_.contains(RequestType::kServerCredentialsOpenVPN))
         return;
-    requestsInProgress_[RequestType::kServerCredentialsOpenVPN] = serverAPI_->serverCredentials(authHash, types::Protocol::OPENVPN_UDP);
-    connect(requestsInProgress_[RequestType::kServerCredentialsOpenVPN], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onServerCredentialsOpenVpnAnswer);
+
+    auto callback = [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+        QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData] {
+            onServerCredentialsOpenVpnAnswer(serverApiRetCode, jsonData);
+        });
+    };
+    requestsInProgress_[RequestType::kServerCredentialsOpenVPN] = WSNet::instance()->serverAPI()->serverCredentials(apiInfo_.getAuthHash().toStdString(), true, callback);
 }
 
 void ApiResourcesManager::fetchServerCredentialsIkev2(const QString &authHash)
 {
     if (requestsInProgress_.contains(RequestType::kServerCredentialsIkev2))
         return;
-    requestsInProgress_[RequestType::kServerCredentialsIkev2] = serverAPI_->serverCredentials(authHash, types::Protocol::IKEV2);
-    connect(requestsInProgress_[RequestType::kServerCredentialsIkev2], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onServerCredentialsIkev2Answer);
+
+    auto callback = [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+        QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData] {
+            onServerCredentialsIkev2Answer(serverApiRetCode, jsonData);
+        });
+    };
+    requestsInProgress_[RequestType::kServerCredentialsIkev2] = WSNet::instance()->serverAPI()->serverCredentials(apiInfo_.getAuthHash().toStdString(), false, callback);
 }
 
 void ApiResourcesManager::fetchLocations()
 {
     if (requestsInProgress_.contains(RequestType::kLocations))
         return;
-    requestsInProgress_[RequestType::kLocations] = serverAPI_->serverLocations("en", apiInfo_.getSessionStatus().getRevisionHash(), apiInfo_.getSessionStatus().isPremium(), apiInfo_.getSessionStatus().getAlc());
-    connect(requestsInProgress_[RequestType::kLocations], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onServerLocationsAnswer);
+
+    auto callback = [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+        QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData] {
+            onServerLocationsAnswer(serverApiRetCode, jsonData);
+        });
+    };
+
+    // convert QStringList to std::vector<std::string>
+    std::vector<std::string> alcList;
+    const auto &l = apiInfo_.getSessionStatus().getAlc();
+    for (const auto &it : l) {
+        alcList.push_back(it.toStdString());
+    }
+
+    requestsInProgress_[RequestType::kLocations] = WSNet::instance()->serverAPI()->serverLocations("en", apiInfo_.getSessionStatus().getRevisionHash().toStdString(),
+                                                                                                   apiInfo_.getSessionStatus().isPremium(), alcList, callback);
 }
 
 void ApiResourcesManager::fetchPortMap(const QString &authHash)
 {
     if (requestsInProgress_.contains(RequestType::kPortMap))
         return;
-    requestsInProgress_[RequestType::kPortMap] = serverAPI_->portMap(authHash);
-    connect(requestsInProgress_[RequestType::kPortMap], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onPortMapAnswer);
+
+    auto callback = [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+        QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData] {
+            onPortMapAnswer(serverApiRetCode, jsonData);
+        });
+    };
+    requestsInProgress_[RequestType::kPortMap] = WSNet::instance()->serverAPI()->portMap(apiInfo_.getAuthHash().toStdString(), 6, std::vector<std::string>(), callback);
 }
 
 void ApiResourcesManager::fetchStaticIps(const QString &authHash)
@@ -412,10 +449,17 @@ void ApiResourcesManager::fetchStaticIps(const QString &authHash)
         return;
 
     if (apiInfo_.getSessionStatus().getStaticIpsCount() > 0) {
-        requestsInProgress_[RequestType::kStaticIps] = serverAPI_->staticIps(authHash, GetDeviceId::instance().getDeviceId());
-        connect(requestsInProgress_[RequestType::kStaticIps], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onStaticIpsAnswer);
+
+        auto callback = [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+            QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData] {
+                onStaticIpsAnswer(serverApiRetCode, jsonData);
+            });
+        };
+        requestsInProgress_[RequestType::kStaticIps] = WSNet::instance()->serverAPI()->staticIps(apiInfo_.getAuthHash().toStdString(), Utils::getBasePlatformName().toStdString(),
+                                                                                                 GetDeviceId::instance().getDeviceId().toStdString(),
+                                                                                                 callback);
     } else {
-        apiInfo_.setStaticIps(apiinfo::StaticIps());
+        apiInfo_.setStaticIps(api_responses::StaticIps());
         lastUpdateTimeMs_[RequestType::kStaticIps] = QDateTime::currentMSecsSinceEpoch();
         checkForReadyLogin();
     }
@@ -425,21 +469,31 @@ void ApiResourcesManager::fetchNotifications(const QString &authHash)
 {
     if (requestsInProgress_.contains(RequestType::kNotifications))
         return;
-    requestsInProgress_[RequestType::kNotifications] = serverAPI_->notifications(authHash);
-    connect(requestsInProgress_[RequestType::kNotifications], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onNotificationsAnswer);
+
+    auto callback = [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+        QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData] {
+            onNotificationsAnswer(serverApiRetCode, jsonData);
+        });
+    };
+    requestsInProgress_[RequestType::kNotifications] = WSNet::instance()->serverAPI()->notifications(apiInfo_.getAuthHash().toStdString(), std::string(), callback);
 }
 
 void ApiResourcesManager::fetchSession(const QString &authHash)
 {
     if (requestsInProgress_.contains(RequestType::kSessionStatus))
         return;
-    requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->session(authHash);
-    connect(requestsInProgress_[RequestType::kSessionStatus], &server_api::BaseRequest::finished, this, &ApiResourcesManager::onSessionAnswer);
+
+    auto callback = [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+        QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData] {
+            onSessionAnswer(serverApiRetCode, jsonData);
+        });
+    };
+    requestsInProgress_[RequestType::kSessionStatus] = WSNet::instance()->serverAPI()->session(authHash.toStdString(), callback);
 }
 
 void ApiResourcesManager::updateSessionStatus()
 {
-    const types::SessionStatus ss = apiInfo_.getSessionStatus();
+    const api_responses::SessionStatus ss = apiInfo_.getSessionStatus();
 
     if (ss.isChangedForLogging(prevSessionForLogging_)) {
         qCDebug(LOG_BASIC) << "update session status (changed since last call)";

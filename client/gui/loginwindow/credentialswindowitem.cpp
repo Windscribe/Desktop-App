@@ -423,7 +423,7 @@ void CredentialsWindowItem::onGotoLoginButtonClick()
 
 void CredentialsWindowItem::onGetStartedButtonClick()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/signup?cpid=app_windows").arg(HardcodedSettings::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/signup?cpid=app_windows").arg(HardcodedSettings::instance().windscribeServerUrl())));
 }
 
 void CredentialsWindowItem::onTwoFactorAuthClick()
@@ -436,7 +436,7 @@ void CredentialsWindowItem::onTwoFactorAuthClick()
 
 void CredentialsWindowItem::onForgotPassClick()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/forgotpassword").arg(HardcodedSettings::instance().serverUrl())));
+    QDesktopServices::openUrl(QUrl( QString("https://%1/forgotpassword").arg(HardcodedSettings::instance().windscribeServerUrl())));
 }
 
 void CredentialsWindowItem::onSettingsButtonClick()

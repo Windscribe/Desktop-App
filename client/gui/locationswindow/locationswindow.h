@@ -2,7 +2,6 @@
 
 #include <QWidget>
 #include "widgetlocations/locationstab.h"
-#include "widgetlocations/footertopstrip.h"
 
 namespace gui_locations
 {
@@ -54,7 +53,7 @@ protected:
 private:
     const int LOCATIONS_TAB_HEIGHT_INIT = 398; // 7 * 50 + TAB_HEADER_HEIGHT
     static constexpr int FOOTER_HEIGHT = 14; //
-    static constexpr int FOOTER_HEIGHT_FULL = 16; // remaining 2px is drawn with footerTopStrip_ overlay
+    static constexpr int FOOTER_HEIGHT_FULL = 16;
     static constexpr int MIN_VISIBLE_LOCATIONS = 3;
     static constexpr int MAX_VISIBLE_LOCATIONS = 12;
 

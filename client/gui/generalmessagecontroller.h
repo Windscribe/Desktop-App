@@ -28,8 +28,17 @@ public:
                      std::function<void(bool)> tertiaryFunc = std::function<void(bool)>(nullptr),
                      GeneralMessage::Flags flags = GeneralMessage::Flags::kNone,
                      const QString &learnMoreUrl = "");
+    void showCredentialPrompt(const QString &icon, const QString &title, const QString &desc,
+                              const QString &acceptText,
+                              const QString &rejectText = "",
+                              const QString &tertiaryText = "",
+                              std::function<void(const QString &, const QString &, bool)> acceptFunc = std::function<void(const QString &, const QString &, bool)>(nullptr),
+                              std::function<void(bool)> rejectFunc = std::function<void(bool)>(nullptr),
+                              std::function<void(bool)> tertiaryFunc = std::function<void(bool)>(nullptr),
+                              GeneralMessage::Flags flags = GeneralMessage::Flags::kNone);
 
     void showMessage(GeneralMessage *message);
+    void showCredentialsPrompt(GeneralMessage *message);
     bool hasMessages() const;
 
     static inline const char *kOk = QT_TR_NOOP("Ok");
@@ -52,4 +61,5 @@ private:
     explicit GeneralMessageController();
     void showNext();
     void handleResult(Result res);
+    MainWindowController::WINDOW_ID getSource();
 };

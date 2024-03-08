@@ -10,7 +10,7 @@
 #include <tchar.h>
 #include <versionhelpers.h>
 
-#include "archive/archive.h"
+#include "../../../client/common/archive/archive.h"
 #include "global_consts.h"
 #include "wsscopeguard.h"
 #include "win32handle.h"

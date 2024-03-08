@@ -213,4 +213,26 @@ QString convertToAbsolutePath(const QString &in)
     return QString();
 }
 
+QString getDistroName()
+{
+    QString distro;
+
+    QFile osReleaseFile("/etc/os-release");
+    if (osReleaseFile.open(QIODevice::ReadOnly)) {
+        QTextStream in(&osReleaseFile);
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+            if (line.startsWith("PRETTY_NAME=")) {
+                distro = line.mid(12).removeFirst().removeLast();
+            }
+        }
+    }
+
+    if (distro.isEmpty()) {
+        return "Unknown";
+    }
+
+    return distro;
+}
+
 } // end namespace LinuxUtils

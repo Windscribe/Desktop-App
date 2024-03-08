@@ -2,6 +2,7 @@
 
 #include <QHostInfo>
 #include <QObject>
+#include <wsnet/WSNet.h>
 #include "engine/helper/ihelper.h"
 #include "types/enums.h"
 #include "types/packetsize.h"
@@ -35,8 +36,6 @@ signals:
     void errorDuringConnection(CONNECT_ERROR errorCode);
 
 private slots:
-    void onDnsRequestFinished();
-
     void onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo);
     void onConnectionDisconnected();
     void onConnectionReconnecting();
@@ -47,18 +46,11 @@ private:
           STATE_DISCONNECTING_FROM_USER_CLICK, STATE_ERROR_DURING_CONNECTION};
 
     IHelper *helper_;
-    QByteArray ovpnConfig_;
     IConnection *connector_;
     MakeOVPNFile *makeOVPNFile_;
     types::ProxySettings proxySettings_;
 
-    struct CONNECT_ATTEMPT_INFO
-    {
-        QString ip;
-        uint port;
-        QString protocol;   //udp or tcp
-    };
-    QVector<CONNECT_ATTEMPT_INFO> attempts_;
+    std::vector<std::shared_ptr<wsnet::WSNetEmergencyConnectEndpoint>> endpoints_;
 
     QString lastIp_;
     int state_;
@@ -67,7 +59,8 @@ private:
     AdapterGatewayInfo defaultAdapterInfo_;
     AdapterGatewayInfo vpnAdapterInfo_;
 
+    std::shared_ptr<wsnet::WSNetCancelableCallback> request_;
+
     void doConnect();
     void doMacRestoreProcedures();
-    void addRandomHardcodedIpsToAttempts();
 };

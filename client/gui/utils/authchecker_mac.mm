@@ -27,7 +27,7 @@ int maxCommands = 20;
 + (id) sharedInstance {
     static id sharedTask = nil;
     if(sharedTask==nil) {
-     sharedTask = [[AuthCheckerHandler alloc] init];
+        sharedTask = [[AuthCheckerHandler alloc] init];
     }
     return sharedTask;
 }
@@ -91,7 +91,7 @@ int maxCommands = 20;
         }
 
         while(  (NSUInteger) i < numItems && i < maxCommands ) {
-             [[forCommands objectAtIndex:i] getCString:paths[i] maxLength:maxChars encoding:NSUTF8StringEncoding];
+            [[forCommands objectAtIndex:i] getCString:paths[i] maxLength:maxChars encoding:NSUTF8StringEncoding];
 
             items[i].name = kAuthorizationRightExecute;
             items[i].value = paths[i];

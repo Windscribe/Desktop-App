@@ -9,6 +9,7 @@
 
 #define SAFE_DELETE(x) if (x) { delete x; x = nullptr; }
 #define SAFE_DELETE_LATER(x) if (x) { x->deleteLater(); x = nullptr; }
+#define SAFE_CANCEL_AND_DELETE_WSNET_REQUEST(x) if (x) { x->cancel(); x.reset(); }
 
 #define CONNECTION_MODE_DEFAULT     0
 #define CONNECTION_MODE_BACKUP      1
@@ -16,6 +17,8 @@
 
 namespace Utils {
     QString getPlatformName();
+    // return win, mac or linux
+    QString getBasePlatformName();
     QString getPlatformNameSafe();
     QString getOSVersion();
     void parseVersionString(const QString &version, int &major, int &minor, bool &bSuccess);

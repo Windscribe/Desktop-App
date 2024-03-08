@@ -10,12 +10,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "LZMA_SDK/C/CpuArch.h"
-#include "LZMA_SDK/C/7z.h"
-#include "LZMA_SDK/C/7zBuf.h"
-#include "LZMA_SDK/C/7zFile.h"
-#include "LZMA_SDK/C/7zVersion.h"
-
+#include <CpuArch.h>
+#include <7z.h>
+#include <7zBuf.h>
+#include <7zFile.h>
+#include <7zVersion.h>
 
 typedef struct
 {
@@ -75,7 +74,7 @@ private:
 #ifdef _WIN32
     HGLOBAL hGlobal;
 #endif
-    
+
     std::function<void(const char*)> logFunction;
     unsigned long file_size;
     unsigned char* pData;
@@ -167,15 +166,15 @@ private:
     Archive(const std::wstring &name);
 #else
     Archive(const std::wstring &name, uid_t userId, gid_t groupId);
-	bool isCorrect() const;
+    bool isCorrect() const;
 #endif
     ~Archive();
     void setLogFunction(const std::function<void(const char*)>& logFunc);
 
-   //list of files
+    //list of files
     SRes fileList(std::list<std::wstring> &file_list);
 
-   //extract files[i] to path paths[i]
+    //extract files[i] to path paths[i]
     void calcTotal(const std::list<std::wstring> &files, const std::list<std::wstring> &paths);
     UInt32 getNumFiles();
     SRes extractionFile(const UInt32 &i);

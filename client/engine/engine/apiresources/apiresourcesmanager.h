@@ -1,11 +1,10 @@
 #pragma once
 
-#include "engine/serverapi/serverapi.h"
 #include "engine/apiinfo/apiinfo.h"
+#include <wsnet/WSNet.h>
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
-#include "engine/serverapi/requests/sessionerrorcode.h"
 #include "engine/networkdetectionmanager/waitfornetworkconnectivity.h"
-#include "types/notification.h"
+#include "api_responses/notification.h"
 
 namespace api_resources {
 
@@ -17,14 +16,13 @@ class ApiResourcesManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit ApiResourcesManager(QObject *parent, server_api::ServerAPI *serverAPI, IConnectStateController *connectStateController, INetworkDetectionManager *networkDetectionManager);
+    explicit ApiResourcesManager(QObject *parent,IConnectStateController *connectStateController, INetworkDetectionManager *networkDetectionManager);
     virtual ~ApiResourcesManager();
 
     // one of these functions should be called only once for the lifetime of the object
     void fetchAllWithAuthHash();
     void login(const QString &username, const QString &password, const QString &code2fa);
 
-    void signOut();
     void fetchSession();
 
     // start fetching the server credentials and openvpn config
@@ -32,6 +30,9 @@ public:
     void fetchServerCredentials();
 
     bool loadFromSettings();
+
+    // true if the session request was successful at least once
+    bool isLoggedIn() const;
 
     // in order to install server credentials from outside the class (from RefetchServerCredentials)
     void setServerCredentials(const apiinfo::ServerCredentials &serverCredentials, const QString &serverConfig);
@@ -41,11 +42,11 @@ public:
     static bool isCanBeLoadFromSettings();
     static void removeFromSettings() { apiinfo::ApiInfo::removeFromSettings(); }
 
-    types::SessionStatus sessionStatus() const { return apiInfo_.getSessionStatus(); }
-    types::PortMap portMap() const { return apiInfo_.getPortMap(); }
-    QVector<apiinfo::Location> locations() const { return apiInfo_.getLocations(); }
+    api_responses::SessionStatus sessionStatus() const { return apiInfo_.getSessionStatus(); }
+    api_responses::PortMap portMap() const { return apiInfo_.getPortMap(); }
+    QVector<api_responses::Location> locations() const { return apiInfo_.getLocations(); }
     QStringList forceDisconnectNodes() const { return apiInfo_.getForceDisconnectNodes(); }
-    apiinfo::StaticIps staticIps() const { return apiInfo_.getStaticIps(); }
+    api_responses::StaticIps staticIps() const { return apiInfo_.getStaticIps(); }
     apiinfo::ServerCredentials serverCredentials() const { return apiInfo_.getServerCredentials(); }
     QString ovpnConfig() const { return apiInfo_.getOvpnConfig(); }
 
@@ -54,32 +55,20 @@ signals:
     void loginFailed(LOGIN_RET loginRetCode, const QString &errorMessage);
 
     void sessionDeleted();
-    void sessionUpdated(const types::SessionStatus &sessionStatus);
-    void locationsUpdated();
+    void sessionUpdated(const api_responses::SessionStatus &sessionStatus);
+    // countryOverride parameter from the response or empty if there was no this parameter
+    void locationsUpdated(const QString &countryOverride);
     void staticIpsUpdated();
-    void notificationsUpdated(const QVector<types::Notification> &notifications);
+    void notificationsUpdated(const QVector<api_responses::Notification> &notifications);
 
     void serverCredentialsFetched();
 
 private slots:
-    void onInitialSessionAnswer();
-    void onLoginAnswer();
-    void onServerConfigsAnswer();
-    void onServerCredentialsOpenVpnAnswer();
-    void onServerCredentialsIkev2Answer();
-    void onServerLocationsAnswer();
-    void onPortMapAnswer();
-    void onStaticIpsAnswer();
-    void onNotificationsAnswer();
-    void onSessionAnswer();
-
     void onFetchTimer();
-
     void onConnectivityOnline();
     void onConnectivityTimeoutExpired();
 
 private:
-    server_api::ServerAPI *serverAPI_;
     IConnectStateController *connectStateController_;
     WaitForNetworkConnectivity *waitForNetworkConnectivity_;
     apiinfo::ApiInfo apiInfo_;
@@ -89,11 +78,11 @@ private:
     static constexpr int k24Hours = 24 * 60 * 60 * 1000;
 
     QHash<RequestType, qint64> lastUpdateTimeMs_;
-    QHash<RequestType, QPointer<server_api::BaseRequest>> requestsInProgress_;
+    QHash<RequestType, std::shared_ptr<wsnet::WSNetCancelableCallback> > requestsInProgress_;
     QTimer *fetchTimer_;
 
-    types::SessionStatus prevSessionStatus_;
-    types::SessionStatus prevSessionForLogging_;
+    api_responses::SessionStatus prevSessionStatus_;
+    api_responses::SessionStatus prevSessionForLogging_;
 
     // internal variables for fetchServerCredentials() functionality
     bool isFetchingServerCredentials_ = false;
@@ -103,8 +92,7 @@ private:
 
     static constexpr int kWaitTimeForNoNetwork = 10000;
 
-    void handleLoginOrSessionAnswer(SERVER_API_RET_CODE retCode, server_api::SessionErrorCode sessionErrorCode, const types::SessionStatus &sessionStatus,
-                                                     const QString &authHash, const QString &errorMessage);
+    void handleLoginOrSessionAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
 
     void checkForReadyLogin();
     void checkForServerCredentialsFetchFinished();
@@ -125,6 +113,19 @@ private:
     void updateSessionStatus();
 
     void saveApiInfoToSettings();
+
+    void onInitialSessionAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
+    void onLoginAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData,
+                       const QString &username, const QString &password, const QString &code2fa);
+    void onSessionAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
+    void onServerConfigsAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
+    void onServerCredentialsOpenVpnAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
+    void onServerCredentialsIkev2Answer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
+    void onServerLocationsAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
+    void onPortMapAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
+    void onStaticIpsAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
+    void onNotificationsAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
+
 };
 
 } // namespace api_resources

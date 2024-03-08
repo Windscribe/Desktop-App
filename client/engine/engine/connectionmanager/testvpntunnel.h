@@ -5,15 +5,15 @@
 #include <QTimer>
 #include <QTime>
 #include <QVector>
+#include <wsnet/WSNet.h>
 #include "types/protocol.h"
-#include "engine/serverapi/serverapi.h"
 
 // do set of tests after VPN tunnel is established
 class TestVPNTunnel : public QObject
 {
     Q_OBJECT
 public:
-    explicit TestVPNTunnel(QObject *parent, server_api::ServerAPI *serverAPI);
+    explicit TestVPNTunnel(QObject *parent);
     virtual ~TestVPNTunnel();
 
 public slots:
@@ -24,13 +24,12 @@ signals:
     void testsFinished(bool bSuccess, const QString &ipAddress);
 
 private slots:
-    void onPingTestAnswer();
+    void onPingTestAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &ipAddress);
     void doNextPingTest();
     void startTestImpl();
     void onTestsSkipped();
 
 private:
-    server_api::ServerAPI *serverAPI_;
     bool bRunning_;
     int curTest_;
     quint64 cmdId_;
@@ -44,6 +43,7 @@ private:
 
     types::Protocol protocol_;
 
-    server_api::BaseRequest *curRequest_;
+    std::shared_ptr<wsnet::WSNetCancelableCallback> curRequest_;
 
+    std::shared_ptr<wsnet::WSNetCancelableCallback> callPingTest(std::uint32_t timeoutMs);
 };

@@ -1,0 +1,72 @@
+#include "httpnetworkmanager.h"
+#include "httprequest.h"
+#include "utils/cancelablecallback.h"
+
+namespace wsnet {
+
+HttpNetworkManager::HttpNetworkManager(BS::thread_pool &taskQueue, WSNetDnsResolver *dnsResolver) :
+    taskQueue_(taskQueue), impl_(taskQueue, dnsResolver)
+{
+}
+
+bool HttpNetworkManager::init()
+{
+    return impl_.init();
+}
+
+std::shared_ptr<WSNetHttpRequest> HttpNetworkManager::createGetRequest(const std::string &url, std::uint16_t timeoutMs, bool isIgnoreSslErrors)
+{
+    return std::make_shared<HttpRequest>(url, timeoutMs, HttpMethod::kGet, isIgnoreSslErrors);
+}
+
+std::shared_ptr<WSNetHttpRequest> HttpNetworkManager::createPostRequest(const std::string &url, std::uint16_t timeoutMs, const std::string &data, bool isIgnoreSslErrors)
+{
+    return std::make_shared<HttpRequest>(url, timeoutMs, HttpMethod::kPost, isIgnoreSslErrors, data);
+}
+
+std::shared_ptr<WSNetHttpRequest> HttpNetworkManager::createPutRequest(const std::string &url, std::uint16_t timeoutMs, const std::string &data, bool isIgnoreSslErrors)
+{
+    return std::make_shared<HttpRequest>(url, timeoutMs, HttpMethod::kPut, isIgnoreSslErrors, data);
+}
+
+std::shared_ptr<WSNetHttpRequest> HttpNetworkManager::createDeleteRequest(const std::string &url, std::uint16_t timeoutMs, bool isIgnoreSslErrors)
+{
+    return std::make_shared<HttpRequest>(url, timeoutMs, HttpMethod::kDelete, isIgnoreSslErrors);
+}
+
+std::shared_ptr<WSNetCancelableCallback> HttpNetworkManager::executeRequestEx(const std::shared_ptr<WSNetHttpRequest> &request, std::uint64_t id, WSNetHttpNetworkManagerFinishedCallback finishedCallback,
+                                                 WSNetHttpNetworkManagerProgressCallback progressCallback, WSNetHttpNetworkManagerReadyDataCallback readyReadCallback)
+{
+    auto cc = std::make_shared<HttpNetworkManagerCallbacks>(finishedCallback, progressCallback, readyReadCallback);
+    taskQueue_.detach_task([this, request, id, cc] {
+        impl_.executeRequest(request, id, cc);
+    });
+    return cc;
+}
+
+void HttpNetworkManager::setProxySettings(const std::string &address, const std::string &username, const std::string &password)
+{
+    taskQueue_.detach_task([this, address, username, password] {
+        impl_.setProxySettings(address, username, password);
+    });
+}
+
+std::shared_ptr<WSNetCancelableCallback> HttpNetworkManager::setWhitelistIpsCallback(WSNetHttpNetworkManagerWhitelistIpsCallback whitelistIpsCallback)
+{
+    if (whitelistIpsCallback) {
+        auto cancelableCallback = std::make_shared<CancelableCallback<WSNetHttpNetworkManagerWhitelistIpsCallback>>(whitelistIpsCallback);
+        taskQueue_.detach_task([this, cancelableCallback] {
+            impl_.setWhitelistIpsCallback(cancelableCallback);
+        });
+
+        return cancelableCallback;
+    } else {
+        taskQueue_.detach_task([this] {
+            impl_.setWhitelistIpsCallback(nullptr);
+        });
+        return nullptr;
+    }
+}
+
+} // namespace wsnet
+

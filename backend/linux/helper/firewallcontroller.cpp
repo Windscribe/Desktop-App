@@ -198,4 +198,4 @@ void FirewallController::addRule(const std::vector<std::string> &args)
         insertArgs.insert(insertArgs.begin(), "-I");
         Utils::executeCommand("iptables", insertArgs);
     }
-}    
+}

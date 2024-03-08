@@ -163,10 +163,10 @@ void SingleAppInstancePrivate::debugOut(const char *format, ...)
         QFile::OpenMode openMode = QIODevice::WriteOnly | QIODevice::Text;
 
         if (fileLog.size() > 524288) {
-           openMode |= QIODevice::Truncate;
+            openMode |= QIODevice::Truncate;
         }
         else {
-           openMode |= QIODevice::Append;
+            openMode |= QIODevice::Append;
         }
 
         if (fileLog.open(openMode))

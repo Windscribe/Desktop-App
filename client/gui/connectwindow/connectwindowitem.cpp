@@ -98,7 +98,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(networkTrustButton_, &IconButton::hoverEnter, this, &ConnectWindowItem::onNetworkHoverEnter);
     connect(networkTrustButton_, &IconButton::hoverLeave, this, &ConnectWindowItem::onNetworkHoverLeave);
 
-    middleItem_ = new MiddleItem(this, "N/A");
+    middleItem_ = new MiddleItem(this, "---.---.---.---");
 
     firewallButton_ = new FirewallButton(this);
     connect(firewallButton_, &FirewallButton::clicked, this, &ConnectWindowItem::onFirewallButtonClick);
@@ -325,14 +325,14 @@ void ConnectWindowItem::onNetworkHoverEnter()
     {
         title = networkName_ + ": ";
 
-       if (trustType_)
-       {
-           title += tr("Unsecured");
-       }
-       else
-       {
-           title += tr("Secured");
-       }
+        if (trustType_)
+        {
+            title += tr("Unsecured");
+        }
+        else
+        {
+            title += tr("Secured");
+        }
     }
 
     QGraphicsView *view = scene()->views().first();

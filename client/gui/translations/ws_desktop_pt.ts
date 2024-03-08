@@ -120,21 +120,6 @@
     </message>
 </context>
 <context>
-    <name>DialogGetUsernamePassword</name>
-    <message>
-        <source>Enter connection credentials</source>
-        <translation>Insira as credenciais de conexão</translation>
-    </message>
-    <message>
-        <source>Please enter the username</source>
-        <translation>Introduza o nome de utilizador</translation>
-    </message>
-    <message>
-        <source>Please enter the password</source>
-        <translation>Introduza a palavra-passe</translation>
-    </message>
-</context>
-<context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
@@ -230,6 +215,18 @@
     <message>
         <source>Learn More</source>
         <translation>Saiba mais</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Nome de utilizador</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Palavra-passe</translation>
+    </message>
+    <message>
+        <source>Remember</source>
+        <translation>Lembre-se</translation>
     </message>
 </context>
 <context>
@@ -784,6 +781,18 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
         <translation>Não foi possível abrir o arquivo para gravação.  Verifique as suas permissões e tente novamente.</translation>
+    </message>
+    <message>
+        <source>Enter Connection Credentials</source>
+        <translation>Insira as credenciais de conexão</translation>
+    </message>
+    <message>
+        <source>Enter Private Key Password</source>
+        <translation>Introduza a palavra-passe da chave privada</translation>
+    </message>
+    <message>
+        <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
+        <translation>O Windscribe não pôde recuperar a configuração do servidor. Por favor, tente outro protocolo.</translation>
     </message>
 </context>
 <context>
@@ -1409,20 +1418,8 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Base de Dados de Conhecimento</translation>
     </message>
     <message>
-        <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>Não é tão inteligente quanto um humano, mas ainda pode responder às suas perguntas.</translation>
-    </message>
-    <message>
         <source>Talk to Garry</source>
         <translation>Fale com Garry</translation>
-    </message>
-    <message>
-        <source>Stuck? Send us a ticket.</source>
-        <translation>Preso? Envie-nos um bilhete.</translation>
-    </message>
-    <message>
-        <source>Send Ticket</source>
-        <translation>Enviar Bilhete</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1459,6 +1456,18 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     <message>
         <source>Failed!</source>
         <translation>Falhou!</translation>
+    </message>
+    <message>
+        <source>Need help? Garry can help you with most issues, go talk to him.</source>
+        <translation>Precisa de ajuda? Garry pode ajudá-lo com a maioria dos problemas, vá falar com ele.</translation>
+    </message>
+    <message>
+        <source>Contact Humans</source>
+        <translation>Entre em contato com humanos</translation>
+    </message>
+    <message>
+        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
+        <translation>Tem um problema que Garry não consegue resolver? Entre em contato com o suporte humano.</translation>
     </message>
 </context>
 <context>

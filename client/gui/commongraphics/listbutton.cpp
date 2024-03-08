@@ -44,6 +44,26 @@ void ListButton::updateScaling()
     updatePositions();
 }
 
+void ListButton::setStyle(Style style)
+{
+    if (style_ == kText) {
+        // Not implemented changing between text and bubble button styles
+        return;
+    }
+
+    if (style == style_) {
+        return;
+    }
+
+    if (style_ == kBright && style == kDark) {
+        bubbleButton_->setStyle(BubbleButton::Style::kDark);
+    } else if (style_ == kDark && style == kBright) {
+        bubbleButton_->setStyle(BubbleButton::Style::kBright);
+    }
+    style_ = style;
+    updatePositions();
+}
+
 void ListButton::updatePositions()
 {
     if (style_ == kText) {

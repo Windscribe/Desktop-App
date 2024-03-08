@@ -120,21 +120,6 @@
     </message>
 </context>
 <context>
-    <name>DialogGetUsernamePassword</name>
-    <message>
-        <source>Enter connection credentials</source>
-        <translation>输入连接凭据</translation>
-    </message>
-    <message>
-        <source>Please enter the username</source>
-        <translation>请输入用户名</translation>
-    </message>
-    <message>
-        <source>Please enter the password</source>
-        <translation>请输入密码</translation>
-    </message>
-</context>
-<context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
@@ -230,6 +215,18 @@
     <message>
         <source>Learn More</source>
         <translation>了解更多信息</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>用户名</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>密码</translation>
+    </message>
+    <message>
+        <source>Remember</source>
+        <translation>记得</translation>
     </message>
 </context>
 <context>
@@ -784,6 +781,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
         <translation>无法打开文件进行写入。 请检查您的权限，然后重试。</translation>
+    </message>
+    <message>
+        <source>Enter Connection Credentials</source>
+        <translation>输入连接凭据</translation>
+    </message>
+    <message>
+        <source>Enter Private Key Password</source>
+        <translation>输入私钥密码</translation>
+    </message>
+    <message>
+        <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
+        <translation>Windscribe 无法检索服务器配置。请尝试其他协议。</translation>
     </message>
 </context>
 <context>
@@ -1409,20 +1418,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>知识库</translation>
     </message>
     <message>
-        <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>不如人类聪明，但仍然可以回答你的问题。</translation>
-    </message>
-    <message>
         <source>Talk to Garry</source>
         <translation>与加里对话</translation>
-    </message>
-    <message>
-        <source>Stuck? Send us a ticket.</source>
-        <translation>卡住了？给我们发一张票。</translation>
-    </message>
-    <message>
-        <source>Send Ticket</source>
-        <translation>发送工单</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1459,6 +1456,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Failed!</source>
         <translation>失败！</translation>
+    </message>
+    <message>
+        <source>Need help? Garry can help you with most issues, go talk to him.</source>
+        <translation>需要帮助吗？加里可以帮助你解决大多数问题，去和他谈谈。</translation>
+    </message>
+    <message>
+        <source>Contact Humans</source>
+        <translation>接触人类</translation>
+    </message>
+    <message>
+        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
+        <translation>有 Garry 无法解决的问题吗？联系人工支持。</translation>
     </message>
 </context>
 <context>

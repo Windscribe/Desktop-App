@@ -1,0 +1,25 @@
+{
+  "name": "openvpn",
+  "version": "2.6.8",
+  "port-version": 5,
+  "description": "OpenVPN is an open source VPN daemon",
+  "homepage": "https://github.com/OpenVPN/openvpn",
+  "dependencies": [
+      {
+        "name": "vcpkg-cmake",
+        "host": true
+      },
+      {
+        "name": "openssl",
+        "features": ["tools"]
+      },
+      "tap-windows6",
+      "lzo",
+      "lz4",
+      "cmocka",
+      {
+          "name": "pkgconf",
+          "host": true
+      }
+  ]
+}

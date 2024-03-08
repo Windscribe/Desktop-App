@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.23)
 
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+set(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -10,6 +13,11 @@ if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
 endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
 
 project(helper)
+
+find_package(Boost REQUIRED COMPONENTS serialization thread filesystem)
+find_package(OpenSSL REQUIRED)
+
+add_subdirectory(../../../libs/wsnet wsnet)
 
 set(SOURCES
     ../../../client/common/utils/executable_signature/executable_signature.cpp
@@ -29,7 +37,6 @@ set(SOURCES
     split_tunneling/cgroups.cpp
     split_tunneling/process_monitor.cpp
     split_tunneling/split_tunneling.cpp
-    split_tunneling/hostnames_manager/ares_library_init.cpp
     split_tunneling/hostnames_manager/dns_resolver.cpp
     split_tunneling/hostnames_manager/hostnames_manager.cpp
     split_tunneling/hostnames_manager/ip_routes.cpp
@@ -43,28 +50,23 @@ set(SOURCES
 
 add_executable(helper ${SOURCES})
 set_property(TARGET helper PROPERTY COMPILE_WARNING_AS_ERROR ON)
-target_link_directories(helper
-                        PRIVATE
-                        ../../../build-libs/boost/lib
-                        ../../../build-libs/cares/lib
-                        ../../../build-libs/openssl_ech_draft/lib
-                        ../../../build-libs/openssl_ech_draft/lib64
-)
+
 target_link_libraries(helper
                       PRIVATE
-                      libboost_serialization.a
-                      libboost_thread.a
-                      libboost_filesystem.a
-                      ssl
-                      crypto
                       pthread
-                      cares
+                      wsnet::wsnet
+                      Boost::serialization
+                      Boost::thread
+                      Boost::filesystem
+                      OpenSSL::Crypto
 )
 
 target_include_directories(helper PRIVATE
                            ../../posix_common
-                           ../../../build-libs/boost/include
-                           ../../../build-libs/cares/include
-                           ../../../build-libs/openssl_ech_draft/include
                            ../../../client/common
 )
+
+install(TARGETS helper
+    RUNTIME DESTINATION .
+)
+

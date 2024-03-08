@@ -78,7 +78,10 @@ def delete_all_files(root_dir, dir_pattern):
 
 
 def clean_all_temp_and_build_dirs():
-    delete_all_files(pathhelper.ROOT_DIR, "build")
+    if (CURRENT_OS == "win32"):
+        delete_all_files(pathhelper.ROOT_DIR, "build-" + CURRENT_OS + ("-arm64" if arghelper.target_arm64_arch() else ""))
+    else:
+        delete_all_files(pathhelper.ROOT_DIR, "build")
     delete_all_files(pathhelper.ROOT_DIR, "build-exe")
     delete_all_files(pathhelper.ROOT_DIR, "temp")
 
@@ -183,41 +186,6 @@ def fix_rpath_linux(filename):
     iutl.RunCommand(["patchelf", "--set-rpath", rpath, srcfilename])
 
 
-def fix_rpath_macos(filename):
-    dylib_name = os.path.basename(filename)
-    pipe = subprocess.Popen(['otool', '-L', filename], stdout=subprocess.PIPE)
-    while True:
-        line = pipe.stdout.readline().decode("utf-8").strip()
-        if line == '':
-            break
-        if "/build-libs/" in line and "(compatibility version" in line:
-            old_dylib_path = line[:line.find("(compatibility version")].strip()
-            old_dylib_root = old_dylib_path[:old_dylib_path.find("/build-libs/")]
-            new_dylib_root = filename[:filename.find("/build-libs/")]
-            new_dylib_path = old_dylib_path.replace(old_dylib_root, new_dylib_root)
-            if new_dylib_path != old_dylib_path:
-                msg.HeadPrint("Patching {}: {} -> {}".format(dylib_name, old_dylib_path, new_dylib_path))
-                if os.path.basename(old_dylib_path) == dylib_name:
-                    iutl.RunCommand(["install_name_tool", "-id", new_dylib_path, filename])
-                else:
-                    iutl.RunCommand(["install_name_tool", "-change", old_dylib_path, new_dylib_path, filename])
-
-
-def fix_build_libs_rpaths(configdata):
-    # The build-libs are downloaded and extracted from zips to some arbitrary build path on the
-    # developer/CI machine.  The rpaths stamped into the macOS dylibs and linux shared objects
-    # when they were built will contain the full path of the machine used to create them.  We
-    # need to change these rpaths to those of the machine this script is now running on.
-    if CURRENT_OS == "macos":
-        if "rpath_fix_files_mac" in configdata:
-            for build_lib_name, binaries_to_patch in configdata["rpath_fix_files_mac"].items():
-                build_lib_root = iutl.GetDependencyBuildRoot(build_lib_name)
-                if not os.path.exists(build_lib_root):
-                    raise iutl.InstallError("Cannot fix {} rpath, installation not found at {}".format(build_lib_name, build_lib_root))
-                for binary_name in binaries_to_patch:
-                    fix_rpath_macos(os.path.join(build_lib_root, binary_name))
-
-
 def apply_mac_deploy_fixes(configdata, target, appname, fullpath):
     # Special deploy fixes for Mac.
     # 1. copy_libs
@@ -227,28 +195,7 @@ def apply_mac_deploy_fixes(configdata, target, appname, fullpath):
         msg.Info("Removing unnecessary files...")
         for k in configdata["deploy_files"]["macos"][target]["remove"]:
             utl.RemoveFile(os.path.join(appname, k))
-    # 3. rpathfix
-    if "fix_rpath" in configdata["deploy_files"]["macos"][target]:
-        with utl.PushDir():
-            msg.Info("Fixing rpaths...")
-            for f, m in configdata["deploy_files"]["macos"][target]["fix_rpath"].items():
-                fs = os.path.split(f)
-                os.chdir(os.path.join(fullpath, fs[0]))
-                for k, v in m.items():
-                    lib_root = iutl.GetDependencyBuildRoot(k)
-                    if not lib_root:
-                        raise iutl.InstallError("Library \"{}\" is not installed.".format(k))
-                    for vv in v:
-                        parts = vv.split("->")
-                        srcv = parts[0].strip()
-                        dstv = srcv if len(parts) == 1 else parts[1].strip()
-                        change_lib_from = os.path.join(lib_root, srcv)
-                        change_lib_to = "@executable_path/{}".format(dstv)
-                        # Ensure the lib actually exists (i.e. we have the correct name in build_all.yml)
-                        if not os.path.exists(change_lib_from):
-                            raise IOError("Cannot find file \"{}\"".format(change_lib_from))
-                        iutl.RunCommand(["install_name_tool", "-change", change_lib_from, change_lib_to, fs[1]])
-    # 4. Code signing.
+    # 3. Code signing.
     # The Mac app must be signed in order to install and operate properly.
     msg.Info("Signing the app bundle...")
     iutl.RunCommand(["codesign", "--deep", fullpath, "--options", "runtime", "--timestamp", "-s", MAC_DEV_ID_KEY_NAME, "-f"])
@@ -287,22 +234,33 @@ def build_component(component, qt_root, buildenv=None):
 
         generate_cmd = ["cmake", f"-DCMAKE_PREFIX_PATH:PATH={qt_root}", os.path.join(pathhelper.ROOT_DIR, component["subdir"], "CMakeLists.txt")]
         generate_cmd.extend(["--no-warn-unused-cli", "-DCMAKE_BUILD_TYPE=" + ("Debug" if arghelper.build_debug() else "Release")])
-        if arghelper.sign_app():
+        VCPKG_ROOT = os.getenv('VCPKG_ROOT')
+        generate_cmd.extend([f"-DCMAKE_TOOLCHAIN_FILE={VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"])
+
+        vcpkg_triplets_dir = os.path.join(pathhelper.TOOLS_DIR, "vcpkg", "triplets")
+        generate_cmd.extend([f"-DVCPKG_OVERLAY_TRIPLETS=\'{vcpkg_triplets_dir}\'"])
+
+        if arghelper.sign() or arghelper.sign_app() or arghelper.ci_mode():
             generate_cmd.extend(["-DDEFINE_USE_SIGNATURE_CHECK_MACRO=ON"])
         if CURRENT_OS == "macos":
-            generate_cmd.extend(["-DCMAKE_OSX_ARCHITECTURES=\'arm64;x86_64\'"])
+            # Build an universal binary only on CI
+            if arghelper.ci_mode():
+                generate_cmd.extend(["-DCMAKE_OSX_ARCHITECTURES=\'arm64;x86_64\'"])
+                generate_cmd.extend(["-DVCPKG_TARGET_TRIPLET=universal-osx"])
         if "generator" in component:
             generate_cmd.extend(["-G", component["generator"]])
         elif CURRENT_OS == "win32":
             generate_cmd.append('-G Ninja')
             generate_cmd.append("-DCMAKE_GENERATOR:STRING=Ninja")
         if arghelper.target_arm64_arch() and CURRENT_OS == "win32":
+            generate_cmd.append("-DVCPKG_TARGET_TRIPLET=arm64-windows")
+            generate_cmd.append("-DQT_HOST_PATH:PATH={}".format(os.path.join(pathhelper.ROOT_DIR, "build-libs", "qt")))
             generate_cmd.append("-DCMAKE_SYSTEM_NAME:STRING=Windows")
             generate_cmd.append("-DCMAKE_SYSTEM_PROCESSOR:STRING=arm64")
             generate_cmd.append("-DCMAKE_SYSTEM_VERSION:STRING=10")
-            generate_cmd.append(f"-DCMAKE_TOOLCHAIN_FILE:FILEPATH={qt_root}/lib/cmake/Qt6/qt.toolchain.cmake")
-            if arghelper.ci_mode():
-                generate_cmd.append("-DQT_HOST_PATH={}".format(os.path.join(pathhelper.ROOT_DIR, "build-libs", "qt")))
+            # generate_cmd.append(f"-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE:FILEPATH={qt_root}\\lib\\cmake\\Qt6\\qt.toolchain.cmake")
+            # if arghelper.ci_mode():
+            #    generate_cmd.append("-DQT_HOST_PATH={}".format(os.path.join(pathhelper.ROOT_DIR, "build-libs", "qt")))
         if component["name"] == "Client":
             try:
                 build_id = re.search(r"\d+", proc.ExecuteAndGetOutput(["git", "branch", "--show-current"], env=buildenv, shell=False)).group()
@@ -365,9 +323,11 @@ def deploy_component(configdata, component_name, buildenv=None, target_name_over
             update_team_id(os.path.join(temp_wd, appfullname, "Contents", "Info.plist"))
             apply_mac_deploy_fixes(configdata, component_name, c_target, appfullname)
 
+        # TODO: refactor, currently only relevant for Mac bundles
         # Copy output file(s).
+        isMacBundle = False
         if c_target:
-            targets = [c_target] if (type(c_target) != list) else c_target
+            targets = [c_target] if (type(c_target) is not list) else c_target
             for i in targets:
                 srcfile = os.path.join(temp_wd, target_location, i)
                 dstfile = BUILD_INSTALLER_FILES
@@ -376,8 +336,13 @@ def deploy_component(configdata, component_name, buildenv=None, target_name_over
                 dstfile = os.path.join(dstfile, target_name_override if target_name_override else i)
                 if i.endswith(".app"):
                     utl.CopyMacBundle(srcfile, dstfile)
-                else:
-                    utl.CopyFile(srcfile, dstfile)
+                    isMacBundle = True
+
+        if not isMacBundle:
+            # Copy output file(s).
+            install_cmd = ["cmake", "--install", ".", "--prefix", BUILD_INSTALLER_FILES]
+            iutl.RunCommand(install_cmd, env=buildenv, shell=(CURRENT_OS == "win32"))
+
         if BUILD_SYMBOL_FILES and "symbols" in component:
             srcfile = os.path.join(temp_wd, target_location, component["symbols"])
             if os.path.exists(srcfile):
@@ -421,27 +386,57 @@ def pack_symbols():
     zf.close()
 
 
-def sign_executables_win32(configdata, cert_password, filename_to_sign=None):
+def sign_executable_win32(configdata, filename_to_sign=None):
+    token = os.getenv("TOKEN_PASSWORD")
+    if token is None or token == "":
+        msg.Info("No token password found, skipping signing")
+        return
+
     if "signing_cert_win" in configdata and \
             "path_signtool" in configdata["signing_cert_win"] and \
             "path_cert" in configdata["signing_cert_win"] and \
-            "timestamp" in configdata["signing_cert_win"] and \
-            cert_password:
+            "timestamp" in configdata["signing_cert_win"]:
         signtool = os.path.join(pathhelper.ROOT_DIR, configdata["signing_cert_win"]["path_signtool"])
         certfile = os.path.join(pathhelper.ROOT_DIR, configdata["signing_cert_win"]["path_cert"])
         timestamp = configdata["signing_cert_win"]["timestamp"]
 
-        if filename_to_sign:
-            iutl.RunCommand([signtool, "sign", "/fd", "SHA256", "/t", timestamp, "/f", certfile,
-                             "/p", cert_password, filename_to_sign])
-        else:
-            iutl.RunCommand([signtool, "sign", "/fd", "SHA256", "/t", timestamp, "/f", certfile,
-                             "/p", cert_password, os.path.join(BUILD_INSTALLER_FILES, "*.exe")])
+        processCode = subprocess.run([signtool, "verify", "/pa", filename_to_sign], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if processCode.returncode != 0:
+            try:
+                iutl.RunCommand([signtool, "sign",
+                                 "/fd", "SHA256",
+                                 "/td", "SHA256",
+                                 "/tr", timestamp,
+                                 "/f", certfile,
+                                 "/csp", "eToken Base Cryptographic Provider",
+                                 "/kc", "[{{" + token + "}}]=" + os.getenv("CONTAINER_NAME"),
+                                 "/n", "Windscribe Limited",
+                                 filename_to_sign])
+            except Exception:
+                # Suppress the actual error message as it will contain the command line which contains sensitive info.
+                raise iutl.InstallError("Failed to sign the file: {}".format(filename_to_sign))
     else:
         msg.Info("Skip signing. The signing data is not set in YML.")
 
 
-def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_password):
+def sign_app_win32(configdata):
+    if not arghelper.sign() and not arghelper.sign_app():
+        return
+
+    # Get list of all exe/dll files in the installer dir, we will sign them
+    exe_and_dll_files = []
+    for file in glob.glob(os.path.join(BUILD_INSTALLER_FILES, "*.exe")):
+        exe_and_dll_files.append(file)
+    for file in glob.glob(os.path.join(BUILD_INSTALLER_FILES, "*.dll")):
+        exe_and_dll_files.append(file)
+
+    # Sign executable and dll files with a certificate.
+    msg.Info("Signing executables and dlls...")
+    for f in exe_and_dll_files:
+        sign_executable_win32(configdata, f)
+
+
+def prep_installer_win32(configdata, crt_root):
     # Copy Windows files.
     msg.Info("Copying libs...")
 
@@ -471,28 +466,8 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
     # Pack symbols for crashdump analysis.
     pack_symbols()
 
-    if arghelper.sign_app():
-        # Sign executable files with a certificate.
-        msg.Info("Signing executables...")
-        sign_executables_win32(configdata, win_cert_password)
-        # Sign DLLs we created
-        if "win32" in configdata["codesign_files"]:
-            msg.Info("Signing DLLs...")
-            for binary_name in configdata["codesign_files"]["win32"]["common"]:
-                binary_path = os.path.join(BUILD_INSTALLER_FILES, binary_name)
-                if os.path.exists(binary_path):
-                    sign_executables_win32(configdata, win_cert_password, binary_path)
-                else:
-                    msg.Warn("Skipping signing of {}.  File not found.".format(binary_path))
-            target_arch = "arm64" if arghelper.target_arm64_arch() else "x86_64"
-            if target_arch in configdata["codesign_files"]["win32"]:
-                for binary_name in configdata["codesign_files"]["win32"][target_arch]:
-                    binary_path = os.path.join(BUILD_INSTALLER_FILES, binary_name)
-                    if os.path.exists(binary_path):
-                        sign_executables_win32(configdata, win_cert_password, binary_path)
-                    else:
-                        msg.Warn("Skipping signing of {}.  File not found.".format(binary_path))
 
+def build_installer_win32(configdata, qt_root):
     # Place everything in a 7z archive.
     installer_info = configdata["installer"]["win32"]
     archive_filename = os.path.normpath(os.path.join(pathhelper.ROOT_DIR, installer_info["subdir"], "resources", "windscribe.7z"))
@@ -512,11 +487,22 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
     build_component(installer_info, qt_root, buildenv)
     deploy_component(configdata, "installer", buildenv)
 
-    if arghelper.sign_app():
-        msg.Info("Signing installer...")
-        sign_executables_win32(configdata, win_cert_password, os.path.normpath(os.path.join(BUILD_INSTALLER_FILES, installer_info["target"])))
 
+def sign_installer_win32(configdata):
+    if not arghelper.sign() and not arghelper.sign_installer():
+        return
+
+    msg.Info("Signing installer...")
+    sign_executable_win32(configdata, os.path.normpath(os.path.join(BUILD_INSTALLER_FILES, configdata["installer"]["win32"]["target"])))
+
+
+def build_bootstrap_win32(configdata, qt_root, msvc_root):
     installer_name = "Windscribe_{}.exe".format(extractor.app_version(True))
+    installer_info = configdata["installer"]["win32"]
+    buildenv = os.environ.copy()
+    buildenv.update({"MAKEFLAGS": "S"})
+    buildenv.update(iutl.GetVisualStudioEnvironment(arghelper.target_arm64_arch()))
+    buildenv.update({"CL": "/MP"})
 
     # The installer requires Qt to run.  Pack installer exe and required Qt things into 7z archive, again
     utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES, installer_info["target"])),
@@ -533,6 +519,7 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
     archive_filename = os.path.normpath(os.path.join(pathhelper.ROOT_DIR, configdata["bootstrap"]["win32"]["subdir"], "resources", "windscribeinstaller.7z"))
     if os.path.exists(archive_filename):
         utl.RemoveFile(archive_filename)
+    ziptool = os.path.join(pathhelper.TOOLS_DIR, "bin", "7z.exe")
     iutl.RunCommand([ziptool, "a", archive_filename, os.path.join(BUILD_INSTALLER_BOOTSTRAP_FILES, "*"), "-y", "-bso0", "-bsp2"])
 
     # Build the bootstrapper
@@ -542,9 +529,13 @@ def build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_pas
     utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES, configdata["bootstrap"]["win32"]["target"])),
                    os.path.normpath(os.path.join(BUILD_INSTALLER_FILES, "..", installer_name)))
 
-    if arghelper.sign_app():
-        msg.Info("Signing installer bootstrap...")
-        sign_executables_win32(configdata, win_cert_password, os.path.join(BUILD_INSTALLER_FILES, "..", installer_name))
+
+def sign_bootstrap_win32(configdata):
+    if not arghelper.sign() and not arghelper.sign_bootstrap():
+        return
+
+    msg.Info("Signing installer bootstrap...")
+    sign_executable_win32(configdata, os.path.join(BUILD_INSTALLER_FILES, "..", "Windscribe_{}.exe".format(extractor.app_version(True))))
 
 
 def build_installer_mac(configdata, qt_root, build_path):
@@ -621,10 +612,6 @@ def build_installer_linux(configdata, qt_root):
     # * windscribe_2.x.y_amd64.deb
     # * windscribe_2.x.y_x86_64.rpm
     copy_libs(configdata, "linux", "installer", BUILD_INSTALLER_FILES)
-    if platform.processor() == "aarch64":
-        copy_libs(configdata, "linux_aarch64", "installer", BUILD_INSTALLER_FILES)
-    elif platform.processor() == "x86_64":
-        copy_libs(configdata, "linux_x86_64", "installer", BUILD_INSTALLER_FILES)
 
     msg.Info("Fixing rpaths...")
     if "fix_rpath" in configdata["deploy_files"]["linux"]["installer"]:
@@ -633,7 +620,7 @@ def build_installer_linux(configdata, qt_root):
             fix_rpath_linux(dstfile)
 
     # sign supplementary binaries and move the signatures into InstallerFiles/signatures
-    if arghelper.sign_app() and "linux" in configdata["codesign_files"]:
+    if arghelper.sign() and "linux" in configdata["codesign_files"]:
         for binary_name in configdata["codesign_files"]["linux"]:
             code_sign_linux(binary_name, BUILD_INSTALLER_FILES)
 
@@ -674,7 +661,21 @@ def build_installer_linux(configdata, qt_root):
                      os.path.join(BUILD_INSTALLER_FILES, "..", "windscribe_{}_x86_64.rpm".format(extractor.app_version(True))))
 
 
-def build_all(win_cert_password):
+def update_vcpkg_dependencies():
+    VCPKG_ROOT = os.getenv('VCPKG_ROOT')
+    cmd = [f"{VCPKG_ROOT}/vcpkg", "install", f"--x-install-root={VCPKG_ROOT}/installed", "--x-manifest-root=" + os.path.join(pathhelper.TOOLS_DIR, "vcpkg"), "--overlay-triplets=" + os.path.join(pathhelper.TOOLS_DIR, "vcpkg", "triplets")]
+    if CURRENT_OS == "macos":
+        if arghelper.ci_mode():
+            # Build an universal binary only on CI
+            cmd.extend(["--triplet=universal-osx"])
+    elif CURRENT_OS == "win32" and arghelper.target_arm64_arch():
+        cmd.extend(["--triplet=arm64-windows"])
+    iutl.RunCommand(cmd)
+
+
+def build_all():
+    msg.Print("Building {}...".format(BUILD_TITLE))
+
     # Load config.
     configdata = utl.LoadConfig(os.path.join(pathhelper.TOOLS_DIR, "{}".format(BUILD_CFG_NAME)))
     if not configdata:
@@ -684,10 +685,14 @@ def build_all(win_cert_password):
 
     msg.Info("App version extracted: \"{}\"".format(extractor.app_version(True)))
 
-    # Get Qt directory.
-    qt_root = iutl.GetDependencyBuildRoot("qt")
-    if not qt_root:
-        raise iutl.InstallError("Qt is not installed.")
+    if arghelper.build_app() or arghelper.build_installer() or arghelper.build_bootstrap():
+        # Only update deps if building something
+        update_vcpkg_dependencies()
+
+        # Get Qt directory.
+        qt_root = iutl.GetDependencyBuildRoot("qt")
+        if not qt_root:
+            raise iutl.InstallError("Qt is not installed.")
 
     # Do some preliminary VS checks on Windows.
     # TODO: JDRM not sure we should be copying the crt_root files.  I removed them all from the install
@@ -712,33 +717,54 @@ def build_all(win_cert_password):
     artifact_dir = os.path.join(pathhelper.ROOT_DIR, "build-exe")
     if arghelper.clean():
         utl.RemoveDirectory(artifact_dir)
-    temp_dir = iutl.PrepareTempDirectory("installer")
-    build_dir = os.path.join(pathhelper.ROOT_DIR, "build")
+    if CURRENT_OS == "win32":
+        temp_dir = iutl.PrepareTempDirectory("installer" + ("-arm64" if arghelper.target_arm64_arch() else ""), not arghelper.ci_mode())
+        build_dir = os.path.join(pathhelper.ROOT_DIR, "build" + ("-arm64" if arghelper.target_arm64_arch() else ""))
+    else:
+        temp_dir = iutl.PrepareTempDirectory("installer", not arghelper.ci_mode())
+        build_dir = os.path.join(pathhelper.ROOT_DIR, "build")
     utl.CreateDirectory(build_dir, arghelper.clean())
     global BUILD_INSTALLER_FILES, BUILD_SYMBOL_FILES, BUILD_INSTALLER_BOOTSTRAP_FILES
     BUILD_INSTALLER_FILES = os.path.join(temp_dir, "InstallerFiles")
     BUILD_INSTALLER_BOOTSTRAP_FILES = os.path.join(temp_dir, "InstallerBootstrapFiles")
-    utl.CreateDirectory(BUILD_INSTALLER_FILES, True)
-    utl.CreateDirectory(BUILD_INSTALLER_BOOTSTRAP_FILES, True)
+    utl.CreateDirectory(BUILD_INSTALLER_FILES, not arghelper.ci_mode())
+    utl.CreateDirectory(BUILD_INSTALLER_BOOTSTRAP_FILES, not arghelper.ci_mode())
     if CURRENT_OS == "win32":
         BUILD_SYMBOL_FILES = os.path.join(temp_dir, "SymbolFiles")
-        utl.CreateDirectory(BUILD_SYMBOL_FILES, True)
-
-    fix_build_libs_rpaths(configdata)
+        utl.CreateDirectory(BUILD_SYMBOL_FILES, not arghelper.ci_mode())
 
     # Build the components.
     with utl.PushDir(build_dir):
         if arghelper.build_app():
             build_components(configdata, configdata["targets"], qt_root)
+            if (CURRENT_OS == "win32"):
+                prep_installer_win32(configdata, crt_root)
+        if arghelper.sign_app():
+            if (CURRENT_OS == "win32"):
+                sign_app_win32(configdata)
         if CURRENT_OS == "win32":
             if arghelper.build_installer():
-                build_installer_win32(configdata, qt_root, msvc_root, crt_root, win_cert_password)
+                build_installer_win32(configdata, qt_root)
+            if arghelper.sign_installer():
+                sign_installer_win32(configdata)
+            if arghelper.build_bootstrap():
+                build_bootstrap_win32(configdata, qt_root, msvc_root)
+                if (not arghelper.sign_bootstrap()):
+                    install_artifacts(configdata, artifact_dir, temp_dir)
+            if arghelper.sign_bootstrap():
+                sign_bootstrap_win32(configdata)
+                install_artifacts(configdata, artifact_dir, temp_dir)
         elif CURRENT_OS == "macos":
             if arghelper.build_installer():
                 build_installer_mac(configdata, qt_root, build_dir)
+                install_artifacts(configdata, artifact_dir, temp_dir)
         elif CURRENT_OS == "linux":
-            build_installer_linux(configdata, qt_root)
+            if arghelper.build_installer():
+                build_installer_linux(configdata, qt_root)
+                install_artifacts(configdata, artifact_dir, temp_dir)
 
+
+def install_artifacts(configdata, artifact_dir, temp_dir):
     # Copy artifacts.
     msg.Print("Installing artifacts...")
     utl.CreateDirectory(artifact_dir, True)
@@ -757,8 +783,9 @@ def build_all(win_cert_password):
         msg.HeadPrint("Ready: \"{}\"".format(filetitle))
 
     # Cleanup.
-    msg.Print("Cleaning temporary directory...")
-    utl.RemoveDirectory(temp_dir)
+    if not arghelper.ci_mode():
+        msg.Print("Cleaning temporary directory...")
+        utl.RemoveDirectory(temp_dir)
 
 
 def download_secrets():
@@ -770,9 +797,13 @@ def download_secrets():
     secrethelper.login_and_download_files_from_1password(arghelper)
 
 
-def pre_checks_and_build_all():
+def prechecks():
+    # check if the VPKG_ROOT environment variable exists
+    if (arghelper.build_app() or arghelper.build_installer() or arghelper.build_bootstrap()) and "VCPKG_ROOT" not in os.environ:
+        raise IOError("The VCPKG_ROOT environment variable is not set")
+
     # USER ERROR - Cannot notarize without signing
-    if arghelper.notarize() and not arghelper.sign_app():
+    if arghelper.notarize() and not arghelper.sign():
         raise IOError("Cannot notarize without signing. Please enable signing or disable notarization")
 
     # USER INFO - can't notarize on non-Mac
@@ -793,11 +824,12 @@ def pre_checks_and_build_all():
         MAC_DEV_ID_KEY_NAME, MAC_DEV_TEAM_ID = extractor.mac_signing_params()
         msg.Info("Using signing identity - " + MAC_DEV_ID_KEY_NAME)
 
-    win_cert_password = ""
-    if arghelper.sign_app():
+    if arghelper.sign():
         # download (local build) or access secret files (ci build)
         if not arghelper.ci_mode():
             if not arghelper.use_local_secrets():
+                if CURRENT_OS == "win32":
+                    raise IOError("Cannot use local-secrets on Windows.")
                 download_secrets()
 
         # on linux we need keypair to sign -- check that they exist in the correct location
@@ -812,22 +844,13 @@ def pre_checks_and_build_all():
 
         # early check for cert password in notarize.yml on windows
         if CURRENT_OS == utl.CURRENT_OS_WIN:
-            notarize_yml_path = os.path.join(pathhelper.TOOLS_DIR, "{}".format(pathhelper.NOTARIZE_YML))
-            notarize_yml_config = utl.LoadConfig(notarize_yml_path)
-            if not notarize_yml_config:
-                raise IOError("Cannot sign without notarize.yml on Windows")
-            win_cert_password = notarize_yml_config["windows-signing-cert-password"]
-            if not win_cert_password:
-                raise IOError("Cannot sign with invalid Windows cert password")
+            if (os.getenv('TOKEN_PASSWORD') is None or os.getenv('TOKEN_PASSWORD') == ""):
+                raise IOError("Cannot sign without token password. Please set TOKEN_PASSWORD environment variable.")
 
         # early check for provision profile on mac
         if CURRENT_OS == utl.CURRENT_OS_MAC:
             if not os.path.exists(pathhelper.mac_provision_profile_filename_absolute()):
-                raise IOError("Cannot sign without provisioning profile")
-
-    # should have everything we need to build with the desired settings
-    msg.Print("Building {}...".format(BUILD_TITLE))
-    build_all(win_cert_password)
+                raise IOError("Cannot sign without provisioning profile.")
 
 
 def print_banner(title, width):
@@ -869,9 +892,10 @@ if __name__ == "__main__":
             download_secrets()
         elif arghelper.build_mode():
             # don't delete secrets in local-secret mode or when doing a developer (non-signed) build.
-            if not arghelper.use_local_secrets() and arghelper.sign_app():
+            if not arghelper.use_local_secrets() and arghelper.sign():
                 delete_secrets = True
-            pre_checks_and_build_all()
+            prechecks()
+            build_all()
         else:
             if arghelper.clean_only():
                 msg.Print("Cleaning...")

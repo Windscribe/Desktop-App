@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QSet>
 #include <QVector>
-#include "types/notification.h"
+#include "api_responses/notification.h"
 
 class NotificationsController : public QObject
 {
@@ -16,11 +16,11 @@ public:
     int totalMessages() const;
     int unreadMessages() const;
 
-    QVector<types::Notification> messages() const;
+    QVector<api_responses::Notification> messages() const;
     const QSet<qint64> &shownIds() const;
 
 public slots:
-    void updateNotifications(const QVector<types::Notification> &arr);
+    void updateNotifications(const QVector<api_responses::Notification> &arr);
     void setNotificationRead(qint64 notificationId);
 
 signals:
@@ -28,7 +28,7 @@ signals:
     void newPopupMessage(int messageId);
 
 private:
-    QVector<types::Notification> notifications_;
+    QVector<api_responses::Notification> notifications_;
     QSet<qint64> idOfShownNotifications_;
     QVector<int> unreadPopupNotificationIds_;
 

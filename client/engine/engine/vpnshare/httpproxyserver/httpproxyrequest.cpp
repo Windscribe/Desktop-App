@@ -278,22 +278,22 @@ int HttpProxyRequest::stripReturnPort(std::string &hostStr)
         return 0;
     }
 
-     // Check for IPv6 style literals
-     ptr2 = strchr (ptr1, ']');
-     if (ptr2 != NULL)
-     {
+    // Check for IPv6 style literals
+    ptr2 = strchr (ptr1, ']');
+    if (ptr2 != NULL)
+    {
         return 0;
-     }
+    }
 
-     ptr1++;
-     if (sscanf (ptr1, "%d", &return_port) != 1)    // one conversion required
-     {
-         return_port = 0;
-     }
+    ptr1++;
+    if (sscanf (ptr1, "%d", &return_port) != 1)    // one conversion required
+    {
+        return_port = 0;
+    }
 
-     hostStr.erase(hostStr.rfind(':'));
+    hostStr.erase(hostStr.rfind(':'));
 
-     return return_port;
+    return return_port;
 }
 
 bool HttpProxyRequest::shouldSkipHeader(const std::string &headerName)

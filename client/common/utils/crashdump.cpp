@@ -92,7 +92,7 @@ void CrashDumpInternal::setApiVersion() const
             requiredApiVersion.MajorVersion, requiredApiVersion.MinorVersion,
             requiredApiVersion.Revision);
         CRASH_LOG("Failed to set DbgHelp API version (%s should be %s)",
-                   kActualApiString, kRequiredApiString);
+                  kActualApiString, kRequiredApiString);
     } else {
         CRASH_LOG("DbgHelp API version is %s", kActualApiString);
     }

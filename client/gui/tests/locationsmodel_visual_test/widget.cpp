@@ -122,7 +122,7 @@ Widget::Widget(QWidget *parent)
     currentLocations_ = testOriginal_;
 
     connect(ui->lineEdit, &QLineEdit::textChanged, [this](const QString &text) {
-       sortedLocationsModel_->setFilter(text);
+        sortedLocationsModel_->setFilter(text);
     });
 
 

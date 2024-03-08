@@ -187,7 +187,7 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
                 }
                 else
                 {
-                     // load and save preferences again, otherwise Mac bug (https://forums.developer.apple.com/thread/25928)
+                    // load and save preferences again, otherwise Mac bug (https://forums.developer.apple.com/thread/25928)
                     [manager loadFromPreferencesWithCompletionHandler:^(NSError *err)
                     {
                         if (err)

@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file alias="certs_bundle.pem">../../../networkaccessmanager/tests/cert/certs_bundle.pem</file>
-        <file alias="cert.crt">../../../networkaccessmanager/tests/cert/cert.crt</file>
-    </qresource>
-</RCC>

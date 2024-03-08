@@ -2,25 +2,20 @@
 
 #include <QTimer>
 
-#include "engine/serverapi/serverapi.h"
-#include "engine/serverapi/requests/myiprequest.h"
 #include "utils/utils.h"
+#include "api_responses/myip.h"
 
 namespace api_resources {
 
+using namespace wsnet;
 
-MyIpManager::MyIpManager(QObject *parent, server_api::ServerAPI *serverAPI, INetworkDetectionManager *networkDetectionManager,
+MyIpManager::MyIpManager(QObject *parent, INetworkDetectionManager *networkDetectionManager,
                          IConnectStateController *connectStateController) : QObject(parent),
-    serverAPI_(serverAPI),
     networkDetectionManager_(networkDetectionManager),
-    connectStateController_(connectStateController),
-    requestForTimerIsDisconnected_(false),
-    curRequest_(nullptr)
+    connectStateController_(connectStateController)
 {
-    connect(connectStateController, &IConnectStateController::stateChanged, this, &MyIpManager::onConnectStateChanged);
     connect(&timer_, &QTimer::timeout, this, &MyIpManager::onTimer);
     timer_.setSingleShot(true);
-
 }
 
 void MyIpManager::getIP(int timeoutMs)
@@ -33,34 +28,39 @@ void MyIpManager::getIP(int timeoutMs)
 void MyIpManager::onTimer()
 {
     if (networkDetectionManager_->isOnline()) {
-        SAFE_DELETE(curRequest_);
-        curRequest_ = serverAPI_->myIP(kTimeout);
-        curRequest_->setProperty("isFromDisconnectedState", connectStateController_->currentState() != CONNECT_STATE_CONNECTED);
-        connect(curRequest_, &server_api::BaseRequest::finished, this, &MyIpManager::onMyIpAnswer);
+        SAFE_CANCEL_AND_DELETE_WSNET_REQUEST(curRequest_);
+
+        auto connectStateWatcher = new ConnectStateWatcher(this, connectStateController_);
+        bool isFromDisconnectedState = connectStateController_->currentState() != CONNECT_STATE_CONNECTED;
+
+        auto callback = [this, connectStateWatcher, isFromDisconnectedState](ServerApiRetCode serverApiRetCode, const std::string &jsonData)
+        {
+            QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData, connectStateWatcher, isFromDisconnectedState] {
+                onMyIpAnswer(serverApiRetCode, jsonData, connectStateWatcher, isFromDisconnectedState);
+            });
+        };
+
+        curRequest_ = WSNet::instance()->serverAPI()->myIP(callback);
     } else  {
         timer_.stop();
         timer_.start(1000);
     }
 }
 
-void MyIpManager::onMyIpAnswer()
+void MyIpManager::onMyIpAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData, ConnectStateWatcher *connectStateWatcher, bool isFromDisconnectedState)
 {
-    QSharedPointer<server_api::MyIpRequest> request(static_cast<server_api::MyIpRequest *>(sender()), &QObject::deleteLater);
-    curRequest_ = nullptr;
-    if (request->networkRetCode() != SERVER_RETURN_SUCCESS) {
+    if (connectStateWatcher->isVpnConnectStateChanged())
+        return;
+
+    if (curRequest_)
+        curRequest_.reset();
+
+    if (serverApiRetCode != ServerApiRetCode::kSuccess) {
         timer_.stop();
         timer_.start(1000);
     } else {
-        emit myIpChanged(request->ip(), request->property("isFromDisconnectedState").toBool());
-    }
-}
-
-void MyIpManager::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location)
-{
-    bool isNewStateDisconnected = (state != CONNECT_STATE_CONNECTED);
-    if (curRequest_) {
-        if (curRequest_->property("isFromDisconnectedState").toBool() != isNewStateDisconnected)
-            SAFE_DELETE(curRequest_);
+        api_responses::MyIp myIp(jsonData);
+        emit myIpChanged(myIp.ip(), isFromDisconnectedState);
     }
 }
 

@@ -41,7 +41,7 @@ struct BackgroundSettings
     {
         return other.backgroundType == backgroundType &&
                other.backgroundImageDisconnected == backgroundImageDisconnected &&
-                other.backgroundImageConnected == backgroundImageConnected;
+               other.backgroundImageConnected == backgroundImageConnected;
     }
 
     bool operator!=(const BackgroundSettings &other) const

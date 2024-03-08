@@ -82,6 +82,7 @@ void Backend::init()
     connect(engine_, &Engine::detectionCpuUsageAfterConnected, this, &Backend::onEngineDetectionCpuUsageAfterConnected);
     connect(engine_, &Engine::requestUsername, this, &Backend::onEngineRequestUsername);
     connect(engine_, &Engine::requestPassword, this, &Backend::onEngineRequestPassword);
+    connect(engine_, &Engine::requestPrivKeyPassword, this, &Backend::onEngineRequestPrivKeyPassword);
     connect(engine_, &Engine::networkChanged, this, &Backend::onEngineNetworkChanged);
     connect(engine_, &Engine::confirmEmailFinished, this, &Backend::onEngineConfirmEmailFinished);
     connect(engine_, &Engine::sendDebugLogFinished, this, &Backend::onEngineSendDebugLogFinished);
@@ -308,7 +309,7 @@ void Backend::getRobertFilters()
     engine_->getRobertFilters();
 }
 
-void Backend::setRobertFilter(const types::RobertFilter &filter)
+void Backend::setRobertFilter(const api_responses::RobertFilter &filter)
 {
     engine_->setRobertFilter(filter);
 }
@@ -326,6 +327,11 @@ bool Backend::isAppCanClose() const
 void Backend::continueWithCredentialsForOvpnConfig(const QString &username, const QString &password, bool bSave)
 {
     engine_->continueWithUsernameAndPassword(username, password, bSave);
+}
+
+void Backend::continueWithPrivKeyPasswordForOvpnConfig(const QString &password, bool bSave)
+{
+    engine_->continueWithPrivKeyPassword(password, bSave);
 }
 
 void Backend::sendAdvancedParametersChanged()
@@ -363,7 +369,7 @@ void Backend::applicationDeactivated()
     // nothing todo
 }
 
-const types::SessionStatus &Backend::getSessionStatus() const
+const api_responses::SessionStatus &Backend::getSessionStatus() const
 {
     return latestSessionStatus_;
 }
@@ -421,7 +427,7 @@ void Backend::onEngineFirewallStateChanged(bool isEnabled)
     firewallStateHelper_.setFirewallStateFromEngine(isEnabled);
 }
 
-void Backend::onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap)
+void Backend::onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const api_responses::PortMap &portMap)
 {
     preferencesHelper_.setPortMap(portMap);
     emit loginFinished(isLoginFromSavedSettings);
@@ -442,7 +448,7 @@ void Backend::onEngineSessionDeleted()
     emit sessionDeleted();
 }
 
-void Backend::onEngineUpdateSessionStatus(const types::SessionStatus &sessionStatus)
+void Backend::onEngineUpdateSessionStatus(const api_responses::SessionStatus &sessionStatus)
 {
     latestSessionStatus_ = sessionStatus;
     locationsModelManager_->setFreeSessionStatus(!latestSessionStatus_.isPremium());
@@ -450,12 +456,12 @@ void Backend::onEngineUpdateSessionStatus(const types::SessionStatus &sessionSta
     emit sessionStatusChanged(latestSessionStatus_);
 }
 
-void Backend::onEngineNotificationsUpdated(const QVector<types::Notification> &notifications)
+void Backend::onEngineNotificationsUpdated(const QVector<api_responses::Notification> &notifications)
 {
     emit notificationsChanged(notifications);
 }
 
-void Backend::onEngineCheckUpdateUpdated(const types::CheckUpdate &checkUpdate)
+void Backend::onEngineCheckUpdateUpdated(const api_responses::CheckUpdate &checkUpdate)
 {
     emit checkUpdateChanged(checkUpdate);
 }
@@ -490,7 +496,7 @@ void Backend::onEngineProtocolPortChanged(const types::Protocol &protocol, const
     emit protocolPortChanged(protocol, port);
 }
 
-void Backend::onEngineRobertFiltersUpdated(bool success, const QVector<types::RobertFilter> &filters)
+void Backend::onEngineRobertFiltersUpdated(bool success, const QVector<api_responses::RobertFilter> &filters)
 {
     emit robertFiltersChanged(success, filters);
 }
@@ -594,6 +600,11 @@ void Backend::onEngineRequestUsername()
 void Backend::onEngineRequestPassword()
 {
     emit requestCustomOvpnConfigCredentials();
+}
+
+void Backend::onEngineRequestPrivKeyPassword()
+{
+    emit requestCustomOvpnConfigPrivKeyPassword();
 }
 
 void Backend::onEngineInternetConnectivityChanged(bool connectivity)

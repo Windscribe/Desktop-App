@@ -2,14 +2,13 @@
 #include "hostnames_manager.h"
 #include "../../logger.h"
 
-HostnamesManager::HostnamesManager(): isEnabled_(false), isExcludeMode_(true)
+HostnamesManager::HostnamesManager(): isEnabled_(false), isExcludeMode_(true),
+    dnsResolver_(std::bind(&HostnamesManager::dnsResolverCallback, this, std::placeholders::_1))
 {
-    dnsResolver_.setResolveDomainsCallbackHandler(std::bind(&HostnamesManager::dnsResolverCallback, this, std::placeholders::_1));
 }
 
 HostnamesManager::~HostnamesManager()
 {
-    dnsResolver_.stop();
 }
 
 void HostnamesManager::enable(const std::string &gatewayIp, unsigned long ifIndex)

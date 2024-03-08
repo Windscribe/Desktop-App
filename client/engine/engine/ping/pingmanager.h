@@ -5,8 +5,10 @@
 #include <QDateTime>
 #include <QHash>
 
+#include <wsnet/WSNet.h>
+
+#include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
-#include "pingmultiplehosts.h"
 #include "pingstorage.h"
 #include "failedpinglogcontroller.h"
 #include "pinglog.h"
@@ -17,7 +19,7 @@ struct PingIpInfo
     QString hostname;  // used for PING_CURL type
     QString city;      // only for log
     QString nick;      // only for log
-    PingType pingType;
+    wsnet::PingType pingType;
 };
 
 // logic of ping all nodes (taken into account connected/disconnected state, latest ping time, repeat failed pings)
@@ -26,8 +28,8 @@ class PingManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit PingManager(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingMultipleHosts *pingHosts,
-                               const QString &storageSettingName, const QString &log_filename);
+    explicit PingManager(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager,
+                         const QString &storageSettingName, const QString &log_filename);
 
     void updateIps(const QVector<PingIpInfo> &ips);
     void clearIps();
@@ -40,14 +42,13 @@ signals:
 
 private slots:
     void onPingTimer();
-    void onPingFinished(bool success, int timems, const QString &ip, bool isFromDisconnectedState);
 
 private:
     static constexpr int PING_TIMER_INTERVAL = 1000;
     static constexpr int MAX_FAILED_PING_IN_ROW = 3;
+    static constexpr int MIN_DELAY_FOR_FAILED_IN_ROW_PINGS = 1;
     static constexpr int NEXT_PERIOD_SECS = 2*60*60*24;   //  How many secs to wait until the next ping (48 hours)
 
-    PingMultipleHosts* const pingHosts_;
     IConnectStateController* const connectStateController_;
     INetworkDetectionManager* const networkDetectionManager_;
 
@@ -62,6 +63,7 @@ private:
         bool latestPingFailed;
         int failedPingsInRow;
         qint64 nextTimeForFailedPing;
+        int curDelayForFailedPing = MIN_DELAY_FOR_FAILED_IN_ROW_PINGS;
         bool existThisIp;
 
         PingIpState()
@@ -83,11 +85,19 @@ private:
             latestPingFailed = false;
             failedPingsInRow = 0;
             nextTimeForFailedPing = 0;
+            curDelayForFailedPing = MIN_DELAY_FOR_FAILED_IN_ROW_PINGS;
             existThisIp = false;
         }
     };
 
     QHash<QString, PingIpState> ips_;
     QTimer pingTimer_;
+
+    void onPingFinished(const std::string &ip, bool isSuccess, std::int32_t timeMs, bool isFromDisconnectedVpnState);
+
+
+    // Exponential Backoff algorithm, get next delay
+    // We start re-ping failed nodes after 1 second. Then the delay increases according to the algorithm to a maximum of 1 minute.
+    int exponentialBackoff_GetNextDelay(int curDelay, float factor = 2.0f, float jitter = 0.1f, float maxDelay = 60.0f);
 };
 

@@ -118,7 +118,7 @@ void Connection::onSocketBytesWritten(qint64 bytes)
         qint64 bytesWritten = localSocket_->write(writeBuf_);
         if (bytesWritten == -1)
         {
-           emit stateChanged(CONNECTION_DISCONNECTED, this);
+            emit stateChanged(CONNECTION_DISCONNECTED, this);
         }
         else
         {

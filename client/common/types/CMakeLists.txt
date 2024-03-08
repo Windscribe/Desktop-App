@@ -2,8 +2,6 @@ target_sources(common PRIVATE
     apiresolutionsettings.cpp
     apiresolutionsettings.h
     backgroundsettings.h
-    checkupdate.cpp
-    checkupdate.h
     connecteddnsinfo.cpp
     connecteddnsinfo.h
     connectionsettings.cpp
@@ -23,23 +21,15 @@ target_sources(common PRIVATE
     locationid.h
     macaddrspoofing.h
     networkinterface.h
-    notification.cpp
-    notification.h
     packetsize.h
     pingtime.cpp
     pingtime.h
-    portmap.cpp
-    portmap.h
     protocol.cpp
     protocol.h
     protocolstatus.h
     proxysettings.cpp
     proxysettings.h
     proxysharinginfo.h
-    robertfilter.cpp
-    robertfilter.h
-    sessionstatus.cpp
-    sessionstatus.h
     shareproxygateway.h
     sharesecurehotspot.h
     splittunneling.h

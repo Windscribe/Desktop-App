@@ -144,40 +144,24 @@ void MacAddressController_win::onNetworkChange(types::NetworkInterface /*network
         bool setSpoofing = false;
 
         if (networkInterfaces != updatedMacAddrSpoofing.networkInterfaces) {
-            // An adapter has been added/removed or the settings of an existing adapter have
-            // changed (e.g. changed wi-fi networks).
-            setSpoofing = true;
+            // An adapter has been added/removed/disabled/enabled, or the settings of an existing adapter have changed (e.g. changed wi-fi networks).
             qCDebug(LOG_BASIC) << "Current active adapters: " << NetworkUtils::networkInterfacesToString(networkInterfaces, true);
-
             updatedMacAddrSpoofing.networkInterfaces = networkInterfaces;
-
-            // Check if the spoofed adapter is still in the list.
-            bool found = false;
-            for (const auto &networkInterface : networkInterfaces) {
-                if (updatedMacAddrSpoofing.selectedNetworkInterface.interfaceIndex == networkInterface.interfaceIndex) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                qCDebug(LOG_BASIC) << "Setting selectedNetworkInterface to 'No Network' interface";
-                updatedMacAddrSpoofing.selectedNetworkInterface = types::NetworkInterface::noNetworkInterface();
-            }
+            setSpoofing = true;
         }
 
-        // qCDebug(LOG_BASIC) << "Selected adapter: " << QString::fromStdString(updatedMacAddrSpoofing.selected_network_interface().interface_name());
-        // qCDebug(LOG_BASIC) << "Last current adapter: " << QString::fromStdString(lastNetworkInterface_.interface_name());
-
-        // detect disconnect
-        if (!types::NetworkInterface::isNoNetworkInterface(lastNetworkInterface_.interfaceIndex)) {
-            if (autoRotate_ && lastNetworkInterface_.interfaceIndex == updatedMacAddrSpoofing.selectedNetworkInterface.interfaceIndex &&
-                networkDetectionManager_->interfaceEnabled(lastNetworkInterface_.interfaceIndex))
-            {
-                qCDebug(LOG_BASIC) << "MacAddressController detected disconnect, new MAC address auto-generated";
-                updatedMacAddrSpoofing.macAddress = NetworkUtils::generateRandomMacAddress();
-                actuallyAutoRotate_ = true;
-                setSpoofing = true;
+        if (autoRotate_) {
+            // If we've changed wifi networks, re-enabled an adapter, or plugged a network cable back in, the last inteface
+            // will be the 'no interface'.
+            if (types::NetworkInterface::isNoNetworkInterface(lastNetworkInterface_.interfaceIndex)) {
+                if (currentAdapter.interfaceIndex == updatedMacAddrSpoofing.selectedNetworkInterface.interfaceIndex &&
+                    networkDetectionManager_->interfaceEnabled(currentAdapter.interfaceIndex))
+                {
+                    qCDebug(LOG_BASIC) << "MacAddressController detected spoofed adapter state/network change, new MAC address auto-generated";
+                    updatedMacAddrSpoofing.macAddress = NetworkUtils::generateRandomMacAddress();
+                    actuallyAutoRotate_ = true;
+                    setSpoofing = true;
+                }
             }
         }
 
@@ -190,13 +174,11 @@ void MacAddressController_win::onNetworkChange(types::NetworkInterface /*network
 
 void MacAddressController_win::checkMacSpoofAppliedCorrectly()
 {
-    // qCDebug(LOG_BASIC) << "Checking Mac Spoof was applied correctly";
-
     QString currentMacAddress = NetworkUtils_win::currentNetworkInterface().physicalAddress;
     QString attemptedSpoof = macAddrSpoofing_.macAddress;
 
     if (currentMacAddress != attemptedSpoof.toLower()) {
-        qCDebug(LOG_BASIC) << "Detected failure to change Mac Address";
+        qCDebug(LOG_BASIC) << "Detected failure to change MAC address";
         emit sendUserWarning(USER_WARNING_MAC_SPOOFING_FAILURE_HARD);
     }
 }

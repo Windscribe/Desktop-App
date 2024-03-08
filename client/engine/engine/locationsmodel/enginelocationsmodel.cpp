@@ -4,12 +4,10 @@
 
 namespace locationsmodel {
 
-LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, NetworkAccessManager *networkAccessManager) : QObject(parent)
+LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager) : QObject(parent)
 {
-    pingHosts_ = new PingMultipleHosts(nullptr, stateController, networkAccessManager);
-
-    apiLocationsModel_ = new ApiLocationsModel(this, stateController, networkDetectionManager, pingHosts_);
-    customConfigLocationsModel_ = new CustomConfigLocationsModel(this, stateController, networkDetectionManager, pingHosts_);
+    apiLocationsModel_ = new ApiLocationsModel(this, stateController, networkDetectionManager);
+    customConfigLocationsModel_ = new CustomConfigLocationsModel(this, stateController, networkDetectionManager);
 
     connect(apiLocationsModel_, &ApiLocationsModel::locationsUpdated, this, &LocationsModel::locationsUpdated);
     connect(apiLocationsModel_, &ApiLocationsModel::bestLocationUpdated, this, &LocationsModel::bestLocationUpdated);
@@ -25,10 +23,9 @@ LocationsModel::~LocationsModel()
 {
     delete customConfigLocationsModel_;
     delete apiLocationsModel_;
-    delete pingHosts_;
 }
 
-void LocationsModel::setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)
+void LocationsModel::setApiLocations(const QVector<api_responses::Location> &locations, const api_responses::StaticIps &staticIps)
 {
     apiLocationsModel_->setLocations(locations, staticIps);
 }
@@ -42,21 +39,6 @@ void LocationsModel::clear()
 {
     apiLocationsModel_->clear();
     customConfigLocationsModel_->clear();
-}
-
-void LocationsModel::setProxySettings(const types::ProxySettings &proxySettings)
-{
-    pingHosts_->setProxySettings(proxySettings);
-}
-
-void LocationsModel::disableProxy()
-{
-    pingHosts_->disableProxy();
-}
-
-void LocationsModel::enableProxy()
-{
-    pingHosts_->enableProxy();
 }
 
 QSharedPointer<BaseLocationInfo> LocationsModel::getMutableLocationInfoById(const LocationID &locationId)

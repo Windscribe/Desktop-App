@@ -13,9 +13,9 @@ class NewsContentItem: public CommonGraphics::BasePage
 public:
     explicit NewsContentItem(ScalableGraphicsObject *parent, int width);
 
-    void setMessages(const QVector<types::Notification> &arr,
+    void setMessages(const QVector<api_responses::Notification> &arr,
                      const QSet<qint64> &shownIds);
-    void setMessagesWithCurrentOverride(const QVector<types::Notification> &arr,
+    void setMessagesWithCurrentOverride(const QVector<api_responses::Notification> &arr,
                                         const QSet<qint64> &shownIds,
                                         int overrideCurrentMessageId);
     void updateRead();
@@ -30,7 +30,7 @@ private:
     static constexpr int SPACER_HEIGHT = 16;
     static constexpr int INDENT = 16;
 
-    void setMessagesInternal(const QVector<types::Notification> &arr,
+    void setMessagesInternal(const QVector<api_responses::Notification> &arr,
                              const QSet<qint64> &shownIds,
                              int id);
     void scrollToItem(EntryItem *item, bool expanded = false);

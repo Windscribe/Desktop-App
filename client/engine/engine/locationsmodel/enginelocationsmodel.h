@@ -4,10 +4,8 @@
 
 #include "apilocationsmodel.h"
 #include "customconfiglocationsmodel.h"
-#include "engine/apiinfo/location.h"
-#include "engine/apiinfo/staticips.h"
-
-class NetworkAccessManager;
+#include "api_responses/location.h"
+#include "api_responses/staticips.h"
 
 namespace locationsmodel {
 
@@ -16,16 +14,12 @@ class LocationsModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, NetworkAccessManager *networkAccessManager);
+    explicit LocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager);
     ~LocationsModel() override;
 
-    void setApiLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps);
+    void setApiLocations(const QVector<api_responses::Location> &locations, const api_responses::StaticIps &staticIps);
     void setCustomConfigLocations(const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs);
     void clear();
-
-    void setProxySettings(const types::ProxySettings &proxySettings);
-    void disableProxy();
-    void enableProxy();
 
     QSharedPointer<BaseLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
 
@@ -41,7 +35,6 @@ signals:
 private:
     ApiLocationsModel *apiLocationsModel_;
     CustomConfigLocationsModel *customConfigLocationsModel_;
-    PingMultipleHosts *pingHosts_;
 };
 
 } //namespace locationsmodel

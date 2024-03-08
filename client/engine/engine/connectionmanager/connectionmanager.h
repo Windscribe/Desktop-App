@@ -10,9 +10,7 @@
 #include "makeovpnfilefromcustom.h"
 
 #include "iconnection.h"
-#include "testvpntunnel.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
-#include "engine/wireguardconfig/getwireguardconfig.h"
 #include "connsettingspolicy/baseconnsettingspolicy.h"
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
 #include "engine/apiinfo/servercredentials.h"
@@ -21,6 +19,7 @@
 #include "types/packetsize.h"
 #include "types/protocol.h"
 #include "types/connecteddnsinfo.h"
+#include "api_responses/portmap.h"
 
 #ifdef Q_OS_MAC
     #include "restorednsmanager_mac.h"
@@ -29,6 +28,9 @@
 class INetworkDetectionManager;
 class ISleepEvents;
 class IKEv2Connection;
+class TestVPNTunnel;
+enum class WireGuardConfigRetCode;
+class GetWireGuardConfig;
 
 // manage openvpn connection, reconnects, sleep mode, network change, automatic/manual connection mode
 
@@ -37,13 +39,13 @@ class ConnectionManager : public QObject
     Q_OBJECT
 public:
     explicit ConnectionManager(QObject *parent, IHelper *helper, INetworkDetectionManager *networkDetectionManager,
-                               server_api::ServerAPI *serverAPI, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
+                               CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
     ~ConnectionManager() override;
 
     void clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
                       QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                       const types::ConnectionSettings &connectionSettings,
-                      const types::PortMap &portMap, const types::ProxySettings &proxySettings,
+                      const api_responses::PortMap &portMap, const types::ProxySettings &proxySettings,
                       bool bEmitAuthError, const QString &customConfigPath);
 
     void clickDisconnect();
@@ -63,12 +65,13 @@ public:
 
     void continueWithUsernameAndPassword(const QString &username, const QString &password, bool bNeedReconnect);
     void continueWithPassword(const QString &password, bool bNeedReconnect);
+    void continueWithPrivKeyPassword(const QString &password, bool bNeedReconnect);
 
     bool isCustomOvpnConfigCurrentConnection() const;
     QString getCustomOvpnConfigFileName();
 
     bool isStaticIpsLocation() const;
-    apiinfo::StaticIpPortsVector getStatisIps();
+    api_responses::StaticIpPortsVector getStatisIps();
 
     void onWireGuardKeyLimitUserResponse(bool deleteOldestKey);
 
@@ -82,7 +85,7 @@ public:
 
     void updateConnectionSettings(
         const types::ConnectionSettings &connectionSettings,
-        const types::PortMap &portMap,
+        const api_responses::PortMap &portMap,
         const types::ProxySettings &proxySettings);
 
     void setLastKnownGoodProtocol(const types::Protocol protocol);
@@ -104,6 +107,7 @@ signals:
 
     void requestUsername(const QString &pathCustomOvpnConfig);
     void requestPassword(const QString &pathCustomOvpnConfig);
+    void requestPrivKeyPassword(const QString &pathCustomOvpnConfig);
 
 private slots:
     void onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo);
@@ -115,6 +119,7 @@ private slots:
 
     void onConnectionRequestUsername();
     void onConnectionRequestPassword();
+    void onConnectionRequestPrivKeyPassword();
 
     void onSleepMode();
     void onWakeMode();
@@ -200,7 +205,7 @@ private:
     types::PacketSize packetSize_;
 
     WireGuardConfig wireGuardConfig_;
-    GetWireGuardConfig *getWireGuardConfig_;
+    GetWireGuardConfig *getWireGuardConfig_ = nullptr;
 
     AdapterGatewayInfo defaultAdapterInfo_;
     AdapterGatewayInfo vpnAdapterInfo_;
@@ -223,10 +228,10 @@ private:
     void restoreConnectionAfterWakeUp();
     void updateConnectionSettingsPolicy(
         const types::ConnectionSettings &connectionSettings,
-        const types::PortMap &portMap,
+        const api_responses::PortMap &portMap,
         const types::ProxySettings &proxySettings);
     void connectOrStartConnectTimer();
-
+    void getWireGuardConfig(const QString &serverName, bool deleteOldestKey, const QString &deviceId);
     bool connectedDnsTypeAuto() const;
     void disconnect();
 };

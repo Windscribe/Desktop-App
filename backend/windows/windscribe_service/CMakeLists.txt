@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.23)
 
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+set(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
     set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../build-libs-arm64)
@@ -19,6 +21,11 @@ endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
 add_definitions(-DUNICODE -D_UNICODE -DWINDSCRIBE_SERVICE)
 
 project(Service)
+
+find_package(Boost REQUIRED COMPONENTS serialization filesystem)
+find_path(BSHOSHANY_THREAD_POOL_INCLUDE_DIRS "BS_thread_pool.hpp")
+
+add_subdirectory(../../../libs/wsnet wsnet)
 
 set(SOURCES
     active_processes.cpp
@@ -47,7 +54,6 @@ set(SOURCES
     remove_windscribe_network_profiles.cpp
     simple_xor_crypt.cpp
     split_tunneling/callout_filter.cpp
-    split_tunneling/hostnames_manager/ares_library_init.cpp
     split_tunneling/hostnames_manager/dns_resolver.cpp
     split_tunneling/hostnames_manager/hostnames_manager.cpp
     split_tunneling/hostnames_manager/ip_routes.cpp
@@ -76,12 +82,6 @@ add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "
 add_executable(WindscribeService ${SOURCES})
 set_property(TARGET WindscribeService PROPERTY COMPILE_WARNING_AS_ERROR ON)
 
-target_link_directories(WindscribeService
-                        PRIVATE
-                        ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/lib
-                        ${WINDSCRIBE_BUILD_LIBS_PATH}/cares//lib
-)
-
 target_link_libraries(WindscribeService
                       PRIVATE
                       Iphlpapi
@@ -89,12 +89,16 @@ target_link_libraries(WindscribeService
                       rpcrt4
                       Fwpuclnt
                       Ws2_32
-                      cares
+                      wsnet::wsnet
+                      Boost::serialization
+                      Boost::filesystem
 )
 
 target_include_directories(WindscribeService PRIVATE
-                           ${WINDSCRIBE_BUILD_LIBS_PATH}/boost/include
-                           ${WINDSCRIBE_BUILD_LIBS_PATH}/cares/include
                            ${WINDSCRIBE_BUILD_LIBS_PATH}/wintun/include
                            ../../../client/common/
+)
+
+install(TARGETS WindscribeService wsnet
+    RUNTIME DESTINATION .
 )

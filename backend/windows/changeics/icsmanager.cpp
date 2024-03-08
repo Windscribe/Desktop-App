@@ -128,12 +128,12 @@ bool IcsManager::change(const std::wstring &adapterName)
 
     // Disable existing ICS first, otherwise it won't work
     if (pNetConfigurationPublic_) {
-         pNetConfigurationPublic_->DisableSharing();
+        pNetConfigurationPublic_->DisableSharing();
         pNetConfigurationPublic_ = nullptr;
     }
 
     if (pNetConfigurationPrivate_) {
-         pNetConfigurationPrivate_->DisableSharing();
+        pNetConfigurationPrivate_->DisableSharing();
         pNetConfigurationPrivate_ = nullptr;
     }
 

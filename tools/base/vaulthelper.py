@@ -62,6 +62,10 @@ class VaultParser:
     def mac_provision_profile():
         sys.stdout.write(VaultParser.parse_vault_json_raw('data', 'CODE_SIGN_PROVISION_PROFILE_MAC'))
 
+    @staticmethod
+    def token_password():
+        sys.stdout.write(VaultParser.parse_vault_json('data', 'CODE_SIGN_DIGICERT_TOKEN_PASSWORD'))
+
 
 if __name__ == "__main__":
     if "--get-client-token" in sys.argv:
@@ -76,6 +80,8 @@ if __name__ == "__main__":
         VaultParser.mac_provision_profile()
     elif "--get-notarize-yml" in sys.argv:
         VaultParser.notarize_yml()
+    elif "--get-token-password" in sys.argv:
+        VaultParser.token_password()
     else:
         print("Error, pass argument that specifies what to parse for")
         sys.exit(1)

@@ -1,0 +1,26 @@
+{
+    "dependencies": [
+        "boost-asio",
+        "boost-filesystem",
+        "boost-logic",
+        "boost-serialization",
+        "boost-thread",
+        "bshoshany-thread-pool",
+        "openssl",
+        "openvpn",
+        "gtest",
+        "spdlog",
+        {
+            "name": "curl",
+            "features": [ "openssl" ]
+        },
+        "rapidjson",
+        "skyr-url",
+        "cmakerc",
+        "cpp-base64",
+        "reproc",
+        "c-ares",
+        "advobfuscator",
+        "7zip"
+    ]
+}

@@ -7,7 +7,7 @@
 
 namespace GeneralMessageWindow {
 
-class GeneralMessageWindowItem : public ResizableWindow 
+class GeneralMessageWindowItem : public ResizableWindow
 {
     Q_OBJECT
 public:
@@ -18,11 +18,12 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
+    void setStyle(GeneralMessageWindow::Style style);
     void setIcon(const QString &icon);
     void setTitle(const QString &title);
     void setDescription(const QString &desc);
 
-    void setAcceptText(const QString &text);
+    void setAcceptText(const QString &text, bool showRemember = false);
     void setRejectText(const QString &text);
     void setTertiaryText(const QString &text);
 
@@ -30,11 +31,16 @@ public:
     void setBackgroundShape(GeneralMessageWindow::Shape shape);
 
     void setSpinnerMode(bool on);
-
     void setShowBottomPanel(bool on);
     void setLearnMoreUrl(const QString &url);
+    void setShowUsername(bool on);
+    void setShowPassword(bool on);
+    void clear();
+
     bool isRememberChecked();
     GeneralMessageWindow::Shape backgroundShape() const;
+    QString username() const;
+    QString password() const;
 
 signals:
     void acceptClick();

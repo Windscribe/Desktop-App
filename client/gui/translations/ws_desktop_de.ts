@@ -120,21 +120,6 @@
     </message>
 </context>
 <context>
-    <name>DialogGetUsernamePassword</name>
-    <message>
-        <source>Enter connection credentials</source>
-        <translation>Geben Sie die Anmeldeinformationen für die Verbindung ein</translation>
-    </message>
-    <message>
-        <source>Please enter the username</source>
-        <translation>Bitte geben Sie den Benutzernamen ein</translation>
-    </message>
-    <message>
-        <source>Please enter the password</source>
-        <translation>Bitte geben Sie das Passwort ein</translation>
-    </message>
-</context>
-<context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
@@ -230,6 +215,18 @@
     <message>
         <source>Learn More</source>
         <translation>Weitere Informationen</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Nutzername</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Passwort</translation>
+    </message>
+    <message>
+        <source>Remember</source>
+        <translation>Merken</translation>
     </message>
 </context>
 <context>
@@ -784,6 +781,18 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
         <translation>Die Datei konnte nicht zum Schreiben geöffnet werden.  Überprüfen Sie Ihre Berechtigungen, und versuchen Sie es erneut.</translation>
+    </message>
+    <message>
+        <source>Enter Connection Credentials</source>
+        <translation>Geben Sie die Anmeldeinformationen für die Verbindung ein</translation>
+    </message>
+    <message>
+        <source>Enter Private Key Password</source>
+        <translation>Geben Sie das Passwort für den privaten Schlüssel ein</translation>
+    </message>
+    <message>
+        <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
+        <translation>Windscribe konnte die Serverkonfiguration nicht abrufen. Bitte versuchen Sie es mit einem anderen Protokoll.</translation>
     </message>
 </context>
 <context>
@@ -1409,20 +1418,8 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Wissensdatenbank</translation>
     </message>
     <message>
-        <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>Nicht so schlau wie ein Mensch, kann aber trotzdem Ihre Fragen beantworten.</translation>
-    </message>
-    <message>
         <source>Talk to Garry</source>
         <translation>Sprich mit Garry</translation>
-    </message>
-    <message>
-        <source>Stuck? Send us a ticket.</source>
-        <translation>Eingeklemmt? Schicken Sie uns ein Ticket.</translation>
-    </message>
-    <message>
-        <source>Send Ticket</source>
-        <translation>Ticket versenden</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1459,6 +1456,18 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <message>
         <source>Failed!</source>
         <translation>Misslungen!</translation>
+    </message>
+    <message>
+        <source>Need help? Garry can help you with most issues, go talk to him.</source>
+        <translation>Brauchen Sie Hilfe? Garry kann dir bei den meisten Problemen helfen, sprich mit ihm.</translation>
+    </message>
+    <message>
+        <source>Contact Humans</source>
+        <translation>Kontakt Menschen</translation>
+    </message>
+    <message>
+        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
+        <translation>Haben Sie ein Problem, das Garry nicht lösen kann? Wenden Sie sich an den menschlichen Support.</translation>
     </message>
 </context>
 <context>

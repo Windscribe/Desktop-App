@@ -9,8 +9,8 @@
 
 namespace locationsmodel {
 
-ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager, PingMultipleHosts *pingHosts) : QObject(parent),
-    pingManager_(this, stateController, networkDetectionManager, pingHosts, "pingStorage", "ping_log.txt")
+ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager) : QObject(parent),
+    pingManager_(this, stateController, networkDetectionManager, "pingStorage", "ping_log.txt")
 {
     if (bestLocation_.isValid())
     {
@@ -23,7 +23,7 @@ ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *s
     connect(&pingManager_, &PingManager::pingInfoChanged, this, &ApiLocationsModel::onPingInfoChanged);
 }
 
-void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)
+void ApiLocationsModel::setLocations(const QVector<api_responses::Location> &locations, const api_responses::StaticIps &staticIps)
 {
     if (!isChanged(locations, staticIps)) {
         return;
@@ -36,21 +36,21 @@ void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations
 
     // ping stuff
     QVector<PingIpInfo> ips;
-    for (const apiinfo::Location &l : locations) {
+    for (const api_responses::Location &l : locations) {
         for (int i = 0; i < l.groupsCount(); ++i) {
-            apiinfo::Group group = l.getGroup(i);
+            api_responses::Group group = l.getGroup(i);
             // Ping with Curl by hostname was introduced later, so the ping hostname may be empty when updating the program from an older version.
             if (!group.getPingHost().isEmpty()) {
-                ips << PingIpInfo { group.getPingIp(), group.getPingHost(), group.getCity(), group.getNick(), PingType::kCurl };
+                ips << PingIpInfo { group.getPingIp(), group.getPingHost(), group.getCity(), group.getNick(), wsnet::PingType::kHttp };
             }
         }
     }
 
     // handle static ips location
     for (int i = 0; i < staticIps_.getIpsCount(); ++i) {
-        const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
+        const api_responses::StaticIpDescr &sid = staticIps_.getIp(i);
         if (!sid.getPingHost().isEmpty()) {
-            ips << PingIpInfo { sid.getPingIp(), sid.getPingHost(), sid.name, "staticIP", PingType::kCurl };
+            ips << PingIpInfo { sid.getPingIp(), sid.getPingHost(), sid.name, "staticIP", wsnet::PingType::kHttp };
         }
     }
 
@@ -61,7 +61,7 @@ void ApiLocationsModel::setLocations(const QVector<apiinfo::Location> &locations
 void ApiLocationsModel::clear()
 {
     locations_.clear();
-    staticIps_ = apiinfo::StaticIps();
+    staticIps_ = api_responses::StaticIps();
     pingManager_.clearIps();
     QSharedPointer<QVector<types::Location> > empty(new QVector<types::Location>());
     emit locationsUpdated(LocationID(), QString(),  empty);
@@ -77,7 +77,7 @@ QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(c
         {
             for (int i = 0; i < staticIps_.getIpsCount(); ++i)
             {
-                const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
+                const api_responses::StaticIpDescr &sid = staticIps_.getIp(i);
                 LocationID staticIpLocationId = LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp);
 
                 if (staticIpLocationId == locationId)
@@ -102,19 +102,19 @@ QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(c
         modifiedLocationId = locationId.bestLocationToApiLocation();
     }
 
-    for (const apiinfo::Location &l : locations_)
+    for (const api_responses::Location &l : locations_)
     {
         if (LocationID::createTopApiLocationId(l.getId()) == modifiedLocationId.toTopLevelLocation())
         {
             for (int i = 0; i < l.groupsCount(); ++i)
             {
-                const apiinfo::Group group = l.getGroup(i);
+                const api_responses::Group group = l.getGroup(i);
                 if (LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick()) == modifiedLocationId)
                 {
                     QVector< QSharedPointer<const BaseNode> > nodes;
                     for (int n = 0; n < group.getNodesCount(); ++n)
                     {
-                        const apiinfo::Node &apiInfoNode = group.getNode(n);
+                        const api_responses::Node &apiInfoNode = group.getNode(n);
                         QStringList ips;
                         ips << apiInfoNode.getIp(0) << apiInfoNode.getIp(1) << apiInfoNode.getIp(2);
                         nodes << QSharedPointer<const ApiLocationNode>(new ApiLocationNode(ips, apiInfoNode.getHostname(), apiInfoNode.getWeight(), group.getWgPubKey()));
@@ -149,9 +149,9 @@ void ApiLocationsModel::onPingInfoChanged(const QString &ip, int timems)
         detectBestLocation(true);
     }
 
-    for (const apiinfo::Location &l : locations_) {
+    for (const api_responses::Location &l : locations_) {
         for (int i = 0; i < l.groupsCount(); ++i) {
-            const apiinfo::Group group = l.getGroup(i);
+            const api_responses::Group group = l.getGroup(i);
             if (group.getPingIp() == ip) {
                 emit locationPingTimeChanged(LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick()), timems);
             }
@@ -160,7 +160,7 @@ void ApiLocationsModel::onPingInfoChanged(const QString &ip, int timems)
 
     if (staticIps_.getIpsCount() > 0) {
         for (int i = 0; i < staticIps_.getIpsCount(); ++i) {
-            const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
+            const api_responses::StaticIpDescr &sid = staticIps_.getIp(i);
             if (sid.getPingIp() == ip) {
                 emit locationPingTimeChanged(LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp), timems);
                 break;
@@ -181,11 +181,11 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
     int prevBestLocationLatency = INT_MAX;
 
     int ind = 0;
-    for (const apiinfo::Location &l : locations_)
+    for (const api_responses::Location &l : locations_)
     {
         for (int i = 0; i < l.groupsCount(); ++i)
         {
-            const apiinfo::Group group = l.getGroup(i);
+            const api_responses::Group group = l.getGroup(i);
 
             if (group.isDisabled())
             {
@@ -290,7 +290,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
     BestAndAllLocations ball;
     bool isBestLocationValid = false;
 
-    for (const apiinfo::Location &l : locations_)
+    for (const api_responses::Location &l : locations_)
     {
         types::Location item;
         item.id = LocationID::createTopApiLocationId(l.getId());
@@ -301,7 +301,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
 
         for (int i = 0; i < l.groupsCount(); ++i)
         {
-            const apiinfo::Group group = l.getGroup(i);
+            const api_responses::Group group = l.getGroup(i);
             types::City city;
             city.id = LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick());
             city.city = group.getCity();
@@ -362,7 +362,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
 
         for (int i = 0; i < staticIps_.getIpsCount(); ++i)
         {
-            const apiinfo::StaticIpDescr &sid = staticIps_.getIp(i);
+            const api_responses::StaticIpDescr &sid = staticIps_.getIp(i);
             types::City city;
             city.id = LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp);
             city.city = sid.cityName;
@@ -393,7 +393,7 @@ void ApiLocationsModel::sendLocationsUpdated()
 void ApiLocationsModel::whitelistIps()
 {
     QStringList ips;
-    for (const apiinfo::Location &l : locations_)
+    for (const api_responses::Location &l : locations_)
     {
         for (int i = 0; i < l.groupsCount(); ++i)
         {
@@ -404,7 +404,7 @@ void ApiLocationsModel::whitelistIps()
     emit whitelistIpsChanged(ips);
 }
 
-bool ApiLocationsModel::isChanged(const QVector<apiinfo::Location> &locations, const apiinfo::StaticIps &staticIps)
+bool ApiLocationsModel::isChanged(const QVector<api_responses::Location> &locations, const api_responses::StaticIps &staticIps)
 {
     return locations_ != locations || staticIps_ != staticIps;
 }

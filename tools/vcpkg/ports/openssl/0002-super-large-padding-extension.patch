@@ -1,0 +1,31 @@
+diff --git a/include/openssl/ssl.h.in b/include/openssl/ssl.h.in
+index 961f6d8..4ede49c 100644
+--- a/include/openssl/ssl.h.in
++++ b/include/openssl/ssl.h.in
+@@ -439,6 +439,9 @@ typedef int (*SSL_async_callback_fn)(SSL *s, void *arg);
+ #define SSL_OP_ECH_IGNORE_CID                           SSL_OP_BIT(36)
+ #endif
+ 
++/* Super large padding to bypass non-reassembling censorship filters */
++#define SSL_OP_TLSEXT_PADDING_SUPER                     SSL_OP_BIT(37)
++
+ /*
+  * Option "collections."
+  */
+
+diff --git a/ssl/statem/extensions_clnt.c b/ssl/statem/extensions_clnt.c
+index 76100ff..790fb04 100644
+--- a/ssl/statem/extensions_clnt.c
++++ b/ssl/statem/extensions_clnt.c
+@@ -1140,6 +1140,11 @@ EXT_RETURN tls_construct_ctos_padding(SSL_CONNECTION *s, WPACKET *pkt,
+     if (hlen > F5_WORKAROUND_MIN_MSG_LEN && hlen < F5_WORKAROUND_MAX_MSG_LEN) {
+         /* Calculate the amount of padding we need to add */
+         hlen = F5_WORKAROUND_MAX_MSG_LEN - hlen;
++        /* Super large padding for circumvention of non-reassembling boxes */
++        if (s->options & SSL_OP_TLSEXT_PADDING_SUPER) {
++            RAND_bytes(&hlen, sizeof(hlen));
++            hlen = 2000 + (hlen % 10000);
++        }
+ 
+         /*
+          * Take off the size of extension header itself (2 bytes for type and

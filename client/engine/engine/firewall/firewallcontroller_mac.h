@@ -2,7 +2,7 @@
 
 #include "firewallcontroller.h"
 #include "engine/helper/helper_mac.h"
-#include "engine/apiinfo/staticips.h"
+#include "api_responses/staticips.h"
 
 #include <QTemporaryFile>
 
@@ -19,7 +19,7 @@ public:
     bool firewallOff() override;
     bool firewallActualState() override;
 
-    bool whitelistPorts(const apiinfo::StaticIpPortsVector &ports) override;
+    bool whitelistPorts(const api_responses::StaticIpPortsVector &ports) override;
     bool deleteWhitelistPorts() override;
 
     void setInterfaceToSkip_posix(const QString &interfaceToSkip) override;
@@ -48,7 +48,7 @@ private:
     bool isAllowLanTraffic_;
     bool isCustomConfig_;
     QString connectingIp_;
-    apiinfo::StaticIpPortsVector staticIpPorts_;
+    api_responses::StaticIpPortsVector staticIpPorts_;
 
     QTemporaryFile tempFile_;
 

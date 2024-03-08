@@ -17,7 +17,7 @@ struct GuiPersistentState
     bool isFirstLogin = true;
     bool isIgnoreCpuUsageWarnings = false;
     LocationID lastLocation;
-    QString lastExternalIp = "N/A";
+    QString lastExternalIp = "---.---.---.---";
     QVector<types::NetworkInterface> networkWhiteList;
     QByteArray appGeometry;
 

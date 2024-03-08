@@ -76,3 +76,8 @@ add_custom_command(
 )
 
 target_sources(ws_proxy_stub PRIVATE ${MIDL_FILE} ${MIDL_OUTPUT})
+
+install(TARGETS ws_com_server ws_com ws_proxy_stub
+    RUNTIME DESTINATION .
+)
+

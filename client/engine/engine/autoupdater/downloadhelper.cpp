@@ -4,8 +4,6 @@
 #include <QFile>
 #include <QStandardPaths>
 
-#include "engine/networkaccessmanager/networkaccessmanager.h"
-#include "engine/networkaccessmanager/networkreply.h"
 #include "names.h"
 #include "utils/logger.h"
 #include "utils/ws_assert.h"
@@ -16,8 +14,9 @@
 #include "utils/utils.h"
 #endif
 
-DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAccessManager, const QString &platform) : QObject(parent)
-  , networkAccessManager_(networkAccessManager)
+using namespace wsnet;
+
+DownloadHelper::DownloadHelper(QObject *parent, const QString &platform) : QObject(parent)
   , busy_(false)
   , platform_(platform)
   , downloadDirectory_(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation))
@@ -30,8 +29,7 @@ DownloadHelper::DownloadHelper(QObject *parent, NetworkAccessManager *networkAcc
 
 DownloadHelper::~DownloadHelper()
 {
-    abortAllReplies();
-    deleteAllReplies();
+    deleteAllCurrentReplies();
 }
 
 const QString DownloadHelper::downloadInstallerPath()
@@ -73,8 +71,7 @@ const QString DownloadHelper::downloadInstallerPathWithoutExtension()
 void DownloadHelper::get(QMap<QString, QString> downloads)
 {
     // assume get() should only run one set of downloads at a time
-    if (busy_)
-    {
+    if (busy_) {
         qCDebug(LOG_DOWNLOADER) << "Downloader is busy. Try again later";
         return;
     }
@@ -82,55 +79,42 @@ void DownloadHelper::get(QMap<QString, QString> downloads)
     busy_ = true;
     progressPercent_ = 0;
     for (const auto & download : downloads.keys())
-    {
         getInner(download, downloads[download]);
-    }
 }
 
 void DownloadHelper::stop()
 {
-    if (!busy_)
-    {
+    if (!busy_) {
         qCDebug(LOG_DOWNLOADER) << "No download to stop";
         return;
     }
 
     qCDebug(LOG_DOWNLOADER) << "Stopping download";
-    abortAllReplies();
-    deleteAllReplies();
+    deleteAllCurrentReplies();
     busy_ = false;
 }
 
-DownloadHelper::DownloadState DownloadHelper::state()
+void DownloadHelper::onReplyFinished(std::uint64_t requestId, NetworkError errCode, const std::string &data)
 {
-    return state_;
-}
-
-void DownloadHelper::onReplyFinished()
-{
-    NetworkReply *reply = static_cast<NetworkReply*>(sender());
-    if (!replies_.contains(reply))
-    {
-        qCDebug(LOG_DOWNLOADER) << "Failed to find reply that finished in monitored replies list";
+    auto it = replies_.find(requestId);
+    if (it == replies_.end()) {
         return;
     }
-    replies_[reply].done = true;
+
+    it->second->done = true;
 
     // if any reply fails, we fail
-    if (!reply->isSuccess())
-    {
+    if (errCode != NetworkError::kSuccess) {
         qCDebug(LOG_DOWNLOADER) << "Download failed";
-        abortAllReplies();
-        deleteAllReplies();
+        deleteAllCurrentReplies();
         busy_ = false;
         emit finished(DOWNLOAD_STATE_FAIL);
         return;
     }
 
-    if (allRepliesDone())
-    {
+    if (allRepliesDone()) {
         qCDebug(LOG_DOWNLOADER) << "Download finished successfully";
-        deleteAllReplies();
+        deleteAllCurrentReplies();
         busy_ = false;
         emit finished(DOWNLOAD_STATE_SUCCESS);
         return;
@@ -140,52 +124,38 @@ void DownloadHelper::onReplyFinished()
     qCDebug(LOG_DOWNLOADER) << "Download single file successful";
 }
 
-void DownloadHelper::onReplyDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
+void DownloadHelper::onReplyDownloadProgress(std::uint64_t requestId, std::uint64_t bytesReceived, std::uint64_t bytesTotal)
 {
-    NetworkReply *reply = static_cast<NetworkReply*>(sender());
-    if (!replies_.contains(reply))
-    {
-        qCDebug(LOG_DOWNLOADER) << "Failed to find reply that progressed in monitored replies list";
+    auto it = replies_.find(requestId);
+    if (it == replies_.end()) {
         return;
     }
-    replies_[reply].bytesReceived = bytesReceived;
-    replies_[reply].bytesTotal = bytesTotal;
 
-    // recompute total progress
+    it->second->bytesReceived = bytesReceived;
+    it->second->bytesTotal = bytesTotal;
+
+    // recalculate total progress
     qint64 sum = 0;
     qint64 total = 0;
-    for (const auto & fileAndProgress : replies_.values())
-    {
-        sum += fileAndProgress.bytesReceived;
-        total += fileAndProgress.bytesTotal;
+    for (const auto &reply : replies_) {
+        sum += reply.second->bytesReceived;
+        total += reply.second->bytesTotal;
     }
 
-    // qCDebug(LOG_DOWNLOADER) << "Bytes received: " << bytesReceived << ", Bytes Total: " << bytesTotal;
     progressPercent_ = (double) sum / (double) total * 100;
-
-    // qCDebug(LOG_DOWNLOADER) << "Downloading: " << progressPercent_;
     emit progressChanged(progressPercent_);
 }
 
-void DownloadHelper::onReplyReadyRead()
+void DownloadHelper::onReplyReadyRead(std::uint64_t requestId, const std::string &data)
 {
-    NetworkReply *reply = static_cast<NetworkReply*>(sender());
-    if (!replies_.contains(reply))
-    {
-        qCDebug(LOG_DOWNLOADER) << "Failed to find reply that emitted ready read in monitored replies list";
+    auto it = replies_.find(requestId);
+    if (it == replies_.end()) {
         return;
     }
-    QByteArray arr = reply->readAll();
-
-    if (!arr.isEmpty())
-    {
-        auto &file = replies_[reply].file;
-        if (file->isOpen())
-        {
-            file->write(arr);
-        }
-        else
-        {
+    if (!data.empty()) {
+        if (it->second->file.isOpen()) {
+            it->second->file.write(data.c_str(), data.size());
+        } else {
             qCDebug(LOG_DOWNLOADER) << "Download error occurred (file not opened)";
         }
     }
@@ -197,30 +167,48 @@ void DownloadHelper::getInner(const QString url, const QString targetFilenamePat
     QFile::remove(targetFilenamePath);
     qCDebug(LOG_DOWNLOADER) << "Starting download from url: " << url;
 
-    FileAndProgress fileAndProgess;
-    fileAndProgess.file = QSharedPointer<QFile>::create(targetFilenamePath); // unnecessary copy?
-    if (!fileAndProgess.file->open(QIODevice::WriteOnly))
+    auto fileAndProgess = std::make_unique<FileAndProgress>();
+    fileAndProgess->file.setFileName(targetFilenamePath);
+    if (!fileAndProgess->file.open(QIODevice::WriteOnly))
     {
         qCDebug(LOG_DOWNLOADER) << "Failed to open file for download" << url;
         return;
     }
 
-    NetworkRequest request(QUrl(url), 60000 * 5, true);     // timeout 5 mins
-    request.setRemoveFromWhitelistIpsAfterFinish();
+    auto callbackFinished = [this] (std::uint64_t requestId, std::uint32_t elapsedMs,
+                                    NetworkError errCode, const std::string &data)
+    {
+        QMetaObject::invokeMethod(this, [this, requestId, errCode, data] {
+            onReplyFinished(requestId, errCode, data);
+        }) ;
+    };
 
-    NetworkReply *reply = networkAccessManager_->get(request);
-    replies_.insert(reply, fileAndProgess);
-    connect(reply, &NetworkReply::finished, this, &DownloadHelper::onReplyFinished);
-    connect(reply, &NetworkReply::progress, this, &DownloadHelper::onReplyDownloadProgress);
-    connect(reply, &NetworkReply::readyRead, this, &DownloadHelper::onReplyReadyRead);
+    auto callbackProgress = [this] (std::uint64_t requestId, std::uint64_t bytesReceived,
+                                    std::uint64_t bytesTotal) {
+        QMetaObject::invokeMethod(this, [this, requestId, bytesReceived, bytesTotal] {
+            onReplyDownloadProgress(requestId, bytesReceived, bytesTotal);
+        }) ;
+    };
+
+    auto callbackReadyData = [this] (std::uint64_t requestId, const std::string &data) {
+        QMetaObject::invokeMethod(this, [this, requestId, data] {
+            onReplyReadyRead(requestId, data);
+        }) ;
+    };
+
+    auto httpRequest = WSNet::instance()->httpNetworkManager()->createGetRequest(url.toStdString(), (std::uint16_t)(60000 * 5));  // timeout 5 mins
+    httpRequest->setRemoveFromWhitelistIpsAfterFinish(true);
+
+    fileAndProgess->request = WSNet::instance()->httpNetworkManager()->executeRequestEx(httpRequest, uniqueRequestId_, callbackFinished, callbackProgress, callbackReadyData);
+    replies_[uniqueRequestId_] = std::move(fileAndProgess);
+    uniqueRequestId_++;
 }
 
 void DownloadHelper::removeAutoUpdateInstallerFiles()
 {
     // remove a previously used auto-update installer/dmg upon app startup if it exists
     const QString installerPath = downloadInstallerPath();
-    if (QFile::exists(installerPath))
-    {
+    if (QFile::exists(installerPath)) {
         qCDebug(LOG_DOWNLOADER) << "Removing auto-update installer";
         QFile::remove(installerPath);
     }
@@ -229,8 +217,7 @@ void DownloadHelper::removeAutoUpdateInstallerFiles()
     // remove temp installer.app on mac:
     // | installer.app was unpacked from above .dmg
     const QString & installerApp = downloadDirectory_ + "/" + INSTALLER_FILENAME_MAC_APP;
-    if (QFile::exists(installerApp))
-    {
+    if (QFile::exists(installerApp)) {
         qCDebug(LOG_DOWNLOADER) << "Removing auto-update temporary installer app";
         Utils::removeDirectory(installerApp);
     }
@@ -239,32 +226,19 @@ void DownloadHelper::removeAutoUpdateInstallerFiles()
 
 bool DownloadHelper::allRepliesDone()
 {
-    for (const auto &fp : replies_.values())
-    {
+    for (const auto &reply : replies_) {
         // breaks
-        if (!fp.done)
-        {
+        if (!reply.second->done) {
             return false;
         }
     }
     return true;
 }
 
-void DownloadHelper::abortAllReplies()
+void DownloadHelper::deleteAllCurrentReplies()
 {
-    for (const auto &reply : replies_.keys())
-    {
-        reply->abort();
-    }
-}
+    for (const auto &reply : replies_)
+        reply.second->request->cancel();
 
-void DownloadHelper::deleteAllReplies()
-{
-    while (!replies_.empty())
-    {
-        NetworkReply *reply = replies_.firstKey();
-        disconnect(reply);
-        replies_.remove(reply);
-        reply->deleteLater();
-    }
+    replies_.clear();
 }

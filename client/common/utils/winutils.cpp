@@ -188,13 +188,15 @@ QStringList WinUtils::enumerateSubkeyNames(HKEY rootKey, const QString &keyPath)
             {
                 TCHAR achKey[MAX_KEY_LENGTH];   // buffer for subkey name
                 DWORD cbName = MAX_KEY_LENGTH;  // size of name string
-                retCode = RegEnumKeyEx(hKeyParent, i,
-                         achKey,
-                         &cbName,
-                         NULL,
-                         NULL,
-                         NULL,
-                         &ftLastWriteTime);
+                retCode = RegEnumKeyEx(
+                    hKeyParent,
+                    i,
+                    achKey,
+                    &cbName,
+                    NULL,
+                    NULL,
+                    NULL,
+                    &ftLastWriteTime);
                 if (retCode == ERROR_SUCCESS)
                 {
                     result.append(QString::fromWCharArray(achKey));
@@ -532,7 +534,7 @@ unsigned long WinUtils::Win32GetErrorString(unsigned long errorCode, wchar_t *bu
                                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                                     buffer, bufferSize, NULL);
     if (nLength == 0) {
-       nLength = _snwprintf_s(buffer, bufferSize, _TRUNCATE, L"Unknown error code [%lu].", errorCode);
+        nLength = _snwprintf_s(buffer, bufferSize, _TRUNCATE, L"Unknown error code [%lu].", errorCode);
     }
 
     return nLength;

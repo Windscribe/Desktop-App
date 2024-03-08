@@ -1,3 +1,68 @@
+2.10.4 (06/03/2024)
+All:
+   * Added the user-agent request header to all HTTP-requests [wsnet]. #927
+   * Added new API endpoints needed for mobile [wsnet]. #928
+   * Improved failover retry on WireGuard. #694
+   * Improved UI header transparency and color. #7
+   * Fixed selected location not reset after removing custom config folder. #351
+   * Fixed another display issue and crash in custom config credential prompt. #844
+   * Updated ctrld dependency to 1.3.5. #889
+Windows:
+   * Fixed MAC address does not auto-rotate when adapter is disabled then enabled. #831
+   * Fixed localhost range not encompassing entire 127/8 subnet. #931
+   * Fixed 'use ICMP pings' advanced parameter not being used. #910
+Linux:
+   * Fixed app window may not resize if occluded by another window. #930
+
+
+2.10.3 (29/02/2024)
+All:
+   * Added support for private key passwords in OpenVPN custom configs. #745
+   * Fixed display issue and crash in custom config credential prompt. #844
+   * Updated README.md to indicate usage of Xcode 14.2. #863
+Windows:
+   * Improved log messages when installer is unable to copy Qt libs. #854
+
+
+2.10.2 (21/02/2024)
+All:
+   * Improved secrets organization in the wsnet library. #900
+   * Improved custom config credential prompt. #844
+   * Improved IP display to "---.---.---.---" if unable to get local IP, instead of "N/A". #471
+   * Improved emergency connect to always connect with the more secure algorithms. #916
+   * Improved LZMA dependency management. #878
+   * Improved exponential back-off algorithm for pings to determine failed nodes. #911
+   * Fixed Free Data usage in app doesn't update. #694
+   * Fixed some bugs in the wsnet library regarding mutlithreading/deadlocks. #694
+   * Fixed failed assertion in log for EmailItem. #915
+   * Fixed advanced parameter ws-use-icmp-pings ignored by app. #910
+   * Fixed Secure Hotspot password not masked in UI. #920
+   * Fixed serverlist API country_override parameter doesn't enable Circumvent Censorship on first app launch. #914
+   * Fixed ignore country override when connected to a VPN. #914
+   * Updated README.md file (build instructions). #881
+Windows:
+   * Improved IKEv2/IPsec proposals to match other platforms. #902
+   * Fixed potential window scaling size issue. #905
+   * Fixed OpenVPN DCO network adapter number increments on every connection. #883
+Linux:
+   * Improved logging by adding distribution name and version. #922
+   * Removed net-tools dependency. #925
+
+
+2.10.1 (07/02/2024)
+All:
+   * Added wsnet library + switched to vcpkg dependency management system. #806, #833, #894
+   * Added taskbar notification when the app needs attention. #897
+   * Improved anti-censorship measures in WireGuard and OpenSSL. #890
+   * Improved Polish translations. #898
+   * Fixed Help screen to only show human support link for Pro accounts, and update descriptions. #861
+   * Fixed right clicking on login screen may show context menu away from the widget. #324
+   * Fixed custom config stays connected if folder is removed. #351
+   * Updated dependencies, c-ares to 1.25.0 and boost to 1.84.0. #892
+Windows:
+   * Updated code signing certificate. #832
+
+
 2.9.9 (16/02/2024)
 All:
    * Fixed transition to 2FA screen when logging in. #917

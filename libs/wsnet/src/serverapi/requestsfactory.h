@@ -1,0 +1,80 @@
+#pragma once
+#include "baserequest.h"
+#include "serverapi_settings.h"
+#include "connectstate.h"
+#include "WSNetAdvancedParameters.h"
+
+namespace wsnet {
+
+namespace requests_factory
+{
+    BaseRequest *login(const std::string &username, const std::string &password,
+                       const std::string &code2fa, RequestFinishedCallback callback);
+    BaseRequest *session(const std::string &authHash, RequestFinishedCallback callback);
+    BaseRequest *deleteSession(const std::string &authHash, RequestFinishedCallback callback);
+    BaseRequest *serverLocations(ServerAPISettings &settings, const std::string &language, const std::string &revision,
+                                 bool isPro, const std::vector<std::string> &alcList, ConnectState &connectState, WSNetAdvancedParameters *advancedParameters,
+                                 RequestFinishedCallback callback);
+    BaseRequest *serverCredentials(const std::string &authHash, bool isOpenVpnProtocol, RequestFinishedCallback callback);
+    BaseRequest *serverConfigs(const std::string &authHash, const std::string &ovpnVersion, RequestFinishedCallback callback);
+    BaseRequest *portMap(const std::string &authHash, std::uint32_t version, const std::vector<std::string> &forceProtocols, RequestFinishedCallback callback);
+    BaseRequest *recordInstall(const std::string &platform, RequestFinishedCallback callback);
+
+    BaseRequest *addEmail(const std::string &authHash, const std::string &email, RequestFinishedCallback callback);
+    BaseRequest *confirmEmail(const std::string &authHash, RequestFinishedCallback callback);
+    BaseRequest *signup(const std::string &username, const std::string &password,
+                        const std::string &referringUsername, const std::string &email, RequestFinishedCallback callback);
+
+
+    BaseRequest *webSession(const std::string &authHash, RequestFinishedCallback callback);
+    BaseRequest *checkUpdate(UpdateChannel updateChannel, const std::string &appVersion, const std::string &appBuild,
+                                                          const std::string &osVersion, const std::string &osBuild,
+                                                          RequestFinishedCallback callback);
+    BaseRequest *debugLog(const std::string &username, const std::string &strLog, RequestFinishedCallback callback);
+    BaseRequest *speedRating(const std::string &authHash, const std::string &hostname, const std::string &ip,
+                                                         std::int32_t rating, RequestFinishedCallback callback);
+
+    BaseRequest *staticIps(const std::string &authHash, const std::string &platform, const std::string &deviceId, RequestFinishedCallback callback);
+    BaseRequest *pingTest(std::uint32_t timeoutMs, RequestFinishedCallback callback);
+
+    BaseRequest *notifications(const std::string &authHash, const std::string &pcpid, RequestFinishedCallback callback);
+
+    BaseRequest *getRobertFilters(const std::string &authHash, RequestFinishedCallback callback);
+    BaseRequest *setRobertFilter(const std::string &authHash, const std::string &id,  std::int32_t status, RequestFinishedCallback callback);
+    BaseRequest *syncRobert(const std::string &authHash, RequestFinishedCallback callback);
+
+    BaseRequest *wgConfigsInit(const std::string &authHash, const std::string &clientPublicKey,
+                                                           bool deleteOldestKey, RequestFinishedCallback callback);
+    BaseRequest *wgConfigsConnect(const std::string &authHash, const std::string &clientPublicKey,
+                                                              const std::string &hostname, const std::string &deviceId,
+                                                              RequestFinishedCallback callback);
+
+    BaseRequest *myIP(RequestFinishedCallback callback);
+
+    BaseRequest *mobileBillingPlans(const std::string &mobilePlanType, int version, RequestFinishedCallback callback);
+
+    BaseRequest *verifyPayment(const std::string &authHash, const std::string &purchaseToken, const std::string &gpPackageName,
+                                                           const std::string &gpProductId, const std::string &type,
+                                                           const std::string &amazonUserId,
+                                                           RequestFinishedCallback callback);
+
+    BaseRequest *postBillingCpid(const std::string &authHash, const std::string &payCpid, RequestFinishedCallback callback);
+    BaseRequest *getXpressLoginCode(RequestFinishedCallback callback);
+    BaseRequest *verifyXpressLoginCode(const std::string &xpressCode, const std::string &sig, RequestFinishedCallback callback);
+
+    BaseRequest *sendSupportTicket(const std::string &supportEmail, const std::string &supportName,
+                                                               const std::string &supportSubject, const std::string &supportMessage,
+                                                               const std::string &supportCategory,
+                                                               const std::string &type,
+                                                               const std::string &channel,
+                                                               const std::string &platform,
+                                                               RequestFinishedCallback callback);
+
+    BaseRequest *regToken(RequestFinishedCallback callback);
+    BaseRequest *signupUsingToken(const std::string &token, RequestFinishedCallback callback);
+    BaseRequest *claimAccount(const std::string &authHash, const std::string &username, const std::string &password,
+                              const std::string &email, const std::string &claimAccount, RequestFinishedCallback callback);
+
+}
+
+} // namespace wsnet

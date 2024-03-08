@@ -41,12 +41,13 @@ private slots:
     void onHandleDisconnectLogic();
 
 private:
-    enum { STATE_DISCONNECTED,
-           STATE_CONNECTED,
-           STATE_CONNECTING,
-           STATE_DISCONNECTING,
-           STATE_REINSTALL_WAN
-         };
+    enum {
+        STATE_DISCONNECTED,
+        STATE_CONNECTED,
+        STATE_CONNECTING,
+        STATE_DISCONNECTING,
+        STATE_REINSTALL_WAN
+    };
 
     int state_;
     Helper_win *helper_;

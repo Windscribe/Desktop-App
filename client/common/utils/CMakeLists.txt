@@ -1,9 +1,6 @@
 target_sources(common PRIVATE
     clean_sensitive_info.cpp
     clean_sensitive_info.h
-    dga_library.cpp
-    dga_library.h
-    dga_parameters.h
     executable_signature/executable_signature.cpp
     executable_signature/executable_signature.h
     extraconfig.cpp

@@ -44,12 +44,16 @@ int BasePage::indexOf(BaseItem *item)
     return items_.indexOf(item);
 }
 
-void BasePage::addItem(BaseItem *item)
+void BasePage::addItem(BaseItem *item, int index)
 {
     item->setParentItem(this);
     connect(item, &BaseItem::heightChanged, this, &BasePage::recalcItemsPos);
     connect(item, &BaseItem::visibleChanged, this, &BasePage::recalcItemsPos);
-    items_ << item;
+    if (index == -1) {
+        items_ << item;
+    } else {
+        items_.insert(index, item);
+    }
     recalcItemsPos();
 }
 

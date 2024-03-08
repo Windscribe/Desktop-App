@@ -13,6 +13,7 @@ Checkbox::Checkbox(ScalableGraphicsObject *parent, const QString &label) : Click
 
     checkboxChecked_ = new IconButton(16, 16, "CHECKBOX_CHECKED", "", this);
     checkboxChecked_->setUnhoverOpacity(OPACITY_FULL);
+    checkboxChecked_->hover();
     checkboxChecked_->setVisible(false);
     checkboxChecked_->setPos(0, 0);
     connect(checkboxChecked_, &IconButton::clicked, this, &Checkbox::onCheckboxUnchecked);
@@ -28,6 +29,15 @@ Checkbox::Checkbox(ScalableGraphicsObject *parent, const QString &label) : Click
     connect(label_, &CommonGraphics::TextButton::hoverLeave, this, &Checkbox::onCheckboxHoverLeave);
 
     setText(label);
+}
+
+void Checkbox::setChecked(bool checked)
+{
+    if (checked) {
+        onCheckboxChecked();
+    } else {
+        onCheckboxUnchecked();
+    }
 }
 
 void Checkbox::onCheckboxChecked()
@@ -76,6 +86,7 @@ void Checkbox::onCheckboxHoverLeave()
 void Checkbox::setText(const QString &label)
 {
     labelText_ = label;
+    label_->setText(label);
 
     QFontMetrics fm(*FontManager::instance().getFont(14, false));
     width_ = fm.horizontalAdvance(labelText_);

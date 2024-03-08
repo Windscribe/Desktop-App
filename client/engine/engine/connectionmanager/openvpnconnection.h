@@ -28,8 +28,13 @@ public:
 
     ConnectionType getConnectionType() const override { return ConnectionType::OPENVPN; }
 
+    void setPrivKeyPassword(const QString &password);
     void continueWithUsernameAndPassword(const QString &username, const QString &password) override;
     void continueWithPassword(const QString &password) override;
+    void continueWithPrivKeyPassword(const QString &password);
+
+signals:
+    void requestPrivKeyPassword();
 
 protected:
     void run() override;
@@ -49,6 +54,7 @@ private:
     QString config_;
     QString username_;
     QString password_;
+    QString privKeyPassword_;
     types::ProxySettings proxySettings_;
     bool isCustomConfig_;
 
@@ -125,6 +131,7 @@ private:
     void checkErrorAndContinue(boost::system::error_code &write_error, bool bWithAsyncReadCall);
     void continueWithUsernameImpl();
     void continueWithPasswordImpl();
+    void continueWithPrivKeyPasswordImpl();
 
     bool parsePushReply(const QString &reply, AdapterGatewayInfo &outConnectionAdapterInfo, bool &outRedirectDefaultGateway);
     bool parseDeviceOpenedReply(const QString &reply, QString &outDeviceName);

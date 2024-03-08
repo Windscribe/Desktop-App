@@ -113,7 +113,7 @@ bool ExecutableSignaturePrivate::verifyEmbeddedSignature(const std::wstring &exe
     WinTrustData.pFile = &FileData;
 
     GUID WVTPolicyGUID = WINTRUST_ACTION_GENERIC_VERIFY_V2;
-    LONG lStatus = WinVerifyTrust(NULL, &WVTPolicyGUID,	&WinTrustData);
+    LONG lStatus = WinVerifyTrust(NULL, &WVTPolicyGUID, &WinTrustData);
 
     // Any hWVTStateData must be released by a call with close.
     WinTrustData.dwStateAction = WTD_STATEACTION_CLOSE;

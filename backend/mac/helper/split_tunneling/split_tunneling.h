@@ -32,7 +32,7 @@ private:
     RoutesManager routesManager_;
     IpHostnamesManager ipHostnamesManager_;
 
-     SplitTunneling();
+    SplitTunneling();
     ~SplitTunneling();
     void updateState();
 };

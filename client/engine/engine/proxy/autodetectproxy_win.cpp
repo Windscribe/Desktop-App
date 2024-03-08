@@ -8,7 +8,7 @@ types::ProxySettings AutoDetectProxy_win::detect(bool &bSuccessfully)
     types::ProxySettings proxySettings;
     bSuccessfully = false;
 
-    QNetworkProxyQuery npq(QUrl("https://"+ HardcodedSettings::instance().serverUrl()));
+    QNetworkProxyQuery npq(QUrl("https://"+ HardcodedSettings::instance().windscribeServerUrl()));
     QList<QNetworkProxy> listOfProxies = QNetworkProxyFactory::systemProxyForQuery(npq);
     if (listOfProxies.size())
     {

@@ -1,0 +1,18 @@
+{
+"dependencies": [
+    "gtest",
+    "spdlog",
+    {
+        "name": "curl",
+        "features": [ "openssl" ]
+    },
+    "rapidjson",
+    "skyr-url",
+    "cmakerc",
+    "bshoshany-thread-pool",
+    "cpp-base64",
+    "reproc",
+        "c-ares",
+        "advobfuscator"
+    ]
+}

@@ -5,9 +5,8 @@
 #include "utils/logger.h"
 #include "utils/ws_assert.h"
 
-ManualConnSettingsPolicy::ManualConnSettingsPolicy(
-    QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-    const types::ConnectionSettings &connectionSettings, const types::PortMap &portMap) :
+ManualConnSettingsPolicy::ManualConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli,
+    const types::ConnectionSettings &connectionSettings, const api_responses::PortMap &portMap) :
         locationInfo_(qSharedPointerDynamicCast<locationsmodel::MutableLocationInfo>(bli)),
         portMap_(portMap), connectionSettings_(connectionSettings), failedManualModeCounter_(0)
 {
@@ -48,7 +47,7 @@ void ManualConnSettingsPolicy::putFailedConnection()
     }
     else
     {
-       failedManualModeCounter_++;
+        failedManualModeCounter_++;
     }
 }
 

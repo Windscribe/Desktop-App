@@ -237,8 +237,6 @@ void EmailItem::setEmailSendState(EmailItem::EMAIL_SEND_STATE state)
     } else if (state == EMAIL_FAILED_SEND) {
         sendButton_->setText(tr("Failed"));
         sendButton_->setClickable(false);
-    } else {
-        WS_ASSERT(false);
     }
 
     emailSendState_ = state;

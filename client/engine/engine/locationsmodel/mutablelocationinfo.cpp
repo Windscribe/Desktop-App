@@ -162,7 +162,7 @@ QString MutableLocationInfo::getStaticIpPassword() const
     }
 }
 
-apiinfo::StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
+api_responses::StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
 {
     WS_ASSERT(locationId_.isStaticIpsLocation());
     if (selectedNode_ >= 0 && selectedNode_ < nodes_.count())
@@ -172,7 +172,7 @@ apiinfo::StaticIpPortsVector MutableLocationInfo::getStaticIpPorts() const
     else
     {
         WS_ASSERT(false);
-        return apiinfo::StaticIpPortsVector();
+        return api_responses::StaticIpPortsVector();
     }
 }
 

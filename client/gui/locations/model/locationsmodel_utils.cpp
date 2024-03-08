@@ -118,9 +118,9 @@ QVector<int> findNewCities(const QVector<types::City> &original, const CitiesVec
     {
         LocationID lid = changed[ind].id;
         if (std::find_if(original.begin(), original.end(),
-                     [&](const types::City &city) {
-                        return lid == city.id;
-                    }) == std::end(original))
+            [&](const types::City &city) {
+                return lid == city.id;
+            }) == std::end(original))
         {
             v << ind;
         }

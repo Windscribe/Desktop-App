@@ -22,7 +22,7 @@ public:
 
     BaseItem *item(int index);
     int indexOf(BaseItem *item);
-    void addItem(BaseItem *item);
+    void addItem(BaseItem *item, int index = -1);
     void removeItem(BaseItem *itemToRemove);
     virtual void clearItems();
 

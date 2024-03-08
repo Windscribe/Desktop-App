@@ -120,21 +120,6 @@
     </message>
 </context>
 <context>
-    <name>DialogGetUsernamePassword</name>
-    <message>
-        <source>Enter connection credentials</source>
-        <translation>接続資格情報の入力</translation>
-    </message>
-    <message>
-        <source>Please enter the username</source>
-        <translation>ユーザー名を入力してください</translation>
-    </message>
-    <message>
-        <source>Please enter the password</source>
-        <translation>パスワードを入力してください</translation>
-    </message>
-</context>
-<context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
@@ -230,6 +215,18 @@
     <message>
         <source>Learn More</source>
         <translation>詳細情報</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>ユーザー名</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>パスワード</translation>
+    </message>
+    <message>
+        <source>Remember</source>
+        <translation>思い出す</translation>
     </message>
 </context>
 <context>
@@ -784,6 +781,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
         <translation>書き込み用にファイルを開くことができませんでした。 権限を確認して、もう一度やり直してください。</translation>
+    </message>
+    <message>
+        <source>Enter Connection Credentials</source>
+        <translation>接続クレデンシャルの入力</translation>
+    </message>
+    <message>
+        <source>Enter Private Key Password</source>
+        <translation>秘密キーのパスワードを入力</translation>
+    </message>
+    <message>
+        <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
+        <translation>Windscribeはサーバー構成を取得できませんでした。別のプロトコルを試してください。</translation>
     </message>
 </context>
 <context>
@@ -1409,20 +1418,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>知識ベース</translation>
     </message>
     <message>
-        <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>人間ほど賢くはありませんが、それでもあなたの質問に答えることができます。</translation>
-    </message>
-    <message>
         <source>Talk to Garry</source>
         <translation>ギャリーと会話する</translation>
-    </message>
-    <message>
-        <source>Stuck? Send us a ticket.</source>
-        <translation>立ち往生。チケットを送ってください。</translation>
-    </message>
-    <message>
-        <source>Send Ticket</source>
-        <translation>チケットを送信</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1459,6 +1456,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Failed!</source>
         <translation>失敗 しました！</translation>
+    </message>
+    <message>
+        <source>Need help? Garry can help you with most issues, go talk to him.</source>
+        <translation>お困りですか?ギャリーはほとんどの問題であなたを助けることができます、彼に相談してください。</translation>
+    </message>
+    <message>
+        <source>Contact Humans</source>
+        <translation>人間との接触</translation>
+    </message>
+    <message>
+        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
+        <translation>ギャリーが解決できない問題がありますか?ヒューマンサポートに連絡してください。</translation>
     </message>
 </context>
 <context>

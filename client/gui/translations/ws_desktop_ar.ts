@@ -120,21 +120,6 @@
     </message>
 </context>
 <context>
-    <name>DialogGetUsernamePassword</name>
-    <message>
-        <source>Enter connection credentials</source>
-        <translation>إدخال بيانات اعتماد الاتصال</translation>
-    </message>
-    <message>
-        <source>Please enter the username</source>
-        <translation>الرجاء إدخال اسم المستخدم</translation>
-    </message>
-    <message>
-        <source>Please enter the password</source>
-        <translation>الرجاء إدخال كلمة المرور</translation>
-    </message>
-</context>
-<context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
@@ -230,6 +215,18 @@
     <message>
         <source>Learn More</source>
         <translation>التعرف على المزيد</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>اسم المستخدم</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>شعار</translation>
+    </message>
+    <message>
+        <source>Remember</source>
+        <translation>تذكر</translation>
     </message>
 </context>
 <context>
@@ -784,6 +781,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
         <translation>تعذر فتح ملف للكتابة.  تحقق من أذوناتك وحاول مرة أخرى.</translation>
+    </message>
+    <message>
+        <source>Enter Connection Credentials</source>
+        <translation>أدخل بيانات اعتماد الاتصال</translation>
+    </message>
+    <message>
+        <source>Enter Private Key Password</source>
+        <translation>أدخل كلمة مرور المفتاح الخاص</translation>
+    </message>
+    <message>
+        <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
+        <translation>تعذر على Windscribe استرداد تكوين الخادم. يرجى تجربة بروتوكول آخر.</translation>
     </message>
 </context>
 <context>
@@ -1409,20 +1418,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>معارف</translation>
     </message>
     <message>
-        <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>ليس ذكيا مثل الإنسان ، ولكن لا يزال بإمكانه الإجابة على أسئلتك.</translation>
-    </message>
-    <message>
         <source>Talk to Garry</source>
         <translation>تحدث إلى غاري</translation>
-    </message>
-    <message>
-        <source>Stuck? Send us a ticket.</source>
-        <translation>عالقه؟ أرسل لنا تذكرة.</translation>
-    </message>
-    <message>
-        <source>Send Ticket</source>
-        <translation>إرسال تذكرة</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1459,6 +1456,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Failed!</source>
         <translation>فشل!</translation>
+    </message>
+    <message>
+        <source>Need help? Garry can help you with most issues, go talk to him.</source>
+        <translation>هل تحتاج إلى مساعدة؟ يمكن أن يساعدك غاري في معظم المشكلات ، اذهب للتحدث معه.</translation>
+    </message>
+    <message>
+        <source>Contact Humans</source>
+        <translation>تواصل مع البشر</translation>
+    </message>
+    <message>
+        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
+        <translation>هل لديك مشكلة لا يستطيع غاري حلها؟ اتصل بالدعم البشري.</translation>
     </message>
 </context>
 <context>

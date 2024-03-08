@@ -2,13 +2,14 @@
 
 #include "baseconnsettingspolicy.h"
 #include "engine/locationsmodel/mutablelocationinfo.h"
+#include "api_responses/portmap.h"
 
 // // manage automatic connection mode (only for API and static ips locations)
 class AutoConnSettingsPolicy : public BaseConnSettingsPolicy
 {
     Q_OBJECT
 public:
-    AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const types::PortMap &portMap, bool isProxyEnabled,
+    AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const api_responses::PortMap &portMap, bool isProxyEnabled,
                            const types::Protocol protocol);
 
     void reset() override;
@@ -32,7 +33,7 @@ private:
     int curAttempt_;
 
     QSharedPointer<locationsmodel::MutableLocationInfo> locationInfo_;
-    types::PortMap portMap_;
+    api_responses::PortMap portMap_;
     bool bIsAllFailed_;
 
     static types::Protocol lastKnownGoodProtocol_;

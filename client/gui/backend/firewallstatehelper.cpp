@@ -1,7 +1,7 @@
 #include "firewallstatehelper.h"
 
 FirewallStateHelper::FirewallStateHelper(QObject *parent) : QObject(parent),
-     isEnabled_(false)
+    isEnabled_(false)
 {
 
 }

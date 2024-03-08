@@ -182,7 +182,7 @@ void ExpandableItemsWidget::updateSelectedItemByCursorPos()
                 } else {
                     ++it;
                 }
-             }
+            }
 
             if (!hoveringToolTips_.contains(tooltipId)) {
                 delegateForItem(selectedInd_)->tooltipEnterEvent(opt, selectedInd_, tooltipId, itemsCacheData_[selectedInd_].get());

@@ -33,7 +33,7 @@ int NotificationsController::unreadMessages() const
     return latestUnreadCnt_;
 }
 
-QVector<types::Notification> NotificationsController::messages() const
+QVector<api_responses::Notification> NotificationsController::messages() const
 {
     if (notifications_.size() > 0)
     {
@@ -42,13 +42,13 @@ QVector<types::Notification> NotificationsController::messages() const
     else
     {
         // generate message for empty list
-        QVector<types::Notification> arr;
+        QVector<api_responses::Notification> arr;
 
-        types::Notification notification;
+        api_responses::Notification notification;
         notification.id = 0;
         notification.title = tr("WELCOME TO WINDSCRIBE");
         notification.message = tr("<p>You will find announcements and general Windscribe related news here. "
-                                   "Perhaps even delicious cake, everyone loves cake!</p>");
+                                  "Perhaps even delicious cake, everyone loves cake!</p>");
         arr << notification;
         return arr;
     }
@@ -70,7 +70,7 @@ void NotificationsController::checkForUnreadPopup()
     }
 }
 
-void NotificationsController::updateNotifications(const QVector<types::Notification> &arr)
+void NotificationsController::updateNotifications(const QVector<api_responses::Notification> &arr)
 {
     notifications_ = arr;
     updateState();
@@ -163,7 +163,7 @@ void NotificationsController::readFromSettings()
                 for (size_t i = 0; i < a->n_api_notifications; ++i)
                 {
                     ProtoTypes__ApiNotification *n = a->api_notifications[i];
-                    types::Notification notification;
+                    api_responses::Notification notification;
                     if (n->has_id) notification.id = n->id;
                     notification.title = n->title;
                     notification.message = n->message;

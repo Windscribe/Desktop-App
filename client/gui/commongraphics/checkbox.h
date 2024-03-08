@@ -15,6 +15,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setText(const QString &label);
+    void setChecked(bool checked);
     bool isChecked();
 
 private slots:

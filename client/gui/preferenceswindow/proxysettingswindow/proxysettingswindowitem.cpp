@@ -16,7 +16,7 @@ ProxySettingsWindowItem::ProxySettingsWindowItem(ScalableGraphicsObject *parent,
 
     desc_ = new PreferenceGroup(this,
                                 "",
-                                QString("https://%1/features/proxy-settings").arg(HardcodedSettings::instance().serverUrl()));
+                                QString("https://%1/features/proxy-settings").arg(HardcodedSettings::instance().windscribeServerUrl()));
     addItem(desc_);
 
     proxySettingsGroup_ = new ProxySettingsGroup(this);

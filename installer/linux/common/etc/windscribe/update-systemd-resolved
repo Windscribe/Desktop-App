@@ -122,7 +122,7 @@ up() {
   DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
   "$DNS_LEAK_SCRIPT" "up" ${dev} ${dns_ips[@]}
 
-  # For the loopback DNS-address set the global	DNS config
+  # For the loopback DNS-address set the global DNS config
   for dnsIp in "${dns_ips[@]}"
   do
     if [[ "$dnsIp" =~ ^"127.0.0." ]]; then

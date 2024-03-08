@@ -3,14 +3,13 @@
 #include "../../firewallcontroller.h"
 #include "../../logger.h"
 
-HostnamesManager::HostnamesManager(): isEnabled_(false)
+HostnamesManager::HostnamesManager(): isEnabled_(false),
+    dnsResolver_(std::bind(&HostnamesManager::dnsResolverCallback, this, std::placeholders::_1))
 {
-    dnsResolver_.setResolveDomainsCallbackHandler(std::bind(&HostnamesManager::dnsResolverCallback, this, std::placeholders::_1));
 }
 
 HostnamesManager::~HostnamesManager()
 {
-    dnsResolver_.stop();
 }
 
 void HostnamesManager::enable(const std::string &gatewayIp)

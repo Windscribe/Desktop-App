@@ -23,10 +23,13 @@ class ArgHelper:
     OPTION_ONE_PASSWORD_SESSION = "--session"
     OPTION_USE_LOCAL_SECRETS = "--use-local-secrets"
     # partial builds
+    OPTION_BUILD_APP = "--build-app"
+    OPTION_SIGN_APP = "--sign-app"
+    OPTION_BUILD_INSTALLER = "--build-installer"
+    OPTION_SIGN_INSTALLER = "--sign-installer"
+    OPTION_BUILD_BOOTSTRAP = "--build-bootstrap"
+    OPTION_SIGN_BOOTSTRAP = "--sign-bootstrap"
     OPTION_CLEAN = "--clean"
-    OPTION_NO_APP = "--no-app"
-    OPTION_NO_COM = "--no-com"
-    OPTION_NO_INSTALLER = "--no-installer"
     # CI-specific options
     OPTION_CI_MODE = "--ci-mode"
     # linux packaging
@@ -42,7 +45,6 @@ class ArgHelper:
     options.append((OPTION_CLEAN_ONLY, "Cleans the temporary files created during building"))
     options.append((OPTION_DELETE_SECRETS_ONLY, "Deletes secrets needed for signing"))
     options.append((OPTION_DOWNLOAD_SECRETS, "Download secrets from 1password (not recommended)"))
-    options.append((OPTION_NO_INSTALLER, "Do not build the installer component"))
     options.append((OPTION_DEBUG, "Build project as debug"))
     options.append(("\nSigning", ""))
     options.append((OPTION_NOTARIZE, "Notarizes the app after building (Mac only, CI-only, requires --sign)"))
@@ -51,11 +53,14 @@ class ArgHelper:
     options.append((OPTION_ONE_PASSWORD_USER, "1password user for windscribe employee secret download"))
     options.append((OPTION_ONE_PASSWORD_SESSION, "1password session to skip 1p login"))
     options.append((OPTION_USE_LOCAL_SECRETS, "Do not download secrets, use local secrets"))
-    options.append(("\nComponent skipping", ""))
+    options.append(("\nBuild specific components", ""))
+    options.append((OPTION_BUILD_APP, "Build the app. On MacOS & Linux, also signs."))
+    options.append((OPTION_SIGN_APP, "Sign the app (Windows only)"))
+    options.append((OPTION_BUILD_INSTALLER, "Build the installer. On MacOS, also signs."))
+    options.append((OPTION_SIGN_INSTALLER, "Sign the installer (Windows only)"))
+    options.append((OPTION_BUILD_BOOTSTRAP, "Build the bootstrap (Windows only)"))
+    options.append((OPTION_SIGN_BOOTSTRAP, "Sign the bootstrap (Windows only)"))
     options.append((OPTION_CLEAN, "Fully clean previous build files before building"))
-    options.append((OPTION_NO_APP, "Do not build the main application components"))
-    options.append((OPTION_NO_COM, "Do not build the COM components required for auth helper"))
-    options.append((OPTION_NO_INSTALLER, "Do not build the installer component"))
     options.append(("\nCI-specific options", ""))
     options.append((OPTION_CI_MODE, "Used to indicate app is building on CI"))
     options.append(("\nLinux packaging", ""))
@@ -77,8 +82,22 @@ class ArgHelper:
 
         # building
         self.mode_clean = ArgHelper.OPTION_CLEAN in program_arg_list
-        self.mode_build_app = not (ArgHelper.OPTION_NO_APP in program_arg_list)
-        self.mode_build_installer = not (ArgHelper.OPTION_NO_INSTALLER in program_arg_list)
+        self.mode_build_app = ArgHelper.OPTION_BUILD_APP in program_arg_list
+        self.mode_sign_app = ArgHelper.OPTION_SIGN_APP in program_arg_list
+        self.mode_build_installer = ArgHelper.OPTION_BUILD_INSTALLER in program_arg_list
+        self.mode_sign_installer = ArgHelper.OPTION_SIGN_INSTALLER in program_arg_list
+        self.mode_build_bootstrap = ArgHelper.OPTION_BUILD_BOOTSTRAP in program_arg_list
+        self.mode_sign_bootstrap = ArgHelper.OPTION_SIGN_BOOTSTRAP in program_arg_list
+
+        # if nothing specified, build everything
+        if (not self.mode_build_app and not self.mode_sign_app and not self.mode_build_installer and not self.mode_sign_installer and not self.mode_build_bootstrap and not self.mode_sign_bootstrap):
+            self.mode_build_app = True
+            self.mode_build_installer = True
+            self.mode_build_bootstrap = True
+            if (ArgHelper.OPTION_SIGN in program_arg_list):
+                self.mode_sign_app = True
+                self.mode_sign_installer = True
+                self.mode_sign_bootstrap = True
 
         # signing related
         self.mode_sign = ArgHelper.OPTION_SIGN in program_arg_list
@@ -132,7 +151,19 @@ class ArgHelper:
     def build_installer(self):
         return self.mode_build_installer
 
+    def build_bootstrap(self):
+        return self.mode_build_bootstrap
+
     def sign_app(self):
+        return self.mode_sign_app
+
+    def sign_installer(self):
+        return self.mode_sign_installer
+
+    def sign_bootstrap(self):
+        return self.mode_sign_bootstrap
+
+    def sign(self):
         return self.mode_sign
 
     def notarize(self):

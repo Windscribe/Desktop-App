@@ -27,6 +27,7 @@ SecureHotspotGroup::SecureHotspotGroup(ScalableGraphicsObject *parent, const QSt
 
     editBoxPassword_ = new EditBoxItem(this);
     editBoxPassword_->setMinimumLength(8);
+    editBoxPassword_->setMasked(true);
     connect(editBoxPassword_, &EditBoxItem::textChanged, this, &SecureHotspotGroup::onPasswordChanged);
     addItem(editBoxPassword_);
 

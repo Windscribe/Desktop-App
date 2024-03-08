@@ -13,20 +13,20 @@ NewsContentItem::NewsContentItem(ScalableGraphicsObject *parent, int width)
     setIndent(INDENT);
 }
 
-void NewsContentItem::setMessagesWithCurrentOverride(const QVector<types::Notification> &arr,
+void NewsContentItem::setMessagesWithCurrentOverride(const QVector<api_responses::Notification> &arr,
                                                      const QSet<qint64> &shownIds,
                                                      int overrideCurrentMessageId)
 {
     setMessagesInternal(arr, shownIds, overrideCurrentMessageId);
 }
 
-void NewsContentItem::setMessages(const QVector<types::Notification> &arr,
+void NewsContentItem::setMessages(const QVector<api_responses::Notification> &arr,
                                   const QSet<qint64> &shownIds)
 {
     setMessagesInternal(arr, shownIds, -1);
 }
 
-void NewsContentItem::setMessagesInternal(const QVector<types::Notification> &arr,
+void NewsContentItem::setMessagesInternal(const QVector<api_responses::Notification> &arr,
                                           const QSet<qint64> &shownIds,
                                           int id)
 {

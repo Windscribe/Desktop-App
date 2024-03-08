@@ -28,7 +28,7 @@ l:
         else
         {
             // { Note: If Size isn't a multiple of sizeof(TCHAR), we have to round up
-           // here so that RegQueryValueEx doesn't overflow the buffer }
+            // here so that RegQueryValueEx doesn't overflow the buffer }
             Len = (Size + (sizeof(TCHAR) - 1)) / sizeof(TCHAR);
 
             vector<TCHAR> S(Len);
@@ -42,7 +42,7 @@ l:
             if ((ErrorCode == ERROR_SUCCESS) && ((Typ == Type1) || (Typ == Type2)))
             {
                 //  { If Size isn't a multiple of sizeof(S[1]), we disregard the partial
-                 //   character, like RegGetValue }
+                //   character, like RegGetValue }
                 Len = Size / sizeof(TCHAR);
                 //  { Remove any null terminators from the end and trim the string to the
                 //    returned length.
@@ -99,7 +99,7 @@ bool Registry::RegQueryStringValue1(HKEY H, const wchar_t *Name, wstring &Result
     // Queries the specified REG_SZ or REG_EXPAND_SZ registry key/value, and returns
     //  the value in ResultStr. Returns true if successful. When false is returned,
     //  ResultStr is unmodified.
-   return InternalRegQueryStringValue(H, Name, ResultStr, REG_SZ, REG_EXPAND_SZ);
+    return InternalRegQueryStringValue(H, Name, ResultStr, REG_SZ, REG_EXPAND_SZ);
 }
 
 LSTATUS Registry::RegOpenKeyExView(const HKEY hKey, LPCWSTR lpSubKey, DWORD ulOptions, REGSAM samDesired, HKEY &phkResult)

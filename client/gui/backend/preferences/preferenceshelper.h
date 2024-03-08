@@ -2,7 +2,7 @@
 
 #include <QObject>
 #include <QVector>
-#include "types/portmap.h"
+#include "api_responses/portmap.h"
 #include "types/enums.h"
 
 class PreferencesHelper : public QObject
@@ -19,7 +19,7 @@ public:
 
     QVector<TAP_ADAPTER_TYPE> getAvailableTapAdapters(const QString &openVpnVersion);
 
-    void setPortMap(const types::PortMap &portMap);
+    void setPortMap(const api_responses::PortMap &portMap);
     QVector<types::Protocol> getAvailableProtocols();
     QVector<uint> getAvailablePortsForProtocol(types::Protocol protocol);
 
@@ -49,7 +49,7 @@ signals:
 private:
     QStringList availableLanguageCodes_;
 
-    types::PortMap portMap_;
+    api_responses::PortMap portMap_;
     bool isWifiSharingSupported_;
 
     QString proxyGatewayAddress_;

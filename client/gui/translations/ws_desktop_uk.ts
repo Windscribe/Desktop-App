@@ -120,21 +120,6 @@
     </message>
 </context>
 <context>
-    <name>DialogGetUsernamePassword</name>
-    <message>
-        <source>Enter connection credentials</source>
-        <translation>Введіть облікові дані підключення</translation>
-    </message>
-    <message>
-        <source>Please enter the username</source>
-        <translation>Будь ласка, введіть ім&apos;я користувача</translation>
-    </message>
-    <message>
-        <source>Please enter the password</source>
-        <translation>Будь ласка, введіть пароль</translation>
-    </message>
-</context>
-<context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
@@ -230,6 +215,18 @@
     <message>
         <source>Learn More</source>
         <translation>Дізнатися більше</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Ім&apos;я користувача</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Пароль</translation>
+    </message>
+    <message>
+        <source>Remember</source>
+        <translation>Пам&apos;ятати</translation>
     </message>
 </context>
 <context>
@@ -784,6 +781,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
         <translation>Не вдалося відкрити файл для запису.  Перевірте дозволи та повторіть спробу.</translation>
+    </message>
+    <message>
+        <source>Enter Connection Credentials</source>
+        <translation>Введіть облікові дані з&apos;єднання</translation>
+    </message>
+    <message>
+        <source>Enter Private Key Password</source>
+        <translation>Введіть пароль приватного ключа</translation>
+    </message>
+    <message>
+        <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
+        <translation>Windscribe не зміг отримати конфігурацію сервера. Будь ласка, спробуйте інший протокол.</translation>
     </message>
 </context>
 <context>
@@ -1409,20 +1418,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>База знань</translation>
     </message>
     <message>
-        <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>Не такий розумний, як людина, але все одно може відповісти на ваші запитання.</translation>
-    </message>
-    <message>
         <source>Talk to Garry</source>
         <translation>Поговоріть з Гаррі</translation>
-    </message>
-    <message>
-        <source>Stuck? Send us a ticket.</source>
-        <translation>Застряг? Надішліть нам квиток.</translation>
-    </message>
-    <message>
-        <source>Send Ticket</source>
-        <translation>Відправити запит</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1459,6 +1456,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Failed!</source>
         <translation>Не вдалося!</translation>
+    </message>
+    <message>
+        <source>Need help? Garry can help you with most issues, go talk to him.</source>
+        <translation>Потрібна допомога? Гаррі може допомогти вам з більшістю питань, підіть поговоріть з ним.</translation>
+    </message>
+    <message>
+        <source>Contact Humans</source>
+        <translation>Контакт з людьми</translation>
+    </message>
+    <message>
+        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
+        <translation>Маєте проблему, яку Гаррі не може вирішити? Зверніться до служби підтримки людей.</translation>
     </message>
 </context>
 <context>

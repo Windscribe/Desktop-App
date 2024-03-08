@@ -5,6 +5,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(com.windscribe.helper.macos)
 
+find_package(Boost REQUIRED COMPONENTS serialization thread)
+find_package(7zip CONFIG REQUIRED)
+
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
 option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
 if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
@@ -26,40 +29,6 @@ set(SOURCES
     firewallonboot.cpp
     firewallonboot.h
     helper.cpp
-    ../../../client/common/archive/LZMA_SDK/C/7z.h
-    ../../../client/common/archive/LZMA_SDK/C/7zAlloc.c
-    ../../../client/common/archive/LZMA_SDK/C/7zAlloc.h
-    ../../../client/common/archive/LZMA_SDK/C/7zArcIn.c
-    ../../../client/common/archive/LZMA_SDK/C/7zBuf.c
-    ../../../client/common/archive/LZMA_SDK/C/7zBuf.h
-    ../../../client/common/archive/LZMA_SDK/C/7zCrc.c
-    ../../../client/common/archive/LZMA_SDK/C/7zCrc.h
-    ../../../client/common/archive/LZMA_SDK/C/7zCrcOpt.c
-    ../../../client/common/archive/LZMA_SDK/C/7zDec.c
-    ../../../client/common/archive/LZMA_SDK/C/7zFile.c
-    ../../../client/common/archive/LZMA_SDK/C/7zFile.h
-    ../../../client/common/archive/LZMA_SDK/C/7zStream.c
-    ../../../client/common/archive/LZMA_SDK/C/7zTypes.h
-    ../../../client/common/archive/LZMA_SDK/C/7zVersion.h
-    ../../../client/common/archive/LZMA_SDK/C/Bcj2.c
-    ../../../client/common/archive/LZMA_SDK/C/Bcj2.h
-    ../../../client/common/archive/LZMA_SDK/C/Bra.c
-    ../../../client/common/archive/LZMA_SDK/C/Bra.h
-    ../../../client/common/archive/LZMA_SDK/C/Bra86.c
-    ../../../client/common/archive/LZMA_SDK/C/BraIA64.c
-    ../../../client/common/archive/LZMA_SDK/C/Compiler.h
-    ../../../client/common/archive/LZMA_SDK/C/CpuArch.c
-    ../../../client/common/archive/LZMA_SDK/C/CpuArch.h
-    ../../../client/common/archive/LZMA_SDK/C/Delta.c
-    ../../../client/common/archive/LZMA_SDK/C/Delta.h
-    ../../../client/common/archive/LZMA_SDK/C/Lzma2Dec.c
-    ../../../client/common/archive/LZMA_SDK/C/Lzma2Dec.h
-    ../../../client/common/archive/LZMA_SDK/C/LzmaDec.c
-    ../../../client/common/archive/LZMA_SDK/C/LzmaDec.h
-    ../../../client/common/archive/LZMA_SDK/C/Ppmd.h
-    ../../../client/common/archive/LZMA_SDK/C/Ppmd7.c
-    ../../../client/common/archive/LZMA_SDK/C/Ppmd7.h
-    ../../../client/common/archive/LZMA_SDK/C/Precomp.h
     ../../../client/common/archive/archive.cpp
     ../../../client/common/archive/archive.h
     installer/files.cpp
@@ -111,14 +80,11 @@ set(CMAKE_CXX_FLAGS "-fvisibility=hidden -Wno-shorten-64-to-32")
 add_executable(com.windscribe.helper.macos ${SOURCES})
 set_property(TARGET com.windscribe.helper.macos PROPERTY COMPILE_WARNING_AS_ERROR ON)
 
-target_link_directories(com.windscribe.helper.macos
-                        PRIVATE
-                        ../../../build-libs/boost/lib
-)
 target_link_libraries(com.windscribe.helper.macos
                       PRIVATE
-                      libboost_serialization.a
-                      libboost_thread.a
+                      Boost::serialization
+                      Boost::thread
+                      7zip::7zip
                       "-framework Foundation"
                       "-framework Security"
                       "-framework SystemConfiguration"
@@ -139,6 +105,5 @@ set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.windscribe.helper.macos
 set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_NAME "com.windscribe.helper.macos")
 
 target_include_directories(com.windscribe.helper.macos PRIVATE
-                           ../../../build-libs/boost/include
                            ../../../client/common
 )

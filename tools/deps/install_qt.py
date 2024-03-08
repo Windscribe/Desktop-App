@@ -39,7 +39,7 @@ QT_SKIP_MODULES = ["qtdoc", "qt3d", "qtactiveqt", "qtcanvas3d", "qtcharts", "qtc
 QT_SOURCE_CHANGES_JSON_PATH = "deps/custom_qt/source_changes.json"
 
 
-def BuildDependencyMSVC(installpath, openssl_root, outpath):
+def BuildDependencyMSVC(installpath, outpath):
     # Create an environment with VS vars.
     buildenv = os.environ.copy()
     buildenv.update({"MAKEFLAGS": "S"})
@@ -47,9 +47,7 @@ def BuildDependencyMSVC(installpath, openssl_root, outpath):
     buildenv.update({"CL": "/MP"})
     # Configure.
     configure_cmd = \
-        ["configure.bat", "-opensource", "-confirm-license", "-openssl", "-nomake", "examples"]
-    configure_cmd.extend(["-I", "{}\\include".format(openssl_root)])
-    configure_cmd.extend(["-L", "{}\\lib".format(openssl_root)])
+        ["configure.bat", "-opensource", "-confirm-license", "-nomake", "examples"]
     configure_cmd.extend(["-prefix", installpath])
     if QT_SKIP_MODULES:
         configure_cmd.extend(x for t in zip(["-skip"] * len(QT_SKIP_MODULES), QT_SKIP_MODULES) for x in t)
@@ -59,11 +57,10 @@ def BuildDependencyMSVC(installpath, openssl_root, outpath):
     iutl.RunCommand(["nmake", "install"], env=buildenv, shell=True)
 
 
-def BuildDependencyGNU(installpath, openssl_root, outpath):
+def BuildDependencyGNU(installpath, outpath):
     c_ismac = utl.GetCurrentOS() == "macos"
     # Create an environment.
     buildenv = os.environ.copy()
-    buildenv.update({"OPENSSL_ROOT_DIR": "{}".format(openssl_root)})
     if c_ismac:
         buildenv.update({"CMAKE_OSX_ARCHITECTURES": "x86_64;arm64"})
 
@@ -97,9 +94,6 @@ def InstallDependency():
     dep_version_str = os.environ.get(dep_version_var, None)
     if not dep_version_str:
         raise iutl.InstallError("{} not defined.".format(dep_version_var))
-    openssl_root = iutl.GetDependencyBuildRoot("openssl_ech_draft")
-    if not openssl_root:
-        raise iutl.InstallError("OpenSSL is not installed.")
     # Prepare output.
     temp_dir = iutl.PrepareTempDirectory(dep_name)
     # Download and unpack the archive.
@@ -128,9 +122,9 @@ def InstallDependency():
     with utl.PushDir(os.path.join(temp_dir, extracteddir)):
         msg.HeadPrint("Building: \"{}\"".format(archivetitle))
         if utl.GetCurrentOS() == "win32":
-            BuildDependencyMSVC(outpath, openssl_root, temp_dir)
+            BuildDependencyMSVC(outpath, temp_dir)
         else:
-            BuildDependencyGNU(outpath, openssl_root, temp_dir)
+            BuildDependencyGNU(outpath, temp_dir)
         # add qt.conf to override the built-in QT_INSTALL_PREFIX
         qt_conf_path = os.path.join(outpath, "bin", "qt.conf")
         utl.CreateFileWithContents(qt_conf_path, "[Paths]\nPrefix = ..", True)

@@ -144,7 +144,7 @@ bool FirewallController_mac::firewallActualState()
     return isWindscribeFirewallEnabled_;
 }
 
-bool FirewallController_mac::whitelistPorts(const apiinfo::StaticIpPortsVector &ports)
+bool FirewallController_mac::whitelistPorts(const api_responses::StaticIpPortsVector &ports)
 {
     QMutexLocker locker(&mutex_);
     checkInternalVsPfctlState();
@@ -171,7 +171,7 @@ bool FirewallController_mac::whitelistPorts(const apiinfo::StaticIpPortsVector &
 
 bool FirewallController_mac::deleteWhitelistPorts()
 {
-    return whitelistPorts(apiinfo::StaticIpPortsVector());
+    return whitelistPorts(api_responses::StaticIpPortsVector());
 }
 
 void FirewallController_mac::firewallOffImpl()

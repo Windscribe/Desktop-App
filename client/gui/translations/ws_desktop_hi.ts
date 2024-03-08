@@ -120,21 +120,6 @@
     </message>
 </context>
 <context>
-    <name>DialogGetUsernamePassword</name>
-    <message>
-        <source>Enter connection credentials</source>
-        <translation>कनेक्शन क्रेडेंशियल्स दर्ज करें</translation>
-    </message>
-    <message>
-        <source>Please enter the username</source>
-        <translation>कृपया उपयोगकर्ता नाम दर्ज करें</translation>
-    </message>
-    <message>
-        <source>Please enter the password</source>
-        <translation>कृपया पासवर्ड दर्ज करें</translation>
-    </message>
-</context>
-<context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
@@ -230,6 +215,18 @@
     <message>
         <source>Learn More</source>
         <translation>और जानो</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>उपयोगकर्ता नाम</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>पासवर्ड</translation>
+    </message>
+    <message>
+        <source>Remember</source>
+        <translation>याद करना</translation>
     </message>
 </context>
 <context>
@@ -784,6 +781,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
         <translation>लिखने के लिए फ़ाइल नहीं खोल सका.  अपनी अनुमतियों की जाँच करें और पुनः प्रयास करें.</translation>
+    </message>
+    <message>
+        <source>Enter Connection Credentials</source>
+        <translation>कनेक्शन क्रेडेंशियल दर्ज करें</translation>
+    </message>
+    <message>
+        <source>Enter Private Key Password</source>
+        <translation>निजी कुंजी पासवर्ड दर्ज करें</translation>
+    </message>
+    <message>
+        <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
+        <translation>Windscribe सर्वर कॉन्फ़िगरेशन प्राप्त नहीं कर सका। कृपया किसी अन्य प्रोटोकॉल का प्रयास करें.</translation>
     </message>
 </context>
 <context>
@@ -1409,20 +1418,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>ज्ञानकोष</translation>
     </message>
     <message>
-        <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>एक इंसान की तरह स्मार्ट नहीं है, लेकिन फिर भी आपके सवालों के जवाब दे सकता है।</translation>
-    </message>
-    <message>
         <source>Talk to Garry</source>
         <translation>गैरी से बात करें</translation>
-    </message>
-    <message>
-        <source>Stuck? Send us a ticket.</source>
-        <translation>अटकना? हमें एक टिकट भेजें।</translation>
-    </message>
-    <message>
-        <source>Send Ticket</source>
-        <translation>टिकट भेजें</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1459,6 +1456,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Failed!</source>
         <translation>असफल!</translation>
+    </message>
+    <message>
+        <source>Need help? Garry can help you with most issues, go talk to him.</source>
+        <translation>मदद की ज़रूरत है? गैरी ज्यादातर मुद्दों के साथ आपकी मदद कर सकता है, उससे बात करें।</translation>
+    </message>
+    <message>
+        <source>Contact Humans</source>
+        <translation>मनुष्यों से संपर्क करें</translation>
+    </message>
+    <message>
+        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
+        <translation>एक समस्या है कि गैरी हल नहीं कर सकता? मानव सहायता से संपर्क करें।</translation>
     </message>
 </context>
 <context>

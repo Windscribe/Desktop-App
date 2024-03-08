@@ -26,3 +26,7 @@ target_include_directories(WindscribeInstallHelper
     PRIVATE
     ../../../client/common/utils
 )
+
+install(TARGETS WindscribeInstallHelper
+    RUNTIME DESTINATION .
+)

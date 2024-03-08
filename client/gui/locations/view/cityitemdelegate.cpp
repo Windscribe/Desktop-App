@@ -167,10 +167,10 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         painter->setPen(Qt::white);
         painter->setFont(font);
         painter->drawText(QRect((left_offs + scaledX + latencyRectWidth/2*G_SCALE) - CommonGraphics::textWidth(latencyText, font)/2,
-                               (top_offs + scaledY + latencyRectHeight/2*G_SCALE) - CommonGraphics::textHeight(font)/2 ,
-                               CommonGraphics::textWidth(latencyText, font),
-                               CommonGraphics::textHeight(font)),
-                         latencyText);
+                          (top_offs + scaledY + latencyRectHeight/2*G_SCALE) - CommonGraphics::textHeight(font)/2 ,
+                          CommonGraphics::textWidth(latencyText, font),
+                          CommonGraphics::textHeight(font)),
+                          latencyText);
     }
     // show ping icon
     else

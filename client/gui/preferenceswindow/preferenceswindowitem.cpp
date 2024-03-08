@@ -63,7 +63,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(robertWindowItem_, &RobertWindowItem::accountLoginClick, this, &PreferencesWindowItem::accountLoginClick);
     connect(robertWindowItem_, &RobertWindowItem::manageRobertRulesClick, this, &PreferencesWindowItem::manageRobertRulesClick);
     connect(robertWindowItem_, &RobertWindowItem::setRobertFilter, this, &PreferencesWindowItem::setRobertFilter);
-    helpWindowItem_ = new HelpWindowItem(nullptr, preferences, preferencesHelper);
+    helpWindowItem_ = new HelpWindowItem(nullptr, preferences, preferencesHelper, accountInfo);
     connect(helpWindowItem_, &HelpWindowItem::viewLogClick, this, &PreferencesWindowItem::viewLogClick);
     connect(advancedWindowItem_, &AdvancedWindowItem::exportSettingsClick, this, &PreferencesWindowItem::exportSettingsClick);
     connect(advancedWindowItem_, &AdvancedWindowItem::importSettingsClick, this, &PreferencesWindowItem::importSettingsClick);
@@ -213,6 +213,7 @@ void PreferencesWindowItem::setLoggedIn(bool loggedIn)
     splitTunnelingAppsWindowItem_->setLoggedIn(loggedIn);
     splitTunnelingAddressesWindowItem_->setLoggedIn(loggedIn);
     dnsDomainsWindowItem_->setLoggedIn(loggedIn);
+    helpWindowItem_->setLoggedIn(loggedIn);
     loggedIn_ = loggedIn;
 }
 
@@ -566,7 +567,7 @@ void PreferencesWindowItem::setShowSubpageMode(bool isShowSubPage)
     tabControlItem_->setInSubpage(isShowSubPage);
 }
 
-void PreferencesWindowItem::setRobertFilters(const QVector<types::RobertFilter> &filters)
+void PreferencesWindowItem::setRobertFilters(const QVector<api_responses::RobertFilter> &filters)
 {
     robertWindowItem_->setFilters(filters);
 }

@@ -14,7 +14,7 @@ namespace GeneralMessageWindow {
 GeneralMessageItem::GeneralMessageItem(ScalableGraphicsObject *parent, int width, GeneralMessageWindow::Style style)
     : CommonGraphics::BasePage(parent, width), style_(style), shape_(GeneralMessageWindow::kLoginScreenShape),
     title_(""), desc_(""), titleSize_(16), acceptButton_(nullptr), rejectButton_(nullptr), tertiaryButton_(nullptr),
-    showBottomPanel_(false), learnMoreUrl_(""), selection_(NONE)
+    showBottomPanel_(false), learnMoreUrl_(""), selection_(NONE), username_(nullptr), password_(nullptr)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(kSpacerHeight);
@@ -83,6 +83,29 @@ void GeneralMessageItem::setIcon(const QString &icon)
     update();
 }
 
+void GeneralMessageItem::setStyle(GeneralMessageWindow::Style style)
+{
+    style_ = style;
+
+    if (acceptButton_) {
+        CommonGraphics::BubbleButton::Style buttonStyle = CommonGraphics::BubbleButton::kBright;
+        if (style_ == GeneralMessageWindow::kDark) {
+            buttonStyle = CommonGraphics::BubbleButton::kDark;
+        }
+        acceptButton_->setStyle(buttonStyle);
+    }
+    if (tertiaryButton_) {
+        CommonGraphics::ListButton::Style buttonStyle = CommonGraphics::ListButton::kBright;
+        if (style_ == GeneralMessageWindow::kDark) {
+            buttonStyle = CommonGraphics::ListButton::kDark;
+        }
+
+        tertiaryButton_->setStyle(buttonStyle);
+    }
+
+    update();
+}
+
 void GeneralMessageItem::setTitle(const QString &title)
 {
     title_ = title;
@@ -105,7 +128,7 @@ void GeneralMessageItem::setDescription(const QString &desc)
     updatePositions();
 }
 
-void GeneralMessageItem::setAcceptText(const QString &text)
+void GeneralMessageItem::setAcceptText(const QString &text, bool showRemember)
 {
     if (text.isEmpty()) {
         if (acceptButton_) {
@@ -116,16 +139,18 @@ void GeneralMessageItem::setAcceptText(const QString &text)
     }
 
     if (!acceptButton_) {
-        CommonGraphics::ListButton::Style buttonStyle = CommonGraphics::ListButton::kBright;
+        CommonGraphics::BubbleButton::Style buttonStyle = CommonGraphics::BubbleButton::kBright;
         if (style_ == GeneralMessageWindow::kDark) {
-            buttonStyle = CommonGraphics::ListButton::kDark;
+            buttonStyle = CommonGraphics::BubbleButton::kDark;
         }
-        acceptButton_ = new CommonGraphics::ListButton(this, buttonStyle, text);
-        connect(acceptButton_, &CommonGraphics::ListButton::clicked, this, &GeneralMessageItem::acceptClick);
-        connect(acceptButton_, &CommonGraphics::ListButton::hoverEnter, this, &GeneralMessageItem::onHoverAccept);
-        connect(acceptButton_, &CommonGraphics::ListButton::hoverLeave, this, &GeneralMessageItem::onHoverLeave);
+
+        acceptButton_ = new ButtonWithCheckbox(this, buttonStyle, text, showRemember ? tr("Remember") : "");
+        connect(acceptButton_, &ButtonWithCheckbox::clicked, this, &GeneralMessageItem::acceptClick);
+        connect(acceptButton_, &ButtonWithCheckbox::hoverEnter, this, &GeneralMessageItem::onHoverAccept);
+        connect(acceptButton_, &ButtonWithCheckbox::hoverLeave, this, &GeneralMessageItem::onHoverLeave);
         addItem(acceptButton_);
     } else {
+        acceptButton_->setShowCheckbox(showRemember ? tr("Remember") : "");
         acceptButton_->setText(text);
     }
 }
@@ -145,6 +170,7 @@ void GeneralMessageItem::setTertiaryText(const QString &text)
         if (style_ == GeneralMessageWindow::kDark) {
             buttonStyle = CommonGraphics::ListButton::kDark;
         }
+
         tertiaryButton_ = new CommonGraphics::ListButton(this, buttonStyle, text);
         connect(tertiaryButton_, &CommonGraphics::ListButton::clicked, this, &GeneralMessageItem::tertiaryClick);
         connect(tertiaryButton_, &CommonGraphics::ListButton::hoverEnter, this, &GeneralMessageItem::onHoverTertiary);
@@ -300,7 +326,11 @@ void GeneralMessageItem::updatePositions()
     }
 
     if (desc_.isEmpty()) {
-        setFirstItemOffsetY((titleHeight_ + 82*G_SCALE)/G_SCALE);
+        if (username_ != nullptr || password_ != nullptr) {
+            setFirstItemOffsetY((titleHeight_ + 98*G_SCALE)/G_SCALE);
+        } else {
+            setFirstItemOffsetY((titleHeight_ + 82*G_SCALE)/G_SCALE);
+        }
     } else {
         setFirstItemOffsetY((titleHeight_ + descHeight_ + 124*G_SCALE)/G_SCALE);
     }
@@ -338,7 +368,7 @@ void GeneralMessageItem::setLearnMoreUrl(const QString &url)
 
 bool GeneralMessageItem::isRememberChecked()
 {
-    return checkbox_->isChecked();
+    return (acceptButton_->isCheckboxChecked() || checkbox_->isChecked());
 }
 
 void GeneralMessageItem::onLanguageChanged()
@@ -350,6 +380,87 @@ void GeneralMessageItem::onLanguageChanged()
 void GeneralMessageItem::onLearnMoreClick()
 {
     QDesktopServices::openUrl(QUrl(learnMoreUrl_));
+}
+
+void GeneralMessageItem::setShowUsername(bool on)
+{
+    if (on) {
+        if (username_ == nullptr) {
+            username_ = new CredentialLineEdit(this, tr("Username"));
+            connect(username_, &CredentialLineEdit::editingFinished, this, &GeneralMessageItem::onCredentialEditingFinished);
+            addItem(username_, 0);
+        }
+    } else {
+        removeItem(username_);
+        username_ = nullptr;
+    }
+    updatePositions();
+}
+
+void GeneralMessageItem::setShowPassword(bool on)
+{
+    if (on) {
+        if (password_ == nullptr) {
+            password_ = new CredentialLineEdit(this, tr("Password"), true);
+            connect(password_, &CredentialLineEdit::editingFinished, this, &GeneralMessageItem::onCredentialEditingFinished);
+            addItem(password_, username_ ? 1 : 0);
+        }
+    } else {
+        removeItem(password_);
+        password_ = nullptr;
+    }
+    updatePositions();
+}
+
+QString GeneralMessageItem::username() const
+{
+    if (username_ == nullptr) {
+        return QString();
+    }
+    return username_->text();
+}
+
+QString GeneralMessageItem::password() const
+{
+    if (password_ == nullptr) {
+        return QString();
+    }
+    return password_->text();
+}
+
+void GeneralMessageItem::clear()
+{
+    if (username_) {
+        username_->clear();
+    }
+    if (password_) {
+        password_->clear();
+    }
+
+    selection_ = NONE;
+}
+
+void GeneralMessageItem::focusInEvent(QFocusEvent *event)
+{
+    if (username_) {
+        username_->setFocus();
+    } else if (password_) {
+        password_->setFocus();
+    }
+}
+
+void GeneralMessageItem::onCredentialEditingFinished()
+{
+    CredentialLineEdit *source = static_cast<CredentialLineEdit *>(sender());
+    if (source == username_) {
+        if (password_) {
+            password_->setFocus();
+        } else {
+            changeSelection(ACCEPT);
+        }
+    } else if (source == password_) {
+        changeSelection(ACCEPT);
+    }
 }
 
 } // namespace GeneralMessageWindow

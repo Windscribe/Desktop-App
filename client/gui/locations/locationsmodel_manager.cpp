@@ -131,7 +131,7 @@ LocationID LocationsModelManager::findLocationByFilter(const QString &strFilter)
     if (citiesWithCountryCode.length() > 0) {
         int ind = Utils::generateIntegerRandom(0, citiesWithCountryCode.length()-1);
         return citiesWithCountryCode[ind];
-     }
+    }
 
     // try find by city name or nickname
     QVector<LocationID> cmiFoundCity;
@@ -147,9 +147,9 @@ LocationID LocationsModelManager::findLocationByFilter(const QString &strFilter)
 
                 if (!cityMi.data(kIsDisabled).toBool() && !cityMi.data(kIsShowAsPremium).toBool()) {
                     if (cityMi.data(kName).toString().toLower() == strFilterLower)
-                       cmiFoundCity << qvariant_cast<LocationID>(cityMi.data(kLocationId));
+                        cmiFoundCity << qvariant_cast<LocationID>(cityMi.data(kLocationId));
                     else if (cityMi.data(kNick).toString().toLower() == strFilterLower)
-                       cmiFoundNickname << qvariant_cast<LocationID>(cityMi.data(kLocationId));
+                        cmiFoundNickname << qvariant_cast<LocationID>(cityMi.data(kLocationId));
                 }
             }
         }

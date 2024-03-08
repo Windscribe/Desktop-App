@@ -22,8 +22,9 @@ private:
     std::string output_;
     bool is_suspended_output_;
 
-    static BOOL APIENTRY myCreatePipeEx(OUT LPHANDLE lpReadPipe, OUT LPHANDLE lpWritePipe, IN LPSECURITY_ATTRIBUTES lpPipeAttributes,
-                                 IN DWORD nSize, DWORD dwReadMode, DWORD dwWriteMode);
+    static BOOL APIENTRY myCreatePipeEx(
+        OUT LPHANDLE lpReadPipe, OUT LPHANDLE lpWritePipe, IN LPSECURITY_ATTRIBUTES lpPipeAttributes,
+        IN DWORD nSize, DWORD dwReadMode, DWORD dwWriteMode);
     static DWORD WINAPI readThread(LPVOID lpParam);
     void stopThread();
 

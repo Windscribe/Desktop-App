@@ -120,21 +120,6 @@
     </message>
 </context>
 <context>
-    <name>DialogGetUsernamePassword</name>
-    <message>
-        <source>Enter connection credentials</source>
-        <translation>Zadejte pověření pro připojení</translation>
-    </message>
-    <message>
-        <source>Please enter the username</source>
-        <translation>Zadejte prosím uživatelské jméno</translation>
-    </message>
-    <message>
-        <source>Please enter the password</source>
-        <translation>Zadejte prosím heslo</translation>
-    </message>
-</context>
-<context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
@@ -230,6 +215,18 @@
     <message>
         <source>Learn More</source>
         <translation>Víc se uč</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Uživatelské jméno</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Heslo</translation>
+    </message>
+    <message>
+        <source>Remember</source>
+        <translation>Pamatovat</translation>
     </message>
 </context>
 <context>
@@ -784,6 +781,18 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
         <translation>Nelze otevřít soubor pro zápis.  Zkontrolujte svá oprávnění a zkuste to znovu.</translation>
+    </message>
+    <message>
+        <source>Enter Connection Credentials</source>
+        <translation>Zadejte přihlašovací údaje pro připojení</translation>
+    </message>
+    <message>
+        <source>Enter Private Key Password</source>
+        <translation>Zadejte heslo soukromého klíče</translation>
+    </message>
+    <message>
+        <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
+        <translation>Windscribe nemohl načíst konfiguraci serveru. Zkuste prosím jiný protokol.</translation>
     </message>
 </context>
 <context>
@@ -1409,20 +1418,8 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Znalostní báze</translation>
     </message>
     <message>
-        <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>Není tak chytrý jako člověk, ale stále dokáže odpovědět na vaše otázky.</translation>
-    </message>
-    <message>
         <source>Talk to Garry</source>
         <translation>Promluvte si s Garrym</translation>
-    </message>
-    <message>
-        <source>Stuck? Send us a ticket.</source>
-        <translation>Přilepen? Pošlete nám lístek.</translation>
-    </message>
-    <message>
-        <source>Send Ticket</source>
-        <translation>Odeslat vstupenku</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1459,6 +1456,18 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Failed!</source>
         <translation>Neúspěšný!</translation>
+    </message>
+    <message>
+        <source>Need help? Garry can help you with most issues, go talk to him.</source>
+        <translation>Potřebujete pomoc? Garry vám může pomoci s většinou problémů, běžte si s ním promluvit.</translation>
+    </message>
+    <message>
+        <source>Contact Humans</source>
+        <translation>Kontaktujte lidi</translation>
+    </message>
+    <message>
+        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
+        <translation>Máte problém, který Garry nedokáže vyřešit? Obraťte se na lidskou podporu.</translation>
     </message>
 </context>
 <context>

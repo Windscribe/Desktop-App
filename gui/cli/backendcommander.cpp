@@ -135,8 +135,8 @@ void BackendCommander::onConnectionStateChanged(int state, IPC::Connection * /*c
                 emit finished(1, "Aborting: Gui did not start in time");
             }
             else {
-               // Try connect again. Delay is necessary so that Engine process will actually start
-               // running on low resource systems.
+                // Try connect again. Delay is necessary so that Engine process will actually start
+                // running on low resource systems.
                 QTimer::singleShot(100, this, [this]() { connection_->connect(); } );
             }
         }

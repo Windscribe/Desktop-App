@@ -1,8 +1,7 @@
 #pragma once
 
 #include <QVector>
-#include "engine/apiinfo/staticips.h"
-#include "types/portmap.h"
+#include "api_responses/staticips.h"
 #include "types/protocolstatus.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 
@@ -38,7 +37,7 @@ struct CurrentConnectionDescr
     // fields for static ips
     QString username;
     QString password;
-    apiinfo::StaticIpPortsVector staticIpPorts;
+    api_responses::StaticIpPortsVector staticIpPorts;
 };
 
 // helper class for ConnectionManager

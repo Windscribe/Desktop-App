@@ -7,15 +7,13 @@
 #include "utils/logger.h"
 #include "utils/ipvalidation.h"
 #include "customconfiglocationinfo.h"
-#include "engine/dnsresolver/dnsrequest.h"
-#include "engine/dnsresolver/dnsserversconfiguration.h"
-
 
 namespace locationsmodel {
 
-CustomConfigLocationsModel::CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager,
-                                                       PingMultipleHosts *pingHosts) : QObject(parent),
-    pingManager_(this, stateController, networkDetectionManager, pingHosts, "pingStorageCustomConfigs", "ping_log_custom_configs.txt")
+using namespace wsnet;
+
+CustomConfigLocationsModel::CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager) : QObject(parent),
+    pingManager_(this, stateController, networkDetectionManager, "pingStorageCustomConfigs", "ping_log_custom_configs.txt")
 {
     connect(&pingManager_, &PingManager::pingInfoChanged, this, &CustomConfigLocationsModel::onPingInfoChanged);
 }
@@ -59,6 +57,14 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
 
     generateLocationsUpdated();
 
+    auto callback = [this] (std::uint64_t requestId, const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result)
+    {
+        QMetaObject::invokeMethod(this, [this, hostname, result] {
+            onDnsRequestFinished(QString::fromStdString(hostname), result);
+        });
+
+    };
+
     if (hostnamesForResolve.isEmpty())
     {
         startPingAndWhitelistIps();
@@ -67,9 +73,7 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
     {
         for (const QString &hostname : hostnamesForResolve)
         {
-            DnsRequest *dnsRequest = new DnsRequest(this, hostname, DnsServersConfiguration::instance().getCurrentDnsServers());
-            connect(dnsRequest, &DnsRequest::finished, this, &CustomConfigLocationsModel::onDnsRequestFinished);
-            dnsRequest->lookup();
+            WSNet::instance()->dnsResolver()->lookup(hostname.toStdString(), 0, callback);
         }
     }
 }
@@ -109,24 +113,22 @@ void CustomConfigLocationsModel::onPingInfoChanged(const QString &ip, int timems
     }
 }
 
-void CustomConfigLocationsModel::onDnsRequestFinished()
+void CustomConfigLocationsModel::onDnsRequestFinished(const QString &hostname, std::shared_ptr<wsnet::WSNetDnsRequestResult> result)
 {
-    DnsRequest *dnsRequest = qobject_cast<DnsRequest *>(sender());
-    WS_ASSERT(dnsRequest != nullptr);
-
     for (auto it = pingInfos_.begin(); it != pingInfos_.end(); ++it)
     {
         for (auto remoteIt = it->remotes.begin(); remoteIt != it->remotes.end(); ++remoteIt)
         {
-            if (remoteIt->isHostname && remoteIt->ipOrHostname.ip == dnsRequest->hostname())
+            if (remoteIt->isHostname && remoteIt->ipOrHostname.ip == hostname)
             {
                 remoteIt->isResolved = true;
                 remoteIt->ips.clear();
 
-                for (const QString &ip : dnsRequest->ips())
+                const auto &ips = result->ips();
+                for (const auto &ip : ips)
                 {
                     IpItem ipItem;
-                    ipItem.ip = ip;
+                    ipItem.ip = QString::fromStdString(ip);
                     ipItem.pingTime = pingManager_.getPing(ipItem.ip);
                     remoteIt->ips << ipItem;
 
@@ -139,7 +141,6 @@ void CustomConfigLocationsModel::onDnsRequestFinished()
     {
         startPingAndWhitelistIps();
     }
-    dnsRequest->deleteLater();
 }
 
 bool CustomConfigLocationsModel::isAllResolved() const
@@ -171,13 +172,13 @@ void CustomConfigLocationsModel::startPingAndWhitelistIps()
                 for (auto ipIt = remoteIt->ips.begin(); ipIt != remoteIt->ips.end(); ++ipIt)
                 {
                     strListIps << ipIt->ip;
-                    allIps << PingIpInfo { ipIt->ip, QString(), it->customConfig->name(), it->customConfig->nick(), PingType::kIcmp };
+                    allIps << PingIpInfo { ipIt->ip, QString(), it->customConfig->name(), it->customConfig->nick(), wsnet::PingType::kIcmp };
                 }
             }
             else
             {
                 strListIps << remoteIt->ipOrHostname.ip;
-                allIps << PingIpInfo { remoteIt->ipOrHostname.ip, QString(), it->customConfig->name(), it->customConfig->nick(), PingType::kIcmp };
+                allIps << PingIpInfo { remoteIt->ipOrHostname.ip, QString(), it->customConfig->name(), it->customConfig->nick(), wsnet::PingType::kIcmp };
             }
         }
     }

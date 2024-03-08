@@ -24,7 +24,7 @@ void SplitTunneling::setConnectParams(CMD_SEND_CONNECT_STATUS &connectStatus)
 }
 
 void SplitTunneling::setSplitTunnelingParams(bool isActive, bool isExclude, const std::vector<std::string> &apps,
-                             const std::vector<std::string> &ips, const std::vector<std::string> &hosts)
+    const std::vector<std::string> &ips, const std::vector<std::string> &hosts)
 {
     std::lock_guard<std::mutex> guard(mutex_);
     std::vector<std::string> allHosts = hosts;

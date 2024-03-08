@@ -86,7 +86,7 @@ void UpgradeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     painter->setPen(Qt::white);
 
     const QString descText = tr("Don't leave your front door open. "
-                             "Upgrade or wait until next month to get your monthly data allowance back.");
+                                "Upgrade or wait until next month to get your monthly data allowance back.");
     int width = CommonGraphics::idealWidthOfTextRect(DESCRIPTION_WIDTH_MIN*G_SCALE, WINDOW_WIDTH*G_SCALE, 3, descText, descFont);
     painter->drawText(CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, width), (DESCRIPTION_POS_Y + yOffset)*G_SCALE,
                       width, height_*G_SCALE,

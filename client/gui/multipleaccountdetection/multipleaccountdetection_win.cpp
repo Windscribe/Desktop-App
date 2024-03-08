@@ -19,7 +19,7 @@ void MultipleAccountDetection_win::userBecomeExpired(const QString &username)
 
 bool MultipleAccountDetection_win::entryIsPresent(QString &username)
 {
-   return secretValue_.isExistValue(username);
+    return secretValue_.isExistValue(username);
 }
 
 void MultipleAccountDetection_win::removeEntry()

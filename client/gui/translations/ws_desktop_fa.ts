@@ -120,21 +120,6 @@
     </message>
 </context>
 <context>
-    <name>DialogGetUsernamePassword</name>
-    <message>
-        <source>Enter connection credentials</source>
-        <translation>اعتبار اتصال را وارد کنید</translation>
-    </message>
-    <message>
-        <source>Please enter the username</source>
-        <translation>لطفا نام کاربری را وارد کنید</translation>
-    </message>
-    <message>
-        <source>Please enter the password</source>
-        <translation>لطفا رمز عبور را وارد کنید</translation>
-    </message>
-</context>
-<context>
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
@@ -230,6 +215,18 @@
     <message>
         <source>Learn More</source>
         <translation>بیشتر بدانید</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>نام کاربری</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>رمز عبور</translation>
+    </message>
+    <message>
+        <source>Remember</source>
+        <translation>خاطر داشته باشید</translation>
     </message>
 </context>
 <context>
@@ -784,6 +781,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
         <translation>نتوانست پرونده را برای نوشتن باز کند.  مجوزهای خود را بررسی کنید و دوباره امتحان کنید.</translation>
+    </message>
+    <message>
+        <source>Enter Connection Credentials</source>
+        <translation>وارد کردن اعتبارنامههای اتصال</translation>
+    </message>
+    <message>
+        <source>Enter Private Key Password</source>
+        <translation>رمز عبور کلید خصوصی را وارد کنید</translation>
+    </message>
+    <message>
+        <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
+        <translation>Windscribe نتوانست پیکربندی کارگزار را بازیابی کند. لطفا یک پروتکل دیگر را امتحان کنید.</translation>
     </message>
 </context>
 <context>
@@ -1409,20 +1418,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>پایگاه دانش</translation>
     </message>
     <message>
-        <source>Not as smart as a human, but can still answer your questions.</source>
-        <translation>نه به اندازه یک انسان باهوش، اما هنوز هم می تواند به سوالات شما پاسخ دهد.</translation>
-    </message>
-    <message>
         <source>Talk to Garry</source>
         <translation>با گری صحبت کنید</translation>
-    </message>
-    <message>
-        <source>Stuck? Send us a ticket.</source>
-        <translation>گیر? یه بلیط برامون بفرست</translation>
-    </message>
-    <message>
-        <source>Send Ticket</source>
-        <translation>ارسال بلیط</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1459,6 +1456,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Failed!</source>
         <translation>ناموفق بود!</translation>
+    </message>
+    <message>
+        <source>Need help? Garry can help you with most issues, go talk to him.</source>
+        <translation>کمک میخوای؟ گری می تواند در بیشتر مسائل به شما کمک کند، با او صحبت کنید.</translation>
+    </message>
+    <message>
+        <source>Contact Humans</source>
+        <translation>تماس با انسان</translation>
+    </message>
+    <message>
+        <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
+        <translation>مشکلی دارید که گری نتواند ان را حل کند؟ تماس با پشتیبانی انسانی</translation>
     </message>
 </context>
 <context>

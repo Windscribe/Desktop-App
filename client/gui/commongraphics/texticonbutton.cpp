@@ -57,10 +57,10 @@ void TextIconButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
 void TextIconButton::setFont(const FontDescr &fontDescr)
 {
-   fontDescr_ = fontDescr;
-   recalcWidth();
-   recalcHeight();
-   update();
+    fontDescr_ = fontDescr;
+    recalcWidth();
+    recalcHeight();
+    update();
 }
 
 void TextIconButton::animateHide()

@@ -13,13 +13,16 @@ public:
     ~CustomOvpnAuthCredentialsStorage();
 
     void setAuthCredentials(const QString &ovpnFileName, const QString &username, const QString &password);
+    void setPrivKeyPassword(const QString &ovpnFileName, const QString &password);
     void removeCredentials(const QString &ovpnFileName);
+    void removePrivKeyPassword(const QString &ovpnFileName);
     void removeUnusedCredentials(const QStringList &existingOvpnFileNames);
 
     struct Credentials
     {
         QString username;
         QString password;
+        QString privKeyPassword;
     };
 
     Credentials getAuthCredentials(const QString &ovpnFileName);

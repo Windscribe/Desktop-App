@@ -304,22 +304,22 @@ QString UpgradeWidgetItem::currentText()
 QString UpgradeWidgetItem::makeDaysLeftString(int days)
 {
     if (days == 0)
-       return tr("0 DAYS LEFT");
-   else if (days == 1)
-       return tr("1 DAY LEFT");
-   else if (days == 2)
-       return tr("2 DAYS LEFT");
-   else if (days == 3)
-       return tr("3 DAYS LEFT");
-   else if (days == 4)
-       return tr("4 DAYS LEFT");
-   else if (days == 5)
-       return tr("5 DAYS LEFT");
-   else
-   {
-       WS_ASSERT(false);
-       return tr("%1 DAYS LEFT").arg(QString::number(days));
-   }
+        return tr("0 DAYS LEFT");
+    else if (days == 1)
+        return tr("1 DAY LEFT");
+    else if (days == 2)
+        return tr("2 DAYS LEFT");
+    else if (days == 3)
+        return tr("3 DAYS LEFT");
+    else if (days == 4)
+        return tr("4 DAYS LEFT");
+    else if (days == 5)
+        return tr("5 DAYS LEFT");
+    else
+    {
+        WS_ASSERT(false);
+        return tr("%1 DAYS LEFT").arg(QString::number(days));
+    }
 }
 
 void UpgradeWidgetItem::updateButtonText()

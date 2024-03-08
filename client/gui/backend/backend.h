@@ -11,16 +11,16 @@
 #include "preferences/accountinfo.h"
 #include "preferences/preferences.h"
 #include "preferences/preferenceshelper.h"
-#include "types/checkupdate.h"
 #include "types/locationid.h"
-#include "types/notification.h"
 #include "types/protocolstatus.h"
 #include "types/proxysharinginfo.h"
-#include "types/robertfilter.h"
-#include "types/sessionstatus.h"
 #include "types/splittunneling.h"
 #include "types/upgrademodetype.h"
 #include "types/wifisharinginfo.h"
+#include "api_responses/robertfilter.h"
+#include "api_responses/checkupdate.h"
+#include "api_responses/sessionstatus.h"
+#include "api_responses/notification.h"
 
 class Engine;
 
@@ -78,12 +78,13 @@ public:
     void setBlockConnect(bool isBlockConnect);
 
     void getRobertFilters();
-    void setRobertFilter(const types::RobertFilter &filter);
+    void setRobertFilter(const api_responses::RobertFilter &filter);
     void syncRobert();
 
     bool isAppCanClose() const;
 
     void continueWithCredentialsForOvpnConfig(const QString &username, const QString &password, bool bSave);
+    void continueWithPrivKeyPasswordForOvpnConfig(const QString &password, bool bSave);
 
     void sendAdvancedParametersChanged();
 
@@ -96,7 +97,7 @@ public:
     void applicationActivated();
     void applicationDeactivated();
 
-    const types::SessionStatus &getSessionStatus() const;
+    const api_responses::SessionStatus &getSessionStatus() const;
 
     void handleNetworkChange(types::NetworkInterface networkInterface, bool manual=false);
     types::NetworkInterface getCurrentNetworkInterface();
@@ -122,19 +123,19 @@ private slots:
     void onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void onEngineFirewallStateChanged(bool isEnabled);
-    void onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const types::PortMap &portMap);
+    void onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const api_responses::PortMap &portMap);
     void onEngineLoginError(LOGIN_RET retCode, const QString &errorMessage);
     void onEngineTryingBackupEndpoint(int num, int cnt);
     void onEngineSessionDeleted();
-    void onEngineUpdateSessionStatus(const types::SessionStatus &sessionStatus);
-    void onEngineNotificationsUpdated(const QVector<types::Notification> &notifications);
-    void onEngineCheckUpdateUpdated(const types::CheckUpdate &checkUpdate);
+    void onEngineUpdateSessionStatus(const api_responses::SessionStatus &sessionStatus);
+    void onEngineNotificationsUpdated(const QVector<api_responses::Notification> &notifications);
+    void onEngineCheckUpdateUpdated(const api_responses::CheckUpdate &checkUpdate);
     void onEngineUpdateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error);
     void onEngineMyIpUpdated(const QString &ip, bool isDisconnected);
     void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId);
     void onEngineStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onEngineProtocolPortChanged(const types::Protocol &protocol, const uint port);
-    void onEngineRobertFiltersUpdated(bool success, const QVector<types::RobertFilter> &filters);
+    void onEngineRobertFiltersUpdated(bool success, const QVector<api_responses::RobertFilter> &filters);
     void onEngineSetRobertFilterFinished(bool success);
     void onEngineSyncRobertFinished(bool success);
     void onEngineProtocolStatusChanged(const QVector<types::ProtocolStatus> &status);
@@ -157,6 +158,7 @@ private slots:
 
     void onEngineRequestUsername();
     void onEngineRequestPassword();
+    void onEngineRequestPrivKeyPassword();
 
     void onEngineInternetConnectivityChanged(bool connectivity);
 
@@ -193,13 +195,13 @@ signals:
     void connectStateChanged(const types::ConnectState &connectState);
     void emergencyConnectStateChanged(const types::ConnectState &connectState);
     void firewallStateChanged(bool isEnabled);
-    void notificationsChanged(const QVector<types::Notification> &arr);
-    void robertFiltersChanged(bool success, const QVector<types::RobertFilter> &arr);
+    void notificationsChanged(const QVector<api_responses::Notification> &arr);
+    void robertFiltersChanged(bool success, const QVector<api_responses::RobertFilter> &arr);
     void setRobertFilterResult(bool success);
     void syncRobertResult(bool success);
     void networkChanged(types::NetworkInterface interface);
-    void sessionStatusChanged(const types::SessionStatus &sessionStatus);
-    void checkUpdateChanged(const types::CheckUpdate &checkUpdateInfo);
+    void sessionStatusChanged(const api_responses::SessionStatus &sessionStatus);
+    void checkUpdateChanged(const api_responses::CheckUpdate &checkUpdateInfo);
     void splitTunnelingStateChanged(bool isActive);
 
     void confirmEmailResult(bool bSuccess);
@@ -213,6 +215,7 @@ signals:
     void webSessionTokenForManageRobertRules(const QString &temp_session_token);
 
     void requestCustomOvpnConfigCredentials();
+    void requestCustomOvpnConfigPrivKeyPassword();
 
     void sessionDeleted();
     void testTunnelResult(bool success);
@@ -241,7 +244,7 @@ private:
     QString lastPassword_;
     QString lastCode2fa_;
 
-    types::SessionStatus latestSessionStatus_;
+    api_responses::SessionStatus latestSessionStatus_;
     ConnectStateHelper connectStateHelper_;
     ConnectStateHelper emergencyConnectStateHelper_;
     FirewallStateHelper firewallStateHelper_;

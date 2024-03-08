@@ -9,6 +9,7 @@
 #include <linux/wireless.h>
 
 #include "utils/logger.h"
+#include "utils/network_utils/network_utils_linux.h"
 #include "utils/utils.h"
 
 const int typeIdNetworkInterface = qRegisterMetaType<types::NetworkInterface>("types::NetworkInterface");
@@ -85,39 +86,17 @@ void NetworkDetectionManager_linux::updateNetworkInfo(bool bWithEmitSignal)
 
 QString NetworkDetectionManager_linux::getDefaultRouteInterface(bool &isOnline)
 {
-    QString strReply;
-    FILE *file = popen("/sbin/route -n | grep '^0\\.0\\.0\\.0'", "r");
-    if (file)
-    {
-        char szLine[4096];
-        while(fgets(szLine, sizeof(szLine), file) != 0)
-        {
-            strReply += szLine;
-        }
-        pclose(file);
+    QString gateway;
+    QString interface;
+    QString adapterIp;
+
+    NetworkUtils_linux::getDefaultRoute(gateway, interface, adapterIp, true);
+    if (gateway.isEmpty() || interface.isEmpty()) {
+        isOnline = false;
+        return QString();
     }
-
-    const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
-
-    isOnline = !lines.isEmpty();
-
-    for (auto &it : lines)
-    {
-        const QStringList pars = it.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
-        if (pars.size() == 8)
-        {
-            if (!pars[7].startsWith("tun") && !pars[7].startsWith("utun"))
-            {
-                return pars[7];
-            }
-        }
-        else
-        {
-            qDebug(LOG_BASIC) << "NetworkDetectionManager_linux::getDefaultRouteInterface parse error";
-            return QString();
-        }
-    }
-    return QString();
+    isOnline = true;
+    return interface;
 }
 
 void NetworkDetectionManager_linux::getInterfacePars(const QString &ifname, types::NetworkInterface &outNetworkInterface)
@@ -171,11 +150,11 @@ QString NetworkDetectionManager_linux::getMacAddressByIfName(const QString &ifna
         strncpy(ifr.ifr_name , ifname.toStdString().c_str() , IFNAMSIZ-1);
         if (ioctl(fd, SIOCGIFHWADDR, &ifr) == 0)
         {
-           unsigned char *mac = (unsigned char *)ifr.ifr_hwaddr.sa_data;
-           // format mac address
-           ret = QString::asprintf("%.2X:%.2X:%.2X:%.2X:%.2X:%.2X" , mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-       }
-       close(fd);
+            unsigned char *mac = (unsigned char *)ifr.ifr_hwaddr.sa_data;
+            // format mac address
+            ret = QString::asprintf("%.2X:%.2X:%.2X:%.2X:%.2X:%.2X" , mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+        }
+        close(fd);
     }
     return ret;
 }
@@ -193,7 +172,7 @@ bool NetworkDetectionManager_linux::isActiveByIfName(const QString &ifname)
         strncpy(ifr.ifr_name , ifname.toStdString().c_str() , IFNAMSIZ-1);
         if (ioctl(fd, SIOCGIFFLAGS, &ifr) == 0)
         {
-           ret = (ifr.ifr_flags & ( IFF_UP | IFF_RUNNING )) == ( IFF_UP | IFF_RUNNING );
+            ret = (ifr.ifr_flags & ( IFF_UP | IFF_RUNNING )) == ( IFF_UP | IFF_RUNNING );
         }
         close(fd);
     }

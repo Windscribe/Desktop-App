@@ -147,7 +147,7 @@ QString ScrollBar::customStyleSheet()
                         .arg(qCeil(0)); // handle border-radius
     // top and bottom page buttons
     css += QString( "QScrollBar::add-line:vertical { border: none; background: none; }"
-                     "QScrollBar::sub-line:vertical { border: none; background: none; }");
+                    "QScrollBar::sub-line:vertical { border: none; background: none; }");
     return css;
 }
 

@@ -30,7 +30,7 @@ public:
     void updateScaling() override;
 
 private slots:
-     void doUpdate();
+    void doUpdate();
 
 private:
     static constexpr int ANIMATION_DURATION = 600;

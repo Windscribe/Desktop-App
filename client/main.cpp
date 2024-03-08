@@ -28,6 +28,7 @@
     #include <unistd.h>         // readlink
     #include <linux/limits.h>   // PATH_MAX
     #include <signal.h>
+    #include "utils/linuxutils.h"
 #endif
 
 void applyScalingFactor(qreal ldpi, MainWindow &mw);
@@ -83,7 +84,6 @@ int main(int argc, char *argv[])
     #endif
 #endif
 
-    Q_INIT_RESOURCE(engine);
     Q_INIT_RESOURCE(gif);
     Q_INIT_RESOURCE(jpg);
     Q_INIT_RESOURCE(svg);
@@ -157,6 +157,9 @@ int main(int argc, char *argv[])
     qCDebug(LOG_BASIC) << "App version:" << AppVersion::instance().fullVersionString();
     qCDebug(LOG_BASIC) << "Platform:" << QGuiApplication::platformName();
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
+#if defined(Q_OS_LINUX)
+    qCDebug(LOG_BASIC) << "Distribution:" << LinuxUtils::getDistroName();
+#endif
     qCDebug(LOG_BASIC) << "CPU architecture:" << QSysInfo::currentCpuArchitecture();
     // To aid us in diagnosing possible region-specific issues.
     qCDebug(LOG_BASIC) << "UI languages:" << QLocale::system().uiLanguages();

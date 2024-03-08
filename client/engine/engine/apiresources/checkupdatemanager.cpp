@@ -1,12 +1,12 @@
 #include "checkupdatemanager.h"
-
-#include "engine/serverapi/requests/checkupdaterequest.h"
+#include "version/appversion.h"
 #include "utils/utils.h"
 
 namespace api_resources {
 
-CheckUpdateManager::CheckUpdateManager(QObject *parent, server_api::ServerAPI *serverAPI) : QObject(parent),
-    serverAPI_(serverAPI), curRequest_(nullptr)
+using namespace wsnet;
+
+CheckUpdateManager::CheckUpdateManager(QObject *parent) : QObject(parent)
 {
     fetchTimer_ = new QTimer(this);
     connect(fetchTimer_, &QTimer::timeout, this, &CheckUpdateManager::onFetchTimer);
@@ -14,41 +14,49 @@ CheckUpdateManager::CheckUpdateManager(QObject *parent, server_api::ServerAPI *s
 
 CheckUpdateManager::~CheckUpdateManager()
 {
-    SAFE_DELETE(curRequest_);
+    SAFE_CANCEL_AND_DELETE_WSNET_REQUEST(curRequest_);
 }
 
 void CheckUpdateManager::checkUpdate(UPDATE_CHANNEL channel)
 {
     fetchTimer_->stop();
-    SAFE_DELETE(curRequest_);
+    SAFE_CANCEL_AND_DELETE_WSNET_REQUEST(curRequest_);
     updateChannel_ = channel;
     fetchCheckUpdate();
 }
 
-void CheckUpdateManager::onCheckUpdateAnswer()
+void CheckUpdateManager::onCheckUpdateAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData)
 {
-    QSharedPointer<server_api::CheckUpdateRequest> request(static_cast<server_api::CheckUpdateRequest *>(sender()), &QObject::deleteLater);
-    if (request->networkRetCode() == SERVER_RETURN_SUCCESS) {
-        emit checkUpdateUpdated(request->checkUpdate());
+    if (serverApiRetCode == ServerApiRetCode::kSuccess) {
+        api_responses::CheckUpdate checkUpdate(jsonData);
+        emit checkUpdateUpdated(checkUpdate);
         fetchTimer_->start(k24Hours);
     } else {    // on any network error try again in 1 minute
         fetchTimer_->start(kMinute);
     }
-    curRequest_ = nullptr;
+    curRequest_.reset();
 }
 
 void CheckUpdateManager::onFetchTimer()
 {
-    SAFE_DELETE(curRequest_);
+    SAFE_CANCEL_AND_DELETE_WSNET_REQUEST(curRequest_);
     fetchCheckUpdate();
 }
 
 void CheckUpdateManager::fetchCheckUpdate()
 {
-    WS_ASSERT(curRequest_ == nullptr);
-    curRequest_ = serverAPI_->checkUpdate(updateChannel_);
-    connect(curRequest_, &server_api::BaseRequest::finished, this, &CheckUpdateManager::onCheckUpdateAnswer);
-}
+    QString osVersion, osBuild;
+    Utils::getOSVersionAndBuild(osVersion, osBuild);
 
+    auto callback = [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData)
+    {
+        QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData] {
+            onCheckUpdateAnswer(serverApiRetCode, jsonData);
+        });
+    };
+
+    WSNet::instance()->serverAPI()->checkUpdate((UpdateChannel)updateChannel_, AppVersion::instance().version().toStdString(), AppVersion::instance().build().toStdString(),
+                                                osVersion.toStdString(), osBuild.toStdString(), callback);
+}
 
 } // namespace api_resources
