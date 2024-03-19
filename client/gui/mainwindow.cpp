@@ -160,6 +160,7 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::requestCustomOvpnConfigPrivKeyPassword, this, &MainWindow::onBackendRequestCustomOvpnConfigPrivKeyPassword);
     connect(backend_, &Backend::proxySharingInfoChanged, this, &MainWindow::onBackendProxySharingInfoChanged);
     connect(backend_, &Backend::wifiSharingInfoChanged, this, &MainWindow::onBackendWifiSharingInfoChanged);
+    connect(backend_, &Backend::wifiSharingFailed, this, &MainWindow::onBackendWifiSharingFailed);
     connect(backend_, &Backend::cleanupFinished, this, &MainWindow::onBackendCleanupFinished);
     connect(backend_, &Backend::gotoCustomOvpnConfigModeFinished, this, &MainWindow::onBackendGotoCustomOvpnConfigModeFinished);
     connect(backend_, &Backend::sessionDeleted, this, &MainWindow::onBackendSessionDeleted);
@@ -282,7 +283,6 @@ MainWindow::MainWindow() :
     connect(mainWindowController_->getEmergencyConnectWindow(), &EmergencyConnectWindow::EmergencyConnectWindowItem::escapeClick, this, &MainWindow::onEscapeClick);
     connect(mainWindowController_->getEmergencyConnectWindow(), &EmergencyConnectWindow::EmergencyConnectWindowItem::connectClick, this, &MainWindow::onEmergencyConnectClick);
     connect(mainWindowController_->getEmergencyConnectWindow(), &EmergencyConnectWindow::EmergencyConnectWindowItem::disconnectClick, this, &MainWindow::onEmergencyDisconnectClick);
-    connect(mainWindowController_->getEmergencyConnectWindow(), &EmergencyConnectWindow::EmergencyConnectWindowItem::windscribeLinkClick, this, &MainWindow::onEmergencyWindscribeLinkClick);
 
     // external config window signals
     connect(mainWindowController_->getExternalConfigWindow(), &ExternalConfigWindow::ExternalConfigWindowItem::buttonClick, this, &MainWindow::onExternalConfigWindowNextClick);
@@ -950,11 +950,9 @@ void MainWindow::onLoginTwoFactorAuthWindowClick(const QString &username, const 
 
 void MainWindow::onConnectWindowConnectClick()
 {
-    if (backend_->isDisconnected())
-    {
+    if (backend_->isDisconnected()) {
         mainWindowController_->collapseLocations();
-        if (!selectedLocation_->isValid())
-        {
+        if (!selectedLocation_->isValid()) {
             LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
             // If we are in external config mode, there may be no best or selected location; do not attempt connect
             if(!bestLocation.isValid()) {
@@ -1358,11 +1356,6 @@ void MainWindow::onEmergencyDisconnectClick()
     backend_->emergencyDisconnectClick();
 }
 
-void MainWindow::onEmergencyWindscribeLinkClick()
-{
-    QDesktopServices::openUrl(QUrl( QString("https://%1/help").arg(HardcodedSettings::instance().windscribeServerUrl())));
-}
-
 void MainWindow::onExternalConfigWindowNextClick()
 {
     mainWindowController_->getExternalConfigWindow()->setClickable(false);
@@ -1572,6 +1565,13 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
 #ifdef Q_OS_MAC
         // on Mac, remove apps from the split tunnel config since we don't support them
         p->setSplitTunnelingApps(QList<types::SplitTunnelingApp>());
+
+        // on MacOS 14.4 and later, MAC spoofing no longer works.  If it was enabled, disable the feature.
+        if (MacUtils::isOsVersionAtLeast(14, 4) && p->macAddrSpoofing().isEnabled) {
+            types::MacAddrSpoofing mas = p->macAddrSpoofing();
+            mas.isEnabled = false;
+            p->setMacAddrSpoofing(mas);
+        }
 #endif
 
         // enable wifi/proxy sharing, if checked
@@ -1955,8 +1955,8 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
                 selectedLocation_->clear();
             }
             mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
-                                                                            selectedLocation_->countryCode(), selectedLocation_->pingTime(),
-                                                                            selectedLocation_->locationdId().isCustomConfigsLocation());
+                                                                          selectedLocation_->countryCode(), selectedLocation_->pingTime(),
+                                                                          !selectedLocation_->isValid() || selectedLocation_->locationdId().isCustomConfigsLocation());
             PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
         }
     }
@@ -2074,6 +2074,11 @@ void MainWindow::onSplitTunnelingStateChanged(bool isActive)
 
 void MainWindow::onBackendSignOutFinished()
 {
+    selectedLocation_->clear();
+    mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
+                                                                  selectedLocation_->countryCode(), selectedLocation_->pingTime(),
+                                                                  true);
+
     loginAttemptsController_.reset();
     mainWindowController_->getPreferencesWindow()->setLoggedIn(false);
     isLoginOkAndConnectWindowVisible_ = false;
@@ -2114,34 +2119,29 @@ void MainWindow::onBackendCleanupFinished()
 
 void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
 {
-    if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON)
-    {
+    if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
         backend_->firewallOn();
         mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
     }
 
-    if (!isLoginOkAndConnectWindowVisible_)
-    {
+    if (!isLoginOkAndConnectWindowVisible_) {
         // Choose latest location if it's a custom config location; first valid custom config
         // location otherwise.
         selectedLocation_->set(PersistentState::instance().lastLocation());
-        if (selectedLocation_->isValid() && selectedLocation_->locationdId().isCustomConfigsLocation())
-        {
+        if (selectedLocation_->isValid() && selectedLocation_->locationdId().isCustomConfigsLocation()) {
             mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
                                                                           selectedLocation_->countryCode(), selectedLocation_->pingTime(),
                                                                           selectedLocation_->locationdId().isCustomConfigsLocation());
-        }
-        else
-        {
+        } else {
             LocationID firstValidCustomLocation = backend_->locationsModelManager()->getFirstValidCustomConfigLocationId();
             if (firstValidCustomLocation.isValid()) {
                 selectedLocation_->set(firstValidCustomLocation);
                 PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
-                // |selectedLocation_| can be empty (nopt valid) here, so this will reset current location.
-                mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
-                                                                              selectedLocation_->countryCode(), selectedLocation_->pingTime(),
-                                                                              selectedLocation_->locationdId().isCustomConfigsLocation());
             }
+            // |selectedLocation_| can be empty (nopt valid) here, so this will reset current location.
+            mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
+                                                                          selectedLocation_->countryCode(), selectedLocation_->pingTime(),
+                                                                          !selectedLocation_->isValid() || selectedLocation_->locationdId().isCustomConfigsLocation());
         }
 
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
@@ -2201,6 +2201,13 @@ void MainWindow::onBackendWifiSharingInfoChanged(const types::WifiSharingInfo &w
     }
 
     mainWindowController_->getBottomInfoWindow()->setSecureHotspotUsersCount(wsi.usersCount);
+}
+
+void MainWindow::onBackendWifiSharingFailed()
+{
+    mainWindowController_->getBottomInfoWindow()->setSecureHotspotFeatures(false, "");
+    mainWindowController_->getBottomInfoWindow()->setSecureHotspotUsersCount(0);
+    backend_->getPreferencesHelper()->setWifiSharingSupported(false);
 }
 
 void MainWindow::onBackendRequestCustomOvpnConfigCredentials()
@@ -3498,6 +3505,9 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
 #ifdef Q_OS_WIN
     } else if (connectState.connectError == NO_INSTALLED_TUN_TAP) {
         return;
+#elif defined(Q_OS_MAC)
+    } else if (connectState.connectError == LOCKDOWN_MODE_IKEV2) {
+        msg = tr("IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.");
 #endif
     } else if (connectState.connectError == CONNECTION_BLOCKED) {
         if (blockConnect_.isBlockedExceedTraffic()) {

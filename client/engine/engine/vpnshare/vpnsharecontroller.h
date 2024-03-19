@@ -37,6 +37,7 @@ public:
 signals:
     void connectedWifiUsersChanged(bool bEnabled, const QString &ssid, int usersCount);
     void connectedProxyUsersChanged(bool bEnabled, PROXY_SHARING_TYPE type, const QString &address, int usersCount);
+    void wifiSharingFailed();
 
 private slots:
     void onWifiUsersCountChanged();

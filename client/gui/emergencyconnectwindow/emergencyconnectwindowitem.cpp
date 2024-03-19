@@ -1,14 +1,15 @@
 #include "emergencyconnectwindowitem.h"
 
+#include <QKeyEvent>
 #include <QPainter>
 #include <QTimer>
-#include <QKeyEvent>
+
+#include "commongraphics/commongraphics.h"
+#include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
-#include "commongraphics/commongraphics.h"
-#include "utils/ws_assert.h"
 #include "languagecontroller.h"
-#include "dpiscalemanager.h"
+#include "utils/ws_assert.h"
 
 namespace EmergencyConnectWindow {
 
@@ -48,10 +49,6 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
     connect(minimizeButton_, &IconButton::clicked, this, &EmergencyConnectWindowItem::minimizeClick);
 #endif
 
-    textLinkButton_ = new TextLinkButton(this);
-    connect(textLinkButton_, &TextLinkButton::clicked, this, &EmergencyConnectWindowItem::windscribeLinkClick);
-    connect(textLinkButton_, &TextLinkButton::widthChanged, this, &EmergencyConnectWindowItem::onTextLinkWidthChanged);
-
     connect(&titleOpacityAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onTitleOpacityChange);
     connect(&descriptionOpacityAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onDescriptionTransition);
     connect(&iconOpacityAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onIconOpacityChange);
@@ -62,17 +59,14 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
 
     connect(&spinnerRotationAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onSpinnerRotation);
 
-    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &EmergencyConnectWindowItem::onLanguageChanged);
-    onLanguageChanged();
-
-    connect(preferencesHelper, &PreferencesHelper::isDockedModeChanged, this, &EmergencyConnectWindowItem::onDockedModeChanged);
-
-    textLinkButton_->animateShow(ANIMATION_SPEED_FAST);
-
     types::ConnectState defaultConnectState;
     setState(defaultConnectState);
 
+    accessText_ = new TextLinkItem(this);
     updatePositions();
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &EmergencyConnectWindowItem::onLanguageChanged);
+    onLanguageChanged();
 }
 
 QRectF EmergencyConnectWindowItem::boundingRect() const
@@ -118,13 +112,10 @@ void EmergencyConnectWindowItem::paint(QPainter *painter, const QStyleOptionGrap
 
     QString descriptionText;
     int desiredLines = 1;
-    if (errorConnecting_)
-    {
+    if (errorConnecting_) {
         descriptionText = tr("Emergency connection failure. Try again?");
         desiredLines = 2;
-    }
-    else
-    {
+    } else {
         descriptionText = tr("Can't access Windscribe.com or login into the app on your restrictive network? Connect to the emergency server that unblocks all of Windscribe.");
         desiredLines = 3;
     }
@@ -132,7 +123,7 @@ void EmergencyConnectWindowItem::paint(QPainter *painter, const QStyleOptionGrap
     QFontMetrics fm = painter->fontMetrics();
     int width = fm.horizontalAdvance(descriptionText)/desiredLines; // 3 lines
     if (width < DESCRIPTION_WIDTH_MIN*G_SCALE) width = DESCRIPTION_WIDTH_MIN*G_SCALE;
-    else if (width > LOGIN_WIDTH*G_SCALE) width = LOGIN_WIDTH*G_SCALE;
+    else if (width > (LOGIN_WIDTH-50)*G_SCALE) width = (LOGIN_WIDTH-50)*G_SCALE;
     painter->drawText(CommonGraphics::centeredOffset(LOGIN_WIDTH*G_SCALE, width), DESCRIPTION_POS_Y*G_SCALE,
                       width, LOGIN_HEIGHT*G_SCALE,
                       Qt::AlignHCenter | Qt::TextWordWrap, descriptionText);
@@ -175,8 +166,7 @@ void EmergencyConnectWindowItem::stopSpinnerAnimation()
 void EmergencyConnectWindowItem::setState(types::ConnectState state)
 {
 
-    if (state.connectState == CONNECT_STATE_CONNECTED)
-    {
+    if (state.connectState == CONNECT_STATE_CONNECTED) {
         errorConnecting_ =  (state.connectError != NO_CONNECT_ERROR);
 
         stopSpinnerAnimation();
@@ -192,9 +182,7 @@ void EmergencyConnectWindowItem::setState(types::ConnectState state)
         curDescriptionOpacity_ = OPACITY_FULL;
         disconnectButton_->quickShow();
         disconnectButton_->setVisible(true);
-    }
-    else if (state.connectState == CONNECT_STATE_DISCONNECTED)
-    {
+    } else if (state.connectState == CONNECT_STATE_DISCONNECTED) {
         errorConnecting_ =  (state.connectError != NO_CONNECT_ERROR);
 
         stopSpinnerAnimation();
@@ -211,9 +199,7 @@ void EmergencyConnectWindowItem::setState(types::ConnectState state)
         connectButton_->quickHide();
         connectButton_->quickShow();
         connectButton_->setVisible(true);
-    }
-    else if (state.connectState == CONNECT_STATE_CONNECTING)
-    {
+    } else if (state.connectState == CONNECT_STATE_CONNECTING) {
         curSubDescription_ = tr("Connecting...");
 
         connectButton_->setVisible(false);
@@ -221,9 +207,7 @@ void EmergencyConnectWindowItem::setState(types::ConnectState state)
 
         transitionToConnecting();
         startSpinnerAnimation();
-    }
-    else // CONNECT_STATE_DISCONNECTING
-    {
+    } else { // CONNECT_STATE_DISCONNECTING
         curSubDescription_ = tr("Disconnecting...");
 
         transitionToDisconnecting();
@@ -237,26 +221,19 @@ void EmergencyConnectWindowItem::setState(types::ConnectState state)
 
 void EmergencyConnectWindowItem::setClickable(bool isClickable)
 {
-    if (state_.connectState == CONNECT_STATE_CONNECTED)
-    {
+    if (state_.connectState == CONNECT_STATE_CONNECTED) {
         disconnectButton_->setClickable(isClickable);
-    }
-    else
-    {
+    } else {
         disconnectButton_->setClickable(false);
     }
 
-    if (state_.connectState == CONNECT_STATE_DISCONNECTED)
-    {
+    if (state_.connectState == CONNECT_STATE_DISCONNECTED) {
         connectButton_->setClickable(isClickable);
-    }
-    else
-    {
+    } else {
         connectButton_->setClickable(false);
     }
 
     escButton_->setClickable(isClickable);
-    textLinkButton_->setClickable(isClickable);
 
 #ifdef Q_OS_WIN
     closeButton_->setClickable(isClickable);
@@ -272,25 +249,16 @@ void EmergencyConnectWindowItem::updateScaling()
 
 void EmergencyConnectWindowItem::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Escape)
-    {
-        if (state_.connectState == CONNECT_STATE_CONNECTING)
-        {
+    if (event->key() == Qt::Key_Escape) {
+        if (state_.connectState == CONNECT_STATE_CONNECTING) {
             emit disconnectClick();
-        }
-        else
-        {
+        } else {
             emit escapeClick();
         }
-    }
-    else if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
-    {
-        if (state_.connectState == CONNECT_STATE_CONNECTED)
-        {
+    } else if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+        if (state_.connectState == CONNECT_STATE_CONNECTED) {
             emit disconnectClick();
-        }
-        else if (state_.connectState == CONNECT_STATE_DISCONNECTED)
-        {
+        } else if (state_.connectState == CONNECT_STATE_DISCONNECTED) {
             emit connectClick();
         }
     }
@@ -298,8 +266,7 @@ void EmergencyConnectWindowItem::keyPressEvent(QKeyEvent *event)
 
 void EmergencyConnectWindowItem::onEscClicked()
 {
-    if (state_.connectState == CONNECT_STATE_CONNECTING)
-    {
+    if (state_.connectState == CONNECT_STATE_CONNECTING) {
         emit disconnectClick();
     }
     emit escapeClick();
@@ -349,17 +316,15 @@ void EmergencyConnectWindowItem::transitionToDisconnect()
 
 void EmergencyConnectWindowItem::updatePositions()
 {
-    connectButton_->setPos(WINDOW_WIDTH/2*G_SCALE - connectButton_->boundingRect().width()/2, CONNECT_BUTTON_POS_Y * G_SCALE);
-    disconnectButton_->setPos(WINDOW_WIDTH/2*G_SCALE - disconnectButton_->boundingRect().width()/2, DISCONNECT_BUTTON_POS_Y * G_SCALE);
+    connectButton_->setPos(WINDOW_WIDTH/2*G_SCALE - connectButton_->boundingRect().width()/2, CONNECT_BUTTON_POS_Y*G_SCALE);
+    disconnectButton_->setPos(WINDOW_WIDTH/2*G_SCALE - disconnectButton_->boundingRect().width()/2, DISCONNECT_BUTTON_POS_Y*G_SCALE);
     escButton_->setPos(WINDOW_MARGIN*G_SCALE, WINDOW_MARGIN*G_SCALE);
-    textLinkButton_->setPos( CommonGraphics::centeredOffset(LOGIN_WIDTH * G_SCALE, textLinkButton_->boundingRect().width()), LINK_TEXT_POS_Y * G_SCALE);
+    accessText_->setFixedWidth(WINDOW_WIDTH*G_SCALE);
+    accessText_->move(0, LINK_TEXT_POS_Y*G_SCALE);
 
 #ifdef Q_OS_WIN
     closeButton_->setPos((LOGIN_WIDTH - 16 - WINDOW_MARGIN)*G_SCALE, 14*G_SCALE);
     minimizeButton_->setPos((LOGIN_WIDTH -16 - WINDOW_MARGIN -32)*G_SCALE, 14*G_SCALE);
-#else
-    //minimizeButton_->setPos(28 * G_SCALE, 8 * G_SCALE);
-    //closeButton_->setPos(8 * G_SCALE, 8 * G_SCALE);
 #endif
 }
 
@@ -408,8 +373,7 @@ void EmergencyConnectWindowItem::onSpinnerRotation(const QVariant &value)
 
     // restart until stopped
     int diff = abs(curSpinnerRotation_ - curTargetRotation_);
-    if (spinnerRotationAnimationActive_ &&  diff < 5) //  close enough
-    {
+    if (spinnerRotationAnimationActive_ &&  diff < 5) { //  close enough
         curSpinnerRotation_ = lastSpinnerRotationStart_ % TARGET_ROTATION; // prevents overflow and allows smooth restarts
         startSpinnerAnimation();
     }
@@ -417,29 +381,15 @@ void EmergencyConnectWindowItem::onSpinnerRotation(const QVariant &value)
     update();
 }
 
-void EmergencyConnectWindowItem::onTextLinkWidthChanged()
-{
-    textLinkButton_->setPos(CommonGraphics::centeredOffset(LOGIN_WIDTH*G_SCALE, textLinkButton_->boundingRect().width()), LINK_TEXT_POS_Y*G_SCALE);
-}
-
 void EmergencyConnectWindowItem::onLanguageChanged()
 {
-    textLinkButton_->setPos(CommonGraphics::centeredOffset(LOGIN_WIDTH*G_SCALE, textLinkButton_->boundingRect().width()), LINK_TEXT_POS_Y*G_SCALE);
     connectButton_->setText(tr("Connect"));
     disconnectButton_->setText(tr("Disconnect"));
-}
-
-void EmergencyConnectWindowItem::onDockedModeChanged(bool /*bIsDockedToTray*/)
-{
-#if defined(Q_OS_MAC)
-    //minimizeButton_->setVisible(!bIsDockedToTray);
-#endif
 }
 
 void EmergencyConnectWindowItem::onTitleOpacityChange(const QVariant &value)
 {
     curTitleOpacity_ = value.toDouble();
-
     update();
 }
 

@@ -151,18 +151,10 @@
     </message>
 </context>
 <context>
-    <name>EmergencyConnectWindow::TextLinkButton</name>
+    <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
-        <source>Access for  Windscribe.com  Only</source>
-        <translation>Yalnızca Windscribe.com için Erişim</translation>
-    </message>
-    <message>
-        <source>Access for  </source>
-        <translation>Erişim için  </translation>
-    </message>
-    <message>
-        <source>  Only</source>
-        <translation>  Sadece</translation>
+        <source>Access for %1 Only</source>
+        <translation>Yalnızca %1 için erişim</translation>
     </message>
 </context>
 <context>
@@ -794,6 +786,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
         <translation>Windscribe sunucu yapılandırmasını alamadı. Lütfen başka bir protokol deneyin.</translation>
     </message>
+    <message>
+        <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
+        <translation>IKEv2 bağlantısı, MacOS Kilitleme Modu&apos;nda kullanılamaz. Lütfen Sistem Ayarları&apos;nda Kilitleme Modu&apos;nu devre dışı bırakın veya bağlantı ayarlarınızı değiştirin.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1206,6 +1202,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
         <translation>LAN Trafiğine İzin Ver&apos;i devre dışı bırakmak, güvenli erişim noktanızın çalışmayı durdurmasına neden olur.  Hotspot&apos;u devre dışı bırakmak istiyor musunuz?</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is not supported on your version of MacOS.</source>
+        <translation>MAC sahtekarlığı, MacOS sürümünüzde desteklenmiyor.</translation>
     </message>
 </context>
 <context>

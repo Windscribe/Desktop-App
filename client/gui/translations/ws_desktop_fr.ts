@@ -151,18 +151,10 @@
     </message>
 </context>
 <context>
-    <name>EmergencyConnectWindow::TextLinkButton</name>
+    <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
-        <source>Access for  Windscribe.com  Only</source>
-        <translation>Accès pour Windscribe.com seulement</translation>
-    </message>
-    <message>
-        <source>Access for  </source>
-        <translation>Accès pour  </translation>
-    </message>
-    <message>
-        <source>  Only</source>
-        <translation>  Seulement</translation>
+        <source>Access for %1 Only</source>
+        <translation>Accès pour %1 uniquement</translation>
     </message>
 </context>
 <context>
@@ -794,6 +786,10 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
         <translation>Windscribe n’a pas pu récupérer la configuration du serveur. Veuillez essayer un autre protocole.</translation>
     </message>
+    <message>
+        <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
+        <translation>La connectivité IKEv2 n’est pas disponible en mode de verrouillage de MacOS. Veuillez désactiver le mode de verrouillage dans les paramètres système ou modifier vos paramètres de connexion.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1206,6 +1202,10 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
         <translation>La désactivation de l’option Autoriser le trafic LAN entraînera l’arrêt du fonctionnement de votre point d’accès sécurisé.  Voulez-vous désactiver le hotspot ?</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is not supported on your version of MacOS.</source>
+        <translation>L’usurpation d’adresse MAC n’est pas prise en charge sur votre version de MacOS.</translation>
     </message>
 </context>
 <context>

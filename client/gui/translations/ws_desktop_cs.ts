@@ -151,18 +151,10 @@
     </message>
 </context>
 <context>
-    <name>EmergencyConnectWindow::TextLinkButton</name>
+    <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
-        <source>Access for  Windscribe.com  Only</source>
-        <translation>Přístup pouze pro Windscribe.com</translation>
-    </message>
-    <message>
-        <source>Access for  </source>
-        <translation>Přístup pro  </translation>
-    </message>
-    <message>
-        <source>  Only</source>
-        <translation>  Pouze</translation>
+        <source>Access for %1 Only</source>
+        <translation>Přístup pouze pro %1</translation>
     </message>
 </context>
 <context>
@@ -794,6 +786,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
         <translation>Windscribe nemohl načíst konfiguraci serveru. Zkuste prosím jiný protokol.</translation>
     </message>
+    <message>
+        <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
+        <translation>Připojení IKEv2 není v režimu uzamčení systému macOS k dispozici. Vypněte režim uzamčení v Nastavení systému nebo změňte nastavení připojení.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1206,6 +1202,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
         <translation>Zakázání možnosti Povolit provoz LAN způsobí, že váš zabezpečený hotspot přestane fungovat.  Chcete hotspot deaktivovat?</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is not supported on your version of MacOS.</source>
+        <translation>Falšování identity MAC není ve vaší verzi systému MacOS podporováno.</translation>
     </message>
 </context>
 <context>

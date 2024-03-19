@@ -151,18 +151,10 @@
     </message>
 </context>
 <context>
-    <name>EmergencyConnectWindow::TextLinkButton</name>
+    <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
-        <source>Access for  Windscribe.com  Only</source>
-        <translation>الوصول Windscribe.com فقط</translation>
-    </message>
-    <message>
-        <source>Access for  </source>
-        <translation>الوصول إلى  </translation>
-    </message>
-    <message>
-        <source>  Only</source>
-        <translation>  فقط</translation>
+        <source>Access for %1 Only</source>
+        <translation>الوصول ل ٪1 فقط</translation>
     </message>
 </context>
 <context>
@@ -794,6 +786,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
         <translation>تعذر على Windscribe استرداد تكوين الخادم. يرجى تجربة بروتوكول آخر.</translation>
     </message>
+    <message>
+        <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
+        <translation>لا يتوفر اتصال IKEv2 في وضع تأمين MacOS. يرجى تعطيل وضع القفل في إعدادات النظام أو تغيير إعدادات الاتصال الخاصة بك.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1206,6 +1202,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
         <translation>سيؤدي تعطيل السماح بحركة مرور الشبكة المحلية إلى توقف نقطة الاتصال الآمنة عن العمل.  هل تريد تعطيل نقطة الاتصال؟</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is not supported on your version of MacOS.</source>
+        <translation>انتحال MAC غير مدعوم على إصدار MacOS الخاص بك.</translation>
     </message>
 </context>
 <context>

@@ -210,6 +210,8 @@ signals:
 
     void proxySharingInfoChanged(const types::ProxySharingInfo &psi);
     void wifiSharingInfoChanged(const types::WifiSharingInfo &wsi);
+    void wifiSharingFailed();
+
     void webSessionTokenForManageAccount(const QString &temp_session_token);
     void webSessionTokenForAddEmail(const QString &temp_session_token);
     void webSessionTokenForManageRobertRules(const QString &temp_session_token);

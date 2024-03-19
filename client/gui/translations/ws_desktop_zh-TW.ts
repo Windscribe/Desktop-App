@@ -151,18 +151,10 @@
     </message>
 </context>
 <context>
-    <name>EmergencyConnectWindow::TextLinkButton</name>
+    <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
-        <source>Access for  Windscribe.com  Only</source>
-        <translation>僅限 Windscribe.com 訪問</translation>
-    </message>
-    <message>
-        <source>Access for  </source>
-        <translation>訪問</translation>
-    </message>
-    <message>
-        <source>  Only</source>
-        <translation>只</translation>
+        <source>Access for %1 Only</source>
+        <translation>僅限 %1 的存取許可權</translation>
     </message>
 </context>
 <context>
@@ -794,6 +786,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
         <translation>Windscribe 無法檢索伺服器配置。請嘗試其他協定。</translation>
     </message>
+    <message>
+        <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
+        <translation>IKEv2 連接在MacOS鎖定模式下不可用。請在系統設置中禁用鎖定模式或更改連接設置。</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1206,6 +1202,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
         <translation>禁用允許 LAN 流量將導致您的安全熱點停止工作。 是否要禁用熱點？</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is not supported on your version of MacOS.</source>
+        <translation>您的 MacOS 版本不支援 MAC 欺騙。</translation>
     </message>
 </context>
 <context>

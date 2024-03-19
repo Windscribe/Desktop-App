@@ -24,10 +24,6 @@ fi
 
 # get yml variables
 APP_BUNDLE="com.windscribe.installer.macos"
-line=($(cat $NOTARIZE_YML | grep "apple-id-email:"))
-APPLE_ID_EMAIL=${line[1]}
-line=($(cat $NOTARIZE_YML | grep "apple-id-password:"))
-APPLE_ID_PASSWORD=${line[1]}
 
 echo "Compressing installer"
 ditto -c -k --keepParent "WindscribeInstaller.app" "WindscribeInstaller.zip"

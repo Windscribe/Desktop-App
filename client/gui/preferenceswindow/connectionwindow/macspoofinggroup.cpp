@@ -174,4 +174,12 @@ void MacSpoofingGroup::onLanguageChanged()
     updateMode();
 }
 
+void MacSpoofingGroup::setEnabled(bool enabled)
+{
+    checkBoxEnable_->setEnabled(enabled);
+    if (!enabled) {
+        checkBoxEnable_->setState(false);
+    }
+}
+
 } // namespace PreferencesWindow

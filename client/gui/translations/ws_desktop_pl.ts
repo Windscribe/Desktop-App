@@ -151,18 +151,10 @@
     </message>
 </context>
 <context>
-    <name>EmergencyConnectWindow::TextLinkButton</name>
+    <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
-        <source>Access for  Windscribe.com  Only</source>
-        <translation>Dostęp tylko do  Windscribe.com</translation>
-    </message>
-    <message>
-        <source>Access for  </source>
-        <translation>Dostęp do  </translation>
-    </message>
-    <message>
-        <source>  Only</source>
-        <translation>  tylko</translation>
+        <source>Access for %1 Only</source>
+        <translation>Dostęp tylko dla %1</translation>
     </message>
 </context>
 <context>
@@ -794,6 +786,10 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
         <translation>Windscribe nie mógł pobrać konfiguracji serwera. Wypróbuj inny protokół.</translation>
     </message>
+    <message>
+        <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
+        <translation>Łączność IKEv2 nie jest dostępna w trybie blokady systemu MacOS. Wyłącz tryb blokady w Ustawieniach systemowych lub zmień ustawienia połączenia.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1206,6 +1202,10 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
         <translation>Wyłączenie opcji Zezwalaj na ruch w sieci LAN spowoduje, że bezpieczny hotspot przestanie działać.  Czy chcesz wyłączyć hotspot?</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is not supported on your version of MacOS.</source>
+        <translation>Podszywanie się pod adresy MAC nie jest obsługiwane w używanej wersji systemu MacOS.</translation>
     </message>
 </context>
 <context>

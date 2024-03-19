@@ -646,6 +646,7 @@ void Engine::initPart2()
     vpnShareController_ = new VpnShareController(this, helper_);
     connect(vpnShareController_, &VpnShareController::connectedWifiUsersChanged, this, &Engine::wifiSharingStateChanged);
     connect(vpnShareController_, &VpnShareController::connectedProxyUsersChanged, this, &Engine::proxySharingStateChanged);
+    connect(vpnShareController_, &VpnShareController::wifiSharingFailed, this, &Engine::wifiSharingFailed);
 
     keepAliveManager_ = new KeepAliveManager(this, connectStateController_);
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());
@@ -1330,6 +1331,21 @@ void Engine::onConnectionManagerConnected()
         }
     }
 
+    // For Windows we should to set the custom dns for the adapter explicitly except WireGuard protocol
+#ifdef Q_OS_WIN
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    if (connectionManager_->connectedDnsInfo().type == CONNECTED_DNS_TYPE_CUSTOM && connectionManager_->currentProtocol() != types::Protocol::WIREGUARD)
+    {
+        WS_ASSERT(connectionManager_->getVpnAdapterInfo().dnsServers().count() == 1);
+        if (!helper_win->setCustomDnsWhileConnected( connectionManager_->getVpnAdapterInfo().ifIndex(),
+                                                    connectionManager_->getVpnAdapterInfo().dnsServers().first()))
+        {
+            qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
+        }
+    }
+    helper_win->setIPv6EnabledInFirewall(false);
+#endif
+
     bool result = helper_->sendConnectStatus(true, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
                                              connectionManager_->getDefaultAdapterInfo(), connectionManager_->getVpnAdapterInfo(),
                                              connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
@@ -1346,20 +1362,6 @@ void Engine::onConnectionManagerConnected()
             locationId_.isCustomConfigsLocation());
     }
 
-    // For Windows we should to set the custom dns for the adapter explicitly except WireGuard protocol
-#ifdef Q_OS_WIN
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    if (connectionManager_->connectedDnsInfo().type == CONNECTED_DNS_TYPE_CUSTOM && connectionManager_->currentProtocol() != types::Protocol::WIREGUARD)
-    {
-        WS_ASSERT(connectionManager_->getVpnAdapterInfo().dnsServers().count() == 1);
-        if (!helper_win->setCustomDnsWhileConnected( connectionManager_->getVpnAdapterInfo().ifIndex(),
-                                                     connectionManager_->getVpnAdapterInfo().dnsServers().first()))
-        {
-            qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
-        }
-    }
-    helper_win->setIPv6EnabledInFirewall(false);
-#endif
 
     if (connectionManager_->currentProtocol().isIkev2Protocol() || connectionManager_->currentProtocol().isWireGuardProtocol())
     {
@@ -1409,6 +1411,7 @@ void Engine::onConnectionManagerConnected()
     WSNet::instance()->httpNetworkManager()->setProxySettings();
 
     DnsServersConfiguration::instance().setConnectedState(connectionManager_->getVpnAdapterInfo().dnsServers());
+    WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
 
     if (engineSettings_.isTerminateSockets())
     {
@@ -1493,6 +1496,7 @@ void Engine::onConnectionManagerReconnecting()
     qCDebug(LOG_BASIC) << "on reconnecting event";
 
     DnsServersConfiguration::instance().setDisconnectedState();
+    WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
 
     if (firewallController_->firewallActualState()) {
         firewallController_->firewallOn(
@@ -1916,6 +1920,7 @@ void Engine::onEmergencyControllerConnected()
     // disable proxy
     WSNet::instance()->httpNetworkManager()->setProxySettings();
     DnsServersConfiguration::instance().setConnectedState(emergencyController_->getVpnAdapterInfo().dnsServers());
+    WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
 
     emergencyConnectStateController_->setConnectedState(LocationID());
     emit emergencyConnected();
@@ -1929,6 +1934,7 @@ void Engine::onEmergencyControllerDisconnected(DISCONNECT_REASON reason)
     const auto &proxySettings = ProxyServerController::instance().getCurrentProxySettings();
     WSNet::instance()->httpNetworkManager()->setProxySettings(proxySettings.curlAddress().toStdString(), proxySettings.getUsername().toStdString(), proxySettings.getPassword().toStdString());
     DnsServersConfiguration::instance().setDisconnectedState();
+    WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
 
     emergencyConnectStateController_->setDisconnectedState(reason, CONNECT_ERROR::NO_CONNECT_ERROR);
     emit emergencyDisconnected();
@@ -2404,6 +2410,8 @@ void Engine::doDisconnectRestoreStuff()
     const auto &proxySettings = ProxyServerController::instance().getCurrentProxySettings();
     WSNet::instance()->httpNetworkManager()->setProxySettings(proxySettings.curlAddress().toStdString(), proxySettings.getUsername().toStdString(), proxySettings.getPassword().toStdString());
     DnsServersConfiguration::instance().setDisconnectedState();
+    WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
+
 
 #if defined (Q_OS_MAC) || defined(Q_OS_LINUX)
     firewallController_->setInterfaceToSkip_posix("");

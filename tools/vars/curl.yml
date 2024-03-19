@@ -1,7 +1,0 @@
-# ------------------------------------------------------------------------------
-# Windscribe Build System
-# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
-# ------------------------------------------------------------------------------
-variables:
-  VERSION_CURL: '8.5.0'
-  ARTIFACT_CURL: 'curl.zip'

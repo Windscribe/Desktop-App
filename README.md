@@ -10,11 +10,13 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 - Install [git](https://git-scm.com/downloads). When installing Git, you can stick with all the default options presented to you by the installer.
 - Clone the repository.
 - Install Visual Studio Community Edition 2019 (run `install_vs.bat` from `/tools/prepare_build_environment/windows`).
-- Install Python 3 via either the Microsoft Store or from [here](https://www.python.org/downloads/).  Minimum tested version is 3.6.8.
-- Install CMake v3.27.x or newer from [here](https://cmake.org/download/)
+- Install Python 3 via either the Microsoft Store or from [here](https://www.python.org/downloads/). Minimum tested version is 3.6.8.
+- Install CMake v3.28.x or newer from [here](https://cmake.org/download/). The project will build with older versions of CMake, but you may encounter some warnings.
 - Install Ninja v1.10.2 from [here](https://github.com/ninja-build/ninja/releases)
 - Install vcpkg from [here]((https://vcpkg.io/en/getting-started.html)
     - Create a `VCPKG_ROOT` environment variable referencing the full path to your vcpkg install folder.
+    - Go to the vcpkg directory and `git checkout a664e41ee50b61adcc90a44a761eca139a4b7dd7~`, since versions beyond this will fail to build with the current baseline.
+    - Do the bootstrap step after the above command.
 - Verify the following entries are in your System `PATH` environment variable. If they are not, add them to the System `PATH` environment variable and reboot.
     - `C:\Program Files\Git\cmd`
     - `C:\[folder containing ninja.exe]`
@@ -47,7 +49,7 @@ pip install setuptools wheel
 
 ### Build libraries
 
-Go to subfolder `tools/deps` and run the following scripts in order.  Append `--arm64` to the command to build a library for Windows arm64.  Libraries will be placed in `build-libs[-arm64]`.
+Go to subfolder `tools/deps` and run the following scripts in order. Append `--arm64` to the command to build a library for Windows arm64. Libraries will be placed in `build-libs[-arm64]`.
 
 ```
 install_qt
@@ -61,7 +63,7 @@ As of version 2.7, you will need a copy of the [ctrld utility](https://github.co
 
 ### Build the Windscribe 2.0 app
 
-Go to subfolder `tools` and run `build_all`. Assuming all goes well with the build, the installer will be placed in `build-exe`.  You can run `build_all --sign --use-local-secrets` for a code-signed build, using the certificate from the [Install signing certificate](#install-signing-certificate-optional) section above, which will perform run-time signature verification checks on the executables.  Note that an unsigned build must be installed on your PC if you intend to debug the project.  Append `--arm64` to the command to build for Windows arm64.
+Go to subfolder `tools` and run `build_all`. Assuming all goes well with the build, the installer will be placed in `build-exe`. You can run `build_all --sign --use-local-secrets` for a code-signed build, using the certificate from the [Install signing certificate](#install-signing-certificate-optional) section above, which will perform run-time signature verification checks on the executables. Note that an unsigned build must be installed on your PC if you intend to debug the project. Append `--arm64` to the command to build for Windows arm64.
 
 See `build_all --help` for other build options.
 
@@ -79,7 +81,7 @@ See `build_all --help` for other build options.
 
 - macOS Big Sur or newer, but preferably at least Monterey.
 - Install Xcode 14.2 (If on MacOS 11 Big Sur, you may use Xcode 13.2.1, but this is deprecated and not maintained going forward)
-    - Xcode 15 is not currently supported.  You may install a copy of Xcode 14.2 and use `sudo xcode-select --switch /path/to/your/xcode` to have both Xcode 13/14 and 15 simultaneously.
+    - Xcode 15 is not currently supported. You may install a copy of Xcode 14.2 and use `sudo xcode-select --switch /path/to/your/xcode` to have both Xcode 13/14 and 15 simultaneously.
     - You must agree to the Xcode license (`sudo xcodebuild -license`)
     - You may need to run `xcodebuild -runFirstLaunch` or the Xcode GUI once if CMake complains that it can't find the compiler when building using the Xcode generator.
     - Note: these downloads will require you to first login to your Apple account.
@@ -99,7 +101,7 @@ See `build_all --help` for other build options.
   brew install p7zip
 ```
 - Install Python 3:
-    - Minimum tested version is Python 3.6.8. 3.12.0 seems to have some issues with the python deps, so 3.11.6 is the latest recommended version.  You may do this however you like, however `pyenv` is recommended:
+    - Minimum tested version is Python 3.6.8. 3.12.0 seems to have some issues with the python deps, so 3.11.6 is the latest recommended version. You may do this however you like, however `pyenv` is recommended:
 ```bash
   brew install pyenv
   echo 'if command -v pyenv 1>/dev/null 2>&1; then eval "$(pyenv init --path)"; fi"' >> ~/.zshrc
@@ -110,9 +112,12 @@ See `build_all --help` for other build options.
 ```bash
   python3 -m pip install dmgbuild
 ```
-- Install CMake v3.27.x or newer from [here](https://cmake.org/download/) and make sure that the cmake executable is in the path and available for execution.
+
+- Install CMake v3.28.x or newer from [here](https://cmake.org/download/) and make sure that the cmake executable is in the path and available for execution. The project will build with older versions of CMake, but you may encounter some warnings.
 - Install vcpkg from [here](https://vcpkg.io/en/getting-started.html)
     - Create a `VCPKG_ROOT` environment variable referencing the full path to your vcpkg install folder.
+    - Go to the vcpkg directory and `git checkout a664e41ee50b61adcc90a44a761eca139a4b7dd7~`, since versions beyond this will fail to build with the current baseline.
+    - Do the bootstrap step after the above command.
 - Clone the repository.
 - Install python deps:
 ```python
@@ -144,7 +149,7 @@ See `build_all --help` for other build options.
 
 ### Platform Notes:
 - If you make any changes to the helper source code `backend/mac/helper/src`, you must increase the `CFBundleVersion` in `backend/mac/helper/src/helper-info.plist`. The installer only updates the helper if this bundle version number has changed.
-- The IKEv2 protocol will only function in builds produced by Windscribe.  Its implementation on macOS utilizes the NEVPNManager API, which requires the 'Personal VPN' entitlement (`com.apple.developer.networking.vpn.api`) and an embedded provisioning profile file.  If you wish to enable IKEv2 functionality, you will have to create an embedded provisioning file in your Apple Developer account and use it in the client project (Search for `embedded.provisionprofile` in `client/CMakeLists.txt` for details on where to place the embedded provisioning profile).
+- The IKEv2 protocol will only function in builds produced by Windscribe. Its implementation on macOS utilizes the NEVPNManager API, which requires the 'Personal VPN' entitlement (`com.apple.developer.networking.vpn.api`) and an embedded provisioning profile file. If you wish to enable IKEv2 functionality, you will have to create an embedded provisioning file in your Apple Developer account and use it in the client project (Search for `embedded.provisionprofile` in `client/CMakeLists.txt` for details on where to place the embedded provisioning profile).
 
 ### Logs
 
@@ -184,12 +189,14 @@ Build process tested on Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
   sudo apt-get update
   sudo apt-get install build-essential git curl patchelf libpam0g-dev software-properties-common libgl1-mesa-dev fakeroot python3-pip zip unzip libnl-genl-3-dev pkg-config libcap-ng-dev wget autoconf libtool libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-cursor-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libwayland-dev
 
-  # install cmake 3.27.x or newer (default for Ubuntu 20.04 is 3.16.3).
+  # install CMake 3.28.x or newer (default for Ubuntu 20.04 is 3.16.3).
   # Make sure that the cmake executable is in the path and available for execution.
   sudo snap install cmake --classic
 ```
 - Install vcpkg from [here](https://vcpkg.io/en/getting-started.html)
     - Create a `VCPKG_ROOT` environment variable referencing the full path to your vcpkg install folder.
+    - Go to the vcpkg directory and `git checkout a664e41ee50b61adcc90a44a761eca139a4b7dd7~`, since versions beyond this will fail to build with the current baseline.
+    - Do the bootstrap step after the above command.
 - Install golang (minimum version 1.18): follow instructions from `https://go.dev/doc/install`
 - Clone the repository.
 - Install python deps:
@@ -199,7 +206,7 @@ Build process tested on Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
 
 ### Build libraries
 
-Go to subfolder `tools/deps` and run the following scripts in order. Libraries will be placed in `build-libs`.  When building Qt6, you may encounter an error relating to `check_for_ulimit`.  If so, downgrade to CMake version 3.24.
+Go to subfolder `tools/deps` and run the following scripts in order. Libraries will be placed in `build-libs`. When building Qt6, you may encounter an error relating to `check_for_ulimit`. If so, downgrade to CMake version 3.24.
 
 ```
 install_qt

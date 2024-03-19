@@ -151,18 +151,10 @@
     </message>
 </context>
 <context>
-    <name>EmergencyConnectWindow::TextLinkButton</name>
+    <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
-        <source>Access for  Windscribe.com  Only</source>
-        <translation>Доступ лише для Windscribe.com</translation>
-    </message>
-    <message>
-        <source>Access for  </source>
-        <translation>Доступ для  </translation>
-    </message>
-    <message>
-        <source>  Only</source>
-        <translation>  Тільки</translation>
+        <source>Access for %1 Only</source>
+        <translation>Доступ лише для %1</translation>
     </message>
 </context>
 <context>
@@ -794,6 +786,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
         <translation>Windscribe не зміг отримати конфігурацію сервера. Будь ласка, спробуйте інший протокол.</translation>
     </message>
+    <message>
+        <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
+        <translation>Підключення IKEv2 недоступне в режимі блокування MacOS. Будь ласка, вимкніть режим блокування у Системних параметрах або змініть параметри з&apos;єднання.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1206,6 +1202,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
         <translation>Вимкнення параметра «Дозволити трафік локальної мережі» призведе до того, що ваша безпечна точка доступу перестане працювати.  Хочете відключити точку доступу?</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is not supported on your version of MacOS.</source>
+        <translation>Підміна MAC не підтримується у вашій версії MacOS.</translation>
     </message>
 </context>
 <context>

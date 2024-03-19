@@ -151,18 +151,10 @@
     </message>
 </context>
 <context>
-    <name>EmergencyConnectWindow::TextLinkButton</name>
+    <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
-        <source>Access for  Windscribe.com  Only</source>
-        <translation>Acesso apenas para Windscribe.com</translation>
-    </message>
-    <message>
-        <source>Access for  </source>
-        <translation>Acesso para  </translation>
-    </message>
-    <message>
-        <source>  Only</source>
-        <translation>  Apenas</translation>
+        <source>Access for %1 Only</source>
+        <translation>Acesso apenas para %1</translation>
     </message>
 </context>
 <context>
@@ -794,6 +786,10 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
         <translation>O Windscribe não pôde recuperar a configuração do servidor. Por favor, tente outro protocolo.</translation>
     </message>
+    <message>
+        <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
+        <translation>A conectividade IKEv2 não está disponível no Modo de Bloqueio do MacOS. Desative o Modo de Bloqueio nas Configurações do Sistema ou altere as configurações de conexão.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1206,6 +1202,10 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
         <translation>Desativar Permitir tráfego LAN fará com que seu hotspot seguro pare de funcionar.  Deseja desativar o hotspot?</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is not supported on your version of MacOS.</source>
+        <translation>A falsificação de MAC não é suportada na sua versão do MacOS.</translation>
     </message>
 </context>
 <context>

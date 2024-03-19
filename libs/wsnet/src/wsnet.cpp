@@ -14,7 +14,7 @@
 #include "pingmanager/pingmanager.h"
 #include "advancedparameters.h"
 #include "connectstate.h"
-#include "wsnet_version.h"
+#include "../../../client/common/version/windscribe_version.h"
 
 #if defined(__ANDROID__)
     #include <scapix/bridge/java/on_load.h>
@@ -46,7 +46,7 @@ public:
 
     bool initializeImpl(const std::string &platformName,const std::string &appVersion, bool isUseStagingDomains, const std::string &serverApiSettings)
     {
-        spdlog::info("wsnet version: {}.{}.{}", wsnet_VERSION_MAJOR, wsnet_VERSION_MINOR, wsnet_VERSION_PATCH);
+        spdlog::info("wsnet version: {}.{}.{}", WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION, WINDSCRIBE_BUILD_VERSION);
 
         dnsResolver_ = std::make_shared<DnsResolver_cares>();
         if (!dnsResolver_->init()) {

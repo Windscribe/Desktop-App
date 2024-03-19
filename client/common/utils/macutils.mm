@@ -64,6 +64,13 @@ QString MacUtils::getOsVersion()
     return QString::fromCFString((__bridge CFStringRef)osVer);
 }
 
+bool MacUtils::isOsVersionAtLeast(int major, int minor)
+{
+    NSProcessInfo *processInfo = [NSProcessInfo processInfo];
+    NSOperatingSystemVersion version = { major, minor, 0 };
+    return [processInfo isOperatingSystemAtLeastVersion:version];
+}
+
 void MacUtils::hideDockIcon()
 {
     ProcessSerialNumber psn = { 0, kCurrentProcess };
@@ -239,4 +246,10 @@ bool MacUtils::isParentProcessGui()
         }
     }
     return false;
+}
+
+bool MacUtils::isLockdownMode()
+{
+    QString response = Utils::execCmd("defaults read .GlobalPreferences.plist LDMGlobalEnabled");
+    return response.trimmed() == "1";
 }

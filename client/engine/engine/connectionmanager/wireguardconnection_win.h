@@ -59,6 +59,7 @@ private:
     void onTunnelConnected();
     void onWireguardHandshakeFailure();
     bool startService();
+    void stopService();
     void stop();
 
     static void CALLBACK checkServiceRunningProc(LPVOID lpArgToCompletionRoutine, DWORD dwTimerLowValue, DWORD dwTimerHighValue);

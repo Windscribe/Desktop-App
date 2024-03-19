@@ -43,7 +43,7 @@ QString Utils::getOSVersion()
 #ifdef Q_OS_WIN
     return WinUtils::getWinVersionString();
 #elif defined Q_OS_MAC
-    return ("OS X " + MacUtils::getOsVersion());
+    return ("MacOS " + MacUtils::getOsVersion());
 #elif defined Q_OS_LINUX
     return LinuxUtils::getOsVersionString();
 #endif

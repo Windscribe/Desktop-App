@@ -30,6 +30,10 @@ void SelectedLocation::set(const LocationID &lid)
 void SelectedLocation::clear()
 {
     setInvalid();
+    firstName_.clear();
+    secondName_.clear();
+    countryCode_.clear();
+    pingTime_ = PingTime::NO_PING_INFO;
 }
 
 void SelectedLocation::checkForRemove()

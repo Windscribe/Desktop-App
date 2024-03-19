@@ -215,6 +215,13 @@ void WireGuardConnection::run()
         break;
     }
 
+    // The stop service command will block waiting for the service to stop.  Do it here rather than
+    // having the helper block while deleting the service.  Also provides some symmetry since we
+    // started the service.
+    if (serviceStarted) {
+        stopService();
+    }
+
     if (helper_->stopWireGuard()) {
         configFile.clear();
     }
@@ -357,6 +364,19 @@ bool WireGuardConnection::startService()
     }
 
     return false;
+}
+
+void WireGuardConnection::stopService()
+{
+    try {
+        wsl::ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_CONNECT);
+        scm.openService(kServiceName.c_str(), SERVICE_QUERY_STATUS | SERVICE_STOP);
+        scm.stopService();
+    }
+    catch (std::system_error& ex) {
+        qCDebug(LOG_CONNECTION) << ex.what();
+    }
 }
 
 void WireGuardConnection::onTunnelConnected()

@@ -75,7 +75,7 @@ set(SOURCES
 )
 
 # -Wno-shorten-64-to-32 to silence warnings in pstream.h
-set(CMAKE_CXX_FLAGS "-fvisibility=hidden -Wno-shorten-64-to-32")
+set(CMAKE_CXX_FLAGS "-Wno-shorten-64-to-32")
 
 add_executable(com.windscribe.helper.macos ${SOURCES})
 set_property(TARGET com.windscribe.helper.macos PROPERTY COMPILE_WARNING_AS_ERROR ON)

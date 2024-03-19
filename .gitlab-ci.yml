@@ -14,12 +14,10 @@ variables:
   NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/current'
   NEXUS_PATH_BRANCH_UPLOAD: '${NEXUS_PATH_ROOT}/branches/${CI_COMMIT_BRANCH}'
   NEXUS_PATH_TAGGED_UPLOAD: '${NEXUS_PATH_ROOT}/tagged-builds'
-  CODE_SIGNING_LINUX_PATH: 'client/common/keys/linux'
-  CODE_SIGNING_LINUX_PRIVATE_KEY_FILE: '$CODE_SIGNING_LINUX_PATH/key.pem'
-  CODE_SIGNING_LINUX_PUBLIC_KEY_FILE: '$CODE_SIGNING_LINUX_PATH/key.pub'
-  NOTARIZE_YML_PATH: 'tools/notarize.yml'
-  CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH : 'backend/mac/provisioning_profile'
-  CODE_SIGNING_PROVISION_PROFILE_PATH: '$CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH/embedded.provisionprofile'
+  LINUX_SIGNING_PATH: 'client/common/keys/linux'
+  LINUX_PUBLIC_KEY_PATH: '$LINUX_SIGNING_PATH/key.pub'
+  MAC_PROVISION_PROFILE_PATH : 'backend/mac/provisioning_profile'
+  MAC_PROVISION_PROFILE_FILE_PATH: '$MAC_PROVISION_PROFILE_PATH/embedded.provisionprofile'
   ARCH_LINUX_BUILD_PATH: '/home/build/windscribe'
   RHEL_CMAKE_BUILD_PATH: '/home/build/windscribe'
   BUILD_LIBS_FOLDER: 'build-libs'
@@ -104,10 +102,10 @@ variables:
     # Qt 6 dependencies
     - dnf install -y fontconfig-devel freetype-devel libX11-devel libxcb-devel xcb-util-devel xcb-util-image-devel xcb-util-cursor-devel xcb-util-keysyms-devel xcb-util-renderutil-devel libxkbcommon-x11-devel wayland-devel
     - python3 -m pip install --user -r tools/requirements.txt
-    # install cmake 3.23.x (default for Fedora 29 is 3.14.5)
-    - wget -q -N https://cmake.org/files/v3.27/cmake-3.27.1-linux-x86_64.sh -P ${RHEL_CMAKE_BUILD_PATH}
-    - chmod u+x ${RHEL_CMAKE_BUILD_PATH}/cmake-3.27.1-linux-x86_64.sh
-    - ${RHEL_CMAKE_BUILD_PATH}/cmake-3.27.1-linux-x86_64.sh --skip-license --exclude-subdir --prefix=${RHEL_CMAKE_BUILD_PATH}
+    # install cmake 3.28.x (default for Fedora 29 is 3.14.5)
+    - wget -q -N https://cmake.org/files/v3.28/cmake-3.28.3-linux-x86_64.sh -P ${RHEL_CMAKE_BUILD_PATH}
+    - chmod u+x ${RHEL_CMAKE_BUILD_PATH}/cmake-3.28.3-linux-x86_64.sh
+    - ${RHEL_CMAKE_BUILD_PATH}/cmake-3.28.3-linux-x86_64.sh --skip-license --exclude-subdir --prefix=${RHEL_CMAKE_BUILD_PATH}
     - export PATH=${RHEL_CMAKE_BUILD_PATH}/bin:$PATH
     # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
     - chmod -R o-w installer/linux
@@ -162,17 +160,6 @@ variables:
     - !reference [.download_dependency_wireguard, script]
     - !reference [.download_dependency_wstunnel, script]
 
-.sign_win_app_common:
-  script:
-    # query vault for secrets
-    - Set-Variable -name VAULT_CLIENT_TOKEN -value $(curl --cacert tools/cacert.pem
-      --data "{\`"role_id\`":\`"$VAULT_ROLE_ID\`",\`"secret_id\`":\`"$VAULT_SECRET_ID\`"}"
-      $VAULT_ADDR/v1/auth/approle/login | python3 tools/base/vaulthelper.py --get-client-token)
-    # get the secrets JSON and put in VAULT_RESPONSE_JSON
-    - "Set-Variable -name VAULT_RESPONSE_JSON -value $(curl --cacert tools/cacert.pem -H \"X-Vault-Token: $VAULT_CLIENT_TOKEN\" $VAULT_ADDR/v1/kv/cicd/client-desktop)"
-    # parse the secrets
-    - $env:TOKEN_PASSWORD = $(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-token-password)
-
 build:win:x64:app:
   <<: *template_win10_build
   stage: Build
@@ -220,7 +207,6 @@ sign:win:app:
   variables:
     GIT_STRATEGY: clone
   script:
-    - !reference [.sign_win_app_common, script]
     - if ($BUILD_WIN -eq "y") { tools/build_all --sign-app --ci-mode }
     - if ($BUILD_WIN_ARM64 -eq "y") { tools/build_all --sign-app --arm64 --ci-mode }
   artifacts:
@@ -268,7 +254,6 @@ sign:win:installer:
   variables:
     GIT_STRATEGY: clone
   script:
-    - !reference [.sign_win_app_common, script]
     - if ($BUILD_WIN -eq "y") { tools/build_all --sign-installer --ci-mode }
     - if ($BUILD_WIN_ARM64 -eq "y") { tools/build_all --sign-installer --arm64 --ci-mode }
   artifacts:
@@ -317,7 +302,6 @@ sign:win:bootstrap:
     GIT_STRATEGY: clone
   script:
     - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
-    - !reference [.sign_win_app_common, script]
     - if ($BUILD_WIN -eq "y") {
       tools/build_all --sign-bootstrap --ci-mode;
       Set-Variable -name OS_IDENTIFIER -value "windows";
@@ -351,23 +335,22 @@ sign:win:bootstrap:tagged:
     GIT_STRATEGY: clone
   script:
     - Set-Variable -name VERSION -value $(python3 tools/base/extract.py);
-    - Set-Variable -name VERSION_NO_SUFFIX -value $(python3 tools/base/extract.py --no-suffix)
-    - !reference [.sign_win_app_common, script]
+    - Set-Variable -name TAG -value $($CI_COMMIT_TAG -replace '^v([0-9].*)','$1')
     - if ($BUILD_WIN -eq "y") {
       tools/build_all --sign-bootstrap --ci-mode;
       Set-Variable -name OS_IDENTIFIER -value "windows";
       curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/Windscribe_$VERSION.exe";
+      --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_$VERSION.exe";
       curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/WindscribeSymbols_$VERSION.zip"
+      --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/WindscribeSymbols_$VERSION.zip"
       }
     - if ($BUILD_WIN_ARM64 -eq "y") {
       tools/build_all --sign-bootstrap --arm64 --ci-mode;
       Set-Variable -name OS_IDENTIFIER -value "windows-arm64";
       curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/Windscribe_${VERSION}_arm64.exe";
+      --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_arm64.exe";
       curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/WindscribeSymbols_${VERSION}_arm64.zip"
+      --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/WindscribeSymbols_${VERSION}_arm64.zip"
       }
   needs:
     - job: build:win:x64:bootstrap
@@ -492,12 +475,10 @@ build:win:arm64:bootstrap:
     - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
     # parse the secrets
     - PROVISION_PROFILE_BASE64=$(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-mac-provision-profile)
-    - NOTARIZE_YML=$(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-notarize-yml)
     # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
     # use echo -e to print \n as newlines
-    - echo -e $NOTARIZE_YML > $NOTARIZE_YML_PATH
-    - mkdir -p $CODE_SIGNING_PROVISION_PROFILE_FOLDER_PATH
-    - echo -e $PROVISION_PROFILE_BASE64 | base64 -d > $CODE_SIGNING_PROVISION_PROFILE_PATH
+    - mkdir -p $MAC_PROVISION_PROFILE_PATH
+    - echo -e ${PROVISION_PROFILE_BASE64} | base64 -d > $MAC_PROVISION_PROFILE_FILE_PATH
     - VERSION=$(python3 tools/base/extract.py)
 
 build:mac:installer:
@@ -535,8 +516,9 @@ build:mac:installer:tagged:
     # Only tagged builds are notarized
     - tools/build_all --ci-mode --notarize --sign
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
+    - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/Windscribe_$VERSION.dmg"
+      --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_$VERSION.dmg"
   rules:
     - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG != null
 
@@ -544,22 +526,11 @@ build:mac:installer:tagged:
   script:
     - !reference [.download_dependencies_posix, script]
     - if [ -d ./${BUILD_LIBS_FOLDER}/ ]; then for z in ./${BUILD_LIBS_FOLDER}/*.zip; do unzip -qod ./${BUILD_LIBS_FOLDER} $z; done; fi
-    # extractions
-    - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem
-      --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
-      $VAULT_ADDR/v1/auth/approle/login | python3 tools/base/vaulthelper.py --get-client-token)
-    # get the secrets JSON and put in VAULT_RESPONSE_JSON
-    # Note: the single quotes MUST be used here or we'll get a syntax error
-    - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
-    # parse the secrets
-    - LINUX_PRIV_KEY=$(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-linux-priv-key)
-    # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
-    # use echo -e to print \n as newlines
-    - mkdir -p $CODE_SIGNING_LINUX_PATH
-    - echo -e $LINUX_PRIV_KEY > $CODE_SIGNING_LINUX_PRIVATE_KEY_FILE
+    # write public key to file
+    - mkdir -p ${LINUX_SIGNING_PATH}
     # create the public key from the private key
-    - openssl rsa -in $CODE_SIGNING_LINUX_PRIVATE_KEY_FILE -pubout > $CODE_SIGNING_LINUX_PUBLIC_KEY_FILE
-    # build the application/installer
+    - echo -e ${LINUX_SIGNING_KEY} | openssl rsa -in /dev/stdin -pubout > $LINUX_PUBLIC_KEY_PATH
+    - export LINUX_SIGNING_KEY_FORMATTED="`echo -e ${LINUX_SIGNING_KEY}`"
     - VERSION=$(python3 tools/base/extract.py)
 
 build:aarch64_ubuntu:installer:
@@ -605,8 +576,9 @@ build:aarch64_ubuntu:installer:tagged:
     - !reference [.build_linux_installer_common, script]
     - tools/build_all --ci-mode --sign
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
+    - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_arm64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_arm64.deb"
+      --upload-file build-exe/windscribe_${VERSION}_arm64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_arm64.deb"
   timeout: 4 hours
   rules:
     - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG != null
@@ -653,10 +625,11 @@ build:rhel:installer:tagged:
     - !reference [.build_linux_installer_common, script]
     - tools/build_all --ci-mode --sign --build-deb --build-rpm
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
+    - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_x86_64.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.rpm"
+      --upload-file build-exe/windscribe_${VERSION}_x86_64.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_x86_64.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb"
+      --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64.deb"
 
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null
@@ -714,9 +687,10 @@ build:archlinux:installer:tagged:
     - !reference [.build_archlinux_installer_prep_build_dir, script]
     - export APP_DOWNLOAD_URL=${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb
     - !reference [.build_archlinux_installer_makepkg, script]
+    - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file ${ARCH_LINUX_BUILD_PATH}/windscribe-$VERSION_NO_SUFFIX-1-x86_64.pkg.tar.zst
-      "${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.pkg.tar.zst"
+      "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_x86_64.pkg.tar.zst"
   needs:
     - job: "build:rhel:installer:tagged"
       optional: true
@@ -743,13 +717,13 @@ build:artifact:links:tagged:
   stage: Artifact Links
   script:
     - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
-    - Set-Variable -name VERSION_NO_SUFFIX -value $(python3 tools/base/extract.py --no-suffix)
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/Windscribe_$VERSION.exe
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/Windscribe_${VERSION}_arm64.exe
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/Windscribe_$VERSION.dmg
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.rpm
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_x86_64.pkg.tar.zst
+    - Set-Variable -name TAG -value $($CI_COMMIT_TAG -replace '^v([0-9].*)','$1')
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_$VERSION.exe
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_arm64.exe
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_$VERSION.dmg
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64.deb
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_x86_64.rpm
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_x86_64.pkg.tar.zst
   dependencies: []
   rules:
     - if: $CI_COMMIT_TAG != null

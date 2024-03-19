@@ -77,6 +77,7 @@ void Backend::init()
     connect(engine_, &Engine::lostConnectionToHelper, this, &Backend::onEngineLostConnectionToHelper);
     connect(engine_, &Engine::proxySharingStateChanged, this, &Backend::onEngineProxySharingStateChanged);
     connect(engine_, &Engine::wifiSharingStateChanged, this, &Backend::onEngineWifiSharingStateChanged);
+    connect(engine_, &Engine::wifiSharingFailed, this, &Backend::wifiSharingFailed);
     connect(engine_, &Engine::signOutFinished, this, &Backend::onEngineSignOutFinished);
     connect(engine_, &Engine::gotoCustomOvpnConfigModeFinished, this, &Backend::onEngineGotoCustomOvpnConfigModeFinished);
     connect(engine_, &Engine::detectionCpuUsageAfterConnected, this, &Backend::onEngineDetectionCpuUsageAfterConnected);

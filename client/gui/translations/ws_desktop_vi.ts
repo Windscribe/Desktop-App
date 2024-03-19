@@ -151,18 +151,10 @@
     </message>
 </context>
 <context>
-    <name>EmergencyConnectWindow::TextLinkButton</name>
+    <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
-        <source>Access for  Windscribe.com  Only</source>
-        <translation>Chỉ quyền truy cập cho Windscribe.com</translation>
-    </message>
-    <message>
-        <source>Access for  </source>
-        <translation>Truy cập cho  </translation>
-    </message>
-    <message>
-        <source>  Only</source>
-        <translation>  Chỉ</translation>
+        <source>Access for %1 Only</source>
+        <translation>Chỉ truy cập cho %1</translation>
     </message>
 </context>
 <context>
@@ -794,6 +786,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
         <translation>Windscribe không thể truy xuất cấu hình máy chủ. Vui lòng thử một giao thức khác.</translation>
     </message>
+    <message>
+        <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
+        <translation>Kết nối IKEv2 không khả dụng trong Chế độ khóa MacOS. Vui lòng tắt Chế độ khóa trong Cài đặt hệ thống hoặc thay đổi cài đặt kết nối của bạn.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1206,6 +1202,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
         <translation>Vô hiệu hóa Cho phép lưu lượng mạng LAN sẽ khiến điểm phát sóng an toàn của bạn ngừng hoạt động.  Bạn có muốn tắt điểm phát sóng không?</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is not supported on your version of MacOS.</source>
+        <translation>Giả mạo MAC không được hỗ trợ trên phiên bản MacOS của bạn.</translation>
     </message>
 </context>
 <context>

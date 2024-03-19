@@ -151,18 +151,10 @@
     </message>
 </context>
 <context>
-    <name>EmergencyConnectWindow::TextLinkButton</name>
+    <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
-        <source>Access for  Windscribe.com  Only</source>
-        <translation>Доступ только к Windscribe.com</translation>
-    </message>
-    <message>
-        <source>Access for  </source>
-        <translation>Доступ к  </translation>
-    </message>
-    <message>
-        <source>  Only</source>
-        <translation>  Только</translation>
+        <source>Access for %1 Only</source>
+        <translation>Доступ только для %1</translation>
     </message>
 </context>
 <context>
@@ -794,6 +786,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
         <translation>Windscribe не удалось получить конфигурацию сервера. Пожалуйста, попробуйте другой протокол.</translation>
     </message>
+    <message>
+        <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
+        <translation>Подключение IKEv2 недоступно в режиме блокировки MacOS. Пожалуйста, отключите режим блокировки в системных настройках или измените настройки подключения.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1206,6 +1202,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
         <translation>Отключение параметра «Разрешить трафик локальной сети» приведет к тому, что ваша защищенная точка доступа перестанет работать.  Вы хотите отключить точку доступа?</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is not supported on your version of MacOS.</source>
+        <translation>Подмена MAC-адресов не поддерживается в вашей версии MacOS.</translation>
     </message>
 </context>
 <context>

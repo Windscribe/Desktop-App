@@ -30,9 +30,11 @@ public:
 
 signals:
     void usersCountChanged();
+    void failed();
 
 private slots:
     void onWifiDirectStarted();
+    void onWifiDirectFailed();
 
 private:
     bool isSharingStarted_;

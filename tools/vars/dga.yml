@@ -1,8 +1,0 @@
-# ------------------------------------------------------------------------------
-# Windscribe Build System
-# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
-# ------------------------------------------------------------------------------
-variables:
-  VERSION_DGA: '1.0'
-  BUILDROOT_DGA: 'build-libs/dga'
-  ARTIFACT_DGA: 'dga.zip'

@@ -128,7 +128,8 @@ void ServerAPI_impl::executeRequest(std::unique_ptr<BaseRequest> request)
         if (failoverState_ == FailoverState::kFromSettingsUnknown || failoverState_ == FailoverState::kUnknown) {
             bUseFailover = true;
         } else if (failoverState_ == FailoverState::kReady || failoverState_ == FailoverState::kFromSettingsReady) {
-            if (!failoverData_->echConfig().empty() && failoverData_->isExpired()) {
+            if (failoverData_->isExpired()) {
+                spdlog::info("The current failover domain is expired. Reset the failover state.");
                 if (failoverState_ == FailoverState::kReady) failoverState_ = FailoverState::kUnknown;
                 else if (failoverState_ == FailoverState::kFromSettingsReady) failoverState_ = FailoverState::kFromSettingsUnknown;
                 else assert(false);

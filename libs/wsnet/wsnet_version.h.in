@@ -1,5 +1,0 @@
-#pragma once
-
-#define wsnet_VERSION_MAJOR @wsnet_VERSION_MAJOR@
-#define wsnet_VERSION_MINOR @wsnet_VERSION_MINOR@
-#define wsnet_VERSION_PATCH @wsnet_VERSION_PATCH@

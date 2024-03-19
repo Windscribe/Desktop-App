@@ -20,6 +20,7 @@ public:
 
 signals:
     void started();
+    void failed();
     void usersCountChanged();
 
 private:

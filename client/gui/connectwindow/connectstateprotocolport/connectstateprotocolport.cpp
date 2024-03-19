@@ -342,6 +342,7 @@ bool ConnectStateProtocolPort::isProtocolButtonVisible() const
 void ConnectStateProtocolPort::setProtocolButtonVisible(bool visible)
 {
     protocolArrow_->setVisible(visible);
+    setEnabled(visible);
 }
 
 void ConnectStateProtocolPort::onHoverEnter()

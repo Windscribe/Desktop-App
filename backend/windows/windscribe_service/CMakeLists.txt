@@ -22,8 +22,7 @@ add_definitions(-DUNICODE -D_UNICODE -DWINDSCRIBE_SERVICE)
 
 project(Service)
 
-find_package(Boost REQUIRED COMPONENTS serialization filesystem)
-find_path(BSHOSHANY_THREAD_POOL_INCLUDE_DIRS "BS_thread_pool.hpp")
+find_package(Boost REQUIRED COMPONENTS serialization)
 
 add_subdirectory(../../../libs/wsnet wsnet)
 
@@ -91,7 +90,6 @@ target_link_libraries(WindscribeService
                       Ws2_32
                       wsnet::wsnet
                       Boost::serialization
-                      Boost::filesystem
 )
 
 target_include_directories(WindscribeService PRIVATE

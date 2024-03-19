@@ -93,7 +93,7 @@ void logSystemInfo()
     } else if (type == CPU_TYPE_ARM) {
         [data appendString: @"arm"];
     } else if (type == CPU_TYPE_ARM64) {
-        [data appendString: @"arm64)"];
+        [data appendString: @"arm64"];
     } else {
         [data appendString: [NSString stringWithFormat:@"Unrecognized (%d)", type]];
     }

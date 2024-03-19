@@ -9,6 +9,7 @@ namespace MacUtils
     void invalidateShadow(void *pNSView);
     void invalidateCursorRects(void *pNSView);
     void getOSVersionAndBuild(QString &osVersion, QString &build);
+    bool isOsVersionAtLeast(int major, int minor);
     QString getOsVersion();
     QString getBundlePath();
 
@@ -16,6 +17,8 @@ namespace MacUtils
     void showDockIcon();
     void setHandCursor();
     void setArrowCursor();
+
+    bool isLockdownMode();
 
     // CLI
     bool isGuiAlreadyRunning();

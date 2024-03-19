@@ -11,7 +11,7 @@ types::Protocol AutoConnSettingsPolicy::lastKnownGoodProtocol_;
 
 AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                                                const api_responses::PortMap &portMap, bool isProxyEnabled,
-                                               const types::Protocol protocol)
+                                               const types::Protocol protocol, bool isLockdownMode)
 {
     attempts_.clear();
     curAttempt_ = 0;
@@ -28,6 +28,10 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
     for (int portMapInd = 0; portMapInd < portMap_.items().count(); ++portMapInd) {
         // skip udp protocol, if proxy enabled
         if (isProxyEnabled && portMap_.items()[portMapInd].protocol == types::Protocol::OPENVPN_UDP) {
+            continue;
+        }
+
+        if (isLockdownMode && portMap_.items()[portMapInd].protocol == types::Protocol::IKEV2) {
             continue;
         }
 

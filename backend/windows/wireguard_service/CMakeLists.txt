@@ -9,11 +9,9 @@ else()
     set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../build-libs)
 endif()
 
-add_definitions(-DUNICODE -D_UNICODE -DBOOST_AUTO_LINK_TAGGED)
+add_definitions(-DUNICODE -D_UNICODE)
 
 project(wireguard_service)
-
-find_package(Boost REQUIRED COMPONENTS filesystem)
 
 set(SOURCES
     ServiceMain.cpp
@@ -25,11 +23,6 @@ add_compile_options("$<$<CONFIG:Release>:/Zi>")
 add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
 
 add_executable(WireguardService ${SOURCES})
-
-target_link_libraries(WireguardService
-                      PRIVATE
-                      Boost::filesystem
-)
 
 target_include_directories(WireguardService PRIVATE
                            ../../../client/common

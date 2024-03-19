@@ -151,18 +151,10 @@
     </message>
 </context>
 <context>
-    <name>EmergencyConnectWindow::TextLinkButton</name>
+    <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
-        <source>Access for  Windscribe.com  Only</source>
-        <translation>Zugang nur für Windscribe.com</translation>
-    </message>
-    <message>
-        <source>Access for  </source>
-        <translation>Zugang für  </translation>
-    </message>
-    <message>
-        <source>  Only</source>
-        <translation>  Nur</translation>
+        <source>Access for %1 Only</source>
+        <translation>Zugriff nur für %1</translation>
     </message>
 </context>
 <context>
@@ -794,6 +786,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
         <translation>Windscribe konnte die Serverkonfiguration nicht abrufen. Bitte versuchen Sie es mit einem anderen Protokoll.</translation>
     </message>
+    <message>
+        <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
+        <translation>Die IKEv2-Konnektivität ist im MacOS-Sperrmodus nicht verfügbar. Bitte deaktivieren Sie den Sperrmodus in den Systemeinstellungen oder ändern Sie Ihre Verbindungseinstellungen.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1206,6 +1202,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
         <translation>Das Deaktivieren von LAN-Datenverkehr zulassen führt dazu, dass Ihr sicherer Hotspot nicht mehr funktioniert.  Möchten Sie den Hotspot deaktivieren?</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is not supported on your version of MacOS.</source>
+        <translation>MAC-Spoofing wird in Ihrer MacOS-Version nicht unterstützt.</translation>
     </message>
 </context>
 <context>

@@ -120,7 +120,6 @@ private slots:
     // emergency window signals
     void onEmergencyConnectClick();
     void onEmergencyDisconnectClick();
-    void onEmergencyWindscribeLinkClick();
 
     // external config window signals
     void onExternalConfigWindowNextClick();
@@ -182,6 +181,7 @@ private slots:
     void onBackendStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onBackendProxySharingInfoChanged(const types::ProxySharingInfo &psi);
     void onBackendWifiSharingInfoChanged(const types::WifiSharingInfo &wsi);
+    void onBackendWifiSharingFailed();
     void onBackendRequestCustomOvpnConfigCredentials();
     void onBackendRequestCustomOvpnConfigPrivKeyPassword();
     void onBackendSessionDeleted();

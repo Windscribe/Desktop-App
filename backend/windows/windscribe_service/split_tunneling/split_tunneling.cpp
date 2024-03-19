@@ -10,11 +10,7 @@ SplitTunneling::SplitTunneling(FwpmWrapper& fwpmWrapper)
 {
     connectStatus_.isConnected = false;
     detectWindscribeExecutables();
-
-    AppsIds appIds;
-    appIds.addFrom(windscribeMainExecutableIds_);
-    appIds.addFrom(windscribeToolsExecutablesIds_);
-    FirewallFilter::instance().setWindscribeAppsIds(appIds);
+    FirewallFilter::instance().setWindscribeAppsIds(windscribeExecutableIds_);
 }
 
 void SplitTunneling::release()
@@ -67,25 +63,20 @@ void SplitTunneling::detectWindscribeExecutables()
         return;
     }
 
-    std::vector<std::wstring> windscribeToolsExeFiles;
-    std::vector<std::wstring> mainWindscribeExefile;
+    std::vector<std::wstring> windscribeExefiles;
     do {
         if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
             std::wstring fileName = ffd.cFileName;
             std::wstring fullPath = exePath + L"\\" + ffd.cFileName;
-
-            if (fileName == L"Windscribe.exe") {
-                mainWindscribeExefile.push_back(fullPath);
-            } else if (fileName != L"windscribectrld.exe") {       // skip windscribectrld.exe
-                windscribeToolsExeFiles.push_back(fullPath);
+            if (fileName != L"WindscribeService.exe") {     // skip WindscribeService.exe
+                windscribeExefiles.push_back(fullPath);
             }
         }
     } while (FindNextFile(hFind, &ffd) != 0);
 
     FindClose(hFind);
 
-    windscribeMainExecutableIds_.setFromList(mainWindscribeExefile);
-    windscribeToolsExecutablesIds_.setFromList(windscribeToolsExeFiles);
+    windscribeExecutableIds_.setFromList(windscribeExefiles);
 }
 
 bool SplitTunneling::updateState()
@@ -122,10 +113,10 @@ bool SplitTunneling::updateState()
         if (isExclude_) {
             hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp, connectStatus_.defaultAdapter.ifIndex);
         } else {
-            appsIds.addFrom(windscribeToolsExecutablesIds_);
+            appsIds.addFrom(windscribeExecutableIds_);
             hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp, connectStatus_.vpnAdapter.ifIndex);
         }
-        calloutFilter_.enable(localIp, vpnIp, windscribeMainExecutableIds_, appsIds, isExclude_, isAllowLanTraffic_);
+        calloutFilter_.enable(localIp, vpnIp, appsIds, isExclude_, isAllowLanTraffic_);
     } else {
         calloutFilter_.disable();
         hostnamesManager_.disable();

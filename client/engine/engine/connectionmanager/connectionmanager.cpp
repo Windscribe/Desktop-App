@@ -181,6 +181,18 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
 
     connSettingsPolicy_->debugLocationInfoToLog();
 
+#ifdef Q_OS_MAC
+    // For automatic policy, we would have removed IKEv2 from the list for lockdown mode.
+    // There is no custom config for IKEv2, so if we get here it is manual mode.
+    // We can get here either by:
+    // - User selecting IKEv2 in manual mode and then enabling Lockdown Mode, or
+    // - User selecting IKEv2 in manual mode in a previous version of Windscribe, then updating.
+    if (connSettingsPolicy_->getCurrentConnectionSettings().protocol == types::Protocol::IKEV2 && MacUtils::isLockdownMode()) {
+        emit errorDuringConnection(CONNECT_ERROR::LOCKDOWN_MODE_IKEV2);
+        return;
+    }
+#endif
+
     doConnect();
 }
 
@@ -1523,7 +1535,11 @@ void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSe
     if (bli_->locationId().isCustomConfigsLocation()) {
         connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(bli_));
     } else if (connectionSettings.isAutomatic()) {
-        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_));
+#ifdef Q_OS_MAC
+        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_, MacUtils::isLockdownMode()));
+#else
+        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_, false));
+#endif
     } else {
         connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli_, connectionSettings, portMap));
     }

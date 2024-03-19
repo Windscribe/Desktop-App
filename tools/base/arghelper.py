@@ -5,23 +5,14 @@
 # ------------------------------------------------------------------------------
 # purpose: to help with program arguments
 
-import sys
-
-
 class ArgHelper:
     # general
     OPTION_HELP = "--help"
     OPTION_CLEAN_ONLY = "--clean-only"
-    OPTION_DELETE_SECRETS_ONLY = "--delete-secrets-only"
-    OPTION_DOWNLOAD_SECRETS = "--download-secrets"
     OPTION_DEBUG = "--debug"
     # signing
     OPTION_NOTARIZE = "--notarize"
     OPTION_SIGN = "--sign"
-    # secrets
-    OPTION_ONE_PASSWORD_USER = "--op-user"
-    OPTION_ONE_PASSWORD_SESSION = "--session"
-    OPTION_USE_LOCAL_SECRETS = "--use-local-secrets"
     # partial builds
     OPTION_BUILD_APP = "--build-app"
     OPTION_SIGN_APP = "--sign-app"
@@ -43,16 +34,10 @@ class ArgHelper:
     options.append(("\nGeneral", ""))
     options.append((OPTION_HELP, "Prints this help menu"))
     options.append((OPTION_CLEAN_ONLY, "Cleans the temporary files created during building"))
-    options.append((OPTION_DELETE_SECRETS_ONLY, "Deletes secrets needed for signing"))
-    options.append((OPTION_DOWNLOAD_SECRETS, "Download secrets from 1password (not recommended)"))
     options.append((OPTION_DEBUG, "Build project as debug"))
     options.append(("\nSigning", ""))
     options.append((OPTION_NOTARIZE, "Notarizes the app after building (Mac only, CI-only, requires --sign)"))
     options.append((OPTION_SIGN, "Sign the build"))
-    options.append(("\nSecrets", ""))
-    options.append((OPTION_ONE_PASSWORD_USER, "1password user for windscribe employee secret download"))
-    options.append((OPTION_ONE_PASSWORD_SESSION, "1password session to skip 1p login"))
-    options.append((OPTION_USE_LOCAL_SECRETS, "Do not download secrets, use local secrets"))
     options.append(("\nBuild specific components", ""))
     options.append((OPTION_BUILD_APP, "Build the app. On MacOS & Linux, also signs."))
     options.append((OPTION_SIGN_APP, "Sign the app (Windows only)"))
@@ -76,8 +61,6 @@ class ArgHelper:
         # 4 main branches
         self.mode_clean_only = ArgHelper.OPTION_CLEAN_ONLY in program_arg_list
         self.mode_help = ArgHelper.OPTION_HELP in program_arg_list
-        self.mode_delete_secrets = ArgHelper.OPTION_DELETE_SECRETS_ONLY in program_arg_list
-        self.mode_download_secrets = ArgHelper.OPTION_DOWNLOAD_SECRETS in program_arg_list
         self.mode_debug = ArgHelper.OPTION_DEBUG in program_arg_list
 
         # building
@@ -102,7 +85,6 @@ class ArgHelper:
         # signing related
         self.mode_sign = ArgHelper.OPTION_SIGN in program_arg_list
         self.mode_notarize = ArgHelper.OPTION_NOTARIZE in program_arg_list
-        self.mode_use_local_secrets = ArgHelper.OPTION_USE_LOCAL_SECRETS in program_arg_list
 
         # CI related
         self.mode_ci = ArgHelper.OPTION_CI_MODE in program_arg_list
@@ -117,24 +99,6 @@ class ArgHelper:
         no_arch_selected = ArgHelper.OPTION_TARGET_X86_64 not in program_arg_list and ArgHelper.OPTION_TARGET_ARM64 not in program_arg_list
         self.target_x86_64 = no_arch_selected or ArgHelper.OPTION_TARGET_X86_64 in program_arg_list
         self.target_arm64 = ArgHelper.OPTION_TARGET_ARM64 in program_arg_list
-
-        # 1password user/session
-        try:
-            user_index = program_arg_list.index(ArgHelper.OPTION_ONE_PASSWORD_USER) + 1
-            if user_index >= len(sys.argv):
-                raise IOError()
-            self.one_password_user = program_arg_list[user_index]
-
-            try:
-                session_token_index = program_arg_list.index(ArgHelper.OPTION_ONE_PASSWORD_SESSION) + 1
-                if session_token_index >= len(program_arg_list):
-                    raise IOError()
-                self.one_password_session = program_arg_list[session_token_index]
-            except Exception:
-                self.one_password_session = ""
-        except Exception:
-            self.one_password_user = ""
-            self.one_password_session = ""
 
     def ci_mode(self):
         return self.mode_ci
@@ -169,29 +133,11 @@ class ArgHelper:
     def notarize(self):
         return self.mode_notarize
 
-    def one_password_username(self):
-        return self.one_password_user
-
-    def valid_one_password_username(self):
-        return self.one_password_user != ""
-
-    def one_password_session_token(self):
-        return self.one_password_session
-
-    def use_local_secrets(self):
-        return self.mode_use_local_secrets
-
     def build_mode(self):
-        return not self.mode_help and not self.mode_clean_only and not self.mode_delete_secrets
+        return not self.mode_help and not self.mode_clean_only
 
     def help(self):
         return self.mode_help
-
-    def delete_secrets_only(self):
-        return self.mode_delete_secrets
-
-    def download_secrets(self):
-        return self.mode_download_secrets
 
     def build_rpm(self):
         return self.mode_build_rpm
@@ -214,12 +160,10 @@ class ArgHelper:
             args.remove(ArgHelper.OPTION_HELP)
             if len(args) > 0:
                 return "Cannot use help with any other argument"
-        if self.mode_clean_only or self.mode_delete_secrets:
+        if self.mode_clean_only:
             args = self.args_only[:]
             if args.count(ArgHelper.OPTION_CLEAN_ONLY) > 0:
                 args.remove(ArgHelper.OPTION_CLEAN_ONLY)
-            if args.count(ArgHelper.OPTION_DELETE_SECRETS_ONLY):
-                args.remove(ArgHelper.OPTION_DELETE_SECRETS_ONLY)
             if len(args) > 0:
-                return "Cannot use clean-only and delete-secrets-only with any other argument"
+                return "Cannot use clean-only with any other argument"
         return ""

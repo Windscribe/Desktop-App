@@ -8,10 +8,8 @@
 #include <SetupAPI.h>
 
 #include <codecvt>
+#include <filesystem>
 #include <sstream>
-
-#define BOOST_AUTO_LINK_TAGGED 1
-#include <boost/filesystem/path.hpp>
 
 #include "../../../client/common/utils/servicecontrolmanager.h"
 #include "../../../client/common/utils/win32handle.h"
@@ -31,12 +29,11 @@ WireGuardController::WireGuardController()
 bool WireGuardController::installService(const std::wstring &exeName, const std::wstring &configFile)
 {
     is_initialized_ = false;
-    try
-    {
+    try {
         exeName_ = exeName + L".exe";
 
         {
-            boost::filesystem::path path(configFile);
+            std::filesystem::path path(configFile);
             deviceName_ = path.stem().native();
         }
 
@@ -52,13 +49,13 @@ bool WireGuardController::installService(const std::wstring &exeName, const std:
         wsl::ServiceControlManager svcCtrl;
         svcCtrl.openSCM(SC_MANAGER_ALL_ACCESS);
 
-        if (svcCtrl.isServiceInstalled(serviceName_.c_str()))
-        {
-            Logger::instance().out("WireGuardController::installService - deleting existing WireGuard service instance");
-            svcCtrl.deleteService(serviceName_.c_str());
+        if (svcCtrl.isServiceInstalled(serviceName_.c_str())) {
+            Logger::instance().out("WireGuardController::installService - deleting existing WireGuard service");
+            std::error_code ec;
+            if (!svcCtrl.deleteService(serviceName_.c_str(), ec)) {
+                Logger::instance().out("WireGuardController::installService - failed to delete existing WireGuard service (%d)", ec.value());
+            }
         }
-
-        Logger::instance().out("WireGuardController::installService");
 
         svcCtrl.installService(serviceName_.c_str(), serviceCmdLine.c_str(),
             L"Windscribe Wireguard Tunnel", L"Manages the Windscribe WireGuard tunnel connection",
@@ -68,8 +65,7 @@ bool WireGuardController::installService(const std::wstring &exeName, const std:
 
         is_initialized_ = true;
     }
-    catch (std::system_error& ex)
-    {
+    catch (std::system_error& ex) {
         Logger::instance().out("WireGuardController::installService - %s", ex.what());
     }
 
@@ -85,29 +81,28 @@ bool WireGuardController::deleteService()
     }
 
     bool bServiceDeleted = false;
-    try
-    {
+    try {
         wsl::ServiceControlManager svcCtrl;
         svcCtrl.openSCM(SC_MANAGER_ALL_ACCESS);
 
-        if (svcCtrl.isServiceInstalled(serviceName_.c_str()))
-        {
-            Logger::instance().out("WireGuardController::deleteService - deleting WireGuard service instance");
-            svcCtrl.deleteService(serviceName_.c_str());
+        if (svcCtrl.isServiceInstalled(serviceName_.c_str())) {
+            Logger::instance().out("WireGuardController::deleteService - deleting WireGuard service");
+            std::error_code ec;
+            if (!svcCtrl.deleteService(serviceName_.c_str(), ec)) {
+                throw std::system_error(ec);
+            }
         }
 
         serviceName_.clear();
         bServiceDeleted = true;
     }
-    catch (std::system_error& ex)
-    {
+    catch (std::system_error& ex) {
         Logger::instance().out("WireGuardController::deleteService - %s", ex.what());
     }
 
-    if (!bServiceDeleted && !exeName_.empty())
-    {
+    if (!bServiceDeleted && !exeName_.empty()) {
         serviceName_.clear();
-        Logger::instance().out("WireGuardController::deleteService - task killing the WireGuard service instance");
+        Logger::instance().out("WireGuardController::deleteService - task killing the WireGuard service");
         std::wstring killCmd = Utils::getSystemDir() + L"\\taskkill.exe /f /t /im " + exeName_;
         ExecuteCmd::instance().executeBlockingCmd(killCmd);
     }
@@ -119,8 +114,7 @@ UINT WireGuardController::getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT
 {
     UINT result = WIREGUARD_STATE_ACTIVE;
 
-    try
-    {
+    try {
         if (!is_initialized_) {
             throw std::system_error(ERROR_INVALID_STATE, std::generic_category(),
                 "WireGuardController::getStatus - the WireGuard tunnel is not initialized");
@@ -137,12 +131,10 @@ UINT WireGuardController::getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT
 
         // Only perform max 3 attempts, just in case we keep getting ERROR_MORE_DATA for some reason.
         BOOL apiResult = FALSE;
-        for (int i = 0; !apiResult && i < 3; ++i)
-        {
+        for (int i = 0; !apiResult && i < 3; ++i) {
             apiResult = ::DeviceIoControl(hDriver.getHandle(), WG_IOCTL_GET, NULL, 0, buffer.get(),
                                           bufferSize, &bufferSize, NULL);
-            if (!apiResult)
-            {
+            if (!apiResult) {
                 if (::GetLastError() != ERROR_MORE_DATA) {
                     throw std::system_error(::GetLastError(), std::generic_category(),
                         "WireGuardController::getStatus - DeviceIoControl failed");
@@ -152,22 +144,19 @@ UINT WireGuardController::getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT
             }
         }
 
-        if (!apiResult)
-        {
+        if (!apiResult) {
             throw std::system_error(ERROR_UNIDENTIFIED_ERROR, std::generic_category(),
                 "WireGuardController::getStatus - DeviceIoControl failed repeatedly");
         }
 
-        if (bufferSize < sizeof(WG_IOCTL_INTERFACE))
-        {
+        if (bufferSize < sizeof(WG_IOCTL_INTERFACE)) {
             throw std::system_error(ERROR_INVALID_DATA, std::generic_category(),
                 std::string("WireGuardController::getStatus - DeviceIoControl returned ") + std::to_string(bufferSize) +
                 std::string(" bytes, expected ") + std::to_string(sizeof(WG_IOCTL_INTERFACE)));
         }
 
         WG_IOCTL_INTERFACE* wgInterface = (WG_IOCTL_INTERFACE*)buffer.get();
-        if (wgInterface->PeersCount > 0)
-        {
+        if (wgInterface->PeersCount > 0) {
             if (bufferSize < sizeof(WG_IOCTL_INTERFACE) + sizeof(WG_IOCTL_PEER)) {
                 throw std::system_error(ERROR_INVALID_DATA, std::generic_category(),
                     std::string("WireGuardController::getStatus - DeviceIoControl returned ") + std::to_string(bufferSize) +
@@ -179,15 +168,13 @@ UINT WireGuardController::getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT
             txBytes = wgPeerInfo->TxBytes;
             rxBytes = wgPeerInfo->RxBytes;
         }
-        else
-        {
+        else {
             lastHandshake = 0;
             txBytes = 0;
             rxBytes = 0;
         }
     }
-    catch (std::system_error& ex)
-    {
+    catch (std::system_error& ex) {
         result = WIREGUARD_STATE_ERROR;
         Logger::instance().out("WireGuardController::getStatus - %s", ex.what());
     }
@@ -214,14 +201,12 @@ HANDLE WireGuardController::getKernelInterfaceHandle() const
     const DWORD bufferSize = 4096;
     std::unique_ptr< BYTE[] > buffer(new BYTE[bufferSize]);
 
-    for (DWORD i = 0; true; ++i)
-    {
+    for (DWORD i = 0; true; ++i) {
         SP_DEVINFO_DATA devInfoData;
         devInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
 
         BOOL result = ::SetupDiEnumDeviceInfo(devInfo, i, &devInfoData);
-        if (result == FALSE)
-        {
+        if (result == FALSE) {
             if (::GetLastError() == ERROR_NO_MORE_ITEMS) {
                 break;
             }
@@ -278,8 +263,7 @@ HANDLE WireGuardController::getKernelInterfaceHandle() const
                                          FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
                                          NULL, OPEN_EXISTING, 0, NULL);
 
-        if (hKernelInterface == INVALID_HANDLE_VALUE)
-        {
+        if (hKernelInterface == INVALID_HANDLE_VALUE) {
             std::wostringstream stream;
             stream << L"WireGuardController::getKernelInterfaceHandle - CreateFileW failed to open " << interfaceName.get();
             std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;

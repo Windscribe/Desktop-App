@@ -3,8 +3,6 @@ cmake_minimum_required(VERSION 3.21)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "11" CACHE STRING "Minimum OS X deployment version")
 set(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)
 
-set(wsnet_VERSION 1.4.10)
-
 if (VCPKG_TARGET_ANDROID)
     include("cmake/vcpkg_android.cmake")
 endif()
@@ -15,14 +13,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 #set(CMAKE_VISIBILITY_INLINES_HIDDEN True)
 
-project(wsnet VERSION ${wsnet_VERSION}
+project(wsnet
     DESCRIPTION "The wsnet library for Windscribe client programs"
-    HOMEPAGE_URL "https://gitlab.int.windscribe.com/ws/client/client-libs/wsnet.git"
     LANGUAGES CXX
 )
-
-#generate a version header file
-configure_file(wsnet_version.h.in wsnet_version.h)
 
 # Helpers functions for creating config files that can be included by other projects to find and use a package
 include(CMakePackageConfigHelpers)

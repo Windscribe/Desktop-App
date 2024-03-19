@@ -17,6 +17,7 @@ WifiSharing::WifiSharing(QObject *parent, IHelper *helper) : QObject(parent),
     icsManager_ = new IcsManager(this, helper);
     wifiDirectManager_ = new WiFiDirectManager(this);
     connect(wifiDirectManager_, &WiFiDirectManager::started, this, &WifiSharing::onWifiDirectStarted);
+    connect(wifiDirectManager_, &WiFiDirectManager::failed, this, &WifiSharing::onWifiDirectFailed);
     connect(wifiDirectManager_, &WiFiDirectManager::usersCountChanged, this, &WifiSharing::usersCountChanged);
 }
 
@@ -90,6 +91,12 @@ void WifiSharing::onWifiDirectStarted()
         qCDebug(LOG_WIFI_SHARED) << "WifiSharing::onWlanStarted";
         updateICS(vpnAdapterName_);
     }
+}
+
+void WifiSharing::onWifiDirectFailed()
+{
+    stopSharing();
+    emit failed();
 }
 
 void WifiSharing::updateICS(const QString &vpnAdapterName)

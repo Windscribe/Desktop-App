@@ -18,6 +18,7 @@ public:
 
     void setMacSpoofingSettings(const types::MacAddrSpoofing &macSpoofing);
     void setCurrentNetwork(const types::NetworkInterface &networkInterface);
+    void setEnabled(bool enabled);
 
 signals:
     void macAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);

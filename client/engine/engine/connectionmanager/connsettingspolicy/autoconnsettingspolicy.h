@@ -10,7 +10,7 @@ class AutoConnSettingsPolicy : public BaseConnSettingsPolicy
     Q_OBJECT
 public:
     AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const api_responses::PortMap &portMap, bool isProxyEnabled,
-                           const types::Protocol protocol);
+                           const types::Protocol protocol, bool isLockdownMode);
 
     void reset() override;
     void debugLocationInfoToLog() const override;

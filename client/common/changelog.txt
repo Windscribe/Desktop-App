@@ -1,3 +1,31 @@
+2.10.5 (13/03/2024)
+All:
+   * Improved stability of DNS resolution for hostnames when using split tunneling. #805
+   * Improved UX of the protocol/port line when protocol selection is not available. #351
+   * Improved the look and translations on the Emergency Connect screen. #221 #298
+   * Improved handling of custom configs with "dev tap", overriding automatically to "dev tun". #60
+   * Improved location search by allowing search by country code. #196
+   * Improved updating random hashed domains in a timely manner. #937
+   * Fixed various compile warnings introduced in 2.10.x. #935
+   * Fixed DNS servers in the wsnet library not updating on the client connection/disconnection events. #805
+   * Fixed protocol selector should not be available in external config mode. #351
+   * Fixed wsnet versioning to be the same as the client application [wsnet]. #938
+Windows:
+   * Improved logic for enabling the BFE service. #936
+   * Improved error handling in UI for the secure hotspot feature, in case it fails. #921
+   * Fixed potential installer DoS vulnerability when installing the split tunnel driver. #629
+   * Fixed WireGuard service may fail to install when connection attempt initiated immediately after the PC boots. #682
+   * Fixed windscribectrld.exe should always be tunneled via the VPN. #805
+MacOS:
+   * Improved operation in Lockdown Mode by removing IKEv2 where applicable, or displaying a meaningful error. #469
+   * Fixed getting SSID from MacOS 14.4 since it no longer reports it via scutil. #940
+   * Removed MAC spoofing feature if using MacOS 14.4 or later. #923
+Linux:
+   * Fixed app window resize workaround may cause transitions to be jittery. #930
+   * Fixed duplicate copies of wsnet in RPM package. #942
+   * Removed "New Window" desktop action, which previously did nothing. #260
+
+
 2.10.4 (06/03/2024)
 All:
    * Added the user-agent request header to all HTTP-requests [wsnet]. #927

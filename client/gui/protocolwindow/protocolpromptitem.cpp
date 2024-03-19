@@ -11,6 +11,9 @@
 #include "languagecontroller.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/logger.h"
+#ifdef Q_OS_MAC
+#include "utils/macutils.h"
+#endif
 
 namespace ProtocolWindow {
 
@@ -97,6 +100,11 @@ void ProtocolPromptItem::doResetProtocolStatus()
         if (currentProtocol.protocol == p) {
             continue;
         }
+#ifdef Q_OS_MAC
+        if (p == types::Protocol::IKEV2 && MacUtils::isLockdownMode()) {
+            continue;
+        }
+#endif
 
         QVector<uint> ports = preferencesHelper_->getAvailablePortsForProtocol(p);
         if (ports.size() == 0) {

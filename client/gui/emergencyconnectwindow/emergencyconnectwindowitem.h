@@ -1,12 +1,12 @@
 #pragma once
 
-#include <QGraphicsObject>
 #include <QEvent>
+#include <QGraphicsObject>
 #include "../backend/backend.h"
 #include "commongraphics/bubblebutton.h"
 #include "commongraphics/escapebutton.h"
 #include "commongraphics/iconbutton.h"
-#include "textlinkbutton.h"
+#include "textlinkitem.h"
 
 namespace EmergencyConnectWindow {
 
@@ -27,7 +27,6 @@ signals:
     void closeClick();
     void escapeClick();
     void connectClick();
-    void windscribeLinkClick();
     void disconnectClick();
 
 protected:
@@ -48,10 +47,7 @@ private slots:
     void onSubDescriptionTextTransition(const QVariant &value);
     void onSpinnerRotation(const QVariant &value);
 
-    void onTextLinkWidthChanged();
-
     void onLanguageChanged();
-    void onDockedModeChanged(bool bIsDockedToTray);
 
 private:
     types::ConnectState state_;
@@ -74,7 +70,7 @@ private:
     CommonGraphics::BubbleButton *disconnectButton_;
 
     CommonGraphics::EscapeButton *escButton_;
-    TextLinkButton *textLinkButton_;
+    EmergencyConnectWindow::TextLinkItem *accessText_;
 
     double curTitleOpacity_;
     double curIconOpacity_;
@@ -109,15 +105,15 @@ private:
     static constexpr int DESCRIPTION_POS_Y = 140;
     static constexpr int DESCRIPTION_WIDTH_MIN = 218;
 
-    static constexpr int LINK_TEXT_POS_Y = 281;
+    static constexpr int LINK_TEXT_POS_Y = 307;
 
     static constexpr int CONNECTING_TEXT_POS_Y = 222;
     static constexpr int CONNECTING_TEXT_HEIGHT = 20;
 
     static constexpr int SPINNER_POS_Y = 164;
 
-    static constexpr int CONNECT_BUTTON_POS_Y = 233;
-    static constexpr int DISCONNECT_BUTTON_POS_Y = 233;
+    static constexpr int CONNECT_BUTTON_POS_Y = 249;
+    static constexpr int DISCONNECT_BUTTON_POS_Y = 249;
 
     static constexpr int TARGET_ROTATION = 360;
 };

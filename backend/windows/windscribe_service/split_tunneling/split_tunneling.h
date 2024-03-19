@@ -32,8 +32,7 @@ private:
     HostnamesManager hostnamesManager_;
     SplitTunnelServiceManager splitTunnelServiceManager_;
 
-    AppsIds windscribeMainExecutableIds_;       // Windscribe.exe
-    AppsIds windscribeToolsExecutablesIds_;     // all other executables in the Windscribe app folder except Windscribe.exe
+    AppsIds windscribeExecutableIds_;
 
     CMD_CONNECT_STATUS connectStatus_;
     bool isSplitTunnelEnabled_ = false;

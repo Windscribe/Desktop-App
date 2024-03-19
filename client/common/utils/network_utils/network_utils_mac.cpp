@@ -15,15 +15,26 @@
 #include <unistd.h>
 
 #include "network_utils.h"
+#include "../macutils.h"
 #include "../utils.h"
 
 namespace
 {
 QString ssidOfInterface(const QString &networkInterface)
 {
+    // In MacOS 14.4, Apple removed the SSID from scutil output, use an alternative method
+    if (MacUtils::isOsVersionAtLeast(14, 4)) {
+        QString command = "networksetup -getairportnetwork " + networkInterface + " | head -n 1 | cut -s -d ':' -f 2";
+        QString strReply = Utils::execCmd(command).trimmed();
+        if (strReply.length() > 32) {
+            // SSIDs are at most 32 octets, so if the string is longer than that, it's probably an error message.
+            strReply = "";
+        }
+        return strReply;
+    }
+    // Older versions of macOS should use scutil
     QString command = "echo 'show State:/Network/Interface/" + networkInterface + "/AirPort' | scutil | grep SSID_STR | sed -e 's/.*SSID_STR : //'";
-    QString strReply = Utils::execCmd(command).trimmed();
-    return strReply;
+    return Utils::execCmd(command).trimmed();
 }
 
 QString macAddressFromInterfaceName(const QString &interfaceName)

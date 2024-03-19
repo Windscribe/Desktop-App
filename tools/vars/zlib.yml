@@ -1,7 +1,0 @@
-# ------------------------------------------------------------------------------
-# Windscribe Build System
-# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
-# ------------------------------------------------------------------------------
-variables:
-  VERSION_ZLIB: '1.3'
-  ARTIFACT_ZLIB: 'zlib.zip'

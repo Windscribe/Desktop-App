@@ -112,23 +112,19 @@ void OvpnCustomConfig::process()
 #endif
 
     QFile file(filepath_);
-    if (file.open(QIODevice::ReadOnly))
-    {
+    if (file.open(QIODevice::ReadOnly)) {
         qDebug(LOG_CUSTOM_OVPN) << "Opened:" << Utils::cleanSensitiveInfo(filepath_);
 
         bool bFoundAtLeastOneRemote = false;
         bool bFoundVerbCommand = false;
         bool bFoundScriptSecurityCommand = false;
-        bool isTapDevice = false;
         bool bHasValidCipher = false;
         QString currentProtocol{ "udp" };
         QTextStream in(&file);
-        while (!in.atEnd())
-        {
+        while (!in.atEnd()) {
             QString line = in.readLine();
             ParseOvpnConfigLine::OpenVpnLine openVpnLine = ParseOvpnConfigLine::processLine(line);
-            if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_REMOTE_IP) // remote ip
-            {
+            if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_REMOTE_IP) { // remote ip
                 RemoteCommandLine rcl;
                 rcl.hostname = openVpnLine.host;
                 rcl.originalRemoteCommand = line;
@@ -136,28 +132,23 @@ void OvpnCustomConfig::process()
                 rcl.protocol = openVpnLine.protocol;
                 remotes_ << rcl;
                 qDebug(LOG_CUSTOM_OVPN) << "Extracted hostname/IP:" << openVpnLine.host << " from  remote cmd:" << line;
-                if (!openVpnLine.protocol.isEmpty())
-                {
+                if (!openVpnLine.protocol.isEmpty()) {
                     qDebug(LOG_CUSTOM_OVPN) << "Extracted protocol:" << openVpnLine.protocol << " from  remote cmd:" << line;
                 }
-                if (openVpnLine.port != 0)
-                {
+                if (openVpnLine.port != 0) {
                     qDebug(LOG_CUSTOM_OVPN) << "Extracted port:" << openVpnLine.port << " from  remote cmd:" << line;
                 }
-
                 bFoundAtLeastOneRemote = true;
-            }
-            else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_VERB) // verb cmd
-            {
+                continue;
+            } else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_VERB) { // verb cmd
                 qDebug(LOG_CUSTOM_OVPN) << "Extracted verb:" << openVpnLine.verb;
                 if (openVpnLine.verb < 3)
                     openVpnLine.verb = 3;
 
                 ovpnData_ += "verb " + QString::number(openVpnLine.verb) + "\n";
                 bFoundVerbCommand = true;
-            }
-            else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_SCRIPT_SECURITY) // script-security cmd
-            {
+                continue;
+            } else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_SCRIPT_SECURITY) { // script-security cmd
                 qDebug(LOG_CUSTOM_OVPN) << "Extracted script-security:" << openVpnLine.verb;
 #ifdef Q_OS_MAC
                 // Needed script-security at least 2 on Mac, to allow an "up" command for the DNS
@@ -167,97 +158,77 @@ void OvpnCustomConfig::process()
 #endif
                 ovpnData_ += "script-security " + QString::number(openVpnLine.verb) + "\n";
                 bFoundScriptSecurityCommand = true;
-            }
-            else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_CIPHER) // cipher cmd
-            {
+                continue;
+            } else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_CIPHER) { // cipher cmd
                 qDebug(LOG_CUSTOM_OVPN) << "Extracted cipher:" << openVpnLine.protocol;
                 ovpnData_ += line + "\n";
-                if (!openVpnLine.protocol.trimmed().isEmpty())
+                if (!openVpnLine.protocol.trimmed().isEmpty()) {
                     bHasValidCipher = true;
-            }
-            else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_BLOCK_OUTSIDE_DNS)
-            {
-                qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << Utils::cleanSensitiveInfo(filepath_) << ", the block-outside-dns option disabled because this option is already implemented by our program.";
+                }
                 continue;
+            } else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_BLOCK_OUTSIDE_DNS) {
+                qDebug(LOG_CUSTOM_OVPN) << "ignored block-outside-dns option in custom ovpn file";
+                continue;
+            } else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_PROTO) { // proto cmd
+                globalProtocol_ = currentProtocol = openVpnLine.protocol;
+                qDebug(LOG_CUSTOM_OVPN) << "Extracted global protocol:" << globalProtocol_;
+            } else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_PORT) { // port cmd
+                globalPort_ = openVpnLine.port;
+                qDebug(LOG_CUSTOM_OVPN) << "Extracted global port:" << globalPort_;
+            } else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_IGNORE_REDIRECT_GATEWAY) {
+                isAllowFirewallAfterConnection_ = false;
+                qDebug(LOG_CUSTOM_OVPN) << "Extracted information: ignore redirect-gateway (" << line << ")";
+            } else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_DEVICE) { // dev cmd
+                if (!openVpnLine.protocol.trimmed().compare("tap", Qt::CaseInsensitive)) {
+                    qDebug(LOG_CUSTOM_OVPN) << "Override dev command to tun in custom ovpn file";
+                    ovpnData_ += "dev tun\n";
+                    continue;
+                }
             }
-            else
-            {
-                if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_PROTO) // proto cmd
-                {
-                    globalProtocol_ = currentProtocol = openVpnLine.protocol;
-                    qDebug(LOG_CUSTOM_OVPN) << "Extracted global protocol:" << globalProtocol_;
-                }
-                else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_PORT) // port cmd
-                {
-                    globalPort_ = openVpnLine.port;
-                    qDebug(LOG_CUSTOM_OVPN) << "Extracted global port:" << globalPort_;
-                }
-                else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_IGNORE_REDIRECT_GATEWAY)
-                {
-                    isAllowFirewallAfterConnection_ = false;
-                    qDebug(LOG_CUSTOM_OVPN)
-                        << "Extracted information: ignore redirect-gateway (" << line << ")";
-                }
-                else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_DEVICE) // dev cmd
-                {
-                    if (!openVpnLine.protocol.trimmed().compare("tap", Qt::CaseInsensitive))
-                        isTapDevice = true;
-                }
-
-                ovpnData_ += line + "\n";
-            }
+            ovpnData_ += line + "\n";
         }
 
         // Fix protocol in remotes.
         bool hasAnyValidProtocol = false;
         for (auto &r : remotes_) {
-            if (r.protocol.isEmpty())
+            if (r.protocol.isEmpty()) {
                 r.protocol = currentProtocol;
-            if (CheckAndFixProtocolName(r.protocol))
+            }
+            if (CheckAndFixProtocolName(r.protocol)) {
                 hasAnyValidProtocol = true;
+            }
         }
 
-        if (!bFoundVerbCommand)
+        if (!bFoundVerbCommand) {
             ovpnData_ += "verb 3\n";
+        }
 #ifdef Q_OS_MAC
         // Needed script-security at least 2 on Mac, to allow an "up" command for the DNS setup
         // script.
-        if (!bFoundScriptSecurityCommand)
+        if (!bFoundScriptSecurityCommand) {
             ovpnData_ += "script-security 2\n";
+        }
 #endif
 
         // The "BF-CBC" cipher was the default prior to OpenVPN 2.5.
         // To support old configs that used to work in older Windscribe distributions, add a default
         // cipher command when there is no such command in the config.
-        if (!bHasValidCipher)
+        if (!bHasValidCipher) {
             ovpnData_ += "cipher BF-CBC\n";
-
-        if (isTapDevice)
-        {
-            qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << Utils::cleanSensitiveInfo(filepath_) << "uses TAP device, which is not supported.";
-            isCorrect_ = false;
-            errMessage_ = "TAP adapter is not supported, please change \"device\" to \"tun\" in the config.";
         }
 
-        if (!bFoundAtLeastOneRemote)
-        {
+        if (!bFoundAtLeastOneRemote) {
             qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << Utils::cleanSensitiveInfo(filepath_) << "incorrect, because can't find remote host command. The file format may be incorrect.";
             isCorrect_ = false;
             errMessage_ = "Can't find remote host command";
-        }
-        else if (!hasAnyValidProtocol)
-        {
+        } else if (!hasAnyValidProtocol) {
             qDebug(LOG_CUSTOM_OVPN) << "Ovpn config file" << Utils::cleanSensitiveInfo(filepath_) << "incorrect, because there is no correct protocol. Please note that IPv6 protocols are not supported.";
             isCorrect_ = false;
             errMessage_ = "Connection protocol is not valid";
-        }
-        else
-        {
+        } else {
             nick_ = remotes_[0].hostname;
         }
-    }
-    else
-    {
+    } else {
         qDebug(LOG_CUSTOM_OVPN) << "Failed to open file" << Utils::cleanSensitiveInfo(filepath_);
         isCorrect_ = false;
         errMessage_ = "Failed to open file";
@@ -267,7 +238,6 @@ void OvpnCustomConfig::process()
 #pragma GCC diagnostic pop
 #endif
 }
-
 
 } //namespace customconfigs
 

@@ -165,6 +165,7 @@ signals:
     void lostConnectionToHelper();
     void proxySharingStateChanged(bool bEnabled, PROXY_SHARING_TYPE proxySharingType, const QString &address, int usersCount);
     void wifiSharingStateChanged(bool bEnabled, const QString &ssid, int usersCount);
+    void wifiSharingFailed();
 
     void signOutFinished();
 

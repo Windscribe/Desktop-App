@@ -19,6 +19,7 @@ VpnShareController::VpnShareController(QObject *parent, IHelper *helper) : QObje
 #ifdef Q_OS_WIN
     wifiSharing_ = new WifiSharing(this, helper_);
     connect(wifiSharing_, &WifiSharing::usersCountChanged, this, &VpnShareController::onWifiUsersCountChanged);
+    connect(wifiSharing_, &WifiSharing::failed, this, &VpnShareController::wifiSharingFailed);
 #endif
 }
 

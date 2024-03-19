@@ -6,3 +6,4 @@ Name=Windscribe
 Icon=windscribe
 Categories=Network
 StartupWMClass=Windscribe
+SingleMainWindow=true

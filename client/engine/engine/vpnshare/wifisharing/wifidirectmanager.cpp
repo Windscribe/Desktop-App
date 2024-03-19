@@ -24,6 +24,8 @@ bool WiFiDirectManager::isSupported()
 
 bool WiFiDirectManager::start(const QString &ssid, const QString &password)
 {
+    QMutexLocker locker(&mutex_);
+
     // if the Mobile Hotspot feature is enabled in Windows, we must turn off it because it will conflict with our method
     try {
         auto connectionProfile { winrt::Windows::Networking::Connectivity::NetworkInformation::GetInternetConnectionProfile() };
@@ -140,6 +142,8 @@ void WiFiDirectManager::startListener()
 
 void WiFiDirectManager::onStatusChanged(winrt::Windows::Devices::WiFiDirect::WiFiDirectAdvertisementPublisher const &sender, winrt::Windows::Devices::WiFiDirect::WiFiDirectAdvertisementPublisherStatusChangedEventArgs const &args)
 {
+    QMutexLocker locker(&mutex_);
+
     try {
         auto status = args.Status();
 
@@ -168,6 +172,7 @@ void WiFiDirectManager::onStatusChanged(winrt::Windows::Devices::WiFiDirect::WiF
                     qCDebug(LOG_WIFI_SHARED) << "Advertisement aborted, unknown reason";
                     break;
             }
+            emit failed();
             break;
         }
 
@@ -188,6 +193,8 @@ void WiFiDirectManager::onStatusChanged(winrt::Windows::Devices::WiFiDirect::WiF
 
 void WiFiDirectManager::onConnectionRequested(const winrt::Windows::Devices::WiFiDirect::WiFiDirectConnectionListener &sender, const winrt::Windows::Devices::WiFiDirect::WiFiDirectConnectionRequestedEventArgs &args)
 {
+    QMutexLocker locker(&mutex_);
+
     try {
         auto connectionRequest = args.GetConnectionRequest();
         auto deviceInformation = connectionRequest.DeviceInformation();

@@ -82,7 +82,7 @@ QStringList DnsServersConfiguration::dnsPolicyTypeToStringList(DNS_POLICY_TYPE d
 std::vector<std::string> DnsServersConfiguration::toStdVector(const QStringList &list) const
 {
     std::vector<std::string> v;
-    for (auto &it : ips)
+    for (auto &it : list)
         v.push_back(it.toStdString());
     return v;
 }

@@ -151,18 +151,10 @@
     </message>
 </context>
 <context>
-    <name>EmergencyConnectWindow::TextLinkButton</name>
+    <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
-        <source>Access for  Windscribe.com  Only</source>
-        <translation>دسترسی فقط برای Windscribe.com</translation>
-    </message>
-    <message>
-        <source>Access for  </source>
-        <translation>دسترسی برای  </translation>
-    </message>
-    <message>
-        <source>  Only</source>
-        <translation>  تنها</translation>
+        <source>Access for %1 Only</source>
+        <translation>دسترسی فقط برای٪ 1</translation>
     </message>
 </context>
 <context>
@@ -794,6 +786,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
         <translation>Windscribe نتوانست پیکربندی کارگزار را بازیابی کند. لطفا یک پروتکل دیگر را امتحان کنید.</translation>
     </message>
+    <message>
+        <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
+        <translation>اتصال IKEv2 در حالت قفل MacOS در دسترس نیست. لطفا حالت قفل را در تنظیمات سیستم غیرفعال کنید یا تنظیمات اتصال خود را تغییر دهید.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1206,6 +1202,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
         <translation>غیرفعال کردن Allow LAN Traffic باعث می شود که کانون امن شما کار خود را متوقف کند.  ایا می خواهید کانون را غیرفعال کنید؟</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is not supported on your version of MacOS.</source>
+        <translation>MAC spoofing در نسخه MacOS شما پشتیبانی نمی شود.</translation>
     </message>
 </context>
 <context>

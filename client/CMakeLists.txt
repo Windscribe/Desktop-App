@@ -163,6 +163,7 @@ endif (DEFINED IS_BUILD_TESTS)
 # ----- Install section -----
 install(TARGETS Windscribe wsnet
     RUNTIME DESTINATION .
+    LIBRARY DESTINATION lib
     BUNDLE DESTINATION .
 )
 

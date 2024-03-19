@@ -151,18 +151,10 @@
     </message>
 </context>
 <context>
-    <name>EmergencyConnectWindow::TextLinkButton</name>
+    <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
-        <source>Access for  Windscribe.com  Only</source>
-        <translation>Windscribe.com 전용 액세스</translation>
-    </message>
-    <message>
-        <source>Access for  </source>
-        <translation>에 대한 액세스  </translation>
-    </message>
-    <message>
-        <source>  Only</source>
-        <translation>  오직</translation>
+        <source>Access for %1 Only</source>
+        <translation>%1에 대한 액세스만</translation>
     </message>
 </context>
 <context>
@@ -794,6 +786,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
         <translation>Windscribe가 서버 구성을 검색할 수 없습니다. 다른 프로토콜을 사용해 보십시오.</translation>
     </message>
+    <message>
+        <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
+        <translation>IKEv2 연결은 MacOS 잠금 모드에서 사용할 수 없습니다. 시스템 설정에서 잠금 모드를 비활성화하거나 연결 설정을 변경하십시오.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1206,6 +1202,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
         <translation>LAN 트래픽 허용을 비활성화하면 보안 핫스팟이 작동을 멈춥니다.  핫스팟을 비활성화하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>MAC spoofing is not supported on your version of MacOS.</source>
+        <translation>MAC 스푸핑은 사용 중인 MacOS 버전에서 지원되지 않습니다.</translation>
     </message>
 </context>
 <context>

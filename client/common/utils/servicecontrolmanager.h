@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <atomic>
 #include <string>
+#include <system_error>
 
 namespace wsl
 {
@@ -16,32 +17,35 @@ public:
     explicit ServiceControlManager();
     ~ServiceControlManager();
 
-    void deleteService(LPCTSTR pszServiceName, bool bStopRunningService = true);
+    void deleteService(LPCTSTR serviceName, bool stopRunningService = true);
+    bool deleteService(LPCTSTR serviceName, std::error_code& ec) noexcept;
 
-    void installService(LPCTSTR pszServiceName, LPCTSTR pszBinaryPathName,
-                        LPCTSTR pszDisplayName, LPCTSTR pszDescription,
-                        DWORD dwServiceType = SERVICE_WIN32_OWN_PROCESS,
-                        DWORD dwStartType = SERVICE_AUTO_START,
-                        LPCTSTR pszDependencies = NULL,
-                        bool bAllowInteractiveUserStart = false);
+    void installService(LPCTSTR serviceName, LPCTSTR binaryPathName,
+                        LPCTSTR displayName, LPCTSTR description,
+                        DWORD serviceType = SERVICE_WIN32_OWN_PROCESS,
+                        DWORD startType = SERVICE_AUTO_START,
+                        LPCTSTR dependencies = NULL,
+                        bool allowInteractiveUserStartStop = false);
 
     bool isSCMOpen() const;
-    bool isServiceInstalled(LPCTSTR pszServiceName) const;
+    bool isServiceInstalled(LPCTSTR serviceName) const;
     bool isServiceOpen() const;
 
     void closeSCM() noexcept;
     void closeService() noexcept;
-    void openSCM(DWORD dwDesiredAccess, LPCTSTR pszServerName = NULL);
-    void openService(LPCTSTR pszServiceName, DWORD dwDesiredAccess = SERVICE_ALL_ACCESS);
-    void queryServiceConfig(std::wstring& sExePath, std::wstring& sAccountName,
-                            DWORD& dwStartType, bool& bServiceShareProcess) const;
+    void openSCM(DWORD desiredAccess, LPCTSTR serverName = NULL);
+    void openService(LPCTSTR serviceName, DWORD desiredAccess = SERVICE_ALL_ACCESS);
+    bool openService(LPCTSTR serviceName, DWORD desiredAccess, std::error_code& ec) noexcept;
+    void queryServiceConfig(std::wstring& exePath, std::wstring& accountName,
+                            DWORD& startType, bool& serviceShareProcess) const;
     DWORD queryServiceStatus() const;
-    void sendControlCode(DWORD dwCode) const;
-    void setServiceDescription(LPCTSTR pszDescription) const;
-    void setServiceSIDType(DWORD dwServiceSidType) const;
+    void sendControlCode(DWORD code) const;
+    void setServiceDescription(LPCTSTR description) const;
+    void setServiceSIDType(DWORD serviceSidType) const;
     void startService();
     void stopService();
-    void stopService(LPCTSTR pszServiceName);
+    void stopService(LPCTSTR serviceName);
+    bool stopService(std::error_code& ec) noexcept;
 
     // Prevents the initiation of, and aborts any currently running, start/stop requests.
     void blockStartStopRequests();
@@ -50,14 +54,14 @@ public:
     LPCTSTR getServerName() const;
 
 private:
-    std::wstring m_sServerName;
-    std::wstring m_sServiceName;
-    SC_HANDLE m_hSCM;
-    SC_HANDLE m_hService;
-    std::atomic<bool> m_bBlockStartStopRequests;
+    std::wstring serverName_;
+    std::wstring serviceName_;
+    SC_HANDLE scm_ = NULL;
+    SC_HANDLE service_ = NULL;
+    std::atomic<bool> blockStartStopRequests_ = false;
 
 private:
-    void grantUserStartPermission() const;
+    void grantUserStartStopPermission() const;
     std::wstring serverNameForDebug() const;
 };
 
@@ -67,25 +71,25 @@ private:
 inline bool
 ServiceControlManager::isSCMOpen() const
 {
-    return (m_hSCM != NULL);
+    return (scm_ != NULL);
 }
 
 inline bool
 ServiceControlManager::isServiceOpen() const
 {
-    return (m_hService != NULL);
+    return (service_ != NULL);
 }
 
 inline void
 ServiceControlManager::blockStartStopRequests()
 {
-    m_bBlockStartStopRequests = true;
+    blockStartStopRequests_ = true;
 }
 
 inline void
 ServiceControlManager::unblockStartStopRequests()
 {
-    m_bBlockStartStopRequests = false;
+    blockStartStopRequests_ = false;
 }
 
 //---------------------------------------------------------------------------

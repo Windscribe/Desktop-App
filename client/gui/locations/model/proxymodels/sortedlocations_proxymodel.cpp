@@ -61,22 +61,30 @@ bool SortedLocationsProxyModel::filterAcceptsRow(int source_row, const QModelInd
     //  filtering by search string
     if (!source_parent.isValid()) {   // country
         QModelIndex mi = sourceModel()->index(source_row, 0, source_parent);
-        if (mi.data().toString().contains(filter_, Qt::CaseInsensitive))
+        if (mi.data().toString().contains(filter_, Qt::CaseInsensitive) ||
+            mi.data(kCountryCode).toString().contains(filter_, Qt::CaseInsensitive))
+        {
             return true;
+        }
 
         for (int i = 0, cnt = sourceModel()->rowCount(mi); i < cnt; ++i) {
             QModelIndex childMi = sourceModel()->index(i, 0, mi);
-            if (childMi.data().toString().contains(filter_, Qt::CaseInsensitive))
+            if (childMi.data().toString().contains(filter_, Qt::CaseInsensitive)) {
                 return true;
+            }
         }
 
     } else {    // city
-        if (source_parent.data().toString().contains(filter_, Qt::CaseInsensitive))
+        if (source_parent.data().toString().contains(filter_, Qt::CaseInsensitive) ||
+            source_parent.data(kCountryCode).toString().contains(filter_, Qt::CaseInsensitive))
+        {
             return true;
+        }
 
         QModelIndex childMi = sourceModel()->index(source_row, 0, source_parent);
-        if (childMi.data().toString().contains(filter_, Qt::CaseInsensitive))
+        if (childMi.data().toString().contains(filter_, Qt::CaseInsensitive)) {
             return true;
+        }
     }
 
     return false;

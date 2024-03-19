@@ -12,6 +12,9 @@
 #include "languagecontroller.h"
 #include "generalmessagecontroller.h"
 #include "tooltips/tooltipcontroller.h"
+#ifdef Q_OS_MAC
+#include "utils/macutils.h"
+#endif
 
 extern QWidget *g_mainWindow;
 
@@ -119,6 +122,11 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(macSpoofingGroup_, &MacSpoofingGroup::cycleMacAddressClick, this, &ConnectionWindowItem::cycleMacAddressClick);
     macSpoofingGroup_->setMacSpoofingSettings(preferences->macAddrSpoofing());
     addItem(macSpoofingGroup_);
+#ifdef Q_OS_MAC
+    if (MacUtils::isOsVersionAtLeast(14, 4)) {
+        macSpoofingGroup_->setEnabled(false);
+    }
+#endif
 #endif
 
 #if defined(Q_OS_WIN)
@@ -349,6 +357,11 @@ void ConnectionWindowItem::onLanguageChanged()
 
 #ifndef Q_OS_LINUX
     macSpoofingGroup_->setDescription(tr("Spoof your device's physical address (MAC address)."));
+#ifdef Q_OS_MAC
+    if (MacUtils::isOsVersionAtLeast(14, 4)) {
+        macSpoofingGroup_->setDescription(tr("MAC spoofing is not supported on your version of MacOS."));
+    }
+#endif
 #endif
 
 #if defined(Q_OS_WIN)

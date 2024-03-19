@@ -1,7 +1,6 @@
 #pragma once
 
 class IHelper;
-class QWidget;
 
 // manage BFE (Base filtering engine) service
 class BFE_Service_win

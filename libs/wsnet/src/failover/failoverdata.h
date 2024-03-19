@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <optional>
 #include <assert.h>
 #include "utils/utils.h"
 #include <fmt/format.h>
@@ -21,18 +22,20 @@ public:
     std::string domain() const { return domain_; }
     std::string echConfig() const { return echConfig_; }
     std::string sniDomain() const { return sniDomain_; }
-    int ttl() const { return ttl_; }
+    std::optional<int> ttl() const { return ttl_; }
     bool isExpired() const
     {
-        assert(!echConfig_.empty());
-        return utils::since(startTime_).count() > (ttl_ * 1000);
+        if (ttl_.has_value())
+            return utils::since(startTime_).count() > (ttl_.value() * 1000);
+        else
+            return false;
     }
 
 private:
     std::string   domain_;
     std::string   sniDomain_;     // empty if no SNI spoofing / domain fronting
     std::string   echConfig_;     // empty if it does not support ECH
-    int ttl_ = 0;                 // TTL in seconds
+    std::optional<int> ttl_;      // TTL in seconds
     std::chrono::steady_clock::time_point startTime_;
 };
 
@@ -52,6 +55,9 @@ struct fmt::formatter<wsnet::FailoverData>
     template<typename FormatContext>
     auto format(wsnet::FailoverData const& fd, FormatContext& ctx) const
     {
-        return fmt::format_to(ctx.out(), "domain: {0}, ech: {1}, sniDomain: {2}, ttl: {3}", fd.domain(), fd.echConfig(), fd.sniDomain(), fd.ttl());
+        if (fd.ttl().has_value())
+            return fmt::format_to(ctx.out(), "domain: {0}, ech: {1}, sniDomain: {2}, ttl: {3}", fd.domain(), fd.echConfig(), fd.sniDomain(), fd.ttl().value());
+        else
+            return fmt::format_to(ctx.out(), "domain: {0}, ech: {1}, sniDomain: {2}", fd.domain(), fd.echConfig(), fd.sniDomain());
     }
 };

@@ -4,12 +4,12 @@
 
 #include <chrono>
 #include <codecvt>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <cstdio>
 #include <sstream>
 
-#include <boost/filesystem/path.hpp>
 
 #include "utils/servicecontrolmanager.h"
 #include "utils/win32handle.h"
@@ -36,7 +36,7 @@ getProcessFolder()
             "GetProcessFolder: GetModuleFileName failed");
     }
 
-    boost::filesystem::path path(buffer);
+    std::filesystem::path path(buffer);
     return path.parent_path().native();
 }
 
@@ -186,7 +186,7 @@ monitorClientStatus(LPVOID lpParam)
             {
                 // The wireguard tunnel DLL derives the service name from the config file name
                 // we passed to WireGuardTunnelService() in main().
-                boost::filesystem::path path((const char*)lpParam);
+                std::filesystem::path path((const char*)lpParam);
                 serviceName = L"WireGuardTunnel$" + path.stem().native();
             }
 

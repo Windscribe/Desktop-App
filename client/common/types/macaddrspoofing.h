@@ -3,6 +3,9 @@
 #include <QJsonArray>
 #include <QString>
 #include "networkinterface.h"
+#ifdef Q_OS_MAC
+#include "utils/macutils.h"
+#endif
 
 namespace types {
 
@@ -26,8 +29,15 @@ struct MacAddrSpoofing
 
     MacAddrSpoofing(const QJsonObject &json)
     {
-        if (json.contains(jsonInfo.kIsEnabledProp) && json[jsonInfo.kIsEnabledProp].isBool())
+        if (json.contains(jsonInfo.kIsEnabledProp) && json[jsonInfo.kIsEnabledProp].isBool()) {
             isEnabled = json[jsonInfo.kIsEnabledProp].toBool();
+#ifdef Q_OS_MAC
+            // MacOS 14.4 does not support this feature
+            if (MacUtils::isOsVersionAtLeast(14, 4)) {
+                isEnabled = false;
+            }
+#endif
+        }
 
         if (json.contains(jsonInfo.kMacAddressProp) && json[jsonInfo.kMacAddressProp].isString())
             macAddress = json[jsonInfo.kMacAddressProp].toString();

@@ -27,12 +27,8 @@ static std::string wstring_to_string(const std::wstring &wideStr)
 *          methods.
 *******************************************************************************/
 ServiceControlManager::ServiceControlManager()
-    : m_hSCM(NULL),
-      m_hService(NULL),
-      m_bBlockStartStopRequests(false)
 {
 }
-
 
 /******************************************************************************
 * METHOD:  ServiceControlManager destructor
@@ -46,57 +42,55 @@ ServiceControlManager::~ServiceControlManager()
     closeSCM();
 }
 
-
 /******************************************************************************
-* METHOD:  OpenSCM(LPCTSTR pszServerName)
+* METHOD:  openSCM
 *
 * PURPOSE: Opens a connection to the specified SCM.
 *
-* INPUT:   dwDesiredAccess: desired access rights, as defined by the OpenSCManager
+* INPUT:   desiredAccess: desired access rights, as defined by the OpenSCManager
 *             Win32 API.
 *
-*          pszServerName: Points to a null-terminated string that names the
+*          serverName: Points to a null-terminated string that names the
 *             target computer. If the pointer is NULL or points to an empty
 *             string, the method connects to the SCM on the local computer.
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-void ServiceControlManager::openSCM(DWORD dwDesiredAccess, LPCTSTR pszServerName)
+void ServiceControlManager::openSCM(DWORD desiredAccess, LPCTSTR serverName)
 {
     closeSCM();
 
-    m_hSCM = ::OpenSCManager(pszServerName, NULL, dwDesiredAccess);
+    scm_ = ::OpenSCManager(serverName, NULL, desiredAccess);
 
-    if (m_hSCM != NULL) {
-        if (pszServerName != NULL) {
-            m_sServerName = pszServerName;
+    if (scm_ != NULL) {
+        if (serverName != NULL) {
+            serverName_ = serverName;
         }
         return;
     }
 
-    DWORD dwLastError = ::GetLastError();
+    DWORD lastError = ::GetLastError();
     std::wostringstream errorMsg;
 
-    switch (dwLastError) {
+    switch (lastError) {
     case ERROR_ACCESS_DENIED:
-        errorMsg << "OpenSCM: insufficient user rights to open SCM on server " << serverNameForDebug();
+        errorMsg << "openSCM: insufficient user rights to open SCM on server " << serverNameForDebug();
         break;
 
     case ERROR_INVALID_PARAMETER:
-        errorMsg << "OpenSCM: one of the parameters is incorrect";
+        errorMsg << "openSCM: one of the parameters is incorrect";
         break;
 
     default:
-        errorMsg << "OpenSCM failed to open SCM on server " << serverNameForDebug() << " - " << dwLastError;
+        errorMsg << "openSCM failed to open SCM on server " << serverNameForDebug() << " - " << lastError;
         break;
     }
 
-    throw std::system_error(dwLastError, std::system_category(), wstring_to_string(errorMsg.str()));
+    throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
 }
 
-
 /******************************************************************************
-* METHOD:  CloseSCM()
+* METHOD:  closeSCM()
 *
 * PURPOSE: Closes the open SCM and service handles.
 *
@@ -109,22 +103,21 @@ void ServiceControlManager::closeSCM() noexcept
 {
     closeService();
 
-    if (m_hSCM != NULL) {
-        ::CloseServiceHandle(m_hSCM);
-        m_hSCM = NULL;
+    if (scm_ != NULL) {
+        ::CloseServiceHandle(scm_);
+        scm_ = NULL;
     }
 
-    m_sServerName.clear();
+    serverName_.clear();
 }
 
-
 /******************************************************************************
-* METHOD:  OpenService(LPCTSTR pszServiceName)
+* METHOD:  openService
 *
 * PURPOSE: Opens a handle to an existing service.
 *          OpenSCM must be called before calling this method.
 *
-* INPUT:   pszServiceName: Points to a null-terminated string that names the
+* INPUT:   serviceName: Points to a null-terminated string that names the
 *             service to open. The maximum string length is 256 characters. The
 *             SCM database preserves the case of the characters, but service
 *             name comparisons are always case insensitive. A slash (/),
@@ -133,53 +126,66 @@ void ServiceControlManager::closeSCM() noexcept
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-void ServiceControlManager::openService(LPCTSTR pszServiceName, DWORD dwDesiredAccess)
+void ServiceControlManager::openService(LPCTSTR serviceName, DWORD desiredAccess)
 {
-    if (pszServiceName == NULL) {
-        throw std::system_error(ERROR_INVALID_NAME, std::system_category(), "OpenService: the service name parameter cannot be null");
+    std::error_code ec;
+    auto result = openService(serviceName, desiredAccess, ec);
+
+    if (result) {
+        return;
+    }
+
+    std::wostringstream errorMsg;
+
+    switch (ec.value()) {
+    case ERROR_ACCESS_DENIED:
+        errorMsg << "openService: insufficient user rights to open service - " << serviceName;
+        break;
+
+    case ERROR_INVALID_HANDLE:
+        errorMsg << "openService: the SCM is not open to access service - " << serviceName;
+        break;
+
+    case ERROR_INVALID_NAME:
+        errorMsg << "openService: service name parameter has an invalid format - " << serviceName;
+        break;
+
+    case ERROR_SERVICE_DOES_NOT_EXIST:
+        errorMsg << "openService: no service with the specified name exists on this server - " << serviceName;
+        break;
+
+    default:
+        errorMsg << "openService failed to open service " << serviceName << " - " << ec.value();
+        break;
+    }
+
+    throw std::system_error(ec, wstring_to_string(errorMsg.str()));
+}
+
+bool ServiceControlManager::openService(LPCTSTR serviceName, DWORD desiredAccess, std::error_code& ec) noexcept
+{
+    ec.clear();
+
+    if (serviceName == NULL) {
+        ec.assign(ERROR_INVALID_NAME, std::system_category());
+        return false;
     }
 
     closeService();
 
-    // Open the specified service.
-    m_hService = ::OpenService(m_hSCM, pszServiceName, dwDesiredAccess);
+    service_ = ::OpenService(scm_, serviceName, desiredAccess);
 
-    if (m_hService != NULL) {
-        m_sServiceName = pszServiceName;
-        return;
+    if (service_ == NULL) {
+        ec.assign(::GetLastError(), std::system_category());
+        return false;
     }
 
-    DWORD dwLastError = ::GetLastError();
-    std::wostringstream errorMsg;
-
-    switch (dwLastError) {
-    case ERROR_ACCESS_DENIED:
-        errorMsg << "OpenService: insufficient user rights to open service - " << pszServiceName;
-        break;
-
-    case ERROR_INVALID_HANDLE:
-        errorMsg << "OpenService: the SCM is not open to access service - " << pszServiceName;
-        break;
-
-    case ERROR_INVALID_NAME:
-        errorMsg << "OpenService: service name parameter has an invalid format - " << pszServiceName;
-        break;
-
-    case ERROR_SERVICE_DOES_NOT_EXIST:
-        errorMsg << "OpenService: no service with the specified name exists on this server - " << pszServiceName;
-        break;
-
-    default:
-        errorMsg << "OpenService failed to open service " << pszServiceName << " - " << dwLastError;
-        break;
-    }
-
-    throw std::system_error(dwLastError, std::system_category(), wstring_to_string(errorMsg.str()));
+    serviceName_ = serviceName;
+    return true;
 }
 
-
 /******************************************************************************
-* METHOD:  CloseService()
+* METHOD:  closeService
 *
 * PURPOSE: Closes an open service handle.
 *
@@ -193,16 +199,15 @@ void ServiceControlManager::openService(LPCTSTR pszServiceName, DWORD dwDesiredA
 void
 ServiceControlManager::closeService() noexcept
 {
-    if (m_hService != NULL) {
-        ::CloseServiceHandle(m_hService);
-        m_hService = NULL;
-        m_sServiceName.clear();
+    if (service_ != NULL) {
+        ::CloseServiceHandle(service_);
+        service_ = NULL;
+        serviceName_.clear();
     }
 }
 
-
 /******************************************************************************
-* METHOD:  QueryServiceStatus(DWORD& dwStatus)
+* METHOD:  queryServiceStatus
 *
 * PURPOSE: Determines the status (started, stopped, pending, etc.) of the
 *          service.  OpenService must be called before calling this method.
@@ -223,111 +228,108 @@ DWORD
 ServiceControlManager::queryServiceStatus() const
 {
     SERVICE_STATUS status;
-    if (::QueryServiceStatus(m_hService, &status)) {
+    if (::QueryServiceStatus(service_, &status)) {
         return status.dwCurrentState;
     }
 
-    DWORD dwLastError = ::GetLastError();
+    DWORD lastError = ::GetLastError();
     std::wostringstream errorMsg;
 
-    switch (dwLastError) {
+    switch (lastError) {
     case ERROR_ACCESS_DENIED:
-        errorMsg << "QueryServiceStatus: insufficient user rights to query the service - " << m_sServiceName;
+        errorMsg << "queryServiceStatus: insufficient user rights to query the service - " << serviceName_;
         break;
 
     case ERROR_INVALID_HANDLE:
-        errorMsg << "QueryServiceStatus: the service has not been opened - " << m_sServiceName;
+        errorMsg << "queryServiceStatus: the service has not been opened - " << serviceName_;
         break;
 
     default:
-        errorMsg << "QueryServiceStatus failed to query the service " << m_sServiceName << " - " << dwLastError;
+        errorMsg << "queryServiceStatus failed to query the service " << serviceName_ << " - " << lastError;
         break;
     }
 
-    throw std::system_error(dwLastError, std::system_category(), wstring_to_string(errorMsg.str()));
+    throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
 }
 
-
 /******************************************************************************
-* METHOD:  QueryServiceConfig(std::string& sExePath, std::string& sAccountName,
-*                             DWORD& dwStartType, bool& bServiceShareProcess)
+* METHOD:  queryServiceConfig
 *
 * PURPOSE: Retrieves the configuration parameters of the service.
 *          OpenService must be called before calling this method.
 *
-* OUTPUT:  sExePath: receives the full path to the service's executable.
+* OUTPUT:  exePath: receives the full path to the service's executable.
 *
-*          sAccountName: receives the account name in the form of
+*          accountName: receives the account name in the form of
 *             DomainName\Username, which the service process will be logged
 *             on as when it runs.
 *
-*          dwStartType: receives one of the following status codes:
+*          startType: receives one of the following status codes:
 *
 *             SERVICE_AUTO_START    - NT starts service automatically
 *             SERVICE_DEMAND_START  - user must start the service
 *             SERVICE_DISABLED      - service cannot be started
 *
-*          bServiceShareProcess: true if the service shares a process with
+*          serviceShareProcess: true if the service shares a process with
 *             other services.
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-void ServiceControlManager::queryServiceConfig(std::wstring &sExePath, std::wstring &sAccountName,
-                                               DWORD& dwStartType, bool& bServiceShareProcess) const
+void ServiceControlManager::queryServiceConfig(std::wstring &exePath, std::wstring &accountName,
+                                               DWORD& startType, bool& serviceShareProcess) const
 {
-    DWORD dwNumBytesNeeded = 0;
-    DWORD dwBufferSize = 1024;
-    std::unique_ptr< unsigned char[] > buffer(new unsigned char[dwBufferSize]);
+    DWORD numBytesNeeded = 0;
+    DWORD bufferSize = 1024;
+    std::unique_ptr< unsigned char[] > buffer(new unsigned char[bufferSize]);
 
-    bool b2ndTry = false;
+    bool secondTry = false;
 
     for (int i = 0; i < 2; i++) {
-        if (::QueryServiceConfig(m_hService, (LPQUERY_SERVICE_CONFIG)buffer.get(),
-                                 dwBufferSize, &dwNumBytesNeeded)) {
+        if (::QueryServiceConfig(service_, (LPQUERY_SERVICE_CONFIG)buffer.get(),
+                                 bufferSize, &numBytesNeeded)) {
             break;
         }
 
-        DWORD dwLastError = ::GetLastError();
+        DWORD lastError = ::GetLastError();
         std::wostringstream errorMsg;
 
-        switch (dwLastError) {
+        switch (lastError) {
         case ERROR_INSUFFICIENT_BUFFER:
-            if (b2ndTry) {
-                errorMsg << "QueryServiceConfig: insufficient buffer space to query the service's configuration - " << m_sServiceName;
+            if (secondTry) {
+                errorMsg << "queryServiceConfig: insufficient buffer space to query the service's configuration - " << serviceName_;
                 break;
             }
 
-            buffer.reset(new unsigned char[dwNumBytesNeeded]);
-            dwNumBytesNeeded = 0;
-            b2ndTry = true;
+            buffer.reset(new unsigned char[numBytesNeeded]);
+            numBytesNeeded = 0;
+            secondTry = true;
             continue;
 
         case ERROR_ACCESS_DENIED:
-            errorMsg << "QueryServiceConfig: insufficient user rights to query the service's configuration - " << m_sServiceName;
+            errorMsg << "queryServiceConfig: insufficient user rights to query the service's configuration - " << serviceName_;
             break;
 
         case ERROR_INVALID_HANDLE:
-            errorMsg << "QueryServiceConfig: the service has not been opened - " << m_sServiceName;
+            errorMsg << "queryServiceConfig: the service has not been opened - " << serviceName_;
             break;
 
         default:
-            errorMsg << "QueryServiceConfig failed to query the service " << m_sServiceName << " - " << dwLastError;
+            errorMsg << "queryServiceConfig failed to query the service " << serviceName_ << " - " << lastError;
             break;
         }
 
-        throw std::system_error(dwLastError, std::system_category(), wstring_to_string(errorMsg.str()));
+        throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
     }
 
     LPQUERY_SERVICE_CONFIG lpConfig = (LPQUERY_SERVICE_CONFIG)buffer.get();
-    dwStartType          = lpConfig->dwStartType;
-    sExePath             = lpConfig->lpBinaryPathName;
-    bServiceShareProcess = (lpConfig->dwServiceType == SERVICE_WIN32_SHARE_PROCESS);
-    sAccountName         = lpConfig->lpServiceStartName;
+    startType           = lpConfig->dwStartType;
+    exePath             = lpConfig->lpBinaryPathName;
+    serviceShareProcess = (lpConfig->dwServiceType == SERVICE_WIN32_SHARE_PROCESS);
+    accountName         = lpConfig->lpServiceStartName;
 }
 
-
 /******************************************************************************
-* METHOD:  StartService()
+* METHOD:  startService
 *
 * PURPOSE: Instructs the SCM to start the service.  OpenService must be called
 *          before calling this method.
@@ -338,8 +340,8 @@ void ServiceControlManager::queryServiceConfig(std::wstring &sExePath, std::wstr
 *******************************************************************************/
 void ServiceControlManager::startService()
 {
-    if (m_bBlockStartStopRequests) {
-        throw std::system_error(ERROR_CANCELLED, std::system_category(), std::string("StartService: ") + wstring_to_string(m_sServiceName));
+    if (blockStartStopRequests_) {
+        throw std::system_error(ERROR_CANCELLED, std::system_category(), std::string("startService: ") + wstring_to_string(serviceName_));
     }
 
     std::wostringstream errorMsg;
@@ -347,90 +349,89 @@ void ServiceControlManager::startService()
     ULONGLONG elapsedTime;
     ULONGLONG startTime = ::GetTickCount64();
 
-    if (::StartService(m_hService, 0, NULL)) {
+    if (::StartService(service_, 0, NULL)) {
         // Wait for start service command to complete.
-        for (int i = 0; !m_bBlockStartStopRequests && i < 80; i++) {
-            DWORD dwStatus = queryServiceStatus();
-            if (dwStatus == SERVICE_RUNNING) {
+        for (int i = 0; !blockStartStopRequests_ && i < 200; i++) {
+            DWORD status = queryServiceStatus();
+            if (status == SERVICE_RUNNING) {
                 return;
             }
 
-            ::Sleep(250);
+            ::Sleep(100);
         }
 
-        if (m_bBlockStartStopRequests) {
-            throw std::system_error(ERROR_CANCELLED, std::system_category(), std::string("StartService: ") + wstring_to_string(m_sServiceName));
+        if (blockStartStopRequests_) {
+            throw std::system_error(ERROR_CANCELLED, std::system_category(), std::string("startService: ") + wstring_to_string(serviceName_));
         }
 
         elapsedTime = ::GetTickCount64() - startTime;
-        errorMsg << "StartService(" << m_sServiceName << ") API request succeeded, but the service did not report as running after " << elapsedTime << "ms";
+        errorMsg << "startService(" << serviceName_ << ") API request succeeded, but the service did not report as running after " << elapsedTime << "ms";
         throw std::system_error(ERROR_SERVICE_REQUEST_TIMEOUT, std::system_category(), wstring_to_string(errorMsg.str()));
     }
 
     elapsedTime = ::GetTickCount64() - startTime;
 
-    DWORD dwLastError = ::GetLastError();
+    DWORD lastError = ::GetLastError();
 
-    if (dwLastError == ERROR_SERVICE_ALREADY_RUNNING) {
+    if (lastError == ERROR_SERVICE_ALREADY_RUNNING) {
         return;
     }
 
-    switch (dwLastError) {
+    switch (lastError) {
     case ERROR_ACCESS_DENIED:
-        errorMsg << "StartService: insufficient user rights to request the service to start - " << m_sServiceName;
+        errorMsg << "startService: insufficient user rights to request the service to start - " << serviceName_;
         break;
 
     case ERROR_INVALID_HANDLE:
-        errorMsg << "StartService: the service has not been opened - " << m_sServiceName;
+        errorMsg << "startService: the service has not been opened - " << serviceName_;
         break;
 
     case ERROR_PATH_NOT_FOUND:
-        errorMsg << "StartService: the executable for the service could not be found - " << m_sServiceName;
+        errorMsg << "startService: the executable for the service could not be found - " << serviceName_;
         break;
 
     case ERROR_SERVICE_DATABASE_LOCKED:
-        errorMsg << "StartService: the SCM database is locked by another process - " << m_sServiceName;
+        errorMsg << "startService: the SCM database is locked by another process - " << serviceName_;
         break;
 
     case ERROR_SERVICE_DEPENDENCY_DELETED:
-        errorMsg << "StartService: the service depends on a service that does not exist or has been marked for deletion - " << m_sServiceName;
+        errorMsg << "startService: the service depends on a service that does not exist or has been marked for deletion - " << serviceName_;
         break;
 
     case ERROR_SERVICE_DEPENDENCY_FAIL:
-        errorMsg << "StartService: the service depends on another service that has failed to start - " << m_sServiceName;
+        errorMsg << "startService: the service depends on another service that has failed to start - " << serviceName_;
         break;
 
     case ERROR_SERVICE_DISABLED:
-        errorMsg << "StartService: the service has been disabled - " << m_sServiceName;
+        errorMsg << "startService: the service has been disabled - " << serviceName_;
         break;
 
     case ERROR_SERVICE_LOGON_FAILED:
-        errorMsg << "StartService: the service failed to logon.  Check its startup logon parameters in the control panel - " << m_sServiceName;
+        errorMsg << "startService: the service failed to logon.  Check its startup logon parameters in the control panel - " << serviceName_;
         break;
 
     case ERROR_SERVICE_MARKED_FOR_DELETE:
-        errorMsg << "StartService: the service has been marked for deletion - " << m_sServiceName;
+        errorMsg << "startService: the service has been marked for deletion - " << serviceName_;
         break;
 
     case ERROR_SERVICE_NO_THREAD:
-        errorMsg << "StartService: a thread could not be created for the service - " << m_sServiceName;
+        errorMsg << "startService: a thread could not be created for the service - " << serviceName_;
         break;
 
     case ERROR_SERVICE_REQUEST_TIMEOUT:
-        errorMsg << "StartService(" << m_sServiceName << ") API request failed after " << elapsedTime << "ms";
+        errorMsg << "startService(" << serviceName_ << ") API request failed after " << elapsedTime << "ms";
         break;
 
     default:
-        errorMsg << "StartService failed to start the service " << m_sServiceName << " - " << dwLastError;
+        errorMsg << "startService failed to start the service " << serviceName_ << " - " << lastError;
         break;
     }
 
-    throw std::system_error(dwLastError, std::system_category(), wstring_to_string(errorMsg.str()));
+    throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
 }
 
-
 /******************************************************************************
-* METHOD:  StopService()
+* METHOD:  stopService
 *
 * PURPOSE: Instructs the SCM to stop the service.  OpenService must be called
 *          before calling this method.
@@ -441,76 +442,93 @@ void ServiceControlManager::startService()
 *******************************************************************************/
 void ServiceControlManager::stopService()
 {
-    if (m_bBlockStartStopRequests) {
-        throw std::system_error(ERROR_CANCELLED, std::system_category(), std::string("StopService: ") + wstring_to_string(m_sServiceName));
-    }
+    std::error_code ec;
+    auto result = stopService(ec);
 
-    SERVICE_STATUS status;
-    if (::ControlService(m_hService, SERVICE_CONTROL_STOP, &status)) {
-        // Wait for stop service command to complete.
-        DWORD dwStatus = status.dwCurrentState;
-
-        for (int i = 0; (!m_bBlockStartStopRequests && (dwStatus != SERVICE_STOPPED) && (i < 80)); i++) {
-            ::Sleep(250);
-            dwStatus = queryServiceStatus();
-        }
-
-        if (dwStatus == SERVICE_STOPPED) {
-            return;
-        }
-
-        DWORD dwError = (m_bBlockStartStopRequests ? ERROR_CANCELLED : ERROR_SERVICE_REQUEST_TIMEOUT);
-        throw std::system_error(dwError, std::system_category(), std::string("StopService: ") + wstring_to_string(m_sServiceName));
-    }
-
-    DWORD dwLastError = ::GetLastError();
-
-    if (dwLastError == ERROR_SERVICE_NOT_ACTIVE) {
+    if (result) {
         return;
     }
 
     std::wostringstream errorMsg;
 
-    switch (dwLastError) {
+    switch (ec.value()) {
     case ERROR_ACCESS_DENIED:
-        errorMsg << "StopService: insufficient user rights request the service to stop - " << m_sServiceName;
+        errorMsg << "stopService: insufficient user rights request the service to stop - " << serviceName_;
         break;
 
     case ERROR_INVALID_HANDLE:
-        errorMsg << "StopService: the service has not been opened - " << m_sServiceName;
+        errorMsg << "stopService: the service has not been opened - " << serviceName_;
         break;
 
     case ERROR_DEPENDENT_SERVICES_RUNNING:
-        errorMsg << "StopService: the service cannot be stopped because other running services are dependent on it - " << m_sServiceName;
+        errorMsg << "stopService: the service cannot be stopped because other running services are dependent on it - " << serviceName_;
         break;
 
     case ERROR_INVALID_SERVICE_CONTROL:
-        errorMsg << "StopService: the service does not accept stop requests - " << m_sServiceName;
+        errorMsg << "stopService: the service does not accept stop requests - " << serviceName_;
         break;
 
     case ERROR_SERVICE_CANNOT_ACCEPT_CTRL:
-        errorMsg << "StopService: the service is already stopped or is in a pending state - " << m_sServiceName;
+        errorMsg << "stopService: the service is already stopped or is in a pending state - " << serviceName_;
         break;
 
     case ERROR_SERVICE_REQUEST_TIMEOUT:
-        errorMsg << "StopService: " << m_sServiceName;
+        errorMsg << "stopService: " << serviceName_;
         break;
 
     default:
-        errorMsg << "StopService failed to stop the service " << m_sServiceName << " - " << dwLastError;
+        errorMsg << "stopService failed to stop the service " << serviceName_ << " - " << ec.value();
         break;
     }
 
-    throw std::system_error(dwLastError, std::system_category(), wstring_to_string(errorMsg.str()));
+    throw std::system_error(ec, wstring_to_string(errorMsg.str()));
 }
 
+bool ServiceControlManager::stopService(std::error_code& ec) noexcept
+{
+    ec.clear();
+
+    if (blockStartStopRequests_) {
+        ec.assign(ERROR_CANCELLED, std::system_category());
+        return false;
+    }
+
+    SERVICE_STATUS status;
+    auto result = ::ControlService(service_, SERVICE_CONTROL_STOP, &status);
+    if (result) {
+        // Wait for stop service command to complete.
+        DWORD currentState = status.dwCurrentState;
+
+        // Wait at most 20 seconds for the service to stop.
+        for (int i = 0; (!blockStartStopRequests_ && (currentState != SERVICE_STOPPED) && (i < 200)); i++) {
+            ::Sleep(100);
+            currentState = queryServiceStatus();
+        }
+
+        if (currentState == SERVICE_STOPPED) {
+            return true;
+        }
+
+        DWORD error = (blockStartStopRequests_ ? ERROR_CANCELLED : ERROR_SERVICE_REQUEST_TIMEOUT);
+        ec.assign(error, std::system_category());
+        return false;
+    }
+
+    DWORD lastError = ::GetLastError();
+    if (lastError == ERROR_SERVICE_NOT_ACTIVE) {
+        return true;
+    }
+
+    ec.assign(lastError, std::system_category());
+    return false;
+}
 
 /******************************************************************************
-* METHOD:  StopService()
+* METHOD:  stopService
 *
 * PURPOSE: Opens the SCM and instructs it to stop the service if it is installed.
 *
-* INPUT:   pszServiceName: Points to a null-terminated string that names the
+* INPUT:   serviceName: Points to a null-terminated string that names the
 *             service to open. The maximum string length is 256 characters. The
 *             SCM database preserves the case of the characters, but service
 *             name comparisons are always case insensitive. A slash (/),
@@ -519,87 +537,167 @@ void ServiceControlManager::stopService()
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-void ServiceControlManager::stopService(LPCTSTR pszServiceName)
+void ServiceControlManager::stopService(LPCTSTR serviceName)
 {
     openSCM(SC_MANAGER_CONNECT);
-    if (isServiceInstalled(pszServiceName)) {
-        openService(pszServiceName, SERVICE_QUERY_STATUS | SERVICE_STOP);
+    if (isServiceInstalled(serviceName)) {
+        openService(serviceName, SERVICE_QUERY_STATUS | SERVICE_STOP);
         stopService();
     }
 }
 
-
 /******************************************************************************
-* METHOD:  DeleteService(LPCTSTR pszServiceName)
+* METHOD:  deleteService
 *
-* PURPOSE: Deletes the service from the SCM database.
-*          OpenSCM must be called before calling this method.
+* PURPOSE: Initiates deletion of the service from the SCM database.
 *
-* INPUT:   pszServiceName: Points to a null-terminated string that names the
+* NOTES:   - OpenSCM must be called before calling this method.
+*          - The service must exist.
+*          - This method does not wait for the service to be deleted.  If the
+*            system/SCM are busy, it may take some time for the service to be
+*            actually deleted from the SCM database.
+*
+* INPUT:   serviceName: Points to a null-terminated string that names the
 *             service to delete. The maximum string length is 256 characters.
 *             The SCM database preserves the character's case, but service
 *             name comparisons are always case insensitive. A slash (/),
 *             backslash (\), comma, and space are invalid service name
 *             characters.
 *
-*          bStopRunningService: attempt to stop the service, if it's running,
+*          stopRunningService: attempt to stop the service, if it's running,
 *             before asking the SCM to delete it.
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-void ServiceControlManager::deleteService(LPCTSTR pszServiceName, bool bStopRunningService)
+void ServiceControlManager::deleteService(LPCTSTR serviceName, bool stopRunningService)
 {
-    openService(pszServiceName);
+    openService(serviceName);
 
-    if (bStopRunningService) {
+    if (stopRunningService) {
         if (queryServiceStatus() != SERVICE_STOPPED) {
             stopService();
         }
     }
 
-    BOOL bResult = ::DeleteService(m_hService);
+    BOOL result = ::DeleteService(service_);
 
     // Get error code before CloseService possibly changes it.
-    DWORD dwLastError = ::GetLastError();
+    DWORD lastError = ::GetLastError();
 
     // Close our handle to the service so the SCM can delete it.
     closeService();
 
-    if (bResult) {
+    if (result) {
         return;
     }
 
     std::wostringstream errorMsg;
 
-    switch (dwLastError) {
+    switch (lastError) {
     case ERROR_ACCESS_DENIED:
-        errorMsg << "DeleteService: insufficient user rights to delete service - " << pszServiceName;
+        errorMsg << "deleteService: insufficient user rights to delete service - " << serviceName;
         break;
 
     case ERROR_INVALID_HANDLE:
-        errorMsg << "DeleteService: the SCM is not open - " << pszServiceName;
+        errorMsg << "deleteService: the SCM is not open - " << serviceName;
         break;
 
     case ERROR_SERVICE_MARKED_FOR_DELETE:
-        errorMsg << "DeleteService: service has already been marked for deletion - " << pszServiceName;
+        errorMsg << "deleteService: service has already been marked for deletion - " << serviceName;
         break;
 
     default:
-        errorMsg << "DeleteService failed to delete the service " << pszServiceName << " - " << dwLastError;
+        errorMsg << "deleteService failed to delete the service " << serviceName << " - " << lastError;
         break;
     }
 
-    throw std::system_error(dwLastError, std::system_category(), wstring_to_string(errorMsg.str()));
+    throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
+}
+
+/******************************************************************************
+* METHOD:  deleteService
+*
+* PURPOSE: Stops the service if it is running and initiates deletion of the
+*          service from the SCM database.  Waits at most 20s for the SCM to
+*          report the service as deleted.
+*
+* NOTES:   OpenSCM must be called before calling this method.
+*
+* INPUT:   serviceName: Points to a null-terminated string that names the
+*             service to delete. The maximum string length is 256 characters.
+*             The SCM database preserves the character's case, but service
+*             name comparisons are always case insensitive. A slash (/),
+*             backslash (\), comma, and space are invalid service name
+*             characters.
+*
+*          ec: contains the WIN32 error code if a failure occurs.
+*******************************************************************************/
+bool ServiceControlManager::deleteService(LPCTSTR serviceName, std::error_code& ec) noexcept
+{
+    ec.clear();
+
+    auto result = openService(serviceName, SERVICE_ALL_ACCESS, ec);
+    if (!result) {
+        if (ec.value() == ERROR_SERVICE_DOES_NOT_EXIST) {
+            ec.clear();
+            return true;
+        }
+
+        return false;
+    }
+
+    // We'll assume the service is not running and attempt to delete it if we cannot
+    // query its status.  It should be exceedingly rare for OpenService to succeed and
+    // QueryServiceStatus to fail.
+    SERVICE_STATUS status;
+    if (::QueryServiceStatus(service_, &status)) {
+        if (status.dwCurrentState != SERVICE_STOPPED) {
+            if (!stopService(ec)) {
+                return false;
+            }
+        }
+    }
+
+    result = ::DeleteService(service_);
+
+    // Get error code before CloseService possibly changes it.
+    DWORD lastError = (result ? NO_ERROR : ::GetLastError());
+
+    // Close our handle to the service so the SCM can delete it.
+    closeService();
+
+    if (!result && lastError != ERROR_SERVICE_MARKED_FOR_DELETE) {
+        ec.assign(lastError, std::system_category());
+        return false;
+    }
+
+    // Wait at most 20 seconds for the service to be deleted.
+    for (int i = 0; i < 200; i++) {
+        result = openService(serviceName, SERVICE_QUERY_STATUS, ec);
+        if (!result) {
+            if (ec.value() == ERROR_SERVICE_DOES_NOT_EXIST) {
+                ec.clear();
+                return true;
+            }
+
+            return false;
+        }
+
+        closeService();
+        ::Sleep(100);
+    }
+
+    return false;
 }
 
 
 /******************************************************************************
-* METHOD:  ServiceInstalled(LPCTSTR pszServiceName)
+* METHOD:  isServiceInstalled
 *
 * PURPOSE: Queries the SCM database to see if the service is installed.
 *          OpenSCM must be called before calling this method.
 *
-* INPUT:   pszServiceName: Points to a null-terminated string that names the
+* INPUT:   serviceName: Points to a null-terminated string that names the
 *             service to query. The maximum string length is 256 characters.
 *             The SCM database preserves the character's case, but service
 *             name comparisons are always case insensitive. A slash (/),
@@ -609,58 +707,54 @@ void ServiceControlManager::deleteService(LPCTSTR pszServiceName, bool bStopRunn
 * THROWS:  A system_error object.
 *******************************************************************************/
 bool
-ServiceControlManager::isServiceInstalled(LPCTSTR pszServiceName) const
+ServiceControlManager::isServiceInstalled(LPCTSTR serviceName) const
 {
-    if (pszServiceName == NULL) {
-        throw std::system_error(ERROR_INVALID_NAME, std::system_category(), "ServiceInstalled: the service name parameter cannot be null");
+    if (serviceName == NULL) {
+        throw std::system_error(ERROR_INVALID_NAME, std::system_category(), "isServiceInstalled: the service name parameter cannot be null");
     }
 
-    SC_HANDLE hService = ::OpenService(m_hSCM, pszServiceName, SERVICE_QUERY_STATUS);
+    SC_HANDLE service = ::OpenService(scm_, serviceName, SERVICE_QUERY_STATUS);
 
-    bool bInstalled = (hService != NULL);
+    bool installed = (service != NULL);
 
-    if (bInstalled) {
-        ::CloseServiceHandle(hService);
+    if (installed) {
+        ::CloseServiceHandle(service);
     }
 
-    return bInstalled;
+    return installed;
 }
 
-
 /******************************************************************************
-* METHOD:  InstallService(LPCTSTR pszServiceName, LPCTSTR pszBinaryPathName,
-*                         LPCTSTR pszDisplayName, DWORD dwServiceType,
-*                         DWORD dwStartType, LPCTSTR pszDependencies,
-*                         LPCTSTR pszAccountName, LPCTSTR pszPassword)
+* METHOD:  installService
 *
 * PURPOSE: Installs a service.
 *          OpenSCM must be called before calling this method.
 *
-* INPUT:   pszServiceName: Points to a null-terminated string that names the
+* INPUT:   serviceName: Points to a null-terminated string that names the
 *             service to install. The maximum string length is 256 characters.
 *             The SCM database preserves the character's case, but service
 *             name comparisons are always case insensitive. A slash (/),
 *             backslash (\), comma, and space are invalid service name
 *             characters.
 *
-*          pszBinaryPathName: Points to a null-terminated string that contains
+*          binaryPathName: Points to a null-terminated string that contains
 *             the fully qualified path to the service binary file.
 *
-*          pszDisplayName: Points to a null-terminated string that is to be
+*          displayName: Points to a null-terminated string that is to be
 *             used by user interface programs to identify the service. This
 *             string has a maximum length of 256 characters. The name is
 *             case-preserved in the SCM. display name comparisons are always
 *             case-insensitive.
 *
-*          pszDescription: Points to a null-terminated string that specifies
+*          description: Points to a null-terminated string that specifies
 *             the description of the service.
 *
-*          dwServiceType: specify one of the following service types:
+*          serviceType: specify one of the following service types:
 *
 *             SERVICE_WIN32_OWN_PROCESS
 *             SERVICE_WIN32_SHARE_PROCESS
 *
-*          dwStartType: specify one of the following start types:
+*          startType: specify one of the following start types:
 *
 *             SERVICE_AUTO_START   - started automatically by the SCM during
 *                                    system startup.
@@ -668,238 +762,217 @@ ServiceControlManager::isServiceInstalled(LPCTSTR pszServiceName) const
 *             SERVICE_DEMAND_START - started by the SCM when a process calls
 *                                    the StartService function.
 *
-*          pszDependencies: Points to a double null-terminated array of
+*          dependencies: Points to a double null-terminated array of
 *             null-separated names of services that the system must start
 *             before this service. Specify NULL or an empty string if the
 *             service has no dependencies.
 *
-*          bAllowInteractiveUserStart: if true logged in non-admin users can
-*             start the service.
+*          allowInteractiveUserStartStop: if true logged in non-admin users can
+*             start and stop the service.
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-void ServiceControlManager::installService(LPCTSTR pszServiceName,  LPCTSTR pszBinaryPathName,
-                                           LPCTSTR pszDisplayName,  LPCTSTR pszDescription,
-                                           DWORD   dwServiceType,   DWORD   dwStartType,
-                                           LPCTSTR pszDependencies, bool    bAllowInteractiveUserStart)
+void ServiceControlManager::installService(LPCTSTR serviceName,  LPCTSTR binaryPathName,
+                                           LPCTSTR displayName,  LPCTSTR description,
+                                           DWORD   serviceType,  DWORD   startType,
+                                           LPCTSTR dependencies, bool    allowInteractiveUserStartStop)
 {
     // Can only call this method to install a service on a local machine.
-    if (!m_sServerName.empty()) {
-        throw std::system_error(ERROR_NOT_SUPPORTED, std::system_category(), "InstallService can only be run on the local machine");
+    if (!serverName_.empty()) {
+        throw std::system_error(ERROR_NOT_SUPPORTED, std::system_category(), "installService can only be run on the local machine");
     }
 
     closeService();
 
-    m_hService = ::CreateService(m_hSCM, pszServiceName, pszDisplayName,
-                                 SERVICE_ALL_ACCESS, dwServiceType, dwStartType,
-                                 SERVICE_ERROR_NORMAL, pszBinaryPathName, NULL, NULL,
-                                 pszDependencies, NULL, NULL);
-    if (m_hService != NULL) {
-        m_sServiceName = pszServiceName;
-        setServiceDescription(pszDescription);
+    service_ = ::CreateService(scm_, serviceName, displayName, SERVICE_ALL_ACCESS, serviceType, startType,
+                               SERVICE_ERROR_NORMAL, binaryPathName, NULL, NULL, dependencies, NULL, NULL);
+    if (service_ != NULL) {
+        serviceName_ = serviceName;
+        setServiceDescription(description);
 
-        if (bAllowInteractiveUserStart) {
-            grantUserStartPermission();
+        if (allowInteractiveUserStartStop) {
+            grantUserStartStopPermission();
         }
 
         return;
     }
 
-    DWORD dwLastError = ::GetLastError();
+    DWORD lastError = ::GetLastError();
     std::wostringstream errorMsg;
 
-    switch (dwLastError) {
+    switch (lastError) {
     case ERROR_ACCESS_DENIED:
-        errorMsg << "InstallService: insufficient user rights to install service - " << pszServiceName;
+        errorMsg << "installService: insufficient user rights to install service - " << serviceName;
         break;
 
     case ERROR_INVALID_HANDLE:
-        errorMsg << "InstallService: the SCM is not open - " << pszServiceName;
+        errorMsg << "installService: the SCM is not open - " << serviceName;
         break;
 
     case ERROR_INVALID_NAME:
-        errorMsg << "InstallService: service name has an invalid format - " << pszServiceName;
+        errorMsg << "installService: service name has an invalid format - " << serviceName;
         break;
 
     case ERROR_SERVICE_EXISTS:
-        errorMsg << "InstallService: a service with this name already exists on this server - " << pszServiceName;
+        errorMsg << "installService: a service with this name already exists on this server - " << serviceName;
         break;
 
     case ERROR_INVALID_PARAMETER:
-        errorMsg << "InstallService: one of the parameters is incorrect - " << pszServiceName;
+        errorMsg << "installService: one of the parameters is incorrect - " << serviceName;
         break;
 
     case ERROR_CIRCULAR_DEPENDENCY:
-        errorMsg << "InstallService: a circular service dependency was specified - " << pszServiceName;
+        errorMsg << "installService: a circular service dependency was specified - " << serviceName;
         break;
 
     case ERROR_DUP_NAME:
-        errorMsg << "InstallService: the display name already exists in the SCM database either as a service name or as another display name - " << pszDisplayName;
+        errorMsg << "installService: the display name already exists in the SCM database either as a service name or as another display name - " << displayName;
         break;
 
     default:
-        errorMsg << "InstallService failed to install the service " << pszServiceName << " - " << dwLastError;
+        errorMsg << "installService failed to install the service " << serviceName << " - " << lastError;
         break;
     }
 
-    throw std::system_error(dwLastError, std::system_category(), wstring_to_string(errorMsg.str()));
+    throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
 }
 
-
 /******************************************************************************
-* METHOD:  SendControlCode(DWORD dwCode)
+* METHOD:  sendControlCode
 *
 * PURPOSE: Sends a control code to the service.  The service will ignore the
 *          code if it does not recognize it.
 *          OpenService must be called before calling this method.
 *
-* INPUT:   dwCode: the control code to send.
+* INPUT:   code: the control code to send.
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-void ServiceControlManager::sendControlCode(DWORD dwCode) const
+void ServiceControlManager::sendControlCode(DWORD code) const
 {
-    DWORD dwLastError;
+    DWORD lastError;
 
-    if ((dwCode >= 128) && (dwCode <= 256)) {
+    if ((code >= 128) && (code <= 256)) {
         SERVICE_STATUS status;
-        if (::ControlService(m_hService, dwCode, &status)) {
+        if (::ControlService(service_, code, &status)) {
             return;
         }
 
-        dwLastError = ::GetLastError();
+        lastError = ::GetLastError();
     }
     else {
-        dwLastError = ERROR_INVALID_SERVICE_CONTROL;
+        lastError = ERROR_INVALID_SERVICE_CONTROL;
     }
 
     std::wostringstream errorMsg;
 
-    switch (dwLastError) {
+    switch (lastError) {
     case ERROR_SERVICE_NOT_ACTIVE:
-        errorMsg << "SendControlCode: the service is not running - " << m_sServiceName;
+        errorMsg << "sendControlCode: the service is not running - " << serviceName_;
         break;
 
     case ERROR_ACCESS_DENIED:
-        errorMsg << "SendControlCode: insufficient user rights to control the service - " << m_sServiceName;
+        errorMsg << "sendControlCode: insufficient user rights to control the service - " << serviceName_;
         break;
 
     case ERROR_INVALID_HANDLE:
-        errorMsg << "SendControlCode: the service has not been opened - " << m_sServiceName;
+        errorMsg << "sendControlCode: the service has not been opened - " << serviceName_;
         break;
 
     case ERROR_DEPENDENT_SERVICES_RUNNING:
-        errorMsg << "SendControlCode: the service cannot be controlled because other running services are dependent on it- " << m_sServiceName;
+        errorMsg << "sendControlCode: the service cannot be controlled because other running services are dependent on it- " << serviceName_;
         break;
 
     case ERROR_INVALID_SERVICE_CONTROL:
-        errorMsg << "SendControlCode: the service does not accept user control code " << dwCode << " - " << m_sServiceName;
+        errorMsg << "sendControlCode: the service does not accept user control code " << code << " - " << serviceName_;
         break;
 
     case ERROR_SERVICE_CANNOT_ACCEPT_CTRL:
-        errorMsg << "SendControlCode: the service is not in a state where it can accept user control codes - " << m_sServiceName;
+        errorMsg << "sendControlCode: the service is not in a state where it can accept user control codes - " << serviceName_;
         break;
 
     case ERROR_SERVICE_REQUEST_TIMEOUT:
-        errorMsg << "SendControlCode: the service did not respond to the control request in a timely fashion - " << m_sServiceName;
+        errorMsg << "sendControlCode: the service did not respond to the control request in a timely fashion - " << serviceName_;
         break;
 
     default:
-        errorMsg << "SendControlCode failed to control the service " << m_sServiceName << " - " << dwLastError;
+        errorMsg << "sendControlCode failed to control the service " << serviceName_ << " - " << lastError;
         break;
     }
 
-    throw std::system_error(dwLastError, std::system_category(), wstring_to_string(errorMsg.str()));
+    throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
 }
 
-
-/******************************************************************************
-* METHOD:  GetServerName(void) const
-*
-* PURPOSE: Returns the name of the server whose SCM we are attached to.
-*
-* INPUT:   None.
-*
-* RETURNS: NULL if we are attached to the local SCM.
-*******************************************************************************/
 LPCTSTR ServiceControlManager::getServerName() const
 {
-    if (m_sServerName.empty()) {
+    if (serverName_.empty()) {
         return NULL;
     }
 
-    return m_sServerName.c_str();
+    return serverName_.c_str();
 }
 
-
-//---------------------------------------------------------------------------
-void ServiceControlManager::setServiceDescription(LPCTSTR pszDescription) const
+void ServiceControlManager::setServiceDescription(LPCTSTR description) const
 {
-    if (pszDescription != NULL) {
-        SERVICE_DESCRIPTION svcDesc = { (LPTSTR)pszDescription };
-        BOOL bResult = ::ChangeServiceConfig2(m_hService, SERVICE_CONFIG_DESCRIPTION, &svcDesc);
+    if (description != NULL) {
+        SERVICE_DESCRIPTION svcDesc = { (LPTSTR)description };
+        BOOL result = ::ChangeServiceConfig2(service_, SERVICE_CONFIG_DESCRIPTION, &svcDesc);
 
-        if (bResult == FALSE) {
-            DWORD dwLastError = ::GetLastError();
-            throw std::system_error(dwLastError, std::system_category(),
-                std::string("SetServiceDescription: ChangeServiceConfig2 failed - ") + std::to_string(dwLastError));
+        if (result == FALSE) {
+            DWORD lastError = ::GetLastError();
+            throw std::system_error(lastError, std::system_category(),
+                std::string("setServiceDescription: ChangeServiceConfig2 failed - ") + std::to_string(lastError));
         }
     }
 }
 
-//---------------------------------------------------------------------------
 std::wstring ServiceControlManager::serverNameForDebug() const
 {
-    if (m_sServerName.empty()) {
+    if (serverName_.empty()) {
         return std::wstring(L"local_pc");
     }
 
-    return m_sServerName;
+    return serverName_;
 }
 
-//---------------------------------------------------------------------------
-void ServiceControlManager::setServiceSIDType(DWORD dwServiceSidType) const
+void ServiceControlManager::setServiceSIDType(DWORD serviceSidType) const
 {
     SERVICE_SID_INFO ssi;
-    ssi.dwServiceSidType = dwServiceSidType;
-    BOOL bResult = ::ChangeServiceConfig2(m_hService, SERVICE_CONFIG_SERVICE_SID_INFO, &ssi);
+    ssi.dwServiceSidType = serviceSidType;
+    BOOL result = ::ChangeServiceConfig2(service_, SERVICE_CONFIG_SERVICE_SID_INFO, &ssi);
 
-    if (bResult == FALSE) {
-        DWORD dwLastError = ::GetLastError();
-        throw std::system_error(dwLastError, std::system_category(),
-            std::string("SetServiceSIDType: ChangeServiceConfig2 failed - ") + std::to_string(dwLastError));
+    if (result == FALSE) {
+        DWORD lastError = ::GetLastError();
+        throw std::system_error(lastError, std::system_category(),
+            std::string("setServiceSIDType: ChangeServiceConfig2 failed - ") + std::to_string(lastError));
     }
 }
 
-//---------------------------------------------------------------------------
-void ServiceControlManager::grantUserStartPermission() const
+void ServiceControlManager::grantUserStartStopPermission() const
 {
     wchar_t sddl[] = L"D:"
       L"(A;;CCLCSWRPWPDTLOCRRC;;;SY)"           // default permissions for local system
       L"(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)"   // default permissions for administrators
       L"(A;;CCLCSWLOCRRC;;;AU)"                 // default permissions for authenticated users
       L"(A;;CCLCSWRPWPDTLOCRRC;;;PU)"           // default permissions for power users
-      L"(A;;RP;;;IU)"                           // added permission: start service for interactive users
+      L"(A;;RPWP;;;IU)"                         // added permission: start/stop service for interactive users
       ;
 
-    // If you also want non-admin users to be able to stop the service, add the WP right to the last line above.
-    // i.e. "(A;;RPWP;;;IU)"
-
     PSECURITY_DESCRIPTOR sd;
-    BOOL bResult = ::ConvertStringSecurityDescriptorToSecurityDescriptor(sddl, SDDL_REVISION_1, &sd, NULL);
+    BOOL result = ::ConvertStringSecurityDescriptorToSecurityDescriptor(sddl, SDDL_REVISION_1, &sd, NULL);
 
-    if (bResult == FALSE) {
-        DWORD dwLastError = ::GetLastError();
-        throw std::system_error(dwLastError, std::system_category(),
-            std::string("grantUserStartPermission: ConvertStringSecurityDescriptorToSecurityDescriptorA failed - ") + std::to_string(dwLastError));
+    if (result == FALSE) {
+        DWORD lastError = ::GetLastError();
+        throw std::system_error(lastError, std::system_category(),
+            std::string("grantUserStartStopPermission: ConvertStringSecurityDescriptorToSecurityDescriptorA failed - ") + std::to_string(lastError));
     }
 
-    bResult = ::SetServiceObjectSecurity(m_hService, DACL_SECURITY_INFORMATION, sd);
+    result = ::SetServiceObjectSecurity(service_, DACL_SECURITY_INFORMATION, sd);
 
-    if (bResult == FALSE) {
-        DWORD dwLastError = ::GetLastError();
-        throw std::system_error(dwLastError, std::system_category(),
-            std::string("grantUserStartPermission: SetServiceObjectSecurity failed - ") + std::to_string(dwLastError));
+    if (result == FALSE) {
+        DWORD lastError = ::GetLastError();
+        throw std::system_error(lastError, std::system_category(),
+            std::string("grantUserStartStopPermission: SetServiceObjectSecurity failed - ") + std::to_string(lastError));
     }
 }
 

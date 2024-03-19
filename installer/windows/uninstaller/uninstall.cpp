@@ -1,9 +1,8 @@
 #include "uninstall.h"
 
+#include <filesystem>
 #include <shlwapi.h>
 #include <Shobjidl.h>
-
-#include <sstream>
 
 #include "authhelper.h"
 #include "registry.h"
@@ -138,7 +137,7 @@ void Uninstaller::RunSecondPhase()
         return;
     }
 
-    DeleteService();
+    UninstallHelper();
 
     wstring path_for_installation = Path::extractDir(UninstExeFile);
 
@@ -159,7 +158,7 @@ void Uninstaller::RunSecondPhase()
     Utils::InstExec(Path::append(Utils::GetSystemDir(), L"taskkill.exe"), L"/f /im openvpn.exe", INFINITE, SW_HIDE);
 
     Log::instance().out(L"uninstall split tunnel driver");
-    UninstallSplitTunnelDriver(path_for_installation);
+    UninstallSplitTunnelDriver();
 
     Log::instance().out(L"uninstall OpenVPN DCO driver");
     UninstallOpenVPNDCODriver(path_for_installation);
@@ -218,29 +217,31 @@ bool Uninstaller::InitializeUninstall()
     return true;
 }
 
-void Uninstaller::UninstallSplitTunnelDriver(const wstring& installationPath)
+void Uninstaller::UninstallSplitTunnelDriver()
 {
-    wostringstream commandLine;
-    commandLine << Path::append(Utils::GetSystemDir(), L"setupapi.dll")
-                << L",InstallHinfSection DefaultUninstall 132 "
-                << Path::append(installationPath, L"splittunnel\\windscribesplittunnel.inf");
+    try {
+        wsl::ServiceControlManager svcCtrl;
+        svcCtrl.openSCM(SC_MANAGER_ALL_ACCESS);
 
-    wstring appName = Path::append(Utils::GetSystemDir(), L"rundll32.exe");
+        error_code ec;
+        if (!svcCtrl.deleteService(L"WindscribeSplitTunnel", ec)) {
+            throw system_error(ec);
+        }
 
-    auto result = Utils::InstExec(appName, commandLine.str(), 30 * 1000, SW_HIDE);
-
-    if (!result.has_value()) {
-        Log::instance().out("WARNING: The split tunnel driver uninstall failed to launch.");
+        wstring targetFile = Path::append(Utils::GetSystemDir(), L"drivers\\windscribesplittunnel.sys");
+        if (filesystem::exists(targetFile)) {
+            filesystem::remove(targetFile, ec);
+            if (ec) {
+                throw system_error(ec);
+            }
+        }
     }
-    else if (result.value() == WAIT_TIMEOUT) {
-        Log::instance().out("WARNING: The split tunnel driver uninstall stage timed out.");
-    }
-    else if (result.value() != NO_ERROR) {
-        Log::instance().out("WARNING: The split tunnel driver uninstall returned a failure code (%lu).", result.value());
+    catch (system_error& ex) {
+        Log::instance().out("WARNING: failed to uninstall the split tunnel driver - %s", ex.what());
     }
 }
 
-void Uninstaller::DeleteService()
+void Uninstaller::UninstallHelper()
 {
     const wstring serviceName = ApplicationInfo::serviceName();
     try {

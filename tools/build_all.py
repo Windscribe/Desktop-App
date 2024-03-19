@@ -25,7 +25,6 @@ import base.messages as msg
 import base.process as proc
 import base.utils as utl
 import base.extract as extract
-import base.secrethelper as secrethelper
 import deps.installutils as iutl
 from base.arghelper import ArgHelper
 
@@ -387,7 +386,7 @@ def pack_symbols():
 
 
 def sign_executable_win32(configdata, filename_to_sign=None):
-    token = os.getenv("TOKEN_PASSWORD")
+    token = os.getenv("WINDOWS_SIGNING_TOKEN_PASSWORD")
     if token is None or token == "":
         msg.Info("No token password found, skipping signing")
         return
@@ -586,11 +585,9 @@ def code_sign_linux(binary_name, binary_dir):
         if not os.path.exists(signatures_dir):
             msg.Print("Creating signatures path: " + signatures_dir)
             utl.CreateDirectory(signatures_dir, True)
-        private_key = pathhelper.COMMON_DIR + "/keys/linux/key.pem"
         signature_file = signatures_dir + "/" + Path(binary).stem + ".sig"
-        msg.Info("Signing " + binary + " with " + private_key + " -> " + signature_file)
-        cmd = ["openssl", "dgst", "-sign", private_key, "-keyform", "PEM", "-sha256", "-out", signature_file, "-binary", binary]
-        iutl.RunCommand(cmd)
+        msg.Info("Signing " + binary + " -> " + signature_file)
+        subprocess.run(["openssl", "dgst", "-sign", "/dev/stdin", "-keyform", "PEM", "-sha256", "-out", signature_file, "-binary", binary], input=os.getenv("LINUX_SIGNING_KEY_FORMATTED").encode())
 
 
 def copy_libs(configdata, platform, target, dst):
@@ -788,15 +785,6 @@ def install_artifacts(configdata, artifact_dir, temp_dir):
         utl.RemoveDirectory(temp_dir)
 
 
-def download_secrets():
-    msg.Print("Checking for valid 1password username")
-    if not arghelper.valid_one_password_username():
-        user = arghelper.OPTION_ONE_PASSWORD_USER
-        raise IOError("Specify 1password username with " + user + " <username> or do not sign")
-    msg.Print("Logging in to 1password to download files necessary for signing")
-    secrethelper.login_and_download_files_from_1password(arghelper)
-
-
 def prechecks():
     # check if the VPKG_ROOT environment variable exists
     if (arghelper.build_app() or arghelper.build_installer() or arghelper.build_bootstrap()) and "VCPKG_ROOT" not in os.environ:
@@ -825,27 +813,17 @@ def prechecks():
         msg.Info("Using signing identity - " + MAC_DEV_ID_KEY_NAME)
 
     if arghelper.sign():
-        # download (local build) or access secret files (ci build)
-        if not arghelper.ci_mode():
-            if not arghelper.use_local_secrets():
-                if CURRENT_OS == "win32":
-                    raise IOError("Cannot use local-secrets on Windows.")
-                download_secrets()
-
         # on linux we need keypair to sign -- check that they exist in the correct location
         if CURRENT_OS == utl.CURRENT_OS_LINUX:
-            keypath = pathhelper.linux_key_directory()
             pubkey = pathhelper.linux_public_key_filename_absolute()
-            privkey = pathhelper.linux_private_key_filename_absolute()
-            if not os.path.exists(pubkey) or not os.path.exists(privkey):
-                raise IOError("Code signing (--sign) is enabled but key.pub and/or key.pem were not found in '{keypath}'."
-                              .format(keypath=keypath))
+            if not os.path.exists(pubkey) or os.getenv("LINUX_SIGNING_KEY_FORMATTED") is None or os.getenv("LINUX_SIGNING_KEY_FORMATTED") == "":
+                raise IOError("Code signing (--sign) is enabled but key.pub and/or key.pem were not found.")
             generate_include_file_from_pub_key(pathhelper.linux_include_key_filename_absolute(), pubkey)
 
-        # early check for cert password in notarize.yml on windows
+        # early check for cert password on windows
         if CURRENT_OS == utl.CURRENT_OS_WIN:
-            if (os.getenv('TOKEN_PASSWORD') is None or os.getenv('TOKEN_PASSWORD') == ""):
-                raise IOError("Cannot sign without token password. Please set TOKEN_PASSWORD environment variable.")
+            if (os.getenv('WINDOWS_SIGNING_TOKEN_PASSWORD') is None or os.getenv('WINDOWS_SIGNING_TOKEN_PASSWORD') == ""):
+                raise IOError("Cannot sign without token password. Please set WINDOWS_SIGNING_TOKEN_PASSWORD environment variable.")
 
         # early check for provision profile on mac
         if CURRENT_OS == utl.CURRENT_OS_MAC:
@@ -870,12 +848,11 @@ def print_help_output():
     msg.Print("")
 
 
-# main script logic, secret cleanup, and timing display
+# main script logic, and timing display
 if __name__ == "__main__":
     start_time = time.time()
     CURRENT_OS = utl.GetCurrentOS()
 
-    delete_secrets = False
     try:
         if CURRENT_OS not in BUILD_OS_LIST:
             raise IOError("Building {} is not supported on {}.".format(BUILD_TITLE, CURRENT_OS))
@@ -888,20 +865,13 @@ if __name__ == "__main__":
         # main decision logic
         if arghelper.help():
             print_help_output()
-        elif arghelper.download_secrets():
-            download_secrets()
         elif arghelper.build_mode():
-            # don't delete secrets in local-secret mode or when doing a developer (non-signed) build.
-            if not arghelper.use_local_secrets() and arghelper.sign():
-                delete_secrets = True
             prechecks()
             build_all()
         else:
             if arghelper.clean_only():
                 msg.Print("Cleaning...")
                 clean_all_temp_and_build_dirs()
-            if arghelper.delete_secrets_only():
-                delete_secrets = True
         exitcode = 0
     except iutl.InstallError as e:
         msg.Error(e)
@@ -909,11 +879,6 @@ if __name__ == "__main__":
     except IOError as e:
         msg.Error(e)
         exitcode = 1
-
-    # delete secrets if necessary
-    if delete_secrets:
-        msg.Print("Deleting secrets...")
-        secrethelper.cleanup_secrets()
 
     # timing output
     if exitcode == 0:
