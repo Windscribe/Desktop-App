@@ -3173,6 +3173,10 @@ void MainWindowController::updateViewAndScene(int width, int height, int shadowS
 
 void MainWindowController::handleNextWindowChange()
 {
+#ifdef Q_OS_LINUX
+    // Between window changes, force a main window geo update with updateShadow set to true, so that the workaround for #930 can take effect.
+    updateMainAndViewGeometry(true);
+#endif
     if (!queueWindowChanges_.isEmpty()) {
         changeWindow(queueWindowChanges_.dequeue());
     } else {

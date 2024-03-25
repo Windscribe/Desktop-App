@@ -22,7 +22,7 @@ ProcessManager::~ProcessManager()
     }
 }
 
-void ProcessManager::execute(const std::vector<std::string> &args, ProcessManagerCallback callback)
+bool ProcessManager::execute(const std::vector<std::string> &args, ProcessManagerCallback callback)
 {
     auto processData = std::make_unique<ProcessData>();
     using namespace  std::placeholders;
@@ -30,13 +30,14 @@ void ProcessManager::execute(const std::vector<std::string> &args, ProcessManage
     std::error_code ec = processData->process->start(args);
     if (ec) {
         spdlog::error("Cannot start a process: {}, error: {}", fmt::join(args, " "), ec.value());
-        return;
+        return true;
     }
     processData->callback = callback;
 
     std::lock_guard locker(mutex_);
     processes_.push_back(std::move(processData));
     condition_.notify_all();
+    return false;
 }
 
 void ProcessManager::checkTread()

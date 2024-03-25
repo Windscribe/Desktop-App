@@ -41,7 +41,7 @@ void WSNetUtils_impl::myIPViaFailover_impl(int failoverInd, std::unique_ptr<Base
 
     auto failover = failoverByInd(failoverInd);
     RequestExecuterViaFailover *requestExecutorViaFailover = new RequestExecuterViaFailover(httpNetworkManager_, std::move(request), std::move(failover),
-                                                                                            false, false, advancedParameters_,
+                                                                                            false, false, advancedParameters_, failedFailovers_,
                                                                        std::bind(&WSNetUtils_impl::onRequestExecuterViaFailoverFinished, this, _1, _2, _3, curUniqueId_));
     activeRequests_[curUniqueId_] = std::unique_ptr<RequestExecuterViaFailover>(requestExecutorViaFailover);
     curUniqueId_++;

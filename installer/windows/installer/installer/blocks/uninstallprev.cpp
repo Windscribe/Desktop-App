@@ -3,6 +3,7 @@
 #include <QSettings>
 
 #include <chrono>
+#include <filesystem>
 #include <shlobj_core.h>
 #include <windows.h>
 
@@ -85,8 +86,26 @@ int UninstallPrev::executeStep()
                 reg.setValue("userId", "");
             }
 
-            if (!uninstallOldVersion(uninstallString)) {
-                return -1;
+            DWORD lastError = 0;
+            if (!uninstallOldVersion(uninstallString, lastError)) {
+                Log::instance().out("UninstallPrev::executeStep: uninstallOldVersion failed: %lu", lastError);
+                if (lastError != 2) { // Any error other than "Not found"
+                    return -1;
+                }
+
+                // Uninstall failed because the uninstaller doesn't exist.
+                if (!isPrevInstall64Bit()) {
+                    // A little hacky to pass a special code here, but this is the only way to indicate to caller.
+                    // If the previous version is using the 32-bit hive, don't try to use the current (64-bit) uninstaller.
+                    return -2;
+                }
+
+                if (!extractUninstaller()) {
+                    Log::instance().out("UninstallPrev::executeStep: could not extract uninstaller.");
+                    return -1;
+                }
+                Log::instance().out("UninstallPrev::executeStep: successfully extracted uninstaller, trying again.");
+                return 65;
             }
         }
         return 100;
@@ -113,12 +132,23 @@ wstring UninstallPrev::getUninstallString()
     return uninstallString;
 }
 
-bool UninstallPrev::uninstallOldVersion(const wstring &uninstallString)
+bool UninstallPrev::isPrevInstall64Bit()
+{
+    QSettings reg(QString::fromStdWString(ApplicationInfo::uninstallerRegistryKey()), QSettings::NativeFormat);
+    if (reg.contains(L"UninstallString")) {
+        return true;
+    }
+    return false;
+}
+
+bool UninstallPrev::uninstallOldVersion(const wstring &uninstallString, DWORD &lastError)
 {
     const wstring sUnInstallString = removeQuotes(uninstallString);
+    DWORD error = 0;
 
-    const auto res = Utils::InstExec(sUnInstallString, L"/VERYSILENT", INFINITE, SW_HIDE);
+    const auto res = Utils::InstExec(sUnInstallString, L"/VERYSILENT", INFINITE, SW_HIDE, L"", &error);
     if (!res.has_value() || res.value() == MAXDWORD) {
+        lastError = error;
         return false;
     }
 
@@ -192,4 +222,52 @@ void UninstallPrev::stopService()
     catch (system_error& ex) {
         Log::instance().out("UninstallPrev::stopService %s (%lu)", ex.what(), ex.code().value());
     }
+}
+
+bool UninstallPrev::extractUninstaller()
+{
+    Log::instance().out(L"Extracting uninstaller from the archive");
+
+    archive_.reset(new Archive(L"Windscribe"));
+
+    std::list<std::wstring> fileList;
+    SRes res = archive_->fileList(fileList);
+    if (res != SZ_OK) {
+        Log::instance().out(L"Failed to extract file list from archive.");
+        return false;
+    }
+
+    int index = 0;
+    auto it = fileList.begin();
+    while(index < fileList.size()) {
+        // Note the trailing 's' on the std::wstring literal, this is necessary since the file string has an embedded null byte.
+        if (*it == std::wstring(L"uninstall.exe\0"s)) {
+            break;
+        }
+        index++;
+        it = std::next(it);
+    }
+    if (index >= fileList.size()) {
+        Log::instance().out(L"Failed to find uninstall.exe in the archive.");
+        return false;
+    }
+
+    std::list<std::wstring> pathList;
+    std::wstring extractionPath = Path::extractDir(removeQuotes(getUninstallString()));
+    for (auto it = fileList.cbegin(); it != fileList.cend(); it++) {
+        // We're only extracting uninstall.exe, other paths are irrelevant
+        pathList.push_back(extractionPath);
+    }
+
+    archive_->calcTotal(fileList, pathList);
+
+    res = archive_->extractionFile(index);
+    if (res != SZ_OK) {
+        archive_->finish();
+        Log::instance().out(L"Failed to extract from archive.");
+        return false;
+    }
+    archive_->finish();
+
+    return true;
 }

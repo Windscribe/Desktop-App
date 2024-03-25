@@ -65,6 +65,7 @@ public:
     virtual bool isFailed() const = 0;
     virtual CurrentConnectionDescr getCurrentConnectionSettings() const = 0;
     virtual bool isAutomaticMode() = 0;
+    virtual bool isCustomConfig() = 0;
     virtual void resolveHostnames() = 0;
     virtual bool hasProtocolChanged() = 0;
 

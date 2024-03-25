@@ -29,7 +29,7 @@ wstring GetSystemDir()
 }
 
 optional<DWORD> InstExec(const wstring& appName, const wstring& commandLine, DWORD timeoutMS,
-                         WORD showWindowFlags, const std::wstring &currentFolder)
+                         WORD showWindowFlags, const std::wstring &currentFolder, DWORD *lastError)
 {
     wostringstream stream;
     if (!appName.empty()) {
@@ -74,6 +74,9 @@ optional<DWORD> InstExec(const wstring& appName, const wstring& commandLine, DWO
                                   nullptr, lpCurrentDirectory, &si, &pi);
     if (result == FALSE) {
         Log::instance().out("Process::InstExec CreateProcess(%ls) failed (%lu)", exec.get(), ::GetLastError());
+        if (lastError) {
+            *lastError = ::GetLastError();
+        }
         return std::nullopt;
     }
 
@@ -95,6 +98,9 @@ optional<DWORD> InstExec(const wstring& appName, const wstring& commandLine, DWO
 
     if (waitResult == WAIT_FAILED) {
         Log::instance().out("Process::InstExec WaitForSingleObject failed (%lu)", ::GetLastError());
+        if (lastError) {
+            *lastError = ::GetLastError();
+        }
         return std::nullopt;
     }
 
@@ -107,6 +113,9 @@ optional<DWORD> InstExec(const wstring& appName, const wstring& commandLine, DWO
     result = ::GetExitCodeProcess(pi.hProcess, &processExitCode);
     if (result == FALSE) {
         Log::instance().out("Process::InstExec GetExitCodeProcess failed (%lu)", ::GetLastError());
+        if (lastError) {
+            *lastError = ::GetLastError();
+        }
         return std::nullopt;
     }
 

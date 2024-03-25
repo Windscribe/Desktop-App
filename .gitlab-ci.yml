@@ -51,6 +51,7 @@ variables:
     - ./tools/vcpkg/install_ci/vcpkg_install.sh "${VCPKG_ROOT}" --configure-git
     - python3 -m pip install -r tools/requirements.txt
     - python3 -m pip install dmgbuild
+    - python3 -m pip install gcovr
   interruptible: true
 
 .template_aarch64_ubuntu_build: &template_aarch64_ubuntu_build
@@ -102,6 +103,7 @@ variables:
     # Qt 6 dependencies
     - dnf install -y fontconfig-devel freetype-devel libX11-devel libxcb-devel xcb-util-devel xcb-util-image-devel xcb-util-cursor-devel xcb-util-keysyms-devel xcb-util-renderutil-devel libxkbcommon-x11-devel wayland-devel
     - python3 -m pip install --user -r tools/requirements.txt
+    - python3 -m pip install --user gcovr
     # install cmake 3.28.x (default for Fedora 29 is 3.14.5)
     - wget -q -N https://cmake.org/files/v3.28/cmake-3.28.3-linux-x86_64.sh -P ${RHEL_CMAKE_BUILD_PATH}
     - chmod u+x ${RHEL_CMAKE_BUILD_PATH}/cmake-3.28.3-linux-x86_64.sh
@@ -184,7 +186,7 @@ build:win:x64:app:
       - temp/
     expire_in: 1 day
   rules:
-    - if: $BUILD_WIN == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null)
+    - if: $BUILD_WIN == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 build:win:x64:mr:
   <<: *template_win10_build
@@ -199,7 +201,7 @@ build:win:x64:mr:
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - tools/build_all --ci-mode
   rules:
-    - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
+    - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
 sign:win:app:
   <<: *template_win10_sign
@@ -222,7 +224,7 @@ sign:win:app:
       optional: true
       artifacts: true
   rules:
-    - if: ($BUILD_WIN == "y" || $BUILD_WIN_ARM64 == "y") && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null)
+    - if: ($BUILD_WIN == "y" || $BUILD_WIN_ARM64 == "y") && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 build:win:x64:installer:
   <<: *template_win10_build
@@ -246,7 +248,7 @@ build:win:x64:installer:
       optional: true
       artifacts: true
   rules:
-    - if: $BUILD_WIN == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null)
+    - if: $BUILD_WIN == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 sign:win:installer:
   <<: *template_win10_sign
@@ -269,7 +271,7 @@ sign:win:installer:
       optional: true
       artifacts: true
   rules:
-    - if: ($BUILD_WIN == "y" || $BUILD_WIN_ARM64 == "y") && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null)
+    - if: ($BUILD_WIN == "y" || $BUILD_WIN_ARM64 == "y") && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 build:win:x64:bootstrap:
   <<: *template_win10_build
@@ -293,7 +295,7 @@ build:win:x64:bootstrap:
       optional: true
       artifacts: true
   rules:
-    - if: $BUILD_WIN == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null)
+    - if: $BUILD_WIN == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 sign:win:bootstrap:
   <<: *template_win10_sign
@@ -326,7 +328,7 @@ sign:win:bootstrap:
       optional: true
       artifacts: true
   rules:
-    - if: ($BUILD_WIN == "y" || $BUILD_WIN_ARM64 == "y") && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
+    - if: ($BUILD_WIN == "y" || $BUILD_WIN_ARM64 == "y") && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
 
 sign:win:bootstrap:tagged:
   <<: *template_win10_sign
@@ -386,7 +388,7 @@ build:win:arm64:app:
       - temp/
     expire_in: 1 day
   rules:
-    - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null)
+    - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 build:win:arm64:mr:
   <<: *template_win10_build
@@ -407,7 +409,7 @@ build:win:arm64:mr:
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - tools/build_all --arm64 --ci-mode
   rules:
-    - if: $BUILD_WIN_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
+    - if: $BUILD_WIN_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
 build:win:arm64:installer:
   <<: *template_win10_build
@@ -436,7 +438,7 @@ build:win:arm64:installer:
       optional: true
       artifacts: true
   rules:
-    - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null)
+    - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 build:win:arm64:bootstrap:
   <<: *template_win10_build
@@ -461,7 +463,8 @@ build:win:arm64:bootstrap:
       optional: true
       artifacts: true
   rules:
-    - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null)
+    - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
+
 
 .build_mac_installer_common:
   script:
@@ -492,7 +495,7 @@ build:mac:installer:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_$VERSION.dmg"
   rules:
-    - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
+    - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
 
 # We don't upload artifacts for merge requests
 build:mac:installer:mr:
@@ -504,7 +507,7 @@ build:mac:installer:mr:
     - !reference [.build_mac_installer_common, script]
     - tools/build_all --ci-mode --sign
   rules:
-    - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
+    - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
 build:mac:installer:tagged:
   <<: *template_mac_build
@@ -546,7 +549,7 @@ build:aarch64_ubuntu:installer:
       --upload-file build-exe/windscribe_${VERSION}_arm64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_arm64.deb"
   timeout: 4 hours
   rules:
-    - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
+    - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
       when: manual
       allow_failure: true
 
@@ -562,7 +565,7 @@ build:aarch64_ubuntu:installer:mr:
     - tools/build_all --ci-mode --sign
   timeout: 4 hours
   rules:
-    - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
+    - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
       when: manual
       allow_failure: true
 
@@ -581,7 +584,7 @@ build:aarch64_ubuntu:installer:tagged:
       --upload-file build-exe/windscribe_${VERSION}_arm64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_arm64.deb"
   timeout: 4 hours
   rules:
-    - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG != null
+    - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
       when: manual
       allow_failure: true
 
@@ -600,7 +603,7 @@ build:rhel:installer:
       --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64.deb"
 
   rules:
-    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
+    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
 
 # We don't upload artifacts for merge requests
 build:rhel:installer:mr:
@@ -613,7 +616,7 @@ build:rhel:installer:mr:
     - !reference [.build_linux_installer_common, script]
     - tools/build_all --ci-mode --sign --build-deb --build-rpm
   rules:
-    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
+    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
 build:rhel:installer:tagged:
   <<: *template_rhel_build
@@ -632,7 +635,7 @@ build:rhel:installer:tagged:
       --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64.deb"
 
   rules:
-    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null
+    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
 
 .template_archlinux_build: &template_archlinux_build
   image: archlinux:base-devel
@@ -676,7 +679,7 @@ build:archlinux:installer:
     - job: "build:rhel:installer"
       optional: true
   rules:
-    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
+    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
 
 build:archlinux:installer:tagged:
   <<: *template_archlinux_build
@@ -695,7 +698,7 @@ build:archlinux:installer:tagged:
     - job: "build:rhel:installer:tagged"
       optional: true
   rules:
-    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null
+    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
 
 build:artifact:links:
   tags: [win10qty6]
@@ -710,7 +713,7 @@ build:artifact:links:
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_x86_64.pkg.tar.zst
   dependencies: []
   rules:
-    - if: $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null
+    - if: $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
 
 build:artifact:links:tagged:
   tags: [win10qty6]
@@ -726,7 +729,7 @@ build:artifact:links:tagged:
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_x86_64.pkg.tar.zst
   dependencies: []
   rules:
-    - if: $CI_COMMIT_TAG != null
+    - if: $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
 
 lint:flake8:
   <<: *template_win10_build
@@ -753,3 +756,66 @@ test:translations:
   dependencies: []
   rules:
     - if: $BUILD_WIN == "y"
+
+test:wsnet:win:
+  <<: *template_win10_build
+  stage: Test
+  variables:
+    GIT_STRATEGY: clone
+    VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
+    VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
+  script:
+    - Set-Variable -name OS_IDENTIFIER -value "windows"
+    - !reference [.download_dependencies_win, script]
+    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
+    - tools/build_all --build-app --build-tests
+    - cd build/test
+    - ./wsnet_test.exe
+  rules:
+    - if: $BUILD_WIN == "y" && $NIGHTLY_TEST_BUILD == "y"
+
+test:wsnet:mac:
+  <<: *template_mac_build
+  stage: Test
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - !reference [.build_mac_installer_common, script]
+    - tools/build_all --build-app --build-tests
+    - build/client/wsnet_test
+  after_script:
+    - python3 -m gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o coverage.xml --root ${CI_PROJECT_DIR}
+  coverage: /^\s*lines:\s*\d+.\d+\%/
+  artifacts:
+    name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}-mac
+    expire_in: 1 day
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+  rules:
+    - if: $BUILD_MAC == "y" && $NIGHTLY_TEST_BUILD == "y"
+
+test:wsnet:rhel:
+  <<: *template_rhel_build
+  stage: Test
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - OS_IDENTIFIER="linux"
+    - !reference [.build_linux_installer_common, script]
+    - tools/build_all --build-app --build-tests
+    - build/client/wsnet_test
+  after_script:
+    - python3 -m gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o coverage.xml --root ${CI_PROJECT_DIR}
+  coverage: /^\s*lines:\s*\d+.\d+\%/
+  artifacts:
+    name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}-linux
+    expire_in: 1 day
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+  rules:
+    - if: $BUILD_LINUX == "y" && $NIGHTLY_TEST_BUILD == "y"
+

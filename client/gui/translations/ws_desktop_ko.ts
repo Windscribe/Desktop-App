@@ -1849,6 +1849,10 @@ Connect to a network first</source>
         <source>This IP address or range is reserved by Windscribe and can not be changed.</source>
         <translation>이 IP 주소 또는 범위는 Windscribe에 의해 예약되며 변경할 수 없습니다.</translation>
     </message>
+    <message>
+        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
+        <translation>목록에 IP 또는 호스트 이름이 너무 많습니다. 더 추가하기 전에 일부를 제거하십시오.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesWindowItem</name>
@@ -1863,6 +1867,13 @@ Connect to a network first</source>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>분할 터널링 규칙을 수정하려면 로그인하십시오.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>There are too many apps in the list. Please remove some before adding more.</source>
+        <translation>목록에 앱이 너무 많습니다. 더 추가하기 전에 일부를 제거하십시오.</translation>
     </message>
 </context>
 <context>

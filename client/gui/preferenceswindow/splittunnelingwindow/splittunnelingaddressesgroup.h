@@ -12,6 +12,8 @@ class SplitTunnelingAddressesGroup : public PreferenceGroup
 {
     Q_OBJECT
 public:
+    static const int kMaxAddresses = 50;
+
     explicit SplitTunnelingAddressesGroup(ScalableGraphicsObject *parent,
                                           const QString &desc = "",
                                           const QString &descUrl = "");

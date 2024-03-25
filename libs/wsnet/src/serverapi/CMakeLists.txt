@@ -1,6 +1,7 @@
 target_sources(wsnet PRIVATE
     baserequest.cpp
     baserequest.h
+    failedfailovers.h
     requestsfactory.cpp
     requestsfactory.h
     requestexecuterviafailover.cpp

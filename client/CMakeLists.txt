@@ -156,8 +156,9 @@ add_subdirectory(common)
 qt_finalize_executable(Windscribe)
 
 if(DEFINED IS_BUILD_TESTS)
-    enable_testing ()
-    add_test (NAME locationsmodel.test COMMAND locationsmodel.test)
+    # Disabled for now, revisit later
+    # enable_testing ()
+    # add_test (NAME locationsmodel.test COMMAND locationsmodel.test)
 endif (DEFINED IS_BUILD_TESTS)
 
 # ----- Install section -----

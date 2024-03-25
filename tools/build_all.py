@@ -241,6 +241,8 @@ def build_component(component, qt_root, buildenv=None):
 
         if arghelper.sign() or arghelper.sign_app() or arghelper.ci_mode():
             generate_cmd.extend(["-DDEFINE_USE_SIGNATURE_CHECK_MACRO=ON"])
+        if arghelper.build_tests():
+            generate_cmd.extend(["-DIS_BUILD_TESTS=ON"])
         if CURRENT_OS == "macos":
             # Build an universal binary only on CI
             if arghelper.ci_mode():
@@ -437,7 +439,7 @@ def sign_app_win32(configdata):
 
 def prep_installer_win32(configdata, crt_root):
     # Copy Windows files.
-    msg.Info("Copying libs...")
+    msg.Info("Copying libs ...")
 
     if crt_root:
         utl.CopyAllFiles(crt_root, BUILD_INSTALLER_FILES)
@@ -721,8 +723,9 @@ def build_all():
         temp_dir = iutl.PrepareTempDirectory("installer", not arghelper.ci_mode())
         build_dir = os.path.join(pathhelper.ROOT_DIR, "build")
     utl.CreateDirectory(build_dir, arghelper.clean())
-    global BUILD_INSTALLER_FILES, BUILD_SYMBOL_FILES, BUILD_INSTALLER_BOOTSTRAP_FILES
+    global BUILD_INSTALLER_FILES, BUILD_TEST_FILES, BUILD_SYMBOL_FILES, BUILD_INSTALLER_BOOTSTRAP_FILES
     BUILD_INSTALLER_FILES = os.path.join(temp_dir, "InstallerFiles")
+    BUILD_TEST_FILES = os.path.join(build_dir, "test")
     BUILD_INSTALLER_BOOTSTRAP_FILES = os.path.join(temp_dir, "InstallerBootstrapFiles")
     utl.CreateDirectory(BUILD_INSTALLER_FILES, not arghelper.ci_mode())
     utl.CreateDirectory(BUILD_INSTALLER_BOOTSTRAP_FILES, not arghelper.ci_mode())
@@ -736,6 +739,14 @@ def build_all():
             build_components(configdata, configdata["targets"], qt_root)
             if (CURRENT_OS == "win32"):
                 prep_installer_win32(configdata, crt_root)
+                if arghelper.build_tests():
+                    utl.CopyAllFiles(crt_root, BUILD_TEST_FILES)
+                    copy_files("MSVC", configdata["deploy_files"]["win32"]["installer"]["msvc"], msvc_root, BUILD_TEST_FILES)
+                    for file in glob.glob(os.path.join(build_dir, "client", "*.dll")):
+                        utl.CopyFile(file, os.path.join(BUILD_TEST_FILES, os.path.basename(file)))
+                    for file in glob.glob(os.path.join(build_dir, "client", "wsnet", "*.dll")):
+                        utl.CopyFile(file, os.path.join(BUILD_TEST_FILES, os.path.basename(file)))
+                    copy_files("Test", ["wsnet_test.exe"], os.path.join(build_dir, "client"), BUILD_TEST_FILES)
         if arghelper.sign_app():
             if (CURRENT_OS == "win32"):
                 sign_app_win32(configdata)

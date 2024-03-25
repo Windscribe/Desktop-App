@@ -48,6 +48,11 @@ void SplitTunnelingAddressesGroup::addAddress(types::SplitTunnelingNetworkRoute 
 
 void SplitTunnelingAddressesGroup::addAddressInternal(types::SplitTunnelingNetworkRoute &address)
 {
+    if (size() > kMaxAddresses) {
+        emit setError(tr("There are too many IPs or hostnames in the list. Please remove some before adding more."));
+        return;
+    }
+
     AddressItem *item = new AddressItem(address, this);
     connect(item, &AddressItem::deleteClicked, this, &SplitTunnelingAddressesGroup::onDeleteClicked);
     addresses_[item] = address;
@@ -67,28 +72,26 @@ void SplitTunnelingAddressesGroup::onAddClicked(QString address)
     SPLIT_TUNNELING_NETWORK_ROUTE_TYPE type;
     types::SplitTunnelingNetworkRoute route;
 
-    switch(code)
-    {
-        case OK:
-            type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
-            if (IpValidation::isIpCidr(address))
-            {
-                type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
-            }
+    switch(code) {
+    case OK:
+        type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
+        if (IpValidation::isIpCidr(address)) {
+            type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
+        }
 
-            route.name = address;
-            route.type = type;
-            addAddress(route);
-            break;
-        case ERROR_EXISTS:
-            emit setError(tr("IP or hostname already exists. Please enter a new IP or hostname."));
-            break;
-        case ERROR_INVALID:
-            emit setError(tr("Incorrect IP address/mask combination. Please enter a valid hostname or IP address in plain or CIDR notation."));
-            break;
-        case ERROR_RESERVED:
-            emit setError(tr("This IP address or range is reserved by Windscribe and can not be changed."));
-            break;
+        route.name = address;
+        route.type = type;
+        addAddress(route);
+        break;
+    case ERROR_EXISTS:
+        emit setError(tr("IP or hostname already exists. Please enter a new IP or hostname."));
+        break;
+    case ERROR_INVALID:
+        emit setError(tr("Incorrect IP address/mask combination. Please enter a valid hostname or IP address in plain or CIDR notation."));
+        break;
+    case ERROR_RESERVED:
+        emit setError(tr("This IP address or range is reserved by Windscribe and can not be changed."));
+        break;
     }
 }
 
@@ -102,23 +105,19 @@ void SplitTunnelingAddressesGroup::onDeleteClicked()
 
 SplitTunnelingAddressesGroup::ValidationCode SplitTunnelingAddressesGroup::validate(QString &address)
 {
-    if (!IpValidation::isIpCidrOrDomain(address) || !IpValidation::isValidIpForCidr(address))
-    {
+    if (!IpValidation::isIpCidrOrDomain(address) || !IpValidation::isValidIpForCidr(address)) {
         return ValidationCode::ERROR_INVALID;
     }
 
-    if (itemByName(address) != nullptr)
-    {
+    if (itemByName(address) != nullptr) {
         return ValidationCode::ERROR_EXISTS;
     }
 
-    if (!IpValidation::isValidIpForCidr(address))
-    {
+    if (!IpValidation::isValidIpForCidr(address)) {
         return ValidationCode::ERROR_INVALID;
     }
 
-    if (IpValidation::isWindscribeReservedIp(address))
-    {
+    if (IpValidation::isWindscribeReservedIp(address)) {
         return ValidationCode::ERROR_RESERVED;
     }
 
@@ -127,10 +126,8 @@ SplitTunnelingAddressesGroup::ValidationCode SplitTunnelingAddressesGroup::valid
 
 AddressItem *SplitTunnelingAddressesGroup::itemByName(QString &address)
 {
-    for (AddressItem *item: addresses_.keys())
-    {
-        if (item->getAddressText() == address)
-        {
+    for (AddressItem *item: addresses_.keys()) {
+        if (item->getAddressText() == address) {
             return item;
         }
     }
@@ -140,8 +137,7 @@ AddressItem *SplitTunnelingAddressesGroup::itemByName(QString &address)
 void SplitTunnelingAddressesGroup::setLoggedIn(bool loggedIn)
 {
     newAddressItem_->setClickable(loggedIn);
-    for (AddressItem *item: addresses_.keys())
-    {
+    for (AddressItem *item: addresses_.keys()) {
         item->setClickable(loggedIn);
     }
 }

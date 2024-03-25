@@ -78,6 +78,8 @@ struct ConnectedDnsInfo
         return json;
     }
 
+    bool isCustomIPv4Address() const;
+
     friend QDataStream& operator <<(QDataStream &stream, const ConnectedDnsInfo &o);
     friend QDataStream& operator >>(QDataStream &stream, ConnectedDnsInfo &o);
 

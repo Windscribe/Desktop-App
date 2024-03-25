@@ -84,6 +84,10 @@
         <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
         <translation>Bu uygulamayı çalıştırmak için yeterli izinlere sahip değilsiniz. Windscribe&apos;ı yüklemek için yönetici ayrıcalıkları gereklidir.</translation>
     </message>
+    <message>
+        <source>The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.</source>
+        <translation>Windscribe&apos;ın mevcut kurulumu için kaldırıcı bulunamadı. Lütfen uygulamayı manuel olarak kaldırın ve tekrar deneyin.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

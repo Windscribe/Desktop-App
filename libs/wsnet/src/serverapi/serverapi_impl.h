@@ -16,6 +16,7 @@
 #include "utils/cancelablecallback.h"
 #include "serverapi_settings.h"
 #include "connectstate.h"
+#include "failedfailovers.h"
 
 namespace wsnet {
 
@@ -70,6 +71,7 @@ private:
     std::unique_ptr<RequestExecuterViaFailover> requestExecutorViaFailover_;
     std::optional<FailoverData> failoverData_;      // valid only in kReady/kFromSettingsReady states
     bool isFailoverFailedLogAlreadyDone_ = false;   // log "failover failed: API not ready" only once to avoid spam
+    FailedFailovers failedFailovers_;
 
     void executeRequest(std::uint64_t requestId);
     void executeRequestImpl(std::unique_ptr<BaseRequest> request, const FailoverData &failoverData);

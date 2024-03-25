@@ -1849,6 +1849,10 @@ Connect to a network first</source>
         <source>This IP address or range is reserved by Windscribe and can not be changed.</source>
         <translation>این ادرس IP یا محدوده توسط Windscribe رزرو شده است و نمی توان ان را تغییر داد.</translation>
     </message>
+    <message>
+        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
+        <translation>تعداد زیادی اییپ یا نام میزبان در لیست وجود دارد. لطفا قبل از اضافه کردن بیشتر، برخی از انها را حذف کنید.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesWindowItem</name>
@@ -1863,6 +1867,13 @@ Connect to a network first</source>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>لطفا برای تغییر قوانین شکافتن تونل وارد شوید.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>There are too many apps in the list. Please remove some before adding more.</source>
+        <translation>برنامه های زیادی در لیست وجود دارد. لطفا قبل از اضافه کردن بیشتر، برخی از انها را حذف کنید.</translation>
     </message>
 </context>
 <context>

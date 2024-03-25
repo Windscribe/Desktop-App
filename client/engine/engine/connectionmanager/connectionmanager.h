@@ -233,5 +233,7 @@ private:
     void connectOrStartConnectTimer();
     void getWireGuardConfig(const QString &serverName, bool deleteOldestKey, const QString &deviceId);
     bool connectedDnsTypeAuto() const;
+    QString dnsServersFromConnectedDnsInfo() const;
+
     void disconnect();
 };

@@ -1849,6 +1849,10 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
         <source>This IP address or range is reserved by Windscribe and can not be changed.</source>
         <translation>Diese IP-Adresse oder dieser IP-Bereich ist von Windscribe reserviert und kann nicht geändert werden.</translation>
     </message>
+    <message>
+        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
+        <translation>Es gibt zu viele IPs oder Hostnamen in der Liste. Bitte entfernen Sie einige, bevor Sie weitere hinzufügen.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesWindowItem</name>
@@ -1863,6 +1867,13 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>Bitte melden Sie sich an, um die Split-Tunneling-Regeln zu ändern.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>There are too many apps in the list. Please remove some before adding more.</source>
+        <translation>Es gibt zu viele Apps in der Liste. Bitte entfernen Sie einige, bevor Sie weitere hinzufügen.</translation>
     </message>
 </context>
 <context>

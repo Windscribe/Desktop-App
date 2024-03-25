@@ -149,6 +149,12 @@ bool AutoConnSettingsPolicy::isAutomaticMode()
     return true;
 }
 
+bool AutoConnSettingsPolicy::isCustomConfig()
+{
+    return false;
+}
+
+
 void AutoConnSettingsPolicy::resolveHostnames()
 {
     // nothing todo

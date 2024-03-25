@@ -10,7 +10,8 @@ url="https://windscribe.com/download"
 license=('GPL2')
 depends=('nftables' 'c-ares' 'freetype2' 'hicolor-icon-theme' 'systemd' 'glibc>=2.28' 'glib2' 'zlib' 'gcc-libs' 'dbus'
          'libglvnd' 'fontconfig' 'libx11' 'libxkbcommon' 'libxcb' 'xcb-util-wm' 'xcb-util-image' 'xcb-util-keysyms'
-         'xcb-util-renderutil' 'sudo' 'shadow' 'xcb-util-cursor' 'networkmanager' 'procps-ng' 'polkit' 'iproute2')
+         'xcb-util-renderutil' 'sudo' 'shadow' 'xcb-util-cursor' 'networkmanager' 'procps-ng' 'polkit' 'iproute2'
+         'iputils')
 conflicts=('windscribe-cli')
 provides=('windscribe')
 options=('!strip' '!emptydirs')

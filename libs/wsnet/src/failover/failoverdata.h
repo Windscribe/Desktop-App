@@ -31,6 +31,15 @@ public:
             return false;
     }
 
+    // needed for std::set<FailoverData>
+    bool operator<(const FailoverData& rhs) const
+    {
+        // ignore ttl_ and startTime_
+        std::string uniqId = domain_ + sniDomain_ + echConfig_;
+        std::string uniqId_rhs = rhs.domain_ + rhs.sniDomain_ + rhs.echConfig_;
+        return uniqId < uniqId_rhs;
+    }
+
 private:
     std::string   domain_;
     std::string   sniDomain_;     // empty if no SNI spoofing / domain fronting

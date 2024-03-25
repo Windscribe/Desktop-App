@@ -190,6 +190,11 @@ void MainWindow::onInstallerCallback()
                                           Q_ARG(QString, tr("Installation failed")),
                                           Q_ARG(QString, tr("An existing installation of Windscribe could not be removed. Please uninstall the application manually and try again.")),
                                           Q_ARG(bool, true));
+            } else if (error == InstallerShim::ERROR_UNINSTALL) {
+                QMetaObject::invokeMethod(this, "showError", Qt::QueuedConnection,
+                                          Q_ARG(QString, tr("Installation failed")),
+                                          Q_ARG(QString, tr("The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.")),
+                                          Q_ARG(bool, true));
             } else {
                 QMetaObject::invokeMethod(this, "showError", Qt::QueuedConnection,
                                           Q_ARG(QString, tr("Installation failed")),

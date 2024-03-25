@@ -1,3 +1,23 @@
+2.10.6 (22/03/2024)
+All:
+   * Added a limit of 50 split tunnel entries to ensure stability. #437
+   * Improved retry efficiency for requests that are blocked [wsnet]. #939
+   * Improved custom DNS to not use ctrld if custom DNS is set to an IPv4 address. #795
+   * Improved conditions for network connectivity detection. #98
+   * Improved installer robustness in error situations. #950
+   * Fixed callback may not be called on error [wsnet]. #729
+Windows:
+   * Improved firewall behavior when logging out but not restarting. #378
+   * Improved monitoring of WireGuard service startup status when PC boots after a system crash or hard reset. #682
+   * Updated Windows-on-Arm split tunnel driver WHQL signing certifcate. #934
+MacOS:
+   * Fixed crash when using custom configs. #943
+   * Fixed a scenario where IKEv2 would be attempted in Lockdown Mode. #469
+Linux:
+   * Added requirement for iputils or equivalent since wsnet may use the 'ping' utility directly. #945
+   * Fixed app window resize again, forcing a size update at the end of animations. #930
+
+
 2.10.5 (13/03/2024)
 All:
    * Improved stability of DNS resolution for hostnames when using split tunneling. #805

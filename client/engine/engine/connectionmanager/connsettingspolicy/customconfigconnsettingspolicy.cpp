@@ -61,6 +61,11 @@ bool CustomConfigConnSettingsPolicy::isAutomaticMode()
     return false;
 }
 
+bool CustomConfigConnSettingsPolicy::isCustomConfig()
+{
+    return true;
+}
+
 void CustomConfigConnSettingsPolicy::resolveHostnames()
 {
     locationInfo_->resolveHostnames();

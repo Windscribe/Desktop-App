@@ -18,6 +18,7 @@ public:
     bool isFailed() const override;
     CurrentConnectionDescr getCurrentConnectionSettings() const override;
     bool isAutomaticMode() override;
+    bool isCustomConfig() override;
     void resolveHostnames() override;
     bool hasProtocolChanged() override;
 

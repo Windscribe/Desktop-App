@@ -6,6 +6,7 @@
 #include <thread>
 #include "baserequest.h"
 #include "failover/basefailover.h"
+#include "failedfailovers.h"
 
 namespace wsnet {
 
@@ -23,7 +24,8 @@ class RequestExecuterViaFailover
 public:
     // The request starts executing from the constructor immediately
     explicit RequestExecuterViaFailover(WSNetHttpNetworkManager *httpNetworkManager, std::unique_ptr<BaseRequest> request, std::unique_ptr<BaseFailover> failover,
-                                        bool bIgnoreSslErrors, bool isConnectedVpnState, WSNetAdvancedParameters *advancedParameters, RequestExecuterViaFailoverCallback callback);
+                                        bool bIgnoreSslErrors, bool isConnectedVpnState, WSNetAdvancedParameters *advancedParameters, FailedFailovers &failedFailovers,
+                                        RequestExecuterViaFailoverCallback callback);
     virtual ~RequestExecuterViaFailover();
 
     void start();
@@ -33,6 +35,7 @@ private:
     WSNetHttpNetworkManager *httpNetworkManager_;
     WSNetAdvancedParameters *advancedParameters_;
     RequestExecuterViaFailoverCallback callback_;
+    FailedFailovers &failedFailovers_;
 
     std::unique_ptr<BaseRequest> request_;
     std::unique_ptr<BaseFailover> failover_;

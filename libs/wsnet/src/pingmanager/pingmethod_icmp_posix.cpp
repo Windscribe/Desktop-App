@@ -25,7 +25,12 @@ void PingMethodIcmp_posix::ping(bool isFromDisconnectedVpnState)
 
     using namespace std::placeholders;
     isFromDisconnectedVpnState_ = isFromDisconnectedVpnState;
-    processManager_->execute({"ping", "-c", "1", "-W", "2000", ip_}, std::bind(&PingMethodIcmp_posix::onProcessFinished, this, _1, _2));
+
+    if (processManager_->execute({"ping", "-c", "1", "-W", "2000", ip_}, std::bind(&PingMethodIcmp_posix::onProcessFinished, this, _1, _2))) {
+        spdlog::error("PingMethodIcmp_posix::ping cannot execute ping command");
+        callFinished();
+        return;
+    }
 }
 
 void PingMethodIcmp_posix::onProcessFinished(int exitCode, const std::string &output)

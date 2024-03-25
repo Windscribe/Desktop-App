@@ -23,7 +23,7 @@ public:
     ProcessManager();
     ~ProcessManager();
 
-    void execute(const std::vector<std::string> &args, ProcessManagerCallback callback);
+    bool execute(const std::vector<std::string> &args, ProcessManagerCallback callback);
 
 private:
     std::mutex mutex_;

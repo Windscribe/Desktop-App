@@ -3,6 +3,8 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
+#include <pdhmsg.h>
+
 #include "engine/helper/helper_win.h"
 #include "utils/logger.h"
 #include "utils/ws_assert.h"
@@ -178,7 +180,7 @@ bool MeasurementCpuUsage::getPerformanceCounters()
         if (!match.hasMatch()) {
             auto it = counters_.find(processName);
             if (it == counters_.end()) {
-                PDH_HCOUNTER hCounter;
+                PDH_HCOUNTER hCounter = NULL;
                 QString counterPath =  QString("\\Process(%1)\\% Processor Time").arg(processName);
                 PDH_STATUS status = PdhAddEnglishCounter(hQuery_, counterPath.toStdWString().c_str(), 0, &hCounter);
                 if (status == ERROR_SUCCESS) {
@@ -189,7 +191,14 @@ bool MeasurementCpuUsage::getPerformanceCounters()
                     bAddedNewProcesses = true;
                 }
                 else {
-                    qCDebug(LOG_BASIC) << "MeasurementCpuUsage::getPerformanceCounters failed to add counter for process =" << processName;
+                    if (hCounter != NULL) {
+                        PdhRemoveCounter(hCounter);
+                    }
+                    if (IsErrorSeverity(status)) {
+                        if (status != PDH_CSTATUS_NO_OBJECT && status != PDH_CSTATUS_NO_COUNTER) {
+                            qCDebug(LOG_BASIC) << "MeasurementCpuUsage::getPerformanceCounters failed to add counter for process" << processName << status;
+                        }
+                    }
                 }
             }
             else {

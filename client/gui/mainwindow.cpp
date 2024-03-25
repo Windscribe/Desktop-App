@@ -512,6 +512,20 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     // for startup fix (when app disabled in task manager)
     LaunchOnStartup::instance().setLaunchOnStartup(backend_->getPreferences()->isLaunchOnStartup());
 
+#if defined(Q_OS_WIN)
+    // In Windows, If user is logging off, but not restarting, turn off the firewall so it does not affect other users on the same system
+    // Note that this must occur before the backend cleanup call.
+    if (PersistentState::instance().isFirewallOn() &&
+        backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_AUTOMATIC &&
+        // This is how to detect a user is logging off (See https://devblogs.microsoft.com/oldnewthing/20180705-00/?p=99175)
+        GetSystemMetrics(SM_SHUTTINGDOWN) &&
+        !WindscribeApplication::instance()->isExitWithRestart())
+    {
+        qCDebug(LOG_BASIC) << "Turning off firewall for non-restart logout";
+        backend_->firewallOff();
+    }
+#endif
+
     backend_->cleanup(WindscribeApplication::instance()->isExitWithRestart(), PersistentState::instance().isFirewallOn(),
                       backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON || isExitingAfterUpdate_,
                       backend_->getPreferences()->isLaunchOnStartup());

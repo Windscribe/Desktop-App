@@ -180,19 +180,6 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
     updateConnectionSettingsPolicy(connectionSettings, portMap, proxySettings);
 
     connSettingsPolicy_->debugLocationInfoToLog();
-
-#ifdef Q_OS_MAC
-    // For automatic policy, we would have removed IKEv2 from the list for lockdown mode.
-    // There is no custom config for IKEv2, so if we get here it is manual mode.
-    // We can get here either by:
-    // - User selecting IKEv2 in manual mode and then enabling Lockdown Mode, or
-    // - User selecting IKEv2 in manual mode in a previous version of Windscribe, then updating.
-    if (connSettingsPolicy_->getCurrentConnectionSettings().protocol == types::Protocol::IKEV2 && MacUtils::isLockdownMode()) {
-        emit errorDuringConnection(CONNECT_ERROR::LOCKDOWN_MODE_IKEV2);
-        return;
-    }
-#endif
-
     doConnect();
 }
 
@@ -368,15 +355,13 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
     // override the DNS if we are using custom
-    if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM)
-    {
-        QString customDnsIp = ctrldManager_->listenIp();
+    if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM) {
+        QString customDnsIp = dnsServersFromConnectedDnsInfo();
         vpnAdapterInfo_.setDnsServers(QStringList() << customDnsIp);
         qCDebug(LOG_CONNECTION) << "Custom DNS detected, will override with: " << customDnsIp;
     }
 
-    if (state_ == STATE_DISCONNECTING_FROM_USER_CLICK)
-    {
+    if (state_ == STATE_DISCONNECTING_FROM_USER_CLICK) {
         qCDebug(LOG_CONNECTION) << "Already disconnecting -- do not enter connected state";
         return;
     }
@@ -881,15 +866,31 @@ void ConnectionManager::onWstunnelStarted()
 
 void ConnectionManager::doConnect()
 {
-    if (!networkDetectionManager_->isOnline())
-    {
+#ifdef Q_OS_MAC
+    // For automatic policy, we would have removed IKEv2 from the list for lockdown mode.
+    // There is no custom config for IKEv2, so if we get here it is manual mode.
+    // We can get here either by:
+    // - User selecting IKEv2 in manual mode and then enabling Lockdown Mode, or
+    // - User selecting IKEv2 in manual mode in a previous version of Windscribe, then updating.
+    if (!connSettingsPolicy_->isCustomConfig() && connSettingsPolicy_->getCurrentConnectionSettings().protocol == types::Protocol::IKEV2 && MacUtils::isLockdownMode()) {
+        emit errorDuringConnection(CONNECT_ERROR::LOCKDOWN_MODE_IKEV2);
+        return;
+    }
+#endif
+
+    bool isOnline = networkDetectionManager_->isOnline();
+    defaultAdapterInfo_.clear();
+    if (isOnline) {
+        defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo();
+    }
+
+    if (!isOnline || defaultAdapterInfo_.isEmpty()) {
         startReconnectionTimer();
         waitForNetworkConnectivity();
         return;
     }
-    defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo();
-    qCDebug(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
 
+    qCDebug(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
     connectTimer_.stop();
 
     connectingTimer_.setSingleShot(true);
@@ -933,7 +934,7 @@ void ConnectionManager::doConnectPart2()
 #endif
 
     // start ctrld utility
-    if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM) {
+    if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM && !connectedDnsInfo_.isCustomIPv4Address()) {
         bool bStarted = false;
         if (connectedDnsInfo_.isSplitDns)
             bStarted = ctrldManager_->runProcess(connectedDnsInfo_.upStream1, connectedDnsInfo_.upStream2, connectedDnsInfo_.hostnames);
@@ -955,6 +956,10 @@ void ConnectionManager::doConnectPart2()
         }
         dynamic_cast<Helper_win*>(helper_)->setCustomDnsIps(dnsIps);
     #endif
+    } else if (connectedDnsInfo_.isCustomIPv4Address())  {
+#ifdef Q_OS_WIN
+        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIps(QStringList() << connectedDnsInfo_.upStream1);
+#endif
     } else {
 #ifdef Q_OS_WIN
         dynamic_cast<Helper_win*>(helper_)->setCustomDnsIps(QStringList());
@@ -1004,7 +1009,7 @@ void ConnectionManager::doConnectPart2()
                 lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                 currentConnectionDescr_.port, localPort, mss, defaultAdapterInfo_.gateway(),
                 currentConnectionDescr_.verifyX509name,
-                connectedDnsTypeAuto() ? "" : ctrldManager_->listenIp());
+                dnsServersFromConnectedDnsInfo());
             if (!bOvpnSuccess) {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";
                 WS_ASSERT(false);
@@ -1098,13 +1103,14 @@ void ConnectionManager::doConnectPart3()
         QStringList dnsIps;
         if (connectedDnsTypeAuto()) {
             dnsIps << pConfig->clientDnsAddress();
+        } else if (connectedDnsInfo_.isCustomIPv4Address()) {
+            dnsIps << connectedDnsInfo_.upStream1;
         } else {
             if (IpValidation::isIp(connectedDnsInfo_.upStream1)) {
                 dnsIps << connectedDnsInfo_.upStream1;
             }
             dnsIps << ctrldManager_->listenIp();
         }
-
         emit connectingToHostname(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, dnsIps);
     }
     else
@@ -1122,7 +1128,7 @@ void ConnectionManager::doConnectPart3()
         connector_->startConnect(makeOVPNFileFromCustom_->config(), "", "", usernameForCustomOvpn_,
                                  passwordForCustomOvpn_, lastProxySettings_,
                                  currentConnectionDescr_.wgCustomConfig.get(), false, false, true,
-                                 connectedDnsTypeAuto() ? QString() : ctrldManager_->listenIp());
+                                 dnsServersFromConnectedDnsInfo());
     }
     else
     {
@@ -1143,7 +1149,7 @@ void ConnectionManager::doConnectPart3()
             recreateConnector(types::Protocol::OPENVPN_UDP);
             connector_->startConnect(makeOVPNFile_->config(), "", "", username, password, lastProxySettings_, nullptr,
                                      false, connSettingsPolicy_->isAutomaticMode(), false,
-                                     connectedDnsTypeAuto() ? QString() : ctrldManager_->listenIp());
+                                     dnsServersFromConnectedDnsInfo());
         }
         else if (currentConnectionDescr_.protocol.isIkev2Protocol())
         {
@@ -1162,7 +1168,7 @@ void ConnectionManager::doConnectPart3()
             recreateConnector(types::Protocol::IKEV2);
             connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_,
                                      nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode(), false,
-                                     connectedDnsTypeAuto() ? QString() : ctrldManager_->listenIp());
+                                     dnsServersFromConnectedDnsInfo());
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
@@ -1179,7 +1185,7 @@ void ConnectionManager::doConnectPart3()
             connector_->startConnect(QString(), currentConnectionDescr_.ip,
                 currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,
                 &wireGuardConfig_, false, connSettingsPolicy_->isAutomaticMode(), false,
-                                     connectedDnsTypeAuto() ? QString() : ctrldManager_->listenIp());
+                                     dnsServersFromConnectedDnsInfo());
         }
         else
         {
@@ -1351,7 +1357,7 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
 
 void ConnectionManager::onTimerWaitNetworkConnectivity()
 {
-    if (networkDetectionManager_->isOnline())
+    if (networkDetectionManager_->isOnline() && !AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo().isEmpty())
     {
         qCDebug(LOG_CONNECTION) << "We online, make the connection";
         timerWaitNetworkConnectivity_.stop();
@@ -1570,6 +1576,16 @@ void ConnectionManager::getWireGuardConfig(const QString &serverName, bool delet
 bool ConnectionManager::connectedDnsTypeAuto() const
 {
     return connectedDnsInfo_.type == CONNECTED_DNS_TYPE_AUTO || connectedDnsInfo_.type == CONNECTED_DNS_TYPE_FORCED;
+}
+
+QString ConnectionManager::dnsServersFromConnectedDnsInfo() const
+{
+    if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_AUTO || connectedDnsInfo_.type == CONNECTED_DNS_TYPE_FORCED)
+        return QString();
+    else if (connectedDnsInfo_.isCustomIPv4Address())
+        return connectedDnsInfo_.upStream1;
+    else
+        return ctrldManager_->listenIp();
 }
 
 void ConnectionManager::disconnect()

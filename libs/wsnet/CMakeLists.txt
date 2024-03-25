@@ -22,11 +22,6 @@ project(wsnet
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
-#include code coverage cmake tool
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;")
-include(code-coverage)
-add_code_coverage_all_targets()
-
 #TODO: move fork to another repo or make vcpkg port?
 # For Android and iOS using the scapix library for automatic binding to Java/Objective C languages
 if(ANDROID OR IOS)
@@ -86,11 +81,16 @@ set_property(TARGET cert-resources PROPERTY POSITION_INDEPENDENT_CODE ON)
 add_library(wsnet SHARED ${WS_CPP_PUBLIC_HEADERS})
 add_library(wsnet::wsnet ALIAS wsnet)
 
-target_code_coverage(wsnet AUTO ALL)
-
 target_compile_features(wsnet PUBLIC cxx_std_17)
 
-# Set platform specificd dependencies
+if (DEFINED IS_BUILD_TESTS)
+    if (NOT WIN32)
+        target_compile_options(wsnet PRIVATE -g -O0 --coverage -fprofile-arcs -ftest-coverage)
+        target_link_options(wsnet PRIVATE --coverage)
+    endif()
+endif()
+
+# Set platform specific dependencies
 if (IOS)
     set (OS_SPECIFIC_LIBRARIES "-framework Foundation")
 endif()
@@ -107,6 +107,8 @@ if (WIN32)
                                   _WIN32_WINNT=0x0601
                                   WIN32_LEAN_AND_MEAN
                                   PIO_APC_ROUTINE_DEFINED)
+
+    set_target_properties(wsnet PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif (WIN32)
 
 target_include_directories(wsnet PUBLIC

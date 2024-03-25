@@ -21,7 +21,8 @@ std::wstring StartMenuProgramsFolder();
 // or obtaining its exit code.  Returns the process exit code or WAIT_TIMEOUT otherwise.
 std::optional<DWORD> InstExec(const std::wstring &appName, const std::wstring &commandLine,
                               DWORD timeoutMS, WORD showWindowFlags,
-                              const std::wstring &currentFolder = std::wstring());
+                              const std::wstring &currentFolder = std::wstring(),
+                              DWORD *lastError = nullptr);
 
 DWORD getOSBuildNumber();
 }

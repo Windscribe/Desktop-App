@@ -4,6 +4,7 @@
 #include <BS_thread_pool.hpp>
 #include "WSNetHttpNetworkManager.h"
 #include "failover/ifailovercontainer.h"
+#include "serverapi/failedfailovers.h"
 #include "requestexecuterviafailover.h"
 
 namespace wsnet {
@@ -27,6 +28,7 @@ private:
     IFailoverContainer *failoverContainer_;
     std::uint64_t curUniqueId_ = 0;
     std::map<std::uint64_t, std::unique_ptr<RequestExecuterViaFailover> > activeRequests_;
+    FailedFailovers failedFailovers_;
 
     void myIPViaFailover_impl(int failoverInd, std::unique_ptr<BaseRequest> request);
     void onRequestExecuterViaFailoverFinished(RequestExecuterRetCode retCode, std::unique_ptr<BaseRequest> request, FailoverData failoverData, std::uint64_t id);

@@ -20,6 +20,8 @@ PingMethodIcmp_win::PingMethodIcmp_win(EventCallbackManager_win &eventCallbackMa
 PingMethodIcmp_win::~PingMethodIcmp_win()
 {
     CloseHandle(hEvent_);
+    if (icmpFile_ != INVALID_HANDLE_VALUE)
+        IcmpCloseHandle(icmpFile_);
 }
 
 void PingMethodIcmp_win::ping(bool isFromDisconnectedVpnState)
@@ -30,7 +32,7 @@ void PingMethodIcmp_win::ping(bool isFromDisconnectedVpnState)
     if (icmpFile_ == INVALID_HANDLE_VALUE) {
         spdlog::info("PingHost_ICMP_win IcmpCreateFile failed, error: {}", ::GetLastError());
         assert(false);
-        //TODO: call callback function?
+        callFinished();
         return;
     }
 
@@ -41,8 +43,7 @@ void PingMethodIcmp_win::ping(bool isFromDisconnectedVpnState)
     IN_ADDR ipAddr;
     if (inet_pton(AF_INET, ip_.c_str(), &ipAddr) != 1) {
         spdlog::info("PingHost_ICMP_win inet_pton failed, error: {}", ::WSAGetLastError());
-        assert(false);
-        //TODO: call callback function?
+        callFinished();
         return;
     }
 
@@ -58,13 +59,13 @@ void PingMethodIcmp_win::ping(bool isFromDisconnectedVpnState)
     if (result != 0) {
         spdlog::error("PingHost_ICMP_win IcmpSendEcho2 returned unexpected result, error: {}", ::GetLastError());
         assert(false);
-        //TODO: call callback function?
+        callFinished();
         return;
     }
     else if (::GetLastError() != ERROR_IO_PENDING) {
         spdlog::error("PingHost_ICMP_win IcmpSendEcho2 failed, error: {}", ::GetLastError());
         assert(false);
-        //TODO: call callback function?
+        callFinished();
         return;
     }
 }

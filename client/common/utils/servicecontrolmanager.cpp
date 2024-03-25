@@ -357,6 +357,11 @@ void ServiceControlManager::startService()
                 return;
             }
 
+            if (status != SERVICE_START_PENDING) {
+                errorMsg << "startService(" << serviceName_ << ") API request succeeded, but the service aborted its startup";
+                throw std::system_error(ERROR_SERVICE_NOT_ACTIVE, std::system_category(), wstring_to_string(errorMsg.str()));
+            }
+
             ::Sleep(100);
         }
 
@@ -366,7 +371,7 @@ void ServiceControlManager::startService()
 
         elapsedTime = ::GetTickCount64() - startTime;
         errorMsg << "startService(" << serviceName_ << ") API request succeeded, but the service did not report as running after " << elapsedTime << "ms";
-        throw std::system_error(ERROR_SERVICE_REQUEST_TIMEOUT, std::system_category(), wstring_to_string(errorMsg.str()));
+        throw std::system_error(ERROR_SERVICE_START_HANG, std::system_category(), wstring_to_string(errorMsg.str()));
     }
 
     elapsedTime = ::GetTickCount64() - startTime;
@@ -651,10 +656,17 @@ bool ServiceControlManager::deleteService(LPCTSTR serviceName, std::error_code& 
     // QueryServiceStatus to fail.
     SERVICE_STATUS status;
     if (::QueryServiceStatus(service_, &status)) {
-        if (status.dwCurrentState != SERVICE_STOPPED) {
-            if (!stopService(ec)) {
-                return false;
-            }
+        switch (status.dwCurrentState) {
+        case SERVICE_STOPPED:
+        case SERVICE_START_PENDING:
+        case SERVICE_STOP_PENDING:
+            // A service in one of these states will not accept stop commands.
+            break;
+        default:
+            // Ignoring stopService failure, as we still need to mark the service for deletion even if we couldn't stop it.
+            stopService(ec);
+            ec.clear();
+            break;
         }
     }
 

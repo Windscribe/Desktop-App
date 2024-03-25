@@ -13,6 +13,8 @@ class SplitTunnelingAppsGroup : public PreferenceGroup
 {
     Q_OBJECT
 public:
+    static const int kMaxApps = 50;
+
     explicit SplitTunnelingAppsGroup(ScalableGraphicsObject *parent,
                                      const QString &desc = "",
                                      const QString &descUrl = "");
@@ -28,6 +30,7 @@ signals:
     void addClicked();
     void appsUpdated(QList<types::SplitTunnelingApp> apps);
     void escape();
+    void setError(QString msg);
 
 protected slots:
     void keyPressEvent(QKeyEvent *event) override;
@@ -41,7 +44,7 @@ private slots:
     void onSearchItemClicked();
 
 private:
-    void addAppInternal(types::SplitTunnelingApp &app);
+    bool addAppInternal(types::SplitTunnelingApp &app);
     void addSearchApp(types::SplitTunnelingApp &app);
     void populateSearchApps();
     void showFilteredSearchItems(QString filter);

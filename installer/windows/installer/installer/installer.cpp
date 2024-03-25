@@ -97,7 +97,11 @@ void Installer::executionImpl()
             // error from block?
             else if (progressOfBlock < 0) {
                 progress_ = overallProgress;
-                error_ = ERROR_OTHER;
+                if (progressOfBlock == -2) {
+                    error_ = ERROR_UNINSTALL;
+                } else {
+                    error_ = ERROR_OTHER;
+                }
                 state_ = STATE_ERROR;
                 callback_();
                 Log::instance().out(block->getLastError());

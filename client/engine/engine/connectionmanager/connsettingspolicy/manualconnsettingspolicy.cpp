@@ -93,6 +93,11 @@ bool ManualConnSettingsPolicy::isAutomaticMode()
     return false;
 }
 
+bool ManualConnSettingsPolicy::isCustomConfig()
+{
+    return false;
+}
+
 void ManualConnSettingsPolicy::resolveHostnames()
 {
     //nothing todo

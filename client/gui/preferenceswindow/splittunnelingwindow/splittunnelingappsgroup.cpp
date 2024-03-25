@@ -63,12 +63,18 @@ void SplitTunnelingAppsGroup::setApps(QList<types::SplitTunnelingApp> apps)
 
 void SplitTunnelingAppsGroup::addApp(types::SplitTunnelingApp &app)
 {
-    addAppInternal(app);
-    emit appsUpdated(apps_.values());
+    if(addAppInternal(app)) {
+        emit appsUpdated(apps_.values());
+    }
 }
 
-void SplitTunnelingAppsGroup::addAppInternal(types::SplitTunnelingApp &app)
+bool SplitTunnelingAppsGroup::addAppInternal(types::SplitTunnelingApp &app)
 {
+    if (apps_.size() >= kMaxApps) {
+        emit setError(tr("There are too many apps in the list. Please remove some before adding more."));
+        return false;
+    }
+
     AppIncludedItem *item = new AppIncludedItem(app, this);
     connect(item, &AppIncludedItem::deleteClicked, this, &SplitTunnelingAppsGroup::onDeleteClicked);
     apps_[item] = app;
@@ -78,6 +84,7 @@ void SplitTunnelingAppsGroup::addAppInternal(types::SplitTunnelingApp &app)
     if (mode_ == OP_MODE::DEFAULT) {
         showItems(indexOf(item));
     }
+    return true;
 }
 
 void SplitTunnelingAppsGroup::addSearchApp(types::SplitTunnelingApp &app)
@@ -89,8 +96,7 @@ void SplitTunnelingAppsGroup::addSearchApp(types::SplitTunnelingApp &app)
 
     addItem(item);
     hideItems(indexOf(item), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
-    if (mode_ == OP_MODE::SEARCH)
-    {
+    if (mode_ == OP_MODE::SEARCH) {
         showItems(indexOf(item));
     }
 }
@@ -122,12 +128,9 @@ void SplitTunnelingAppsGroup::onSearchTextChanged(QString text)
     showFilteredSearchItems(text);
     searchLineEditItem_->setSelected(true);
 
-    if (text == "")
-    {
+    if (text == "") {
         searchLineEditItem_->hideButtons();
-    }
-    else
-    {
+    } else {
         searchLineEditItem_->showButtons();
     }
 }
@@ -143,8 +146,7 @@ void SplitTunnelingAppsGroup::onSearchModeExited()
 
     // show main bar and active items
     showItems(indexOf(splitTunnelingAppsItem_), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
-    for (BaseItem *item : apps_.keys())
-    {
+    for (BaseItem *item : apps_.keys()) {
         showItems(indexOf(item), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
     }
 
@@ -196,8 +198,7 @@ void SplitTunnelingAppsGroup::onSearchItemClicked()
 {
     AppSearchItem *item = static_cast<AppSearchItem*>(sender());
 
-    if (item != nullptr)
-    {
+    if (item != nullptr) {
         onSearchModeExited();
         toggleAppItemActive(item);
     }
@@ -208,26 +209,23 @@ void SplitTunnelingAppsGroup::toggleAppItemActive(AppSearchItem *item)
     QString appName = item->getName();
     AppIncludedItem *existingApp = appByName(appName);
 
-    if (!existingApp)
-    {
+    if (!existingApp) {
         types::SplitTunnelingApp app;
         app.name = appName;
         app.type = SPLIT_TUNNELING_APP_TYPE_SYSTEM;
         app.active = true;
         app.fullName = item->getFullName();
         app.icon = item->getAppIcon();
-        addAppInternal(app);
+        if (addAppInternal(app)) {
+            emit appsUpdated(apps_.values());
+        }
     }
-
-    emit appsUpdated(apps_.values());
 }
 
 AppIncludedItem *SplitTunnelingAppsGroup::appByName(QString name)
 {
-    for (AppIncludedItem *item : apps_.keys())
-    {
-        if (apps_[item].name == name)
-        {
+    for (AppIncludedItem *item : apps_.keys()) {
+        if (apps_[item].name == name) {
             return item;
         }
     }
@@ -236,16 +234,11 @@ AppIncludedItem *SplitTunnelingAppsGroup::appByName(QString name)
 
 void SplitTunnelingAppsGroup::showFilteredSearchItems(QString filter)
 {
-    if (OP_MODE::SEARCH)
-    {
-        for (AppSearchItem *item : searchApps_.keys())
-        {
-            if (filter == "" || (searchApps_[item].name.toLower().contains(filter.toLower()) && !appByName(searchApps_[item].name)))
-            {
+    if (OP_MODE::SEARCH) {
+        for (AppSearchItem *item : searchApps_.keys()) {
+            if (filter == "" || (searchApps_[item].name.toLower().contains(filter.toLower()) && !appByName(searchApps_[item].name))) {
                 showItems(indexOf(item), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
-            }
-            else
-            {
+            } else {
                 hideItems(indexOf(item), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);
             }
         }
@@ -254,22 +247,15 @@ void SplitTunnelingAppsGroup::showFilteredSearchItems(QString filter)
 
 void SplitTunnelingAppsGroup::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Escape)
-    {
-        if (mode_ == OP_MODE::SEARCH)
-        {
-            if (searchLineEditItem_->text() == "")
-            {
+    if (event->key() == Qt::Key_Escape) {
+        if (mode_ == OP_MODE::SEARCH) {
+            if (searchLineEditItem_->text() == "") {
                 onSearchModeExited();
-            }
-            else
-            {
+            } else {
                 searchLineEditItem_->setText("");
                 emit escape();
             }
-        }
-        else
-        {
+        } else {
             emit escape();
         }
     }
@@ -279,15 +265,13 @@ void SplitTunnelingAppsGroup::setLoggedIn(bool loggedIn)
 {
     splitTunnelingAppsItem_->setClickable(loggedIn);
     searchLineEditItem_->setClickable(loggedIn);
-    if (mode_ == OP_MODE::SEARCH)
-    {
+    if (mode_ == OP_MODE::SEARCH) {
         onSearchModeExited();
     }
 
-    for (AppIncludedItem *item : apps_.keys())
-    {
+    for (AppIncludedItem *item : apps_.keys()) {
         item->setClickable(loggedIn);
     }
 }
 
-}
+} // namespace PreferencesWindow

@@ -1849,6 +1849,10 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
         <source>This IP address or range is reserved by Windscribe and can not be changed.</source>
         <translation>Alamat atau rentang IP ini dicadangkan oleh Windscribe dan tidak dapat diubah.</translation>
     </message>
+    <message>
+        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
+        <translation>Ada terlalu banyak IP atau nama host dalam daftar. Harap hapus beberapa sebelum menambahkan lebih banyak.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesWindowItem</name>
@@ -1863,6 +1867,13 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>Silakan masuk untuk mengubah aturan tunneling terpisah.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>There are too many apps in the list. Please remove some before adding more.</source>
+        <translation>Ada terlalu banyak aplikasi dalam daftar. Harap hapus beberapa sebelum menambahkan lebih banyak.</translation>
     </message>
 </context>
 <context>

@@ -5,7 +5,8 @@
 namespace wsnet {
 
 RequestExecuterViaFailover::RequestExecuterViaFailover(WSNetHttpNetworkManager *httpNetworkManager, std::unique_ptr<BaseRequest> request, std::unique_ptr<BaseFailover> failover,
-                                                       bool bIgnoreSslErrors, bool isConnectedVpnState, WSNetAdvancedParameters *advancedParameters, RequestExecuterViaFailoverCallback callback) :
+                                                       bool bIgnoreSslErrors, bool isConnectedVpnState, WSNetAdvancedParameters *advancedParameters, FailedFailovers &failedFailovers,
+                                                       RequestExecuterViaFailoverCallback callback) :
     httpNetworkManager_(httpNetworkManager),
     advancedParameters_(advancedParameters),
     request_(std::move(request)),
@@ -13,7 +14,8 @@ RequestExecuterViaFailover::RequestExecuterViaFailover(WSNetHttpNetworkManager *
     bIgnoreSslErrors_(bIgnoreSslErrors),
     isConnectedVpnState_(isConnectedVpnState),
     isConnectStateChanged_(false),
-    callback_(callback)
+    callback_(callback),
+    failedFailovers_(failedFailovers)
 {
 }
 
@@ -59,7 +61,17 @@ void RequestExecuterViaFailover::onFailoverCallback(const std::vector<FailoverDa
 
     failoverData_ = data;
     curIndFailoverData_ = 0;
-    executeBaseRequest(failoverData_[curIndFailoverData_]);
+
+    // if we have already tried this domain and it is failed skip it
+    // keep in mind the failover can contain several domains
+    while (curIndFailoverData_ < failoverData_.size() && failedFailovers_.isContains(failoverData_[curIndFailoverData_]))  {
+        spdlog::info("Got an already failed domain {}, skip it", failoverData_[curIndFailoverData_].domain());
+        curIndFailoverData_++;
+    }
+    if (curIndFailoverData_ >= failoverData_.size())
+        callback_(RequestExecuterRetCode::kFailoverFailed, std::move(request_), FailoverData(""));
+    else
+        executeBaseRequest(failoverData_[curIndFailoverData_]);
 }
 
 void RequestExecuterViaFailover::executeBaseRequest(const FailoverData &failoverData)
@@ -93,6 +105,7 @@ void RequestExecuterViaFailover::onHttpNetworkRequestFinished(std::uint64_t http
     }
 
     if (errCode != NetworkError::kSuccess || request_->retCode() == ServerApiRetCode::kIncorrectJson) {
+        failedFailovers_.add(failoverData_[curIndFailoverData_]);
         // failover can contain several domains, let's try another one if there is one
         curIndFailoverData_++;
         if (curIndFailoverData_ >= failoverData_.size())

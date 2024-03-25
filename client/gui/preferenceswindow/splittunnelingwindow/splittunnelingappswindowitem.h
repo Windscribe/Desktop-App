@@ -27,6 +27,7 @@ signals:
 
 private slots:
     void onAppsUpdated(QList<types::SplitTunnelingApp> apps);
+    void onError(QString msg);
     void onLanguageChanged();
     void onPreferencesChanged();
 

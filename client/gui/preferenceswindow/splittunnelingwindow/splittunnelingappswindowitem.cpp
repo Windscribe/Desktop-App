@@ -17,6 +17,7 @@ SplitTunnelingAppsWindowItem::SplitTunnelingAppsWindowItem(ScalableGraphicsObjec
 
     splitTunnelingAppsGroup_ = new SplitTunnelingAppsGroup(this);
     connect(splitTunnelingAppsGroup_, &SplitTunnelingAppsGroup::appsUpdated, this, &SplitTunnelingAppsWindowItem::onAppsUpdated);
+    connect(splitTunnelingAppsGroup_, &SplitTunnelingAppsGroup::setError, this, &SplitTunnelingAppsWindowItem::onError);
     connect(splitTunnelingAppsGroup_, &SplitTunnelingAppsGroup::addClicked, this, &SplitTunnelingAppsWindowItem::addButtonClicked);
     connect(splitTunnelingAppsGroup_, &SplitTunnelingAppsGroup::escape, this, &SplitTunnelingAppsWindowItem::escape);
     addItem(splitTunnelingAppsGroup_);
@@ -48,6 +49,9 @@ void SplitTunnelingAppsWindowItem::addAppManually(types::SplitTunnelingApp app)
 
 void SplitTunnelingAppsWindowItem::onAppsUpdated(QList<types::SplitTunnelingApp> apps)
 {
+    // Clears error and sets the default description
+    setLoggedIn(loggedIn_);
+
     preferences_->setSplitTunnelingApps(apps);
     emit appsUpdated(apps);
 }
@@ -74,6 +78,11 @@ void SplitTunnelingAppsWindowItem::onLanguageChanged()
 void SplitTunnelingAppsWindowItem::onPreferencesChanged()
 {
     splitTunnelingAppsGroup_->setApps(preferences_->splitTunnelingApps());
+}
+
+void SplitTunnelingAppsWindowItem::onError(QString msg)
+{
+    desc_->setDescription(msg, true);
 }
 
 } // namespace PreferencesWindow

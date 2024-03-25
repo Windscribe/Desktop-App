@@ -55,6 +55,7 @@ void ServerAPI_impl::setIgnoreSslErrors(bool bIgnore)
 void ServerAPI_impl::resetFailover()
 {
     spdlog::info("ServerAPI_impl::resetFailover");
+    failedFailovers_.clear();
     auto failover = failoverContainer_->first();
     curFailoverUid_ = failover->uniqueId();
     curFailoverInd_ = 0;
@@ -148,7 +149,7 @@ void ServerAPI_impl::executeRequest(std::unique_ptr<BaseRequest> request)
             // start RequestExecuterViaFailover and wait for the result in the callback function
             using namespace std::placeholders;
             requestExecutorViaFailover_.reset(new RequestExecuterViaFailover(httpNetworkManager_, std::move(request), std::move(curFailover),
-                                                                             bIgnoreSslErrors_, isConnectedToVpn_, advancedParameters_,
+                                                                             bIgnoreSslErrors_, isConnectedToVpn_, advancedParameters_, failedFailovers_,
                                                                              std::bind(&ServerAPI_impl::onRequestExecuterViaFailoverFinished, this, _1, _2, _3)));
             requestExecutorViaFailover_->start();
         } else {

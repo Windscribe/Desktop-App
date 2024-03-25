@@ -1849,6 +1849,10 @@ Connect to a network first</source>
         <source>This IP address or range is reserved by Windscribe and can not be changed.</source>
         <translation>Ця IP-адреса або діапазон зарезервовані Windscribe і не можуть бути змінені.</translation>
     </message>
+    <message>
+        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
+        <translation>У списку забагато IP-адрес або імен хостів. Будь ласка, видаліть деякі з них, перш ніж додавати нові.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingAddressesWindowItem</name>
@@ -1863,6 +1867,13 @@ Connect to a network first</source>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>Будь ласка, увійдіть в систему, щоб змінити правила роздільного тунелювання.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
+    <message>
+        <source>There are too many apps in the list. Please remove some before adding more.</source>
+        <translation>У списку занадто багато додатків. Будь ласка, видаліть деякі з них, перш ніж додавати нові.</translation>
     </message>
 </context>
 <context>

@@ -1,6 +1,7 @@
 #include "connecteddnsinfo.h"
 #include <QObject>
 #include "utils/ws_assert.h"
+#include "utils/ipvalidation.h"
 
 namespace types {
 
@@ -30,6 +31,11 @@ QString ConnectedDnsInfo::typeToString(const CONNECTED_DNS_TYPE &type)
         WS_ASSERT(false);
         return "";
     }
+}
+
+bool ConnectedDnsInfo::isCustomIPv4Address() const
+{
+    return type == CONNECTED_DNS_TYPE_CUSTOM && IpValidation::isIp(upStream1) && isSplitDns == false;
 }
 
 bool ConnectedDnsInfo::operator==(const ConnectedDnsInfo &other) const

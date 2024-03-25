@@ -143,6 +143,7 @@ int Files::moveFiles()
 bool Files::copyLibs()
 {
     std::error_code ec;
+    std::filesystem::copy_options opts = std::filesystem::copy_options::overwrite_existing;
 
     const filesystem::path installPath = installPath_;
     const wstring exeStr = getExePath();
@@ -155,7 +156,7 @@ bool Files::copyLibs()
     // Copy DLLs
     for (const auto &entry : filesystem::directory_iterator(exePath)) {
         if (entry.is_regular_file() && entry.path().extension() == ".dll") {
-            filesystem::copy_file(entry.path(), installPath / entry.path().filename(), ec);
+            filesystem::copy_file(entry.path(), installPath / entry.path().filename(), opts, ec);
             if (ec) {
                 Log::instance().out(L"Could not copy DLL %ls: %hs", entry.path().wstring().c_str(), ec.message().c_str());
                 return false;
@@ -166,7 +167,7 @@ bool Files::copyLibs()
     // Copy Qt plugins
     std::wstring paths[3] = { L"imageformats", L"platforms", L"styles" };
     for (auto p : paths) {
-        filesystem::copy(exePath / p, installPath / p, ec);
+        filesystem::copy(exePath / p, installPath / p, opts, ec);
         if (ec) {
             Log::instance().out(L"Could not copy %ls: %hs", p.c_str(), ec.message().c_str());
             return false;

@@ -25,41 +25,31 @@ bool WindowsNativeEventFilter::nativeEventFilter(const QByteArray &b, void *mess
 
     MSG* msg = reinterpret_cast<MSG*>(message);
 
-    if ( msg->message == WM_QUERYENDSESSION || msg->message == WM_ENDSESSION )
-    {
+    if (msg->message == WM_QUERYENDSESSION || msg->message == WM_ENDSESSION) {
         if (msg->message == WM_ENDSESSION && msg->wParam == FALSE)
         {
             qCDebug(LOG_BASIC) << "Windows shutdown interrupted by user";
             WindscribeApplication::instance()->clearWasRestartOSFlag();
             bShutdownAlreadyReceived_ = false;
+        // if lParam is 0, the system is shutting down or restarting, otherwise it's a logout
+        } else if (msg->lParam == 0 && !bShutdownAlreadyReceived_) {
+            qCDebug(LOG_BASIC) << "Windows shutdown received";
+            WindscribeApplication::instance()->setWasRestartOSFlag();
+            bShutdownAlreadyReceived_ = true;
         }
-        else
-        {
-            if (!bShutdownAlreadyReceived_)
-            {
-                qCDebug(LOG_BASIC) << "Windows shutdown received";
-                WindscribeApplication::instance()->setWasRestartOSFlag();
-                bShutdownAlreadyReceived_ = true;
-            }
-        }
-    }
-    else if (msg->message == WM_DPICHANGED)
-    {
+    } else if (msg->message == WM_DPICHANGED) {
         auto *widget = QWidget::find(WId(msg->hwnd));
         if (widget) {
             auto *dpi_scale_aware_widget = dynamic_cast<DPIScaleAwareWidget*>(widget);
-            if (dpi_scale_aware_widget)
+            if (dpi_scale_aware_widget) {
                 dpi_scale_aware_widget->checkForAutoResize_win();
+            }
         }
-    }
-    else if ( msg->message == dwActivateMessage_)
-    {
+    } else if ( msg->message == dwActivateMessage_) {
         qCDebug(LOG_BASIC) << "Windows activate app message received";
         WindscribeApplication::instance()->onActivateFromAnotherInstance();
         return true;
-    }
-    else if (msg->message == WM_WININICHANGE)
-    {
+    } else if (msg->message == WM_WININICHANGE) {
         // WM_WININICHANGE fires when OS light/dark mode is updated
         WindscribeApplication::instance()->onWinIniChanged();
         return true;
