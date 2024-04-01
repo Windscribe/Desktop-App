@@ -39,12 +39,14 @@ EmergencyController::~EmergencyController()
     SAFE_DELETE(makeOVPNFile_);
 }
 
-void EmergencyController::clickConnect(const types::ProxySettings &proxySettings)
+void EmergencyController::clickConnect(const types::ProxySettings &proxySettings, bool isAntiCensorship)
 {
     WS_ASSERT(state_ == STATE_DISCONNECTED);
     state_= STATE_CONNECTING_FROM_USER_CLICK;
 
     proxySettings_ = proxySettings;
+    isAntiCensorship_ = isAntiCensorship;
+
 
     auto callback = [this](std::vector<std::shared_ptr<WSNetEmergencyConnectEndpoint>> endpoints) {
         QMetaObject::invokeMethod(this, [this, endpoints]
@@ -280,7 +282,8 @@ void EmergencyController::doConnect()
     QString ovpnConfig = QString::fromStdString(WSNet::instance()->emergencyConnect()->ovpnConfig());
     WS_ASSERT(!ovpnConfig.isEmpty());
 
-    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig, QString::fromStdString(endpoint->ip()), types::Protocol::fromString(protocol), endpoint->port(), 0, mss, defaultAdapterInfo_.gateway(), "", "");
+    bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig, QString::fromStdString(endpoint->ip()), types::Protocol::fromString(protocol),
+                                                endpoint->port(), 0, mss, defaultAdapterInfo_.gateway(), "", "", isAntiCensorship_);
     if (!bOvpnSuccess )
     {
         qCDebug(LOG_EMERGENCY_CONNECT) << "Failed create ovpn config";

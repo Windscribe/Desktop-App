@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <shlobj_core.h>
 
+#include "../installer_base.h"
 #include "../settings.h"
 #include "../../../utils/applicationinfo.h"
 #include "../../../utils/logger.h"
@@ -37,7 +38,7 @@ int Files::executeStep()
             auto result = ::SHCreateDirectoryEx(NULL, installPath_.c_str(), NULL);
             if (result != ERROR_SUCCESS) {
                 Log::instance().out(L"Failed to create default install directory (%d)", result);
-                return -1;
+                return -ERROR_OTHER;
             }
         }
 
@@ -50,7 +51,7 @@ int Files::executeStep()
 
         if (res != SZ_OK) {
             Log::instance().out(L"Failed to extract file list from archive.");
-            return -1;
+            return -ERROR_OTHER;
         }
 
         fillPathList();
@@ -66,7 +67,7 @@ int Files::executeStep()
     {
         archive_->finish();
         Log::instance().out(L"Failed to extract file at index %u.", curFileInd_);
-        return -1;
+        return -ERROR_OTHER;
     }
 
     if (curFileInd_ >= (archive_->getNumFiles() - 1))
@@ -74,7 +75,7 @@ int Files::executeStep()
         archive_->finish();
         if (!copyLibs()) {
             Log::instance().out(L"Failed to copy libs");
-            return -1;
+            return -ERROR_OTHER;
         }
         return moveFiles();
     }
@@ -132,9 +133,26 @@ int Files::moveFiles()
         }
     }
     catch (system_error& ex) {
-        // Update the install path that will be used by the subsequent blocks.
-        Settings::instance().setPath(installPath_);
-        Log::instance().out("Files::moveFiles() %s (%lu)", ex.what(), ex.code().value());
+        Log::instance().out(L"Could not move installed files: %hs", ex.what());
+
+        // Delete "C:\Program Files\Windscribe" since we don't want to leave files behind.
+        // SHFileOperation requires the path to be double-null terminated.
+        std::wstring installPathDoubleNull = installPath_ + L"\0"s;
+        SHFILEOPSTRUCT fileOp = {
+            NULL,
+            FO_DELETE,
+            installPathDoubleNull.c_str(),
+            NULL,
+            FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT,
+            FALSE,
+            NULL,
+            NULL
+        };
+        int ret = SHFileOperation(&fileOp);
+        if (ret) {
+            Log::instance().out(L"Could not delete partial install: %lu", ret);
+        }
+        return -ERROR_MOVE_CUSTOM_DIR;
     }
 
     return 100;

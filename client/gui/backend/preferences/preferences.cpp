@@ -426,7 +426,6 @@ void Preferences::setAntiCensorship(bool b)
     if (engineSettings_.isAntiCensorship() != b)
     {
         engineSettings_.setIsAntiCensorship(b);
-        ExtraConfig::instance().setAntiCensorship(b);
         emitEngineSettingsChanged();
         emit isAntiCensorshipChanged(engineSettings_.isAntiCensorship());
     }

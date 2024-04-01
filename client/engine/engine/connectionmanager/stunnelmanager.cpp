@@ -30,10 +30,9 @@ StunnelManager::~StunnelManager()
     killProcess();
 }
 
-bool StunnelManager::runProcess(const QString &hostname, unsigned int port)
+bool StunnelManager::runProcess(const QString &hostname, unsigned int port, bool isExtraPadding)
 {
     bool ret = false;
-    bool extraPadding = ExtraConfig::instance().getStealthExtraTLSPadding();
 
 #if defined(Q_OS_WIN)
     ExecutableSignature sigCheck;
@@ -50,7 +49,7 @@ bool StunnelManager::runProcess(const QString &hostname, unsigned int port)
     args << "--remoteAddress" << hostaddr;
     args << "--logFilePath" << "";
     args << "--tunnelType" << "2";
-    if (extraPadding) {
+    if (isExtraPadding) {
         args << "--extraTlsPadding";
     }
 
@@ -59,7 +58,7 @@ bool StunnelManager::runProcess(const QString &hostname, unsigned int port)
 #else
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
 
-    ret = !helper_posix->startStunnel(hostname, port, port_, extraPadding);
+    ret = !helper_posix->startStunnel(hostname, port, port_, isExtraPadding);
     if (ret) {
         emit stunnelStarted();
     }

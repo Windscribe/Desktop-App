@@ -151,7 +151,7 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
                                          QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                                          const types::ConnectionSettings &connectionSettings,
                                          const api_responses::PortMap &portMap, const types::ProxySettings &proxySettings,
-                                         bool bEmitAuthError, const QString &customConfigPath)
+                                         bool bEmitAuthError, const QString &customConfigPath, bool isAntiCensorship)
 {
     WS_ASSERT(state_ == STATE_DISCONNECTED);
 
@@ -160,6 +160,7 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::S
     lastProxySettings_ = proxySettings;
     bEmitAuthError_ = bEmitAuthError;
     customConfigPath_ = customConfigPath;
+    isAntiCensorship_ = isAntiCensorship;
     bli_ = bli;
 
     bWasSuccessfullyConnectionAttempt_ = false;
@@ -1009,7 +1010,7 @@ void ConnectionManager::doConnectPart2()
                 lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                 currentConnectionDescr_.port, localPort, mss, defaultAdapterInfo_.gateway(),
                 currentConnectionDescr_.verifyX509name,
-                dnsServersFromConnectedDnsInfo());
+                dnsServersFromConnectedDnsInfo(), isAntiCensorship_);
             if (!bOvpnSuccess) {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";
                 WS_ASSERT(false);
@@ -1017,7 +1018,8 @@ void ConnectionManager::doConnectPart2()
             }
 
             if (currentConnectionDescr_.protocol == types::Protocol::STUNNEL) {
-                if (!stunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port)) {
+                if (!stunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port,
+                                                 ExtraConfig::instance().getStealthExtraTLSPadding() || isAntiCensorship_)) {
                     disconnect();
                     timerReconnection_.stop();
                     emit errorDuringConnection(CONNECT_ERROR::EXE_VERIFY_STUNNEL_ERROR);
@@ -1176,7 +1178,7 @@ void ConnectionManager::doConnectPart3()
             wireGuardConfig_.setPeerPublicKey(currentConnectionDescr_.wgPeerPublicKey);
             wireGuardConfig_.setPeerEndpoint(endpointAndPort);
 
-            if (ExtraConfig::instance().getWireGuardUdpStuffing()) {
+            if (ExtraConfig::instance().getWireGuardUdpStuffing() || isAntiCensorship_) {
                 QString localPort = udpStuffingWithNtp(currentConnectionDescr_.ip, currentConnectionDescr_.port);
                 wireGuardConfig_.setClientListenPort(localPort);
             }

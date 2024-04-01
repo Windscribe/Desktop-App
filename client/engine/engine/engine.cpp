@@ -94,9 +94,6 @@ Engine::Engine() : QObject(nullptr),
     bool bWsnetSuccess = WSNet::initialize(Utils::getPlatformNameSafe().toStdString(), AppVersion::instance().semanticVersionString().toStdString(), AppVersion::instance().isStaging(), wsnetSettings);
     WS_ASSERT(bWsnetSuccess);
 
-    engineSettings_.loadFromSettings();
-    qCDebug(LOG_BASIC) << "Engine settings" << engineSettings_;
-
     // Skip printing the engine settings if we loaded the defaults.
     if (engineSettings_.loadFromSettings()) {
         qCDebug(LOG_BASIC) << "Engine settings" << engineSettings_;
@@ -1244,6 +1241,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     }
 
     WSNet::instance()->serverAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
+    WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(ExtraConfig::instance().getAPIExtraTLSPadding() || engineSettings_.isAntiCensorship());
 
     if (isCustomOvpnConfigsPathChanged)
         customConfigs_->changeDir(engineSettings_.customOvpnConfigsPath());
@@ -1251,7 +1249,6 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());
 
     WSNet::instance()->serverAPI()->setApiResolutionsSettings(engineSettings_.apiResolutionSettings().getIsAutomatic(), engineSettings_.apiResolutionSettings().getManualAddress().toStdString());
-
     updateProxySettings();
 }
 
@@ -1707,7 +1704,7 @@ void Engine::onConnectionManagerRequestPrivKeyPassword(const QString &pathCustom
 
 void Engine::emergencyConnectClickImpl()
 {
-    emergencyController_->clickConnect(ProxyServerController::instance().getCurrentProxySettings());
+    emergencyController_->clickConnect(ProxyServerController::instance().getCurrentProxySettings(), engineSettings_.isAntiCensorship());
 }
 
 void Engine::emergencyDisconnectClickImpl()
@@ -1768,7 +1765,7 @@ void Engine::updateAdvancedParamsImpl()
     }
 
     // send some parameters to wsnet
-    WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(ExtraConfig::instance().getAPIExtraTLSPadding());
+    WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(ExtraConfig::instance().getAPIExtraTLSPadding() || engineSettings_.isAntiCensorship());
     WSNet::instance()->advancedParameters()->setLogApiResponce(ExtraConfig::instance().getLogAPIResponse());
     std::optional<QString> countryOverride = ExtraConfig::instance().serverlistCountryOverride();
     WSNet::instance()->advancedParameters()->setCountryOverrideValue(countryOverride.has_value() ? countryOverride->toStdString() : "");
@@ -2389,7 +2386,7 @@ void Engine::doConnect(bool bEmitAuthError)
         connectionManager_->setLastKnownGoodProtocol(engineSettings_.networkLastKnownGoodProtocol(networkInterface.networkOrSsid));
         connectionManager_->clickConnect(apiResourcesManager_->ovpnConfig(), apiResourcesManager_->serverCredentials(), bli,
             connectionSettings, apiResourcesManager_->portMap(), ProxyServerController::instance().getCurrentProxySettings(),
-            bEmitAuthError, engineSettings_.customOvpnConfigsPath());
+            bEmitAuthError, engineSettings_.customOvpnConfigsPath(), engineSettings_.isAntiCensorship());
     }
     // for custom configs without login
     else
@@ -2398,7 +2395,7 @@ void Engine::doConnect(bool bEmitAuthError)
         qCDebug(LOG_CONNECTION) << "Connecting to" << locationName_;
         connectionManager_->clickConnect("", apiinfo::ServerCredentials(), bli,
             engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), api_responses::PortMap(),
-            ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.customOvpnConfigsPath());
+            ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.customOvpnConfigsPath(), engineSettings_.isAntiCensorship());
     }
 }
 

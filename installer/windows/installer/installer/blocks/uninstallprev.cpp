@@ -7,6 +7,7 @@
 #include <shlobj_core.h>
 #include <windows.h>
 
+#include "../installer_base.h"
 #include "../../../utils/applicationinfo.h"
 #include "../../../utils/logger.h"
 #include "../../../utils/path.h"
@@ -57,11 +58,11 @@ int UninstallPrev::executeStep()
                 const auto result = Utils::InstExec(appName, commandLine, INFINITE, SW_HIDE);
                 if (!result.has_value()) {
                     Log::instance().out("WARNING: an error was encountered attempting to start taskkill.exe.");
-                    return -1;
+                    return -ERROR_OTHER;
                 }
                 else if (result.value() != NO_ERROR && result.value() != ERROR_WAIT_NO_CHILDREN) {
                     Log::instance().out("WARNING: unable to kill Windscribe (%lu).", result.value());
-                    return -1;
+                    return -ERROR_OTHER;
                 }
                 else {
                     Log::instance().out(L"Windscribe was successfully killed.");
@@ -90,19 +91,17 @@ int UninstallPrev::executeStep()
             if (!uninstallOldVersion(uninstallString, lastError)) {
                 Log::instance().out("UninstallPrev::executeStep: uninstallOldVersion failed: %lu", lastError);
                 if (lastError != 2) { // Any error other than "Not found"
-                    return -1;
+                    return -ERROR_OTHER;
                 }
 
                 // Uninstall failed because the uninstaller doesn't exist.
                 if (!isPrevInstall64Bit()) {
-                    // A little hacky to pass a special code here, but this is the only way to indicate to caller.
-                    // If the previous version is using the 32-bit hive, don't try to use the current (64-bit) uninstaller.
-                    return -2;
+                    return -ERROR_UNINSTALL;
                 }
 
                 if (!extractUninstaller()) {
                     Log::instance().out("UninstallPrev::executeStep: could not extract uninstaller.");
-                    return -1;
+                    return -ERROR_OTHER;
                 }
                 Log::instance().out("UninstallPrev::executeStep: successfully extracted uninstaller, trying again.");
                 return 65;

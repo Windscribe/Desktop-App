@@ -14,7 +14,7 @@ depends=('nftables' 'c-ares' 'freetype2' 'hicolor-icon-theme' 'systemd' 'glibc>=
          'iputils')
 conflicts=('windscribe-cli')
 provides=('windscribe')
-options=('!strip' '!emptydirs')
+options=('!strip' '!emptydirs' '!debug')
 install=${pkgname}.install
 source=($APP_DOWNLOAD_URL)
 sha512sums=('SKIP')

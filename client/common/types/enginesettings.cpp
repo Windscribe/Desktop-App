@@ -188,7 +188,6 @@ bool EngineSettings::loadFromSettings()
             qCDebug(LOG_BASIC) << "Automatically enabled anti-censorship feature due to locale";
             // TODO: **JDRM** refactor this logic at some point so we don't have two sources of truth for the anti-censorship state.
             setIsAntiCensorship(true);
-            ExtraConfig::instance().setAntiCensorship(true);
         }
     }
 

@@ -1,3 +1,12 @@
+2.10.7 (01/04/2024)
+All:
+   * Fixed anti-censorship flag (TLS stuffing) does not work for server API. #951
+Windows:
+   * Fixed install may silently be overridden to default folder instead of custom folder. #950
+Linux:
+   * Fixed makepkg bug mangling the ctrld binary by specifying !debug in the PKGBUILD. #953
+
+
 2.10.6 (22/03/2024)
 All:
    * Added a limit of 50 split tunnel entries to ensure stability. #437

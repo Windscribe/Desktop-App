@@ -88,6 +88,10 @@
         <source>The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.</source>
         <translation>O desinstalador para a instalação existente do Windscribe não pôde ser encontrado. Desinstale o aplicativo manualmente e tente novamente.</translation>
     </message>
+    <message>
+        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
+        <translation>A pasta de instalação contém dados que não puderam ser desinstalados. Desinstale o aplicativo manualmente e tente novamente.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

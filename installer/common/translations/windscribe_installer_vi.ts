@@ -88,6 +88,10 @@
         <source>The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.</source>
         <translation>Không thể tìm thấy trình gỡ cài đặt cho cài đặt Windscribe hiện có. Vui lòng gỡ cài đặt ứng dụng theo cách thủ công và thử lại.</translation>
     </message>
+    <message>
+        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
+        <translation>Thư mục cài đặt chứa dữ liệu không thể gỡ cài đặt. Vui lòng gỡ cài đặt ứng dụng theo cách thủ công và thử lại.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

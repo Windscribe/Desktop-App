@@ -46,7 +46,7 @@ public:
                       QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                       const types::ConnectionSettings &connectionSettings,
                       const api_responses::PortMap &portMap, const types::ProxySettings &proxySettings,
-                      bool bEmitAuthError, const QString &customConfigPath);
+                      bool bEmitAuthError, const QString &customConfigPath, bool isAntiCensorship);
 
     void clickDisconnect();
     void blockingDisconnect();
@@ -165,6 +165,7 @@ private:
     QString lastOvpnConfig_;
     apiinfo::ServerCredentials lastServerCredentials_;
     types::ProxySettings lastProxySettings_;
+    bool isAntiCensorship_ = false;
     bool bEmitAuthError_;
 
     QString customConfigPath_;

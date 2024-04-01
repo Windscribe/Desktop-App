@@ -98,10 +98,6 @@ QString ExtraConfig::getExtraConfigForOpenVpn()
         if (isLegalOpenVpnCommand(line))
             result += line + "\n";
     }
-    if (getAntiCensorship()) {
-        result += "udp-stuffing\n";
-        result += "tcp-split-reset\n";
-    }
     return result;
 }
 
@@ -160,11 +156,6 @@ QString ExtraConfig::modifyVerbParameter(const QString &ovpnData, QString &strEx
     strExtraConfig.remove(indExtra, match.capturedLength());
 
     return strOvpn;
-}
-
-void ExtraConfig::setAntiCensorship(bool bEnable)
-{
-    isAntiCensorship_ = bEnable;
 }
 
 int ExtraConfig::getMtuOffsetIkev2(bool &success)
@@ -257,24 +248,19 @@ bool ExtraConfig::getUseICMPPings()
     return getFlagFromExtraConfigLines(WS_USE_ICMP_PINGS);
 }
 
-bool ExtraConfig::getAntiCensorship()
-{
-    return isAntiCensorship_;
-}
-
 bool ExtraConfig::getStealthExtraTLSPadding()
 {
-    return getFlagFromExtraConfigLines(WS_STEALTH_EXTRA_TLS_PADDING) || getAntiCensorship();
+    return getFlagFromExtraConfigLines(WS_STEALTH_EXTRA_TLS_PADDING);
 }
 
 bool ExtraConfig::getAPIExtraTLSPadding()
 {
-    return getFlagFromExtraConfigLines(WS_API_EXTRA_TLS_PADDING) || getAntiCensorship();
+    return getFlagFromExtraConfigLines(WS_API_EXTRA_TLS_PADDING);
 }
 
 bool ExtraConfig::getWireGuardUdpStuffing()
 {
-    return getFlagFromExtraConfigLines(WS_WG_UDP_STUFFING) || getAntiCensorship();
+    return getFlagFromExtraConfigLines(WS_WG_UDP_STUFFING);
 }
 
 std::optional<QString> ExtraConfig::serverlistCountryOverride()
@@ -357,8 +343,7 @@ bool ExtraConfig::useOpenVpnDCO()
 
 ExtraConfig::ExtraConfig() : path_(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)
                                    + "/windscribe_extra.conf"),
-                             regExp_("(?m)^(?i)(verb)(\\s+)(\\d+$)"),
-                             isAntiCensorship_(false)
+                             regExp_("(?m)^(?i)(verb)(\\s+)(\\d+$)")
 {
 }
 

@@ -88,6 +88,10 @@
         <source>The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.</source>
         <translation>تعذر العثور على برنامج إلغاء التثبيت للتثبيت الحالي ل Windscribe. الرجاء إلغاء تثبيت التطبيق يدويا والمحاولة مرة أخرى.</translation>
     </message>
+    <message>
+        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
+        <translation>يحتوي مجلد التثبيت على بيانات تعذر إلغاء تثبيتها. الرجاء إلغاء تثبيت التطبيق يدويا والمحاولة مرة أخرى.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

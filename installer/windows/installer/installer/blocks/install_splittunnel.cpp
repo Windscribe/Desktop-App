@@ -2,6 +2,7 @@
 
 #include <filesystem>
 
+#include "../installer_base.h"
 #include "../settings.h"
 #include "../../../utils/logger.h"
 #include "../../../utils/path.h"
@@ -48,7 +49,7 @@ int InstallSplitTunnel::executeStep()
     }
     catch (system_error& ex) {
         Log::instance().out(ex.what());
-        result = -1;
+        result = -ERROR_OTHER;
     }
 
     if (hService != NULL) {

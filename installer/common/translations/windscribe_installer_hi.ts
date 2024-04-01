@@ -88,6 +88,10 @@
         <source>The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.</source>
         <translation>Windscribe की मौजूदा स्थापना के लिए अनइंस्टालर नहीं मिल सका। कृपया अनुप्रयोग की स्थापना मैन्युअल रूप से रद्द करें और पुन: प्रयास करें.</translation>
     </message>
+    <message>
+        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
+        <translation>स्थापना फ़ोल्डर में वह डेटा है जिसकी स्थापना रद्द नहीं की जा सकी. कृपया अनुप्रयोग की स्थापना मैन्युअल रूप से रद्द करें और पुन: प्रयास करें.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

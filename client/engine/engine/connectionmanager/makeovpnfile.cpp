@@ -21,7 +21,7 @@ MakeOVPNFile::~MakeOVPNFile()
 
 bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::Protocol protocol, uint port,
                             uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway,
-                            const QString &openVpnX509, const QString &customDns)
+                            const QString &openVpnX509, const QString &customDns, bool isAntiCensorship)
 {
 #ifdef Q_OS_WIN
     Q_UNUSED(defaultGateway);
@@ -100,6 +100,11 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
     if (!strExtraConfig.isEmpty()) {
         qCDebug(LOG_CONNECTION) << "Adding extra options to OVPN config:" << strExtraConfig;
         config_ += strExtraConfig;
+    }
+
+    if (isAntiCensorship) {
+        config_ += "udp-stuffing\n";
+        config_ += "tcp-split-reset\n";
     }
 
     return true;

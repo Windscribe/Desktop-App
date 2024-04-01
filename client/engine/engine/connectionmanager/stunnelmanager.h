@@ -11,7 +11,7 @@ public:
     explicit StunnelManager(QObject *parent, IHelper *helper);
     virtual ~StunnelManager();
 
-    bool runProcess(const QString &hostname, unsigned int port);
+    bool runProcess(const QString &hostname, unsigned int port, bool isExtraPadding);
     void killProcess();
 
     unsigned int getPort();

@@ -88,6 +88,10 @@
         <source>The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.</source>
         <translation>Не вдалося знайти деінсталятор для існуючої інсталяції Windscribe. Будь ласка, видаліть програму вручну та повторіть спробу.</translation>
     </message>
+    <message>
+        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
+        <translation>Папка інсталяції містить дані, які не вдалося видалити. Будь ласка, видаліть програму вручну та повторіть спробу.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

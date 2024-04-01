@@ -21,7 +21,7 @@ public:
     explicit EmergencyController(QObject *parent, IHelper *helper);
     virtual ~EmergencyController();
 
-    void clickConnect(const types::ProxySettings &proxySettings);
+    void clickConnect(const types::ProxySettings &proxySettings, bool isAntiCensorship);
     void clickDisconnect();
     bool isDisconnected();
     void blockingDisconnect();
@@ -49,6 +49,7 @@ private:
     IConnection *connector_;
     MakeOVPNFile *makeOVPNFile_;
     types::ProxySettings proxySettings_;
+    bool isAntiCensorship_ = false;
 
     std::vector<std::shared_ptr<wsnet::WSNetEmergencyConnectEndpoint>> endpoints_;
 

@@ -88,6 +88,10 @@
         <source>The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.</source>
         <translation>Windscribeの既存のインストールのアンインストーラーが見つかりませんでした。アプリケーションを手動でアンインストールして、もう一度やり直してください。</translation>
     </message>
+    <message>
+        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
+        <translation>インストールフォルダには、アンインストールできなかったデータが含まれています。アプリケーションを手動でアンインストールして、もう一度やり直してください。</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
