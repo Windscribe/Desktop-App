@@ -88,8 +88,8 @@ void FirewallController::setSplitTunnelingEnabled(bool isConnected, bool isEnabl
 void FirewallController::removeExclusiveIpRules()
 {
     for (auto ip : splitTunnelIps_) {
-        Utils::executeCommand("iptables", {"-D", "windscribe_input", "-s", (ip + "/32").c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
-        Utils::executeCommand("iptables", {"-D", "windscribe_output", "-d", (ip + "/32").c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
+        Utils::executeCommand("iptables", {"-D", "windscribe_input", "-s", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
+        Utils::executeCommand("iptables", {"-D", "windscribe_output", "-d", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
     }
 }
 
@@ -167,15 +167,15 @@ void FirewallController::setSplitTunnelIpExceptions(const std::vector<std::strin
         // For exclusive, remove rules for addresses no longer in "ips"
         for (auto ip : splitTunnelIps_) {
             if (std::find(ips.begin(), ips.end(), ip) == ips.end()) {
-                Utils::executeCommand("iptables", {"-D", "windscribe_input", "-s", (ip + "/32").c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
-                Utils::executeCommand("iptables", {"-D", "windscribe_output", "-d", (ip + "/32").c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
+                Utils::executeCommand("iptables", {"-D", "windscribe_input", "-s", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
+                Utils::executeCommand("iptables", {"-D", "windscribe_output", "-d", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
             }
         }
 
         // Add rules for new IPs
         for (auto ip : ips) {
-            addRule({"windscribe_input", "-s", (ip + "/32").c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
-            addRule({"windscribe_output", "-d", (ip + "/32").c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
+            addRule({"windscribe_input", "-s", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
+            addRule({"windscribe_output", "-d", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
         }
     } else {
         removeExclusiveIpRules();

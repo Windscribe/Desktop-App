@@ -58,7 +58,7 @@ void IpRoutes::clear()
 
 void IpRoutes::addRoute(const RouteDescr &rd)
 {
-    std::string cmd = "ip route add " + rd.ip + "/32" + " via " + rd.defaultRouteIp;
+    std::string cmd = "ip route add " + rd.ip + " via " + rd.defaultRouteIp;
     Logger::instance().out("cmd: %s", cmd.c_str());
 
     Utils::executeCommand(cmd);
@@ -66,7 +66,7 @@ void IpRoutes::addRoute(const RouteDescr &rd)
 
 void IpRoutes::deleteRoute(const RouteDescr &rd)
 {
-    std::string cmd = "ip route del " + rd.ip + "/32" + " via " + rd.defaultRouteIp;
+    std::string cmd = "ip route del " + rd.ip + " via " + rd.defaultRouteIp;
     Logger::instance().out("cmd: %s", cmd.c_str());
     Utils::executeCommand(cmd);
 }

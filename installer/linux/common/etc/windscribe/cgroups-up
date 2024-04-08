@@ -10,7 +10,7 @@ netclass=$7
 allow_lan=$8
 mode=$9
 
-net_cls_root="`mount -l -t cgroup | grep net_cls | cut -d ' ' -f 3 | head -n 1`"
+net_cls_root="`mount -l -t cgroup | grep "net_cls on" | cut -d ' ' -f 3 | head -n 1`"
 if [ ! -f "$net_cls_root/windscribe/net_cls.classid" ]; then
     modprobe cls_cgroup
     if [ $? -ne 0 ]; then
@@ -18,11 +18,22 @@ if [ ! -f "$net_cls_root/windscribe/net_cls.classid" ]; then
         exit 1
     fi
 
-    net_cls_root="`mount -l -t cgroup | grep net_cls | cut -d ' ' -f 3 | head -n 1`"
+    net_cls_root="`mount -l -t cgroup | grep "net_cls on" | cut -d ' ' -f 3 | head -n 1`"
     if [ -z "$net_cls_root" ]; then
+        if [ -d /sys/fs/cgroup/net_cls ]; then
+            # on some distros, cgroups v2 net_cls is mounted and it may be a symlink.  If so, unmount it and mount v1
+            mount -o remount,rw /sys/fs/cgroup
+
+            link="`readlink /sys/fs/cgroup/net_cls`"
+            if [ -n "$link" ]; then
+                umount /sys/fs/cgroup/${link}
+            fi
+            rm -f /sys/fs/cgroup/net_cls
+        fi
         mkdir -p /sys/fs/cgroup/net_cls
         mount -t cgroup -onet_cls net_cls /sys/fs/cgroup/net_cls
-        net_cls_root="`mount -l -t cgroup | grep net_cls | cut -d ' ' -f 3 | head -n 1`"
+
+        net_cls_root="`mount -l -t cgroup | grep "net_cls on" | cut -d ' ' -f 3 | head -n 1`"
         if [ -z "$net_cls_root" ]; then
             echo "Could not find cgroup root"
             exit 1
@@ -54,31 +65,17 @@ if [ ! -f "$net_cls_root/windscribe/net_cls.classid" ]; then
     echo "$netclass" > "$net_cls_root/windscribe/net_cls.classid"
 fi
 
-if [ "$allow_lan" = "allow" ]; then
-    if [ "$mode" == "inclusive" ]; then
-        # Allow IP rules to consult main routing table first, ignoring /0 or /1 routes
-        ip rule add priority 16383 table main suppress_prefixlength 1
-        priority="`ip rule show | grep 51820 | cut -d ":" -f1`" # priority of WireGuard rule, if it exists
-        if [ -n "$priority" ]; then
-            # WG uses the same ip rule mechanism, just adjust the WG rule
-            ip rule add priority $((priority - 1)) table main suppress_prefixlength 0
-        else
-            # For non-WG protocols, remove rule forcing other traffic into the tunnel
-            ip rule del priority 16385 table windscribe_include
-        fi
-    fi
-else
-    if [ "$mode" == "inclusive" ]; then
-        ip rule del priority 16383 table main suppress_prefixlength 1
-        priority="`ip rule show | grep 51820 | cut -d ":" -f1`" # priority of WireGuard rule, if it exists
-        if [ -n "$priority" ]; then
-            # WG uses the same ip rule mechanism, just adjust the WG rule
-            ip rule del priority $((priority - 1)) table main suppress_prefixlength 0
-        else
-            # For non-WG protocols, add rule forcing other traffic into the tunnel
-            ip rule add priority 16385 table windscribe_include
-        fi
-    fi
+if [ "$mode" == "inclusive" ]; then
+	# Allow IP rules to consult main routing table first, ignoring /0 or /1 routes
+	ip rule add priority 16383 table main suppress_prefixlength 1
+	priority="`ip rule show | grep 51820 | cut -d ":" -f1`" # priority of WireGuard rule, if it exists
+	if [ -n "$priority" ]; then
+		# WG uses the same ip rule mechanism, just adjust the WG rule
+		ip rule add priority $((priority - 1)) table main suppress_prefixlength 0
+	else
+		# For non-WG protocols, remove rule forcing other traffic into the tunnel
+		ip rule del priority 16385 table windscribe_include
+	fi
 fi
 
 # make sure to exit with code 0 since an above command may fail if we are adding a duplicate rule or

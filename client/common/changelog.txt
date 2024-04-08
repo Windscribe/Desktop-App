@@ -1,3 +1,9 @@
+2.10.8 (04/04/2024)
+Linux:
+   * Fixed split tunnel for IP assumes /32 subnet. #964
+   * Fixed split tunneling for distributions which mount cgroups v2 by default. #967
+
+
 2.10.7 (01/04/2024)
 All:
    * Fixed anti-censorship flag (TLS stuffing) does not work for server API. #951
