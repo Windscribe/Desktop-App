@@ -41,4 +41,11 @@ std::string resourcePath()
     return "/Applications/Windscribe.app/Contents/Resources/";
 }
 
+std::string bundleVersionFromPlist()
+{
+    NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+    NSString *buildNumber = [infoDict objectForKey:@"CFBundleVersion"];
+    return [buildNumber UTF8String];
+}
+
 } // namespace MacUtils

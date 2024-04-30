@@ -28,7 +28,6 @@ public:
     void continueWithUsernameAndPassword(const QString & /*username*/, const QString & /*password*/) override {}
     void continueWithPassword(const QString & /*password*/) override {}
 
-    static QString getWireGuardExeName() { return QString("WireguardService"); }
     static QString getWireGuardAdapterName() { return QString("WireGuardTunnel"); }
 
 protected:
@@ -41,6 +40,8 @@ private slots:
     void onAutomaticConnectionTimeout();
 
 private:
+    QString getConfigPath() const;
+
     static constexpr int kTimeoutForGetStats     = 5000;  // 5s timeout for the requesting send/recv stats from helper
     static constexpr int kTimeoutForCheckService = 5000;  // 5s timeout for the checking if the WG service is running
     static constexpr int kTimeoutForLogUpdate    = 250;   // 250ms timeout for getting log updates from the ring logger

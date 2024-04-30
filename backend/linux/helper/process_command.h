@@ -20,7 +20,6 @@ CMD_ANSWER configureWireGuard(boost::archive::text_iarchive &ia);
 CMD_ANSWER getWireGuardStatus(boost::archive::text_iarchive &ia);
 CMD_ANSWER changeMtu(boost::archive::text_iarchive &ia);
 CMD_ANSWER setDnsLeakProtectEnabled(boost::archive::text_iarchive &ia);
-CMD_ANSWER checkForWireGuardKernelModule(boost::archive::text_iarchive &ia);
 CMD_ANSWER clearFirewallRules(boost::archive::text_iarchive &ia);
 CMD_ANSWER checkFirewallState(boost::archive::text_iarchive &ia);
 CMD_ANSWER setFirewallRules(boost::archive::text_iarchive &ia);
@@ -42,7 +41,6 @@ static const std::map<const int, std::function<CMD_ANSWER(boost::archive::text_i
       { HELPER_CMD_GET_WIREGUARD_STATUS, getWireGuardStatus },
       { HELPER_CMD_CHANGE_MTU, changeMtu },
       { HELPER_CMD_SET_DNS_LEAK_PROTECT_ENABLED, setDnsLeakProtectEnabled },
-      { HELPER_CMD_CHECK_FOR_WIREGUARD_KERNEL_MODULE, checkForWireGuardKernelModule },
       { HELPER_CMD_CLEAR_FIREWALL_RULES, clearFirewallRules },
       { HELPER_CMD_CHECK_FIREWALL_STATE, checkFirewallState },
       { HELPER_CMD_SET_FIREWALL_RULES, setFirewallRules },

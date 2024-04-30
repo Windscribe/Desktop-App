@@ -1850,8 +1850,8 @@ Connect to a network first</source>
         <translation>عنوان IP هذا أو النطاق محجوز بواسطة Windscribe ولا يمكن تغييره.</translation>
     </message>
     <message>
-        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
-        <translation>هناك عدد كبير جدا من عناوين IP أو أسماء المضيفين في القائمة. يرجى إزالة بعضها قبل إضافة المزيد.</translation>
+        <source>There are too many hostnames in the list. Please remove some before adding more.</source>
+        <translation>هناك الكثير من أسماء المضيفين في القائمة. يرجى إزالة بعضها قبل إضافة المزيد.</translation>
     </message>
 </context>
 <context>

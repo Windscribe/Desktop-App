@@ -638,6 +638,10 @@ QString IKEv2Connection_win::rasConnStateToString(tagRASCONNSTATE state)
 
 void IKEv2Connection_win::staticRasDialFunc(HRASCONN hRasConn, UINT unMsg, RASCONNSTATE rascs, DWORD dwError, DWORD dwExtendedError)
 {
-    WS_ASSERT(this_ != NULL);
+    if (this_ == NULL) {
+        qCDebug(LOG_IKEV2) << "RasDialFunc callback called after connection object has been deleted";
+        return;
+    }
+
     this_->rasDialFuncCallback(hRasConn, unMsg, rascs, dwError, dwExtendedError);
 }

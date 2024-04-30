@@ -9,6 +9,7 @@
 #include "ihelper.h"
 #include "../../../../backend/windows/windscribe_service/ipc/servicecommunication.h"
 #include "utils/servicecontrolmanager.h"
+#include "utils/win32handle.h"
 
 class Helper_win : public IHelper
 {
@@ -36,22 +37,21 @@ public:
     bool setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress);
     bool changeMtu(const QString &adapter, int mtu) override;
     bool executeTaskKill(const QString &name);
+    ExecuteError executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort,
+                                const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId, bool isCustomConfig) override;
 
     // WireGuard functions
-    IHelper::ExecuteError startWireGuard(const QString &exeName, const QString &deviceName) override;
+    IHelper::ExecuteError startWireGuard() override;
     bool stopWireGuard() override;
     bool configureWireGuard(const WireGuardConfig &config) override;
     bool getWireGuardStatus(types::WireGuardStatus *status) override;
-    void setDefaultWireGuardDeviceName(const QString &deviceName) override;
 
     // ctrld functions
-    ExecuteError startCtrld(const QString &exeName, const QString &parameters) override;
+    ExecuteError startCtrld(const QString &ip, const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog) override;
     bool stopCtrld() override;
 
     // Windows specific functions
     bool isHelperConnected() const;
-    IHelper::ExecuteError executeOpenVPN(const QString &configPath, unsigned int portNumber, const QString &httpProxy, unsigned int httpPort,
-                                         const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId, bool isCustomConfig);
     QString executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber);
     QString executeWmicEnable(const QString &adapterName);
     QString executeWmicGetConfigManagerErrorCode(const QString &adapterName);
@@ -113,6 +113,7 @@ private:
     bool bIPV6State_;
     QMutex mutex_;
     wsl::ServiceControlManager scm_;
+    wsl::Win32Handle helperPipe_;
 
     MessagePacketResult sendCmdToHelper(int cmdId, const std::string &data);
     bool disableIPv6();

@@ -16,14 +16,15 @@
 #include "process_command.h"
 #include "split_tunneling/split_tunneling.h"
 #include "utils.h"
+#include "utils/win32handle.h"
 
 #define SERVICE_NAME  (L"WindscribeService")
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
 
 SERVICE_STATUS        g_ServiceStatus = { 0 };
 SERVICE_STATUS_HANDLE g_StatusHandle = NULL;
-HANDLE                g_ServiceStopEvent = INVALID_HANDLE_VALUE;
-HANDLE                  g_hThread = NULL;
+HANDLE                g_hThread = NULL;
+std::atomic<bool>     g_ServiceExiting = false;
 
 VOID WINAPI serviceMain(DWORD argc, LPTSTR *argv);
 VOID WINAPI serviceCtrlHandler(DWORD);
@@ -59,13 +60,12 @@ int main(int argc, char *argv[])
 
 #ifdef _DEBUG
     // for debug (run without service)
-    g_ServiceStopEvent = CreateEvent (NULL, TRUE, FALSE, NULL);
-    HANDLE hThread = CreateThread (NULL, 0, serviceWorkerThread, NULL, 0, NULL);
+    HANDLE hThread = CreateThread(NULL, 0, serviceWorkerThread, NULL, 0, NULL);
     _getch();
-    SetEvent (g_ServiceStopEvent);
-    WaitForSingleObject (hThread, INFINITE);
+    g_ServiceExiting = true;
+    QueueUserAPC(stopServiceThreadApc, hThread, 0);
+    WaitForSingleObject(hThread, INFINITE);
     CloseHandle(hThread);
-    CloseHandle (g_ServiceStopEvent);
 #else
 
     SERVICE_TABLE_ENTRY serviceTable[] = {
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-BOOL isElevated()
+static BOOL isElevated()
 {
     BOOL fRet = FALSE;
     HANDLE hToken = NULL;
@@ -98,13 +98,27 @@ BOOL isElevated()
     return fRet;
 }
 
+static void stopServiceThreadApc(ULONG_PTR lpParam)
+{
+    // No-op function queued to the service worker thread's APC queue to signal it to exit.
+    (void)lpParam;
+}
+
+static void stopServiceThread()
+{
+    g_ServiceExiting = true;
+    if (g_hThread != NULL) {
+        ::QueueUserAPC(stopServiceThreadApc, g_hThread, 0);
+    }
+}
+
 VOID WINAPI serviceMain(DWORD, LPTSTR *)
 {
     // Register our service control handler with the SCM
     g_StatusHandle = RegisterServiceCtrlHandler(SERVICE_NAME, serviceCtrlHandler);
 
     if (g_StatusHandle == NULL) {
-        goto EXIT;
+        return;
     }
 
     // Tell the service controller we are starting
@@ -120,26 +134,17 @@ VOID WINAPI serviceMain(DWORD, LPTSTR *)
         Logger::instance().out(L"SetServiceStatus returned error");
     }
 
-    g_ServiceStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-    if (g_ServiceStopEvent == NULL) {
-        g_ServiceStatus.dwControlsAccepted = 0;
-        g_ServiceStatus.dwCurrentState = SERVICE_STOPPED;
-        g_ServiceStatus.dwWin32ExitCode = GetLastError();
-        g_ServiceStatus.dwCheckPoint = 1;
-
-        if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE) {
-            Logger::instance().out(L"SetServiceStatus returned error");
-        }
-        goto EXIT;
-    }
+    g_ServiceExiting = false;
 
     // Start a thread that will perform the main task of the service
-    g_hThread = CreateThread(NULL, 0, serviceWorkerThread, NULL, 0, NULL);
-
-    // Wait until our worker thread exits signaling that the service needs to stop
-    WaitForSingleObject(g_hThread, INFINITE);
-
-    CloseHandle(g_ServiceStopEvent);
+    g_hThread = ::CreateThread(NULL, 0, serviceWorkerThread, NULL, 0, NULL);
+    if (g_hThread == NULL) {
+        Logger::instance().out(L"serviceMain CreateThread failed (%lu)", ::GetLastError());
+    }
+    else {
+        // Wait until our worker thread exits signaling that the service needs to stop
+        WaitForSingleObject(g_hThread, INFINITE);
+    }
 
     g_ServiceStatus.dwControlsAccepted = 0;
     g_ServiceStatus.dwCurrentState = SERVICE_STOPPED;
@@ -150,11 +155,10 @@ VOID WINAPI serviceMain(DWORD, LPTSTR *)
         Logger::instance().out(L"SetServiceStatus returned error");
     }
 
-    CloseHandle(g_hThread);
-    g_hThread = NULL;
-
-EXIT:
-    return;
+    if (g_hThread != NULL) {
+        CloseHandle(g_hThread);
+        g_hThread = NULL;
+    }
 }
 
 VOID WINAPI serviceCtrlHandler(DWORD CtrlCode)
@@ -177,26 +181,28 @@ VOID WINAPI serviceCtrlHandler(DWORD CtrlCode)
             Logger::instance().out(L"SetServiceStatus returned error");
         }
 
-        SetEvent(g_ServiceStopEvent);
+        stopServiceThread();
         break;
     case SERVICE_CONTROL_SHUTDOWN:
         Logger::instance().out(L"SERVICE_CONTROL_SHUTDOWN message received");
-        SetEvent(g_ServiceStopEvent);
-        WaitForSingleObject(g_hThread, INFINITE);
-        CloseHandle(g_hThread);
-        g_hThread = NULL;
+        stopServiceThread();
+        if (g_hThread != NULL) {
+            WaitForSingleObject(g_hThread, INFINITE);
+            CloseHandle(g_hThread);
+            g_hThread = NULL;
+        }
         break;
     default:
         break;
     }
 }
 
-BOOL CreateDACL(SECURITY_ATTRIBUTES *pSA)
+static BOOL CreateDACL(SECURITY_ATTRIBUTES *pSA)
 {
-    const TCHAR * szSD = TEXT("D:")         // Discretionary ACL
+    const TCHAR * szSD = TEXT("D:")   // Discretionary ACL
         TEXT("(D;OICI;GA;;;AN)")      // Deny access to anonymous logon
         TEXT("(A;OICI;GRGWGX;;;BG)")  // Allow access to built-in guests
-        TEXT("(A;OICI;GRGWGX;;;AU)")  // Allow read/write/execute to authenticated  users
+        TEXT("(A;OICI;GRGWGX;;;AU)")  // Allow read/write/execute to authenticated users
         TEXT("(A;OICI;GA;;;BA)");     // Allow full control to administrators
 
     if (NULL == pSA) {
@@ -206,31 +212,28 @@ BOOL CreateDACL(SECURITY_ATTRIBUTES *pSA)
     return ConvertStringSecurityDescriptorToSecurityDescriptor(szSD, SDDL_REVISION_1, &(pSA->lpSecurityDescriptor), NULL);
 }
 
-HANDLE CreatePipe()
+static HANDLE CreatePipe()
 {
     SECURITY_ATTRIBUTES sa;
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
     sa.bInheritHandle = FALSE;
 
-    if (CreateDACL(&sa)) {
-
-        HANDLE hPipe = ::CreateNamedPipe(SERVICE_PIPE_NAME,
-            PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_MESSAGE |
-            PIPE_READMODE_MESSAGE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,
-            1, 4096,
-            4096, NMPWAIT_USE_DEFAULT_WAIT, &sa);
-
-        if (hPipe == INVALID_HANDLE_VALUE) {
-            Logger::instance().out(L"CreateNamedPipe failed (%lu)", ::GetLastError());
-        }
-
-        return hPipe;
-    } else {
+    if (!CreateDACL(&sa)) {
         return INVALID_HANDLE_VALUE;
     }
+
+    HANDLE hPipe = ::CreateNamedPipe(SERVICE_PIPE_NAME, PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
+                                     PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,
+                                     1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT, &sa);
+
+    if (hPipe == INVALID_HANDLE_VALUE) {
+        Logger::instance().out(L"CreateNamedPipe failed (%lu)", ::GetLastError());
+    }
+
+    return hPipe;
 }
 
-bool writeMessagePacketResult(HANDLE hPipe, MessagePacketResult &mpr)
+static bool writeMessagePacketResult(HANDLE hPipe, HANDLE hIOEvent, MessagePacketResult &mpr)
 {
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
@@ -239,14 +242,52 @@ bool writeMessagePacketResult(HANDLE hPipe, MessagePacketResult &mpr)
 
     // first 4 bytes - size of buffer
     const auto sizeOfBuf = static_cast<unsigned long>(str.size());
-    if (IOUtils::writeAll(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf))) {
+    if (IOUtils::writeAll(hPipe, hIOEvent, (char *)&sizeOfBuf, sizeof(sizeOfBuf))) {
         if (sizeOfBuf > 0) {
-            bool bRet = IOUtils::writeAll(hPipe, str.c_str(), sizeOfBuf);
+            bool bRet = IOUtils::writeAll(hPipe, hIOEvent, str.c_str(), sizeOfBuf);
             return bRet;
         }
     }
 
     return false;
+}
+
+static void processClientRequests(HANDLE hPipe)
+{
+    if (!Utils::verifyWindscribeProcessPath(hPipe)) {
+        return;
+    }
+
+    wsl::Win32Handle ioCompletedEvent(::CreateEvent(NULL, TRUE, TRUE, NULL));
+    if (!ioCompletedEvent.isValid()) {
+        Logger::instance().out(L"CreateEvent for client IPC IO completion failed (%lu)", ::GetLastError());
+        return;
+    }
+
+    while (!g_ServiceExiting) {
+        int cmdId;
+        if (!IOUtils::readAll(hPipe, ioCompletedEvent.getHandle(), (char *)&cmdId, sizeof(cmdId))) {
+            break;
+        }
+
+        unsigned long sizeOfBuf;
+        if (!IOUtils::readAll(hPipe, ioCompletedEvent.getHandle(), (char *)&sizeOfBuf, sizeof(sizeOfBuf))) {
+            break;
+        }
+
+        std::string strData;
+        if (sizeOfBuf > 0) {
+            std::vector<char> buffer(sizeOfBuf);
+            if (!IOUtils::readAll(hPipe, ioCompletedEvent.getHandle(), buffer.data(), sizeOfBuf)) {
+                break;
+            }
+            strData = std::string(buffer.begin(), buffer.end());
+        }
+
+        MessagePacketResult mpr = processCommand(cmdId, strData);
+        writeMessagePacketResult(hPipe, ioCompletedEvent.getHandle(), mpr);
+        ::FlushFileBuffers(hPipe);
+    }
 }
 
 DWORD WINAPI serviceWorkerThread(LPVOID)
@@ -266,8 +307,8 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
         return 0;
     }
 
-    HANDLE hEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
-    if (hEvent == NULL) {
+    HANDLE hClientConnectedEvent = ::CreateEvent(NULL, TRUE, TRUE, NULL);
+    if (hClientConnectedEvent == NULL) {
         return 0;
     }
 
@@ -280,52 +321,30 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
         Logger::instance().out(L"SetServiceStatus returned error");
     }
 
-    OVERLAPPED overlapped;
-    overlapped.hEvent = hEvent;
-
-    HANDLE hEvents[2];
-
-    hEvents[0] = g_ServiceStopEvent;
-    hEvents[1] = hEvent;
-
     // Initialize singletons
     DnsFirewall::instance(&fwpmWrapper);
     FirewallFilter::instance(&fwpmWrapper);
     Ipv6Firewall::instance(&fwpmWrapper);
     SplitTunneling::instance(&fwpmWrapper);
 
-    while (true) {
+    OVERLAPPED overlapped;
+
+    while (!g_ServiceExiting) {
+        ::ZeroMemory(&overlapped, sizeof(overlapped));
+        overlapped.hEvent = hClientConnectedEvent;
+
         ::ConnectNamedPipe(hPipe, &overlapped);
 
-        DWORD dwWait = WaitForMultipleObjects(2, hEvents, FALSE, INFINITE);
+        DWORD dwWait = ::WaitForSingleObjectEx(hClientConnectedEvent, INFINITE, TRUE);
         if (dwWait == WAIT_OBJECT_0) {
-            break;
-        } else if (dwWait == (WAIT_OBJECT_0 + 1)) {
-            if (Utils::verifyWindscribeProcessPath(hPipe)) {
-                int cmdId;
-                unsigned long sizeOfBuf;
-                if (IOUtils::readAll(hPipe, (char *)&cmdId, sizeof(cmdId))) {
-                    if (IOUtils::readAll(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf))) {
-                        std::string strData;
-                        if (sizeOfBuf > 0) {
-                            std::vector<char> buffer(sizeOfBuf);
-                            if (IOUtils::readAll(hPipe, buffer.data(), sizeOfBuf)) {
-                                strData = std::string(buffer.begin(), buffer.end());
-                            }
-                        }
-
-                        MessagePacketResult mpr = processCommand(cmdId, strData);
-                        writeMessagePacketResult(hPipe, mpr);
-                    }
-                }
-            }
-
-            ::FlushFileBuffers(hPipe);
+            processClientRequests(hPipe);
             ::DisconnectNamedPipe(hPipe);
+        } else {
+            break;
         }
     }
 
-    CloseHandle(hEvent);
+    CloseHandle(hClientConnectedEvent);
     CloseHandle(hPipe);
 
     // turn off split tunneling

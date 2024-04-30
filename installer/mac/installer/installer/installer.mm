@@ -14,8 +14,7 @@
 
 -(id)init
 {
-    if (self = [super init])
-    {
+    if (self = [super init]) {
         d_group_ = nil;
     }
     return self;
@@ -23,8 +22,7 @@
 
 -(id)initWithPath: (NSString *)path
 {
-    if (self = [super initWithUpdatePath: path])
-    {
+    if (self = [super initWithUpdatePath: path]) {
         d_group_ = nil;
     }
     return self;
@@ -119,61 +117,44 @@
     self.currentState = STATE_EXTRACTING;
     callback_();
 
-    BOOL connectedOldHelper = NO;
-
     ProcessesHelper processesHelper;
-    std::vector<pid_t> processesList = processesHelper.getPidsByProcessname("com.windscribe.helper.macos");
-    if (processesList.size() > 0) {
-        connectedOldHelper = self.connectHelper;
-    }
 
     // kill processes with "Windscribe" name
-    processesList = processesHelper.getPidsByProcessname("Windscribe");
+    std::vector<pid_t> processesList = processesHelper.getPidsByProcessname("Windscribe");
     // get WindscribeEngine processes
     std::vector<pid_t> engineList = processesHelper.getPidsByProcessname("WindscribeEngine");
     processesList.insert(processesList.end(), engineList.begin(), engineList.end());
 
     if (processesList.size() > 0) {
-        // try to terminate Windscribe processes with new helper interface
-        if (connectedOldHelper) {
-            helper_.killWindscribeProcess();
+        // try to terminate Windscribe processes
+        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Waiting for Windscribe programs to close..."]];
+
+        // first send SIGTERM signal
+        for (auto pid : processesList) {
+          kill(pid, SIGTERM);
         }
         terminated = [self waitForProcessFinish:processesList helper:&processesHelper timeoutSec:5];
 
+        // if SIGTERM didn't kill processes, then send SIGKILL
         if (!terminated) {
-            // if the above method failed or helper was not connected, try the older way
-            [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Waiting for Windscribe programs to close..."]];
-
             for (auto pid : processesList) {
-                if (connectedOldHelper) {
-                    helper_.killProcess(pid);
-                } else {
-                    kill(pid, SIGTERM);
-                }
+              kill(pid, SIGKILL);
             }
             terminated = [self waitForProcessFinish:processesList helper:&processesHelper timeoutSec:5];
+        }
 
-            // Still could not terminate, return error
-            if (!terminated) {
-                NSString *errStr = @"Couldn't kill running Windscribe programs in time. Please close running Windscribe programs manually and try install again.";
-                [[Logger sharedLogger] logAndStdOut:errStr];
-                self.lastError = ERROR_KILL;
-                self.currentState = STATE_ERROR;
-                callback_();
-                return;
-            }
+        // Still could not terminate, return error
+        if (!terminated) {
+            NSString *errStr = @"Couldn't kill running Windscribe programs in time. Please close running Windscribe programs manually and try install again.";
+            [[Logger sharedLogger] logAndStdOut:errStr];
+            self.lastError = ERROR_KILL;
+            self.currentState = STATE_ERROR;
+            callback_();
+            return;
         }
 
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"All Windscribe programs closed"]];
     }
-
-    if (self.factoryReset && connectedOldHelper)
-    {
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Deleting old helper"]];
-        helper_.deleteOldHelper();
-    }
-
-    helper_.stop();
 
     NSString *disabledList = [self runProcess:@"/bin/launchctl" args:@[@"print-disabled", @"system"]];
     if (disabledList == nil) {
@@ -201,8 +182,7 @@
 
     // Install new helper now that we are sure the client app has exited. Otherwise we may cause the
     // client app to hang when we pull the old helper out from under it.
-    if (!InstallHelper_mac::installHelper())
-    {
+    if (!InstallHelper_mac::installHelper(self.factoryReset)) {
         NSString *errStr = @"Couldn't install the helper.";
         [[Logger sharedLogger] logAndStdOut:errStr];
         self.lastError = ERROR_PERMISSION;
@@ -211,8 +191,7 @@
         return;
     }
 
-    if (!self.connectHelper)
-    {
+    if (!self.connectHelper) {
         NSString *errStr = @"Couldn't connect to new helper in time";
         [[Logger sharedLogger] logAndStdOut:errStr];
         self.lastError = ERROR_CONNECT_HELPER;
@@ -222,15 +201,13 @@
     }
 
     // remove previously existing application
-    if ([self isFolderAlreadyExist] || isUseUpdatePath_)
-    {
+    if ([self isFolderAlreadyExist] || isUseUpdatePath_) {
         [[Logger sharedLogger] logAndStdOut:@"Windscribe exists in desired folder"];
 
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Attempting to remove: %@", [self getOldInstallPath]]];
 
         bool success = helper_.removeOldInstall([[self getOldInstallPath] UTF8String]);
-        if (!success)
-        {
+        if (!success) {
             NSString *errStr = @"Previous version of the program cannot be deleted. Please contact support.";
             [[Logger sharedLogger] logAndStdOut:errStr];
             self.lastError = ERROR_DELETE;
@@ -239,14 +216,11 @@
             helper_.stop();
             return;
         }
-        else
-        {
-            [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Removed!"]];
-        }
+
+        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Removed!"]];
     }
 
-    if (self.factoryReset)
-    {
+    if (self.factoryReset) {
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Executing factory reset"]];
 
         // NB: do not execute these as root
@@ -273,16 +247,13 @@
         [self runProcess:@"/usr/bin/killall" args:@[@"cfprefsd"]];
     }
 
-    [[Logger sharedLogger] logAndStdOut:@"Writing blocks"];
-
-    uid_t userId = getuid();
-    gid_t groupId = getgid();
+[[Logger sharedLogger] logAndStdOut:@"Writing blocks"];
 
     NSString* archivePathFromApp = [[NSBundle mainBundle] pathForResource:@"windscribe.7z" ofType:nil];
     std::wstring strArchivePath = NSStringToStringW(archivePathFromApp);
     std::wstring strPath = NSStringToStringW([self getInstallPath]);
 
-    if (!helper_.setPaths(strArchivePath, strPath, userId, groupId))
+    if (!helper_.setPaths(strArchivePath, strPath))
     {
         NSString *errStr = @"setPaths in helper failed";
         [[Logger sharedLogger] logAndStdOut:errStr];
@@ -351,6 +322,7 @@
     callback_();
 
     helper_.stop();
+
 }
 
 -(void)waitForCompletion
@@ -381,17 +353,10 @@ NSString* StringWToNSString ( const std::wstring& Str )
 
 - (BOOL)connectHelper
 {
-    NSDate *waitingHelperSince_ = [NSDate date];
-    while (!helper_.connect())
-    {
-        usleep(10000); // 10 milliseconds
-        int seconds = -(int)[waitingHelperSince_ timeIntervalSinceNow];
-        if (seconds > 5) {
-            return NO;
-        }
-    }
-
-    return YES;
+    if (helper_.connect())
+      return YES;
+    else
+      return NO;
 }
 
 - (BOOL)waitForProcessFinish: (std::vector<pid_t>)processes helper:(ProcessesHelper *)helper timeoutSec:(size_t)timeoutSec

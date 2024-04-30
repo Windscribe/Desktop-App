@@ -1,6 +1,7 @@
 #pragma once
 
 #include "helper_posix.h"
+#include <xpc/xpc.h>
 
 class Helper_mac : public Helper_posix
 {
@@ -19,5 +20,12 @@ public:
     bool enableMacSpoofingOnBoot(bool bEnable, const QString &interfaceName, const QString &macAddress);
     bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties);
     bool setIpv6Enabled(bool bEnabled);
+
+protected:
+    void doDisconnectAndReconnect() override;
+    bool runCommand(int cmdId, const std::string &data, CMD_ANSWER &answer) override;
+
+private:
+    xpc_connection_t connection_;
 };
 

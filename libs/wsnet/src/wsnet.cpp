@@ -31,17 +31,9 @@ public:
 
     virtual ~WSNet_impl()
     {
-        // delete all objects in the task queue for thread safety
-        taskQueue_.detach_task([this] {
-            utils_.reset();
-            pingManager_.reset();
-            emergencyConnect_.reset();
-            serverAPI_.reset();
-            advancedParameters_.reset();
-            httpNetworkManager_.reset();
-            dnsResolver_.reset();
-        });
-        taskQueue_.wait();
+        // suspend all tasks in the pool before exiting
+        // to prevent callback functions from being called when parent objects have already been deleted
+        taskQueue_.pause();
     }
 
     bool initializeImpl(const std::string &platformName,const std::string &appVersion, bool isUseStagingDomains, const std::string &serverApiSettings)

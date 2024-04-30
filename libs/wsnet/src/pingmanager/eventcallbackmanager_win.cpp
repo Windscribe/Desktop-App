@@ -1,5 +1,5 @@
 #include "eventcallbackmanager_win.h"
-
+#include <assert.h>
 
 namespace wsnet {
 
@@ -27,9 +27,21 @@ void EventCallbackManager_win::stop()
 void EventCallbackManager_win::add(HANDLE hEvent, EventCallbackFunc callback)
 {
     std::lock_guard locker(mutex_);
-    events_.push_back(std::make_pair(hEvent, callback));
+    assert(events_.find(hEvent) == events_.end());
+    events_[hEvent] = callback;
     SetEvent(hEvent_);
 }
+
+void EventCallbackManager_win::remove(HANDLE hEvent)
+{
+    std::lock_guard locker(mutex_);
+    auto it = events_.find(hEvent);
+    if (it != events_.end()) {
+        events_.erase(it);
+        SetEvent(hEvent_);
+    }
+}
+
 
 void EventCallbackManager_win::run()
 {

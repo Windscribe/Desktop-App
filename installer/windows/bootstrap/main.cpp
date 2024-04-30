@@ -72,7 +72,7 @@ static void debugMessage(LPCTSTR szFormat, ...)
     ::OutputDebugString(Buf);
 }
 
-static DWORD ExecuteProgram(const wchar_t *cmd, const wchar_t *params, bool wait, bool asAdmin)
+static DWORD ExecuteProgram(const wchar_t *cmd, const wchar_t *params, bool wait, bool asAdmin, LPDWORD exitCode)
 {
     SHELLEXECUTEINFO ei;
     memset(&ei, 0, sizeof(SHELLEXECUTEINFO));
@@ -96,7 +96,14 @@ static DWORD ExecuteProgram(const wchar_t *cmd, const wchar_t *params, bool wait
     wsl::Win32Handle processHandle(ei.hProcess);
 
     if (wait && processHandle.isValid()) {
-        processHandle.wait(INFINITE);
+        auto waitResult = processHandle.wait(INFINITE);
+        if (waitResult == WAIT_OBJECT_0 && exitCode != nullptr) {
+            result = ::GetExitCodeProcess(processHandle.getHandle(), exitCode);
+            if (!result) {
+                exitCode = 0;
+                debugMessage(_T("Windscribe Installer - GetExitCodeProcess failed: %lu"), GetLastError());
+            }
+        }
     }
 
     return NO_ERROR;
@@ -172,7 +179,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
                            _T("Couldn't get own exe path."));
             return -1;
         }
-        result = ExecuteProgram(buf, lpszCmdParam, false, true);
+        result = ExecuteProgram(buf, lpszCmdParam, false, true, nullptr);
         if (result == NO_ERROR) {
             // Elevated process is running, exit this process
             return 0;
@@ -254,12 +261,20 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
     std::wstring app = installPath + L"\\";
     app.append(WINDSCRIBE_INSTALLER_NAME);
 
-    int result = ExecuteProgram(app.c_str(), lpszCmdParam, true, isAdmin.value());
+    DWORD exitCode = 0;
+    auto result = ExecuteProgram(app.c_str(), lpszCmdParam, true, isAdmin.value(), &exitCode);
     if (result != NO_ERROR) {
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
                        _T("Windows was unable to launch the installer (%lu)"), result);
         return -1;
     }
 
-    return 0;
+    if (exitCode != 0) {
+        debugMessage(_T("Windscribe installer exited with an error: %lu"), exitCode);
+        showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
+            _T("The installer reported an unexpected exit code, indicating it may have crashed during exit.")
+            _T(" Please report this failure to Windscribe support."));
+    }
+
+    return exitCode;
 }

@@ -1,8 +1,10 @@
 #pragma once
 
-class IOUtils
-{
-public:
-    static bool readAll(HANDLE hPipe, char *buf, DWORD len);
-    static bool writeAll(HANDLE hPipe, const char *buf, DWORD len);
-};
+#include <Windows.h>
+
+namespace IOUtils {
+
+bool readAll(HANDLE hPipe, HANDLE hIOEvent, char *buf, DWORD len);
+bool writeAll(HANDLE hPipe, HANDLE hIOEvent, const char *buf, DWORD len);
+
+}

@@ -7,13 +7,8 @@
 #include <boost/algorithm/hex.hpp>
 #include <sys/socket.h>
 
-bool KernelModuleCommunicator::start(
-    const std::string &exePath,
-    const std::string &executable,
-    const std::string &deviceName)
+bool KernelModuleCommunicator::start(const std::string &deviceName)
 {
-    UNUSED(exePath);
-    UNUSED(executable);
     assert(!deviceName.empty());
     // NULL terminator included in size of IFNAMSIZ so device name must be smaller
     if (deviceName.size() >= IFNAMSIZ) {

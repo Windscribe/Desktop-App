@@ -140,30 +140,28 @@ bool WireGuardGoCommunicator::Connection::connect(struct sockaddr_un *address)
     return true;
 }
 
-bool WireGuardGoCommunicator::start(
-    const std::string &exePath,
-    const std::string &executable,
-    const std::string &deviceName)
+bool WireGuardGoCommunicator::start(const std::string &deviceName)
 {
     assert(!deviceName.empty());
 
     Utils::executeCommand("rm", {"-f", ("/var/run/wireguard/" + deviceName + ".sock").c_str()});
-    const std::string fullCmd = Utils::getFullCommand(exePath, executable, "-f " + deviceName);
+
+    const std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribewireguard", "-f " + deviceName);
     if (fullCmd.empty()) {
         Logger::instance().out("Invalid WireGuard command");
         return false;
     }
 
-    const std::string fullPath = exePath + "/" + executable;
+    const std::string fullPath = Utils::getExePath() + "/windscribewireguard";
     ExecutableSignature sigCheck;
-    if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
+    if (!sigCheck.verify(fullPath)) {
         Logger::instance().out("WireGuard executable signature incorrect: %s", sigCheck.lastError().c_str());
         return false;
     }
 
     daemonCmdId_ = ExecuteCmd::instance().execute(fullCmd);
     deviceName_ = deviceName;
-    executable_ = executable;
+    executable_ = "windscribewireguard";
     return true;
 }
 

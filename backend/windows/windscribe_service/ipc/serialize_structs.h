@@ -7,7 +7,6 @@ template<class Archive>
 void serialize(Archive & ar, CMD_RUN_OPENVPN & g, const unsigned int version)
 {
     UNREFERENCED_PARAMETER(version);
-    ar & g.szOpenVpnExecutable;
     ar & g.szConfig;
     ar & g.portNumber;
     ar & g.szHttpProxy;
@@ -187,25 +186,10 @@ void serialize(Archive & ar, CMD_CHANGE_MTU & g, const unsigned int version)
 }
 
 template<class Archive>
-void serialize(Archive & ar, CMD_START_WIREGUARD & g, const unsigned int version)
-{
-    UNREFERENCED_PARAMETER(version);
-    ar & g.szExecutable;
-    ar & g.szDeviceName;
-}
-
-template<class Archive>
 void serialize(Archive & ar, CMD_CONFIGURE_WIREGUARD & g, const unsigned int version)
 {
     UNREFERENCED_PARAMETER(version);
-    ar & g.clientPrivateKey;
-    ar & g.clientIpAddress;
-    ar & g.clientDnsAddressList;
-    ar & g.peerPublicKey;
-    ar & g.peerPresharedKey;
-    ar & g.peerEndpoint;
-    ar & g.allowedIps;
-    ar & g.listenPort;
+    ar & g.config;
 }
 
 template<class Archive>

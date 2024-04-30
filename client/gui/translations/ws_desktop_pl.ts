@@ -1850,8 +1850,8 @@ Najpierw połącz się z siecią</translation>
         <translation>Ten adres IP lub zakres jest zarezerwowany przez Windscribe i nie można go zmienić.</translation>
     </message>
     <message>
-        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
-        <translation>Na liście znajduje się zbyt wiele adresów IP lub nazw hostów. Usuń niektóre z nich, zanim dodasz kolejne.</translation>
+        <source>There are too many hostnames in the list. Please remove some before adding more.</source>
+        <translation>Na liście znajduje się zbyt wiele nazw hostów. Usuń niektóre z nich, zanim dodasz kolejne.</translation>
     </message>
 </context>
 <context>

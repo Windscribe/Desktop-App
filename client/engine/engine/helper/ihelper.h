@@ -43,15 +43,17 @@ public:
                                    const QString &connectedIp, const types::Protocol &protocol) = 0;
     virtual bool changeMtu(const QString &adapter, int mtu) = 0;
 
+    virtual ExecuteError executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort,
+                                        const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId, bool isCustomConfig) = 0;
+
     // WireGuard functions
-    virtual ExecuteError startWireGuard(const QString &exeName, const QString &deviceName) = 0;
+    virtual ExecuteError startWireGuard() = 0;
     virtual bool stopWireGuard() = 0;
     virtual bool configureWireGuard(const WireGuardConfig &config) = 0;
     virtual bool getWireGuardStatus(types::WireGuardStatus *status) = 0;
-    virtual void setDefaultWireGuardDeviceName(const QString &deviceName) = 0;
 
     // ctrld functions
-    virtual ExecuteError startCtrld(const QString &exeName, const QString &parameters) = 0;
+    virtual ExecuteError startCtrld(const QString &ip, const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog) = 0;
     virtual bool stopCtrld() = 0;
 
 signals:

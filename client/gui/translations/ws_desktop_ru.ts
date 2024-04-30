@@ -1850,8 +1850,8 @@ Connect to a network first</source>
         <translation>Этот IP-адрес или диапазон зарезервирован Windscribe и не может быть изменен.</translation>
     </message>
     <message>
-        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
-        <translation>В списке слишком много IP-адресов или имен хостов. Пожалуйста, удалите некоторые из них, прежде чем добавлять новые.</translation>
+        <source>There are too many hostnames in the list. Please remove some before adding more.</source>
+        <translation>В списке слишком много имен хостов. Пожалуйста, удалите некоторые из них, прежде чем добавлять новые.</translation>
     </message>
 </context>
 <context>

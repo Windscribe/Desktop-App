@@ -39,27 +39,38 @@ CMD_ANSWER startOpenvpn(boost::archive::text_iarchive &ia)
     if (script.empty()) {
         Logger::instance().out("Could not find appropriate DNS manager script");
         answer.executed = 0;
+        return answer;
+    }
+
+    // sanitize
+    if (Utils::hasWhitespaceInString(cmd.httpProxy) ||
+        Utils::hasWhitespaceInString(cmd.socksProxy))
+    {
+        cmd.httpProxy = "";
+        cmd.socksProxy = "";
+    }
+
+    if (!OVPN::writeOVPNFile(script, cmd.port, cmd.config, cmd.httpProxy, cmd.httpPort, cmd.socksProxy, cmd.socksPort, cmd.isCustomConfig)) {
+        Logger::instance().out("Could not write OpenVPN config");
+        answer.executed = 0;
+        return answer;
+    }
+
+    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribeopenvpn", "--config /etc/windscribe/config.ovpn");
+    if (fullCmd.empty()) {
+        // Something wrong with the command
+        answer.executed = 0;
+        return answer;
+    }
+
+    const std::string fullPath = Utils::getExePath() + "/windscribeopenvpn";
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(fullPath)) {
+        Logger::instance().out("OpenVPN executable signature incorrect: %s", sigCheck.lastError().c_str());
+        answer.executed = 0;
     } else {
-        if (!OVPN::writeOVPNFile(script, cmd.config, cmd.isCustomConfig)) {
-            Logger::instance().out("Could not write OpenVPN config");
-            answer.executed = 0;
-        } else {
-            std::string fullCmd = Utils::getFullCommand(cmd.exePath, cmd.executable, "--config /etc/windscribe/config.ovpn " + cmd.arguments);
-            if (fullCmd.empty()) {
-                // Something wrong with the command
-                answer.executed = 0;
-            } else {
-                const std::string fullPath = cmd.exePath + "/" + cmd.executable;
-                ExecutableSignature sigCheck;
-                if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
-                    Logger::instance().out("OpenVPN executable signature incorrect: %s", sigCheck.lastError().c_str());
-                    answer.executed = 0;
-                } else {
-                    answer.cmdId = ExecuteCmd::instance().execute(fullCmd, "/etc/windscribe");
-                    answer.executed = 1;
-                }
-            }
-        }
+        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, "/etc/windscribe");
+        answer.executed = 1;
     }
     return answer;
 }
@@ -125,10 +136,8 @@ CMD_ANSWER sendConnectStatus(boost::archive::text_iarchive &ia)
 CMD_ANSWER startWireGuard(boost::archive::text_iarchive &ia)
 {
     CMD_ANSWER answer;
-    CMD_START_WIREGUARD cmd;
-    ia >> cmd;
 
-    if (WireGuardController::instance().start(cmd.exePath, cmd.executable, cmd.deviceName)) {
+    if (WireGuardController::instance().start()) {
         answer.executed = 1;
     }
     return answer;
@@ -240,14 +249,6 @@ CMD_ANSWER setDnsLeakProtectEnabled(boost::archive::text_iarchive &ia)
     return answer;
 }
 
-CMD_ANSWER checkForWireGuardKernelModule(boost::archive::text_iarchive &ia)
-{
-    CMD_ANSWER answer;
-    answer.executed = Utils::executeCommand("modprobe", {"wireguard"}) ? 0 : 1;
-    Logger::instance().out("WireGuard kernel module: %s", answer.executed ? "available" : "not available");
-    return answer;
-}
-
 CMD_ANSWER clearFirewallRules(boost::archive::text_iarchive &ia)
 {
     CMD_ANSWER answer;
@@ -342,20 +343,62 @@ CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
     CMD_START_CTRLD cmd;
     ia >> cmd;
 
-    std::string fullCmd = Utils::getFullCommand(cmd.exePath, cmd.executable, cmd.parameters);
+    if (!Utils::isValidIpAddress(cmd.ip)) {
+        Logger::instance().out("Invalid IP address: %s", cmd.ip.c_str());
+        answer.executed = 0;
+        return answer;
+    }
+
+    // Validate URLs
+    if ((!Utils::isValidUrl(cmd.upstream1)) || (!cmd.upstream2.empty() && !Utils::isValidUrl(cmd.upstream2))) {
+        Logger::instance().out("Invalid upstream URL(s)");
+        answer.executed = 0;
+        return answer;
+    }
+    for (const auto domain: cmd.domains) {
+        if (!Utils::isValidDomain(domain)) {
+            Logger::instance().out("Invalid domain: %s", domain.c_str());
+            answer.executed = 0;
+            return answer;
+        }
+    }
+
+    std::stringstream arguments;
+    arguments << "run";
+    arguments << " --listen=" + cmd.ip + ":53";
+    arguments << " --primary_upstream=" + cmd.upstream1;
+    if (!cmd.upstream2.empty()) {
+        arguments << " --secondary_upstream=" + cmd.upstream2;
+        if (!cmd.domains.empty()) {
+            std::stringstream domains;
+            std::copy(cmd.domains.begin(), cmd.domains.end(), std::ostream_iterator<std::string>(domains, ","));
+
+            std::string domainsStr = domains.str();
+            domainsStr.erase(domainsStr.length() - 1); // remove last comma
+
+            arguments << " --domains=" + domainsStr;
+        }
+    }
+    if (cmd.isCreateLog) {
+        arguments << " --log /opt/windscribe/ctrld.log";
+        arguments << " -vv";
+    }
+
+    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribectrld", arguments.str());
     if (fullCmd.empty()) {
         // Something wrong with the command
         answer.executed = 0;
+        return answer;
+    }
+
+    const std::string fullPath = Utils::getExePath() + "/windscribectrld";
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(fullPath)) {
+        Logger::instance().out("ctrld executable signature incorrect: %s", sigCheck.lastError().c_str());
+        answer.executed = 0;
     } else {
-        const std::string fullPath = cmd.exePath + "/" + cmd.executable;
-        ExecutableSignature sigCheck;
-        if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
-            Logger::instance().out("ctrld executable signature incorrect: %s", sigCheck.lastError().c_str());
-            answer.executed = 0;
-        } else {
-            answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
-            answer.executed = 1;
-        }
+        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
+        answer.executed = 1;
     }
     return answer;
 }
@@ -367,6 +410,11 @@ CMD_ANSWER startStunnel(boost::archive::text_iarchive &ia)
     ia >> cmd;
     Logger::instance().out("Starting stunnel");
 
+    if (!Utils::isValidIpAddress(cmd.hostname)) {
+        answer.executed = 0;
+        return answer;
+    }
+
     std::stringstream arguments;
     arguments << "--listenAddress :" << cmd.localPort;
     arguments << " --remoteAddress https://" << cmd.hostname << ":" << cmd.port;
@@ -376,20 +424,21 @@ CMD_ANSWER startStunnel(boost::archive::text_iarchive &ia)
     }
     arguments << " --tunnelType 2";
     //arguments << " --dev"; // enables verbose logging when necessary
-    std::string fullCmd = Utils::getFullCommandAsUser("windscribe", cmd.exePath, cmd.executable, arguments.str());
+    std::string fullCmd = Utils::getFullCommandAsUser("windscribe", Utils::getExePath(), "windscribewstunnel", arguments.str());
     if (fullCmd.empty()) {
         // Something wrong with the command
         answer.executed = 0;
+        return answer;
+    }
+
+    const std::string fullPath = Utils::getExePath() + "/windscribewstunnel";
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(fullPath)) {
+        Logger::instance().out("stunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
+        answer.executed = 0;
     } else {
-        const std::string fullPath = cmd.exePath + "/" + cmd.executable;
-        ExecutableSignature sigCheck;
-        if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
-            Logger::instance().out("stunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
-            answer.executed = 0;
-        } else {
-            answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
-            answer.executed = 1;
-        }
+        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
+        answer.executed = 1;
     }
     return answer;
 }
@@ -401,25 +450,31 @@ CMD_ANSWER startWstunnel(boost::archive::text_iarchive &ia)
     ia >> cmd;
     Logger::instance().out("Starting wstunnel");
 
+    if (!Utils::isValidIpAddress(cmd.hostname)) {
+        answer.executed = 0;
+        return answer;
+    }
+
     std::stringstream arguments;
     arguments << "--listenAddress :" << cmd.localPort;
     arguments << " --remoteAddress wss://" << cmd.hostname << ":" << cmd.port << "/tcp/127.0.0.1/1194";
     arguments << " --logFilePath \"\"";
     //arguments << " --dev"; // enables verbose logging when necessary
-    std::string fullCmd = Utils::getFullCommandAsUser("windscribe", cmd.exePath, cmd.executable, arguments.str());
+    std::string fullCmd = Utils::getFullCommandAsUser("windscribe", Utils::getExePath(), "windscribewstunnel", arguments.str());
     if (fullCmd.empty()) {
         // Something wrong with the command
         answer.executed = 0;
+        return answer;
+    }
+
+    const std::string fullPath = Utils::getExePath() + "/windscribewstunnel";
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(fullPath)) {
+        Logger::instance().out("wstunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
+        answer.executed = 0;
     } else {
-        const std::string fullPath = cmd.exePath + "/" + cmd.executable;
-        ExecutableSignature sigCheck;
-        if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
-            Logger::instance().out("wstunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
-            answer.executed = 0;
-        } else {
-            answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
-            answer.executed = 1;
-        }
+        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
+        answer.executed = 1;
     }
     return answer;
 }

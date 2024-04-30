@@ -29,4 +29,7 @@ protected:
     INSTALLER_CURRENT_STATE state_;
     INSTALLER_ERROR error_;
     int progress_;
+
+private:
+    void deleteBlocks();
 };

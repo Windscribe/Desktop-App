@@ -8,15 +8,13 @@
 class Files
 {
 public:
-    Files(const std::wstring &archivePath, const std::wstring &installPath, uid_t userId, gid_t groupId);
+    Files(const std::wstring &archivePath, const std::wstring &installPath);
     ~Files();
 
     int executeStep();
     std::string getLastError() { return lastError_; }
 
 private:
-    uid_t userId_;
-    gid_t groupId_;
     std::wstring archivePath_;
     std::wstring installPath_;
     Archive *archive_;

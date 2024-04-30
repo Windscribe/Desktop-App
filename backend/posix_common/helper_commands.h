@@ -26,7 +26,7 @@
 #define HELPER_CMD_SET_IPV6_ENABLED                  19
 #define HELPER_CMD_SET_DNS_LEAK_PROTECT_ENABLED      20 // this script disables DNS queries on non-VPN interfaces
 #define HELPER_CMD_SET_DNS_SCRIPT_ENABLED            21 // this script sets/unsets the VPN DNS as the system default
-#define HELPER_CMD_CHECK_FOR_WIREGUARD_KERNEL_MODULE 22
+#define HELPER_CMD_CHECK_FOR_WIREGUARD_KERNEL_MODULE 22 // deprecated
 #define HELPER_CMD_CLEAR_FIREWALL_RULES              23
 #define HELPER_CMD_CHECK_FIREWALL_STATE              24
 #define HELPER_CMD_SET_FIREWALL_RULES                25
@@ -40,6 +40,7 @@
 #define HELPER_CMD_START_STUNNEL                     33
 #define HELPER_CMD_START_WSTUNNEL                    34
 #define HELPER_CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR  35
+#define HELPER_CMD_HELPER_VERSION                    36
 
 // enums
 
@@ -93,10 +94,12 @@ struct CMD_ANSWER {
 // command structs
 
 struct CMD_START_OPENVPN {
-    std::string exePath;
-    std::string executable;
     std::string config;
-    std::string arguments;
+    int port;
+    std::string httpProxy;
+    std::string socksProxy;
+    int httpPort;
+    int socksPort;
     CmdDnsManager dnsManager; // Linux only
     bool isCustomConfig;
 };
@@ -143,12 +146,6 @@ struct CMD_SEND_CONNECT_STATUS {
     std::string remoteIp;
 };
 
-struct CMD_START_WIREGUARD {
-    std::string exePath;
-    std::string executable;
-    std::string deviceName;
-};
-
 struct CMD_CONFIGURE_WIREGUARD {
     std::string clientPrivateKey;
     std::string clientIpAddress;
@@ -163,9 +160,11 @@ struct CMD_CONFIGURE_WIREGUARD {
 };
 
 struct CMD_START_CTRLD {
-    std::string exePath;
-    std::string executable;
-    std::string parameters;
+    std::string ip;
+    std::string upstream1;
+    std::string upstream2;
+    std::vector<std::string> domains;
+    bool isCreateLog;
 };
 
 struct CMD_KILL_PROCESS {
@@ -176,8 +175,6 @@ struct CMD_KILL_PROCESS {
 struct CMD_INSTALLER_FILES_SET_PATH {
     std::wstring archivePath;
     std::wstring installPath;
-    uid_t userId;
-    gid_t groupId;
 };
 
 struct CMD_APPLY_CUSTOM_DNS {
@@ -254,8 +251,6 @@ struct CMD_TASK_KILL {
 };
 
 struct CMD_START_STUNNEL {
-    std::string exePath;
-    std::string executable;
     std::string hostname;
     int port;
     int localPort;
@@ -263,8 +258,6 @@ struct CMD_START_STUNNEL {
 };
 
 struct CMD_START_WSTUNNEL {
-    std::string exePath;
-    std::string executable;
     std::string hostname;
     int port;
     int localPort;

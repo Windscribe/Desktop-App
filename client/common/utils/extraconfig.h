@@ -48,6 +48,7 @@ public:
     bool getIsStaging();
 
     bool getLogAPIResponse();
+    bool getLogCtrld();
     bool getUsingScreenTransitionHotkeys();
     bool getUseICMPPings();
     bool getStealthExtraTLSPadding();

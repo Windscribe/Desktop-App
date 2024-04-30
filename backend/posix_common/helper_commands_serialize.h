@@ -23,10 +23,12 @@ template<class Archive>
 void serialize(Archive &ar, CMD_START_OPENVPN &a, const unsigned int version)
 {
     UNUSED(version);
-    ar & a.exePath;
-    ar & a.executable;
     ar & a.config;
-    ar & a.arguments;
+    ar & a.port;
+    ar & a.httpProxy;
+    ar & a.socksProxy;
+    ar & a.httpPort;
+    ar & a.socksPort;
     ar & a.dnsManager;
     ar & a.isCustomConfig;
 }
@@ -83,15 +85,6 @@ void serialize(Archive &ar, CMD_SEND_CONNECT_STATUS &a, const unsigned int versi
 }
 
 template<class Archive>
-void serialize(Archive &ar, CMD_START_WIREGUARD &a, const unsigned int version)
-{
-    UNUSED(version);
-    ar & a.exePath;
-    ar & a.executable;
-    ar & a.deviceName;
-}
-
-template<class Archive>
 void serialize(Archive &ar, CMD_CONFIGURE_WIREGUARD &a, const unsigned int version)
 {
     UNUSED(version);
@@ -111,9 +104,11 @@ template<class Archive>
 void serialize(Archive &ar, CMD_START_CTRLD &a, const unsigned int version)
 {
     UNUSED(version);
-    ar & a.exePath;
-    ar & a.executable;
-    ar & a.parameters;
+    ar & a.ip;
+    ar & a.upstream1;
+    ar & a.upstream2;
+    ar & a.domains;
+    ar & a.isCreateLog;
 }
 
 template<class Archive>
@@ -129,8 +124,6 @@ void serialize(Archive &ar, CMD_INSTALLER_FILES_SET_PATH &a, const unsigned int 
     UNUSED(version);
     ar & a.archivePath;
     ar & a.installPath;
-    ar & a.userId;
-    ar & a.groupId;
 }
 
 template<class Archive>
@@ -256,8 +249,6 @@ template<class Archive>
 void serialize(Archive &ar, CMD_START_STUNNEL &a, const unsigned int version)
 {
     UNUSED(version);
-    ar & a.exePath;
-    ar & a.executable;
     ar & a.hostname;
     ar & a.port;
     ar & a.localPort;
@@ -268,8 +259,6 @@ template<class Archive>
 void serialize(Archive &ar, CMD_START_WSTUNNEL &a, const unsigned int version)
 {
     UNUSED(version);
-    ar & a.exePath;
-    ar & a.executable;
     ar & a.hostname;
     ar & a.port;
     ar & a.localPort;

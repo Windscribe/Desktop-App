@@ -16,6 +16,7 @@ project(helper)
 
 find_package(Boost REQUIRED COMPONENTS serialization thread filesystem)
 find_package(OpenSSL REQUIRED)
+find_package(skyr-url CONFIG REQUIRED)
 
 add_subdirectory(../../../libs/wsnet wsnet)
 
@@ -59,6 +60,7 @@ target_link_libraries(helper
                       Boost::thread
                       Boost::filesystem
                       OpenSSL::Crypto
+                      skyr::skyr-url
 )
 
 target_include_directories(helper PRIVATE

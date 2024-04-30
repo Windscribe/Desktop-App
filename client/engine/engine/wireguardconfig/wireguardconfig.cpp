@@ -40,7 +40,7 @@ QString WireGuardConfig::stripIpv6Address(const QString &addressList)
     return stripIpv6Address(addressList.split(",", Qt::SkipEmptyParts));
 }
 
-bool WireGuardConfig::generateConfigFile(const QString &fileName) const
+QString WireGuardConfig::generateConfigFile() const
 {
     // Design Note:
     // Tried to use QSettings(fileName, QSettings::IniFormat) to create this file.
@@ -48,13 +48,8 @@ bool WireGuardConfig::generateConfigFile(const QString &fileName) const
     // characters in it, such as the private/public keys which are base64 encoded.
     // The wireguard-windows service cannot handle these double-quoted entries.
 
-    QFile theFile(fileName);
-    if (!theFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-        qCDebug(LOG_CONNECTION) << "WireGuardConfig::generateConfigFile could not create file '" << fileName << "' (" << theFile.errorString() << ")";
-        return false;
-    }
-
-    QTextStream ts(&theFile);
+    QString config;
+    QTextStream ts(&config);
     ts << "[Interface]\n";
     ts << "PrivateKey = " << client_.privateKey << '\n';
     ts << "Address = " << client_.ipAddress << '\n';
@@ -82,13 +77,9 @@ bool WireGuardConfig::generateConfigFile(const QString &fileName) const
     else {
         ts << "AllowedIPs = " << peer_.allowedIps << '\n';
     }
-
     ts.flush();
 
-    theFile.flush();
-    theFile.close();
-
-    return true;
+    return config;
 }
 
 void WireGuardConfig::reset()

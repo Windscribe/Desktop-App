@@ -32,4 +32,15 @@ namespace Utils
 
     // create the system group and user 'windscribe'
     void createWindscribeUserAndGroup();
+
+    // check if string has whitespace
+    bool hasWhitespaceInString(const std::string &str);
+
+    // get root path for app utils
+    std::string getExePath();
+
+    // check if a string is a valid address
+    bool isValidIpAddress(const std::string &address);
+    bool isValidUrl(const std::string &address);
+    bool isValidDomain(const std::string &address);
 };

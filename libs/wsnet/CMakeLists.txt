@@ -115,6 +115,7 @@ target_include_directories(wsnet PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
+target_compile_definitions(wsnet PUBLIC BS_THREAD_POOL_ENABLE_PAUSE)
 
 if(ANDROID OR IOS)
     scapix_bridge_headers(wsnet "com.wsnet.lib" ${WS_CPP_PUBLIC_HEADERS})

@@ -5,8 +5,9 @@
 #import <Security/Authorization.h>
 
 #import "../Logger.h"
+#include "../../../../client/common/version/windscribe_version.h"
 
-bool InstallHelper_mac::installHelper()
+bool InstallHelper_mac::installHelper(bool bForceDeleteOld)
 {
     NSString *helperLabel = @"com.windscribe.helper.macos";
     BOOL result = NO;
@@ -35,11 +36,12 @@ bool InstallHelper_mac::installHelper()
 
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"InstallHelper - current helper version: %li", (long)currentVersion]];
 
-        if (installedVersion == currentVersion) {
+        if (installedVersion == currentVersion && isAppMajorMinorVersionSame() && !bForceDeleteOld) {
             return true;
-        } else if (installedVersion > currentVersion) {
-            // If we are downgrading, we need to uninstall the previous helper (SMJobBless will not let us downgrade)
-            [[Logger sharedLogger] logAndStdOut:@"Downgrading helper."];
+        } else if (installedVersion >= currentVersion || bForceDeleteOld) {
+            // If we are downgrading (or the helper version is the same but app version differs),
+            // we need to uninstall the previous helper (SMJobBless will not let us downgrade)
+            [[Logger sharedLogger] logAndStdOut:@"Force reinstalling helper."];
             NSString *scriptContents = @"do shell script \"launchctl remove /Library/LaunchDaemons/com.windscribe.helper.macos.plist;"
                                                           "rm /Library/LaunchDaemons/com.windscribe.helper.macos.plist;"
                                                           "rm /Library/PrivilegedHelperTools/com.windscribe.helper.macos\" with administrator privileges";
@@ -75,8 +77,11 @@ bool InstallHelper_mac::installHelper()
         // is extracted and placed in /Library/LaunchDaemons and then loaded. The
         // executable is placed in /Library/PrivilegedHelperTools.
         //
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         CFErrorRef outError = NULL;
         result = SMJobBless(kSMDomainSystemLaunchd, (__bridge CFStringRef)helperLabel, authRef, &outError);
+#pragma clang diagnostic pop
         if (!result) {
             if (outError) {
                 [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"InstallHelper - SMJobBless failed. Error code: %li", CFErrorGetCode(outError)]];
@@ -91,4 +96,28 @@ bool InstallHelper_mac::installHelper()
     }
 
     return result == YES;
+}
+
+bool InstallHelper_mac::isAppMajorMinorVersionSame()
+{
+    CFURLRef url = CFURLCreateWithString(NULL, CFSTR("/Applications/Windscribe.app"), NULL);
+    if (url == NULL) {
+        return false;
+    }
+
+    CFBundleRef bundle = CFBundleCreate(NULL, url);
+    CFRelease(url);
+
+    if (bundle == NULL) {
+        return false;
+    }
+
+    CFStringRef version = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(bundle, kCFBundleVersionKey);
+    CFRelease(bundle);
+
+    if (version && CFStringHasPrefix(version, CFSTR(WINDSCRIBE_MAJOR_MINOR_VERSION_STR))) {
+        return true;
+    }
+
+    return false;
 }

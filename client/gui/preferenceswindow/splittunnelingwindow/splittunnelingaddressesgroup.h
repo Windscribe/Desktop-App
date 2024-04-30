@@ -12,7 +12,7 @@ class SplitTunnelingAddressesGroup : public PreferenceGroup
 {
     Q_OBJECT
 public:
-    static const int kMaxAddresses = 50;
+    static const int kMaxDomains = 50;
 
     explicit SplitTunnelingAddressesGroup(ScalableGraphicsObject *parent,
                                           const QString &desc = "",
@@ -49,6 +49,7 @@ private:
 
     NewAddressItem *newAddressItem_;
     QMap<AddressItem *, types::SplitTunnelingNetworkRoute> addresses_;
+    int numDomains_;
 };
 
 } // namespace PreferencesWindow

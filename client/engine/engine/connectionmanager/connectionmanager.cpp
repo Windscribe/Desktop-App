@@ -79,7 +79,7 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
     wstunnelManager_ = new WstunnelManager(this, helper);
     connect(wstunnelManager_, &WstunnelManager::wstunnelStarted, this, &ConnectionManager::onWstunnelStarted);
 
-    ctrldManager_ = CrossPlatformObjectFactory::createCtrldManager(this, helper, false);
+    ctrldManager_ = CrossPlatformObjectFactory::createCtrldManager(this, helper, ExtraConfig::instance().getLogCtrld());
 
     testVPNTunnel_ = new TestVPNTunnel(this);
     connect(testVPNTunnel_, &TestVPNTunnel::testsFinished, this, &ConnectionManager::onTunnelTestsFinished);
@@ -209,7 +209,6 @@ void ConnectionManager::clickDisconnect()
             {
                 connSettingsPolicy_->reset();
             }
-            timerReconnection_.stop();
             stunnelManager_->killProcess();
             wstunnelManager_->killProcess();
             ctrldManager_->killProcess();
@@ -397,8 +396,6 @@ void ConnectionManager::onConnectionDisconnected()
         case STATE_DISCONNECTING_FROM_USER_CLICK:
             disconnect();
             connSettingsPolicy_->reset();
-            timerReconnection_.stop();
-            connectTimer_.stop();
             emit disconnected(DISCONNECTED_BY_USER);
             break;
         case STATE_CONNECTED:
@@ -412,8 +409,6 @@ void ConnectionManager::onConnectionDisconnected()
         case STATE_CONNECTING_FROM_USER_CLICK:
         case STATE_AUTO_DISCONNECT:
             disconnect();
-            timerReconnection_.stop();
-            connectTimer_.stop();
             emit disconnected(DISCONNECTED_ITSELF);
             break;
         case STATE_DISCONNECTED:
@@ -431,8 +426,6 @@ void ConnectionManager::onConnectionDisconnected()
             break;
         case STATE_RECONNECTION_TIME_EXCEED:
             disconnect();
-            timerReconnection_.stop();
-            connectTimer_.stop();
             emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
             break;
 
@@ -589,7 +582,6 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
     {
         // immediately stop trying to connect
         disconnect();
-        timerReconnection_.stop();
         emit errorDuringConnection(err);
     }
     else if (err == CONNECT_ERROR::STATE_TIMEOUT_FOR_AUTOMATIC
@@ -918,7 +910,6 @@ void ConnectionManager::doConnectPart2()
     {
         qCDebug(LOG_CONNECTION) << "connSettingsPolicy_.getCurrentConnectionSettings returned incorrect value";
         disconnect();
-        timerReconnection_.stop();
         emit errorDuringConnection(CONNECT_ERROR::LOCATION_NO_ACTIVE_NODES);
         return;
     }
@@ -943,8 +934,8 @@ void ConnectionManager::doConnectPart2()
             bStarted = ctrldManager_->runProcess(connectedDnsInfo_.upStream1, QString(), QStringList());
 
         if (!bStarted) {
+            qCDebug(LOG_BASIC) << "connection manager ctrld start failed";
             disconnect();
-            timerReconnection_.stop();
             emit errorDuringConnection(CONNECT_ERROR::CTRLD_START_FAILED);
             return;
         }
@@ -1021,7 +1012,6 @@ void ConnectionManager::doConnectPart2()
                 if (!stunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port,
                                                  ExtraConfig::instance().getStealthExtraTLSPadding() || isAntiCensorship_)) {
                     disconnect();
-                    timerReconnection_.stop();
                     emit errorDuringConnection(CONNECT_ERROR::EXE_VERIFY_STUNNEL_ERROR);
                     return;
                 }
@@ -1030,7 +1020,6 @@ void ConnectionManager::doConnectPart2()
             } else if (currentConnectionDescr_.protocol == types::Protocol::WSTUNNEL) {
                 if (!wstunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port)) {
                     disconnect();
-                    timerReconnection_.stop();
                     emit errorDuringConnection(CONNECT_ERROR::EXE_VERIFY_WSTUNNEL_ERROR);
                     return;
                 }
@@ -1070,7 +1059,6 @@ void ConnectionManager::doConnectPart2()
                                         << currentConnectionDescr_.customConfigFilename;
                 //WS_ASSERT(false);
                 disconnect();
-                timerReconnection_.stop();
                 emit errorDuringConnection(CONNECT_ERROR::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
             }
@@ -1080,7 +1068,6 @@ void ConnectionManager::doConnectPart2()
                 qCDebug(LOG_CONNECTION) << "Failed to get config for custom WG file:"
                                         << currentConnectionDescr_.customConfigFilename;
                 disconnect();
-                timerReconnection_.stop();
                 emit errorDuringConnection(CONNECT_ERROR::CANNOT_OPEN_CUSTOM_CONFIG);
                 return;
             }
@@ -1371,8 +1358,6 @@ void ConnectionManager::onTimerWaitNetworkConnectivity()
         {
             qCDebug(LOG_CONNECTION) << "Time for wait network connection exceed";
             timerWaitNetworkConnectivity_.stop();
-            timerReconnection_.stop();
-            connectTimer_.stop();
             disconnect();
             emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
         }
@@ -1405,7 +1390,6 @@ void ConnectionManager::onGetWireGuardConfigAnswer(WireGuardConfigRetCode retCod
         // All options for accessing the API have been exhausted, there is no point in trying again
         // immediately stop trying to connect
         disconnect();
-        timerReconnection_.stop();
         emit errorDuringConnection(WIREGUARD_COULD_NOT_RETRIEVE_CONFIG);
         return;
     }
@@ -1593,6 +1577,9 @@ QString ConnectionManager::dnsServersFromConnectedDnsInfo() const
 void ConnectionManager::disconnect()
 {
     Logger::instance().endConnectionMode();
+    timerReconnection_.stop();
+    connectTimer_.stop();
+    connectingTimer_.stop();
     state_ = STATE_DISCONNECTED;
 }
 

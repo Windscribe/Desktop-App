@@ -23,7 +23,7 @@ set(SOURCES
     helper/helper_mac.h
     helper/installhelper_mac.mm
     helper/installhelper_mac.h
-    helper/helper_mac.cpp
+    helper/helper_mac.mm
     installer/base_installer.h
     installer/base_installer.mm
     installer/downloader.h

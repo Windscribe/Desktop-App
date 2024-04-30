@@ -34,6 +34,8 @@ const QString WS_SERVERLIST_COUNTRY_OVERRIDE = WS_PREFIX + "serverlist-country-o
 
 const QString WS_USE_OPENVPN_DCO = WS_PREFIX + "use-openvpn-dco";
 
+const QString WS_LOG_CTRLD = WS_PREFIX + "log-ctrld";
+
 void ExtraConfig::writeConfig(const QString &cfg)
 {
     QMutexLocker locker(&mutex_);
@@ -231,6 +233,11 @@ bool ExtraConfig::getIsStaging()
 bool ExtraConfig::getLogAPIResponse()
 {
     return getFlagFromExtraConfigLines(WS_LOG_API_RESPONSE);
+}
+
+bool ExtraConfig::getLogCtrld()
+{
+    return getFlagFromExtraConfigLines(WS_LOG_CTRLD);
 }
 
 bool ExtraConfig::getWireGuardVerboseLogging()

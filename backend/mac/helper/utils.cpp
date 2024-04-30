@@ -1,5 +1,9 @@
 #include "utils.h"
 
+#include <arpa/inet.h>
+#include <skyr/core/parse.hpp>
+#include <skyr/core/serialize.hpp>
+#include <skyr/url.hpp>
 #include <sstream>
 
 #include "3rdparty/pstream.h"
@@ -90,7 +94,7 @@ std::string getFullCommand(const std::string &exePath, const std::string &execut
     LOG("Resolved command: %s", fullCmd.c_str());
     free(canonicalPath);
 
-    if (fullCmd.find(";") != std::string::npos || fullCmd.find("|") != std::string::npos || fullCmd.find("&") != std::string::npos) {
+    if (fullCmd.find_first_of(";|&`") != std::string::npos) {
         // Don't execute commands with dangerous pipes or delimiters
         LOG("Executable command contains invalid characters, ignoring.");
         return "";
@@ -166,6 +170,52 @@ void deleteSelf()
     Utils::executeCommand("rm", {"/usr/local/bin/windscribe-cli"});
     Utils::executeCommand("dscl", {".", "-delete", "/Users/windscribe"});
     Utils::executeCommand("dscl", {".", "-delete", "/Groups/windscribe"});
+}
+
+bool hasWhitespaceInString(const std::string &str)
+{
+    return str.find_first_of(" \n\r\t") != std::string::npos;
+}
+
+std::string getExePath()
+{
+    return "/Applications/Windscribe.app/Contents/Helpers";
+}
+
+bool isValidIpAddress(const std::string &address)
+{
+    struct sockaddr_in sa;
+    return inet_pton(AF_INET, address.c_str(), &(sa.sin_addr)) != 0;
+}
+
+bool isValidUrl(const std::string &address)
+{
+    if (isValidIpAddress(address)) {
+        return true;
+    }
+
+    auto url = skyr::parse(address);
+    // parsing still "succeeds" if there are invalid characters in the URL e.g. if there are characters which are invalid after the domain.
+    // check that the serialized URL is the same as the original.
+    if (!url || skyr::serialize(url.value()) != address) {
+        return false;
+    }
+
+    return true;
+}
+
+bool isValidDomain(const std::string &address)
+{
+    if (isValidIpAddress(address)) {
+        return false;
+    }
+
+    auto domain = skyr::parse_host(address);
+    if (!domain) {
+        return false;
+    }
+
+    return true;
 }
 
 } // namespace Utils

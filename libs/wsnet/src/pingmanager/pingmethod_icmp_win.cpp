@@ -19,6 +19,7 @@ PingMethodIcmp_win::PingMethodIcmp_win(EventCallbackManager_win &eventCallbackMa
 
 PingMethodIcmp_win::~PingMethodIcmp_win()
 {
+    eventCallbackManager_.remove(hEvent_);
     CloseHandle(hEvent_);
     if (icmpFile_ != INVALID_HANDLE_VALUE)
         IcmpCloseHandle(icmpFile_);
@@ -52,7 +53,6 @@ void PingMethodIcmp_win::ping(bool isFromDisconnectedVpnState)
     // Attach an event to a callback function
     eventCallbackManager_.add(hEvent_, std::bind(&PingMethodIcmp_win::onCallback, this));
 
-    //TODO: if this deleted before callback?
     DWORD result = ::IcmpSendEcho2(icmpFile_, hEvent_, NULL, NULL, ipAddr.S_un.S_addr,
                                    (LPVOID)dataForSend, sizeof(dataForSend), NULL,
                                    replyBuffer_.get(), replySize_, 2000);
@@ -63,8 +63,7 @@ void PingMethodIcmp_win::ping(bool isFromDisconnectedVpnState)
         return;
     }
     else if (::GetLastError() != ERROR_IO_PENDING) {
-        spdlog::error("PingHost_ICMP_win IcmpSendEcho2 failed, error: {}", ::GetLastError());
-        assert(false);
+        // This is normal behaviour, can return the result immediately without a callback
         callFinished();
         return;
     }

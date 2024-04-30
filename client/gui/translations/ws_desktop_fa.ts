@@ -1850,8 +1850,8 @@ Connect to a network first</source>
         <translation>این ادرس IP یا محدوده توسط Windscribe رزرو شده است و نمی توان ان را تغییر داد.</translation>
     </message>
     <message>
-        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
-        <translation>تعداد زیادی اییپ یا نام میزبان در لیست وجود دارد. لطفا قبل از اضافه کردن بیشتر، برخی از انها را حذف کنید.</translation>
+        <source>There are too many hostnames in the list. Please remove some before adding more.</source>
+        <translation>تعداد زیادی نام میزبان در لیست وجود دارد. لطفا قبل از اضافه کردن بیشتر، برخی از انها را حذف کنید.</translation>
     </message>
 </context>
 <context>

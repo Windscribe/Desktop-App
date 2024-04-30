@@ -105,6 +105,8 @@ bool ExecutableSignaturePrivate::verifyEmbeddedSignature(const std::wstring &exe
     WinTrustData.pSIPClientData = NULL;
     WinTrustData.dwUIChoice = WTD_UI_NONE;
     WinTrustData.fdwRevocationChecks = WTD_REVOKE_NONE;
+    // Prevent revocation checks over the network as they can take quite some time (~15-20s observed by some customers).
+    WinTrustData.dwProvFlags = WTD_CACHE_ONLY_URL_RETRIEVAL;
     WinTrustData.dwUnionChoice = WTD_CHOICE_FILE;
     WinTrustData.dwStateAction = WTD_STATEACTION_VERIFY;
     WinTrustData.hWVTStateData = NULL;

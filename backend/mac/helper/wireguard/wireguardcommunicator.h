@@ -8,7 +8,7 @@ class WireGuardCommunicator
 public:
     WireGuardCommunicator() = default;
 
-    bool start(const std::string &exePath, const std::string &executable, const std::string &deviceName);
+    bool start(const std::string &deviceName);
     bool stop();
 
     bool configure(const std::string &clientPrivateKey, const std::string &peerPublicKey,

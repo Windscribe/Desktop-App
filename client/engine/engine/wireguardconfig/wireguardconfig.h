@@ -31,7 +31,7 @@ public:
     void setClientListenPort(const QString &listenPort) { client_.listenPort = listenPort; }
     bool haveServerGeneratedPeerParams() const;
 
-    bool generateConfigFile(const QString &fileName) const;
+    QString generateConfigFile() const;
 
     bool generateKeyPair();
     bool haveKeyPair() const;

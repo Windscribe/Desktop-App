@@ -142,50 +142,22 @@ OpenVPNConnection::CONNECTION_STATUS OpenVPNConnection::getCurrentState() const
 
 IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const types::ProxySettings &proxySettings, unsigned long &outCmdId, bool isCustomConfig)
 {
-#ifdef Q_OS_WIN
     QString httpProxy, socksProxy;
     unsigned int httpPort = 0, socksPort = 0;
 
-    if (proxySettings.option() == PROXY_OPTION_HTTP)
-    {
+    if (proxySettings.option() == PROXY_OPTION_HTTP) {
         httpProxy = proxySettings.address();
         httpPort = proxySettings.getPort();
-    }
-    else if (proxySettings.option() == PROXY_OPTION_SOCKS)
-    {
+    } else if (proxySettings.option() == PROXY_OPTION_SOCKS) {
         socksProxy = proxySettings.address();
         socksPort = proxySettings.getPort();
-    }
-    else if (proxySettings.option() == PROXY_OPTION_AUTODETECT)
-    {
+    } else if (proxySettings.option() == PROXY_OPTION_AUTODETECT) {
         WS_ASSERT(false);
     }
 
     qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getOpenVpnVersion();
 
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    return helper_win->executeOpenVPN(config_, port, httpProxy, httpPort, socksProxy, socksPort, outCmdId, isCustomConfig);
-
-#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
-    QString strCommand = "--management 127.0.0.1 " + QString::number(port) + " --management-query-passwords --management-hold --verb 3";
-    if (proxySettings.option() == PROXY_OPTION_HTTP)
-    {
-        strCommand += " --http-proxy " + proxySettings.address() + " " + QString::number(proxySettings.getPort()) + " auto";
-    }
-    else if (proxySettings.option() == PROXY_OPTION_SOCKS)
-    {
-        strCommand += " --socks-proxy " + proxySettings.address() + " " + QString::number(proxySettings.getPort());
-    }
-    else if (proxySettings.option() == PROXY_OPTION_AUTODETECT)
-    {
-        WS_ASSERT(false);
-    }
-    qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getOpenVpnVersion();
-    //qCDebug(LOG_CONNECTION) << strCommand;
-
-    Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-    return helper_posix->executeOpenVPN(config_, strCommand, outCmdId, isCustomConfig);
-#endif
+    return helper_->executeOpenVPN(config_, port, httpProxy, httpPort, socksProxy, socksPort, outCmdId, isCustomConfig);
 }
 
 void OpenVPNConnection::run()

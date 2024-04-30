@@ -1850,8 +1850,8 @@ Connect to a network first</source>
         <translation>この IP アドレスまたは範囲は Windscribe によって予約されており、変更することはできません。</translation>
     </message>
     <message>
-        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
-        <translation>リスト内の IP またはホスト名が多すぎます。さらに追加する前に、いくつかを削除してください。</translation>
+        <source>There are too many hostnames in the list. Please remove some before adding more.</source>
+        <translation>リスト内のホスト名が多すぎます。さらに追加する前に、いくつかを削除してください。</translation>
     </message>
 </context>
 <context>

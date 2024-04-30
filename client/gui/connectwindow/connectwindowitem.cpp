@@ -210,6 +210,9 @@ void ConnectWindowItem::updateLocationInfo(const QString &firstName, const QStri
     // if custom but button is visible, make it invisible
     // if not custom but button is invisible, make it visible
     connectStateProtocolPort_->setProtocolButtonVisible(!isCustomConfig);
+
+    // If the user is in custom config mode, ensure the protocol line is not clickable to prevent display of the protocol selection screen.
+    connectStateProtocolPort_->setClickableHoverable(!isCustomConfig, true);
 }
 
 void ConnectWindowItem::updateConnectState(const types::ConnectState &newConnectState)
@@ -361,7 +364,6 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
     {
         if (connectionTime_ != "") // only show if connection has been started at least once
         {
-
             QGraphicsView *view = scene()->views().first();
             QPoint globalPt = view->mapToGlobal(view->mapFromScene(connectStateProtocolPort_->scenePos()));
 

@@ -23,10 +23,11 @@ namespace Utils
     std::wstring guidToStr(const GUID &guid);
     std::wstring getExePath();
     std::wstring getDirPathFromFullPath(std::wstring &fullPath);
+    std::wstring getConfigPath();
     std::wstring getSystemDir();
     bool isValidFileName(std::wstring &filename);
     bool isFileExists(const wchar_t *path);
-    bool noSpacesInString(std::wstring &str);
+    bool hasWhitespaceInString(std::wstring &str);
     bool verifyWindscribeProcessPath(HANDLE hPipe);
     bool iequals(const std::wstring &a, const std::wstring &b);
 

@@ -17,5 +17,4 @@ public:
     // linux specific
     std::optional<bool> installUpdate(const QString& package) const;
     bool setDnsLeakProtectEnabled(bool bEnabled);
-    bool checkForWireGuardKernelModule();
 };

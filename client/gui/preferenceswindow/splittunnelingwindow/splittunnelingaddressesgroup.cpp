@@ -13,7 +13,7 @@
 namespace PreferencesWindow {
 
 SplitTunnelingAddressesGroup::SplitTunnelingAddressesGroup(ScalableGraphicsObject *parent, const QString &desc, const QString &descUrl)
-  : PreferenceGroup(parent, desc, descUrl)
+  : PreferenceGroup(parent, desc, descUrl), numDomains_(0)
 {
     setFlags(flags() | QGraphicsItem::ItemIsFocusable);
 
@@ -33,6 +33,7 @@ void SplitTunnelingAddressesGroup::setAddresses(QList<types::SplitTunnelingNetwo
         addresses_.remove(item);
         hideItems(indexOf(item), -1, DISPLAY_FLAGS::FLAG_DELETE_AFTER);
     }
+    numDomains_ = 0;
 
     for (types::SplitTunnelingNetworkRoute addr : addresses) {
         addAddressInternal(addr);
@@ -48,9 +49,12 @@ void SplitTunnelingAddressesGroup::addAddress(types::SplitTunnelingNetworkRoute 
 
 void SplitTunnelingAddressesGroup::addAddressInternal(types::SplitTunnelingNetworkRoute &address)
 {
-    if (size() > kMaxAddresses) {
-        emit setError(tr("There are too many IPs or hostnames in the list. Please remove some before adding more."));
-        return;
+    if (IpValidation::isDomain(address.name)) {
+        if (numDomains_ >= kMaxDomains) {
+            emit setError(tr("There are too many hostnames in the list. Please remove some before adding more."));
+            return;
+        }
+        numDomains_++;
     }
 
     AddressItem *item = new AddressItem(address, this);
@@ -98,6 +102,9 @@ void SplitTunnelingAddressesGroup::onAddClicked(QString address)
 void SplitTunnelingAddressesGroup::onDeleteClicked()
 {
     AddressItem *item = static_cast<AddressItem *>(sender());
+    if (IpValidation::isDomain(item->getAddressText())) {
+        numDomains_--;
+    }
     addresses_.remove(item);
     hideItems(indexOf(item), -1, DISPLAY_FLAGS::FLAG_DELETE_AFTER);
     emit addressesUpdated(addresses_.values());

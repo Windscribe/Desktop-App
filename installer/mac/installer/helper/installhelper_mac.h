@@ -6,5 +6,8 @@
 class InstallHelper_mac
 {
 public:
-    static bool installHelper();
+    static bool installHelper(bool bForceDeleteOld);
+
+private:
+    static bool isAppMajorMinorVersionSame();
 };

@@ -188,6 +188,7 @@ BaseRequest *requests_factory::pingTest(std::uint32_t timeoutMs, RequestFinished
     auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kTunnelTest, RequestPriority::kHigh, "PingTest", std::map<std::string, std::string>(), callback);
     request->setIgnoreJsonParse();
     request->setTimeout(timeoutMs);
+    request->setUseDnsCache(false);
     return request;
 }
 

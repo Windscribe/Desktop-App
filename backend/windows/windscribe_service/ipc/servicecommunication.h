@@ -55,6 +55,7 @@
 #define AA_COMMAND_REMOVE_OPENVPN_ADAPTER                   52
 #define AA_COMMAND_DISABLE_DOH_SETTINGS                     53
 #define AA_COMMAND_ENABLE_DOH_SETTINGS                      54
+#define AA_COMMAND_CONFIGURE_WIREGUARD                      55
 
 #include <string>
 #include <vector>
@@ -116,7 +117,6 @@ struct CMD_WMIC_GET_CONFIG_ERROR_CODE
 
 struct CMD_RUN_OPENVPN
 {
-    std::wstring    szOpenVpnExecutable;
     std::wstring    szConfig;
     unsigned int    portNumber = 0;
     std::wstring    szHttpProxy;           // empty string, if no http
@@ -218,22 +218,9 @@ struct CMD_CHANGE_MTU
     std::wstring szAdapterName;
 };
 
-struct CMD_START_WIREGUARD
-{
-    std::wstring    szExecutable;
-    std::wstring    szDeviceName;
-};
-
 struct CMD_CONFIGURE_WIREGUARD
 {
-    std::string     clientPrivateKey;
-    std::string     clientIpAddress;
-    std::string     clientDnsAddressList;
-    std::string     peerPublicKey;
-    std::string     peerPresharedKey;
-    std::string     peerEndpoint;
-    std::string     allowedIps;
-    uint16_t        listenPort;
+    std::wstring config;
 };
 
 struct CMD_DISABLE_DNS_TRAFFIC

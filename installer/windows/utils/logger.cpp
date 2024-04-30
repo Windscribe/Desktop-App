@@ -72,6 +72,9 @@ void Log::out(const wstring& message)
     if (installing_) {
         lock_guard<recursive_mutex> lock(mutex_);
         logEntries_.push_back(stream.str());
+        // Always also output to the system debugger.  In the event of an installer crash or hiccup, the log
+        // file may not be created thereby making it difficult for us to debug the issue.
+        ::OutputDebugStringW(stream.str().c_str());
     }
     else {
         // The uninstaller logs to the system debugger, so we do not leave an uninstaller log

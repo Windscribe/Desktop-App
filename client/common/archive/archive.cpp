@@ -22,8 +22,7 @@ using namespace std;
 #ifdef _WIN32
 Archive::Archive(const wstring& name)
 #else
-Archive::Archive(const wstring &name, uid_t userId, gid_t groupId) : file_size(0), pData(NULL),
-    userId_(userId), groupId_(groupId)
+Archive::Archive(const wstring &name) : file_size(0), pData(NULL)
 #endif
 {
     importantTotalUnpacked=0;
@@ -117,22 +116,25 @@ Archive::Archive(const wstring &name, uid_t userId, gid_t groupId) : file_size(0
 
 Archive::~Archive()
 {
+    if (lookStream.buf != nullptr) {
+        ISzAlloc_Free(&allocImp, lookStream.buf);
+    }
+
+    if (temp != nullptr) {
+        SzFree(nullptr, temp);
+    }
+
+#ifndef _WIN32
+    if (pData) {
+        free(pData);
+    }
+#endif
+
+    SzArEx_Free(&db, &allocImp);
+
 #ifdef _WIN32
     FreeResource(hGlobal); // done with data
 #endif
-
-    if (pData)
-    {
-        SzArEx_Free(&db, &allocImp);
-
-        if(lookStream.buf!=nullptr)
-        {
-            ISzAlloc_Free(&allocImp, lookStream.buf);
-        }
-
-        SzFree(nullptr, temp);
-        free(pData);
-    }
 }
 
 void Archive::setLogFunction(const std::function<void (const char *)> &logFunc)
@@ -342,9 +344,7 @@ WRes Archive::MyCreateDir(const UInt16 *name)
     mkdir(reinterpret_cast<const char *>(buf.data), 0777)
 #endif
         == 0 ? 0 : errno);
-#ifndef _WIN32
-    chown(reinterpret_cast<const char *>(buf.data), userId_, groupId_);
-#endif
+
     Buf_Free(&buf, &g_Alloc);
 
     return res;
@@ -892,7 +892,6 @@ SRes Archive::extractionFile(const UInt32 &i)
             memcpy(symlinkStr, outBuffer + offset, processedSize);
             symlinkStr[processedSize] = '\0';
             symlink(symlinkStr, reinterpret_cast<const char *>(buf.data));
-            lchown(reinterpret_cast<const char *>(buf.data), userId_, groupId_);
             PrintLF();
             Buf_Free(&buf, &g_Alloc);
             delete[] symlinkStr;
@@ -949,8 +948,6 @@ SRes Archive::extractionFile(const UInt32 &i)
             return SZ_ERROR_FAIL;
         }
 
-        // set file owner
-        chown(reinterpret_cast<const char *>(buf.data), userId_, groupId_);
         Buf_Free(&buf, &g_Alloc);
     }
 #endif

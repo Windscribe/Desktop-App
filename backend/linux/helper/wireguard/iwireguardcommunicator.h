@@ -7,10 +7,7 @@
 class IWireGuardCommunicator
 {
 public:
-    virtual bool start(
-        const std::string &exePath,
-        const std::string &executable,
-        const std::string &deviceName) = 0;
+    virtual bool start(const std::string &deviceName) = 0;
     virtual bool stop() = 0;
     virtual bool configure(
         const std::string &clientPrivateKey,

@@ -14,6 +14,7 @@
 #include "../../utils/applicationinfo.h"
 #include "../../utils/logger.h"
 #include "../../utils/path.h"
+#include "wsscopeguard.h"
 
 using namespace std;
 
@@ -23,13 +24,7 @@ Installer::Installer() : InstallerBase(), state_(STATE_INIT), progress_(0), erro
 
 Installer::~Installer()
 {
-    for (list<IInstallBlock *>::iterator it = blocks_.begin(); it != blocks_.end(); ++it) {
-        IInstallBlock *install_block = (*it);
-
-        if (install_block != nullptr) {
-            delete install_block;
-        }
-    }
+    deleteBlocks();
 }
 
 void Installer::startImpl()
@@ -62,6 +57,10 @@ void Installer::executionImpl()
     callback_();
 
     vector<DWORD> ticks;
+
+    auto exitGuard = wsl::wsScopeGuard([&] {
+        deleteBlocks();
+    });
 
     for (list<IInstallBlock *>::iterator it = blocks_.begin(); it != blocks_.end(); ++it) {
         DWORD initTick = GetTickCount();
@@ -112,6 +111,10 @@ void Installer::executionImpl()
 
     }
 
+    // Delete blocks to catch any memory access/corruption errors now rather than when the program exits.
+    deleteBlocks();
+    exitGuard.dismiss();
+
     state_ = STATE_FINISHED;
     progress_ = 100;
     callback_();
@@ -148,4 +151,16 @@ void Installer::setCallback(function<void()> func)
 INSTALLER_ERROR Installer::lastError()
 {
     return error_;
+}
+
+void Installer::deleteBlocks()
+{
+    for (list<IInstallBlock *>::iterator it = blocks_.begin(); it != blocks_.end();) {
+        IInstallBlock *install_block = (*it);
+        if (install_block != nullptr) {
+            Log::instance().out(L"Deleting block resource " + install_block->getName());
+            delete install_block;
+        }
+        it = blocks_.erase(it);
+    }
 }

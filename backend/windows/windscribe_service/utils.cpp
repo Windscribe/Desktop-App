@@ -2,6 +2,8 @@
 #include "utils.h"
 #include "logger.h"
 #include <comdef.h>
+#include <KnownFolders.h>
+#include <shlobj.h>
 #include <WbemIdl.h>
 #include <versionhelpers.h>
 #include "../../../client/common/utils/executable_signature/executable_signature.h"
@@ -126,9 +128,9 @@ bool isFileExists(const wchar_t *path)
     return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 }
 
-bool noSpacesInString(std::wstring &str)
+bool hasWhitespaceInString(std::wstring &str)
 {
-    return str.find_first_of(L" ") == std::wstring::npos;
+    return str.find_first_of(L" \n\r\t") != std::wstring::npos;
 }
 
 bool iequals(const std::wstring &a, const std::wstring &b)
@@ -143,61 +145,42 @@ bool verifyWindscribeProcessPath(HANDLE hPipe)
 {
 #if defined(USE_SIGNATURE_CHECK)
     // NOTE: a test project is archived with issue 546 for testing this method.
-
-    static DWORD pidVerified = 0;
-
-    std::wostringstream output;
-
+    DWORD dwStart = ::GetTickCount();
     DWORD pidClient = 0;
     BOOL result = ::GetNamedPipeClientProcessId(hPipe, &pidClient);
-    if (result == FALSE)
-    {
-        output << "GetNamedPipeClientProcessId failed. Err = " << ::GetLastError();
-        Logger::instance().out(output.str().c_str());
+    if (result == FALSE) {
+        Logger::instance().out(L"verifyWindscribeProcessPath GetNamedPipeClientProcessId failed %lu", ::GetLastError());
         return false;
     }
 
-    if ((pidClient > 0) && (pidClient == pidVerified)) {
-        return true;
-    }
-
     wsl::Win32Handle processHandle(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pidClient));
-    if (!processHandle.isValid())
-    {
-        output << "OpenProcess failed. Err = " << ::GetLastError();
-        Logger::instance().out(output.str().c_str());
+    if (!processHandle.isValid()) {
+        Logger::instance().out(L"verifyWindscribeProcessPath OpenProcess failed %lu", ::GetLastError());
         return false;
     }
 
     wchar_t path[MAX_PATH];
-    if (::GetModuleFileNameEx(processHandle.getHandle(), NULL, path, MAX_PATH) == 0)
-    {
-        output << "GetModuleFileNameEx failed. Err = " << ::GetLastError();
-        Logger::instance().out(output.str().c_str());
+    if (::GetModuleFileNameEx(processHandle.getHandle(), NULL, path, MAX_PATH) == 0) {
+        Logger::instance().out(L"verifyWindscribeProcessPath GetModuleFileNameEx failed %lu", ::GetLastError());
         return false;
     }
 
     std::wstring windscribeExePath = getExePath() + std::wstring(L"\\Windscribe.exe");
 
-    if (!iequals(windscribeExePath, path))
-    {
-        output << "verifyWindscribeProcessPath invalid process path: " << std::wstring(path);
-        Logger::instance().out(output.str().c_str());
+    if (!iequals(windscribeExePath, path)) {
+        Logger::instance().out(L"verifyWindscribeProcessPath invalid process path: %s", path);
         return false;
     }
 
     ExecutableSignature sigCheck;
-    if (!sigCheck.verify(path))
-    {
-        output << "verifyWindscribeProcessPath signature verify failed. Err = " << sigCheck.lastError().c_str();
-        Logger::instance().out(output.str().c_str());
+    if (!sigCheck.verify(path)) {
+        Logger::instance().out(L"verifyWindscribeProcessPath signature verify failed. Err = %hs", sigCheck.lastError().c_str());
         return false;
     }
 
-    //output << "verifyWindscribeProcessPath signature verified for " << std::wstring(path);
-    //Logger::instance().out(output.str().c_str());
+    DWORD dwElapsed = ::GetTickCount() - dwStart;
+    Logger::instance().debugOut("verifyWindscribeProcessPath signature verified for %ls in %lu ms", path, dwElapsed);
 
-    pidVerified = pidClient;
     return true;
 #else
     (void)hPipe;
@@ -511,6 +494,31 @@ bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
         }
     }
     return success;
+}
+
+std::wstring getConfigPath()
+{
+    // To prevent shenanigans with various TOCTOU exploits, the config file should be in Program Files,
+    // which is only writable by administrators
+    wchar_t* programFilesPath = NULL;
+    HRESULT hr = SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, NULL, &programFilesPath);
+    if (FAILED(hr)) {
+        Logger::instance().out("Failed to get Program Files dir");
+        CoTaskMemFree(programFilesPath);
+        return L"";
+    }
+
+    std::wstringstream filePath;
+    filePath << programFilesPath;
+    CoTaskMemFree(programFilesPath);
+    filePath << L"\\Windscribe\\config";
+    int ret = SHCreateDirectoryEx(NULL, filePath.str().c_str(), NULL);
+    if (ret != ERROR_SUCCESS && ret != ERROR_ALREADY_EXISTS) {
+        Logger::instance().out("Failed to create config dir");
+        return L"";
+    }
+
+    return filePath.str();
 }
 
 std::wstring getSystemDir()

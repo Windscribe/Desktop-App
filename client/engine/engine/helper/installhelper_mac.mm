@@ -1,6 +1,8 @@
 #include "installhelper_mac.h"
-#include "utils/logger.h"
+
+#include "../../../common/version/windscribe_version.h"
 #include "names.h"
+#include "utils/logger.h"
 
 #import <Foundation/Foundation.h>
 #import <ServiceManagement/ServiceManagement.h>
@@ -34,10 +36,11 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
 
         qCDebug(LOG_BASIC) << "current helper version: " << (long)currentVersion;
 
-        if (installedVersion == currentVersion) {
+        if (installedVersion == currentVersion && isAppMajorMinorVersionSame()) {
             return true;
-        } else if (installedVersion > currentVersion) {
-            // If we are downgrading, we need to uninstall the previous helper first (SMJobBless will not let us downgrade)
+        } else if (installedVersion >= currentVersion) {
+            // If we are downgrading, (or the helper version is the same but app version differs),
+            // we need to uninstall the previous helper first (SMJobBless will not let us downgrade)
             uninstallHelper();
         }
     } else {
@@ -92,4 +95,28 @@ bool InstallHelper_mac::uninstallHelper()
         qCDebug(LOG_BASIC) << "Removed previous helper.";
         return false;
     }
+}
+
+bool InstallHelper_mac::isAppMajorMinorVersionSame()
+{
+    CFURLRef url = CFURLCreateWithString(NULL, CFSTR("/Applications/Windscribe.app"), NULL);
+    if (url == NULL) {
+        return false;
+    }
+
+    CFBundleRef bundle = CFBundleCreate(NULL, url);
+    CFRelease(url);
+
+    if (bundle == NULL) {
+        return false;
+    }
+
+    CFStringRef version = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(bundle, kCFBundleVersionKey);
+    CFRelease(bundle);
+
+    if (version && CFStringHasPrefix(version, CFSTR(WINDSCRIBE_MAJOR_MINOR_VERSION_STR))) {
+        return true;
+    }
+
+    return false;
 }

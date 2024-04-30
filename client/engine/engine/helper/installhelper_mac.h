@@ -8,4 +8,7 @@ class InstallHelper_mac
 public:
     static bool installHelper(bool &isUserCanceled);
     static bool uninstallHelper();
+
+private:
+    static bool isAppMajorMinorVersionSame();
 };

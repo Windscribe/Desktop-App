@@ -1850,8 +1850,8 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
         <translation>Alamat atau rentang IP ini dicadangkan oleh Windscribe dan tidak dapat diubah.</translation>
     </message>
     <message>
-        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
-        <translation>Ada terlalu banyak IP atau nama host dalam daftar. Harap hapus beberapa sebelum menambahkan lebih banyak.</translation>
+        <source>There are too many hostnames in the list. Please remove some before adding more.</source>
+        <translation>Ada terlalu banyak nama host dalam daftar. Harap hapus beberapa sebelum menambahkan lebih banyak.</translation>
     </message>
 </context>
 <context>

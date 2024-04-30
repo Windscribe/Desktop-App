@@ -15,6 +15,7 @@ namespace LinuxUtils
     QString getLinuxKernelVersion();
     QString getDistroName();
     const QString getLastInstallPlatform();
+    gid_t getWindscribeGid();
 
     // CLI
     bool isGuiAlreadyRunning();

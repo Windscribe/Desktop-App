@@ -1850,8 +1850,8 @@ Connect to a network first</source>
         <translation>이 IP 주소 또는 범위는 Windscribe에 의해 예약되며 변경할 수 없습니다.</translation>
     </message>
     <message>
-        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
-        <translation>목록에 IP 또는 호스트 이름이 너무 많습니다. 더 추가하기 전에 일부를 제거하십시오.</translation>
+        <source>There are too many hostnames in the list. Please remove some before adding more.</source>
+        <translation>목록에 호스트 이름이 너무 많습니다. 더 추가하기 전에 일부를 제거하십시오.</translation>
     </message>
 </context>
 <context>

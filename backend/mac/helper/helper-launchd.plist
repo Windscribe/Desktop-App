@@ -6,5 +6,10 @@
     <string>com.windscribe.helper.macos</string>
     <key>KeepAlive</key>
     <true/>
+    <key>MachServices</key>
+    <dict>
+       <key>com.windscribe.helper.macos</key>
+       <true/>
+     </dict>
 </dict>
 </plist>

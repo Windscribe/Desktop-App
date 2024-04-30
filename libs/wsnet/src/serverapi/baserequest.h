@@ -42,6 +42,10 @@ public:
 
     RequestPriority priority() const { return priority_; }
 
+    bool isUseDnsCache() const { return isUseDnsCache_; }
+    void setUseDnsCache(bool isUse) { isUseDnsCache_ = isUse; }
+
+
     bool isWriteToLog() const { return isWriteToLog_; }
     void setNotWriteToLog() { isWriteToLog_ = false; }
 
@@ -53,6 +57,7 @@ protected:
     HttpMethod requestType_;
     SubdomainType subDomainType_;
     RequestPriority priority_;
+    bool isUseDnsCache_ = true;
     std::string name_;
     std::map<std::string, std::string> extraParams_;
     RequestFinishedCallback callback_;

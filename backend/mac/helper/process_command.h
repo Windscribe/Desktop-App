@@ -39,6 +39,7 @@ CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia);
 CMD_ANSWER startStunnel(boost::archive::text_iarchive &ia);
 CMD_ANSWER startWstunnel(boost::archive::text_iarchive &ia);
 CMD_ANSWER installerCreateCliSymlinkDir(boost::archive::text_iarchive &ia);
+CMD_ANSWER getHelperVersion(boost::archive::text_iarchive &ia);
 
 static const std::map<const int, std::function<CMD_ANSWER(boost::archive::text_iarchive &)>> kCommands = {
     { HELPER_CMD_START_OPENVPN, startOpenvpn },
@@ -71,6 +72,7 @@ static const std::map<const int, std::function<CMD_ANSWER(boost::archive::text_i
     { HELPER_CMD_START_STUNNEL, startStunnel },
     { HELPER_CMD_START_WSTUNNEL, startWstunnel },
     { HELPER_CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR, installerCreateCliSymlinkDir },
+    { HELPER_CMD_HELPER_VERSION, getHelperVersion }
 };
 
-CMD_ANSWER processCommand(int cmdId, const std::string packet);
+CMD_ANSWER processCommand(int cmdId, const std::string &packet);

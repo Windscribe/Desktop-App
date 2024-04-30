@@ -9,6 +9,8 @@
 
 #include <codecvt>
 #include <filesystem>
+#include <fstream>
+#include <iostream>
 #include <sstream>
 
 #include "../../../client/common/utils/servicecontrolmanager.h"
@@ -18,6 +20,7 @@
 #include "../ipc/servicecommunication.h"
 #include "../logger.h"
 #include "../utils.h"
+#include "utils/executable_signature/executable_signature.h"
 
 static const DEVPROPKEY WG_DEVP_KEYNAME = DEVPKEY_WG_NAME;
 
@@ -26,18 +29,18 @@ WireGuardController::WireGuardController()
 {
 }
 
-bool WireGuardController::installService(const std::wstring &exeName, const std::wstring &configFile)
+bool WireGuardController::installService()
 {
     is_initialized_ = false;
     try {
-        exeName_ = exeName + L".exe";
-
-        {
-            std::filesystem::path path(configFile);
-            deviceName_ = path.stem().native();
+        exeName_ = L"WireguardService.exe";
+        std::wstring serviceName = L"WireGuardTunnel$" + kServiceIdentifier;
+        std::wstring configPath = Utils::getConfigPath();
+        if (configPath.empty()) {
+            Logger::instance().out("Could not get config path");
+            return false;
         }
-
-        std::wstring serviceName = L"WireGuardTunnel$" + deviceName_;
+        std::wstring configFile = configPath + L"\\" + kServiceIdentifier + L".conf";
 
         std::wstring serviceCmdLine;
         {
@@ -56,6 +59,15 @@ bool WireGuardController::installService(const std::wstring &exeName, const std:
                 Logger::instance().out("WireGuardController::installService - failed to delete existing WireGuard service (%d)", ec.value());
             }
         }
+
+#if defined(USE_SIGNATURE_CHECK)
+        ExecutableSignature sigCheck;
+        std::wstring servicePath = Utils::getExePath() + L"\\" + exeName_;
+        if (!sigCheck.verify(servicePath)) {
+            Logger::instance().out("WireGuard service signature incorrect: %s", sigCheck.lastError().c_str());
+            return false;
+        }
+#endif
 
         svcCtrl.installService(serviceName.c_str(), serviceCmdLine.c_str(),
             L"Windscribe Wireguard Tunnel", L"Manages the Windscribe WireGuard tunnel connection",
@@ -76,15 +88,7 @@ bool WireGuardController::deleteService()
 {
     is_initialized_ = false;
 
-    std::wstring serviceName(L"WireGuardTunnel$");
-    if (deviceName_.empty()) {
-        // Use the default device name if we don't have one.  This could occur when this method is called
-        // after the helper has been restarted or the machine rebooted after a fault.
-        serviceName += L"WindscribeWireguard";
-    }
-    else {
-        serviceName += deviceName_;
-    }
+    std::wstring serviceName(L"WireGuardTunnel$" + kServiceIdentifier);
 
     bool bServiceDeleted = false;
     try {
@@ -111,6 +115,12 @@ bool WireGuardController::deleteService()
         ExecuteCmd::instance().executeBlockingCmd(killCmd);
     }
 
+    std::wstring configPath = Utils::getConfigPath();
+    if (configPath.empty()) {
+        Logger::instance().out("Could not get config path");
+    } else {
+        std::filesystem::remove(configPath + L"\\" + kServiceIdentifier + L".conf");
+    }
     return bServiceDeleted;
 }
 
@@ -229,7 +239,7 @@ HANDLE WireGuardController::getKernelInterfaceHandle() const
 
         // requiredSize count includes the null terminator.
         std::wstring adapterName((LPCWSTR)buffer.get(), requiredSize / sizeof(wchar_t) - 1);
-        if (!Utils::iequals(adapterName, deviceName_)) {
+        if (!Utils::iequals(adapterName, kServiceIdentifier)) {
             continue;
         }
 
@@ -279,8 +289,30 @@ HANDLE WireGuardController::getKernelInterfaceHandle() const
 
     if (hKernelInterface == INVALID_HANDLE_VALUE) {
         throw std::system_error(ERROR_FILE_NOT_FOUND, std::generic_category(),
-            "WireGuardController::getKernelInterfaceHandle - could not find the wireguard-nt kernal interface file descriptor");
+            "WireGuardController::getKernelInterfaceHandle - could not find the wireguard-nt kernel interface file descriptor");
     }
 
     return hKernelInterface;
+}
+
+bool WireGuardController::configure(const std::wstring &config)
+{
+    std::wstring configPath = Utils::getConfigPath();
+    if (configPath.empty()) {
+        Logger::instance().out("Could not get config path");
+        return false;
+    }
+    std::wstring configFile = configPath + L"\\" + kServiceIdentifier + L".conf";
+
+    std::wofstream file(configFile.c_str(), std::ios::out | std::ios::trunc);
+    if (!file) {
+        Logger::instance().out("WireGuardController::configure - could not open config file for writing");
+        return false;
+    }
+
+    file << config;
+    file.flush();
+    file.close();
+
+    return true;
 }

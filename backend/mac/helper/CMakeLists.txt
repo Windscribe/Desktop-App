@@ -7,6 +7,7 @@ project(com.windscribe.helper.macos)
 
 find_package(Boost REQUIRED COMPONENTS serialization thread)
 find_package(7zip CONFIG REQUIRED)
+find_package(skyr-url CONFIG REQUIRED)
 
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
 option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
@@ -85,6 +86,7 @@ target_link_libraries(com.windscribe.helper.macos
                       Boost::serialization
                       Boost::thread
                       7zip::7zip
+                      skyr::skyr-url
                       "-framework Foundation"
                       "-framework Security"
                       "-framework SystemConfiguration"

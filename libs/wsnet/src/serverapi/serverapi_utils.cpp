@@ -26,6 +26,9 @@ std::shared_ptr<WSNetHttpRequest> serverapi_utils::createHttpRequestWithFailover
         assert(false);
     }
 
+    if (!request->isUseDnsCache())
+        httpRequest->setUseDnsCache(false);
+
     if (!failoverData.echConfig().empty())
         httpRequest->setEchConfig(failoverData.echConfig());
 

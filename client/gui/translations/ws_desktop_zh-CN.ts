@@ -1850,8 +1850,8 @@ Connect to a network first</source>
         <translation>此IP地址或范围由Windscribe保留，无法更改。</translation>
     </message>
     <message>
-        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
-        <translation>列表中的 IP 或主机名过多。在添加更多之前，请删除一些。</translation>
+        <source>There are too many hostnames in the list. Please remove some before adding more.</source>
+        <translation>列表中的主机名太多。在添加更多内容之前，请删除一些内容。</translation>
     </message>
 </context>
 <context>

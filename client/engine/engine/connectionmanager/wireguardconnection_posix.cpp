@@ -17,7 +17,6 @@ class WireGuardConnectionImpl
 public:
     explicit WireGuardConnectionImpl(WireGuardConnection *host);
     void setConfig(const WireGuardConfig *wireGuardConfig, const QString &overrideDnsIp);
-    void setUsingKernelModule(bool usingKernelModule);
     void connect();
     void configure();
     void disconnect();
@@ -31,14 +30,12 @@ private:
     QString adapterName_;
     WireGuardConfig config_;
     bool isStarted_;
-    bool usingKernelModule_;
 };
 
 WireGuardConnectionImpl::WireGuardConnectionImpl(WireGuardConnection *host)
     : host_(host),
       adapterName_(WireGuardConnection::getWireGuardAdapterName()),
-      isStarted_(false),
-      usingKernelModule_(false)
+      isStarted_(false)
 {
 }
 
@@ -58,12 +55,8 @@ void WireGuardConnectionImpl::connect()
     if (!isStarted_) {
         int retry = 0;
         IHelper::ExecuteError err;
-        QString exeName;
 
-        if (!usingKernelModule_)
-            exeName = WireGuardConnection::getWireGuardExeName();
-
-        while ((err = host_->helper_->startWireGuard(exeName, adapterName_)) != IHelper::EXECUTE_SUCCESS)
+        while ((err = host_->helper_->startWireGuard()) != IHelper::EXECUTE_SUCCESS)
         {
             // don't bother another attempt if signature is invalid
             if (err == IHelper::EXECUTE_VERIFY_ERROR)
@@ -106,11 +99,6 @@ void WireGuardConnectionImpl::disconnect()
 bool WireGuardConnectionImpl::getStatus(types::WireGuardStatus *status)
 {
     return isStarted_ && host_->helper_->getWireGuardStatus(status);
-}
-
-void WireGuardConnectionImpl::setUsingKernelModule(bool usingKernelModule)
-{
-    usingKernelModule_ = usingKernelModule;
 }
 
 bool WireGuardConnectionImpl::stopWireGuard()
@@ -171,10 +159,6 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     isAutomaticConnectionMode_ = isAutomaticConnectionMode;
     pimpl_->setConfig(wireGuardConfig, overrideDnsIp);
 
-    // if kernel module became available, or is no longer available, update the state
-    using_kernel_module_ = checkForKernelModule();
-    pimpl_->setUsingKernelModule(using_kernel_module_);
-
     // note: route gateway not used for WireGuard in AdapterGatewayInfo
     adapterGatewayInfo_.clear();
     adapterGatewayInfo_.setAdapterName(pimpl_->getAdapterName());
@@ -212,12 +196,6 @@ bool WireGuardConnection::isDisconnected() const
 {
     return pimpl_->getAdapterName();
 }*/
-
-// static
-QString WireGuardConnection::getWireGuardExeName()
-{
-    return QString("windscribewireguard");
-}
 
 // static
 QString WireGuardConnection::getWireGuardAdapterName()
@@ -309,15 +287,12 @@ void WireGuardConnection::run()
 
 void WireGuardConnection::onProcessKillTimeout()
 {
-    if (!using_kernel_module_)
-    {
-        qCDebug(LOG_CONNECTION) << "WireGuard process not finished after "
-                                << PROCESS_KILL_TIMEOUT << "ms";
-        qCDebug(LOG_CONNECTION) << "kill the WireGuard process";
-        kill_process_timer_.stop();
-        Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-        helper_posix->executeTaskKill(kTargetWireGuard);
-    }
+    qCDebug(LOG_CONNECTION) << "WireGuard process not finished after "
+                            << PROCESS_KILL_TIMEOUT << "ms";
+    qCDebug(LOG_CONNECTION) << "kill the WireGuard process";
+    kill_process_timer_.stop();
+    Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
+    helper_posix->executeTaskKill(kTargetWireGuard);
 }
 
 WireGuardConnection::ConnectionState WireGuardConnection::getCurrentState() const
@@ -355,13 +330,4 @@ void WireGuardConnection::setError(CONNECT_ERROR err)
     current_state_ = ConnectionState::DISCONNECTED;
     do_stop_thread_ = true;
     emit error(err);
-}
-
-bool WireGuardConnection::checkForKernelModule()
-{
-#if defined(Q_OS_LINUX)
-    Helper_linux *helper_linux = dynamic_cast<Helper_linux *>(helper_);
-    return helper_linux->checkForWireGuardKernelModule();
-#endif
-    return false;
 }

@@ -18,7 +18,7 @@ CtrldManager_win::CtrldManager_win(QObject *parent, bool isCreateLog) : ICtrldMa
     process_->setProcessChannelMode(QProcess::MergedChannels);
 
     ctrldExePath_ = QCoreApplication::applicationDirPath() + "/windscribectrld.exe";
-    logPath_ = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "ctrld.log";
+    logPath_ = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/ctrld.log";
     listenIp_ = "127.0.0.1";    // default listen ip for ctrld utility
 }
 

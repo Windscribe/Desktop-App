@@ -1,8 +1,12 @@
+#include "wireguardconnection_win.h"
+
+#include <KnownFolders.h>
 #include <QScopeGuard>
 #include <QStandardPaths>
 #include <QTimer>
-
-#include "wireguardconnection_win.h"
+#include <shlobj.h>
+#include <KnownFolders.h>
+#include <sstream>
 
 #include "adapterutils_win.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
@@ -119,17 +123,10 @@ void WireGuardConnection::run()
 {
     BIND_CRASH_HANDLER_FOR_THREAD();
 
-    qCDebug(LOG_CONNECTION) << "Starting" << getWireGuardExeName();
-
-    // Design Notes:
-    // The wireguard embedded DLL service requires that the name of the configuration file we
-    // create matches the name of the service the helper installs.  The helper will install
-    // the service using the name WireGuardTunnel$ConfFileName
-
-    QString configFile = QString("%1/%2.conf").arg(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation), kServiceIdentifier);
+    qCDebug(LOG_CONNECTION) << "Starting WireGuardService";
 
     // Installing the wireguard service requires admin privilege.
-    IHelper::ExecuteError err = helper_->startWireGuard(getWireGuardExeName(), configFile);
+    IHelper::ExecuteError err = helper_->startWireGuard();
     if (err != IHelper::EXECUTE_SUCCESS)
     {
         qCDebug(LOG_CONNECTION) << "Windscribe service could not install the WireGuard service";
@@ -143,19 +140,19 @@ void WireGuardConnection::run()
         helper_->stopWireGuard();
     });
 
-    // If there was a running instance of the wireguard service, the helper (startWireGuard call) will
-    // have stopped it and it will have deleted the existing config file.  Therefore, don't create our
-    // new config file until we're sure the wireguard service is stopped.
-    if (!wireGuardConfig_.generateConfigFile(configFile)) {
+    helper_->configureWireGuard(wireGuardConfig_);
+
+    // The wireguard service creates the log file in the same folder as the config file, which will reside in the config dir
+    // We must create this log file watcher before we start the wireguard service to ensure we get all log entries.
+    QString configPath = getConfigPath();
+    if (configPath.isEmpty()) {
+        qCDebug(LOG_CONNECTION) << "WireGuardConnection::run - Could not get config path";
         emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
         emit disconnected();
         return;
     }
+    QString logFile = configPath + QString("\\log.bin");
 
-    // The wireguard service creates the log file in the same folder as the config file we passed to it.
-    // We must create this log file watcher before we start the wireguard service to ensure we get
-    // all log entries.
-    QString logFile = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + QString("/log.bin");
     wireguardLog_.reset(new wsl::WireguardRingLogger(logFile));
 
     bool disableDNSLeakProtection = false;
@@ -222,22 +219,13 @@ void WireGuardConnection::run()
         stopService();
     }
 
-    if (helper_->stopWireGuard()) {
-        configFile.clear();
-    }
-    else {
+    if (!helper_->stopWireGuard()) {
         qCDebug(LOG_CONNECTION) << "WireGuardConnection::run - windscribe service failed to stop the WireGuard service instance";
     }
 
     stopWireGuard.dismiss();
 
     wireguardLog_->getFinalLogEntries();
-
-    // Ensure the config file is deleted if something went awry during service startup.  If all goes well,
-    // the wireguard service will delete the file when it exits.
-    if (!configFile.isEmpty() && QFile::exists(configFile)) {
-        QFile::remove(configFile);
-    }
 
     if (disableDNSLeakProtection) {
         helper_->disableDnsLeaksProtection();
@@ -416,4 +404,24 @@ void CALLBACK WireGuardConnection::automaticConnectionTimeoutProc(LPVOID lpArgTo
     Q_UNUSED(dwTimerHighValue)
     WireGuardConnection* wc = (WireGuardConnection*)lpArgToCompletionRoutine;
     wc->onAutomaticConnectionTimeout();
+}
+
+QString WireGuardConnection::getConfigPath() const
+{
+    // There does not seem to be a way to get the Program Files directory via Qt, so use the Windows API.
+    wchar_t* programFilesPath = NULL;
+    HRESULT hr = SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, NULL, &programFilesPath);
+    if (FAILED(hr)) {
+        qCDebug(LOG_CONNECTION) << ("Failed to get Program Files dir");
+        CoTaskMemFree(programFilesPath);
+        return "";
+    }
+
+    std::wstringstream filePath;
+    filePath << programFilesPath;
+    filePath << L"\\Windscribe\\config";
+
+    CoTaskMemFree(programFilesPath);
+
+    return QString::fromStdWString(filePath.str());
 }

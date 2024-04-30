@@ -1850,8 +1850,8 @@ Connect to a network first</source>
         <translation>Bu IP adresi veya aralığı Windscribe tarafından ayrılmıştır ve değiştirilemez.</translation>
     </message>
     <message>
-        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
-        <translation>Listede çok fazla IP veya ana bilgisayar adı var. Lütfen daha fazlasını eklemeden önce bazılarını kaldırın.</translation>
+        <source>There are too many hostnames in the list. Please remove some before adding more.</source>
+        <translation>Listede çok fazla ana bilgisayar adı var. Lütfen daha fazlasını eklemeden önce bazılarını kaldırın.</translation>
     </message>
 </context>
 <context>

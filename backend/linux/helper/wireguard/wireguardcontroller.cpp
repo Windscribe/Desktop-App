@@ -16,26 +16,20 @@ WireGuardController::WireGuardController()
 {
 }
 
-bool WireGuardController::start(
-    const std::string &exePath,
-    const std::string &executable,
-    const std::string &deviceName)
+bool WireGuardController::start()
 {
-    adapter_.reset(new WireGuardAdapter(deviceName));
+    adapter_.reset(new WireGuardAdapter(kDeviceName));
 
-    if (exePath.empty())
-    {
+    bool isUsingKernelModule = !Utils::executeCommand("modprobe", {"wireguard"});
+    if (isUsingKernelModule) {
         Logger::instance().out("Using wireguard kernel module");
         comm_ = std::make_shared<KernelModuleCommunicator>();
-    }
-    else
-    {
+    } else {
         Logger::instance().out("Using wireguard-go");
         comm_ = std::make_shared<WireGuardGoCommunicator>();
     }
 
-    if (comm_->start(exePath, executable, deviceName))
-    {
+    if (comm_->start(kDeviceName)) {
         is_initialized_ = true;
         return true;
     }

@@ -1,8 +1,7 @@
 #include "files.h"
 #include "../logger.h"
 
-Files::Files(const std::wstring &archivePath, const std::wstring &installPath, uid_t userId, gid_t groupId) : userId_(userId),
-    groupId_(groupId), archive_(NULL),
+Files::Files(const std::wstring &archivePath, const std::wstring &installPath) : archive_(NULL),
     archivePath_(archivePath), installPath_(installPath), state_(0)
 {
 }
@@ -24,7 +23,7 @@ int Files::executeStep()
             delete archive_;
         }
 
-        archive_ = new Archive(archivePath_, userId_, groupId_);
+        archive_ = new Archive(archivePath_);
         archive_->setLogFunction([](const char* str) {
             LOG((std::string("(archive) ") + str).c_str());
         });

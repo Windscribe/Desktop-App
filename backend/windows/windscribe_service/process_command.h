@@ -71,6 +71,7 @@ MessagePacketResult changeMtu(boost::archive::text_iarchive &ia);
 MessagePacketResult resetAndStartRas(boost::archive::text_iarchive &ia);
 MessagePacketResult setIkev2IpsecParameters(boost::archive::text_iarchive &ia);
 MessagePacketResult startWireGuard(boost::archive::text_iarchive &ia);
+MessagePacketResult configureWireGuard(boost::archive::text_iarchive &ia);
 MessagePacketResult stopWireGuard(boost::archive::text_iarchive &ia);
 MessagePacketResult getWireGuardStatus(boost::archive::text_iarchive &ia);
 MessagePacketResult connectStatus(boost::archive::text_iarchive &ia);
@@ -126,6 +127,7 @@ static const std::map<const int, std::function<MessagePacketResult(boost::archiv
     { AA_COMMAND_RESET_AND_START_RAS, resetAndStartRas },
     { AA_COMMAND_SET_IKEV2_IPSEC_PARAMETERS, setIkev2IpsecParameters },
     { AA_COMMAND_START_WIREGUARD, startWireGuard },
+    { AA_COMMAND_CONFIGURE_WIREGUARD, configureWireGuard },
     { AA_COMMAND_STOP_WIREGUARD, stopWireGuard },
     { AA_COMMAND_GET_WIREGUARD_STATUS, getWireGuardStatus },
     { AA_COMMAND_CONNECT_STATUS, connectStatus },

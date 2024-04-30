@@ -65,7 +65,7 @@ void RequestExecuterViaFailover::onFailoverCallback(const std::vector<FailoverDa
     // if we have already tried this domain and it is failed skip it
     // keep in mind the failover can contain several domains
     while (curIndFailoverData_ < failoverData_.size() && failedFailovers_.isContains(failoverData_[curIndFailoverData_]))  {
-        spdlog::info("Got an already failed domain {}, skip it", failoverData_[curIndFailoverData_].domain());
+        spdlog::info("Got an already failed domain, skip it");
         curIndFailoverData_++;
     }
     if (curIndFailoverData_ >= failoverData_.size())

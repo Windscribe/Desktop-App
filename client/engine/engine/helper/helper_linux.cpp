@@ -57,11 +57,3 @@ bool Helper_linux::setDnsLeakProtectEnabled(bool bEnabled)
 
     return runCommand(HELPER_CMD_SET_DNS_LEAK_PROTECT_ENABLED, stream.str(), answer);
 }
-
-bool Helper_linux::checkForWireGuardKernelModule()
-{
-    QMutexLocker locker(&mutex_);
-
-    CMD_ANSWER answer;
-    return runCommand(HELPER_CMD_CHECK_FOR_WIREGUARD_KERNEL_MODULE, {}, answer) && answer.executed == 1;
-}

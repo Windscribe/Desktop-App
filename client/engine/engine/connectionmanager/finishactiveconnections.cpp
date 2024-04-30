@@ -93,7 +93,6 @@ void FinishActiveConnections::finishOpenVpnActiveConnections_posix(IHelper *help
 
 void FinishActiveConnections::finishWireGuardActiveConnections_posix(IHelper *helper)
 {
-    helper->setDefaultWireGuardDeviceName(WireGuardConnection::getWireGuardAdapterName());
     helper->stopWireGuard();
 }
 #endif

@@ -1,157 +1,96 @@
 #include "server.h"
 
-#define BOOST_BIND_GLOBAL_PLACEHOLDERS 1
-#include <boost/bind.hpp>
+#include <assert.h>
+#include <sstream>
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
-#include <codecvt>
-#include <mach-o/dyld.h>
-#include <stdlib.h>
-#include <string>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/un.h>
-#include <unistd.h>
-
-#include "execute_cmd.h"
-#include "logger.h"
 #include "ipc/helper_security.h"
-#include "macutils.h"
+#include "logger.h"
 #include "process_command.h"
 #include "utils.h"
-#include "utils/executable_signature/executable_signature.h"
 
-#define SOCK_PATH "/var/run/windscribe_helper_socket2"
-
-Server::Server()
+Server::Server() : listener_(nullptr)
 {
-    acceptor_ = NULL;
 }
 
 Server::~Server()
 {
-    service_.stop();
-
-    if (acceptor_) {
-        delete acceptor_;
-    }
-
-    unlink(SOCK_PATH);
+    if (listener_)
+        xpc_connection_cancel(listener_);
 }
 
-bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, CMD_ANSWER &outCmdAnswer)
+void Server::xpc_event_handler(xpc_connection_t peer)
 {
-    // not enough data for read command
-    if (buf->size() < sizeof(int)*3) {
-        return false;
-    }
+    // By defaults, new connections will target the default dispatch concurrent queue.
+    xpc_connection_set_event_handler(peer, ^(xpc_object_t event) {
+        peer_event_handler(peer, event);
+    });
 
-    const char *bufPtr = boost::asio::buffer_cast<const char*>(buf->data());
-    size_t headerSize = 0;
-    int cmdId;
-    memcpy(&cmdId, bufPtr + headerSize, sizeof(cmdId));
-    headerSize += sizeof(cmdId);
-    pid_t pid;
-    memcpy(&pid, bufPtr + headerSize, sizeof(pid));
-    headerSize += sizeof(pid);
-    int length;
-    memcpy(&length, bufPtr + headerSize, sizeof(length));
-    headerSize += sizeof(length);
+    // This will tell the connection to begin listening for events. If you
+    // have some other initialization that must be done asynchronously, then
+    // you can defer this call until after that initialization is done.
+    xpc_connection_resume(peer);
 
-    // not enough data for read command
-    if (buf->size() < (headerSize + length)) {
-        return false;
-    }
-
-    pid_t pidPeer = -1;
-    socklen_t lenPidPeer = sizeof(pidPeer);
-    if (getsockopt(sock->native_handle(), SOL_LOCAL, LOCAL_PEERPID, &pidPeer, &lenPidPeer) != 0) {
-        LOG("getsockopt(LOCAL_PEERID) failed (%d).", errno);
-        return false;
-    }
-
-    // check process id
-    if (!HelperSecurity::instance().verifyProcessId(pidPeer)) {
-        return false;
-    }
-
-    std::string str(bufPtr + headerSize, length);
-    std::istringstream stream(str);
-    outCmdAnswer = processCommand(cmdId, str);
-
-    buf->consume(headerSize + length);
-
-    return true;
+    LOG("Client connected");
 }
 
-void Server::receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::streambuf> buf, const boost::system::error_code& ec, std::size_t bytes_transferred)
+void Server::peer_event_handler(xpc_connection_t peer, xpc_object_t event)
 {
-    if (!ec.value()) {
-        // read and handle commands
-        while (true) {
-            CMD_ANSWER cmdAnswer;
-            if (!readAndHandleCommand(sock, buf.get(), cmdAnswer)) {
-                // goto receive next commands
-                boost::asio::async_read(*sock, *buf, boost::asio::transfer_at_least(1),
-                                        boost::bind(&Server::receiveCmdHandle, this, sock, buf, _1, _2));
-                break;
-            } else {
-                if (!sendAnswerCmd(sock, cmdAnswer)) {
-                    LOG("client app disconnected");
-                    HelperSecurity::instance().reset();
-                    return;
-                }
-            }
+    xpc_type_t type = xpc_get_type(event);
+
+    if (type == XPC_TYPE_ERROR) {
+        if (event == XPC_ERROR_CONNECTION_INVALID) {
+            // The client process on the other end of the connection has either
+            // crashed or cancelled the connection. After receiving this error,
+            // the connection is in an invalid state, and you do not need to
+            // call xpc_connection_cancel(). Just tear down any associated state here.
+            LOG("Client disconnected with XPC_ERROR_CONNECTION_INVALID");
+        } else if (event == XPC_ERROR_TERMINATION_IMMINENT) {
+            // Handle per-connection termination cleanup
+            xpc_connection_cancel(peer);
+            LOG("Client disconnected with XPC_ERROR_TERMINATION_IMMINENT");
+        } else {
+            LOG("Client disconnected with an unknown error");
         }
-    } else {
-        LOG("client app disconnected");
-        HelperSecurity::instance().reset();
-    }
-}
 
-void Server::acceptHandler(const boost::system::error_code & ec, socket_ptr sock)
-{
-    if (!ec.value()) {
-        LOG("client app connected");
-
-        HelperSecurity::instance().reset();
-        boost::shared_ptr<boost::asio::streambuf> buf(new boost::asio::streambuf);
-        boost::asio::async_read(*sock, *buf, boost::asio::transfer_at_least(1),
-                                    boost::bind(&Server::receiveCmdHandle, this, sock, buf, _1, _2));
-    }
-
-    startAccept();
-}
-
-void Server::startAccept()
-{
-    socket_ptr sock(new boost::asio::local::stream_protocol::socket(service_));
-    acceptor_->async_accept(*sock, boost::bind(&Server::acceptHandler, this, boost::asio::placeholders::error, sock));
-}
-
-bool Server::sendAnswerCmd(socket_ptr sock, const CMD_ANSWER &cmdAnswer)
-{
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdAnswer;
-    std::string str = stream.str();
-    int length = (int)str.length();
-    // send answer to client
-    boost::system::error_code er;
-    boost::asio::write(*sock, boost::asio::buffer(&length, sizeof(length)), boost::asio::transfer_exactly(sizeof(length)), er);
-    if (er.value()) {
-        return false;
-    } else {
-        boost::asio::write(*sock, boost::asio::buffer(str.data(), str.length()), boost::asio::transfer_exactly(str.length()), er);
-        if (er.value()) {
-            return false;
+    } else if (type == XPC_TYPE_DICTIONARY) {
+        // check the validity of the process that sent the command
+        // right here, because event must be of type XPC_TYPE_DICTIONARY
+        if (!HelperSecurity::isValidXpcConnection(event)) {
+            xpc_connection_cancel(peer);
+            LOG("Client disconnected with failed validity test");
+            return;
         }
-    }
-    return true;
-}
 
+        // handle the message
+        xpc_retain(event);
+        int64_t cmdId = xpc_dictionary_get_int64(event, "cmdId");
+        std::string data;
+
+        size_t length;
+        const void *buf = xpc_dictionary_get_data(event, "data", &length);
+        if (buf && length > 0) {
+            data = std::string((const char *)buf, length);
+        }
+
+        CMD_ANSWER cmdAnswer = processCommand(cmdId, data);
+
+        // send answer
+        std::stringstream stream;
+        boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+        oa << cmdAnswer;
+        std::string str = stream.str();
+        xpc_object_t message = xpc_dictionary_create_reply(event);
+        xpc_dictionary_set_data(message, "data", str.data(), str.length());
+        xpc_connection_send_message(peer, message);
+        xpc_release(event);
+        xpc_release(message);
+    } else {
+        LOG("Client sent an unknown message");
+    }
+}
 void Server::run()
 {
     if (Utils::isAppUninstalled()) {
@@ -159,17 +98,19 @@ void Server::run()
         return;
     }
 
-    system("mkdir -p /var/run");
-    system("mkdir -p /etc/windscribe");
-    Utils::createWindscribeUserAndGroup();
+    xpc_connection_t listener = xpc_connection_create_mach_service("com.windscribe.helper.macos", NULL, XPC_CONNECTION_MACH_SERVICE_LISTENER);
+    if (!listener) {
+        LOG("xpc_connection_create_mach_service failed");
+        return;
+    }
 
-    ::unlink(SOCK_PATH);
+    xpc_connection_set_event_handler(listener, ^(xpc_object_t event) {
+        // New connections arrive here. You may safely cast to xpc_connection_t
+        xpc_event_handler((xpc_connection_t)event);
+    });
 
-    boost::asio::local::stream_protocol::endpoint ep(SOCK_PATH);
-    acceptor_ = new boost::asio::local::stream_protocol::acceptor(service_, ep);
+    xpc_connection_resume(listener);
 
-    chmod(SOCK_PATH, 0777);
-    startAccept();
-
-    service_.run();
+    // this method does not return
+    dispatch_main();
 }

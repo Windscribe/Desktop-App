@@ -1,3 +1,26 @@
+2.10.9 (29/04/2024)
+All:
+   * Improved limit of 50 split tunnel entries to only apply to hostnames. #437
+   * Improved IPC message passing to adhere to best practices. #977
+   * Fixed tooltip not displaying when mouse hovers over protocol line for a custom config. #976
+   * Fixed app crash if app exits during startup. #980
+Windows:
+   * Improved IPC handling and security between client app and helper. #978
+   * Fixed ICMP pings crash [wsnet]. #969
+   * Fixed default install path not set for new installs. #973
+   * Fixed app crash when IKEv2 RAS callback function is called by the OS after the connection object has been deleted. #975
+   * Fixed installer crash logged in Event Viewer when installer exits. #981
+   * Fixed windscribectrld.exe should always be tunneled via the VPN, the split tunneling driver improved. #805
+   * Fixed possible delay in executable signature logic when it checks CRLs over the network. #983
+MacOS:
+   * Improved helper upgrade flow. #982
+   * Fixed Mac pid checking vulnerability. #977
+Linux:
+   * Fixed misdetection of platform on Raspberry Pi. #979
+   * Fixed pid race in helper. #977
+   * Fixed typo in command to get local IP. #995
+
+
 2.10.8 (04/04/2024)
 Linux:
    * Fixed split tunnel for IP assumes /32 subnet. #964

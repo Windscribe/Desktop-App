@@ -8,6 +8,7 @@
 #include "wireguardadapter.h"
 #include "wireguardcommunicator.h"
 
+
 class WireGuardController
 {
 public:
@@ -17,15 +18,11 @@ public:
         return wgc;
     }
 
-    bool start(
-        const std::string &exePath,
-        const std::string &executable,
-        const std::string &deviceName);
+    bool start();
     bool stop();
 
     bool configureAdapter(const std::string &ipAddress, const std::string &dnsAddressList,
         const std::string &dnsScriptName, const std::vector<std::string> &allowedIps);
-    const std::string getAdapterName() const;
     bool configureDefaultRouteMonitor(const std::string &peerEndpoint);
     bool configure(const std::string &clientPrivateKey, const std::string &peerPublicKey,
         const std::string &peerPresharedKey, const std::string &peerEndpoint,
@@ -38,6 +35,8 @@ public:
     static std::vector<std::string> splitAndDeduplicateAllowedIps(const std::string &allowedIps);
 
 private:
+    inline static const std::string kAdapterName = "utun420";
+
     std::unique_ptr<WireGuardAdapter> adapter_;
     std::unique_ptr<DefaultRouteMonitor> drm_;
     std::shared_ptr<WireGuardCommunicator> comm_;

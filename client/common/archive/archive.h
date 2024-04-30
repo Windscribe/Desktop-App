@@ -165,7 +165,7 @@ private:
 #ifdef _WIN32
     Archive(const std::wstring &name);
 #else
-    Archive(const std::wstring &name, uid_t userId, gid_t groupId);
+    Archive(const std::wstring &name);
     bool isCorrect() const;
 #endif
     ~Archive();

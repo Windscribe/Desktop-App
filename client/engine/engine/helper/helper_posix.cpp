@@ -247,7 +247,7 @@ bool Helper_posix::deleteRoute(const QString &range, int mask, const QString &ga
     return runCommand(HELPER_CMD_DELETE_ROUTE, stream.str(), answer);
 }
 
-IHelper::ExecuteError Helper_posix::startWireGuard(const QString &exeName, const QString &deviceName)
+IHelper::ExecuteError Helper_posix::startWireGuard()
 {
     QMutexLocker locker(&mutex_);
 
@@ -255,40 +255,17 @@ IHelper::ExecuteError Helper_posix::startWireGuard(const QString &exeName, const
         return IHelper::EXECUTE_ERROR;
     }
 
-    CMD_START_WIREGUARD cmd;
-#ifdef Q_OS_MAC
-    cmd.exePath = (QCoreApplication::applicationDirPath() + "/../Helpers/").toStdString();
-#elif defined Q_OS_LINUX
-    if (!exeName.isEmpty()) {
-        cmd.exePath = (QCoreApplication::applicationDirPath() + "/").toStdString();
-    } else {
-        cmd.exePath = "";
-    }
-#else
-    WS_ASSERT(false);
-#endif
-    cmd.executable = exeName.toStdString();
-    cmd.deviceName = deviceName.toStdString();
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmd;
-
     CMD_ANSWER answer;
-    if (!runCommand(HELPER_CMD_START_WIREGUARD, stream.str(), answer) || answer.executed == 0) {
+    if (!runCommand(HELPER_CMD_START_WIREGUARD, std::string(), answer) || answer.executed == 0) {
         doDisconnectAndReconnect();
         return IHelper::EXECUTE_ERROR;
     }
 
-    wireGuardDeviceName_ = deviceName;
     return IHelper::EXECUTE_SUCCESS;
 }
 
 bool Helper_posix::stopWireGuard()
 {
-    if (wireGuardDeviceName_.isEmpty())
-        return true;
-
     if (curState_ == STATE_CONNECTED) {
         QMutexLocker locker(&mutex_);
 
@@ -400,16 +377,7 @@ bool Helper_posix::getWireGuardStatus(types::WireGuardStatus *status)
     return true;
 }
 
-void Helper_posix::setDefaultWireGuardDeviceName(const QString &deviceName)
-{
-    // If we don't have an active WireGuard device, assign the default device name. It is important
-    // for a subsequent call to stopWireGuard(), to stop the device created during the last session.
-    if (wireGuardDeviceName_.isEmpty()) {
-        wireGuardDeviceName_ = deviceName;
-    }
-}
-
-IHelper::ExecuteError Helper_posix::startCtrld(const QString &exeName, const QString &parameters)
+IHelper::ExecuteError Helper_posix::startCtrld(const QString &ip, const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog)
 {
     QMutexLocker locker(&mutex_);
 
@@ -417,16 +385,17 @@ IHelper::ExecuteError Helper_posix::startCtrld(const QString &exeName, const QSt
         return IHelper::EXECUTE_ERROR;
     }
 
+    std::vector<std::string> domainsList;
+
     CMD_START_CTRLD cmd;
-#ifdef Q_OS_MAC
-    cmd.exePath = (QCoreApplication::applicationDirPath() + "/../Helpers/").toStdString();
-#elif defined Q_OS_LINUX
-    cmd.exePath = (QCoreApplication::applicationDirPath() + "/").toStdString();
-#else
-    WS_ASSERT(false);
-#endif
-    cmd.executable = exeName.toStdString();
-    cmd.parameters = parameters.toStdString();
+    cmd.ip = ip.toStdString();
+    cmd.upstream1 = upstream1.toStdString();
+    cmd.upstream2 = upstream2.toStdString();
+    for (auto domain : domains) {
+        domainsList.push_back(domain.toStdString());
+    }
+    cmd.domains = domainsList;
+    cmd.isCreateLog = isCreateLog;
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
@@ -434,6 +403,7 @@ IHelper::ExecuteError Helper_posix::startCtrld(const QString &exeName, const QSt
 
     CMD_ANSWER answer;
     if (!runCommand(HELPER_CMD_START_CTRLD, stream.str(), answer) || answer.executed == 0) {
+        qCDebug(LOG_BASIC) << "helper returned error starting ctrld";
         doDisconnectAndReconnect();
         return IHelper::EXECUTE_ERROR;
     }
@@ -446,28 +416,25 @@ bool Helper_posix::stopCtrld()
     return executeTaskKill(kTargetCtrld);
 }
 
-IHelper::ExecuteError Helper_posix::executeOpenVPN(const QString &config, const QString &arguments, unsigned long &outCmdId, bool isCustomConfig)
+IHelper::ExecuteError Helper_posix::executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort,
+                                                   const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId, bool isCustomConfig)
+
 {
     QMutexLocker locker(&mutex_);
-
-    // NOTE: openvpn executable signature check is performed by the helper
 
     if (curState_ != STATE_CONNECTED) {
         return IHelper::EXECUTE_ERROR;
     }
 
-#ifdef Q_OS_MAC
-    QString helpersPath = QCoreApplication::applicationDirPath() + "/../Helpers";
-#elif defined Q_OS_LINUX
-    QString helpersPath = QCoreApplication::applicationDirPath() + "/";
-#endif
-
     CMD_START_OPENVPN cmd;
-    cmd.exePath = helpersPath.toStdString();
-    cmd.executable = OpenVpnVersionController::instance().getOpenVpnFileName().toStdString();
     cmd.config = config.toStdString();
-    cmd.arguments = arguments.toStdString();
+    cmd.port = port;
+    cmd.httpProxy = httpProxy.toStdString();
+    cmd.socksProxy = socksProxy.toStdString();
+    cmd.httpPort = httpPort;
+    cmd.socksPort = socksPort;
     cmd.isCustomConfig = isCustomConfig;
+
 #if defined(Q_OS_LINUX)
     switch (DnsScripts_linux::instance().dnsManager()) {
     case DnsScripts_linux::SCRIPT_TYPE::SYSTEMD_RESOLVED:
@@ -627,14 +594,6 @@ bool Helper_posix::startStunnel(const QString &hostname, unsigned int port, unsi
     QMutexLocker locker(&mutex_);
 
     CMD_START_STUNNEL cmd;
-#ifdef Q_OS_MAC
-    cmd.exePath = (QCoreApplication::applicationDirPath() + "/../Helpers/").toStdString();
-#elif defined Q_OS_LINUX
-    cmd.exePath = (QCoreApplication::applicationDirPath() + "/").toStdString();
-#else
-    WS_ASSERT(false);
-#endif
-    cmd.executable = "windscribewstunnel";
     cmd.hostname = hostname.toStdString();
     cmd.port = port;
     cmd.localPort = localPort;
@@ -658,14 +617,6 @@ bool Helper_posix::startWstunnel(const QString &hostname, unsigned int port, uns
     QMutexLocker locker(&mutex_);
 
     CMD_START_WSTUNNEL cmd;
-#ifdef Q_OS_MAC
-    cmd.exePath = (QCoreApplication::applicationDirPath() + "/../Helpers/").toStdString();
-#elif defined Q_OS_LINUX
-    cmd.exePath = (QCoreApplication::applicationDirPath() + "/").toStdString();
-#else
-    WS_ASSERT(false);
-#endif
-    cmd.executable = "windscribewstunnel";
     cmd.hostname = hostname.toStdString();
     cmd.port = port;
     cmd.localPort = localPort;

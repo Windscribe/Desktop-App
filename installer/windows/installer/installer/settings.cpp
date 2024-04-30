@@ -72,6 +72,14 @@ void Settings::readFromRegistry()
     if (reg.contains("applicationPath")) {
         setPath(reg.value("applicationPath").toString().toStdWString());
     }
+
+    if (path_.empty() || !Path::isOnSystemDrive(path_)) {
+        // Default the install path if one does not exist in the Registy.
+        // For security purposes, ensure the user did not try to 'tweak' the Registry entry
+        // to specify installation on a non-system drive.
+        setPath(ApplicationInfo::defaultInstallPath());
+    }
+
     if (reg.contains("isCreateShortcut")) {
         setCreateShortcut(reg.value("isCreateShortcut").toBool());
     }

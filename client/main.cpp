@@ -28,6 +28,7 @@
     #include <unistd.h>         // readlink
     #include <linux/limits.h>   // PATH_MAX
     #include <signal.h>
+    #include <sys/types.h>      // gid_t
     #include "utils/linuxutils.h"
 #endif
 
@@ -171,6 +172,15 @@ int main(int argc, char *argv[])
     if (!WinUtils::isOSCompatible()) {
         qCDebug(LOG_BASIC) << "WARNING: OS version is not fully compatible.  Windows 10 build"
                            << kMinWindowsBuildNumber << "or newer is required for full functionality.";
+    }
+#endif
+
+#if defined (Q_OS_LINUX)
+    gid_t gid = LinuxUtils::getWindscribeGid();
+    qCDebug(LOG_BASIC) << "Setting gid to:" << gid;
+    if (setgid(gid) < 0) {
+        qCDebug(LOG_BASIC) << "Could not set windscribe group";
+        return 0;
     }
 #endif
 

@@ -77,7 +77,7 @@ static QList<RoutingTableEntry> getRoutingTable(bool includeZeroMetricEntries)
 
 static QString getAdapterIp(QString interface)
 {
-    return Utils::execCmd(QString("ip -br -4 show %1 | grep UP | awk '{print $3}").arg(interface)).trimmed();
+    return Utils::execCmd(QString("ip -br -4 addr show %1 | grep UP | awk '{print $3}' | cut -d '/' -f 1").arg(interface)).trimmed();
 }
 
 void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp, bool ignoreTun)

@@ -1850,8 +1850,8 @@ Nejprve se připojte k síti</translation>
         <translation>Tato IP adresa nebo rozsah je rezervován společností Windscribe a nelze jej změnit.</translation>
     </message>
     <message>
-        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
-        <translation>V seznamu je příliš mnoho IP adres nebo názvů hostitelů. Před přidáním dalších některé odstraňte.</translation>
+        <source>There are too many hostnames in the list. Please remove some before adding more.</source>
+        <translation>V seznamu je příliš mnoho názvů hostitelů. Před přidáním dalších některé odstraňte.</translation>
     </message>
 </context>
 <context>

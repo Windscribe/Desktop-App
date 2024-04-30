@@ -12,7 +12,8 @@ public:
         return wc;
     }
 
-    bool installService(const std::wstring &exeName, const std::wstring &configFile);
+    bool installService();
+    bool configure(const std::wstring &config);
     bool deleteService();
 
     UINT getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT64& rxBytes) const;
@@ -24,6 +25,8 @@ private:
     std::wstring exeName_;
 
 private:
+    inline static const std::wstring kServiceIdentifier = L"WindscribeWireguard";
+
     explicit WireGuardController();
     HANDLE getKernelInterfaceHandle() const;
 };

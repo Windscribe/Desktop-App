@@ -259,17 +259,17 @@ deploy_files:
           - windscribewstunnel -> windscribewstunnel
 
       fix_rpath:
-        - lib/libQt6Network.so.6 -> $ORIGIN
-        - lib/libQt6XcbQpa.so.6 -> $ORIGIN
-        - lib/libQt6DBus.so.6 -> $ORIGIN
-        - lib/libssl.so.3 -> $ORIGIN
-        - lib/libcrypto.so.3 -> $ORIGIN
-        - lib/libwsnet.so -> $ORIGIN
-        - windscribeopenvpn -> $ORIGIN/lib
-        - windscribe-authhelper -> $ORIGIN/lib
-        - Windscribe -> $ORIGIN/lib
-        - windscribe-cli -> $ORIGIN/lib
-        - helper -> $ORIGIN/lib
+        - lib/libQt6Network.so.6 -> /opt/windscribe/lib
+        - lib/libQt6XcbQpa.so.6 -> /opt/windscribe/lib
+        - lib/libQt6DBus.so.6 -> /opt/windscribe/lib
+        - lib/libssl.so.3 -> /opt/windscribe/lib
+        - lib/libcrypto.so.3 -> /opt/windscribe/lib
+        - lib/libwsnet.so -> /opt/windscribe/lib
+        - windscribeopenvpn -> /opt/windscribe/lib
+        - windscribe-authhelper -> /opt/windscribe/lib
+        - Windscribe -> /opt/windscribe/lib
+        - windscribe-cli -> /opt/windscribe/lib
+        - helper -> /opt/windscribe/lib
 
 codesign_files:
   # TODO: shared libraries don't need to be signed?

@@ -113,10 +113,14 @@ Engine::~Engine()
 {
     SAFE_DELETE(connectStateController_);
     SAFE_DELETE(emergencyConnectStateController_);
-    packetSizeControllerThread_->exit();
-    packetSizeControllerThread_->wait();
-    packetSizeControllerThread_->deleteLater();
-    packetSizeController_->deleteLater();
+    if (packetSizeControllerThread_) {
+        packetSizeControllerThread_->exit();
+        packetSizeControllerThread_->wait();
+        packetSizeControllerThread_->deleteLater();
+    }
+    if (packetSizeController_) {
+        packetSizeController_->deleteLater();
+    }
     qCDebug(LOG_BASIC) << "Engine destructor finished";
 }
 

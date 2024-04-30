@@ -142,33 +142,29 @@ bool WireGuardCommunicator::Connection::connect(struct sockaddr_un *address)
     return true;
 }
 
-bool WireGuardCommunicator::start(
-    const std::string &exePath,
-    const std::string &executable,
-    const std::string &deviceName)
+bool WireGuardCommunicator::start(const std::string &deviceName)
 {
     assert(!deviceName.empty());
 
+    std::string exePath = Utils::getExePath();
+
     Utils::executeCommand("rm", {"-f", ("/var/run/wireguard/" + deviceName + ".sock").c_str()});
-    const std::string fullCmd = Utils::getFullCommand(exePath, executable, "-f " + deviceName);
+    const std::string fullCmd = Utils::getFullCommand(exePath, "windscribewireguard", "-f " + deviceName);
     if (fullCmd.empty()) {
         LOG("Invalid WireGuard command");
         return false;
     }
 
-    const std::string fullPath = exePath + "/" + executable;
+    const std::string fullPath = exePath + "/windscribewireguard";
     ExecutableSignature sigCheck;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    if (!sigCheck.verify(std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(fullPath))) {
+    if (!sigCheck.verify(fullPath)) {
         LOG("WireGuard executable signature incorrect: %s", sigCheck.lastError().c_str());
         return false;
     }
-#pragma clang diagnostic pop
 
     daemonCmdId_ = ExecuteCmd::instance().execute(fullCmd);
     deviceName_ = deviceName;
-    executable_ = executable;
+    executable_ = "windscribewireguard";
     return true;
 }
 

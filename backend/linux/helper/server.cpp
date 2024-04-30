@@ -5,6 +5,7 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include <codecvt>
+#include <grp.h>
 #include <stdlib.h>
 #include <string>
 #include <sys/socket.h>
@@ -72,8 +73,7 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
         return false;
     }
 
-    // check process id
-    if (!HelperSecurity::instance().verifyProcessId(peerCred.pid)) {
+    if (!HelperSecurity::instance().verifySignature()) {
         return false;
     }
 
@@ -104,14 +104,12 @@ void Server::receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::st
             } else {
                 if (!sendAnswerCmd(sock, cmdAnswer)) {
                     Logger::instance().out("client app disconnected");
-                    HelperSecurity::instance().reset();
                     return;
                 }
             }
         }
     } else {
         Logger::instance().out("client app disconnected");
-        HelperSecurity::instance().reset();
     }
 }
 
@@ -120,7 +118,6 @@ void Server::acceptHandler(const boost::system::error_code & ec, socket_ptr sock
     if (!ec.value()) {
         Logger::instance().out("client app connected");
 
-        HelperSecurity::instance().reset();
         boost::shared_ptr<boost::asio::streambuf> buf(new boost::asio::streambuf);
         boost::asio::async_read(*sock, *buf, boost::asio::transfer_at_least(1),
                                 boost::bind(&Server::receiveCmdHandle, this, sock, buf, _1, _2));
@@ -167,7 +164,12 @@ void Server::run()
     boost::asio::local::stream_protocol::endpoint ep(SOCK_PATH);
     acceptor_ = new boost::asio::local::stream_protocol::acceptor(service_, ep);
 
-    chmod(SOCK_PATH, 0777);
+    struct group *grp = getgrnam("windscribe");
+    if (!grp || chmod(SOCK_PATH, 0770) || chown(SOCK_PATH, (uid_t)-1, grp->gr_gid)) {
+        // Do not have a group, or chmod/chown failed.
+        ::unlink(SOCK_PATH);
+        return;
+    }
     startAccept();
 
     service_.run();

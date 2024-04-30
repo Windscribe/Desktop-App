@@ -16,11 +16,8 @@ public:
 
 private:
     IHelper *helper_;
-    QString     logPath_;
     bool bProcessStarted_;
     QString listenIp_;
 
     QString getAvailableIp();
 };
-
-

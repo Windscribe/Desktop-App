@@ -14,14 +14,11 @@ WireGuardController::WireGuardController()
 {
 }
 
-bool WireGuardController::start(
-    const std::string &exePath,
-    const std::string &executable,
-    const std::string &deviceName)
+bool WireGuardController::start()
 {
-    adapter_.reset(new WireGuardAdapter(deviceName));
+    adapter_.reset(new WireGuardAdapter(kAdapterName));
     comm_.reset(new WireGuardCommunicator());
-    if (comm_->start(exePath, executable, deviceName))
+    if (comm_->start(kAdapterName))
     {
         is_initialized_ = true;
         return true;
@@ -51,13 +48,6 @@ bool WireGuardController::configureAdapter(const std::string &ipAddress, const s
     return adapter_->setIpAddress(ipAddress)
         && adapter_->setDnsServers(dnsAddressList, dnsScriptName)
         && adapter_->enableRouting(allowedIps);
-}
-
-const std::string WireGuardController::getAdapterName() const
-{
-    if (!is_initialized_ || !adapter_.get())
-        return "";
-    return adapter_->getName();
 }
 
 bool WireGuardController::configureDefaultRouteMonitor(const std::string &peerEndpoint)

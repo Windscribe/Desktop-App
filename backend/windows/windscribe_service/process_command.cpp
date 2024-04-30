@@ -16,6 +16,7 @@
 #include "reinstall_wan_ikev2.h"
 #include "remove_windscribe_network_profiles.h"
 #include "utils.h"
+#include "utils/executable_signature/executable_signature.h"
 
 SPLIT_TUNNELING_PARS g_SplitTunnelingPars;
 
@@ -430,35 +431,37 @@ MessagePacketResult runOpenvpn(boost::archive::text_iarchive &ia)
 {
     MessagePacketResult mpr;
 
-    CMD_RUN_OPENVPN cmdRunOpenVpn;
-    ia >> cmdRunOpenVpn;
+    CMD_RUN_OPENVPN cmd;
+    ia >> cmd;
 
-    // check input parameters
-    if (Utils::isValidFileName(cmdRunOpenVpn.szOpenVpnExecutable) &&
-        Utils::noSpacesInString(cmdRunOpenVpn.szHttpProxy) &&
-        Utils::noSpacesInString(cmdRunOpenVpn.szSocksProxy))
+    // sanitize
+    if (Utils::hasWhitespaceInString(cmd.szHttpProxy) ||
+        Utils::hasWhitespaceInString(cmd.szSocksProxy))
     {
-        std::wstring filename;
-        int ret = OVPN::writeOVPNFile(filename, cmdRunOpenVpn.szConfig);
-        if (ret) {
-            // make openvpn command
-            std::wstring strCmd = L"\"" + Utils::getExePath() + L"\\" + cmdRunOpenVpn.szOpenVpnExecutable + L"\"";
-            strCmd += L" --config \"" + filename + L"\" --management 127.0.0.1 ";
-            strCmd += std::to_wstring(cmdRunOpenVpn.portNumber) + L" --management-query-passwords --management-hold --verb 3";
-
-            if (wcslen(cmdRunOpenVpn.szHttpProxy.c_str()) > 0) {
-                strCmd += L" --http-proxy " + cmdRunOpenVpn.szHttpProxy + L" " + std::to_wstring(cmdRunOpenVpn.httpPortNumber) + L" auto";
-            }
-            if (wcslen(cmdRunOpenVpn.szSocksProxy.c_str()) > 0) {
-                strCmd += L" --socks-proxy " + cmdRunOpenVpn.szSocksProxy + L" " + std::to_wstring(cmdRunOpenVpn.socksPortNumber);
-            }
-
-            return ExecuteCmd::instance().executeUnblockingCmd(strCmd, L"", Utils::getDirPathFromFullPath(filename));
-        }
+        cmd.szHttpProxy = L"";
+        cmd.szSocksProxy = L"";
     }
 
-    mpr.success = false;
-    return mpr;
+    std::wstring filename;
+    int ret = OVPN::writeOVPNFile(filename, cmd.portNumber, cmd.szConfig, cmd.szHttpProxy, cmd.httpPortNumber, cmd.szSocksProxy, cmd.socksPortNumber);
+    if (!ret) {
+        mpr.success = false;
+        return mpr;
+    }
+
+#if defined(USE_SIGNATURE_CHECK)
+    ExecutableSignature sigCheck;
+    std::wstring servicePath = Utils::getExePath() + L"\\windscribeopenvpn.exe";
+    if (!sigCheck.verify(servicePath)) {
+        Logger::instance().out("OpenVPN service signature incorrect: %s", sigCheck.lastError().c_str());
+        mpr.success = false;
+        return mpr;
+    }
+#endif
+
+    // make openvpn command
+    std::wstring strCmd = L"\"" + Utils::getExePath() + L"\\windscribeopenvpn.exe\"" + L" --config \"" + filename;
+    return ExecuteCmd::instance().executeUnblockingCmd(strCmd, L"", Utils::getDirPathFromFullPath(filename));
 }
 
 MessagePacketResult whitelistPorts(boost::archive::text_iarchive &ia)
@@ -665,11 +668,21 @@ MessagePacketResult startWireGuard(boost::archive::text_iarchive &ia)
 {
     MessagePacketResult mpr;
 
-    CMD_START_WIREGUARD cmdStartWireGuard;
-    ia >> cmdStartWireGuard;
-
-    mpr.success = WireGuardController::instance().installService(cmdStartWireGuard.szExecutable, cmdStartWireGuard.szDeviceName);
+    mpr.success = WireGuardController::instance().installService();
     Logger::instance().out(L"AA_COMMAND_START_WIREGUARD: success = %d", mpr.success);
+
+    return mpr;
+}
+
+MessagePacketResult configureWireGuard(boost::archive::text_iarchive &ia)
+{
+    MessagePacketResult mpr;
+
+    CMD_CONFIGURE_WIREGUARD cmd;
+    ia >> cmd;
+
+    mpr.success = WireGuardController::instance().configure(cmd.config);
+    Logger::instance().out(L"AA_COMMAND_CONFIGURE_WIREGUARD: success = %d", mpr.success);
 
     return mpr;
 }

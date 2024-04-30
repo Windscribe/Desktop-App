@@ -17,10 +17,7 @@ public:
         return wgc;
     }
 
-    bool start(
-        const std::string &exePath,
-        const std::string &executable,
-        const std::string &deviceName);
+    bool start();
     bool stop();
 
     bool configure(
@@ -52,6 +49,8 @@ public:
     static uint32_t getFwmark();
 
 private:
+    inline static std::string kDeviceName = "utun420";
+
     std::unique_ptr<WireGuardAdapter> adapter_;
     std::unique_ptr<DefaultRouteMonitor> drm_;
     std::shared_ptr<IWireGuardCommunicator> comm_;

@@ -1850,8 +1850,8 @@ Conecte-se a uma rede primeiro</translation>
         <translation>Este endereço IP ou intervalo é reservado pela Windscribe e não pode ser alterado.</translation>
     </message>
     <message>
-        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
-        <translation>Há muitos IPs ou nomes de host na lista. Por favor, remova alguns antes de adicionar mais.</translation>
+        <source>There are too many hostnames in the list. Please remove some before adding more.</source>
+        <translation>Há muitos nomes de host na lista. Por favor, remova alguns antes de adicionar mais.</translation>
     </message>
 </context>
 <context>

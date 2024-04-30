@@ -38,6 +38,7 @@ post_install() {
         systemctl start windscribe-helper
         ln -s /opt/windscribe/Windscribe /usr/bin/windscribe
         update-desktop-database
+        setcap cap_setgid+ep /opt/windscribe/Windscribe
         echo linux_zst_x64 > ../etc/windscribe/platform
 }
 

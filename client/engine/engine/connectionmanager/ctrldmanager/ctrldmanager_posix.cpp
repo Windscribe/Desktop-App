@@ -8,7 +8,6 @@
 
 CtrldManager_posix::CtrldManager_posix(QObject *parent, IHelper *helper, bool isCreateLog) : ICtrldManager(parent, isCreateLog), helper_(helper), bProcessStarted_(false)
 {
-    logPath_ = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/ctrld.log";
     listenIp_ = "127.0.0.1";    // default listen ip for ctrld utility
 }
 
@@ -20,7 +19,6 @@ CtrldManager_posix::~CtrldManager_posix()
 bool CtrldManager_posix::runProcess(const QString &upstream1, const QString &upstream2, const QStringList &domains)
 {
     WS_ASSERT(!bProcessStarted_);
-    QFile::remove("\"" + logPath_ + "\"");
 
     QString ip = getAvailableIp();
     if (ip.isEmpty()) {
@@ -28,22 +26,7 @@ bool CtrldManager_posix::runProcess(const QString &upstream1, const QString &ups
         return false;
     }
 
-    QStringList args;
-    args << "run";
-    args << "--listen=" + ip + ":53";
-    args << "--primary_upstream=" + addWsSuffix(upstream1);
-    if (!upstream2.isEmpty()) {
-        args << "--secondary_upstream=" + addWsSuffix(upstream2);
-        if (!domains.isEmpty()) {
-            args << "--domains=" + domains.join(',');
-        }
-    }
-    if (isCreateLog_) {
-        args << "--log" << "\"" + logPath_ + "\"";
-        args << "-vv";
-    }
-
-    IHelper::ExecuteError err = helper_->startCtrld("windscribectrld", args.join(' '));
+    IHelper::ExecuteError err = helper_->startCtrld(ip, addWsSuffix(upstream1), addWsSuffix(upstream2), domains, isCreateLog_);
     bProcessStarted_ = (err == IHelper::ExecuteError::EXECUTE_SUCCESS);
     if (bProcessStarted_) {
         qCDebug(LOG_CTRLD) << "ctrld started";

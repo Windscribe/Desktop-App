@@ -2,6 +2,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QScopeGuard>
 
 #include <sstream>
 
@@ -15,7 +16,6 @@
 #include "types/wireguardtypes.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "utils/logger.h"
-#include "utils/win32handle.h"
 #include "utils/ws_assert.h"
 #include "utils/winutils.h"
 
@@ -240,29 +240,11 @@ bool Helper_win::setCustomDnsWhileConnected(unsigned long ifIndex, const QString
     return mpr.exitCode == 0;
 }
 
-IHelper::ExecuteError Helper_win::startWireGuard(const QString &exeName, const QString &deviceName)
+IHelper::ExecuteError Helper_win::startWireGuard()
 {
     QMutexLocker locker(&mutex_);
 
-    // check executable signature
-    QString wireGuardExePath = QCoreApplication::applicationDirPath() + "/" + exeName + ".exe";
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verify(wireGuardExePath.toStdWString())) {
-        qCDebug(LOG_CONNECTION) << "WireGuard executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
-        return IHelper::EXECUTE_VERIFY_ERROR;
-    }
-
-    // We're actually passing the full config file path and name in the deviceName parameter.
-
-    CMD_START_WIREGUARD cmdStartWireGuard;
-    cmdStartWireGuard.szExecutable = exeName.toStdWString();
-    cmdStartWireGuard.szDeviceName = deviceName.toStdWString();
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdStartWireGuard;
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_START_WIREGUARD, stream.str());
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_START_WIREGUARD, std::string());
     return mpr.success ? IHelper::EXECUTE_SUCCESS : IHelper::EXECUTE_ERROR;
 }
 
@@ -275,10 +257,17 @@ bool Helper_win::stopWireGuard()
 
 bool Helper_win::configureWireGuard(const WireGuardConfig &config)
 {
-    // This method is not required.  The wireguard-nt service and driver are
-    // configured by the startWireGuard() method.
-    Q_UNUSED(config)
-    return true;
+    QMutexLocker locker(&mutex_);
+
+    CMD_CONFIGURE_WIREGUARD cmd;
+    cmd.config = config.generateConfigFile().toStdWString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_CONFIGURE_WIREGUARD, stream.str());
+    return mpr.success ? IHelper::EXECUTE_SUCCESS : IHelper::EXECUTE_ERROR;
 }
 
 bool Helper_win::getWireGuardStatus(types::WireGuardStatus *status)
@@ -304,12 +293,7 @@ bool Helper_win::getWireGuardStatus(types::WireGuardStatus *status)
     return mpr.success;
 }
 
-void Helper_win::setDefaultWireGuardDeviceName(const QString & /*deviceName*/)
-{
-    // Nothing to do.
-}
-
-IHelper::ExecuteError Helper_win::startCtrld(const QString &exeName, const QString &parameters)
+IHelper::ExecuteError Helper_win::startCtrld(const QString &ip, const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog)
 {
     // Nothing to do.
     return IHelper::EXECUTE_SUCCESS;
@@ -332,16 +316,7 @@ IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &config, unsigned
 {
     QMutexLocker locker(&mutex_);
 
-    // check openvpn executable signature
-    QString openVpnExePath = OpenVpnVersionController::instance().getOpenVpnFilePath();
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verify(openVpnExePath.toStdWString())) {
-        qCDebug(LOG_CONNECTION) << "OpenVPN executable signature incorrect: " << QString::fromStdString(sigCheck.lastError());
-        return IHelper::EXECUTE_VERIFY_ERROR;
-    }
-
     CMD_RUN_OPENVPN cmdRunOpenVpn;
-    cmdRunOpenVpn.szOpenVpnExecutable = OpenVpnVersionController::instance().getOpenVpnFileName().toStdWString();
     cmdRunOpenVpn.szConfig = config.toStdWString();
     cmdRunOpenVpn.portNumber = portNumber;
     cmdRunOpenVpn.szHttpProxy = httpProxy.toStdWString();
@@ -757,47 +732,64 @@ void Helper_win::run()
 
 MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &data)
 {
-    HANDLE hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
-    if (hPipe == INVALID_HANDLE_VALUE) {
-        if (WaitNamedPipe(SERVICE_PIPE_NAME, MAX_WAIT_TIME_FOR_PIPE) == 0) {
-            return MessagePacketResult();
-        }
-
-        hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
-        if (hPipe == INVALID_HANDLE_VALUE) {
-            return MessagePacketResult();
+    if (helperPipe_.isValid()) {
+        // Check if our IPC connection has become invalid (e.g. the helper is restarted while the app is running).
+        DWORD flags;
+        BOOL result = ::GetNamedPipeInfo(helperPipe_.getHandle(), &flags, NULL, NULL, NULL);
+        if (result == FALSE) {
+            qCDebug(LOG_BASIC) << "Reconnecting helper pipe as existing handle instance is invalid" << ::GetLastError();
+            helperPipe_.closeHandle();
         }
     }
 
-    wsl::Win32Handle closePipe(hPipe);
+    if (!helperPipe_.isValid()) {
+        HANDLE hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+        if (hPipe == INVALID_HANDLE_VALUE) {
+            if (::WaitNamedPipe(SERVICE_PIPE_NAME, MAX_WAIT_TIME_FOR_PIPE) == FALSE) {
+                return MessagePacketResult();
+            }
+
+            hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+            if (hPipe == INVALID_HANDLE_VALUE) {
+                return MessagePacketResult();
+            }
+        }
+
+        helperPipe_.setHandle(hPipe);
+    }
+
+    auto closePipe = qScopeGuard([&] {
+        // Close the pipe if any errors occur.
+        helperPipe_.closeHandle();
+    });
 
     // first 4 bytes - cmdId
-    if (!writeAllToPipe(hPipe, (char *)&cmdId, sizeof(cmdId))) {
+    if (!writeAllToPipe(helperPipe_.getHandle(), (char *)&cmdId, sizeof(cmdId))) {
         return MessagePacketResult();
     }
 
     // second 4 bytes - size of buffer
     unsigned long sizeOfBuf = data.size();
-    if (!writeAllToPipe(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf))) {
+    if (!writeAllToPipe(helperPipe_.getHandle(), (char *)&sizeOfBuf, sizeof(sizeOfBuf))) {
         return MessagePacketResult();
     }
 
     // body of message
     if (sizeOfBuf > 0) {
-        if (!writeAllToPipe(hPipe, data.c_str(), sizeOfBuf)) {
+        if (!writeAllToPipe(helperPipe_.getHandle(), data.c_str(), sizeOfBuf)) {
             return MessagePacketResult();
         }
     }
 
     // read MessagePacketResult
     MessagePacketResult mpr;
-    if (!readAllFromPipe(hPipe, (char *)&sizeOfBuf, sizeof(sizeOfBuf))) {
+    if (!readAllFromPipe(helperPipe_.getHandle(), (char *)&sizeOfBuf, sizeof(sizeOfBuf))) {
         return mpr;
     }
 
     if (sizeOfBuf > 0) {
         QScopedArrayPointer<char> buf(new char[sizeOfBuf]);
-        if (!readAllFromPipe(hPipe, buf.data(), sizeOfBuf)) {
+        if (!readAllFromPipe(helperPipe_.getHandle(), buf.data(), sizeOfBuf)) {
             return mpr;
         }
 
@@ -806,6 +798,8 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
 
         ia >> mpr;
     }
+
+    closePipe.dismiss();
 
     return mpr;
 }

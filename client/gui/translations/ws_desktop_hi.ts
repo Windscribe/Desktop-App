@@ -1850,8 +1850,8 @@ Connect to a network first</source>
         <translation>यह IP पता या श्रेणी Windscribe द्वारा आरक्षित है और इसे बदला नहीं जा सकता.</translation>
     </message>
     <message>
-        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
-        <translation>सूची में बहुत सारे आईपी या होस्टनाम हैं। कृपया अधिक जोड़ने से पहले कुछ हटा दें।</translation>
+        <source>There are too many hostnames in the list. Please remove some before adding more.</source>
+        <translation>सूची में बहुत अधिक होस्टनाम हैं. कृपया अधिक जोड़ने से पहले कुछ हटा दें।</translation>
     </message>
 </context>
 <context>

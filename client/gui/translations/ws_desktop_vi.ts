@@ -1850,8 +1850,8 @@ Kết nối với mạng trước</translation>
         <translation>Địa chỉ IP hoặc dải tần này được Windscribe dành riêng và không thể thay đổi.</translation>
     </message>
     <message>
-        <source>There are too many IPs or hostnames in the list. Please remove some before adding more.</source>
-        <translation>Có quá nhiều IP hoặc tên máy chủ trong danh sách. Vui lòng xóa một số trước khi thêm nhiều hơn.</translation>
+        <source>There are too many hostnames in the list. Please remove some before adding more.</source>
+        <translation>Có quá nhiều tên máy chủ trong danh sách. Vui lòng xóa một số trước khi thêm nhiều hơn.</translation>
     </message>
 </context>
 <context>

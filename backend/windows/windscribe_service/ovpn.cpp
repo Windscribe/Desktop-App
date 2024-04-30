@@ -2,41 +2,28 @@
 #include "logger.h"
 #include <fcntl.h>
 #include <string>
-#include <KnownFolders.h>
-#include <shlobj.h>
 #include <fstream>
 #include <sstream>
 #include <string>
 
+#include "utils.h"
+
 namespace OVPN
 {
 
-bool writeOVPNFile(std::wstring &filename, const std::wstring &config)
+bool writeOVPNFile(std::wstring &filename, int port, const std::wstring &config, const std::wstring &httpProxy, int httpPort, const std::wstring &socksProxy, int socksPort)
 {
-    // To prevent shenanigans with various TOCTOU exploits, write the config Program Files,
-    // which is only writable by administrators
     std::wistringstream stream(config);
-    wchar_t* programFilesPath = NULL;
-    HRESULT hr = SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, NULL, &programFilesPath);
-    if (FAILED(hr)) {
-        Logger::instance().out("Failed to get Program Files dir");
-        CoTaskMemFree(programFilesPath);
-        return false;
-    }
-    std::wstringstream filePath;
-    filePath << programFilesPath;
-    CoTaskMemFree(programFilesPath);
-    filePath << L"\\Windscribe\\config";
-    int ret = SHCreateDirectoryEx(NULL, filePath.str().c_str(), NULL);
-    if (ret != ERROR_SUCCESS && ret != ERROR_ALREADY_EXISTS) {
-        Logger::instance().out("Failed to create config dir");
+    std::wstring filePath = Utils::getConfigPath();
+    if (filePath.empty()) {
+        Logger::instance().out("Could not get config path");
         return false;
     }
 
-    filePath << L"\\config.ovpn";
+    filePath += L"\\config.ovpn";
     Logger::instance().out("Writing OpenVPN config");
 
-    std::wofstream file(filePath.str().c_str(), std::ios::out | std::ios::trunc);
+    std::wofstream file(filePath.c_str(), std::ios::out | std::ios::trunc);
     if (!file) {
         Logger::instance().out("Could not open config file: %u", GetLastError());
         return false;
@@ -59,15 +46,30 @@ bool writeOVPNFile(std::wstring &filename, const std::wstring &config)
             line.rfind(L"client-disconnect", 2) != std::string::npos ||
             line.rfind(L"down", 2) != std::string::npos ||
             line.rfind(L"learn-address", 2) != std::string::npos ||
-            line.rfind(L"auth-user-pass-verify", 2) != std::string::npos)
+            line.rfind(L"auth-user-pass-verify", 2) != std::string::npos ||
+            line.rfind(L"management", 2) != std::string::npos ||
+            line.rfind(L"http-proxy", 2) != std::string::npos ||
+            line.rfind(L"socks-proxy", 2) != std::string::npos)
         {
             continue;
         }
-        file << line.c_str() << "\r\n";
+        file << line.c_str() << L"\r\n";
     }
+
+    // add management and other options
+    file << L"management 127.0.0.1 " + std::to_wstring(port) + L"\r\n";
+    file << L"management-query-passwords\r\n";
+    file << L"management-hold\r\n";
+
+    if (httpProxy.length() > 0) {
+        file << L"http-proxy " + httpProxy + L" " + std::to_wstring(httpPort) + L" auto\r\n";
+    } else if (socksProxy.length() > 0) {
+        file << L"socks-proxy " + socksProxy + L" " + std::to_wstring(socksPort) + L"\r\n";
+    }
+
     file.close();
 
-    filename = filePath.str();
+    filename = filePath;
     return true;
 }
 

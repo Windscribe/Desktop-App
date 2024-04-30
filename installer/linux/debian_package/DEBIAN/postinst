@@ -5,9 +5,10 @@ set -e
 systemctl enable windscribe-helper
 systemctl start windscribe-helper
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
+setcap cap_setgid+ep /opt/windscribe/Windscribe
 update-desktop-database
 
-if [ "`uname -p`" == "aarch64" ]; then
+if [ "`uname -m`" == "aarch64" ]; then
     echo linux_deb_arm64 > ../etc/windscribe/platform
 else
     echo linux_deb_x64 > ../etc/windscribe/platform

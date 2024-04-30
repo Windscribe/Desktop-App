@@ -32,20 +32,20 @@ public:
                            const QString &connectedIp, const types::Protocol &protocol) override;
     bool changeMtu(const QString &adapter, int mtu) override;
     bool executeTaskKill(CmdKillTarget target);
+    IHelper::ExecuteError executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort,
+                                         const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId, bool isCustomConfig) override;
 
     // WireGuard functions
-    IHelper::ExecuteError startWireGuard(const QString &exeName, const QString &deviceName) override;
+    IHelper::ExecuteError startWireGuard() override;
     bool stopWireGuard() override;
     bool configureWireGuard(const WireGuardConfig &config) override;
     bool getWireGuardStatus(types::WireGuardStatus *status) override;
-    void setDefaultWireGuardDeviceName(const QString &deviceName) override;
 
     // ctrld functions
-    ExecuteError startCtrld(const QString &exeName, const QString &parameters) override;
+    ExecuteError startCtrld(const QString &ip, const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog) override;
     bool stopCtrld() override;
 
     // Posix specific functions
-    IHelper::ExecuteError executeOpenVPN(const QString &config, const QString &arguments, unsigned long &outCmdId, bool isCustomConfig);
     bool deleteRoute(const QString &range, int mask, const QString &gateway);
     bool setDnsScriptEnabled(bool bEnabled);
     bool checkFirewallState(const QString &tag);
@@ -84,7 +84,6 @@ protected:
     bool bIPV6State_;
 
     QString wireGuardExeName_;
-    QString wireGuardDeviceName_;
 
     // for blocking execute
     WAITING_DATA waitingData_;
@@ -113,11 +112,11 @@ protected:
     enum { RET_SUCCESS, RET_DISCONNECTED };
 
     static void connectHandler(const boost::system::error_code &ec);
-    void doDisconnectAndReconnect();
+    virtual void doDisconnectAndReconnect();
 
     bool readAnswer(CMD_ANSWER &outAnswer);
     bool sendCmdToHelper(int cmdId, const std::string &data);
-    bool runCommand(int cmdId, const std::string &data, CMD_ANSWER &answer);
+    virtual bool runCommand(int cmdId, const std::string &data, CMD_ANSWER &answer);
 
 private:
     bool firstConnectToHelperErrorReported_;
