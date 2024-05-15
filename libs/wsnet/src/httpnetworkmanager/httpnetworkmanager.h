@@ -1,7 +1,7 @@
 #pragma once
 
 #include "WSNetHttpNetworkManager.h"
-#include <BS_thread_pool.hpp>
+#include <boost/asio.hpp>
 #include "httpnetworkmanager_impl.h"
 
 namespace wsnet {
@@ -10,7 +10,7 @@ namespace wsnet {
 class HttpNetworkManager : public WSNetHttpNetworkManager
 {
 public:
-    HttpNetworkManager(BS::thread_pool &taskQueue, WSNetDnsResolver *dnsResolver);
+    HttpNetworkManager(boost::asio::io_context &io_context, WSNetDnsResolver *dnsResolver);
 
     bool init();
 
@@ -36,9 +36,10 @@ public:
                           const std::string &password = std::string()) override;
 
     std::shared_ptr<WSNetCancelableCallback> setWhitelistIpsCallback(WSNetHttpNetworkManagerWhitelistIpsCallback whitelistIpsCallback) override;
+    std::shared_ptr<WSNetCancelableCallback> setWhitelistSocketsCallback(WSNetHttpNetworkManagerWhitelistSocketsCallback whitelistSocketsCallback) override;
 
 private:
-    BS::thread_pool &taskQueue_;
+    boost::asio::io_context &io_context_;
     HttpNetworkManager_impl impl_;
 };
 

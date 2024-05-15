@@ -251,10 +251,12 @@ BaseRequest *requests_factory::wgConfigsConnect(const std::string &authHash, con
     return request;
 }
 
-BaseRequest *requests_factory::mobileBillingPlans(const std::string &mobilePlanType, int version, RequestFinishedCallback callback)
+BaseRequest *requests_factory::mobileBillingPlans(const std::string &authHash, const std::string &mobilePlanType, const std::string &promo, int version, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
+    extraParams["session_auth_hash"] = authHash;
     extraParams["mobile_plan_type"] = mobilePlanType;
+    extraParams["promo"] = promo;
     extraParams["version"] = std::to_string(version);
     auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "MobileBillingPlans", extraParams, callback);
     return request;
@@ -349,6 +351,38 @@ BaseRequest *requests_factory::claimAccount(const std::string &authHash, const s
     extraParams["claim_account"] = claimAccount;
     auto request = new BaseRequest(HttpMethod::kPut, SubdomainType::kApi, RequestPriority::kNormal, "Users", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    return request;
+}
+
+BaseRequest *requests_factory::sendPayment(const std::string &authHash, const std::string &appleID, const std::string &appleData, const std::string &appleSIG, RequestFinishedCallback callback)
+{
+    std::map<std::string, std::string> extraParams;
+    extraParams["session_auth_hash"] = authHash;
+    extraParams["apple_id"] = appleID;
+    extraParams["apple_data"] = appleData;
+    extraParams["apple_sig"] = appleSIG;
+    auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "AppleIPN", extraParams, callback);
+    request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    return request;
+}
+
+BaseRequest *requests_factory::recordShakeForDataScore(const std::string &authHash, const std::string &platform, const std::string &score, const std::string &signature, RequestFinishedCallback callback)
+{
+    std::map<std::string, std::string> extraParams;
+    extraParams["session_auth_hash"] = authHash;
+    extraParams["platform"] = platform;
+    extraParams["score"] = score;
+    extraParams["sig"] = signature;
+    auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "ShakeData", extraParams, callback);
+    request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    return request;
+}
+
+BaseRequest *requests_factory::shakeData(const std::string &authHash, RequestFinishedCallback callback)
+{
+    std::map<std::string, std::string> extraParams;
+    extraParams["session_auth_hash"] = authHash;
+    auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "ShakeData", extraParams, callback);
     return request;
 }
 

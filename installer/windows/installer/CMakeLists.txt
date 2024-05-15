@@ -27,6 +27,7 @@ set(SOURCES
     ../../../client/common/archive/archive.cpp
     installer/installer.cpp
     installer/installer_shim.cpp
+    installer/installer_utils.cpp
     installer/blocks/files.cpp
     installer/blocks/icons.cpp
     installer/blocks/install_authhelper.cpp

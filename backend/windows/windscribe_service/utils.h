@@ -30,6 +30,7 @@ namespace Utils
     bool hasWhitespaceInString(std::wstring &str);
     bool verifyWindscribeProcessPath(HANDLE hPipe);
     bool iequals(const std::wstring &a, const std::wstring &b);
+    bool isMacAddress(const std::wstring &value);
 
     void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring &adapterRegistryName);
     GUID guidFromString(const std::wstring &str);

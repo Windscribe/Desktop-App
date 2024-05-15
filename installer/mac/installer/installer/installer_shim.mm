@@ -44,10 +44,10 @@ int InstallerShim::progress()
     return ((__bridge Installer *)installer_).progress;
 }
 
-bool InstallerShim::setInstallDir(std::wstring &path)
+void InstallerShim::setInstallDir(const std::wstring &path)
 {
     // not supported on Mac
-    return true;
+    return;
 }
 
 std::wstring InstallerShim::installDir()

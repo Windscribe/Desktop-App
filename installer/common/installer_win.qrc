@@ -17,6 +17,6 @@
         <file>resources/WINDOWS_MINIMIZE_HOVER.svg</file>
         <file>resources/WINDSCRIBE_ICON.svg</file>
         <file>resources/Windscribe.ico</file>
+        <file>resources/WARNING.svg</file>
     </qresource>
 </RCC>
-

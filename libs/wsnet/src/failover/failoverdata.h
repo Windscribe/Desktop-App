@@ -13,7 +13,7 @@ class FailoverData {
 public:
     explicit FailoverData(const std::string &domain) : domain_(domain) {}
     explicit FailoverData(const std::string &domain, const std::string &sniDomain) : domain_(domain), sniDomain_(sniDomain) {}
-    explicit FailoverData(const std::string &domain, const std::string &echConfig, int ttl) :
+    explicit FailoverData(const std::string &domain, const std::string &echConfig, unsigned long ttl) :
         domain_(domain), echConfig_(echConfig), ttl_(ttl)
     {
         startTime_ = std::chrono::steady_clock::now();
@@ -44,7 +44,7 @@ private:
     std::string   domain_;
     std::string   sniDomain_;     // empty if no SNI spoofing / domain fronting
     std::string   echConfig_;     // empty if it does not support ECH
-    std::optional<int> ttl_;      // TTL in seconds
+    std::optional<unsigned long> ttl_;      // TTL in seconds
     std::chrono::steady_clock::time_point startTime_;
 };
 

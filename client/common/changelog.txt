@@ -1,3 +1,18 @@
+2.10.10 (15/05/2024)
+All:
+   * Fixed wsnet bugs, in particular the icmp ping bug. Also other library refactoring related improvements taken from 2.11. #999
+   * Improved internal error handling. #987
+Windows:
+   * Added security warning in the installer when installing to a custom folder. #988
+   * Added debugging information for wsnet. #1001
+   * Fixed openvpn adapter IP assertion. #997
+   * Fixed privilege escalation vulnerability allowing an attacker to inject a DLL into the client app and task kill any process (Reported by Zeze Lin). #984
+MacOS:
+   * Fixed not adding the windscribe group in the helper. #1004
+Linux:
+   * Fixed GNOME/NetworkManager may show a scary message when disconnecting WireGuard. #996
+
+
 2.10.9 (29/04/2024)
 All:
    * Improved limit of 50 split tunnel entries to only apply to hostnames. #437

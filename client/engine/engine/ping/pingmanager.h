@@ -61,6 +61,7 @@ private:
         PingIpInfo ipInfo;
         qint64 iterationTime;
         bool latestPingFailed;
+        bool nowPinging;
         int failedPingsInRow;
         qint64 nextTimeForFailedPing;
         int curDelayForFailedPing = MIN_DELAY_FOR_FAILED_IN_ROW_PINGS;
@@ -83,6 +84,7 @@ private:
         {
             iterationTime = 0;
             latestPingFailed = false;
+            nowPinging = false;
             failedPingsInRow = 0;
             nextTimeForFailedPing = 0;
             curDelayForFailedPing = MIN_DELAY_FOR_FAILED_IN_ROW_PINGS;

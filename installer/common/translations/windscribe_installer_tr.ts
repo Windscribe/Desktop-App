@@ -92,6 +92,14 @@
         <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
         <translation>Yükleme klasörü kaldırılamayan veriler içeriyor. Lütfen uygulamayı manuel olarak kaldırın ve tekrar deneyin.</translation>
     </message>
+    <message>
+        <source>Security Warning</source>
+        <translation>Güvenlik Uyarısı</translation>
+    </message>
+    <message>
+        <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
+        <translation>Özel bir klasöre yükleme, bir saldırganın Windscribe uygulamasını kurcalamasına izin verebilir. Uygulamanın ve sisteminizin güvenliğini sağlamak için, &apos;Program Files&apos; klasöründeki varsayılan konuma yüklemenizi şiddetle tavsiye ederiz. Özel klasörle devam etmek için Tamam&apos;ı veya varsayılan konumu kullanmak için İptal&apos;i tıklatın.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -122,10 +130,6 @@
     <message>
         <source>Instructs the installer to skip installing drivers.</source>
         <translation>Yükleyiciye sürücüleri yüklemeyi atlamasını söyler.</translation>
-    </message>
-    <message>
-        <source>Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start.</source>
-        <translation>Yükleyiciye kullanıcı arabirimini gizlemesini söyler.  -no-drivers ve -no-auto-start anlamına gelir.</translation>
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
@@ -186,6 +190,14 @@
     <message>
         <source>The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support.</source>
         <translation>Yükleyici, yönetici haklarıyla çalışıp çalışmadığını belirleyemedi.  Lütfen bu hatayı Windscribe desteğine bildirin.</translation>
+    </message>
+    <message>
+        <source>Instructs the installer to hide its user interface.</source>
+        <translation>Yükleyiciye kullanıcı arabirimini gizlemesini söyler.</translation>
+    </message>
+    <message>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>Bu uygulamayı çalıştırmak için yeterli izinlere sahip değilsiniz. Windscribe&apos;ı yüklemek için yönetici ayrıcalıkları gereklidir.</translation>
     </message>
 </context>
 <context>

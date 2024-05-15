@@ -18,6 +18,7 @@ public:
     void setTitle(const QString &title);
     void setTitleSize(int px);
     void setDescription(const QString &desc);
+    void setDescriptionSize(int px);
     void setPrimaryButton(const QString &text);
     void setPrimaryButtonColor(const QColor &color);
     void setPrimaryButtonFontColor(const QColor &color);
@@ -42,6 +43,7 @@ private:
     QColor primaryButtonFontColor_;
 
     int titleSize_;
+    int descSize_;
 
     void updateDimensions();
 };

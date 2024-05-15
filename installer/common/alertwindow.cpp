@@ -61,6 +61,11 @@ void AlertWindow::setDescription(const QString &desc)
     contents_->setDescription(desc);
 }
 
+void AlertWindow::setDescriptionSize(int px)
+{
+    contents_->setDescriptionSize(px);
+}
+
 void AlertWindow::setPrimaryButton(const QString &text)
 {
     contents_->setPrimaryButton(text);

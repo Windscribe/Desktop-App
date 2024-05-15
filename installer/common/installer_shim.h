@@ -21,7 +21,7 @@ public:
     void setCallback(std::function<void()> func);
     // NB: can't ifdef platform-specific functions out for Mac here because we can't pull in any Qt headers
     std::wstring installDir();
-    bool setInstallDir(std::wstring &path);
+    void setInstallDir(const std::wstring &path);
     bool isFactoryResetEnabled();
     void setFactoryReset(bool on);
     bool isCreateShortcutEnabled();

@@ -92,6 +92,14 @@
         <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
         <translation>インストールフォルダには、アンインストールできなかったデータが含まれています。アプリケーションを手動でアンインストールして、もう一度やり直してください。</translation>
     </message>
+    <message>
+        <source>Security Warning</source>
+        <translation>セキュリティ警告</translation>
+    </message>
+    <message>
+        <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
+        <translation>カスタムフォルダにインストールすると、攻撃者が Windscribe アプリケーションを改ざんする可能性があります。アプリケーションとシステムのセキュリティを確保するために、「Program Files」フォルダーのデフォルトの場所にインストールすることを強くお勧めします。「OK」をクリックしてカスタム・フォルダを続行するか、「キャンセル」をクリックしてデフォルトの場所を使用します。</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -122,10 +130,6 @@
     <message>
         <source>Instructs the installer to skip installing drivers.</source>
         <translation>ドライバーのインストールをスキップするようにインストーラーに指示します。</translation>
-    </message>
-    <message>
-        <source>Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start.</source>
-        <translation>ユーザー インターフェイスを非表示にするようにインストーラーに指示します。 -ドライバーなしと-自動開始なしを意味します。</translation>
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
@@ -186,6 +190,14 @@
     <message>
         <source>The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support.</source>
         <translation>インストーラーは、管理者権限で実行されているかどうかを判断できませんでした。 このエラーを Windscribe サポートに報告してください。</translation>
+    </message>
+    <message>
+        <source>Instructs the installer to hide its user interface.</source>
+        <translation>ユーザー インターフェイスを非表示にするようにインストーラーに指示します。</translation>
+    </message>
+    <message>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>このアプリケーションを実行するための十分なアクセス許可がありません。Windscribeをインストールするには管理者権限が必要です。</translation>
     </message>
 </context>
 <context>

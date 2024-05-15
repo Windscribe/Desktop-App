@@ -13,6 +13,7 @@ HWND appMainWindowHandle();
 
 std::wstring DesktopFolder();
 std::wstring GetSystemDir();
+std::wstring programFilesFolder();
 std::wstring StartMenuProgramsFolder();
 
 // Run appName with the given commandLine and showWindowFlags.  Wait timeoutMS milliseconds for
@@ -24,5 +25,4 @@ std::optional<DWORD> InstExec(const std::wstring &appName, const std::wstring &c
                               const std::wstring &currentFolder = std::wstring(),
                               DWORD *lastError = nullptr);
 
-DWORD getOSBuildNumber();
 }

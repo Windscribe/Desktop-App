@@ -7,7 +7,7 @@ client:
     name:     Client
     subdir:   client
     target:   Windscribe.exe
-    symbols:  Windscribe.pdb
+    symbols:  [Windscribe.pdb, wsnet/wsnet.pdb]
   macos:
     name:     Client
     subdir:   client

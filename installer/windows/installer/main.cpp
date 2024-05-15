@@ -51,14 +51,10 @@ static std::optional<bool> isElevated()
     return Elevation.TokenIsElevated;
 }
 
-static int WSMessageBox(const QString title, const QString text)
+static int WSMessageBox(const QString &title, const QString &text)
 {
-    QMessageBox *box = new QMessageBox(QMessageBox::Critical, title, text);
-
-    int nResult = box->exec();
-    delete box;
-
-    return nResult;
+    QScopedPointer<QMessageBox> box(new QMessageBox(QMessageBox::Critical, title, text));
+    return box->exec();
 }
 
 static void loadSystemLanguage(QTranslator &translator, QApplication *app)
@@ -212,7 +208,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
                          .arg(QObject::tr("Show this information."))
                          .arg(QObject::tr("Do not launch the application after installation."))
                          .arg(QObject::tr("Instructs the installer to skip installing drivers."))
-                         .arg(QObject::tr("Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start."))
+                         .arg(QObject::tr("Instructs the installer to hide its user interface."))
                          .arg(QObject::tr("Delete existing preferences, logs, and other data, if they exist."))
                          .arg(QObject::tr("Overrides the default installation directory. Installation directory must be on the system drive."))
                          .arg(QObject::tr("Sets the username the application will use to automatically log in when first launched."))
@@ -346,6 +342,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     if (!isAdmin.has_value()) {
         WSMessageBox(QObject::tr("Windscribe Install Error"),
                      QObject::tr("The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support."));
+        return 0;
+    }
+
+    // MainWindow does not create a UI when running in silent mode.  We'll have to use a standard messagebox
+    // for this edge case.
+    if (!isAdmin.value() && ops.silent) {
+        WSMessageBox(QObject::tr("Windscribe Install Error"),
+                     QObject::tr("You don't have sufficient permissions to run this application. Administrative privileges are required to install Windscribe."));
         return 0;
     }
 

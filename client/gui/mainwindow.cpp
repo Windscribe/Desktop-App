@@ -3539,12 +3539,6 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
                                                                           selectedLocation_->locationdId().isCustomConfigsLocation());
         }
         msg = tr("The custom configuration could not be loaded.  Please check that it’s correct or contact support.");
-    } else if (connectState.connectError == EXE_VERIFY_WSTUNNEL_ERROR ||
-               connectState.connectError == EXE_VERIFY_STUNNEL_ERROR ||
-               connectState.connectError == EXE_VERIFY_WIREGUARD_ERROR ||
-               connectState.connectError == EXE_VERIFY_OPENVPN_ERROR)
-    {
-        msg = tr("The application is corrupted.  Please reinstall Windscribe.");
     } else if (connectState.connectError == CTRLD_START_FAILED) {
         msg = tr("Unable to start custom DNS service.  Please ensure you don't have any other local DNS services running, or contact support.");
     } else if (connectState.connectError == WIREGUARD_ADAPTER_SETUP_FAILED) {

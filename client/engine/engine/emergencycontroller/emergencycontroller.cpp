@@ -203,10 +203,9 @@ void EmergencyController::onConnectionError(CONNECT_ERROR err)
 
     connector_->startDisconnect();
     if (err == CONNECT_ERROR::AUTH_ERROR
-            || err == CONNECT_ERROR::CANT_RUN_OPENVPN
+            || err == CONNECT_ERROR::EXE_SUBPROCESS_FAILED
             || err == CONNECT_ERROR::NO_OPENVPN_SOCKET
-            || err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP
-            || err == CONNECT_ERROR::ALL_TAP_IN_USE)
+            || err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP)
     {
         // emit error in disconnected event
         state_ = STATE_ERROR_DURING_CONNECTION;

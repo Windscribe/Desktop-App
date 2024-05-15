@@ -10,13 +10,13 @@
 
 namespace wsnet {
 
-PingManager::PingManager(BS::thread_pool &taskQueue, WSNetHttpNetworkManager *httpNetworkManager) :
-    taskQueue_(taskQueue),
+PingManager::PingManager(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager) :
+    io_context_(io_context),
     httpNetworkManager_(httpNetworkManager)
 {
 
 #ifndef _WIN32
-    processManager_ = std::make_unique<ProcessManager>();
+    processManager_ = std::make_unique<ProcessManager>(io_context);
 #endif
 }
 
@@ -63,7 +63,7 @@ void PingManager::setIsConnectedToVpnState(bool isConnected)
 void PingManager::onPingMethodFinished(std::uint64_t id)
 {
     // Executing in thread pool to eliminate deadlocks
-    taskQueue_.detach_task([this, id] {
+    boost::asio::post(io_context_, [this, id] {
         std::lock_guard locker(mutex_);
         auto it = map_.find(id);
         assert(it != map_.end());

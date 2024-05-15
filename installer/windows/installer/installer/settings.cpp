@@ -6,13 +6,16 @@
 #include "../../utils/path.h"
 #include "wincryptutils.h"
 
-Settings::Settings() : isCreateShortcut_(true)
+Settings::Settings()
 {
+    setPath(ApplicationInfo::defaultInstallPath());
 }
 
 void Settings::setPath(const std::wstring &path)
 {
-    path_ = Path::removeSeparator(path);
+    if (!path.empty()) {
+        path_ = Path::removeSeparator(path);
+    }
 }
 
 std::wstring Settings::getPath() const
@@ -69,15 +72,15 @@ void Settings::setCredentials(const std::wstring &username, const std::wstring &
 void Settings::readFromRegistry()
 {
     QSettings reg(QString::fromStdWString(ApplicationInfo::installerRegistryKey()), QSettings::NativeFormat);
-    if (reg.contains("applicationPath")) {
-        setPath(reg.value("applicationPath").toString().toStdWString());
-    }
 
-    if (path_.empty() || !Path::isOnSystemDrive(path_)) {
-        // Default the install path if one does not exist in the Registy.
-        // For security purposes, ensure the user did not try to 'tweak' the Registry entry
-        // to specify installation on a non-system drive.
-        setPath(ApplicationInfo::defaultInstallPath());
+    if (reg.contains("applicationPath")) {
+        const auto path = reg.value("applicationPath").toString().toStdWString();
+
+        if (!path.empty() && Path::isOnSystemDrive(path)) {
+            // For security purposes, ensure the user did not try to 'tweak' the Registry entry
+            // to specify installation on a non-system drive.
+            setPath(path);
+        }
     }
 
     if (reg.contains("isCreateShortcut")) {

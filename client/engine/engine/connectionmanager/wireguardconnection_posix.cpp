@@ -58,12 +58,6 @@ void WireGuardConnectionImpl::connect()
 
         while ((err = host_->helper_->startWireGuard()) != IHelper::EXECUTE_SUCCESS)
         {
-            // don't bother another attempt if signature is invalid
-            if (err == IHelper::EXECUTE_VERIFY_ERROR)
-            {
-                host_->setError(EXE_VERIFY_WIREGUARD_ERROR);
-                return;
-            }
             if (retry >= 2)
             {
                 qCDebug(LOG_WIREGUARD) << "Can't start WireGuard after" << retry << "retries";

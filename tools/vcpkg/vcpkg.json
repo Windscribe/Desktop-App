@@ -5,6 +5,7 @@
         "boost-logic",
         "boost-serialization",
         "boost-thread",
+        "boost-process",
         "bshoshany-thread-pool",
         "openssl",
         "openvpn",
@@ -21,6 +22,10 @@
         "reproc",
         "c-ares",
         "advobfuscator",
-        "7zip"
+        "7zip",
+        {
+            "name": "winreg",
+            "platform": "windows"
+        }
     ]
 }

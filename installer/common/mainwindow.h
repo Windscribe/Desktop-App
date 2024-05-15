@@ -17,8 +17,6 @@ public:
     MainWindow(bool isAdmin, InstallerOptions &options);
     ~MainWindow();
 
-    void setProgress(int progress);
-
 protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
@@ -42,17 +40,22 @@ private slots:
     void onInstallerCallback();
 
 private:
-    InstallerOptions options_;
-    InitialWindow *initialWindow_;
-    SettingsWindow *settingsWindow_;
-    AlertWindow *alertWindow_;
-    InstallerShim *installerShim_;
-    bool mousePressed_;
-    bool fatalError_;
-    bool exiting_;
-    bool installing_;
+    const InstallerOptions options_;
+    InitialWindow *initialWindow_ = nullptr;
+    SettingsWindow *settingsWindow_ = nullptr;
+    AlertWindow *alertWindow_ = nullptr;
+    InstallerShim *installerShim_ = nullptr;
+    bool mousePressed_ = false;
+    bool fatalError_ = false;
+    bool exiting_ = false;
+    bool installing_ = false;
     QPoint dragPosition_;
+    std::wstring lastCustomPathWarning_;
 
+    bool isWarnUserCustomPath() const;
+    void showActiveWindowAfterAlert();
     void showExitPrompt();
     void setInstallPath(const QString &path);
+    void showCustomPathWarning(bool installing);
+    void startInstall();
 };

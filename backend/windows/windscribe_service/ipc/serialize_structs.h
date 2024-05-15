@@ -20,7 +20,7 @@ template<class Archive>
 void serialize(Archive & ar, CMD_TASK_KILL & g, const unsigned int version)
 {
     UNREFERENCED_PARAMETER(version);
-    ar & g.szExecutableName;
+    ar & g.target;
 }
 
 template<class Archive>
@@ -30,13 +30,6 @@ void serialize(Archive & ar, CMD_SET_METRIC & g, const unsigned int version)
     ar & g.szInterfaceType;
     ar & g.szInterfaceName;
     ar & g.szMetricNumber;
-}
-
-template<class Archive>
-void serialize(Archive & ar, CMD_WMIC_ENABLE & g, const unsigned int version)
-{
-    UNREFERENCED_PARAMETER(version);
-    ar & g.szAdapterName;
 }
 
 template<class Archive>

@@ -4,8 +4,8 @@
 
 namespace wsnet {
 
-HttpNetworkManager::HttpNetworkManager(BS::thread_pool &taskQueue, WSNetDnsResolver *dnsResolver) :
-    taskQueue_(taskQueue), impl_(taskQueue, dnsResolver)
+HttpNetworkManager::HttpNetworkManager(boost::asio::io_context &io_context, WSNetDnsResolver *dnsResolver) :
+    io_context_(io_context), impl_(io_context, dnsResolver)
 {
 }
 
@@ -38,7 +38,7 @@ std::shared_ptr<WSNetCancelableCallback> HttpNetworkManager::executeRequestEx(co
                                                  WSNetHttpNetworkManagerProgressCallback progressCallback, WSNetHttpNetworkManagerReadyDataCallback readyReadCallback)
 {
     auto cc = std::make_shared<HttpNetworkManagerCallbacks>(finishedCallback, progressCallback, readyReadCallback);
-    taskQueue_.detach_task([this, request, id, cc] {
+    boost::asio::post(io_context_, [this, request, id, cc] {
         impl_.executeRequest(request, id, cc);
     });
     return cc;
@@ -46,7 +46,7 @@ std::shared_ptr<WSNetCancelableCallback> HttpNetworkManager::executeRequestEx(co
 
 void HttpNetworkManager::setProxySettings(const std::string &address, const std::string &username, const std::string &password)
 {
-    taskQueue_.detach_task([this, address, username, password] {
+    boost::asio::post(io_context_, [this, address, username, password] {
         impl_.setProxySettings(address, username, password);
     });
 }
@@ -55,14 +55,29 @@ std::shared_ptr<WSNetCancelableCallback> HttpNetworkManager::setWhitelistIpsCall
 {
     if (whitelistIpsCallback) {
         auto cancelableCallback = std::make_shared<CancelableCallback<WSNetHttpNetworkManagerWhitelistIpsCallback>>(whitelistIpsCallback);
-        taskQueue_.detach_task([this, cancelableCallback] {
+        boost::asio::post(io_context_, [this, cancelableCallback] {
             impl_.setWhitelistIpsCallback(cancelableCallback);
         });
-
         return cancelableCallback;
     } else {
-        taskQueue_.detach_task([this] {
+        boost::asio::post(io_context_, [this] {
             impl_.setWhitelistIpsCallback(nullptr);
+        });
+        return nullptr;
+    }
+}
+
+std::shared_ptr<WSNetCancelableCallback> HttpNetworkManager::setWhitelistSocketsCallback(WSNetHttpNetworkManagerWhitelistSocketsCallback whitelistSocketsCallback)
+{
+    if (whitelistSocketsCallback) {
+        auto cancelableCallback = std::make_shared<CancelableCallback<WSNetHttpNetworkManagerWhitelistSocketsCallback>>(whitelistSocketsCallback);
+        boost::asio::post(io_context_, [this, cancelableCallback] {
+            impl_.setWhitelistSocketsCallback(cancelableCallback);
+        });
+        return cancelableCallback;
+    } else {
+        boost::asio::post(io_context_, [this] {
+            impl_.setWhitelistSocketsCallback(nullptr);
         });
         return nullptr;
     }

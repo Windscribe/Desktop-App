@@ -3,9 +3,9 @@
 
 namespace wsnet {
 
-WSNetUtils_impl::WSNetUtils_impl(BS::thread_pool &taskQueue, WSNetHttpNetworkManager *httpNetworkManager,
+WSNetUtils_impl::WSNetUtils_impl(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager,
                                  IFailoverContainer *failoverContainer, WSNetAdvancedParameters *advancedParameters) :
-    taskQueue_(taskQueue),
+    io_context_(io_context),
     httpNetworkManager_(httpNetworkManager),
     advancedParameters_(advancedParameters),
     failoverContainer_(failoverContainer)
@@ -31,7 +31,7 @@ std::shared_ptr<WSNetCancelableCallback> WSNetUtils_impl::myIPViaFailover(int fa
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::myIP(cancelableCallback);
-    taskQueue_.detach_task([this, failoverInd, request] { myIPViaFailover_impl(failoverInd, std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, failoverInd, request] { myIPViaFailover_impl(failoverInd, std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 

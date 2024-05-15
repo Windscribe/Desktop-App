@@ -1,45 +1,40 @@
 #pragma once
 #include <memory>
-#include <map>
+#include <unordered_map>
 #include <mutex>
 #include <vector>
 #include <thread>
 #include <functional>
-#include <condition_variable>
-#include <atomic>
-#include <reproc++/reproc.hpp>
+#include <boost/asio.hpp>
+#include <boost/process.hpp>
 
 namespace wsnet {
 
 typedef std::function<void(int exitCode, const std::string &output)> ProcessManagerCallback;
 
 // Simple process manager. Allows you to start a process and set a callback function that is called after the process is finished.
-// Based on reproc (Redirected Process) cross-platform C/C++ library
-// In destructor kills all running processes
 // Thread safe
 class ProcessManager
 {
 public:
-    ProcessManager();
+    ProcessManager(boost::asio::io_context &io_context);
     ~ProcessManager();
 
-    bool execute(const std::vector<std::string> &args, ProcessManagerCallback callback);
+    bool execute(const std::string &cmd, const std::vector<std::string> &args, ProcessManagerCallback callback);
 
 private:
-    std::mutex mutex_;
-    std::thread checkThread_;
-    std::condition_variable condition_;
-    std::atomic_bool finish_ = false;
+    boost::asio::io_context &io_context_;
 
-    struct ProcessData
+    struct ChildProcess
     {
-        std::unique_ptr<reproc::process> process;
+        boost::process::child process;
+        boost::process::ipstream data;
         ProcessManagerCallback callback;
     };
 
-    std::vector<std::unique_ptr<ProcessData>> processes_;
-
-    void checkTread();
+    std::mutex mutex_;
+    uint64_t curId_ = 0;
+    std::unordered_map<uint64_t, std::unique_ptr<ChildProcess>> processes_;
 };
 
 } // namespace wsnet

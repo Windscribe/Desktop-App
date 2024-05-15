@@ -188,7 +188,7 @@ void OpenVPNConnection::onKillControllerTimer()
     killControllerTimer_.stop();
 #ifdef Q_OS_WIN
     Helper_win *helper_win= dynamic_cast<Helper_win *>(helper_);
-    helper_win->executeTaskKill(OpenVpnVersionController::instance().getOpenVpnFileName());
+    helper_win->executeTaskKill(kTargetOpenVpn);
 #else
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
     helper_posix->executeTaskKill(kTargetOpenVpn);
@@ -211,17 +211,10 @@ void OpenVPNConnection::funcRunOpenVPN()
     {
         qCDebug(LOG_CONNECTION) << "Can't run OpenVPN";
 
-        // don't bother re-attempting if signature is invalid
-        if (err == IHelper::EXECUTE_VERIFY_ERROR)
-        {
-            setCurrentStateAndEmitError(STATUS_DISCONNECTED, CONNECT_ERROR::EXE_VERIFY_OPENVPN_ERROR);
-            return;
-        }
-
         if (retries >= 2)
         {
             qCDebug(LOG_CONNECTION) << "Can't run openvpn process";
-            setCurrentStateAndEmitError(STATUS_DISCONNECTED, CONNECT_ERROR::CANT_RUN_OPENVPN);
+            setCurrentStateAndEmitError(STATUS_DISCONNECTED, CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
             return;
         }
         if (bStopThread_)
@@ -584,10 +577,6 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 // These errors indicate socket was closed or otherwise unavailable for writing.
                 setCurrentStateAndEmitDisconnected(STATUS_DISCONNECTED);
             }
-        }
-        else if (serverReply.contains(">FATAL:All tap-windows6 adapters on this system are currently in use", Qt::CaseInsensitive))
-        {
-            emit error(CONNECT_ERROR::ALL_TAP_IN_USE);
         }
         else if (serverReply.contains(">FATAL:All wintun adapters on this system are currently in use", Qt::CaseInsensitive))
         {

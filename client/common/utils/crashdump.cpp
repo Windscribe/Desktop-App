@@ -42,7 +42,7 @@ private:
 
 CrashDumpInternal::CrashDumpInternal()
 {
-    dbgHelpHandle_ = ::LoadLibrary(TEXT("dbghelp.dll"));
+    dbgHelpHandle_ = ::LoadLibraryEx(L"dbghelp.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
     if (dbgHelpHandle_) {
         fnImagehlpApiVersionEx_ = reinterpret_cast<PFNIMAGEHLPAPIVERSIONEX>(
             GetProcAddress(dbgHelpHandle_, "ImagehlpApiVersionEx"));

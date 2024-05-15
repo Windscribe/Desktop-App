@@ -1,18 +1,20 @@
 {
 "dependencies": [
     "gtest",
+    "scapix",
     "spdlog",
     {
         "name": "curl",
         "features": [ "openssl" ]
     },
     "rapidjson",
+    "boost-config",
+    "boost-metaparse",
+    "boost-process",
     "skyr-url",
     "cmakerc",
-    "bshoshany-thread-pool",
     "cpp-base64",
-    "reproc",
-        "c-ares",
-        "advobfuscator"
+    "c-ares",
+    "advobfuscator"
     ]
 }

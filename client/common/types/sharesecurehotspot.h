@@ -25,7 +25,7 @@ struct ShareSecureHotspot
 
     ShareSecureHotspot(const QJsonObject &json)
     {
-        if (json.contains(jsonInfo.kIsEnabledProp) && json[jsonInfo.kIsEnabledProp].isDouble())
+        if (json.contains(jsonInfo.kIsEnabledProp) && json[jsonInfo.kIsEnabledProp].isBool())
             isEnabled = json[jsonInfo.kIsEnabledProp].toBool();
 
         if (json.contains(jsonInfo.kSSIDProp) && json[jsonInfo.kSSIDProp].isString())

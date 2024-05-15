@@ -140,7 +140,6 @@ bool Helper_mac::createCliSymlinkDir()
 
 CMD_ANSWER Helper_mac::sendCmdToHelper(int cmdId, const std::string &data)
 {
-    [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"sendCmdToHelper: %li", (long) cmdId]];
     xpc_object_t message = xpc_dictionary_create(NULL, NULL, 0);
     xpc_dictionary_set_int64(message, "cmdId", cmdId);
     xpc_dictionary_set_data(message, "data", data.c_str(), data.size());
@@ -151,7 +150,6 @@ CMD_ANSWER Helper_mac::sendCmdToHelper(int cmdId, const std::string &data)
         [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"xpc_connection_send_message_with_reply_sync return XPC_TYPE_ERROR"]];
         return CMD_ANSWER();
     } else if (type == XPC_TYPE_DICTIONARY) {
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"xpc_connection_send_message_with_reply_sync received dictionary"]];
         size_t length;
         const void *buf = xpc_dictionary_get_data(answer, "data", &length);
         if (buf && length > 0) {

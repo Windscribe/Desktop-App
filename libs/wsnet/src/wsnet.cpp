@@ -2,7 +2,7 @@
 #include "WSNet.h"
 
 #include <spdlog/spdlog.h>
-#include <BS_thread_pool.hpp>
+#include <boost/asio.hpp>
 #include "utils/wsnet_callback_sink.h"
 #include "dnsresolver/dnsresolver_cares.h"
 #include "httpnetworkmanager/httpnetworkmanager.h"
@@ -25,15 +25,15 @@ namespace wsnet {
 class WSNet_impl : public WSNet
 {
 public:
-    WSNet_impl() : taskQueue_(1)
+    WSNet_impl() : work_(boost::asio::make_work_guard(io_context_))
     {
+        thread_ = std::thread([this](){ io_context_.run(); });
     }
 
     virtual ~WSNet_impl()
     {
-        // suspend all tasks in the pool before exiting
-        // to prevent callback functions from being called when parent objects have already been deleted
-        taskQueue_.pause();
+        work_.reset();  // Allow all handlers to be allowed to finish normally
+        thread_.join();
     }
 
     bool initializeImpl(const std::string &platformName,const std::string &appVersion, bool isUseStagingDomains, const std::string &serverApiSettings)
@@ -46,7 +46,7 @@ public:
             return false;
         }
 
-        httpNetworkManager_ = std::make_shared<HttpNetworkManager>(taskQueue_, dnsResolver_.get());
+        httpNetworkManager_ = std::make_shared<HttpNetworkManager>(io_context_, dnsResolver_.get());
         if (!httpNetworkManager_->init()) {
             spdlog::critical("Failed to initialize HttpNetworkManager");
             return false;
@@ -61,10 +61,10 @@ public:
 
         failoverContainer_ = std::make_unique<FailoverContainer>(httpNetworkManager_.get());
         advancedParameters_ = std::make_shared<AdvancedParameters>();
-        serverAPI_ = std::make_shared<ServerAPI>(taskQueue_, httpNetworkManager_.get(), failoverContainer_.get(), serverApiSettings, advancedParameters_.get(), connectState_);
-        emergencyConnect_ = std::make_shared<EmergencyConnect>(taskQueue_, failoverContainer_.get(), dnsResolver_.get());
-        pingManager_ = std::make_shared<PingManager>(taskQueue_, httpNetworkManager_.get());
-        utils_ = std::make_shared<WSNetUtils_impl>(taskQueue_, httpNetworkManager_.get(), failoverContainer_.get(), advancedParameters_.get());
+        serverAPI_ = std::make_shared<ServerAPI>(io_context_, httpNetworkManager_.get(), failoverContainer_.get(), serverApiSettings, advancedParameters_.get(), connectState_);
+        emergencyConnect_ = std::make_shared<EmergencyConnect>(io_context_, failoverContainer_.get(), dnsResolver_.get());
+        pingManager_ = std::make_shared<PingManager>(io_context_, httpNetworkManager_.get());
+        utils_ = std::make_shared<WSNetUtils_impl>(io_context_, httpNetworkManager_.get(), failoverContainer_.get(), advancedParameters_.get());
 
         return true;
     }
@@ -87,7 +87,10 @@ public:
     std::shared_ptr<WSNetUtils> utils() override { return utils_; }
 
 private:
-    BS::thread_pool taskQueue_;
+    std::thread thread_;
+    boost::asio::io_context io_context_;
+    boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_;
+
     ConnectState connectState_;
     std::shared_ptr<DnsResolver_cares> dnsResolver_;
     std::shared_ptr<HttpNetworkManager> httpNetworkManager_;

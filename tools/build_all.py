@@ -345,13 +345,16 @@ def deploy_component(configdata, component_name, buildenv=None, target_name_over
             iutl.RunCommand(install_cmd, env=buildenv, shell=(CURRENT_OS == "win32"))
 
         if BUILD_SYMBOL_FILES and "symbols" in component:
-            srcfile = os.path.join(temp_wd, target_location, component["symbols"])
-            if os.path.exists(srcfile):
-                dstfile = BUILD_SYMBOL_FILES
-                if "outdir" in component:
-                    dstfile = os.path.join(dstfile, component["outdir"])
-                dstfile = os.path.join(dstfile, component["symbols"])
-                utl.CopyFile(srcfile, dstfile)
+            c_symbols = component.get("symbols", None)
+            symbols = [c_symbols] if (type(c_symbols) is not list) else c_symbols
+            for s in symbols:
+                srcfile = os.path.join(temp_wd, target_location, s)
+                if os.path.exists(srcfile):
+                    dstfile = BUILD_SYMBOL_FILES
+                    if "outdir" in component:
+                        dstfile = os.path.join(dstfile, component["outdir"])
+                    dstfile = os.path.join(dstfile, os.path.basename(s))
+                    utl.CopyFile(srcfile, dstfile)
 
 
 def build_components(configdata, targetlist, qt_root):

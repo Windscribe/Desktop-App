@@ -92,6 +92,14 @@
         <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
         <translation>پوشه نصب حاوی داده هایی است که نمی توان انها را حذف نصب کرد. لطفا برنامه را به صورت دستی حذف کنید و دوباره امتحان کنید.</translation>
     </message>
+    <message>
+        <source>Security Warning</source>
+        <translation>هشدار امنیتی</translation>
+    </message>
+    <message>
+        <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
+        <translation>نصب یک پوشه سفارشی ممکن است به مهاجم اجازه دهد تا برنامه Windscribe را دستکاری کند. برای اطمینان از امنیت برنامه و سیستم شما، ما به شدت توصیه می کنیم که به مکان پیش فرض در پوشه &quot;فایل های برنامه&quot; نصب کنید. روی OK کلیک کنید تا پوشه سفارشی ادامه یابد یا برای استفاده از مکان پیش فرض لغو شود.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -122,10 +130,6 @@
     <message>
         <source>Instructs the installer to skip installing drivers.</source>
         <translation>اموزش نصب کننده به جست و خیز نصب درایور.</translation>
-    </message>
-    <message>
-        <source>Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start.</source>
-        <translation>به نصب کننده دستور می دهد رابط کاربری خود را پنهان کند.  به معنی -no-drivers و -no-auto-start است.</translation>
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
@@ -186,6 +190,14 @@
     <message>
         <source>The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support.</source>
         <translation>نصب کننده قادر به تعیین اینکه ایا با حقوق سرپرست اجرا می شود، نبود.  لطفا این شکست را به پشتیبانی Windscribe گزارش دهید.</translation>
+    </message>
+    <message>
+        <source>Instructs the installer to hide its user interface.</source>
+        <translation>به نصب کننده دستور می دهد رابط کاربری خود را پنهان کند.</translation>
+    </message>
+    <message>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>شما مجوز کافی برای اجرای این برنامه را ندارید. امتیازات اداری برای نصب Windscribe مورد نیاز است.</translation>
     </message>
 </context>
 <context>

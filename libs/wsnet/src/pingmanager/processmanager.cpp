@@ -1,85 +1,58 @@
 #include "processmanager.h"
 #include <spdlog/spdlog.h>
-#include <reproc/reproc.h>
-#include <reproc++/drain.hpp>
 
 namespace wsnet {
 
-ProcessManager::ProcessManager()
+ProcessManager::ProcessManager(boost::asio::io_context &io_context) :
+    io_context_(io_context)
 {
-    checkThread_ = std::thread(std::bind(&ProcessManager::checkTread, this));
 }
 
 ProcessManager::~ProcessManager()
 {
-    finish_ = true;
-    condition_.notify_all();
-    checkThread_.join();
-
     std::lock_guard locker(mutex_);
     for (auto &it : processes_) {
-        it->process->kill();
+        it.second->process.terminate();
     }
 }
 
-bool ProcessManager::execute(const std::vector<std::string> &args, ProcessManagerCallback callback)
+bool ProcessManager::execute(const std::string &cmd, const std::vector<std::string> &args, ProcessManagerCallback callback)
 {
-    auto processData = std::make_unique<ProcessData>();
-    using namespace  std::placeholders;
-    processData->process = std::make_unique<reproc::process>();
-    std::error_code ec = processData->process->start(args);
-    if (ec) {
-        spdlog::error("Cannot start a process: {}, error: {}", fmt::join(args, " "), ec.value());
-        return true;
-    }
-    processData->callback = callback;
-
     std::lock_guard locker(mutex_);
-    processes_.push_back(std::move(processData));
-    condition_.notify_all();
-    return false;
-}
 
-void ProcessManager::checkTread()
-{
-    while (!finish_) {
-
-        {
-            std::unique_lock<std::mutex> locker(mutex_);
-            condition_.wait(locker, [this]{ return !processes_.empty() || finish_; });
-        }
-
-        if (finish_)
-            return;
-
-        {
-            std::unique_lock<std::mutex> locker(mutex_);
-            auto it = processes_.begin();
-            while(it != processes_.end()) {
-
-                std::error_code ec;
-                int status = 0;
-                std::tie(status, ec) = (*it)->process->wait(std::chrono::milliseconds(0));
-                if (status != REPROC_ETIMEDOUT) {
-
-                    std::string output;
-                    reproc::sink::string sink(output);
-                    ec = reproc::drain(*(*it)->process, sink, reproc::sink::null);
-                    if (!ec)
-                        (*it)->callback(status, output);
-                    else {
-                        spdlog::error("Cannot drain a process, error: {}", ec.value());
-                        (*it)->callback(-1, output);
-                    }
-                    it = processes_.erase(it);
-                } else {
-                    it++;
+    try {
+        auto childProcess = std::make_unique<ChildProcess>();
+        childProcess->callback = callback;
+        childProcess->process = boost::process::child(boost::process::search_path(cmd), args,
+            boost::process::std_out >  childProcess->data,
+            io_context_,
+            boost::process::on_exit = [this, id = curId_](int exit, std::error_code ec) {
+                // on exit function handler
+                std::string data;
+                ProcessManagerCallback callback;
+                // copy data and callback and remove an item from processes
+                {
+                    std::lock_guard locker(mutex_);
+                    auto it = processes_.find(id);
+                    assert(it != processes_.end());
+                    std::ostringstream os;
+                    os << it->second->data.rdbuf();
+                    data = os.str();
+                    callback = it->second->callback;
+                    processes_.erase(it);
                 }
-            }
-        }
+                // call callback
+                callback(exit, data);
+            });
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        processes_[curId_++] = std::move(childProcess);
+
+    } catch(...) {
+        spdlog::error("Cannot start a process: {}", cmd);
+        return false;
     }
+
+    return true;
 }
 
 } // namespace wsnet

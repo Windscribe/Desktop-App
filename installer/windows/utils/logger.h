@@ -36,6 +36,4 @@ private:
 
     Log();
     ~Log();
-
-    void writeToSystemDebugger() const;
 };

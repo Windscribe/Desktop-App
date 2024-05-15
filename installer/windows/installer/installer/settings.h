@@ -32,10 +32,10 @@ private:
     std::wstring path_;
     std::wstring username_;
     std::wstring password_;
-    bool isCreateShortcut_;
-    bool isInstallDrivers_;
-    bool isAutoStart_;
-    bool isFactoryReset_;
+    bool isCreateShortcut_ = true;
+    bool isInstallDrivers_ = true;
+    bool isAutoStart_ = true;
+    bool isFactoryReset_ = false;
 
     explicit Settings();
     ~Settings() = default;

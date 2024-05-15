@@ -5,9 +5,9 @@
 
 namespace wsnet {
 
-ServerAPI::ServerAPI(BS::thread_pool &taskQueue, WSNetHttpNetworkManager *httpNetworkManager, IFailoverContainer *failoverContainer,
+ServerAPI::ServerAPI(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager, IFailoverContainer *failoverContainer,
                      const std::string &settings, WSNetAdvancedParameters *advancedParameters, ConnectState &connectState) :
-    taskQueue_(taskQueue),
+    io_context_(io_context),
     settings_(settings),
     advancedParameters_(advancedParameters),
     connectState_(connectState)
@@ -28,14 +28,14 @@ std::string ServerAPI::currentSettings()
 
 void ServerAPI::setApiResolutionsSettings(bool isAutomatic, std::string manualAddress)
 {
-    taskQueue_.detach_task([this, isAutomatic, manualAddress] {
+    boost::asio::post(io_context_, [this, isAutomatic, manualAddress] {
         impl_->setApiResolutionsSettings(isAutomatic, manualAddress);
     });
 }
 
 void ServerAPI::setIgnoreSslErrors(bool bIgnore)
 {
-    taskQueue_.detach_task([this, bIgnore] {
+    boost::asio::post(io_context_, [this, bIgnore] {
         impl_->setIgnoreSslErrors(bIgnore);
     });
 }
@@ -43,7 +43,7 @@ void ServerAPI::setIgnoreSslErrors(bool bIgnore)
 std::shared_ptr<WSNetCancelableCallback> ServerAPI::setTryingBackupEndpointCallback(WSNetTryingBackupEndpointCallback tryingBackupEndpointCallback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetTryingBackupEndpointCallback>>(tryingBackupEndpointCallback);
-    taskQueue_.detach_task([this, cancelableCallback] {
+    boost::asio::post(io_context_, [this, cancelableCallback] {
         impl_->setTryingBackupEndpointCallback(cancelableCallback);
     });
     return cancelableCallback;
@@ -52,13 +52,13 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::setTryingBackupEndpointCallb
 std::shared_ptr<WSNetCancelableCallback> ServerAPI::login(const std::string &username, const std::string &password, const std::string &code2fa, WSNetRequestFinishedCallback callback)
 {
     // For login only request, we reset a failover to the initial state
-    taskQueue_.detach_task([this] {
+    boost::asio::post(io_context_, [this] {
         impl_->resetFailover();
     });
 
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::login(username, password, code2fa, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -66,7 +66,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::session(const std::string &a
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::session(authHash, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -74,7 +74,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::deleteSession(const std::str
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::deleteSession(authHash, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -83,7 +83,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::serverLocations(const std::s
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::serverLocations(settings_, language, revision, isPro, alcList,
                                                              connectState_, advancedParameters_, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -91,7 +91,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::serverCredentials(const std:
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::serverCredentials(authHash, isOpenVpnProtocol, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -99,7 +99,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::serverConfigs(const std::str
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::serverConfigs(authHash, ovpnVersion, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -107,7 +107,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::portMap(const std::string &a
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::portMap(authHash, version, forceProtocols, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -115,7 +115,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::recordInstall(const std::str
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::recordInstall(platform, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -123,7 +123,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::addEmail(const std::string &
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::addEmail(authHash, email, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -131,7 +131,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::confirmEmail(const std::stri
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::confirmEmail(authHash, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -139,7 +139,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::signup(const std::string &us
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::signup(username, password, referringUsername, email, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -147,7 +147,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::webSession(const std::string
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::webSession(authHash, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -156,7 +156,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::checkUpdate(UpdateChannel up
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::checkUpdate(updateChannel, appVersion, appBuild, osVersion, osBuild, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -164,7 +164,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::debugLog(const std::string &
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::debugLog(username, strLog, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -172,7 +172,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::speedRating(const std::strin
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::speedRating(authHash, hostname, ip, rating, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -180,7 +180,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::staticIps(const std::string 
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::staticIps(authHash, platform, deviceId, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -188,7 +188,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::pingTest(std::uint32_t timeo
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::pingTest(timeoutMs, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -196,7 +196,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::notifications(const std::str
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::notifications(authHash, pcpid, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -204,7 +204,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::getRobertFilters(const std::
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::getRobertFilters(authHash, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -212,7 +212,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::setRobertFilter(const std::s
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::setRobertFilter(authHash, id, status, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -220,7 +220,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::syncRobert(const std::string
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::syncRobert(authHash, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -228,7 +228,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::wgConfigsInit(const std::str
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::wgConfigsInit(authHash, clientPublicKey, deleteOldestKey, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -236,7 +236,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::wgConfigsConnect(const std::
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::wgConfigsConnect(authHash, clientPublicKey, hostname, deviceId, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -244,15 +244,23 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::myIP(WSNetRequestFinishedCal
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::myIP(cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
-std::shared_ptr<WSNetCancelableCallback> ServerAPI::mobileBillingPlans(const std::string &mobilePlanType, int version, WSNetRequestFinishedCallback callback)
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::mobileBillingPlans(const std::string &authHash, const std::string &mobilePlanType, const std::string &promo, int version, WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = requests_factory::mobileBillingPlans(mobilePlanType, version, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    BaseRequest *request = requests_factory::mobileBillingPlans(authHash, mobilePlanType, promo, version, cancelableCallback);
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    return cancelableCallback;
+}
+
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::sendPayment(const std::string &authHash, const std::string &appleID, const std::string &appleData, const std::string &appleSIG, WSNetRequestFinishedCallback callback)
+{
+    auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
+    BaseRequest *request = requests_factory::sendPayment(authHash, appleID, appleData, appleSIG, cancelableCallback);
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -260,7 +268,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::verifyPayment(const std::str
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::verifyPayment(authHash, purchaseToken, gpPackageName, gpProductId, type, amazonUserId, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -268,7 +276,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::postBillingCpid(const std::s
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::postBillingCpid(authHash, payCpid, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -276,7 +284,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::getXpressLoginCode(WSNetRequ
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::getXpressLoginCode(cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -284,7 +292,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::verifyXpressLoginCode(const 
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::verifyXpressLoginCode(xpressCode, sig, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -295,7 +303,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::sendSupportTicket(const std:
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::sendSupportTicket(supportEmail, supportName, supportSubject, supportMessage, supportCategory, type, channel, platform, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -303,7 +311,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::regToken(WSNetRequestFinishe
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::regToken(cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -311,7 +319,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::signupUsingToken(const std::
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::signupUsingToken(token, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
@@ -319,13 +327,29 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::claimAccount(const std::stri
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::claimAccount(authHash, username, password, email, claimAccount, cancelableCallback);
-    taskQueue_.detach_task([this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    return cancelableCallback;
+}
+
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::shakeData(const std::string &authHash, WSNetRequestFinishedCallback callback)
+{
+    auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
+    BaseRequest *request = requests_factory::shakeData(authHash, cancelableCallback);
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    return cancelableCallback;
+}
+
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::recordShakeForDataScore(const std::string &authHash, const std::string &platform, const std::string &score, const std::string &signature, WSNetRequestFinishedCallback callback)
+{
+    auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
+    BaseRequest *request = requests_factory::recordShakeForDataScore(authHash, platform, score, signature, cancelableCallback);
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
 void ServerAPI::onVPNConnectStateChanged(bool isConnected)
 {
-    taskQueue_.detach_task([this, isConnected] {
+    boost::asio::post(io_context_, [this, isConnected] {
         impl_->setIsConnectedToVpnState(isConnected);
     });
 }

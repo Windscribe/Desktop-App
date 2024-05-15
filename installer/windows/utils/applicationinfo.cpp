@@ -1,11 +1,10 @@
 #include "applicationinfo.h"
 
-#include <memory>
 #include <shlwapi.h>
 #include <shlobj_core.h>
 
-#include "logger.h"
 #include "path.h"
+#include "utils.h"
 #include "version/windscribe_version.h"
 
 namespace ApplicationInfo {
@@ -59,21 +58,8 @@ wstring appExeName()
 
 wstring defaultInstallPath()
 {
-    wstring defaultPath;
-
-    TCHAR programFilesPath[MAX_PATH];
-    BOOL result = ::SHGetSpecialFolderPath(0, programFilesPath, CSIDL_PROGRAM_FILES, FALSE);
-    if (!result) {
-        Log::WSDebugMessage(L"defaultInstallPath - SHGetSpecialFolderPath failed");
-        defaultPath = wstring(L"C:\\Program Files");
-    }
-    else {
-        defaultPath = wstring(programFilesPath);
-    }
-
-    defaultPath = Path::append(defaultPath, name());
-
-    return defaultPath;
+    wstring programFiles = Utils::programFilesFolder();
+    return Path::append(programFiles, name());
 }
 
 wstring appRegistryKey()

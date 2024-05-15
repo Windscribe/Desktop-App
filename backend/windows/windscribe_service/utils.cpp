@@ -1,13 +1,19 @@
 #include "all_headers.h"
 #include "utils.h"
-#include "logger.h"
-#include <comdef.h>
+
 #include <KnownFolders.h>
+#include <comdef.h>
+#include <Mstcpip.h>
+#include <netiodef.h>
 #include <shlobj.h>
-#include <WbemIdl.h>
 #include <versionhelpers.h>
-#include "../../../client/common/utils/executable_signature/executable_signature.h"
-#include "../../../client/common/utils/win32handle.h"
+#include <WbemIdl.h>
+
+#include <cwctype>
+
+#include "logger.h"
+#include "utils/executable_signature/executable_signature.h"
+#include "utils/win32handle.h"
 
 #pragma comment(lib, "wbemuuid.lib")
 
@@ -531,6 +537,34 @@ std::wstring getSystemDir()
     }
 
     return std::wstring(path);
+}
+
+bool isMacAddress(const std::wstring &value)
+{
+    bool valid = false;
+
+    if (value.find_first_of(L":-") == std::wstring::npos) {
+        if (value.size() == 12) {
+            const auto result = std::count_if(value.begin(), value.end(), [](wint_t c){ return std::iswxdigit(c); });
+            valid = (result == 12);
+        }
+    }
+    else {
+        // We expect the MAC address in AA-BB-CC-DD-EE-FF format, with the separator being a '-' or ':'.
+        if (value.size() == 17) {
+            // Convert to the non-DIX standard "-" notation required by the IP Helper API.
+            std::wstring mac(value);
+            std::replace(mac.begin(), mac.end(), L':', L'-');
+
+            // Let the Windows API do the validation for us.
+            PCWSTR terminator = NULL;
+            DL_EUI48 addr;
+            auto status = ::RtlEthernetStringToAddressW(mac.c_str(), &terminator, &addr);
+            valid = (status == ERROR_SUCCESS);
+        }
+    }
+
+    return valid;
 }
 
 }

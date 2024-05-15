@@ -6,10 +6,10 @@
 #include <QString>
 
 #include "../installer_base.h"
+#include "../installer_utils.h"
 #include "../settings.h"
 #include "../../../utils/applicationinfo.h"
 #include "../../../utils/logger.h"
-#include "../../../utils/utils.h"
 
 #include "types/global_consts.h"
 
@@ -21,7 +21,7 @@ InstallOpenVPNDCO::InstallOpenVPNDCO(double weight) : IInstallBlock(weight, L"op
 
 int InstallOpenVPNDCO::executeStep()
 {
-    DWORD buildNum = Utils::getOSBuildNumber();
+    DWORD buildNum = InstallerUtils::getOSBuildNumber();
     if (buildNum < kMinWindowsBuildNumberForOpenVPNDCO) {
         Log::instance().out(
             "WARNING: OS version is not compatible with the OpenVPN DCO driver.  Windows 10 build %lu or newer is required"

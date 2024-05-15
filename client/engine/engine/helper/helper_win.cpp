@@ -65,8 +65,7 @@ Helper_win::STATE Helper_win::currentState() const
 
 bool Helper_win::reinstallHelper()
 {
-    QString servicePath = QCoreApplication::applicationDirPath() + "/WindscribeService.exe";
-    return InstallHelper_win::executeInstallHelperCmd(servicePath);
+    return InstallHelper_win::executeInstallHelperCmd();
 }
 
 void Helper_win::setNeedFinish()
@@ -335,12 +334,12 @@ IHelper::ExecuteError Helper_win::executeOpenVPN(const QString &config, unsigned
     return mpr.success ? IHelper::EXECUTE_SUCCESS : IHelper::EXECUTE_ERROR;
 }
 
-bool Helper_win::executeTaskKill(const QString &executableName)
+bool Helper_win::executeTaskKill(CmdKillTarget target)
 {
     QMutexLocker locker(&mutex_);
 
     CMD_TASK_KILL cmdTaskKill;
-    cmdTaskKill.szExecutableName = executableName.toStdWString();
+    cmdTaskKill.target = target;
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
@@ -365,21 +364,6 @@ QString Helper_win::executeSetMetric(const QString &interfaceType, const QString
     oa << cmdSetMetric;
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_SET_METRIC, stream.str());
-    return QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
-}
-
-QString Helper_win::executeWmicEnable(const QString &adapterName)
-{
-    QMutexLocker locker(&mutex_);
-
-    CMD_WMIC_ENABLE cmdWmicEnable;
-    cmdWmicEnable.szAdapterName = adapterName.toStdWString();
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdWmicEnable;
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_WMIC_ENABLE, stream.str());
     return QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
 }
 

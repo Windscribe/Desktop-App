@@ -98,6 +98,10 @@ void Server::run()
         return;
     }
 
+    system("mkdir -p /var/run");
+    system("mkdir -p /etc/windscribe");
+    Utils::createWindscribeUserAndGroup();
+
     xpc_connection_t listener = xpc_connection_create_mach_service("com.windscribe.helper.macos", NULL, XPC_CONNECTION_MACH_SERVICE_LISTENER);
     if (!listener) {
         LOG("xpc_connection_create_mach_service failed");

@@ -92,6 +92,14 @@
         <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
         <translation>Thư mục cài đặt chứa dữ liệu không thể gỡ cài đặt. Vui lòng gỡ cài đặt ứng dụng theo cách thủ công và thử lại.</translation>
     </message>
+    <message>
+        <source>Security Warning</source>
+        <translation>Cảnh báo bảo mật</translation>
+    </message>
+    <message>
+        <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
+        <translation>Cài đặt vào một thư mục tùy chỉnh có thể cho phép kẻ tấn công giả mạo ứng dụng Windscribe. Để đảm bảo tính bảo mật của ứng dụng và hệ thống của bạn, chúng tôi khuyên bạn nên cài đặt vào vị trí mặc định trong thư mục &apos;Tệp chương trình&apos;. Bấm OK để tiếp tục với thư mục tùy chỉnh hoặc Hủy bỏ để sử dụng vị trí mặc định.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -122,10 +130,6 @@
     <message>
         <source>Instructs the installer to skip installing drivers.</source>
         <translation>Hướng dẫn trình cài đặt bỏ qua cài đặt trình điều khiển.</translation>
-    </message>
-    <message>
-        <source>Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start.</source>
-        <translation>Hướng dẫn trình cài đặt ẩn giao diện người dùng của nó.  Ngụ ý -no-driver và -no-auto-start.</translation>
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
@@ -186,6 +190,14 @@
     <message>
         <source>The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support.</source>
         <translation>Trình cài đặt không thể xác định xem nó có đang chạy với quyền quản trị viên hay không.  Vui lòng báo cáo lỗi này cho bộ phận hỗ trợ của Windscribe.</translation>
+    </message>
+    <message>
+        <source>Instructs the installer to hide its user interface.</source>
+        <translation>Hướng dẫn trình cài đặt ẩn giao diện người dùng của nó.</translation>
+    </message>
+    <message>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>Bạn không có đủ quyền để chạy ứng dụng này. Cần có đặc quyền quản trị để cài đặt Windscribe.</translation>
     </message>
 </context>
 <context>

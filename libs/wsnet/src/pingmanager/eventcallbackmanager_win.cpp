@@ -42,7 +42,6 @@ void EventCallbackManager_win::remove(HANDLE hEvent)
     }
 }
 
-
 void EventCallbackManager_win::run()
 {
     while (!finish_) {

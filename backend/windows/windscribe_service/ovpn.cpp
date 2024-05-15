@@ -60,6 +60,7 @@ bool writeOVPNFile(std::wstring &filename, int port, const std::wstring &config,
     file << L"management 127.0.0.1 " + std::to_wstring(port) + L"\r\n";
     file << L"management-query-passwords\r\n";
     file << L"management-hold\r\n";
+    file << L"verb 3\r\n";
 
     if (httpProxy.length() > 0) {
         file << L"http-proxy " + httpProxy + L" " + std::to_wstring(httpPort) + L" auto\r\n";

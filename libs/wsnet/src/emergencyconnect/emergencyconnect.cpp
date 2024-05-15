@@ -10,8 +10,8 @@ CMRC_DECLARE(wsnet);
 
 namespace wsnet {
 
-EmergencyConnect::EmergencyConnect(BS::thread_pool &taskQueue, IFailoverContainer *failoverContainer, WSNetDnsResolver *dnsResolver) :
-    taskQueue_(taskQueue),
+EmergencyConnect::EmergencyConnect(boost::asio::io_context &io_context, IFailoverContainer *failoverContainer, WSNetDnsResolver *dnsResolver) :
+    io_context_(io_context),
     failoverContainer_(failoverContainer),
     dnsResolver_(dnsResolver)
 {
@@ -53,7 +53,7 @@ std::shared_ptr<WSNetCancelableCallback> EmergencyConnect::getIpEndpoints(WSNetE
 {
 #ifndef FAILOVER_CONTAINER_PUBLIC
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetEmergencyConnectCallback>>(callback);
-    taskQueue_.detach_task([this, cancelableCallback] {
+    boost::asio::post(io_context_, [this, cancelableCallback] {
         auto failover = failoverContainer_->failoverById(FAILOVER_OLD_RANDOM_DOMAIN_GENERATION);
         assert(failover);
         std::vector<FailoverData> data;
@@ -78,7 +78,7 @@ void EmergencyConnect::onDnsResolved(std::uint64_t requestId, const std::string 
 {
 #ifndef FAILOVER_CONTAINER_PUBLIC
 
-    taskQueue_.detach_task([this, requestId, hostname, result] {
+    boost::asio::post(io_context_, [this, requestId, hostname, result] {
         auto it = dnsRequests_.find(requestId);
         if (it == dnsRequests_.end())
             return;

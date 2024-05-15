@@ -2,7 +2,7 @@
 
 #include <queue>
 #include <map>
-#include <BS_thread_pool.hpp>
+#include <boost/asio.hpp>
 #include "WSNetPingManager.h"
 #include "WSNetHttpNetworkManager.h"
 #include "ipingmethod.h"
@@ -19,7 +19,7 @@ namespace wsnet {
 class PingManager : public WSNetPingManager
 {
 public:
-    explicit PingManager(BS::thread_pool &taskQueue, WSNetHttpNetworkManager *httpNetworkManager);
+    explicit PingManager(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager);
     virtual ~PingManager();
 
     std::shared_ptr<WSNetCancelableCallback> ping(const std::string &ip, const std::string &hostname,
@@ -28,7 +28,7 @@ public:
     void setIsConnectedToVpnState(bool isConnected);
 
 private:
-    BS::thread_pool &taskQueue_;
+    boost::asio::io_context &io_context_;
     WSNetHttpNetworkManager *httpNetworkManager_;
 
 #ifdef _WIN32

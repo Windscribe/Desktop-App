@@ -51,8 +51,9 @@ namespace requests_factory
 
     BaseRequest *myIP(RequestFinishedCallback callback);
 
-    BaseRequest *mobileBillingPlans(const std::string &mobilePlanType, int version, RequestFinishedCallback callback);
+    BaseRequest *mobileBillingPlans(const std::string &authHash, const std::string &mobilePlanType, const std::string &promo, int version, RequestFinishedCallback callback);
 
+    BaseRequest *sendPayment(const std::string &authHash, const std::string &appleID, const std::string &appleData, const std::string &appleSIG, RequestFinishedCallback callback);
     BaseRequest *verifyPayment(const std::string &authHash, const std::string &purchaseToken, const std::string &gpPackageName,
                                                            const std::string &gpProductId, const std::string &type,
                                                            const std::string &amazonUserId,
@@ -75,6 +76,10 @@ namespace requests_factory
     BaseRequest *claimAccount(const std::string &authHash, const std::string &username, const std::string &password,
                               const std::string &email, const std::string &claimAccount, RequestFinishedCallback callback);
 
+    BaseRequest *shakeData(const std::string &authHash, RequestFinishedCallback callback);
+    BaseRequest *recordShakeForDataScore(const std::string &authHash, const std::string &platform,
+                                         const std::string &score, const std::string &signature,
+                                         RequestFinishedCallback callback);
 }
 
 } // namespace wsnet

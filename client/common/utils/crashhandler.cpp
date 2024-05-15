@@ -177,7 +177,7 @@ CrashHandler::CrashHandler()
     typedef BOOL(WINAPI * GETPROCESSUSERMODEEXCEPTIONPOLICY)(LPDWORD lpFlags);
     const DWORD kProcessCallbackFilterEnabled = 1u;
 
-    auto hKernel32 = LoadLibrary(TEXT("kernel32.dll"));
+    auto hKernel32 = LoadLibraryEx(L"kernel32.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
     if (hKernel32) {
         SETPROCESSUSERMODEEXCEPTIONPOLICY pfnSetProcessUserModeExceptionPolicy =
             (SETPROCESSUSERMODEEXCEPTIONPOLICY)GetProcAddress(

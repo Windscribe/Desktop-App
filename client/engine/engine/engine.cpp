@@ -1568,11 +1568,6 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::WINTUN_FATAL_ERROR);
         return;
     }
-    else if (err == CONNECT_ERROR::ALL_TAP_IN_USE)
-    {
-        qCDebug(LOG_BASIC) << "Engine: unexpected CONNECT_ERROR::ALL_TAP_IN_USE error encountered.";
-        return;
-    }
     else if (err == CONNECT_ERROR::WINTUN_FATAL_ERROR)
     {
         qCDebug(LOG_BASIC) << "OpenVPN reported the Windscribe wintun adapter as already in use";

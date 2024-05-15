@@ -55,7 +55,6 @@ MessagePacketResult closeTcpConnections(boost::archive::text_iarchive &ia);
 MessagePacketResult enumProcesses(boost::archive::text_iarchive &ia);
 MessagePacketResult taskKill(boost::archive::text_iarchive &ia);
 MessagePacketResult setMetric(boost::archive::text_iarchive &ia);
-MessagePacketResult wmicEnable(boost::archive::text_iarchive &ia);
 MessagePacketResult wmicGetConfigErrorCode(boost::archive::text_iarchive &ia);
 MessagePacketResult enableBfe(boost::archive::text_iarchive &ia);
 MessagePacketResult runOpenvpn(boost::archive::text_iarchive &ia);
@@ -111,7 +110,6 @@ static const std::map<const int, std::function<MessagePacketResult(boost::archiv
     { AA_COMMAND_ENUM_PROCESSES, enumProcesses },
     { AA_COMMAND_TASK_KILL, taskKill },
     { AA_COMMAND_SET_METRIC, setMetric },
-    { AA_COMMAND_WMIC_ENABLE, wmicEnable },
     { AA_COMMAND_WMIC_GET_CONFIG_ERROR_CODE, wmicGetConfigErrorCode },
     { AA_COMMAND_ENABLE_BFE, enableBfe },
     { AA_COMMAND_RUN_OPENVPN, runOpenvpn },

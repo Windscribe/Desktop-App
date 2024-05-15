@@ -555,10 +555,8 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
     testVPNTunnel_->stopTests();
 
     if ((err == CONNECT_ERROR::AUTH_ERROR && bEmitAuthError_)
-            || err == CONNECT_ERROR::CANT_RUN_OPENVPN
             || err == CONNECT_ERROR::NO_OPENVPN_SOCKET
             || err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP
-            || err == CONNECT_ERROR::ALL_TAP_IN_USE
             || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR)
             || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::WIREGUARD_ADAPTER_SETUP_FAILED)
             || err == CONNECT_ERROR::WINTUN_FATAL_ERROR
@@ -577,8 +575,7 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
                                                             || err == CONNECT_ERROR::IKEV_FAILED_START_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_LOAD_PREFERENCES_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_SAVE_PREFERENCES_MAC))
-            || (!connSettingsPolicy_->isAutomaticMode() && err == CONNECT_ERROR::EXE_VERIFY_OPENVPN_ERROR)
-            || err == CONNECT_ERROR::EXE_VERIFY_WIREGUARD_ERROR)
+            || err == CONNECT_ERROR::EXE_SUBPROCESS_FAILED)
     {
         // immediately stop trying to connect
         disconnect();
@@ -1012,7 +1009,7 @@ void ConnectionManager::doConnectPart2()
                 if (!stunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port,
                                                  ExtraConfig::instance().getStealthExtraTLSPadding() || isAntiCensorship_)) {
                     disconnect();
-                    emit errorDuringConnection(CONNECT_ERROR::EXE_VERIFY_STUNNEL_ERROR);
+                    emit errorDuringConnection(CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
                     return;
                 }
                 // call doConnectPart2 in onWstunnelStarted slot
@@ -1020,7 +1017,7 @@ void ConnectionManager::doConnectPart2()
             } else if (currentConnectionDescr_.protocol == types::Protocol::WSTUNNEL) {
                 if (!wstunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port)) {
                     disconnect();
-                    emit errorDuringConnection(CONNECT_ERROR::EXE_VERIFY_WSTUNNEL_ERROR);
+                    emit errorDuringConnection(CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
                     return;
                 }
                 // call doConnectPart2 in onWstunnelStarted slot

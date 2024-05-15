@@ -1,9 +1,7 @@
 #include "installhelper_win.h"
 
 #include <QCoreApplication>
-#include <QDir>
 #include <QFile>
-#include <QStandardPaths>
 
 #include <windows.h>
 #include <shellapi.h>
@@ -11,86 +9,65 @@
 #include "utils/executable_signature/executable_signature.h"
 #include "utils/logger.h"
 
-bool InstallHelper_win::checkInstallHelper(QString &outPath)
+namespace InstallHelper_win
 {
-    QString strPath = QCoreApplication::applicationDirPath();
-    strPath += "/WindscribeInstallHelper.exe";
 
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verify(strPath.toStdWString()))
-    {
-        qCDebug(LOG_BASIC) << "WindscribeInstallHelper.exe incorrect signature: " << QString::fromStdString(sigCheck.lastError());
-        return false;
-    }
-
-    outPath = strPath;
-    return QFile::exists(strPath);
-}
-
-QString InstallHelper_win::getPathForLogFile()
+static void outputLogFileToLoggerAndRemove(const QString &logPath)
 {
-    // The install helper runs as root, and therefore should not log to a user writable folder.
-    QString strPath = QCoreApplication::applicationDirPath();
-    strPath += "/logwindscribeinstallhelper.txt";
-    return strPath;
-}
+    QString logFile = logPath + "/logwindscribeinstallhelper.txt";
+    QFile file(logFile);
 
-void InstallHelper_win::outputLogFileToLoggerAndRemove(QString &logPath)
-{
-    QFile file(logPath);
-    if (file.open(QIODevice::ReadOnly))
-    {
+    if (file.exists() && file.open(QIODevice::ReadOnly)) {
         QTextStream in(&file);
-        while (!in.atEnd())
-        {
-            QString line = in.readLine();
-            qCDebug(LOG_BASIC) << line;
+        while (!in.atEnd()) {
+            qCDebug(LOG_BASIC) << in.readLine();
         }
         file.close();
         file.remove();
     }
 }
 
-bool InstallHelper_win::executeInstallHelperCmd(const QString &servicePath)
+bool executeInstallHelperCmd()
 {
-    QString utilPath;
-    if (!checkInstallHelper(utilPath))
-    {
+    QString installDir = QCoreApplication::applicationDirPath();
+
+    QString installHelperExe = installDir + "/WindscribeInstallHelper.exe";
+    if (!QFile::exists(installHelperExe)) {
         qCDebug(LOG_BASIC) << "WindscribeInstallHelper.exe not found in the app directory";
         return false;
     }
 
-    if (!QFile::exists(servicePath))
-    {
-        qCDebug(LOG_BASIC) << "Windscribe service not found in path:" << servicePath;
+    ExecutableSignature sigCheck;
+    if (!sigCheck.verify(installHelperExe.toStdWString())) {
+        qCDebug(LOG_BASIC) << "WindscribeInstallHelper.exe incorrect signature:" << QString::fromStdString(sigCheck.lastError());
         return false;
     }
 
-    QString logPath = getPathForLogFile();
-
-    std::wstring ws = utilPath.toStdWString();
-    std::wstring pars = L"/InstallService";
-    pars += L" \"" + logPath.toStdWString() + L"\"";
-    pars += L" \"" + servicePath.toStdWString() + L"\"";
+    QString helperExe = installDir + "/WindscribeService.exe";
+    if (!QFile::exists(helperExe)) {
+        qCDebug(LOG_BASIC) << "Windscribe service not found in path:" << helperExe;
+        return false;
+    }
 
     SHELLEXECUTEINFO sinfo;
     memset(&sinfo, 0, sizeof(SHELLEXECUTEINFO));
     sinfo.cbSize = sizeof(SHELLEXECUTEINFO);
     sinfo.fMask = SEE_MASK_FLAG_DDEWAIT | SEE_MASK_NOCLOSEPROCESS;
     sinfo.hwnd = NULL;
-    sinfo.lpFile = ws.c_str();
-    sinfo.lpParameters = pars.c_str();
+    sinfo.lpFile = installHelperExe.toStdWString().c_str();
+    sinfo.lpParameters = L"/InstallService";
     sinfo.lpVerb       = L"runas";
     sinfo.nShow        = SW_HIDE;
 
-    if (ShellExecuteEx(&sinfo))
-    {
+    if (ShellExecuteEx(&sinfo)) {
         WaitForSingleObject(sinfo.hProcess, INFINITE);
         CloseHandle(sinfo.hProcess);
-        outputLogFileToLoggerAndRemove(logPath);
+        outputLogFileToLoggerAndRemove(installDir);
         return true;
     }
 
     qCDebug(LOG_BASIC) << "InstallHelper::executeInstallHelperCmd ShellExecuteEx failed:" << GetLastError();
     return false;
 }
+
+};

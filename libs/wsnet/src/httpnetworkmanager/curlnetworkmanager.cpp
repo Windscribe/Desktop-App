@@ -6,6 +6,10 @@
 #include <openssl/opensslv.h>
 #include <openssl/ssl.h>
 
+#ifdef _WIN32
+#else
+    #include <unistd.h>
+#endif
 namespace wsnet {
 
 CurlNetworkManager::CurlNetworkManager(CurlFinishedCallback finishedCallback, CurlProgressCallback progressCallback, CurlReadyDataCallback readyDataCallback) :
@@ -80,6 +84,12 @@ void CurlNetworkManager::setProxySettings(const std::string &address, const std:
     proxySettings_.address = address;
     proxySettings_.username = username;
     proxySettings_.password = password;
+}
+
+void CurlNetworkManager::setWhitelistSocketsCallback(std::shared_ptr<CancelableCallback<WSNetHttpNetworkManagerWhitelistSocketsCallback> > callback)
+{
+    std::lock_guard locker(mutex_);
+    whitelistSocketsCallback_ = callback;
 }
 
 void CurlNetworkManager::run()
@@ -191,6 +201,41 @@ int CurlNetworkManager::progressCallback(void *ri, curl_off_t dltotal, curl_off_
     return 0;
 }
 
+int CurlNetworkManager::curlSocketCallback(void *clientp, curl_socket_t curlfd, curlsocktype purpose)
+{
+    CurlNetworkManager *this_ = (CurlNetworkManager *)clientp;
+
+    std::lock_guard locker(this_->mutex_);
+    // whitelist the new socket descriptor
+    if (this_->whitelistSockets_.find(curlfd) == this_->whitelistSockets_.end()) {
+        this_->whitelistSockets_.insert(curlfd);
+        if (this_->whitelistSocketsCallback_) {
+            this_->whitelistSocketsCallback_->call(this_->whitelistSockets_);
+        }
+    }
+    return CURL_SOCKOPT_OK;
+}
+
+int CurlNetworkManager::curlCloseSocketCallback(void *clientp, curl_socket_t curlfd)
+{
+    CurlNetworkManager *this_ = (CurlNetworkManager *)clientp;
+#ifdef _WIN32
+    closesocket(curlfd);
+#else
+    close(curlfd);
+#endif
+    std::lock_guard locker(this_->mutex_);
+    // whitelist the deleted socket descriptor
+    if (this_->whitelistSockets_.find(curlfd) != this_->whitelistSockets_.end()) {
+        this_->whitelistSockets_.erase(curlfd);
+        if (this_->whitelistSocketsCallback_) {
+            this_->whitelistSocketsCallback_->call(this_->whitelistSockets_);
+        }
+    }
+
+    return CURL_SOCKOPT_OK;
+}
+
 bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::shared_ptr<WSNetHttpRequest> &request, const std::vector<std::string> &ips)
 {
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_WRITEFUNCTION, writeDataCallback) != CURLE_OK) return false;
@@ -198,9 +243,15 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_ACCEPT_ENCODING, "") != CURLE_OK) return false;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_URL, request->url().c_str()) != CURLE_OK) return false;
 
+    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SOCKOPTFUNCTION, curlSocketCallback) != CURLE_OK) return false;
+    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SOCKOPTDATA, this) != CURLE_OK) return false;
+    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CLOSESOCKETFUNCTION, curlCloseSocketCallback) != CURLE_OK) return false;
+    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CLOSESOCKETDATA, this) != CURLE_OK) return false;
+
     spdlog::debug("New curl request : {}", request->url().c_str());
 
-    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) return false;
+    // It is necessary?
+    //if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) return false;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CONNECTTIMEOUT_MS , request->timeoutMs()) != CURLE_OK) return false;
 
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_XFERINFOFUNCTION, progressCallback) != CURLE_OK) return false;

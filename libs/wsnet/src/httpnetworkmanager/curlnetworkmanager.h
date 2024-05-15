@@ -9,6 +9,7 @@
 #include "WSNetHttpRequest.h"
 #include "WSNetHttpNetworkManager.h"
 #include "certmanager.h"
+#include "utils/cancelablecallback.h"
 
 namespace wsnet {
 
@@ -30,6 +31,9 @@ public:
     void cancelRequest(std::uint64_t requestId);
 
     void setProxySettings(const std::string &address, const std::string &username, const std::string &password);
+
+    void setWhitelistSocketsCallback(std::shared_ptr<CancelableCallback<WSNetHttpNetworkManagerWhitelistSocketsCallback> > callback);
+
 private:
     void run();
 
@@ -78,9 +82,15 @@ private:
     CURLM *multiHandle_;
     std::map<std::uint64_t, RequestInfo *> activeRequests_;
 
+    std::shared_ptr<CancelableCallback<WSNetHttpNetworkManagerWhitelistSocketsCallback> > whitelistSocketsCallback_;
+    std::set<int> whitelistSockets_;
+
     static CURLcode sslctx_function(CURL *curl, void *sslctx, void *parm);
     static size_t writeDataCallback(void *ptr, size_t size, size_t count, void *ri);
     static int progressCallback(void *ri,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow);
+    static int curlSocketCallback(void *clientp, curl_socket_t curlfd, curlsocktype purpose);
+    static int curlCloseSocketCallback(void *clientp, curl_socket_t curlfd);
+
 
     bool setupOptions(RequestInfo *requestInfo, const std::shared_ptr<WSNetHttpRequest> &request, const std::vector<std::string> &ips);
     bool setupResolveHosts(RequestInfo *requestInfo, const std::shared_ptr<WSNetHttpRequest> &request, const std::vector<std::string> &ips);

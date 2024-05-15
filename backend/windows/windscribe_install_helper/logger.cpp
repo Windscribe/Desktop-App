@@ -3,25 +3,18 @@
 #include <Windows.h>
 
 #include <cstdarg>
+#include <filesystem>
 
 using namespace std;
 
-static void WSDebugMessage(const wchar_t* format, ...)
+Logger::Logger(const wchar_t *installDir)
 {
-    va_list arg_list;
-    va_start(arg_list, format);
-    wchar_t szMsg[1024];
-    _vsnwprintf_s(szMsg, 1024, _TRUNCATE, format, arg_list);
-    va_end(arg_list);
+    std::filesystem::path logFile(installDir);
+    logFile.append(L"logwindscribeinstallhelper.txt");
 
-    ::OutputDebugString(szMsg);
-}
-
-Logger::Logger(const wchar_t *path)
-{
-    errno_t result = _wfopen_s(&file_, path, L"wt,ccs=UTF-8");
+    errno_t result = _wfopen_s(&file_, logFile.native().c_str(), L"wt,ccs=UTF-8");
     if ((result != 0) || (file_ == nullptr)) {
-        WSDebugMessage(L"Windscribe install helper failed to open its log file '%s' (%d)", path, result);
+        WSDebugMessage(L"Windscribe install helper failed to open its log file '%s' (%d)", logFile.native().c_str(), result);
     }
 }
 
@@ -54,8 +47,20 @@ void Logger::outStr(const wchar_t* format, ...)
 
     if (file_) {
         fputws(szMsg, file_);
+        fputws(L"\n", file_);
     }
     else {
         ::OutputDebugString(szMsg);
     }
+}
+
+void Logger::WSDebugMessage(const wchar_t* format, ...)
+{
+    va_list arg_list;
+    va_start(arg_list, format);
+    wchar_t szMsg[1024];
+    _vsnwprintf_s(szMsg, 1024, _TRUNCATE, format, arg_list);
+    va_end(arg_list);
+
+    ::OutputDebugString(szMsg);
 }

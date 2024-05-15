@@ -13,4 +13,5 @@ namespace Path
     bool equivalent(const std::wstring& fileName1, const std::wstring& fileName2);
     bool isOnSystemDrive(const std::wstring& fileName);
     bool isRoot(const std::wstring& fileName);
+    bool isSystemProtected(const std::wstring &dir);
 }

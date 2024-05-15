@@ -1,18 +1,25 @@
 #include "registry.h"
-#include "logger.h"
 
-#include "../../../client/common/utils/wsscopeguard.h"
+#include <winreg/WinReg.hpp>
+
+#include "logger.h"
+#include "utils.h"
+#include "utils/wsscopeguard.h"
 
 using namespace std;
 
-bool Registry::regWriteDwordProperty(HKEY h, const wstring &subkeyName, const wstring &valueName, DWORD value)
+namespace Registry
+{
+
+// TODO **JDRM** (tech debt) refactor these methods to use the winreg class.
+
+bool regWriteDwordProperty(HKEY h, const wstring &subkeyName, const wstring &valueName, DWORD value)
 {
     HKEY hKey{ NULL };
-    auto exitGuard = wsl::wsScopeGuard([&]
-                                       {
-                                           if (hKey != NULL)
-                                               RegCloseKey(hKey);
-                                       });
+    auto exitGuard = wsl::wsScopeGuard([&] {
+        if (hKey != NULL)
+            RegCloseKey(hKey);
+    });
 
     LONG nError = RegOpenKeyEx(h, subkeyName.c_str(), NULL, KEY_ALL_ACCESS, &hKey);
 
@@ -36,14 +43,13 @@ bool Registry::regWriteDwordProperty(HKEY h, const wstring &subkeyName, const ws
     }
 }
 
-bool Registry::regWriteSzProperty(HKEY h, const wchar_t * subkeyName, const wstring &valueName, const wstring &value)
+bool regWriteSzProperty(HKEY h, const wchar_t * subkeyName, const wstring &valueName, const wstring &value)
 {
     HKEY hKey{ NULL };
-    auto exitGuard = wsl::wsScopeGuard([&]
-                                       {
-                                           if (hKey != NULL)
-                                               RegCloseKey(hKey);
-                                       });
+    auto exitGuard = wsl::wsScopeGuard([&] {
+        if (hKey != NULL)
+            RegCloseKey(hKey);
+    });
 
     LONG nError = RegOpenKeyEx(h, subkeyName, NULL, KEY_ALL_ACCESS, &hKey);
 
@@ -69,14 +75,13 @@ bool Registry::regWriteSzProperty(HKEY h, const wchar_t * subkeyName, const wstr
 }
 
 // todo Function returns true if prop was not removed and false otherwise. Probably it should be changed.
-bool Registry::regDeleteProperty(HKEY h, const wstring &subkeyName, const wstring &valueName)
+bool regDeleteProperty(HKEY h, const wstring &subkeyName, const wstring &valueName)
 {
     HKEY hKey{ NULL };
-    auto exitGuard = wsl::wsScopeGuard([&]
-                                       {
-                                           if (hKey != NULL)
-                                               RegCloseKey(hKey);
-                                       });
+    auto exitGuard = wsl::wsScopeGuard([&] {
+        if (hKey != NULL)
+            RegCloseKey(hKey);
+    });
 
     LONG nError = RegOpenKeyEx(h, subkeyName.c_str(), 0, KEY_SET_VALUE, &hKey);
 
@@ -97,14 +102,13 @@ bool Registry::regDeleteProperty(HKEY h, const wstring &subkeyName, const wstrin
     }
 }
 
-bool Registry::regGetProperty(HKEY h, const std::wstring& subkeyName, const std::wstring& valueName, LPBYTE value, DWORD* size)
+bool regGetProperty(HKEY h, const std::wstring& subkeyName, const std::wstring& valueName, LPBYTE value, DWORD* size)
 {
     HKEY hKey{ NULL };
-    auto exitGuard = wsl::wsScopeGuard([&]
-                                       {
-                                           if (hKey != NULL)
-                                               RegCloseKey(hKey);
-                                       });
+    auto exitGuard = wsl::wsScopeGuard([&] {
+        if (hKey != NULL)
+            RegCloseKey(hKey);
+    });
 
     LONG nError = RegOpenKeyEx(h, subkeyName.c_str(), 0, KEY_READ, &hKey);
 
@@ -124,7 +128,31 @@ bool Registry::regGetProperty(HKEY h, const std::wstring& subkeyName, const std:
     return true;
 }
 
-bool Registry::regAddDwordValueIfNotExists(HKEY h, const std::wstring& subkeyName, const std::wstring& valueName)
+bool regAddDwordValueIfNotExists(HKEY h, const std::wstring& subkeyName, const std::wstring& valueName)
 {
     return regWriteDwordProperty(h, subkeyName, valueName, 0);
 }
+
+bool subkeyExists(HKEY rootKey, const std::wstring& parentKey, const std::wstring& subkey)
+{
+    bool exists = false;
+    try {
+        winreg::RegKey registry;
+        registry.Open(rootKey, parentKey);
+        const auto subkeys = registry.EnumSubKeys();
+        for (const auto &key : subkeys) {
+            // Perform a case-insensitive search since registry key paths are case-insensitive.
+            if (Utils::iequals(key, subkey)) {
+                exists = true;
+                break;
+            }
+        }
+    }
+    catch (winreg::RegException &ex) {
+        Logger::instance().out(L"subkeyExists error checking key %s: %hs", parentKey.c_str(), ex.what());
+    }
+
+    return exists;
+}
+
+};

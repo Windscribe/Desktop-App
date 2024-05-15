@@ -92,6 +92,14 @@
         <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
         <translation>يحتوي مجلد التثبيت على بيانات تعذر إلغاء تثبيتها. الرجاء إلغاء تثبيت التطبيق يدويا والمحاولة مرة أخرى.</translation>
     </message>
+    <message>
+        <source>Security Warning</source>
+        <translation>تحذير أمني</translation>
+    </message>
+    <message>
+        <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
+        <translation>قد يسمح التثبيت في مجلد مخصص للمهاجم بالعبث بتطبيق Windscribe. لضمان أمان التطبيق ونظامك ، نوصي بشدة بالتثبيت في الموقع الافتراضي في مجلد &quot;ملفات البرامج&quot;. انقر فوق موافق لمتابعة المجلد المخصص أو إلغاء الأمر لاستخدام الموقع الافتراضي.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -122,10 +130,6 @@
     <message>
         <source>Instructs the installer to skip installing drivers.</source>
         <translation>يرشد المثبت لتخطي تثبيت برامج التشغيل.</translation>
-    </message>
-    <message>
-        <source>Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start.</source>
-        <translation>يرشد المثبت لإخفاء واجهة المستخدم الخاصة به.  يعني -no-drivers و -no-auto-start.</translation>
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
@@ -186,6 +190,14 @@
     <message>
         <source>The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support.</source>
         <translation>لم يتمكن المثبت من تحديد ما إذا كان يعمل بحقوق المسؤول أم لا.  يرجى الإبلاغ عن هذا الفشل إلى دعم Windscribe.</translation>
+    </message>
+    <message>
+        <source>Instructs the installer to hide its user interface.</source>
+        <translation>يرشد المثبت لإخفاء واجهة المستخدم الخاصة به.</translation>
+    </message>
+    <message>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>ليس لديك أذونات كافية لتشغيل هذا التطبيق. الامتيازات الإدارية مطلوبة لتثبيت Windscribe.</translation>
     </message>
 </context>
 <context>

@@ -92,6 +92,14 @@
         <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
         <translation>Папка установки содержит данные, которые не удалось удалить. Удалите приложение вручную и повторите попытку.</translation>
     </message>
+    <message>
+        <source>Security Warning</source>
+        <translation>Предупреждение системы безопасности</translation>
+    </message>
+    <message>
+        <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
+        <translation>Установка в пользовательскую папку может позволить злоумышленнику взломать приложение Windscribe. Чтобы обеспечить безопасность приложения и вашей системы, мы настоятельно рекомендуем вам установить его в папку «Program Files» по умолчанию. Нажмите кнопку ОК, чтобы продолжить работу с пользовательской папкой, или кнопку Отмена, чтобы использовать расположение по умолчанию.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -122,10 +130,6 @@
     <message>
         <source>Instructs the installer to skip installing drivers.</source>
         <translation>Указывает установщику пропустить установку драйверов.</translation>
-    </message>
-    <message>
-        <source>Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start.</source>
-        <translation>Указывает установщику скрыть свой пользовательский интерфейс.  Подразумевает -no-drivers и -no-auto-start.</translation>
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
@@ -186,6 +190,14 @@
     <message>
         <source>The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support.</source>
         <translation>Установщику не удалось определить, работает ли он с правами администратора.  Пожалуйста, сообщите об этом сбое в службу поддержки Windscribe.</translation>
+    </message>
+    <message>
+        <source>Instructs the installer to hide its user interface.</source>
+        <translation>Указывает установщику скрыть свой пользовательский интерфейс.</translation>
+    </message>
+    <message>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>У вас недостаточно разрешений для запуска этого приложения. Для установки Windscribe требуются права администратора.</translation>
     </message>
 </context>
 <context>

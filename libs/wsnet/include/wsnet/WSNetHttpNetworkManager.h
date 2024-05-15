@@ -22,6 +22,8 @@ typedef std::function<void(std::uint64_t requestId, const std::string &data)> WS
 
 typedef std::function<void(const std::set<std::string> &ips)> WSNetHttpNetworkManagerWhitelistIpsCallback;
 
+typedef std::function<void(const std::set<int> &sockets)> WSNetHttpNetworkManagerWhitelistSocketsCallback;
+
 // Some simplified implementation of HTTP network manager for our needs based on curl and custom DNS-resolver based on c-ares.
 // In particular, it has the functionality to whitelist IP addresses to firewall exceptions.
 // It has an internal DNS cache.
@@ -60,8 +62,15 @@ public:
                                   const std::string &username = std::string(),
                                   const std::string &password = std::string()) = 0;
 
-    // callback function allowing the caller to add addresses to the firewall exceptions
+    // callback function allowing the caller to add IP-addresses to the firewall exceptions
+    // this callback function must return control after the firewall is configured
+    // you can pass null to disable the callback function
     virtual std::shared_ptr<WSNetCancelableCallback> setWhitelistIpsCallback(WSNetHttpNetworkManagerWhitelistIpsCallback whitelistIpsCallback) = 0;
+
+    // callback function allowing the caller to add sockets to the firewall exceptions (Android specific)
+    // this callback function must return control after the firewall is configured
+    // you can pass null to disable the callback function
+    virtual std::shared_ptr<WSNetCancelableCallback> setWhitelistSocketsCallback(WSNetHttpNetworkManagerWhitelistSocketsCallback whitelistSocketsCallback) = 0;
 };
 
 } // namespace wsnet

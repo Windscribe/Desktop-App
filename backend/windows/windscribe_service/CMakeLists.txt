@@ -23,6 +23,7 @@ add_definitions(-DUNICODE -D_UNICODE -DWINDSCRIBE_SERVICE)
 project(Service)
 
 find_package(Boost REQUIRED COMPONENTS serialization)
+find_path(WINREG_INCLUDE_DIRS "winreg/WinReg.hpp")
 
 add_subdirectory(../../../libs/wsnet wsnet)
 
@@ -95,6 +96,7 @@ target_link_libraries(WindscribeService
 target_include_directories(WindscribeService PRIVATE
                            ${WINDSCRIBE_BUILD_LIBS_PATH}/wintun/include
                            ../../../client/common/
+                           ${WINREG_INCLUDE_DIRS}
 )
 
 install(TARGETS WindscribeService wsnet

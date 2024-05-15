@@ -1,14 +1,15 @@
 #pragma once
+
 #include "basic_command.h"
 
 class InstallServiceCommand : public BasicCommand
 {
 public:
-    InstallServiceCommand(Logger *logger, const wchar_t *servicePath);
+    InstallServiceCommand(Logger *logger, const std::wstring &installDir);
     ~InstallServiceCommand() override;
 
     void execute() override;
 
 private:
-    std::wstring servicePath_;
+    const std::wstring installDir_;
 };

@@ -92,6 +92,14 @@
         <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
         <translation>Le dossier d’installation contient des données qui n’ont pas pu être désinstallées. Veuillez désinstaller l’application manuellement et réessayer.</translation>
     </message>
+    <message>
+        <source>Security Warning</source>
+        <translation>Avertissement de sécurité</translation>
+    </message>
+    <message>
+        <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
+        <translation>L’installation dans un dossier personnalisé peut permettre à un attaquant de falsifier l’application Windscribe. Pour garantir la sécurité de l’application et de votre système, nous vous recommandons vivement d’installer l’application à l’emplacement par défaut dans le dossier « Program Files ». Cliquez sur OK pour continuer avec le dossier personnalisé ou sur Annuler pour utiliser l’emplacement par défaut.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -122,10 +130,6 @@
     <message>
         <source>Instructs the installer to skip installing drivers.</source>
         <translation>Indique au programme d’installation d’ignorer l’installation des pilotes.</translation>
-    </message>
-    <message>
-        <source>Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start.</source>
-        <translation>Indique au programme d’installation de masquer son interface utilisateur.  Implique -no-drivers et -no-auto-start.</translation>
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
@@ -186,6 +190,14 @@
     <message>
         <source>The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support.</source>
         <translation>Le programme d’installation n’a pas pu déterminer s’il s’exécute avec des droits d’administrateur.  Veuillez signaler cette défaillance à l’assistance Windscribe.</translation>
+    </message>
+    <message>
+        <source>Instructs the installer to hide its user interface.</source>
+        <translation>Indique au programme d’installation de masquer son interface utilisateur.</translation>
+    </message>
+    <message>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>Vous ne disposez pas des autorisations suffisantes pour exécuter cette application. Des privilèges d’administrateur sont requis pour installer Windscribe.</translation>
     </message>
 </context>
 <context>

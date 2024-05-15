@@ -2,6 +2,7 @@
 
 #include <shlwapi.h>
 
+#include "applicationinfo.h"
 #include "path.h"
 
 namespace PathCheck
@@ -9,6 +10,10 @@ namespace PathCheck
 
 bool isNeedAppendSubdirectory(const std::wstring &installPath, const std::wstring &prevInstallPath)
 {
+    if (Path::equivalent(ApplicationInfo::defaultInstallPath(), installPath)) {
+        return false;
+    }
+
     // this is current app dir, then nothing to append
     if (!installPath.empty() && !prevInstallPath.empty() && Path::equivalent(installPath, prevInstallPath)) {
         return false;

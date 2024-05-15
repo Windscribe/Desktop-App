@@ -92,6 +92,14 @@
         <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
         <translation>Instalační složka obsahuje data, která nelze odinstalovat. Odinstalujte aplikaci ručně a zkuste to znovu.</translation>
     </message>
+    <message>
+        <source>Security Warning</source>
+        <translation>Upozornění zabezpečení</translation>
+    </message>
+    <message>
+        <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
+        <translation>Instalace do vlastní složky může útočníkovi umožnit manipulovat s aplikací Windscribe. Chcete-li zajistit bezpečnost aplikace a vašeho systému, důrazně doporučujeme instalaci do výchozího umístění ve složce &quot;Program Files&quot;. Klepněte na tlačítko OK, chcete-li pokračovat ve vlastní složce, nebo na tlačítko Storno, chcete-li použít výchozí umístění.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -122,10 +130,6 @@
     <message>
         <source>Instructs the installer to skip installing drivers.</source>
         <translation>Pokyn instalačnímu programu, aby přeskočil instalaci ovladačů.</translation>
-    </message>
-    <message>
-        <source>Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start.</source>
-        <translation>Pokyne instalačnímu programu, aby skryl své uživatelské rozhraní.  Implikuje -no-drivers a -no-auto-start.</translation>
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
@@ -186,6 +190,14 @@
     <message>
         <source>The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support.</source>
         <translation>Instalační program nebyl schopen určit, zda je spuštěn s právy správce.  Nahlaste prosím tuto chybu podpoře Windscribe.</translation>
+    </message>
+    <message>
+        <source>Instructs the installer to hide its user interface.</source>
+        <translation>Pokyne instalačnímu programu, aby skryl své uživatelské rozhraní.</translation>
+    </message>
+    <message>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>Nemáte dostatečná oprávnění ke spuštění této aplikace. K instalaci aplikace Windscribe jsou vyžadována oprávnění správce.</translation>
     </message>
 </context>
 <context>

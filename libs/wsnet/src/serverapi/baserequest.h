@@ -45,7 +45,6 @@ public:
     bool isUseDnsCache() const { return isUseDnsCache_; }
     void setUseDnsCache(bool isUse) { isUseDnsCache_ = isUse; }
 
-
     bool isWriteToLog() const { return isWriteToLog_; }
     void setNotWriteToLog() { isWriteToLog_ = false; }
 

@@ -12,7 +12,7 @@
 #include "themecontroller.h"
 
 AlertWindowContents::AlertWindowContents(QWidget *parent)
-    : QWidget(parent), primaryButtonColor_(ThemeController::instance().primaryButtonColor()), titleSize_(18)
+    : QWidget(parent), primaryButtonColor_(ThemeController::instance().primaryButtonColor()), titleSize_(18), descSize_(13)
 {
     icon_ = new QLabel(this);
 
@@ -47,7 +47,7 @@ void AlertWindowContents::onThemeChanged()
     QString fontName = ThemeController::instance().defaultFontName();
 
     title_->setStyleSheet(QString("color: %1; font-family: %2; font-size: %3px; font-weight: 600;").arg(fontColor).arg(fontName).arg(titleSize_));
-    desc_->setStyleSheet(QString("color: %1; font-family: %2; font-size: 13px;").arg(fontColor).arg(fontName));
+    desc_->setStyleSheet(QString("color: %1; font-family: %2; font-size: %3px;").arg(fontColor).arg(fontName).arg(descSize_));
 
     QString primaryButtonStyle;
     primaryButtonStyle += "QPushButton { background-color: %1; color: %2; border: none; border-radius: 17px; font-family: %3; font-size: 14px; }";
@@ -76,7 +76,7 @@ void AlertWindowContents::updateDimensions()
 {
     qreal pmWidth = icon_->pixmap().width()/icon_->pixmap().devicePixelRatio();
     qreal pmHeight = icon_->pixmap().height()/icon_->pixmap().devicePixelRatio();
-    icon_->setGeometry((300 - pmWidth)/2, 56, pmWidth, pmHeight);
+    icon_->setGeometry((300 - pmWidth)/2, 48, pmWidth, pmHeight);
 
     QFont titleFont(ThemeController::instance().defaultFontName());
     titleFont.setWeight(QFont::DemiBold);
@@ -86,7 +86,7 @@ void AlertWindowContents::updateDimensions()
     title_->setGeometry(0, 76 + icon_->height(), 300, titleFm.boundingRect(0, 0, 300, height(), Qt::TextWordWrap, title_->text()).height());
 
     QFont descFont(ThemeController::instance().defaultFontName());
-    descFont.setPixelSize(13);
+    descFont.setPixelSize(descSize_);
     QFontMetrics fmDesc(descFont);
     desc_->setGeometry(0, 92 + icon_->height() + title_->height(), 300, fmDesc.boundingRect(0, 0, 300, height(), Qt::TextWordWrap, desc_->text()).height());
 
@@ -100,7 +100,7 @@ void AlertWindowContents::updateDimensions()
     }
 
     int height =
-        56 + // height above icon
+        48 + // height above icon
         icon_->height() +
         20 + // space between icon and title
         title_->height() +
@@ -180,3 +180,8 @@ void AlertWindowContents::setSecondaryButton(const QString &text)
     updateDimensions();
 }
 
+void AlertWindowContents::setDescriptionSize(int px)
+{
+    descSize_ = px;
+    updateDimensions();
+}

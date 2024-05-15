@@ -102,6 +102,9 @@ void PingManager::onPingTimer()
     for (auto it = ips_.begin(); it != ips_.end(); ++it) {
         PingIpState &pni = it.value();
 
+        if (pni.nowPinging)
+            continue;
+
         // Checking the option ws-use-icmp-pings and force ICMP pings if enabled.
         wsnet::PingType pingType = pni.ipInfo.pingType;
         if (ExtraConfig::instance().getUseICMPPings()) {
@@ -110,13 +113,23 @@ void PingManager::onPingTimer()
 
         if (pni.iterationTime != pingStorage_.currentIterationTime()) {
             pingLog_.addLog("PingNodesController::onPingTimer", QString::fromLatin1("ping new node: %1 (%2 - %3)").arg(pni.ipInfo.ip, pni.ipInfo.city, pni.ipInfo.nick));
+            pni.nowPinging = true;
             WSNet::instance()->pingManager()->ping(pni.ipInfo.ip.toStdString(), pni.ipInfo.hostname.toStdString(), pingType,
-                                                   std::bind(&PingManager::onPingFinished, this, _1, _2, _3, _4));
+                        [this](const std::string &ip, bool isSuccess, std::int32_t timeMs, bool isFromDisconnectedVpnState) {
+                            QMetaObject::invokeMethod(this, [this, ip, isSuccess, timeMs, isFromDisconnectedVpnState] {
+                                onPingFinished(ip, isSuccess, timeMs, isFromDisconnectedVpnState);
+                        });
+            });
         } else if (pni.latestPingFailed) {
             if (pni.nextTimeForFailedPing == 0 || QDateTime::currentMSecsSinceEpoch() >= pni.nextTimeForFailedPing) {
+                pni.nowPinging = true;
                 pingLog_.addLog("PingNodesController::onPingTimer", "start ping because latest ping failed: " + it.key());
                 WSNet::instance()->pingManager()->ping(pni.ipInfo.ip.toStdString(), pni.ipInfo.hostname.toStdString(), pingType,
-                                                       std::bind(&PingManager::onPingFinished, this, _1, _2, _3, _4));
+                   [this](const std::string &ip, bool isSuccess, std::int32_t timeMs, bool isFromDisconnectedVpnState) {
+                       QMetaObject::invokeMethod(this, [this, ip, isSuccess, timeMs, isFromDisconnectedVpnState] {
+                           onPingFinished(ip, isSuccess, timeMs, isFromDisconnectedVpnState);
+                    });
+                });
             }
         }
     }
@@ -130,6 +143,7 @@ void PingManager::onPingFinished(const std::string &ip, bool isSuccess, int32_t 
     if (itNode == ips_.end()) {
         return;
     }
+    itNode->nowPinging = false;
 
     // Note: we only issue ping requests in the disconnected state.  However, it is possible we transitioned to the
     // connecting/connected state between the time the ping request was issued to PingHost and when it was executed.

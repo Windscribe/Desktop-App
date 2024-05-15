@@ -29,7 +29,7 @@
 #define AA_COMMAND_ENUM_PROCESSES                           26
 #define AA_COMMAND_TASK_KILL                                27
 #define AA_COMMAND_SET_METRIC                               28
-#define AA_COMMAND_WMIC_ENABLE                              29
+#define AA_COMMAND_WMIC_ENABLE                              29 // deprecated
 #define AA_COMMAND_WMIC_GET_CONFIG_ERROR_CODE               30
 #define AA_COMMAND_ENABLE_BFE                               31
 #define AA_COMMAND_RUN_OPENVPN                              32
@@ -59,6 +59,10 @@
 
 #include <string>
 #include <vector>
+
+enum CmdKillTarget {
+    kTargetOpenVpn
+};
 
 struct CMD_FIREWALL_ON
 {
@@ -95,7 +99,7 @@ struct CMD_SUSPEND_UNBLOCKING_CMD
 
 struct CMD_TASK_KILL
 {
-    std::wstring szExecutableName;
+    CmdKillTarget target;
 };
 
 struct CMD_SET_METRIC
@@ -103,11 +107,6 @@ struct CMD_SET_METRIC
     std::wstring szInterfaceType;
     std::wstring szInterfaceName;
     std::wstring szMetricNumber;
-};
-
-struct CMD_WMIC_ENABLE
-{
-    std::wstring szAdapterName;
 };
 
 struct CMD_WMIC_GET_CONFIG_ERROR_CODE

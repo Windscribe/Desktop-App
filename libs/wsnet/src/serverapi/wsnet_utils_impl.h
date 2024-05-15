@@ -1,7 +1,7 @@
 #pragma once
 
 #include "WSNetUtils.h"
-#include <BS_thread_pool.hpp>
+#include <boost/asio.hpp>
 #include "WSNetHttpNetworkManager.h"
 #include "failover/ifailovercontainer.h"
 #include "serverapi/failedfailovers.h"
@@ -12,7 +12,7 @@ namespace wsnet {
 class WSNetUtils_impl : public WSNetUtils
 {
 public:
-    explicit WSNetUtils_impl(BS::thread_pool &taskQueue, WSNetHttpNetworkManager *httpNetworkManager,
+    explicit WSNetUtils_impl(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager,
                              IFailoverContainer *failoverContainer, WSNetAdvancedParameters *advancedParameters);
     virtual ~WSNetUtils_impl();
 
@@ -22,7 +22,7 @@ public:
     std::shared_ptr<WSNetCancelableCallback> myIPViaFailover(int failoverInd, WSNetRequestFinishedCallback callback) override;
 
 private:
-    BS::thread_pool &taskQueue_;
+    boost::asio::io_context &io_context_;
     WSNetHttpNetworkManager *httpNetworkManager_;
     WSNetAdvancedParameters *advancedParameters_;
     IFailoverContainer *failoverContainer_;

@@ -130,8 +130,7 @@ void WireGuardConnection::run()
     if (err != IHelper::EXECUTE_SUCCESS)
     {
         qCDebug(LOG_CONNECTION) << "Windscribe service could not install the WireGuard service";
-        emit error((err == IHelper::EXECUTE_VERIFY_ERROR ? CONNECT_ERROR::EXE_VERIFY_WIREGUARD_ERROR
-                                                         : CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR));
+        emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
         emit disconnected();
         return;
     }

@@ -80,4 +80,16 @@ wstring append(const std::wstring &dir, const std::wstring &suffix)
     return parent.make_preferred();
 }
 
+bool isSystemProtected(const wstring &dir)
+{
+    // We're not doing any actual 'system protected' checks here.  The user should be installing
+    // to 'Program Files'.  Any other system-protected location is an anti-pattern.
+
+    // make_preferred to normalize the path separator.
+    filesystem::path fsDir(dir);
+    const auto targetDir = removeSeparator(fsDir.make_preferred());
+    const auto programFiles = Utils::programFilesFolder();
+    return ::PathIsPrefix(programFiles.c_str(), dir.c_str());
+}
+
 }

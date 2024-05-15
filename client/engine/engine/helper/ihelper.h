@@ -23,7 +23,7 @@ public:
     explicit IHelper(QObject *parent = 0) : QThread(parent) {}
     virtual ~IHelper() {}
 
-    enum ExecuteError { EXECUTE_SUCCESS, EXECUTE_ERROR, EXECUTE_VERIFY_ERROR };
+    enum ExecuteError { EXECUTE_SUCCESS, EXECUTE_ERROR };
 
     virtual void startInstallHelper() = 0;
     virtual STATE currentState() const = 0;

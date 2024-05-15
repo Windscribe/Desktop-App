@@ -1,7 +1,7 @@
 #pragma once
 
 #include "WSNetServerAPI.h"
-#include <BS_thread_pool.hpp>
+#include <boost/asio.hpp>
 #include "WSNetHttpNetworkManager.h"
 #include "WSNetAdvancedParameters.h"
 #include "failover/ifailovercontainer.h"
@@ -15,7 +15,7 @@ class ServerAPI_impl;
 class ServerAPI : public WSNetServerAPI
 {
 public:
-    explicit ServerAPI(BS::thread_pool &taskQueue, WSNetHttpNetworkManager *httpNetworkManager, IFailoverContainer *failoverContainer,
+    explicit ServerAPI(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager, IFailoverContainer *failoverContainer,
                        const std::string &settings, WSNetAdvancedParameters *advancedParameters, ConnectState &connectState);
     virtual ~ServerAPI();
 
@@ -71,8 +71,10 @@ public:
 
     std::shared_ptr<WSNetCancelableCallback> myIP(WSNetRequestFinishedCallback callback) override;
 
-    std::shared_ptr<WSNetCancelableCallback> mobileBillingPlans(const std::string &mobilePlanType, int version, WSNetRequestFinishedCallback callback) override;
+    std::shared_ptr<WSNetCancelableCallback> mobileBillingPlans(const std::string &authHash, const std::string &mobilePlanType, const std::string &promo, int version, WSNetRequestFinishedCallback callback) override;
 
+    std::shared_ptr<WSNetCancelableCallback> sendPayment(const std::string &authHash, const std::string &appleID, const std::string &appleData, const std::string &appleSIG,
+                                                                 WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> verifyPayment(const std::string &authHash, const std::string &purchaseToken, const std::string &gpPackageName,
                                                            const std::string &gpProductId, const std::string &type, const std::string &amazonUserId,
                                                            WSNetRequestFinishedCallback callback) override;
@@ -94,9 +96,14 @@ public:
                                                                   const std::string &email, const std::string &claimAccount,
                                                                   WSNetRequestFinishedCallback callback) override;
 
+    std::shared_ptr<WSNetCancelableCallback> shakeData(const std::string &authHash, WSNetRequestFinishedCallback callback) override;
+    std::shared_ptr<WSNetCancelableCallback> recordShakeForDataScore(const std::string &authHash, const std::string &platform,
+                                                                             const std::string &score, const std::string &signature,
+                                                                             WSNetRequestFinishedCallback callback) override;
+
 private:
     std::unique_ptr<ServerAPI_impl> impl_;
-    BS::thread_pool &taskQueue_;
+    boost::asio::io_context &io_context_;
     ServerAPISettings settings_;
     WSNetAdvancedParameters *advancedParameters_;
     ConnectState &connectState_;

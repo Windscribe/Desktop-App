@@ -379,12 +379,22 @@ MessagePacketResult enumProcesses(boost::archive::text_iarchive &ia)
 
 MessagePacketResult taskKill(boost::archive::text_iarchive &ia)
 {
+    MessagePacketResult mpr;
+
     CMD_TASK_KILL cmdTaskKill;
     ia >> cmdTaskKill;
 
-    std::wstring killCmd = Utils::getSystemDir() + L"\\taskkill.exe /f /t /im " + cmdTaskKill.szExecutableName;
-    Logger::instance().out(L"AA_COMMAND_TASK_KILL, cmd=%s", killCmd.c_str());
-    return ExecuteCmd::instance().executeBlockingCmd(killCmd);
+    if (cmdTaskKill.target == kTargetOpenVpn) {
+        std::wstringstream killCmd;
+        killCmd << Utils::getSystemDir() << L"\\taskkill.exe /f /t /im \"" << Utils::getExePath() << L"\\windscribeopenvpn.exe\"";
+        Logger::instance().out(L"AA_COMMAND_TASK_KILL, cmd=%s", killCmd.str().c_str());
+        mpr = ExecuteCmd::instance().executeBlockingCmd(killCmd.str());
+    }
+    else {
+        Logger::instance().out(L"AA_COMMAND_TASK_KILL, invalid ID received %d", cmdTaskKill.target);
+    }
+
+    return mpr;
 }
 
 MessagePacketResult setMetric(boost::archive::text_iarchive &ia)
@@ -396,16 +406,6 @@ MessagePacketResult setMetric(boost::archive::text_iarchive &ia)
                                 cmdSetMetric.szInterfaceName + L"\" metric=" + cmdSetMetric.szMetricNumber;
     Logger::instance().out(L"AA_COMMAND_SET_METRIC, cmd=%s", setMetricCmd.c_str());
     return ExecuteCmd::instance().executeBlockingCmd(setMetricCmd);
-}
-
-MessagePacketResult wmicEnable(boost::archive::text_iarchive &ia)
-{
-    CMD_WMIC_ENABLE cmdWmicEnable;
-    ia >> cmdWmicEnable;
-
-    std::wstring wmicCmd = Utils::getSystemDir() + L"\\wbem\\wmic.exe path win32_networkadapter where description=\"" + cmdWmicEnable.szAdapterName + L"\" call enable";
-    Logger::instance().out(L"AA_COMMAND_WMIC_ENABLE, cmd=%s", wmicCmd.c_str());
-    return ExecuteCmd::instance().executeBlockingCmd(wmicCmd);
 }
 
 MessagePacketResult wmicGetConfigErrorCode(boost::archive::text_iarchive &ia)
@@ -497,12 +497,23 @@ MessagePacketResult setMacAddressRegistryValueSz(boost::archive::text_iarchive &
 {
     MessagePacketResult mpr;
 
-    CMD_SET_MAC_ADDRESS_REGISTRY_VALUE_SZ cmdSetMacAddressRegistryValueSz;
-    ia >> cmdSetMacAddressRegistryValueSz;
+    CMD_SET_MAC_ADDRESS_REGISTRY_VALUE_SZ cmd;
+    ia >> cmd;
 
-    std::wstring keyPath = L"SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}\\" + cmdSetMacAddressRegistryValueSz.szInterfaceName;
+    // Verify we've received a valid subkey for this Registry key.
+    if (!Registry::subkeyExists(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}", cmd.szInterfaceName)) {
+        Logger::instance().out(L"setMacAddressRegistryValueSz did not find key %s", cmd.szInterfaceName.c_str());
+        return mpr;
+    }
+
+    if (!Utils::isMacAddress(cmd.szValue)) {
+        Logger::instance().out(L"setMacAddressRegistryValueSz received an invalid MAC address %s", cmd.szValue.c_str());
+        return mpr;
+    }
+
+    std::wstring keyPath = L"SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}\\" + cmd.szInterfaceName;
     std::wstring propertyName = L"NetworkAddress";
-    std::wstring propertyValue = cmdSetMacAddressRegistryValueSz.szValue;
+    std::wstring propertyValue = cmd.szValue;
 
     mpr.success = Registry::regWriteSzProperty(HKEY_LOCAL_MACHINE, keyPath.c_str(), propertyName, propertyValue);
 
@@ -518,11 +529,17 @@ MessagePacketResult removeMacAddressRegistryProperty(boost::archive::text_iarchi
 {
     MessagePacketResult mpr;
 
-    CMD_REMOVE_MAC_ADDRESS_REGISTRY_PROPERTY cmdRemoveMacAddressRegistryProperty;
-    ia >> cmdRemoveMacAddressRegistryProperty;
+    CMD_REMOVE_MAC_ADDRESS_REGISTRY_PROPERTY cmd;
+    ia >> cmd;
+
+    // Verify we've received a valid subkey for this Registry key.
+    if (!Registry::subkeyExists(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}", cmd.szInterfaceName)) {
+        Logger::instance().out(L"removeMacAddressRegistryProperty did not find key %s", cmd.szInterfaceName.c_str());
+        return mpr;
+    }
 
     std::wstring propertyName = L"NetworkAddress";
-    std::wstring keyPath = L"SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}\\" + cmdRemoveMacAddressRegistryProperty.szInterfaceName;
+    std::wstring keyPath = L"SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}\\" + cmd.szInterfaceName;
 
     wchar_t keyPathSz[128];
     wcsncpy_s(keyPathSz, 128, keyPath.c_str(), _TRUNCATE);

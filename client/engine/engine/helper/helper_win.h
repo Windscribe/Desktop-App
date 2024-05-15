@@ -36,7 +36,7 @@ public:
                            const QString &connectedIp, const types::Protocol &protocol) override;
     bool setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress);
     bool changeMtu(const QString &adapter, int mtu) override;
-    bool executeTaskKill(const QString &name);
+    bool executeTaskKill(CmdKillTarget target);
     ExecuteError executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort,
                                 const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId, bool isCustomConfig) override;
 
@@ -53,7 +53,6 @@ public:
     // Windows specific functions
     bool isHelperConnected() const;
     QString executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber);
-    QString executeWmicEnable(const QString &adapterName);
     QString executeWmicGetConfigManagerErrorCode(const QString &adapterName);
 
     bool isIcsSupported();

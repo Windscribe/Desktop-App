@@ -2,8 +2,6 @@
 
 #include "installer.h"
 #include "settings.h"
-#include "../../utils/applicationinfo.h"
-#include "../../utils/path.h"
 
 InstallerShim::InstallerShim()
 {
@@ -50,14 +48,9 @@ void InstallerShim::finish()
     reinterpret_cast<Installer *>(installer_)->launchApp();
 }
 
-bool InstallerShim::setInstallDir(std::wstring &path)
+void InstallerShim::setInstallDir(const std::wstring &path)
 {
-    if (!Path::isOnSystemDrive(path)) {
-        return true;
-    }
-
     Settings::instance().setPath(path);
-    return false;
 }
 
 std::wstring InstallerShim::installDir()

@@ -92,6 +92,14 @@
         <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
         <translation>स्थापना फ़ोल्डर में वह डेटा है जिसकी स्थापना रद्द नहीं की जा सकी. कृपया अनुप्रयोग की स्थापना मैन्युअल रूप से रद्द करें और पुन: प्रयास करें.</translation>
     </message>
+    <message>
+        <source>Security Warning</source>
+        <translation>सुरक्षा चेतावनी</translation>
+    </message>
+    <message>
+        <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
+        <translation>कस्टम फ़ोल्डर में स्थापना एक हमलावर को Windscribe अनुप्रयोग के साथ छेड़छाड़ करने की अनुमति दे सकती है। एप्लिकेशन और आपके सिस्टम की सुरक्षा सुनिश्चित करने के लिए, हम दृढ़ता से अनुशंसा करते हैं कि आप &apos;प्रोग्राम फ़ाइलें&apos; फ़ोल्डर में डिफ़ॉल्ट स्थान पर स्थापित करें। कस्टम फ़ोल्डर के साथ जारी रखने के लिए ठीक क्लिक करें या डिफ़ॉल्ट स्थान का उपयोग करने के लिए रद्द करें।</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -122,10 +130,6 @@
     <message>
         <source>Instructs the installer to skip installing drivers.</source>
         <translation>इंस्टॉलर को ड्राइवरों को स्थापित करना छोड़ने का निर्देश देता है।</translation>
-    </message>
-    <message>
-        <source>Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start.</source>
-        <translation>इंस्टॉलर को अपने उपयोगकर्ता इंटरफ़ेस को छिपाने का निर्देश देता है।  इसका अर्थ है -नो-ड्राइवर और -नो-ऑटो-स्टार्ट।</translation>
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
@@ -186,6 +190,14 @@
     <message>
         <source>The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support.</source>
         <translation>इंस्टॉलर यह निर्धारित करने में असमर्थ था कि क्या यह व्यवस्थापक यी अधिकारों के साथ चल रहा है.  कृपया इस विफलता की रिपोर्ट विंडसाइड समर्थन को करें.</translation>
+    </message>
+    <message>
+        <source>Instructs the installer to hide its user interface.</source>
+        <translation>इंस्टॉलर को अपने यूजर इंटरफेस को छिपाने का निर्देश देता है।</translation>
+    </message>
+    <message>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>आपके पास यह अनुप्रयोग चलाने के लिए पर्याप्त अनुमतियाँ नहीं हैं. विंडसाइड को स्थापित करने के लिए प्रशासनिक विशेषाधिकारों की आवश्यकता होती है।</translation>
     </message>
 </context>
 <context>

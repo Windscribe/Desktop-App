@@ -6,18 +6,18 @@
 #include <QPaintEvent>
 #include <QScreen>
 #include <QWidget>
+
+#include "languagecontroller.h"
+#include "themecontroller.h"
+
 #ifdef Q_OS_WIN
-#include <windows.h>
-#include <shlobj_core.h>
+#include "../windows/installer/installer/installer_utils.h"
 #include "../windows/utils/applicationinfo.h"
 #include "../windows/utils/path.h"
 #include "../windows/utils/windscribepathcheck.h"
 #endif
-#include "languagecontroller.h"
-#include "themecontroller.h"
 
-MainWindow::MainWindow(bool isAdmin, InstallerOptions &options) : QWidget(nullptr),
-    options_(options), mousePressed_(false), fatalError_(false), exiting_(false), installing_(false)
+MainWindow::MainWindow(bool isAdmin, InstallerOptions &options) : QWidget(nullptr), options_(options)
 {
     installerShim_ = &InstallerShim::instance();
 
@@ -33,57 +33,67 @@ MainWindow::MainWindow(bool isAdmin, InstallerOptions &options) : QWidget(nullpt
     LanguageController::instance();
 
     installerShim_->setFactoryReset(options_.factoryReset);
-    std::wstring installPath = options_.installPath.toStdWString();
-    installerShim_->setInstallDir(installPath);
     installerShim_->setAutoStart(options_.autostart);
     installerShim_->setInstallDrivers(options_.installDrivers);
     std::wstring username = options_.username.toStdWString();
     std::wstring password = options_.password.toStdWString();
     installerShim_->setCredentials(username, password);
 
-    if (!options_.silent) {
-        QScreen *primaryScreen = qApp->primaryScreen();
-        if (primaryScreen) {
-            int screenWidth = primaryScreen->geometry().width();
-            int screenHeight = primaryScreen->geometry().height();
-
-            if (options_.centerX >= 0 && options_.centerY >= 0) {
-                setGeometry(options_.centerX - kWindowWidth/2, options_.centerY - kWindowHeight/2, kWindowWidth, kWindowHeight);
-            } else {
-                setGeometry((screenWidth - kWindowWidth) / 2, (screenHeight - kWindowHeight) / 2, kWindowWidth, kWindowHeight);
-            }
-        } else {
-            setGeometry(0, 0, kWindowWidth, kWindowHeight);
+#ifdef Q_OS_WIN
+    // Custom install path not currently supported on macOS.
+    if (!options_.installPath.isEmpty()) {
+        auto wpath = options_.installPath.toStdWString();
+        if (PathCheck::isNeedAppendSubdirectory(wpath, installerShim_->installDir())) {
+            wpath = Path::append(wpath, ApplicationInfo::name());
         }
-
-        initialWindow_ = new InitialWindow(this);
-        initialWindow_->setGeometry(0, 0, width(), height());
-        connect(initialWindow_, &InitialWindow::installClicked, this, &MainWindow::onInstallClicked);
-        connect(initialWindow_, &InitialWindow::settingsClicked, this, &MainWindow::onSettingsClicked);
-        connect(initialWindow_, &InitialWindow::minimizeClicked, this, &MainWindow::onMinimizeClicked);
-        connect(initialWindow_, &InitialWindow::closeClicked, this, &MainWindow::onCloseClicked);
-
-        settingsWindow_ = new SettingsWindow(this);
-        settingsWindow_->setGeometry(0, 0, width(), height());
-        connect(settingsWindow_, &SettingsWindow::escapeClicked, this, &MainWindow::onSettingsWindowEscapeClicked);
-        connect(settingsWindow_, &SettingsWindow::browseDirClicked, this, &MainWindow::onChangeDirClicked);
-        connect(settingsWindow_, &SettingsWindow::factoryResetToggled, this, &MainWindow::onSettingsWindowFactoryResetToggled);
-        connect(settingsWindow_, &SettingsWindow::createShortcutToggled, this, &MainWindow::onSettingsWindowCreateShortcutToggled);
-        connect(settingsWindow_, &SettingsWindow::installPathChanged, this, &MainWindow::onSettingsWindowInstallPathChanged);
-        connect(settingsWindow_, &SettingsWindow::animationFinished, this, &MainWindow::onSettingsWindowAnimFinished);
-        connect(settingsWindow_, &SettingsWindow::minimizeClicked, this, &MainWindow::onMinimizeClicked);
-        connect(settingsWindow_, &SettingsWindow::closeClicked, this, &MainWindow::onCloseClicked);
-        settingsWindow_->setCreateShortcut(installerShim_->isCreateShortcutEnabled());
-        settingsWindow_->setFactoryReset(installerShim_->isFactoryResetEnabled());
-        settingsWindow_->setInstallPath(QString::fromStdWString(installerShim_->installDir()));
-        settingsWindow_->hide();
-
-        alertWindow_ = new AlertWindow(this);
-        alertWindow_->setGeometry(0, 0, width(), height());
-        connect(alertWindow_, &AlertWindow::primaryButtonClicked, this, &MainWindow::onAlertWindowPrimaryButtonClicked);
-        connect(alertWindow_, &AlertWindow::escapeClicked, this, &MainWindow::onAlertWindowEscapeClicked);
-        alertWindow_->hide();
+        installerShim_->setInstallDir(wpath);
     }
+#endif
+
+    if (options_.silent) {
+        startInstall();
+        return;
+    }
+
+    QScreen *primaryScreen = qApp->primaryScreen();
+    if (primaryScreen) {
+        int screenWidth = primaryScreen->geometry().width();
+        int screenHeight = primaryScreen->geometry().height();
+
+        if (options_.centerX >= 0 && options_.centerY >= 0) {
+            setGeometry(options_.centerX - kWindowWidth/2, options_.centerY - kWindowHeight/2, kWindowWidth, kWindowHeight);
+        } else {
+            setGeometry((screenWidth - kWindowWidth) / 2, (screenHeight - kWindowHeight) / 2, kWindowWidth, kWindowHeight);
+        }
+    } else {
+        setGeometry(0, 0, kWindowWidth, kWindowHeight);
+    }
+
+    initialWindow_ = new InitialWindow(this);
+    initialWindow_->setGeometry(0, 0, width(), height());
+    connect(initialWindow_, &InitialWindow::installClicked, this, &MainWindow::onInstallClicked);
+    connect(initialWindow_, &InitialWindow::settingsClicked, this, &MainWindow::onSettingsClicked);
+    connect(initialWindow_, &InitialWindow::minimizeClicked, this, &MainWindow::onMinimizeClicked);
+    connect(initialWindow_, &InitialWindow::closeClicked, this, &MainWindow::onCloseClicked);
+
+    settingsWindow_ = new SettingsWindow(this);
+    settingsWindow_->setGeometry(0, 0, width(), height());
+    connect(settingsWindow_, &SettingsWindow::escapeClicked, this, &MainWindow::onSettingsWindowEscapeClicked);
+    connect(settingsWindow_, &SettingsWindow::browseDirClicked, this, &MainWindow::onChangeDirClicked);
+    connect(settingsWindow_, &SettingsWindow::factoryResetToggled, this, &MainWindow::onSettingsWindowFactoryResetToggled);
+    connect(settingsWindow_, &SettingsWindow::createShortcutToggled, this, &MainWindow::onSettingsWindowCreateShortcutToggled);
+    connect(settingsWindow_, &SettingsWindow::installPathChanged, this, &MainWindow::onSettingsWindowInstallPathChanged);
+    connect(settingsWindow_, &SettingsWindow::animationFinished, this, &MainWindow::onSettingsWindowAnimFinished);
+    connect(settingsWindow_, &SettingsWindow::minimizeClicked, this, &MainWindow::onMinimizeClicked);
+    connect(settingsWindow_, &SettingsWindow::closeClicked, this, &MainWindow::onCloseClicked);
+    settingsWindow_->setCreateShortcut(installerShim_->isCreateShortcutEnabled());
+    settingsWindow_->setFactoryReset(installerShim_->isFactoryResetEnabled());
+    settingsWindow_->setInstallPath(QString::fromStdWString(installerShim_->installDir()));
+    settingsWindow_->hide();
+
+    alertWindow_ = new AlertWindow(this);
+    alertWindow_->setGeometry(0, 0, width(), height());
+    alertWindow_->hide();
 
     if (!isAdmin) {
         showError(tr("Installation failed"),
@@ -92,7 +102,7 @@ MainWindow::MainWindow(bool isAdmin, InstallerOptions &options) : QWidget(nullpt
         return;
     }
 
-    if (options_.updating || options_.silent) {
+    if (options_.updating) {
         onInstallClicked();
     } else {
         initialWindow_->show();
@@ -105,10 +115,19 @@ MainWindow::~MainWindow()
 
 void MainWindow::onInstallClicked()
 {
-    if (!installing_) {
-        installing_ = true;
-        installerShim_->start(options_.updating);
+#ifdef Q_OS_WIN
+    // Display the warning every time if a user is manually upgrading and they're using a custom folder.
+    // We'll only pester users doing an in-app upgrade if they are upgrading from a version not containing
+    // this security check.
+    if (isWarnUserCustomPath()) {
+        if (!options_.updating || InstallerUtils::installedAppVersionLessThan(L"2.10.10")) {
+            showCustomPathWarning(true);
+            return;
+        }
     }
+#endif
+
+    startInstall();
 }
 
 void MainWindow::onSettingsClicked()
@@ -148,18 +167,16 @@ void MainWindow::onSettingsWindowAnimFinished(bool dimmed)
     }
 }
 
-void MainWindow::setProgress(int progress)
-{
-    QMetaObject::invokeMethod(initialWindow_, "setProgress", Qt::QueuedConnection, Q_ARG(int, progress));
-}
-
 void MainWindow::onInstallerCallback()
 {
     switch (installerShim_->state()) {
         case InstallerShim::STATE_INIT:
             break;
         case InstallerShim::STATE_EXTRACTING:
-            QMetaObject::invokeMethod(initialWindow_, "setProgress", Qt::QueuedConnection, Q_ARG(int, installerShim_->progress()));
+            // No UI created when running in silent mode.
+            if (initialWindow_) {
+                QMetaObject::invokeMethod(initialWindow_, "setProgress", Qt::QueuedConnection, Q_ARG(int, installerShim_->progress()));
+            }
             break;
         case InstallerShim::STATE_CANCELED:
         case InstallerShim::STATE_LAUNCHED:
@@ -169,42 +186,32 @@ void MainWindow::onInstallerCallback()
             installerShim_->finish();
             break;
         case InstallerShim::STATE_ERROR:
+            QString errorMsg;
             InstallerShim::INSTALLER_ERROR error = installerShim_->lastError();
             if (error == InstallerShim::ERROR_PERMISSION) {
-                QMetaObject::invokeMethod(this, "showError", Qt::QueuedConnection,
-                                          Q_ARG(QString, tr("Installation failed")),
-                                          Q_ARG(QString, tr("The installation was cancelled. Administrator privileges are required to install the application.")),
-                                          Q_ARG(bool, true));
+                errorMsg = tr("The installation was cancelled. Administrator privileges are required to install the application.");
             } else if (error == InstallerShim::ERROR_KILL) {
-                QMetaObject::invokeMethod(this, "showError", Qt::QueuedConnection,
-                                          Q_ARG(QString, tr("Installation failed")),
-                                          Q_ARG(QString, tr("Windscribe is running and could not be closed. Please close the application manually and try again.")),
-                                          Q_ARG(bool, true));
+                errorMsg = tr("Windscribe is running and could not be closed. Please close the application manually and try again.");
             } else if (error == InstallerShim::ERROR_CONNECT_HELPER) {
-                QMetaObject::invokeMethod(this, "showError", Qt::QueuedConnection,
-                                          Q_ARG(QString, tr("Installation failed")),
-                                          Q_ARG(QString, tr("The installer could not connect to the privileged helper tool. Please try again.")),
-                                          Q_ARG(bool, true));
+                errorMsg = tr("The installer could not connect to the privileged helper tool. Please try again.");
             } else if (error == InstallerShim::ERROR_DELETE) {
-                QMetaObject::invokeMethod(this, "showError", Qt::QueuedConnection,
-                                          Q_ARG(QString, tr("Installation failed")),
-                                          Q_ARG(QString, tr("An existing installation of Windscribe could not be removed. Please uninstall the application manually and try again.")),
-                                          Q_ARG(bool, true));
+                errorMsg = tr("An existing installation of Windscribe could not be removed. Please uninstall the application manually and try again.");
             } else if (error == InstallerShim::ERROR_UNINSTALL) {
-                QMetaObject::invokeMethod(this, "showError", Qt::QueuedConnection,
-                                          Q_ARG(QString, tr("Installation failed")),
-                                          Q_ARG(QString, tr("The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.")),
-                                          Q_ARG(bool, true));
+                errorMsg = tr("The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.");
             } else if (error == InstallerShim::ERROR_MOVE_CUSTOM_DIR) {
-                QMetaObject::invokeMethod(this, "showError", Qt::QueuedConnection,
-                                          Q_ARG(QString, tr("Installation failed")),
-                                          Q_ARG(QString, tr("The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.")),
-                                          Q_ARG(bool, true));
+                errorMsg = tr("The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.");
             } else {
-                QMetaObject::invokeMethod(this, "showError", Qt::QueuedConnection,
-                                          Q_ARG(QString, tr("Installation failed")),
-                                          Q_ARG(QString, tr("The installation could not be completed successfully. Please contact our Technical Support.")),
-                                          Q_ARG(bool, true));
+                errorMsg = tr("The installation could not be completed successfully. Please contact our Technical Support.");
+            }
+            // No UI created when running in silent mode.
+            if (options_.silent) {
+                // On Windows this will go to the system debugger (e.g. Debug View app).
+                qDebug() << errorMsg;
+                qApp->exit();
+            }
+            else {
+                QMetaObject::invokeMethod(this, "showError", Qt::QueuedConnection, Q_ARG(QString, tr("Installation failed")),
+                                          Q_ARG(QString, errorMsg), Q_ARG(bool, true));
             }
             break;
     }
@@ -247,54 +254,26 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-#ifdef Q_OS_WIN
-static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
-{
-    if (uMsg == BFFM_INITIALIZED) {
-        std::wstring tmp = (const wchar_t*)lpData;
-        SendMessage(hwnd, BFFM_SETSELECTION, TRUE, lpData);
-    }
-    return 0;
-}
-#endif
-
 void MainWindow::onChangeDirClicked()
 {
 #ifdef Q_OS_WIN
-    std::wstring path_param = installerShim_->installDir();
     std::wstring title = tr("Select a folder in the list below and click OK.").toStdWString();
-
-    BROWSEINFO bi = { 0 };
-    bi.hwndOwner = (HWND)winId();
-    bi.lpszTitle = title.c_str();
-    bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_DONTGOBELOWDOMAIN | BIF_NEWDIALOGSTYLE;
-    bi.lpfn = BrowseCallbackProc;
-    bi.lParam = (LPARAM)path_param.c_str();
-
-    LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
-
-    if (pidl != 0) {
-        //get the name of the folder and put it in path
-        TCHAR path[MAX_PATH];
-        SHGetPathFromIDList(pidl, path);
-        CoTaskMemFree(pidl);
-
-        std::wstring final_path = path;
-
-        if (PathCheck::isNeedAppendSubdirectory(path, path_param)) {
-            final_path = Path::append(path, ApplicationInfo::name());
-        }
-
-        setInstallPath(QString::fromStdWString(final_path));
+    std::wstring installFolder = InstallerUtils::selectInstallFolder((HWND)winId(), title, installerShim_->installDir());
+    if (!installFolder.empty()) {
+        setInstallPath(QString::fromStdWString(installFolder));
     }
 #endif
 }
 
 void MainWindow::showError(const QString &title, const QString &desc, bool fatal)
 {
-    if (options_.silent) {
+    if (!alertWindow_) {
         return;
     }
+
+    fatalError_ = fatal;
+
+    disconnect(alertWindow_, nullptr, nullptr, nullptr);
 
     alertWindow_->setIcon(":/resources/ERROR.svg");
     alertWindow_->setTitle(title);
@@ -304,16 +283,23 @@ void MainWindow::showError(const QString &title, const QString &desc, bool fatal
     alertWindow_->setPrimaryButtonColor(ThemeController::instance().primaryButtonColor());
     alertWindow_->setPrimaryButtonFontColor(ThemeController::instance().primaryButtonFontColor());
     alertWindow_->setSecondaryButton("");
-    fatalError_ = fatal;
+
+    connect(alertWindow_, &AlertWindow::primaryButtonClicked, this, &MainWindow::onAlertWindowPrimaryButtonClicked);
+    connect(alertWindow_, &AlertWindow::escapeClicked, this, &MainWindow::onAlertWindowEscapeClicked);
+
     alertWindow_->show();
     alertWindow_->setFocus();
 }
 
 void MainWindow::showExitPrompt()
 {
-    if (options_.silent) {
+    if (!alertWindow_) {
         return;
     }
+
+    exiting_ = true;
+
+    disconnect(alertWindow_, nullptr, nullptr, nullptr);
 
     alertWindow_->setIcon(":/resources/SHUTDOWN_ICON.svg");
     alertWindow_->setTitle(tr("Quit Windscribe Installer?"));
@@ -324,19 +310,72 @@ void MainWindow::showExitPrompt()
     alertWindow_->setPrimaryButtonFontColor(QColor(0xFF, 0xFF, 0xFF));
     alertWindow_->setSecondaryButton(tr("Cancel"));
 
-    exiting_ = true;
+    connect(alertWindow_, &AlertWindow::primaryButtonClicked, this, &MainWindow::onAlertWindowPrimaryButtonClicked);
+    connect(alertWindow_, &AlertWindow::escapeClicked, this, &MainWindow::onAlertWindowEscapeClicked);
+
     alertWindow_->show();
     alertWindow_->setFocus();
 }
 
+void MainWindow::showCustomPathWarning(bool installing)
+{
+    // Custom install path not currently supported on macOS.
+#ifdef Q_OS_WIN
+    if (!alertWindow_) {
+        return;
+    }
+
+    disconnect(alertWindow_, nullptr, nullptr, nullptr);
+
+    // Using slightly smaller font sizes to ensure the 'Cancel' button is not pushed off the bottom
+    // of the screen.
+    alertWindow_->setIcon(":/resources/WARNING.svg");
+    alertWindow_->setTitle(tr("Security Warning"));
+    alertWindow_->setTitleSize(14);
+    alertWindow_->setDescription(
+        tr("Installation to a custom folder may allow an attacker to tamper with the Windscribe application."
+           " To ensure the security of the application, and your system, we strongly recommend you install"
+           " to the default location in the 'Program Files' folder. Click OK to continue with the custom"
+           " folder or Cancel to use the default location."));
+    alertWindow_->setDescriptionSize(12);
+    alertWindow_->setPrimaryButton(tr("OK"));
+    alertWindow_->setPrimaryButtonColor(ThemeController::instance().primaryButtonColor());
+    alertWindow_->setPrimaryButtonFontColor(ThemeController::instance().primaryButtonFontColor());
+    alertWindow_->setSecondaryButton(tr("Cancel"));
+
+    if (installing) {
+        connect(alertWindow_, &AlertWindow::primaryButtonClicked, this, [this] {
+            showActiveWindowAfterAlert();
+            startInstall();
+        });
+        connect(alertWindow_, &AlertWindow::escapeClicked, this, [this] {
+            installerShim_->setInstallDir(ApplicationInfo::defaultInstallPath());
+            showActiveWindowAfterAlert();
+            startInstall();
+        });
+    }
+    else {
+        connect(alertWindow_, &AlertWindow::primaryButtonClicked, this, [this] { showActiveWindowAfterAlert(); });
+        connect(alertWindow_, &AlertWindow::escapeClicked, this, [this] {
+            // User opted not to use the custom install path they selected.  Revert to the default install path.
+            const auto defaultPath = ApplicationInfo::defaultInstallPath();
+            installerShim_->setInstallDir(defaultPath);
+            settingsWindow_->setInstallPath(QString::fromStdWString(defaultPath));
+            lastCustomPathWarning_.clear();
+            showActiveWindowAfterAlert();
+        });
+    }
+
+    alertWindow_->show();
+    alertWindow_->setFocus();
+#else
+    Q_UNUSED(installing)
+#endif
+}
+
 void MainWindow::onAlertWindowPrimaryButtonClicked()
 {
-    alertWindow_->hide();
-    if (settingsWindow_->isVisible()) {
-        settingsWindow_->setFocus();
-    } else {
-        initialWindow_->setFocus();
-    }
+    showActiveWindowAfterAlert();
     if (fatalError_ || exiting_) {
         qApp->exit();
     }
@@ -344,12 +383,7 @@ void MainWindow::onAlertWindowPrimaryButtonClicked()
 
 void MainWindow::onAlertWindowEscapeClicked()
 {
-    alertWindow_->hide();
-    if (settingsWindow_->isVisible()) {
-        settingsWindow_->setFocus();
-    } else {
-        initialWindow_->setFocus();
-    }
+    showActiveWindowAfterAlert();
     exiting_ = false;
     if (fatalError_) {
         qApp->exit();
@@ -370,14 +404,58 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::setInstallPath(const QString &path)
 {
-    std::wstring wpath = path.toStdWString();
-    bool err = installerShim_->setInstallDir(wpath);
-    if (err) {
-        // This function only called for Windows, so we know which error it is
+    // Custom install path not currently supported on macOS.
+#ifdef Q_OS_WIN
+    auto wpath = path.toStdWString();
+
+    if (!Path::isOnSystemDrive(wpath)) {
+        const auto defaultPath = ApplicationInfo::defaultInstallPath();
+        installerShim_->setInstallDir(defaultPath);
+        settingsWindow_->setInstallPath(QString::fromStdWString(defaultPath));
         showError(tr("Invalid path"),
                   tr("The specified installation path is not on the system drive. To ensure the security of the application, and your system, it must be installed on the same drive as Windows. The installation folder has been reset to the default."),
                   false);
-    } else {
-        settingsWindow_->setInstallPath(path);
+        return;
     }
+
+    if (PathCheck::isNeedAppendSubdirectory(wpath, installerShim_->installDir())) {
+        wpath = Path::append(wpath, ApplicationInfo::name());
+    }
+
+    installerShim_->setInstallDir(wpath);
+    settingsWindow_->setInstallPath(QString::fromStdWString(wpath));
+
+    if (isWarnUserCustomPath()) {
+        lastCustomPathWarning_ = wpath;
+        showCustomPathWarning(false);
+    }
+#endif
+}
+
+void MainWindow::showActiveWindowAfterAlert()
+{
+    alertWindow_->hide();
+    if (settingsWindow_->isVisible()) {
+        settingsWindow_->setFocus();
+    } else {
+        initialWindow_->setFocus();
+    }
+}
+
+void MainWindow::startInstall()
+{
+    if (!installing_) {
+        installing_ = true;
+        installerShim_->start(options_.updating);
+    }
+}
+
+bool MainWindow::isWarnUserCustomPath() const
+{
+#ifdef Q_OS_WIN
+    const auto installPath = installerShim_->installDir();
+    return !Path::equivalent(lastCustomPathWarning_, installPath) && !Path::isSystemProtected(installPath);
+#else
+    return false;
+#endif
 }

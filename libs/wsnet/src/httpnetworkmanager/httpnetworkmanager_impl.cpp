@@ -4,8 +4,8 @@
 
 namespace wsnet {
 
-HttpNetworkManager_impl::HttpNetworkManager_impl(BS::thread_pool &taskQueue, WSNetDnsResolver *dnsResolver) :
-    taskQueue_(taskQueue),
+HttpNetworkManager_impl::HttpNetworkManager_impl(boost::asio::io_context &io_context, WSNetDnsResolver *dnsResolver) :
+    io_context_(io_context),
     dnsCache_(dnsResolver, std::bind(&HttpNetworkManager_impl::onDnsResolvedCallback, this, std::placeholders::_1)),
     curlNetworkManager_(std::bind(&HttpNetworkManager_impl::onCurlFinishedCallback, this, std::placeholders::_1, std::placeholders::_2),
                         std::bind(&HttpNetworkManager_impl::onCurlProgressCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
@@ -61,9 +61,14 @@ void HttpNetworkManager_impl::setWhitelistIpsCallback(std::shared_ptr<Cancelable
     isWhitelistCallbackChanged_ = true;
 }
 
+void HttpNetworkManager_impl::setWhitelistSocketsCallback(std::shared_ptr<CancelableCallback<WSNetHttpNetworkManagerWhitelistSocketsCallback> > callback)
+{
+    curlNetworkManager_.setWhitelistSocketsCallback(callback);
+}
+
 void HttpNetworkManager_impl::onDnsResolvedCallback(const DnsCacheResult &result)
 {
-    taskQueue_.detach_task([this, result] {
+    boost::asio::post(io_context_, [this, result] {
         onDnsResolvedImpl(result);
     });
 }
@@ -94,21 +99,21 @@ void HttpNetworkManager_impl::onDnsResolvedImpl(const DnsCacheResult &result)
 
 void HttpNetworkManager_impl::onCurlFinishedCallback(std::uint64_t requestId, bool bSuccess)
 {
-    taskQueue_.detach_task([this, requestId, bSuccess] {
+    boost::asio::post(io_context_, [this, requestId, bSuccess] {
         onCurlFinishedCallbackImpl(requestId, bSuccess);
     });
 }
 
 void HttpNetworkManager_impl::onCurlProgressCallback(std::uint64_t requestId, std::uint64_t bytesReceived, std::uint64_t bytesTotal)
 {
-    taskQueue_.detach_task([this, requestId, bytesReceived, bytesTotal] {
+    boost::asio::post(io_context_, [this, requestId, bytesReceived, bytesTotal] {
         onCurlProgressCallbackImpl(requestId, bytesReceived, bytesTotal);
     });
 }
 
 void HttpNetworkManager_impl::onCurlReadyDataCallback(std::uint64_t requestId, const std::string &data)
 {
-    taskQueue_.detach_task([this, requestId, data] {
+    boost::asio::post(io_context_, [this, requestId, data] {
         onCurlReadyDataCallbackImpl(requestId, data);
     });
 }

@@ -92,6 +92,14 @@
         <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
         <translation>Folder instalasi berisi data yang tidak dapat dihapus. Hapus instalan aplikasi secara manual dan coba lagi.</translation>
     </message>
+    <message>
+        <source>Security Warning</source>
+        <translation>Peringatan Keamanan</translation>
+    </message>
+    <message>
+        <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
+        <translation>Penginstalan ke folder kustom memungkinkan penyerang mengutak-atik aplikasi Windscribe. Untuk memastikan keamanan aplikasi, dan sistem Anda, kami sangat menyarankan Anda menginstal ke lokasi default di folder &apos;Program Files&apos;. Klik OK untuk melanjutkan dengan folder kustom atau Batal untuk menggunakan lokasi default.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -122,10 +130,6 @@
     <message>
         <source>Instructs the installer to skip installing drivers.</source>
         <translation>Menginstruksikan penginstal untuk melewati penginstalan driver.</translation>
-    </message>
-    <message>
-        <source>Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start.</source>
-        <translation>Menginstruksikan penginstal untuk menyembunyikan antarmuka penggunanya.  Menyiratkan -no-drivers dan -no-auto-start.</translation>
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
@@ -186,6 +190,14 @@
     <message>
         <source>The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support.</source>
         <translation>Penginstal tidak dapat menentukan apakah itu berjalan dengan hak administrator.  Harap laporkan kegagalan ini ke dukungan Windscribe.</translation>
+    </message>
+    <message>
+        <source>Instructs the installer to hide its user interface.</source>
+        <translation>Menginstruksikan penginstal untuk menyembunyikan antarmuka penggunanya.</translation>
+    </message>
+    <message>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>Anda tidak memiliki izin yang memadai untuk menjalankan aplikasi ini. Hak administratif diperlukan untuk menginstal Windscribe.</translation>
     </message>
 </context>
 <context>

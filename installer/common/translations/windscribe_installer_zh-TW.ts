@@ -92,6 +92,14 @@
         <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
         <translation>安裝資料夾包含無法卸載的數據。請手動卸載應用程式，然後重試。</translation>
     </message>
+    <message>
+        <source>Security Warning</source>
+        <translation>安全警告</translation>
+    </message>
+    <message>
+        <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
+        <translation>安裝到自定義資料夾可能允許攻擊者篡改 Windscribe 應用程式。為確保應用程式和系統的安全，我們強烈建議您安裝到“Program Files”資料夾中的預設位置。按兩下確定繼續使用自訂資料夾，或按下取消「使用預設位置」。</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -122,10 +130,6 @@
     <message>
         <source>Instructs the installer to skip installing drivers.</source>
         <translation>指示安裝程式跳過安裝驅動程式。</translation>
-    </message>
-    <message>
-        <source>Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start.</source>
-        <translation>指示安裝程序隱藏其用戶介面。 表示 -無驅動程式和 -無自動啟動。</translation>
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
@@ -186,6 +190,14 @@
     <message>
         <source>The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support.</source>
         <translation>安裝程式無法確定它是否以管理員許可權運行。 請將此故障報告給Windscribe支援。</translation>
+    </message>
+    <message>
+        <source>Instructs the installer to hide its user interface.</source>
+        <translation>指示安裝程序隱藏其用戶介面。</translation>
+    </message>
+    <message>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>您沒有足夠的權限來執行此應用程式。安裝Windscribe需要管理許可權。</translation>
     </message>
 </context>
 <context>

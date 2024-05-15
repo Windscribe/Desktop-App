@@ -1,7 +1,7 @@
 #pragma once
 
 #include <map>
-#include <BS_thread_pool.hpp>
+#include <boost/asio.hpp>
 #include "WSNetEmergencyConnect.h"
 #include "WSNetDnsResolver.h"
 #include "failover/ifailovercontainer.h"
@@ -12,7 +12,7 @@ namespace wsnet {
 class EmergencyConnect : public WSNetEmergencyConnect
 {
 public:
-    explicit EmergencyConnect(BS::thread_pool &taskQueue, IFailoverContainer *failoverContainer, WSNetDnsResolver *dnsResolver);
+    explicit EmergencyConnect(boost::asio::io_context &io_context, IFailoverContainer *failoverContainer, WSNetDnsResolver *dnsResolver);
     virtual ~EmergencyConnect();
 
     std::string ovpnConfig() const override;
@@ -22,7 +22,7 @@ public:
     std::shared_ptr<WSNetCancelableCallback> getIpEndpoints(WSNetEmergencyConnectCallback callback) override;
 
 private:
-    BS::thread_pool &taskQueue_;
+    boost::asio::io_context &io_context_;
     IFailoverContainer *failoverContainer_;
     WSNetDnsResolver *dnsResolver_;
 

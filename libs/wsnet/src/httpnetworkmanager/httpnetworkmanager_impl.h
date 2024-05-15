@@ -2,7 +2,7 @@
 
 #include "WSNetHttpNetworkManager.h"
 #include <mutex>
-#include <BS_thread_pool.hpp>
+#include <boost/asio.hpp>
 #include "WSNetDnsResolver.h"
 #include "curlnetworkmanager.h"
 #include "dnscache.h"
@@ -15,7 +15,7 @@ using HttpNetworkManagerCallbacks = CancelableCallback3<WSNetHttpNetworkManagerF
 class HttpNetworkManager_impl
 {
 public:
-    HttpNetworkManager_impl(BS::thread_pool &taskQueue, WSNetDnsResolver *dnsResolver);
+    HttpNetworkManager_impl(boost::asio::io_context &io_context, WSNetDnsResolver *dnsResolver);
     virtual ~HttpNetworkManager_impl();
 
     bool init();
@@ -27,9 +27,10 @@ public:
                           const std::string &username, const std::string &password);
 
     void setWhitelistIpsCallback(std::shared_ptr<CancelableCallback<WSNetHttpNetworkManagerWhitelistIpsCallback> > callback);
+    void setWhitelistSocketsCallback(std::shared_ptr<CancelableCallback<WSNetHttpNetworkManagerWhitelistSocketsCallback> > callback);
 
 private:
-    BS::thread_pool &taskQueue_;
+    boost::asio::io_context &io_context_;
     DnsCache dnsCache_;
     CurlNetworkManager curlNetworkManager_;
     std::shared_ptr<CancelableCallback<WSNetHttpNetworkManagerWhitelistIpsCallback> > whitelistIpsCallback_;

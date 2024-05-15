@@ -40,8 +40,7 @@ void FinishActiveConnections::finishAllActiveConnections_win(IHelper *helper)
 void FinishActiveConnections::finishOpenVpnActiveConnections_win(IHelper *helper)
 {
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
-    const QString fileName = OpenVpnVersionController::instance().getOpenVpnFileName();
-    helper_win->executeTaskKill(fileName);
+    helper_win->executeTaskKill(kTargetOpenVpn);
 }
 
 void FinishActiveConnections::finishIkev2ActiveConnections_win(IHelper *helper)

@@ -105,14 +105,12 @@ void Log::writeFile(const wstring& installPath) const
 
     DWORD attrs = ::GetFileAttributes(installPath.c_str());
     if (attrs == INVALID_FILE_ATTRIBUTES) {
-        writeToSystemDebugger();
         WSDebugMessage(L"Log::writeFile - GetFileAttributes(%s) failed (%lu)", installPath.c_str(), ::GetLastError());
         return;
     }
 
     // This will be true if a symbolic link has been created on the folder, or a file within the folder.
     if (attrs & FILE_ATTRIBUTE_REPARSE_POINT) {
-        writeToSystemDebugger();
         WSDebugMessage(L"Log::writeFile - the target folder is, or contains, a suspicious symbolic link (%s)", installPath.c_str());
         return;
     }
@@ -123,7 +121,6 @@ void Log::writeFile(const wstring& installPath) const
     FILE* fileHandle = nullptr;
     errno_t result = _wfopen_s(&fileHandle, fileName.c_str(), L"wx");
     if ((result != 0) || (fileHandle == nullptr)) {
-        writeToSystemDebugger();
         WSDebugMessage(L"Log::writeFile - could not open %s (%d)", fileName.c_str(), result);
         return;
     }
@@ -134,11 +131,4 @@ void Log::writeFile(const wstring& installPath) const
 
     fflush(fileHandle);
     fclose(fileHandle);
-}
-
-void Log::writeToSystemDebugger() const
-{
-    for (const auto &entry : logEntries_) {
-        ::OutputDebugStringW(entry.c_str());
-    }
 }

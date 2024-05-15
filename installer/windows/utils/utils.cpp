@@ -29,7 +29,7 @@ wstring GetSystemDir()
 }
 
 optional<DWORD> InstExec(const wstring& appName, const wstring& commandLine, DWORD timeoutMS,
-                         WORD showWindowFlags, const std::wstring &currentFolder, DWORD *lastError)
+                         WORD showWindowFlags, const wstring &currentFolder, DWORD *lastError)
 {
     wostringstream stream;
     if (!appName.empty()) {
@@ -77,7 +77,7 @@ optional<DWORD> InstExec(const wstring& appName, const wstring& commandLine, DWO
         if (lastError) {
             *lastError = ::GetLastError();
         }
-        return std::nullopt;
+        return nullopt;
     }
 
     ::CloseHandle(pi.hThread);
@@ -101,7 +101,7 @@ optional<DWORD> InstExec(const wstring& appName, const wstring& commandLine, DWO
         if (lastError) {
             *lastError = ::GetLastError();
         }
-        return std::nullopt;
+        return nullopt;
     }
 
     if (waitResult == WAIT_TIMEOUT) {
@@ -116,7 +116,7 @@ optional<DWORD> InstExec(const wstring& appName, const wstring& commandLine, DWO
         if (lastError) {
             *lastError = ::GetLastError();
         }
-        return std::nullopt;
+        return nullopt;
     }
 
     return processExitCode;
@@ -183,7 +183,7 @@ FindAppWindowHandleProc(HWND hwnd, LPARAM lParam)
         return TRUE;
     }
 
-    std::wstring exeName = Path::extractName(std::wstring(imageName, pathLen));
+    wstring exeName = Path::extractName(wstring(imageName, pathLen));
 
     if (_wcsicmp(exeName.c_str(), ApplicationInfo::appExeName().c_str()) == 0)
     {
@@ -203,34 +203,22 @@ FindAppWindowHandleProc(HWND hwnd, LPARAM lParam)
 
 HWND appMainWindowHandle()
 {
-    auto pWindowInfo = std::make_unique<EnumWindowInfo>();
+    auto pWindowInfo = make_unique<EnumWindowInfo>();
     ::EnumWindows((WNDENUMPROC)FindAppWindowHandleProc, (LPARAM)pWindowInfo.get());
 
     return pWindowInfo->appMainWindow;
 }
 
-DWORD getOSBuildNumber()
+wstring programFilesFolder()
 {
-    HMODULE hDLL = ::GetModuleHandleA("ntdll.dll");
-    if (hDLL == NULL) {
-        Log::WSDebugMessage(L"Failed to load the ntdll module (%lu)", ::GetLastError());
-        return 0;
+    TCHAR programFilesPath[MAX_PATH];
+    BOOL result = ::SHGetSpecialFolderPath(0, programFilesPath, CSIDL_PROGRAM_FILES, FALSE);
+    if (!result) {
+        Log::WSDebugMessage(L"programFilesFolder - SHGetSpecialFolderPath failed, using default");
+        return wstring(L"C:\\Program Files");
     }
 
-    typedef NTSTATUS (WINAPI* RtlGetVersionFunc)(LPOSVERSIONINFOEXW lpVersionInformation);
-
-    RtlGetVersionFunc rtlGetVersionFunc = (RtlGetVersionFunc)::GetProcAddress(hDLL, "RtlGetVersion");
-    if (rtlGetVersionFunc == NULL) {
-        Log::WSDebugMessage(L"Failed to load RtlGetVersion function (%lu)", ::GetLastError());
-        return 0;
-    }
-
-    RTL_OSVERSIONINFOEXW rtlOsVer;
-    ::ZeroMemory(&rtlOsVer, sizeof(RTL_OSVERSIONINFOEXW));
-    rtlOsVer.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOEXW);
-    rtlGetVersionFunc(&rtlOsVer);
-
-    return rtlOsVer.dwBuildNumber;
+    return wstring(programFilesPath);
 }
 
 }

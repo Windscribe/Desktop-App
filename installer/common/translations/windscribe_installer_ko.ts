@@ -92,6 +92,14 @@
         <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
         <translation>설치 폴더에는 제거할 수 없는 데이터가 포함되어 있습니다. 응용 프로그램을 수동으로 제거하고 다시 시도하십시오.</translation>
     </message>
+    <message>
+        <source>Security Warning</source>
+        <translation>보안 경고</translation>
+    </message>
+    <message>
+        <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
+        <translation>사용자 지정 폴더에 설치하면 공격자가 Windscribe 응용 프로그램을 변조할 수 있습니다. 응용 프로그램 및 시스템의 보안을 보장하려면 &apos;Program Files&apos; 폴더의 기본 위치에 설치하는 것이 좋습니다. 확인을 클릭하여 사용자 지정 폴더를 계속하거나 취소를 클릭하여 기본 위치를 사용합니다.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -122,10 +130,6 @@
     <message>
         <source>Instructs the installer to skip installing drivers.</source>
         <translation>설치 관리자가 드라이버 설치를 건너뛰도록 지시합니다.</translation>
-    </message>
-    <message>
-        <source>Instructs the installer to hide its user interface.  Implies -no-drivers and -no-auto-start.</source>
-        <translation>설치 관리자가 사용자 인터페이스를 숨기도록 지시합니다.  -no-drivers 및 -no-auto-start를 의미합니다.</translation>
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
@@ -186,6 +190,14 @@
     <message>
         <source>The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support.</source>
         <translation>설치 관리자가 관리자 권한으로 실행 중인지 확인할 수 없습니다.  이 실패를 Windscribe 지원팀에 보고하십시오.</translation>
+    </message>
+    <message>
+        <source>Instructs the installer to hide its user interface.</source>
+        <translation>설치 관리자에게 사용자 인터페이스를 숨기도록 지시합니다.</translation>
+    </message>
+    <message>
+        <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
+        <translation>이 응용 프로그램을 실행할 수 있는 충분한 권한이 없습니다. Windscribe를 설치하려면 관리자 권한이 필요합니다.</translation>
     </message>
 </context>
 <context>
