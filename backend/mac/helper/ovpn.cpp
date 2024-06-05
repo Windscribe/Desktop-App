@@ -63,7 +63,8 @@ bool writeOVPNFile(const std::string &dnsScript, int port, const std::string &co
     std::string opts = \
         "management 127.0.0.1 " + std::to_string(port) + "\n" \
         "management-query-passwords\n" \
-        "management-hold\n";
+        "management-hold\n" \
+        "verb 3\n";
 
     if (httpProxy.length() > 0) {
         opts += "http-proxy " + httpProxy + " " + std::to_string(httpPort) + " auto\n";

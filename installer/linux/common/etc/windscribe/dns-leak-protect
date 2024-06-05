@@ -43,8 +43,12 @@ dnsleak_protection_up()
     printf -v rules '%s-I OUTPUT -j windscribe_dnsleaks %s\n' "$rules" "$marker"
 
     # disallow all OS-default DNS servers
-    for dnsIp in "${dns_array[@]}"
-    do
+    for dnsIp in "${dns_array[@]}"; do
+        for allowed in "$@"; do
+            if [[ $dnsIp == "$allowed" ]]; then
+                continue 2
+            fi
+        done
         printf -v rules '%s-A windscribe_dnsleaks -d %s -p udp --dport 53 -j DROP %s\n' "$rules" "$dnsIp" "$marker"
         printf -v rules '%s-A windscribe_dnsleaks -d %s -p tcp --dport 53 -j DROP %s\n' "$rules" "$dnsIp" "$marker"
     done
@@ -87,11 +91,11 @@ main()
     local action="$1"
 
     if [[ $action == "up" ]]; then
-        dnsleak_protection_up
+        dnsleak_protection_up $@
     elif [[ $action == "down" ]]; then
         dnsleak_protection_down
     else
-        echo "Usage: dns-leak-protect up|down"
+        echo "Usage: dns-leak-protect up|down [servers_to_allow]"
         return 1
     fi
 }

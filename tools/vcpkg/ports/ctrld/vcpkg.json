@@ -1,0 +1,7 @@
+{
+  "name": "ctrld",
+  "version": "1.3.7",
+  "port-version": 0,
+  "description": "A highly configurable, multi-protocol DNS forwarding proxy",
+  "homepage": "https://github.com/Control-D-Inc/ctrld"
+}

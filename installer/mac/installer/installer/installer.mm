@@ -80,9 +80,7 @@
 -(void)runLauncher
 {
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(appDidLaunch:) name:NSWorkspaceDidLaunchApplicationNotification object:nil];
-    NSWorkspaceOpenConfiguration *config = [NSWorkspaceOpenConfiguration configuration];
-    [config setCreatesNewApplicationInstance: YES];
-    [[NSWorkspace sharedWorkspace] openApplicationAtURL: [NSURL fileURLWithPath: [self getInstallPath]] configuration: config completionHandler: nil];
+    [[NSWorkspace sharedWorkspace] openURL: [NSURL fileURLWithPath: [self getInstallPath]]];
 }
 
 -(NSString *)runProcess:(NSString*)exePath args:(NSArray *)args

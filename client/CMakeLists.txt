@@ -86,6 +86,9 @@ if (WIN32)
     #postbuild copy commands for Windows
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                       ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools/openvpn/openvpn.exe $<TARGET_FILE_DIR:Windscribe>/windscribeopenvpn.exe)
+
+    add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                                    ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools/ctrld/ctrld.exe $<TARGET_FILE_DIR:Windscribe>/windscribectrld.exe)
 elseif (APPLE)
     #postbuild copy commands for Mac
     set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs)
@@ -109,8 +112,9 @@ elseif (APPLE)
 
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                        ${WINDSCRIBE_BUILD_LIBS_PATH}/wireguard/windscribewireguard $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribewireguard)
+
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                      ${WINDSCRIBE_BUILD_LIBS_PATH}/ctrld/ctrld $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribectrld)
+                      ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools/ctrld/ctrld $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribectrld)
 
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                       ${WINDSCRIBE_BUILD_LIBS_PATH}/wstunnel/windscribewstunnel $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribewstunnel)
@@ -170,6 +174,7 @@ install(TARGETS Windscribe wsnet
 
 if (WIN32)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/windscribeopenvpn.exe DESTINATION .)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/windscribectrld.exe DESTINATION .)
 endif()
 
 if(UNIX AND (NOT APPLE))
@@ -182,6 +187,12 @@ if(UNIX AND (NOT APPLE))
     # copy openvpn
     install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools/openvpn/sbin/openvpn
             RENAME windscribeopenvpn
+            DESTINATION .
+            PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+    )
+    # copy ctrld
+    install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools/ctrld/ctrld
+            RENAME windscribectrld
             DESTINATION .
             PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
     )

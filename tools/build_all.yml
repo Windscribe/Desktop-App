@@ -157,8 +157,6 @@ deploy_files:
         wireguard:
           - tunnel.dll -> tunnel.dll
           - wireguard.dll -> wireguard.dll
-        ctrld:
-          - ctrld.exe -> windscribectrld.exe
         wstunnel:
           - windscribewstunnel.exe -> windscribewstunnel.exe
         wintun:
@@ -251,8 +249,6 @@ deploy_files:
           - plugins/wayland-shell-integration/libxdg-shell.so -> plugins/wayland-shell-integration/libxdg-shell.so
           - plugins/xcbglintegrations/libqxcb-egl-integration.so -> plugins/xcbglintegrations/libqxcb-egl-integration.so
           - plugins/xcbglintegrations/libqxcb-glx-integration.so -> plugins/xcbglintegrations/libqxcb-glx-integration.so
-        ctrld:
-          - ctrld -> windscribectrld
         wireguard:
           - windscribewireguard -> windscribewireguard
         wstunnel:

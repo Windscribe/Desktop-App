@@ -1,7 +1,21 @@
+2.10.11 (03/06/2024)
+All:
+   * Fixed wsnet bug sometimes causing the library to freeze. #1012
+   * Updated ctrld dependency to 1.3.7. #1022
+MacOS:
+   * Fixed MacOS 11 bug, unable to open app after installing. #1011
+   * Fixed Wireguard takes too long to connect and tunnel tests are randomly slow. #1013
+   * Fixed missing "verb 3" argument for OpenVPN after refactor. #997
+Linux:
+   * Fixed tray icon sometimes can't be clicked. #792
+   * Fixed missing "verb 3" argument for OpenVPN after refactor. #997
+   * Fixed resolvconf/NetworkManager DNS managers sometimes not taking effect. #1015
+
+
 2.10.10 (15/05/2024)
 All:
-   * Fixed wsnet bugs, in particular the icmp ping bug. Also other library refactoring related improvements taken from 2.11. #999
    * Improved internal error handling. #987
+   * Fixed wsnet bugs, in particular the icmp ping bug. Also other library refactoring related improvements taken from 2.11. #999
 Windows:
    * Added security warning in the installer when installing to a custom folder. #988
    * Added debugging information for wsnet. #1001

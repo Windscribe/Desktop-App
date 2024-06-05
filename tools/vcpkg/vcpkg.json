@@ -23,6 +23,7 @@
         "c-ares",
         "advobfuscator",
         "7zip",
+        "ctrld",
         {
             "name": "winreg",
             "platform": "windows"

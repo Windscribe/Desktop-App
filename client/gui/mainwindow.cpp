@@ -3424,6 +3424,11 @@ void MainWindow::setupTrayIcon()
 {
     updateTrayTooltip(tr("Disconnected") + "\n" + PersistentState::instance().lastExternalIp());
 
+    // Create tray menu items here, because it seems like Qt on Linux does not even trigger aboutToShow()
+    // if the menu is empty, and since aboutToShow() is never called, we never populate the menu, ad nauseum.
+    // Calling createTrayMenuItems() once here makes everything work.
+    createTrayMenuItems();
+
     trayIcon_.setContextMenu(&trayMenu_);
     connect(&trayMenu_, &QMenu::aboutToShow, this, &MainWindow::onTrayMenuAboutToShow);
     connect(&trayMenu_, &QMenu::aboutToHide, this, &MainWindow::onTrayMenuAboutToHide);

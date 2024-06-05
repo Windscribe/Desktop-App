@@ -72,7 +72,7 @@ case "$script_type" in
         echo -n "$R" | resolvconf -a "$(resolvconf_iface_prefix)${dev}" -m 0 -x
     fi
 
-  "$DNS_LEAK_SCRIPT" "up" ${dev} ${servers[@]}
+    "$DNS_LEAK_SCRIPT" "up" ${servers[@]}
 
     ;;
   down)

@@ -88,7 +88,7 @@ void CurlNetworkManager::setProxySettings(const std::string &address, const std:
 
 void CurlNetworkManager::setWhitelistSocketsCallback(std::shared_ptr<CancelableCallback<WSNetHttpNetworkManagerWhitelistSocketsCallback> > callback)
 {
-    std::lock_guard locker(mutex_);
+    std::lock_guard locker(mutexForWhiteListSockets_);
     whitelistSocketsCallback_ = callback;
 }
 
@@ -205,7 +205,7 @@ int CurlNetworkManager::curlSocketCallback(void *clientp, curl_socket_t curlfd, 
 {
     CurlNetworkManager *this_ = (CurlNetworkManager *)clientp;
 
-    std::lock_guard locker(this_->mutex_);
+    std::lock_guard locker(this_->mutexForWhiteListSockets_);
     // whitelist the new socket descriptor
     if (this_->whitelistSockets_.find(curlfd) == this_->whitelistSockets_.end()) {
         this_->whitelistSockets_.insert(curlfd);
@@ -224,7 +224,7 @@ int CurlNetworkManager::curlCloseSocketCallback(void *clientp, curl_socket_t cur
 #else
     close(curlfd);
 #endif
-    std::lock_guard locker(this_->mutex_);
+    std::lock_guard locker(this_->mutexForWhiteListSockets_);
     // whitelist the deleted socket descriptor
     if (this_->whitelistSockets_.find(curlfd) != this_->whitelistSockets_.end()) {
         this_->whitelistSockets_.erase(curlfd);
@@ -250,8 +250,7 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
 
     spdlog::debug("New curl request : {}", request->url().c_str());
 
-    // It is necessary?
-    //if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) return false;
+    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) return false;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CONNECTTIMEOUT_MS , request->timeoutMs()) != CURLE_OK) return false;
 
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_XFERINFOFUNCTION, progressCallback) != CURLE_OK) return false;

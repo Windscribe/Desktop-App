@@ -120,7 +120,7 @@ up() {
   # Set dns leak protection
   SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
   DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
-  "$DNS_LEAK_SCRIPT" "up" ${dev} ${dns_ips[@]}
+  "$DNS_LEAK_SCRIPT" "up" ${dns_ips[@]}
 
   # For the loopback DNS-address set the global DNS config
   for dnsIp in "${dns_ips[@]}"

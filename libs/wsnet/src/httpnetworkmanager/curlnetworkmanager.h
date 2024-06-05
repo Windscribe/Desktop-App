@@ -82,6 +82,7 @@ private:
     CURLM *multiHandle_;
     std::map<std::uint64_t, RequestInfo *> activeRequests_;
 
+    std::mutex mutexForWhiteListSockets_; // this socket protects whitelistSocketsCallback_ variable
     std::shared_ptr<CancelableCallback<WSNetHttpNetworkManagerWhitelistSocketsCallback> > whitelistSocketsCallback_;
     std::set<int> whitelistSockets_;
 

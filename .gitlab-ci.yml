@@ -116,11 +116,6 @@ variables:
     - ./tools/vcpkg/install_ci/vcpkg_install.sh "${VCPKG_ROOT}" --configure-git
   interruptible: true
 
-.download_dependency_ctrld:
-  script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o ${BUILD_LIBS_FOLDER}/ctrld.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/ctrld.zip"
-
 .download_dependency_openvpn_dco:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -148,7 +143,6 @@ variables:
 
 .download_dependencies_win:
   script:
-    - !reference [.download_dependency_ctrld, script]
     - !reference [.download_dependency_openvpn_dco, script]
     - !reference [.download_dependency_qt, script]
     - !reference [.download_dependency_wintun, script]
@@ -157,7 +151,6 @@ variables:
 
 .download_dependencies_posix:
   script:
-    - !reference [.download_dependency_ctrld, script]
     - !reference [.download_dependency_qt, script]
     - !reference [.download_dependency_wireguard, script]
     - !reference [.download_dependency_wstunnel, script]

@@ -46,7 +46,7 @@ case "$script_type" in
         fi
     done
 
-    "$DNS_LEAK_SCRIPT" "up" ${dev} ${servers[@]}
+    "$DNS_LEAK_SCRIPT" "up" ${servers[@]}
     ;;
   down)
 

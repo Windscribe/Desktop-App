@@ -59,8 +59,6 @@ install_wireguard
 install_wstunnel
 ```
 
-As of version 2.7, you will need a copy of the [ctrld utility](https://github.com/Control-D-Inc/ctrld). Follow the instructions in that repo to build it, and place the binary at `build-libs[-arm64]/ctrld/ctrld.exe`.
-
 ### Build the Windscribe 2.0 app
 
 Go to subfolder `tools` and run `build_all`. Assuming all goes well with the build, the installer will be placed in `build-exe`. You can run `build_all --sign --use-local-secrets` for a code-signed build, using the certificate from the [Install signing certificate](#install-signing-certificate-optional) section above, which will perform run-time signature verification checks on the executables. Note that an unsigned build must be installed on your PC if you intend to debug the project. Append `--arm64` to the command to build for Windows arm64.
@@ -139,8 +137,6 @@ install_wireguard
 install_wstunnel
 ```
 
-As of version 2.7, you will need a copy of the [ctrld utility](https://github.com/Control-D-Inc/ctrld). Follow the instructions in that repo to build it, and place the binary at `build-libs/ctrld/ctrld`.
-
 ### Build the Windscribe 2.0 app
 
 Go to subfolder `tools` and run `build_all`. Assuming all goes well with the build, the installer will be placed in `build-exe`.
@@ -213,8 +209,6 @@ install_qt
 install_wireguard
 install_wstunnel
 ```
-
-As of version 2.7, you will need a copy of the [ctrld utility](https://github.com/Control-D-Inc/ctrld). Follow the instructions in that repo to build it, and place the binary at `build-libs/ctrld/ctrld`.
 
 ### Build the Windscribe 2.0 app
 
