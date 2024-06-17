@@ -144,22 +144,26 @@ void CurlNetworkManager::run()
 
                 curl_off_t totalTime;
                 curl_easy_getinfo(curlEasyHandle, CURLINFO_TOTAL_TIME_T, &totalTime);
+                curl_multi_remove_handle(multiHandle_, curlEasyHandle);
 
-                std::uint64_t id = *pointerId;
-                auto it = activeRequests_.find(id);
-                assert(it != activeRequests_.end());
-                assert(it->second->curlEasyHandle == curlEasyHandle);
+                CURLcode result = curlMsg->data.result;
 
-                if (curlMsg->data.result != CURLE_OK) {
-                    spdlog::debug("Curl request error: {}", curl_easy_strerror(curlMsg->data.result));
+                if (result != CURLE_OK) {
+                    spdlog::debug("Curl request error: {}", curl_easy_strerror(result));
                 }
 
-                finishedCallback_(id, curlMsg->data.result == CURLE_OK);
-
+                std::uint64_t id;
                 //remove request from activeRequests
-                curl_multi_remove_handle(multiHandle_, curlEasyHandle);
-                delete it->second;
-                activeRequests_.erase(id);
+                {
+                    std::lock_guard locker(mutex_);
+                    id = *pointerId;
+                    auto it = activeRequests_.find(id);
+                    assert(it != activeRequests_.end());
+                    assert(it->second->curlEasyHandle == curlEasyHandle);
+                    delete it->second;
+                    activeRequests_.erase(id);
+                }
+                finishedCallback_(id, result == CURLE_OK);
             }
         } while(curlMsg);
 

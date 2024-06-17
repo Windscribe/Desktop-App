@@ -63,7 +63,7 @@ public:
         advancedParameters_ = std::make_shared<AdvancedParameters>();
         serverAPI_ = std::make_shared<ServerAPI>(io_context_, httpNetworkManager_.get(), failoverContainer_.get(), serverApiSettings, advancedParameters_.get(), connectState_);
         emergencyConnect_ = std::make_shared<EmergencyConnect>(io_context_, failoverContainer_.get(), dnsResolver_.get());
-        pingManager_ = std::make_shared<PingManager>(io_context_, httpNetworkManager_.get());
+        pingManager_ = std::make_shared<PingManager>(io_context_, httpNetworkManager_.get(), advancedParameters_.get());
         utils_ = std::make_shared<WSNetUtils_impl>(io_context_, httpNetworkManager_.get(), failoverContainer_.get(), advancedParameters_.get());
 
         return true;

@@ -1,3 +1,10 @@
+2.10.12 (11/06/2024)
+All:
+   * Improved OpenVPN and WireGuard anti-censorship. #1023
+   * Improved wsnet to use TLS padding when anti-censorship is enabled. #1024
+   * Fixed wsnet thread synchronization issue that could cause a crash. #1027
+
+
 2.10.11 (03/06/2024)
 All:
    * Fixed wsnet bug sometimes causing the library to freeze. #1012

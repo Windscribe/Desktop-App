@@ -1,5 +1,18 @@
+diff --git a/src/openvpn/init.c b/src/openvpn/init.c
+index 079c4f5e..bad5e0fc 100644
+--- a/src/openvpn/init.c
++++ b/src/openvpn/init.c
+@@ -3448,6 +3448,8 @@ do_init_crypto_tls(struct context *c, const unsigned int flags)
+     /* let the TLS engine know if keys have to be installed in DCO or not */
+     to.dco_enabled = dco_enabled(options);
+ 
++    to.tcp_split_reset = !!(options->sockflags & SF_TCP_SPLITRESET && options->ce.proto != PROTO_UDP);
++
+     /*
+      * Initialize OpenVPN's master TLS-mode object.
+      */
 diff --git a/src/openvpn/options.c b/src/openvpn/options.c
-index 7ca77a8e..1db60200 100644
+index 7ca77a8e..6a1c382b 100644
 --- a/src/openvpn/options.c
 +++ b/src/openvpn/options.c
 @@ -3407,7 +3407,7 @@ options_postprocess_mutate_invariant(struct options *options)
@@ -15,24 +28,24 @@ index 7ca77a8e..1db60200 100644
          VERIFY_PERMISSION(OPT_P_GENERAL);
          options->server_flags |= SF_TCP_NODELAY_HELPER;
      }
-+    else if (streq(p[0], "tcp-split-reset") && !p[1])
-+    {
-+        VERIFY_PERMISSION(OPT_P_GENERAL);
-+        options->sockflags |= SF_TCP_SPLITRESET;
-+    }
 +    else if (streq(p[0], "udp-stuffing") && !p[1])
 +    {
 +        VERIFY_PERMISSION(OPT_P_GENERAL);
 +        options->sockflags |= SF_UDP_STUFFING;
 +    }
++    else if (streq(p[0], "tcp-split-reset"))
++    {
++        VERIFY_PERMISSION(OPT_P_GENERAL);
++        options->sockflags |= SF_TCP_SPLITRESET;
++    }
      else if (streq(p[0], "stale-routes-check") && p[1] && !p[3])
      {
          int ageing_time, check_interval;
 diff --git a/src/openvpn/socket.c b/src/openvpn/socket.c
-index 91a6d53d..1110c5a4 100644
+index 91a6d53d..0c2b1899 100644
 --- a/src/openvpn/socket.c
 +++ b/src/openvpn/socket.c
-@@ -3409,7 +3409,43 @@ link_socket_write_tcp(struct link_socket *sock,
+@@ -3409,7 +3409,51 @@ link_socket_write_tcp(struct link_socket *sock,
      dmsg(D_STREAM_DEBUG, "STREAM: WRITE %d offset=%d", (int)len, buf->offset);
      ASSERT(len <= sock->stream_buf.maxlen);
      len = htonps(len);
@@ -43,32 +56,40 @@ index 91a6d53d..1110c5a4 100644
 +
 +    if (sock->sockflags & SF_TCP_SPLITRESET)
 +    {
-+        int saved_len;
-+        int size;
 +        if (opcode == P_CONTROL_HARD_RESET_CLIENT_V2
 +            || opcode == P_CONTROL_HARD_RESET_CLIENT_V3)
 +        {
-+            saved_len = buf->len;
-+            buf->len = 1;
++            int size = 0;
++            uint8_t split_piece_len, split_piece_len_cur;
++            int left;
++
++            rand_bytes((uint8_t*)&split_piece_len, sizeof(split_piece_len));
++            split_piece_len = (split_piece_len % 8) + 2;
++            left = buf->len;
 +
 +            socket_set_tcp_nodelay(sock->sd, 1);
++            while (left) {
++                split_piece_len_cur = (split_piece_len > left) ? left : split_piece_len;
++                buf->len = split_piece_len_cur;
 +#ifdef _WIN32
-+            size = link_socket_write_win32(sock, buf, to);
++                size += link_socket_write_win32(sock, buf, to);
 +#else
-+            size = link_socket_write_tcp_posix(sock, buf, to);
++                size += link_socket_write_tcp_posix(sock, buf, to);
 +#endif
-+            if (!(sock->sockflags & SF_TCP_NODELAY))
-+            {
++                buf->len = left;
++                left -= split_piece_len_cur;
++                buf_advance(buf, split_piece_len_cur);
++#ifdef _WIN32
++                Sleep(5);
++#else
++                usleep(5000);
++#endif
++            }
++
++            if (!(sock->sockflags & SF_TCP_NODELAY)) {
 +                socket_set_tcp_nodelay(sock->sd, 0);
 +            }
-+            buf->len = saved_len;
-+            buf_advance(buf, 1);
 +
-+#ifdef _WIN32
-+            size += link_socket_write_win32(sock, buf, to);
-+#else
-+            size += link_socket_write_tcp_posix(sock, buf, to);
-+#endif
 +            return size;
 +        }
 +    }
@@ -77,7 +98,7 @@ index 91a6d53d..1110c5a4 100644
      return link_socket_write_win32(sock, buf, to);
  #else
 diff --git a/src/openvpn/socket.h b/src/openvpn/socket.h
-index bfc1253b..73635c5f 100644
+index bfc1253b..da66ca16 100644
 --- a/src/openvpn/socket.h
 +++ b/src/openvpn/socket.h
 @@ -207,6 +207,8 @@ struct link_socket
@@ -89,7 +110,7 @@ index bfc1253b..73635c5f 100644
      unsigned int sockflags;
      int mark;
      const char *bind_dev;
-@@ -1173,6 +1175,44 @@ link_socket_write_udp(struct link_socket *sock,
+@@ -1173,6 +1175,57 @@ link_socket_write_udp(struct link_socket *sock,
                        struct buffer *buf,
                        struct link_socket_actual *to)
  {
@@ -99,38 +120,121 @@ index bfc1253b..73635c5f 100644
 +#ifndef P_CONTROL_HARD_RESET_CLIENT_V3
 +#define P_CONTROL_HARD_RESET_CLIENT_V3 10
 +#endif
++#ifndef P_CONTROL_HARD_RESET_SERVER_V2
++#define P_CONTROL_HARD_RESET_SERVER_V2 8     /* initial key from server, forget previous state */
++#endif
 +#ifndef P_OPCODE_SHIFT
 +#define P_OPCODE_SHIFT 3
 +#endif
++#ifndef P_ACK_V1
++#define P_ACK_V1                       5     /* acknowledgement for packets received */
++#endif
 +    int rand_bytes(uint8_t *output, int len);
 +
-+#define STUFFING_LEN_MAX 1200
++#define STUFFING_LEN_MAX 900
++#define STUFFING_NUM_MAX 100
 +
 +    uint8_t opcode = *BPTR(buf) >> P_OPCODE_SHIFT;
-+    if (
-+        sock->sockflags & SF_UDP_STUFFING
++
++
++    if (sock->sockflags & SF_UDP_STUFFING
 +        && (opcode == P_CONTROL_HARD_RESET_CLIENT_V2
-+            || opcode == P_CONTROL_HARD_RESET_CLIENT_V3)
-+        )
++            || opcode == P_CONTROL_HARD_RESET_CLIENT_V3
++            || opcode == P_CONTROL_HARD_RESET_SERVER_V2))
 +    {
-+        uint16_t stuffing_len;
++        uint16_t stuffing_len, stuffing_num;
 +        rand_bytes((uint8_t*)&stuffing_len, sizeof(stuffing_len));
-+        stuffing_len = (stuffing_len % (STUFFING_LEN_MAX - 10)) + 10;
++        rand_bytes((uint8_t*)&stuffing_num, sizeof(stuffing_num));
++        stuffing_num = (stuffing_num % (STUFFING_NUM_MAX - 10)) + 10;
 +
 +        uint8_t stuffing_data[STUFFING_LEN_MAX] = {0};
-+        rand_bytes(stuffing_data, sizeof(stuffing_data));
-+        struct buffer stuffing_buf = alloc_buf(STUFFING_LEN_MAX);
-+        buf_write(&stuffing_buf, stuffing_data, stuffing_len);
 +
++        for (int i=0; i<stuffing_num; i++) {
++            stuffing_len = (stuffing_len % (STUFFING_LEN_MAX - 200)) + 200;
++            rand_bytes(stuffing_data, sizeof(stuffing_data));
++            struct buffer stuffing_buf = alloc_buf(STUFFING_LEN_MAX);
++            buf_write(&stuffing_buf, stuffing_data, stuffing_len);
 +#ifdef _WIN32
-+        link_socket_write_win32(sock, &stuffing_buf, to);
++            link_socket_write_win32(sock, &stuffing_buf, to);
 +#else
-+    link_socket_write_udp_posix(sock, &stuffing_buf, to);
++            link_socket_write_udp_posix(sock, &stuffing_buf, to);
 +#endif
++            free_buf(&stuffing_buf);
++        }
 +
-+        free_buf(&stuffing_buf);
++
 +    }
 +
  #ifdef _WIN32
      return link_socket_write_win32(sock, buf, to);
  #else
+diff --git a/src/openvpn/ssl.c b/src/openvpn/ssl.c
+index 12bc85f9..c33a801a 100644
+--- a/src/openvpn/ssl.c
++++ b/src/openvpn/ssl.c
+@@ -2528,26 +2528,33 @@ static bool
+ session_move_pre_start(const struct tls_session *session,
+                        struct key_state *ks, bool skip_initial_send)
+ {
+-    struct buffer *buf = reliable_get_buf_output_sequenced(ks->send_reliable);
+-    if (!buf)
+-    {
+-        return false;
+-    }
++    uint8_t count = 1;
++    if (session->opt->tcp_split_reset) {
++        rand_bytes(&count, sizeof(count));
++        count = 2 + (count % 2);
++    }
++    for (uint8_t i=0; i<count; i++) {
++        struct buffer *buf = reliable_get_buf_output_sequenced(ks->send_reliable);
++        if (!buf)
++        {
++            return false;
++        }
+ 
+-    ks->initial = now;
+-    ks->must_negotiate = now + session->opt->handshake_window;
+-    ks->auth_deferred_expire = now + auth_deferred_expire_window(session->opt);
++        ks->initial = now;
++        ks->must_negotiate = now + session->opt->handshake_window;
++        ks->auth_deferred_expire = now + auth_deferred_expire_window(session->opt);
+ 
+-    /* null buffer */
+-    reliable_mark_active_outgoing(ks->send_reliable, buf, ks->initial_opcode);
++        /* null buffer */
++        reliable_mark_active_outgoing(ks->send_reliable, buf, ks->initial_opcode);
+ 
+-    /* If we want to skip sending the initial handshake packet we still generate
+-     * it to increase internal counters etc. but immediately mark it as done */
+-    if (skip_initial_send)
+-    {
+-        reliable_mark_deleted(ks->send_reliable, buf);
++        /* If we want to skip sending the initial handshake packet we still generate
++        * it to increase internal counters etc. but immediately mark it as done */
++        if (skip_initial_send)
++        {
++            reliable_mark_deleted(ks->send_reliable, buf);
++        }
++        INCR_GENERATED;
+     }
+-    INCR_GENERATED;
+ 
+     ks->state = S_PRE_START;
+ 
+diff --git a/src/openvpn/ssl_common.h b/src/openvpn/ssl_common.h
+index 27b02947..f0378aa6 100644
+--- a/src/openvpn/ssl_common.h
++++ b/src/openvpn/ssl_common.h
+@@ -434,6 +434,8 @@ struct tls_options
+     size_t ekm_size;
+ 
+     bool dco_enabled; /**< Whether keys have to be installed in DCO or not */
++
++    bool tcp_split_reset;
+ };
+ 
+ /** @addtogroup control_processor
+-- 
+2.45.1
+

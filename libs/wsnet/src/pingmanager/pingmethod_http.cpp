@@ -7,9 +7,10 @@
 namespace wsnet {
 
 PingMethodHttp::PingMethodHttp(WSNetHttpNetworkManager *httpNetworkManager, std::uint64_t id, const std::string &ip, const std::string &hostname, bool isParallelPing,
-                               PingFinishedCallback callback, PingMethodFinishedCallback pingMethodFinishedCallback) :
+                               PingFinishedCallback callback, PingMethodFinishedCallback pingMethodFinishedCallback, WSNetAdvancedParameters *advancedParameters) :
     IPingMethod(id, ip, hostname, isParallelPing, callback, pingMethodFinishedCallback),
-    httpNetworkManager_(httpNetworkManager)
+    httpNetworkManager_(httpNetworkManager),
+    advancedParameters_(advancedParameters)
 {
 }
 
@@ -42,6 +43,7 @@ void PingMethodHttp::ping(bool isFromDisconnectedVpnState)
     httpRequest->setOverrideIp(ip_);
     // We add all ips to the firewall exceptions at once in the client before we ping, so there is no need to do it in HttpNetworkManager
     httpRequest->setIsWhiteListIps(false);
+    httpRequest->setExtraTLSPadding(advancedParameters_->isAPIExtraTLSPadding());
     using namespace std::placeholders;
     request_ = httpNetworkManager_->executeRequest(httpRequest, 0, std::bind(&PingMethodHttp::onNetworkRequestFinished, this, _1, _2, _3, _4));
 }

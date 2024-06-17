@@ -5,6 +5,7 @@
 #include <boost/asio.hpp>
 #include "WSNetPingManager.h"
 #include "WSNetHttpNetworkManager.h"
+#include "WSNetAdvancedParameters.h"
 #include "ipingmethod.h"
 
 #ifdef _WIN32
@@ -19,7 +20,7 @@ namespace wsnet {
 class PingManager : public WSNetPingManager
 {
 public:
-    explicit PingManager(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager);
+    explicit PingManager(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager, WSNetAdvancedParameters *advancedParameters);
     virtual ~PingManager();
 
     std::shared_ptr<WSNetCancelableCallback> ping(const std::string &ip, const std::string &hostname,
@@ -30,6 +31,7 @@ public:
 private:
     boost::asio::io_context &io_context_;
     WSNetHttpNetworkManager *httpNetworkManager_;
+    WSNetAdvancedParameters *advancedParameters_;
 
 #ifdef _WIN32
     // Required for ICMP pings for Windows system

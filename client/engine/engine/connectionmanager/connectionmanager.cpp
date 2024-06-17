@@ -137,8 +137,8 @@ QString ConnectionManager::udpStuffingWithNtp(const QString &ip, const quint16 p
     // Send "secret" packet first
     udpSocket.writeDatagram(simpleBuf, sizeof(simpleBuf), QHostAddress(ip), port);
 
-    // Send NTP packet, repeat up to 5 times. Bounded argument is exclusive.
-    for (int i=0; i<=QRandomGenerator::global()->bounded(5); i++) {
+    // Send NTP packet, repeat up to 40 times. Bounded argument is exclusive.
+    for (int i=0; i<=20+QRandomGenerator::global()->bounded(20); i++) {
         *ntpRand = QRandomGenerator::global()->generate64();
         udpSocket.writeDatagram(ntpBuf, sizeof(ntpBuf), QHostAddress(ip), port);
     }

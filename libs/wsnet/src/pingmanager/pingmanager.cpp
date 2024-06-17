@@ -10,9 +10,10 @@
 
 namespace wsnet {
 
-PingManager::PingManager(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager) :
+PingManager::PingManager(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager, WSNetAdvancedParameters *advancedParameters) :
     io_context_(io_context),
-    httpNetworkManager_(httpNetworkManager)
+    httpNetworkManager_(httpNetworkManager),
+    advancedParameters_(advancedParameters)
 {
 
 #ifndef _WIN32
@@ -82,7 +83,7 @@ void PingManager::onPingMethodFinished(std::uint64_t id)
 IPingMethod *PingManager::createPingMethod(std::uint64_t id, const std::string &ip, const std::string &hostname, PingType pingType, PingFinishedCallback callback)
 {
     if (pingType == PingType::kHttp) {
-        return new PingMethodHttp(httpNetworkManager_, id, ip, hostname, false, callback, std::bind(&PingManager::onPingMethodFinished, this, std::placeholders::_1));
+        return new PingMethodHttp(httpNetworkManager_, id, ip, hostname, false, callback, std::bind(&PingManager::onPingMethodFinished, this, std::placeholders::_1), advancedParameters_);
     } else if (pingType == PingType::kIcmp) {
 
 #ifdef _WIN32
