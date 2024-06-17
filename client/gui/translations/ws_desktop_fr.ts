@@ -867,7 +867,7 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     </message>
     <message>
         <source>Terms</source>
-        <translation>Petits caractères</translation>
+        <translation>Conditions d'utilisation</translation>
     </message>
     <message>
         <source>Blog</source>
@@ -1125,7 +1125,7 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     </message>
     <message>
         <source>Off</source>
-        <translation>De</translation>
+        <translation>Desactivé</translation>
     </message>
     <message>
         <source>Network Options</source>
@@ -1262,7 +1262,7 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     </message>
     <message>
         <source>Email</source>
-        <translation>Messagerie électronique</translation>
+        <translation>Adresse e-mail</translation>
     </message>
     <message>
         <source>Add Email</source>
@@ -1435,7 +1435,7 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     </message>
     <message>
         <source>Discord</source>
-        <translation>Discorde</translation>
+        <translation>Discord</translation>
     </message>
     <message>
         <source>View Debug Log</source>
@@ -1748,11 +1748,11 @@ Se connecter d’abord à un réseau</translation>
     <name>PreferencesWindow::RobertItem</name>
     <message>
         <source>Blocking</source>
-        <translation>Bloquant</translation>
+        <translation>Blocage</translation>
     </message>
     <message>
         <source>Allowing</source>
-        <translation>Permettant</translation>
+        <translation>Autorisé</translation>
     </message>
 </context>
 <context>
