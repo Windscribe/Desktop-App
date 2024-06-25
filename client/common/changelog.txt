@@ -1,3 +1,11 @@
+2.10.14 (20/06/2024)
+All:
+   * Improved best location selection. #1040
+Windows:
+   * Fixed installer window position during update. #1041
+   * Fixed UDP traffic not being split tunneled correctly. #1039
+
+
 2.10.12 (11/06/2024)
 All:
    * Improved OpenVPN and WireGuard anti-censorship. #1023

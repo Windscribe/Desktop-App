@@ -61,7 +61,10 @@ MainWindow::MainWindow(bool isAdmin, InstallerOptions &options) : QWidget(nullpt
         int screenHeight = primaryScreen->geometry().height();
 
         if (options_.centerX >= 0 && options_.centerY >= 0) {
-            setGeometry(options_.centerX - kWindowWidth/2, options_.centerY - kWindowHeight/2, kWindowWidth, kWindowHeight);
+            setGeometry(options_.centerX/primaryScreen->devicePixelRatio() - kWindowWidth/2,
+                        options_.centerY/primaryScreen->devicePixelRatio() - kWindowHeight/2,
+                        kWindowWidth,
+                        kWindowHeight);
         } else {
             setGeometry((screenWidth - kWindowWidth) / 2, (screenHeight - kWindowHeight) / 2, kWindowWidth, kWindowHeight);
         }

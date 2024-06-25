@@ -173,6 +173,7 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
 {
     int minLatency = INT_MAX;
     LocationID locationIdWithMinLatency;
+    bool isPriorityBestLocation = false;
 
     // Commented debug entry out as this method is potentially called every minute and we don't
     // need to flood the log with this info.
@@ -180,48 +181,57 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
 
     int prevBestLocationLatency = INT_MAX;
 
-    int ind = 0;
-    for (const api_responses::Location &l : locations_)
-    {
-        for (int i = 0; i < l.groupsCount(); ++i)
-        {
+    // #1040 YOLO: try to find a best location that is 'priority' (10gbps, not disabled, and latency < 30ms) first
+    for (const api_responses::Location &l : locations_) {
+        for (int i = 0; i < l.groupsCount(); ++i) {
             const api_responses::Group group = l.getGroup(i);
+            int latency = pingManager_.getPing(group.getPingIp()).toInt();
 
-            if (group.isDisabled())
-            {
+            if (group.isDisabled() || group.getLinkSpeed() < 10000 || latency == PingTime::NO_PING_INFO || latency == PingTime::PING_FAILED || latency > 30) {
                 continue;
             }
 
-            LocationID lid = LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick());
-            int latency = pingManager_.getPing(group.getPingIp()).toInt();
-
-            // we assume a maximum ping time for three bars when no ping info
-            if (latency == PingTime::NO_PING_INFO)
-            {
-                latency = PingTime::LATENCY_STEP1;
-            }
-            else if (latency == PingTime::PING_FAILED)
-            {
-                latency = PingTime::MAX_LATENCY_FOR_PING_FAILED;
-            }
-
-            if (bestLocation_.isValid() && lid == bestLocation_.getId())
-            {
-                prevBestLocationLatency = latency;
-            }
-            if (latency != PingTime::PING_FAILED && latency < minLatency)
-            {
+            if (latency < minLatency) {
                 minLatency = latency;
                 locationIdWithMinLatency = LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick()) ;
+                isPriorityBestLocation = true;
             }
         }
+    }
 
-        ind++;
+    // If we didn't find a priority best location, then use the old logic
+    if (!locationIdWithMinLatency.isValid()) {
+        for (const api_responses::Location &l : locations_) {
+            for (int i = 0; i < l.groupsCount(); ++i) {
+                const api_responses::Group group = l.getGroup(i);
+
+                if (group.isDisabled()) {
+                    continue;
+                }
+
+                LocationID lid = LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick());
+                int latency = pingManager_.getPing(group.getPingIp()).toInt();
+
+                // we assume a maximum ping time for three bars when no ping info
+                if (latency == PingTime::NO_PING_INFO) {
+                    latency = PingTime::LATENCY_STEP1;
+                } else if (latency == PingTime::PING_FAILED) {
+                    latency = PingTime::MAX_LATENCY_FOR_PING_FAILED;
+                }
+
+                if (bestLocation_.isValid() && lid == bestLocation_.getId()) {
+                    prevBestLocationLatency = latency;
+                }
+                if (latency != PingTime::PING_FAILED && latency < minLatency) {
+                    minLatency = latency;
+                    locationIdWithMinLatency = LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick()) ;
+                }
+            }
+        }
     }
 
     LocationID prevBestLocationId;
-    if (bestLocation_.isValid())
-    {
+    if (bestLocation_.isValid()) {
         prevBestLocationId = bestLocation_.getId();
         // Commented debug entry out as this method is potentially called every minute and we don't
         // need to flood the log with this info.  We will log it if the location actually changes.
@@ -229,38 +239,26 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
     }
 
 
-    if (locationIdWithMinLatency.isValid())      // new best location found
-    {
+    if (locationIdWithMinLatency.isValid()) { // new best location found
         // Commented debug entry out as this method is potentially called every minute and we don't
         // need to flood the log with this info.  We will log it if the location actually changes.
         //qCDebug(LOG_BEST_LOCATION) << "Detected min latency=" << minLatency << "; id=" << locationIdWithMinLatency.getHashString();
 
         // check whether best location needs to be changed
-        if (!bestLocation_.isValid())
-        {
+        if (!bestLocation_.isValid()) {
             bestLocation_.set(locationIdWithMinLatency, true, isAllNodesInDisconnectedState);
-        }
-        else // if best location is valid
-        {
-            if (!bestLocation_.isDetectedFromThisAppStart())
-            {
+        } else { // if best location is valid
+            if (!bestLocation_.isDetectedFromThisAppStart()) {
                 bestLocation_.set(locationIdWithMinLatency, true, isAllNodesInDisconnectedState);
-            }
-            else if (bestLocation_.isDetectedWithDisconnectedIps())
-            {
-                if (isAllNodesInDisconnectedState)
-                {
-                    // check ping time changed more than 10% compared to prev best location
-                    if ((double)minLatency < ((double)prevBestLocationLatency * 0.9))
-                    {
+            } else if (bestLocation_.isDetectedWithDisconnectedIps()) {
+                if (isAllNodesInDisconnectedState) {
+                    // check ping time changed more than 10% compared to prev best location, or we found a 10gbps location with latency < 30ms
+                    if ((double)minLatency < ((double)prevBestLocationLatency * 0.9) || isPriorityBestLocation) {
                         bestLocation_.set(locationIdWithMinLatency, true, isAllNodesInDisconnectedState);
                     }
                 }
-            }
-            else
-            {
-                if (isAllNodesInDisconnectedState)
-                {
+            } else {
+                if (isAllNodesInDisconnectedState) {
                     bestLocation_.set(locationIdWithMinLatency, true, isAllNodesInDisconnectedState);
                 }
             }
@@ -268,8 +266,7 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
     }
 
     // send the signal to the GUI only if the location has actually changed
-    if (bestLocation_.isValid() && prevBestLocationId != bestLocation_.getId())
-    {
+    if (bestLocation_.isValid() && prevBestLocationId != bestLocation_.getId()) {
         if (prevBestLocationId.isValid()) {
             qCDebug(LOG_BEST_LOCATION) << "prevBestLocationId=" << prevBestLocationId.getHashString() << "; prevBestLocationLatency=" << prevBestLocationLatency;
         }
