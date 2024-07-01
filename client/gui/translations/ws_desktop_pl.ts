@@ -1435,7 +1435,7 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
     </message>
     <message>
         <source>Discord</source>
-        <translation>Niezgoda</translation>
+        <translation>Discord</translation>
     </message>
     <message>
         <source>View Debug Log</source>
