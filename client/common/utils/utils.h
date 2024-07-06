@@ -44,7 +44,7 @@ namespace Utils {
     bool accessibilityPermissions();
 
     unsigned long getCurrentPid();
-    bool isGuiAlreadyRunning();
+    bool isAppAlreadyRunning();
 
     const QString filenameQuotedSingle(const QString &filename);
     const QString filenameQuotedDouble(const QString &filename);

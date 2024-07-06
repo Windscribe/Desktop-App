@@ -70,17 +70,14 @@
     [[NSFileManager defaultManager] removeItemAtPath:[self getOldInstallPath] error:nil];
 }
 
-- (void)appDidLaunch:(NSNotification*)note
+-(void)runLauncher
 {
+    if([[NSWorkspace sharedWorkspace] openURL: [NSURL fileURLWithPath: [self getInstallPath]]] == NO) {
+        [[Logger sharedLogger] logAndStdOut:@"App failed to launch"];
+    }
     self.progress = 100;
     self.currentState = STATE_LAUNCHED;
     callback_();
-}
-
--(void)runLauncher
-{
-    [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(appDidLaunch:) name:NSWorkspaceDidLaunchApplicationNotification object:nil];
-    [[NSWorkspace sharedWorkspace] openURL: [NSURL fileURLWithPath: [self getInstallPath]]];
 }
 
 -(NSString *)runProcess:(NSString*)exePath args:(NSArray *)args
@@ -108,7 +105,6 @@
 
 -(void) execution
 {
-    int prevOverallProgress = 0;
     bool terminated = false;
     self.progress = 0;
     [[Logger sharedLogger] logAndStdOut:@"Starting execution"];
@@ -245,16 +241,18 @@
         [self runProcess:@"/usr/bin/killall" args:@[@"cfprefsd"]];
     }
 
-[[Logger sharedLogger] logAndStdOut:@"Writing blocks"];
+    [[Logger sharedLogger] logAndStdOut:@"Extracting and installing Windscribe app"];
 
-    NSString* archivePathFromApp = [[NSBundle mainBundle] pathForResource:@"windscribe.7z" ofType:nil];
+    NSString* archivePathFromApp = [[NSBundle mainBundle] pathForResource:@"windscribe.tar.lzma" ofType:nil];
     std::wstring strArchivePath = NSStringToStringW(archivePathFromApp);
     std::wstring strPath = NSStringToStringW([self getInstallPath]);
 
-    if (!helper_.setPaths(strArchivePath, strPath))
-    {
-        NSString *errStr = @"setPaths in helper failed";
-        [[Logger sharedLogger] logAndStdOut:errStr];
+    self.progress = 50;
+    self.currentState = STATE_EXTRACTING;
+    callback_();
+
+    if (!helper_.setPaths(strArchivePath, strPath)) {
+        [[Logger sharedLogger] logAndStdOut:@"setPaths in helper failed"];
         self.lastError = ERROR_OTHER;
         self.currentState = STATE_ERROR;
         callback_();
@@ -262,50 +260,20 @@
         return;
     }
 
-    while (true)
-    {
-        //[NSThread sleepForTimeInterval:0.2];
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (isCanceled_)
-        {
-            [[Logger sharedLogger] logAndStdOut:@"Block install cancelled"];
-
-            self.progress = 0;
-            self.currentState = STATE_CANCELED;
-            helper_.stop();
-            return;
-        }
-
-        int progressOfBlock = helper_.executeFilesStep();
-
-        // block is finished?
-        if (progressOfBlock >= 100)
-        {
-            [[Logger sharedLogger] logAndStdOut:@"Block install 100+"];
-
-            self.progress = prevOverallProgress + (int)(100.0);
-            callback_();
-            break;
-        }
-        // error from block?
-        else if (progressOfBlock < 0)
-        {
-            [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Block < 0: %i", progressOfBlock]];
-            self.lastError = ERROR_OTHER;
-            self.currentState = STATE_ERROR;
-            callback_();
-            helper_.stop();
-            return;
-        }
-        else
-        {
-            // [[Logger sharedLogger] writeToLog:@"Block processing"];
-            self.progress = prevOverallProgress + (int)(progressOfBlock);
-            callback_();
-        }
+    if (!helper_.executeFilesStep()) {
+        [[Logger sharedLogger] logAndStdOut:@"executeFilesStep in helper failed"];
+        self.lastError = ERROR_OTHER;
+        self.currentState = STATE_ERROR;
+        callback_();
+        helper_.stop();
+        return;
     }
 
-    [[Logger sharedLogger] logAndStdOut:@"Done writing blocks"];
+    [[Logger sharedLogger] logAndStdOut:@"Windscribe app installed"];
+
+    self.progress = 75;
+    self.currentState = STATE_EXTRACTED;
+    callback_();
 
     // create symlink for cli
     helper_.createCliSymlinkDir();
@@ -315,12 +283,11 @@
     [[NSFileManager defaultManager] removeItemAtPath:sympath error:nil];
     [[NSFileManager defaultManager] createSymbolicLinkAtPath:sympath withDestinationPath:filepath error:nil];
 
-    self.progress = 100;
+    self.progress = 90;
     self.currentState = STATE_FINISHED;
     callback_();
 
     helper_.stop();
-
 }
 
 -(void)waitForCompletion

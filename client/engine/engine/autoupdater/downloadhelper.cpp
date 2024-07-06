@@ -42,13 +42,19 @@ const QString DownloadHelper::downloadInstallerPath()
     QString path;
     // if getPlatformName() fails, we should never get this far anyway
     if (platform_ == LinuxUtils::DEB_PLATFORM_NAME_X64 ||
-        platform_ == LinuxUtils::DEB_PLATFORM_NAME_ARM64) {
+        platform_ == LinuxUtils::DEB_PLATFORM_NAME_X64_CLI ||
+        platform_ == LinuxUtils::DEB_PLATFORM_NAME_ARM64 ||
+        platform_ == LinuxUtils::DEB_PLATFORM_NAME_ARM64_CLI) {
         path = downloadInstallerPathWithoutExtension() + ".deb";
     }
-    else if (platform_ == LinuxUtils::RPM_PLATFORM_NAME) {
+    else if (platform_ == LinuxUtils::RPM_PLATFORM_NAME ||
+             platform_ == LinuxUtils::RPM_PLATFORM_NAME_CLI ||
+             platform_ == LinuxUtils::RPM_OPENSUSE_PLATFORM_NAME ||
+             platform_ == LinuxUtils::RPM_OPENSUSE_PLATFORM_NAME_CLI) {
         path = downloadInstallerPathWithoutExtension() + ".rpm";
     }
-    else if (platform_ == LinuxUtils::ZST_PLATFORM_NAME) {
+    else if (platform_ == LinuxUtils::ZST_PLATFORM_NAME ||
+             platform_ == LinuxUtils::ZST_PLATFORM_NAME_CLI) {
         path = downloadInstallerPathWithoutExtension() + ".pkg.tar.zst";
     }
 #endif

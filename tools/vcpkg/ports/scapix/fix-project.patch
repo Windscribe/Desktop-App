@@ -1,0 +1,28 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 683502c..b6d7973 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14...3.26)
+ 
+ project(scapix CXX)
+ 
+-find_package(ScapixBin REQUIRED)
++find_package(scapix-bin CONFIG REQUIRED)
+ 
+ set(SCAPIX_BRIDGE "cpp" CACHE STRING "cpp, java, objc, python, js, cs")
+ set(SCAPIX_JAVA_API "jdk-11.0.2" CACHE STRING "subfolder of 'scapix/java_api' folder: jdk-11.0.2, android-28, etc.")
+@@ -74,8 +74,12 @@ target_include_directories(scapix PUBLIC ${_SCAPIX_PATH}/java_api/${SCAPIX_JAVA_
+ target_compile_definitions(scapix PUBLIC SCAPIX_BRIDGE=${SCAPIX_BRIDGE} SCAPIX_BRIDGE_${SCAPIX_BRIDGE})
+ 
+ if(${SCAPIX_BRIDGE} STREQUAL java)
+-    find_package(Boost REQUIRED config metaparse)
+-    target_link_libraries(scapix PUBLIC Boost::config Boost::metaparse)
++    find_package(Boost REQUIRED)
++    if(Boost_FOUND)
++       include_directories(${Boost_INCLUDE_DIRS})
++    else()
++       message(STATUS "Boost NOT Found !")
++    endif(Boost_FOUND)
+ endif()
+ 
+ if(${SCAPIX_BRIDGE} STREQUAL java AND NOT ANDROID)

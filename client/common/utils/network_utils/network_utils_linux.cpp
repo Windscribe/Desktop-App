@@ -114,6 +114,14 @@ void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &
     }
 }
 
+bool pingWithMtu(const QString &url, int mtu)
+{
+    const QString cmd = QString("ping -4 -c 1 -W 1 -M do -s %1 %2 2> /dev/null").arg(mtu).arg(url);
+    QString result = Utils::execCmd(cmd).trimmed();
+
+    return result.contains("icmp_seq=");
+}
+
 QString getLocalIP()
 {
     // Yegor and Clayton found this command to work on many distros, including old ones.
@@ -142,6 +150,11 @@ QString getLocalIP()
     }
 
     return sLocalIP;
+}
+
+QString getRoutingTable()
+{
+    return Utils::execCmd("cat /proc/net/route");
 }
 
 } // namespace NetworkUtils_linux

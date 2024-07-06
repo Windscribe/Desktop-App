@@ -41,6 +41,7 @@
 #define HELPER_CMD_START_WSTUNNEL                    34
 #define HELPER_CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR  35
 #define HELPER_CMD_HELPER_VERSION                    36
+#define HELPER_CMD_GET_INTERFACE_SSID                37
 
 // enums
 
@@ -160,7 +161,6 @@ struct CMD_CONFIGURE_WIREGUARD {
 };
 
 struct CMD_START_CTRLD {
-    std::string ip;
     std::string upstream1;
     std::string upstream2;
     std::vector<std::string> domains;
@@ -232,6 +232,7 @@ struct CMD_INSTALLER_REMOVE_OLD_INSTALL {
 
 struct CMD_SET_FIREWALL_ON_BOOT {
     bool enabled;
+    bool allowLanTraffic;
     std::string ipTable;
 };
 
@@ -267,3 +268,6 @@ struct CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR {
     uid_t uid;
 };
 
+struct CMD_GET_INTERFACE_SSID {
+    std::string interface;
+};

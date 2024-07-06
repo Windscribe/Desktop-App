@@ -65,10 +65,7 @@ bool NetworkUtils::pingWithMtu(const QString &url, int mtu)
 #elif defined Q_OS_MAC
     return NetworkUtils_mac::pingWithMtu(url, mtu);
 #elif defined Q_OS_LINUX
-    // This method is not currently used on Linux.
-    Q_UNUSED(url)
-    Q_UNUSED(mtu)
-    return false;
+    return NetworkUtils_linux::pingWithMtu(url, mtu);
 #endif
 }
 
@@ -100,4 +97,15 @@ QString NetworkUtils::networkInterfacesToString(const QVector<types::NetworkInte
     }
 
     return adapters;
+}
+
+QString NetworkUtils::getRoutingTable()
+{
+#ifdef Q_OS_WIN
+    return NetworkUtils_win::getRoutingTable();
+#elif defined Q_OS_MAC
+    return NetworkUtils_mac::getRoutingTable();
+#elif defined Q_OS_LINUX
+    return NetworkUtils_linux::getRoutingTable();
+#endif
 }

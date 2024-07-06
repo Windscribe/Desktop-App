@@ -1,130 +1,51 @@
 #include "files.h"
-#include "../logger.h"
 
-Files::Files(const std::wstring &archivePath, const std::wstring &installPath) : archive_(NULL),
-    archivePath_(archivePath), installPath_(installPath), state_(0)
+#include <codecvt>
+#include <filesystem>
+#include <locale>
+
+#include "../logger.h"
+#include "../utils.h"
+
+Files::Files(const std::wstring &archivePath, const std::wstring &installPath) : archivePath_(archivePath), installPath_(installPath)
 {
 }
 
 Files::~Files()
 {
-    if (archive_)
-    {
-        delete archive_;
-    }
 }
 
 int Files::executeStep()
 {
-    if (state_ == 0)
-    {
-        if (archive_)
-        {
-            delete archive_;
-        }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    std::string archivePath = converter.to_bytes(archivePath_);
+    std::string installPath = converter.to_bytes(installPath_);
+#pragma clang diagnostic pop
 
-        archive_ = new Archive(archivePath_);
-        archive_->setLogFunction([](const char* str) {
-            LOG((std::string("(archive) ") + str).c_str());
-        });
-        if (!archive_->isCorrect())
-        {
-            LOG("Can't open file archive");
-            lastError_ = "Can't open file archive.";
-            return -1;
-        }
-
-        SRes res = archive_->fileList(fileList_);
-        if (res != SZ_OK)
-        {
-            LOG("Can't get files list from archive");
-            lastError_ = "Can't get files list from archive.";
-            return -1;
-        }
-
-        fillPathList();
-
-        archive_->calcTotal(fileList_, pathList_);
-        curFileInd_ = 0;
-        state_++;
-        return 0;
-    }
-    else
-    {
-        SRes res = archive_->extractionFile(curFileInd_);
-        if (res != SZ_OK)
-        {
-            archive_->finish();
-            LOG("Can't extract files");
-            lastError_ = "Can't extract file.";
-            return -1;
-        }
-        else
-        {
-            int progress = ((double)curFileInd_ / (double)archive_->getNumFiles()) * 100.0;
-
-            if (curFileInd_ >= (archive_->getNumFiles() - 1))
-            {
-                archive_->finish();
-                return 100;
-            }
-            else
-            {
-                curFileInd_++;
-            }
-            return progress;
-        }
+    // The installer should have removed any existing Windscribe app instance by this point,
+    // but we'll doublecheck just to be sure.
+    if (std::filesystem::exists(installPath)) {
+        LOG("Files: install path already exists");
+        std::filesystem::remove_all(installPath);
     }
 
-    return 100;
-}
-
-void Files::eraseSubStr(std::wstring &mainStr, const std::wstring &toErase)
-{
-    size_t pos = mainStr.find(toErase);
-    if (pos != std::string::npos)
-    {
-        mainStr.erase(pos, toErase.length());
-    }
-}
-
-void Files::fillPathList()
-{
-    pathList_.clear();
-    for (auto it = fileList_.cbegin(); it != fileList_.cend(); it++)
-    {
-        std::wstring srcPath = *it;
-        eraseSubStr(srcPath, L"Windscribe.app/");
-
-        std::wstring destination = installPath_ + L"/" + srcPath;
-        std::wstring directory;
-        const size_t last_slash_idx = destination.rfind(L'/');
-        if (std::wstring::npos != last_slash_idx)
-        {
-            directory = destination.substr(0, last_slash_idx);
-        }
-
-        pathList_.push_back(directory);
-    }
-}
-
-
-std::wstring Files::getFileName(const std::wstring &s)
-{
-    std::wstring str;
-
-    size_t i = s.rfind('\\', s.length());
-
-    if (i == std::wstring::npos)
-    {
-        i = s.rfind('/', s.length());
+    auto status = Utils::executeCommand("mkdir", {installPath.c_str()}, &lastError_);
+    if (status != 0) {
+        LOG("Files: failed to create the app bundle folder");
+        LOG(lastError_.c_str());
+        return -1;
     }
 
-
-    if (i != std::wstring::npos)
-    {
-        str = s.substr(i + 1, s.length() - i);
+    status = Utils::executeCommand("tar", {"-xovf", archivePath.c_str(), "-C", installPath.c_str()}, &lastError_);
+    if (status != 0) {
+        LOG("Files: failed to untar the app archive");
+        LOG(lastError_.c_str());
+        return -1;
     }
 
-    return str;
+    Utils::executeCommand("xattr", {"-r", "-d", "com.apple.quarantine", installPath.c_str()});
+
+    return 1;
 }

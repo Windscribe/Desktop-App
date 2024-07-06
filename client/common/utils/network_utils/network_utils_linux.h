@@ -19,6 +19,8 @@ public:
 };
 
 void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &outAdapterIp, bool ignoreTun = false);
+bool pingWithMtu(const QString &url, int mtu);
 QString getLocalIP();
+QString getRoutingTable();
 
 } // namespace NetworkUtils_linux

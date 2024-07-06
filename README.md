@@ -92,11 +92,10 @@ See `build_all --help` for other build options.
 ```bash
   brew install git
 ```
-- Install Auto-Tools and 7-Zip:
+- Install Auto-Tools:
 ```bash
   brew install libtool
   brew install automake
-  brew install p7zip
 ```
 - Install Python 3:
     - Minimum tested version is Python 3.6.8. 3.12.0 seems to have some issues with the python deps, so 3.11.6 is the latest recommended version. You may do this however you like, however `pyenv` is recommended:

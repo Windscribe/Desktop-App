@@ -3,7 +3,6 @@
 #include <Windows.h>
 
 #include <ctime>
-#include <fstream>
 #include <iomanip>
 #include <sstream>
 
@@ -21,22 +20,6 @@ Log::~Log()
 void Log::init(bool installing)
 {
     installing_ = installing;
-}
-
-void Log::out(const char* format, ...)
-{
-    // Using dynamic allocation here for the string buffers as the VS2019 compiler was warning
-    // about stack overflow potential.
-    va_list args;
-    va_start(args, format);
-    unique_ptr<char[]> logMsg(new char[10000]);
-    _vsnprintf_s(logMsg.get(), 10000, _TRUNCATE, format, args);
-    va_end(args);
-
-    wostringstream stream;
-    stream << logMsg.get();
-
-    out(stream.str());
 }
 
 void Log::out(const wchar_t* format, ...)
@@ -60,7 +43,6 @@ void Log::out(const wstring& message)
     const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
                             now.time_since_epoch()) % 1000;
     const int millisecondsSinceStart = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_).count();
-
 
     wostringstream stream;
     stream << L"[" << std::put_time(utc_tm, L"%d%m%y %H:%M:%S")

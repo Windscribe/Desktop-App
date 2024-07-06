@@ -6,9 +6,9 @@
         "boost-serialization",
         "boost-thread",
         "boost-process",
-        "bshoshany-thread-pool",
         "openssl",
         "openvpn",
+        "oqsprovider",
         "gtest",
         "spdlog",
         {
@@ -19,7 +19,6 @@
         "skyr-url",
         "cmakerc",
         "cpp-base64",
-        "reproc",
         "c-ares",
         "advobfuscator",
         "7zip",

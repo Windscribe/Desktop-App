@@ -1,9 +1,86 @@
-2.10.15 (28/06/2024)
+2.11.4 (05/07/2024)
 All:
-   * No changes.  Promoted 2.10.14 to the stable channel.
+   * Added CLI mechanisms to connect with a specific protocol, and improve help. #962
+   * Fixed handling of 0.0.0.0 response from DNS server for split tunnel hostnames. #1049
+Windows:
+   * Fixed packet size not applying to WireGuard connections. #1021
+   * Fixed app fails to start on Windows Server 2022. #1053
+MacOS:
+   * Improved CI to make use of the arm64 runner. #1009
+   * Fixed installer may not exit after attempting to launch app. #1035
+   * Fixed SSID detection not working in MacOS 15. #1034
+   * Fixed window move is not smooth. #1037
+   * Fixed firewall-on-boot may not function until the app starts. #1032
+   * Fixed app not showing an error when ctrld fails to execute. #1017
+   * Fixed app is very sluggish with many split tunnel hostnames. #1049
+   * Fixed split tunneling may not function correctly on MacOS 15. #1049
+   * Fixed app crash when cancelling 'install helper' dialog. #1057
+Linux:
+   * Added "Packet Size" preference to match other platforms. #1018
+   * Added CLI-only support for preferences. #962
+   * Improved CI to make use of the arm64 runner. #1009
+   * Fixed CI builds of the CLI-only app being linked to GUI libs. #962
+   * Fixed firewall blocking DHCP traffic on shared connections. #1031
+   * Fixed firewall-on-boot may not function until the app starts. #1032
+   * Fixed app not showing an error when ctrld fails to execute. #1017
+   * Fixed app update not completing if apt-listbugs is installed. #1052
+   * Fixed helper not working after update until restart. #1050
 
 
-2.10.14 (20/06/2024)
+2.11.3 (11/06/2024)
+All:
+   * Add wg_ttl parameter to WgConnect call [wsnet]. #1002
+   * Improved CI test stability. #1027
+Windows:
+   * Added debugging information for wsnet. #1001
+   * Fixed Program Files\Windscribe folder not cleaned up on uninstall if installed to custom folder. #1007
+MacOS:
+   * Improved IPC sockets/lockfiles by consolidation. #962
+   * Fixed firewall-on-boot may not function until the app starts. #1032
+Linux:
+   * Added partial implementation of GUI-less client. #962
+   * Improved CI build image and duration. #1009
+   * Improved IPC sockets/lockfiles by consolidation. #962
+   * Fixed Linux setgid change not working in OpenSUSE. #1000
+   * Fixed firewall blocking DHCP traffic. #1031
+   * Fixed firewall-on-boot may not function until the app starts. #1032
+
+
+2.11.2 (01/05/2024)
+All:
+   * Added new API endpoints for iOS [wsnet]. #972
+   * Fixed proxy gateway port not displaying 'Auto' when edit is cancelled. #50
+   * Fixed a wrong translation in Ukrainian. #993
+Windows:
+   * Fixed main window can be dragged beyond the top of the screen. #356
+MacOS:
+   * Updated wsnet library, included some required files from scapix to wsnet.framework for iOS build. #970
+   * Fixed app may be quarantined by MacOS. #963
+   * Fixed Mac pid checking vulnerability. #977
+Linux:
+   * Improved code organization and build scripts to prepare for GUI-less client. #962
+   * Fixed missing dependency for xcb-util-cursor-devel in the OpenSUSE RPM package. #955
+   * Fixed app icons not showing in XFCE. #985
+
+
+2.11.1 (09/04/2024)
+All:
+   * Added support for quantum-safe TLS and OpenVPN. #947 #965
+   * Added port selection to proxy gateway. #50
+   * Improved debug log usefulness by adding routing table. #873
+   * Updated wsnet library, refactoring without changing functionality. #959, #961.
+Windows:
+   * Improved installer 7z extraction to use the 7zr utility and log the extraction process. #926
+   * Improved installer logging to consistently use wide strings. #968
+   * Fixed ICMP pings crash [wsnet]. #969
+MacOS:
+   * Improved installer archive generation and extraction to use built-in macOS utilities. #963
+   * Fixed emit keyword missing from SleepEvents_mac logic. #954
+Linux:
+   * Added support for OpenSUSE. #954
+
+
+2.10.13 (??/??/2024)
 All:
    * Improved best location selection. #1040
 Windows:
@@ -24,7 +101,6 @@ All:
    * Updated ctrld dependency to 1.3.7. #1022
 MacOS:
    * Fixed MacOS 11 bug, unable to open app after installing. #1011
-   * Fixed Wireguard takes too long to connect and tunnel tests are randomly slow. #1013
    * Fixed missing "verb 3" argument for OpenVPN after refactor. #997
 Linux:
    * Fixed tray icon sometimes can't be clicked. #792
@@ -38,7 +114,6 @@ All:
    * Fixed wsnet bugs, in particular the icmp ping bug. Also other library refactoring related improvements taken from 2.11. #999
 Windows:
    * Added security warning in the installer when installing to a custom folder. #988
-   * Added debugging information for wsnet. #1001
    * Fixed openvpn adapter IP assertion. #997
    * Fixed privilege escalation vulnerability allowing an attacker to inject a DLL into the client app and task kill any process (Reported by Zeze Lin working with Trend Micro Zero Day Initiative). #984
    * Fixed privilege escalation vulnerability allowing an attacker to inject a DLL into the client app and start an arbitrary process as admin (Reported by Zeze Lin working with Trend Micro Zero Day Initiative). #984
@@ -64,10 +139,9 @@ Windows:
    * Fixed possible delay in executable signature logic when it checks CRLs over the network. #983
 MacOS:
    * Improved helper upgrade flow. #982
-   * Fixed Mac pid checking vulnerability. #977
 Linux:
    * Fixed misdetection of platform on Raspberry Pi. #979
-   * Fixed pid race in helper. #977
+   * Fixed pid race in helper #977
    * Fixed typo in command to get local IP. #995
 
 

@@ -27,8 +27,8 @@ public:
     void setSplitTunnelIpExceptions(const std::vector<std::string> &ips);
 
 private:
-    FirewallController() : connected_(false), splitTunnelEnabled_(false), splitTunnelExclude_(true) {};
-    ~FirewallController() { disable(); };
+    FirewallController();
+    ~FirewallController();
 
     bool connected_;
     bool splitTunnelEnabled_;

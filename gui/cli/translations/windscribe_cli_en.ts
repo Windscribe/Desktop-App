@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1" language="en_US">
+<context>
+    <name>BackendCommander</name>
+    <message>
+        <source>Data usage: %1 / %2</source>
+        <translation>Data usage: %1 / %2</translation>
+    </message>
+    <message>
+        <source>Unlimited</source>
+        <translation>Unlimited</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>Aborting: app did not start in time</source>
+        <translation>Aborting: app did not start in time</translation>
+    </message>
+    <message>
+        <source>Aborting: IPC communication error</source>
+        <translation>Aborting: IPC communication error</translation>
+    </message>
+    <message>
+        <source>Not logged in</source>
+        <translation>Not logged in</translation>
+    </message>
+    <message>
+        <source>Firewall already on</source>
+        <translation>Firewall already on</translation>
+    </message>
+    <message>
+        <source>Firewall already off</source>
+        <translation>Firewall already off</translation>
+    </message>
+    <message>
+        <source>Firewall set to always on and can&apos;t be turned off</source>
+        <translation>Firewall set to always on and can&apos;t be turned off</translation>
+    </message>
+    <message>
+        <source>Already logged in</source>
+        <translation>Already logged in</translation>
+    </message>
+    <message>
+        <source>Already logged out</source>
+        <translation>Already logged out</translation>
+    </message>
+    <message>
+        <source>No update available</source>
+        <translation>No update available</translation>
+    </message>
+    <message>
+        <source>Internet connectivity: %1</source>
+        <translation>Internet connectivity: %1</translation>
+    </message>
+    <message>
+        <source>Login state: %1</source>
+        <translation>Login state: %1</translation>
+    </message>
+    <message>
+        <source>Logged out</source>
+        <translation>Logged out</translation>
+    </message>
+    <message>
+        <source>Logging in</source>
+        <translation>Logging in</translation>
+    </message>
+    <message>
+        <source>Logged in</source>
+        <translation>Logged in</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation>Error: %1</translation>
+    </message>
+    <message>
+        <source>No internet connectivity</source>
+        <translation>No internet connectivity</translation>
+    </message>
+    <message>
+        <source>No API connectivity</source>
+        <translation>No API connectivity</translation>
+    </message>
+    <message>
+        <source>Incorrect username, password, or 2FA code</source>
+        <translation>Incorrect username, password, or 2FA code</translation>
+    </message>
+    <message>
+        <source>SSL error</source>
+        <translation>SSL error</translation>
+    </message>
+    <message>
+        <source>Session expired</source>
+        <translation>Session expired</translation>
+    </message>
+    <message>
+        <source>Rate limited</source>
+        <translation>Rate limited</translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation>Unknown error</translation>
+    </message>
+    <message>
+        <source>Connect state: %1</source>
+        <translation>Connect state: %1</translation>
+    </message>
+    <message>
+        <source>Connected: %1</source>
+        <translation>Connected: %1</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Connected</translation>
+    </message>
+    <message>
+        <source>[Network interference]</source>
+        <translation>[Network interference]</translation>
+    </message>
+    <message>
+        <source>Connecting: %1</source>
+        <translation>Connecting: %1</translation>
+    </message>
+    <message>
+        <source>Connecting</source>
+        <translation>Connecting</translation>
+    </message>
+    <message>
+        <source>Disconnecting</source>
+        <translation>Disconnecting</translation>
+    </message>
+    <message>
+        <source>Disconnected</source>
+        <translation>Disconnected</translation>
+    </message>
+    <message>
+        <source>Error: Location does not exist or is disabled</source>
+        <translation>Error: Location does not exist or is disabled</translation>
+    </message>
+    <message>
+        <source>Error: You are out of data, or your account has been disabled. Upgrade to Pro to continue using Windscribe</source>
+        <translation>Error: You are out of data, or your account has been disabled. Upgrade to Pro to continue using Windscribe</translation>
+    </message>
+    <message>
+        <source>Error: Unable to start custom DNS service</source>
+        <translation>Error: Unable to start custom DNS service</translation>
+    </message>
+    <message>
+        <source>Error: WireGuard adapter setup failed</source>
+        <translation>Error: WireGuard adapter setup failed</translation>
+    </message>
+    <message>
+        <source>Error: Could not retrieve WireGuard configuration</source>
+        <translation>Error: Could not retrieve WireGuard configuration</translation>
+    </message>
+    <message>
+        <source>Unknown state</source>
+        <translation>Unknown state</translation>
+    </message>
+    <message>
+        <source>Protocol: %1:%2</source>
+        <translation>Protocol: %1:%2</translation>
+    </message>
+    <message>
+        <source>Firewall state: %1</source>
+        <translation>Firewall state: %1</translation>
+    </message>
+    <message>
+        <source>Always On</source>
+        <translation>Always On</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>On</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation>Off</translation>
+    </message>
+    <message>
+        <source>Update error: download failed. Please try again or try a different network.</source>
+        <translation>Update error: download failed. Please try again or try a different network.</translation>
+    </message>
+    <message>
+        <source>Update error: %1</source>
+        <translation>Update error: %1</translation>
+    </message>
+    <message>
+        <source>Update downloading: %1%%</source>
+        <translation>Update downloading: %1%%</translation>
+    </message>
+    <message>
+        <source>Update available: %1</source>
+        <translation>Update available: %1</translation>
+    </message>
+    <message>
+        <source>available</source>
+        <translation>available</translation>
+    </message>
+    <message>
+        <source>unavailable</source>
+        <translation>unavailable</translation>
+    </message>
+</context>
+</TS>

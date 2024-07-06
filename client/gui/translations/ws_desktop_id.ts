@@ -1698,6 +1698,22 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
         <source>Proxy Type</source>
         <translation>Jenis Proksi</translation>
     </message>
+    <message>
+        <source>Port</source>
+        <translation>Pelabuhan</translation>
+    </message>
+    <message>
+        <source>Unable to start proxy server</source>
+        <translation>Tidak dapat memulai server proxy</translation>
+    </message>
+    <message>
+        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
+        <translation>Server proxy tidak dapat dimulai pada port yang diminta. Silakan coba lagi dengan port lain.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>

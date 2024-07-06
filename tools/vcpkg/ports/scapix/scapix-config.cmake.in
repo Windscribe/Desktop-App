@@ -1,0 +1,4 @@
+@PACKAGE_INIT@
+
+set_and_check(SCAPIX_SRC "${PACKAGE_PREFIX_DIR}/src/scapix")
+add_subdirectory(${SCAPIX_SRC} scapix)

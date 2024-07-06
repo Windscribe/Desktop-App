@@ -40,7 +40,7 @@ set(SOURCES
     main.mm
 )
 
-set_source_files_properties(main.mm OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/resources/windscribe.7z)
+set_source_files_properties(main.mm OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/resources/windscribe.tar.lzma)
 
 qt_add_resources(rc ../../common/installer_mac.qrc)
 qt_add_executable(installer MACOSX_BUNDLE ${SOURCES} ${rc})

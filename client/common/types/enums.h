@@ -268,14 +268,36 @@ enum LOCATION_TAB {
     LOCATION_TAB_LAST = LOCATION_TAB_SEARCH_LOCATIONS
 };
 
+enum LOGIN_STATE {
+    LOGIN_STATE_LOGGED_OUT = 0,
+    LOGIN_STATE_LOGIN_ERROR,
+    LOGIN_STATE_LOGGING_IN,
+    LOGIN_STATE_LOGGED_IN,
+};
+
+enum TUNNEL_TEST_STATE {
+    TUNNEL_TEST_STATE_UNKNOWN = 0,
+    TUNNEL_TEST_STATE_SUCCESS,
+    TUNNEL_TEST_STATE_FAILURE
+};
+
+enum TOGGLE_MODE {
+    TOGGLE_MODE_AUTO = 0,
+    TOGGLE_MODE_MANUAL
+};
+
 // utils for enums
 QString LOGIN_RET_toString(LOGIN_RET ret);
-QString DNS_POLICY_TYPE_ToString(DNS_POLICY_TYPE d);
+DNS_POLICY_TYPE DNS_POLICY_TYPE_fromString(const QString &s);
+QString DNS_POLICY_TYPE_toString(DNS_POLICY_TYPE d);
 QList<QPair<QString, QVariant>> DNS_POLICY_TYPE_toList();
 
+CONNECTED_DNS_TYPE CONNECTED_DNS_TYPE_fromString(const QString &s);
 QString CONNECTED_DNS_TYPE_toString(CONNECTED_DNS_TYPE t);
+SPLIT_TUNNELING_MODE SPLIT_TUNNELING_MODE_fromString(const QString &s);
 QString SPLIT_TUNNELING_MODE_toString(SPLIT_TUNNELING_MODE t);
 
+PROXY_SHARING_TYPE PROXY_SHARING_TYPE_fromString(const QString &s);
 QString PROXY_SHARING_TYPE_toString(PROXY_SHARING_TYPE t);
 QList<QPair<QString, QVariant>> PROXY_SHARING_TYPE_toList();
 
@@ -287,18 +309,26 @@ QList<QPair<QString, QVariant>> LATENCY_DISPLAY_TYPE_toList();
 
 QString TAP_ADAPTER_TYPE_toString(TAP_ADAPTER_TYPE t);
 
+FIREWALL_MODE FIREWALL_MODE_fromString(const QString &s);
 QString FIREWALL_MODE_toString(FIREWALL_MODE t);
 QList<QPair<QString, QVariant>> FIREWALL_MODE_toList();
 
+FIREWALL_WHEN FIREWALL_WHEN_fromString(const QString &s);
 QString FIREWALL_WHEN_toString(FIREWALL_WHEN t);
 QList<QPair<QString, QVariant>> FIREWALL_WHEN_toList();
 
+NETWORK_TRUST_TYPE NETWORK_TRUST_TYPE_fromString(const QString &s);
+QString NETWORK_TRUST_TYPE_toString(NETWORK_TRUST_TYPE t);
+
+PROXY_OPTION PROXY_OPTION_fromString(const QString &s);
 QString PROXY_OPTION_toString(PROXY_OPTION t);
 QList<QPair<QString, QVariant>> PROXY_OPTION_toList();
 
+UPDATE_CHANNEL UPDATE_CHANNEL_fromString(const QString &s);
 QString UPDATE_CHANNEL_toString(UPDATE_CHANNEL t);
 QList<QPair<QString, QVariant>> UPDATE_CHANNEL_toList();
 
+DNS_MANAGER_TYPE DNS_MANAGER_TYPE_fromString(const QString &s);
 QString DNS_MANAGER_TYPE_toString(DNS_MANAGER_TYPE t);
 QList<QPair<QString, QVariant>> DNS_MANAGER_TYPE_toList();
 
@@ -307,3 +337,6 @@ QList<QPair<QString, QVariant>> APP_SKIN_toList();
 
 QString TRAY_ICON_COLOR_toString(TRAY_ICON_COLOR c);
 QList<QPair<QString, QVariant>> TRAY_ICON_COLOR_toList();
+
+TOGGLE_MODE TOGGLE_MODE_fromString(const QString &s);
+QString TOGGLE_MODE_toString(TOGGLE_MODE t);

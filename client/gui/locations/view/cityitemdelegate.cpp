@@ -3,7 +3,7 @@
 #include <QPainter>
 #include <QtMath>
 
-#include "../locationsmodel_roles.h"
+#include "locations/locationsmodel_roles.h"
 #include "clickableandtooltiprects.h"
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"

@@ -27,17 +27,6 @@ int main(int argc, const char *argv[])
 
     Logger::instance().checkLogSize();
 
-    // restore firewall setting on OS reboot, if there are saved rules on /etc/windscribe dir
-
-    if (Utils::isFileExists("/etc/windscribe/rules.v4"))
-    {
-        Utils::executeCommand("iptables-restore -n < /etc/windscribe/rules.v4");
-    }
-    if (Utils::isFileExists("/etc/windscribe/rules.v6"))
-    {
-        Utils::executeCommand("ip6tables-restore -n < /etc/windscribe/rules.v6");
-    }
-
     server.run();
 
     Logger::instance().out("Windscribe helper finished");

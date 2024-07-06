@@ -11,6 +11,7 @@ namespace NetworkUtils_win
     bool isInterfaceSpoofed(int interfaceIndex);
     bool pingWithMtu(const QString &url, int mtu);
     QString getLocalIP();
+    QString getRoutingTable();
 
     types::NetworkInterface currentNetworkInterface();
     QVector<types::NetworkInterface> currentNetworkInterfaces(bool includeNoInterface);

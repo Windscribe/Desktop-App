@@ -243,6 +243,8 @@ def build_component(component, qt_root, buildenv=None):
             generate_cmd.extend(["-DDEFINE_USE_SIGNATURE_CHECK_MACRO=ON"])
         if arghelper.build_tests():
             generate_cmd.extend(["-DIS_BUILD_TESTS=ON"])
+        if arghelper.build_cli_only() and CURRENT_OS == "linux":
+            generate_cmd.extend(["-DDEFINE_CLI_ONLY_MACRO=ON"])
         if CURRENT_OS == "macos":
             # Build an universal binary only on CI
             if arghelper.ci_mode():
@@ -463,9 +465,8 @@ def prep_installer_win32(configdata, crt_root):
             additional_dir = os.path.join(pathhelper.ROOT_DIR, "installer", "windows", "additional_files")
             copy_files("additional x86_64", configdata["deploy_files"]["win32_x86_64"]["installer"]["additional_files"], additional_dir, BUILD_INSTALLER_FILES)
 
-    if "license_files" in configdata:
-        license_dir = os.path.join(pathhelper.COMMON_DIR, "licenses")
-        copy_files("license", configdata["license_files"], license_dir, BUILD_INSTALLER_FILES)
+    if "common_files" in configdata:
+        copy_files("common", configdata["common_files"], pathhelper.COMMON_DIR, BUILD_INSTALLER_FILES)
 
     # Pack symbols for crashdump analysis.
     pack_symbols()
@@ -543,16 +544,14 @@ def sign_bootstrap_win32(configdata):
 
 
 def build_installer_mac(configdata, qt_root, build_path):
-    # Place everything in a 7z archive.
+    # Place everything in a lzma tarball.
     msg.Info("Zipping...")
     installer_info = configdata["installer"]["macos"]
-    arc_path = os.path.join(pathhelper.ROOT_DIR, installer_info["subdir"], "resources", "windscribe.7z")
+    arc_path = os.path.join(pathhelper.ROOT_DIR, installer_info["subdir"], "resources", "windscribe.tar.lzma")
     archive_filename = os.path.normpath(arc_path)
     if os.path.exists(archive_filename):
         utl.RemoveFile(archive_filename)
-    iutl.RunCommand(["7z", "a", archive_filename,
-                     os.path.join(BUILD_INSTALLER_FILES, "Windscribe.app"),
-                     "-y", "-bso0", "-bsp2"])
+    iutl.RunCommand(["tar", "--lzma", "-cf", archive_filename, "-C", os.path.join(BUILD_INSTALLER_FILES, "Windscribe.app"), "."])
     # Build and sign the installer.
     with utl.PushDir():
         os.chdir(build_path)
@@ -613,11 +612,17 @@ def build_installer_linux(configdata, qt_root):
     # Creates the following:
     # * windscribe_2.x.y_amd64.deb
     # * windscribe_2.x.y_x86_64.rpm
-    copy_libs(configdata, "linux", "installer", BUILD_INSTALLER_FILES)
+
+    if arghelper.build_cli_only():
+        build_config = "cli"
+    else:
+        build_config = "gui"
+
+    copy_libs(configdata, "linux", "installer_" + build_config, BUILD_INSTALLER_FILES)
 
     msg.Info("Fixing rpaths...")
-    if "fix_rpath" in configdata["deploy_files"]["linux"]["installer"]:
-        for k in configdata["deploy_files"]["linux"]["installer"]["fix_rpath"]:
+    if "fix_rpath" in configdata["deploy_files"]["linux"]["installer_" + build_config]:
+        for k in configdata["deploy_files"]["linux"]["installer_" + build_config]["fix_rpath"]:
             dstfile = os.path.join(BUILD_INSTALLER_FILES, k)
             fix_rpath_linux(dstfile)
 
@@ -626,23 +631,34 @@ def build_installer_linux(configdata, qt_root):
         for binary_name in configdata["codesign_files"]["linux"]:
             code_sign_linux(binary_name, BUILD_INSTALLER_FILES)
 
-    if "license_files" in configdata:
-        license_dir = os.path.join(pathhelper.COMMON_DIR, "licenses")
-        copy_files("license", configdata["license_files"], license_dir, BUILD_INSTALLER_FILES)
+    if "common_files" in configdata:
+        copy_files("common", configdata["common_files"], pathhelper.COMMON_DIR, BUILD_INSTALLER_FILES)
 
     # create .deb with dest_package
     if arghelper.build_deb():
         msg.Info("Creating .deb package...")
 
         src_package_path = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "common")
-        deb_files_path = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "debian_package")
+        deb_files_path = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", build_config, "debian_package")
+
         if platform.processor() == "x86_64":
-            dest_package_name = "windscribe_{}_amd64".format(extractor.app_version(True))
+            if arghelper.build_cli_only():
+                dest_package_name = "windscribe-cli_{}_amd64".format(extractor.app_version(True))
+            else:
+                dest_package_name = "windscribe_{}_amd64".format(extractor.app_version(True))
         elif platform.processor() == "aarch64":
-            dest_package_name = "windscribe_{}_arm64".format(extractor.app_version(True))
+            if arghelper.build_cli_only():
+                dest_package_name = "windscribe-cli_{}_arm64".format(extractor.app_version(True))
+            else:
+                dest_package_name = "windscribe_{}_arm64".format(extractor.app_version(True))
+
         dest_package_path = os.path.join(BUILD_INSTALLER_FILES, "..", dest_package_name)
 
         utl.CopyAllFiles(src_package_path, dest_package_path)
+        if arghelper.build_cli_only():
+            utl.CopyAllFiles(os.path.join(src_package_path, "..", "cli", "overlay"), dest_package_path)
+        else:
+            utl.CopyAllFiles(os.path.join(src_package_path, "..", "gui", "overlay"), dest_package_path)
         utl.CopyAllFiles(deb_files_path, dest_package_path)
         utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(dest_package_path, "opt", "windscribe"))
 
@@ -650,17 +666,29 @@ def build_installer_linux(configdata, qt_root):
         update_arch_in_config(os.path.join(dest_package_path, "DEBIAN", "control"))
         iutl.RunCommand(["fakeroot", "dpkg-deb", "--build", dest_package_path])
 
-    if arghelper.build_rpm():
-        msg.Info("Creating .rpm package...")
+    for distro in ["fedora", "opensuse"]:
+        if arghelper.build_rpm(distro):
+            build_rpm(distro, build_config)
 
-        utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "rpm_package"), os.path.join(pathlib.Path.home(), "rpmbuild"))
-        utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "common"), os.path.join(pathlib.Path.home(), "rpmbuild", "SOURCES"))
-        utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(pathlib.Path.home(), "rpmbuild", "SOURCES", "opt", "windscribe"))
 
-        update_version_in_config(os.path.join(pathlib.Path.home(), "rpmbuild", "SPECS", "windscribe_rpm.spec"))
-        iutl.RunCommand(["rpmbuild", "-bb", os.path.join(pathlib.Path.home(), "rpmbuild", "SPECS", "windscribe_rpm.spec")])
-        utl.CopyFile(os.path.join(pathlib.Path.home(), "rpmbuild", "RPMS", "x86_64", "windscribe-{}-0.x86_64.rpm".format(extractor.app_version(False))),
-                     os.path.join(BUILD_INSTALLER_FILES, "..", "windscribe_{}_x86_64.rpm".format(extractor.app_version(True))))
+def build_rpm(distro, build_config):
+    msg.Info("Creating {} .rpm package...".format(distro))
+
+    utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "installer", "linux", build_config, "rpm_{}_package".format(distro)), os.path.join(pathlib.Path.home(), "rpmbuild"))
+    utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "common"), os.path.join(pathlib.Path.home(), "rpmbuild", "SOURCES"))
+
+    if arghelper.build_cli_only():
+        utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "cli", "overlay"), os.path.join(pathlib.Path.home(), "rpmbuild", "SOURCES"))
+    else:
+        utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "gui", "overlay"), os.path.join(pathlib.Path.home(), "rpmbuild", "SOURCES"))
+
+    utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(pathlib.Path.home(), "rpmbuild", "SOURCES", "opt", "windscribe"))
+
+    update_version_in_config(os.path.join(pathlib.Path.home(), "rpmbuild", "SPECS", "windscribe_rpm.spec"))
+    iutl.RunCommand(["rpmbuild", "-bb", os.path.join(pathlib.Path.home(), "rpmbuild", "SPECS", "windscribe_rpm.spec")])
+
+    utl.CopyFile(os.path.join(pathlib.Path.home(), "rpmbuild", "RPMS", "x86_64", "windscribe{}-{}-0.x86_64.rpm".format("-cli" if arghelper.build_cli_only() else "", extractor.app_version(False))),
+                 os.path.join(BUILD_INSTALLER_FILES, "..", "windscribe{}_{}_x86_64_{}.rpm".format("-cli" if arghelper.build_cli_only() else "", extractor.app_version(True), distro)))
 
 
 def update_vcpkg_dependencies():

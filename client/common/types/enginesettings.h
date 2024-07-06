@@ -21,32 +21,6 @@ namespace types {
 
 struct EngineSettingsData : public QSharedData
 {
-    struct JsonInfo {
-        const QString kApiResolutionSettingsProp = "apiResolutionSettings";
-        const QString kConnectedDnsInfoProp = "connectedDnsInfo";
-        const QString kConnectionSettingsProp = "connectionSettings";
-        const QString kCustomOvpnConfigsPathProp = "customOvpnConfigsPath";
-        const QString kDnsManagerProp = "dnsManager";
-        const QString kDnsPolicyProp = "dnsPolicy";
-        const QString kFirewallSettingsProp = "firewallSettings";
-        const QString kIsAllowLanTrafficProp = "isAllowLanTraffic";
-        const QString kIsAntiCensorshipProp = "isAntiCensorship";
-        const QString kIsIgnoreSslErrorsProp = "isIgnoreSslErrors";
-        const QString kIsKeepAliveEnabledProp = "isKeepAliveEnabled";
-        const QString kIsTerminateSocketsProp = "isTerminateSockets";
-        const QString kLanguageProp = "language";
-        const QString kMacAddrSpoofingProp = "macAddrSpoofing";
-        const QString kNetworkLastKnownGoodProtocolsProp = "networkLastKnownGoodProtocols";
-        const QString kNetworkPreferredProtocolsProp = "networkPreferredProtocols";
-        const QString kPacketSizeProp = "packetSize";
-        const QString kProtocolProp = "protocol";
-        const QString kProxySettingsProp = "proxySettings";
-        const QString kTapAdapterProp = "tapAdapter";
-        const QString kUpdateChannelProp = "updateChannel";
-        const QString kValueProp = "value";
-        const QString kVersionProp = "version";
-    };
-
     EngineSettingsData() :
         updateChannel(UPDATE_CHANNEL_RELEASE),
         isIgnoreSslErrors(false),
@@ -80,9 +54,42 @@ struct EngineSettingsData : public QSharedData
     QMap<QString, std::pair<types::Protocol, uint>> networkLastKnownGoodProtocols;
     QString language;
 
-    JsonInfo jsonInfo;
-
+    void fromJson(const QJsonObject &json);
     QJsonObject toJson() const;
+    void fromIni(QSettings &settings);
+    void toIni(QSettings &settings) const;
+
+private:
+    static const inline QString kIniDnsPolicyProp = "DNSPolicy";
+    static const inline QString kIniIsAllowLanTrafficProp = "AllowLANTraffic";
+    static const inline QString kIniIsAntiCensorshipProp = "CircumventCensorship";
+    static const inline QString kIniIsIgnoreSslErrorsProp = "IgnoreSSLErrors";
+    static const inline QString kIniIsKeepAliveEnabledProp = "ClientsideKeepalive";
+    static const inline QString kIniLanguageProp = "Language";
+    static const inline QString kIniUpdateChannelProp = "UpdateChannel";
+
+    static const inline QString kJsonApiResolutionSettingsProp = "apiResolutionSettings";
+    static const inline QString kJsonConnectedDnsInfoProp = "connectedDnsInfo";
+    static const inline QString kJsonConnectionSettingsProp = "connectionSettings";
+    static const inline QString kJsonCustomOvpnConfigsPathProp = "customOvpnConfigsPath";
+    static const inline QString kJsonDnsManagerProp = "dnsManager";
+    static const inline QString kJsonDnsPolicyProp = "dnsPolicy";
+    static const inline QString kJsonFirewallSettingsProp = "firewallSettings";
+    static const inline QString kJsonIsAllowLanTrafficProp = "isAllowLanTraffic";
+    static const inline QString kJsonIsAntiCensorshipProp = "isAntiCensorship";
+    static const inline QString kJsonIsIgnoreSslErrorsProp = "isIgnoreSslErrors";
+    static const inline QString kJsonIsKeepAliveEnabledProp = "isKeepAliveEnabled";
+    static const inline QString kJsonIsTerminateSocketsProp = "isTerminateSockets";
+    static const inline QString kJsonLanguageProp = "language";
+    static const inline QString kJsonMacAddrSpoofingProp = "macAddrSpoofing";
+    static const inline QString kJsonNetworkLastKnownGoodProtocolsProp = "networkLastKnownGoodProtocols";
+    static const inline QString kJsonNetworkPreferredProtocolsProp = "networkPreferredProtocols";
+    static const inline QString kJsonPacketSizeProp = "packetSize";
+    static const inline QString kJsonProtocolProp = "protocol";
+    static const inline QString kJsonProxySettingsProp = "proxySettings";
+    static const inline QString kJsonTapAdapterProp = "tapAdapter";
+    static const inline QString kJsonUpdateChannelProp = "updateChannel";
+    static const inline QString kJsonValueProp = "value";
 };
 
 
@@ -147,6 +154,8 @@ public:
     bool operator==(const EngineSettings &other) const;
     bool operator!=(const EngineSettings &other) const;
     QJsonObject toJson() const;
+    void fromIni(QSettings &settings);
+    void toIni(QSettings & settings) const;
 
     friend QDebug operator<<(QDebug dbg, const EngineSettings &es);
 
@@ -154,6 +163,8 @@ public:
 
 private:
     QSharedDataPointer<EngineSettingsData> d;
+
+    static const inline QString kJsonVersionProp = "version";
 
     // for serialization
     static constexpr quint32 magic_ = 0x7745C2AE;

@@ -30,11 +30,11 @@ int Icons::executeStep()
 
     if (isCreateShortcut_) {
         //C:\\Users\\Public\\Desktop\\Windscribe.lnk
-        wstring common_desktop = Utils::DesktopFolder();
+        wstring common_desktop = Utils::desktopFolder();
         createShortcut(common_desktop + L"\\" + ApplicationInfo::name() + L".lnk", appExe, L"", installPath, L"", 0);
     }
 
-    const wstring group = Utils::StartMenuProgramsFolder();
+    const wstring group = Utils::startMenuProgramsFolder();
 
     //C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Windscribe\\Uninstall Windscribe.lnk
     createShortcut(group + L"\\"+ ApplicationInfo::name() + L"\\Uninstall Windscribe.lnk",
@@ -70,35 +70,35 @@ void Icons::createShortcut(const wstring link, const wstring target, const wstri
 
     HRESULT result = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER,IID_IShellLink, reinterpret_cast<LPVOID*>(&psl));
     if (result != S_OK) {
-        Log::instance().out("Could not create shell link");
+        Log::instance().out(L"Could not create shell link");
         return;
     }
     result = psl->SetPath(target.c_str());
     if (result != S_OK) {
-        Log::instance().out("Could not set path");
+        Log::instance().out(L"Could not set path");
         return;
     }
     result = psl->SetArguments(params.c_str());
     if (result != S_OK) {
-        Log::instance().out("Could not set arguments");
+        Log::instance().out(L"Could not set arguments");
         return;
     }
     result = psl->SetWorkingDirectory(workingDir.c_str());
     if (result != S_OK) {
-        Log::instance().out("Could not set working dir");
+        Log::instance().out(L"Could not set working dir");
         return;
     }
     if (!icon.empty()) {
         result = psl->SetIconLocation(icon.c_str(), idx);
         if (result != S_OK) {
-            Log::instance().out("Could not set icon");
+            Log::instance().out(L"Could not set icon");
             return;
         }
     }
 
     result = psl->QueryInterface(IID_IPersistFile, reinterpret_cast<LPVOID*>(&ppf));
     if (result != S_OK) {
-        Log::instance().out("Could not get ppf");
+        Log::instance().out(L"Could not get ppf");
         psl->Release();
         return;
     }

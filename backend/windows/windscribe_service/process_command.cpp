@@ -763,12 +763,15 @@ MessagePacketResult connectedDns(boost::archive::text_iarchive &ia)
 MessagePacketResult makeHostsFileWritable(boost::archive::text_iarchive &ia)
 {
     MessagePacketResult mpr;
+    mpr.success = true;
 
-    const auto hostsPath = L"C:\\Windows\\System32\\drivers\\etc\\hosts";
-    if (SetFileAttributes(hostsPath, GetFileAttributes(hostsPath) & ~FILE_ATTRIBUTE_READONLY)) {
-        mpr.success = true;
-    } else {
-        Logger::instance().out(L"Can't change permissions of \"hosts\" file.");
+    const auto hostsFile = Utils::getSystemDir() + L"\\drivers\\etc\\hosts";
+    const auto attributes = ::GetFileAttributes(hostsFile.c_str());
+    if (attributes == INVALID_FILE_ATTRIBUTES) {
+        Logger::instance().out(L"GetFileAttributes of hosts file failed (%lu)", ::GetLastError());
+        mpr.success = false;
+    } else if (::SetFileAttributes(hostsFile.c_str(), attributes & ~FILE_ATTRIBUTE_READONLY) == FALSE) {
+        Logger::instance().out(L"SetFileAttributes of hosts file failed (%lu)", ::GetLastError());
         mpr.success = false;
     }
 

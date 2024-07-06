@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Terminal=false
+Exec=/opt/windscribe/Windscribe %F
+Name=Windscribe
+Icon=Windscribe
+Categories=Network
+StartupWMClass=Windscribe
+SingleMainWindow=true

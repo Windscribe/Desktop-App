@@ -1,0 +1,17 @@
+{
+  "name": "scapix-bin",
+  "version": "2.0.16",
+  "port-version": 0,
+  "description": "Binary files used by Scapix Language Bridge project.",
+  "homepage": "https://github.com/scapix-com/scapix-bin",
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    }
+  ]
+}

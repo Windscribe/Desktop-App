@@ -1,0 +1,22 @@
+target_sources(base PRIVATE
+    backend.cpp
+    backend.h
+    connectstatehelper.cpp
+    connectstatehelper.h
+    firewallstatehelper.cpp
+    firewallstatehelper.h
+    notificationscontroller.cpp
+    notificationscontroller.h
+    persistentstate.cpp
+    persistentstate.h
+    preferences/accountinfo.cpp
+    preferences/accountinfo.h
+    preferences/detectlanrange.cpp
+    preferences/detectlanrange.h
+    preferences/preferences.cpp
+    preferences/preferences.h
+    preferences/preferenceshelper.cpp
+    preferences/preferenceshelper.h
+    types/upgrademodetype.cpp
+    types/upgrademodetype.h
+)

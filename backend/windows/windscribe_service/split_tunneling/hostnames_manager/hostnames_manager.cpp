@@ -63,27 +63,26 @@ void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::Ho
     std::lock_guard<std::recursive_mutex> guard(mutex_);
 
     std::vector<Ip4AddressAndMask> hostsIps;
-    for (auto it = hostInfos.begin(); it != hostInfos.end(); ++it)
-    {
-        if (!it->second.error)
-        {
+    for (auto it = hostInfos.begin(); it != hostInfos.end(); ++it) {
+        if (!it->second.error) {
             std::vector<std::string> addresses = it->second.addresses;
-            for (auto addr = addresses.begin(); addr != addresses.end(); ++addr)
-            {
-                hostsIps.push_back(Ip4AddressAndMask(addr->c_str()));
-                Logger::instance().out("RoutesManager::dnsResolverCallback(), Resolved : %s, IP: %s", it->first.c_str(), addr->c_str());
+            for (const auto addr : it->second.addresses) {
+                if (addr == "0.0.0.0") {
+                    // ROBERT sometimes will give us an address of 0.0.0.0 for a 'blocked' resource.  This is not a valid address.
+                    Logger::instance().out("IpHostnamesManager::dnsResolverCallback(), Resolved : %s, IP: 0.0.0.0 (Ignored)", it->first.c_str());
+                } else {
+                    hostsIps.push_back(Ip4AddressAndMask(addr.c_str()));
+                    Logger::instance().out("RoutesManager::dnsResolverCallback(), Resolved : %s, IP: %s", it->first.c_str(), addr.c_str());
+                }
             }
-        }
-        else
-        {
+        } else {
             Logger::instance().out("RoutesManager::dnsResolverCallback(), Failed resolve : %s", it->first.c_str());
         }
     }
 
     hostsIps.insert(hostsIps.end(), ipsLatest_.begin(), ipsLatest_.end());
 
-    if (isEnabled_)
-    {
+    if (isEnabled_) {
         ipRoutes_.setIps(gatewayIp_, ifIndex_, hostsIps);
         FirewallFilter::instance().setSplitTunnelingWhitelistIps(hostsIps);
     }

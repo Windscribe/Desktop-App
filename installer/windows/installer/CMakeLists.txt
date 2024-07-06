@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 project(installer)
 
-find_package(7zip CONFIG REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS
              Widgets
              Gui
@@ -24,7 +23,7 @@ set(SOURCES
     ../utils/path.cpp
     ../utils/utils.cpp
     ../utils/windscribepathcheck.cpp
-    ../../../client/common/archive/archive.cpp
+    ../utils/archive.cpp
     installer/installer.cpp
     installer/installer_shim.cpp
     installer/installer_utils.cpp
@@ -68,7 +67,6 @@ target_link_libraries(installer
     delayimp
     Crypt32.lib
     Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg
-    7zip::7zip
 )
 
 target_include_directories(installer

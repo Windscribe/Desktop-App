@@ -1,6 +1,8 @@
 #include "proxygatewaygroup.h"
 
+#include <QHostAddress>
 #include <QPainter>
+#include "generalmessagecontroller.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
 
@@ -21,6 +23,18 @@ ProxyGatewayGroup::ProxyGatewayGroup(ScalableGraphicsObject *parent, const QStri
     connect(comboBoxProxyType_, &ComboBoxItem::currentItemChanged, this, &ProxyGatewayGroup::onProxyTypeItemChanged);
     addItem(comboBoxProxyType_);
 
+    editBoxPort_ = new EditBoxItem(this);
+    editBoxPort_->setText(tr("Auto"));
+
+    QRegularExpression ipRegex ("^\\d+$");
+    QRegularExpressionValidator *integerValidator = new QRegularExpressionValidator(ipRegex, this);
+    editBoxPort_->setValidator(integerValidator);
+
+    connect(editBoxPort_, &EditBoxItem::textChanged, this, &ProxyGatewayGroup::onPortChanged);
+    connect(editBoxPort_, &EditBoxItem::cancelled, this, &ProxyGatewayGroup::onPortCancelClicked);
+    connect(editBoxPort_, &EditBoxItem::editClicked, this, &ProxyGatewayGroup::onPortEditClicked);
+    addItem(editBoxPort_);
+
     proxyIpAddressItem_ = new ProxyIpAddressItem(this);
     addItem(proxyIpAddressItem_);
 
@@ -38,6 +52,11 @@ void ProxyGatewayGroup::setProxyGatewaySettings(const types::ShareProxyGateway &
         settings_ = sp;
         checkBoxEnable_->setState(sp.isEnabled);
         comboBoxProxyType_->setCurrentItem(sp.proxySharingMode);
+        if (sp.port == 0) {
+            editBoxPort_->setText(tr("Auto"));
+        } else {
+            editBoxPort_->setText(QString::number(sp.port));
+        }
         updateMode();
     }
 }
@@ -55,8 +74,52 @@ void ProxyGatewayGroup::onProxyTypeItemChanged(QVariant v)
     emit proxyGatewayPreferencesChanged(settings_);
 }
 
+void ProxyGatewayGroup::onPortCancelClicked()
+{
+    if (settings_.port == 0) {
+        editBoxPort_->setText(tr("Auto"));
+    }
+}
+
+void ProxyGatewayGroup::onPortChanged(QVariant v)
+{
+    if (v.toInt() == settings_.port) {
+        if (v.toInt() == 0) {
+            editBoxPort_->setText(tr("Auto"));
+        }
+        return;
+    }
+
+    if (v.toInt() > 0 && v.toInt() <= 65535) {
+        settings_.port = v.toInt();
+    } else {
+        editBoxPort_->setText(tr("Auto"));
+        settings_.port = 0;
+    }
+    emit proxyGatewayPreferencesChanged(settings_);
+}
+
 void ProxyGatewayGroup::setProxyGatewayAddress(const QString &address)
 {
+    if (settings_.isEnabled && (address.isEmpty() || address.endsWith(":0"))) {
+        // Invalid address or port 0 indicates that the proxy is not running.  Reset to 0.
+        editBoxPort_->setText(tr("Auto"));
+        settings_.port = 0;
+        emit proxyGatewayPreferencesChanged(settings_);
+
+        GeneralMessageController::instance().showMessage(
+            "WARNING_YELLOW",
+            tr("Unable to start proxy server"),
+            tr("The proxy server couldn't be started on the requested port. Please try again with a different port."),
+            GeneralMessageController::tr(GeneralMessageController::kOk),
+            "",
+            "",
+            std::function<void(bool b)>(nullptr),
+            std::function<void(bool b)>(nullptr),
+            std::function<void(bool b)>(nullptr),
+            GeneralMessage::kFromPreferences);
+        return;
+    }
     proxyIpAddressItem_->setIP(address);
 }
 
@@ -80,6 +143,14 @@ void ProxyGatewayGroup::onLanguageChanged()
     checkBoxEnable_->setCaption(tr("Proxy Gateway"));
     comboBoxProxyType_->setLabelCaption(tr("Proxy Type"));
     comboBoxProxyType_->setItems(PROXY_SHARING_TYPE_toList(), settings_.proxySharingMode);
+    editBoxPort_->setCaption(tr("Port"));
+}
+
+void ProxyGatewayGroup::onPortEditClicked()
+{
+    if (settings_.port == 0) {
+        editBoxPort_->setText(QString::number(0));
+    }
 }
 
 } // namespace PreferencesWindow

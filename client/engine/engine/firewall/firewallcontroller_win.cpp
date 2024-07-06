@@ -80,7 +80,7 @@ void FirewallController_win::setInterfaceToSkip_posix(const QString &interfaceTo
     //nothing todo for Windows
 }
 
-void FirewallController_win::enableFirewallOnBoot(bool bEnable, const QSet<QString> &ipTable)
+void FirewallController_win::setFirewallOnBoot(bool bEnable, const QSet<QString> &ipTable, bool isAllowLanTraffic)
 {
     Q_UNUSED(bEnable);
     //nothing todo for Windows

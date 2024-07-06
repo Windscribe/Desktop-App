@@ -2,7 +2,7 @@
 
 #include <QEvent>
 #include <QGraphicsObject>
-#include "../backend/backend.h"
+#include "backend/backend.h"
 #include "commongraphics/bubblebutton.h"
 #include "commongraphics/escapebutton.h"
 #include "commongraphics/iconbutton.h"

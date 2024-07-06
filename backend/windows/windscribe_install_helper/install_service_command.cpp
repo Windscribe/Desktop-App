@@ -9,7 +9,7 @@ using namespace std;
 
 InstallServiceCommand::InstallServiceCommand(Logger *logger, const wstring &installDir)
     : BasicCommand(logger),
-      installDir_(installDir)
+    installDir_(installDir)
 {
 }
 

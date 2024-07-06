@@ -1,8 +1,5 @@
 #include "applicationinfo.h"
 
-#include <shlwapi.h>
-#include <shlobj_core.h>
-
 #include "path.h"
 #include "utils.h"
 #include "version/windscribe_version.h"

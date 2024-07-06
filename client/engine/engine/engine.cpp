@@ -37,6 +37,7 @@
     #include "ipv6controller_mac.h"
     #include "networkdetectionmanager/reachabilityevents.h"
     #include "utils/network_utils/network_utils_mac.h"
+    #include "utils/interfaceutils_mac.h"
 #elif defined Q_OS_LINUX
     #include "helper/helper_linux.h"
     #include "utils/executable_signature/executablesignature_linux.h"
@@ -88,6 +89,26 @@ Engine::Engine() : QObject(nullptr),
     WSNet::setLogger([](const std::string &logStr) {
         qCDebug(LOG_WSNET) << logStr;
     }, false);
+
+    if (ExtraConfig::instance().getUsePQAlgorithms()) {
+        // Enable PQ algorithms.  We need to set some environment variables so OpenSSL can find the right provider.
+#ifdef Q_OS_WIN
+        wchar_t p[MAX_PATH];
+        p[0] = '\0';
+        GetModuleFileNameW(NULL, p, MAX_PATH);
+
+        std::string pathStr = std::filesystem::path(p).parent_path().string();
+        _putenv_s("OPENSSL_MODULES", pathStr.c_str());
+        pathStr = std::filesystem::path(p).parent_path().append("openssl.cnf").string();
+        _putenv_s("OPENSSL_CONF", pathStr.c_str());
+#elif defined(Q_OS_MAC)
+        setenv("OPENSSL_CONF", "/Applications/Windscribe.app/Contents/Resources/openssl.cnf", 1);
+        setenv("OPENSSL_MODULES", "/Applications/Windscribe.app/Contents/Frameworks", 1);
+#elif defined(Q_OS_LINUX)
+        setenv("OPENSSL_CONF", "/opt/windscribe/openssl.cnf", 1);
+        setenv("OPENSSL_MODULES", "/opt/windscribe/lib", 1);
+#endif
+    }
 
     QSettings settings;
     std::string wsnetSettings = settings.value("wsnetSettings").toString().toStdString();
@@ -176,9 +197,9 @@ bool Engine::isApiSavedSettingsExists()
     return api_resources::ApiResourcesManager::isCanBeLoadFromSettings();
 }
 
-void Engine::signOut(bool keepFirewallOn)
+void Engine::logout(bool keepFirewallOn)
 {
-    QMetaObject::invokeMethod(this, "signOutImpl", Q_ARG(bool, keepFirewallOn));
+    QMetaObject::invokeMethod(this, "logoutImpl", Q_ARG(bool, keepFirewallOn));
 }
 
 void Engine::gotoCustomOvpnConfigMode()
@@ -401,13 +422,12 @@ void Engine::stopWifiSharing()
     }
 }
 
-void Engine::startProxySharing(PROXY_SHARING_TYPE proxySharingType)
+void Engine::startProxySharing(PROXY_SHARING_TYPE proxySharingType, uint port)
 {
     QMutexLocker locker(&mutex_);
     WS_ASSERT(bInitialized_);
-    if (bInitialized_)
-    {
-        QMetaObject::invokeMethod(this, "startProxySharingImpl", Q_ARG(PROXY_SHARING_TYPE, proxySharingType));
+    if (bInitialized_) {
+        QMetaObject::invokeMethod(this, "startProxySharingImpl", Q_ARG(PROXY_SHARING_TYPE, proxySharingType), Q_ARG(uint, port));
     }
 }
 
@@ -544,6 +564,7 @@ void Engine::initPart2()
 {
 #ifdef Q_OS_MAC
     Ipv6Controller_mac::instance().setHelper(helper_);
+    InterfaceUtils_mac::instance().setHelper(static_cast<Helper_mac *>(helper_));
     ReachAbilityEvents::instance().init();
 #endif
 
@@ -557,7 +578,7 @@ void Engine::initPart2()
     types::MacAddrSpoofing macAddrSpoofing = engineSettings_.macAddrSpoofing();
     //todo refactor
 #ifdef Q_OS_MAC
-    macAddrSpoofing.networkInterfaces = NetworkUtils_mac::currentNetworkInterfaces(true);
+    macAddrSpoofing.networkInterfaces = InterfaceUtils_mac::instance().currentNetworkInterfaces(true);
 #elif defined Q_OS_WIN
     macAddrSpoofing.networkInterfaces = NetworkUtils_win::currentNetworkInterfaces(true);
 #elif define Q_OS_LINUX
@@ -590,6 +611,15 @@ void Engine::initPart2()
     packetSizeControllerThread_->start(QThread::LowPriority);
 
     firewallController_ = CrossPlatformObjectFactory::createFirewallController(this, helper_);
+#ifdef Q_OS_LINUX
+    // On Linux, the system may reboot without ever sending us SIGTERM, which means we never get to clean up and
+    // set the boot firewall rules.  Set the boot rules here if applicable.
+    if (engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
+        firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
+    } else {
+        firewallController_->setFirewallOnBoot(false);
+    }
+#endif
 
     // do not return from this function until Engine::onHostIPsChanged() is finished
     // callback comes from another thread, so synchronization is needed
@@ -758,34 +788,30 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     SAFE_DELETE(checkUpdateManager_);
 
 #ifdef Q_OS_MAC
-    macSpoofTimer_->stop();
+    if (macSpoofTimer_) {
+        macSpoofTimer_->stop();
+    }
 #endif
 
     // to skip blocking calls
-    if (helper_)
-    {
+    if (helper_) {
         helper_->setNeedFinish();
     }
 
-    if (emergencyController_)
-    {
+    if (emergencyController_) {
         emergencyController_->blockingDisconnect();
     }
 
-    if (connectionManager_)
-    {
+    if (connectionManager_) {
         bool bWasIsConnected = !connectionManager_->isDisconnected();
         connectionManager_->blockingDisconnect();
-        if (bWasIsConnected)
-        {
-            #ifdef Q_OS_WIN
+        if (bWasIsConnected) {
+#ifdef Q_OS_WIN
                 enableDohSettings();
                 DnsInfo_win::outputDebugDnsInfo();
-            #endif
+#endif
             qCDebug(LOG_BASIC) << "Cleanup, connection manager disconnected";
-        }
-        else
-        {
+        } else {
             qCDebug(LOG_BASIC) << "Cleanup, connection manager no need disconnect";
         }
 
@@ -793,8 +819,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     }
 
     // turn off split tunneling
-    if (helper_)
-    {
+    if (helper_) {
         helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
         helper_->setSplitTunnelingSettings(false, false, false, QStringList(), QStringList(), QStringList());
     }
@@ -806,72 +831,48 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     }
 #endif
 
-    if (!isExitWithRestart)
-    {
-        if (vpnShareController_)
-        {
+    if (!isExitWithRestart) {
+        if (vpnShareController_) {
             vpnShareController_->stopWifiSharing();
             vpnShareController_->stopProxySharing();
         }
     }
 
-    if (helper_ && firewallController_)
-    {
-        if (isFirewallChecked)
-        {
-            if (isExitWithRestart)
-            {
-                if (isLaunchOnStart)
-                {
-#if defined(Q_OS_MAC)
-                    firewallController_->enableFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall());
-#elif defined(Q_OS_LINUX)
-                    firewallController_->enableFirewallOnBoot(true);
-#endif
-                }
-                else
-                {
-                    if (isFirewallAlwaysOn)
-                    {
-#if defined(Q_OS_MAC)
-                        firewallController_->enableFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall());
-#elif defined(Q_OS_LINUX)
-                        firewallController_->enableFirewallOnBoot(true);
-#endif
-                    }
-                    else
-                    {
+    if (helper_ && firewallController_) {
+        if (isFirewallChecked) {
+            if (isExitWithRestart) {
+                if (isLaunchOnStart) {
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-                        firewallController_->enableFirewallOnBoot(false);
+                    firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
+#endif
+                } else {
+                    if (isFirewallAlwaysOn) {
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+                        firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
+#endif
+                    } else {
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+                        firewallController_->setFirewallOnBoot(false);
 #endif
                         firewallController_->firewallOff();
                     }
                 }
-            }
-            else  // if exit without restart
-            {
-                if (isFirewallAlwaysOn)
-                {
-#if defined(Q_OS_MAC)
-                    firewallController_->enableFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall());
-#elif defined(Q_OS_LINUX)
-                    firewallController_->enableFirewallOnBoot(true);
-#endif
-                }
-                else
-                {
+            } else { // if exit without restart
+                if (isFirewallAlwaysOn) {
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-                    firewallController_->enableFirewallOnBoot(false);
+                    firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
+#endif
+                } else {
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+                    firewallController_->setFirewallOnBoot(false);
 #endif
                     firewallController_->firewallOff();
                 }
             }
-        }
-        else  // if (!isFirewallChecked)
-        {
+        } else { // if (!isFirewallChecked)
             firewallController_->firewallOff();
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-            firewallController_->enableFirewallOnBoot(false);
+            firewallController_->setFirewallOnBoot(false);
 #endif
         }
 #ifdef Q_OS_WIN
@@ -1038,32 +1039,32 @@ void Engine::getWebSessionTokenImpl(WEB_SESSION_PURPOSE purpose)
     });
 }
 
-// function consists of two parts (first - disconnect if need, second - do other signout stuff)
-void Engine::signOutImpl(bool keepFirewallOn)
+// function consists of two parts (first - disconnect if need, second - do other logout stuff)
+void Engine::logoutImpl(bool keepFirewallOn)
 {
     if (!connectionManager_->isDisconnected())
     {
-        connectionManager_->setProperty("senderSource", (keepFirewallOn ? "signOutImplKeepFirewallOn" : "signOutImpl"));
+        connectionManager_->setProperty("senderSource", (keepFirewallOn ? "logoutImplKeepFirewallOn" : "logoutImpl"));
         connectionManager_->clickDisconnect();
     }
     else
     {
-        signOutImplAfterDisconnect(keepFirewallOn);
+        logoutImplAfterDisconnect(keepFirewallOn);
     }
 }
 
-void Engine::signOutImplAfterDisconnect(bool keepFirewallOn)
+void Engine::logoutImplAfterDisconnect(bool keepFirewallOn)
 {
     locationsModel_->clear();
 
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-    firewallController_->enableFirewallOnBoot(false);
+    firewallController_->setFirewallOnBoot(false);
 #endif
 
     if (apiResourcesManager_) {
 
-        signOutHelper_.reset(new SignOutHelper());
-        signOutHelper_->signOut(apiResourcesManager_->authHash());
+        logoutHelper_.reset(new LogoutHelper());
+        logoutHelper_->logout(apiResourcesManager_->authHash());
         apiResourcesManager_.reset();
         api_resources::ApiResourcesManager::removeFromSettings();
     }
@@ -1075,7 +1076,7 @@ void Engine::signOutImplAfterDisconnect(bool keepFirewallOn)
         emit firewallStateChanged(false);
     }
 
-    emit signOutFinished();
+    emit logoutFinished();
 }
 
 void Engine::continueWithUsernameAndPasswordImpl(const QString &username, const QString &password, bool bSave)
@@ -1202,6 +1203,16 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     bool isMACSpoofingChanged = engineSettings_.macAddrSpoofing() != engineSettings.macAddrSpoofing();
     bool isPacketSizeChanged =  engineSettings_.packetSize() != engineSettings.packetSize();
     bool isDnsWhileConnectedChanged = engineSettings_.connectedDnsInfo() != engineSettings.connectedDnsInfo();
+
+#ifdef Q_OS_LINUX
+    // On Linux, the system may reboot without ever sending us SIGTERM, which means we never get to clean up and
+    // set the boot firewall rules.  Set the boot rules here if applicable.
+    if (engineSettings.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
+        firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
+    } else {
+        firewallController_->setFirewallOnBoot(false);
+    }
+#endif
     engineSettings_ = engineSettings;
     engineSettings_.saveToSettings();
 
@@ -1364,41 +1375,39 @@ void Engine::onConnectionManagerConnected()
     }
 
 
-    if (connectionManager_->currentProtocol().isIkev2Protocol() || connectionManager_->currentProtocol().isWireGuardProtocol())
-    {
-        if (!packetSize_.isAutomatic)
-        {
-            int mtuForProtocol = 0;
-            if (connectionManager_->currentProtocol().isWireGuardProtocol())
-            {
-                bool advParamWireguardMtuOffset = false;
-                int wgoffset = ExtraConfig::instance().getMtuOffsetWireguard(advParamWireguardMtuOffset);
-                if (!advParamWireguardMtuOffset) wgoffset = MTU_OFFSET_WG;
+    if (packetSize_.isAutomatic) {
+        qCDebug(LOG_PACKET_SIZE) << "Packet size mode auto - using default MTU (Engine)";
+    } else {
+        int mtu = -1;
 
-                mtuForProtocol = packetSize_.mtu - wgoffset;
-            }
-            else
-            {
-                bool advParamIkevMtuOffset = false;
-                int ikev2offset = ExtraConfig::instance().getMtuOffsetIkev2(advParamIkevMtuOffset);
-                if (!advParamIkevMtuOffset) ikev2offset = MTU_OFFSET_IKEV2;
+        if (connectionManager_->currentProtocol().isIkev2Protocol()) {
+            bool advParamIkevMtuOffset = false;
+            int ikev2offset = ExtraConfig::instance().getMtuOffsetIkev2(advParamIkevMtuOffset);
+            if (!advParamIkevMtuOffset) ikev2offset = MTU_OFFSET_IKEV2;
 
-                mtuForProtocol = packetSize_.mtu - ikev2offset;
+            mtu = packetSize_.mtu - ikev2offset;
+            if (mtu > 0) {
+                qCDebug(LOG_PACKET_SIZE) << "Applying MTU on " << adapterName << ": " << mtu;
+                helper_->changeMtu(adapterName, mtu);
+            } else {
+                qCDebug(LOG_PACKET_SIZE) << "Using default MTU, mtu minus overhead is too low: " << mtu;
             }
-
-            if (mtuForProtocol > 0)
-            {
-                qCDebug(LOG_PACKET_SIZE) << "Applying MTU on " << adapterName << ": " << mtuForProtocol;
-                helper_->changeMtu(adapterName, mtuForProtocol);
+        } else if (connectionManager_->currentProtocol().isWireGuardProtocol()) {
+            bool advParamWireguardMtuOffset = false;
+            int wgoffset = ExtraConfig::instance().getMtuOffsetWireguard(advParamWireguardMtuOffset);
+            if (!advParamWireguardMtuOffset) wgoffset = MTU_OFFSET_WG;
+            mtu = packetSize_.mtu - wgoffset;
+            if (mtu > 0) {
+                qCDebug(LOG_PACKET_SIZE) << "Applying MTU on WindscribeWireguard: " << mtu;
+                // For WireGuard, this function needs the subinterface name, e.g. always "WindscribeWireguard"
+#ifdef Q_OS_WIN
+                helper_->changeMtu("WindscribeWireguard", mtu);
+#else
+                helper_->changeMtu(adapterName, mtu);
+#endif
+            } else {
+                qCDebug(LOG_PACKET_SIZE) << "Using default MTU, mtu minus overhead is too low: " << mtu;
             }
-            else
-            {
-                qCDebug(LOG_PACKET_SIZE) << "Using default MTU, mtu minus overhead is too low: " << mtuForProtocol;
-            }
-        }
-        else
-        {
-            qCDebug(LOG_PACKET_SIZE) << "Packet size mode auto - using default MTU (Engine)";
         }
     }
 
@@ -1462,13 +1471,13 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
     DnsInfo_win::outputDebugDnsInfo();
 #endif
 
-    if (senderSource == "signOutImpl")
+    if (senderSource == "logoutImpl")
     {
-        signOutImplAfterDisconnect(false);
+        logoutImplAfterDisconnect(false);
     }
-    else if (senderSource == "signOutImplKeepFirewallOn")
+    else if (senderSource == "logoutImplKeepFirewallOn")
     {
-        signOutImplAfterDisconnect(true);
+        logoutImplAfterDisconnect(true);
     }
     else if (senderSource == "reconnect")
     {
@@ -2142,9 +2151,9 @@ void Engine::checkForceDisconnectNode(const QStringList & /*forceDisconnectNodes
     }
 }
 
-void Engine::startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType)
+void Engine::startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType, uint port)
 {
-    vpnShareController_->startProxySharing(proxySharingType);
+    vpnShareController_->startProxySharing(proxySharingType, port);
     emit proxySharingStateChanged(true, proxySharingType, getProxySharingAddress(), 0);
 }
 
@@ -2512,7 +2521,7 @@ void Engine::doCheckUpdate()
 
 void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QString &password, const QString &code2fa)
 {
-    signOutHelper_.reset();
+    logoutHelper_.reset();
     apiResourcesManager_.reset(new api_resources::ApiResourcesManager(this, connectStateController_, networkDetectionManager_));
     connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::loginFailed, this, &Engine::onApiResourcesManagerLoginFailed);
     connect(apiResourcesManager_.get(), &api_resources::ApiResourcesManager::sessionDeleted, this, &Engine::onApiResourcesManagerSessionDeleted);

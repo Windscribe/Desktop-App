@@ -13,8 +13,11 @@ enum CliCommand {
     CLI_COMMAND_FIREWALL_OFF,
     CLI_COMMAND_LOCATIONS,
     CLI_COMMAND_LOGIN,
-    CLI_COMMAND_SIGN_OUT,
-    CLI_COMMAND_STATUS
+    CLI_COMMAND_LOGOUT,
+    CLI_COMMAND_RELOAD_CONFIG,
+    CLI_COMMAND_SEND_LOGS,
+    CLI_COMMAND_STATUS,
+    CLI_COMMAND_UPDATE,
 };
 
 class CliArguments
@@ -28,6 +31,7 @@ public:
     const QString &username() const;
     const QString &password() const;
     const QString &code2fa() const;
+    const QString &protocol() const;
     bool keepFirewallOn() const;
 
 private:
@@ -36,5 +40,6 @@ private:
     QString username_;
     QString password_;
     QString code2fa_;
+    QString protocol_ = "";
     bool keepFirewallOn_ = false;
 };

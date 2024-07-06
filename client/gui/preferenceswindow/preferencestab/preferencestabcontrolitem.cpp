@@ -55,8 +55,8 @@ PreferencesTabControlItem::PreferencesTabControlItem(ScalableGraphicsObject * pa
     dividerLine_ = new CommonGraphics::DividerLine(this, 32, 0);
     dividerLine_->setOpacity(0.1);
 
-    signOutButton_ = new TabButton(this, TAB_UNDEFINED, "preferences/SIGN_OUT_ICON", QColor(0xff, 0xef, 0x02));
-    connect(signOutButton_, &TabButton::tabClicked, this, &PreferencesTabControlItem::onTabClicked);
+    logoutButton_ = new TabButton(this, TAB_UNDEFINED, "preferences/LOGOUT_ICON", QColor(0xff, 0xef, 0x02));
+    connect(logoutButton_, &TabButton::tabClicked, this, &PreferencesTabControlItem::onTabClicked);
 
     quitButton_ = new TabButton(this, TAB_UNDEFINED, "preferences/QUIT_ICON", QColor(0xff, 0x3b, 0x3b));
     connect(quitButton_, &TabButton::tabClicked, this, &PreferencesTabControlItem::onTabClicked);
@@ -84,9 +84,9 @@ void PreferencesTabControlItem::onLanguageChanged()
     helpButton_->setText(tr("Help"));
     aboutButton_->setText(tr("About"));
     if (!loggedIn_ || isExternalConfigMode_) {
-        signOutButton_->setText(tr("Login"));
+        logoutButton_->setText(tr("Login"));
     } else {
-        signOutButton_->setText(tr("Log Out"));
+        logoutButton_->setText(tr("Log Out"));
     }
     quitButton_->setText(tr("Quit"));
 }
@@ -134,9 +134,9 @@ void PreferencesTabControlItem::onTabClicked(PREFERENCES_TAB_TYPE tab, TabButton
 {
     switch(tab) {
         case TAB_UNDEFINED:
-            if (button == signOutButton_) {
+            if (button == logoutButton_) {
                 if (loggedIn_ && !isExternalConfigMode_) {
-                    emit signOutClick();
+                    emit logoutClick();
                 } else {
                     emit loginClick();
                 }
@@ -179,7 +179,7 @@ void PreferencesTabControlItem::updateScaling()
 void PreferencesTabControlItem::onIsExternalConfigModeChanged(bool bIsExternalConfigMode)
 {
     isExternalConfigMode_ = bIsExternalConfigMode;
-    // May change "Sign Out" vs "Login"
+    // May change "Log Out" vs "Login"
     onLanguageChanged();
 
     accountButton_->setVisible(!bIsExternalConfigMode);
@@ -203,11 +203,11 @@ void PreferencesTabControlItem::fadeOtherButtons(TabButton *button)
 void PreferencesTabControlItem::updateBottomAnchoredButtonPos()
 {
     int quitButtonPosY = height_ - (BUTTON_MARGIN + TabButton::BUTTON_HEIGHT)*G_SCALE;
-    int signOutButtonPosY = quitButtonPosY - (BUTTON_MARGIN + TabButton::BUTTON_HEIGHT)*G_SCALE;
-    int dividerPosY = signOutButtonPosY - (BUTTON_MARGIN + CommonGraphics::DividerLine::DIVIDER_HEIGHT)*G_SCALE;
+    int logoutButtonPosY = quitButtonPosY - (BUTTON_MARGIN + TabButton::BUTTON_HEIGHT)*G_SCALE;
+    int dividerPosY = logoutButtonPosY - (BUTTON_MARGIN + CommonGraphics::DividerLine::DIVIDER_HEIGHT)*G_SCALE;
 
     dividerLine_->setPos(0, dividerPosY);
-    signOutButton_->setPos(buttonMarginX(), signOutButtonPosY);
+    logoutButton_->setPos(buttonMarginX(), logoutButtonPosY);
     quitButton_->setPos(buttonMarginX(), quitButtonPosY);
 }
 

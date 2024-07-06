@@ -16,15 +16,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# This is a workaround for https://bugreports.qt.io/browse/QTBUG-89754 / #499
-# Without this flag, on Linux libOpenGL.so.0 will be linked instead of libGL,
-# which causes Windscribe to not start on some distributions where libopengl0 is not
-# installed by default.
-set(OpenGL_GL_PREFERENCE LEGACY)
-
 find_package(OpenSSL REQUIRED)
 find_package(Boost REQUIRED COMPONENTS serialization)
-find_package(Qt6 REQUIRED COMPONENTS Widgets Network Test LinguistTools)
 
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
 option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
@@ -32,19 +25,40 @@ if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
     add_definitions(-DUSE_SIGNATURE_CHECK)
 endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
 
-#set(IS_BUILD_TESTS "1")
-
 # if a build identifier is provided, add it to the project.
 option(DEFINE_USE_BUILD_ID_MACRO "Add define BUILD_ID to project" "")
 if(DEFINE_USE_BUILD_ID_MACRO)
     add_definitions(-DUSE_BUILD_ID="${DEFINE_USE_BUILD_ID_MACRO}")
 endif(DEFINE_USE_BUILD_ID_MACRO)
 
+if(UNIX AND (NOT APPLE))
+    option(DEFINE_CLI_ONLY_MACRO "Build GUI-less client" OFF)
+    # if build requested a headless client, set the necessary definitions
+    if(DEFINE_CLI_ONLY_MACRO)
+        add_definitions(-DCLI_ONLY)
+        find_package(Qt6 REQUIRED COMPONENTS Network Test LinguistTools)
+    endif(DEFINE_CLI_ONLY_MACRO)
+endif()
+
+if(NOT DEFINE_CLI_ONLY_MACRO)
+    # This is a workaround for https://bugreports.qt.io/browse/QTBUG-89754 / #499
+    # Without this flag, on Linux libOpenGL.so.0 will be linked instead of libGL,
+    # which causes Windscribe to not start on some distributions where libopengl0 is not
+    # installed by default.
+
+    set(OpenGL_GL_PREFERENCE LEGACY)
+    find_package(Qt6 REQUIRED COMPONENTS Widgets Network Test LinguistTools)
+endif()
+
 set(PROJECT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(PROJECT_SOURCES
-        main.cpp
-)
+if(DEFINE_CLI_ONLY_MACRO)
+    set(PROJECT_SOURCES main_cli.cpp)
+    set(PROJECT_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/cli)
+else()
+    set(PROJECT_SOURCES main_gui.cpp)
+    set(PROJECT_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/gui)
+endif()
 
 if (WIN32)
     set (OS_SPECIFIC_LIBRARIES psapi.lib iphlpapi.lib dnsapi.lib rasapi32.lib pdh.lib Crypt32.lib Version.lib)
@@ -87,6 +101,10 @@ if (WIN32)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                       ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools/openvpn/openvpn.exe $<TARGET_FILE_DIR:Windscribe>/windscribeopenvpn.exe)
 
+    # post-quantum libs
+    add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                      ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/oqsprovider.dll $<TARGET_FILE_DIR:Windscribe>/oqsprovider.dll)
+
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                                     ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools/ctrld/ctrld.exe $<TARGET_FILE_DIR:Windscribe>/windscribectrld.exe)
 elseif (APPLE)
@@ -97,6 +115,10 @@ elseif (APPLE)
                        ${CMAKE_CURRENT_SOURCE_DIR}/../build/gui/launcher/mac/$<CONFIG>/ $<TARGET_FILE_DIR:Windscribe>/../Library/LoginItems)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${CMAKE_CURRENT_SOURCE_DIR}/../build/backend/mac/helper/$<CONFIG>/ $<TARGET_FILE_DIR:Windscribe>/../Library/LaunchServices)
+
+    # post-quantum libs
+    add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                      ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/oqsprovider.dylib $<TARGET_FILE_DIR:Windscribe>/../Frameworks/oqsprovider.dylib)
 
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:Windscribe>/../Helpers)
 
@@ -127,6 +149,8 @@ elseif (APPLE)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                        ${CMAKE_CURRENT_SOURCE_DIR}/../build/gui/cli/windscribe-cli $<TARGET_FILE_DIR:Windscribe>/windscribe-cli)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                       ${CMAKE_CURRENT_SOURCE_DIR}/common/config/openssl.cnf $<TARGET_FILE_DIR:Windscribe>/../Resources/openssl.cnf)
+    add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                        ${CMAKE_CURRENT_SOURCE_DIR}/common/licenses/open_source_licenses.txt $<TARGET_FILE_DIR:Windscribe>/../Resources/open_source_licenses.txt)
 endif()
 
@@ -136,12 +160,19 @@ elseif (APPLE)
     set_property(TARGET Windscribe APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
 endif()
 
-target_link_libraries(Windscribe PRIVATE Qt6::Widgets Qt6::Network gui engine common ${OS_SPECIFIC_LIBRARIES})
+if(UNIX AND (NOT APPLE) AND DEFINE_CLI_ONLY_MACRO)
+    set(CLIENT_LIBS cli base)
+else()
+    set(CLIENT_LIBS gui base Qt6::Widgets)
+endif()
+
+target_link_libraries(Windscribe PRIVATE ${CLIENT_LIBS} engine common Qt6::Network ${OS_SPECIFIC_LIBRARIES})
 
 target_include_directories(Windscribe PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/engine
-    ${CMAKE_CURRENT_SOURCE_DIR}/gui
     ${CMAKE_CURRENT_SOURCE_DIR}/common
+    ${CMAKE_CURRENT_SOURCE_DIR}/base
+    ${PROJECT_INCLUDE_DIRS}
 )
 
 set_target_properties(Windscribe PROPERTIES
@@ -154,16 +185,15 @@ set_target_properties(Windscribe PROPERTIES
 add_subdirectory(../libs/wsnet wsnet)
 
 add_subdirectory(engine)
-add_subdirectory(gui)
 add_subdirectory(common)
+add_subdirectory(base)
+if(UNIX AND (NOT APPLE) AND DEFINE_CLI_ONLY_MACRO)
+    add_subdirectory(cli)
+else()
+    add_subdirectory(gui)
+endif()
 
 qt_finalize_executable(Windscribe)
-
-if(DEFINED IS_BUILD_TESTS)
-    # Disabled for now, revisit later
-    # enable_testing ()
-    # add_test (NAME locationsmodel.test COMMAND locationsmodel.test)
-endif (DEFINED IS_BUILD_TESTS)
 
 # ----- Install section -----
 install(TARGETS Windscribe wsnet
@@ -175,6 +205,7 @@ install(TARGETS Windscribe wsnet
 if (WIN32)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/windscribeopenvpn.exe DESTINATION .)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/windscribectrld.exe DESTINATION .)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/oqsprovider.dll DESTINATION .)
 endif()
 
 if(UNIX AND (NOT APPLE))
@@ -183,6 +214,7 @@ if(UNIX AND (NOT APPLE))
     # so for now we just copy the openssl libs
     install(FILES ${_OPENSSL_LIBDIR}/libcrypto.so.3 DESTINATION lib)
     install(FILES ${_OPENSSL_LIBDIR}/libssl.so.3 DESTINATION lib)
+    install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/oqsprovider.so DESTINATION lib)
 
     # copy openvpn
     install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools/openvpn/sbin/openvpn

@@ -21,6 +21,8 @@ public:
     bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties);
     bool setIpv6Enabled(bool bEnabled);
 
+    QString getInterfaceSsid(const QString &interfaceName);
+
 protected:
     void doDisconnectAndReconnect() override;
     bool runCommand(int cmdId, const std::string &data, CMD_ANSWER &answer) override;

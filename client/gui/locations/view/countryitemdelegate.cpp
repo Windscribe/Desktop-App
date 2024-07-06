@@ -4,7 +4,7 @@
 #include <QStaticText>
 #include <QtMath>
 
-#include "../locationsmodel_roles.h"
+#include "locations/locationsmodel_roles.h"
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"

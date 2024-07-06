@@ -12,33 +12,23 @@ namespace types {
 
 struct ShareSecureHotspot
 {
-    struct JsonInfo
-    {
-        JsonInfo& operator=(const JsonInfo&) { return *this; }
-
-        const QString kIsEnabledProp = "isEnabled";
-        const QString kSSIDProp = "ssid";
-        const QString kPasswordProp = "password";
-    };
-
     ShareSecureHotspot() = default;
 
     ShareSecureHotspot(const QJsonObject &json)
     {
-        if (json.contains(jsonInfo.kIsEnabledProp) && json[jsonInfo.kIsEnabledProp].isBool())
-            isEnabled = json[jsonInfo.kIsEnabledProp].toBool();
+        if (json.contains(kJsonIsEnabledProp) && json[kJsonIsEnabledProp].isBool())
+            isEnabled = json[kJsonIsEnabledProp].toBool();
 
-        if (json.contains(jsonInfo.kSSIDProp) && json[jsonInfo.kSSIDProp].isString())
-            ssid = Utils::fromBase64(json[jsonInfo.kSSIDProp].toString());
+        if (json.contains(kJsonSSIDProp) && json[kJsonSSIDProp].isString())
+            ssid = Utils::fromBase64(json[kJsonSSIDProp].toString());
 
-        if (json.contains(jsonInfo.kPasswordProp) && json[jsonInfo.kPasswordProp].isString())
-            password = Utils::fromBase64(json[jsonInfo.kPasswordProp].toString());
+        if (json.contains(kJsonPasswordProp) && json[kJsonPasswordProp].isString())
+            password = Utils::fromBase64(json[kJsonPasswordProp].toString());
     }
 
     bool isEnabled = false;
     QString ssid;
     QString password;
-    JsonInfo jsonInfo;  // Include the JsonInfo structure within ShareSecureHotspot
 
     bool operator==(const ShareSecureHotspot &other) const
     {
@@ -55,9 +45,9 @@ struct ShareSecureHotspot
     QJsonObject toJson() const
     {
         QJsonObject json;
-        json[jsonInfo.kIsEnabledProp] = isEnabled;
-        json[jsonInfo.kSSIDProp] = Utils::toBase64(ssid);
-        json[jsonInfo.kPasswordProp] = Utils::toBase64(password);
+        json[kJsonIsEnabledProp] = isEnabled;
+        json[kJsonSSIDProp] = Utils::toBase64(ssid);
+        json[kJsonPasswordProp] = Utils::toBase64(password);
         return json;
     }
 
@@ -95,10 +85,12 @@ struct ShareSecureHotspot
         return dbg;
     }
 
-
 private:
-    static constexpr quint32 versionForSerialization_ = 2;  // should increment the version if the data format is changed
+    static const inline QString kJsonIsEnabledProp = "isEnabled";
+    static const inline QString kJsonSSIDProp = "ssid";
+    static const inline QString kJsonPasswordProp = "password";
 
+    static constexpr quint32 versionForSerialization_ = 2;  // should increment the version if the data format is changed
 };
 
 } // types namespace

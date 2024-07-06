@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QApplication>
-#include <QTranslator>
 
 #ifdef Q_OS_WIN
     #include "windowsnativeeventfilter.h"
@@ -58,5 +57,4 @@ private:
 #ifdef Q_OS_MAC
     ExitHandler_mac exitHandlerMac_;
 #endif
-    QTranslator translator;
 };

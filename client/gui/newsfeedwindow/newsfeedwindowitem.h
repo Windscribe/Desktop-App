@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QTextBrowser>
-#include "../backend/backend.h"
+#include "backend/backend.h"
 #include "commongraphics/scalablegraphicsobject.h"
 #include "commongraphics/resizablewindow.h"
 #include "newsfeedwindow/newscontentitem.h"

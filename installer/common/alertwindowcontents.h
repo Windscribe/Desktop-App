@@ -4,8 +4,6 @@
 #include <QPushButton>
 #include <QWidget>
 
-#include "hoverbutton.h"
-
 class AlertWindowContents : public QWidget
 {
     Q_OBJECT

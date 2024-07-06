@@ -34,7 +34,7 @@ public slots:
 
 signals:
     void currentTabChanged(PREFERENCES_TAB_TYPE tab);
-    void signOutClick();
+    void logoutClick();
     void loginClick();
     void quitClick();
 
@@ -51,7 +51,7 @@ private:
     TabButton *helpButton_;
     TabButton *aboutButton_;
     CommonGraphics::DividerLine *dividerLine_;
-    TabButton *signOutButton_;
+    TabButton *logoutButton_;
     TabButton *quitButton_;
     QList<TabButton *> buttonList_;
 

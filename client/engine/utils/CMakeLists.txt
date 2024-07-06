@@ -11,8 +11,10 @@ if (WIN32)
         ras_service_win.h
     )
 elseif(APPLE)
-    # no files
-
+    target_sources(engine PRIVATE
+        interfaceutils_mac.cpp
+        interfaceutils_mac.h
+    )
 elseif(UNIX)
     target_sources(engine PRIVATE
         dnsscripts_linux.cpp

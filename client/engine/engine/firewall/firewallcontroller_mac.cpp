@@ -381,9 +381,9 @@ void FirewallController_mac::setInterfaceToSkip_posix(const QString &interfaceTo
     }
 }
 
-void FirewallController_mac::enableFirewallOnBoot(bool bEnable, const QSet<QString> &ipTable)
+void FirewallController_mac::setFirewallOnBoot(bool bEnable, const QSet<QString> &ipTable, bool isAllowLanTraffic)
 {
-    helper_->setFirewallOnBoot(bEnable, ipTable);
+    helper_->setFirewallOnBoot(bEnable, ipTable, isAllowLanTraffic);
 }
 
 QStringList FirewallController_mac::vpnTrafficRules(const QString &connectingIp, const QString &interfaceToSkip, bool bIsCustomConfig) const

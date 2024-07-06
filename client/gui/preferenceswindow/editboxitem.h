@@ -31,9 +31,8 @@ public:
 
 signals:
     void textChanged(const QString &text);
-    void additionalButtonClicked();
-    void additionalButtonHoverEnter();
-    void additionalButtonHoverLeave();
+    void editClicked();
+    void cancelled();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;

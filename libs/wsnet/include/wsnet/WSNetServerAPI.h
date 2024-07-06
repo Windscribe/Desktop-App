@@ -77,8 +77,11 @@ public:
 
     virtual std::shared_ptr<WSNetCancelableCallback> wgConfigsInit(const std::string &authHash, const std::string &clientPublicKey,
                                                                    bool deleteOldestKey, WSNetRequestFinishedCallback callback) = 0;
+    // wgTtl - optional string parameter, for example "3600"
+    // this is a wait time before server will discard returned interface address if no handshake is made
+    // this helps with device sleep/Idle events where network connectivity be restricted to conserve battery periodically
     virtual std::shared_ptr<WSNetCancelableCallback> wgConfigsConnect(const std::string &authHash, const std::string &clientPublicKey,
-                                                                   const std::string &hostname, const std::string &deviceId,
+                                                                   const std::string &hostname, const std::string &deviceId, const std::string &wgTtl,
                                                                    WSNetRequestFinishedCallback callback) = 0;
 
     virtual std::shared_ptr<WSNetCancelableCallback> myIP(WSNetRequestFinishedCallback callback) = 0;
@@ -124,6 +127,10 @@ public:
     virtual std::shared_ptr<WSNetCancelableCallback> recordShakeForDataScore(const std::string &authHash, const std::string &platform,
                                                                              const std::string &score, const std::string &signature,
                                                                              WSNetRequestFinishedCallback callback) = 0;
+
+    virtual std::shared_ptr<WSNetCancelableCallback> verifyTvLoginCode(const std::string &authHash, const std::string &xpressCode,
+                                                                       WSNetRequestFinishedCallback callback) = 0;
+
 
 };
 

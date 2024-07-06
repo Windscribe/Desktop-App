@@ -14,8 +14,6 @@
 #include "../networktypes.h"
 #include "../winutils.h"
 
-#pragma comment(lib, "wlanapi.lib")
-
 static GUID guidFromQString(QString str)
 {
     GUID reqGUID;
@@ -351,55 +349,97 @@ static QList<AdapterAddress> getAdapterAddressesTable()
     return adapters;
 }
 
+static QString getSystemDir()
+{
+    wchar_t path[MAX_PATH];
+    UINT result = ::GetSystemDirectory(path, MAX_PATH);
+    if (result == 0 || result >= MAX_PATH) {
+        qCDebug(LOG_BASIC) << "GetSystemDirectory failed" << ::GetLastError();
+        return QString("C:\\Windows\\System32");
+    }
+
+    return QString::fromWCharArray(path);
+}
+
 static QString ssidFromInterfaceGUID(QString interfaceGUID)
 {
     QString ssid = "";
 
-    DWORD dwCurVersion = 0;
-    HANDLE hClient = NULL;
-    auto result = WlanOpenHandle(2, NULL, &dwCurVersion, &hClient);
-    if (result != ERROR_SUCCESS) {
-        qCDebug(LOG_BASIC) << "WlanOpenHandle failed with error: " << result;
+    // This DLL is not be available on default installs of Windows Server.  Dynamically load it so
+    // the app doesn't fail to launch with a "DLL not found" error.
+    const QString dll = getSystemDir() + QString("\\wlanapi.dll");
+    auto wlanDll = ::LoadLibraryEx(qUtf16Printable(dll), NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+    if (wlanDll == NULL) {
+        qCDebug(LOG_BASIC) << "ssidFromInterfaceGUID wlanapi.dll does not exist on this computer or could not be loaded:" << ::GetLastError();
         return ssid;
     }
 
-    PWLAN_INTERFACE_INFO_LIST pIfList = NULL;
-    PWLAN_CONNECTION_ATTRIBUTES pConnectInfo = NULL;
-
-    auto exitGuard = qScopeGuard([&] {
-        if (pConnectInfo != NULL) {
-            WlanFreeMemory(pConnectInfo);
-        }
-
-        if (pIfList != NULL) {
-            WlanFreeMemory(pIfList);
-        }
-
-        if (hClient != NULL) {
-            WlanCloseHandle(hClient, NULL);
-        }
+    auto freeDLL = qScopeGuard([&] {
+        ::FreeLibrary(wlanDll);
     });
 
-    // TODO: **JDRM** investigate if this call is required.  We never reference pIfList after this call.
-    result = WlanEnumInterfaces(hClient, NULL, &pIfList);
-    if (result != ERROR_SUCCESS) {
-        qCDebug(LOG_BASIC) << "WlanEnumInterfaces failed with error:" << result;
+    typedef DWORD (WINAPI * WlanOpenHandleFunc)(DWORD dwClientVersion, PVOID pReserved, PDWORD pdwNegotiatedVersion, PHANDLE phClientHandle);
+    typedef DWORD (WINAPI * WlanCloseHandleFunc)(HANDLE hClientHandle, PVOID pReserved);
+    typedef VOID  (WINAPI * WlanFreeMemoryFunc)(PVOID pMemory);
+    typedef DWORD (WINAPI * WlanEnumInterfacesFunc)(HANDLE hClientHandle, PVOID pReserved, PWLAN_INTERFACE_INFO_LIST *ppInterfaceList);
+    typedef DWORD (WINAPI * WlanQueryInterfaceFunc)(HANDLE hClientHandle, CONST GUID *pInterfaceGuid, WLAN_INTF_OPCODE OpCode, PVOID pReserved,
+                                                    PDWORD pdwDataSize, PVOID *ppData, PWLAN_OPCODE_VALUE_TYPE pWlanOpcodeValueType);
+
+    WlanOpenHandleFunc pfnWlanOpenHandle = (WlanOpenHandleFunc)::GetProcAddress(wlanDll, "WlanOpenHandle");
+    if (pfnWlanOpenHandle == NULL) {
+        qCDebug(LOG_BASIC) << "ssidFromInterfaceGUID failed to load WlanOpenHandle:" << ::GetLastError();
         return ssid;
     }
+
+    WlanCloseHandleFunc pfnWlanCloseHandle = (WlanCloseHandleFunc)::GetProcAddress(wlanDll, "WlanCloseHandle");
+    if (pfnWlanCloseHandle == NULL) {
+        qCDebug(LOG_BASIC) << "ssidFromInterfaceGUID failed to load WlanCloseHandle:" << ::GetLastError();
+        return ssid;
+    }
+
+    WlanFreeMemoryFunc pfnWlanFreeMemory = (WlanFreeMemoryFunc)::GetProcAddress(wlanDll, "WlanFreeMemory");
+    if (pfnWlanFreeMemory == NULL) {
+        qCDebug(LOG_BASIC) << "ssidFromInterfaceGUID failed to load WlanFreeMemory:" << ::GetLastError();
+        return ssid;
+    }
+
+    WlanEnumInterfacesFunc pfnWlanEnumInterfaces = (WlanEnumInterfacesFunc)::GetProcAddress(wlanDll, "WlanEnumInterfaces");
+    if (pfnWlanEnumInterfaces == NULL) {
+        qCDebug(LOG_BASIC) << "ssidFromInterfaceGUID failed to load WlanEnumInterfaces:" << ::GetLastError();
+        return ssid;
+    }
+
+    WlanQueryInterfaceFunc pfnWlanQueryInterface = (WlanQueryInterfaceFunc)::GetProcAddress(wlanDll, "WlanQueryInterface");
+    if (pfnWlanQueryInterface == NULL) {
+        qCDebug(LOG_BASIC) << "ssidFromInterfaceGUID failed to load WlanQueryInterface:" << ::GetLastError();
+        return ssid;
+    }
+
+    DWORD dwCurVersion = 0;
+    HANDLE hClient = NULL;
+    auto result = pfnWlanOpenHandle(2, NULL, &dwCurVersion, &hClient);
+    if (result != ERROR_SUCCESS) {
+        qCDebug(LOG_BASIC) << "WlanOpenHandle failed with error:" << result;
+        return ssid;
+    }
+
+    PWLAN_CONNECTION_ATTRIBUTES pConnectInfo = NULL;
+
+    auto freeWlanResources = qScopeGuard([&] {
+        if (pConnectInfo != NULL) {
+            pfnWlanFreeMemory(pConnectInfo);
+        }
+
+        pfnWlanCloseHandle(hClient, NULL);
+    });
 
     GUID actualGUID = guidFromQString(interfaceGUID);
 
     DWORD connectInfoSize = sizeof(WLAN_CONNECTION_ATTRIBUTES);
     WLAN_OPCODE_VALUE_TYPE opCode = wlan_opcode_value_type_invalid;
 
-    result = WlanQueryInterface(hClient,
-                                &actualGUID,
-                                wlan_intf_opcode_current_connection,
-                                NULL,
-                                &connectInfoSize,
-                                (PVOID *) &pConnectInfo,
-                                &opCode);
-
+    result = pfnWlanQueryInterface(hClient, &actualGUID, wlan_intf_opcode_current_connection, NULL,
+                                   &connectInfoSize, (PVOID *) &pConnectInfo, &opCode);
     if (result != ERROR_SUCCESS) {
         // Will receive these errors when an adapter is being reset.
         if (result != ERROR_NOT_FOUND && result != ERROR_INVALID_STATE) {
@@ -480,7 +520,7 @@ bool NetworkUtils_win::isInterfaceSpoofed(int interfaceIndex)
 
 bool NetworkUtils_win::pingWithMtu(const QString &url, int mtu)
 {
-    const QString cmd = QString("C:\\Windows\\system32\\ping.exe");
+    const QString cmd = getSystemDir() + QString("\\ping.exe");
     const QString params = QString(" -n 1 -l %1 -f %2").arg(mtu).arg(url);
     QString result = WinUtils::executeBlockingCmd(cmd + params, params, 1000).trimmed();
     if (result.contains("bytes=")) {
@@ -687,4 +727,10 @@ std::optional<bool> NetworkUtils_win::haveInternetConnectivity()
     }
 
     return false;
+}
+
+QString NetworkUtils_win::getRoutingTable()
+{
+    const QString cmd = getSystemDir() + QString("\\route.exe print");
+    return WinUtils::executeBlockingCmd(cmd, "", 50).trimmed();
 }

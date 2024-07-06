@@ -1,8 +1,9 @@
 #pragma once
 
 #include <QDebug>
-#include <QString>
 #include <QJsonObject>
+#include <QSettings>
+#include <QString>
 #include "enums.h"
 #include "sharesecurehotspot.h"
 #include "shareproxygateway.h"
@@ -13,31 +14,6 @@ namespace types {
 
 struct GuiSettings
 {
-    struct JsonInfo
-    {
-        JsonInfo& operator=(const JsonInfo&) { return *this; }
-
-        const QString kAppSkinProp = "appSkin";
-        const QString kBackgroundSettingsProp = "backgroundSettings";
-        const QString kIsAutoConnectProp = "isAutoConnect";
-        const QString kIsAutoSecureNetworksProp = "isAutoSecureNetworks";
-        const QString kIsDockedToTrayProp = "isDockedToTray";
-        const QString kIsHideFromDockProp = "isHideFromDock";
-        const QString kIsLaunchOnStartupProp = "isLaunchOnStartup";
-        const QString kIsMinimizeAndCloseToTrayProp = "isMinimizeAndCloseToTray";
-        const QString kIsShowLocationHealthProp = "isShowLocationHealth";
-        const QString kIsShowNotificationsProp = "isShowNotifications";
-        const QString kIsStartMinimizedProp = "isStartMinimized";
-        const QString kLatencyDisplayProp = "latencyDisplay";
-        const QString kOrderLocationProp = "orderLocation";
-        const QString kShareProxyGatewayProp = "shareProxyGateway";
-        const QString kShareSecureHotspotProp = "shareSecureHotspot";
-        const QString kSplitTunnelingProp = "splitTunneling";
-        const QString kTrayIconColorProp = "trayIconColor";
-        const QString kVersionProp = "version";
-    };
-
-    JsonInfo jsonInfo;
 
     GuiSettings() = default;
     GuiSettings(const QJsonObject& json);
@@ -86,27 +62,53 @@ struct GuiSettings
         return !(*this == other);
     }
 
+    void fromIni(QSettings &settings)
+    {
+        isLaunchOnStartup = settings.value(kIniIsLaunchOnStartupProp, isLaunchOnStartup).toBool();
+
+        settings.beginGroup(QString("Connection"));
+        isAutoConnect = settings.value(kIniIsAutoConnectProp, isAutoConnect).toBool();
+        isAutoSecureNetworks = settings.value(kIniIsAutoSecureNetworksProp, isAutoSecureNetworks).toBool();
+
+        shareProxyGateway.fromIni(settings);
+        splitTunneling.fromIni(settings);
+        settings.endGroup();
+    }
+
+    void toIni(QSettings &settings) const
+    {
+        settings.setValue(kIniIsLaunchOnStartupProp, isLaunchOnStartup);
+
+        settings.beginGroup(QString("Connection"));
+        settings.setValue(kIniIsAutoConnectProp, isAutoConnect);
+        settings.setValue(kIniIsAutoSecureNetworksProp, isAutoSecureNetworks);
+
+        shareProxyGateway.toIni(settings);
+        splitTunneling.toIni(settings);
+        settings.endGroup();
+    }
+
     QJsonObject toJson() const
     {
         QJsonObject json;
-        json[jsonInfo.kAppSkinProp] = static_cast<int>(appSkin);
-        json[jsonInfo.kBackgroundSettingsProp] = backgroundSettings.toJson();
-        json[jsonInfo.kIsAutoConnectProp] = isAutoConnect;
-        json[jsonInfo.kIsAutoSecureNetworksProp] = isAutoSecureNetworks;
-        json[jsonInfo.kIsDockedToTrayProp] = isDockedToTray;
-        json[jsonInfo.kIsHideFromDockProp] = isHideFromDock;
-        json[jsonInfo.kIsLaunchOnStartupProp] = isLaunchOnStartup;
-        json[jsonInfo.kIsMinimizeAndCloseToTrayProp] = isMinimizeAndCloseToTray;
-        json[jsonInfo.kIsShowLocationHealthProp] = isShowLocationHealth;
-        json[jsonInfo.kIsShowNotificationsProp] = isShowNotifications;
-        json[jsonInfo.kIsStartMinimizedProp] = isStartMinimized;
-        json[jsonInfo.kLatencyDisplayProp] = static_cast<int>(latencyDisplay);
-        json[jsonInfo.kOrderLocationProp] = static_cast<int>(orderLocation);
-        json[jsonInfo.kShareProxyGatewayProp] = shareProxyGateway.toJson();
-        json[jsonInfo.kShareSecureHotspotProp] = shareSecureHotspot.toJson();
-        json[jsonInfo.kSplitTunnelingProp] = splitTunneling.toJson();
-        json[jsonInfo.kTrayIconColorProp] = static_cast<int>(trayIconColor);
-        json[jsonInfo.kVersionProp] = static_cast<int>(versionForSerialization_);
+        json[kJsonAppSkinProp] = static_cast<int>(appSkin);
+        json[kJsonBackgroundSettingsProp] = backgroundSettings.toJson();
+        json[kJsonIsAutoConnectProp] = isAutoConnect;
+        json[kJsonIsAutoSecureNetworksProp] = isAutoSecureNetworks;
+        json[kJsonIsDockedToTrayProp] = isDockedToTray;
+        json[kJsonIsHideFromDockProp] = isHideFromDock;
+        json[kJsonIsLaunchOnStartupProp] = isLaunchOnStartup;
+        json[kJsonIsMinimizeAndCloseToTrayProp] = isMinimizeAndCloseToTray;
+        json[kJsonIsShowLocationHealthProp] = isShowLocationHealth;
+        json[kJsonIsShowNotificationsProp] = isShowNotifications;
+        json[kJsonIsStartMinimizedProp] = isStartMinimized;
+        json[kJsonLatencyDisplayProp] = static_cast<int>(latencyDisplay);
+        json[kJsonOrderLocationProp] = static_cast<int>(orderLocation);
+        json[kJsonShareProxyGatewayProp] = shareProxyGateway.toJson();
+        json[kJsonShareSecureHotspotProp] = shareSecureHotspot.toJson();
+        json[kJsonSplitTunnelingProp] = splitTunneling.toJson();
+        json[kJsonTrayIconColorProp] = static_cast<int>(trayIconColor);
+        json[kJsonVersionProp] = static_cast<int>(versionForSerialization_);
 
         return json;
     }
@@ -173,65 +175,88 @@ struct GuiSettings
     }
 
 private:
-    static constexpr quint32 versionForSerialization_ = 3;  // should increment the version if the data format is changed
+    static const inline QString kIniIsAutoConnectProp = "Autoconnect";
+    static const inline QString kIniIsAutoSecureNetworksProp = "AutosecureNetworks";
+    static const inline QString kIniIsLaunchOnStartupProp = "LaunchOnStartup";
+    static const inline QString kIniSplitTunnelingProp = "SplitTunneling";
 
+    static const inline QString kJsonAppSkinProp = "appSkin";
+    static const inline QString kJsonBackgroundSettingsProp = "backgroundSettings";
+    static const inline QString kJsonIsAutoConnectProp = "isAutoConnect";
+    static const inline QString kJsonIsAutoSecureNetworksProp = "isAutoSecureNetworks";
+    static const inline QString kJsonIsDockedToTrayProp = "isDockedToTray";
+    static const inline QString kJsonIsHideFromDockProp = "isHideFromDock";
+    static const inline QString kJsonIsLaunchOnStartupProp = "isLaunchOnStartup";
+    static const inline QString kJsonIsMinimizeAndCloseToTrayProp = "isMinimizeAndCloseToTray";
+    static const inline QString kJsonIsShowLocationHealthProp = "isShowLocationHealth";
+    static const inline QString kJsonIsShowNotificationsProp = "isShowNotifications";
+    static const inline QString kJsonIsStartMinimizedProp = "isStartMinimized";
+    static const inline QString kJsonLatencyDisplayProp = "latencyDisplay";
+    static const inline QString kJsonOrderLocationProp = "orderLocation";
+    static const inline QString kJsonShareProxyGatewayProp = "shareProxyGateway";
+    static const inline QString kJsonShareSecureHotspotProp = "shareSecureHotspot";
+    static const inline QString kJsonSplitTunnelingProp = "splitTunneling";
+    static const inline QString kJsonTrayIconColorProp = "trayIconColor";
+    static const inline QString kJsonVersionProp = "version";
+
+    static constexpr quint32 versionForSerialization_ = 3;  // should increment the version if the data format is changed
 };
 
 inline GuiSettings::GuiSettings(const QJsonObject &json)
 {
-    if (json.contains(jsonInfo.kAppSkinProp) && json[jsonInfo.kAppSkinProp].isDouble())
-        appSkin = static_cast<APP_SKIN>(json[jsonInfo.kAppSkinProp].toInt());
+    if (json.contains(kJsonAppSkinProp) && json[kJsonAppSkinProp].isDouble())
+        appSkin = static_cast<APP_SKIN>(json[kJsonAppSkinProp].toInt());
 
-    if (json.contains(jsonInfo.kBackgroundSettingsProp) && json[jsonInfo.kBackgroundSettingsProp].isObject())
-        backgroundSettings = types::BackgroundSettings(json[jsonInfo.kBackgroundSettingsProp].toObject());
+    if (json.contains(kJsonBackgroundSettingsProp) && json[kJsonBackgroundSettingsProp].isObject())
+        backgroundSettings = types::BackgroundSettings(json[kJsonBackgroundSettingsProp].toObject());
 
-    if (json.contains(jsonInfo.kIsAutoConnectProp) && json[jsonInfo.kIsAutoConnectProp].isBool())
-        isAutoConnect = json[jsonInfo.kIsAutoConnectProp].toBool();
+    if (json.contains(kJsonIsAutoConnectProp) && json[kJsonIsAutoConnectProp].isBool())
+        isAutoConnect = json[kJsonIsAutoConnectProp].toBool();
 
 #if !defined(Q_OS_LINUX)
-    if (json.contains(jsonInfo.kIsDockedToTrayProp) && json[jsonInfo.kIsDockedToTrayProp].isBool())
-        isDockedToTray = json[jsonInfo.kIsDockedToTrayProp].toBool();
+    if (json.contains(kJsonIsDockedToTrayProp) && json[kJsonIsDockedToTrayProp].isBool())
+        isDockedToTray = json[kJsonIsDockedToTrayProp].toBool();
 #endif
 
 #if defined(Q_OS_MAC)
-    if (json.contains(jsonInfo.kIsHideFromDockProp) && json[jsonInfo.kIsHideFromDockProp].isBool())
-        isHideFromDock = json[jsonInfo.kIsHideFromDockProp].toBool();
+    if (json.contains(kJsonIsHideFromDockProp) && json[kJsonIsHideFromDockProp].isBool())
+        isHideFromDock = json[kJsonIsHideFromDockProp].toBool();
 #endif
 
-    if (json.contains(jsonInfo.kIsLaunchOnStartupProp) && json[jsonInfo.kIsLaunchOnStartupProp].isBool())
-        isLaunchOnStartup = json[jsonInfo.kIsLaunchOnStartupProp].toBool();
+    if (json.contains(kJsonIsLaunchOnStartupProp) && json[kJsonIsLaunchOnStartupProp].isBool())
+        isLaunchOnStartup = json[kJsonIsLaunchOnStartupProp].toBool();
 
-    if (json.contains(jsonInfo.kIsMinimizeAndCloseToTrayProp) && json[jsonInfo.kIsMinimizeAndCloseToTrayProp].isBool())
-        isMinimizeAndCloseToTray = json[jsonInfo.kIsMinimizeAndCloseToTrayProp].toBool();
+    if (json.contains(kJsonIsMinimizeAndCloseToTrayProp) && json[kJsonIsMinimizeAndCloseToTrayProp].isBool())
+        isMinimizeAndCloseToTray = json[kJsonIsMinimizeAndCloseToTrayProp].toBool();
 
-    if (json.contains(jsonInfo.kIsShowLocationHealthProp) && json[jsonInfo.kIsShowLocationHealthProp].isBool())
-        isShowLocationHealth = json[jsonInfo.kIsShowLocationHealthProp].toBool();
+    if (json.contains(kJsonIsShowLocationHealthProp) && json[kJsonIsShowLocationHealthProp].isBool())
+        isShowLocationHealth = json[kJsonIsShowLocationHealthProp].toBool();
 
-    if (json.contains(jsonInfo.kIsShowNotificationsProp) && json[jsonInfo.kIsShowNotificationsProp].isBool())
-        isShowNotifications = json[jsonInfo.kIsShowNotificationsProp].toBool();
+    if (json.contains(kJsonIsShowNotificationsProp) && json[kJsonIsShowNotificationsProp].isBool())
+        isShowNotifications = json[kJsonIsShowNotificationsProp].toBool();
 
-    if (json.contains(jsonInfo.kIsStartMinimizedProp) && json[jsonInfo.kIsStartMinimizedProp].isBool())
-        isStartMinimized = json[jsonInfo.kIsStartMinimizedProp].toBool();
+    if (json.contains(kJsonIsStartMinimizedProp) && json[kJsonIsStartMinimizedProp].isBool())
+        isStartMinimized = json[kJsonIsStartMinimizedProp].toBool();
 
-    if (json.contains(jsonInfo.kLatencyDisplayProp) && json[jsonInfo.kLatencyDisplayProp].isDouble())
-        latencyDisplay = static_cast<LATENCY_DISPLAY_TYPE>(json[jsonInfo.kLatencyDisplayProp].toInt());
+    if (json.contains(kJsonLatencyDisplayProp) && json[kJsonLatencyDisplayProp].isDouble())
+        latencyDisplay = static_cast<LATENCY_DISPLAY_TYPE>(json[kJsonLatencyDisplayProp].toInt());
 
-    if (json.contains(jsonInfo.kOrderLocationProp) && json[jsonInfo.kOrderLocationProp].isDouble())
-        orderLocation = static_cast<ORDER_LOCATION_TYPE>(json[jsonInfo.kOrderLocationProp].toInt());
+    if (json.contains(kJsonOrderLocationProp) && json[kJsonOrderLocationProp].isDouble())
+        orderLocation = static_cast<ORDER_LOCATION_TYPE>(json[kJsonOrderLocationProp].toInt());
 
 #if defined(Q_OS_LINUX)
-    if (json.contains(jsonInfo.kTrayIconColorProp) && json[jsonInfo.kTrayIconColorProp].isDouble())
-        trayIconColor = static_cast<TRAY_ICON_COLOR>(json[jsonInfo.kTrayIconColorProp].toInt());
+    if (json.contains(kJsonTrayIconColorProp) && json[kJsonTrayIconColorProp].isDouble())
+        trayIconColor = static_cast<TRAY_ICON_COLOR>(json[kJsonTrayIconColorProp].toInt());
 #endif
 
-    if (json.contains(jsonInfo.kShareSecureHotspotProp) && json[jsonInfo.kShareSecureHotspotProp].isObject())
-        shareSecureHotspot = types::ShareSecureHotspot(json[jsonInfo.kShareSecureHotspotProp].toObject());
+    if (json.contains(kJsonShareSecureHotspotProp) && json[kJsonShareSecureHotspotProp].isObject())
+        shareSecureHotspot = types::ShareSecureHotspot(json[kJsonShareSecureHotspotProp].toObject());
 
-    if (json.contains(jsonInfo.kShareProxyGatewayProp) && json[jsonInfo.kShareProxyGatewayProp].isObject())
-        shareProxyGateway = types::ShareProxyGateway(json[jsonInfo.kShareProxyGatewayProp].toObject());
+    if (json.contains(kJsonShareProxyGatewayProp) && json[kJsonShareProxyGatewayProp].isObject())
+        shareProxyGateway = types::ShareProxyGateway(json[kJsonShareProxyGatewayProp].toObject());
 
-    if (json.contains(jsonInfo.kSplitTunnelingProp) && json[jsonInfo.kSplitTunnelingProp].isObject())
-        splitTunneling = types::SplitTunneling(json[jsonInfo.kSplitTunnelingProp].toObject());
+    if (json.contains(kJsonSplitTunnelingProp) && json[kJsonSplitTunnelingProp].isObject())
+        splitTunneling = types::SplitTunneling(json[kJsonSplitTunnelingProp].toObject());
 }
 
 } // types namespace

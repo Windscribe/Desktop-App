@@ -1698,6 +1698,22 @@ Se connecter d’abord à un réseau</translation>
         <source>Proxy Type</source>
         <translation>Proxy Type</translation>
     </message>
+    <message>
+        <source>Port</source>
+        <translation>Port</translation>
+    </message>
+    <message>
+        <source>Unable to start proxy server</source>
+        <translation>Impossible de démarrer le serveur proxy</translation>
+    </message>
+    <message>
+        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
+        <translation>Le serveur proxy n’a pas pu être démarré sur le port demandé. Veuillez réessayer avec un autre port.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>

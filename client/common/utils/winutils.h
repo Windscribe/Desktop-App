@@ -22,7 +22,7 @@ namespace WinUtils
 
     QString executeBlockingCmd(QString cmd, const QString &params, int timeoutMs = -1);
 
-    bool isGuiAlreadyRunning();
+    bool isAppAlreadyRunning();
 
     bool isServiceRunning(const QString &serviceName);
 

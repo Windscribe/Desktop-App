@@ -66,7 +66,7 @@ public:
     std::shared_ptr<WSNetCancelableCallback> wgConfigsInit(const std::string &authHash, const std::string &clientPublicKey,
                                                            bool deleteOldestKey, WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> wgConfigsConnect(const std::string &authHash, const std::string &clientPublicKey,
-                                                                      const std::string &hostname, const std::string &deviceId,
+                                                                      const std::string &hostname, const std::string &deviceId, const std::string &wgTtl,
                                                                       WSNetRequestFinishedCallback callback) override;
 
     std::shared_ptr<WSNetCancelableCallback> myIP(WSNetRequestFinishedCallback callback) override;
@@ -100,6 +100,9 @@ public:
     std::shared_ptr<WSNetCancelableCallback> recordShakeForDataScore(const std::string &authHash, const std::string &platform,
                                                                              const std::string &score, const std::string &signature,
                                                                              WSNetRequestFinishedCallback callback) override;
+
+    std::shared_ptr<WSNetCancelableCallback> verifyTvLoginCode(const std::string &authHash, const std::string &xpressCode,
+                                                                       WSNetRequestFinishedCallback callback) override;
 
 private:
     std::unique_ptr<ServerAPI_impl> impl_;

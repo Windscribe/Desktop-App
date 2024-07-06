@@ -9,18 +9,10 @@ namespace types {
 
 struct ConnectionSettings
 {
-    struct JsonInfo
-    {
-        JsonInfo& operator=(const JsonInfo&) { return *this; }
-
-        const QString kProtocolProp = "protocol";
-        const QString kPortProp = "port";
-        const QString kIsAutomaticProp = "isAutomatic";
-    };
-
     ConnectionSettings();
     explicit ConnectionSettings(Protocol protocol, uint port, bool isAutomatic);
     ConnectionSettings(const QJsonObject& jsonObject);
+    ConnectionSettings(QSettings &settings, const QString &key = "");
 
     Protocol protocol() const { return protocol_; }
     uint port() const { return port_; }
@@ -43,6 +35,8 @@ struct ConnectionSettings
     }
 
     QJsonObject toJson() const;
+    void fromIni(QSettings &settings, const QString &key = "");
+    void toIni(QSettings &settings, const QString &key = "") const;
 
     friend QDataStream& operator <<(QDataStream &stream, const ConnectionSettings &o);
     friend QDataStream& operator >>(QDataStream &stream, ConnectionSettings &o);
@@ -56,7 +50,14 @@ private:
     Protocol protocol_;
     uint    port_;
     bool    isAutomatic_;
-    JsonInfo jsonInfo_;
+
+    static const inline QString kIniProtocolProp = "ManualConnectionProtocol";
+    static const inline QString kIniPortProp = "ManualConnectionPort";
+    static const inline QString kIniIsAutomaticProp = "ConnectionMode";
+
+    static const inline QString kJsonProtocolProp = "protocol";
+    static const inline QString kJsonPortProp = "port";
+    static const inline QString kJsonIsAutomaticProp = "isAutomatic";
 
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };

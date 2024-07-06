@@ -1,0 +1,15 @@
+#!/bin/bash
+# This file will be overwritten by rpm specific script which is passed to fpm in build script
+# So if multi-platform change is needed remember to change that file as well
+set -e
+systemctl enable windscribe-helper
+systemctl start windscribe-helper
+ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
+setcap cap_setgid+ep /opt/windscribe/Windscribe
+
+if [ "`uname -p`" == "aarch64" ]; then
+    echo linux_deb_arm64_cli > ../etc/windscribe/platform
+else
+    echo linux_deb_x64_cli > ../etc/windscribe/platform
+fi
+

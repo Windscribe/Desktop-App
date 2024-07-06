@@ -1,0 +1,8 @@
+[Unit]
+Description=Windscribe service
+
+[Service]
+Type=simple
+ExecStart=/opt/windscribe/Windscribe
+
+[Install]

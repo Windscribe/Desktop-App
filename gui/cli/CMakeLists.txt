@@ -9,7 +9,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 COMPONENTS Core Network Core5Compat)
+find_package(Qt6 COMPONENTS Core Network Core5Compat LinguistTools)
 find_package(OpenSSL REQUIRED)
 
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
@@ -18,18 +18,28 @@ if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
     add_definitions(-DUSE_SIGNATURE_CHECK)
 endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
 
+if(UNIX AND (NOT APPLE))
+    # if build requested a headless client, set the necessary definitions
+    option(DEFINE_CLI_ONLY_MACRO "Build GUI-less client" OFF)
+    if(DEFINE_CLI_ONLY_MACRO)
+        add_definitions(-DCLI_ONLY)
+    endif(DEFINE_CLI_ONLY_MACRO)
+endif()
+
 set(SOURCES
     backendcommander.cpp
     backendcommander.h
     cliarguments.cpp
     cliarguments.h
+    languagecontroller.cpp
     main.cpp
+    strings.cpp
     ../../client/common/utils/ipvalidation.cpp
     ../../client/common/ipc/commandfactory.cpp
     ../../client/common/ipc/connection.cpp
-    ../../client/common/ipc/clicommands.cpp
     ../../client/common/ipc/server.cpp
     ../../client/common/types/locationid.cpp
+    ../../client/common/types/protocol.cpp
     ../../client/common/utils/extraconfig.cpp
     ../../client/common/utils/languagesutil.cpp
     ../../client/common/utils/logger.cpp
@@ -80,6 +90,39 @@ else()
 endif()
 
 add_executable(windscribe-cli ${SOURCES})
+
+set(TS_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_ar.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_cs.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_de.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_en.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_es.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_fa.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_fr.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_hi.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_id.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_it.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_ja.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_ko.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_pl.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_pt.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_ru.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_tr.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_uk.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_vi.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_zh-CN.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_zh-TW.ts
+)
+qt6_create_translation(QM_FILES ${CMAKE_CURRENT_SOURCE_DIR} ${TS_FILES} OPTIONS -extensions cpp,h -locations none)
+
+qt_add_resources(windscribe-cli qm_files
+    PREFIX
+        "/translations"
+    BASE
+        ${CMAKE_CURRENT_BINARY_DIR}
+    FILES
+        ${QM_FILES}
+)
 
 if(APPLE)
     set_property(TARGET windscribe-cli APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")

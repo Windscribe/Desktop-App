@@ -1698,6 +1698,22 @@ Connect to a network first</source>
         <source>Proxy Type</source>
         <translation>نوع الوكيل</translation>
     </message>
+    <message>
+        <source>Port</source>
+        <translation>ميناء</translation>
+    </message>
+    <message>
+        <source>Unable to start proxy server</source>
+        <translation>غير قادر على بدء تشغيل الخادم الوكيل</translation>
+    </message>
+    <message>
+        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
+        <translation>تعذر بدء تشغيل الخادم الوكيل على المنفذ المطلوب. يرجى المحاولة مرة أخرى باستخدام منفذ مختلف.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>تلقائي</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>

@@ -86,7 +86,6 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(connectionModeGroup_, &ProtocolGroup::connectionModePreferencesChanged, this, &ConnectionWindowItem::onConnectionModePreferencesChangedByUser);
     addItem(connectionModeGroup_);
 
-#ifndef Q_OS_LINUX
     packetSizeGroup_ = new PacketSizeGroup(this,
                                            "",
                                            QString("https://%1/features/packet-size").arg(HardcodedSettings::instance().windscribeServerUrl()));
@@ -94,7 +93,6 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(packetSizeGroup_, &PacketSizeGroup::packetSizeChanged, this, &ConnectionWindowItem::onPacketSizePreferencesChangedByUser);
     connect(packetSizeGroup_, &PacketSizeGroup::detectPacketSize, this, &ConnectionWindowItem::detectPacketSize);
     addItem(packetSizeGroup_);
-#endif
 
     connectedDnsGroup_ = new ConnectedDnsGroup(this,
                                                "",
@@ -199,17 +197,13 @@ void ConnectionWindowItem::setCurrentNetwork(const types::NetworkInterface &netw
 
 void ConnectionWindowItem::setPacketSizeDetectionState(bool on)
 {
-#ifndef Q_OS_LINUX
     packetSizeGroup_->setPacketSizeDetectionState(on);
-#endif
 }
 
 void ConnectionWindowItem::showPacketSizeDetectionError(const QString &title,
                                                         const QString &message)
 {
-#ifndef Q_OS_LINUX
     packetSizeGroup_->showPacketSizeDetectionError(title, message);
-#endif
 }
 
 void ConnectionWindowItem::onFirewallPreferencesChangedByUser(const types::FirewallSettings &fm)
@@ -224,9 +218,7 @@ void ConnectionWindowItem::onConnectionModePreferencesChangedByUser(const types:
 
 void ConnectionWindowItem::onPacketSizePreferencesChangedByUser(const types::PacketSize &ps)
 {
-#ifndef Q_OS_LINUX
     preferences_->setPacketSize(ps);
-#endif
 }
 
 void ConnectionWindowItem::onMacAddrSpoofingPreferencesChangedByUser(const types::MacAddrSpoofing &mas)
@@ -283,9 +275,7 @@ void ConnectionWindowItem::onConnectionModePreferencesChanged(const types::Conne
 
 void ConnectionWindowItem::onPacketSizePreferencesChanged(const types::PacketSize &ps)
 {
-#ifndef Q_OS_LINUX
     packetSizeGroup_->setPacketSizeSettings(ps);
-#endif
 }
 
 void ConnectionWindowItem::onMacAddrSpoofingPreferencesChanged(const types::MacAddrSpoofing &mas)
@@ -346,11 +336,7 @@ void ConnectionWindowItem::onLanguageChanged()
     firewallGroup_->setDescription(tr("Control the mode of behavior of the Windscribe firewall."));
     connectionModeGroup_->setTitle(tr("Connection Mode"));
     connectionModeGroup_->setDescription(tr("Automatically choose the VPN protocol, or select one manually. NOTE: \"Preferred Protocol\" will override this setting."));
-
-#ifndef Q_OS_LINUX
     packetSizeGroup_->setDescription(tr("Automatically determine the MTU for your connection, or manually override."));
-#endif
-
     connectedDnsGroup_->setDescription(tr("Select the DNS server while connected to Windscribe."));
     allowLanTrafficGroup_->setDescription(tr("Allow access to local services and printers while connected to Windscribe."));
     checkBoxAllowLanTraffic_->setCaption(tr("Allow LAN Traffic"));

@@ -11,17 +11,15 @@ SleepEvents_mac *g_SleepEvents = NULL;
 - (void) receiveSleepNote:(NSNotification*)notification
 {
     Q_UNUSED(notification);
-    if (g_SleepEvents)
-    {
-        g_SleepEvents->gotoSleep();
+    if (g_SleepEvents) {
+        g_SleepEvents->emitGotoSleep();
     }
 }
 - (void) receiveWakeNote:(NSNotification*)notification
 {
     Q_UNUSED(notification);
-    if (g_SleepEvents)
-    {
-        g_SleepEvents->gotoWake();
+    if (g_SleepEvents) {
+        g_SleepEvents->emitGotoWake();
     }
 }
 @end

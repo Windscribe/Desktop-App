@@ -8,6 +8,7 @@ namespace NetworkUtils_mac
 {
     // Networking
     QString ipAddressByInterfaceName(const QString &interfaceName);
+    QString macAddressFromInterfaceName(const QString &interfaceName);
     void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName);
     QString lastConnectedNetworkInterfaceName();
 
@@ -16,15 +17,12 @@ namespace NetworkUtils_mac
     bool isWifiAdapter(const QString &networkInterface);
     bool isAdapterUp(const QString &networkInterfaceName);
 
-    const types::NetworkInterface currentNetworkInterface();
-    QVector<types::NetworkInterface> currentNetworkInterfaces(bool includeNoInterface);
-    QVector<types::NetworkInterface> currentSpoofedInterfaces();
-
     bool isInterfaceSpoofed(const QString &interfaceName);
     bool checkMacAddr(const QString& interfaceName, const QString& macAddr);
 
     bool pingWithMtu(const QString &url, int mtu);
     QString getLocalIP();
+    QString getRoutingTable();
 
     // read DNS-servers for device name (now used for ipsec adapters for ikev2)
     // implemented with "scutil --dns" command

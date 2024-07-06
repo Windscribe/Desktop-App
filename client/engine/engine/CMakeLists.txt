@@ -5,11 +5,11 @@ target_sources(engine PRIVATE
     engine.h
     getdeviceid.cpp
     getdeviceid.h
+    logout_helper.h
     openvpnversioncontroller.cpp
     openvpnversioncontroller.h
     packetsizecontroller.cpp
     packetsizecontroller.h
-    signout_helper.h
 )
 
 if (WIN32)

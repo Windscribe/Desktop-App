@@ -55,6 +55,12 @@ QString LanguagesUtil::convertCodeToNative(const QString &code)
     return "Unknown";
 }
 
+bool LanguagesUtil::isSupportedLanguage(const QString &lang)
+{
+    static QStringList sl = { "en", "ar", "be", "cs", "de", "es", "fa", "fr", "hi", "id", "it", "ja", "ko", "pl", "pt", "ru", "tr", "uk", "vi", "zh-CN", "zh-TW" };
+    return sl.contains(lang);
+}
+
 QString LanguagesUtil::systemLanguage()
 {
     QStringList languages = QLocale::system().uiLanguages();

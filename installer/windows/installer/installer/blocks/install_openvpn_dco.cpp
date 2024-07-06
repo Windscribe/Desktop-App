@@ -24,8 +24,8 @@ int InstallOpenVPNDCO::executeStep()
     DWORD buildNum = InstallerUtils::getOSBuildNumber();
     if (buildNum < kMinWindowsBuildNumberForOpenVPNDCO) {
         Log::instance().out(
-            "WARNING: OS version is not compatible with the OpenVPN DCO driver.  Windows 10 build %lu or newer is required"
-            " to use this driver.", kMinWindowsBuildNumberForOpenVPNDCO);
+            L"WARNING: OS version is not compatible with the OpenVPN DCO driver.  Windows 10 build %lu or newer is required"
+            L" to use this driver.", kMinWindowsBuildNumberForOpenVPNDCO);
         return -ERROR_OTHER;
     }
 
@@ -42,7 +42,7 @@ int InstallOpenVPNDCO::executeStep()
 
     if (process.exitCode() != 0) {
         Log::instance().out(L"InstallOpenVPNDCO: devcon.exe returned exit code %d", process.exitCode());
-        Log::instance().out(L"InstallOpenVPNDCO: devcon.exe output (%S)", appOutput.constData());
+        Log::instance().out(L"InstallOpenVPNDCO: devcon.exe output (%hs)", appOutput.constData());
         return -ERROR_OTHER;
     }
 
@@ -50,7 +50,7 @@ int InstallOpenVPNDCO::executeStep()
     QRegularExpression re("oem\\d+.inf");
     const QRegularExpressionMatch match = re.match(appOutput);
     if (!match.hasMatch()) {
-        Log::instance().out(L"InstallOpenVPNDCO: failed to find OEM indentifier in devcon.exe output (%S)", appOutput.constData());
+        Log::instance().out(L"InstallOpenVPNDCO: failed to find OEM indentifier in devcon.exe output (%hs)", appOutput.constData());
         return -ERROR_OTHER;
     }
 

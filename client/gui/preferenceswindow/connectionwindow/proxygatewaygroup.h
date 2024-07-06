@@ -1,8 +1,9 @@
 #pragma once
 
-#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/comboboxitem.h"
+#include "preferenceswindow/editboxitem.h"
 #include "preferenceswindow/preferencegroup.h"
+#include "preferenceswindow/toggleitem.h"
 #include "proxyipaddressitem.h"
 #include "types/shareproxygateway.h"
 
@@ -25,6 +26,9 @@ signals:
 private slots:
     void onCheckBoxStateChanged(bool isChecked);
     void onProxyTypeItemChanged(QVariant v);
+    void onPortChanged(QVariant v);
+    void onPortEditClicked();
+    void onPortCancelClicked();
 
     void onLanguageChanged();
 
@@ -33,6 +37,7 @@ protected:
 
 private:
     ToggleItem *checkBoxEnable_;
+    EditBoxItem *editBoxPort_;
     ComboBoxItem *comboBoxProxyType_;
     ProxyIpAddressItem *proxyIpAddressItem_;
 

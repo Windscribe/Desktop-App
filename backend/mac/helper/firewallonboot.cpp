@@ -14,15 +14,15 @@ FirewallOnBootManager::~FirewallOnBootManager()
 {
 }
 
-bool FirewallOnBootManager::setEnabled(bool bEnabled)
+bool FirewallOnBootManager::setEnabled(bool enabled, bool allowLanTraffic)
 {
-    if (bEnabled) {
-        return enable();
+    if (enabled) {
+        return enable(allowLanTraffic);
     }
     return disable();
 }
 
-bool FirewallOnBootManager::enable() {
+bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     std::stringstream rules;
 
     rules << "set block-policy return\n";
@@ -36,7 +36,42 @@ bool FirewallOnBootManager::enable() {
     rules << "anchor windscribe_vpn_traffic all\n";
     rules << "pass out quick inet proto udp from any to any port = 67\n";
     rules << "pass in quick inet proto udp from any to any port = 68\n";
-    rules << "anchor windscribe_lan_traffic all\n";
+    rules << "anchor windscribe_lan_traffic all {\n";
+    if (allowLanTraffic) {
+        // Always allow localhost
+        rules << "pass out quick inet from any to 127.0.0.0/8\n";
+        rules << "pass in quick inet from 127.0.0.0/8 to any\n";
+
+        // Local Network
+        rules << "pass out quick inet from any to 192.168.0.0/16\n";
+        rules << "pass in quick inet from 192.168.0.0/16 to any\n";
+        rules << "pass out quick inet from any to 172.16.0.0/12\n";
+        rules << "pass in quick inet from 172.16.0.0/12 to any\n";
+        rules << "pass out quick inet from any to 169.254.0.0/16\n";
+        rules << "pass in quick inet from 169.254.0.0/16 to any\n";
+        rules << "block out quick inet from any to 10.255.255.0/24\n";
+        rules << "block in quick inet from 10.255.255.0/24 to any\n";
+        rules << "pass out quick inet from any to 10.0.0.0/8\n";
+        rules << "pass in quick inet from 10.0.0.0/8 to any\n";
+
+        // Multicast addresses
+        rules << "pass out quick inet from any to 224.0.0.0/4\n";
+        rules << "pass in quick inet from 224.0.0.0/4 to any\n";
+
+        // UPnP
+        rules << "pass out quick inet proto udp from any to any port = 1900\n";
+        rules << "pass in quick proto udp from any to any port = 1900\n";
+        rules << "pass out quick inet proto udp from any to any port = 1901\n";
+        rules << "pass in quick proto udp from any to any port = 1901\n";
+
+        rules << "pass out quick inet proto udp from any to any port = 5350\n";
+        rules << "pass in quick proto udp from any to any port = 5350\n";
+        rules << "pass out quick inet proto udp from any to any port = 5351\n";
+        rules << "pass in quick proto udp from any to any port = 5351\n";
+        rules << "pass out quick inet proto udp from any to any port = 5353\n";
+        rules << "pass in quick proto udp from any to any port = 5353\n";
+    }
+    rules << "}\n";
     rules << "anchor windscribe_static_ports_traffic all\n";
 
     // write rules
@@ -49,74 +84,14 @@ bool FirewallOnBootManager::enable() {
     write(fd, rules.str().c_str(), rules.str().length());
     close(fd);
 
-    // write script
-    std::stringstream script;
-
-    script << "#!/bin/bash\n";
-    script << "FILE=\"/Applications/Windscribe.app/Contents/MacOS/Windscribe\"\n";
-    script << "if [ -d \"/Applications/Windscribe.app\" ]; then\n";
-    script << "    while grep -q \"No such key\" <<< \"`echo 'show State:/Network/Global/IPv4' | scutil`\"; do sleep 1; done;\n";
-    script << "    /sbin/pfctl -e -f \"/etc/windscribe/boot_pf.conf\"\n";
-    script << "else\n";
-    script << "    launchctl stop com.aaa.windscribe.firewall_on\n";
-    script << "    launchctl unload /Library/LaunchDaemons/com.aaa.windscribe.firewall_on.plist\n";
-    script << "    launchctl remove com.aaa.windscribe.firewall_on\n";
-    script << "fi\n";
-
-    fd = open("/etc/windscribe/boot_pf.sh", O_CREAT | O_WRONLY | O_TRUNC);
-    if (fd < 0) {
-        LOG("Could not open boot script for writing");
-        return false;
-    }
-
-    write(fd, script.str().c_str(), script.str().length());
-    close(fd);
-    Utils::executeCommand("chmod", {"+x", "/etc/windscribe/boot_pf.sh"});
-
-    // write plist
-    std::stringstream plist;
-
-    plist << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-    plist << "<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n";
-    plist << "<plist version=\"1.0\">\n";
-    plist << "<dict>\n";
-    plist << "<key>Label</key>\n";
-    plist << "<string>com.aaa.windscribe.firewall_on</string>\n";
-
-    plist << "<key>ProgramArguments</key>\n";
-    plist << "<array>\n";
-    plist << "<string>/bin/bash</string>\n";
-    plist << "<string>/etc/windscribe/boot_pf.sh</string>\n";
-    plist << "</array>\n";
-
-    plist << "<key>StandardErrorPath</key>\n";
-    plist << "<string>/var/log/windscribe_pf.log</string>\n";
-    plist << "<key>StandardOutPath</key>\n";
-    plist << "<string>/var/log/windscribe_pf.log</string>\n";
-
-    plist << "<key>RunAtLoad</key>\n";
-    plist << "<true/>\n";
-
-    plist << "</dict>\n";
-    plist << "</plist>\n";
-
-    fd = open("/Library/LaunchDaemons/com.aaa.windscribe.firewall_on.plist", O_CREAT | O_WRONLY | O_TRUNC);
-    if (fd < 0) {
-        LOG("Could not open boot plist for writing");
-        return false;
-    }
-    write(fd, plist.str().c_str(), plist.str().length());
-    close(fd);
-    Utils::executeCommand("launchctl", {"load", "-w", "/Library/LaunchDaemons/com.aaa.windscribe.firewall_on.plist"});
+    Utils::executeCommand("launchctl", {"disable", "system/com.apple.pfctl"});
 
     return true;
 }
 
 bool FirewallOnBootManager::disable()
 {
-    Utils::executeCommand("launchctl", {"unload", "/Library/LaunchDaemons/com.aaa.windscribe.firewall_on.plist"});
-    Utils::executeCommand("rm", {"-f", "/Library/LaunchDaemons/com.aaa.windscribe.firewall_on.plist"});
+    Utils::executeCommand("launchctl", {"enable", "system/com.apple.pfctl"});
     Utils::executeCommand("rm", {"-f", "/etc/windscribe/boot_pf.conf"});
-    Utils::executeCommand("rm", {"-f", "/etc/windscribe/boot_pf.sh"});
     return true;
 }

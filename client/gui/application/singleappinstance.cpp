@@ -101,10 +101,9 @@ bool SingleAppInstancePrivate::isRunning()
 
     if (lockFile_.isNull())
     {
-        socketName_ = QLatin1String("windscribe-singleappistance.socket");
+        socketName_ = "/var/run/windscribe/windscribe-singleappistance.socket";
 
-        lockFile_.reset(new QLockFile(QStandardPaths::writableLocation(QStandardPaths::TempLocation) +
-                                      QLatin1String("/windscribe-singleappistance.lock")));
+        lockFile_.reset(new QLockFile("/var/run/windscribe/windscribe.lock"));
         lockFile_->setStaleLockTime(0);
         lockFile_->tryLock();
 

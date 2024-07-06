@@ -25,6 +25,7 @@ const QString WS_LOG_API_RESPONSE = WS_PREFIX + "log-api-response";
 const QString WS_WG_VERBOSE_LOGGING = WS_PREFIX + "wireguard-verbose-logging";
 const QString WS_SCREEN_TRANSITION_HOTKEYS = WS_PREFIX + "screen-transition-hotkeys";
 const QString WS_USE_ICMP_PINGS = WS_PREFIX + "use-icmp-pings";
+const QString WS_USE_PQ_ALGORITHMS = WS_PREFIX + "use-post-quantum-algorithms";
 
 const QString WS_STEALTH_EXTRA_TLS_PADDING = WS_PREFIX + "stealth-extra-tls-padding";
 const QString WS_API_EXTRA_TLS_PADDING = WS_PREFIX + "api-extra-tls-padding";
@@ -253,6 +254,11 @@ bool ExtraConfig::getUsingScreenTransitionHotkeys()
 bool ExtraConfig::getUseICMPPings()
 {
     return getFlagFromExtraConfigLines(WS_USE_ICMP_PINGS);
+}
+
+bool ExtraConfig::getUsePQAlgorithms()
+{
+    return getFlagFromExtraConfigLines(WS_USE_PQ_ALGORITHMS);
 }
 
 bool ExtraConfig::getStealthExtraTLSPadding()

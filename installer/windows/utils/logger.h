@@ -21,7 +21,6 @@ public:
     }
 
     void init(bool installing);
-    void out(const char* format, ...);
     void out(const wchar_t* format, ...);
     void out(const std::wstring& message);
     void writeFile(const std::wstring& installPath) const;

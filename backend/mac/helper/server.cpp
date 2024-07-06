@@ -6,6 +6,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
+#include "firewallcontroller.h"
 #include "ipc/helper_security.h"
 #include "logger.h"
 #include "process_command.h"
@@ -98,9 +99,10 @@ void Server::run()
         return;
     }
 
-    system("mkdir -p /var/run");
-    system("mkdir -p /etc/windscribe");
     Utils::createWindscribeUserAndGroup();
+
+    system("mkdir -p /var/run/windscribe && chown :windscribe /var/run/windscribe && chmod 777 /var/run/windscribe");
+    system("mkdir -p /etc/windscribe");
 
     xpc_connection_t listener = xpc_connection_create_mach_service("com.windscribe.helper.macos", NULL, XPC_CONNECTION_MACH_SERVICE_LISTENER);
     if (!listener) {
@@ -112,6 +114,9 @@ void Server::run()
         // New connections arrive here. You may safely cast to xpc_connection_t
         xpc_event_handler((xpc_connection_t)event);
     });
+
+    // Cause the FirewallController to be constructed here, so that on-boot rules are processed, even if the Windscribe app/service does not start.
+    FirewallController::instance();
 
     xpc_connection_resume(listener);
 

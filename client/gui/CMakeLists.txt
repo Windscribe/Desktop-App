@@ -41,8 +41,6 @@ qt6_create_translation(WS_QM_FILES ${CMAKE_CURRENT_SOURCE_DIR}/.. ${WS_TS_FILES}
 
 set(PROJECT_SOURCES
     # --- sources and headers ---
-    blockconnect.cpp
-    blockconnect.h
     dpiscaleawarewidget.cpp
     dpiscaleawarewidget.h
     dpiscalemanager.cpp
@@ -52,8 +50,6 @@ set(PROJECT_SOURCES
     generalmessage.h
     generalmessagecontroller.cpp
     generalmessagecontroller.h
-    languagecontroller.cpp
-    languagecontroller.h
     loginattemptscontroller.cpp
     loginattemptscontroller.h
     mainwindow.cpp
@@ -107,10 +103,10 @@ endif (UNIX)
 target_include_directories(gui PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../engine
     ${CMAKE_CURRENT_SOURCE_DIR}/../common
+    ${CMAKE_CURRENT_SOURCE_DIR}/../base
 )
 
 add_subdirectory(application)
-add_subdirectory(backend)
 add_subdirectory(bottominfowidget)
 add_subdirectory(commongraphics)
 add_subdirectory(commonwidgets)
@@ -120,13 +116,10 @@ add_subdirectory(emergencyconnectwindow)
 add_subdirectory(externalconfig)
 add_subdirectory(generalmessage)
 add_subdirectory(graphicresources)
-add_subdirectory(launchonstartup)
-add_subdirectory(localipcserver)
 add_subdirectory(locations)
 add_subdirectory(locationswindow)
 add_subdirectory(log)
 add_subdirectory(loginwindow)
-add_subdirectory(multipleaccountdetection)
 add_subdirectory(newsfeedwindow)
 add_subdirectory(overlaysconnectwindow)
 add_subdirectory(preferenceswindow)
@@ -134,6 +127,6 @@ add_subdirectory(protocolwindow)
 add_subdirectory(systemtray)
 add_subdirectory(tooltips)
 add_subdirectory(twofactorauth)
-add_subdirectory(utils)
 add_subdirectory(widgetutils)
 add_subdirectory(tests)
+add_subdirectory(utils)

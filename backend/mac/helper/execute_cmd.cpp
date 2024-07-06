@@ -2,7 +2,7 @@
 #include <boost/thread.hpp>
 #include <syslog.h>
 
-unsigned long ExecuteCmd::execute(const std::string &cmd, const std::string &cwd)
+unsigned long ExecuteCmd::execute(const std::string &cmd, const std::string &cwd, bool deleteOnFinish)
 {
     mutex_.lock();
 
@@ -15,9 +15,9 @@ unsigned long ExecuteCmd::execute(const std::string &cmd, const std::string &cwd
     mutex_.unlock();
 
     if (!cwd.empty()) {
-        boost::thread(runCmd, curCmdId_, "cd \"" + cwd + "\" && " + cmd);
+        boost::thread(runCmd, curCmdId_, "cd \"" + cwd + "\" && " + cmd, deleteOnFinish);
     } else {
-        boost::thread(runCmd, curCmdId_, cmd);
+        boost::thread(runCmd, curCmdId_, cmd, deleteOnFinish);
     }
 
     return curCmdId_;
@@ -56,7 +56,7 @@ ExecuteCmd::ExecuteCmd() : curCmdId_(0)
 {
 }
 
-void ExecuteCmd::runCmd(unsigned long cmdId, std::string cmd)
+void ExecuteCmd::runCmd(unsigned long cmdId, std::string cmd, bool deleteOnFinish)
 {
     std::string strReply;
 
@@ -69,20 +69,25 @@ void ExecuteCmd::runCmd(unsigned long cmdId, std::string cmd)
             }
         }
         pclose(file);
-        instance().cmdFinished(cmdId, true, strReply);
+        instance().cmdFinished(cmdId, true, strReply, deleteOnFinish);
     } else {
-        instance().cmdFinished(cmdId, false, std::string());
+        instance().cmdFinished(cmdId, false, std::string(), deleteOnFinish);
     }
 }
 
-void ExecuteCmd::cmdFinished(unsigned long cmdId, bool bSuccess, std::string log)
+void ExecuteCmd::cmdFinished(unsigned long cmdId, bool bSuccess, std::string log, bool del)
 {
     mutex_.lock();
     for (auto it = executingCmds_.begin(); it != executingCmds_.end(); ++it) {
         if ((*it)->cmdId == cmdId) {
-            (*it)->bFinished = true;
-            (*it)->bSuccess = bSuccess;
-            (*it)->log = log;
+            if (del) {
+                delete(*it);
+                executingCmds_.erase(it);
+            } else {
+                (*it)->bFinished = true;
+                (*it)->bSuccess = bSuccess;
+                (*it)->log = log;
+            }
             break;
         }
     }

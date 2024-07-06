@@ -803,7 +803,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Quit</source>
-        <translation>Кинути</translation>
+        <translation>Вимкнути</translation>
     </message>
     <message>
         <source>Log Out</source>
@@ -1666,7 +1666,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Quit</source>
-        <translation>Кинути</translation>
+        <translation>Вимкнути</translation>
     </message>
 </context>
 <context>
@@ -1697,6 +1697,22 @@ Connect to a network first</source>
     <message>
         <source>Proxy Type</source>
         <translation>Тип проксі-сервера</translation>
+    </message>
+    <message>
+        <source>Port</source>
+        <translation>Порт</translation>
+    </message>
+    <message>
+        <source>Unable to start proxy server</source>
+        <translation>Не вдається запустити проксі-сервер</translation>
+    </message>
+    <message>
+        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
+        <translation>Не вдалося запустити проксі-сервер на запитаному порту. Повторіть спробу з іншим портом.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Автоматичного</translation>
     </message>
 </context>
 <context>

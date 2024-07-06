@@ -32,7 +32,11 @@ void Connection::connect()
     QObject::connect(localSocket_, &QLocalSocket::bytesWritten, this, &Connection::onSocketBytesWritten);
     QObject::connect(localSocket_, &QLocalSocket::readyRead, this, &Connection::onReadyRead);
     QObject::connect(localSocket_, &QLocalSocket::errorOccurred, this, &Connection::onSocketError);
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    localSocket_->connectToServer("/var/run/windscribe/localipc.sock");
+#else
     localSocket_->connectToServer("Windscribe8rM7bza5OR");
+#endif
 }
 
 void Connection::close()
@@ -146,7 +150,11 @@ void Connection::onSocketError(QLocalSocket::LocalSocketError socketError)
 {
     Q_UNUSED(socketError)
     // qDebug() << "Socket error: " << socketError;
-    emit stateChanged(CONNECTION_ERROR, this);
+    if (socketError == QLocalSocket::LocalSocketError::PeerClosedError) {
+        emit stateChanged(CONNECTION_DISCONNECTED, this);
+    } else {
+        emit stateChanged(CONNECTION_ERROR, this);
+    }
 }
 
 bool Connection::canReadCommand()

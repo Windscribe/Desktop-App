@@ -11,17 +11,6 @@ namespace types {
 
 struct MacAddrSpoofing
 {
-    struct JsonInfo
-    {
-        JsonInfo& operator=(const JsonInfo&) { return *this; }
-
-        const QString kIsEnabledProp = "isEnabled";
-        const QString kMacAddressProp = "macAddress";
-        const QString kIsAutoRotateProp = "isAutoRotate";
-        const QString kSelectedNetworkInterfaceProp = "selectedNetworkInterface";
-        const QString kNetworkInterfacesProp = "networkInterfaces";
-    };
-
     MacAddrSpoofing() :
         isEnabled(false),
         isAutoRotate(false)
@@ -29,8 +18,8 @@ struct MacAddrSpoofing
 
     MacAddrSpoofing(const QJsonObject &json)
     {
-        if (json.contains(jsonInfo.kIsEnabledProp) && json[jsonInfo.kIsEnabledProp].isBool()) {
-            isEnabled = json[jsonInfo.kIsEnabledProp].toBool();
+        if (json.contains(kJsonIsEnabledProp) && json[kJsonIsEnabledProp].isBool()) {
+            isEnabled = json[kJsonIsEnabledProp].toBool();
 #ifdef Q_OS_MAC
             // MacOS 14.4 does not support this feature
             if (MacUtils::isOsVersionAtLeast(14, 4)) {
@@ -39,18 +28,18 @@ struct MacAddrSpoofing
 #endif
         }
 
-        if (json.contains(jsonInfo.kMacAddressProp) && json[jsonInfo.kMacAddressProp].isString())
-            macAddress = json[jsonInfo.kMacAddressProp].toString();
+        if (json.contains(kJsonMacAddressProp) && json[kJsonMacAddressProp].isString())
+            macAddress = json[kJsonMacAddressProp].toString();
 
-        if (json.contains(jsonInfo.kIsAutoRotateProp) && json[jsonInfo.kIsAutoRotateProp].isBool())
-            isAutoRotate = json[jsonInfo.kIsAutoRotateProp].toBool();
+        if (json.contains(kJsonIsAutoRotateProp) && json[kJsonIsAutoRotateProp].isBool())
+            isAutoRotate = json[kJsonIsAutoRotateProp].toBool();
 
-        if (json.contains(jsonInfo.kSelectedNetworkInterfaceProp) && json[jsonInfo.kSelectedNetworkInterfaceProp].isObject())
-            selectedNetworkInterface = NetworkInterface(json[jsonInfo.kSelectedNetworkInterfaceProp].toObject());
+        if (json.contains(kJsonSelectedNetworkInterfaceProp) && json[kJsonSelectedNetworkInterfaceProp].isObject())
+            selectedNetworkInterface = NetworkInterface(json[kJsonSelectedNetworkInterfaceProp].toObject());
 
-        if (json.contains(jsonInfo.kNetworkInterfacesProp) && json[jsonInfo.kNetworkInterfacesProp].isArray())
+        if (json.contains(kJsonNetworkInterfacesProp) && json[kJsonNetworkInterfacesProp].isArray())
         {
-            QJsonArray networkInterfacesArray = json[jsonInfo.kNetworkInterfacesProp].toArray();
+            QJsonArray networkInterfacesArray = json[kJsonNetworkInterfacesProp].toArray();
             networkInterfaces.clear();
             for (const QJsonValue &ifaceValue : networkInterfacesArray)
             {
@@ -68,7 +57,6 @@ struct MacAddrSpoofing
     bool isAutoRotate;
     NetworkInterface selectedNetworkInterface;
     QVector<NetworkInterface> networkInterfaces;
-    JsonInfo jsonInfo;
 
     bool operator==(const MacAddrSpoofing &other) const
     {
@@ -88,17 +76,17 @@ struct MacAddrSpoofing
     {
         QJsonObject json;
 
-        json[jsonInfo.kIsEnabledProp] = isEnabled;
-        json[jsonInfo.kMacAddressProp] = macAddress;
-        json[jsonInfo.kIsAutoRotateProp] = isAutoRotate;
-        json[jsonInfo.kSelectedNetworkInterfaceProp] = selectedNetworkInterface.toJson();
+        json[kJsonIsEnabledProp] = isEnabled;
+        json[kJsonMacAddressProp] = macAddress;
+        json[kJsonIsAutoRotateProp] = isAutoRotate;
+        json[kJsonSelectedNetworkInterfaceProp] = selectedNetworkInterface.toJson();
 
         if (!networkInterfaces.isEmpty()) {
             QJsonArray networkInterfacesArray;
             for (const NetworkInterface& iface : networkInterfaces) {
                 networkInterfacesArray.append(iface.toJson());
             }
-            json[jsonInfo.kNetworkInterfacesProp] = networkInterfacesArray;
+            json[kJsonNetworkInterfacesProp] = networkInterfacesArray;
         }
 
         return json;
@@ -143,6 +131,12 @@ struct MacAddrSpoofing
     }
 
 private:
+    const static inline QString kJsonIsEnabledProp = "isEnabled";
+    const static inline QString kJsonMacAddressProp = "macAddress";
+    const static inline QString kJsonIsAutoRotateProp = "isAutoRotate";
+    const static inline QString kJsonSelectedNetworkInterfaceProp = "selectedNetworkInterface";
+    const static inline QString kJsonNetworkInterfacesProp = "networkInterfaces";
+
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 
 };

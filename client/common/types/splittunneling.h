@@ -1,38 +1,33 @@
 #pragma once
 
+#include <filesystem>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QSettings>
 #include <QVector>
 
 #include "types/enums.h"
+#include "utils/ipvalidation.h"
+#include "utils/logger.h"
 
 namespace types {
 
 
 struct SplitTunnelingSettings
 {
-    struct JsonInfo
-    {
-        JsonInfo& operator=(const JsonInfo&) { return *this; }
-
-        const QString kActiveProp = "active";
-        const QString kModeProp = "mode";
-    };
-
     SplitTunnelingSettings() = default;
 
     SplitTunnelingSettings(const QJsonObject &json)
     {
-        if (json.contains(jsonInfo.kActiveProp) && json[jsonInfo.kActiveProp].isBool())
-            active = json[jsonInfo.kActiveProp].toBool();
+        if (json.contains(kJsonActiveProp) && json[kJsonActiveProp].isBool())
+            active = json[kJsonActiveProp].toBool();
 
-        if (json.contains(jsonInfo.kModeProp) && json[jsonInfo.kModeProp].isDouble())
-            mode = static_cast<SPLIT_TUNNELING_MODE>(json[jsonInfo.kModeProp].toInt());
+        if (json.contains(kJsonModeProp) && json[kJsonModeProp].isDouble())
+            mode = static_cast<SPLIT_TUNNELING_MODE>(json[kJsonModeProp].toInt());
     }
 
     bool active = false;
     SPLIT_TUNNELING_MODE mode = SPLIT_TUNNELING_MODE_EXCLUDE;
-    JsonInfo jsonInfo;
 
     bool operator==(const SplitTunnelingSettings &other) const
     {
@@ -48,8 +43,8 @@ struct SplitTunnelingSettings
     QJsonObject toJson() const
     {
         QJsonObject json;
-        json[jsonInfo.kActiveProp] = active;
-        json[jsonInfo.kModeProp] = static_cast<int>(mode);
+        json[kJsonActiveProp] = active;
+        json[kJsonModeProp] = static_cast<int>(mode);
         return json;
     }
 
@@ -81,34 +76,27 @@ struct SplitTunnelingSettings
         return dbg;
     }
 
-
 private:
+    static const inline QString kJsonActiveProp = "active";
+    static const inline QString kJsonModeProp = "mode";
+
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 struct SplitTunnelingNetworkRoute
 {
-    struct JsonInfo
-    {
-        JsonInfo& operator=(const JsonInfo&) { return *this; }
-
-        const QString kTypeProp = "type";
-        const QString kNameProp = "name";
-    };
-
     SPLIT_TUNNELING_NETWORK_ROUTE_TYPE type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
     QString name;
-    JsonInfo jsonInfo;
 
     SplitTunnelingNetworkRoute() : type(SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP) {}
 
     SplitTunnelingNetworkRoute(const QJsonObject &json)
     {
-        if (json.contains(jsonInfo.kTypeProp) && json[jsonInfo.kTypeProp].isDouble())
-            type = static_cast<SPLIT_TUNNELING_NETWORK_ROUTE_TYPE>(json[jsonInfo.kTypeProp].toInt());
+        if (json.contains(kJsonTypeProp) && json[kJsonTypeProp].isDouble())
+            type = static_cast<SPLIT_TUNNELING_NETWORK_ROUTE_TYPE>(json[kJsonTypeProp].toInt());
 
-        if (json.contains(jsonInfo.kNameProp) && json[jsonInfo.kNameProp].isString())
-            name = json[jsonInfo.kNameProp].toString();
+        if (json.contains(kJsonNameProp) && json[kJsonNameProp].isString())
+            name = json[kJsonNameProp].toString();
     }
 
     bool operator==(const SplitTunnelingNetworkRoute &other) const
@@ -125,8 +113,8 @@ struct SplitTunnelingNetworkRoute
     QJsonObject toJson() const
     {
         QJsonObject json;
-        json[jsonInfo.kTypeProp] = static_cast<int>(type);
-        json[jsonInfo.kNameProp] = name;
+        json[kJsonTypeProp] = static_cast<int>(type);
+        json[kJsonNameProp] = name;
         return json;
     }
 
@@ -159,41 +147,33 @@ struct SplitTunnelingNetworkRoute
     }
 
 private:
+    static const inline QString kJsonTypeProp = "type";
+    static const inline QString kJsonNameProp = "name";
+
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 struct SplitTunnelingApp
 {
-    struct JsonInfo
-    {
-        JsonInfo& operator=(const JsonInfo&) { return *this; }
-
-        const QString kActiveProp = "active";
-        const QString kFullNameProp = "fullName";
-        const QString kNameProp = "name";
-        const QString kIconProp = "icon";
-        const QString kTypeProp = "type";
-    };
-
     SplitTunnelingApp() = default;
     SplitTunnelingApp& operator=(const SplitTunnelingApp&) = default;
 
     SplitTunnelingApp(const QJsonObject &json)
     {
-        if (json.contains(jsonInfo.kTypeProp) && json[jsonInfo.kTypeProp].isDouble())
-            type = static_cast<SPLIT_TUNNELING_APP_TYPE>(json[jsonInfo.kTypeProp].toInt());
+        if (json.contains(kJsonTypeProp) && json[kJsonTypeProp].isDouble())
+            type = static_cast<SPLIT_TUNNELING_APP_TYPE>(json[kJsonTypeProp].toInt());
 
-        if (json.contains(jsonInfo.kNameProp) && json[jsonInfo.kNameProp].isString())
-            name = json[jsonInfo.kNameProp].toString();
+        if (json.contains(kJsonNameProp) && json[kJsonNameProp].isString())
+            name = json[kJsonNameProp].toString();
 
-        if (json.contains(jsonInfo.kFullNameProp) && json[jsonInfo.kFullNameProp].isString())
-            fullName = json[jsonInfo.kFullNameProp].toString();
+        if (json.contains(kJsonFullNameProp) && json[kJsonFullNameProp].isString())
+            fullName = json[kJsonFullNameProp].toString();
 
-        if (json.contains(jsonInfo.kActiveProp) && json[jsonInfo.kActiveProp].isBool())
-            active = json[jsonInfo.kActiveProp].toBool();
+        if (json.contains(kJsonActiveProp) && json[kJsonActiveProp].isBool())
+            active = json[kJsonActiveProp].toBool();
 
-        if (json.contains(jsonInfo.kIconProp) && json[jsonInfo.kIconProp].isString())
-            icon = json[jsonInfo.kIconProp].toString();
+        if (json.contains(kJsonIconProp) && json[kJsonIconProp].isString())
+            icon = json[kJsonIconProp].toString();
     }
 
     bool active = false;
@@ -201,7 +181,6 @@ struct SplitTunnelingApp
     QString name;
     QString icon;
     SPLIT_TUNNELING_APP_TYPE type = SPLIT_TUNNELING_APP_TYPE_USER;
-    JsonInfo jsonInfo;
 
     bool operator==(const SplitTunnelingApp &other) const
     {
@@ -220,11 +199,11 @@ struct SplitTunnelingApp
     QJsonObject toJson() const
     {
         QJsonObject json;
-        json[jsonInfo.kActiveProp] = active;
-        json[jsonInfo.kFullNameProp] = fullName;
-        json[jsonInfo.kNameProp] = name;
-        json[jsonInfo.kTypeProp] = static_cast<int>(type);
-        json[jsonInfo.kIconProp] = icon;
+        json[kJsonActiveProp] = active;
+        json[kJsonFullNameProp] = fullName;
+        json[kJsonNameProp] = name;
+        json[kJsonTypeProp] = static_cast<int>(type);
+        json[kJsonIconProp] = icon;
         return json;
     }
 
@@ -264,32 +243,28 @@ struct SplitTunnelingApp
     }
 
 private:
+    static const inline QString kJsonActiveProp = "active";
+    static const inline QString kJsonFullNameProp = "fullName";
+    static const inline QString kJsonNameProp = "name";
+    static const inline QString kJsonIconProp = "icon";
+    static const inline QString kJsonTypeProp = "type";
+
     static constexpr quint32 versionForSerialization_ = 2;  // should increment the version if the data format is changed
 };
 
 
 struct SplitTunneling
 {
-    struct JsonInfo
-    {
-        JsonInfo& operator=(const JsonInfo&) { return *this; }
-
-        const QString kAppsProp = "apps";
-        const QString kNetworkRoutesProp = "networkRoutes";
-        const QString kSettingsProp = "settings";
-        const QString kVersionProp = "version";
-    };
-
     SplitTunneling() = default;
 
     SplitTunneling(const QJsonObject &json)
     {
-        if (json.contains(jsonInfo.kSettingsProp) && json[jsonInfo.kSettingsProp].isObject())
-            settings = SplitTunnelingSettings(json[jsonInfo.kSettingsProp].toObject());
+        if (json.contains(kJsonSettingsProp) && json[kJsonSettingsProp].isObject())
+            settings = SplitTunnelingSettings(json[kJsonSettingsProp].toObject());
 
-        if (json.contains(jsonInfo.kAppsProp) && json[jsonInfo.kAppsProp].isArray())
+        if (json.contains(kJsonAppsProp) && json[kJsonAppsProp].isArray())
         {
-            QJsonArray appsArray = json[jsonInfo.kAppsProp].toArray();
+            QJsonArray appsArray = json[kJsonAppsProp].toArray();
             apps.clear();
             apps.reserve(appsArray.size());
             for (const QJsonValue &appValue : appsArray)
@@ -301,9 +276,9 @@ struct SplitTunneling
             }
         }
 
-        if (json.contains(jsonInfo.kNetworkRoutesProp) && json[jsonInfo.kNetworkRoutesProp].isArray())
+        if (json.contains(kJsonNetworkRoutesProp) && json[kJsonNetworkRoutesProp].isArray())
         {
-            QJsonArray networkRoutesArray = json[jsonInfo.kNetworkRoutesProp].toArray();
+            QJsonArray networkRoutesArray = json[kJsonNetworkRoutesProp].toArray();
             networkRoutes.clear();
             networkRoutes.reserve(networkRoutesArray.size());
             for (const QJsonValue &routeValue : networkRoutesArray)
@@ -319,7 +294,6 @@ struct SplitTunneling
     SplitTunnelingSettings settings;
     QVector<SplitTunnelingApp> apps;
     QVector<SplitTunnelingNetworkRoute> networkRoutes;
-    JsonInfo jsonInfo;
 
     bool operator==(const SplitTunneling &other) const
     {
@@ -333,26 +307,100 @@ struct SplitTunneling
         return !(*this == other);
     }
 
+    void fromIni(const QSettings &s)
+    {
+        settings.active = s.value(kIniSplitTunnelingEnabledProp, settings.active).toBool();
+        settings.mode = SPLIT_TUNNELING_MODE_fromString(s.value(kIniSplitTunnelingModeProp, SPLIT_TUNNELING_MODE_toString(settings.mode)).toString());
+
+        if (s.contains(kIniSplitTunnelingAppsProp)) {
+            apps.clear();
+            QStringList appsList;
+            appsList = s.value(kIniSplitTunnelingAppsProp).toStringList();
+            for (auto appPath : appsList) {
+                std::error_code ec;
+                std::filesystem::path path(appPath.toStdString());
+                bool exists = std::filesystem::exists(path, ec);
+                if (ec || !exists) {
+                    qCDebug(LOG_BASIC) << "Skipping non-existent split tunneling app '" << appPath << "'";
+                    continue;
+                }
+
+                SplitTunnelingApp a;
+                a.active = true;
+                a.fullName = appPath;
+                a.name = appPath;
+                a.icon = "";
+                a.type = SPLIT_TUNNELING_APP_TYPE_USER;
+                apps << a;
+            }
+        }
+
+        if (s.contains(kIniSplitTunnelingRoutesProp)) {
+            networkRoutes.clear();
+            QStringList networkRoutesList;
+            networkRoutesList = s.value(kIniSplitTunnelingRoutesProp).toStringList();
+            for (auto route : networkRoutesList) {
+                SplitTunnelingNetworkRoute r;
+                r.name = route;
+                if (IpValidation::isIp(route)) {
+                    r.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
+                } else if (IpValidation::isDomain(route)) {
+                    r.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
+                } else {
+                    qCDebug(LOG_BASIC) << "Skipping unrecognized split tunneling route type";
+                    continue;
+                }
+                networkRoutes << r;
+            }
+        }
+    }
+
+    void toIni(QSettings &s) const
+    {
+        s.setValue(kIniSplitTunnelingEnabledProp, settings.active);
+        s.setValue(kIniSplitTunnelingModeProp, SPLIT_TUNNELING_MODE_toString(settings.mode));
+
+        QStringList appsList;
+        for (auto app : apps) {
+            appsList << app.fullName;
+        }
+        if (appsList.isEmpty()) {
+            s.remove(kIniSplitTunnelingAppsProp);
+        } else {
+            s.setValue(kIniSplitTunnelingAppsProp, appsList);
+        }
+
+        QStringList routesList;
+        for (auto route : networkRoutes) {
+            routesList << route.name;
+        }
+        if (routesList.isEmpty()) {
+            s.remove(kIniSplitTunnelingRoutesProp);
+        } else {
+            s.setValue(kIniSplitTunnelingRoutesProp, routesList);
+        }
+    }
+
     QJsonObject toJson() const
     {
         QJsonObject json;
-        json[jsonInfo.kSettingsProp] = settings.toJson();
+        json[kJsonSettingsProp] = settings.toJson();
 
         QJsonArray appsArray;
         for (const SplitTunnelingApp& app : apps)
         {
             appsArray.append(app.toJson());
         }
-        json[jsonInfo.kAppsProp] = appsArray;
+        json[kJsonAppsProp] = appsArray;
 
         QJsonArray networkRoutesArray;
         for (const SplitTunnelingNetworkRoute& route : networkRoutes)
         {
             networkRoutesArray.append(route.toJson());
         }
-        json[jsonInfo.kNetworkRoutesProp] = networkRoutesArray;
+        json[kJsonNetworkRoutesProp] = networkRoutesArray;
 
-        json[jsonInfo.kVersionProp] = static_cast<int>(versionForSerialization_);
+        json[kJsonVersionProp] = static_cast<int>(versionForSerialization_);
 
         return json;
     }
@@ -387,8 +435,17 @@ struct SplitTunneling
     }
 
 private:
-    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+    static const inline QString kIniSplitTunnelingAppsProp = "SplitTunnelingApps";
+    static const inline QString kIniSplitTunnelingRoutesProp = "SplitTunnelingRoutes";
+    static const inline QString kIniSplitTunnelingEnabledProp = "SplitTunnelingEnabled";
+    static const inline QString kIniSplitTunnelingModeProp = "SplitTunnelingMode";
 
+    static const inline QString kJsonAppsProp = "apps";
+    static const inline QString kJsonNetworkRoutesProp = "networkRoutes";
+    static const inline QString kJsonSettingsProp = "settings";
+    static const inline QString kJsonVersionProp = "version";
+
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 

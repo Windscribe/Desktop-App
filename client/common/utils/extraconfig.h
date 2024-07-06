@@ -51,6 +51,7 @@ public:
     bool getLogCtrld();
     bool getUsingScreenTransitionHotkeys();
     bool getUseICMPPings();
+    bool getUsePQAlgorithms();
     bool getStealthExtraTLSPadding();
     bool getAPIExtraTLSPadding();
 

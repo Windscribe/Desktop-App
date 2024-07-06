@@ -26,7 +26,9 @@ class ArgHelper:
     OPTION_CI_MODE = "--ci-mode"
     # linux packaging
     OPTION_BUILD_RPM = "--build-rpm"
+    OPTION_BUILD_RPM_OPENSUSE = "--build-rpm-opensuse"
     OPTION_BUILD_DEB = "--build-deb"
+    OPTION_BUILD_CLI_ONLY = "--build-cli-only"
     # target architecture
     OPTION_TARGET_X86_64 = "--x86_64"  # this is the default
     OPTION_TARGET_ARM64 = "--arm64"
@@ -52,10 +54,12 @@ class ArgHelper:
     options.append((OPTION_CI_MODE, "Used to indicate app is building on CI"))
     options.append(("\nLinux packaging", ""))
     options.append((OPTION_BUILD_RPM, "Build .rpm package for Red Hat and derivative distros"))
+    options.append((OPTION_BUILD_RPM_OPENSUSE, "Build .rpm package for OpenSUSE and derivative distros"))
     options.append((OPTION_BUILD_DEB, "Build .deb package for Debian and derivative distros (default)"))
+    options.append((OPTION_BUILD_CLI_ONLY, "Build package without GUI (Linux only)"))
     options.append(("\nTarget Architecture", ""))
-    options.append((OPTION_TARGET_X86_64, "Build for the Intel/AMD 64-bit x86 CPU architecture (default) (Note: only used for Windows builds)"))
-    options.append((OPTION_TARGET_ARM64, "Build for the ARM 64-bit CPU architecture (Note: only used for Windows builds)"))
+    options.append((OPTION_TARGET_X86_64, "Build for the Intel/AMD 64-bit x86 CPU architecture (default) (Windows only)"))
+    options.append((OPTION_TARGET_ARM64, "Build for the ARM 64-bit CPU architecture (Windows only)"))
 
     def __init__(self, program_arg_list):
         self.args_only = program_arg_list[1:]
@@ -93,10 +97,14 @@ class ArgHelper:
         self.mode_ci = ArgHelper.OPTION_CI_MODE in program_arg_list
 
         # linux packaging
-        no_packaging_selected = ArgHelper.OPTION_BUILD_RPM not in program_arg_list and ArgHelper.OPTION_BUILD_DEB not in program_arg_list
+        no_packaging_selected = ArgHelper.OPTION_BUILD_RPM not in program_arg_list and \
+            ArgHelper.OPTION_BUILD_RPM_OPENSUSE not in program_arg_list and \
+            ArgHelper.OPTION_BUILD_DEB not in program_arg_list
 
         self.mode_build_deb = no_packaging_selected or ArgHelper.OPTION_BUILD_DEB in program_arg_list
         self.mode_build_rpm = ArgHelper.OPTION_BUILD_RPM in program_arg_list
+        self.mode_build_rpm_opensuse = ArgHelper.OPTION_BUILD_RPM_OPENSUSE in program_arg_list
+        self.mode_build_cli_only = ArgHelper.OPTION_BUILD_CLI_ONLY in program_arg_list
 
         # target architecture
         no_arch_selected = ArgHelper.OPTION_TARGET_X86_64 not in program_arg_list and ArgHelper.OPTION_TARGET_ARM64 not in program_arg_list
@@ -145,11 +153,16 @@ class ArgHelper:
     def help(self):
         return self.mode_help
 
-    def build_rpm(self):
+    def build_rpm(self, distro):
+        if (distro == "opensuse"):
+            return self.mode_build_rpm_opensuse
         return self.mode_build_rpm
 
     def build_deb(self):
         return self.mode_build_deb
+
+    def build_cli_only(self):
+        return self.mode_build_cli_only
 
     def build_debug(self):
         return self.mode_debug

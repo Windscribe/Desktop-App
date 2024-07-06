@@ -41,6 +41,6 @@ void Service::installWindscribeService()
         scm.startService();
     }
     catch (std::system_error& ex) {
-        Log::instance().out("installWindscribeService - %s", ex.what());
+        Log::instance().out(L"installWindscribeService - %hs", ex.what());
     }
 }

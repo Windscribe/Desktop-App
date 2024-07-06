@@ -4,7 +4,6 @@
 #include "../settings.h"
 #include "../../../Utils/logger.h"
 #include "../../../Utils/path.h"
-#include "../../../utils/utils.h"
 
 InstallAuthHelper::InstallAuthHelper(double weight) : IInstallBlock(weight, L"AuthHelper")
 {
@@ -28,7 +27,7 @@ int InstallAuthHelper::executeStep()
     // We still require run-time dynamic linking with DLL at executable location
     HINSTANCE hProxyStubLib = LoadLibrary(authProxyStubLib.c_str());
     if (hProxyStubLib == NULL) {
-        Log::instance().out("Failed to load Auth Helper Proxy Stub Library");
+        Log::instance().out(L"Failed to load Auth Helper Proxy Stub Library");
         lastError_ = L"An error occurred when loading the Auth Helper Proxy Stub library";
         return -ERROR_OTHER;
     }
@@ -39,13 +38,13 @@ int InstallAuthHelper::executeStep()
     if (DllRegisterServer != NULL) {
         HRESULT result = DllRegisterServer();
         if (FAILED(result)) {
-            Log::instance().out("Call to Proxy Stub DllRegisterServer failed");
+            Log::instance().out(L"Call to Proxy Stub DllRegisterServer failed");
             lastError_ = L"An error occurred when calling Proxy Stub DllRegisterServer";
             FreeLibrary(hProxyStubLib);
             return -ERROR_OTHER;
         }
     } else {
-        Log::instance().out("Failed to get proxy stub DllRegisterServer");
+        Log::instance().out(L"Failed to get proxy stub DllRegisterServer");
         lastError_ = L"An error occurred when getting proxy stub DllRegisterServer";
         FreeLibrary(hProxyStubLib);
         return -ERROR_OTHER;
@@ -58,7 +57,7 @@ int InstallAuthHelper::executeStep()
 
     HINSTANCE hLib = LoadLibrary(authLib.c_str());
     if (hLib == NULL) {
-        Log::instance().out("Failed to load Auth Helper Library");
+        Log::instance().out(L"Failed to load Auth Helper Library");
         lastError_ = L"An error occurred when loading the Auth Helper library: ";
         return -ERROR_OTHER;
     }
@@ -71,18 +70,18 @@ int InstallAuthHelper::executeStep()
         HRESULT result = RegisterServerWithTargetPaths(installPath, installPath, installPath);
 
         if (FAILED(result)) {
-            Log::instance().out("Call to RegisterServerWithTargetPaths failed");
+            Log::instance().out(L"Call to RegisterServerWithTargetPaths failed");
             lastError_ = L"An error occurred when calling RegisterServerWithTargetPaths: ";
             FreeLibrary(hLib);
             return -ERROR_OTHER;
         }
     } else {
-        Log::instance().out("Failed to get reg server function");
+        Log::instance().out(L"Failed to get reg server function");
         lastError_ = L"An error occurred when getting RegisterServerWithTargetPaths: ";
         FreeLibrary(hLib);
         return -ERROR_OTHER;
     }
     FreeLibrary(hLib);
-    Log::instance().out("Auth helper installed successfully");
+    Log::instance().out(L"Auth helper installed successfully");
     return 100;
 }

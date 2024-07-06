@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "execute_cmd.h"
 #include "firewallcontroller.h"
+#include "firewallonboot.h"
 #include "logger.h"
 #include "ovpn.h"
 #include "routes_manager/routes_manager.h"
@@ -295,6 +296,19 @@ CMD_ANSWER getFirewallRules(boost::archive::text_iarchive &ia)
     return answer;
 }
 
+CMD_ANSWER setFirewallOnBoot(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_SET_FIREWALL_ON_BOOT cmd;
+    ia >> cmd;
+    Logger::instance().out("Set firewall on boot: %s", cmd.enabled ? "true" : "false");
+
+    FirewallOnBootManager::instance().setIpTable(cmd.ipTable);
+    answer.executed = FirewallOnBootManager::instance().setEnabled(cmd.enabled, cmd.allowLanTraffic);
+
+    return answer;
+}
+
 CMD_ANSWER taskKill(boost::archive::text_iarchive &ia)
 {
     CMD_ANSWER answer;
@@ -343,14 +357,10 @@ CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
     CMD_START_CTRLD cmd;
     ia >> cmd;
 
-    if (!Utils::isValidIpAddress(cmd.ip)) {
-        Logger::instance().out("Invalid IP address: %s", cmd.ip.c_str());
-        answer.executed = 0;
-        return answer;
-    }
+    Logger::instance().out("Starting ctrld");
 
     // Validate URLs
-    if ((!Utils::isValidUrl(cmd.upstream1)) || (!cmd.upstream2.empty() && !Utils::isValidUrl(cmd.upstream2))) {
+    if (!Utils::isValidUrl(cmd.upstream1) || (!cmd.upstream2.empty() && !Utils::isValidUrl(cmd.upstream2))) {
         Logger::instance().out("Invalid upstream URL(s)");
         answer.executed = 0;
         return answer;
@@ -365,7 +375,8 @@ CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
 
     std::stringstream arguments;
     arguments << "run";
-    arguments << " --listen=" + cmd.ip + ":53";
+    arguments << " --daemon";
+    arguments << " --listen=127.0.0.1:53";
     arguments << " --primary_upstream=" + cmd.upstream1;
     if (!cmd.upstream2.empty()) {
         arguments << " --secondary_upstream=" + cmd.upstream2;
@@ -397,8 +408,7 @@ CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
         Logger::instance().out("ctrld executable signature incorrect: %s", sigCheck.lastError().c_str());
         answer.executed = 0;
     } else {
-        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
-        answer.executed = 1;
+        answer.executed = Utils::executeCommand(fullCmd) ? 0 : 1;
     }
     return answer;
 }
@@ -437,7 +447,7 @@ CMD_ANSWER startStunnel(boost::archive::text_iarchive &ia)
         Logger::instance().out("stunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
         answer.executed = 0;
     } else {
-        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
+        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string(), true);
         answer.executed = 1;
     }
     return answer;
@@ -473,7 +483,7 @@ CMD_ANSWER startWstunnel(boost::archive::text_iarchive &ia)
         Logger::instance().out("wstunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
         answer.executed = 0;
     } else {
-        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
+        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string(), true);
         answer.executed = 1;
     }
     return answer;

@@ -9,6 +9,21 @@
 #include "logger.h"
 #include "utils.h"
 
+FirewallController::FirewallController() : connected_(false), splitTunnelEnabled_(false), splitTunnelExclude_(true)
+{
+    // If firewall on boot is enabled, restore boot rules
+    if (Utils::isFileExists("/etc/windscribe/boot_rules.v4")) {
+        Utils::executeCommand("iptables-restore", {"-n", "/etc/windscribe/boot_rules.v4"});
+    }
+    if (Utils::isFileExists("/etc/windscribe/boot_rules.v6")) {
+        Utils::executeCommand("ip6tables-restore", {"-n", "/etc/windscribe/boot_rules.v6"});
+    }
+}
+
+FirewallController::~FirewallController()
+{
+}
+
 bool FirewallController::enable(bool ipv6, const std::string &rules)
 {
     int fd;

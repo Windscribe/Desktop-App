@@ -292,10 +292,10 @@ bool Helper_win::getWireGuardStatus(types::WireGuardStatus *status)
     return mpr.success;
 }
 
-IHelper::ExecuteError Helper_win::startCtrld(const QString &ip, const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog)
+bool Helper_win::startCtrld(const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog)
 {
     // Nothing to do.
-    return IHelper::EXECUTE_SUCCESS;
+    return true;
 }
 
 bool Helper_win::stopCtrld()

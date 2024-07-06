@@ -25,7 +25,7 @@ public:
 
     // Mac/Linux specific functions
     virtual void setInterfaceToSkip_posix(const QString &interfaceToSkip) = 0;
-    virtual void enableFirewallOnBoot(bool bEnable, const QSet<QString>& ipTable = QSet<QString>()) = 0;
+    virtual void setFirewallOnBoot(bool bEnable, const QSet<QString>& ipTable = QSet<QString>(), bool isAllowLanTraffic = false) = 0;
 
 protected:
     bool isStateChanged();

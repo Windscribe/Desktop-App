@@ -20,37 +20,38 @@
 #endif
 
 #include "application/windscribeapplication.h"
-#include "commongraphics/commongraphics.h"
 #include "backend/persistentstate.h"
-
-#include "utils/ws_assert.h"
-#include "utils/extraconfig.h"
-#include "utils/hardcodedsettings.h"
-#include "utils/utils.h"
-#include "utils/logger.h"
-#include "utils/writeaccessrightschecker.h"
-#include "utils/mergelog.h"
-#include "languagecontroller.h"
-#include "multipleaccountdetection/multipleaccountdetectionfactory.h"
-
+#include "commongraphics/commongraphics.h"
+#include "dpiscalemanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/imageresourcesjpg.h"
 #include "graphicresources/fontmanager.h"
-#include "dpiscalemanager.h"
+#include "languagecontroller.h"
 #include "launchonstartup/launchonstartup.h"
-#include "showingdialogstate.h"
 #include "mainwindowstate.h"
-#include "utils/interfaceutils.h"
-#include "utils/iauthchecker.h"
+#include "multipleaccountdetection/multipleaccountdetectionfactory.h"
+#include "showingdialogstate.h"
 #include "utils/authcheckerfactory.h"
+#include "utils/extraconfig.h"
+#include "utils/hardcodedsettings.h"
+#include "utils/iauthchecker.h"
+#include "utils/interfaceutils.h"
+#include "utils/logger.h"
+#include "utils/mergelog.h"
+#include "utils/network_utils/network_utils.h"
+#include "utils/utils.h"
+#include "utils/writeaccessrightschecker.h"
+#include "utils/ws_assert.h"
 
 #if defined(Q_OS_WIN)
     #include "utils/winutils.h"
     #include "widgetutils/widgetutils_win.h"
     #include <windows.h>
 #elif defined(Q_OS_LINUX)
+    #include <unistd.h>
     #include "utils/authchecker_linux.h"
 #else
+    #include <unistd.h>
     #include "utils/macutils.h"
     #include "widgetutils/widgetutils_mac.h"
     #include "utils/authchecker_mac.h"
@@ -70,7 +71,7 @@ MainWindow::MainWindow() :
     bytesTransferred_(0),
     bMousePressed_(false),
     bMoveEnabled_(true),
-    signOutReason_(SIGN_OUT_UNDEFINED),
+    logoutReason_(LOGOUT_UNDEFINED),
     isInitializationAborted_(false),
     isLoginOkAndConnectWindowVisible_(false),
     revealingConnectWindow_(false),
@@ -144,7 +145,7 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::loginFinished, this, &MainWindow::onBackendLoginFinished);
     connect(backend_, &Backend::tryingBackupEndpoint, this, &MainWindow::onBackendTryingBackupEndpoint);
     connect(backend_, &Backend::loginError, this, &MainWindow::onBackendLoginError);
-    connect(backend_, &Backend::signOutFinished, this, &MainWindow::onBackendSignOutFinished);
+    connect(backend_, &Backend::logoutFinished, this, &MainWindow::onBackendLogoutFinished);
     connect(backend_, &Backend::sessionStatusChanged, this, &MainWindow::onBackendSessionStatusChanged);
     connect(backend_, &Backend::checkUpdateChanged, this, &MainWindow::onBackendCheckUpdateChanged);
     connect(backend_, &Backend::myIpChanged, this, &MainWindow::onBackendMyIpChanged);
@@ -198,9 +199,10 @@ MainWindow::MainWindow() :
     connect(backend_->getPreferences(), &Preferences::isAutoConnectChanged, this, &MainWindow::onAutoConnectUpdated);
 
     localIpcServer_ = new LocalIPCServer(backend_, this);
-    connect(localIpcServer_, &LocalIPCServer::showLocations, this, &MainWindow::onReceivedOpenLocationsMessage);
-    connect(localIpcServer_, &LocalIPCServer::connectToLocation, this, &MainWindow::onConnectToLocation);
+    connect(localIpcServer_, &LocalIPCServer::showLocations, this, &MainWindow::onIpcOpenLocations);
+    connect(localIpcServer_, &LocalIPCServer::connectToLocation, this, &MainWindow::onIpcConnect);
     connect(localIpcServer_, &LocalIPCServer::attemptLogin, this, &MainWindow::onLoginClick);
+    connect(localIpcServer_, &LocalIPCServer::update, this, &MainWindow::onIpcUpdate);
 
     mainWindowController_ = new MainWindowController(this, locationsWindow_, backend_->getPreferencesHelper(), backend_->getPreferences(), backend_->getAccountInfo());
 
@@ -255,7 +257,7 @@ MainWindow::MainWindow() :
     // preferences window signals
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::quitAppClick, this, &MainWindow::onPreferencesQuitAppClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::escape, this, &MainWindow::onPreferencesEscapeClick);
-    connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::signOutClick, this, &MainWindow::onPreferencesSignOutClick);
+    connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::logoutClick, this, &MainWindow::onPreferencesLogoutClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::loginClick, this, &MainWindow::onPreferencesLoginClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::viewLogClick, this, &MainWindow::onPreferencesViewLogClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::exportSettingsClick, this, &MainWindow::onPreferencesExportSettingsClick);
@@ -567,6 +569,8 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     PersistentState::instance().save();
     backend_->locationsModelManager()->saveFavoriteLocations();
 
+    ImageResourcesSvg::instance().finishGracefully();
+
     if (WindscribeApplication::instance()->isExitWithRestart() || isFromSigTerm_mac || isSpontaneousCloseEvent_) {
         // Since we may process events below, disable UI updates and prevent the slot for this signal
         // from attempting to close this widget. We have encountered instances of that occurring during
@@ -687,15 +691,26 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
 {
-    if (bMoveEnabled_)
-    {
-        if (event->buttons() & Qt::LeftButton && bMousePressed_)
-        {
-            this->move(event->globalPosition().toPoint() - dragPosition_);
-            mainWindowController_->hideAllToolTips();
-            event->accept();
-        }
+#ifdef Q_OS_WIN
+    if (!bMoveEnabled_) {
+        return;
     }
+
+    if (event->buttons() & Qt::LeftButton && bMousePressed_) {
+        // On Windows, do not allow dragging the window beyond the top of the screen.
+        // You can still drag past the screen edge on the left/right/bottom.  This is the same as MacOS.
+        if (event->globalPosition().y() - dragPosition_.y() < -mainWindowController_->getShadowMargin() &&
+            event->globalPosition().y() - this->frameGeometry().top() < dragPosition_.y())
+        {
+            event->ignore();
+            return;
+        }
+
+        this->move(event->globalPosition().toPoint() - dragPosition_);
+        mainWindowController_->hideAllToolTips();
+        event->accept();
+    }
+#endif
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
@@ -716,9 +731,9 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             //event->accept();
             bMousePressed_ = true;
 
-            if (QGuiApplication::platformName() == "wayland") {
-                this->window()->windowHandle()->startSystemMove();
-            }
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+            this->window()->windowHandle()->startSystemMove();
+#endif
         }
     }
 }
@@ -1078,7 +1093,7 @@ void MainWindow::onPreferencesEscapeClick()
     collapsePreferences();
 }
 
-void MainWindow::onPreferencesSignOutClick()
+void MainWindow::onPreferencesLogoutClick()
 {
     gotoLogoutWindow();
 }
@@ -1087,8 +1102,8 @@ void MainWindow::onPreferencesLoginClick()
 {
     if (backend_->getPreferencesHelper()->isExternalConfigMode()) {
         QApplication::setOverrideCursor(Qt::WaitCursor);
-        signOutReason_ = SIGN_OUT_GO_TO_LOGIN;
-        backend_->signOut(false);
+        logoutReason_ = LOGOUT_GO_TO_LOGIN;
+        backend_->logout(false);
     } else {
         collapsePreferences();
         mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
@@ -1217,6 +1232,8 @@ void MainWindow::onPreferencesSendConfirmEmailClick()
 
 void MainWindow::onSendDebugLogClick()
 {
+    // capture the routing table in the debug log since it is useful to catch configuration issues
+    qCDebugMultiline(LOG_NETWORK) << NetworkUtils::getRoutingTable();
     backend_->sendDebugLog();
 }
 
@@ -1422,6 +1439,12 @@ void MainWindow::onUpdateWindowAccept()
     backend_->sendUpdateVersion(static_cast<qint64>(this->winId()));
 }
 
+void MainWindow::onIpcUpdate()
+{
+    onUpdateAppItemClick();
+    onUpdateWindowAccept();
+}
+
 void MainWindow::onUpdateWindowCancel()
 {
     backend_->cancelUpdateVersion();
@@ -1456,10 +1479,10 @@ void MainWindow::onLogoutWindowAccept()
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setEnabled(false);
-    signOutReason_ = SIGN_OUT_FROM_MENU;
+    logoutReason_ = LOGOUT_FROM_MENU;
     isExitingFromPreferences_ = false;
     selectedLocation_->clear();
-    backend_->signOut(false);
+    backend_->logout(false);
 }
 
 void MainWindow::onExitWindowAccept()
@@ -1479,20 +1502,46 @@ void MainWindow::onExitWindowReject()
 
 void MainWindow::onLocationSelected(const LocationID &lid)
 {
+    selectLocation(lid, types::Protocol());
+}
+
+void MainWindow::selectLocation(const LocationID &lid, const types::Protocol &protocol)
+{
     qCDebug(LOG_USER) << "Location selected:" << lid.getHashString();
 
     selectedLocation_->set(lid);
     PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
-    if (selectedLocation_->isValid())
-    {
+    if (selectedLocation_->isValid()) {
         mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
                                                                       selectedLocation_->countryCode(), selectedLocation_->pingTime(),
                                                                       selectedLocation_->locationdId().isCustomConfigsLocation());
         mainWindowController_->collapseLocations();
-        backend_->sendConnect(lid);
-    }
-    else
-    {
+
+        uint port = 0;
+        if (protocol.isValid()) {
+            // determine default port for protocol
+            QVector<uint> ports = backend_->getPreferencesHelper()->getAvailablePortsForProtocol(protocol);
+            if (ports.size() == 0) {
+                qCDebug(LOG_BASIC) << "Could not determine port for protocol" << protocol.toLongString();
+            } else {
+                port = ports[0];
+            }
+        }
+
+        if (port != 0) {
+            // If chosen protocol is different from preferred, turn off the badge
+            types::ProtocolStatus ps = mainWindowController_->getConnectWindow()->getProtocolStatus();
+            if (protocol != ps.protocol || port != ps.port) {
+                mainWindowController_->getConnectWindow()->setIsPreferredProtocol(false);
+            }
+
+            mainWindowController_->getConnectWindow()->setProtocolPort(protocol, port);
+            backend_->sendConnect(lid, types::ConnectionSettings(protocol, port, false));
+            userProtocolOverride_ = true;
+        } else {
+            backend_->sendConnect(lid);
+        }
+    } else {
         WS_ASSERT(false);
     }
 }
@@ -2086,7 +2135,7 @@ void MainWindow::onSplitTunnelingStateChanged(bool isActive)
     mainWindowController_->getConnectWindow()->setSplitTunnelingState(isActive);
 }
 
-void MainWindow::onBackendSignOutFinished()
+void MainWindow::onBackendLogoutFinished()
 {
     selectedLocation_->clear();
     mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
@@ -2099,16 +2148,16 @@ void MainWindow::onBackendSignOutFinished()
     backend_->getPreferencesHelper()->setIsExternalConfigMode(false);
     mainWindowController_->getBottomInfoWindow()->setDataRemaining(-1, -1);
 
-    if (signOutReason_ == SIGN_OUT_FROM_MENU) {
+    if (logoutReason_ == LOGOUT_FROM_MENU) {
         mainWindowController_->getLoginWindow()->resetState();
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_EMPTY, QString());
-    } else if (signOutReason_ == SIGN_OUT_SESSION_EXPIRED) {
+    } else if (logoutReason_ == LOGOUT_SESSION_EXPIRED) {
         mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_SESSION_EXPIRED, QString());
-    } else if (signOutReason_ == SIGN_OUT_WITH_MESSAGE) {
+    } else if (logoutReason_ == LOGOUT_WITH_MESSAGE) {
         mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
-        mainWindowController_->getLoginWindow()->setErrorMessage(signOutMessageType_, signOutErrorMessage_);
-    } else if (signOutReason_ == SIGN_OUT_GO_TO_LOGIN) {
+        mainWindowController_->getLoginWindow()->setErrorMessage(logoutMessageType_, logoutErrorMessage_);
+    } else if (logoutReason_ == LOGOUT_GO_TO_LOGIN) {
         mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_EMPTY, QString());
     } else {
@@ -2266,9 +2315,9 @@ void MainWindow::onBackendSessionDeleted()
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setEnabled(false);
-    signOutReason_ = SIGN_OUT_SESSION_EXPIRED;
+    logoutReason_ = LOGOUT_SESSION_EXPIRED;
     selectedLocation_->clear();
-    backend_->signOut(true);
+    backend_->logout(true);
 }
 
 void MainWindow::onBackendTestTunnelResult(bool success)
@@ -2618,7 +2667,7 @@ void MainWindow::onPreferencesShareProxyGatewayChanged(const types::ShareProxyGa
 {
     if (sp.isEnabled)
     {
-        backend_->startProxySharing((PROXY_SHARING_TYPE)sp.proxySharingMode);
+        backend_->startProxySharing((PROXY_SHARING_TYPE)sp.proxySharingMode, sp.port);
     }
     else
     {
@@ -2935,7 +2984,7 @@ void MainWindow::onAppShouldTerminate_mac()
     close();
 }
 
-void MainWindow::onReceivedOpenLocationsMessage()
+void MainWindow::onIpcOpenLocations()
 {
     activateAndShow();
 
@@ -2961,13 +3010,12 @@ void MainWindow::onReceivedOpenLocationsMessage()
     // from a CLI-spawned-GUI (Mac): could fail WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT) in expandLocations
     QTimer::singleShot(500, [this](){
         mainWindowController_->expandLocations();
-        localIpcServer_->sendLocationsShown();
     });
 }
 
-void MainWindow::onConnectToLocation(const LocationID &id)
+void MainWindow::onIpcConnect(const LocationID &id, const types::Protocol &protocol)
 {
-    onLocationSelected(id);
+    selectLocation(id, protocol);
 }
 
 void MainWindow::onAppCloseRequest()
@@ -3413,11 +3461,11 @@ void MainWindow::backToLoginWithErrorMessage(LoginWindow::ERROR_MESSAGE_TYPE err
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setEnabled(false);
-    signOutMessageType_ = errorMessageType;
-    signOutReason_ = SIGN_OUT_WITH_MESSAGE;
-    signOutErrorMessage_ = errorMessage;
+    logoutMessageType_ = errorMessageType;
+    logoutReason_ = LOGOUT_WITH_MESSAGE;
+    logoutErrorMessage_ = errorMessage;
     selectedLocation_->clear();
-    backend_->signOut(false);
+    backend_->logout(false);
 }
 
 void MainWindow::setupTrayIcon()
@@ -3575,7 +3623,7 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
 
 void MainWindow::setVariablesToInitState()
 {
-    signOutReason_ = SIGN_OUT_UNDEFINED;
+    logoutReason_ = LOGOUT_UNDEFINED;
     isLoginOkAndConnectWindowVisible_ = false;
     bNotificationConnectedShowed_ = false;
     bytesTransferred_ = 0;
@@ -3854,3 +3902,26 @@ void MainWindow::onAppStateChanged(Qt::ApplicationState state)
     }
 #endif
 }
+
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+void MainWindow::setSigTermHandler(int fd)
+{
+    fd_ = fd;
+
+    socketNotifier_ = new QSocketNotifier(fd_, QSocketNotifier::Read, this);
+    connect(socketNotifier_, &QSocketNotifier::activated, this, &MainWindow::onSigTerm);
+}
+
+void MainWindow::onSigTerm()
+{
+    socketNotifier_->setEnabled(false);
+    char tmp;
+    if (::read(fd_, &tmp, sizeof(tmp)) < 0) {
+        qCDebug(LOG_BASIC) << "Could not read from signal socket";
+        return;
+    }
+
+    doClose(nullptr, true);
+    qApp->quit();
+}
+#endif

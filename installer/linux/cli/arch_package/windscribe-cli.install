@@ -1,0 +1,63 @@
+pre_install() {
+        end=$((SECONDS+10))
+
+        while :
+        do
+          if [ -z "$(ps -eo args | grep WindscribeEngine | grep -v grep)" ]; then
+            break
+          fi
+
+          if [ $SECONDS -gt $end ]; then
+            echo 'Error during Windscribe installation. WindscribeEngine is running. Please re-launch Windscribe. And try to update again.'
+            exit 1
+          fi
+        done
+
+        systemctl stop windscribe-helper > /dev/null 2>&1 || true
+        systemctl disable windscribe-helper > /dev/null 2>&1 || true
+
+        # Stop and disable firewalld service if it is active, otherwise it will conflict with iptables on OS reboot
+        # Relevant for Fedora distributions
+        systemctl is-active --quiet firewalld
+        if [ $? -eq 0 ]
+        then
+            echo "Firewalld service is running. It will be stopped and disabled to avoid conflicts with the Windscribe iptables firewall."
+            systemctl stop firewalld
+            systemctl disable firewalld
+        fi
+
+        echo "Finish pre-install script"
+}
+
+post_install() {
+        systemctl enable NetworkManager.service
+        systemctl start NetworkManager.service
+        systemctl enable systemd-resolved
+        systemctl start systemd-resolved
+        systemctl enable windscribe-helper
+        systemctl start windscribe-helper
+        ln -s /opt/windscribe/Windscribe /usr/bin/windscribe
+        update-desktop-database
+        echo linux_zst_x64_cli > ../etc/windscribe/platform
+}
+
+pre_upgrade() {
+        set -e
+        systemctl stop windscribe-helper || true
+        systemctl disable windscribe-helper || true
+}
+
+post_upgrade() {
+        post_install
+}
+
+pre_remove() {
+        killall -q Windscribe || true
+        systemctl stop windscribe-helper || true
+        systemctl disable windscribe-helper || true
+        userdel -f windscribe || true
+        groupdel -f windscribe || true
+        rm -rf /etc/windscribe
+        rm -f /opt/windscribe/helper_log.txt
+        rm -f /usr/bin/windscribe
+}

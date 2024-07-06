@@ -3,9 +3,9 @@
 #include <QKeyEvent>
 #include <QSet>
 #include "../../common/types/protocolstatus.h"
-#include "../backend/backend.h"
-#include "../backend/preferences/preferences.h"
-#include "../backend/preferences/preferenceshelper.h"
+#include "backend/backend.h"
+#include "backend/preferences/preferences.h"
+#include "backend/preferences/preferenceshelper.h"
 #include "commongraphics/imageitem.h"
 #include "commongraphics/basepage.h"
 #include "commongraphics/listbutton.h"

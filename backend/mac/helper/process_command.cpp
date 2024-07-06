@@ -2,10 +2,11 @@
 
 #include <codecvt>
 #include <fcntl.h>
+#include <filesystem>
 #include <grp.h>
 #include <pwd.h>
 #include <sstream>
-#include <stdlib.h>
+
 #include "execute_cmd.h"
 #include "files_manager.h"
 #include "firewallcontroller.h"
@@ -239,9 +240,8 @@ CMD_ANSWER installerExecuteCopyFile(boost::archive::text_iarchive &ia)
         if (answer.executed == -1) {
             answer.body = files->getLastError();
         }
-        if (answer.executed == -1 || answer.executed == 100) {
-            FilesManager::instance().setFiles(nullptr);
-        }
+
+        FilesManager::instance().setFiles(nullptr);
     }
 
     return answer;
@@ -414,9 +414,10 @@ CMD_ANSWER setFirewallOnBoot(boost::archive::text_iarchive &ia)
     CMD_ANSWER answer;
     CMD_SET_FIREWALL_ON_BOOT cmd;
     ia >> cmd;
-    LOG("Set firewall on boot: %s ip table: %s", cmd.enabled ? "true" : "false", cmd.ipTable.c_str());
+    LOG("Set firewall on boot: %s", cmd.enabled ? "true" : "false");
+
     FirewallOnBootManager::instance().setIpTable(cmd.ipTable);
-    answer.executed = FirewallOnBootManager::instance().setEnabled(cmd.enabled);
+    answer.executed = FirewallOnBootManager::instance().setEnabled(cmd.enabled, cmd.allowLanTraffic);
 
     return answer;
 }
@@ -493,12 +494,6 @@ CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
     CMD_START_CTRLD cmd;
     ia >> cmd;
 
-    if (!Utils::isValidIpAddress(cmd.ip)) {
-        LOG("Invalid IP address: %s", cmd.ip.c_str());
-        answer.executed = 0;
-        return answer;
-    }
-
     // Validate URLs
     if (!Utils::isValidUrl(cmd.upstream1) || (!cmd.upstream2.empty() && !Utils::isValidUrl(cmd.upstream2))) {
         LOG("Invalid upstream URL(s)");
@@ -515,7 +510,8 @@ CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
 
     std::stringstream arguments;
     arguments << "run";
-    arguments << " --listen=" + cmd.ip + ":53";
+    arguments << " --daemon";
+    arguments << " --listen=127.0.0.1:53";
     arguments << " --primary_upstream=" + cmd.upstream1;
     if (!cmd.upstream2.empty()) {
         arguments << " --secondary_upstream=" + cmd.upstream2;
@@ -547,8 +543,7 @@ CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
         LOG("ctrld executable signature incorrect: %s", sigCheck.lastError().c_str());
         answer.executed = 0;
     } else {
-        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
-        answer.executed = 1;
+        answer.executed = Utils::executeCommand(fullCmd) ? 0 : 1;
     }
 
     return answer;
@@ -588,7 +583,7 @@ CMD_ANSWER startStunnel(boost::archive::text_iarchive &ia)
         LOG("stunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
         answer.executed = 0;
     } else {
-        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
+        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string(), true);
         answer.executed = 1;
     }
 
@@ -625,7 +620,7 @@ CMD_ANSWER startWstunnel(boost::archive::text_iarchive &ia)
         LOG("wstunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
         answer.executed = 0;
     } else {
-        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string());
+        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string(), true);
         answer.executed = 1;
     }
 
@@ -680,5 +675,38 @@ CMD_ANSWER getHelperVersion(boost::archive::text_iarchive &ia)
     CMD_ANSWER answer;
     answer.body = MacUtils::bundleVersionFromPlist();
     answer.executed = 1;
+    return answer;
+}
+
+CMD_ANSWER getInterfaceSsid(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_GET_INTERFACE_SSID cmd;
+    ia >> cmd;
+    LOG("Get interface SSID for %s", cmd.interface.c_str());
+
+    std::string output;
+
+    answer.executed = Utils::executeCommand("/usr/bin/wdutil", {"info"}, &output);
+
+    std::istringstream stream(output);
+    std::string line;
+
+    // Skip all the lines until we see our interface
+    while (getline(stream, line)) {
+        if (line.find("Interface Name") != std::string::npos && line.find(cmd.interface) != std::string::npos) {
+            continue;
+        }
+        break;
+    }
+    // Now look for the SSID
+    while (getline(stream, line)) {
+        if (line.find("SSID") != std::string::npos) {
+            answer.body = line.substr(line.find(":") + 2);
+            LOG("Found SSID for %s: %s", cmd.interface.c_str(), answer.body.c_str());
+            return answer;
+        }
+    }
+    LOG("No SSID for %s", cmd.interface.c_str());
     return answer;
 }

@@ -489,11 +489,7 @@ QString WinUtils::executeBlockingCmd(QString cmd, const QString & /*params*/, in
 
         CloseHandle(wPipe);
         std::string str;
-        if (exitCode != WAIT_TIMEOUT)
-        {
-            str = readAllFromPipe(rPipe);
-        }
-
+        str = readAllFromPipe(rPipe);
         CloseHandle(rPipe);
         CloseHandle( pi.hProcess );
         CloseHandle( pi.hThread );
@@ -670,7 +666,7 @@ HWND WinUtils::appMainWindowHandle()
     return pWindowInfo->appMainWindow;
 }
 
-bool WinUtils::isGuiAlreadyRunning()
+bool WinUtils::isAppAlreadyRunning()
 {
     auto handle = appMainWindowHandle();
     return handle != nullptr;

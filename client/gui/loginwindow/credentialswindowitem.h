@@ -4,7 +4,7 @@
 #include <QGraphicsTextItem>
 #include <QGraphicsPixmapItem>
 #include <QTimer>
-#include "../backend/backend.h"
+#include "backend/backend.h"
 #include "loginwindowtypes.h"
 #include "loginyesnobutton.h"
 #include "usernamepasswordentry.h"

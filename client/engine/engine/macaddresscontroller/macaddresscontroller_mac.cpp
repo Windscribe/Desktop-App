@@ -1,5 +1,6 @@
 #include "macaddresscontroller_mac.h"
 
+#include "utils/interfaceutils_mac.h"
 #include "utils/logger.h"
 #include "utils/network_utils/network_utils.h"
 #include "utils/network_utils/network_utils_mac.h"
@@ -45,7 +46,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const types::MacAddrSpoofing &
         qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing MacAddrSpoofing has changed. actuallyAutoRotate_=" << actuallyAutoRotate_;
         qCDebug(LOG_BASIC) << macAddrSpoofing;
 
-        types::NetworkInterface currentAdapter = NetworkUtils_mac::currentNetworkInterface();
+        types::NetworkInterface currentAdapter = InterfaceUtils_mac::instance().currentNetworkInterface();
         types::NetworkInterface selectedInterface = macAddrSpoofing.selectedNetworkInterface;
 
         if (macAddrSpoofing.isEnabled) {
@@ -68,7 +69,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const types::MacAddrSpoofing &
                     }
 
                     // remove all but last
-                    const QVector<types::NetworkInterface> spoofedInterfacesExceptLast = NetworkUtils::interfacesExceptOne(NetworkUtils_mac::currentSpoofedInterfaces(), lastInterface);
+                    const QVector<types::NetworkInterface> spoofedInterfacesExceptLast = NetworkUtils::interfacesExceptOne(InterfaceUtils_mac::instance().currentSpoofedInterfaces(), lastInterface);
                     for (const types::NetworkInterface &networkInterface : spoofedInterfacesExceptLast) {
                         spoofsToRemove.insert(networkInterface.interfaceName, "");
                     }
@@ -101,7 +102,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const types::MacAddrSpoofing &
                             }
 
                             // remove all spoofs except current
-                            const QVector<types::NetworkInterface> spoofedInterfacesExceptLast = NetworkUtils::interfacesExceptOne(NetworkUtils_mac::currentSpoofedInterfaces(), currentAdapter);
+                            const QVector<types::NetworkInterface> spoofedInterfacesExceptLast = NetworkUtils::interfacesExceptOne(InterfaceUtils_mac::instance().currentSpoofedInterfaces(), currentAdapter);
                             for (const types::NetworkInterface &networkInterface : spoofedInterfacesExceptLast) {
                                 spoofsToRemove.insert(networkInterface.interfaceName, "");
                             }
@@ -122,7 +123,7 @@ void MacAddressController_mac::setMacAddrSpoofing(const types::MacAddrSpoofing &
             qCDebug(LOG_BASIC) << "MacAddressController_mac::setMacAddrSpoofing MAC spoofing is disabled";
 
             QMap<QString, QString> spoofsToRemove;
-            const QVector<types::NetworkInterface> spoofs = NetworkUtils_mac::currentSpoofedInterfaces();
+            const QVector<types::NetworkInterface> spoofs = InterfaceUtils_mac::instance().currentSpoofedInterfaces();
             for (const types::NetworkInterface &networkInterface : spoofs) {
                 // only unspoof adapters that we spoofed, not from other sources
                 if (NetworkUtils_mac::checkMacAddr(networkInterface.interfaceName, macAddrSpoofing_.macAddress)) {
@@ -198,7 +199,7 @@ bool MacAddressController_mac::doneFilteringNetworkEvents()
     }
 
     qCDebug(LOG_BASIC) << "Filtering MAC spoofing network events";
-    QVector<types::NetworkInterface> networkInterfaces = NetworkUtils_mac::currentNetworkInterfaces(true);
+    QVector<types::NetworkInterface> networkInterfaces = InterfaceUtils_mac::instance().currentNetworkInterfaces(true);
     for (const types::NetworkInterface &networkInterface : networkInterfaces) {
         if (networksBeingUpdated_.contains(networkInterface.interfaceName)) {
             if (NetworkUtils_mac::isAdapterUp(networkInterface.interfaceName)) {
@@ -242,7 +243,7 @@ void MacAddressController_mac::autoRotateUpdateMacSpoof()
 types::MacAddrSpoofing MacAddressController_mac::macAddrSpoofingWithUpdatedNetworkList()
 {
     types::MacAddrSpoofing updatedMacAddrSpoofing = macAddrSpoofing_;
-    QVector<types::NetworkInterface> networkInterfaces = NetworkUtils_mac::currentNetworkInterfaces(true);
+    QVector<types::NetworkInterface> networkInterfaces = InterfaceUtils_mac::instance().currentNetworkInterfaces(true);
 
     // update adapter list
     updatedMacAddrSpoofing.networkInterfaces = networkInterfaces;

@@ -29,7 +29,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
 
     tabControlItem_ = new PreferencesTabControlItem(this, preferencesHelper);
     connect(tabControlItem_, &PreferencesTabControlItem::currentTabChanged, this, &PreferencesWindowItem::onCurrentTabChanged);
-    connect(tabControlItem_, &PreferencesTabControlItem::signOutClick, this, &PreferencesWindowItem::signOutClick);
+    connect(tabControlItem_, &PreferencesTabControlItem::logoutClick, this, &PreferencesWindowItem::logoutClick);
     connect(tabControlItem_, &PreferencesTabControlItem::loginClick, this, &PreferencesWindowItem::loginClick);
     connect(tabControlItem_, &PreferencesTabControlItem::quitClick, this, &PreferencesWindowItem::quitAppClick);
 

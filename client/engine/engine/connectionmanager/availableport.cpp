@@ -116,23 +116,8 @@ bool AvailablePort::isPortBusy(const QString &ip, unsigned int port)
     return false;
 
 #elif defined(Q_OS_MAC) || defined(Q_OS_LINUX)
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-    if  (sock < 0) {
-        return true;
-    }
-
-    struct sockaddr_in serv_addr;
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = port;
-    if (bind(sock, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
-    {
-        close(sock);
-        return true;
-    }
-
-    close (sock);
-    return false;
+    // In most UNIX-like environments, this may fail on all addresses if port is <1024 since this process is not root
+    // so this is a meaningless test.
+    return true;
 #endif
 }

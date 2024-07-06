@@ -96,9 +96,9 @@ std::wstring guidToStr(const GUID &guid)
 {
     wchar_t szBuf[256];
     swprintf(szBuf, 256, L"%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX",
-        guid.Data1, guid.Data2, guid.Data3,
-        guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3],
-        guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
+             guid.Data1, guid.Data2, guid.Data3,
+             guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3],
+             guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
     return szBuf;
 }
 
@@ -226,7 +226,7 @@ void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring
         0,                       // Authority (e.g. Kerberos)
         0,                       // Context object
         &pSvc                    // pointer to IWbemServices proxy
-    );
+        );
 
     if (FAILED(hres))
     {
@@ -246,7 +246,7 @@ void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring
         RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
         NULL,                        // client identity
         EOAC_NONE                    // proxy capabilities
-    );
+        );
 
     if (FAILED(hres))
     {
@@ -287,7 +287,7 @@ void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring
 
     std::wstring networkAdapterDeviceID = L"Win32_NetworkAdapter.DeviceID=\"" + adapterRegistryName + L"\"";
     hres = pSvc->ExecMethod((BSTR)networkAdapterDeviceID.c_str(), MethodName, 0,
-        NULL, pClassInstance, &pOutParams, NULL);
+                            NULL, pClassInstance, &pOutParams, NULL);
 
     if (FAILED(hres))
     {
@@ -322,7 +322,7 @@ GUID guidFromString(const std::wstring &str)
     unsigned int p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
 
     swscanf_s(str.c_str(), L"{%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
-        &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9, &p10);
+              &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9, &p10);
     reqGUID.Data1 = p0;
     reqGUID.Data2 = static_cast<unsigned short>(p1);
     reqGUID.Data3 = static_cast<unsigned short>(p2);
@@ -339,9 +339,9 @@ GUID guidFromString(const std::wstring &str)
 }
 
 bool addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
-                  GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid,
-                  const std::vector<Ip4AddressAndMask> *ranges,
-                  uint16_t localPort, uint16_t remotePort, AppsIds *appsIds, bool persistent)
+                 GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid,
+                 const std::vector<Ip4AddressAndMask> *ranges,
+                 uint16_t localPort, uint16_t remotePort, AppsIds *appsIds, bool persistent)
 {
     UINT64 id = 0;
     bool success = true;
@@ -437,8 +437,8 @@ bool addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
 }
 
 bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
-                  GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid,
-                  const std::vector<Ip6AddressAndPrefix> *ranges, bool persistent)
+                 GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid,
+                 const std::vector<Ip6AddressAndPrefix> *ranges, bool persistent)
 {
     UINT64 id = 0;
     bool success = true;

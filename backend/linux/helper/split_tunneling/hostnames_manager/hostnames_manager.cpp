@@ -65,7 +65,13 @@ void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::Ho
     for (auto it = hostInfos.begin(); it != hostInfos.end(); ++it) {
         if (!it->second.error) {
             for (const auto addr : it->second.addresses) {
-                Logger::instance().out("HostnamesManager::dnsResolverCallback(), Resolved : %s, IP: %s", it->first.c_str(), addr.c_str());
+                if (addr == "0.0.0.0") {
+                    // ROBERT sometimes will give us an address of 0.0.0.0 for a 'blocked' resource.  This is not a valid address.
+                    Logger::instance().out("IpHostnamesManager::dnsResolverCallback(), Resolved : %s, IP: 0.0.0.0 (Ignored)", it->first.c_str());
+                } else {
+                    Logger::instance().out("IpHostnamesManager::dnsResolverCallback(), Resolved : %s, IP: %s", it->first.c_str(), addr.c_str());
+                    hostsIps.insert(hostsIps.end(), addr);
+                }
             }
             hostsIps.insert(hostsIps.end(), it->second.addresses.begin(), it->second.addresses.end());
         } else {

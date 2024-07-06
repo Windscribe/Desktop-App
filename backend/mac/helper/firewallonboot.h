@@ -11,14 +11,14 @@ public:
         return fobm;
     }
 
-    bool setEnabled(bool bEnabled);
+    bool setEnabled(bool enabled, bool allowLanTraffic = false);
     void setIpTable(const std::string& ipTable) { ipTable_ = ipTable; }
 
 private:
     FirewallOnBootManager();
     ~FirewallOnBootManager();
 
-    bool enable();
+    bool enable(bool allowLanTraffic);
     bool disable();
 
     std::string ipTable_;

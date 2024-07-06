@@ -144,7 +144,7 @@ void GetWireGuardConfig::submitWireguardConnectRequest()
 {
     WS_ASSERT(request_ == nullptr);
     request_ = WSNet::instance()->serverAPI()->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash().toStdString(), wireGuardConfig_.clientPublicKey().toStdString(),
-                                                                serverName_.toStdString(), deviceId_.toStdString(),
+                                                                serverName_.toStdString(), deviceId_.toStdString(), std::string(),
                                                                 [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData)
                                                                 {
                                                                     QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData]() {

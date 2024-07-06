@@ -8,14 +8,6 @@ namespace types {
 
 struct FirewallSettings
 {
-    struct JsonInfo
-    {
-        JsonInfo& operator=(const JsonInfo&) { return *this; }
-
-        const QString kModeProp = "mode";
-        const QString kWhenProp = "when";
-    };
-
     FirewallSettings() :
         mode(FIREWALL_MODE_AUTOMATIC),
         when(FIREWALL_WHEN_BEFORE_CONNECTION)
@@ -23,16 +15,20 @@ struct FirewallSettings
 
     FirewallSettings(const QJsonObject &json)
     {
-        if (json.contains(jsonInfo.kModeProp) && json[jsonInfo.kModeProp].isDouble())
-            mode = static_cast<FIREWALL_MODE>(json[jsonInfo.kModeProp].toInt());
+        if (json.contains(kJsonModeProp) && json[kJsonModeProp].isDouble())
+            mode = static_cast<FIREWALL_MODE>(json[kJsonModeProp].toInt());
 
-        if (json.contains(jsonInfo.kWhenProp) && json[jsonInfo.kWhenProp].isDouble())
-            when = static_cast<FIREWALL_WHEN>(json[jsonInfo.kWhenProp].toInt());
+        if (json.contains(kJsonWhenProp) && json[kJsonWhenProp].isDouble())
+            when = static_cast<FIREWALL_WHEN>(json[kJsonWhenProp].toInt());
+    }
+
+    FirewallSettings(const QSettings &settings)
+    {
+        fromIni(settings);
     }
 
     FIREWALL_MODE mode;
     FIREWALL_WHEN when;
-    JsonInfo jsonInfo;
 
     bool operator==(const FirewallSettings &other) const
     {
@@ -48,9 +44,21 @@ struct FirewallSettings
     QJsonObject toJson() const
     {
         QJsonObject json;
-        json[jsonInfo.kModeProp] = static_cast<int>(mode);
-        json[jsonInfo.kWhenProp] = static_cast<int>(when);
+        json[kJsonModeProp] = static_cast<int>(mode);
+        json[kJsonWhenProp] = static_cast<int>(when);
         return json;
+    }
+
+    void fromIni(const QSettings &settings)
+    {
+        mode = FIREWALL_MODE_fromString(settings.value(kIniModeProp, FIREWALL_MODE_toString(mode)).toString());
+        when = FIREWALL_WHEN_fromString(settings.value(kIniWhenProp, FIREWALL_WHEN_toString(when)).toString());
+    }
+
+    void toIni(QSettings &settings) const
+    {
+        settings.setValue(kIniModeProp, FIREWALL_MODE_toString(mode));
+        settings.setValue(kIniWhenProp, FIREWALL_WHEN_toString(when));
     }
 
     friend QDataStream& operator <<(QDataStream &stream, const FirewallSettings &o)
@@ -84,8 +92,13 @@ struct FirewallSettings
     }
 
 private:
-    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+    static const inline QString kIniModeProp = "FirewallMode";
+    static const inline QString kIniWhenProp = "FirewallWhen";
 
+    static const inline QString kJsonModeProp = "mode";
+    static const inline QString kJsonWhenProp = "when";
+
+    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 
 } // types namespace

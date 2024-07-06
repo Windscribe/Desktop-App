@@ -53,7 +53,7 @@ public:
     virtual bool getWireGuardStatus(types::WireGuardStatus *status) = 0;
 
     // ctrld functions
-    virtual ExecuteError startCtrld(const QString &ip, const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog) = 0;
+    virtual bool startCtrld(const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog) = 0;
     virtual bool stopCtrld() = 0;
 
 signals:

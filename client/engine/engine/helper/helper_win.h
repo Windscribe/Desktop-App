@@ -47,7 +47,7 @@ public:
     bool getWireGuardStatus(types::WireGuardStatus *status) override;
 
     // ctrld functions
-    ExecuteError startCtrld(const QString &ip, const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog) override;
+    bool startCtrld(const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog) override;
     bool stopCtrld() override;
 
     // Windows specific functions

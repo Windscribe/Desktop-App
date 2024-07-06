@@ -1698,6 +1698,22 @@ Nejprve se připojte k síti</translation>
         <source>Proxy Type</source>
         <translation>Typ proxy serveru</translation>
     </message>
+    <message>
+        <source>Port</source>
+        <translation>Přístav</translation>
+    </message>
+    <message>
+        <source>Unable to start proxy server</source>
+        <translation>Nelze spustit proxy server</translation>
+    </message>
+    <message>
+        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
+        <translation>Proxy server nelze spustit na požadovaném portu. Zkuste to prosím znovu s jiným portem.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Auto</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>

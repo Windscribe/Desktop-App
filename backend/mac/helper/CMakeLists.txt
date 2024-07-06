@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(com.windscribe.helper.macos)
 
 find_package(Boost REQUIRED COMPONENTS serialization thread)
-find_package(7zip CONFIG REQUIRED)
+find_package(c-ares REQUIRED)
 find_package(skyr-url CONFIG REQUIRED)
 
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
@@ -30,11 +30,13 @@ set(SOURCES
     firewallonboot.cpp
     firewallonboot.h
     helper.cpp
-    ../../../client/common/archive/archive.cpp
-    ../../../client/common/archive/archive.h
     installer/files.cpp
     installer/files.h
     installer/iinstall_block.h
+    ip_hostnames/ares_library_init.cpp
+    ip_hostnames/ares_library_init.h
+    ip_hostnames/dns_resolver.cpp
+    ip_hostnames/dns_resolver.h
     ip_hostnames/ip_hostnames_manager.cpp
     ip_hostnames/ip_hostnames_manager.h
     ip_hostnames/ip_routes.cpp
@@ -85,7 +87,7 @@ target_link_libraries(com.windscribe.helper.macos
                       PRIVATE
                       Boost::serialization
                       Boost::thread
-                      7zip::7zip
+                      c-ares::cares
                       skyr::skyr-url
                       "-framework Foundation"
                       "-framework Security"

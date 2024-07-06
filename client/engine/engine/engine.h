@@ -23,7 +23,7 @@
 #include "engine/macaddresscontroller/imacaddresscontroller.h"
 #include "engine/ping/keepalivemanager.h"
 #include "packetsizecontroller.h"
-#include "signout_helper.h"
+#include "logout_helper.h"
 #include "autoupdater/downloadhelper.h"
 #include "autoupdater/autoupdaterhelper_mac.h"
 #include "apiresources/apiresourcesmanager.h"
@@ -61,7 +61,7 @@ public:
     void loginWithUsernameAndPassword(const QString &username, const QString &password, const QString &code2fa);
     bool isApiSavedSettingsExists();
 
-    void signOut(bool keepFirewallOn);
+    void logout(bool keepFirewallOn);
 
     void gotoCustomOvpnConfigMode();
 
@@ -106,7 +106,7 @@ public:
     bool isWifiSharingSupported();
     void startWifiSharing(const QString &ssid, const QString &password);
     void stopWifiSharing();
-    void startProxySharing(PROXY_SHARING_TYPE proxySharingType);
+    void startProxySharing(PROXY_SHARING_TYPE proxySharingType, uint port);
     void stopProxySharing();
     QString getProxySharingAddress();
     QString getSharingCaption();
@@ -167,7 +167,7 @@ signals:
     void wifiSharingStateChanged(bool bEnabled, const QString &ssid, int usersCount);
     void wifiSharingFailed();
 
-    void signOutFinished();
+    void logoutFinished();
 
     void gotoCustomOvpnConfigModeFinished();
 
@@ -204,8 +204,8 @@ private slots:
     void disconnectClickImpl();
     void sendDebugLogImpl();
     void getWebSessionTokenImpl(WEB_SESSION_PURPOSE purpose);
-    void signOutImpl(bool keepFirewallOn);
-    void signOutImplAfterDisconnect(bool keepFirewallOn);
+    void logoutImpl(bool keepFirewallOn);
+    void logoutImplAfterDisconnect(bool keepFirewallOn);
     void continueWithUsernameAndPasswordImpl(const QString &username, const QString &password, bool bSave);
     void continueWithPasswordImpl(const QString &password, bool bSave);
     void continueWithPrivKeyPasswordImpl(const QString &password, bool bSave);
@@ -221,7 +221,7 @@ private slots:
     void setSettingsImpl(const types::EngineSettings &engineSettings);
     void checkForceDisconnectNode(const QStringList &forceDisconnectNodes);
 
-    void startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType);
+    void startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType, uint port);
     void stopProxySharingImpl();
 
     void startWifiSharingImpl(const QString &ssid, const QString &password);
@@ -334,7 +334,7 @@ private:
     QScopedPointer<api_resources::ApiResourcesManager> apiResourcesManager_;    // can be null for the custom config mode or when we in the logout state
     api_resources::CheckUpdateManager *checkUpdateManager_;
     api_resources::MyIpManager *myIpManager_;
-    std::unique_ptr<SignOutHelper> signOutHelper_;
+    std::unique_ptr<LogoutHelper> logoutHelper_;
 
 #ifdef Q_OS_WIN
     MeasurementCpuUsage *measurementCpuUsage_;

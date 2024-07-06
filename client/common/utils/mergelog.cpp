@@ -138,7 +138,11 @@ int MergeLog::mergeTask(QMutex *mutex, QMultiMap<quint64, QPair<LineSource, QStr
 const QString MergeLog::guiLogLocation()
 {
     QString path = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+#ifdef CLI_ONLY
+    return path + "/log_cli.txt";
+#else
     return path + "/log_gui.txt";
+#endif
 }
 
 const QString MergeLog::serviceLogLocation()
@@ -177,7 +181,11 @@ const QString MergeLog::installerLogLocation()
 const QString MergeLog::prevGuiLogLocation()
 {
     QString path = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+#ifdef CLI_ONLY
+    return path + "/prev_log_cli.txt";
+#else
     return path + "/prev_log_gui.txt";
+#endif
 }
 
 const QString MergeLog::prevServiceLogLocation()

@@ -151,6 +151,7 @@ void EditBoxItem::onEditClick()
     lineEdit_->setFocus();
     isEditMode_ = true;
     update();
+    emit editClicked();
 }
 
 void EditBoxItem::onConfirmClick()
@@ -173,6 +174,7 @@ void EditBoxItem::onUndoClick()
     proxyWidget_->hide();
     isEditMode_ = false;
     update();
+    emit cancelled();
 }
 
 void EditBoxItem::updateScaling()

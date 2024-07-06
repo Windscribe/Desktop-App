@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../backend/backend.h"
+#include "backend/backend.h"
 #include "commongraphics/scalablegraphicsobject.h"
 #include "commongraphics/resizablewindow.h"
 #include "commongraphics/basepage.h"

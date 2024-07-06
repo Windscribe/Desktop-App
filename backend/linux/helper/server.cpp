@@ -15,6 +15,7 @@
 #include <unistd.h>
 
 #include "execute_cmd.h"
+#include "firewallcontroller.h"
 #include "ipc/helper_security.h"
 #include "logger.h"
 #include "ovpn.h"
@@ -22,7 +23,7 @@
 #include "utils.h"
 #include "utils/executable_signature/executable_signature.h"
 
-#define SOCK_PATH "/var/run/windscribe_helper_socket2"
+#define SOCK_PATH "/var/run/windscribe/helper.sock"
 
 Server::Server()
 {
@@ -155,9 +156,10 @@ bool Server::sendAnswerCmd(socket_ptr sock, const CMD_ANSWER &cmdAnswer)
 
 void Server::run()
 {
-    auto res = system("mkdir -p /var/run"); // res is necessary to avoid no-discard warning.
-    UNUSED(res);
     Utils::createWindscribeUserAndGroup();
+
+    auto res = system("mkdir -p /var/run/windscribe && chown :windscribe /var/run/windscribe && chmod 775 /var/run/windscribe"); // res is necessary to avoid no-discard warning.
+    UNUSED(res);
 
     ::unlink(SOCK_PATH);
 
@@ -170,6 +172,10 @@ void Server::run()
         ::unlink(SOCK_PATH);
         return;
     }
+
+    // Cause the FirewallController to be constructed here, so that on-boot rules are processed, even if the Windscribe app/service does not start.
+    FirewallController::instance();
+
     startAccept();
 
     service_.run();

@@ -1,4 +1,5 @@
 #include "apiresolutionsettings.h"
+#include "types/enums.h"
 #include "utils/logger.h"
 
 namespace types {
@@ -9,11 +10,11 @@ ApiResolutionSettings::ApiResolutionSettings() : bAutomatic_(true)
 
 ApiResolutionSettings::ApiResolutionSettings(const QJsonObject &json)
 {
-    if (json.contains(jsonInfo_.kIsAutomaticProp) && json[jsonInfo_.kIsAutomaticProp].isBool())
-        bAutomatic_ = json[jsonInfo_.kIsAutomaticProp].toBool();
+    if (json.contains(kJsonIsAutomaticProp) && json[kJsonIsAutomaticProp].isBool())
+        bAutomatic_ = json[kJsonIsAutomaticProp].toBool();
 
-    if (json.contains(jsonInfo_.kManualAddressProp) && json[jsonInfo_.kManualAddressProp].isString())
-        manualAddress_ = json[jsonInfo_.kManualAddressProp].toString();
+    if (json.contains(kJsonManualAddressProp) && json[kJsonManualAddressProp].isString())
+        manualAddress_ = json[kJsonManualAddressProp].toString();
 }
 
 void ApiResolutionSettings::set(bool bAutomatic, const QString &manualAddress)
@@ -40,6 +41,28 @@ QString ApiResolutionSettings::getManualAddress() const
 void ApiResolutionSettings::setManualAddress(const QString &manualAddress)
 {
     manualAddress_ = manualAddress;
+}
+
+QJsonObject ApiResolutionSettings::toJson() const
+{
+    QJsonObject json;
+    json[kJsonIsAutomaticProp] = bAutomatic_;
+    json[kJsonManualAddressProp] = manualAddress_;
+    return json;
+}
+
+void ApiResolutionSettings::fromIni(const QSettings &settings)
+{
+    QString prevMode = TOGGLE_MODE_toString(bAutomatic_ ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL);
+    TOGGLE_MODE mode = TOGGLE_MODE_fromString(settings.value(kIniIsAutomaticProp, prevMode).toString());
+    bAutomatic_ = (mode == TOGGLE_MODE_AUTO);
+    manualAddress_ = settings.value(kIniManualAddressProp, manualAddress_).toString();
+}
+
+void ApiResolutionSettings::toIni(QSettings &settings) const
+{
+    settings.setValue(kIniIsAutomaticProp, TOGGLE_MODE_toString(bAutomatic_ ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL));
+    settings.setValue(kIniManualAddressProp, manualAddress_);
 }
 
 QDataStream& operator <<(QDataStream &stream, const ApiResolutionSettings &o)

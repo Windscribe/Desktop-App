@@ -4,38 +4,35 @@
 
 #include <QDebug>
 #include <QJsonObject>
+#include <QSettings>
 
 namespace types {
 
 struct ShareProxyGateway
 {
-    struct JsonInfo
-    {
-        JsonInfo& operator=(const JsonInfo&) { return *this; }
-
-        const QString kIsEnabledProp = "isEnabled";
-        const QString kProxySharingModeProp = "proxySharingMode";
-    };
-
     ShareProxyGateway() = default;
 
     ShareProxyGateway(const QJsonObject &json)
     {
-        if (json.contains(jsonInfo.kIsEnabledProp) && json[jsonInfo.kIsEnabledProp].isBool())
-            isEnabled = json[jsonInfo.kIsEnabledProp].toBool();
+        if (json.contains(kJsonIsEnabledProp) && json[kJsonIsEnabledProp].isBool())
+            isEnabled = json[kJsonIsEnabledProp].toBool();
 
-        if (json.contains(jsonInfo.kProxySharingModeProp) && json[jsonInfo.kProxySharingModeProp].isDouble())
-            proxySharingMode = static_cast<PROXY_SHARING_TYPE>(json[jsonInfo.kProxySharingModeProp].toInt());
+        if (json.contains(kJsonProxySharingModeProp) && json[kJsonProxySharingModeProp].isDouble())
+            proxySharingMode = static_cast<PROXY_SHARING_TYPE>(json[kJsonProxySharingModeProp].toInt());
+
+        if (json.contains(kJsonPortProp) && json[kJsonPortProp].isDouble())
+            port = json[kJsonPortProp].toInt();
     }
 
     bool isEnabled = false;
     PROXY_SHARING_TYPE proxySharingMode = PROXY_SHARING_HTTP;
-    JsonInfo jsonInfo;
+    uint port = 0;
 
     bool operator==(const ShareProxyGateway &other) const
     {
         return other.isEnabled == isEnabled &&
-               other.proxySharingMode == proxySharingMode;
+               other.proxySharingMode == proxySharingMode &&
+               other.port == port;
     }
 
     bool operator!=(const ShareProxyGateway &other) const
@@ -43,18 +40,36 @@ struct ShareProxyGateway
         return !(*this == other);
     }
 
+    void fromIni(const QSettings &settings)
+    {
+        isEnabled = settings.value(kIniIsEnabledProp, isEnabled).toBool();
+        proxySharingMode = PROXY_SHARING_TYPE_fromString(settings.value(kIniProxySharingModeProp, PROXY_SHARING_TYPE_toString(proxySharingMode)).toString());
+        uint p = settings.value(kIniPortProp, port).toUInt();
+        if (p < 65536) {
+            port = p;
+        }
+    }
+
+    void toIni(QSettings &settings) const
+    {
+        settings.setValue(kIniIsEnabledProp, isEnabled);
+        settings.setValue(kIniProxySharingModeProp, PROXY_SHARING_TYPE_toString(proxySharingMode));
+        settings.setValue(kIniPortProp, port);
+    }
+
     QJsonObject toJson() const
     {
         QJsonObject json;
-        json[jsonInfo.kIsEnabledProp] = isEnabled;
-        json[jsonInfo.kProxySharingModeProp] = static_cast<int>(proxySharingMode);
+        json[kJsonIsEnabledProp] = isEnabled;
+        json[kJsonProxySharingModeProp] = static_cast<int>(proxySharingMode);
+        json[kJsonPortProp] = static_cast<int>(port);
         return json;
     }
 
     friend QDataStream& operator <<(QDataStream &stream, const ShareProxyGateway &o)
     {
         stream << versionForSerialization_;
-        stream << o.isEnabled << o.proxySharingMode;
+        stream << o.isEnabled << o.proxySharingMode << o.port;
         return stream;
     }
 
@@ -68,6 +83,9 @@ struct ShareProxyGateway
             return stream;
         }
         stream >> o.isEnabled >> o.proxySharingMode;
+        if (version >= 2) {
+            stream >> o.port;
+        }
         return stream;
     }
 
@@ -76,13 +94,21 @@ struct ShareProxyGateway
         QDebugStateSaver saver(dbg);
         dbg.nospace();
         dbg << "{isEnabled:" << s.isEnabled << "; ";
-        dbg << "proxySharingMode:" << PROXY_SHARING_TYPE_toString(s.proxySharingMode) << "}";
+        dbg << "proxySharingMode:" << PROXY_SHARING_TYPE_toString(s.proxySharingMode) << "; ";
+        dbg << "port:" << s.port << "}";
         return dbg;
     }
 
-
 private:
-    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+    static const inline QString kIniIsEnabledProp = "ShareProxyGatewayEnabled";
+    static const inline QString kIniProxySharingModeProp = "ShareProxyGatewayMode";
+    static const inline QString kIniPortProp = "ShareProxyGatewayPort";
+
+    static const inline QString kJsonIsEnabledProp = "isEnabled";
+    static const inline QString kJsonProxySharingModeProp = "proxySharingMode";
+    static const inline QString kJsonPortProp = "port";
+
+    static constexpr quint32 versionForSerialization_ = 2;  // should increment the version if the data format is changed
 };
 
 } // types namespace

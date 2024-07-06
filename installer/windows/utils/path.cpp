@@ -48,7 +48,7 @@ bool isRoot(const std::wstring& fileName)
 bool isOnSystemDrive(const std::wstring& fileName)
 {
     if (!fileName.empty()) {
-        wstring systemDir = Utils::GetSystemDir();
+        wstring systemDir = Utils::getSystemDir();
         if (!systemDir.empty()) {
             return ::PathIsSameRootW(systemDir.c_str(), fileName.c_str());;
         }

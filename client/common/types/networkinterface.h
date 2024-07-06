@@ -10,29 +10,6 @@ namespace types {
 
 struct NetworkInterface
 {
-    struct JsonInfo
-    {
-        JsonInfo& operator=(const JsonInfo&) { return *this; }
-
-        const QString kInterfaceIndexProp = "interfaceIndex";
-        const QString kInterfaceNameProp = "interfaceName";
-        const QString kInterfaceGuidProp = "interfaceGuid";
-        const QString kNetworkOrSsidProp = "networkOrSsid";
-        const QString kInterfaceTypeProp = "interfaceType";
-        const QString kTrustTypeProp = "trustType";
-        const QString kActiveProp = "active";
-        const QString kFriendlyNameProp = "friendlyName";
-        const QString kRequestedProp = "requested";
-        const QString kMetricProp = "metric";
-        const QString kPhysicalAddressProp = "physicalAddress";
-        const QString kMtuProp = "mtu";
-        const QString kStateProp = "state";
-        const QString kDwTypeProp = "dwType";
-        const QString kDeviceNameProp = "deviceName";
-        const QString kConnectorPresentProp = "connectorPresent";
-        const QString kEndPointInterfaceProp = "endPointInterface";
-    };
-
     // defaults
     NetworkInterface() :
         interfaceIndex(-1),
@@ -50,56 +27,56 @@ struct NetworkInterface
 
     NetworkInterface(const QJsonObject &json)
     {
-        if (json.contains(jsonInfo.kInterfaceIndexProp) && json[jsonInfo.kInterfaceIndexProp].isDouble())
-            interfaceIndex = static_cast<int>(json[jsonInfo.kInterfaceIndexProp].toDouble(-1));
+        if (json.contains(kJsonInterfaceIndexProp) && json[kJsonInterfaceIndexProp].isDouble())
+            interfaceIndex = static_cast<int>(json[kJsonInterfaceIndexProp].toDouble(-1));
 
-        if (json.contains(jsonInfo.kInterfaceNameProp) && json[jsonInfo.kInterfaceNameProp].isString())
-            interfaceName = fromBase64(json[jsonInfo.kInterfaceNameProp].toString());
+        if (json.contains(kJsonInterfaceNameProp) && json[kJsonInterfaceNameProp].isString())
+            interfaceName = fromBase64(json[kJsonInterfaceNameProp].toString());
 
-        if (json.contains(jsonInfo.kInterfaceGuidProp) && json[jsonInfo.kInterfaceGuidProp].isString())
-            interfaceGuid = fromBase64(json[jsonInfo.kInterfaceGuidProp].toString());
+        if (json.contains(kJsonInterfaceGuidProp) && json[kJsonInterfaceGuidProp].isString())
+            interfaceGuid = fromBase64(json[kJsonInterfaceGuidProp].toString());
 
-        if (json.contains(jsonInfo.kNetworkOrSsidProp) && json[jsonInfo.kNetworkOrSsidProp].isString())
-            networkOrSsid = fromBase64(json[jsonInfo.kNetworkOrSsidProp].toString());
+        if (json.contains(kJsonNetworkOrSsidProp) && json[kJsonNetworkOrSsidProp].isString())
+            networkOrSsid = fromBase64(json[kJsonNetworkOrSsidProp].toString());
 
-        if (json.contains(jsonInfo.kInterfaceTypeProp) && json[jsonInfo.kInterfaceTypeProp].isDouble())
-            interfaceType = static_cast<NETWORK_INTERACE_TYPE>(json[jsonInfo.kInterfaceTypeProp].toInt(NETWORK_INTERFACE_NONE));
+        if (json.contains(kJsonInterfaceTypeProp) && json[kJsonInterfaceTypeProp].isDouble())
+            interfaceType = static_cast<NETWORK_INTERACE_TYPE>(json[kJsonInterfaceTypeProp].toInt(NETWORK_INTERFACE_NONE));
 
-        if (json.contains(jsonInfo.kTrustTypeProp) && json[jsonInfo.kTrustTypeProp].isDouble())
-            trustType = static_cast<NETWORK_TRUST_TYPE>(json[jsonInfo.kTrustTypeProp].toInt(NETWORK_TRUST_SECURED));
+        if (json.contains(kJsonTrustTypeProp) && json[kJsonTrustTypeProp].isDouble())
+            trustType = static_cast<NETWORK_TRUST_TYPE>(json[kJsonTrustTypeProp].toInt(NETWORK_TRUST_SECURED));
 
-        if (json.contains(jsonInfo.kActiveProp) && json[jsonInfo.kActiveProp].isBool())
-            active = json[jsonInfo.kActiveProp].toBool();
+        if (json.contains(kJsonActiveProp) && json[kJsonActiveProp].isBool())
+            active = json[kJsonActiveProp].toBool();
 
-        if (json.contains(jsonInfo.kFriendlyNameProp) && json[jsonInfo.kFriendlyNameProp].isString())
-            friendlyName = fromBase64(json[jsonInfo.kFriendlyNameProp].toString());
+        if (json.contains(kJsonFriendlyNameProp) && json[kJsonFriendlyNameProp].isString())
+            friendlyName = fromBase64(json[kJsonFriendlyNameProp].toString());
 
-        if (json.contains(jsonInfo.kRequestedProp) && json[jsonInfo.kRequestedProp].isBool())
-            requested = json[jsonInfo.kRequestedProp].toBool();
+        if (json.contains(kJsonRequestedProp) && json[kJsonRequestedProp].isBool())
+            requested = json[kJsonRequestedProp].toBool();
 
-        if (json.contains(jsonInfo.kMetricProp) && json[jsonInfo.kMetricProp].isDouble())
-            metric = static_cast<int>(json[jsonInfo.kMetricProp].toDouble(100));
+        if (json.contains(kJsonMetricProp) && json[kJsonMetricProp].isDouble())
+            metric = static_cast<int>(json[kJsonMetricProp].toDouble(100));
 
-        if (json.contains(jsonInfo.kPhysicalAddressProp) && json[jsonInfo.kPhysicalAddressProp].isString())
-            physicalAddress = fromBase64(json[jsonInfo.kPhysicalAddressProp].toString());
+        if (json.contains(kJsonPhysicalAddressProp) && json[kJsonPhysicalAddressProp].isString())
+            physicalAddress = fromBase64(json[kJsonPhysicalAddressProp].toString());
 
-        if (json.contains(jsonInfo.kMtuProp) && json[jsonInfo.kMtuProp].isDouble())
-            mtu = static_cast<int>(json[jsonInfo.kMtuProp].toDouble(1470));
+        if (json.contains(kJsonMtuProp) && json[kJsonMtuProp].isDouble())
+            mtu = static_cast<int>(json[kJsonMtuProp].toDouble(1470));
 
-        if (json.contains(jsonInfo.kStateProp) && json[jsonInfo.kStateProp].isDouble())
-            state = static_cast<int>(json[jsonInfo.kStateProp].toDouble(0));
+        if (json.contains(kJsonStateProp) && json[kJsonStateProp].isDouble())
+            state = static_cast<int>(json[kJsonStateProp].toDouble(0));
 
-        if (json.contains(jsonInfo.kDwTypeProp) && json[jsonInfo.kDwTypeProp].isDouble())
-            dwType = static_cast<int>(json[jsonInfo.kDwTypeProp].toDouble(0));
+        if (json.contains(kJsonDwTypeProp) && json[kJsonDwTypeProp].isDouble())
+            dwType = static_cast<int>(json[kJsonDwTypeProp].toDouble(0));
 
-        if (json.contains(jsonInfo.kDeviceNameProp) && json[jsonInfo.kDeviceNameProp].isString())
-            deviceName = fromBase64(json[jsonInfo.kDeviceNameProp].toString());
+        if (json.contains(kJsonDeviceNameProp) && json[kJsonDeviceNameProp].isString())
+            deviceName = fromBase64(json[kJsonDeviceNameProp].toString());
 
-        if (json.contains(jsonInfo.kConnectorPresentProp) && json[jsonInfo.kConnectorPresentProp].isBool())
-            connectorPresent = json[jsonInfo.kConnectorPresentProp].toBool();
+        if (json.contains(kJsonConnectorPresentProp) && json[kJsonConnectorPresentProp].isBool())
+            connectorPresent = json[kJsonConnectorPresentProp].toBool();
 
-        if (json.contains(jsonInfo.kEndPointInterfaceProp) && json[jsonInfo.kEndPointInterfaceProp].isBool())
-            endPointInterface = json[jsonInfo.kEndPointInterfaceProp].toBool();
+        if (json.contains(kJsonEndPointInterfaceProp) && json[kJsonEndPointInterfaceProp].isBool())
+            endPointInterface = json[kJsonEndPointInterfaceProp].toBool();
     }
 
     int interfaceIndex;
@@ -119,7 +96,6 @@ struct NetworkInterface
     QString deviceName;
     bool connectorPresent;
     bool endPointInterface;
-    JsonInfo jsonInfo;
 
     bool operator==(const NetworkInterface &other) const
     {
@@ -179,23 +155,23 @@ struct NetworkInterface
     QJsonObject toJson() const
     {
         QJsonObject json;
-        json[jsonInfo.kInterfaceIndexProp] = interfaceIndex;
-        json[jsonInfo.kInterfaceNameProp] = toBase64(interfaceName);
-        json[jsonInfo.kInterfaceGuidProp] = toBase64(interfaceGuid);
-        json[jsonInfo.kNetworkOrSsidProp] = toBase64(networkOrSsid);
-        json[jsonInfo.kInterfaceTypeProp] = static_cast<int>(interfaceType);
-        json[jsonInfo.kTrustTypeProp] = static_cast<int>(trustType);
-        json[jsonInfo.kActiveProp] = active;
-        json[jsonInfo.kFriendlyNameProp] = toBase64(friendlyName);
-        json[jsonInfo.kRequestedProp] = requested;
-        json[jsonInfo.kMetricProp] = metric;
-        json[jsonInfo.kPhysicalAddressProp] = toBase64(physicalAddress);
-        json[jsonInfo.kMtuProp] = mtu;
-        json[jsonInfo.kStateProp] = state;
-        json[jsonInfo.kDwTypeProp] = dwType;
-        json[jsonInfo.kDeviceNameProp] = toBase64(deviceName);
-        json[jsonInfo.kConnectorPresentProp] = connectorPresent;
-        json[jsonInfo.kEndPointInterfaceProp] = endPointInterface;
+        json[kJsonInterfaceIndexProp] = interfaceIndex;
+        json[kJsonInterfaceNameProp] = toBase64(interfaceName);
+        json[kJsonInterfaceGuidProp] = toBase64(interfaceGuid);
+        json[kJsonNetworkOrSsidProp] = toBase64(networkOrSsid);
+        json[kJsonInterfaceTypeProp] = static_cast<int>(interfaceType);
+        json[kJsonTrustTypeProp] = static_cast<int>(trustType);
+        json[kJsonActiveProp] = active;
+        json[kJsonFriendlyNameProp] = toBase64(friendlyName);
+        json[kJsonRequestedProp] = requested;
+        json[kJsonMetricProp] = metric;
+        json[kJsonPhysicalAddressProp] = toBase64(physicalAddress);
+        json[kJsonMtuProp] = mtu;
+        json[kJsonStateProp] = state;
+        json[kJsonDwTypeProp] = dwType;
+        json[kJsonDeviceNameProp] = toBase64(deviceName);
+        json[kJsonConnectorPresentProp] = connectorPresent;
+        json[kJsonEndPointInterfaceProp] = endPointInterface;
         return json;
     }
 
@@ -249,6 +225,24 @@ struct NetworkInterface
     }
 
 private:
+    static const inline QString kJsonInterfaceIndexProp = "interfaceIndex";
+    static const inline QString kJsonInterfaceNameProp = "interfaceName";
+    static const inline QString kJsonInterfaceGuidProp = "interfaceGuid";
+    static const inline QString kJsonNetworkOrSsidProp = "networkOrSsid";
+    static const inline QString kJsonInterfaceTypeProp = "interfaceType";
+    static const inline QString kJsonTrustTypeProp = "trustType";
+    static const inline QString kJsonActiveProp = "active";
+    static const inline QString kJsonFriendlyNameProp = "friendlyName";
+    static const inline QString kJsonRequestedProp = "requested";
+    static const inline QString kJsonMetricProp = "metric";
+    static const inline QString kJsonPhysicalAddressProp = "physicalAddress";
+    static const inline QString kJsonMtuProp = "mtu";
+    static const inline QString kJsonStateProp = "state";
+    static const inline QString kJsonDwTypeProp = "dwType";
+    static const inline QString kJsonDeviceNameProp = "deviceName";
+    static const inline QString kJsonConnectorPresentProp = "connectorPresent";
+    static const inline QString kJsonEndPointInterfaceProp = "endPointInterface";
+
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 

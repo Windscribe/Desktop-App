@@ -232,10 +232,10 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::wgConfigsInit(const std::str
     return cancelableCallback;
 }
 
-std::shared_ptr<WSNetCancelableCallback> ServerAPI::wgConfigsConnect(const std::string &authHash, const std::string &clientPublicKey, const std::string &hostname, const std::string &deviceId, WSNetRequestFinishedCallback callback)
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::wgConfigsConnect(const std::string &authHash, const std::string &clientPublicKey, const std::string &hostname, const std::string &deviceId, const std::string &wgTtl, WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = requests_factory::wgConfigsConnect(authHash, clientPublicKey, hostname, deviceId, cancelableCallback);
+    BaseRequest *request = requests_factory::wgConfigsConnect(authHash, clientPublicKey, hostname, deviceId, wgTtl, cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
@@ -343,6 +343,14 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::recordShakeForDataScore(cons
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::recordShakeForDataScore(authHash, platform, score, signature, cancelableCallback);
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    return cancelableCallback;
+}
+
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::verifyTvLoginCode(const std::string &authHash, const std::string &xpressCode, WSNetRequestFinishedCallback callback)
+{
+    auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
+    BaseRequest *request = requests_factory::verifyTvLoginCode(authHash, xpressCode, cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }

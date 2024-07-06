@@ -1,0 +1,22 @@
+HOME			= .
+openssl_conf = openssl_init
+
+[openssl_init]
+providers = provider_sect
+ssl_conf = ssl_sect
+
+[provider_sect]
+default = default_sect
+oqsprovider = oqsprovider_sect
+
+[default_sect]
+activate = 1
+
+[oqsprovider_sect]
+activate = 1
+
+[ssl_sect]
+system_default = system_default_sect
+
+[system_default_sect]
+Groups = p521_kyber1024:kyber1024:kyber768:p384_kyber768:X448:X25519:secp521r1:secp384r1:secp256k1:ffdhe8192:ffdhe6144:ffdhe4096:ffdhe3072:ffdhe2048

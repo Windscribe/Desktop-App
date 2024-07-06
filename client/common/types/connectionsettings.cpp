@@ -1,4 +1,5 @@
 #include "connectionsettings.h"
+#include "types/enums.h"
 #include "utils/logger.h"
 #include "utils/ws_assert.h"
 
@@ -25,16 +26,26 @@ ConnectionSettings::ConnectionSettings(Protocol protocol, uint port, bool isAuto
 
 ConnectionSettings::ConnectionSettings(const QJsonObject &json)
 {
-    if (json.contains(jsonInfo_.kProtocolProp) && json[jsonInfo_.kProtocolProp].isDouble())
-        protocol_ = static_cast<Protocol>(json[jsonInfo_.kProtocolProp].toInt());
+    if (json.contains(kJsonProtocolProp) && json[kJsonProtocolProp].isDouble())
+        protocol_ = static_cast<Protocol>(json[kJsonProtocolProp].toInt());
 
-    if (json.contains(jsonInfo_.kPortProp) && json[jsonInfo_.kPortProp].isDouble())
-        port_ = static_cast<uint>(json[jsonInfo_.kPortProp].toInt());
+    if (json.contains(kJsonPortProp) && json[kJsonPortProp].isDouble()) {
+        uint port = static_cast<uint>(json[kJsonPortProp].toInt());
+        if (port >= 0 && port < 65536) {
+            port_ = port;
+        }
+    }
 
-    if (json.contains(jsonInfo_.kIsAutomaticProp) && json[jsonInfo_.kIsAutomaticProp].isBool())
-        isAutomatic_ = json[jsonInfo_.kIsAutomaticProp].toBool();
+    if (json.contains(kJsonIsAutomaticProp) && json[kJsonIsAutomaticProp].isBool())
+        isAutomatic_ = json[kJsonIsAutomaticProp].toBool();
+
+    checkForUnavailableProtocolAndFix();
 }
 
+ConnectionSettings::ConnectionSettings(QSettings &settings, const QString &key)
+{
+    fromIni(settings, key);
+}
 
 void ConnectionSettings::setProtocolAndPort(Protocol protocol, uint port)
 {
@@ -56,10 +67,48 @@ void ConnectionSettings::setIsAutomatic(bool isAutomatic)
 QJsonObject ConnectionSettings::toJson() const
 {
     QJsonObject json;
-    json[jsonInfo_.kProtocolProp] = protocol_.toInt();
-    json[jsonInfo_.kPortProp] = static_cast<int>(port_);
-    json[jsonInfo_.kIsAutomaticProp] = isAutomatic_;
+    json[kJsonProtocolProp] = protocol_.toInt();
+    json[kJsonPortProp] = static_cast<int>(port_);
+    json[kJsonIsAutomaticProp] = isAutomatic_;
     return json;
+}
+
+void ConnectionSettings::fromIni(QSettings &settings, const QString &key)
+{
+    QString prevMode = TOGGLE_MODE_toString(isAutomatic_ ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL);
+
+    if (!key.isEmpty()) {
+        settings.beginGroup(key);
+    }
+
+	TOGGLE_MODE mode = TOGGLE_MODE_fromString(settings.value(kIniIsAutomaticProp, prevMode).toString());
+	isAutomatic_ = (mode == TOGGLE_MODE_AUTO);
+	protocol_ = Protocol::fromString(settings.value(kIniProtocolProp, protocol_.toLongString()).toString());
+	uint port = settings.value(kIniPortProp, port_).toUInt();
+	if (port < 65536) {
+		port_ = port;
+	}
+
+    if (!key.isEmpty()) {
+        settings.endGroup();
+    }
+
+    checkForUnavailableProtocolAndFix();
+}
+
+void ConnectionSettings::toIni(QSettings &settings, const QString &key) const
+{
+    if (!key.isEmpty()) {
+        settings.beginGroup(key);
+    }
+
+	settings.setValue(kIniIsAutomaticProp, TOGGLE_MODE_toString(isAutomatic_ ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL));
+	settings.setValue(kIniProtocolProp, protocol_.toLongString());
+	settings.setValue(kIniPortProp, port_);
+
+    if (!key.isEmpty()) {
+        settings.endGroup();
+    }
 }
 
 void ConnectionSettings::checkForUnavailableProtocolAndFix()

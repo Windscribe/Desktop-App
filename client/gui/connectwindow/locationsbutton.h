@@ -3,7 +3,7 @@
 #include <QFont>
 #include <QGraphicsObject>
 #include <QPropertyAnimation>
-#include "../backend/backend.h"
+#include "backend/backend.h"
 #include "commongraphics/clickablegraphicsobject.h"
 #include "commongraphics/imageitem.h"
 

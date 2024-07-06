@@ -83,10 +83,10 @@ void FirewallController_linux::setInterfaceToSkip_posix(const QString &interface
     }
 }
 
-void FirewallController_linux::enableFirewallOnBoot(bool bEnable, const QSet<QString>& ipTable)
+void FirewallController_linux::setFirewallOnBoot(bool bEnable, const QSet<QString>& ipTable, bool isAllowLanTraffic)
 {
     Q_UNUSED(bEnable);
-    //nothing todo for Linux
+    helper_->setFirewallOnBoot(bEnable, ipTable, isAllowLanTraffic);
 }
 
 bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const api_responses::StaticIpPortsVector &ports)
@@ -113,6 +113,9 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
 
         rules << "-A windscribe_input -i lo -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
         rules << "-A windscribe_output -o lo -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+
+        rules << "-A windscribe_input -p udp --sport 67:68 --dport 67:68 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -p udp --sport 67:68 --dport 67:68 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
         if (!interfaceToSkip_.isEmpty()) {
             if (!bIsCustomConfig) {

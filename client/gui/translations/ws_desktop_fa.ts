@@ -1698,6 +1698,22 @@ Connect to a network first</source>
         <source>Proxy Type</source>
         <translation>نوع پیشکار</translation>
     </message>
+    <message>
+        <source>Port</source>
+        <translation>پورت</translation>
+    </message>
+    <message>
+        <source>Unable to start proxy server</source>
+        <translation>قادر به اغاز کارگزار پیشکار نیست</translation>
+    </message>
+    <message>
+        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
+        <translation>کارگزار پروکسی نمی تواند بر روی درگاه درخواست شده اغاز شود. لطفا با درگاه دیگری دوباره تلاش کنید.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>خودکار</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>

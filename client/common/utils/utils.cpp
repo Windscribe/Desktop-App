@@ -193,14 +193,14 @@ QList<types::SplitTunnelingApp> Utils::insertionSort(QList<types::SplitTunneling
     return sortedApps;
 }
 
-bool Utils::isGuiAlreadyRunning()
+bool Utils::isAppAlreadyRunning()
 {
 #ifdef Q_OS_WIN
-    return WinUtils::isGuiAlreadyRunning();
+    return WinUtils::isAppAlreadyRunning();
 #elif defined Q_OS_MAC
-    return MacUtils::isGuiAlreadyRunning();
+    return MacUtils::isAppAlreadyRunning();
 #elif defined Q_OS_LINUX
-    return LinuxUtils::isGuiAlreadyRunning();
+    return LinuxUtils::isAppAlreadyRunning();
 #endif
 }
 

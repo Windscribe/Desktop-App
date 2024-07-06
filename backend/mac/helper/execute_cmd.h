@@ -14,7 +14,7 @@ public:
         return i;
     }
 
-    unsigned long execute(const std::string &cmd, const std::string &cwd = "");
+    unsigned long execute(const std::string &cmd, const std::string &cwd = "", bool deleteOnFinish = false);
     void getStatus(unsigned long cmdId, bool &bFinished, std::string &log);
     void clearCmds();
 
@@ -23,8 +23,8 @@ private:
 
     unsigned long curCmdId_;
 
-    static void runCmd(unsigned long cmdId, std::string cmd);
-    void cmdFinished(unsigned long cmdId, bool bSuccess, std::string log);
+    static void runCmd(unsigned long cmdId, std::string cmd, bool deleteOnFinish);
+    void cmdFinished(unsigned long cmdId, bool bSuccess, std::string log, bool del);
     bool isCmdExist(unsigned long cmdId);
 
     struct CmdDescr

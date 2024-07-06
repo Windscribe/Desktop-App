@@ -1,9 +1,9 @@
 #pragma once
 
+#include <QJsonObject>
+#include <QNetworkProxy>
 #include <QSettings>
 #include <QString>
-#include <QNetworkProxy>
-#include <QJsonObject>
 #include "enums.h"
 
 namespace types {
@@ -11,18 +11,6 @@ namespace types {
 class ProxySettings
 {
 public:
-
-    struct JsonInfo
-    {
-        JsonInfo& operator=(const JsonInfo&) { return *this; }
-
-        const QString kOptionProp = "option";
-        const QString kAddressProp = "address";
-        const QString kPortProp = "port";
-        const QString kUsernameProp = "username";
-        const QString kPasswordProp = "password";
-    };
-
     ProxySettings();
     ProxySettings(PROXY_OPTION option, const QString &address, uint port, const QString &password, const QString &username);
     ProxySettings(const QJsonObject &json);
@@ -57,6 +45,8 @@ public:
         return !(*this == other);
     }
 
+    void fromIni(const QSettings &settings);
+    void toIni(QSettings &settings) const;
     QJsonObject toJson() const;
 
     friend QDataStream& operator <<(QDataStream &stream, const ProxySettings &o);
@@ -70,7 +60,18 @@ private:
     uint port_;
     QString username_;
     QString password_;
-    JsonInfo jsonInfo_;
+
+    static const inline QString kIniOptionProp = "ProxyMode";
+    static const inline QString kIniAddressProp = "ProxyAddress";
+    static const inline QString kIniPortProp = "ProxyPort";
+    static const inline QString kIniUsernameProp = "ProxyUsername";
+    static const inline QString kIniPasswordProp = "ProxyPassword";
+
+    static const inline QString kJsonOptionProp = "option";
+    static const inline QString kJsonAddressProp = "address";
+    static const inline QString kJsonPortProp = "port";
+    static const inline QString kJsonUsernameProp = "username";
+    static const inline QString kJsonPasswordProp = "password";
 
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };

@@ -1698,6 +1698,22 @@ Kết nối với mạng trước</translation>
         <source>Proxy Type</source>
         <translation>Loại proxy</translation>
     </message>
+    <message>
+        <source>Port</source>
+        <translation>Cảng</translation>
+    </message>
+    <message>
+        <source>Unable to start proxy server</source>
+        <translation>Không thể khởi động máy chủ proxy</translation>
+    </message>
+    <message>
+        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
+        <translation>Không thể khởi động máy chủ proxy trên cổng được yêu cầu. Vui lòng thử lại với một cổng khác.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Xe ô tô</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>

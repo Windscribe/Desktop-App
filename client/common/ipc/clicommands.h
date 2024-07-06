@@ -10,6 +10,36 @@ namespace IPC
 namespace CliCommands
 {
 
+class Acknowledge : public Command
+{
+public:
+    Acknowledge() {}
+    explicit Acknowledge(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> code_ >> message_;
+    }
+
+    std::vector<char> getData() const override
+    {
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << code_ << message_;
+        return std::vector<char>(arr.begin(), arr.end());
+    }
+
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "CliCommands::Acknowledge debug string";
+    }
+    static std::string getCommandStringId() { return "CliCommands::Acknowledge";  }
+
+    int code_;
+    QString message_;
+};
+
 class Connect : public Command
 {
 public:
@@ -18,14 +48,14 @@ public:
     {
         QByteArray arr(buf, size);
         QDataStream ds(&arr, QIODevice::ReadOnly);
-        ds >> location_;
+        ds >> location_ >> protocol_;
     }
 
     std::vector<char> getData() const override
     {
         QByteArray arr;
         QDataStream ds(&arr, QIODevice::WriteOnly);
-        ds << location_;
+        ds << location_ << protocol_;
         return std::vector<char>(arr.begin(), arr.end());
     }
 
@@ -37,6 +67,7 @@ public:
     static std::string getCommandStringId() { return "CliCommands::Connect";  }
 
     QString location_;
+    QString protocol_;
 };
 
 class Disconnect : public Command
@@ -83,6 +114,35 @@ public:
         return "CliCommands::ShowLocations debug string";
     }
     static std::string getCommandStringId() { return "CliCommands::ShowLocations";  }
+};
+
+class LocationsList : public Command
+{
+public:
+    LocationsList() {}
+    explicit LocationsList(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> locations_;
+    }
+
+    std::vector<char> getData() const override
+    {
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << locations_;
+        return std::vector<char>(arr.begin(), arr.end());
+    }
+
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "CliCommands::LocationsList debug string";
+    }
+    static std::string getCommandStringId() { return "CliCommands::LocationsList";  }
+
+    QStringList locations_;
 };
 
 class Firewall : public Command
@@ -168,11 +228,11 @@ public:
     QString code2fa_;
 };
 
-class SignOut : public Command
+class Logout : public Command
 {
 public:
-    SignOut() {}
-    explicit SignOut(char *buf, int size)
+    Logout() {}
+    explicit Logout(char *buf, int size)
     {
         QByteArray arr(buf, size);
         QDataStream ds(&arr, QIODevice::ReadOnly);
@@ -190,110 +250,21 @@ public:
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
-        return "CliCommands::SignOut debug string";
+        return "CliCommands::Logout debug string";
     }
-    static std::string getCommandStringId() { return "CliCommands::SignOut";  }
+    static std::string getCommandStringId() { return "CliCommands::Logout";  }
 
     bool isKeepFirewallOn_;
 };
 
-class ConnectToLocationAnswer : public Command
+class SendLogs: public Command
 {
 public:
-    ConnectToLocationAnswer() {}
-    explicit ConnectToLocationAnswer(char *buf, int size)
+    SendLogs() {}
+    explicit SendLogs(char *buf, int size)
     {
-        QByteArray arr(buf, size);
-        QDataStream ds(&arr, QIODevice::ReadOnly);
-        ds >> isSuccess_ >> location_;
-    }
-
-    std::vector<char> getData() const override
-    {
-        QByteArray arr;
-        QDataStream ds(&arr, QIODevice::WriteOnly);
-        ds << isSuccess_ << location_;
-        return std::vector<char>(arr.begin(), arr.end());
-    }
-
-    std::string getStringId() const override { return getCommandStringId(); }
-    std::string getDebugString() const override
-    {
-        return "CliCommands::ConnectToLocationAnswer debug string";
-    }
-    static std::string getCommandStringId() { return "CliCommands::ConnectToLocationAnswer";  }
-
-    bool isSuccess_;
-    QString location_;
-};
-
-class ConnectStateChanged : public Command
-{
-public:
-    ConnectStateChanged() {}
-    explicit ConnectStateChanged(char *buf, int size)
-    {
-        QByteArray arr(buf, size);
-        QDataStream ds(&arr, QIODevice::ReadOnly);
-        ds >> connectState;
-    }
-
-    std::vector<char> getData() const override
-    {
-        QByteArray arr;
-        QDataStream ds(&arr, QIODevice::WriteOnly);
-        ds << connectState;
-        return std::vector<char>(arr.begin(), arr.end());
-    }
-
-    std::string getStringId() const override { return getCommandStringId(); }
-    std::string getDebugString() const override
-    {
-        return "CliCommands::ConnectStateChanged debug string";
-    }
-    static std::string getCommandStringId() { return "CliCommands::ConnectStateChanged";  }
-
-    types::ConnectState connectState;
-};
-
-class FirewallStateChanged : public Command
-{
-public:
-    FirewallStateChanged() {}
-    explicit FirewallStateChanged(char *buf, int size)
-    {
-        QByteArray arr(buf, size);
-        QDataStream ds(&arr, QIODevice::ReadOnly);
-        ds >> isFirewallEnabled_ >> isFirewallAlwaysOn_;
-    }
-
-    std::vector<char> getData() const override
-    {
-        QByteArray arr;
-        QDataStream ds(&arr, QIODevice::WriteOnly);
-        ds << isFirewallEnabled_ << isFirewallAlwaysOn_;
-        return std::vector<char>(arr.begin(), arr.end());
-    }
-
-    std::string getStringId() const override { return getCommandStringId(); }
-    std::string getDebugString() const override
-    {
-        return "CliCommands::FirewallStateChanged debug string";
-    }
-    static std::string getCommandStringId() { return "CliCommands::FirewallStateChanged";  }
-
-    bool isFirewallEnabled_;
-    bool isFirewallAlwaysOn_;
-};
-
-class LocationsShown : public Command
-{
-public:
-    LocationsShown() {}
-    explicit LocationsShown(char *buf, int size)
-    {
-        Q_UNUSED(buf)
-        Q_UNUSED(size)
+        Q_UNUSED(buf);
+        Q_UNUSED(size);
     }
 
     std::vector<char> getData() const override
@@ -304,32 +275,9 @@ public:
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
-        return "CliCommands::LocationsShown debug string";
+        return "CliCommands::SendLogs debug string";
     }
-    static std::string getCommandStringId() { return "CliCommands::LocationsShown";  }
-};
-
-class AlreadyDisconnected : public Command
-{
-public:
-    AlreadyDisconnected() {}
-    explicit AlreadyDisconnected(char *buf, int size)
-    {
-        Q_UNUSED(buf)
-        Q_UNUSED(size)
-    }
-
-    std::vector<char> getData() const override
-    {
-        return std::vector<char>();
-    }
-
-    std::string getStringId() const override { return getCommandStringId(); }
-    std::string getDebugString() const override
-    {
-        return "CliCommands::AlreadyDisconnected debug string";
-    }
-    static std::string getCommandStringId() { return "CliCommands::AlreadyDisconnected";  }
+    static std::string getCommandStringId() { return "CliCommands::SendLogs";  }
 };
 
 class State : public Command
@@ -340,14 +288,18 @@ public:
     {
         QByteArray arr(buf, size);
         QDataStream ds(&arr, QIODevice::ReadOnly);
-        ds >> isLoggedIn_ >> waitingForLoginInfo_ >> connectState_ >> location_;
+        ds >> language_ >> connectivity_ >> loginState_ >> loginError_ >> loginErrorMessage_ >> connectState_
+           >> protocol_ >> port_ >> tunnelTestState_ >> location_ >> isFirewallOn_ >> isFirewallAlwaysOn_
+           >> updateError_ >> updateProgress_ >> updateAvailable_ >> trafficUsed_ >> trafficMax_;
     }
 
     std::vector<char> getData() const override
     {
         QByteArray arr;
         QDataStream ds(&arr, QIODevice::WriteOnly);
-        ds << isLoggedIn_ << waitingForLoginInfo_ << connectState_ << location_;
+        ds << language_ << connectivity_ << loginState_ << loginError_ << loginErrorMessage_ << connectState_
+           << protocol_ << port_ << tunnelTestState_ << location_ << isFirewallOn_ << isFirewallAlwaysOn_
+           << updateError_ << updateProgress_ << updateAvailable_ << trafficUsed_ << trafficMax_;
         return std::vector<char>(arr.begin(), arr.end());
     }
 
@@ -358,50 +310,33 @@ public:
     }
     static std::string getCommandStringId() { return "CliCommands::State";  }
 
-    bool isLoggedIn_ = false;
-    bool waitingForLoginInfo_ = false;
-    CONNECT_STATE connectState_ = CONNECT_STATE_DISCONNECTED;
+    QString language_;
+    bool connectivity_;
+    LOGIN_STATE loginState_ = LOGIN_STATE_LOGGED_OUT;
+    LOGIN_RET loginError_;
+    QString loginErrorMessage_;
+    types::ConnectState connectState_;
+    types::Protocol protocol_;
+    uint port_;
+    TUNNEL_TEST_STATE tunnelTestState_;
     LocationID location_;
+    bool isFirewallOn_;
+    bool isFirewallAlwaysOn_;
+    UPDATE_VERSION_ERROR updateError_;
+    uint updateProgress_;
+    QString updateAvailable_;
+    qint64 trafficUsed_;
+    qint64 trafficMax_;
 };
 
-class LoginResult : public Command
+class Update : public Command
 {
 public:
-    LoginResult() {}
-    explicit LoginResult(char *buf, int size)
+    Update() {}
+    explicit Update(char *buf, int size)
     {
-        QByteArray arr(buf, size);
-        QDataStream ds(&arr, QIODevice::ReadOnly);
-        ds >> isLoggedIn_ >> loginError_;
-    }
-
-    std::vector<char> getData() const override
-    {
-        QByteArray arr;
-        QDataStream ds(&arr, QIODevice::WriteOnly);
-        ds << isLoggedIn_ << loginError_;
-        return std::vector<char>(arr.begin(), arr.end());
-    }
-
-    std::string getStringId() const override { return getCommandStringId(); }
-    std::string getDebugString() const override
-    {
-        return "CliCommands::LoginResult debug string";
-    }
-    static std::string getCommandStringId() { return "CliCommands::LoginResult";  }
-
-    bool isLoggedIn_;
-    QString loginError_;
-};
-
-class SignedOut : public Command
-{
-public:
-    SignedOut() {}
-    explicit SignedOut(char *buf, int size)
-    {
-        Q_UNUSED(buf)
-        Q_UNUSED(size)
+        Q_UNUSED(buf);
+        Q_UNUSED(size);
     }
 
     std::vector<char> getData() const override
@@ -412,9 +347,32 @@ public:
     std::string getStringId() const override { return getCommandStringId(); }
     std::string getDebugString() const override
     {
-        return "CliCommands::SignedOut debug string";
+        return "CliCommands::Update debug string";
     }
-    static std::string getCommandStringId() { return "CliCommands::SignedOut";  }
+    static std::string getCommandStringId() { return "CliCommands::Update";  }
+};
+
+class ReloadConfig : public Command
+{
+public:
+    ReloadConfig() {}
+    explicit ReloadConfig(char *buf, int size)
+    {
+        Q_UNUSED(buf);
+        Q_UNUSED(size);
+    }
+
+    std::vector<char> getData() const override
+    {
+        return std::vector<char>();
+    }
+
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "CliCommands::ReloadConfig debug string";
+    }
+    static std::string getCommandStringId() { return "CliCommands::ReloadConfig";  }
 };
 
 } // namespace CliCommands

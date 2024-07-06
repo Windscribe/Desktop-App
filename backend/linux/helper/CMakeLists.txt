@@ -25,6 +25,7 @@ set(SOURCES
     ../../../client/common/utils/executable_signature/executablesignature_linux.cpp
     execute_cmd.cpp
     firewallcontroller.cpp
+    firewallonboot.cpp
     ipc/helper_security.cpp
     logger.cpp
     main.cpp

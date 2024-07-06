@@ -9,32 +9,22 @@ namespace types {
 
 struct BackgroundSettings
 {
-    struct JsonInfo
-    {
-        JsonInfo& operator=(const JsonInfo&) { return *this; }
-
-        const QString kBackgroundTypeProp = "backgroundType";
-        const QString kBackgroundImageDisconnectedProp = "backgroundImageDisconnected";
-        const QString kBackgroundImageConnectedProp = "backgroundImageConnected";
-    };
-
     BACKGROUND_TYPE backgroundType = BACKGROUND_TYPE_COUNTRY_FLAGS;
     QString backgroundImageDisconnected;
     QString backgroundImageConnected;
-    JsonInfo jsonInfo;
 
     BackgroundSettings() = default;
 
     BackgroundSettings(const QJsonObject &json)
     {
-        if (json.contains(jsonInfo.kBackgroundTypeProp) && json[jsonInfo.kBackgroundTypeProp].isDouble())
-            backgroundType = static_cast<BACKGROUND_TYPE>(json[jsonInfo.kBackgroundTypeProp].toInt());
+        if (json.contains(kJsonBackgroundTypeProp) && json[kJsonBackgroundTypeProp].isDouble())
+            backgroundType = static_cast<BACKGROUND_TYPE>(json[kJsonBackgroundTypeProp].toInt());
 
-        if (json.contains(jsonInfo.kBackgroundImageDisconnectedProp) && json[jsonInfo.kBackgroundImageDisconnectedProp].isString())
-            backgroundImageDisconnected = json[jsonInfo.kBackgroundImageDisconnectedProp].toString();
+        if (json.contains(kJsonBackgroundImageDisconnectedProp) && json[kJsonBackgroundImageDisconnectedProp].isString())
+            backgroundImageDisconnected = json[kJsonBackgroundImageDisconnectedProp].toString();
 
-        if (json.contains(jsonInfo.kBackgroundImageConnectedProp) && json[jsonInfo.kBackgroundImageConnectedProp].isString())
-            backgroundImageConnected = json[jsonInfo.kBackgroundImageConnectedProp].toString();
+        if (json.contains(kJsonBackgroundImageConnectedProp) && json[kJsonBackgroundImageConnectedProp].isString())
+            backgroundImageConnected = json[kJsonBackgroundImageConnectedProp].toString();
     }
 
     bool operator==(const BackgroundSettings &other) const
@@ -52,9 +42,9 @@ struct BackgroundSettings
     QJsonObject toJson() const
     {
         QJsonObject json;
-        json[jsonInfo.kBackgroundTypeProp] = static_cast<int>(backgroundType);
-        json[jsonInfo.kBackgroundImageDisconnectedProp] = backgroundImageDisconnected;
-        json[jsonInfo.kBackgroundImageConnectedProp] = backgroundImageConnected;
+        json[kJsonBackgroundTypeProp] = static_cast<int>(backgroundType);
+        json[kJsonBackgroundImageDisconnectedProp] = backgroundImageDisconnected;
+        json[kJsonBackgroundImageConnectedProp] = backgroundImageConnected;
         return json;
     }
 
@@ -89,6 +79,10 @@ struct BackgroundSettings
     }
 
 private:
+    static const inline QString kJsonBackgroundTypeProp = "backgroundType";
+    static const inline QString kJsonBackgroundImageDisconnectedProp = "backgroundImageDisconnected";
+    static const inline QString kJsonBackgroundImageConnectedProp = "backgroundImageConnected";
+
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 

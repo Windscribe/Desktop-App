@@ -11,9 +11,11 @@ if [ -z $platform ]; then
 fi
 
 if [ $platform == "linux_deb_x64" -o $platform == "linux_deb_arm64" ]; then
-    pkexec sh -c "killall -q -w Windscribe && apt install -y --reinstall \"$1\""
+    pkexec sh -c "killall -q -w Windscribe && APT_LISTBUGS_FRONTEND=none apt install -y --reinstall \"$1\""
 elif [ $platform == "linux_rpm_x64" ]; then
     pkexec sh -c "killall -q -w Windscribe && dnf upgrade -y \"$1\""
+elif [ $platform = "linux_rpm_opensuse_x64" ]; then
+    pkexec sh -c "killall -q -w Windscribe && zypper --non-interactive install --force --allow-unsigned-rpm \"$1\""
 elif [ $platform == "linux_zst_x64" ]; then
     pkexec sh -c "killall -q -w Windscribe && pacman -U --noconfirm \"$1\""
 fi

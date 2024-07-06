@@ -3,19 +3,12 @@
 #include "types/enums.h"
 
 #include <QJsonObject>
+#include <QSettings>
 
 namespace types {
 
 struct PacketSize
 {
-    struct JsonInfo
-    {
-        JsonInfo& operator=(const JsonInfo&) { return *this; }
-
-        const QString kIsAutomaticProp = "isAutomatic";
-        const QString kMTUProp = "mtu";
-    };
-
     PacketSize() :
         isAutomatic(true),
         mtu(-1)     // -1 not set
@@ -23,16 +16,20 @@ struct PacketSize
 
     PacketSize(const QJsonObject &json)
     {
-        if (json.contains(jsonInfo.kIsAutomaticProp) && json[jsonInfo.kIsAutomaticProp].isBool())
-            isAutomatic = json[jsonInfo.kIsAutomaticProp].toBool();
+        if (json.contains(kJsonIsAutomaticProp) && json[kJsonIsAutomaticProp].isBool())
+            isAutomatic = json[kJsonIsAutomaticProp].toBool();
 
-        if (json.contains(jsonInfo.kMTUProp) && json[jsonInfo.kMTUProp].isDouble())
-            mtu = json[jsonInfo.kMTUProp].toInt();
+        if (json.contains(kJsonMTUProp) && json[kJsonMTUProp].isDouble()) {
+            int mtuValue = json[kJsonMTUProp].toInt();
+            // MTU is unset, or must be a minimum of 68 per RFC 791 and can't exceed maximum IP packet size of 65535
+            if (mtuValue < 0 || (mtuValue >= 68 && mtuValue < 65536)) {
+                mtu = mtuValue;
+            }
+        }
     }
 
     bool isAutomatic;
     int mtu;
-    JsonInfo jsonInfo;
 
     bool operator==(const PacketSize &other) const
     {
@@ -44,11 +41,29 @@ struct PacketSize
         return !(*this == other);
     }
 
+    void fromIni(const QSettings &settings)
+    {
+        QString prevMode = TOGGLE_MODE_toString(isAutomatic ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL);
+        TOGGLE_MODE mode = TOGGLE_MODE_fromString(settings.value(kJsonIsAutomaticProp, prevMode).toString());
+        isAutomatic = (mode == TOGGLE_MODE_AUTO);
+        int mtuValue = settings.value(kJsonMTUProp, mtu).toInt();
+        // MTU is unset, or must be a minimum of 68 per RFC 791 and can't exceed maximum IP packet size of 65535
+        if (mtuValue < 0 || (mtuValue >= 68 && mtuValue < 65536)) {
+            mtu = mtuValue;
+        }
+    }
+
+    void toIni(QSettings &settings) const
+    {
+        settings.setValue(kIniIsAutomaticProp, TOGGLE_MODE_toString(isAutomatic ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL));
+        settings.setValue(kIniMTUProp, mtu);
+    }
+
     QJsonObject toJson() const
     {
         QJsonObject json;
-        json[jsonInfo.kIsAutomaticProp] = isAutomatic;
-        json[jsonInfo.kMTUProp] = mtu;
+        json[kJsonIsAutomaticProp] = isAutomatic;
+        json[kJsonMTUProp] = mtu;
         return json;
     }
 
@@ -83,6 +98,12 @@ struct PacketSize
     }
 
 private:
+    static const inline QString kIniIsAutomaticProp = "PacketSizeMode";
+    static const inline QString kIniMTUProp = "PacketSizeMTU";
+
+    static const inline QString kJsonIsAutomaticProp = "isAutomatic";
+    static const inline QString kJsonMTUProp = "mtu";
+
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 

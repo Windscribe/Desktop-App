@@ -1,5 +1,4 @@
 target_sources(common PRIVATE
-    clicommands.cpp
     clicommands.h
     command.h
     commandfactory.cpp

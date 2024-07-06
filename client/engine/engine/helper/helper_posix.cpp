@@ -23,7 +23,7 @@
     #include "utils/dnsscripts_linux.h"
 #endif
 
-#define SOCK_PATH "/var/run/windscribe_helper_socket2"
+#define SOCK_PATH "/var/run/windscribe/helper.sock"
 
 using namespace boost::asio;
 
@@ -377,18 +377,17 @@ bool Helper_posix::getWireGuardStatus(types::WireGuardStatus *status)
     return true;
 }
 
-IHelper::ExecuteError Helper_posix::startCtrld(const QString &ip, const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog)
+bool Helper_posix::startCtrld(const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog)
 {
     QMutexLocker locker(&mutex_);
 
     if (curState_ != STATE_CONNECTED) {
-        return IHelper::EXECUTE_ERROR;
+        return false;
     }
 
     std::vector<std::string> domainsList;
 
     CMD_START_CTRLD cmd;
-    cmd.ip = ip.toStdString();
     cmd.upstream1 = upstream1.toStdString();
     cmd.upstream2 = upstream2.toStdString();
     for (auto domain : domains) {
@@ -405,10 +404,10 @@ IHelper::ExecuteError Helper_posix::startCtrld(const QString &ip, const QString 
     if (!runCommand(HELPER_CMD_START_CTRLD, stream.str(), answer) || answer.executed == 0) {
         qCDebug(LOG_BASIC) << "helper returned error starting ctrld";
         doDisconnectAndReconnect();
-        return IHelper::EXECUTE_ERROR;
+        return false;
     }
 
-    return IHelper::EXECUTE_SUCCESS;
+    return true;
 }
 
 bool Helper_posix::stopCtrld()
@@ -566,13 +565,14 @@ bool Helper_posix::getFirewallRules(CmdIpVersion version, const QString &table, 
     return true;
 }
 
-bool Helper_posix::setFirewallOnBoot(bool bEnabled, const QSet<QString> &ipTable)
+bool Helper_posix::setFirewallOnBoot(bool enabled, const QSet<QString> &ipTable, bool allowLanTraffic)
 {
     QMutexLocker locker(&mutex_);
 
     CMD_SET_FIREWALL_ON_BOOT cmd;
     CMD_ANSWER answer;
-    cmd.enabled = bEnabled;
+    cmd.enabled = enabled;
+    cmd.allowLanTraffic = allowLanTraffic;
 
     std::string ipTableStr = "";
     for (const auto& ip : ipTable) {

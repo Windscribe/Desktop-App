@@ -7,7 +7,7 @@
 #include <QRegion>
 
 #include "dpiscalemanager.h"
-#include "../locationsmodel_roles.h"
+#include "locations/locationsmodel_roles.h"
 #include "clickableandtooltiprects.h"
 #include "commongraphics/commongraphics.h"
 

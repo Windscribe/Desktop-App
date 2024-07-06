@@ -106,7 +106,6 @@ bool InstallHelper_mac::isAppMajorMinorVersionSame()
 
     CFBundleRef bundle = CFBundleCreate(NULL, url);
     CFRelease(url);
-
     if (bundle == NULL) {
         return false;
     }

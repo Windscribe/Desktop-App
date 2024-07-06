@@ -1698,6 +1698,22 @@ Connect to a network first</source>
         <source>Proxy Type</source>
         <translation>プロキシの種類</translation>
     </message>
+    <message>
+        <source>Port</source>
+        <translation>港</translation>
+    </message>
+    <message>
+        <source>Unable to start proxy server</source>
+        <translation>プロキシ サーバーを起動できません</translation>
+    </message>
+    <message>
+        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
+        <translation>要求されたポートでプロキシ サーバーを開始できませんでした。別のポートで再試行してください。</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>自動</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>

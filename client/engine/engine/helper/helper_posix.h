@@ -42,7 +42,7 @@ public:
     bool getWireGuardStatus(types::WireGuardStatus *status) override;
 
     // ctrld functions
-    ExecuteError startCtrld(const QString &ip, const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog) override;
+    bool startCtrld(const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog) override;
     bool stopCtrld() override;
 
     // Posix specific functions
@@ -52,7 +52,7 @@ public:
     bool clearFirewallRules(bool isKeepPfEnabled);
     bool setFirewallRules(CmdIpVersion version, const QString &table, const QString &group, const QString &rules);
     bool getFirewallRules(CmdIpVersion version, const QString &table, const QString &group, QString &rules);
-    bool setFirewallOnBoot(bool bEnabled, const QSet<QString>& ipTable);
+    bool setFirewallOnBoot(bool enabled, const QSet<QString>& ipTable, bool allowLanTraffic);
     bool startStunnel(const QString &hostname, unsigned int port, unsigned int localPort, bool extraPadding);
     bool startWstunnel(const QString &hostname, unsigned int port, unsigned int localPort);
 

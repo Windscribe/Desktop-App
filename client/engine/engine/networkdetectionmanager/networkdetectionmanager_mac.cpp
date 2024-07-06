@@ -6,6 +6,7 @@
 #include "utils/logger.h"
 #include "utils/network_utils/network_utils.h"
 #include "utils/network_utils/network_utils_mac.h"
+#include "utils/interfaceutils_mac.h"
 #include "utils/utils.h"
 
 const int typeIdNetworkInterface = qRegisterMetaType<types::NetworkInterface>("types::NetworkInterface");
@@ -15,7 +16,7 @@ NetworkDetectionManager_mac::NetworkDetectionManager_mac(QObject *parent, IHelpe
     , lastWifiAdapterUp_(false)
 {
     connect(&ReachAbilityEvents::instance(), &ReachAbilityEvents::networkStateChanged, this, &NetworkDetectionManager_mac::onNetworkStateChanged);
-    lastNetworkList_ = NetworkUtils_mac::currentNetworkInterfaces(true);
+    lastNetworkList_ = InterfaceUtils_mac::instance().currentNetworkInterfaces(true);
     lastNetworkInterface_ = currentNetworkInterfaceFromNetworkList(lastNetworkList_);
     lastWifiAdapterUp_ = isWifiAdapterUp(lastNetworkList_);
     lastIsOnlineState_ = isOnlineImpl();
@@ -40,7 +41,7 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
         emit onlineStateChanged(curIsOnlineState);
     }
 
-    const QVector<types::NetworkInterface> &networkList = NetworkUtils_mac::currentNetworkInterfaces(true);
+    const QVector<types::NetworkInterface> &networkList = InterfaceUtils_mac::instance().currentNetworkInterfaces(true);
     const types::NetworkInterface &networkInterface = currentNetworkInterfaceFromNetworkList(networkList);
     bool wifiAdapterUp = isWifiAdapterUp(networkList);
 

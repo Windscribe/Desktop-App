@@ -14,6 +14,8 @@ namespace Utils
     // find case insensitive sub string in a given substring
     size_t findCaseInsensitive(std::string data, std::string toSearch, size_t pos = 0);
 
+    bool isFileExists(const std::string &name);
+
     // combine exe path, exe, and arguments
     std::string getFullCommand(const std::string &exePath, const std::string &executable, const std::string &arguments);
     std::string getFullCommandAsUser(const std::string &user, const std::string &exePath, const std::string &executable, const std::string &arguments);

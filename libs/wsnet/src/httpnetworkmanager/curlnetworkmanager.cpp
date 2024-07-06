@@ -254,6 +254,7 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
 
     spdlog::debug("New curl request : {}", request->url().c_str());
 
+    // Required for android only.
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) return false;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CONNECTTIMEOUT_MS , request->timeoutMs()) != CURLE_OK) return false;
 

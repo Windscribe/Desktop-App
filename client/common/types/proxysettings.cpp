@@ -22,30 +22,51 @@ ProxySettings::ProxySettings(PROXY_OPTION option, const QString &address, uint p
 
 ProxySettings::ProxySettings(const QJsonObject &json)
 {
-    if (json.contains(jsonInfo_.kOptionProp) && json[jsonInfo_.kOptionProp].isDouble())
-        option_ = static_cast<PROXY_OPTION>(json[jsonInfo_.kOptionProp].toInt());
+    if (json.contains(kJsonOptionProp) && json[kJsonOptionProp].isDouble())
+        option_ = static_cast<PROXY_OPTION>(json[kJsonOptionProp].toInt());
 
-    if (json.contains(jsonInfo_.kAddressProp) && json[jsonInfo_.kAddressProp].isString())
-        address_ = json[jsonInfo_.kAddressProp].toString();
+    if (json.contains(kJsonAddressProp) && json[kJsonAddressProp].isString())
+        address_ = json[kJsonAddressProp].toString();
 
-    if (json.contains(jsonInfo_.kPortProp) && json[jsonInfo_.kPortProp].isDouble())
-        port_ = static_cast<uint>(json[jsonInfo_.kPortProp].toInt());
+    if (json.contains(kJsonPortProp) && json[kJsonPortProp].isDouble())
+        port_ = static_cast<uint>(json[kJsonPortProp].toInt());
 
-    if (json.contains(jsonInfo_.kUsernameProp) && json[jsonInfo_.kUsernameProp].isString())
-        username_ = json[jsonInfo_.kUsernameProp].toString();
+    if (json.contains(kJsonUsernameProp) && json[kJsonUsernameProp].isString())
+        username_ = json[kJsonUsernameProp].toString();
 
-    if (json.contains(jsonInfo_.kPasswordProp) && json[jsonInfo_.kPasswordProp].isString())
-        password_ = Utils::fromBase64(json[jsonInfo_.kPasswordProp].toString());
+    if (json.contains(kJsonPasswordProp) && json[kJsonPasswordProp].isString())
+        password_ = Utils::fromBase64(json[kJsonPasswordProp].toString());
+}
+
+void ProxySettings::fromIni(const QSettings &settings)
+{
+    option_ = PROXY_OPTION_fromString(settings.value(kIniOptionProp, PROXY_OPTION_toString(option_)).toString());
+    address_ = settings.value(kIniAddressProp).toString();
+    uint port = settings.value(kIniPortProp, 0).toUInt();
+    if (port < 65536) {
+        port_ = port;
+    }
+    username_ = settings.value(kIniUsernameProp).toString();
+    password_ = settings.value(kIniPasswordProp).toString();
+}
+
+void ProxySettings::toIni(QSettings &settings) const
+{
+    settings.setValue(kIniOptionProp, PROXY_OPTION_toString(option_));
+    settings.setValue(kIniAddressProp, address_);
+    settings.setValue(kIniPortProp, static_cast<int>(port_));
+    settings.setValue(kIniUsernameProp, username_);
+    settings.setValue(kIniPasswordProp, password_);
 }
 
 QJsonObject ProxySettings::toJson() const
 {
     QJsonObject json;
-    json[jsonInfo_.kOptionProp] = static_cast<int>(option_);
-    json[jsonInfo_.kAddressProp] = address_;
-    json[jsonInfo_.kPortProp] = static_cast<int>(port_);
-    json[jsonInfo_.kUsernameProp] = username_;
-    json[jsonInfo_.kPasswordProp] = Utils::toBase64(password_);
+    json[kJsonOptionProp] = static_cast<int>(option_);
+    json[kJsonAddressProp] = address_;
+    json[kJsonPortProp] = static_cast<int>(port_);
+    json[kJsonUsernameProp] = username_;
+    json[kJsonPasswordProp] = Utils::toBase64(password_);
     return json;
 }
 

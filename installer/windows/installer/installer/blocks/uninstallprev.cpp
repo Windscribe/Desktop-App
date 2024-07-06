@@ -3,12 +3,12 @@
 #include <QSettings>
 
 #include <chrono>
-#include <filesystem>
 #include <shlobj_core.h>
 #include <windows.h>
 
 #include "../installer_base.h"
 #include "../../../utils/applicationinfo.h"
+#include "../../../utils/archive.h"
 #include "../../../utils/logger.h"
 #include "../../../utils/path.h"
 #include "../../../utils/utils.h"
@@ -53,15 +53,15 @@ int UninstallPrev::executeStep()
             else {
                 Log::instance().out(L"Timeout exceeded when trying to close Windscribe. Killing the process.");
 
-                const wstring appName = Path::append(Utils::GetSystemDir(), L"taskkill.exe");
+                const wstring appName = Path::append(Utils::getSystemDir(), L"taskkill.exe");
                 const wstring commandLine = L"/f /im " + ApplicationInfo::appExeName();
-                const auto result = Utils::InstExec(appName, commandLine, INFINITE, SW_HIDE);
+                const auto result = Utils::instExec(appName, commandLine, INFINITE, SW_HIDE);
                 if (!result.has_value()) {
-                    Log::instance().out("WARNING: an error was encountered attempting to start taskkill.exe.");
+                    Log::instance().out(L"WARNING: an error was encountered attempting to start taskkill.exe.");
                     return -ERROR_OTHER;
                 }
                 else if (result.value() != NO_ERROR && result.value() != ERROR_WAIT_NO_CHILDREN) {
-                    Log::instance().out("WARNING: unable to kill Windscribe (%lu).", result.value());
+                    Log::instance().out(L"WARNING: unable to kill Windscribe (%lu).", result.value());
                     return -ERROR_OTHER;
                 }
                 else {
@@ -89,7 +89,7 @@ int UninstallPrev::executeStep()
 
             DWORD lastError = 0;
             if (!uninstallOldVersion(uninstallString, lastError)) {
-                Log::instance().out("UninstallPrev::executeStep: uninstallOldVersion failed: %lu", lastError);
+                Log::instance().out(L"UninstallPrev::executeStep: uninstallOldVersion failed: %lu", lastError);
                 if (lastError != 2) { // Any error other than "Not found"
                     return -ERROR_OTHER;
                 }
@@ -100,10 +100,10 @@ int UninstallPrev::executeStep()
                 }
 
                 if (!extractUninstaller()) {
-                    Log::instance().out("UninstallPrev::executeStep: could not extract uninstaller.");
+                    Log::instance().out(L"UninstallPrev::executeStep: could not extract uninstaller.");
                     return -ERROR_OTHER;
                 }
-                Log::instance().out("UninstallPrev::executeStep: successfully extracted uninstaller, trying again.");
+                Log::instance().out(L"UninstallPrev::executeStep: successfully extracted uninstaller, trying again.");
                 return 65;
             }
         }
@@ -145,7 +145,7 @@ bool UninstallPrev::uninstallOldVersion(const wstring &uninstallString, DWORD &l
     const wstring sUnInstallString = removeQuotes(uninstallString);
     DWORD error = 0;
 
-    const auto res = Utils::InstExec(sUnInstallString, L"/VERYSILENT", INFINITE, SW_HIDE, L"", &error);
+    const auto res = Utils::instExec(sUnInstallString, L"/VERYSILENT", INFINITE, SW_HIDE, L"", &error);
     if (!res.has_value() || res.value() == MAXDWORD) {
         lastError = error;
         return false;
@@ -219,7 +219,7 @@ void UninstallPrev::stopService()
         scm.stopService(ApplicationInfo::serviceName().c_str());
     }
     catch (system_error& ex) {
-        Log::instance().out("UninstallPrev::stopService %s (%lu)", ex.what(), ex.code().value());
+        Log::instance().out(L"UninstallPrev::stopService %hs (%lu)", ex.what(), ex.code().value());
     }
 }
 
@@ -227,46 +227,22 @@ bool UninstallPrev::extractUninstaller()
 {
     Log::instance().out(L"Extracting uninstaller from the archive");
 
-    archive_.reset(new Archive(L"Windscribe"));
+    wsl::Archive archive;
+    archive.setLogFunction([](const wstring &str) {
+        Log::instance().out(str);
+    });
 
-    std::list<std::wstring> fileList;
-    SRes res = archive_->fileList(fileList);
-    if (res != SZ_OK) {
-        Log::instance().out(L"Failed to extract file list from archive.");
+    const wstring exePath = Utils::getExePath();
+    if (exePath.empty()) {
+        Log::instance().out(L"Could not get exe path");
         return false;
     }
 
-    int index = 0;
-    auto it = fileList.begin();
-    while(index < fileList.size()) {
-        // Note the trailing 's' on the std::wstring literal, this is necessary since the file string has an embedded null byte.
-        if (*it == std::wstring(L"uninstall.exe\0"s)) {
-            break;
-        }
-        index++;
-        it = std::next(it);
-    }
-    if (index >= fileList.size()) {
-        Log::instance().out(L"Failed to find uninstall.exe in the archive.");
+    const wstring targetFolder = Path::extractDir(removeQuotes(getUninstallString()));
+
+    if (!archive.extract(L"Windscribe", L"windscribe.7z", exePath, L"uninstall.exe", targetFolder)) {
         return false;
     }
-
-    std::list<std::wstring> pathList;
-    std::wstring extractionPath = Path::extractDir(removeQuotes(getUninstallString()));
-    for (auto it = fileList.cbegin(); it != fileList.cend(); it++) {
-        // We're only extracting uninstall.exe, other paths are irrelevant
-        pathList.push_back(extractionPath);
-    }
-
-    archive_->calcTotal(fileList, pathList);
-
-    res = archive_->extractionFile(index);
-    if (res != SZ_OK) {
-        archive_->finish();
-        Log::instance().out(L"Failed to extract from archive.");
-        return false;
-    }
-    archive_->finish();
 
     return true;
 }

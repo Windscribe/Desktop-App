@@ -5,12 +5,11 @@
 #include <optional>
 #include <shellapi.h>
 #include <shlobj.h>
-#include <sstream>
 #include <string>
 #include <tchar.h>
 #include <versionhelpers.h>
 
-#include "../../../client/common/archive/archive.h"
+#include "../utils/archive.h"
 #include "global_consts.h"
 #include "wsscopeguard.h"
 #include "win32handle.h"
@@ -159,7 +158,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
         return -1;
     }
 
-    std::wstringstream path;
+    std::filesystem::path installPath;
     srand(time(NULL)); // Doesn't have to be cryptographically secure, just random
 
     if (!isAdmin.value()) {
@@ -200,8 +199,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
                            _T("Couldn't locate Windows temporary directory (%lu)"), GetLastError());
             return -1;
         }
-        path << tempPath;
-        path << L"\\WindscribeInstaller" + std::to_wstring(rand());
+        installPath = tempPath;
     } else {
         // Find the Windows dir
         wchar_t *windowsPath = NULL;
@@ -212,12 +210,12 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
             CoTaskMemFree(windowsPath);
             return -1;
         }
-        path << windowsPath;
+        installPath = windowsPath;
         CoTaskMemFree(windowsPath);
-        path << L"\\Temp\\WindscribeInstaller" + std::to_wstring(rand());
+        installPath.append(L"Temp");
     }
 
-    std::wstring installPath = path.str();
+    installPath.append(L"WindscribeInstaller" + std::to_wstring(rand()));
 
     auto exitGuard = wsl::wsScopeGuard([&]
     {
@@ -225,40 +223,21 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
         DeleteFolder(installPath.c_str());
     });
 
+    debugMessage(L"Windscribe bootstrapper installing to %s", installPath.c_str());
+
     // Extract archive
-    std::wstring archive = L"Installer";
-    std::unique_ptr<Archive> a(new Archive(archive));
+    wsl::Archive archive;
+    archive.setLogFunction([](const std::wstring &str) {
+        debugMessage(str.c_str());
+    });
 
-    std::list<std::wstring> fileList;
-    std::list<std::wstring> pathList;
-
-    SRes res = a->fileList(fileList);
-    if (res != SZ_OK) {
+    if (!archive.extract(L"Installer", L"windscribeinstaller.7z", installPath, installPath)) {
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-            _T("Couldn't get archive file list"));
+                       _T("Failed to extract the Windscribe installer."));
         return -1;
     }
 
-    pathList.clear();
-    for (auto it = fileList.cbegin(); it != fileList.cend(); it++) {
-        std::filesystem::path p(installPath + L"\\" + *it);
-        pathList.push_back(p.parent_path());
-    }
-
-    a->calcTotal(fileList, pathList);
-    for (int fileIndex = 0; fileIndex < a->getNumFiles(); fileIndex++) {
-        SRes res = a->extractionFile(fileIndex);
-        if (res != SZ_OK) {
-            a->finish();
-            showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                _T("Couldn't extract files"));
-            return -1;
-        }
-
-    }
-    a->finish();
-
-    std::wstring app = installPath + L"\\";
+    std::filesystem::path app(installPath);
     app.append(WINDSCRIBE_INSTALLER_NAME);
 
     DWORD exitCode = 0;
@@ -272,8 +251,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
     if (exitCode != 0) {
         debugMessage(_T("Windscribe installer exited with an error: %lu"), exitCode);
         showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-            _T("The installer reported an unexpected exit code, indicating it may have crashed during exit.")
-            _T(" Please report this failure to Windscribe support."));
+                       _T("The installer reported an unexpected exit code, indicating it may have crashed during exit.")
+                       _T(" Please report this failure to Windscribe support."));
     }
 
     return exitCode;

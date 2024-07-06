@@ -7,7 +7,6 @@
 #include <QScreen>
 #include <QWidget>
 
-#include "languagecontroller.h"
 #include "svgresources.h"
 #include "themecontroller.h"
 

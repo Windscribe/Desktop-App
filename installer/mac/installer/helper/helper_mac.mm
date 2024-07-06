@@ -86,11 +86,11 @@ bool Helper_mac::setPaths(const std::wstring &archivePath, const std::wstring &i
     return answerCmd.executed == 1;
 }
 
-int Helper_mac::executeFilesStep()
+bool Helper_mac::executeFilesStep()
 {
     std::lock_guard locker(mutex_);
     CMD_ANSWER answerCmd = sendCmdToHelper(HELPER_CMD_INSTALLER_EXECUTE_COPY_FILE, std::string());
-    return answerCmd.executed;
+    return answerCmd.executed == 1;
 }
 
 bool Helper_mac::deleteOldHelper()

@@ -20,15 +20,8 @@ bool CtrldManager_posix::runProcess(const QString &upstream1, const QString &ups
 {
     WS_ASSERT(!bProcessStarted_);
 
-    QString ip = getAvailableIp();
-    if (ip.isEmpty()) {
-        qCDebug(LOG_CTRLD) << "ctrld cannot be started, all IP-addresses are occupied";
-        return false;
-    }
-
-    IHelper::ExecuteError err = helper_->startCtrld(ip, addWsSuffix(upstream1), addWsSuffix(upstream2), domains, isCreateLog_);
-    bProcessStarted_ = (err == IHelper::ExecuteError::EXECUTE_SUCCESS);
-    if (bProcessStarted_) {
+    if (helper_->startCtrld(addWsSuffix(upstream1), addWsSuffix(upstream2), domains, isCreateLog_)) {
+        bProcessStarted_ = true;
         qCDebug(LOG_CTRLD) << "ctrld started";
     }
     return bProcessStarted_;
@@ -47,22 +40,3 @@ QString CtrldManager_posix::listenIp() const
 {
     return listenIp_;
 }
-
-
-QString CtrldManager_posix::getAvailableIp()
-{
-    if (!AvailablePort::isPortBusy(listenIp_, 53))
-        return listenIp_;
-
-    for (int i = 1; i <= 255; ++i) {
-        QString ip = QString("127.0.0.%1").arg(i);
-        if (ip != listenIp_ && !AvailablePort::isPortBusy(ip, 53)) {
-            listenIp_ = ip;
-            return listenIp_;
-        }
-    }
-    // All IP-addresses are occupied
-    listenIp_.clear();
-    return "";
-}
-

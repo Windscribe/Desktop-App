@@ -238,13 +238,14 @@ BaseRequest *requests_factory::wgConfigsInit(const std::string &authHash, const 
     return request;
 }
 
-BaseRequest *requests_factory::wgConfigsConnect(const std::string &authHash, const std::string &clientPublicKey, const std::string &hostname, const std::string &deviceId, RequestFinishedCallback callback)
+BaseRequest *requests_factory::wgConfigsConnect(const std::string &authHash, const std::string &clientPublicKey, const std::string &hostname, const std::string &deviceId, const std::string &wgTtl, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
     extraParams["session_auth_hash"] = authHash;
     extraParams["wg_pubkey"] = clientPublicKey;
     extraParams["hostname"] = hostname;
     extraParams["device_id"] = deviceId;
+    extraParams["wg_ttl"] = wgTtl;
 
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kHigh, "WgConfigs/connect", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
@@ -383,6 +384,16 @@ BaseRequest *requests_factory::shakeData(const std::string &authHash, RequestFin
     std::map<std::string, std::string> extraParams;
     extraParams["session_auth_hash"] = authHash;
     auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "ShakeData", extraParams, callback);
+    return request;
+}
+
+BaseRequest *requests_factory::verifyTvLoginCode(const std::string &authHash, const std::string &xpressCode, RequestFinishedCallback callback)
+{
+    std::map<std::string, std::string> extraParams;
+    extraParams["session_auth_hash"] = authHash;
+    extraParams["xpress_code"] = xpressCode;
+    auto request = new BaseRequest(HttpMethod::kPut, SubdomainType::kApi, RequestPriority::kNormal, "XpressLogin", extraParams, callback);
+    request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
     return request;
 }
 

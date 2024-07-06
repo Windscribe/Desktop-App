@@ -2,6 +2,7 @@
 
 #include <QDataStream>
 #include <QJsonObject>
+#include <QSettings>
 #include <QString>
 
 namespace types {
@@ -9,14 +10,6 @@ namespace types {
 class ApiResolutionSettings
 {
 public:
-    struct JsonInfo
-    {
-        JsonInfo& operator=(const JsonInfo&) { return *this; }
-
-        const QString kIsAutomaticProp = "isAutomatic";
-        const QString kManualAddressProp = "manualAddress";
-    };
-
     explicit ApiResolutionSettings();
     ApiResolutionSettings(const QJsonObject& json);
 
@@ -37,13 +30,9 @@ public:
         return !(*this == other);
     }
 
-    QJsonObject toJson() const
-    {
-        QJsonObject json;
-        json[jsonInfo_.kIsAutomaticProp] = bAutomatic_;
-        json[jsonInfo_.kManualAddressProp] = manualAddress_;
-        return json;
-    }
+    QJsonObject toJson() const;
+    void fromIni(const QSettings &settings);
+    void toIni(QSettings &settings) const;
 
     friend QDataStream& operator <<(QDataStream &stream, const ApiResolutionSettings &o);
     friend QDataStream& operator >>(QDataStream &stream, ApiResolutionSettings &o);
@@ -53,8 +42,11 @@ public:
 private:
     bool bAutomatic_;
     QString manualAddress_;
-    JsonInfo jsonInfo_;
 
+    static const inline QString kIniIsAutomaticProp = "APIResolutionMode";
+    static const inline QString kIniManualAddressProp = "APIResolutionAddress";
+    static const inline QString kJsonIsAutomaticProp = "isAutomatic";
+    static const inline QString kJsonManualAddressProp = "manualAddress";
     static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
 };
 

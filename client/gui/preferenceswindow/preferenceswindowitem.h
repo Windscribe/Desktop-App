@@ -60,7 +60,7 @@ public:
     void onCollapse();
 
 signals:
-    void signOutClick();
+    void logoutClick();
     void loginClick();
     void quitAppClick();
 

@@ -22,7 +22,7 @@ public:
     void onConnectedToVPNEvent(const QString &vpnAdapterName);
     void onDisconnectedFromVPNEvent();
 
-    void startProxySharing(PROXY_SHARING_TYPE proxyType);
+    void startProxySharing(PROXY_SHARING_TYPE proxyType, uint port);
     void stopProxySharing();
 
     bool isWifiSharingSupported();

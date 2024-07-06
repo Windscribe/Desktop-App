@@ -1698,6 +1698,22 @@ Connect to a network first</source>
         <source>Proxy Type</source>
         <translation>प्रॉक्सी प्रकार</translation>
     </message>
+    <message>
+        <source>Port</source>
+        <translation>बंदरगाह</translation>
+    </message>
+    <message>
+        <source>Unable to start proxy server</source>
+        <translation>प्रॉक्सी सर्वर प्रारंभ करने में असमर्थ</translation>
+    </message>
+    <message>
+        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
+        <translation>प्रॉक्सी सर्वर अनुरोधित पोर्ट पर प्रारंभ नहीं किया जा सका। कृपया किसी भिन्न पोर्ट के साथ पुन: प्रयास करें.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>ऑटो</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>

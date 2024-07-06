@@ -5,8 +5,10 @@
 #include <skyr/core/serialize.hpp>
 #include <skyr/url.hpp>
 #include <sstream>
+#include <sys/stat.h>
 
 #include "3rdparty/pstream.h"
+#include "firewallonboot.h"
 #include "logger.h"
 
 namespace Utils
@@ -71,6 +73,12 @@ size_t findCaseInsensitive(std::string data, std::string toSearch, size_t pos)
     std::transform(data.begin(), data.end(), data.begin(), ::tolower);
     std::transform(toSearch.begin(), toSearch.end(), toSearch.begin(), ::tolower);
     return data.find(toSearch, pos);
+}
+
+bool isFileExists(const std::string &name)
+{
+    struct stat buffer;
+    return (stat (name.c_str(), &buffer) == 0);
 }
 
 std::string getFullCommand(const std::string &exePath, const std::string &executable, const std::string &arguments)
@@ -164,6 +172,8 @@ bool isAppUninstalled()
 
 void deleteSelf()
 {
+    FirewallOnBootManager::instance().setEnabled(false);
+
     Utils::executeCommand("launchctl", {"remove", "/Library/LaunchDaemons/com.windscribe.helper.macos.plist"});
     Utils::executeCommand("rm", {"/Library/LaunchDaemons/com.windscribe.helper.macos.plist"});
     Utils::executeCommand("rm", {"/Library/PrivilegedHelperTools/com.windscribe.helper.macos"});

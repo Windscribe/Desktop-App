@@ -23,7 +23,7 @@ public:
     bool deleteWhitelistPorts() override;
 
     void setInterfaceToSkip_posix(const QString &interfaceToSkip) override;
-    void enableFirewallOnBoot(bool bEnable, const QSet<QString>& ipTable) override;
+    void setFirewallOnBoot(bool bEnable, const QSet<QString>& ipTable = QSet<QString>(), bool isAllowLanTraffic = false) override;
 
 private:
     Helper_mac *helper_;

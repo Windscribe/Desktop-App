@@ -173,50 +173,51 @@ void MainWindow::onSettingsWindowAnimFinished(bool dimmed)
 void MainWindow::onInstallerCallback()
 {
     switch (installerShim_->state()) {
-        case InstallerShim::STATE_INIT:
-            break;
-        case InstallerShim::STATE_EXTRACTING:
-            // No UI created when running in silent mode.
-            if (initialWindow_) {
-                QMetaObject::invokeMethod(initialWindow_, "setProgress", Qt::QueuedConnection, Q_ARG(int, installerShim_->progress()));
-            }
-            break;
-        case InstallerShim::STATE_CANCELED:
-        case InstallerShim::STATE_LAUNCHED:
+    case InstallerShim::STATE_INIT:
+        break;
+    case InstallerShim::STATE_EXTRACTING:
+    case InstallerShim::STATE_EXTRACTED:
+        // No UI created when running in silent mode.
+        if (initialWindow_) {
+            QMetaObject::invokeMethod(initialWindow_, "setProgress", Qt::QueuedConnection, Q_ARG(int, installerShim_->progress()));
+        }
+        break;
+    case InstallerShim::STATE_CANCELED:
+    case InstallerShim::STATE_LAUNCHED:
+        qApp->exit();
+        break;
+    case InstallerShim::STATE_FINISHED:
+        installerShim_->finish();
+        break;
+    case InstallerShim::STATE_ERROR:
+        QString errorMsg;
+        InstallerShim::INSTALLER_ERROR error = installerShim_->lastError();
+        if (error == InstallerShim::ERROR_PERMISSION) {
+            errorMsg = tr("The installation was cancelled. Administrator privileges are required to install the application.");
+        } else if (error == InstallerShim::ERROR_KILL) {
+            errorMsg = tr("Windscribe is running and could not be closed. Please close the application manually and try again.");
+        } else if (error == InstallerShim::ERROR_CONNECT_HELPER) {
+            errorMsg = tr("The installer could not connect to the privileged helper tool. Please try again.");
+        } else if (error == InstallerShim::ERROR_DELETE) {
+            errorMsg = tr("An existing installation of Windscribe could not be removed. Please uninstall the application manually and try again.");
+        } else if (error == InstallerShim::ERROR_UNINSTALL) {
+            errorMsg = tr("The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.");
+        } else if (error == InstallerShim::ERROR_MOVE_CUSTOM_DIR) {
+            errorMsg = tr("The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.");
+        } else {
+            errorMsg = tr("The installation could not be completed successfully. Please contact our Technical Support.");
+        }
+        // No UI created when running in silent mode.
+        if (options_.silent) {
+            // On Windows this will go to the system debugger (e.g. Debug View app).
+            qDebug() << errorMsg;
             qApp->exit();
-            break;
-        case InstallerShim::STATE_FINISHED:
-            installerShim_->finish();
-            break;
-        case InstallerShim::STATE_ERROR:
-            QString errorMsg;
-            InstallerShim::INSTALLER_ERROR error = installerShim_->lastError();
-            if (error == InstallerShim::ERROR_PERMISSION) {
-                errorMsg = tr("The installation was cancelled. Administrator privileges are required to install the application.");
-            } else if (error == InstallerShim::ERROR_KILL) {
-                errorMsg = tr("Windscribe is running and could not be closed. Please close the application manually and try again.");
-            } else if (error == InstallerShim::ERROR_CONNECT_HELPER) {
-                errorMsg = tr("The installer could not connect to the privileged helper tool. Please try again.");
-            } else if (error == InstallerShim::ERROR_DELETE) {
-                errorMsg = tr("An existing installation of Windscribe could not be removed. Please uninstall the application manually and try again.");
-            } else if (error == InstallerShim::ERROR_UNINSTALL) {
-                errorMsg = tr("The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.");
-            } else if (error == InstallerShim::ERROR_MOVE_CUSTOM_DIR) {
-                errorMsg = tr("The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.");
-            } else {
-                errorMsg = tr("The installation could not be completed successfully. Please contact our Technical Support.");
-            }
-            // No UI created when running in silent mode.
-            if (options_.silent) {
-                // On Windows this will go to the system debugger (e.g. Debug View app).
-                qDebug() << errorMsg;
-                qApp->exit();
-            }
-            else {
-                QMetaObject::invokeMethod(this, "showError", Qt::QueuedConnection, Q_ARG(QString, tr("Installation failed")),
-                                          Q_ARG(QString, errorMsg), Q_ARG(bool, true));
-            }
-            break;
+        }
+        else {
+            QMetaObject::invokeMethod(this, "showError", Qt::QueuedConnection, Q_ARG(QString, tr("Installation failed")),
+                                      Q_ARG(QString, errorMsg), Q_ARG(bool, true));
+        }
+        break;
     }
 }
 

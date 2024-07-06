@@ -6,8 +6,10 @@
 #include "../installer_base.h"
 #include "../settings.h"
 #include "../../../utils/applicationinfo.h"
+#include "../../../utils/archive.h"
 #include "../../../utils/logger.h"
 #include "../../../utils/path.h"
+#include "../../../utils/utils.h"
 
 using namespace std;
 
@@ -21,78 +23,46 @@ Files::~Files()
 
 int Files::executeStep()
 {
-    if (state_ == 0)
-    {
-        // Since we're running as root, we need to ensure no malicious hackery can be done with symbolic links.
-        // We'll install to the app's default, OS protected, 64-bit Program Files folder.  If the user specified
-        // a custom install folder, we'll attempt to rename the install folder to the custom folder after the
-        // file extraction is complete.
-        installPath_ = ApplicationInfo::defaultInstallPath();
+    // Since we're running as root, we need to ensure no malicious hackery can be done with symbolic links.
+    // We'll install to the app's default, OS protected, 64-bit Program Files folder.  If the user specified
+    // a custom install folder, we'll attempt to rename the install folder to the custom folder after the
+    // file extraction is complete.
+    installPath_ = ApplicationInfo::defaultInstallPath();
 
-        if (filesystem::exists(installPath_)) {
-            if (!filesystem::is_empty(installPath_)) {
-                Log::instance().out(L"Warning: the default install directory exists and is not empty.");
-            }
+    if (filesystem::exists(installPath_)) {
+        if (!filesystem::is_empty(installPath_)) {
+            Log::instance().out(L"Warning: the default install directory exists and is not empty.");
         }
-        else {
-            auto result = ::SHCreateDirectoryEx(NULL, installPath_.c_str(), NULL);
-            if (result != ERROR_SUCCESS) {
-                Log::instance().out(L"Failed to create default install directory (%d)", result);
-                return -ERROR_OTHER;
-            }
-        }
-
-        archive_.reset(new Archive(L"Windscribe"));
-        archive_->setLogFunction([](const char* str) {
-            Log::instance().out((std::string("(archive) ") + str).c_str());
-        });
-
-        SRes res = archive_->fileList(fileList_);
-
-        if (res != SZ_OK) {
-            Log::instance().out(L"Failed to extract file list from archive.");
+    }
+    else {
+        auto result = ::SHCreateDirectoryEx(NULL, installPath_.c_str(), NULL);
+        if (result != ERROR_SUCCESS) {
+            Log::instance().out(L"Failed to create default install directory (%d)", result);
             return -ERROR_OTHER;
         }
-
-        fillPathList();
-
-        archive_->calcTotal(fileList_, pathList_);
-        curFileInd_ = 0;
-        state_++;
-        return 0;
     }
 
-    SRes res = archive_->extractionFile(curFileInd_);
-    if (res != SZ_OK)
-    {
-        archive_->finish();
-        Log::instance().out(L"Failed to extract file at index %u.", curFileInd_);
+    const wstring exePath = Utils::getExePath();
+    if (exePath.empty()) {
+        Log::instance().out(L"Could not get exe path");
         return -ERROR_OTHER;
     }
 
-    if (curFileInd_ >= (archive_->getNumFiles() - 1))
-    {
-        archive_->finish();
-        if (!copyLibs()) {
-            Log::instance().out(L"Failed to copy libs");
-            return -ERROR_OTHER;
-        }
-        return moveFiles();
+    wsl::Archive archive;
+    archive.setLogFunction([](const wstring &str) {
+        Log::instance().out(str);
+    });
+
+    if (!archive.extract(L"Windscribe", L"windscribe.7z", exePath, installPath_)) {
+        return -ERROR_OTHER;
     }
 
-    int progress = ((double)curFileInd_ / (double)archive_->getNumFiles()) * 100.0;
-    curFileInd_++;
-
-    return progress;
-}
-
-void Files::fillPathList()
-{
-    pathList_.clear();
-    for (auto it = fileList_.cbegin(); it != fileList_.cend(); it++) {
-        wstring file = Path::append(installPath_, *it);
-        pathList_.push_back(Path::extractDir(file));
+    if (!copyLibs()) {
+        Log::instance().out(L"Failed to copy libs");
+        return -ERROR_OTHER;
     }
+
+    return moveFiles();
 }
 
 int Files::moveFiles()
@@ -137,7 +107,7 @@ int Files::moveFiles()
 
         // Delete "C:\Program Files\Windscribe" since we don't want to leave files behind.
         // SHFileOperation requires the path to be double-null terminated.
-        std::wstring installPathDoubleNull = installPath_ + L"\0"s;
+        wstring installPathDoubleNull = installPath_ + L"\0"s;
         SHFILEOPSTRUCT fileOp = {
             NULL,
             FO_DELETE,
@@ -160,11 +130,11 @@ int Files::moveFiles()
 
 bool Files::copyLibs()
 {
-    std::error_code ec;
-    std::filesystem::copy_options opts = std::filesystem::copy_options::overwrite_existing;
+    error_code ec;
+    filesystem::copy_options opts = filesystem::copy_options::overwrite_existing;
 
     const filesystem::path installPath = installPath_;
-    const wstring exeStr = getExePath();
+    const wstring exeStr = Utils::getExePath();
     if (exeStr.empty()) {
         Log::instance().out(L"Could not get exe path");
         return false;
@@ -176,30 +146,20 @@ bool Files::copyLibs()
         if (entry.is_regular_file() && entry.path().extension() == ".dll") {
             filesystem::copy_file(entry.path(), installPath / entry.path().filename(), opts, ec);
             if (ec) {
-                Log::instance().out(L"Could not copy DLL %ls: %hs", entry.path().wstring().c_str(), ec.message().c_str());
+                Log::instance().out(L"Could not copy DLL %s: %hs", entry.path().c_str(), ec.message().c_str());
                 return false;
             }
         }
     }
 
     // Copy Qt plugins
-    std::wstring paths[3] = { L"imageformats", L"platforms", L"styles" };
+    wstring paths[3] = { L"imageformats", L"platforms", L"styles" };
     for (auto p : paths) {
         filesystem::copy(exePath / p, installPath / p, opts, ec);
         if (ec) {
-            Log::instance().out(L"Could not copy %ls: %hs", p.c_str(), ec.message().c_str());
+            Log::instance().out(L"Could not copy %s: %hs", p.c_str(), ec.message().c_str());
             return false;
         }
     }
     return true;
-}
-
-wstring Files::getExePath()
-{
-    wchar_t path[MAX_PATH];
-    int ret = GetModuleFileName(NULL, path, MAX_PATH);
-    if (ret == 0) {
-        return wstring();
-    }
-    return filesystem::path(path).parent_path().wstring();
 }

@@ -215,9 +215,8 @@ deploy_files:
       remove:
         - Contents/Frameworks/QtQml.framework
         - Contents/Frameworks/QtQuick.framework
-
   linux:
-    installer:
+    installer_gui:
       libs:
         qt:
           - lib/libQt6Core.so.6 -> lib/libQt6Core.so.6
@@ -253,10 +252,33 @@ deploy_files:
           - windscribewireguard -> windscribewireguard
         wstunnel:
           - windscribewstunnel -> windscribewstunnel
-
       fix_rpath:
         - lib/libQt6Network.so.6 -> /opt/windscribe/lib
         - lib/libQt6XcbQpa.so.6 -> /opt/windscribe/lib
+        - lib/libQt6DBus.so.6 -> /opt/windscribe/lib
+        - lib/libssl.so.3 -> /opt/windscribe/lib
+        - lib/libcrypto.so.3 -> /opt/windscribe/lib
+        - lib/libwsnet.so -> /opt/windscribe/lib
+        - windscribeopenvpn -> /opt/windscribe/lib
+        - windscribe-authhelper -> /opt/windscribe/lib
+        - Windscribe -> /opt/windscribe/lib
+        - windscribe-cli -> /opt/windscribe/lib
+        - helper -> /opt/windscribe/lib
+    installer_cli:
+      libs:
+        qt:
+          - lib/libQt6Core.so.6 -> lib/libQt6Core.so.6
+          - lib/libQt6Core5Compat.so.6 -> lib/libQt6Core5Compat.so.6
+          - lib/libQt6DBus.so.6 -> lib/libQt6DBus.so.6
+          - lib/libQt6Network.so.6 -> lib/libQt6Network.so.6
+          - plugins/networkinformation/libqnetworkmanager.so -> plugins/networkinformation/libqnetworkmanager.so
+          - plugins/tls/libqopensslbackend.so -> plugins/tls/libqopensslbackend.so
+        wireguard:
+          - windscribewireguard -> windscribewireguard
+        wstunnel:
+          - windscribewstunnel -> windscribewstunnel
+      fix_rpath:
+        - lib/libQt6Network.so.6 -> /opt/windscribe/lib
         - lib/libQt6DBus.so.6 -> /opt/windscribe/lib
         - lib/libssl.so.3 -> /opt/windscribe/lib
         - lib/libcrypto.so.3 -> /opt/windscribe/lib
@@ -277,5 +299,6 @@ codesign_files:
     - windscribewireguard
     - Windscribe
 
-license_files:
-  - open_source_licenses.txt
+common_files:
+  - config/openssl.cnf -> openssl.cnf
+  - licenses/open_source_licenses.txt -> open_source_licenses.txt

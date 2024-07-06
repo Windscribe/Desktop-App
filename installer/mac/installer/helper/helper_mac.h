@@ -15,7 +15,7 @@ public:
     void stop();
 
     bool setPaths(const std::wstring &archivePath, const std::wstring &installPath);
-    int executeFilesStep();
+    bool executeFilesStep();
 
     bool killWindscribeProcess();
 

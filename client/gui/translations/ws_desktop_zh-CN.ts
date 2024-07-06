@@ -1698,6 +1698,22 @@ Connect to a network first</source>
         <source>Proxy Type</source>
         <translation>代理类型</translation>
     </message>
+    <message>
+        <source>Port</source>
+        <translation>港口</translation>
+    </message>
+    <message>
+        <source>Unable to start proxy server</source>
+        <translation>无法启动代理服务器</translation>
+    </message>
+    <message>
+        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
+        <translation>无法在请求的端口上启动代理服务器。请使用其他端口重试。</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>自动</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>

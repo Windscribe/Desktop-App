@@ -2,16 +2,16 @@
 
 export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 if [ ! -d "$ANDROID_NDK_HOME" ]; then
-  export ANDROID_NDK_HOME="/Users/aaa/Library/Android/sdk/ndk/25.2.9519653"
+  export ANDROID_NDK_HOME="$HOME/Library/Android/sdk/ndk/25.2.9519653"
 fi
 
 if [ ! -d "$VCPKG_ROOT" ]; then
-  export VCPKG_ROOT="/Users/aaa/vcpkg"
+  export VCPKG_ROOT="$HOME/vcpkg"
 fi
 
 export PATH=/opt/homebrew/bin:$PATH
 
-ARCHITECTURES="arm64-v8a"
+ARCHITECTURES=("arm64-v8a" "armeabi-v7a" "x86" "x86_64")
 
 if [ ! -d "$JAVA_HOME" ]; then
   echo "$JAVA_HOME does not exist."
@@ -33,7 +33,7 @@ NumberOfCores=$(sysctl -n hw.ncpu)
 rm -r temp
 rm wsnet.aar
 
-for arch in $ARCHITECTURES; do
+for arch in "${ARCHITECTURES[@]}"; do
   rm -r ../generated
 
   mkdir -p "temp/build/$arch"

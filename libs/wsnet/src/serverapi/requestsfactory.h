@@ -46,7 +46,7 @@ namespace requests_factory
     BaseRequest *wgConfigsInit(const std::string &authHash, const std::string &clientPublicKey,
                                                            bool deleteOldestKey, RequestFinishedCallback callback);
     BaseRequest *wgConfigsConnect(const std::string &authHash, const std::string &clientPublicKey,
-                                                              const std::string &hostname, const std::string &deviceId,
+                                                              const std::string &hostname, const std::string &deviceId, const std::string &wgTtl,
                                                               RequestFinishedCallback callback);
 
     BaseRequest *myIP(RequestFinishedCallback callback);
@@ -80,6 +80,8 @@ namespace requests_factory
     BaseRequest *recordShakeForDataScore(const std::string &authHash, const std::string &platform,
                                          const std::string &score, const std::string &signature,
                                          RequestFinishedCallback callback);
+
+    BaseRequest *verifyTvLoginCode(const std::string &authHash, const std::string &xpressCode, RequestFinishedCallback callback);
 }
 
 } // namespace wsnet

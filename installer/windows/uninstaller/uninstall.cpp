@@ -110,8 +110,8 @@ bool Uninstaller::PerformUninstall(const P_DeleteUninstallDataFilesProc DeleteUn
 
     Log::instance().out(L"Deleting shortcuts.");
 
-    wstring common_desktop = Utils::DesktopFolder();
-    wstring group = Utils::StartMenuProgramsFolder();
+    wstring common_desktop = Utils::desktopFolder();
+    wstring group = Utils::startMenuProgramsFolder();
 
     deleteFile(common_desktop + L"\\" + ApplicationInfo::name() + L".lnk");
     RemoveDir::DelTree(group + L"\\" + ApplicationInfo::name(), true, true, true, false);
@@ -151,11 +151,11 @@ void Uninstaller::RunSecondPhase()
 
     if (!isSilent_) {
         Log::instance().out(L"turn off firewall: %s", path_for_installation.c_str());
-        Utils::InstExec(Path::append(path_for_installation, L"WindscribeService.exe"), L"-firewall_off", INFINITE, SW_HIDE);
+        Utils::instExec(Path::append(path_for_installation, L"WindscribeService.exe"), L"-firewall_off", INFINITE, SW_HIDE);
     }
 
     Log::instance().out(L"kill openvpn process");
-    Utils::InstExec(Path::append(Utils::GetSystemDir(), L"taskkill.exe"), L"/f /im openvpn.exe", INFINITE, SW_HIDE);
+    Utils::instExec(Path::append(Utils::getSystemDir(), L"taskkill.exe"), L"/f /im openvpn.exe", INFINITE, SW_HIDE);
 
     Log::instance().out(L"uninstall split tunnel driver");
     UninstallSplitTunnelDriver();
@@ -189,6 +189,13 @@ void Uninstaller::RunSecondPhase()
 
     Log::instance().out(L"Removing directory %s", path_for_installation.c_str());
     ::RemoveDirectory(path_for_installation.c_str());
+
+    // remove any leftover files in Program Files, since we write some configs/logs here regardless of installation path
+    wstring wsPath = Path::append(Utils::programFilesFolder(), L"Windscribe");
+    if (!Path::equivalent(wsPath, path_for_installation)) {
+        Log::instance().out(L"Removing directory in Program Files");
+        RemoveDir::DelTree(wsPath.c_str(), true, true, true, false);
+    }
 
     if (!isSilent_) {
         messageBox(IDS_UNINSTALL_SUCCESS, MB_ICONINFORMATION | MB_OK | MB_SETFOREGROUND);
@@ -228,7 +235,7 @@ void Uninstaller::UninstallSplitTunnelDriver()
             throw system_error(ec);
         }
 
-        wstring targetFile = Path::append(Utils::GetSystemDir(), L"drivers\\windscribesplittunnel.sys");
+        wstring targetFile = Path::append(Utils::getSystemDir(), L"drivers\\windscribesplittunnel.sys");
         if (filesystem::exists(targetFile)) {
             filesystem::remove(targetFile, ec);
             if (ec) {
@@ -237,7 +244,7 @@ void Uninstaller::UninstallSplitTunnelDriver()
         }
     }
     catch (system_error& ex) {
-        Log::instance().out("WARNING: failed to uninstall the split tunnel driver - %s", ex.what());
+        Log::instance().out(L"WARNING: failed to uninstall the split tunnel driver - %hs", ex.what());
     }
 }
 
@@ -253,7 +260,7 @@ void Uninstaller::UninstallHelper()
         }
     }
     catch (system_error& ex) {
-        Log::instance().out("WARNING: failed to delete the Windscribe service - %s", ex.what());
+        Log::instance().out(L"WARNING: failed to delete the Windscribe service - %hs", ex.what());
     }
 }
 
@@ -270,13 +277,13 @@ int Uninstaller::messageBox(const UINT resourceID, const UINT type, HWND ownerWi
     HMODULE hModule = ::GetModuleHandle(NULL);
     int result = ::LoadString(hModule, IDS_MSGBOX_TITLE, title, bufSize);
     if (result == 0) {
-        Log::instance().out("WARNING: loading of the message box title string resource failed (%lu).", ::GetLastError());
+        Log::instance().out(L"WARNING: loading of the message box title string resource failed (%lu).", ::GetLastError());
         wcscpy_s(title, bufSize, L"Uninstall Windscribe");
     }
 
     result = ::LoadString(hModule, resourceID, message, bufSize);
     if (result == 0) {
-        Log::instance().out("WARNING: loading of string resource %d failed (%lu).", resourceID, ::GetLastError());
+        Log::instance().out(L"WARNING: loading of string resource %d failed (%lu).", resourceID, ::GetLastError());
         wcscpy_s(message, bufSize, L"Windscribe uninstall encountered a technical failure.");
     }
 
@@ -291,23 +298,23 @@ void Uninstaller::UninstallOpenVPNDCODriver(const wstring& installationPath)
     const wstring keyName = ApplicationInfo::installerRegistryKey(false);
     Registry::RegQueryStringValue(HKEY_CURRENT_USER, keyName.c_str(), L"ovpnDCODriverOEMIdentifier", adapterOEMIdentifier);
     if (adapterOEMIdentifier.empty()) {
-        Log::instance().out("WARNING: failed to find 'ovpnDCODriverOEMIdentifier' entry in the installer registry key.");
+        Log::instance().out(L"WARNING: failed to find 'ovpnDCODriverOEMIdentifier' entry in the installer registry key.");
         return;
     }
 
     const wstring appName = Path::append(installationPath, L"devcon.exe");
     const wstring commandLine = wstring(L"dp_delete ") + adapterOEMIdentifier;
 
-    auto result = Utils::InstExec(appName, commandLine, 30 * 1000, SW_HIDE);
+    auto result = Utils::instExec(appName, commandLine, 30 * 1000, SW_HIDE);
 
     if (!result.has_value()) {
-        Log::instance().out("WARNING: The OpenVPN DCO driver uninstall failed to launch.");
+        Log::instance().out(L"WARNING: The OpenVPN DCO driver uninstall failed to launch.");
     }
     else if (result.value() == WAIT_TIMEOUT) {
-        Log::instance().out("WARNING: The OpenVPN DCO driver uninstall stage timed out.");
+        Log::instance().out(L"WARNING: The OpenVPN DCO driver uninstall stage timed out.");
     }
     else if (result.value() != NO_ERROR) {
-        Log::instance().out("WARNING: The OpenVPN DCO driver uninstall returned a failure code (%lu).", result.value());
+        Log::instance().out(L"WARNING: The OpenVPN DCO driver uninstall returned a failure code (%lu).", result.value());
     }
     else {
         Log::instance().out(L"OpenVPN DCO driver (%s) successfully removed from the Windows driver store", adapterOEMIdentifier.c_str());

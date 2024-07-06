@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QSocketNotifier>
 #include <QSystemTrayIcon>
 #include <QWidgetAction>
 #include "generalmessagecontroller.h"
@@ -44,6 +45,9 @@ public:
     void showAfterLaunch();
 
     bool handleKeyPressEvent(QKeyEvent *event);
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    void setSigTermHandler(int fd);
+#endif
 
 protected:
     bool event(QEvent *event);
@@ -97,7 +101,7 @@ private slots:
 
     // preferences window signals
     void onPreferencesEscapeClick();
-    void onPreferencesSignOutClick();
+    void onPreferencesLogoutClick();
     void onPreferencesLoginClick();
     void onPreferencesViewLogClick();
     void onPreferencesExportSettingsClick();
@@ -173,7 +177,7 @@ private slots:
     void onBackendFirewallStateChanged(bool isEnabled);
     void onNetworkChanged(types::NetworkInterface network);
     void onSplitTunnelingStateChanged(bool isActive);
-    void onBackendSignOutFinished();
+    void onBackendLogoutFinished();
     void onBackendCleanupFinished();
     void onBackendGotoCustomOvpnConfigModeFinished();
     void onBackendConfirmEmailResult(bool bSuccess);
@@ -241,8 +245,9 @@ private slots:
 #endif
 
     // LocalIPCServer signals
-    void onReceivedOpenLocationsMessage();
-    void onConnectToLocation(const LocationID &id);
+    void onIpcOpenLocations();
+    void onIpcConnect(const LocationID &id, const types::Protocol &protocol);
+    void onIpcUpdate();
 
     void showShutdownWindow();
 
@@ -282,11 +287,16 @@ private slots:
     void onSelectedLocationChanged();
     void onSelectedLocationRemoved();
 
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    void onSigTerm();
+#endif
+
 private:
     void gotoLoginWindow();
     void gotoLogoutWindow();
     void gotoExitWindow();
     void collapsePreferences();
+    void selectLocation(const LocationID &lid, const types::Protocol &protocol);
 
     Backend *backend_;
     LocalIPCServer *localIpcServer_;
@@ -326,10 +336,10 @@ private:
     bool bMousePressed_;
     bool bMoveEnabled_;
 
-    enum SIGN_OUT_REASON { SIGN_OUT_UNDEFINED, SIGN_OUT_FROM_MENU, SIGN_OUT_SESSION_EXPIRED, SIGN_OUT_WITH_MESSAGE, SIGN_OUT_GO_TO_LOGIN };
-    SIGN_OUT_REASON signOutReason_;
-    LoginWindow::ERROR_MESSAGE_TYPE signOutMessageType_;
-    QString signOutErrorMessage_;
+    enum LOGOUT_REASON { LOGOUT_UNDEFINED, LOGOUT_FROM_MENU, LOGOUT_SESSION_EXPIRED, LOGOUT_WITH_MESSAGE, LOGOUT_GO_TO_LOGIN };
+    LOGOUT_REASON logoutReason_;
+    LoginWindow::ERROR_MESSAGE_TYPE logoutMessageType_;
+    QString logoutErrorMessage_;
 
     LoginAttemptsController loginAttemptsController_;
     QSharedPointer<IMultipleAccountDetection> multipleAccountDetection_;
@@ -415,4 +425,7 @@ private:
     bool userProtocolOverride_;
 
     bool sendDebugLogOnDisconnect_;
+
+    QSocketNotifier *socketNotifier_;
+    int fd_;
 };

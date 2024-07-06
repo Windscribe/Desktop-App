@@ -1698,6 +1698,22 @@ Conéctate primero a una red</translation>
         <source>Proxy Type</source>
         <translation>Tipo de proxy</translation>
     </message>
+    <message>
+        <source>Port</source>
+        <translation>Puerto</translation>
+    </message>
+    <message>
+        <source>Unable to start proxy server</source>
+        <translation>No se puede iniciar el servidor proxy</translation>
+    </message>
+    <message>
+        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
+        <translation>No se pudo iniciar el servidor proxy en el puerto solicitado. Inténtelo de nuevo con un puerto diferente.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>Automático</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>

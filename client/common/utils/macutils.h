@@ -21,7 +21,7 @@ namespace MacUtils
     bool isLockdownMode();
 
     // CLI
-    bool isGuiAlreadyRunning();
+    bool isAppAlreadyRunning();
     bool showGui();
 
     // Split Routing

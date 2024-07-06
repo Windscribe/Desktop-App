@@ -17,4 +17,6 @@ namespace NetworkUtils
 
     bool pingWithMtu(const QString &url, int mtu);
     QString getLocalIP();
+
+    QString getRoutingTable();
 }

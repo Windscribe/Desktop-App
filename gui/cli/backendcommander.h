@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "cliarguments.h"
+#include "ipc/clicommands.h"
 #include "ipc/command.h"
 #include "ipc/connection.h"
 
@@ -14,7 +15,7 @@ public:
     BackendCommander(const CliArguments &cliArgs);
     ~BackendCommander();
 
-    void initAndSend(bool isGuiAlreadyRunning);
+    void initAndSend();
 
 signals:
     void finished(int returnCode, const QString &errorMsg);
@@ -24,7 +25,7 @@ private slots:
     void onConnectionNewCommand(IPC::Command *command, IPC::Connection *connection);
     void onConnectionStateChanged(int state, IPC::Connection *connection);
 
-    void sendCommand();
+    void sendCommand(IPC::CliCommands::State *state);
     void sendStateCommand();
 
 private:
@@ -38,9 +39,7 @@ private:
     QElapsedTimer connectingTimer_;
     QElapsedTimer loggedInTimer_;
     bool bCommandSent_ = false;
-    bool bLogginInMessageShown_ = false;
-    bool isGuiAlreadyRunning_ = false;
+    bool bLoggingInMessageShown_ = false;
 
-    void onLoginStateResponse(IPC::Command *command);
-    void onStatusResponse(IPC::Command *command);
+    void onStateResponse(IPC::Command *command);
 };

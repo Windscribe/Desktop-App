@@ -6,6 +6,19 @@
 #include "logger.h"
 #include "utils.h"
 
+FirewallController::FirewallController() : enabled_(false), connected_(false), splitTunnelEnabled_(false), splitTunnelExclude_(false)
+{
+    // If firewall on boot is enabled, restore boot rules
+    if (Utils::isFileExists("/etc/windscribe/boot_pf.conf")) {
+        LOG("Applying boot pfctl rules");
+        Utils::executeCommand("pfctl", {"-e", "-f", "/etc/windscribe/boot_pf.conf"});
+    }
+}
+
+FirewallController::~FirewallController()
+{
+}
+
 bool FirewallController::enable(const std::string &rules, const std::string &table, const std::string &group)
 {
     int fd = open("/etc/windscribe/pf.conf", O_CREAT | O_WRONLY | O_TRUNC);

@@ -18,7 +18,7 @@ if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
     add_definitions(-DUSE_SIGNATURE_CHECK)
 endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
 
-add_definitions(-DUNICODE -D_UNICODE -DWINDSCRIBE_SERVICE)
+add_definitions(-DUNICODE -D_UNICODE -DWINDSCRIBE_SERVICE -D_WIN32_WINNT=0x0601)
 
 project(Service)
 
@@ -95,7 +95,7 @@ target_link_libraries(WindscribeService
 
 target_include_directories(WindscribeService PRIVATE
                            ${WINDSCRIBE_BUILD_LIBS_PATH}/wintun/include
-                           ../../../client/common/
+                           ../../../client/common
                            ${WINREG_INCLUDE_DIRS}
 )
 

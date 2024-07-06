@@ -32,7 +32,7 @@ VpnShareController::~VpnShareController()
 #endif
 }
 
-void VpnShareController::startProxySharing(PROXY_SHARING_TYPE proxyType)
+void VpnShareController::startProxySharing(PROXY_SHARING_TYPE proxyType, uint port)
 {
     QMutexLocker locker(&mutex_);
 
@@ -43,39 +43,38 @@ void VpnShareController::startProxySharing(PROXY_SHARING_TYPE proxyType)
         httpProxyServer_ = new HttpProxyServer::HttpProxyServer(this);
         connect(httpProxyServer_, &HttpProxyServer::HttpProxyServer::usersCountChanged, this, &VpnShareController::onProxyUsersCountChanged);
 
-        uint port;
         bool isStarted = false;
-        if (getLastSavedPort(port))
-        {
+        if (port != 0) {
+            // Port provided by user, use it.
             isStarted = httpProxyServer_->startServer(port);
+        } else {
+            if (getLastSavedPort(port)) {
+                isStarted = httpProxyServer_->startServer(port);
+            }
+            if (!isStarted) {
+                uint randomPort = AvailablePort::getAvailablePort(18888);
+                httpProxyServer_->startServer(randomPort);
+                saveLastPort(randomPort);
+            }
         }
-        if (!isStarted)
-        {
-            uint randomPort = AvailablePort::getAvailablePort(18888);
-            httpProxyServer_->startServer(randomPort);
-            saveLastPort(randomPort);
-        }
-    }
-    else if (proxyType == PROXY_SHARING_SOCKS)
-    {
+    } else if (proxyType == PROXY_SHARING_SOCKS) {
         socksProxyServer_ = new SocksProxyServer::SocksProxyServer(this);
         connect(socksProxyServer_, &SocksProxyServer::SocksProxyServer::usersCountChanged, this, &VpnShareController::onProxyUsersCountChanged);
 
-        uint port;
         bool isStarted = false;
-        if (getLastSavedPort(port))
-        {
+        if (port != 0) {
             isStarted = socksProxyServer_->startServer(port);
+        } else {
+            if (getLastSavedPort(port)) {
+                isStarted = socksProxyServer_->startServer(port);
+            }
+            if (!isStarted) {
+                uint randomPort = AvailablePort::getAvailablePort(18888);
+                socksProxyServer_->startServer(randomPort);
+                saveLastPort(randomPort);
+            }
         }
-        if (!isStarted)
-        {
-            uint randomPort = AvailablePort::getAvailablePort(18888);
-            socksProxyServer_->startServer(randomPort);
-            saveLastPort(randomPort);
-        }
-    }
-    else
-    {
+    } else {
         WS_ASSERT(false);
     }
 }

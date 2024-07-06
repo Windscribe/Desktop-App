@@ -104,7 +104,6 @@ template<class Archive>
 void serialize(Archive &ar, CMD_START_CTRLD &a, const unsigned int version)
 {
     UNUSED(version);
-    ar & a.ip;
     ar & a.upstream1;
     ar & a.upstream2;
     ar & a.domains;
@@ -218,6 +217,7 @@ void serialize(Archive &ar, CMD_SET_FIREWALL_ON_BOOT &a, const unsigned int vers
 {
     UNUSED(version);
     ar & a.enabled;
+    ar & a.allowLanTraffic;
     ar & a.ipTable;
 }
 
@@ -269,6 +269,13 @@ void serialize(Archive &ar, CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR &a, const unsig
 {
     UNUSED(version);
     ar & a.uid;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_GET_INTERFACE_SSID &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.interface;
 }
 
 }

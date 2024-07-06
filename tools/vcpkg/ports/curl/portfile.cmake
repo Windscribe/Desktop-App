@@ -58,6 +58,11 @@ if(VCPKG_TARGET_IS_WINDOWS)
     list(APPEND OPTIONS -DENABLE_UNICODE=ON)
 endif()
 
+#see https://github.com/curl/curl/issues/13826
+if(VCPKG_TARGET_IS_ANDROID)
+    list(APPEND OPTIONS -DHAVE_CLOCK_GETTIME_MONOTONIC_RAW=OFF)
+endif()
+
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS

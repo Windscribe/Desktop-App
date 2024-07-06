@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <Shlobj.h>
 
+#include <filesystem>
 #include <sstream>
 
 #include "applicationinfo.h"
@@ -16,19 +17,19 @@ using namespace std;
 namespace Utils
 {
 
-wstring GetSystemDir()
+wstring getSystemDir()
 {
     wchar_t path[MAX_PATH];
     UINT result = ::GetSystemDirectory(path, MAX_PATH);
     if (result == 0 || result >= MAX_PATH) {
-        Log::instance().out("GetSystemDir failed (%lu)", ::GetLastError());
+        Log::instance().out(L"GetSystemDir failed (%lu)", ::GetLastError());
         return wstring();
     }
 
     return wstring(path);
 }
 
-optional<DWORD> InstExec(const wstring& appName, const wstring& commandLine, DWORD timeoutMS,
+optional<DWORD> instExec(const wstring& appName, const wstring& commandLine, DWORD timeoutMS,
                          WORD showWindowFlags, const wstring &currentFolder, DWORD *lastError)
 {
     wostringstream stream;
@@ -73,7 +74,7 @@ optional<DWORD> InstExec(const wstring& appName, const wstring& commandLine, DWO
     BOOL result = ::CreateProcess(nullptr, exec.get(), nullptr, nullptr, false, CREATE_DEFAULT_ERROR_MODE,
                                   nullptr, lpCurrentDirectory, &si, &pi);
     if (result == FALSE) {
-        Log::instance().out("Process::InstExec CreateProcess(%ls) failed (%lu)", exec.get(), ::GetLastError());
+        Log::instance().out(L"Process::InstExec CreateProcess(%s) failed (%lu)", exec.get(), ::GetLastError());
         if (lastError) {
             *lastError = ::GetLastError();
         }
@@ -90,14 +91,14 @@ optional<DWORD> InstExec(const wstring& appName, const wstring& commandLine, DWO
     if (waitResult == WAIT_FAILED) {
         if (::GetLastError() != ERROR_NOT_GUI_PROCESS) {
             // We're not treating this error as critical, but still want to note it.
-            Log::instance().out("Process::InstExec WaitForInputIdle failed (%lu)", ::GetLastError());
+            Log::instance().out(L"Process::InstExec WaitForInputIdle failed (%lu)", ::GetLastError());
         }
     }
 
     waitResult = ::WaitForSingleObject(pi.hProcess, timeoutMS);
 
     if (waitResult == WAIT_FAILED) {
-        Log::instance().out("Process::InstExec WaitForSingleObject failed (%lu)", ::GetLastError());
+        Log::instance().out(L"Process::InstExec WaitForSingleObject failed (%lu)", ::GetLastError());
         if (lastError) {
             *lastError = ::GetLastError();
         }
@@ -112,7 +113,7 @@ optional<DWORD> InstExec(const wstring& appName, const wstring& commandLine, DWO
     DWORD processExitCode;
     result = ::GetExitCodeProcess(pi.hProcess, &processExitCode);
     if (result == FALSE) {
-        Log::instance().out("Process::InstExec GetExitCodeProcess failed (%lu)", ::GetLastError());
+        Log::instance().out(L"Process::InstExec GetExitCodeProcess failed (%lu)", ::GetLastError());
         if (lastError) {
             *lastError = ::GetLastError();
         }
@@ -122,26 +123,26 @@ optional<DWORD> InstExec(const wstring& appName, const wstring& commandLine, DWO
     return processExitCode;
 }
 
-wstring DesktopFolder()
+wstring desktopFolder()
 {
     wchar_t szPath[MAX_PATH];
     HRESULT hResult = ::SHGetFolderPath(NULL, CSIDL_COMMON_DESKTOPDIRECTORY, NULL,
                                         SHGFP_TYPE_CURRENT, szPath);
     if (FAILED(hResult)) {
-        Log::instance().out("SHGetFolderPath(CSIDL_DESKTOPDIRECTORY) failed (%lu)", ::GetLastError());
+        Log::instance().out(L"SHGetFolderPath(CSIDL_DESKTOPDIRECTORY) failed (%lu)", ::GetLastError());
         return wstring();
     }
 
     return wstring(szPath);
 }
 
-wstring StartMenuProgramsFolder()
+wstring startMenuProgramsFolder()
 {
     wchar_t szPath[MAX_PATH];
     HRESULT hResult = ::SHGetFolderPath(NULL, CSIDL_COMMON_PROGRAMS, NULL,
                                         SHGFP_TYPE_CURRENT, szPath);
     if (FAILED(hResult)) {
-        Log::instance().out("SHGetFolderPath(CSIDL_COMMON_PROGRAMS) failed (%lu)", ::GetLastError());
+        Log::instance().out(L"SHGetFolderPath(CSIDL_COMMON_PROGRAMS) failed (%lu)", ::GetLastError());
         return wstring();
     }
 
@@ -207,6 +208,16 @@ HWND appMainWindowHandle()
     ::EnumWindows((WNDENUMPROC)FindAppWindowHandleProc, (LPARAM)pWindowInfo.get());
 
     return pWindowInfo->appMainWindow;
+}
+
+wstring getExePath()
+{
+    wchar_t path[MAX_PATH];
+    int ret = GetModuleFileName(NULL, path, MAX_PATH);
+    if (ret == 0) {
+        return wstring();
+    }
+    return filesystem::path(path).parent_path().wstring();
 }
 
 wstring programFilesFolder()

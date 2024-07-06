@@ -1,4 +1,5 @@
 #include "resource.h"
 
-Installer RCDATA "resources\windscribeinstaller.7z"
-IDI_ICON1 ICON DISCARDABLE "resources\windscribe.ico"
+7zExtractor BINARY "resources\\7zr.exe"
+Installer BINARY "resources\\windscribeinstaller.7z"
+IDI_ICON1 ICON DISCARDABLE "resources\\windscribe.ico"

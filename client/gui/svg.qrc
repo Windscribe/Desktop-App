@@ -280,6 +280,7 @@
         <file>svg/preferences/LAUNCH_AT_STARTUP.svg</file>
         <file>svg/preferences/LOCATION_LOAD.svg</file>
         <file>svg/preferences/LOCATION_ORDER.svg</file>
+        <file>svg/preferences/LOGOUT_ICON.svg</file>
         <file>svg/preferences/MAC_SPOOFING.svg</file>
         <file>svg/preferences/MAGNIFYING_GLASS.svg</file>
         <file>svg/preferences/MALWARE.svg</file>
@@ -297,7 +298,6 @@
         <file>svg/preferences/SEND_LOG.svg</file>
         <file>svg/preferences/SEND_TICKET.svg</file>
         <file>svg/preferences/SHOW_NOTIFICATIONS.svg</file>
-        <file>svg/preferences/SIGN_OUT_ICON.svg</file>
         <file>svg/preferences/SOCIAL_NETWORKS.svg</file>
         <file>svg/preferences/SPLIT_TUNNELING.svg</file>
         <file>svg/preferences/START_MINIMIZED.svg</file>

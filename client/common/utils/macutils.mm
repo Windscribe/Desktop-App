@@ -93,7 +93,7 @@ void MacUtils::setArrowCursor()
     [[NSCursor arrowCursor] set];
 }
 
-bool MacUtils::isGuiAlreadyRunning()
+bool MacUtils::isAppAlreadyRunning()
 {
     // Look for process containing "Windscribe" -- exclude grep and Engine
     QString cmd = "ps axco command | grep Windscribe | grep -v grep | grep -v WindscribeEngine | grep -v windscribe-cli";

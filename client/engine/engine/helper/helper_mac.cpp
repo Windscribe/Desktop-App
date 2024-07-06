@@ -84,6 +84,25 @@ QString Helper_mac::getHelperVersion()
         return "";
 }
 
+QString Helper_mac::getInterfaceSsid(const QString &interfaceName)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_GET_INTERFACE_SSID cmd;
+    CMD_ANSWER answer;
+    cmd.interface = interfaceName.toStdString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    if (runCommand(HELPER_CMD_GET_INTERFACE_SSID, stream.str(), answer)) {
+        return QString::fromStdString(answer.body);
+    } else {
+        return "";
+    }
+}
+
 bool Helper_mac::setMacAddress(const QString &interface, const QString &macAddress)
 {
     QMutexLocker locker(&mutex_);

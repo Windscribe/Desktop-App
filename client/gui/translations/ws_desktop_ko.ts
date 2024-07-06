@@ -1698,6 +1698,22 @@ Connect to a network first</source>
         <source>Proxy Type</source>
         <translation>프록시 유형</translation>
     </message>
+    <message>
+        <source>Port</source>
+        <translation>항구</translation>
+    </message>
+    <message>
+        <source>Unable to start proxy server</source>
+        <translation>프록시 서버를 시작할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
+        <translation>요청된 포트에서 프록시 서버를 시작할 수 없습니다. 다른 포트로 다시 시도하십시오.</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation>자동</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>

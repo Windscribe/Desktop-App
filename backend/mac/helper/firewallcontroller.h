@@ -20,8 +20,8 @@ public:
     void getRules(const std::string &table, const std::string &group, std::string *outRules);
 
 private:
-    FirewallController() : enabled_(false), connected_(false), splitTunnelEnabled_(false), splitTunnelExclude_(true) {};
-    ~FirewallController() { disable(); };
+    FirewallController();
+    ~FirewallController();
 
     bool enabled_;
     bool connected_;

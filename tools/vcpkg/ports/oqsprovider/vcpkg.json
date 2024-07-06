@@ -1,0 +1,20 @@
+{
+  "name": "oqsprovider",
+  "version": "0.5.3",
+  "port-version": 1,
+  "description": "oqs-provider is an OpenSSL provider for the Open Quantum Safe project",
+  "homepage": "https://github.com/open-quantum-safe/oqs-provider",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    },
+    "liboqs",
+    "openssl"
+  ]
+}
