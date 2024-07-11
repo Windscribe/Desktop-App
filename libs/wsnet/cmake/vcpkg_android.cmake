@@ -16,7 +16,8 @@
 
 # Note: VCPKG_TARGET_ANDROID is not an official vcpkg variable.
 # it is introduced for the need of this script
-
+set(CMAKE_VERBOSE_MAKEFILE OFF)
+set(CMAKE_RULE_MESSAGES OFF)
 if (VCPKG_TARGET_ANDROID)
 
     #
