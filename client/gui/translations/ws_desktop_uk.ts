@@ -78,7 +78,7 @@
     <name>ConnectWindow::LocationsButton</name>
     <message>
         <source>Locations</source>
-        <translation>Місця</translation>
+        <translation>Розташування</translation>
     </message>
 </context>
 <context>
@@ -945,7 +945,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Make advanced tweaks to the way the app functions.</source>
-        <translation>Вносьте розширені налаштування в роботу програми.</translation>
+        <translation>Внесіть розширені налаштування в роботу програми.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
