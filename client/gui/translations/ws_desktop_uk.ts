@@ -5,15 +5,15 @@
     <name>AdvancedParametersDialog</name>
     <message>
         <source>Advanced Parameters</source>
-        <translation>Розширені параметри</translation>
+        <translation>Розширені налаштування</translation>
     </message>
     <message>
         <source>Write your parameters here</source>
-        <translation>Напишіть тут свої параметри</translation>
+        <translation>Напишіть свої параметри тут</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation>Ясний</translation>
+        <translation>Очистити</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -39,15 +39,15 @@
     </message>
     <message>
         <source>Unsecured</source>
-        <translation>Незабезпечені</translation>
+        <translation>Незахищено</translation>
     </message>
     <message>
         <source>Secured</source>
-        <translation>Забезпечені</translation>
+        <translation>Захищено</translation>
     </message>
     <message>
         <source>Connection to Windscribe has been terminated. </source>
-        <translation>З&apos;єднання з Windscribe припинено. </translation>
+        <translation>Підключення до Windscribe припинено. </translation>
     </message>
     <message>
         <source> transferred in </source>
@@ -67,7 +67,7 @@
     </message>
     <message>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
-        <translation>Блокує будь-яке підключення в разі раптового відключення</translation>
+        <translation>Блокує всі підключення в разі раптового відключення</translation>
     </message>
     <message>
         <source>Connect to rate</source>
@@ -78,7 +78,7 @@
     <name>ConnectWindow::LocationsButton</name>
     <message>
         <source>Locations</source>
-        <translation>Розташування</translation>
+        <translation>Місця</translation>
     </message>
 </context>
 <context>
@@ -92,7 +92,7 @@
     <name>CustomMenuWidget</name>
     <message>
         <source>Undo</source>
-        <translation>Скасувати</translation>
+        <translation>Відмінити</translation>
     </message>
     <message>
         <source>Redo</source>
@@ -100,7 +100,7 @@
     </message>
     <message>
         <source>Cut</source>
-        <translation>Різати</translation>
+        <translation>Вирізати</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -108,7 +108,7 @@
     </message>
     <message>
         <source>Paste</source>
-        <translation>Па́ста</translation>
+        <translation>Вставити</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -127,11 +127,11 @@
     </message>
     <message>
         <source>Emergency connection failure. Try again?</source>
-        <translation>Аварійний збій підключення. Спробуй ще раз?</translation>
+        <translation>Аварійний збій підключення. Спробувати ще раз?</translation>
     </message>
     <message>
         <source>Can&apos;t access Windscribe.com or login into the app on your restrictive network? Connect to the emergency server that unblocks all of Windscribe.</source>
-        <translation>Не можете отримати доступ до Windscribe.com або увійти в додаток у мережі з обмеженнями? Підключіться до екстреного сервера, який розблоковує весь Windscribe.</translation>
+        <translation>Не можете отримати доступ до Windscribe.com або увійти в додаток у мережі з обмеженим доступом? Підключіться до аварійного сервера, який розблокує весь Windscribe.</translation>
     </message>
     <message>
         <source>Connecting...</source>
@@ -143,11 +143,11 @@
     </message>
     <message>
         <source>Connect</source>
-        <translation>Підключатися</translation>
+        <translation>Підключись</translation>
     </message>
     <message>
         <source>Disconnect</source>
-        <translation>Відключити</translation>
+        <translation>Від'єднати</translation>
     </message>
 </context>
 <context>
@@ -218,18 +218,18 @@
     </message>
     <message>
         <source>Remember</source>
-        <translation>Пам&apos;ятати</translation>
+        <translation>Запам&apos;ятати</translation>
     </message>
 </context>
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
         <source>All</source>
-        <translation>Увесь</translation>
+        <translation>Всі</translation>
     </message>
     <message>
         <source>Configured</source>
-        <translation>Налаштований</translation>
+        <translation>Налаштовані</translation>
     </message>
     <message>
         <source>Static IPs</source>
@@ -237,7 +237,7 @@
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Вибране</translation>
+        <translation>Обране</translation>
     </message>
     <message>
         <source>Search</source>
@@ -245,7 +245,7 @@
     </message>
     <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
-        <translation>Виберіть каталог, який містить нетипові налаштування, які ви хочете тут відобразити</translation>
+        <translation>Виберіть каталог, який містить користувацькі налаштування, які ви хочете відобразити тут</translation>
     </message>
     <message>
         <source>Choose</source>
@@ -253,7 +253,7 @@
     </message>
     <message>
         <source>The selected directory contains no custom configs</source>
-        <translation>Вибраний каталог не містить користувацьких конфігурацій</translation>
+        <translation>Вибраний каталог не містить користувацьких налаштувань</translation>
     </message>
     <message>
         <source>No locations found</source>
@@ -261,7 +261,7 @@
     </message>
     <message>
         <source>Nothing to see here...</source>
-        <translation>Тут нема на що подивитися...</translation>
+        <translation>Тут нема на що дивитися...</translation>
     </message>
     <message>
         <source>You don&apos;t have any Static IPs</source>
@@ -287,7 +287,7 @@
     <name>LogViewer::LogViewerWindow</name>
     <message>
         <source>Merge all logs by timestamp</source>
-        <translation>Об&apos;єднання всіх журналів за часовою позначкою</translation>
+        <translation>Об&apos;єднати всі журнали за часом</translation>
     </message>
     <message>
         <source>Word Wrap</source>
@@ -295,11 +295,11 @@
     </message>
     <message>
         <source>Color highlighting</source>
-        <translation>Кольорове виділення</translation>
+        <translation>Виділення кольором</translation>
     </message>
     <message>
         <source>Export to file...</source>
-        <translation>Експорт до файлу...</translation>
+        <translation>Експорт у файл...</translation>
     </message>
     <message>
         <source>Save log</source>
@@ -311,7 +311,7 @@
     </message>
     <message>
         <source>Export log</source>
-        <translation>Журнал експорту</translation>
+        <translation>Експортувати журнал</translation>
     </message>
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
@@ -322,7 +322,7 @@
     <name>LoginWindow::CredentialsWindowItem</name>
     <message>
         <source>Turn Off Firewall</source>
-        <translation>Вимкніть брандмауер</translation>
+        <translation>Вимкнути брандмауер</translation>
     </message>
     <message>
         <source>No Internet Connectivity</source>
@@ -334,7 +334,7 @@
     </message>
     <message>
         <source>Proxy requires authentication</source>
-        <translation>Проксі-сервер вимагає автентифікації</translation>
+        <translation>Проксі-сервер потребує автентифікації</translation>
     </message>
     <message>
         <source>Invalid API response, check your network</source>
@@ -346,7 +346,7 @@
     </message>
     <message>
         <source>...hmm are you sure this is correct?</source>
-        <translation>... Хм, ви впевнені, що це правильно?</translation>
+        <translation>... хм, ви впевнені, що це вірно?</translation>
     </message>
     <message>
         <source>...Sorry, seems like it&apos;s wrong again</source>
@@ -358,7 +358,7 @@
     </message>
     <message>
         <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>Ставка обмежена. Будь ласка, зачекайте, перш ніж намагатися увійти знову.</translation>
+        <translation>Доступ обмежений. Будь ласка, зачекайте, перш ніж спробувати увійти ще раз.</translation>
     </message>
     <message>
         <source>Session is expired. Please login again</source>
@@ -425,7 +425,7 @@
     </message>
     <message>
         <source>Turn Off Firewall</source>
-        <translation>Вимкніть брандмауер</translation>
+        <translation>Вимкнути брандмауер</translation>
     </message>
     <message>
         <source>Login</source>
@@ -440,7 +440,7 @@
     <name>MainWindow</name>
     <message>
         <source>Logging you in...</source>
-        <translation>Увійшовши в систему...</translation>
+        <translation>Входжу в систему...</translation>
     </message>
     <message>
         <source>VPN is active</source>
@@ -448,11 +448,11 @@
     </message>
     <message>
         <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>Поворот MAC-адреси призведе до події відключення від поточної мережі. Ти впевнений?</translation>
+        <translation>Зміна MAC-адреси призведе до відключення від поточної мережі. Ви впевнені?</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
-        <translation>Не вдається визначити відповідний розмір пакета під час підключення. Будь ласка, спочатку від&apos;єднайте.</translation>
+        <translation>Не вдається визначити відповідний розмір пакета під час підключення. Будь ласка, спочатку відключіться.</translation>
     </message>
     <message>
         <source>No Internet</source>
@@ -468,7 +468,7 @@
     </message>
     <message>
         <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>Неможливо вибрати цей каталог, оскільки його можна записувати для непривілейованих користувачів. Користувацькі конфігурації в цьому каталозі можуть становити потенційну загрозу безпеці. Будь ласка, пройдіть автентифікацію за допомогою адміністратора, щоб вибрати цей каталог.</translation>
+        <translation>Неможливо вибрати цей каталог, оскільки він доступний для запису непривілейованими користувачами. Користувацькі конфігурації в цьому каталозі можуть становити потенційну загрозу безпеці. Будь ласка, пройдіть автентифікацію за допомогою адміністратора, щоб вибрати цей каталог.</translation>
     </message>
     <message>
         <source>Can&apos;t select directory</source>
@@ -484,19 +484,19 @@
     </message>
     <message>
         <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>Вибраний каталог є доступним для запису для непривілейованих користувачів. Користувацькі конфігурації в цьому каталозі можуть становити потенційну загрозу безпеці.</translation>
+        <translation>Вибраний каталог доступний для запису непривілейованими користувачами. Користувацькі конфігурації у цьому каталозі можуть становити потенційну загрозу безпеці.</translation>
     </message>
     <message>
         <source>Security Risk</source>
-        <translation>Ризик для безпеки</translation>
+        <translation>Ризик безпеки</translation>
     </message>
     <message>
         <source>Enable Service?</source>
-        <translation>Увімкнути послугу?</translation>
+        <translation>Увімкнути службу?</translation>
     </message>
     <message>
         <source>Enable &quot;Base Filtering Engine&quot; service? This is required for Windscribe to function.</source>
-        <translation>Увімкнути послугу «Базовий движок фільтрації»? Це необхідно для того, щоб Windscribe функціонував.</translation>
+        <translation>Увімкнути службу «Базовий движок фільтрації»? Це необхідно для роботи Windscribe.</translation>
     </message>
     <message>
         <source>Failed to Enable Service</source>
@@ -512,7 +512,7 @@
     </message>
     <message>
         <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>Windscribe несправний.  Будь ласка, перезапустіть програму.</translation>
+        <translation>Windscribe не працює належним чином.  Будь ласка, перезапустіть програму.</translation>
     </message>
     <message>
         <source>Trying Backup Endpoints %1/%2</source>
@@ -566,15 +566,15 @@
     </message>
     <message>
         <source>Set as Preferred</source>
-        <translation>Встановити за бажанням</translation>
+        <translation>Встановити як бажаний</translation>
     </message>
     <message>
         <source>Service Error</source>
-        <translation>Помилка сервісу</translation>
+        <translation>Помилка служби</translation>
     </message>
     <message>
         <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
-        <translation>Windscribe виявив, що %1 використовує велику кількість ЦП через потенційний конфлікт з VPN-з&apos;єднанням. Ви хочете вимкнути функцію завершення розетки Windscribe TCP, яка може спричиняти цю проблему?</translation>
+        <translation>Windscribe виявив, що %1 використовує велику кількість ресурсів ЦП через потенційний конфлікт з VPN-з&apos;єднанням. Ви хочете вимкнути функцію завершення TCP-сокетів Windscribe, яка може спричинити цю проблему?</translation>
     </message>
     <message>
         <source>High CPU Usage</source>
@@ -582,7 +582,7 @@
     </message>
     <message>
         <source>MAC Spoofing Failed</source>
-        <translation>Помилка підміни MAC</translation>
+        <translation>Підміна MAC не вдалася</translation>
     </message>
     <message>
         <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
@@ -622,11 +622,11 @@
     </message>
     <message>
         <source>Auto-Update Failed</source>
-        <translation>Помилка автоматичного оновлення</translation>
+        <translation>Автооновлення не вдалося</translation>
     </message>
     <message>
         <source>Please contact support</source>
-        <translation>Будь ласка, зв&apos;яжіться зі службою</translation>
+        <translation>Будь ласка, зв&apos;яжіться зі службою підтримки</translation>
     </message>
     <message>
         <source>Could not download update.  Please try again or use a different network.</source>
@@ -634,7 +634,7 @@
     </message>
     <message>
         <source>Could not run updater (Error %1).  Please contact support</source>
-        <translation>Не вдалося запустити програму оновлення (помилка %1).  Будь ласка, зв&apos;яжіться зі службою</translation>
+        <translation>Не вдалося запустити програму оновлення (помилка %1).  Будь ласка, зв&apos;яжіться зі службою підтримки</translation>
     </message>
     <message>
         <source>Lost connection to the backend process.
@@ -648,7 +648,7 @@ Recovering...</source>
     </message>
     <message>
         <source>Connect</source>
-        <translation>Підключатися</translation>
+        <translation>Підключитись</translation>
     </message>
     <message>
         <source>Disconnect</source>
@@ -660,7 +660,7 @@ Recovering...</source>
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Вибране</translation>
+        <translation>Обране</translation>
     </message>
     <message>
         <source>Static IPs</source>
@@ -668,7 +668,7 @@ Recovering...</source>
     </message>
     <message>
         <source>Configured</source>
-        <translation>Налаштований</translation>
+        <translation>Налаштовано</translation>
     </message>
     <message>
         <source>Show/Hide</source>
@@ -696,7 +696,7 @@ Recovering...</source>
     </message>
     <message>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
-        <translation>Не вдалося завантажити нетипову конфігурацію.  Будь ласка, перевірте правильність або зверніться до служби підтримки.</translation>
+        <translation>Не вдалося завантажити користувацьку конфігурацію.  Будь ласка, перевірте правильність або зверніться до служби підтримки.</translation>
     </message>
     <message>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
@@ -724,7 +724,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Error Starting Service</source>
-        <translation>Помилка запуску сервісу</translation>
+        <translation>Помилка запуску служби</translation>
     </message>
     <message>
         <source>The split tunneling feature could not be started, and has been disabled in Preferences.</source>
@@ -732,11 +732,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Windscribe</source>
-        <translation>Вітровий писар</translation>
+        <translation>Windscribe</translation>
     </message>
     <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
-        <translation>Не вдається запустити спеціальну службу DNS.  Будь ласка, переконайтеся, що у вас не запущені інші локальні служби DNS, або зверніться до служби підтримки.</translation>
+        <translation>Не вдається запустити власну службу DNS.  Будь ласка, переконайтеся, що у вас не запущені інші локальні служби DNS, або зверніться до служби підтримки.</translation>
     </message>
     <message>
         <source>JSON Files (*.json)</source>
@@ -803,11 +803,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Quit</source>
-        <translation>Вимкнути</translation>
+        <translation>Вийти</translation>
     </message>
     <message>
         <source>Log Out</source>
-        <translation>Вийти</translation>
+        <translation>Вийти з системи</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -836,7 +836,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>Preferences</name>
     <message>
         <source>Invalid DNS Settings</source>
-        <translation>Недійсні налаштування DNS</translation>
+        <translation>Невірні налаштування DNS</translation>
     </message>
     <message>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 1 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
@@ -851,7 +851,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::AboutWindowItem</name>
     <message>
         <source>About</source>
-        <translation>Про</translation>
+        <translation>Про додаток</translation>
     </message>
     <message>
         <source>Status</source>
@@ -871,11 +871,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Blog</source>
-        <translation>Укр-Прокат</translation>
+        <translation>Блог</translation>
     </message>
     <message>
         <source>Jobs</source>
-        <translation>Робочих місць</translation>
+        <translation>Вакансії</translation>
     </message>
     <message>
         <source>Software Licenses</source>
@@ -894,7 +894,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Account</source>
-        <translation>Рахунок</translation>
+        <translation>Обліковий запис</translation>
     </message>
     <message>
         <source>INFO</source>
@@ -910,11 +910,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Reset Date</source>
-        <translation>Скинути дату</translation>
+        <translation>Дата скидання</translation>
     </message>
     <message>
         <source>Data Left</source>
-        <translation>Дані залишилися</translation>
+        <translation>Залишилось даних</translation>
     </message>
     <message>
         <source>Manage Account</source>
@@ -922,7 +922,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Expiry Date</source>
-        <translation>Термін придатності</translation>
+        <translation>Закінчення терміну дії</translation>
     </message>
 </context>
 <context>
@@ -941,11 +941,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Restart later</source>
-        <translation>Перезапустіть пізніше</translation>
+        <translation>Перезапустити пізніше</translation>
     </message>
     <message>
         <source>Make advanced tweaks to the way the app functions.</source>
-        <translation>Внесіть розширені зміни в роботу програми.</translation>
+        <translation>Вносьте розширені налаштування в роботу програми.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
@@ -961,11 +961,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>Визначайте API-адресу сервера автоматично або використовуйте адресу, надану службою підтримки.</translation>
+        <translation>Автоматично визначити API-адресу сервера або використати адресу, надану службою підтримки.</translation>
     </message>
     <message>
         <source>Ignore SSL certificate validation errors.</source>
-        <translation>Ігнорувати помилки перевірки сертифіката SSL.</translation>
+        <translation>Ігнорувати помилки перевірки SSL-сертифіката.</translation>
     </message>
     <message>
         <source>Ignore SSL Errors</source>
@@ -973,11 +973,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>Запобігає вмиранню з&apos;єднань IKEv2 (через тайм-аут) шляхом періодичного пінгування сервера.</translation>
+        <translation>Запобігає розриву IKEv2-з'єднань (за таймаутом), періодично пінгуючи сервер.</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
-        <translation>На стороні клієнта Keepalive</translation>
+        <translation>Keepalive на стороні клієнта</translation>
     </message>
     <message>
         <source>Windscribe uses this DNS server to resolve addresses outside the VPN.</source>
@@ -989,11 +989,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>App Internal DNS</source>
-        <translation>Внутрішня DNS програми</translation>
+        <translation>Внутрішній DNS додатку</translation>
     </message>
     <message>
         <source>Select the DNS system service Windscribe enforces. Experienced users only.</source>
-        <translation>Виберіть системну службу DNS, яку застосовує Windscribe. Тільки для досвідчених користувачів.</translation>
+        <translation>Виберіть службу системи DNS, яку використовуватиме Windscribe. Тільки для досвідчених користувачів.</translation>
     </message>
     <message>
         <source>DNS Manager</source>
@@ -1016,15 +1016,15 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::ApiResolutionGroup</name>
     <message>
         <source>API Resolution</source>
-        <translation>Роздільна здатність API</translation>
+        <translation>Рішення API</translation>
     </message>
     <message>
         <source>Auto</source>
-        <translation>Автоматичний</translation>
+        <translation>Автоматично</translation>
     </message>
     <message>
         <source>Manual</source>
-        <translation>Керівництво</translation>
+        <translation>Вручну</translation>
     </message>
     <message>
         <source>Address</source>
@@ -1040,7 +1040,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>Ви ввели неправильну адресу для роздільної здатності API.  Його було скинуто до Auto.</translation>
+        <translation>Ви ввели невірну адресу для вирішення API.  Її було скинуто на Авто.</translation>
     </message>
 </context>
 <context>
@@ -1051,7 +1051,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Connected</source>
-        <translation>Підключений</translation>
+        <translation>Підключено</translation>
     </message>
     <message>
         <source>Flags</source>
@@ -1059,7 +1059,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>None</source>
-        <translation>Ніхто</translation>
+        <translation>Нічого</translation>
     </message>
     <message>
         <source>Custom</source>
@@ -1078,7 +1078,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Upstream 1</source>
-        <translation>Вище за течією 1</translation>
+        <translation>Upstream 1</translation>
     </message>
     <message>
         <source>IP/DNS-over-HTTPS/TLS</source>
@@ -1086,7 +1086,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Upstream 2</source>
-        <translation>Вище за течією 2</translation>
+        <translation>Upstream 2</translation>
     </message>
     <message>
         <source>Split DNS</source>
@@ -1101,11 +1101,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::ConnectionWindowItem</name>
     <message>
         <source>Allow LAN Traffic</source>
-        <translation>Дозволити трафік локальної мережі</translation>
+        <translation>Дозволити LAN-трафік</translation>
     </message>
     <message>
         <source>Terminate Sockets</source>
-        <translation>Завершення розеток</translation>
+        <translation>Завершення сокетів</translation>
     </message>
     <message>
         <source>Circumvent Censorship</source>
@@ -1117,11 +1117,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Exclusive</source>
-        <translation>Монопольний</translation>
+        <translation>Ексклюзивний</translation>
     </message>
     <message>
         <source>Inclusive</source>
-        <translation>Включно</translation>
+        <translation>Інклюзивний</translation>
     </message>
     <message>
         <source>Off</source>
@@ -1141,11 +1141,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Connects to last used location when the app launches or joins a network.</source>
-        <translation>Підключається до останнього використовуваного розташування, коли програма запускається або приєднується до мережі.</translation>
+        <translation>Підключається до останнього використаного місця розташування, коли програма запускається або приєднується до мережі.</translation>
     </message>
     <message>
         <source>Auto-Connect</source>
-        <translation>Автоматичне підключення</translation>
+        <translation>Автопідключення</translation>
     </message>
     <message>
         <source>Control the mode of behavior of the Windscribe firewall.</source>
@@ -1157,7 +1157,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Automatically choose the VPN protocol, or select one manually. NOTE: &quot;Preferred Protocol&quot; will override this setting.</source>
-        <translation>Автоматично вибирайте протокол VPN або вручну. ПРИМІТКА: «Бажаний протокол» замінить це налаштування.</translation>
+        <translation>Автоматично вибрати протокол VPN або вибрати його вручну. ПРИМІТКА: «Бажаний протокол» замінить це налаштування.</translation>
     </message>
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.</source>
@@ -1169,7 +1169,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
-        <translation>Надайте доступ до локальних служб і принтерів при підключенні до Windscribe.</translation>
+        <translation>Дозволити доступ до локальних служб і принтерів під час підключення до Windscribe.</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -1177,7 +1177,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
-        <translation>Закрийте всі активні TCP-сокети після встановлення VPN-тунелю.</translation>
+        <translation>Закрити всі активні TCP-сокети після встановлення VPN-тунелю.</translation>
     </message>
     <message>
         <source>Configure your TV, gaming console, or other devices that support proxy servers.</source>
@@ -1185,7 +1185,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Connect to the VPN even in hostile environment.</source>
-        <translation>Підключайтеся до VPN навіть у ворожому середовищі.</translation>
+        <translation>Підключитись до VPN навіть у ворожому середовищі.</translation>
     </message>
     <message>
         <source>Settings Conflict</source>
@@ -1193,7 +1193,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Disabling Allow LAN Traffic will cause your proxy gateway to stop working.  Do you want to disable the proxy?</source>
-        <translation>Вимкнення параметра «Дозволити трафік локальної мережі» призведе до того, що ваш проксі-шлюз перестане працювати.  Хочете відключити проксі?</translation>
+        <translation>Вимкнення параметра «Дозволити LAN-трафік» призведе до того, що ваш проксі-шлюз перестане працювати.  Хочете відключити проксі?</translation>
     </message>
     <message>
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
@@ -1238,11 +1238,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::EmailItem</name>
     <message>
         <source>Sent!</source>
-        <translation>Відправлені!</translation>
+        <translation>Відправлено!</translation>
     </message>
     <message>
         <source>Resend</source>
-        <translation>Відправити</translation>
+        <translation>Повторна відправка</translation>
     </message>
     <message>
         <source>Sending</source>
@@ -1288,23 +1288,23 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Run Windscribe when your device starts.</source>
-        <translation>Запустіть Windscribe під час запуску пристрою.</translation>
+        <translation>Запустити Windscribe під час запуску пристрою.</translation>
     </message>
     <message>
         <source>Launch on Startup</source>
-        <translation>Запуск під час запуску</translation>
+        <translation>Запускати зі стартом комп&apos;ютера</translation>
     </message>
     <message>
         <source>Launch Windscribe in a minimized state.</source>
-        <translation>Запустіть Windscribe у згорнутому стані.</translation>
+        <translation>Запустити Windscribe у згорнутому стані.</translation>
     </message>
     <message>
         <source>Start Minimized</source>
-        <translation>Почніть згорнуто</translation>
+        <translation>Запустити у згорнутому виді</translation>
     </message>
     <message>
         <source>Windscribe minimizes to system tray and no longer appears in the task bar.</source>
-        <translation>Windscribe згортається в системний лоток і більше не з&apos;являється на панелі завдань.</translation>
+        <translation>Windscribe згортається до системного лотка і не відображається на панелі завдань.</translation>
     </message>
     <message>
         <source>Windscribe minimizes to menubar and no longer appears in the dock.</source>
@@ -1312,11 +1312,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Close to Tray</source>
-        <translation>Близько до лотка</translation>
+        <translation>Згорнути до лотка</translation>
     </message>
     <message>
         <source>Don&apos;t show the Windscribe icon in dock.</source>
-        <translation>Усунено показ піктограми Windscribe на панелі Dock.</translation>
+        <translation>Не показувати піктограму Windscribe на панелі Dock.</translation>
     </message>
     <message>
         <source>Hide from Dock</source>
@@ -1324,11 +1324,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Pin Windscribe near the system tray or menu bar.</source>
-        <translation>Закріпіть Windscribe біля системного трею або рядка меню.</translation>
+        <translation>Закріпити Windscribe в системному лотку або в рядку меню.</translation>
     </message>
     <message>
         <source>Docked</source>
-        <translation>Пристикований</translation>
+        <translation>Пристиковано</translation>
     </message>
     <message>
         <source>Display system-level notifications when connection events occur.</source>
@@ -1340,19 +1340,19 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Display a location&apos;s load. Shorter bars mean lesser load (usage).</source>
-        <translation>Відображення навантаження на місцеположення. Коротші штанги означають менше навантаження (використання).</translation>
+        <translation>Відображати навантаження на локації. Коротші смуги означають менше навантаження (використання).</translation>
     </message>
     <message>
         <source>Show Location Load</source>
-        <translation>Показати завантаження місцезнаходження</translation>
+        <translation>Показати завантаження локації</translation>
     </message>
     <message>
         <source>Arrange locations alphabetically, geographically, or by latency.</source>
-        <translation>Розташуйте місця в алфавітному, географічному порядку або за затримкою.</translation>
+        <translation>Розташуйте локації в алфавітному порядку, географічно або за латентністю.</translation>
     </message>
     <message>
         <source>Location Order</source>
-        <translation>Порядок розташування</translation>
+        <translation>Упорядкування локацій</translation>
     </message>
     <message>
         <source>Display latency as signal strength bars or in milliseconds.</source>
@@ -1364,7 +1364,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Localize Windscribe to supported languages.</source>
-        <translation>Локалізуйте Windscribe на підтримуваних мовах.</translation>
+        <translation>Локалізуйте Windscribe підтримуваними мовами.</translation>
     </message>
     <message>
         <source>Language</source>
@@ -1396,11 +1396,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Choose between white and black tray icon.</source>
-        <translation>Виберіть між білим і чорним значком у треї.</translation>
+        <translation>Виберіть між білою та чорною піктограмою лотка.</translation>
     </message>
     <message>
         <source>Tray Icon Color</source>
-        <translation>Колір піктограми в треї</translation>
+        <translation>Колір піктограми лотка</translation>
     </message>
 </context>
 <context>
@@ -1435,7 +1435,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Discord</source>
-        <translation>Ворожнечу</translation>
+        <translation>Discord</translation>
     </message>
     <message>
         <source>View Debug Log</source>
@@ -1443,7 +1443,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Send Debug Log</source>
-        <translation>Надсилання журналу налагодження</translation>
+        <translation>Надіслати журнал налагодження</translation>
     </message>
     <message>
         <source>Sending log...</source>
@@ -1451,7 +1451,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Sent, thanks!</source>
-        <translation>Надіслали, дякую!</translation>
+        <translation>Відправлено, дякую!</translation>
     </message>
     <message>
         <source>Failed!</source>
@@ -1463,11 +1463,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Contact Humans</source>
-        <translation>Контакт з людьми</translation>
+        <translation>Зв'язатися з людьми</translation>
     </message>
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>Маєте проблему, яку Гаррі не може вирішити? Зверніться до служби підтримки людей.</translation>
+        <translation>Маєте проблему, яку Гаррі не може вирішити? Зверніться до людської служби підтримки.</translation>
     </message>
 </context>
 <context>
@@ -1506,7 +1506,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Auto-Rotate MAC</source>
-        <translation>Автоматичний поворот MAC</translation>
+        <translation>Автоматична ротація MAC</translation>
     </message>
 </context>
 <context>
@@ -1525,11 +1525,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Choose whether to connect using the recommended tunneling protocol, or to specify a protocol of your choice.</source>
-        <translation>Виберіть, чи підключатися за допомогою рекомендованого протоколу тунелювання, чи вказати протокол на ваш вибір.</translation>
+        <translation>Виберіть, чи підключатися за рекомендованим протоколом тунелювання, чи вказати протокол на свій  власний розсуд.</translation>
     </message>
     <message>
         <source>Forget Network</source>
-        <translation>Забути про мережу</translation>
+        <translation>Забути мережу</translation>
     </message>
 </context>
 <context>
@@ -1548,7 +1548,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Auto-Secure Networks</source>
-        <translation>Автоматичні захищені мережі</translation>
+        <translation>Автоматичний захист мереж</translation>
     </message>
     <message>
         <source>No Network Detected</source>
@@ -1564,11 +1564,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Secured</source>
-        <translation>Забезпечені</translation>
+        <translation>Захищено</translation>
     </message>
     <message>
         <source>Unsecured</source>
-        <translation>Незабезпечені</translation>
+        <translation>Незахищено</translation>
     </message>
     <message>
         <source>No Networks Detected.
@@ -1596,15 +1596,15 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Auto</source>
-        <translation>Автоматичний</translation>
+        <translation>Авто</translation>
     </message>
     <message>
         <source>Manual</source>
-        <translation>Керівництво</translation>
+        <translation>Вручну</translation>
     </message>
     <message>
         <source>MTU</source>
-        <translation>МТУ</translation>
+        <translation>MTU</translation>
     </message>
 </context>
 <context>
@@ -1634,7 +1634,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Account</source>
-        <translation>Рахунок</translation>
+        <translation>Обліковий запис</translation>
     </message>
     <message>
         <source>Connection</source>
@@ -1642,7 +1642,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>R.O.B.E.R.T.</source>
-        <translation>Р.О.Б.Е.Р.Т.</translation>
+        <translation>R.O.B.E.R.T.</translation>
     </message>
     <message>
         <source>Advanced Options</source>
@@ -1654,7 +1654,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>About</source>
-        <translation>Про</translation>
+        <translation>Про додаток</translation>
     </message>
     <message>
         <source>Login</source>
@@ -1662,22 +1662,22 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Log Out</source>
-        <translation>Вийти</translation>
+        <translation>Вийти з системи</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>Вимкнути</translation>
+        <translation>Вийти</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::ProtocolGroup</name>
     <message>
         <source>Auto</source>
-        <translation>Автоматичний</translation>
+        <translation>Авто</translation>
     </message>
     <message>
         <source>Manual</source>
-        <translation>Керівництво</translation>
+        <translation>Вручну</translation>
     </message>
     <message>
         <source>Protocol</source>
@@ -1698,32 +1698,16 @@ Connect to a network first</source>
         <source>Proxy Type</source>
         <translation>Тип проксі-сервера</translation>
     </message>
-    <message>
-        <source>Port</source>
-        <translation>Порт</translation>
-    </message>
-    <message>
-        <source>Unable to start proxy server</source>
-        <translation>Не вдається запустити проксі-сервер</translation>
-    </message>
-    <message>
-        <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>Не вдалося запустити проксі-сервер на запитаному порту. Повторіть спробу з іншим портом.</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>Автоматичного</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
     <message>
         <source>IP</source>
-        <translation>ІП</translation>
+        <translation>IP</translation>
     </message>
     <message>
         <source>Copied</source>
-        <translation>Скопійовані</translation>
+        <translation>Скопійовано</translation>
     </message>
 </context>
 <context>
@@ -1768,7 +1752,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Allowing</source>
-        <translation>Дозволяє</translation>
+        <translation>Дозволяючи</translation>
     </message>
 </context>
 <context>
@@ -1779,7 +1763,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>R.O.B.E.R.T. is a customizable server-side domain and IP blocking tool. Select the block lists you wish to apply on all your devices by toggling the switch.</source>
-        <translation>R.O.B.E.R.T. — це настроюваний інструмент блокування доменів та IP-адрес на стороні сервера. Виберіть списки блокувань, які ви хочете застосувати на всіх своїх пристроях, перемкнувши перемикач.</translation>
+        <translation>R.O.B.E.R.T. - це інструмент блокування доменів та IP-адрес на стороні сервера, що налаштовується. Виберіть списки блокування, які ви хочете застосувати на всіх своїх пристроях, перемикаючи перемикач.</translation>
     </message>
     <message>
         <source>Could not retrieve R.O.B.E.R.T. preferences from server. Try again later.</source>
@@ -1795,7 +1779,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Manage Custom Rules</source>
-        <translation>Керування настроюваними правилами</translation>
+        <translation>Керування користувацькими правилами</translation>
     </message>
 </context>
 <context>
@@ -1809,7 +1793,7 @@ Connect to a network first</source>
     <name>PreferencesWindow::SecureHotspotGroup</name>
     <message>
         <source>Secure Hotspot</source>
-        <translation>Безпечна точка доступу</translation>
+        <translation>Захищена точка доступу</translation>
     </message>
     <message>
         <source>Secure hotspot is not supported by your network adapter.</source>
@@ -1817,7 +1801,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Secure hotspot is not supported for IKEv2 protocol.</source>
-        <translation>Безпечна точка доступу не підтримується для протоколу IKEv2.</translation>
+        <translation>Захищена точка доступу не підтримується для протоколу IKEv2.</translation>
     </message>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
@@ -1837,14 +1821,14 @@ Connect to a network first</source>
     </message>
     <message>
         <source>At least 8 characters</source>
-        <translation>Принаймні 8 символів</translation>
+        <translation>Щонайменше 8 символів</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::SelectImageItem</name>
     <message>
         <source>[no selection]</source>
-        <translation>[без вибору]</translation>
+        <translation>[не вибрано]</translation>
     </message>
     <message>
         <source>Select an image</source>
@@ -1918,7 +1902,7 @@ Connect to a network first</source>
     <name>PreferencesWindow::SplitTunnelingGroup</name>
     <message>
         <source>Service Not Installed</source>
-        <translation>Сервіс не встановлено</translation>
+        <translation>Службу не встановлено</translation>
     </message>
     <message>
         <source>The split tunneling driver is not installed.  To enable this feature, try reinstalling the Windscribe application.
@@ -1954,11 +1938,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Exclusive</source>
-        <translation>Монопольний</translation>
+        <translation>Ексклюзивний</translation>
     </message>
     <message>
         <source>Inclusive</source>
-        <translation>Включно</translation>
+        <translation>Інклюзивний</translation>
     </message>
     <message>
         <source>Apps</source>
@@ -1977,18 +1961,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
-        <translation>Включайте або виключайте програми та імена хостів із VPN-тунелю.</translation>
+        <translation>Включати або виключати програми та імена хостів з VPN-тунелю.</translation>
     </message>
     <message>
         <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
-        <translation>Включайте або виключайте IP-адреси та імена хостів із VPN-тунелю.</translation>
+        <translation>Включати або виключати IP-адреси та імена хостів з VPN-тунелю.</translation>
     </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
     <message>
         <source>NEXT UP IN %1s</source>
-        <translation>ДАЛІ В %1s</translation>
+        <translation>НАСТУПНЕ через %1s</translation>
     </message>
     <message>
         <source>Connected to</source>
@@ -2003,7 +1987,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>ProtocolWindow::ProtocolPromptItem</name>
     <message>
         <source>Cutting-edge protocol.</source>
-        <translation>Передовий протокол.</translation>
+        <translation>Найсучасніший протокол.</translation>
     </message>
     <message>
         <source>An IPsec based tunneling protocol.</source>
@@ -2023,7 +2007,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Wraps traffic with web sockets.</source>
-        <translation>Обертає трафік веб-сокетами.</translation>
+        <translation>Обгортає трафік веб-сокетами.</translation>
     </message>
     <message>
         <source>Change Protocol</source>
@@ -2031,7 +2015,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Quickly re-connect using a different protocol.</source>
-        <translation>Швидко повторно підключіться за допомогою іншого протоколу.</translation>
+        <translation>Швидко перепідключіться, використовуючи інший протокол.</translation>
     </message>
     <message>
         <source>Connection Failure!</source>
@@ -2039,7 +2023,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>The protocol you’ve chosen has failed to connect. Windscribe will attempt to reconnect using the first protocol below.</source>
-        <translation>Не вдалося підключитися до вибраного протоколу. Windscribe спробує повторно підключитися за допомогою першого протоколу, наведеного нижче.</translation>
+        <translation>Не вдалося підключитись за обраним вами протоколом. Windscribe спробує перепідключитися за допомогою першого з наведених нижче протоколів.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -2053,7 +2037,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>Нестандартний</translation>
     </message>
     <message>
-        <source>OS Default</source>
+        <source>За замовчуванням ОС</source>
         <translation>ОС за замовчуванням</translation>
     </message>
     <message>
@@ -2062,31 +2046,31 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Geography</source>
-        <translation>Географія</translation>
+        <translation>За географією</translation>
     </message>
     <message>
         <source>Alphabet</source>
-        <translation>Абетка</translation>
+        <translation>За абеткою</translation>
     </message>
     <message>
         <source>Latency</source>
-        <translation>Затримки</translation>
+        <translation>За затримкою</translation>
     </message>
     <message>
         <source>Bars</source>
-        <translation>Барів</translation>
+        <translation>Стовпчики</translation>
     </message>
     <message>
         <source>Ms</source>
-        <translation>Пані</translation>
+        <translation>Мілісекунди</translation>
     </message>
     <message>
         <source>Manual</source>
-        <translation>Керівництво</translation>
+        <translation>Вручну</translation>
     </message>
     <message>
         <source>Auto</source>
-        <translation>Автоматичний</translation>
+        <translation>Авто</translation>
     </message>
     <message>
         <source>Always On</source>
@@ -2094,7 +2078,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Before Connection</source>
-        <translation>Перед підключенням</translation>
+        <translation>До підключення</translation>
     </message>
     <message>
         <source>After Connection</source>
@@ -2102,7 +2086,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>None</source>
-        <translation>Ніхто</translation>
+        <translation>Нічого</translation>
     </message>
     <message>
         <source>Auto-detect</source>
@@ -2110,15 +2094,15 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Release</source>
-        <translation>Реліз</translation>
+        <translation>Release</translation>
     </message>
     <message>
         <source>Beta</source>
-        <translation>Бета</translation>
+        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>
-        <translation>Морська свинка</translation>
+        <translation>Guinea Pig</translation>
     </message>
     <message>
         <source>Internal</source>
@@ -2186,7 +2170,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
-        <translation>Ваша версія програми більше не підтримується. Будь ласка, оновіть, щоб продовжувати використовувати Windscribe.</translation>
+        <translation>Ваша версія програми більше не підтримується. Будь ласка, оновіть її, щоб продовжити користуватися Windscribe.</translation>
     </message>
     <message>
         <source>Please upgrade to a Pro account to continue using Windscribe.</source>
@@ -2194,11 +2178,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
-        <translation>Термін дії вашого початкового рахунку %1 закінчився. Створення кількох облікових записів для обходу обмежень безкоштовного рівня заборонено. Будь ласка, увійдіть у початковий обліковий запис і зачекайте, поки пропускна здатність не буде скинута. Ви також можете перейти на Pro.</translation>
+        <translation>Термін дії вашого облікового запису %1 закінчився. Створення декількох облікових записів для обходу обмежень безкоштовного рівня заборонено. Будь ласка, увійдіть в початковий обліковий запис і зачекайте, поки пропускну здатність буде скинуто. Ви також можете перейти на Pro.</translation>
     </message>
     <message>
         <source>Your account is disabled for abuse.</source>
-        <translation>Ваш обліковий запис вимкнено через порушення.</translation>
+        <translation>Ваш обліковий запис вимкнено за зловживання.</translation>
     </message>
     <message>
         <source>Firewall Always On</source>
@@ -2230,7 +2214,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Forced</source>
-        <translation>Примусове</translation>
+        <translation>Примусово</translation>
     </message>
 </context>
 <context>
@@ -2241,14 +2225,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>File Sharing Frowned Upon</source>
-        <translation>Обмін файлами не схвалюється</translation>
+        <translation>Обмін файлами не допускається</translation>
     </message>
 </context>
 <context>
     <name>ServerRatingsTooltip</name>
     <message>
         <source>Rate speed</source>
-        <translation>Швидкість швидкості</translation>
+        <translation>Оцініть швидкість</translation>
     </message>
 </context>
 <context>
@@ -2289,7 +2273,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Please provide a 2FA code</source>
-        <translation>Будь ласка, надайте код 2FA</translation>
+        <translation>Будь ласка, введіть код 2FA</translation>
     </message>
     <message>
         <source>Invalid 2FA code, please try again</source>
@@ -2304,7 +2288,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>UPDATE</source>
-        <translation>ОНОВЛЮВАТИ</translation>
+        <translation>ОНОВИТИ</translation>
     </message>
 </context>
 <context>
@@ -2315,7 +2299,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Your update is in progress, hang in there...</source>
-        <translation>Ваше оновлення триває, зачекайте...</translation>
+        <translation>Оновлення триває, зачекайте...</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -2327,7 +2311,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Update</source>
-        <translation>Оновлювати</translation>
+        <translation>Оновити</translation>
     </message>
     <message>
         <source>Windscribe will download the update, then terminate active connections and restart automatically.</source>
@@ -2338,7 +2322,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>UpgradeWidget::UpgradeWidgetItem</name>
     <message>
         <source>GET MORE DATA</source>
-        <translation>ОТРИМУЙТЕ БІЛЬШЕ ДАНИХ</translation>
+        <translation>ОТРИМАТИ БІЛЬШЕ ДАННИХ</translation>
     </message>
     <message>
         <source>EXT CONFIG MODE</source>
@@ -2346,11 +2330,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>0 DAYS LEFT</source>
-        <translation>ДНІВ ЗАЛИШИЛОСЬ 0</translation>
+        <translation>ЗАЛИШИЛОСЯ 0 ДНІВ</translation>
     </message>
     <message>
         <source>1 DAY LEFT</source>
-        <translation>ЗАЛИШИЛОСЬ 1 ДНІВ</translation>
+        <translation>ЗАЛИШИВСЯ 1 ДЕНЬ</translation>
     </message>
     <message>
         <source>2 DAYS LEFT</source>
@@ -2370,7 +2354,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>%1 DAYS LEFT</source>
-        <translation>ЗАЛИШИЛОСЬ 1 ДНІВ</translation>
+        <translation>ЗАЛИШИЛОСЬ %1 ДНІВ</translation>
     </message>
     <message>
         <source>LOGIN</source>
@@ -2378,7 +2362,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>RENEW</source>
-        <translation>ОБНОВЛЯТИ</translation>
+        <translation>ПОНОВИТИ</translation>
     </message>
 </context>
 <context>
@@ -2393,18 +2377,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Get more data</source>
-        <translation>Отримуйте більше даних</translation>
+        <translation>Отримати більше даних</translation>
     </message>
     <message>
         <source>I&apos;m broke</source>
-        <translation>Я розорився</translation>
+        <translation>Я розорений</translation>
     </message>
 </context>
 <context>
     <name>gui_locations::LocationsModel</name>
     <message>
         <source>Best Location</source>
-        <translation>Найкраще розташування</translation>
+        <translation>Краща локація</translation>
     </message>
 </context>
 </TS>
