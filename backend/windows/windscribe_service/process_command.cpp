@@ -386,7 +386,7 @@ MessagePacketResult taskKill(boost::archive::text_iarchive &ia)
 
     if (cmdTaskKill.target == kTargetOpenVpn) {
         std::wstringstream killCmd;
-        killCmd << Utils::getSystemDir() << L"\\taskkill.exe /f /t /im \"" << Utils::getExePath() << L"\\windscribeopenvpn.exe\"";
+        killCmd << Utils::getSystemDir() << L"\\taskkill.exe /f /t /im windscribeopenvpn.exe";
         Logger::instance().out(L"AA_COMMAND_TASK_KILL, cmd=%s", killCmd.str().c_str());
         mpr = ExecuteCmd::instance().executeBlockingCmd(killCmd.str());
     }

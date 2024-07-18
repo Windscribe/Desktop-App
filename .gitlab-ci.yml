@@ -6,9 +6,9 @@ stages:
 variables:
   BUILD_WIN: 'y'
   BUILD_WIN_ARM64: 'y'
-  BUILD_MAC: 'y'
-  BUILD_LINUX: 'y'
-  BUILD_LINUX_ARM64: 'y'
+  BUILD_MAC: 'n'
+  BUILD_LINUX: 'n'
+  BUILD_LINUX_ARM64: 'n'
   GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
   NEXUS_PATH_ROOT: 'https://nexus.int.windscribe.com/repository/client-desktop/client-desktop'
   NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/current'

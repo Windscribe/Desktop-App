@@ -32,6 +32,7 @@ MessagePacketResult ExecuteCmd::executeBlockingCmd(const std::wstring &cmd, HAND
     wsl::Win32Handle pipeRead;
     wsl::Win32Handle pipeWrite;
     if (!CreatePipe(pipeRead.data(), pipeWrite.data(), &sa, 0)) {
+        Logger::instance().out(L"executeBlockingCmd CreatePipe failed: %lu", ::GetLastError());
         return mpr;
     }
 
@@ -59,22 +60,19 @@ MessagePacketResult ExecuteCmd::executeBlockingCmd(const std::wstring &cmd, HAND
                                                 CREATE_NO_WINDOW | NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi);
 
     if (run_result) {
-        DWORD exitCode;
         WaitForSingleObject(pi.hProcess, INFINITE);
-        GetExitCodeProcess(pi.hProcess, &exitCode);
+        GetExitCodeProcess(pi.hProcess, &mpr.exitCode);
 
         pipeWrite.closeHandle();
-        std::string str = Utils::readAllFromPipe(pipeRead.getHandle());
+        mpr.additionalString = Utils::readAllFromPipe(pipeRead.getHandle());
 
-        CloseHandle( pi.hProcess );
-        CloseHandle( pi.hThread );
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
 
         mpr.success = true;
-        mpr.exitCode = exitCode;
-        mpr.additionalString = str;
     }
     else {
-        Logger::instance().out(L"Failed create process: %x", GetLastError());
+        Logger::instance().out(L"executeBlockingCmd CreateProcess failed: %lu", ::GetLastError());
     }
 
     return mpr;

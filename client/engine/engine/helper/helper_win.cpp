@@ -347,6 +347,13 @@ bool Helper_win::executeTaskKill(CmdKillTarget target)
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_TASK_KILL, stream.str());
 
+    if (mpr.success && mpr.exitCode != 0) {
+        QString result = QString::fromStdString(mpr.additionalString).trimmed();
+        if (!result.startsWith("ERROR: The process") && !result.endsWith("not found.")) {
+            qCDebug(LOG_BASIC) << QString("executeTaskKill(%1) failed: %2").arg(target).arg(result);
+        }
+    }
+
     return mpr.success;
 }
 

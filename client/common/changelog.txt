@@ -1,3 +1,8 @@
+2.10.16 (18/07/2024)
+Windows:
+   * Fixed helper fails to taskkill OpenVPN process. #1065 & #1071
+
+
 2.10.15 (28/06/2024)
 All:
    * No changes.  Promoted 2.10.14 to the stable channel.
