@@ -187,10 +187,6 @@
         <translation>Błąd aktualizacji: %1</translation>
     </message>
     <message>
-        <source>Update downloading: %1%%</source>
-        <translation>Pobieranie aktualizacji: %1%%</translation>
-    </message>
-    <message>
         <source>Update available: %1</source>
         <translation>Dostępna aktualizacja: %1</translation>
     </message>
@@ -201,6 +197,14 @@
     <message>
         <source>unavailable</source>
         <translation>niedostępny</translation>
+    </message>
+    <message>
+        <source>Disconnected due to reaching WireGuard key limit.  Use &quot;windscribe-cli keylimit delete&quot; if you want to delete the oldest key instead, and try again.</source>
+        <translation>Rozłączono z powodu osiągnięcia limitu klucza WireGuard.  Użyj &quot;windscribe-cli keylimit delete&quot;, jeśli chcesz usunąć najstarszy klucz, i spróbuj ponownie.</translation>
+    </message>
+    <message>
+        <source>Downloading: %1%</source>
+        <translation>Pobieranie: %1%</translation>
     </message>
 </context>
 </TS>

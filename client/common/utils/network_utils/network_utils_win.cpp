@@ -78,7 +78,7 @@ static QList<IfTableRow> getIfTable()
     }
 
     for (DWORD i = 0; i < pIfTable->dwNumEntries; i++) {
-        NETWORK_INTERACE_TYPE nicType = NETWORK_INTERFACE_NONE;
+        NETWORK_INTERFACE_TYPE nicType = NETWORK_INTERFACE_NONE;
         if (pIfTable->table[i].dwType == IF_TYPE_ETHERNET_CSMACD) {
             nicType = NETWORK_INTERFACE_ETH;
         }
@@ -600,7 +600,7 @@ QVector<types::NetworkInterface> NetworkUtils_win::currentNetworkInterfaces(bool
         networkInterface.interfaceGuid = ia.guid;
         networkInterface.physicalAddress = ia.physicalAddress;
 
-        NETWORK_INTERACE_TYPE nicType = NETWORK_INTERFACE_NONE;
+        NETWORK_INTERFACE_TYPE nicType = NETWORK_INTERFACE_NONE;
 
         for (const IfTableRow &itRow: ifTable) {
             if (itRow.index == static_cast<int>(ia.index)) {

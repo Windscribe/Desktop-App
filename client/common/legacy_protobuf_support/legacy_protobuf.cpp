@@ -148,7 +148,7 @@ bool LegacyProtobufSupport::loadEngineSettings(const QByteArray &arr, types::Eng
             out.d->macAddrSpoofing.selectedNetworkInterface.interfaceGuid = es->mac_addr_spoofing->selected_network_interface->interface_guid;
             out.d->macAddrSpoofing.selectedNetworkInterface.networkOrSsid = es->mac_addr_spoofing->selected_network_interface->network_or_ssid;
             if (es->mac_addr_spoofing->selected_network_interface->has_interface_type) {
-                out.d->macAddrSpoofing.selectedNetworkInterface.interfaceType = (NETWORK_INTERACE_TYPE)es->mac_addr_spoofing->selected_network_interface->interface_type;
+                out.d->macAddrSpoofing.selectedNetworkInterface.interfaceType = (NETWORK_INTERFACE_TYPE)es->mac_addr_spoofing->selected_network_interface->interface_type;
             }
             if (es->mac_addr_spoofing->selected_network_interface->has_trust_type) {
                 out.d->macAddrSpoofing.selectedNetworkInterface.trustType = (NETWORK_TRUST_TYPE)es->mac_addr_spoofing->selected_network_interface->trust_type;
@@ -197,7 +197,7 @@ bool LegacyProtobufSupport::loadEngineSettings(const QByteArray &arr, types::Eng
                 networkInterface.interfaceGuid = ni->interface_guid;
                 networkInterface.networkOrSsid = ni->network_or_ssid;
                 if (ni->has_interface_type) {
-                    networkInterface.interfaceType = (NETWORK_INTERACE_TYPE)ni->interface_type;
+                    networkInterface.interfaceType = (NETWORK_INTERFACE_TYPE)ni->interface_type;
                 }
                 if (ni->has_trust_type) {
                     networkInterface.trustType = (NETWORK_TRUST_TYPE)ni->trust_type;
@@ -284,7 +284,7 @@ bool LegacyProtobufSupport::loadGuiPersistentState(const QByteArray &arr, types:
                 networkInterface.interfaceGuid = ni->interface_guid;
                 networkInterface.networkOrSsid = ni->network_or_ssid;
                 if (ni->has_interface_type) {
-                    networkInterface.interfaceType = (NETWORK_INTERACE_TYPE)ni->interface_type;
+                    networkInterface.interfaceType = (NETWORK_INTERFACE_TYPE)ni->interface_type;
                 }
                 if (ni->has_trust_type) {
                     networkInterface.trustType = (NETWORK_TRUST_TYPE)ni->trust_type;

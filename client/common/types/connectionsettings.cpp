@@ -26,18 +26,22 @@ ConnectionSettings::ConnectionSettings(Protocol protocol, uint port, bool isAuto
 
 ConnectionSettings::ConnectionSettings(const QJsonObject &json)
 {
-    if (json.contains(kJsonProtocolProp) && json[kJsonProtocolProp].isDouble())
-        protocol_ = static_cast<Protocol>(json[kJsonProtocolProp].toInt());
+    if (json.contains(kJsonProtocolProp) && json[kJsonProtocolProp].isDouble()) {
+        protocol_ = Protocol(json[kJsonProtocolProp].toInt());
+    }
 
     if (json.contains(kJsonPortProp) && json[kJsonPortProp].isDouble()) {
         uint port = static_cast<uint>(json[kJsonPortProp].toInt());
         if (port >= 0 && port < 65536) {
             port_ = port;
+        } else {
+            port_ = Protocol::defaultPortForProtocol(protocol_);
         }
     }
 
-    if (json.contains(kJsonIsAutomaticProp) && json[kJsonIsAutomaticProp].isBool())
+    if (json.contains(kJsonIsAutomaticProp) && json[kJsonIsAutomaticProp].isBool()) {
         isAutomatic_ = json[kJsonIsAutomaticProp].toBool();
+    }
 
     checkForUnavailableProtocolAndFix();
 }
@@ -87,7 +91,9 @@ void ConnectionSettings::fromIni(QSettings &settings, const QString &key)
 	uint port = settings.value(kIniPortProp, port_).toUInt();
 	if (port < 65536) {
 		port_ = port;
-	}
+	} else {
+        port_ = Protocol::defaultPortForProtocol(protocol_);
+    }
 
     if (!key.isEmpty()) {
         settings.endGroup();

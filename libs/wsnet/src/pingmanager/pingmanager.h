@@ -10,7 +10,7 @@
 
 #ifdef _WIN32
     #include "eventcallbackmanager_win.h"
-#else
+#elif !defined IS_TVOS
     #include "processmanager.h"
 #endif
 
@@ -36,7 +36,7 @@ private:
 #ifdef _WIN32
     // Required for ICMP pings for Windows system
     EventCallbackManager_win eventCallbackManager_;
-#else
+#elif !defined IS_TVOS
     // Required for ICMP pings for posix systems
     std::unique_ptr<ProcessManager> processManager_;
 #endif

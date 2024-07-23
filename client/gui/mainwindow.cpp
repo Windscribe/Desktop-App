@@ -1278,7 +1278,7 @@ void MainWindow::onPreferencesSetIpv6StateInOS(bool bEnabled, bool bRestartNow)
 void MainWindow::onPreferencesCycleMacAddressClick()
 {
     if (internetConnected_) {
-        QString title = tr("VPN is active");
+        QString title = tr("Rotating MAC Address");
         QString desc = tr("Rotating your MAC address will result in a disconnect event from the current network. Are you sure?");
         GeneralMessageController::instance().showMessage(
             "WARNING_WHITE",
@@ -1763,10 +1763,10 @@ void MainWindow::onBackendTryingBackupEndpoint(int num, int cnt)
     mainWindowController_->getLoggingInWindow()->setAdditionalMessage(additionalMessage);
 }
 
-void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorMessage)
+void MainWindow::onBackendLoginError(wsnet::LoginResult loginError, const QString &errorMessage)
 {
     // This error is special in that we can show the prompt any time
-    if (loginError == LOGIN_RET_SSL_ERROR) {
+    if (loginError == wsnet::LoginResult::kSslError) {
         GeneralMessageController::instance().showMessage(
             "WARNING_WHITE",
             tr("SSL Error"),
@@ -1795,15 +1795,15 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
     if (isLoginOkAndConnectWindowVisible_) {
         // If we have already activated at some point, we never log out regardless of API errors,
         // except for messages indicating the session is no longer valid
-        if (loginError == LOGIN_RET_SESSION_INVALID) {
+        if (loginError == wsnet::LoginResult::kSessionInvalid) {
             onBackendSessionDeleted();
         } else {
-            qCDebug(LOG_BASIC) << "Session error while logged in: " << loginError;
+            qCDebug(LOG_BASIC) << "Session error while logged in: " << (int)loginError;
         }
         return;
     }
 
-    if (loginError == LOGIN_RET_BAD_USERNAME) {
+    if (loginError == wsnet::LoginResult::kBadUsername) {
         if (backend_->isLastLoginWithAuthHash()) {
             qCDebug(LOG_BASIC) << "Got 'bad username' with auth hash login";
             WS_ASSERT(false);
@@ -1815,25 +1815,25 @@ void MainWindow::onBackendLoginError(LOGIN_RET loginError, const QString &errorM
             mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
             gotoLoginWindow();
         }
-    } else if (loginError == LOGIN_RET_BAD_CODE2FA || loginError == LOGIN_RET_MISSING_CODE2FA) {
-        const bool is_missing_code2fa = (loginError == LOGIN_RET_MISSING_CODE2FA);
+    } else if (loginError == wsnet::LoginResult::kBadCode2fa || loginError == wsnet::LoginResult::kMissingCode2fa) {
+        const bool is_missing_code2fa = (loginError == wsnet::LoginResult::kMissingCode2fa);
         mainWindowController_->getTwoFactorAuthWindow()->setErrorMessage(
             is_missing_code2fa ? TwoFactorAuthWindow::TwoFactorAuthWindowItem::ERR_MSG_NO_CODE
                                : TwoFactorAuthWindow::TwoFactorAuthWindowItem::ERR_MSG_INVALID_CODE);
         mainWindowController_->getTwoFactorAuthWindow()->setLoginMode(true);
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_TWO_FACTOR_AUTH);
         return;
-    } else if (loginError == LOGIN_RET_NO_CONNECTIVITY) {
+    } else if (loginError == wsnet::LoginResult::kNoConnectivity) {
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_NO_INTERNET_CONNECTIVITY);
-    } else if (loginError == LOGIN_RET_NO_API_CONNECTIVITY) {
+    } else if (loginError == wsnet::LoginResult::kNoApiConnectivity) {
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_NO_API_CONNECTIVITY);
-    } else if (loginError == LOGIN_RET_INCORRECT_JSON) {
+    } else if (loginError == wsnet::LoginResult::kIncorrectJson) {
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_INVALID_API_RESPONSE);
-    } else if (loginError == LOGIN_RET_ACCOUNT_DISABLED) {
+    } else if (loginError == wsnet::LoginResult::kAccountDisabled) {
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_ACCOUNT_DISABLED, errorMessage);
-    } else if (loginError == LOGIN_RET_SESSION_INVALID) {
+    } else if (loginError == wsnet::LoginResult::kSessionInvalid) {
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_SESSION_EXPIRED);
-    } else if (loginError == LOGIN_RET_RATE_LIMITED) {
+    } else if (loginError == wsnet::LoginResult::kRateLimited) {
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_RATE_LIMITED);
     }
 

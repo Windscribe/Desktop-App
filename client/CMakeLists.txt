@@ -166,7 +166,7 @@ else()
     set(CLIENT_LIBS gui base Qt6::Widgets)
 endif()
 
-target_link_libraries(Windscribe PRIVATE ${CLIENT_LIBS} engine common Qt6::Network ${OS_SPECIFIC_LIBRARIES})
+target_link_libraries(Windscribe PRIVATE ${CLIENT_LIBS} engine common wsnet::wsnet Qt6::Network ${OS_SPECIFIC_LIBRARIES})
 
 target_include_directories(Windscribe PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/engine

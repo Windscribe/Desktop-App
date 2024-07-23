@@ -4,12 +4,14 @@
 #include <spdlog/spdlog.h>
 #include <boost/asio.hpp>
 #include "utils/wsnet_callback_sink.h"
+#include "utils/persistentsettings.h"
 #include "dnsresolver/dnsresolver_cares.h"
 #include "httpnetworkmanager/httpnetworkmanager.h"
 #include "settings.h"
 #include "failover/failovercontainer.h"
 #include "serverapi/serverapi.h"
 #include "serverapi/wsnet_utils_impl.h"
+#include "apiresourcesmanager/apiresourcesmanager.h"
 #include "emergencyconnect/emergencyconnect.h"
 #include "pingmanager/pingmanager.h"
 #include "advancedparameters.h"
@@ -32,11 +34,13 @@ public:
 
     virtual ~WSNet_impl()
     {
+        apiResourcesManager_.reset();
         work_.reset();  // Allow all handlers to be allowed to finish normally
         thread_.join();
     }
 
-    bool initializeImpl(const std::string &platformName,const std::string &appVersion, bool isUseStagingDomains, const std::string &serverApiSettings)
+    bool initializeImpl(const std::string &basePlatform,  const std::string &platformName, const std::string &appVersion, const std::string &deviceId,
+                        const std::string &openVpnVersion, bool isUseStagingDomains, const std::string &persistentSettings)
     {
         spdlog::info("wsnet version: {}.{}.{}", WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION, WINDSCRIBE_BUILD_VERSION);
 
@@ -53,15 +57,24 @@ public:
         }
 
         Settings::instance().setUseStaging(isUseStagingDomains);
+        spdlog::info("Base platform: {}", basePlatform);
+        spdlog::info("Platform name: {}", platformName);
         spdlog::info("Use staging domains: {}", isUseStagingDomains);
+        spdlog::info("App version: {}", appVersion);
+        spdlog::info("OpenVpn version: {}", openVpnVersion);
+
         Settings::instance().setPlatformName(platformName);
         Settings::instance().setAppVersion(appVersion);
-        spdlog::info("Platform name: {}", platformName);
-        spdlog::info("App version: {}", appVersion);
+        Settings::instance().setBasePlatform(platformName);
+        Settings::instance().setDeviceId(deviceId);
+        Settings::instance().setOpenVersionVersion(openVpnVersion);
+
+        persistentSettings_.reset(new PersistentSettings(persistentSettings));
 
         failoverContainer_ = std::make_unique<FailoverContainer>(httpNetworkManager_.get());
         advancedParameters_ = std::make_shared<AdvancedParameters>();
-        serverAPI_ = std::make_shared<ServerAPI>(io_context_, httpNetworkManager_.get(), failoverContainer_.get(), serverApiSettings, advancedParameters_.get(), connectState_);
+        serverAPI_ = std::make_shared<ServerAPI>(io_context_, httpNetworkManager_.get(), failoverContainer_.get(), *persistentSettings_, advancedParameters_.get(), connectState_);
+        apiResourcesManager_ = std::make_shared<ApiResourcesManager>(io_context_, serverAPI_.get(), *persistentSettings_, connectState_);
         emergencyConnect_ = std::make_shared<EmergencyConnect>(io_context_, failoverContainer_.get(), dnsResolver_.get());
         pingManager_ = std::make_shared<PingManager>(io_context_, httpNetworkManager_.get(), advancedParameters_.get());
         utils_ = std::make_shared<WSNetUtils_impl>(io_context_, httpNetworkManager_.get(), failoverContainer_.get(), advancedParameters_.get());
@@ -78,9 +91,15 @@ public:
         connectState_.setIsConnectedToVpnState(isConnected);
     }
 
+    std::string currentPersistentSettings() override
+    {
+        return persistentSettings_->getAsString();
+    }
+
     std::shared_ptr<WSNetDnsResolver> dnsResolver() override { return dnsResolver_; }
     std::shared_ptr<WSNetHttpNetworkManager> httpNetworkManager() override { return httpNetworkManager_; }
     std::shared_ptr<WSNetServerAPI> serverAPI() override { return serverAPI_; }
+    std::shared_ptr<WSNetApiResourcesManager> apiResourcersManager() override { return apiResourcesManager_; }
     std::shared_ptr<WSNetEmergencyConnect> emergencyConnect() override { return emergencyConnect_; };
     std::shared_ptr<WSNetPingManager> pingManager() override { return pingManager_; }
     std::shared_ptr<WSNetAdvancedParameters> advancedParameters() override { return advancedParameters_; }
@@ -92,11 +111,13 @@ private:
     boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_;
 
     ConnectState connectState_;
+    std::unique_ptr<PersistentSettings> persistentSettings_;
     std::shared_ptr<DnsResolver_cares> dnsResolver_;
     std::shared_ptr<HttpNetworkManager> httpNetworkManager_;
     std::unique_ptr<FailoverContainer> failoverContainer_;
     std::shared_ptr<WSNetAdvancedParameters> advancedParameters_;
     std::shared_ptr<ServerAPI> serverAPI_;
+    std::shared_ptr<WSNetApiResourcesManager> apiResourcesManager_;
     std::shared_ptr<EmergencyConnect> emergencyConnect_;
     std::shared_ptr<PingManager> pingManager_;
     std::shared_ptr<WSNetUtils_impl> utils_;
@@ -121,12 +142,14 @@ void WSNet::setLogger(WSNetLoggerFunction loggerFunction, bool debugLog)
     }
 }
 
-bool WSNet::initialize(const std::string &platformName, const std::string &appVersion, bool isUseStagingDomains, const std::string &serverApiSettings)
+bool WSNet::initialize(const std::string &basePlatform,  const std::string &platformName, const std::string &appVersion, const std::string &deviceId,
+                       const std::string &openVpnVersion,
+                       bool isUseStagingDomains, const std::string &persistentSettings)
 {
     std::lock_guard locker(g_mutex);
     assert(g_wsNet == nullptr);
     g_wsNet.reset(new WSNet_impl);
-    return g_wsNet->initializeImpl(platformName, appVersion, isUseStagingDomains, serverApiSettings);
+    return g_wsNet->initializeImpl(basePlatform, platformName, appVersion, deviceId, openVpnVersion, isUseStagingDomains, persistentSettings);
 }
 
 std::shared_ptr<WSNet> WSNet::instance()

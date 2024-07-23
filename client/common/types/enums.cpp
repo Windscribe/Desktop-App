@@ -6,7 +6,6 @@
 
 const int typeIdOpenVpnError = qRegisterMetaType<CONNECT_ERROR>("CONNECT_ERROR");
 const int typeIdProxyOption = qRegisterMetaType<PROXY_OPTION>("PROXY_OPTION");
-const int typeIdLoginRet = qRegisterMetaType<LOGIN_RET>("LOGIN_RET");
 const int typeIdLoginMessage = qRegisterMetaType<LOGIN_MESSAGE>("LOGIN_MESSAGE");
 const int typeIdServerApiRetCode = qRegisterMetaType<SERVER_API_RET_CODE>("SERVER_API_RET_CODE");
 const int typeIdEngineInitRetCode = qRegisterMetaType<ENGINE_INIT_RET_CODE>("ENGINE_INIT_RET_CODE");
@@ -15,33 +14,17 @@ const int typeIdDisconnectReason = qRegisterMetaType<DISCONNECT_REASON>("DISCONN
 const int typeIdProxySharingType = qRegisterMetaType<PROXY_SHARING_TYPE>("PROXY_SHARING_TYPE");
 const int typeIdWebSessionPurpose = qRegisterMetaType<WEB_SESSION_PURPOSE>("WEB_SESSION_PURPOSE");
 
-QString LOGIN_RET_toString(LOGIN_RET ret)
+
+DNS_POLICY_TYPE DNS_POLICY_TYPE_fromInt(int t)
 {
-    if (ret == LOGIN_RET_SUCCESS) {
-        return "SUCCESS";
-    } else if (ret == LOGIN_RET_NO_API_CONNECTIVITY) {
-        return "NO_API_CONNECTIVITY";
-    } else if (ret == LOGIN_RET_NO_CONNECTIVITY) {
-        return "NO_CONNECTIVITY";
-    } else if (ret == LOGIN_RET_INCORRECT_JSON) {
-        return "INCORRECT_JSON";
-    } else if (ret == LOGIN_RET_BAD_USERNAME) {
-        return "BAD_USERNAME";
-    } else if (ret == LOGIN_RET_SSL_ERROR) {
-        return "SSL_ERROR";
-    } else if (ret == LOGIN_RET_BAD_CODE2FA) {
-        return "BAD_CODE2FA";
-    } else if (ret == LOGIN_RET_MISSING_CODE2FA) {
-        return "MISSING_CODE2FA";
-    } else if (ret == LOGIN_RET_ACCOUNT_DISABLED) {
-        return "ACCOUNT_DISABLED";
-    } else if (ret == LOGIN_RET_SESSION_INVALID) {
-        return "SESSION_INVALID";
-    } else if (ret == LOGIN_RET_RATE_LIMITED) {
-        return "RATE_LIMITED";
-    } else {
+    if (t == 0) return DNS_TYPE_OS_DEFAULT;
+    else if (t == 1) return DNS_TYPE_OPEN_DNS;
+    else if (t == 2) return DNS_TYPE_CLOUDFLARE;
+    else if (t == 3) return DNS_TYPE_GOOGLE;
+    else if (t == 4) return DNS_TYPE_CONTROLD;
+    else {
         WS_ASSERT(false);
-        return "UNKNOWN";
+        return DNS_TYPE_OS_DEFAULT;
     }
 }
 
@@ -81,6 +64,16 @@ QString DNS_POLICY_TYPE_toString(DNS_POLICY_TYPE d)
     }
 }
 
+PROXY_SHARING_TYPE PROXY_SHARING_TYPE_fromInt(int t)
+{
+    if (t == 0) return PROXY_SHARING_HTTP;
+    else if (t == 1) return PROXY_SHARING_SOCKS;
+    else {
+        WS_ASSERT(false);
+        return PROXY_SHARING_HTTP;
+    }
+}
+
 PROXY_SHARING_TYPE PROXY_SHARING_TYPE_fromString(const QString &s)
 {
     if (s == "HTTP") return PROXY_SHARING_HTTP;
@@ -101,6 +94,17 @@ QString PROXY_SHARING_TYPE_toString(PROXY_SHARING_TYPE t)
     }
 }
 
+ORDER_LOCATION_TYPE ORDER_LOCATION_TYPE_fromInt(int t)
+{
+    if (t == 0) return ORDER_LOCATION_BY_GEOGRAPHY;
+    else if (t == 1) return ORDER_LOCATION_BY_ALPHABETICALLY;
+    else if (t == 2) return ORDER_LOCATION_BY_LATENCY;
+    else {
+        WS_ASSERT(false);
+        return ORDER_LOCATION_BY_GEOGRAPHY;
+    }
+}
+
 QString ORDER_LOCATION_TYPE_toString(ORDER_LOCATION_TYPE p)
 {
     if (p == ORDER_LOCATION_BY_GEOGRAPHY) return QObject::tr("Geography");
@@ -109,6 +113,16 @@ QString ORDER_LOCATION_TYPE_toString(ORDER_LOCATION_TYPE p)
     else {
         WS_ASSERT(false);
         return QObject::tr("UNKNOWN");
+    }
+}
+
+LATENCY_DISPLAY_TYPE LATENCY_DISPLAY_TYPE_fromInt(int t)
+{
+    if (t == 0) return LATENCY_DISPLAY_BARS;
+    else if (t == 1) return LATENCY_DISPLAY_MS;
+    else {
+        WS_ASSERT(false);
+        return LATENCY_DISPLAY_BARS;
     }
 }
 
@@ -122,6 +136,17 @@ QString LATENCY_DISPLAY_TYPE_toString(LATENCY_DISPLAY_TYPE t)
     }
 }
 
+BACKGROUND_TYPE BACKGROUND_TYPE_fromInt(int t)
+{
+    if (t == 0) return BACKGROUND_TYPE_NONE;
+    else if (t == 1) return BACKGROUND_TYPE_COUNTRY_FLAGS;
+    else if (t == 2) return BACKGROUND_TYPE_CUSTOM;
+    else {
+        WS_ASSERT(false);
+        return BACKGROUND_TYPE_NONE;
+    }
+}
+
 QString TAP_ADAPTER_TYPE_toString(TAP_ADAPTER_TYPE t)
 {
     if (t == DCO_ADAPTER) return "DCO";
@@ -130,6 +155,18 @@ QString TAP_ADAPTER_TYPE_toString(TAP_ADAPTER_TYPE t)
         WS_ASSERT(false);
         return QObject::tr("UNKNOWN");
     }
+}
+
+FIREWALL_MODE FIREWALL_MODE_fromInt(int t)
+{
+    if (t == 0) return FIREWALL_MODE_MANUAL;
+    else if (t == 1) return FIREWALL_MODE_AUTOMATIC;
+    else if (t == 2) return FIREWALL_MODE_ALWAYS_ON;
+    else {
+        WS_ASSERT(false);
+        return FIREWALL_MODE_AUTOMATIC;
+    }
+
 }
 
 FIREWALL_MODE FIREWALL_MODE_fromString(const QString &s)
@@ -163,6 +200,16 @@ QList<QPair<QString, QVariant>> FIREWALL_MODE_toList()
     return l;
 }
 
+FIREWALL_WHEN FIREWALL_WHEN_fromInt(int t)
+{
+    if (t == 0) return FIREWALL_WHEN_BEFORE_CONNECTION;
+    else if (t == 1) return FIREWALL_WHEN_AFTER_CONNECTION;
+    else {
+        WS_ASSERT(false);
+        return FIREWALL_WHEN_BEFORE_CONNECTION;
+    }
+}
+
 FIREWALL_WHEN FIREWALL_WHEN_fromString(const QString &s)
 {
     if (s == "Before Connection") return FIREWALL_WHEN_BEFORE_CONNECTION;
@@ -180,6 +227,29 @@ QString FIREWALL_WHEN_toString(FIREWALL_WHEN t)
     else {
         WS_ASSERT(false);
         return QObject::tr("UNKNOWN");
+    }
+}
+
+NETWORK_INTERFACE_TYPE NETWORK_INTERFACE_TYPE_fromInt(int t)
+{
+    if (t == 0) return NETWORK_INTERFACE_NONE;
+    else if (t == 1) return NETWORK_INTERFACE_ETH;
+    else if (t == 2) return NETWORK_INTERFACE_WIFI;
+    else if (t == 3) return NETWORK_INTERFACE_PPP;
+    else {
+        WS_ASSERT(false);
+        return NETWORK_INTERFACE_NONE;
+    }
+}
+
+NETWORK_TRUST_TYPE NETWORK_TRUST_TYPE_fromInt(int t)
+{
+    if (t == 0) return NETWORK_TRUST_SECURED;
+    else if (t == 1) return NETWORK_TRUST_UNSECURED;
+    else {
+        // NETWORK_TRUST_FORGET is a transitory state and should never be here
+        WS_ASSERT(false);
+        return NETWORK_TRUST_SECURED;
     }
 }
 
@@ -219,6 +289,18 @@ QList<QPair<QString, QVariant>> PROXY_SHARING_TYPE_toList()
     l << qMakePair(PROXY_SHARING_TYPE_toString(PROXY_SHARING_HTTP), PROXY_SHARING_HTTP);
     l << qMakePair(PROXY_SHARING_TYPE_toString(PROXY_SHARING_SOCKS), PROXY_SHARING_SOCKS);
     return l;
+}
+
+PROXY_OPTION PROXY_OPTION_fromInt(int t)
+{
+    if (t == 0) return PROXY_OPTION_NONE;
+    else if (t == 1) return PROXY_OPTION_AUTODETECT;
+    else if (t == 2) return PROXY_OPTION_HTTP;
+    else if (t == 3) return PROXY_OPTION_SOCKS;
+    else {
+        WS_ASSERT(false);
+        return PROXY_OPTION_NONE;
+    }
 }
 
 PROXY_OPTION PROXY_OPTION_fromString(const QString &s)
@@ -285,6 +367,18 @@ QList<QPair<QString, QVariant>> LATENCY_DISPLAY_TYPE_toList()
     return l;
 }
 
+UPDATE_CHANNEL UPDATE_CHANNEL_fromInt(int t)
+{
+    if (t == 0) return UPDATE_CHANNEL_RELEASE;
+    else if (t == 1) return UPDATE_CHANNEL_BETA;
+    else if (t == 2) return UPDATE_CHANNEL_GUINEA_PIG;
+    else if (t == 3) return UPDATE_CHANNEL_INTERNAL;
+    else {
+        WS_ASSERT(false);
+        return UPDATE_CHANNEL_RELEASE;
+    }
+}
+
 QString UPDATE_CHANNEL_toString(UPDATE_CHANNEL t)
 {
     if (t == UPDATE_CHANNEL_RELEASE) return QObject::tr("Release");
@@ -317,6 +411,18 @@ QList<QPair<QString, QVariant>> UPDATE_CHANNEL_toList()
     l << qMakePair(UPDATE_CHANNEL_toString(UPDATE_CHANNEL_GUINEA_PIG), UPDATE_CHANNEL_GUINEA_PIG);
     l << qMakePair(UPDATE_CHANNEL_toString(UPDATE_CHANNEL_INTERNAL), UPDATE_CHANNEL_INTERNAL);
     return l;
+}
+
+DNS_MANAGER_TYPE DNS_MANAGER_TYPE_fromInt(int t)
+{
+    if (t == 0) return DNS_MANAGER_AUTOMATIC;
+    else if (t == 1) return DNS_MANAGER_RESOLV_CONF;
+    else if (t == 2) return DNS_MANAGER_SYSTEMD_RESOLVED;
+    else if (t == 3) return DNS_MANAGER_NETWORK_MANAGER;
+    else {
+        WS_ASSERT(false);
+        return DNS_MANAGER_AUTOMATIC;
+    }
 }
 
 QString DNS_MANAGER_TYPE_toString(DNS_MANAGER_TYPE t)
@@ -354,6 +460,17 @@ QList<QPair<QString, QVariant>> DNS_MANAGER_TYPE_toList()
 
 }
 
+CONNECTED_DNS_TYPE CONNECTED_DNS_TYPE_fromInt(int t)
+{
+    if (t == 0) return CONNECTED_DNS_TYPE_AUTO;
+    else if (t == 1) return CONNECTED_DNS_TYPE_CUSTOM;
+    else if (t == 2) return CONNECTED_DNS_TYPE_FORCED;
+    else {
+        WS_ASSERT(false);
+        return CONNECTED_DNS_TYPE_AUTO;
+    }
+}
+
 QString CONNECTED_DNS_TYPE_toString(CONNECTED_DNS_TYPE t)
 {
     if (t == CONNECTED_DNS_TYPE_AUTO) {
@@ -388,6 +505,16 @@ CONNECTED_DNS_TYPE CONNECTED_DNS_TYPE_fromString(const QString &s)
     }
 }
 
+SPLIT_TUNNELING_MODE SPLIT_TUNNELING_MODE_fromInt(int t)
+{
+    if (t == 0) return SPLIT_TUNNELING_MODE_EXCLUDE;
+    else if (t == 1) return SPLIT_TUNNELING_MODE_INCLUDE;
+    else {
+        WS_ASSERT(false);
+        return SPLIT_TUNNELING_MODE_EXCLUDE;
+    }
+}
+
 SPLIT_TUNNELING_MODE SPLIT_TUNNELING_MODE_fromString(const QString &s)
 {
     if (s == "Exclude") {
@@ -416,6 +543,36 @@ QString SPLIT_TUNNELING_MODE_toString(SPLIT_TUNNELING_MODE t)
     }
 }
 
+SPLIT_TUNNELING_NETWORK_ROUTE_TYPE SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_fromInt(int t)
+{
+    if (t == 0) return SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
+    else if (t == 1) return SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
+    else {
+        WS_ASSERT(false);
+        return SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
+    }
+}
+
+SPLIT_TUNNELING_APP_TYPE SPLIT_TUNNELING_APP_TYPE_fromInt(int t)
+{
+    if (t == 0) return SPLIT_TUNNELING_APP_TYPE_USER;
+    else if (t == 1) return SPLIT_TUNNELING_APP_TYPE_SYSTEM;
+    else {
+        WS_ASSERT(false);
+        return SPLIT_TUNNELING_APP_TYPE_USER;
+    }
+}
+
+APP_SKIN APP_SKIN_fromInt(int t)
+{
+    if (t == 0) return APP_SKIN_ALPHA;
+    else if (t == 1) return APP_SKIN_VAN_GOGH;
+    else {
+        WS_ASSERT(false);
+        return APP_SKIN_ALPHA;
+    }
+}
+
 QList<QPair<QString, QVariant>> APP_SKIN_toList()
 {
     QList<QPair<QString, QVariant>> l;
@@ -435,6 +592,16 @@ QString APP_SKIN_toString(APP_SKIN s)
     else {
         WS_ASSERT(false);
         return QObject::tr("UNKNOWN");
+    }
+}
+
+TRAY_ICON_COLOR TRAY_ICON_COLOR_fromInt(int t)
+{
+    if (t == 0) return TRAY_ICON_COLOR_WHITE;
+    else if (t == 1) return TRAY_ICON_COLOR_BLACK;
+    else {
+        WS_ASSERT(false);
+        return TRAY_ICON_COLOR_WHITE;
     }
 }
 

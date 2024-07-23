@@ -3,10 +3,8 @@
 #include <condition_variable>
 #include <functional>
 #include <map>
-#include <mutex>
 #include <set>
 #include <string>
-#include <thread>
 #include <vector>
 
 #include "ares_library_init.h"
@@ -38,28 +36,18 @@ public:
 private:
     std::function<void(std::map<std::string, HostInfo>)> resolveDomainsCallback_;
 
-    struct USER_ARG
-    {
+    struct USER_ARG {
         std::string hostname;
     };
 
-    bool bStopCalled_;
-    std::mutex mutex_;
-    std::condition_variable waitCondition_;
-    bool bNeedFinish_;
-
     AresLibraryInit aresLibraryInit_;
     ares_channel channel_;
+    std::mutex mutex_;
 
     static DnsResolver *this_;
 
     std::map<std::string, HostInfo> hostinfoResults_;
     std::set<std::string> hostnamesInProgress_;
 
-    // thread specific
-    std::thread thread_;
-    static void threadFunc(void *arg);
-    static void aresLookupFinishedCallback(void *arg, int status, int timeouts, struct hostent *host);
-
-    bool processChannel(ares_channel channel);
+    static void aresLookupFinishedCallback(void *arg, int status, int timeouts, struct ares_addrinfo *result);
 };

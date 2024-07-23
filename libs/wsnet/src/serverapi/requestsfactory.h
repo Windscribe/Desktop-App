@@ -1,6 +1,6 @@
 #pragma once
 #include "baserequest.h"
-#include "serverapi_settings.h"
+#include "utils/persistentsettings.h"
 #include "connectstate.h"
 #include "WSNetAdvancedParameters.h"
 
@@ -12,7 +12,7 @@ namespace requests_factory
                        const std::string &code2fa, RequestFinishedCallback callback);
     BaseRequest *session(const std::string &authHash, RequestFinishedCallback callback);
     BaseRequest *deleteSession(const std::string &authHash, RequestFinishedCallback callback);
-    BaseRequest *serverLocations(ServerAPISettings &settings, const std::string &language, const std::string &revision,
+    BaseRequest *serverLocations(PersistentSettings &persistentSettings, const std::string &language, const std::string &revision,
                                  bool isPro, const std::vector<std::string> &alcList, ConnectState &connectState, WSNetAdvancedParameters *advancedParameters,
                                  RequestFinishedCallback callback);
     BaseRequest *serverCredentials(const std::string &authHash, bool isOpenVpnProtocol, RequestFinishedCallback callback);

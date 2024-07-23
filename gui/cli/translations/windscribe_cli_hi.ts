@@ -187,10 +187,6 @@
         <translation>अद्यतन त्रुटि: %1</translation>
     </message>
     <message>
-        <source>Update downloading: %1%%</source>
-        <translation>अद्यतन डाउनलोडिंग: %1%%</translation>
-    </message>
-    <message>
         <source>Update available: %1</source>
         <translation>अद्यतन उपलब्ध है: %1</translation>
     </message>
@@ -201,6 +197,14 @@
     <message>
         <source>unavailable</source>
         <translation>अनुपलब्ध</translation>
+    </message>
+    <message>
+        <source>Disconnected due to reaching WireGuard key limit.  Use &quot;windscribe-cli keylimit delete&quot; if you want to delete the oldest key instead, and try again.</source>
+        <translation>वायरगार्ड कुंजी सीमा तक पहुंचने के कारण डिस्कनेक्ट हो गया।  यदि आप इसके बजाय सबसे पुरानी कुंजी को हटाना चाहते हैं, तो &quot;विंडसाइड-क्ली कीलिमिट डिलीट&quot; का उपयोग करें, और पुनः प्रयास करें।</translation>
+    </message>
+    <message>
+        <source>Downloading: %1%</source>
+        <translation>डाउनलोडिंग: %1%</translation>
     </message>
 </context>
 </TS>

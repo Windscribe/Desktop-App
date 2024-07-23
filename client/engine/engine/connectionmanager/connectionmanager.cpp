@@ -147,16 +147,19 @@ QString ConnectionManager::udpStuffingWithNtp(const QString &ip, const quint16 p
     return localPort;
 }
 
-void ConnectionManager::clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
-                                         QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-                                         const types::ConnectionSettings &connectionSettings,
-                                         const api_responses::PortMap &portMap, const types::ProxySettings &proxySettings,
-                                         bool bEmitAuthError, const QString &customConfigPath, bool isAntiCensorship)
+void ConnectionManager::clickConnect(const QString &ovpnConfig,
+                                     const api_responses::ServerCredentials &serverCredentialsOpenVpn,
+                                     const api_responses::ServerCredentials &serverCredentialsIkev2,
+                                     QSharedPointer<locationsmodel::BaseLocationInfo> bli,
+                                     const types::ConnectionSettings &connectionSettings,
+                                     const api_responses::PortMap &portMap, const types::ProxySettings &proxySettings,
+                                     bool bEmitAuthError, const QString &customConfigPath, bool isAntiCensorship)
 {
     WS_ASSERT(state_ == STATE_DISCONNECTED);
 
     lastOvpnConfig_ = ovpnConfig;
-    lastServerCredentials_ = serverCredentials;
+    lastServerCredentialsOpenVpn_ = serverCredentialsOpenVpn;
+    lastServerCredentialsIkev2_ = serverCredentialsIkev2;
     lastProxySettings_ = proxySettings;
     bEmitAuthError_ = bEmitAuthError;
     customConfigPath_ = customConfigPath;
@@ -1128,8 +1131,8 @@ void ConnectionManager::doConnectPart3()
             }
             else
             {
-                username = lastServerCredentials_.usernameForOpenVpn();
-                password = lastServerCredentials_.passwordForOpenVpn();
+                username = lastServerCredentialsOpenVpn_.username();
+                password = lastServerCredentialsOpenVpn_.password();
             }
 
             recreateConnector(types::Protocol::OPENVPN_UDP);
@@ -1147,8 +1150,8 @@ void ConnectionManager::doConnectPart3()
             }
             else
             {
-                username = lastServerCredentials_.usernameForIkev2();
-                password = lastServerCredentials_.passwordForIkev2();
+                username = lastServerCredentialsIkev2_.username();
+                password = lastServerCredentialsIkev2_.password();
             }
 
             recreateConnector(types::Protocol::IKEV2);

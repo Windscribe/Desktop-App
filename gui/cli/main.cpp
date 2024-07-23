@@ -51,6 +51,8 @@ int main(int argc, char *argv[])
 
     if (cliArgs.cliCommand() == CLI_COMMAND_NONE || cliArgs.cliCommand() == CLI_COMMAND_HELP) {
         qCDebug(LOG_BASIC) << "Printing help menu";
+        std::cout << "windscribe-cli v" << WINDSCRIBE_VERSION_STR << std::endl;
+        std::cout << std::endl;
         std::cout << "windscribe-cli <command>:" << std::endl;
         std::cout << std::endl;
         std::cout << "Authenticating with Windscribe" << std::endl;
@@ -84,6 +86,10 @@ int main(int argc, char *argv[])
         std::cout << "        " << "Connects to datacenter with same nickname" << std::endl;
         std::cout << "    connect \"ISO CountryCode\" [protocol]" << std::endl;
         std::cout << "        " << "Connects to a random data center in the country" << std::endl;
+        std::cout << "    keylimit keep|delete" << std::endl;
+        std::cout << "        " << "Configures behavior for the next time during this run that the key limit is reached for WireGuard." << std::endl;
+        std::cout << "        " << "keep [default] - Do not delete key.  Connection attempt will fail if the key limit is reached." << std::endl;
+        std::cout << "        " << "delete - Delete the oldest WireGuard key if key limit is reached." << std::endl;
         std::cout << "    disconnect" << std::endl;
         std::cout << "        " << "Disconnects from current datacenter" << std::endl;
         std::cout << "    firewall on|off" << std::endl;
@@ -120,7 +126,7 @@ int main(int argc, char *argv[])
         backendCommander->initAndSend();
     } else {
 #ifdef CLI_ONLY
-        int err = system("systemctl --user daemon-reload && systemctl --user start windscribe");
+        int err = system("systemctl --user daemon-reload && systemctl --user enable windscribe && systemctl --user start windscribe");
         if (err != 0) {
             logAndCout("Could not start application");
             return err;

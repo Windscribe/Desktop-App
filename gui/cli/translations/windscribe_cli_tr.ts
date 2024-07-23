@@ -187,10 +187,6 @@
         <translation>Güncelleştirme hatası: %1</translation>
     </message>
     <message>
-        <source>Update downloading: %1%%</source>
-        <translation>Güncelleştirme indirme: %1%%</translation>
-    </message>
-    <message>
         <source>Update available: %1</source>
         <translation>Kullanılabilir güncelleştirme: %1</translation>
     </message>
@@ -201,6 +197,14 @@
     <message>
         <source>unavailable</source>
         <translation>kullanılamaz</translation>
+    </message>
+    <message>
+        <source>Disconnected due to reaching WireGuard key limit.  Use &quot;windscribe-cli keylimit delete&quot; if you want to delete the oldest key instead, and try again.</source>
+        <translation>WireGuard anahtar sınırına ulaşılması nedeniyle bağlantı kesildi.  Bunun yerine en eski anahtarı silmek istiyorsanız &quot;windscribe-cli keylimit delete&quot; komutunu kullanın ve tekrar deneyin.</translation>
+    </message>
+    <message>
+        <source>Downloading: %1%</source>
+        <translation>İndirilme: %1%</translation>
     </message>
 </context>
 </TS>

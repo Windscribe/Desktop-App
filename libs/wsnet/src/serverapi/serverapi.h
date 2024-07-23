@@ -5,7 +5,7 @@
 #include "WSNetHttpNetworkManager.h"
 #include "WSNetAdvancedParameters.h"
 #include "failover/ifailovercontainer.h"
-#include "serverapi_settings.h"
+#include "utils/persistentsettings.h"
 #include "connectstate.h"
 
 namespace wsnet {
@@ -16,10 +16,8 @@ class ServerAPI : public WSNetServerAPI
 {
 public:
     explicit ServerAPI(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager, IFailoverContainer *failoverContainer,
-                       const std::string &settings, WSNetAdvancedParameters *advancedParameters, ConnectState &connectState);
+                       PersistentSettings &persistentSettings, WSNetAdvancedParameters *advancedParameters, ConnectState &connectState);
     virtual ~ServerAPI();
-
-    std::string currentSettings() override;
 
     void setApiResolutionsSettings(bool isAutomatic, std::string manualAddress) override;
     void setIgnoreSslErrors(bool bIgnore) override;
@@ -33,10 +31,10 @@ public:
                                                                      bool isPro, const std::vector<std::string> &alcList,
                                                                      WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> serverCredentials(const std::string &authHash, bool isOpenVpnProtocol, WSNetRequestFinishedCallback callback) override;
-    std::shared_ptr<WSNetCancelableCallback> serverConfigs(const std::string &authHash, const std::string &ovpnVersion, WSNetRequestFinishedCallback callback) override;
+    std::shared_ptr<WSNetCancelableCallback> serverConfigs(const std::string &authHash, WSNetRequestFinishedCallback callback) override;
 
     std::shared_ptr<WSNetCancelableCallback> portMap(const std::string &authHash, std::uint32_t version, const std::vector<std::string> &forceProtocols, WSNetRequestFinishedCallback callback) override;
-    std::shared_ptr<WSNetCancelableCallback> recordInstall(const std::string &platform, WSNetRequestFinishedCallback callback) override;
+    std::shared_ptr<WSNetCancelableCallback> recordInstall(WSNetRequestFinishedCallback callback) override;
 
     std::shared_ptr<WSNetCancelableCallback> addEmail(const std::string &authHash, const std::string &email, WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> confirmEmail(const std::string &authHash, WSNetRequestFinishedCallback callback) override;
@@ -53,7 +51,7 @@ public:
     std::shared_ptr<WSNetCancelableCallback> debugLog(const std::string &username, const std::string &strLog, WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> speedRating(const std::string &authHash, const std::string &hostname, const std::string &ip,
                                                                  std::int32_t rating, WSNetRequestFinishedCallback callback) override;
-    std::shared_ptr<WSNetCancelableCallback> staticIps(const std::string &authHash, const std::string &platform, const std::string &deviceId, WSNetRequestFinishedCallback callback) override;
+    std::shared_ptr<WSNetCancelableCallback> staticIps(const std::string &authHash, WSNetRequestFinishedCallback callback) override;
 
     std::shared_ptr<WSNetCancelableCallback> pingTest(std::uint32_t timeoutMs, WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> notifications(const std::string &authHash, const std::string &pcpid, WSNetRequestFinishedCallback callback) override;
@@ -87,7 +85,6 @@ public:
                                                                        const std::string &supportCategory,
                                                                        const std::string &type,
                                                                        const std::string &channel,
-                                                                       const std::string &platform,
                                                                        WSNetRequestFinishedCallback callback) override;
 
     std::shared_ptr<WSNetCancelableCallback> regToken(WSNetRequestFinishedCallback callback) override;
@@ -97,7 +94,7 @@ public:
                                                                   WSNetRequestFinishedCallback callback) override;
 
     std::shared_ptr<WSNetCancelableCallback> shakeData(const std::string &authHash, WSNetRequestFinishedCallback callback) override;
-    std::shared_ptr<WSNetCancelableCallback> recordShakeForDataScore(const std::string &authHash, const std::string &platform,
+    std::shared_ptr<WSNetCancelableCallback> recordShakeForDataScore(const std::string &authHash,
                                                                              const std::string &score, const std::string &signature,
                                                                              WSNetRequestFinishedCallback callback) override;
 
@@ -107,7 +104,7 @@ public:
 private:
     std::unique_ptr<ServerAPI_impl> impl_;
     boost::asio::io_context &io_context_;
-    ServerAPISettings settings_;
+    PersistentSettings &persistentSettings_;
     WSNetAdvancedParameters *advancedParameters_;
     ConnectState &connectState_;
     std::uint32_t subscriberId_;

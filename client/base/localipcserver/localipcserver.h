@@ -19,11 +19,13 @@ public:
 
     void start();
     void sendLocations(const QStringList &locations);
+    void setDisconnectedByKeyLimit();
 
 signals:
     void showLocations();
     void connectToLocation(const LocationID &id, const types::Protocol &protocol);
     void attemptLogin(const QString &username, const QString &password, const QString &code2fa);
+    void setKeyLimitBehavior(bool deleteKey);
     void update();
 
 private slots:
@@ -35,10 +37,11 @@ private slots:
     void onBackendConnectStateChanged(const types::ConnectState &state);
     void onBackendInternetConnectivityChanged(bool connectivity);
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
-    void onBackendLoginError(LOGIN_RET code, const QString &msg);
+    void onBackendLoginError(wsnet::LoginResult code, const QString &msg);
     void onBackendLogoutFinished();
     void onBackendProtocolPortChanged(const types::Protocol &protocol, uint port);
     void onBackendTestTunnelResult(bool success);
+    void onBackendUpdateDownloaded(const QString &path);
     void onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error);
 
 private:
@@ -48,15 +51,18 @@ private:
 
     bool connectivity_;
     LOGIN_STATE loginState_;
+    UPDATE_VERSION_STATE updateState_;
     UPDATE_VERSION_ERROR updateError_;
     uint updateProgress_;
+    QString updatePath_;
     QString updateAvailable_;
-    LOGIN_RET lastLoginError_;
+    wsnet::LoginResult lastLoginError_;
     QString lastLoginErrorMessage_;
     types::ConnectState connectState_;
     types::Protocol protocol_;
     uint port_;
     TUNNEL_TEST_STATE tunnelTestState_;
+    bool disconnectedByKeyLimit_;
 
     void sendState();
     void sendCommand(const IPC::Command &command);

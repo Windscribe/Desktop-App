@@ -187,10 +187,6 @@
         <translation>Kesalahan pembaruan: %1</translation>
     </message>
     <message>
-        <source>Update downloading: %1%%</source>
-        <translation>Perbarui pengunduhan: %1%%</translation>
-    </message>
-    <message>
         <source>Update available: %1</source>
         <translation>Pembaruan tersedia: %1</translation>
     </message>
@@ -201,6 +197,14 @@
     <message>
         <source>unavailable</source>
         <translation>tidak tersedia</translation>
+    </message>
+    <message>
+        <source>Disconnected due to reaching WireGuard key limit.  Use &quot;windscribe-cli keylimit delete&quot; if you want to delete the oldest key instead, and try again.</source>
+        <translation>Terputus karena mencapai batas kunci WireGuard.  Gunakan &quot;windscribe-cli keylimit delete&quot; jika Anda ingin menghapus kunci terlama, dan coba lagi.</translation>
+    </message>
+    <message>
+        <source>Downloading: %1%</source>
+        <translation>Mengunduh: %1%</translation>
     </message>
 </context>
 </TS>

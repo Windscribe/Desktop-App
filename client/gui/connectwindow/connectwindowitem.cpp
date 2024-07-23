@@ -255,7 +255,7 @@ void ConnectWindowItem::updateNotificationsState(int totalMessages, int unread)
 void ConnectWindowItem::updateNetworkState(types::NetworkInterface network)
 {
     NETWORK_TRUST_TYPE trusted = network.trustType;
-    NETWORK_INTERACE_TYPE type = network.interfaceType;
+    NETWORK_INTERFACE_TYPE type = network.interfaceType;
     bool networkActive = network.active;
 
     if (trustType_ != trusted || interfaceType_ != type || networkActive_ != networkActive)

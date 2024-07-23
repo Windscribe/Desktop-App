@@ -187,10 +187,6 @@
         <translation>更新エラー: %1</translation>
     </message>
     <message>
-        <source>Update downloading: %1%%</source>
-        <translation>更新プログラムのダウンロード: %1%%</translation>
-    </message>
-    <message>
         <source>Update available: %1</source>
         <translation>利用可能な更新プログラム: %1</translation>
     </message>
@@ -201,6 +197,14 @@
     <message>
         <source>unavailable</source>
         <translation>使用禁止</translation>
+    </message>
+    <message>
+        <source>Disconnected due to reaching WireGuard key limit.  Use &quot;windscribe-cli keylimit delete&quot; if you want to delete the oldest key instead, and try again.</source>
+        <translation>WireGuard キーの制限に達したため、切断されました。 代わりに最も古いキーを削除する場合は、&quot;windscribe-cli keylimit delete&quot; を使用して、もう一度やり直してください。</translation>
+    </message>
+    <message>
+        <source>Downloading: %1%</source>
+        <translation>ダウンロード中: %1%</translation>
     </message>
 </context>
 </TS>

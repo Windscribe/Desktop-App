@@ -23,14 +23,12 @@
 #include "engine/macaddresscontroller/imacaddresscontroller.h"
 #include "engine/ping/keepalivemanager.h"
 #include "packetsizecontroller.h"
-#include "logout_helper.h"
 #include "autoupdater/downloadhelper.h"
 #include "autoupdater/autoupdaterhelper_mac.h"
-#include "apiresources/apiresourcesmanager.h"
-#include "apiresources/checkupdatemanager.h"
 #include "api_responses/robertfilter.h"
 #include "api_responses/checkupdate.h"
-
+#include "api_responses/sessionstatus.h"
+#include "api_responses/serverlist.h"
 
 #if defined(Q_OS_WIN)
     #include "measurementcpuusage.h"
@@ -134,14 +132,15 @@ signals:
     void initFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void bfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void cleanupFinished();
-    void loginFinished(bool isLoginFromSavedSettings, const QString &authHash, const api_responses::PortMap &portMap);
+    void loginFinished(bool isLoginFromSavedSettings, const api_responses::PortMap &portMap);
     void tryingBackupEndpoint(int num, int cnt);
-    void loginError(LOGIN_RET retCode, const QString &errorMessage);
+    void loginError(wsnet::LoginResult retCode, const QString &errorMessage);
     void sessionDeleted();
     void sessionStatusUpdated(const api_responses::SessionStatus &sessionStatus);
     void notificationsUpdated(const QVector<api_responses::Notification> &notifications);
     void checkUpdateUpdated(const api_responses::CheckUpdate &checkUpdate);
     void updateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error);
+    void updateDownloaded(const QString &path);
     void myIpUpdated(const QString &ip, bool isDisconnected);
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void protocolPortChanged(const types::Protocol &protocol, const uint port);
@@ -231,14 +230,12 @@ private slots:
     void setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const QStringList &files,
                                        const QStringList &ips, const QStringList &hosts);
 
-    void onApiResourcesManagerReadyForLogin();
-    void onApiResourcesManagerLoginFailed(LOGIN_RET retCode, const QString &errorMessage);
-    void onApiResourcesManagerSessionDeleted();
-    void onApiResourcesManagerSessionUpdated(const api_responses::SessionStatus &sessionStatus);
-    void onApiResourcesManagerLocationsUpdated(const QString &countryOverride);
-    void onApiResourcesManagerStaticIpsUpdated();
-    void onApiResourcesManagerNotificationsUpdated(const QVector<api_responses::Notification> &notifications);
+    void onApiResourcesManagerReadyForLogin(bool isLoginFromSavedSettings);
+    void onApiResourcesManagerLoginFailed(wsnet::LoginResult loginResult, const QString &errorMessage);
+    void onApiResourcesManagerLocationsUpdated();
     void onApiResourcesManagerServerCredentialsFetched();
+
+    void onApiResourceManagerCallback(wsnet::ApiResourcesManagerNotification notification, wsnet::LoginResult loginResult, const std::string &errorMessage);
 
     void onFailOverTryingBackupEndpoint(int num, int cnt);
 
@@ -331,10 +328,7 @@ private:
     KeepAliveManager *keepAliveManager_;
     PacketSizeController *packetSizeController_;
 
-    QScopedPointer<api_resources::ApiResourcesManager> apiResourcesManager_;    // can be null for the custom config mode or when we in the logout state
-    api_resources::CheckUpdateManager *checkUpdateManager_;
     api_resources::MyIpManager *myIpManager_;
-    std::unique_ptr<LogoutHelper> logoutHelper_;
 
 #ifdef Q_OS_WIN
     MeasurementCpuUsage *measurementCpuUsage_;
@@ -379,7 +373,7 @@ private:
 
     void doCheckUpdate();
     void loginImpl(bool isUseAuthHash, const QString &username, const QString &password, const QString &code2fa);
-    void updateServerLocations();
+    void updateServerLocations(const api_responses::ServerList &serverLocations, const api_responses::StaticIps &staticIps);
     void updateFirewallSettings();
 
     void addCustomRemoteIpToFirewallIfNeed();
@@ -401,5 +395,8 @@ private:
     types::ConnectionSettings connectionSettingsOverride_;
 
     bool checkAutoEnableAntiCensorship_ = false;
-    bool isIgnoreNoApiConnectivity_ = false;
+
+    bool isLoggedIn_ = false;
+    bool isFetchingServerCredentials_ = false;
+    bool tryLoginNextConnectOrDisconnect_ = false;
 };

@@ -2,6 +2,7 @@
 
 #include "types/enums.h"
 
+#include <filesystem>
 #include <QDebug>
 #include <QJsonObject>
 
@@ -17,14 +18,25 @@ struct BackgroundSettings
 
     BackgroundSettings(const QJsonObject &json)
     {
-        if (json.contains(kJsonBackgroundTypeProp) && json[kJsonBackgroundTypeProp].isDouble())
-            backgroundType = static_cast<BACKGROUND_TYPE>(json[kJsonBackgroundTypeProp].toInt());
+        if (json.contains(kJsonBackgroundTypeProp) && json[kJsonBackgroundTypeProp].isDouble()) {
+            backgroundType = BACKGROUND_TYPE_fromInt(json[kJsonBackgroundTypeProp].toInt());
+        }
 
-        if (json.contains(kJsonBackgroundImageDisconnectedProp) && json[kJsonBackgroundImageDisconnectedProp].isString())
-            backgroundImageDisconnected = json[kJsonBackgroundImageDisconnectedProp].toString();
+        if (json.contains(kJsonBackgroundImageDisconnectedProp) && json[kJsonBackgroundImageDisconnectedProp].isString()) {
+            QString img = json[kJsonBackgroundImageDisconnectedProp].toString();
+            std::error_code ec;
+            if (std::filesystem::exists(img.toStdString(), ec)) {
+                backgroundImageDisconnected = img;
+            }
+        }
 
-        if (json.contains(kJsonBackgroundImageConnectedProp) && json[kJsonBackgroundImageConnectedProp].isString())
-            backgroundImageConnected = json[kJsonBackgroundImageConnectedProp].toString();
+        if (json.contains(kJsonBackgroundImageConnectedProp) && json[kJsonBackgroundImageConnectedProp].isString()) {
+            QString img = json[kJsonBackgroundImageConnectedProp].toString();
+            std::error_code ec;
+            if (std::filesystem::exists(img.toStdString(), ec)) {
+                backgroundImageConnected = img;
+            }
+        }
     }
 
     bool operator==(const BackgroundSettings &other) const

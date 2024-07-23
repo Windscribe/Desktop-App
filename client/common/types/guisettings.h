@@ -204,59 +204,79 @@ private:
 
 inline GuiSettings::GuiSettings(const QJsonObject &json)
 {
-    if (json.contains(kJsonAppSkinProp) && json[kJsonAppSkinProp].isDouble())
-        appSkin = static_cast<APP_SKIN>(json[kJsonAppSkinProp].toInt());
+    if (json.contains(kJsonAppSkinProp) && json[kJsonAppSkinProp].isDouble()) {
+        appSkin = APP_SKIN_fromInt(json[kJsonAppSkinProp].toInt());
+    }
 
-    if (json.contains(kJsonBackgroundSettingsProp) && json[kJsonBackgroundSettingsProp].isObject())
+    if (json.contains(kJsonBackgroundSettingsProp) && json[kJsonBackgroundSettingsProp].isObject()) {
         backgroundSettings = types::BackgroundSettings(json[kJsonBackgroundSettingsProp].toObject());
+    }
 
-    if (json.contains(kJsonIsAutoConnectProp) && json[kJsonIsAutoConnectProp].isBool())
+    if (json.contains(kJsonIsAutoConnectProp) && json[kJsonIsAutoConnectProp].isBool()) {
         isAutoConnect = json[kJsonIsAutoConnectProp].toBool();
+    }
+
+    if (json.contains(kJsonIsAutoSecureNetworksProp) && json[kJsonIsAutoSecureNetworksProp].isBool()) {
+        isAutoSecureNetworks = json[kJsonIsAutoSecureNetworksProp].toBool();
+    }
 
 #if !defined(Q_OS_LINUX)
-    if (json.contains(kJsonIsDockedToTrayProp) && json[kJsonIsDockedToTrayProp].isBool())
+    if (json.contains(kJsonIsDockedToTrayProp) && json[kJsonIsDockedToTrayProp].isBool()) {
         isDockedToTray = json[kJsonIsDockedToTrayProp].toBool();
+    }
 #endif
 
 #if defined(Q_OS_MAC)
-    if (json.contains(kJsonIsHideFromDockProp) && json[kJsonIsHideFromDockProp].isBool())
+    if (json.contains(kJsonIsHideFromDockProp) && json[kJsonIsHideFromDockProp].isBool()) {
         isHideFromDock = json[kJsonIsHideFromDockProp].toBool();
+    }
 #endif
 
-    if (json.contains(kJsonIsLaunchOnStartupProp) && json[kJsonIsLaunchOnStartupProp].isBool())
+    if (json.contains(kJsonIsLaunchOnStartupProp) && json[kJsonIsLaunchOnStartupProp].isBool()) {
         isLaunchOnStartup = json[kJsonIsLaunchOnStartupProp].toBool();
+    }
 
-    if (json.contains(kJsonIsMinimizeAndCloseToTrayProp) && json[kJsonIsMinimizeAndCloseToTrayProp].isBool())
+    if (json.contains(kJsonIsMinimizeAndCloseToTrayProp) && json[kJsonIsMinimizeAndCloseToTrayProp].isBool()) {
         isMinimizeAndCloseToTray = json[kJsonIsMinimizeAndCloseToTrayProp].toBool();
+    }
 
-    if (json.contains(kJsonIsShowLocationHealthProp) && json[kJsonIsShowLocationHealthProp].isBool())
+    if (json.contains(kJsonIsShowLocationHealthProp) && json[kJsonIsShowLocationHealthProp].isBool()) {
         isShowLocationHealth = json[kJsonIsShowLocationHealthProp].toBool();
+    }
 
-    if (json.contains(kJsonIsShowNotificationsProp) && json[kJsonIsShowNotificationsProp].isBool())
+    if (json.contains(kJsonIsShowNotificationsProp) && json[kJsonIsShowNotificationsProp].isBool()) {
         isShowNotifications = json[kJsonIsShowNotificationsProp].toBool();
+    }
 
-    if (json.contains(kJsonIsStartMinimizedProp) && json[kJsonIsStartMinimizedProp].isBool())
+    if (json.contains(kJsonIsStartMinimizedProp) && json[kJsonIsStartMinimizedProp].isBool()) {
         isStartMinimized = json[kJsonIsStartMinimizedProp].toBool();
+    }
 
-    if (json.contains(kJsonLatencyDisplayProp) && json[kJsonLatencyDisplayProp].isDouble())
-        latencyDisplay = static_cast<LATENCY_DISPLAY_TYPE>(json[kJsonLatencyDisplayProp].toInt());
+    if (json.contains(kJsonLatencyDisplayProp) && json[kJsonLatencyDisplayProp].isDouble()) {
+        latencyDisplay = LATENCY_DISPLAY_TYPE_fromInt(json[kJsonLatencyDisplayProp].toInt());
+    }
 
-    if (json.contains(kJsonOrderLocationProp) && json[kJsonOrderLocationProp].isDouble())
-        orderLocation = static_cast<ORDER_LOCATION_TYPE>(json[kJsonOrderLocationProp].toInt());
+    if (json.contains(kJsonOrderLocationProp) && json[kJsonOrderLocationProp].isDouble()) {
+        orderLocation = ORDER_LOCATION_TYPE_fromInt(json[kJsonOrderLocationProp].toInt());
+    }
 
 #if defined(Q_OS_LINUX)
-    if (json.contains(kJsonTrayIconColorProp) && json[kJsonTrayIconColorProp].isDouble())
-        trayIconColor = static_cast<TRAY_ICON_COLOR>(json[kJsonTrayIconColorProp].toInt());
+    if (json.contains(kJsonTrayIconColorProp) && json[kJsonTrayIconColorProp].isDouble()) {
+        trayIconColor = TRAY_ICON_COLOR_fromInt(json[kJsonTrayIconColorProp].toInt());
+    }
 #endif
 
-    if (json.contains(kJsonShareSecureHotspotProp) && json[kJsonShareSecureHotspotProp].isObject())
+    if (json.contains(kJsonShareSecureHotspotProp) && json[kJsonShareSecureHotspotProp].isObject()) {
         shareSecureHotspot = types::ShareSecureHotspot(json[kJsonShareSecureHotspotProp].toObject());
+    }
 
-    if (json.contains(kJsonShareProxyGatewayProp) && json[kJsonShareProxyGatewayProp].isObject())
+    if (json.contains(kJsonShareProxyGatewayProp) && json[kJsonShareProxyGatewayProp].isObject()) {
         shareProxyGateway = types::ShareProxyGateway(json[kJsonShareProxyGatewayProp].toObject());
+    }
 
-    if (json.contains(kJsonSplitTunnelingProp) && json[kJsonSplitTunnelingProp].isObject())
+    if (json.contains(kJsonSplitTunnelingProp) && json[kJsonSplitTunnelingProp].isObject()) {
         splitTunneling = types::SplitTunneling(json[kJsonSplitTunnelingProp].toObject());
+    }
 }
 
 } // types namespace

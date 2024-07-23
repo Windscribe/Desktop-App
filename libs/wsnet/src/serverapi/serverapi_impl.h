@@ -14,7 +14,7 @@
 #include "failover/failoverdata.h"
 #include "requestexecuterviafailover.h"
 #include "utils/cancelablecallback.h"
-#include "serverapi_settings.h"
+#include "utils/persistentsettings.h"
 #include "connectstate.h"
 #include "failedfailovers.h"
 
@@ -24,7 +24,7 @@ class ServerAPI_impl
 {
 public:
     explicit ServerAPI_impl(WSNetHttpNetworkManager *httpNetworkManager, IFailoverContainer *failoverContainer,
-                            ServerAPISettings &settings, WSNetAdvancedParameters *advancedParameters, ConnectState &connectState);
+                            PersistentSettings &persistentSettings, WSNetAdvancedParameters *advancedParameters, ConnectState &connectState);
     virtual ~ServerAPI_impl();
 
     void setApiResolutionsSettings(bool isAutomatic, std::string manualAddress);
@@ -46,7 +46,7 @@ private:
 
     std::uint64_t curUniqueId_ = 0;     // for generate unique identifiers for HTTP-requests
 
-    ServerAPISettings &settings_;    // The ServerAPISettings class is protected by mutex, so it's thread-safe
+    PersistentSettings &persistentSettings_;    // The ServerAPISettings class is protected by mutex, so it's thread-safe
 
     struct ApiResolutionSettings
     {

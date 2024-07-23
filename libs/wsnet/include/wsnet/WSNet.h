@@ -9,6 +9,7 @@
 #include "WSNetEmergencyConnect.h"
 #include "WSNetPingManager.h"
 #include "WSNetAdvancedParameters.h"
+#include "WSNetApiResourcesManager.h"
 #include "WSNetUtils.h"
 
 namespace wsnet {
@@ -23,17 +24,25 @@ public:
     // set debugLog to true for more verbose log output
     static void setLogger(WSNetLoggerFunction loggerFunction, bool debugLog);
 
-    // platformName and appVersion values are added to each request
-    static bool initialize(const std::string &platformName,const std::string &appVersion, bool isUseStagingDomains, const std::string &serverApiSettings);
+    // basePlatform value can be "windows", "mac", "linux", "android", "ios"
+    // platformName and appVersion values are added to each request.
+    // difference between basePlatform and platformName is that platformName is more specific (for example windows_arm64/windows).
+    // deviceId - unique device identifier, in particular used for the API StaticIps
+    static bool initialize(const std::string &basePlatform,  const std::string &platformName, const std::string &appVersion,
+                           const std::string &deviceId, const std::string &openVpnVersion,
+                           bool isUseStagingDomains, const std::string &persistentSettings);
     static std::shared_ptr<WSNet> instance();
     static void cleanup();
 
     virtual void setConnectivityState(bool isOnline) = 0;
     virtual void setIsConnectedToVpnState(bool isConnected) = 0;
 
+    virtual std::string currentPersistentSettings() = 0;
+
     virtual std::shared_ptr<WSNetDnsResolver> dnsResolver() = 0;
     virtual std::shared_ptr<WSNetHttpNetworkManager> httpNetworkManager() = 0;
     virtual std::shared_ptr<WSNetServerAPI> serverAPI() = 0;
+    virtual std::shared_ptr<WSNetApiResourcesManager> apiResourcersManager() = 0;
     virtual std::shared_ptr<WSNetEmergencyConnect> emergencyConnect() = 0;
     virtual std::shared_ptr<WSNetPingManager> pingManager() = 0;
     virtual std::shared_ptr<WSNetAdvancedParameters> advancedParameters() = 0;

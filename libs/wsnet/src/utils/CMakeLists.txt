@@ -5,6 +5,8 @@ target_sources(wsnet PRIVATE
     utils.cpp
     crypto_utils.cpp
     crypto_utils.h
+    persistentsettings.cpp
+    persistentsettings.h
     urlquery_utils.cpp
     urlquery_utils.h
 )

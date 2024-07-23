@@ -414,66 +414,84 @@ QDebug operator<<(QDebug dbg, const EngineSettings &es)
 
 void EngineSettingsData::fromJson(const QJsonObject &json)
 {
-    if (json.contains(kJsonApiResolutionSettingsProp) && json[kJsonApiResolutionSettingsProp].isObject())
+    if (json.contains(kJsonApiResolutionSettingsProp) && json[kJsonApiResolutionSettingsProp].isObject()) {
         apiResolutionSettings = types::ApiResolutionSettings(json[kJsonApiResolutionSettingsProp].toObject());
-
-    if (json.contains(kJsonConnectedDnsInfoProp) && json[kJsonConnectedDnsInfoProp].isObject())
-        connectedDnsInfo = types::ConnectedDnsInfo(json[kJsonConnectedDnsInfoProp].toObject());
-
-    if (json.contains(kJsonConnectionSettingsProp) && json[kJsonConnectionSettingsProp].isObject())
-        connectionSettings = types::ConnectionSettings(json[kJsonConnectionSettingsProp].toObject());
-
-    if (json.contains(kJsonCustomOvpnConfigsPathProp) && json[kJsonCustomOvpnConfigsPathProp].isString())
-        customOvpnConfigsPath = Utils::fromBase64(json[kJsonCustomOvpnConfigsPathProp].toString());
-
-#if defined(Q_OS_LINUX)
-    if (json.contains(kJsonDnsManagerProp) && json[kJsonDnsManagerProp].isDouble())
-        dnsManager = static_cast<DNS_MANAGER_TYPE>(json[kJsonDnsManagerProp].toInt());
-#endif
-
-    if (json.contains(kJsonDnsPolicyProp) && json[kJsonDnsPolicyProp].isDouble())
-        dnsPolicy = static_cast<DNS_POLICY_TYPE>(json[kJsonDnsPolicyProp].toInt());
-
-    if (json.contains(kJsonFirewallSettingsProp) && json[kJsonFirewallSettingsProp].isObject())
-        firewallSettings = types::FirewallSettings(json[kJsonFirewallSettingsProp].toObject());
-
-    if (json.contains(kJsonIsAllowLanTrafficProp) && json[kJsonIsAllowLanTrafficProp].isBool())
-        isAllowLanTraffic = json[kJsonIsAllowLanTrafficProp].toBool();
-
-    if (json.contains(kJsonIsAntiCensorshipProp) && json[kJsonIsAntiCensorshipProp].isBool())
-        isAntiCensorship = json[kJsonIsAntiCensorshipProp].toBool();
-
-    if (json.contains(kJsonIsKeepAliveEnabledProp) && json[kJsonIsKeepAliveEnabledProp].isBool())
-        isKeepAliveEnabled = json[kJsonIsKeepAliveEnabledProp].toBool();
-
-#if defined(Q_OS_WIN)
-    if (json.contains(kJsonIsTerminateSocketsProp) && json[kJsonIsTerminateSocketsProp].isBool())
-        isTerminateSockets = json[kJsonIsTerminateSocketsProp].toBool();
-#endif
-
-    if (json.contains(kJsonLanguageProp) && json[kJsonLanguageProp].isString()
-            && LanguagesUtil::isSupportedLanguage(json[kJsonLanguageProp].toString())) {
-        language = json[kJsonLanguageProp].toString();
     }
 
-    if (json.contains(kJsonMacAddrSpoofingProp) && json[kJsonMacAddrSpoofingProp].isObject())
+    if (json.contains(kJsonConnectedDnsInfoProp) && json[kJsonConnectedDnsInfoProp].isObject()) {
+        connectedDnsInfo = types::ConnectedDnsInfo(json[kJsonConnectedDnsInfoProp].toObject());
+    }
+
+    if (json.contains(kJsonConnectionSettingsProp) && json[kJsonConnectionSettingsProp].isObject()) {
+        connectionSettings = types::ConnectionSettings(json[kJsonConnectionSettingsProp].toObject());
+    }
+
+    if (json.contains(kJsonCustomOvpnConfigsPathProp) && json[kJsonCustomOvpnConfigsPathProp].isString()) {
+        customOvpnConfigsPath = Utils::fromBase64(json[kJsonCustomOvpnConfigsPathProp].toString());
+    }
+
+#if defined(Q_OS_LINUX)
+    if (json.contains(kJsonDnsManagerProp) && json[kJsonDnsManagerProp].isDouble()) {
+        dnsManager = DNS_MANAGER_TYPE_fromInt(json[kJsonDnsManagerProp].toInt());
+    }
+#endif
+
+    if (json.contains(kJsonDnsPolicyProp) && json[kJsonDnsPolicyProp].isDouble()) {
+        dnsPolicy = DNS_POLICY_TYPE_fromInt(json[kJsonDnsPolicyProp].toInt());
+    }
+
+    if (json.contains(kJsonFirewallSettingsProp) && json[kJsonFirewallSettingsProp].isObject()) {
+        firewallSettings = types::FirewallSettings(json[kJsonFirewallSettingsProp].toObject());
+    }
+
+    if (json.contains(kJsonIsAllowLanTrafficProp) && json[kJsonIsAllowLanTrafficProp].isBool()) {
+        isAllowLanTraffic = json[kJsonIsAllowLanTrafficProp].toBool();
+    }
+
+    if (json.contains(kJsonIsAntiCensorshipProp) && json[kJsonIsAntiCensorshipProp].isBool()) {
+        isAntiCensorship = json[kJsonIsAntiCensorshipProp].toBool();
+    }
+
+    if (json.contains(kJsonIsKeepAliveEnabledProp) && json[kJsonIsKeepAliveEnabledProp].isBool()) {
+        isKeepAliveEnabled = json[kJsonIsKeepAliveEnabledProp].toBool();
+    }
+
+#if defined(Q_OS_WIN)
+    if (json.contains(kJsonIsTerminateSocketsProp) && json[kJsonIsTerminateSocketsProp].isBool()) {
+        isTerminateSockets = json[kJsonIsTerminateSocketsProp].toBool();
+    }
+#endif
+
+    if (json.contains(kJsonLanguageProp) && json[kJsonLanguageProp].isString()) {
+        QString lang = json[kJsonLanguageProp].toString();
+        if (LanguagesUtil::isSupportedLanguage(lang)) {
+            language = lang;
+        }
+    }
+
+    if (json.contains(kJsonMacAddrSpoofingProp) && json[kJsonMacAddrSpoofingProp].isObject()) {
         macAddrSpoofing = types::MacAddrSpoofing(json[kJsonMacAddrSpoofingProp].toObject());
+    }
 
-    if (json.contains(kJsonPacketSizeProp) && json[kJsonPacketSizeProp].isObject())
+    if (json.contains(kJsonPacketSizeProp) && json[kJsonPacketSizeProp].isObject()) {
         packetSize = types::PacketSize(json[kJsonPacketSizeProp].toObject());
+    }
 
-    if (json.contains(kJsonProxySettingsProp) && json[kJsonProxySettingsProp].isObject())
+    if (json.contains(kJsonProxySettingsProp) && json[kJsonProxySettingsProp].isObject()) {
         proxySettings = types::ProxySettings(json[kJsonProxySettingsProp].toObject());
+    }
 
-    if (json.contains(kJsonUpdateChannelProp) && json[kJsonUpdateChannelProp].isDouble())
-        updateChannel = static_cast<UPDATE_CHANNEL>(json[kJsonUpdateChannelProp].toInt());
+    if (json.contains(kJsonUpdateChannelProp) && json[kJsonUpdateChannelProp].isDouble()) {
+        updateChannel = UPDATE_CHANNEL_fromInt(json[kJsonUpdateChannelProp].toInt());
+    }
 
     if (json.contains(kJsonNetworkPreferredProtocolsProp) && json[kJsonNetworkPreferredProtocolsProp].isObject()) {
         QMap<QString, types::ConnectionSettings> networkPreferredProtocols;
         const QJsonObject protocolsObj = json[kJsonNetworkPreferredProtocolsProp].toObject();
         for (const QString& networkBase64 : protocolsObj.keys()) {
-            if (protocolsObj[networkBase64].isObject())
+            if (protocolsObj[networkBase64].isObject()) {
                 networkPreferredProtocols.insert(Utils::fromBase64(networkBase64), types::ConnectionSettings(protocolsObj[networkBase64].toObject()));
+            }
         }
         networkPreferredProtocols = networkPreferredProtocols;
     }
@@ -491,8 +509,11 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
                     && protocolObj[kJsonProtocolProp].isDouble()
                     && protocolObj[kJsonValueProp].isDouble())
                 {
-                    protocol = static_cast<types::Protocol>(protocolObj[kJsonProtocolProp].toInt());
-                    port = static_cast<uint>(protocolObj[kJsonValueProp].toInt());
+                    protocol = Protocol(protocolObj[kJsonProtocolProp].toInt());
+                    port = protocolObj[kJsonValueProp].toInt();
+                    if (port < 0 || port >= 65536) {
+                        port = Protocol::defaultPortForProtocol(protocol);
+                    }
                     networkLastKnownGoodProtocols[network] = std::make_pair(protocol, port);
                 }
             }
@@ -571,6 +592,9 @@ void EngineSettingsData::fromIni(QSettings &settings)
     settings.beginGroup(QString("Advanced"));
     apiResolutionSettings.fromIni(settings);
     isIgnoreSslErrors = settings.value(kIniIsIgnoreSslErrorsProp, isIgnoreSslErrors).toBool();
+#ifdef Q_OS_LINUX
+    dnsManager = DNS_MANAGER_TYPE_fromString(settings.value(kIniDnsManagerProp, DNS_MANAGER_TYPE_toString(dnsManager)).toString());
+#endif
     dnsPolicy = DNS_POLICY_TYPE_fromString(settings.value(kIniDnsPolicyProp, DNS_POLICY_TYPE_toString(dnsPolicy)).toString());
     settings.endGroup();
 }
@@ -600,6 +624,9 @@ void EngineSettingsData::toIni(QSettings &settings) const
     apiResolutionSettings.toIni(settings);
     settings.setValue(kIniIsIgnoreSslErrorsProp, isIgnoreSslErrors);
     settings.setValue(kIniDnsPolicyProp, DNS_POLICY_TYPE_toString(dnsPolicy));
+#ifdef Q_OS_LINUX
+    settings.setValue(kIniDnsManagerProp, DNS_MANAGER_TYPE_toString(dnsManager));
+#endif
     settings.endGroup();
 }
 

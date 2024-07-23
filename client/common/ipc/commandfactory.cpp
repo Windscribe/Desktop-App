@@ -39,6 +39,8 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
         return new IPC::CliCommands::SendLogs(buf, size);
     } else if (strId == IPC::CliCommands::ReloadConfig::getCommandStringId()) {
         return new IPC::CliCommands::ReloadConfig(buf, size);
+    } else if (strId == IPC::CliCommands::SetKeyLimitBehavior::getCommandStringId()) {
+        return new IPC::CliCommands::SetKeyLimitBehavior(buf, size);
     }
 
     WS_ASSERT(false);

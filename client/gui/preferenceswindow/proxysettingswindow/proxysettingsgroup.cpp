@@ -49,19 +49,28 @@ ProxySettingsGroup::ProxySettingsGroup(ScalableGraphicsObject *parent, const QSt
 
 void ProxySettingsGroup::onAddressChanged(const QString &text)
 {
-    if (settings_.address() != text)
-    {
-        settings_.setAddress(text);
-        emit proxySettingsChanged(settings_);
+    if (settings_.address() != text) {
+        if (IpValidation::isIpOrDomain(text.trimmed())) {
+            settings_.setAddress(text);
+            emit proxySettingsChanged(settings_);
+        } else {
+            // Not accepted, revert to previous value
+            editBoxAddress_->setText(settings_.address());
+        }
     }
 }
 
 void ProxySettingsGroup::onPortChanged(const QString &text)
 {
-    if (QString::number(settings_.getPort()) != text)
-    {
-        settings_.setPort(text.toInt());
-        emit proxySettingsChanged(settings_);
+    if (QString::number(settings_.getPort()) != text) {
+        uint port = text.toUInt();
+        if (port < 63536) {
+            settings_.setPort(port);
+            emit proxySettingsChanged(settings_);
+        } else {
+            // Not accepted, revert to previous value
+            editBoxPort_->setText(QString::number(settings_.getPort()));
+        }
     }
 }
 
@@ -100,14 +109,7 @@ void ProxySettingsGroup::setProxySettings(const types::ProxySettings &ps)
     comboBoxProxyType_->setCurrentItem(curOption);
 
     editBoxAddress_->setText(settings_.address());
-    if (settings_.getPort() == 0)
-    {
-        editBoxPort_->setText("");
-    }
-    else
-    {
-        editBoxPort_->setText(QString::number(settings_.getPort()));
-    }
+    editBoxPort_->setText(QString::number(settings_.getPort()));
     editBoxUsername_->setText(settings_.getUsername());
     editBoxPassword_->setText(settings_.getPassword());
 

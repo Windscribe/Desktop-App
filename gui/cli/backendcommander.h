@@ -42,4 +42,5 @@ private:
     bool bLoggingInMessageShown_ = false;
 
     void onStateResponse(IPC::Command *command);
+    void onUpdateStateResponse(IPC::Command *command);
 };

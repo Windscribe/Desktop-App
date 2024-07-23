@@ -790,6 +790,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
         <translation>Kết nối IKEv2 không khả dụng trong Chế độ khóa MacOS. Vui lòng tắt Chế độ khóa trong Cài đặt hệ thống hoặc thay đổi cài đặt kết nối của bạn.</translation>
     </message>
+    <message>
+        <source>Rotating MAC Address</source>
+        <translation>Địa chỉ MAC xoay</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

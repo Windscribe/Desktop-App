@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QProcess>
+#include <wsnet/WSNet.h>
 
 #include "connectstatehelper.h"
 #include "firewallstatehelper.h"
@@ -37,14 +38,14 @@ public:
     bool isSavedApiSettingsExists() const;
     void loginWithAuthHash();
     void loginWithLastLoginSettings();
-    void setLoginError(LOGIN_RET err, const QString &msg);
+    void setLoginError(wsnet::LoginResult err, const QString &msg);
     bool isLastLoginWithAuthHash() const;
     void logout(bool keepFirewallOn);
     void sendConnect(const LocationID &lid, const types::ConnectionSettings &connectionSettings = types::ConnectionSettings(types::Protocol(), 0, true));
     void sendDisconnect();
     bool isDisconnected() const;
     LOGIN_STATE currentLoginState() const;
-    LOGIN_RET lastLoginError() const;
+    wsnet::LoginResult lastLoginError() const;
     CONNECT_STATE currentConnectState() const;
     LocationID currentLocation() const;
 
@@ -124,13 +125,14 @@ private slots:
     void onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void onEngineFirewallStateChanged(bool isEnabled);
-    void onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const api_responses::PortMap &portMap);
-    void onEngineLoginError(LOGIN_RET retCode, const QString &errorMessage);
+    void onEngineLoginFinished(bool isLoginFromSavedSettings, const api_responses::PortMap &portMap);
+    void onEngineLoginError(wsnet::LoginResult retCode, const QString &errorMessage);
     void onEngineTryingBackupEndpoint(int num, int cnt);
     void onEngineSessionDeleted();
     void onEngineUpdateSessionStatus(const api_responses::SessionStatus &sessionStatus);
     void onEngineNotificationsUpdated(const QVector<api_responses::Notification> &notifications);
     void onEngineCheckUpdateUpdated(const api_responses::CheckUpdate &checkUpdate);
+    void onEngineUpdateDownloaded(const QString &path);
     void onEngineUpdateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error);
     void onEngineMyIpUpdated(const QString &ip, bool isDisconnected);
     void onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId);
@@ -188,7 +190,7 @@ signals:
 
     void loginFinished(bool isLoginFromSavedSettings);
     void tryingBackupEndpoint(int num, int cnt);
-    void loginError(LOGIN_RET loginError, const QString &errorMessage);
+    void loginError(wsnet::LoginResult loginError, const QString &errorMessage);
 
     void logoutFinished();
 
@@ -228,6 +230,7 @@ signals:
     void internetConnectivityChanged(bool connectivity);
     void protocolPortChanged(const types::Protocol &protocol, const uint port);
     void packetSizeDetectionStateChanged(bool on, bool isError);
+    void updateDownloaded(const QString &path);
     void updateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error);
 
     void engineCrash();
@@ -275,6 +278,9 @@ private:
     QString generateNewFriendlyName();
     void updateAccountInfo();
 
+    QString getAutoLoginCredential(const QString &key);
+    void clearAutoLoginCredentials();
+
     LOGIN_STATE loginState_;
-    LOGIN_RET lastLoginError_;
+    wsnet::LoginResult lastLoginError_;
 };

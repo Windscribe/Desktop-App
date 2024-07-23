@@ -151,7 +151,7 @@ void ConnectedDnsGroup::onLanguageChanged()
         if (t == CONNECTED_DNS_TYPE_FORCED && !WinUtils::isDohSupported())
             continue;
 #endif
-        list << qMakePair(types::ConnectedDnsInfo::typeToString(t), t);
+        list << qMakePair(CONNECTED_DNS_TYPE_toString(t), t);
     }
     comboBoxDns_->setItems(list, settings_.type);
 

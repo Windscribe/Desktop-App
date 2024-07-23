@@ -6,10 +6,10 @@
 namespace wsnet {
 
 ServerLocationsRequest::ServerLocationsRequest(RequestPriority priority, const std::string &name,
-        std::map<std::string, std::string> extraParams, ServerAPISettings &settings,
+        std::map<std::string, std::string> extraParams, PersistentSettings &persistentSettings,
         ConnectState &connectState, WSNetAdvancedParameters *advancedParameters, RequestFinishedCallback callback) :
     BaseRequest(HttpMethod::kGet, SubdomainType::kAssets, priority, name, extraParams, callback),
-    settings_(settings),
+    persistentSettings_(persistentSettings),
     connectState_(connectState),
     advancedParameters_(advancedParameters)
 {
@@ -35,8 +35,8 @@ std::string ServerLocationsRequest::url(const std::string &domain) const
         if (!advancedParameters_->countryOverrideValue().empty()) {
             countryOverride = advancedParameters_->countryOverrideValue();
         } else if (connectState_.isVPNConnected()) {
-            if (!settings_.countryOverride().empty()) {
-                countryOverride = settings_.countryOverride();
+            if (!persistentSettings_.countryOverride().empty()) {
+                countryOverride = persistentSettings_.countryOverride();
             }
         }
     }
@@ -83,12 +83,12 @@ void ServerLocationsRequest::handle(const std::string &arr)
         if (jsonInfo.HasMember("country_override")) {
             if (isFromDisconnectedVPNState_ && (!connectState_.isVPNConnected())) {
                 auto countryOverride = jsonInfo["country_override"].GetString();
-                settings_.setCountryOverride(countryOverride);
+                persistentSettings_.setCountryOverride(countryOverride);
                 spdlog::info("API request ServerLocations saved countryOverride = {}", countryOverride);
             }
         } else {
             if (isFromDisconnectedVPNState_ && (!connectState_.isVPNConnected())) {
-                settings_.setCountryOverride(std::string());
+                persistentSettings_.setCountryOverride(std::string());
                 spdlog::info("API request ServerLocations removed countryOverride flag");
             }
         }

@@ -187,10 +187,6 @@
         <translation>Chyba aktualizace: %1</translation>
     </message>
     <message>
-        <source>Update downloading: %1%%</source>
-        <translation>Stahování aktualizací: %1%%</translation>
-    </message>
-    <message>
         <source>Update available: %1</source>
         <translation>Dostupná aktualizace: %1</translation>
     </message>
@@ -201,6 +197,14 @@
     <message>
         <source>unavailable</source>
         <translation>nedostupný</translation>
+    </message>
+    <message>
+        <source>Disconnected due to reaching WireGuard key limit.  Use &quot;windscribe-cli keylimit delete&quot; if you want to delete the oldest key instead, and try again.</source>
+        <translation>Odpojeno z důvodu dosažení limitu klíče WireGuard.  Pokud chcete místo toho smazat nejstarší klíč, použijte &quot;windscribe-cli keylimit delete&quot; a zkuste to znovu.</translation>
+    </message>
+    <message>
+        <source>Downloading: %1%</source>
+        <translation>Stahování: %1%</translation>
     </message>
 </context>
 </TS>

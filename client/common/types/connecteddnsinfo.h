@@ -22,7 +22,6 @@ struct ConnectedDnsInfo
     ConnectedDnsInfo(const QJsonObject &json);
 
     static QList<CONNECTED_DNS_TYPE> allAvailableTypes();
-    static QString typeToString(const CONNECTED_DNS_TYPE &type);
 
     QJsonObject toJson() const;
     void fromIni(const QSettings &settings);

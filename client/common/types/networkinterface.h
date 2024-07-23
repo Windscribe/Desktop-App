@@ -5,6 +5,7 @@
 #include <QString>
 
 #include "enums.h"
+#include "utils/utils.h"
 
 namespace types {
 
@@ -27,63 +28,80 @@ struct NetworkInterface
 
     NetworkInterface(const QJsonObject &json)
     {
-        if (json.contains(kJsonInterfaceIndexProp) && json[kJsonInterfaceIndexProp].isDouble())
+        if (json.contains(kJsonInterfaceIndexProp) && json[kJsonInterfaceIndexProp].isDouble()) {
             interfaceIndex = static_cast<int>(json[kJsonInterfaceIndexProp].toDouble(-1));
+        }
 
-        if (json.contains(kJsonInterfaceNameProp) && json[kJsonInterfaceNameProp].isString())
-            interfaceName = fromBase64(json[kJsonInterfaceNameProp].toString());
+        if (json.contains(kJsonInterfaceNameProp) && json[kJsonInterfaceNameProp].isString()) {
+            interfaceName = Utils::fromBase64(json[kJsonInterfaceNameProp].toString());
+        }
 
-        if (json.contains(kJsonInterfaceGuidProp) && json[kJsonInterfaceGuidProp].isString())
-            interfaceGuid = fromBase64(json[kJsonInterfaceGuidProp].toString());
+        if (json.contains(kJsonInterfaceGuidProp) && json[kJsonInterfaceGuidProp].isString()) {
+            interfaceGuid = Utils::fromBase64(json[kJsonInterfaceGuidProp].toString());
+        }
 
-        if (json.contains(kJsonNetworkOrSsidProp) && json[kJsonNetworkOrSsidProp].isString())
-            networkOrSsid = fromBase64(json[kJsonNetworkOrSsidProp].toString());
+        if (json.contains(kJsonNetworkOrSsidProp) && json[kJsonNetworkOrSsidProp].isString()) {
+            networkOrSsid = Utils::fromBase64(json[kJsonNetworkOrSsidProp].toString());
+        }
 
-        if (json.contains(kJsonInterfaceTypeProp) && json[kJsonInterfaceTypeProp].isDouble())
-            interfaceType = static_cast<NETWORK_INTERACE_TYPE>(json[kJsonInterfaceTypeProp].toInt(NETWORK_INTERFACE_NONE));
+        if (json.contains(kJsonInterfaceTypeProp) && json[kJsonInterfaceTypeProp].isDouble()) {
+            interfaceType = NETWORK_INTERFACE_TYPE_fromInt(json[kJsonInterfaceTypeProp].toInt(NETWORK_INTERFACE_NONE));
+        }
 
-        if (json.contains(kJsonTrustTypeProp) && json[kJsonTrustTypeProp].isDouble())
-            trustType = static_cast<NETWORK_TRUST_TYPE>(json[kJsonTrustTypeProp].toInt(NETWORK_TRUST_SECURED));
+        if (json.contains(kJsonTrustTypeProp) && json[kJsonTrustTypeProp].isDouble()) {
+            trustType = NETWORK_TRUST_TYPE_fromInt(json[kJsonTrustTypeProp].toInt(NETWORK_TRUST_SECURED));
+        }
 
-        if (json.contains(kJsonActiveProp) && json[kJsonActiveProp].isBool())
+        if (json.contains(kJsonActiveProp) && json[kJsonActiveProp].isBool()) {
             active = json[kJsonActiveProp].toBool();
+        }
 
-        if (json.contains(kJsonFriendlyNameProp) && json[kJsonFriendlyNameProp].isString())
-            friendlyName = fromBase64(json[kJsonFriendlyNameProp].toString());
+        if (json.contains(kJsonFriendlyNameProp) && json[kJsonFriendlyNameProp].isString()) {
+            friendlyName = Utils::fromBase64(json[kJsonFriendlyNameProp].toString());
+        }
 
-        if (json.contains(kJsonRequestedProp) && json[kJsonRequestedProp].isBool())
+        if (json.contains(kJsonRequestedProp) && json[kJsonRequestedProp].isBool()) {
             requested = json[kJsonRequestedProp].toBool();
+        }
 
-        if (json.contains(kJsonMetricProp) && json[kJsonMetricProp].isDouble())
+        if (json.contains(kJsonMetricProp) && json[kJsonMetricProp].isDouble()) {
             metric = static_cast<int>(json[kJsonMetricProp].toDouble(100));
+        }
 
-        if (json.contains(kJsonPhysicalAddressProp) && json[kJsonPhysicalAddressProp].isString())
-            physicalAddress = fromBase64(json[kJsonPhysicalAddressProp].toString());
+        if (json.contains(kJsonPhysicalAddressProp) && json[kJsonPhysicalAddressProp].isString()) {
+            physicalAddress = Utils::fromBase64(json[kJsonPhysicalAddressProp].toString());
+        }
 
-        if (json.contains(kJsonMtuProp) && json[kJsonMtuProp].isDouble())
+        if (json.contains(kJsonMtuProp) && json[kJsonMtuProp].isDouble()) {
             mtu = static_cast<int>(json[kJsonMtuProp].toDouble(1470));
+        }
 
-        if (json.contains(kJsonStateProp) && json[kJsonStateProp].isDouble())
+        if (json.contains(kJsonStateProp) && json[kJsonStateProp].isDouble()) {
             state = static_cast<int>(json[kJsonStateProp].toDouble(0));
+        }
 
-        if (json.contains(kJsonDwTypeProp) && json[kJsonDwTypeProp].isDouble())
+        if (json.contains(kJsonDwTypeProp) && json[kJsonDwTypeProp].isDouble()) {
             dwType = static_cast<int>(json[kJsonDwTypeProp].toDouble(0));
+        }
 
-        if (json.contains(kJsonDeviceNameProp) && json[kJsonDeviceNameProp].isString())
-            deviceName = fromBase64(json[kJsonDeviceNameProp].toString());
+        if (json.contains(kJsonDeviceNameProp) && json[kJsonDeviceNameProp].isString()) {
+            deviceName = Utils::fromBase64(json[kJsonDeviceNameProp].toString());
+        }
 
-        if (json.contains(kJsonConnectorPresentProp) && json[kJsonConnectorPresentProp].isBool())
+        if (json.contains(kJsonConnectorPresentProp) && json[kJsonConnectorPresentProp].isBool()) {
             connectorPresent = json[kJsonConnectorPresentProp].toBool();
+        }
 
-        if (json.contains(kJsonEndPointInterfaceProp) && json[kJsonEndPointInterfaceProp].isBool())
+        if (json.contains(kJsonEndPointInterfaceProp) && json[kJsonEndPointInterfaceProp].isBool()) {
             endPointInterface = json[kJsonEndPointInterfaceProp].toBool();
+        }
     }
 
     int interfaceIndex;
     QString interfaceName;
     QString interfaceGuid;
     QString networkOrSsid;
-    NETWORK_INTERACE_TYPE interfaceType;
+    NETWORK_INTERFACE_TYPE interfaceType;
     NETWORK_TRUST_TYPE trustType;
     bool active;
     QString friendlyName;
@@ -142,34 +160,24 @@ struct NetworkInterface
         return (interfaceIndex == -1 && interfaceType == NETWORK_INTERFACE_NONE && interfaceName == "No Interface");
     }
 
-    QString toBase64(const QString& str) const
-    {
-        return QString(str.toUtf8().toBase64());
-    }
-
-    QString fromBase64(const QString& str) const
-    {
-        return QString::fromUtf8(QByteArray::fromBase64(str.toUtf8()));
-    }
-
     QJsonObject toJson() const
     {
         QJsonObject json;
         json[kJsonInterfaceIndexProp] = interfaceIndex;
-        json[kJsonInterfaceNameProp] = toBase64(interfaceName);
-        json[kJsonInterfaceGuidProp] = toBase64(interfaceGuid);
-        json[kJsonNetworkOrSsidProp] = toBase64(networkOrSsid);
+        json[kJsonInterfaceNameProp] = Utils::toBase64(interfaceName);
+        json[kJsonInterfaceGuidProp] = Utils::toBase64(interfaceGuid);
+        json[kJsonNetworkOrSsidProp] = Utils::toBase64(networkOrSsid);
         json[kJsonInterfaceTypeProp] = static_cast<int>(interfaceType);
         json[kJsonTrustTypeProp] = static_cast<int>(trustType);
         json[kJsonActiveProp] = active;
-        json[kJsonFriendlyNameProp] = toBase64(friendlyName);
+        json[kJsonFriendlyNameProp] = Utils::toBase64(friendlyName);
         json[kJsonRequestedProp] = requested;
         json[kJsonMetricProp] = metric;
-        json[kJsonPhysicalAddressProp] = toBase64(physicalAddress);
+        json[kJsonPhysicalAddressProp] = Utils::toBase64(physicalAddress);
         json[kJsonMtuProp] = mtu;
         json[kJsonStateProp] = state;
         json[kJsonDwTypeProp] = dwType;
-        json[kJsonDeviceNameProp] = toBase64(deviceName);
+        json[kJsonDeviceNameProp] = Utils::toBase64(deviceName);
         json[kJsonConnectorPresentProp] = connectorPresent;
         json[kJsonEndPointInterfaceProp] = endPointInterface;
         return json;

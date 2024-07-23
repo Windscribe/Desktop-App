@@ -1,11 +1,13 @@
 #include "strings.h"
 
+using namespace wsnet;
+
 QString connectivityString(bool connectivity)
 {
     return QObject::tr("Internet connectivity: %1").arg(connectivity ? QObject::tr("available") : QObject::tr("unavailable"));
 }
 
-QString loginStateString(LOGIN_STATE state, LOGIN_RET loginError, const QString &loginErrorMessage)
+QString loginStateString(LOGIN_STATE state, wsnet::LoginResult loginError, const QString &loginErrorMessage)
 {
     QString msg = QObject::tr("Login state: %1");
 
@@ -21,23 +23,23 @@ QString loginStateString(LOGIN_STATE state, LOGIN_RET loginError, const QString 
         QString error = QObject::tr("Error: %1");
 
         switch(loginError) {
-        case LOGIN_RET_NO_API_CONNECTIVITY:
+        case LoginResult::kNoConnectivity:
             return msg.arg(error.arg(QObject::tr("No internet connectivity")));
-        case LOGIN_RET_NO_CONNECTIVITY:
+        case LoginResult::kNoApiConnectivity:
             return msg.arg(error.arg(QObject::tr("No API connectivity")));
-        case LOGIN_RET_BAD_USERNAME:
-        case LOGIN_RET_MISSING_CODE2FA:
+        case LoginResult::kBadUsername:
+        case LoginResult::kMissingCode2fa:
             return msg.arg(error.arg(QObject::tr("Incorrect username, password, or 2FA code")));
-        case LOGIN_RET_ACCOUNT_DISABLED:
+        case LoginResult::kAccountDisabled:
             return msg.arg(error.arg(loginErrorMessage));
-        case LOGIN_RET_SSL_ERROR:
+        case LoginResult::kSslError:
             return msg.arg(error.arg(QObject::tr("SSL error")));
-        case LOGIN_RET_SESSION_INVALID:
+        case LoginResult::kSessionInvalid:
             return msg.arg(error.arg(QObject::tr("Session expired")));
-        case LOGIN_RET_RATE_LIMITED:
+        case LoginResult::kRateLimited:
             return msg.arg(error.arg(QObject::tr("Rate limited")));
-        case LOGIN_RET_INCORRECT_JSON:
-        case LOGIN_RET_SUCCESS:
+        case LoginResult::kIncorrectJson:
+        case LoginResult::kSuccess:
         default:
             return msg.arg(QObject::tr("Unknown error"));
         }
@@ -71,6 +73,10 @@ QString connectStateString(types::ConnectState state, LocationID location, TUNNE
     case CONNECT_STATE_DISCONNECTING:
         return msg.arg(QObject::tr("Disconnecting"));
     case CONNECT_STATE_DISCONNECTED:
+        if (state.disconnectReason == DISCONNECTED_BY_KEY_LIMIT) {
+            return msg.arg(QObject::tr("Disconnected due to reaching WireGuard key limit.  Use \"windscribe-cli keylimit delete\" if you want to delete the oldest key instead, and try again."));
+        }
+
         switch(state.connectError) {
         case NO_CONNECT_ERROR:
             return msg.arg(QObject::tr("Disconnected"));
@@ -119,17 +125,21 @@ QString dataString(const QString &language, qint64 data)
     return locale.formattedDataSize(data, 2, QLocale::DataSizeTraditionalFormat);
 }
 
-QString updateString(UPDATE_VERSION_ERROR error, uint progress, const QString &updateAvailable)
+QString updateString(const QString &updateAvailable)
 {
-    if (error == UPDATE_VERSION_ERROR_DL_FAIL) {
-        return QObject::tr("Update error: download failed. Please try again or try a different network.");
-    } else if (error != UPDATE_VERSION_ERROR_NO_ERROR) {
-        return QObject::tr("Update error: %1").arg(error);
-    } else if (progress != 0) {
-        return QObject::tr("Update downloading: %1%%").arg(progress);
-    } else if (!updateAvailable.isEmpty()) {
+    if (!updateAvailable.isEmpty()) {
         return QObject::tr("Update available: %1").arg(updateAvailable);
     }
     return QObject::tr("No update available");
 }
 
+QString updateErrorString(UPDATE_VERSION_ERROR error)
+{
+    if (error == UPDATE_VERSION_ERROR_DL_FAIL) {
+        return QObject::tr("Update error: download failed. Please try again or try a different network.");
+    } else if (error != UPDATE_VERSION_ERROR_NO_ERROR) {
+        return QObject::tr("Update error: %1").arg(error);
+    } else {
+        return "";
+    }
+}

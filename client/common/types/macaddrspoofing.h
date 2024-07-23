@@ -3,6 +3,7 @@
 #include <QJsonArray>
 #include <QString>
 #include "networkinterface.h"
+#include "utils/network_utils/network_utils.h"
 #ifdef Q_OS_MAC
 #include "utils/macutils.h"
 #endif
@@ -28,23 +29,26 @@ struct MacAddrSpoofing
 #endif
         }
 
-        if (json.contains(kJsonMacAddressProp) && json[kJsonMacAddressProp].isString())
-            macAddress = json[kJsonMacAddressProp].toString();
+        if (json.contains(kJsonMacAddressProp) && json[kJsonMacAddressProp].isString()) {
+            QString str = json[kJsonMacAddressProp].toString();
+            if (NetworkUtils::isValidMacAddress(str)) {
+                macAddress = str;
+            }
+        }
 
-        if (json.contains(kJsonIsAutoRotateProp) && json[kJsonIsAutoRotateProp].isBool())
+        if (json.contains(kJsonIsAutoRotateProp) && json[kJsonIsAutoRotateProp].isBool()) {
             isAutoRotate = json[kJsonIsAutoRotateProp].toBool();
+        }
 
-        if (json.contains(kJsonSelectedNetworkInterfaceProp) && json[kJsonSelectedNetworkInterfaceProp].isObject())
+        if (json.contains(kJsonSelectedNetworkInterfaceProp) && json[kJsonSelectedNetworkInterfaceProp].isObject()) {
             selectedNetworkInterface = NetworkInterface(json[kJsonSelectedNetworkInterfaceProp].toObject());
+        }
 
-        if (json.contains(kJsonNetworkInterfacesProp) && json[kJsonNetworkInterfacesProp].isArray())
-        {
+        if (json.contains(kJsonNetworkInterfacesProp) && json[kJsonNetworkInterfacesProp].isArray()) {
             QJsonArray networkInterfacesArray = json[kJsonNetworkInterfacesProp].toArray();
             networkInterfaces.clear();
-            for (const QJsonValue &ifaceValue : networkInterfacesArray)
-            {
-                if (ifaceValue.isObject())
-                {
+            for (const QJsonValue &ifaceValue : networkInterfacesArray) {
+                if (ifaceValue.isObject()) {
                     NetworkInterface iface(ifaceValue.toObject());
                     networkInterfaces.append(iface);
                 }

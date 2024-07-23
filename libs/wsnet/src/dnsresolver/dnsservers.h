@@ -10,9 +10,9 @@ namespace wsnet {
 class DnsServers
 {
 public:
-    DnsServers() : servers_(nullptr) {}
+    DnsServers();
     DnsServers(const std::vector<std::string> &ips);
-    DnsServers(const struct ares_addr_node *servers);
+    DnsServers(const char *csv);
     DnsServers(const DnsServers &other);
 
     ~DnsServers();
@@ -20,15 +20,13 @@ public:
     bool operator==( const DnsServers &other ) const;
     bool operator!=( const DnsServers &other ) const;
 
-    struct ares_addr_node *getForCares() { return servers_; }
-    std::string getAsSting() const;
-    bool isEmpty() const { return servers_ == nullptr; }
+    std::string get() const;
+    bool isEmpty() const { return servers_.empty(); }
 
 private:
-    struct ares_addr_node *servers_;
+    std::string servers_;
 
-    void cleanup();
-    struct ares_addr_node *copyList(const ares_addr_node *head);
+    bool parseAddress(const std::string &ip);
 };
 
 

@@ -14,14 +14,20 @@ struct ShareProxyGateway
 
     ShareProxyGateway(const QJsonObject &json)
     {
-        if (json.contains(kJsonIsEnabledProp) && json[kJsonIsEnabledProp].isBool())
+        if (json.contains(kJsonIsEnabledProp) && json[kJsonIsEnabledProp].isBool()) {
             isEnabled = json[kJsonIsEnabledProp].toBool();
+        }
 
-        if (json.contains(kJsonProxySharingModeProp) && json[kJsonProxySharingModeProp].isDouble())
-            proxySharingMode = static_cast<PROXY_SHARING_TYPE>(json[kJsonProxySharingModeProp].toInt());
+        if (json.contains(kJsonProxySharingModeProp) && json[kJsonProxySharingModeProp].isDouble()) {
+            proxySharingMode = PROXY_SHARING_TYPE_fromInt(json[kJsonProxySharingModeProp].toInt());
+        }
 
-        if (json.contains(kJsonPortProp) && json[kJsonPortProp].isDouble())
-            port = json[kJsonPortProp].toInt();
+        if (json.contains(kJsonPortProp) && json[kJsonPortProp].isDouble()) {
+            uint p = static_cast<uint>(json[kJsonPortProp].toInt());
+            if (p < 65536) {
+                port = p;
+            }
+        }
     }
 
     bool isEnabled = false;

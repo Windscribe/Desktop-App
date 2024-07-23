@@ -18,7 +18,13 @@ public:
 
     Protocol() : value_(UNINITIALIZED) {}
     Protocol(TYPE a) : value_(a) {}
-    Protocol(int a) : value_((TYPE)a) {}
+    Protocol(int a) {
+        if (a >= 0 && a <= 5) {
+            value_ = static_cast<TYPE>(a);
+        } else {
+            value_ = UNINITIALIZED;
+        }
+    }
 
     // Prevent usage: if(Protocol)
     explicit operator bool() const = delete;

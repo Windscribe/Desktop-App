@@ -1,0 +1,28 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    exit 1
+fi
+
+platform=`cat /etc/windscribe/platform`
+if [ -z $platform ]; then
+    # should not be here
+    platform="linux_deb_x64_cli"
+fi
+
+if [ $platform = "linux_deb_x64_cli" ]; then
+    cmd="killall -q -w Windscribe && APT_LISTBUGS_FRONTEND=none apt install -y --reinstall \"$1\""
+elif [ $platform = "linux_rpm_x64_cli" ]; then
+    cmd="killall -q -w Windscribe && dnf upgrade -y \"$1\""
+elif [ $platform = "linux_rpm_opensuse_x64_cli" ]; then
+    cmd="killall -q -w Windscribe && zypper --non-interactive install --force --allow-unsigned-rpm \"$1\""
+elif [ $platform = "linux_zst_x64_cli" ]; then
+    cmd="killall -q -w Windscribe && pacman -U --noconfirm \"$1\""
+fi
+
+if [ -n "$cmd" ]; then
+    echo "Running '$cmd' as superuser"
+    sudo -k sh -c "$cmd"
+fi
+
+systemctl --user restart windscribe

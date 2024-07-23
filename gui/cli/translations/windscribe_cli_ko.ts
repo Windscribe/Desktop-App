@@ -187,10 +187,6 @@
         <translation>업데이트 오류: %1</translation>
     </message>
     <message>
-        <source>Update downloading: %1%%</source>
-        <translation>업데이트 다운로드 중: %1%%</translation>
-    </message>
-    <message>
         <source>Update available: %1</source>
         <translation>사용 가능한 업데이트: %1</translation>
     </message>
@@ -201,6 +197,14 @@
     <message>
         <source>unavailable</source>
         <translation>사용할</translation>
+    </message>
+    <message>
+        <source>Disconnected due to reaching WireGuard key limit.  Use &quot;windscribe-cli keylimit delete&quot; if you want to delete the oldest key instead, and try again.</source>
+        <translation>WireGuard 키 제한에 도달하여 연결이 끊어졌습니다.  대신 가장 오래된 키를 삭제하려면 &quot;windscribe-cli keylimit delete&quot;를 사용하고 다시 시도하십시오.</translation>
+    </message>
+    <message>
+        <source>Downloading: %1%</source>
+        <translation>다운로드: %1%</translation>
     </message>
 </context>
 </TS>

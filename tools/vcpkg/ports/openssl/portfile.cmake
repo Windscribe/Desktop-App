@@ -21,6 +21,7 @@ vcpkg_from_github(
     REF f31893795766d4fbd3502d69296e91943991f463
     SHA512 7d3cf54d268b18a6fc663dd4bb490d46a3cf319742a5215892c27ad5049622750b74c938da7cb7d9f5e77184b18ab219095a96b812ef54c869be472b0131b2e2
     PATCHES
+        apple-tvos.patch
         disable-install-docs.patch
         script-prefix.patch
         0002-super-large-padding-extension.patch

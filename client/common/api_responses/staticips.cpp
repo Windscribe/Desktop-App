@@ -11,6 +11,9 @@ namespace api_responses {
 
 StaticIps::StaticIps(const std::string &json) : d(new StaticIpsData)
 {
+    if (json.empty())
+        return;
+
     QJsonParseError errCode;
     auto doc = QJsonDocument::fromJson(QByteArray(json.c_str()), &errCode);
     auto jsonObject = doc.object();

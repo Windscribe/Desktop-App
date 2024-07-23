@@ -7,6 +7,7 @@ namespace api_responses {
 class ServerCredentials
 {
 public:
+    ServerCredentials() {}
     ServerCredentials(const std::string &json);
 
     QString username() const { return username_; }

@@ -187,10 +187,6 @@
         <translation>خطای بهروزرسانی:٪ 1</translation>
     </message>
     <message>
-        <source>Update downloading: %1%%</source>
-        <translation>بهروزرسانی بارگیری:٪ 1٪</translation>
-    </message>
-    <message>
         <source>Update available: %1</source>
         <translation>بهروزرسانی موجود است:٪ 1</translation>
     </message>
@@ -201,6 +197,14 @@
     <message>
         <source>unavailable</source>
         <translation>دسترس نیست</translation>
+    </message>
+    <message>
+        <source>Disconnected due to reaching WireGuard key limit.  Use &quot;windscribe-cli keylimit delete&quot; if you want to delete the oldest key instead, and try again.</source>
+        <translation>به دلیل رسیدن به محدودیت کلید WireGuard قطع شده است.  اگر می خواهید قدیمی ترین کلید را حذف کنید، از &quot;windscribe-cli keylimit delete&quot; استفاده کنید و دوباره امتحان کنید.</translation>
+    </message>
+    <message>
+        <source>Downloading: %1%</source>
+        <translation>دانلود: ٪1٪</translation>
     </message>
 </context>
 </TS>

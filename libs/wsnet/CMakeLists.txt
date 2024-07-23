@@ -89,6 +89,10 @@ target_include_directories(wsnet PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
+# let the preprocessor know about Apple tvOS
+if(CMAKE_SYSTEM_NAME STREQUAL "tvOS")
+  target_compile_definitions(wsnet PUBLIC "IS_TVOS")
+endif()
 
 # For Android and iOS using the scapix library for automatic binding to Java/Objective C languages
 if(ANDROID OR IOS)
@@ -111,6 +115,13 @@ if (IOS)
       MACOSX_FRAMEWORK_IDENTIFIER com.cmake.wsnet
       PUBLIC_HEADER "${WS_OBJC_PUBLIC_HEADERS}"
     )
+
+    if(CMAKE_SYSTEM_NAME STREQUAL "tvOS")
+        set_target_properties(wsnet PROPERTIES
+          OUTPUT_NAME "wstnet_tv"
+        )
+    endif()
+
 
     # This file is also used by the above generated headers, so copy it to framework headers
     install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/src/scapix/source/scapix/bridge/objc/BridgeObject.h

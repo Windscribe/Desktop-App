@@ -10,8 +10,6 @@ target_sources(wsnet PRIVATE
     serverapi.h
     serverapi_impl.cpp
     serverapi_impl.h
-    serverapi_settings.cpp
-    serverapi_settings.h
     serverapi_utils.cpp
     serverapi_utils.h
     setrobertfilter_request.cpp

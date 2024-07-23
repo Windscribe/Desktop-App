@@ -329,5 +329,9 @@ QString Utils::toBase64(const QString &str)
 
 QString Utils::fromBase64(const QString& str)
 {
-    return QString::fromUtf8(QByteArray::fromBase64(str.toUtf8()));
+    QByteArray arr = QByteArray::fromBase64(str.toUtf8(), QByteArray::AbortOnBase64DecodingErrors);
+    QString out = QString::fromUtf8(arr);
+
+    // Removes control characters
+    return out.remove(QRegularExpression("\\p{Cc}"));
 }

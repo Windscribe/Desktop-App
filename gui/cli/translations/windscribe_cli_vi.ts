@@ -187,10 +187,6 @@
         <translation>Lỗi cập nhật: %1</translation>
     </message>
     <message>
-        <source>Update downloading: %1%%</source>
-        <translation>Cập nhật tải xuống: %1%%</translation>
-    </message>
-    <message>
         <source>Update available: %1</source>
         <translation>Cập nhật có sẵn: %1</translation>
     </message>
@@ -201,6 +197,14 @@
     <message>
         <source>unavailable</source>
         <translation>Không khả dụng</translation>
+    </message>
+    <message>
+        <source>Disconnected due to reaching WireGuard key limit.  Use &quot;windscribe-cli keylimit delete&quot; if you want to delete the oldest key instead, and try again.</source>
+        <translation>Ngắt kết nối do đạt đến giới hạn khóa WireGuard.  Thay vào đó, hãy sử dụng &quot;windscribe-cli keylimit delete&quot; nếu bạn muốn xóa khóa cũ nhất và thử lại.</translation>
+    </message>
+    <message>
+        <source>Downloading: %1%</source>
+        <translation>Tải xuống: %1%</translation>
     </message>
 </context>
 </TS>

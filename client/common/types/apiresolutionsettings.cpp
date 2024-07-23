@@ -1,5 +1,6 @@
 #include "apiresolutionsettings.h"
 #include "types/enums.h"
+#include "utils/ipvalidation.h"
 #include "utils/logger.h"
 
 namespace types {
@@ -10,11 +11,16 @@ ApiResolutionSettings::ApiResolutionSettings() : bAutomatic_(true)
 
 ApiResolutionSettings::ApiResolutionSettings(const QJsonObject &json)
 {
-    if (json.contains(kJsonIsAutomaticProp) && json[kJsonIsAutomaticProp].isBool())
+    if (json.contains(kJsonIsAutomaticProp) && json[kJsonIsAutomaticProp].isBool()) {
         bAutomatic_ = json[kJsonIsAutomaticProp].toBool();
+    }
 
-    if (json.contains(kJsonManualAddressProp) && json[kJsonManualAddressProp].isString())
-        manualAddress_ = json[kJsonManualAddressProp].toString();
+    if (json.contains(kJsonManualAddressProp) && json[kJsonManualAddressProp].isString()) {
+        QString address = json[kJsonManualAddressProp].toString();
+        if (IpValidation::isIp(address)) {
+            manualAddress_ = address;
+        }
+    }
 }
 
 void ApiResolutionSettings::set(bool bAutomatic, const QString &manualAddress)
@@ -56,7 +62,10 @@ void ApiResolutionSettings::fromIni(const QSettings &settings)
     QString prevMode = TOGGLE_MODE_toString(bAutomatic_ ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL);
     TOGGLE_MODE mode = TOGGLE_MODE_fromString(settings.value(kIniIsAutomaticProp, prevMode).toString());
     bAutomatic_ = (mode == TOGGLE_MODE_AUTO);
-    manualAddress_ = settings.value(kIniManualAddressProp, manualAddress_).toString();
+    QString address = settings.value(kIniManualAddressProp, manualAddress_).toString();
+    if (IpValidation::isIp(address)) {
+        manualAddress_ = address;
+    }
 }
 
 void ApiResolutionSettings::toIni(QSettings &settings) const

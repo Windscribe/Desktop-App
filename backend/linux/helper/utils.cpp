@@ -172,22 +172,6 @@ bool isValidIpAddress(const std::string &address)
     return inet_pton(AF_INET, address.c_str(), &(sa.sin_addr)) != 0;
 }
 
-bool isValidUrl(const std::string &address)
-{
-    if (isValidIpAddress(address)) {
-        return true;
-    }
-
-    auto url = skyr::parse(address);
-    // parsing still "succeeds" if there are invalid characters in the URL e.g. if there are characters which are invalid after the domain.
-    // check that the serialized URL is the same as the original.
-    if (!url || skyr::serialize(url.value()) != address) {
-        return false;
-    }
-
-    return true;
-}
-
 bool isValidDomain(const std::string &address)
 {
     if (isValidIpAddress(address)) {
@@ -200,6 +184,26 @@ bool isValidDomain(const std::string &address)
     }
 
     return true;
+}
+
+std::string normalizeAddress(const std::string &address)
+{
+    std::string addr = address;
+
+    if (isValidIpAddress(address)) {
+        return addr;
+    }
+
+    if (isValidDomain(address)) {
+        return addr;
+    }
+
+    auto url = skyr::parse(address);
+    if (!url) {
+        return "";
+    }
+
+    return skyr::serialize(url.value());
 }
 
 } // namespace Utils

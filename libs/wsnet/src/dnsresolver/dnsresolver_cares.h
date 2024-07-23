@@ -31,7 +31,7 @@ public:
 
 private:
     void run();
-    static void caresCallback(void *arg, int status, int timeouts, struct hostent *host);
+    static void caresCallback(void *arg, int status, int timeouts, struct ares_addrinfo *result);
 
     // 200 ms settled for faster switching to the next try (next server)
     // this does not mean that the current request will be limited to 200ms,

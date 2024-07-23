@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.23)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_OSX_DEPLOYMENT_TARGET "11" CACHE STRING "Minimum OS X deployment version")
+
 PROJECT(cli)
 
 set(CMAKE_AUTOUIC ON)
@@ -138,6 +140,7 @@ target_link_libraries(windscribe-cli
 
 target_include_directories(windscribe-cli PRIVATE
                            ../../client/common
+                           ../../libs/wsnet/include
 )
 
 install(TARGETS windscribe-cli

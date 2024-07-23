@@ -790,6 +790,10 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
         <translation>La connectivité IKEv2 n’est pas disponible en mode de verrouillage de MacOS. Veuillez désactiver le mode de verrouillage dans les paramètres système ou modifier vos paramètres de connexion.</translation>
     </message>
+    <message>
+        <source>Rotating MAC Address</source>
+        <translation>Rotation de l’adresse MAC</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

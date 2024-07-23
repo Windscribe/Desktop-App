@@ -107,7 +107,7 @@ private:
     types::ConnectState prevConnectState_;
     QString networkName_;
     NETWORK_TRUST_TYPE trustType_;
-    NETWORK_INTERACE_TYPE interfaceType_;
+    NETWORK_INTERFACE_TYPE interfaceType_;
     bool networkActive_;
 
     QString fullFirstName_;

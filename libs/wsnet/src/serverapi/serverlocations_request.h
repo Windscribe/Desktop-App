@@ -3,7 +3,7 @@
 #include <map>
 #include "WSNetAdvancedParameters.h"
 #include "baserequest.h"
-#include "serverapi_settings.h"
+#include "utils/persistentsettings.h"
 #include "connectstate.h"
 
 namespace wsnet {
@@ -15,7 +15,7 @@ class ServerLocationsRequest : public BaseRequest
 {
 public:
     explicit ServerLocationsRequest(RequestPriority priority, const std::string &name,
-                                    std::map<std::string, std::string> extraParams, ServerAPISettings &settings,
+                                    std::map<std::string, std::string> extraParams, PersistentSettings &persistentSettings,
                                     ConnectState &connectState, WSNetAdvancedParameters *advancedParameters, RequestFinishedCallback callback);
     virtual ~ServerLocationsRequest() {};
 
@@ -24,7 +24,7 @@ public:
 
 
 private:
-    ServerAPISettings &settings_;
+    PersistentSettings &persistentSettings_;
     mutable bool isFromDisconnectedVPNState_;
     ConnectState &connectState_;
     WSNetAdvancedParameters *advancedParameters_;

@@ -65,6 +65,8 @@ elseif(VCPKG_TARGET_IS_IOS)
     if(VCPKG_TARGET_ARCHITECTURE MATCHES "arm64")
         if(CMAKE_OSX_SYSROOT MATCHES ".*iphonesimulator.*")
             set(OPENSSL_ARCH iossimulator-xcrun)
+        elseif(CMAKE_OSX_SYSROOT MATCHES ".*appletvos.*" OR VCPKG_OSX_SYSROOT MATCHES ".*appletvos.*")
+	    set(OPENSSL_ARCH tvos-arm64-xcrun)
         else()
             set(OPENSSL_ARCH ios64-xcrun)
         endif()
@@ -131,6 +133,14 @@ vcpkg_install_make(
     BUILD_TARGET build_sw
 )
 vcpkg_fixup_pkgconfig()
+
+# For MacOS, ensure that libssl.3.dylib references $ORIGIN/libcrypto.3.dylib rather than an absolute path
+if(VCPKG_TARGET_IS_OSX)
+   vcpkg_execute_build_process(
+      COMMAND install_name_tool -change "${CURRENT_INSTALLED_DIR}/lib/libcrypto.3.dylib" "@rpath/libcrypto.3.dylib" "${CURRENT_PACKAGES_DIR}/lib/libssl.3.dylib"
+      WORKING_DIRECTORY "${CURRENT_PACKAGES_DIR}"
+   )
+endif()
 
 if("tools" IN_LIST FEATURES)
     file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/tools/${PORT}")

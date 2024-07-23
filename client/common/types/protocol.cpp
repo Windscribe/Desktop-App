@@ -113,8 +113,6 @@ QList<Protocol> types::Protocol::supportedProtocols()
 #elif defined(Q_OS_LINUX)
     // Currently Linux doesn't support IKEv2
     return QList<Protocol>() << WIREGUARD << OPENVPN_UDP << OPENVPN_TCP << STUNNEL << WSTUNNEL;
-#else
-    non-compiled code
 #endif
 }
 

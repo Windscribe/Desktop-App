@@ -60,6 +60,7 @@ struct EngineSettingsData : public QSharedData
     void toIni(QSettings &settings) const;
 
 private:
+    static const inline QString kIniDnsManagerProp = "DNSManager";
     static const inline QString kIniDnsPolicyProp = "DNSPolicy";
     static const inline QString kIniIsAllowLanTrafficProp = "AllowLANTraffic";
     static const inline QString kIniIsAntiCensorshipProp = "CircumventCensorship";

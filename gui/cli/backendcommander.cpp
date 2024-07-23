@@ -1,6 +1,10 @@
 #include "backendcommander.h"
 
+#include <iostream>
 #include <QTimer>
+#ifdef CLI_ONLY
+#include <unistd.h>
+#endif
 
 #include "ipc/clicommands.h"
 #include "ipc/connection.h"
@@ -36,6 +40,18 @@ void BackendCommander::initAndSend()
 
 void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::Connection * /*connection*/)
 {
+#ifdef CLI_ONLY
+    // Update is special in that it's a blocking command
+    if (cliArgs_.cliCommand() == CLI_COMMAND_UPDATE && bCommandSent_) {
+        if (command->getStringId() == IPC::CliCommands::Acknowledge::getCommandStringId()) {
+            sendStateCommand();
+            return;
+        }
+        onUpdateStateResponse(command);
+        return;
+    }
+#endif
+
     if (command->getStringId() == IPC::CliCommands::Acknowledge::getCommandStringId()) {
         // There are currently no commands that return a real value we need to parse here
         emit finished(0, QString());
@@ -129,6 +145,11 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
         cmd.isEnable_ = false;
         connection_->sendCommand(cmd);
     }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_SET_KEYLIMIT_BEHAVIOR) {
+        IPC::CliCommands::SetKeyLimitBehavior cmd;
+        cmd.keyLimitDelete_ = cliArgs_.keyLimitDelete();
+        connection_->sendCommand(cmd);
+    }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS) {
         if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
             emit finished(1, QObject::tr("Not logged in"));
@@ -214,9 +235,55 @@ void BackendCommander::onStateResponse(IPC::Command *command)
             .arg(dataString(cmd->language_, cmd->trafficUsed_))
             .arg((cmd->trafficMax_ == -1) ? tr("Unlimited") : dataString(cmd->language_, cmd->trafficMax_));
         if (!cmd->updateAvailable_.isEmpty()) {
-            msg += "\n" + updateString(cmd->updateError_, cmd->updateProgress_, cmd->updateAvailable_);
+            msg += "\n" + updateString(cmd->updateAvailable_);
         }
     }
 
     emit finished(0, msg);
+}
+
+void BackendCommander::onUpdateStateResponse(IPC::Command *command)
+{
+#ifdef CLI_ONLY
+    static int printedLength = 0;
+
+    IPC::CliCommands::State *cmd = static_cast<IPC::CliCommands::State *>(command);
+
+    // If an error has occurred, print it and quit
+    if (cmd->updateError_ != UPDATE_VERSION_ERROR_NO_ERROR) {
+        emit finished(1, updateErrorString(cmd->updateError_));
+        return;
+    }
+
+    // Render 'Downloading n%' line
+	for (int i = 0; i < printedLength; i++) {
+		std::cout << '\b';
+	}
+
+	QString str = QObject::tr("Downloading: %1%").arg(cmd->updateProgress_);
+	std::cout << str.toStdString();
+
+	for (int i = str.toUtf8().size(); i < printedLength; i++) {
+		std::cout << " ";
+	}
+	std::cout << std::flush;
+    // the length is in bytes, not characters, because we need to 'backspace' this many times.
+	printedLength = str.toUtf8().size();
+
+    if (cmd->updateState_ == UPDATE_VERSION_STATE_RUNNING) {
+	    std::cout << std::endl;
+
+        // Update has been downloaded, run it now
+        QString updateCmd = (QString("/etc/windscribe/install-update ") + cmd->updatePath_);
+        int ret = system(updateCmd.toStdString().c_str());
+        std::filesystem::remove(cmd->updatePath_.toStdString());
+
+        emit finished(ret, "");
+        return;
+    }
+
+	// If still in progress, wait 1 second and then request state again.
+	sleep(1);
+	sendStateCommand();
+#endif
 }

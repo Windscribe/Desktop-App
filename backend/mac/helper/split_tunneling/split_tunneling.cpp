@@ -27,7 +27,7 @@ void SplitTunneling::setSplitTunnelingParams(bool isActive, bool isExclude, cons
     const std::vector<std::string> &ips, const std::vector<std::string> &hosts)
 {
     std::lock_guard<std::mutex> guard(mutex_);
-    std::vector<std::string> allHosts = hosts;
+    std::vector<std::string> allIps = ips;
 
     LOG("isSplitTunnelingActive: %d, isExclude: %d", isActive, isExclude);
 
@@ -35,10 +35,13 @@ void SplitTunneling::setSplitTunnelingParams(bool isActive, bool isExclude, cons
     isExclude_ = isExclude;
 
     if (isActive && !isExclude) {
-        allHosts.push_back("checkip.windscribe.com");
+        // Add "checkip.windscribe.com" as an IP, not a hostname, so that it is passed directly to the 'route' command.
+        // This will block until the name is resolved or it times out.  This is so we always have the correct address
+        // for the tunnel test.
+        allIps.push_back("checkip.windscribe.com");
     }
 
-    ipHostnamesManager_.setSettings(ips, allHosts);
+    ipHostnamesManager_.setSettings(allIps, hosts);
     routesManager_.updateState(connectStatus_, isSplitTunnelActive_, isExclude_);
     updateState();
 }

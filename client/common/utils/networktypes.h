@@ -29,7 +29,7 @@ struct IfTableRow
     QString guidName;
     QString interfaceName;
     QString physicalAddress;
-    NETWORK_INTERACE_TYPE type;
+    NETWORK_INTERFACE_TYPE type;
     int dwType;
     int mtu;
     bool connected;
@@ -37,7 +37,7 @@ struct IfTableRow
     bool valid;
 
     IfTableRow() : index(-1), guidName(""), interfaceName(""), physicalAddress(""), type(NETWORK_INTERFACE_NONE), dwType(0), mtu(0), connected(false), state(0), valid(false) {}
-    IfTableRow(int ind, QString n, QString intName, QString physAddress,  NETWORK_INTERACE_TYPE typ, int dwType, int mtu, bool connected, int state) :
+    IfTableRow(int ind, QString n, QString intName, QString physAddress,  NETWORK_INTERFACE_TYPE typ, int dwType, int mtu, bool connected, int state) :
         index(ind), guidName(truncateGUID(n)), interfaceName(intName), physicalAddress(physAddress), type(typ), dwType(dwType), mtu(mtu), connected(connected), state(state), valid(true) {}
 
     void print()

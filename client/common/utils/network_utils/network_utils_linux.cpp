@@ -35,7 +35,7 @@ static RoutingTableEntry parseEntry(const char *buf)
     return entry;
 }
 
-static QList<RoutingTableEntry> getRoutingTable(bool includeZeroMetricEntries)
+static QList<RoutingTableEntry> getRoutingTableAsList()
 {
     QList<RoutingTableEntry> entries;
 
@@ -67,9 +67,7 @@ static QList<RoutingTableEntry> getRoutingTable(bool includeZeroMetricEntries)
             continue;
         }
 
-        if (includeZeroMetricEntries || entry.metric != 0) {
-            entries.push_back(entry);
-        }
+        entries.push_back(entry);
     }
 
     return entries;
@@ -88,7 +86,7 @@ void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &
 
     int lowestMetric = INT32_MAX;
 
-    QList<RoutingTableEntry> entries = getRoutingTable(false);
+    QList<RoutingTableEntry> entries = getRoutingTableAsList();
     for (const RoutingTableEntry& entry : qAsConst(entries)) {
         // if ignoring tun interfaces, remove them from contention
         if (ignoreTun && (entry.interface.startsWith("tun") || entry.interface.startsWith("utun"))) {
@@ -101,15 +99,7 @@ void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &
             lowestMetric = entry.metric;
             outInterfaceName = entry.interface;
             outAdapterIp = getAdapterIp(entry.interface);
-        }
-    }
-
-    if (lowestMetric != INT32_MAX) {
-        for (const RoutingTableEntry& entry : qAsConst(entries)) {
-            if (outInterfaceName == entry.interface && !entry.gateway.isEmpty()) {
-                outGatewayIp = entry.gateway;
-                break;
-            }
+            outGatewayIp = entry.gateway;
         }
     }
 }
@@ -136,7 +126,7 @@ QString getLocalIP()
     sLocalIP.clear();
     int lowestMetric = INT32_MAX;
 
-    QList<RoutingTableEntry> entries = getRoutingTable(false);
+    QList<RoutingTableEntry> entries = getRoutingTableAsList();
     for (const RoutingTableEntry& entry : qAsConst(entries)) {
         QString adapterIp = getAdapterIp(entry.interface);
         if (!adapterIp.isEmpty() && entry.metric < lowestMetric) {

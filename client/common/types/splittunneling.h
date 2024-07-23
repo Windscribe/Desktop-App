@@ -19,11 +19,13 @@ struct SplitTunnelingSettings
 
     SplitTunnelingSettings(const QJsonObject &json)
     {
-        if (json.contains(kJsonActiveProp) && json[kJsonActiveProp].isBool())
+        if (json.contains(kJsonActiveProp) && json[kJsonActiveProp].isBool()) {
             active = json[kJsonActiveProp].toBool();
+        }
 
-        if (json.contains(kJsonModeProp) && json[kJsonModeProp].isDouble())
-            mode = static_cast<SPLIT_TUNNELING_MODE>(json[kJsonModeProp].toInt());
+        if (json.contains(kJsonModeProp) && json[kJsonModeProp].isDouble()) {
+            mode = SPLIT_TUNNELING_MODE_fromInt(json[kJsonModeProp].toInt());
+        }
     }
 
     bool active = false;
@@ -92,11 +94,16 @@ struct SplitTunnelingNetworkRoute
 
     SplitTunnelingNetworkRoute(const QJsonObject &json)
     {
-        if (json.contains(kJsonTypeProp) && json[kJsonTypeProp].isDouble())
-            type = static_cast<SPLIT_TUNNELING_NETWORK_ROUTE_TYPE>(json[kJsonTypeProp].toInt());
+        if (json.contains(kJsonTypeProp) && json[kJsonTypeProp].isDouble()) {
+            type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_fromInt(json[kJsonTypeProp].toInt());
+        }
 
-        if (json.contains(kJsonNameProp) && json[kJsonNameProp].isString())
-            name = json[kJsonNameProp].toString();
+        if (json.contains(kJsonNameProp) && json[kJsonNameProp].isString()) {
+            QString str = json[kJsonNameProp].toString();
+            if (IpValidation::isIpCidrOrDomain(str)) {
+                name = str;
+            }
+        }
     }
 
     bool operator==(const SplitTunnelingNetworkRoute &other) const
@@ -160,20 +167,33 @@ struct SplitTunnelingApp
 
     SplitTunnelingApp(const QJsonObject &json)
     {
-        if (json.contains(kJsonTypeProp) && json[kJsonTypeProp].isDouble())
-            type = static_cast<SPLIT_TUNNELING_APP_TYPE>(json[kJsonTypeProp].toInt());
+        if (json.contains(kJsonTypeProp) && json[kJsonTypeProp].isDouble()) {
+            type = SPLIT_TUNNELING_APP_TYPE_fromInt(json[kJsonTypeProp].toInt());
+        }
 
-        if (json.contains(kJsonNameProp) && json[kJsonNameProp].isString())
+        if (json.contains(kJsonNameProp) && json[kJsonNameProp].isString()) {
             name = json[kJsonNameProp].toString();
+        }
 
-        if (json.contains(kJsonFullNameProp) && json[kJsonFullNameProp].isString())
-            fullName = json[kJsonFullNameProp].toString();
+        if (json.contains(kJsonFullNameProp) && json[kJsonFullNameProp].isString()) {
+            QString path = json[kJsonFullNameProp].toString();
+            std::error_code ec;
+            if (std::filesystem::exists(path.toStdString(), ec)) {
+                fullName = path;
+            }
+        }
 
-        if (json.contains(kJsonActiveProp) && json[kJsonActiveProp].isBool())
+        if (json.contains(kJsonActiveProp) && json[kJsonActiveProp].isBool()) {
             active = json[kJsonActiveProp].toBool();
+        }
 
-        if (json.contains(kJsonIconProp) && json[kJsonIconProp].isString())
-            icon = json[kJsonIconProp].toString();
+        if (json.contains(kJsonIconProp) && json[kJsonIconProp].isString()) {
+            QString path = json[kJsonIconProp].toString();
+            std::error_code ec;
+            if (std::filesystem::exists(path.toStdString(), ec)) {
+                icon = path;
+            }
+        }
     }
 
     bool active = false;
@@ -259,33 +279,38 @@ struct SplitTunneling
 
     SplitTunneling(const QJsonObject &json)
     {
-        if (json.contains(kJsonSettingsProp) && json[kJsonSettingsProp].isObject())
+        if (json.contains(kJsonSettingsProp) && json[kJsonSettingsProp].isObject()) {
             settings = SplitTunnelingSettings(json[kJsonSettingsProp].toObject());
+        }
 
-        if (json.contains(kJsonAppsProp) && json[kJsonAppsProp].isArray())
-        {
+        if (json.contains(kJsonAppsProp) && json[kJsonAppsProp].isArray()) {
             QJsonArray appsArray = json[kJsonAppsProp].toArray();
             apps.clear();
             apps.reserve(appsArray.size());
-            for (const QJsonValue &appValue : appsArray)
-            {
-                if (appValue.isObject())
-                {
-                    apps.append(SplitTunnelingApp(appValue.toObject()));
+            for (const QJsonValue &appValue : appsArray) {
+                if (appValue.isObject()) {
+                    SplitTunnelingApp app = SplitTunnelingApp(appValue.toObject());
+                    if (app.fullName.isEmpty()) {
+                        // App not found on this system, skip this entry
+                        continue;
+                    }
+                    apps.append(app);
                 }
             }
         }
 
-        if (json.contains(kJsonNetworkRoutesProp) && json[kJsonNetworkRoutesProp].isArray())
-        {
+        if (json.contains(kJsonNetworkRoutesProp) && json[kJsonNetworkRoutesProp].isArray()) {
             QJsonArray networkRoutesArray = json[kJsonNetworkRoutesProp].toArray();
             networkRoutes.clear();
             networkRoutes.reserve(networkRoutesArray.size());
-            for (const QJsonValue &routeValue : networkRoutesArray)
-            {
-                if (routeValue.isObject())
-                {
-                    networkRoutes.append(SplitTunnelingNetworkRoute(routeValue.toObject()));
+            for (const QJsonValue &routeValue : networkRoutesArray) {
+                if (routeValue.isObject()) {
+                    SplitTunnelingNetworkRoute route = SplitTunnelingNetworkRoute(routeValue.toObject());
+                    if (route.name.isEmpty()) {
+                        // Invalid route, skip this entry
+                        continue;
+                    }
+                    networkRoutes.append(route);
                 }
             }
         }
@@ -342,7 +367,7 @@ struct SplitTunneling
             for (auto route : networkRoutesList) {
                 SplitTunnelingNetworkRoute r;
                 r.name = route;
-                if (IpValidation::isIp(route)) {
+                if (IpValidation::isIpCidr(route)) {
                     r.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
                 } else if (IpValidation::isDomain(route)) {
                     r.type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME;
@@ -365,7 +390,7 @@ struct SplitTunneling
             appsList << app.fullName;
         }
         if (appsList.isEmpty()) {
-            s.remove(kIniSplitTunnelingAppsProp);
+            s.setValue(kIniSplitTunnelingAppsProp, "");
         } else {
             s.setValue(kIniSplitTunnelingAppsProp, appsList);
         }
@@ -375,7 +400,7 @@ struct SplitTunneling
             routesList << route.name;
         }
         if (routesList.isEmpty()) {
-            s.remove(kIniSplitTunnelingRoutesProp);
+            s.setValue(kIniSplitTunnelingRoutesProp, "");
         } else {
             s.setValue(kIniSplitTunnelingRoutesProp, routesList);
         }
@@ -399,8 +424,6 @@ struct SplitTunneling
             networkRoutesArray.append(route.toJson());
         }
         json[kJsonNetworkRoutesProp] = networkRoutesArray;
-
-        json[kJsonVersionProp] = static_cast<int>(versionForSerialization_);
 
         return json;
     }

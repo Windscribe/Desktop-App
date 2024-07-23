@@ -1,0 +1,19 @@
+diff --git a/Configurations/15-ios.conf b/Configurations/15-ios.conf
+index 478f30f..4f4c4f3 100644
+--- a/Configurations/15-ios.conf
++++ b/Configurations/15-ios.conf
+@@ -59,6 +59,14 @@ my %targets = (
+         asm_arch         => 'x86_64',
+         perlasm_scheme   => "macosx",
+     },
++    "tvos-arm64-xcrun" => {
++        inherit_from     => [ "ios-common" ],
++        CC               => "xcrun -sdk appletvos cc",
++        cflags           => add("-arch arm64 -fno-common"),
++        bn_ops           => "SIXTY_FOUR_BIT_LONG",
++        asm_arch         => 'aarch64',
++        perlasm_scheme   => "ios64",
++    },
+ # It takes three prior-set environment variables to make it work:
+ #
+ # CROSS_COMPILE=/where/toolchain/is/usr/bin/ [note ending slash]

@@ -5,7 +5,6 @@ target_sources(engine PRIVATE
     engine.h
     getdeviceid.cpp
     getdeviceid.h
-    logout_helper.h
     openvpnversioncontroller.cpp
     openvpnversioncontroller.h
     packetsizecontroller.cpp
@@ -31,7 +30,6 @@ elseif(UNIX)
 endif()
 
 
-add_subdirectory(apiinfo)
 add_subdirectory(apiresources)
 add_subdirectory(autoupdater)
 add_subdirectory(connectionmanager)

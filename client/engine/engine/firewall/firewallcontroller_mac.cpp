@@ -333,8 +333,8 @@ QString FirewallController_mac::generatePfConf(const QString &connectingIp, cons
 
     // this table is filled in by the helper
     pf += "table <windscribe_split_tunnel_ips> persist\n";
-    pf += "pass out quick inet from any to <windscribe_split_tunnel_ips>\n";
-    pf += "pass in quick inet from <windscribe_split_tunnel_ips> to any\n";
+    pf += "pass out quick inet from any to <windscribe_split_tunnel_ips> no state\n";
+    pf += "pass in quick inet from <windscribe_split_tunnel_ips> to any no state\n";
 
     Anchor vpnTrafficAnchor("windscribe_vpn_traffic");
     vpnTrafficAnchor.addRules(vpnTrafficRules(connectingIp, interfaceToSkip, bIsCustomConfig));

@@ -16,6 +16,7 @@ enum CliCommand {
     CLI_COMMAND_LOGOUT,
     CLI_COMMAND_RELOAD_CONFIG,
     CLI_COMMAND_SEND_LOGS,
+    CLI_COMMAND_SET_KEYLIMIT_BEHAVIOR,
     CLI_COMMAND_STATUS,
     CLI_COMMAND_UPDATE,
 };
@@ -33,6 +34,7 @@ public:
     const QString &code2fa() const;
     const QString &protocol() const;
     bool keepFirewallOn() const;
+    bool keyLimitDelete() const;
 
 private:
     CliCommand cliCommand_ = CLI_COMMAND_NONE;
@@ -42,4 +44,14 @@ private:
     QString code2fa_;
     QString protocol_ = "";
     bool keepFirewallOn_ = false;
+    bool keyLimitDelete_ = false;
+
+    void parseConnect(const QStringList &args);
+    void parseDisconnect(const QStringList &args);
+    void parseFirewall(const QStringList &args);
+    void parseLogin(const QStringList &args);
+    void parseLogout(const QStringList &args);
+    void parsePreferences(const QStringList &args);
+    void parseLogs(const QStringList &args);
+    void parseKeyLimit(const QStringList &args);
 };

@@ -31,6 +31,7 @@ Requires:	shadow
 Requires:	procps
 Requires:	polkit
 Requires:	iproute2
+Requires:	libcap-progs
 
 %description
 Windscribe CLI client.
@@ -52,8 +53,8 @@ systemctl restart windscribe-helper
 
 %post
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
-update-desktop-database
-echo linux_rpm_opensuse_x64_headless > ../etc/windscribe/platform
+setcap cap_setgid+ep /opt/windscribe/Windscribe
+echo linux_rpm_opensuse_x64_cli > ../etc/windscribe/platform
 
 %postun
 if [ $1 -eq 0 ]; then

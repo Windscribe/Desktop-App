@@ -360,7 +360,7 @@ CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
     Logger::instance().out("Starting ctrld");
 
     // Validate URLs
-    if (!Utils::isValidUrl(cmd.upstream1) || (!cmd.upstream2.empty() && !Utils::isValidUrl(cmd.upstream2))) {
+    if (cmd.upstream1.empty() || Utils::normalizeAddress(cmd.upstream1).empty() || (!cmd.upstream2.empty() && Utils::normalizeAddress(cmd.upstream2).empty())) {
         Logger::instance().out("Invalid upstream URL(s)");
         answer.executed = 0;
         return answer;

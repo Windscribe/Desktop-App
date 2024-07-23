@@ -15,7 +15,7 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 - Install Ninja v1.10.2 from [here](https://github.com/ninja-build/ninja/releases)
 - Install vcpkg from [here]((https://vcpkg.io/en/getting-started.html)
     - Create a `VCPKG_ROOT` environment variable referencing the full path to your vcpkg install folder.
-    - Go to the vcpkg directory and `git checkout a664e41ee50b61adcc90a44a761eca139a4b7dd7~`, since versions beyond this will fail to build with the current baseline.
+    - Go to the vcpkg directory and `git checkout 576379156e82da642f8d1834220876759f13534d`.
     - Do the bootstrap step after the above command.
 - Verify the following entries are in your System `PATH` environment variable. If they are not, add them to the System `PATH` environment variable and reboot.
     - `C:\Program Files\Git\cmd`
@@ -113,7 +113,7 @@ See `build_all --help` for other build options.
 - Install CMake v3.28.x or newer from [here](https://cmake.org/download/) and make sure that the cmake executable is in the path and available for execution. The project will build with older versions of CMake, but you may encounter some warnings.
 - Install vcpkg from [here](https://vcpkg.io/en/getting-started.html)
     - Create a `VCPKG_ROOT` environment variable referencing the full path to your vcpkg install folder.
-    - Go to the vcpkg directory and `git checkout a664e41ee50b61adcc90a44a761eca139a4b7dd7~`, since versions beyond this will fail to build with the current baseline.
+    - Go to the vcpkg directory and `git checkout 576379156e82da642f8d1834220876759f13534d`.
     - Do the bootstrap step after the above command.
 - Clone the repository.
 - Install python deps:
@@ -164,7 +164,7 @@ The repository contains Dockerfile to simplify building process. Skip all the ot
 ```
 - Install vcpkg:
 ```bash
-  sudo docker run --rm -v .:/w ws-builder /bin/bash -c "git clone https://github.com/Microsoft/vcpkg.git && ./vcpkg/bootstrap-vcpkg.sh --disableMetrics"
+  sudo docker run --rm -v .:/w ws-builder /bin/bash -c "git clone https://github.com/Microsoft/vcpkg.git && git checkout 576379156e82da642f8d1834220876759f13534d && ./vcpkg/bootstrap-vcpkg.sh --disableMetrics"
 ```
 - Build all the dependencies:
 ```bash
@@ -190,7 +190,7 @@ Build process tested on Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
 ```
 - Install vcpkg from [here](https://vcpkg.io/en/getting-started.html)
     - Create a `VCPKG_ROOT` environment variable referencing the full path to your vcpkg install folder.
-    - Go to the vcpkg directory and `git checkout a664e41ee50b61adcc90a44a761eca139a4b7dd7~`, since versions beyond this will fail to build with the current baseline.
+    - Go to the vcpkg directory and `git checkout 576379156e82da642f8d1834220876759f13534d`.
     - Do the bootstrap step after the above command.
 - Install golang (minimum version 1.18): follow instructions from `https://go.dev/doc/install`
 - Clone the repository.

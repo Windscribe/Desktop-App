@@ -10,7 +10,7 @@
 #include "multipleaccountdetection/multipleaccountdetectionfactory.h"
 #include "utils/logger.h"
 
-MainService::MainService() : QObject(), isExitingAfterUpdate_(false)
+MainService::MainService() : QObject(), isExitingAfterUpdate_(false), keyLimitDelete_(false)
 {
     backend_ = new Backend(this);
     connect(backend_, &Backend::checkUpdateChanged, this, &MainService::onBackendCheckUpdateChanged);
@@ -36,6 +36,7 @@ MainService::MainService() : QObject(), isExitingAfterUpdate_(false)
     connect(localIpcServer_, &LocalIPCServer::showLocations, this, &MainService::onShowLocations);
     connect(localIpcServer_, &LocalIPCServer::connectToLocation, this, &MainService::onConnectToLocation);
     connect(localIpcServer_, &LocalIPCServer::attemptLogin, this, &MainService::onLogin);
+    connect(localIpcServer_, &LocalIPCServer::setKeyLimitBehavior, this, &MainService::onSetKeyLimitBehavior);
 }
 
 MainService::~MainService()
@@ -231,7 +232,13 @@ void MainService::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VER
 
 void MainService::onBackendWireGuardAtKeyLimit()
 {
-    emit wireGuardKeyLimitUserResponse(true);
+    if (!keyLimitDelete_) {
+        localIpcServer_->setDisconnectedByKeyLimit();
+    }
+
+    qCDebug(LOG_BASIC) << "WireGuard key limit response:" << keyLimitDelete_;
+    emit wireGuardKeyLimitUserResponse(keyLimitDelete_);
+    keyLimitDelete_ = false;
 }
 
 void MainService::onPreferencesSplitTunnelingChanged(const types::SplitTunneling &st)
@@ -261,5 +268,10 @@ void MainService::onPreferencesAllowLanTrafficChanged(bool /*allowLanTraffic*/)
 {
     // Changing Allow Lan Traffic may affect split tunnel behavior
     onPreferencesSplitTunnelingChanged(backend_->getPreferences()->splitTunneling());
+}
+
+void MainService::onSetKeyLimitBehavior(bool deleteKey)
+{
+    keyLimitDelete_ = deleteKey;
 }
 

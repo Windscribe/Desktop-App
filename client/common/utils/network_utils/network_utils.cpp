@@ -1,5 +1,7 @@
 #include "network_utils.h"
 
+#include <QRegExp>
+
 #include "../utils.h"
 
 #if defined Q_OS_WIN
@@ -44,6 +46,13 @@ QString NetworkUtils::formatMacAddress(QString macAddress)
         .arg(macAddress.mid(10,2));
 
     return formattedMac;
+}
+
+bool NetworkUtils::isValidMacAddress(const QString &macAddress)
+{
+    // Check if the MAC address is in the format XX:XX:XX:XX:XX:XX, where X is a hex digit.
+    QRegExp macAddressRegex("([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}");
+    return macAddressRegex.exactMatch(macAddress);
 }
 
 QVector<types::NetworkInterface> NetworkUtils::interfacesExceptOne(const QVector<types::NetworkInterface> &interfaces, const types::NetworkInterface &exceptInterface)

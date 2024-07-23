@@ -51,7 +51,7 @@ systemctl restart windscribe-helper
 
 %post
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
-update-desktop-database
+setcap cap_setgid+ep /opt/windscribe/Windscribe
 echo linux_rpm_x64_cli > ../etc/windscribe/platform
 
 %postun

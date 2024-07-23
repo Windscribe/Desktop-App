@@ -167,7 +167,7 @@ private slots:
 
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
     void onBackendTryingBackupEndpoint(int num, int cnt);
-    void onBackendLoginError(LOGIN_RET loginError, const QString &errorMessage);
+    void onBackendLoginError(wsnet::LoginResult loginError, const QString &errorMessage);
 
     void onBackendSessionStatusChanged(const api_responses::SessionStatus &sessionStatus);
     void onBackendCheckUpdateChanged(const api_responses::CheckUpdate &checkUpdateInfo);

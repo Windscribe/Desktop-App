@@ -37,7 +37,6 @@ post_install() {
         systemctl enable windscribe-helper
         systemctl start windscribe-helper
         ln -s /opt/windscribe/Windscribe /usr/bin/windscribe
-        update-desktop-database
         echo linux_zst_x64_cli > ../etc/windscribe/platform
 }
 

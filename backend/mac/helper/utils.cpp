@@ -139,12 +139,7 @@ std::vector<std::string> getOpenVpnExeNames()
 
 void createWindscribeUserAndGroup()
 {
-    bool exists = !Utils::executeCommand("id windscribe");
-    if (exists) {
-        // set the user to hidden if it wasn't already
-        Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "IsHidden", "1"});
-        return;
-    }
+    // Always attempt to recreate group/user, even if they exist.
 
     // Create group
     Utils::executeCommand("dscl", {".", "-create", "/Groups/windscribe"});
@@ -178,6 +173,8 @@ void deleteSelf()
     Utils::executeCommand("rm", {"/Library/LaunchDaemons/com.windscribe.helper.macos.plist"});
     Utils::executeCommand("rm", {"/Library/PrivilegedHelperTools/com.windscribe.helper.macos"});
     Utils::executeCommand("rm", {"/usr/local/bin/windscribe-cli"});
+    // Note that the following command generally fails with a permission error and does not actually remove the user.
+    // It seems on MacOS you need a Secure Token account to delete a user, and even though the privileged helper is running as root, it doesn't have a Secure Token.
     Utils::executeCommand("dscl", {".", "-delete", "/Users/windscribe"});
     Utils::executeCommand("dscl", {".", "-delete", "/Groups/windscribe"});
 }
@@ -198,22 +195,6 @@ bool isValidIpAddress(const std::string &address)
     return inet_pton(AF_INET, address.c_str(), &(sa.sin_addr)) != 0;
 }
 
-bool isValidUrl(const std::string &address)
-{
-    if (isValidIpAddress(address)) {
-        return true;
-    }
-
-    auto url = skyr::parse(address);
-    // parsing still "succeeds" if there are invalid characters in the URL e.g. if there are characters which are invalid after the domain.
-    // check that the serialized URL is the same as the original.
-    if (!url || skyr::serialize(url.value()) != address) {
-        return false;
-    }
-
-    return true;
-}
-
 bool isValidDomain(const std::string &address)
 {
     if (isValidIpAddress(address)) {
@@ -226,6 +207,26 @@ bool isValidDomain(const std::string &address)
     }
 
     return true;
+}
+
+std::string normalizeAddress(const std::string &address)
+{
+    std::string addr = address;
+
+    if (isValidIpAddress(address)) {
+        return addr;
+    }
+
+    if (isValidDomain(address)) {
+        return addr;
+    }
+
+    auto url = skyr::parse(address);
+    if (!url) {
+        return "";
+    }
+
+    return skyr::serialize(url.value());
 }
 
 } // namespace Utils

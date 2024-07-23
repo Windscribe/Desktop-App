@@ -1,7 +1,6 @@
 #include "getwireguardconfig.h"
 #include <QSettings>
 #include <QTimer>
-#include "engine/apiinfo/apiinfo.h"
 #include "types/global_consts.h"
 #include "api_responses/wgconfigs_connect.h"
 #include "api_responses/wgconfigs_init.h"
@@ -143,7 +142,7 @@ void GetWireGuardConfig::onWgConfigsConnectAnswer(ServerApiRetCode serverApiRetC
 void GetWireGuardConfig::submitWireguardConnectRequest()
 {
     WS_ASSERT(request_ == nullptr);
-    request_ = WSNet::instance()->serverAPI()->wgConfigsConnect(apiinfo::ApiInfo::getAuthHash().toStdString(), wireGuardConfig_.clientPublicKey().toStdString(),
+    request_ = WSNet::instance()->serverAPI()->wgConfigsConnect(WSNet::instance()->apiResourcersManager()->authHash(), wireGuardConfig_.clientPublicKey().toStdString(),
                                                                 serverName_.toStdString(), deviceId_.toStdString(), std::string(),
                                                                 [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData)
                                                                 {
@@ -165,7 +164,7 @@ void GetWireGuardConfig::submitWireGuardInitRequest(bool generateKeyPair)
         setWireGuardKeyPair(wireGuardConfig_.clientPublicKey(), wireGuardConfig_.clientPrivateKey());
     }
     WS_ASSERT(request_ == nullptr);
-    request_ = WSNet::instance()->serverAPI()->wgConfigsInit(apiinfo::ApiInfo::getAuthHash().toStdString(), wireGuardConfig_.clientPublicKey().toStdString(),
+    request_ = WSNet::instance()->serverAPI()->wgConfigsInit(WSNet::instance()->apiResourcersManager()->authHash(), wireGuardConfig_.clientPublicKey().toStdString(),
                                                                 deleteOldestKey_,
                                                                 [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData)
                                                                 {

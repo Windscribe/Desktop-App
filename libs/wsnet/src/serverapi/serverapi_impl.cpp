@@ -5,16 +5,16 @@
 
 namespace wsnet {
 
-ServerAPI_impl::ServerAPI_impl(WSNetHttpNetworkManager *httpNetworkManager, IFailoverContainer *failoverContainer, ServerAPISettings &settings,
+ServerAPI_impl::ServerAPI_impl(WSNetHttpNetworkManager *httpNetworkManager, IFailoverContainer *failoverContainer, PersistentSettings &persistentSettings,
                                WSNetAdvancedParameters *advancedParameters, ConnectState &connectState) :
     httpNetworkManager_(httpNetworkManager),
     advancedParameters_(advancedParameters),
     connectState_(connectState),
     failoverContainer_(failoverContainer),
-    settings_(settings)
+    persistentSettings_(persistentSettings)
 {
     // try reading a failover from the settings
-    auto failover = failoverContainer_->failoverById(settings_.failoverId(), &curFailoverInd_);
+    auto failover = failoverContainer_->failoverById(persistentSettings_.failoverId(), &curFailoverInd_);
 
     // if it fails, use the first one
     if (!failover) {
@@ -60,7 +60,7 @@ void ServerAPI_impl::resetFailover()
     curFailoverUid_ = failover->uniqueId();
     curFailoverInd_ = 0;
     failoverState_ = FailoverState::kUnknown;
-    settings_.setFailovedId("");    // clear setting
+    persistentSettings_.setFailovedId("");    // clear setting
 }
 
 void ServerAPI_impl::setIsConnectedToVpnState(bool isConnected)
@@ -211,7 +211,7 @@ void ServerAPI_impl::onRequestExecuterViaFailoverFinished(RequestExecuterRetCode
             failoverState_ = FailoverState::kFromSettingsReady;
         } else {
             failoverState_ = FailoverState::kReady;
-            settings_.setFailovedId(curFailoverUid_);
+            persistentSettings_.setFailovedId(curFailoverUid_);
         }
         failoverData_ = failoverData;
         request->callCallback();

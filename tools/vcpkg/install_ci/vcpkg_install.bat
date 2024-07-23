@@ -35,8 +35,7 @@ if exist %VCPKG_ROOT%\vcpkg.exe (
     PUSHD .
     cd %VCPKG_ROOT%
     git clone https://github.com/Microsoft/vcpkg.git .
-    # At this version vcpkg updated meson, which breaks anything that depends on 0.63, which is our current baseline.
-    git checkout a664e41ee50b61adcc90a44a761eca139a4b7dd7~
+    git checkout 576379156e82da642f8d1834220876759f13534d
     bootstrap-vcpkg.bat -disableMetrics
     POPD
 )

@@ -7,26 +7,44 @@ namespace types {
 
 ConnectedDnsInfo::ConnectedDnsInfo(const QJsonObject &json)
 {
-    if (json.contains(kJsonTypeProp) && json[kJsonTypeProp].isDouble())
-        type = static_cast<CONNECTED_DNS_TYPE>(json[kJsonTypeProp].toInt());
+    if (json.contains(kJsonTypeProp) && json[kJsonTypeProp].isDouble()) {
+        type = CONNECTED_DNS_TYPE_fromInt(json[kJsonTypeProp].toInt());
+#ifndef Q_OS_WIN
+        // non-Windows platforms do not have 'Forced' DNS mode
+        if (type == CONNECTED_DNS_TYPE_FORCED) {
+            type = CONNECTED_DNS_TYPE_AUTO;
+        }
+#endif
+    }
 
-    if (json.contains(kJsonUpStream1Prop) && json[kJsonUpStream1Prop].isString())
-        upStream1 = json[kJsonUpStream1Prop].toString();
+    if (json.contains(kJsonUpStream1Prop) && json[kJsonUpStream1Prop].isString()) {
+        QString server = json[kJsonUpStream1Prop].toString();
+        if (IpValidation::isCtrldCorrectAddress(server)) {
+            upStream1 = server;
+        }
+    }
 
-    if (json.contains(kJsonIsSplitDnsProp) && json[kJsonIsSplitDnsProp].isBool())
+    if (json.contains(kJsonIsSplitDnsProp) && json[kJsonIsSplitDnsProp].isBool()) {
         isSplitDns = json[kJsonIsSplitDnsProp].toBool();
+    }
 
-    if (json.contains(kJsonUpStream2Prop) && json[kJsonUpStream2Prop].isString())
-        upStream2 = json[kJsonUpStream2Prop].toString();
+    if (json.contains(kJsonUpStream2Prop) && json[kJsonUpStream2Prop].isString()) {
+        QString server = json[kJsonUpStream2Prop].toString();
+        if (IpValidation::isCtrldCorrectAddress(server)) {
+            upStream2 = server;
+        }
+    }
 
-    if (json.contains(kJsonHostnamesProp) && json[kJsonHostnamesProp].isArray())
-    {
+    if (json.contains(kJsonHostnamesProp) && json[kJsonHostnamesProp].isArray()) {
         QJsonArray hostnamesArray = json[kJsonHostnamesProp].toArray();
         hostnames.clear();
-        for (const QJsonValue &hostnameValue : hostnamesArray)
-        {
-            if (hostnameValue.isString())
-                hostnames.append(hostnameValue.toString());
+        for (const QJsonValue &hostnameValue : hostnamesArray) {
+            if (hostnameValue.isString()) {
+                QString hostname = hostnameValue.toString();
+                if (IpValidation::isIpOrDomain(hostname)) {
+                    hostnames.append(hostname);
+                }
+            }
         }
     }
 }
@@ -36,27 +54,6 @@ QList<CONNECTED_DNS_TYPE> ConnectedDnsInfo::allAvailableTypes()
     QList<CONNECTED_DNS_TYPE> t;
     t << CONNECTED_DNS_TYPE_AUTO << CONNECTED_DNS_TYPE_FORCED << CONNECTED_DNS_TYPE_CUSTOM;
     return t;
-}
-
-QString ConnectedDnsInfo::typeToString(const CONNECTED_DNS_TYPE &type)
-{
-    if (type == CONNECTED_DNS_TYPE_AUTO)
-    {
-        return QObject::tr("Auto");
-    }
-    else if (type == CONNECTED_DNS_TYPE_CUSTOM)
-    {
-        return QObject::tr("Custom");
-    }
-    else if (type == CONNECTED_DNS_TYPE_FORCED)
-    {
-        return QObject::tr("Forced");
-    }
-    else
-    {
-        WS_ASSERT(false);
-        return "";
-    }
 }
 
 bool ConnectedDnsInfo::isCustomIPv4Address() const
@@ -85,10 +82,33 @@ QJsonObject ConnectedDnsInfo::toJson() const
 void ConnectedDnsInfo::fromIni(const QSettings &settings)
 {
     type = CONNECTED_DNS_TYPE_fromString(settings.value(kIniTypeProp, "Auto").toString());
-    upStream1 = settings.value(kIniUpStream1Prop).toString();
+#ifndef Q_OS_WIN
+        // non-Windows platforms do not have 'Forced' DNS mode
+        if (type == CONNECTED_DNS_TYPE_FORCED) {
+            type = CONNECTED_DNS_TYPE_AUTO;
+        }
+#endif
+
+    QString str = settings.value(kIniUpStream1Prop).toString();
+    if (IpValidation::isCtrldCorrectAddress(str)) {
+       upStream1 = str;
+    }
+
     isSplitDns = settings.value(kIniIsSplitDnsProp, false).toBool();
-    upStream2 = settings.value(kIniUpStream2Prop).toString();
-    hostnames = settings.value(kIniHostnamesProp).toStringList();
+
+    str = settings.value(kIniUpStream2Prop).toString();
+    if (IpValidation::isCtrldCorrectAddress(str)) {
+       upStream2 = str;
+    }
+
+    QStringList list = settings.value(kIniHostnamesProp).toStringList();
+    QStringList domains;
+    for (const QString &domain: list) {
+        if (IpValidation::isIpOrDomain(domain)) {
+            domains.append(domain);
+        }
+    }
+    hostnames = domains;
 }
 
 void ConnectedDnsInfo::toIni(QSettings &settings) const
@@ -98,7 +118,7 @@ void ConnectedDnsInfo::toIni(QSettings &settings) const
     settings.setValue(kIniIsSplitDnsProp, isSplitDns);
     settings.setValue(kIniUpStream2Prop, upStream2);
     if (hostnames.isEmpty()) {
-        settings.remove(kIniHostnamesProp);
+        settings.setValue(kIniHostnamesProp, "");
     } else {
         settings.setValue(kIniHostnamesProp, hostnames);
     }

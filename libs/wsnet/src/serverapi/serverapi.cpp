@@ -2,28 +2,24 @@
 #include <spdlog/spdlog.h>
 #include "serverapi_impl.h"
 #include "requestsfactory.h"
+#include "settings.h"
 
 namespace wsnet {
 
 ServerAPI::ServerAPI(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager, IFailoverContainer *failoverContainer,
-                     const std::string &settings, WSNetAdvancedParameters *advancedParameters, ConnectState &connectState) :
+                     PersistentSettings &persistentSettings, WSNetAdvancedParameters *advancedParameters, ConnectState &connectState) :
     io_context_(io_context),
-    settings_(settings),
+    persistentSettings_(persistentSettings),
     advancedParameters_(advancedParameters),
     connectState_(connectState)
 {
-    impl_ = std::make_unique<ServerAPI_impl>(httpNetworkManager, failoverContainer, settings_, advancedParameters, connectState);
+    impl_ = std::make_unique<ServerAPI_impl>(httpNetworkManager, failoverContainer, persistentSettings_, advancedParameters, connectState);
     subscriberId_ = connectState_.subscribeConnectedToVpnState(std::bind(&ServerAPI::onVPNConnectStateChanged, this, std::placeholders::_1));
 }
 
 ServerAPI::~ServerAPI()
 {
     connectState_.unsubscribeConnectedToVpnState(subscriberId_);
-}
-
-std::string ServerAPI::currentSettings()
-{
-    return settings_.getAsString();
 }
 
 void ServerAPI::setApiResolutionsSettings(bool isAutomatic, std::string manualAddress)
@@ -81,7 +77,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::deleteSession(const std::str
 std::shared_ptr<WSNetCancelableCallback> ServerAPI::serverLocations(const std::string &language, const std::string &revision, bool isPro, const std::vector<std::string> &alcList, WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = requests_factory::serverLocations(settings_, language, revision, isPro, alcList,
+    BaseRequest *request = requests_factory::serverLocations(persistentSettings_, language, revision, isPro, alcList,
                                                              connectState_, advancedParameters_, cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
@@ -95,10 +91,10 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::serverCredentials(const std:
     return cancelableCallback;
 }
 
-std::shared_ptr<WSNetCancelableCallback> ServerAPI::serverConfigs(const std::string &authHash, const std::string &ovpnVersion, WSNetRequestFinishedCallback callback)
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::serverConfigs(const std::string &authHash, WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = requests_factory::serverConfigs(authHash, ovpnVersion, cancelableCallback);
+    BaseRequest *request = requests_factory::serverConfigs(authHash, Settings::instance().openVersionVersion(), cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
@@ -111,10 +107,10 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::portMap(const std::string &a
     return cancelableCallback;
 }
 
-std::shared_ptr<WSNetCancelableCallback> ServerAPI::recordInstall(const std::string &platform, WSNetRequestFinishedCallback callback)
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::recordInstall(WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = requests_factory::recordInstall(platform, cancelableCallback);
+    BaseRequest *request = requests_factory::recordInstall(Settings::instance().basePlatform(), cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
@@ -176,10 +172,10 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::speedRating(const std::strin
     return cancelableCallback;
 }
 
-std::shared_ptr<WSNetCancelableCallback> ServerAPI::staticIps(const std::string &authHash, const std::string &platform, const std::string &deviceId, WSNetRequestFinishedCallback callback)
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::staticIps(const std::string &authHash, WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = requests_factory::staticIps(authHash, platform, deviceId, cancelableCallback);
+    BaseRequest *request = requests_factory::staticIps(authHash, Settings::instance().basePlatform(), Settings::instance().deviceId(), cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
@@ -298,11 +294,10 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::verifyXpressLoginCode(const 
 
 std::shared_ptr<WSNetCancelableCallback> ServerAPI::sendSupportTicket(const std::string &supportEmail, const std::string &supportName,
                                                                       const std::string &supportSubject, const std::string &supportMessage,
-                                                                      const std::string &supportCategory, const std::string &type, const std::string &channel,
-                                                                      const std::string &platform, WSNetRequestFinishedCallback callback)
+                                                                      const std::string &supportCategory, const std::string &type, const std::string &channel, WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = requests_factory::sendSupportTicket(supportEmail, supportName, supportSubject, supportMessage, supportCategory, type, channel, platform, cancelableCallback);
+    BaseRequest *request = requests_factory::sendSupportTicket(supportEmail, supportName, supportSubject, supportMessage, supportCategory, type, channel, Settings::instance().basePlatform(), cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
@@ -339,10 +334,10 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::shakeData(const std::string 
     return cancelableCallback;
 }
 
-std::shared_ptr<WSNetCancelableCallback> ServerAPI::recordShakeForDataScore(const std::string &authHash, const std::string &platform, const std::string &score, const std::string &signature, WSNetRequestFinishedCallback callback)
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::recordShakeForDataScore(const std::string &authHash, const std::string &score, const std::string &signature, WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = requests_factory::recordShakeForDataScore(authHash, platform, score, signature, cancelableCallback);
+    BaseRequest *request = requests_factory::recordShakeForDataScore(authHash, Settings::instance().basePlatform(), score, signature, cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }

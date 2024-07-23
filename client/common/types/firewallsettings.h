@@ -15,16 +15,13 @@ struct FirewallSettings
 
     FirewallSettings(const QJsonObject &json)
     {
-        if (json.contains(kJsonModeProp) && json[kJsonModeProp].isDouble())
-            mode = static_cast<FIREWALL_MODE>(json[kJsonModeProp].toInt());
+        if (json.contains(kJsonModeProp) && json[kJsonModeProp].isDouble()) {
+            mode = FIREWALL_MODE_fromInt(json[kJsonModeProp].toInt());
+        }
 
-        if (json.contains(kJsonWhenProp) && json[kJsonWhenProp].isDouble())
-            when = static_cast<FIREWALL_WHEN>(json[kJsonWhenProp].toInt());
-    }
-
-    FirewallSettings(const QSettings &settings)
-    {
-        fromIni(settings);
+        if (json.contains(kJsonWhenProp) && json[kJsonWhenProp].isDouble()) {
+            when = FIREWALL_WHEN_fromInt(json[kJsonWhenProp].toInt());
+        }
     }
 
     FIREWALL_MODE mode;

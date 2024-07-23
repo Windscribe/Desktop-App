@@ -38,6 +38,7 @@ private slots:
     void onConnectToLocation(const LocationID &id, const types::Protocol &protocol);
     void onLogin(const QString &username, const QString &password, const QString &code2fa);
     void onShowLocations();
+    void onSetKeyLimitBehavior(bool deleteKey);
 
 private:
     Backend *backend_;
@@ -47,6 +48,7 @@ private:
     QSharedPointer<IMultipleAccountDetection> multipleAccountDetection_;
 
     bool isExitingAfterUpdate_;
+    bool keyLimitDelete_;
 
     void setInitialFirewallState();
 };

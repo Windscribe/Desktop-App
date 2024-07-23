@@ -17,7 +17,7 @@ const QStringList HardcodedSettings::cloudflareDns() const
 
 const QStringList HardcodedSettings::controldDns() const
 {
-    return QStringList() << "76.76.2.0" << "76.76.10.0";
+    return QStringList() << "76.76.2.22" << "76.76.10.0";
 }
 
 HardcodedSettings::HardcodedSettings()

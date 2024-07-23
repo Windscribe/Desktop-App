@@ -790,6 +790,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
         <translation>Připojení IKEv2 není v režimu uzamčení systému macOS k dispozici. Vypněte režim uzamčení v Nastavení systému nebo změňte nastavení připojení.</translation>
     </message>
+    <message>
+        <source>Rotating MAC Address</source>
+        <translation>Rotace MAC adresy</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

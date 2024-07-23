@@ -42,10 +42,10 @@ index 25379b6..0a60d22 100644
  struct ssl_general_config {
 
 diff --git a/lib/vtls/openssl.c b/lib/vtls/openssl.c
-index d4fb65a..35ff166 100644
+index 98fa962..0f60ece 100644
 --- a/lib/vtls/openssl.c
 +++ b/lib/vtls/openssl.c
-@@ -3600,6 +3600,14 @@ static CURLcode ossl_connect_step1(struct Curl_cfilter *cf,
+@@ -3678,6 +3678,14 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
      ctx_options &= ~SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS;
  #endif
  
@@ -57,6 +57,6 @@ index d4fb65a..35ff166 100644
 +    ctx_options |= SSL_OP_TLSEXT_PADDING_SUPER;
 +#endif
 +
-   switch(ssl_version) {
+   switch(ssl_version_min) {
    case CURL_SSLVERSION_SSLv2:
    case CURL_SSLVERSION_SSLv3:

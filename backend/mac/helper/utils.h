@@ -39,7 +39,7 @@ namespace Utils
     std::string getExePath();
 
     // check if a string is a valid address
+    std::string normalizeAddress(const std::string &address);
     bool isValidIpAddress(const std::string &address);
-    bool isValidUrl(const std::string &address);
     bool isValidDomain(const std::string &address);
 };

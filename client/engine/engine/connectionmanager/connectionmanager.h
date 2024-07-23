@@ -13,7 +13,7 @@
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "connsettingspolicy/baseconnsettingspolicy.h"
 #include "engine/customconfigs/customovpnauthcredentialsstorage.h"
-#include "engine/apiinfo/servercredentials.h"
+#include "api_responses/servercredentials.h"
 #include "engine/locationsmodel/baselocationinfo.h"
 #include "types/connectionsettings.h"
 #include "types/packetsize.h"
@@ -42,7 +42,9 @@ public:
                                CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
     ~ConnectionManager() override;
 
-    void clickConnect(const QString &ovpnConfig, const apiinfo::ServerCredentials &serverCredentials,
+    void clickConnect(const QString &ovpnConfig,
+                      const api_responses::ServerCredentials &serverCredentialsOpenVpn,
+                      const api_responses::ServerCredentials &serverCredentialsIkev2,
                       QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                       const types::ConnectionSettings &connectionSettings,
                       const api_responses::PortMap &portMap, const types::ProxySettings &proxySettings,
@@ -163,7 +165,8 @@ private:
     QString lastIp_;
 
     QString lastOvpnConfig_;
-    apiinfo::ServerCredentials lastServerCredentials_;
+    api_responses::ServerCredentials lastServerCredentialsOpenVpn_;
+    api_responses::ServerCredentials lastServerCredentialsIkev2_;
     types::ProxySettings lastProxySettings_;
     bool isAntiCensorship_ = false;
     bool bEmitAuthError_;

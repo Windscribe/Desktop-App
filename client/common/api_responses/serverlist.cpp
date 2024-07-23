@@ -6,6 +6,9 @@ namespace api_responses {
 
 ServerList::ServerList(const std::string &json)
 {
+    if (json.empty())
+        return;
+
     QJsonParseError errCode;
     auto doc = QJsonDocument::fromJson(QByteArray(json.c_str()), &errCode);
     auto jsonObject = doc.object();

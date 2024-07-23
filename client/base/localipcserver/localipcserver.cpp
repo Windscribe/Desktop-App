@@ -8,7 +8,7 @@
 #include "utils/ws_assert.h"
 
 LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(parent)
-  , backend_(backend), updateError_(UPDATE_VERSION_ERROR_NO_ERROR), updateProgress_(0)
+  , backend_(backend), updateError_(UPDATE_VERSION_ERROR_NO_ERROR), updateProgress_(0), disconnectedByKeyLimit_(false)
 {
     connect(backend_, &Backend::checkUpdateChanged, this, &LocalIPCServer::onBackendCheckUpdateChanged);
     connect(backend_, &Backend::connectStateChanged, this, &LocalIPCServer::onBackendConnectStateChanged);
@@ -18,6 +18,7 @@ LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(pare
     connect(backend_, &Backend::logoutFinished, this, &LocalIPCServer::onBackendLogoutFinished);
     connect(backend_, &Backend::protocolPortChanged, this, &LocalIPCServer::onBackendProtocolPortChanged);
     connect(backend_, &Backend::testTunnelResult, this, &LocalIPCServer::onBackendTestTunnelResult);
+    connect(backend_, &Backend::updateDownloaded, this, &LocalIPCServer::onBackendUpdateDownloaded);
     connect(backend_, &Backend::updateVersionChanged, this, &LocalIPCServer::onBackendUpdateVersionChanged);
 }
 
@@ -126,6 +127,9 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
         }
     } else if (command->getStringId() == IPC::CliCommands::ReloadConfig::getCommandStringId()) {
         backend_->getPreferences()->loadIni();
+    } else if (command->getStringId() == IPC::CliCommands::SetKeyLimitBehavior::getCommandStringId()) {
+        IPC::CliCommands::SetKeyLimitBehavior *cmd = static_cast<IPC::CliCommands::SetKeyLimitBehavior *>(command);
+        emit setKeyLimitBehavior(cmd->keyLimitDelete_);
     }
 
     IPC::CliCommands::Acknowledge cmd;
@@ -151,7 +155,7 @@ void LocalIPCServer::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
     loginState_ = LOGIN_STATE_LOGGED_IN;
 }
 
-void LocalIPCServer::onBackendLoginError(LOGIN_RET code, const QString &msg)
+void LocalIPCServer::onBackendLoginError(wsnet::LoginResult code, const QString &msg)
 {
     lastLoginError_ = code;
     lastLoginErrorMessage_ = msg;
@@ -184,8 +188,10 @@ void LocalIPCServer::sendState()
     cmd.location_ = backend_->currentLocation();
     cmd.isFirewallOn_ = backend_->isFirewallEnabled();
     cmd.isFirewallAlwaysOn_ = backend_->isFirewallAlwaysOn();
+    cmd.updateState_ = updateState_;
     cmd.updateError_ = updateError_;
     cmd.updateProgress_ = updateProgress_;
+    cmd.updatePath_ = updatePath_;
     cmd.updateAvailable_ = updateAvailable_;
     cmd.trafficUsed_ = backend_->getAccountInfo()->trafficUsed();
     cmd.trafficMax_ = backend_->getAccountInfo()->plan();
@@ -205,6 +211,12 @@ void LocalIPCServer::onBackendConnectStateChanged(const types::ConnectState &sta
 {
     connectState_ = state;
     tunnelTestState_ = TUNNEL_TEST_STATE_UNKNOWN;
+
+    if (connectState_.connectState == CONNECT_STATE_DISCONNECTED && disconnectedByKeyLimit_) {
+        // Normally this looks like a regular disconnect; override this with a special reason
+        connectState_.disconnectReason = DISCONNECTED_BY_KEY_LIMIT;
+        disconnectedByKeyLimit_ = false;
+    }
 }
 
 void LocalIPCServer::onBackendProtocolPortChanged(const types::Protocol &protocol, uint port)
@@ -225,6 +237,8 @@ void LocalIPCServer::onBackendTestTunnelResult(bool success)
 
 void LocalIPCServer::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error)
 {
+    updateState_ = state;
+
     if (state == UPDATE_VERSION_STATE_DONE) {
         updateError_ = error;
     } else if (state == UPDATE_VERSION_STATE_DOWNLOADING) {
@@ -233,3 +247,14 @@ void LocalIPCServer::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_
         updateProgress_ = 100;
     }
 }
+
+void LocalIPCServer::onBackendUpdateDownloaded(const QString &path)
+{
+    updatePath_ = path;
+}
+
+void LocalIPCServer::setDisconnectedByKeyLimit()
+{
+    disconnectedByKeyLimit_ = true;
+}
+

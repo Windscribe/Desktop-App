@@ -1,5 +1,6 @@
 #include "proxysettings.h"
 #include "utils/ws_assert.h"
+#include "utils/ipvalidation.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 
@@ -22,26 +23,50 @@ ProxySettings::ProxySettings(PROXY_OPTION option, const QString &address, uint p
 
 ProxySettings::ProxySettings(const QJsonObject &json)
 {
-    if (json.contains(kJsonOptionProp) && json[kJsonOptionProp].isDouble())
-        option_ = static_cast<PROXY_OPTION>(json[kJsonOptionProp].toInt());
+    if (json.contains(kJsonOptionProp) && json[kJsonOptionProp].isDouble()) {
+        option_ = PROXY_OPTION_fromInt(json[kJsonOptionProp].toInt());
+        // Auto-detect and SOCKS are not supported
+        if (option_ == PROXY_OPTION_AUTODETECT || option_ == PROXY_OPTION_SOCKS) {
+            option_ = PROXY_OPTION_NONE;
+        }
+    }
 
-    if (json.contains(kJsonAddressProp) && json[kJsonAddressProp].isString())
-        address_ = json[kJsonAddressProp].toString();
+    if (json.contains(kJsonAddressProp) && json[kJsonAddressProp].isString()) {
+        QString str = json[kJsonAddressProp].toString();
+        if (IpValidation::isIpOrDomain(str)) {
+            address_ = str;
+        }
+    }
 
-    if (json.contains(kJsonPortProp) && json[kJsonPortProp].isDouble())
-        port_ = static_cast<uint>(json[kJsonPortProp].toInt());
+    if (json.contains(kJsonPortProp) && json[kJsonPortProp].isDouble()) {
+        uint port = static_cast<uint>(json[kJsonPortProp].toInt());
+        if (port < 65536) {
+            port_ = port;
+        }
+    }
 
-    if (json.contains(kJsonUsernameProp) && json[kJsonUsernameProp].isString())
+    if (json.contains(kJsonUsernameProp) && json[kJsonUsernameProp].isString()) {
         username_ = json[kJsonUsernameProp].toString();
+    }
 
-    if (json.contains(kJsonPasswordProp) && json[kJsonPasswordProp].isString())
+    if (json.contains(kJsonPasswordProp) && json[kJsonPasswordProp].isString()) {
         password_ = Utils::fromBase64(json[kJsonPasswordProp].toString());
+    }
 }
 
 void ProxySettings::fromIni(const QSettings &settings)
 {
     option_ = PROXY_OPTION_fromString(settings.value(kIniOptionProp, PROXY_OPTION_toString(option_)).toString());
-    address_ = settings.value(kIniAddressProp).toString();
+    // Auto-detect and SOCKS are not supported
+    if (option_ == PROXY_OPTION_AUTODETECT || option_ == PROXY_OPTION_SOCKS) {
+        option_ = PROXY_OPTION_NONE;
+    }
+
+    QString address = settings.value(kIniAddressProp).toString();
+    if (IpValidation::isIpOrDomain(address)) {
+        address_ = address;
+    }
+
     uint port = settings.value(kIniPortProp, 0).toUInt();
     if (port < 65536) {
         port_ = port;

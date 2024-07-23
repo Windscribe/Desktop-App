@@ -10,6 +10,7 @@ else()
     add_subdirectory(public)
 endif()
 
+add_subdirectory(apiresourcesmanager)
 add_subdirectory(dnsresolver)
 add_subdirectory(utils)
 add_subdirectory(httpnetworkmanager)

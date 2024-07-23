@@ -2,11 +2,14 @@
 
 #include <QCoreApplication>
 
-#include "engine/apiinfo/apiinfo.h"
 #include "engine/engine.h"
 #include "persistentstate.h"
 #include "utils/logger.h"
 #include "utils/network_utils/network_utils.h"
+
+#ifdef Q_OS_WIN
+#include "utils/wincryptutils.h"
+#endif
 
 #ifdef Q_OS_LINUX
 #include "launchonstartup/launchonstartup.h"
@@ -65,6 +68,7 @@ void Backend::init()
     connect(engine_, &Engine::tryingBackupEndpoint, this, &Backend::onEngineTryingBackupEndpoint);
     connect(engine_, &Engine::notificationsUpdated, this, &Backend::onEngineNotificationsUpdated);
     connect(engine_, &Engine::checkUpdateUpdated, this, &Backend::onEngineCheckUpdateUpdated);
+    connect(engine_, &Engine::updateDownloaded, this, &Backend::onEngineUpdateDownloaded);
     connect(engine_, &Engine::updateVersionChanged, this, &Backend::onEngineUpdateVersionChanged);
     connect(engine_, &Engine::myIpUpdated, this, &Backend::onEngineMyIpUpdated);
     connect(engine_, &Engine::sessionStatusUpdated, this, &Backend::onEngineUpdateSessionStatus);
@@ -438,14 +442,14 @@ void Backend::onEngineFirewallStateChanged(bool isEnabled)
     firewallStateHelper_.setFirewallStateFromEngine(isEnabled);
 }
 
-void Backend::onEngineLoginFinished(bool isLoginFromSavedSettings, const QString &authHash, const api_responses::PortMap &portMap)
+void Backend::onEngineLoginFinished(bool isLoginFromSavedSettings, const api_responses::PortMap &portMap)
 {
     loginState_ = LOGIN_STATE_LOGGED_IN;
     preferencesHelper_.setPortMap(portMap);
     emit loginFinished(isLoginFromSavedSettings);
 }
 
-void Backend::onEngineLoginError(LOGIN_RET retCode, const QString &errorMessage)
+void Backend::onEngineLoginError(wsnet::LoginResult retCode, const QString &errorMessage)
 {
     loginState_ = LOGIN_STATE_LOGIN_ERROR;
     lastLoginError_ = retCode;
@@ -478,6 +482,11 @@ void Backend::onEngineNotificationsUpdated(const QVector<api_responses::Notifica
 void Backend::onEngineCheckUpdateUpdated(const api_responses::CheckUpdate &checkUpdate)
 {
     emit checkUpdateChanged(checkUpdate);
+}
+
+void Backend::onEngineUpdateDownloaded(const QString &path)
+{
+    emit updateDownloaded(path);
 }
 
 void Backend::onEngineUpdateVersionChanged(uint progressPercent, const UPDATE_VERSION_STATE &state, const UPDATE_VERSION_ERROR &error)
@@ -884,17 +893,49 @@ void Backend::updateAccountInfo()
     accountInfo_.setIsPremium(latestSessionStatus_.isPremium());
 }
 
+QString Backend::getAutoLoginCredential(const QString &key)
+{
+    QString credential;
+
+#ifdef Q_OS_WIN
+    try {
+        QSettings settings;
+        if (settings.contains(key)) {
+            std::string encoded = settings.value(key).toString().toStdString();
+            const auto decrypted = wsl::WinCryptUtils::decrypt(encoded, wsl::WinCryptUtils::EncodeHex);
+            credential = QString::fromStdWString(decrypted);
+        }
+    }
+    catch (std::system_error& ex) {
+        qCDebug(LOG_BASIC) << "ApiInfo::getAutoLoginCredential() -" << ex.what() << ex.code().value();
+    }
+#endif
+
+    return credential;
+}
+
+void Backend::clearAutoLoginCredentials()
+{
+    QSettings settings;
+    if (settings.contains("username")) {
+        settings.remove("username");
+    }
+    if (settings.contains("password")) {
+        settings.remove("password");
+    }
+}
+
 bool Backend::haveAutoLoginCredentials(QString &username, QString &password)
 {
 #ifdef Q_OS_WIN
-    username = apiinfo::ApiInfo::autoLoginUsername();
-    password = apiinfo::ApiInfo::autoLoginPassword();
+    username = getAutoLoginCredential("username");
+    password = getAutoLoginCredential("password");
 
     // Remove the auto-login credentials so we don't attempt to use them again.  If the user entered
     // incorrect auto-login credentials in the installer, we'll bounce them back to the login screen
     // and display the 'bad credentials' error when login is attempted.  If a connectivity/server
     // error prevents login, the login() method will have saved these creds and will retry them.
-    apiinfo::ApiInfo::clearAutoLoginCredentials();
+    clearAutoLoginCredentials();
 
     return (!username.isEmpty() && !password.isEmpty());
 #else

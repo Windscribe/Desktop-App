@@ -1,0 +1,46 @@
+diff --git a/scripts/cmake/vcpkg_configure_cmake.cmake b/scripts/cmake/vcpkg_configure_cmake.cmake
+index b051bf821..042c608e5 100644
+--- a/scripts/cmake/vcpkg_configure_cmake.cmake
++++ b/scripts/cmake/vcpkg_configure_cmake.cmake
+@@ -177,7 +177,11 @@ function(vcpkg_configure_cmake)
+         "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-dbg")
+ 
+     if(DEFINED VCPKG_CMAKE_SYSTEM_NAME)
+-        vcpkg_list(APPEND arg_OPTIONS "-DCMAKE_SYSTEM_NAME=${VCPKG_CMAKE_SYSTEM_NAME}")
++        if(VCPKG_OSX_SYSROOT STREQUAL "appletvos")
++            vcpkg_list(APPEND arg_OPTIONS "-DCMAKE_SYSTEM_NAME=tvOS")
++        else()
++            vcpkg_list(APPEND arg_OPTIONS "-DCMAKE_SYSTEM_NAME=${VCPKG_CMAKE_SYSTEM_NAME}")
++        endif()    
+         if(VCPKG_TARGET_IS_UWP AND NOT DEFINED VCPKG_CMAKE_SYSTEM_VERSION)
+             set(VCPKG_CMAKE_SYSTEM_VERSION 10.0)
+         elseif(VCPKG_TARGET_IS_ANDROID AND NOT DEFINED VCPKG_CMAKE_SYSTEM_VERSION)
+diff --git a/scripts/toolchains/ios.cmake b/scripts/toolchains/ios.cmake
+index 024d2428f..c47a9cb90 100644
+--- a/scripts/toolchains/ios.cmake
++++ b/scripts/toolchains/ios.cmake
+@@ -22,7 +22,11 @@ if(NOT _VCPKG_IOS_TOOLCHAIN)
+     )
+ 
+     # Set the CMAKE_SYSTEM_NAME for try_compile calls.
+-    set(CMAKE_SYSTEM_NAME iOS CACHE STRING "")
++    if(CMAKE_OSX_SYSROOT STREQUAL "appletvos")
++        set(CMAKE_SYSTEM_NAME tvOS CACHE STRING "" FORCE)
++    else()
++    	set(CMAKE_SYSTEM_NAME iOS CACHE STRING "")
++    endif()
+ 
+     macro(_vcpkg_setup_ios_arch arch)
+         unset(_vcpkg_ios_system_processor)
+diff --git a/triplets/community/arm64-tvos.cmake b/triplets/community/arm64-tvos.cmake
+new file mode 100644
+index 000000000..44669b5a8
+--- /dev/null
++++ b/triplets/community/arm64-tvos.cmake
+@@ -0,0 +1,6 @@
++set(VCPKG_TARGET_ARCHITECTURE arm64)
++set(VCPKG_CRT_LINKAGE dynamic)
++set(VCPKG_LIBRARY_LINKAGE static)
++set(VCPKG_CMAKE_SYSTEM_NAME iOS)
++set(VCPKG_OSX_SYSROOT appletvos)
++set(VCPKG_BUILD_TYPE release)

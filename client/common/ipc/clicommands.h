@@ -3,6 +3,7 @@
 #include "command.h"
 #include "types/enginesettings.h"
 #include "types/connectstate.h"
+#include <wsnet/WSNet.h>
 
 namespace IPC
 {
@@ -290,7 +291,8 @@ public:
         QDataStream ds(&arr, QIODevice::ReadOnly);
         ds >> language_ >> connectivity_ >> loginState_ >> loginError_ >> loginErrorMessage_ >> connectState_
            >> protocol_ >> port_ >> tunnelTestState_ >> location_ >> isFirewallOn_ >> isFirewallAlwaysOn_
-           >> updateError_ >> updateProgress_ >> updateAvailable_ >> trafficUsed_ >> trafficMax_;
+           >> updateState_ >> updateError_ >> updateProgress_ >> updatePath_ >> updateAvailable_
+           >> trafficUsed_ >> trafficMax_;
     }
 
     std::vector<char> getData() const override
@@ -299,7 +301,8 @@ public:
         QDataStream ds(&arr, QIODevice::WriteOnly);
         ds << language_ << connectivity_ << loginState_ << loginError_ << loginErrorMessage_ << connectState_
            << protocol_ << port_ << tunnelTestState_ << location_ << isFirewallOn_ << isFirewallAlwaysOn_
-           << updateError_ << updateProgress_ << updateAvailable_ << trafficUsed_ << trafficMax_;
+           << updateState_ << updateError_ << updateProgress_ << updatePath_ << updateAvailable_
+           << trafficUsed_ << trafficMax_;
         return std::vector<char>(arr.begin(), arr.end());
     }
 
@@ -313,7 +316,7 @@ public:
     QString language_;
     bool connectivity_;
     LOGIN_STATE loginState_ = LOGIN_STATE_LOGGED_OUT;
-    LOGIN_RET loginError_;
+    wsnet::LoginResult loginError_;
     QString loginErrorMessage_;
     types::ConnectState connectState_;
     types::Protocol protocol_;
@@ -322,8 +325,10 @@ public:
     LocationID location_;
     bool isFirewallOn_;
     bool isFirewallAlwaysOn_;
+    UPDATE_VERSION_STATE updateState_;
     UPDATE_VERSION_ERROR updateError_;
     uint updateProgress_;
+    QString updatePath_;
     QString updateAvailable_;
     qint64 trafficUsed_;
     qint64 trafficMax_;
@@ -373,6 +378,35 @@ public:
         return "CliCommands::ReloadConfig debug string";
     }
     static std::string getCommandStringId() { return "CliCommands::ReloadConfig";  }
+};
+
+class SetKeyLimitBehavior: public Command
+{
+public:
+    SetKeyLimitBehavior() {}
+    explicit SetKeyLimitBehavior(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> keyLimitDelete_;
+    }
+
+    std::vector<char> getData() const override
+    {
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << keyLimitDelete_;
+        return std::vector<char>(arr.begin(), arr.end());
+    }
+
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "CliCommands::SetKeyLimitBehavior debug string";
+    }
+    static std::string getCommandStringId() { return "CliCommands::SetKeyLimitBehavior";  }
+
+    bool keyLimitDelete_;
 };
 
 } // namespace CliCommands

@@ -30,6 +30,7 @@ VOID WINAPI serviceMain(DWORD argc, LPTSTR *argv);
 VOID WINAPI serviceCtrlHandler(DWORD);
 DWORD WINAPI serviceWorkerThread(LPVOID lpParam);
 BOOL isElevated();
+void stopServiceThreadApc(ULONG_PTR lpParam);
 
 int main(int argc, char *argv[])
 {

@@ -1,3 +1,26 @@
+2.11.5 (22/07/2024)
+All:
+   * Added new functionality WSNetApiResourcesManager to the wsnet library. #948
+   * Added Apple tvOS support to the wsnet library. #1067
+   * Improved JSON import validation. #1048
+   * Fixed Dockerfile to use Ubuntu 20.04 and install the right CMake/golang. #1068
+   * Fixed bootstrap DNS from 76.76.2.0 to 76.76.2.22 since ctrld v1.3.4. #1055
+   * Updated libcurl, libcares, openvpn, and liboqs to the latest versions. #1066
+   * Updated vcpkg commit. #1045
+MacOS:
+   * Fixed displayed IP not changing for split inclusive tunnels. #1049
+   * Fixed split tunnel include rules should not keep state. #1060
+   * Fixed helper checks for URLs for ctrld are too strict. #1058
+   * Fixed windscribe-cli not working on MacOS 11. #1063
+   * Fixed windscribe group may not be added in some cases. #1073
+Linux:
+   * Added handling for WireGuard key limit in CLI client. #962
+   * Added update functionality for CLI-only clients. #962
+   * Fixed helper checks for URLs for ctrld are too strict. #1058
+   * Fixed Linux default route may be misdetected. #1059
+   * Fixed CLI service did not start on boot. #962
+
+
 2.11.4 (05/07/2024)
 All:
    * Added CLI mechanisms to connect with a specific protocol, and improve help. #962
@@ -32,7 +55,6 @@ All:
    * Add wg_ttl parameter to WgConnect call [wsnet]. #1002
    * Improved CI test stability. #1027
 Windows:
-   * Added debugging information for wsnet. #1001
    * Fixed Program Files\Windscribe folder not cleaned up on uninstall if installed to custom folder. #1007
 MacOS:
    * Improved IPC sockets/lockfiles by consolidation. #962
@@ -56,7 +78,6 @@ Windows:
 MacOS:
    * Updated wsnet library, included some required files from scapix to wsnet.framework for iOS build. #970
    * Fixed app may be quarantined by MacOS. #963
-   * Fixed Mac pid checking vulnerability. #977
 Linux:
    * Improved code organization and build scripts to prepare for GUI-less client. #962
    * Fixed missing dependency for xcb-util-cursor-devel in the OpenSUSE RPM package. #955
@@ -80,7 +101,17 @@ Linux:
    * Added support for OpenSUSE. #954
 
 
-2.10.13 (??/??/2024)
+2.10.16 (18/07/2024)
+Windows:
+   * Fixed helper fails to taskkill OpenVPN process. #1065 & #1071
+
+
+2.10.15 (28/06/2024)
+All:
+   * No changes.  Promoted 2.10.14 to the stable channel.
+
+
+2.10.14 (20/06/2024)
 All:
    * Improved best location selection. #1040
 Windows:
@@ -101,6 +132,7 @@ All:
    * Updated ctrld dependency to 1.3.7. #1022
 MacOS:
    * Fixed MacOS 11 bug, unable to open app after installing. #1011
+   * Fixed Wireguard takes too long to connect and tunnel tests are randomly slow. #1013
    * Fixed missing "verb 3" argument for OpenVPN after refactor. #997
 Linux:
    * Fixed tray icon sometimes can't be clicked. #792
@@ -114,6 +146,7 @@ All:
    * Fixed wsnet bugs, in particular the icmp ping bug. Also other library refactoring related improvements taken from 2.11. #999
 Windows:
    * Added security warning in the installer when installing to a custom folder. #988
+   * Added debugging information for wsnet. #1001
    * Fixed openvpn adapter IP assertion. #997
    * Fixed privilege escalation vulnerability allowing an attacker to inject a DLL into the client app and task kill any process (Reported by Zeze Lin working with Trend Micro Zero Day Initiative). #984
    * Fixed privilege escalation vulnerability allowing an attacker to inject a DLL into the client app and start an arbitrary process as admin (Reported by Zeze Lin working with Trend Micro Zero Day Initiative). #984
@@ -139,9 +172,10 @@ Windows:
    * Fixed possible delay in executable signature logic when it checks CRLs over the network. #983
 MacOS:
    * Improved helper upgrade flow. #982
+   * Fixed Mac pid checking vulnerability. #977
 Linux:
    * Fixed misdetection of platform on Raspberry Pi. #979
-   * Fixed pid race in helper #977
+   * Fixed pid race in helper. #977
    * Fixed typo in command to get local IP. #995
 
 

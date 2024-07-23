@@ -35,7 +35,7 @@ BaseRequest *requests_factory::deleteSession(const std::string &authHash, Reques
     return new BaseRequest(HttpMethod::kDelete, SubdomainType::kApi, RequestPriority::kNormal, "Session", extraParams, callback);
 }
 
-BaseRequest *requests_factory::serverLocations(ServerAPISettings &settings, const std::string &language, const std::string &revision, bool isPro, const std::vector<std::string> &alcList,
+BaseRequest *requests_factory::serverLocations(PersistentSettings &persistentSettings, const std::string &language, const std::string &revision, bool isPro, const std::vector<std::string> &alcList,
                                                ConnectState &connectState, WSNetAdvancedParameters *advancedParameters, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
@@ -45,7 +45,7 @@ BaseRequest *requests_factory::serverLocations(ServerAPISettings &settings, cons
         extraParams["alc"] = alcField;
 
     std::string strIsPro = isPro ? "1" : "0";
-    return new ServerLocationsRequest(RequestPriority::kNormal, "/serverlist/mob-v2/" + strIsPro + "/" + revision, extraParams, settings,
+    return new ServerLocationsRequest(RequestPriority::kNormal, "/serverlist/mob-v2/" + strIsPro + "/" + revision, extraParams, persistentSettings,
                                       connectState, advancedParameters, callback);
 }
 

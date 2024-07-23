@@ -2,12 +2,15 @@ string(REPLACE "." "_" curl_version "curl-${VERSION}")
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO sftcd/curl
-    REF ecf5952a8b668d59f7da4d082c91d555f3689aec
-    SHA512 b1a4c72ef8b3213327346394c1e2cc042820b3af9d72b4f4129c2fe92ad75333d8757e643d7924d188c6fcef61f7aadb41650fee048fc4e1d8c915a19f6a9999
+    REF 2b52fe4115e930e94dae75329bd0c11c79880176
+    SHA512 347f333aae83cd9bb96791489742811aaf0041774a1f2edf2c694fb93be8800b1934ff55c02f432bbfa0ac865e4c1dcb7559b49d174cb20af29574c7e7337764
     PATCHES
+        0005_remove_imp_suffix.patch
         0020-fix-pc-file.patch
-        mbedtls-ws2_32.patch
+        0022-deduplicate-libs.patch
         export-components.patch
+        dependencies.patch
+        cmake-config.patch
         super-large-padding-extension.patch
 )
 
@@ -60,6 +63,7 @@ endif()
 
 #see https://github.com/curl/curl/issues/13826
 if(VCPKG_TARGET_IS_ANDROID)
+    list(APPEND OPTIONS -DHAVE_CLOCK_GETTIME_MONOTONIC=OFF)
     list(APPEND OPTIONS -DHAVE_CLOCK_GETTIME_MONOTONIC_RAW=OFF)
 endif()
 

@@ -6,3 +6,4 @@ Type=simple
 ExecStart=/opt/windscribe/Windscribe
 
 [Install]
+WantedBy=default.target
