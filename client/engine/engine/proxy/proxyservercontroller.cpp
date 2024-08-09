@@ -1,7 +1,7 @@
 #include "proxyservercontroller.h"
 #ifdef Q_OS_WIN
     #include "autodetectproxy_win.h"
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     #include "autodetectproxy_mac.h"
 #endif
 #include <QHostInfo>
@@ -16,7 +16,7 @@ bool ProxyServerController::updateProxySettings(const types::ProxySettings &prox
         bool bSuccess = false;
 #ifdef Q_OS_WIN
         types::ProxySettings autoProxySettings = AutoDetectProxy_win::detect(bSuccess);
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
         types::ProxySettings autoProxySettings = AutoDetectProxy_mac::detect(bSuccess);
 #elif defined Q_OS_LINUX
         //todo linux

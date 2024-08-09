@@ -206,5 +206,49 @@
         <source>Downloading: %1%</source>
         <translation>Завантаження: %1%</translation>
     </message>
+    <message>
+        <source>Username too short</source>
+        <translation>Ім&apos;я користувача занадто коротке</translation>
+    </message>
+    <message>
+        <source>Password too short</source>
+        <translation>Занадто короткий пароль</translation>
+    </message>
+    <message>
+        <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>Триває підключення.  Використовуйте &apos;windscribe-cli status&apos;, щоб перевірити статус підключення.</translation>
+    </message>
+    <message>
+        <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>Триває відключення.  Використовуйте &apos;windscribe-cli status&apos;, щоб перевірити статус підключення.</translation>
+    </message>
+    <message>
+        <source>Firewall is on.</source>
+        <translation>Брандмауер увімкнено.</translation>
+    </message>
+    <message>
+        <source>Firewall is off.</source>
+        <translation>Брандмауер вимкнено.</translation>
+    </message>
+    <message>
+        <source>Logs sent.</source>
+        <translation>Журнали відправлено.</translation>
+    </message>
+    <message>
+        <source>Preferences reloaded.</source>
+        <translation>Налаштування перезавантажено.</translation>
+    </message>
+    <message>
+        <source>Key limit behavior is set.</source>
+        <translation>Встановлено поведінку ліміту ключів.</translation>
+    </message>
+    <message>
+        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>Вхід триває.  Використовуйте &apos;windscribe-cli status&apos;, щоб перевірити статус.</translation>
+    </message>
+    <message>
+        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>Виконується вихід із системи.  Використовуйте &apos;windscribe-cli status&apos;, щоб перевірити статус.</translation>
+    </message>
 </context>
 </TS>

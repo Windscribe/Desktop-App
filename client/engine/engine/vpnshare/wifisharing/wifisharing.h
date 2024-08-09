@@ -3,6 +3,8 @@
 #include <QObject>
 #include <QTimer>
 
+#include "types/enums.h"
+
 class IHelper;
 class WiFiDirectManager;
 class IcsManager;
@@ -30,11 +32,11 @@ public:
 
 signals:
     void usersCountChanged();
-    void failed();
+    void failed(WIFI_SHARING_ERROR error);
 
 private slots:
     void onWifiDirectStarted();
-    void onWifiDirectFailed();
+    void onWifiDirectFailed(WIFI_SHARING_ERROR error);
 
 private:
     bool isSharingStarted_;

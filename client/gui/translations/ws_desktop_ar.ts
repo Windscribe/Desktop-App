@@ -515,10 +515,6 @@
         <translation>حدث خطأ غير متوقع أثناء تأسيس اتصال VPN (خطأ ٪ 1).  إذا استمر هذا الخطأ، فحاول استخدام بروتوكول مختلف أو اتصل بالدعم.</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>ويندسكريب</translation>
-    </message>
-    <message>
         <source>Can&apos;t select directory</source>
         <translation>لا يمكن تحديد الدليل</translation>
     </message>
@@ -794,6 +790,22 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Rotating MAC Address</source>
         <translation>تدوير عنوان MAC</translation>
     </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>شبكة Wi-Fi متوقفة</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>اكتشف Windscribe أن شبكة Wi-Fi متوقفة عن التشغيل حاليا. لاستخدام نقطة الاتصال الآمنة ، يجب تشغيل Wi-Fi.</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>تعذر بدء تشغيل نقطة اتصال آمنة</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>قد لا يدعم محول الشبكة هذه الميزة. تم تعطيله في التفضيلات.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -976,8 +988,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>تجاهل أخطاء SSL</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>يمنع اتصالات IKEv2 من الموت (حسب المهلة) عن طريق اختبار اتصال الخادم بشكل دوري.</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>يمنع اتصالات من الموت (حسب المهلة) عن طريق اختبار اتصال الخادم بشكل دوري.</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1434,14 +1446,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>دعم المجتمع</translation>
     </message>
     <message>
-        <source>Reddit</source>
-        <translation>رديت</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>الخلاف</translation>
-    </message>
-    <message>
         <source>View Debug Log</source>
         <translation>عرض سجل التصحيح</translation>
     </message>
@@ -1752,6 +1756,22 @@ Connect to a network first</source>
         <source>Password</source>
         <translation>شعار</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>عنوان الوكيل غير صالح</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>عنوان الوكيل غير صالح. الرجاء إدخال عنوان IP أو اسم نطاق صالح.</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>منفذ وكيل غير صالح</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>منفذ الوكيل غير صالح. الرجاء إدخال منفذ صالح في النطاق 0-65535.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1826,10 +1846,6 @@ Connect to a network first</source>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>شارك اتصال Windscribe الآمن لاسلكيا.</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>إس إس آي دي</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,7 +2097,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>البارات</translation>
     </message>
     <message>
-        <source>Ms</source>
+        <source>ms</source>
         <translation>السيدة</translation>
     </message>
     <message>
@@ -2111,14 +2127,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Auto-detect</source>
         <translation>الكشف التلقائي</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>أفرج</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>الإصدار بيتا</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

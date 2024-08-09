@@ -733,7 +733,7 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
     if (networkInterface.networkOrSsid != "") { // not a disconnect
         // Add a new network as secured
         if (newNetwork) {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
             // generate friendly name for MacOS Ethernet
             if (networkInterface.interfaceType == NETWORK_INTERFACE_ETH) {
                 friendlyName = generateNewFriendlyName();

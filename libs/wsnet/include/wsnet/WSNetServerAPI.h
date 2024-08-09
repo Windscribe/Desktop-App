@@ -39,7 +39,8 @@ public:
     virtual std::shared_ptr<WSNetCancelableCallback> serverConfigs(const std::string &authHash, WSNetRequestFinishedCallback callback) = 0;
     virtual std::shared_ptr<WSNetCancelableCallback> portMap(const std::string &authHash, std::uint32_t version, const std::vector<std::string> &forceProtocols, WSNetRequestFinishedCallback callback) = 0;
 
-    virtual std::shared_ptr<WSNetCancelableCallback> recordInstall(WSNetRequestFinishedCallback callback) = 0;
+    // set isDesktop = true for Desktop clients, or set isDesktop = false for Mobile clients
+    virtual std::shared_ptr<WSNetCancelableCallback> recordInstall(bool isDesktop, WSNetRequestFinishedCallback callback) = 0;
 
     virtual std::shared_ptr<WSNetCancelableCallback> addEmail(const std::string &authHash, const std::string &email, WSNetRequestFinishedCallback callback) = 0;
     virtual std::shared_ptr<WSNetCancelableCallback> confirmEmail(const std::string &authHash, WSNetRequestFinishedCallback callback) = 0;
@@ -124,6 +125,8 @@ public:
                                                                              WSNetRequestFinishedCallback callback) = 0;
 
     virtual std::shared_ptr<WSNetCancelableCallback> verifyTvLoginCode(const std::string &authHash, const std::string &xpressCode,
+                                                                       WSNetRequestFinishedCallback callback) = 0;
+    virtual std::shared_ptr<WSNetCancelableCallback> cancelAccount(const std::string &authHash, const std::string &password,
                                                                        WSNetRequestFinishedCallback callback) = 0;
 
 

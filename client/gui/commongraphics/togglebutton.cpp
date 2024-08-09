@@ -57,15 +57,13 @@ void ToggleButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
 void ToggleButton::setState(bool isChecked)
 {
-    if (isChecked != isChecked_)
-    {
+    if (isChecked != isChecked_) {
+        opacityAnimation_.stop();
+
         isChecked_ = isChecked;
-        if (isChecked)
-        {
+        if (isChecked) {
             animationProgress_= 1.0;
-        }
-        else
-        {
+        } else {
             animationProgress_ = 0.0;
         }
         update();

@@ -12,7 +12,7 @@
 #include "languagecontroller.h"
 #include "generalmessagecontroller.h"
 #include "tooltips/tooltipcontroller.h"
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 #include "utils/macutils.h"
 #endif
 
@@ -120,7 +120,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(macSpoofingGroup_, &MacSpoofingGroup::cycleMacAddressClick, this, &ConnectionWindowItem::cycleMacAddressClick);
     macSpoofingGroup_->setMacSpoofingSettings(preferences->macAddrSpoofing());
     addItem(macSpoofingGroup_);
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     if (MacUtils::isOsVersionAtLeast(14, 4)) {
         macSpoofingGroup_->setEnabled(false);
     }
@@ -139,7 +139,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     addItem(terminateSocketsGroup_);
 #endif
 
-#ifndef Q_OS_LINUX
+#if defined(Q_OS_WIN)
     secureHotspotGroup_ = new SecureHotspotGroup(this,
                                                  "",
                                                  QString("https://%1/features/secure-hotspot").arg(HardcodedSettings::instance().windscribeServerUrl()));
@@ -343,7 +343,7 @@ void ConnectionWindowItem::onLanguageChanged()
 
 #ifndef Q_OS_LINUX
     macSpoofingGroup_->setDescription(tr("Spoof your device's physical address (MAC address)."));
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     if (MacUtils::isOsVersionAtLeast(14, 4)) {
         macSpoofingGroup_->setDescription(tr("MAC spoofing is not supported on your version of MacOS."));
     }
@@ -355,9 +355,7 @@ void ConnectionWindowItem::onLanguageChanged()
     terminateSocketsGroup_->setDescription(tr("Close all active TCP sockets when the VPN tunnel is established."));
 #endif
 
-#ifndef Q_OS_LINUX
     //secureHotspotGroup_ sets its own description
-#endif
 
     proxyGatewayGroup_->setDescription(tr("Configure your TV, gaming console, or other devices that support proxy servers."));
     antiCensorshipItem_->setCaption(tr("Circumvent Censorship"));
@@ -417,7 +415,7 @@ void ConnectionWindowItem::hideOpenPopups()
 
 void ConnectionWindowItem::onSecureHotspotPreferencesChangedByUser(const types::ShareSecureHotspot &ss)
 {
-#ifndef Q_OS_LINUX
+#if defined(Q_OS_WIN)
     if (ss.isEnabled && !preferences_->isAllowLanTraffic()) {
         GeneralMessageController::instance().showMessage(
             "WARNING_WHITE",
@@ -438,7 +436,7 @@ void ConnectionWindowItem::onSecureHotspotPreferencesChangedByUser(const types::
 
 void ConnectionWindowItem::onSecureHotspotPreferencesChanged(const types::ShareSecureHotspot &ss)
 {
-#ifndef Q_OS_LINUX
+#if defined(Q_OS_WIN)
     secureHotspotGroup_->setSecureHotspotSettings(ss);
 #endif
 }
@@ -484,19 +482,13 @@ bool ConnectionWindowItem::isIkev2(const types::ConnectionSettings &cs) const
 
 void ConnectionWindowItem::updateIsSupported(bool isWifiSharingSupported, bool isIkev2)
 {
-#ifndef Q_OS_LINUX
-    if (secureHotspotGroup_)
-    {
-        if (!isWifiSharingSupported)
-        {
+#if defined(Q_OS_WIN)
+    if (secureHotspotGroup_) {
+        if (!isWifiSharingSupported) {
             secureHotspotGroup_->setSupported(SecureHotspotGroup::HOTSPOT_NOT_SUPPORTED);
-        }
-        else if (isIkev2)
-        {
+        } else if (isIkev2) {
             secureHotspotGroup_->setSupported(SecureHotspotGroup::HOTSPOT_NOT_SUPPORTED_BY_IKEV2);
-        }
-        else
-        {
+        } else {
             secureHotspotGroup_->setSupported(SecureHotspotGroup::HOTSPOT_SUPPORTED);
         }
     }

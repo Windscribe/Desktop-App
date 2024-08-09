@@ -54,7 +54,7 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::Connec
 
     if (command->getStringId() == IPC::CliCommands::Acknowledge::getCommandStringId()) {
         // There are currently no commands that return a real value we need to parse here
-        emit finished(0, QString());
+        onAcknowledge();
     } else if (command->getStringId() == IPC::CliCommands::State::getCommandStringId()) {
         if (cliArgs_.cliCommand() == CLI_COMMAND_STATUS) {
             // If we explicitly requested status, print it.
@@ -165,7 +165,15 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
         }
         IPC::CliCommands::Login cmd;
         cmd.username_ = cliArgs_.username();
+        if (cmd.username_.size() < 3) {
+            emit finished(1, QObject::tr("Username too short"));
+            return;
+        }
         cmd.password_ = cliArgs_.password();
+        if (cmd.password_.size() < 8) {
+            emit finished(1, QObject::tr("Password too short"));
+            return;
+        }
         cmd.code2fa_ = cliArgs_.code2fa();
         connection_->sendCommand(cmd);
     }
@@ -256,34 +264,66 @@ void BackendCommander::onUpdateStateResponse(IPC::Command *command)
     }
 
     // Render 'Downloading n%' line
-	for (int i = 0; i < printedLength; i++) {
-		std::cout << '\b';
-	}
+    for (int i = 0; i < printedLength; i++) {
+        std::cout << '\b';
+    }
 
-	QString str = QObject::tr("Downloading: %1%").arg(cmd->updateProgress_);
-	std::cout << str.toStdString();
+    QString str = QObject::tr("Downloading: %1%").arg(cmd->updateProgress_);
+    std::cout << str.toStdString();
 
-	for (int i = str.toUtf8().size(); i < printedLength; i++) {
-		std::cout << " ";
-	}
-	std::cout << std::flush;
+    for (int i = str.toUtf8().size(); i < printedLength; i++) {
+        std::cout << " ";
+    }
+    std::cout << std::flush;
     // the length is in bytes, not characters, because we need to 'backspace' this many times.
-	printedLength = str.toUtf8().size();
+    printedLength = str.toUtf8().size();
 
     if (cmd->updateState_ == UPDATE_VERSION_STATE_RUNNING) {
-	    std::cout << std::endl;
+        std::cout << std::endl;
 
         // Update has been downloaded, run it now
         QString updateCmd = (QString("/etc/windscribe/install-update ") + cmd->updatePath_);
         int ret = system(updateCmd.toStdString().c_str());
-        std::filesystem::remove(cmd->updatePath_.toStdString());
+        std::error_code ec;
+        std::filesystem::remove(cmd->updatePath_.toStdString(), ec);
 
         emit finished(ret, "");
         return;
     }
 
-	// If still in progress, wait 1 second and then request state again.
-	sleep(1);
-	sendStateCommand();
+    // If still in progress, wait 1 second and then request state again.
+    sleep(1);
+    sendStateCommand();
 #endif
+}
+
+void BackendCommander::onAcknowledge()
+{
+    if (cliArgs_.cliCommand() == CLI_COMMAND_CONNECT || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_BEST || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_LOCATION) {
+        emit(finished(0, QObject::tr("Connection is in progress.  Use 'windscribe-cli status' to check for connection status.")));
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_DISCONNECT) {
+        emit(finished(0, QObject::tr("Disconnection is in progress.  Use 'windscribe-cli status' to check for connection status.")));
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_FIREWALL_ON) {
+        emit(finished(0, QObject::tr("Firewall is on.")));
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_FIREWALL_OFF) {
+        emit(finished(0, QObject::tr("Firewall is off.")));
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_SET_KEYLIMIT_BEHAVIOR) {
+        emit(finished(0, QObject::tr("Key limit behavior is set.")));
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGIN) {
+        emit(finished(0, QObject::tr("Login is in progress.  Use 'windscribe-cli status' to check for status.")));
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGOUT) {
+        emit(finished(0, QObject::tr("Logout is in progress.  Use 'windscribe-cli status' to check for status.")));
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_SEND_LOGS) {
+        emit(finished(0, QObject::tr("Logs sent.")));
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_RELOAD_CONFIG) {
+        emit(finished(0, QObject::tr("Preferences reloaded.")));
+    }
 }

@@ -56,13 +56,13 @@ void SecureHotspotGroup::setSecureHotspotSettings(const types::ShareSecureHotspo
 void SecureHotspotGroup::setSupported(HOTSPOT_SUPPORT_TYPE supported)
 {
     supported_ = supported;
-    checkBoxEnable_->setEnabled(supported_ == HOTSPOT_SUPPORTED);
     if (supported_ != HOTSPOT_SUPPORTED)
     {
         checkBoxEnable_->setState(false);
         settings_.isEnabled = false;
         emit secureHotspotPreferencesChanged(settings_);
     }
+    checkBoxEnable_->setEnabled(supported_ == HOTSPOT_SUPPORTED);
     updateDescription();
     updateMode();
 }
@@ -124,7 +124,8 @@ void SecureHotspotGroup::updateMode()
 void SecureHotspotGroup::onLanguageChanged()
 {
     checkBoxEnable_->setCaption(tr("Secure Hotspot"));
-    editBoxSSID_->setCaption(tr("SSID"));
+    // Do not translate, as the machine-generated translations are frequently incorrect.
+    editBoxSSID_->setCaption("SSID");
     editBoxSSID_->setPrompt(tr("Enter SSID"));
     editBoxPassword_->setCaption(tr("Password"));
     editBoxPassword_->setPrompt(tr("At least 8 characters"));

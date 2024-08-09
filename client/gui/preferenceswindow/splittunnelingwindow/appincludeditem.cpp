@@ -8,7 +8,7 @@
 #include "widgetutils/widgetutils.h"
 #include "dpiscalemanager.h"
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
 #include "utils/macutils.h"
 #endif
 
@@ -27,7 +27,7 @@ AppIncludedItem::AppIncludedItem(types::SplitTunnelingApp app, ScalableGraphicsO
     if (app_.icon.isEmpty()) {
 #if defined(Q_OS_WIN)
         app_.icon = app_.fullName;
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACOS)
         app_.icon = MacUtils::iconPathFromBinPath(app_.fullName);
 #endif
     }

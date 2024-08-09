@@ -29,4 +29,5 @@ private:
 
     explicit WireGuardController();
     HANDLE getKernelInterfaceHandle() const;
+    std::wstring configFile() const;
 };

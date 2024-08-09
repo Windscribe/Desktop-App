@@ -3,7 +3,6 @@
 #include <QObject>
 #include <QTimer>
 #include "iconnection.h"
-#include "networkextensionlog_mac.h"
 #include "engine/helper/helper_mac.h"
 
 class IKEv2Connection_mac : public IConnection
@@ -44,7 +43,6 @@ private:
     void *notificationId_;
     bool isStateConnectingAfterClick_;
     bool isDisconnectClicked_;
-    NetworkExtensionLog_mac networkExtensionLog_;
     QString overrideDnsIp_;
 
     static constexpr int STATISTICS_UPDATE_PERIOD = 1000;
@@ -57,6 +55,8 @@ private:
     // True if startConnect() method was called and NEVPNManager emitted notification NEVPNStatusConnecting.
     // False otherwise.
     bool isConnectingStateReachedAfterStartingConnection_;
+
+    QDateTime startConnect_;
 
     bool setKeyChain(const QString &username, const QString &password);
     void handleNotification(void *notification);

@@ -232,6 +232,7 @@ void FirewallController_mac::getFirewallStateFromPfctl(FirewallState &outState)
 
     // checking a few key rules to make sure the firewall rules is settled by our program
     helper_->getFirewallRules(kIpv4, "", "", output);
+
     if (output.indexOf("anchor \"windscribe_vpn_traffic\" all") != -1 &&
         output.indexOf("anchor \"windscribe_lan_traffic\" all") != -1 &&
         output.indexOf("anchor \"windscribe_static_ports_traffic\" all") != -1)

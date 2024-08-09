@@ -41,7 +41,7 @@ void ProtocolWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     // base background
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
         QPainterPath path;
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
 #else
         path.addRect(boundingRect().toRect());

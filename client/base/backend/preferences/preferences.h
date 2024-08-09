@@ -28,7 +28,7 @@ public:
     bool isMinimizeAndCloseToTray() const;
     void setMinimizeAndCloseToTray(bool b);
 
-#if defined Q_OS_MAC
+#if defined Q_OS_MACOS
     bool isHideFromDock() const;
     void setHideFromDock(bool b);
 #endif
@@ -226,6 +226,7 @@ private:
 
     static const inline QString kJsonEngineSettingsProp = "engineSettings";
     static const inline QString kJsonGuiSettingsProp = "guiSettings";
+    static const inline QString kJsonPersistentStateProp = "persistentState";
 
     // for serialization
     static constexpr quint32 magic_ = 0x7715C211;

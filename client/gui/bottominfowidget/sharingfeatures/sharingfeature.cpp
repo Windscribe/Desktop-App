@@ -42,7 +42,7 @@ void SharingFeature::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     const int ROUNDED_OFFSET = 2*G_SCALE;
     QRectF background(0, -ROUNDED_OFFSET, WIDTH*G_SCALE, HEIGHT*G_SCALE + ROUNDED_OFFSET);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     //todo scaling
     if (rounded_)
     {

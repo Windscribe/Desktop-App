@@ -11,7 +11,7 @@
 #ifdef Q_OS_WIN
     #include <Windows.h>
     #include "winutils.h"
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     #include "macutils.h"
     #include <math.h>
     #include <unistd.h>
@@ -31,7 +31,7 @@ QString Utils::getPlatformName()
     #else
     return "windows";
     #endif
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     return "macos";
 #elif defined Q_OS_LINUX
     return LinuxUtils::getLastInstallPlatform();
@@ -42,7 +42,7 @@ QString Utils::getOSVersion()
 {
 #ifdef Q_OS_WIN
     return WinUtils::getWinVersionString();
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     return ("MacOS " + MacUtils::getOsVersion());
 #elif defined Q_OS_LINUX
     return LinuxUtils::getOsVersionString();
@@ -69,7 +69,7 @@ void Utils::getOSVersionAndBuild(QString &osVersion, QString &build)
 {
 #ifdef Q_OS_WIN
     WinUtils::getOSVersionAndBuild(osVersion, build);
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     MacUtils::getOSVersionAndBuild(osVersion, build);
 #elif defined Q_OS_LINUX
     osVersion = LinuxUtils::getLinuxKernelVersion();
@@ -197,7 +197,7 @@ bool Utils::isAppAlreadyRunning()
 {
 #ifdef Q_OS_WIN
     return WinUtils::isAppAlreadyRunning();
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     return MacUtils::isAppAlreadyRunning();
 #elif defined Q_OS_LINUX
     return LinuxUtils::isAppAlreadyRunning();
@@ -208,7 +208,7 @@ unsigned long Utils::getCurrentPid()
 {
 #ifdef Q_OS_WIN
     return GetCurrentProcessId();
-#elif defined Q_OS_MAC || defined(Q_OS_LINUX)
+#elif defined Q_OS_MACOS || defined(Q_OS_LINUX)
     return static_cast<unsigned long>(getpid());
 #endif
 }
@@ -252,7 +252,7 @@ bool Utils::removeDirectory(const QString dir)
 
 bool Utils::accessibilityPermissions()
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     return AXIsProcessTrusted();
 #else
     return true;
@@ -290,7 +290,7 @@ QString Utils::getPlatformNameSafe()
     return platform;
 }
 
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
 QString Utils::execCmd(const QString &cmd)
 {
     char buffer[1024];
@@ -313,7 +313,7 @@ QString Utils::getBasePlatformName()
 {
 #ifdef Q_OS_WIN
     return "win";
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     return "mac";
 #elif defined Q_OS_LINUX
     return "linux";

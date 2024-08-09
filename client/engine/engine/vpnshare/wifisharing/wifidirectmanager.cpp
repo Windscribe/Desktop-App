@@ -158,9 +158,11 @@ void WiFiDirectManager::onStatusChanged(winrt::Windows::Devices::WiFiDirect::WiF
         case winrt::Windows::Devices::WiFiDirect::WiFiDirectAdvertisementPublisherStatus::Aborted:
         {
             auto error = args.Error();
+            WIFI_SHARING_ERROR reason = WIFI_SHARING_ERROR_OTHER;
             switch (error)
             {
                 case winrt::Windows::Devices::WiFiDirect::WiFiDirectError::RadioNotAvailable:
+                    reason = WIFI_SHARING_ERROR_RADIO_OFF;
                     qCDebug(LOG_WIFI_SHARED) << "Advertisement aborted, Wi-Fi radio is turned off";
                     break;
 
@@ -172,7 +174,7 @@ void WiFiDirectManager::onStatusChanged(winrt::Windows::Devices::WiFiDirect::WiF
                     qCDebug(LOG_WIFI_SHARED) << "Advertisement aborted, unknown reason";
                     break;
             }
-            emit failed();
+            emit failed(reason);
             break;
         }
 

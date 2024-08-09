@@ -62,7 +62,7 @@ private:
 
 #if defined(Q_OS_WIN) | defined(Q_OS_LINUX)
     void initWinLinuxIcons(const std::map<IconType, QString>& iconPaths);
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACOS)
     void initMacIcons(const std::map<IconType, QString>& iconPaths);
 #endif
 };

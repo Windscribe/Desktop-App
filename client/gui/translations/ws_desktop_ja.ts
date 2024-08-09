@@ -731,10 +731,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>スプリットトンネリング機能を開始できなかったため、環境設定で無効になっています。</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>ウィンドスクライブ</translation>
-    </message>
-    <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>カスタム DNS サービスを開始できません。 他のローカルDNSサービスが実行されていないことを確認するか、サポートにお問い合わせください。</translation>
     </message>
@@ -793,6 +789,22 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Rotating MAC Address</source>
         <translation>ローテーション MAC アドレス</translation>
+    </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>Wi-Fiがオフになっています</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>Windscribeは、Wi-Fiが現在オフになっていることを検出しました。セキュアホットスポットを使用するには、Wi-Fiをオンにする必要があります。</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>Secure Hotspotを開始できませんでした</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>お使いのネットワークアダプタがこの機能をサポートしていない場合があります。設定で無効になっています。</translation>
     </message>
 </context>
 <context>
@@ -976,8 +988,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>SSL エラーを無視する</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>サーバーに定期的に ping を実行することで、IKEv2 接続が (タイムアウトによって) 切断されるのを防ぎます。</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>サーバーに定期的に ping を実行することで、接続が (タイムアウトによって) 切断されるのを防ぎます。</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1434,14 +1446,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>コミュニティサポート</translation>
     </message>
     <message>
-        <source>Reddit</source>
-        <translation>レディット</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>不和</translation>
-    </message>
-    <message>
         <source>View Debug Log</source>
         <translation>デバッグログの表示</translation>
     </message>
@@ -1752,6 +1756,22 @@ Connect to a network first</source>
         <source>Password</source>
         <translation>パスワード</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>無効なプロキシアドレス</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>プロキシ アドレスが無効です。有効なIPアドレスまたはドメイン名を入力してください。</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>プロキシポートが無効です</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>プロキシ ポートが無効です。0〜65535の範囲で有効なポートを入力してください。</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1826,10 +1846,6 @@ Connect to a network first</source>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>安全なWindscribe接続をワイヤレスで共有します。</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>ティッカー</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,7 +2097,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>バー</translation>
     </message>
     <message>
-        <source>Ms</source>
+        <source>ms</source>
         <translation>さん</translation>
     </message>
     <message>
@@ -2111,14 +2127,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Auto-detect</source>
         <translation>自動検出</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>解放</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

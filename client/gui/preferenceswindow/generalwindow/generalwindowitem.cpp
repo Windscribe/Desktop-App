@@ -34,7 +34,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(preferences, &Preferences::showLocationLoadChanged, this, &GeneralWindowItem::onShowLocationLoadPreferencesChanged);
     connect(preferences, &Preferences::appSkinChanged, this, &GeneralWindowItem::onAppSkinPreferencesChanged);
     connect(preferences, &Preferences::minimizeAndCloseToTrayChanged, this, &GeneralWindowItem::onMinimizeAndCloseToTrayPreferencesChanged);
-#if defined Q_OS_MAC
+#if defined Q_OS_MACOS
     connect(preferences, &Preferences::hideFromDockChanged, this, &GeneralWindowItem::onHideFromDockPreferecesChanged);
 #elif defined Q_OS_LINUX
     connect(preferences, &Preferences::trayIconColorChanged, this, &GeneralWindowItem::onPreferencesTrayIconColorChanged);
@@ -70,7 +70,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
         checkBoxMinimizeAndCloseToTray_ = nullptr;
     }
 
-#if defined Q_OS_MAC
+#if defined Q_OS_MACOS
     hideFromDockGroup_ = new PreferenceGroup(this);
     checkBoxHideFromDock_ = new ToggleItem(hideFromDockGroup_);
     checkBoxHideFromDock_->setState(preferences->isHideFromDock());
@@ -207,7 +207,7 @@ void GeneralWindowItem::onMinimizeAndCloseToTrayClicked(bool b)
     preferences_->setMinimizeAndCloseToTray(b);
 }
 
-#if defined Q_OS_MAC
+#if defined Q_OS_MACOS
 void GeneralWindowItem::onHideFromDockPreferecesChanged(bool b)
 {
     checkBoxHideFromDock_->setState(b);
@@ -313,7 +313,7 @@ void GeneralWindowItem::onLanguageChanged()
     if (checkBoxMinimizeAndCloseToTray_) {
         checkBoxMinimizeAndCloseToTray_->setCaption(tr("Close to Tray"));
     }
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     hideFromDockGroup_->setDescription(tr("Don't show the Windscribe icon in dock."));
     checkBoxHideFromDock_->setCaption(tr("Hide from Dock"));
 #endif
@@ -410,7 +410,7 @@ void GeneralWindowItem::onVersionInfoClicked()
 {
 #ifdef Q_OS_WIN
     QString platform = "windows";
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACOS)
     QString platform = "mac";
 #else
     QString platform;

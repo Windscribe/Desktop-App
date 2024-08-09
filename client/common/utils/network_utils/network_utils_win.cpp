@@ -365,8 +365,9 @@ static QString ssidFromInterfaceGUID(QString interfaceGUID)
 {
     QString ssid = "";
 
-    // This DLL is not be available on default installs of Windows Server.  Dynamically load it so
-    // the app doesn't fail to launch with a "DLL not found" error.
+    // This DLL is not available on default installs of Windows Server.  Dynamically load it so
+    // the app doesn't fail to launch with a "DLL not found" error.  App profiling was performed
+    // and indicated no performance degradation when dynamically loading and unloading the DLL.
     const QString dll = getSystemDir() + QString("\\wlanapi.dll");
     auto wlanDll = ::LoadLibraryEx(qUtf16Printable(dll), NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
     if (wlanDll == NULL) {

@@ -206,5 +206,49 @@
         <source>Downloading: %1%</source>
         <translation>İndirilme: %1%</translation>
     </message>
+    <message>
+        <source>Username too short</source>
+        <translation>Kullanıcı adı çok kısa</translation>
+    </message>
+    <message>
+        <source>Password too short</source>
+        <translation>Şifre çok kısa</translation>
+    </message>
+    <message>
+        <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>Bağlantı devam ediyor.  Bağlantı durumunu kontrol etmek için &apos;windscribe-cli status&apos; komutunu kullanın.</translation>
+    </message>
+    <message>
+        <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>Bağlantı kesilmesi devam ediyor.  Bağlantı durumunu kontrol etmek için &apos;windscribe-cli status&apos; komutunu kullanın.</translation>
+    </message>
+    <message>
+        <source>Firewall is on.</source>
+        <translation>Güvenlik duvarı açık.</translation>
+    </message>
+    <message>
+        <source>Firewall is off.</source>
+        <translation>Güvenlik duvarı kapalı.</translation>
+    </message>
+    <message>
+        <source>Logs sent.</source>
+        <translation>Günlükler gönderildi.</translation>
+    </message>
+    <message>
+        <source>Preferences reloaded.</source>
+        <translation>Tercihler yeniden yüklendi.</translation>
+    </message>
+    <message>
+        <source>Key limit behavior is set.</source>
+        <translation>Anahtar sınırı davranışı ayarlandı.</translation>
+    </message>
+    <message>
+        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>Giriş devam ediyor.  Durumu kontrol etmek için &apos;windscribe-cli status&apos; komutunu kullanın.</translation>
+    </message>
+    <message>
+        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>Oturum kapatma işlemi devam ediyor.  Durumu kontrol etmek için &apos;windscribe-cli status&apos; komutunu kullanın.</translation>
+    </message>
 </context>
 </TS>

@@ -32,7 +32,7 @@ void Connection::connect()
     QObject::connect(localSocket_, &QLocalSocket::bytesWritten, this, &Connection::onSocketBytesWritten);
     QObject::connect(localSocket_, &QLocalSocket::readyRead, this, &Connection::onReadyRead);
     QObject::connect(localSocket_, &QLocalSocket::errorOccurred, this, &Connection::onSocketError);
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     localSocket_->connectToServer("/var/run/windscribe/localipc.sock");
 #else
     localSocket_->connectToServer("Windscribe8rM7bza5OR");

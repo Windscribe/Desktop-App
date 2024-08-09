@@ -731,10 +731,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Fitur split tunneling tidak dapat dimulai, dan telah dinonaktifkan di Preferensi.</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>Juru tulis angin</translation>
-    </message>
-    <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>Tidak dapat memulai layanan DNS kustom.  Pastikan Anda tidak menjalankan layanan DNS lokal lainnya, atau hubungi dukungan.</translation>
     </message>
@@ -793,6 +789,22 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Rotating MAC Address</source>
         <translation>Memutar Alamat MAC</translation>
+    </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>Wi-Fi mati</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>Windscribe telah mendeteksi bahwa Wi-Fi saat ini dimatikan. Untuk menggunakan Hotspot Aman, Wi-Fi harus diaktifkan.</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>Tidak dapat memulai Hotspot Aman</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>Adaptor jaringan Anda mungkin tidak mendukung fitur ini. Ini telah dinonaktifkan dalam preferensi.</translation>
     </message>
 </context>
 <context>
@@ -976,8 +988,8 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Abaikan Kesalahan SSL</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>Mencegah koneksi IKEv2 mati (dengan waktu habis) dengan melakukan ping server secara berkala.</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>Mencegah koneksi mati (dengan waktu habis) dengan melakukan ping server secara berkala.</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1434,14 +1446,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Dukungan Komunitas</translation>
     </message>
     <message>
-        <source>Reddit</source>
-        <translation>Reddit</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>Perselisihan</translation>
-    </message>
-    <message>
         <source>View Debug Log</source>
         <translation>Melihat log debug</translation>
     </message>
@@ -1752,6 +1756,22 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
         <source>Password</source>
         <translation>Kata sandi</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>Alamat proxy tidak valid</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>Alamat proxy tidak valid. Silakan masukkan alamat IP atau nama domain yang valid.</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>Port proxy tidak valid</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>Port proxy tidak valid. Silakan masukkan port yang valid dalam kisaran 0-65535.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1826,10 +1846,6 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>Bagikan koneksi Windscribe aman Anda secara nirkabel.</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>SSID</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,8 +2097,8 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
         <translation>Bar</translation>
     </message>
     <message>
-        <source>Ms</source>
-        <translation>Ms</translation>
+        <source>ms</source>
+        <translation>ms</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2111,14 +2127,6 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Auto-detect</source>
         <translation>Deteksi otomatis</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Lepaskan</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

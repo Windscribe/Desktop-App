@@ -77,7 +77,7 @@ MainWindow::MainWindow() :
     revealingConnectWindow_(false),
     internetConnected_(false),
     backendAppActiveState_(true),
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     hideShowDockIconTimer_(this),
     currentDockIconVisibility_(true),
     desiredDockIconVisibility_(true),
@@ -103,7 +103,7 @@ MainWindow::MainWindow() :
     savedTrayIconRect_.setTopLeft(QPoint(desktopAvailableRc.right() - WINDOW_WIDTH * G_SCALE, 0));
     savedTrayIconRect_.setSize(QSize(22, 22));
 
-#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
+#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
     // We should do this part for Linux in the other place of the constructor in order to avoid incorrect icon color setup.
     trayIconColorWhite_ = InterfaceUtils::isDarkMode();
     qCDebug(LOG_BASIC) << "OS in dark mode: " << trayIconColorWhite_;
@@ -113,7 +113,7 @@ MainWindow::MainWindow() :
 #endif
 
     trayIcon_.show();
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     const QRect desktopScreenRc = screen->geometry();
     if (desktopScreenRc.top() != desktopAvailableRc.top()) {
         while (trayIcon_.geometry().isEmpty())
@@ -137,7 +137,7 @@ MainWindow::MainWindow() :
     qCDebug(LOG_BASIC) << "GUI pid: " << guiPid;
     backend_ = new Backend(this);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     WidgetUtils_mac::allowMinimizeForFramelessWindow(this);
 #endif
 
@@ -343,7 +343,7 @@ MainWindow::MainWindow() :
     connect(backend_->getPreferences(), &Preferences::customConfigsPathChanged, this, &MainWindow::onPreferencesCustomConfigsPathChanged);
     connect(backend_->getPreferences(), &Preferences::debugAdvancedParametersChanged, this, &MainWindow::onPreferencesAdvancedParametersChanged);
     connect(backend_->getPreferences(), &Preferences::reportErrorToUser, this, &MainWindow::onPreferencesReportErrorToUser);
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     connect(backend_->getPreferences(), &Preferences::hideFromDockChanged, this, &MainWindow::onPreferencesHideFromDockChanged);
 #elif defined(Q_OS_LINUX)
     connect(backend_->getPreferences(), &Preferences::trayIconColorChanged, this, &MainWindow::onPreferencesTrayIconColorChanged);
@@ -368,7 +368,7 @@ MainWindow::MainWindow() :
 
     GeneralMessageController::instance().setMainWindowController(mainWindowController_);
 
-# if defined(Q_OS_MAC) || defined(Q_OS_WIN)
+# if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
     setupTrayIcon();
 #endif
 
@@ -399,7 +399,7 @@ MainWindow::MainWindow() :
     if (bMoveEnabled_)
         mainWindowController_->setWindowPosFromPersistent();
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     hideShowDockIconTimer_.setSingleShot(true);
     connect(&hideShowDockIconTimer_, &QTimer::timeout, this, [this]() {
         hideShowDockIconImpl(true);
@@ -483,7 +483,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 
 bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
 {
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
     // Check if the window is closed by pressing a keyboard shortcut (Alt+F4 on Windows, Cmd+Q on
     // macOS). We cannot detect the keypress itself, because the system doesn't deliver it as
     // separate keypress messages, but rather as the close event.
@@ -507,7 +507,7 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
             return false;
         }
     }
-#endif  // Q_OS_WIN || Q_OS_MAC
+#endif  // Q_OS_WIN || Q_OS_MACOS
 
     setEnabled(false);
 
@@ -615,7 +615,7 @@ void MainWindow::minimizeToTray()
     trayIcon_.show();
     QTimer::singleShot(0, this, &MainWindow::hide);
     MainWindowState::instance().setActive(false);
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     MacUtils::hideDockIcon();
 #endif
 }
@@ -640,7 +640,7 @@ bool MainWindow::event(QEvent *event)
         }
     }
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     if (event->type() == QEvent::PaletteChange)
     {
         trayIconColorWhite_ = InterfaceUtils::isDarkMode();
@@ -667,7 +667,7 @@ bool MainWindow::event(QEvent *event)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // on MacOS we get the closeEvent twice when pressing Cmd-Q.  Ignore next event if we detect this.
-#if defined (Q_OS_MAC)
+#if defined (Q_OS_MACOS)
     static bool ignoreEvent = false;
     if (ignoreEvent) {
         event->ignore();
@@ -682,7 +682,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         QApplication::quit();
     } else {
         if (!doClose(event)) {
-#if defined (Q_OS_MAC)
+#if defined (Q_OS_MACOS)
             ignoreEvent = true;
 #endif
         }
@@ -731,7 +731,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             //event->accept();
             bMousePressed_ = true;
 
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
             this->window()->windowHandle()->startSystemMove();
 #endif
         }
@@ -864,7 +864,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
           p.fillRect(QRect(0, 0, width(), height()),Qt::cyan);
     }*/
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     mainWindowController_->updateNativeShadowIfNeeded();
 #endif
 
@@ -897,7 +897,7 @@ void MainWindow::setWindowToDpiScaleManager()
 
 void MainWindow::onMinimizeClick()
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     if (backend_->getPreferences()->isMinimizeAndCloseToTray()) {
         minimizeToTray();
         return;
@@ -1625,7 +1625,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
 
         backend_->sendSplitTunneling(p->splitTunneling());
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         // on Mac, remove apps from the split tunnel config since we don't support them
         p->setSplitTunnelingApps(QList<types::SplitTunnelingApp>());
 
@@ -2266,11 +2266,25 @@ void MainWindow::onBackendWifiSharingInfoChanged(const types::WifiSharingInfo &w
     mainWindowController_->getBottomInfoWindow()->setSecureHotspotUsersCount(wsi.usersCount);
 }
 
-void MainWindow::onBackendWifiSharingFailed()
+void MainWindow::onBackendWifiSharingFailed(WIFI_SHARING_ERROR error)
 {
     mainWindowController_->getBottomInfoWindow()->setSecureHotspotFeatures(false, "");
     mainWindowController_->getBottomInfoWindow()->setSecureHotspotUsersCount(0);
-    backend_->getPreferencesHelper()->setWifiSharingSupported(false);
+
+    if (error == WIFI_SHARING_ERROR_RADIO_OFF) {
+        GeneralMessageController::instance().showMessage(
+            "WARNING_WHITE",
+            tr("Wi-Fi is off"),
+            tr("Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on."),
+            GeneralMessageController::tr(GeneralMessageController::kOk));
+    } else {
+        backend_->getPreferencesHelper()->setWifiSharingSupported(false);
+        GeneralMessageController::instance().showMessage(
+            "WARNING_YELLOW",
+            tr("Could not start Secure Hotspot"),
+            tr("Your network adapter may not support this feature. It has been disabled in preferences."),
+            GeneralMessageController::tr(GeneralMessageController::kOk));
+    }
 }
 
 void MainWindow::onBackendRequestCustomOvpnConfigCredentials()
@@ -2590,7 +2604,7 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERS
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
             center_x = geometry().x() + geometry().width() / 2;
             center_y = geometry().y() + geometry().height() / 2;
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
             MacUtils::getNSWindowCenter((void *)this->winId(), center_x, center_y);
 #endif
         }
@@ -2780,7 +2794,7 @@ void MainWindow::onPreferencesLastKnownGoodProtocolChanged(const QString &networ
     }
 }
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 void MainWindow::hideShowDockIcon(bool hideFromDock)
 {
     desiredDockIconVisibility_ = !hideFromDock;
@@ -2878,7 +2892,7 @@ void MainWindow::hideShowDockIconImpl(bool bAllowActivateAndShow)
 void MainWindow::activateAndShow(bool moveBetweenVirtualDesktops)
 {
     // qDebug() << "ActivateAndShow()";
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     if (!backend_->getPreferences()->isHideFromDock()) {
         MacUtils::showDockIcon();
     }
@@ -2903,7 +2917,7 @@ void MainWindow::activateAndShow(bool moveBetweenVirtualDesktops)
 
     if (!isActiveWindow())
         activateWindow();
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     MacUtils::activateApp();
 #endif
 
@@ -2911,7 +2925,7 @@ void MainWindow::activateAndShow(bool moveBetweenVirtualDesktops)
 }
 
 void MainWindow::activateAndShow() {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     // True is passed for Mac in order to fix issue #48 and #647.
     // App should appear always on the active virtual desktop.
     activateAndShow(true);
@@ -2923,7 +2937,7 @@ void MainWindow::activateAndShow() {
 void MainWindow::deactivateAndHide()
 {
     MainWindowState::instance().setActive(false);
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
         MacUtils::hideDockIcon();
     }
@@ -2988,7 +3002,7 @@ void MainWindow::onIpcOpenLocations()
 {
     activateAndShow();
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     // Strange bug on Mac that causes flicker when activateAndShow() is called from a minimized state
     // calling hide() first seems to fix
     hide();
@@ -3068,7 +3082,7 @@ void MainWindow::onAutoConnectUpdated(bool on)
 
 QRect MainWindow::trayIconRect()
 {
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     if (trayIcon_.isVisible()) {
         const QRect rc = trayIcon_.geometry();
         // qDebug() << "System-reported tray icon rect: " << rc;
@@ -3304,7 +3318,7 @@ void MainWindow::createTrayMenuItems()
 #endif
     }
 
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     trayMenu_.addAction(tr("Show/Hide"), this, &MainWindow::onTrayMenuShowHide);
 #endif
 
@@ -3323,7 +3337,7 @@ void MainWindow::onTrayMenuAboutToShow()
 #ifndef Q_OS_LINUX
     locationsMenu_.clear();
 #endif
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     if (!backend_->getPreferences()->isDockedToTray()) {
         createTrayMenuItems();
     }
@@ -3365,7 +3379,7 @@ void MainWindow::onScaleChanged()
 void MainWindow::onDpiScaleManagerNewScreen(QScreen *screen)
 {
     Q_UNUSED(screen)
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     // There is a bug that causes the app to be drawn in strange locations under the following scenario:
     // On Mac: when laptop lid is closed/opened and app is docked
     // Instead we hide the app because an explicit click will redraw the click correctly and this should be relatively rare
@@ -3572,7 +3586,7 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
 #ifdef Q_OS_WIN
     } else if (connectState.connectError == NO_INSTALLED_TUN_TAP) {
         return;
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACOS)
     } else if (connectState.connectError == LOCKDOWN_MODE_IKEV2) {
         msg = tr("IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.");
 #endif
@@ -3839,7 +3853,7 @@ void MainWindow::onHelperSplitTunnelingStartFailed()
 void MainWindow::showTrayMessage(const QString &message)
 {
     if (trayIcon_.isSystemTrayAvailable()) {
-        trayIcon_.showMessage(tr("Windscribe"), message);
+        trayIcon_.showMessage("Windscribe", message);
         return;
     }
 
@@ -3893,7 +3907,7 @@ types::Protocol MainWindow::getDefaultProtocolForNetwork(const QString &network)
 
 void MainWindow::onAppStateChanged(Qt::ApplicationState state)
 {
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     // in the case where we are minimized/closed to tray, this event lets us know if the user has clicked the dock icon,
     // which means we should show the window again
     if (state == Qt::ApplicationActive) {
@@ -3903,7 +3917,7 @@ void MainWindow::onAppStateChanged(Qt::ApplicationState state)
 #endif
 }
 
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
 void MainWindow::setSigTermHandler(int fd)
 {
     fd_ = fd;

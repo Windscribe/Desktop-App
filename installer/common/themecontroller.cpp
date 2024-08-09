@@ -6,7 +6,7 @@
 
 ThemeController::ThemeController()
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     QFontDatabase::addApplicationFont(":/resources/IBMPlexSans-Bold.ttf");
     QFontDatabase::addApplicationFont(":/resources/IBMPlexSans-Regular.ttf");
 #endif

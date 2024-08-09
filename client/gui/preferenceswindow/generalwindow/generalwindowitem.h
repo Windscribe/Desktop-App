@@ -31,7 +31,7 @@ private slots:
     void onMinimizeAndCloseToTrayPreferencesChanged(bool b);
     void onMinimizeAndCloseToTrayClicked(bool b);
 
-#if defined Q_OS_MAC
+#if defined Q_OS_MACOS
     void onHideFromDockPreferecesChanged(bool b);
     void onHideFromDockClicked(bool b);
 #endif
@@ -95,7 +95,7 @@ private:
     ToggleItem *checkBoxShowLocationLoad_;
     PreferenceGroup *closeToTrayGroup_;
     ToggleItem *checkBoxMinimizeAndCloseToTray_;
-#if defined Q_OS_MAC
+#if defined Q_OS_MACOS
     PreferenceGroup *hideFromDockGroup_;
     ToggleItem *checkBoxHideFromDock_;
 #endif

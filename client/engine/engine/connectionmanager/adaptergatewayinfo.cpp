@@ -4,7 +4,7 @@
 
 #ifdef Q_OS_WIN
     #include "adapterutils_win.h"
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     #include "utils/network_utils/network_utils_mac.h"
 #elif defined Q_OS_LINUX
     #include "utils/network_utils/network_utils_linux.h"
@@ -19,7 +19,7 @@ AdapterGatewayInfo AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo()
 
 #ifdef Q_OS_WIN
     cai = AdapterUtils_win::getDefaultAdapterInfo();
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     NetworkUtils_mac::getDefaultRoute(cai.gateway_, cai.adapterName_);
     cai.adapterIp_ = NetworkUtils_mac::ipAddressByInterfaceName(cai.adapterName_);
     cai.dnsServers_ = NetworkUtils_mac::getDnsServersForInterface(cai.adapterName_);

@@ -25,7 +25,7 @@ QString OpenVpnVersionController::getOpenVpnFilePath()
 {
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     QString exe = QCoreApplication::applicationDirPath() + QDir::separator() + getOpenVpnFileName();
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     QString exe = QCoreApplication::applicationDirPath() + "/../Helpers/" + getOpenVpnFileName();
 #else
 #error OpenVpnVersionController::getOpenVpnFilePath() not implemented for this platform.

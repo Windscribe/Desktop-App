@@ -25,7 +25,7 @@
 #include "api_responses/checkupdate.h"
 #include "protocolwindow/protocolwindowmode.h"
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
 #define USE_LOCATIONS_TRAY_MENU_NATIVE
 #endif
 
@@ -45,7 +45,7 @@ public:
     void showAfterLaunch();
 
     bool handleKeyPressEvent(QKeyEvent *event);
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     void setSigTermHandler(int fd);
 #endif
 
@@ -185,7 +185,7 @@ private slots:
     void onBackendStatisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void onBackendProxySharingInfoChanged(const types::ProxySharingInfo &psi);
     void onBackendWifiSharingInfoChanged(const types::WifiSharingInfo &wsi);
-    void onBackendWifiSharingFailed();
+    void onBackendWifiSharingFailed(WIFI_SHARING_ERROR error);
     void onBackendRequestCustomOvpnConfigCredentials();
     void onBackendRequestCustomOvpnConfigPrivKeyPassword();
     void onBackendSessionDeleted();
@@ -228,7 +228,7 @@ private slots:
 
     void onPreferencesCollapsed();
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     void onPreferencesHideFromDockChanged(bool hideFromDock);
     void hideShowDockIconImpl(bool bAllowActivateAndShow);
 #elif defined(Q_OS_LINUX)
@@ -287,7 +287,7 @@ private slots:
     void onSelectedLocationChanged();
     void onSelectedLocationRemoved();
 
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     void onSigTerm();
 #endif
 
@@ -384,7 +384,7 @@ private:
 
     bool trayIconColorWhite_;
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     void hideShowDockIcon(bool hideFromDock);
     QTimer hideShowDockIconTimer_;
     bool currentDockIconVisibility_;

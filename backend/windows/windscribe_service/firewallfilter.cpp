@@ -279,10 +279,17 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
         Logger::instance().out(L"Could not add localhost v6 allow filter.");
     }
 
+     // add permit filters for unicast addresses
+    const std::vector<Ip4AddressAndMask> unicastIps = Ip4AddressAndMask::fromVector({L"224.0.0.0/4"});
+    ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &unicastIps);
+    if (!ret) {
+        Logger::instance().out(L"Could not add IPv4 unicast allow filter.");
+    }
+
     // add permit filters for Local Network
     if (bAllowLocalTraffic) {
         const std::vector<Ip4AddressAndMask> privV4 = Ip4AddressAndMask::fromVector(
-            {L"10.0.0.0/8", L"172.16.0.0/12", L"192.168.0.0/16", L"169.254.0.0/16", L"224.0.0.0/4"});
+            {L"10.0.0.0/8", L"172.16.0.0/12", L"192.168.0.0/16", L"169.254.0.0/16"});
         ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &privV4);
         if (!ret) {
             Logger::instance().out(L"Could not add IPv4 LAN traffic allow filter.");

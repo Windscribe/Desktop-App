@@ -457,7 +457,7 @@ void ConnectWindowItem::onFirewallInfoHoverLeave()
 
 void ConnectWindowItem::onDockedModeChanged(bool bIsDockedToTray)
 {
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     minimizeButton_->setVisible(!bIsDockedToTray);
 #else
     Q_UNUSED(bIsDockedToTray);

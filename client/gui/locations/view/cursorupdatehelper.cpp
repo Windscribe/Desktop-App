@@ -1,6 +1,6 @@
 #include "cursorupdatehelper.h"
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 #include "utils/macutils.h"
 #endif
 #include "utils/ws_assert.h"
@@ -40,7 +40,7 @@ void CursorUpdateHelper::setPointingHandCursor()
 void CursorUpdateHelper::applyCurrentCursor()
 {
     widget_->setCursor(currentCursor_);
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     auto *id = reinterpret_cast<void*>(widget_->effectiveWinId());
     MacUtils::invalidateCursorRects(id);
 #endif

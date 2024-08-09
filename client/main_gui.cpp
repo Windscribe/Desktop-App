@@ -38,7 +38,7 @@
 
 void applyScalingFactor(qreal ldpi, MainWindow &mw);
 
-#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+#if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
 MainWindow *g_MainWindow = NULL;
 static int fds[2];
 
@@ -65,14 +65,18 @@ int main(int argc, char *argv[])
 {
 #if defined (Q_OS_LINUX)
     gid_t gid = LinuxUtils::getWindscribeGid();
+    if (gid == -1) {
+        qCDebug(LOG_BASIC) << "windscribe group does not exist";
+        return -1;
+    }
     qCDebug(LOG_BASIC) << "Setting gid to:" << gid;
     if (setgid(gid) < 0) {
         qCDebug(LOG_BASIC) << "Could not set windscribe group";
-        return 0;
+        return -1;
     }
 #endif
 
-#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+#if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
     if (::socketpair(AF_UNIX, SOCK_STREAM, 0, fds)) {
         qCDebug(LOG_BASIC) << "Could not open signal socket";
     }
@@ -106,7 +110,7 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(jpg);
     Q_INIT_RESOURCE(svg);
     Q_INIT_RESOURCE(windscribe);
-    #ifdef Q_OS_MAC
+    #ifdef Q_OS_MACOS
         Q_INIT_RESOURCE(windscribe_mac);
     #endif
 
@@ -164,7 +168,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+#if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
     QObject::connect(&appSingleInstGuard, &windscribe::SingleAppInstance::anotherInstanceRunning,
                      &a, &WindscribeApplication::activateFromAnotherInstance);
 #endif
@@ -197,7 +201,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-#if defined Q_OS_MAC
+#if defined Q_OS_MACOS
     if (!MacUtils::verifyAppBundleIntegrity())
     {
         QMessageBox msgBox;
@@ -213,14 +217,14 @@ int main(int argc, char *argv[])
 
     MainWindow w;
 
-#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+#if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
     g_MainWindow = &w;
     w.setSigTermHandler(fds[1]);
 #endif
     w.showAfterLaunch();
 
     int ret = a.exec();
-#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+#if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
     g_MainWindow = nullptr;
 #endif
     appSingleInstGuard.release();

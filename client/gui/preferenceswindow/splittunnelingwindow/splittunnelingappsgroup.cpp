@@ -11,7 +11,7 @@
 
 #if defined(Q_OS_WIN)
     #include "utils/winutils.h"
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACOS)
     #include "utils/macutils.h"
 #elif defined(Q_OS_LINUX)
     #include "utils/linuxutils.h"
@@ -167,7 +167,7 @@ void SplitTunnelingAppsGroup::populateSearchApps()
     const auto runningPrograms = WinUtils::enumerateRunningProgramLocations();
     for (const QString &exePath : runningPrograms) {
         if (!exePath.contains("C:\\Windows") && !exePath.contains("Windscribe.exe")) {
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     const auto installedPrograms = MacUtils::enumerateInstalledPrograms();
     for (const QString &exePath : installedPrograms) {
         if (!exePath.contains("Windscribe")) {
@@ -184,7 +184,7 @@ void SplitTunnelingAppsGroup::populateSearchApps()
             app.fullName = exePath;
 #ifdef Q_OS_WIN
             app.icon = app.fullName;
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
             app.icon = MacUtils::iconPathFromBinPath(exePath);
 #elif defined Q_OS_LINUX
             app.icon = installedPrograms[exePath];

@@ -38,7 +38,7 @@
     #include "wireguardconnection_win.h"
     #include "engine/helper/helper_win.h"
     #include "utils/winutils.h"
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     #include "sleepevents_mac.h"
     #include "utils/macutils.h"
     #include "ikev2connection_mac.h"
@@ -89,13 +89,13 @@ ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkD
 
 #ifdef Q_OS_WIN
     sleepEvents_ = new SleepEvents_win(this);
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     sleepEvents_ = new SleepEvents_mac(this);
 #endif
 
     connect(networkDetectionManager_, &INetworkDetectionManager::onlineStateChanged, this, &ConnectionManager::onNetworkOnlineStateChanged);
 
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
     connect(sleepEvents_, &ISleepEvents::gotoSleep, this, &ConnectionManager::onSleepMode);
     connect(sleepEvents_, &ISleepEvents::gotoWake, this, &ConnectionManager::onWakeMode);
 #endif
@@ -301,7 +301,7 @@ void ConnectionManager::removeIkev2ConnectionFromOS()
 {
 #ifdef Q_OS_WIN
     IKEv2Connection_win::removeIkev2ConnectionFromOS();
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     IKEv2Connection_mac::removeIkev2ConnectionFromOS();
 #endif
 }
@@ -760,7 +760,7 @@ void ConnectionManager::onNetworkOnlineStateChanged(bool isAlive)
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     emit internetConnectivityChanged(isAlive);
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     emit internetConnectivityChanged(isAlive);
 
     bLastIsOnline_ = isAlive;
@@ -859,7 +859,7 @@ void ConnectionManager::onWstunnelStarted()
 
 void ConnectionManager::doConnect()
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     // For automatic policy, we would have removed IKEv2 from the list for lockdown mode.
     // There is no custom config for IKEv2, so if we get here it is manual mode.
     // We can get here either by:
@@ -1194,7 +1194,7 @@ bool ConnectionManager::checkFails()
 
 void ConnectionManager::doMacRestoreProcedures()
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     if (!connector_)
         return;
     const auto connection_type = connector_->getConnectionType();
@@ -1243,7 +1243,7 @@ void ConnectionManager::recreateConnector(types::Protocol protocol)
         {
 #ifdef Q_OS_WIN
             connector_ = new IKEv2Connection_win(this, helper_);
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
             connector_ = new IKEv2Connection_mac(this, helper_);
 #elif defined Q_OS_LINUX
             connector_ = new IKEv2Connection_linux(this, helper_);
@@ -1527,7 +1527,7 @@ void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSe
     if (bli_->locationId().isCustomConfigsLocation()) {
         connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(bli_));
     } else if (connectionSettings.isAutomatic()) {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_, MacUtils::isLockdownMode()));
 #else
         connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_, false));

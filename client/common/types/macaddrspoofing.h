@@ -4,7 +4,7 @@
 #include <QString>
 #include "networkinterface.h"
 #include "utils/network_utils/network_utils.h"
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 #include "utils/macutils.h"
 #endif
 
@@ -21,7 +21,7 @@ struct MacAddrSpoofing
     {
         if (json.contains(kJsonIsEnabledProp) && json[kJsonIsEnabledProp].isBool()) {
             isEnabled = json[kJsonIsEnabledProp].toBool();
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
             // MacOS 14.4 does not support this feature
             if (MacUtils::isOsVersionAtLeast(14, 4)) {
                 isEnabled = false;

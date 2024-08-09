@@ -206,5 +206,49 @@
         <source>Downloading: %1%</source>
         <translation>Pobieranie: %1%</translation>
     </message>
+    <message>
+        <source>Username too short</source>
+        <translation>Zbyt krótka nazwa użytkownika</translation>
+    </message>
+    <message>
+        <source>Password too short</source>
+        <translation>Hasło jest za krótkie</translation>
+    </message>
+    <message>
+        <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>Połączenie jest w toku.  Użyj &apos;windscribe-cli status&apos;, aby sprawdzić stan połączenia.</translation>
+    </message>
+    <message>
+        <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>Trwa rozłączanie.  Użyj &apos;windscribe-cli status&apos;, aby sprawdzić stan połączenia.</translation>
+    </message>
+    <message>
+        <source>Firewall is on.</source>
+        <translation>Zapora sieciowa jest włączona.</translation>
+    </message>
+    <message>
+        <source>Firewall is off.</source>
+        <translation>Zapora sieciowa jest wyłączona.</translation>
+    </message>
+    <message>
+        <source>Logs sent.</source>
+        <translation>Wysłane dzienniki.</translation>
+    </message>
+    <message>
+        <source>Preferences reloaded.</source>
+        <translation>Preferencje zostały ponownie załadowane.</translation>
+    </message>
+    <message>
+        <source>Key limit behavior is set.</source>
+        <translation>Zachowanie limitu klucza jest ustawione.</translation>
+    </message>
+    <message>
+        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>Logowanie jest w toku.  Użyj &apos;windscribe-cli status&apos;, aby sprawdzić status.</translation>
+    </message>
+    <message>
+        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>Wylogowanie jest w toku.  Użyj &apos;windscribe-cli status&apos;, aby sprawdzić status.</translation>
+    </message>
 </context>
 </TS>

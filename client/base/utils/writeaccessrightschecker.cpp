@@ -46,7 +46,7 @@ WriteAccessRightsChecker::WriteAccessRightsChecker(const QString &dirname) :
             }
             CloseHandle(process_token);
         }
-#else  // Q_OS_MAC
+#else  // Q_OS_MACOS
         const int saved_euid = geteuid();
         const int real_uid = realUid(); // geteuid() will return 0 (root) when the application was called via sudo -- must get real uid manually
 
@@ -85,7 +85,7 @@ bool WriteAccessRightsChecker::isElevated() const
             result = token_elevation_data.TokenIsElevated != 0;
         CloseHandle(process_token);
     }
-#else  // Q_OS_MAC
+#else  // Q_OS_MACOS
     if (geteuid() == 0)
         result = true;
 #endif
@@ -97,7 +97,7 @@ void WriteAccessRightsChecker::testWrite()
     is_writeable_ = open(QIODevice::WriteOnly);
 }
 
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
 int WriteAccessRightsChecker::realUid()
 {
     std::string username(getlogin());

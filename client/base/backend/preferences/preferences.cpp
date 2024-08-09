@@ -95,7 +95,7 @@ void Preferences::setMinimizeAndCloseToTray(bool b)
     }
 }
 
-#if defined Q_OS_MAC
+#if defined Q_OS_MACOS
 bool Preferences::isHideFromDock() const
 {
     return guiSettings_.isHideFromDock;
@@ -695,17 +695,29 @@ QJsonObject Preferences::toJson() const
     QJsonObject json;
     json[kJsonGuiSettingsProp] = guiSettings_.toJson();
     json[kJsonEngineSettingsProp] = engineSettings_.toJson();
+    json[kJsonPersistentStateProp] = PersistentState::instance().toJson();
     return json;
 }
 
 void Preferences::updateFromJson(const QJsonObject& json)
 {
-    if (json.contains(kJsonEngineSettingsProp) && json[kJsonEngineSettingsProp].isObject())
+    if (json.contains(kJsonEngineSettingsProp) && json[kJsonEngineSettingsProp].isObject()) {
         setEngineSettings(json[kJsonEngineSettingsProp].toObject());
         emitEngineSettingsChanged();
+    }
 
-    if (json.contains(kJsonGuiSettingsProp) && json[kJsonGuiSettingsProp].isObject())
+    if (json.contains(kJsonGuiSettingsProp) && json[kJsonGuiSettingsProp].isObject()) {
         setGuiSettings(json[kJsonGuiSettingsProp].toObject());
+    }
+
+    if (json.contains(kJsonPersistentStateProp) && json[kJsonPersistentStateProp].isObject()) {
+        QVector<types::NetworkInterface> oldList = PersistentState::instance().networkWhitelist();
+        PersistentState::instance().fromJson(json[kJsonPersistentStateProp].toObject());
+        QVector<types::NetworkInterface> newList = PersistentState::instance().networkWhitelist();
+        if (oldList != newList) {
+            emit networkWhiteListChanged(newList);
+        }
+    }
 }
 
 void Preferences::emitEngineSettingsChanged()
@@ -758,7 +770,7 @@ void Preferences::setGuiSettings(const types::GuiSettings &gs)
     setAutoConnect(gs.isAutoConnect);
     setDockedToTray(gs.isDockedToTray);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     setHideFromDock(gs.isHideFromDock);
 #endif
 

@@ -206,5 +206,49 @@
         <source>Downloading: %1%</source>
         <translation>Herunterladen: %1%</translation>
     </message>
+    <message>
+        <source>Username too short</source>
+        <translation>Benutzername zu kurz</translation>
+    </message>
+    <message>
+        <source>Password too short</source>
+        <translation>Passwort zu kurz</translation>
+    </message>
+    <message>
+        <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>Die Verbindung wird hergestellt.  Verwenden Sie &apos;windscribe-cli status&apos;, um den Verbindungsstatus zu überprüfen.</translation>
+    </message>
+    <message>
+        <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>Die Trennung ist im Gange.  Verwenden Sie &apos;windscribe-cli status&apos;, um den Verbindungsstatus zu überprüfen.</translation>
+    </message>
+    <message>
+        <source>Firewall is on.</source>
+        <translation>Die Firewall ist aktiviert.</translation>
+    </message>
+    <message>
+        <source>Firewall is off.</source>
+        <translation>Die Firewall ist ausgeschaltet.</translation>
+    </message>
+    <message>
+        <source>Logs sent.</source>
+        <translation>Gesendete Protokolle.</translation>
+    </message>
+    <message>
+        <source>Preferences reloaded.</source>
+        <translation>Einstellungen neu geladen.</translation>
+    </message>
+    <message>
+        <source>Key limit behavior is set.</source>
+        <translation>Das Verhalten der Tastenbegrenzung ist festgelegt.</translation>
+    </message>
+    <message>
+        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>Die Anmeldung ist im Gange.  Verwenden Sie &apos;windscribe-cli status&apos;, um den Status zu überprüfen.</translation>
+    </message>
+    <message>
+        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>Die Abmeldung ist im Gange.  Verwenden Sie &apos;windscribe-cli status&apos;, um den Status zu überprüfen.</translation>
+    </message>
 </context>
 </TS>

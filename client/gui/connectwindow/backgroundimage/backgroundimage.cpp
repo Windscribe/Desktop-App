@@ -199,7 +199,7 @@ void BackgroundImage::switchConnectGradient(bool isCustomBackground)
 
 void BackgroundImage::updateImages()
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
         connectingGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTING_VAN_GOGH";
         connectedGradient_ = "background/MAC_TOP_GRADIENT_BG_CONNECTED_VAN_GOGH";

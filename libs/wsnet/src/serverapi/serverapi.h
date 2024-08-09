@@ -34,7 +34,7 @@ public:
     std::shared_ptr<WSNetCancelableCallback> serverConfigs(const std::string &authHash, WSNetRequestFinishedCallback callback) override;
 
     std::shared_ptr<WSNetCancelableCallback> portMap(const std::string &authHash, std::uint32_t version, const std::vector<std::string> &forceProtocols, WSNetRequestFinishedCallback callback) override;
-    std::shared_ptr<WSNetCancelableCallback> recordInstall(WSNetRequestFinishedCallback callback) override;
+    std::shared_ptr<WSNetCancelableCallback> recordInstall(bool isDesktop, WSNetRequestFinishedCallback callback) override;
 
     std::shared_ptr<WSNetCancelableCallback> addEmail(const std::string &authHash, const std::string &email, WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> confirmEmail(const std::string &authHash, WSNetRequestFinishedCallback callback) override;
@@ -100,6 +100,9 @@ public:
 
     std::shared_ptr<WSNetCancelableCallback> verifyTvLoginCode(const std::string &authHash, const std::string &xpressCode,
                                                                        WSNetRequestFinishedCallback callback) override;
+
+    std::shared_ptr<WSNetCancelableCallback> cancelAccount(const std::string &authHash, const std::string &password,
+                                                               WSNetRequestFinishedCallback callback) override;
 
 private:
     std::unique_ptr<ServerAPI_impl> impl_;

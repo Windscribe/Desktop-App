@@ -2,7 +2,7 @@
 #include "utils/logger.h"
 #include <QAbstractEventDispatcher>
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 
 #include <objc/objc.h>
 #include <objc/message.h>
@@ -46,7 +46,7 @@ WindscribeApplication::WindscribeApplication(int &argc, char **argv) : QApplicat
     QAbstractEventDispatcher::instance()->installNativeEventFilter(&windowsNativeEventFilter_);
 #endif
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     setupDockClickHandler();
     connect(&exitHandlerMac_, &ExitHandler_mac::shouldTerminate, this, &WindscribeApplication::shouldTerminate_mac);
 #endif
@@ -59,7 +59,7 @@ void WindscribeApplication::onClickOnDock()
 
 bool WindscribeApplication::isExitWithRestart()
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     return exitHandlerMac_.isExitWithRestart();
 #else
     return bWasRestartOS_;

@@ -33,6 +33,7 @@ public:
                            bool isUseStagingDomains, const std::string &persistentSettings);
     static std::shared_ptr<WSNet> instance();
     static void cleanup();
+    static bool isValid();
 
     virtual void setConnectivityState(bool isOnline) = 0;
     virtual void setIsConnectedToVpnState(bool isConnected) = 0;

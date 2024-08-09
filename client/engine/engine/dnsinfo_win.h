@@ -1,7 +1,6 @@
 #pragma once
 
-class DnsInfo_win
+namespace DnsInfo_win
 {
-public:
-    static void outputDebugDnsInfo();
-};
+    void outputDebugDnsInfo();
+}

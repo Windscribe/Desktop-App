@@ -6,7 +6,7 @@
 
 #if defined Q_OS_WIN
 #include "network_utils_win.h"
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
 #include "network_utils_mac.h"
 #elif defined Q_OS_LINUX
 #include "network_utils_linux.h"
@@ -71,7 +71,7 @@ bool NetworkUtils::pingWithMtu(const QString &url, int mtu)
 {
 #ifdef Q_OS_WIN
     return NetworkUtils_win::pingWithMtu(url, mtu);
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     return NetworkUtils_mac::pingWithMtu(url, mtu);
 #elif defined Q_OS_LINUX
     return NetworkUtils_linux::pingWithMtu(url, mtu);
@@ -82,7 +82,7 @@ QString NetworkUtils::getLocalIP()
 {
 #ifdef Q_OS_WIN
     return NetworkUtils_win::getLocalIP();
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     return NetworkUtils_mac::getLocalIP();
 #elif defined Q_OS_LINUX
     return NetworkUtils_linux::getLocalIP();
@@ -112,7 +112,7 @@ QString NetworkUtils::getRoutingTable()
 {
 #ifdef Q_OS_WIN
     return NetworkUtils_win::getRoutingTable();
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     return NetworkUtils_mac::getRoutingTable();
 #elif defined Q_OS_LINUX
     return NetworkUtils_linux::getRoutingTable();

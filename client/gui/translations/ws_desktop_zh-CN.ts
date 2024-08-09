@@ -9,11 +9,11 @@
     </message>
     <message>
         <source>Clear</source>
-        <translation>清楚</translation>
+        <translation>清除</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation>还行</translation>
+        <translation>确定</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -28,7 +28,7 @@
     <name>CommonGraphics::EscapeButton</name>
     <message>
         <source>ESC</source>
-        <translation>电调</translation>
+        <translation>ESC</translation>
     </message>
 </context>
 <context>
@@ -39,15 +39,15 @@
     </message>
     <message>
         <source>Unsecured</source>
-        <translation>担保</translation>
+        <translation>未加密</translation>
     </message>
     <message>
         <source>Secured</source>
-        <translation>担保</translation>
+        <translation>已加密</translation>
     </message>
     <message>
         <source>Connection to Windscribe has been terminated. </source>
-        <translation>与Windscribe的连接已终止。</translation>
+        <translation>与 Windscribe 的连接已断开。</translation>
     </message>
     <message>
         <source> transferred in </source>
@@ -59,7 +59,7 @@
     </message>
     <message>
         <source> transferred</source>
-        <translation>转移</translation>
+        <translation>已转移</translation>
     </message>
     <message>
         <source>Firewall</source>
@@ -67,7 +67,7 @@
     </message>
     <message>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
-        <translation>在突然断开连接时阻止所有连接</translation>
+        <translation>发生意外断开时断开所有活动连接</translation>
     </message>
     <message>
         <source>Connect to rate</source>
@@ -96,11 +96,11 @@
     </message>
     <message>
         <source>Redo</source>
-        <translation>重做</translation>
+        <translation>还原</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation>切</translation>
+        <translation>剪切</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -108,7 +108,7 @@
     </message>
     <message>
         <source>Paste</source>
-        <translation>糊</translation>
+        <translation>粘贴</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -127,19 +127,19 @@
     </message>
     <message>
         <source>Emergency connection failure. Try again?</source>
-        <translation>紧急连接失败。再试一次？</translation>
+        <translation>紧急连接失败，重试？</translation>
     </message>
     <message>
         <source>Can&apos;t access Windscribe.com or login into the app on your restrictive network? Connect to the emergency server that unblocks all of Windscribe.</source>
-        <translation>无法访问受限网络上的 Windscribe.com 或登录应用程序？连接到紧急服务器，以解锁所有Windscribe。</translation>
+        <translation>无法连接到 Windscribe.com？尝试连接到紧急服务器，以访问 Windscribe 相关服务。</translation>
     </message>
     <message>
         <source>Connecting...</source>
-        <translation>连接。。。</translation>
+        <translation>正在连接……</translation>
     </message>
     <message>
         <source>Disconnecting...</source>
-        <translation>断开。。。</translation>
+        <translation>正在断开……</translation>
     </message>
     <message>
         <source>Connect</source>
@@ -154,7 +154,7 @@
     <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
         <source>Access for %1 Only</source>
-        <translation>仅限 %1 的访问权限</translation>
+        <translation>仅限访问 %1</translation>
     </message>
 </context>
 <context>
@@ -165,33 +165,33 @@
     </message>
     <message>
         <source>Use the Windscribe app without an account to connect to any OpenVPN or WireGuard server.</source>
-        <translation>在没有帐户的情况下使用Windscribe应用程序连接到任何OpenVPN或WireGuard服务器。</translation>
+        <translation>在没有帐户的情况下使用 Windscribe 应用连接到任何 OpenVPN 或 WireGuard 服务器。</translation>
     </message>
     <message>
         <source>Ok, got it!</source>
-        <translation>好的，知道了！</translation>
+        <translation>好的，了解！</translation>
     </message>
 </context>
 <context>
     <name>FreeTrafficNotificationController</name>
     <message>
         <source>You reached %1% of your free bandwidth allowance</source>
-        <translation>您已达到可用带宽限额的 %1%</translation>
+        <translation>您已使用可用带宽限额的 %1%</translation>
     </message>
 </context>
 <context>
     <name>GeneralMessageController</name>
     <message>
         <source>Ok</source>
-        <translation>还行</translation>
+        <translation>确定</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation>是的</translation>
+        <translation>是</translation>
     </message>
     <message>
         <source>No</source>
-        <translation>不</translation>
+        <translation>否</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -218,18 +218,18 @@
     </message>
     <message>
         <source>Remember</source>
-        <translation>记得</translation>
+        <translation>记住</translation>
     </message>
 </context>
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
         <source>All</source>
-        <translation>都</translation>
+        <translation>全部</translation>
     </message>
     <message>
         <source>Configured</source>
-        <translation>配置</translation>
+        <translation>已配置</translation>
     </message>
     <message>
         <source>Static IPs</source>
@@ -245,7 +245,7 @@
     </message>
     <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
-        <translation>选择包含您希望在此处显示的自定义配置的目录</translation>
+        <translation>选择包含自定义配置的目录，所有配置将在这里显示</translation>
     </message>
     <message>
         <source>Choose</source>
@@ -261,11 +261,11 @@
     </message>
     <message>
         <source>Nothing to see here...</source>
-        <translation>这里没什么可看的...</translation>
+        <translation>这里什么都没有捏</translation>
     </message>
     <message>
         <source>You don&apos;t have any Static IPs</source>
-        <translation>您没有任何静态 IP</translation>
+        <translation>没有任何静态 IP</translation>
     </message>
     <message>
         <source>No locations</source>
@@ -273,7 +273,7 @@
     </message>
     <message>
         <source>Buy</source>
-        <translation>买</translation>
+        <translation>购买</translation>
     </message>
 </context>
 <context>
@@ -295,7 +295,7 @@
     </message>
     <message>
         <source>Color highlighting</source>
-        <translation>颜色突出显示</translation>
+        <translation>突出显示颜色</translation>
     </message>
     <message>
         <source>Export to file...</source>
@@ -315,7 +315,7 @@
     </message>
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
-        <translation>无法导出日志。 确保您具有正确的权限。</translation>
+        <translation>无法导出日志。 确保您有文件访问权限。</translation>
     </message>
 </context>
 <context>
@@ -326,7 +326,7 @@
     </message>
     <message>
         <source>No Internet Connectivity</source>
-        <translation>没有互联网连接</translation>
+        <translation>无 Internet 连接</translation>
     </message>
     <message>
         <source>No API Connectivity</source>
@@ -334,7 +334,7 @@
     </message>
     <message>
         <source>Proxy requires authentication</source>
-        <translation>代理需要身份验证</translation>
+        <translation>代理服务器需要身份验证</translation>
     </message>
     <message>
         <source>Invalid API response, check your network</source>
@@ -346,19 +346,19 @@
     </message>
     <message>
         <source>...hmm are you sure this is correct?</source>
-        <translation>...嗯，你确定这是正确的吗？</translation>
+        <translation>啊？这好像不对呢</translation>
     </message>
     <message>
         <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>...对不起，好像又错了</translation>
+        <translation>呜喵，好像又出错了</translation>
     </message>
     <message>
         <source>...hmm, try resetting your password!</source>
-        <translation>...嗯，尝试重置密码！</translation>
+        <translation>不记得了？那就重置密码吧！</translation>
     </message>
     <message>
         <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>价格有限。请稍候，然后再尝试再次登录。</translation>
+        <translation>尝试次数太多啦，等一会儿先吧~</translation>
     </message>
     <message>
         <source>Session is expired. Please login again</source>
@@ -366,7 +366,7 @@
     </message>
     <message>
         <source>Your username should not be an email address. Please try again.</source>
-        <translation>您的用户名不应是电子邮件地址。请重试。</translation>
+        <translation>用户名不是电子邮件地址哦！再试一次吧。</translation>
     </message>
     <message>
         <source>Login</source>
@@ -374,7 +374,7 @@
     </message>
     <message>
         <source>Emergency Connect is ON</source>
-        <translation>紧急连接已打开</translation>
+        <translation>紧急连接已启用</translation>
     </message>
     <message>
         <source>Emergency Connect</source>
@@ -390,7 +390,7 @@
     </message>
     <message>
         <source>2FA Code</source>
-        <translation>2FA 代码</translation>
+        <translation>2FA 验证码</translation>
     </message>
     <message>
         <source>Forgot password?</source>
@@ -409,7 +409,7 @@
     <name>LoginWindow::WelcomeWindowItem</name>
     <message>
         <source>Keep Your Secrets.</source>
-        <translation>保守你的秘密。</translation>
+        <translation>保护你的连接</translation>
     </message>
     <message>
         <source>Emergency Connect</source>
@@ -433,7 +433,7 @@
     </message>
     <message>
         <source>Get Started</source>
-        <translation>开始</translation>
+        <translation>入门</translation>
     </message>
 </context>
 <context>
@@ -448,19 +448,19 @@
     </message>
     <message>
         <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>旋转 MAC 地址将导致与当前网络断开连接的事件。是否确定？</translation>
+        <translation>旋转 MAC 地址将导致与当前网络断开连接的事件，是否确定？</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
-        <translation>连接时无法检测到适当的数据包大小。请先断开连接。</translation>
+        <translation>无法检测到正确的数据包大小，请先断开连接。</translation>
     </message>
     <message>
         <source>No Internet</source>
-        <translation>没有互联网</translation>
+        <translation>没有 Internet 连接</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size without internet. Check your connection.</source>
-        <translation>在没有互联网的情况下无法检测到适当的数据包大小。检查您的连接。</translation>
+        <translation>无法检测到正确的数据包大小，请检查您的 Internet 连接。</translation>
     </message>
     <message>
         <source>Select Custom Config Folder</source>
@@ -468,7 +468,7 @@
     </message>
     <message>
         <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>无法选择此目录，因为它对非特权用户是可写的。此目录中的自定义配置可能会带来潜在的安全风险。请使用管理员用户进行身份验证以选择此目录。</translation>
+        <translation>无法选择此目录，因为它对非管理员用户是可写的。此目录中的自定义配置可能会带来潜在的安全风险。请选择仅允许管理员用户编辑的目录。</translation>
     </message>
     <message>
         <source>Can&apos;t select directory</source>
@@ -484,7 +484,7 @@
     </message>
     <message>
         <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>所选目录对非特权用户是可写的。此目录中的自定义配置可能会带来潜在的安全风险。</translation>
+        <translation>所选目录对非管理员用户是可写的。此目录中的自定义配置可能会带来潜在的安全风险。</translation>
     </message>
     <message>
         <source>Security Risk</source>
@@ -496,11 +496,11 @@
     </message>
     <message>
         <source>Enable &quot;Base Filtering Engine&quot; service? This is required for Windscribe to function.</source>
-        <translation>启用“基础过滤引擎”服务？这是Windscribe运行所必需的。</translation>
+        <translation>启用“基本筛选引擎”服务？这是运行 Windscribe 所必需的。</translation>
     </message>
     <message>
         <source>Failed to Enable Service</source>
-        <translation>无法启用服务</translation>
+        <translation>无法启动服务</translation>
     </message>
     <message>
         <source>Could not start &apos;Base Filtering Engine&apos; service.  Please enable this service manually in Windows Services.</source>
@@ -508,7 +508,7 @@
     </message>
     <message>
         <source>Failed to Start</source>
-        <translation>无法启动</translation>
+        <translation>启动失败</translation>
     </message>
     <message>
         <source>Trying Backup Endpoints %1/%2</source>
@@ -537,7 +537,7 @@
     <message>
         <source>Connection to Windscribe has been terminated.
 %1 transferred in %2</source>
-        <translation>与Windscribe的连接已终止。
+        <translation>与 Windscribe 的连接已终止。
 %1 在 %2 中转移</translation>
     </message>
     <message>
@@ -546,7 +546,7 @@
     </message>
     <message>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
-        <translation>我们检测到您的网络设置可能会干扰 Windscribe。 请向我们发送调试日志以进行故障排除。</translation>
+        <translation>我们检测到您的网络设置可能会干扰 Windscribe。请向我们发送调试日志以进行故障排除。</translation>
     </message>
     <message>
         <source>Send Debug Log</source>
@@ -558,7 +558,7 @@
     </message>
     <message>
         <source>Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.</source>
-        <translation>Windscribe将来将始终使用此协议在此网络上进行连接，以避免任何中断。</translation>
+        <translation>Windscribe 之后将始终使用此协议在此网络上进行连接，以避免任何中断。</translation>
     </message>
     <message>
         <source>Set as Preferred</source>
@@ -570,7 +570,7 @@
     </message>
     <message>
         <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>风抄写员出现故障。 请重新启动应用程序。</translation>
+        <translation>Windscribe 出问题啦，请重新启动应用程序。</translation>
     </message>
     <message>
         <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
@@ -590,7 +590,7 @@
     </message>
     <message>
         <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>无法欺骗 MAC 地址。 请尝试其他网络接口或联系支持人员。</translation>
+        <translation>无法欺骗 MAC 地址。请尝试其他网络接口或联系支持人员。</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -598,19 +598,19 @@
     </message>
     <message>
         <source>Cannot detect appropriate packet size due to an error. Please try again.</source>
-        <translation>由于错误，无法检测适当的数据包大小。请重试。</translation>
+        <translation>由于错误，无法检测正确的数据包大小。请重试。</translation>
     </message>
     <message>
         <source>This network hates us</source>
-        <translation>这个网络讨厌我们</translation>
+        <translation>这个网太烦辣，连不上捏</translation>
     </message>
     <message>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
-        <translation>我们无法在此网络上连接您。将您的调试日志发送给我们，以便我们弄清楚发生了什么。</translation>
+        <translation>无法再此网络上连接。给我们发送调试日志，以便我们调查到底发生了什么。</translation>
     </message>
     <message>
         <source>Debug Sent!</source>
-        <translation>调试已发送！</translation>
+        <translation>调试日志已发送！</translation>
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
@@ -630,17 +630,17 @@
     </message>
     <message>
         <source>Could not download update.  Please try again or use a different network.</source>
-        <translation>无法下载更新。 请重试或使用其他网络。</translation>
+        <translation>无法下载更新。请重试或使用其他网络。</translation>
     </message>
     <message>
         <source>Could not run updater (Error %1).  Please contact support</source>
-        <translation>无法运行更新程序（错误 %1）。 请联系支持人员</translation>
+        <translation>无法运行更新程序（错误 %1）。请联系支持人员</translation>
     </message>
     <message>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>与后端进程的连接丢失。
-恢复。。。</translation>
+正在恢复中……</translation>
     </message>
     <message>
         <source>Select an application</source>
@@ -696,15 +696,15 @@ Recovering...</source>
     </message>
     <message>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
-        <translation>无法加载自定义配置。 请检查是否正确或联系支持人员。</translation>
+        <translation>无法加载自定义配置。请检查是否正确或联系支持人员。</translation>
     </message>
     <message>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
-        <translation>线卫适配器设置失败。请等待一分钟，然后重试连接。如果适配器设置再次失败，请尝试重新启动计算机。
+        <translation>WireGuard 适配器配置失败。请等待一分钟，然后重试连接。如果适配器配置再次失败，请尝试重新启动计算机。
 
-如果重新启动后问题仍然存在，请发送调试日志并打开支持票证，然后切换到其他连接模式。</translation>
+如果重新启动后问题仍然存在，请发送调试日志并给我们提供反馈，然后切换到其他连接模式。</translation>
     </message>
     <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
@@ -731,16 +731,12 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>拆分隧道功能无法启动，并且已在首选项中禁用。</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>风抄写员</translation>
-    </message>
-    <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
-        <translation>无法启动自定义 DNS 服务。 请确保您没有运行任何其他本地 DNS 服务，或联系支持人员。</translation>
+        <translation>无法启动自定义 DNS 服务。请确保您没有运行任何其他本地 DNS 服务，或联系支持人员。</translation>
     </message>
     <message>
         <source>JSON Files (*.json)</source>
-        <translation>JSON 文件 （*.json）</translation>
+        <translation>JSON 文件 (*.json)</translation>
     </message>
     <message>
         <source>Unable to import preferences</source>
@@ -756,7 +752,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Export Preferences To</source>
-        <translation>将首选项导出到</translation>
+        <translation>导出首选项</translation>
     </message>
     <message>
         <source>Import Preferences From</source>
@@ -772,7 +768,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
-        <translation>无法打开文件进行写入。 请检查您的权限，然后重试。</translation>
+        <translation>无法写入文件。请检查文件权限，然后重试。</translation>
     </message>
     <message>
         <source>Enter Connection Credentials</source>
@@ -794,16 +790,32 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Rotating MAC Address</source>
         <translation>轮换 MAC 地址</translation>
     </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>Wi-Fi 已关闭</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>Windscribe 检测到 Wi-Fi 当前已关闭。要使用安全热点，应打开 Wi-Fi。</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>无法启动安全热点</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>您的网络适配器可能不支持此功能。它已在首选项中被禁用。</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
     <message>
         <source>Quit Windscribe?</source>
-        <translation>退出风抄写员？</translation>
+        <translation>退出 Windscribe？</translation>
     </message>
     <message>
         <source>Log Out of Windscribe?</source>
-        <translation>退出风抄写员？</translation>
+        <translation>退出登录？</translation>
     </message>
     <message>
         <source>Quit</source>
@@ -822,18 +834,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>NewsFeedWindow::NewsFeedWindowItem</name>
     <message>
         <source>News Feed</source>
-        <translation>新闻提要</translation>
+        <translation>新闻速递</translation>
     </message>
 </context>
 <context>
     <name>NotificationsController</name>
     <message>
         <source>WELCOME TO WINDSCRIBE</source>
-        <translation>欢迎来到温抄写员</translation>
+        <translation>欢迎使用 Windscribe</translation>
     </message>
     <message>
         <source>&lt;p&gt;You will find announcements and general Windscribe related news here. Perhaps even delicious cake, everyone loves cake!&lt;/p&gt;</source>
-        <translation>&lt;p&gt;您可以在此处找到公告和一般Windscribe相关新闻。也许甚至是美味的蛋糕，每个人都喜欢蛋糕！&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;您可以在此处找到公告和 Windscribe 相关新闻。也有可能是好吃的……小蛋糕！&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -844,22 +856,22 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 1 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
-        <translation>“连接的 DNS”未配置有效的上游 1（IP/DNS-over-HTTPS/TLS）。DNS 已恢复为 ROBERT（默认）。</translation>
+        <translation>“连接的 DNS”未配置有效的上游 1（IP/DNS-over-HTTPS/TLS）。DNS 已重置为 ROBERT（默认）。</translation>
     </message>
     <message>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 2 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
-        <translation>“连接的 DNS”未配置有效的上游 2（IP/DNS-over-HTTPS/TLS）。DNS 已恢复为 ROBERT（默认）。</translation>
+        <translation>“连接的 DNS”未配置有效的上游 2（IP/DNS-over-HTTPS/TLS）。DNS 已重置为 ROBERT（默认）。</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::AboutWindowItem</name>
     <message>
         <source>About</source>
-        <translation>大约</translation>
+        <translation>关于</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation>地位</translation>
+        <translation>动态</translation>
     </message>
     <message>
         <source>About Us</source>
@@ -871,7 +883,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Terms</source>
-        <translation>条款</translation>
+        <translation>使用条款</translation>
     </message>
     <message>
         <source>Blog</source>
@@ -879,7 +891,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Jobs</source>
-        <translation>工作</translation>
+        <translation>岗位</translation>
     </message>
     <message>
         <source>Software Licenses</source>
@@ -910,7 +922,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>PLAN</source>
-        <translation>计划</translation>
+        <translation>订阅计划</translation>
     </message>
     <message>
         <source>Reset Date</source>
@@ -918,7 +930,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Data Left</source>
-        <translation>剩余数据</translation>
+        <translation>剩余流量</translation>
     </message>
     <message>
         <source>Manage Account</source>
@@ -926,7 +938,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Expiry Date</source>
-        <translation>有效期</translation>
+        <translation>过期时间</translation>
     </message>
 </context>
 <context>
@@ -937,19 +949,19 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Restart Required</source>
-        <translation>需要重新启动</translation>
+        <translation>需要重启</translation>
     </message>
     <message>
         <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>要切换 IPv6，需要重新启动计算机。现在就做？</translation>
+        <translation>要切换 IPv6，需要重启计算机。是否现在重启？</translation>
     </message>
     <message>
         <source>Restart later</source>
-        <translation>稍后重新启动</translation>
+        <translation>稍后重启</translation>
     </message>
     <message>
         <source>Make advanced tweaks to the way the app functions.</source>
-        <translation>对应用程序的运行方式进行高级调整。</translation>
+        <translation>对应用程序进行高级调整。</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
@@ -976,16 +988,16 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>忽略 SSL 错误</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>通过定期 ping 服务器来防止 IKEv2 连接停止（超时）。</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>通过定期 ping 服务器来防止连接停止（超时）。</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
-        <translation>客户端保持连接</translation>
+        <translation>主动保持连接</translation>
     </message>
     <message>
         <source>Windscribe uses this DNS server to resolve addresses outside the VPN.</source>
-        <translation>Windscribe使用此DNS服务器来解析VPN之外的地址。</translation>
+        <translation>Windscribe 使用此 DNS 服务器来解析 VPN 之外的地址。</translation>
     </message>
     <message>
         <source>Warning: Using &quot;OS Default&quot; may sometimes cause DNS leaks during reconnects.</source>
@@ -1001,7 +1013,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>DNS Manager</source>
-        <translation>域名系统管理器</translation>
+        <translation>DNS 管理</translation>
     </message>
     <message>
         <source>App Preferences</source>
@@ -1009,18 +1021,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Export</source>
-        <translation>出口</translation>
+        <translation>导出</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation>进口</translation>
+        <translation>导入</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::ApiResolutionGroup</name>
     <message>
         <source>API Resolution</source>
-        <translation>接口解析</translation>
+        <translation>API 解析</translation>
     </message>
     <message>
         <source>Auto</source>
@@ -1044,18 +1056,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>您输入的 API 解析地址无效。 它已重置为自动。</translation>
+        <translation>您输入的 API 解析地址无效。已重置为“自动”。</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
     <message>
         <source>Disconnected</source>
-        <translation>断开</translation>
+        <translation>已断开</translation>
     </message>
     <message>
         <source>Connected</source>
-        <translation>连接</translation>
+        <translation>已连接</translation>
     </message>
     <message>
         <source>Flags</source>
@@ -1063,11 +1075,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>None</source>
-        <translation>没有</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>习惯</translation>
+        <translation>自定义</translation>
     </message>
     <message>
         <source>App Background</source>
@@ -1078,7 +1090,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::ConnectedDnsGroup</name>
     <message>
         <source>Connected DNS</source>
-        <translation>连接的域名解析</translation>
+        <translation>已连接的 DNS</translation>
     </message>
     <message>
         <source>Upstream 1</source>
@@ -1121,7 +1133,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Exclusive</source>
-        <translation>独家</translation>
+        <translation>专属</translation>
     </message>
     <message>
         <source>Inclusive</source>
@@ -1161,11 +1173,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.</source>
-        <translation>自动确定连接的 MTU，或手动覆盖。</translation>
+        <translation>自动确定 MTU，或手动覆盖。</translation>
     </message>
     <message>
         <source>Select the DNS server while connected to Windscribe.</source>
-        <translation>在连接到Windscribe时选择DNS服务器。</translation>
+        <translation>在连接到 Windscribe 时选择的 DNS 服务器。</translation>
     </message>
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
@@ -1193,11 +1205,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Disabling Allow LAN Traffic will cause your proxy gateway to stop working.  Do you want to disable the proxy?</source>
-        <translation>禁用允许 LAN 流量将导致代理网关停止工作。 是否要禁用代理？</translation>
+        <translation>禁用允许 LAN 流量将导致代理网关停止工作。是否要禁用 LAN 代理？</translation>
     </message>
     <message>
         <source>LAN traffic is currently blocked by the Windscribe firewall.  Do you want to allow LAN traffic to bypass the firewall in order for this feature to work?</source>
-        <translation>LAN 流量目前被 Windscribe 防火墙阻止。 是否要允许 LAN 流量绕过防火墙以使此功能正常工作？</translation>
+        <translation>LAN 流量目前被 Windscribe 防火墙阻止。是否要允许 LAN 流量绕过防火墙以使此功能正常工作？</translation>
     </message>
     <message>
         <source>Automatically choose the VPN protocol, or select one manually. NOTE: &quot;Preferred Protocol&quot; will override this setting.</source>
@@ -1205,7 +1217,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
-        <translation>禁用允许 LAN 流量将导致您的安全热点停止工作。 是否要禁用热点？</translation>
+        <translation>禁用允许 LAN 流量将导致您的安全热点停止工作。是否要禁用热点？</translation>
     </message>
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
@@ -1216,11 +1228,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::DnsDomainsGroup</name>
     <message>
         <source>Domain already exists. Please enter a new domain.</source>
-        <translation>域已存在。请输入新域。</translation>
+        <translation>域名已存在。请输入新的域名。</translation>
     </message>
     <message>
         <source>Incorrect domain name. Please enter a valid domain.</source>
-        <translation>域名不正确。请输入有效的域。</translation>
+        <translation>域名不正确。请输入正确的域名。</translation>
     </message>
 </context>
 <context>
@@ -1231,7 +1243,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Enter the IP and/or wildcards you wish to use for DNS split feature.</source>
-        <translation>输入要用于 DNS 拆分功能的 IP 和/或通配符。</translation>
+        <translation>输入要用于 DNS 拆分的 IP 和/或通配符。</translation>
     </message>
     <message>
         <source>Please log in to modify domains.</source>
@@ -1242,23 +1254,23 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::EmailItem</name>
     <message>
         <source>Sent!</source>
-        <translation>送！</translation>
+        <translation>发送</translation>
     </message>
     <message>
         <source>Resend</source>
-        <translation>发送</translation>
+        <translation>重新发送</translation>
     </message>
     <message>
         <source>Sending</source>
-        <translation>发送</translation>
+        <translation>正在发送</translation>
     </message>
     <message>
         <source>Failed</source>
-        <translation>失败</translation>
+        <translation>发送失败</translation>
     </message>
     <message>
         <source>Get 10GB/Month of data and gain the ability to reset your password.</source>
-        <translation>获取每月 10GB 的数据，并能够重置密码。</translation>
+        <translation>获得每月 10GB 的数据，并且支持重置账户密码。</translation>
     </message>
     <message>
         <source>Please confirm your email</source>
@@ -1281,7 +1293,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>When?</source>
-        <translation>什么时候？</translation>
+        <translation>启动顺序</translation>
     </message>
 </context>
 <context>
@@ -1292,7 +1304,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Run Windscribe when your device starts.</source>
-        <translation>在设备启动时运行Windscribe。</translation>
+        <translation>开机自动启动 Windscribe。</translation>
     </message>
     <message>
         <source>Launch on Startup</source>
@@ -1300,19 +1312,19 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Launch Windscribe in a minimized state.</source>
-        <translation>以最小化状态启动风抄写员。</translation>
+        <translation>以最小化状态启动 Windscribe。</translation>
     </message>
     <message>
         <source>Start Minimized</source>
-        <translation>启动最小化</translation>
+        <translation>最小化到状态栏</translation>
     </message>
     <message>
         <source>Windscribe minimizes to system tray and no longer appears in the task bar.</source>
-        <translation>Windscribe 最小化到系统托盘，不再出现在任务栏中。</translation>
+        <translation>Windscribe 最小化到系统托盘，不会出现在任务栏中。</translation>
     </message>
     <message>
         <source>Close to Tray</source>
-        <translation>靠近托盘</translation>
+        <translation>关闭时最小化到托盘</translation>
     </message>
     <message>
         <source>Don&apos;t show the Windscribe icon in dock.</source>
@@ -1320,11 +1332,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Hide from Dock</source>
-        <translation>从停靠坞隐藏</translation>
+        <translation>从 Dock 栏隐藏</translation>
     </message>
     <message>
         <source>Pin Windscribe near the system tray or menu bar.</source>
-        <translation>将风抄写器固定在系统托盘或菜单栏附近。</translation>
+        <translation>将 Windscribe 固定在系统托盘或菜单栏。</translation>
     </message>
     <message>
         <source>Docked</source>
@@ -1340,15 +1352,15 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Display a location&apos;s load. Shorter bars mean lesser load (usage).</source>
-        <translation>显示位置的负载。较短的棒材意味着较小的负载（使用量）。</translation>
+        <translation>显示服务器的负载。越短的进度条代表负载（使用量）越低。</translation>
     </message>
     <message>
         <source>Show Location Load</source>
-        <translation>显示位置加载</translation>
+        <translation>显示服务器负载</translation>
     </message>
     <message>
         <source>Arrange locations alphabetically, geographically, or by latency.</source>
-        <translation>按字母顺序、地理位置或延迟排列位置。</translation>
+        <translation>按字母顺序、地理位置或延迟排列服务器。</translation>
     </message>
     <message>
         <source>Location Order</source>
@@ -1372,7 +1384,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>在经典 GUI 或“无耳”替代 GUI 之间进行选择。</translation>
+        <translation>在经典 GUI 或无边框 GUI 之间进行选择。</translation>
     </message>
     <message>
         <source>App Skin</source>
@@ -1380,11 +1392,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Customize the background of the main app screen.</source>
-        <translation>自定义主应用程序屏幕的背景。</translation>
+        <translation>自定义应用程序主屏幕的背景。</translation>
     </message>
     <message>
         <source>Choose to receive stable, beta, or experimental builds.</source>
-        <translation>选择接收稳定版、测试版或实验版。</translation>
+        <translation>选择稳定版、测试版或实验版更新。</translation>
     </message>
     <message>
         <source>Update Channel</source>
@@ -1396,7 +1408,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Windscribe minimizes to menubar and no longer appears in the dock.</source>
-        <translation>Windscribe最小化到菜单栏，不再出现在扩展坞中。</translation>
+        <translation>Windscribe 最小化到菜单栏，不再出现在 Dock 栏中。</translation>
     </message>
     <message>
         <source>Choose between white and black tray icon.</source>
@@ -1415,7 +1427,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>All you need to know about Windscribe.</source>
-        <translation>所有你需要知道的关于Windscribe。</translation>
+        <translation>深入了解 Windscribe。</translation>
     </message>
     <message>
         <source>Knowledge Base</source>
@@ -1423,23 +1435,15 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Talk to Garry</source>
-        <translation>与加里对话</translation>
+        <translation>与 Garry 对话</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
-        <translation>帮助和从其他用户那里获得帮助的最佳场所。</translation>
+        <translation>加入社区讨论，与大家一起共同成长！</translation>
     </message>
     <message>
         <source>Community Support</source>
         <translation>社区支持</translation>
-    </message>
-    <message>
-        <source>Reddit</source>
-        <translation>红迪网</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>不和</translation>
     </message>
     <message>
         <source>View Debug Log</source>
@@ -1455,7 +1459,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Sent, thanks!</source>
-        <translation>发送，谢谢！</translation>
+        <translation>日志已发送，谢谢！</translation>
     </message>
     <message>
         <source>Failed!</source>
@@ -1463,11 +1467,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Need help? Garry can help you with most issues, go talk to him.</source>
-        <translation>需要帮助吗？加里可以帮助你解决大多数问题，去和他谈谈。</translation>
+        <translation>需要帮助吗？Garry 可以帮助你解决大多数问题，尝试一下。</translation>
     </message>
     <message>
         <source>Contact Humans</source>
-        <translation>接触人类</translation>
+        <translation>联系人工支持</translation>
     </message>
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
@@ -1529,11 +1533,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Choose whether to connect using the recommended tunneling protocol, or to specify a protocol of your choice.</source>
-        <translation>选择是使用建议的隧道协议进行连接，还是指定您选择的协议。</translation>
+        <translation>使用建议的隧道协议进行连接，或者使用您选择的协议。</translation>
     </message>
     <message>
         <source>Forget Network</source>
-        <translation>忘记网络</translation>
+        <translation>忘掉网络</translation>
     </message>
 </context>
 <context>
@@ -1544,11 +1548,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>当设备连接到标记为“不安全”的网络时，Windscribe将自动断开连接。</translation>
+        <translation>当设备连接到标记为“不安全”的网络时，Windscribe 将自动断开连接。</translation>
     </message>
     <message>
         <source>Mark all newly encountered networks as Secured.</source>
-        <translation>将所有新遇到的网络标记为“安全”。</translation>
+        <translation>将所有新连接的网络标记为“安全”。</translation>
     </message>
     <message>
         <source>Auto-Secure Networks</source>
@@ -1568,17 +1572,17 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Secured</source>
-        <translation>担保</translation>
+        <translation>已加密</translation>
     </message>
     <message>
         <source>Unsecured</source>
-        <translation>担保</translation>
+        <translation>未加密</translation>
     </message>
     <message>
         <source>No Networks Detected.
 Connect to a network first</source>
         <translation>未检测到网络。
-首先连接到网络</translation>
+请先连接到网络</translation>
     </message>
 </context>
 <context>
@@ -1615,7 +1619,7 @@ Connect to a network first</source>
     <name>PreferencesWindow::PlanItem</name>
     <message>
         <source>Unlimited Data</source>
-        <translation>无限数据</translation>
+        <translation>无限流量</translation>
     </message>
     <message>
         <source>%1/Month</source>
@@ -1623,7 +1627,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Pro</source>
-        <translation>亲</translation>
+        <translation>专业版</translation>
     </message>
     <message>
         <source>Upgrade</source>
@@ -1658,7 +1662,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>About</source>
-        <translation>大约</translation>
+        <translation>关于</translation>
     </message>
     <message>
         <source>Login</source>
@@ -1689,7 +1693,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Port</source>
-        <translation>港口</translation>
+        <translation>端口</translation>
     </message>
 </context>
 <context>
@@ -1723,11 +1727,11 @@ Connect to a network first</source>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
     <message>
         <source>IP</source>
-        <translation>知识产权</translation>
+        <translation>IP</translation>
     </message>
     <message>
         <source>Copied</source>
-        <translation>复制</translation>
+        <translation>已复制</translation>
     </message>
 </context>
 <context>
@@ -1742,7 +1746,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Port</source>
-        <translation>港口</translation>
+        <translation>端口</translation>
     </message>
     <message>
         <source>Username</source>
@@ -1751,6 +1755,22 @@ Connect to a network first</source>
     <message>
         <source>Password</source>
         <translation>密码</translation>
+    </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>无效的代理地址</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>代理地址无效。请输入有效的 IP 地址或域名。</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>代理端口无效</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>代理端口无效。请在 0-65535 范围内输入有效端口。</translation>
     </message>
 </context>
 <context>
@@ -1783,7 +1803,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>R.O.B.E.R.T. is a customizable server-side domain and IP blocking tool. Select the block lists you wish to apply on all your devices by toggling the switch.</source>
-        <translation>R.O.B.E.R.T. 是一个可定制的服务器端域和 IP 阻止工具。通过切换开关选择要在所有设备上应用的阻止列表。</translation>
+        <translation>R.O.B.E.R.T. 是一个可定制的服务器端域和 IP 阻止工具。通过开关选择要在所有设备上应用的阻止列表。</translation>
     </message>
     <message>
         <source>Could not retrieve R.O.B.E.R.T. preferences from server. Try again later.</source>
@@ -1825,15 +1845,11 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
-        <translation>无线共享您的安全 Windscribe 连接。</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>SSID</translation>
+        <translation>无线共享您的 Windscribe 连接。</translation>
     </message>
     <message>
         <source>Enter SSID</source>
-        <translation>输入固态硬盘</translation>
+        <translation>输入无线 ID (SSID)</translation>
     </message>
     <message>
         <source>Password</source>
@@ -1852,7 +1868,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Select an image</source>
-        <translation>选择图像</translation>
+        <translation>选择一张图片</translation>
     </message>
 </context>
 <context>
@@ -1867,11 +1883,11 @@ Connect to a network first</source>
     </message>
     <message>
         <source>This IP address or range is reserved by Windscribe and can not be changed.</source>
-        <translation>此IP地址或范围由Windscribe保留，无法更改。</translation>
+        <translation>此 IP 地址或范围由 Windscribe 保留，无法更改。</translation>
     </message>
     <message>
         <source>There are too many hostnames in the list. Please remove some before adding more.</source>
-        <translation>列表中的主机名太多。在添加更多内容之前，请删除一些内容。</translation>
+        <translation>列表中的主机名太多。在添加新条目之前，请删除一些内容。</translation>
     </message>
 </context>
 <context>
@@ -1893,7 +1909,7 @@ Connect to a network first</source>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
-        <translation>列表中的应用太多。在添加更多之前，请删除一些。</translation>
+        <translation>列表中的应用太多。在添加新条目之前，请删除一些</translation>
     </message>
 </context>
 <context>
@@ -1930,23 +1946,23 @@ Connect to a network first</source>
 If the reinstall does not help, please contact Windscribe support for assistance.</source>
         <translation>未安装拆分隧道驱动程序。 要启用此功能，请尝试重新安装 Windscribe 应用程序。
 
-如果重新安装没有帮助，请联系 Windscribe 支持寻求帮助。</translation>
+如果重新安装没用，请联系 Windscribe 支持以寻求帮助。</translation>
     </message>
     <message>
         <source>Selected IPs and hostnames will not go through Windscribe when connected.</source>
-        <translation>选定的IP和主机名在连接时不会通过Windscribe。</translation>
+        <translation>选定的 IP 和主机名不会通过 Windscribe 连接。</translation>
     </message>
     <message>
         <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
-        <translation>选定的应用程序，IP和主机名在连接时不会通过Windscribe。</translation>
+        <translation>选定的应用程序、IP 和主机名不会通过 Windscribe 连接。</translation>
     </message>
     <message>
         <source>Only selected IPs and hostnames will go through Windscribe when connected.</source>
-        <translation>只有选定的IP和主机名在连接时才会通过Windscribe。</translation>
+        <translation>只有选定的 IP 和主机名会通过 Windscribe 连接。</translation>
     </message>
     <message>
         <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
-        <translation>只有选定的应用程序，IP和主机名在连接时才会通过Windscribe。</translation>
+        <translation>只有选定的应用程序、IP和主机名会通过 Windscribe 连接。</translation>
     </message>
     <message>
         <source>Split Tunneling</source>
@@ -2007,7 +2023,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>ProtocolWindow::ProtocolPromptItem</name>
     <message>
         <source>Cutting-edge protocol.</source>
-        <translation>尖端协议。</translation>
+        <translation>Cutting-edge 协议。</translation>
     </message>
     <message>
         <source>An IPsec based tunneling protocol.</source>
@@ -2015,11 +2031,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Balanced speed and security.</source>
-        <translation>平衡的速度和安全性。</translation>
+        <translation>平衡速度和安全性。</translation>
     </message>
     <message>
         <source>Use it if OpenVPN UDP fails.</source>
-        <translation>如果OpenVPN UDP失败，请使用它。</translation>
+        <translation>如果 OpenVPN UDP 失败，请使用它。</translation>
     </message>
     <message>
         <source>Disguises traffic as HTTPS with TLS.</source>
@@ -2043,7 +2059,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>The protocol you’ve chosen has failed to connect. Windscribe will attempt to reconnect using the first protocol below.</source>
-        <translation>您选择的协议无法连接。Windscribe将尝试使用以下第一个协议重新连接。</translation>
+        <translation>您选择的协议无法连接。Windscribe 将尝试使用以下第一个协议重新连接。</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -2054,7 +2070,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>QObject</name>
     <message>
         <source>Custom</source>
-        <translation>习惯</translation>
+        <translation>自定义</translation>
     </message>
     <message>
         <source>OS Default</source>
@@ -2081,7 +2097,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>酒吧</translation>
     </message>
     <message>
-        <source>Ms</source>
+        <source>ms</source>
         <translation>女士</translation>
     </message>
     <message>
@@ -2113,14 +2129,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>自动检测</translation>
     </message>
     <message>
-        <source>Release</source>
-        <translation>释放</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>试用版</translation>
-    </message>
-    <message>
         <source>Guinea Pig</source>
         <translation>豚鼠</translation>
     </message>
@@ -2142,7 +2150,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Van Gogh</source>
-        <translation>梵</translation>
+        <translation>梵高</translation>
     </message>
     <message>
         <source>Failed to open file</source>
@@ -2190,11 +2198,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
-        <translation>您的应用程序版本不再受支持。请更新以继续使用Windscribe。</translation>
+        <translation>您的 Windscribe 版本不再受支持。请更新到最新版的 Windscribe。</translation>
     </message>
     <message>
         <source>Please upgrade to a Pro account to continue using Windscribe.</source>
-        <translation>请升级到专业帐户以继续使用Windscribe。</translation>
+        <translation>请升级到专业帐户以继续使用 Windscribe。</translation>
     </message>
     <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
@@ -2218,11 +2226,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>You may need to kill the non-responding Windscribe app or reboot your computer to fix the issue.</source>
-        <translation>您可能需要终止无响应的 Windscribe 应用程序或重新启动计算机以解决此问题。</translation>
+        <translation>您可能需要终止无响应的 Windscribe 或重新启动计算机以解决此问题。</translation>
     </message>
     <message>
         <source>One or more files in the Windscribe application bundle have been suspiciously modified. Please re-install Windscribe.</source>
-        <translation>Windscribe 应用程序捆绑包中的一个或多个文件已被可疑修改。请重新安装 Windscribe。</translation>
+        <translation>Windscribe 应用程序中的一个或多个文件已被修改。请重新安装 Windscribe。</translation>
     </message>
     <message>
         <source>White</source>
@@ -2234,7 +2242,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Forced</source>
-        <translation>强迫</translation>
+        <translation>强制</translation>
     </message>
 </context>
 <context>
@@ -2274,7 +2282,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>TwoFactorAuthWindow::TwoFactorAuthOkButton</name>
     <message>
         <source>Add</source>
-        <translation>加</translation>
+        <translation>添加</translation>
     </message>
     <message>
         <source>Login</source>
@@ -2315,11 +2323,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>UpdateWindowItem</name>
     <message>
         <source>Updating </source>
-        <translation>更新</translation>
+        <translation>更新中</translation>
     </message>
     <message>
         <source>Your update is in progress, hang in there...</source>
-        <translation>您的更新正在进行中，请坚持下去...</translation>
+        <translation>更新正在进行中，请等待...</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -2327,7 +2335,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Later</source>
-        <translation>后</translation>
+        <translation>稍候</translation>
     </message>
     <message>
         <source>Update</source>
@@ -2342,7 +2350,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>UpgradeWidget::UpgradeWidgetItem</name>
     <message>
         <source>GET MORE DATA</source>
-        <translation>获取更多数据</translation>
+        <translation>获取更多数据流量</translation>
     </message>
     <message>
         <source>EXT CONFIG MODE</source>
@@ -2374,7 +2382,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>%1 DAYS LEFT</source>
-        <translation>%1 剩余天数</translation>
+        <translation>剩余 %1 天</translation>
     </message>
     <message>
         <source>LOGIN</source>
@@ -2382,26 +2390,26 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>RENEW</source>
-        <translation>更新</translation>
+        <translation>续订</translation>
     </message>
 </context>
 <context>
     <name>UpgradeWindow::UpgradeWindowItem</name>
     <message>
         <source>You&apos;re out of data!</source>
-        <translation>你的数据用完了！</translation>
+        <translation>你的数据流量用完了！</translation>
     </message>
     <message>
         <source>Don&apos;t leave your front door open. Upgrade or wait until next month to get your monthly data allowance back.</source>
-        <translation>不要把你的前门打开。升级或等到下个月再拿回您的每月数据限额。</translation>
+        <translation>不要敞开家门！现在就升级流量套餐，或者……等到下个月吧，流量会自动重置。</translation>
     </message>
     <message>
         <source>Get more data</source>
-        <translation>获取更多数据</translation>
+        <translation>获取更多数据流量</translation>
     </message>
     <message>
         <source>I&apos;m broke</source>
-        <translation>我坏了</translation>
+        <translation>我寄了</translation>
     </message>
 </context>
 <context>

@@ -155,30 +155,20 @@ void LocationItem::recalcAveragePing()
 
     double sumPing = 0;
     int cnt = 0;
-    for (int i = 0; i < location_.cities.size(); ++i)
-    {
+    for (int i = 0; i < location_.cities.size(); ++i) {
         int cityPing = location_.cities[i].pingTimeMs.toInt();
-        if (cityPing == PingTime::NO_PING_INFO)
-        {
-            sumPing += 200;     // we assume a maximum ping time for three bars
-        }
-        else if (cityPing == PingTime::PING_FAILED)
-        {
-            sumPing += 2000;    // 2000 - max ping interval
-        }
-        else
-        {
+        if (cityPing == PingTime::NO_PING_INFO || cityPing == PingTime::PING_FAILED) {
+            // Skip cities without ping info
+            continue;
+        } else {
             sumPing += cityPing;
         }
         cnt++;
     }
 
-    if (cnt > 0)
-    {
+    if (cnt > 0) {
         averagePing_ = sumPing / (double)cnt;
-    }
-    else
-    {
+    } else {
         averagePing_ = -1;
     }
 }

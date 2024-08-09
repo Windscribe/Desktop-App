@@ -1,4 +1,6 @@
 target_sources(engine PRIVATE
+    apiutils.cpp
+    apiutils.h
     myipmanager.cpp
     myipmanager.h
 )

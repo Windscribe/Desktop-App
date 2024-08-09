@@ -213,7 +213,7 @@ signals:
 
     void proxySharingInfoChanged(const types::ProxySharingInfo &psi);
     void wifiSharingInfoChanged(const types::WifiSharingInfo &wsi);
-    void wifiSharingFailed();
+    void wifiSharingFailed(WIFI_SHARING_ERROR error);
 
     void webSessionTokenForManageAccount(const QString &temp_session_token);
     void webSessionTokenForAddEmail(const QString &temp_session_token);

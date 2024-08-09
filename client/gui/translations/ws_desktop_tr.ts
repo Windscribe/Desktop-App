@@ -731,10 +731,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Bölünmüş tünelleme özelliği başlatılamadı ve Tercihler&apos;de devre dışı bırakıldı.</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>Rüzgar yazısı</translation>
-    </message>
-    <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>Özel DNS hizmeti başlatılamıyor.  Lütfen çalışan başka bir yerel DNS hizmetiniz olmadığından emin olun veya desteğe başvurun.</translation>
     </message>
@@ -793,6 +789,22 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Rotating MAC Address</source>
         <translation>MAC Adresini Döndürme</translation>
+    </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>Wi-Fi kapalı</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>Windscribe, Wi-Fi&apos;nin şu anda kapalı olduğunu tespit etti. Secure Hotspot&apos;u kullanmak için Wi-Fi&apos;nin açık olması gerekir.</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>Secure Hotspot başlatılamadı</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>Ağ bağdaştırıcınız bu özelliği desteklemiyor olabilir. Tercihlerde devre dışı bırakıldı.</translation>
     </message>
 </context>
 <context>
@@ -976,8 +988,8 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>SSL Hatalarını Yoksay</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>Sunucuya düzenli olarak ping yaparak IKEv2 bağlantılarının ölmesini (zaman aşımına uğramasını) önler.</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>Sunucuya düzenli olarak ping yaparak bağlantılarının ölmesini (zaman aşımına uğramasını) önler.</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1434,14 +1446,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Topluluk Desteği</translation>
     </message>
     <message>
-        <source>Reddit</source>
-        <translation>Reddit (Reddit)</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>Ahenksizlik</translation>
-    </message>
-    <message>
         <source>View Debug Log</source>
         <translation>Hata Ayıklama Günlüğünü Görüntüle</translation>
     </message>
@@ -1752,6 +1756,22 @@ Connect to a network first</source>
         <source>Password</source>
         <translation>Parola</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>Geçersiz proxy adresi</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>Proxy adresi geçersiz. Lütfen geçerli bir IP adresi veya alan adı girin.</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>Geçersiz proxy bağlantı noktası</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>Proxy bağlantı noktası geçersiz. Lütfen 0-65535 aralığında geçerli bir bağlantı noktası girin.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1826,10 +1846,6 @@ Connect to a network first</source>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>Güvenli Windscribe bağlantınızı kablosuz olarak paylaşın.</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>SSID (SSID)</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,8 +2097,8 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
         <translation>Bar</translation>
     </message>
     <message>
-        <source>Ms</source>
-        <translation>Ms</translation>
+        <source>ms</source>
+        <translation>ms</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2111,14 +2127,6 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Auto-detect</source>
         <translation>Otomatik algıla</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Serbest bırakma</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

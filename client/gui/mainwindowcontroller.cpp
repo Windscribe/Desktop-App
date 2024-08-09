@@ -30,7 +30,7 @@
 #include "utils/logger.h"
 #include "widgetutils/widgetutils.h"
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     #include "utils/macutils.h"
 #endif
 
@@ -714,7 +714,7 @@ void MainWindowController::onExpandLocationsListAnimationFinished()
 
     updateMainAndViewGeometry(false); // prevent out of sync app with viewport when proxy is showing
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     //QTimer::singleShot(1, this, SLOT(invalidateShadow_mac()));
 #endif
 }
@@ -1408,7 +1408,7 @@ bool MainWindowController::eventFilter(QObject *watched, QEvent *event)
     return QObject::eventFilter(watched, event);
 }
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 void MainWindowController::invalidateShadow_mac_impl()
 {
     void *id = (void *)mainWindow_->winId();
@@ -3117,7 +3117,7 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
         if (geo.right() > kMaxGeometryRightPosition)
             geo.moveRight(kMaxGeometryRightPosition);
 
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
 
         // center ear on tray
         int rightEarCenterOffset = static_cast<int>(41 * G_SCALE);
@@ -3274,7 +3274,7 @@ void MainWindowController::updateCursorInViewport()
 
 void MainWindowController::invalidateShadow_mac()
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     // setPos() and similar methods do not change widget geometry immediately. Instead, all the
     // changes are postponed till the next redraw, which happens in the main loop. So, to get
     // correct shadow, accounting for all the recent changes, we have to place the invalidation call

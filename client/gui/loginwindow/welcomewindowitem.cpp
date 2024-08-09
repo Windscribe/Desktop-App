@@ -42,7 +42,7 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
 
     minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, &IconButton::clicked, this, &WelcomeWindowItem::onMinimizeClick);
-#else //if Q_OS_MAC
+#else //if Q_OS_MACOS
 
     closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", "", this);
     connect(closeButton_, &IconButton::clicked, this, &WelcomeWindowItem::onCloseClick);
@@ -267,7 +267,7 @@ void WelcomeWindowItem::onLanguageChanged()
 
 void WelcomeWindowItem::onDockedModeChanged(bool bIsDockedToTray)
 {
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     minimizeButton_->setVisible(!bIsDockedToTray);
 #else
     Q_UNUSED(bIsDockedToTray);

@@ -343,7 +343,7 @@ void CityItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const QM
         TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_PING_TIME);
         ti.x = pt.x();
         ti.y = pt.y();
-        ti.title = QString("%1 Ms").arg(pingTime);
+        ti.title = QString("%1 ms").arg(pingTime);
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.5;
         TooltipController::instance().showTooltipBasic(ti);

@@ -21,7 +21,7 @@
 #include "types/connecteddnsinfo.h"
 #include "api_responses/portmap.h"
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     #include "restorednsmanager_mac.h"
 #endif
 
@@ -156,7 +156,7 @@ private:
     WstunnelManager *wstunnelManager_;
     ICtrldManager *ctrldManager_;
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     RestoreDNSManager_mac restoreDnsManager_;
 #endif
 

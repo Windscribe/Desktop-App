@@ -10,7 +10,7 @@
 
 #if defined(Q_OS_LINUX)
 #include "utils/linuxutils.h"
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACOS)
 #include "utils/utils.h"
 #endif
 
@@ -36,7 +36,7 @@ const QString DownloadHelper::downloadInstallerPath()
 {
 #ifdef Q_OS_WIN
     const QString path = downloadInstallerPathWithoutExtension() + ".exe";
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     const QString path = downloadInstallerPathWithoutExtension() + ".dmg";
 #elif defined Q_OS_LINUX
     QString path;
@@ -66,7 +66,7 @@ const QString DownloadHelper::downloadInstallerPathWithoutExtension()
 {
 #ifdef Q_OS_WIN
     const QString path = downloadDirectory_ + "/installer";
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     const QString path = downloadDirectory_ + "/installer";
 #elif defined Q_OS_LINUX
     const QString path = downloadDirectory_ + "/update";
@@ -219,7 +219,7 @@ void DownloadHelper::removeAutoUpdateInstallerFiles()
         QFile::remove(installerPath);
     }
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     // remove temp installer.app on mac:
     // | installer.app was unpacked from above .dmg
     const QString & installerApp = downloadDirectory_ + "/" + INSTALLER_FILENAME_MAC_APP;

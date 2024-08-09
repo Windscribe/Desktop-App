@@ -206,5 +206,49 @@
         <source>Downloading: %1%</source>
         <translation>ダウンロード中: %1%</translation>
     </message>
+    <message>
+        <source>Username too short</source>
+        <translation>ユーザー名が短すぎます</translation>
+    </message>
+    <message>
+        <source>Password too short</source>
+        <translation>パスワードが短すぎます</translation>
+    </message>
+    <message>
+        <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>接続が進行中です。 「windscribe-cli status」を使用して、接続ステータスを確認します。</translation>
+    </message>
+    <message>
+        <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>切断が進行中です。 「windscribe-cli status」を使用して、接続ステータスを確認します。</translation>
+    </message>
+    <message>
+        <source>Firewall is on.</source>
+        <translation>ファイアウォールがオンになっています。</translation>
+    </message>
+    <message>
+        <source>Firewall is off.</source>
+        <translation>ファイアウォールがオフになっています。</translation>
+    </message>
+    <message>
+        <source>Logs sent.</source>
+        <translation>送信されたログ。</translation>
+    </message>
+    <message>
+        <source>Preferences reloaded.</source>
+        <translation>設定が再読み込みされました。</translation>
+    </message>
+    <message>
+        <source>Key limit behavior is set.</source>
+        <translation>キー制限の動作が設定されます。</translation>
+    </message>
+    <message>
+        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>ログインが進行中です。 「windscribe-cli status」を使用してステータスを確認します。</translation>
+    </message>
+    <message>
+        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>ログアウトが進行中です。 「windscribe-cli status」を使用してステータスを確認します。</translation>
+    </message>
 </context>
 </TS>

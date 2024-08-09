@@ -144,7 +144,7 @@ void ConnectedDnsGroup::onLanguageChanged()
     QList<CONNECTED_DNS_TYPE> types = types::ConnectedDnsInfo::allAvailableTypes();
     QList<QPair<QString, QVariant>> list;
     for (const auto t : types) {
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
         if (t == CONNECTED_DNS_TYPE_FORCED)
             continue; // only available on Windows
 #else // Windows

@@ -112,8 +112,8 @@ void HelpWindowItem::onLanguageChanged()
     contactHumansItem_->setTitle(tr("Contact Humans"));
     communitySupportGroup_->setDescription(tr("Best places to help and get help from other users."));
     communitySupportItem_->setTitle(tr("Community Support"));
-    redditItem_->setTitle(tr("Reddit"));
-    discordItem_->setTitle(tr("Discord"));
+    redditItem_->setTitle("Reddit"); // Don't translate company names.
+    discordItem_->setTitle("Discord");
     viewLogItem_->setTitle(tr("View Debug Log"));
 
     if (sendLogState_ == NOT_SENT) {

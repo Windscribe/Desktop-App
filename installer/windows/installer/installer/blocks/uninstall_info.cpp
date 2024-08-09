@@ -5,6 +5,7 @@
 
 #include "../settings.h"
 #include "../../../utils/applicationInfo.h"
+#include "../../../utils/logger.h"
 #include "../../../utils/path.h"
 
 using namespace std;
@@ -46,10 +47,14 @@ void UninstallInfo::registerUninstallInfo()
     QString installDate = QDateTime::currentDateTime().toString("yyyyMMdd");
     setStringValue(reg, "InstallDate", installDate.toStdWString());
 
+    error_code ec;
     uintmax_t totalFileSize = 0;
-    const auto dir = filesystem::path{installPath};
-    for (auto const& dirEntry : filesystem::recursive_directory_iterator(dir)) {
+    for (auto const& dirEntry : filesystem::recursive_directory_iterator(installPath, ec)) {
         totalFileSize += dirEntry.file_size();
+    }
+
+    if (ec) {
+        Log::instance().out(L"UninstallInfo::registerUninstallInfo: filesystem::recursive_directory_iterator failed (%hs)", ec.message().c_str());
     }
 
     // EstimatedSize registry entry is expected to be a REG_DWORD.  Will get a REG_QWORD if we use uintmax_t.

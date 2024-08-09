@@ -1,3 +1,32 @@
+2.11.6 (09/08/2024)
+All:
+   * Fixed potential for uncaught exceptions thrown by the std::filesystem API to cause the app to crash. #1072
+   * Fixed incorrect description for Client-side Keepalive preference. #1084
+   * Fixed logged out when downgrading to earlier version. #1078
+   * Fixed JSON & ini validation for Split DNS domains. #1080
+   * Fixed JSON import not exporting/importing "Auto-Secure" setting. #1074
+   * Fixed sorting by latency when some locations have no ping info. #1083
+   * Fixed GUI allowing invalid proxy address/port. #238
+   * Fixed potential app crash if the app is connected and the system is restarted. #1088
+   * Fixed crash in wsnet on Android 14+ by downgrading libcares back to 1.26.0 #1090
+   * Updated Chinese (Simplified) translations provided by GitHub user YerongAI. #1064
+   * Updated French translations provided by GitHub user RaphxelS. #1064
+   * Updated Polish translations provided by GitHub user raspin0. #1064
+   * Updated Ukrainian translations provided by GitHub users mljoke and Artem-CD. #1064
+Windows:
+   * Improved UX when an error occurs while enabling secure hotspot. #1005
+   * Fixed windscribectrld.exe should always be tunneled via the VPN, the split tunneling drivers updated. #805, #586
+   * Fixed WireGuard connection fails or is slow to connect with DoH. #1082
+MacOS:
+   * Fixed displayed IP not changing for split inclusive tunnels. #1049
+   * Fixed potential application hang in system 'log' call when initiating an IKEv2 connection. #1061
+   * Fixed disabling/restoring IPv6 may do so on non-existent interface. #1091
+Linux:
+   * Improved input validation on CLI commands, and added messages on successful commands. #962
+   * Fixed IKEv2 protocol is included in Linux package. #1077
+   * Fixed CLI packaging for Arch CLI build and updates. #962
+
+
 2.11.5 (22/07/2024)
 All:
    * Added new functionality WSNetApiResourcesManager to the wsnet library. #948

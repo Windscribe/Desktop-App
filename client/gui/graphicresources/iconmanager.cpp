@@ -1,12 +1,12 @@
 #include "iconmanager.h"
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
 #include "dpiscalemanager.h"
 #endif
 
 #include "utils/logger.h"
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 #include "utils/macutils.h"
 #endif
 
@@ -32,7 +32,7 @@ IconManager::IconManager()
             {IconType::ICON_OVERLAY_ERROR,           ":/resources/icons/win/overlay_error.ico"},
         }
     );
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACOS)
     // Windscribe app reflects state either in dock and system tray.
     // Each state is represented by a separate icon.
     initMacIcons(
@@ -87,7 +87,7 @@ void IconManager::initWinLinuxIcons(const std::map<IconType, QString>& iconPaths
         icons_[iconPath.first] = ico;
     }
 }
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACOS)
 void IconManager::initMacIcons(const std::map<IconType, QString>& iconPaths) {
     const bool isDoublePixelRatio = DpiScaleManager::instance().curDevicePixelRatio() >= 2;
     for (const auto& iconPath : iconPaths) {

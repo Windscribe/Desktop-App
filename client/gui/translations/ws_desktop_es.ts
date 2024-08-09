@@ -515,10 +515,6 @@
         <translation>Se ha producido un error inesperado al establecer la conexión VPN (error %1).  Si el error persiste, intenta usar un protocolo diferente o ponte en contacto con el soporte técnico.</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>Windscribe</translation>
-    </message>
-    <message>
         <source>Can&apos;t select directory</source>
         <translation>No se puede seleccionar el directorio</translation>
     </message>
@@ -794,6 +790,22 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <source>Rotating MAC Address</source>
         <translation>Dirección MAC giratoria</translation>
     </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>La conexión Wi-Fi está apagada</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>Windscribe ha detectado que la conexión Wi-Fi está desactivada. Para usar Secure Hotspot, Wi-Fi debe estar activado.</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>No se pudo iniciar Secure Hotspot</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>Es posible que el adaptador de red no admita esta función. Se ha desactivado en las preferencias.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -976,8 +988,8 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <translation>Ignorar errores SSL</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>Evita que las conexiones IKEv2 mueran (por tiempo de espera) haciendo ping periódicamente al servidor.</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>Evita que las conexiones mueran (por tiempo de espera) haciendo ping periódicamente al servidor.</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1434,14 +1446,6 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <translation>Soporte comunitario</translation>
     </message>
     <message>
-        <source>Reddit</source>
-        <translation>Reddit</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>Discord</translation>
-    </message>
-    <message>
         <source>View Debug Log</source>
         <translation>Ver registro de depuración</translation>
     </message>
@@ -1752,6 +1756,22 @@ Conéctate primero a una red</translation>
         <source>Password</source>
         <translation>Contraseña</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>Dirección de proxy no válida</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>La dirección de proxy no es válida. Introduzca una dirección IP o un nombre de dominio válidos.</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>Puerto proxy no válido</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>El puerto proxy no es válido. Introduzca un puerto válido en el rango 0-65535.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1822,10 +1842,6 @@ Conéctate primero a una red</translation>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>Comparte tu conexión segura de Windscribe de forma inalámbrica.</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>SSID</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,8 +2097,8 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
         <translation>Barras</translation>
     </message>
     <message>
-        <source>Ms</source>
-        <translation>Ms</translation>
+        <source>ms</source>
+        <translation>ms</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2111,14 +2127,6 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     <message>
         <source>Auto-detect</source>
         <translation>Detección automática</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Lanzamiento</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

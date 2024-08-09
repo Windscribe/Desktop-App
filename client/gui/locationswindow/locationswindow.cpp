@@ -117,7 +117,7 @@ void LocationsWindow::paintEvent(QPaintEvent *event)
 
     // footer background
     QColor footerColor = FontManager::instance().getLocationsFooterColor();
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         p.setPen(footerColor);
         p.setBrush(footerColor);
         // draw rounded corners on mac

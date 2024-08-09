@@ -206,5 +206,49 @@
         <source>Downloading: %1%</source>
         <translation>다운로드: %1%</translation>
     </message>
+    <message>
+        <source>Username too short</source>
+        <translation>사용자 이름이 너무 짧습니다.</translation>
+    </message>
+    <message>
+        <source>Password too short</source>
+        <translation>비밀번호가 너무 짧습니다.</translation>
+    </message>
+    <message>
+        <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>연결이 진행 중입니다.  &apos;windscribe-cli status&apos;를 사용하여 연결 상태를 확인합니다.</translation>
+    </message>
+    <message>
+        <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>연결 끊김이 진행 중입니다.  &apos;windscribe-cli status&apos;를 사용하여 연결 상태를 확인합니다.</translation>
+    </message>
+    <message>
+        <source>Firewall is on.</source>
+        <translation>방화벽이 켜져 있습니다.</translation>
+    </message>
+    <message>
+        <source>Firewall is off.</source>
+        <translation>방화벽이 꺼져 있습니다.</translation>
+    </message>
+    <message>
+        <source>Logs sent.</source>
+        <translation>로그가 전송되었습니다.</translation>
+    </message>
+    <message>
+        <source>Preferences reloaded.</source>
+        <translation>환경 설정이 다시 로드되었습니다.</translation>
+    </message>
+    <message>
+        <source>Key limit behavior is set.</source>
+        <translation>키 제한 동작이 설정됩니다.</translation>
+    </message>
+    <message>
+        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>로그인이 진행 중입니다.  &apos;windscribe-cli status&apos;를 사용하여 상태를 확인합니다.</translation>
+    </message>
+    <message>
+        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>로그아웃이 진행 중입니다.  &apos;windscribe-cli status&apos;를 사용하여 상태를 확인합니다.</translation>
+    </message>
 </context>
 </TS>

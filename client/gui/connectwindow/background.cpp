@@ -47,7 +47,7 @@ Background::Background(ScalableGraphicsObject *parent, Preferences *preferences)
 
     midRightVertDivider_.reset(new ImageWithShadow("MIDRIGHT_VERT_DIVIDER", "MIDRIGHT_VERT_DIVIDER_SHADOW"));
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     topFrameBG_         = "background/MAC_MAIN_BG";
     headerDisconnected_ = "background/MAC_HEADER_BG_DISCONNECTED";
     headerConnected_    = "background/MAC_HEADER_BG_CONNECTED";
@@ -78,7 +78,7 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
     {
         painter->setPen(Qt::NoPen);
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         QPainterPath path;
         path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
         painter->fillPath(path, QColor(2, 13, 28));
@@ -158,7 +158,7 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     {
         painter->setOpacity(1);
         painter->setPen(Qt::NoPen);
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         QPainterPath path;
         path.addRoundedRect(boundingRect().adjusted(0, 166*G_SCALE, 0, 0), 5*G_SCALE, 5*G_SCALE);
         painter->fillPath(path, QColor(26, 39, 58));
@@ -354,7 +354,7 @@ QPixmap Background::getShadowPixmap()
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
     {
         painter.setPen(Qt::NoPen);
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         QPainterPath path;
         path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
         painter.fillPath(path, QColor(2, 13, 28));

@@ -107,10 +107,10 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::portMap(const std::string &a
     return cancelableCallback;
 }
 
-std::shared_ptr<WSNetCancelableCallback> ServerAPI::recordInstall(WSNetRequestFinishedCallback callback)
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::recordInstall(bool isDesktop, WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = requests_factory::recordInstall(Settings::instance().basePlatform(), cancelableCallback);
+    BaseRequest *request = requests_factory::recordInstall(isDesktop, Settings::instance().basePlatform(), cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
@@ -346,6 +346,14 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::verifyTvLoginCode(const std:
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::verifyTvLoginCode(authHash, xpressCode, cancelableCallback);
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    return cancelableCallback;
+}
+
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::cancelAccount(const std::string &authHash, const std::string &password, WSNetRequestFinishedCallback callback)
+{
+    auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
+    BaseRequest *request = requests_factory::cancelAccount(authHash, password, cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }

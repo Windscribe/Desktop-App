@@ -13,6 +13,7 @@
 #include "utils/macutils.h"
 #include "utils/network_utils/network_utils_mac.h"
 #include "engine/helper/ihelper.h"
+#include "networkextensionlog_mac.h"
 
 #include <sys/sysctl.h>
 #include <netinet/in.h>
@@ -85,7 +86,6 @@ IKEv2Connection_mac::IKEv2Connection_mac(QObject *parent, IHelper *helper) : ICo
     isPrevConnectionStatusInitialized_(false)
 {
     helper_ = dynamic_cast<Helper_mac *>(helper);
-    networkExtensionLog_.collectNext();
     connect(&statisticsTimer_, &QTimer::timeout, this, &IKEv2Connection_mac::onStatisticsTimer);
 }
 
@@ -115,6 +115,7 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
 
     isPrevConnectionStatusInitialized_ = false;
     state_ = STATE_START_CONNECT;
+    startConnect_ = QDateTime::currentDateTime();
     overrideDnsIp_ = overrideDnsIp;
 
     if (!setKeyChain(username, password))
@@ -408,9 +409,15 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
     {
         qCDebug(LOG_IKEV2) << "Connection status changed: NEVPNStatusDisconnecting";
 
-        if (/*isPrevConnectionStatusInitialized_ && prevConnectionStatus_ == NEVPNStatusConnecting &&*/ state_ == STATE_START_CONNECT)
+        if (state_ == STATE_START_CONNECT)
         {
-            QMap<time_t, QString> logs = networkExtensionLog_.collectNext();
+            // We've encountered instances on macOS with the 'log show' command taking quite some time to run (> 10s).
+            // These debugs will help us detect this edge case, so we don't go off in the weeds looking for other
+            // causes of the delay.
+            qCDebug(LOG_NETWORK_EXTENSION_MAC) << "NetworkExtensionLog_mac starting log read process";
+            NetworkExtensionLog_mac neLog;
+            QMap<time_t, QString> logs = neLog.collectLogs(startConnect_);
+            qCDebug(LOG_NETWORK_EXTENSION_MAC) << "NetworkExtensionLog_mac log read process finished";
             for (QMap<time_t, QString>::iterator it = logs.begin(); it != logs.end(); ++it)
             {
                 qCDebug(LOG_NETWORK_EXTENSION_MAC) << it.value();

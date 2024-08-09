@@ -119,7 +119,7 @@ public:
 
     bool eventFilter(QObject *watched, QEvent *event) override;
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     void updateNativeShadowIfNeeded();
 #endif
 
@@ -286,7 +286,7 @@ private:
 
     int locationsYOffset();
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     void invalidateShadow_mac_impl();
     bool isNeedUpdateNativeShadow_ = false;
 #endif

@@ -108,7 +108,7 @@ Protocol Protocol::fromString(const QString &strProtocol)
 // return supported protocols depending on the OS in the preferred order of use
 QList<Protocol> types::Protocol::supportedProtocols()
 {
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
     return QList<Protocol>() << WIREGUARD << IKEV2 << OPENVPN_UDP << OPENVPN_TCP << STUNNEL << WSTUNNEL;
 #elif defined(Q_OS_LINUX)
     // Currently Linux doesn't support IKEv2

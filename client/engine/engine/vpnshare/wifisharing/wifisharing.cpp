@@ -93,10 +93,10 @@ void WifiSharing::onWifiDirectStarted()
     }
 }
 
-void WifiSharing::onWifiDirectFailed()
+void WifiSharing::onWifiDirectFailed(WIFI_SHARING_ERROR error)
 {
     stopSharing();
-    emit failed();
+    emit failed(error);
 }
 
 void WifiSharing::updateICS(const QString &vpnAdapterName)

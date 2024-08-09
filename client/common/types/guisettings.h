@@ -226,7 +226,7 @@ inline GuiSettings::GuiSettings(const QJsonObject &json)
     }
 #endif
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     if (json.contains(kJsonIsHideFromDockProp) && json[kJsonIsHideFromDockProp].isBool()) {
         isHideFromDock = json[kJsonIsHideFromDockProp].toBool();
     }
@@ -266,9 +266,11 @@ inline GuiSettings::GuiSettings(const QJsonObject &json)
     }
 #endif
 
+#if defined(Q_OS_WIN)
     if (json.contains(kJsonShareSecureHotspotProp) && json[kJsonShareSecureHotspotProp].isObject()) {
         shareSecureHotspot = types::ShareSecureHotspot(json[kJsonShareSecureHotspotProp].toObject());
     }
+#endif
 
     if (json.contains(kJsonShareProxyGatewayProp) && json[kJsonShareProxyGatewayProp].isObject()) {
         shareProxyGateway = types::ShareProxyGateway(json[kJsonShareProxyGatewayProp].toObject());

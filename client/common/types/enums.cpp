@@ -129,7 +129,7 @@ LATENCY_DISPLAY_TYPE LATENCY_DISPLAY_TYPE_fromInt(int t)
 QString LATENCY_DISPLAY_TYPE_toString(LATENCY_DISPLAY_TYPE t)
 {
     if (t == LATENCY_DISPLAY_BARS) return QObject::tr("Bars");
-    else if (t == LATENCY_DISPLAY_MS) return QObject::tr("Ms");
+    else if (t == LATENCY_DISPLAY_MS) return QObject::tr("ms");
     else {
         WS_ASSERT(false);
         return QObject::tr("UNKNOWN");
@@ -381,8 +381,9 @@ UPDATE_CHANNEL UPDATE_CHANNEL_fromInt(int t)
 
 QString UPDATE_CHANNEL_toString(UPDATE_CHANNEL t)
 {
-    if (t == UPDATE_CHANNEL_RELEASE) return QObject::tr("Release");
-    else if (t == UPDATE_CHANNEL_BETA) return QObject::tr("Beta");
+    // Translators have indicated 'Release' and 'Beta' should not be translated.
+    if (t == UPDATE_CHANNEL_RELEASE) return "Release";
+    else if (t == UPDATE_CHANNEL_BETA) return "Beta";
     else if (t == UPDATE_CHANNEL_GUINEA_PIG) return QObject::tr("Guinea Pig");
     else if (t == UPDATE_CHANNEL_INTERNAL) return QObject::tr("Internal");
     else {

@@ -87,7 +87,8 @@ bool installedAppVersionLessThan(const wstring &version)
     filesystem::path appExe(Settings::instance().getPath());
     appExe.append(ApplicationInfo::appExeName());
 
-    if (!filesystem::exists(appExe)) {
+    error_code ec;
+    if (!filesystem::exists(appExe, ec)) {
         return false;
     }
 

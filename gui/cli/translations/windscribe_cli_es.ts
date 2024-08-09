@@ -206,5 +206,49 @@
         <source>Downloading: %1%</source>
         <translation>Descargando: %1%</translation>
     </message>
+    <message>
+        <source>Username too short</source>
+        <translation>Nombre de usuario demasiado corto</translation>
+    </message>
+    <message>
+        <source>Password too short</source>
+        <translation>Contraseña demasiado corta</translation>
+    </message>
+    <message>
+        <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>La conexión está en curso.  Usa &apos;windscribe-cli status&apos; para comprobar el estado de la conexión.</translation>
+    </message>
+    <message>
+        <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>La desconexión está en curso.  Usa &apos;windscribe-cli status&apos; para comprobar el estado de la conexión.</translation>
+    </message>
+    <message>
+        <source>Firewall is on.</source>
+        <translation>El cortafuegos está activado.</translation>
+    </message>
+    <message>
+        <source>Firewall is off.</source>
+        <translation>El cortafuegos está desactivado.</translation>
+    </message>
+    <message>
+        <source>Logs sent.</source>
+        <translation>Registros enviados.</translation>
+    </message>
+    <message>
+        <source>Preferences reloaded.</source>
+        <translation>Preferencias recargadas.</translation>
+    </message>
+    <message>
+        <source>Key limit behavior is set.</source>
+        <translation>Se establece el comportamiento del límite de claves.</translation>
+    </message>
+    <message>
+        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>El inicio de sesión está en curso.  Usa &apos;windscribe-cli status&apos; para verificar el estado.</translation>
+    </message>
+    <message>
+        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>El cierre de sesión está en curso.  Usa &apos;windscribe-cli status&apos; para verificar el estado.</translation>
+    </message>
 </context>
 </TS>

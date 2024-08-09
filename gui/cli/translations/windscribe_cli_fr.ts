@@ -206,5 +206,49 @@
         <source>Downloading: %1%</source>
         <translation>Téléchargement : %1%</translation>
     </message>
+    <message>
+        <source>Username too short</source>
+        <translation>Nom d’utilisateur trop court</translation>
+    </message>
+    <message>
+        <source>Password too short</source>
+        <translation>Mot de passe trop court</translation>
+    </message>
+    <message>
+        <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>La connexion est en cours.  Utilisez &apos;windscribe-cli status&apos; pour vérifier l’état de la connexion.</translation>
+    </message>
+    <message>
+        <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>La déconnexion est en cours.  Utilisez &apos;windscribe-cli status&apos; pour vérifier l’état de la connexion.</translation>
+    </message>
+    <message>
+        <source>Firewall is on.</source>
+        <translation>Le pare-feu est activé.</translation>
+    </message>
+    <message>
+        <source>Firewall is off.</source>
+        <translation>Le pare-feu est désactivé.</translation>
+    </message>
+    <message>
+        <source>Logs sent.</source>
+        <translation>Journaux envoyés.</translation>
+    </message>
+    <message>
+        <source>Preferences reloaded.</source>
+        <translation>Les préférences ont été rechargées.</translation>
+    </message>
+    <message>
+        <source>Key limit behavior is set.</source>
+        <translation>Le comportement de la limite de touches est défini.</translation>
+    </message>
+    <message>
+        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>La connexion est en cours.  Utilisez &apos;windscribe-cli status&apos; pour vérifier l’état.</translation>
+    </message>
+    <message>
+        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>La déconnexion est en cours.  Utilisez &apos;windscribe-cli status&apos; pour vérifier l’état.</translation>
+    </message>
 </context>
 </TS>

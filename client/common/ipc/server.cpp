@@ -18,7 +18,7 @@ Server::~Server()
 bool Server::start()
 {
 
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     // remove socket file, if already exists (for Mac/Linux)
     QString connectingPathName = QDir::tempPath();
     QFile::remove("/var/run/windscribe/localipc.sock");

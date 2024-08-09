@@ -34,14 +34,14 @@ InitialWindow::InitialWindow(QWidget *parent) : QWidget(parent)
     eulaButton_->move(175 - eulaButton_->width()/2, 322);
     connect(eulaButton_, &QPushButton::clicked, this, &InitialWindow::onEulaClicked);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     HoverButton *closeButton = new HoverButton(this, ":/resources/MAC_CLOSE_DEFAULT.svg", ":/resources/MAC_CLOSE_HOVER.svg");
 #else
     HoverButton *closeButton = new HoverButton(this, ":/resources/WINDOWS_CLOSE_DEFAULT.svg", ":/resources/WINDOWS_CLOSE_HOVER.svg");
 #endif
     connect(closeButton, &QPushButton::clicked, this, &InitialWindow::closeClicked);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     HoverButton *minimizeButton = new HoverButton(this, ":/resources/MAC_MINIMIZE_DEFAULT.svg", ":/resources/MAC_MINIMIZE_HOVER.svg");
 #else
     HoverButton *minimizeButton = new HoverButton(this, ":/resources/WINDOWS_MINIMIZE_DEFAULT.svg", ":/resources/WINDOWS_MINIMIZE_HOVER.svg");
@@ -49,7 +49,7 @@ InitialWindow::InitialWindow(QWidget *parent) : QWidget(parent)
     connect(minimizeButton, &QPushButton::clicked, this, &InitialWindow::minimizeClicked);
 
     if (LanguageController::instance().isRtlLanguage()) {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         closeButton->setGeometry(328, 8, 14, 14);
         minimizeButton->setGeometry(306, 8, 14, 14);
 #else
@@ -57,7 +57,7 @@ InitialWindow::InitialWindow(QWidget *parent) : QWidget(parent)
         minimizeButton->setGeometry(52, 16, 28, 28);
 #endif
     } else {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         closeButton->setGeometry(8, 8, 14, 14);
         minimizeButton->setGeometry(28, 8, 14, 14);
 #else

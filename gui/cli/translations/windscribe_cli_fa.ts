@@ -206,5 +206,49 @@
         <source>Downloading: %1%</source>
         <translation>دانلود: ٪1٪</translation>
     </message>
+    <message>
+        <source>Username too short</source>
+        <translation>نام کاربری خیلی کوتاه است</translation>
+    </message>
+    <message>
+        <source>Password too short</source>
+        <translation>رمز عبور خیلی کوتاه است</translation>
+    </message>
+    <message>
+        <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>اتصال در حال انجام است.  از «وضعیت windscribe-cli» برای بررسی وضعیت اتصال استفاده کنید.</translation>
+    </message>
+    <message>
+        <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>قطع ارتباط در حال انجام است.  از «وضعیت windscribe-cli» برای بررسی وضعیت اتصال استفاده کنید.</translation>
+    </message>
+    <message>
+        <source>Firewall is on.</source>
+        <translation>فایروال روشن است.</translation>
+    </message>
+    <message>
+        <source>Firewall is off.</source>
+        <translation>فایروال خاموش است.</translation>
+    </message>
+    <message>
+        <source>Logs sent.</source>
+        <translation>سیاهههای مربوط ارسال شد.</translation>
+    </message>
+    <message>
+        <source>Preferences reloaded.</source>
+        <translation>تنظیمات برگزیده دوباره بارگذاری شد.</translation>
+    </message>
+    <message>
+        <source>Key limit behavior is set.</source>
+        <translation>رفتار حد کلید تنظیم شده است.</translation>
+    </message>
+    <message>
+        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>ورود در حال انجام است.  از «وضعیت windscribe-cli» برای بررسی وضعیت استفاده کنید.</translation>
+    </message>
+    <message>
+        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>خروج از سیستم در حال انجام است.  از «وضعیت windscribe-cli» برای بررسی وضعیت استفاده کنید.</translation>
+    </message>
 </context>
 </TS>

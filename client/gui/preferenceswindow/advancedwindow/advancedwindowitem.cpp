@@ -218,7 +218,7 @@ void AdvancedWindowItem::onLanguageChanged()
     apiResolutionGroup_->setDescription(tr("Resolve server API address automatically, or use one provided by the Support team."));
     ignoreSslErrorsGroup_->setDescription(tr("Ignore SSL certificate validation errors."));
     cbIgnoreSslErrors_->setCaption(tr("Ignore SSL Errors"));
-    keepAliveGroup_->setDescription(tr("Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server."));
+    keepAliveGroup_->setDescription(tr("Prevents connections from dying (by time-out) by periodically pinging the server."));
     cbKeepAlive_->setCaption(tr("Client-side Keepalive"));
     internalDnsGroup_->setDescription(tr("Windscribe uses this DNS server to resolve addresses outside the VPN.") + "\n" + tr("Warning: Using \"OS Default\" may sometimes cause DNS leaks during reconnects."));
     comboBoxAppInternalDns_->setLabelCaption(tr("App Internal DNS"));

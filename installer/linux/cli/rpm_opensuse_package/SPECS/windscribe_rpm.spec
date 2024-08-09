@@ -46,10 +46,11 @@ mkdir -p %{buildroot}
 mv -f %{_sourcedir}/* %{buildroot}
 
 %posttrans
-systemctl disable firewalld
-systemctl stop firewalld
-systemctl enable windscribe-helper
-systemctl restart windscribe-helper
+systemctl killall -q Windscribe
+systemctl daemon-reload || true
+systemctl disable firewalld || true
+systemctl stop firewalld || true
+systemctl preset windscribe-helper.service || true
 
 %post
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
@@ -61,8 +62,8 @@ if [ $1 -eq 0 ]; then
     killall -q Windscribe || true
     systemctl stop windscribe-helper || true
     systemctl disable windscribe-helper || true
-    systemctl enable firewalld
-    systemctl start firewalld
+    systemctl enable firewalld || true
+    systemctl start firewalld || true
     userdel -f windscribe || true
     groupdel -f windscribe || true
     rm -f /usr/bin/windscribe-cli
@@ -72,9 +73,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 %files
-%config /etc/systemd/system-preset/50-windscribe-helper.preset
-%config /etc/systemd/system/windscribe-helper.service
-%config /etc/systemd/user/windscribe.service
 %config /etc/windscribe/*
 /opt/windscribe/*
+/usr/lib/systemd/system-preset/69-windscribe-helper.preset
+/usr/lib/systemd/system/windscribe-helper.service
+/usr/lib/systemd/user/windscribe.service
 /usr/polkit-1/actions/com.windscribe.authhelper.policy

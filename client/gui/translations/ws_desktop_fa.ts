@@ -731,10 +731,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>ویژگی تونل زنی تقسیم شده را نمی توان اغاز کرد و در ترجیحات غیرفعال شده است.</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>بادنگاره</translation>
-    </message>
-    <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>قادر به شروع سرویس DNS سفارشی نیست.  لطفا اطمینان حاصل کنید که هیچ سرویس DNS محلی دیگری در حال اجرا ندارید یا با پشتیبانی تماس بگیرید.</translation>
     </message>
@@ -793,6 +789,22 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Rotating MAC Address</source>
         <translation>چرخش آدرس MAC</translation>
+    </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>Wi-Fi خاموش است</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>Windscribe تشخیص داده است که Wi-Fi در حال حاضر خاموش است. برای استفاده از نقطه اتصال امن، Wi-Fi باید روشن باشد.</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>Secure Hotspot راه اندازی نشد</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>آداپتور شبکه شما ممکن است از این ویژگی پشتیبانی نکند. در ترجیحات غیرفعال شده است.</translation>
     </message>
 </context>
 <context>
@@ -976,8 +988,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>نادیده گرفتن خطاهای SSL</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>جلوگیری از اتصال IKEv2 از مرگ (با زمان خارج) به صورت دوره ای پینگ سرور.</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>جلوگیری از اتصال از مرگ (با زمان خارج) به صورت دوره ای پینگ سرور.</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1434,14 +1446,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>پشتیبانی جامعه</translation>
     </message>
     <message>
-        <source>Reddit</source>
-        <translation>بد</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>اختلاف</translation>
-    </message>
-    <message>
         <source>View Debug Log</source>
         <translation>نمایش ثبت اشکالزدایی</translation>
     </message>
@@ -1752,6 +1756,22 @@ Connect to a network first</source>
         <source>Password</source>
         <translation>رمز عبور</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>آدرس پراکسی نامعتبر</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>آدرس پراکسی نامعتبر است. لطفا یک آدرس IP یا نام دامنه معتبر وارد کنید.</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>پورت پروکسی نامعتبر</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>پورت پروکسی نامعتبر است. لطفا یک پورت معتبر در محدوده 0-65535 وارد کنید.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1826,10 +1846,6 @@ Connect to a network first</source>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>اتصال ایمن Windscribe خود را به صورت بی سیم به اشتراک بگذارید.</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>Ssid</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,7 +2097,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>میله</translation>
     </message>
     <message>
-        <source>Ms</source>
+        <source>ms</source>
         <translation>خانم</translation>
     </message>
     <message>
@@ -2111,14 +2127,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Auto-detect</source>
         <translation>اشکارسازی خودکار</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>انتشار</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>بتا</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

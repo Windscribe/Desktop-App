@@ -77,7 +77,7 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
         }
         config_ += QString("\r\nport %1").arg(portForStunnelOrWStunnel);
         config_ += "\r\nproto tcp\r\n";
-#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+#if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
         if (!defaultGateway.isEmpty()) {
             qCDebug(LOG_CONNECTION) << "defaultGateway for stunnel/wstunnel ovpn config: " << defaultGateway;
             config_ += QString("route %1 255.255.255.255 %2\r\n").arg(ip).arg(defaultGateway);

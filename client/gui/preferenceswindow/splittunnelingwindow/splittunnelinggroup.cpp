@@ -9,7 +9,7 @@
 #include "generalmessagecontroller.h"
 #include "languagecontroller.h"
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     #include "utils/macutils.h"
 #elif defined(Q_OS_WINDOWS)
     #include "utils/logger.h"

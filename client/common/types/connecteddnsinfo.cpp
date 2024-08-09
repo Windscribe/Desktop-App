@@ -41,7 +41,7 @@ ConnectedDnsInfo::ConnectedDnsInfo(const QJsonObject &json)
         for (const QJsonValue &hostnameValue : hostnamesArray) {
             if (hostnameValue.isString()) {
                 QString hostname = hostnameValue.toString();
-                if (IpValidation::isIpOrDomain(hostname)) {
+                if (IpValidation::isIp(hostname) || IpValidation::isDomainWithWildcard(hostname)) {
                     hostnames.append(hostname);
                 }
             }
@@ -104,7 +104,7 @@ void ConnectedDnsInfo::fromIni(const QSettings &settings)
     QStringList list = settings.value(kIniHostnamesProp).toStringList();
     QStringList domains;
     for (const QString &domain: list) {
-        if (IpValidation::isIpOrDomain(domain)) {
+        if (IpValidation::isIp(domain) || IpValidation::isDomainWithWildcard(domain)) {
             domains.append(domain);
         }
     }

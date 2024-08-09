@@ -97,8 +97,6 @@ bool VpnShareController::isWifiSharingEnabled()
     QMutexLocker locker(&mutex_);
 #ifdef Q_OS_WIN
     return wifiSharing_->isSharingStarted();
-#elif defined Q_OS_MAC
-    return false;
 #else
     return false;
 #endif
@@ -222,8 +220,6 @@ bool VpnShareController::isWifiSharingSupported()
     QMutexLocker locker(&mutex_);
 #ifdef Q_OS_WIN
     return wifiSharing_->isSupported();
-#elif defined Q_OS_MAC
-    return false;
 #else
     return false;
 #endif

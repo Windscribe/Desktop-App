@@ -85,7 +85,7 @@ private:
     PreferencesHelper *preferencesHelper_;
     IconButton *minimizeButton_;
     IconButton *closeButton_;
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     //IconButton *fullScreenButton_;
 #endif
 

@@ -26,9 +26,14 @@ int Files::executeStep()
 
     // The installer should have removed any existing Windscribe app instance by this point,
     // but we'll doublecheck just to be sure.
-    if (std::filesystem::exists(installPath)) {
+    std::error_code ec;
+    if (std::filesystem::exists(installPath, ec)) {
         LOG("Files: install path already exists");
-        std::filesystem::remove_all(installPath);
+        std::filesystem::remove_all(installPath, ec);
+        if (ec) {
+            LOG("Files: filesystem::remove_all failed: %s", ec.message().c_str());
+            return -1;
+        }
     }
 
     auto status = Utils::executeCommand("mkdir", {installPath.c_str()}, &lastError_);

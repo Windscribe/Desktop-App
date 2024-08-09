@@ -8,7 +8,7 @@
     #include "wireguardconnection_win.h"
 #endif
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     #include "restorednsmanager_mac.h"
     #include "ikev2connection_mac.h"
     #include "engine/helper/helper_mac.h"
@@ -66,7 +66,7 @@ void FinishActiveConnections::finishWireGuardActiveConnections_win(IHelper *help
     helper_win->stopWireGuard();
     helper_win->disableDnsLeaksProtection();
 }
-#elif defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#elif defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
 void FinishActiveConnections::finishAllActiveConnections_posix(IHelper *helper)
 {
 #if defined(Q_OS_LINUX)
@@ -74,7 +74,7 @@ void FinishActiveConnections::finishAllActiveConnections_posix(IHelper *helper)
 #endif
     finishOpenVpnActiveConnections_posix(helper);
     finishWireGuardActiveConnections_posix(helper);
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     IKEv2Connection_mac::closeWindscribeActiveConnection();
 #endif
 }
@@ -85,7 +85,7 @@ void FinishActiveConnections::finishOpenVpnActiveConnections_posix(IHelper *help
     helper_posix->executeTaskKill(kTargetOpenVpn);
     helper_posix->executeTaskKill(kTargetStunnel);
     helper_posix->executeTaskKill(kTargetWStunnel);
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     RestoreDNSManager_mac::restoreState(helper);
 #endif
 }

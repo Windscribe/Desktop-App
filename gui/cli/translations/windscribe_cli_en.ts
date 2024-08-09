@@ -206,5 +206,49 @@
         <source>Downloading: %1%</source>
         <translation>Downloading: %1%</translation>
     </message>
+    <message>
+        <source>Username too short</source>
+        <translation>Username too short</translation>
+    </message>
+    <message>
+        <source>Password too short</source>
+        <translation>Password too short</translation>
+    </message>
+    <message>
+        <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</translation>
+    </message>
+    <message>
+        <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</translation>
+    </message>
+    <message>
+        <source>Firewall is on.</source>
+        <translation>Firewall is on.</translation>
+    </message>
+    <message>
+        <source>Firewall is off.</source>
+        <translation>Firewall is off.</translation>
+    </message>
+    <message>
+        <source>Logs sent.</source>
+        <translation>Logs sent.</translation>
+    </message>
+    <message>
+        <source>Preferences reloaded.</source>
+        <translation>Preferences reloaded.</translation>
+    </message>
+    <message>
+        <source>Key limit behavior is set.</source>
+        <translation>Key limit behavior is set.</translation>
+    </message>
+    <message>
+        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</translation>
+    </message>
+    <message>
+        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</translation>
+    </message>
 </context>
 </TS>

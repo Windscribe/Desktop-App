@@ -206,5 +206,49 @@
         <source>Downloading: %1%</source>
         <translation>Загрузка: %1%</translation>
     </message>
+    <message>
+        <source>Username too short</source>
+        <translation>Слишком короткое имя пользователя</translation>
+    </message>
+    <message>
+        <source>Password too short</source>
+        <translation>Слишком короткий пароль</translation>
+    </message>
+    <message>
+        <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>Идет подключение.  Используйте &apos;windscribe-cli status&apos; для проверки статуса соединения.</translation>
+    </message>
+    <message>
+        <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>Происходит разрыв соединения.  Используйте &apos;windscribe-cli status&apos; для проверки статуса соединения.</translation>
+    </message>
+    <message>
+        <source>Firewall is on.</source>
+        <translation>Брандмауэр включен.</translation>
+    </message>
+    <message>
+        <source>Firewall is off.</source>
+        <translation>Брандмауэр выключен.</translation>
+    </message>
+    <message>
+        <source>Logs sent.</source>
+        <translation>Бревна отправлены.</translation>
+    </message>
+    <message>
+        <source>Preferences reloaded.</source>
+        <translation>Настройки перезагружены.</translation>
+    </message>
+    <message>
+        <source>Key limit behavior is set.</source>
+        <translation>Задается поведение ограничения клавиш.</translation>
+    </message>
+    <message>
+        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>Вход в систему выполняется.  Используйте &apos;windscribe-cli status&apos; для проверки статуса.</translation>
+    </message>
+    <message>
+        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>Выполняется выход из системы.  Используйте &apos;windscribe-cli status&apos; для проверки статуса.</translation>
+    </message>
 </context>
 </TS>

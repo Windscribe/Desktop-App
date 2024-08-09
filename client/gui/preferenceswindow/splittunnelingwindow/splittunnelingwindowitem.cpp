@@ -5,7 +5,7 @@
 #include "utils/hardcodedsettings.h"
 #include "languagecontroller.h"
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     #include "utils/macutils.h"
 #endif
 

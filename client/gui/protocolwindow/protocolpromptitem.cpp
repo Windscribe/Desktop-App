@@ -11,7 +11,7 @@
 #include "languagecontroller.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/logger.h"
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 #include "utils/macutils.h"
 #endif
 
@@ -100,7 +100,7 @@ void ProtocolPromptItem::doResetProtocolStatus()
         if (currentProtocol.protocol == p) {
             continue;
         }
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         if (p == types::Protocol::IKEV2 && MacUtils::isLockdownMode()) {
             continue;
         }

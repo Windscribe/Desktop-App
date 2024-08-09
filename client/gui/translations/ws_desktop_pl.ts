@@ -731,10 +731,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Nie udało się uruchomić funkcji dzielonego tunelowania, więc została wyłączona w Preferencjach.</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>Skryba wiatru</translation>
-    </message>
-    <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>Nie można uruchomić niestandardowej usługi DNS.  Upewnij się, że nie masz uruchomionych żadnych innych lokalnych usług DNS lub skontaktuj się z pomocą techniczną.</translation>
     </message>
@@ -793,6 +789,22 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
     <message>
         <source>Rotating MAC Address</source>
         <translation>Obracanie adresu MAC</translation>
+    </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>Wi-Fi jest wyłączone</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>Windscribe wykrył, że Wi-Fi jest obecnie wyłączone. Aby korzystać z Bezpiecznego hotspotu, Wi-Fi musi być włączone.</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>Nie można uruchomić bezpiecznego hotspotu</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>Karta sieciowa może nie obsługiwać tej funkcji. Została ona wyłączona w preferencjach.</translation>
     </message>
 </context>
 <context>
@@ -976,8 +988,8 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Ignoruj błędy SSL</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>Zapobiega utracie połączeń IKEv2 (przez upłynięcie limitu czasu żądania) przez okresowe pingowanie serwera.</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>Zapobiega utracie połączeń (przez upłynięcie limitu czasu żądania) przez okresowe pingowanie serwera.</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1434,14 +1446,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Wsparcie społeczności</translation>
     </message>
     <message>
-        <source>Reddit</source>
-        <translation>Reddit (Reddit)</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>Niezgoda</translation>
-    </message>
-    <message>
         <source>View Debug Log</source>
         <translation>Wyświetl dziennik debug</translation>
     </message>
@@ -1752,6 +1756,22 @@ Najpierw połącz się z siecią</translation>
         <source>Password</source>
         <translation>Hasło</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>Nieprawidłowy adres serwera proxy</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>Adres serwera proxy jest nieprawidłowy. Podaj prawidłowy adres IP lub nazwę domeny.</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>Nieprawidłowy port serwera proxy</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>Port serwera proxy jest nieprawidłowy. Podaj prawidłowy port z zakresu 0-65535.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1826,10 +1846,6 @@ Najpierw połącz się z siecią</translation>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>Udostępnij swoje bezpieczne połączenie Windscribe bezprzewodowo.</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>Identyfikator SSID</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,8 +2097,8 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
         <translation>Kreski</translation>
     </message>
     <message>
-        <source>Ms</source>
-        <translation>Ms</translation>
+        <source>ms</source>
+        <translation>ms</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2111,14 +2127,6 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
     <message>
         <source>Auto-detect</source>
         <translation>Auto-wykrywanie</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Zwolnić</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>
@@ -2346,7 +2354,7 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
     </message>
     <message>
         <source>EXT CONFIG MODE</source>
-        <translation>TRYB KONFIGURACJI EXT</translation>
+        <translation>EXT CONFIG MODE</translation>
     </message>
     <message>
         <source>0 DAYS LEFT</source>

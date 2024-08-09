@@ -43,4 +43,5 @@ private:
 
     void onStateResponse(IPC::Command *command);
     void onUpdateStateResponse(IPC::Command *command);
+    void onAcknowledge();
 };

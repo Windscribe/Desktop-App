@@ -731,10 +731,6 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Não foi possível iniciar o recurso de tunelamento dividido e foi desativado em Preferências.</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>Windscribe</translation>
-    </message>
-    <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>Não é possível iniciar o serviço DNS personalizado.  Certifique-se de que não tem outros serviços DNS locais em execução ou contacte o suporte.</translation>
     </message>
@@ -793,6 +789,22 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     <message>
         <source>Rotating MAC Address</source>
         <translation>Endereço MAC rotativo</translation>
+    </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>O Wi-Fi está desligado</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>O Windscribe detetou que o Wi-Fi está atualmente desativado. Para utilizar o Hotspot Seguro, o Wi-Fi deve estar ativado.</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>Não foi possível iniciar o Secure Hotspot</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>O adaptador de rede pode não suportar esse recurso. Foi desativado nas preferências.</translation>
     </message>
 </context>
 <context>
@@ -976,8 +988,8 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Ignorar erros SSL</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>Impede que as conexões IKEv2 morram (por tempo limite) executando periodicamente ping no servidor.</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>Impede que as conexões morram (por tempo limite) executando periodicamente ping no servidor.</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1434,14 +1446,6 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Apoio à Comunidade</translation>
     </message>
     <message>
-        <source>Reddit</source>
-        <translation>Reddit</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>Discórdia</translation>
-    </message>
-    <message>
         <source>View Debug Log</source>
         <translation>Ver Registo de Depuração</translation>
     </message>
@@ -1752,6 +1756,22 @@ Conecte-se a uma rede primeiro</translation>
         <source>Password</source>
         <translation>Palavra-passe</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>Endereço de proxy inválido</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>O endereço do proxy é inválido. Introduza um endereço IP ou nome de domínio válido.</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>Porta proxy inválida</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>A porta proxy é inválida. Introduza uma porta válida no intervalo 0-65535.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1826,10 +1846,6 @@ Conecte-se a uma rede primeiro</translation>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>Partilhe a sua ligação segura Windscribe sem fios.</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>SSID</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,7 +2097,7 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
         <translation>Bares</translation>
     </message>
     <message>
-        <source>Ms</source>
+        <source>ms</source>
         <translation>Sra.</translation>
     </message>
     <message>
@@ -2111,14 +2127,6 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
     <message>
         <source>Auto-detect</source>
         <translation>Deteção automática</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Lançamento</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

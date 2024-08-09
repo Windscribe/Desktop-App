@@ -64,11 +64,16 @@ void SplitTunneling::detectWindscribeExecutables()
     }
 
     std::vector<std::wstring> windscribeExefiles;
+    std::vector<std::wstring> windscribeCtrldFiles;
     do {
         if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
             std::wstring fileName = ffd.cFileName;
             std::wstring fullPath = exePath + L"\\" + ffd.cFileName;
-            if (fileName != L"WindscribeService.exe") {     // skip WindscribeService.exe
+
+            // For ctrld utility and Windscribe.exe we need special rules for inclusive mode
+            if (fileName == L"windscribectrld.exe" || fileName == L"Windscribe.exe") {
+                windscribeCtrldFiles.push_back(fullPath);
+            } else if (fileName != L"WindscribeService.exe") {     // skip WindscribeService.exe
                 windscribeExefiles.push_back(fullPath);
             }
         }
@@ -77,6 +82,7 @@ void SplitTunneling::detectWindscribeExecutables()
     FindClose(hFind);
 
     windscribeExecutableIds_.setFromList(windscribeExefiles);
+    ctrldExecutableId_.setFromList(windscribeCtrldFiles);
 }
 
 bool SplitTunneling::updateState()
@@ -116,7 +122,7 @@ bool SplitTunneling::updateState()
             appsIds.addFrom(windscribeExecutableIds_);
             hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp, connectStatus_.vpnAdapter.ifIndex);
         }
-        calloutFilter_.enable(localIp, vpnIp, appsIds, isExclude_, isAllowLanTraffic_);
+        calloutFilter_.enable(localIp, vpnIp, appsIds, isExclude_ ? AppsIds() : ctrldExecutableId_, isExclude_, isAllowLanTraffic_);
     } else {
         calloutFilter_.disable();
         hostnamesManager_.disable();

@@ -55,7 +55,7 @@ namespace Utils {
     QString toBase64(const QString& str);
     QString fromBase64(const QString& str);
 
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     QString execCmd(const QString &cmd);
 #endif
 }

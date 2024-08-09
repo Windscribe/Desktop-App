@@ -15,7 +15,7 @@
     #include "engine/helper/helper_win.h"
     #include "types/global_consts.h"
     #include "utils/extraconfig.h"
-#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+#elif defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
     #include "engine/helper/helper_posix.h"
 #endif
 
@@ -549,7 +549,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             {
                 emit error(CONNECT_ERROR::INITIALIZATION_SEQUENCE_COMPLETED_WITH_ERRORS);
             }
-#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+#if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
             else if (serverReply.contains("device", Qt::CaseInsensitive) && serverReply.contains("opened", Qt::CaseInsensitive))
             {
                 QString deviceName;
@@ -783,7 +783,7 @@ bool OpenVPNConnection::parseDeviceOpenedReply(const QString &reply, QString &ou
         qCDebug(LOG_CONNECTION) << "Can't parse opened device message (divide into 4 strings)";
         return false;
     }
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     outDeviceName = v2[3].toString();
 #elif defined (Q_OS_LINUX)
     outDeviceName = v2[2].toString();

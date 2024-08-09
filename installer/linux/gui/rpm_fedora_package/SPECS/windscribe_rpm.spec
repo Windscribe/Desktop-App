@@ -59,8 +59,9 @@ mkdir -p %{buildroot}
 mv -f %{_sourcedir}/* %{buildroot}
 
 %posttrans
-systemctl enable windscribe-helper
-systemctl restart windscribe-helper
+systemctl daemon-reload || true
+systemctl preset windscribe-helper || true
+systemctl start windscribe-helper || true
 
 %post
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
@@ -83,10 +84,10 @@ if [ $1 -eq 0 ]; then
 fi
 
 %files
-%config /etc/systemd/system-preset/50-windscribe-helper.preset
-%config /etc/systemd/system/windscribe-helper.service
 %config /etc/windscribe/*
 /opt/windscribe/*
 /usr/polkit-1/actions/com.windscribe.authhelper.policy
+/usr/lib/systemd/system-preset/69-windscribe-helper.preset
+/usr/lib/systemd/system/windscribe-helper.service
 /usr/share/applications/windscribe.desktop
 /usr/share/icons/hicolor/*/apps/Windscribe.png

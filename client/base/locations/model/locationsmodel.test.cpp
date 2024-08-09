@@ -65,7 +65,7 @@ void TestLocationsModel::testBasic()
         QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createTopApiLocationId(56));
         QVERIFY(ind.isValid());
         QVERIFY(ind.data(gui_locations::kLoad).toInt() == 8);
-        QVERIFY(ind.data(gui_locations::kPingTime).toInt() == 810);
+        QVERIFY(ind.data(gui_locations::kPingTime).toInt() == 231);
     }
 
     {

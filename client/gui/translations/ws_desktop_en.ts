@@ -731,10 +731,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>The split tunneling feature could not be started, and has been disabled in Preferences.</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>Windscribe</translation>
-    </message>
-    <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</translation>
     </message>
@@ -793,6 +789,22 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Rotating MAC Address</source>
         <translation>Rotating MAC Address</translation>
+    </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>Wi-Fi is off</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>Could not start Secure Hotspot</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>Your network adapter may not support this feature. It has been disabled in preferences.</translation>
     </message>
 </context>
 <context>
@@ -976,8 +988,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Ignore SSL Errors</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>Prevents connections from dying (by time-out) by periodically pinging the server.</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1434,14 +1446,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Community Support</translation>
     </message>
     <message>
-        <source>Reddit</source>
-        <translation>Reddit</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>Discord</translation>
-    </message>
-    <message>
         <source>View Debug Log</source>
         <translation>View Debug Log</translation>
     </message>
@@ -1752,6 +1756,22 @@ Connect to a network first</translation>
         <source>Password</source>
         <translation>Password</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>Invalid proxy address</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>Proxy address is invalid. Please enter a valid IP address or domain name.</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>Invalid proxy port</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>Proxy port is invalid. Please enter a valid port in the range 0-65535.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1826,10 +1846,6 @@ Connect to a network first</translation>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>Share your secure Windscribe connection wirelessly.</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>SSID</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,8 +2097,8 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>Bars</translation>
     </message>
     <message>
-        <source>Ms</source>
-        <translation>Ms</translation>
+        <source>ms</source>
+        <translation>ms</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2111,14 +2127,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Auto-detect</source>
         <translation>Auto-detect</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Release</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

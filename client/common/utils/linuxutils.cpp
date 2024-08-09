@@ -240,6 +240,9 @@ QString getDistroName()
 gid_t getWindscribeGid()
 {
     struct group *grp = getgrnam("windscribe");
+    if (grp == nullptr) {
+        return -1;
+    }
     return grp->gr_gid;
 }
 

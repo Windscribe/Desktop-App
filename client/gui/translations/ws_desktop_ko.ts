@@ -731,10 +731,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>분할 터널링 기능을 시작할 수 없으며 기본 설정에서 비활성화되었습니다.</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>윈드스크라이브</translation>
-    </message>
-    <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>사용자 지정 DNS 서비스를 시작할 수 없습니다.  실행 중인 다른 로컬 DNS 서비스가 없는지 확인하거나 지원팀에 문의하세요.</translation>
     </message>
@@ -793,6 +789,22 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Rotating MAC Address</source>
         <translation>MAC 주소 교체</translation>
+    </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>Wi-Fi가 꺼져 있습니다.</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>Windscribe에서 Wi-Fi가 현재 꺼져 있음을 감지했습니다. 보안 핫스팟을 사용하려면 Wi-Fi가 켜져 있어야 합니다.</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>보안 핫스팟을 시작할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>네트워크 어댑터가 이 기능을 지원하지 않을 수 있습니다. 환경 설정에서 비활성화되었습니다.</translation>
     </message>
 </context>
 <context>
@@ -976,8 +988,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>SSL 오류 무시</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>주기적으로 서버를 ping하여 IKEv2 연결이 시간 초과로 인해 중단되지 않도록 합니다.</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>주기적으로 서버를 ping하여 연결이 시간 초과로 인해 중단되지 않도록 합니다.</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1434,14 +1446,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>커뮤니티 지원</translation>
     </message>
     <message>
-        <source>Reddit</source>
-        <translation>레딧</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>갈등</translation>
-    </message>
-    <message>
         <source>View Debug Log</source>
         <translation>디버그 로그 보기</translation>
     </message>
@@ -1752,6 +1756,22 @@ Connect to a network first</source>
         <source>Password</source>
         <translation>암호</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>잘못된 프록시 주소</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>프록시 주소가 잘못되었습니다. 유효한 IP 주소 또는 도메인 이름을 입력하십시오.</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>유효하지 않은 프록시 포트</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>프록시 포트가 잘못되었습니다. 0-65535 범위의 유효한 포트를 입력하십시오.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1826,10 +1846,6 @@ Connect to a network first</source>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>안전한 Windscribe 연결을 무선으로 공유하십시오.</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>SSID를</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,7 +2097,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>바</translation>
     </message>
     <message>
-        <source>Ms</source>
+        <source>ms</source>
         <translation>미시시피</translation>
     </message>
     <message>
@@ -2111,14 +2127,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Auto-detect</source>
         <translation>자동 감지</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>석방</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

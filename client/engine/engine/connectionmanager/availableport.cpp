@@ -4,7 +4,7 @@
 #ifdef Q_OS_WIN
     #include <winsock2.h>
     #include <ws2tcpip.h>
-#elif defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#elif defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     #include <netdb.h>
     #include <unistd.h>
 #endif
@@ -51,7 +51,7 @@ unsigned int AvailablePort::getAvailablePort(unsigned int defaultPort)
     freeaddrinfo(result);
     closesocket(sock);
     return retPort;
-#elif defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#elif defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if  (sock < 0)
     {
@@ -115,7 +115,7 @@ bool AvailablePort::isPortBusy(const QString &ip, unsigned int port)
     closesocket(sock);
     return false;
 
-#elif defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#elif defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     // In most UNIX-like environments, this may fail on all addresses if port is <1024 since this process is not root
     // so this is a meaningless test.
     return true;

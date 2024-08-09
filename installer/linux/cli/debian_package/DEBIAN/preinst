@@ -16,6 +16,7 @@ done
 
 systemctl stop windscribe-helper > /dev/null 2>&1 || true
 systemctl disable windscribe-helper > /dev/null 2>&1 || true
+killall -q Windscribe || true
 
 # Stop and disable firewalld service if it is active, otherwise it will conflict with iptables on OS reboot
 # Relevant for Fedora distributions

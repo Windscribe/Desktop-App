@@ -42,10 +42,14 @@ int main(int argc, char *argv[])
 {
 #if defined (Q_OS_LINUX)
     gid_t gid = LinuxUtils::getWindscribeGid();
+    if (gid == -1) {
+        qCDebug(LOG_BASIC) << "windscribe group does not exist";
+        return -1;
+    }
     qCDebug(LOG_BASIC) << "Setting gid to:" << gid;
     if (setgid(gid) < 0) {
         qCDebug(LOG_BASIC) << "Could not set windscribe group";
-        return 0;
+        return -1;
     }
 #endif
 

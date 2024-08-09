@@ -126,6 +126,12 @@ int main(int argc, char *argv[])
         backendCommander->initAndSend();
     } else {
 #ifdef CLI_ONLY
+        uid_t uid = geteuid();
+        if (uid == 0) {
+            logAndCout("Error: this application should not run as root.");
+            return -1;
+        }
+
         int err = system("systemctl --user daemon-reload && systemctl --user enable windscribe && systemctl --user start windscribe");
         if (err != 0) {
             logAndCout("Could not start application");

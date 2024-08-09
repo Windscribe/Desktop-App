@@ -81,7 +81,11 @@ std::vector<const std::string> Ipv6Manager::getInterfaces()
         if (str.find("An asterisk") != std::string::npos) {
             continue;
         }
-        interfaces.push_back(str);
+        if (!str.empty() && str.front() == '*') {
+            interfaces.push_back(str.substr(1));
+        } else {
+            interfaces.push_back(str);
+        }
     }
 
     return interfaces;

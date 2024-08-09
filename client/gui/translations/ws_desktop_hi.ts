@@ -515,10 +515,6 @@
         <translation>VPN कनेक्शन स्थापित करने में कोई अनपेक्षित त्रुटि आई (त्रुटि %1).  यदि यह त्रुटि बनी रहती है, तो किसी भिन्न प्रोटोकॉल या संपर्क समर्थन का उपयोग करने का प्रयास करें.</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>विंडस्क्राइब</translation>
-    </message>
-    <message>
         <source>Can&apos;t select directory</source>
         <translation>निर्देशिका का चयन नहीं कर सकता</translation>
     </message>
@@ -794,6 +790,22 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Rotating MAC Address</source>
         <translation>घूर्णन मैक पता</translation>
     </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>वाई-फ़ाई बंद है</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>विंडसाइड ने पाया है कि वाई-फाई वर्तमान में बंद है। सुरक्षित हॉटस्पॉट का उपयोग करने के लिए, वाई-फाई चालू होना चाहिए।</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>सुरक्षित हॉटस्पॉट प्रारंभ नहीं कर सका</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>हो सकता है आपका नेटवर्क एडाप्टर इस सुविधा का समर्थन न करे. इसे वरीयताओं में अक्षम कर दिया गया है।</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -976,8 +988,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>SSL त्रुटियों पर ध्यान न दें</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>समय-समय पर सर्वर को पिंग करके IKEv2 कनेक्शन को मरने से रोकता है (टाइम-आउट द्वारा)।</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>समय-समय पर सर्वर को पिंग करके कनेक्शन को मरने से रोकता है (टाइम-आउट द्वारा)।</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1434,14 +1446,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>सामुदायिक समर्थन</translation>
     </message>
     <message>
-        <source>Reddit</source>
-        <translation>Reddit</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>असहमति</translation>
-    </message>
-    <message>
         <source>View Debug Log</source>
         <translation>डीबग लॉग देखें</translation>
     </message>
@@ -1752,6 +1756,22 @@ Connect to a network first</source>
         <source>Password</source>
         <translation>पासवर्ड</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>अमान्य प्रॉक्सी पता</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>प्रॉक्सी पता अमान्य है. कृपया कोई मान्य IP पता या डोमेन नाम दर्ज करें.</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>अमान्य प्रॉक्सी पोर्ट</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>प्रॉक्सी पोर्ट अमान्य है. कृपया 0-65535 श्रेणी में कोई मान्य पोर्ट दर्ज करें.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1826,10 +1846,6 @@ Connect to a network first</source>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>अपने सुरक्षित विंडस्क्राइब कनेक्शन को वायरलेस रूप से साझा करें।</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>SSID</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,7 +2097,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>सलाखों</translation>
     </message>
     <message>
-        <source>Ms</source>
+        <source>ms</source>
         <translation>सुश्री</translation>
     </message>
     <message>
@@ -2111,14 +2127,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Auto-detect</source>
         <translation>ऑटो-डिटेक्ट</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>निर्गमन</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>बीटा</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

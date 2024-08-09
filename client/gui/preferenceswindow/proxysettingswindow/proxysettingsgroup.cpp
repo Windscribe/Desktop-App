@@ -4,6 +4,7 @@
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
+#include "generalmessagecontroller.h"
 #include "languagecontroller.h"
 
 namespace PreferencesWindow {
@@ -56,6 +57,17 @@ void ProxySettingsGroup::onAddressChanged(const QString &text)
         } else {
             // Not accepted, revert to previous value
             editBoxAddress_->setText(settings_.address());
+            GeneralMessageController::instance().showMessage(
+                "WARNING_WHITE",
+                tr("Invalid proxy address"),
+                tr("Proxy address is invalid. Please enter a valid IP address or domain name."),
+                GeneralMessageController::tr(GeneralMessageController::kOk),
+                "",
+                "",
+                std::function<void(bool b)>(nullptr),
+                std::function<void(bool b)>(nullptr),
+                std::function<void(bool b)>(nullptr),
+                GeneralMessage::kFromPreferences);
         }
     }
 }
@@ -68,7 +80,17 @@ void ProxySettingsGroup::onPortChanged(const QString &text)
             settings_.setPort(port);
             emit proxySettingsChanged(settings_);
         } else {
-            // Not accepted, revert to previous value
+            GeneralMessageController::instance().showMessage(
+                "WARNING_WHITE",
+                tr("Invalid proxy port"),
+                tr("Proxy port is invalid. Please enter a valid port in the range 0-65535."),
+                GeneralMessageController::tr(GeneralMessageController::kOk),
+                "",
+                "",
+                std::function<void(bool b)>(nullptr),
+                std::function<void(bool b)>(nullptr),
+                std::function<void(bool b)>(nullptr),
+                GeneralMessage::kFromPreferences);
             editBoxPort_->setText(QString::number(settings_.getPort()));
         }
     }

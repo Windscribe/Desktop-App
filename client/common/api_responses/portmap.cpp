@@ -41,6 +41,7 @@ PortMap::PortMap(const std::string &json) : d(new PortMapData)
 
         d->items_ << portItem;
     }
+    removeUnsupportedProtocols(types::Protocol::supportedProtocols());
 }
 
 int PortMap::getPortItemCount() const

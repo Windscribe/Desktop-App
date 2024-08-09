@@ -64,15 +64,15 @@ bool Archive::extract(const std::wstring &resourceName, const std::wstring &arch
 bool Archive::extract(const std::wstring &resourceName, const std::wstring &archiveName, const std::wstring &extractFolder,
                       const std::wstring &filename, const std::wstring &targetFolder)
 {
-    // The extractor utility is expected to exist in the extractFolder, placed there by the bootstrapper.
-    if (!std::filesystem::exists(extractor(extractFolder))) {
-        log(L"The extraction utility was not found in " + extractFolder);
-        return false;
-    }
-
     bool isExtracted = false;
 
     try {
+        // The extractor utility is expected to exist in the extractFolder, placed there by the bootstrapper.
+        if (!std::filesystem::exists(extractor(extractFolder))) {
+            log(L"The extraction utility was not found in " + extractFolder);
+            return false;
+        }
+
         extractArchiveFromResource(resourceName, archiveName, extractFolder);
         extractFile(archiveName, extractFolder, filename, targetFolder);
         isExtracted = true;

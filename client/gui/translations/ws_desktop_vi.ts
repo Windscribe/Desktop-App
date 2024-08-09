@@ -731,10 +731,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Không thể khởi động tính năng tạo đường hầm phân chia và đã bị tắt trong Tùy chọn.</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>Windscribe</translation>
-    </message>
-    <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>Không thể khởi động dịch vụ DNS tùy chỉnh.  Vui lòng đảm bảo bạn không có bất kỳ dịch vụ DNS cục bộ nào khác đang chạy hoặc liên hệ với bộ phận hỗ trợ.</translation>
     </message>
@@ -793,6 +789,22 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Rotating MAC Address</source>
         <translation>Địa chỉ MAC xoay</translation>
+    </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>Wi-Fi bị tắt</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>Windscribe đã phát hiện ra rằng Wi-Fi hiện đang bị tắt. Để sử dụng Điểm truy cập bảo mật, bạn nên bật Wi-Fi.</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>Không thể khởi động Secure Hotspot</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>Bộ điều hợp mạng của bạn có thể không hỗ trợ tính năng này. Nó đã bị vô hiệu hóa trong tùy chọn.</translation>
     </message>
 </context>
 <context>
@@ -976,8 +988,8 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Bỏ qua lỗi SSL</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>Ngăn các kết nối IKEv2 chết (do hết thời gian chờ) bằng cách định kỳ ping máy chủ.</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>Ngăn các kết nối chết (do hết thời gian chờ) bằng cách định kỳ ping máy chủ.</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1434,14 +1446,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Hỗ trợ cộng đồng</translation>
     </message>
     <message>
-        <source>Reddit</source>
-        <translation>Reddit</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>Bất hòa</translation>
-    </message>
-    <message>
         <source>View Debug Log</source>
         <translation>Xem Nhật ký gỡ lỗi</translation>
     </message>
@@ -1752,6 +1756,22 @@ Kết nối với mạng trước</translation>
         <source>Password</source>
         <translation>Mật khẩu</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>Địa chỉ proxy không hợp lệ</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>Địa chỉ proxy không hợp lệ. Vui lòng nhập địa chỉ IP hoặc tên miền hợp lệ.</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>Cổng proxy không hợp lệ</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>Cổng proxy không hợp lệ. Vui lòng nhập cổng hợp lệ trong phạm vi 0-65535.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1826,10 +1846,6 @@ Kết nối với mạng trước</translation>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>Chia sẻ kết nối Windscribe an toàn của bạn không dây.</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>SSID</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,8 +2097,8 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
         <translation>Quán bar</translation>
     </message>
     <message>
-        <source>Ms</source>
-        <translation>Ms</translation>
+        <source>ms</source>
+        <translation>ms</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2111,14 +2127,6 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Auto-detect</source>
         <translation>Tự động phát hiện</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Phát hành</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>Bêta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

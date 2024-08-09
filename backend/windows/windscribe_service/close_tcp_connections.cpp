@@ -39,6 +39,14 @@ void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets, bool isE
             // Do not close LAN sockets, if explicitly requested.
             if (keepLocalSockets && isLocalAddress(entry->dwRemoteAddr))
                 continue;
+
+            // always close ctrld util sockets
+            if (isCtrldProcessName(entry->dwOwningPid)) {
+                entry->dwState = MIB_TCP_STATE_DELETE_TCB;
+                SetTcpEntry(reinterpret_cast<MIB_TCPROW *>(entry));
+                continue;
+            }
+
             // Do not close Windscribe sockets.
             if (isWindscribeProcessName(entry->dwOwningPid))
                 continue;
@@ -58,7 +66,7 @@ void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets, bool isE
                 if (bSkip)
                     continue;
             }
-            // // don't close not apps sockets
+            // don't close not apps sockets
             else
             {
                 bool bFound = false;
@@ -89,6 +97,11 @@ void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets, bool isE
 bool CloseTcpConnections::isWindscribeProcessName(DWORD dwPid)
 {
     return isAppSocket(dwPid, L"windscribe");
+}
+
+bool CloseTcpConnections::isCtrldProcessName(DWORD dwPid)
+{
+    return isAppSocket(dwPid, L"windscribectrld");
 }
 
 //static

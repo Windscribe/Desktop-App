@@ -206,5 +206,49 @@
         <source>Downloading: %1%</source>
         <translation>Stahování: %1%</translation>
     </message>
+    <message>
+        <source>Username too short</source>
+        <translation>Uživatelské jméno je příliš krátké</translation>
+    </message>
+    <message>
+        <source>Password too short</source>
+        <translation>Heslo je příliš krátké</translation>
+    </message>
+    <message>
+        <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>Připojení probíhá.  Pro kontrolu stavu připojení použijte &apos;windscribe-cli status&apos;.</translation>
+    </message>
+    <message>
+        <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>Probíhá odpojování.  Pro kontrolu stavu připojení použijte &apos;windscribe-cli status&apos;.</translation>
+    </message>
+    <message>
+        <source>Firewall is on.</source>
+        <translation>Brána firewall je zapnutá.</translation>
+    </message>
+    <message>
+        <source>Firewall is off.</source>
+        <translation>Brána firewall je vypnutá.</translation>
+    </message>
+    <message>
+        <source>Logs sent.</source>
+        <translation>Odeslané protokoly.</translation>
+    </message>
+    <message>
+        <source>Preferences reloaded.</source>
+        <translation>Předvolby byly znovu načteny.</translation>
+    </message>
+    <message>
+        <source>Key limit behavior is set.</source>
+        <translation>Je nastaveno chování klíčového limitu.</translation>
+    </message>
+    <message>
+        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>Přihlášení probíhá.  Pro kontrolu stavu použijte &apos;windscribe-cli status&apos;.</translation>
+    </message>
+    <message>
+        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>Probíhá odhlášení.  Pro kontrolu stavu použijte &apos;windscribe-cli status&apos;.</translation>
+    </message>
 </context>
 </TS>

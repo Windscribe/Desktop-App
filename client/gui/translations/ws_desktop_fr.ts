@@ -515,10 +515,6 @@
         <translation>Une erreur inattendue s’est produite lors de l’établissement de la connexion VPN (erreur %1).  Si cette erreur persiste, essayez d’utiliser un autre protocole ou contactez le support technique.</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>Windscribe</translation>
-    </message>
-    <message>
         <source>Can&apos;t select directory</source>
         <translation>Impossible de sélectionner le répertoire</translation>
     </message>
@@ -794,6 +790,22 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>Rotating MAC Address</source>
         <translation>Rotation de l’adresse MAC</translation>
     </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>Le Wi-Fi est désactivé</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>Windscribe a détecté que le Wi-Fi est actuellement désactivé. Pour utiliser le point d’accès sécurisé, le Wi-Fi doit être activé.</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>Impossible de démarrer le point d’accès sécurisé</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>Il se peut que votre carte réseau ne prenne pas en charge cette fonctionnalité. Il a été désactivé dans les préférences.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -871,7 +883,7 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     </message>
     <message>
         <source>Terms</source>
-        <translation>Petits caractères</translation>
+        <translation>Conditions d’utilisation</translation>
     </message>
     <message>
         <source>Blog</source>
@@ -976,8 +988,8 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>Ignorer les erreurs SSL</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>Empêche les connexions IKEv2 de mourir (par délai d’attente) en envoyant régulièrement une requête ping au serveur.</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>Empêche les connexions de mourir (par délai d’attente) en envoyant régulièrement une requête ping au serveur.</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1129,7 +1141,7 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     </message>
     <message>
         <source>Off</source>
-        <translation>De</translation>
+        <translation>Desactivé</translation>
     </message>
     <message>
         <source>Network Options</source>
@@ -1266,7 +1278,7 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     </message>
     <message>
         <source>Email</source>
-        <translation>Messagerie électronique</translation>
+        <translation>Adresse e-mail</translation>
     </message>
     <message>
         <source>Add Email</source>
@@ -1432,14 +1444,6 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     <message>
         <source>Community Support</source>
         <translation>Soutien de la communauté</translation>
-    </message>
-    <message>
-        <source>Reddit</source>
-        <translation>Reddit</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>Discorde</translation>
     </message>
     <message>
         <source>View Debug Log</source>
@@ -1752,6 +1756,22 @@ Se connecter d’abord à un réseau</translation>
         <source>Password</source>
         <translation>Mot de passe</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>Adresse proxy non valide</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>L’adresse proxy n’est pas valide. Veuillez saisir une adresse IP ou un nom de domaine valide.</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>Port proxy non valide</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>Le port proxy n’est pas valide. Entrez un port valide dans la plage 0-65535.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1768,11 +1788,11 @@ Se connecter d’abord à un réseau</translation>
     <name>PreferencesWindow::RobertItem</name>
     <message>
         <source>Blocking</source>
-        <translation>Bloquant</translation>
+        <translation>Blocage</translation>
     </message>
     <message>
         <source>Allowing</source>
-        <translation>Permettant</translation>
+        <translation>Autorisé</translation>
     </message>
 </context>
 <context>
@@ -1826,10 +1846,6 @@ Se connecter d’abord à un réseau</translation>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>Partagez votre connexion sécurisée Windscribe sans fil.</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>SSID</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,8 +2097,8 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
         <translation>Bars</translation>
     </message>
     <message>
-        <source>Ms</source>
-        <translation>Ms</translation>
+        <source>ms</source>
+        <translation>ms</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2111,14 +2127,6 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
     <message>
         <source>Auto-detect</source>
         <translation>Détection automatique</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Libérer</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>Bêta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

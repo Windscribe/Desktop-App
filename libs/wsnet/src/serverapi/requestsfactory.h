@@ -18,7 +18,7 @@ namespace requests_factory
     BaseRequest *serverCredentials(const std::string &authHash, bool isOpenVpnProtocol, RequestFinishedCallback callback);
     BaseRequest *serverConfigs(const std::string &authHash, const std::string &ovpnVersion, RequestFinishedCallback callback);
     BaseRequest *portMap(const std::string &authHash, std::uint32_t version, const std::vector<std::string> &forceProtocols, RequestFinishedCallback callback);
-    BaseRequest *recordInstall(const std::string &platform, RequestFinishedCallback callback);
+    BaseRequest *recordInstall(bool isDesktop, const std::string &platform, RequestFinishedCallback callback);
 
     BaseRequest *addEmail(const std::string &authHash, const std::string &email, RequestFinishedCallback callback);
     BaseRequest *confirmEmail(const std::string &authHash, RequestFinishedCallback callback);
@@ -82,6 +82,7 @@ namespace requests_factory
                                          RequestFinishedCallback callback);
 
     BaseRequest *verifyTvLoginCode(const std::string &authHash, const std::string &xpressCode, RequestFinishedCallback callback);
+    BaseRequest *cancelAccount(const std::string &authHash, const std::string &password, RequestFinishedCallback callback);
 }
 
 } // namespace wsnet

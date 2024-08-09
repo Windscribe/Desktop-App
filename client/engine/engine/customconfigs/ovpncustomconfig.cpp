@@ -150,7 +150,7 @@ void OvpnCustomConfig::process()
                 continue;
             } else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_SCRIPT_SECURITY) { // script-security cmd
                 qDebug(LOG_CUSTOM_OVPN) << "Extracted script-security:" << openVpnLine.verb;
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
                 // Needed script-security at least 2 on Mac, to allow an "up" command for the DNS
                 // setup script.
                 if (openVpnLine.verb < 2)
@@ -202,7 +202,7 @@ void OvpnCustomConfig::process()
         if (!bFoundVerbCommand) {
             ovpnData_ += "verb 3\n";
         }
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         // Needed script-security at least 2 on Mac, to allow an "up" command for the DNS setup
         // script.
         if (!bFoundScriptSecurityCommand) {

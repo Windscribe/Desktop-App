@@ -15,6 +15,7 @@ pre_install() {
 
         systemctl stop windscribe-helper > /dev/null 2>&1 || true
         systemctl disable windscribe-helper > /dev/null 2>&1 || true
+        killall -q Windscribe || true
 
         # Stop and disable firewalld service if it is active, otherwise it will conflict with iptables on OS reboot
         # Relevant for Fedora distributions
@@ -36,7 +37,8 @@ post_install() {
         systemctl start systemd-resolved
         systemctl enable windscribe-helper
         systemctl start windscribe-helper
-        ln -s /opt/windscribe/Windscribe /usr/bin/windscribe
+        ln -s /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
+        setcap cap_setgid+ep /opt/windscribe/Windscribe
         echo linux_zst_x64_cli > ../etc/windscribe/platform
 }
 
@@ -58,5 +60,5 @@ pre_remove() {
         groupdel -f windscribe || true
         rm -rf /etc/windscribe
         rm -f /opt/windscribe/helper_log.txt
-        rm -f /usr/bin/windscribe
+        rm -f /usr/bin/windscribe-cli
 }

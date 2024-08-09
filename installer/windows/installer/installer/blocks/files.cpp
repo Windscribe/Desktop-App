@@ -29,12 +29,20 @@ int Files::executeStep()
     // file extraction is complete.
     installPath_ = ApplicationInfo::defaultInstallPath();
 
-    if (filesystem::exists(installPath_)) {
-        if (!filesystem::is_empty(installPath_)) {
+    error_code ec;
+    if (filesystem::exists(installPath_, ec)) {
+        if (!filesystem::is_empty(installPath_, ec)) {
+            if (ec) {
+                Log::instance().out(L"Files::executeStep: filesystem::is_empty failed (%hs).", ec.message().c_str());
+            }
             Log::instance().out(L"Warning: the default install directory exists and is not empty.");
         }
     }
     else {
+        if (ec) {
+            Log::instance().out(L"Files::executeStep: filesystem::exists failed (%hs).", ec.message().c_str());
+        }
+
         auto result = ::SHCreateDirectoryEx(NULL, installPath_.c_str(), NULL);
         if (result != ERROR_SUCCESS) {
             Log::instance().out(L"Failed to create default install directory (%d)", result);
@@ -142,7 +150,7 @@ bool Files::copyLibs()
     const filesystem::path exePath = exeStr;
 
     // Copy DLLs
-    for (const auto &entry : filesystem::directory_iterator(exePath)) {
+    for (const auto &entry : filesystem::directory_iterator(exePath, ec)) {
         if (entry.is_regular_file() && entry.path().extension() == ".dll") {
             filesystem::copy_file(entry.path(), installPath / entry.path().filename(), opts, ec);
             if (ec) {
@@ -150,6 +158,11 @@ bool Files::copyLibs()
                 return false;
             }
         }
+    }
+
+    if (ec) {
+        Log::instance().out(L"Files::copyLibs: filesystem::directory_iterator failed (%hs)", ec.message().c_str());
+        return false;
     }
 
     // Copy Qt plugins
@@ -161,5 +174,6 @@ bool Files::copyLibs()
             return false;
         }
     }
+
     return true;
 }

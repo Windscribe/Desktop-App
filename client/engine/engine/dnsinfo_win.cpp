@@ -3,63 +3,67 @@
 #include <windows.h>
 #include <Iphlpapi.h>
 #include <QByteArray>
+
 #include "utils/logger.h"
 
-void DnsInfo_win::outputDebugDnsInfo()
+namespace DnsInfo_win
+{
+
+void outputDebugDnsInfo()
 {
     qCDebug(LOG_BASIC) << "=== DNS Configuration begin ===";
 
-    PIP_ADDR_STRING pAddrStr;
+    ULONG bufSize = sizeof(IP_ADAPTER_INFO) * 32;
+    QByteArray adapterInfo(bufSize, Qt::Uninitialized);
 
-    ULONG ulAdapterInfoSize = sizeof(IP_ADAPTER_INFO);
-    QByteArray pAdapterInfo(ulAdapterInfoSize, Qt::Uninitialized);
+    DWORD result = ::GetAdaptersInfo((PIP_ADAPTER_INFO)adapterInfo.data(), &bufSize);
 
-    if ( GetAdaptersInfo((IP_ADAPTER_INFO *)pAdapterInfo.data(), &ulAdapterInfoSize) == ERROR_BUFFER_OVERFLOW ) // out of buff
-    {
-        pAdapterInfo.resize(ulAdapterInfoSize);
+    if (result == ERROR_BUFFER_OVERFLOW) {
+        adapterInfo.resize(bufSize);
+        result = ::GetAdaptersInfo((PIP_ADAPTER_INFO)adapterInfo.data(), &bufSize);
     }
 
-    if ( GetAdaptersInfo((IP_ADAPTER_INFO *)pAdapterInfo.data(), &ulAdapterInfoSize) == ERROR_SUCCESS )
-    {
-        IP_ADAPTER_INFO *ai = (IP_ADAPTER_INFO *)pAdapterInfo.data();
+    if (result != NO_ERROR) {
+        if (result == ERROR_NO_DATA) {
+            qCDebug(LOG_BASIC) << "No adapters information is available";
+        }
+        else {
+            qCDebug(LOG_BASIC) << "GetAdaptersInfo failed:" << result;
+        }
+    }
+    else {
+        PIP_ADAPTER_INFO pAdapter = (PIP_ADAPTER_INFO)adapterInfo.data();
+        do {
+            if ((pAdapter->Type == MIB_IF_TYPE_ETHERNET) || (pAdapter->Type == IF_TYPE_IEEE80211)) {
+                bufSize = sizeof(IP_PER_ADAPTER_INFO) * 32;
+                QByteArray perAdapterInfo(bufSize, Qt::Uninitialized);
 
-        do
-        {
-            if ((ai->Type == MIB_IF_TYPE_ETHERNET) // If type is etherent
-                    || (ai->Type == IF_TYPE_IEEE80211))   // radio
-            {
-                ULONG ulPerAdapterInfoSize = sizeof(IP_PER_ADAPTER_INFO);
-                QByteArray pPerAdapterInfo(ulPerAdapterInfoSize, Qt::Uninitialized);
-
-                if ( GetPerAdapterInfo(
-                            ai->Index,
-                            (IP_PER_ADAPTER_INFO*)pPerAdapterInfo.data(),
-                            &ulPerAdapterInfoSize) == ERROR_BUFFER_OVERFLOW ) // out of buff
-                {
-                    pPerAdapterInfo.resize(ulPerAdapterInfoSize);
+                result = ::GetPerAdapterInfo(pAdapter->Index, (PIP_PER_ADAPTER_INFO)perAdapterInfo.data(), &bufSize);
+                if (result == ERROR_BUFFER_OVERFLOW ) {
+                    perAdapterInfo.resize(bufSize);
+                    result = ::GetPerAdapterInfo(pAdapter->Index, (PIP_PER_ADAPTER_INFO)perAdapterInfo.data(), &bufSize);
                 }
 
-                DWORD dwRet;
-                std::string dnsIps;
-                if ((dwRet = GetPerAdapterInfo(
-                            ai->Index,
-                            (IP_PER_ADAPTER_INFO*)pPerAdapterInfo.data(),
-                            &ulPerAdapterInfoSize)) == ERROR_SUCCESS)
-                {
-                    IP_PER_ADAPTER_INFO *pai = (IP_PER_ADAPTER_INFO*)pPerAdapterInfo.data();
-                    pAddrStr   =   pai->DnsServerList.Next;
-                    dnsIps += pai->DnsServerList.IpAddress.String;
-                    while(pAddrStr)
-                    {
-                        dnsIps += ",";
+                if (result == NO_ERROR) {
+                    PIP_PER_ADAPTER_INFO pai = (PIP_PER_ADAPTER_INFO)perAdapterInfo.data();
+                    std::string dnsIps = pai->DnsServerList.IpAddress.String;
+                    PIP_ADDR_STRING pAddrStr = pai->DnsServerList.Next;
+                    while (pAddrStr) {
+                        dnsIps += ", ";
                         dnsIps += pAddrStr->IpAddress.String;
-                        pAddrStr   =   pAddrStr->Next;
+                        pAddrStr = pAddrStr->Next;
                     }
+                    qCDebug(LOG_BASIC) << pAdapter->Description << "(" << QString::fromStdString(dnsIps) << ")";
                 }
-                qCDebug(LOG_BASIC) << ai->Description << "(" << QString::fromStdString(dnsIps) << ")";
+                else {
+                    qCDebug(LOG_BASIC) << "GetPerAdapterInfo (" << pAdapter->Description << ") failed:" << result;
+                }
             }
-            ai = ai->Next;
-        } while(ai);
+            pAdapter = pAdapter->Next;
+        } while (pAdapter);
     }
+
     qCDebug(LOG_BASIC) << "=== DNS Configuration end ===";
+}
+
 }

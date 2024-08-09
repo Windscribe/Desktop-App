@@ -39,7 +39,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent), animValue_(0)
     escapeButton->move(175 - escapeButton->width()/2, 290);
     connect(escapeButton, &QPushButton::clicked, this, &SettingsWindow::escapeClicked);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     addDivider(200);
 
     addLabel(218, tr("Factory Reset"));
@@ -68,14 +68,14 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent), animValue_(0)
     addDivider(275);
 #endif
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     HoverButton *closeButton = new HoverButton(this, ":/resources/MAC_CLOSE_DEFAULT.svg", ":/resources/MAC_CLOSE_HOVER.svg");
 #else
     HoverButton *closeButton = new HoverButton(this, ":/resources/WINDOWS_CLOSE_DEFAULT.svg", ":/resources/WINDOWS_CLOSE_HOVER.svg");
 #endif
     connect(closeButton, &QPushButton::clicked, this, &SettingsWindow::closeClicked);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     HoverButton *minimizeButton = new HoverButton(this, ":/resources/MAC_MINIMIZE_DEFAULT.svg", ":/resources/MAC_MINIMIZE_HOVER.svg");
 #else
     HoverButton *minimizeButton = new HoverButton(this, ":/resources/WINDOWS_MINIMIZE_DEFAULT.svg", ":/resources/WINDOWS_MINIMIZE_HOVER.svg");
@@ -83,7 +83,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent), animValue_(0)
     connect(minimizeButton, &QPushButton::clicked, this, &SettingsWindow::minimizeClicked);
 
     if (LanguageController::instance().isRtlLanguage()) {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         closeButton->setGeometry(328, 8, 14, 14);
         minimizeButton->setGeometry(306, 8, 14, 14);
 #else
@@ -91,7 +91,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent), animValue_(0)
         minimizeButton->setGeometry(52, 16, 28, 28);
 #endif
     } else {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         closeButton->setGeometry(8, 8, 14, 14);
         minimizeButton->setGeometry(28, 8, 14, 14);
 #else

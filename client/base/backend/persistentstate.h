@@ -50,6 +50,9 @@ public:
     void fromIni(QSettings &settings);
     void toIni(QSettings &settings);
 
+    void fromJson(const QJsonObject &json);
+    QJsonObject toJson();
+
     void save();
 
 private:
@@ -60,6 +63,7 @@ private:
 
     static const inline QString kIniNetworksProp = "Networks";
     static const inline QString kIniNetworkTrustTypeProp = "NetworkTrustType";
+    static const inline QString kJsonNetworksProp = "networks";
 
     // for serialization
     static constexpr quint32 magic_ = 0x8845C2AE;

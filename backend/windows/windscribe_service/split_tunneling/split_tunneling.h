@@ -33,6 +33,7 @@ private:
     SplitTunnelServiceManager splitTunnelServiceManager_;
 
     AppsIds windscribeExecutableIds_;
+    AppsIds ctrldExecutableId_;
 
     CMD_CONNECT_STATUS connectStatus_;
     bool isSplitTunnelEnabled_ = false;

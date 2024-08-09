@@ -206,5 +206,49 @@
         <source>Downloading: %1%</source>
         <translation>Scaricamento: %1%</translation>
     </message>
+    <message>
+        <source>Username too short</source>
+        <translation>Nome utente troppo breve</translation>
+    </message>
+    <message>
+        <source>Password too short</source>
+        <translation>Password troppo corta</translation>
+    </message>
+    <message>
+        <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>La connessione è in corso.  Utilizzare &apos;windscribe-cli status&apos; per verificare lo stato della connessione.</translation>
+    </message>
+    <message>
+        <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>La disconnessione è in corso.  Utilizzare &apos;windscribe-cli status&apos; per verificare lo stato della connessione.</translation>
+    </message>
+    <message>
+        <source>Firewall is on.</source>
+        <translation>Il firewall è attivo.</translation>
+    </message>
+    <message>
+        <source>Firewall is off.</source>
+        <translation>Il firewall è disattivato.</translation>
+    </message>
+    <message>
+        <source>Logs sent.</source>
+        <translation>Registri inviati.</translation>
+    </message>
+    <message>
+        <source>Preferences reloaded.</source>
+        <translation>Preferenze ricaricate.</translation>
+    </message>
+    <message>
+        <source>Key limit behavior is set.</source>
+        <translation>Il comportamento del limite dei tasti è impostato.</translation>
+    </message>
+    <message>
+        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>L&apos;accesso è in corso.  Utilizzare &apos;windscribe-cli status&apos; per verificare lo stato.</translation>
+    </message>
+    <message>
+        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>Il logout è in corso.  Utilizzare &apos;windscribe-cli status&apos; per verificare lo stato.</translation>
+    </message>
 </context>
 </TS>

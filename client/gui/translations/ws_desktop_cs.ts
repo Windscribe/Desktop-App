@@ -731,10 +731,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Funkci děleného tunelového propojení nelze spustit a byla zakázána v Předvolbách.</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>Windscribe</translation>
-    </message>
-    <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>Nelze spustit vlastní službu DNS.  Ujistěte se, že nemáte spuštěné žádné další místní služby DNS, nebo se obraťte na podporu.</translation>
     </message>
@@ -793,6 +789,22 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Rotating MAC Address</source>
         <translation>Rotace MAC adresy</translation>
+    </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>Wi-Fi je vypnutá</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>Windscribe zjistil, že Wi-Fi je momentálně vypnutá. Chcete-li používat funkci Secure Hotspot, musí být zapnutá funkce Wi-Fi.</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>Nelze spustit Secure Hotspot</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>Je možné, že váš síťový adaptér tuto funkci nepodporuje. V předvolbách byla zakázána.</translation>
     </message>
 </context>
 <context>
@@ -976,8 +988,8 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Ignorovat chyby SSL</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>Zabraňuje umírání připojení IKEv2 (vypršení časového limitu) pravidelným příkazem ping na server.</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>Zabraňuje umírání připojení (vypršení časového limitu) pravidelným příkazem ping na server.</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1434,14 +1446,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Komunitní podpora</translation>
     </message>
     <message>
-        <source>Reddit</source>
-        <translation>Reddit</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>Svár</translation>
-    </message>
-    <message>
         <source>View Debug Log</source>
         <translation>Zobrazit protokol ladění</translation>
     </message>
@@ -1752,6 +1756,22 @@ Nejprve se připojte k síti</translation>
         <source>Password</source>
         <translation>Heslo</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>Neplatná adresa proxy serveru</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>Adresa proxy serveru je neplatná. Zadejte platnou IP adresu nebo název domény.</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>Neplatný port proxy serveru</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>Port proxy serveru je neplatný. Zadejte platný port v rozsahu 0-65535.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1826,10 +1846,6 @@ Nejprve se připojte k síti</translation>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>Sdílejte své zabezpečené připojení Windscribe bezdrátově.</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>SSID</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,7 +2097,7 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
         <translation>Tyče</translation>
     </message>
     <message>
-        <source>Ms</source>
+        <source>ms</source>
         <translation>Milisekunda</translation>
     </message>
     <message>
@@ -2111,14 +2127,6 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Auto-detect</source>
         <translation>Automatická detekce</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Uvolnit</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

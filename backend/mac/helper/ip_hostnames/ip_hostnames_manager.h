@@ -21,7 +21,9 @@ private:
     IpRoutes ipRoutes_;
 
     bool isEnabled_;
-    std::recursive_mutex mutex_;
+    bool checkipResolved_;
+    std::mutex mutex_;
+    std::condition_variable cv_;
 
     // latest ips and hosts list
     std::vector<std::string> ipsLatest_;

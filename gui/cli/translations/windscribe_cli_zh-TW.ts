@@ -206,5 +206,49 @@
         <source>Downloading: %1%</source>
         <translation>下載： %1%</translation>
     </message>
+    <message>
+        <source>Username too short</source>
+        <translation>使用者名太短</translation>
+    </message>
+    <message>
+        <source>Password too short</source>
+        <translation>密碼太短</translation>
+    </message>
+    <message>
+        <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>連接正在進行中。 使用“windscribe-cli status”檢查連接狀態。</translation>
+    </message>
+    <message>
+        <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>斷開連接正在進行中。 使用“windscribe-cli status”檢查連接狀態。</translation>
+    </message>
+    <message>
+        <source>Firewall is on.</source>
+        <translation>防火牆已打開。</translation>
+    </message>
+    <message>
+        <source>Firewall is off.</source>
+        <translation>防火牆已關閉。</translation>
+    </message>
+    <message>
+        <source>Logs sent.</source>
+        <translation>已發送的日誌。</translation>
+    </message>
+    <message>
+        <source>Preferences reloaded.</source>
+        <translation>首選項已重新載入。</translation>
+    </message>
+    <message>
+        <source>Key limit behavior is set.</source>
+        <translation>設置了金鑰限制行為。</translation>
+    </message>
+    <message>
+        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>登錄正在進行中。 使用“windscribe-cli status”檢查狀態。</translation>
+    </message>
+    <message>
+        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>註銷正在進行中。 使用“windscribe-cli status”檢查狀態。</translation>
+    </message>
 </context>
 </TS>

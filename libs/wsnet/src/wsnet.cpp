@@ -165,6 +165,12 @@ void WSNet::cleanup()
     g_wsNet.reset();
 }
 
+bool WSNet::isValid()
+{
+    std::lock_guard locker(g_mutex);
+    return (g_wsNet != nullptr);
+}
+
 } // namespace wsnet
 
 #if defined(__ANDROID__)

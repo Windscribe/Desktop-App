@@ -11,7 +11,7 @@ namespace AuthCheckerFactory
     {
 #if defined(Q_OS_WIN)
         return std::unique_ptr<AuthChecker_win>(new AuthChecker_win);
-#elif defined (Q_OS_MAC)
+#elif defined (Q_OS_MACOS)
         return std::unique_ptr<AuthChecker_mac>(new AuthChecker_mac);
 #else
         return std::unique_ptr<AuthChecker_linux>(new AuthChecker_linux);

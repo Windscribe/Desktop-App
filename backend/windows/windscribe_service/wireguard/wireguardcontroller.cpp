@@ -20,7 +20,10 @@
 #include "../ipc/servicecommunication.h"
 #include "../logger.h"
 #include "../utils.h"
+
+#if defined(USE_SIGNATURE_CHECK)
 #include "utils/executable_signature/executable_signature.h"
+#endif
 
 static const DEVPROPKEY WG_DEVP_KEYNAME = DEVPKEY_WG_NAME;
 
@@ -34,18 +37,16 @@ bool WireGuardController::installService()
     is_initialized_ = false;
     try {
         exeName_ = L"WireguardService.exe";
-        std::wstring serviceName = L"WireGuardTunnel$" + kServiceIdentifier;
-        std::wstring configPath = Utils::getConfigPath();
-        if (configPath.empty()) {
-            Logger::instance().out("Could not get config path");
+        const std::wstring serviceName = L"WireGuardTunnel$" + kServiceIdentifier;
+        const std::wstring confFile = configFile();
+        if (confFile.empty()) {
             return false;
         }
-        std::wstring configFile = configPath + L"\\" + kServiceIdentifier + L".conf";
 
         std::wstring serviceCmdLine;
         {
             std::wostringstream stream;
-            stream << L"\"" << Utils::getExePath() << L"\\" << exeName_ << "\" \"" << configFile << L"\"";
+            stream << L"\"" << Utils::getExePath() << L"\\" << exeName_ << "\" \"" << confFile << L"\"";
             serviceCmdLine = stream.str();
         }
 
@@ -115,11 +116,10 @@ bool WireGuardController::deleteService()
         ExecuteCmd::instance().executeBlockingCmd(killCmd);
     }
 
-    std::wstring configPath = Utils::getConfigPath();
-    if (configPath.empty()) {
-        Logger::instance().out("Could not get config path");
-    } else {
-        std::filesystem::remove(configPath + L"\\" + kServiceIdentifier + L".conf");
+    const std::wstring confFile = configFile();
+    if (!confFile.empty()) {
+        std::error_code ec;
+        std::filesystem::remove(confFile, ec);
     }
     return bServiceDeleted;
 }
@@ -297,14 +297,12 @@ HANDLE WireGuardController::getKernelInterfaceHandle() const
 
 bool WireGuardController::configure(const std::wstring &config)
 {
-    std::wstring configPath = Utils::getConfigPath();
-    if (configPath.empty()) {
-        Logger::instance().out("Could not get config path");
+    const std::wstring confFile = configFile();
+    if (confFile.empty()) {
         return false;
     }
-    std::wstring configFile = configPath + L"\\" + kServiceIdentifier + L".conf";
 
-    std::wofstream file(configFile.c_str(), std::ios::out | std::ios::trunc);
+    std::wofstream file(confFile.c_str(), std::ios::out | std::ios::trunc);
     if (!file) {
         Logger::instance().out("WireGuardController::configure - could not open config file for writing");
         return false;
@@ -315,4 +313,15 @@ bool WireGuardController::configure(const std::wstring &config)
     file.close();
 
     return true;
+}
+
+std::wstring WireGuardController::configFile() const
+{
+    std::wstring confFile = Utils::getConfigPath();
+    if (confFile.empty()) {
+        Logger::instance().out("WireGuardController: could not get config file path");
+        return std::wstring();
+    }
+    confFile += L"\\" + kServiceIdentifier + L".conf";
+    return confFile;
 }

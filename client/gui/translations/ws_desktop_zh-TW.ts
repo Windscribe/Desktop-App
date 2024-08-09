@@ -731,10 +731,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>拆分隧道功能無法啟動，並且已在首選項中禁用。</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>風抄寫員</translation>
-    </message>
-    <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
         <translation>無法啟動自定義 DNS 服務。 請確保您沒有運行任何其他本地 DNS 服務，或聯繫支持人員。</translation>
     </message>
@@ -793,6 +789,22 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Rotating MAC Address</source>
         <translation>輪換 MAC 位址</translation>
+    </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>Wi-Fi 已關閉</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>Windscribe 檢測到Wi-Fi目前已關閉。要使用安全熱點，應打開Wi-Fi。</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>無法啟動安全熱點</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>您的網路配接器可能不支援此功能。它已在首選項中被禁用。</translation>
     </message>
 </context>
 <context>
@@ -976,8 +988,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>忽略 SSL 錯誤</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>通過定期 ping 伺服器來防止 IKEv2 連接停止（超時）。</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>通過定期 ping 伺服器來防止連接停止（超時）。</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1434,14 +1446,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>社區支援</translation>
     </message>
     <message>
-        <source>Reddit</source>
-        <translation>紅迪網</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>不和</translation>
-    </message>
-    <message>
         <source>View Debug Log</source>
         <translation>查看調試日誌</translation>
     </message>
@@ -1752,6 +1756,22 @@ Connect to a network first</source>
         <source>Password</source>
         <translation>密碼</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>無效的代理位址</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>代理地址無效。請輸入有效的IP位址或功能變數名稱。</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>代理埠無效</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>代理埠無效。請在 0-65535 範圍內輸入有效埠。</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1826,10 +1846,6 @@ Connect to a network first</source>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>無線共用您的安全 Windscribe 連接。</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>SSID</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,7 +2097,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>酒吧</translation>
     </message>
     <message>
-        <source>Ms</source>
+        <source>ms</source>
         <translation>女士</translation>
     </message>
     <message>
@@ -2111,14 +2127,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Auto-detect</source>
         <translation>自動檢測</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>釋放</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>試用版</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

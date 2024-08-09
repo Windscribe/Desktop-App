@@ -6,7 +6,7 @@
     #include "windowsnativeeventfilter.h"
 #endif
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     #include "utils/exithandler_mac.h"
 #endif
 
@@ -54,7 +54,7 @@ private:
     WindowsNativeEventFilter windowsNativeEventFilter_;
 #endif
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     ExitHandler_mac exitHandlerMac_;
 #endif
 };

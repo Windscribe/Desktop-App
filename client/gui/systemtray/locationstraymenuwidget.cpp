@@ -12,7 +12,7 @@
 #include "locations/locationsmodel_roles.h"
 #include "utils/ws_assert.h"
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 #include "widgetutils/widgetutils_mac.h"
 #endif
 
@@ -294,7 +294,7 @@ void LocationsTrayMenuWidget::updateButtonsState()
 
 void LocationsTrayMenuWidget::updateBackground_mac()
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     // This is a hack to force repaint of the window background. For some reason, Qt doesn't do that
     // even when this is essential, e.g. before painting a widget with a transparent background,
     // such as |listWidget_|. It seems that such behaviour is OSX version dependent. This call

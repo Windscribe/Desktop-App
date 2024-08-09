@@ -37,7 +37,7 @@ void LocationsTrayMenuNative::buildMenu(QAbstractItemModel *model)
         LocationID lid = qvariant_cast<LocationID>(mi.data(gui_locations::kLocationId));
         QSharedPointer<IndependentPixmap> flag;
         if (!lid.isCustomConfigsLocation() && !countryCode.isEmpty()) {
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
             const int flags = ImageResourcesSvg::IMAGE_FLAG_SQUARE;
 #else
             const int flags = 0;

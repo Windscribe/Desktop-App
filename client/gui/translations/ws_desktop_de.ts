@@ -515,10 +515,6 @@
         <translation>Beim Herstellen der VPN-Verbindung ist ein unerwarteter Fehler aufgetreten (Fehler %1).  Wenn dieser Fehler weiterhin besteht, versuchen Sie, ein anderes Protokoll zu verwenden, oder wenden Sie sich an den Support.</translation>
     </message>
     <message>
-        <source>Windscribe</source>
-        <translation>Windscribe</translation>
-    </message>
-    <message>
         <source>Can&apos;t select directory</source>
         <translation>Verzeichnis kann nicht ausgewählt werden</translation>
     </message>
@@ -794,6 +790,22 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <source>Rotating MAC Address</source>
         <translation>Rotieren der MAC-Adresse</translation>
     </message>
+    <message>
+        <source>Wi-Fi is off</source>
+        <translation>WLAN ist ausgeschaltet</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
+        <translation>Windscribe hat festgestellt, dass das WLAN derzeit ausgeschaltet ist. Um Secure Hotspot verwenden zu können, sollte Wi-Fi aktiviert sein.</translation>
+    </message>
+    <message>
+        <source>Could not start Secure Hotspot</source>
+        <translation>Secure Hotspot konnte nicht gestartet werden</translation>
+    </message>
+    <message>
+        <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
+        <translation>Ihr Netzwerkadapter unterstützt diese Funktion möglicherweise nicht. Es wurde in den Einstellungen deaktiviert.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -976,8 +988,8 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>SSL-Fehler ignorieren</translation>
     </message>
     <message>
-        <source>Prevents IKEv2 connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>Verhindert, dass IKEv2-Verbindungen (durch Zeitüberschreitung) unterbrochen werden, indem der Server regelmäßig angepingt wird.</translation>
+        <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
+        <translation>Verhindert, dass Verbindungen (durch Zeitüberschreitung) unterbrochen werden, indem der Server regelmäßig angepingt wird.</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1434,14 +1446,6 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Community-Unterstützung</translation>
     </message>
     <message>
-        <source>Reddit</source>
-        <translation>Reddit (englisch)</translation>
-    </message>
-    <message>
-        <source>Discord</source>
-        <translation>Zwietracht</translation>
-    </message>
-    <message>
         <source>View Debug Log</source>
         <translation>Anzeigen des Debug-Protokolls</translation>
     </message>
@@ -1752,6 +1756,22 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
         <source>Password</source>
         <translation>Passwort</translation>
     </message>
+    <message>
+        <source>Invalid proxy address</source>
+        <translation>Ungültige Proxy-Adresse</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
+        <translation>Die Proxy-Adresse ist ungültig. Bitte geben Sie eine gültige IP-Adresse oder einen gültigen Domainnamen ein.</translation>
+    </message>
+    <message>
+        <source>Invalid proxy port</source>
+        <translation>Ungültiger Proxy-Port</translation>
+    </message>
+    <message>
+        <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
+        <translation>Der Proxy-Port ist ungültig. Geben Sie einen gültigen Port im Bereich 0-65535 ein.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxySettingsWindowItem</name>
@@ -1826,10 +1846,6 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
         <translation>Teilen Sie Ihre sichere Windscribe-Verbindung drahtlos.</translation>
-    </message>
-    <message>
-        <source>SSID</source>
-        <translation>SSID</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2081,7 +2097,7 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
         <translation>Gitter</translation>
     </message>
     <message>
-        <source>Ms</source>
+        <source>ms</source>
         <translation>Frau</translation>
     </message>
     <message>
@@ -2111,14 +2127,6 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     <message>
         <source>Auto-detect</source>
         <translation>Automatische Erkennung</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Loslassen</translation>
-    </message>
-    <message>
-        <source>Beta</source>
-        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

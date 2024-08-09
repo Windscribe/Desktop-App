@@ -3,7 +3,7 @@
 #ifdef Q_OS_WIN
     #include <Winsock2.h>
     #include <Ws2tcpip.h>
-#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+#elif defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
     #include <arpa/inet.h>
 #endif
 
@@ -22,7 +22,7 @@ struct socks5_ident_req
 #ifdef Q_OS_WIN
 ;
 #endif
-#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+#if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
 __attribute__((aligned(1)));
 #endif
 
@@ -34,7 +34,7 @@ struct socks5_answer
 #ifdef Q_OS_WIN
 ;
 #endif
-#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+#if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
 __attribute__((aligned(1)));
 #endif
 
@@ -57,7 +57,7 @@ struct socks5_req
 #ifdef Q_OS_WIN
 ;
 #endif
-#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+#if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
 __attribute__((aligned(1)));
 #endif
 
@@ -80,7 +80,7 @@ struct socks5_resp
 #ifdef Q_OS_WIN
 ;
 #endif
-#if defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+#if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
 __attribute__((aligned(1)));
 #endif
 

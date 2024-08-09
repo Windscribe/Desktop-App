@@ -51,7 +51,7 @@ void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
         painter->fillRect(boundingRect().adjusted(0, pixmapBaseBackground->height(), 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
     } else {
         QPainterPath path;
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
 #else
         path.addRect(boundingRect().toRect());

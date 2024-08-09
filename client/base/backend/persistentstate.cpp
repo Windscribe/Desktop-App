@@ -226,3 +226,31 @@ void PersistentState::toIni(QSettings &settings)
     save();
 }
 
+void PersistentState::fromJson(const QJsonObject &json)
+{
+    QVector<types::NetworkInterface> out;
+    QMap<QString, NETWORK_TRUST_TYPE> trustTypes;
+
+    if (json.contains(kJsonNetworksProp) && json[kJsonNetworksProp].isArray()) {
+        const QJsonArray arr = json[kJsonNetworksProp].toArray();
+        for (int i = 0; i < arr.size(); i++) {
+            out << types::NetworkInterface(arr[i].toObject());
+        }
+    }
+
+    state_.networkWhiteList = out;
+    save();
+}
+
+QJsonObject PersistentState::toJson()
+{
+    QJsonObject json;
+    QJsonArray arr;
+
+    for (auto network : state_.networkWhiteList) {
+        arr.append(network.toJson());
+    }
+
+    json[kJsonNetworksProp] = arr;
+    return json;
+}

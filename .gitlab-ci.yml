@@ -825,7 +825,9 @@ build:artifact:links:
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/windows-arm64/Windscribe_${VERSION}_arm64.exe
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/macos/Windscribe_$VERSION.dmg
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_amd64.deb
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux-arm64/windscribe_${VERSION}_arm64.deb
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe-cli_${VERSION}_amd64.deb
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux-arm64/windscribe-cli_${VERSION}_arm64.deb
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_x86_64_fedora.rpm
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe-cli_${VERSION}_x86_64_fedora.rpm
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_x86_64_opensuse.rpm
@@ -846,7 +848,9 @@ build:artifact:links:tagged:
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_arm64.exe
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_$VERSION.dmg
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64.deb
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_arm64.deb
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64.deb
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_arm64.deb
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_x86_64_fedora.rpm
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_x86_64_fedora.rpm
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_x86_64_opensuse.rpm

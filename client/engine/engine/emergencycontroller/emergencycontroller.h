@@ -9,7 +9,7 @@
 #include "engine/connectionmanager/iconnection.h"
 #include "engine/connectionmanager/makeovpnfile.h"
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     #include "engine/connectionmanager/restorednsmanager_mac.h"
 #endif
 

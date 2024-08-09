@@ -86,9 +86,13 @@ BaseRequest *requests_factory::portMap(const std::string &authHash, std::uint32_
     return request;
 }
 
-BaseRequest *requests_factory::recordInstall(const std::string &platform, RequestFinishedCallback callback)
+BaseRequest *requests_factory::recordInstall(bool isDesktop, const std::string &platform, RequestFinishedCallback callback)
 {
-    auto name = "RecordInstall/app/" + platform;
+    std::string name;
+    if (isDesktop)
+        name = "RecordInstall/app/" + platform;
+    else
+        name = "RecordInstall/mobile/" + platform;
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, name, std::map<std::string, std::string>(), callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
     return request;
@@ -393,6 +397,18 @@ BaseRequest *requests_factory::verifyTvLoginCode(const std::string &authHash, co
     extraParams["session_auth_hash"] = authHash;
     extraParams["xpress_code"] = xpressCode;
     auto request = new BaseRequest(HttpMethod::kPut, SubdomainType::kApi, RequestPriority::kNormal, "XpressLogin", extraParams, callback);
+    request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    return request;
+}
+
+BaseRequest *requests_factory::cancelAccount(const std::string &authHash, const std::string &password, RequestFinishedCallback callback)
+{
+    std::map<std::string, std::string> extraParams;
+    extraParams["session_auth_hash"] = authHash;
+    extraParams["password"] = password;
+    extraParams["type"] = "account";
+    extraParams["message"] = "iOS inapp deletetion";
+    auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "Cancel", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
     return request;
 }

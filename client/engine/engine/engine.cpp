@@ -24,6 +24,7 @@
 #include "firewall/firewallexceptions.h"
 #include "getdeviceid.h"
 #include "openvpnversioncontroller.h"
+#include "apiresources/apiutils.h"
 
 #ifdef Q_OS_WIN
     #include <Objbase.h>
@@ -35,7 +36,7 @@
     #include "utils/executable_signature/executable_signature.h"
     #include "utils/network_utils/network_utils_win.h"
     #include "utils/winutils.h"
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     #include "ipv6controller_mac.h"
     #include "networkdetectionmanager/reachabilityevents.h"
     #include "utils/network_utils/network_utils_mac.h"
@@ -70,7 +71,7 @@ Engine::Engine() : QObject(nullptr),
     bInitialized_(false),
     locationsModel_(nullptr),
     downloadHelper_(nullptr),
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     autoUpdaterHelper_(nullptr),
     macSpoofTimer_(nullptr),
 #endif
@@ -95,14 +96,17 @@ Engine::Engine() : QObject(nullptr),
         // Enable PQ algorithms.  We need to set some environment variables so OpenSSL can find the right provider.
 #ifdef Q_OS_WIN
         wchar_t p[MAX_PATH];
-        p[0] = '\0';
-        GetModuleFileNameW(NULL, p, MAX_PATH);
-
-        std::string pathStr = std::filesystem::path(p).parent_path().string();
-        _putenv_s("OPENSSL_MODULES", pathStr.c_str());
-        pathStr = std::filesystem::path(p).parent_path().append("openssl.cnf").string();
-        _putenv_s("OPENSSL_CONF", pathStr.c_str());
-#elif defined(Q_OS_MAC)
+        const auto pathLen = ::GetModuleFileNameW(NULL, p, MAX_PATH);
+        if (pathLen == 0) {
+            qCDebug(LOG_BASIC) << L"Engine GetModuleFileName failed (PQ algorithms not enabled):" << ::GetLastError();
+        }
+        else {
+            std::string pathStr = std::filesystem::path(p).parent_path().string();
+            _putenv_s("OPENSSL_MODULES", pathStr.c_str());
+            pathStr = std::filesystem::path(p).parent_path().append("openssl.cnf").string();
+            _putenv_s("OPENSSL_CONF", pathStr.c_str());
+        }
+#elif defined(Q_OS_MACOS)
         setenv("OPENSSL_CONF", "/Applications/Windscribe.app/Contents/Resources/openssl.cnf", 1);
         setenv("OPENSSL_MODULES", "/Applications/Windscribe.app/Contents/Frameworks", 1);
 #elif defined(Q_OS_LINUX)
@@ -129,7 +133,6 @@ Engine::Engine() : QObject(nullptr),
     // To correctly upgrade from older versions of the client where auth_hash was stored in QSettings
     if (settings.contains("authHash")) {
         WSNet::instance()->apiResourcersManager()->setAuthHash(settings.value("authHash").toString().toStdString());
-        settings.remove("authHash");
     }
 
 
@@ -490,7 +493,8 @@ QString Engine::getSharingCaption()
 void Engine::applicationActivated()
 {
     QMetaObject::invokeMethod(this, [this]() {
-        if (isLoggedIn_) {
+        // WSNet will have already been released if we are cleaning up (e.g. exiting due to an OS restart).
+        if (isLoggedIn_ && WSNet::isValid()) {
             WSNet::instance()->apiResourcersManager()->fetchSession();
         }
     }, Qt::QueuedConnection);
@@ -581,7 +585,7 @@ void Engine::init()
 // init part2 (after helper initialized)
 void Engine::initPart2()
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     Ipv6Controller_mac::instance().setHelper(helper_);
     InterfaceUtils_mac::instance().setHelper(static_cast<Helper_mac *>(helper_));
     ReachAbilityEvents::instance().init();
@@ -596,7 +600,7 @@ void Engine::initPart2()
 
     types::MacAddrSpoofing macAddrSpoofing = engineSettings_.macAddrSpoofing();
     //todo refactor
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     macAddrSpoofing.networkInterfaces = InterfaceUtils_mac::instance().currentNetworkInterfaces(true);
 #elif defined Q_OS_WIN
     macAddrSpoofing.networkInterfaces = NetworkUtils_win::currentNetworkInterfaces(true);
@@ -614,7 +618,7 @@ void Engine::initPart2()
     macAddressController_->initMacAddrSpoofing(macAddrSpoofing);
     connect(macAddressController_, &IMacAddressController::macAddrSpoofingChanged, this, &Engine::onMacAddressSpoofingChanged);
     connect(macAddressController_, &IMacAddressController::sendUserWarning, this, &Engine::onMacAddressControllerSendUserWarning);
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     connect(macAddressController_, &IMacAddressController::macSpoofApplied, this, &Engine::onMacAddressControllerMacSpoofApplied);
 #endif
 
@@ -714,7 +718,7 @@ void Engine::initPart2()
     connect(downloadHelper_, &DownloadHelper::finished, this, &Engine::onDownloadHelperFinished);
     connect(downloadHelper_, &DownloadHelper::progressChanged, this, &Engine::onDownloadHelperProgressChanged);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     autoUpdaterHelper_ = new AutoUpdaterHelper_mac();
 
     macSpoofTimer_ = new QTimer(this);
@@ -799,10 +803,17 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     QSettings settings;
     settings.setValue("wsnetSettings", wsnetSettings);
 
+    // To correctly downgrade keep authHash in QSettings
+    QString authHash = QString::fromStdString(WSNet::instance()->apiResourcersManager()->authHash());
+    if (!authHash.isEmpty())
+        settings.setValue("authHash", authHash);
+    else
+        settings.remove("authHash");
+
     // stop all network requests here, because we won't have callback's called for deleted objects
     WSNet::cleanup();
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     if (macSpoofTimer_) {
         macSpoofTimer_->stop();
     }
@@ -823,7 +834,10 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
         if (bWasIsConnected) {
 #ifdef Q_OS_WIN
                 enableDohSettings();
-                DnsInfo_win::outputDebugDnsInfo();
+                // Avoid delaying app cleanup if the PC is restarting.
+                if (!isExitWithRestart) {
+                    DnsInfo_win::outputDebugDnsInfo();
+                }
 #endif
             qCDebug(LOG_BASIC) << "Cleanup, connection manager disconnected";
         } else {
@@ -857,16 +871,16 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
         if (isFirewallChecked) {
             if (isExitWithRestart) {
                 if (isLaunchOnStart) {
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
                     firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
 #endif
                 } else {
                     if (isFirewallAlwaysOn) {
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
                         firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
 #endif
                     } else {
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
                         firewallController_->setFirewallOnBoot(false);
 #endif
                         firewallController_->firewallOff();
@@ -874,11 +888,11 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
                 }
             } else { // if exit without restart
                 if (isFirewallAlwaysOn) {
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
                     firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
 #endif
                 } else {
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
                     firewallController_->setFirewallOnBoot(false);
 #endif
                     firewallController_->firewallOff();
@@ -886,7 +900,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
             }
         } else { // if (!isFirewallChecked)
             firewallController_->firewallOff();
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
             firewallController_->setFirewallOnBoot(false);
 #endif
         }
@@ -895,7 +909,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
         helper_win->setIPv6EnabledInFirewall(true);
 #endif
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         Ipv6Controller_mac::instance().restoreIpv6();
 #endif
     }
@@ -943,14 +957,9 @@ void Engine::enableBFE_winImpl()
 #endif
 }
 
-void Engine::setIgnoreSslErrorsImlp(bool bIgnoreSslErrors)
-{
-    WSNet::instance()->serverAPI()->setIgnoreSslErrors(bIgnoreSslErrors);
-}
-
 void Engine::recordInstallImpl()
 {
-    WSNet::instance()->serverAPI()->recordInstall([](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
+    WSNet::instance()->serverAPI()->recordInstall(true, [](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
         // nothing to do in callback, just log message
         qCDebug(LOG_BASIC) << "The recordInstall request finished with an answer:" << jsonData;
     });
@@ -990,7 +999,7 @@ void Engine::connectClickImpl(const LocationID &locationId, const types::Connect
 
 #ifdef Q_OS_WIN
     DnsInfo_win::outputDebugDnsInfo();
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     Ipv6Controller_mac::instance().disableIpv6();
 #endif
 
@@ -1072,7 +1081,7 @@ void Engine::logoutImplAfterDisconnect(bool keepFirewallOn)
 {
     locationsModel_->clear();
 
-#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     firewallController_->setFirewallOnBoot(false);
 #endif
 
@@ -1324,7 +1333,7 @@ void Engine::onConnectionManagerConnected()
     if (!connectionManager_->currentProtocol().isWireGuardProtocol()) {
         AdapterMetricsController_win::updateMetrics(adapterName, helper_);
     }
-#elif defined (Q_OS_MAC) || defined (Q_OS_LINUX)
+#elif defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
     firewallController_->setInterfaceToSkip_posix(adapterName);
 #endif
 
@@ -1605,7 +1614,7 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
         //emit connectError(err);
     }
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     Ipv6Controller_mac::instance().restoreIpv6();
 #endif
     connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, err);
@@ -1624,7 +1633,7 @@ void Engine::onConnectionManagerStatisticsUpdated(quint64 bytesIn, quint64 bytes
 
 void Engine::onConnectionManagerInterfaceUpdated(const QString &interfaceName)
 {
-#if defined (Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined (Q_OS_MACOS) || defined(Q_OS_LINUX)
     firewallController_->setInterfaceToSkip_posix(interfaceName);
     updateFirewallSettings();
 #else
@@ -1673,7 +1682,7 @@ void Engine::onConnectionManagerWireGuardAtKeyLimit()
     emit wireGuardAtKeyLimit();
 }
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 void Engine::onMacSpoofTimerTick()
 {
     QDateTime now = QDateTime::currentDateTime();
@@ -1830,7 +1839,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
         return;
     }
     qCDebug(LOG_AUTO_UPDATER) << "Installer signature valid";
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
 
     const QString tempInstallerFilename = autoUpdaterHelper_->copyInternalInstallerToTempFromDmg(installerPath_);
     QFile::remove(installerPath_);
@@ -1896,7 +1905,7 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
         return;
     }
 
-#elif defined Q_OS_MAC
+#elif defined Q_OS_MACOS
     QString additionalArgs;
     if (windowCenterX != INT_MAX && windowCenterY != INT_MAX) {
         additionalArgs.append(QString("-center %1 %2").arg(windowCenterX).arg(windowCenterY));
@@ -2135,7 +2144,7 @@ void Engine::onMacAddressControllerSendUserWarning(USER_WARNING_TYPE userWarning
     emit sendUserWarning(userWarningType);
 }
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 void Engine::onMacAddressControllerMacSpoofApplied()
 {
     // On MacOS, MAC-spoofing can confuse the app into thinking it is offline
@@ -2233,8 +2242,7 @@ void Engine::onApiResourceManagerCallback(ApiResourcesManagerNotification notifi
     } else if (notification == ApiResourcesManagerNotification::kLoginFailed) {
         onApiResourcesManagerLoginFailed(loginResult, QString::fromStdString(errorMessage));
     } else if (notification == ApiResourcesManagerNotification::kSessionUpdated) {
-        api_responses::SessionStatus ss(WSNet::instance()->apiResourcersManager()->sessionStatus());
-        emit sessionStatusUpdated(ss);
+        updateSessionStatus(WSNet::instance()->apiResourcersManager()->sessionStatus());
     } else if (notification == ApiResourcesManagerNotification::kLocationsUpdated) {
         onApiResourcesManagerLocationsUpdated();
     } else if (notification == ApiResourcesManagerNotification::kStaticIpsUpdated) {
@@ -2266,9 +2274,7 @@ void Engine::onApiResourcesManagerReadyForLogin(bool isLoginFromSavedSettings)
     else
         qCDebug(LOG_BASIC) << "Use all API resources from the previous run";
 
-    api_responses::SessionStatus ss(WSNet::instance()->apiResourcersManager()->sessionStatus());
-    emit sessionStatusUpdated(ss);
-
+    updateSessionStatus(WSNet::instance()->apiResourcersManager()->sessionStatus());
     onApiResourcesManagerLocationsUpdated();
 
     api_responses::Notifications notifications(WSNet::instance()->apiResourcersManager()->notifications());
@@ -2344,7 +2350,9 @@ void Engine::onApiResourcesManagerServerCredentialsFetched()
 void Engine::updateServerLocations(const api_responses::ServerList &serverLocations, const api_responses::StaticIps &staticIps)
 {
     qCDebug(LOG_BASIC) << "Servers locations changed";
-    locationsModel_->setApiLocations(serverLocations.locations(), staticIps);
+    auto locations = serverLocations.locations();
+    ApiUtils::mergeWindflixLocations(locations);
+    locationsModel_->setApiLocations(locations, staticIps);
     locationsModel_->setCustomConfigLocations(customConfigs_->getConfigs());
     checkForceDisconnectNode(serverLocations.forceDisconnectNodes());
 }
@@ -2483,7 +2491,7 @@ void Engine::doDisconnectRestoreStuff()
     WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
 
 
-#if defined (Q_OS_MAC) || defined(Q_OS_LINUX)
+#if defined (Q_OS_MACOS) || defined(Q_OS_LINUX)
     firewallController_->setInterfaceToSkip_posix("");
 #endif
 
@@ -2504,7 +2512,7 @@ void Engine::doDisconnectRestoreStuff()
     helper_win->setIPv6EnabledInFirewall(true);
 #endif
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     Ipv6Controller_mac::instance().restoreIpv6();
 #endif
 
@@ -2517,6 +2525,14 @@ void Engine::doDisconnectRestoreStuff()
 void Engine::stopFetchingServerCredentials()
 {
     isFetchingServerCredentials_ = false;
+}
+
+void Engine::updateSessionStatus(const std::string &json)
+{
+    api_responses::SessionStatus ss(WSNet::instance()->apiResourcersManager()->sessionStatus());
+    QSettings settings;
+    settings.setValue("userId", ss.getUserId());    // need for uninstaller program for open post uninstall webpage
+    emit sessionStatusUpdated(ss);
 }
 
 void Engine::stopPacketDetectionImpl()

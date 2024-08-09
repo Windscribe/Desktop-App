@@ -206,5 +206,49 @@
         <source>Downloading: %1%</source>
         <translation>डाउनलोडिंग: %1%</translation>
     </message>
+    <message>
+        <source>Username too short</source>
+        <translation>उपयोगकर्ता नाम बहुत छोटा है</translation>
+    </message>
+    <message>
+        <source>Password too short</source>
+        <translation>पासवर्ड बहुत छोटा है</translation>
+    </message>
+    <message>
+        <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>कनेक्शन प्रगति पर है।  कनेक्शन स्थिति की जांच के लिए &apos;विंडसाइड-क्ली स्थिति&apos; का उपयोग करें।</translation>
+    </message>
+    <message>
+        <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
+        <translation>डिस्कनेक्शन प्रगति पर है।  कनेक्शन स्थिति की जांच के लिए &apos;विंडसाइड-क्ली स्थिति&apos; का उपयोग करें।</translation>
+    </message>
+    <message>
+        <source>Firewall is on.</source>
+        <translation>फ़ायरवॉल चालू है.</translation>
+    </message>
+    <message>
+        <source>Firewall is off.</source>
+        <translation>फ़ायरवॉल बंद है।</translation>
+    </message>
+    <message>
+        <source>Logs sent.</source>
+        <translation>लॉग भेजे गए।</translation>
+    </message>
+    <message>
+        <source>Preferences reloaded.</source>
+        <translation>वरीयताएँ पुनः लोड की गईं।</translation>
+    </message>
+    <message>
+        <source>Key limit behavior is set.</source>
+        <translation>कुंजी सीमा व्यवहार सेट है।</translation>
+    </message>
+    <message>
+        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>लॉगिन प्रगति पर है।  स्थिति की जांच के लिए &apos;विंडसाइड-क्ली स्थिति&apos; का उपयोग करें।</translation>
+    </message>
+    <message>
+        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
+        <translation>लॉगआउट प्रगति पर है।  स्थिति की जांच के लिए &apos;विंडसाइड-क्ली स्थिति&apos; का उपयोग करें।</translation>
+    </message>
 </context>
 </TS>

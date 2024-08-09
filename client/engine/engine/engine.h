@@ -33,7 +33,7 @@
 #if defined(Q_OS_WIN)
     #include "measurementcpuusage.h"
     #include "utils/crashhandler.h"
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACOS)
     #include "autoupdater/autoupdaterhelper_mac.h"
 #endif
 
@@ -164,7 +164,7 @@ signals:
     void lostConnectionToHelper();
     void proxySharingStateChanged(bool bEnabled, PROXY_SHARING_TYPE proxySharingType, const QString &address, int usersCount);
     void wifiSharingStateChanged(bool bEnabled, const QString &ssid, int usersCount);
-    void wifiSharingFailed();
+    void wifiSharingFailed(WIFI_SHARING_ERROR error);
 
     void logoutFinished();
 
@@ -196,7 +196,6 @@ private slots:
 
     void cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
     void enableBFE_winImpl();
-    void setIgnoreSslErrorsImlp(bool bIgnoreSslErrors);
     void recordInstallImpl();
     void sendConfirmEmailImpl();
     void connectClickImpl(const LocationID &locationId, const types::ConnectionSettings &connectionSettings);
@@ -292,7 +291,7 @@ private slots:
 
     void onMacAddressSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
     void onMacAddressControllerSendUserWarning(USER_WARNING_TYPE userWarningType);
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     void onMacAddressControllerMacSpoofApplied();
 #endif
 
@@ -300,7 +299,7 @@ private slots:
 
     void onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &location);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     void onMacSpoofTimerTick();
 #endif
 
@@ -343,7 +342,7 @@ private:
     locationsmodel::LocationsModel *locationsModel_;
 
     DownloadHelper *downloadHelper_;
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     AutoUpdaterHelper_mac *autoUpdaterHelper_;
     QDateTime macSpoofTimerStart_;
     QTimer *macSpoofTimer_;
@@ -381,6 +380,8 @@ private:
     void doDisconnectRestoreStuff();
 
     void stopFetchingServerCredentials();
+
+    void updateSessionStatus(const std::string &json);
 
     uint lastDownloadProgress_;
     QString installerUrl_;

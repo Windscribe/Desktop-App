@@ -116,13 +116,6 @@ if (IOS)
       PUBLIC_HEADER "${WS_OBJC_PUBLIC_HEADERS}"
     )
 
-    if(CMAKE_SYSTEM_NAME STREQUAL "tvOS")
-        set_target_properties(wsnet PROPERTIES
-          OUTPUT_NAME "wstnet_tv"
-        )
-    endif()
-
-
     # This file is also used by the above generated headers, so copy it to framework headers
     install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/src/scapix/source/scapix/bridge/objc/BridgeObject.h
         DESTINATION wsnet.framework/Headers/scapix/bridge/objc

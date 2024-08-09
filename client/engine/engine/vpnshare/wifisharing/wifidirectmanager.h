@@ -2,6 +2,7 @@
 
 #include <QMutex>
 #include <QObject>
+#include "types/enums.h"
 #include "winrt_headers.h"
 
 class WiFiDirectManager : public QObject
@@ -20,7 +21,7 @@ public:
 
 signals:
     void started();
-    void failed();
+    void failed(WIFI_SHARING_ERROR error);
     void usersCountChanged();
 
 private:
