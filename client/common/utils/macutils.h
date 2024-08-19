@@ -19,6 +19,7 @@ namespace MacUtils
     void setArrowCursor();
 
     bool isLockdownMode();
+    QSet<QString> getOsDnsServers();
 
     // CLI
     bool isAppAlreadyRunning();

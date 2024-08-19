@@ -212,5 +212,12 @@ void serialize(Archive & ar, CMD_CREATE_OPENVPN_ADAPTER & g, const unsigned int 
     ar & g.useDCODriver;
 }
 
+template<class Archive>
+void serialize(Archive & ar, CMD_SSID_FROM_INTERFACE_GUID & g, const unsigned int version)
+{
+    UNREFERENCED_PARAMETER(version);
+    ar & g.interfaceGUID;
+}
+
 } // namespace serialization
 } // namespace boost

@@ -261,7 +261,7 @@ void ConnectWindowItem::updateNetworkState(types::NetworkInterface network)
     if (trustType_ != trusted || interfaceType_ != type || networkActive_ != networkActive)
     {
         QString icon = "";
-        if (type == NETWORK_INTERFACE_WIFI)
+        if (type == NETWORK_INTERFACE_WIFI || type == NETWORK_INTERFACE_MOBILE_BROADBAND)
         {
             icon += "network/WIFI_";
         }

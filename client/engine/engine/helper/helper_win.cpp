@@ -944,3 +944,24 @@ bool Helper_win::enableDohSettings()
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_ENABLE_DOH_SETTINGS, std::string());
     return mpr.success;
 }
+
+DWORD Helper_win::ssidFromInterfaceGUID(const QString &interfaceGUID, QString &ssid)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_SSID_FROM_INTERFACE_GUID cmd;
+    cmd.interfaceGUID = interfaceGUID.toStdWString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_SSID_FROM_INTERFACE_GUID, stream.str());
+
+    if (mpr.success) {
+        ssid = QString::fromStdString(mpr.additionalString);
+        return NO_ERROR;
+    }
+
+    return mpr.exitCode;
+}

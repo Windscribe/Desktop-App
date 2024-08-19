@@ -94,7 +94,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::serverCredentials(const std:
 std::shared_ptr<WSNetCancelableCallback> ServerAPI::serverConfigs(const std::string &authHash, WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = requests_factory::serverConfigs(authHash, Settings::instance().openVersionVersion(), cancelableCallback);
+    BaseRequest *request = requests_factory::serverConfigs(authHash, Settings::instance().openVpnVersion(), cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }

@@ -9,13 +9,6 @@ TRIPLETS=("arm64-ios-simulator" "arm64-ios" "arm64-tvos" "arm64-tvos-simulator")
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 NumberOfCores=$(sysctl -n hw.ncpu)
 
-applyTVPatch() {
-  cwd=$(pwd)
-  cd "$VCPKG_ROOT" || exit
-  git apply "$SCRIPT_DIR/../cmake/tvos_vcpkg.patch"
-  cd "$cwd" || exit
-}
-
 updateInfoPlist() {
   plistFile=$1
   /usr/libexec/PlistBuddy -c "add :CFBundleShortVersionString string $VERSION" "$plistFile"
@@ -31,9 +24,9 @@ rm -rf bin/ios
 for i in ${!ARCHITECTURES[@]}; do
   arch=${ARCHITECTURES[$i]}
   triplet=${TRIPLETS[$i]}
-
+  deploymentTarget=12
   if [ "$arch" == "TVOS" ] || [ "$arch" == "SIMULATORARM64_TVOS" ]; then
-      applyTVPatch
+      deploymentTarget=17
   fi
 
   rm -rf "../generated"
@@ -45,7 +38,7 @@ for i in ${!ARCHITECTURES[@]}; do
     -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$SCRIPT_DIR/../cmake/ios.toolchain.cmake \
     -DVCPKG_TARGET_TRIPLET=$triplet \
     -DPLATFORM=$arch \
-    -DDEPLOYMENT_TARGET=12 \
+    -DDEPLOYMENT_TARGET=$deploymentTarget \
     -DSCAPIX_BRIDGE=objc \
     -DCMAKE_BUILD_TYPE=Release
   cmake --build "temp/build/$arch" -j $NumberOfCores --config Release

@@ -67,7 +67,7 @@ public:
         Settings::instance().setAppVersion(appVersion);
         Settings::instance().setBasePlatform(platformName);
         Settings::instance().setDeviceId(deviceId);
-        Settings::instance().setOpenVersionVersion(openVpnVersion);
+        Settings::instance().setOpenVpnVersion(openVpnVersion);
 
         persistentSettings_.reset(new PersistentSettings(persistentSettings));
 

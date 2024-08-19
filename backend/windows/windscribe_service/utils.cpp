@@ -8,12 +8,14 @@
 #include <shlobj.h>
 #include <versionhelpers.h>
 #include <WbemIdl.h>
+#include <wlanapi.h>
 
 #include <cwctype>
 
 #include "logger.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "utils/win32handle.h"
+#include "utils/wsscopeguard.h"
 
 #pragma comment(lib, "wbemuuid.lib")
 
@@ -565,6 +567,87 @@ bool isMacAddress(const std::wstring &value)
     }
 
     return valid;
+}
+
+std::string ssidFromInterfaceGUID(const std::wstring &interfaceGUID)
+{
+    // This DLL is not available on default installs of Windows Server.  Dynamically load it so
+    // the app doesn't fail to launch with a "DLL not found" error.  App profiling was performed
+    // and indicated no performance degradation when dynamically loading and unloading the DLL.
+    const std::wstring dll = getSystemDir() + L"\\wlanapi.dll";
+    auto wlanDll = ::LoadLibraryEx(dll.c_str(), NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+    if (wlanDll == NULL) {
+        throw std::system_error(::GetLastError(), std::generic_category(), "wlanapi.dll could not be loaded");
+    }
+
+    auto freeDLL = wsl::wsScopeGuard([&] {
+        ::FreeLibrary(wlanDll);
+    });
+
+    typedef DWORD (WINAPI * WlanOpenHandleFunc)(DWORD dwClientVersion, PVOID pReserved, PDWORD pdwNegotiatedVersion, PHANDLE phClientHandle);
+    typedef DWORD (WINAPI * WlanCloseHandleFunc)(HANDLE hClientHandle, PVOID pReserved);
+    typedef VOID  (WINAPI * WlanFreeMemoryFunc)(PVOID pMemory);
+    typedef DWORD (WINAPI * WlanQueryInterfaceFunc)(HANDLE hClientHandle, CONST GUID *pInterfaceGuid, WLAN_INTF_OPCODE OpCode, PVOID pReserved,
+                                                   PDWORD pdwDataSize, PVOID *ppData, PWLAN_OPCODE_VALUE_TYPE pWlanOpcodeValueType);
+
+    WlanOpenHandleFunc pfnWlanOpenHandle = (WlanOpenHandleFunc)::GetProcAddress(wlanDll, "WlanOpenHandle");
+    if (pfnWlanOpenHandle == NULL) {
+        throw std::system_error(::GetLastError(), std::generic_category(), "Failed to load WlanOpenHandle");
+    }
+
+    WlanCloseHandleFunc pfnWlanCloseHandle = (WlanCloseHandleFunc)::GetProcAddress(wlanDll, "WlanCloseHandle");
+    if (pfnWlanCloseHandle == NULL) {
+        throw std::system_error(::GetLastError(), std::generic_category(), "Failed to load WlanCloseHandle");
+    }
+
+    WlanFreeMemoryFunc pfnWlanFreeMemory = (WlanFreeMemoryFunc)::GetProcAddress(wlanDll, "WlanFreeMemory");
+    if (pfnWlanFreeMemory == NULL) {
+        throw std::system_error(::GetLastError(), std::generic_category(), "Failed to load WlanFreeMemory");
+    }
+
+    WlanQueryInterfaceFunc pfnWlanQueryInterface = (WlanQueryInterfaceFunc)::GetProcAddress(wlanDll, "WlanQueryInterface");
+    if (pfnWlanQueryInterface == NULL) {
+        throw std::system_error(::GetLastError(), std::generic_category(), "Failed to load WlanQueryInterface");
+    }
+
+    DWORD dwCurVersion = 0;
+    HANDLE hClient = NULL;
+    auto result = pfnWlanOpenHandle(2, NULL, &dwCurVersion, &hClient);
+    if (result != ERROR_SUCCESS) {
+        throw std::system_error(::GetLastError(), std::generic_category(), "WlanOpenHandle failed");
+    }
+
+    PWLAN_CONNECTION_ATTRIBUTES pConnectInfo = NULL;
+
+    auto freeWlanResources = wsl::wsScopeGuard([&] {
+        if (pConnectInfo != NULL) {
+            pfnWlanFreeMemory(pConnectInfo);
+        }
+
+        pfnWlanCloseHandle(hClient, NULL);
+    });
+
+    GUID actualGUID = guidFromString(interfaceGUID);
+
+    DWORD connectInfoSize = sizeof(WLAN_CONNECTION_ATTRIBUTES);
+    WLAN_OPCODE_VALUE_TYPE opCode = wlan_opcode_value_type_invalid;
+
+    result = pfnWlanQueryInterface(hClient, &actualGUID, wlan_intf_opcode_current_connection, NULL,
+                                   &connectInfoSize, (PVOID *) &pConnectInfo, &opCode);
+    if (result != ERROR_SUCCESS) {
+        throw std::system_error(::GetLastError(), std::generic_category(), "WlanQueryInterface failed");
+    }
+
+    std::string ssid;
+    const auto &dot11Ssid = pConnectInfo->wlanAssociationAttributes.dot11Ssid;
+    if (dot11Ssid.uSSIDLength > 0) {
+        ssid.reserve(dot11Ssid.uSSIDLength);
+        for (ULONG k = 0; k < dot11Ssid.uSSIDLength; k++) {
+            ssid.push_back(static_cast<char>(dot11Ssid.ucSSID[k]));
+        }
+    }
+
+    return ssid;
 }
 
 }

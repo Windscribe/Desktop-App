@@ -428,4 +428,6 @@ private:
 
     QSocketNotifier *socketNotifier_;
     int fd_;
+
+    void normalizeConnectionSettings(types::ConnectionSettings &cs);
 };

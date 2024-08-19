@@ -1,3 +1,17 @@
+2.11.7 (19/08/2024)
+All:
+   * Improved more JSON validation cases. #1048
+   * Fixed the client logout after reboot. #1092
+   * Fixed wsnet does not compile from public repo. #1102
+Windows:
+   * Improved logic to retry service start if the WireGuard service reports network configuration errors during start. #682
+   * Improved UX when an error occurs while enabling secure hotspot. #1005
+   * Fixed unable to query SSID on Windows 11 24H2. #1086
+   * Fixed connection issues on cellular modem. #1096
+MacOS:
+   * Fixed potential app hang when retrieving OS DNS servers. #1089
+
+
 2.11.6 (09/08/2024)
 All:
    * Fixed potential for uncaught exceptions thrown by the std::filesystem API to cause the app to crash. #1072

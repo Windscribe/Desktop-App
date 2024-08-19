@@ -691,3 +691,15 @@ DWORD WinUtils::getOSBuildNumber()
 
     return 0;
 }
+
+QString WinUtils::getSystemDir()
+{
+    wchar_t path[MAX_PATH];
+    UINT result = ::GetSystemDirectory(path, MAX_PATH);
+    if (result == 0 || result >= MAX_PATH) {
+        qCDebug(LOG_BASIC) << "GetSystemDirectory failed" << ::GetLastError();
+        return QString("C:\\Windows\\System32");
+    }
+
+    return QString::fromWCharArray(path);
+}

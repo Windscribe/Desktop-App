@@ -99,6 +99,8 @@ public:
     bool disableDohSettings();
     bool enableDohSettings();
 
+    DWORD ssidFromInterfaceGUID(const QString &interfaceGUID, QString &ssid);
+
 protected:
     void run() override;
 

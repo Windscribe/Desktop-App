@@ -1,5 +1,6 @@
 #include "wifidirectmanager.h"
 #include "utils/logger.h"
+#include "utils/network_utils/wlan_utils_win.h"
 
 #pragma comment(lib, "windowsapp")
 
@@ -25,6 +26,12 @@ bool WiFiDirectManager::isSupported()
 bool WiFiDirectManager::start(const QString &ssid, const QString &password)
 {
     QMutexLocker locker(&mutex_);
+
+    WlanUtils_win wlanUtils;
+    if (!wlanUtils.isWifiRadioOn()) {
+        emit failed(WIFI_SHARING_ERROR_RADIO_OFF);
+        return false;
+    }
 
     // if the Mobile Hotspot feature is enabled in Windows, we must turn off it because it will conflict with our method
     try {

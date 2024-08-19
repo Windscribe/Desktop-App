@@ -32,6 +32,8 @@ if (WIN32)
         executable_signature/executable_signature_win.cpp
         network_utils/network_utils_win.cpp
         network_utils/network_utils_win.h
+        network_utils/wlan_utils_win.cpp
+        network_utils/wlan_utils_win.h
         servicecontrolmanager.cpp
         timer_win.cpp
         timer_win.h

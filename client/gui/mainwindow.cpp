@@ -1195,33 +1195,61 @@ void MainWindow::onPreferencesImportSettingsClick()
     ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
     const QString settingsFilename = QFileDialog::getOpenFileName(this, tr("Import Preferences From"), "", tr("JSON Files (*.json)"));
     ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
-    if (!settingsFilename.isEmpty()) {
-        QFile file(settingsFilename);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            onPreferencesReportErrorToUser(tr("Unable to import preferences"), tr("Could not open file."));
-            return;
-        }
+    if (settingsFilename.isEmpty()) {
+        return;
+    }
 
-        QByteArray jsonData = file.readAll();
-        file.close();
-        QJsonParseError parseError;
-        const QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData, &parseError);
+    QFile file(settingsFilename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        onPreferencesReportErrorToUser(tr("Unable to import preferences"), tr("Could not open file."));
+        return;
+    }
 
-        if (parseError.error != QJsonParseError::NoError) {
-            onPreferencesReportErrorToUser(tr("Unable to import preferences"), tr("The selected file's format is incorrect."));
-            qDebug() << "Error parsing JSON while importing preferences from :" << parseError.errorString();
-            return;
-        }
+    QByteArray jsonData = file.readAll();
+    file.close();
+    QJsonParseError parseError;
+    const QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData, &parseError);
 
-        if (!jsonDoc.isObject()) {
-            onPreferencesReportErrorToUser(tr("Unable to import preferences"), tr("The selected file's format is incorrect."));
-            qDebug() << "Expected JSON object not found when importing preferences";
-            return;
-        }
+    if (parseError.error != QJsonParseError::NoError) {
+        onPreferencesReportErrorToUser(tr("Unable to import preferences"), tr("The selected file's format is incorrect."));
+        qDebug() << "Error parsing JSON while importing preferences from :" << parseError.errorString();
+        return;
+    }
 
-        backend_->getPreferences()->updateFromJson(jsonDoc.object());
-        qCDebug(LOG_BASIC) << "Imported preferences from the file.";
-        mainWindowController_->getPreferencesWindow()->setPreferencesImportCompleted();
+    if (!jsonDoc.isObject()) {
+        onPreferencesReportErrorToUser(tr("Unable to import preferences"), tr("The selected file's format is incorrect."));
+        qDebug() << "Expected JSON object not found when importing preferences";
+        return;
+    }
+
+    backend_->getPreferences()->updateFromJson(jsonDoc.object());
+
+    // Preferences itself does not have any information on the current portmap.  Check that connection setting ports are valid, otherwise use default port
+    types::ConnectionSettings cs = backend_->getPreferences()->connectionSettings();
+    normalizeConnectionSettings(cs);
+    backend_->getPreferences()->setConnectionSettings(cs);
+
+    // Same for per-network settings
+    const QMap<QString, types::ConnectionSettings> map = backend_->getPreferences()->networkPreferredProtocols();
+    QMap<QString, types::ConnectionSettings> newMap;
+    for (auto key : map.keys()) {
+        types::ConnectionSettings cs = map[key];
+        normalizeConnectionSettings(cs);
+        newMap[key] = cs;
+    }
+    backend_->getPreferences()->setNetworkPreferredProtocols(newMap);
+
+    qCDebug(LOG_BASIC) << "Imported preferences from the file.";
+    mainWindowController_->getPreferencesWindow()->setPreferencesImportCompleted();
+}
+
+void MainWindow::normalizeConnectionSettings(types::ConnectionSettings &cs)
+{
+    // Check that the port in cs is valid per the portmap
+    QVector<uint> ports = backend_->getPreferencesHelper()->getAvailablePortsForProtocol(cs.protocol());
+    if (!ports.contains(cs.port())) {
+        qCDebug(LOG_BASIC) << "Port" << cs.port() << "does not exist in port map, setting to default port.";
+        cs.setPort(types::Protocol::defaultPortForProtocol(cs.protocol()));
     }
 }
 
@@ -2276,7 +2304,15 @@ void MainWindow::onBackendWifiSharingFailed(WIFI_SHARING_ERROR error)
             "WARNING_WHITE",
             tr("Wi-Fi is off"),
             tr("Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on."),
-            GeneralMessageController::tr(GeneralMessageController::kOk));
+            GeneralMessageController::tr(GeneralMessageController::kOk),
+            "",
+            "",
+            [this](bool b) { 
+                // Turn off the toggle
+                types::ShareSecureHotspot sh = backend_->getPreferences()->shareSecureHotspot();
+                sh.isEnabled = false;
+                backend_->getPreferences()->setShareSecureHotspot(sh);
+            });
     } else {
         backend_->getPreferencesHelper()->setWifiSharingSupported(false);
         GeneralMessageController::instance().showMessage(

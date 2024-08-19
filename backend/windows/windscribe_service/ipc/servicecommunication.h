@@ -56,6 +56,7 @@
 #define AA_COMMAND_DISABLE_DOH_SETTINGS                     53
 #define AA_COMMAND_ENABLE_DOH_SETTINGS                      54
 #define AA_COMMAND_CONFIGURE_WIREGUARD                      55
+#define AA_COMMAND_SSID_FROM_INTERFACE_GUID                 56
 
 #include <string>
 #include <vector>
@@ -240,6 +241,11 @@ enum WireGuardServiceState
 struct CMD_CREATE_OPENVPN_ADAPTER
 {
     bool useDCODriver;
+};
+
+struct CMD_SSID_FROM_INTERFACE_GUID
+{
+    std::wstring interfaceGUID;
 };
 
 struct MessagePacketResult

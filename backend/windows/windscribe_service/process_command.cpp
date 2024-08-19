@@ -838,7 +838,6 @@ MessagePacketResult disableDohSettings(boost::archive::text_iarchive &ia)
     return mpr;
 }
 
-
 MessagePacketResult enableDohSettings(boost::archive::text_iarchive &ia)
 {
     MessagePacketResult mpr;
@@ -872,5 +871,23 @@ MessagePacketResult enableDohSettings(boost::archive::text_iarchive &ia)
     }
 
     Logger::instance().out(L"AA_COMMAND_ENABLE_DOH_SETTINGS");
+    return mpr;
+}
+
+MessagePacketResult ssidFromInterfaceGUID(boost::archive::text_iarchive &ia)
+{
+    CMD_SSID_FROM_INTERFACE_GUID cmd;
+    ia >> cmd;
+
+    MessagePacketResult mpr;
+    try {
+        mpr.additionalString = Utils::ssidFromInterfaceGUID(cmd.interfaceGUID);
+        mpr.success = true;
+    }
+    catch (std::system_error &ex) {
+        mpr.exitCode = ex.code().value();
+        Logger::instance().out("ssidFromInterfaceGUID - %s", ex.what());
+    }
+
     return mpr;
 }

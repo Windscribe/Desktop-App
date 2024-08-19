@@ -61,6 +61,7 @@ public:
     void setNetworkWhiteList(const QVector<types::NetworkInterface> &l);
 
     const types::ConnectionSettings networkPreferredProtocol(QString networkOrSsid) const;
+    const QMap<QString, types::ConnectionSettings> networkPreferredProtocols() const;
     bool hasNetworkPreferredProtocol(QString networkOrSsid) const;
     void setNetworkPreferredProtocol(QString networkOrSsid, const types::ConnectionSettings &preferredProtocol);
     void setNetworkPreferredProtocols(const QMap<QString, types::ConnectionSettings> &preferredProtocols);

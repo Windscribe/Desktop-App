@@ -1,11 +1,10 @@
 #include "wireguardconnection_win.h"
 
-#include <KnownFolders.h>
 #include <QScopeGuard>
 #include <QStandardPaths>
 #include <QTimer>
+
 #include <shlobj.h>
-#include <KnownFolders.h>
 #include <sstream>
 
 #include "adapterutils_win.h"
@@ -141,18 +140,7 @@ void WireGuardConnection::run()
 
     helper_->configureWireGuard(wireGuardConfig_);
 
-    // The wireguard service creates the log file in the same folder as the config file, which will reside in the config dir
-    // We must create this log file watcher before we start the wireguard service to ensure we get all log entries.
-    QString configPath = getConfigPath();
-    if (configPath.isEmpty()) {
-        qCDebug(LOG_CONNECTION) << "WireGuardConnection::run - Could not get config path";
-        emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
-        emit disconnected();
-        return;
-    }
-    QString logFile = configPath + QString("\\log.bin");
-
-    wireguardLog_.reset(new wsl::WireguardRingLogger(logFile));
+    resetLogReader();
 
     bool disableDNSLeakProtection = false;
 
@@ -194,7 +182,7 @@ void WireGuardConnection::run()
         }
 
         while (true) {
-            DWORD result = ::WaitForSingleObjectEx(stopThreadEvent_.getHandle(), INFINITE, TRUE);
+            DWORD result = stopThreadEvent_.wait(INFINITE, TRUE);
             if (result != WAIT_IO_COMPLETION) {
                 break;
             }
@@ -343,8 +331,41 @@ bool WireGuardConnection::startService()
         wsl::ServiceControlManager scm;
         scm.openSCM(SC_MANAGER_CONNECT);
         scm.openService(kServiceName.c_str(), SERVICE_QUERY_STATUS | SERVICE_START);
-        scm.startService();
-        return true;
+
+        // The WireGuard service code (configureInterface() in addressconfig.go) may encounter an ERROR_NOT_FOUND error
+        // while attempting to set routes on the WG adapter.  There is logic in this method to retry the route set 15
+        // times after a 1 second wait... but only if the WireGuard service was configured to boot-start.  Since in our
+        // case the service is ephemeral and we demand start it, this retry logic is not run.  The logic below is our
+        // attempt to emulate this behavior.
+        QDeadlineTimer startupDeadline(15000);
+        do {
+            std::error_code ec;
+            if (scm.startService(ec)) {
+                return true;
+            }
+
+            // We'll receive ERROR_SERVICE_NOT_ACTIVE or ERROR_SERVICE_REQUEST_TIMEOUT if the service aborts its startup.
+            if (ec.value() != ERROR_SERVICE_NOT_ACTIVE && ec.value() != ERROR_SERVICE_REQUEST_TIMEOUT) {
+                throw std::system_error(ec);
+            }
+
+            // Check the log to determine if the service failed to start due a network configure error.
+            wireguardLog_->getNewLogEntries();
+            if (!wireguardLog_->configureNetSettingsFailed()) {
+                // Startup failed for some other reason.
+                break;
+            }
+
+            // Pause for 1 second, then try to start the service again.
+            DWORD result = stopThreadEvent_.wait(1000);
+            if (result != WAIT_TIMEOUT) {
+                break;
+            }
+
+            // Reset the log file reader before attempting to start the service again, since the WG service will reset
+            // its contents before attempting the service start.
+            resetLogReader();
+        } while (!startupDeadline.hasExpired());
     }
     catch (std::system_error& ex) {
         qCDebug(LOG_CONNECTION) << ex.what();
@@ -405,22 +426,27 @@ void CALLBACK WireGuardConnection::automaticConnectionTimeoutProc(LPVOID lpArgTo
     wc->onAutomaticConnectionTimeout();
 }
 
-QString WireGuardConnection::getConfigPath() const
+void WireGuardConnection::resetLogReader()
 {
+    // The wireguard service creates the log file in the same folder as the config file, which will reside in the config dir
+    // We must create this log file watcher before we start the wireguard service to ensure we get all log entries.
+
+    QString logFile;
+
     // There does not seem to be a way to get the Program Files directory via Qt, so use the Windows API.
     wchar_t* programFilesPath = NULL;
-    HRESULT hr = SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, NULL, &programFilesPath);
+    HRESULT hr = ::SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, NULL, &programFilesPath);
     if (FAILED(hr)) {
-        qCDebug(LOG_CONNECTION) << ("Failed to get Program Files dir");
-        CoTaskMemFree(programFilesPath);
-        return "";
+        // It should be exceedingly rare for this API to fail.  If it does, we're going to assume the OS is installed
+        // to the C drive, as we do elsewhere in the app, and proceed with the connection startup.
+        qCDebug(LOG_CONNECTION) << "WireGuardConnection::resetLogReader - SHGetKnownFolderPath failed to get Program Files dir:" << HRESULT_CODE(hr);
+        logFile = "C:\\Program Files";
+    } else {
+        logFile = QString::fromWCharArray(programFilesPath);
     }
 
-    std::wstringstream filePath;
-    filePath << programFilesPath;
-    filePath << L"\\Windscribe\\config";
+    ::CoTaskMemFree(programFilesPath);
 
-    CoTaskMemFree(programFilesPath);
-
-    return QString::fromStdWString(filePath.str());
+    logFile += "\\Windscribe\\config\\log.bin";
+    wireguardLog_.reset(new wsl::WireguardRingLogger(logFile));
 }

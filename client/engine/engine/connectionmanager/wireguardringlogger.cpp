@@ -162,6 +162,9 @@ void WireguardRingLogger::process(int index)
             else if (message.contains("Failed to setup adapter")) {
                 adapterSetupFailed_ = true;
             }
+            else if (message.contains("Unable to configure adapter network settings")) {
+                configureNetSettingsFailed_ = true;
+            }
         }
 
         QDateTime dt = QDateTime::fromMSecsSinceEpoch(timestamp / 1000000, Qt::UTC);
@@ -175,6 +178,7 @@ void WireguardRingLogger::getNewLogEntries()
         return;
     }
 
+    configureNetSettingsFailed_ = false;
     handshakeFailed_ = false;
 
     /* On the first pass, scan all log messages. */

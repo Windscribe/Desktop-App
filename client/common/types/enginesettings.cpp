@@ -486,14 +486,14 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
     }
 
     if (json.contains(kJsonNetworkPreferredProtocolsProp) && json[kJsonNetworkPreferredProtocolsProp].isObject()) {
-        QMap<QString, types::ConnectionSettings> networkPreferredProtocols;
+        QMap<QString, types::ConnectionSettings> npp;
         const QJsonObject protocolsObj = json[kJsonNetworkPreferredProtocolsProp].toObject();
         for (const QString& networkBase64 : protocolsObj.keys()) {
             if (protocolsObj[networkBase64].isObject()) {
-                networkPreferredProtocols.insert(Utils::fromBase64(networkBase64), types::ConnectionSettings(protocolsObj[networkBase64].toObject()));
+                npp.insert(Utils::fromBase64(networkBase64), types::ConnectionSettings(protocolsObj[networkBase64].toObject()));
             }
         }
-        networkPreferredProtocols = networkPreferredProtocols;
+        networkPreferredProtocols = npp;
     }
 
     if (json.contains(kJsonNetworkLastKnownGoodProtocolsProp) && json[kJsonNetworkLastKnownGoodProtocolsProp].isObject()) {

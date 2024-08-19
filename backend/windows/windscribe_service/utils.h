@@ -42,4 +42,6 @@ namespace Utils
     bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
                      GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid = nullptr,
                      const std::vector<Ip6AddressAndPrefix> *range = nullptr, bool persistent = true);
+
+    std::string ssidFromInterfaceGUID(const std::wstring &interfaceGUID);
 };

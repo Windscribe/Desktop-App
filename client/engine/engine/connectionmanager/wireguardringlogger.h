@@ -21,6 +21,7 @@ public:
     void getFinalLogEntries();
 
     bool adapterSetupFailed() const { return adapterSetupFailed_; }
+    bool configureNetSettingsFailed() const { return configureNetSettingsFailed_; }
     bool handshakeFailed() const { return handshakeFailed_; }
     bool isTunnelRunning() const { return tunnelRunning_; }
 
@@ -33,6 +34,7 @@ private:
     bool tunnelRunning_ = false;
     bool handshakeFailed_ = false;
     bool adapterSetupFailed_ = false;
+    bool configureNetSettingsFailed_ = false;
     quint64 invalidNoncePackets_ = 0;
 
 private:

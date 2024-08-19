@@ -39,10 +39,12 @@ public:
     void queryServiceConfig(std::wstring& exePath, std::wstring& accountName,
                             DWORD& startType, bool& serviceShareProcess) const;
     DWORD queryServiceStatus() const;
+    DWORD queryServiceStatus(std::error_code& ec) const noexcept;
     void sendControlCode(DWORD code) const;
     void setServiceDescription(LPCTSTR description) const;
     void setServiceSIDType(DWORD serviceSidType) const;
     void startService();
+    bool startService(std::error_code& ec) noexcept;
     void stopService();
     void stopService(LPCTSTR serviceName);
     bool stopService(std::error_code& ec) noexcept;

@@ -257,6 +257,11 @@ const types::ConnectionSettings Preferences::networkPreferredProtocol(QString ne
     return engineSettings_.networkPreferredProtocols()[networkOrSsid];
 }
 
+const QMap<QString, types::ConnectionSettings> Preferences::networkPreferredProtocols() const
+{
+    return engineSettings_.networkPreferredProtocols();
+}
+
 bool Preferences::hasNetworkPreferredProtocol(QString networkOrSsid) const
 {
     return engineSettings_.networkPreferredProtocols().contains(networkOrSsid) &&
@@ -272,6 +277,7 @@ void Preferences::setNetworkPreferredProtocols(const QMap<QString, types::Connec
         emit networkPreferredProtocolsChanged(engineSettings_.networkPreferredProtocols());
     }
 }
+
 
 void Preferences::setNetworkPreferredProtocol(QString networkOrSsid, const types::ConnectionSettings &settings)
 {

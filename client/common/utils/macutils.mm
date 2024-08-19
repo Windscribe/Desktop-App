@@ -253,3 +253,47 @@ bool MacUtils::isLockdownMode()
     QString response = Utils::execCmd("defaults read .GlobalPreferences.plist LDMGlobalEnabled");
     return response.trimmed() == "1";
 }
+
+static QStringList getOsDnsServersFromPath(CFStringRef path)
+{
+    QStringList servers;
+
+    SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("DNSSETTING"), NULL, NULL);
+    CFPropertyListRef propList = SCDynamicStoreCopyValue(dynRef, path);
+    if (propList) {
+        CFDictionaryRef dict = (CFDictionaryRef)propList;
+        CFArrayRef addresses = (CFArrayRef)CFDictionaryGetValue(dict, CFSTR("ServerAddresses"));
+        for (int j = 0; j < CFArrayGetCount(addresses); j++) {
+            NSString *addr = (NSString *)CFArrayGetValueAtIndex(addresses, j);
+            servers << QString([addr UTF8String]);
+        }
+        CFRelease(propList);
+    }
+    CFRelease(dynRef);
+
+    return servers;
+}
+
+QSet<QString> MacUtils::getOsDnsServers()
+{
+    QStringList servers;
+
+    SCPreferencesRef prefsDNS = SCPreferencesCreate(NULL, CFSTR("DNSSETTING"), NULL);
+    CFArrayRef services = SCNetworkServiceCopyAll(prefsDNS);
+
+    for (long i = 0; i < CFArrayGetCount(services); i++) {
+        const SCNetworkServiceRef service = (const SCNetworkServiceRef)CFArrayGetValueAtIndex(services, i);
+        CFStringRef serviceId = SCNetworkServiceGetServiceID(service);
+        CFStringRef path = CFStringCreateWithFormat(NULL,NULL,CFSTR("State:/Network/Service/%@/DNS"), serviceId);
+        servers << getOsDnsServersFromPath(path);
+        CFRelease(path);
+    }
+    CFRelease(services);
+    CFRelease(prefsDNS);
+
+    CFStringRef globalPath = CFStringCreateWithFormat(NULL,NULL,CFSTR("State:/Network/Global/DNS"));
+    servers << getOsDnsServersFromPath(globalPath);
+    CFRelease(globalPath);
+
+    return QSet<QString>(servers.begin(), servers.end());
+}

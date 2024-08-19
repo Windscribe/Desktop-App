@@ -8,34 +8,11 @@
 #include <atlbase.h>
 #include <iphlpapi.h>
 #include <netlistmgr.h>
-#include <wlanapi.h>
 
 #include "../logger.h"
 #include "../networktypes.h"
 #include "../winutils.h"
-
-static GUID guidFromQString(QString str)
-{
-    GUID reqGUID;
-    unsigned long p0;
-    unsigned int p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
-
-    sscanf_s(str.toStdString().c_str(), "{%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
-             &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8, &p9, &p10);
-    reqGUID.Data1 = p0;
-    reqGUID.Data2 = p1;
-    reqGUID.Data3 = p2;
-    reqGUID.Data4[0] = p3;
-    reqGUID.Data4[1] = p4;
-    reqGUID.Data4[2] = p5;
-    reqGUID.Data4[3] = p6;
-    reqGUID.Data4[4] = p7;
-    reqGUID.Data4[5] = p8;
-    reqGUID.Data4[6] = p9;
-    reqGUID.Data4[7] = p10;
-
-    return reqGUID;
-}
+#include "wlan_utils_win.h"
 
 static QString guidToQString(GUID guid)
 {
@@ -87,6 +64,9 @@ static QList<IfTableRow> getIfTable()
         }
         else if (pIfTable->table[i].dwType == IF_TYPE_PPP) {
             nicType = NETWORK_INTERFACE_PPP;
+        }
+        else if (pIfTable->table[i].dwType == IF_TYPE_IEEE80216_WMAN || pIfTable->table[i].dwType == IF_TYPE_WWANPP || pIfTable->table[i].dwType == IF_TYPE_WWANPP2) {
+            nicType = NETWORK_INTERFACE_MOBILE_BROADBAND;
         }
 
         // qDebug() << "Index: " << pIfTable->table[i].dwIndex << ", State: " << pIfTable->table[i].dwOperStatus;
@@ -349,120 +329,6 @@ static QList<AdapterAddress> getAdapterAddressesTable()
     return adapters;
 }
 
-static QString getSystemDir()
-{
-    wchar_t path[MAX_PATH];
-    UINT result = ::GetSystemDirectory(path, MAX_PATH);
-    if (result == 0 || result >= MAX_PATH) {
-        qCDebug(LOG_BASIC) << "GetSystemDirectory failed" << ::GetLastError();
-        return QString("C:\\Windows\\System32");
-    }
-
-    return QString::fromWCharArray(path);
-}
-
-static QString ssidFromInterfaceGUID(QString interfaceGUID)
-{
-    QString ssid = "";
-
-    // This DLL is not available on default installs of Windows Server.  Dynamically load it so
-    // the app doesn't fail to launch with a "DLL not found" error.  App profiling was performed
-    // and indicated no performance degradation when dynamically loading and unloading the DLL.
-    const QString dll = getSystemDir() + QString("\\wlanapi.dll");
-    auto wlanDll = ::LoadLibraryEx(qUtf16Printable(dll), NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
-    if (wlanDll == NULL) {
-        qCDebug(LOG_BASIC) << "ssidFromInterfaceGUID wlanapi.dll does not exist on this computer or could not be loaded:" << ::GetLastError();
-        return ssid;
-    }
-
-    auto freeDLL = qScopeGuard([&] {
-        ::FreeLibrary(wlanDll);
-    });
-
-    typedef DWORD (WINAPI * WlanOpenHandleFunc)(DWORD dwClientVersion, PVOID pReserved, PDWORD pdwNegotiatedVersion, PHANDLE phClientHandle);
-    typedef DWORD (WINAPI * WlanCloseHandleFunc)(HANDLE hClientHandle, PVOID pReserved);
-    typedef VOID  (WINAPI * WlanFreeMemoryFunc)(PVOID pMemory);
-    typedef DWORD (WINAPI * WlanEnumInterfacesFunc)(HANDLE hClientHandle, PVOID pReserved, PWLAN_INTERFACE_INFO_LIST *ppInterfaceList);
-    typedef DWORD (WINAPI * WlanQueryInterfaceFunc)(HANDLE hClientHandle, CONST GUID *pInterfaceGuid, WLAN_INTF_OPCODE OpCode, PVOID pReserved,
-                                                    PDWORD pdwDataSize, PVOID *ppData, PWLAN_OPCODE_VALUE_TYPE pWlanOpcodeValueType);
-
-    WlanOpenHandleFunc pfnWlanOpenHandle = (WlanOpenHandleFunc)::GetProcAddress(wlanDll, "WlanOpenHandle");
-    if (pfnWlanOpenHandle == NULL) {
-        qCDebug(LOG_BASIC) << "ssidFromInterfaceGUID failed to load WlanOpenHandle:" << ::GetLastError();
-        return ssid;
-    }
-
-    WlanCloseHandleFunc pfnWlanCloseHandle = (WlanCloseHandleFunc)::GetProcAddress(wlanDll, "WlanCloseHandle");
-    if (pfnWlanCloseHandle == NULL) {
-        qCDebug(LOG_BASIC) << "ssidFromInterfaceGUID failed to load WlanCloseHandle:" << ::GetLastError();
-        return ssid;
-    }
-
-    WlanFreeMemoryFunc pfnWlanFreeMemory = (WlanFreeMemoryFunc)::GetProcAddress(wlanDll, "WlanFreeMemory");
-    if (pfnWlanFreeMemory == NULL) {
-        qCDebug(LOG_BASIC) << "ssidFromInterfaceGUID failed to load WlanFreeMemory:" << ::GetLastError();
-        return ssid;
-    }
-
-    WlanEnumInterfacesFunc pfnWlanEnumInterfaces = (WlanEnumInterfacesFunc)::GetProcAddress(wlanDll, "WlanEnumInterfaces");
-    if (pfnWlanEnumInterfaces == NULL) {
-        qCDebug(LOG_BASIC) << "ssidFromInterfaceGUID failed to load WlanEnumInterfaces:" << ::GetLastError();
-        return ssid;
-    }
-
-    WlanQueryInterfaceFunc pfnWlanQueryInterface = (WlanQueryInterfaceFunc)::GetProcAddress(wlanDll, "WlanQueryInterface");
-    if (pfnWlanQueryInterface == NULL) {
-        qCDebug(LOG_BASIC) << "ssidFromInterfaceGUID failed to load WlanQueryInterface:" << ::GetLastError();
-        return ssid;
-    }
-
-    DWORD dwCurVersion = 0;
-    HANDLE hClient = NULL;
-    auto result = pfnWlanOpenHandle(2, NULL, &dwCurVersion, &hClient);
-    if (result != ERROR_SUCCESS) {
-        qCDebug(LOG_BASIC) << "WlanOpenHandle failed with error:" << result;
-        return ssid;
-    }
-
-    PWLAN_CONNECTION_ATTRIBUTES pConnectInfo = NULL;
-
-    auto freeWlanResources = qScopeGuard([&] {
-        if (pConnectInfo != NULL) {
-            pfnWlanFreeMemory(pConnectInfo);
-        }
-
-        pfnWlanCloseHandle(hClient, NULL);
-    });
-
-    GUID actualGUID = guidFromQString(interfaceGUID);
-
-    DWORD connectInfoSize = sizeof(WLAN_CONNECTION_ATTRIBUTES);
-    WLAN_OPCODE_VALUE_TYPE opCode = wlan_opcode_value_type_invalid;
-
-    result = pfnWlanQueryInterface(hClient, &actualGUID, wlan_intf_opcode_current_connection, NULL,
-                                   &connectInfoSize, (PVOID *) &pConnectInfo, &opCode);
-    if (result != ERROR_SUCCESS) {
-        // Will receive these errors when an adapter is being reset.
-        if (result != ERROR_NOT_FOUND && result != ERROR_INVALID_STATE) {
-            qCDebug(LOG_BASIC) << "WlanQueryInterface failed with error:" << result;
-        }
-        return ssid;
-    }
-
-    std::string str_ssid;
-    const auto &dot11Ssid = pConnectInfo->wlanAssociationAttributes.dot11Ssid;
-    if (dot11Ssid.uSSIDLength != 0) {
-        str_ssid.reserve(dot11Ssid.uSSIDLength);
-        for (ULONG k = 0; k < dot11Ssid.uSSIDLength; k++)
-            str_ssid.push_back(static_cast<char>(dot11Ssid.ucSSID[k]));
-    }
-
-    // Note: |str_ssid| can contain UTF-8 characters, but QString::fromStdString() can
-    // handle the case.
-    ssid = QString::fromStdString(str_ssid);
-
-    return ssid;
-}
 
 static QString networkNameFromInterfaceGUID(QString adapterGUID)
 {
@@ -521,7 +387,7 @@ bool NetworkUtils_win::isInterfaceSpoofed(int interfaceIndex)
 
 bool NetworkUtils_win::pingWithMtu(const QString &url, int mtu)
 {
-    const QString cmd = getSystemDir() + QString("\\ping.exe");
+    const QString cmd = WinUtils::getSystemDir() + QString("\\ping.exe");
     const QString params = QString(" -n 1 -l %1 -f %2").arg(mtu).arg(url);
     QString result = WinUtils::executeBlockingCmd(cmd + params, params, 1000).trimmed();
     if (result.contains("bytes=")) {
@@ -555,7 +421,7 @@ QString NetworkUtils_win::getLocalIP()
 
 types::NetworkInterface NetworkUtils_win::currentNetworkInterface()
 {
-    types::NetworkInterface curNetworkInterface;
+    types::NetworkInterface curNetworkInterface = types::NetworkInterface::noNetworkInterface();
 
     IfTable2Row row = lowestMetricNonWindscribeIfTableRow();
     if (!row.valid) {
@@ -568,6 +434,18 @@ types::NetworkInterface NetworkUtils_win::currentNetworkInterface()
         if (networkInterface.interfaceIndex == static_cast<int>(row.index)) {
             curNetworkInterface = networkInterface;
             break;
+        }
+    }
+
+    // Checking for a cellular modem
+    // It is not detectable by lowest metric because Windows assigns it the maximum metric as a rule
+    if (curNetworkInterface.isNoNetworkInterface()) {
+        for (const auto &networkInterface : networkInterfaces) {
+            if (networkInterface.active &&
+               (networkInterface.dwType == IF_TYPE_IEEE80216_WMAN || networkInterface.dwType == IF_TYPE_WWANPP ||  networkInterface.dwType == IF_TYPE_WWANPP2)) {
+                curNetworkInterface = networkInterface;
+                break;
+            }
         }
     }
 
@@ -595,6 +473,8 @@ QVector<types::NetworkInterface> NetworkUtils_win::currentNetworkInterfaces(bool
     const QList<IfTable2Row> ifTable2 = getIfTable2();
     const QList<IpForwardRow> ipForwardTable = getIpForwardTable();
 
+    WlanUtils_win wlanUtils;
+
     for (const IpAdapter &ia: ipAdapters) { // IpAdapters holds list of live adapters
         types::NetworkInterface networkInterface;
         networkInterface.interfaceIndex = ia.index;
@@ -613,7 +493,9 @@ QVector<types::NetworkInterface> NetworkUtils_win::currentNetworkInterfaces(bool
                 networkInterface.deviceName = itRow.interfaceName;
 
                 if (nicType == NETWORK_INTERFACE_WIFI) {
-                    networkInterface.networkOrSsid = ssidFromInterfaceGUID(itRow.guidName);
+                    networkInterface.networkOrSsid = wlanUtils.ssidFromInterfaceGUID(itRow.guidName);
+                } else if (nicType == NETWORK_INTERFACE_MOBILE_BROADBAND) {
+                    networkInterface.networkOrSsid = itRow.interfaceName;
                 }
                 break;
             }
@@ -732,6 +614,7 @@ std::optional<bool> NetworkUtils_win::haveInternetConnectivity()
 
 QString NetworkUtils_win::getRoutingTable()
 {
-    const QString cmd = getSystemDir() + QString("\\route.exe print");
+    const QString cmd = WinUtils::getSystemDir() + QString("\\route.exe print");
     return WinUtils::executeBlockingCmd(cmd, "", 50).trimmed();
 }
+

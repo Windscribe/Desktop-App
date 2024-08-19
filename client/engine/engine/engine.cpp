@@ -35,6 +35,7 @@
     #include "utils/bfe_service_win.h"
     #include "utils/executable_signature/executable_signature.h"
     #include "utils/network_utils/network_utils_win.h"
+    #include "utils/network_utils/wlan_utils_win.h"
     #include "utils/winutils.h"
 #elif defined Q_OS_MACOS
     #include "ipv6controller_mac.h"
@@ -585,7 +586,9 @@ void Engine::init()
 // init part2 (after helper initialized)
 void Engine::initPart2()
 {
-#ifdef Q_OS_MACOS
+#if defined(Q_OS_WIN)
+    WlanUtils_win::setHelper(helper_);
+#elif defined(Q_OS_MACOS)
     Ipv6Controller_mac::instance().setHelper(helper_);
     InterfaceUtils_mac::instance().setHelper(static_cast<Helper_mac *>(helper_));
     ReachAbilityEvents::instance().init();
@@ -604,8 +607,7 @@ void Engine::initPart2()
     macAddrSpoofing.networkInterfaces = InterfaceUtils_mac::instance().currentNetworkInterfaces(true);
 #elif defined Q_OS_WIN
     macAddrSpoofing.networkInterfaces = NetworkUtils_win::currentNetworkInterfaces(true);
-#elif define Q_OS_LINUX
-    todo
+#elif defined Q_OS_LINUX
 #endif
     setSettingsMacAddressSpoofing(macAddrSpoofing);
 
@@ -798,18 +800,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
 
     qCDebug(LOG_BASIC) << "Cleanup started";
 
-    // save wsnet settings
-    QString wsnetSettings = QString::fromStdString(WSNet::instance()->currentPersistentSettings());
-    QSettings settings;
-    settings.setValue("wsnetSettings", wsnetSettings);
-
-    // To correctly downgrade keep authHash in QSettings
-    QString authHash = QString::fromStdString(WSNet::instance()->apiResourcersManager()->authHash());
-    if (!authHash.isEmpty())
-        settings.setValue("authHash", authHash);
-    else
-        settings.remove("authHash");
-
+    saveWsnetSettings();
     // stop all network requests here, because we won't have callback's called for deleted objects
     WSNet::cleanup();
 
@@ -2237,6 +2228,9 @@ void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const 
 
 void Engine::onApiResourceManagerCallback(ApiResourcesManagerNotification notification, LoginResult loginResult, const std::string &errorMessage)
 {
+    // To keep the data in persistent settings when the OS reboots or kills the process
+    saveWsnetSettings();
+
     if (notification == ApiResourcesManagerNotification::kLoginOk) {
         onApiResourcesManagerReadyForLogin(false);
     } else if (notification == ApiResourcesManagerNotification::kLoginFailed) {
@@ -2533,6 +2527,20 @@ void Engine::updateSessionStatus(const std::string &json)
     QSettings settings;
     settings.setValue("userId", ss.getUserId());    // need for uninstaller program for open post uninstall webpage
     emit sessionStatusUpdated(ss);
+}
+
+void Engine::saveWsnetSettings()
+{
+    QString wsnetSettings = QString::fromStdString(WSNet::instance()->currentPersistentSettings());
+    QSettings settings;
+    settings.setValue("wsnetSettings", wsnetSettings);
+
+    // To correctly downgrade keep authHash in QSettings
+    QString authHash = QString::fromStdString(WSNet::instance()->apiResourcersManager()->authHash());
+    if (!authHash.isEmpty())
+        settings.setValue("authHash", authHash);
+    else
+        settings.remove("authHash");
 }
 
 void Engine::stopPacketDetectionImpl()

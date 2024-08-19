@@ -382,6 +382,7 @@ private:
     void stopFetchingServerCredentials();
 
     void updateSessionStatus(const std::string &json);
+    void saveWsnetSettings();
 
     uint lastDownloadProgress_;
     QString installerUrl_;

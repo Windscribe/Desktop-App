@@ -16,8 +16,9 @@ bool IpValidation::isIp(const QString &str)
 
 bool IpValidation::isIpCidr(const QString &str)
 {
-    QRegExp ipCidrRegex("^([0-9]{1,3}\\.){3}[0-9]{1,3}(\\/([0-9]|[1-2][0-9]|3[0-2]))?$");
-    return ipCidrRegex.exactMatch(str);
+    const QString kIPRange("(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])");
+    const QRegExp kRegExp("^" + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "(\\/([0-9]|[1-2][0-9]|3[0-2]))?$");
+    return kRegExp.exactMatch(str);
 }
 
 bool IpValidation::isDomain(const QString &str)

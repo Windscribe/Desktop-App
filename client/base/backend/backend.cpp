@@ -712,23 +712,25 @@ void Backend::abortInitialization()
 void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool manual)
 {
     bool newNetwork = true;
-
-    // find or assign friendly name before checking is network is the same as current network
-    QString friendlyName = networkInterface.networkOrSsid;
-
     QVector<types::NetworkInterface> networkListOld = PersistentState::instance().networkWhitelist();
-    for (int i = 0; i < networkListOld.size(); i++) {
-        if (networkListOld[i].networkOrSsid== networkInterface.networkOrSsid) {
-            friendlyName = networkListOld[i].friendlyName;
-            newNetwork = false;
-            break;
-        }
-    }
 
-    if (friendlyName == "") {
+    QString friendlyName;
+    if (!networkInterface.networkOrSsid.isEmpty()) {
+        // find or assign friendly name before checking is network is the same as current network
         friendlyName = networkInterface.networkOrSsid;
+        for (int i = 0; i < networkListOld.size(); i++) {
+            if (networkListOld[i].networkOrSsid== networkInterface.networkOrSsid) {
+                friendlyName = networkListOld[i].friendlyName;
+                newNetwork = false;
+                break;
+            }
+        }
+
+        if (friendlyName == "") {
+            friendlyName = networkInterface.networkOrSsid;
+        }
+        networkInterface.friendlyName = friendlyName;
     }
-    networkInterface.friendlyName = friendlyName;
 
     if (networkInterface.networkOrSsid != "") { // not a disconnect
         // Add a new network as secured

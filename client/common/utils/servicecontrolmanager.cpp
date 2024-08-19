@@ -196,8 +196,7 @@ bool ServiceControlManager::openService(LPCTSTR serviceName, DWORD desiredAccess
 *          Thus we don't want this method raising an exception thereby 'cancelling'
 *          the first exception.
 *******************************************************************************/
-void
-ServiceControlManager::closeService() noexcept
+void ServiceControlManager::closeService() noexcept
 {
     if (service_ != NULL) {
         ::CloseServiceHandle(service_);
@@ -224,18 +223,18 @@ ServiceControlManager::closeService() noexcept
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-DWORD
-ServiceControlManager::queryServiceStatus() const
+DWORD ServiceControlManager::queryServiceStatus() const
 {
-    SERVICE_STATUS status;
-    if (::QueryServiceStatus(service_, &status)) {
-        return status.dwCurrentState;
+    std::error_code ec;
+    const auto status = queryServiceStatus(ec);
+
+    if (!ec) {
+        return status;
     }
 
-    DWORD lastError = ::GetLastError();
     std::wostringstream errorMsg;
 
-    switch (lastError) {
+    switch (ec.value()) {
     case ERROR_ACCESS_DENIED:
         errorMsg << "queryServiceStatus: insufficient user rights to query the service - " << serviceName_;
         break;
@@ -245,11 +244,24 @@ ServiceControlManager::queryServiceStatus() const
         break;
 
     default:
-        errorMsg << "queryServiceStatus failed to query the service " << serviceName_ << " - " << lastError;
+        errorMsg << "queryServiceStatus failed to query the service " << serviceName_ << " - " << ec.value();
         break;
     }
 
-    throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
+    throw std::system_error(ec, wstring_to_string(errorMsg.str()));
+}
+
+DWORD ServiceControlManager::queryServiceStatus(std::error_code& ec) const noexcept
+{
+    ec.clear();
+
+    SERVICE_STATUS status;
+    if (::QueryServiceStatus(service_, &status)) {
+        return status.dwCurrentState;
+    }
+
+    ec.assign(::GetLastError(), std::system_category());
+    return 0;
 }
 
 /******************************************************************************
@@ -300,7 +312,8 @@ void ServiceControlManager::queryServiceConfig(std::wstring &exePath, std::wstri
                 break;
             }
 
-            buffer.reset(new unsigned char[numBytesNeeded]);
+            bufferSize = numBytesNeeded;
+            buffer.reset(new unsigned char[bufferSize]);
             numBytesNeeded = 0;
             secondTry = true;
             continue;
@@ -340,49 +353,14 @@ void ServiceControlManager::queryServiceConfig(std::wstring &exePath, std::wstri
 *******************************************************************************/
 void ServiceControlManager::startService()
 {
-    if (blockStartStopRequests_) {
-        throw std::system_error(ERROR_CANCELLED, std::system_category(), std::string("startService: ") + wstring_to_string(serviceName_));
+    std::error_code ec;
+    if (startService(ec)) {
+        return;
     }
 
     std::wostringstream errorMsg;
 
-    ULONGLONG elapsedTime;
-    ULONGLONG startTime = ::GetTickCount64();
-
-    if (::StartService(service_, 0, NULL)) {
-        // Wait for start service command to complete.
-        for (int i = 0; !blockStartStopRequests_ && i < 200; i++) {
-            DWORD status = queryServiceStatus();
-            if (status == SERVICE_RUNNING) {
-                return;
-            }
-
-            if (status != SERVICE_START_PENDING) {
-                errorMsg << "startService(" << serviceName_ << ") API request succeeded, but the service aborted its startup";
-                throw std::system_error(ERROR_SERVICE_NOT_ACTIVE, std::system_category(), wstring_to_string(errorMsg.str()));
-            }
-
-            ::Sleep(100);
-        }
-
-        if (blockStartStopRequests_) {
-            throw std::system_error(ERROR_CANCELLED, std::system_category(), std::string("startService: ") + wstring_to_string(serviceName_));
-        }
-
-        elapsedTime = ::GetTickCount64() - startTime;
-        errorMsg << "startService(" << serviceName_ << ") API request succeeded, but the service did not report as running after " << elapsedTime << "ms";
-        throw std::system_error(ERROR_SERVICE_START_HANG, std::system_category(), wstring_to_string(errorMsg.str()));
-    }
-
-    elapsedTime = ::GetTickCount64() - startTime;
-
-    DWORD lastError = ::GetLastError();
-
-    if (lastError == ERROR_SERVICE_ALREADY_RUNNING) {
-        return;
-    }
-
-    switch (lastError) {
+    switch (ec.value()) {
     case ERROR_ACCESS_DENIED:
         errorMsg << "startService: insufficient user rights to request the service to start - " << serviceName_;
         break;
@@ -424,15 +402,68 @@ void ServiceControlManager::startService()
         break;
 
     case ERROR_SERVICE_REQUEST_TIMEOUT:
-        errorMsg << "startService(" << serviceName_ << ") API request failed after " << elapsedTime << "ms";
+        errorMsg << "startService: request timed out - " << serviceName_;
+        break;
+
+    case ERROR_SERVICE_NOT_ACTIVE:
+        errorMsg << "startService: request succeeded, but the service aborted its startup - " << serviceName_;
+        break;
+
+    case ERROR_SERVICE_START_HANG:
+        errorMsg << "startService: request succeeded, but the service did not report as running within the timeout period - " << serviceName_;
         break;
 
     default:
-        errorMsg << "startService failed to start the service " << serviceName_ << " - " << lastError;
+        errorMsg << "startService failed to start the service " << serviceName_ << " - " << ec.value();
         break;
     }
 
-    throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
+    throw std::system_error(ec, wstring_to_string(errorMsg.str()));
+}
+
+bool ServiceControlManager::startService(std::error_code& ec) noexcept
+{
+    ec.clear();
+
+    if (blockStartStopRequests_) {
+        ec.assign(ERROR_CANCELLED, std::system_category());
+        return false;
+    }
+
+    DWORD lastError;
+    if (::StartService(service_, 0, NULL)) {
+        // Wait for start service command to complete.
+        for (int i = 0; !blockStartStopRequests_ && i < 200; i++) {
+            DWORD status = queryServiceStatus(ec);
+            if (ec) {
+                return false;
+            }
+
+            if (status == SERVICE_RUNNING) {
+                return true;
+            }
+
+            if (status != SERVICE_START_PENDING) {
+                ec.assign(ERROR_SERVICE_NOT_ACTIVE, std::system_category());
+                return false;
+            }
+
+            ::Sleep(100);
+        }
+
+        lastError = (blockStartStopRequests_ ? ERROR_CANCELLED : ERROR_SERVICE_START_HANG);
+        ec.assign(lastError, std::system_category());
+        return false;
+    }
+
+    lastError = ::GetLastError();
+
+    if (lastError == ERROR_SERVICE_ALREADY_RUNNING) {
+        return true;
+    }
+
+    ec.assign(lastError, std::system_category());
+    return false;
 }
 
 /******************************************************************************
@@ -448,9 +479,7 @@ void ServiceControlManager::startService()
 void ServiceControlManager::stopService()
 {
     std::error_code ec;
-    auto result = stopService(ec);
-
-    if (result) {
+    if (stopService(ec)) {
         return;
     }
 
@@ -478,7 +507,7 @@ void ServiceControlManager::stopService()
         break;
 
     case ERROR_SERVICE_REQUEST_TIMEOUT:
-        errorMsg << "stopService: " << serviceName_;
+        errorMsg << "stopService: request timed out - " << serviceName_;
         break;
 
     default:
@@ -507,7 +536,10 @@ bool ServiceControlManager::stopService(std::error_code& ec) noexcept
         // Wait at most 20 seconds for the service to stop.
         for (int i = 0; (!blockStartStopRequests_ && (currentState != SERVICE_STOPPED) && (i < 200)); i++) {
             ::Sleep(100);
-            currentState = queryServiceStatus();
+            currentState = queryServiceStatus(ec);
+            if (ec) {
+                return false;
+            }
         }
 
         if (currentState == SERVICE_STOPPED) {
@@ -718,8 +750,7 @@ bool ServiceControlManager::deleteService(LPCTSTR serviceName, std::error_code& 
 *
 * THROWS:  A system_error object.
 *******************************************************************************/
-bool
-ServiceControlManager::isServiceInstalled(LPCTSTR serviceName) const
+bool ServiceControlManager::isServiceInstalled(LPCTSTR serviceName) const
 {
     if (serviceName == NULL) {
         throw std::system_error(ERROR_INVALID_NAME, std::system_category(), "isServiceInstalled: the service name parameter cannot be null");

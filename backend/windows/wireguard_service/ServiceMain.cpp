@@ -3,7 +3,6 @@
 #include <tlhelp32.h>
 
 #include <chrono>
-#include <codecvt>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -277,12 +276,6 @@ int wmain(int argc, wchar_t *argv[])
     //    ::QueueUserAPC(stopMonitorThread, hMonitorThread.getHandle(), 0);
     //    hMonitorThread.wait(5000);
     //}
-
-    // Delete the config file.
-    dwAttrib = ::GetFileAttributes(configFile.c_str());
-    if (dwAttrib != INVALID_FILE_ATTRIBUTES) {
-        ::DeleteFile(configFile.c_str());
-    }
 
     debugOut("Windscribe WireGuard service stopped");
 

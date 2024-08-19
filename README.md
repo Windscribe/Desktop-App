@@ -164,7 +164,7 @@ The repository contains Dockerfile to simplify building process. Skip all the ot
 ```
 - Install vcpkg:
 ```bash
-  sudo docker run --rm -v .:/w ws-builder /bin/bash -c "git clone https://github.com/Microsoft/vcpkg.git && git checkout 576379156e82da642f8d1834220876759f13534d && ./vcpkg/bootstrap-vcpkg.sh --disableMetrics"
+  sudo docker run --rm -v .:/w ws-builder /bin/bash -c "git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg && git checkout 576379156e82da642f8d1834220876759f13534d && ./bootstrap-vcpkg.sh --disableMetrics"
 ```
 - Build all the dependencies:
 ```bash

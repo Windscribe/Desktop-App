@@ -8,7 +8,7 @@ const int typeIdProxySettings = qRegisterMetaType<types::ProxySettings>("types::
 
 namespace types {
 
-ProxySettings::ProxySettings(): option_(PROXY_OPTION_NONE), port_(0)
+ProxySettings::ProxySettings() : option_(PROXY_OPTION_NONE), port_(0)
 {
 }
 
@@ -21,7 +21,7 @@ ProxySettings::ProxySettings(PROXY_OPTION option, const QString &address, uint p
     username_ = username;
 }
 
-ProxySettings::ProxySettings(const QJsonObject &json)
+ProxySettings::ProxySettings(const QJsonObject &json) : option_(PROXY_OPTION_NONE), port_(0)
 {
     if (json.contains(kJsonOptionProp) && json[kJsonOptionProp].isDouble()) {
         option_ = PROXY_OPTION_fromInt(json[kJsonOptionProp].toInt());

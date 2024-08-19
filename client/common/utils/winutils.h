@@ -14,6 +14,7 @@ namespace WinUtils
     bool isWindows10orGreater();
     bool isOSCompatible();
     bool isDohSupported();
+    QString getSystemDir();
     QString getWinVersionString();
     void getOSVersionAndBuild(QString &osVersion, QString &build);
     QMap<QString,QString> enumerateInstalledProgramIconLocations();

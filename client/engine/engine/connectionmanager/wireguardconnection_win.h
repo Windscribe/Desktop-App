@@ -40,8 +40,6 @@ private slots:
     void onAutomaticConnectionTimeout();
 
 private:
-    QString getConfigPath() const;
-
     static constexpr int kTimeoutForGetStats     = 5000;  // 5s timeout for the requesting send/recv stats from helper
     static constexpr int kTimeoutForCheckService = 5000;  // 5s timeout for the checking if the WG service is running
     static constexpr int kTimeoutForLogUpdate    = 250;   // 250ms timeout for getting log updates from the ring logger
@@ -59,6 +57,7 @@ private:
 private:
     void onTunnelConnected();
     void onWireguardHandshakeFailure();
+    void resetLogReader();
     bool startService();
     void stopService();
     void stop();

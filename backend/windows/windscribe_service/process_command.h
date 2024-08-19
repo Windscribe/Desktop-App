@@ -81,6 +81,7 @@ MessagePacketResult createOpenVPNAdapter(boost::archive::text_iarchive &ia);
 MessagePacketResult removeOpenVPNAdapter(boost::archive::text_iarchive &ia);
 MessagePacketResult disableDohSettings(boost::archive::text_iarchive &ia);
 MessagePacketResult enableDohSettings(boost::archive::text_iarchive &ia);
+MessagePacketResult ssidFromInterfaceGUID(boost::archive::text_iarchive &ia);
 
 static const std::map<const int, std::function<MessagePacketResult(boost::archive::text_iarchive &)>> kCommands = {
     { AA_COMMAND_FIREWALL_ON, firewallOn },
@@ -135,7 +136,8 @@ static const std::map<const int, std::function<MessagePacketResult(boost::archiv
     { AA_COMMAND_CREATE_OPENVPN_ADAPTER, createOpenVPNAdapter },
     { AA_COMMAND_REMOVE_OPENVPN_ADAPTER, removeOpenVPNAdapter },
     { AA_COMMAND_DISABLE_DOH_SETTINGS, disableDohSettings },
-    { AA_COMMAND_ENABLE_DOH_SETTINGS, enableDohSettings }
+    { AA_COMMAND_ENABLE_DOH_SETTINGS, enableDohSettings },
+    { AA_COMMAND_SSID_FROM_INTERFACE_GUID, ssidFromInterfaceGUID }
 };
 
 MessagePacketResult processCommand(int cmdId, const std::string &packet);

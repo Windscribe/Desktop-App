@@ -26,12 +26,36 @@ public:
 
     std::string platformName() const { return platformName_; }
 
+    void setBasePlatform(const std::string &platform)
+    {
+        basePlatform_ = platform;
+    }
+
+    std::string basePlatform() const { return basePlatform_; }
+
+
+    void setDeviceId(const std::string &deviceId)
+    {
+        deviceId_ = deviceId;
+    }
+
+    std::string deviceId() const { return deviceId_; }
+
+
     void setAppVersion(const std::string &appVersion)
     {
         appVersion_ = appVersion;
     }
 
     std::string appVersion() const { return appVersion_; }
+
+    void setOpenVpnVersion(const std::string &openVpnVersion)
+    {
+        openVpnVersion_ = openVpnVersion;
+    }
+
+    std::string openVpnVersion() const { return openVpnVersion_; }
+
 
     std::string primaryServerDomain() const
     {
@@ -73,7 +97,10 @@ private:
     Settings() {};
     bool isUseStaging_ = false;
     std::string platformName_;
+    std::string basePlatform_;
+    std::string deviceId_;
     std::string appVersion_;
+    std::string openVpnVersion_;
 };
 
 } // namespace wsnet
