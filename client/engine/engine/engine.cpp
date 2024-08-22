@@ -2186,13 +2186,13 @@ void Engine::checkForceDisconnectNode(const QStringList & /*forceDisconnectNodes
 
 void Engine::startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType, uint port)
 {
-    vpnShareController_->startProxySharing(proxySharingType, port);
+    vpnShareController_->activateProxySharing(proxySharingType, port);
     emit proxySharingStateChanged(true, proxySharingType, getProxySharingAddress(), 0);
 }
 
 void Engine::stopProxySharingImpl()
 {
-    vpnShareController_->stopProxySharing();
+    vpnShareController_->deactivateProxySharing();
     emit proxySharingStateChanged(false, PROXY_SHARING_HTTP, "", 0);
 }
 

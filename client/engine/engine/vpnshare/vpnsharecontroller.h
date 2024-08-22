@@ -25,6 +25,9 @@ public:
     void startProxySharing(PROXY_SHARING_TYPE proxyType, uint port);
     void stopProxySharing();
 
+    void activateProxySharing(PROXY_SHARING_TYPE proxyType, uint port);
+    void deactivateProxySharing();
+
     bool isWifiSharingSupported();
     void startWifiSharing(const QString &ssid, const QString &password);
     void stopWifiSharing();
@@ -46,6 +49,9 @@ private slots:
 private:
     QRecursiveMutex mutex_;
     IHelper *helper_;
+    bool bProxySharingActivated_;
+    PROXY_SHARING_TYPE ActivatedProxySharingType_;
+    uint port_;
     HttpProxyServer::HttpProxyServer *httpProxyServer_;
     SocksProxyServer::SocksProxyServer *socksProxyServer_;
 #ifdef Q_OS_WIN
