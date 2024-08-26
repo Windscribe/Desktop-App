@@ -191,7 +191,7 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::pingTest(std::uint32_t timeo
 std::shared_ptr<WSNetCancelableCallback> ServerAPI::notifications(const std::string &authHash, const std::string &pcpid, WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = requests_factory::notifications(authHash, pcpid, cancelableCallback);
+    BaseRequest *request = requests_factory::notifications(authHash, pcpid, Settings::instance().language(), cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }

@@ -806,6 +806,10 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
         <translation>Karta sieciowa może nie obsługiwać tej funkcji. Została ona wyłączona w preferencjach.</translation>
     </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... hmm, jesteś pewien, że się zgadza?</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

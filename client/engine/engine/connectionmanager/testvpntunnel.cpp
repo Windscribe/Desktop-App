@@ -8,7 +8,7 @@
 using namespace wsnet;
 
 TestVPNTunnel::TestVPNTunnel(QObject *parent) : QObject(parent),
-    bRunning_(false), curTest_(1), cmdId_(0), doCustomTunnelTest_(false)
+    bRunning_(false), curTest_(1), doCustomTunnelTest_(false)
 {
 }
 
@@ -97,7 +97,6 @@ void TestVPNTunnel::startTestImpl()
     curTest_ = 1;
     elapsed_.start();
     elapsedOverallTimer_.start();
-    cmdId_++;
     lastTimeForCallWithLog_ = QTime::currentTime();
 
     WS_ASSERT(curRequest_ == nullptr);
@@ -163,7 +162,6 @@ void TestVPNTunnel::doNextPingTest()
 {
     if (bRunning_ && curTest_ >= 1 && curTest_ <= timeouts_.size()) {
         WS_ASSERT(curRequest_ == nullptr);
-        cmdId_++;
 
         if (doCustomTunnelTest_) {
             curRequest_ = callPingTest(timeouts_[curTest_ - 1]);

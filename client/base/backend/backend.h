@@ -159,8 +159,7 @@ private slots:
 
     void onEngineDetectionCpuUsageAfterConnected(QStringList list);
 
-    void onEngineRequestUsername();
-    void onEngineRequestPassword();
+    void onEngineRequestUsernameAndPassword(const QString &username);
     void onEngineRequestPrivKeyPassword();
 
     void onEngineInternetConnectivityChanged(bool connectivity);
@@ -219,7 +218,7 @@ signals:
     void webSessionTokenForAddEmail(const QString &temp_session_token);
     void webSessionTokenForManageRobertRules(const QString &temp_session_token);
 
-    void requestCustomOvpnConfigCredentials();
+    void requestCustomOvpnConfigCredentials(const QString &username);
     void requestCustomOvpnConfigPrivKeyPassword();
 
     void sessionDeleted();

@@ -16,6 +16,7 @@ public:
     void updateScaling() override;
 
     QString text() const;
+    void setLineEditText(const QString &text);
     void clear();
 
 signals:

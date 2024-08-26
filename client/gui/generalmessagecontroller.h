@@ -28,7 +28,9 @@ public:
                      std::function<void(bool)> tertiaryFunc = std::function<void(bool)>(nullptr),
                      GeneralMessage::Flags flags = GeneralMessage::Flags::kNone,
                      const QString &learnMoreUrl = "");
+
     void showCredentialPrompt(const QString &icon, const QString &title, const QString &desc,
+                              const QString &username,
                               const QString &acceptText,
                               const QString &rejectText = "",
                               const QString &tertiaryText = "",

@@ -148,8 +148,7 @@ signals:
     void setRobertFilterFinished(bool success);
     void syncRobertFinished(bool success);
 
-    void requestUsername();
-    void requestPassword();
+    void requestUsernameAndPassword(const QString &username);
     void requestPrivKeyPassword();
 
     void emergencyConnected();

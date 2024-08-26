@@ -87,8 +87,7 @@ void Backend::init()
     connect(engine_, &Engine::logoutFinished, this, &Backend::onEngineLogoutFinished);
     connect(engine_, &Engine::gotoCustomOvpnConfigModeFinished, this, &Backend::onEngineGotoCustomOvpnConfigModeFinished);
     connect(engine_, &Engine::detectionCpuUsageAfterConnected, this, &Backend::onEngineDetectionCpuUsageAfterConnected);
-    connect(engine_, &Engine::requestUsername, this, &Backend::onEngineRequestUsername);
-    connect(engine_, &Engine::requestPassword, this, &Backend::onEngineRequestPassword);
+    connect(engine_, &Engine::requestUsernameAndPassword, this, &Backend::onEngineRequestUsernameAndPassword);
     connect(engine_, &Engine::requestPrivKeyPassword, this, &Backend::onEngineRequestPrivKeyPassword);
     connect(engine_, &Engine::networkChanged, this, &Backend::onEngineNetworkChanged);
     connect(engine_, &Engine::confirmEmailFinished, this, &Backend::onEngineConfirmEmailFinished);
@@ -616,14 +615,9 @@ void Backend::onEngineDetectionCpuUsageAfterConnected(QStringList list)
     emit highCpuUsage(list);
 }
 
-void Backend::onEngineRequestUsername()
+void Backend::onEngineRequestUsernameAndPassword(const QString &username)
 {
-    emit requestCustomOvpnConfigCredentials();
-}
-
-void Backend::onEngineRequestPassword()
-{
-    emit requestCustomOvpnConfigCredentials();
+    emit requestCustomOvpnConfigCredentials(username);
 }
 
 void Backend::onEngineRequestPrivKeyPassword()
@@ -776,7 +770,13 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
             } else { // SECURED
                 if (preferences_.isAutoConnect() && connectStateHelper_.isDisconnected()) {
                     qCDebug(LOG_BASIC) << "Network Whitelisting detected SECURED network -- Connecting..";
-                    sendConnect(PersistentState::instance().lastLocation());
+                    if (PersistentState::instance().lastLocation().isValid()) {
+                        qCDebug(LOG_BASIC) << "Using last location: " << PersistentState::instance().lastLocation().getHashString();
+                        sendConnect(PersistentState::instance().lastLocation());
+                    } else {
+                        qCDebug(LOG_BASIC) << "Using best location: " << locationsModelManager_->getBestLocationId().getHashString();
+                        sendConnect(locationsModelManager_->getBestLocationId());
+                    }
                 }
             }
 

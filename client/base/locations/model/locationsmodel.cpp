@@ -391,41 +391,38 @@ Qt::ItemFlags LocationsModel::flags(const QModelIndex &index) const
 
 QModelIndex LocationsModel::getIndexByLocationId(const LocationID &id) const
 {
+    LocationID lid;
+
     if (!id.isValid()) {
         return QModelIndex();
     }
 
-    if (id.isBestLocation())
-    {
+    if (id.isBestLocation()) {
         auto it = mapLocations_.find(id);
-        if (it != mapLocations_.end())
-        {
+        if (it != mapLocations_.end()) {
             int ind = locations_.indexOf(it.value());
-            return index (ind, 0);
+            return index(ind, 0);
         }
+        // Best location not found.  It's possible this location was a best location but is no longer.
+        // Try it as a regular location
+        lid = id.bestLocationToApiLocation();
+    } else {
+        lid = id;
     }
-    else
-    {
-        auto it = mapLocations_.find(id.toTopLevelLocation());
-        if (it != mapLocations_.end())
-        {
-            int ind = locations_.indexOf(it.value());
 
-            if (id.isTopLevelLocation())
-            {
-                return index (ind, 0);
-            }
-            else
-            {
-                LocationItem *li = it.value();
-                for (int c = 0; c < li->location().cities.size(); ++c)
-                {
-                    if (li->location().cities[c].id == id)
-                    {
-                        QModelIndex locationModelInd = index(ind, 0);
-                        QModelIndex cityModelInd = index(c, 0, locationModelInd);
-                        return cityModelInd;
-                    }
+    auto it = mapLocations_.find(lid.toTopLevelLocation());
+    if (it != mapLocations_.end()) {
+        int ind = locations_.indexOf(it.value());
+
+        if (lid.isTopLevelLocation()) {
+            return index (ind, 0);
+        } else {
+            LocationItem *li = it.value();
+            for (int c = 0; c < li->location().cities.size(); ++c) {
+                if (li->location().cities[c].id == lid) {
+                    QModelIndex locationModelInd = index(ind, 0);
+                    QModelIndex cityModelInd = index(c, 0, locationModelInd);
+                    return cityModelInd;
                 }
             }
         }

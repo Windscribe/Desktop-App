@@ -89,12 +89,18 @@ void HttpNetworkManager_impl::onDnsResolvedImpl(const DnsCacheResult &result)
         return;
     }
 
+    if (request->second.request->timeoutMs() <= result.elapsedMs) {
+        request->second.callbacks->callFinished(request->second.userDataId, (std::uint32_t)utils::since(request->second.startTime).count(), NetworkError::kTimeoutExceed, std::string());
+        requestsMap_.erase(request);
+        return;
+    }
+
     request->second.ips = result.ips;
 
     if (request->second.request->isWhiteListIps())
         whitelistIps(result.ips);
 
-    curlNetworkManager_.executeRequest(request->first, request->second.request, result.ips);
+    curlNetworkManager_.executeRequest(request->first, request->second.request, result.ips, request->second.request->timeoutMs() - result.elapsedMs);
 }
 
 void HttpNetworkManager_impl::onCurlFinishedCallback(std::uint64_t requestId, bool bSuccess)

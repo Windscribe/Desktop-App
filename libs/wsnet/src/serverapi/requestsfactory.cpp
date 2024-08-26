@@ -196,11 +196,12 @@ BaseRequest *requests_factory::pingTest(std::uint32_t timeoutMs, RequestFinished
     return request;
 }
 
-BaseRequest *requests_factory::notifications(const std::string &authHash, const std::string &pcpid, RequestFinishedCallback callback)
+BaseRequest *requests_factory::notifications(const std::string &authHash, const std::string &pcpid, const std::string &language, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
     extraParams["session_auth_hash"] = authHash;
     extraParams["pcpid"] = pcpid;
+    extraParams["lang"] = language;
     return new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "Notifications", extraParams, callback);
 }
 

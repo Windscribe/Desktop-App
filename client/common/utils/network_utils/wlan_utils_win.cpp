@@ -200,16 +200,24 @@ QString WlanUtils_win::getSsidFromHelper(const QString &interfaceGUID) const
     WS_ASSERT(helper_ != nullptr);
     Helper_win *helper_win = static_cast<Helper_win*>(helper_);
 
-    if (warnWLanAPIBlocked) {
-        warnWLanAPIBlocked = false;
-        qCDebug(LOG_BASIC) << "*** the WlanQueryInterface API is blocked on this computer";
-    }
-
     QString ssid;
     DWORD result = helper_win->ssidFromInterfaceGUID(interfaceGUID, ssid);
-    if (result != NO_ERROR && result != ERROR_NOT_FOUND && result != ERROR_INVALID_STATE) {
-        // Will receive these error codes when an adapter is being reset.
-        qCDebug(LOG_BASIC) << "getSsidFromHelper failed with error:" << result;
+    if (result == NO_ERROR) {
+        // Reset this to cover the case where the user has enabled/disabled Location services while the
+        // app is running.
+        warnWLanAPIBlocked = true;
+    }
+    else {
+        if (result == ERROR_ACCESS_DENIED) {
+            if (warnWLanAPIBlocked) {
+                warnWLanAPIBlocked = false;
+                qCDebug(LOG_BASIC) << "*** the WlanQueryInterface API is blocked on this computer. Windscribe will be unable to determine your Wi-Fi SSID until you enable Location services for Windows.";
+            }
+        }
+        else if (result != ERROR_NOT_FOUND && result != ERROR_INVALID_STATE) {
+            // Will receive these error codes when an adapter is being reset.
+            qCDebug(LOG_BASIC) << "getSsidFromHelper failed with error:" << result;
+        }
     }
 
     return ssid;

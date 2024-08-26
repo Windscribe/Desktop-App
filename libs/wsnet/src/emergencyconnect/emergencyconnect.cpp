@@ -3,8 +3,11 @@
 #include <spdlog/spdlog.h>
 #include "failover/failovercontainer.h"
 #include "emergencyconnectendpoint.h"
-#include "settings.h"
 #include "utils/utils.h"
+
+#ifndef FAILOVER_CONTAINER_PUBLIC
+    #include "privatesettings.h"
+#endif
 
 CMRC_DECLARE(wsnet);
 
@@ -34,7 +37,7 @@ std::string EmergencyConnect::ovpnConfig() const
 std::string EmergencyConnect::username() const
 {
 #ifndef FAILOVER_CONTAINER_PUBLIC
-    return Settings::instance().emergencyUsername();
+    return PrivateSettings::instance().emergencyUsername();
 #else
     return std::string();
 #endif
@@ -43,7 +46,7 @@ std::string EmergencyConnect::username() const
 std::string EmergencyConnect::password() const
 {
 #ifndef FAILOVER_CONTAINER_PUBLIC
-    return Settings::instance().emergencyPassword();
+    return PrivateSettings::instance().emergencyPassword();
 #else
     return std::string();
 #endif
@@ -97,8 +100,8 @@ void EmergencyConnect::onDnsResolved(std::uint64_t requestId, const std::string 
         }
 
         std::vector<std::shared_ptr<WSNetEmergencyConnectEndpoint>> endpointsHardcoded;
-        endpointsHardcoded.push_back(std::make_shared<EmergencyConnectEndpoint>(Settings::instance().emergencyIP1(), 1194, Protocol::kUdp));
-        endpointsHardcoded.push_back(std::make_shared<EmergencyConnectEndpoint>(Settings::instance().emergencyIP2(), 1194, Protocol::kUdp));
+        endpointsHardcoded.push_back(std::make_shared<EmergencyConnectEndpoint>(PrivateSettings::instance().emergencyIP1(), 1194, Protocol::kUdp));
+        endpointsHardcoded.push_back(std::make_shared<EmergencyConnectEndpoint>(PrivateSettings::instance().emergencyIP2(), 1194, Protocol::kUdp));
         endpointsHardcoded = utils::randomizeList(endpointsHardcoded);
 
         endpoints.insert(endpoints.end(), endpointsHardcoded.begin(), endpointsHardcoded.end());

@@ -40,7 +40,7 @@ public:
     }
 
     bool initializeImpl(const std::string &basePlatform,  const std::string &platformName, const std::string &appVersion, const std::string &deviceId,
-                        const std::string &openVpnVersion, bool isUseStagingDomains, const std::string &persistentSettings)
+                        const std::string &openVpnVersion, bool isUseStagingDomains, const std::string &language, const std::string &persistentSettings)
     {
         spdlog::info("wsnet version: {}.{}.{}", WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION, WINDSCRIBE_BUILD_VERSION);
 
@@ -62,12 +62,14 @@ public:
         spdlog::info("Use staging domains: {}", isUseStagingDomains);
         spdlog::info("App version: {}", appVersion);
         spdlog::info("OpenVpn version: {}", openVpnVersion);
+        spdlog::info("Language: {}", language);
 
         Settings::instance().setPlatformName(platformName);
         Settings::instance().setAppVersion(appVersion);
         Settings::instance().setBasePlatform(platformName);
         Settings::instance().setDeviceId(deviceId);
         Settings::instance().setOpenVpnVersion(openVpnVersion);
+        Settings::instance().setLanguage(language);
 
         persistentSettings_.reset(new PersistentSettings(persistentSettings));
 
@@ -144,12 +146,12 @@ void WSNet::setLogger(WSNetLoggerFunction loggerFunction, bool debugLog)
 
 bool WSNet::initialize(const std::string &basePlatform,  const std::string &platformName, const std::string &appVersion, const std::string &deviceId,
                        const std::string &openVpnVersion,
-                       bool isUseStagingDomains, const std::string &persistentSettings)
+                       bool isUseStagingDomains, const std::string &language, const std::string &persistentSettings)
 {
     std::lock_guard locker(g_mutex);
     assert(g_wsNet == nullptr);
     g_wsNet.reset(new WSNet_impl);
-    return g_wsNet->initializeImpl(basePlatform, platformName, appVersion, deviceId, openVpnVersion, isUseStagingDomains, persistentSettings);
+    return g_wsNet->initializeImpl(basePlatform, platformName, appVersion, deviceId, openVpnVersion, isUseStagingDomains, language, persistentSettings);
 }
 
 std::shared_ptr<WSNet> WSNet::instance()

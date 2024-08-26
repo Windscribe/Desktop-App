@@ -806,6 +806,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
         <translation>Bộ điều hợp mạng của bạn có thể không hỗ trợ tính năng này. Nó đã bị vô hiệu hóa trong tùy chọn.</translation>
     </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... Hmm, bạn có chắc điều này là chính xác?</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

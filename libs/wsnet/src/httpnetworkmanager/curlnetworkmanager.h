@@ -27,7 +27,7 @@ public:
     bool init();
 
     // the calling party must take care that the requestId's are unique
-    void executeRequest(std::uint64_t requestId, const std::shared_ptr<WSNetHttpRequest> &request, const std::vector<std::string> &ips);
+    void executeRequest(std::uint64_t requestId, const std::shared_ptr<WSNetHttpRequest> &request, const std::vector<std::string> &ips, std::uint32_t timeoutMs);
     void cancelRequest(std::uint64_t requestId);
 
     void setProxySettings(const std::string &address, const std::string &username, const std::string &password);
@@ -93,7 +93,7 @@ private:
     static int curlCloseSocketCallback(void *clientp, curl_socket_t curlfd);
 
 
-    bool setupOptions(RequestInfo *requestInfo, const std::shared_ptr<WSNetHttpRequest> &request, const std::vector<std::string> &ips);
+    bool setupOptions(RequestInfo *requestInfo, const std::shared_ptr<WSNetHttpRequest> &request, const std::vector<std::string> &ips, std::uint32_t timeoutMs);
     bool setupResolveHosts(RequestInfo *requestInfo, const std::shared_ptr<WSNetHttpRequest> &request, const std::vector<std::string> &ips);
     bool setupSslVerification(RequestInfo *requestInfo, const std::shared_ptr<WSNetHttpRequest> &request);
     bool setupProxy(RequestInfo *requestInfo);

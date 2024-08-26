@@ -806,6 +806,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
         <translation>네트워크 어댑터가 이 기능을 지원하지 않을 수 있습니다. 환경 설정에서 비활성화되었습니다.</translation>
     </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... 흠, 이게 맞습니까?</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

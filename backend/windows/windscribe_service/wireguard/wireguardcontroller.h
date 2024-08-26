@@ -20,8 +20,6 @@ public:
 
 private:
     bool is_initialized_ = false;
-
-    std::wstring deviceName_;
     std::wstring exeName_;
 
 private:

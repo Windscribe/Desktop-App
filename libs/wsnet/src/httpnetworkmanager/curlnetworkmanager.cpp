@@ -50,7 +50,7 @@ bool CurlNetworkManager::init()
     return true;
 }
 
-void CurlNetworkManager::executeRequest(std::uint64_t requestId, const std::shared_ptr<WSNetHttpRequest> &request, const std::vector<std::string> &ips)
+void CurlNetworkManager::executeRequest(std::uint64_t requestId, const std::shared_ptr<WSNetHttpRequest> &request, const std::vector<std::string> &ips, std::uint32_t timeoutMs)
 {
     RequestInfo *requestInfo = new RequestInfo();
     requestInfo->id = requestId;
@@ -59,7 +59,7 @@ void CurlNetworkManager::executeRequest(std::uint64_t requestId, const std::shar
 
     if (requestInfo->curlEasyHandle)  {
         std::lock_guard locker(mutex_);
-        if (setupOptions(requestInfo, request, ips)) {
+        if (setupOptions(requestInfo, request, ips, timeoutMs)) {
             activeRequests_[requestId] = requestInfo;
             condition_.notify_all();
             curl_multi_wakeup(multiHandle_);
@@ -240,7 +240,7 @@ int CurlNetworkManager::curlCloseSocketCallback(void *clientp, curl_socket_t cur
     return CURL_SOCKOPT_OK;
 }
 
-bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::shared_ptr<WSNetHttpRequest> &request, const std::vector<std::string> &ips)
+bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::shared_ptr<WSNetHttpRequest> &request, const std::vector<std::string> &ips, std::uint32_t timeoutMs)
 {
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_WRITEFUNCTION, writeDataCallback) != CURLE_OK) return false;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_WRITEDATA, requestInfo) != CURLE_OK) return false;
@@ -256,7 +256,7 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
 
     // Required for android only.
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) return false;
-    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CONNECTTIMEOUT_MS , request->timeoutMs()) != CURLE_OK) return false;
+    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CONNECTTIMEOUT_MS , timeoutMs) != CURLE_OK) return false;
 
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_XFERINFOFUNCTION, progressCallback) != CURLE_OK) return false;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_XFERINFODATA, requestInfo) != CURLE_OK) return false;

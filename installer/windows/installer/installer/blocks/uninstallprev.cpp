@@ -78,11 +78,13 @@ int UninstallPrev::executeStep()
         state_++;
         return 60;
     } else if (state_ == 2) {
+        if (isFactoryReset_) {
+            doFactoryReset();
+        }
+
         wstring uninstallString = getUninstallString();
         if (!uninstallString.empty()) {
-            if (isFactoryReset_) {
-                doFactoryReset();
-            } else {
+            if (!isFactoryReset_) {
                 QSettings reg(QString::fromStdWString(ApplicationInfo::appRegistryKey()), QSettings::NativeFormat);
                 reg.setValue("userId", "");
             }

@@ -806,6 +806,10 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
         <translation>Es posible que el adaptador de red no admita esta función. Se ha desactivado en las preferencias.</translation>
     </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... Hmm, ¿estás seguro de que esto es correcto?</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

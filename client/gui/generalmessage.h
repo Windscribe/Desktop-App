@@ -41,8 +41,8 @@ public:
         this->learnMoreUrl = learnMoreUrl;
     }
 
-    explicit GeneralMessage(const QString &icon, const QString &title, const QString &desc, const QString &acceptText,
-                            const QString &rejectText, const QString &tertiaryText,
+    explicit GeneralMessage(const QString &icon, const QString &title, const QString &desc, const QString &username,
+                            const QString &acceptText, const QString &rejectText, const QString &tertiaryText,
                             std::function<void(const QString &, const QString &, bool)> acceptFunc, std::function<void(bool)> rejectFunc,
                             std::function<void(bool)> tertiaryFunc, MainWindowController::WINDOW_ID source, Flags flags)
     {
@@ -50,6 +50,7 @@ public:
         this->icon = icon;
         this->title = title;
         this->desc = desc;
+        this->username = username;
         this->acceptText = acceptText;
         this->rejectText = rejectText;
         this->tertiaryText = tertiaryText;
@@ -75,4 +76,5 @@ public:
     MainWindowController::WINDOW_ID source;
     Flags flags;
     QString learnMoreUrl;
+    QString username;
 };

@@ -371,6 +371,11 @@ bool GeneralMessageItem::isRememberChecked()
     return (acceptButton_->isCheckboxChecked() || checkbox_->isChecked());
 }
 
+void GeneralMessageItem::setUsername(const QString &username)
+{
+    username_->setLineEditText(username);
+}
+
 void GeneralMessageItem::onLanguageChanged()
 {
     checkbox_->setText(tr(kRemember));
@@ -442,7 +447,7 @@ void GeneralMessageItem::clear()
 
 void GeneralMessageItem::focusInEvent(QFocusEvent *event)
 {
-    if (username_) {
+    if (username_ && username_->text().isEmpty()) {
         username_->setFocus();
     } else if (password_) {
         password_->setFocus();

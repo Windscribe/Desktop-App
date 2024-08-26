@@ -14,22 +14,22 @@ bool HttpNetworkManager::init()
     return impl_.init();
 }
 
-std::shared_ptr<WSNetHttpRequest> HttpNetworkManager::createGetRequest(const std::string &url, std::uint16_t timeoutMs, bool isIgnoreSslErrors)
+std::shared_ptr<WSNetHttpRequest> HttpNetworkManager::createGetRequest(const std::string &url, std::uint32_t timeoutMs, bool isIgnoreSslErrors)
 {
     return std::make_shared<HttpRequest>(url, timeoutMs, HttpMethod::kGet, isIgnoreSslErrors);
 }
 
-std::shared_ptr<WSNetHttpRequest> HttpNetworkManager::createPostRequest(const std::string &url, std::uint16_t timeoutMs, const std::string &data, bool isIgnoreSslErrors)
+std::shared_ptr<WSNetHttpRequest> HttpNetworkManager::createPostRequest(const std::string &url, std::uint32_t timeoutMs, const std::string &data, bool isIgnoreSslErrors)
 {
     return std::make_shared<HttpRequest>(url, timeoutMs, HttpMethod::kPost, isIgnoreSslErrors, data);
 }
 
-std::shared_ptr<WSNetHttpRequest> HttpNetworkManager::createPutRequest(const std::string &url, std::uint16_t timeoutMs, const std::string &data, bool isIgnoreSslErrors)
+std::shared_ptr<WSNetHttpRequest> HttpNetworkManager::createPutRequest(const std::string &url, std::uint32_t timeoutMs, const std::string &data, bool isIgnoreSslErrors)
 {
     return std::make_shared<HttpRequest>(url, timeoutMs, HttpMethod::kPut, isIgnoreSslErrors, data);
 }
 
-std::shared_ptr<WSNetHttpRequest> HttpNetworkManager::createDeleteRequest(const std::string &url, std::uint16_t timeoutMs, bool isIgnoreSslErrors)
+std::shared_ptr<WSNetHttpRequest> HttpNetworkManager::createDeleteRequest(const std::string &url, std::uint32_t timeoutMs, bool isIgnoreSslErrors)
 {
     return std::make_shared<HttpRequest>(url, timeoutMs, HttpMethod::kDelete, isIgnoreSslErrors);
 }

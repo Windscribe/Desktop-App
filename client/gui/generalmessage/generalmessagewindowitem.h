@@ -37,6 +37,8 @@ public:
     void setShowPassword(bool on);
     void clear();
 
+    void setUsername(const QString &username);
+
     bool isRememberChecked();
     GeneralMessageWindow::Shape backgroundShape() const;
     QString username() const;

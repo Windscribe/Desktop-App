@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 #include <mutex>
+#include <optional>
 #include "WSNetDnsResolver.h"
 
 namespace wsnet {
@@ -12,6 +13,7 @@ struct DnsCacheResult
     bool bSuccess;
     std::vector<std::string> ips;
     bool bFromCache;
+    std::uint32_t elapsedMs;
 };
 
 typedef std::function<void(const DnsCacheResult &result)> DnsCacheCallback;
@@ -31,6 +33,8 @@ private:
     std::mutex mutex_;
     std::map<std::string, std::vector<std::string> > cache_;
     std::map<std::uint64_t, std::shared_ptr<WSNetCancelableCallback> > activeRequests_;
+
+    std::optional<std::chrono::time_point<std::chrono::steady_clock> > tunnelTestLastLogTime_;
 
     void onDnsResolved(std::uint64_t id, const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result);
 };

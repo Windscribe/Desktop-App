@@ -33,16 +33,16 @@ class WSNetHttpNetworkManager : public scapix_object<WSNetHttpNetworkManager>
 public:
     virtual ~WSNetHttpNetworkManager() {}
 
-    virtual std::shared_ptr<WSNetHttpRequest> createGetRequest(const std::string &url, std::uint16_t timeoutMs,
+    virtual std::shared_ptr<WSNetHttpRequest> createGetRequest(const std::string &url, std::uint32_t timeoutMs,
                                                                bool isIgnoreSslErrors = false) = 0;
 
-    virtual std::shared_ptr<WSNetHttpRequest> createPostRequest(const std::string &url, std::uint16_t timeoutMs,
+    virtual std::shared_ptr<WSNetHttpRequest> createPostRequest(const std::string &url, std::uint32_t timeoutMs,
                                                                 const std::string &data, bool isIgnoreSslErrors = false) = 0;
 
-    virtual std::shared_ptr<WSNetHttpRequest> createPutRequest(const std::string &url, std::uint16_t timeoutMs,
+    virtual std::shared_ptr<WSNetHttpRequest> createPutRequest(const std::string &url, std::uint32_t timeoutMs,
                                                                const std::string &data, bool isIgnoreSslErrors = false) = 0;
 
-    virtual std::shared_ptr<WSNetHttpRequest> createDeleteRequest(const std::string &url, std::uint16_t timeoutMs,
+    virtual std::shared_ptr<WSNetHttpRequest> createDeleteRequest(const std::string &url, std::uint32_t timeoutMs,
                                                                   bool isIgnoreSslErrors = false) = 0;
 
     std::shared_ptr<WSNetCancelableCallback> executeRequest(const std::shared_ptr<WSNetHttpRequest> &request, std::uint64_t requestId,

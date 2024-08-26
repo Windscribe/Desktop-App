@@ -806,6 +806,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
         <translation>Adaptor jaringan Anda mungkin tidak mendukung fitur ini. Ini telah dinonaktifkan dalam preferensi.</translation>
     </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... Hmm apakah Anda yakin ini benar?</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

@@ -7,13 +7,13 @@ namespace wsnet {
 class HttpRequest : public WSNetHttpRequest
 {
 public:
-    HttpRequest(const std::string &url, std::uint16_t timeoutMs, HttpMethod httpMethod,
+    HttpRequest(const std::string &url, std::uint32_t timeoutMs, HttpMethod httpMethod,
                 bool isIgnoreSslErrors, const std::string &postData = std::string());
 
     virtual ~HttpRequest();
 
     std::string url() const override;
-    std::uint16_t timeoutMs() const override;
+    std::uint32_t timeoutMs() const override;
     std::string postData() const override;
     HttpMethod method() const override;
 

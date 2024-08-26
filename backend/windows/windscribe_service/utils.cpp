@@ -614,7 +614,7 @@ std::string ssidFromInterfaceGUID(const std::wstring &interfaceGUID)
     HANDLE hClient = NULL;
     auto result = pfnWlanOpenHandle(2, NULL, &dwCurVersion, &hClient);
     if (result != ERROR_SUCCESS) {
-        throw std::system_error(::GetLastError(), std::generic_category(), "WlanOpenHandle failed");
+        throw std::system_error(result, std::generic_category(), "WlanOpenHandle failed");
     }
 
     PWLAN_CONNECTION_ATTRIBUTES pConnectInfo = NULL;
@@ -635,7 +635,7 @@ std::string ssidFromInterfaceGUID(const std::wstring &interfaceGUID)
     result = pfnWlanQueryInterface(hClient, &actualGUID, wlan_intf_opcode_current_connection, NULL,
                                    &connectInfoSize, (PVOID *) &pConnectInfo, &opCode);
     if (result != ERROR_SUCCESS) {
-        throw std::system_error(::GetLastError(), std::generic_category(), "WlanQueryInterface failed");
+        throw std::system_error(result, std::generic_category(), "WlanQueryInterface failed");
     }
 
     std::string ssid;

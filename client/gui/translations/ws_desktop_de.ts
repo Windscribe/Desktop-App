@@ -806,6 +806,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
         <translation>Ihr Netzwerkadapter unterstützt diese Funktion möglicherweise nicht. Es wurde in den Einstellungen deaktiviert.</translation>
     </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... Hmm, bist du sicher, dass das richtig ist?</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

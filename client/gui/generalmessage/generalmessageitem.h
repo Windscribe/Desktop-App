@@ -42,6 +42,7 @@ public:
     void setShowPassword(bool on);
 
     bool isRememberChecked();
+    void setUsername(const QString &username);
     QString username() const;
     QString password() const;
     void clear();

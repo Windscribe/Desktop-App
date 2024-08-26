@@ -52,8 +52,9 @@ void GeneralMessageController::showMessage(const QString &icon, const QString &t
     showMessage(new GeneralMessage(icon, title, desc, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, getSource(), flags, learnMoreUrl));
 }
 
-void GeneralMessageController::showCredentialPrompt(const QString &icon, const QString &title, const QString &desc, const QString &acceptText,
-                                                    const QString &rejectText, const QString &tertiaryText, std::function<void(const QString &, const QString &, bool)> acceptFunc,
+void GeneralMessageController::showCredentialPrompt(const QString &icon, const QString &title, const QString &desc, const QString &username,
+                                                    const QString &acceptText, const QString &rejectText, const QString &tertiaryText,
+                                                    std::function<void(const QString &, const QString &, bool)> acceptFunc,
                                                     std::function<void(bool)> rejectFunc, std::function<void(bool)> tertiaryFunc,
                                                     GeneralMessage::Flags flags)
 {
@@ -62,7 +63,7 @@ void GeneralMessageController::showCredentialPrompt(const QString &icon, const Q
         return;
     }
 
-    showMessage(new GeneralMessage(icon, title, desc, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, getSource(), flags));
+    showMessage(new GeneralMessage(icon, title, desc, username, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, getSource(), flags));
 }
 
 void GeneralMessageController::showMessage(GeneralMessage *message)
@@ -110,6 +111,7 @@ void GeneralMessageController::showNext()
         window->setShowUsername(!(message->flags & GeneralMessage::kNoUsername));
         window->setShowPassword(true);
         window->setAcceptText(message->acceptText, true);
+        window->setUsername(message->username);
     } else {
         window->setShowUsername(false);
         window->setShowPassword(false);

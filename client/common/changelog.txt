@@ -1,3 +1,13 @@
+2.11.8 (26/08/2024)
+All:
+   * Added the new parameter language to wsnet library. #1098
+   * Improved an error message when a custom config fails to connect with incorrect credentials. #1081
+   * Fixed scenario where displayed location does not match actual location. #1103
+   * Fixed the timeout calculation in wsnet library. Added additional logs for tunnel tests. #1101, #1097
+Windows:
+   * Fixed factory reset not executed if app is not installed. #1105
+
+
 2.11.7 (19/08/2024)
 All:
    * Improved more JSON validation cases. #1048

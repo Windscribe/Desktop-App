@@ -278,4 +278,9 @@ void GeneralMessageWindowItem::clear()
     contentItem_->clear();
 }
 
+void GeneralMessageWindowItem::setUsername(const QString &username)
+{
+    contentItem_->setUsername(username);
+}
+
 } // namespace GeneralMessage

@@ -2,6 +2,7 @@ target_sources(wsnet PRIVATE
     wsnet.cpp
     advancedparameters.h
     connectstate.h
+    settings.h
 )
 
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/private")

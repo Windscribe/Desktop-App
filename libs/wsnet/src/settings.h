@@ -1,6 +1,9 @@
 #pragma once
 #include <string>
 
+// ADVobfuscator include file
+#include <Lib/MetaString.h>
+
 namespace wsnet {
 
 class Settings
@@ -49,6 +52,13 @@ public:
 
     std::string appVersion() const { return appVersion_; }
 
+    void setLanguage(const std::string &language)
+    {
+        language_ = language;
+    }
+
+    std::string language() const { return language_; }
+
     void setOpenVpnVersion(const std::string &openVpnVersion)
     {
         openVpnVersion_ = openVpnVersion;
@@ -91,7 +101,7 @@ public:
             return "www.windscribe.com";
     }
 
-    std::string serverSharedKey() const { return "952b4412f002315aa50751032fcaab03"; }
+    std::string serverSharedKey() const { return OBFUSCATED("952b4412f002315aa50751032fcaab03"); }
 
 private:
     Settings() {};
@@ -101,6 +111,7 @@ private:
     std::string deviceId_;
     std::string appVersion_;
     std::string openVpnVersion_;
+    std::string language_;
 };
 
 } // namespace wsnet

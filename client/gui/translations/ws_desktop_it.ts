@@ -806,6 +806,10 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
         <translation>La scheda di rete potrebbe non supportare questa funzione. È stato disabilitato nelle preferenze.</translation>
     </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... hmm sei sicuro che questo sia corretto?</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

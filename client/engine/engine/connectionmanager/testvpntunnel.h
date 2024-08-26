@@ -32,7 +32,6 @@ private slots:
 private:
     bool bRunning_;
     int curTest_;
-    quint64 cmdId_;
     QElapsedTimer elapsed_;
     QTime lastTimeForCallWithLog_;
     int testRetryDelay_;

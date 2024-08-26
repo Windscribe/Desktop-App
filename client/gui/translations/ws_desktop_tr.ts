@@ -806,6 +806,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
         <translation>Ağ bağdaştırıcınız bu özelliği desteklemiyor olabilir. Tercihlerde devre dışı bırakıldı.</translation>
     </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... hmm bunun doğru olduğundan emin misin?</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

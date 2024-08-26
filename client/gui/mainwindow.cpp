@@ -2323,12 +2323,13 @@ void MainWindow::onBackendWifiSharingFailed(WIFI_SHARING_ERROR error)
     }
 }
 
-void MainWindow::onBackendRequestCustomOvpnConfigCredentials()
+void MainWindow::onBackendRequestCustomOvpnConfigCredentials(const QString &username)
 {
     GeneralMessageController::instance().showCredentialPrompt(
         "WARNING_WHITE",
         tr("Enter Connection Credentials"),
-        "", // description
+        username.isEmpty() ? "" :  tr("...hmm are you sure this is correct?"), // description
+        username,
         GeneralMessageController::tr(GeneralMessageController::kOk),
         GeneralMessageController::tr(GeneralMessageController::kCancel),
         "", // tertiary text
@@ -2346,6 +2347,7 @@ void MainWindow::onBackendRequestCustomOvpnConfigPrivKeyPassword()
         "WARNING_WHITE",
         tr("Enter Private Key Password"),
         "", // description
+        "", // username
         GeneralMessageController::tr(GeneralMessageController::kOk),
         GeneralMessageController::tr(GeneralMessageController::kCancel),
         "", // tertiary text
@@ -3854,6 +3856,7 @@ void MainWindow::onSelectedLocationChanged()
         }
     }
 
+    PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
     mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
                                                                   selectedLocation_->countryCode(), selectedLocation_->pingTime(),
                                                                   selectedLocation_->locationdId().isCustomConfigsLocation());

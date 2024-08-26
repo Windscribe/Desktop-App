@@ -6,7 +6,7 @@ namespace wsnet {
 struct HttpRequest::Impl
 {
     std::string url;
-    std::uint16_t timeoutMs;
+    std::uint32_t timeoutMs;
     std::string postData;
     HttpMethod httpMethod;
     bool isUseDnsCache = true;
@@ -21,7 +21,7 @@ struct HttpRequest::Impl
     skyr::url skyrUrl;
 };
 
-HttpRequest::HttpRequest(const std::string &url, std::uint16_t timeoutMs, HttpMethod httpMethod, bool isIgnoreSslErrors, const std::string &postData)
+HttpRequest::HttpRequest(const std::string &url, std::uint32_t timeoutMs, HttpMethod httpMethod, bool isIgnoreSslErrors, const std::string &postData)
 {
     pImpl_ = std::make_unique<Impl>();
     pImpl_->url = url;
@@ -42,7 +42,7 @@ std::string HttpRequest::url() const
     return pImpl_->url;
 }
 
-std::uint16_t HttpRequest::timeoutMs() const
+std::uint32_t HttpRequest::timeoutMs() const
 {
     return pImpl_->timeoutMs;
 }

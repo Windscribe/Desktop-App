@@ -30,7 +30,7 @@ public:
     // deviceId - unique device identifier, in particular used for the API StaticIps
     static bool initialize(const std::string &basePlatform,  const std::string &platformName, const std::string &appVersion,
                            const std::string &deviceId, const std::string &openVpnVersion,
-                           bool isUseStagingDomains, const std::string &persistentSettings);
+                           bool isUseStagingDomains, const std::string &language, const std::string &persistentSettings);
     static std::shared_ptr<WSNet> instance();
     static void cleanup();
     static bool isValid();

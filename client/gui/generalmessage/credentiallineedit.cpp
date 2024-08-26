@@ -51,6 +51,11 @@ QString CredentialLineEdit::text() const
     return lineEdit_->text();
 }
 
+void CredentialLineEdit::setLineEditText(const QString &text)
+{
+    lineEdit_->setText(text);
+}
+
 void CredentialLineEdit::updateStyleSheet()
 {
     lineEdit_->setStyleSheet("border-radius: 3px; background: #26ffffff; color: white; padding: 0 8px 0 8px;");

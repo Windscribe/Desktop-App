@@ -12,6 +12,7 @@
 #include "utils/ipvalidation.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/executable_signature/executable_signature.h"
+#include "utils/languagesutil.h"
 #include "connectionmanager/connectionmanager.h"
 #include "connectionmanager/finishactiveconnections.h"
 #include "wireguardconfig/getwireguardconfig.h"
@@ -122,7 +123,7 @@ Engine::Engine() : QObject(nullptr),
                                            AppVersion::instance().semanticVersionString().toStdString(),
                                            GetDeviceId::instance().getDeviceId().toStdString(),
                                            OpenVpnVersionController::instance().getOpenVpnVersion().toStdString(),
-                                           AppVersion::instance().isStaging(), wsnetSettings);
+                                           AppVersion::instance().isStaging(), LanguagesUtil::systemLanguage().toStdString(), wsnetSettings);
     WS_ASSERT(bWsnetSuccess);
 
     WSNet::instance()->apiResourcersManager()->setCallback([this](ApiResourcesManagerNotification notification, LoginResult loginResult, const std::string &errorMessage) {
@@ -1552,10 +1553,11 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
 
         if (connectionManager_->isCustomOvpnConfigCurrentConnection())
         {
+            auto credentials = customOvpnAuthCredentialsStorage_->getAuthCredentials(connectionManager_->getCustomOvpnConfigFileName());
             customOvpnAuthCredentialsStorage_->removeCredentials(connectionManager_->getCustomOvpnConfigFileName());
 
             isNeedReconnectAfterRequestAuth_ = true;
-            emit requestUsername();
+            emit requestUsernameAndPassword(credentials.username);
         }
         else
         {
@@ -1698,7 +1700,7 @@ void Engine::onConnectionManagerRequestUsername(const QString &pathCustomOvpnCon
         connectionManager_->continueWithUsernameAndPassword(c.username, c.password, false);
     } else {
         isNeedReconnectAfterRequestAuth_ = false;
-        emit requestUsername();
+        emit requestUsernameAndPassword(c.username);
     }
 }
 
@@ -1710,7 +1712,7 @@ void Engine::onConnectionManagerRequestPassword(const QString &pathCustomOvpnCon
         connectionManager_->continueWithPassword(c.password, false);
     } else {
         isNeedReconnectAfterRequestAuth_ = false;
-        emit requestPassword();
+        emit requestUsernameAndPassword(c.username);
     }
 }
 

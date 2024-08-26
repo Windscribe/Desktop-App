@@ -886,7 +886,11 @@ MessagePacketResult ssidFromInterfaceGUID(boost::archive::text_iarchive &ia)
     }
     catch (std::system_error &ex) {
         mpr.exitCode = ex.code().value();
-        Logger::instance().out("ssidFromInterfaceGUID - %s", ex.what());
+        if (mpr.exitCode != ERROR_ACCESS_DENIED && mpr.exitCode != ERROR_NOT_FOUND && mpr.exitCode != ERROR_INVALID_STATE) {
+            // Only log 'abnormal' errors so we do not spam the log.  We'll receive ERROR_ACCESS_DENIED if location services
+            // are blocked on the computer, and the other two when an adapter is being reset.
+            Logger::instance().out("ssidFromInterfaceGUID - %s", ex.what());
+        }
     }
 
     return mpr;

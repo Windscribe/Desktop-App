@@ -19,7 +19,7 @@ public:
     virtual ~WSNetHttpRequest() {}
 
     virtual std::string url() const = 0;
-    virtual std::uint16_t timeoutMs() const = 0;
+    virtual std::uint32_t timeoutMs() const = 0;
     virtual std::string postData() const = 0;
     virtual HttpMethod method() const = 0;
     virtual std::string hostname() const = 0;

@@ -806,6 +806,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
         <translation>Je možné, že váš síťový adaptér tuto funkci nepodporuje. V předvolbách byla zakázána.</translation>
     </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... Hmm, jsi si jistý, že je to správně?</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
