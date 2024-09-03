@@ -795,10 +795,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Wi-Fi mati</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>Windscribe telah mendeteksi bahwa Wi-Fi saat ini dimatikan. Untuk menggunakan Hotspot Aman, Wi-Fi harus diaktifkan.</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>Tidak dapat memulai Hotspot Aman</translation>
     </message>
@@ -809,6 +805,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>... Hmm apakah Anda yakin ini benar?</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>Windscribe telah mendeteksi bahwa Wi-Fi saat ini dimatikan. Untuk menggunakan Hotspot Aman, Wi-Fi harus diaktifkan.</translation>
     </message>
 </context>
 <context>

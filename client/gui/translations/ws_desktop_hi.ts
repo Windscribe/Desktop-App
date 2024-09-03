@@ -795,10 +795,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>वाई-फ़ाई बंद है</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>विंडसाइड ने पाया है कि वाई-फाई वर्तमान में बंद है। सुरक्षित हॉटस्पॉट का उपयोग करने के लिए, वाई-फाई चालू होना चाहिए।</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>सुरक्षित हॉटस्पॉट प्रारंभ नहीं कर सका</translation>
     </message>
@@ -809,6 +805,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>... हम्म क्या आपको यकीन है कि यह सही है?</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>विंडसाइड ने पाया है कि वाई-फाई वर्तमान में बंद है। सुरक्षित हॉटस्पॉट का उपयोग करने के लिए, वाई-फ़ाई चालू होना चाहिए.</translation>
     </message>
 </context>
 <context>

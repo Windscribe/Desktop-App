@@ -795,10 +795,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Wi-Fi bị tắt</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>Windscribe đã phát hiện ra rằng Wi-Fi hiện đang bị tắt. Để sử dụng Điểm truy cập bảo mật, bạn nên bật Wi-Fi.</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>Không thể khởi động Secure Hotspot</translation>
     </message>
@@ -809,6 +805,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>... Hmm, bạn có chắc điều này là chính xác?</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>Windscribe đã phát hiện ra rằng Wi-Fi hiện đang bị tắt. Để sử dụng Secure Hotspot, bạn phải bật Wi-Fi.</translation>
     </message>
 </context>
 <context>

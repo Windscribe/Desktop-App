@@ -2303,7 +2303,7 @@ void MainWindow::onBackendWifiSharingFailed(WIFI_SHARING_ERROR error)
         GeneralMessageController::instance().showMessage(
             "WARNING_WHITE",
             tr("Wi-Fi is off"),
-            tr("Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on."),
+            tr("Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on."),
             GeneralMessageController::tr(GeneralMessageController::kOk),
             "",
             "",

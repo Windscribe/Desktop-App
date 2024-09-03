@@ -795,10 +795,6 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>O Wi-Fi está desligado</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>O Windscribe detetou que o Wi-Fi está atualmente desativado. Para utilizar o Hotspot Seguro, o Wi-Fi deve estar ativado.</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>Não foi possível iniciar o Secure Hotspot</translation>
     </message>
@@ -809,6 +805,10 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>... hmm você tem certeza de que isso está correto?</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>O Windscribe detetou que o Wi-Fi está atualmente desativado. Para utilizar o Hotspot Seguro, o Wi-Fi tem de estar ativado.</translation>
     </message>
 </context>
 <context>

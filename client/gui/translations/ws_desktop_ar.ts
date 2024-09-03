@@ -795,10 +795,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>شبكة Wi-Fi متوقفة</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>اكتشف Windscribe أن شبكة Wi-Fi متوقفة عن التشغيل حاليا. لاستخدام نقطة الاتصال الآمنة ، يجب تشغيل Wi-Fi.</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>تعذر بدء تشغيل نقطة اتصال آمنة</translation>
     </message>
@@ -809,6 +805,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>... حسنا ، هل أنت متأكد من صحة ذلك؟</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>اكتشف Windscribe أن شبكة Wi-Fi متوقفة عن التشغيل حاليا. لاستخدام نقطة الاتصال الآمنة، يجب تشغيل Wi-Fi.</translation>
     </message>
 </context>
 <context>

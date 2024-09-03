@@ -795,10 +795,6 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <translation>La conexión Wi-Fi está apagada</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>Windscribe ha detectado que la conexión Wi-Fi está desactivada. Para usar Secure Hotspot, Wi-Fi debe estar activado.</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>No se pudo iniciar Secure Hotspot</translation>
     </message>
@@ -809,6 +805,10 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>... Hmm, ¿estás seguro de que esto es correcto?</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>Windscribe ha detectado que la conexión Wi-Fi está desactivada. Para usar Secure Hotspot, la conexión Wi-Fi debe estar activada.</translation>
     </message>
 </context>
 <context>

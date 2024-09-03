@@ -1,3 +1,11 @@
+2.11.9 (03/09/2024)
+All:
+   * Improved dialog verbiage when secure hotspot is enabled without Wi-Fi. #1005
+   * Fixed the error message when the remember checkbox wasn't ticked on the wrong credentials. #1081
+Windows:
+   * Fixed tunnel tests don't work for WireGuard with firewall enabled. #1094
+
+
 2.11.8 (26/08/2024)
 All:
    * Added the new parameter language to wsnet library. #1098

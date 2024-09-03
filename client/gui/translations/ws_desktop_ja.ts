@@ -795,10 +795,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Wi-Fiがオフになっています</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>Windscribeは、Wi-Fiが現在オフになっていることを検出しました。セキュアホットスポットを使用するには、Wi-Fiをオンにする必要があります。</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>Secure Hotspotを開始できませんでした</translation>
     </message>
@@ -809,6 +805,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>...うーん、これは正しいですか?</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>Windscribeは、Wi-Fiが現在オフになっていることを検出しました。Secure Hotspotを使用するには、Wi-Fiをオンにする必要があります。</translation>
     </message>
 </context>
 <context>

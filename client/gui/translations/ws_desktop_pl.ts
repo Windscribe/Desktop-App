@@ -795,10 +795,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Wi-Fi jest wyłączone</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>Windscribe wykrył, że Wi-Fi jest obecnie wyłączone. Aby korzystać z Bezpiecznego hotspotu, Wi-Fi musi być włączone.</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>Nie można uruchomić bezpiecznego hotspotu</translation>
     </message>
@@ -809,6 +805,10 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>... hmm, jesteś pewien, że się zgadza?</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>Windscribe wykrył, że Wi-Fi jest obecnie wyłączone. Aby korzystać z Bezpiecznego hotspotu, Wi-Fi musi być włączone.</translation>
     </message>
 </context>
 <context>

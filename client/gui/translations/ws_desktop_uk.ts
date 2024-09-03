@@ -795,10 +795,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Вимкнено Wi-Fi</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>Windscribe виявив, що Wi-Fi наразі вимкнено. Щоб використовувати безпечну точку доступу, потрібно ввімкнути Wi-Fi.</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>Не вдалося запустити безпечну точку доступу</translation>
     </message>
@@ -809,6 +805,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>... хм, ви впевнені, що це вірно?</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>Windscribe виявив, що Wi-Fi наразі вимкнено. Щоб використовувати безпечну точку доступу, потрібно ввімкнути Wi-Fi.</translation>
     </message>
 </context>
 <context>

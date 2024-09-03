@@ -32,7 +32,8 @@ private:
     HostnamesManager hostnamesManager_;
     SplitTunnelServiceManager splitTunnelServiceManager_;
 
-    AppsIds windscribeExecutableIds_;
+    AppsIds windscribeMainExecutableId_;
+    AppsIds windscribeOtherExecutablesId_;
     AppsIds ctrldExecutableId_;
 
     CMD_CONNECT_STATUS connectStatus_;

@@ -795,10 +795,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Wi-Fi가 꺼져 있습니다.</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>Windscribe에서 Wi-Fi가 현재 꺼져 있음을 감지했습니다. 보안 핫스팟을 사용하려면 Wi-Fi가 켜져 있어야 합니다.</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>보안 핫스팟을 시작할 수 없습니다.</translation>
     </message>
@@ -809,6 +805,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>... 흠, 이게 맞습니까?</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>Windscribe에서 Wi-Fi가 현재 꺼져 있음을 감지했습니다. 보안 핫스팟을 사용하려면 Wi-Fi가 켜져 있어야 합니다.</translation>
     </message>
 </context>
 <context>

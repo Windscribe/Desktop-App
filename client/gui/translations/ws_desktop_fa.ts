@@ -795,10 +795,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Wi-Fi خاموش است</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>Windscribe تشخیص داده است که Wi-Fi در حال حاضر خاموش است. برای استفاده از نقطه اتصال امن، Wi-Fi باید روشن باشد.</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>Secure Hotspot راه اندازی نشد</translation>
     </message>
@@ -809,6 +805,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>... مطمئنی درسته؟</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>Windscribe تشخیص داده است که Wi-Fi در حال حاضر خاموش است. برای استفاده از نقطه اتصال امن، Wi-Fi باید روشن باشد.</translation>
     </message>
 </context>
 <context>

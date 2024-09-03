@@ -795,10 +795,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Wi-Fi kapalı</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>Windscribe, Wi-Fi&apos;nin şu anda kapalı olduğunu tespit etti. Secure Hotspot&apos;u kullanmak için Wi-Fi&apos;nin açık olması gerekir.</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>Secure Hotspot başlatılamadı</translation>
     </message>
@@ -809,6 +805,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>... hmm bunun doğru olduğundan emin misin?</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>Windscribe, Wi-Fi&apos;nin şu anda kapalı olduğunu tespit etti. Secure Hotspot&apos;u kullanmak için Wi-Fi&apos;nin açık olması gerekir.</translation>
     </message>
 </context>
 <context>

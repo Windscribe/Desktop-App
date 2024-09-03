@@ -795,10 +795,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Wi-Fi 已关闭</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>Windscribe 检测到 Wi-Fi 当前已关闭。要使用安全热点，应打开 Wi-Fi。</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>无法启动安全热点</translation>
     </message>
@@ -809,6 +805,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>啊？这好像不对呢</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>Windscribe 检测到 Wi-Fi 当前已关闭。要使用安全热点，必须打开 Wi-Fi。</translation>
     </message>
 </context>
 <context>

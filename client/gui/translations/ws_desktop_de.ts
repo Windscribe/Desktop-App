@@ -795,10 +795,6 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>WLAN ist ausgeschaltet</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>Windscribe hat festgestellt, dass das WLAN derzeit ausgeschaltet ist. Um Secure Hotspot verwenden zu können, sollte Wi-Fi aktiviert sein.</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>Secure Hotspot konnte nicht gestartet werden</translation>
     </message>
@@ -809,6 +805,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>... Hmm, bist du sicher, dass das richtig ist?</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>Windscribe hat festgestellt, dass das WLAN derzeit ausgeschaltet ist. Um Secure Hotspot verwenden zu können, muss Wi-Fi aktiviert sein.</translation>
     </message>
 </context>
 <context>

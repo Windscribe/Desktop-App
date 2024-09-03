@@ -795,10 +795,6 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>Le Wi-Fi est désactivé</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>Windscribe a détecté que le Wi-Fi est actuellement désactivé. Pour utiliser le point d’accès sécurisé, le Wi-Fi doit être activé.</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>Impossible de démarrer le point d’accès sécurisé</translation>
     </message>
@@ -809,6 +805,10 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>... Hmm êtes-vous sûr que c’est correct?</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>Windscribe a détecté que le Wi-Fi est actuellement désactivé. Pour utiliser le point d’accès sécurisé, le Wi-Fi doit être activé.</translation>
     </message>
 </context>
 <context>

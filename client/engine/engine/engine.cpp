@@ -1102,6 +1102,7 @@ void Engine::continueWithUsernameAndPasswordImpl(const QString &username, const 
         if (bSave) {
             customOvpnAuthCredentialsStorage_->setAuthCredentials(connectionManager_->getCustomOvpnConfigFileName(), username, password);
         }
+        lastUsernameForCustomConfig_ = username;
         connectionManager_->continueWithUsernameAndPassword(username, password, isNeedReconnectAfterRequestAuth_);
     }
 }
@@ -1557,7 +1558,7 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
             customOvpnAuthCredentialsStorage_->removeCredentials(connectionManager_->getCustomOvpnConfigFileName());
 
             isNeedReconnectAfterRequestAuth_ = true;
-            emit requestUsernameAndPassword(credentials.username);
+            emit requestUsernameAndPassword(credentials.username.isEmpty() ? lastUsernameForCustomConfig_ : credentials.username);
         }
         else
         {

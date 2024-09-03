@@ -400,4 +400,6 @@ private:
     bool isLoggedIn_ = false;
     bool isFetchingServerCredentials_ = false;
     bool tryLoginNextConnectOrDisconnect_ = false;
+
+    QString lastUsernameForCustomConfig_;
 };

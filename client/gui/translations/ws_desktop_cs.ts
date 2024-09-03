@@ -795,10 +795,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Wi-Fi je vypnutá</translation>
     </message>
     <message>
-        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi should be turned on.</source>
-        <translation>Windscribe zjistil, že Wi-Fi je momentálně vypnutá. Chcete-li používat funkci Secure Hotspot, musí být zapnutá funkce Wi-Fi.</translation>
-    </message>
-    <message>
         <source>Could not start Secure Hotspot</source>
         <translation>Nelze spustit Secure Hotspot</translation>
     </message>
@@ -809,6 +805,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>...hmm are you sure this is correct?</source>
         <translation>... Hmm, jsi si jistý, že je to správně?</translation>
+    </message>
+    <message>
+        <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
+        <translation>Společnost Windscribe zjistila, že Wi-Fi je aktuálně vypnutá. Abyste mohli používat Zabezpečený hotspot, musí být zapnutá Wi-Fi.</translation>
     </message>
 </context>
 <context>
