@@ -127,7 +127,7 @@
     </message>
     <message>
         <source>Emergency connection failure. Try again?</source>
-        <translation>Fallo de conexión de emergencia. ¿Volver a intentarlo?</translation>
+        <translation>Error de conexión de emergencia. ¿Volver a intentarlo?</translation>
     </message>
     <message>
         <source>Can&apos;t access Windscribe.com or login into the app on your restrictive network? Connect to the emergency server that unblocks all of Windscribe.</source>
@@ -295,7 +295,7 @@
     </message>
     <message>
         <source>Color highlighting</source>
-        <translation>Resaltado de color</translation>
+        <translation>Resaltado en color</translation>
     </message>
     <message>
         <source>Export to file...</source>
@@ -366,7 +366,7 @@
     </message>
     <message>
         <source>Your username should not be an email address. Please try again.</source>
-        <translation>Tu nombre de usuario no debe ser una dirección de correo electrónico. Inténtalo de nuevo.</translation>
+        <translation>Tu nombre de usuario no puede ser una dirección de correo electrónico. Inténtalo de nuevo.</translation>
     </message>
     <message>
         <source>Login</source>
@@ -768,19 +768,19 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
-        <translation>No se pudo abrir el archivo para escribir.  Compruebe sus permisos e inténtelo de nuevo.</translation>
+        <translation>No se pudo abrir el archivo para escribir.  Comprueba tus permisos e inténtelo de nuevo.</translation>
     </message>
     <message>
         <source>Enter Connection Credentials</source>
-        <translation>Introduzca las credenciales de conexión</translation>
+        <translation>Introduce las credenciales de conexión</translation>
     </message>
     <message>
         <source>Enter Private Key Password</source>
-        <translation>Ingrese la contraseña de clave privada</translation>
+        <translation>Introduce la contraseña de clave privada</translation>
     </message>
     <message>
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
-        <translation>Windscribe no pudo recuperar la configuración del servidor. Por favor, pruebe con otro protocolo.</translation>
+        <translation>Windscribe no pudo recuperar la configuración del servidor. Por favor, prueba con otro protocolo.</translation>
     </message>
     <message>
         <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
@@ -792,11 +792,11 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Wi-Fi is off</source>
-        <translation>La conexión Wi-Fi está apagada</translation>
+        <translation>La conexión Wi-Fi está desactivada</translation>
     </message>
     <message>
         <source>Could not start Secure Hotspot</source>
-        <translation>No se pudo iniciar Secure Hotspot</translation>
+        <translation>No se pudo iniciar el punto de acceso seguro</translation>
     </message>
     <message>
         <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
@@ -808,7 +808,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
-        <translation>Windscribe ha detectado que la conexión Wi-Fi está desactivada. Para usar Secure Hotspot, la conexión Wi-Fi debe estar activada.</translation>
+        <translation>Windscribe ha detectado que la conexión Wi-Fi está desactivada. Para usar el punto de acceso seguro, la conexión Wi-Fi debe estar activada.</translation>
     </message>
 </context>
 <context>
@@ -895,7 +895,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Jobs</source>
-        <translation>Trabajos</translation>
+        <translation>Empleos</translation>
     </message>
     <message>
         <source>Software Licenses</source>
@@ -1052,7 +1052,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Enter IP or Hostname</source>
-        <translation>Introduzca IP o nombre de host</translation>
+        <translation>Introduce IP o nombre de host</translation>
     </message>
     <message>
         <source>Invalid address</source>
@@ -1075,7 +1075,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Flags</source>
-        <translation>Banderas de países</translation>
+        <translation>Banderas</translation>
     </message>
     <message>
         <source>None</source>
@@ -1766,7 +1766,7 @@ Conéctate primero a una red</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
-        <translation>La dirección de proxy no es válida. Introduzca una dirección IP o un nombre de dominio válidos.</translation>
+        <translation>La dirección de proxy no es válida. Introduce una dirección IP o un nombre de dominio válidos.</translation>
     </message>
     <message>
         <source>Invalid proxy port</source>
@@ -1774,7 +1774,7 @@ Conéctate primero a una red</translation>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>El puerto proxy no es válido. Introduzca un puerto válido en el rango 0-65535.</translation>
+        <translation>El puerto proxy no es válido. Introduce un puerto válido en el rango 0-65535.</translation>
     </message>
 </context>
 <context>
@@ -1902,7 +1902,7 @@ Conéctate primero a una red</translation>
     </message>
     <message>
         <source>Enter the IP and/or hostnames you wish to include in or exclude from the VPN tunnel below.</source>
-        <translation>Ingresa la IP y/o los nombres de dominio que deseas incluir o excluir del túnel VPN a continuación.</translation>
+        <translation>Introduce la IP y/o los nombres de dominio que deseas incluir o excluir del túnel VPN a continuación.</translation>
     </message>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
@@ -1913,7 +1913,7 @@ Conéctate primero a una red</translation>
     <name>PreferencesWindow::SplitTunnelingAppsGroup</name>
     <message>
         <source>There are too many apps in the list. Please remove some before adding more.</source>
-        <translation>Hay demasiadas aplicaciones en la lista. Por favor, elimine algunos antes de añadir más.</translation>
+        <translation>Hay demasiadas aplicaciones en la lista. Por favor, elimine algunas antes de añadir más.</translation>
     </message>
 </context>
 <context>
@@ -2005,7 +2005,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
-        <translation>Incluya o excluya direcciones IP y nombres de host del túnel VPN.</translation>
+        <translation>Incluye o excluye direcciones IP y nombres de host del túnel VPN.</translation>
     </message>
 </context>
 <context>
@@ -2210,7 +2210,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
-        <translation>Tu cuenta original %1 ha expirado. Está prohibido crear varias cuentas para evadir las limitaciones del nivel gratuito. Inicia sesión en la cuenta original y espera hasta que se restablezca el ancho de banda. También puede actualizar a Pro.</translation>
+        <translation>Tu cuenta original %1 ha expirado. Está prohibido crear varias cuentas para evadir las limitaciones de la versión gratuita. Inicia sesión en la cuenta original y espera hasta que se restablezca el ancho de banda. También puede actualizar a Pro.</translation>
     </message>
     <message>
         <source>Your account is disabled for abuse.</source>
@@ -2234,7 +2234,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>One or more files in the Windscribe application bundle have been suspiciously modified. Please re-install Windscribe.</source>
-        <translation>Uno o más archivos del paquete de aplicaciones de Windscribe se han modificado sospechosamente. Por favor, vuelve a instalar Windscribe.</translation>
+        <translation>Uno o más archivos del paquete de la aplicación de Windscribe se han modificado sospechosamente. Por favor, vuelve a instalar Windscribe.</translation>
     </message>
     <message>
         <source>White</source>
@@ -2305,7 +2305,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Please provide a 2FA code</source>
-        <translation>Por favor, proporcione un código 2FA</translation>
+        <translation>Por favor, proporciona un código 2FA</translation>
     </message>
     <message>
         <source>Invalid 2FA code, please try again</source>
@@ -2354,7 +2354,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     <name>UpgradeWidget::UpgradeWidgetItem</name>
     <message>
         <source>GET MORE DATA</source>
-        <translation>OBTENER MÁS DATOS</translation>
+        <translation>OBTÉN MÁS DATOS</translation>
     </message>
     <message>
         <source>EXT CONFIG MODE</source>
