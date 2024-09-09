@@ -500,7 +500,7 @@
     </message>
     <message>
         <source>Could not run updater (Error %1).  Please contact support</source>
-        <translation>No se pudo ejecutar el actualizador (error %1).  Póngase en contacto con el servicio de asistencia</translation>
+        <translation>No se pudo ejecutar el actualizador (error %1).  Ponte en contacto con el servicio de asistencia</translation>
     </message>
     <message>
         <source>Read-only file</source>
@@ -732,7 +732,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
-        <translation>No se puede iniciar el servicio DNS personalizado.  Asegúrese de que no tiene ningún otro servicio de DNS local en ejecución o póngase en contacto con el soporte técnico.</translation>
+        <translation>No se puede iniciar el servicio DNS personalizado.  Asegúrate de que no tiene ningún otro servicio de DNS local en ejecución o ponte en contacto con el soporte técnico.</translation>
     </message>
     <message>
         <source>JSON Files (*.json)</source>
@@ -1479,7 +1479,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>¿Tienes un problema que Garry no puede resolver? Póngase en contacto con el servicio de asistencia humana.</translation>
+        <translation>¿Tienes un problema que Garry no puede resolver? Ponte en contacto con el servicio de asistencia humana.</translation>
     </message>
 </context>
 <context>
@@ -1950,7 +1950,7 @@ Conéctate primero a una red</translation>
 If the reinstall does not help, please contact Windscribe support for assistance.</source>
         <translation>El controlador de túnel dividido no está instalado.  Para habilitar esta función, intenta reinstalar la aplicación Windscribe.
 
-Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe para obtener ayuda.</translation>
+Si la reinstalación no ayuda, ponte en contacto con el soporte de Windscribe para obtener ayuda.</translation>
     </message>
     <message>
         <source>Selected IPs and hostnames will not go through Windscribe when connected.</source>
