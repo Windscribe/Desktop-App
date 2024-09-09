@@ -16,15 +16,15 @@
     <name>QObject</name>
     <message>
         <source>Aborting: app did not start in time</source>
-        <translation>Abortar: la aplicación no se inició a tiempo</translation>
+        <translation>Abortando: la aplicación no se inició a tiempo</translation>
     </message>
     <message>
         <source>Aborting: IPC communication error</source>
-        <translation>Anulación: Error de comunicación IPC</translation>
+        <translation>Abortando: Error de comunicación IPC</translation>
     </message>
     <message>
         <source>Not logged in</source>
-        <translation>No ha iniciado sesión</translation>
+        <translation>No has iniciado sesión</translation>
     </message>
     <message>
         <source>Firewall already on</source>
@@ -40,15 +40,15 @@
     </message>
     <message>
         <source>Already logged in</source>
-        <translation>Ya has iniciado sesión</translation>
+        <translation>Sesión ya iniciada</translation>
     </message>
     <message>
         <source>Already logged out</source>
-        <translation>Ya se ha cerrado la sesión</translation>
+        <translation>Sesión ya cerrada</translation>
     </message>
     <message>
         <source>No update available</source>
-        <translation>No hay actualización disponible</translation>
+        <translation>No hay actualizaciones disponibles</translation>
     </message>
     <message>
         <source>Internet connectivity: %1</source>
@@ -60,11 +60,11 @@
     </message>
     <message>
         <source>Logged out</source>
-        <translation>Cierre de sesión</translation>
+        <translation>Sesión cerrada</translation>
     </message>
     <message>
         <source>Logging in</source>
-        <translation>Iniciar sesión</translation>
+        <translation>Iniciando sesión</translation>
     </message>
     <message>
         <source>Logged in</source>
@@ -88,7 +88,7 @@
     </message>
     <message>
         <source>SSL error</source>
-        <translation>Error SSL</translation>
+        <translation>Error de SSL</translation>
     </message>
     <message>
         <source>Session expired</source>
@@ -96,7 +96,7 @@
     </message>
     <message>
         <source>Rate limited</source>
-        <translation>Tarifa limitada</translation>
+        <translation>Límite de intentos alcanzado</translation>
     </message>
     <message>
         <source>Unknown error</source>
@@ -112,7 +112,7 @@
     </message>
     <message>
         <source>Connected</source>
-        <translation>Conexo</translation>
+        <translation>Conectado</translation>
     </message>
     <message>
         <source>[Network interference]</source>
@@ -124,11 +124,11 @@
     </message>
     <message>
         <source>Connecting</source>
-        <translation>Conectivo</translation>
+        <translation>Conectando</translation>
     </message>
     <message>
         <source>Disconnecting</source>
-        <translation>Desconectar</translation>
+        <translation>Desconectando</translation>
     </message>
     <message>
         <source>Disconnected</source>
@@ -172,7 +172,7 @@
     </message>
     <message>
         <source>On</source>
-        <translation>En</translation>
+        <translation>Encendido</translation>
     </message>
     <message>
         <source>Off</source>
@@ -180,7 +180,7 @@
     </message>
     <message>
         <source>Update error: download failed. Please try again or try a different network.</source>
-        <translation>Error de actualización: error de descarga. Inténtelo de nuevo o pruebe con una red diferente.</translation>
+        <translation>Error de actualización: error al descargar. Inténtalo de nuevo o prueba con una red diferente.</translation>
     </message>
     <message>
         <source>Update error: %1</source>
@@ -196,11 +196,11 @@
     </message>
     <message>
         <source>unavailable</source>
-        <translation>indisponible</translation>
+        <translation>no disponible</translation>
     </message>
     <message>
         <source>Disconnected due to reaching WireGuard key limit.  Use &quot;windscribe-cli keylimit delete&quot; if you want to delete the oldest key instead, and try again.</source>
-        <translation>Desconectado debido a que se alcanzó el límite de teclas de WireGuard.  Usa &quot;windscribe-cli keylimit delete&quot; si quieres eliminar la clave más antigua en su lugar, y vuelve a intentarlo.</translation>
+        <translation>Desconectado debido a que se alcanzó el límite de claves de WireGuard.  Usa &quot;windscribe-cli keylimit delete&quot; si quieres eliminar la clave más antigua en su lugar, y vuelve a intentarlo.</translation>
     </message>
     <message>
         <source>Downloading: %1%</source>
@@ -216,11 +216,11 @@
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
-        <translation>La conexión está en curso.  Usa &apos;windscribe-cli status&apos; para comprobar el estado de la conexión.</translation>
+        <translation>Conexión en curso.  Usa &apos;windscribe-cli status&apos; para comprobar el estado de la conexión.</translation>
     </message>
     <message>
         <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
-        <translation>La desconexión está en curso.  Usa &apos;windscribe-cli status&apos; para comprobar el estado de la conexión.</translation>
+        <translation>Desconexión en curso.  Usa &apos;windscribe-cli status&apos; para comprobar el estado de la conexión.</translation>
     </message>
     <message>
         <source>Firewall is on.</source>
@@ -240,15 +240,15 @@
     </message>
     <message>
         <source>Key limit behavior is set.</source>
-        <translation>Se establece el comportamiento del límite de claves.</translation>
+        <translation>Se ha establecido el comportamiento del límite de claves.</translation>
     </message>
     <message>
         <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>El inicio de sesión está en curso.  Usa &apos;windscribe-cli status&apos; para verificar el estado.</translation>
+        <translation>Inicio de sesión en curso.  Usa &apos;windscribe-cli status&apos; para verificar el estado.</translation>
     </message>
     <message>
         <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>El cierre de sesión está en curso.  Usa &apos;windscribe-cli status&apos; para verificar el estado.</translation>
+        <translation>Cierre de sesión en curso.  Usa &apos;windscribe-cli status&apos; para verificar el estado.</translation>
     </message>
 </context>
 </TS>
