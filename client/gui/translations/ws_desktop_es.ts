@@ -768,7 +768,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
-        <translation>No se pudo abrir el archivo para escribir.  Comprueba tus permisos e inténtelo de nuevo.</translation>
+        <translation>No se pudo abrir el archivo para escribir.  Comprueba tus permisos e inténtalo de nuevo.</translation>
     </message>
     <message>
         <source>Enter Connection Credentials</source>
@@ -1720,7 +1720,7 @@ Conéctate primero a una red</translation>
     </message>
     <message>
         <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>No se pudo iniciar el servidor proxy en el puerto solicitado. Inténtelo de nuevo con un puerto diferente.</translation>
+        <translation>No se pudo iniciar el servidor proxy en el puerto solicitado. Inténtalo de nuevo con un puerto diferente.</translation>
     </message>
     <message>
         <source>Auto</source>
