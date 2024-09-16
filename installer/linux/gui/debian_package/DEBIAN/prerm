@@ -9,7 +9,7 @@ if [ $1 != "upgrade" ]; then
     deluser windscribe || true
     delgroup windscribe || true
 
-    rm -f /opt/windscribe/helper_log.txt
+    rm -rf /var/log/windscribe
     rm -rf /etc/windscribe
     rm -f /usr/bin/windscribe-cli
 fi

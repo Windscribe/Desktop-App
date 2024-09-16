@@ -25,10 +25,12 @@ void Logger::out(const char *str, ...)
     bytesOut += vsnprintf(buf + bytesOut, sizeof(buf) - bytesOut, str, args);
     va_end (args);
 
+    auto res = system("mkdir -p /var/log/windscribe");
+
     if ((bytesOut > 0) && (bytesOut < sizeof(buf)))
     {
         mutex_.lock();
-        FILE* logFile = fopen("/opt/windscribe/helper_log.txt", "a");
+        FILE* logFile = fopen("/var/log/windscribe/helper_log.txt", "a");
         if (logFile != NULL)
         {
             fprintf(logFile, "%s\n", buf);

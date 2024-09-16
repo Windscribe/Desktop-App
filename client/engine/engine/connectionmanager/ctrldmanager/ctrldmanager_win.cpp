@@ -131,6 +131,11 @@ QString CtrldManager_win::getNextStringFromInputBuffer(bool &bSuccess, int &outS
 
 QString CtrldManager_win::getAvailableIp()
 {
+    // reset if we previously failed to find an available IP
+    if (listenIp_.isEmpty()) {
+        listenIp_ = "127.0.0.1";
+    }
+
     if (!AvailablePort::isPortBusy(listenIp_, 53))
         return listenIp_;
 

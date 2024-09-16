@@ -26,6 +26,7 @@ public:
     ~DnsCache();
 
     DnsCacheResult resolve(std::uint64_t id, const std::string &hostname, bool bypassCache = false);
+    void clear();
 
 private:
     WSNetDnsResolver *dnsResolver_;

@@ -8,6 +8,7 @@
 #include "names.h"
 #include "utils/utils.h"
 #include "utils/executable_signature/executable_signature.h"
+#include <boost/process.hpp>
 
 AutoUpdaterHelper_mac::AutoUpdaterHelper_mac()
 {
@@ -132,35 +133,30 @@ const QString AutoUpdaterHelper_mac::mountDmg(const QString &dmgFilename)
     qCDebug(LOG_AUTO_UPDATER) << "Mounting: " << dmgFilename;
 
     // mount
-    QStringList args;
-    args << "attach";
-    args << "" + dmgFilename + "";
-    QProcess mountProcess;
-    mountProcess.start("/usr/bin/hdiutil", args);
-    if (!mountProcess.waitForStarted())
-    {
-        qCDebug(LOG_AUTO_UPDATER) << "Failed to start mounting process";
-        return "";
-    }
-    if (!mountProcess.waitForFinished())
-    {
-        qCDebug(LOG_AUTO_UPDATER) << "Mounting process has failed";
-        return "";
-    }
+    // we use boost::process instead of QProcess here because we encountered
+    // that QProcess has a bug when waiting for the process to finish on MacOS
+    using namespace boost::process;
+    ipstream pipe_stream;
+    child c("/usr/bin/hdiutil", "attach", dmgFilename.toStdString(), std_out > pipe_stream);
 
-    if (mountProcess.exitCode() != 0)
-    {
-        qCDebug(LOG_AUTO_UPDATER) << "Mounting process failed with exit code: " << mountProcess.exitCode();
+    std::string line;
+    std::error_code ec;
+    QStringList lines;
+    while (pipe_stream && std::getline(pipe_stream, line) && !line.empty())
+        lines << QString::fromStdString(line);
+
+    c.wait(ec);
+
+    if (ec.value() != 0) {
+        qCDebug(LOG_AUTO_UPDATER) << "Mounting process failed with exit code: " << ec.value();
         return "";
     }
 
     // parse output for volume mount point
-    const QString mountingOutput = mountProcess.readAll();
-    const QList<QString> lines = mountingOutput.split("\n", Qt::SkipEmptyParts);
     if (lines.length() > 0)
     {
         const QString lastLine = lines[lines.length()-1];
-        QRegularExpression regExp("\\s+");
+        static QRegularExpression regExp("\\s+");
         QStringList entries = lastLine.split(regExp, Qt::SkipEmptyParts);
 
         if (entries.length() > 2)
@@ -173,8 +169,7 @@ const QString AutoUpdaterHelper_mac::mountDmg(const QString &dmgFilename)
         }
     }
 
-    const QString hdiutilOutput = mountProcess.readAllStandardError();
-    qCDebug(LOG_AUTO_UPDATER) << "Failed to mount " << dmgFilename << " hdiutil error output: " << hdiutilOutput;
+    qCDebug(LOG_AUTO_UPDATER) << "Failed to mount " << dmgFilename << " hdiutil error output: " << lines;
 
     return "";
 }
@@ -188,21 +183,11 @@ bool AutoUpdaterHelper_mac::unmountVolume(const QString &volumePath)
     }
 
     // unmount
-    QStringList args;
-    args << "detach";
-    args << "" + volumePath + "";
-    QProcess unmountProcess;
-    unmountProcess.start("/usr/bin/hdiutil", QStringList(args));
-    if (!unmountProcess.waitForStarted())
-    {
-        qCDebug(LOG_AUTO_UPDATER) << "Failed to start unmounting process";
-        return false;
-    }
-    if (!unmountProcess.waitForFinished())
-    {
-        qCDebug(LOG_AUTO_UPDATER) << "Unmounting process has failed";
-        return false;
-    }
+    // we use boost::process instead of QProcess here because we encountered
+    // that QProcess has a bug when waiting for the process to finish on MacOS
+    using namespace boost::process;
+    child c("/usr/bin/hdiutil", "detach", volumePath.toStdString());
+    c.wait();
 
     return true;
 }

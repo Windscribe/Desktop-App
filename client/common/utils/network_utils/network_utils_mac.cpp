@@ -3,7 +3,6 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
-#include <QProcess>
 #include <QRegExp>
 
 #include <arpa/inet.h>

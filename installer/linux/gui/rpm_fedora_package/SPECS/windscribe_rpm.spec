@@ -80,7 +80,7 @@ if [ $1 -eq 0 ]; then
     rm -rf /etc/windscribe/rules.*
     rm -rf /etc/windscribe/*.ovpn
     rm -rf /etc/windscribe/stunnel.conf
-    rm -f /opt/windscribe/helper_log.txt
+    rm -rf /var/log/windscribe
 fi
 
 %files

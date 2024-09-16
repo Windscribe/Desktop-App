@@ -82,6 +82,7 @@ bool SplitTunneling::updateState()
         connectStatus_.isConnected,
         isSplitTunnelActive_,
         isExclude_,
-        connectStatus_.defaultAdapter.adapterName);
+        connectStatus_.defaultAdapter.adapterName,
+        connectStatus_.defaultAdapter.adapterIp);
     return false;
 }

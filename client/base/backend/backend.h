@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QObject>
-#include <QProcess>
 #include <wsnet/WSNet.h>
 
 #include "connectstatehelper.h"

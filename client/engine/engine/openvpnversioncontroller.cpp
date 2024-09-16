@@ -6,7 +6,7 @@
 #ifdef Q_OS_WIN
 #include "utils/winutils.h"
 #else
-#include <QProcess>
+#include "boost/process.hpp"
 #include <QRegExp>
 #endif
 
@@ -66,11 +66,17 @@ void OpenVpnVersionController::detectVersion()
         ovpnVersion_ = QString("%1.%2.%3").arg(parts.at(0), parts.at(1), parts.at(2));
     }
 #else
-    QProcess process;
-    process.setProcessChannelMode(QProcess::MergedChannels);
-    process.start(exe, QStringList() << "--version");
-    process.waitForFinished(-1);
-    QString strAnswer = QString::fromStdString((const char *)process.readAll().constData()).toLower();
+
+    using namespace boost::process;
+    ipstream pipe_stream;
+    child c(exe.toStdString(), "--version", std_out > pipe_stream);
+
+    std::string line;
+    QString strAnswer;
+    while (pipe_stream && std::getline(pipe_stream, line) && !line.empty())
+        strAnswer += QString::fromStdString(line).toLower();
+
+    c.wait();
 
     // parse version from process output
     QRegExp rx("\\d{1,}.\\d{1,}.\\d{1,}");

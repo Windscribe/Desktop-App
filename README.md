@@ -219,7 +219,7 @@ The application installs to `/opt/windscribe`.
 
 ### Logs
 - Client app and location pings: `~/.local/share/Windscribe/Windscribe2`
-- Helper: `/opt/windscribe/helper_log.txt`
+- Helper: `/var/log/windscribe/helper_log.txt`
 
 ## Contributing
 

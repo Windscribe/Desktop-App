@@ -391,7 +391,7 @@ CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
         }
     }
     if (cmd.isCreateLog) {
-        arguments << " --log /opt/windscribe/ctrld.log";
+        arguments << " --log /var/log/windscribe/ctrld.log";
         arguments << " -vv";
     }
 

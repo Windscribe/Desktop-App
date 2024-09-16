@@ -1,6 +1,6 @@
 #include "networkextensionlog_mac.h"
 
-#include <QProcess>
+#include <boost/process.hpp>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonParseError>
@@ -14,42 +14,40 @@ NetworkExtensionLog_mac::NetworkExtensionLog_mac(QObject *parent) : QObject(pare
 
 QMap<time_t, QString> NetworkExtensionLog_mac::collectLogs(const QDateTime &start)
 {
+    using namespace boost::process;
     QMap<time_t, QString> logs;
 
-    QStringList pars;
-    pars << "show";
-    pars << "--predicate" << "messageType == error and (subsystem == \"com.apple.networkextension\")";
-    pars << "--start" << start.toString("yyyy-MM-dd hh:mm:ss");
-    pars << "--style" << "json";
+    ipstream pipe_stream;
+    child c("/usr/bin/log", "show", "--predicate", "messageType == error and (subsystem == \"com.apple.networkextension\")",
+            "--start", start.toString("yyyy-MM-dd hh:mm:ss").toStdString(), "--style", "json",
+            std_out > pipe_stream);
 
-    QProcess process;
-    process.setProcessChannelMode(QProcess::MergedChannels);
-    process.start("log", pars);
+    std::string line;
+    QString answer;
+    while (pipe_stream && std::getline(pipe_stream, line) && !line.empty())
+        answer += QString::fromStdString(line);
 
-    if (process.waitForFinished(10000)) {
-        QJsonParseError errCode;
-        const QJsonDocument doc = QJsonDocument::fromJson(process.readAll(), &errCode);
-        if (errCode.error != QJsonParseError::NoError || !doc.isArray()) {
-            qCDebug(LOG_NETWORK_EXTENSION_MAC) << "Can't parse json from log command";
-            return logs;
-        }
-        for (const QJsonValue &value : doc.array()) {
-            QJsonObject jsonObj = value.toObject();
-            if (!jsonObj.contains("machTimestamp")) {
-                qCDebug(LOG_NETWORK_EXTENSION_MAC) << "Can't parse json from log command (no field machTimestamp)";
-                break;
-            }
-            if (!jsonObj.contains("eventMessage")) {
-                qCDebug(LOG_NETWORK_EXTENSION_MAC) << "Can't parse json from log command (no field eventMessage)";
-                break;
-            }
+    c.wait();
 
-            quint64 t = jsonObj["machTimestamp"].toDouble();
-            logs[t] = jsonObj["eventMessage"].toString();
-        }
+    QJsonParseError errCode;
+    const QJsonDocument doc = QJsonDocument::fromJson(answer.toLocal8Bit(), &errCode);
+    if (errCode.error != QJsonParseError::NoError || !doc.isArray()) {
+        qCDebug(LOG_NETWORK_EXTENSION_MAC) << "Can't parse json from log command";
+        return logs;
     }
-    else {
-        qCDebug(LOG_NETWORK_EXTENSION_MAC) << "log read failed or timed out";
+    for (const QJsonValue &value : doc.array()) {
+        QJsonObject jsonObj = value.toObject();
+        if (!jsonObj.contains("machTimestamp")) {
+            qCDebug(LOG_NETWORK_EXTENSION_MAC) << "Can't parse json from log command (no field machTimestamp)";
+            break;
+        }
+        if (!jsonObj.contains("eventMessage")) {
+            qCDebug(LOG_NETWORK_EXTENSION_MAC) << "Can't parse json from log command (no field eventMessage)";
+            break;
+        }
+
+        quint64 t = jsonObj["machTimestamp"].toDouble();
+        logs[t] = jsonObj["eventMessage"].toString();
     }
 
     return logs;

@@ -66,6 +66,11 @@ void HttpNetworkManager_impl::setWhitelistSocketsCallback(std::shared_ptr<Cancel
     curlNetworkManager_.setWhitelistSocketsCallback(callback);
 }
 
+void HttpNetworkManager_impl::clearDnsCache()
+{
+    dnsCache_.clear();
+}
+
 void HttpNetworkManager_impl::onDnsResolvedCallback(const DnsCacheResult &result)
 {
     boost::asio::post(io_context_, [this, result] {

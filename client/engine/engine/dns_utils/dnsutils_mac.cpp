@@ -2,8 +2,6 @@
 #include "utils/logger.h"
 #include "utils/macutils.h"
 
-#include <QProcess>
-
 namespace DnsUtils
 {
 

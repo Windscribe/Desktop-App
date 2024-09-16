@@ -83,5 +83,12 @@ std::shared_ptr<WSNetCancelableCallback> HttpNetworkManager::setWhitelistSockets
     }
 }
 
+void HttpNetworkManager::clearDnsCache()
+{
+    boost::asio::post(io_context_, [this] {
+        impl_.clearDnsCache();
+    });
+}
+
 } // namespace wsnet
 

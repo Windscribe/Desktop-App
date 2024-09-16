@@ -29,6 +29,8 @@ public:
     void setWhitelistIpsCallback(std::shared_ptr<CancelableCallback<WSNetHttpNetworkManagerWhitelistIpsCallback> > callback);
     void setWhitelistSocketsCallback(std::shared_ptr<CancelableCallback<WSNetHttpNetworkManagerWhitelistSocketsCallback> > callback);
 
+    void clearDnsCache();
+
 private:
     boost::asio::io_context &io_context_;
     DnsCache dnsCache_;

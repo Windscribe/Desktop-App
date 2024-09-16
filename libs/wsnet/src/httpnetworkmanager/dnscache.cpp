@@ -35,6 +35,13 @@ DnsCacheResult DnsCache::resolve(std::uint64_t id, const std::string &hostname, 
     return DnsCacheResult { id, false, std::vector<std::string>(), false };
 }
 
+void DnsCache::clear()
+{
+    std::lock_guard locker(mutex_);
+    cache_.clear();
+    spdlog::info("Clear DNS cache");
+}
+
 void DnsCache::onDnsResolved(std::uint64_t id, const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result)
 {
     std::lock_guard locker(mutex_);

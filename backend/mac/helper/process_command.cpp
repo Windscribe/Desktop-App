@@ -683,8 +683,6 @@ CMD_ANSWER getInterfaceSsid(boost::archive::text_iarchive &ia)
     CMD_ANSWER answer;
     CMD_GET_INTERFACE_SSID cmd;
     ia >> cmd;
-    LOG("Get interface SSID for %s", cmd.interface.c_str());
-
     std::string output;
 
     answer.executed = Utils::executeCommand("/usr/bin/wdutil", {"info"}, &output);
@@ -703,10 +701,8 @@ CMD_ANSWER getInterfaceSsid(boost::archive::text_iarchive &ia)
     while (getline(stream, line)) {
         if (line.find("SSID") != std::string::npos) {
             answer.body = line.substr(line.find(":") + 2);
-            LOG("Found SSID for %s: %s", cmd.interface.c_str(), answer.body.c_str());
             return answer;
         }
     }
-    LOG("No SSID for %s", cmd.interface.c_str());
     return answer;
 }

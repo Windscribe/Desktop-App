@@ -55,6 +55,7 @@ bool FirewallController::enable(bool ipv6, const std::string &rules)
     // reapply split tunneling rules if necessary
     setSplitTunnelIpExceptions(splitTunnelIps_);
     setSplitTunnelAppExceptions();
+    setSplitTunnelIngressRules(defaultAdapterIp_);
 
     return 0;
 }
@@ -88,16 +89,18 @@ void FirewallController::disable()
     Utils::executeCommand("rm", {"-f", "/etc/windscribe/rules.v6"});
 }
 
-void FirewallController::setSplitTunnelingEnabled(bool isConnected, bool isEnabled, bool isExclude, const std::string &defaultAdapter)
+void FirewallController::setSplitTunnelingEnabled(bool isConnected, bool isEnabled, bool isExclude, const std::string &defaultAdapter, const std::string &defaultAdapterIp)
 {
     connected_ = isConnected;
     splitTunnelEnabled_ = isEnabled;
     splitTunnelExclude_ = isExclude;
     prevAdapter_ = defaultAdapter_;
     defaultAdapter_ = defaultAdapter;
+    defaultAdapterIp_ = defaultAdapterIp;
 
     setSplitTunnelIpExceptions(splitTunnelIps_);
     setSplitTunnelAppExceptions();
+    setSplitTunnelIngressRules(defaultAdapterIp_);
 }
 
 void FirewallController::removeExclusiveIpRules()
@@ -131,6 +134,20 @@ void FirewallController::removeInclusiveAppRules()
     if (!prevAdapter_.empty()) {
         Utils::executeCommand("iptables", {"-D", "POSTROUTING", "-t", "nat", "-m", "cgroup", "!", "--cgroup", CGroups::instance().netClassId(), "-o", prevAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag});
     }
+}
+
+void FirewallController::setSplitTunnelIngressRules(const std::string &defaultAdapterIp)
+{
+    if (!connected_ || !splitTunnelEnabled_ || splitTunnelExclude_) {
+        Logger::instance().out("Deleting ingress rules");
+        Utils::executeCommand("iptables", {"-D", "PREROUTING", "-t", "mangle", "-d", defaultAdapterIp.c_str(), "-j", "CONNMARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
+        Utils::executeCommand("iptables", {"-D", "OUTPUT", "-t", "mangle", "-j", "CONNMARK", "--restore-mark", "-m", "comment", "--comment", kTag});
+        return;
+    }
+
+	Logger::instance().out("Adding ingress rules");
+	addRule({"PREROUTING", "-t", "mangle", "-d", defaultAdapterIp.c_str(), "-j", "CONNMARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
+	addRule({"OUTPUT", "-t", "mangle", "-j", "CONNMARK", "--restore-mark", "-m", "comment", "--comment", kTag});
 }
 
 void FirewallController::setSplitTunnelAppExceptions()

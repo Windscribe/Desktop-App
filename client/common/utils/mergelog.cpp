@@ -148,7 +148,7 @@ const QString MergeLog::guiLogLocation()
 const QString MergeLog::serviceLogLocation()
 {
 #if defined(Q_OS_LINUX)
-    return qApp->applicationDirPath() + "/helper_log.txt";
+    return "/var/log/windscribe/helper_log.txt";
 #elif defined(Q_OS_MACOS)
     return "/Library/Logs/com.windscribe.helper.macos/helper_log.txt";
 #else

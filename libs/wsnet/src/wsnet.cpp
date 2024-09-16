@@ -90,7 +90,11 @@ public:
     }
     void setIsConnectedToVpnState(bool isConnected) override
     {
-        connectState_.setIsConnectedToVpnState(isConnected);
+        if (connectState_.isVPNConnected() != isConnected) {
+            connectState_.setIsConnectedToVpnState(isConnected);
+            // When connecting/disconnecting the VPN clear the DNS cache.
+            httpNetworkManager_->clearDnsCache();
+        }
     }
 
     std::string currentPersistentSettings() override

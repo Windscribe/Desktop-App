@@ -23,7 +23,8 @@ public:
         bool isConnected,
         bool isEnabled,
         bool isExclude,
-        const std::string &adapter);
+        const std::string &adapter,
+        const std::string &adapterIp);
     void setSplitTunnelIpExceptions(const std::vector<std::string> &ips);
 
 private:
@@ -35,6 +36,7 @@ private:
     bool splitTunnelExclude_;
     std::vector<std::string> splitTunnelIps_;
     std::string defaultAdapter_;
+    std::string defaultAdapterIp_;
     std::string prevAdapter_;
     std::string netclassid_;
 
@@ -43,5 +45,6 @@ private:
     void removeExclusiveAppRules();
     void removeInclusiveAppRules();
     void setSplitTunnelAppExceptions();
+    void setSplitTunnelIngressRules(const std::string &defaultAdapterIp);
     void addRule(const std::vector<std::string> &args);
 };

@@ -67,7 +67,7 @@ if [ $1 -eq 0 ]; then
     userdel -f windscribe || true
     groupdel -f windscribe || true
     rm -f /usr/bin/windscribe-cli
-    rm -f /opt/windscribe/helper_log.txt
+    rm -f /var/log/windscribe
     rm -rf /etc/windscribe
     rm -rf /opt/windscribe
 fi

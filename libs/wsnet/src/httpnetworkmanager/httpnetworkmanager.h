@@ -38,6 +38,8 @@ public:
     std::shared_ptr<WSNetCancelableCallback> setWhitelistIpsCallback(WSNetHttpNetworkManagerWhitelistIpsCallback whitelistIpsCallback) override;
     std::shared_ptr<WSNetCancelableCallback> setWhitelistSocketsCallback(WSNetHttpNetworkManagerWhitelistSocketsCallback whitelistSocketsCallback) override;
 
+    void clearDnsCache();
+
 private:
     boost::asio::io_context &io_context_;
     HttpNetworkManager_impl impl_;

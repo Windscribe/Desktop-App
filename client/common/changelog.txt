@@ -1,3 +1,21 @@
+2.11.11 (12/09/2024)
+All:
+   * Clear DNS cache in wsnet when connecting or disconnecting to the VPN. #1122
+
+
+2.11.10 (10/09/2024)
+All:
+   * Fixed unable to reach API after failover while connected. Fix in wsnet, treat address 0.0.0.0 a DNS-error. #1122
+Windows:
+   * Fix ctrld not starting even after external DNS service stopped. #1123
+MacOS:
+   * Fixed macOS auto-update process fails to mount installer. #1118
+   * Fixed spammy log when getting SSID. #1126
+Linux:
+   * Fixed some ingress packets are dropped incorrectly when using inclusive split tunneling. #1124
+   * Fixed OpenVPN protocols not working on immutable distros. #1128
+
+
 2.11.9 (03/09/2024)
 All:
    * Improved dialog verbiage when secure hotspot is enabled without Wi-Fi. #1005

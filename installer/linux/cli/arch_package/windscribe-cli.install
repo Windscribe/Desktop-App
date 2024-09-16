@@ -59,6 +59,6 @@ pre_remove() {
         userdel -f windscribe || true
         groupdel -f windscribe || true
         rm -rf /etc/windscribe
-        rm -f /opt/windscribe/helper_log.txt
+        rm -rf /var/log/windscribe
         rm -f /usr/bin/windscribe-cli
 }
