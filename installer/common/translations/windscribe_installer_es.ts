@@ -38,11 +38,11 @@
     </message>
     <message>
         <source>The installation could not be completed successfully. Please contact our Technical Support.</source>
-        <translation>La instalación no se ha podido completar correctamente. Póngase en contacto con nuestro soporte técnico.</translation>
+        <translation>La instalación no se ha podido completar correctamente. Ponte en contacto con nuestro soporte técnico.</translation>
     </message>
     <message>
         <source>Select a folder in the list below and click OK.</source>
-        <translation>Seleccione una carpeta de la lista siguiente y haga clic en Aceptar.</translation>
+        <translation>Selecciona una carpeta de la lista siguiente y haga clic en Aceptar.</translation>
     </message>
     <message>
         <source>The specified installation path is not on the system drive. To ensure the security of the application, and your system, it must be installed on the same drive as Windows. The installation folder has been reset to the default.</source>
@@ -50,7 +50,7 @@
     </message>
     <message>
         <source>OK</source>
-        <translation>De acuerdo</translation>
+        <translation>Aceptar</translation>
     </message>
     <message>
         <source>The installation was cancelled. Administrator privileges are required to install the application.</source>
@@ -58,7 +58,7 @@
     </message>
     <message>
         <source>Windscribe is running and could not be closed. Please close the application manually and try again.</source>
-        <translation>Windscribe está funcionando y no se pudo cerrar. Cierre la aplicación manualmente e inténtelo de nuevo.</translation>
+        <translation>Windscribe está funcionando y no se pudo cerrar. Por favor, cierra la aplicación manualmente e inténtalo de nuevo.</translation>
     </message>
     <message>
         <source>Quit Windscribe Installer?</source>
@@ -66,15 +66,15 @@
     </message>
     <message>
         <source>The installer could not connect to the privileged helper tool. Please try again.</source>
-        <translation>El instalador no se pudo conectar a la herramienta auxiliar con privilegios. Por favor, inténtelo de nuevo.</translation>
+        <translation>El instalador no se pudo conectar a la herramienta auxiliar con privilegios. Por favor, inténtalo de nuevo.</translation>
     </message>
     <message>
         <source>An existing installation of Windscribe could not be removed. Please uninstall the application manually and try again.</source>
-        <translation>No se ha podido eliminar una instalación existente de Windscribe. Desinstale la aplicación manualmente e inténtelo de nuevo.</translation>
+        <translation>No se ha podido eliminar una instalación existente de Windscribe. Desinstala la aplicación manualmente e inténtalo de nuevo.</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>Renunciar</translation>
+        <translation>Salir</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -82,15 +82,15 @@
     </message>
     <message>
         <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
-        <translation>No tiene permisos suficientes para ejecutar esta aplicación. Se requieren privilegios administrativos para instalar Windscribe.</translation>
+        <translation>No tienes permisos suficientes para ejecutar esta aplicación. Se requieren privilegios administrativos para instalar Windscribe.</translation>
     </message>
     <message>
         <source>The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.</source>
-        <translation>No se pudo encontrar el desinstalador de la instalación existente de Windscribe. Desinstale la aplicación manualmente e inténtelo de nuevo.</translation>
+        <translation>No se pudo encontrar el desinstalador de la instalación existente de Windscribe. Desinstala la aplicación manualmente e inténtalo de nuevo.</translation>
     </message>
     <message>
         <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>La carpeta de instalación contiene datos que no se han podido desinstalar. Desinstale la aplicación manualmente e inténtelo de nuevo.</translation>
+        <translation>La carpeta de instalación contiene datos que no se han podido desinstalar. Desinstala la aplicación manualmente e inténtalo de nuevo.</translation>
     </message>
     <message>
         <source>Security Warning</source>
@@ -98,7 +98,7 @@
     </message>
     <message>
         <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
-        <translation>La instalación en una carpeta personalizada puede permitir que un atacante manipule la aplicación Windscribe. Para garantizar la seguridad de la aplicación y de su sistema, le recomendamos encarecidamente que la instale en la ubicación predeterminada de la carpeta &quot;Archivos de programa&quot;. Haga clic en Aceptar para continuar con la carpeta personalizada o en Cancelar para usar la ubicación predeterminada.</translation>
+        <translation>La instalación en una carpeta personalizada podría permitir que un atacante manipule la aplicación de Windscribe. Para garantizar la seguridad de la aplicación y de su sistema, te recomendamos encarecidamente que la instales en la ubicación predeterminada de la carpeta &quot;Archivos de programa&quot;. Haz clic en Aceptar para continuar con la carpeta personalizada o en Cancelar para usar la ubicación predeterminada.</translation>
     </message>
 </context>
 <context>
@@ -117,7 +117,7 @@
     </message>
     <message>
         <source>The Windscribe installer accepts the following optional commmand-line parameters: </source>
-        <translation>El instalador de Windscribe acepta los siguientes parámetros opcionales de commmand-line: </translation>
+        <translation>El instalador de Windscribe acepta los siguientes parámetros opcionales de línea de comandos: </translation>
     </message>
     <message>
         <source>Show this information.</source>
@@ -125,7 +125,7 @@
     </message>
     <message>
         <source>Do not launch the application after installation.</source>
-        <translation>No inicie la aplicación después de la instalación.</translation>
+        <translation>No iniciar la aplicación después de la instalación.</translation>
     </message>
     <message>
         <source>Instructs the installer to skip installing drivers.</source>
@@ -133,7 +133,7 @@
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
-        <translation>Elimine las preferencias, los registros y otros datos existentes, si existen.</translation>
+        <translation>Elimina las preferencias, los registros y otros datos existentes, si existen.</translation>
     </message>
     <message>
         <source>Overrides the default installation directory. Installation directory must be on the system drive.</source>
@@ -169,7 +169,7 @@
     </message>
     <message>
         <source>Use the -help argument to see available arguments and their format.</source>
-        <translation>Utilice el argumento -help para ver los argumentos disponibles y su formato.</translation>
+        <translation>Utiliza el argumento -help para ver los argumentos disponibles y su formato.</translation>
     </message>
     <message>
         <source>The specified installation path is not on the system drive.  To ensure the security of the application, and your system, it must be installed on the same drive as Windows.</source>
@@ -181,7 +181,7 @@
     </message>
     <message>
         <source>Your username should not be an email address. Please try again.</source>
-        <translation>Su nombre de usuario no debe ser una dirección de correo electrónico. Por favor, inténtelo de nuevo.</translation>
+        <translation>Su nombre de usuario no puede ser una dirección de correo electrónico. Por favor, inténtalo de nuevo.</translation>
     </message>
     <message>
         <source>A password was specified but its corresponding username was not provided.</source>
@@ -189,7 +189,7 @@
     </message>
     <message>
         <source>The installer was unable to determine if it is running with administrator rights.  Please report this failure to Windscribe support.</source>
-        <translation>El instalador no pudo determinar si se está ejecutando con derechos de administrador.  Informa de este fallo al servicio de asistencia de Windscribe.</translation>
+        <translation>El instalador no pudo determinar si se está ejecutando con derechos de administrador.  Por favor, informa de este fallo al servicio de asistencia de Windscribe.</translation>
     </message>
     <message>
         <source>Instructs the installer to hide its user interface.</source>
@@ -197,7 +197,7 @@
     </message>
     <message>
         <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
-        <translation>No tiene permisos suficientes para ejecutar esta aplicación. Se requieren privilegios administrativos para instalar Windscribe.</translation>
+        <translation>No tienes permisos suficientes para ejecutar esta aplicación. Se requieren privilegios administrativos para instalar Windscribe.</translation>
     </message>
 </context>
 <context>
@@ -208,7 +208,7 @@
     </message>
     <message>
         <source>OK</source>
-        <translation>De acuerdo</translation>
+        <translation>Aceptar</translation>
     </message>
     <message>
         <source>Factory Reset</source>
