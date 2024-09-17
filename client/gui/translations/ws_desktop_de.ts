@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Clear</source>
-        <translation>Klar</translation>
+        <translation>leeren</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -59,7 +59,7 @@
     </message>
     <message>
         <source> transferred</source>
-        <translation> überführt</translation>
+        <translation> übertragen</translation>
     </message>
     <message>
         <source>Firewall</source>
@@ -71,7 +71,7 @@
     </message>
     <message>
         <source>Connect to rate</source>
-        <translation>Verbinden Sie sich mit dem Tarif</translation>
+        <translation>Verbinden Sie sich zum bewerten</translation>
     </message>
 </context>
 <context>
@@ -92,15 +92,15 @@
     <name>CustomMenuWidget</name>
     <message>
         <source>Undo</source>
-        <translation>Aufmachen</translation>
+        <translation>rückgängig machen</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation>Noch einmal machen</translation>
+        <translation>Wiederholen</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation>Schneiden</translation>
+        <translation>ausschneiden</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -108,7 +108,7 @@
     </message>
     <message>
         <source>Paste</source>
-        <translation>Kleister</translation>
+        <translation>Einfügen</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -123,11 +123,11 @@
     <name>EmergencyConnectWindow::EmergencyConnectWindowItem</name>
     <message>
         <source>Emergency Connect</source>
-        <translation>Notruf</translation>
+        <translation>Notfallverbindung</translation>
     </message>
     <message>
         <source>Emergency connection failure. Try again?</source>
-        <translation>Ausfall der Notfallverbindung. Wiederholen?</translation>
+        <translation>Fehler bei der Notfallverbindung. Wiederholen?</translation>
     </message>
     <message>
         <source>Can&apos;t access Windscribe.com or login into the app on your restrictive network? Connect to the emergency server that unblocks all of Windscribe.</source>
@@ -135,11 +135,11 @@
     </message>
     <message>
         <source>Connecting...</source>
-        <translation>Verbindend...</translation>
+        <translation>Verbindung...</translation>
     </message>
     <message>
         <source>Disconnecting...</source>
-        <translation>Trennend...</translation>
+        <translation>Verbindung wird getrennt...</translation>
     </message>
     <message>
         <source>Connect</source>
@@ -176,7 +176,7 @@
     <name>FreeTrafficNotificationController</name>
     <message>
         <source>You reached %1% of your free bandwidth allowance</source>
-        <translation>Sie haben %1 % Ihrer freien Bandbreite erreicht</translation>
+        <translation>Sie haben %1% Ihrer freien Bandbreite erreicht</translation>
     </message>
 </context>
 <context>
@@ -237,7 +237,7 @@
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Merkliste</translation>
+        <translation>Favoriten</translation>
     </message>
     <message>
         <source>Search</source>
@@ -249,7 +249,7 @@
     </message>
     <message>
         <source>Choose</source>
-        <translation>Wählen</translation>
+        <translation>Auswählen</translation>
     </message>
     <message>
         <source>The selected directory contains no custom configs</source>
@@ -358,7 +358,7 @@
     </message>
     <message>
         <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>Begrenzter Tarif. Bitte warten Sie, bevor Sie erneut versuchen, sich anzumelden.</translation>
+        <translation>Ratenbegrenzung. Bitte warten Sie, bevor Sie erneut versuchen, sich anzumelden.</translation>
     </message>
     <message>
         <source>Session is expired. Please login again</source>
@@ -378,7 +378,7 @@
     </message>
     <message>
         <source>Emergency Connect</source>
-        <translation>Notruf</translation>
+        <translation>Notfallverbindung</translation>
     </message>
     <message>
         <source>External Config</source>
@@ -413,7 +413,7 @@
     </message>
     <message>
         <source>Emergency Connect</source>
-        <translation>Notruf</translation>
+        <translation>Notfallverbindung</translation>
     </message>
     <message>
         <source>External Config</source>
@@ -556,7 +556,7 @@
     </message>
     <message>
         <source>Disconnected</source>
-        <translation>Entfernt</translation>
+        <translation>Getrennt</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -578,7 +578,7 @@
     </message>
     <message>
         <source>Set “%1” as preferred protocol?</source>
-        <translation>Legen Sie &quot;%1&quot; als bevorzugtes Protokoll fest?</translation>
+        <translation>Wollen Sie &quot;%1&quot; als bevorzugtes Protokoll festlegen?</translation>
     </message>
     <message>
         <source>Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.</source>
@@ -630,7 +630,7 @@
     </message>
     <message>
         <source>Debug Sent!</source>
-        <translation>Debuggen gesendet!</translation>
+        <translation>Debug-Protokoll gesendet!</translation>
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
@@ -672,7 +672,7 @@ Genesend...</translation>
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Merkliste</translation>
+        <translation>Favoriten</translation>
     </message>
     <message>
         <source>Static IPs</source>
@@ -696,7 +696,7 @@ Genesend...</translation>
     </message>
     <message>
         <source>Exit</source>
-        <translation>Ausgang</translation>
+        <translation>Beenden</translation>
     </message>
     <message>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
@@ -819,11 +819,11 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>Log Out of Windscribe?</source>
-        <translation>Melden Sie sich von Windscribe ab?</translation>
+        <translation>Aus Windscribe Ausloggen?</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>Verlassen</translation>
+        <translation>Beenden</translation>
     </message>
     <message>
         <source>Log Out</source>
@@ -930,7 +930,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>Reset Date</source>
-        <translation>Datum zurücksetzen</translation>
+        <translation>Datum des Zurücksetzens</translation>
     </message>
     <message>
         <source>Data Left</source>
@@ -957,7 +957,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>Um IPv6 umzuschalten, ist ein Neustart des Computers erforderlich. Tun Sie es jetzt?</translation>
+        <translation>Um IPv6 umzuschalten, ist ein Neustart des Computers erforderlich. wollen Sie es jetzt tun?</translation>
     </message>
     <message>
         <source>Restart later</source>
@@ -965,7 +965,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>Make advanced tweaks to the way the app functions.</source>
-        <translation>Nehmen Sie erweiterte Optimierungen an der Funktionsweise der App vor.</translation>
+        <translation>Nehmen Sie erweiterte Einstellungen an der Funktionsweise der App vor.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
@@ -1067,7 +1067,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
     <message>
         <source>Disconnected</source>
-        <translation>Entfernt</translation>
+        <translation>Getrennt</translation>
     </message>
     <message>
         <source>Connected</source>
@@ -1083,7 +1083,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>Custom</source>
-        <translation>Gewohnheit</translation>
+        <translation>Benutzerdefiniert</translation>
     </message>
     <message>
         <source>App Background</source>
@@ -1098,7 +1098,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>Upstream 1</source>
-        <translation>Stromaufwärts 1</translation>
+        <translation>Verbindung 1</translation>
     </message>
     <message>
         <source>IP/DNS-over-HTTPS/TLS</source>
@@ -1106,7 +1106,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>Upstream 2</source>
-        <translation>Stromaufwärts 2</translation>
+        <translation>Verbindung 2</translation>
     </message>
     <message>
         <source>Split DNS</source>
@@ -1153,7 +1153,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>Split Tunneling</source>
-        <translation>Geteiltes Tunneln</translation>
+        <translation>Split-Tunneling</translation>
     </message>
     <message>
         <source>Proxy Settings</source>
@@ -1258,19 +1258,19 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <name>PreferencesWindow::EmailItem</name>
     <message>
         <source>Sent!</source>
-        <translation>Gesandt!</translation>
+        <translation>Gesendet</translation>
     </message>
     <message>
         <source>Resend</source>
-        <translation>Wieder senden</translation>
+        <translation>Erneut Senden</translation>
     </message>
     <message>
         <source>Sending</source>
-        <translation>Entsendung</translation>
+        <translation>Senden</translation>
     </message>
     <message>
         <source>Failed</source>
-        <translation>Misslungen</translation>
+        <translation>Fehlgeschlagen</translation>
     </message>
     <message>
         <source>Get 10GB/Month of data and gain the ability to reset your password.</source>
@@ -1328,7 +1328,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>Close to Tray</source>
-        <translation>In der Nähe von Tray</translation>
+        <translation>Zur Taskleiste Schließen</translation>
     </message>
     <message>
         <source>Don&apos;t show the Windscribe icon in dock.</source>
@@ -1400,11 +1400,11 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>Choose to receive stable, beta, or experimental builds.</source>
-        <translation>Wählen Sie aus, ob Sie stabile, Beta- oder experimentelle Builds erhalten möchten.</translation>
+        <translation>Wählen Sie aus, ob Sie stabile, Beta- oder experimentelle Versionen erhalten möchten.</translation>
     </message>
     <message>
         <source>Update Channel</source>
-        <translation>Kanal aktualisieren</translation>
+        <translation>Update Kanal</translation>
     </message>
     <message>
         <source>Version</source>
@@ -1467,7 +1467,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>Failed!</source>
-        <translation>Misslungen!</translation>
+        <translation>Fehlgeschlagen</translation>
     </message>
     <message>
         <source>Need help? Garry can help you with most issues, go talk to him.</source>
@@ -1518,7 +1518,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>Auto-Rotate MAC</source>
-        <translation>MAC automatisch drehen</translation>
+        <translation>MAC automatisch Rotieren</translation>
     </message>
 </context>
 <context>
@@ -1678,7 +1678,7 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>Verlassen</translation>
+        <translation>Beenden</translation>
     </message>
 </context>
 <context>
@@ -1697,7 +1697,7 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation>Hafen</translation>
+        <translation>Port</translation>
     </message>
 </context>
 <context>
@@ -1712,7 +1712,7 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation>Hafen</translation>
+        <translation>Port</translation>
     </message>
     <message>
         <source>Unable to start proxy server</source>
@@ -1742,7 +1742,7 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
     <name>PreferencesWindow::ProxySettingsGroup</name>
     <message>
         <source>Proxy</source>
-        <translation>Stellvertreter</translation>
+        <translation>Proxy</translation>
     </message>
     <message>
         <source>Address</source>
@@ -1750,7 +1750,7 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation>Hafen</translation>
+        <translation>Port</translation>
     </message>
     <message>
         <source>Username</source>
@@ -1970,7 +1970,7 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     </message>
     <message>
         <source>Split Tunneling</source>
-        <translation>Geteiltes Tunneln</translation>
+        <translation>Split-Tunneling</translation>
     </message>
     <message>
         <source>Mode</source>
@@ -1978,7 +1978,7 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     </message>
     <message>
         <source>Exclusive</source>
-        <translation>Ausschließlich</translation>
+        <translation>Ausgenommen</translation>
     </message>
     <message>
         <source>Inclusive</source>
@@ -1997,7 +1997,7 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     <name>PreferencesWindow::SplitTunnelingWindowItem</name>
     <message>
         <source>Split Tunneling</source>
-        <translation>Geteiltes Tunneln</translation>
+        <translation>Split-Tunneling</translation>
     </message>
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
@@ -2020,7 +2020,7 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     </message>
     <message>
         <source>Failed</source>
-        <translation>Misslungen</translation>
+        <translation>Fehlgeschlagen</translation>
     </message>
 </context>
 <context>
@@ -2074,7 +2074,7 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     <name>QObject</name>
     <message>
         <source>Custom</source>
-        <translation>Gewohnheit</translation>
+        <translation>Benutzerdefiniert</translation>
     </message>
     <message>
         <source>OS Default</source>
@@ -2098,11 +2098,11 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     </message>
     <message>
         <source>Bars</source>
-        <translation>Gitter</translation>
+        <translation>Balken</translation>
     </message>
     <message>
         <source>ms</source>
-        <translation>Frau</translation>
+        <translation>Latenz</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2118,11 +2118,11 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     </message>
     <message>
         <source>Before Connection</source>
-        <translation>Vor dem Anschließen</translation>
+        <translation>Vor dem Verbinden</translation>
     </message>
     <message>
         <source>After Connection</source>
-        <translation>Nach dem Anschließen</translation>
+        <translation>Nach dem Verbinden</translation>
     </message>
     <message>
         <source>None</source>
@@ -2134,7 +2134,7 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     </message>
     <message>
         <source>Guinea Pig</source>
-        <translation>Meerschweinchen</translation>
+        <translation>Guinea Pig (Experimentell)</translation>
     </message>
     <message>
         <source>Internal</source>
@@ -2257,7 +2257,7 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     </message>
     <message>
         <source>File Sharing Frowned Upon</source>
-        <translation>Dateifreigabe verpönt</translation>
+        <translation>Datenaustausch verpönt</translation>
     </message>
 </context>
 <context>
@@ -2331,7 +2331,7 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     </message>
     <message>
         <source>Your update is in progress, hang in there...</source>
-        <translation>Ihr Update ist in Arbeit, bleiben Sie dran...</translation>
+        <translation>Ihre Aktualisierung ist in Arbeit, bleiben Sie dran...</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -2420,7 +2420,7 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     <name>gui_locations::LocationsModel</name>
     <message>
         <source>Best Location</source>
-        <translation>Beste Lage</translation>
+        <translation>Bester Standort</translation>
     </message>
 </context>
 </TS>
