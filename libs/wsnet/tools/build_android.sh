@@ -1,32 +1,6 @@
 #!/usr/bin/env bash
 
-export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
-if [ ! -d "$ANDROID_NDK_HOME" ]; then
-  export ANDROID_NDK_HOME="$HOME/Library/Android/sdk/ndk/25.2.9519653"
-fi
-
-if [ ! -d "$VCPKG_ROOT" ]; then
-  export VCPKG_ROOT="$HOME/vcpkg"
-fi
-
-export PATH=/opt/homebrew/bin:$PATH
-
 ARCHITECTURES=("arm64-v8a" "armeabi-v7a" "x86" "x86_64")
-
-if [ ! -d "$JAVA_HOME" ]; then
-  echo "$JAVA_HOME does not exist."
-  exit 1
-fi
-
-if [ ! -d "$ANDROID_NDK_HOME" ]; then
-  echo "$ANDROID_NDK_HOME does not exist."
-  exit 1
-fi
-
-if [ ! -d "$VCPKG_ROOT" ]; then
-  echo "$VCPKG_ROOT does not exist."
-  exit 1
-fi
 
 NumberOfCores=$(sysctl -n hw.ncpu)
 
@@ -38,8 +12,8 @@ for arch in "${ARCHITECTURES[@]}"; do
 
   mkdir -p "temp/build/$arch"
 
-  cmake -B "temp/build/$arch" -S .. -DANDROID_ABI=$arch -DANDROID_PLATFORM=android-21 -DSCAPIX_BRIDGE=java -DVCPKG_TARGET_ANDROID=ON -DCMAKE_BUILD_TYPE=Release
-  cmake --build "temp/build/$arch" -j $NumberOfCores
+  cmake -B "temp/build/$arch" -S .. -DANDROID_ABI=$arch -DANDROID_PLATFORM=android-21 -DSCAPIX_BRIDGE=java -DVCPKG_TARGET_ANDROID=ON -DCMAKE_BUILD_TYPE=Release 1> /dev/null
+  cmake --build "temp/build/$arch" -j $NumberOfCores 1> /dev/null
 
   cmake --install "temp/build/$arch" --prefix "temp/jni/$arch"
 done
