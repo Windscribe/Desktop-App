@@ -9,6 +9,10 @@
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
 
+#ifdef Q_OS_LINUX
+#include "utils/linuxutils.h"
+#endif
+
 UpdateWindowItem::UpdateWindowItem(Preferences *preferences, ScalableGraphicsObject *parent) :
     ScalableGraphicsObject(parent), preferences_(preferences), downloading_(false), height_(WINDOW_HEIGHT)
 {
@@ -122,7 +126,16 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     painter->setFont(descFont);
     painter->setPen(Qt::white);
 
-    const QString descText = tr("Windscribe will download the update, then terminate active connections and restart automatically.");
+    QString descText;
+#ifdef Q_OS_LINUX
+    if (LinuxUtils::isImmutableDistro()) {
+        descText = tr("Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.");
+    } else {
+#else
+    {
+#endif
+        descText = tr("Windscribe will download the update, then terminate active connections and restart automatically.");
+    }
     int width = CommonGraphics::idealWidthOfTextRect(DESCRIPTION_WIDTH_MIN*G_SCALE, WINDOW_WIDTH*G_SCALE, 3,
                                                      descText, descFont);
     painter->drawText(CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, width), (DESCRIPTION_POS_Y + yOffset)*G_SCALE,

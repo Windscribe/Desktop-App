@@ -71,7 +71,7 @@ bool ApiResourcesManager::loginWithAuthHash()
 
     if (connectState_.isOnline()) {
         using namespace std::placeholders;
-        requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->session(persistentSettings_.authHash(), std::bind(&ApiResourcesManager::onInitialSessionAnswer, this, _1, _2));
+        requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->session(persistentSettings_.authHash(), appleId_, gpDeviceId_, std::bind(&ApiResourcesManager::onInitialSessionAnswer, this, _1, _2));
     } else {
         // If we're not online, do it again in a second
         if (!startLoginTime_.has_value()) {
@@ -193,6 +193,13 @@ void ApiResourcesManager::setNotificationPcpid(const std::string &pcpid)
 {
     std::lock_guard locker(mutex_);
     pcpidNotifications_ = pcpid;
+}
+
+void ApiResourcesManager::setMobileDeviceId(const std::string &appleId, const std::string &gpDeviceId)
+{
+    std::lock_guard locker(mutex_);
+    appleId_ = appleId;
+    gpDeviceId_ = gpDeviceId;
 }
 
 std::string ApiResourcesManager::sessionStatus() const
@@ -384,7 +391,7 @@ void ApiResourcesManager::fetchSession(const std::string &authHash)
         return;
 
     using namespace std::placeholders;
-    requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->session(authHash, std::bind(&ApiResourcesManager::onSessionAnswer, this, _1, _2));
+    requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->session(authHash, appleId_, gpDeviceId_, std::bind(&ApiResourcesManager::onSessionAnswer, this, _1, _2));
 }
 
 void ApiResourcesManager::fetchLocations()

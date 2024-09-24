@@ -22,6 +22,7 @@
 #include "crossplatformobjectfactory.h"
 #include "types/global_consts.h"
 #include "api_responses/websession.h"
+#include "api_responses/debuglog.h"
 #include "firewall/firewallexceptions.h"
 #include "getdeviceid.h"
 #include "openvpnversioncontroller.h"
@@ -40,6 +41,7 @@
     #include "utils/winutils.h"
 #elif defined Q_OS_MACOS
     #include "ipv6controller_mac.h"
+    #include "networkdetectionmanager/networkdetectionmanager_mac.h"
     #include "networkdetectionmanager/reachabilityevents.h"
     #include "utils/network_utils/network_utils_mac.h"
     #include "utils/interfaceutils_mac.h"
@@ -48,6 +50,7 @@
     #include "utils/executable_signature/executablesignature_linux.h"
     #include "utils/dnsscripts_linux.h"
     #include "utils/linuxutils.h"
+    #include "utils/network_utils/network_utils_linux.h"
 #endif
 
 using namespace wsnet;
@@ -123,6 +126,7 @@ Engine::Engine() : QObject(nullptr),
                                            AppVersion::instance().semanticVersionString().toStdString(),
                                            GetDeviceId::instance().getDeviceId().toStdString(),
                                            OpenVpnVersionController::instance().getOpenVpnVersion().toStdString(),
+                                           "3", // must supply session_type_id where 3 = DESKTOP
                                            AppVersion::instance().isStaging(), LanguagesUtil::systemLanguage().toStdString(), wsnetSettings);
     WS_ASSERT(bWsnetSuccess);
 
@@ -561,6 +565,11 @@ void Engine::makeHostsFileWritableWin()
 #endif
 }
 
+void Engine::updateCurrentNetworkInterface()
+{
+    QMetaObject::invokeMethod(this, "updateCurrentNetworkInterfaceImpl");
+}
+
 void Engine::init()
 {
 #ifdef Q_OS_WIN
@@ -609,6 +618,7 @@ void Engine::initPart2()
 #elif defined Q_OS_WIN
     macAddrSpoofing.networkInterfaces = NetworkUtils_win::currentNetworkInterfaces(true);
 #elif defined Q_OS_LINUX
+    macAddrSpoofing.networkInterfaces = NetworkUtils_linux::currentNetworkInterfaces(true);
 #endif
     setSettingsMacAddressSpoofing(macAddrSpoofing);
 
@@ -1033,11 +1043,21 @@ void Engine::sendDebugLogImpl()
 
     WSNet::instance()->serverAPI()->debugLog(userName.toStdString(), log.toStdString(),
         [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
-            if (serverApiRetCode == ServerApiRetCode::kSuccess)
+
+            if (serverApiRetCode != ServerApiRetCode::kSuccess) {
+                qCDebug(LOG_BASIC) << "DebugLog returned failed error code:" << (int)serverApiRetCode;
+                emit sendDebugLogFinished(false);
+                return;
+            }
+
+            api_responses::DebugLog debugLog(jsonData);
+            if (debugLog.isSuccess()) {
                 qCDebug(LOG_BASIC) << "DebugLog sent";
-            else
-                qCDebug(LOG_BASIC) << "DebugLog returned failed error code";
-            emit sendDebugLogFinished(serverApiRetCode == ServerApiRetCode::kSuccess);
+                emit sendDebugLogFinished(true);
+            } else {
+                qCDebug(LOG_BASIC) << "DebugLog returned error in json:" << QString::fromStdString(jsonData);
+                emit sendDebugLogFinished(false);
+            }
     });
 }
 
@@ -1152,7 +1172,7 @@ void Engine::updateCurrentInternetConnectivityImpl()
 void Engine::updateCurrentNetworkInterfaceImpl()
 {
     types::NetworkInterface networkInterface;
-    networkDetectionManager_->getCurrentNetworkInterface(networkInterface);
+    networkDetectionManager_->getCurrentNetworkInterface(networkInterface, true);
 
     if (!bPrevNetworkInterfaceInitialized_ || networkInterface != prevNetworkInterface_)
     {
@@ -1275,8 +1295,12 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     WSNet::instance()->serverAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(ExtraConfig::instance().getAPIExtraTLSPadding() || engineSettings_.isAntiCensorship());
 
-    if (isCustomOvpnConfigsPathChanged)
+    if (isCustomOvpnConfigsPathChanged) {
         customConfigs_->changeDir(engineSettings_.customOvpnConfigsPath());
+        if (engineSettings_.customOvpnConfigsPath().isEmpty()) {
+            customOvpnAuthCredentialsStorage_->clearCredentials();
+        }
+    }
 
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());
 

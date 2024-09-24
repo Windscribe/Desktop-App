@@ -10,7 +10,7 @@ class NetworkDetectionManager_mac : public INetworkDetectionManager
 public:
     NetworkDetectionManager_mac(QObject *parent, IHelper *helper);
     ~NetworkDetectionManager_mac() override;
-    void getCurrentNetworkInterface(types::NetworkInterface &networkInterface) override;
+    void getCurrentNetworkInterface(types::NetworkInterface &networkInterface, bool forceUpdate = false) override;
     bool isOnline() override;
 
 signals:

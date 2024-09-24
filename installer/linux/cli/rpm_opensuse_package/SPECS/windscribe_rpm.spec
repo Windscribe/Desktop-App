@@ -30,6 +30,7 @@ Requires:	sudo
 Requires:	shadow
 Requires:	procps
 Requires:	polkit
+Requires:	pkexec
 Requires:	iproute2
 Requires:	libcap-progs
 
@@ -62,6 +63,7 @@ if [ $1 -eq 0 ]; then
     killall -q Windscribe || true
     systemctl stop windscribe-helper || true
     systemctl disable windscribe-helper || true
+    /opt/windscribe/helper --reset-mac-addresses
     systemctl enable firewalld || true
     systemctl start firewalld || true
     userdel -f windscribe || true

@@ -8,6 +8,7 @@
 #include <linux/netlink.h>
 #include <linux/connector.h>
 #include <linux/cn_proc.h>
+#include <poll.h>
 #include <sstream>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -18,7 +19,6 @@
 
 void ProcessMonitor::monitorWorker(void *ctx)
 {
-    int sock = *(int *)ctx;
     int ret;
     struct __attribute__ ((aligned(NLMSG_ALIGNTO))) {
         struct nlmsghdr nl_hdr;
@@ -28,37 +28,61 @@ void ProcessMonitor::monitorWorker(void *ctx)
         };
     } nlcn_msg;
 
-    while (true) {
-        ret = recv(sock, &nlcn_msg, sizeof(nlcn_msg), 0);
-        if (ret <= 0) {
+    Logger::instance().out("process monitor thread started");
+    running_ = true;
+
+    while (running_) {
+        struct pollfd pfd;
+        pfd.fd = sock_;
+        pfd.events = POLLIN;
+
+        int ret = poll(&pfd, 1, 250);
+        if (ret < 0) {
+            Logger::instance().out("process monitor poll error %d", ret);
             return;
+        } else if (ret == 0) {
+            continue;
+        }
+
+        ret = read(sock_, &nlcn_msg, sizeof(nlcn_msg));
+        if (ret <= 0) {
+            continue;
+        }
+
+        if (testing_) {
+            break;
         }
 
         std::string cmd;
         switch (nlcn_msg.proc_ev.what) {
-            case 1: // PROC_EVENT_FORK:
+            case 0x00000001: // PROC_EVENT_FORK:
                 if (compareCmd(nlcn_msg.proc_ev.event_data.fork.child_pid, apps_)) {
                     CGroups::instance().addApp(nlcn_msg.proc_ev.event_data.fork.child_pid);
                 }
                 break;
-            case 2: // PROC_EVENT_EXEC:
+            case 0x00000002: // PROC_EVENT_EXEC:
                 if (compareCmd(nlcn_msg.proc_ev.event_data.exec.process_pid, apps_)) {
                     CGroups::instance().addApp(nlcn_msg.proc_ev.event_data.exec.process_pid);
                 }
                 break;
-            case 0: // PROC_EVENT_EXIT:
+            case 0x80000000: // PROC_EVENT_EXIT:
                 if (compareCmd(nlcn_msg.proc_ev.event_data.exit.process_pid, apps_)) {
-                    CGroups::instance().addApp(nlcn_msg.proc_ev.event_data.exit.process_pid);
+                    CGroups::instance().removeApp(nlcn_msg.proc_ev.event_data.exit.process_pid);
                 }
                 break;
             default:
                 break;
         }
     }
+    running_ = false;
+    close(sock_);
+    sock_ = -1;
+    Logger::instance().out("process monitor thread exiting");
 }
 
-ProcessMonitor::ProcessMonitor() : isEnabled_(false), thread_(nullptr), sock_(-1)
+ProcessMonitor::ProcessMonitor() : isEnabled_(false), thread_(nullptr), sock_(-1), running_(false), functional_(false), testing_(false)
 {
+    selfTest();
 }
 
 ProcessMonitor::~ProcessMonitor()
@@ -87,6 +111,17 @@ void ProcessMonitor::setApps(const std::vector<std::string> &apps)
 
 bool ProcessMonitor::enable()
 {
+    // Busy, try again later.  Not likely to happen since the helper should start much earlier than the app.
+    if (testing_) {
+        return false;
+    }
+
+    // Tested were run and found that we're not able to get some kernel events.  Fail here.
+    if (!functional_) {
+        Logger::instance().out("process monitor not functional");
+        return false;
+    }
+
     if (isEnabled_) {
         return true;
     }
@@ -214,7 +249,12 @@ bool ProcessMonitor::startMonitoring()
         return false;
     }
 
-    thread_ = new std::thread(&ProcessMonitor::monitorWorker, this, &sock_);
+    try {
+        thread_ = new std::thread(&ProcessMonitor::monitorWorker, this, &sock_);
+    } catch (std::exception &e) {
+        Logger::instance().out("process monitor caught exception starting thread");
+    }
+
     return true;
 }
 
@@ -273,15 +313,39 @@ bool ProcessMonitor::prepareMonitoring()
 
 void ProcessMonitor::stopMonitoring()
 {
-    // closing the socket will cause the thread to exit
-    close(sock_);
-    sock_ = -1;
+    if (sock_ != -1) {
+        running_ = false;
+    }
 
     if (thread_) {
-        thread_->join();
+        if (thread_->joinable()) {
+            thread_->join();
+        }
         delete thread_;
         thread_ = nullptr;
     }
 }
 
+void ProcessMonitor::selfTest()
+{
+    testing_ = true;
 
+    if (!startMonitoring()) {
+        functional_ = false;
+        return;
+    }
+
+    // Starts a process to test the process monitor
+    int ret = system("echo");
+    UNUSED(ret);
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    // Thread should no longer be running
+    functional_ = !running_;
+
+    // Cleanup
+    stopMonitoring();
+
+    Logger::instance().out("process monitor self-test %s", (functional_ ? "successful" : "unsuccessful"));
+    testing_ = false;
+}

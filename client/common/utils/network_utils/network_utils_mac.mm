@@ -1,5 +1,8 @@
 #include "network_utils_mac.h"
 
+#import <CoreLocation/CoreLocation.h>
+#import <CoreWLAN/CoreWLAN.h>
+
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
@@ -233,7 +236,6 @@ QStringList NetworkUtils_mac::getListOfDnsNetworkServiceEntries()
     return result;
 }
 
-
 bool NetworkUtils_mac::checkMacAddr(const QString &interfaceName, const QString &macAddr)
 {
     return macAddressFromInterfaceName(interfaceName).toUpper().remove(':') == macAddr;
@@ -253,4 +255,22 @@ QStringList NetworkUtils_mac::getP2P_AWDL_NetworkInterfaces()
 QString NetworkUtils_mac::getRoutingTable()
 {
     return Utils::execCmd("netstat -rn -finet").trimmed();
+}
+
+QString NetworkUtils_mac::getWifiSsid(const QString &interface)
+{
+    CWWiFiClient *wifiClient = [CWWiFiClient sharedWiFiClient];
+    CWInterface *wifiInterface = [wifiClient interfaceWithName:interface.toNSString()];
+    return QString::fromNSString([wifiInterface ssid]);
+}
+
+bool NetworkUtils_mac::isLocationServicesOn()
+{
+    return [CLLocationManager locationServicesEnabled];
+}
+
+bool NetworkUtils_mac::isLocationPermissionGranted()
+{
+    CLLocationManager *locationManager = [[CLLocationManager alloc] init];
+    return isLocationServicesOn() && ([locationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedAlways);
 }

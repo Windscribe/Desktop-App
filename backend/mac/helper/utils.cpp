@@ -153,7 +153,14 @@ void createWindscribeUserAndGroup()
     Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "IsHidden", "1"});
     // Below attributes are required for user to be considered valid
     Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "gid", "518"}); // From above
-    Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "uid", "1639"}); // Arbitrary number
+    // For some reason macOS may prompt on this if the user already exists with an uid, so only do this if the user's uid is not set
+
+    std::string uidStr;
+    Utils::executeCommand("id", {"-u", "windscribe"}, &uidStr);
+    if (uidStr != "1639\n") {
+        LOG("Creating windscribe user with uid 1639 (existing uid %s)", uidStr.c_str());
+        Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "uid", "1639"}); // Arbitrary number
+    }
     Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "passwd", "*"});
     Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "RealName", "Windscribe Apps User"});
     Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "UserShell", "/bin/false"});

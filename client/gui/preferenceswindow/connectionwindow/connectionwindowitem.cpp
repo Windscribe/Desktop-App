@@ -112,7 +112,6 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     allowLanTrafficGroup_->addItem(checkBoxAllowLanTraffic_);
     addItem(allowLanTrafficGroup_);
 
-#ifndef Q_OS_LINUX
     macSpoofingGroup_ = new MacSpoofingGroup(this,
                                              "",
                                              QString("https://%1/features/mac-spoofing").arg(HardcodedSettings::instance().windscribeServerUrl()));
@@ -124,7 +123,6 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     if (MacUtils::isOsVersionAtLeast(14, 4)) {
         macSpoofingGroup_->setEnabled(false);
     }
-#endif
 #endif
 
 #if defined(Q_OS_WIN)
@@ -190,9 +188,7 @@ void ConnectionWindowItem::setScreen(CONNECTION_SCREEN_TYPE subScreen)
 
 void ConnectionWindowItem::setCurrentNetwork(const types::NetworkInterface &networkInterface)
 {
-#ifndef Q_OS_LINUX
     macSpoofingGroup_->setCurrentNetwork(networkInterface);
-#endif
 }
 
 void ConnectionWindowItem::setPacketSizeDetectionState(bool on)
@@ -223,9 +219,7 @@ void ConnectionWindowItem::onPacketSizePreferencesChangedByUser(const types::Pac
 
 void ConnectionWindowItem::onMacAddrSpoofingPreferencesChangedByUser(const types::MacAddrSpoofing &mas)
 {
-#ifndef Q_OS_LINUX
     preferences_->setMacAddrSpoofing(mas);
-#endif
 }
 
 void ConnectionWindowItem::onTerminateSocketsPreferencesChangedByUser(bool isChecked)
@@ -280,9 +274,7 @@ void ConnectionWindowItem::onPacketSizePreferencesChanged(const types::PacketSiz
 
 void ConnectionWindowItem::onMacAddrSpoofingPreferencesChanged(const types::MacAddrSpoofing &mas)
 {
-#ifndef Q_OS_LINUX
     macSpoofingGroup_->setMacSpoofingSettings(mas);
-#endif
 }
 
 void ConnectionWindowItem::onTerminateSocketsPreferencesChanged(bool b)
@@ -336,18 +328,16 @@ void ConnectionWindowItem::onLanguageChanged()
     firewallGroup_->setDescription(tr("Control the mode of behavior of the Windscribe firewall."));
     connectionModeGroup_->setTitle(tr("Connection Mode"));
     connectionModeGroup_->setDescription(tr("Automatically choose the VPN protocol, or select one manually. NOTE: \"Preferred Protocol\" will override this setting."));
-    packetSizeGroup_->setDescription(tr("Automatically determine the MTU for your connection, or manually override."));
+    packetSizeGroup_->setDescription(tr("Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols."));
     connectedDnsGroup_->setDescription(tr("Select the DNS server while connected to Windscribe."));
     allowLanTrafficGroup_->setDescription(tr("Allow access to local services and printers while connected to Windscribe."));
     checkBoxAllowLanTraffic_->setCaption(tr("Allow LAN Traffic"));
 
-#ifndef Q_OS_LINUX
     macSpoofingGroup_->setDescription(tr("Spoof your device's physical address (MAC address)."));
 #ifdef Q_OS_MACOS
     if (MacUtils::isOsVersionAtLeast(14, 4)) {
         macSpoofingGroup_->setDescription(tr("MAC spoofing is not supported on your version of MacOS."));
     }
-#endif
 #endif
 
 #if defined(Q_OS_WIN)

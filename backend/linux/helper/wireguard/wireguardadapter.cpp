@@ -193,7 +193,7 @@ bool WireGuardAdapter::addFirewallRules(const std::string &ipAddress, uint32_t f
     lines.push_back("COMMIT");
     lines.push_back("*mangle");
     lines.push_back("-I POSTROUTING -m mark --mark " + std::to_string(fwmark) + " -p udp -j CONNMARK --save-mark -m comment --comment " + comment_);
-    lines.push_back("-I PREROUTING -p udp -j CONNMARK --restore-mark -m comment --comment " + comment_);
+    lines.push_back("-I PREROUTING -p udp -i " + getName() + " -j CONNMARK --restore-mark -m comment --comment " + comment_);
     lines.push_back("COMMIT");
 
     for (auto &line : lines)

@@ -47,6 +47,9 @@ public:
     LOCATION_TAB lastLocationTab() const;
     void setLastLocationTab(LOCATION_TAB tab);
 
+    void setIgnoreLocationServicesDisabled(bool suppress);
+    bool isIgnoreLocationServicesDisabled() const;
+
     void fromIni(QSettings &settings);
     void toIni(QSettings &settings);
 

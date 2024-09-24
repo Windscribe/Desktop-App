@@ -584,6 +584,7 @@ void EngineSettingsData::fromIni(QSettings &settings)
     firewallSettings.fromIni(settings);
     connectionSettings.fromIni(settings);
     packetSize.fromIni(settings);
+    macAddrSpoofing.fromIni(settings);
     connectedDnsInfo.fromIni(settings);
     isAllowLanTraffic = settings.value(kIniIsAllowLanTrafficProp, isAllowLanTraffic).toBool();
     isAntiCensorship = settings.value(kIniIsAntiCensorshipProp, isAntiCensorship).toBool();
@@ -615,6 +616,7 @@ void EngineSettingsData::toIni(QSettings &settings) const
     firewallSettings.toIni(settings);
     connectionSettings.toIni(settings);
     packetSize.toIni(settings);
+    macAddrSpoofing.toIni(settings);
     connectedDnsInfo.toIni(settings);
     settings.setValue(kIniIsAllowLanTrafficProp, isAllowLanTraffic);
     settings.setValue(kIniIsAntiCensorshipProp, isAntiCensorship);

@@ -85,13 +85,13 @@ void ConnectionSettings::fromIni(QSettings &settings, const QString &key)
         settings.beginGroup(key);
     }
 
-	TOGGLE_MODE mode = TOGGLE_MODE_fromString(settings.value(kIniIsAutomaticProp, prevMode).toString());
-	isAutomatic_ = (mode == TOGGLE_MODE_AUTO);
-	protocol_ = Protocol::fromString(settings.value(kIniProtocolProp, protocol_.toLongString()).toString());
-	uint port = settings.value(kIniPortProp, port_).toUInt();
-	if (port < 65536) {
-		port_ = port;
-	} else {
+    TOGGLE_MODE mode = TOGGLE_MODE_fromString(settings.value(kIniIsAutomaticProp, prevMode).toString());
+    isAutomatic_ = (mode == TOGGLE_MODE_AUTO);
+    protocol_ = Protocol::fromString(settings.value(kIniProtocolProp, protocol_.toLongString()).toString());
+    uint port = settings.value(kIniPortProp, port_).toUInt();
+    if (port < 65536) {
+        port_ = port;
+    } else {
         port_ = Protocol::defaultPortForProtocol(protocol_);
     }
 
@@ -108,9 +108,9 @@ void ConnectionSettings::toIni(QSettings &settings, const QString &key) const
         settings.beginGroup(key);
     }
 
-	settings.setValue(kIniIsAutomaticProp, TOGGLE_MODE_toString(isAutomatic_ ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL));
-	settings.setValue(kIniProtocolProp, protocol_.toLongString());
-	settings.setValue(kIniPortProp, port_);
+    settings.setValue(kIniIsAutomaticProp, TOGGLE_MODE_toString(isAutomatic_ ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL));
+    settings.setValue(kIniProtocolProp, protocol_.toLongString());
+    settings.setValue(kIniPortProp, port_);
 
     if (!key.isEmpty()) {
         settings.endGroup();

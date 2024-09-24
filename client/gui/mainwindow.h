@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QWidget>
 #include <QSocketNotifier>
 #include <QSystemTrayIcon>
+#include <QWidget>
 #include <QWidgetAction>
 #include "generalmessagecontroller.h"
 #include "mainwindowcontroller.h"
@@ -24,6 +24,10 @@
 #include "api_responses/robertfilter.h"
 #include "api_responses/checkupdate.h"
 #include "protocolwindow/protocolwindowmode.h"
+
+#if defined(Q_OS_MACOS)
+#include "permissions/permissionmonitor_mac.h"
+#endif
 
 #if defined(Q_OS_MACOS)
 #define USE_LOCATIONS_TRAY_MENU_NATIVE
@@ -287,6 +291,8 @@ private slots:
     void onSelectedLocationChanged();
     void onSelectedLocationRemoved();
 
+    void onLocationPermissionUpdated();
+
 #if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     void onSigTerm();
 #endif
@@ -430,4 +436,9 @@ private:
     int fd_;
 
     void normalizeConnectionSettings(types::ConnectionSettings &cs);
+
+#ifdef Q_OS_MACOS
+    PermissionMonitor_mac *permissionMonitor_;
+#endif
+    void checkLocationPermission();
 };

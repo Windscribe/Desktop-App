@@ -2,6 +2,7 @@
 
 #include <QLineEdit>
 #include <QPainter>
+#include <QTimer>
 #include "commongraphics/commongraphics.h"
 #include "commonwidgets/custommenulineedit.h"
 #include "dpiscalemanager.h"
@@ -26,7 +27,6 @@ CredentialLineEdit::CredentialLineEdit(ScalableGraphicsObject *parent, const QSt
 
     proxy_ = new QGraphicsProxyWidget(this);
     proxy_->setWidget(lineEdit_);
-    setFocusProxy(proxy_);
 }
 
 void CredentialLineEdit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -68,7 +68,14 @@ void CredentialLineEdit::clear()
 
 void CredentialLineEdit::focusInEvent(QFocusEvent *event)
 {
-    lineEdit_->setFocus();
+    QTimer::singleShot(0, [this]() {
+        lineEdit_->setFocus();
+    });
+}
+
+void CredentialLineEdit::focusOutEvent(QFocusEvent *event)
+{
+    lineEdit_->clearFocus();
 }
 
 } // namespace GeneralMessageWindow

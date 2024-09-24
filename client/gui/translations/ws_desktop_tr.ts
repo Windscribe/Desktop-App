@@ -810,6 +810,18 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
         <translation>Windscribe, Wi-Fi&apos;nin şu anda kapalı olduğunu tespit etti. Secure Hotspot&apos;u kullanmak için Wi-Fi&apos;nin açık olması gerekir.</translation>
     </message>
+    <message>
+        <source>Location Services is disabled</source>
+        <translation>Konum Servisleri devre dışı bırakıldı</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
+        <translation>Windscribe, Wi-Fi SSID&apos;nizi belirlemek için Konum Servislerine ihtiyaç duyar. Etkinleştirilmezse, ağ başına ayarlar tüm Wi-Fi ağlarına uygulanır. Lütfen Konum Servisleri&apos;ni etkinleştirin ve Sistem Ayarlarınızda Windscribe&apos;a izin verin.</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
+        <translation>Windscribe, Wi-Fi SSID&apos;nizi belirlemek için Konum Servislerine ihtiyaç duyar. Etkinleştirilmezse, ağ başına ayarlar tüm Wi-Fi ağlarına uygulanır. Lütfen Sistem Ayarlarınızda Konum Servislerini etkinleştirin.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1180,10 +1192,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>VPN protokolünü otomatik olarak seçin veya manuel olarak seçin. NOT: &quot;Tercih Edilen Protokol&quot; bu ayarı geçersiz kılacaktır.</translation>
     </message>
     <message>
-        <source>Automatically determine the MTU for your connection, or manually override.</source>
-        <translation>Bağlantınız için MTU&apos;yu otomatik olarak belirleyin veya manuel olarak geçersiz kılın.</translation>
-    </message>
-    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Windscribe&apos;a bağlıyken DNS sunucusunu seçin.</translation>
     </message>
@@ -1226,6 +1234,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
         <translation>MAC sahtekarlığı, MacOS sürümünüzde desteklenmiyor.</translation>
+    </message>
+    <message>
+        <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
+        <translation>Bağlantınız için MTU&apos;yu otomatik olarak belirleyin veya manuel olarak geçersiz kılın.  Bunun TCP tabanlı protokoller üzerinde hiçbir etkisi yoktur.</translation>
     </message>
 </context>
 <context>
@@ -2348,6 +2360,10 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Windscribe will download the update, then terminate active connections and restart automatically.</source>
         <translation>Windscribe güncellemeyi indirecek, ardından aktif bağlantıları sonlandıracak ve otomatik olarak yeniden başlatacaktır.</translation>
+    </message>
+    <message>
+        <source>Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.</source>
+        <translation>Windscribe, birkaç dakika sürebilen güncellemeyi indirip yükleyecektir. Güncellemeden sonra bilgisayarınız yeniden başlatılacaktır.</translation>
     </message>
 </context>
 <context>

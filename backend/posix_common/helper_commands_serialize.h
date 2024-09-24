@@ -235,7 +235,9 @@ void serialize(Archive &ar, CMD_SET_MAC_ADDRESS &a, const unsigned int version)
 {
     UNUSED(version);
     ar & a.interface;
+    ar & a.network;
     ar & a.macAddress;
+    ar & a.isWifi;
 }
 
 template<class Archive>
@@ -276,6 +278,13 @@ void serialize(Archive &ar, CMD_GET_INTERFACE_SSID &a, const unsigned int versio
 {
     UNUSED(version);
     ar & a.interface;
+}
+
+template<class Archive>
+void serialize(Archive &ar, CMD_RESET_MAC_ADDRESSES &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.ignoreNetwork;
 }
 
 }

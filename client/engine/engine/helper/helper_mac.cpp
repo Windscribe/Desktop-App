@@ -103,23 +103,6 @@ QString Helper_mac::getInterfaceSsid(const QString &interfaceName)
     }
 }
 
-bool Helper_mac::setMacAddress(const QString &interface, const QString &macAddress)
-{
-    QMutexLocker locker(&mutex_);
-
-    CMD_SET_MAC_ADDRESS cmd;
-    CMD_ANSWER answer;
-    cmd.interface = interface.toStdString();
-    cmd.macAddress = macAddress.toStdString();
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmd;
-
-    return runCommand(HELPER_CMD_SET_MAC_ADDRESS, stream.str(), answer);
-
-}
-
 bool Helper_mac::enableMacSpoofingOnBoot(bool bEnabled, const QString &interface, const QString &macAddress)
 {
     QMutexLocker locker(&mutex_);

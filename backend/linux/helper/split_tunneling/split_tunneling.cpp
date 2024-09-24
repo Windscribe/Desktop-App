@@ -6,6 +6,9 @@
 SplitTunneling::SplitTunneling(): isSplitTunnelActive_(false), isExclude_(false), isAllowLanTraffic_(false)
 {
     connectStatus_.isConnected = false;
+
+    // Cause the process monitor to start.  We want this because the process monitor needs to perform a self-test
+    ProcessMonitor::instance();
 }
 
 SplitTunneling::~SplitTunneling()
@@ -46,6 +49,22 @@ void SplitTunneling::setSplitTunnelingParams(bool isActive, bool isExclude, cons
 
 bool SplitTunneling::updateState()
 {
+    std::string out;
+
+    int ret = Utils::executeCommand("/etc/windscribe/setup-routing",
+                                    { connectStatus_.isConnected ? "up" : "down",
+                                      CGroups::instance().mark(),
+                                      connectStatus_.defaultAdapter.gatewayIp,
+                                      connectStatus_.defaultAdapter.adapterName,
+                                      connectStatus_.vpnAdapter.gatewayIp,
+                                      connectStatus_.vpnAdapter.adapterName,
+                                      connectStatus_.remoteIp},
+                                    &out);
+    if (ret != 0) {
+        Logger::instance().out("setup-routing script failed: %s", out.c_str());
+        return true;
+    }
+
     if (connectStatus_.isConnected && isSplitTunnelActive_) {
         if (!apps_.empty()) {
             std::string gw = connectStatus_.vpnAdapter.adapterIp;
@@ -55,11 +74,11 @@ bool SplitTunneling::updateState()
 
             bool ret = CGroups::instance().enable(connectStatus_, isAllowLanTraffic_, isExclude_);
             if (!ret) {
-                return ret;
+                return true;
             }
             ret = ProcessMonitor::instance().enable();
             if (!ret) {
-                return ret;
+                return true;
             }
         }
 
@@ -78,11 +97,6 @@ bool SplitTunneling::updateState()
         hostnamesManager_.disable();
     }
 
-    FirewallController::instance().setSplitTunnelingEnabled(
-        connectStatus_.isConnected,
-        isSplitTunnelActive_,
-        isExclude_,
-        connectStatus_.defaultAdapter.adapterName,
-        connectStatus_.defaultAdapter.adapterIp);
+    FirewallController::instance().setSplitTunnelingEnabled(connectStatus_, isSplitTunnelActive_, isExclude_);
     return false;
 }

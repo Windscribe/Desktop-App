@@ -9,8 +9,10 @@
 #include "logger.h"
 #include "utils.h"
 
-FirewallController::FirewallController() : connected_(false), splitTunnelEnabled_(false), splitTunnelExclude_(true)
+FirewallController::FirewallController() : splitTunnelEnabled_(false), splitTunnelExclude_(true)
 {
+    connectStatus_.isConnected = false;
+
     // If firewall on boot is enabled, restore boot rules
     if (Utils::isFileExists("/etc/windscribe/boot_rules.v4")) {
         Utils::executeCommand("iptables-restore", {"-n", "/etc/windscribe/boot_rules.v4"});
@@ -55,7 +57,7 @@ bool FirewallController::enable(bool ipv6, const std::string &rules)
     // reapply split tunneling rules if necessary
     setSplitTunnelIpExceptions(splitTunnelIps_);
     setSplitTunnelAppExceptions();
-    setSplitTunnelIngressRules(defaultAdapterIp_);
+    setSplitTunnelIngressRules();
 
     return 0;
 }
@@ -89,18 +91,16 @@ void FirewallController::disable()
     Utils::executeCommand("rm", {"-f", "/etc/windscribe/rules.v6"});
 }
 
-void FirewallController::setSplitTunnelingEnabled(bool isConnected, bool isEnabled, bool isExclude, const std::string &defaultAdapter, const std::string &defaultAdapterIp)
+void FirewallController::setSplitTunnelingEnabled(CMD_SEND_CONNECT_STATUS connectStatus, bool isEnabled, bool isExclude)
 {
-    connected_ = isConnected;
+    prevAdapter_ = connectStatus.defaultAdapter.adapterName;
+
+    connectStatus_ = connectStatus;
     splitTunnelEnabled_ = isEnabled;
     splitTunnelExclude_ = isExclude;
-    prevAdapter_ = defaultAdapter_;
-    defaultAdapter_ = defaultAdapter;
-    defaultAdapterIp_ = defaultAdapterIp;
-
     setSplitTunnelIpExceptions(splitTunnelIps_);
     setSplitTunnelAppExceptions();
-    setSplitTunnelIngressRules(defaultAdapterIp_);
+    setSplitTunnelIngressRules();
 }
 
 void FirewallController::removeExclusiveIpRules()
@@ -136,23 +136,21 @@ void FirewallController::removeInclusiveAppRules()
     }
 }
 
-void FirewallController::setSplitTunnelIngressRules(const std::string &defaultAdapterIp)
+void FirewallController::setSplitTunnelIngressRules()
 {
-    if (!connected_ || !splitTunnelEnabled_ || splitTunnelExclude_) {
-        Logger::instance().out("Deleting ingress rules");
-        Utils::executeCommand("iptables", {"-D", "PREROUTING", "-t", "mangle", "-d", defaultAdapterIp.c_str(), "-j", "CONNMARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
+    if (!connectStatus_.isConnected) {
+        Utils::executeCommand("iptables", {"-D", "PREROUTING", "-t", "mangle", "-i", connectStatus_.defaultAdapter.adapterName.c_str(), "!", "-s", connectStatus_.remoteIp.c_str(), "-j", "CONNMARK", "--set-mark", CGroups::instance().mark().c_str(), "-m", "comment", "--comment", kTag.c_str()});
         Utils::executeCommand("iptables", {"-D", "OUTPUT", "-t", "mangle", "-j", "CONNMARK", "--restore-mark", "-m", "comment", "--comment", kTag});
         return;
     }
 
-	Logger::instance().out("Adding ingress rules");
-	addRule({"PREROUTING", "-t", "mangle", "-d", defaultAdapterIp.c_str(), "-j", "CONNMARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
+	addRule({"PREROUTING", "-t", "mangle", "-i", connectStatus_.defaultAdapter.adapterName.c_str(), "!", "-s", connectStatus_.remoteIp.c_str(), "-j", "CONNMARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
 	addRule({"OUTPUT", "-t", "mangle", "-j", "CONNMARK", "--restore-mark", "-m", "comment", "--comment", kTag});
 }
 
 void FirewallController::setSplitTunnelAppExceptions()
 {
-    if (!connected_ || !splitTunnelEnabled_) {
+    if (!connectStatus_.isConnected || !splitTunnelEnabled_) {
         removeExclusiveAppRules();
         removeInclusiveAppRules();
         return;
@@ -161,7 +159,7 @@ void FirewallController::setSplitTunnelAppExceptions()
     if (splitTunnelExclude_) {
         removeInclusiveAppRules();
 
-        addRule({"POSTROUTING",  "-t", "nat", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-o", defaultAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag});
+        addRule({"POSTROUTING",  "-t", "nat", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-o", connectStatus_.defaultAdapter.adapterName.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag});
         addRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
 
         // allow packets from excluded apps, if firewall is on
@@ -172,7 +170,7 @@ void FirewallController::setSplitTunnelAppExceptions()
     } else {
         removeExclusiveAppRules();
 
-        addRule({"POSTROUTING", "-t", "nat", "-m", "cgroup", "!", "--cgroup", CGroups::instance().netClassId(), "-o", defaultAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag});
+        addRule({"POSTROUTING", "-t", "nat", "-m", "cgroup", "!", "--cgroup", CGroups::instance().netClassId(), "-o", connectStatus_.defaultAdapter.adapterName.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag});
         addRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "!", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
 
         // For inclusive, allow all packets
@@ -185,7 +183,7 @@ void FirewallController::setSplitTunnelAppExceptions()
 
 void FirewallController::setSplitTunnelIpExceptions(const std::vector<std::string> &ips)
 {
-    if (!connected_ || !splitTunnelEnabled_ || !enabled()) {
+    if (!connectStatus_.isConnected || !splitTunnelEnabled_ || !enabled()) {
         removeInclusiveIpRules();
         removeExclusiveIpRules();
         splitTunnelIps_ = ips;

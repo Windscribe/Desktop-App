@@ -50,7 +50,7 @@ private:
 
     void onFailoverCallback(const std::vector<FailoverData> &data);
     void executeBaseRequest(const FailoverData &failoverData);
-    void onHttpNetworkRequestFinished(std::uint64_t httpRequestId, std::uint32_t elapsedMs, NetworkError errCode, const std::string &data);
+    void onHttpNetworkRequestFinished(std::uint64_t httpRequestId, std::uint32_t elapsedMs, NetworkError errCode, const std::string &curlError, const std::string &data);
     // This callback function is necessary to cancel the request as quickly as possible if it was canceled on the calling side
     void onHttpNetworkRequestProgressCallback(std::uint64_t requestId, std::uint64_t bytesReceived, std::uint64_t bytesTotal);
 };

@@ -309,6 +309,43 @@ CMD_ANSWER setFirewallOnBoot(boost::archive::text_iarchive &ia)
     return answer;
 }
 
+CMD_ANSWER setMacAddress(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_SET_MAC_ADDRESS cmd;
+    ia >> cmd;
+
+    if (cmd.macAddress.size() < 12) {
+        Logger::instance().out("Invalid MAC address");
+        answer.executed = 0;
+        return answer;
+    }
+
+    std::string mac =
+        cmd.macAddress.substr(0, 2) + ":" +
+        cmd.macAddress.substr(2, 2) + ":" +
+        cmd.macAddress.substr(4, 2) + ":" +
+        cmd.macAddress.substr(6, 2) + ":" +
+        cmd.macAddress.substr(8, 2) + ":" +
+        cmd.macAddress.substr(10, 2);
+
+    Logger::instance().out("Set MAC address on %s (%s - %s): %s", cmd.interface.c_str(), cmd.network.c_str(), (cmd.isWifi ? "wifi" : "ethernet"),  mac.c_str());
+
+    // reset addresses on other networks
+    Utils::resetMacAddresses(cmd.network);
+
+    std::string out;
+    if (cmd.isWifi) {
+        Utils::executeCommand("nmcli", {"connection", "modify", cmd.network.c_str(), "wifi.cloned-mac-address", mac.c_str()}, &out);
+    } else {
+        Utils::executeCommand("nmcli", {"connection", "modify", cmd.network.c_str(), "ethernet.cloned-mac-address", mac.c_str()}, &out);
+    }
+    // restart the connection
+    Utils::executeCommand("nmcli", {"connection", "up", cmd.network.c_str()});
+    answer.executed = 1;
+    return answer;
+}
+
 CMD_ANSWER taskKill(boost::archive::text_iarchive &ia)
 {
     CMD_ANSWER answer;
@@ -486,5 +523,17 @@ CMD_ANSWER startWstunnel(boost::archive::text_iarchive &ia)
         answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string(), true);
         answer.executed = 1;
     }
+    return answer;
+}
+
+CMD_ANSWER resetMacAddresses(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_RESET_MAC_ADDRESSES cmd;
+    ia >> cmd;
+
+    Logger::instance().out("Resetting MAC addresses");
+
+    answer.executed = Utils::resetMacAddresses(cmd.ignoreNetwork) ? 1 : 0;
     return answer;
 }

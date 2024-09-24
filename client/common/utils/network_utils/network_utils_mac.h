@@ -31,8 +31,9 @@ namespace NetworkUtils_mac
 
     QStringList getListOfDnsNetworkServiceEntries();
     QStringList getP2P_AWDL_NetworkInterfaces();
+
+    // Location Services (for SSID)
+    QString getWifiSsid(const QString &interface);
+    bool isLocationPermissionGranted();
+    bool isLocationServicesOn();
 }
-
-
-
-

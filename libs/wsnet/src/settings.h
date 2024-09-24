@@ -36,7 +36,6 @@ public:
 
     std::string basePlatform() const { return basePlatform_; }
 
-
     void setDeviceId(const std::string &deviceId)
     {
         deviceId_ = deviceId;
@@ -44,6 +43,12 @@ public:
 
     std::string deviceId() const { return deviceId_; }
 
+    void setSessionTypeId(const std::string &sessionTypeId)
+    {
+        sessionTypeId_ = sessionTypeId;
+    }
+
+    std::string sessionTypeId() const { return sessionTypeId_; }
 
     void setAppVersion(const std::string &appVersion)
     {
@@ -109,6 +114,7 @@ private:
     std::string platformName_;
     std::string basePlatform_;
     std::string deviceId_;
+    std::string sessionTypeId_;
     std::string appVersion_;
     std::string openVpnVersion_;
     std::string language_;

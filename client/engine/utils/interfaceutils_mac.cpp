@@ -1,5 +1,6 @@
-
 #include "interfaceutils_mac.h"
+
+#include <QPermission>
 
 #include "utils/macutils.h"
 #include "utils/network_utils/network_utils_mac.h"
@@ -22,10 +23,14 @@ void InterfaceUtils_mac::setHelper(Helper_mac *helper)
 
 QString ssidOfInterface(const QString &networkInterface, Helper_mac *helper = nullptr)
 {
-    // In MacOS 15.0, Apple removed the SSID from networksetup -getairportnetwork as well.  Use wdutil to get the SSID.
+    // In MacOS 15.0, Apple removed the SSID from networksetup -getairportnetwork as well.
+    // As of 24A335, even wdutil redacts it, so we must have the locations permission, otherwise we just use "Wi-F"
     if (MacUtils::isOsVersionAtLeast(15, 0)) {
-        if (helper) {
-            return helper->getInterfaceSsid(networkInterface);
+        if (NetworkUtils_mac::isLocationPermissionGranted()) {
+            // Use CoreWLAN API to get the SSID
+            return NetworkUtils_mac::getWifiSsid(networkInterface);
+        } else {
+            return "Wi-Fi";
         }
     // In MacOS 14.4, Apple removed the SSID from scutil output, use an alternative method
     } else if (MacUtils::isOsVersionAtLeast(14, 4)) {

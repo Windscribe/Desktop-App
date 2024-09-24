@@ -196,6 +196,17 @@ void PersistentState::setLastLocationTab(LOCATION_TAB tab)
     save();
 }
 
+bool PersistentState::isIgnoreLocationServicesDisabled() const
+{
+    return state_.isIgnoreLocationServicesDisabled;
+}
+
+void PersistentState::setIgnoreLocationServicesDisabled(bool suppress)
+{
+    state_.isIgnoreLocationServicesDisabled = suppress;
+    save();
+}
+
 void PersistentState::fromIni(QSettings &settings)
 {
     QVector<types::NetworkInterface> networks = state_.networkWhiteList;

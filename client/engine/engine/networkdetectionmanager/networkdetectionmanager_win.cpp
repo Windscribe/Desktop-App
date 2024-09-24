@@ -140,8 +140,9 @@ bool NetworkDetectionManager_win::isOnlineImpl()
     return result;
 }
 
-void NetworkDetectionManager_win::getCurrentNetworkInterface(types::NetworkInterface &networkInterface)
+void NetworkDetectionManager_win::getCurrentNetworkInterface(types::NetworkInterface &networkInterface, bool forceUpdate)
 {
+    Q_UNUSED(forceUpdate);
     networkInterface = curNetworkInterface_;
 }
 

@@ -42,6 +42,7 @@ public:
                                const std::string &osVersion, const std::string &osBuild) override;
 
     void setNotificationPcpid(const std::string &pcpid) override;
+    void setMobileDeviceId(const std::string &appleId, const std::string &gpDeviceId) override;
 
     std::string sessionStatus() const override;
     std::string portMap() const override;
@@ -73,6 +74,9 @@ private:
     std::string checkUpdate_;
 
     std::string pcpidNotifications_;
+
+    std::string appleId_;
+    std::string gpDeviceId_;
 
     static constexpr int kMinute = 60 * 1000;
     static constexpr int kHour = 60 * 60 * 1000;

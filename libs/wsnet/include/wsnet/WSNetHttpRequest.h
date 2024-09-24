@@ -62,6 +62,11 @@ public:
     // true by default
     virtual void setIsWhiteListIps(bool isWhiteListIps) = 0;
     virtual bool isWhiteListIps() const = 0;
+
+    // false by default
+    // makes additional logs through which IP the request was made and its curl error
+    virtual void setIsDebugLogCurlError(bool isEnabled) = 0;
+    virtual bool isDebugLogCurlError() const = 0;
 };
 
 } // namespace wsnet

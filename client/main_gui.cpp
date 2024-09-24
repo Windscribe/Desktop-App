@@ -48,7 +48,7 @@ void handler_sigterm(int signum)
         qCDebug(LOG_BASIC) << "SIGTERM signal received";
 
 #ifdef Q_OS_LINUX
-	WindscribeApplication::instance()->setWasRestartOSFlag();
+    WindscribeApplication::instance()->setWasRestartOSFlag();
 #endif
 
         // Can't call Qt functions safely from here, see https://doc.qt.io/qt-6/unix-signals.html

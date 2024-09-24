@@ -810,6 +810,18 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
         <translation>Windscribe 检测到 Wi-Fi 当前已关闭。要使用安全热点，必须打开 Wi-Fi。</translation>
     </message>
+    <message>
+        <source>Location Services is disabled</source>
+        <translation>位置服务已禁用</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
+        <translation>Windscribe 需要定位服务来确定您的 Wi-Fi SSID。如果未启用，则每个网络的设置将应用于所有 Wi-Fi 网络。请在您的系统设置中启用定位服务并授予 Windscribe 的权限。</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
+        <translation>Windscribe 需要定位服务来确定您的 Wi-Fi SSID。如果未启用，则每个网络的设置将应用于所有 Wi-Fi 网络。请在系统设置中启用定位服务。</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1176,10 +1188,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>连接模式</translation>
     </message>
     <message>
-        <source>Automatically determine the MTU for your connection, or manually override.</source>
-        <translation>自动确定 MTU，或手动覆盖。</translation>
-    </message>
-    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>在连接到 Windscribe 时选择的 DNS 服务器。</translation>
     </message>
@@ -1226,6 +1234,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
         <translation>您的 MacOS 版本不支持 MAC 欺骗。</translation>
+    </message>
+    <message>
+        <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
+        <translation>自动确定 MTU，或手动覆盖。这对基于 TCP 的协议没有影响。</translation>
     </message>
 </context>
 <context>
@@ -2348,6 +2360,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Windscribe will download the update, then terminate active connections and restart automatically.</source>
         <translation>Windscribe 将下载更新，然后终止活动连接并自动重启。</translation>
+    </message>
+    <message>
+        <source>Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.</source>
+        <translation>Windscribe 将下载并安装更新，这可能需要几分钟时间。更新后，您的计算机将重新启动。</translation>
     </message>
 </context>
 <context>

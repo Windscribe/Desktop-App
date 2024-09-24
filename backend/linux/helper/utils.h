@@ -43,4 +43,10 @@ namespace Utils
     std::string normalizeAddress(const std::string &address);
     bool isValidIpAddress(const std::string &address);
     bool isValidDomain(const std::string &address);
+
+    // resets MAC address to original (hw) address, optionally ignoring one interface
+    bool resetMacAddresses(const std::string &ignoreNetwork = "");
+
+    // MAC address utilities
+    bool isMacAddressSpoofed(const std::string &network);
 };

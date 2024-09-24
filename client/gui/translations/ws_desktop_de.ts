@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Clear</source>
-        <translation>leeren</translation>
+        <translation>Leeren</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -92,7 +92,7 @@
     <name>CustomMenuWidget</name>
     <message>
         <source>Undo</source>
-        <translation>rückgängig machen</translation>
+        <translation>Rückgängig machen</translation>
     </message>
     <message>
         <source>Redo</source>
@@ -100,7 +100,7 @@
     </message>
     <message>
         <source>Cut</source>
-        <translation>ausschneiden</translation>
+        <translation>Ausschneiden</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -810,6 +810,18 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
         <translation>Windscribe hat festgestellt, dass das WLAN derzeit ausgeschaltet ist. Um Secure Hotspot verwenden zu können, muss Wi-Fi aktiviert sein.</translation>
     </message>
+    <message>
+        <source>Location Services is disabled</source>
+        <translation>Die Ortungsdienste sind deaktiviert</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
+        <translation>Windscribe benötigt Ortungsdienste, um Ihre WLAN-SSID zu ermitteln. Wenn diese Option nicht aktiviert ist, gelten die Einstellungen pro Netzwerk für alle WLAN-Netzwerke. Bitte aktivieren Sie die Ortungsdienste und erteilen Sie Windscribe die Berechtigung in Ihren Systemeinstellungen.</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
+        <translation>Windscribe benötigt Ortungsdienste, um Ihre WLAN-SSID zu ermitteln. Wenn diese Option nicht aktiviert ist, gelten die Einstellungen pro Netzwerk für alle WLAN-Netzwerke. Bitte aktivieren Sie die Ortungsdienste in Ihren Systemeinstellungen.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -957,7 +969,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>Um IPv6 umzuschalten, ist ein Neustart des Computers erforderlich. wollen Sie es jetzt tun?</translation>
+        <translation>Um IPv6 umzuschalten, ist ein Neustart des Computers erforderlich. Wollen Sie es jetzt tun?</translation>
     </message>
     <message>
         <source>Restart later</source>
@@ -1176,10 +1188,6 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Verbindungsmodus</translation>
     </message>
     <message>
-        <source>Automatically determine the MTU for your connection, or manually override.</source>
-        <translation>Ermitteln Sie automatisch die MTU für Ihre Verbindung oder setzen Sie sie manuell außer Kraft.</translation>
-    </message>
-    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Wählen Sie den DNS-Server aus, während Sie mit Windscribe verbunden sind.</translation>
     </message>
@@ -1226,6 +1234,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
         <translation>MAC-Spoofing wird in Ihrer MacOS-Version nicht unterstützt.</translation>
+    </message>
+    <message>
+        <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
+        <translation>Ermitteln Sie automatisch die MTU für Ihre Verbindung oder setzen Sie sie manuell außer Kraft.  Dies hat keine Auswirkungen auf TCP-basierte Protokolle.</translation>
     </message>
 </context>
 <context>
@@ -2348,6 +2360,10 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     <message>
         <source>Windscribe will download the update, then terminate active connections and restart automatically.</source>
         <translation>Windscribe lädt das Update herunter, beendet dann aktive Verbindungen und startet automatisch neu.</translation>
+    </message>
+    <message>
+        <source>Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.</source>
+        <translation>Windscribe lädt das Update herunter und installiert es, was einige Minuten dauern kann. Ihr Computer wird nach dem Update neu gestartet.</translation>
     </message>
 </context>
 <context>

@@ -8,24 +8,35 @@
 
 namespace wsnet {
 
-BaseRequest *requests_factory::login(const std::string &username, const std::string &password, const std::string &code2fa, RequestFinishedCallback callback)
+BaseRequest *requests_factory::login(const std::string &username, const std::string &password, const std::string &code2fa, const std::string &sessionTypeId, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
     extraParams["username"] = username;
     extraParams["password"] = password;
     extraParams["2fa_code"] = code2fa;
-    extraParams["session_type_id"] = "3";
+    extraParams["session_type_id"] = sessionTypeId;
 
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "Session", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
     return request;
 }
 
-BaseRequest *requests_factory::session(const std::string &authHash, RequestFinishedCallback callback)
+BaseRequest *requests_factory::session(const std::string &authHash, const std::string &appleId,
+                                       const std::string &gpDeviceId, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
     extraParams["session_auth_hash"] = authHash;
+    extraParams["apple_id"] = appleId;
+    extraParams["gp_device_id"] = gpDeviceId;
     return new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "Session", extraParams, callback);
+}
+
+BaseRequest *requests_factory::claimVoucherCode(const std::string &authHash, const std::string &voucherCode, RequestFinishedCallback callback)
+{
+    std::map<std::string, std::string> extraParams;
+    extraParams["session_auth_hash"] = authHash;
+    extraParams["voucher_code"] = voucherCode;
+    return new BaseRequest(HttpMethod::kPut, SubdomainType::kApi, RequestPriority::kNormal, "Users", extraParams, callback);
 }
 
 BaseRequest *requests_factory::deleteSession(const std::string &authHash, RequestFinishedCallback callback)
@@ -115,14 +126,16 @@ BaseRequest *requests_factory::addEmail(const std::string &authHash, const std::
     return new BaseRequest(HttpMethod::kPut, SubdomainType::kApi, RequestPriority::kNormal, "Users", extraParams, callback);
 }
 
-BaseRequest *requests_factory::signup(const std::string &username, const std::string &password, const std::string &referringUsername, const std::string &email, RequestFinishedCallback callback)
+BaseRequest *requests_factory::signup(const std::string &username, const std::string &password, const std::string &referringUsername, const std::string &email,
+                                      const std::string &sessionTypeId, const std::string &voucherCode, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_type_id"] = "3";
+    extraParams["session_type_id"] = sessionTypeId;
     extraParams["username"] = username;
     extraParams["password"] = password;
     extraParams["referring_username"] = referringUsername;
     extraParams["email"] = email;
+    extraParams["voucher_code"] = voucherCode;
     return new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "Users", extraParams, callback);
 }
 
@@ -262,7 +275,7 @@ BaseRequest *requests_factory::mobileBillingPlans(const std::string &authHash, c
     std::map<std::string, std::string> extraParams;
     extraParams["session_auth_hash"] = authHash;
     extraParams["mobile_plan_type"] = mobilePlanType;
-    extraParams["promo"] = promo;
+    extraParams["promo_code"] = promo;
     extraParams["version"] = std::to_string(version);
     auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "MobileBillingPlans", extraParams, callback);
     return request;
@@ -347,13 +360,14 @@ BaseRequest *requests_factory::signupUsingToken(const std::string &token, Reques
     return request;
 }
 
-BaseRequest *requests_factory::claimAccount(const std::string &authHash, const std::string &username, const std::string &password, const std::string &email, const std::string &claimAccount, RequestFinishedCallback callback)
+BaseRequest *requests_factory::claimAccount(const std::string &authHash, const std::string &username, const std::string &password, const std::string &email, const std::string &voucherCode, const std::string &claimAccount, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
     extraParams["session_auth_hash"] = authHash;
     extraParams["username"] = username;
     extraParams["password"] = password;
     extraParams["email"] = email;
+    extraParams["voucher_code"] = voucherCode;
     extraParams["claim_account"] = claimAccount;
     auto request = new BaseRequest(HttpMethod::kPut, SubdomainType::kApi, RequestPriority::kNormal, "Users", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");

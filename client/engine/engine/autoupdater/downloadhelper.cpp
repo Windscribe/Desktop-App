@@ -182,7 +182,7 @@ void DownloadHelper::getInner(const QString url, const QString targetFilenamePat
     }
 
     auto callbackFinished = [this] (std::uint64_t requestId, std::uint32_t elapsedMs,
-                                    NetworkError errCode, const std::string &data)
+                                    NetworkError errCode, const std::string &curlError, const std::string &data)
     {
         QMetaObject::invokeMethod(this, [this, requestId, errCode, data] {
             onReplyFinished(requestId, errCode, data);

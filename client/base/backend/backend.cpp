@@ -949,3 +949,8 @@ void Backend::onEngineAutoEnableAntiCensorship()
 {
     preferences_.setAntiCensorship(true);
 }
+
+void Backend::updateCurrentNetworkInterface()
+{
+    engine_->updateCurrentNetworkInterface();
+}

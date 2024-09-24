@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <skyr/url.hpp>
 #include <rapidjson/document.h>
+#include <spdlog/spdlog.h>
 #include "settings.h"
 #include "utils/utils.h"
 #include "utils/urlquery_utils.h"
@@ -51,8 +52,11 @@ std::string BaseRequest::postData() const
 
 void BaseRequest::handle(const std::string &arr)
 {
+    json_ = arr;
+
     if (arr.empty()) {
         setRetCode(ServerApiRetCode::kIncorrectJson);
+        spdlog::info("Received an empty json response, return ServerApiRetCode::kIncorrectJson");
         return;
     }
 
@@ -61,17 +65,18 @@ void BaseRequest::handle(const std::string &arr)
         Document doc;
         doc.Parse(arr.c_str());
         if (doc.HasParseError() || !doc.IsObject()) {
+            spdlog::info("Received an incorrect json response: {}", arr);
             setRetCode(ServerApiRetCode::kIncorrectJson);
             return;
         }
         auto jsonObject = doc.GetObject();
         // all responses must contain errorCode or/and data fields
         if (!jsonObject.HasMember("errorCode") && !jsonObject.HasMember("data")) {
+            spdlog::info("Received an incorrect json response: {}", arr);
             setRetCode(ServerApiRetCode::kIncorrectJson);
             return;
         }
     }
-    json_ = arr;
 }
 
 bool BaseRequest::isCanceled()

@@ -169,8 +169,9 @@ void ServerAPI_impl::executeRequestImpl(std::unique_ptr<BaseRequest> request, co
 {
     using namespace std::placeholders;
     auto httpRequest = serverapi_utils::createHttpRequestWithFailoverParameters(httpNetworkManager_, failoverData, request.get(), bIgnoreSslErrors_, advancedParameters_->isAPIExtraTLSPadding());
+    httpRequest->setIsDebugLogCurlError(true);
     std::uint64_t requestId = curUniqueId_++;
-    auto asyncCallback_ = httpNetworkManager_->executeRequestEx(httpRequest, requestId, std::bind(&ServerAPI_impl::onHttpNetworkRequestFinished, this, _1, _2, _3, _4),
+    auto asyncCallback_ = httpNetworkManager_->executeRequestEx(httpRequest, requestId, std::bind(&ServerAPI_impl::onHttpNetworkRequestFinished, this, _1, _2, _3, _4, _5),
                                                            std::bind(&ServerAPI_impl::onHttpNetworkRequestProgressCallback, this, _1, _2, _3));
     HttpRequestInfo hti { std::move(request), asyncCallback_};
     activeHttpRequests_[requestId] = std::move(hti);
@@ -251,7 +252,7 @@ void ServerAPI_impl::onRequestExecuterViaFailoverFinished(RequestExecuterRetCode
     }
 }
 
-void ServerAPI_impl::onHttpNetworkRequestFinished(std::uint64_t requestId, std::uint32_t elapsedMs, NetworkError errCode, const std::string &data)
+void ServerAPI_impl::onHttpNetworkRequestFinished(std::uint64_t requestId, std::uint32_t elapsedMs, NetworkError errCode, const std::string &curlError, const std::string &data)
 {
     auto it = activeHttpRequests_.find(requestId);
     assert(it != activeHttpRequests_.end());
@@ -269,6 +270,7 @@ void ServerAPI_impl::onHttpNetworkRequestFinished(std::uint64_t requestId, std::
         it->second.request->handle(data);
         it->second.request->callCallback();
     } else {
+        spdlog::info("API request {} failed with retCode = {} and curlError = {}", it->second.request->name(), (int)errCode, curlError);
         setErrorCodeAndEmitRequestFinished(it->second.request.get(), ServerApiRetCode::kNetworkError);
     }
     activeHttpRequests_.erase(it);

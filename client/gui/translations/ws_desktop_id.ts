@@ -810,6 +810,18 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
         <translation>Windscribe telah mendeteksi bahwa Wi-Fi saat ini dimatikan. Untuk menggunakan Hotspot Aman, Wi-Fi harus diaktifkan.</translation>
     </message>
+    <message>
+        <source>Location Services is disabled</source>
+        <translation>Layanan Lokasi dinonaktifkan</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
+        <translation>Windscribe memerlukan Layanan Lokasi untuk menentukan SSID Wi-Fi Anda. Jika tidak diaktifkan, setelan per jaringan akan berlaku untuk semua jaringan Wi-Fi. Harap aktifkan Layanan Lokasi dan berikan izin ke Windscribe di Pengaturan Sistem Anda.</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
+        <translation>Windscribe memerlukan Layanan Lokasi untuk menentukan SSID Wi-Fi Anda. Jika tidak diaktifkan, setelan per jaringan akan berlaku untuk semua jaringan Wi-Fi. Harap aktifkan Layanan Lokasi di Pengaturan Sistem Anda.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1180,10 +1192,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Pilih protokol VPN secara otomatis, atau pilih secara manual. CATATAN: &quot;Protokol Pilihan&quot; akan mengganti pengaturan ini.</translation>
     </message>
     <message>
-        <source>Automatically determine the MTU for your connection, or manually override.</source>
-        <translation>Secara otomatis menentukan MTU untuk koneksi Anda, atau mengganti secara manual.</translation>
-    </message>
-    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Pilih server DNS saat terhubung ke Windscribe.</translation>
     </message>
@@ -1226,6 +1234,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
         <translation>Spoofing MAC tidak didukung di versi MacOS Anda.</translation>
+    </message>
+    <message>
+        <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
+        <translation>Secara otomatis menentukan MTU untuk koneksi Anda, atau mengganti secara manual.  Ini tidak berpengaruh pada protokol berbasis TCP.</translation>
     </message>
 </context>
 <context>
@@ -2348,6 +2360,10 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Windscribe will download the update, then terminate active connections and restart automatically.</source>
         <translation>Windscribe akan mengunduh pembaruan, lalu menghentikan koneksi aktif dan memulai ulang secara otomatis.</translation>
+    </message>
+    <message>
+        <source>Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.</source>
+        <translation>Windscribe akan mengunduh dan menginstal pembaruan, yang mungkin memakan waktu beberapa menit. Komputer Anda akan restart setelah pembaruan.</translation>
     </message>
 </context>
 <context>

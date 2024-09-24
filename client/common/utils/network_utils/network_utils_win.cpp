@@ -14,6 +14,8 @@
 #include "../winutils.h"
 #include "wlan_utils_win.h"
 
+static bool g_SsidAccessDenied = false;
+
 static QString guidToQString(GUID guid)
 {
     OLECHAR* guidString;
@@ -493,7 +495,15 @@ QVector<types::NetworkInterface> NetworkUtils_win::currentNetworkInterfaces(bool
                 networkInterface.deviceName = itRow.interfaceName;
 
                 if (nicType == NETWORK_INTERFACE_WIFI) {
-                    networkInterface.networkOrSsid = wlanUtils.ssidFromInterfaceGUID(itRow.guidName);
+                    DWORD ret = wlanUtils.ssidFromInterfaceGUID(itRow.guidName, networkInterface.networkOrSsid);
+                    if (ret != ERROR_SUCCESS) {
+                        if (ret == ERROR_ACCESS_DENIED) {
+                            g_SsidAccessDenied = true;
+                        }
+                        networkInterface.networkOrSsid = "Wi-Fi";
+                    } else {
+                        g_SsidAccessDenied = false;
+                    }
                 } else if (nicType == NETWORK_INTERFACE_MOBILE_BROADBAND) {
                     networkInterface.networkOrSsid = itRow.interfaceName;
                 }
@@ -618,3 +628,7 @@ QString NetworkUtils_win::getRoutingTable()
     return WinUtils::executeBlockingCmd(cmd, "", 50).trimmed();
 }
 
+bool NetworkUtils_win::isSsidAccessAvailable()
+{
+    return !g_SsidAccessDenied;
+}

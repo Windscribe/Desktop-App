@@ -2,6 +2,8 @@
 #include "3rdparty/pstream.h"
 
 #include <arpa/inet.h>
+#include <cstring>
+#include <dirent.h>
 #include <skyr/core/parse.hpp>
 #include <skyr/core/serialize.hpp>
 #include <skyr/url.hpp>
@@ -204,6 +206,63 @@ std::string normalizeAddress(const std::string &address)
     }
 
     return skyr::serialize(url.value());
+}
+
+bool isMacAddressSpoofed(const std::string &network)
+{
+    std::string output;
+    int ret = Utils::executeCommand("nmcli", {"-g", "802-11-wireless.cloned-mac-address", "connection", "show", network.c_str()}, &output);
+    Logger::instance().out("Wireless MAC for network: %s: %s", network.c_str(), output.c_str());
+    if (ret == 0 && !output.empty() && output.rfind("preserve", 0) == std::string::npos) {
+        return true;
+    }
+    ret = Utils::executeCommand("nmcli", {"-g", "802-3-ethernet.cloned-mac-address", "connection", "show", network.c_str()}, &output);
+    Logger::instance().out("Wired MAC for network: %s: %s", network.c_str(), output.c_str());
+    if (ret == 0 && !output.empty() && output.rfind("preserve", 0) == std::string::npos) {
+        return true;
+    }
+    return false;
+}
+
+bool resetMacAddresses(const std::string &ignoreNetwork)
+{
+    std::string output;
+    std::string line;
+    bool firstline = true;
+    Utils::executeCommand("nmcli", {"--fields", "state,name", "connection", "show"}, &output);
+
+    std::stringstream is(output);
+    while (std::getline(is, line)) {
+        // skip labels
+        if (firstline) {
+            firstline = false;
+            continue;
+        }
+
+        std::stringstream is2(line);
+        std::string name;
+        std::string state;
+        is2 >> state >> name;
+
+        // skip ignored network
+        if (name == "lo" || name == ignoreNetwork) {
+            continue;
+        }
+
+        if (!isMacAddressSpoofed(name.c_str())) {
+            continue;
+        }
+
+        Utils::executeCommand("nmcli", {"connection", "modify", name.c_str(), "wifi.cloned-mac-address", "preserve"}, &output);
+        Utils::executeCommand("nmcli", {"connection", "modify", name.c_str(), "ethernet.cloned-mac-address", "preserve"}, &output);
+
+        Logger::instance().out("Reset MAC addresses: %s (state = %s)", name.c_str(), state.c_str());
+
+        if (state == "activated") {
+            Utils::executeCommand("nmcli", {"connection", "up", name.c_str()});
+        }
+    }
+    return true;
 }
 
 } // namespace Utils

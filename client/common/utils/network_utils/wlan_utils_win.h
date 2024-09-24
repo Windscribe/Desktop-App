@@ -18,7 +18,7 @@ public:
     explicit WlanUtils_win();
     ~WlanUtils_win();
 
-    QString ssidFromInterfaceGUID(const QString &interfaceGUID);
+    DWORD ssidFromInterfaceGUID(const QString &interfaceGUID, QString &outSsid);
     bool isWifiRadioOn();
 
     static void setHelper(void* helper);
@@ -34,5 +34,5 @@ private:
     WlanEnumInterfacesFunc pfnWlanEnumInterfaces_;
     WlanQueryInterfaceFunc pfnWlanQueryInterface_;
 
-    QString getSsidFromHelper(const QString &interfaceGUID) const;
+    DWORD getSsidFromHelper(const QString &interfaceGUID, QString &out);
 };

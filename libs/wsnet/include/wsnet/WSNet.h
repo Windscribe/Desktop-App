@@ -28,8 +28,10 @@ public:
     // platformName and appVersion values are added to each request.
     // difference between basePlatform and platformName is that platformName is more specific (for example windows_arm64/windows).
     // deviceId - unique device identifier, in particular used for the API StaticIps
+    // must supply sessionTypeId, where 3 = DESKTOP, 4 = MOBILE (ios and android) to get an appropriate session type token
+
     static bool initialize(const std::string &basePlatform,  const std::string &platformName, const std::string &appVersion,
-                           const std::string &deviceId, const std::string &openVpnVersion,
+                           const std::string &deviceId, const std::string &openVpnVersion, const std::string &sessionTypeId,
                            bool isUseStagingDomains, const std::string &language, const std::string &persistentSettings);
     static std::shared_ptr<WSNet> instance();
     static void cleanup();

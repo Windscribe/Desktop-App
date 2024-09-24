@@ -78,11 +78,12 @@ void RequestExecuterViaFailover::executeBaseRequest(const FailoverData &failover
 {
     using namespace std::placeholders;
     auto httpRequest = serverapi_utils::createHttpRequestWithFailoverParameters(httpNetworkManager_, failoverData, request_.get(), bIgnoreSslErrors_, advancedParameters_->isAPIExtraTLSPadding());
-    asyncCallback_ = httpNetworkManager_->executeRequestEx(httpRequest, 0, std::bind(&RequestExecuterViaFailover::onHttpNetworkRequestFinished, this, _1, _2, _3, _4),
+    httpRequest->setIsDebugLogCurlError(true);
+    asyncCallback_ = httpNetworkManager_->executeRequestEx(httpRequest, 0, std::bind(&RequestExecuterViaFailover::onHttpNetworkRequestFinished, this, _1, _2, _3, _4, _5),
                                                            std::bind(&RequestExecuterViaFailover::onHttpNetworkRequestProgressCallback, this, _1, _2, _3));
 }
 
-void RequestExecuterViaFailover::onHttpNetworkRequestFinished(std::uint64_t httpRequestId, std::uint32_t elapsedMs, NetworkError errCode, const std::string &data)
+void RequestExecuterViaFailover::onHttpNetworkRequestFinished(std::uint64_t httpRequestId, std::uint32_t elapsedMs, NetworkError errCode, const std::string &curlError, const std::string &data)
 {
     asyncCallback_.reset();
     if (request_->isCanceled()) {

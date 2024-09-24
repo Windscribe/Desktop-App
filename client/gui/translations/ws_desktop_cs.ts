@@ -810,6 +810,18 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
         <translation>Společnost Windscribe zjistila, že Wi-Fi je aktuálně vypnutá. Abyste mohli používat Zabezpečený hotspot, musí být zapnutá Wi-Fi.</translation>
     </message>
+    <message>
+        <source>Location Services is disabled</source>
+        <translation>Polohové služby jsou vypnuté</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
+        <translation>Společnost Windscribe vyžaduje, aby polohové služby určily vaše SSID Wi-Fi. Pokud tato možnost není povolena, nastavení pro jednotlivé sítě se bude vztahovat na všechny sítě Wi-Fi. Povolte polohové služby a udělte oprávnění službě Windscribe v nastavení systému.</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
+        <translation>Společnost Windscribe vyžaduje, aby polohové služby určily vaše SSID Wi-Fi. Pokud tato možnost není povolena, nastavení pro jednotlivé sítě se bude vztahovat na všechny sítě Wi-Fi. Povolte prosím polohové služby v nastavení systému.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1176,10 +1188,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Režim připojení</translation>
     </message>
     <message>
-        <source>Automatically determine the MTU for your connection, or manually override.</source>
-        <translation>Automaticky určete jednotku MTU pro připojení nebo ručně přepište.</translation>
-    </message>
-    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Vyberte server DNS při připojení k aplikaci Windscribe.</translation>
     </message>
@@ -1226,6 +1234,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
         <translation>Falšování identity MAC není ve vaší verzi systému MacOS podporováno.</translation>
+    </message>
+    <message>
+        <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
+        <translation>Automaticky určete jednotku MTU pro připojení nebo ručně přepište.  To nemá žádný vliv na protokoly založené na protokolu TCP.</translation>
     </message>
 </context>
 <context>
@@ -2348,6 +2360,10 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Windscribe will download the update, then terminate active connections and restart automatically.</source>
         <translation>Windscribe stáhne aktualizaci, poté ukončí aktivní připojení a automaticky se restartuje.</translation>
+    </message>
+    <message>
+        <source>Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.</source>
+        <translation>Windscribe stáhne a nainstaluje aktualizaci, což může trvat několik minut. Po aktualizaci se počítač restartuje.</translation>
     </message>
 </context>
 <context>

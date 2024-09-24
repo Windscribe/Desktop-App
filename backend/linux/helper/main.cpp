@@ -15,8 +15,10 @@ void handler_sigterm(int signum)
 
 int main(int argc, const char *argv[])
 {
-    UNUSED(argc);
-    UNUSED(argv);
+    if (argc > 1 && strcmp(argv[1], "--reset-mac-addresses") == 0) {
+        Utils::resetMacAddresses();
+        return EXIT_SUCCESS;
+    }
 
     signal(SIGSEGV, handler_sigterm);
     signal(SIGFPE, handler_sigterm);

@@ -53,15 +53,23 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::login(const std::string &use
     });
 
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = requests_factory::login(username, password, code2fa, cancelableCallback);
+    BaseRequest *request = requests_factory::login(username, password, code2fa, Settings::instance().sessionTypeId(), cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
 
-std::shared_ptr<WSNetCancelableCallback> ServerAPI::session(const std::string &authHash, WSNetRequestFinishedCallback callback)
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::session(const std::string &authHash, const std::string &appleId, const std::string &gpDeviceId, WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = requests_factory::session(authHash, cancelableCallback);
+    BaseRequest *request = requests_factory::session(authHash, appleId, gpDeviceId, cancelableCallback);
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    return cancelableCallback;
+}
+
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::claimVoucherCode(const std::string &authHash, const std::string &voucherCode, WSNetRequestFinishedCallback callback)
+{
+    auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
+    BaseRequest *request = requests_factory::claimVoucherCode(authHash, voucherCode, cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
@@ -131,10 +139,10 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::confirmEmail(const std::stri
     return cancelableCallback;
 }
 
-std::shared_ptr<WSNetCancelableCallback> ServerAPI::signup(const std::string &username, const std::string &password, const std::string &referringUsername, const std::string &email, WSNetRequestFinishedCallback callback)
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::signup(const std::string &username, const std::string &password, const std::string &referringUsername, const std::string &email, const std::string &voucherCode, WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = requests_factory::signup(username, password, referringUsername, email, cancelableCallback);
+    BaseRequest *request = requests_factory::signup(username, password, referringUsername, email, Settings::instance().sessionTypeId(), voucherCode, cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
@@ -318,10 +326,10 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::signupUsingToken(const std::
     return cancelableCallback;
 }
 
-std::shared_ptr<WSNetCancelableCallback> ServerAPI::claimAccount(const std::string &authHash, const std::string &username, const std::string &password, const std::string &email, const std::string &claimAccount, WSNetRequestFinishedCallback callback)
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::claimAccount(const std::string &authHash, const std::string &username, const std::string &password, const std::string &email, const std::string &voucherCode, const std::string &claimAccount, WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = requests_factory::claimAccount(authHash, username, password, email, claimAccount, cancelableCallback);
+    BaseRequest *request = requests_factory::claimAccount(authHash, username, password, email, voucherCode, claimAccount, cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }

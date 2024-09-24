@@ -42,6 +42,7 @@
 #define HELPER_CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR  35
 #define HELPER_CMD_HELPER_VERSION                    36
 #define HELPER_CMD_GET_INTERFACE_SSID                37
+#define HELPER_CMD_RESET_MAC_ADDRESSES               38 // Linux only
 
 // enums
 
@@ -244,7 +245,9 @@ struct CMD_SET_MAC_SPOOFING_ON_BOOT {
 
 struct CMD_SET_MAC_ADDRESS {
     std::string interface;
+    std::string network;
     std::string macAddress;
+    bool isWifi;
 };
 
 struct CMD_TASK_KILL {
@@ -271,3 +274,8 @@ struct CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR {
 struct CMD_GET_INTERFACE_SSID {
     std::string interface;
 };
+
+struct CMD_RESET_MAC_ADDRESSES {
+    std::string ignoreNetwork;
+};
+

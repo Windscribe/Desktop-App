@@ -810,6 +810,18 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
         <translation>Windscribe تشخیص داده است که Wi-Fi در حال حاضر خاموش است. برای استفاده از نقطه اتصال امن، Wi-Fi باید روشن باشد.</translation>
     </message>
+    <message>
+        <source>Location Services is disabled</source>
+        <translation>خدمات مکان غیرفعال است</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
+        <translation>Windscribe برای تعیین SSID Wi-Fi شما به خدمات مکان نیاز دارد. اگر فعال نباشد، تنظیمات هر شبکه برای همه شبکه های Wi-Fi اعمال می شود. لطفا خدمات موقعیت مکانی را فعال کنید و اجازه Windscribe را در تنظیمات سیستم خود اعطا کنید.</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
+        <translation>Windscribe برای تعیین SSID Wi-Fi شما به خدمات مکان نیاز دارد. اگر فعال نباشد، تنظیمات هر شبکه برای همه شبکه های Wi-Fi اعمال می شود. لطفا خدمات موقعیت مکانی را در تنظیمات سیستم خود فعال کنید.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1180,10 +1192,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>پروتکل VPN را به صورت خودکار انتخاب کنید یا یکی را به صورت دستی انتخاب کنید. توجه: &quot;پروتکل ترجیحی&quot; این تنظیمات را لغو خواهد کرد.</translation>
     </message>
     <message>
-        <source>Automatically determine the MTU for your connection, or manually override.</source>
-        <translation>MTU را به طور خودکار برای اتصال خود تعیین کنید یا به صورت دستی لغو کنید.</translation>
-    </message>
-    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>سرور DNS را در حالی که به Windscribe متصل است انتخاب کنید.</translation>
     </message>
@@ -1226,6 +1234,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
         <translation>MAC spoofing در نسخه MacOS شما پشتیبانی نمی شود.</translation>
+    </message>
+    <message>
+        <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
+        <translation>MTU را به طور خودکار برای اتصال خود تعیین کنید یا به صورت دستی لغو کنید.  این هیچ تاثیری بر پروتکل های مبتنی بر TCP ندارد.</translation>
     </message>
 </context>
 <context>
@@ -2348,6 +2360,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Windscribe will download the update, then terminate active connections and restart automatically.</source>
         <translation>Windscribe به روز رسانی را دانلود می کند، سپس اتصالات فعال را خاتمه می دهد و به طور خودکار راه اندازی مجدد می شود.</translation>
+    </message>
+    <message>
+        <source>Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.</source>
+        <translation>Windscribe به روز رسانی را دانلود و نصب می کند که ممکن است چند دقیقه طول بکشد. رایانه شما پس از به روز رسانی مجددا راه اندازی می شود.</translation>
     </message>
 </context>
 <context>

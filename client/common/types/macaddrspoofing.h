@@ -6,6 +6,8 @@
 #include "utils/network_utils/network_utils.h"
 #ifdef Q_OS_MACOS
 #include "utils/macutils.h"
+#elif defined(Q_OS_LINUX)
+#include "utils/network_utils/network_utils_linux.h"
 #endif
 
 namespace types {
@@ -116,6 +118,25 @@ struct MacAddrSpoofing
         return stream;
     }
 
+    void fromIni(const QSettings &settings)
+    {
+        isEnabled = settings.value(kIniIsEnabledProp, false).toBool();
+        macAddress = settings.value(kIniMacAddressProp).toString();
+        isAutoRotate = settings.value(kIniIsAutoRotateProp, false).toBool();
+
+#ifdef Q_OS_LINUX
+        QString name = settings.value(kIniInterfaceProp).toString();
+        NetworkUtils_linux::networkInterfaceByName(name);
+#endif
+    }
+
+    void toIni(QSettings &settings) const
+    {
+        settings.setValue(kIniIsEnabledProp, isEnabled);
+        settings.setValue(kIniMacAddressProp, macAddress);
+        settings.setValue(kIniIsAutoRotateProp, isAutoRotate);
+        settings.setValue(kIniInterfaceProp, selectedNetworkInterface.interfaceName);
+    }
 
     friend QDebug operator<<(QDebug dbg, const MacAddrSpoofing &m)
     {
@@ -135,6 +156,11 @@ struct MacAddrSpoofing
     }
 
 private:
+    const static inline QString kIniIsEnabledProp = "MACAddressSpoofingEnabled";
+    const static inline QString kIniMacAddressProp = "MACAddressSpoofingAddress";
+    const static inline QString kIniIsAutoRotateProp = "MACAddressSpoofingAutoRotate";
+    const static inline QString kIniInterfaceProp = "MACAddressSpoofingInterface";
+
     const static inline QString kJsonIsEnabledProp = "isEnabled";
     const static inline QString kJsonMacAddressProp = "macAddress";
     const static inline QString kJsonIsAutoRotateProp = "isAutoRotate";

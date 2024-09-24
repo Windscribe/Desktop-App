@@ -810,6 +810,18 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
         <translation>Windscribe đã phát hiện ra rằng Wi-Fi hiện đang bị tắt. Để sử dụng Secure Hotspot, bạn phải bật Wi-Fi.</translation>
     </message>
+    <message>
+        <source>Location Services is disabled</source>
+        <translation>Dịch vụ định vị bị tắt</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
+        <translation>Windscribe yêu cầu Dịch vụ định vị để xác định SSID Wi-Fi của bạn. Nếu nó không được bật, cài đặt trên mỗi mạng sẽ áp dụng cho tất cả các mạng Wi-Fi. Vui lòng bật Dịch vụ định vị và cấp quyền cho Windscribe trong Cài đặt hệ thống của bạn.</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
+        <translation>Windscribe yêu cầu Dịch vụ định vị để xác định SSID Wi-Fi của bạn. Nếu nó không được bật, cài đặt trên mỗi mạng sẽ áp dụng cho tất cả các mạng Wi-Fi. Vui lòng bật Dịch vụ định vị trong Cài đặt hệ thống của bạn.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1180,10 +1192,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Tự động chọn giao thức VPN hoặc chọn một giao thức theo cách thủ công. LƯU Ý: &quot;Giao thức Ưu tiên&quot; sẽ ghi đè cài đặt này.</translation>
     </message>
     <message>
-        <source>Automatically determine the MTU for your connection, or manually override.</source>
-        <translation>Tự động xác định MTU cho kết nối của bạn hoặc ghi đè theo cách thủ công.</translation>
-    </message>
-    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Chọn máy chủ DNS trong khi kết nối với Windscribe.</translation>
     </message>
@@ -1226,6 +1234,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
         <translation>Giả mạo MAC không được hỗ trợ trên phiên bản MacOS của bạn.</translation>
+    </message>
+    <message>
+        <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
+        <translation>Tự động xác định MTU cho kết nối của bạn hoặc ghi đè theo cách thủ công.  Điều này không ảnh hưởng đến các giao thức dựa trên TCP.</translation>
     </message>
 </context>
 <context>
@@ -2348,6 +2360,10 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Windscribe will download the update, then terminate active connections and restart automatically.</source>
         <translation>Windscribe sẽ tải xuống bản cập nhật, sau đó chấm dứt các kết nối đang hoạt động và tự động khởi động lại.</translation>
+    </message>
+    <message>
+        <source>Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.</source>
+        <translation>Windscribe sẽ tải xuống và cài đặt bản cập nhật, quá trình này có thể mất vài phút. Máy tính của bạn sẽ khởi động lại sau khi cập nhật.</translation>
     </message>
 </context>
 <context>

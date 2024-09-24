@@ -61,6 +61,7 @@ if [ $1 -eq 0 ]; then
     killall -q Windscribe || true
     systemctl stop windscribe-helper || true
     systemctl disable windscribe-helper || true
+    /opt/windscribe/helper --reset-mac-addresses
     userdel -f windscribe || true
     groupdel -f windscribe || true
     rm -f /usr/bin/windscribe-cli

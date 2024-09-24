@@ -57,3 +57,19 @@ bool Helper_linux::setDnsLeakProtectEnabled(bool bEnabled)
 
     return runCommand(HELPER_CMD_SET_DNS_LEAK_PROTECT_ENABLED, stream.str(), answer);
 }
+
+bool Helper_linux::resetMacAddresses(const QString &ignoreNetwork)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_ANSWER answer;
+    CMD_RESET_MAC_ADDRESSES cmd;
+    cmd.ignoreNetwork = ignoreNetwork.toStdString();
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    return runCommand(HELPER_CMD_RESET_MAC_ADDRESSES, stream.str(), answer) && answer.executed;
+}
+

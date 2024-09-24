@@ -1,6 +1,8 @@
 target_sources(common PRIVATE
     checkupdate.cpp
     checkupdate.h
+    debuglog.cpp
+    debuglog.h
     group.cpp
     group.h
     location.cpp

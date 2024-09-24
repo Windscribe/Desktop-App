@@ -76,6 +76,12 @@ CustomOvpnAuthCredentialsStorage::Credentials CustomOvpnAuthCredentialsStorage::
     }
 }
 
+void CustomOvpnAuthCredentialsStorage::clearCredentials()
+{
+    QMutexLocker locker(&mutex_);
+    hash_.clear();
+}
+
 void CustomOvpnAuthCredentialsStorage::readFromSettings()
 {
     QMutexLocker locker(&mutex_);

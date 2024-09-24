@@ -18,6 +18,7 @@ struct HttpRequest::Impl
     bool isExtraTLSPadding = false;
     std::string overrideIp;
     bool isWhiteListIps = true;
+    bool isDebugLogCurlError = false;
     skyr::url skyrUrl;
 };
 
@@ -165,6 +166,16 @@ void HttpRequest::setIsWhiteListIps(bool isWhiteListIps)
 bool HttpRequest::isWhiteListIps() const
 {
     return pImpl_->isWhiteListIps;
+}
+
+void HttpRequest::setIsDebugLogCurlError(bool isEnabled)
+{
+    pImpl_->isDebugLogCurlError = isEnabled;
+}
+
+bool HttpRequest::isDebugLogCurlError() const
+{
+    return pImpl_->isDebugLogCurlError;
 }
 
 } // namespace wsnet

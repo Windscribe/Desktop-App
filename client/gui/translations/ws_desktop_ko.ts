@@ -810,6 +810,18 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
         <translation>Windscribe에서 Wi-Fi가 현재 꺼져 있음을 감지했습니다. 보안 핫스팟을 사용하려면 Wi-Fi가 켜져 있어야 합니다.</translation>
     </message>
+    <message>
+        <source>Location Services is disabled</source>
+        <translation>위치 서비스를 사용할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
+        <translation>Windscribe는 Wi-Fi SSID를 확인하기 위해 위치 서비스가 필요합니다. 활성화되지 않은 경우 네트워크별 설정이 모든 Wi-Fi 네트워크에 적용됩니다. 위치 서비스를 활성화하고 시스템 설정에서 Windscribe에 대한 권한을 부여하십시오.</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
+        <translation>Windscribe는 Wi-Fi SSID를 확인하기 위해 위치 서비스가 필요합니다. 활성화되지 않은 경우 네트워크별 설정이 모든 Wi-Fi 네트워크에 적용됩니다. 시스템 설정에서 위치 서비스를 활성화하십시오.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1180,10 +1192,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>VPN 프로토콜을 자동으로 선택하거나 수동으로 선택합니다. 참고: &quot;기본 설정 프로토콜&quot;은 이 설정을 무시합니다.</translation>
     </message>
     <message>
-        <source>Automatically determine the MTU for your connection, or manually override.</source>
-        <translation>연결에 대한 MTU를 자동으로 결정하거나 수동으로 재정의합니다.</translation>
-    </message>
-    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Windscribe에 연결된 상태에서 DNS 서버를 선택합니다.</translation>
     </message>
@@ -1226,6 +1234,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
         <translation>MAC 스푸핑은 사용 중인 MacOS 버전에서 지원되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
+        <translation>연결에 대한 MTU를 자동으로 결정하거나 수동으로 재정의합니다.  이는 TCP 기반 프로토콜에는 영향을 주지 않습니다.</translation>
     </message>
 </context>
 <context>
@@ -2348,6 +2360,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Windscribe will download the update, then terminate active connections and restart automatically.</source>
         <translation>Windscribe는 업데이트를 다운로드한 다음 활성 연결을 종료하고 자동으로 다시 시작합니다.</translation>
+    </message>
+    <message>
+        <source>Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.</source>
+        <translation>Windscribe는 업데이트를 다운로드하고 설치하며 몇 분 정도 걸릴 수 있습니다. 업데이트 후 컴퓨터가 다시 시작됩니다.</translation>
     </message>
 </context>
 <context>

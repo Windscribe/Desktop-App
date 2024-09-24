@@ -5,6 +5,11 @@
 
 #include "../utils/logger.h"
 
+#if defined (Q_OS_WIN)
+#include "types/global_consts.h"
+#include "utils/winutils.h"
+#endif
+
 // non-filtered windscribe-specific advanced settings will cause error when connecting with openvpn
 // configs prefixed with "ws-" will be ignored by openvpn profile
 const QString WS_PREFIX = "ws-";
@@ -33,7 +38,7 @@ const QString WS_WG_UDP_STUFFING = WS_PREFIX + "wireguard-udp-stuffing";
 
 const QString WS_SERVERLIST_COUNTRY_OVERRIDE = WS_PREFIX + "serverlist-country-override";
 
-const QString WS_USE_OPENVPN_DCO = WS_PREFIX + "use-openvpn-dco";
+const QString WS_USE_OPENVPN_WINTUN = WS_PREFIX + "use-openvpn-wintun";
 
 const QString WS_LOG_CTRLD = WS_PREFIX + "log-ctrld";
 
@@ -351,7 +356,17 @@ bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const
 
 bool ExtraConfig::useOpenVpnDCO()
 {
-    return getFlagFromExtraConfigLines(WS_USE_OPENVPN_DCO);
+    bool useDCO = !getFlagFromExtraConfigLines(WS_USE_OPENVPN_WINTUN);
+#if defined (Q_OS_WIN)
+    if (useDCO) {
+        if (WinUtils::getOSBuildNumber() < kMinWindowsBuildNumberForOpenVPNDCO) {
+            useDCO = false;
+            qCDebug(LOG_CONNECTION) << "WARNING: OS version is not compatible with the OpenVPN DCO driver.  Windows 10 build"
+                                    << kMinWindowsBuildNumberForOpenVPNDCO << "or newer is required to use this driver.";
+        }
+    }
+#endif
+    return useDCO;
 }
 
 ExtraConfig::ExtraConfig() : path_(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)

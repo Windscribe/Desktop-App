@@ -810,6 +810,18 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
         <translation>اكتشف Windscribe أن شبكة Wi-Fi متوقفة عن التشغيل حاليا. لاستخدام نقطة الاتصال الآمنة، يجب تشغيل Wi-Fi.</translation>
     </message>
+    <message>
+        <source>Location Services is disabled</source>
+        <translation>خدمات الموقع معطلة</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
+        <translation>يتطلب Windscribe خدمات الموقع لتحديد معرف SSID الخاص بشبكة Wi-Fi الخاصة بك. إذا لم يتم تمكينه ، تطبيق الإعدادات لكل شبكة على جميع شبكات Wi-Fi. يرجى تمكين خدمات الموقع ومنح الإذن ل Windscribe في إعدادات النظام الخاصة بك.</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
+        <translation>يتطلب Windscribe خدمات الموقع لتحديد معرف SSID الخاص بشبكة Wi-Fi الخاصة بك. إذا لم يتم تمكينه ، تطبيق الإعدادات لكل شبكة على جميع شبكات Wi-Fi. الرجاء تمكين خدمات الموقع في إعدادات النظام الخاص بك.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1176,10 +1188,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>وضع الاتصال</translation>
     </message>
     <message>
-        <source>Automatically determine the MTU for your connection, or manually override.</source>
-        <translation>تحديد وحدة الإرسال الكبرى تلقائيا لاتصالك، أو تجاوزها يدويا.</translation>
-    </message>
-    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>حدد خادم DNS أثناء الاتصال ب Windscribe.</translation>
     </message>
@@ -1226,6 +1234,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
         <translation>انتحال MAC غير مدعوم على إصدار MacOS الخاص بك.</translation>
+    </message>
+    <message>
+        <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
+        <translation>تحديد وحدة الإرسال الكبرى تلقائيا لاتصالك، أو تجاوزها يدويا. هذا ليس له أي تأثير على البروتوكولات المستندة إلى TCP.</translation>
     </message>
 </context>
 <context>
@@ -2348,6 +2360,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Windscribe will download the update, then terminate active connections and restart automatically.</source>
         <translation>سيقوم Windscribe بتنزيل التحديث ، ثم إنهاء الاتصالات النشطة وإعادة التشغيل تلقائيا.</translation>
+    </message>
+    <message>
+        <source>Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.</source>
+        <translation>سيقوم Windscribe بتنزيل التحديث وتثبيته ، الأمر الذي قد يستغرق عدة دقائق. ستتم إعادة تشغيل جهاز الكمبيوتر الخاص بك بعد التحديث.</translation>
     </message>
 </context>
 <context>

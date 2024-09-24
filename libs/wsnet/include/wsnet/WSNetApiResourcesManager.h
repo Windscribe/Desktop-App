@@ -91,6 +91,9 @@ public:
     // pcpid used for Notifications API call
     virtual void setNotificationPcpid(const std::string &pcpid) = 0;
 
+    // appleId or gpDeviceId (ios or android) device ID, set them empty if they are not required
+    virtual void setMobileDeviceId(const std::string &appleId, const std::string &gpDeviceId) = 0;
+
     // the following functions return the current API data in json format
     virtual std::string sessionStatus() const = 0;
     virtual std::string portMap() const = 0;

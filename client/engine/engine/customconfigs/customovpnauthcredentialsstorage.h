@@ -18,6 +18,8 @@ public:
     void removePrivKeyPassword(const QString &ovpnFileName);
     void removeUnusedCredentials(const QStringList &existingOvpnFileNames);
 
+    void clearCredentials();
+
     struct Credentials
     {
         QString username;

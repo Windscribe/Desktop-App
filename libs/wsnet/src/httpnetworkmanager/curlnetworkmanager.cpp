@@ -1,6 +1,8 @@
 #include "curlnetworkmanager.h"
+#include <regex>
 #include <spdlog/spdlog.h>
 #include "utils/utils.h"
+#include "utils/crypto_utils.h"
 #include "settings.h"
 
 #include <openssl/opensslv.h>
@@ -56,6 +58,17 @@ void CurlNetworkManager::executeRequest(std::uint64_t requestId, const std::shar
     requestInfo->id = requestId;
     requestInfo->curlNetworkManager = this;
     requestInfo->curlEasyHandle = curl_easy_init();
+    requestInfo->isDebugLogCurlError = request->isDebugLogCurlError();
+
+    // Prepare data for debug log privacy
+    if (requestInfo->isDebugLogCurlError) {
+        requestInfo->domain = utils::topDomain(request->hostname());
+        requestInfo->domainMd5 = crypto_utils::md5(requestInfo->domain);
+        requestInfo->ips = ips;
+        for (const auto &it : requestInfo->ips) {
+            requestInfo->ipsMd5.push_back(crypto_utils::md5(it));
+        }
+    }
 
     if (requestInfo->curlEasyHandle)  {
         std::lock_guard locker(mutex_);
@@ -144,13 +157,10 @@ void CurlNetworkManager::run()
 
                 curl_off_t totalTime;
                 curl_easy_getinfo(curlEasyHandle, CURLINFO_TOTAL_TIME_T, &totalTime);
+
                 curl_multi_remove_handle(multiHandle_, curlEasyHandle);
 
                 CURLcode result = curlMsg->data.result;
-
-                if (result != CURLE_OK) {
-                    spdlog::debug("Curl request error: {}", curl_easy_strerror(result));
-                }
 
                 std::uint64_t id;
                 //remove request from activeRequests
@@ -160,10 +170,31 @@ void CurlNetworkManager::run()
                     auto it = activeRequests_.find(id);
                     assert(it != activeRequests_.end());
                     assert(it->second->curlEasyHandle == curlEasyHandle);
+
+                    if (result != CURLE_OK) {
+                        spdlog::debug("Curl request error: {}", curl_easy_strerror(result));
+
+                        // Log all curl output for a failed request
+                        if (it->second->isDebugLogCurlError) {
+                            for (const auto &log: it->second->debugLogs) {
+                                spdlog::info("{}", log);
+                            }
+                        }
+                    } else {
+                        // Log curl output for a successful request, only strings containing "Trying" and "Connected" substrings to reduce log bloat
+                        if (it->second->isDebugLogCurlError) {
+                            for (const auto &log: it->second->debugLogs) {
+                                if (log.find("Trying") != std::string::npos || log.find("Connected") != std::string::npos) {
+                                    spdlog::info("{}", log);
+                                }
+                            }
+                        }
+                    }
+
                     delete it->second;
                     activeRequests_.erase(id);
                 }
-                finishedCallback_(id, result == CURLE_OK);
+                finishedCallback_(id, result == CURLE_OK, curl_easy_strerror(result));
             }
         } while(curlMsg);
 
@@ -240,6 +271,27 @@ int CurlNetworkManager::curlCloseSocketCallback(void *clientp, curl_socket_t cur
     return CURL_SOCKOPT_OK;
 }
 
+int CurlNetworkManager::curlTrace(CURL *handle, curl_infotype type, char *data, size_t size, void *clientp)
+{
+    RequestInfo *requestInfo = static_cast<RequestInfo *>(clientp);
+    std::lock_guard locker(requestInfo->curlNetworkManager->mutex_);
+    if (type == CURLINFO_TEXT) {
+        // replace all domains in the string with their md5 for privacy.
+        std::string src = std::string(data, size);
+        std::regex reg(requestInfo->domain);
+        std::string res = regex_replace(src, reg, requestInfo->domainMd5);
+
+        // replace all IPv4 addresses in the string with their md5 for privacy.
+        for (size_t i = 0; i < requestInfo->ips.size(); ++i) {
+            std::regex reg(requestInfo->ips[i]);
+            res = regex_replace(res, reg, requestInfo->ipsMd5[i]);
+        }
+
+        requestInfo->debugLogs.push_back(res);
+    }
+    return 0;
+}
+
 bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::shared_ptr<WSNetHttpRequest> &request, const std::vector<std::string> &ips, std::uint32_t timeoutMs)
 {
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_WRITEFUNCTION, writeDataCallback) != CURLE_OK) return false;
@@ -254,13 +306,20 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
 
     spdlog::debug("New curl request : {}", request->url().c_str());
 
-    // Required for android only.
-    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FRESH_CONNECT, 1) != CURLE_OK) return false;
+    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FRESH_CONNECT, 1L) != CURLE_OK) return false;
+    // make connection get closed at once after use
+    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FORBID_REUSE, 1L) != CURLE_OK) return false;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CONNECTTIMEOUT_MS , timeoutMs) != CURLE_OK) return false;
 
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_XFERINFOFUNCTION, progressCallback) != CURLE_OK) return false;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_XFERINFODATA, requestInfo) != CURLE_OK) return false;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_NOPROGRESS, 0) != CURLE_OK) return false;
+
+    if (requestInfo->isDebugLogCurlError) {
+        if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_DEBUGFUNCTION, curlTrace) != CURLE_OK) return false;
+        if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_DEBUGDATA, requestInfo) != CURLE_OK) return false;
+        if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_VERBOSE, 1L) != CURLE_OK) return false;
+    }
 
     struct curl_slist *list = NULL;
     list = curl_slist_append(list, request->contentTypeHeader().c_str());

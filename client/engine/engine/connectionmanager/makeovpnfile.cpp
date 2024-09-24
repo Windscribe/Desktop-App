@@ -8,7 +8,6 @@
 
 #if defined (Q_OS_WIN)
 #include "types/global_consts.h"
-#include "utils/winutils.h"
 #endif
 
 MakeOVPNFile::MakeOVPNFile()
@@ -41,15 +40,9 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
     // possibly attempt to use an adapter created by other software (e.g. the vanilla OpenVPN client app).
     config_ += QString("\r\n--dev-node %1\r\n").arg(kOpenVPNAdapterIdentifier);
     if (ExtraConfig::instance().useOpenVpnDCO()) {
-        if (WinUtils::getOSBuildNumber() >= kMinWindowsBuildNumberForOpenVPNDCO) {
-            config_ += "\r\n--windows-driver ovpn-dco\r\n";
-            // DCO driver on Windows will not accept the AES-256 cipher and will drop back to using wintun if it is provided in the ciphers list.
-            config_.replace(":AES-256-CBC:", ":");
-        } else {
-            qCDebug(LOG_CONNECTION) << "WARNING: OS version is not compatible with the OpenVPN DCO driver.  Windows 10 build"
-                                    << kMinWindowsBuildNumberForOpenVPNDCO << "or newer is required to use this driver.";
-            config_ += "\r\n--windows-driver wintun\r\n";
-        }
+        config_ += "\r\n--windows-driver ovpn-dco\r\n";
+        // DCO driver on Windows will not accept the AES-256 cipher and will drop back to using wintun if it is provided in the ciphers list.
+        config_.replace(":AES-256-CBC:", ":");
     } else {
         config_ += "\r\n--windows-driver wintun\r\n";
     }

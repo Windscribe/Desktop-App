@@ -22,6 +22,10 @@ private:
     std::vector<std::string> apps_;
     std::thread *thread_;
     int sock_;
+    bool running_;
+
+    bool functional_;
+    bool testing_;
 
     ProcessMonitor();
     ~ProcessMonitor();
@@ -31,6 +35,7 @@ private:
     std::vector<pid_t> findPids(const std::string &exe);
     std::string getCmdByPid(pid_t pid);
 
+    void selfTest();
     bool prepareMonitoring();
     bool startMonitoring();
     void stopMonitoring();

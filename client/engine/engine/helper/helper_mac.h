@@ -16,7 +16,6 @@ public:
     QString getHelperVersion() override;
 
     // Mac specific functions
-    bool setMacAddress(const QString &interface, const QString &macAddress);
     bool enableMacSpoofingOnBoot(bool bEnable, const QString &interfaceName, const QString &macAddress);
     bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties);
     bool setIpv6Enabled(bool bEnabled);

@@ -13,9 +13,18 @@ fi
 if [ $platform = "linux_deb_x64_cli" ]; then
     cmd="killall -q -w Windscribe && APT_LISTBUGS_FRONTEND=none apt install -y --reinstall \"$1\""
 elif [ $platform = "linux_rpm_x64_cli" ]; then
-    cmd="killall -q -w Windscribe && dnf upgrade -y \"$1\""
+    if command -v rpm-ostree; then
+        cmd=""
+        killall -q -w Windscribe && rpm-ostree upgrade --reboot --uninstall windscribe --install "$1"
+    else
+        cmd="killall -q -w Windscribe && dnf upgrade -y \"$1\""
+    fi
 elif [ $platform = "linux_rpm_opensuse_x64_cli" ]; then
-    cmd="killall -q -w Windscribe && zypper --non-interactive install --force --allow-unsigned-rpm \"$1\""
+    if [ -f /usr/sbin/transactional-update ]; then
+        cmd="killall -q -w Windscribe && transactional-update -n pkg install --allow-unsigned-rpm \"$1\"; reboot"
+    else
+        cmd="killall -q -w Windscribe && zypper --non-interactive install --force --allow-unsigned-rpm \"$1\""
+    fi
 elif [ $platform = "linux_zst_x64_cli" ]; then
     cmd="killall -q -w Windscribe && pacman -U --noconfirm \"$1\""
 fi

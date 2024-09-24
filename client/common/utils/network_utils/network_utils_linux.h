@@ -3,6 +3,8 @@
 #include <QList>
 #include <QString>
 
+#include "types/networkinterface.h"
+
 namespace NetworkUtils_linux
 {
 
@@ -22,5 +24,7 @@ void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &
 bool pingWithMtu(const QString &url, int mtu);
 QString getLocalIP();
 QString getRoutingTable();
+QList<types::NetworkInterface> currentNetworkInterfaces(bool includeNoInterface);
+types::NetworkInterface networkInterfaceByName(const QString &name);
 
 } // namespace NetworkUtils_linux

@@ -12,7 +12,7 @@ public:
     NetworkDetectionManager_win(QObject *parent, IHelper *helper);
     ~NetworkDetectionManager_win() override;
 
-    void getCurrentNetworkInterface(types::NetworkInterface &networkInterface) override;
+    void getCurrentNetworkInterface(types::NetworkInterface &networkInterface, bool forceUpdate = false) override;
     bool isOnline() override;
 
     bool interfaceEnabled(int interfaceIndex);

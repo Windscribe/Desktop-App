@@ -57,11 +57,11 @@ private:
     void onDnsResolvedCallback(const DnsCacheResult &result);
     void onDnsResolvedImpl(const DnsCacheResult &result);
 
-    void onCurlFinishedCallback(std::uint64_t requestId, bool bSuccess);
+    void onCurlFinishedCallback(std::uint64_t requestId, bool bSuccess, const std::string &curlError);
     void onCurlProgressCallback(std::uint64_t requestId, std::uint64_t bytesReceived, std::uint64_t bytesTotal);
     void onCurlReadyDataCallback(std::uint64_t requestId, const std::string &data);
 
-    void onCurlFinishedCallbackImpl(std::uint64_t requestId, bool bSuccess);
+    void onCurlFinishedCallbackImpl(std::uint64_t requestId, bool bSuccess, const std::string &curlError);
     void onCurlProgressCallbackImpl(std::uint64_t requestId, std::uint64_t bytesReceived, std::uint64_t bytesTotal);
     void onCurlReadyDataCallbackImpl(std::uint64_t requestId, const std::string &data);
 

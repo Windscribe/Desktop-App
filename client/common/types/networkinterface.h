@@ -73,7 +73,11 @@ struct NetworkInterface
         }
 
         if (json.contains(kJsonMtuProp) && json[kJsonMtuProp].isDouble()) {
-            mtu = static_cast<int>(json[kJsonMtuProp].toDouble(1470));
+            int mtuValue = json[kJsonMtuProp].toInt();
+            // MTU is unset, or must be a minimum of 68 per RFC 791 and can't exceed maximum IP packet size of 65535
+            if (mtuValue < 0 || (mtuValue >= 68 && mtuValue < 65536)) {
+                mtu = mtuValue;
+            }
         }
 
         if (json.contains(kJsonStateProp) && json[kJsonStateProp].isDouble()) {

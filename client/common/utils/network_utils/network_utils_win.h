@@ -21,4 +21,6 @@ namespace NetworkUtils_win
     QString interfaceSubkeyName(int interfaceIndex);
 
     std::optional<bool> haveInternetConnectivity();
+
+    bool isSsidAccessAvailable();
 }

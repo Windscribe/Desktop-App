@@ -1,12 +1,16 @@
 #include "network_utils_linux.h"
 
-#include <QtAlgorithms>
+#include <QDir>
 #include <QHostAddress>
 #include <QScopeGuard>
+#include <QtAlgorithms>
 
+#include <net/if.h>
 #include <arpa/inet.h>
 #include <linux/rtnetlink.h>
-#include <net/if.h>
+#include <linux/wireless.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 
 #include "../logger.h"
@@ -145,6 +149,133 @@ QString getLocalIP()
 QString getRoutingTable()
 {
     return Utils::execCmd("cat /proc/net/route");
+}
+
+static QString getMacAddressByIfName(const QString &ifname)
+{
+    QString ret;
+
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (fd != -1) {
+        struct ifreq ifr;
+        memset(&ifr, 0, sizeof(ifr));
+        ifr.ifr_addr.sa_family = AF_INET;
+        strncpy(ifr.ifr_name , ifname.toStdString().c_str() , IFNAMSIZ-1);
+        if (ioctl(fd, SIOCGIFHWADDR, &ifr) == 0) {
+            unsigned char *mac = (unsigned char *)ifr.ifr_hwaddr.sa_data;
+            // format mac address
+            ret = QString::asprintf("%.2X:%.2X:%.2X:%.2X:%.2X:%.2X" , mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+        }
+        close(fd);
+    }
+    return ret;
+}
+
+static bool isActiveByIfName(const QString &ifname)
+{
+    bool ret = false;
+
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (fd != -1) {
+        struct ifreq ifr;
+        memset(&ifr, 0, sizeof(ifr));
+        ifr.ifr_addr.sa_family = AF_INET;
+        strncpy(ifr.ifr_name , ifname.toStdString().c_str() , IFNAMSIZ-1);
+        if (ioctl(fd, SIOCGIFFLAGS, &ifr) == 0) {
+            ret = (ifr.ifr_flags & ( IFF_UP | IFF_RUNNING )) == ( IFF_UP | IFF_RUNNING );
+        }
+        close(fd);
+    }
+    return ret;
+}
+
+static bool checkWirelessByIfName(const QString &ifname)
+{
+    bool ret = false;
+
+    int fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (fd != -1) {
+        struct iwreq pwrq;
+        memset(&pwrq, 0, sizeof(pwrq));
+        strncpy(pwrq.ifr_name, ifname.toStdString().c_str(), IFNAMSIZ-1);
+        if (ioctl(fd, SIOCGIWNAME, &pwrq) != -1) {
+            ret = true;
+        }
+        close(fd);
+    }
+    return ret;
+}
+
+static QString getNetworkForInterface(const QString &ifname)
+{
+    QString strReply;
+    FILE *file = popen("nmcli -t -f NAME,DEVICE c show", "r");
+    if (file) {
+        char szLine[4096];
+        while(fgets(szLine, sizeof(szLine), file) != 0) {
+            strReply += szLine;
+        }
+        pclose(file);
+    }
+
+    const QStringList lines = strReply.split('\n', Qt::SkipEmptyParts);
+    for (auto &it : lines) {
+        const QStringList pars = it.split(':', Qt::SkipEmptyParts);
+        if (pars.size() == 2) {
+            if (pars[1] == ifname) {
+                return pars[0];
+            }
+        }
+    }
+    return QString();
+}
+
+static void populateInterface(const QString &ifname, types::NetworkInterface &interface)
+{
+    interface.interfaceName = ifname;
+    interface.interfaceIndex = if_nametoindex(ifname.toStdString().c_str());
+    interface.physicalAddress = getMacAddressByIfName(ifname);
+    interface.networkOrSsid = getNetworkForInterface(ifname);
+
+    if (checkWirelessByIfName(ifname)) {
+        interface.interfaceType = NETWORK_INTERFACE_WIFI;
+        interface.friendlyName = "Wi-Fi";
+    } else {
+        interface.interfaceType = NETWORK_INTERFACE_ETH;
+        interface.friendlyName = "Ethernet";
+    }
+
+    interface.active = isActiveByIfName(ifname);
+}
+
+QList<types::NetworkInterface> currentNetworkInterfaces(bool includeNoInterface)
+{
+    QList<types::NetworkInterface> interfaces;
+    QStringList names;
+
+    if (includeNoInterface) {
+        interfaces.push_back(types::NetworkInterface::noNetworkInterface());
+    }
+
+    QDir dir("/sys/class/net");
+    names = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    // Ignore loopback
+    names.removeOne("lo");
+
+    for (const QString name : names) {
+        interfaces.push_back(networkInterfaceByName(name));
+    }
+    return interfaces;
+}
+
+types::NetworkInterface networkInterfaceByName(const QString &name)
+{
+    types::NetworkInterface interface = types::NetworkInterface::noNetworkInterface();
+    if (!name.isEmpty()) {
+        populateInterface(name, interface);
+    }
+
+    return interface;
 }
 
 } // namespace NetworkUtils_linux

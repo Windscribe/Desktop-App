@@ -123,6 +123,8 @@ public:
 
     void makeHostsFileWritableWin();
 
+    void updateCurrentNetworkInterface();
+
 public slots:
     void init();
     void stopPacketDetection();

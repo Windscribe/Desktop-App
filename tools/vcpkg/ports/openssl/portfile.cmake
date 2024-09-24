@@ -18,8 +18,8 @@ configure_file("${CMAKE_CURRENT_LIST_DIR}/vcpkg-cmake-wrapper.cmake.in" "${CURRE
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO sftcd/openssl
-    REF f31893795766d4fbd3502d69296e91943991f463
-    SHA512 7d3cf54d268b18a6fc663dd4bb490d46a3cf319742a5215892c27ad5049622750b74c938da7cb7d9f5e77184b18ab219095a96b812ef54c869be472b0131b2e2
+    REF e1ba81996c8d58ca73940a4f3205102bfb45c387
+    SHA512 ed2cfaf245443dc828965979dd94d35d6b15e5281bdc9713cb1c4fa8f50a25c21ac696a4384c0aca37c3b1a7ba25940efbc6bd0438ddba6124d334cbecd0ddf5
     PATCHES
         apple-tvos.patch
         disable-install-docs.patch

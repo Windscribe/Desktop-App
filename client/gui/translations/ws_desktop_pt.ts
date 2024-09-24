@@ -810,6 +810,18 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
         <translation>O Windscribe detetou que o Wi-Fi está atualmente desativado. Para utilizar o Hotspot Seguro, o Wi-Fi tem de estar ativado.</translation>
     </message>
+    <message>
+        <source>Location Services is disabled</source>
+        <translation>Os Serviços de Localização estão desativados</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
+        <translation>O Windscribe requer Serviços de Localização para determinar o seu SSID Wi-Fi. Se não estiver ativado, as definições por rede serão aplicadas a todas as redes Wi-Fi. Ative os Serviços de Localização e conceda a permissão ao Windscribe nas Configurações do Sistema.</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
+        <translation>O Windscribe requer Serviços de Localização para determinar o seu SSID Wi-Fi. Se não estiver ativado, as definições por rede serão aplicadas a todas as redes Wi-Fi. Ative os Serviços de Localização nas Configurações do Sistema.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1180,10 +1192,6 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Escolha automaticamente o protocolo VPN ou selecione um manualmente. NOTA: &quot;Protocolo preferencial&quot; substituirá esta definição.</translation>
     </message>
     <message>
-        <source>Automatically determine the MTU for your connection, or manually override.</source>
-        <translation>Determine automaticamente o MTU da sua conexão ou substitua manualmente.</translation>
-    </message>
-    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Selecione o servidor DNS enquanto estiver conectado ao Windscribe.</translation>
     </message>
@@ -1226,6 +1234,10 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
         <translation>A falsificação de MAC não é suportada na sua versão do MacOS.</translation>
+    </message>
+    <message>
+        <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
+        <translation>Determine automaticamente o MTU da sua conexão ou substitua manualmente.  Isso não tem efeito sobre protocolos baseados em TCP.</translation>
     </message>
 </context>
 <context>
@@ -2348,6 +2360,10 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
     <message>
         <source>Windscribe will download the update, then terminate active connections and restart automatically.</source>
         <translation>O Windscribe baixará a atualização e, em seguida, encerrará as conexões ativas e reiniciará automaticamente.</translation>
+    </message>
+    <message>
+        <source>Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.</source>
+        <translation>O Windscribe irá descarregar e instalar a atualização, o que pode demorar vários minutos. O computador será reiniciado após a atualização.</translation>
     </message>
 </context>
 <context>

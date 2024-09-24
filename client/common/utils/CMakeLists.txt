@@ -49,8 +49,8 @@ elseif(APPLE)
         executable_signature/executable_signature_mac.mm
         macutils.h
         macutils.mm
-        network_utils/network_utils_mac.cpp
         network_utils/network_utils_mac.h
+        network_utils/network_utils_mac.mm
     )
 elseif(UNIX)
     target_sources(common PRIVATE

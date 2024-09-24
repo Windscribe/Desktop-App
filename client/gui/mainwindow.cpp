@@ -1,21 +1,22 @@
 #include "mainwindow.h"
 
-#include <QMouseEvent>
-#include <QTimer>
 #include <QApplication>
-#include <QGuiApplication>
-#include <QDesktopServices>
-#include <QThread>
-#include <QFileDialog>
-#include <QJsonDocument>
-#include <QWindow>
-#include <QScreen>
-#include <QWidgetAction>
 #include <QCommandLineParser>
+#include <QDesktopServices>
+#include <QFileDialog>
+#include <QGuiApplication>
+#include <QJsonDocument>
+#include <QMouseEvent>
 #include <QScreen>
 #include <QStyleHints>
+#include <QThread>
+#include <QTimer>
+#include <QWindow>
+#include <QWidgetAction>
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_MACOS)
+#include <QPermission>
+#elif defined(Q_OS_LINUX)
 #include <QtDBus/QtDBus>
 #endif
 
@@ -44,6 +45,7 @@
 #include "utils/ws_assert.h"
 
 #if defined(Q_OS_WIN)
+    #include "utils/network_utils/network_utils_win.h"
     #include "utils/winutils.h"
     #include "widgetutils/widgetutils_win.h"
     #include <windows.h>
@@ -52,9 +54,10 @@
     #include "utils/authchecker_linux.h"
 #else
     #include <unistd.h>
-    #include "utils/macutils.h"
-    #include "widgetutils/widgetutils_mac.h"
     #include "utils/authchecker_mac.h"
+    #include "utils/macutils.h"
+    #include "utils/network_utils/network_utils_mac.h"
+    #include "widgetutils/widgetutils_mac.h"
 #endif
 #include "widgetutils/widgetutils.h"
 
@@ -136,6 +139,11 @@ MainWindow::MainWindow() :
     unsigned long guiPid = Utils::getCurrentPid();
     qCDebug(LOG_BASIC) << "GUI pid: " << guiPid;
     backend_ = new Backend(this);
+
+#if defined(Q_OS_MACOS)
+    permissionMonitor_ = new PermissionMonitor_mac(this);
+    connect(permissionMonitor_, &PermissionMonitor_mac::locationPermissionUpdated, this, &MainWindow::onLocationPermissionUpdated);
+#endif
 
 #ifdef Q_OS_MACOS
     WidgetUtils_mac::allowMinimizeForFramelessWindow(this);
@@ -1783,6 +1791,8 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
         QDesktopServices::openUrl(QUrl( QString("https://%1/installed/desktop?%2").arg(HardcodedSettings::instance().windscribeServerUrl()).arg(curUserId)));
     }
     PersistentState::instance().setFirstLogin(false);
+
+    checkLocationPermission();
 }
 
 void MainWindow::onBackendTryingBackupEndpoint(int num, int cnt)
@@ -2155,6 +2165,10 @@ void MainWindow::onNetworkChanged(types::NetworkInterface network)
         } else {
             mainWindowController_->getConnectWindow()->setIsPreferredProtocol(false);
         }
+    }
+
+    if (isLoginOkAndConnectWindowVisible_) {
+        checkLocationPermission();
     }
 }
 
@@ -3978,3 +3992,64 @@ void MainWindow::onSigTerm()
     qApp->quit();
 }
 #endif
+
+void MainWindow::checkLocationPermission()
+{
+    if (curNetwork_.interfaceType != NETWORK_INTERFACE_WIFI) {
+        return;
+    }
+
+#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
+    if (PersistentState::instance().isIgnoreLocationServicesDisabled()) {
+        qCDebug(LOG_BASIC) << "Location permission prompt not required";
+        return;
+    }
+
+#ifdef Q_OS_MACOS
+    if (MacUtils::isOsVersionAtLeast(15, 0) && !NetworkUtils_mac::isLocationServicesOn()) {
+#else
+    if (!NetworkUtils_win::isSsidAccessAvailable()) {
+#endif
+        GeneralMessageController::instance().showMessage(
+            "WARNING_YELLOW",
+            tr("Location Services is disabled"),
+#ifdef Q_OS_MACOS
+            tr("Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings."),
+#else
+            tr("Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings."),
+#endif
+            GeneralMessageController::tr(GeneralMessageController::kOk),
+            "",
+            "",
+            [this](bool b) {
+                PersistentState::instance().setIgnoreLocationServicesDisabled(b);
+                if (isLoginOkAndConnectWindowVisible_) {
+                    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+                } else {
+                    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGIN);
+                }
+            },
+            std::function<void(bool)>(nullptr),
+            std::function<void(bool)>(nullptr),
+            GeneralMessage::kShowBottomPanel);
+#ifdef Q_OS_MACOS
+    } else {
+        if (qApp->checkPermission(QLocationPermission{}) == Qt::PermissionStatus::Undetermined) {
+            qApp->requestPermission(QLocationPermission{}, this, &MainWindow::onLocationPermissionUpdated);
+        }
+#endif
+    }
+#endif
+}
+
+void MainWindow::onLocationPermissionUpdated()
+{
+#if defined(Q_OS_MACOS)
+    if (qApp->checkPermission(QLocationPermission{}) == Qt::PermissionStatus::Granted) {
+        qCDebug(LOG_BASIC) << "Location permission granted";
+    } else if (qApp->checkPermission(QLocationPermission{}) == Qt::PermissionStatus::Denied) {
+        qCDebug(LOG_BASIC) << "Location permission denied";
+    }
+    backend_->updateCurrentNetworkInterface();
+#endif
+}

@@ -810,6 +810,18 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
         <translation>विंडसाइड ने पाया है कि वाई-फाई वर्तमान में बंद है। सुरक्षित हॉटस्पॉट का उपयोग करने के लिए, वाई-फ़ाई चालू होना चाहिए.</translation>
     </message>
+    <message>
+        <source>Location Services is disabled</source>
+        <translation>स्थान सेवाएँ अक्षम हैं</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
+        <translation>Windscribe को आपके Wi-Fi SSID को निर्धारित करने के लिए स्थान सेवाओं की आवश्यकता होती है। यदि यह सक्षम नहीं है, तो प्रति-नेटवर्क सेटिंग्स सभी वाई-फाई नेटवर्क पर लागू होंगी। कृपया स्थान सेवाएँ सक्षम करें और अपनी सिस्टम सेटिंग्स में Windscribe को अनुमति दें।</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
+        <translation>Windscribe को आपके Wi-Fi SSID को निर्धारित करने के लिए स्थान सेवाओं की आवश्यकता होती है। यदि यह सक्षम नहीं है, तो प्रति-नेटवर्क सेटिंग्स सभी वाई-फाई नेटवर्क पर लागू होंगी। कृपया अपनी सिस्टम सेटिंग्स में स्थान सेवाएँ सक्षम करें।</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1176,10 +1188,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>कनेक्शन मोड</translation>
     </message>
     <message>
-        <source>Automatically determine the MTU for your connection, or manually override.</source>
-        <translation>स्वचालित रूप से अपने कनेक्शन के लिए MTU निर्धारित करें, या मैन्युअल रूप से ओवरराइड करें।</translation>
-    </message>
-    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>विंडस्क्राइब से कनेक्ट करते समय DNS सर्वर का चयन करें।</translation>
     </message>
@@ -1226,6 +1234,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
         <translation>MAC स्पूफ़िंग macOS के आपके संस्करण पर समर्थित नहीं है।</translation>
+    </message>
+    <message>
+        <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
+        <translation>स्वचालित रूप से अपने कनेक्शन के लिए MTU निर्धारित करें, या मैन्युअल रूप से ओवरराइड करें।  TCP-आधारित प्रोटोकॉल पर इसका कोई प्रभाव नहीं है।</translation>
     </message>
 </context>
 <context>
@@ -2348,6 +2360,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Windscribe will download the update, then terminate active connections and restart automatically.</source>
         <translation>विंडसाइड अपडेट डाउनलोड करेगा, फिर सक्रिय कनेक्शन समाप्त करेगा और स्वचालित रूप से पुनरारंभ करेगा।</translation>
+    </message>
+    <message>
+        <source>Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.</source>
+        <translation>Windscribe अद्यतन डाउनलोड और स्थापित करेगा, जिसमें कई मिनट लग सकते हैं। अपडेट के बाद आपका कंप्यूटर रीस्टार्ट हो जाएगा।</translation>
     </message>
 </context>
 <context>

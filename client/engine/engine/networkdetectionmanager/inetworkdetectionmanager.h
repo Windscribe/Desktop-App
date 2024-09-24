@@ -9,7 +9,7 @@ class INetworkDetectionManager : public QObject
 public:
     explicit INetworkDetectionManager(QObject *parent) : QObject(parent) {}
     virtual ~INetworkDetectionManager() {}
-    virtual void getCurrentNetworkInterface(types::NetworkInterface &networkInterface) = 0;
+    virtual void getCurrentNetworkInterface(types::NetworkInterface &networkInterface, bool forceUpdate = false) = 0;
     virtual bool isOnline() = 0;
 
 signals:

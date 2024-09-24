@@ -13,7 +13,7 @@ namespace wsnet {
 enum class NetworkError { kSuccess, kTimeoutExceed, kDnsResolveError, kCurlError };
 
 typedef std::function<void(std::uint64_t requestId, std::uint32_t elapsedMs,
-                           NetworkError errCode, const std::string &data)> WSNetHttpNetworkManagerFinishedCallback;
+                           NetworkError errCode, const std::string &curlError, const std::string &data)> WSNetHttpNetworkManagerFinishedCallback;
 
 typedef std::function<void(std::uint64_t requestId, std::uint64_t bytesReceived,
                            std::uint64_t bytesTotal)> WSNetHttpNetworkManagerProgressCallback;

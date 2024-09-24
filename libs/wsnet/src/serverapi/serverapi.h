@@ -25,7 +25,9 @@ public:
 
     std::shared_ptr<WSNetCancelableCallback> login(const std::string &username, const std::string &password,
                                                    const std::string &code2fa, WSNetRequestFinishedCallback callback) override;
-    std::shared_ptr<WSNetCancelableCallback> session(const std::string &authHash, WSNetRequestFinishedCallback callback) override;
+    std::shared_ptr<WSNetCancelableCallback> session(const std::string &authHash, const std::string &appleId,
+                                                     const std::string &gpDeviceId, WSNetRequestFinishedCallback callback) override;
+    std::shared_ptr<WSNetCancelableCallback> claimVoucherCode(const std::string &authHash, const std::string &voucherCode, WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> deleteSession(const std::string &authHash, WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> serverLocations(const std::string &language, const std::string &revision,
                                                                      bool isPro, const std::vector<std::string> &alcList,
@@ -39,7 +41,7 @@ public:
     std::shared_ptr<WSNetCancelableCallback> addEmail(const std::string &authHash, const std::string &email, WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> confirmEmail(const std::string &authHash, WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> signup(const std::string &username, const std::string &password,
-                                                            const std::string &referringUsername, const std::string &email,
+                                                            const std::string &referringUsername, const std::string &email, const std::string &voucherCode,
                                                             WSNetRequestFinishedCallback callback) override;
 
 
@@ -90,7 +92,7 @@ public:
     std::shared_ptr<WSNetCancelableCallback> regToken(WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> signupUsingToken(const std::string &token, WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> claimAccount(const std::string &authHash, const std::string &username, const std::string &password,
-                                                                  const std::string &email, const std::string &claimAccount,
+                                                                  const std::string &email, const std::string &voucherCode, const std::string &claimAccount,
                                                                   WSNetRequestFinishedCallback callback) override;
 
     std::shared_ptr<WSNetCancelableCallback> shakeData(const std::string &authHash, WSNetRequestFinishedCallback callback) override;

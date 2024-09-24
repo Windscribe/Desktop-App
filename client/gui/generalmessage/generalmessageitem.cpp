@@ -355,7 +355,9 @@ void GeneralMessageItem::setShowBottomPanel(bool on)
         learnMoreLink_->setPos(boundingRect().width() - 16*G_SCALE - textWidth, fullHeight() + 40*G_SCALE);
     }
     checkbox_->setVisible(on);
-    learnMoreLink_->setVisible(on);
+    if (!learnMoreUrl_.isEmpty()) {
+        learnMoreLink_->setVisible(on);
+    }
 
     setEndSpacing(on ? 56 : 0);
     update();

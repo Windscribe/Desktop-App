@@ -9,6 +9,7 @@ variables:
   BUILD_MAC: 'y'
   BUILD_LINUX: 'y'
   BUILD_LINUX_ARM64: 'y'
+  BUILD_LINUX_CLI: 'y'
   GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
   NEXUS_PATH_ROOT: 'https://nexus.int.windscribe.com/repository/client-desktop/client-desktop'
   NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/current'
@@ -553,7 +554,7 @@ build:aarch64_ubuntu_cli:installer:
       --upload-file build-exe/windscribe-cli_${VERSION}_arm64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_arm64.deb"
     - !reference [.package_vcpkg_cache, script]
   rules:
-    - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
+    - if: $BUILD_LINUX_ARM64 == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
 
 # We don't upload artifacts for merge requests
 build:aarch64_ubuntu:installer:mr:
@@ -578,7 +579,7 @@ build:aarch64_ubuntu_cli:installer:mr:
     - !reference [.build_linux_installer_common, script]
     - tools/build_all --ci-mode --sign --build-cli-only
   rules:
-    - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
+    - if: $BUILD_LINUX_ARM64 == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
 build:aarch64_ubuntu:installer:tagged:
   <<: *template_aarch64_ubuntu_build
@@ -610,7 +611,7 @@ build:aarch64_ubuntu_cli:installer:tagged:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe-cli_${VERSION}_arm64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_arm64.deb"
   rules:
-    - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
+    - if: $BUILD_LINUX_ARM64 == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
 
 build:rhel:installer:
   <<: *template_rhel_build
@@ -648,7 +649,7 @@ build:rhel_cli:installer:
       --upload-file build-exe/windscribe-cli_${VERSION}_amd64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_amd64.deb"
     - !reference [.package_vcpkg_cache, script]
   rules:
-    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
+    - if: $BUILD_LINUX == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
 
 # We don't upload artifacts for merge requests
 build:rhel:installer:mr:
@@ -673,7 +674,7 @@ build:rhel_cli:installer:mr:
     - !reference [.build_linux_installer_common, script]
     - tools/build_all --ci-mode --sign --build-deb --build-rpm --build-rpm-opensuse --build-cli-only
   rules:
-    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
+    - if: $BUILD_LINUX == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
 build:rhel:installer:tagged:
   <<: *template_rhel_build
@@ -713,7 +714,7 @@ build:rhel_cli:installer:tagged:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe-cli_${VERSION}_amd64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64.deb"
   rules:
-    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
+    - if: $BUILD_LINUX == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
 
 .template_archlinux_build: &template_archlinux_build
   image: registry.gitlab.int.windscribe.com:5005/ws/client/desktop/client-desktop/arch
@@ -774,7 +775,7 @@ build:archlinux_cli:installer:
     - job: "build:rhel_cli:installer"
       optional: true
   rules:
-    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
+    - if: $BUILD_LINUX == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
 
 build:archlinux:installer:tagged:
   <<: *template_archlinux_build
@@ -814,7 +815,7 @@ build:archlinux_cli:installer:tagged:
     - job: "build:rhel_cli:installer:tagged"
       optional: true
   rules:
-    - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
+    - if: $BUILD_LINUX == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
 
 build:artifact:links:
   tags: [win10qty6]

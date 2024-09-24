@@ -13,7 +13,7 @@
 
 namespace wsnet {
 
-typedef std::function<void(std::uint64_t requestId, bool bSuccess)> CurlFinishedCallback;
+typedef std::function<void(std::uint64_t requestId, bool bSuccess, const std::string &curlError)> CurlFinishedCallback;
 typedef std::function<void(std::uint64_t requestId, std::uint64_t bytesReceived, std::uint64_t bytesTotal)> CurlProgressCallback;
 typedef std::function<void(std::uint64_t requestId, const std::string &data)> CurlReadyDataCallback;
 
@@ -64,6 +64,12 @@ private:
         std::vector<struct curl_slist *> curlLists;
         bool isAddedToMultiHandle = false;
         bool isNeedRemoveFromMultiHandle = false;
+        bool isDebugLogCurlError = false;
+        std::string domain;
+        std::string domainMd5;
+        std::vector<std::string> ips;
+        std::vector<std::string> ipsMd5;
+        std::vector<std::string> debugLogs;
 
         // free all curl handles and data
         ~RequestInfo() {
@@ -91,7 +97,7 @@ private:
     static int progressCallback(void *ri,   curl_off_t dltotal,   curl_off_t dlnow,   curl_off_t ultotal,   curl_off_t ulnow);
     static int curlSocketCallback(void *clientp, curl_socket_t curlfd, curlsocktype purpose);
     static int curlCloseSocketCallback(void *clientp, curl_socket_t curlfd);
-
+    static int curlTrace(CURL *handle, curl_infotype type, char *data, size_t size, void *clientp);
 
     bool setupOptions(RequestInfo *requestInfo, const std::shared_ptr<WSNetHttpRequest> &request, const std::vector<std::string> &ips, std::uint32_t timeoutMs);
     bool setupResolveHosts(RequestInfo *requestInfo, const std::shared_ptr<WSNetHttpRequest> &request, const std::vector<std::string> &ips);

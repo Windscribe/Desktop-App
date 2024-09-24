@@ -9,8 +9,9 @@ namespace wsnet {
 namespace requests_factory
 {
     BaseRequest *login(const std::string &username, const std::string &password,
-                       const std::string &code2fa, RequestFinishedCallback callback);
-    BaseRequest *session(const std::string &authHash, RequestFinishedCallback callback);
+                       const std::string &code2fa, const std::string &sessionTypeId, RequestFinishedCallback callback);
+    BaseRequest *session(const std::string &authHash, const std::string &appleId, const std::string &gpDeviceId, RequestFinishedCallback callback);
+    BaseRequest *claimVoucherCode(const std::string &authHash, const std::string &voucherCode, RequestFinishedCallback callback);
     BaseRequest *deleteSession(const std::string &authHash, RequestFinishedCallback callback);
     BaseRequest *serverLocations(PersistentSettings &persistentSettings, const std::string &language, const std::string &revision,
                                  bool isPro, const std::vector<std::string> &alcList, ConnectState &connectState, WSNetAdvancedParameters *advancedParameters,
@@ -23,7 +24,7 @@ namespace requests_factory
     BaseRequest *addEmail(const std::string &authHash, const std::string &email, RequestFinishedCallback callback);
     BaseRequest *confirmEmail(const std::string &authHash, RequestFinishedCallback callback);
     BaseRequest *signup(const std::string &username, const std::string &password,
-                        const std::string &referringUsername, const std::string &email, RequestFinishedCallback callback);
+                        const std::string &referringUsername, const std::string &email, const std::string &sessionTypeId, const std::string &voucherCode, RequestFinishedCallback callback);
 
 
     BaseRequest *webSession(const std::string &authHash, RequestFinishedCallback callback);
@@ -74,7 +75,7 @@ namespace requests_factory
     BaseRequest *regToken(RequestFinishedCallback callback);
     BaseRequest *signupUsingToken(const std::string &token, RequestFinishedCallback callback);
     BaseRequest *claimAccount(const std::string &authHash, const std::string &username, const std::string &password,
-                              const std::string &email, const std::string &claimAccount, RequestFinishedCallback callback);
+                              const std::string &email, const std::string &voucherCode, const std::string &claimAccount, RequestFinishedCallback callback);
 
     BaseRequest *shakeData(const std::string &authHash, RequestFinishedCallback callback);
     BaseRequest *recordShakeForDataScore(const std::string &authHash, const std::string &platform,

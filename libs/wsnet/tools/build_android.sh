@@ -30,5 +30,3 @@ cp AndroidManifest.xml temp/AndroidManifest.xml
 
 (cd temp && zip -r ../wsnet.aar .)
 rm -r temp
-
-

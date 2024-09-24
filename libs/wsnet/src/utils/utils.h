@@ -49,6 +49,26 @@ inline std::string leftSubStr(const std::string &s, int n)
     else return s;
 }
 
+// find the top domain from the domain name
+// for example: api.windscribe.com -> windscribe.com
+inline std::string topDomain(const std::string &domain)
+{
+    if (domain.empty())
+        return std::string();
+
+    bool bFirstDotFound = false;
+    for (size_t i = domain.size()-1; i > 0; --i) {
+        if (domain[i] == '.') {
+            if (!bFirstDotFound) {
+                bFirstDotFound = true;
+            } else {
+                return domain.substr(i + 1, domain.size() - i - 1);
+            }
+        }
+    }
+    return domain;
+}
+
 // generate random integer in [min, max]
 int random(const int &min, const int &max);
 

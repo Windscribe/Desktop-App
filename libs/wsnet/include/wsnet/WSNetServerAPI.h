@@ -29,7 +29,10 @@ public:
 
     virtual std::shared_ptr<WSNetCancelableCallback> login(const std::string &username, const std::string &password,
                                                            const std::string &code2fa, WSNetRequestFinishedCallback callback) = 0;
-    virtual std::shared_ptr<WSNetCancelableCallback> session(const std::string &authHash, WSNetRequestFinishedCallback callback) = 0;
+    // appleId or gpDeviceId (ios or android) device ID, set them empty if they are not required
+    virtual std::shared_ptr<WSNetCancelableCallback> session(const std::string &authHash, const std::string &appleId,
+                                                             const std::string &gpDeviceId, WSNetRequestFinishedCallback callback) = 0;
+    virtual std::shared_ptr<WSNetCancelableCallback> claimVoucherCode(const std::string &authHash, const std::string &voucherCode, WSNetRequestFinishedCallback callback) = 0;
     virtual std::shared_ptr<WSNetCancelableCallback> deleteSession(const std::string &authHash, WSNetRequestFinishedCallback callback) = 0;
 
     virtual std::shared_ptr<WSNetCancelableCallback> serverLocations(const std::string &language, const std::string &revision,
@@ -49,7 +52,7 @@ public:
     // Optionals: referringUsername, email
     virtual std::shared_ptr<WSNetCancelableCallback> signup(const std::string &username, const std::string &password,
                                                             const std::string &referringUsername, const std::string &email,
-                                                            WSNetRequestFinishedCallback callback) = 0;
+                                                            const std::string &voucherCode, WSNetRequestFinishedCallback callback) = 0;
 
     virtual std::shared_ptr<WSNetCancelableCallback> webSession(const std::string &authHash, WSNetRequestFinishedCallback callback) = 0;
 
@@ -114,7 +117,7 @@ public:
 
     // claimAccount - optional integer but passed as a string. If the string is empty, the parameter is ignored
     virtual std::shared_ptr<WSNetCancelableCallback> claimAccount(const std::string &authHash, const std::string &username, const std::string &password,
-                                                                  const std::string &email, const std::string &claimAccount,
+                                                                  const std::string &email, const std::string &voucherCode, const std::string &claimAccount,
                                                                   WSNetRequestFinishedCallback callback) = 0;
 
 

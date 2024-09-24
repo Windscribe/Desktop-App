@@ -22,6 +22,7 @@ namespace LinuxUtils
     QString getDistroName();
     const QString getLastInstallPlatform();
     gid_t getWindscribeGid();
+    bool isImmutableDistro();
 
     // CLI
     bool isAppAlreadyRunning();

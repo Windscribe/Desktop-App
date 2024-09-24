@@ -920,6 +920,7 @@ void Preferences::loadIni()
     setApiResolution(es.apiResolutionSettings());
     setProxySettings(es.proxySettings());
     setPacketSize(es.packetSize());
+    setMacAddrSpoofing(es.macAddrSpoofing());
     setDnsPolicy(es.dnsPolicy());
     setConnectedDnsInfo(es.connectedDnsInfo());
 #ifdef Q_OS_LINUX

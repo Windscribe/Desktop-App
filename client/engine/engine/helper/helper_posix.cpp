@@ -589,6 +589,24 @@ bool Helper_posix::setFirewallOnBoot(bool enabled, const QSet<QString> &ipTable,
     return runCommand(HELPER_CMD_SET_FIREWALL_ON_BOOT, stream.str(), answer);
 }
 
+bool Helper_posix::setMacAddress(const QString &interface, const QString &macAddress, const QString &network, bool isWifi)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_SET_MAC_ADDRESS cmd;
+    CMD_ANSWER answer;
+    cmd.interface = interface.toStdString();
+    cmd.macAddress = macAddress.toStdString();
+    cmd.network = network.toStdString();
+    cmd.isWifi = isWifi;
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    return runCommand(HELPER_CMD_SET_MAC_ADDRESS, stream.str(), answer) && answer.executed;
+}
+
 bool Helper_posix::startStunnel(const QString &hostname, unsigned int port, unsigned int localPort, bool extraPadding)
 {
     QMutexLocker locker(&mutex_);

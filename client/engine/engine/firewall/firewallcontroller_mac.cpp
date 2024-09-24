@@ -329,8 +329,8 @@ QString FirewallController_mac::generatePfConf(const QString &connectingIp, cons
     }
     pf += "}\n";
 
-    pf += "pass out quick inet from any to <windscribe_ips>\n";
-    pf += "pass in quick inet from <windscribe_ips> to any\n";
+    pf += "pass out quick inet from any to <windscribe_ips> no state\n";
+    pf += "pass in quick inet from <windscribe_ips> to any no state\n";
 
     // this table is filled in by the helper
     pf += "table <windscribe_split_tunnel_ips> persist\n";

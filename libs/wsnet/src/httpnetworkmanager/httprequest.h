@@ -58,6 +58,11 @@ public:
     void setIsWhiteListIps(bool isWhiteListIps) override;
     bool isWhiteListIps() const override;
 
+    // false by default
+    // makes additional logs through which IP the request was made and its curl error
+    void setIsDebugLogCurlError(bool isEnabled) override;
+    bool isDebugLogCurlError() const override;
+
 private:
     // internal implementation class (to hide include skyr/url.hpp from this header, there were compilation errors in Windows)
     struct Impl;

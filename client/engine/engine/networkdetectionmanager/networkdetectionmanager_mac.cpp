@@ -140,7 +140,10 @@ bool NetworkDetectionManager_mac::isOnlineImpl()
 }
 
 
-void NetworkDetectionManager_mac::getCurrentNetworkInterface(types::NetworkInterface &networkInterface)
+void NetworkDetectionManager_mac::getCurrentNetworkInterface(types::NetworkInterface &networkInterface, bool forceUpdate)
 {
+    if (forceUpdate) {
+        onNetworkStateChanged();
+    }
     networkInterface = lastNetworkInterface_;
 }

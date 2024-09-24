@@ -127,7 +127,12 @@ void PacketSizeGroup::onEditBoxTextChanged(const QString &text)
 {
     if (text.isEmpty()) {
         settings_.mtu = -1;
+        editBoxItem_->setText(QString::number(settings_.mtu));
     } else {
+        if (text.toInt() < 68 || text.toInt() > 65535) {
+            editBoxItem_->setText(QString::number(settings_.mtu));
+            return;
+        }
         settings_.mtu = text.toInt();
     }
     emit packetSizeChanged(settings_);

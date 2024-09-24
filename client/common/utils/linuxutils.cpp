@@ -246,4 +246,31 @@ gid_t getWindscribeGid()
     return grp->gr_gid;
 }
 
+bool isImmutableDistro() {
+    // There isn't a perfect way to do this, but one good hint is if either / or /usr is mounted read-only.
+    // Read the mounts from /proc/mounts
+    QFile mountsFile("/proc/mounts");
+    if (!mountsFile.open(QFile::ReadOnly | QFile::Text)) {
+        return false;
+    }
+
+    QString contents = mountsFile.readAll();
+    QTextStream in(&contents);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        QStringList parts = line.split(' ');
+        if (parts.size() < 3) {
+            continue;
+        }
+        if (parts[1] == "/" || parts[1] == "/usr") {
+            QRegularExpression re("(^ro$|^ro,|,ro,|,ro$)");
+            QRegularExpressionMatch match = re.match(parts[3]);
+            if (match.hasMatch()) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 } // end namespace LinuxUtils

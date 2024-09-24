@@ -810,6 +810,18 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
         <translation>Windscribe виявив, що Wi-Fi наразі вимкнено. Щоб використовувати безпечну точку доступу, потрібно ввімкнути Wi-Fi.</translation>
     </message>
+    <message>
+        <source>Location Services is disabled</source>
+        <translation>Служби локації вимкнено</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
+        <translation>Windscribe вимагає від Служб локації визначити ваш SSID Wi-Fi. Якщо цю функцію не ввімкнено, налаштування для кожної мережі застосовуватимуться до всіх мереж Wi-Fi. Будь ласка, увімкніть Служби локації та надайте дозвіл Windscribe у ваших системних налаштуваннях.</translation>
+    </message>
+    <message>
+        <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
+        <translation>Windscribe вимагає від Служб локації визначити ваш SSID Wi-Fi. Якщо цю функцію не ввімкнено, налаштування для кожної мережі застосовуватимуться до всіх мереж Wi-Fi. Будь ласка, увімкніть Служби локації у ваших системних налаштуваннях.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1180,10 +1192,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Автоматично вибрати протокол VPN або вибрати його вручну. ПРИМІТКА: &quot;Бажаний протокол&quot; замінить це налаштування.</translation>
     </message>
     <message>
-        <source>Automatically determine the MTU for your connection, or manually override.</source>
-        <translation>Автоматичне визначення MTU для вашого з&apos;єднання або перевизначення вручну.</translation>
-    </message>
-    <message>
         <source>Select the DNS server while connected to Windscribe.</source>
         <translation>Виберіть DNS-сервер під час підключення до Windscribe.</translation>
     </message>
@@ -1226,6 +1234,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
         <translation>Підміна MAC не підтримується у вашій версії MacOS.</translation>
+    </message>
+    <message>
+        <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
+        <translation>Автоматичне визначення MTU для вашого з&apos;єднання або перевизначення вручну.  Це ніяк не впливає на протоколи на основі TCP.</translation>
     </message>
 </context>
 <context>
@@ -2348,6 +2360,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Windscribe will download the update, then terminate active connections and restart automatically.</source>
         <translation>Windscribe завантажить оновлення, потім розірве активні з&apos;єднання та автоматично перезапуститься.</translation>
+    </message>
+    <message>
+        <source>Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.</source>
+        <translation>Windscribe завантажить та встановить оновлення, що може зайняти кілька хвилин. Після оновлення комп&apos;ютер перезавантажиться.</translation>
     </message>
 </context>
 <context>

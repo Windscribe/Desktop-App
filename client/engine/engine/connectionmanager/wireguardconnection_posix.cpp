@@ -163,6 +163,12 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     }
     adapterGatewayInfo_.setDnsServers(QStringList() << wireGuardConfig->clientDnsAddress());
 
+    QString endpoint = wireGuardConfig->peerEndpoint();
+    if (endpoint.contains(":")) {
+        endpoint = endpoint.left(endpoint.lastIndexOf(':'));
+    }
+    adapterGatewayInfo_.setRemoteIp(endpoint);
+
     setCurrentState(ConnectionState::CONNECTING);
     start(LowPriority);
  }

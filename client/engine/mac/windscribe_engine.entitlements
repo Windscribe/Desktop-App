@@ -4,6 +4,8 @@
 <dict>
     <key>com.apple.application-identifier</key>
     <string>$(DEVELOPMENT_TEAM).com.windscribe.engine.macos</string>
+    <key>com.apple.security.personal-information.location</key>
+    <true/>
     <key>com.apple.developer.networking.vpn.api</key>
     <array>
         <string>allow-vpn</string>

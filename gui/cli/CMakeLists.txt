@@ -74,11 +74,14 @@ elseif(APPLE)
     set(OS_SPECIFIC_LIBS
         "-framework AppKit"
         "-framework CoreFoundation"
+        "-framework CoreLocation"
         "-framework CoreServices"
+        "-framework CoreWLAN"
         "-framework Security"
-        "-framework SystemConfiguration")
+        "-framework SystemConfiguration"
+        )
     list(APPEND SOURCES
-         ../../client/common/utils/network_utils/network_utils_mac.cpp
+         ../../client/common/utils/network_utils/network_utils_mac.mm
          ../../client/common/utils/executable_signature/executable_signature_mac.mm
          ../../client/common/utils/macutils.mm)
 else()

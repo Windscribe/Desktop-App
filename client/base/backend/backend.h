@@ -117,6 +117,8 @@ public:
 
     bool haveAutoLoginCredentials(QString &username, QString &password);
 
+    void updateCurrentNetworkInterface();
+
 private slots:
     void onEngineSettingsChangedInPreferences();
 

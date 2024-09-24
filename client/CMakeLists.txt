@@ -69,15 +69,17 @@ if (WIN32)
 
 elseif (APPLE)
     set (OS_SPECIFIC_LIBRARIES
-        "-framework Foundation"
         "-framework AppKit"
-        "-framework CoreFoundation"
-        "-framework CoreServices"
-        "-framework Security"
-        "-framework SystemConfiguration"
-        "-framework ServiceManagement"
         "-framework ApplicationServices"
+        "-framework CoreFoundation"
+        "-framework CoreLocation"
+        "-framework CoreServices"
+        "-framework CoreWLAN"
+        "-framework Foundation"
         "-framework NetworkExtension"
+        "-framework Security"
+        "-framework ServiceManagement"
+        "-framework SystemConfiguration"
     )
 
     # add Mac icon to Resources bundle subfolder
@@ -180,6 +182,7 @@ set_target_properties(Windscribe PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/info.plist
     WIN32_EXECUTABLE TRUE
     COMPILE_WARNING_AS_ERROR TRUE
+    XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME YES
 )
 
 add_subdirectory(../libs/wsnet wsnet)

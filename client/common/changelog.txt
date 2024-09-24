@@ -1,13 +1,42 @@
+2.12.1 (24/09/2024)
+All:
+   * Added new parameters session_type_id, apple_id, gp_device_id to wsnet library. #1129
+   * Added additional curl logs for failed server API requests in wsnet. #1146
+   * Improved description for packet size, clarifying that it doesn't do anything for TCP-based protocols. #1115
+   * Fixed more JSON & GUI input validation. #1125
+   * Fixed debug log doesn't send after awhile. OpenSSL updated to the latest commit, version 3.4.0. #1135
+   * Fixed double blinking cursors on custom config credential prompt. #1116
+   * Fixed custom config auth data not deleted when custom config dir cleared. #1109
+   * Fixed latency endpoint duplicate requests. #1141
+   * Updated German translations provided by GitHub user Evonos. #1110
+   * Updated Spanish translations provided by GitHub user IceString3. #1131
+Windows:
+   * Improved behavior when trying to get SSID on W11 24H2 and location is off. #1114
+   * Improved OpenVPN-based protocol performance by using DCO driver by default. #956
+   * Updated OpenVPN DCO driver to v1.2.1. #956
+MacOS:
+   * Improved behavior when trying to get SSID on macOS 15. #1132
+   * Fixed installer window in wrong position during in-app update. #1121
+   * Fixed unexpected permission prompt during upgrade. #1133
+   * Fixed custom DNS may be bound to wrong interface due to firewall state cache. #1136
+Linux:
+   * Added support for in-app updates from many immutable distros. #1087
+   * Added MAC spoofing. #1113
+   * Improved split tunneling behavior by doing a self-test at service start. #1134
+   * Fixed helper may get stuck when disconnect on Raspberry Pi with split tunneling enabled. #1117
+   * Fixed ingress packets are dropped incorrectly when using split exclude or no split tunneling. #1127
+
+
 2.11.11 (12/09/2024)
 All:
-   * Clear DNS cache in wsnet when connecting or disconnecting to the VPN. #1122
+   * Fixed DNS cache not cleared in wsnet when connecting or disconnecting to the VPN. #1122
 
 
 2.11.10 (10/09/2024)
 All:
    * Fixed unable to reach API after failover while connected. Fix in wsnet, treat address 0.0.0.0 a DNS-error. #1122
 Windows:
-   * Fix ctrld not starting even after external DNS service stopped. #1123
+   * Fixed ctrld not starting even after external DNS service stopped. #1123
 MacOS:
    * Fixed macOS auto-update process fails to mount installer. #1118
    * Fixed spammy log when getting SSID. #1126

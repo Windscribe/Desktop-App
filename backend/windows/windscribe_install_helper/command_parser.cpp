@@ -27,7 +27,7 @@ CommandParser::~CommandParser()
 
 BasicCommand *CommandParser::parse(int argc, wchar_t* argv[])
 {
-    //	Command for install helper
+    // Command for install helper
     // /InstallService
     if (argc == 2 && wcscmp(argv[1], L"/InstallService") == 0) {
         const auto installDir = getInstallDir();

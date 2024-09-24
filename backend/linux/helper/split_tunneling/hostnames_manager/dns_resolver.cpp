@@ -12,7 +12,7 @@ DnsResolver::DnsResolver(std::function<void (std::map<std::string, HostInfo>)> r
     }, false);
 
 
-    if (!WSNet::initialize("", "", "", "", "", false, "en", "")) {
+    if (!WSNet::initialize("", "", "", "", "", "", false, "en", "")) {
         Logger::instance().out("WSNet::initialize failed");
     }
 
