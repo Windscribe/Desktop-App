@@ -11,7 +11,8 @@
 VpnShareController::VpnShareController(QObject *parent, IHelper *helper) : QObject(parent),
     helper_(helper),
     httpProxyServer_(NULL),
-    socksProxyServer_(NULL)
+    socksProxyServer_(NULL),
+    bProxySharingActivated_(false)
 #ifdef Q_OS_WIN
     ,wifiSharing_(NULL)
 #endif
@@ -32,12 +33,27 @@ VpnShareController::~VpnShareController()
 #endif
 }
 
+void VpnShareController::activateProxySharing(PROXY_SHARING_TYPE proxyType, uint port)
+{
+    // don't actually start the service unless the VPN is on
+    // it will be considered activated but not started till VPN is turned on
+    bProxySharingActivated_ = true;
+    ActivatedProxySharingType_ = proxyType;
+    port_ = port;
+}
+
 void VpnShareController::startProxySharing(PROXY_SHARING_TYPE proxyType, uint port)
 {
     QMutexLocker locker(&mutex_);
 
     SAFE_DELETE(httpProxyServer_);
     SAFE_DELETE(socksProxyServer_);
+
+    if(!bProxySharingActivated_)
+    {
+        return;
+    }
+
     if (proxyType == PROXY_SHARING_HTTP)
     {
         httpProxyServer_ = new HttpProxyServer::HttpProxyServer(this);
@@ -77,6 +93,12 @@ void VpnShareController::startProxySharing(PROXY_SHARING_TYPE proxyType, uint po
     } else {
         WS_ASSERT(false);
     }
+}
+
+void VpnShareController::deactivateProxySharing()
+{
+    bProxySharingActivated_ = false;
+    stopProxySharing();
 }
 
 void VpnShareController::stopProxySharing()
@@ -244,6 +266,10 @@ void VpnShareController::onConnectedToVPNEvent(const QString &vpnAdapterName)
     {
         socksProxyServer_->closeActiveConnections();
     }
+    if (bProxySharingActivated_)
+    {
+        startProxySharing(ActivatedProxySharingType_, port_);
+    }
 }
 
 void VpnShareController::onDisconnectedFromVPNEvent()
@@ -263,6 +289,7 @@ void VpnShareController::onDisconnectedFromVPNEvent()
     {
         socksProxyServer_->closeActiveConnections();
     }
+    stopProxySharing();
 }
 
 bool VpnShareController::getLastSavedPort(uint &outPort)
