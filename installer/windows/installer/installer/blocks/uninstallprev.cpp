@@ -1,8 +1,8 @@
 #include "uninstallprev.h"
 
+#include <QDeadlineTimer>
 #include <QSettings>
 
-#include <chrono>
 #include <shlobj_core.h>
 #include <windows.h>
 
@@ -12,14 +12,11 @@
 #include "../../../utils/logger.h"
 #include "../../../utils/path.h"
 #include "../../../utils/utils.h"
+#include "global_consts.h"
 #include "servicecontrolmanager.h"
 #include "win32handle.h"
 
 using namespace std;
-
-const wstring wmActivateGui = L"WindscribeAppActivate";
-const auto kWindscribeClosingTimeout = chrono::milliseconds(5000);
-
 
 UninstallPrev::UninstallPrev(bool isFactoryReset, double weight) : IInstallBlock(weight, L"UninstallPrev"),
     state_(0), isFactoryReset_(isFactoryReset)
@@ -28,49 +25,45 @@ UninstallPrev::UninstallPrev(bool isFactoryReset, double weight) : IInstallBlock
 
 int UninstallPrev::executeStep()
 {
-    namespace chr = chrono;
-
     if (state_ == 0) {
         HWND hwnd = Utils::appMainWindowHandle();
 
         if (hwnd) {
-            Log::instance().out(L"Windscribe is running - sending close");
+            Log::instance().out(L"Windscribe is running - activating app so we can close it");
             // PostMessage WM_CLOSE will only work on an active window
-            UINT dwActivateMessage = RegisterWindowMessage(wmActivateGui.c_str());
+            UINT dwActivateMessage = RegisterWindowMessage(L"WindscribeAppActivate");
             PostMessage(hwnd, dwActivateMessage, 0, 0);
         }
 
-        const auto start = chr::high_resolution_clock::now();
-        auto curTime = chr::high_resolution_clock::now();
-        while (hwnd)
-        {
-            curTime = chr::high_resolution_clock::now();
-            if (curTime - start < kWindscribeClosingTimeout) {
+        QDeadlineTimer timerAppExit(10000);
+        while (hwnd) {
+            if (!timerAppExit.hasExpired()) {
                 PostMessage(hwnd, WM_CLOSE, 0, 0);
                 Sleep(100);
                 hwnd = Utils::appMainWindowHandle();
             }
             else {
                 Log::instance().out(L"Timeout exceeded when trying to close Windscribe. Killing the process.");
+                int result = taskKill(ApplicationInfo::appExeName());
+                if (result != NO_ERROR) {
+                    return result;
+                }
 
-                const wstring appName = Path::append(Utils::getSystemDir(), L"taskkill.exe");
-                const wstring commandLine = L"/f /im " + ApplicationInfo::appExeName();
-                const auto result = Utils::instExec(appName, commandLine, INFINITE, SW_HIDE);
-                if (!result.has_value()) {
-                    Log::instance().out(L"WARNING: an error was encountered attempting to start taskkill.exe.");
-                    return -ERROR_OTHER;
-                }
-                else if (result.value() != NO_ERROR && result.value() != ERROR_WAIT_NO_CHILDREN) {
-                    Log::instance().out(L"WARNING: unable to kill Windscribe (%lu).", result.value());
-                    return -ERROR_OTHER;
-                }
-                else {
-                    Log::instance().out(L"Windscribe was successfully killed.");
-                    break;
-                }
+                break;
             }
         }
+
         Sleep(1000);
+
+        // We may have had to kill the app above, or may be in the situation where the app has
+        // crashed, leaving a protocol handler (openvpn/WG) still running.  For example, we've
+        // received installer logs indicating the app was not running, or exited before the
+        // deadline given above, but the WG or openvpn binaries were still running, causing
+        // the file installation phase to fail with 'file in use' errors.
+        // The uninstaller we invoke in uninstallOldVersion() would typically provide this
+        // functionality, but the user may have an older version of the app lacking this
+        // uninstaller functionality.
+        terminateProtocolHandlers();
         state_++;
         return 30;
     } else if (state_ == 1) {
@@ -114,7 +107,7 @@ int UninstallPrev::executeStep()
     return 100;
 }
 
-wstring UninstallPrev::getUninstallString()
+wstring UninstallPrev::getUninstallString() const
 {
     wstring uninstallString;
 
@@ -133,7 +126,7 @@ wstring UninstallPrev::getUninstallString()
     return uninstallString;
 }
 
-bool UninstallPrev::isPrevInstall64Bit()
+bool UninstallPrev::isPrevInstall64Bit() const
 {
     QSettings reg(QString::fromStdWString(ApplicationInfo::uninstallerRegistryKey()), QSettings::NativeFormat);
     if (reg.contains(L"UninstallString")) {
@@ -142,7 +135,7 @@ bool UninstallPrev::isPrevInstall64Bit()
     return false;
 }
 
-bool UninstallPrev::uninstallOldVersion(const wstring &uninstallString, DWORD &lastError)
+bool UninstallPrev::uninstallOldVersion(const wstring &uninstallString, DWORD &lastError) const
 {
     const wstring sUnInstallString = removeQuotes(uninstallString);
     DWORD error = 0;
@@ -153,18 +146,23 @@ bool UninstallPrev::uninstallOldVersion(const wstring &uninstallString, DWORD &l
         return false;
     }
 
-    // uninstall process can return second phase processId, which we need wait to finish
+    // Uninstall process can return second phase processId, which we need wait to finish.  We'll be optimistic
+    // here and assume all is okay to proceed if a warning is logged below during this phase.
     if (res.value() != 0) {
         wsl::Win32Handle processHandle(::OpenProcess(SYNCHRONIZE, FALSE, res.value()));
         if (processHandle.isValid()) {
-            processHandle.wait(INFINITE);
+            if (processHandle.wait(INFINITE) != WAIT_OBJECT_0) {
+                Log::instance().out(L"WARNING: wait for second phase uninstall failed, uninstaller may have crashed.");
+            }
+        } else {
+            Log::instance().out(L"WARNING: unable to obtain process handle for second phase uninstaller.");
         }
     }
 
     return true;
 }
 
-wstring UninstallPrev::removeQuotes(const wstring &str)
+wstring UninstallPrev::removeQuotes(const wstring &str) const
 {
     wstring str1 = str;
 
@@ -179,7 +177,7 @@ wstring UninstallPrev::removeQuotes(const wstring &str)
     return str1;
 }
 
-void UninstallPrev::doFactoryReset()
+void UninstallPrev::doFactoryReset() const
 {
     // Delete preferences
     QSettings reg(QString::fromStdWString(ApplicationInfo::appRegistryKey()), QSettings::NativeFormat);
@@ -214,7 +212,7 @@ void UninstallPrev::doFactoryReset()
     }
 }
 
-void UninstallPrev::stopService()
+void UninstallPrev::stopService() const
 {
     try {
         wsl::ServiceControlManager scm;
@@ -225,7 +223,7 @@ void UninstallPrev::stopService()
     }
 }
 
-bool UninstallPrev::extractUninstaller()
+bool UninstallPrev::extractUninstaller() const
 {
     Log::instance().out(L"Extracting uninstaller from the archive");
 
@@ -247,4 +245,41 @@ bool UninstallPrev::extractUninstaller()
     }
 
     return true;
+}
+
+void UninstallPrev::terminateProtocolHandlers() const
+{
+    // We'll be optimistic here and proceed with the install even if one of these steps
+    // fails.  The uninstaller, unless it is a very old one, will take another stab at it.
+
+    try {
+        wsl::ServiceControlManager scm;
+        scm.stopService(kWireGuardServiceIdentifier.c_str());
+    }
+    catch (std::system_error& ex) {
+        Log::instance().out(L"WARNING: failed to stop the WireGuard service - %hs", ex.what());
+    }
+
+    taskKill(L"windscribeopenvpn.exe");
+    taskKill(L"windscribewstunnel.exe");
+    taskKill(L"windscribectrld.exe");
+}
+
+int UninstallPrev::taskKill(const std::wstring &exeName) const
+{
+    const wstring appName = Path::append(Utils::getSystemDir(), L"taskkill.exe");
+    const wstring commandLine = L"/f /t /im " + exeName;
+    const auto result = Utils::instExec(appName, commandLine, INFINITE, SW_HIDE);
+    if (!result.has_value()) {
+        Log::instance().out(L"WARNING: an error was encountered attempting to start taskkill.exe.");
+        return -ERROR_OTHER;
+    }
+
+    if (result.value() != NO_ERROR && result.value() != ERROR_WAIT_NO_CHILDREN) {
+        Log::instance().out(L"WARNING: unable to kill %s (%lu).", exeName.c_str(), result.value());
+        return -ERROR_OTHER;
+    }
+
+    Log::instance().out(L"taskkill executed on %s (%lu)", exeName.c_str(), result.value());
+    return NO_ERROR;
 }

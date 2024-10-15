@@ -31,6 +31,7 @@ set_property(TARGET uninstall PROPERTY LINK_FLAGS "/MANIFESTUAC:\"level='require
 target_include_directories(uninstall
     PRIVATE
     ../../../client/common
+    ../../../client/common/types
     ../../../client/common/utils
 )
 

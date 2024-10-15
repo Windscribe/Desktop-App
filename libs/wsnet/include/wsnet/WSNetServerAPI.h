@@ -24,6 +24,10 @@ public:
     virtual void setApiResolutionsSettings(bool isAutomatic, std::string manualAddress) = 0;
     virtual void setIgnoreSslErrors(bool bIgnore) = 0;
 
+    // resets the failover state to the initial state
+    // useful when you need to force reset from a client
+    virtual void resetFailover() = 0;
+
     // callback function allowing the caller to know which failover is used
     virtual std::shared_ptr<WSNetCancelableCallback> setTryingBackupEndpointCallback(WSNetTryingBackupEndpointCallback tryingBackupEndpointCallback) = 0;
 

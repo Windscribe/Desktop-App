@@ -14,11 +14,13 @@ private:
     int state_;
     bool isFactoryReset_;
 
-    std::wstring getUninstallString();
-    bool uninstallOldVersion(const std::wstring &uninstallString, DWORD &lastError);
-    bool isPrevInstall64Bit();
-    bool extractUninstaller();
-    std::wstring removeQuotes(const std::wstring &str);
-    void doFactoryReset();
-    void stopService();
+    std::wstring getUninstallString() const;
+    bool uninstallOldVersion(const std::wstring &uninstallString, DWORD &lastError) const;
+    bool isPrevInstall64Bit() const;
+    bool extractUninstaller() const;
+    std::wstring removeQuotes(const std::wstring &str) const;
+    void doFactoryReset() const;
+    void stopService() const;
+    int taskKill(const std::wstring &exeName) const;
+    void terminateProtocolHandlers() const;
 };

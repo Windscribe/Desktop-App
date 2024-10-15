@@ -242,7 +242,11 @@ bool resetMacAddresses(const std::string &ignoreNetwork)
         std::stringstream is2(line);
         std::string name;
         std::string state;
-        is2 >> state >> name;
+        is2 >> state;
+        // The entire rest of the line is the name, which may contain spaces.  Trim spaces before/after the name.
+        getline(is2, name);
+        name.erase(0, name.find_first_not_of(' '));
+        name.erase(name.find_last_not_of(' ') + 1);
 
         // skip ignored network
         if (name == "lo" || name == ignoreNetwork) {

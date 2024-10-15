@@ -9,6 +9,7 @@
 #include <thread>
 #include <vector>
 
+#define CARES_NO_DEPRECATED     // Someday remove this and replace the functions with the new c-ares interface
 #include "ares_library_init.h"
 #include "ares.h"
 

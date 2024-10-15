@@ -58,7 +58,7 @@
     </message>
     <message>
         <source>Windscribe is running and could not be closed. Please close the application manually and try again.</source>
-        <translation>Windscribe está funcionando y no se pudo cerrar. Por favor, cierra la aplicación manualmente e inténtalo de nuevo.</translation>
+        <translation>Windscribe está funcionando y no se pudo cerrar. Por favor, cierre la aplicación manualmente e inténtelo de nuevo.</translation>
     </message>
     <message>
         <source>Quit Windscribe Installer?</source>
@@ -82,15 +82,15 @@
     </message>
     <message>
         <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
-        <translation>No tienes permisos suficientes para ejecutar esta aplicación. Se requieren privilegios administrativos para instalar Windscribe.</translation>
+        <translation>No tiene permisos suficientes para ejecutar esta aplicación. Se requieren privilegios administrativos para instalar Windscribe.</translation>
     </message>
     <message>
         <source>The uninstaller for the existing installation of Windscribe could not be found. Please uninstall the application manually and try again.</source>
-        <translation>No se pudo encontrar el desinstalador de la instalación existente de Windscribe. Desinstala la aplicación manualmente e inténtalo de nuevo.</translation>
+        <translation>No se pudo encontrar el desinstalador de la instalación existente de Windscribe. Desinstale la aplicación manualmente e inténtelo de nuevo.</translation>
     </message>
     <message>
         <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>La carpeta de instalación contiene datos que no se han podido desinstalar. Desinstala la aplicación manualmente e inténtalo de nuevo.</translation>
+        <translation>La carpeta de instalación contiene datos que no se han podido desinstalar. Desinstale la aplicación manualmente e inténtelo de nuevo.</translation>
     </message>
     <message>
         <source>Security Warning</source>
@@ -98,7 +98,11 @@
     </message>
     <message>
         <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
-        <translation>La instalación en una carpeta personalizada podría permitir que un atacante manipule la aplicación de Windscribe. Para garantizar la seguridad de la aplicación y de su sistema, te recomendamos encarecidamente que la instales en la ubicación predeterminada de la carpeta &quot;Archivos de programa&quot;. Haz clic en Aceptar para continuar con la carpeta personalizada o en Cancelar para usar la ubicación predeterminada.</translation>
+        <translation>La instalación en una carpeta personalizada podría permitir que un atacante manipule la aplicación Windscribe. Para garantizar la seguridad de la aplicación y de su sistema, le recomendamos encarecidamente que la instale en la ubicación predeterminada de la carpeta "Archivos de programa". Haga clic en Aceptar para continuar con la carpeta personalizada o en Cancelar para usar la ubicación predeterminada.</translation>
+    </message>
+    <message>
+        <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
+        <translation>Tu nombre de usuario actual es &apos;windscribe&apos;, que es necesario para la aplicación Windscribe. Windscribe no se puede instalar.</translation>
     </message>
 </context>
 <context>
@@ -133,7 +137,7 @@
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
-        <translation>Elimina las preferencias, los registros y otros datos existentes, si existen.</translation>
+        <translation>Elimine las preferencias, los registros y otros datos existentes, si existen.</translation>
     </message>
     <message>
         <source>Overrides the default installation directory. Installation directory must be on the system drive.</source>
@@ -169,7 +173,7 @@
     </message>
     <message>
         <source>Use the -help argument to see available arguments and their format.</source>
-        <translation>Utiliza el argumento -help para ver los argumentos disponibles y su formato.</translation>
+        <translation>Utilice el argumento -help para ver los argumentos disponibles y su formato.</translation>
     </message>
     <message>
         <source>The specified installation path is not on the system drive.  To ensure the security of the application, and your system, it must be installed on the same drive as Windows.</source>
@@ -181,7 +185,7 @@
     </message>
     <message>
         <source>Your username should not be an email address. Please try again.</source>
-        <translation>Su nombre de usuario no puede ser una dirección de correo electrónico. Por favor, inténtalo de nuevo.</translation>
+        <translation>Su nombre de usuario no debe ser una dirección de correo electrónico. Por favor, inténtelo de nuevo.</translation>
     </message>
     <message>
         <source>A password was specified but its corresponding username was not provided.</source>
@@ -197,7 +201,7 @@
     </message>
     <message>
         <source>You don&apos;t have sufficient permissions to run this application. Administrative privileges are required to install Windscribe.</source>
-        <translation>No tienes permisos suficientes para ejecutar esta aplicación. Se requieren privilegios administrativos para instalar Windscribe.</translation>
+        <translation>No tiene permisos suficientes para ejecutar esta aplicación. Se requieren privilegios administrativos para instalar Windscribe.</translation>
     </message>
 </context>
 <context>

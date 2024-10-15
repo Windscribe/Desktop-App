@@ -107,3 +107,9 @@ void InstallerShim::setCredentials(const std::wstring &username, const std::wstr
 {
     Settings::instance().setCredentials(username, password);
 }
+
+std::string InstallerShim::username()
+{
+    // Not needed on Windows
+    return "";
+}

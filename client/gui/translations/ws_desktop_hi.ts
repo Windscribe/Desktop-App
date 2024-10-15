@@ -645,10 +645,6 @@
         <translation>स्वत: अद्यतन विफल रहा</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>कृपया समर्थन से संपर्क करें</translation>
-    </message>
-    <message>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>बैकएंड प्रक्रिया से कनेक्शन खो गया.
@@ -821,6 +817,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>Windscribe को आपके Wi-Fi SSID को निर्धारित करने के लिए स्थान सेवाओं की आवश्यकता होती है। यदि यह सक्षम नहीं है, तो प्रति-नेटवर्क सेटिंग्स सभी वाई-फाई नेटवर्क पर लागू होंगी। कृपया अपनी सिस्टम सेटिंग्स में स्थान सेवाएँ सक्षम करें।</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>  यदि आप एक प्रतिबंधात्मक नेटवर्क पर हैं, तो कृपया फिर से डाउनलोड करने का प्रयास करने से पहले वीपीएन कनेक्ट करें।</translation>
     </message>
 </context>
 <context>

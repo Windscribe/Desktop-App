@@ -36,8 +36,9 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     rules << "anchor windscribe_vpn_traffic all\n";
     rules << "pass out quick inet proto udp from any to any port = 67\n";
     rules << "pass in quick inet proto udp from any to any port = 68\n";
-    rules << "anchor windscribe_lan_traffic all {\n";
     if (allowLanTraffic) {
+        rules << "anchor windscribe_lan_traffic all {\n";
+
         // Always allow localhost
         rules << "pass out quick inet from any to 127.0.0.0/8\n";
         rules << "pass in quick inet from 127.0.0.0/8 to any\n";
@@ -70,8 +71,9 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
         rules << "pass in quick proto udp from any to any port = 5351\n";
         rules << "pass out quick inet proto udp from any to any port = 5353\n";
         rules << "pass in quick proto udp from any to any port = 5353\n";
+
+        rules << "}\n";
     }
-    rules << "}\n";
     rules << "anchor windscribe_static_ports_traffic all\n";
 
     // write rules

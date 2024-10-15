@@ -21,6 +21,8 @@ public:
 
     void setApiResolutionsSettings(bool isAutomatic, std::string manualAddress) override;
     void setIgnoreSslErrors(bool bIgnore) override;
+    void resetFailover() override;
+
     std::shared_ptr<WSNetCancelableCallback> setTryingBackupEndpointCallback(WSNetTryingBackupEndpointCallback tryingBackupEndpointCallback) override;
 
     std::shared_ptr<WSNetCancelableCallback> login(const std::string &username, const std::string &password,

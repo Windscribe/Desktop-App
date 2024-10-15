@@ -56,20 +56,22 @@ private:
 
     bool bIgnoreSslErrors_ = false;
     bool isConnectedToVpn_ = false;
-    bool bWasConnectedToVpn_ = false;
 
     struct HttpRequestInfo {
         std::unique_ptr<BaseRequest> request;
         std::shared_ptr<WSNetCancelableCallback> asyncCallback_;
+        bool bFromDisconnectedVPNState_;
+        bool bDiscard;
     };
     std::map<std::uint64_t, HttpRequestInfo> activeHttpRequests_;
 
     // current failover state
     std::string curFailoverUid_;
-    int curFailoverInd_;
-    enum class FailoverState { kUnknown, kFromSettingsUnknown, kFromSettingsReady, kReady, kFailed } failoverState_;
+    std::string startFailoverUid_;
+    int curInternalFailoverInd_;
+    enum class FailoverState { kUnknown, kReady, kFailed } failoverState_;
     std::unique_ptr<RequestExecuterViaFailover> requestExecutorViaFailover_;
-    std::optional<FailoverData> failoverData_;      // valid only in kReady/kFromSettingsReady states
+    std::optional<FailoverData> failoverData_;      // valid only in kReady state
     bool isFailoverFailedLogAlreadyDone_ = false;   // log "failover failed: API not ready" only once to avoid spam
     FailedFailovers failedFailovers_;
 
@@ -84,6 +86,8 @@ private:
     void onHttpNetworkRequestFinished(std::uint64_t requestId, std::uint32_t elapsedMs, NetworkError errCode, const std::string &curlError, const std::string &data);
     // This callback function is necessary to cancel the request as quickly as possible if it was canceled on the calling side
     void onHttpNetworkRequestProgressCallback(std::uint64_t requestId, std::uint64_t bytesReceived, std::uint64_t bytesTotal);
+
+    std::unique_ptr<BaseFailover> getNextFailover(const std::string &failoverUniqueId);
 
     void logAllFailoversFailed(BaseRequest *request);
 };

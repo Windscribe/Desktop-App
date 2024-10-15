@@ -3,5 +3,5 @@
 # Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_OVPN_DCO_WIN: '1.0.0'
+  VERSION_OVPN_DCO_WIN: '1.2.1'
   ARTIFACT_OVPN_DCO_WIN: 'ovpn-dco-win.zip'

@@ -30,7 +30,9 @@
 #include "utils/logger.h"
 #include "widgetutils/widgetutils.h"
 
-#ifdef Q_OS_MACOS
+#if defined(Q_OS_WIN)
+#include "widgetutils/widgetutils_win.h"
+#elif defined(Q_OS_MACOS)
     #include "utils/macutils.h"
 #endif
 
@@ -2910,7 +2912,7 @@ QRect MainWindowController::taskbarAwareDockedGeometry_win(int width, int shadow
         return QRect();
     }
 
-    QRect desktopAvailableRc = screen->availableGeometry();
+    const QRect desktopAvailableRc = WidgetUtils_win::availableGeometry(*mainWindow_, *screen);
     const int kRightOffset = 16 * G_SCALE;
     const int kVerticalOffset = 16 * G_SCALE;
 

@@ -625,10 +625,6 @@
         <translation>Tự động cập nhật không thành công</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>Vui lòng liên hệ với bộ phận hỗ trợ</translation>
-    </message>
-    <message>
         <source>Could not download update.  Please try again or use a different network.</source>
         <translation>Không thể tải xuống bản cập nhật.  Vui lòng thử lại hoặc sử dụng một mạng khác.</translation>
     </message>
@@ -821,6 +817,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>Windscribe yêu cầu Dịch vụ định vị để xác định SSID Wi-Fi của bạn. Nếu nó không được bật, cài đặt trên mỗi mạng sẽ áp dụng cho tất cả các mạng Wi-Fi. Vui lòng bật Dịch vụ định vị trong Cài đặt hệ thống của bạn.</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>  Nếu bạn đang sử dụng mạng hạn chế, vui lòng kết nối VPN trước khi thử tải xuống lại.</translation>
     </message>
 </context>
 <context>

@@ -625,10 +625,6 @@
         <translation>Auto-Update Failed</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>Please contact support</translation>
-    </message>
-    <message>
         <source>Could not download update.  Please try again or use a different network.</source>
         <translation>Could not download update.  Please try again or use a different network.</translation>
     </message>
@@ -821,6 +817,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>  If you are on a restrictive network, please connect the VPN before trying the download again.</translation>
     </message>
 </context>
 <context>

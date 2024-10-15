@@ -139,6 +139,7 @@ variables:
   script:
     - set +o pipefail
     - build/client/wsnet_test | tee output.txt;
+    - if [ -z "$(cat output.txt | grep -E "[0-9]+ tests from [0-9]+ test suites ran.")" ]; then exit 1; fi
     - for i in {1..3}; do
           failed_tests=$(cat output.txt | grep "\[ *FAILED" | grep -v \( | grep -v ':' | cut -c 14- | paste -sd "," -);
           if [ -z "$failed_tests" ]; then
@@ -902,6 +903,7 @@ test:wsnet:win:
     - tools/build_all --build-app --build-tests
     - cd build/test
     - ./wsnet_test.exe | Tee-Object -Variable TestOutput;
+      if (!($TestOutput -match  "[0-9]+ tests from [0-9]+ test suites ran.")) { exit 1; }
       For ($i=1; $i -le 3; $i++) {
           $FailedTests = ($TestOutput -match  "^\[  FAILED  \] .*[^:)]$");
           if (!$FailedTests) {

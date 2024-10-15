@@ -625,10 +625,6 @@
         <translation>自动更新失败</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>请联系支持人员</translation>
-    </message>
-    <message>
         <source>Could not download update.  Please try again or use a different network.</source>
         <translation>无法下载更新。请重试或使用其他网络。</translation>
     </message>
@@ -821,6 +817,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>Windscribe 需要定位服务来确定您的 Wi-Fi SSID。如果未启用，则每个网络的设置将应用于所有 Wi-Fi 网络。请在系统设置中启用定位服务。</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>如果您使用的是受限网络，请先连接 VPN，然后再尝试再次下载。</translation>
     </message>
 </context>
 <context>

@@ -17,8 +17,5 @@
     "c-ares",
 
     "advobfuscator"
-    ],
-    "overrides": [
-        { "name": "c-ares", "version": "1.26.0" }
     ]
 }

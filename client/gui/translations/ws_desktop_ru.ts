@@ -645,10 +645,6 @@
         <translation>Сбой автообновления</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>Пожалуйста, свяжитесь со службой поддержки</translation>
-    </message>
-    <message>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>Потеряно соединение с серверным процессом.
@@ -821,6 +817,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>Windscribe требует, чтобы службы геолокации определяли ваш SSID Wi-Fi. Если этот параметр не включен, настройки для каждой сети будут применяться ко всем сетям Wi-Fi. Включите службы геолокации в настройках системы.</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>  Если вы подключены к сети с ограничениями, подключите VPN, прежде чем пытаться загрузить его снова.</translation>
     </message>
 </context>
 <context>

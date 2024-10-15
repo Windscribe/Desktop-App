@@ -625,10 +625,6 @@
         <translation>Automatyczna aktualizacja nie powiodła się</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>Skontaktuj się z pomocą techniczną</translation>
-    </message>
-    <message>
         <source>Could not download update.  Please try again or use a different network.</source>
         <translation>Nie można pobrać aktualizacji.  Spróbuj ponownie lub użyj innej sieci.</translation>
     </message>
@@ -821,6 +817,10 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>Windscribe wymaga usług lokalizacyjnych w celu określenia identyfikatora SSID sieci Wi-Fi. Jeśli ta opcja nie jest włączona, ustawienia dla poszczególnych sieci będą stosowane do wszystkich sieci Wi-Fi. Włącz usługi lokalizacyjne w ustawieniach systemu.</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>  Jeśli korzystasz z sieci podlegającej restrykcjom, połącz się z VPN przed ponowną próbą pobrania.</translation>
     </message>
 </context>
 <context>

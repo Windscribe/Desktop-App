@@ -625,10 +625,6 @@
         <translation>Otomatik Güncelleme Başarısız Oldu</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>Lütfen destek ile iletişime geçin</translation>
-    </message>
-    <message>
         <source>Could not download update.  Please try again or use a different network.</source>
         <translation>Güncelleme indirilemedi.  Lütfen tekrar deneyin veya farklı bir ağ kullanın.</translation>
     </message>
@@ -821,6 +817,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>Windscribe, Wi-Fi SSID&apos;nizi belirlemek için Konum Servislerine ihtiyaç duyar. Etkinleştirilmezse, ağ başına ayarlar tüm Wi-Fi ağlarına uygulanır. Lütfen Sistem Ayarlarınızda Konum Servislerini etkinleştirin.</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>  Kısıtlayıcı bir ağdaysanız, indirmeyi tekrar denemeden önce lütfen VPN&apos;i bağlayın.</translation>
     </message>
 </context>
 <context>

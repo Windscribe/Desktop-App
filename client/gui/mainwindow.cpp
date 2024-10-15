@@ -2321,7 +2321,7 @@ void MainWindow::onBackendWifiSharingFailed(WIFI_SHARING_ERROR error)
             GeneralMessageController::tr(GeneralMessageController::kOk),
             "",
             "",
-            [this](bool b) { 
+            [this](bool b) {
                 // Turn off the toggle
                 types::ShareSecureHotspot sh = backend_->getPreferences()->shareSecureHotspot();
                 sh.isEnabled = false;
@@ -2605,54 +2605,60 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERS
 {
     // qDebug() << "Mainwindow::onBackendUpdateVersionChanged: " << progressPercent << ", " << state;
 
-    if (state == UPDATE_VERSION_STATE_DONE)
-    {
-        if (downloadRunning_) // not cancelled by user
-        {
-            if (error == UPDATE_VERSION_ERROR_NO_ERROR)
-            {
+    if (state == UPDATE_VERSION_STATE_DONE) {
+        if (downloadRunning_) { // not cancelled by user
+            if (error == UPDATE_VERSION_ERROR_NO_ERROR) {
                 isExitingAfterUpdate_ = true; // the flag for prevent firewall off for some states
                 // nothing todo, because installer will close app here
-            }
-            else // Error
-            {
-                mainWindowController_->getUpdateAppItem()->setProgress(0);
-                mainWindowController_->getUpdateWindow()->stopAnimation();
-                mainWindowController_->getUpdateWindow()->changeToPromptScreen();
-
+            } else {
                 QString titleText = tr("Auto-Update Failed");
-                QString descText = tr("Please contact support");
+                QString descText;
                 if (error == UPDATE_VERSION_ERROR_DL_FAIL) {
                     descText = tr("Could not download update.  Please try again or use a different network.");
+                    if (backend_->isDisconnected()) {
+                        descText += tr("  If you are on a restrictive network, please connect the VPN before trying the download again.");
+                    }
                 } else {
                     descText = tr("Could not run updater (Error %1).  Please contact support").arg(error);
                 }
-                GeneralMessageController::instance().showMessage("ERROR_ICON", titleText, descText, GeneralMessageController::tr(GeneralMessageController::kOk));
+
+                // Hide the update available header while the error message window is visible, otherwise we'll see
+                // a progress bar above the message window.
+                mainWindowController_->getUpdateAppItem()->setMode(UpdateApp::UpdateAppItem::UPDATE_APP_ITEM_MODE_PROMPT);
+                mainWindowController_->getUpdateAppItem()->setProgress(0);
+                mainWindowController_->getUpdateAppItem()->setVisible(false);
+
+                // Reset the update window to its default state.
+                mainWindowController_->getUpdateWindow()->stopAnimation();
+                mainWindowController_->getUpdateWindow()->changeToPromptScreen();
+
+                GeneralMessageController::instance().showMessage("ERROR_ICON", titleText, descText, GeneralMessageController::tr(GeneralMessageController::kOk), "", "",
+                    [this](bool b) {
+                        mainWindowController_->getUpdateAppItem()->setVisible(true);
+                        // Need to hide the update window here before transitioning back to the connect screen.
+                        mainWindowController_->getUpdateWindow()->hide();
+                        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+                    });
             }
-        }
-        else
-        {
+        } else {
             mainWindowController_->getUpdateAppItem()->setProgress(0);
             mainWindowController_->getUpdateWindow()->stopAnimation();
             mainWindowController_->getUpdateWindow()->changeToPromptScreen();
         }
         downloadRunning_ = false;
     }
-    else if (state == UPDATE_VERSION_STATE_DOWNLOADING)
-    {
+    else if (state == UPDATE_VERSION_STATE_DOWNLOADING) {
         // qDebug() << "Running -- updating progress";
         mainWindowController_->getUpdateAppItem()->setProgress(progressPercent);
         mainWindowController_->getUpdateWindow()->setProgress(progressPercent);
     }
-    else if (state == UPDATE_VERSION_STATE_RUNNING)
-    {
+    else if (state == UPDATE_VERSION_STATE_RUNNING) {
         // Send main window center coordinates from the GUI, to position the installer properly.
         const bool is_visible = isVisible() && !isMinimized();
         qint32 center_x = INT_MAX;
         qint32 center_y = INT_MAX;
 
-        if (is_visible)
-        {
+        if (is_visible) {
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
             center_x = geometry().x() + geometry().width() / 2;
             center_y = geometry().y() + geometry().height() / 2;

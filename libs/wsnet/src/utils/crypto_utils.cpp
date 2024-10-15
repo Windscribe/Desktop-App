@@ -3,6 +3,7 @@
 #include <openssl/sha.h>
 #include <openssl/md5.h>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 
 // ignore deprecated warnings
 #ifdef _MSC_VER

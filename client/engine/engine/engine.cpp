@@ -1444,7 +1444,7 @@ void Engine::onConnectionManagerConnected()
                 qCDebug(LOG_PACKET_SIZE) << "Applying MTU on WindscribeWireguard: " << mtu;
                 // For WireGuard, this function needs the subinterface name, e.g. always "WindscribeWireguard"
 #ifdef Q_OS_WIN
-                helper_->changeMtu("WindscribeWireguard", mtu);
+                helper_->changeMtu(QString::fromStdWString(kWireGuardAdapterIdentifier), mtu);
 #else
                 helper_->changeMtu(adapterName, mtu);
 #endif

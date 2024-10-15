@@ -625,10 +625,6 @@
         <translation>Автооновлення не вдалося</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>Будь ласка, зв&apos;яжіться зі службою підтримки</translation>
-    </message>
-    <message>
         <source>Could not download update.  Please try again or use a different network.</source>
         <translation>Не вдалося завантажити оновлення.  Будь ласка, спробуйте ще раз або скористайтеся іншою мережею.</translation>
     </message>
@@ -821,6 +817,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>Windscribe вимагає від Служб локації визначити ваш SSID Wi-Fi. Якщо цю функцію не ввімкнено, налаштування для кожної мережі застосовуватимуться до всіх мереж Wi-Fi. Будь ласка, увімкніть Служби локації у ваших системних налаштуваннях.</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>  Якщо ви користуєтеся обмеженою мережею, будь ласка, підключіть VPN, перш ніж повторювати спробу завантаження.</translation>
     </message>
 </context>
 <context>

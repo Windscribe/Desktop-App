@@ -645,10 +645,6 @@
         <translation>فشل التحديث التلقائي</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>يرجى الاتصال بالدعم</translation>
-    </message>
-    <message>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>فقد الاتصال بعملية الواجهة الخلفية.
@@ -821,6 +817,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>يتطلب Windscribe خدمات الموقع لتحديد معرف SSID الخاص بشبكة Wi-Fi الخاصة بك. إذا لم يتم تمكينه ، تطبيق الإعدادات لكل شبكة على جميع شبكات Wi-Fi. الرجاء تمكين خدمات الموقع في إعدادات النظام الخاص بك.</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>  إذا كنت تستخدم شبكة مقيدة ، فيرجى توصيل VPN قبل محاولة التنزيل مرة أخرى.</translation>
     </message>
 </context>
 <context>

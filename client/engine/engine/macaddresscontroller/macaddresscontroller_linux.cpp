@@ -37,12 +37,13 @@ void MacAddressController_linux::setMacAddrSpoofing(const types::MacAddrSpoofing
     qCDebug(LOG_BASIC) << spoofing;
 
     if (spoofing.isEnabled) {
+        spoofing_ = spoofing;
         enableSpoofing();
     } else if (spoofing_.isEnabled && !spoofing.isEnabled) {
+        spoofing_ = spoofing;
         disableSpoofing();
     }
 
-    spoofing_ = spoofing;
     emit macAddrSpoofingChanged(spoofing_);
 }
 

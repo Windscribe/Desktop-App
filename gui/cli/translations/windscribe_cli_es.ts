@@ -24,7 +24,7 @@
     </message>
     <message>
         <source>Not logged in</source>
-        <translation>No has iniciado sesión</translation>
+        <translation>No ha iniciado sesión</translation>
     </message>
     <message>
         <source>Firewall already on</source>
@@ -180,7 +180,7 @@
     </message>
     <message>
         <source>Update error: download failed. Please try again or try a different network.</source>
-        <translation>Error de actualización: error al descargar. Inténtalo de nuevo o prueba con una red diferente.</translation>
+        <translation>Error de actualización: error de descarga. Inténtelo de nuevo o pruebe con una red diferente.</translation>
     </message>
     <message>
         <source>Update error: %1</source>

@@ -66,12 +66,16 @@ update-desktop-database
 setcap cap_setgid+ep /opt/windscribe/Windscribe
 echo linux_rpm_opensuse_x64 > ../etc/windscribe/platform
 
+%preun
+if [ $1 -eq 0 ]; then
+    /opt/windscribe/helper --reset-mac-addresses
+    systemctl disable windscribe-helper || true
+fi
+
 %postun
 if [ $1 -eq 0 ]; then
     killall -q Windscribe || true
     systemctl stop windscribe-helper || true
-    systemctl disable windscribe-helper || true
-    /opt/windscribe/helper --reset-mac-addresses
     systemctl enable firewalld || true
     systemctl start firewalld || true
     userdel -f windscribe || true

@@ -625,10 +625,6 @@
         <translation>خرابی در بهروزرسانی خودکار</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>لطفا با پشتیبانی تماس بگیرید</translation>
-    </message>
-    <message>
         <source>Could not download update.  Please try again or use a different network.</source>
         <translation>بارگیری بهروزرسانی ممکن نبود.  لطفا دوباره تلاش کنید یا از شبکه دیگری استفاده کنید.</translation>
     </message>
@@ -821,6 +817,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>Windscribe برای تعیین SSID Wi-Fi شما به خدمات مکان نیاز دارد. اگر فعال نباشد، تنظیمات هر شبکه برای همه شبکه های Wi-Fi اعمال می شود. لطفا خدمات موقعیت مکانی را در تنظیمات سیستم خود فعال کنید.</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>  اگر در یک شبکه محدود کننده هستید، لطفا قبل از تلاش مجدد دانلود، VPN را وصل کنید.</translation>
     </message>
 </context>
 <context>

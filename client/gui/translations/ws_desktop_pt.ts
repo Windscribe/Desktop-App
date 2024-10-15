@@ -625,10 +625,6 @@
         <translation>Falha na atualização automática</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>Entre em contato com o suporte</translation>
-    </message>
-    <message>
         <source>Could not download update.  Please try again or use a different network.</source>
         <translation>Não foi possível baixar a atualização.  Tente novamente ou use uma rede diferente.</translation>
     </message>
@@ -821,6 +817,10 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>O Windscribe requer Serviços de Localização para determinar o seu SSID Wi-Fi. Se não estiver ativado, as definições por rede serão aplicadas a todas as redes Wi-Fi. Ative os Serviços de Localização nas Configurações do Sistema.</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>  Se você estiver em uma rede restritiva, conecte a VPN antes de tentar fazer o download novamente.</translation>
     </message>
 </context>
 <context>

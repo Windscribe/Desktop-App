@@ -40,6 +40,26 @@ if [ ! -f "$net_cls_root/windscribe/net_cls.classid" ]; then
         fi
     fi
 
+    mkdir -p /etc/iproute2 # create dir if it doesn't exist
+    touch /etc/iproute2/rt_tables # create file if it doesn't exist
+
+    # Add "windscribe" table definition if it doesn't exist
+    if [ "`grep -c "69 windscribe" /etc/iproute2/rt_tables`" -eq 0 ]; then
+        echo "69 windscribe" >> /etc/iproute2/rt_tables
+    fi
+    if [ "`grep -c "70 windscribe_include" /etc/iproute2/rt_tables`" -eq 0 ]; then
+        echo "70 windscribe_include" >> /etc/iproute2/rt_tables
+    fi
+
+    # Create separate routing table for packets with our mark
+    ip rule add fwmark $mark priority 16384 table windscribe
+    ip route add default via $def_gateway dev $def_interface table windscribe
+    ip route add 10.255.255.0/24 dev $vpn_interface table windscribe
+
+    # Create separate routing table for packets that should always go into tunnel
+    ip route add default via $vpn_gateway dev $vpn_interface table windscribe_include
+    ip route add $remote_ip dev $def_interface table windscribe_include
+
     # Create net_cls id
     mkdir "$net_cls_root/windscribe"
     echo "$netclass" > "$net_cls_root/windscribe/net_cls.classid"

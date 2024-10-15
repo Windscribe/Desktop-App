@@ -366,7 +366,7 @@
     </message>
     <message>
         <source>Your username should not be an email address. Please try again.</source>
-        <translation>Tu nombre de usuario no puede ser una dirección de correo electrónico. Inténtalo de nuevo.</translation>
+        <translation>Tu nombre de usuario no debe ser una dirección de correo electrónico. Inténtalo de nuevo.</translation>
     </message>
     <message>
         <source>Login</source>
@@ -500,7 +500,7 @@
     </message>
     <message>
         <source>Could not run updater (Error %1).  Please contact support</source>
-        <translation>No se pudo ejecutar el actualizador (error %1).  Ponte en contacto con el servicio de asistencia</translation>
+        <translation>No se pudo ejecutar el actualizador (error %1).  Póngase en contacto con el servicio de asistencia</translation>
     </message>
     <message>
         <source>Read-only file</source>
@@ -645,10 +645,6 @@
         <translation>Error de actualización automática</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>Por favor, contacta con el soporte técnico</translation>
-    </message>
-    <message>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>Se perdió la conexión con el proceso de backend.
@@ -732,7 +728,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Unable to start custom DNS service.  Please ensure you don&apos;t have any other local DNS services running, or contact support.</source>
-        <translation>No se puede iniciar el servicio DNS personalizado.  Asegúrate de que no tiene ningún otro servicio de DNS local en ejecución o ponte en contacto con el soporte técnico.</translation>
+        <translation>No se puede iniciar el servicio DNS personalizado.  Asegúrese de que no tiene ningún otro servicio de DNS local en ejecución o póngase en contacto con el soporte técnico.</translation>
     </message>
     <message>
         <source>JSON Files (*.json)</source>
@@ -768,19 +764,19 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
-        <translation>No se pudo abrir el archivo para escribir.  Comprueba tus permisos e inténtalo de nuevo.</translation>
+        <translation>No se pudo abrir el archivo para escribir.  Compruebe sus permisos e inténtelo de nuevo.</translation>
     </message>
     <message>
         <source>Enter Connection Credentials</source>
-        <translation>Introduce las credenciales de conexión</translation>
+        <translation>Introduzca las credenciales de conexión</translation>
     </message>
     <message>
         <source>Enter Private Key Password</source>
-        <translation>Introduce la contraseña de clave privada</translation>
+        <translation>Ingrese la contraseña de clave privada</translation>
     </message>
     <message>
         <source>Windscribe could not retrieve server configuration. Please try another protocol.</source>
-        <translation>Windscribe no pudo recuperar la configuración del servidor. Por favor, prueba con otro protocolo.</translation>
+        <translation>Windscribe no pudo recuperar la configuración del servidor. Por favor, pruebe con otro protocolo.</translation>
     </message>
     <message>
         <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
@@ -821,6 +817,10 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>Windscribe requiere servicios de localización para determinar tu SSID de Wi-Fi. Si no está habilitado, la configuración por red se aplicará a todas las redes Wi-Fi. Habilite los servicios de ubicación en la configuración de su sistema.</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>  Si se encuentra en una red restrictiva, conecte la VPN antes de volver a intentar la descarga.</translation>
     </message>
 </context>
 <context>
@@ -1491,7 +1491,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>¿Tienes un problema que Garry no puede resolver? Ponte en contacto con el servicio de asistencia humana.</translation>
+        <translation>¿Tienes un problema que Garry no puede resolver? Póngase en contacto con el servicio de asistencia humana.</translation>
     </message>
 </context>
 <context>
@@ -1732,7 +1732,7 @@ Conéctate primero a una red</translation>
     </message>
     <message>
         <source>The proxy server couldn&apos;t be started on the requested port. Please try again with a different port.</source>
-        <translation>No se pudo iniciar el servidor proxy en el puerto solicitado. Inténtalo de nuevo con un puerto diferente.</translation>
+        <translation>No se pudo iniciar el servidor proxy en el puerto solicitado. Inténtelo de nuevo con un puerto diferente.</translation>
     </message>
     <message>
         <source>Auto</source>
@@ -1778,7 +1778,7 @@ Conéctate primero a una red</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
-        <translation>La dirección de proxy no es válida. Introduce una dirección IP o un nombre de dominio válidos.</translation>
+        <translation>La dirección de proxy no es válida. Introduzca una dirección IP o un nombre de dominio válidos.</translation>
     </message>
     <message>
         <source>Invalid proxy port</source>
@@ -1786,7 +1786,7 @@ Conéctate primero a una red</translation>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>El puerto proxy no es válido. Introduce un puerto válido en el rango 0-65535.</translation>
+        <translation>El puerto proxy no es válido. Introduzca un puerto válido en el rango 0-65535.</translation>
     </message>
 </context>
 <context>
@@ -1914,7 +1914,7 @@ Conéctate primero a una red</translation>
     </message>
     <message>
         <source>Enter the IP and/or hostnames you wish to include in or exclude from the VPN tunnel below.</source>
-        <translation>Introduce la IP y/o los nombres de dominio que deseas incluir o excluir del túnel VPN a continuación.</translation>
+        <translation>Ingresa la IP y/o los nombres de dominio que deseas incluir o excluir del túnel VPN a continuación.</translation>
     </message>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
@@ -1962,7 +1962,7 @@ Conéctate primero a una red</translation>
 If the reinstall does not help, please contact Windscribe support for assistance.</source>
         <translation>El controlador de túnel dividido no está instalado.  Para habilitar esta función, intenta reinstalar la aplicación Windscribe.
 
-Si la reinstalación no ayuda, ponte en contacto con el soporte de Windscribe para obtener ayuda.</translation>
+Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe para obtener ayuda.</translation>
     </message>
     <message>
         <source>Selected IPs and hostnames will not go through Windscribe when connected.</source>
@@ -2317,7 +2317,7 @@ Si la reinstalación no ayuda, ponte en contacto con el soporte de Windscribe pa
     </message>
     <message>
         <source>Please provide a 2FA code</source>
-        <translation>Por favor, proporciona un código 2FA</translation>
+        <translation>Por favor, proporcione un código 2FA</translation>
     </message>
     <message>
         <source>Invalid 2FA code, please try again</source>

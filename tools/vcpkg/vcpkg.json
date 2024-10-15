@@ -27,8 +27,5 @@
             "name": "winreg",
             "platform": "windows"
         }
-    ],
-    "overrides": [
-        { "name": "c-ares", "version": "1.26.0" }
     ]
 }

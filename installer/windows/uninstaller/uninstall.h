@@ -37,6 +37,7 @@ private:
 
     static void UninstallSplitTunnelDriver();
     static void UninstallOpenVPNDCODriver(const std::wstring& installationPath);
+    static void UninstallWireGuardService();
 
     static void UninstallHelper();
 };

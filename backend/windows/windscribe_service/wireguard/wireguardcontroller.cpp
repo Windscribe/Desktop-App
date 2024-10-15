@@ -13,6 +13,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "../../../client/common/types/global_consts.h"
 #include "../../../client/common/utils/servicecontrolmanager.h"
 #include "../../../client/common/utils/win32handle.h"
 #include "../../../client/common/utils/wsscopeguard.h"
@@ -37,7 +38,6 @@ bool WireGuardController::installService()
     is_initialized_ = false;
     try {
         exeName_ = L"WireguardService.exe";
-        const std::wstring serviceName = L"WireGuardTunnel$" + kServiceIdentifier;
         const std::wstring confFile = configFile();
         if (confFile.empty()) {
             return false;
@@ -53,10 +53,10 @@ bool WireGuardController::installService()
         wsl::ServiceControlManager svcCtrl;
         svcCtrl.openSCM(SC_MANAGER_ALL_ACCESS);
 
-        if (svcCtrl.isServiceInstalled(serviceName.c_str())) {
+        if (svcCtrl.isServiceInstalled(kWireGuardServiceIdentifier.c_str())) {
             Logger::instance().out("WireGuardController::installService - deleting existing WireGuard service");
             std::error_code ec;
-            if (!svcCtrl.deleteService(serviceName.c_str(), ec)) {
+            if (!svcCtrl.deleteService(kWireGuardServiceIdentifier.c_str(), ec)) {
                 Logger::instance().out("WireGuardController::installService - failed to delete existing WireGuard service (%d)", ec.value());
             }
         }
@@ -70,7 +70,7 @@ bool WireGuardController::installService()
         }
 #endif
 
-        svcCtrl.installService(serviceName.c_str(), serviceCmdLine.c_str(),
+        svcCtrl.installService(kWireGuardServiceIdentifier.c_str(), serviceCmdLine.c_str(),
             L"Windscribe Wireguard Tunnel", L"Manages the Windscribe WireGuard tunnel connection",
             SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, L"Nsi\0TcpIp\0", true);
 
@@ -89,17 +89,15 @@ bool WireGuardController::deleteService()
 {
     is_initialized_ = false;
 
-    std::wstring serviceName(L"WireGuardTunnel$" + kServiceIdentifier);
-
     bool bServiceDeleted = false;
     try {
         wsl::ServiceControlManager svcCtrl;
         svcCtrl.openSCM(SC_MANAGER_ALL_ACCESS);
 
-        if (svcCtrl.isServiceInstalled(serviceName.c_str())) {
+        if (svcCtrl.isServiceInstalled(kWireGuardServiceIdentifier.c_str())) {
             Logger::instance().out("WireGuardController::deleteService - deleting WireGuard service");
             std::error_code ec;
-            if (!svcCtrl.deleteService(serviceName.c_str(), ec)) {
+            if (!svcCtrl.deleteService(kWireGuardServiceIdentifier.c_str(), ec)) {
                 throw std::system_error(ec);
             }
         }
@@ -239,7 +237,7 @@ HANDLE WireGuardController::getKernelInterfaceHandle() const
 
         // requiredSize count includes the null terminator.
         std::wstring adapterName((LPCWSTR)buffer.get(), requiredSize / sizeof(wchar_t) - 1);
-        if (!Utils::iequals(adapterName, kServiceIdentifier)) {
+        if (!Utils::iequals(adapterName, kWireGuardAdapterIdentifier)) {
             continue;
         }
 
@@ -322,6 +320,6 @@ std::wstring WireGuardController::configFile() const
         Logger::instance().out("WireGuardController: could not get config file path");
         return std::wstring();
     }
-    confFile += L"\\" + kServiceIdentifier + L".conf";
+    confFile += L"\\" + kWireGuardAdapterIdentifier + L".conf";
     return confFile;
 }

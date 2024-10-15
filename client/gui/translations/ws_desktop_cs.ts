@@ -625,10 +625,6 @@
         <translation>Automatická aktualizace se nezdařila</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>Kontaktujte prosím podporu</translation>
-    </message>
-    <message>
         <source>Could not download update.  Please try again or use a different network.</source>
         <translation>Aktualizaci nelze stáhnout.  Zkuste to znovu nebo použijte jinou síť.</translation>
     </message>
@@ -821,6 +817,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>Společnost Windscribe vyžaduje, aby polohové služby určily vaše SSID Wi-Fi. Pokud tato možnost není povolena, nastavení pro jednotlivé sítě se bude vztahovat na všechny sítě Wi-Fi. Povolte prosím polohové služby v nastavení systému.</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>  Pokud jste v omezující síti, připojte VPN, než se pokusíte o stažení znovu.</translation>
     </message>
 </context>
 <context>

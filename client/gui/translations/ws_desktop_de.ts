@@ -645,10 +645,6 @@
         <translation>Automatische Aktualisierung fehlgeschlagen</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>Bitte wenden Sie sich an den Support</translation>
-    </message>
-    <message>
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>Die Verbindung zum Backend-Prozess wurde unterbrochen.
@@ -821,6 +817,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>Windscribe benötigt Ortungsdienste, um Ihre WLAN-SSID zu ermitteln. Wenn diese Option nicht aktiviert ist, gelten die Einstellungen pro Netzwerk für alle WLAN-Netzwerke. Bitte aktivieren Sie die Ortungsdienste in Ihren Systemeinstellungen.</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>  Wenn Sie sich in einem restriktiven Netzwerk befinden, verbinden Sie bitte das VPN, bevor Sie den Download erneut versuchen.</translation>
     </message>
 </context>
 <context>

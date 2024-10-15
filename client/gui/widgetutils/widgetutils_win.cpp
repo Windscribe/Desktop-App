@@ -225,3 +225,29 @@ void WidgetUtils_win::setTaskbarIconOverlay(const QWidget &appMainWindow, const 
         qCDebug(LOG_BASIC) << "WidgetUtils_win::setTaskbarIconOverlay() IID_ITaskbarList4::SetOverlayIcon failed" << HRESULT_CODE(result);
     }
 }
+
+QRect WidgetUtils_win::availableGeometry(const QWidget &appMainWindow, const QScreen &screen)
+{
+    // QScreen::availableGeometry() has a bug, as of Qt 6.7.2 and older, where it does not report
+    // changes in taskbar size on Windows 10.  The following logic is extracted from the monitorData()
+    // method in Qt's qtbase\src\plugins\platforms\windows\qwindowsscreen.cpp source.
+
+    HWND hwnd = reinterpret_cast<HWND>(appMainWindow.winId());
+    HMONITOR hMonitor = ::MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+    if (hMonitor == NULL) {
+        qCDebug(LOG_BASIC) << "WidgetUtils_win::availableGeometry() MonitorFromWindow failed" << ::GetLastError();
+        return screen.availableGeometry();
+    }
+
+    MONITORINFO minfo;
+    memset(&minfo, 0, sizeof(MONITORINFO));
+    minfo.cbSize = sizeof(MONITORINFO);
+    BOOL result = ::GetMonitorInfo(hMonitor, &minfo);
+    if (!result) {
+        qCDebug(LOG_BASIC) << "WidgetUtils_win::availableGeometry() GetMonitorInfo failed" << ::GetLastError();
+        return screen.availableGeometry();
+    }
+
+    QRect geo = QRect(QPoint(minfo.rcWork.left, minfo.rcWork.top), QPoint(minfo.rcWork.right - 1, minfo.rcWork.bottom - 1));
+    return geo;
+}

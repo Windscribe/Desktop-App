@@ -36,6 +36,13 @@ void ServerAPI::setIgnoreSslErrors(bool bIgnore)
     });
 }
 
+void ServerAPI::resetFailover()
+{
+    boost::asio::post(io_context_, [this] {
+        impl_->resetFailover();
+    });
+}
+
 std::shared_ptr<WSNetCancelableCallback> ServerAPI::setTryingBackupEndpointCallback(WSNetTryingBackupEndpointCallback tryingBackupEndpointCallback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetTryingBackupEndpointCallback>>(tryingBackupEndpointCallback);

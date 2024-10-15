@@ -39,6 +39,19 @@ inline std::string join(const std::vector<std::string> &strings, const std::stri
                            );
 }
 
+// Splitting a string by a character
+inline std::vector<std::string> split(const std::string &str, char character)
+{
+    std::stringstream stream(str);
+    std::string segment;
+    std::vector<std::string> res;
+    while(std::getline(stream, segment, character))
+        res.push_back(segment);
+
+    return res;
+
+}
+
 // check if ip is valid ip address string
 bool isIpAddress(const std::string &ip);
 

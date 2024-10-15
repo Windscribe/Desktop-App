@@ -33,12 +33,8 @@ private:
     void run();
     static void caresCallback(void *arg, int status, int timeouts, struct hostent *host);
 
-    // 200 ms settled for faster switching to the next try (next server)
-    // this does not mean that the current request will be limited to 200ms,
-    // but after 200 ms, the next one will start parallel to the first one
-    // (see discussion for details: https://lists.haxx.se/pipermail/c-ares/2022-January/000032.html
-    static constexpr int kTimeoutMs = 200;
-    static constexpr int kTries = 4; // default value in c-ares, let's leave it as it is
+    static constexpr int kTimeoutMs = 2000;  // default value in c-ares, let's leave it as it is
+    static constexpr int kTries = 2; // the number of tries the resolver will try contacting each name server before giving up.
 
     struct QueueItem
     {

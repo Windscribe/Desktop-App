@@ -23,8 +23,6 @@ private:
     std::wstring exeName_;
 
 private:
-    inline static const std::wstring kServiceIdentifier = L"WindscribeWireguard";
-
     explicit WireGuardController();
     HANDLE getKernelInterfaceHandle() const;
     std::wstring configFile() const;

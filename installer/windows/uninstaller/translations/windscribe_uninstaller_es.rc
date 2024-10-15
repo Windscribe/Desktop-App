@@ -4,7 +4,7 @@ STRINGTABLE
 BEGIN
     IDS_MSGBOX_TITLE "Desinstalar Windscribe"
     IDS_DIRECTORY_MISMATCH "La desinstalación no puede continuar. El directorio de instalación no coincide con el directorio de eliminación."
-    IDS_CONFIRM_UNINSTALL "¿Seguro que deseas eliminar completamente Windscribe y todos sus componentes?"
+    IDS_CONFIRM_UNINSTALL "¿Seguro que desea eliminar completamente Windscribe y todos sus componentes?"
     IDS_UNINSTALL_SUCCESS "Windscribe se ha eliminado correctamente de tu ordenador."
     IDS_CLOSE_APP "Cierra la aplicación Windscribe para continuar con la desinstalación. Ten en cuenta que tu conexión no estará protegida una vez que cierres la aplicación."
 END

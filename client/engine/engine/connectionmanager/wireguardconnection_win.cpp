@@ -5,10 +5,10 @@
 #include <QTimer>
 
 #include <shlobj.h>
-#include <sstream>
 
 #include "adapterutils_win.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
+#include "types/global_consts.h"
 #include "types/wireguardtypes.h"
 #include "utils/crashhandler.h"
 #include "utils/logger.h"
@@ -31,10 +31,6 @@
 //   created the QThread instance, not by the thread running run().
 // - IConnection::interfaceUpdated signal is not currently used in Engine::onConnectionManagerInterfaceUpdated
 //   on Windows, so no need to emit it.
-
-static const QString kServiceIdentifier("WindscribeWireguard");
-static const std::wstring kServiceName = L"WireGuardTunnel$" + kServiceIdentifier.toStdWString();
-
 
 WireGuardConnection::WireGuardConnection(QObject *parent, IHelper *helper)
     : IConnection(parent),
@@ -106,8 +102,8 @@ bool WireGuardConnection::isDisconnected() const
     try {
         wsl::ServiceControlManager scm;
         scm.openSCM(SC_MANAGER_CONNECT);
-        if (scm.isServiceInstalled(kServiceName.c_str())) {
-            scm.openService(kServiceName.c_str(), SERVICE_QUERY_STATUS);
+        if (scm.isServiceInstalled(kWireGuardServiceIdentifier.c_str())) {
+            scm.openService(kWireGuardServiceIdentifier.c_str(), SERVICE_QUERY_STATUS);
             dwStatus = scm.queryServiceStatus();
         }
     }
@@ -330,7 +326,7 @@ bool WireGuardConnection::startService()
     try {
         wsl::ServiceControlManager scm;
         scm.openSCM(SC_MANAGER_CONNECT);
-        scm.openService(kServiceName.c_str(), SERVICE_QUERY_STATUS | SERVICE_START);
+        scm.openService(kWireGuardServiceIdentifier.c_str(), SERVICE_QUERY_STATUS | SERVICE_START);
 
         // The WireGuard service code (configureInterface() in addressconfig.go) may encounter an ERROR_NOT_FOUND error
         // while attempting to set routes on the WG adapter.  There is logic in this method to retry the route set 15
@@ -379,7 +375,7 @@ void WireGuardConnection::stopService()
     try {
         wsl::ServiceControlManager scm;
         scm.openSCM(SC_MANAGER_CONNECT);
-        scm.openService(kServiceName.c_str(), SERVICE_QUERY_STATUS | SERVICE_STOP);
+        scm.openService(kWireGuardServiceIdentifier.c_str(), SERVICE_QUERY_STATUS | SERVICE_STOP);
         scm.stopService();
     }
     catch (std::system_error& ex) {
@@ -390,7 +386,7 @@ void WireGuardConnection::stopService()
 void WireGuardConnection::onTunnelConnected()
 {
     connectedSignalEmited_ = true;
-    AdapterGatewayInfo info = AdapterUtils_win::getConnectedAdapterInfo(kServiceIdentifier);
+    AdapterGatewayInfo info = AdapterUtils_win::getConnectedAdapterInfo(QString::fromStdWString(kWireGuardAdapterIdentifier));
     emit connected(info);
 }
 

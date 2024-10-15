@@ -625,10 +625,6 @@
         <translation>Pembaruan otomatis gagal</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>Silakan hubungi dukungan</translation>
-    </message>
-    <message>
         <source>Could not download update.  Please try again or use a different network.</source>
         <translation>Tidak dapat mengunduh pembaruan.  Coba lagi atau gunakan jaringan lain.</translation>
     </message>
@@ -821,6 +817,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>Windscribe memerlukan Layanan Lokasi untuk menentukan SSID Wi-Fi Anda. Jika tidak diaktifkan, setelan per jaringan akan berlaku untuk semua jaringan Wi-Fi. Harap aktifkan Layanan Lokasi di Pengaturan Sistem Anda.</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>  Jika Anda berada di jaringan yang terbatas, harap sambungkan VPN sebelum mencoba mengunduh lagi.</translation>
     </message>
 </context>
 <context>

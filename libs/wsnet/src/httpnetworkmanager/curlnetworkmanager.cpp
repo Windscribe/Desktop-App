@@ -274,7 +274,7 @@ int CurlNetworkManager::curlCloseSocketCallback(void *clientp, curl_socket_t cur
 int CurlNetworkManager::curlTrace(CURL *handle, curl_infotype type, char *data, size_t size, void *clientp)
 {
     RequestInfo *requestInfo = static_cast<RequestInfo *>(clientp);
-    std::lock_guard locker(requestInfo->curlNetworkManager->mutex_);
+
     if (type == CURLINFO_TEXT) {
         // replace all domains in the string with their md5 for privacy.
         std::string src = std::string(data, size);
@@ -309,7 +309,11 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FRESH_CONNECT, 1L) != CURLE_OK) return false;
     // make connection get closed at once after use
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FORBID_REUSE, 1L) != CURLE_OK) return false;
-    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CONNECTTIMEOUT_MS , timeoutMs) != CURLE_OK) return false;
+
+    // timeout for the connect phase, this timeout only limits the connection phase, it has no impact once libcurl has connected
+    // I noticed that this time curl distributes equally between all IP addresses of the domain,
+    // so we have to multiply this by the number of IP addresses
+    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CONNECTTIMEOUT_MS , timeoutMs * ips.size()) != CURLE_OK) return false;
 
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_XFERINFOFUNCTION, progressCallback) != CURLE_OK) return false;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_XFERINFODATA, requestInfo) != CURLE_OK) return false;

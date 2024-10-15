@@ -100,6 +100,10 @@
         <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
         <translation>安装到自定义文件夹可能允许攻击者篡改 Windscribe 应用程序。为确保应用程序和系统的安全，我们强烈建议您安装到“Program Files”文件夹中的默认位置。单击“确定”继续使用自定义文件夹，或单击“取消”使用默认位置。</translation>
     </message>
+    <message>
+        <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
+        <translation>您当前的用户名是“windscribe”，这是 Windscribe 应用程序需要的用户名。无法安装 Windscribe。</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

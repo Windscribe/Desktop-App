@@ -31,6 +31,7 @@ public:
     bool isInstallDriversEnabled(bool on);
     void setInstallDrivers(bool on);
     void setCredentials(const std::wstring &username, const std::wstring &password);
+    std::string username();
 
     void start(bool isUpdating);
     void cancel();

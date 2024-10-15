@@ -625,10 +625,6 @@
         <translation>자동 업데이트 실패</translation>
     </message>
     <message>
-        <source>Please contact support</source>
-        <translation>지원팀에 문의하세요.</translation>
-    </message>
-    <message>
         <source>Could not download update.  Please try again or use a different network.</source>
         <translation>업데이트를 다운로드할 수 없습니다.  다시 시도하거나 다른 네트워크를 사용하십시오.</translation>
     </message>
@@ -821,6 +817,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
         <translation>Windscribe는 Wi-Fi SSID를 확인하기 위해 위치 서비스가 필요합니다. 활성화되지 않은 경우 네트워크별 설정이 모든 Wi-Fi 네트워크에 적용됩니다. 시스템 설정에서 위치 서비스를 활성화하십시오.</translation>
+    </message>
+    <message>
+        <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
+        <translation>  제한적인 네트워크에 있는 경우 다운로드를 다시 시도하기 전에 VPN을 연결하세요.</translation>
     </message>
 </context>
 <context>

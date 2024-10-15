@@ -1,3 +1,21 @@
+2.12.2 (14/10/2024)
+All:
+   * Improved Spanish translations. #1131
+   * Improved error message when update download fails. #1120
+   * Improved the failover algorithm in wsnet, don't stick to one domain. #1148
+   * Updated c-ares in wsnet to the latest version 1.33.1, increased timeouts for DNS requests. #1156
+Windows:
+   * Fixed docked app does not detect change in taskbar size and adjust position when displayed. #628
+   * Fixed app update may fail to stop and remove openvpn/wireguard daemons. #1155
+MacOS:
+   * Fixed installer may mangle the 'windscribe' user if it's a regular user. #1152
+   * Fixed always-on firewall may not be enabled after reboot. #1159
+Linux:
+   * Fixed MAC spoofing not working or not being reset in various scenarios. #1113
+   * Fixed openSUSE CLI install script error. #1160
+   * Removed changes for ingress packets when using split exclude or no split tunneling. #1127
+
+
 2.12.1 (24/09/2024)
 All:
    * Added new parameters session_type_id, apple_id, gp_device_id to wsnet library. #1129

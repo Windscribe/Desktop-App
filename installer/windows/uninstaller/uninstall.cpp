@@ -12,6 +12,8 @@
 #include "../utils/logger.h"
 #include "../utils/path.h"
 #include "../utils/utils.h"
+
+#include "global_consts.h"
 #include "servicecontrolmanager.h"
 
 
@@ -154,8 +156,19 @@ void Uninstaller::RunSecondPhase()
         Utils::instExec(Path::append(path_for_installation, L"WindscribeService.exe"), L"-firewall_off", INFINITE, SW_HIDE);
     }
 
+    Log::instance().out(L"uninstall WireGuard service");
+    UninstallWireGuardService();
+
+    const auto taskkillExe = Path::append(Utils::getSystemDir(), L"taskkill.exe");
+
     Log::instance().out(L"kill openvpn process");
-    Utils::instExec(Path::append(Utils::getSystemDir(), L"taskkill.exe"), L"/f /im openvpn.exe", INFINITE, SW_HIDE);
+    Utils::instExec(taskkillExe, L"/f /im windscribeopenvpn.exe", INFINITE, SW_HIDE);
+
+    Log::instance().out(L"kill wstunnel process");
+    Utils::instExec(taskkillExe, L"/f /im windscribewstunnel.exe", INFINITE, SW_HIDE);
+
+    Log::instance().out(L"kill ctrld process");
+    Utils::instExec(taskkillExe, L"/f /im windscribectrld.exe", INFINITE, SW_HIDE);
 
     Log::instance().out(L"uninstall split tunnel driver");
     UninstallSplitTunnelDriver();
@@ -319,4 +332,28 @@ void Uninstaller::UninstallOpenVPNDCODriver(const wstring& installationPath)
     else {
         Log::instance().out(L"OpenVPN DCO driver (%s) successfully removed from the Windows driver store", adapterOEMIdentifier.c_str());
     }
+}
+
+void Uninstaller::UninstallWireGuardService()
+{
+    try {
+        wsl::ServiceControlManager svcCtrl;
+        svcCtrl.openSCM(SC_MANAGER_ALL_ACCESS);
+
+        if (svcCtrl.isServiceInstalled(kWireGuardServiceIdentifier.c_str())) {
+            Log::instance().out(L"UninstallWireGuardService - deleting WireGuard service");
+            std::error_code ec;
+            if (!svcCtrl.deleteService(kWireGuardServiceIdentifier.c_str(), ec)) {
+                throw std::system_error(ec);
+            }
+        }
+
+        return;
+    }
+    catch (std::system_error& ex) {
+        Log::instance().out(L"WARNING: failed to delete the WireGuard service - %hs", ex.what());
+    }
+
+    Log::instance().out(L"UninstallWireGuardService - task killing the WireGuard service");
+    Utils::instExec(Path::append(Utils::getSystemDir(), L"taskkill.exe"), L"/f /t /im WireguardService.exe", INFINITE, SW_HIDE);
 }

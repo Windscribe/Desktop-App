@@ -102,6 +102,19 @@ MainWindow::MainWindow(bool isAdmin, InstallerOptions &options) : QWidget(nullpt
     alertWindow_->setGeometry(0, 0, width(), height());
     alertWindow_->hide();
 
+#if defined(Q_OS_MACOS)
+    // Get the current username.  If the user is 'windscribe', abort since the helper will 'overwrite' the user with ours.
+    QString name = QString::fromStdString(installerShim_->username());
+    if (name.compare("windscribe", Qt::CaseInsensitive) == 0) {
+        showError(tr("Installation failed"),
+                  tr("Your current username is 'windscribe', which is needed by the Windscribe app. Windscribe can't be installed."),
+                  true);
+        return;
+
+    }
+    
+#endif
+
     if (!isAdmin) {
         showError(tr("Installation failed"),
                   tr("You don't have sufficient permissions to run this application. Administrative privileges are required to install Windscribe."),

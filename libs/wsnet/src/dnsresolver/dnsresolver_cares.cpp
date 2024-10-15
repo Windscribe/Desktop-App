@@ -1,3 +1,4 @@
+#define CARES_NO_DEPRECATED     // Someday remove this and replace the functions with the new c-ares interface
 #include <ares.h>
 #include "dnsresolver_cares.h"
 #include <assert.h>
@@ -98,23 +99,19 @@ void DnsResolver_cares::run()
     int optmask;
 
     memset(&options, 0, sizeof(options));
-    optmask = ARES_OPT_TRIES | ARES_OPT_TIMEOUTMS;
+    optmask = ARES_OPT_TRIES | ARES_OPT_TIMEOUTMS | ARES_OPT_MAXTIMEOUTMS;
     options.tries = kTries;
     options.timeout = kTimeoutMs;
+    options.maxtimeout = kTimeoutMs;
 
     int status = ares_init_options(&channel, &options, optmask);
     assert(status == ARES_SUCCESS);
 
     DnsServers dnsServersInstalled;
-    DnsServers dnsServersInChannel;
+    DnsServers dnsServersInChannel(ares_get_servers_csv(channel));
 
-    struct ares_addr_node *servers;
-    status = ares_get_servers(channel, &servers);
-    assert(status == ARES_SUCCESS);
-    dnsServersInChannel = DnsServers(servers);
-    ares_free_data(servers);
 
-    spdlog::info("DNS servers in channel: {}", dnsServersInChannel.getAsSting());
+    spdlog::info("DNS servers in channel: {}", dnsServersInChannel.getAsCsv());
 
     std::queue<QueueItem> localQueue;
     while (!finish_) {
@@ -140,30 +137,28 @@ void DnsResolver_cares::run()
             status = ares_init_options(&tempChannel, &options, 0);
             assert(status == ARES_SUCCESS);
 
-            DnsServers dnsServersInTempChannel;
-
-            struct ares_addr_node *servers;
-            status = ares_get_servers(tempChannel, &servers);
-            assert(status == ARES_SUCCESS);
-            dnsServersInTempChannel = DnsServers(servers);
-            ares_free_data(servers);
+            DnsServers dnsServersInTempChannel(ares_get_servers_csv(tempChannel));
 
             if (dnsServersInChannel != dnsServersInTempChannel) {
                 ares_cancel(channel);
-                status = ares_set_servers(channel, dnsServersInTempChannel.getForCares());
+                status = ares_set_servers_csv(channel, dnsServersInTempChannel.getAsCsv().c_str());
                 assert(status == ARES_SUCCESS);
                 dnsServersInChannel = dnsServersInTempChannel;
-                spdlog::info("DNS servers in channel are changed: {}", dnsServersInChannel.getAsSting());
+
+                spdlog::info("DNS servers in channel are changed: {}", dnsServersInChannel.getAsCsv());
             }
             ares_destroy(tempChannel);
 
         } else {
             if (dnsServersInChannel != dnsServersInstalled) {
                 ares_cancel(channel);
-                status = ares_set_servers(channel, dnsServersInstalled.getForCares());
-                assert(status == ARES_SUCCESS);
-                dnsServersInChannel = dnsServersInstalled;
-                spdlog::info("DNS servers in channel are changed: {}", dnsServersInChannel.getAsSting());
+                status = ares_set_servers_csv(channel, dnsServersInstalled.getAsCsv().c_str());
+                if (status != ARES_SUCCESS) {
+                    spdlog::info("Failed to set DNS servers to channel: {}", dnsServersInstalled.getAsCsv());
+                } else {
+                    dnsServersInChannel = dnsServersInstalled;
+                    spdlog::info("DNS servers in channel are changed: {}", dnsServersInChannel.getAsCsv());
+                }
             }
         }
 

@@ -110,4 +110,8 @@ void InstallerShim::setCredentials(const std::wstring &username, const std::wstr
     // not supported on Mac
 }
 
-
+std::string InstallerShim::username()
+{
+    NSString *name = NSUserName();
+    return std::string([name UTF8String]);
+}

@@ -2,7 +2,6 @@
 
 #include <string>
 #include <vector>
-#include "../../posix_common/helper_commands.h"
 
 class FirewallController
 {
@@ -20,24 +19,32 @@ public:
     bool enabled(const std::string &tag = kTag);
     void getRules(bool ipv6, std::string *outRules);
 
-    void setSplitTunnelingEnabled(CMD_SEND_CONNECT_STATUS connectStatus_, bool isEnabled, bool isExclude);
+    void setSplitTunnelingEnabled(
+        bool isConnected,
+        bool isEnabled,
+        bool isExclude,
+        const std::string &adapter,
+        const std::string &adapterIp);
     void setSplitTunnelIpExceptions(const std::vector<std::string> &ips);
 
 private:
     FirewallController();
     ~FirewallController();
 
-    CMD_SEND_CONNECT_STATUS connectStatus_;
+    bool connected_;
     bool splitTunnelEnabled_;
     bool splitTunnelExclude_;
     std::vector<std::string> splitTunnelIps_;
+    std::string defaultAdapter_;
+    std::string defaultAdapterIp_;
     std::string prevAdapter_;
+    std::string netclassid_;
 
     void removeExclusiveIpRules();
     void removeInclusiveIpRules();
     void removeExclusiveAppRules();
     void removeInclusiveAppRules();
     void setSplitTunnelAppExceptions();
-    void setSplitTunnelIngressRules();
+    void setSplitTunnelIngressRules(const std::string &defaultAdapterIp);
     void addRule(const std::vector<std::string> &args);
 };

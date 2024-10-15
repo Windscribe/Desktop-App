@@ -33,6 +33,10 @@ class WSNetHttpNetworkManager : public scapix_object<WSNetHttpNetworkManager>
 public:
     virtual ~WSNetHttpNetworkManager() {}
 
+    // The actual request may take longer than the timeout specified
+    // This timeout includes time to dns resolution + time to connect to the curl server
+    // It also depends on the number of IP addresses of the domain.
+
     virtual std::shared_ptr<WSNetHttpRequest> createGetRequest(const std::string &url, std::uint32_t timeoutMs,
                                                                bool isIgnoreSslErrors = false) = 0;
 

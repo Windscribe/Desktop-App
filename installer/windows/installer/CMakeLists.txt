@@ -72,6 +72,7 @@ target_link_libraries(installer
 target_include_directories(installer
     PRIVATE
     ../../../client/common
+    ../../../client/common/types
     ../../../client/common/utils
     ../../common
 )
