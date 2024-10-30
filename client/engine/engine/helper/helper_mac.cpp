@@ -170,6 +170,11 @@ bool Helper_mac::runCommand(int cmdId, const std::string &data, CMD_ANSWER &answ
     xpc_dictionary_set_data(message, "data", data.c_str(), data.size());
     xpc_object_t answer_object = xpc_connection_send_message_with_reply_sync(connection_, message);
 
+    auto exitGuard = qScopeGuard([&]() {
+        xpc_release(message);
+        xpc_release(answer_object);
+    });
+
     xpc_type_t type = xpc_get_type(answer_object);
     if (type == XPC_TYPE_ERROR) {
         return false;

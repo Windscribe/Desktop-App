@@ -33,8 +33,8 @@ void FirewallTurnOffButton::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->setBrush(QColor(85, 255, 138));
     painter->drawRoundedRect(rect.adjusted(0, -kRoundness, 0, 0), kRoundness, kRoundness);
 
-    QFont *font = FontManager::instance().getFont(font_descr_);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(font_descr_);
+    painter->setFont(font);
     painter->setPen(Qt::black);
     painter->drawText(rect.adjusted(0, -2 * G_SCALE, 0, 0), Qt::AlignCenter | Qt::AlignVCenter,
                       tr(text_.toStdString().c_str()));

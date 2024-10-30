@@ -66,10 +66,10 @@ void PacketSizeEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     if (!isEditMode_)
     {
         // caption text
-        QFont *font = FontManager::instance().getFont(12, false);
-        QFontMetrics fm(*font);
+        QFont font = FontManager::instance().getFont(12, false);
+        QFontMetrics fm(font);
         QString caption = tr(caption_.toStdString().c_str());
-        painter->setFont(*font);
+        painter->setFont(font);
         painter->setPen(Qt::white);
         painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
                                                   PREFERENCES_MARGIN*G_SCALE,
@@ -288,7 +288,7 @@ void PacketSizeEditBoxItem::updatePositions()
     detectButton_->setPos(boundingRect().width() - 2*(ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
     confirmButton_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
     undoButton_->setPos(boundingRect().width() - 2*(ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
-    lineEdit_->setFont(*FontManager::instance().getFont(12, true));
+    lineEdit_->setFont(FontManager::instance().getFont(12, true));
 
     spinnerPosX_ = boundingRect().width() - (2*ICON_WIDTH + 2*PREFERENCES_MARGIN)*G_SCALE;
     spinnerPosY_ = PREFERENCES_MARGIN*G_SCALE;

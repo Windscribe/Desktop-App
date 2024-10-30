@@ -7,7 +7,7 @@ class TextShadow
 {
 public:
     explicit TextShadow();
-    void drawText(QPainter *painter, const QRect &rect, int flags, const QString &text, QFont *font, const QColor &color);
+    void drawText(QPainter *painter, const QRect &rect, int flags, const QString &text, QFont &font, const QColor &color);
     // width and height available only after drawText call
     int width() const;
     int height() const;

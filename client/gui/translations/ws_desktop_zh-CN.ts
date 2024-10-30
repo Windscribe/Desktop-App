@@ -1777,16 +1777,16 @@ Connect to a network first</source>
         <translation>无效的代理地址</translation>
     </message>
     <message>
-        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
-        <translation>代理地址无效。请输入有效的 IP 地址或域名。</translation>
-    </message>
-    <message>
         <source>Invalid proxy port</source>
         <translation>代理端口无效</translation>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
         <translation>代理端口无效。请在 0-65535 范围内输入有效端口。</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address.</source>
+        <translation>代理地址无效。请输入有效的 IP 地址。</translation>
     </message>
 </context>
 <context>

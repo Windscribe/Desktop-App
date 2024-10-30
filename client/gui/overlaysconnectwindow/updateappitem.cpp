@@ -75,11 +75,11 @@ void UpdateAppItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
 
     // version text
     painter->save();
-    QFont *font = FontManager::instance().getFont(11,true, 105);
-    QFontMetrics fm(*font);
+    QFont font = FontManager::instance().getFont(11,true, 105);
+    QFontMetrics fm(font);
     painter->translate(0, VERSION_TEXT_HEIGHT*G_SCALE);
     painter->setPen(FontManager::instance().getBrightYellowColor());
-    painter->setFont(*font);
+    painter->setFont(font);
     painter->setOpacity(curVersionOpacity_ * initOpacity);
     painter->drawText(25*G_SCALE, (HEIGHT*G_SCALE - fm.height() - fm.ascent() / 2) - (G_SCALE+0.5), curVersionText_);
     painter->restore();

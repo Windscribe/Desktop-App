@@ -27,8 +27,8 @@ QRectF EscapeButton::boundingRect() const
     }
     else
     {
-        QFont *font = FontManager::instance().getFont(10, true);
-        QFontMetrics fm(*font);
+        QFont font = FontManager::instance().getFont(10, true);
+        QFontMetrics fm(font);
         return QRectF(0, 0, (16 + BUTTON_SIZE)*G_SCALE + fm.horizontalAdvance(tr("ESC")), BUTTON_SIZE*G_SCALE);
     }
 }
@@ -38,8 +38,8 @@ void EscapeButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont *font = FontManager::instance().getFont(10, true);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(10, true);
+    painter->setFont(font);
     painter->setPen(QColor(103, 106, 118));
 
     if (textPosition_ == TEXT_POSITION_BOTTOM)

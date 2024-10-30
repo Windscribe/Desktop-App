@@ -51,7 +51,7 @@ void LoggingInWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     painter->drawEllipse(rect);
 
     // text
-    painter->setFont(*FontManager::instance().getFont(12, false));
+    painter->setFont(FontManager::instance().getFont(12, false));
     painter->setPen(QColor(255,255,255));
     painter->drawText(WINDOW_MARGIN*G_SCALE, (LOGIN_BUTTON_POS_Y+LOGGING_IN_TEXT_OFFSET_Y)*G_SCALE, message_);
 

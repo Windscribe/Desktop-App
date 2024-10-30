@@ -54,8 +54,8 @@ void TextButtonWidget::paintEvent(QPaintEvent *event)
     const QString &buttonText = text();
     if (!buttonText.isEmpty()) {
         const QRectF rcText(0, 0, width_ * G_SCALE, (height_ - 1) * G_SCALE);
-        const QFont *font = FontManager::instance().getFont(fontDescr_);
-        painter.setFont(*font);
+        const QFont font = FontManager::instance().getFont(fontDescr_);
+        painter.setFont(font);
         painter.drawText(rcText, Qt::AlignCenter, buttonText);
     }
 }

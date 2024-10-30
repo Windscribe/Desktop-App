@@ -16,7 +16,7 @@ void CustomMenuWidget::addItem(const QString &caption, const QVariant &userValue
 {
     items_ << PreferencesWindow::ComboBoxItemDescr(caption, userValue);
     QAction *action = addAction(caption);
-    action->setFont(*FontManager::instance().getFont(fontDescr_));
+    action->setFont(FontManager::instance().getFont(fontDescr_));
 
     // Add key-bindings to display
     if (userValue.toInt() == ACT_UNDO)            { action->setShortcut(QKeySequence::Undo);       }
@@ -58,7 +58,7 @@ void CustomMenuWidget::initContextMenu()
 {
     // It is important to set the QMenu font, because Qt uses this font (and not the font of an
     // action) to measure size of the action's shortcut.
-    setFont(*FontManager::instance().getFont(fontDescr_));
+    setFont(FontManager::instance().getFont(fontDescr_));
     updateStyleSheet();
 
     addItem(tr("Undo"), ACT_UNDO);

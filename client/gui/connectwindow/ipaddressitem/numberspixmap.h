@@ -13,7 +13,7 @@ public:
     int width() const;
     int height() const;
 
-    QFont *getFont();
+    QFont getFont();
     IndependentPixmap *getPixmap();
     IndependentPixmap *getDotPixmap();
     IndependentPixmap *getNAPixmap();

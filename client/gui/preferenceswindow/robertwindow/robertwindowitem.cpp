@@ -29,14 +29,14 @@ RobertWindowItem::RobertWindowItem(ScalableGraphicsObject *parent, Preferences *
 
     // Item for case where we could not get status from server
     errorMessage_ = new QGraphicsTextItem(this);
-    errorMessage_->setFont(*FontManager::instance().getFont(14, false));
+    errorMessage_->setFont(FontManager::instance().getFont(14, false));
     errorMessage_->setDefaultTextColor(Qt::white);
     errorMessage_->setTextWidth(125);
     errorMessage_->document()->setDefaultTextOption(QTextOption(Qt::AlignHCenter));
 
     // Below items for case when not logged in
     loginPrompt_ = new QGraphicsTextItem(this);
-    loginPrompt_->setFont(*FontManager::instance().getFont(14, false));
+    loginPrompt_->setFont(FontManager::instance().getFont(14, false));
     loginPrompt_->setDefaultTextColor(Qt::white);
     loginPrompt_->setTextWidth(125);
     loginPrompt_->document()->setDefaultTextOption(QTextOption(Qt::AlignHCenter));
@@ -100,8 +100,8 @@ void RobertWindowItem::updateScaling()
 {
     BasePage::updateScaling();
     updatePositions();
-    errorMessage_->setFont(*FontManager::instance().getFont(14, false));
-    loginPrompt_->setFont(*FontManager::instance().getFont(14, false));
+    errorMessage_->setFont(FontManager::instance().getFont(14, false));
+    loginPrompt_->setFont(FontManager::instance().getFont(14, false));
 }
 
 void RobertWindowItem::updatePositions()

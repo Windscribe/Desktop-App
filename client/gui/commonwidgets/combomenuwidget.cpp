@@ -27,8 +27,6 @@ ComboMenuWidget::ComboMenuWidget(QWidget *parent) : QWidget(parent)
     setAttribute(Qt::WA_TranslucentBackground, true);
     setFocusPolicy(Qt::StrongFocus);
 
-    //font_ = *FontManager::instance().getFont(12*g_pixelRatio, false);
-
     layout_ = new QVBoxLayout();
     layout_->setContentsMargins(0, 0, 0, 0);
     layout_->setSpacing(0);
@@ -53,8 +51,8 @@ ComboMenuWidget::ComboMenuWidget(QWidget *parent) : QWidget(parent)
 void ComboMenuWidget::addItem(QString text, const QVariant &item_data)
 {
     ComboMenuWidgetButton *button = new ComboMenuWidgetButton(item_data);
-    QFont *font = FontManager::instance().getFont(12, false);
-    button->setFont(*font);
+    QFont font = FontManager::instance().getFont(12, false);
+    button->setFont(font);
     button->setCheckable(true);
 
     connect(button, &ComboMenuWidgetButton::pressed, this, &ComboMenuWidget::onButtonClick);
@@ -62,7 +60,7 @@ void ComboMenuWidget::addItem(QString text, const QVariant &item_data)
 
     items_.append(button);
 
-    QFontMetrics fm(*font);
+    QFontMetrics fm(font);
     button->setWidthUnscaled(fm.boundingRect(button->text()).width() + 30);
     button->setHeightUnscaled(STEP_SIZE);
     button->setText(text);
@@ -358,12 +356,12 @@ void ComboMenuWidget::updateScrollBarVisibility()
 void ComboMenuWidget::updateScaling()
 {
     // update button widths
-    QFont *font = FontManager::instance().getFont(12, false);
+    QFont font = FontManager::instance().getFont(12, false);
     for (auto buttonItem : items_)
     {
         ComboMenuWidgetButton * button  = static_cast<ComboMenuWidgetButton *>(buttonItem);
-        button->setFont(*font);
-        QFontMetrics fm(*font);
+        button->setFont(font);
+        QFontMetrics fm(font);
         button->setWidthUnscaled(fm.boundingRect(button->text()).width() + 30);
     }
 

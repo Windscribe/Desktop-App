@@ -97,21 +97,21 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     painter->setOpacity(curTitleOpacity_ * initialOpacity);
     painter->setPen(FontManager::instance().getBrightYellowColor());
 
-    QFont titleFont = *FontManager::instance().getFont(24, true);
+    QFont titleFont = FontManager::instance().getFont(24, true);
     painter->setFont(titleFont);
 
     QRectF titleRect(0, (TITLE_POS_Y + yOffset)*G_SCALE, WINDOW_WIDTH*G_SCALE, CommonGraphics::textHeight(titleFont));
     painter->drawText(titleRect, Qt::AlignCenter, tr(curTitleText_.toStdString().c_str()));
 
     painter->setOpacity(curLowerTitleOpacity_ * initialOpacity);
-    painter->setFont(*FontManager::instance().getFont(24, false));
+    painter->setFont(FontManager::instance().getFont(24, false));
     QRectF lowerTitleRect(0, (TITLE_POS_Y + yOffset)*G_SCALE, WINDOW_WIDTH*G_SCALE, CommonGraphics::textHeight(titleFont));
 
     const QString lowerTitleText = tr("Updating ");
-    int widthUpdating = CommonGraphics::textWidth(lowerTitleText, *FontManager::instance().getFont(24, false));
+    int widthUpdating = CommonGraphics::textWidth(lowerTitleText, FontManager::instance().getFont(24, false));
 
     QString progressPercent = QString("%1%").arg(curProgress_);
-    int widthPercent = CommonGraphics::textWidth(progressPercent, *FontManager::instance().getFont(24, false));
+    int widthPercent = CommonGraphics::textWidth(progressPercent, FontManager::instance().getFont(24, false));
 
     int widthTotal = widthUpdating + widthPercent;
     int posX = CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, widthTotal);
@@ -122,7 +122,7 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     // main description
     painter->setOpacity(curDescriptionOpacity_ * initialOpacity);
-    QFont descFont(*FontManager::instance().getFont(14, false));
+    QFont descFont(FontManager::instance().getFont(14, false));
     painter->setFont(descFont);
     painter->setPen(Qt::white);
 

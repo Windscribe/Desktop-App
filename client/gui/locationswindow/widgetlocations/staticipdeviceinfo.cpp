@@ -18,7 +18,7 @@ StaticIPDeviceInfo::StaticIPDeviceInfo(QWidget *parent) : QWidget(parent)
   , addStaticTextWidth_(0)
   , addStaticTextHeight_(0)
   , deviceName_("")
-  , font_(*FontManager::instance().getFont(16, true))
+  , font_(FontManager::instance().getFont(16, true))
   , curTextOpacity_(OPACITY_UNHOVER_TEXT)
   , curIconOpacity_(OPACITY_UNHOVER_ICON_TEXT)
 {
@@ -53,7 +53,7 @@ void StaticIPDeviceInfo::paintEvent(QPaintEvent *event)
     painter.fillRect(QRect(0, height() - kBottomLineHeight, sizeHint().width(), kBottomLineHeight),
         FontManager::instance().getMidnightColor());
 
-    font_ = *FontManager::instance().getFont(16, true);
+    font_ = FontManager::instance().getFont(16, true);
 
     // device name text
     painter.setOpacity(initOpacity * 0.5);
@@ -65,7 +65,7 @@ void StaticIPDeviceInfo::paintEvent(QPaintEvent *event)
     // Add static IP text
     painter.setOpacity(initOpacity * curTextOpacity_);
     painter.setPen(Qt::white);
-    painter.setFont(*FontManager::instance().getFont(16, false));
+    painter.setFont(FontManager::instance().getFont(16, false));
     int rightmostMargin = (WINDOW_WIDTH - 32) * G_SCALE;
     int rightmostStaticText = rightmostMargin - 5*G_SCALE;
     painter.drawText(QRect(0,0, rightmostStaticText, height()), Qt::AlignRight | Qt::AlignVCenter, addStaticText);

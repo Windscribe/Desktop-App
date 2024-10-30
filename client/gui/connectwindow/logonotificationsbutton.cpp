@@ -41,16 +41,16 @@ void LogoNotificationsButton::paint(QPainter *painter, const QStyleOptionGraphic
     p->draw(0, 7*G_SCALE, painter);
 
     const int notificationXOffset = 120*G_SCALE;
-    QFont *font = FontManager::instance().getFont(9, true);
+    QFont font = FontManager::instance().getFont(9, true);
 
     if (unread_ > 0 || hovered_)
     {
         // notification background
-        painter->setFont(*font);
+        painter->setFont(font);
         painter->setOpacity(curBackgroundOpacity_ * initOpacity);
         painter->setBrush(backgroundFillColor_);
         painter->setPen(backgroundOutlineColor_);
-        int numberWidth = CommonGraphics::textWidth(numNotifications_, *font);
+        int numberWidth = CommonGraphics::textWidth(numNotifications_, font);
         painter->drawEllipse(QRect(notificationXOffset, 0, 14*G_SCALE, 14*G_SCALE));
 
         // notification number

@@ -37,10 +37,10 @@ void TextIconButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     QSharedPointer<IndependentPixmap> iconPixmap = ImageResourcesSvg::instance().getIndependentPixmap(iconPath_);
 
     // display text
-    QFont *font = FontManager::instance().getFont(fontDescr_);
-    QFontMetrics fm(*font);
+    QFont font = FontManager::instance().getFont(fontDescr_);
+    QFontMetrics fm(font);
     painter->setOpacity(curTextOpacity_);
-    painter->setFont(*font);
+    painter->setFont(font);
     painter->setPen(Qt::white);
     int availableWidth = boundingRect().width() - iconPixmap->width() - spacerWidth_*2*G_SCALE;
     QString elidedText = text_;
@@ -152,8 +152,8 @@ void TextIconButton::recalcWidth()
 {
     QSharedPointer<IndependentPixmap> iconPixmap = ImageResourcesSvg::instance().getIndependentPixmap(iconPath_);
 
-    QFont *font = FontManager::instance().getFont(fontDescr_);
-    int newWidth = std::ceil(iconPixmap->width() + 2*spacerWidth_*G_SCALE + CommonGraphics::textWidth(text_, *font));
+    QFont font = FontManager::instance().getFont(fontDescr_);
+    int newWidth = std::ceil(iconPixmap->width() + 2*spacerWidth_*G_SCALE + CommonGraphics::textWidth(text_, font));
 
     if (maxWidth_ > 0 && newWidth > maxWidth_)
     {
@@ -170,9 +170,9 @@ void TextIconButton::recalcWidth()
 
 void TextIconButton::recalcHeight()
 {
-    QFont *font = FontManager::instance().getFont(fontDescr_);
+    QFont font = FontManager::instance().getFont(fontDescr_);
 
-    const int newHeight = CommonGraphics::textHeight(*font);
+    const int newHeight = CommonGraphics::textHeight(font);
 
     if (newHeight != height_)
     {

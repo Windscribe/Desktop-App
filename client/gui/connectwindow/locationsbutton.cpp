@@ -72,8 +72,8 @@ void LocationsButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     pixmapLight->draw(0, 0, painter);
 
     painter->setOpacity(initOpacity);
-    QFont *font = FontManager::instance().getFont(16, false);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(16, false);
+    painter->setFont(font);
     painter->setPen(curTextColor_);
     painter->drawText(QRect(boundingRect().left()+40*G_SCALE, boundingRect().top(), boundingRect().width(), boundingRect().height() - 2*G_SCALE), Qt::AlignVCenter, tr("Locations"));
 }

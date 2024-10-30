@@ -179,7 +179,7 @@ std::string HttpProxyRequest::processClientHeaders()
             }
             else
             {
-                ret += it->name + " :" + it->value + "\r\n";
+                ret += it->name + ": " + it->value + "\r\n";
             }
         }
     }

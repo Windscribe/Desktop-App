@@ -1777,16 +1777,16 @@ Connect to a network first</source>
         <translation>잘못된 프록시 주소</translation>
     </message>
     <message>
-        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
-        <translation>프록시 주소가 잘못되었습니다. 유효한 IP 주소 또는 도메인 이름을 입력하십시오.</translation>
-    </message>
-    <message>
         <source>Invalid proxy port</source>
         <translation>유효하지 않은 프록시 포트</translation>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
         <translation>프록시 포트가 잘못되었습니다. 0-65535 범위의 유효한 포트를 입력하십시오.</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address.</source>
+        <translation>프록시 주소가 잘못되었습니다. 유효한 IP 주소를 입력하십시오.</translation>
     </message>
 </context>
 <context>

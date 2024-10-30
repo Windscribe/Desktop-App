@@ -1777,16 +1777,16 @@ Conecte-se a uma rede primeiro</translation>
         <translation>Endereço de proxy inválido</translation>
     </message>
     <message>
-        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
-        <translation>O endereço do proxy é inválido. Introduza um endereço IP ou nome de domínio válido.</translation>
-    </message>
-    <message>
         <source>Invalid proxy port</source>
         <translation>Porta proxy inválida</translation>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
         <translation>A porta proxy é inválida. Introduza uma porta válida no intervalo 0-65535.</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address.</source>
+        <translation>O endereço do proxy é inválido. Introduza um endereço IP válido.</translation>
     </message>
 </context>
 <context>

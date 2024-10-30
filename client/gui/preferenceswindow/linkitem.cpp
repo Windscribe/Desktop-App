@@ -37,12 +37,12 @@ void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     Q_UNUSED(widget);
 
     // link text
-    QFont *font = FontManager::instance().getFont(12, true);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(12, true);
+    painter->setFont(font);
     painter->setPen(Qt::white);
     painter->setOpacity(curTextOpacity_);
 
-    int linkTextWidth = CommonGraphics::textWidth(linkText_, *font);
+    int linkTextWidth = CommonGraphics::textWidth(linkText_, font);
     int linkTextPosX = boundingRect().width() - linkTextWidth - PREFERENCES_MARGIN*G_SCALE;
     if (type_ == LinkType::EXTERNAL_LINK || type_ == LinkType::SUBPAGE_LINK)
     {
@@ -85,7 +85,7 @@ void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     }
 
     int textWidth = linkTextPosX - xOffset;
-    QFontMetrics fm(*font);
+    QFontMetrics fm(font);
     painter->drawText(boundingRect().adjusted(xOffset,
                                               PREFERENCES_MARGIN*G_SCALE,
                                               -PREFERENCES_MARGIN*G_SCALE,

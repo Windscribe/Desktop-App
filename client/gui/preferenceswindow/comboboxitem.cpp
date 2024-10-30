@@ -49,8 +49,8 @@ void ComboBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     Q_UNUSED(widget);
     Q_UNUSED(option);
 
-    QFont *font = FontManager::instance().getFont(captionFont_);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(captionFont_);
+    painter->setFont(font);
     painter->setPen(Qt::white);
 
     qreal xOffset = PREFERENCES_MARGIN*G_SCALE;
@@ -60,7 +60,7 @@ void ComboBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
         icon_->draw(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
     }
 
-    QFontMetrics fm(*font);
+    QFontMetrics fm(font);
     int availableWidth = boundingRect().width() - xOffset - button_->boundingRect().width() - PREFERENCES_MARGIN*G_SCALE;
     QString elidedText = strCaption_;
     if (availableWidth < fm.horizontalAdvance(strCaption_))
@@ -232,8 +232,8 @@ void ComboBoxItem::updateScaling()
 
 void ComboBoxItem::updatePositions()
 {
-    QFont *font = FontManager::instance().getFont(captionFont_);
-    int captionWidth = CommonGraphics::textWidth(strCaption_, *font);
+    QFont font = FontManager::instance().getFont(captionFont_);
+    int captionWidth = CommonGraphics::textWidth(strCaption_, font);
 
     int used;
     if (icon_) {

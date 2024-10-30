@@ -14,10 +14,7 @@ namespace types {
 
 struct MacAddrSpoofing
 {
-    MacAddrSpoofing() :
-        isEnabled(false),
-        isAutoRotate(false)
-    {}
+    MacAddrSpoofing() {}
 
     MacAddrSpoofing(const QJsonObject &json)
     {
@@ -58,9 +55,9 @@ struct MacAddrSpoofing
         }
     }
 
-    bool isEnabled;
+    bool isEnabled = false;
     QString macAddress;
-    bool isAutoRotate;
+    bool isAutoRotate = false;
     NetworkInterface selectedNetworkInterface;
     QVector<NetworkInterface> networkInterfaces;
 

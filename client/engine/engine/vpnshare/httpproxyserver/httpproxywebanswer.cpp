@@ -44,7 +44,7 @@ std::string HttpProxyWebAnswer::processServerHeaders(unsigned int major, unsigne
             }
             else
             {
-                ret += it->name + " :" + it->value + "\r\n";
+                ret += it->name + ": " + it->value + "\r\n";
             }
         }
     }

@@ -71,7 +71,7 @@ void UpgradeWidgetItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 
     // version text
     painter->save();
-    QFont font = *FontManager::instance().getFont(fontDescr_);
+    QFont font = FontManager::instance().getFont(fontDescr_);
     QFontMetrics fm(font);
     painter->translate(0, fm.height()+1*G_SCALE);
     painter->setPen(curDataRemainingColor_);
@@ -265,8 +265,8 @@ void UpgradeWidgetItem::updateScaling()
 void UpgradeWidgetItem::updateTextPos()
 {
     // Constrain the text button to the remaining space in this widget.
-    QFont *font = FontManager::instance().getFont(fontDescr_);
-    int currentTextWidth = CommonGraphics::textWidth(currentText(), *font);
+    QFont font = FontManager::instance().getFont(fontDescr_);
+    int currentTextWidth = CommonGraphics::textWidth(currentText(), font);
     int nAvailableWidth = width_*G_SCALE - curLeftTextOffset_*G_SCALE - currentTextWidth - 20*G_SCALE;
     textButton_->setMaxWidth(nAvailableWidth);
 

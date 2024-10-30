@@ -14,13 +14,12 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
     NSString *helperLabel = @HELPER_BUNDLE_ID;
     BOOL result = NO;
 
-    NSDictionary *installedHelperJobData  = (__bridge NSDictionary *)SMJobCopyDictionary(kSMDomainSystemLaunchd, (CFStringRef)helperLabel);
-    if (installedHelperJobData)
-    {
+    NSDictionary *installedHelperJobData  = CFBridgingRelease(SMJobCopyDictionary(kSMDomainSystemLaunchd, (CFStringRef)helperLabel));
+    if (installedHelperJobData) {
         NSString*       installedPath           = [[installedHelperJobData objectForKey:@"ProgramArguments"] objectAtIndex:0];
         NSURL*          installedPathURL        = [NSURL fileURLWithPath:installedPath];
 
-        NSDictionary*   installedInfoPlist      = (__bridge NSDictionary*)CFBundleCopyInfoDictionaryForURL( (CFURLRef)installedPathURL );
+        NSDictionary*   installedInfoPlist      = CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((CFURLRef)installedPathURL));
         NSString*       installedBundleVersion  = [installedInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       installedVersion        = [installedBundleVersion integerValue];
 
@@ -30,7 +29,7 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
         NSURL*          appBundleURL    = [appBundle bundleURL];
 
         NSURL*          currentHelperToolURL    = [appBundleURL URLByAppendingPathComponent:@HELPER_BUNDLE_ID_PATH_FROM_ENGINE];
-        NSDictionary*   currentInfoPlist        = (__bridge NSDictionary*)CFBundleCopyInfoDictionaryForURL( (CFURLRef)currentHelperToolURL );
+        NSDictionary*   currentInfoPlist        = CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((CFURLRef)currentHelperToolURL));
         NSString*       currentBundleVersion    = [currentInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       currentVersion          = [currentBundleVersion integerValue];
 

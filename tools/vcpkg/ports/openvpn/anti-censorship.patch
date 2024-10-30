@@ -24,14 +24,16 @@ index 7ca77a8e..6a1c382b 100644
          {
              options->route_delay_defined = true;
              options->route_delay = 5; /* Vista sometimes has a race without this */
-@@ -7830,6 +7830,16 @@ add_option(struct options *options,
+@@ -7830,6 +7830,18 @@ add_option(struct options *options,
          VERIFY_PERMISSION(OPT_P_GENERAL);
          options->server_flags |= SF_TCP_NODELAY_HELPER;
      }
 +    else if (streq(p[0], "udp-stuffing") && !p[1])
 +    {
 +        VERIFY_PERMISSION(OPT_P_GENERAL);
-+        options->sockflags |= SF_UDP_STUFFING;
++        if (options->ce.proto == PROTO_UDP) {
++            options->sockflags |= SF_UDP_STUFFING;
++        }
 +    }
 +    else if (streq(p[0], "tcp-split-reset"))
 +    {
@@ -110,7 +112,7 @@ index bfc1253b..da66ca16 100644
      unsigned int sockflags;
      int mark;
      const char *bind_dev;
-@@ -1173,6 +1175,57 @@ link_socket_write_udp(struct link_socket *sock,
+@@ -1173,6 +1175,61 @@ link_socket_write_udp(struct link_socket *sock,
                        struct buffer *buf,
                        struct link_socket_actual *to)
  {
@@ -155,7 +157,11 @@ index bfc1253b..da66ca16 100644
 +            struct buffer stuffing_buf = alloc_buf(STUFFING_LEN_MAX);
 +            buf_write(&stuffing_buf, stuffing_data, stuffing_len);
 +#ifdef _WIN32
-+            link_socket_write_win32(sock, &stuffing_buf, to);
++            for (int k=0; k<5; k++) {
++                int ret = link_socket_write_win32(sock, &stuffing_buf, to);
++                if (ret != -1) break;
++                Sleep(5);
++            }
 +#else
 +            link_socket_write_udp_posix(sock, &stuffing_buf, to);
 +#endif

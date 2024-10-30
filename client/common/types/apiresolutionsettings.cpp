@@ -5,7 +5,7 @@
 
 namespace types {
 
-ApiResolutionSettings::ApiResolutionSettings() : bAutomatic_(true)
+ApiResolutionSettings::ApiResolutionSettings()
 {
 }
 

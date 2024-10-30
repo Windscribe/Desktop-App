@@ -20,7 +20,7 @@ NewAddressItem::NewAddressItem(ScalableGraphicsObject *parent)
     QString placeHolderText = tr("Enter IP or Hostname");
     lineEdit_ = new CommonWidgets::CustomMenuLineEdit();
     lineEdit_->setPlaceholderText(placeHolderText);
-    lineEdit_->setFont(*FontManager::instance().getFont(12, false));
+    lineEdit_->setFont(FontManager::instance().getFont(12, false));
     lineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     lineEdit_->setFrame(false);
     connect(lineEdit_, &CommonWidgets::CustomMenuLineEdit::textChanged, this, &NewAddressItem::onLineEditTextChanged);
@@ -127,7 +127,7 @@ void NewAddressItem::updatePositions()
 {
     addAddressButton_->setPos(boundingRect().width() - ICON_WIDTH*G_SCALE - PREFERENCES_MARGIN*G_SCALE, boundingRect().height()/2 - ICON_HEIGHT/2*G_SCALE);
     cancelTextButton_->setPos(boundingRect().width() - 2*ICON_WIDTH*G_SCALE - 2*PREFERENCES_MARGIN*G_SCALE, boundingRect().height()/2 - ICON_HEIGHT/2*G_SCALE);
-    lineEdit_->setFont(*FontManager::instance().getFont(12, false));
+    lineEdit_->setFont(FontManager::instance().getFont(12, false));
     lineEdit_->setGeometry(PREFERENCES_MARGIN*G_SCALE, 0, boundingRect().width() - 2*ICON_WIDTH*G_SCALE - 4*PREFERENCES_MARGIN*G_SCALE, boundingRect().height());
 }
 

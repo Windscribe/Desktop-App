@@ -56,7 +56,7 @@ void TextButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     }
 
     if (textShadow_) {
-        textShadow_->drawText(painter, boundingRect().toRect(), textAlignment_, elidedText, &font, color_);
+        textShadow_->drawText(painter, boundingRect().toRect(), textAlignment_, elidedText, font, color_);
     }
     else {
         painter->setFont(font);
@@ -113,7 +113,7 @@ void TextButton::animateHide(int animationSpeed)
 
 QFont TextButton::getFont() const
 {
-    QFont font(*FontManager::instance().getFont(fontDescr_));
+    QFont font(FontManager::instance().getFont(fontDescr_));
     font.setUnderline(textUnderline_);
     return font;
 }

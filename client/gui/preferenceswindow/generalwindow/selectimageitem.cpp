@@ -30,8 +30,8 @@ void SelectImageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     Q_UNUSED(widget);
 
     // caption
-    QFont *font = FontManager::instance().getFont(12, false);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(12, false);
+    painter->setFont(font);
     painter->setPen(Qt::white);
     painter->setOpacity(OPACITY_FULL);
 
@@ -43,7 +43,7 @@ void SelectImageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
                       caption_);
 
     // (664x274) (at 50% opacity)
-    QFontMetrics fm(*font);
+    QFontMetrics fm(font);
     int textWidth = fm.horizontalAdvance(caption_);
     int textHeight = fm.height();
 

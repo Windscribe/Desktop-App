@@ -55,9 +55,9 @@ public:
     friend QDebug operator<<(QDebug dbg, const ProxySettings &ps);
 
 private:
-    PROXY_OPTION option_;
+    PROXY_OPTION option_ = PROXY_OPTION_NONE;
     QString address_;
-    uint port_;
+    uint port_ = 0;
     QString username_;
     QString password_;
 

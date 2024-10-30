@@ -9,48 +9,25 @@
 #include "utils/ws_assert.h"
 #include "dpiscalemanager.h"
 
-QFont *FontManager::getFontWithCustomScale(double scale, double size, bool isBold, int stretch, qreal letterSpacing)
+QFont FontManager::getFontWithCustomScale(double scale, double size, bool isBold, int stretch, qreal letterSpacing)
 {
     WS_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
 
-    QString key = QString::number(size);
-    if (isBold)
-    {
-        key += "_1";
-    }
-    else
-    {
-        key += "_0";
-    }
-
-    key += "_" + QString::number(stretch);
-    key += "_" + QString::number(scale, 'f', 2 );
-    // qDebug() << "Font key: " << key;
-
-    auto it = fonts_.find(key);
-    if (it == fonts_.end())
-    {
-        QFont *font = new QFont();
-        font->setFamily("IBM Plex Sans");
-        font->setPixelSize(size * scale);
-        font->setBold(isBold);
-        font->setStretch(stretch);
-        font->setLetterSpacing(QFont::AbsoluteSpacing, letterSpacing);
-        fonts_[key] = font;
-        return font;
-    }
-    else
-    {
-        return it.value();
-    }
+    QFont font;
+    font.setFamily("IBM Plex Sans");
+    font.setPixelSize(size * scale);
+    font.setBold(isBold);
+    font.setStretch(stretch);
+    font.setLetterSpacing(QFont::AbsoluteSpacing, letterSpacing);
+    return font;
 }
 
-QFont *FontManager::getFont(double size, bool isBold, int stretch, qreal letterSpacing)
+QFont FontManager::getFont(double size, bool isBold, int stretch, qreal letterSpacing)
 {
     return getFontWithCustomScale(G_SCALE, size, isBold, stretch, letterSpacing);
 }
 
-QFont *FontManager::getFont(const FontDescr &fd)
+QFont FontManager::getFont(const FontDescr &fd)
 {
     return getFont(fd.size(), fd.isBold(), fd.stretch(), fd.letterSpacing());
 }
@@ -67,14 +44,8 @@ QString FontManager::getFontStyleSheet(double size, bool isBold)
     return s;
 }
 
-void FontManager::clearCache()
-{
-    fonts_.clear();
-}
-
 void FontManager::languageChanged()
 {
-    clearFontMap();
 }
 
 QColor FontManager::getLocationsFooterColor()
@@ -162,14 +133,4 @@ FontManager::FontManager()
 
 FontManager::~FontManager()
 {
-    clearFontMap();
-}
-
-void FontManager::clearFontMap()
-{
-    for (auto it = fonts_.begin(); it != fonts_.end(); ++it)
-    {
-        delete it.value();
-    }
-    fonts_.clear();
 }

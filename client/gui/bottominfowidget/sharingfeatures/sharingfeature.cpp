@@ -70,11 +70,11 @@ void SharingFeature::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     secondaryPixmap->draw(SECONDARY_ICON_POS_X*G_SCALE, MARGIN_Y*G_SCALE, painter);
 
     // User number
-    QFont *font = FontManager::instance().getFont(16, false);
-    QFontMetrics fontMetrics(*font);
+    QFont font = FontManager::instance().getFont(16, false);
+    QFontMetrics fontMetrics(font);
     painter->setOpacity(OPACITY_UNHOVER_TEXT * curDefaultOpacity_);
     painter->setPen(Qt::white);
-    painter->setFont(*font);
+    painter->setFont(font);
     painter->drawText(USER_NUMBER_POS_X*G_SCALE, (HEIGHT*G_SCALE - fontMetrics.height()) / 2 + fontMetrics.ascent() - 1*G_SCALE, QString::number(number_));
 }
 

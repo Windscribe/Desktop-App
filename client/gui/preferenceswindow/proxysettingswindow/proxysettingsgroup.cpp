@@ -51,7 +51,7 @@ ProxySettingsGroup::ProxySettingsGroup(ScalableGraphicsObject *parent, const QSt
 void ProxySettingsGroup::onAddressChanged(const QString &text)
 {
     if (settings_.address() != text) {
-        if (IpValidation::isIpOrDomain(text.trimmed())) {
+        if (IpValidation::isIp(text.trimmed())) {
             settings_.setAddress(text);
             emit proxySettingsChanged(settings_);
         } else {
@@ -60,7 +60,7 @@ void ProxySettingsGroup::onAddressChanged(const QString &text)
             GeneralMessageController::instance().showMessage(
                 "WARNING_WHITE",
                 tr("Invalid proxy address"),
-                tr("Proxy address is invalid. Please enter a valid IP address or domain name."),
+                tr("Proxy address is invalid. Please enter a valid IP address."),
                 GeneralMessageController::tr(GeneralMessageController::kOk),
                 "",
                 "",

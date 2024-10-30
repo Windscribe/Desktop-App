@@ -16,8 +16,8 @@ ListButton::ListButton(ScalableGraphicsObject *parent, Style style, const QStrin
         connect(textButton_, &TextButton::clicked, this, &ListButton::clicked);
     } else {
         FontDescr fontDescr(14, false);
-        QFont *font = FontManager::instance().getFont(fontDescr);
-        QFontMetrics metrics(*font);
+        QFont font = FontManager::instance().getFont(fontDescr);
+        QFontMetrics metrics(font);
 
         int width = metrics.horizontalAdvance(text);
         int height = metrics.height();
@@ -70,8 +70,8 @@ void ListButton::updatePositions()
         textButton_->setPos((WINDOW_WIDTH-72)/2*G_SCALE - textButton_->getWidth()/2, 0);
         setHeight(24*G_SCALE);
     } else {
-        QFont *font = FontManager::instance().getFont(14, false);
-        QFontMetrics metrics(*font);
+        QFont font = FontManager::instance().getFont(14, false);
+        QFontMetrics metrics(font);
 
         int width = metrics.horizontalAdvance(text_);
         int height = metrics.height();
@@ -88,8 +88,8 @@ void ListButton::setText(const QString &text)
         textButton_->setText(text);
     } else {
         FontDescr fontDescr(14, false);
-        QFont *font = FontManager::instance().getFont(fontDescr);
-        QFontMetrics metrics(*font);
+        QFont font = FontManager::instance().getFont(fontDescr);
+        QFontMetrics metrics(font);
         int width = metrics.horizontalAdvance(text);
 
         bubbleButton_->setText(text);

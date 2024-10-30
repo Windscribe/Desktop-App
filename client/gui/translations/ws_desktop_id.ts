@@ -1777,16 +1777,16 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
         <translation>Alamat proxy tidak valid</translation>
     </message>
     <message>
-        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
-        <translation>Alamat proxy tidak valid. Silakan masukkan alamat IP atau nama domain yang valid.</translation>
-    </message>
-    <message>
         <source>Invalid proxy port</source>
         <translation>Port proxy tidak valid</translation>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
         <translation>Port proxy tidak valid. Silakan masukkan port yang valid dalam kisaran 0-65535.</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address.</source>
+        <translation>Alamat proxy tidak valid. Masukkan alamat IP yang valid.</translation>
     </message>
 </context>
 <context>

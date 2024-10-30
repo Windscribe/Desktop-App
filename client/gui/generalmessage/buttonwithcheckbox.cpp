@@ -74,8 +74,8 @@ void ButtonWithCheckbox::setShowCheckbox(const QString &text)
 }
 
 int ButtonWithCheckbox::textWidth() const {
-    QFont *font = FontManager::instance().getFont(14, false);
-    QFontMetrics metrics(*font);
+    QFont font = FontManager::instance().getFont(14, false);
+    QFontMetrics metrics(font);
 
     return metrics.horizontalAdvance(buttonText_);
 }

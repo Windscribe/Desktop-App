@@ -169,14 +169,14 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
 IItemCacheData *CountryItemDelegate::createCacheData(const QModelIndex &index) const
 {
     CountryItemDelegateCache *cache = new CountryItemDelegateCache();
-    cache->add(CountryItemDelegateCache::kCaptionId, index.data().toString(), *FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->add(CountryItemDelegateCache::kCaptionId, index.data().toString(), FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
     return cache;
 }
 
 void CountryItemDelegate::updateCacheData(const QModelIndex &index, IItemCacheData *cacheData) const
 {
     CountryItemDelegateCache *cache = static_cast<CountryItemDelegateCache *>(cacheData);
-    cache->updateIfTextChanged(CountryItemDelegateCache::kCaptionId, index.data().toString(), *FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->updateIfTextChanged(CountryItemDelegateCache::kCaptionId, index.data().toString(), FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
 }
 
 bool CountryItemDelegate::isForbiddenCursor(const QModelIndex &index) const

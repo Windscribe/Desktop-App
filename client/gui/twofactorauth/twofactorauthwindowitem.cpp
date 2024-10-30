@@ -112,14 +112,14 @@ void TwoFactorAuthWindowItem::paint(QPainter *painter, const QStyleOptionGraphic
 
     // Title
     painter->setOpacity(curTextOpacity_ * initialOpacity);
-    painter->setFont(*FontManager::instance().getFont(16, true));
+    painter->setFont(FontManager::instance().getFont(16, true));
     painter->setPen(Qt::white);
     painter->drawText(QRect(0, 87 * G_SCALE, WINDOW_WIDTH * G_SCALE, 20 * G_SCALE),
                       Qt::AlignCenter, tr("Two-factor Auth"));
 
     // Message
     painter->setOpacity(curTextOpacity_ * initialOpacity);
-    painter->setFont(*FontManager::instance().getFont(14, false));
+    painter->setFont(FontManager::instance().getFont(14, false));
     painter->setPen(Qt::white);
     painter->drawText(QRect(((WINDOW_WIDTH - CODE_ENTRY_WIDTH) / 2)*G_SCALE, 123*G_SCALE,
                             CODE_ENTRY_WIDTH*G_SCALE, 36*G_SCALE),
@@ -128,7 +128,7 @@ void TwoFactorAuthWindowItem::paint(QPainter *painter, const QStyleOptionGraphic
 
     // Error Text
     if (!curErrorText_.isEmpty()) {
-        painter->setFont(*FontManager::instance().getFont(12, false));
+        painter->setFont(FontManager::instance().getFont(12, false));
         painter->setPen(FontManager::instance().getErrorRedColor());
         painter->setOpacity(curErrorOpacity_ * initialOpacity);
         QRectF rect(WINDOW_MARGIN*G_SCALE, 270*G_SCALE, (WINDOW_WIDTH- WINDOW_MARGIN*2)*G_SCALE,

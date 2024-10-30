@@ -1777,16 +1777,16 @@ Connect to a network first</source>
         <translation>Geçersiz proxy adresi</translation>
     </message>
     <message>
-        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
-        <translation>Proxy adresi geçersiz. Lütfen geçerli bir IP adresi veya alan adı girin.</translation>
-    </message>
-    <message>
         <source>Invalid proxy port</source>
         <translation>Geçersiz proxy bağlantı noktası</translation>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
         <translation>Proxy bağlantı noktası geçersiz. Lütfen 0-65535 aralığında geçerli bir bağlantı noktası girin.</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address.</source>
+        <translation>Proxy adresi geçersiz. Lütfen geçerli bir IP adresi girin.</translation>
     </message>
 </context>
 <context>

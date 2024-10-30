@@ -14,13 +14,13 @@ bool InstallHelper_mac::installHelper(bool bForceDeleteOld)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    NSDictionary *installedHelperJobData  = (__bridge NSDictionary *)SMJobCopyDictionary(kSMDomainSystemLaunchd, (__bridge CFStringRef)helperLabel);
+    NSDictionary *installedHelperJobData  = CFBridgingRelease(SMJobCopyDictionary(kSMDomainSystemLaunchd, (__bridge CFStringRef)helperLabel));
 #pragma clang diagnostic pop
     if (installedHelperJobData) {
         NSString*       installedPath           = [[installedHelperJobData objectForKey:@"ProgramArguments"] objectAtIndex:0];
         NSURL*          installedPathURL        = [NSURL fileURLWithPath:installedPath];
 
-        NSDictionary*   installedInfoPlist      = (__bridge NSDictionary*)CFBundleCopyInfoDictionaryForURL( (CFURLRef)installedPathURL );
+        NSDictionary*   installedInfoPlist      = CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((CFURLRef)installedPathURL));
         NSString*       installedBundleVersion  = [installedInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       installedVersion        = [installedBundleVersion integerValue];
 
@@ -30,7 +30,7 @@ bool InstallHelper_mac::installHelper(bool bForceDeleteOld)
         NSURL*          appBundleURL    = [appBundle bundleURL];
 
         NSURL*          currentHelperToolURL    = [appBundleURL URLByAppendingPathComponent:@"Contents/Library/LaunchServices/com.windscribe.helper.macos"];
-        NSDictionary*   currentInfoPlist        = (__bridge NSDictionary*)CFBundleCopyInfoDictionaryForURL( (CFURLRef)currentHelperToolURL );
+        NSDictionary*   currentInfoPlist        = CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((CFURLRef)currentHelperToolURL));
         NSString*       currentBundleVersion    = [currentInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       currentVersion          = [currentBundleVersion integerValue];
 

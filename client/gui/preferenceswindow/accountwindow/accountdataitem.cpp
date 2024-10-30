@@ -17,18 +17,18 @@ void AccountDataItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont *font1 = FontManager::instance().getFont(12, true);
-    QFontMetrics fm1(*font1);
-    painter->setFont(*font1);
+    QFont font1 = FontManager::instance().getFont(12, true);
+    QFontMetrics fm1(font1);
+    painter->setFont(font1);
     painter->setOpacity(OPACITY_FULL);
     painter->setPen(Qt::white);
     painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE), Qt::AlignLeft, value1_);
 
     int remainingSpace = boundingRect().width() - fm1.horizontalAdvance(value1_) - (2*PREFERENCES_MARGIN + APP_ICON_MARGIN_X)*G_SCALE;
 
-    QFont *font2 = FontManager::instance().getFont(12, true);
-    QFontMetrics fm2(*font2);
-    painter->setFont(*font2);
+    QFont font2 = FontManager::instance().getFont(12, true);
+    QFontMetrics fm2(font2);
+    painter->setFont(font2);
     painter->setOpacity(OPACITY_HALF);
     QString elidedText = value2_;
     if (fm2.horizontalAdvance(value2_) > remainingSpace)

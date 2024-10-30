@@ -26,7 +26,6 @@
 #include "dpiscalemanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/imageresourcesjpg.h"
-#include "graphicresources/fontmanager.h"
 #include "languagecontroller.h"
 #include "launchonstartup/launchonstartup.h"
 #include "mainwindowstate.h"
@@ -3429,7 +3428,6 @@ void MainWindow::onScaleChanged()
 {
     ImageResourcesSvg::instance().clearHashAndStartPreloading();
     ImageResourcesJpg::instance().clearHash();
-    FontManager::instance().clearCache();
     mainWindowController_->updateScaling();
     updateTrayIconType(currentAppIconType_);
 }

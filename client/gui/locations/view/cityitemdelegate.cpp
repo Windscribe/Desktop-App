@@ -160,7 +160,7 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         painter->drawRoundedRect(latencyRect, 4*G_SCALE, 4*G_SCALE);
 
         // draw latency text
-        QFont font = *FontManager::instance().getFont(11, false);
+        QFont font = FontManager::instance().getFont(11, false);
         int latency = index.data(kPingTime).toInt();
         QString latencyText = (latency <= 0 ? "--" : QString::number(latency));
         painter->setBrush(Qt::white);
@@ -237,11 +237,11 @@ IItemCacheData *CityItemDelegate::createCacheData(const QModelIndex &index) cons
     CityItemDelegateCache *cache = new CityItemDelegateCache();
 
     QString cityCaption = CommonGraphics::maybeTruncatedText(index.data(kName).toString(),
-                                                              *FontManager::instance().getFont(16, true),
+                                                              FontManager::instance().getFont(16, true),
                                                               static_cast<int>(CITY_CAPTION_MAX_WIDTH * G_SCALE));
-    cache->add(CityItemDelegateCache::kCityId, cityCaption, *FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
-    cache->add(CityItemDelegateCache::kNickId, index.data(kNick).toString(), *FontManager::instance().getFont(16, false), DpiScaleManager::instance().curDevicePixelRatio());
-    cache->add(CityItemDelegateCache::kStaticIpId, index.data(kStaticIp).toString(), *FontManager::instance().getFont(13, false), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->add(CityItemDelegateCache::kCityId, cityCaption, FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->add(CityItemDelegateCache::kNickId, index.data(kNick).toString(), FontManager::instance().getFont(16, false), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->add(CityItemDelegateCache::kStaticIpId, index.data(kStaticIp).toString(), FontManager::instance().getFont(13, false), DpiScaleManager::instance().curDevicePixelRatio());
     return cache;
 }
 
@@ -249,11 +249,11 @@ void CityItemDelegate::updateCacheData(const QModelIndex &index, IItemCacheData 
 {
     CityItemDelegateCache *cache = static_cast<CityItemDelegateCache *>(cacheData);
     QString cityCaption = CommonGraphics::maybeTruncatedText(index.data(kName).toString(),
-                                                              *FontManager::instance().getFont(16, true),
+                                                              FontManager::instance().getFont(16, true),
                                                               static_cast<int>(CITY_CAPTION_MAX_WIDTH * G_SCALE));
-    cache->updateIfTextChanged(CityItemDelegateCache::kCityId, cityCaption, *FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
-    cache->updateIfTextChanged(CityItemDelegateCache::kNickId, index.data(kNick).toString(), *FontManager::instance().getFont(16, false), DpiScaleManager::instance().curDevicePixelRatio());
-    cache->updateIfTextChanged(CityItemDelegateCache::kStaticIpId, index.data(kStaticIp).toString(), *FontManager::instance().getFont(13, false), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->updateIfTextChanged(CityItemDelegateCache::kCityId, cityCaption, FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->updateIfTextChanged(CityItemDelegateCache::kNickId, index.data(kNick).toString(), FontManager::instance().getFont(16, false), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->updateIfTextChanged(CityItemDelegateCache::kStaticIpId, index.data(kStaticIp).toString(), FontManager::instance().getFont(13, false), DpiScaleManager::instance().curDevicePixelRatio());
 }
 
 bool CityItemDelegate::isForbiddenCursor(const QModelIndex &index) const
@@ -308,7 +308,7 @@ int CityItemDelegate::isInTooltipArea(const ItemStyleOption &option, const QMode
     if (captionRect(option.rect, cacheData).contains(point)) {
         QString originalCaption = index.data(kName).toString();
         QString truncatedCaption = CommonGraphics::maybeTruncatedText(originalCaption,
-                                                                      *FontManager::instance().getFont(16, true),
+                                                                      FontManager::instance().getFont(16, true),
                                                                       static_cast<int>(CITY_CAPTION_MAX_WIDTH * G_SCALE));
         if (originalCaption != truncatedCaption)
             return (int)TooltipRect::kItemCaption;

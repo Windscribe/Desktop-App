@@ -17,14 +17,14 @@ void TitleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont *font = FontManager::instance().getFont(11, true);
-    qreal oldLetterSpacing = font->letterSpacing();
-    font->setLetterSpacing(QFont::AbsoluteSpacing, 2.44);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(11, true);
+    qreal oldLetterSpacing = font.letterSpacing();
+    font.setLetterSpacing(QFont::AbsoluteSpacing, 2.44);
+    painter->setFont(font);
     painter->setPen(Qt::white);
     painter->setOpacity(OPACITY_HALF);
     painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE, 0, -PREFERENCES_MARGIN*G_SCALE, 0), Qt::AlignLeft, title_);
-    font->setLetterSpacing(QFont::AbsoluteSpacing, oldLetterSpacing);
+    font.setLetterSpacing(QFont::AbsoluteSpacing, oldLetterSpacing);
 }
 
 void TitleItem::updateScaling()

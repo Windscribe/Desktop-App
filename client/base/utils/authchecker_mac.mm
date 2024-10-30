@@ -26,7 +26,7 @@ int maxCommands = 20;
 
 + (id) sharedInstance {
     static id sharedTask = nil;
-    if(sharedTask==nil) {
+    if (sharedTask == nil) {
         sharedTask = [[AuthCheckerHandler alloc] init];
     }
     return sharedTask;
@@ -40,8 +40,7 @@ int maxCommands = 20;
 
 - (void)dealloc {
     NSArray *cmds = [[NSArray alloc] initWithObjects:dummyCommandForAuthCheck, nil];
-    if ([self isAuthenticated:cmds])
-    {
+    if ([self isAuthenticated:cmds]) {
         [self deauthenticate];
     }
     [cmds release];
@@ -49,7 +48,7 @@ int maxCommands = 20;
 }
 
 - (BOOL)authenticate:(NSArray *)forCommands {
-    if( ![self isAuthenticated:forCommands] ) {
+    if (![self isAuthenticated:forCommands]) {
         [self fetchPassword:forCommands];
     }
 
@@ -57,7 +56,7 @@ int maxCommands = 20;
 }
 
 - (void)deauthenticate {
-    if(authorizationRef) {
+    if (authorizationRef) {
         AuthorizationFree(authorizationRef, kAuthorizationFlagDestroyRights);
         authorizationRef = NULL;
     }
@@ -68,52 +67,55 @@ int maxCommands = 20;
     AuthorizationRights *authorizedRights;
     AuthorizationFlags flags;
 
-    NSUInteger numItems = [forCommands count];
-    AuthorizationItem *items = (AuthorizationItem *) malloc( sizeof(AuthorizationItem) * numItems );
-    char paths[maxCommands][maxChars]; // only handles upto 20 commands with paths upto 128 characters in length
-
-    OSStatus err = 0;
-    BOOL authorized = NO;
-    int i = 0;
-
-    if(authorizationRef==NULL) {
-        rights.count=0;
+    // fetchPassword expects the authorizationRef to be initialized.
+    if (authorizationRef == NULL) {
+        rights.count = 0;
         rights.items = NULL;
 
         flags = kAuthorizationFlagDefaults;
         AuthorizationCreate(&rights, kAuthorizationEmptyEnvironment, flags, &authorizationRef);
+        if (authorizationRef == NULL) {
+            return NO;
+        }
     }
 
-    if( numItems < 1 )
-    {
-        free( items);
-            return authorized;
-        }
+    NSUInteger numItems = [forCommands count];
+    if (numItems < 1) {
+        return NO;
+    }
 
-        while(  (NSUInteger) i < numItems && i < maxCommands ) {
-            [[forCommands objectAtIndex:i] getCString:paths[i] maxLength:maxChars encoding:NSUTF8StringEncoding];
+    AuthorizationItem *items = (AuthorizationItem *) malloc(sizeof(AuthorizationItem) * numItems);
+    if (items == NULL) {
+        return NO;
+    }
 
-            items[i].name = kAuthorizationRightExecute;
-            items[i].value = paths[i];
-            items[i].valueLength = [[forCommands objectAtIndex:i] lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-            items[i].flags = 0;
+    char paths[maxCommands][maxChars]; // only handles upto 20 commands with paths upto 128 characters in length
+    int i = 0;
 
-            i++;
-        }
+    while ((NSUInteger)i < numItems && i < maxCommands) {
+        [[forCommands objectAtIndex:i] getCString:paths[i] maxLength:maxChars encoding:NSUTF8StringEncoding];
 
-        rights.count = numItems;
-        rights.items = items;
+        items[i].name = kAuthorizationRightExecute;
+        items[i].value = paths[i];
+        items[i].valueLength = [[forCommands objectAtIndex:i] lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+        items[i].flags = 0;
 
-        flags = kAuthorizationFlagExtendRights;
+        i++;
+    }
 
-        err = AuthorizationCopyRights(authorizationRef, &rights, kAuthorizationEmptyEnvironment, flags, &authorizedRights);
+    rights.count = numItems;
+    rights.items = items;
 
-        authorized = (errAuthorizationSuccess==err);
+    flags = kAuthorizationFlagExtendRights;
 
-    if(authorized)
+    OSStatus err = AuthorizationCopyRights(authorizationRef, &rights, kAuthorizationEmptyEnvironment, flags, &authorizedRights);
+
+    BOOL authorized = (errAuthorizationSuccess==err);
+
+    if (authorized) {
         AuthorizationFreeItemSet(authorizedRights);
+    }
 
-    if( items)
     free(items);
 
     return authorized;
@@ -125,22 +127,25 @@ int maxCommands = 20;
     AuthorizationRights *authorizedRights;
     AuthorizationFlags flags;
 
-    NSUInteger numItems = [forCommands count];
-    AuthorizationItem *items = (AuthorizationItem*) malloc( sizeof(AuthorizationItem) * numItems );
-    char paths[maxCommands][maxChars];
-
-    OSStatus err = 0;
-    BOOL authorized = NO;
-    int i = 0;
-
-    if( numItems < 1 )
-    {
-        free( items);
-        return authorized;
+    // It's possible the call to AuthorizationCreate in isAuthenticated failed.
+    if (authorizationRef == NULL) {
+        return NO;
     }
 
-    while( (NSUInteger) i < numItems && i < maxCommands )
-    {
+    NSUInteger numItems = [forCommands count];
+    if (numItems < 1) {
+        return NO;
+    }
+
+    AuthorizationItem *items = (AuthorizationItem*) malloc(sizeof(AuthorizationItem) * numItems);
+    if (items == NULL) {
+        return NO;
+    }
+
+    char paths[maxCommands][maxChars];
+    int i = 0;
+
+    while ((NSUInteger) i < numItems && i < maxCommands) {
         // NSLog(@"%@", [forCommands objectAtIndex:i]);
         [[forCommands objectAtIndex:i] getCString:paths[i] maxLength:maxChars encoding:NSUTF8StringEncoding];
 
@@ -157,15 +162,11 @@ int maxCommands = 20;
 
     flags = kAuthorizationFlagInteractionAllowed | kAuthorizationFlagExtendRights;
 
-    err = AuthorizationCopyRights(authorizationRef, &rights, kAuthorizationEmptyEnvironment, flags, &authorizedRights);
+    OSStatus err = AuthorizationCopyRights(authorizationRef, &rights, kAuthorizationEmptyEnvironment, flags, &authorizedRights);
 
-    authorized = (errAuthorizationSuccess == err);
+    BOOL authorized = (errAuthorizationSuccess == err);
 
-    if (err != errAuthorizationSuccess) {
-        return 1;
-    }
-
-    if(authorized) {
+    if (authorized) {
         AuthorizationFreeItemSet(authorizedRights);
     }
 
@@ -200,4 +201,3 @@ AuthCheckerError AuthChecker_mac::authenticate()
                 AuthCheckerError::AUTH_NO_ERROR :
                 AuthCheckerError::AUTH_AUTHENTICATION_ERROR;
 }
-

@@ -26,9 +26,9 @@ int NumbersPixmap::height() const
     return itemHeight_;
 }
 
-QFont *NumbersPixmap::getFont()
+QFont NumbersPixmap::getFont()
 {
-    return &font_;
+    return font_;
 }
 
 IndependentPixmap *NumbersPixmap::getPixmap()
@@ -57,7 +57,7 @@ void NumbersPixmap::rescale()
     SAFE_DELETE(dotPixmap_);
     SAFE_DELETE(naPixmap_);
 
-    font_ = *FontManager::instance().getFont(16, false);
+    font_ = FontManager::instance().getFont(16, false);
 
     QFontMetrics fm(font_);
     itemHeight_ = fm.height();

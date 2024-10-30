@@ -31,9 +31,9 @@ void AddressItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     painter->setOpacity(OPACITY_FULL * initOpacity);
     painter->setPen(Qt::white);
 
-    QFont *font = FontManager::instance().getFont(12, false);
-    painter->setFont(*font);
-    QFontMetrics fm(*font);
+    QFont font = FontManager::instance().getFont(12, false);
+    painter->setFont(font);
+    QFontMetrics fm(font);
     QString elidedName = fm.elidedText(text_,
                                        Qt::TextElideMode::ElideRight,
                                        boundingRect().width() - (3*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE);

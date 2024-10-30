@@ -127,8 +127,8 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
     painter->setPen(Qt::SolidLine);
     painter->setPen(Qt::white);
     painter->setOpacity(textOpacity_);
-    QFont *font = FontManager::instance().getFont(12, true);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(12, true);
+    painter->setFont(font);
     if (expanded_) {
         painter->drawText(boundingRect().adjusted(TEXT_MARGIN*G_SCALE,
                                                   TEXT_MARGIN*G_SCALE,
@@ -136,7 +136,7 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
                                                   0),
                           item_.title.toUpper());
     } else {
-        QFontMetrics titleMetrics(*font);
+        QFontMetrics titleMetrics(font);
         QString elided = titleMetrics.elidedText(item_.title.toUpper(),
                                                  Qt::ElideRight,
                                                  boundingRect().width() - (3*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE));
@@ -168,7 +168,7 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
 void EntryItem::updateScaling()
 {
     BaseItem::updateScaling();
-    QFontMetrics metrics(*FontManager::instance().getFont(12, true));
+    QFontMetrics metrics(FontManager::instance().getFont(12, true));
     titleHeight_ = metrics.boundingRect(boundingRect().adjusted(TEXT_MARGIN*G_SCALE,
                                                                 TEXT_MARGIN*G_SCALE,
                                                                 -(2*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE),

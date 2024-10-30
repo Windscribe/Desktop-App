@@ -1777,16 +1777,16 @@ Kết nối với mạng trước</translation>
         <translation>Địa chỉ proxy không hợp lệ</translation>
     </message>
     <message>
-        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
-        <translation>Địa chỉ proxy không hợp lệ. Vui lòng nhập địa chỉ IP hoặc tên miền hợp lệ.</translation>
-    </message>
-    <message>
         <source>Invalid proxy port</source>
         <translation>Cổng proxy không hợp lệ</translation>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
         <translation>Cổng proxy không hợp lệ. Vui lòng nhập cổng hợp lệ trong phạm vi 0-65535.</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address.</source>
+        <translation>Địa chỉ proxy không hợp lệ. Vui lòng nhập địa chỉ IP hợp lệ.</translation>
     </message>
 </context>
 <context>

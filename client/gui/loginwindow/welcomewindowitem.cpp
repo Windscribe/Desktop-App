@@ -150,7 +150,7 @@ void WelcomeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     QSharedPointer<IndependentPixmap> pixmap_badge = ImageResourcesSvg::instance().getIndependentPixmap("WINDSCRIBE_ICON");
     pixmap_badge->draw(centeredOffset(WINDOW_WIDTH, BADGE_WIDTH)*G_SCALE, BADGE_POS_Y*G_SCALE, BADGE_WIDTH*G_SCALE, BADGE_HEIGHT*G_SCALE, painter);
 
-    painter->setFont(*FontManager::instance().getFont(24, true));
+    painter->setFont(FontManager::instance().getFont(24, true));
     painter->setPen(Qt::white);
     painter->drawText(QRect(0, 113*G_SCALE, WINDOW_WIDTH*G_SCALE, 40*G_SCALE), Qt::AlignCenter, tr("Keep Your Secrets."));
 

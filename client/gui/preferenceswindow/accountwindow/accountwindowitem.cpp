@@ -82,7 +82,7 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     // Below items for case when not logged in
     textItem_ = new QGraphicsTextItem(this);
     textItem_->setPlainText(tr("Login to view your account info"));
-    textItem_->setFont(*FontManager::instance().getFont(14, false));
+    textItem_->setFont(FontManager::instance().getFont(14, false));
     textItem_->setDefaultTextColor(Qt::white);
     textItem_->setTextWidth(125);
     textItem_->document()->setDefaultTextOption(QTextOption(Qt::AlignHCenter));
@@ -128,7 +128,7 @@ void AccountWindowItem::setConfirmEmailResult(bool bSuccess)
 void AccountWindowItem::updateScaling()
 {
     CommonGraphics::BasePage::updateScaling();
-    textItem_->setFont(*FontManager::instance().getFont(14, false));
+    textItem_->setFont(FontManager::instance().getFont(14, false));
     textItem_->setTextWidth(125*G_SCALE);
     updateWidgetPos();
 }

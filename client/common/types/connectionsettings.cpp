@@ -8,8 +8,7 @@ const int typeIdConnectionSettings = qRegisterMetaType<types::ConnectionSettings
 namespace types {
 
 // init with default connection settings
-ConnectionSettings::ConnectionSettings() :
-    isAutomatic_(true)
+ConnectionSettings::ConnectionSettings()
 {
     // take the first supported protocol on this OS (currenty it's WireGuard 443)
     QList<Protocol> protocols = Protocol::supportedProtocols();
@@ -28,6 +27,9 @@ ConnectionSettings::ConnectionSettings(const QJsonObject &json)
 {
     if (json.contains(kJsonProtocolProp) && json[kJsonProtocolProp].isDouble()) {
         protocol_ = Protocol(json[kJsonProtocolProp].toInt());
+    } else {
+        QList<Protocol> protocols = Protocol::supportedProtocols();
+        protocol_ = protocols[0];
     }
 
     if (json.contains(kJsonPortProp) && json[kJsonPortProp].isDouble()) {
@@ -37,6 +39,8 @@ ConnectionSettings::ConnectionSettings(const QJsonObject &json)
         } else {
             port_ = Protocol::defaultPortForProtocol(protocol_);
         }
+    } else {
+        port_ = Protocol::defaultPortForProtocol(protocol_);
     }
 
     if (json.contains(kJsonIsAutomaticProp) && json[kJsonIsAutomaticProp].isBool()) {

@@ -48,8 +48,8 @@ struct ConnectionSettings
 
 private:
     Protocol protocol_;
-    uint    port_;
-    bool    isAutomatic_;
+    uint    port_ = 0;
+    bool    isAutomatic_ = true;
 
     static const inline QString kIniProtocolProp = "ManualConnectionProtocol";
     static const inline QString kIniPortProp = "ManualConnectionPort";

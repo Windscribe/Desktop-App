@@ -5,21 +5,21 @@
     <name>AlertWindow</name>
     <message>
         <source>ESC</source>
-        <translation>Регулятор</translation>
+        <translation>ЗАКР</translation>
     </message>
 </context>
 <context>
     <name>InitialWindow</name>
     <message>
         <source>Read EULA</source>
-        <translation>Ознакомиться с конечным пользователем</translation>
+        <translation>Ознакомиться с лицензионным соглашением</translation>
     </message>
 </context>
 <context>
     <name>InstallButton</name>
     <message>
         <source>Install</source>
-        <translation>Устанавливать</translation>
+        <translation>Установить</translation>
     </message>
     <message>
         <source>%1%</source>
@@ -46,11 +46,11 @@
     </message>
     <message>
         <source>The specified installation path is not on the system drive. To ensure the security of the application, and your system, it must be installed on the same drive as Windows. The installation folder has been reset to the default.</source>
-        <translation>Указанный путь установки отсутствует на системном диске. Чтобы обеспечить безопасность приложения и вашей системы, оно должно быть установлено на том же диске, что и Windows. Папка установки была сброшена до значений по умолчанию.</translation>
+        <translation>Указанный путь установки отсутствует на системном диске. Чтобы обеспечить безопасность приложения и вашей системы, оно должно быть установлено на том же диске, что и Windows. Папка установки была сброшена до стандартной.</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation>ХОРОШО</translation>
+        <translation>ОК</translation>
     </message>
     <message>
         <source>The installation was cancelled. Administrator privileges are required to install the application.</source>
@@ -66,7 +66,7 @@
     </message>
     <message>
         <source>The installer could not connect to the privileged helper tool. Please try again.</source>
-        <translation>Установщику не удалось подключиться к привилегированному вспомогательному средству. Повторите попытку.</translation>
+        <translation>Установщику не удалось подключиться к привилегированной вспомогательной службе. Повторите попытку.</translation>
     </message>
     <message>
         <source>An existing installation of Windscribe could not be removed. Please uninstall the application manually and try again.</source>
@@ -74,7 +74,7 @@
     </message>
     <message>
         <source>Quit</source>
-        <translation>Покидать</translation>
+        <translation>Выйти</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -98,7 +98,7 @@
     </message>
     <message>
         <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
-        <translation>Установка в пользовательскую папку может позволить злоумышленнику взломать приложение Windscribe. Чтобы обеспечить безопасность приложения и вашей системы, мы настоятельно рекомендуем вам установить его в папку «Program Files» по умолчанию. Нажмите кнопку ОК, чтобы продолжить работу с пользовательской папкой, или кнопку Отмена, чтобы использовать расположение по умолчанию.</translation>
+        <translation>Установка в пользовательскую папку может позволить злоумышленнику модифицировать приложение Windscribe. Чтобы обеспечить безопасность приложения и вашей системы, мы настоятельно рекомендуем вам установить его в папку «Program Files» по умолчанию. Нажмите кнопку ОК, чтобы продолжить работу с пользовательской папкой, или кнопку Отмена, чтобы использовать расположение по умолчанию.</translation>
     </message>
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
@@ -121,15 +121,15 @@
     </message>
     <message>
         <source>The Windscribe installer accepts the following optional commmand-line parameters: </source>
-        <translation>Инсталлятор Windscribe принимает следующие необязательные параметры commmand-line: </translation>
+        <translation>Инсталлятор Windscribe принимает следующие необязательные параметры командной строки: </translation>
     </message>
     <message>
         <source>Show this information.</source>
-        <translation>Покажите эту информацию.</translation>
+        <translation>Показать эту информацию.</translation>
     </message>
     <message>
         <source>Do not launch the application after installation.</source>
-        <translation>Не запускайте приложение после установки.</translation>
+        <translation>Не запускать приложение после установки.</translation>
     </message>
     <message>
         <source>Instructs the installer to skip installing drivers.</source>
@@ -137,7 +137,7 @@
     </message>
     <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
-        <translation>Удалите существующие настройки, журналы и другие данные, если они существуют.</translation>
+        <translation>Удалить существующие настройки, журналы и другие данные, если они существуют.</translation>
     </message>
     <message>
         <source>Overrides the default installation directory. Installation directory must be on the system drive.</source>
@@ -208,15 +208,15 @@
     <name>SettingsWindow</name>
     <message>
         <source>Install Settings</source>
-        <translation>Настройки установки</translation>
+        <translation>Настройки установщика</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation>ХОРОШО</translation>
+        <translation>ОК</translation>
     </message>
     <message>
         <source>Factory Reset</source>
-        <translation>Сброс к заводским настройкам</translation>
+        <translation>Сброс к стандартным настройкам</translation>
     </message>
     <message>
         <source>Create shortcut</source>

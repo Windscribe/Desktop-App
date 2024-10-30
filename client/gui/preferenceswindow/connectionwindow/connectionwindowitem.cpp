@@ -154,7 +154,9 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     proxyGatewayGroup_->setProxyGatewaySettings(preferences->shareProxyGateway());
     addItem(proxyGatewayGroup_);
 
-    antiCensorshipGroup_ = new PreferenceGroup(this);
+    antiCensorshipGroup_ = new PreferenceGroup(this,
+                                              "",
+                                              QString("https://%1/features/circumvent-censorship").arg(HardcodedSettings::instance().windscribeServerUrl()));
     antiCensorshipItem_ = new ToggleItem(antiCensorshipGroup_, tr("Circumvent Censorship"));
     antiCensorshipItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/CIRCUMVENT_CENSORSHIP"));
     antiCensorshipItem_->setState(preferences->isAntiCensorship());

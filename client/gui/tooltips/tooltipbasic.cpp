@@ -20,7 +20,7 @@ TooltipBasic::TooltipBasic(const TooltipInfo &info, QWidget *parent) : ITooltip(
 
 void TooltipBasic::updateScaling()
 {
-    font_ = *FontManager::instance().getFont(12, false);
+    font_ = FontManager::instance().getFont(12, false);
     recalcWidth();
     recalcHeight();
 }

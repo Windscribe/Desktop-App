@@ -84,10 +84,10 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
             painter->setOpacity(1.0);
             painter->setPen(QColor(255, 255, 255));
         }
-        QFont *font = FontManager::instance().getFont(14, true);
-        QFontMetrics metrics(*font);
+        QFont font = FontManager::instance().getFont(14, true);
+        QFontMetrics metrics(font);
         protocolWidth = metrics.horizontalAdvance(status_.protocol.toLongString());
-        painter->setFont(*font);
+        painter->setFont(font);
         painter->drawText(boundingRect().adjusted(kTextIndent*G_SCALE, kFirstLineY*G_SCALE, 0, 0), status_.protocol.toLongString());
     }
 
@@ -101,8 +101,8 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     // port
     {
-        QFont *font = FontManager::instance().getFont(14, false);
-        painter->setFont(*font);
+        QFont font = FontManager::instance().getFont(14, false);
+        painter->setFont(font);
 
         if (status_.status == types::ProtocolStatus::Status::kConnected) {
             painter->setPen(QColor(85, 255, 138));
@@ -124,12 +124,12 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
             painter->setPen(QColor(255, 255, 255));
         }
 
-        QFont *font = FontManager::instance().getFont(12, false);
-        painter->setFont(*font);
+        QFont font = FontManager::instance().getFont(12, false);
+        painter->setFont(font);
         painter->setOpacity(0.5);
 
         int availableWidth = boundingRect().width() - kTextIndent*G_SCALE - 40*G_SCALE;
-        QFontMetrics fm(*font);
+        QFontMetrics fm(font);
         QString elidedText = desc_;
         if (availableWidth < fm.horizontalAdvance(desc_)) {
             elidedText = fm.elidedText(desc_, Qt::ElideRight, availableWidth, 0);
@@ -157,8 +157,8 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         // Text inside
         painter->setPen(QColor(85, 255, 138));
         painter->setOpacity(1.0);
-        QFont *font = FontManager::instance().getFont(12, true);
-        painter->setFont(*font);
+        QFont font = FontManager::instance().getFont(12, true);
+        painter->setFont(font);
         painter->drawText(boundingRect().adjusted(boundingRect().width() - 107*G_SCALE, 0, 0, -(boundingRect().height() - 24*G_SCALE)),
                           Qt::AlignCenter,
                           QString(tr("NEXT UP IN %1s").arg(QString::number(status_.timeout))));
@@ -191,8 +191,8 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
         painter->setPen(QColor(85, 255, 138));
         painter->setOpacity(1.0);
-        QFont *font = FontManager::instance().getFont(12, false);
-        painter->setFont(*font);
+        QFont font = FontManager::instance().getFont(12, false);
+        painter->setFont(font);
         painter->drawText(boundingRect().adjusted(boundingRect().width() - 107*G_SCALE, 0, 0, -(boundingRect().height() - 24*G_SCALE)),
                           Qt::AlignCenter,
                           QString(tr("Connected to")));
@@ -205,8 +205,8 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         p->draw(boundingRect().width() - 16*G_SCALE - p->width(), 36*G_SCALE, painter);
     } else if (status_.status == types::ProtocolStatus::Status::kFailed) {
         painter->setOpacity(1.0);
-        QFont *font = FontManager::instance().getFont(12, false);
-        painter->setFont(*font);
+        QFont font = FontManager::instance().getFont(12, false);
+        painter->setFont(font);
         painter->setPen(QColor(249, 76, 67));
         painter->drawText(boundingRect().adjusted(0, 0, -16*G_SCALE, 0),
                           Qt::AlignRight | Qt::AlignVCenter,

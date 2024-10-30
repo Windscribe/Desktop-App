@@ -1777,16 +1777,16 @@ Najpierw połącz się z siecią</translation>
         <translation>Nieprawidłowy adres serwera proxy</translation>
     </message>
     <message>
-        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
-        <translation>Adres serwera proxy jest nieprawidłowy. Podaj prawidłowy adres IP lub nazwę domeny.</translation>
-    </message>
-    <message>
         <source>Invalid proxy port</source>
         <translation>Nieprawidłowy port serwera proxy</translation>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
         <translation>Port serwera proxy jest nieprawidłowy. Podaj prawidłowy port z zakresu 0-65535.</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address.</source>
+        <translation>Adres serwera proxy jest nieprawidłowy. Podaj prawidłowy adres IP.</translation>
     </message>
 </context>
 <context>

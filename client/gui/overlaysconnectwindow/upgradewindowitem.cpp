@@ -74,14 +74,14 @@ void UpgradeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     // title
     painter->setOpacity(OPACITY_FULL * initialOpacity);
     painter->setPen(FontManager::instance().getErrorRedColor());
-    QFont titleFont = *FontManager::instance().getFont(24, true);
+    QFont titleFont = FontManager::instance().getFont(24, true);
     painter->setFont(titleFont);
     QRectF titleRect(0, (TITLE_POS_Y + yOffset)*G_SCALE, WINDOW_WIDTH*G_SCALE, CommonGraphics::textHeight(titleFont));
     painter->drawText(titleRect, Qt::AlignCenter, tr("You're out of data!"));
 
     // main description
     painter->setOpacity(OPACITY_FULL * initialOpacity);
-    QFont descFont(*FontManager::instance().getFont(14, false));
+    QFont descFont(FontManager::instance().getFont(14, false));
     painter->setFont(descFont);
     painter->setPen(Qt::white);
 

@@ -7,14 +7,14 @@ TextShadow::TextShadow() : shadowColor_(0x02, 0x0D, 0x1C, 128), lastFlags_(0)
 {
 }
 
-void TextShadow::drawText(QPainter *painter, const QRect &rect, int flags, const QString &text, QFont *font, const QColor &color)
+void TextShadow::drawText(QPainter *painter, const QRect &rect, int flags, const QString &text, QFont &font, const QColor &color)
 {
-    if (pixmap_.isNull() || rect != lastRect_ || flags != lastFlags_ || text != lastText_ || *font != lastFont_ || color != lastColor_)
+    if (pixmap_.isNull() || rect != lastRect_ || flags != lastFlags_ || text != lastText_ || font != lastFont_ || color != lastColor_)
     {
         lastRect_ = rect;
         lastFlags_ = flags;
         lastText_ = text;
-        lastFont_ = *font;
+        lastFont_ = font;
         lastColor_ = color;
         updatePixmap();
     }

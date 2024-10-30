@@ -27,14 +27,14 @@ void SplitTunnelingAppsItem::paint(QPainter *painter, const QStyleOptionGraphics
     QString text(tr("Search/Add Apps"));
     QString elidedText = text;
 
-    QFont *font = FontManager::instance().getFont(12, false);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(12, false);
+    painter->setFont(font);
     painter->setOpacity(OPACITY_HALF);
     painter->setPen(Qt::white);
 
     int availableWidth = searchButton_->pos().x() - PREFERENCES_MARGIN*G_SCALE;
 
-    QFontMetrics fm(*font);
+    QFontMetrics fm(font);
     if (availableWidth < fm.horizontalAdvance(text)) {
         elidedText = fm.elidedText(text, Qt::ElideRight, availableWidth, 0);
     }

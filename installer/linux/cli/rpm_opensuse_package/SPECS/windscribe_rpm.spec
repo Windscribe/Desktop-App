@@ -51,7 +51,8 @@ killall -q Windscribe
 systemctl daemon-reload || true
 systemctl disable firewalld || true
 systemctl stop firewalld || true
-systemctl preset windscribe-helper.service || true
+systemctl preset windscribe-helper || true
+systemctl restart windscribe-helper || true
 
 %post
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
@@ -73,7 +74,7 @@ if [ $1 -eq 0 ]; then
     userdel -f windscribe || true
     groupdel -f windscribe || true
     rm -f /usr/bin/windscribe-cli
-    rm -f /var/log/windscribe
+    rm -rf /var/log/windscribe
     rm -rf /etc/windscribe
     rm -rf /opt/windscribe
 fi

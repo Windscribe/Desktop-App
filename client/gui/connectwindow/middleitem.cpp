@@ -31,8 +31,8 @@ void MiddleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
     qreal initOpacity = painter->opacity();
 
-    QFont *font = FontManager::instance().getFont(16, false);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(16, false);
+    painter->setFont(font);
     painter->setPen(curTextColor_);
     painter->drawText(boundingRect().adjusted(16*G_SCALE, 0, 0, 0), tr("Firewall"));
 
@@ -84,8 +84,8 @@ void MiddleItem::onIpAddressWidthChanged(int width)
 
 int MiddleItem::firewallTextRight() const
 {
-    QFont *font = FontManager::instance().getFont(16, false);
-    int textWidth = CommonGraphics::textWidth(tr("Firewall"), *font);
+    QFont font = FontManager::instance().getFont(16, false);
+    int textWidth = CommonGraphics::textWidth(tr("Firewall"), font);
     // +16 to match the value added to the bounding rect in ::paint().
     return boundingRect().left() + textWidth + 16*G_SCALE;
 }

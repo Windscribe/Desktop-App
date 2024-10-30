@@ -1777,16 +1777,16 @@ Connect to a network first</source>
         <translation>آدرس پراکسی نامعتبر</translation>
     </message>
     <message>
-        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
-        <translation>آدرس پراکسی نامعتبر است. لطفا یک آدرس IP یا نام دامنه معتبر وارد کنید.</translation>
-    </message>
-    <message>
         <source>Invalid proxy port</source>
         <translation>پورت پروکسی نامعتبر</translation>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
         <translation>پورت پروکسی نامعتبر است. لطفا یک پورت معتبر در محدوده 0-65535 وارد کنید.</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address.</source>
+        <translation>آدرس پراکسی نامعتبر است. لطفا یک آدرس IP معتبر وارد کنید.</translation>
     </message>
 </context>
 <context>

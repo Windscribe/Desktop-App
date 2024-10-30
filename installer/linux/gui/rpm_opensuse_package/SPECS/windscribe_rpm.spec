@@ -58,7 +58,7 @@ systemctl daemon-reload || true
 systemctl disable firewalld || true
 systemctl stop firewalld || true
 systemctl preset windscribe-helper || true
-systemctl start windscribe-helper || true
+systemctl restart windscribe-helper || true
 
 %post
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli

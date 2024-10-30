@@ -12,19 +12,7 @@ namespace types {
 struct NetworkInterface
 {
     // defaults
-    NetworkInterface() :
-        interfaceIndex(-1),
-        interfaceType(NETWORK_INTERFACE_NONE),
-        trustType(NETWORK_TRUST_SECURED),
-        active(false),
-        requested(false),
-        metric(100),
-        mtu(1470),
-        state(0),
-        dwType(0),
-        connectorPresent(false),
-        endPointInterface(false)
-    {}
+    NetworkInterface() {}
 
     NetworkInterface(const QJsonObject &json)
     {
@@ -101,23 +89,23 @@ struct NetworkInterface
         }
     }
 
-    int interfaceIndex;
+    int interfaceIndex = -1;
     QString interfaceName;
     QString interfaceGuid;
     QString networkOrSsid;
-    NETWORK_INTERFACE_TYPE interfaceType;
-    NETWORK_TRUST_TYPE trustType;
-    bool active;
+    NETWORK_INTERFACE_TYPE interfaceType = NETWORK_INTERFACE_NONE;
+    NETWORK_TRUST_TYPE trustType = NETWORK_TRUST_SECURED;
+    bool active = false;
     QString friendlyName;
-    bool requested;
-    int metric;
+    bool requested = false;
+    int metric = 100;
     QString physicalAddress;
-    int mtu;
-    int state;
-    int dwType;
+    int mtu = 1470;
+    int state = 0;
+    int dwType = 0;
     QString deviceName;
-    bool connectorPresent;
-    bool endPointInterface;
+    bool connectorPresent = false;
+    bool endPointInterface = false;
 
     bool operator==(const NetworkInterface &other) const
     {

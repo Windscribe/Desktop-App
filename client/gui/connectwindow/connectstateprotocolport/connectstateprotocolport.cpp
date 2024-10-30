@@ -72,11 +72,11 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
         badgeFgImage_->draw(painter, widthOffset, (badgePixmap_.height() - badgeFgImage_->height())/2);
     }
 
-    QFont *font = FontManager::instance().getFont(fontDescr_);
+    QFont font = FontManager::instance().getFont(fontDescr_);
     painter->setOpacity(textOpacity_ * initOpacity);
     painter->setPen(textColor_);
 
-    const int textHeight = CommonGraphics::textHeight(*font);
+    const int textHeight = CommonGraphics::textHeight(font);
     const int posYTop = badgePixmap_.height()/2 - textHeight/2;
     const int posYBot = posYTop + textHeight;
     const int separatorMinusProtocolPosX = badgePixmap_.width() + 2*kSpacerWidth*G_SCALE;
@@ -277,7 +277,7 @@ void ConnectStateProtocolPort::recalcSize()
 {
     prepareGeometryChange();
 
-    QFont font = *FontManager::instance().getFont(fontDescr_);
+    QFont font = FontManager::instance().getFont(fontDescr_);
     QFontMetrics fm(font);
 
     const QString protocolString = protocol_.toLongString();

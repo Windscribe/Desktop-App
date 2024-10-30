@@ -9,10 +9,7 @@ namespace types {
 
 struct PacketSize
 {
-    PacketSize() :
-        isAutomatic(true),
-        mtu(-1)     // -1 not set
-    {}
+    PacketSize() {}
 
     PacketSize(const QJsonObject &json)
     {
@@ -22,14 +19,14 @@ struct PacketSize
         if (json.contains(kJsonMTUProp) && json[kJsonMTUProp].isDouble()) {
             int mtuValue = json[kJsonMTUProp].toInt();
             // MTU is unset, or must be a minimum of 68 per RFC 791 and can't exceed maximum IP packet size of 65535
-            if (mtuValue < 0 || (mtuValue >= 68 && mtuValue < 65536)) {
+            if (mtuValue == -1 || (mtuValue >= 68 && mtuValue < 65536)) {
                 mtu = mtuValue;
             }
         }
     }
 
-    bool isAutomatic;
-    int mtu;
+    bool isAutomatic = true;
+    int mtu = -1;
 
     bool operator==(const PacketSize &other) const
     {
@@ -48,7 +45,7 @@ struct PacketSize
         isAutomatic = (mode == TOGGLE_MODE_AUTO);
         int mtuValue = settings.value(kJsonMTUProp, mtu).toInt();
         // MTU is unset, or must be a minimum of 68 per RFC 791 and can't exceed maximum IP packet size of 65535
-        if (mtuValue < 0 || (mtuValue >= 68 && mtuValue < 65536)) {
+        if (mtuValue == -1 || (mtuValue >= 68 && mtuValue < 65536)) {
             mtu = mtuValue;
         }
     }

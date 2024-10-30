@@ -51,11 +51,11 @@ void EmailItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont *font = FontManager::instance().getFont(12, true);
-    QFontMetrics fm(*font);
+    QFont font = FontManager::instance().getFont(12, true);
+    QFontMetrics fm(font);
     int textWidth = fm.horizontalAdvance(tr(EMAIL_TEXT));
 
-    painter->setFont(*font);
+    painter->setFont(font);
     if (email_.isEmpty() || isNeedConfirmEmail_) {
         QColor color;
 
@@ -70,9 +70,9 @@ void EmailItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
             painter->setPen(color);
 
             painter->setOpacity(OPACITY_HALF);
-            QFont *font = FontManager::instance().getFont(12, false);
-            painter->setFont(*font);
-            QFontMetrics fmEmail(*font);
+            QFont font = FontManager::instance().getFont(12, false);
+            painter->setFont(font);
+            QFontMetrics fmEmail(font);
             QString elidedEmail = fmEmail.elidedText(email_, Qt::TextElideMode::ElideMiddle, boundingRect().width() - (2*PREFERENCES_MARGIN + 2*APP_ICON_MARGIN_X + ICON_WIDTH)*G_SCALE - textWidth);
             painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE), Qt::AlignRight, elidedEmail);
         }
@@ -90,7 +90,7 @@ void EmailItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
             painter->restore();
         }
 
-        painter->setFont(*FontManager::instance().getFont(12, true));
+        painter->setFont(FontManager::instance().getFont(12, true));
         painter->drawText(boundingRect().adjusted((PREFERENCES_MARGIN + ICON_WIDTH + DESCRIPTION_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE), Qt::AlignLeft, tr(EMAIL_TEXT));
 
         // subrect
@@ -106,7 +106,7 @@ void EmailItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         painter->setPen(Qt::SolidLine);
 
         // Text inside subrect
-        painter->setFont(*FontManager::instance().getFont(10, false));
+        painter->setFont(FontManager::instance().getFont(10, false));
         QString text;
         if (email_.isEmpty()) {
             painter->setPen(Qt::white);
@@ -129,9 +129,9 @@ void EmailItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
         if (!email_.isEmpty()) {
             painter->setOpacity(OPACITY_HALF);
-            QFont *font = FontManager::instance().getFont(12, false);
-            painter->setFont(*font);
-            QFontMetrics fmEmail(*font);
+            QFont font = FontManager::instance().getFont(12, false);
+            painter->setFont(font);
+            QFontMetrics fmEmail(font);
             QString elidedEmail = fmEmail.elidedText(email_, Qt::TextElideMode::ElideMiddle, boundingRect().width() - (2*PREFERENCES_MARGIN + APP_ICON_MARGIN_X)*G_SCALE - textWidth);
             painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE), Qt::AlignRight, elidedEmail);
         }
@@ -159,7 +159,7 @@ void EmailItem::updatePositions()
         }
         sendButton_->hide();
 
-        QFontMetrics fm(*FontManager::instance().getFont(10, false));
+        QFontMetrics fm(FontManager::instance().getFont(10, false));
         msgHeight_ = fm.boundingRect(boundingRect().adjusted((PREFERENCES_MARGIN + DESCRIPTION_MARGIN)*G_SCALE,
                                                              0,
                                                              -(PREFERENCES_MARGIN + DESCRIPTION_MARGIN)*G_SCALE,
@@ -175,7 +175,7 @@ void EmailItem::updatePositions()
         emptyEmailButton_->setClickable(false);
         emptyEmailButton_->setVisible(false);
 
-        QFontMetrics fm(*FontManager::instance().getFont(10, false));
+        QFontMetrics fm(FontManager::instance().getFont(10, false));
         msgHeight_ = fm.boundingRect(boundingRect().adjusted((PREFERENCES_MARGIN + DESCRIPTION_MARGIN)*G_SCALE,
                                                              0,
                                                              -(PREFERENCES_MARGIN + DESCRIPTION_MARGIN)*G_SCALE - sendButton_->boundingRect().width(),

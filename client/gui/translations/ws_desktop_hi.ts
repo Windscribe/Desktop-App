@@ -1777,16 +1777,16 @@ Connect to a network first</source>
         <translation>अमान्य प्रॉक्सी पता</translation>
     </message>
     <message>
-        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
-        <translation>प्रॉक्सी पता अमान्य है. कृपया कोई मान्य IP पता या डोमेन नाम दर्ज करें.</translation>
-    </message>
-    <message>
         <source>Invalid proxy port</source>
         <translation>अमान्य प्रॉक्सी पोर्ट</translation>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
         <translation>प्रॉक्सी पोर्ट अमान्य है. कृपया 0-65535 श्रेणी में कोई मान्य पोर्ट दर्ज करें.</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address.</source>
+        <translation>प्रॉक्सी पता अमान्य है. कृपया कोई मान्य IP पता दर्ज करें.</translation>
     </message>
 </context>
 <context>

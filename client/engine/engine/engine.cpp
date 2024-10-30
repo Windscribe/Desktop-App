@@ -1171,6 +1171,10 @@ void Engine::updateCurrentInternetConnectivityImpl()
 
 void Engine::updateCurrentNetworkInterfaceImpl()
 {
+    if (!networkDetectionManager_ || !helper_) {
+        return;
+    }
+
     types::NetworkInterface networkInterface;
     networkDetectionManager_->getCurrentNetworkInterface(networkInterface, true);
 

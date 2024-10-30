@@ -44,8 +44,8 @@ void ProtocolPromptItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 {
     // title
     painter->setOpacity(OPACITY_FULL);
-    QFont *titleFont = FontManager::instance().getFont(16, true);
-    painter->setFont(*titleFont);
+    QFont titleFont = FontManager::instance().getFont(16, true);
+    painter->setFont(titleFont);
     painter->setPen(QColor(Qt::white));
 
     // 60 for icon + 24 spacing
@@ -54,8 +54,8 @@ void ProtocolPromptItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
     // description
     painter->setOpacity(OPACITY_HALF);
-    QFont *descFont = FontManager::instance().getFont(14, false);
-    painter->setFont(*descFont);
+    QFont descFont = FontManager::instance().getFont(14, false);
+    painter->setFont(descFont);
 
     // 60 for icon + 24 spacing + title + 16 spacing
     painter->drawText(boundingRect().adjusted(36*G_SCALE, titleHeight_ + 100*G_SCALE, -36*G_SCALE, 0),
@@ -234,12 +234,12 @@ void ProtocolPromptItem::onProtocolClicked()
 void ProtocolPromptItem::updateItemOffset()
 {
     // Calculate how far down we should start drawing protocols/buttons
-    QFont *titleFont = FontManager::instance().getFont(16, true);
-    QFontMetrics titleMetrics(*titleFont);
+    QFont titleFont = FontManager::instance().getFont(16, true);
+    QFontMetrics titleMetrics(titleFont);
     titleHeight_ = titleMetrics.boundingRect(boundingRect().adjusted(36*G_SCALE, 0, -36*G_SCALE, 0).toRect(),
                                              Qt::AlignHCenter | Qt::TextWordWrap, title_).height();
-    QFont *descFont = FontManager::instance().getFont(14, false);
-    QFontMetrics descMetrics(*descFont);
+    QFont descFont = FontManager::instance().getFont(14, false);
+    QFontMetrics descMetrics(descFont);
     descHeight_ = descMetrics.boundingRect(boundingRect().adjusted(36*G_SCALE, 0, -36*G_SCALE, 0).toRect(),
                                            Qt::AlignHCenter | Qt::TextWordWrap, desc_).height();
 

@@ -54,8 +54,8 @@ void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
     // draw page caption
     painter->setPen(Qt::white);
-    QFont *font = FontManager::instance().getFont(16, true);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(16, true);
+    painter->setFont(font);
     painter->drawText(rcCaption, Qt::AlignLeft | Qt::AlignVCenter, tr("News Feed"));
 
     // bottom-most background

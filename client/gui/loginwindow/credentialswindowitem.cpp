@@ -261,7 +261,7 @@ void CredentialsWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
         // Login Text
         painter->save();
         painter->setOpacity(curLoginTextOpacity_ * initOpacity);
-        painter->setFont(*FontManager::instance().getFont(24, false));
+        painter->setFont(FontManager::instance().getFont(24, false));
         painter->setPen(QColor(255,255,255)); //  white
 
         QString loginText = tr("Login");
@@ -273,7 +273,7 @@ void CredentialsWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
         painter->restore();
 
         // Error Text
-        painter->setFont(*FontManager::instance().getFont(12, false));
+        painter->setFont(FontManager::instance().getFont(12, false));
         painter->setPen(FontManager::instance().getErrorRedColor());
         painter->setOpacity(curErrorOpacity_ * initOpacity);
         QRectF rect(WINDOW_MARGIN*G_SCALE, 232*G_SCALE, 180*G_SCALE, 100*G_SCALE);

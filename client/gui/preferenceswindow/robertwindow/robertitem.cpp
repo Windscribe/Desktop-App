@@ -32,8 +32,8 @@ void RobertItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont *font = FontManager::instance().getFont(captionFont_);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(captionFont_);
+    painter->setFont(font);
     painter->setPen(Qt::white);
     painter->setOpacity(OPACITY_FULL);
 
@@ -52,7 +52,7 @@ void RobertItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
                       strCaption_);
 
     // Bottom text (Allowing or Blocking)
-    painter->setFont(*FontManager::instance().getFont(10, false));
+    painter->setFont(FontManager::instance().getFont(10, false));
     QString text = tr("Blocking");
 
     if (checkBoxButton_->isChecked()) {

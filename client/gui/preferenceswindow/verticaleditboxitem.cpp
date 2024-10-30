@@ -43,9 +43,9 @@ void VerticalEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     Q_UNUSED(option)
     Q_UNUSED(widget)
 
-    QFont *font = FontManager::instance().getFont(12, false);
-    QFontMetrics fm(*font);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(12, false);
+    QFontMetrics fm(font);
+    painter->setFont(font);
     painter->setPen(Qt::white);
     painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
                                               PREFERENCES_MARGIN*G_SCALE,
@@ -189,7 +189,7 @@ void VerticalEditBoxItem::updatePositions()
     btnEdit_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, top);
     btnConfirm_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, top);
     btnUndo_->setPos(boundingRect().width() - (2*ICON_WIDTH + 2*PREFERENCES_MARGIN)*G_SCALE, top);
-    lineEdit_->setFont(*FontManager::instance().getFont(12, false));
+    lineEdit_->setFont(FontManager::instance().getFont(12, false));
 
     if (!proxyWidget_->isVisible()) // workaround Qt bug (setGeometry not working when proxyWidget_ is not visible)
     {

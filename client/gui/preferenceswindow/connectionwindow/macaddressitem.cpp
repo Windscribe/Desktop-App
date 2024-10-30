@@ -22,8 +22,8 @@ void MacAddressItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont *font = FontManager::instance().getFont(12, false);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(12, false);
+    painter->setFont(font);
     painter->setPen(Qt::white);
     painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
                                               PREFERENCES_MARGIN*G_SCALE,

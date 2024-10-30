@@ -18,7 +18,7 @@ ConfigFooterInfo::ConfigFooterInfo(QWidget *parent) : QAbstractButton(parent)
   , fullText_()
   , displayText_()
   , isDisplayTextRectHover_(false)
-  , font_(*FontManager::instance().getFont(16, true))
+  , font_(FontManager::instance().getFont(16, true))
 {
     setFocusPolicy(Qt::NoFocus);
     setMouseTracking(true);
@@ -47,7 +47,7 @@ void ConfigFooterInfo::setText(const QString &text)
 
 void ConfigFooterInfo::updateDisplayText()
 {
-    font_ = *FontManager::instance().getFont(14, false);
+    font_ = FontManager::instance().getFont(14, false);
     displayText_ = CommonGraphics::truncatedText(fullText_, font_,
         width() - (WINDOW_MARGIN * 4 + 40) * G_SCALE);
     displayTextRect_.setRect(WINDOW_MARGIN * G_SCALE, 0,
@@ -84,7 +84,7 @@ void ConfigFooterInfo::paintEvent(QPaintEvent * /*event*/)
                      FontManager::instance().getMidnightColor());
 
     if (!displayText_.isEmpty()) {
-        font_ = *FontManager::instance().getFont(14, false);
+        font_ = FontManager::instance().getFont(14, false);
         painter.setOpacity(initOpacity * 0.5);
         painter.setPen(Qt::white);
         painter.setFont(font_);

@@ -28,8 +28,8 @@ TooltipDescriptive::TooltipDescriptive(const TooltipInfo &info, QWidget *parent)
 
 void TooltipDescriptive::updateScaling()
 {
-    fontTitle_ = *FontManager::instance().getFont(12, true);
-    fontDescr_ = *FontManager::instance().getFont(12, false);
+    fontTitle_ = FontManager::instance().getFont(12, true);
+    fontDescr_ = FontManager::instance().getFont(12, false);
     labelDescr_.setFont(fontDescr_);
 
     QFontMetrics fm(fontTitle_);

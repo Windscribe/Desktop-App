@@ -1,5 +1,9 @@
 #include "reachabilityevents.h"
+
+#include <QScopeGuard>
+
 #import "reachability.h"
+#include "utils/logger.h"
 
 Reachability *g_Reachability = nil;
 ReachAbilityEvents *g_ReachabilityEvents = NULL;
@@ -43,29 +47,40 @@ ReachAbilityEvents::ReachAbilityEvents(QObject *parent) : QObject(parent)
 {
     g_ReachabilityEvents = this;
 
-    SCDynamicStoreRef dynStore;
-
     SCDynamicStoreContext context = {0, NULL, NULL, NULL, NULL};
-
-    dynStore = SCDynamicStoreCreate(kCFAllocatorDefault, CFSTR("WindscribeNetworkMonitor"), callbackChange, &context);
-    const CFStringRef keys[3] = { CFSTR("State:/Network/Global/IPv4"), CFSTR("State:/Network/Interface/en0/AirPort") };
-    CFArrayRef watchedKeys = CFArrayCreate(kCFAllocatorDefault,
-                                          (const void **)keys,
-                                          2,
-                                          &kCFTypeArrayCallBacks);
-
-    if (!SCDynamicStoreSetNotificationKeys(dynStore, NULL, watchedKeys))
-    {
-        CFRelease(watchedKeys);
-        CFRelease(dynStore);
-        dynStore = NULL;
+    SCDynamicStoreRef dynStore = SCDynamicStoreCreate(kCFAllocatorDefault, CFSTR("WindscribeNetworkMonitor"), callbackChange, &context);
+    if (dynStore == NULL) {
+        qCDebug(LOG_BASIC) << "ReachAbilityEvents - SCDynamicStoreCreate failed";
         return;
     }
-    CFRelease(watchedKeys);
+
+    CFArrayRef watchedKeys = NULL;
+    auto exitGuard = qScopeGuard([&] {
+        if (watchedKeys != NULL) {
+            CFRelease(watchedKeys);
+        }
+        CFRelease(dynStore);
+    });
+
+    const CFStringRef keys[3] = { CFSTR("State:/Network/Global/IPv4"), CFSTR("State:/Network/Interface/en0/AirPort") };
+    watchedKeys = CFArrayCreate(kCFAllocatorDefault, (const void **)keys, 2, &kCFTypeArrayCallBacks);
+    if (watchedKeys == NULL) {
+        qCDebug(LOG_BASIC) << "ReachAbilityEvents - CFArrayCreate failed";
+        return;
+    }
+
+    if (!SCDynamicStoreSetNotificationKeys(dynStore, NULL, watchedKeys)) {
+        qCDebug(LOG_BASIC) << "ReachAbilityEvents - SCDynamicStoreSetNotificationKeys failed";
+        return;
+    }
 
     CFRunLoopSourceRef rlSrc = SCDynamicStoreCreateRunLoopSource(kCFAllocatorDefault, dynStore, 0);
-    CFRunLoopAddSource(CFRunLoopGetCurrent(), rlSrc, kCFRunLoopDefaultMode);
-    CFRelease(rlSrc);
+    if (rlSrc != NULL) {
+        CFRunLoopAddSource(CFRunLoopGetCurrent(), rlSrc, kCFRunLoopDefaultMode);
+        CFRelease(rlSrc);
+    } else {
+        qCDebug(LOG_BASIC) << "ReachAbilityEvents - SCDynamicStoreCreateRunLoopSource failed";
+    }
 }
 
 ReachAbilityEvents::~ReachAbilityEvents()

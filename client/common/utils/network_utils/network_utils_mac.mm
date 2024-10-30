@@ -165,6 +165,7 @@ QString NetworkUtils_mac::ipAddressByInterfaceName(const QString &interfaceName)
                 continue;
             }
 
+            freeifaddrs(ifaddr);
             return QString::fromStdString(host);
         }
     }

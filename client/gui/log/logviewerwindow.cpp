@@ -117,7 +117,7 @@ void LogViewerWindow::onExportClick()
 
 void LogViewerWindow::updateScaling()
 {
-    textEdit_->setFont(*FontManager::instance().getFontWithCustomScale(currentScale(), 12, false));
+    textEdit_->setFont(FontManager::instance().getFontWithCustomScale(currentScale(), 12, false));
 }
 
 void LogViewerWindow::highlightBlocks()

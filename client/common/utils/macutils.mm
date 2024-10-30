@@ -2,14 +2,17 @@
 #import <SystemConfiguration/SystemConfiguration.h>
 #include <AppKit/AppKit.h>
 
-#include "logger.h"
-#import "utils.h"
-#import "macutils.h"
-#include "names.h"
-#include <QDir>
 #include <QCoreApplication>
+#include <QDir>
+#include <QScopeGuard>
+
 #include <libproc.h>
+
 #include "executable_signature/executable_signature.h"
+#include "logger.h"
+#include "macutils.h"
+#include "names.h"
+#include "utils.h"
 
 namespace {
 
@@ -173,10 +176,24 @@ void MacUtils::getNSWindowCenter(void *nsView, int &outX, int &outY)
 bool MacUtils::dynamicStoreEntryHasKey(const QString &entry, const QString &key)
 {
     SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("WindscribeKeyChecker"), NULL, NULL);
-    CFDictionaryRef dnskey = (CFDictionaryRef) SCDynamicStoreCopyValue(dynRef, entry.toCFString());
-    CFStringRef setByWindscribeValue = (CFStringRef) CFDictionaryGetValue(dnskey, key.toCFString());
-    CFRelease(dnskey);
+    if (dynRef == NULL) {
+        qCDebug(LOG_BASIC) << "dynamicStoreEntryHasKey - SCDynamicStoreCreate failed";
+        return false;
+    }
+
+    CFStringRef setByWindscribeValue = NULL;
+    CFStringRef entryCFString = entry.toCFString();
+    CFStringRef keyCFString = key.toCFString();
+    CFDictionaryRef dnskey = (CFDictionaryRef) SCDynamicStoreCopyValue(dynRef, entryCFString);
+    if (dnskey != NULL) {
+        setByWindscribeValue = (CFStringRef) CFDictionaryGetValue(dnskey, keyCFString);
+        CFRelease(dnskey);
+    } else {
+        qCDebug(LOG_BASIC) << "dynamicStoreEntryHasKey - SCDynamicStoreCopyValue failed";
+    }
     CFRelease(dynRef);
+    CFRelease(entryCFString);
+    CFRelease(keyCFString);
     return setByWindscribeValue != NULL;
 }
 
@@ -259,39 +276,81 @@ static QStringList getOsDnsServersFromPath(CFStringRef path)
     QStringList servers;
 
     SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("DNSSETTING"), NULL, NULL);
-    CFPropertyListRef propList = SCDynamicStoreCopyValue(dynRef, path);
+    if (dynRef == NULL) {
+        qCDebug(LOG_BASIC) << "getOsDnsServersFromPath - SCDynamicStoreCreate failed";
+        return servers;
+    }
+
+    CFPropertyListRef propList = NULL;
+    auto exitGuard = qScopeGuard([&] {
+        if (propList != NULL) {
+            CFRelease(propList);
+        }
+        CFRelease(dynRef);
+    });
+
+    propList = SCDynamicStoreCopyValue(dynRef, path);
     if (propList) {
         CFDictionaryRef dict = (CFDictionaryRef)propList;
         CFArrayRef addresses = (CFArrayRef)CFDictionaryGetValue(dict, CFSTR("ServerAddresses"));
+        if (addresses == NULL) {
+            qCDebug(LOG_BASIC) << "getOsDnsServersFromPath - CFDictionaryGetValue failed";
+            return servers;
+        }
         for (int j = 0; j < CFArrayGetCount(addresses); j++) {
             NSString *addr = (NSString *)CFArrayGetValueAtIndex(addresses, j);
             servers << QString([addr UTF8String]);
         }
-        CFRelease(propList);
+    } else {
+        // We appear to get here quite often, with no ill effects, so commenting this out to
+        // reduce log spam.
+        //qCDebug(LOG_BASIC) << "getOsDnsServersFromPath - SCDynamicStoreCopyValue failed";
     }
-    CFRelease(dynRef);
 
     return servers;
 }
 
 QSet<QString> MacUtils::getOsDnsServers()
 {
-    QStringList servers;
-
     SCPreferencesRef prefsDNS = SCPreferencesCreate(NULL, CFSTR("DNSSETTING"), NULL);
-    CFArrayRef services = SCNetworkServiceCopyAll(prefsDNS);
+    if (prefsDNS == NULL) {
+        qCDebug(LOG_BASIC) << "getOsDnsServers - SCPreferencesCreate failed";
+        return QSet<QString>();
+    }
 
+    CFArrayRef services = NULL;
+    auto exitGuard = qScopeGuard([&] {
+        if (services != NULL) {
+            CFRelease(services);
+        }
+        CFRelease(prefsDNS);
+    });
+
+    services = SCNetworkServiceCopyAll(prefsDNS);
+    if (services == NULL) {
+        qCDebug(LOG_BASIC) << "getOsDnsServers - SCNetworkServiceCopyAll failed";
+        return QSet<QString>();
+    }
+
+    QStringList servers;
     for (long i = 0; i < CFArrayGetCount(services); i++) {
         const SCNetworkServiceRef service = (const SCNetworkServiceRef)CFArrayGetValueAtIndex(services, i);
         CFStringRef serviceId = SCNetworkServiceGetServiceID(service);
-        CFStringRef path = CFStringCreateWithFormat(NULL,NULL,CFSTR("State:/Network/Service/%@/DNS"), serviceId);
+        CFStringRef path = CFStringCreateWithFormat(NULL, NULL, CFSTR("State:/Network/Service/%@/DNS"), serviceId);
+        if (path == NULL) {
+            qCDebug(LOG_BASIC) << "getOsDnsServers - CFStringCreateWithFormat(Service) failed";
+            return QSet<QString>();
+        }
         servers << getOsDnsServersFromPath(path);
         CFRelease(path);
     }
-    CFRelease(services);
-    CFRelease(prefsDNS);
 
-    CFStringRef globalPath = CFStringCreateWithFormat(NULL,NULL,CFSTR("State:/Network/Global/DNS"));
+    CFStringRef globalPath = CFStringCreateWithFormat(NULL, NULL, CFSTR("State:/Network/Global/DNS"));
+    if (globalPath == NULL) {
+        qCDebug(LOG_BASIC) << "getOsDnsServers - CFStringCreateWithFormat(Global) failed";
+        return QSet<QString>();
+    }
+
     servers << getOsDnsServersFromPath(globalPath);
     CFRelease(globalPath);
 

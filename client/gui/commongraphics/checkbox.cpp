@@ -88,7 +88,7 @@ void Checkbox::setText(const QString &label)
     labelText_ = label;
     label_->setText(label);
 
-    QFontMetrics fm(*FontManager::instance().getFont(14, false));
+    QFontMetrics fm(FontManager::instance().getFont(14, false));
     width_ = fm.horizontalAdvance(labelText_);
     height_ = fm.height();
 }

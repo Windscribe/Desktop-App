@@ -27,8 +27,8 @@ void ToggleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont *font = FontManager::instance().getFont(captionFont_);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(captionFont_);
+    painter->setFont(font);
     painter->setPen(Qt::white);
 
     qreal xOffset = PREFERENCES_MARGIN*G_SCALE;
@@ -37,7 +37,7 @@ void ToggleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         icon_->draw(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
     }
 
-    QFontMetrics fm(*font);
+    QFontMetrics fm(font);
     int availableWidth = checkBoxButton_->pos().x() - xOffset - DESCRIPTION_MARGIN*G_SCALE;
     QString elidedText = strCaption_;
     if (availableWidth < fm.horizontalAdvance(strCaption_)) {

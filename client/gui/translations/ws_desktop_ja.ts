@@ -1777,16 +1777,16 @@ Connect to a network first</source>
         <translation>無効なプロキシアドレス</translation>
     </message>
     <message>
-        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
-        <translation>プロキシ アドレスが無効です。有効なIPアドレスまたはドメイン名を入力してください。</translation>
-    </message>
-    <message>
         <source>Invalid proxy port</source>
         <translation>プロキシポートが無効です</translation>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
         <translation>プロキシ ポートが無効です。0〜65535の範囲で有効なポートを入力してください。</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address.</source>
+        <translation>プロキシ アドレスが無効です。有効なIPアドレスを入力してください。</translation>
     </message>
 </context>
 <context>

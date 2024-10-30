@@ -88,9 +88,9 @@ void PreferenceGroup::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
                          ICON_WIDTH*G_SCALE,
                          ICON_HEIGHT*G_SCALE,
                          painter);
-        QFont *font = FontManager::instance().getFont(10.5, false);
-        font->setWeight(QFont::Medium);
-        painter->setFont(*font);
+        QFont font = FontManager::instance().getFont(10.5, false);
+        font.setWeight(QFont::Medium);
+        painter->setFont(font);
         painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN+ICON_WIDTH)*G_SCALE,
                                                   boundingRect().height() + descVMargin - descHeight_,
                                                   -descRightMargin_,
@@ -101,9 +101,9 @@ void PreferenceGroup::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     {
         painter->setPen(Qt::white);
         painter->setOpacity(OPACITY_HALF);
-        QFont *font = FontManager::instance().getFont(10.5, false);
-        font->setWeight(QFont::Medium);
-        painter->setFont(*font);
+        QFont font = FontManager::instance().getFont(10.5, false);
+        font.setWeight(QFont::Medium);
+        painter->setFont(font);
         painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
                                                   boundingRect().height() + descVMargin - descHeight_,
                                                   -descRightMargin_,
@@ -242,9 +242,9 @@ void PreferenceGroup::updatePositions()
         {
             if (!errorDesc_.isEmpty())
             {
-                QFont *font = FontManager::instance().getFont(10.5, false);
-                font->setWeight(QFont::Medium);
-                QFontMetrics metrics(*font);
+                QFont font = FontManager::instance().getFont(10.5, false);
+                font.setWeight(QFont::Medium);
+                QFontMetrics metrics(font);
                 descHeight_ = metrics.boundingRect(boundingRect().adjusted((2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE, 0, -descRightMargin_, 0).toRect(),
                                                   Qt::AlignLeft | Qt::TextWordWrap,
                                                   errorDesc_).height() + descVMargin;
@@ -254,9 +254,9 @@ void PreferenceGroup::updatePositions()
         {
             if (!desc_.isEmpty())
             {
-                QFont *font = FontManager::instance().getFont(10.5, false);
-                font->setWeight(QFont::Medium);
-                QFontMetrics metrics(*font);
+                QFont font = FontManager::instance().getFont(10.5, false);
+                font.setWeight(QFont::Medium);
+                QFontMetrics metrics(font);
                 descHeight_ = metrics.boundingRect(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE, 0, -descRightMargin_, 0).toRect(),
                                                   Qt::AlignLeft | Qt::TextWordWrap,
                                                   desc_).height() + descVMargin;

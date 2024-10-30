@@ -8,7 +8,7 @@ const int typeIdProxySettings = qRegisterMetaType<types::ProxySettings>("types::
 
 namespace types {
 
-ProxySettings::ProxySettings() : option_(PROXY_OPTION_NONE), port_(0)
+ProxySettings::ProxySettings()
 {
 }
 
@@ -33,7 +33,7 @@ ProxySettings::ProxySettings(const QJsonObject &json) : option_(PROXY_OPTION_NON
 
     if (json.contains(kJsonAddressProp) && json[kJsonAddressProp].isString()) {
         QString str = json[kJsonAddressProp].toString();
-        if (IpValidation::isIpOrDomain(str)) {
+        if (IpValidation::isIp(str)) {
             address_ = str;
         }
     }

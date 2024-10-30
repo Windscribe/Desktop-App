@@ -64,7 +64,7 @@ void InitWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     if (!msg_.isEmpty())
     {
         const int kFontSize = isgMsgSmallFont_ ? MSG_SMALL_FONT : MSG_LARGE_FONT;
-        painter->setFont(*FontManager::instance().getFont(kFontSize, false, 105));
+        painter->setFont(FontManager::instance().getFont(kFontSize, false, 105));
         //painter->setPen(FontManager::instance().getMidnightColor());
         painter->setPen(Qt::white);
         int textPosY = (LOGO_POS_CENTER + 55)*G_SCALE;

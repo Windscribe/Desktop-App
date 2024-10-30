@@ -543,7 +543,7 @@ void ApiResourcesManager::updateSessionStatus()
         sessionStatus_->debugLog();
     }
 
-    prevSessionStatus_ = std::make_unique<SessionStatus>(new SessionStatus(sessionStatus_.get()));
+    prevSessionStatus_ = std::make_unique<SessionStatus>(sessionStatus_.get());
     if (isLoginOkEmitted_)
         callback_->call(ApiResourcesManagerNotification::kSessionUpdated, LoginResult::kSuccess, std::string());
 }

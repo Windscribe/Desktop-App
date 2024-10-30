@@ -8,10 +8,7 @@ namespace types {
 
 struct FirewallSettings
 {
-    FirewallSettings() :
-        mode(FIREWALL_MODE_AUTOMATIC),
-        when(FIREWALL_WHEN_BEFORE_CONNECTION)
-    {}
+    FirewallSettings() {}
 
     FirewallSettings(const QJsonObject &json)
     {
@@ -24,8 +21,8 @@ struct FirewallSettings
         }
     }
 
-    FIREWALL_MODE mode;
-    FIREWALL_WHEN when;
+    FIREWALL_MODE mode = FIREWALL_MODE_AUTOMATIC;
+    FIREWALL_WHEN when = FIREWALL_WHEN_BEFORE_CONNECTION;
 
     bool operator==(const FirewallSettings &other) const
     {

@@ -52,8 +52,8 @@ void BubbleButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     // text
     painter->setOpacity(curTextOpacity_);
     painter->setPen(QPen(curTextColor_, 1*G_SCALE));
-    QFont *font = FontManager::instance().getFont(fontDescr_);
-    painter->setFont(*font);
+    QFont font = FontManager::instance().getFont(fontDescr_);
+    painter->setFont(font);
     QRectF textRect(0, 0, width_*G_SCALE, height_*G_SCALE);
     painter->drawText(textRect, Qt::AlignCenter, text_);
 }

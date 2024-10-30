@@ -152,9 +152,9 @@ void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     // draw page caption
     //painter->fillRect(rcCaption, QBrush(QColor(255, 45, 61)));
     painter->setPen(Qt::white);
-    QFont *font = FontManager::instance().getFont(16, true);
-    painter->setFont(*font);
-    QFontMetrics fm(*font);
+    QFont font = FontManager::instance().getFont(16, true);
+    painter->setFont(font);
+    QFontMetrics fm(font);
     painter->drawText(rcCaption, Qt::AlignLeft | Qt::AlignVCenter, fm.elidedText(scrollAreaItem_->item()->caption(), Qt::ElideRight, 140*G_SCALE));
 
     // bottom-most background

@@ -40,7 +40,7 @@ public:
     friend QDebug operator<<(QDebug dbg, const ApiResolutionSettings &ds);
 
 private:
-    bool bAutomatic_;
+    bool bAutomatic_ = true;
     QString manualAddress_;
 
     static const inline QString kIniIsAutomaticProp = "APIResolutionMode";

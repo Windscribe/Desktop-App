@@ -43,7 +43,7 @@ void TwoFactorAuthOkButton::paint(QPainter *painter, const QStyleOptionGraphicsI
     // text
     painter->setOpacity(initialOpacity);
     painter->setPen(QPen(FontManager::instance().getMidnightColor(), 1*G_SCALE));
-    painter->setFont(*FontManager::instance().getFont(fontDescr_));
+    painter->setFont(FontManager::instance().getFont(fontDescr_));
     QRectF textRect(0,0, width_*G_SCALE,height_*G_SCALE);
     painter->drawText(textRect, Qt::AlignCenter, text_);
 }
@@ -73,8 +73,8 @@ void TwoFactorAuthOkButton::setButtonType(BUTTON_TYPE type)
     }
 
     // Ensure the button is wide enough for the translated text and margins.
-    QFont *font = FontManager::instance().getFont(fontDescr_);
-    int buttonWidth = CommonGraphics::textWidth(text_, *font) + 2*16*G_SCALE;
+    QFont font = FontManager::instance().getFont(fontDescr_);
+    int buttonWidth = CommonGraphics::textWidth(text_, font) + 2*16*G_SCALE;
     width_ = qMax(OK_BUTTON_WIDTH, buttonWidth);
 }
 

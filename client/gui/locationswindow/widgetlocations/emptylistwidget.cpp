@@ -69,7 +69,7 @@ void EmptyListWidget::paintEvent(QPaintEvent *event)
 
     if (!text_.isEmpty()) {
         painter.save();
-        QFont font = *FontManager::instance().getFont(12, false);
+        QFont font = FontManager::instance().getFont(12, false);
         painter.setFont(font);
         painter.setPen(Qt::white);
         painter.setOpacity(0.5);

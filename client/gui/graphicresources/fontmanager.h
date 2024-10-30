@@ -15,9 +15,9 @@ public:
         return fm;
     }
 
-    QFont *getFontWithCustomScale(double scale, double size, bool isBold, int stretch = 100, qreal letterSpacing = 0.0);
-    QFont *getFont(double size, bool isBold, int stretch = 100, qreal letterSpacing = 0.0);
-    QFont *getFont(const FontDescr &fd);
+    QFont getFontWithCustomScale(double scale, double size, bool isBold, int stretch = 100, qreal letterSpacing = 0.0);
+    QFont getFont(double size, bool isBold, int stretch = 100, qreal letterSpacing = 0.0);
+    QFont getFont(const FontDescr &fd);
     QString getFontStyleSheet(double size, bool isBold);
     void clearCache();
 
@@ -42,8 +42,4 @@ public:
 private:
     FontManager();
     ~FontManager();
-
-    QHash<QString, QFont *> fonts_;
-
-    void clearFontMap();
 };

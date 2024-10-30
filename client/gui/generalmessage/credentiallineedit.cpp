@@ -34,7 +34,7 @@ void CredentialLineEdit::paint(QPainter *painter, const QStyleOptionGraphicsItem
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont font(*FontManager::instance().getFont(12, false));
+    QFont font(FontManager::instance().getFont(12, false));
     painter->setPen(Qt::white);
     painter->drawText(QRect(12*G_SCALE, 0, (WINDOW_WIDTH-96)*G_SCALE, 16*G_SCALE), Qt::AlignTop | Qt::AlignLeft, text_);
 }

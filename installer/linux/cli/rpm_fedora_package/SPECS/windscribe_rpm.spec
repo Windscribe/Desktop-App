@@ -49,7 +49,7 @@ mv -f %{_sourcedir}/* %{buildroot}
 killall -q Windscribe || true
 systemctl daemon-reload || true
 systemctl preset windscribe-helper || true
-systemctl start windscribe-helper || true
+systemctl restart windscribe-helper || true
 
 %post
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli

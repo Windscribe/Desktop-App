@@ -109,12 +109,15 @@ void MacAddressController_linux::onNetworkListChanged(const QList<types::Network
     if (spoofing_.isEnabled) {
         types::NetworkInterface interface;
         networkDetectionManager_->getCurrentNetworkInterface(interface);
-        if (interface.isNoNetworkInterface() || interface.networkOrSsid.isEmpty()) {
-            // No interface or disconnected network
-            return;
-        }
+
         if (interface.interfaceIndex == lastInterface_.interfaceIndex && interface.networkOrSsid == lastInterface_.networkOrSsid) {
             // Same interface as before
+            return;
+        }
+
+        if (interface.isNoNetworkInterface() || interface.networkOrSsid.isEmpty()) {
+            // No interface or disconnected network
+            lastInterface_ = interface;
             return;
         }
 

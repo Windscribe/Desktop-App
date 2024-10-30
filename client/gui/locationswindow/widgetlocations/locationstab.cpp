@@ -58,7 +58,7 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
     searchCancelButton_->hide();
 
     searchLineEdit_ = new CommonWidgets::CustomMenuLineEdit(this);
-    searchLineEdit_->setFont(*FontManager::instance().getFont(14, false));
+    searchLineEdit_->setFont(FontManager::instance().getFont(14, false));
     searchLineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     searchLineEdit_->setFrame(false);
     searchLineEdit_->installEventFilter(this);
@@ -735,7 +735,7 @@ void LocationsTab::updateScaling()
 
     searchButton_->setGeometry(searchButtonPosUnscaled_ * G_SCALE, TOP_TAB_MARGIN * G_SCALE, 16*G_SCALE, 16*G_SCALE);
     searchCancelButton_->setGeometry(LAST_TAB_ICON_POS_X * G_SCALE, TOP_TAB_MARGIN * G_SCALE, 16*G_SCALE, 16*G_SCALE);
-    searchLineEdit_->setFont(*FontManager::instance().getFont(14, false));
+    searchLineEdit_->setFont(FontManager::instance().getFont(14, false));
     searchLineEdit_->setGeometry(((preferences_->appSkin() == APP_SKIN_VAN_GOGH ? FIRST_TAB_ICON_POS_X_VAN_GOGH : FIRST_TAB_ICON_POS_X) + 32)*G_SCALE,
                                  2*G_SCALE,
                                  (LAST_TAB_ICON_POS_X - (preferences_->appSkin() == APP_SKIN_VAN_GOGH ? FIRST_TAB_ICON_POS_X_VAN_GOGH : FIRST_TAB_ICON_POS_X) - 32)*G_SCALE,

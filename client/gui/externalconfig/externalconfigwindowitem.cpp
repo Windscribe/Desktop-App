@@ -81,7 +81,7 @@ void ExternalConfigWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     // title
     painter->setOpacity(curTextOpacity_ * initialOpacity);
-    painter->setFont(*FontManager::instance().getFont(16, true, 100));
+    painter->setFont(FontManager::instance().getFont(16, true, 100));
     QRectF titleRect(0, TITLE_POS_Y*G_SCALE, LOGIN_WIDTH*G_SCALE, LOGIN_HEIGHT*G_SCALE);
     painter->drawText(titleRect, Qt::AlignHCenter, tr("External Config Mode"));
 
@@ -89,7 +89,7 @@ void ExternalConfigWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
     painter->setPen(QColor(255,255,255));
 
     painter->setOpacity(curTextOpacity_ * initialOpacity);
-    painter->setFont(*FontManager::instance().getFont(14, false, 100));
+    painter->setFont(FontManager::instance().getFont(14, false, 100));
 
     QString descriptionText = tr("Use the Windscribe app without an account to connect to any OpenVPN or WireGuard server.");
     QFontMetrics fm = painter->fontMetrics();

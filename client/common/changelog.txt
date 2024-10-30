@@ -1,3 +1,24 @@
+2.12.3 (30/10/2024)
+All:
+   * Added link to website for "Circumvent Censorship". #1175
+   * Fixed imported JSON values may be incorrect. #1157
+   * Fixed proxy validation to only allow an IP address. Prior proxy configurations using a hostname will no longer function. #1166
+   * Fixed proxy gateway sometimes sends invalid headers. #1106
+   * Fixed memory leaks in wsnet. #1170
+   * Updated Russian translations in installer. #1016
+Windows:
+   * Improved Circumvent Censorship behavior when using OpenVPN DCO driver. #1153
+MacOS:
+   * Fixed potential app crash when App Internal DNS setting is 'OS Default'. #1165
+   * Fixed potential app crash when installing helper. #1170
+   * Fixed memory leaks in IPC and other macOS-specific code. #1170
+Linux:
+   * Fixed openSUSE CLI install script not starting the helper service. #1160
+   * Fixed auto-rotate MAC not working when disconnecting and reconnecting to the same network. #1113
+   * Fixed helper service may not be restarted after update. #1087
+   * Fixed deb package dependencies for Debian Trixie. #1173
+
+
 2.12.2 (14/10/2024)
 All:
    * Improved Spanish translations. #1131

@@ -1777,16 +1777,16 @@ Connect to a network first</source>
         <translation>Неверный адрес прокси</translation>
     </message>
     <message>
-        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
-        <translation>Адрес прокси недействителен. Пожалуйста, введите действительный IP-адрес или доменное имя.</translation>
-    </message>
-    <message>
         <source>Invalid proxy port</source>
         <translation>Неверный порт прокси</translation>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
         <translation>Порт прокси недействителен. Пожалуйста, введите действительный порт в диапазоне 0-65535.</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address.</source>
+        <translation>Адрес прокси недействителен. Пожалуйста, введите действительный IP-адрес.</translation>
     </message>
 </context>
 <context>

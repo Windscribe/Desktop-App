@@ -1777,16 +1777,16 @@ Nejprve se připojte k síti</translation>
         <translation>Neplatná adresa proxy serveru</translation>
     </message>
     <message>
-        <source>Proxy address is invalid. Please enter a valid IP address or domain name.</source>
-        <translation>Adresa proxy serveru je neplatná. Zadejte platnou IP adresu nebo název domény.</translation>
-    </message>
-    <message>
         <source>Invalid proxy port</source>
         <translation>Neplatný port proxy serveru</translation>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
         <translation>Port proxy serveru je neplatný. Zadejte platný port v rozsahu 0-65535.</translation>
+    </message>
+    <message>
+        <source>Proxy address is invalid. Please enter a valid IP address.</source>
+        <translation>Adresa proxy serveru je neplatná. Zadejte prosím platnou IP adresu.</translation>
     </message>
 </context>
 <context>

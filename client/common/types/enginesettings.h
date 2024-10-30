@@ -21,35 +21,25 @@ namespace types {
 
 struct EngineSettingsData : public QSharedData
 {
-    EngineSettingsData() :
-        updateChannel(UPDATE_CHANNEL_RELEASE),
-        isIgnoreSslErrors(false),
-        isTerminateSockets(true),
-        isAntiCensorship(false),
-        isAllowLanTraffic(false),
-        dnsPolicy(DNS_TYPE_CLOUDFLARE),
-        tapAdapter(WINTUN_ADAPTER),
-        isKeepAliveEnabled(false),
-        dnsManager(DNS_MANAGER_AUTOMATIC)
-    {}
+    EngineSettingsData() {}
 
-    UPDATE_CHANNEL updateChannel;
-    bool isIgnoreSslErrors;
-    bool isTerminateSockets;
-    bool isAntiCensorship;
-    bool isAllowLanTraffic;
+    UPDATE_CHANNEL updateChannel = UPDATE_CHANNEL_RELEASE;
+    bool isIgnoreSslErrors = false;
+    bool isTerminateSockets = true;
+    bool isAntiCensorship = false;
+    bool isAllowLanTraffic = false;
     types::FirewallSettings firewallSettings;
     types::ConnectionSettings connectionSettings;
     types::ApiResolutionSettings apiResolutionSettings;
     types::ProxySettings proxySettings;
     types::PacketSize packetSize;
     types::MacAddrSpoofing macAddrSpoofing;
-    DNS_POLICY_TYPE dnsPolicy;
-    TAP_ADAPTER_TYPE tapAdapter;
+    DNS_POLICY_TYPE dnsPolicy = DNS_TYPE_CLOUDFLARE;
+    TAP_ADAPTER_TYPE tapAdapter = WINTUN_ADAPTER;
     QString customOvpnConfigsPath;
-    bool isKeepAliveEnabled;
+    bool isKeepAliveEnabled = false;
     types::ConnectedDnsInfo connectedDnsInfo;
-    DNS_MANAGER_TYPE dnsManager;
+    DNS_MANAGER_TYPE dnsManager = DNS_MANAGER_AUTOMATIC;
     QMap<QString, types::ConnectionSettings> networkPreferredProtocols;
     QMap<QString, std::pair<types::Protocol, uint>> networkLastKnownGoodProtocols;
     QString language;

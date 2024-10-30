@@ -101,14 +101,14 @@ void EmergencyConnectWindowItem::paint(QPainter *painter, const QStyleOptionGrap
 
     // title
     painter->setOpacity(curTitleOpacity_*initialOpacity);
-    painter->setFont(*FontManager::instance().getFont(16, true, 100));
+    painter->setFont(FontManager::instance().getFont(16, true, 100));
     QRectF titleRect(0, TITLE_POS_Y * G_SCALE, LOGIN_WIDTH * G_SCALE, LOGIN_HEIGHT * G_SCALE);
     painter->drawText(titleRect, Qt::AlignHCenter, tr("Emergency Connect"));
 
     // desc
     painter->save();
     painter->setOpacity(curDescriptionOpacity_*initialOpacity);
-    painter->setFont(*FontManager::instance().getFont(14, false, 100));
+    painter->setFont(FontManager::instance().getFont(14, false, 100));
 
     QString descriptionText;
     int desiredLines = 1;

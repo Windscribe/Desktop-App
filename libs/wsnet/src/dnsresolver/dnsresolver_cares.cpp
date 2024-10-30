@@ -108,8 +108,11 @@ void DnsResolver_cares::run()
     assert(status == ARES_SUCCESS);
 
     DnsServers dnsServersInstalled;
-    DnsServers dnsServersInChannel(ares_get_servers_csv(channel));
-
+    char *servers = ares_get_servers_csv(channel);
+    DnsServers dnsServersInChannel(servers);
+    if (servers) {
+        ares_free_string(servers);
+    }
 
     spdlog::info("DNS servers in channel: {}", dnsServersInChannel.getAsCsv());
 
@@ -137,7 +140,11 @@ void DnsResolver_cares::run()
             status = ares_init_options(&tempChannel, &options, 0);
             assert(status == ARES_SUCCESS);
 
-            DnsServers dnsServersInTempChannel(ares_get_servers_csv(tempChannel));
+            char *servers = ares_get_servers_csv(tempChannel);
+            DnsServers dnsServersInTempChannel(servers);
+            if (servers) {
+                ares_free_string(servers);
+            }
 
             if (dnsServersInChannel != dnsServersInTempChannel) {
                 ares_cancel(channel);
