@@ -131,3 +131,16 @@ bool PreferencesHelper::getIpv6StateInOS() const
     return bIpv6StateInOS_;
 }
 #endif
+
+void PreferencesHelper::setCurrentProtocol(const types::Protocol &protocol)
+{
+    if (currentProtocol_ != protocol) {
+        currentProtocol_ = protocol;
+        emit currentProtocolChanged(currentProtocol_);
+    }
+}
+
+types::Protocol PreferencesHelper::currentProtocol() const
+{
+    return currentProtocol_;
+}

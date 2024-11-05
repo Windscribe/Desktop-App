@@ -4,6 +4,7 @@
 #include <QVector>
 #include "api_responses/portmap.h"
 #include "types/enums.h"
+#include "types/protocol.h"
 
 class PreferencesHelper : public QObject
 {
@@ -32,6 +33,9 @@ public:
     void setIsExternalConfigMode(bool b);
     bool isExternalConfigMode() const;
 
+    void setCurrentProtocol(const types::Protocol &protocol);
+    types::Protocol currentProtocol() const;
+
 #ifdef Q_OS_WIN
     void setIpv6StateInOS(bool bEnabled);
     bool getIpv6StateInOS() const;
@@ -45,6 +49,7 @@ signals:
     void installedTapAdapterChanged(TAP_ADAPTER_TYPE tapAdapter);
     void isDockedModeChanged(bool bIsDockedToTray);
     void isExternalConfigModeChanged(bool bIsExternalConfigMode);
+    void currentProtocolChanged(const types::Protocol &protocol);
 
 private:
     QStringList availableLanguageCodes_;
@@ -57,4 +62,6 @@ private:
 
     bool isDockedToTray_;
     bool isExternalConfigMode_;
+
+    types::Protocol currentProtocol_;
 };

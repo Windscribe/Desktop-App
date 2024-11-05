@@ -112,7 +112,7 @@ index bfc1253b..da66ca16 100644
      unsigned int sockflags;
      int mark;
      const char *bind_dev;
-@@ -1173,6 +1175,61 @@ link_socket_write_udp(struct link_socket *sock,
+@@ -1173,6 +1175,66 @@ link_socket_write_udp(struct link_socket *sock,
                        struct buffer *buf,
                        struct link_socket_actual *to)
  {
@@ -172,8 +172,16 @@ index bfc1253b..da66ca16 100644
 +    }
 +
  #ifdef _WIN32
-     return link_socket_write_win32(sock, buf, to);
+-    return link_socket_write_win32(sock, buf, to);
++    for (int k=0; k<30; k++) {
++        int ret = link_socket_write_win32(sock, buf, to);
++        if (ret != -1) return ret;
++        Sleep(10);
++    }
++    return link_socket_write_win32(sock, buf, to);
  #else
+     return link_socket_write_udp_posix(sock, buf, to);
+ #endif
 diff --git a/src/openvpn/ssl.c b/src/openvpn/ssl.c
 index 12bc85f9..c33a801a 100644
 --- a/src/openvpn/ssl.c

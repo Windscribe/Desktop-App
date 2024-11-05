@@ -56,10 +56,10 @@ private slots:
     void onAllowLanTrafficButtonHoverLeave();
     void onConnectedDnsPreferencesChanged(const types::ConnectedDnsInfo &dns);
     void onSecureHotspotPreferencesChanged(const types::ShareSecureHotspot &ss);
-    void onConnectionSettingsPreferencesChanged(const types::ConnectionSettings &cs);
     void onProxyGatewayAddressChanged(const QString &address);
     void onProxyGatewayPreferencesChanged(const types::ShareProxyGateway &sp);
     void onPreferencesHelperWifiSharingSupportedChanged(bool bSupported);
+    void onPreferencesHelperCurrentProtocolChanged(const types::Protocol &protocol);
     void onIsExternalConfigModeChanged(bool bIsExternalConfigMode);
     void onTerminateSocketsPreferencesChanged(bool b);
     void onAntiCensorshipPreferencesChanged(bool b);
@@ -107,7 +107,7 @@ private:
     ProxyGatewayGroup *proxyGatewayGroup_;
 
     bool isIkev2(const types::ConnectionSettings &cs) const;
-    void updateIsSupported(bool isWifiSharingSupported, bool isIkev2);
+    void updateIsSecureHotspotSupported();
 
     CONNECTION_SCREEN_TYPE currentScreen_;
 };

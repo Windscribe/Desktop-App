@@ -35,10 +35,10 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferences, &Preferences::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChanged);
     connect(preferences_, &Preferences::shareSecureHotspotChanged, this, &ConnectionWindowItem::onSecureHotspotPreferencesChanged);
     connect(preferences_, &Preferences::shareProxyGatewayChanged, this, &ConnectionWindowItem::onProxyGatewayPreferencesChanged);
-    connect(preferences_, &Preferences::connectionSettingsChanged, this, &ConnectionWindowItem::onConnectionSettingsPreferencesChanged);
     connect(preferencesHelper, &PreferencesHelper::wifiSharingSupportedChanged, this, &ConnectionWindowItem::onPreferencesHelperWifiSharingSupportedChanged);
     connect(preferencesHelper, &PreferencesHelper::isExternalConfigModeChanged, this, &ConnectionWindowItem::onIsExternalConfigModeChanged);
     connect(preferencesHelper, &PreferencesHelper::proxyGatewayAddressChanged, this, &ConnectionWindowItem::onProxyGatewayAddressChanged);
+    connect(preferencesHelper, &PreferencesHelper::currentProtocolChanged, this, &ConnectionWindowItem::onPreferencesHelperCurrentProtocolChanged);
     connect(preferences, &Preferences::isTerminateSocketsChanged, this, &ConnectionWindowItem::onTerminateSocketsPreferencesChanged);
     connect(preferences, &Preferences::isAntiCensorshipChanged, this, &ConnectionWindowItem::onAntiCensorshipPreferencesChanged);
     connect(preferences, &Preferences::isAutoConnectChanged, this, &ConnectionWindowItem::onIsAutoConnectPreferencesChanged);
@@ -143,7 +143,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
                                                  QString("https://%1/features/secure-hotspot").arg(HardcodedSettings::instance().windscribeServerUrl()));
     connect(secureHotspotGroup_, &SecureHotspotGroup::secureHotspotPreferencesChanged, this, &ConnectionWindowItem::onSecureHotspotPreferencesChangedByUser);
     secureHotspotGroup_->setSecureHotspotSettings(preferences->shareSecureHotspot());
-    updateIsSupported(preferencesHelper_->isWifiSharingSupported(), isIkev2(preferences_->connectionSettings()));
+    updateIsSecureHotspotSupported();
     addItem(secureHotspotGroup_);
 #endif
 
@@ -433,11 +433,6 @@ void ConnectionWindowItem::onSecureHotspotPreferencesChanged(const types::ShareS
 #endif
 }
 
-void ConnectionWindowItem::onConnectionSettingsPreferencesChanged(const types::ConnectionSettings &cs)
-{
-    updateIsSupported(preferencesHelper_->isWifiSharingSupported(), isIkev2(cs));
-}
-
 void ConnectionWindowItem::onProxyGatewayPreferencesChangedByUser(const types::ShareProxyGateway &sp)
 {
     preferences_->setShareProxyGateway(sp);
@@ -464,7 +459,12 @@ void ConnectionWindowItem::onProxyGatewayPreferencesChanged(const types::SharePr
 
 void ConnectionWindowItem::onPreferencesHelperWifiSharingSupportedChanged(bool bSupported)
 {
-    updateIsSupported(bSupported, isIkev2(preferences_->connectionSettings()));
+    updateIsSecureHotspotSupported();
+}
+
+void ConnectionWindowItem::onPreferencesHelperCurrentProtocolChanged(const types::Protocol &protocol)
+{
+    updateIsSecureHotspotSupported();
 }
 
 bool ConnectionWindowItem::isIkev2(const types::ConnectionSettings &cs) const
@@ -472,13 +472,13 @@ bool ConnectionWindowItem::isIkev2(const types::ConnectionSettings &cs) const
     return cs.protocol() == types::Protocol::IKEV2;
 }
 
-void ConnectionWindowItem::updateIsSupported(bool isWifiSharingSupported, bool isIkev2)
+void ConnectionWindowItem::updateIsSecureHotspotSupported()
 {
 #if defined(Q_OS_WIN)
     if (secureHotspotGroup_) {
-        if (!isWifiSharingSupported) {
+        if (!preferencesHelper_->isWifiSharingSupported()) {
             secureHotspotGroup_->setSupported(SecureHotspotGroup::HOTSPOT_NOT_SUPPORTED);
-        } else if (isIkev2) {
+        } else if (preferencesHelper_->currentProtocol().isIkev2Protocol()) {
             secureHotspotGroup_->setSupported(SecureHotspotGroup::HOTSPOT_NOT_SUPPORTED_BY_IKEV2);
         } else {
             secureHotspotGroup_->setSupported(SecureHotspotGroup::HOTSPOT_SUPPORTED);
@@ -496,5 +496,4 @@ void ConnectionWindowItem::onIsAutoConnectPreferencesChanged(bool b)
 {
     checkBoxAutoConnect_->setState(b);
 }
-
 } // namespace PreferencesWindow

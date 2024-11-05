@@ -315,6 +315,7 @@ void ConnectWindowItem::setInternetConnectivity(bool connectivity)
 void ConnectWindowItem::setProtocolPort(const types::Protocol &protocol, const uint port)
 {
     connectStateProtocolPort_->setProtocolPort(protocol, port);
+    preferencesHelper_->setCurrentProtocol(protocol);
 }
 
 void ConnectWindowItem::onNetworkHoverEnter()
