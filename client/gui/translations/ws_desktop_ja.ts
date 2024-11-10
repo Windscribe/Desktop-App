@@ -680,7 +680,7 @@ Recovering...</source>
     </message>
     <message>
         <source>Exit</source>
-        <translation>出口</translation>
+        <translation>終了</translation>
     </message>
     <message>
         <source>Read-only file</source>
