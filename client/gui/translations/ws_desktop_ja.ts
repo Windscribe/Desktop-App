@@ -92,7 +92,7 @@
     <name>CustomMenuWidget</name>
     <message>
         <source>Undo</source>
-        <translation>外す</translation>
+        <translation>もとに戻す</translation>
     </message>
     <message>
         <source>Redo</source>
@@ -104,11 +104,11 @@
     </message>
     <message>
         <source>Copy</source>
-        <translation>写し</translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation>糊</translation>
+        <translation>貼り付け</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -127,7 +127,7 @@
     </message>
     <message>
         <source>Emergency connection failure. Try again?</source>
-        <translation>緊急接続障害。もう一度やり直してください。</translation>
+        <translation>緊急接続に失敗しました。もう一度やり直してください。</translation>
     </message>
     <message>
         <source>Can&apos;t access Windscribe.com or login into the app on your restrictive network? Connect to the emergency server that unblocks all of Windscribe.</source>
@@ -135,19 +135,19 @@
     </message>
     <message>
         <source>Connecting...</source>
-        <translation>接続。。。</translation>
+        <translation>接続しています...</translation>
     </message>
     <message>
         <source>Disconnecting...</source>
-        <translation>切断。。。</translation>
+        <translation>切断しています...</translation>
     </message>
     <message>
         <source>Connect</source>
-        <translation>繋ぐ</translation>
+        <translation>接続する</translation>
     </message>
     <message>
         <source>Disconnect</source>
-        <translation>切る</translation>
+        <translation>切断する</translation>
     </message>
 </context>
 <context>
@@ -218,7 +218,7 @@
     </message>
     <message>
         <source>Remember</source>
-        <translation>思い出す</translation>
+        <translation>覚える</translation>
     </message>
 </context>
 <context>
@@ -241,7 +241,7 @@
     </message>
     <message>
         <source>Search</source>
-        <translation>捜索</translation>
+        <translation>検索</translation>
     </message>
     <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
@@ -261,7 +261,7 @@
     </message>
     <message>
         <source>Nothing to see here...</source>
-        <translation>ここには何も表示されません...</translation>
+        <translation>ここには何もありません...</translation>
     </message>
     <message>
         <source>You don&apos;t have any Static IPs</source>
@@ -273,7 +273,7 @@
     </message>
     <message>
         <source>Buy</source>
-        <translation>買う</translation>
+        <translation>購入する</translation>
     </message>
 </context>
 <context>
@@ -358,7 +358,7 @@
     </message>
     <message>
         <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>料金制限あり。しばらく待ってから、再度ログインしてください。</translation>
+        <translation>レート制限を超えました。しばらく待ってから、再度ログインしてください。</translation>
     </message>
     <message>
         <source>Session is expired. Please login again</source>
@@ -366,7 +366,7 @@
     </message>
     <message>
         <source>Your username should not be an email address. Please try again.</source>
-        <translation>ユーザー名はメールアドレスであってはなりません。もう一度やり直してください。</translation>
+        <translation>ユーザー名にメールアドレスを含めてはいけません。もう一度やり直してください。</translation>
     </message>
     <message>
         <source>Login</source>
@@ -528,11 +528,11 @@
     </message>
     <message>
         <source>Disconnected</source>
-        <translation>途切れ途切れ</translation>
+        <translation>未接続</translation>
     </message>
     <message>
         <source>Connected to </source>
-        <translation>接続先</translation>
+        <translation>接続先：</translation>
     </message>
     <message>
         <source>You are now connected to Windscribe (%1).</source>
@@ -636,7 +636,7 @@
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>バックエンド プロセスへの接続が失われました。
-回復。。。</translation>
+再接続しています...</translation>
     </message>
     <message>
         <source>Select an application</source>
@@ -644,11 +644,11 @@ Recovering...</source>
     </message>
     <message>
         <source>Connect</source>
-        <translation>繋ぐ</translation>
+        <translation>接続する</translation>
     </message>
     <message>
         <source>Disconnect</source>
-        <translation>切る</translation>
+        <translation>切断する</translation>
     </message>
     <message>
         <source>Locations</source>
@@ -698,7 +698,7 @@ Recovering...</source>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
-        <translation>ワイヤガードアダプタのセットアップに失敗しました。1 分待ってから、接続を再試行してください。アダプタのセットアップに再度失敗する場合は、コンピュータを再起動してみてください。
+        <translation>WireGuardアダプタのセットアップに失敗しました。1 分待ってから、接続を再試行してください。アダプタのセットアップに再度失敗する場合は、コンピュータを再起動してみてください。
 
 再起動後も問題が解決しない場合は、デバッグログを送信してサポートチケットを開き、別の接続モードに切り替えてください。</translation>
     </message>
@@ -716,7 +716,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
-        <translation>ワイヤガード公開キーの上限に達しました。最も古いキーを削除しますか?</translation>
+        <translation>WireGuard公開キーの上限に達しました。最も古いキーを削除しますか?</translation>
     </message>
     <message>
         <source>Error Starting Service</source>
@@ -827,15 +827,15 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>MainWindowController</name>
     <message>
         <source>Quit Windscribe?</source>
-        <translation>ウィンドスクライブをやめますか?</translation>
+        <translation>Windscribeを終了しますか?</translation>
     </message>
     <message>
         <source>Log Out of Windscribe?</source>
-        <translation>ウィンドスクライブからログアウトしますか?</translation>
+        <translation>Windscribeからログアウトしますか?</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>辞める</translation>
+        <translation>終了する</translation>
     </message>
     <message>
         <source>Log Out</source>
@@ -857,11 +857,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>NotificationsController</name>
     <message>
         <source>WELCOME TO WINDSCRIBE</source>
-        <translation>ウィンドスクライブへようこそ</translation>
+        <translation>Windscribeへようこそ</translation>
     </message>
     <message>
         <source>&lt;p&gt;You will find announcements and general Windscribe related news here. Perhaps even delicious cake, everyone loves cake!&lt;/p&gt;</source>
-        <translation>&lt;p&gt;お知らせと一般的なWindscribe関連のニュースはここにあります。おそらくおいしいケーキでさえ、誰もがケーキが大好きです!&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;お知らせと一般的なWindscribe関連のニュースはここにあります。もしかしたら美味しいケーキもあるかもしれない、みんなケーキが大好きです！&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -883,11 +883,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::AboutWindowItem</name>
     <message>
         <source>About</source>
-        <translation>に関しては</translation>
+        <translation>詳細</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation>地位</translation>
+        <translation>ステータス</translation>
     </message>
     <message>
         <source>About Us</source>
@@ -899,7 +899,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Terms</source>
-        <translation>条件</translation>
+        <translation>条項</translation>
     </message>
     <message>
         <source>Blog</source>
@@ -946,7 +946,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Data Left</source>
-        <translation>左データ</translation>
+        <translation>残りデータ</translation>
     </message>
     <message>
         <source>Manage Account</source>
@@ -954,7 +954,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Expiry Date</source>
-        <translation>有効 期限</translation>
+        <translation>有効期限</translation>
     </message>
 </context>
 <context>
@@ -1037,11 +1037,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Export</source>
-        <translation>輸出</translation>
+        <translation>エクスポート</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation>輸入</translation>
+        <translation>インポート</translation>
     </message>
 </context>
 <context>
@@ -1060,7 +1060,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Address</source>
-        <translation>住所</translation>
+        <translation>アドレス</translation>
     </message>
     <message>
         <source>Enter IP or Hostname</source>
@@ -1079,7 +1079,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::BackgroundSettingsGroup</name>
     <message>
         <source>Disconnected</source>
-        <translation>途切れ途切れ</translation>
+        <translation>未接続</translation>
     </message>
     <message>
         <source>Connected</source>
@@ -1091,7 +1091,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>None</source>
-        <translation>何一つ</translation>
+        <translation>何もありません</translation>
     </message>
     <message>
         <source>Custom</source>
@@ -1149,11 +1149,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Exclusive</source>
-        <translation>排他的</translation>
+        <translation>除外する</translation>
     </message>
     <message>
         <source>Inclusive</source>
-        <translation>賅</translation>
+        <translation>選択したもののみ</translation>
     </message>
     <message>
         <source>Off</source>
@@ -1282,7 +1282,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Failed</source>
-        <translation>失敗 しました</translation>
+        <translation>失敗しました</translation>
     </message>
     <message>
         <source>Get 10GB/Month of data and gain the ability to reset your password.</source>
@@ -1309,7 +1309,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>When?</source>
-        <translation>いつ。</translation>
+        <translation>いつ</translation>
     </message>
 </context>
 <context>
@@ -1336,7 +1336,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Windscribe minimizes to system tray and no longer appears in the task bar.</source>
-        <translation>Windscribe がシステム トレイに最小化され、タスク バーに表示されなくなります。</translation>
+        <translation>Windscribe がシステムトレイに最小化され、タスクバーに表示されなくなります。</translation>
     </message>
     <message>
         <source>Windscribe minimizes to menubar and no longer appears in the dock.</source>
@@ -1344,7 +1344,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Close to Tray</source>
-        <translation>トレイに近い</translation>
+        <translation>トレイに隠す</translation>
     </message>
     <message>
         <source>Don&apos;t show the Windscribe icon in dock.</source>
@@ -1380,7 +1380,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Arrange locations alphabetically, geographically, or by latency.</source>
-        <translation>場所をアルファベット順、地理的方向、または待機時間順に並べ替えます。</translation>
+        <translation>場所をアルファベット順、国名順、または待機時間順に並べ替えます。</translation>
     </message>
     <message>
         <source>Location Order</source>
@@ -1443,11 +1443,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>All you need to know about Windscribe.</source>
-        <translation>あなたがウィンドスクライブについて知る必要があるすべて。</translation>
+        <translation>あなたがWindscribeについて知る必要があるすべて。</translation>
     </message>
     <message>
         <source>Knowledge Base</source>
-        <translation>知識ベース</translation>
+        <translation>ナレッジベース</translation>
     </message>
     <message>
         <source>Talk to Garry</source>
@@ -1479,7 +1479,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Failed!</source>
-        <translation>失敗 しました！</translation>
+        <translation>失敗しました！</translation>
     </message>
     <message>
         <source>Need help? Garry can help you with most issues, go talk to him.</source>
@@ -1491,7 +1491,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>ギャリーが解決できない問題がありますか?ヒューマンサポートに連絡してください。</translation>
+        <translation>ギャリーが解決できない問題がありますか?人間のサポートに連絡します。</translation>
     </message>
 </context>
 <context>
@@ -1588,11 +1588,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Secured</source>
-        <translation>確保</translation>
+        <translation>セキュア</translation>
     </message>
     <message>
         <source>Unsecured</source>
-        <translation>無担保</translation>
+        <translation>セキュアではない</translation>
     </message>
     <message>
         <source>No Networks Detected.
@@ -1628,7 +1628,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>MTU</source>
-        <translation>ティッカー</translation>
+        <translation>MTU</translation>
     </message>
 </context>
 <context>
@@ -1678,7 +1678,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>About</source>
-        <translation>に関しては</translation>
+        <translation>詳細</translation>
     </message>
     <message>
         <source>Login</source>
@@ -1690,7 +1690,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Quit</source>
-        <translation>辞める</translation>
+        <translation>終了する</translation>
     </message>
 </context>
 <context>
@@ -1705,11 +1705,11 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Protocol</source>
-        <translation>議定書</translation>
+        <translation>プロトコル</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation>港</translation>
+        <translation>ポート</translation>
     </message>
 </context>
 <context>
@@ -1724,7 +1724,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Port</source>
-        <translation>港</translation>
+        <translation>ポート</translation>
     </message>
     <message>
         <source>Unable to start proxy server</source>
@@ -1758,11 +1758,11 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Address</source>
-        <translation>住所</translation>
+        <translation>アドレス</translation>
     </message>
     <message>
         <source>Port</source>
-        <translation>港</translation>
+        <translation>ポート</translation>
     </message>
     <message>
         <source>Username</source>
@@ -1842,7 +1842,7 @@ Connect to a network first</source>
     <name>PreferencesWindow::SearchLineEditItem</name>
     <message>
         <source>Search</source>
-        <translation>捜索</translation>
+        <translation>検索</translation>
     </message>
 </context>
 <context>
@@ -1990,11 +1990,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Exclusive</source>
-        <translation>排他的</translation>
+        <translation>除外する</translation>
     </message>
     <message>
         <source>Inclusive</source>
-        <translation>賅</translation>
+        <translation>選択したもののみ</translation>
     </message>
     <message>
         <source>Apps</source>
@@ -2032,7 +2032,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Failed</source>
-        <translation>失敗 しました</translation>
+        <translation>失敗しました</translation>
     </message>
 </context>
 <context>
@@ -2051,7 +2051,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Use it if OpenVPN UDP fails.</source>
-        <translation>OpenVPN UDP が失敗した場合に使用します。</translation>
+        <translation>OpenVPN UDP が失敗した場合に使用されます。</translation>
     </message>
     <message>
         <source>Disguises traffic as HTTPS with TLS.</source>
@@ -2086,7 +2086,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>QObject</name>
     <message>
         <source>Custom</source>
-        <translation>習慣</translation>
+        <translation>カスタム</translation>
     </message>
     <message>
         <source>OS Default</source>
@@ -2098,23 +2098,23 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Geography</source>
-        <translation>地理学</translation>
+        <translation>地理順</translation>
     </message>
     <message>
         <source>Alphabet</source>
-        <translation>アルファベット</translation>
+        <translation>アルファベット順</translation>
     </message>
     <message>
         <source>Latency</source>
-        <translation>潜在</translation>
+        <translation>遅延順</translation>
     </message>
     <message>
         <source>Bars</source>
-        <translation>バー</translation>
+        <translation>Bars</translation>
     </message>
     <message>
         <source>ms</source>
-        <translation>さん</translation>
+        <translation>ミリ秒</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2138,7 +2138,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>None</source>
-        <translation>何一つ</translation>
+        <translation>何もありません</translation>
     </message>
     <message>
         <source>Auto-detect</source>
@@ -2162,11 +2162,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Alpha</source>
-        <translation>アルファ</translation>
+        <translation>Alpha</translation>
     </message>
     <message>
         <source>Van Gogh</source>
-        <translation>ゴッホ</translation>
+        <translation>Van Gogh</translation>
     </message>
     <message>
         <source>Failed to open file</source>
@@ -2250,11 +2250,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>White</source>
-        <translation>白い</translation>
+        <translation>白</translation>
     </message>
     <message>
         <source>Black</source>
-        <translation>黒い</translation>
+        <translation>黒</translation>
     </message>
     <message>
         <source>Forced</source>
@@ -2343,7 +2343,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Your update is in progress, hang in there...</source>
-        <translation>あなたの更新は進行中です、そこにぶら下がってください...</translation>
+        <translation>更新は進行中です、もうしばらくお待ち下さい...</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -2378,7 +2378,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>0 DAYS LEFT</source>
-        <translation>残り 0 日</translation>
+        <translation>残り0日</translation>
     </message>
     <message>
         <source>1 DAY LEFT</source>
@@ -2386,19 +2386,19 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>2 DAYS LEFT</source>
-        <translation>残り 2 日</translation>
+        <translation>残り2日</translation>
     </message>
     <message>
         <source>3 DAYS LEFT</source>
-        <translation>残り 3 日</translation>
+        <translation>残り3日</translation>
     </message>
     <message>
         <source>4 DAYS LEFT</source>
-        <translation>残り 4 日</translation>
+        <translation>残り4日</translation>
     </message>
     <message>
         <source>5 DAYS LEFT</source>
-        <translation>残り 5 日</translation>
+        <translation>残り5日</translation>
     </message>
     <message>
         <source>%1 DAYS LEFT</source>
