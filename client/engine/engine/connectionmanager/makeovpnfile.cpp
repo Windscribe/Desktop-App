@@ -20,7 +20,8 @@ MakeOVPNFile::~MakeOVPNFile()
 
 bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::Protocol protocol, uint port,
                             uint portForStunnelOrWStunnel, int mss, const QString &defaultGateway,
-                            const QString &openVpnX509, const QString &customDns, bool isAntiCensorship)
+                            const QString &openVpnX509, const QString &customDns, bool isAntiCensorship,
+                            bool isEmergencyConnect)
 {
 #ifdef Q_OS_WIN
     Q_UNUSED(defaultGateway);
@@ -36,12 +37,13 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
 
 #if defined (Q_OS_WIN)
     // NOTE: --dev tun option already included in ovpnData by the server API.
+    // NOTE: the emergency connect OpenVPN server is old-old and generates data packets not supported by the DCO driver.
     // We use the --dev-node option to ensure OpenVPN will only use the dco/wintun adapter instance we create and not
     // possibly attempt to use an adapter created by other software (e.g. the vanilla OpenVPN client app).
     config_ += QString("\r\n--dev-node %1\r\n").arg(kOpenVPNAdapterIdentifier);
-    if (ExtraConfig::instance().useOpenVpnDCO()) {
+    if (!isEmergencyConnect && ExtraConfig::instance().useOpenVpnDCO()) {
         config_ += "\r\n--windows-driver ovpn-dco\r\n";
-        // DCO driver on Windows will not accept the AES-256 cipher and will drop back to using wintun if it is provided in the ciphers list.
+        // DCO driver on Windows will not accept the AES-256-CBC cipher and will drop back to using wintun if it is provided in the ciphers list.
         config_.replace(":AES-256-CBC:", ":");
     } else {
         config_ += "\r\n--windows-driver wintun\r\n";

@@ -164,8 +164,9 @@ void OpenVPNConnection::run()
 {
     BIND_CRASH_HANDLER_FOR_THREAD();
 #ifdef Q_OS_WIN
+    // NOTE: the emergency connect OpenVPN server is old-old and generates data packets not supported by the DCO driver.
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    helper_win->createOpenVpnAdapter(!isCustomConfig_ && ExtraConfig::instance().useOpenVpnDCO());
+    helper_win->createOpenVpnAdapter(!isCustomConfig_ && !isEmergencyConnect_ && ExtraConfig::instance().useOpenVpnDCO());
     helper_win->enableDnsLeaksProtection();
 #endif
 
@@ -812,4 +813,9 @@ bool OpenVPNConnection::parseConnectedSuccessReply(const QString &reply, QString
         }
     }
     return true;
+}
+
+void OpenVPNConnection::setIsEmergencyConnect(bool isEmergencyConnect)
+{
+    isEmergencyConnect_ = isEmergencyConnect;
 }

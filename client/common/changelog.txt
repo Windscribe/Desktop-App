@@ -1,3 +1,21 @@
+2.12.7 (19/11/2024)
+All:
+   * Fixed Paraguay flag. #1183
+
+
+2.12.6 (17/11/2024)
+All:
+   * Fixed Belgium flag replaced by accident. #1183
+Windows:
+   * Fixed installer ignoring username/password command-line arguments. #1188
+   * Fixed emergency connect fails to connect due to incompatibility with OpenVPN DCO driver. #1189
+
+
+2.12.5 (13/11/2024)
+All:
+   * Added flags for new and upcoming locations. #1183
+
+
 2.12.4 (05/11/2024)
 Windows:
    * Fixed UDP protocol still failing to connect for some users when Circumvent Censorship is enabled. #1153

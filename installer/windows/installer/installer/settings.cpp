@@ -90,16 +90,17 @@ void Settings::readFromRegistry()
 
 void Settings::writeToRegistry() const
 {
-    QSettings reg(QString::fromStdWString(ApplicationInfo::installerRegistryKey()), QSettings::NativeFormat);
-    reg.setValue("applicationPath", QString::fromStdWString(path_));
-    reg.setValue("isCreateShortcut", isCreateShortcut_);
+    QSettings installerReg(QString::fromStdWString(ApplicationInfo::installerRegistryKey()), QSettings::NativeFormat);
+    installerReg.setValue("applicationPath", QString::fromStdWString(path_));
+    installerReg.setValue("isCreateShortcut", isCreateShortcut_);
 
     if (!username_.empty() && !password_.empty()) {
         const auto encodedUsername = wsl::WinCryptUtils::encrypt(username_, wsl::WinCryptUtils::EncodeHex);
         const auto encodedPassword = wsl::WinCryptUtils::encrypt(password_, wsl::WinCryptUtils::EncodeHex);
 
-        reg.setValue("username", QString::fromStdString(encodedUsername));
-        reg.setValue("password", QString::fromStdString(encodedPassword));
-        reg.remove("authHash");
+        QSettings appReg(QString::fromStdWString(ApplicationInfo::appRegistryKey()), QSettings::NativeFormat);
+        appReg.setValue("username", QString::fromStdString(encodedUsername));
+        appReg.setValue("password", QString::fromStdString(encodedPassword));
+        appReg.remove("authHash");
     }
 }

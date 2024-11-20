@@ -1001,7 +1001,7 @@ void ConnectionManager::doConnectPart2()
                 lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                 currentConnectionDescr_.port, localPort, mss, defaultAdapterInfo_.gateway(),
                 currentConnectionDescr_.verifyX509name,
-                dnsServersFromConnectedDnsInfo(), isAntiCensorship_);
+                dnsServersFromConnectedDnsInfo(), isAntiCensorship_, false);
             if (!bOvpnSuccess) {
                 qCDebug(LOG_CONNECTION) << "Failed create ovpn config";
                 WS_ASSERT(false);

@@ -104,6 +104,7 @@
         <file>svg/flags/bg.svg</file>
         <file>svg/flags/br.svg</file>
         <file>svg/flags/bs.svg</file>
+        <file>svg/flags/by.svg</file>
         <file>svg/flags/ca.svg</file>
         <file>svg/flags/ch.svg</file>
         <file>svg/flags/cl.svg</file>
@@ -140,6 +141,7 @@
         <file>svg/flags/kh.svg</file>
         <file>svg/flags/kr.svg</file>
         <file>svg/flags/kz.svg</file>
+        <file>svg/flags/la.svg</file>
         <file>svg/flags/lt.svg</file>
         <file>svg/flags/lu.svg</file>
         <file>svg/flags/lv.svg</file>
@@ -151,6 +153,7 @@
         <file>svg/flags/mt.svg</file>
         <file>svg/flags/mx.svg</file>
         <file>svg/flags/my.svg</file>
+        <file>svg/flags/ng.svg</file>
         <file>svg/flags/nl.svg</file>
         <file>svg/flags/no.svg</file>
         <file>svg/flags/noflag.svg</file>
@@ -161,6 +164,7 @@
         <file>svg/flags/pk.svg</file>
         <file>svg/flags/pl.svg</file>
         <file>svg/flags/pt.svg</file>
+        <file>svg/flags/py.svg</file>
         <file>svg/flags/ro.svg</file>
         <file>svg/flags/rs.svg</file>
         <file>svg/flags/ru.svg</file>
@@ -174,6 +178,7 @@
         <file>svg/flags/tw.svg</file>
         <file>svg/flags/ua.svg</file>
         <file>svg/flags/us.svg</file>
+        <file>svg/flags/uy.svg</file>
         <file>svg/flags/ve.svg</file>
         <file>svg/flags/vn.svg</file>
         <file>svg/flags/za.svg</file>

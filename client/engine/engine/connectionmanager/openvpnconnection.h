@@ -33,6 +33,8 @@ public:
     void continueWithPassword(const QString &password) override;
     void continueWithPrivKeyPassword(const QString &password);
 
+    void setIsEmergencyConnect(bool isEmergencyConnect);
+
 signals:
     void requestPrivKeyPassword();
 
@@ -57,6 +59,7 @@ private:
     QString privKeyPassword_;
     types::ProxySettings proxySettings_;
     bool isCustomConfig_;
+    bool isEmergencyConnect_ = false;
 
     enum CONNECTION_STATUS {STATUS_DISCONNECTED, STATUS_CONNECTING, STATUS_CONNECTED_TO_SOCKET, STATUS_CONNECTED};
     CONNECTION_STATUS currentState_;

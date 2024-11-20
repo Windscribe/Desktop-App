@@ -282,7 +282,7 @@ void EmergencyController::doConnect()
     WS_ASSERT(!ovpnConfig.isEmpty());
 
     bool bOvpnSuccess = makeOVPNFile_->generate(ovpnConfig, QString::fromStdString(endpoint->ip()), types::Protocol::fromString(protocol),
-                                                endpoint->port(), 0, mss, defaultAdapterInfo_.gateway(), "", "", isAntiCensorship_);
+                                                endpoint->port(), 0, mss, defaultAdapterInfo_.gateway(), "", "", isAntiCensorship_, true);
     if (!bOvpnSuccess )
     {
         qCDebug(LOG_EMERGENCY_CONNECT) << "Failed create ovpn config";
@@ -296,6 +296,7 @@ void EmergencyController::doConnect()
     QString password = QString::fromStdString(WSNet::instance()->emergencyConnect()->password());
 
     if (!username.isEmpty() && !password.isEmpty()) {
+        static_cast<OpenVPNConnection *>(connector_)->setIsEmergencyConnect(true);
         connector_->startConnect(makeOVPNFile_->config(), "", "", username, password, proxySettings_, nullptr, false, false, false, QString());
         lastIp_ = QString::fromStdString(endpoint->ip());
     } else {
