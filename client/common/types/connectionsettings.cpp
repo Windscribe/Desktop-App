@@ -1,6 +1,6 @@
 #include "connectionsettings.h"
 #include "types/enums.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/ws_assert.h"
 
 const int typeIdConnectionSettings = qRegisterMetaType<types::ConnectionSettings>("types::ConnectionSettings");

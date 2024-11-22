@@ -1,10 +1,13 @@
 #include "firewallcontroller_linux.h"
+
 #include <QStandardPaths>
-#include "utils/logger.h"
 #include <ifaddrs.h>
 #include <QDir>
 #include <QRegularExpression>
+
 #include "engine/helper/ihelper.h"
+#include "utils/ipvalidation.h"
+#include "utils/log/categories.h"
 
 FirewallController_linux::FirewallController_linux(QObject *parent, IHelper *helper) :
     FirewallController(parent), forceUpdateInterfaceToSkip_(false), comment_("Windscribe client rule")
@@ -227,6 +230,10 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
         // Loopback addresses to the local host
         rules << "-A windscribe_input -s ::1/128 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
         rules << "-A windscribe_output -d ::1/128 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+
+        // ALlow IPv6 link-local addresses
+        rules << "-A windscribe_input -s fe80::/10 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -d fe80::/10 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
         rules << "-A windscribe_input -j DROP -m comment --comment \"" + comment_ + "\"\n";
         rules << "-A windscribe_output -j DROP -m comment --comment \"" + comment_ + "\"\n";

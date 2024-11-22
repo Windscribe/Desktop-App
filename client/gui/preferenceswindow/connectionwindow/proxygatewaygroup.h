@@ -29,6 +29,7 @@ private slots:
     void onPortChanged(QVariant v);
     void onPortEditClicked();
     void onPortCancelClicked();
+    void onWhileConnectedStateChanged(bool isChecked);
 
     void onLanguageChanged();
 
@@ -40,6 +41,7 @@ private:
     EditBoxItem *editBoxPort_;
     ComboBoxItem *comboBoxProxyType_;
     ProxyIpAddressItem *proxyIpAddressItem_;
+    ToggleItem *checkBoxWhileConnected_;
 
     types::ShareProxyGateway settings_;
 

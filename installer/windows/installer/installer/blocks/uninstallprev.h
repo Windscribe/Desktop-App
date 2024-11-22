@@ -23,4 +23,5 @@ private:
     void stopService() const;
     int taskKill(const std::wstring &exeName) const;
     void terminateProtocolHandlers() const;
+    std::wstring getPrevClientVersion() const;
 };

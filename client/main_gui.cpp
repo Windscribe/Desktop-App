@@ -8,13 +8,13 @@
 #include <QWindow>
 
 #include "gui/dpiscalemanager.h"
-#include "utils/logger.h"
+#include "utils/log/logger.h"
+#include "utils/log/paths.h"
 #include "utils/utils.h"
 #include "utils/extraconfig.h"
 #include "version/appversion.h"
 #include "engine/openvpnversioncontroller.h"
 #include "gui/application/windscribeapplication.h"
-#include "gui/graphicresources/imageresourcessvg.h"
 #include "gui/application/singleappinstance.h"
 
 #ifdef Q_OS_WIN
@@ -85,18 +85,18 @@ int main(int argc, char *argv[])
 
     // set Qt plugin library paths for release build
 #ifndef QT_DEBUG
-    #ifdef Q_OS_WIN
+#ifdef Q_OS_WIN
         // For Windows an empty list means searching plugins in the executable folder
         QCoreApplication::setLibraryPaths(QStringList());
-    #elif defined (Q_OS_MACOS)
+#elif defined (Q_OS_MACOS)
         QStringList pluginsPath;
         pluginsPath << MacUtils::getBundlePath() + "/Contents/PlugIns";
         QCoreApplication::setLibraryPaths(pluginsPath);
-    #elif defined (Q_OS_LINUX)
+#elif defined (Q_OS_LINUX)
         //todo move to LinuxUtils
         char result[PATH_MAX] = {};
         ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-        const char *path;
+        const char *path = "";
         if (count != -1) {
             path = dirname(result);
         }
@@ -173,9 +173,9 @@ int main(int argc, char *argv[])
                      &a, &WindscribeApplication::activateFromAnotherInstance);
 #endif
 
-    Logger::instance().install("gui", true, false);
+    log_utils::Logger::instance().install(log_utils::paths::clientLogLocation(), true);
 
-    qCDebug(LOG_BASIC) << "App start time:" << QDateTime::currentDateTime().toString();
+    qCDebug(LOG_BASIC) << "=== Started ===";
     qCDebug(LOG_BASIC) << "App version:" << AppVersion::instance().fullVersionString();
     qCDebug(LOG_BASIC) << "Platform:" << QGuiApplication::platformName();
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();

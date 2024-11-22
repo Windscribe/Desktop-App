@@ -1,9 +1,8 @@
 #include "macaddresscontroller_linux.h"
 
 #include "engine/networkdetectionmanager/networkdetectionmanager_linux.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/network_utils/network_utils.h"
-#include "utils/network_utils/network_utils_linux.h"
 
 MacAddressController_linux::MacAddressController_linux(QObject *parent, INetworkDetectionManager *ndManager, IHelper *helper)
   : IMacAddressController(parent)

@@ -1,9 +1,10 @@
 #include "split_tunnel_service_manager.h"
 
 #include <system_error>
+#include <spdlog/spdlog.h>
 
 #include "../../../client/common/utils/servicecontrolmanager.h"
-#include "../logger.h"
+
 
 static const wchar_t* kServiceName = L"WindscribeSplitTunnel";
 
@@ -13,7 +14,7 @@ SplitTunnelServiceManager::SplitTunnelServiceManager()
 
 bool SplitTunnelServiceManager::start() const
 {
-    Logger::instance().out(L"SplitTunnelServiceManager::start()");
+    spdlog::info("SplitTunnelServiceManager::start()");
 
     bool result = true;
     try {
@@ -24,7 +25,7 @@ bool SplitTunnelServiceManager::start() const
     }
     catch (std::system_error& ex) {
         result = false;
-        Logger::instance().out("SplitTunnelServiceManager::start - %s", ex.what());
+        spdlog::error("SplitTunnelServiceManager::start - {}", ex.what());
     }
 
     return result;
@@ -32,7 +33,7 @@ bool SplitTunnelServiceManager::start() const
 
 void SplitTunnelServiceManager::stop() const
 {
-    Logger::instance().out(L"SplitTunnelServiceManager::stop()");
+    spdlog::info("SplitTunnelServiceManager::stop()");
 
     try {
         wsl::ServiceControlManager scm;
@@ -41,6 +42,6 @@ void SplitTunnelServiceManager::stop() const
         scm.stopService();
     }
     catch (std::system_error& ex) {
-        Logger::instance().out("SplitTunnelServiceManager::stop - %s", ex.what());
+        spdlog::error("SplitTunnelServiceManager::stop - {}", ex.what());
     }
 }

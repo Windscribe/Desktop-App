@@ -286,10 +286,6 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <source>Merge all logs by timestamp</source>
-        <translation>Объединить все журналы по метке времени</translation>
-    </message>
-    <message>
         <source>Word Wrap</source>
         <translation>Перенос слов</translation>
     </message>
@@ -926,7 +922,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Account</source>
-        <translation>Счет</translation>
+        <translation>Аккаунт</translation>
     </message>
     <message>
         <source>INFO</source>
@@ -954,7 +950,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Expiry Date</source>
-        <translation>Срок годности</translation>
+        <translation>Срок действия</translation>
     </message>
 </context>
 <context>
@@ -964,32 +960,12 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Расширенные опции</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>Требуется перезагрузка</translation>
-    </message>
-    <message>
-        <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>Чтобы переключить IPv6, требуется перезагрузка компьютера. Выполнить сейчас?</translation>
-    </message>
-    <message>
-        <source>Restart later</source>
-        <translation>Перезагрузить позже</translation>
-    </message>
-    <message>
         <source>Make advanced tweaks to the way the app functions.</source>
         <translation>Внесение дополнительных изменений в работу приложения.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
         <translation>Дополнительные параметры</translation>
-    </message>
-    <message>
-        <source>Enables / disables system-wide IPv6 connectivity.</source>
-        <translation>Включает/отключает общесистемное подключение IPv6.</translation>
-    </message>
-    <message>
-        <source>IPv6</source>
-        <translation>IPv6</translation>
     </message>
     <message>
         <source>Resolve server API address automatically, or use one provided by the Support team.</source>
@@ -1106,7 +1082,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::ConnectedDnsGroup</name>
     <message>
         <source>Connected DNS</source>
-        <translation>DNS в туннеле</translation>
+        <translation>DNS</translation>
     </message>
     <message>
         <source>Upstream 1</source>
@@ -1145,7 +1121,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Connection</source>
-        <translation>Связь</translation>
+        <translation>Подключение</translation>
     </message>
     <message>
         <source>Exclusive</source>
@@ -1161,7 +1137,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Network Options</source>
-        <translation>Параметры сетей</translation>
+        <translation>Настройки сетей</translation>
     </message>
     <message>
         <source>Split Tunneling</source>
@@ -1193,7 +1169,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
-        <translation>Разрешить доступ к локальным службам и принтерам при подключении к Windscribe.</translation>
+        <translation>Разрешить доступ к локальным службам и принтерам при подключении к VPN.</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
@@ -1294,7 +1270,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Email</source>
-        <translation>Емейл</translation>
+        <translation>Эл. почта</translation>
     </message>
     <message>
         <source>Add Email</source>
@@ -1336,7 +1312,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Windscribe minimizes to system tray and no longer appears in the task bar.</source>
-        <translation>Windscribe свернётся в системный трей и больше не будет отображаться на панели задач.</translation>
+        <translation>При закрытии Windscribe сворачивается в область уведомлений.</translation>
     </message>
     <message>
         <source>Close to Tray</source>
@@ -1352,7 +1328,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Pin Windscribe near the system tray or menu bar.</source>
-        <translation>Закрепить Windscribe рядом с системным треем или строкой меню.</translation>
+        <translation>Закрепить Windscribe рядом с панелью задач.</translation>
     </message>
     <message>
         <source>Docked</source>
@@ -1364,11 +1340,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Show Notifications</source>
-        <translation>Показывать уведомления</translation>
+        <translation>Уведомления</translation>
     </message>
     <message>
         <source>Display a location&apos;s load. Shorter bars mean lesser load (usage).</source>
-        <translation>Отображать степень загруженности локаций. Короткая полоса означает меньшую загруженность серверов.</translation>
+        <translation>Отображать степень загруженности локаций. Короткая линия означает меньшую загруженность серверов.</translation>
     </message>
     <message>
         <source>Show Location Load</source>
@@ -1384,7 +1360,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Display latency as signal strength bars or in milliseconds.</source>
-        <translation>Отображать задержку в виде полос или в миллисекундах.</translation>
+        <translation>Отображать задержку в виде линий или в миллисекундах.</translation>
     </message>
     <message>
         <source>Latency Display</source>
@@ -1392,7 +1368,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Localize Windscribe to supported languages.</source>
-        <translation>Локализуйте Windscribe на поддерживаемые языки.</translation>
+        <translation>Переведите Windscribe на поддерживаемые языки.</translation>
     </message>
     <message>
         <source>Language</source>
@@ -1400,11 +1376,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>Выбор между классическим графическим интерфейсом и «безухим» альтернативным интерфейсом.</translation>
+        <translation>Выбор между классическим и «безухим» интерфейсами.</translation>
     </message>
     <message>
         <source>App Skin</source>
-        <translation>Скин приложения</translation>
+        <translation>Стиль окна</translation>
     </message>
     <message>
         <source>Customize the background of the main app screen.</source>
@@ -1416,7 +1392,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Update Channel</source>
-        <translation>Канал обновления</translation>
+        <translation>Обновления</translation>
     </message>
     <message>
         <source>Version</source>
@@ -1459,7 +1435,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Community Support</source>
-        <translation>Поддержка силами сообщества</translation>
+        <translation>Поддержка сообщества</translation>
     </message>
     <message>
         <source>View Debug Log</source>
@@ -1487,7 +1463,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Contact Humans</source>
-        <translation>Контакт с людьми</translation>
+        <translation>Написать в поддержку</translation>
     </message>
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
@@ -1564,7 +1540,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>Windscribe автоматически отключится, когда устройство подключается к сети с пометкой «Незащищенная».</translation>
+        <translation>Windscribe автоматически отключается, когда устройство подключается к сети с пометкой «Незащищенная».</translation>
     </message>
     <message>
         <source>Mark all newly encountered networks as Secured.</source>
@@ -1635,7 +1611,7 @@ Connect to a network first</source>
     <name>PreferencesWindow::PlanItem</name>
     <message>
         <source>Unlimited Data</source>
-        <translation>Неограниченный пакет трафика</translation>
+        <translation>Безлимитный тариф</translation>
     </message>
     <message>
         <source>%1/Month</source>
@@ -1737,6 +1713,10 @@ Connect to a network first</source>
     <message>
         <source>Auto</source>
         <translation>Авто</translation>
+    </message>
+    <message>
+        <source>Only when VPN is connected</source>
+        <translation>Только при подключении к VPN</translation>
     </message>
 </context>
 <context>
@@ -2143,6 +2123,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Auto-detect</source>
         <translation>Автоматическое определение</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Релиз</translation>
+    </message>
+    <message>
+        <source>Beta</source>
+        <translation>Бета</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

@@ -36,16 +36,10 @@ public:
     void setCurrentProtocol(const types::Protocol &protocol);
     types::Protocol currentProtocol() const;
 
-#ifdef Q_OS_WIN
-    void setIpv6StateInOS(bool bEnabled);
-    bool getIpv6StateInOS() const;
-#endif
-
 signals:
     void portMapChanged();
     void wifiSharingSupportedChanged(bool bSupported);
     void proxyGatewayAddressChanged(const QString &address);
-    void ipv6StateInOSChanged(bool bEnabled);
     void installedTapAdapterChanged(TAP_ADAPTER_TYPE tapAdapter);
     void isDockedModeChanged(bool bIsDockedToTray);
     void isExternalConfigModeChanged(bool bIsExternalConfigMode);
@@ -58,7 +52,6 @@ private:
     bool isWifiSharingSupported_;
 
     QString proxyGatewayAddress_;
-    bool bIpv6StateInOS_;
 
     bool isDockedToTray_;
     bool isExternalConfigMode_;

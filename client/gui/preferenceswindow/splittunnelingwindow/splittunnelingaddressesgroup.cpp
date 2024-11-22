@@ -1,14 +1,9 @@
 #include "splittunnelingaddressesgroup.h"
 
 #include <QPainter>
-#include "commongraphics/commongraphics.h"
-#include "graphicresources/fontmanager.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "utils/ipvalidation.h"
-#include "utils/logger.h"
-#include "utils/utils.h"
 #include "addressitem.h"
-#include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
 
@@ -112,16 +107,12 @@ void SplitTunnelingAddressesGroup::onDeleteClicked()
 
 SplitTunnelingAddressesGroup::ValidationCode SplitTunnelingAddressesGroup::validate(QString &address)
 {
-    if (!IpValidation::isIpCidrOrDomain(address) || !IpValidation::isValidIpForCidr(address)) {
+    if (!IpValidation::isIpCidrOrDomain(address)) {
         return ValidationCode::ERROR_INVALID;
     }
 
     if (itemByName(address) != nullptr) {
         return ValidationCode::ERROR_EXISTS;
-    }
-
-    if (!IpValidation::isValidIpForCidr(address)) {
-        return ValidationCode::ERROR_INVALID;
     }
 
     if (IpValidation::isWindscribeReservedIp(address)) {

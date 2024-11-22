@@ -41,5 +41,7 @@ namespace Utils
     // check if a string is a valid address
     std::string normalizeAddress(const std::string &address);
     bool isValidIpAddress(const std::string &address);
+    bool isValidIpv4Address(const std::string &address);
+    bool isValidIpv6Address(const std::string &address);
     bool isValidDomain(const std::string &address);
 };

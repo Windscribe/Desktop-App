@@ -286,10 +286,6 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <source>Merge all logs by timestamp</source>
-        <translation>Mesclar todos os logs por carimbo de data/hora</translation>
-    </message>
-    <message>
         <source>Word Wrap</source>
         <translation>Quebra automática de texto</translation>
     </message>
@@ -964,32 +960,12 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Opções Avançadas</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>Reinicialização necessária</translation>
-    </message>
-    <message>
-        <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>Para alternar o IPv6, é necessário reiniciar o computador. Fazê-lo agora?</translation>
-    </message>
-    <message>
-        <source>Restart later</source>
-        <translation>Reiniciar mais tarde</translation>
-    </message>
-    <message>
         <source>Make advanced tweaks to the way the app functions.</source>
         <translation>Faça ajustes avançados na forma como o aplicativo funciona.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
         <translation>Parâmetros avançados</translation>
-    </message>
-    <message>
-        <source>Enables / disables system-wide IPv6 connectivity.</source>
-        <translation>Ativa/desativa a conectividade IPv6 em todo o sistema.</translation>
-    </message>
-    <message>
-        <source>IPv6</source>
-        <translation>IPv6</translation>
     </message>
     <message>
         <source>Resolve server API address automatically, or use one provided by the Support team.</source>
@@ -1738,6 +1714,10 @@ Conecte-se a uma rede primeiro</translation>
         <source>Auto</source>
         <translation>Automático</translation>
     </message>
+    <message>
+        <source>Only when VPN is connected</source>
+        <translation>Somente quando a VPN está conectada</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
@@ -2143,6 +2123,14 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
     <message>
         <source>Auto-detect</source>
         <translation>Deteção automática</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Lançamento</translation>
+    </message>
+    <message>
+        <source>Beta</source>
+        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

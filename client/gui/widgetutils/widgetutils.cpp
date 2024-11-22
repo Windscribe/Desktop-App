@@ -3,7 +3,6 @@
 #include <QGuiApplication>
 #include <QDebug>
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
 
 #ifdef Q_OS_WIN
     #include "widgetutils_win.h"

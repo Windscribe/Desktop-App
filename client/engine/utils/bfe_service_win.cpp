@@ -4,7 +4,7 @@
 #include <QElapsedTimer>
 
 #include "engine/helper/helper_win.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/winutils.h"
 #include "utils/ws_assert.h"
 

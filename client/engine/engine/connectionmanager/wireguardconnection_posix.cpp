@@ -1,7 +1,7 @@
 #include "wireguardconnection_posix.h"
 #include "utils/ws_assert.h"
 #include "utils/crashhandler.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "engine/helper/ihelper.h"
 #include "types/enums.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
@@ -54,9 +54,8 @@ void WireGuardConnectionImpl::connect()
 {
     if (!isStarted_) {
         int retry = 0;
-        IHelper::ExecuteError err;
 
-        while ((err = host_->helper_->startWireGuard()) != IHelper::EXECUTE_SUCCESS)
+        while (host_->helper_->startWireGuard() != IHelper::EXECUTE_SUCCESS)
         {
             if (retry >= 2)
             {

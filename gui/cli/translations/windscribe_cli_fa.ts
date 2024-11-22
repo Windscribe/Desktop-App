@@ -11,6 +11,10 @@
         <source>Unlimited</source>
         <translation>نامحدود</translation>
     </message>
+    <message>
+        <source>No locations.</source>
+        <translation>بدون مکان.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -249,6 +253,22 @@
     <message>
         <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
         <translation>خروج از سیستم در حال انجام است.  از «وضعیت windscribe-cli» برای بررسی وضعیت استفاده کنید.</translation>
+    </message>
+    <message>
+        <source>Connection has been overridden by another command.</source>
+        <translation>اتصال توسط دستور دیگری لغو شده است.</translation>
+    </message>
+    <message>
+        <source>Disconnection has been overridden by another command.</source>
+        <translation>قطع ارتباط توسط دستور دیگری لغو شده است.</translation>
+    </message>
+    <message>
+        <source>Already disconnected</source>
+        <translation>از قبل قطع شده است</translation>
+    </message>
+    <message>
+        <source>Logging out</source>
+        <translation>خروج از سیستم</translation>
     </message>
 </context>
 </TS>

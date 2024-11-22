@@ -84,10 +84,6 @@ signals:
     void getRobertFilters();
     void setRobertFilter(const api_responses::RobertFilter &filter);
 
-#ifdef Q_OS_WIN
-    void setIpv6StateInOS(bool bEnabled, bool bRestartNow);
-#endif
-
 private slots:
     void onCurrentTabChanged(PREFERENCES_TAB_TYPE tab);
 

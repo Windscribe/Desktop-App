@@ -26,6 +26,7 @@ private:
     bool lessThanByGeography(const QModelIndex &left, const QModelIndex &right) const;
     bool lessThanByAlphabetically(const QModelIndex &left, const QModelIndex &right) const;
     bool lessThanByLatency(const QModelIndex &left, const QModelIndex &right) const;
+    int getSortGroup(const QModelIndex &index) const;
 };
 
 } //namespace gui_locations

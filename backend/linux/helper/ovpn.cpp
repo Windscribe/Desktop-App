@@ -1,9 +1,9 @@
 #include "ovpn.h"
-#include "logger.h"
 #include <fcntl.h>
 #include <sstream>
 #include <string>
 #include <unistd.h>
+#include <spdlog/spdlog.h>
 
 namespace OVPN
 {
@@ -16,7 +16,7 @@ bool writeOVPNFile(const std::string &dnsScript, int port, const std::string &co
 
     int fd = open("/etc/windscribe/config.ovpn", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
     if (fd < 0) {
-        Logger::instance().out("Could not open config for writing");
+        spdlog::error("Could not open config for writing");
         return false;
     }
 
@@ -46,7 +46,7 @@ bool writeOVPNFile(const std::string &dnsScript, int port, const std::string &co
 
         bytes = write(fd, (line + "\n").c_str(), line.length() + 1);
         if (bytes <= 0) {
-            Logger::instance().out("Could not write openvpn config");
+            spdlog::error("Could not write openvpn config");
             close(fd);
             return false;
         }
@@ -63,7 +63,7 @@ bool writeOVPNFile(const std::string &dnsScript, int port, const std::string &co
             "dhcp-option DOMAIN-ROUTE .\n"; // prevent DNS leakage and without it doesn't work update-systemd-resolved script
         bytes = write(fd, upScript.c_str(), upScript.length());
         if (bytes <= 0) {
-            Logger::instance().out("Could not write openvpn config");
+            spdlog::error("Could not write openvpn config");
             close(fd);
             return false;
         }
@@ -84,7 +84,7 @@ bool writeOVPNFile(const std::string &dnsScript, int port, const std::string &co
 
     bytes = write(fd, opts.c_str(), opts.length());
     if (bytes <= 0) {
-        Logger::instance().out("Could not write additional options");
+        spdlog::error("Could not write additional options");
         close(fd);
         return false;
     }

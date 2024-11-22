@@ -2,7 +2,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QStandardPaths>
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "availableport.h"
 #if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
 #include "engine/helper/helper_posix.h"

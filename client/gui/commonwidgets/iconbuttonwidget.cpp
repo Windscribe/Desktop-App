@@ -81,17 +81,17 @@ void IconButtonWidget::onOpacityChanged(const QVariant &value)
 
 void IconButtonWidget::updateSize()
 {
-    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+    if (!imagePath_.isEmpty()) {
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+        if (p != nullptr) {
+            int width =  p->width();
+            int height = p->height();
 
-    if (p != nullptr)
-    {
-        int width =  p->width();
-        int height = p->height();
-
-        if (width != width_ || height != height_) {
-            width_ = width;
-            height_ = height;
-            emit sizeChanged(width, height);
+            if (width != width_ || height != height_) {
+                width_ = width;
+                height_ = height;
+                emit sizeChanged(width, height);
+            }
         }
     }
     update();

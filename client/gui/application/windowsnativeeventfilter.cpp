@@ -1,7 +1,7 @@
 #include "windowsnativeeventfilter.h"
 #include "windscribeapplication.h"
 #include <QWidget>
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 #ifdef Q_OS_WIN
     #include <windows.h>

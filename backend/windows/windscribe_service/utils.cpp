@@ -9,10 +9,9 @@
 #include <versionhelpers.h>
 #include <WbemIdl.h>
 #include <wlanapi.h>
-
 #include <cwctype>
+#include <spdlog/spdlog.h>
 
-#include "logger.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "utils/win32handle.h"
 #include "utils/wsscopeguard.h"
@@ -157,37 +156,37 @@ bool verifyWindscribeProcessPath(HANDLE hPipe)
     DWORD pidClient = 0;
     BOOL result = ::GetNamedPipeClientProcessId(hPipe, &pidClient);
     if (result == FALSE) {
-        Logger::instance().out(L"verifyWindscribeProcessPath GetNamedPipeClientProcessId failed %lu", ::GetLastError());
+        spdlog::error("verifyWindscribeProcessPath GetNamedPipeClientProcessId failed {}", ::GetLastError());
         return false;
     }
 
     wsl::Win32Handle processHandle(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pidClient));
     if (!processHandle.isValid()) {
-        Logger::instance().out(L"verifyWindscribeProcessPath OpenProcess failed %lu", ::GetLastError());
+        spdlog::error("verifyWindscribeProcessPath OpenProcess failed {}", ::GetLastError());
         return false;
     }
 
     wchar_t path[MAX_PATH];
     if (::GetModuleFileNameEx(processHandle.getHandle(), NULL, path, MAX_PATH) == 0) {
-        Logger::instance().out(L"verifyWindscribeProcessPath GetModuleFileNameEx failed %lu", ::GetLastError());
+        spdlog::error("verifyWindscribeProcessPath GetModuleFileNameEx failed {}", ::GetLastError());
         return false;
     }
 
     std::wstring windscribeExePath = getExePath() + std::wstring(L"\\Windscribe.exe");
 
     if (!iequals(windscribeExePath, path)) {
-        Logger::instance().out(L"verifyWindscribeProcessPath invalid process path: %s", path);
+        spdlog::error(L"verifyWindscribeProcessPath invalid process path: {}", path);
         return false;
     }
 
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(path)) {
-        Logger::instance().out(L"verifyWindscribeProcessPath signature verify failed. Err = %hs", sigCheck.lastError().c_str());
+        spdlog::error("verifyWindscribeProcessPath signature verify failed. Err = {}", sigCheck.lastError());
         return false;
     }
 
     DWORD dwElapsed = ::GetTickCount() - dwStart;
-    Logger::instance().debugOut("verifyWindscribeProcessPath signature verified for %ls in %lu ms", path, dwElapsed);
+    spdlog::debug(L"verifyWindscribeProcessPath signature verified for {} in {} ms", path, dwElapsed);
 
     return true;
 #else
@@ -210,7 +209,7 @@ void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring
     if (FAILED(hres))
     {
         std::wstring output = L"Failed to create IWbemLocator object. Err = " + std::to_wstring(hres);
-        Logger::instance().out(output.c_str());
+        spdlog::error(L"{}", output);
         return;
     }
 
@@ -233,7 +232,7 @@ void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring
     if (FAILED(hres))
     {
         std::wstring output = L"Could not connect. Err = " + std::to_wstring(hres);
-        Logger::instance().out(output.c_str());
+        spdlog::error(L"{}", output);
         pLoc->Release();
         return;
     }
@@ -253,7 +252,7 @@ void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring
     if (FAILED(hres))
     {
         std::wstring output = L"Could not set proxy blanket. Err = " + std::to_wstring(hres);
-        Logger::instance().out(output.c_str());
+        spdlog::error(L"{}", output);
 
         pSvc->Release();
         pLoc->Release();
@@ -270,7 +269,7 @@ void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring
     if (FAILED(hres))
     {
         std::wstring output = L"Failed GetObject IWbemClassObject. Err = " + std::to_wstring(hres);
-        Logger::instance().out(output.c_str());
+        spdlog::error(L"{}", output);
 
         SysFreeString(ClassName);
         SysFreeString(MethodName);
@@ -294,7 +293,7 @@ void callNetworkAdapterMethod(const std::wstring &methodName, const std::wstring
     if (FAILED(hres))
     {
         std::wstring output = L"Could not execute method. Err = " + std::to_wstring(hres);
-        Logger::instance().out(output.c_str());
+        spdlog::error(L"{}", output);
 
         SysFreeString(ClassName);
         SysFreeString(MethodName);
@@ -428,7 +427,7 @@ bool addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
 
         dwFwApiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &id);
         if (dwFwApiRetCode != ERROR_SUCCESS) {
-            Logger::instance().out(L"Error adding filter: %4X", dwFwApiRetCode);
+            spdlog::error("Error adding filter: {}", dwFwApiRetCode);
             success = false;
         }
         if (filterId) {
@@ -440,7 +439,7 @@ bool addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
 
 bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
                  GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid,
-                 const std::vector<Ip6AddressAndPrefix> *ranges, bool persistent)
+                 const std::vector<Ip6AddressAndPrefix> *ranges, AppsIds *appsIds, bool persistent)
 {
     UINT64 id = 0;
     bool success = true;
@@ -490,12 +489,23 @@ bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
             conditions.push_back(condition);
         }
 
+        if (appsIds != nullptr) {
+            for (size_t i = 0; i < (*appsIds).count(); ++i) {
+                FWPM_FILTER_CONDITION0 condition;
+                condition.fieldKey = FWPM_CONDITION_ALE_APP_ID;
+                condition.matchType = FWP_MATCH_EQUAL;
+                condition.conditionValue.type = FWP_BYTE_BLOB_TYPE;
+                condition.conditionValue.byteBlob = (FWP_BYTE_BLOB *)(*appsIds).getAppId(i);
+                conditions.push_back(condition);
+            }
+        }
+
         filter.filterCondition = &conditions[0];
         filter.numFilterConditions = conditions.size();
 
         dwFwApiRetCode = FwpmFilterAdd0(engineHandle, &filter, NULL, &id);
         if (dwFwApiRetCode != ERROR_SUCCESS) {
-            Logger::instance().out("Error adding filter: %u", dwFwApiRetCode);
+            spdlog::error("Error adding filter: {}", dwFwApiRetCode);
             success = false;
         } else if (filterId) {
             (*filterId).push_back(id);
@@ -511,7 +521,7 @@ std::wstring getConfigPath()
     wchar_t* programFilesPath = NULL;
     HRESULT hr = SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, NULL, &programFilesPath);
     if (FAILED(hr)) {
-        Logger::instance().out("Failed to get Program Files dir");
+        spdlog::error("Failed to get Program Files dir");
         CoTaskMemFree(programFilesPath);
         return L"";
     }
@@ -522,7 +532,7 @@ std::wstring getConfigPath()
     filePath << L"\\Windscribe\\config";
     int ret = SHCreateDirectoryEx(NULL, filePath.str().c_str(), NULL);
     if (ret != ERROR_SUCCESS && ret != ERROR_ALREADY_EXISTS) {
-        Logger::instance().out("Failed to create config dir");
+        spdlog::error("Failed to create config dir");
         return L"";
     }
 
@@ -534,7 +544,7 @@ std::wstring getSystemDir()
     wchar_t path[MAX_PATH];
     UINT result = ::GetSystemDirectory(path, MAX_PATH);
     if (result == 0 || result >= MAX_PATH) {
-        Logger::instance().out("GetSystemDir failed (%lu)", ::GetLastError());
+        spdlog::error("GetSystemDir failed ({})", ::GetLastError());
         return std::wstring(L"C:\\Windows\\System32");
     }
 

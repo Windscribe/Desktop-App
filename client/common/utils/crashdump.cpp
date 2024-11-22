@@ -3,9 +3,7 @@
 #include <dbghelp.h>
 
 #if defined(WINDSCRIBE_SERVICE)
-#include "../../../backend/windows/windscribe_service/logger.h"
-#else
-#include "logger.h"
+#include <spdlog/spdlog.h>
 #endif
 
 #if defined(ENABLE_CRASH_REPORTS)
@@ -49,7 +47,7 @@ CrashDumpInternal::CrashDumpInternal()
         fnMiniDumpWriteDump_ = reinterpret_cast<PFNMINIDUMPWRITEDUMP>(
             GetProcAddress(dbgHelpHandle_, "MiniDumpWriteDump"));
     } else {
-        CRASH_LOG("Failed to load dbghelp.dll");
+        CRASH_LOG_ERROR("Failed to load dbghelp.dll");
         fnImagehlpApiVersionEx_ = nullptr;
         fnMiniDumpWriteDump_ = nullptr;
     }
@@ -91,10 +89,10 @@ void CrashDumpInternal::setApiVersion() const
         std::sprintf(kRequiredApiString, "%i.%i.%i",
             requiredApiVersion.MajorVersion, requiredApiVersion.MinorVersion,
             requiredApiVersion.Revision);
-        CRASH_LOG("Failed to set DbgHelp API version (%s should be %s)",
+        CRASH_LOG_ERROR("Failed to set DbgHelp API version ({} should be {})",
                   kActualApiString, kRequiredApiString);
     } else {
-        CRASH_LOG("DbgHelp API version is %s", kActualApiString);
+        CRASH_LOG_INFO("DbgHelp API version is {}", kActualApiString);
     }
 }
 
@@ -102,7 +100,7 @@ void CrashDumpInternal::setPrivileges() const
 {
     HANDLE handle = 0;
     if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &handle)) {
-        CRASH_LOG("Failed to set dump privileges (can't get process token)");
+        CRASH_LOG_ERROR("Failed to set dump privileges (can't get process token)");
         return;
     }
     TOKEN_PRIVILEGES tokenPrivileges;
@@ -112,7 +110,7 @@ void CrashDumpInternal::setPrivileges() const
 
     if (!AdjustTokenPrivileges(
         handle, FALSE, &tokenPrivileges, sizeof(tokenPrivileges), nullptr, nullptr)) {
-        CRASH_LOG("Failed to set dump privileges (can't adjust token privileges)");
+        CRASH_LOG_ERROR("Failed to set dump privileges (can't adjust token privileges)");
     }
     CloseHandle(handle);
 }
@@ -123,7 +121,7 @@ bool CrashDumpInternal::writeMinidump(const std::wstring &filename, DWORD thread
     const auto file_handle = CreateFile(filename.c_str(), GENERIC_WRITE, 0, nullptr,
                                         CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
     if (file_handle == INVALID_HANDLE_VALUE) {
-        CRASH_LOG("Failed to open minidump file for writing: %s", filename.c_str());
+        CRASH_LOG_ERROR(L"Failed to open minidump file for writing: {}", filename);
         return false;
     }
 
@@ -152,10 +150,10 @@ void CrashDumpInternal::processMinidump(PMINIDUMP_CALLBACK_INPUT input,
 {
     switch (input->CallbackType) {
     case ModuleCallback:
-        CRASH_LOG("Dumping info for module %ls", input->Module.FullPath);
+        CRASH_LOG_INFO(L"Dumping info for module {}", input->Module.FullPath);
         break;
     case ThreadCallback:
-        CRASH_LOG("Dumping info for thread 0x%08x", input->Thread.ThreadId);
+        CRASH_LOG_INFO("Dumping info for thread {}", input->Thread.ThreadId);
         break;
     default:
         break;
@@ -174,7 +172,6 @@ BOOL CALLBACK CrashDumpInternal::MiniDumpCallback(PVOID param, PMINIDUMP_CALLBAC
 
 CrashDump::CrashDump() : internal_(new CrashDumpInternal)
 {
-    CRASH_ASSERT(internal_->isAvailable());
 }
 
 CrashDump::~CrashDump() = default;
@@ -184,9 +181,6 @@ bool CrashDump::writeToFile(const std::wstring &filename, unsigned int thread_ha
 {
     if (!internal_->isAvailable())
         return false;
-
-    CRASH_ASSERT(thread_handle);
-    CRASH_ASSERT(exception_pointers);
 
     internal_->setPrivileges();
     internal_->setApiVersion();

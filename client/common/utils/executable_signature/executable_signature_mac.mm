@@ -38,9 +38,14 @@ bool ExecutableSignaturePrivate::verify(const std::string &exePath)
 
     NSString* path = [NSString stringWithCString:exePath.c_str()
                                encoding:[NSString defaultCStringEncoding]];
+    if (path == NULL) {
+        lastError_ << "Failed to convert path to NSString";
+        return false;
+    }
 
     OSStatus status = SecStaticCodeCreateWithPath((__bridge CFURLRef)([NSURL fileURLWithPath:path]), kSecCSDefaultFlags, &staticCode);
     if (status != errSecSuccess) {
+        lastError_ << "SecStaticCodeCreateWithPath failed: " << status;
         return false;
     }
 

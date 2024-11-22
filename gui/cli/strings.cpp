@@ -7,9 +7,9 @@ QString connectivityString(bool connectivity)
     return QObject::tr("Internet connectivity: %1").arg(connectivity ? QObject::tr("available") : QObject::tr("unavailable"));
 }
 
-QString loginStateString(LOGIN_STATE state, wsnet::LoginResult loginError, const QString &loginErrorMessage)
+QString loginStateString(LOGIN_STATE state, wsnet::LoginResult loginError, const QString &loginErrorMessage, bool showPrefix)
 {
-    QString msg = QObject::tr("Login state: %1");
+    QString msg = showPrefix ? QObject::tr("Login state: %1") : "%1";
 
     switch (state) {
     case LOGIN_STATE_LOGGED_OUT:
@@ -46,9 +46,9 @@ QString loginStateString(LOGIN_STATE state, wsnet::LoginResult loginError, const
     }
 }
 
-QString connectStateString(types::ConnectState state, LocationID location, TUNNEL_TEST_STATE tunnelTest)
+QString connectStateString(types::ConnectState state, LocationID location, TUNNEL_TEST_STATE tunnelTest, bool showPrefix)
 {
-    QString msg = QObject::tr("Connect state: %1");
+    QString msg = showPrefix ? QObject::tr("Connect state: %1") : "%1";
     QString connectState;
 
     switch (state.connectState) {

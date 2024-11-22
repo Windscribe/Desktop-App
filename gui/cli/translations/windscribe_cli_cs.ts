@@ -11,6 +11,10 @@
         <source>Unlimited</source>
         <translation>Neomezený</translation>
     </message>
+    <message>
+        <source>No locations.</source>
+        <translation>Žádné lokace.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -249,6 +253,22 @@
     <message>
         <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
         <translation>Probíhá odhlášení.  Pro kontrolu stavu použijte &apos;windscribe-cli status&apos;.</translation>
+    </message>
+    <message>
+        <source>Connection has been overridden by another command.</source>
+        <translation>Připojení bylo přepsáno jiným příkazem.</translation>
+    </message>
+    <message>
+        <source>Disconnection has been overridden by another command.</source>
+        <translation>Odpojení bylo přepsáno jiným příkazem.</translation>
+    </message>
+    <message>
+        <source>Already disconnected</source>
+        <translation>Již odpojeno</translation>
+    </message>
+    <message>
+        <source>Logging out</source>
+        <translation>Odhlášení</translation>
     </message>
 </context>
 </TS>

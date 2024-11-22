@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QWindow>
 
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 static QRect GetGeometryForScreen(const QScreen *screen)
 {

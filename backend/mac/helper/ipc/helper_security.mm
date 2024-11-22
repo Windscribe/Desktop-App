@@ -1,7 +1,7 @@
 #include "helper_security.h"
 
 #import <Foundation/Foundation.h>
-#include "../logger.h"
+#include <spdlog/spdlog.h>
 #include "utils/executable_signature/executable_signature_defs.h"
 
 #define REQUIREMENT_STRING "anchor apple generic and (identifier \"com.windscribe.gui.macos\" or identifier \"com.windscribe.installer.macos\")" \
@@ -13,7 +13,7 @@ bool HelperSecurity::isValidXpcConnection(xpc_object_t event)
     SecCodeRef secCode;
     OSStatus osStatus = SecCodeCreateWithXPCMessage(event, kSecCSDefaultFlags, &secCode);
     if (osStatus != errSecSuccess) {
-        LOG("SecCodeCreateWithXPCMessage failed with: %d", (int)osStatus);
+        spdlog::error("SecCodeCreateWithXPCMessage failed with: {}", (int)osStatus);
         return false;
     }
 
@@ -21,7 +21,7 @@ bool HelperSecurity::isValidXpcConnection(xpc_object_t event)
     SecRequirementRef secRequirement;
     osStatus = SecRequirementCreateWithString(requirementString, kSecCSDefaultFlags, &secRequirement);
     if (osStatus != errSecSuccess) {
-        LOG("SecRequirementCreateWithString failed with: %d", (int)osStatus);
+        spdlog::error("SecRequirementCreateWithString failed with: {}", (int)osStatus);
         CFRelease(secCode);
         return false;
     }

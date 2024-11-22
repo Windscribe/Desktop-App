@@ -52,10 +52,6 @@ signals:
     virtual void currentNetworkUpdated(types::NetworkInterface) = 0;
 
     virtual void advancedParametersClicked() = 0;
-
-#ifdef Q_OS_WIN
-    virtual void setIpv6StateInOS(bool bEnabled, bool bRestartNow) = 0;
-#endif
 };
 
 Q_DECLARE_INTERFACE(IPreferencesWindow, "IPreferencesWindow")

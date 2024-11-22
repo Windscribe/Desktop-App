@@ -81,6 +81,11 @@ LOCATION_TAB LocationsWindow::currentTab()
     return locationsTab_->currentTab();
 }
 
+void LocationsWindow::setTab(LOCATION_TAB tab)
+{
+    locationsTab_->setTab(tab);
+}
+
 bool LocationsWindow::handleKeyPressEvent(QKeyEvent *event)
 {
     return locationsTab_->handleKeyPressEvent(event);

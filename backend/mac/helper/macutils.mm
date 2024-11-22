@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 
-#include "logger.h"
+#include <spdlog/spdlog.h>
 #include "macutils.h"
 #include "utils/wsscopeguard.h"
 
@@ -13,7 +13,7 @@ bool setDnsOfDynamicStoreEntry(std::string dnsIp, std::string dynEntry)
     // get current dns entry
     SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("WindscribeDnsSetter"), NULL, NULL);
     if (dynRef == NULL) {
-        LOG("setDnsOfDynamicStoreEntry - SCDynamicStoreCreate failed");
+        spdlog::error("setDnsOfDynamicStoreEntry - SCDynamicStoreCreate failed");
         return false;
     }
 
@@ -36,21 +36,21 @@ bool setDnsOfDynamicStoreEntry(std::string dnsIp, std::string dynEntry)
     NSString *entryNsString = [NSString stringWithCString:dynEntry.c_str() encoding:[NSString defaultCStringEncoding]];
     dnskey = (CFDictionaryRef) SCDynamicStoreCopyValue(dynRef, (CFStringRef) entryNsString);
     if (dnskey == NULL) {
-        LOG("setDnsOfDynamicStoreEntry - SCDynamicStoreCopyValue failed");
+        spdlog::error("setDnsOfDynamicStoreEntry - SCDynamicStoreCopyValue failed");
         return false;
     }
 
     // prep dns server entry
     newdnskey = CFDictionaryCreateMutableCopy(NULL, 0, dnskey);
     if (newdnskey == NULL) {
-        LOG("setDnsOfDynamicStoreEntry - CFDictionaryCreateMutableCopy failed");
+        spdlog::error("setDnsOfDynamicStoreEntry - CFDictionaryCreateMutableCopy failed");
         return false;
     }
 
     NSString *dnsIpsNsString = [NSString stringWithCString:dnsIp.c_str() encoding:[NSString defaultCStringEncoding]];
     dnsserveraddresses = CFArrayCreateMutable(NULL, 0, NULL);
     if (dnsserveraddresses == NULL) {
-        LOG("setDnsOfDynamicStoreEntry - CFArrayCreateMutable failed");
+        spdlog::error("setDnsOfDynamicStoreEntry - CFArrayCreateMutable failed");
         return false;
     }
 
@@ -60,8 +60,9 @@ bool setDnsOfDynamicStoreEntry(std::string dnsIp, std::string dynEntry)
     // apply
     bool success = SCDynamicStoreSetValue(dynRef, (CFStringRef) entryNsString, newdnskey);
 
-    if (!success) {
-        LOG("Failed to apply dns to store entry");
+    if (!success)
+    {
+        spdlog::error("Failed to apply dns to store entry");
     }
 
     return success;

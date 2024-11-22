@@ -1,7 +1,7 @@
 #include "all_headers.h"
+#include <spdlog/spdlog.h>
 
 #include "firewallfilter.h"
-#include "logger.h"
 #include "utils.h"
 #include "adapters_info.h"
 
@@ -40,7 +40,7 @@ void FirewallFilter::on(const wchar_t *connectingIp, const wchar_t *ip, bool bAl
     if (dwRet == ERROR_SUCCESS) {
         addFilters(hEngine, connectingIp, ip, bAllowLocalTraffic, bIsCustomConfig);
     } else {
-        Logger::instance().out(L"FirewallFilter::on(), FwpmSubLayerAdd0 failed");
+        spdlog::error("FirewallFilter::on(), FwpmSubLayerAdd0 failed");
     }
 
     fwpmWrapper_.endTransaction();
@@ -77,9 +77,9 @@ bool FirewallFilter::currentStatusImpl(HANDLE engineHandle)
 void FirewallFilter::offImpl(HANDLE engineHandle)
 {
     if (Utils::deleteSublayerAndAllFilters(engineHandle, &subLayerGUID_)) {
-        Logger::instance().out(L"FirewallFilter::offImpl(), all filters deleted");
+        spdlog::info("FirewallFilter::offImpl(), all filters deleted");
     } else {
-        Logger::instance().out(L"FirewallFilter::offImpl(), failed delete filters");
+        spdlog::info("FirewallFilter::offImpl(), failed delete filters");
     }
     filterIdsApps_.clear();
     filterIdsSplitRoutingIps_.clear();
@@ -160,13 +160,33 @@ void FirewallFilter::setSplitTunnelingAppsIds(const AppsIds &appsIds)
     fwpmWrapper_.unlock();
 }
 
-void FirewallFilter::setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressAndMask> &ips)
+void FirewallFilter::setSplitTunnelingWhitelistIpsV4(const std::vector<Ip4AddressAndMask> &ips)
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
-    if (splitRoutingIps_ == ips) {
+    if (splitRoutingIpsV4_ == ips) {
         return;
     }
-    splitRoutingIps_ = ips;
+    splitRoutingIpsV4_ = ips;
+
+    HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
+
+    // if split tunneling is ON and firewall is ON then add filter for ips immediately
+    if (isSplitTunnelingEnabled_ && currentStatusImpl(hEngine) == true) {
+        fwpmWrapper_.beginTransaction();
+        removeIpsSplitTunnelingFilter(hEngine);
+        addPermitFilterForSplitRoutingWhitelistIps(hEngine);
+        fwpmWrapper_.endTransaction();
+    }
+    fwpmWrapper_.unlock();
+}
+
+void FirewallFilter::setSplitTunnelingWhitelistIpsV6(const std::vector<Ip6AddressAndPrefix> &ips)
+{
+    std::lock_guard<std::recursive_mutex> guard(mutex_);
+    if (splitRoutingIpsV6_ == ips) {
+        return;
+    }
+    splitRoutingIpsV6_ = ips;
 
     HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
 
@@ -190,12 +210,12 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
     // add block filter for all IPs, for all adapters, IPv4.
     bool ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 0, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
     if (!ret) {
-        Logger::instance().out("Could not add IPv4 block filter");
+        spdlog::error("Could not add IPv4 block filter");
     }
     // add block filter for all IPs, for all adapters, IPv6.
     ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_BLOCK, 0, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
     if (!ret) {
-        Logger::instance().out("Could not add IPv6 block filter");
+        spdlog::error("Could not add IPv6 block filter");
     }
 
     // add permit filter for TAP-adapters
@@ -208,7 +228,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
             const std::vector<Ip4AddressAndMask> reserved = Ip4AddressAndMask::fromVector({L"10.255.255.0/24"});
             ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &reserved);
             if (!ret) {
-                Logger::instance().out(L"Could not add reserved allow filter on VPN interface");
+                spdlog::error(L"Could not add reserved allow filter on VPN interface");
             }
 
             // Explicitly allow local addresses on this interface
@@ -216,7 +236,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
             if (!localAddrs.empty()) {
                 ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localAddrs);
                 if (!ret) {
-                    Logger::instance().out(L"Could not add reserved allow filter on private address for VPN interface");
+                    spdlog::error("Could not add reserved allow filter on private address for VPN interface");
                 }
             }
             // Disallow all other private, link-local, loopback networks from going over tunnel
@@ -224,18 +244,13 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
                 {L"10.0.0.0/8", L"172.16.0.0/12", L"192.168.0.0/16", L"169.254.0.0/16", L"224.0.0.0/4"});
             ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 6, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &priv);
             if (!ret) {
-                Logger::instance().out(L"Could not add private network block filter on VPN interface");
+                spdlog::error("Could not add private network block filter on VPN interface");
             }
         }
         // Allow other IPv4 traffic on this interface
         ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 1, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid);
         if (!ret) {
-            Logger::instance().out(L"Could not add IPv4 allow filter on VPN interface");
-        }
-        // Allow IPv6 traffic on this interface
-        Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 1, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid);
-        if (!ret) {
-            Logger::instance().out(L"Could not add IPv6 allow filter on VPN interface");
+            spdlog::error("Could not add IPv4 allow filter on VPN interface");
         }
     }
 
@@ -252,38 +267,38 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
         const std::vector<Ip4AddressAndMask> ipAddr = Ip4AddressAndMask::fromVector({ipAddresses[i].c_str()});
         ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &ipAddr);
         if (!ret) {
-            Logger::instance().out(L"Could not add Windscribe IPs allow filter");
+            spdlog::error("Could not add Windscribe IPs allow filter");
         }
     }
 
     // add permit filter for DHCP
     ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 3, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 68);
     if (!ret) {
-        Logger::instance().out(L"Could not add DHCP allow filter (68)");
+        spdlog::error("Could not add DHCP allow filter (68)");
     }
     // add permit filter for DHCP
     ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 3, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 67);
     if (!ret) {
-        Logger::instance().out(L"Could not add DHCP allow filter (67)");
+        spdlog::error("Could not add DHCP allow filter (67)");
     }
 
     // Always allow localhost
     const std::vector<Ip4AddressAndMask> localhostV4 = Ip4AddressAndMask::fromVector({L"127.0.0.0/8"});
     ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localhostV4);
     if (!ret) {
-        Logger::instance().out(L"Could not add localhost v4 allow filter");
+        spdlog::error("Could not add localhost v4 allow filter");
     }
     const std::vector<Ip6AddressAndPrefix> localhostV6 = Ip6AddressAndPrefix::fromVector({L"::1/128"});
     ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localhostV6);
     if (!ret) {
-        Logger::instance().out(L"Could not add localhost v6 allow filter.");
+        spdlog::error("Could not add localhost v6 allow filter.");
     }
 
-     // add permit filters for unicast addresses
+    // add permit filters for unicast addresses
     const std::vector<Ip4AddressAndMask> unicastIps = Ip4AddressAndMask::fromVector({L"224.0.0.0/4"});
     ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &unicastIps);
     if (!ret) {
-        Logger::instance().out(L"Could not add IPv4 unicast allow filter.");
+        spdlog::error("Could not add IPv4 unicast allow filter.");
     }
 
     // add permit filters for Local Network
@@ -292,14 +307,14 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
             {L"10.0.0.0/8", L"172.16.0.0/12", L"192.168.0.0/16", L"169.254.0.0/16"});
         ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &privV4);
         if (!ret) {
-            Logger::instance().out(L"Could not add IPv4 LAN traffic allow filter.");
+            spdlog::error("Could not add IPv4 LAN traffic allow filter.");
         }
 
         const std::vector<Ip6AddressAndPrefix> privV6 = Ip6AddressAndPrefix::fromVector(
             {L"fe80::/10", L"ff00::/64"});
         ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &privV6);
         if (!ret) {
-            Logger::instance().out(L"Could not add IPv6 LAN traffic allow filter.");
+            spdlog::error("Could not add IPv6 LAN traffic allow filter.");
         }
     }
 }
@@ -318,7 +333,7 @@ void FirewallFilter::addPermitFilterForWindscribeAndSystemServices(HANDLE engine
     const std::vector<Ip4AddressAndMask> connectingIpAddr = Ip4AddressAndMask::fromVector({connectingIp});
     ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &connectingIpAddr, 0, 0, &allowedIds);
     if (!ret) {
-        Logger::instance().out(L"Could not add connecting IP allow filter");
+        spdlog::error("Could not add connecting IP allow filter");
     }
 }
 
@@ -328,14 +343,32 @@ void FirewallFilter::addPermitFilterForAppsIds(HANDLE engineHandle)
 
     if (isSplitTunnelingExclusiveMode_) {
         if (appsIds_.count() != 0) {
+            ret = Utils::addFilterV6(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, &appsIds_);
+            if (!ret) {
+                spdlog::error("Could not add split tunnel (v6) app filters");
+            }
+
             ret = Utils::addFilterV4(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, 0, 0, &appsIds_);
+            if (!ret) {
+                spdlog::error("Could not add split tunnel (v4) app filters");
+            }
         }
     } else {
+        // In inclusive mode, block IPv6 traffic for the included apps, since we can't pass IPv6 traffic over the IPv4 tunnel.
+        ret = Utils::addFilterV6(engineHandle, &filterIdsApps_, FWP_ACTION_BLOCK, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, &appsIds_);
+        if (!ret) {
+            spdlog::error("Could not add split tunnel (v6) app block filters");
+        }
+        // Allow other IPv6 traffic.
+        ret = Utils::addFilterV6(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
+        if (!ret) {
+            spdlog::error("Could not add split tunnel (v6) app permit filters");
+        }
+        // Allow IPv4 traffic.
         ret = Utils::addFilterV4(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);
-    }
-
-    if (!ret) {
-        Logger::instance().out("Could not add split tunnel app filters");
+        if (!ret) {
+            spdlog::error("Could not add split tunnel (v4) app filters");
+        }
     }
 }
 
@@ -343,13 +376,27 @@ void FirewallFilter::addPermitFilterForSplitRoutingWhitelistIps(HANDLE engineHan
 {
     std::vector<UINT64> filterId;
 
-    if (!isSplitTunnelingExclusiveMode_ || splitRoutingIps_.size() == 0) {
+    if (!isSplitTunnelingExclusiveMode_) {
+        // In inclusive mode, we want to drop IPv6 traffic matching the IPs, because we can't pass IPv6 over an IPv4 tunnel.
+        DWORD ret = Utils::addFilterV6(engineHandle, &filterIdsSplitRoutingIps_, FWP_ACTION_BLOCK, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &splitRoutingIpsV6_);
+        if (!ret) {
+            spdlog::error("Could not add split tunnel IP (v6) filters");
+        }
         return;
     }
 
-    DWORD ret = Utils::addFilterV4(engineHandle, &filterIdsSplitRoutingIps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &splitRoutingIps_);
-    if (!ret) {
-        Logger::instance().out("Could not add split tunnel IP filters");
+    if (splitRoutingIpsV4_.size() > 0) {
+        DWORD ret = Utils::addFilterV4(engineHandle, &filterIdsSplitRoutingIps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &splitRoutingIpsV4_);
+        if (!ret) {
+            spdlog::error("Could not add split tunnel IP (v4) filters");
+        }
+    }
+
+    if (splitRoutingIpsV6_.size() > 0) {
+        DWORD ret = Utils::addFilterV6(engineHandle, &filterIdsSplitRoutingIps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &splitRoutingIpsV6_);
+        if (!ret) {
+            spdlog::error("Could not add split tunnel IP (v6) filters");
+        }
     }
 }
 
@@ -364,7 +411,7 @@ void FirewallFilter::removeAppsSplitTunnelingFilter(HANDLE engineHandle)
     for (size_t i = 0; i < filterIdsApps_.size(); ++i) {
         DWORD ret = FwpmFilterDeleteById0(engineHandle, filterIdsApps_[i]);
         if (ret != ERROR_SUCCESS) {
-            Logger::instance().out(L"FirewallFilter::removeAllSplitTunnelingFilters(), FwpmFilterDeleteById0 failed");
+            spdlog::error("FirewallFilter::removeAllSplitTunnelingFilters(), FwpmFilterDeleteById0 failed");
         }
     }
     filterIdsApps_.clear();
@@ -375,7 +422,7 @@ void FirewallFilter::removeIpsSplitTunnelingFilter(HANDLE engineHandle)
     for (size_t i = 0; i < filterIdsSplitRoutingIps_.size(); ++i) {
         DWORD ret = FwpmFilterDeleteById0(engineHandle, filterIdsSplitRoutingIps_[i]);
         if (ret != ERROR_SUCCESS) {
-            Logger::instance().out(L"FirewallFilter::removeIpsSplitTunnelingFilter(), FwpmFilterDeleteById0 failed");
+            spdlog::error("FirewallFilter::removeIpsSplitTunnelingFilter(), FwpmFilterDeleteById0 failed");
         }
     }
     filterIdsSplitRoutingIps_.clear();

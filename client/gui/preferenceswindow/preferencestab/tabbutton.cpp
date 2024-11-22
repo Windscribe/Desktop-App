@@ -8,7 +8,6 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "tooltips/tooltiptypes.h"
 #include "tooltips/tooltipcontroller.h"
-#include "utils/logger.h"
 
 namespace PreferencesWindow {
 

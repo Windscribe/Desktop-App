@@ -1,10 +1,10 @@
 #include "install_splittunnel.h"
 
 #include <filesystem>
+#include <spdlog/spdlog.h>
 
 #include "../installer_base.h"
 #include "../settings.h"
-#include "../../../utils/logger.h"
 #include "../../../utils/path.h"
 #include "../../../utils/utils.h"
 
@@ -48,7 +48,7 @@ int InstallSplitTunnel::executeStep()
         }
     }
     catch (system_error& ex) {
-        Log::instance().out(L"InstallSplitTunnel %hs", ex.what());
+        spdlog::error("InstallSplitTunnel {}", ex.what());
         result = -ERROR_OTHER;
     }
 

@@ -1,8 +1,7 @@
 #include "ip_routes.h"
 
 #include <set>
-
-#include "../../logger.h"
+#include <spdlog/spdlog.h>
 #include "../../utils.h"
 
 void IpRoutes::setIps(const std::string &defaultRouteIp, const std::vector<std::string> &ips)
@@ -12,7 +11,9 @@ void IpRoutes::setIps(const std::string &defaultRouteIp, const std::vector<std::
     // exclude duplicates
     std::set<std::string> ipsSet;
     for (auto ip = ips.begin(); ip != ips.end(); ++ip) {
-        ipsSet.insert(*ip);
+        if (Utils::isValidIpv4Address(*ip)) {
+            ipsSet.insert(*ip);
+        }
     }
 
     // find route which need to delete
@@ -59,7 +60,7 @@ void IpRoutes::clear()
 void IpRoutes::addRoute(const RouteDescr &rd)
 {
     std::string cmd = "ip route add " + rd.ip + " via " + rd.defaultRouteIp;
-    Logger::instance().out("cmd: %s", cmd.c_str());
+    spdlog::info("cmd: {}", cmd);
 
     Utils::executeCommand(cmd);
 }
@@ -67,6 +68,6 @@ void IpRoutes::addRoute(const RouteDescr &rd)
 void IpRoutes::deleteRoute(const RouteDescr &rd)
 {
     std::string cmd = "ip route del " + rd.ip + " via " + rd.defaultRouteIp;
-    Logger::instance().out("cmd: %s", cmd.c_str());
+    spdlog::info("cmd: {}", cmd);
     Utils::executeCommand(cmd);
 }

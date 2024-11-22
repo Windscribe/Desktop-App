@@ -3,7 +3,7 @@
 #include <winsock2.h>
 #include <iphlpapi.h>
 
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 AdapterGatewayInfo AdapterUtils_win::getDefaultAdapterInfo()
 {

@@ -4,7 +4,6 @@
 #include <QPainter>
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
-#include "utils/logger.h"
 
 LoadingIconItem::LoadingIconItem(ScalableGraphicsObject *parent, QString file, int width, int height)
   : ScalableGraphicsObject(parent), width_(width), height_(height), opacity_(OPACITY_FULL)

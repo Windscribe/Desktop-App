@@ -286,10 +286,6 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <source>Merge all logs by timestamp</source>
-        <translation>Об&apos;єднати всі журнали за часом</translation>
-    </message>
-    <message>
         <source>Word Wrap</source>
         <translation>Перенесення слів</translation>
     </message>
@@ -964,32 +960,12 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Додаткові параметри</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>Потрібен перезапуск</translation>
-    </message>
-    <message>
-        <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>Для того, щоб перемкнути IPv6, потрібне перезавантаження комп&apos;ютера. Зробити це зараз?</translation>
-    </message>
-    <message>
-        <source>Restart later</source>
-        <translation>Перезапустити пізніше</translation>
-    </message>
-    <message>
         <source>Make advanced tweaks to the way the app functions.</source>
         <translation>Внесіть розширені налаштування в роботу програми.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
         <translation>Розширені параметри</translation>
-    </message>
-    <message>
-        <source>Enables / disables system-wide IPv6 connectivity.</source>
-        <translation>Вмикає або вимикає загальносистемне з&apos;єднання IPv6.</translation>
-    </message>
-    <message>
-        <source>IPv6</source>
-        <translation>IPv6</translation>
     </message>
     <message>
         <source>Resolve server API address automatically, or use one provided by the Support team.</source>
@@ -1738,6 +1714,10 @@ Connect to a network first</source>
         <source>Auto</source>
         <translation>Автоматично</translation>
     </message>
+    <message>
+        <source>Only when VPN is connected</source>
+        <translation>Лише коли підключено VPN</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
@@ -2143,6 +2123,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Auto-detect</source>
         <translation>Автоматичне визначення</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Реліз</translation>
+    </message>
+    <message>
+        <source>Beta</source>
+        <translation>Бета</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

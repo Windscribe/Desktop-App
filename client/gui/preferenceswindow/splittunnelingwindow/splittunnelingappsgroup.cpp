@@ -2,12 +2,7 @@
 
 #include <QFileInfo>
 #include <QPainter>
-#include "commongraphics/commongraphics.h"
-#include "graphicresources/fontmanager.h"
 #include "preferenceswindow/preferencegroup.h"
-#include "utils/logger.h"
-#include "utils/utils.h"
-#include "dpiscalemanager.h"
 
 #if defined(Q_OS_WIN)
     #include "utils/winutils.h"

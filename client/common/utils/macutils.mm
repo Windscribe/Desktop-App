@@ -9,7 +9,7 @@
 #include <libproc.h>
 
 #include "executable_signature/executable_signature.h"
-#include "logger.h"
+#include "log/categories.h"
 #include "macutils.h"
 #include "names.h"
 #include "utils.h"

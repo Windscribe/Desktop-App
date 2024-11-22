@@ -1,5 +1,4 @@
 #include "splittunnelingaddresseswindowitem.h"
-#include "utils/logger.h"
 #include "languagecontroller.h"
 
 namespace PreferencesWindow {

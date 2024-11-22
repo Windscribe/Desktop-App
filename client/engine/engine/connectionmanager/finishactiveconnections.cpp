@@ -1,6 +1,6 @@
 #include "finishactiveconnections.h"
 #include "../openvpnversioncontroller.h"
-#include "utils/logger.h"
+#include "utils/log/logger.h"
 
 #ifdef Q_OS_WIN
     #include <windows.h>

@@ -13,6 +13,9 @@ add_definitions(-DUNICODE -D_UNICODE)
 
 project(wireguard_service)
 
+find_package(spdlog CONFIG REQUIRED)
+
+
 set(SOURCES
     ServiceMain.cpp
     wireguard_service.rc
@@ -26,6 +29,10 @@ add_executable(WireguardService ${SOURCES})
 
 target_include_directories(WireguardService PRIVATE
                            ../../../client/common
+)
+
+target_link_libraries(WireguardService PRIVATE
+                      spdlog::spdlog
 )
 
 install(TARGETS WireguardService

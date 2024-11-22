@@ -46,5 +46,6 @@ private:
 
     SplitTunneling(FwpmWrapper& fwpmWrapper);
     void detectWindscribeExecutables();
+    void setEnableIPv6Dns(bool enable);
 };
 

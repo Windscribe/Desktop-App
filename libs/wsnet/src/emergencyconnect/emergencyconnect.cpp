@@ -96,7 +96,7 @@ void EmergencyConnect::onDnsResolved(std::uint64_t requestId, const std::string 
                 endpoints.push_back(std::make_shared<EmergencyConnectEndpoint>(ip, 443, Protocol::kTcp));
             }
         } else {
-            spdlog::info("EmergencyConnect::onDnsResolved failed");
+            spdlog::warn("EmergencyConnect::onDnsResolved failed");
         }
 
         std::vector<std::shared_ptr<WSNetEmergencyConnectEndpoint>> endpointsHardcoded;

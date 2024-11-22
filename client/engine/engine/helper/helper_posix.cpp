@@ -1,6 +1,6 @@
 #include "helper_posix.h"
 #include "utils/crashhandler.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include <QElapsedTimer>
 #include <QDir>
 #include <QFile>
@@ -29,7 +29,7 @@ using namespace boost::asio;
 
 Helper_posix *g_this_ = NULL;
 
-Helper_posix::Helper_posix(QObject *parent) : IHelper(parent), bIPV6State_(true), cmdId_(0), lastOpenVPNCmdId_(0)
+Helper_posix::Helper_posix(QObject *parent) : IHelper(parent), cmdId_(0), lastOpenVPNCmdId_(0)
   , ep_(SOCK_PATH), bHelperConnectedEmitted_(false)
   , curState_(STATE_INIT), bNeedFinish_(false), firstConnectToHelperErrorReported_(false)
 {

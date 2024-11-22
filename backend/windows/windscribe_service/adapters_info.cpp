@@ -1,8 +1,7 @@
 #include "adapters_info.h"
 
 #include <ws2tcpip.h>
-
-#include "logger.h"
+#include <spdlog/spdlog.h>
 
 AdaptersInfo::AdaptersInfo()
 {
@@ -24,7 +23,7 @@ AdaptersInfo::AdaptersInfo()
     else
     {
         adapterInfoBuffer_.reset();
-        Logger::instance().out(L"AdaptersInfo - GetAdaptersAddresses failed %lu", ::GetLastError());
+        spdlog::error(L"AdaptersInfo - GetAdaptersAddresses failed {}", ::GetLastError());
     }
 }
 
@@ -68,7 +67,7 @@ bool AdaptersInfo::getWindscribeIkev2AdapterInfo(NET_IFINDEX &outIfIndex, std::w
                         outIp = std::wstring(szBuf);
                     }
                     else {
-                        Logger::instance().out(L"AdaptersInfo - WSAAddressToString failed %lu", ::WSAGetLastError());
+                        spdlog::error("AdaptersInfo - WSAAddressToString failed {}", ::WSAGetLastError());
                     }
 
                     break;
@@ -78,7 +77,7 @@ bool AdaptersInfo::getWindscribeIkev2AdapterInfo(NET_IFINDEX &outIfIndex, std::w
             }
 
             if (outIp.empty()) {
-                Logger::instance().out(L"AdaptersInfo::getWindscribeIkev2AdapterInfo - failed to determine IPv4 address");
+                spdlog::error("AdaptersInfo::getWindscribeIkev2AdapterInfo - failed to determine IPv4 address");
             }
             else {
                 outIfIndex = ai->IfIndex;

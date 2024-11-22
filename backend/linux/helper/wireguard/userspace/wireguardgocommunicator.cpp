@@ -2,7 +2,6 @@
 #include "../../../../../client/common/utils/executable_signature/executable_signature.h"
 #include "../../../../posix_common/helper_commands.h"
 #include "../../execute_cmd.h"
-#include "../../logger.h"
 #include "../../utils.h"
 #include <codecvt>
 #include <regex>
@@ -12,6 +11,7 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/un.h>
+#include <spdlog/spdlog.h>
 
 namespace
 {
@@ -112,21 +112,21 @@ bool WireGuardGoCommunicator::Connection::connect(struct sockaddr_un *address)
     }
     if (!S_ISSOCK(sbuf.st_mode)) {
         errno = EBADF;
-        Logger::instance().out("File is not a socket: %s", address->sun_path);
+        spdlog::error("File is not a socket: {}", address->sun_path);
         // Socket is bad, don't attempt to reconnect.
         status_ = Status::NO_ACCESS;
         return false;
     }
     socketHandle_ = socket(AF_UNIX, SOCK_STREAM, 0);
     if (socketHandle_ < 0) {
-        Logger::instance().out("Failed to open the socket: %s", address->sun_path);
+        spdlog::error("Failed to open the socket: {}", address->sun_path);
         // Socket cannot be opened, don't attempt to reconnect.
         status_ = Status::NO_ACCESS;
         return false;
     }
     ret = ::connect(socketHandle_, reinterpret_cast<struct sockaddr *>(address), sizeof(*address));
     if (ret < 0) {
-        Logger::instance().out("Failed to connect to the socket: %s", address->sun_path);
+        spdlog::error("Failed to connect to the socket: {}", address->sun_path);
         bool do_retry = errno != EACCES;
         if (errno == ECONNREFUSED)
             unlink(address->sun_path);
@@ -148,14 +148,14 @@ bool WireGuardGoCommunicator::start(const std::string &deviceName)
 
     const std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribewireguard", "-f " + deviceName);
     if (fullCmd.empty()) {
-        Logger::instance().out("Invalid WireGuard command");
+        spdlog::error("Invalid WireGuard command");
         return false;
     }
 
     const std::string fullPath = Utils::getExePath() + "/windscribewireguard";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(fullPath)) {
-        Logger::instance().out("WireGuard executable signature incorrect: %s", sigCheck.lastError().c_str());
+        spdlog::error("WireGuard executable signature incorrect: {}", sigCheck.lastError());
         return false;
     }
 
@@ -183,7 +183,7 @@ bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey,
 {
     Connection connection(deviceName_);
     if (connection.getStatus() != Connection::Status::OK) {
-        Logger::instance().out("WireGuardGoCommunicator::configure(): no connection to daemon");
+        spdlog::error("WireGuardGoCommunicator::configure(): no connection to daemon");
         return false;
     }
 
@@ -195,7 +195,7 @@ bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey,
         Connection::ResultMap results{ std::make_pair("errno", "") };
         bool success = connection.getOutput(&results);
         if (success && stringToValue<int>(results["errno"]) != 0)
-            Logger::instance().out("Wireguard listen_port is not successful");
+            spdlog::error("Wireguard listen_port is not successful");
     }
 
     // Send set command.
@@ -221,7 +221,7 @@ bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey,
     bool success = connection.getOutput(&results);
     for (auto it = results.begin(); it != results.end(); ++it)
         {
-            Logger::instance().out("%s = %s", it->first.c_str(), it->second.c_str());
+            spdlog::debug("{} = {}", it->first, it->second);
         }
     if (success)
         success = stringToValue<int>(results["errno"]) == 0;
@@ -284,7 +284,7 @@ unsigned long WireGuardGoCommunicator::getStatus(unsigned int *errorCode,
         int rc = gettimeofday(&tv, NULL);
         if (rc || tv.tv_sec - stringToValue<unsigned long long>(results["last_handshake_time_sec"]) > 180)
         {
-            Logger::instance().out("Time since last handshake time exceeded 3 minutes, disconnecting");
+            spdlog::info("Time since last handshake time exceeded 3 minutes, disconnecting");
             return kWgStateError;
         }
 

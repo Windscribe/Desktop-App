@@ -26,12 +26,14 @@ public:
     bool init();
 
     void setDnsServers(const std::vector<std::string> &dnsServers) override;
+    void setAddressFamily(int addressFamily) override;
+
     std::shared_ptr<WSNetCancelableCallback> lookup(const std::string &hostname, std::uint64_t userDataId, WSNetDnsResolverCallback callback) override;
     std::shared_ptr<WSNetDnsRequestResult> lookupBlocked(const std::string &hostname) override;
 
 private:
     void run();
-    static void caresCallback(void *arg, int status, int timeouts, struct hostent *host);
+    static void caresCallback(void *arg, int status, int timeouts, struct ares_addrinfo *result);
 
     static constexpr int kTimeoutMs = 2000;  // default value in c-ares, let's leave it as it is
     static constexpr int kTries = 2; // the number of tries the resolver will try contacting each name server before giving up.
@@ -73,6 +75,7 @@ private:
     std::set<std::uint64_t> activeRequests_;
     DnsServers dnsServers_;
     std::uint64_t curRequestId_;
+    int addressFamily_;
 };
 
 } // namespace wsnet

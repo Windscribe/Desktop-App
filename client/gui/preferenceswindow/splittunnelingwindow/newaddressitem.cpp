@@ -2,7 +2,6 @@
 
 #include "graphicresources/fontmanager.h"
 #include "preferenceswindow/preferencesconst.h"
-#include "utils/logger.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
 

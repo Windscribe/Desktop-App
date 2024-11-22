@@ -5,7 +5,7 @@
 #include <QStandardPaths>
 
 #include "names.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/ws_assert.h"
 
 #if defined(Q_OS_LINUX)
@@ -197,7 +197,7 @@ void DownloadHelper::getInner(const QString url, const QString targetFilenamePat
     };
 
     auto callbackReadyData = [this] (std::uint64_t requestId, const std::string &data) {
-        QMetaObject::invokeMethod(this, [this, requestId, data] {
+        QMetaObject::invokeMethod(this, [this, requestId, data] { // NOLINT: false positive for memory leak
             onReplyReadyRead(requestId, data);
         }) ;
     };

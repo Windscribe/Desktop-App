@@ -13,11 +13,11 @@
 #include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <spdlog/spdlog.h>
 
 #include "execute_cmd.h"
 #include "firewallcontroller.h"
 #include "ipc/helper_security.h"
-#include "logger.h"
 #include "ovpn.h"
 #include "process_command.h"
 #include "utils.h"
@@ -70,7 +70,7 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
     int retCode = getsockopt(sock->native_handle(), SOL_SOCKET, SO_PEERCRED, &peerCred, &lenPeerCred);
 
     if ((retCode != 0) || (lenPeerCred != sizeof(peerCred))) {
-        Logger::instance().out("getsockopt(SO_PEERCRED) failed (%d).", errno);
+        spdlog::error("getsockopt(SO_PEERCRED) failed ({}).", errno);
         return false;
     }
 
@@ -104,20 +104,20 @@ void Server::receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::st
                 break;
             } else {
                 if (!sendAnswerCmd(sock, cmdAnswer)) {
-                    Logger::instance().out("client app disconnected");
+                    spdlog::info("client app disconnected");
                     return;
                 }
             }
         }
     } else {
-        Logger::instance().out("client app disconnected");
+        spdlog::info("client app disconnected");
     }
 }
 
 void Server::acceptHandler(const boost::system::error_code & ec, socket_ptr sock)
 {
     if (!ec.value()) {
-        Logger::instance().out("client app connected");
+        spdlog::info("client app connected");
 
         boost::shared_ptr<boost::asio::streambuf> buf(new boost::asio::streambuf);
         boost::asio::async_read(*sock, *buf, boost::asio::transfer_at_least(1),

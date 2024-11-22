@@ -5,19 +5,45 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <spdlog/fmt/fmt.h>
+#include <spdlog/fmt/xchar.h>
 
 // Currently, crash reporting/minidump creation functionality is Windows-only.
 #if defined(_WIN32)
 #define ENABLE_CRASH_REPORTS
 #endif  // _WIN32
 
-#if defined(WINDSCRIBE_SERVICE)
-#define CRASH_LOG(...) Logger::instance().out(__VA_ARGS__);
-#define CRASH_ASSERT(x) assert((x))
-#else
-#define CRASH_LOG(...) qCDebug(LOG_BASIC, __VA_ARGS__)
-#define CRASH_ASSERT(x) Q_ASSERT(x)
+#if !defined(WINDSCRIBE_SERVICE)
+    #include "utils/log/categories.h"
 #endif
+
+template <typename T, class ...Args>
+void CRASH_LOG_ERROR(const T *str, Args &&... args)
+{
+#if defined(WINDSCRIBE_SERVICE)
+    spdlog::error(str, args...);
+#else
+    auto s = fmt::format(str, args...);
+    if constexpr(std::is_same<char, T>::value)
+        qCDebug(LOG_BASIC) << QString::fromStdString(s);
+    else if constexpr(std::is_same<wchar_t, T>::value)
+        qCDebug(LOG_BASIC) << QString::fromStdWString(s);
+#endif
+}
+
+template <typename T, class ...Args>
+void CRASH_LOG_INFO(const T *str, Args &&... args)
+{
+#if defined(WINDSCRIBE_SERVICE)
+    spdlog::info(str, args...);
+#else
+    auto s = fmt::format(str, args...);
+    if constexpr(std::is_same<char, T>::value)
+        qCDebug(LOG_BASIC) << QString::fromStdString(s);
+    else if constexpr(std::is_same<wchar_t, T>::value)
+        qCDebug(LOG_BASIC) << QString::fromStdWString(s);
+#endif
+}
 
 #if defined(ENABLE_CRASH_REPORTS)
 

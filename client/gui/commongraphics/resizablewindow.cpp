@@ -5,12 +5,8 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QCoreApplication>
 
-#include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/fontmanager.h"
 #include "languagecontroller.h"
-#include "utils/ws_assert.h"
-#include "utils/utils.h"
-#include "utils/logger.h"
 #include "dpiscalemanager.h"
 
 ResizableWindow::ResizableWindow(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper)

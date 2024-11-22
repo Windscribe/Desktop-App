@@ -10,14 +10,14 @@
 #include "ipc/connection.h"
 #include "languagecontroller.h"
 #include "strings.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/utils.h"
 
 
 BackendCommander::BackendCommander(const CliArguments &cliArgs) : QObject(), cliArgs_(cliArgs)
 {
     unsigned long cliPid = Utils::getCurrentPid();
-    qCDebug(LOG_BASIC) << "CLI pid: " << cliPid;
+    qCDebug(LOG_CLI) << "CLI pid: " << cliPid;
 }
 
 BackendCommander::~BackendCommander()
@@ -40,18 +40,6 @@ void BackendCommander::initAndSend()
 
 void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::Connection * /*connection*/)
 {
-#ifdef CLI_ONLY
-    // Update is special in that it's a blocking command
-    if (cliArgs_.cliCommand() == CLI_COMMAND_UPDATE && bCommandSent_) {
-        if (command->getStringId() == IPC::CliCommands::Acknowledge::getCommandStringId()) {
-            sendStateCommand();
-            return;
-        }
-        onUpdateStateResponse(command);
-        return;
-    }
-#endif
-
     if (command->getStringId() == IPC::CliCommands::Acknowledge::getCommandStringId()) {
         // There are currently no commands that return a real value we need to parse here
         onAcknowledge();
@@ -59,27 +47,34 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::Connec
         if (cliArgs_.cliCommand() == CLI_COMMAND_STATUS) {
             // If we explicitly requested status, print it.
             onStateResponse(command);
-        } else {
+        } else if (!bCommandSent_){
             // If it's a response for the initial state request, send the command now.
             IPC::CliCommands::State *state = static_cast<IPC::CliCommands::State *>(command);
             sendCommand(state);
+        } else {
+            // Otherwise, this is an ongoing command in blocking mode.
+            onStateUpdated(command);
         }
     } else if (command->getStringId() == IPC::CliCommands::LocationsList::getCommandStringId()) {
         IPC::CliCommands::LocationsList *cmd = static_cast<IPC::CliCommands::LocationsList *>(command);
-        emit finished(0, cmd->locations_.join("\n"));
+        if (cmd->locations_.isEmpty()) {
+            emit finished(1, tr("No locations."));
+        } else {
+            emit finished(0, cmd->locations_.join("\n"));
+        }
     }
 }
 
 void BackendCommander::onConnectionStateChanged(int state, IPC::Connection * /*connection*/)
 {
     if (state == IPC::CONNECTION_CONNECTED) {
-        qCDebug(LOG_BASIC) << "Connected to app";
+        qCDebug(LOG_CLI) << "Connected to app";
         ipcState_ = IPC_CONNECTED;
         loggedInTimer_.start();
         sendStateCommand();
     }
     else if (state == IPC::CONNECTION_DISCONNECTED) {
-        qCDebug(LOG_BASIC) << "Disconnected from app";
+        qCDebug(LOG_CLI) << "Disconnected from app";
         emit finished(0, "");
     }
     else if (state == IPC::CONNECTION_ERROR) {
@@ -104,12 +99,18 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
 {
     LanguageController::instance().setLanguage(state->language_);
 
-    if (cliArgs_.cliCommand() == CLI_COMMAND_CONNECT || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_BEST || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_LOCATION) {
+    if (cliArgs_.cliCommand() == CLI_COMMAND_CONNECT || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_BEST
+            || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_LOCATION || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_STATIC) {
         if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
             emit finished(1, QObject::tr("Not logged in"));
             return;
         }
         IPC::CliCommands::Connect cmd;
+        if (cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_STATIC) {
+            cmd.locationType_ = IPC::CliCommands::LocationType::kStaticIp;
+        } else {
+            cmd.locationType_ = IPC::CliCommands::LocationType::kRegular;
+        }
         cmd.location_ = cliArgs_.location();
         cmd.protocol_ = cliArgs_.protocol();
         connection_->sendCommand(cmd);
@@ -118,6 +119,9 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
         if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
             emit finished(1, QObject::tr("Not logged in"));
             return;
+        }
+        if (state->connectState_.connectState == CONNECT_STATE_DISCONNECTED) {
+            emit finished(1, QObject::tr("Already disconnected"));
         }
         IPC::CliCommands::Disconnect cmd;
         connection_->sendCommand(cmd);
@@ -150,12 +154,18 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
         cmd.keyLimitDelete_ = cliArgs_.keyLimitDelete();
         connection_->sendCommand(cmd);
     }
-    else if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS) {
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_STATIC) {
         if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
             emit finished(1, QObject::tr("Not logged in"));
             return;
         }
         IPC::CliCommands::ShowLocations cmd;
+        if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS) {
+            cmd.locationType_ = IPC::CliCommands::LocationType::kRegular;
+        } else {
+            cmd.locationType_ = IPC::CliCommands::LocationType::kStaticIp;
+        }
+
         connection_->sendCommand(cmd);
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGIN) {
@@ -299,7 +309,19 @@ void BackendCommander::onUpdateStateResponse(IPC::Command *command)
 
 void BackendCommander::onAcknowledge()
 {
-    if (cliArgs_.cliCommand() == CLI_COMMAND_CONNECT || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_BEST || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_LOCATION) {
+    //  This only occurs on CLI with GUI backend; it just changes the appropriate window/tab.  Do not wait for this operation.
+    if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_STATIC) {
+        emit(finished(0, ""));
+        return;
+    }
+
+    if (!cliArgs_.nonBlocking()) {
+        sendStateCommand();
+        return;
+    }
+
+    if (cliArgs_.cliCommand() == CLI_COMMAND_CONNECT || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_BEST
+            || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_LOCATION || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_STATIC) {
         emit(finished(0, QObject::tr("Connection is in progress.  Use 'windscribe-cli status' to check for connection status.")));
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_DISCONNECT) {
@@ -325,5 +347,79 @@ void BackendCommander::onAcknowledge()
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_RELOAD_CONFIG) {
         emit(finished(0, QObject::tr("Preferences reloaded.")));
+    }
+}
+
+void BackendCommander::onStateUpdated(IPC::Command *command)
+{
+    static std::string prevStr;
+    std::string str;
+
+    IPC::CliCommands::State *cmd = static_cast<IPC::CliCommands::State *>(command);
+
+    if (cliArgs_.cliCommand() == CLI_COMMAND_CONNECT || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_BEST
+            || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_LOCATION || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_STATIC) {
+        if (connectId_.isEmpty()) {
+            connectId_ = cmd->connectId_;
+        }
+
+        if (cmd->connectId_ != connectId_ && !cmd->connectId_.isEmpty()) {
+            emit(finished(1, QObject::tr("Connection has been overridden by another command.")));
+        } else if (cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectState_.connectError != NO_CONNECT_ERROR ||
+                   cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectState_.disconnectReason == DISCONNECTED_BY_KEY_LIMIT ||
+                   cmd->connectState_.connectState == CONNECT_STATE_CONNECTED && cmd->tunnelTestState_ != TUNNEL_TEST_STATE_UNKNOWN ||
+                   cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectId_.isEmpty()) {
+            // Either disconnected with error or connected with a known tunnel test state
+            emit(finished(0, connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false)));
+        } else {
+            str = connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false).toStdString();
+            if (str != prevStr) {
+                std::cout << str << std::endl;
+                prevStr = str;
+            }
+            sendStateCommand();
+        }
+    } else if (cliArgs_.cliCommand() == CLI_COMMAND_DISCONNECT) {
+        if (connectId_.isEmpty()) {
+            connectId_ = cmd->connectId_;
+        }
+
+        if (cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED || cmd->connectId_.isEmpty()) {
+            cmd->connectState_.connectState = CONNECT_STATE_DISCONNECTED;
+            emit(finished(0, connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false)));
+        } else if (cmd->connectId_ != connectId_) {
+            emit(finished(1, QObject::tr("Disconnection has been overridden by another command.")));
+        } else {
+            str = connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false).toStdString();
+            if (str != prevStr) {
+                std::cout << str << std::endl;
+                prevStr = str;
+            }
+            sendStateCommand();
+        }
+    } else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGIN) {
+        if (cmd->loginState_ == LOGIN_STATE_LOGGED_IN || cmd->loginState_ == LOGIN_STATE_LOGIN_ERROR) {
+            emit(finished(0, loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_, false)));
+        } else {
+            str = loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_, false).toStdString();
+            if (str != prevStr) {
+                std::cout << str << std::endl;
+                prevStr = str;
+            }
+            sendStateCommand();
+        }
+    } else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGOUT) {
+        if (cmd->loginState_ == LOGIN_STATE_LOGGED_OUT) {
+            emit(finished(0, loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_, false)));
+        } else {
+            str = QObject::tr("Logging out").toStdString();
+            if (str != prevStr) {
+                std::cout << str << std::endl;
+                prevStr = str;
+            }
+            sendStateCommand();
+        }
+    } else if (cliArgs_.cliCommand() == CLI_COMMAND_UPDATE) {
+        onUpdateStateResponse(command);
     }
 }

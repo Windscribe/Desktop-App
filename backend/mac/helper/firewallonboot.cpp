@@ -3,7 +3,8 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
-#include "logger.h"
+#include <spdlog/spdlog.h>
+
 #include "utils.h"
 
 FirewallOnBootManager::FirewallOnBootManager()
@@ -79,7 +80,7 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     // write rules
     int fd = open("/etc/windscribe/boot_pf.conf", O_CREAT | O_WRONLY | O_TRUNC);
     if (fd < 0) {
-        LOG("Could not open boot firewall rules for writing");
+        spdlog::error("Could not open boot firewall rules for writing");
         return false;
     }
 

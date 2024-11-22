@@ -6,7 +6,7 @@
 
 #include "adapterutils_win.h"
 #include "engine/taputils/checkadapterenable.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/ras_service_win.h"
 #include "utils/winutils.h"
 #include "utils/ws_assert.h"

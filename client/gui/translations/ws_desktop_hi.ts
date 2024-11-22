@@ -286,10 +286,6 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <source>Merge all logs by timestamp</source>
-        <translation>टाइमस्टैम्प द्वारा सभी लॉग्स मर्ज करें</translation>
-    </message>
-    <message>
         <source>Word Wrap</source>
         <translation>Word Wrap</translation>
     </message>
@@ -964,32 +960,12 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>उन्नत विकल्प</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>पुनरारंभ आवश्यक</translation>
-    </message>
-    <message>
-        <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>IPv6 को टॉगल करने के लिए, एक कंप्यूटर पुनरारंभ की आवश्यकता है। अब यह करो?</translation>
-    </message>
-    <message>
-        <source>Restart later</source>
-        <translation>बाद में पुनरारंभ करें</translation>
-    </message>
-    <message>
         <source>Make advanced tweaks to the way the app functions.</source>
         <translation>ऐप के काम करने के तरीके में उन्नत बदलाव करें।</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
         <translation>उन्नत पैरामीटर</translation>
-    </message>
-    <message>
-        <source>Enables / disables system-wide IPv6 connectivity.</source>
-        <translation>सिस्टम-वाइड IPv6 कनेक्टिविटी को सक्षम / अक्षम करता है।</translation>
-    </message>
-    <message>
-        <source>IPv6</source>
-        <translation>IPv6</translation>
     </message>
     <message>
         <source>Resolve server API address automatically, or use one provided by the Support team.</source>
@@ -1738,6 +1714,10 @@ Connect to a network first</source>
         <source>Auto</source>
         <translation>ऑटो</translation>
     </message>
+    <message>
+        <source>Only when VPN is connected</source>
+        <translation>केवल जब वीपीएन जुड़ा हुआ है</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
@@ -2143,6 +2123,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Auto-detect</source>
         <translation>ऑटो-डिटेक्ट</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>निर्गमन</translation>
+    </message>
+    <message>
+        <source>Beta</source>
+        <translation>बीटा</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

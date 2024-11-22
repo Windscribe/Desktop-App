@@ -8,17 +8,15 @@
 using namespace wsnet;
 
 PingManager::PingManager(QObject *parent, IConnectStateController *stateController,
-        INetworkDetectionManager *networkDetectionManager, const QString &storageSettingName,
-        const QString &log_filename) : QObject(parent),
-    connectStateController_(stateController), networkDetectionManager_(networkDetectionManager), pingStorage_(storageSettingName),
-    pingLog_(log_filename)
+                         INetworkDetectionManager *networkDetectionManager, const QString &storageSettingName) : QObject(parent),
+    connectStateController_(stateController), networkDetectionManager_(networkDetectionManager), pingStorage_(storageSettingName)
 {
     connect(&pingTimer_, &QTimer::timeout, this, &PingManager::onPingTimer);
 }
 
 void PingManager::updateIps(const QVector<PingIpInfo> &ips)
 {
-    pingLog_.addLog("PingIpsController::updateIps", "update ips:" + QString::number(ips.count()));
+    PingLog::addLog("PingIpsController::updateIps", "update ips:" + QString::number(ips.count()));
 
     for (auto it = ips_.begin(); it != ips_.end(); ++it) {
         it.value().existThisIp = false;
@@ -42,7 +40,7 @@ void PingManager::updateIps(const QVector<PingIpInfo> &ips)
     auto it = ips_.begin();
     while (it != ips_.end()) {
         if (!it.value().existThisIp) {
-            pingLog_.addLog("PingIpsController::updateIps", "removed unused ip: " + it.key());
+            PingLog::addLog("PingIpsController::updateIps", "removed unused ip: " + it.key());
             pingStorage_.removePingNode(it.key());
             it = ips_.erase(it);
         }
@@ -94,9 +92,9 @@ void PingManager::onPingTimer()
             it.value().resetState();
         }
         if (curDateTime > nextDateTime)
-            pingLog_.addLog("PingIpsController::onPingTimer", "Re-ping all nodes by time");
+            PingLog::addLog("PingIpsController::onPingTimer", "Re-ping all nodes by time");
         else
-            pingLog_.addLog("PingIpsController::onPingTimer", "Re-ping all nodes by network change");
+            PingLog::addLog("PingIpsController::onPingTimer", "Re-ping all nodes by network change");
     }
 
     for (auto it = ips_.begin(); it != ips_.end(); ++it) {
@@ -112,7 +110,7 @@ void PingManager::onPingTimer()
         }
 
         if (pni.iterationTime != pingStorage_.currentIterationTime()) {
-            pingLog_.addLog("PingNodesController::onPingTimer", QString::fromLatin1("ping new node: %1 (%2 - %3)").arg(pni.ipInfo.ip, pni.ipInfo.city, pni.ipInfo.nick));
+            PingLog::addLog("PingNodesController::onPingTimer", QString::fromLatin1("ping new node: %1 (%2 - %3)").arg(pni.ipInfo.ip, pni.ipInfo.city, pni.ipInfo.nick));
             pni.nowPinging = true;
             WSNet::instance()->pingManager()->ping(pni.ipInfo.ip.toStdString(), pni.ipInfo.hostname.toStdString(), pingType,
                         [this](const std::string &ip, bool isSuccess, std::int32_t timeMs, bool isFromDisconnectedVpnState) {
@@ -123,10 +121,10 @@ void PingManager::onPingTimer()
         } else if (pni.latestPingFailed) {
             if (pni.nextTimeForFailedPing == 0 || QDateTime::currentMSecsSinceEpoch() >= pni.nextTimeForFailedPing) {
                 pni.nowPinging = true;
-                pingLog_.addLog("PingNodesController::onPingTimer", "start ping because latest ping failed: " + it.key());
+                PingLog::addLog("PingNodesController::onPingTimer", "start ping because latest ping failed: " + it.key());
                 WSNet::instance()->pingManager()->ping(pni.ipInfo.ip.toStdString(), pni.ipInfo.hostname.toStdString(), pingType,
                    [this](const std::string &ip, bool isSuccess, std::int32_t timeMs, bool isFromDisconnectedVpnState) {
-                       QMetaObject::invokeMethod(this, [this, ip, isSuccess, timeMs, isFromDisconnectedVpnState] {
+                       QMetaObject::invokeMethod(this, [this, ip, isSuccess, timeMs, isFromDisconnectedVpnState] { // NOLINT: false positive for memory leak
                            onPingFinished(ip, isSuccess, timeMs, isFromDisconnectedVpnState);
                     });
                 });
@@ -159,10 +157,10 @@ void PingManager::onPingFinished(const std::string &ip, bool isSuccess, int32_t 
             p.iterationTime = pingStorage_.currentIterationTime();
             pingStorage_.setPing(ipStr, timeMs);
             emit pingInfoChanged(ipStr, timeMs);
-            pingLog_.addLog("PingIpsController::onPingFinished", QString::fromLatin1("ping successful: %1 (%2 - %3) %4ms").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick).arg(timeMs));
+            PingLog::addLog("PingIpsController::onPingFinished", QString::fromLatin1("ping successful: %1 (%2 - %3) %4ms").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick).arg(timeMs));
         }
         else {
-            pingLog_.addLog("PingIpsController::onPingFinished", QString::fromLatin1("discarding ping while connected: %1 (%2 - %3) %4ms").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick).arg(timeMs));
+            PingLog::addLog("PingIpsController::onPingFinished", QString::fromLatin1("discarding ping while connected: %1 (%2 - %3) %4ms").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick).arg(timeMs));
         }
     }
     else {
@@ -181,7 +179,7 @@ void PingManager::onPingFinished(const std::string &ip, bool isSuccess, int32_t 
             }
 
             if (failedPingLogController_.logFailedIPs(ipStr)) {
-                pingLog_.addLog("PingIpsController::onPingFinished", QString::fromLatin1("ping failed: %1 (%2 - %3)").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick));
+                PingLog::addLog("PingIpsController::onPingFinished", QString::fromLatin1("ping failed: %1 (%2 - %3)").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick));
             }
         }
         else {
@@ -190,7 +188,7 @@ void PingManager::onPingFinished(const std::string &ip, bool isSuccess, int32_t 
         }
     }
     if (pingStorage_.isAllNodesHaveCurIteration()) {
-        pingLog_.addLog("PingIpsController::onPingFinished", "All nodes have the same iteration time");
+        PingLog::addLog("PingIpsController::onPingFinished", "All nodes have the same iteration time");
     }
 }
 

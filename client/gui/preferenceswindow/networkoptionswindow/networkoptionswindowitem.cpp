@@ -4,7 +4,6 @@
 #include "languagecontroller.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "preferenceswindow/preferencegroup.h"
-#include "utils/logger.h"
 
 namespace PreferencesWindow {
 

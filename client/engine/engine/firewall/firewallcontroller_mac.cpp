@@ -1,7 +1,7 @@
 #include "firewallcontroller_mac.h"
 #include <QStandardPaths>
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/network_utils/network_utils_mac.h"
 #include <ifaddrs.h>
 #include <QDir>
@@ -190,6 +190,10 @@ QStringList FirewallController_mac::lanTrafficRules(bool bAllowLanTraffic) const
     rules << "pass out quick inet from any to 127.0.0.0/8";
     rules << "pass in quick inet from 127.0.0.0/8 to any";
 
+    // Allow IPv6 link-local traffic
+    rules << "pass out quick inet6 from any to fe80::/10";
+    rules << "pass in quick inet6 from fe80::/10 to any";
+
     if (bAllowLanTraffic) {
         // Local Network
         rules << "pass out quick inet from any to 192.168.0.0/16";
@@ -329,13 +333,13 @@ QString FirewallController_mac::generatePfConf(const QString &connectingIp, cons
     }
     pf += "}\n";
 
-    pf += "pass out quick inet from any to <windscribe_ips> no state\n";
-    pf += "pass in quick inet from <windscribe_ips> to any no state\n";
+    pf += "pass out quick from any to <windscribe_ips> no state\n";
+    pf += "pass in quick from <windscribe_ips> to any no state\n";
 
     // this table is filled in by the helper
     pf += "table <windscribe_split_tunnel_ips> persist\n";
-    pf += "pass out quick inet from any to <windscribe_split_tunnel_ips> no state\n";
-    pf += "pass in quick inet from <windscribe_split_tunnel_ips> to any no state\n";
+    pf += "pass out quick from any to <windscribe_split_tunnel_ips> no state\n";
+    pf += "pass in quick from <windscribe_split_tunnel_ips> to any no state\n";
 
     Anchor vpnTrafficAnchor("windscribe_vpn_traffic");
     vpnTrafficAnchor.addRules(vpnTrafficRules(connectingIp, interfaceToSkip, bIsCustomConfig));

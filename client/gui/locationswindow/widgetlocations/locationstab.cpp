@@ -12,7 +12,6 @@
 #include "tooltips/tooltiptypes.h"
 #include "tooltips/tooltipcontroller.h"
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
 
 extern QWidget *g_mainWindow;
 
@@ -899,6 +898,11 @@ bool LocationsTab::handleKeyPressEvent(QKeyEvent *event)
 LOCATION_TAB LocationsTab::currentTab()
 {
     return curTab_;
+}
+
+void LocationsTab::setTab(LOCATION_TAB tab)
+{
+    switchToTabAndRestoreCursorToAccentedItem(tab);
 }
 
 int LocationsTab::unscaledHeightOfItemViewport()

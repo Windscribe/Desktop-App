@@ -10,7 +10,6 @@
 #include "languagecontroller.h"
 #include "tooltips/tooltipcontroller.h"
 #include "tooltips/tooltiputil.h"
-#include "utils/logger.h"
 #include "utils/ws_assert.h"
 
 

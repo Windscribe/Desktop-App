@@ -1,5 +1,4 @@
 #include "helper_mac.h"
-#include "utils/logger.h"
 #include <QStandardPaths>
 #include "utils/ws_assert.h"
 #include <QCoreApplication>
@@ -141,21 +140,6 @@ bool Helper_mac::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QStri
     } else {
         return false;
     }
-}
-
-bool Helper_mac::setIpv6Enabled(bool bEnabled)
-{
-    QMutexLocker locker(&mutex_);
-
-    CMD_ANSWER answer;
-    CMD_SET_IPV6_ENABLED cmd;
-    cmd.enabled = bEnabled;
-
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmd;
-
-    return runCommand(HELPER_CMD_SET_IPV6_ENABLED, stream.str(), answer);
 }
 
 void Helper_mac::doDisconnectAndReconnect()

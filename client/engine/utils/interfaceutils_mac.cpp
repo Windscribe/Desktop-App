@@ -4,7 +4,6 @@
 
 #include "utils/macutils.h"
 #include "utils/network_utils/network_utils_mac.h"
-#include "utils/logger.h"
 #include "utils/utils.h"
 
 InterfaceUtils_mac::InterfaceUtils_mac()

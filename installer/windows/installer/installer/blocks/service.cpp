@@ -1,10 +1,10 @@
 #include "service.h"
 
 #include <sstream>
+#include <spdlog/spdlog.h>
 
 #include "../settings.h"
 #include "../../../utils/applicationinfo.h"
-#include "../../../utils/logger.h"
 #include "servicecontrolmanager.h"
 
 using namespace std;
@@ -41,6 +41,6 @@ void Service::installWindscribeService()
         scm.startService();
     }
     catch (std::system_error& ex) {
-        Log::instance().out(L"installWindscribeService - %hs", ex.what());
+        spdlog::error("installWindscribeService - {}", ex.what());
     }
 }

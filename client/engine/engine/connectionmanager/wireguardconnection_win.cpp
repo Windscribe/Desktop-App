@@ -11,7 +11,7 @@
 #include "types/global_consts.h"
 #include "types/wireguardtypes.h"
 #include "utils/crashhandler.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/network_utils/network_utils_win.h"
 #include "utils/servicecontrolmanager.h"
 #include "utils/timer_win.h"

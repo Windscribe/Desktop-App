@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <unistd.h>
@@ -23,7 +24,7 @@
 #define HELPER_CMD_APPLY_CUSTOM_DNS                  16
 #define HELPER_CMD_CHANGE_MTU                        17
 #define HELPER_CMD_DELETE_ROUTE                      18
-#define HELPER_CMD_SET_IPV6_ENABLED                  19
+#define HELPER_CMD_SET_IPV6_ENABLED                  19 // deprecated
 #define HELPER_CMD_SET_DNS_LEAK_PROTECT_ENABLED      20 // this script disables DNS queries on non-VPN interfaces
 #define HELPER_CMD_SET_DNS_SCRIPT_ENABLED            21 // this script sets/unsets the VPN DNS as the system default
 #define HELPER_CMD_CHECK_FOR_WIREGUARD_KERNEL_MODULE 22 // deprecated
@@ -39,7 +40,7 @@
 #define HELPER_CMD_START_CTRLD                       32
 #define HELPER_CMD_START_STUNNEL                     33
 #define HELPER_CMD_START_WSTUNNEL                    34
-#define HELPER_CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR  35
+#define HELPER_CMD_INSTALLER_CREATE_CLI_SYMLINK      35
 #define HELPER_CMD_HELPER_VERSION                    36
 #define HELPER_CMD_GET_INTERFACE_SSID                37
 #define HELPER_CMD_RESET_MAC_ADDRESSES               38 // Linux only
@@ -194,10 +195,6 @@ struct CMD_DELETE_ROUTE {
     std::string gateway;
 };
 
-struct CMD_SET_IPV6_ENABLED {
-    bool enabled;
-};
-
 struct CMD_SET_DNS_LEAK_PROTECT_ENABLED {
     bool enabled;
 };
@@ -267,7 +264,7 @@ struct CMD_START_WSTUNNEL {
     int localPort;
 };
 
-struct CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR {
+struct CMD_INSTALLER_CREATE_CLI_SYMLINK {
     uid_t uid;
 };
 

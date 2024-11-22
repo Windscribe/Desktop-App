@@ -5,11 +5,11 @@
 #include "defaultroutemonitor.h"
 #include "../../../posix_common/helper_commands.h"
 #include "../execute_cmd.h"
-#include "../logger.h"
 #include "../utils.h"
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <spdlog/spdlog.h>
 
 WireGuardController::WireGuardController()
     : comm_(nullptr), is_initialized_(false)
@@ -22,10 +22,10 @@ bool WireGuardController::start()
 
     bool isUsingKernelModule = !Utils::executeCommand("modprobe", {"wireguard"});
     if (isUsingKernelModule) {
-        Logger::instance().out("Using wireguard kernel module");
+        spdlog::info("Using wireguard kernel module");
         comm_ = std::make_shared<KernelModuleCommunicator>();
     } else {
-        Logger::instance().out("Using wireguard-go");
+        spdlog::info("Using wireguard-go");
         comm_ = std::make_shared<WireGuardGoCommunicator>();
     }
 
@@ -90,7 +90,7 @@ bool WireGuardController::configureAdapter(const std::string &ipAddress,
     UNUSED(dnsScriptName);
     UNUSED(dnsAddressList);
 
-    Logger::instance().out("DNS: \"%s\"", dnsAddressList.c_str());
+    spdlog::debug("DNS: \"{}\"", dnsAddressList);
 
     if (!is_initialized_ || !adapter_.get())
         return false;
@@ -120,7 +120,7 @@ std::vector<std::string>
 WireGuardController::splitAndDeduplicateAllowedIps(const std::string &allowedIps)
 {
     std::vector<std::string> result;
-    boost::split(result, allowedIps, boost::is_any_of(",; "), boost::token_compress_on);
+    boost::split(result, allowedIps, boost::is_any_of(",; "), boost::token_compress_on); // NOLINT: false positive
     std::sort(result.begin(), result.end());
     result.erase(std::unique(result.begin(), result.end()), result.end());
     return result;

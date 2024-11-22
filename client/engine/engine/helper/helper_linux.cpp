@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include "../../../../backend/posix_common/helper_commands_serialize.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 Helper_linux::Helper_linux(QObject *parent) : Helper_posix(parent)
 {

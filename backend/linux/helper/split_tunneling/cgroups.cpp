@@ -2,8 +2,7 @@
 
 #include <fstream>
 #include <sstream>
-
-#include "../logger.h"
+#include <spdlog/spdlog.h>
 #include "../utils.h"
 
 CGroups::CGroups()
@@ -16,7 +15,7 @@ CGroups::~CGroups()
 
 bool CGroups::enable(CMD_SEND_CONNECT_STATUS &connectStatus, bool isAllowLanTraffic, bool isExclude)
 {
-    Logger::instance().out("cgroups enable");
+    spdlog::debug("cgroups enable");
 
     std::string out;
 
@@ -32,7 +31,7 @@ bool CGroups::enable(CMD_SEND_CONNECT_STATUS &connectStatus, bool isAllowLanTraf
                                       isExclude ? "exclusive": "inclusive"},
                                     &out);
     if (ret != 0) {
-        Logger::instance().out("cgroups-up script failed: %s", out.c_str());
+        spdlog::error("cgroups-up script failed: {}", out);
         return false;
     }
 
@@ -41,7 +40,7 @@ bool CGroups::enable(CMD_SEND_CONNECT_STATUS &connectStatus, bool isAllowLanTraf
 
 void CGroups::disable()
 {
-    Logger::instance().out("cgroups disable");
+    spdlog::debug("cgroups disable");
 
     Utils::executeCommand("/etc/windscribe/cgroups-down");
 }

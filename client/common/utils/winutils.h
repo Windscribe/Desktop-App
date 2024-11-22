@@ -18,8 +18,9 @@ namespace WinUtils
     QString getWinVersionString();
     void getOSVersionAndBuild(QString &osVersion, QString &build);
     QMap<QString,QString> enumerateInstalledProgramIconLocations();
-    QStringList enumerateRunningProgramLocations();
+    QStringList enumerateRunningProgramLocations(bool allowDuplicate = false);
     QStringList enumerateSubkeyNames(HKEY rootKey, const QString &keyPath);
+    QStringList enumerateProcesses(const QString &processName);
 
     QString executeBlockingCmd(QString cmd, const QString &params, int timeoutMs = -1);
 

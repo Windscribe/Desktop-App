@@ -40,7 +40,7 @@ void ServerAPI_impl::setApiResolutionsSettings(bool isAutomatic, std::string man
 {
     if (!isAutomatic && !manualAddress.empty()) {
         if (!utils::isIpAddress(manualAddress)) {
-            spdlog::info("ServerAPI_impl::setApiResolutionsSettings, manualAddress = {} is not correct IP, reset to an automatic resolution", manualAddress);
+            spdlog::error("ServerAPI_impl::setApiResolutionsSettings, manualAddress = {} is not correct IP, reset to an automatic resolution", manualAddress);
             return;
         }
     }

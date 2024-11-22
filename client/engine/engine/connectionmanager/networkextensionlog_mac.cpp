@@ -6,7 +6,7 @@
 #include <QJsonParseError>
 #include <time.h>
 #include <xlocale.h>
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 NetworkExtensionLog_mac::NetworkExtensionLog_mac(QObject *parent) : QObject(parent)
 {

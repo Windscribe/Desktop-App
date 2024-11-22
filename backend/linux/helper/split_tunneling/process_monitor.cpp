@@ -12,9 +12,9 @@
 #include <sstream>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <spdlog/spdlog.h>
 
 #include "cgroups.h"
-#include "../logger.h"
 #include "../utils.h"
 
 void ProcessMonitor::monitorWorker(void *ctx)
@@ -28,7 +28,7 @@ void ProcessMonitor::monitorWorker(void *ctx)
         };
     } nlcn_msg;
 
-    Logger::instance().out("process monitor thread started");
+    spdlog::debug("process monitor thread started");
     running_ = true;
 
     while (running_) {
@@ -38,7 +38,7 @@ void ProcessMonitor::monitorWorker(void *ctx)
 
         int ret = poll(&pfd, 1, 250);
         if (ret < 0) {
-            Logger::instance().out("process monitor poll error %d", ret);
+            spdlog::error("process monitor poll error {}", ret);
             return;
         } else if (ret == 0) {
             continue;
@@ -77,7 +77,7 @@ void ProcessMonitor::monitorWorker(void *ctx)
     running_ = false;
     close(sock_);
     sock_ = -1;
-    Logger::instance().out("process monitor thread exiting");
+    spdlog::debug("process monitor thread exiting");
 }
 
 ProcessMonitor::ProcessMonitor() : isEnabled_(false), thread_(nullptr), sock_(-1), running_(false), functional_(false), testing_(false)
@@ -118,7 +118,7 @@ bool ProcessMonitor::enable()
 
     // Tested were run and found that we're not able to get some kernel events.  Fail here.
     if (!functional_) {
-        Logger::instance().out("process monitor not functional");
+        spdlog::error("process monitor not functional");
         return false;
     }
 
@@ -126,7 +126,7 @@ bool ProcessMonitor::enable()
         return true;
     }
 
-    Logger::instance().out("process monitor enable");
+    spdlog::debug("process monitor enable");
 
     if (!startMonitoring()) {
         return false;
@@ -145,7 +145,7 @@ void ProcessMonitor::disable()
         return;
     }
 
-    Logger::instance().out("process monitor disable");
+    spdlog::debug("process monitor disable");
 
     stopMonitoring();
 
@@ -153,7 +153,7 @@ void ProcessMonitor::disable()
 }
 
 void ProcessMonitor::addApp(const std::string &exe) {
-    Logger::instance().out("process monitor add app: %s", exe.c_str());
+    spdlog::info("process monitor add app: {}", exe);
     std::vector<pid_t> pids = findPids(exe);
     for (auto pid : pids) {
         CGroups::instance().addApp(pid);
@@ -161,7 +161,7 @@ void ProcessMonitor::addApp(const std::string &exe) {
 }
 
 void ProcessMonitor::removeApp(const std::string &exe) {
-    Logger::instance().out("process monitor remove app: %s", exe.c_str());
+    spdlog::info("process monitor remove app: {}", exe);
     std::vector<pid_t> pids = findPids(exe);
     for (auto pid : pids) {
         CGroups::instance().removeApp(pid);
@@ -177,11 +177,11 @@ std::vector<pid_t> ProcessMonitor::findPids(const std::string &exe)
 
     dp = opendir("/proc");
     if (dp == NULL) {
-        Logger::instance().out("process monitor could not open /proc filesystem");
+        spdlog::error("process monitor could not open /proc filesystem");
         return pids;
     }
 
-    while (ep = readdir(dp)) {
+    while ((ep = readdir(dp))) {
         // numeric directories are pids in /proc
         if (ep->d_type == DT_DIR && ep->d_name[0] >= '0' && ep->d_name[0] <= '9') {
             if (compareCmd(std::stoi(ep->d_name), {exe})) {
@@ -245,14 +245,14 @@ bool ProcessMonitor::startMonitoring()
     }
 
     if (!prepareMonitoring()) {
-        Logger::instance().out("Failed to prepare monitoring");
+        spdlog::error("Failed to prepare monitoring");
         return false;
     }
 
     try {
         thread_ = new std::thread(&ProcessMonitor::monitorWorker, this, &sock_);
     } catch (std::exception &e) {
-        Logger::instance().out("process monitor caught exception starting thread");
+        spdlog::error("process monitor caught exception starting thread");
     }
 
     return true;
@@ -265,7 +265,7 @@ bool ProcessMonitor::prepareMonitoring()
 
     sock_ = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR);
     if (sock_ == -1) {
-        Logger::instance().out("Could not open netlink socket");
+        spdlog::error("Could not open netlink socket");
         return false;
     }
 
@@ -276,7 +276,7 @@ bool ProcessMonitor::prepareMonitoring()
 
     ret = bind(sock_, (struct sockaddr *)&addr, sizeof(addr));
     if (ret == -1) {
-        Logger::instance().out("Could not bind netlink socket");
+        spdlog::error("Could not bind netlink socket");
         close(sock_);
         sock_ = -1;
         return false;
@@ -303,7 +303,7 @@ bool ProcessMonitor::prepareMonitoring()
 
     ret = send(sock_, &nlcn_msg, sizeof(nlcn_msg), 0);
     if (ret == -1) {
-        Logger::instance().out("Could not request events");
+        spdlog::error("Could not request events");
         close(sock_);
         sock_ = -1;
         return false;
@@ -346,6 +346,6 @@ void ProcessMonitor::selfTest()
     // Cleanup
     stopMonitoring();
 
-    Logger::instance().out("process monitor self-test %s", (functional_ ? "successful" : "unsuccessful"));
+    spdlog::debug("process monitor self-test {}", (functional_ ? "successful" : "unsuccessful"));
     testing_ = false;
 }

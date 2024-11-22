@@ -1,5 +1,5 @@
 #include "routes.h"
-#include "../logger.h"
+#include <spdlog/spdlog.h>
 #include "../utils.h"
 
 void Routes::add(const std::string &ip, const std::string &gateway, const std::string &mask)
@@ -11,7 +11,7 @@ void Routes::add(const std::string &ip, const std::string &gateway, const std::s
     routes_.push_back(rd);
 
     std::string cmd = "ip route add " + ip + "/" + mask + " via " + gateway;
-    Logger::instance().out("execute: %s", cmd.c_str());
+    spdlog::info("execute: {}", cmd);
     Utils::executeCommand(cmd);
 }
 
@@ -24,7 +24,7 @@ void Routes::addWithInterface(const std::string &ip, const std::string &interfac
     routes_.push_back(rd);
 
     std::string cmd = "ip route add " + ip + "/" + mask + " dev " + interface;
-    Logger::instance().out("execute: %s", cmd.c_str());
+    spdlog::info("execute: {}", cmd);
     Utils::executeCommand(cmd);
 }
 
@@ -36,13 +36,13 @@ void Routes::clear()
         if (rd.interface.empty())
         {
             std::string cmd = "ip route delete " + rd.ip + "/" + rd.mask + " via " + rd.gateway;
-            Logger::instance().out("execute: %s", cmd.c_str());
+            spdlog::info("execute: {}", cmd);
             Utils::executeCommand(cmd);
         }
         else
         {
             std::string cmd = "ip route delete " + rd.ip + "/" + rd.mask + " dev " + rd.interface;
-            Logger::instance().out("execute: %s", cmd.c_str());
+            spdlog::info("execute: {}", cmd);
             Utils::executeCommand(cmd);
         }
     }

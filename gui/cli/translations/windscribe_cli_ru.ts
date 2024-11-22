@@ -11,6 +11,10 @@
         <source>Unlimited</source>
         <translation>Неограниченный</translation>
     </message>
+    <message>
+        <source>No locations.</source>
+        <translation>Никаких локаций.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -249,6 +253,22 @@
     <message>
         <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
         <translation>Выполняется выход из системы.  Используйте &apos;windscribe-cli status&apos; для проверки статуса.</translation>
+    </message>
+    <message>
+        <source>Connection has been overridden by another command.</source>
+        <translation>Соединение было переопределено другой командой.</translation>
+    </message>
+    <message>
+        <source>Disconnection has been overridden by another command.</source>
+        <translation>Отключение было переопределено другой командой.</translation>
+    </message>
+    <message>
+        <source>Already disconnected</source>
+        <translation>Уже отключено</translation>
+    </message>
+    <message>
+        <source>Logging out</source>
+        <translation>Выход из системы</translation>
     </message>
 </context>
 </TS>

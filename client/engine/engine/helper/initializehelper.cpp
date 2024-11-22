@@ -3,7 +3,7 @@
 #include <QTimer>
 
 #include "engine/helper/ihelper.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 InitializeHelper::InitializeHelper(QObject *parent, IHelper *helper) : QObject(parent),
     helper_(helper), helperInitAttempts_(0)

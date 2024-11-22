@@ -286,10 +286,6 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <source>Merge all logs by timestamp</source>
-        <translation>按時間戳合併所有日誌</translation>
-    </message>
-    <message>
         <source>Word Wrap</source>
         <translation>自動換行</translation>
     </message>
@@ -964,32 +960,12 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>高級選項</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>需要重新啟動</translation>
-    </message>
-    <message>
-        <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>要切換 IPv6，需要重新啟動電腦。現在就做？</translation>
-    </message>
-    <message>
-        <source>Restart later</source>
-        <translation>稍後重新啟動</translation>
-    </message>
-    <message>
         <source>Make advanced tweaks to the way the app functions.</source>
         <translation>對應用程式的運行方式進行高級調整。</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
         <translation>高級參數</translation>
-    </message>
-    <message>
-        <source>Enables / disables system-wide IPv6 connectivity.</source>
-        <translation>啟用/禁用系統範圍的 IPv6 連接。</translation>
-    </message>
-    <message>
-        <source>IPv6</source>
-        <translation>IPv6</translation>
     </message>
     <message>
         <source>Resolve server API address automatically, or use one provided by the Support team.</source>
@@ -1738,6 +1714,10 @@ Connect to a network first</source>
         <source>Auto</source>
         <translation>自動</translation>
     </message>
+    <message>
+        <source>Only when VPN is connected</source>
+        <translation>僅當連接 VPN 時</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
@@ -2145,8 +2125,16 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>自動檢測</translation>
     </message>
     <message>
+        <source>Release</source>
+        <translation>發布</translation>
+    </message>
+    <message>
+        <source>Beta</source>
+        <translation>測試</translation>
+    </message>
+    <message>
         <source>Guinea Pig</source>
-        <translation>豚鼠</translation>
+        <translation>實驗</translation>
     </message>
     <message>
         <source>Internal</source>

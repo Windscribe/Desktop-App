@@ -5,9 +5,7 @@
 #include <QKeyEvent>
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
-#include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
-#include "utils/logger.h"
 
 namespace GeneralMessageWindow {
 

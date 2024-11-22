@@ -2,12 +2,12 @@
 
 #include <filesystem>
 #include <shlobj_core.h>
+#include <spdlog/spdlog.h>
 
 #include "../installer_base.h"
 #include "../settings.h"
 #include "../../../utils/applicationinfo.h"
 #include "../../../utils/archive.h"
-#include "../../../utils/logger.h"
 #include "../../../utils/path.h"
 #include "../../../utils/utils.h"
 
@@ -33,32 +33,32 @@ int Files::executeStep()
     if (filesystem::exists(installPath_, ec)) {
         if (!filesystem::is_empty(installPath_, ec)) {
             if (ec) {
-                Log::instance().out(L"Files::executeStep: filesystem::is_empty failed (%hs).", ec.message().c_str());
+                spdlog::error("Files::executeStep: filesystem::is_empty failed ({}).", ec.message().c_str());
             }
-            Log::instance().out(L"Warning: the default install directory exists and is not empty.");
+            spdlog::warn(L"Warning: the default install directory exists and is not empty.");
         }
     }
     else {
         if (ec) {
-            Log::instance().out(L"Files::executeStep: filesystem::exists failed (%hs).", ec.message().c_str());
+            spdlog::error("Files::executeStep: filesystem::exists failed ({}).", ec.message().c_str());
         }
 
         auto result = ::SHCreateDirectoryEx(NULL, installPath_.c_str(), NULL);
         if (result != ERROR_SUCCESS) {
-            Log::instance().out(L"Failed to create default install directory (%d)", result);
+            spdlog::error(L"Failed to create default install directory ({})", result);
             return -ERROR_OTHER;
         }
     }
 
     const wstring exePath = Utils::getExePath();
     if (exePath.empty()) {
-        Log::instance().out(L"Could not get exe path");
+        spdlog::error(L"Could not get exe path");
         return -ERROR_OTHER;
     }
 
     wsl::Archive archive;
     archive.setLogFunction([](const wstring &str) {
-        Log::instance().out(str);
+        spdlog::info(L"{}", str);
     });
 
     if (!archive.extract(L"Windscribe", L"windscribe.7z", exePath, installPath_)) {
@@ -66,7 +66,7 @@ int Files::executeStep()
     }
 
     if (!copyLibs()) {
-        Log::instance().out(L"Failed to copy libs");
+        spdlog::error(L"Failed to copy libs");
         return -ERROR_OTHER;
     }
 
@@ -82,7 +82,7 @@ int Files::moveFiles()
             return 100;
         }
 
-        Log::instance().out(L"Moving installed files to user custom path...");
+        spdlog::info(L"Moving installed files to user custom path...");
 
         // Delete the target folder just in case a symlink has been created on it, and because MoveFileEx() expects it to not exist.
         // The target folder, if it exists, is expected to be empty (i.e. we do not allow installing the app into a folder already
@@ -96,7 +96,7 @@ int Files::moveFiles()
             // Ensure the target's parent folder exists or MoveFile will fail.
             wstring parentFolder = Path::extractDir(settingsInstallPath);
             if (!parentFolder.empty() && !Path::isRoot(parentFolder) && !filesystem::exists(parentFolder)) {
-                Log::instance().out(L"Creating parent folder...");
+                spdlog::info(L"Creating parent folder...");
                 if (::SHCreateDirectoryEx(NULL, parentFolder.c_str(), NULL) != ERROR_SUCCESS) {
                     throw system_error(::GetLastError(), generic_category(), "could not create target folder's parent");
                 }
@@ -111,7 +111,7 @@ int Files::moveFiles()
         }
     }
     catch (system_error& ex) {
-        Log::instance().out(L"Could not move installed files: %hs", ex.what());
+        spdlog::error("Could not move installed files: {}", ex.what());
 
         // Delete "C:\Program Files\Windscribe" since we don't want to leave files behind.
         // SHFileOperation requires the path to be double-null terminated.
@@ -128,7 +128,7 @@ int Files::moveFiles()
         };
         int ret = SHFileOperation(&fileOp);
         if (ret) {
-            Log::instance().out(L"Could not delete partial install: %lu", ret);
+            spdlog::error(L"Could not delete partial install: {}", ret);
         }
         return -ERROR_MOVE_CUSTOM_DIR;
     }
@@ -144,7 +144,7 @@ bool Files::copyLibs()
     const filesystem::path installPath = installPath_;
     const wstring exeStr = Utils::getExePath();
     if (exeStr.empty()) {
-        Log::instance().out(L"Could not get exe path");
+        spdlog::error(L"Could not get exe path");
         return false;
     }
     const filesystem::path exePath = exeStr;
@@ -154,14 +154,14 @@ bool Files::copyLibs()
         if (entry.is_regular_file() && entry.path().extension() == ".dll") {
             filesystem::copy_file(entry.path(), installPath / entry.path().filename(), opts, ec);
             if (ec) {
-                Log::instance().out(L"Could not copy DLL %s: %hs", entry.path().c_str(), ec.message().c_str());
+                spdlog::error(L"Could not copy DLL {}, error {}", entry.path().c_str(), ec.value());
                 return false;
             }
         }
     }
 
     if (ec) {
-        Log::instance().out(L"Files::copyLibs: filesystem::directory_iterator failed (%hs)", ec.message().c_str());
+        spdlog::error("Files::copyLibs: filesystem::directory_iterator failed ({})", ec.message().c_str());
         return false;
     }
 
@@ -170,7 +170,7 @@ bool Files::copyLibs()
     for (auto p : paths) {
         filesystem::copy(exePath / p, installPath / p, opts, ec);
         if (ec) {
-            Log::instance().out(L"Could not copy %s: %hs", p.c_str(), ec.message().c_str());
+            spdlog::error(L"Could not copy {}, error {}", p.c_str(), ec.value());
             return false;
         }
     }

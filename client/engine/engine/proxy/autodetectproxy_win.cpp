@@ -1,5 +1,5 @@
 #include "autodetectproxy_win.h"
-#include "Utils/logger.h"
+#include "utils/log/categories.h"
 #include <QNetworkProxy>
 #include "utils/hardcodedsettings.h"
 

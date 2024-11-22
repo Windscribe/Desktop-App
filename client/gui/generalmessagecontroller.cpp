@@ -1,7 +1,6 @@
 #include "generalmessagecontroller.h"
 
 #include <QApplication>
-#include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/ws_assert.h"
 

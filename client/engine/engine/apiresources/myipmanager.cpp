@@ -35,7 +35,7 @@ void MyIpManager::onTimer()
 
         auto callback = [this, connectStateWatcher, isFromDisconnectedState](ServerApiRetCode serverApiRetCode, const std::string &jsonData)
         {
-            QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData, connectStateWatcher, isFromDisconnectedState] {
+            QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData, connectStateWatcher, isFromDisconnectedState] { // NOLINT: false positive for memory leak
                 onMyIpAnswer(serverApiRetCode, jsonData, connectStateWatcher, isFromDisconnectedState);
             });
         };

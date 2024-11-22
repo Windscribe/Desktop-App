@@ -1,7 +1,7 @@
 #include "ip_routes.h"
-#include "../logger.h"
-#include "../utils.h"
+#include <spdlog/spdlog.h>
 #include <set>
+#include "../utils.h"
 
 void IpRoutes::setIps(const std::string &defaultRouteIp, const std::vector<std::string> &ips)
 {
@@ -9,42 +9,35 @@ void IpRoutes::setIps(const std::string &defaultRouteIp, const std::vector<std::
 
     // exclude duplicates
     std::set<std::string> ipsSet;
-    for (auto ip = ips.begin(); ip != ips.end(); ++ip)
-    {
-        ipsSet.insert(*ip);
+    for (auto ip = ips.begin(); ip != ips.end(); ++ip) {
+        if (Utils::isValidIpv4Address(*ip)) {
+            ipsSet.insert(*ip);
+        }
     }
 
     // find route which need to delete
     std::set<std::string> ipsDelete;
-    for (auto it = activeRoutes_.begin(); it != activeRoutes_.end(); ++it)
-    {
-        if (it->second.defaultRouteIp != defaultRouteIp || ipsSet.find(it->first) == ipsSet.end())
-        {
+    for (auto it = activeRoutes_.begin(); it != activeRoutes_.end(); ++it) {
+        if (it->second.defaultRouteIp != defaultRouteIp || ipsSet.find(it->first) == ipsSet.end()) {
             ipsDelete.insert(it->first);
         }
     }
 
     // delete routes
-    for (auto ip = ipsDelete.begin(); ip != ipsDelete.end(); ++ip)
-    {
+    for (auto ip = ipsDelete.begin(); ip != ipsDelete.end(); ++ip) {
         auto fr = activeRoutes_.find(*ip);
-        if (fr != activeRoutes_.end())
-        {
+        if (fr != activeRoutes_.end()) {
             deleteRoute(fr->second);
             activeRoutes_.erase(fr);
         }
     }
 
     // add routes
-    for (auto ip = ipsSet.begin(); ip != ipsSet.end(); ++ip)
-    {
+    for (auto ip = ipsSet.begin(); ip != ipsSet.end(); ++ip) {
         auto ar = activeRoutes_.find(*ip);
-        if (ar != activeRoutes_.end())
-        {
+        if (ar != activeRoutes_.end()) {
             continue;
-        }
-        else
-        {
+        } else {
             RouteDescr rd;
             rd.ip = *ip;
             rd.defaultRouteIp = defaultRouteIp;
@@ -57,8 +50,7 @@ void IpRoutes::setIps(const std::string &defaultRouteIp, const std::vector<std::
 void IpRoutes::clear()
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
-    for (auto it = activeRoutes_.begin(); it != activeRoutes_.end(); ++it)
-    {
+    for (auto it = activeRoutes_.begin(); it != activeRoutes_.end(); ++it) {
         deleteRoute(it->second);
     }
     activeRoutes_.clear();
@@ -67,7 +59,7 @@ void IpRoutes::clear()
 void IpRoutes::addRoute(const RouteDescr &rd)
 {
     std::string cmd = "route add -net " + rd.ip + " " + rd.defaultRouteIp;
-    LOG("cmd: %s", cmd.c_str());
+    spdlog::info("cmd: {}", cmd.c_str());
 
     Utils::executeCommand(cmd);
 }
@@ -75,6 +67,6 @@ void IpRoutes::addRoute(const RouteDescr &rd)
 void IpRoutes::deleteRoute(const RouteDescr &rd)
 {
     std::string cmd = "route delete -net " + rd.ip + " " + rd.defaultRouteIp;
-    LOG("cmd: %s", cmd.c_str());
+    spdlog::info("cmd: {}", cmd.c_str());
     Utils::executeCommand(cmd);
 }

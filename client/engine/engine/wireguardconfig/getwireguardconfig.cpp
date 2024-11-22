@@ -1,6 +1,7 @@
 #include "getwireguardconfig.h"
 #include <QSettings>
 #include <QTimer>
+#include <QIODevice>
 #include "types/global_consts.h"
 #include "api_responses/wgconfigs_connect.h"
 #include "api_responses/wgconfigs_init.h"
@@ -168,7 +169,7 @@ void GetWireGuardConfig::submitWireGuardInitRequest(bool generateKeyPair)
                                                                 deleteOldestKey_,
                                                                 [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData)
                                                                 {
-                                                                    QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData]() {
+                                                                    QMetaObject::invokeMethod(this, [this, serverApiRetCode, jsonData]() { // NOLINT: false positive for memory leak
                                                                         onWgConfigsInitAnswer(serverApiRetCode, jsonData);
                                                                     });
                                                                 });

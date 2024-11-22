@@ -31,7 +31,7 @@ void PingMethodIcmp_win::ping(bool isFromDisconnectedVpnState)
 
     icmpFile_ = ::IcmpCreateFile();
     if (icmpFile_ == INVALID_HANDLE_VALUE) {
-        spdlog::info("PingHost_ICMP_win IcmpCreateFile failed, error: {}", ::GetLastError());
+        spdlog::error("PingHost_ICMP_win IcmpCreateFile failed, error: {}", ::GetLastError());
         assert(false);
         callFinished();
         return;
@@ -43,7 +43,7 @@ void PingMethodIcmp_win::ping(bool isFromDisconnectedVpnState)
 
     IN_ADDR ipAddr;
     if (inet_pton(AF_INET, ip_.c_str(), &ipAddr) != 1) {
-        spdlog::info("PingHost_ICMP_win inet_pton failed, error: {}", ::WSAGetLastError());
+        spdlog::error("PingHost_ICMP_win inet_pton failed, error: {}", ::WSAGetLastError());
         callFinished();
         return;
     }

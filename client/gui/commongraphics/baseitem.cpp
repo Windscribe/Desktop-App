@@ -1,7 +1,6 @@
 #include "baseitem.h"
 #include "commongraphics.h"
 #include "dpiscalemanager.h"
-#include "utils/logger.h"
 
 namespace CommonGraphics {
 

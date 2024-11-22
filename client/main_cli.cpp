@@ -4,7 +4,9 @@
 #include "application/singleappinstance.h"
 #include "application/windscribeapplication.h"
 #include "cli/mainservice.h"
-#include "utils/logger.h"
+#include "utils/log/logger.h"
+#include "utils/log/paths.h"
+#include "utils/log/categories.h"
 #include "utils/utils.h"
 #include "utils/extraconfig.h"
 #include "version/appversion.h"
@@ -102,9 +104,9 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    Logger::instance().install("cli", true, false);
+    log_utils::Logger::instance().install(log_utils::paths::cliLogLocation(), true);
 
-    qCDebug(LOG_BASIC) << "App start time:" << QDateTime::currentDateTime().toString();
+    qCDebug(LOG_BASIC) << "=== Started ===";
     qCDebug(LOG_BASIC) << "App version:" << AppVersion::instance().fullVersionString();
     qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
     qCDebug(LOG_BASIC) << "Platform: CLI";

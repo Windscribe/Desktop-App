@@ -6,7 +6,7 @@
 #include <strsafe.h>
 
 #include "utils/executable_signature/executable_signature.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/winutils.h"
 
 #include "../../gui/authhelper/win/ws_com/guids.h"

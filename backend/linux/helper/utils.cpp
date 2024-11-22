@@ -9,8 +9,7 @@
 #include <skyr/url.hpp>
 #include <sstream>
 #include <sys/stat.h>
-
-#include "logger.h"
+#include <spdlog/spdlog.h>
 
 namespace Utils
 {
@@ -78,7 +77,7 @@ std::string getFullCommand(const std::string &exePath, const std::string &execut
 {
     char *canonicalPath = realpath(exePath.c_str(), NULL);
     if (!canonicalPath) {
-        Logger::instance().out("Executable not in valid path, ignoring.");
+        spdlog::warn("Executable not in valid path, ignoring.");
         return "";
     }
 
@@ -86,19 +85,19 @@ std::string getFullCommand(const std::string &exePath, const std::string &execut
 #ifdef NDEBUG
     if (std::string(canonicalPath).rfind("/opt/windscribe", 0) != 0 && std::string(canonicalPath).rfind("/usr/lib/opt/windscribe", 0) != 0) {
         // Don't execute arbitrary commands, only executables that are in our application directory
-        Logger::instance().out("Executable not in correct path, ignoring.");
+        spdlog::warn("Executable not in correct path, ignoring.");
         free(canonicalPath);
         return "";
     }
 #endif
 
     std::string fullCmd = std::string(canonicalPath) + "/" + executable + " " + arguments;
-    Logger::instance().out("Resolved command: %s", fullCmd.c_str());
+    spdlog::debug("Resolved command: {}", fullCmd);
     free(canonicalPath);
 
     if (fullCmd.find_first_of(";|&`") != std::string::npos) {
         // Don't execute commands with dangerous pipes or delimiters
-        Logger::instance().out("Executable command contains invalid characters, ignoring.");
+        spdlog::warn("Executable command contains invalid characters, ignoring.");
         return "";
     }
 
@@ -170,9 +169,21 @@ std::string getExePath()
 
 bool isValidIpAddress(const std::string &address)
 {
+    return isValidIpv4Address(address) || isValidIpv6Address(address);
+}
+
+bool isValidIpv4Address(const std::string &address)
+{
     struct sockaddr_in sa;
     return inet_pton(AF_INET, address.c_str(), &(sa.sin_addr)) != 0;
 }
+
+bool isValidIpv6Address(const std::string &address)
+{
+    struct sockaddr_in6 sa;
+    return inet_pton(AF_INET6, address.c_str(), &(sa.sin6_addr)) != 0;
+}
+
 
 bool isValidDomain(const std::string &address)
 {
@@ -212,12 +223,12 @@ bool isMacAddressSpoofed(const std::string &network)
 {
     std::string output;
     int ret = Utils::executeCommand("nmcli", {"-g", "802-11-wireless.cloned-mac-address", "connection", "show", network.c_str()}, &output);
-    Logger::instance().out("Wireless MAC for network: %s: %s", network.c_str(), output.c_str());
+    spdlog::info("Wireless MAC for network: {}: {}", network, output);
     if (ret == 0 && !output.empty() && output.rfind("preserve", 0) == std::string::npos) {
         return true;
     }
     ret = Utils::executeCommand("nmcli", {"-g", "802-3-ethernet.cloned-mac-address", "connection", "show", network.c_str()}, &output);
-    Logger::instance().out("Wired MAC for network: %s: %s", network.c_str(), output.c_str());
+    spdlog::info("Wired MAC for network: {}: {}", network.c_str(), output);
     if (ret == 0 && !output.empty() && output.rfind("preserve", 0) == std::string::npos) {
         return true;
     }
@@ -260,7 +271,7 @@ bool resetMacAddresses(const std::string &ignoreNetwork)
         Utils::executeCommand("nmcli", {"connection", "modify", name.c_str(), "wifi.cloned-mac-address", "preserve"}, &output);
         Utils::executeCommand("nmcli", {"connection", "modify", name.c_str(), "ethernet.cloned-mac-address", "preserve"}, &output);
 
-        Logger::instance().out("Reset MAC addresses: %s (state = %s)", name.c_str(), state.c_str());
+        spdlog::info("Reset MAC addresses: {} (state = {})", name, state);
 
         if (state == "activated") {
             Utils::executeCommand("nmcli", {"connection", "up", name.c_str()});

@@ -8,6 +8,7 @@ project(com.windscribe.helper.macos)
 find_package(Boost REQUIRED COMPONENTS serialization thread)
 find_package(c-ares REQUIRED)
 find_package(skyr-url CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
 option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
@@ -43,10 +44,6 @@ set(SOURCES
     ip_hostnames/ip_routes.h
     ipc/helper_security.h
     ipc/helper_security.mm
-    ipv6/ipv6manager.cpp
-    ipv6/ipv6manager.h
-    logger.cpp
-    logger.h
     macspoofingonboot.cpp
     macspoofingonboot.h
     macutils.h
@@ -89,6 +86,7 @@ target_link_libraries(com.windscribe.helper.macos
                       Boost::thread
                       c-ares::cares
                       skyr::skyr-url
+                      spdlog::spdlog
                       "-framework Foundation"
                       "-framework Security"
                       "-framework SystemConfiguration"

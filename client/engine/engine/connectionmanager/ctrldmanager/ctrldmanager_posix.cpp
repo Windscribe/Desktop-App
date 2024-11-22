@@ -2,9 +2,8 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QStandardPaths>
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/ws_assert.h"
-#include "../availableport.h"
 
 CtrldManager_posix::CtrldManager_posix(QObject *parent, IHelper *helper, bool isCreateLog) : ICtrldManager(parent, isCreateLog), helper_(helper), bProcessStarted_(false)
 {

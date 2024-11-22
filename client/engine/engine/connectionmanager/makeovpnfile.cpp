@@ -3,7 +3,7 @@
 #include <QString>
 
 #include "utils/extraconfig.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/ws_assert.h"
 
 #if defined (Q_OS_WIN)

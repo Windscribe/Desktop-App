@@ -11,7 +11,9 @@
 VpnShareController::VpnShareController(QObject *parent, IHelper *helper) : QObject(parent),
     helper_(helper),
     httpProxyServer_(NULL),
-    socksProxyServer_(NULL)
+    socksProxyServer_(NULL),
+    vpnConnected_(false),
+    shareWhileConnected_(false)
 #ifdef Q_OS_WIN
     ,wifiSharing_(NULL)
 #endif
@@ -32,47 +34,55 @@ VpnShareController::~VpnShareController()
 #endif
 }
 
-void VpnShareController::startProxySharing(PROXY_SHARING_TYPE proxyType, uint port)
+void VpnShareController::startProxySharing(PROXY_SHARING_TYPE proxyType, uint port, bool whileConnected)
 {
     QMutexLocker locker(&mutex_);
 
-    SAFE_DELETE(httpProxyServer_);
-    SAFE_DELETE(socksProxyServer_);
-    if (proxyType == PROXY_SHARING_HTTP)
-    {
+    type_ = proxyType;
+    // Set the port if provided, otherwise find a free port.  We do this here because we want to give a port back
+    // to the caller in getProxySharingAddress(), even if the proxy sharing is not started immediately, so that
+    // the user can set up their clients.  It is possible that when we actually start the proxy , we won't be able
+    // to bind to this port, in which case we'll try to try again, but in most cases the first choice will work.
+    port_ = findPort(port);
+    shareWhileConnected_ = whileConnected;
+
+    if (shareWhileConnected_ && !vpnConnected_) {
+        // Share while connected is on, but VPN is not connected, so stop any existing proxy sharing
+        if ((proxyType == PROXY_SHARING_HTTP && httpProxyServer_) || (proxyType == PROXY_SHARING_SOCKS && socksProxyServer_)) {
+            SAFE_DELETE(httpProxyServer_);
+            SAFE_DELETE(socksProxyServer_);
+        }
+        return;
+    }
+
+    // If already started, do nothing.
+    if ((proxyType == PROXY_SHARING_HTTP && httpProxyServer_) || (proxyType == PROXY_SHARING_SOCKS && socksProxyServer_)) {
+        // Already started
+        return;
+    } else {
+        stopProxySharing();
+        SAFE_DELETE(httpProxyServer_);
+        SAFE_DELETE(socksProxyServer_);
+    }
+
+    // Start the proxy sharing
+    if (proxyType == PROXY_SHARING_HTTP) {
         httpProxyServer_ = new HttpProxyServer::HttpProxyServer(this);
         connect(httpProxyServer_, &HttpProxyServer::HttpProxyServer::usersCountChanged, this, &VpnShareController::onProxyUsersCountChanged);
-
-        bool isStarted = false;
-        if (port != 0) {
-            // Port provided by user, use it.
-            isStarted = httpProxyServer_->startServer(port);
-        } else {
-            if (getLastSavedPort(port)) {
-                isStarted = httpProxyServer_->startServer(port);
-            }
-            if (!isStarted) {
-                uint randomPort = AvailablePort::getAvailablePort(18888);
-                httpProxyServer_->startServer(randomPort);
-                saveLastPort(randomPort);
-            }
+        bool isStarted = httpProxyServer_->startServer(port_);
+        if (!isStarted) {
+            // Port became busy, try to find another one
+            port_ = findPort(18888);
+            httpProxyServer_->startServer(port_);
         }
     } else if (proxyType == PROXY_SHARING_SOCKS) {
         socksProxyServer_ = new SocksProxyServer::SocksProxyServer(this);
         connect(socksProxyServer_, &SocksProxyServer::SocksProxyServer::usersCountChanged, this, &VpnShareController::onProxyUsersCountChanged);
-
-        bool isStarted = false;
-        if (port != 0) {
-            isStarted = socksProxyServer_->startServer(port);
-        } else {
-            if (getLastSavedPort(port)) {
-                isStarted = socksProxyServer_->startServer(port);
-            }
-            if (!isStarted) {
-                uint randomPort = AvailablePort::getAvailablePort(18888);
-                socksProxyServer_->startServer(randomPort);
-                saveLastPort(randomPort);
-            }
+        bool isStarted = socksProxyServer_->startServer(port_);
+        if (!isStarted) {
+            // Port became busy, try to find another one
+            port_ = findPort(18888);
+            socksProxyServer_->startServer(port_);
         }
     } else {
         WS_ASSERT(false);
@@ -105,16 +115,14 @@ bool VpnShareController::isWifiSharingEnabled()
 QString VpnShareController::getProxySharingAddress()
 {
     QMutexLocker locker(&mutex_);
-    if (httpProxyServer_)
-    {
+    if (httpProxyServer_) {
         return NetworkUtils::getLocalIP() + ":" + QString::number(httpProxyServer_->serverPort());
-    }
-    else if (socksProxyServer_)
-    {
+    } else if (socksProxyServer_) {
         return NetworkUtils::getLocalIP() + ":" + QString::number(socksProxyServer_->serverPort());
     }
-    WS_ASSERT(false);
-    return "Unknown";
+
+    // Server not started yet, most likely because whileConnected is true and VPN is not connected
+    return NetworkUtils::getLocalIP() + ":" + QString::number(port_);
 }
 
 void VpnShareController::onWifiUsersCountChanged()
@@ -190,25 +198,17 @@ QString VpnShareController::getCurrentCaption()
         s = wifiSharing_->getSsid();
 #endif
 
-        if (httpProxyServer_)
-        {
+        if (httpProxyServer_) {
             s += " + HTTP";
-        }
-        else if (socksProxyServer_)
-        {
+        } else if (socksProxyServer_) {
             s += " + SOCKS";
         }
 
         return s;
-    }
-    else
-    {
-        if (httpProxyServer_)
-        {
+    } else {
+        if (httpProxyServer_) {
             return "HTTP";
-        }
-        else if (socksProxyServer_)
-        {
+        } else if (socksProxyServer_) {
             return "SOCKS";
         }
     }
@@ -229,20 +229,22 @@ void VpnShareController::onConnectedToVPNEvent(const QString &vpnAdapterName)
 {
     QMutexLocker locker(&mutex_);
 #ifdef Q_OS_WIN
-    if (wifiSharing_)
-    {
+    if (wifiSharing_) {
         wifiSharing_->switchSharingForConnected(vpnAdapterName);
     }
 #else
     Q_UNUSED(vpnAdapterName);
 #endif
-    if (httpProxyServer_)
-    {
+    if (httpProxyServer_) {
         httpProxyServer_->closeActiveConnections();
     }
-    if (socksProxyServer_)
-    {
+    if (socksProxyServer_) {
         socksProxyServer_->closeActiveConnections();
+    }
+
+    vpnConnected_ = true;
+    if (shareWhileConnected_) {
+        startProxySharing(type_, port_, shareWhileConnected_);
     }
 }
 
@@ -250,40 +252,36 @@ void VpnShareController::onDisconnectedFromVPNEvent()
 {
     QMutexLocker locker(&mutex_);
 #ifdef Q_OS_WIN
-    if (wifiSharing_)
-    {
+    if (wifiSharing_) {
         wifiSharing_->switchSharingForDisconnected();
     }
 #endif
-    if (httpProxyServer_)
-    {
+    if (httpProxyServer_) {
         httpProxyServer_->closeActiveConnections();
     }
-    if (socksProxyServer_)
-    {
+    if (socksProxyServer_) {
         socksProxyServer_->closeActiveConnections();
+    }
+
+    vpnConnected_ = false;
+    if (shareWhileConnected_) {
+        stopProxySharing();
     }
 }
 
 bool VpnShareController::getLastSavedPort(uint &outPort)
 {
     QSettings settings;
-    if (settings.contains("httpSocksProxyPort"))
-    {
+    if (settings.contains("httpSocksProxyPort")) {
         bool bOk;
         uint port = settings.value("httpSocksProxyPort").toUInt(&bOk);
-        if (bOk)
-        {
+        if (bOk) {
             outPort = port;
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
-    }
-    else
-    {
+    } else {
         return false;
     }
 }
@@ -294,3 +292,17 @@ void VpnShareController::saveLastPort(uint port)
     settings.setValue("httpSocksProxyPort", port);
 }
 
+uint VpnShareController::findPort(uint userPort)
+{
+    if (userPort != 0) {
+        saveLastPort(userPort);
+        return userPort;
+    }
+
+    uint port = 0;
+    if (!getLastSavedPort(port)) {
+        port = AvailablePort::getAvailablePort(18888);
+        saveLastPort(port);
+    }
+    return port;
+}

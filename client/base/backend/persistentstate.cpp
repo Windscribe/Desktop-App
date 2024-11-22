@@ -3,7 +3,7 @@
 #include <QRect>
 #include <QSettings>
 
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/simplecrypt.h"
 #include "types/global_consts.h"
 #include "legacy_protobuf_support/legacy_protobuf.h"

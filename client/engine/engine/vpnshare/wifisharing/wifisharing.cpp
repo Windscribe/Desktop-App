@@ -4,7 +4,7 @@
 #include <winsock2.h>
 #include <iphlpapi.h>
 #include <QElapsedTimer>
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/winutils.h"
 #include "wifidirectmanager.h"
 #include "icsmanager.h"

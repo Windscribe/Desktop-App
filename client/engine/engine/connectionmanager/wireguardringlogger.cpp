@@ -10,7 +10,7 @@
 #include <QScopeGuard>
 
 #include "utils/extraconfig.h"
-#include "utils/logger.h"
+#include "utils/log/logger.h"
 #include "utils/ws_assert.h"
 
 

@@ -11,6 +11,11 @@ namespace IPC
 namespace CliCommands
 {
 
+enum class LocationType {
+    kRegular = 0,
+    kStaticIp = 1,
+};
+
 class Acknowledge : public Command
 {
 public:
@@ -49,14 +54,14 @@ public:
     {
         QByteArray arr(buf, size);
         QDataStream ds(&arr, QIODevice::ReadOnly);
-        ds >> location_ >> protocol_;
+        ds >> locationType_ >> location_ >> protocol_;
     }
 
     std::vector<char> getData() const override
     {
         QByteArray arr;
         QDataStream ds(&arr, QIODevice::WriteOnly);
-        ds << location_ << protocol_;
+        ds << locationType_ << location_ << protocol_;
         return std::vector<char>(arr.begin(), arr.end());
     }
 
@@ -69,6 +74,7 @@ public:
 
     QString location_;
     QString protocol_;
+    LocationType locationType_;
 };
 
 class Disconnect : public Command
@@ -100,13 +106,17 @@ public:
     ShowLocations() {}
     explicit ShowLocations(char *buf, int size)
     {
-        Q_UNUSED(buf)
-        Q_UNUSED(size)
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> locationType_;
     }
 
     std::vector<char> getData() const override
     {
-        return std::vector<char>();
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << locationType_;
+        return std::vector<char>(arr.begin(), arr.end());
     }
 
     std::string getStringId() const override { return getCommandStringId(); }
@@ -115,6 +125,8 @@ public:
         return "CliCommands::ShowLocations debug string";
     }
     static std::string getCommandStringId() { return "CliCommands::ShowLocations";  }
+
+    LocationType locationType_;
 };
 
 class LocationsList : public Command
@@ -289,8 +301,9 @@ public:
     {
         QByteArray arr(buf, size);
         QDataStream ds(&arr, QIODevice::ReadOnly);
-        ds >> language_ >> connectivity_ >> loginState_ >> loginError_ >> loginErrorMessage_ >> connectState_
-           >> protocol_ >> port_ >> tunnelTestState_ >> location_ >> isFirewallOn_ >> isFirewallAlwaysOn_
+        ds >> language_ >> connectivity_ >> loginState_ >> loginError_ >> loginErrorMessage_
+           >> connectState_ >> connectId_ >> protocol_ >> port_ >> tunnelTestState_ >> location_
+           >> isFirewallOn_ >> isFirewallAlwaysOn_
            >> updateState_ >> updateError_ >> updateProgress_ >> updatePath_ >> updateAvailable_
            >> trafficUsed_ >> trafficMax_;
     }
@@ -299,8 +312,9 @@ public:
     {
         QByteArray arr;
         QDataStream ds(&arr, QIODevice::WriteOnly);
-        ds << language_ << connectivity_ << loginState_ << loginError_ << loginErrorMessage_ << connectState_
-           << protocol_ << port_ << tunnelTestState_ << location_ << isFirewallOn_ << isFirewallAlwaysOn_
+        ds << language_ << connectivity_ << loginState_ << loginError_ << loginErrorMessage_
+           << connectState_ << connectId_ << protocol_ << port_ << tunnelTestState_ << location_
+           << isFirewallOn_ << isFirewallAlwaysOn_
            << updateState_ << updateError_ << updateProgress_ << updatePath_ << updateAvailable_
            << trafficUsed_ << trafficMax_;
         return std::vector<char>(arr.begin(), arr.end());
@@ -319,6 +333,7 @@ public:
     wsnet::LoginResult loginError_;
     QString loginErrorMessage_;
     types::ConnectState connectState_;
+    QString connectId_;
     types::Protocol protocol_;
     uint port_;
     TUNNEL_TEST_STATE tunnelTestState_;

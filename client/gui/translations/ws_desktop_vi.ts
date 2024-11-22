@@ -286,10 +286,6 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <source>Merge all logs by timestamp</source>
-        <translation>Hợp nhất tất cả nhật ký theo dấu thời gian</translation>
-    </message>
-    <message>
         <source>Word Wrap</source>
         <translation>Bọc Word</translation>
     </message>
@@ -964,32 +960,12 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Tùy chọn nâng cao</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>Yêu cầu khởi động lại</translation>
-    </message>
-    <message>
-        <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>Để chuyển đổi IPv6, cần phải khởi động lại máy tính. Làm điều đó ngay bây giờ?</translation>
-    </message>
-    <message>
-        <source>Restart later</source>
-        <translation>Khởi động lại sau</translation>
-    </message>
-    <message>
         <source>Make advanced tweaks to the way the app functions.</source>
         <translation>Thực hiện các chỉnh sửa nâng cao đối với cách ứng dụng hoạt động.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
         <translation>Thông số nâng cao</translation>
-    </message>
-    <message>
-        <source>Enables / disables system-wide IPv6 connectivity.</source>
-        <translation>Bật / tắt kết nối IPv6 trên toàn hệ thống.</translation>
-    </message>
-    <message>
-        <source>IPv6</source>
-        <translation>IPv6</translation>
     </message>
     <message>
         <source>Resolve server API address automatically, or use one provided by the Support team.</source>
@@ -1738,6 +1714,10 @@ Kết nối với mạng trước</translation>
         <source>Auto</source>
         <translation>Xe ô tô</translation>
     </message>
+    <message>
+        <source>Only when VPN is connected</source>
+        <translation>Chỉ khi VPN được kết nối</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
@@ -2143,6 +2123,14 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Auto-detect</source>
         <translation>Tự động phát hiện</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Phát hành</translation>
+    </message>
+    <message>
+        <source>Beta</source>
+        <translation>Bêta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

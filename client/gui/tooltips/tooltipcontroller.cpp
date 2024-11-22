@@ -5,7 +5,7 @@
 #include "tooltipdescriptive.h"
 #include "dpiscalemanager.h"
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include "utils/log/logger.h"
 
 #include <QDebug>
 

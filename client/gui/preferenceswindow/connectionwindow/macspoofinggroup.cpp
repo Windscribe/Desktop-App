@@ -5,7 +5,7 @@
 #include "generalmessagecontroller.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/network_utils/network_utils.h"
 
 namespace PreferencesWindow {

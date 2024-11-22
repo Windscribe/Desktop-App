@@ -47,13 +47,10 @@ bool SingleAppInstancePrivate::activateRunningInstance()
         client.connectToServer(socketName_);
         if (client.waitForConnected(500))
         {
-            debugOut("Connected to running Windscribe GUI instance.");
             client.abort();
             return true;
         }
     }
-
-    debugOut("SingleAppInstance could not contact the running app instance.");
 
     // If we get here, the original instance is not responding or has crashed.
     lockFile_->removeStaleLockFile();
@@ -119,9 +116,6 @@ bool SingleAppInstancePrivate::isRunning()
             // No existing lock was found, so we must be the only instance running.
             localServer_.listen(socketName_);
         }
-        else {
-            debugOut("SingleAppInstance could not create the lock file. A new instance will be launched.");
-        }
     }
 
     return false;
@@ -139,42 +133,6 @@ void SingleAppInstancePrivate::release()
         lockFile_->unlock();
     }
     #endif
-}
-
-void SingleAppInstancePrivate::debugOut(const char *format, ...)
-{
-    // The second instance of the app cannot use the Logger, as that would step on
-    // the first instance's copy of the log.
-
-    va_list arg_list;
-    va_start(arg_list, format);
-
-    QString sMsg = QString::vasprintf(format, arg_list);
-
-    va_end(arg_list);
-
-    if (sMsg.size() > 0)
-    {
-        QString sFilename = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-        sFilename += QLatin1String("/log_singleappinstanceguard.txt");
-
-        QFile fileLog(sFilename);
-        QFile::OpenMode openMode = QIODevice::WriteOnly | QIODevice::Text;
-
-        if (fileLog.size() > 524288) {
-            openMode |= QIODevice::Truncate;
-        }
-        else {
-            openMode |= QIODevice::Append;
-        }
-
-        if (fileLog.open(openMode))
-        {
-            QTextStream out(&fileLog);
-            out << QDateTime::currentDateTimeUtc().toString(Qt::ISODate) << ' ' << sMsg << Qt::endl;
-            fileLog.close();
-        }
-    }
 }
 
 SingleAppInstance::SingleAppInstance()

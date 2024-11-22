@@ -1,11 +1,9 @@
 #include "robertwindowitem.h"
 
 #include <QTextDocument>
-#include "commongraphics/scrollarea.h"
 #include "graphicresources/fontmanager.h"
 #include "languagecontroller.h"
 #include "utils/hardcodedsettings.h"
-#include "utils/logger.h"
 
 namespace PreferencesWindow {
 

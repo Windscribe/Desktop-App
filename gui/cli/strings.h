@@ -5,8 +5,8 @@
 #include "types/locationid.h"
 
 QString connectivityString(bool connectivity);
-QString loginStateString(LOGIN_STATE state, wsnet::LoginResult loginError, const QString &loginErrorMessage);
-QString connectStateString(types::ConnectState state, LocationID location, TUNNEL_TEST_STATE tunnelTest);
+QString loginStateString(LOGIN_STATE state, wsnet::LoginResult loginError, const QString &loginErrorMessage, bool showPrefix = true);
+QString connectStateString(types::ConnectState state, LocationID location, TUNNEL_TEST_STATE tunnelTest, bool showPrefix = true);
 QString protocolString(types::Protocol protocol, uint port);
 QString firewallStateString(bool isFirewallOn, bool isFirewallAlwaysOn);
 QString dataString(const QString &language, qint64 data);

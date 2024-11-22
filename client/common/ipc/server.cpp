@@ -1,6 +1,6 @@
 #include "server.h"
 #include "connection.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include <QDir>
 
 namespace IPC

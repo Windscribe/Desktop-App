@@ -50,7 +50,6 @@ void LogoNotificationsButton::paint(QPainter *painter, const QStyleOptionGraphic
         painter->setOpacity(curBackgroundOpacity_ * initOpacity);
         painter->setBrush(backgroundFillColor_);
         painter->setPen(backgroundOutlineColor_);
-        int numberWidth = CommonGraphics::textWidth(numNotifications_, font);
         painter->drawEllipse(QRect(notificationXOffset, 0, 14*G_SCALE, 14*G_SCALE));
 
         // notification number

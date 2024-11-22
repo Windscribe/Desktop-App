@@ -5,16 +5,16 @@
 #define AA_COMMAND_FIREWALL_OFF                             2
 #define AA_COMMAND_FIREWALL_CHANGE                          3 // deprecated
 #define AA_COMMAND_FIREWALL_STATUS                          4
-#define AA_COMMAND_FIREWALL_IPV6_ENABLE                     5
-#define AA_COMMAND_FIREWALL_IPV6_DISABLE                    6
+#define AA_COMMAND_FIREWALL_IPV6_ENABLE                     5 // deprecated
+#define AA_COMMAND_FIREWALL_IPV6_DISABLE                    6 // deprecated
 #define AA_COMMAND_REMOVE_WINDSCRIBE_FROM_HOSTS             7
 #define AA_COMMAND_CHECK_UNBLOCKING_CMD_STATUS              8
 #define AA_COMMAND_GET_UNBLOCKING_CMD_COUNT                 9
 #define AA_COMMAND_CLEAR_UNBLOCKING_CMD                     10
 #define AA_COMMAND_GET_HELPER_VERSION                       11
-#define AA_COMMAND_OS_IPV6_STATE                            12
-#define AA_COMMAND_OS_IPV6_ENABLE                           13
-#define AA_COMMAND_OS_IPV6_DISABLE                          14
+#define AA_COMMAND_OS_IPV6_STATE                            12 // deprecated
+#define AA_COMMAND_OS_IPV6_ENABLE                           13 // deprecated
+#define AA_COMMAND_OS_IPV6_DISABLE                          14 // deprecated
 #define AA_COMMAND_ICS_IS_SUPPORTED                         15
 #define AA_COMMAND_ICS_START                                16
 #define AA_COMMAND_ICS_CHANGE                               17

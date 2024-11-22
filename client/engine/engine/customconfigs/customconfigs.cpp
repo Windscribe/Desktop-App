@@ -1,6 +1,6 @@
 #include "customconfigs.h"
 #include <QDir>
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "parseovpnconfigline.h"
 #include "ovpncustomconfig.h"
 #include "wireguardcustomconfig.h"

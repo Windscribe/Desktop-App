@@ -1,13 +1,8 @@
 #include "dnsdomainsgroup.h"
 
 #include <QPainter>
-#include "commongraphics/commongraphics.h"
-#include "graphicresources/fontmanager.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "utils/ipvalidation.h"
-#include "utils/logger.h"
-#include "utils/utils.h"
-#include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
 

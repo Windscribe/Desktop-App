@@ -24,7 +24,6 @@ CMD_ANSWER installerRemoveOldInstall(boost::archive::text_iarchive &ia);
 CMD_ANSWER applyCustomDns(boost::archive::text_iarchive &ia);
 CMD_ANSWER changeMtu(boost::archive::text_iarchive &ia);
 CMD_ANSWER deleteRoute(boost::archive::text_iarchive &ia);
-CMD_ANSWER setIpv6Enabled(boost::archive::text_iarchive &ia);
 CMD_ANSWER setDnsScriptEnabled(boost::archive::text_iarchive &ia);
 CMD_ANSWER clearFirewallRules(boost::archive::text_iarchive &ia);
 CMD_ANSWER checkFirewallState(boost::archive::text_iarchive &ia);
@@ -38,7 +37,7 @@ CMD_ANSWER taskKill(boost::archive::text_iarchive &ia);
 CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia);
 CMD_ANSWER startStunnel(boost::archive::text_iarchive &ia);
 CMD_ANSWER startWstunnel(boost::archive::text_iarchive &ia);
-CMD_ANSWER installerCreateCliSymlinkDir(boost::archive::text_iarchive &ia);
+CMD_ANSWER installerCreateCliSymlink(boost::archive::text_iarchive &ia);
 CMD_ANSWER getHelperVersion(boost::archive::text_iarchive &ia);
 CMD_ANSWER getInterfaceSsid(boost::archive::text_iarchive &ia);
 
@@ -58,7 +57,6 @@ static const std::map<const int, std::function<CMD_ANSWER(boost::archive::text_i
     { HELPER_CMD_APPLY_CUSTOM_DNS, applyCustomDns },
     { HELPER_CMD_CHANGE_MTU, changeMtu },
     { HELPER_CMD_DELETE_ROUTE, deleteRoute },
-    { HELPER_CMD_SET_IPV6_ENABLED, setIpv6Enabled },
     { HELPER_CMD_SET_DNS_SCRIPT_ENABLED, setDnsScriptEnabled },
     { HELPER_CMD_CLEAR_FIREWALL_RULES, clearFirewallRules },
     { HELPER_CMD_CHECK_FIREWALL_STATE, checkFirewallState },
@@ -72,7 +70,7 @@ static const std::map<const int, std::function<CMD_ANSWER(boost::archive::text_i
     { HELPER_CMD_START_CTRLD, startCtrld },
     { HELPER_CMD_START_STUNNEL, startStunnel },
     { HELPER_CMD_START_WSTUNNEL, startWstunnel },
-    { HELPER_CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR, installerCreateCliSymlinkDir },
+    { HELPER_CMD_INSTALLER_CREATE_CLI_SYMLINK, installerCreateCliSymlink },
     { HELPER_CMD_HELPER_VERSION, getHelperVersion },
     { HELPER_CMD_GET_INTERFACE_SSID, getInterfaceSsid },
 };

@@ -7,7 +7,7 @@
 #include "engine/helper/helper_posix.h"
 #endif
 #include "utils/executable_signature/executable_signature.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/extraconfig.h"
 
 StunnelManager::StunnelManager(QObject *parent, IHelper *helper)

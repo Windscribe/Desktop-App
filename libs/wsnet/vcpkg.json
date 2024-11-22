@@ -2,7 +2,10 @@
 "dependencies": [
     "gtest",
     "scapix",
-    "spdlog",
+    {	
+    	"name": "spdlog",
+        "features": [ { "name": "wchar", "platform": "windows" } ]
+    },
     {
         "name": "curl",
         "features": [ "openssl" ]

@@ -1,5 +1,6 @@
 #include "ovpncustomconfig.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
+#include "utils/log/clean_sensitive_info.h"
 #include "parseovpnconfigline.h"
 
 #include <QFileInfo>
@@ -117,7 +118,9 @@ void OvpnCustomConfig::process()
 
         bool bFoundAtLeastOneRemote = false;
         bool bFoundVerbCommand = false;
+#if defined(Q_OS_MACOS)
         bool bFoundScriptSecurityCommand = false;
+#endif
         bool bHasValidCipher = false;
         QString currentProtocol{ "udp" };
         QTextStream in(&file);
@@ -155,9 +158,9 @@ void OvpnCustomConfig::process()
                 // setup script.
                 if (openVpnLine.verb < 2)
                     openVpnLine.verb = 2;
+                bFoundScriptSecurityCommand = true;
 #endif
                 ovpnData_ += "script-security " + QString::number(openVpnLine.verb) + "\n";
-                bFoundScriptSecurityCommand = true;
                 continue;
             } else if (openVpnLine.type == ParseOvpnConfigLine::OVPN_CMD_CIPHER) { // cipher cmd
                 qDebug(LOG_CUSTOM_OVPN) << "Extracted cipher:" << openVpnLine.protocol;

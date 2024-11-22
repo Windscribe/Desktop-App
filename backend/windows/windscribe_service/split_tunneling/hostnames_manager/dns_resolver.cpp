@@ -1,5 +1,5 @@
 #include "dns_resolver.h"
-#include "../../logger.h"
+#include <spdlog/spdlog.h>
 
 using namespace wsnet;
 
@@ -7,15 +7,15 @@ DnsResolver::DnsResolver(std::function<void (std::map<std::string, HostInfo>)> r
     resolveDomainsCallback_(resolveDomainsCallback),
     work_(boost::asio::make_work_guard(io_service_))
 {
-    WSNet::setLogger([](const std::string &logStr) {
-        Logger::instance().out("[wsnet] %s", logStr.c_str());
+    // will not log the output from the library, too much unnecessary information
+     WSNet::setLogger([](const std::string &logStr) {
     }, false);
 
-
     if (!WSNet::initialize("", "", "", "", "", "", false, "en", "")) {
-        Logger::instance().out("WSNet::initialize failed");
+        spdlog::error("WSNet::initialize failed");
     }
 
+    WSNet::instance()->dnsResolver()->setAddressFamily(AF_UNSPEC);
     thread_ = std::thread([this](){ io_service_.run(); });
 }
 

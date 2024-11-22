@@ -1,7 +1,7 @@
 #include "httpproxyrequest.h"
 
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include "utils/log/logger.h"
 #include "utils/boost_includes.h"
 #include "version/appversion.h"
 

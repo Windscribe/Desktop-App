@@ -9,7 +9,7 @@
 #include <QWaitCondition>
 
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/macutils.h"
 #include "utils/network_utils/network_utils_mac.h"
 #include "engine/helper/ihelper.h"
@@ -35,7 +35,11 @@ namespace KeyChainUtils
             NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
 
             [dict setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
-            [dict setObject:[NSString stringWithUTF8String:serviceName] forKey:(__bridge id)kSecAttrService];
+            NSString *nsServiceName = [NSString stringWithUTF8String:serviceName];
+            if (nsServiceName == NULL) {
+                return NULL;
+            }
+            [dict setObject:nsServiceName forKey:(__bridge id)kSecAttrService];
             [dict setObject:(__bridge id)kSecMatchLimitOne forKey:(__bridge id)kSecMatchLimit];
             [dict setObject:@YES forKey:(__bridge id)kSecReturnPersistentRef];
 
@@ -68,16 +72,18 @@ namespace KeyChainUtils
         NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
 
         [dict setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
-        [dict setObject:[NSString stringWithUTF8String:szServiceName] forKey:(__bridge id)kSecAttrService];
+        NSString *serviceName = [NSString stringWithUTF8String:szServiceName];
+        if (serviceName == NULL) {
+            return;
+        }
+        [dict setObject:serviceName forKey:(__bridge id)kSecAttrService];
         [dict setObject:(__bridge id)kSecMatchLimitAll forKey:(__bridge id)kSecMatchLimit];
         [dict setObject:@NO forKey:(__bridge id)kSecReturnRef];
 
         OSStatus status = SecItemDelete((__bridge CFDictionaryRef)dict);
-        if (status != noErr)
-        {
+        if (status != noErr) {
             qCDebug(LOG_IKEV2) << "removeKeychainItem, SecItemDelete return:" << (int)status;
         }
-        CFRelease(dict);
     }
 }
 

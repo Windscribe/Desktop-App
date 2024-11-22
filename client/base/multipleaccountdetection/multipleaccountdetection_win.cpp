@@ -1,5 +1,5 @@
 #include "multipleaccountdetection_win.h"
-#include "Utils/logger.h"
+#include "utils/log/categories.h"
 
 MultipleAccountDetection_win::MultipleAccountDetection_win()
 {

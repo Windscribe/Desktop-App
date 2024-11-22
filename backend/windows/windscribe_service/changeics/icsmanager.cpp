@@ -1,8 +1,7 @@
 #include "IcsManager.h"
 
 #include <wtsapi32.h>
-
-#include "../logger.h"
+#include <spdlog/spdlog.h>
 #include "../utils.h"
 
 IcsManager::IcsManager()
@@ -10,20 +9,20 @@ IcsManager::IcsManager()
     std::wstring dllPath = Utils::getSystemDir() + L"\\netshell.dll";
     hDll_ = LoadLibrary(dllPath.c_str());
     if (!hDll_) {
-        Logger::instance().out("Failed to load netshell.dll (%lu)", ::GetLastError());
+        spdlog::error("Failed to load netshell.dll ({})", ::GetLastError());
         return;
     }
 
     ncFreeNetconProperties_ = (PFNNcFreeNetconProperties)GetProcAddress(hDll_, "NcFreeNetconProperties");
 
     if (!ncFreeNetconProperties_) {
-        Logger::instance().out("Failed to load the function NcFreeNetconProperties() from netshell.dll");
+        spdlog::error("Failed to load the function NcFreeNetconProperties() from netshell.dll");
     }
 
     HRESULT hr = ::CoCreateInstance(__uuidof(NetSharingManager), NULL, CLSCTX_ALL, __uuidof(INetSharingManager), (void**)&pNSM_);
     if (hr != S_OK) {
         pNSM_ = nullptr;
-        Logger::instance().out("Failed to create INetSharingManager instance");
+        spdlog::error("Failed to create INetSharingManager instance");
     }
 }
 
@@ -42,7 +41,7 @@ void IcsManager::release()
 bool IcsManager::isSupported()
 {
     if (!pNSM_) {
-        Logger::instance().out("Get INetSharingManager failed");
+        spdlog::warn("Get INetSharingManager failed");
         return false;
     }
 
@@ -56,7 +55,7 @@ bool IcsManager::isSupported()
 bool IcsManager::change(const std::wstring &adapterName)
 {
     if (!pNSM_) {
-        Logger::instance().out("Get INetSharingManager failed");
+        spdlog::warn("Get INetSharingManager failed");
         return false;
     }
 
@@ -86,11 +85,11 @@ bool IcsManager::change(const std::wstring &adapterName)
     }
 
     if (pNetConnectionPublic == nullptr) {
-        Logger::instance().out("Not found public network connection by name");
+        spdlog::warn("Not found public network connection by name");
         return false;
     }
     if (pNetConnectionPrivate == nullptr) {
-        Logger::instance().out("Not found private network connection by name");
+        spdlog::warn("Not found private network connection by name");
         return false;
     }
 
@@ -100,12 +99,12 @@ bool IcsManager::change(const std::wstring &adapterName)
 
     hr = pNSM_->get_INetSharingConfigurationForINetConnection(pNetConnectionPublic, &pNetConfigurationPublic);
     if (hr != S_OK) {
-        Logger::instance().out("get_INetSharingConfigurationForINetConnection failed, %x", hr);
+        spdlog::warn("get_INetSharingConfigurationForINetConnection failed, {}", hr);
         return false;
     }
     hr = pNSM_->get_INetSharingConfigurationForINetConnection(pNetConnectionPrivate, &pNetConfigurationPrivate);
     if (hr != S_OK) {
-        Logger::instance().out("get_INetSharingConfigurationForINetConnection failed, %x", hr);
+        spdlog::warn("get_INetSharingConfigurationForINetConnection failed, {}", hr);
         return false;
     }
 
@@ -115,12 +114,12 @@ bool IcsManager::change(const std::wstring &adapterName)
     SHARINGCONNECTIONTYPE typePublic = ICSSHARINGTYPE_PUBLIC;
     hr = pNetConfigurationPublic->get_SharingEnabled(&bPublicEnabled);
     if (hr != S_OK) {
-        Logger::instance().out("get_SharingEnabled failed for public guid, %x", hr);
+        spdlog::warn("get_SharingEnabled failed for public guid, {}", hr);
         return false;
     }
     hr = pNetConfigurationPublic->get_SharingConnectionType(&typePublic);
     if (hr != S_OK) {
-        Logger::instance().out("get_SharingConnectionType failed for public guid, %x", hr);
+        spdlog::warn("get_SharingConnectionType failed for public guid, {}", hr);
         return false;
     }
 
@@ -128,12 +127,12 @@ bool IcsManager::change(const std::wstring &adapterName)
     SHARINGCONNECTIONTYPE typePrivate = ICSSHARINGTYPE_PUBLIC;
     hr = pNetConfigurationPrivate->get_SharingEnabled(&bPrivateEnabled);
     if (hr != S_OK) {
-        Logger::instance().out("get_SharingEnabled failed for private guid, %x", hr);
+        spdlog::warn("get_SharingEnabled failed for private guid, {}", hr);
         return false;
     }
     hr = pNetConfigurationPrivate->get_SharingConnectionType(&typePrivate);
     if (hr != S_OK) {
-        Logger::instance().out("get_SharingConnectionType failed for private guid, %x", hr);
+        spdlog::warn("get_SharingConnectionType failed for private guid, {}", hr);
         return false;
     }
 
@@ -158,7 +157,7 @@ bool IcsManager::change(const std::wstring &adapterName)
 
     hr = pNetConfigurationPublic->EnableSharing(ICSSHARINGTYPE_PUBLIC);
     if (hr != S_OK) {
-        Logger::instance().out("EnableSharing failed for public guid, %x", hr);
+        spdlog::warn("EnableSharing failed for public guid, {}", hr);
         return false;
     } else {
         pNetConfigurationPublic_ = pNetConfigurationPublic;
@@ -166,7 +165,7 @@ bool IcsManager::change(const std::wstring &adapterName)
 
     hr = pNetConfigurationPrivate->EnableSharing(ICSSHARINGTYPE_PRIVATE);
     if (hr != S_OK) {
-        Logger::instance().out("EnableSharing failed for private guid, %x", hr);
+        spdlog::warn("EnableSharing failed for private guid, {}", hr);
         return false;
     } else {
         pNetConfigurationPrivate_ = pNetConfigurationPrivate;
@@ -188,7 +187,7 @@ bool IcsManager::stop()
     }
 
     if (!pNSM_) {
-        Logger::instance().out("Get INetSharingManager failed");
+        spdlog::warn("Get INetSharingManager failed");
         return false;
     }
 
@@ -204,21 +203,21 @@ std::vector<CComPtr<INetConnection> > IcsManager::getAllConnections(CComPtr<INet
     CComPtr<INetSharingEveryConnectionCollection> pConnectionsList;
     HRESULT hr = pNSM->get_EnumEveryConnection(&pConnectionsList);
     if (hr != S_OK) {
-        Logger::instance().out("get_EnumEveryConnection failed, %x", hr);
+        spdlog::warn("get_EnumEveryConnection failed, {}", hr);
         return ret;
     }
 
     CComPtr<IUnknown> pUnkEnum;
     hr = pConnectionsList->get__NewEnum(&pUnkEnum);
     if (hr != S_OK) {
-        Logger::instance().out("get__NewEnum failed, %x", hr);
+        spdlog::warn("get__NewEnum failed, {}", hr);
         return ret;
     }
 
     CComPtr<IEnumNetSharingEveryConnection> pNSEConn;
     hr = pUnkEnum->QueryInterface(__uuidof(IEnumNetSharingEveryConnection), (void**)&pNSEConn);
     if (hr != S_OK) {
-        Logger::instance().out("QueryInterface IEnumNetSharingEveryConnection failed, %x", hr);
+        spdlog::warn("QueryInterface IEnumNetSharingEveryConnection failed, {}", hr);
         return ret;
     }
 

@@ -3,7 +3,7 @@
 #include <QAbstractEventDispatcher>
 #include <unistd.h>
 
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 WindscribeApplication::WindscribeApplication(int &argc, char **argv) : QCoreApplication(argc, argv)
 {

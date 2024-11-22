@@ -9,7 +9,7 @@
 #include <iphlpapi.h>
 #include <netlistmgr.h>
 
-#include "../logger.h"
+#include "../log/categories.h"
 #include "../networktypes.h"
 #include "../winutils.h"
 #include "wlan_utils_win.h"

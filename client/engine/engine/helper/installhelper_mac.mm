@@ -2,7 +2,7 @@
 
 #include "../../../common/version/windscribe_version.h"
 #include "names.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 #import <Foundation/Foundation.h>
 #import <ServiceManagement/ServiceManagement.h>

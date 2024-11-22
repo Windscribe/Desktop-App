@@ -18,7 +18,6 @@ ProcessManager::~ProcessManager()
 
 bool ProcessManager::execute(const std::string &cmd, const std::vector<std::string> &args, ProcessManagerCallback callback)
 {
-    std::lock_guard locker(mutex_);
 
     try {
         auto childProcess = std::make_unique<ChildProcess>();
@@ -45,7 +44,10 @@ bool ProcessManager::execute(const std::string &cmd, const std::vector<std::stri
                 callback(exit, data);
             });
 
-        processes_[curId_++] = std::move(childProcess);
+        {
+            std::lock_guard locker(mutex_);
+            processes_[curId_++] = std::move(childProcess);
+        }
 
     } catch(...) {
         spdlog::error("Cannot start a process: {}", cmd);

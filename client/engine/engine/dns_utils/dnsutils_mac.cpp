@@ -1,5 +1,5 @@
 #include "dnsutils.h"
-#include "utils/logger.h"
+#include <QSet>
 #include "utils/macutils.h"
 
 namespace DnsUtils

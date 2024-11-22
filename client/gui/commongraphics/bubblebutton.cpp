@@ -6,7 +6,6 @@
 #include <QGraphicsSceneMouseEvent>
 #include "graphicresources/fontmanager.h"
 #include "commongraphics/commongraphics.h"
-#include "utils/logger.h"
 #include "dpiscalemanager.h"
 
 namespace CommonGraphics {

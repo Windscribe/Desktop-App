@@ -1,5 +1,5 @@
 #include "ovpn.h"
-#include "logger.h"
+#include <spdlog/spdlog.h>
 #include <fcntl.h>
 #include <string>
 #include <fstream>
@@ -16,16 +16,16 @@ bool writeOVPNFile(std::wstring &filename, int port, const std::wstring &config,
     std::wistringstream stream(config);
     std::wstring filePath = Utils::getConfigPath();
     if (filePath.empty()) {
-        Logger::instance().out("Could not get config path");
+        spdlog::error("Could not get config path");
         return false;
     }
 
     filePath += L"\\config.ovpn";
-    Logger::instance().out("Writing OpenVPN config");
+    spdlog::debug("Writing OpenVPN config");
 
     std::wofstream file(filePath.c_str(), std::ios::out | std::ios::trunc);
     if (!file) {
-        Logger::instance().out("Could not open config file: %u", GetLastError());
+        spdlog::error("Could not open config file: {}", GetLastError());
         return false;
     }
 

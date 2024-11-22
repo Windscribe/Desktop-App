@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(installer_mac)
 
 find_package(Boost REQUIRED COMPONENTS serialization)
+find_package(spdlog CONFIG REQUIRED)
 
 find_library(COCOA_LUMBERJACK_LIBS
              NAMES CocoaLumberjack
@@ -34,10 +35,7 @@ set(SOURCES
     installer/installer_shim.mm
     installer/processes_helper.h
     installer/processes_helper.cpp
-    Logger.h
-    Logger.m
-    LoggerHelper.h
-    LoggerHelper.mm
+    string_utils.h
     main.mm
 )
 
@@ -70,6 +68,7 @@ target_link_directories(installer
 target_link_libraries(installer
                       PRIVATE
                       Boost::serialization
+                      spdlog::spdlog
                       "-framework AppKit"
                       "-framework Security"
                       "-framework ServiceManagement"

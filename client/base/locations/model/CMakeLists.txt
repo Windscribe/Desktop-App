@@ -32,7 +32,7 @@ if(DEFINED IS_BUILD_TESTS)
     )
 
     add_executable (locationsmodel.test ${TEST_SOURCES})
-    target_link_libraries(locationsmodel.test PRIVATE Qt6::Test base engine common ${OS_SPECIFIC_LIBRARIES})
+    target_link_libraries(locationsmodel.test PRIVATE Qt6::Test base engine common spdlog::spdlog ${OS_SPECIFIC_LIBRARIES})
     target_include_directories(locationsmodel.test PRIVATE
         ${PROJECT_DIRECTORY}/base
         ${PROJECT_DIRECTORY}/common

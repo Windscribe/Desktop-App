@@ -3,7 +3,7 @@
 #include "version/appversion.h"
 
 PreferencesHelper::PreferencesHelper(QObject *parent) : QObject(parent),
-    isWifiSharingSupported_(true), bIpv6StateInOS_(true), isDockedToTray_(false), isExternalConfigMode_(false)
+    isWifiSharingSupported_(true), isDockedToTray_(false), isExternalConfigMode_(false)
 {
     availableLanguageCodes_ << "ar" << "cs" << "de" << "en" << "es" << "fa" << "fr" << "hi" << "id" << "it" << "ja" << "ko"
         << "pl" << "pt" << "ru" << "tr" << "uk" << "vi" << "zh-CN" << "zh-TW";
@@ -115,22 +115,6 @@ bool PreferencesHelper::isExternalConfigMode() const
 {
     return isExternalConfigMode_;
 }
-
-#ifdef Q_OS_WIN
-void PreferencesHelper::setIpv6StateInOS(bool bEnabled)
-{
-    if (bIpv6StateInOS_ != bEnabled)
-    {
-        bIpv6StateInOS_ = bEnabled;
-        emit ipv6StateInOSChanged(bIpv6StateInOS_);
-    }
-}
-
-bool PreferencesHelper::getIpv6StateInOS() const
-{
-    return bIpv6StateInOS_;
-}
-#endif
 
 void PreferencesHelper::setCurrentProtocol(const types::Protocol &protocol)
 {

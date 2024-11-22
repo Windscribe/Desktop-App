@@ -1,5 +1,4 @@
 #include "defaultroutemonitor.h"
-#include "../logger.h"
 #include "../utils.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -8,6 +7,7 @@
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
 #include <poll.h>
+#include <spdlog/spdlog.h>
 
 namespace
 {
@@ -16,7 +16,7 @@ void RouteMonitorThread(void *callerContext)
     auto *this_ = static_cast<DefaultRouteMonitor *>(callerContext);
     int socket_fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
     if (socket_fd < 0) {
-        Logger::instance().out("Failed to open PF_NETLINK socket");
+        spdlog::error("Failed to open PF_NETLINK socket");
         return;
     }
     char message[2048];
@@ -39,7 +39,7 @@ void RouteMonitorThread(void *callerContext)
             }
         }
     }
-    Logger::instance().out("Default route monitoring finished");
+    spdlog::debug("Default route monitoring finished");
 }
 }  // namespace
 
@@ -56,7 +56,7 @@ DefaultRouteMonitor::~DefaultRouteMonitor()
 bool DefaultRouteMonitor::start(const std::string &endpoint)
 {
     std::vector<std::string> endpoint_parts;
-    boost::split(endpoint_parts, endpoint, boost::is_any_of(":\\/"), boost::token_compress_on);
+    boost::split(endpoint_parts, endpoint, boost::is_any_of(":\\/"), boost::token_compress_on); // NOLINT: false positive
     if (endpoint_parts[0] != endpoint_) {
         stop();
         endpoint_ = endpoint_parts[0];
@@ -95,7 +95,7 @@ bool DefaultRouteMonitor::executeCommandWithLogging(const std::string &command) 
     std::string output;
     const auto status = Utils::executeCommand(command, {}, &output);
     if (!output.empty())
-        Logger::instance().out("%s", output.c_str());
+        spdlog::info(output);
     return status == 0;
 }
 
@@ -111,7 +111,7 @@ std::string DefaultRouteMonitor::getDefaultGateway() const
         if (!gateways.empty() && !gateways[0].empty())
             return gateways[0];
     }
-    Logger::instance().out("Failed to get default gateway (%s)", output.c_str());
+    spdlog::warn("Failed to get default gateway ({})", output);
     return "";
 }
 

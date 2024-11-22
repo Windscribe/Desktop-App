@@ -1,6 +1,6 @@
 #include "httpproxyserver.h"
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 namespace HttpProxyServer {
 

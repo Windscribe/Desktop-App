@@ -84,7 +84,6 @@ void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
         painter->setOpacity(curTextOpacity_);
     }
 
-    int textWidth = linkTextPosX - xOffset;
     QFontMetrics fm(font);
     painter->drawText(boundingRect().adjusted(xOffset,
                                               PREFERENCES_MARGIN*G_SCALE,

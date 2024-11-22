@@ -1,6 +1,7 @@
 #include "process_command.h"
 
 #include <sstream>
+#include <spdlog/spdlog.h>
 
 #include "close_tcp_connections.h"
 #include "changeics/icsmanager.h"
@@ -9,7 +10,6 @@
 #include "ikev2ipsec.h"
 #include "ikev2route.h"
 #include "ipc/servicecommunication.h"
-#include "logger.h"
 #include "openvpncontroller.h"
 #include "ovpn.h"
 #include "registry.h"
@@ -24,7 +24,7 @@ MessagePacketResult processCommand(int cmdId, const std::string &packet)
 {
     const auto command = kCommands.find(cmdId);
     if (command == kCommands.end()) {
-        Logger::instance().out("Unknown command id: %d", cmdId);
+        spdlog::error("Unknown command id: {}", cmdId);
         return MessagePacketResult();
     }
 
@@ -46,7 +46,7 @@ MessagePacketResult firewallOn(boost::archive::text_iarchive &ia)
     if (!prevStatus) {
         SplitTunneling::instance().updateState();
     }
-    Logger::instance().out(L"AA_COMMAND_FIREWALL_ON, AllowLocalTraffic=%d, IsCustomConfig=%d", cmdFirewallOn.allowLanTraffic, cmdFirewallOn.isCustomConfig);
+    spdlog::debug("AA_COMMAND_FIREWALL_ON, AllowLocalTraffic={}, IsCustomConfig={}", cmdFirewallOn.allowLanTraffic, cmdFirewallOn.isCustomConfig);
     mpr.success = true;
     mpr.exitCode = 0;
 
@@ -62,7 +62,7 @@ MessagePacketResult firewallOff(boost::archive::text_iarchive &ia)
     if (prevStatus) {
         SplitTunneling::instance().updateState();
     }
-    Logger::instance().out(L"AA_COMMAND_FIREWALL_OFF");
+    spdlog::debug("AA_COMMAND_FIREWALL_OFF");
     mpr.success = true;
     mpr.exitCode = 0;
 
@@ -75,34 +75,12 @@ MessagePacketResult firewallStatus(boost::archive::text_iarchive &ia)
     mpr.success = true;
 
     if (FirewallFilter::instance().currentStatus()) {
-        Logger::instance().out(L"AA_COMMAND_FIREWALL_STATUS, On");
+        spdlog::debug("AA_COMMAND_FIREWALL_STATUS, On");
         mpr.exitCode = 1;
     } else {
-        Logger::instance().out(L"AA_COMMAND_FIREWALL_STATUS, Off");
+        spdlog::debug("AA_COMMAND_FIREWALL_STATUS, Off");
         mpr.exitCode = 0;
     }
-    return mpr;
-}
-
-MessagePacketResult firewallIpv6Enable(boost::archive::text_iarchive &ia)
-{
-    MessagePacketResult mpr;
-
-    Logger::instance().out(L"AA_COMMAND_FIREWALL_IPV6_ENABLE");
-    Ipv6Firewall::instance().enableIPv6();
-    mpr.success = true;
-    mpr.exitCode = 0;
-    return mpr;
-}
-
-MessagePacketResult firewallIpv6Disable(boost::archive::text_iarchive &ia)
-{
-    MessagePacketResult mpr;
-
-    Logger::instance().out(L"AA_COMMAND_FIREWALL_IPV6_DISABLE");
-    Ipv6Firewall::instance().disableIPv6();
-    mpr.success = true;
-    mpr.exitCode = 0;
     return mpr;
 }
 
@@ -110,7 +88,7 @@ MessagePacketResult removeFromHosts(boost::archive::text_iarchive &ia)
 {
     MessagePacketResult mpr;
 
-    Logger::instance().out(L"AA_COMMAND_REMOVE_WINDSCRIBE_FROM_HOSTS");
+    spdlog::debug("AA_COMMAND_REMOVE_WINDSCRIBE_FROM_HOSTS");
     mpr.success = HostsEdit::instance().removeWindscribeHosts();
     mpr.exitCode = 0;
     return mpr;
@@ -172,44 +150,11 @@ MessagePacketResult getHelperVersion(boost::archive::text_iarchive &ia)
     return mpr;
 }
 
-MessagePacketResult ipv6State(boost::archive::text_iarchive &ia)
-{
-    MessagePacketResult mpr;
-
-    mpr.exitCode = SysIpv6Controller::instance().isIpv6Enabled();
-    Logger::instance().out(L"AA_COMMAND_OS_IPV6_STATE, %d", mpr.exitCode);
-    mpr.success = true;
-
-    return mpr;
-}
-
-MessagePacketResult ipv6Enable(boost::archive::text_iarchive &ia)
-{
-    MessagePacketResult mpr;
-
-    Logger::instance().out(L"AA_COMMAND_OS_IPV6_ENABLE");
-    SysIpv6Controller::instance().setIpv6Enabled(true);
-    mpr.success = true;
-
-    return mpr;
-}
-
-MessagePacketResult ipv6Disable(boost::archive::text_iarchive &ia)
-{
-    MessagePacketResult mpr;
-
-    Logger::instance().out(L"AA_COMMAND_OS_IPV6_DISABLE");
-    SysIpv6Controller::instance().setIpv6Enabled(false);
-    mpr.success = true;
-
-    return mpr;
-}
-
 MessagePacketResult icsIsSupported(boost::archive::text_iarchive &ia)
 {
     MessagePacketResult mpr;
 
-    Logger::instance().out(L"AA_COMMAND_ICS_IS_SUPPORTED");
+    spdlog::debug("AA_COMMAND_ICS_IS_SUPPORTED");
     mpr.exitCode = IcsManager::instance().isSupported();
     mpr.success = true;
 
@@ -221,7 +166,7 @@ MessagePacketResult icsStart(boost::archive::text_iarchive &ia)
     MessagePacketResult mpr;
 
     // do nothing in the current implementation
-    Logger::instance().out(L"AA_COMMAND_ICS_START");
+    spdlog::debug("AA_COMMAND_ICS_START");
     mpr.exitCode = true;
     mpr.success = true;
 
@@ -232,7 +177,7 @@ MessagePacketResult icsStop(boost::archive::text_iarchive &ia)
 {
     MessagePacketResult mpr;
 
-    Logger::instance().out(L"AA_COMMAND_ICS_STOP");
+    spdlog::debug("AA_COMMAND_ICS_STOP");
     mpr.exitCode = IcsManager::instance().stop();
     mpr.success = true;
 
@@ -245,7 +190,7 @@ MessagePacketResult icsChange(boost::archive::text_iarchive &ia)
 
     CMD_ICS_CHANGE cmdIcsChange;
     ia >> cmdIcsChange;
-    Logger::instance().out(L"AA_COMMAND_ICS_CHANGE");
+    spdlog::debug("AA_COMMAND_ICS_CHANGE");
     mpr.exitCode = IcsManager::instance().change(cmdIcsChange.szAdapterName);
     mpr.success = true;
 
@@ -256,7 +201,7 @@ MessagePacketResult addHosts(boost::archive::text_iarchive &ia)
 {
     MessagePacketResult mpr;
 
-    Logger::instance().out(L"AA_COMMAND_ADD_HOSTS");
+    spdlog::debug("AA_COMMAND_ADD_HOSTS");
     CMD_ADD_HOSTS cmdAddHosts;
     ia >> cmdAddHosts;
     mpr.success = HostsEdit::instance().addHosts(cmdAddHosts.hosts);
@@ -269,7 +214,7 @@ MessagePacketResult removeHosts(boost::archive::text_iarchive &ia)
 {
     MessagePacketResult mpr;
 
-    Logger::instance().out(L"AA_COMMAND_REMOVE_HOSTS");
+    spdlog::debug("AA_COMMAND_REMOVE_HOSTS");
     mpr.success = HostsEdit::instance().removeHosts();
     mpr.exitCode = 0;
 
@@ -283,7 +228,7 @@ MessagePacketResult disableDnsTraffic(boost::archive::text_iarchive &ia)
     CMD_DISABLE_DNS_TRAFFIC cmdDisableDnsTraffic;
     ia >> cmdDisableDnsTraffic;
 
-    Logger::instance().out(L"AA_COMMAND_DISABLE_DNS_TRAFFIC");
+    spdlog::debug("AA_COMMAND_DISABLE_DNS_TRAFFIC");
     DnsFirewall::instance().setExcludeIps(cmdDisableDnsTraffic.excludedIps);
     DnsFirewall::instance().enable();
     mpr.success = true;
@@ -296,7 +241,7 @@ MessagePacketResult enableDnsTraffic(boost::archive::text_iarchive &ia)
 {
     MessagePacketResult mpr;
 
-    Logger::instance().out(L"AA_COMMAND_ENABLE_DNS_TRAFFIC");
+    spdlog::debug("AA_COMMAND_ENABLE_DNS_TRAFFIC");
     DnsFirewall::instance().disable();
     mpr.success = true;
     mpr.exitCode = 0;
@@ -308,7 +253,7 @@ MessagePacketResult reinstallWanIkev2(boost::archive::text_iarchive &ia)
 {
     MessagePacketResult mpr;
 
-    Logger::instance().out(L"AA_COMMAND_REINSTALL_WAN_IKEV2");
+    spdlog::debug("AA_COMMAND_REINSTALL_WAN_IKEV2");
     bool b1 = ReinstallWanIkev2::uninstallDevice();
     bool b2 = ReinstallWanIkev2::scanForHardwareChanges();
     mpr.exitCode = b1 && b2;
@@ -321,7 +266,7 @@ MessagePacketResult enableWanIkev2(boost::archive::text_iarchive &ia)
 {
     MessagePacketResult mpr;
 
-    Logger::instance().out(L"AA_COMMAND_ENABLE_WAN_IKEV2");
+    spdlog::debug("AA_COMMAND_ENABLE_WAN_IKEV2");
     mpr.exitCode = ReinstallWanIkev2::enableDevice();
     mpr.success = true;
 
@@ -334,7 +279,7 @@ MessagePacketResult closeTcpConnections(boost::archive::text_iarchive &ia)
 
     CMD_CLOSE_TCP_CONNECTIONS cmdCloseTcpConnections;
     ia >> cmdCloseTcpConnections;
-    Logger::instance().out(L"AA_COMMAND_CLOSE_TCP_CONNECTIONS, KeepLocalSockets = %d", cmdCloseTcpConnections.isKeepLocalSockets);
+    spdlog::debug("AA_COMMAND_CLOSE_TCP_CONNECTIONS, KeepLocalSockets = {}", cmdCloseTcpConnections.isKeepLocalSockets);
 
     if (g_SplitTunnelingPars.isEnabled && g_SplitTunnelingPars.isVpnConnected) {
         CloseTcpConnections::closeAllTcpConnections(cmdCloseTcpConnections.isKeepLocalSockets, g_SplitTunnelingPars.isExclude, g_SplitTunnelingPars.apps);
@@ -350,7 +295,7 @@ MessagePacketResult enumProcesses(boost::archive::text_iarchive &ia)
 {
     MessagePacketResult mpr;
 
-    Logger::instance().out(L"AA_COMMAND_ENUM_PROCESSES");
+    spdlog::debug("AA_COMMAND_ENUM_PROCESSES");
 
     std::vector<std::wstring> list = ActiveProcesses::instance().getList();
 
@@ -387,11 +332,11 @@ MessagePacketResult taskKill(boost::archive::text_iarchive &ia)
     if (cmdTaskKill.target == kTargetOpenVpn) {
         std::wstringstream killCmd;
         killCmd << Utils::getSystemDir() << L"\\taskkill.exe /f /t /im windscribeopenvpn.exe";
-        Logger::instance().out(L"AA_COMMAND_TASK_KILL, cmd=%s", killCmd.str().c_str());
+        spdlog::debug(L"AA_COMMAND_TASK_KILL, cmd={}", killCmd.str());
         mpr = ExecuteCmd::instance().executeBlockingCmd(killCmd.str());
     }
     else {
-        Logger::instance().out(L"AA_COMMAND_TASK_KILL, invalid ID received %d", cmdTaskKill.target);
+        spdlog::error(L"AA_COMMAND_TASK_KILL, invalid ID received {}", (int)cmdTaskKill.target);
     }
 
     return mpr;
@@ -404,7 +349,7 @@ MessagePacketResult setMetric(boost::archive::text_iarchive &ia)
 
     std::wstring setMetricCmd = Utils::getSystemDir() + L"\\netsh.exe int " + cmdSetMetric.szInterfaceType + L" set interface interface=\"" +
                                 cmdSetMetric.szInterfaceName + L"\" metric=" + cmdSetMetric.szMetricNumber;
-    Logger::instance().out(L"AA_COMMAND_SET_METRIC, cmd=%s", setMetricCmd.c_str());
+    spdlog::debug(L"AA_COMMAND_SET_METRIC, cmd={}", setMetricCmd);
     return ExecuteCmd::instance().executeBlockingCmd(setMetricCmd);
 }
 
@@ -414,13 +359,13 @@ MessagePacketResult wmicGetConfigErrorCode(boost::archive::text_iarchive &ia)
     ia >> cmdWmicGetConfigErrorCode;
 
     std::wstring wmicCmd = Utils::getSystemDir() + L"\\wbem\\wmic.exe path win32_networkadapter where description=\"" + cmdWmicGetConfigErrorCode.szAdapterName + L"\" get ConfigManagerErrorCode";
-    Logger::instance().out(L"AA_COMMAND_WMIC_GET_CONFIG_ERROR_CODE, cmd=%s", wmicCmd.c_str());
+    spdlog::debug(L"AA_COMMAND_WMIC_GET_CONFIG_ERROR_CODE, cmd=%s", wmicCmd);
     return ExecuteCmd::instance().executeBlockingCmd(wmicCmd);
 }
 
 MessagePacketResult enableBfe(boost::archive::text_iarchive &ia)
 {
-    Logger::instance().out(L"AA_COMMAND_ENABLE_BFE");
+    spdlog::debug("AA_COMMAND_ENABLE_BFE");
 
     std::wstring exe = Utils::getSystemDir() + L"\\sc.exe";
     ExecuteCmd::instance().executeBlockingCmd(exe + L" config BFE start= auto");
@@ -453,7 +398,7 @@ MessagePacketResult runOpenvpn(boost::archive::text_iarchive &ia)
     ExecutableSignature sigCheck;
     std::wstring servicePath = Utils::getExePath() + L"\\windscribeopenvpn.exe";
     if (!sigCheck.verify(servicePath)) {
-        Logger::instance().out("OpenVPN service signature incorrect: %s", sigCheck.lastError().c_str());
+        spdlog::error("OpenVPN service signature incorrect: {}", sigCheck.lastError());
         mpr.success = false;
         return mpr;
     }
@@ -472,24 +417,24 @@ MessagePacketResult whitelistPorts(boost::archive::text_iarchive &ia)
     std::wstring strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall add rule name=\"WindscribeStaticIpTcp\" protocol=TCP dir=in localport=\"";
     strCmd += cmdWhitelistPorts.ports;
     strCmd += L"\" action=allow";
-    Logger::instance().out(L"AA_COMMAND_WHITELIST_PORTS, cmd=%s", strCmd.c_str());
+    spdlog::debug(L"AA_COMMAND_WHITELIST_PORTS, cmd={}", strCmd);
     ExecuteCmd::instance().executeBlockingCmd(strCmd);
 
     strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall add rule name=\"WindscribeStaticIpUdp\" protocol=UDP dir=in localport=\"";
     strCmd += cmdWhitelistPorts.ports;
     strCmd += L"\" action=allow";
-    Logger::instance().out(L"AA_COMMAND_WHITELIST_PORTS, cmd=%s", strCmd.c_str());
+    spdlog::debug(L"AA_COMMAND_WHITELIST_PORTS, cmd={}", strCmd);
     return ExecuteCmd::instance().executeBlockingCmd(strCmd);
 }
 
 MessagePacketResult deleteWhitelistPorts(boost::archive::text_iarchive &ia)
 {
     std::wstring strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall delete rule name=\"WindscribeStaticIpTcp\" dir=in";
-    Logger::instance().out(L"AA_COMMAND_DELETE_WHITELIST_PORTS, cmd=%s", strCmd.c_str());
+    spdlog::debug(L"AA_COMMAND_DELETE_WHITELIST_PORTS, cmd={}", strCmd);
     ExecuteCmd::instance().executeBlockingCmd(strCmd);
 
     strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall delete rule name=\"WindscribeStaticIpUdp\" dir=in";
-    Logger::instance().out(L"AA_COMMAND_DELETE_WHITELIST_PORTS, cmd=%s", strCmd.c_str());
+    spdlog::debug(L"AA_COMMAND_DELETE_WHITELIST_PORTS, cmd={}", strCmd);
     return ExecuteCmd::instance().executeBlockingCmd(strCmd);
 }
 
@@ -502,12 +447,12 @@ MessagePacketResult setMacAddressRegistryValueSz(boost::archive::text_iarchive &
 
     // Verify we've received a valid subkey for this Registry key.
     if (!Registry::subkeyExists(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}", cmd.szInterfaceName)) {
-        Logger::instance().out(L"setMacAddressRegistryValueSz did not find key %s", cmd.szInterfaceName.c_str());
+        spdlog::error(L"setMacAddressRegistryValueSz did not find key {}", cmd.szInterfaceName);
         return mpr;
     }
 
     if (!Utils::isMacAddress(cmd.szValue)) {
-        Logger::instance().out(L"setMacAddressRegistryValueSz received an invalid MAC address %s", cmd.szValue.c_str());
+        spdlog::error(L"setMacAddressRegistryValueSz received an invalid MAC address {}", cmd.szValue);
         return mpr;
     }
 
@@ -521,7 +466,7 @@ MessagePacketResult setMacAddressRegistryValueSz(boost::archive::text_iarchive &
         Registry::regWriteDwordProperty(HKEY_LOCAL_MACHINE, keyPath, L"WindscribeMACSpoofed", 1);
     }
 
-    Logger::instance().out(L"AA_COMMAND_SET_MAC_ADDRESS_REGISTRY_VALUE_SZ, path=%s, name=%s, value=%s", keyPath.c_str(), propertyName.c_str(), propertyValue.c_str());
+    spdlog::debug(L"AA_COMMAND_SET_MAC_ADDRESS_REGISTRY_VALUE_SZ, path={}, name={}, value={}", keyPath, propertyName, propertyValue);
     return mpr;
 }
 
@@ -534,7 +479,7 @@ MessagePacketResult removeMacAddressRegistryProperty(boost::archive::text_iarchi
 
     // Verify we've received a valid subkey for this Registry key.
     if (!Registry::subkeyExists(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}", cmd.szInterfaceName)) {
-        Logger::instance().out(L"removeMacAddressRegistryProperty did not find key %s", cmd.szInterfaceName.c_str());
+        spdlog::error(L"removeMacAddressRegistryProperty did not find key {}", cmd.szInterfaceName);
         return mpr;
     }
 
@@ -553,7 +498,7 @@ MessagePacketResult removeMacAddressRegistryProperty(boost::archive::text_iarchi
 
     mpr.success = success1 && success2;
 
-    Logger::instance().out(L"AA_COMMAND_REMOVE_MAC_ADDRESS_REGISTRY_PROPERTY, key=%s, name=%s", keyPathSz, propertyName.c_str());
+    spdlog::debug(L"AA_COMMAND_REMOVE_MAC_ADDRESS_REGISTRY_PROPERTY, key={}, name={}", keyPathSz, propertyName);
     return mpr;
 }
 
@@ -566,11 +511,11 @@ MessagePacketResult resetNetworkAdapter(boost::archive::text_iarchive &ia)
 
     std::wstring adapterRegistryName = cmdResetNetworkAdapter.szInterfaceName;
 
-    Logger::instance().out(L"AA_COMMAND_RESET_NETWORK_ADAPTER, Disable %s", adapterRegistryName.c_str());
+    spdlog::debug(L"AA_COMMAND_RESET_NETWORK_ADAPTER, Disable {}", adapterRegistryName);
     Utils::callNetworkAdapterMethod(L"Disable", adapterRegistryName);
 
     if (cmdResetNetworkAdapter.bringBackUp) {
-        Logger::instance().out(L"AA_COMMAND_RESET_NETWORK_ADAPTER, Enable %s", adapterRegistryName.c_str());
+        spdlog::debug(L"AA_COMMAND_RESET_NETWORK_ADAPTER, Enable {}", adapterRegistryName);
         Utils::callNetworkAdapterMethod(L"Enable", adapterRegistryName);
     }
 
@@ -585,26 +530,26 @@ MessagePacketResult splitTunnelingSettings(boost::archive::text_iarchive &ia)
     CMD_SPLIT_TUNNELING_SETTINGS cmdSplitTunnelingSettings;
     ia >> cmdSplitTunnelingSettings;
 
-    Logger::instance().out(L"AA_COMMAND_SPLIT_TUNNELING_SETTINGS, isEnabled: %d, isExclude: %d,"
-                           L" isAllowLanTraffic: %d, cntApps: %d",
+    spdlog::debug("AA_COMMAND_SPLIT_TUNNELING_SETTINGS, isEnabled: {}, isExclude: {},"
+                           " isAllowLanTraffic: {}, cntApps: {}",
                            cmdSplitTunnelingSettings.isActive,
                            cmdSplitTunnelingSettings.isExclude,
                            cmdSplitTunnelingSettings.isAllowLanTraffic,
                            cmdSplitTunnelingSettings.files.size());
 
     for (size_t i = 0; i < cmdSplitTunnelingSettings.files.size(); ++i) {
-        Logger::instance().out(L"AA_COMMAND_SPLIT_TUNNELING_SETTINGS: %s",
-            cmdSplitTunnelingSettings.files[i].substr(cmdSplitTunnelingSettings.files[i].find_last_of(L"/\\") + 1).c_str());
+        spdlog::debug(L"AA_COMMAND_SPLIT_TUNNELING_SETTINGS: {}",
+            cmdSplitTunnelingSettings.files[i].substr(cmdSplitTunnelingSettings.files[i].find_last_of(L"/\\") + 1));
     }
 
     for (size_t i = 0; i < cmdSplitTunnelingSettings.ips.size(); ++i) {
-        Logger::instance().out(L"AA_COMMAND_SPLIT_TUNNELING_SETTINGS: %s",
-            cmdSplitTunnelingSettings.ips[i].c_str());
+        spdlog::debug(L"AA_COMMAND_SPLIT_TUNNELING_SETTINGS: {}",
+            cmdSplitTunnelingSettings.ips[i]);
     }
 
     for (size_t i = 0; i < cmdSplitTunnelingSettings.hosts.size(); ++i) {
-        Logger::instance().out("AA_COMMAND_SPLIT_TUNNELING_SETTINGS: %s",
-            cmdSplitTunnelingSettings.hosts[i].c_str());
+        spdlog::debug("AA_COMMAND_SPLIT_TUNNELING_SETTINGS: {}",
+            cmdSplitTunnelingSettings.hosts[i]);
     }
 
 
@@ -628,7 +573,7 @@ MessagePacketResult addIkev2DefaultRoute(boost::archive::text_iarchive &ia)
     MessagePacketResult mpr;
 
     mpr.success = IKEv2Route::addRouteForIKEv2();
-    Logger::instance().out(L"AA_COMMAND_ADD_IKEV2_DEFAULT_ROUTE: success = %d", mpr.success);
+    spdlog::debug("AA_COMMAND_ADD_IKEV2_DEFAULT_ROUTE: success = {}", mpr.success);
     return mpr;
 }
 
@@ -636,7 +581,7 @@ MessagePacketResult removeWindscribeNetworkProfiles(boost::archive::text_iarchiv
 {
     MessagePacketResult mpr;
 
-    Logger::instance().out(L"AA_COMMAND_REMOVE_WINDSCRIBE_NETWORK_PROFILES");
+    spdlog::debug("AA_COMMAND_REMOVE_WINDSCRIBE_NETWORK_PROFILES");
     RemoveWindscribeNetworkProfiles::remove();
     mpr.success = true;
     return mpr;
@@ -654,13 +599,13 @@ MessagePacketResult changeMtu(boost::archive::text_iarchive &ia)
         netshCmd += L"active";
     }
 
-    Logger::instance().out(L"AA_COMMAND_CHANGE_MTU: " + netshCmd);
+    spdlog::debug(L"AA_COMMAND_CHANGE_MTU: {}", netshCmd);
     return ExecuteCmd::instance().executeBlockingCmd(netshCmd);
 }
 
 MessagePacketResult resetAndStartRas(boost::archive::text_iarchive &ia)
 {
-    Logger::instance().out(L"AA_COMMAND_RESET_AND_START_RAS");
+    spdlog::debug("AA_COMMAND_RESET_AND_START_RAS");
 
     std::wstring exe = Utils::getSystemDir() + L"\\sc.exe";
     ExecuteCmd::instance().executeBlockingCmd(exe + L" config RasMan start= demand");
@@ -676,7 +621,7 @@ MessagePacketResult setIkev2IpsecParameters(boost::archive::text_iarchive &ia)
     MessagePacketResult mpr;
 
     mpr.success = IKEv2IPSec::setIKEv2IPSecParameters();
-    Logger::instance().out(L"AA_COMMAND_SET_IKEV2_IPSEC_PARAMETERS: success = %d", mpr.success);
+    spdlog::debug("AA_COMMAND_SET_IKEV2_IPSEC_PARAMETERS: success = {}", mpr.success);
 
     return mpr;
 }
@@ -686,7 +631,7 @@ MessagePacketResult startWireGuard(boost::archive::text_iarchive &ia)
     MessagePacketResult mpr;
 
     mpr.success = WireGuardController::instance().installService();
-    Logger::instance().out(L"AA_COMMAND_START_WIREGUARD: success = %d", mpr.success);
+    spdlog::debug("AA_COMMAND_START_WIREGUARD: success = {}", mpr.success);
 
     return mpr;
 }
@@ -699,7 +644,7 @@ MessagePacketResult configureWireGuard(boost::archive::text_iarchive &ia)
     ia >> cmd;
 
     mpr.success = WireGuardController::instance().configure(cmd.config);
-    Logger::instance().out(L"AA_COMMAND_CONFIGURE_WIREGUARD: success = %d", mpr.success);
+    spdlog::debug("AA_COMMAND_CONFIGURE_WIREGUARD: success = {}", mpr.success);
 
     return mpr;
 }
@@ -709,7 +654,7 @@ MessagePacketResult stopWireGuard(boost::archive::text_iarchive &ia)
     MessagePacketResult mpr;
 
     mpr.success = WireGuardController::instance().deleteService();
-    Logger::instance().out(L"AA_COMMAND_STOP_WIREGUARD");
+    spdlog::debug("AA_COMMAND_STOP_WIREGUARD");
 
     return mpr;
 }
@@ -730,7 +675,7 @@ MessagePacketResult connectStatus(boost::archive::text_iarchive &ia)
 
     CMD_CONNECT_STATUS cmdConnectStatus;
     ia >> cmdConnectStatus;
-    Logger::instance().out(L"AA_COMMAND_CONNECT_STATUS: %d", cmdConnectStatus.isConnected);
+    spdlog::debug("AA_COMMAND_CONNECT_STATUS: {}", cmdConnectStatus.isConnected);
     mpr.success = SplitTunneling::instance().setConnectStatus(cmdConnectStatus);
     g_SplitTunnelingPars.isVpnConnected = cmdConnectStatus.isConnected;
 
@@ -755,7 +700,7 @@ MessagePacketResult connectedDns(boost::archive::text_iarchive &ia)
     mpr = ExecuteCmd::instance().executeBlockingCmd(netshCmd);
 
     std::wstring logBuf = L"AA_COMMAND_CONNECTED_DNS: " + netshCmd + L" " + (mpr.success ? L"Success" : L"Failure") + L" " + std::to_wstring(mpr.exitCode);
-    Logger::instance().out(logBuf);
+    spdlog::debug(L"{}", logBuf);
 
     return mpr;
 }
@@ -768,10 +713,10 @@ MessagePacketResult makeHostsFileWritable(boost::archive::text_iarchive &ia)
     const auto hostsFile = Utils::getSystemDir() + L"\\drivers\\etc\\hosts";
     const auto attributes = ::GetFileAttributes(hostsFile.c_str());
     if (attributes == INVALID_FILE_ATTRIBUTES) {
-        Logger::instance().out(L"GetFileAttributes of hosts file failed (%lu)", ::GetLastError());
+        spdlog::error("GetFileAttributes of hosts file failed ({})", ::GetLastError());
         mpr.success = false;
     } else if (::SetFileAttributes(hostsFile.c_str(), attributes & ~FILE_ATTRIBUTE_READONLY) == FALSE) {
-        Logger::instance().out(L"SetFileAttributes of hosts file failed (%lu)", ::GetLastError());
+        spdlog::error("SetFileAttributes of hosts file failed ({})", ::GetLastError());
         mpr.success = false;
     }
 
@@ -782,7 +727,7 @@ MessagePacketResult createOpenVPNAdapter(boost::archive::text_iarchive &ia)
 {
     CMD_CREATE_OPENVPN_ADAPTER cmdCreateAdapter;
     ia >> cmdCreateAdapter;
-    Logger::instance().out(L"AA_COMMAND_CREATE_OPENVPN_ADAPTER: creating '%s' adapter", (cmdCreateAdapter.useDCODriver ? L"ovpn-dco" : L"wintun"));
+    spdlog::debug(L"AA_COMMAND_CREATE_OPENVPN_ADAPTER: creating '{}' adapter", (cmdCreateAdapter.useDCODriver ? L"ovpn-dco" : L"wintun"));
 
     MessagePacketResult mpr;
     mpr.success = OpenVPNController::instance().createAdapter(cmdCreateAdapter.useDCODriver);
@@ -834,7 +779,7 @@ MessagePacketResult disableDohSettings(boost::archive::text_iarchive &ia)
         }
     }
 
-    Logger::instance().out(L"AA_COMMAND_DISABLE_DOH_SETTINGS");
+    spdlog::debug("AA_COMMAND_DISABLE_DOH_SETTINGS");
     return mpr;
 }
 
@@ -870,7 +815,7 @@ MessagePacketResult enableDohSettings(boost::archive::text_iarchive &ia)
         mpr.success = true;
     }
 
-    Logger::instance().out(L"AA_COMMAND_ENABLE_DOH_SETTINGS");
+    spdlog::debug("AA_COMMAND_ENABLE_DOH_SETTINGS");
     return mpr;
 }
 
@@ -889,7 +834,7 @@ MessagePacketResult ssidFromInterfaceGUID(boost::archive::text_iarchive &ia)
         if (mpr.exitCode != ERROR_ACCESS_DENIED && mpr.exitCode != ERROR_NOT_FOUND && mpr.exitCode != ERROR_INVALID_STATE) {
             // Only log 'abnormal' errors so we do not spam the log.  We'll receive ERROR_ACCESS_DENIED if location services
             // are blocked on the computer, and the other two when an adapter is being reset.
-            Logger::instance().out("ssidFromInterfaceGUID - %s", ex.what());
+            spdlog::debug("ssidFromInterfaceGUID - {}", ex.what());
         }
     }
 

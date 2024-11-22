@@ -13,9 +13,7 @@
 #include "hostsedit.h"
 #include "ipc/servicecommunication.h"
 #include "ipc/serialize_structs.h"
-#include "ipv6_firewall.h"
 #include "split_tunneling/split_tunneling.h"
-#include "sys_ipv6_controller.h"
 #include "wireguard/wireguardcontroller.h"
 
 struct SPLIT_TUNNELING_PARS
@@ -31,16 +29,11 @@ struct SPLIT_TUNNELING_PARS
 MessagePacketResult firewallOn(boost::archive::text_iarchive &ia);
 MessagePacketResult firewallOff(boost::archive::text_iarchive &ia);
 MessagePacketResult firewallStatus(boost::archive::text_iarchive &ia);
-MessagePacketResult firewallIpv6Enable(boost::archive::text_iarchive &ia);
-MessagePacketResult firewallIpv6Disable(boost::archive::text_iarchive &ia);
 MessagePacketResult removeFromHosts(boost::archive::text_iarchive &ia);
 MessagePacketResult checkUnblockingCmdStatus(boost::archive::text_iarchive &ia);
 MessagePacketResult getUnblockingCmdCount(boost::archive::text_iarchive &ia);
 MessagePacketResult clearUnblockingCmd(boost::archive::text_iarchive &ia);
 MessagePacketResult getHelperVersion(boost::archive::text_iarchive &ia);
-MessagePacketResult ipv6State(boost::archive::text_iarchive &ia);
-MessagePacketResult ipv6Enable(boost::archive::text_iarchive &ia);
-MessagePacketResult ipv6Disable(boost::archive::text_iarchive &ia);
 MessagePacketResult icsIsSupported(boost::archive::text_iarchive &ia);
 MessagePacketResult icsStart(boost::archive::text_iarchive &ia);
 MessagePacketResult icsChange(boost::archive::text_iarchive &ia);
@@ -87,16 +80,11 @@ static const std::map<const int, std::function<MessagePacketResult(boost::archiv
     { AA_COMMAND_FIREWALL_ON, firewallOn },
     { AA_COMMAND_FIREWALL_OFF, firewallOff },
     { AA_COMMAND_FIREWALL_STATUS, firewallStatus },
-    { AA_COMMAND_FIREWALL_IPV6_ENABLE, firewallIpv6Enable },
-    { AA_COMMAND_FIREWALL_IPV6_DISABLE, firewallIpv6Disable },
     { AA_COMMAND_REMOVE_WINDSCRIBE_FROM_HOSTS, removeFromHosts },
     { AA_COMMAND_CHECK_UNBLOCKING_CMD_STATUS, checkUnblockingCmdStatus },
     { AA_COMMAND_GET_UNBLOCKING_CMD_COUNT, getUnblockingCmdCount },
     { AA_COMMAND_CLEAR_UNBLOCKING_CMD, clearUnblockingCmd },
     { AA_COMMAND_GET_HELPER_VERSION, getHelperVersion },
-    { AA_COMMAND_OS_IPV6_STATE, ipv6State },
-    { AA_COMMAND_OS_IPV6_ENABLE, ipv6Enable },
-    { AA_COMMAND_OS_IPV6_DISABLE, ipv6Disable },
     { AA_COMMAND_ICS_IS_SUPPORTED, icsIsSupported },
     { AA_COMMAND_ICS_START, icsStart },
     { AA_COMMAND_ICS_CHANGE, icsChange },

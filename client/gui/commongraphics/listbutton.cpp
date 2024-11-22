@@ -3,7 +3,6 @@
 #include <QPainter>
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
-#include "utils/logger.h"
 #include "dpiscalemanager.h"
 
 namespace CommonGraphics {
@@ -74,8 +73,6 @@ void ListButton::updatePositions()
         QFontMetrics metrics(font);
 
         int width = metrics.horizontalAdvance(text_);
-        int height = metrics.height();
-
         bubbleButton_->setPos((WINDOW_WIDTH-72)/2*G_SCALE - (width + 48*G_SCALE)/2, 0);
         setHeight(38*G_SCALE);
     }

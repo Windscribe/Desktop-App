@@ -27,7 +27,7 @@
 #include "commongraphics/commongraphics.h"
 #include "backend/persistentstate.h"
 #include "dpiscalemanager.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "widgetutils/widgetutils.h"
 
 #if defined(Q_OS_WIN)
@@ -3082,7 +3082,7 @@ void MainWindowController::centerMainGeometryAndUpdateView()
 
 void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
 {
-    int width, height;
+    int width = 0, height = 0;
     int addHeightToGeometry = 0;
     getGraphicsRegionWidthAndHeight(width, height, addHeightToGeometry);
 
@@ -3132,6 +3132,8 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
             // qDebug() << "Keeping mainwindow on screen!";
             geo.moveRight(kMaxGeometryRightPosition);
         }
+#elif defined(Q_OS_LINUX)
+	(void)desktopAvailableRc;
 #endif
 
     }

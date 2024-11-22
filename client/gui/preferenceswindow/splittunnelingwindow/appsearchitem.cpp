@@ -5,9 +5,7 @@
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "preferenceswindow/preferencesconst.h"
-#include "widgetutils/widgetutils.h"
 #include "dpiscalemanager.h"
-#include "utils/logger.h"
 
 namespace PreferencesWindow {
 

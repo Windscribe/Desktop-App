@@ -1,7 +1,10 @@
 #include "all_headers.h"
 
 #include <conio.h>
-
+#include <filesystem>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/rotating_file_sink.h>
+#include "../../../client/common/utils/log/spdlog_utils.h"
 #include "../../../client/common/utils/crashhandler.h"
 #include "changeics/icsmanager.h"
 #include "dns_firewall.h"
@@ -10,8 +13,6 @@
 #include "fwpm_wrapper.h"
 #include "ioutils.h"
 #include "ipc/servicecommunication.h"
-#include "ipv6_firewall.h"
-#include "logger.h"
 #include "openvpncontroller.h"
 #include "process_command.h"
 #include "split_tunneling/split_tunneling.h"
@@ -39,7 +40,6 @@ int main(int argc, char *argv[])
             if (isElevated()) {
                 FwpmWrapper fwpmWrapper;
                 if (fwpmWrapper.initialize()) {
-                    Ipv6Firewall::instance(&fwpmWrapper).enableIPv6();
                     DnsFirewall::instance(&fwpmWrapper).disable();
                     FirewallFilter::instance(&fwpmWrapper).off();
                     SplitTunneling::removeAllFilters(fwpmWrapper);
@@ -52,6 +52,31 @@ int main(int argc, char *argv[])
             }
             return 0;
         }
+    }
+
+    // Initialize logger
+    std::wstring logPath = Utils::getExePath() + L"\\windscribe_service.log";
+    auto formatter = log_utils::createJsonFormatter();
+    spdlog::set_formatter(std::move(formatter));
+
+    try
+    {
+        if (log_utils::isOldLogFormat(logPath)) {
+            std::filesystem::remove(logPath);
+        }
+        // Create rotation logger with 2 file with unlimited size
+        // rotate it on open, the first file is the current log, the 2nd is the previous log
+        auto logger = spdlog::rotating_logger_mt("service", logPath, SIZE_MAX, 1, true);
+
+        // this will trigger flush on every log message
+        logger->flush_on(spdlog::level::trace);
+        spdlog::set_level(spdlog::level::trace);
+        spdlog::set_default_logger(logger);
+    }
+    catch (const spdlog::spdlog_ex &ex)
+    {
+        printf("spdlog init failed: %s\n", ex.what());
+        return 0;
     }
 
 #if defined(ENABLE_CRASH_REPORTS)
@@ -132,7 +157,7 @@ VOID WINAPI serviceMain(DWORD, LPTSTR *)
     g_ServiceStatus.dwCheckPoint = 0;
 
     if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE) {
-        Logger::instance().out(L"SetServiceStatus returned error");
+        spdlog::error("SetServiceStatus returned error");
     }
 
     g_ServiceExiting = false;
@@ -140,7 +165,7 @@ VOID WINAPI serviceMain(DWORD, LPTSTR *)
     // Start a thread that will perform the main task of the service
     g_hThread = ::CreateThread(NULL, 0, serviceWorkerThread, NULL, 0, NULL);
     if (g_hThread == NULL) {
-        Logger::instance().out(L"serviceMain CreateThread failed (%lu)", ::GetLastError());
+        spdlog::error("serviceMain CreateThread failed {}", ::GetLastError());
     }
     else {
         // Wait until our worker thread exits signaling that the service needs to stop
@@ -153,7 +178,7 @@ VOID WINAPI serviceMain(DWORD, LPTSTR *)
     g_ServiceStatus.dwCheckPoint = 3;
 
     if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE) {
-        Logger::instance().out(L"SetServiceStatus returned error");
+        spdlog::error("SetServiceStatus returned error");
     }
 
     if (g_hThread != NULL) {
@@ -167,7 +192,7 @@ VOID WINAPI serviceCtrlHandler(DWORD CtrlCode)
     switch (CtrlCode) {
     case SERVICE_CONTROL_STOP:
 
-        Logger::instance().out(L"SERVICE_CONTROL_STOP message received");
+        spdlog::info("SERVICE_CONTROL_STOP message received");
 
         if (g_ServiceStatus.dwCurrentState != SERVICE_RUNNING) {
             break;
@@ -179,13 +204,13 @@ VOID WINAPI serviceCtrlHandler(DWORD CtrlCode)
         g_ServiceStatus.dwCheckPoint = 4;
 
         if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE) {
-            Logger::instance().out(L"SetServiceStatus returned error");
+            spdlog::error("SetServiceStatus returned error");
         }
 
         stopServiceThread();
         break;
     case SERVICE_CONTROL_SHUTDOWN:
-        Logger::instance().out(L"SERVICE_CONTROL_SHUTDOWN message received");
+        spdlog::info("SERVICE_CONTROL_SHUTDOWN message received");
         stopServiceThread();
         if (g_hThread != NULL) {
             WaitForSingleObject(g_hThread, INFINITE);
@@ -228,7 +253,7 @@ static HANDLE CreatePipe()
                                      1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT, &sa);
 
     if (hPipe == INVALID_HANDLE_VALUE) {
-        Logger::instance().out(L"CreateNamedPipe failed (%lu)", ::GetLastError());
+        spdlog::error("CreateNamedPipe failed {}", ::GetLastError());
     }
 
     return hPipe;
@@ -261,7 +286,7 @@ static void processClientRequests(HANDLE hPipe)
 
     wsl::Win32Handle ioCompletedEvent(::CreateEvent(NULL, TRUE, TRUE, NULL));
     if (!ioCompletedEvent.isValid()) {
-        Logger::instance().out(L"CreateEvent for client IPC IO completion failed (%lu)", ::GetLastError());
+        spdlog::error("CreateEvent for client IPC IO completion failed {}", ::GetLastError());
         return;
     }
 
@@ -301,7 +326,7 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
         return 0;
     }
 
-    Logger::instance().out(L"Service started");
+    spdlog::info("Service started");
 
     HANDLE hPipe = CreatePipe();
     if (hPipe == INVALID_HANDLE_VALUE) {
@@ -319,13 +344,12 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
     g_ServiceStatus.dwCheckPoint = 0;
 
     if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE) {
-        Logger::instance().out(L"SetServiceStatus returned error");
+        spdlog::error("SetServiceStatus returned error");
     }
 
     // Initialize singletons
     DnsFirewall::instance(&fwpmWrapper);
     FirewallFilter::instance(&fwpmWrapper);
-    Ipv6Firewall::instance(&fwpmWrapper);
     SplitTunneling::instance(&fwpmWrapper);
 
     OVERLAPPED overlapped;
@@ -357,7 +381,6 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
     // to reference the FwpmWrapper after it is released.
     DnsFirewall::instance().release();
     FirewallFilter::instance().release();
-    Ipv6Firewall::instance().release();
     SplitTunneling::instance().release();
 
     // Uses COM, so must release it before we CoUninitialize() below.
@@ -368,7 +391,7 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
     OpenVPNController::instance().release();
 
     CoUninitialize();
-    Logger::instance().out(L"Service stopped");
+    spdlog::info("Service stopped");
 
     return ERROR_SUCCESS;
 }

@@ -5,6 +5,7 @@
 #include <boost/asio.hpp>
 #include "utils/wsnet_callback_sink.h"
 #include "utils/persistentsettings.h"
+#include "utils/spdlog_utils.h"
 #include "dnsresolver/dnsresolver_cares.h"
 #include "httpnetworkmanager/httpnetworkmanager.h"
 #include "settings.h"
@@ -47,13 +48,13 @@ public:
 
         dnsResolver_ = std::make_shared<DnsResolver_cares>();
         if (!dnsResolver_->init()) {
-            spdlog::critical("Failed to initialize DnsResolver");
+            spdlog::error("Failed to initialize DnsResolver");
             return false;
         }
 
         httpNetworkManager_ = std::make_shared<HttpNetworkManager>(io_context_, dnsResolver_.get());
         if (!httpNetworkManager_->init()) {
-            spdlog::critical("Failed to initialize HttpNetworkManager");
+            spdlog::error("Failed to initialize HttpNetworkManager");
             return false;
         }
 
@@ -140,6 +141,9 @@ void WSNet::setLogger(WSNetLoggerFunction loggerFunction, bool debugLog)
     if (loggerFunction) {
         auto logger = callback_logger_mt("wsnet", loggerFunction);
         spdlog::set_default_logger(logger);
+        auto formatter = spdlog_utils::createJsonFormatter();
+        spdlog::set_formatter(std::move(formatter));
+
         if (debugLog)
             spdlog::set_level(spdlog::level::trace);
         else

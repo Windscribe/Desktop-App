@@ -4,12 +4,12 @@
 #include <QRegularExpression>
 #include <QSettings>
 #include <QString>
+#include <spdlog/spdlog.h>
 
 #include "../installer_base.h"
 #include "../installer_utils.h"
 #include "../settings.h"
 #include "../../../utils/applicationinfo.h"
-#include "../../../utils/logger.h"
 
 #include "types/global_consts.h"
 
@@ -23,8 +23,8 @@ int InstallOpenVPNDCO::executeStep()
 {
     DWORD buildNum = InstallerUtils::getOSBuildNumber();
     if (buildNum < kMinWindowsBuildNumberForOpenVPNDCO) {
-        Log::instance().out(
-            L"WARNING: OS version is not compatible with the OpenVPN DCO driver.  Windows 10 build %lu or newer is required"
+        spdlog::warn(
+            L"WARNING: OS version is not compatible with the OpenVPN DCO driver.  Windows 10 build {} or newer is required"
             L" to use this driver.", kMinWindowsBuildNumberForOpenVPNDCO);
         return -ERROR_OTHER;
     }
@@ -41,8 +41,8 @@ int InstallOpenVPNDCO::executeStep()
     QByteArray appOutput = process.readAll();
 
     if (process.exitCode() != 0) {
-        Log::instance().out(L"InstallOpenVPNDCO: devcon.exe returned exit code %d", process.exitCode());
-        Log::instance().out(L"InstallOpenVPNDCO: devcon.exe output (%hs)", appOutput.constData());
+        spdlog::error(L"InstallOpenVPNDCO: devcon.exe returned exit code {}", process.exitCode());
+        spdlog::info("InstallOpenVPNDCO: devcon.exe output ({})", appOutput.constData());
         return -ERROR_OTHER;
     }
 
@@ -50,7 +50,7 @@ int InstallOpenVPNDCO::executeStep()
     QRegularExpression re("oem\\d+.inf");
     const QRegularExpressionMatch match = re.match(appOutput);
     if (!match.hasMatch()) {
-        Log::instance().out(L"InstallOpenVPNDCO: failed to find OEM indentifier in devcon.exe output (%hs)", appOutput.constData());
+        spdlog::error("InstallOpenVPNDCO: failed to find OEM indentifier in devcon.exe output ({})", appOutput.constData());
         return -ERROR_OTHER;
     }
 
@@ -58,7 +58,7 @@ int InstallOpenVPNDCO::executeStep()
     QSettings reg(QString::fromStdWString(ApplicationInfo::installerRegistryKey()), QSettings::NativeFormat);
     reg.setValue("ovpnDCODriverOEMIdentifier", adapterOEMIdentifier);
 
-    Log::instance().out(L"OpenVPN DCO driver (%s) successfully added to the Windows driver store", adapterOEMIdentifier.toStdWString().c_str());
+    spdlog::info(L"OpenVPN DCO driver ({}) successfully added to the Windows driver store", adapterOEMIdentifier.toStdWString());
 
     return 100;
 }

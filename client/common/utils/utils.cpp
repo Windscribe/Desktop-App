@@ -5,7 +5,7 @@
 #include <thread>
 #include <time.h>
 
-#include "logger.h"
+#include "log/categories.h"
 #include "ws_assert.h"
 
 #ifdef Q_OS_WIN
@@ -334,4 +334,13 @@ QString Utils::fromBase64(const QString& str)
 
     // Removes control characters
     return out.remove(QRegularExpression("\\p{Cc}"));
+}
+
+bool Utils::isCLIRunning(int minCount)
+{
+#ifdef Q_OS_WIN
+    return WinUtils::enumerateProcesses("windscribe-cli.exe").size() > minCount;
+#else
+    return Utils::execCmd("ps axco command | grep windscribe-cli | grep -v grep | wc -l").trimmed().toInt() > minCount;
+#endif
 }

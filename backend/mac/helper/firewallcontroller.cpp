@@ -2,15 +2,15 @@
 
 #include <fcntl.h>
 #include <unistd.h>
+#include <spdlog/spdlog.h>
 
-#include "logger.h"
 #include "utils.h"
 
 FirewallController::FirewallController() : enabled_(false), connected_(false), splitTunnelEnabled_(false), splitTunnelExclude_(false)
 {
     // If firewall on boot is enabled, restore boot rules
     if (Utils::isFileExists("/etc/windscribe/boot_pf.conf")) {
-        LOG("Applying boot pfctl rules");
+        spdlog::info("Applying boot pfctl rules");
         Utils::executeCommand("pfctl", {"-e", "-f", "/etc/windscribe/boot_pf.conf"});
     }
 }
@@ -23,7 +23,7 @@ bool FirewallController::enable(const std::string &rules, const std::string &tab
 {
     int fd = open("/etc/windscribe/pf.conf", O_CREAT | O_WRONLY | O_TRUNC);
     if (fd < 0) {
-        LOG("Could not open firewall rules for writing");
+        spdlog::error("Could not open firewall rules for writing");
         return false;
     }
 
@@ -103,12 +103,20 @@ void FirewallController::setSplitTunnelExceptions(const std::vector<std::string>
     } else {
         // For inclusive tunnel, ignore the ips and apply a rule to allow any traffic
         // NB: pfctl tables do not allow 0/0 so we split it into two
-        ipStr += " 0/1 128/1 }\n";
+        ipStr += " 0/1 128/1";
+        // For IPv6, we allow everything too, except the passed IPs
+        ipStr += " 0::/1 8000::/1";
+        for (const auto ip : ips) {
+            if (Utils::isValidIpv6Address(ip)) {
+                ipStr += " !" + ip;
+            }
+        }
+        ipStr += " }\n";
     }
 
     int fd = open("/etc/windscribe/pf_st.conf", O_CREAT | O_WRONLY | O_TRUNC);
     if (fd < 0) {
-        LOG("Could not open firewall rules for writing");
+        spdlog::error("Could not open firewall rules for writing");
         return;
     }
 

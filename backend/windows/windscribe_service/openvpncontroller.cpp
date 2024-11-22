@@ -1,9 +1,9 @@
 #include "openvpncontroller.h"
 
 #include <sstream>
+#include <spdlog/spdlog.h>
 
 #include "executecmd.h"
-#include "logger.h"
 #include "types/global_consts.h"
 #include "utils.h"
 
@@ -43,13 +43,13 @@ bool OpenVPNController::createWintunAdapter()
 
     wintunDLL_ = ::LoadLibraryExW(L"wintun.dll", NULL, LOAD_LIBRARY_SEARCH_APPLICATION_DIR);
     if (!wintunDLL_) {
-        Logger::instance().out(L"Failed to load wintun.dll (%lu)", ::GetLastError());
+        spdlog::error("Failed to load wintun.dll ({})", ::GetLastError());
         return false;
     }
 
     WINTUN_CREATE_ADAPTER_FUNC *createAdapter = (WINTUN_CREATE_ADAPTER_FUNC*)::GetProcAddress(wintunDLL_, "WintunCreateAdapter");
     if (createAdapter == NULL) {
-        Logger::instance().out(L"Failed to resolve the WintunCreateAdapter function (%lu)", ::GetLastError());
+        spdlog::error("Failed to resolve the WintunCreateAdapter function ({})", ::GetLastError());
         ::FreeLibrary(wintunDLL_);
         wintunDLL_ = nullptr;
         return false;
@@ -58,7 +58,7 @@ bool OpenVPNController::createWintunAdapter()
     GUID wintunGuid = { 0xd8cf7bd4, 0x8b64, 0x4e57, { 0xb7, 0x07, 0x4c, 0x8b, 0xac, 0xbe, 0xc2, 0xc3 } };
     adapterHandle_ = createAdapter(kOpenVPNAdapterIdentifier, L"Windscribe Wintun", &wintunGuid);
     if (!adapterHandle_) {
-        Logger::instance().out(L"Failed to create the wintun adapter (%lu)", ::GetLastError());
+        spdlog::error("Failed to create the wintun adapter ({})", ::GetLastError());
         ::FreeLibrary(wintunDLL_);
         wintunDLL_ = nullptr;
         return false;
@@ -76,7 +76,7 @@ void OpenVPNController::removeWintunAdapter()
     if (adapterHandle_) {
         WINTUN_CLOSE_ADAPTER_FUNC *closeAdapter = (WINTUN_CLOSE_ADAPTER_FUNC*)::GetProcAddress(wintunDLL_, "WintunCloseAdapter");
         if (closeAdapter == NULL) {
-            Logger::instance().out(L"Failed to resolve the WintunCloseAdapter function (%lu)", ::GetLastError());
+            spdlog::error("Failed to resolve the WintunCloseAdapter function ({})", ::GetLastError());
         }
         else {
             closeAdapter(adapterHandle_);
@@ -95,11 +95,11 @@ bool OpenVPNController::createDCOAdapter()
     std::wstringstream stream;
     stream << L"\"" << Utils::getExePath() << L"\\tapctl.exe\"" << L" create --name " << kOpenVPNAdapterIdentifier << L" --hwid ovpn-dco";
 
-    Logger::instance().out(L"createDCOAdapter cmd = %s", stream.str().c_str());
+    spdlog::info(L"createDCOAdapter cmd = {}", stream.str());
     auto result = ExecuteCmd::instance().executeBlockingCmd(stream.str());
 
     if (result.success && result.exitCode != 0) {
-        Logger::instance().out(L"createDCOAdapter cmd failed: %s", result.additionalString.c_str());
+        spdlog::error("createDCOAdapter cmd failed: {}", result.additionalString);
     }
 
     return result.success;
@@ -110,10 +110,10 @@ void OpenVPNController::removeDCOAdapter()
     std::wstringstream stream;
     stream << L"\"" << Utils::getExePath() << L"\\tapctl.exe\"" << L" delete " << kOpenVPNAdapterIdentifier;
 
-    Logger::instance().out(L"removeDCOAdapter cmd = %s", stream.str().c_str());
+    spdlog::info(L"removeDCOAdapter cmd = {}", stream.str());
     auto result = ExecuteCmd::instance().executeBlockingCmd(stream.str());
 
     if (result.success && result.exitCode != 0) {
-        Logger::instance().out(L"removeDCOAdapter cmd failed: %s", result.additionalString.c_str());
+        spdlog::error("removeDCOAdapter cmd failed: {}", result.additionalString);
     }
 }

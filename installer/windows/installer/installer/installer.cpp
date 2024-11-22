@@ -1,4 +1,7 @@
 #include "installer.h"
+
+#include <spdlog/spdlog.h>
+
 #include "settings.h"
 #include "ShellExecuteAsUser.h"
 
@@ -12,7 +15,6 @@
 #include "blocks/uninstallprev.h"
 
 #include "../../utils/applicationinfo.h"
-#include "../../utils/logger.h"
 #include "../../utils/path.h"
 #include "wsscopeguard.h"
 
@@ -66,7 +68,7 @@ void Installer::executionImpl()
         DWORD initTick = GetTickCount();
         IInstallBlock *block = *it;
 
-        Log::instance().out(L"Installing " + block->getName() + L"...");
+        spdlog::info(L"Installing {} ...", block->getName());
 
         while (true) {
             {
@@ -87,9 +89,9 @@ void Installer::executionImpl()
                 callback_();
                 ticks.push_back(GetTickCount() - initTick);
                 if (progressOfBlock < 0) {
-                    Log::instance().out(L"Non-critical error installing " + block->getName());
+                    spdlog::warn(L"Non-critical error installing {}", block->getName());
                 } else {
-                    Log::instance().out(L"Installed " + block->getName());
+                    spdlog::info(L"Installed {}", block->getName());
                 }
                 break;
             }
@@ -99,7 +101,7 @@ void Installer::executionImpl()
                 error_ = static_cast<INSTALLER_ERROR>(-progressOfBlock);
                 state_ = STATE_ERROR;
                 callback_();
-                Log::instance().out(block->getLastError());
+                spdlog::error(L"{}", block->getLastError());
                 return;
             } else {
                 overallProgress = prevOverallProgress + (int)(progressOfBlock * block->getWeight() / totalWork_);
@@ -124,10 +126,10 @@ void Installer::launchAppImpl()
 {
     if (Settings::instance().getAutoStart()) {
         wstring app = Path::append(Settings::instance().getPath(), ApplicationInfo::appExeName());
-        Log::instance().out(L"Launching Windscribe app");
+        spdlog::info(L"Launching Windscribe app");
         ShellExec::executeFromExplorer(app.c_str(), NULL, NULL, NULL, SW_RESTORE);
     } else {
-        Log::instance().out(L"Skip launching app");
+        spdlog::info(L"Skip launching app");
     }
     state_ = STATE_LAUNCHED;
     callback_();
@@ -158,7 +160,7 @@ void Installer::deleteBlocks()
     for (list<IInstallBlock *>::iterator it = blocks_.begin(); it != blocks_.end();) {
         IInstallBlock *install_block = (*it);
         if (install_block != nullptr) {
-            Log::instance().out(L"Deleting block resource " + install_block->getName());
+            spdlog::info(L"Deleting block resource {}", install_block->getName());
             delete install_block;
         }
         it = blocks_.erase(it);

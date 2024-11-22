@@ -7,7 +7,7 @@
 #include <QDateTime>
 #include <QFile>
 #include <QStandardPaths>
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 namespace windscribe {
 

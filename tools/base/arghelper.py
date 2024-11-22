@@ -21,6 +21,7 @@ class ArgHelper:
     OPTION_BUILD_BOOTSTRAP = "--build-bootstrap"
     OPTION_SIGN_BOOTSTRAP = "--sign-bootstrap"
     OPTION_BUILD_TESTS = "--build-tests"
+    OPTION_STATIC_ANALYSIS = "--static-analysis"
     OPTION_CLEAN = "--clean"
     # CI-specific options
     OPTION_CI_MODE = "--ci-mode"
@@ -49,6 +50,7 @@ class ArgHelper:
     options.append((OPTION_BUILD_BOOTSTRAP, "Build the bootstrap (Windows only)"))
     options.append((OPTION_SIGN_BOOTSTRAP, "Sign the bootstrap (Windows only)"))
     options.append((OPTION_BUILD_TESTS, "Build tests (only has an effect if --build-app is also used)"))
+    options.append((OPTION_STATIC_ANALYSIS, "Run static analysis on the code"))
     options.append((OPTION_CLEAN, "Fully clean previous build files before building"))
     options.append(("\nCI-specific options", ""))
     options.append((OPTION_CI_MODE, "Used to indicate app is building on CI"))
@@ -78,7 +80,7 @@ class ArgHelper:
         self.mode_build_bootstrap = ArgHelper.OPTION_BUILD_BOOTSTRAP in program_arg_list
         self.mode_sign_bootstrap = ArgHelper.OPTION_SIGN_BOOTSTRAP in program_arg_list
         self.mode_build_tests = ArgHelper.OPTION_BUILD_TESTS in program_arg_list
-
+        self.mode_static_analysis = ArgHelper.OPTION_STATIC_ANALYSIS in program_arg_list
         # if nothing specified, build everything
         if (not self.mode_build_app and not self.mode_sign_app and not self.mode_build_installer and not self.mode_sign_installer and not self.mode_build_bootstrap and not self.mode_sign_bootstrap):
             self.mode_build_app = True
@@ -131,6 +133,9 @@ class ArgHelper:
 
     def build_tests(self):
         return self.mode_build_tests
+
+    def static_analysis(self):
+        return self.mode_static_analysis
 
     def sign_app(self):
         return self.mode_sign_app

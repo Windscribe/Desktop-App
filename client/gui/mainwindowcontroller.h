@@ -111,7 +111,7 @@ public:
     GeneralMessageWindow::GeneralMessageWindowItem *getGeneralMessageWindow() { return generalMessageWindow_; }
     GeneralMessageWindow::GeneralMessageWindowItem *getExitWindow() { return exitWindow_; }
     GeneralMessageWindow::GeneralMessageWindowItem *getLogoutWindow() { return logoutWindow_; }
-    QWidget *getLocationsWindow() { return locationsWindow_; }
+    LocationsWindow *getLocationsWindow() { return locationsWindow_; }
 
     void hideLocationsWindow();
 

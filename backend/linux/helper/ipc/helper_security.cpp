@@ -3,9 +3,9 @@
 #include <grp.h>
 #include <sstream>
 #include <sys/types.h>
+#include <spdlog/spdlog.h>
 
 #include "helper_security.h"
-#include "../logger.h"
 
 #include "../../../../client/common/utils/executable_signature/executable_signature.h"
 
@@ -16,7 +16,7 @@ bool HelperSecurity::verifySignature()
     bool result = sigCheck.verify("/opt/windscribe/Windscribe");
 
     if (!result) {
-        Logger::instance().out("Signature verification failed for Windscribe: %s", sigCheck.lastError().c_str());
+        spdlog::warn("Signature verification failed for Windscribe: {}", sigCheck.lastError());
     }
     return result;
 #else

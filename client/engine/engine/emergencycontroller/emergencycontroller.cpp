@@ -1,6 +1,6 @@
 #include "emergencycontroller.h"
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/utils.h"
 #include "engine/connectionmanager/openvpnconnection.h"
 #include "utils/hardcodedsettings.h"
@@ -49,8 +49,7 @@ void EmergencyController::clickConnect(const types::ProxySettings &proxySettings
 
 
     auto callback = [this](std::vector<std::shared_ptr<WSNetEmergencyConnectEndpoint>> endpoints) {
-        QMetaObject::invokeMethod(this, [this, endpoints]
-        {
+        QMetaObject::invokeMethod(this, [this, endpoints] { // NOLINT: false positive for memory leak
             endpoints_ = endpoints;
             doConnect();
         });

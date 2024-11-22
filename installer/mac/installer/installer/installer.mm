@@ -1,6 +1,8 @@
 #import "installer.h"
-#import "../Logger.h"
+#import <Cocoa/Cocoa.h>
+#include <spdlog/spdlog.h>
 #include "../helper/installhelper_mac.h"
+#include "../string_utils.h"
 #include "processes_helper.h"
 
 @interface Installer()
@@ -45,7 +47,7 @@
 
 -(void)start
 {
-    [[Logger sharedLogger] logAndStdOut:@"Installer starting"];
+    spdlog::info("Installer starting");
 
     isCanceled_ = false;
 
@@ -73,7 +75,7 @@
 -(void)runLauncher
 {
     if([[NSWorkspace sharedWorkspace] openURL: [NSURL fileURLWithPath: [self getInstallPath]]] == NO) {
-        [[Logger sharedLogger] logAndStdOut:@"App failed to launch"];
+        spdlog::error("App failed to launch");
     }
     self.progress = 100;
     self.currentState = STATE_LAUNCHED;
@@ -97,7 +99,7 @@
         return [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
     }
     @catch (NSException *e) {
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Exception occurred %@", [e reason]]];
+        spdlog::error("Exception occurred {}", toStdString([e reason]));
         [file closeFile];
         return nil;
     }
@@ -107,7 +109,7 @@
 {
     bool terminated = false;
     self.progress = 0;
-    [[Logger sharedLogger] logAndStdOut:@"Starting execution"];
+    spdlog::info("Starting execution");
     self.currentState = STATE_EXTRACTING;
     callback_();
 
@@ -121,7 +123,7 @@
 
     if (processesList.size() > 0) {
         // try to terminate Windscribe processes
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Waiting for Windscribe programs to close..."]];
+        spdlog::info("Waiting for Windscribe programs to close...");
 
         // first send SIGTERM signal
         for (auto pid : processesList) {
@@ -139,33 +141,31 @@
 
         // Still could not terminate, return error
         if (!terminated) {
-            NSString *errStr = @"Couldn't kill running Windscribe programs in time. Please close running Windscribe programs manually and try install again.";
-            [[Logger sharedLogger] logAndStdOut:errStr];
+            spdlog::error("Couldn't kill running Windscribe programs in time. Please close running Windscribe programs manually and try install again.");
             self.lastError = ERROR_KILL;
             self.currentState = STATE_ERROR;
             callback_();
             return;
         }
 
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"All Windscribe programs closed"]];
+        spdlog::info("All Windscribe programs closed");
     }
 
     NSString *disabledList = [self runProcess:@"/bin/launchctl" args:@[@"print-disabled", @"system"]];
     if (disabledList == nil) {
-        [[Logger sharedLogger] logAndStdOut:@"Couldn't detect if the helper was disabled."];
+        spdlog::info("Couldn't detect if the helper was disabled.");
     } else {
         if ([disabledList rangeOfString:@"\"com.windscribe.helper.macos\" => disabled"].location != NSNotFound ||
             [disabledList rangeOfString:@"\"com.windscribe.helper.macos\" => true"].location != NSNotFound) {
 
             // If somehow launchctl has previously disabled our helper, we won't be able to install it again.  Enable it.
-            [[Logger sharedLogger] logAndStdOut:@"Helper is disabled. Re-enabling."];
+            spdlog::info("Helper is disabled. Re-enabling.");
             NSString *scriptContents = @"do shell script \"launchctl enable system/com.windscribe.helper.macos\" with administrator privileges";
             NSAppleScript *script = [[NSAppleScript alloc] initWithSource:scriptContents];
             NSAppleEventDescriptor *desc;
             desc = [script executeAndReturnError:nil];
             if (desc == nil) {
-                NSString *errStr = @"Couldn't re-enable the helper.";
-                [[Logger sharedLogger] logAndStdOut:errStr];
+                spdlog::error("Couldn't re-enable the helper.");
                 self.lastError = ERROR_OTHER;
                 self.currentState = STATE_ERROR;
                 callback_();
@@ -177,8 +177,7 @@
     // Install new helper now that we are sure the client app has exited. Otherwise we may cause the
     // client app to hang when we pull the old helper out from under it.
     if (!InstallHelper_mac::installHelper(self.factoryReset)) {
-        NSString *errStr = @"Couldn't install the helper.";
-        [[Logger sharedLogger] logAndStdOut:errStr];
+        spdlog::error("Couldn't install the helper.");
         self.lastError = ERROR_PERMISSION;
         self.currentState = STATE_ERROR;
         callback_();
@@ -186,8 +185,7 @@
     }
 
     if (!self.connectHelper) {
-        NSString *errStr = @"Couldn't connect to new helper in time";
-        [[Logger sharedLogger] logAndStdOut:errStr];
+        spdlog::error("Couldn't connect to new helper in time");
         self.lastError = ERROR_CONNECT_HELPER;
         self.currentState = STATE_ERROR;
         callback_();
@@ -196,14 +194,13 @@
 
     // remove previously existing application
     if ([self isFolderAlreadyExist] || isUseUpdatePath_) {
-        [[Logger sharedLogger] logAndStdOut:@"Windscribe exists in desired folder"];
-
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Attempting to remove: %@", [self getOldInstallPath]]];
+        NSString *bundleVersion = [self runProcess:@"/usr/bin/mdls" args:@[@"-name", @"kMDItemVersion", [self getOldInstallPath]]];
+        spdlog::info("Windscribe exists in desired folder, {}", toStdString(bundleVersion));
+        spdlog::info("Attempting to remove: {}", toStdString([self getOldInstallPath]));
 
         bool success = helper_.removeOldInstall([[self getOldInstallPath] UTF8String]);
         if (!success) {
-            NSString *errStr = @"Previous version of the program cannot be deleted. Please contact support.";
-            [[Logger sharedLogger] logAndStdOut:errStr];
+            spdlog::error("Previous version of the program cannot be deleted. Please contact support.");
             self.lastError = ERROR_DELETE;
             self.currentState = STATE_ERROR;
             callback_();
@@ -211,11 +208,11 @@
             return;
         }
 
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Removed!"]];
+        spdlog::info("Removed!");
     }
 
     if (self.factoryReset) {
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Executing factory reset"]];
+        spdlog::info("Executing factory reset");
 
         // NB: do not execute these as root
         NSMutableString *path = [NSMutableString stringWithString:NSHomeDirectory()];
@@ -241,7 +238,7 @@
         [self runProcess:@"/usr/bin/killall" args:@[@"cfprefsd"]];
     }
 
-    [[Logger sharedLogger] logAndStdOut:@"Extracting and installing Windscribe app"];
+    spdlog::info("Extracting and installing Windscribe app");
 
     NSString* archivePathFromApp = [[NSBundle mainBundle] pathForResource:@"windscribe.tar.lzma" ofType:nil];
     std::wstring strArchivePath = NSStringToStringW(archivePathFromApp);
@@ -252,7 +249,7 @@
     callback_();
 
     if (!helper_.setPaths(strArchivePath, strPath)) {
-        [[Logger sharedLogger] logAndStdOut:@"setPaths in helper failed"];
+        spdlog::error("setPaths in helper failed");
         self.lastError = ERROR_OTHER;
         self.currentState = STATE_ERROR;
         callback_();
@@ -261,7 +258,7 @@
     }
 
     if (!helper_.executeFilesStep()) {
-        [[Logger sharedLogger] logAndStdOut:@"executeFilesStep in helper failed"];
+        spdlog::error("executeFilesStep in helper failed");
         self.lastError = ERROR_OTHER;
         self.currentState = STATE_ERROR;
         callback_();
@@ -269,19 +266,13 @@
         return;
     }
 
-    [[Logger sharedLogger] logAndStdOut:@"Windscribe app installed"];
+    spdlog::info("Windscribe app installed");
 
     self.progress = 75;
     self.currentState = STATE_EXTRACTED;
     callback_();
 
-    // create symlink for cli
-    helper_.createCliSymlinkDir();
-    [[Logger sharedLogger] logAndStdOut:@"Creating CLI symlink"];
-    NSString *filepath = [NSString stringWithFormat:@"%@%@", [self getInstallPath], @"/Contents/MacOS/windscribe-cli"];
-    NSString *sympath = @"/usr/local/bin/windscribe-cli";
-    [[NSFileManager defaultManager] removeItemAtPath:sympath error:nil];
-    [[NSFileManager defaultManager] createSymbolicLinkAtPath:sympath withDestinationPath:filepath error:nil];
+    helper_.createCliSymlink();
 
     self.progress = 90;
     self.currentState = STATE_FINISHED;

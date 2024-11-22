@@ -5,12 +5,11 @@
 
 #include "mutablelocationinfo.h"
 #include "nodeselectionalgorithm.h"
-#include "utils/logger.h"
 
 namespace locationsmodel {
 
 ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager) : QObject(parent),
-    pingManager_(this, stateController, networkDetectionManager, "pingStorage", "ping_log.txt")
+    pingManager_(this, stateController, networkDetectionManager, "pingStorage")
 {
     if (bestLocation_.isValid())
     {

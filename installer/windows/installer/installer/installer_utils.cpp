@@ -2,12 +2,11 @@
 
 #include <shlobj_core.h>
 #include <shlwapi.h>
-
 #include <filesystem>
+#include <spdlog/spdlog.h>
 
 #include "settings.h"
 #include "../../utils/applicationinfo.h"
-#include "../../utils/logger.h"
 
 using namespace std;
 
@@ -18,7 +17,7 @@ DWORD getOSBuildNumber()
 {
     HMODULE hDLL = ::GetModuleHandleA("ntdll.dll");
     if (hDLL == NULL) {
-        Log::WSDebugMessage(L"Failed to load the ntdll module (%lu)", ::GetLastError());
+        spdlog::error(L"Failed to load the ntdll module ({})", ::GetLastError());
         return 0;
     }
 
@@ -26,7 +25,7 @@ DWORD getOSBuildNumber()
 
     RtlGetVersionFunc rtlGetVersionFunc = (RtlGetVersionFunc)::GetProcAddress(hDLL, "RtlGetVersion");
     if (rtlGetVersionFunc == NULL) {
-        Log::WSDebugMessage(L"Failed to load RtlGetVersion function (%lu)", ::GetLastError());
+        spdlog::error(L"Failed to load RtlGetVersion function ({})", ::GetLastError());
         return 0;
     }
 
@@ -94,7 +93,7 @@ bool installedAppVersionLessThan(const wstring &version)
 
     const wstring installedAppVersion = getVersionInfoItem(appExe.native(), L"ProductVersion");
     if (installedAppVersion.empty()) {
-        Log::WSDebugMessage(L"installedAppVersionLessThan - failed to retrieve installed app version");
+        spdlog::error(L"installedAppVersionLessThan - failed to retrieve installed app version");
         return false;
     }
 

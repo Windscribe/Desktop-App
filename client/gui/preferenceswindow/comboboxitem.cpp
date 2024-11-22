@@ -10,7 +10,6 @@
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "preferencesconst.h"
-#include "utils/logger.h"
 #include "utils/ws_assert.h"
 
 namespace PreferencesWindow {

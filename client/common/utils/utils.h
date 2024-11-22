@@ -58,4 +58,6 @@ namespace Utils {
 #if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     QString execCmd(const QString &cmd);
 #endif
+
+    bool isCLIRunning(int minCount = 0);
 }

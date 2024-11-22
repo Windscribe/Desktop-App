@@ -11,10 +11,8 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "preferencestab/preferencestabcontrolitem.h"
 #include "graphicresources/fontmanager.h"
-#include "languagecontroller.h"
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
-#include "utils/logger.h"
 #include "dpiscalemanager.h"
 
 namespace PreferencesWindow {
@@ -54,10 +52,6 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
 
     advancedWindowItem_ = new AdvancedWindowItem(nullptr, preferences, preferencesHelper);
     connect(advancedWindowItem_, &AdvancedWindowItem::advParametersClick, this, &PreferencesWindowItem::onAdvParametersClick);
-
-#ifdef Q_OS_WIN
-    connect(advancedWindowItem_, &AdvancedWindowItem::setIpv6StateInOS, this, &PreferencesWindowItem::setIpv6StateInOS);
-#endif
 
     robertWindowItem_ = new RobertWindowItem(nullptr, preferences, preferencesHelper);
     connect(robertWindowItem_, &RobertWindowItem::accountLoginClick, this, &PreferencesWindowItem::accountLoginClick);

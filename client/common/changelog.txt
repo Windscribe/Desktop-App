@@ -1,3 +1,35 @@
+2.13.2 (20/11/2024)
+All:
+   * Added IPv6 support for split tunneling. #1111
+   * Added back translation keys for 'Release' and 'Beta' release channels. #1185
+   * Improved debug log content to facilitate automated debug log analysis. #1107
+   * Improved Japanese translations from GitHub user Ue05. #1185
+   * Improved Russian translations from GitHub user MedicalJewel105. #1185
+   * Improved CLI entry of credentials when logging in. #1181
+   * Fixed Static IP commands in CLI with GUI backend. #84
+MacOS:
+   * Fixed CLI symlink sometimes not created on macOS. #1186
+   * Fixed Start Minimized may not work when "Minimize windows into application icon" is on. #1193
+   * Fixed missing null checks. #1195
+
+
+2.13.1 (07/11/2024)
+All:
+   * Added Static IP support in CLI. #84
+   * Added toggle to enable proxy gateway only while VPN is connected, based on contributions from GitHub user intangir. #1106
+   * Added h3:// and sdns:// protocol support for ctrld. #1145
+   * Improved UX for some CLI commands. #1162
+   * Improved location ordering when searching. #1171
+   * Updated ctrld to 1.3.10. #1145
+Windows:
+   * Removed IPv6 toggle in preferences. #1167
+MacOS:
+   * Fixed static analyzer warnings. #1172
+   * Removed IPv6 enabling/disabling. #1167
+Linux:
+   * Fixed static analyzer warnings. #1172
+
+
 2.12.7 (19/11/2024)
 All:
    * Fixed Paraguay flag. #1183
@@ -34,7 +66,7 @@ All:
    * Fixed memory leaks in wsnet. #1170
    * Updated Russian translations in installer. #1016
 Windows:
-   * Improved Circumvent Censorship behavior when using OpenVPN DCO driver. #1153
+   * Improve Circumvent Censorship behavior when using OpenVPN DCO driver. #1153
 MacOS:
    * Fixed potential app crash when App Internal DNS setting is 'OS Default'. #1165
    * Fixed potential app crash when installing helper. #1170

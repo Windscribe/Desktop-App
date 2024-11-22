@@ -29,7 +29,7 @@ class PingManager : public QObject
     Q_OBJECT
 public:
     explicit PingManager(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager,
-                         const QString &storageSettingName, const QString &log_filename);
+                         const QString &storageSettingName);
 
     void updateIps(const QVector<PingIpInfo> &ips);
     void clearIps();
@@ -54,7 +54,6 @@ private:
 
     PingStorage pingStorage_;
     FailedPingLogController failedPingLogController_;
-    PingLog pingLog_;
 
     struct PingIpState
     {

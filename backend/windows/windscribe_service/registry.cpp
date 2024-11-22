@@ -2,7 +2,7 @@
 
 #include <winreg/WinReg.hpp>
 
-#include "logger.h"
+#include <spdlog/spdlog.h>
 #include "utils.h"
 #include "utils/wsscopeguard.h"
 
@@ -28,17 +28,17 @@ bool regWriteDwordProperty(HKEY h, const wstring &subkeyName, const wstring &val
     }
 
     if (nError != ERROR_SUCCESS) {
-        Logger::instance().out(L"Error creating/opening registry key %s: %d", subkeyName.c_str(), nError);
+        spdlog::error(L"Error creating/opening registry key {}: {}", subkeyName, nError);
         return false;
     }
 
     nError = RegSetValueEx(hKey, valueName.c_str(), 0, REG_DWORD, (const BYTE*)&value, sizeof(value));
     if (nError != ERROR_SUCCESS) {
-        Logger::instance().out(L"Error setting registry key %s - %s: %ld", subkeyName.c_str(), valueName.c_str(), nError);
+        spdlog::error(L"Error setting registry key {} - {}: {}", subkeyName, valueName, nError);
         return false;
     }
     else {
-        Logger::instance().out(L"Successfully set registry key %s - %s: %lu", subkeyName.c_str(), valueName.c_str(), value);
+        spdlog::debug(L"Successfully set registry key {} - {}: {}", subkeyName, valueName, value);
         return true;
     }
 }
@@ -58,18 +58,18 @@ bool regWriteSzProperty(HKEY h, const wchar_t * subkeyName, const wstring &value
     }
 
     if (nError != ERROR_SUCCESS) {
-        Logger::instance().out(L"Error creating/opening registry key %s: %d", subkeyName, nError);
+        spdlog::error(L"Error creating/opening registry key {}: {}", subkeyName, nError);
         return false;
     }
 
     nError = RegSetValueEx(hKey, valueName.c_str(), 0, REG_SZ, (LPBYTE)value.c_str(), (DWORD)((value.length() + 1) * sizeof(wchar_t)));
 
     if (nError != ERROR_SUCCESS) {
-        Logger::instance().out(L"Error setting registry key %s - %s: %ld", subkeyName, valueName.c_str(), nError);
+        spdlog::error(L"Error setting registry key {} - {}: {}", subkeyName, valueName, nError);
         return false;
     }
     else {
-        Logger::instance().out(L"Successfully set registry key %s - %s: %s", subkeyName, valueName.c_str(), value.c_str());
+        spdlog::debug(L"Successfully set registry key {} - {}: {}", subkeyName, valueName, value);
         return true;
     }
 }
@@ -86,18 +86,18 @@ bool regDeleteProperty(HKEY h, const wstring &subkeyName, const wstring &valueNa
     LONG nError = RegOpenKeyEx(h, subkeyName.c_str(), 0, KEY_SET_VALUE, &hKey);
 
     if (nError != ERROR_SUCCESS) {
-        Logger::instance().out(L"Error opening registry key %s: %d", subkeyName.c_str(), nError);
+        spdlog::error(L"Error opening registry key {}: {}", subkeyName, nError);
         return false;
     }
 
     nError = RegDeleteValue(hKey, valueName.c_str());
 
     if (nError != ERROR_SUCCESS) {
-        Logger::instance().out(L"Error deleting registry key value %s - %s: %ld", subkeyName.c_str(), valueName.c_str(), nError);
+        spdlog::error(L"Error deleting registry key value {} - {}: {}", subkeyName, valueName, nError);
         return false;
     }
     else {
-        Logger::instance().out(L"Successfully deleted registry key value %s - %s: %ld", subkeyName.c_str(), valueName.c_str(), nError);
+        spdlog::debug(L"Successfully deleted registry key value {} - {}: {}", subkeyName, valueName, nError);
         return true;
     }
 }
@@ -113,7 +113,7 @@ bool regGetProperty(HKEY h, const std::wstring& subkeyName, const std::wstring& 
     LONG nError = RegOpenKeyEx(h, subkeyName.c_str(), 0, KEY_READ, &hKey);
 
     if (nError != ERROR_SUCCESS) {
-        Logger::instance().out(L"Error opening registry key %s: %d", subkeyName.c_str(), nError);
+        spdlog::error(L"Error opening registry key {}: {}", subkeyName, nError);
         return false;
 
     }
@@ -121,7 +121,7 @@ bool regGetProperty(HKEY h, const std::wstring& subkeyName, const std::wstring& 
     nError = RegQueryValueExW(hKey, valueName.c_str(), 0, NULL, value, size);
 
     if (nError != ERROR_SUCCESS) {
-        Logger::instance().out(L"Property %s not found for key %s: %d", valueName.c_str(), subkeyName.c_str(), nError);
+        spdlog::error(L"Property %s not found for key {}: {}", valueName, subkeyName, nError);
         return false;
     }
 
@@ -149,7 +149,8 @@ bool subkeyExists(HKEY rootKey, const std::wstring& parentKey, const std::wstrin
         }
     }
     catch (winreg::RegException &ex) {
-        Logger::instance().out(L"subkeyExists error checking key %s: %hs", parentKey.c_str(), ex.what());
+        spdlog::error(L"subkeyExists error checking key {}", parentKey);
+        spdlog::error("subkeyExists error ex.what = {}", ex.what());
     }
 
     return exists;

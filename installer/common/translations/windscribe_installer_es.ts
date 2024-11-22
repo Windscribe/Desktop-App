@@ -98,7 +98,7 @@
     </message>
     <message>
         <source>Installation to a custom folder may allow an attacker to tamper with the Windscribe application. To ensure the security of the application, and your system, we strongly recommend you install to the default location in the &apos;Program Files&apos; folder. Click OK to continue with the custom folder or Cancel to use the default location.</source>
-        <translation>La instalación en una carpeta personalizada podría permitir que un atacante manipule la aplicación Windscribe. Para garantizar la seguridad de la aplicación y de su sistema, le recomendamos encarecidamente que la instale en la ubicación predeterminada de la carpeta "Archivos de programa". Haga clic en Aceptar para continuar con la carpeta personalizada o en Cancelar para usar la ubicación predeterminada.</translation>
+        <translation>La instalación en una carpeta personalizada podría permitir que un atacante manipule la aplicación Windscribe. Para garantizar la seguridad de la aplicación y de su sistema, le recomendamos encarecidamente que la instale en la ubicación predeterminada de la carpeta &quot;Archivos de programa&quot;. Haga clic en Aceptar para continuar con la carpeta personalizada o en Cancelar para usar la ubicación predeterminada.</translation>
     </message>
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>

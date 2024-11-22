@@ -22,7 +22,7 @@ public:
     void onConnectedToVPNEvent(const QString &vpnAdapterName);
     void onDisconnectedFromVPNEvent();
 
-    void startProxySharing(PROXY_SHARING_TYPE proxyType, uint port);
+    void startProxySharing(PROXY_SHARING_TYPE proxyType, uint port, bool whileConnected);
     void stopProxySharing();
 
     bool isWifiSharingSupported();
@@ -46,6 +46,10 @@ private slots:
 private:
     QRecursiveMutex mutex_;
     IHelper *helper_;
+    bool vpnConnected_;
+    bool shareWhileConnected_;
+    PROXY_SHARING_TYPE type_;
+    uint port_;
     HttpProxyServer::HttpProxyServer *httpProxyServer_;
     SocksProxyServer::SocksProxyServer *socksProxyServer_;
 #ifdef Q_OS_WIN
@@ -54,4 +58,5 @@ private:
 
     bool getLastSavedPort(uint &outPort);
     void saveLastPort(uint port);
+    uint findPort(uint userPort);
 };

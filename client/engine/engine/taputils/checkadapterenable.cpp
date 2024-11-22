@@ -1,7 +1,7 @@
 #include "checkadapterenable.h"
 
 #include "engine/helper/helper_win.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/ws_assert.h"
 
 bool CheckAdapterEnable::isAdapterDisabled(IHelper *helper, const QString &adapterName)

@@ -51,7 +51,7 @@ ProxySettingsGroup::ProxySettingsGroup(ScalableGraphicsObject *parent, const QSt
 void ProxySettingsGroup::onAddressChanged(const QString &text)
 {
     if (settings_.address() != text) {
-        if (IpValidation::isIp(text.trimmed())) {
+        if (IpValidation::isIpv4Address(text.trimmed())) {
             settings_.setAddress(text);
             emit proxySettingsChanged(settings_);
         } else {

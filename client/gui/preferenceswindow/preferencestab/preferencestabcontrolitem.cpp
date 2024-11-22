@@ -3,12 +3,8 @@
 #include <QPainter>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include "graphicresources/fontmanager.h"
-#include "graphicresources/imageresourcessvg.h"
-#include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 #include "languagecontroller.h"
-#include "utils/logger.h"
 
 namespace PreferencesWindow {
 

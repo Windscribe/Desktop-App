@@ -8,7 +8,7 @@
 #include "../persistentstate.h"
 #include "detectlanrange.h"
 #include "utils/extraconfig.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/utils.h"
 #include "utils/ipvalidation.h"
 #include "utils/simplecrypt.h"

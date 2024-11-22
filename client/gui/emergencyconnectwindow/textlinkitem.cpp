@@ -5,7 +5,6 @@
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 #include "languagecontroller.h"
-#include "utils/logger.h"
 
 namespace EmergencyConnectWindow {
 

@@ -1,9 +1,8 @@
 #include "localipcserver.h"
 
 #include "backend/persistentstate.h"
-#include "ipc/clicommands.h"
 #include "ipc/server.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/utils.h"
 #include "utils/ws_assert.h"
 
@@ -20,6 +19,7 @@ LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(pare
     connect(backend_, &Backend::testTunnelResult, this, &LocalIPCServer::onBackendTestTunnelResult);
     connect(backend_, &Backend::updateDownloaded, this, &LocalIPCServer::onBackendUpdateDownloaded);
     connect(backend_, &Backend::updateVersionChanged, this, &LocalIPCServer::onBackendUpdateVersionChanged);
+    connect(backend_, &Backend::connectionIdChanged, this, &LocalIPCServer::onBackendConnectionIdChanged);
 }
 
 LocalIPCServer::~LocalIPCServer()
@@ -66,7 +66,8 @@ void LocalIPCServer::onServerCallbackAcceptFunction(IPC::Connection *connection)
 void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Connection * /*connection*/)
 {
     if (command->getStringId() ==IPC::CliCommands::ShowLocations::getCommandStringId()) {
-        emit showLocations();
+        IPC::CliCommands::ShowLocations *cmd = static_cast<IPC::CliCommands::ShowLocations *>(command);
+        emit showLocations(cmd->locationType_);
 #ifdef CLI_ONLY
         // For a headless client, do not return Acknowledge here; we need the MainService to provide us
         // the list of locations to return via sendLocations().
@@ -77,22 +78,28 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
         return;
     } else if (command->getStringId() == IPC::CliCommands::Connect::getCommandStringId()) {
         IPC::CliCommands::Connect *cmd = static_cast<IPC::CliCommands::Connect *>(command);
+        IPC::CliCommands::LocationType type = cmd->locationType_;
         QString locationStr = cmd->location_;
         types::Protocol protocol = types::Protocol::fromString(cmd->protocol_);
         LocationID lid;
-        if (locationStr.isEmpty()) {
-            lid = PersistentState::instance().lastLocation();
-            if (!lid.isValid()) {
-                lid = backend_->locationsModelManager()->getBestLocationId();
-            }
-        } else if (locationStr == "best") {
-            lid = backend_->locationsModelManager()->getBestLocationId();
-        } else {
-            lid = backend_->locationsModelManager()->findLocationByFilter(locationStr);
-        }
 
-        if (lid.isValid()) {
-            emit connectToLocation(lid, protocol);
+        if (type == IPC::CliCommands::LocationType::kStaticIp) {
+            emit connectToStaticIpLocation(locationStr, protocol);
+        } else {
+            if (locationStr.isEmpty()) {
+                lid = PersistentState::instance().lastLocation();
+                if (!lid.isValid()) {
+                    lid = backend_->locationsModelManager()->getBestLocationId();
+                }
+            } else if (locationStr == "best") {
+                lid = backend_->locationsModelManager()->getBestLocationId();
+            } else {
+                lid = backend_->locationsModelManager()->findLocationByFilter(locationStr);
+            }
+
+            if (lid.isValid()) {
+                emit connectToLocation(lid, protocol);
+            }
         }
     } else if (command->getStringId() == IPC::CliCommands::Disconnect::getCommandStringId()) {
         if (!backend_->isDisconnected()) {
@@ -111,7 +118,7 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
             emit attemptLogin(cmd->username_, cmd->password_, cmd->code2fa_);
         }
     } else if (command->getStringId() == IPC::CliCommands::Logout::getCommandStringId()) {
-        if (backend_->currentLoginState() == LOGIN_STATE_LOGGED_IN || backend_->currentLoginState() == LOGIN_STATE_LOGGING_IN) {
+        if (backend_->currentLoginState() != LOGIN_STATE_LOGGED_OUT) {
             IPC::CliCommands::Logout *cmd = static_cast<IPC::CliCommands::Logout *>(command);
             backend_->logout(cmd->isKeepFirewallOn_);
         }
@@ -182,6 +189,7 @@ void LocalIPCServer::sendState()
     cmd.loginError_ = lastLoginError_;
     cmd.loginErrorMessage_ = lastLoginErrorMessage_;
     cmd.connectState_ = connectState_;
+    cmd.connectId_ = connectId_;
     cmd.tunnelTestState_ = tunnelTestState_;
     cmd.protocol_ = protocol_;
     cmd.port_ = port_;
@@ -258,3 +266,7 @@ void LocalIPCServer::setDisconnectedByKeyLimit()
     disconnectedByKeyLimit_ = true;
 }
 
+void LocalIPCServer::onBackendConnectionIdChanged(const QString &connId)
+{
+    connectId_ = connId;
+}

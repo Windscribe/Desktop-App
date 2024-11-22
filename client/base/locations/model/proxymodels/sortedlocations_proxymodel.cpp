@@ -28,20 +28,13 @@ void SortedLocationsProxyModel::setFilter(const QString &filter)
 
 bool SortedLocationsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    if (orderLocationsType_ == ORDER_LOCATION_BY_GEOGRAPHY)
-    {
+    if (orderLocationsType_ == ORDER_LOCATION_BY_GEOGRAPHY) {
         return lessThanByGeography(left, right);
-    }
-    else if (orderLocationsType_ == ORDER_LOCATION_BY_ALPHABETICALLY)
-    {
+    } else if (orderLocationsType_ == ORDER_LOCATION_BY_ALPHABETICALLY) {
         return lessThanByAlphabetically(left, right);
-    }
-    else if (orderLocationsType_ == ORDER_LOCATION_BY_LATENCY)
-    {
+    } else if (orderLocationsType_ == ORDER_LOCATION_BY_LATENCY) {
         return lessThanByLatency(left, right);
-    }
-    else
-    {
+    } else {
         WS_ASSERT(false);
     }
     return true;
@@ -67,7 +60,7 @@ bool SortedLocationsProxyModel::filterAcceptsRow(int source_row, const QModelInd
             return true;
         }
 
-        for (int i = 0, cnt = sourceModel()->rowCount(mi); i < cnt; ++i) {
+        for (int i = 0; i < sourceModel()->rowCount(mi); ++i) {
             QModelIndex childMi = sourceModel()->index(i, 0, mi);
             if (childMi.data().toString().contains(filter_, Qt::CaseInsensitive)) {
                 return true;
@@ -105,6 +98,10 @@ bool SortedLocationsProxyModel::lessThanByGeography(const QModelIndex &left, con
         return false;
     }
 
+    if (getSortGroup(left) != getSortGroup(right)) {
+        return getSortGroup(left) < getSortGroup(right);
+    }
+
     // If it is a country then sort by index
     if (leftLid.isTopLevelLocation()) {
         return left.row() < right.row();
@@ -128,6 +125,10 @@ bool SortedLocationsProxyModel::lessThanByAlphabetically(const QModelIndex &left
         return false;
     }
 
+    if (getSortGroup(left) != getSortGroup(right)) {
+        return getSortGroup(left) < getSortGroup(right);
+    }
+
     return sourceModel()->data(left).toString() < sourceModel()->data(right).toString();
 }
 
@@ -145,29 +146,53 @@ bool SortedLocationsProxyModel::lessThanByLatency(const QModelIndex &left, const
         return false;
     }
 
+    if (getSortGroup(left) != getSortGroup(right)) {
+        return getSortGroup(left) < getSortGroup(right);
+    }
+
     int leftLatency = sourceModel()->data(left, kPingTime).toInt();
     int rightLatency = sourceModel()->data(right, kPingTime).toInt();
-    if (leftLatency == rightLatency)
-    {
+    if (leftLatency == rightLatency) {
         return sourceModel()->data(left).toString() < sourceModel()->data(right).toString();
-    }
-    else
-    {
-        if (leftLatency == -1)
-        {
+    } else {
+        if (leftLatency == -1) {
             return false;
-        }
-        else if (rightLatency == -1)
-        {
+        } else if (rightLatency == -1) {
             return true;
-        }
-        else
-        {
+        } else {
             return leftLatency < rightLatency;
         }
     }
     return true;
 }
 
-} //namespace gui_locations
+int SortedLocationsProxyModel::getSortGroup(const QModelIndex &index) const
+{
+    // If there's no search term, everything is in sort group 0
+    if (filter_.isEmpty()) {
+        return 0;
+    }
 
+    LocationID lid = qvariant_cast<LocationID>(sourceModel()->data(index, kLocationId));
+    if (lid.isTopLevelLocation()) {
+        // If it's a country and the country name or code starts with the filter, it goes first
+        if (sourceModel()->data(index).toString().startsWith(filter_, Qt::CaseInsensitive) || sourceModel()->data(index, kCountryCode).toString().startsWith(filter_, Qt::CaseInsensitive)) {
+            return 0;
+        }
+
+        // Otherwise, if any of its children starts with the filter, it goes next
+        for (int i = 0; i < sourceModel()->rowCount(index); ++i) {
+            QModelIndex childIndex = sourceModel()->index(i, 0, index);
+            int childGroup = getSortGroup(childIndex);
+            if (childGroup < 2) {
+                return childGroup;
+            }
+        }
+    } else if (sourceModel()->data(index, kNick).toString().startsWith(filter_, Qt::CaseInsensitive) || sourceModel()->data(index, kName).toString().startsWith(filter_, Qt::CaseInsensitive)) {
+        return 1;
+    }
+    // Did not match any beginning of any filter, so it goes last
+    return 2;
+}
+
+} //namespace gui_locations

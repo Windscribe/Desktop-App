@@ -8,7 +8,7 @@
 
 #include "types/enums.h"
 #include "utils/ipvalidation.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 namespace types {
 

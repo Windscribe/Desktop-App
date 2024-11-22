@@ -1,7 +1,8 @@
 #include "multipleaccountdetection_posix.h"
 #include <QSettings>
 #include <QDataStream>
-#include "utils/logger.h"
+#include <QIODevice>
+#include "utils/log/categories.h"
 
 // the name does not make sense for crypt
 const QString MultipleAccountDetection_posix::entryName_ = "locationData2";

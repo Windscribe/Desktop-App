@@ -1,7 +1,7 @@
 #include "customconfiglocationinfo.h"
 #include "utils/ws_assert.h"
 #include "utils/ipvalidation.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "engine/customconfigs/ovpncustomconfig.h"
 #include "engine/customconfigs/wireguardcustomconfig.h"
 
@@ -88,7 +88,7 @@ void CustomConfigLocationInfo::resolveHostnamesForWireGuardConfig()
         rd.ipOrHostname_ = remote;
         rd.isHostname = false;
         rd.port = globalPort_;
-        if (!IpValidation::isIp(remote))
+        if (!IpValidation::isIpv4Address(remote))
         {
             rd.isHostname = true;
             rd.isResolved = false;
@@ -96,8 +96,7 @@ void CustomConfigLocationInfo::resolveHostnamesForWireGuardConfig()
 
             auto callback = [this] (std::uint64_t requestId, const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result)
             {
-                QMetaObject::invokeMethod(this, [this, hostname, result]
-                {
+                QMetaObject::invokeMethod(this, [this, hostname, result] { // NOLINT: false positive for memory leak
                     onDnsRequestFinished(hostname, result);
                 });
             };
@@ -128,7 +127,7 @@ void CustomConfigLocationInfo::resolveHostnamesForOVPNConfig()
     const QVector<customconfigs::RemoteCommandLine> remotes = config->remotes();
     for (const auto &remote : remotes)
     {
-        if (IpValidation::isIp(remote.hostname))
+        if (IpValidation::isIpv4Address(remote.hostname))
         {
             RemoteDescr rd;
             rd.ipOrHostname_ = remote.hostname;
@@ -157,8 +156,7 @@ void CustomConfigLocationInfo::resolveHostnamesForOVPNConfig()
 
             auto callback = [this] (std::uint64_t requestId, const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result)
             {
-                QMetaObject::invokeMethod(this, [this, hostname, result]
-                {
+                QMetaObject::invokeMethod(this, [this, hostname, result] { // NOLINT: false positive for memory leak
                     onDnsRequestFinished(hostname, result);
                 });
             };

@@ -11,6 +11,10 @@
         <source>Unlimited</source>
         <translation>무제한</translation>
     </message>
+    <message>
+        <source>No locations.</source>
+        <translation>위치가 없습니다.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -249,6 +253,22 @@
     <message>
         <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
         <translation>로그아웃이 진행 중입니다.  &apos;windscribe-cli status&apos;를 사용하여 상태를 확인합니다.</translation>
+    </message>
+    <message>
+        <source>Connection has been overridden by another command.</source>
+        <translation>연결이 다른 명령에 의해 재정의되었습니다.</translation>
+    </message>
+    <message>
+        <source>Disconnection has been overridden by another command.</source>
+        <translation>연결 끊김이 다른 명령에 의해 재정의되었습니다.</translation>
+    </message>
+    <message>
+        <source>Already disconnected</source>
+        <translation>이미 연결이 끊어졌습니다.</translation>
+    </message>
+    <message>
+        <source>Logging out</source>
+        <translation>로그아웃</translation>
     </message>
 </context>
 </TS>

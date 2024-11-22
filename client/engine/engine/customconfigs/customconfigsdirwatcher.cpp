@@ -2,7 +2,7 @@
 
 #include <QDir>
 #include <QStandardPaths>
-#include "utils/logger.h"
+#include "utils/log/logger.h"
 
 CustomConfigsDirWatcher::CustomConfigsDirWatcher(QObject *parent, const QString &path)
     : QObject(parent), path_(path)

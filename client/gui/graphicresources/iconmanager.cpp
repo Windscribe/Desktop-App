@@ -4,7 +4,7 @@
 #include "dpiscalemanager.h"
 #endif
 
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 #ifdef Q_OS_MACOS
 #include "utils/macutils.h"

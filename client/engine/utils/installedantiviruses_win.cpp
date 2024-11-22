@@ -1,7 +1,7 @@
 #include "installedantiviruses_win.h"
 #include <comdef.h>
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 #pragma comment(lib, "wbemuuid.lib")
 

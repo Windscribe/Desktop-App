@@ -4,9 +4,10 @@
 
 #include <LM.h>
 #include <psapi.h>
+#include <filesystem>
 
 #include "types/global_consts.h"
-#include "logger.h"
+#include "log/categories.h"
 #include "servicecontrolmanager.h"
 #include "win32handle.h"
 
@@ -400,7 +401,7 @@ static QString processExecutablePath(DWORD processID)
     return result;
 }
 
-QStringList WinUtils::enumerateRunningProgramLocations()
+QStringList WinUtils::enumerateRunningProgramLocations(bool allowDuplicate)
 {
     QStringList result;
 
@@ -418,7 +419,7 @@ QStringList WinUtils::enumerateRunningProgramLocations()
     for (auto i = 0; i < cProcesses; i++) {
         if (aProcesses[i] != 0) {
             QString exePath = processExecutablePath(aProcesses[i]);
-            if (!exePath.isEmpty() && !result.contains(exePath)) {
+            if (!exePath.isEmpty() && (allowDuplicate || !result.contains(exePath))) {
                 result.append(exePath);
             }
         }
@@ -702,4 +703,18 @@ QString WinUtils::getSystemDir()
     }
 
     return QString::fromWCharArray(path);
+}
+
+QStringList WinUtils::enumerateProcesses(const QString &processName)
+{
+    QStringList locations = enumerateRunningProgramLocations(true);
+    QStringList result;
+
+    for (const auto &path : locations) {
+        if (path.endsWith(processName)) {
+            result.append(path);
+        }
+    }
+
+    return result;
 }

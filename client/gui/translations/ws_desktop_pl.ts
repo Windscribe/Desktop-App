@@ -286,10 +286,6 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <source>Merge all logs by timestamp</source>
-        <translation>Scal wszystkie dzienniki według sygnatury czasowej</translation>
-    </message>
-    <message>
         <source>Word Wrap</source>
         <translation>Zawijanie</translation>
     </message>
@@ -964,32 +960,12 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Opcje zaawansowane</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>Wymagane ponowne uruchomienie</translation>
-    </message>
-    <message>
-        <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>Aby przełączyć protokół IPv6, wymagane jest ponowne uruchomienie komputera. Zrobić to teraz?</translation>
-    </message>
-    <message>
-        <source>Restart later</source>
-        <translation>Uruchom ponownie później</translation>
-    </message>
-    <message>
         <source>Make advanced tweaks to the way the app functions.</source>
         <translation>Wprowadź zaawansowane poprawki w sposobie działania aplikacji.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
         <translation>Parametry zaawansowane</translation>
-    </message>
-    <message>
-        <source>Enables / disables system-wide IPv6 connectivity.</source>
-        <translation>Włącza / wyłącza systemową łączność IPv6.</translation>
-    </message>
-    <message>
-        <source>IPv6</source>
-        <translation>Protokół IPv6</translation>
     </message>
     <message>
         <source>Resolve server API address automatically, or use one provided by the Support team.</source>
@@ -1738,6 +1714,10 @@ Najpierw połącz się z siecią</translation>
         <source>Auto</source>
         <translation>Automatycznie</translation>
     </message>
+    <message>
+        <source>Only when VPN is connected</source>
+        <translation>Tylko wtedy, gdy VPN jest podłączony</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
@@ -2143,6 +2123,14 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
     <message>
         <source>Auto-detect</source>
         <translation>Auto-wykrywanie</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Zwolnić</translation>
+    </message>
+    <message>
+        <source>Beta</source>
+        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

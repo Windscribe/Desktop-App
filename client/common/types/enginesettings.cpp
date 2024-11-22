@@ -4,7 +4,7 @@
 #include "types/global_consts.h"
 #include "utils/extraconfig.h"
 #include "utils/languagesutil.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/simplecrypt.h"
 #include "utils/utils.h"
 

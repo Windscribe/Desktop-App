@@ -1,3 +1,6 @@
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/msvc_sink.h>
+
 #include "arguments_parser.h"
 #include "copy_and_run.h"
 #include "registry.h"
@@ -6,7 +9,7 @@
 
 #include "../utils/applicationinfo.h"
 #include "../utils/path.h"
-#include "../utils/logger.h"
+#include "../../../client/common/utils/log/spdlog_utils.h"
 
 // Set the DLL load directory to the system directory before entering WinMain().
 struct LoadSystemDLLsFromSystem32
@@ -44,17 +47,24 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpszCmdParam);
 
+    // Initialize logger (logging using OutputDebugString)
+    auto logger = spdlog::create<spdlog::sinks::msvc_sink_mt>("uninstall", false);
+    logger->flush_on(spdlog::level::trace);
+    spdlog::set_level(spdlog::level::trace);
+    spdlog::set_default_logger(logger);
+
+    auto formatter = log_utils::createJsonFormatter();
+    spdlog::set_formatter(std::move(formatter));
+
     // Design Note:
     // Returning MAXDWORD to indicate failure state.  UninstallPrev::uninstallOldVersion() in the installer
     // expects the return value from this process to be a DWORD, representing zero (success), a valid process
     // ID, or a failure code.  It's not clear from the Windows docs if (DWORD)(-1) is possibly a valid
     // process ID.
 
-    Log::instance().init(false);
-
     ArgumentsParser argumentParser;
     if (!argumentParser.parse()) {
-        Log::instance().out(L"ArgumentsParser failed");
+        spdlog::error(L"ArgumentsParser failed");
         return MAXDWORD;
     }
 
@@ -63,7 +73,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     bool isSecondPhase = argumentParser.getArg(L"/SECONDPHASE", &uninstExeFile);
     if (!isSecondPhase) {
         uninstExeFile = argumentParser.getExecutablePath();
-        Log::instance().out(L"First phase started %s", uninstExeFile.c_str());
+        spdlog::info(L"First phase started {}", uninstExeFile);
         if (!isRightInstallation(uninstExeFile)) {
             Uninstaller::messageBox(IDS_DIRECTORY_MISMATCH, MB_ICONERROR | MB_OK | MB_SETFOREGROUND);
             return MAXDWORD;
@@ -72,7 +82,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
         return CopyAndRun::runFirstPhase(uninstExeFile, lpszCmdParam);
     }
 
-    Log::instance().out(L"Second phase started");
+    spdlog::info(L"Second phase started");
     Uninstaller::setSilent(isSilent);
     Uninstaller::setUninstExeFile(uninstExeFile, false);
 
@@ -85,6 +95,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 
     Uninstaller::RunSecondPhase();
 
-    Log::instance().out(L"WinMain finished");
+    spdlog::debug(L"WinMain finished");
     return 0;
 }

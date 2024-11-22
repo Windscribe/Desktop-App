@@ -3,6 +3,7 @@
 #include <QObject>
 #include "backend/backend.h"
 #include "blockconnect.h"
+#include "ipc/clicommands.h"
 #include "localipcserver/localipcserver.h"
 #include "multipleaccountdetection/imultipleaccountdetection.h"
 #include "types/enums.h"
@@ -36,8 +37,9 @@ private slots:
 
     // From CLI commands
     void onConnectToLocation(const LocationID &id, const types::Protocol &protocol);
+    void onConnectToStaticIpLocation(const QString &location, const types::Protocol &protocol);
     void onLogin(const QString &username, const QString &password, const QString &code2fa);
-    void onShowLocations();
+    void onShowLocations(IPC::CliCommands::LocationType type);
     void onSetKeyLimitBehavior(bool deleteKey);
 
 private:

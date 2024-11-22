@@ -2,7 +2,7 @@
 #include "ikev2route.h"
 #include "adapters_info.h"
 #include "ip_address/ip4_address_and_mask.h"
-#include "logger.h"
+#include <spdlog/spdlog.h>
 
 #pragma comment(lib, "Ntdll.lib")
 
@@ -36,12 +36,12 @@ bool IKEv2Route::addRouteForIKEv2()
         }
         else
         {
-            Logger::instance().out(L"IKEv2Route::addRouteForIKEv2(), GetIpInterfaceEntry() failed");
+            spdlog::error("IKEv2Route::addRouteForIKEv2(), GetIpInterfaceEntry() failed");
         }
     }
     else
     {
-        Logger::instance().out(L"IKEv2Route::addRouteForIKEv2(), ai.getWindscribeIkev2AdapterInfo() failed");
+        spdlog::error("IKEv2Route::addRouteForIKEv2(), ai.getWindscribeIkev2AdapterInfo() failed");
     }
     return false;
 }

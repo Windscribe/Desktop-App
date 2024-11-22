@@ -3,7 +3,7 @@
 #include <QCoreApplication>
 
 #include "utils/languagesutil.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 LanguageController::LanguageController()
 {

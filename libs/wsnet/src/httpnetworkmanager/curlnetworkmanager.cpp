@@ -80,6 +80,7 @@ void CurlNetworkManager::executeRequest(std::uint64_t requestId, const std::shar
         }
     }
     // if we here then something failed
+    delete requestInfo;
     assert(false);
 }
 

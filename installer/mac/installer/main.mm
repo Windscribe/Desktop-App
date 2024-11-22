@@ -1,12 +1,15 @@
 #import <mach/machine.h>
 #import <sys/types.h>
 #import <sys/sysctl.h>
+#import <Foundation/Foundation.h>
 
 #include <QApplication>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
 
-#import "Logger.h"
 #import "mainwindow.h"
 #import "../../../client/common/version/windscribe_version.h"
+#include "../../../client/common/utils/log/spdlog_utils.h"
 
 namespace
 {
@@ -100,9 +103,9 @@ void logSystemInfo()
 
     NSProcessInfo *processInfo = [NSProcessInfo processInfo];
 
-    [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"App version: %s", WINDSCRIBE_VERSION_STR]];
-    [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"CPU architecture: %@", data]];
-    [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"MacOS version: %@", processInfo.operatingSystemVersionString]];
+    spdlog::info("App version: {}", WINDSCRIBE_VERSION_STR);
+    spdlog::info("CPU architecture: {}", data.UTF8String);
+    spdlog::info("MacOS version: {}", processInfo.operatingSystemVersionString.UTF8String);
 }
 
 void updatePathToAppFolder(std::string &path)
@@ -148,6 +151,33 @@ int main(int argc, char *argv[]) {
     @autoreleasepool {
         // Setup code that might create autoreleased objects goes here.
     }
+
+    // Initialize logger
+    std::string logPath = std::string([[NSString stringWithFormat:@"%@/Library/Application Support/Windscribe", NSHomeDirectory()] UTF8String]);
+    logPath += "/Windscribe2/installer.log";
+
+    auto formatter = log_utils::createJsonFormatter();
+    spdlog::set_formatter(std::move(formatter));
+
+    try
+    {
+        if (log_utils::isOldLogFormat(logPath)) {
+            remove(logPath.c_str());
+        }
+
+        auto logger = spdlog::basic_logger_mt("installer", logPath, true);
+        // this will trigger flush on every log message
+        logger->flush_on(spdlog::level::trace);
+        spdlog::set_level(spdlog::level::trace);
+        spdlog::set_default_logger(logger);
+    }
+    catch (const spdlog::spdlog_ex &ex)
+    {
+        printf("spdlog init failed: %s\n", ex.what());
+        return 0;
+    }
+
+    spdlog::info("=== Started ===");
 
     ops.updating = CheckCommandLineArgument(argc, argv, "-update") || CheckCommandLineArgument(argc, argv, "-q");
     int expectedArgumentCount = ops.updating ? 2 : 1;

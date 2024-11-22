@@ -1,6 +1,6 @@
 #include "../../all_headers.h"
+#include <spdlog/spdlog.h>
 #include "ip_routes.h"
-#include "../../logger.h"
 
 IpRoutes::IpRoutes()
 {
@@ -19,7 +19,7 @@ void IpRoutes::setIps(const std::string gatewayIp, unsigned long ifIndex, const 
     DWORD dwErr = GetIpInterfaceEntry(&interfaceRow);
     if (dwErr != NO_ERROR)
     {
-        Logger::instance().out("IpRoutes::setIps(), GetIpInterfaceEntry failed with error: %x", dwErr);
+        spdlog::error("IpRoutes::setIps(), GetIpInterfaceEntry failed with error: {}", dwErr);
         return;
     }
 
@@ -50,7 +50,7 @@ void IpRoutes::setIps(const std::string gatewayIp, unsigned long ifIndex, const 
             DWORD status = DeleteIpForwardEntry(&fr->second);
             if (status != NO_ERROR)
             {
-                Logger::instance().out(L"IpRoutes::enable(), DeleteIpForwardEntry failed: %d", status);
+                spdlog::error("IpRoutes::enable(), DeleteIpForwardEntry failed: {}", status);
             }
             activeRoutes_.erase(fr);
         }
@@ -79,7 +79,7 @@ void IpRoutes::setIps(const std::string gatewayIp, unsigned long ifIndex, const 
             DWORD status = CreateIpForwardEntry(&row);
             if (status != NO_ERROR)
             {
-                Logger::instance().out(L"IpRoutes::enable(), CreateIpForwardEntry failed: %d", status);
+                spdlog::error("IpRoutes::enable(), CreateIpForwardEntry failed: {}", status);
             }
 
             activeRoutes_[*ip] = row;
@@ -95,7 +95,7 @@ void IpRoutes::clear()
         DWORD status = DeleteIpForwardEntry(&it->second);
         if (status != NO_ERROR)
         {
-            Logger::instance().out(L"IpRoutes::enable(), DeleteIpForwardEntry failed: %d", status);
+            spdlog::error("IpRoutes::enable(), DeleteIpForwardEntry failed: {}", status);
         }
     }
     activeRoutes_.clear();

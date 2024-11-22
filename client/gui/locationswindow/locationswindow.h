@@ -26,6 +26,7 @@ public:
 
     void hideSearchTabWithoutAnimation();
     LOCATION_TAB currentTab();
+    void setTab(LOCATION_TAB tab);
 
     bool handleKeyPressEvent(QKeyEvent *event);
 

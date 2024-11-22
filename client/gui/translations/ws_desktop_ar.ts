@@ -286,10 +286,6 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <source>Merge all logs by timestamp</source>
-        <translation>دمج جميع السجلات حسب الطابع الزمني</translation>
-    </message>
-    <message>
         <source>Word Wrap</source>
         <translation>التفاف</translation>
     </message>
@@ -964,32 +960,12 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>خيارات متقدمة</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>إعادة التشغيل مطلوبة</translation>
-    </message>
-    <message>
-        <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>لتبديل IPv6 ، يلزم إعادة تشغيل الكمبيوتر. افعلها الآن؟</translation>
-    </message>
-    <message>
-        <source>Restart later</source>
-        <translation>إعادة التشغيل لاحقا</translation>
-    </message>
-    <message>
         <source>Make advanced tweaks to the way the app functions.</source>
         <translation>قم بإجراء تعديلات متقدمة على طريقة عمل التطبيق.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
         <translation>المعلمات المتقدمة</translation>
-    </message>
-    <message>
-        <source>Enables / disables system-wide IPv6 connectivity.</source>
-        <translation>تمكين / تعطيل اتصال IPv6 على مستوى النظام.</translation>
-    </message>
-    <message>
-        <source>IPv6</source>
-        <translation>IPv6</translation>
     </message>
     <message>
         <source>Resolve server API address automatically, or use one provided by the Support team.</source>
@@ -1738,6 +1714,10 @@ Connect to a network first</source>
         <source>Auto</source>
         <translation>تلقائي</translation>
     </message>
+    <message>
+        <source>Only when VPN is connected</source>
+        <translation>فقط عندما تكون VPN متصلة</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
@@ -2143,6 +2123,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Auto-detect</source>
         <translation>الكشف التلقائي</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>أفرج</translation>
+    </message>
+    <message>
+        <source>Beta</source>
+        <translation>الإصدار بيتا</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

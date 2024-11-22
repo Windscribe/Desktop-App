@@ -1,6 +1,6 @@
 #pragma once
 
-#include "logger.h"
+#include "log/categories.h"
 #include "../version/windscribe_version.h"  // this file must be included, there are defined WINDSCRIBE_IS_BETA or WINDSCRIBE_IS_GUINEA_PIG
 
 #if defined(WINDSCRIBE_IS_BETA) || defined(WINDSCRIBE_IS_GUINEA_PIG)

@@ -381,9 +381,8 @@ UPDATE_CHANNEL UPDATE_CHANNEL_fromInt(int t)
 
 QString UPDATE_CHANNEL_toString(UPDATE_CHANNEL t)
 {
-    // Translators have indicated 'Release' and 'Beta' should not be translated.
-    if (t == UPDATE_CHANNEL_RELEASE) return "Release";
-    else if (t == UPDATE_CHANNEL_BETA) return "Beta";
+    if (t == UPDATE_CHANNEL_RELEASE) return QObject::tr("Release");
+    else if (t == UPDATE_CHANNEL_BETA) return QObject::tr("Beta");
     else if (t == UPDATE_CHANNEL_GUINEA_PIG) return QObject::tr("Guinea Pig");
     else if (t == UPDATE_CHANNEL_INTERNAL) return QObject::tr("Internal");
     else {

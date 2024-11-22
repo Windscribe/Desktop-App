@@ -1,9 +1,8 @@
 #include "testvpntunnel.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/ipvalidation.h"
 #include "utils/extraconfig.h"
 #include "utils/ws_assert.h"
-#include "utils/utils.h"
 
 using namespace wsnet;
 
@@ -122,7 +121,7 @@ void TestVPNTunnel::onPingTestAnswer(wsnet::ServerApiRetCode serverApiRetCode, c
 
     if (bRunning_) {
         const QString trimmedData = QString::fromStdString(ipAddress).trimmed();
-        if (serverApiRetCode == ServerApiRetCode::kSuccess && IpValidation::isIp(trimmedData)) {
+        if (serverApiRetCode == ServerApiRetCode::kSuccess && IpValidation::isIpv4Address(trimmedData)) {
             qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "successfully finished with IP:" << trimmedData << ", total test time =" << elapsedOverallTimer_.elapsed();
             bRunning_ = false;
             emit testsFinished(true, trimmedData);
@@ -192,7 +191,7 @@ std::shared_ptr<WSNetCancelableCallback> TestVPNTunnel::callPingTest(std::uint32
     auto request = WSNet::instance()->serverAPI()->pingTest(timeoutMs, [this](wsnet::ServerApiRetCode serverApiRetCode, const std::string &ipAddress)
     {
         // put in message loop
-        QMetaObject::invokeMethod(this, [this, serverApiRetCode, ipAddress]() {
+        QMetaObject::invokeMethod(this, [this, serverApiRetCode, ipAddress]() { // NOLINT: false positive for memory leak
             onPingTestAnswer(serverApiRetCode, ipAddress);
         });
     });

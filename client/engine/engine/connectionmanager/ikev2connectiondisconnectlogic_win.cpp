@@ -1,6 +1,6 @@
 #include "ikev2connectiondisconnectlogic_win.h"
 #include "utils/crashhandler.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 #include <QProcess>
 

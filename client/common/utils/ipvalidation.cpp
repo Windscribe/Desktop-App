@@ -5,20 +5,38 @@
 #include "ws_assert.h"
 
 
-bool IpValidation::isIp(const QString &str)
+bool IpValidation::isIpAddress(const QString &str)
 {
-    const QString kIPRange("(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])");
-    const QString kRegExp("^" + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "$");
+    return isIpv4Address(str) || isIpv6Address(str);
+}
 
-    QRegExp ipRegex(kRegExp);
-    return ipRegex.exactMatch(str);
+bool IpValidation::isIpv4Address(const QString &str)
+{
+    QHostAddress address(str);
+    return address.protocol() == QAbstractSocket::IPv4Protocol;
+}
+
+bool IpValidation::isIpv6Address(const QString &str)
+{
+    QHostAddress address(str);
+    return address.protocol() == QAbstractSocket::IPv6Protocol;
 }
 
 bool IpValidation::isIpCidr(const QString &str)
 {
-    const QString kIPRange("(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])");
-    const QRegExp kRegExp("^" + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "(\\/([0-9]|[1-2][0-9]|3[0-2]))?$");
-    return kRegExp.exactMatch(str);
+    return isIpv4Cidr(str) || isIpv6Cidr(str);
+}
+
+bool IpValidation::isIpv4Cidr(const QString &str)
+{
+    QPair<QHostAddress, int> pair = QHostAddress::parseSubnet(str);
+    return pair.first.protocol() == QAbstractSocket::IPv4Protocol && pair.second >= 0 && pair.second <= 32;
+}
+
+bool IpValidation::isIpv6Cidr(const QString &str)
+{
+    QPair<QHostAddress, int> pair = QHostAddress::parseSubnet(str);
+    return pair.first.protocol() == QAbstractSocket::IPv6Protocol && pair.second >= 0 && pair.second <= 128;
 }
 
 bool IpValidation::isDomain(const QString &str)
@@ -42,14 +60,14 @@ bool IpValidation::isDomainWithWildcard(const QString &str)
     return domainRegex.exactMatch(str);
 }
 
-bool IpValidation::isIpOrDomain(const QString &str)
+bool IpValidation::isIpv4AddressOrDomain(const QString &str)
 {
-    return (isIp(str) || isDomain(str));
+    return (isIpv4Address(str) || isDomain(str));
 }
 
 bool IpValidation::isIpCidrOrDomain(const QString &str)
 {
-    return (isIpCidr(str) || isDomain(str));
+    return (isIpv4Cidr(str) || isIpv6Cidr(str) || isDomain(str));
 }
 
 // checking the correctness of the address for the ctrld utility
@@ -58,26 +76,13 @@ bool IpValidation::isIpCidrOrDomain(const QString &str)
 // if hostname -> DOT
 bool IpValidation::isCtrldCorrectAddress(const QString &str)
 {
-    return isIp(str) || isDomain(str) || isValidHttpsUrl(str);
+    return isIpv4Address(str) || isDomain(str) || isValidUrlForCtrld(str);
 }
 
-bool IpValidation::isValidIpForCidr(const QString &str)
+bool IpValidation::isLocalIpv4Address(const QString &str)
 {
-    const auto ip_and_cidr = str.split("/", Qt::SkipEmptyParts);
-    const quint32 cidr_value = (ip_and_cidr.size() < 2) ? 32 : ip_and_cidr[1].toUInt();
-    if (cidr_value == 32) {
-        // CIDR is 32 or not specified, this is a single IP.
-        return true;
-    }
-    const auto octets = ip_and_cidr[0].split(".");
-    const quint32 ip_value = (octets[0].toUInt() << 24) | (octets[1].toUInt() << 16)
-                            | (octets[2].toUInt() << 8) | octets[3].toUInt();
-    const quint32 ip_mask = cidr_value ? ~((1 << (32 - cidr_value)) - 1) : 0;
-    return (ip_value & ip_mask) == ip_value;
-}
+    // NB: QHostAddress::isPrivateUse() is not available in Qt 6.5, so implement the logic manually
 
-bool IpValidation::isLocalIp(const QString &str)
-{
     // Rules are given from https://en.wikipedia.org/wiki/Private_network
     if(str.startsWith("127.") || str.startsWith("10.") || str.startsWith("192.168.") || str.startsWith("169.254.")) {
         return true;
@@ -95,15 +100,16 @@ bool IpValidation::isLocalIp(const QString &str)
     return false;
 }
 
-bool IpValidation::isValidHttpsUrl(const QString &str)
+bool IpValidation::isValidUrlForCtrld(const QString &str)
 {
-    QRegExp regex("^((https):\\/)\\/?([^:\\/\\s]+)((\\/\\w+)*\\/)([\\w\\-\\.]+[^#?\\s]+)(.*)?(#[\\w\\-]+)?$");
-    return regex.exactMatch(str);
+    QRegExp httpsRegex("^((https|h3):\\/)\\/?([^:\\/\\s]+)((\\/\\w+)*\\/)([\\w\\-\\.]+[^#?\\s]+)(.*)?(#[\\w\\-]+)?$");
+    QRegExp sdnsRegex("^sdns:\\/\\/[A-Za-z0-9]+$");
+    return httpsRegex.exactMatch(str) || sdnsRegex.exactMatch(str);
 }
 
 bool IpValidation::isWindscribeReservedIp(const QString &str)
 {
-    return str.startsWith("10.255.255.");
+    return isIpv4Address(str) && str.startsWith("10.255.255.");
 }
 
 QString IpValidation::getRemoteIdFromDomain(const QString &str)

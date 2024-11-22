@@ -1,7 +1,7 @@
 #include "hostnames_manager.h"
 
+#include <spdlog/spdlog.h>
 #include "../../firewallcontroller.h"
-#include "../../logger.h"
 
 HostnamesManager::HostnamesManager(): isEnabled_(false),
     dnsResolver_(std::bind(&HostnamesManager::dnsResolverCallback, this, std::placeholders::_1))
@@ -14,7 +14,6 @@ HostnamesManager::~HostnamesManager()
 
 void HostnamesManager::enable(const std::string &gatewayIp)
 {
-    Logger::instance().out("HostnamesManager::enable(), begin");
     {
         std::lock_guard<std::recursive_mutex> guard(mutex_);
 
@@ -27,13 +26,10 @@ void HostnamesManager::enable(const std::string &gatewayIp)
 
     dnsResolver_.cancelAll();
     dnsResolver_.resolveDomains(hostsLatest_);
-    Logger::instance().out("HostnamesManager::enable(), end");
 }
 
 void HostnamesManager::disable()
 {
-    Logger::instance().out("HostnamesManager::disable(), begin");
-
     {
         std::lock_guard<std::recursive_mutex> guard(mutex_);
 
@@ -45,7 +41,6 @@ void HostnamesManager::disable()
     }
     dnsResolver_.cancelAll();
     FirewallController::instance().setSplitTunnelIpExceptions(std::vector<std::string>());
-    Logger::instance().out("HostnamesManager::disable(), end");
 }
 
 void HostnamesManager::setSettings(const std::vector<std::string> &ips, const std::vector<std::string> &hosts)
@@ -53,7 +48,6 @@ void HostnamesManager::setSettings(const std::vector<std::string> &ips, const st
     std::lock_guard<std::recursive_mutex> guard(mutex_);
     ipsLatest_ = ips;
     hostsLatest_ = hosts;
-    Logger::instance().out("HostnamesManager::setSettings(), end");
 }
 
 void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::HostInfo> hostInfos)
@@ -67,15 +61,15 @@ void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::Ho
             for (const auto addr : it->second.addresses) {
                 if (addr == "0.0.0.0") {
                     // ROBERT sometimes will give us an address of 0.0.0.0 for a 'blocked' resource.  This is not a valid address.
-                    Logger::instance().out("IpHostnamesManager::dnsResolverCallback(), Resolved : %s, IP: 0.0.0.0 (Ignored)", it->first.c_str());
+                    spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : {}, IP: 0.0.0.0 (Ignored)", it->first);
                 } else {
-                    Logger::instance().out("IpHostnamesManager::dnsResolverCallback(), Resolved : %s, IP: %s", it->first.c_str(), addr.c_str());
+                    spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : {}, IP: {}", it->first, addr);
                     hostsIps.insert(hostsIps.end(), addr);
                 }
             }
             hostsIps.insert(hostsIps.end(), it->second.addresses.begin(), it->second.addresses.end());
         } else {
-            Logger::instance().out("HostnamesManager::dnsResolverCallback(), Failed resolve : %s", it->first.c_str());
+            spdlog::debug("HostnamesManager::dnsResolverCallback(), Failed resolve : {}", it->first);
         }
     }
 

@@ -2,10 +2,10 @@
 
 #include <filesystem>
 #include <QDateTime>
+#include <spdlog/spdlog.h>
 
 #include "../settings.h"
 #include "../../../utils/applicationInfo.h"
-#include "../../../utils/logger.h"
 #include "../../../utils/path.h"
 
 using namespace std;
@@ -54,7 +54,7 @@ void UninstallInfo::registerUninstallInfo()
     }
 
     if (ec) {
-        Log::instance().out(L"UninstallInfo::registerUninstallInfo: filesystem::recursive_directory_iterator failed (%hs)", ec.message().c_str());
+        spdlog::error("UninstallInfo::registerUninstallInfo: filesystem::recursive_directory_iterator failed ({})", ec.message().c_str());
     }
 
     // EstimatedSize registry entry is expected to be a REG_DWORD.  Will get a REG_QWORD if we use uintmax_t.

@@ -68,8 +68,6 @@ public:
     void continueWithPrivKeyPassword(const QString &password, bool bSave);
 
     void sendDebugLog();
-    void setIPv6EnabledInOS(bool b);
-    bool IPv6StateInOS();
     void getWebSessionToken(WEB_SESSION_PURPOSE purpose);
     void getRobertFilters();
     void setRobertFilter(const api_responses::RobertFilter &filter);
@@ -104,7 +102,7 @@ public:
     bool isWifiSharingSupported();
     void startWifiSharing(const QString &ssid, const QString &password);
     void stopWifiSharing();
-    void startProxySharing(PROXY_SHARING_TYPE proxySharingType, uint port);
+    void startProxySharing(PROXY_SHARING_TYPE proxySharingType, uint port, bool whileConnected);
     void stopProxySharing();
     QString getProxySharingAddress();
     QString getSharingCaption();
@@ -191,6 +189,8 @@ signals:
 
     void autoEnableAntiCensorship();
 
+    void connectionIdChanged(const QString &connId);
+
 private slots:
     void onLostConnectionToHelper();
     void onInitializeHelper(INIT_HELPER_RET ret);
@@ -220,7 +220,7 @@ private slots:
     void setSettingsImpl(const types::EngineSettings &engineSettings);
     void checkForceDisconnectNode(const QStringList &forceDisconnectNodes);
 
-    void startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType, uint port);
+    void startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType, uint port, bool whileConnected);
     void stopProxySharingImpl();
 
     void startWifiSharingImpl(const QString &ssid, const QString &password);
@@ -254,6 +254,7 @@ private slots:
     void onConnectionManagerProtocolPortChanged(const types::Protocol &protocol, const uint port);
     void onConnectionManagerTestTunnelResult(bool success, const QString & ipAddress);
     void onConnectionManagerWireGuardAtKeyLimit();
+    void onConnectionManagerConnectionEnded();
 
     void onConnectionManagerRequestUsername(const QString &pathCustomOvpnConfig);
     void onConnectionManagerRequestPassword(const QString &pathCustomOvpnConfig);
@@ -404,4 +405,9 @@ private:
     bool tryLoginNextConnectOrDisconnect_ = false;
 
     QString lastUsernameForCustomConfig_;
+
+    // Identifier for current connection.  This identifier changes when a new connect request is made to the engine.
+    // This is also used for logging to separate logs for different connections.
+    QString connId_;
+    QString createConnectionId();
 };

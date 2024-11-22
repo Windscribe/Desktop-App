@@ -4,7 +4,7 @@
 #include <QProcess>
 #include <QCoreApplication>
 #include <QRegularExpression>
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "names.h"
 #include "utils/utils.h"
 #include "utils/executable_signature/executable_signature.h"

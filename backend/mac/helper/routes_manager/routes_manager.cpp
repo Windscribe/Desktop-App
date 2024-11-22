@@ -1,6 +1,6 @@
 #include "routes_manager.h"
+#include <spdlog/spdlog.h>
 #include "../utils.h"
-#include "../logger.h"
 
 RoutesManager::RoutesManager()
 {
@@ -89,26 +89,26 @@ void RoutesManager::addDnsRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus)
 void RoutesManager::deleteOpenVpnDefaultRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus)
 {
     std::string cmd = "route delete -net " + connectStatus.remoteIp + " " + connectStatus.defaultAdapter.gatewayIp + " 255.255.255.255";
-    LOG("execute: %s", cmd.c_str());
+    spdlog::info("execute: {}", cmd);
     Utils::executeCommand(cmd);
 
     cmd = "route delete -net 0.0.0.0 " + connectStatus.vpnAdapter.gatewayIp + " 128.0.0.0";
-    LOG("execute: %s", cmd.c_str());
+    spdlog::info("execute: {}", cmd);
     Utils::executeCommand(cmd);
 
     cmd = "route delete -net 128.0.0.0 " + connectStatus.vpnAdapter.gatewayIp + " 128.0.0.0";
-    LOG("execute: %s", cmd.c_str());
+    spdlog::info("execute: {}", cmd);
     Utils::executeCommand(cmd);
 }
 
 void RoutesManager::deleteWireGuardDefaultRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus)
 {
     std::string cmd = "route delete -inet 0.0.0.0/1 -interface " + connectStatus.vpnAdapter.adapterName;
-    LOG("execute: %s", cmd.c_str());
+    spdlog::info("execute: {}", cmd);
     Utils::executeCommand(cmd);
 
     cmd = "route delete -inet 128.0.0.0/1 -interface " + connectStatus.vpnAdapter.adapterName;
-    LOG("execute: %s", cmd.c_str());
+    spdlog::info("execute: {}", cmd);
     Utils::executeCommand(cmd);
 }
 

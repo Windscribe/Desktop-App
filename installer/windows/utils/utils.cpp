@@ -5,9 +5,9 @@
 
 #include <filesystem>
 #include <sstream>
+#include <spdlog/spdlog.h>
 
 #include "applicationinfo.h"
-#include "logger.h"
 #include "path.h"
 #include "win32handle.h"
 #include "wsscopeguard.h"
@@ -22,7 +22,7 @@ wstring getSystemDir()
     wchar_t path[MAX_PATH];
     UINT result = ::GetSystemDirectory(path, MAX_PATH);
     if (result == 0 || result >= MAX_PATH) {
-        Log::instance().out(L"GetSystemDir failed (%lu)", ::GetLastError());
+        spdlog::error(L"GetSystemDir failed ({})", ::GetLastError());
         return wstring();
     }
 
@@ -74,7 +74,7 @@ optional<DWORD> instExec(const wstring& appName, const wstring& commandLine, DWO
     BOOL result = ::CreateProcess(nullptr, exec.get(), nullptr, nullptr, false, CREATE_DEFAULT_ERROR_MODE,
                                   nullptr, lpCurrentDirectory, &si, &pi);
     if (result == FALSE) {
-        Log::instance().out(L"Process::InstExec CreateProcess(%s) failed (%lu)", exec.get(), ::GetLastError());
+        spdlog::error(L"Process::InstExec CreateProcess({}) failed ({})", exec.get(), ::GetLastError());
         if (lastError) {
             *lastError = ::GetLastError();
         }
@@ -91,14 +91,14 @@ optional<DWORD> instExec(const wstring& appName, const wstring& commandLine, DWO
     if (waitResult == WAIT_FAILED) {
         if (::GetLastError() != ERROR_NOT_GUI_PROCESS) {
             // We're not treating this error as critical, but still want to note it.
-            Log::instance().out(L"Process::InstExec WaitForInputIdle failed (%lu)", ::GetLastError());
+            spdlog::error(L"Process::InstExec WaitForInputIdle failed ({})", ::GetLastError());
         }
     }
 
     waitResult = ::WaitForSingleObject(pi.hProcess, timeoutMS);
 
     if (waitResult == WAIT_FAILED) {
-        Log::instance().out(L"Process::InstExec WaitForSingleObject failed (%lu)", ::GetLastError());
+        spdlog::error(L"Process::InstExec WaitForSingleObject failed ({})", ::GetLastError());
         if (lastError) {
             *lastError = ::GetLastError();
         }
@@ -113,7 +113,7 @@ optional<DWORD> instExec(const wstring& appName, const wstring& commandLine, DWO
     DWORD processExitCode;
     result = ::GetExitCodeProcess(pi.hProcess, &processExitCode);
     if (result == FALSE) {
-        Log::instance().out(L"Process::InstExec GetExitCodeProcess failed (%lu)", ::GetLastError());
+        spdlog::error(L"Process::InstExec GetExitCodeProcess failed ({})", ::GetLastError());
         if (lastError) {
             *lastError = ::GetLastError();
         }
@@ -129,7 +129,7 @@ wstring desktopFolder()
     HRESULT hResult = ::SHGetFolderPath(NULL, CSIDL_COMMON_DESKTOPDIRECTORY, NULL,
                                         SHGFP_TYPE_CURRENT, szPath);
     if (FAILED(hResult)) {
-        Log::instance().out(L"SHGetFolderPath(CSIDL_DESKTOPDIRECTORY) failed (%lu)", ::GetLastError());
+        spdlog::error(L"SHGetFolderPath(CSIDL_DESKTOPDIRECTORY) failed ({})", ::GetLastError());
         return wstring();
     }
 
@@ -142,7 +142,7 @@ wstring startMenuProgramsFolder()
     HRESULT hResult = ::SHGetFolderPath(NULL, CSIDL_COMMON_PROGRAMS, NULL,
                                         SHGFP_TYPE_CURRENT, szPath);
     if (FAILED(hResult)) {
-        Log::instance().out(L"SHGetFolderPath(CSIDL_COMMON_PROGRAMS) failed (%lu)", ::GetLastError());
+        spdlog::error(L"SHGetFolderPath(CSIDL_COMMON_PROGRAMS) failed ({})", ::GetLastError());
         return wstring();
     }
 
@@ -162,7 +162,7 @@ FindAppWindowHandleProc(HWND hwnd, LPARAM lParam)
     ::GetWindowThreadProcessId(hwnd, &processID);
 
     if (processID == 0) {
-        Log::instance().out(L"FindAppWindowHandleProc GetWindowThreadProcessId failed %lu", ::GetLastError());
+        spdlog::error(L"FindAppWindowHandleProc GetWindowThreadProcessId failed {}", ::GetLastError());
         return TRUE;
     }
 
@@ -170,7 +170,7 @@ FindAppWindowHandleProc(HWND hwnd, LPARAM lParam)
     if (!hProcess.isValid())
     {
         if (::GetLastError() != ERROR_ACCESS_DENIED) {
-            Log::instance().out(L"FindAppWindowHandleProc OpenProcess failed %lu", ::GetLastError());
+            spdlog::error(L"FindAppWindowHandleProc OpenProcess failed {}", ::GetLastError());
         }
         return TRUE;
     }
@@ -180,7 +180,7 @@ FindAppWindowHandleProc(HWND hwnd, LPARAM lParam)
     BOOL result = ::QueryFullProcessImageName(hProcess.getHandle(), 0, imageName, &pathLen);
 
     if (result == FALSE) {
-        Log::instance().out(L"FindAppWindowHandleProc QueryFullProcessImageName failed %lu", ::GetLastError());
+        spdlog::error(L"FindAppWindowHandleProc QueryFullProcessImageName failed {}", ::GetLastError());
         return TRUE;
     }
 
@@ -225,7 +225,7 @@ wstring programFilesFolder()
     TCHAR programFilesPath[MAX_PATH];
     BOOL result = ::SHGetSpecialFolderPath(0, programFilesPath, CSIDL_PROGRAM_FILES, FALSE);
     if (!result) {
-        Log::WSDebugMessage(L"programFilesFolder - SHGetSpecialFolderPath failed, using default");
+        spdlog::error(L"programFilesFolder - SHGetSpecialFolderPath failed, using default");
         return wstring(L"C:\\Program Files");
     }
 

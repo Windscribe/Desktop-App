@@ -13,7 +13,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include "../logger.h"
+#include "../log/categories.h"
 #include "../utils.h"
 
 namespace NetworkUtils_linux

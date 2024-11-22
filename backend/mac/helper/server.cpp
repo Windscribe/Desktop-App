@@ -6,9 +6,9 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
+#include <spdlog/spdlog.h>
 #include "firewallcontroller.h"
 #include "ipc/helper_security.h"
-#include "logger.h"
 #include "process_command.h"
 #include "utils.h"
 
@@ -34,7 +34,7 @@ void Server::xpc_event_handler(xpc_connection_t peer)
     // you can defer this call until after that initialization is done.
     xpc_connection_resume(peer);
 
-    LOG("Client connected");
+    spdlog::debug("Client connected");
 }
 
 void Server::peer_event_handler(xpc_connection_t peer, xpc_object_t event)
@@ -47,13 +47,13 @@ void Server::peer_event_handler(xpc_connection_t peer, xpc_object_t event)
             // crashed or cancelled the connection. After receiving this error,
             // the connection is in an invalid state, and you do not need to
             // call xpc_connection_cancel(). Just tear down any associated state here.
-            LOG("Client disconnected with XPC_ERROR_CONNECTION_INVALID");
+            spdlog::debug("Client disconnected with XPC_ERROR_CONNECTION_INVALID");
         } else if (event == XPC_ERROR_TERMINATION_IMMINENT) {
             // Handle per-connection termination cleanup
             xpc_connection_cancel(peer);
-            LOG("Client disconnected with XPC_ERROR_TERMINATION_IMMINENT");
+            spdlog::debug("Client disconnected with XPC_ERROR_TERMINATION_IMMINENT");
         } else {
-            LOG("Client disconnected with an unknown error");
+            spdlog::error("Client disconnected with an unknown error");
         }
 
     } else if (type == XPC_TYPE_DICTIONARY) {
@@ -61,7 +61,7 @@ void Server::peer_event_handler(xpc_connection_t peer, xpc_object_t event)
         // right here, because event must be of type XPC_TYPE_DICTIONARY
         if (!HelperSecurity::isValidXpcConnection(event)) {
             xpc_connection_cancel(peer);
-            LOG("Client disconnected with failed validity test");
+            spdlog::error("Client disconnected with failed validity test");
             return;
         }
 
@@ -89,7 +89,7 @@ void Server::peer_event_handler(xpc_connection_t peer, xpc_object_t event)
         xpc_release(event);
         xpc_release(message);
     } else {
-        LOG("Client sent an unknown message");
+        spdlog::error("Client sent an unknown message");
     }
 }
 void Server::run()
@@ -106,7 +106,7 @@ void Server::run()
 
     xpc_connection_t listener = xpc_connection_create_mach_service("com.windscribe.helper.macos", NULL, XPC_CONNECTION_MACH_SERVICE_LISTENER);
     if (!listener) {
-        LOG("xpc_connection_create_mach_service failed");
+        spdlog::error("xpc_connection_create_mach_service failed");
         return;
     }
 

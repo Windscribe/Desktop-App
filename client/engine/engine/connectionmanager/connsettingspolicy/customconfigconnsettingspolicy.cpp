@@ -1,6 +1,6 @@
 #include "customconfigconnsettingspolicy.h"
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include "utils/log/logger.h"
 
 CustomConfigConnSettingsPolicy::CustomConfigConnSettingsPolicy(
     QSharedPointer<locationsmodel::BaseLocationInfo> bli) :

@@ -1,13 +1,13 @@
 #include "wireguardadapter.h"
 #include "../../../posix_common/helper_commands.h"
 #include "../execute_cmd.h"
-#include "../logger.h"
 #include "../utils.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <sstream>
+#include <spdlog/spdlog.h>
 
 namespace
 {
@@ -19,9 +19,9 @@ bool RunBlockingCommands(const std::vector<std::string> &cmdlist)
         output.clear();
         const auto status = Utils::executeCommand(cmd, {}, &output);
         if (!output.empty())
-            Logger::instance().out("%s", output.c_str());
+            spdlog::debug(output);
         if (status != 0) {
-            Logger::instance().out("Failed to run command: \"%s\" (exit status %i)", cmd.c_str(), status);
+            spdlog::error("Failed to run command: \"{}\" (exit status {})", cmd, status);
             return false;
         }
     }
@@ -52,7 +52,7 @@ bool WireGuardAdapter::setDnsServers(const std::string &addressList, const std::
 {
     dns_script_name_ = scriptName;
     std::vector<std::string> dns_servers_list;
-    boost::split(dns_servers_list, addressList, boost::is_any_of(",; "), boost::token_compress_on);
+    boost::split(dns_servers_list, addressList, boost::is_any_of(",; "), boost::token_compress_on); // NOLINT: false positive
     if (dns_servers_list.empty())
         return true;
 
@@ -68,7 +68,7 @@ bool WireGuardAdapter::setDnsServers(const std::string &addressList, const std::
         cmdlist.push_back("chmod +x \"" + dns_script_name_ + "\"");
     dns_script_command_ = "is_wireguard=\"1\" dev=\"" + getName() + "\" " + env_block + dns_script_name_;
     cmdlist.push_back("script_type=\"up\" " + dns_script_command_);
-    Logger::instance().out("%s", cmdlist[0].c_str());
+    spdlog::debug("WireGuardAdapter::setDnsServers: {}", cmdlist[0]);
     return RunBlockingCommands(cmdlist);
 }
 
@@ -183,7 +183,7 @@ bool WireGuardAdapter::addFirewallRules(const std::string &ipAddress, uint32_t f
     FILE *file = popen("iptables-restore -n", "w");
     if(file == NULL)
     {
-        Logger::instance().out("iptables-restore not found");
+        spdlog::error("iptables-restore not found");
         return false;
     }
 
@@ -211,7 +211,7 @@ bool WireGuardAdapter::removeFirewallRules()
     FILE *file = popen("iptables-save", "r");
     if(file == NULL)
     {
-        Logger::instance().out("iptables-save not found");
+        spdlog::error("iptables-save not found");
         return false;
     }
 
@@ -240,7 +240,7 @@ bool WireGuardAdapter::removeFirewallRules()
         file = popen("iptables-restore -n", "w");
         if(file == NULL)
         {
-            Logger::instance().out("iptables-restore not found");
+            spdlog::error("iptables-restore not found");
             return false;
         }
 

@@ -4,7 +4,7 @@
 #include <Iphlpapi.h>
 #include <QByteArray>
 
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 namespace DnsInfo_win
 {

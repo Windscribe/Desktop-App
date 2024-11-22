@@ -1,7 +1,7 @@
 #include "secretvalue_win.h"
 
 #include <QDataStream>
-#include "Utils/logger.h"
+#include "utils/log/categories.h"
 
 wchar_t g_szKeyPath[] = L"Software\\Microsoft\\Windows\\CurrentVersion\\NetControlPort";
 

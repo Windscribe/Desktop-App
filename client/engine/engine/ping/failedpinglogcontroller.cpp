@@ -1,5 +1,5 @@
 #include "failedpinglogcontroller.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 bool FailedPingLogController::logFailedIPs(const QString &ip)
 {

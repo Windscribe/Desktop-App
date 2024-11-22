@@ -7,6 +7,7 @@ target_sources(wsnet PRIVATE
     crypto_utils.h
     persistentsettings.cpp
     persistentsettings.h
+    spdlog_utils.h
     urlquery_utils.cpp
     urlquery_utils.h
 )

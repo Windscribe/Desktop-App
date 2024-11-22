@@ -38,7 +38,11 @@ ProxyGatewayGroup::ProxyGatewayGroup(ScalableGraphicsObject *parent, const QStri
     proxyIpAddressItem_ = new ProxyIpAddressItem(this);
     addItem(proxyIpAddressItem_);
 
-    hideItems(indexOf(comboBoxProxyType_), indexOf(proxyIpAddressItem_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+    checkBoxWhileConnected_ = new ToggleItem(this);
+    connect(checkBoxWhileConnected_, &ToggleItem::stateChanged, this, &ProxyGatewayGroup::onWhileConnectedStateChanged);
+    addItem(checkBoxWhileConnected_);
+
+    hideItems(indexOf(comboBoxProxyType_), indexOf(checkBoxWhileConnected_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     updateMode();
 
@@ -57,6 +61,7 @@ void ProxyGatewayGroup::setProxyGatewaySettings(const types::ShareProxyGateway &
         } else {
             editBoxPort_->setText(QString::number(sp.port));
         }
+        checkBoxWhileConnected_->setState(sp.whileConnected);
         updateMode();
     }
 }
@@ -99,6 +104,12 @@ void ProxyGatewayGroup::onPortChanged(QVariant v)
     emit proxyGatewayPreferencesChanged(settings_);
 }
 
+void ProxyGatewayGroup::onWhileConnectedStateChanged(bool isChecked)
+{
+    settings_.whileConnected = isChecked;
+    emit proxyGatewayPreferencesChanged(settings_);
+}
+
 void ProxyGatewayGroup::setProxyGatewayAddress(const QString &address)
 {
     if (settings_.isEnabled && (address.isEmpty() || address.endsWith(":0"))) {
@@ -131,10 +142,10 @@ void ProxyGatewayGroup::hideOpenPopups()
 void ProxyGatewayGroup::updateMode()
 {
     if (checkBoxEnable_->isChecked()) {
-        showItems(indexOf(comboBoxProxyType_), indexOf(proxyIpAddressItem_));
+        showItems(indexOf(comboBoxProxyType_), indexOf(checkBoxWhileConnected_));
     }
     else {
-        hideItems(indexOf(comboBoxProxyType_), indexOf(proxyIpAddressItem_));
+        hideItems(indexOf(comboBoxProxyType_), indexOf(checkBoxWhileConnected_));
     }
 }
 
@@ -143,6 +154,7 @@ void ProxyGatewayGroup::onLanguageChanged()
     checkBoxEnable_->setCaption(tr("Proxy Gateway"));
     comboBoxProxyType_->setLabelCaption(tr("Proxy Type"));
     comboBoxProxyType_->setItems(PROXY_SHARING_TYPE_toList(), settings_.proxySharingMode);
+    checkBoxWhileConnected_->setCaption(tr("Only when VPN is connected"));
     editBoxPort_->setCaption(tr("Port"));
 }
 

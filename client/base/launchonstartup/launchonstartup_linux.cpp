@@ -2,7 +2,7 @@
 
 #include <QDir>
 #include <QFile>
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 void LaunchOnStartup_linux::setLaunchOnStartup(bool enable)
 {

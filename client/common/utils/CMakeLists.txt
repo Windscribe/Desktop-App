@@ -1,6 +1,4 @@
 target_sources(common PRIVATE
-    clean_sensitive_info.cpp
-    clean_sensitive_info.h
     executable_signature/executable_signature.cpp
     executable_signature/executable_signature.h
     extraconfig.cpp
@@ -11,11 +9,18 @@ target_sources(common PRIVATE
     ipvalidation.h
     languagesutil.cpp
     languagesutil.h
-    logger.cpp
-    logger.h
-    mergelog.cpp
-    mergelog.h
-    multiline_message_logger.h
+    log/categories.cpp
+    log/categories.h
+    log/clean_sensitive_info.cpp
+    log/clean_sensitive_info.h
+    log/logger.cpp
+    log/logger.h
+    log/spdlog_utils.h
+    log/mergelog.cpp
+    log/mergelog.h
+    log/multiline_message_logger.h
+    log/paths.cpp
+    log/paths.h
     network_utils/network_utils.cpp
     network_utils/network_utils.h
     simplecrypt.cpp

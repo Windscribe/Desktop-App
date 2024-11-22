@@ -5,11 +5,11 @@
 
 #include <shlobj_core.h>
 #include <windows.h>
+#include <spdlog/spdlog.h>
 
 #include "../installer_base.h"
 #include "../../../utils/applicationinfo.h"
 #include "../../../utils/archive.h"
-#include "../../../utils/logger.h"
 #include "../../../utils/path.h"
 #include "../../../utils/utils.h"
 #include "global_consts.h"
@@ -29,7 +29,7 @@ int UninstallPrev::executeStep()
         HWND hwnd = Utils::appMainWindowHandle();
 
         if (hwnd) {
-            Log::instance().out(L"Windscribe is running - activating app so we can close it");
+            spdlog::info(L"Windscribe is running - activating app so we can close it");
             // PostMessage WM_CLOSE will only work on an active window
             UINT dwActivateMessage = RegisterWindowMessage(L"WindscribeAppActivate");
             PostMessage(hwnd, dwActivateMessage, 0, 0);
@@ -43,7 +43,7 @@ int UninstallPrev::executeStep()
                 hwnd = Utils::appMainWindowHandle();
             }
             else {
-                Log::instance().out(L"Timeout exceeded when trying to close Windscribe. Killing the process.");
+                spdlog::warn(L"Timeout exceeded when trying to close Windscribe. Killing the process.");
                 int result = taskKill(ApplicationInfo::appExeName());
                 if (result != NO_ERROR) {
                     return result;
@@ -77,6 +77,8 @@ int UninstallPrev::executeStep()
 
         wstring uninstallString = getUninstallString();
         if (!uninstallString.empty()) {
+            spdlog::info(L"Found a previous installation of the application: {}", getPrevClientVersion());
+
             if (!isFactoryReset_) {
                 QSettings reg(QString::fromStdWString(ApplicationInfo::appRegistryKey()), QSettings::NativeFormat);
                 reg.setValue("userId", "");
@@ -84,7 +86,7 @@ int UninstallPrev::executeStep()
 
             DWORD lastError = 0;
             if (!uninstallOldVersion(uninstallString, lastError)) {
-                Log::instance().out(L"UninstallPrev::executeStep: uninstallOldVersion failed: %lu", lastError);
+                spdlog::error(L"UninstallPrev::executeStep: uninstallOldVersion failed: {}", lastError);
                 if (lastError != 2) { // Any error other than "Not found"
                     return -ERROR_OTHER;
                 }
@@ -95,10 +97,10 @@ int UninstallPrev::executeStep()
                 }
 
                 if (!extractUninstaller()) {
-                    Log::instance().out(L"UninstallPrev::executeStep: could not extract uninstaller.");
+                    spdlog::error(L"UninstallPrev::executeStep: could not extract uninstaller.");
                     return -ERROR_OTHER;
                 }
-                Log::instance().out(L"UninstallPrev::executeStep: successfully extracted uninstaller, trying again.");
+                spdlog::info(L"UninstallPrev::executeStep: successfully extracted uninstaller, trying again.");
                 return 65;
             }
         }
@@ -152,10 +154,10 @@ bool UninstallPrev::uninstallOldVersion(const wstring &uninstallString, DWORD &l
         wsl::Win32Handle processHandle(::OpenProcess(SYNCHRONIZE, FALSE, res.value()));
         if (processHandle.isValid()) {
             if (processHandle.wait(INFINITE) != WAIT_OBJECT_0) {
-                Log::instance().out(L"WARNING: wait for second phase uninstall failed, uninstaller may have crashed.");
+                spdlog::warn(L"WARNING: wait for second phase uninstall failed, uninstaller may have crashed.");
             }
         } else {
-            Log::instance().out(L"WARNING: unable to obtain process handle for second phase uninstaller.");
+            spdlog::warn(L"WARNING: unable to obtain process handle for second phase uninstaller.");
         }
     }
 
@@ -219,22 +221,22 @@ void UninstallPrev::stopService() const
         scm.stopService(ApplicationInfo::serviceName().c_str());
     }
     catch (system_error& ex) {
-        Log::instance().out(L"UninstallPrev::stopService %hs (%lu)", ex.what(), ex.code().value());
+        spdlog::error("UninstallPrev::stopService {} ({})", ex.what(), ex.code().value());
     }
 }
 
 bool UninstallPrev::extractUninstaller() const
 {
-    Log::instance().out(L"Extracting uninstaller from the archive");
+    spdlog::info(L"Extracting uninstaller from the archive");
 
     wsl::Archive archive;
     archive.setLogFunction([](const wstring &str) {
-        Log::instance().out(str);
+        spdlog::info(L"{}", str);
     });
 
     const wstring exePath = Utils::getExePath();
     if (exePath.empty()) {
-        Log::instance().out(L"Could not get exe path");
+        spdlog::error(L"Could not get exe path");
         return false;
     }
 
@@ -257,12 +259,47 @@ void UninstallPrev::terminateProtocolHandlers() const
         scm.stopService(kWireGuardServiceIdentifier.c_str());
     }
     catch (std::system_error& ex) {
-        Log::instance().out(L"WARNING: failed to stop the WireGuard service - %hs", ex.what());
+        spdlog::warn("WARNING: failed to stop the WireGuard service - {}", ex.what());
     }
 
     taskKill(L"windscribeopenvpn.exe");
     taskKill(L"windscribewstunnel.exe");
     taskKill(L"windscribectrld.exe");
+}
+
+wstring UninstallPrev::getPrevClientVersion() const
+{
+    // Read the path of the installed client from the registry and determine Windscribe.exe version
+    QSettings reg(QString::fromStdWString(ApplicationInfo::installerRegistryKey()), QSettings::NativeFormat);
+    if (!reg.contains("applicationPath"))
+        return wstring();
+
+    const auto path = reg.value("applicationPath").toString().toStdWString() + L"\\Windscribe.exe";
+
+    DWORD dwSize = GetFileVersionInfoSize(path.c_str(), NULL);
+    if (dwSize == 0) {
+        spdlog::error("Error in GetFileVersionInfoSize: {}", GetLastError());
+        return wstring();
+    }
+
+    std::vector<BYTE> pVersionInfo(dwSize);
+    if (!GetFileVersionInfo(path.c_str(), 0, dwSize, pVersionInfo.data())) {
+        spdlog::error("Error in GetFileVersionInfo: {}", GetLastError());
+        return wstring();
+    }
+
+    VS_FIXEDFILEINFO    *pFileInfo          = NULL;
+    UINT                pLenFileInfo        = 0;
+    if (!VerQueryValue(pVersionInfo.data(), TEXT("\\"), (LPVOID*) &pFileInfo, &pLenFileInfo)) {
+        spdlog::error("Error in VerQueryValue: {}", GetLastError());
+        return wstring();
+    }
+
+    DWORD major  =  ( pFileInfo->dwFileVersionMS >> 16 ) & 0xffff ;
+    DWORD minor  =  ( pFileInfo->dwFileVersionMS) & 0xffff;
+    DWORD build =  ( pFileInfo->dwFileVersionLS >>  16 ) & 0xffff;
+
+    return fmt::format(L"v{}.{}.{}", major, minor, build);
 }
 
 int UninstallPrev::taskKill(const std::wstring &exeName) const
@@ -271,15 +308,15 @@ int UninstallPrev::taskKill(const std::wstring &exeName) const
     const wstring commandLine = L"/f /t /im " + exeName;
     const auto result = Utils::instExec(appName, commandLine, INFINITE, SW_HIDE);
     if (!result.has_value()) {
-        Log::instance().out(L"WARNING: an error was encountered attempting to start taskkill.exe.");
+        spdlog::warn(L"WARNING: an error was encountered attempting to start taskkill.exe.");
         return -ERROR_OTHER;
     }
 
     if (result.value() != NO_ERROR && result.value() != ERROR_WAIT_NO_CHILDREN) {
-        Log::instance().out(L"WARNING: unable to kill %s (%lu).", exeName.c_str(), result.value());
+        spdlog::warn(L"WARNING: unable to kill {} ({}).", exeName, result.value());
         return -ERROR_OTHER;
     }
 
-    Log::instance().out(L"taskkill executed on %s (%lu)", exeName.c_str(), result.value());
+    spdlog::info(L"taskkill executed on {} ({})", exeName, result.value());
     return NO_ERROR;
 }

@@ -5,10 +5,10 @@
 #include <fstream>
 #include <sstream>
 #include <stdlib.h>
+#include <spdlog/spdlog.h>
 #include "execute_cmd.h"
 #include "firewallcontroller.h"
 #include "firewallonboot.h"
-#include "logger.h"
 #include "ovpn.h"
 #include "routes_manager/routes_manager.h"
 #include "split_tunneling/split_tunneling.h"
@@ -20,7 +20,7 @@ CMD_ANSWER processCommand(int cmdId, const std::string packet)
 {
     const auto command = kCommands.find(cmdId);
     if (command == kCommands.end()) {
-        Logger::instance().out("Unknown command id: %d", cmdId);
+        spdlog::error("Unknown command id: {}", cmdId);
         return CMD_ANSWER();
     }
 
@@ -38,7 +38,7 @@ CMD_ANSWER startOpenvpn(boost::archive::text_iarchive &ia)
 
     std::string script = Utils::getDnsScript(cmd.dnsManager);
     if (script.empty()) {
-        Logger::instance().out("Could not find appropriate DNS manager script");
+        spdlog::error("Could not find appropriate DNS manager script");
         answer.executed = 0;
         return answer;
     }
@@ -52,7 +52,7 @@ CMD_ANSWER startOpenvpn(boost::archive::text_iarchive &ia)
     }
 
     if (!OVPN::writeOVPNFile(script, cmd.port, cmd.config, cmd.httpProxy, cmd.httpPort, cmd.socksProxy, cmd.socksPort, cmd.isCustomConfig)) {
-        Logger::instance().out("Could not write OpenVPN config");
+        spdlog::error("Could not write OpenVPN config");
         answer.executed = 0;
         return answer;
     }
@@ -67,7 +67,7 @@ CMD_ANSWER startOpenvpn(boost::archive::text_iarchive &ia)
     const std::string fullPath = Utils::getExePath() + "/windscribeopenvpn";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(fullPath)) {
-        Logger::instance().out("OpenVPN executable signature incorrect: %s", sigCheck.lastError().c_str());
+        spdlog::error("OpenVPN executable signature incorrect: {}", sigCheck.lastError());
         answer.executed = 0;
     } else {
         answer.cmdId = ExecuteCmd::instance().execute(fullCmd, "/etc/windscribe");
@@ -164,35 +164,35 @@ CMD_ANSWER configureWireGuard(boost::archive::text_iarchive &ia)
         do {
             std::vector<std::string> allowed_ips_vector = WireGuardController::instance().splitAndDeduplicateAllowedIps(cmd.allowedIps);
             if (allowed_ips_vector.size() < 1) {
-                Logger::instance().out("WireGuard: invalid AllowedIps \"%s\"", cmd.allowedIps.c_str());
+                spdlog::error("WireGuard: invalid AllowedIps \"{}\"", cmd.allowedIps);
                 break;
             }
 
             uint32_t fwmark = WireGuardController::instance().getFwmark();
-            Logger::instance().out("Fwmark = %u", fwmark);
+            spdlog::info("Fwmark = {}", fwmark);
 
             if (!WireGuardController::instance().configure(cmd.clientPrivateKey,
                                                 cmd.peerPublicKey, cmd.peerPresharedKey,
                                                 cmd.peerEndpoint, allowed_ips_vector,
                                                 fwmark, cmd.listenPort)) {
-                Logger::instance().out("WireGuard: configure() failed");
+                spdlog::error("WireGuard: configure() failed");
                 break;
             }
 
             if (!WireGuardController::instance().configureDefaultRouteMonitor(cmd.peerEndpoint)) {
-                Logger::instance().out("WireGuard: configureDefaultRouteMonitor() failed");
+                spdlog::error("WireGuard: configureDefaultRouteMonitor() failed");
                 break;
             }
             std::string script = Utils::getDnsScript(cmd.dnsManager);
             if (script.empty()) {
-                Logger::instance().out("WireGuard: could not find appropriate dns manager script");
+                spdlog::error("WireGuard: could not find appropriate dns manager script");
                 break;
             }
             if (!WireGuardController::instance().configureAdapter(cmd.clientIpAddress,
                                                        cmd.clientDnsAddressList,
                                                        script,
                                                        allowed_ips_vector, fwmark)) {
-                Logger::instance().out("WireGuard: configureAdapter() failed");
+                spdlog::error("WireGuard: configureAdapter() failed");
                 break;
             }
 
@@ -228,7 +228,7 @@ CMD_ANSWER changeMtu(boost::archive::text_iarchive &ia)
     CMD_ANSWER answer;
     CMD_CHANGE_MTU cmd;
     ia >> cmd;
-    Logger::instance().out("Change MTU: %d", cmd.mtu);
+    spdlog::info("Change MTU: {}", cmd.mtu);
 
     answer.executed = 1;
     Utils::executeCommand("ip", {"link", "set", "dev", cmd.adapterName.c_str(), "mtu", std::to_string(cmd.mtu)});
@@ -240,7 +240,7 @@ CMD_ANSWER setDnsLeakProtectEnabled(boost::archive::text_iarchive &ia)
     CMD_ANSWER answer;
     CMD_SET_DNS_LEAK_PROTECT_ENABLED cmd;
     ia >> cmd;
-    Logger::instance().out("Set DNS leak protect: %s", cmd.enabled ? "enabled" : "disabled");
+    spdlog::debug("Set DNS leak protect: {}", cmd.enabled ? "enabled" : "disabled");
 
     // We only handle the down case; the 'up' trigger for this script happens in the DNS manager script
     if (!cmd.enabled) {
@@ -255,7 +255,7 @@ CMD_ANSWER clearFirewallRules(boost::archive::text_iarchive &ia)
     CMD_ANSWER answer;
     CMD_CLEAR_FIREWALL_RULES cmd;
     ia >> cmd;
-    Logger::instance().out("Clear firewall rules");
+    spdlog::debug("Clear firewall rules");
     FirewallController::instance().disable();
     answer.executed = 1;
     return answer;
@@ -277,7 +277,7 @@ CMD_ANSWER setFirewallRules(boost::archive::text_iarchive &ia)
     CMD_ANSWER answer;
     CMD_SET_FIREWALL_RULES cmd;
     ia >> cmd;
-    Logger::instance().out("Set firewall rules");
+    spdlog::debug("Set firewall rules");
 
     answer.executed = 1;
     answer.exitCode = FirewallController::instance().enable(cmd.ipVersion == kIpv6, cmd.rules) ? 1 : 0;
@@ -301,7 +301,7 @@ CMD_ANSWER setFirewallOnBoot(boost::archive::text_iarchive &ia)
     CMD_ANSWER answer;
     CMD_SET_FIREWALL_ON_BOOT cmd;
     ia >> cmd;
-    Logger::instance().out("Set firewall on boot: %s", cmd.enabled ? "true" : "false");
+    spdlog::debug("Set firewall on boot: {}", cmd.enabled ? "true" : "false");
 
     FirewallOnBootManager::instance().setIpTable(cmd.ipTable);
     answer.executed = FirewallOnBootManager::instance().setEnabled(cmd.enabled, cmd.allowLanTraffic);
@@ -316,7 +316,7 @@ CMD_ANSWER setMacAddress(boost::archive::text_iarchive &ia)
     ia >> cmd;
 
     if (cmd.macAddress.size() < 12) {
-        Logger::instance().out("Invalid MAC address");
+        spdlog::warn("Invalid MAC address");
         answer.executed = 0;
         return answer;
     }
@@ -329,7 +329,7 @@ CMD_ANSWER setMacAddress(boost::archive::text_iarchive &ia)
         cmd.macAddress.substr(8, 2) + ":" +
         cmd.macAddress.substr(10, 2);
 
-    Logger::instance().out("Set MAC address on %s (%s - %s): %s", cmd.interface.c_str(), cmd.network.c_str(), (cmd.isWifi ? "wifi" : "ethernet"),  mac.c_str());
+    spdlog::debug("Set MAC address on {} ({} - {}): {}", cmd.interface, cmd.network, (cmd.isWifi ? "wifi" : "ethernet"),  mac);
 
     // reset addresses on other networks
     Utils::resetMacAddresses(cmd.network);
@@ -353,35 +353,35 @@ CMD_ANSWER taskKill(boost::archive::text_iarchive &ia)
     ia >> cmd;
 
     if (cmd.target == kTargetWindscribe) {
-        Logger::instance().out("Killing Windscribe processes");
+        spdlog::info("Killing Windscribe processes");
         Utils::executeCommand("pkill", {"Windscribe"});
         Utils::executeCommand("pkill", {"WindscribeEngine"}); // For older 1.x clients
         answer.executed = 1;
     } else if (cmd.target == kTargetOpenVpn) {
-        Logger::instance().out("Killing OpenVPN processes");
+        spdlog::info("Killing OpenVPN processes");
         const std::vector<std::string> exes = Utils::getOpenVpnExeNames();
         for (auto exe : exes) {
             Utils::executeCommand("pkill", {"-f", exe.c_str()});
         }
         answer.executed = 1;
     } else if (cmd.target == kTargetStunnel) {
-        Logger::instance().out("Killing Stunnel processes");
+        spdlog::info("Killing Stunnel processes");
         Utils::executeCommand("pkill", {"-f", "windscribewstunnel"});
         answer.executed = 1;
     } else if (cmd.target == kTargetWStunnel) {
-        Logger::instance().out("Killing WStunnel processes");
+        spdlog::info("Killing WStunnel processes");
         Utils::executeCommand("pkill", {"-f", "windscribewstunnel"});
         answer.executed = 1;
     } else if (cmd.target == kTargetWireGuard) {
-        Logger::instance().out("Killing WireGuard processes");
+        spdlog::info("Killing WireGuard processes");
         Utils::executeCommand("pkill", {"-f", "windscribewireguard"});
         answer.executed = 1;
     } else if (cmd.target == kTargetCtrld) {
-        Logger::instance().out("Killing ctrld processes");
+        spdlog::info("Killing ctrld processes");
         Utils::executeCommand("pkill", {"-f", "windscribectrld"});
         answer.executed = 1;
     } else {
-        Logger::instance().out("Did not kill processes for type %d", cmd.target);
+        spdlog::error("Did not kill processes for type {}", (int)cmd.target);
         answer.executed = 0;
     }
 
@@ -394,17 +394,17 @@ CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
     CMD_START_CTRLD cmd;
     ia >> cmd;
 
-    Logger::instance().out("Starting ctrld");
+    spdlog::debug("Starting ctrld");
 
     // Validate URLs
     if (cmd.upstream1.empty() || Utils::normalizeAddress(cmd.upstream1).empty() || (!cmd.upstream2.empty() && Utils::normalizeAddress(cmd.upstream2).empty())) {
-        Logger::instance().out("Invalid upstream URL(s)");
+        spdlog::error("Invalid upstream URL(s)");
         answer.executed = 0;
         return answer;
     }
     for (const auto domain: cmd.domains) {
         if (!Utils::isValidDomain(domain)) {
-            Logger::instance().out("Invalid domain: %s", domain.c_str());
+            spdlog::error("Invalid domain: {}", domain);
             answer.executed = 0;
             return answer;
         }
@@ -442,7 +442,7 @@ CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
     const std::string fullPath = Utils::getExePath() + "/windscribectrld";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(fullPath)) {
-        Logger::instance().out("ctrld executable signature incorrect: %s", sigCheck.lastError().c_str());
+        spdlog::error("ctrld executable signature incorrect: {}", sigCheck.lastError());
         answer.executed = 0;
     } else {
         answer.executed = Utils::executeCommand(fullCmd) ? 0 : 1;
@@ -455,7 +455,7 @@ CMD_ANSWER startStunnel(boost::archive::text_iarchive &ia)
     CMD_ANSWER answer;
     CMD_START_STUNNEL cmd;
     ia >> cmd;
-    Logger::instance().out("Starting stunnel");
+    spdlog::debug("Starting stunnel");
 
     if (!Utils::isValidIpAddress(cmd.hostname)) {
         answer.executed = 0;
@@ -481,7 +481,7 @@ CMD_ANSWER startStunnel(boost::archive::text_iarchive &ia)
     const std::string fullPath = Utils::getExePath() + "/windscribewstunnel";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(fullPath)) {
-        Logger::instance().out("stunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
+        spdlog::error("stunnel executable signature incorrect: {}", sigCheck.lastError());
         answer.executed = 0;
     } else {
         answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string(), true);
@@ -495,7 +495,7 @@ CMD_ANSWER startWstunnel(boost::archive::text_iarchive &ia)
     CMD_ANSWER answer;
     CMD_START_WSTUNNEL cmd;
     ia >> cmd;
-    Logger::instance().out("Starting wstunnel");
+    spdlog::debug("Starting wstunnel");
 
     if (!Utils::isValidIpAddress(cmd.hostname)) {
         answer.executed = 0;
@@ -517,7 +517,7 @@ CMD_ANSWER startWstunnel(boost::archive::text_iarchive &ia)
     const std::string fullPath = Utils::getExePath() + "/windscribewstunnel";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(fullPath)) {
-        Logger::instance().out("wstunnel executable signature incorrect: %s", sigCheck.lastError().c_str());
+        spdlog::error("wstunnel executable signature incorrect: {}", sigCheck.lastError());
         answer.executed = 0;
     } else {
         answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string(), true);
@@ -532,7 +532,7 @@ CMD_ANSWER resetMacAddresses(boost::archive::text_iarchive &ia)
     CMD_RESET_MAC_ADDRESSES cmd;
     ia >> cmd;
 
-    Logger::instance().out("Resetting MAC addresses");
+    spdlog::debug("Resetting MAC addresses");
 
     answer.executed = Utils::resetMacAddresses(cmd.ignoreNetwork) ? 1 : 0;
     return answer;

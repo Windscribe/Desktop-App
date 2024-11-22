@@ -1,8 +1,8 @@
 #include "../all_headers.h"
+#include <spdlog/spdlog.h>
 #include "callout_filter.h"
 #include "../adapters_info.h"
 #include "../ip_address/ip4_address_and_mask.h"
-#include "../logger.h"
 #include "../utils.h"
 
 DEFINE_GUID(
@@ -64,7 +64,7 @@ void CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp, const AppsIds &appsIds,
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
 
-    Logger::instance().out(L"CalloutFilter::enable()");
+   spdlog::debug("CalloutFilter::enable()");
 
     // nothing todo if nothing changed
     if (isEnabled_&&
@@ -78,7 +78,7 @@ void CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp, const AppsIds &appsIds,
     }
 
     if (isEnabled_) {
-        Logger::instance().out(L"CalloutFilter: disable before enable");
+        spdlog::debug("CalloutFilter: disable before enable");
         disable();
     }
 
@@ -94,22 +94,22 @@ void CalloutFilter::enable(UINT32 localIp, UINT32 vpnIp, const AppsIds &appsIds,
     bool success = true;
 
     if (!addProviderContext(hEngine, CALLOUT_PROVIDER_CONTEXT_IP_GUID, localIp, vpnIp, isExclude)) {
-        Logger::instance().out(L"CalloutFilter::enable(), addProviderContext failed");
+        spdlog::error("CalloutFilter::enable(), addProviderContext failed");
         success = false;
     }
 
     if (success && !addCallouts(hEngine)) {
-        Logger::instance().out(L"CalloutFilter::enable(), FwpmCalloutAdd failed");
+        spdlog::error("CalloutFilter::enable(), FwpmCalloutAdd failed");
         success = false;
     }
 
     if (success && !addSubLayer(hEngine)) {
-        Logger::instance().out(L"CalloutFilter::enable(), addSubLayer failed");
+        spdlog::error("CalloutFilter::enable(), addSubLayer failed");
         success = false;
     }
 
     if (success && !addFilters(hEngine, !isExclude && isAllowLanTraffic, appsIds, ctrldAppId)) {
-        Logger::instance().out(L"CalloutFilter::enable(), addFilters failed");
+        spdlog::error("CalloutFilter::enable(), addFilters failed");
         success = false;
     }
 
@@ -125,7 +125,7 @@ void CalloutFilter::disable()
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
 
-    Logger::instance().out(L"CalloutFilter::disable()");
+    spdlog::debug("CalloutFilter::disable()");
     removeAllFilters(fwmpWrapper_);
     isEnabled_ = false;
 }
@@ -182,7 +182,7 @@ bool CalloutFilter::addProviderContext(HANDLE engineHandle, const GUID &guid, UI
 
     DWORD ret = FwpmProviderContextAdd1(engineHandle, &providerContext, 0, &providerContextId);
     if (ret != ERROR_SUCCESS) {
-        Logger::instance().out(L"CalloutFilter::addProviderContext(): %u", ret);
+        spdlog::error("CalloutFilter::addProviderContext(): {}", ret);
         bRet = false;
     }
 
@@ -201,7 +201,7 @@ bool CalloutFilter::addCallouts(HANDLE engineHandle)
         callout.flags |= FWPM_CALLOUT_FLAG_USES_PROVIDER_CONTEXT;
         DWORD ret = FwpmCalloutAdd(engineHandle, &callout, NULL, &calloutId);
         if (ret != ERROR_SUCCESS) {
-            Logger::instance().out(L"CalloutFilter::addCallouts(), FwpmCalloutAdd (non-TCP) failed");
+            spdlog::error("CalloutFilter::addCallouts(), FwpmCalloutAdd (non-TCP) failed");
             return false;
         }
     }
@@ -216,7 +216,7 @@ bool CalloutFilter::addCallouts(HANDLE engineHandle)
         callout.flags |= FWPM_CALLOUT_FLAG_USES_PROVIDER_CONTEXT;
         DWORD ret = FwpmCalloutAdd(engineHandle, &callout, NULL, &calloutId);
         if (ret != ERROR_SUCCESS) {
-            Logger::instance().out(L"CalloutFilter::addCallouts(), FwpmCalloutAdd (TCP) failed");
+            spdlog::error("CalloutFilter::addCallouts(), FwpmCalloutAdd (TCP) failed");
             return false;
         }
     }
@@ -232,7 +232,7 @@ bool CalloutFilter::addSubLayer(HANDLE engineHandle)
 
     DWORD dwFwAPiRetCode = FwpmSubLayerAdd(engineHandle, &subLayer, NULL);
     if (dwFwAPiRetCode != ERROR_SUCCESS) {
-        Logger::instance().out(L"CalloutFilter::addSubLayer(), FwpmSubLayerAdd failed");
+        spdlog::error("CalloutFilter::addSubLayer(), FwpmSubLayerAdd failed");
         return false;
     }
     return true;
@@ -285,7 +285,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, const A
         DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
         retValue = (ret == ERROR_SUCCESS);
         if (!retValue) {
-            Logger::instance().out(L"CalloutFilter::addFilter(), TCP redirect filter failed: %u", ret);
+            spdlog::error("CalloutFilter::addFilter(), TCP redirect filter failed: {}", ret);
             return retValue;
         }
     }
@@ -330,7 +330,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, const A
         DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
         retValue = (ret == ERROR_SUCCESS);
         if (!retValue) {
-            Logger::instance().out(L"CalloutFilter::addFilter(), bind filter failed: %u", ret);
+            spdlog::error("CalloutFilter::addFilter(), bind filter failed: {}", ret);
             return retValue;
         }
     }
@@ -367,7 +367,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, const A
         DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
         retValue = (ret == ERROR_SUCCESS);
         if (!retValue) {
-            Logger::instance().out(L"CalloutFilter::addFilter(), ctrld redirect filter failed: %u", ret);
+            spdlog::error("CalloutFilter::addFilter(), ctrld redirect filter failed: {}", ret);
             return retValue;
         }
     }

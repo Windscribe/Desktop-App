@@ -1,7 +1,7 @@
 #include "packetsizecontroller.h"
 
 #include "utils/ipvalidation.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/network_utils/network_utils.h"
 
 PacketSizeController::PacketSizeController(QObject *parent)
@@ -80,7 +80,7 @@ int PacketSizeController::getIdealPacketSize(const QString &hostname)
     QString modifiedHostname = hostname;
 
     // if this is IP, use without change
-    if (IpValidation::isIp(hostname))
+    if (IpValidation::isIpv4Address(hostname))
     {
         modifiedHostname = hostname;
     }

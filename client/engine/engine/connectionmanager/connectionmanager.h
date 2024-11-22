@@ -111,6 +111,8 @@ signals:
     void requestPassword(const QString &pathCustomOvpnConfig);
     void requestPrivKeyPassword(const QString &pathCustomOvpnConfig);
 
+    void connectionEnded();
+
 private slots:
     void onConnectionConnected(const AdapterGatewayInfo &connectionAdapterInfo);
     void onConnectionDisconnected();

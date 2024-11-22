@@ -1,16 +1,22 @@
 #include <Windows.h>
 #include <tchar.h>
+#include <iostream>
+#include <string>
+#include <locale>
+#include <codecvt>
 
 #include <QApplication>
 #include <QMessageBox>
 #include <QTranslator>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/callback_sink.h>
 
 #include "installer/settings.h"
 #include "mainwindow.h"
 #include "options.h"
 #include "languagesutil.h"
 #include "../utils/applicationinfo.h"
-#include "../utils/logger.h"
+#include "../../../client/common/utils/log/spdlog_utils.h"
 #include "../utils/path.h"
 #include "win32handle.h"
 
@@ -36,7 +42,7 @@ static std::optional<bool> isElevated()
     wsl::Win32Handle token;
     BOOL result = OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, token.data());
     if (result == FALSE) {
-        Log::WSDebugMessage(L"isElevated - OpenProcessToken failed: %lu", GetLastError());
+        spdlog::error(L"isElevated - OpenProcessToken failed: {}", GetLastError());
         return std::nullopt;
     }
 
@@ -44,7 +50,7 @@ static std::optional<bool> isElevated()
     DWORD cbSize = sizeof(TOKEN_ELEVATION);
     result = GetTokenInformation(token.getHandle(), TokenElevation, &Elevation, sizeof(Elevation), &cbSize);
     if (result == FALSE) {
-        Log::WSDebugMessage(L"isElevated - GetTokenInformation failed: %lu", GetLastError());
+        spdlog::error(L"isElevated - GetTokenInformation failed: {}", GetLastError());
         return std::nullopt;
     }
 
@@ -149,6 +155,39 @@ static std::wstring sanitizedCommandLine(const std::wstring &exeName, const std:
     return cmdLine;
 }
 
+void writeLogFile(const std::wstring& installPath, const std::list<std::string> &logEntries)
+{
+    DWORD attrs = ::GetFileAttributes(installPath.c_str());
+    if (attrs == INVALID_FILE_ATTRIBUTES) {
+        spdlog::error(L"Log::writeFile - GetFileAttributes({}) failed ({})", installPath, ::GetLastError());
+        return;
+    }
+
+    // This will be true if a symbolic link has been created on the folder, or a file within the folder.
+    if (attrs & FILE_ATTRIBUTE_REPARSE_POINT) {
+        spdlog::error(L"Log::writeFile - the target folder is, or contains, a suspicious symbolic link ({})", installPath);
+        return;
+    }
+
+    std::wstring fileName = installPath + L"\\installer.log";
+
+    // The log file should not exist at this point. Fail if it does.
+    FILE* fileHandle = nullptr;
+    errno_t result = _wfopen_s(&fileHandle, fileName.c_str(), L"wxb,ccs=UTF-8");
+    if ((result != 0) || (fileHandle == nullptr)) {
+        spdlog::error(L"Log::writeFile - could not open {} ({})", fileName, result);
+        return;
+    }
+
+    for (const auto &entry : logEntries) {
+        fwrite(entry.c_str(), entry.size(), 1, fileHandle);
+    }
+
+    fflush(fileHandle);
+    fclose(fileHandle);
+}
+
+
 #if !defined(_M_ARM64)
 static bool isWindowsOnArm()
 {
@@ -158,7 +197,7 @@ static bool isWindowsOnArm()
     // Dynamically loading the function to allow the installer to run on Windows 10 versions lacking the function export.
     HMODULE hDLL = ::GetModuleHandleA("kernel32.dll");
     if (hDLL == NULL) {
-        Log::WSDebugMessage(L"Failed to load the kernel32 module (%lu)", ::GetLastError());
+        spdlog::error(L"Failed to load the kernel32 module ({})", ::GetLastError());
         return false;
     }
 
@@ -166,7 +205,7 @@ static bool isWindowsOnArm()
 
     IsWow64Process2Func isWow64Process2Func = (IsWow64Process2Func)::GetProcAddress(hDLL, "IsWow64Process2");
     if (isWow64Process2Func == NULL) {
-        Log::WSDebugMessage(L"Failed to load IsWow64Process2 function (%lu)", ::GetLastError());
+        spdlog::error(L"Failed to load IsWow64Process2 function ({})", ::GetLastError());
         return false;
     }
 
@@ -189,6 +228,24 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     QTranslator translator;
 
     loadSystemLanguage(translator, &a);
+
+    // Initialize logger
+    auto formatter = log_utils::createJsonFormatter();
+    std::list<std::string> logEntries;
+    auto logCallback = [&logEntries, &formatter](const spdlog::details::log_msg &msg) {
+        spdlog::memory_buf_t dest;
+        formatter->format(msg, dest);
+        std::string str(dest.data(), dest.size());
+        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t >> converter;
+        std::wstring wstr = converter.from_bytes(str);
+        ::OutputDebugString(wstr.c_str());
+        logEntries.push_back(str);
+    };
+
+    auto logger = spdlog::callback_logger_mt("installer", logCallback);
+    logger->flush_on(spdlog::level::trace);
+    spdlog::set_level(spdlog::level::trace);
+    spdlog::set_default_logger(logger);
 
 #if !defined(_M_ARM64)
     if (isWindowsOnArm()) {
@@ -332,11 +389,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
         return 0;
     }
 
-    Log::instance().init(true);
-    Log::instance().out(L"Installing Windscribe version " + ApplicationInfo::version());
+    spdlog::info(L"Installing Windscribe version {}", ApplicationInfo::version());
     std::wstring exeName = argList[0];
     exeName = exeName.substr(exeName.find_last_of(L"/\\") + 1);
-    Log::instance().out(L"Command-line args: " + sanitizedCommandLine(exeName, ops.username.toStdWString(), ops.password.toStdWString()));
+    spdlog::info(L"Command-line args: {}", sanitizedCommandLine(exeName, ops.username.toStdWString(), ops.password.toStdWString()));
 
     auto isAdmin = isElevated();
     if (!isAdmin.has_value()) {
@@ -357,6 +413,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     w.show();
 
     int ret = a.exec();
-    Log::instance().writeFile(Settings::instance().getPath());
+    logger->flush();
+    writeLogFile(Settings::instance().getPath(), logEntries);
     return ret;
 }

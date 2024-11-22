@@ -1,8 +1,8 @@
 #include "authhelper.h"
 
 #include <Windows.h>
+#include <spdlog/spdlog.h>
 
-#include "../utils/logger.h"
 #include "../utils/path.h"
 #include "wsscopeguard.h"
 
@@ -14,7 +14,7 @@ bool removeRegEntriesForAuthHelper(const std::wstring &installPath)
 
     HINSTANCE hLib = LoadLibrary(authLib.c_str());
     if (hLib == NULL) {
-        Log::instance().out(L"Failed to load ws_com.dll");
+        spdlog::error(L"Failed to load ws_com.dll");
         return false;
     }
 
@@ -27,14 +27,14 @@ bool removeRegEntriesForAuthHelper(const std::wstring &installPath)
     someFunc DllUnregisterServer = (someFunc)::GetProcAddress(hLib, "DllUnregisterServer");
 
     if (DllUnregisterServer == NULL) {
-        Log::instance().out(L"Failed to get proc DllUnregisterServer from ws_com.dll");
+        spdlog::error(L"Failed to get proc DllUnregisterServer from ws_com.dll");
         return false;
     }
 
     HRESULT result = DllUnregisterServer();
 
     if (FAILED(result)) {
-        Log::instance().out(L"Call to ws_com DllUnregisterServer failed");
+        spdlog::error(L"Call to ws_com DllUnregisterServer failed");
         return false;
     }
 

@@ -3,7 +3,6 @@
 #include "utils/ws_assert.h"
 #include "utils/winutils.h"
 #include <windows.h>
-#include "utils/logger.h"
 #include <QCoreApplication>
 #include <QElapsedTimer>
 

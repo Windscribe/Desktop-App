@@ -1,7 +1,7 @@
 #include "all_headers.h"
+#include <spdlog/spdlog.h>
 
 #include "dns_firewall.h"
-#include "logger.h"
 #include "utils.h"
 #include "ip_address/ip4_address_and_mask.h"
 
@@ -30,9 +30,9 @@ void DnsFirewall::disable()
     bCurrentState_ = false;
 
     if (Utils::deleteSublayerAndAllFilters(hEngine, &subLayerGUID_)) {
-        Logger::instance().out(L"DnsFirewall::disable(), all filters deleted");
+        spdlog::debug("DnsFirewall::disable(), all filters deleted");
     } else {
-        Logger::instance().out(L"DnsFirewall::disable(), failed delete filters");
+        spdlog::debug("DnsFirewall::disable(), no filters to delete");
     }
 
     fwmpWrapper_.endTransaction();
@@ -61,7 +61,7 @@ void DnsFirewall::enable()
     DWORD dwFwAPiRetCode = FwpmSubLayerAdd0(hEngine, &subLayer, NULL);
     if (dwFwAPiRetCode != ERROR_SUCCESS && dwFwAPiRetCode != FWP_E_ALREADY_EXISTS)
     {
-        Logger::instance().out(L"DnsFirewall::enable(), FwpmSubLayerAdd0 failed");
+        spdlog::error("DnsFirewall::enable(), FwpmSubLayerAdd0 failed");
         fwmpWrapper_.endTransaction();
         fwmpWrapper_.unlock();
         return;
@@ -85,7 +85,7 @@ void DnsFirewall::addFilters(HANDLE engineHandle)
     // add block filter for DNS ips for protocol UDP port 53
     for (size_t i = 0; i < dnsServers.size(); ++i) {
         if (excludeIps_.find(dnsServers[i]) != excludeIps_.cend()) {
-            Logger::instance().out(L"DnsFirewall::addFilters(), ip excluded: ", dnsServers[i].c_str());
+            spdlog::debug(L"DnsFirewall::addFilters(), ip excluded: {}", dnsServers[i]);
             continue;
         }
 
@@ -93,9 +93,9 @@ void DnsFirewall::addFilters(HANDLE engineHandle)
         // Rule weight must be greater than the LAN allow rule (4)
         bool ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 6, subLayerGUID_, (wchar_t*)FIREWALL_SUBLAYER_DNS_NAMEW, nullptr, &addr, 0, 53, nullptr, false);
         if (!ret) {
-            Logger::instance().out(L"Could not add DNS filter for %s", dnsServers[i].c_str());
+            spdlog::error(L"Could not add DNS filter for {}", dnsServers[i]);
         } else {
-            Logger::instance().out(L"Added DNS filter for %s", dnsServers[i].c_str());
+            spdlog::debug(L"Added DNS filter for {}", dnsServers[i]);
         }
     }
 }

@@ -201,3 +201,4 @@ AuthCheckerError AuthChecker_mac::authenticate()
                 AuthCheckerError::AUTH_NO_ERROR :
                 AuthCheckerError::AUTH_AUTHENTICATION_ERROR;
 }
+

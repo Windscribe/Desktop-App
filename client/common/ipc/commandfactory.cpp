@@ -10,7 +10,10 @@ namespace IPC
 
 Command *CommandFactory::makeCommand(const std::string strId, char *buf, int size)
 {
-    qDebug() << QString::fromStdString(strId);
+    // Too much spam from GetState command
+    if (strId != IPC::CliCommands::GetState::getCommandStringId()) {
+        //qDebug() << QString::fromStdString(strId);
+    }
 
     // CLI commands
     if (strId == IPC::CliCommands::Acknowledge::getCommandStringId()) {

@@ -54,7 +54,7 @@ void ApiResolutionGroup::onAutomaticChanged(QVariant value)
 
 void ApiResolutionGroup::onAddressChanged(const QString &text)
 {
-    if (!IpValidation::isIp(text.trimmed())) {
+    if (!IpValidation::isIpv4Address(text.trimmed())) {
         GeneralMessageController::instance().showMessage(
             "WARNING_YELLOW",
             tr("Invalid address"),

@@ -1,7 +1,7 @@
 #include "proxysettings.h"
 #include "utils/ws_assert.h"
 #include "utils/ipvalidation.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/utils.h"
 
 const int typeIdProxySettings = qRegisterMetaType<types::ProxySettings>("types::ProxySettings");
@@ -33,7 +33,7 @@ ProxySettings::ProxySettings(const QJsonObject &json) : option_(PROXY_OPTION_NON
 
     if (json.contains(kJsonAddressProp) && json[kJsonAddressProp].isString()) {
         QString str = json[kJsonAddressProp].toString();
-        if (IpValidation::isIp(str)) {
+        if (IpValidation::isIpv4Address(str)) {
             address_ = str;
         }
     }
@@ -63,7 +63,7 @@ void ProxySettings::fromIni(const QSettings &settings)
     }
 
     QString address = settings.value(kIniAddressProp).toString();
-    if (IpValidation::isIpOrDomain(address)) {
+    if (IpValidation::isIpv4AddressOrDomain(address)) {
         address_ = address;
     }
 

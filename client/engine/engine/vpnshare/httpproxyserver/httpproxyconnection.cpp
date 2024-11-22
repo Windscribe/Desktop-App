@@ -2,7 +2,7 @@
 #include <QThread>
 #include <QHostAddress>
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 namespace HttpProxyServer {
 
@@ -13,7 +13,6 @@ HttpProxyConnection::HttpProxyConnection(qintptr socketDescriptor, const QString
     writeAllSocketExternal_(nullptr), httpError_(), bAlreadyClosedAndEmitFinished_(false)
 {
     httpError_.status = HttpProxyReply::ok;
-    //qDebug() << QThread::currentThreadId();
 }
 
 void HttpProxyConnection::forceClose()
@@ -23,7 +22,6 @@ void HttpProxyConnection::forceClose()
 
 void HttpProxyConnection::start()
 {
-    //qDebug() << "start thread:" << QThread::currentThreadId();
     socket_ = new QTcpSocket(this);
     if (!socket_->setSocketDescriptor(socketDescriptor_))
     {
@@ -38,7 +36,6 @@ void HttpProxyConnection::start()
 
 void HttpProxyConnection::onSocketDisconnected()
 {
-    //qCDebug(LOG_HTTP_SERVER) << "onSocketDisconnected connection closed.";
     closeSocketsAndEmitFinished();
 }
 
@@ -109,7 +106,6 @@ void HttpProxyConnection::onSocketReadyRead()
 
 void HttpProxyConnection::onSocketAllDataWritten()
 {
-    //qCDebug(LOG_HTTP_SERVER) << "onSocketAllDataWritten connection closed.";
     closeSocketsAndEmitFinished();
 }
 

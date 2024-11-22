@@ -261,7 +261,13 @@ QString NetworkUtils_mac::getRoutingTable()
 QString NetworkUtils_mac::getWifiSsid(const QString &interface)
 {
     CWWiFiClient *wifiClient = [CWWiFiClient sharedWiFiClient];
+    if (wifiClient == NULL) {
+        return "";
+    }
     CWInterface *wifiInterface = [wifiClient interfaceWithName:interface.toNSString()];
+    if (wifiInterface == NULL) {
+        return "";
+    }
     return QString::fromNSString([wifiInterface ssid]);
 }
 
@@ -273,5 +279,5 @@ bool NetworkUtils_mac::isLocationServicesOn()
 bool NetworkUtils_mac::isLocationPermissionGranted()
 {
     CLLocationManager *locationManager = [[CLLocationManager alloc] init];
-    return isLocationServicesOn() && ([locationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedAlways);
+    return isLocationServicesOn() && locationManager != NULL && ([locationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedAlways);
 }

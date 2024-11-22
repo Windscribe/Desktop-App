@@ -2,10 +2,10 @@
 
 #include <Windows.h>
 #include <shlobj.h>
+#include <spdlog/spdlog.h>
 
 #include "../settings.h"
 #include "../../../utils/applicationinfo.h"
-#include "../../../utils/logger.h"
 #include "../../../utils/path.h"
 #include "../../../utils/utils.h"
 #include "wsscopeguard.h"
@@ -70,35 +70,35 @@ void Icons::createShortcut(const wstring link, const wstring target, const wstri
 
     HRESULT result = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER,IID_IShellLink, reinterpret_cast<LPVOID*>(&psl));
     if (result != S_OK) {
-        Log::instance().out(L"Could not create shell link");
+        spdlog::error(L"Could not create shell link");
         return;
     }
     result = psl->SetPath(target.c_str());
     if (result != S_OK) {
-        Log::instance().out(L"Could not set path");
+        spdlog::error(L"Could not set path");
         return;
     }
     result = psl->SetArguments(params.c_str());
     if (result != S_OK) {
-        Log::instance().out(L"Could not set arguments");
+        spdlog::error(L"Could not set arguments");
         return;
     }
     result = psl->SetWorkingDirectory(workingDir.c_str());
     if (result != S_OK) {
-        Log::instance().out(L"Could not set working dir");
+        spdlog::error(L"Could not set working dir");
         return;
     }
     if (!icon.empty()) {
         result = psl->SetIconLocation(icon.c_str(), idx);
         if (result != S_OK) {
-            Log::instance().out(L"Could not set icon");
+            spdlog::error(L"Could not set icon");
             return;
         }
     }
 
     result = psl->QueryInterface(IID_IPersistFile, reinterpret_cast<LPVOID*>(&ppf));
     if (result != S_OK) {
-        Log::instance().out(L"Could not get ppf");
+        spdlog::error(L"Could not get ppf");
         psl->Release();
         return;
     }
@@ -109,7 +109,7 @@ void Icons::createShortcut(const wstring link, const wstring target, const wstri
     result = ppf->Save(wsz, true);
 
     if (result != S_OK) {
-        Log::instance().out(L"Could not save shell link");
+        spdlog::error(L"Could not save shell link");
         return;
     }
 

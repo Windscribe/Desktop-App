@@ -11,6 +11,10 @@
         <source>Unlimited</source>
         <translation>असीम</translation>
     </message>
+    <message>
+        <source>No locations.</source>
+        <translation>कोई स्थान नहीं।</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -249,6 +253,22 @@
     <message>
         <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
         <translation>लॉगआउट प्रगति पर है।  स्थिति की जांच के लिए &apos;विंडसाइड-क्ली स्थिति&apos; का उपयोग करें।</translation>
+    </message>
+    <message>
+        <source>Connection has been overridden by another command.</source>
+        <translation>कनेक्शन किसी अन्य आदेश द्वारा ओवरराइड किया गया है।</translation>
+    </message>
+    <message>
+        <source>Disconnection has been overridden by another command.</source>
+        <translation>डिस्कनेक्शन को किसी अन्य आदेश द्वारा ओवरराइड किया गया है।</translation>
+    </message>
+    <message>
+        <source>Already disconnected</source>
+        <translation>पहले से ही डिस्कनेक्ट हो गया</translation>
+    </message>
+    <message>
+        <source>Logging out</source>
+        <translation>लॉग आउट करना</translation>
     </message>
 </context>
 </TS>

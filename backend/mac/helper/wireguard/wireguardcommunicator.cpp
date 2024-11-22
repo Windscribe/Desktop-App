@@ -3,7 +3,7 @@
 #include "../execute_cmd.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "../utils.h"
-#include "../logger.h"
+#include <spdlog/spdlog.h>
 #include <codecvt>
 #include <regex>
 #include <type_traits>
@@ -114,21 +114,21 @@ bool WireGuardCommunicator::Connection::connect(struct sockaddr_un *address)
     }
     if (!S_ISSOCK(sbuf.st_mode)) {
         errno = EBADF;
-        LOG("File is not a socket: %s", address->sun_path);
+        spdlog::error("File is not a socket: {}", address->sun_path);
         // Socket is bad, don't attempt to reconnect.
         status_ = Status::NO_ACCESS;
         return false;
     }
     socketHandle_ = socket(AF_UNIX, SOCK_STREAM, 0);
     if (socketHandle_ < 0) {
-        LOG("Failed to open the socket: %s", address->sun_path);
+        spdlog::error("Failed to open the socket: {}", address->sun_path);
         // Socket cannot be opened, don't attempt to reconnect.
         status_ = Status::NO_ACCESS;
         return false;
     }
     ret = ::connect(socketHandle_, reinterpret_cast<struct sockaddr *>(address), sizeof(*address));
     if (ret < 0) {
-        LOG("Failed to connect to the socket: %s", address->sun_path);
+        spdlog::error("Failed to connect to the socket: {}", address->sun_path);
         bool do_retry = errno != EACCES;
         if (errno == ECONNREFUSED)
             unlink(address->sun_path);
@@ -151,14 +151,14 @@ bool WireGuardCommunicator::start(const std::string &deviceName)
     Utils::executeCommand("rm", {"-f", ("/var/run/wireguard/" + deviceName + ".sock").c_str()});
     const std::string fullCmd = Utils::getFullCommand(exePath, "windscribewireguard", "-f " + deviceName);
     if (fullCmd.empty()) {
-        LOG("Invalid WireGuard command");
+        spdlog::error("Invalid WireGuard command");
         return false;
     }
 
     const std::string fullPath = exePath + "/windscribewireguard";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(fullPath)) {
-        LOG("WireGuard executable signature incorrect: %s", sigCheck.lastError().c_str());
+        spdlog::error("WireGuard executable signature incorrect: {}", sigCheck.lastError());
         return false;
     }
 
@@ -189,7 +189,7 @@ bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
 {
     Connection connection(deviceName_);
     if (connection.getStatus() != Connection::Status::OK) {
-        LOG("WireGuardCommunicator::configure(): no connection to daemon");
+        spdlog::error("WireGuardCommunicator::configure(): no connection to daemon");
         return false;
     }
 
@@ -201,7 +201,7 @@ bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
         Connection::ResultMap results{ std::make_pair("errno", "") };
         bool success = connection.getOutput(&results);
         if (success && stringToValue<int>(results["errno"]) != 0)
-            LOG("Wireguard listen_port is not successful");
+            spdlog::error("Wireguard listen_port is not successful");
     }
 
     // Send set command.
@@ -286,7 +286,7 @@ unsigned long WireGuardCommunicator::getStatus(unsigned int *errorCode,
         int rc = gettimeofday(&tv, NULL);
         if (rc || tv.tv_sec - stringToValue<unsigned long long>(results["last_handshake_time_sec"]) > 180)
         {
-            LOG("Time since last handshake time exceeded 3 minutes, disconnecting");
+            spdlog::warn("Time since last handshake time exceeded 3 minutes, disconnecting");
             return kWgStateError;
         }
 

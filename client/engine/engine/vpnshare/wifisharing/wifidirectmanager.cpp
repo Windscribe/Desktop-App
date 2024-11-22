@@ -1,5 +1,5 @@
 #include "wifidirectmanager.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/network_utils/wlan_utils_win.h"
 
 #pragma comment(lib, "windowsapp")

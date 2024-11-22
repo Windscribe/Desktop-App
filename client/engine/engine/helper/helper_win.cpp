@@ -10,14 +10,12 @@
 
 #include "../../../../backend/windows/windscribe_service/ipc/serialize_structs.h"
 #include "engine/connectionmanager/adaptergatewayinfo.h"
-#include "engine/openvpnversioncontroller.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "installhelper_win.h"
 #include "types/wireguardtypes.h"
 #include "utils/executable_signature/executable_signature.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/ws_assert.h"
-#include "utils/winutils.h"
 
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
 
@@ -443,41 +441,6 @@ QString Helper_win::resetAndStartRAS()
     return QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
 }
 
-void Helper_win::setIPv6EnabledInFirewall(bool b)
-{
-    if (bIPV6State_ != b) {
-        if (!b) {
-            disableIPv6();
-            qCDebug(LOG_BASIC) << "IPv6 disabled";
-        }
-        else {
-            enableIPv6();
-            qCDebug(LOG_BASIC) << "IPv6 enabled";
-        }
-        bIPV6State_ = b;
-    }
-}
-
-void Helper_win::setIPv6EnabledInOS(bool b)
-{
-    if (!b) {
-        disableIPv6InOS();
-        qCDebug(LOG_BASIC) << "IPv6 in Windows registry disabled";
-    }
-    else {
-        enableIPv6InOS();
-        qCDebug(LOG_BASIC) << "IPv6 in Windows registry enabled";
-    }
-}
-
-bool Helper_win::IPv6StateInOS()
-{
-    QMutexLocker locker(&mutex_);
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_OS_IPV6_STATE, std::string());
-    return mpr.exitCode;
-}
-
 bool Helper_win::addHosts(const QString &hosts)
 {
     QMutexLocker locker(&mutex_);
@@ -795,38 +758,6 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
     return mpr;
 }
 
-bool Helper_win::disableIPv6()
-{
-    QMutexLocker locker(&mutex_);
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_FIREWALL_IPV6_DISABLE, std::string());
-    return mpr.success;
-}
-
-bool Helper_win::enableIPv6()
-{
-    QMutexLocker locker(&mutex_);
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_FIREWALL_IPV6_ENABLE, std::string());
-    return mpr.success;
-}
-
-bool Helper_win::disableIPv6InOS()
-{
-    QMutexLocker locker(&mutex_);
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_OS_IPV6_DISABLE, std::string());
-    return mpr.success;
-}
-
-bool Helper_win::enableIPv6InOS()
-{
-    QMutexLocker locker(&mutex_);
-
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_OS_IPV6_ENABLE, std::string());
-    return mpr.success;
-}
-
 int Helper_win::debugGetActiveUnblockingCmdCount()
 {
     QMutexLocker locker(&mutex_);
@@ -871,7 +802,6 @@ bool Helper_win::firewallActualState()
 void Helper_win::initVariables()
 {
     curState_= STATE_INIT;
-    bIPV6State_ = true;
     scm_.unblockStartStopRequests();
 }
 

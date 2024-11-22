@@ -9,10 +9,13 @@
 #include <QTextDocument>
 #include <QTextStream>
 #include <QTimer>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
-#include "utils/mergelog.h"
+#include "utils/log/mergelog.h"
+#include "randomcolor.h"
 
 namespace LogViewer {
 
@@ -31,11 +34,6 @@ LogViewerWindow::LogViewerWindow(QWidget *parent)
     textEdit_ = new QPlainTextEdit(this);
     textEdit_->setReadOnly(true);
 
-    cbMergePerLine_ = new QCheckBox(this);
-    cbMergePerLine_->setText(tr("Merge all logs by timestamp"));
-    cbMergePerLine_->setChecked(DEFAULT_MERGE_PER_LINE);
-    connect(cbMergePerLine_, &QCheckBox::toggled, this, &LogViewerWindow::updateLog);
-
     cbWordWrap_ = new QCheckBox(this);
     cbWordWrap_->setText(tr("Word Wrap"));
     cbWordWrap_->setChecked(true);
@@ -52,7 +50,6 @@ LogViewerWindow::LogViewerWindow(QWidget *parent)
 
     auto *hLayout = new QHBoxLayout();
     hLayout->setAlignment(Qt::AlignLeft);
-    hLayout->addWidget(cbMergePerLine_);
     hLayout->addWidget(cbWordWrap_);
     hLayout->addWidget(cbColorHighlighting_);
     hLayout->addWidget(btnExportLog_);
@@ -72,17 +69,17 @@ LogViewerWindow::LogViewerWindow(QWidget *parent)
 
     updateScaling();
 
-    QTimer::singleShot(250, this, [this]() { updateLog(DEFAULT_MERGE_PER_LINE); });
+    QTimer::singleShot(250, this, [this]() { updateLog(); });
 }
 
 LogViewerWindow::~LogViewerWindow()
 {
 }
 
-void LogViewerWindow::updateLog(bool doMergePerLine)
+void LogViewerWindow::updateLog()
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    textEdit_->setPlainText(MergeLog::mergeLogs(doMergePerLine));
+    textEdit_->setPlainText(log_utils::MergeLog::mergeLogs());
     highlightBlocks();
     QApplication::restoreOverrideCursor();
 }
@@ -98,10 +95,10 @@ void LogViewerWindow::onExportClick()
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save log"), QString(), tr("Text files (*.txt)"));
     if (!fileName.isEmpty())
     {
-        QString log = MergeLog::mergePrevLogs(true);
+        QString log = log_utils::MergeLog::mergePrevLogs();
         log += "================================================================================================================================================================================================\n";
         log += "================================================================================================================================================================================================\n";
-        log += MergeLog::mergeLogs(true);
+        log += log_utils::MergeLog::mergeLogs();
 
         QFile file(fileName);
         if (file.open(QIODevice::WriteOnly))
@@ -127,28 +124,26 @@ void LogViewerWindow::highlightBlocks()
     if (block == doc->end())
         return;
 
-    const auto kGUIBlockBrush = QBrush(QColor(Qt::cyan).lighter(180));
-    const auto kEngineBlockBrush = QBrush(QColor(Qt::yellow).lighter(180));
-    const auto kServiceBlockBrush = QBrush(QColor(Qt::magenta).lighter(180));
-
     for (; block != doc->end(); block = block.next()) {
         auto blockFormat = block.blockFormat();
         if (block.text().isEmpty())
             continue;
+
+        QJsonParseError errCode;
+        auto doc = QJsonDocument::fromJson(QByteArray(block.text().toStdString().c_str()), &errCode);
+        if (errCode.error != QJsonParseError::NoError) {
+            continue;
+        }
+        auto jsonObject = doc.object();
+        auto moduleTag = jsonObject.value("mod").toString();
+        auto hash = qHash(moduleTag);
+
         if (isColorHighlighting_) {
-            switch (block.text()[0].toLatin1()) {
-            case 'G':
-                blockFormat.setBackground(kGUIBlockBrush);
-                break;
-            case 'E':
-                blockFormat.setBackground(kEngineBlockBrush);
-                break;
-            case 'S':
-                blockFormat.setBackground(kServiceBlockBrush);
-                break;
-            default:
-                break;
-            }
+            RandomColor color;
+            color.setSeed(hash);
+            int c = color.generate(RandomColor::RandomHue, RandomColor::Light);
+            auto brush = QBrush(QColor(c));
+            blockFormat.setBackground(brush);
         } else {
             blockFormat.setBackground(QBrush());
         }

@@ -4,7 +4,7 @@
 
 #include "engine/engine.h"
 #include "persistentstate.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/network_utils/network_utils.h"
 
 #ifdef Q_OS_WIN
@@ -108,6 +108,7 @@ void Backend::init()
     connect(engine_, &Engine::syncRobertFinished, this, &Backend::onEngineSyncRobertFinished);
     connect(engine_, &Engine::helperSplitTunnelingStartFailed, this, &Backend::helperSplitTunnelingStartFailed);
     connect(engine_, &Engine::autoEnableAntiCensorship, this, &Backend::onEngineAutoEnableAntiCensorship);
+    connect(engine_, &Engine::connectionIdChanged, this, &Backend::connectionIdChanged);
     threadEngine_->start(QThread::LowPriority);
 }
 
@@ -249,27 +250,14 @@ void Backend::stopWifiSharing()
     engine_->stopWifiSharing();
 }
 
-void Backend::startProxySharing(PROXY_SHARING_TYPE proxySharingMode, uint port)
+void Backend::startProxySharing(PROXY_SHARING_TYPE proxySharingMode, uint port, bool whileConnected)
 {
-    engine_->startProxySharing(proxySharingMode, port);
+    engine_->startProxySharing(proxySharingMode, port, whileConnected);
 }
 
 void Backend::stopProxySharing()
 {
     engine_->stopProxySharing();
-}
-
-void Backend::setIPv6StateInOS(bool bEnabled)
-{
-    engine_->setIPv6EnabledInOS(bEnabled);
-}
-
-void Backend::getAndUpdateIPv6StateInOS()
-{
-    bool isEnabled = engine_->IPv6StateInOS();
-#ifdef Q_OS_WIN
-        preferencesHelper_.setIpv6StateInOS(isEnabled);
-#endif
 }
 
 void Backend::gotoCustomOvpnConfigMode()

@@ -1,7 +1,7 @@
 #include "dnsserversconfiguration.h"
 #include "utils/ws_assert.h"
 #include "utils/hardcodedsettings.h"
-#include "utils/logger.h"
+#include "utils/log/logger.h"
 #include <QMutexLocker>
 
 void DnsServersConfiguration::setDnsServersPolicy(DNS_POLICY_TYPE policy)

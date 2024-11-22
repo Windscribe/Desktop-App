@@ -4,10 +4,10 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <spdlog/spdlog.h>
 
 #include <sstream>
 
-#include "../logger.h"
 #include "../utils.h"
 
 namespace
@@ -34,11 +34,11 @@ bool RunBlockingCommands(const std::vector<std::string> &cmdlist)
         output.clear();
         const auto status = Utils::executeCommand(cmd, {}, &output);
         if (status != 0) {
-            LOG("Failed to run command: \"%s\" (exit status %i)", cmd.c_str(), status);
+            spdlog::error("Failed to run command: \"{}\" (exit status {})", cmd, status);
             return false;
         }
         if (!output.empty())
-            LOG("%s", output.c_str());
+            spdlog::info("{}", output);
     }
     return true;
 }

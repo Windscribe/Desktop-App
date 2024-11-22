@@ -21,7 +21,7 @@ signals:
     void closeClick();
 
 private slots:
-    void updateLog(bool doMergePerLine);
+    void updateLog();
     void updateColorHighlighting(bool isColorHighlighting);
     void onExportClick();
     void onWordWrapToggled(bool wordWrap);
@@ -32,12 +32,10 @@ protected:
 private:
     void highlightBlocks();
 
-    static constexpr bool DEFAULT_MERGE_PER_LINE = true;
     static constexpr bool DEFAULT_COLOR_HIGHLIGHTING = false;
 
     QPlainTextEdit *textEdit_;
     QVBoxLayout *layout_;
-    QCheckBox *cbMergePerLine_;
     QCheckBox *cbWordWrap_;
     QCheckBox *cbColorHighlighting_;
     QPushButton *btnExportLog_;

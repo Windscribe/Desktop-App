@@ -4,7 +4,6 @@
 #include <QTextStream>
 
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
 #include "utils/ipvalidation.h"
 #include "customconfiglocationinfo.h"
 
@@ -13,7 +12,7 @@ namespace locationsmodel {
 using namespace wsnet;
 
 CustomConfigLocationsModel::CustomConfigLocationsModel(QObject *parent, IConnectStateController *stateController, INetworkDetectionManager *networkDetectionManager) : QObject(parent),
-    pingManager_(this, stateController, networkDetectionManager, "pingStorageCustomConfigs", "ping_log_custom_configs.txt")
+    pingManager_(this, stateController, networkDetectionManager, "pingStorageCustomConfigs")
 {
     connect(&pingManager_, &PingManager::pingInfoChanged, this, &CustomConfigLocationsModel::onPingInfoChanged);
 }
@@ -38,7 +37,7 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
         {
             RemoteItem ri;
             ri.ipOrHostname.ip = hostname;
-            ri.isHostname = !IpValidation::isIp(hostname);
+            ri.isHostname = !IpValidation::isIpv4Address(hostname);
 
             if (!ri.isHostname)
             {
@@ -59,7 +58,7 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
 
     auto callback = [this] (std::uint64_t requestId, const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result)
     {
-        QMetaObject::invokeMethod(this, [this, hostname, result] {
+        QMetaObject::invokeMethod(this, [this, hostname, result] { // NOLINT: false positive for memory leak
             onDnsRequestFinished(QString::fromStdString(hostname), result);
         });
 

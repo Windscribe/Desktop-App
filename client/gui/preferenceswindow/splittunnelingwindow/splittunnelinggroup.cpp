@@ -5,14 +5,13 @@
 #include <QPainter>
 
 #include "graphicresources/imageresourcessvg.h"
-#include "graphicresources/independentpixmap.h"
 #include "generalmessagecontroller.h"
 #include "languagecontroller.h"
 
 #if defined(Q_OS_MACOS)
     #include "utils/macutils.h"
 #elif defined(Q_OS_WINDOWS)
-    #include "utils/logger.h"
+    #include "utils/log/categories.h"
     #include "utils/servicecontrolmanager.h"
 #endif
 

@@ -1,7 +1,7 @@
 #include "dnsscripts_linux.h"
-#include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include <QProcess>
+#include <QFile>
 
 DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::dnsManager() {
     if (dnsManager_ == DNS_MANAGER_AUTOMATIC) {

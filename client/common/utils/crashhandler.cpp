@@ -10,9 +10,9 @@
 #include <Windows.h>
 
 #if defined(WINDSCRIBE_SERVICE)
-#include "../../../backend/windows/windscribe_service/logger.h"
+#include <spdlog/spdlog.h>
 #else
-#include "logger.h"
+#include "log/logger.h"
 #include <QStandardPaths>
 #endif
 
@@ -202,9 +202,8 @@ CrashHandler::~CrashHandler()
 
 bool CrashHandler::bindToProcess()
 {
-    CRASH_ASSERT(!oldProcessHandlers_);
     if (oldProcessHandlers_) {
-        CRASH_LOG("CrashHandler::bindToProcess: tried to install process handlers twice");
+        CRASH_LOG_ERROR("CrashHandler::bindToProcess: tried to install process handlers twice");
         return false;
     }
 
@@ -256,7 +255,7 @@ bool CrashHandler::bindToThread()
     std::lock_guard<std::mutex> locker(threadHandlerMutex_);
     auto it = oldThreadHandlers_.find(thread_id);
     if (it != oldThreadHandlers_.end()) {
-        CRASH_LOG("CrashHandler::bindToThread: tried to install handlers twice - thread 0x%08x",
+        CRASH_LOG_ERROR("CrashHandler::bindToThread: tried to install handlers twice - thread {}",
                   thread_id);
         return false;
     }
@@ -312,7 +311,7 @@ void CrashHandler::handleException(ExceptionInfo info)
     }
 
     std::lock_guard<std::mutex> locker(crashMutex_);
-    CRASH_LOG("------ CRASH in %ls ------", moduleName_.c_str());
+    CRASH_LOG_INFO(L"------ CRASH in {} ------", moduleName_);
 
     EXCEPTION_RECORD exceptionRecord;
     CONTEXT contextRecord;
@@ -325,23 +324,23 @@ void CrashHandler::handleException(ExceptionInfo info)
         info.exceptionPointers = &exceptionPointers;
     }
 
-    CRASH_LOG(" type = %s", kExceptionTypeNames[static_cast<int>(info.exceptionType)]);
+    CRASH_LOG_INFO(" type = {}", kExceptionTypeNames[static_cast<int>(info.exceptionType)]);
     if (info.exceptionPointers) {
-        CRASH_LOG(" code = 0x%08x", info.exceptionPointers->ExceptionRecord->ExceptionCode);
-        CRASH_LOG(" addr = 0x%08x", info.exceptionPointers->ExceptionRecord->ExceptionAddress);
+        CRASH_LOG_INFO(" code = {}", info.exceptionPointers->ExceptionRecord->ExceptionCode);
+        CRASH_LOG_INFO(" addr = {}", info.exceptionPointers->ExceptionRecord->ExceptionAddress);
     }
     if (info.expression)
-        CRASH_LOG(" expression = %ls", info.expression);
+        CRASH_LOG_INFO(L" expression = {}", info.expression);
     if (info.function)
-        CRASH_LOG(" function = %ls", info.function);
+        CRASH_LOG_INFO(L" function = {}", info.function);
     if (info.file)
-        CRASH_LOG(" file = %ls@%u", info.file, info.line);
+        CRASH_LOG_INFO(L" file = {}@{}", info.file, info.line);
 
     CrashDump minidump;
     const std::wstring filename = getCrashDumpFilename();
     if (minidump.writeToFile(GetOutputLocation() + filename, info.exceptionThreadId,
                              info.exceptionPointers))
-        CRASH_LOG("Wrote minidump: %ls", filename.c_str());
+        CRASH_LOG_INFO(L"Wrote minidump: {}", filename);
 
     TerminateProcess(GetCurrentProcess(), 1);
 }

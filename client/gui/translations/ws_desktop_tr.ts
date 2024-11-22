@@ -286,10 +286,6 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <source>Merge all logs by timestamp</source>
-        <translation>Tüm günlükleri zaman damgasına göre birleştir</translation>
-    </message>
-    <message>
         <source>Word Wrap</source>
         <translation>Sözcük Kaydırma</translation>
     </message>
@@ -964,32 +960,12 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Gelişmiş Seçenekler</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>Yeniden Başlatma Gerekiyor</translation>
-    </message>
-    <message>
-        <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>IPv6&apos;yı değiştirmek için bilgisayarın yeniden başlatılması gerekir. Şimdi yap mı?</translation>
-    </message>
-    <message>
-        <source>Restart later</source>
-        <translation>Daha sonra yeniden başlat</translation>
-    </message>
-    <message>
         <source>Make advanced tweaks to the way the app functions.</source>
         <translation>Uygulamanın çalışma biçiminde gelişmiş ince ayarlar yapın.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
         <translation>Gelişmiş Parametreler</translation>
-    </message>
-    <message>
-        <source>Enables / disables system-wide IPv6 connectivity.</source>
-        <translation>Sistem genelinde IPv6 bağlantısını etkinleştirir / devre dışı bırakır.</translation>
-    </message>
-    <message>
-        <source>IPv6</source>
-        <translation>IPv6 (IPv6)</translation>
     </message>
     <message>
         <source>Resolve server API address automatically, or use one provided by the Support team.</source>
@@ -1738,6 +1714,10 @@ Connect to a network first</source>
         <source>Auto</source>
         <translation>Otomatik</translation>
     </message>
+    <message>
+        <source>Only when VPN is connected</source>
+        <translation>Yalnızca VPN bağlıyken</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
@@ -2143,6 +2123,14 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Auto-detect</source>
         <translation>Otomatik algıla</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Serbest bırakma</translation>
+    </message>
+    <message>
+        <source>Beta</source>
+        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

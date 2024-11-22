@@ -3,7 +3,6 @@
 #include "backend/persistentstate.h"
 #include "networkoptionswindowitem.h"
 #include "preferenceswindow/linkitem.h"
-#include "utils/logger.h"
 
 namespace PreferencesWindow {
 

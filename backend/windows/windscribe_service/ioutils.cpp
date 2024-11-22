@@ -1,5 +1,5 @@
 #include "ioutils.h"
-#include "logger.h"
+#include <spdlog/spdlog.h>
 
 bool IOUtils::readAll(HANDLE hPipe, HANDLE hIOEvent, char *buf, DWORD len)
 {
@@ -22,7 +22,7 @@ bool IOUtils::readAll(HANDLE hPipe, HANDLE hIOEvent, char *buf, DWORD len)
 
         auto lastError = ::GetLastError();
         if (lastError != ERROR_IO_PENDING) {
-            Logger::instance().out(L"IOUtils::readAll ReadFile failed %lu", lastError);
+            spdlog::error("IOUtils::readAll ReadFile failed {}", lastError);
             return false;
         }
 
@@ -37,7 +37,7 @@ bool IOUtils::readAll(HANDLE hPipe, HANDLE hIOEvent, char *buf, DWORD len)
         // failure in that case, or if the pipe has been closed by the client.
         lastError = ::GetLastError();
         if (lastError != WAIT_IO_COMPLETION && lastError != ERROR_BROKEN_PIPE) {
-            Logger::instance().out(L"IOUtils::readAll GetOverlappedResultEx failed %lu", lastError);
+            spdlog::error("IOUtils::readAll GetOverlappedResultEx failed {}", lastError);
         }
 
         return false;
@@ -67,7 +67,7 @@ bool IOUtils::writeAll(HANDLE hPipe, HANDLE hIOEvent, const char *buf, DWORD len
 
         auto lastError = ::GetLastError();
         if (lastError != ERROR_IO_PENDING) {
-            Logger::instance().out(L"IOUtils::writeAll WriteFile failed %lu", lastError);
+            spdlog::error("IOUtils::writeAll WriteFile failed {}", lastError);
             return false;
         }
 
@@ -82,7 +82,7 @@ bool IOUtils::writeAll(HANDLE hPipe, HANDLE hIOEvent, const char *buf, DWORD len
         // failure in that case, or if the pipe has been closed by the client.
         lastError = ::GetLastError();
         if (lastError != WAIT_IO_COMPLETION && lastError != ERROR_BROKEN_PIPE) {
-            Logger::instance().out(L"IOUtils::writeAll GetOverlappedResultEx failed %lu", lastError);
+            spdlog::error("IOUtils::writeAll GetOverlappedResultEx failed {}", lastError);
         }
 
         return false;

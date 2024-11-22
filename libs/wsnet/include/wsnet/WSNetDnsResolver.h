@@ -20,6 +20,8 @@ public:
     virtual ~WSNetDnsResolver() {}
 
     virtual void setDnsServers(const std::vector<std::string> &dnsServers) = 0;
+    virtual void setAddressFamily (int addressFamily) = 0;
+
     virtual std::shared_ptr<WSNetCancelableCallback> lookup(const std::string &hostname, std::uint64_t requestId, WSNetDnsResolverCallback callback) = 0;
     virtual std::shared_ptr<WSNetDnsRequestResult> lookupBlocked(const std::string &hostname) = 0;
 };

@@ -89,8 +89,7 @@ void KeepAliveManager::doDnsRequest()
 {
     auto callback = [this] (std::uint64_t requestId, const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result)
     {
-        QMetaObject::invokeMethod(this, [this, requestId, hostname, result]
-        {
+        QMetaObject::invokeMethod(this, [this, requestId, hostname, result] { // NOLINT: false positive for memory leak
             onDnsRequestFinished(requestId, hostname, result);
         });
     };

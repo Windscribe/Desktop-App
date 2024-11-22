@@ -11,6 +11,10 @@
         <source>Unlimited</source>
         <translation>Ilimitado</translation>
     </message>
+    <message>
+        <source>No locations.</source>
+        <translation>No hay ubicaciones.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -249,6 +253,22 @@
     <message>
         <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
         <translation>Cierre de sesión en curso.  Usa &apos;windscribe-cli status&apos; para verificar el estado.</translation>
+    </message>
+    <message>
+        <source>Connection has been overridden by another command.</source>
+        <translation>La conexión ha sido anulada por otro comando.</translation>
+    </message>
+    <message>
+        <source>Disconnection has been overridden by another command.</source>
+        <translation>La desconexión ha sido anulada por otro comando.</translation>
+    </message>
+    <message>
+        <source>Already disconnected</source>
+        <translation>Ya desconectado</translation>
+    </message>
+    <message>
+        <source>Logging out</source>
+        <translation>Cierre de sesión</translation>
     </message>
 </context>
 </TS>

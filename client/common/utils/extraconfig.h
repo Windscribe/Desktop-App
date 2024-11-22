@@ -49,6 +49,7 @@ public:
 
     bool getLogAPIResponse();
     bool getLogCtrld();
+    bool getLogPings();
     bool getUsingScreenTransitionHotkeys();
     bool getUseICMPPings();
     bool getUsePQAlgorithms();

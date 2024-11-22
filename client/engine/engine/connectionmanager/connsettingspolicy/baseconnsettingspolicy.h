@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QVector>
+#include <QObject>
 #include "api_responses/staticips.h"
 #include "types/protocolstatus.h"
 #include "engine/wireguardconfig/wireguardconfig.h"

@@ -10,7 +10,7 @@
 #include <shellapi.h>
 #include <ShObjIdl_core.h>
 
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 Q_GUI_EXPORT QPixmap qt_pixmapFromWinHICON(HICON icon);
 Q_GUI_EXPORT HICON qt_pixmapToWinHICON(const QPixmap &p);

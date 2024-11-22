@@ -286,10 +286,6 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <source>Merge all logs by timestamp</source>
-        <translation>ادغام همه ثبتها بر اساس برچسب زمانی</translation>
-    </message>
-    <message>
         <source>Word Wrap</source>
         <translation>سطربندی واژهها</translation>
     </message>
@@ -964,32 +960,12 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>گزینههای پیشرفته</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>راه اندازی مجدد مورد نیاز است</translation>
-    </message>
-    <message>
-        <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>به منظور تغییر IPv6، راه اندازی مجدد کامپیوتر لازم است. الان انجامش بده؟</translation>
-    </message>
-    <message>
-        <source>Restart later</source>
-        <translation>بعدا راهاندازی مجدد شود</translation>
-    </message>
-    <message>
         <source>Make advanced tweaks to the way the app functions.</source>
         <translation>ترفندهای پیشرفته ای را برای نحوه عملکرد برنامه انجام دهید.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
         <translation>پارامترهای پیشرفته</translation>
-    </message>
-    <message>
-        <source>Enables / disables system-wide IPv6 connectivity.</source>
-        <translation>فعال / غیر فعال کردن سیستم گسترده IPv6 اتصال.</translation>
-    </message>
-    <message>
-        <source>IPv6</source>
-        <translation>ای پی وی ۶</translation>
     </message>
     <message>
         <source>Resolve server API address automatically, or use one provided by the Support team.</source>
@@ -1738,6 +1714,10 @@ Connect to a network first</source>
         <source>Auto</source>
         <translation>خودکار</translation>
     </message>
+    <message>
+        <source>Only when VPN is connected</source>
+        <translation>فقط زمانی که VPN متصل است</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
@@ -2143,6 +2123,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Auto-detect</source>
         <translation>اشکارسازی خودکار</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>انتشار</translation>
+    </message>
+    <message>
+        <source>Beta</source>
+        <translation>بتا</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

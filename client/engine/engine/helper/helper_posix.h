@@ -82,7 +82,6 @@ protected:
     enum { MAX_WAIT_HELPER = 5000 };
 
     QString interfaceToSkip_;
-    bool bIPV6State_;
 
     QString wireGuardExeName_;
 

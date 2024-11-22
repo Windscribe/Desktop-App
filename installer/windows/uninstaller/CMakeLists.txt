@@ -8,6 +8,9 @@ add_definitions(-DUNICODE -D_UNICODE)
 
 project(uninstaller)
 
+find_package(spdlog CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+
 set(SOURCES
     arguments_parser.cpp
     authhelper.cpp
@@ -18,7 +21,6 @@ set(SOURCES
     uninstall.cpp
     ../../../client/common/utils/servicecontrolmanager.cpp
     ../utils/applicationinfo.cpp
-    ../utils/logger.cpp
     ../utils/path.cpp
     ../utils/utils.cpp
     uninstall.rc
@@ -38,6 +40,8 @@ target_include_directories(uninstall
 target_link_libraries(uninstall
                       PRIVATE
                       delayimp
+                      fmt::fmt-header-only
+                      spdlog::spdlog_header_only
 )
 
 install(TARGETS uninstall

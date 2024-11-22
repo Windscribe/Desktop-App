@@ -2,11 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../../../backend/posix_common/helper_commands_serialize.h"
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <sstream>
-#import "../Logger.h"
+#include <spdlog/spdlog.h>
+
+#include "../../../../backend/posix_common/helper_commands_serialize.h"
+#include "../string_utils.h"
 
 Helper_mac::Helper_mac() : connection_(nullptr)
 {
@@ -23,7 +25,7 @@ bool Helper_mac::connect()
 
     connection_ = xpc_connection_create_mach_service("com.windscribe.helper.macos", NULL, 0);
     if (!connection_) {
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"xpc_connection_create_mach_service failed"]];
+        spdlog::error("xpc_connection_create_mach_service failed");
         return false;
     }
 
@@ -35,15 +37,15 @@ bool Helper_mac::connect()
                 // crashed or cancelled the connection. After receiving this error,
                 // the connection is in an invalid state, and you do not need to
                 // call xpc_connection_cancel(). Just tear down any associated state here.
-                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Client disconnected with XPC_ERROR_CONNECTION_INVALID"]];
+                spdlog::info("Client disconnected with XPC_ERROR_CONNECTION_INVALID");
             } else if (event == XPC_ERROR_TERMINATION_IMMINENT) {
                 // Handle per-connection termination cleanup
-                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Client disconnected with XPC_ERROR_TERMINATION_IMMINENT"]];
+                spdlog::info("Client disconnected with XPC_ERROR_TERMINATION_IMMINENT");
             } else {
-                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Client disconnected with an uknown error"]];
+                spdlog::warn("Client disconnected with an uknown error");
             }
         } else {
-          [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"xpc_connection_set_event_handler should not be here"]];
+          spdlog::error("xpc_connection_set_event_handler should not be here");
           assert(false);
         }
     });
@@ -54,10 +56,10 @@ bool Helper_mac::connect()
     CMD_ANSWER answerCmd = sendCmdToHelper(HELPER_CMD_HELPER_VERSION, std::string());
     if (!answerCmd.body.empty()) {
         NSString *helperVersion = [NSString stringWithCString:answerCmd.body.c_str() encoding:[NSString defaultCStringEncoding]];
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Helper connected, version: %@,", helperVersion]];
+        spdlog::info("Helper connected, version: {}", toStdString(helperVersion));
         return true;
     } else {
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Failed connect to helper"]];
+        spdlog::error("Failed connect to helper");
         return false;
     }
 }
@@ -125,17 +127,17 @@ bool Helper_mac::killWindscribeProcess()
     return runCommand(HELPER_CMD_TASK_KILL, stream.str());
 }
 
-bool Helper_mac::createCliSymlinkDir()
+bool Helper_mac::createCliSymlink()
 {
     std::lock_guard locker(mutex_);
-    CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR cmd;
+    CMD_INSTALLER_CREATE_CLI_SYMLINK cmd;
     cmd.uid = getuid();
 
     std::stringstream stream;
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmd;
 
-    return runCommand(HELPER_CMD_INSTALLER_CREATE_CLI_SYMLINK_DIR, stream.str());
+    return runCommand(HELPER_CMD_INSTALLER_CREATE_CLI_SYMLINK, stream.str());
 }
 
 CMD_ANSWER Helper_mac::sendCmdToHelper(int cmdId, const std::string &data)
@@ -147,7 +149,7 @@ CMD_ANSWER Helper_mac::sendCmdToHelper(int cmdId, const std::string &data)
 
     xpc_type_t type = xpc_get_type(answer);
     if (type == XPC_TYPE_ERROR) {
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"xpc_connection_send_message_with_reply_sync return XPC_TYPE_ERROR"]];
+        spdlog::info("xpc_connection_send_message_with_reply_sync return XPC_TYPE_ERROR");
         return CMD_ANSWER();
     } else if (type == XPC_TYPE_DICTIONARY) {
         size_t length;
@@ -163,7 +165,7 @@ CMD_ANSWER Helper_mac::sendCmdToHelper(int cmdId, const std::string &data)
             return CMD_ANSWER();
         }
     } else {
-      [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"xpc_connection_send_message_with_reply_sync return an unknown message"]];
+      spdlog::warn("xpc_connection_send_message_with_reply_sync return an unknown message");
       return CMD_ANSWER();
     }
 }

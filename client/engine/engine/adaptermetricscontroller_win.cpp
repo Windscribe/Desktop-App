@@ -5,7 +5,7 @@
 #include <iphlpapi.h>
 
 #include "engine/helper/helper_win.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/ws_assert.h"
 
 void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHelper *helper)

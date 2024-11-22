@@ -21,7 +21,7 @@ CertManager::CertManager()
     auto fdCert = fs.open("resources/windscribe_cert.crt");
     parseCertsBundle(std::string(fdCert.begin(), fdCert.end()));
 
-    spdlog::info("CertManager number of certificates : {}", certs_.size());
+    spdlog::debug("CertManager number of certificates : {}", certs_.size());
 }
 
 CertManager::~CertManager()

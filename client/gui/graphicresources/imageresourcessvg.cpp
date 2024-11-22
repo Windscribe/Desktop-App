@@ -7,7 +7,7 @@
 #include <QScreen>
 #include "utils/ws_assert.h"
 #include "utils/crashhandler.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "dpiscalemanager.h"
 #include "widgetutils/widgetutils.h"
 

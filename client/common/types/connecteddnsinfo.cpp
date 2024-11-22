@@ -41,7 +41,7 @@ ConnectedDnsInfo::ConnectedDnsInfo(const QJsonObject &json)
         for (const QJsonValue &hostnameValue : hostnamesArray) {
             if (hostnameValue.isString()) {
                 QString hostname = hostnameValue.toString();
-                if (IpValidation::isIp(hostname) || IpValidation::isDomainWithWildcard(hostname)) {
+                if (IpValidation::isIpv4Address(hostname) || IpValidation::isDomainWithWildcard(hostname)) {
                     hostnames.append(hostname);
                 }
             }
@@ -58,7 +58,7 @@ QList<CONNECTED_DNS_TYPE> ConnectedDnsInfo::allAvailableTypes()
 
 bool ConnectedDnsInfo::isCustomIPv4Address() const
 {
-    return type == CONNECTED_DNS_TYPE_CUSTOM && IpValidation::isIp(upStream1) && isSplitDns == false;
+    return type == CONNECTED_DNS_TYPE_CUSTOM && IpValidation::isIpv4Address(upStream1) && isSplitDns == false;
 }
 
 
@@ -104,7 +104,7 @@ void ConnectedDnsInfo::fromIni(const QSettings &settings)
     QStringList list = settings.value(kIniHostnamesProp).toStringList();
     QStringList domains;
     for (const QString &domain: list) {
-        if (IpValidation::isIp(domain) || IpValidation::isDomainWithWildcard(domain)) {
+        if (IpValidation::isIpv4Address(domain) || IpValidation::isDomainWithWildcard(domain)) {
             domains.append(domain);
         }
     }

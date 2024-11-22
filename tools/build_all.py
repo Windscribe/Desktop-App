@@ -245,6 +245,15 @@ def build_component(component, qt_root, buildenv=None):
             generate_cmd.extend(["-DIS_BUILD_TESTS=ON"])
         if arghelper.build_cli_only() and CURRENT_OS == "linux":
             generate_cmd.extend(["-DDEFINE_CLI_ONLY_MACRO=ON"])
+        if arghelper.static_analysis():
+            # Excluding clang-analyzer-optin.cplusplus.VirtualCall because it finds issues in boost etc and it can't be disabled.
+            # Also, many QObjects in the GUI may update positions etc in the constructor, which also triggers this.
+            # Excluding clang-diagnostic-deprecated-declarations because these warnings are already printed by the compiler.
+            # Excluding clang-analyzer-osx.cocoa.RetainCount because clang-tidy does not understand ARC
+            generate_cmd.extend(["-DCMAKE_CXX_CLANG_TIDY=clang-tidy;"
+                                 "--checks=-clang-analyzer-optin.cplusplus.VirtualCall,-clang-diagnostic-deprecated-declarations,-clang-analyzer-osx.cocoa.RetainCount;"
+                                 "--warnings-as-errors=*"])
+
         if CURRENT_OS == "macos":
             # Build an universal binary only on CI
             if arghelper.ci_mode():

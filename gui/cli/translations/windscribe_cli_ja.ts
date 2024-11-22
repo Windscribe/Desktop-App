@@ -11,6 +11,10 @@
         <source>Unlimited</source>
         <translation>無制限の</translation>
     </message>
+    <message>
+        <source>No locations.</source>
+        <translation>場所はありません。</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -249,6 +253,22 @@
     <message>
         <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
         <translation>ログアウトが進行中です。 「windscribe-cli status」を使用してステータスを確認します。</translation>
+    </message>
+    <message>
+        <source>Connection has been overridden by another command.</source>
+        <translation>接続が別のコマンドによってオーバーライドされました。</translation>
+    </message>
+    <message>
+        <source>Disconnection has been overridden by another command.</source>
+        <translation>切断は別のコマンドによって上書きされました。</translation>
+    </message>
+    <message>
+        <source>Already disconnected</source>
+        <translation>すでに切断されています</translation>
+    </message>
+    <message>
+        <source>Logging out</source>
+        <translation>ログアウト</translation>
     </message>
 </context>
 </TS>

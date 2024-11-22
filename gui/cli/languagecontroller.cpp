@@ -3,7 +3,7 @@
 #include <QCoreApplication>
 
 #include "utils/languagesutil.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 LanguageController::LanguageController()
 {
@@ -47,12 +47,12 @@ bool LanguageController::loadLanguage(const QString &language)
     const QString filename = ":/translations/windscribe_cli_" + language + ".qm";
 
     if (translator_.load(filename)) {
-        qCDebug(LOG_BASIC) << "LanguageController::setLanguage - language changed:" << language;
+        qCDebug(LOG_CLI) << "LanguageController::setLanguage - language changed:" << language;
         qApp->installTranslator(&translator_);
         language_ = language;
         return true;
     }
 
-    qCDebug(LOG_BASIC) << "LanguageController::setLanguage - failed to load language file:" << filename;
+    qCDebug(LOG_CLI) << "LanguageController::setLanguage - failed to load language file:" << filename;
     return false;
 }

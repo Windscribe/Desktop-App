@@ -1,8 +1,8 @@
 #include "../all_headers.h"
+#include <spdlog/spdlog.h>
 #include "ip_forward_table.h"
 #include "routes.h"
 #include "../ip_address/ip4_address_and_mask.h"
-#include "../logger.h"
 
 Routes::Routes()
 {
@@ -11,7 +11,7 @@ Routes::Routes()
 void Routes::deleteRoute(const IpForwardTable &curRouteTable, const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex)
 {
     std::string log = "Routes::deleteRoute(), destIp=" + destIp + ", maskIp=" + maskIp + ", gatewayIp=" + gatewayIp;
-    Logger::instance().out("%s", log.c_str());
+    spdlog::debug("{}", log);
     Ip4AddressAndMask dest(destIp.c_str());
     Ip4AddressAndMask mask(maskIp.c_str());
     Ip4AddressAndMask gateway(gatewayIp.c_str());
@@ -31,7 +31,7 @@ void Routes::deleteRoute(const IpForwardTable &curRouteTable, const std::string 
                 }
                 else
                 {
-                    Logger::instance().out("Routes::deleteRoute(), DeleteIpForwardEntry failed with error: %x", dwErr);
+                    spdlog::error("Routes::deleteRoute(), DeleteIpForwardEntry failed with error: {}", dwErr);
                 }
             }
         }
@@ -41,7 +41,7 @@ void Routes::deleteRoute(const IpForwardTable &curRouteTable, const std::string 
 void Routes::addRoute(const IpForwardTable &curRouteTable, const std::string &destIp, const std::string &maskIp, const std::string &gatewayIp, unsigned long ifIndex, bool useMaxMetric)
 {
     std::string log = "Routes::addRoute(), destIp=" + destIp + ", maskIp=" + maskIp + ", gatewayIp=" + gatewayIp;
-    Logger::instance().out("%s", log.c_str());
+    spdlog::debug("{}", log);
     Ip4AddressAndMask dest(destIp.c_str());
     Ip4AddressAndMask mask(maskIp.c_str());
     Ip4AddressAndMask gateway(gatewayIp.c_str());
@@ -61,7 +61,7 @@ void Routes::addRoute(const IpForwardTable &curRouteTable, const std::string &de
         DWORD dwErr = GetIpInterfaceEntry(&interfaceRow);
         if (dwErr != NO_ERROR)
         {
-            Logger::instance().out("Routes::addRoute(), GetIpInterfaceEntry failed with error: %x", dwErr);
+            spdlog::error("Routes::addRoute(), GetIpInterfaceEntry failed with error: {}", dwErr);
             return;
         }
         metric = interfaceRow.Metric;
@@ -84,7 +84,7 @@ void Routes::addRoute(const IpForwardTable &curRouteTable, const std::string &de
     }
     else
     {
-        Logger::instance().out("Routes::addRoute(), CreateIpForwardEntry failed with error: %x", dwErr);
+        spdlog::error("Routes::addRoute(), CreateIpForwardEntry failed with error: {}", dwErr);
     }
 }
 
@@ -95,7 +95,7 @@ void Routes::revertRoutes()
         DWORD dwErr = CreateIpForwardEntry(&row);
         if (dwErr != NO_ERROR)
         {
-            Logger::instance().out("Routes::revertRoutes(), CreateIpForwardEntry failed with error: %x", dwErr);
+            spdlog::error("Routes::revertRoutes(), CreateIpForwardEntry failed with error: {}", dwErr);
         }
     }
     deletedRoutes_.clear();
@@ -113,7 +113,7 @@ void Routes::revertRoutes()
         DWORD dwErr = DeleteIpForwardEntry(&delRow);
         if (dwErr != NO_ERROR)
         {
-            Logger::instance().out("Routes::revertRoutes(), DeleteIpForwardEntry failed with error: %x", dwErr);
+            spdlog::error("Routes::revertRoutes(), DeleteIpForwardEntry failed with error: {}", dwErr);
         }
     }
     addedRoutes_.clear();

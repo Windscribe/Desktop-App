@@ -4,11 +4,9 @@
 #include <QPainter>
 #include <QSystemTrayIcon>
 #include "utils/hardcodedsettings.h"
-#include "backend/persistentstate.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "languagecontroller.h"
 #include "preferenceswindow/preferencegroup.h"
-#include "utils/logger.h"
 
 #if defined Q_OS_LINUX
     #include "utils/linuxutils.h"

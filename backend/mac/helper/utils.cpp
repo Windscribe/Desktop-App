@@ -6,10 +6,10 @@
 #include <skyr/url.hpp>
 #include <sstream>
 #include <sys/stat.h>
+#include <spdlog/spdlog.h>
 
 #include "3rdparty/pstream.h"
 #include "firewallonboot.h"
-#include "logger.h"
 
 namespace Utils
 {
@@ -85,26 +85,26 @@ std::string getFullCommand(const std::string &exePath, const std::string &execut
 {
     char *canonicalPath = realpath(exePath.c_str(), NULL);
     if (!canonicalPath) {
-        LOG("Executable not in valid path, ignoring.");
+        spdlog::warn("Executable not in valid path, ignoring.");
         return "";
     }
 
 #if defined(USE_SIGNATURE_CHECK)
     if (std::string(canonicalPath).rfind("/Applications/Windscribe.app", 0) != 0) {
         // Don't execute arbitrary commands, only executables that are in our application directory
-        LOG("Executable not in correct path, ignoring.");
+        spdlog::warn("Executable not in correct path, ignoring.");
         free(canonicalPath);
         return "";
     }
 #endif
 
     std::string fullCmd = std::string(canonicalPath) + "/" + executable + " " + arguments;
-    LOG("Resolved command: %s", fullCmd.c_str());
+    spdlog::debug("Resolved command: %s", fullCmd);
     free(canonicalPath);
 
     if (fullCmd.find_first_of(";|&`") != std::string::npos) {
         // Don't execute commands with dangerous pipes or delimiters
-        LOG("Executable command contains invalid characters, ignoring.");
+        spdlog::warn("Executable command contains invalid characters, ignoring.");
         return "";
     }
 
@@ -158,7 +158,7 @@ void createWindscribeUserAndGroup()
     std::string uidStr;
     Utils::executeCommand("id", {"-u", "windscribe"}, &uidStr);
     if (uidStr != "1639\n") {
-        LOG("Creating windscribe user with uid 1639 (existing uid %s)", uidStr.c_str());
+        spdlog::info("Creating windscribe user with uid 1639 (existing uid {})", uidStr);
         Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "uid", "1639"}); // Arbitrary number
     }
     Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "passwd", "*"});
@@ -198,8 +198,19 @@ std::string getExePath()
 
 bool isValidIpAddress(const std::string &address)
 {
+    return isValidIpv4Address(address) || isValidIpv6Address(address);
+}
+
+bool isValidIpv4Address(const std::string &address)
+{
     struct sockaddr_in sa;
     return inet_pton(AF_INET, address.c_str(), &(sa.sin_addr)) != 0;
+}
+
+bool isValidIpv6Address(const std::string &address)
+{
+    struct sockaddr_in6 sa;
+    return inet_pton(AF_INET6, address.c_str(), &(sa.sin6_addr)) != 0;
 }
 
 bool isValidDomain(const std::string &address)

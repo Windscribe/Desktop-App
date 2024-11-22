@@ -3,7 +3,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
-#include "logger.h"
+#include <spdlog/spdlog.h>
 #include "utils.h"
 
 FirewallOnBootManager::FirewallOnBootManager(): comment_("Windscribe client rule")
@@ -71,11 +71,12 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     // write rules
     int fd = open("/etc/windscribe/boot_rules.v4", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
     if (fd < 0) {
-        Logger::instance().out("Could not open boot firewall rules for writing");
+        spdlog::error("Could not open boot firewall rules for writing");
         return false;
     }
 
     bytes = write(fd, rules.str().c_str(), rules.str().length());
+    (void)bytes;
     close(fd);
 
     rules.str("");
@@ -95,11 +96,12 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     // write rules
     fd = open("/etc/windscribe/boot_rules.v6", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
     if (fd < 0) {
-        Logger::instance().out("Could not open v6 boot firewall rules for writing");
+        spdlog::error("Could not open v6 boot firewall rules for writing");
         return false;
     }
 
     bytes = write(fd, rules.str().c_str(), rules.str().length());
+    (void)bytes;
     close(fd);
 
     return true;

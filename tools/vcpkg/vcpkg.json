@@ -10,7 +10,10 @@
         "openvpn",
         "oqsprovider",
         "gtest",
-        "spdlog",
+   	{	
+            "name": "spdlog",
+            "features": [ { "name": "wchar", "platform": "windows" } ]
+        },
         {
             "name": "curl",
             "features": [ "openssl" ]

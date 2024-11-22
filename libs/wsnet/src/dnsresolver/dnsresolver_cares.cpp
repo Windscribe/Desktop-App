@@ -14,7 +14,7 @@
 
 namespace wsnet {
 
-DnsResolver_cares::DnsResolver_cares() : curRequestId_(0)
+DnsResolver_cares::DnsResolver_cares() : curRequestId_(0), addressFamily_(AF_INET)
 {
 }
 
@@ -38,6 +38,11 @@ void DnsResolver_cares::setDnsServers(const std::vector<std::string> &dnsServers
 {
     std::lock_guard locker(mutex_);
     dnsServers_ = DnsServers(dnsServers);
+}
+
+void DnsResolver_cares::setAddressFamily(int addressFamily)
+{
+    addressFamily_ = addressFamily;
 }
 
 std::shared_ptr<WSNetCancelableCallback> DnsResolver_cares::lookup(const std::string &hostname, std::uint64_t userDataId, WSNetDnsResolverCallback callback)
@@ -104,7 +109,7 @@ void DnsResolver_cares::run()
     options.timeout = kTimeoutMs;
     options.maxtimeout = kTimeoutMs;
 
-    int status = ares_init_options(&channel, &options, optmask);
+    [[maybe_unused]] int status = ares_init_options(&channel, &options, optmask);
     assert(status == ARES_SUCCESS);
 
     DnsServers dnsServersInstalled;
@@ -161,7 +166,7 @@ void DnsResolver_cares::run()
                 ares_cancel(channel);
                 status = ares_set_servers_csv(channel, dnsServersInstalled.getAsCsv().c_str());
                 if (status != ARES_SUCCESS) {
-                    spdlog::info("Failed to set DNS servers to channel: {}", dnsServersInstalled.getAsCsv());
+                    spdlog::error("Failed to set DNS servers to channel: {}", dnsServersInstalled.getAsCsv());
                 } else {
                     dnsServersInChannel = dnsServersInstalled;
                     spdlog::info("DNS servers in channel are changed: {}", dnsServersInChannel.getAsCsv());
@@ -176,7 +181,12 @@ void DnsResolver_cares::run()
             arg->this_ = this;
             arg->qi = qi;
             arg->qi.startTime = std::chrono::steady_clock::now();
-            ares_gethostbyname(channel, arg->qi.hostname.c_str(), AF_INET, caresCallback, arg);
+
+            struct ares_addrinfo_hints hints;
+            memset(&hints, 0, sizeof(hints));
+            hints.ai_family = addressFamily_;
+
+            ares_getaddrinfo(channel, arg->qi.hostname.c_str(), NULL, &hints, caresCallback, arg);
             localQueue.pop();
         }
 
@@ -198,7 +208,7 @@ void DnsResolver_cares::run()
     ares_destroy(channel);
 }
 
-void DnsResolver_cares::caresCallback(void *arg, int status, int timeouts, hostent *host)
+void DnsResolver_cares::caresCallback(void *arg, int status, int timeouts, struct ares_addrinfo *results)
 {
     ArgToCaresCallback *pars = (ArgToCaresCallback *)arg;
 
@@ -214,9 +224,15 @@ void DnsResolver_cares::caresCallback(void *arg, int status, int timeouts, hoste
 
     std::shared_ptr<DnsRequestResult> result = std::make_shared<DnsRequestResult>();
     if (status == ARES_SUCCESS) {
-        for (char **p = host->h_addr_list; *p; p++) {
+        for (struct ares_addrinfo_node *node = results->nodes; node != NULL; node = node->ai_next) {
             char addr_buf[46] = "??";
-            ares_inet_ntop(host->h_addrtype, *p, addr_buf, sizeof(addr_buf));
+            if (node->ai_family == AF_INET) {
+                ares_inet_ntop(node->ai_family, &((const struct sockaddr_in *)node->ai_addr)->sin_addr, addr_buf, sizeof(addr_buf));
+            } else if (node->ai_family == AF_INET6) {
+                ares_inet_ntop(node->ai_family, &((const struct sockaddr_in6 *)node->ai_addr)->sin6_addr, addr_buf, sizeof(addr_buf));
+            } else {
+                continue;
+            }
             result->ips_.push_back(addr_buf);
         }
         result->isError_ = false;

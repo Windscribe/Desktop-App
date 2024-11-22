@@ -3,7 +3,7 @@
 #include "openvpnconnection.h"
 #include "utils/ws_assert.h"
 #include "utils/crashhandler.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/utils.h"
 #include "types/enums.h"
 #include "availableport.h"
@@ -207,8 +207,7 @@ void OpenVPNConnection::funcRunOpenVPN()
     int retries = 0;
 
     // run openvpn process
-    IHelper::ExecuteError err;
-    while((err = runOpenVPN(stateVariables_.openVpnPort, proxySettings_, stateVariables_.lastCmdId, isCustomConfig_)) != IHelper::EXECUTE_SUCCESS)
+    while(runOpenVPN(stateVariables_.openVpnPort, proxySettings_, stateVariables_.lastCmdId, isCustomConfig_) != IHelper::EXECUTE_SUCCESS)
     {
         qCDebug(LOG_CONNECTION) << "Can't run OpenVPN";
 
@@ -707,7 +706,7 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
             else
             {
                 const QString ipStr = v[1].toString();
-                if (!IpValidation::isIp(ipStr))
+                if (!IpValidation::isIpv4Address(ipStr))
                 {
                     qCDebug(LOG_CONNECTION) << "Can't parse route-gateway message (incorrect IPv4 address)";
                     return false;
@@ -729,7 +728,7 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
             else
             {
                 const QString ipStr = v[1].toString();
-                if (!IpValidation::isIp(ipStr))
+                if (!IpValidation::isIpv4Address(ipStr))
                 {
                     qCDebug(LOG_CONNECTION) << "Can't parse ifconfig message (incorrect IPv4 address)";
                     return false;
@@ -753,7 +752,7 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
                 if (v[1] == "DNS")
                 {
                     const QString ipStr = v[2].toString();
-                    if (!IpValidation::isIp(ipStr))
+                    if (!IpValidation::isIpv4Address(ipStr))
                     {
                         qCDebug(LOG_CONNECTION) << "Can't parse dhcp-option DNS message (incorrect IPv4 address)";
                         return false;

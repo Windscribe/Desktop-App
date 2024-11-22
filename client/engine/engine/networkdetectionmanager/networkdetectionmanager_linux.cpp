@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <linux/wireless.h>
 
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/network_utils/network_utils_linux.h"
 #include "utils/utils.h"
 

@@ -2,7 +2,7 @@
 #include <QStandardPaths>
 #include <QDir>
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 FirewallController_win::FirewallController_win(QObject *parent, IHelper *helper) : FirewallController(parent)
 {

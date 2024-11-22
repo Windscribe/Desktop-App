@@ -2,12 +2,14 @@
 
 #include <QCoreApplication>
 #include <QCryptographicHash>
+#include <spdlog/spdlog.h>
 #include <wsnet/WSNet.h>
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "version/appversion.h"
-#include "utils/logger.h"
-#include "utils/mergelog.h"
+#include "utils/log/categories.h"
+#include "utils/log/mergelog.h"
+#include "utils/log/logger.h"
 #include "utils/extraconfig.h"
 #include "utils/ipvalidation.h"
 #include "utils/hardcodedsettings.h"
@@ -40,7 +42,6 @@
     #include "utils/network_utils/wlan_utils_win.h"
     #include "utils/winutils.h"
 #elif defined Q_OS_MACOS
-    #include "ipv6controller_mac.h"
     #include "networkdetectionmanager/networkdetectionmanager_mac.h"
     #include "networkdetectionmanager/reachabilityevents.h"
     #include "utils/network_utils/network_utils_mac.h"
@@ -94,7 +95,8 @@ Engine::Engine() : QObject(nullptr),
     connectionSettingsOverride_(types::Protocol(types::Protocol::TYPE::UNINITIALIZED), 0, true)
 {
     WSNet::setLogger([](const std::string &logStr) {
-        qCDebug(LOG_WSNET) << logStr;
+        // log wsnet outputs without formatting
+        spdlog::get("raw")->info(logStr);
     }, false);
 
     if (ExtraConfig::instance().getUsePQAlgorithms()) {
@@ -253,28 +255,6 @@ void Engine::continueWithPrivKeyPassword(const QString &password, bool bSave)
 void Engine::sendDebugLog()
 {
     QMetaObject::invokeMethod(this, "sendDebugLogImpl");
-}
-
-void Engine::setIPv6EnabledInOS(bool b)
-{
-#ifdef Q_OS_WIN
-    QMutexLocker locker(&mutex_);
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    helper_win->setIPv6EnabledInOS(b);
-#else
-    Q_UNUSED(b)
-#endif
-}
-
-bool Engine::IPv6StateInOS()
-{
-#ifdef Q_OS_WIN
-    QMutexLocker locker(&mutex_);
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    return helper_win->IPv6StateInOS();
-#else
-    return true;
-#endif
 }
 
 void Engine::getWebSessionToken(WEB_SESSION_PURPOSE purpose)
@@ -449,12 +429,12 @@ void Engine::stopWifiSharing()
     }
 }
 
-void Engine::startProxySharing(PROXY_SHARING_TYPE proxySharingType, uint port)
+void Engine::startProxySharing(PROXY_SHARING_TYPE proxySharingType, uint port, bool whileConnected)
 {
     QMutexLocker locker(&mutex_);
     WS_ASSERT(bInitialized_);
     if (bInitialized_) {
-        QMetaObject::invokeMethod(this, "startProxySharingImpl", Q_ARG(PROXY_SHARING_TYPE, proxySharingType), Q_ARG(uint, port));
+        QMetaObject::invokeMethod(this, "startProxySharingImpl", Q_ARG(PROXY_SHARING_TYPE, proxySharingType), Q_ARG(uint, port), Q_ARG(bool, whileConnected));
     }
 }
 
@@ -498,7 +478,7 @@ QString Engine::getSharingCaption()
 
 void Engine::applicationActivated()
 {
-    QMetaObject::invokeMethod(this, [this]() {
+    QMetaObject::invokeMethod(this, [this]() { // NOLINT
         // WSNet will have already been released if we are cleaning up (e.g. exiting due to an OS restart).
         if (isLoggedIn_ && WSNet::isValid()) {
             WSNet::instance()->apiResourcersManager()->fetchSession();
@@ -599,7 +579,6 @@ void Engine::initPart2()
 #if defined(Q_OS_WIN)
     WlanUtils_win::setHelper(helper_);
 #elif defined(Q_OS_MACOS)
-    Ipv6Controller_mac::instance().setHelper(helper_);
     InterfaceUtils_mac::instance().setHelper(static_cast<Helper_mac *>(helper_));
     ReachAbilityEvents::instance().init();
 #endif
@@ -704,6 +683,7 @@ void Engine::initPart2()
     connect(connectionManager_, &ConnectionManager::requestPassword, this, &Engine::onConnectionManagerRequestPassword);
     connect(connectionManager_, &ConnectionManager::requestPrivKeyPassword, this, &Engine::onConnectionManagerRequestPrivKeyPassword);
     connect(connectionManager_, &ConnectionManager::protocolStatusChanged, this, &Engine::protocolStatusChanged);
+    connect(connectionManager_, &ConnectionManager::connectionEnded, this, &Engine::onConnectionManagerConnectionEnded);
 
     locationsModel_ = new locationsmodel::LocationsModel(this, connectStateController_, networkDetectionManager_);
     connect(locationsModel_, &locationsmodel::LocationsModel::whitelistLocationsIpsChanged, this, &Engine::onLocationsModelWhitelistIpsChanged);
@@ -906,14 +886,6 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
             firewallController_->setFirewallOnBoot(false);
 #endif
         }
-#ifdef Q_OS_WIN
-        Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-        helper_win->setIPv6EnabledInFirewall(true);
-#endif
-
-#ifdef Q_OS_MACOS
-        Ipv6Controller_mac::instance().restoreIpv6();
-#endif
     }
 
     SAFE_DELETE(vpnShareController_);
@@ -1001,8 +973,6 @@ void Engine::connectClickImpl(const LocationID &locationId, const types::Connect
 
 #ifdef Q_OS_WIN
     DnsInfo_win::outputDebugDnsInfo();
-#elif defined Q_OS_MACOS
-    Ipv6Controller_mac::instance().disableIpv6();
 #endif
 
     stopFetchingServerCredentials();
@@ -1036,10 +1006,10 @@ void Engine::sendDebugLogImpl()
     api_responses::SessionStatus ss(WSNet::instance()->apiResourcersManager()->sessionStatus());
     userName = ss.getUsername();
 
-    QString log = MergeLog::mergePrevLogs(true);
+    QString log = log_utils::MergeLog::mergePrevLogs();
     log += "================================================================================================================================================================================================\n";
     log += "================================================================================================================================================================================================\n";
-    log += MergeLog::mergeLogs(true);
+    log += log_utils::MergeLog::mergeLogs();
 
     WSNet::instance()->serverAPI()->debugLog(userName.toStdString(), log.toStdString(),
         [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
@@ -1402,7 +1372,6 @@ void Engine::onConnectionManagerConnected()
             qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
         }
     }
-    helper_win->setIPv6EnabledInFirewall(false);
 #endif
 
     bool result = helper_->sendConnectStatus(true, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
@@ -1636,9 +1605,6 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
         //emit connectError(err);
     }
 
-#ifdef Q_OS_MACOS
-    Ipv6Controller_mac::instance().restoreIpv6();
-#endif
     connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, err);
 }
 
@@ -2215,9 +2181,9 @@ void Engine::checkForceDisconnectNode(const QStringList & /*forceDisconnectNodes
     }
 }
 
-void Engine::startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType, uint port)
+void Engine::startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType, uint port, bool whileConnected)
 {
-    vpnShareController_->startProxySharing(proxySharingType, port);
+    vpnShareController_->startProxySharing(proxySharingType, port, whileConnected);
     emit proxySharingStateChanged(true, proxySharingType, getProxySharingAddress(), 0);
 }
 
@@ -2407,7 +2373,7 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
     QString strHost = ExtraConfig::instance().getRemoteIpFromExtraConfig();
     if (!strHost.isEmpty())
     {
-        if (IpValidation::isIp(strHost))
+        if (IpValidation::isIpv4Address(strHost))
         {
             ip = strHost;
         }
@@ -2465,6 +2431,8 @@ void Engine::doConnect(bool bEmitAuthError)
     types::NetworkInterface networkInterface;
     networkDetectionManager_->getCurrentNetworkInterface(networkInterface);
 
+    log_utils::Logger::instance().startConnectionMode(createConnectionId().toStdString());
+
     if (isLoggedIn_)
     {
         api_responses::ServerCredentials ovpnCredentials(WSNet::instance()->apiResourcersManager()->serverCredentialsOvpn());
@@ -2477,7 +2445,6 @@ void Engine::doConnect(bool bEmitAuthError)
             qCDebug(LOG_BASIC) << "radiusUsername openvpn: " << ovpnCredentials.username();
             qCDebug(LOG_BASIC) << "radiusUsername ikev2: " << ikev2Credentials.username();
         }
-        Logger::instance().startConnectionMode();
         qCDebug(LOG_CONNECTION) << "Connecting to" << locationName_;
 
         types::ConnectionSettings connectionSettings;
@@ -2497,7 +2464,6 @@ void Engine::doConnect(bool bEmitAuthError)
     // for custom configs without login
     else
     {
-        Logger::instance().startConnectionMode();
         qCDebug(LOG_CONNECTION) << "Connecting to" << locationName_;
         connectionManager_->clickConnect("", api_responses::ServerCredentials(), api_responses::ServerCredentials(), bli,
             engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), api_responses::PortMap(),
@@ -2531,15 +2497,6 @@ void Engine::doDisconnectRestoreStuff()
             engineSettings_.isAllowLanTraffic(),
             locationId_.isCustomConfigsLocation());
     }
-
-#ifdef Q_OS_WIN
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    helper_win->setIPv6EnabledInFirewall(true);
-#endif
-
-#ifdef Q_OS_MACOS
-    Ipv6Controller_mac::instance().restoreIpv6();
-#endif
 
     // If we have disconnected and are still not logged then try again.
     if (tryLoginNextConnectOrDisconnect_) {
@@ -2658,4 +2615,22 @@ void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QStrin
 void Engine::onWireGuardKeyLimitUserResponse(bool deleteOldestKey)
 {
     connectionManager_->onWireGuardKeyLimitUserResponse(deleteOldestKey);
+}
+
+QString Engine::createConnectionId()
+{
+    const qint64 currentTimeMillis = QDateTime::currentMSecsSinceEpoch();
+    const QByteArray timeBytes(reinterpret_cast<const char*>(&currentTimeMillis), sizeof(currentTimeMillis));
+    const QByteArray hashBytes = QCryptographicHash::hash(timeBytes, QCryptographicHash::Md5);
+
+    connId_ = hashBytes.toHex().mid(8, 4);
+    emit connectionIdChanged(connId_);
+
+    return connId_;
+}
+
+void Engine::onConnectionManagerConnectionEnded()
+{
+    connId_.clear();
+    emit connectionIdChanged(connId_);
 }

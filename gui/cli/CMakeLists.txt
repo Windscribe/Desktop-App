@@ -13,6 +13,7 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 COMPONENTS Core Network Core5Compat LinguistTools)
 find_package(OpenSSL REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
 option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
@@ -44,13 +45,15 @@ set(SOURCES
     ../../client/common/types/protocol.cpp
     ../../client/common/utils/extraconfig.cpp
     ../../client/common/utils/languagesutil.cpp
-    ../../client/common/utils/logger.cpp
+    ../../client/common/utils/log/clean_sensitive_info.cpp
+    ../../client/common/utils/log/categories.cpp
+    ../../client/common/utils/log/logger.cpp
+    ../../client/common/utils/log/paths.cpp
     ../../client/common/utils/utils.cpp
     ../../client/common/utils/hardcodedsettings.cpp
     ../../client/common/utils/simplecrypt.cpp
     ../../client/common/version/appversion.cpp
     ../../client/common/utils/executable_signature/executable_signature.cpp
-    ../../client/common/utils/clean_sensitive_info.cpp
 )
 
 if(WIN32)
@@ -136,6 +139,7 @@ endif()
 target_link_libraries(windscribe-cli
                       PRIVATE
                       ${OS_SPECIFIC_LIBS}
+                      spdlog::spdlog
                       Qt6::Core
                       Qt6::Network
                       Qt6::Core5Compat

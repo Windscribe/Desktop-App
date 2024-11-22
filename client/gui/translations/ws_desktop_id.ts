@@ -286,10 +286,6 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <source>Merge all logs by timestamp</source>
-        <translation>Gabungkan semua log dengan stempel waktu</translation>
-    </message>
-    <message>
         <source>Word Wrap</source>
         <translation>Bungkus Kata</translation>
     </message>
@@ -964,32 +960,12 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Opsi Lanjutan</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>Mulai ulang diperlukan</translation>
-    </message>
-    <message>
-        <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>Untuk beralih IPv6, restart komputer diperlukan. Lakukan sekarang?</translation>
-    </message>
-    <message>
-        <source>Restart later</source>
-        <translation>Mulai ulang nanti</translation>
-    </message>
-    <message>
         <source>Make advanced tweaks to the way the app functions.</source>
         <translation>Buat tweak lanjutan dengan cara aplikasi berfungsi.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
         <translation>Parameter Lanjutan</translation>
-    </message>
-    <message>
-        <source>Enables / disables system-wide IPv6 connectivity.</source>
-        <translation>Mengaktifkan/menonaktifkan konektivitas IPv6 di seluruh sistem.</translation>
-    </message>
-    <message>
-        <source>IPv6</source>
-        <translation>IPv6</translation>
     </message>
     <message>
         <source>Resolve server API address automatically, or use one provided by the Support team.</source>
@@ -1738,6 +1714,10 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
         <source>Auto</source>
         <translation>Auto</translation>
     </message>
+    <message>
+        <source>Only when VPN is connected</source>
+        <translation>Hanya ketika VPN terhubung</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
@@ -2143,6 +2123,14 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Auto-detect</source>
         <translation>Deteksi otomatis</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Lepaskan</translation>
+    </message>
+    <message>
+        <source>Beta</source>
+        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

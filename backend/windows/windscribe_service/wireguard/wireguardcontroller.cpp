@@ -12,6 +12,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <spdlog/spdlog.h>
 
 #include "../../../client/common/types/global_consts.h"
 #include "../../../client/common/utils/servicecontrolmanager.h"
@@ -19,7 +20,6 @@
 #include "../../../client/common/utils/wsscopeguard.h"
 #include "../executecmd.h"
 #include "../ipc/servicecommunication.h"
-#include "../logger.h"
 #include "../utils.h"
 
 #if defined(USE_SIGNATURE_CHECK)
@@ -54,10 +54,10 @@ bool WireGuardController::installService()
         svcCtrl.openSCM(SC_MANAGER_ALL_ACCESS);
 
         if (svcCtrl.isServiceInstalled(kWireGuardServiceIdentifier.c_str())) {
-            Logger::instance().out("WireGuardController::installService - deleting existing WireGuard service");
+            spdlog::info("WireGuardController::installService - deleting existing WireGuard service");
             std::error_code ec;
             if (!svcCtrl.deleteService(kWireGuardServiceIdentifier.c_str(), ec)) {
-                Logger::instance().out("WireGuardController::installService - failed to delete existing WireGuard service (%d)", ec.value());
+                spdlog::error("WireGuardController::installService - failed to delete existing WireGuard service ({})", ec.value());
             }
         }
 
@@ -65,7 +65,7 @@ bool WireGuardController::installService()
         ExecutableSignature sigCheck;
         std::wstring servicePath = Utils::getExePath() + L"\\" + exeName_;
         if (!sigCheck.verify(servicePath)) {
-            Logger::instance().out("WireGuard service signature incorrect: %s", sigCheck.lastError().c_str());
+            spdlog::error("WireGuard service signature incorrect: {}", sigCheck.lastError());
             return false;
         }
 #endif
@@ -79,7 +79,7 @@ bool WireGuardController::installService()
         is_initialized_ = true;
     }
     catch (std::system_error& ex) {
-        Logger::instance().out("WireGuardController::installService - %s", ex.what());
+        spdlog::error("WireGuardController::installService - {}", ex.what());
     }
 
     return is_initialized_;
@@ -95,7 +95,7 @@ bool WireGuardController::deleteService()
         svcCtrl.openSCM(SC_MANAGER_ALL_ACCESS);
 
         if (svcCtrl.isServiceInstalled(kWireGuardServiceIdentifier.c_str())) {
-            Logger::instance().out("WireGuardController::deleteService - deleting WireGuard service");
+            spdlog::info("WireGuardController::deleteService - deleting WireGuard service");
             std::error_code ec;
             if (!svcCtrl.deleteService(kWireGuardServiceIdentifier.c_str(), ec)) {
                 throw std::system_error(ec);
@@ -105,11 +105,11 @@ bool WireGuardController::deleteService()
         bServiceDeleted = true;
     }
     catch (std::system_error& ex) {
-        Logger::instance().out("WireGuardController::deleteService - %s", ex.what());
+        spdlog::error("WireGuardController::deleteService - {}", ex.what());
     }
 
     if (!bServiceDeleted && !exeName_.empty()) {
-        Logger::instance().out("WireGuardController::deleteService - task killing the WireGuard service");
+        spdlog::info("WireGuardController::deleteService - task killing the WireGuard service");
         std::wstring killCmd = Utils::getSystemDir() + L"\\taskkill.exe /f /t /im " + exeName_;
         ExecuteCmd::instance().executeBlockingCmd(killCmd);
     }
@@ -188,7 +188,7 @@ UINT WireGuardController::getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT
     }
     catch (std::system_error& ex) {
         result = WIREGUARD_STATE_ERROR;
-        Logger::instance().out("WireGuardController::getStatus - %s", ex.what());
+        spdlog::error("WireGuardController::getStatus - {}", ex.what());
     }
 
     return result;
@@ -302,7 +302,7 @@ bool WireGuardController::configure(const std::wstring &config)
 
     std::wofstream file(confFile.c_str(), std::ios::out | std::ios::trunc);
     if (!file) {
-        Logger::instance().out("WireGuardController::configure - could not open config file for writing");
+        spdlog::error("WireGuardController::configure - could not open config file for writing");
         return false;
     }
 
@@ -317,7 +317,7 @@ std::wstring WireGuardController::configFile() const
 {
     std::wstring confFile = Utils::getConfigPath();
     if (confFile.empty()) {
-        Logger::instance().out("WireGuardController: could not get config file path");
+        spdlog::error("WireGuardController: could not get config file path");
         return std::wstring();
     }
     confFile += L"\\" + kWireGuardAdapterIdentifier + L".conf";

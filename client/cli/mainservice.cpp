@@ -2,13 +2,14 @@
 
 #include <QCoreApplication>
 #include <QEventLoop>
+#include <QRandomGenerator>
 #include <QThread>
 
 #include "backend/persistentstate.h"
 #include "launchonstartup/launchonstartup.h"
 #include "locations/locationsmodel_roles.h"
 #include "multipleaccountdetection/multipleaccountdetectionfactory.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 MainService::MainService() : QObject(), isExitingAfterUpdate_(false), keyLimitDelete_(false)
 {
@@ -35,6 +36,7 @@ MainService::MainService() : QObject(), isExitingAfterUpdate_(false), keyLimitDe
     localIpcServer_ = new LocalIPCServer(backend_, this);
     connect(localIpcServer_, &LocalIPCServer::showLocations, this, &MainService::onShowLocations);
     connect(localIpcServer_, &LocalIPCServer::connectToLocation, this, &MainService::onConnectToLocation);
+    connect(localIpcServer_, &LocalIPCServer::connectToStaticIpLocation, this, &MainService::onConnectToStaticIpLocation);
     connect(localIpcServer_, &LocalIPCServer::attemptLogin, this, &MainService::onLogin);
     connect(localIpcServer_, &LocalIPCServer::setKeyLimitBehavior, this, &MainService::onSetKeyLimitBehavior);
 }
@@ -115,29 +117,66 @@ void MainService::onConnectToLocation(const LocationID &lid, const types::Protoc
     }
 }
 
+void MainService::onConnectToStaticIpLocation(const QString &location, const types::Protocol &protocol)
+{
+    QList<LocationID> list;
+
+    for (int i = 0; i < backend_->locationsModelManager()->staticIpsProxyModel()->rowCount(); i++) {
+        QModelIndex miStatic = backend_->locationsModelManager()->staticIpsProxyModel()->index(i, 0);
+
+        // If location doesn't match either the location nor IP, skip this entry
+        if (location != miStatic.data(gui_locations::kName).toString() && location != miStatic.data(gui_locations::kNick).toString()) {
+            continue;
+        }
+
+        list << qvariant_cast<LocationID>(miStatic.data(gui_locations::kLocationId));
+    }
+
+    if (list.size() > 0) {
+        // Randomly pick one of the candidates
+        onConnectToLocation(list[QRandomGenerator::global()->bounded(list.size())], protocol);
+    }
+}
+
 void MainService::onLogin(const QString &username, const QString &password, const QString &code2fa)
 {
     backend_->login(username, password, code2fa);
 }
 
-void MainService::onShowLocations()
+void MainService::onShowLocations(IPC::CliCommands::LocationType type)
 {
     QStringList locations;
 
-    for (int i = 0; i < backend_->locationsModelManager()->sortedLocationsProxyModel()->rowCount(); i++) {
-        QModelIndex miCountry = backend_->locationsModelManager()->sortedLocationsProxyModel()->index(i, 0);
-        LocationID lid = qvariant_cast<LocationID>(miCountry.data(gui_locations::kLocationId));
-        QString countryName = miCountry.data(gui_locations::kName).toString();
+    if (type == IPC::CliCommands::LocationType::kRegular) {
 
-        if (lid.isBestLocation()) {
-            locations << countryName + " - " + lid.city();
-            continue;
-        }
+        for (int i = 0; i < backend_->locationsModelManager()->sortedLocationsProxyModel()->rowCount(); i++) {
+            QModelIndex miCountry = backend_->locationsModelManager()->sortedLocationsProxyModel()->index(i, 0);
+            LocationID lid = qvariant_cast<LocationID>(miCountry.data(gui_locations::kLocationId));
+            QString countryName = miCountry.data(gui_locations::kName).toString();
 
-        for (int j = 0; j < miCountry.model()->rowCount(miCountry); j++) {
-            QModelIndex miCity = miCountry.model()->index(j, 0, miCountry);
-            locations << countryName + " - " + miCity.data(gui_locations::kName).toString() + " - " + miCity.data(gui_locations::kNick).toString();
+            if (lid.isBestLocation()) {
+                QString locationName = "%1 - %2";
+                locations << locationName.arg(countryName).arg(lid.city());
+                continue;
+            }
+
+            for (int j = 0; j < miCountry.model()->rowCount(miCountry); j++) {
+                QModelIndex miCity = miCountry.model()->index(j, 0, miCountry);
+                QString locationName = "%1 - %2 - %3";
+                locations << locationName
+                    .arg(countryName)
+                    .arg(miCity.data(gui_locations::kName).toString())
+                    .arg(miCity.data(gui_locations::kNick).toString());
+            }
         }
+    } else if (type == IPC::CliCommands::LocationType::kStaticIp) {
+        for (int i = 0; i < backend_->locationsModelManager()->staticIpsProxyModel()->rowCount(); i++) {
+            QModelIndex miStatic = backend_->locationsModelManager()->staticIpsProxyModel()->index(i, 0);
+            QString locationName = "%1 - %2";
+            locations << locationName.arg(miStatic.data(gui_locations::kName).toString()).arg(miStatic.data(gui_locations::kNick).toString());
+        }
+    } else {
+        assert(false);
     }
 
     localIpcServer_->sendLocations(locations);
@@ -258,7 +297,7 @@ void MainService::onPreferencesFirewallSettingsChanged(const types::FirewallSett
 void MainService::onPreferencesShareProxyGatewayChanged(const types::ShareProxyGateway &sp)
 {
     if (sp.isEnabled) {
-        backend_->startProxySharing((PROXY_SHARING_TYPE)sp.proxySharingMode, sp.port);
+        backend_->startProxySharing((PROXY_SHARING_TYPE)sp.proxySharingMode, sp.port, sp.whileConnected);
     } else {
         backend_->stopProxySharing();
     }

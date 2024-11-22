@@ -1,6 +1,6 @@
 #include "sleepevents_win.h"
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 SleepEvents_win *SleepEvents_win::this_ = NULL;
 

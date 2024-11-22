@@ -1,8 +1,9 @@
 #include "../all_headers.h"
-#include "split_tunneling.h"
+#include <spdlog/spdlog.h>
 
+#include "split_tunneling.h"
 #include "../close_tcp_connections.h"
-#include "../logger.h"
+#include "../registry.h"
 #include "../utils.h"
 
 SplitTunneling::SplitTunneling(FwpmWrapper& fwpmWrapper)
@@ -32,12 +33,21 @@ void SplitTunneling::setSettings(bool isEnabled, bool isExclude, const std::vect
 
     apps_ = apps;
 
-    std::vector<Ip4AddressAndMask> ipsList;
+    std::vector<Ip4AddressAndMask> ipsListV4;
+    std::vector<Ip6AddressAndPrefix> ipsListV6;
     for (auto it = ips.begin(); it != ips.end(); ++it) {
-        ipsList.push_back(Ip4AddressAndMask(it->c_str()));
+        Ip4AddressAndMask ip4(it->c_str());
+        if (ip4.isValid()) {
+            ipsListV4.push_back(Ip4AddressAndMask(it->c_str()));
+        } else {
+            Ip6AddressAndPrefix ip6(it->c_str());
+            if (ip6.isValid()) {
+                ipsListV6.push_back(ip6);
+            }
+        }
     }
 
-    hostnamesManager_.setSettings(isExclude, ipsList, hosts);
+    hostnamesManager_.setSettings(isExclude, ipsListV4, ipsListV6, hosts);
     routesManager_.updateState(connectStatus_, isSplitTunnelEnabled_, isExclude_);
 
     updateState();
@@ -94,7 +104,7 @@ void SplitTunneling::detectWindscribeExecutables()
 
 bool SplitTunneling::updateState()
 {
-    Logger::instance().out(L"SplitTunneling::updateState begin");
+    spdlog::debug("SplitTunneling::updateState begin");
     AppsIds appsIds;
     appsIds.setFromList(apps_);
     Ip4AddressAndMask localAddr(connectStatus_.defaultAdapter.adapterIp.c_str());
@@ -130,6 +140,10 @@ bool SplitTunneling::updateState()
             hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp, connectStatus_.vpnAdapter.ifIndex);
         }
 
+        // Ensure that we request AAAA records in the tunnel, even if we don't have an IPv6 address.
+        // This is needed for IPv6 split tunneling to work correctly.
+        setEnableIPv6Dns(true);
+
         // For ctrld utility and Windscribe.exe we need special rules for inclusive mode
         AppsIds windscribeExecutablesForInclusive;
         if (!isExclude_) {
@@ -143,21 +157,36 @@ bool SplitTunneling::updateState()
         hostnamesManager_.disable();
         FirewallFilter::instance().setSplitTunnelingDisabled();
         splitTunnelServiceManager_.stop();
+        setEnableIPv6Dns(false);
     }
 
     // close TCP sockets if state changed
     if (isSplitTunnelActive != prevIsSplitTunnelActive_ && connectStatus_.isTerminateSocket) {
-        Logger::instance().out(L"SplitTunneling::threadFunc() close TCP sockets, exclude non VPN apps");
+        spdlog::info("SplitTunneling::threadFunc() close TCP sockets, exclude non VPN apps");
         CloseTcpConnections::closeAllTcpConnections(connectStatus_.isKeepLocalSocket, isExclude_, apps_);
     } else if (isSplitTunnelActive && isExclude_ != prevIsExclude_ && connectStatus_.isTerminateSocket) {
-        Logger::instance().out(L"SplitTunneling::threadFunc() close all TCP sockets");
+        spdlog::info("SplitTunneling::threadFunc() close all TCP sockets");
         CloseTcpConnections::closeAllTcpConnections(connectStatus_.isKeepLocalSocket);
     }
 
     prevIsSplitTunnelActive_ = isSplitTunnelActive;
     prevIsExclude_ = isExclude_;
 
-    Logger::instance().out(L"SplitTunneling::updateState end");
+    spdlog::debug("SplitTunneling::updateState end");
 
     return true;
+}
+
+void SplitTunneling::setEnableIPv6Dns(bool enable)
+{
+    // In order for IPv6 addresses to be resolved correctly, we need to be able to resolve them with the VPN DNS.
+    // This registry value forces Windows to request AAAA records from the DNS server, even if we don't have an IPv6 address.
+    static const std::wstring keyPath = L"SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters";
+    static const std::wstring propertyName= L"AddrConfigControl";
+
+    if (enable) {
+        Registry::regWriteDwordProperty(HKEY_LOCAL_MACHINE, keyPath, propertyName, 0);
+    } else {
+        Registry::regDeleteProperty(HKEY_LOCAL_MACHINE, keyPath, propertyName);
+    }
 }

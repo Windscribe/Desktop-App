@@ -2,7 +2,7 @@
 #include <QHostAddress>
 #include <QThread>
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 namespace SocksProxyServer {
 

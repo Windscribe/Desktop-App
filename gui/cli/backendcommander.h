@@ -24,6 +24,7 @@ signals:
 private slots:
     void onConnectionNewCommand(IPC::Command *command, IPC::Connection *connection);
     void onConnectionStateChanged(int state, IPC::Connection *connection);
+    void onStateUpdated(IPC::Command *command);
 
     void sendCommand(IPC::CliCommands::State *state);
     void sendStateCommand();
@@ -40,6 +41,7 @@ private:
     QElapsedTimer loggedInTimer_;
     bool bCommandSent_ = false;
     bool bLoggingInMessageShown_ = false;
+    QString connectId_ = "";
 
     void onStateResponse(IPC::Command *command);
     void onUpdateStateResponse(IPC::Command *command);

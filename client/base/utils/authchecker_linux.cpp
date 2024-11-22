@@ -1,7 +1,7 @@
 #include "authchecker_linux.h"
 
 #include <QCoreApplication>
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/executable_signature/executable_signature.h"
 
 AuthChecker_linux::AuthChecker_linux(QObject *parent) : IAuthChecker(parent)

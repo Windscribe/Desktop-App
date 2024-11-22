@@ -11,6 +11,10 @@
         <source>Unlimited</source>
         <translation>Sınırsız</translation>
     </message>
+    <message>
+        <source>No locations.</source>
+        <translation>Konum yok.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -249,6 +253,22 @@
     <message>
         <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
         <translation>Oturum kapatma işlemi devam ediyor.  Durumu kontrol etmek için &apos;windscribe-cli status&apos; komutunu kullanın.</translation>
+    </message>
+    <message>
+        <source>Connection has been overridden by another command.</source>
+        <translation>Bağlantı başka bir komut tarafından geçersiz kılındı.</translation>
+    </message>
+    <message>
+        <source>Disconnection has been overridden by another command.</source>
+        <translation>Bağlantı kesilmesi başka bir komut tarafından geçersiz kılındı.</translation>
+    </message>
+    <message>
+        <source>Already disconnected</source>
+        <translation>Zaten bağlantı kesildi</translation>
+    </message>
+    <message>
+        <source>Logging out</source>
+        <translation>Oturumu kapatma</translation>
     </message>
 </context>
 </TS>

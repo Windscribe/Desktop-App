@@ -4,7 +4,6 @@
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
-#include "utils/logger.h"
 #include "dpiscalemanager.h"
 
 namespace ProtocolWindow {

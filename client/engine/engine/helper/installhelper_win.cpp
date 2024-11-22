@@ -7,7 +7,7 @@
 #include <shellapi.h>
 
 #include "utils/executable_signature/executable_signature.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 namespace InstallHelper_win
 {

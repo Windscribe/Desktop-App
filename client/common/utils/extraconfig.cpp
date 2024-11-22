@@ -3,7 +3,7 @@
 #include <QFile>
 #include <QStandardPaths>
 
-#include "../utils/logger.h"
+#include "../utils/log/categories.h"
 
 #if defined (Q_OS_WIN)
 #include "types/global_consts.h"
@@ -41,6 +41,8 @@ const QString WS_SERVERLIST_COUNTRY_OVERRIDE = WS_PREFIX + "serverlist-country-o
 const QString WS_USE_OPENVPN_WINTUN = WS_PREFIX + "use-openvpn-wintun";
 
 const QString WS_LOG_CTRLD = WS_PREFIX + "log-ctrld";
+const QString WS_LOG_PINGS = WS_PREFIX + "log-pings";
+
 
 void ExtraConfig::writeConfig(const QString &cfg)
 {
@@ -244,6 +246,11 @@ bool ExtraConfig::getLogAPIResponse()
 bool ExtraConfig::getLogCtrld()
 {
     return getFlagFromExtraConfigLines(WS_LOG_CTRLD);
+}
+
+bool ExtraConfig::getLogPings()
+{
+    return getFlagFromExtraConfigLines(WS_LOG_PINGS);
 }
 
 bool ExtraConfig::getWireGuardVerboseLogging()

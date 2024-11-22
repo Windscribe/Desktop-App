@@ -1,7 +1,7 @@
 #include "mutablelocationinfo.h"
 
 #include "utils/ws_assert.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/ipvalidation.h"
 #include "utils/utils.h"
 #include "nodeselectionalgorithm.h"
@@ -95,7 +95,7 @@ void MutableLocationInfo::selectNextNode()
 
 void MutableLocationInfo::selectNodeByIp(const QString &addr)
 {
-    WS_ASSERT(IpValidation::isIp(addr));
+    WS_ASSERT(IpValidation::isIpv4Address(addr));
     for (int i = 0; i < nodes_.count(); i++) {
         for (int j = 0; j < 3; j++) {
             if (nodes_[i]->getIp(j) == addr) {

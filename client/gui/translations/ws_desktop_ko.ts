@@ -286,10 +286,6 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <source>Merge all logs by timestamp</source>
-        <translation>타임스탬프로 모든 로그 병합</translation>
-    </message>
-    <message>
         <source>Word Wrap</source>
         <translation>줄 바꿈</translation>
     </message>
@@ -964,32 +960,12 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>고급 옵션</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>다시 시작 필요</translation>
-    </message>
-    <message>
-        <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>IPv6을 전환하려면 컴퓨터를 다시 시작해야 합니다. 지금 하시겠습니까?</translation>
-    </message>
-    <message>
-        <source>Restart later</source>
-        <translation>나중에 다시 시작</translation>
-    </message>
-    <message>
         <source>Make advanced tweaks to the way the app functions.</source>
         <translation>앱이 작동하는 방식을 고급스럽게 조정합니다.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
         <translation>고급 매개 변수</translation>
-    </message>
-    <message>
-        <source>Enables / disables system-wide IPv6 connectivity.</source>
-        <translation>시스템 전체 IPv6 연결을 활성화/비활성화합니다.</translation>
-    </message>
-    <message>
-        <source>IPv6</source>
-        <translation>IPv6 (IPv6 참조)</translation>
     </message>
     <message>
         <source>Resolve server API address automatically, or use one provided by the Support team.</source>
@@ -1738,6 +1714,10 @@ Connect to a network first</source>
         <source>Auto</source>
         <translation>자동</translation>
     </message>
+    <message>
+        <source>Only when VPN is connected</source>
+        <translation>VPN이 연결된 경우에만</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
@@ -2143,6 +2123,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Auto-detect</source>
         <translation>자동 감지</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>석방</translation>
+    </message>
+    <message>
+        <source>Beta</source>
+        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

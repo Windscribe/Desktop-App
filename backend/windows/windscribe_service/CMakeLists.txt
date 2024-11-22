@@ -23,6 +23,7 @@ add_definitions(-DUNICODE -D_UNICODE -DWINDSCRIBE_SERVICE -D_WIN32_WINNT=0x0601)
 project(Service)
 
 find_package(Boost REQUIRED COMPONENTS serialization)
+find_package(spdlog CONFIG REQUIRED)
 find_path(WINREG_INCLUDE_DIRS "winreg/WinReg.hpp")
 
 add_subdirectory(../../../libs/wsnet wsnet)
@@ -32,7 +33,6 @@ set(SOURCES
     adapters_info.cpp
     apps_ids.cpp
     close_tcp_connections.cpp
-    date_time_helper.cpp
     dns_firewall.cpp
     executecmd.cpp
     firewallfilter.cpp
@@ -41,11 +41,9 @@ set(SOURCES
     ikev2ipsec.cpp
     ikev2route.cpp
     ioutils.cpp
-    ipv6_firewall.cpp
     ip_address/ip4_address_and_mask.cpp
     ip_address/ip6_address_and_prefix.cpp
     changeics/icsmanager.cpp
-    logger.cpp
     ovpn.cpp
     pipe_for_process.cpp
     process_command.cpp
@@ -63,7 +61,6 @@ set(SOURCES
     split_tunneling/routes_manager.cpp
     split_tunneling/split_tunneling.cpp
     split_tunneling/split_tunnel_service_manager.cpp
-    sys_ipv6_controller.cpp
     utils.cpp
     windscribe_service.cpp
     openvpncontroller.cpp
@@ -91,6 +88,7 @@ target_link_libraries(WindscribeService
                       Ws2_32
                       wsnet::wsnet
                       Boost::serialization
+                      spdlog::spdlog
 )
 
 target_include_directories(WindscribeService PRIVATE

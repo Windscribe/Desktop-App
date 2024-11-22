@@ -1,6 +1,4 @@
 #include "routes_manager.h"
-#include "../utils.h"
-#include "../logger.h"
 
 RoutesManager::RoutesManager()
 {
@@ -13,7 +11,6 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
 {
     bool prevIsConnected = connectStatus_.isConnected;
     bool prevIsActive = isSplitTunnelActive_;
-    bool prevIsExcludeMode = isExcludeMode_;
 
     if  (prevIsConnected == false && connectStatus.isConnected == true) {
         if (isSplitTunnelActive) {

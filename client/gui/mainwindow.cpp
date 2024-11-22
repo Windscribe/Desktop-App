@@ -7,6 +7,7 @@
 #include <QGuiApplication>
 #include <QJsonDocument>
 #include <QMouseEvent>
+#include <QRandomGenerator>
 #include <QScreen>
 #include <QStyleHints>
 #include <QThread>
@@ -28,6 +29,7 @@
 #include "graphicresources/imageresourcesjpg.h"
 #include "languagecontroller.h"
 #include "launchonstartup/launchonstartup.h"
+#include "locations/locationsmodel_roles.h"
 #include "mainwindowstate.h"
 #include "multipleaccountdetection/multipleaccountdetectionfactory.h"
 #include "showingdialogstate.h"
@@ -36,8 +38,8 @@
 #include "utils/hardcodedsettings.h"
 #include "utils/iauthchecker.h"
 #include "utils/interfaceutils.h"
-#include "utils/logger.h"
-#include "utils/mergelog.h"
+#include "utils/log/categories.h"
+#include "utils/log/multiline_message_logger.h"
 #include "utils/network_utils/network_utils.h"
 #include "utils/utils.h"
 #include "utils/writeaccessrightschecker.h"
@@ -208,6 +210,7 @@ MainWindow::MainWindow() :
     localIpcServer_ = new LocalIPCServer(backend_, this);
     connect(localIpcServer_, &LocalIPCServer::showLocations, this, &MainWindow::onIpcOpenLocations);
     connect(localIpcServer_, &LocalIPCServer::connectToLocation, this, &MainWindow::onIpcConnect);
+    connect(localIpcServer_, &LocalIPCServer::connectToStaticIpLocation, this, &MainWindow::onIpcConnectStaticIp);
     connect(localIpcServer_, &LocalIPCServer::attemptLogin, this, &MainWindow::onLoginClick);
     connect(localIpcServer_, &LocalIPCServer::update, this, &MainWindow::onIpcUpdate);
 
@@ -282,9 +285,6 @@ MainWindow::MainWindow() :
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::getRobertFilters, this, &MainWindow::onPreferencesGetRobertFilters);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::setRobertFilter, this, &MainWindow::onPreferencesSetRobertFilter);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::splitTunnelingAppsAddButtonClick, this, &MainWindow::onSplitTunnelingAppsAddButtonClick);
-#ifdef Q_OS_WIN
-    connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::setIpv6StateInOS, this, &MainWindow::onPreferencesSetIpv6StateInOS);
-#endif
 
     // emergency window signals
     connect(mainWindowController_->getEmergencyConnectWindow(), &EmergencyConnectWindow::EmergencyConnectWindowItem::minimizeClick, this, &MainWindow::onMinimizeClick);
@@ -1045,7 +1045,6 @@ void MainWindow::onConnectWindowLocationsClick()
 
 void MainWindow::onConnectWindowPreferencesClick()
 {
-    backend_->getAndUpdateIPv6StateInOS();
     mainWindowController_->expandPreferences();
 }
 
@@ -1296,18 +1295,6 @@ void MainWindow::onPreferencesAccountLoginClick()
 {
     collapsePreferences();
     mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
-}
-
-void MainWindow::onPreferencesSetIpv6StateInOS(bool bEnabled, bool bRestartNow)
-{
-    backend_->setIPv6StateInOS(bEnabled);
-    if (bRestartNow)
-    {
-        qCDebug(LOG_BASIC) << "Restart system";
-        #ifdef Q_OS_WIN
-            WinUtils::reboot();
-        #endif
-    }
 }
 
 void MainWindow::onPreferencesCycleMacAddressClick()
@@ -2736,12 +2723,9 @@ void MainWindow::onPreferencesFirewallSettingsChanged(const types::FirewallSetti
 
 void MainWindow::onPreferencesShareProxyGatewayChanged(const types::ShareProxyGateway &sp)
 {
-    if (sp.isEnabled)
-    {
-        backend_->startProxySharing((PROXY_SHARING_TYPE)sp.proxySharingMode, sp.port);
-    }
-    else
-    {
+    if (sp.isEnabled) {
+        backend_->startProxySharing((PROXY_SHARING_TYPE)sp.proxySharingMode, sp.port, sp.whileConnected);
+    } else {
         backend_->stopProxySharing();
     }
 }
@@ -3055,7 +3039,7 @@ void MainWindow::onAppShouldTerminate_mac()
     close();
 }
 
-void MainWindow::onIpcOpenLocations()
+void MainWindow::onIpcOpenLocations(IPC::CliCommands::LocationType type)
 {
     activateAndShow();
 
@@ -3079,14 +3063,40 @@ void MainWindow::onIpcOpenLocations()
     // There is a race condition when CLI tries to expand the locations
     // from a CLI-spawned-GUI (Win): the location foreground doesn't appear, only the location's shadow
     // from a CLI-spawned-GUI (Mac): could fail WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT) in expandLocations
-    QTimer::singleShot(500, [this](){
+    QTimer::singleShot(500, [this, type](){
         mainWindowController_->expandLocations();
+        if (type == IPC::CliCommands::LocationType::kStaticIp) {
+            mainWindowController_->getLocationsWindow()->setTab(LOCATION_TAB_STATIC_IPS_LOCATIONS);
+        } else {
+            mainWindowController_->getLocationsWindow()->setTab(LOCATION_TAB_ALL_LOCATIONS);
+        }
     });
 }
 
 void MainWindow::onIpcConnect(const LocationID &id, const types::Protocol &protocol)
 {
     selectLocation(id, protocol);
+}
+
+void MainWindow::onIpcConnectStaticIp(const QString &location, const types::Protocol &protocol)
+{
+    QList<LocationID> list;
+
+    for (int i = 0; i < backend_->locationsModelManager()->staticIpsProxyModel()->rowCount(); i++) {
+        QModelIndex miStatic = backend_->locationsModelManager()->staticIpsProxyModel()->index(i, 0);
+
+        // If location doesn't match either the location nor IP, skip this entry
+        if (location != miStatic.data(gui_locations::kName).toString() && location != miStatic.data(gui_locations::kNick).toString()) {
+            continue;
+        }
+
+        list << qvariant_cast<LocationID>(miStatic.data(gui_locations::kLocationId));
+    }
+
+    if (list.size() > 0) {
+        // Randomly pick one of the candidates
+        onIpcConnect(list[QRandomGenerator::global()->bounded(list.size())], protocol);
+    }
 }
 
 void MainWindow::onAppCloseRequest()
@@ -3965,6 +3975,16 @@ types::Protocol MainWindow::getDefaultProtocolForNetwork(const QString &network)
 void MainWindow::onAppStateChanged(Qt::ApplicationState state)
 {
 #if defined(Q_OS_MACOS)
+    // In some cases (e.g. with "Minimize windows into application icon"), this event will trigger
+    // on the first showMinimize() call.  If we proceed to activateAndShow(), the window will be shown.
+    // Instead, ignore the first event here if starting minimized.
+    if (firstShow_) {
+        firstShow_ = false;
+        if (backend_->getPreferences()->isStartMinimized()) {
+            return;
+        }
+    }
+
     // in the case where we are minimized/closed to tray, this event lets us know if the user has clicked the dock icon,
     // which means we should show the window again
     if (state == Qt::ApplicationActive) {

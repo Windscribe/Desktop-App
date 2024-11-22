@@ -117,7 +117,6 @@ private slots:
     void onPreferencesManageRobertRulesClick();
     void onPreferencesQuitAppClick();
     void onPreferencesAccountLoginClick();
-    void onPreferencesSetIpv6StateInOS(bool bEnabled, bool bRestartNow);
     void onPreferencesCycleMacAddressClick();
     void onPreferencesWindowDetectPacketSizeClick();
     void onPreferencesAdvancedParametersClicked();
@@ -249,8 +248,9 @@ private slots:
 #endif
 
     // LocalIPCServer signals
-    void onIpcOpenLocations();
+    void onIpcOpenLocations(IPC::CliCommands::LocationType type);
     void onIpcConnect(const LocationID &id, const types::Protocol &protocol);
+    void onIpcConnectStaticIp(const QString &location, const types::Protocol &protocol);
     void onIpcUpdate();
 
     void showShutdownWindow();
@@ -438,7 +438,9 @@ private:
     void normalizeConnectionSettings(types::ConnectionSettings &cs);
 
 #ifdef Q_OS_MACOS
+    bool firstShow_ = true;
     PermissionMonitor_mac *permissionMonitor_;
 #endif
     void checkLocationPermission();
+
 };

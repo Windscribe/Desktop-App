@@ -139,7 +139,7 @@ ShadowManager::SHAPE_ID WindowSizeManager::shapeId(ResizableWindow *window)
 {
     if (windowInfo_.find(window) == windowInfo_.end()) {
         // not found
-        return ((ShadowManager::SHAPE_ID)-1);
+        return (ShadowManager::SHAPE_ID_INVALID);
     }
     return windowInfo_[window].shapeId;
 }

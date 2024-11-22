@@ -41,6 +41,7 @@ public:
     bool handleKeyPressEvent(QKeyEvent *event);
 
     LOCATION_TAB currentTab();
+    void setTab(LOCATION_TAB tab);
 
     static constexpr int TAB_HEADER_HEIGHT = 48;
     static constexpr int COVER_LAST_ITEM_LINE = 4;

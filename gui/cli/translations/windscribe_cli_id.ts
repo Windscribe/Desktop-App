@@ -11,6 +11,10 @@
         <source>Unlimited</source>
         <translation>Unlimited</translation>
     </message>
+    <message>
+        <source>No locations.</source>
+        <translation>Tidak ada lokasi.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -249,6 +253,22 @@
     <message>
         <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
         <translation>Logout sedang berlangsung.  Gunakan &apos;windscribe-cli status&apos; untuk memeriksa status.</translation>
+    </message>
+    <message>
+        <source>Connection has been overridden by another command.</source>
+        <translation>Koneksi telah diganti oleh perintah lain.</translation>
+    </message>
+    <message>
+        <source>Disconnection has been overridden by another command.</source>
+        <translation>Pemutusan telah diganti oleh perintah lain.</translation>
+    </message>
+    <message>
+        <source>Already disconnected</source>
+        <translation>Sudah terputus</translation>
+    </message>
+    <message>
+        <source>Logging out</source>
+        <translation>Keluar</translation>
     </message>
 </context>
 </TS>

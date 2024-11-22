@@ -2,7 +2,7 @@
 
 #include "utils/extraconfig.h"
 #include "utils/ipvalidation.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/ws_assert.h"
 
 ManualConnSettingsPolicy::ManualConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli,
@@ -14,7 +14,7 @@ ManualConnSettingsPolicy::ManualConnSettingsPolicy(QSharedPointer<locationsmodel
     WS_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
 
     QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-    if (IpValidation::isIp(remoteOverride) && connectionSettings_.protocol() == types::Protocol::WIREGUARD) {
+    if (IpValidation::isIpv4Address(remoteOverride) && connectionSettings_.protocol() == types::Protocol::WIREGUARD) {
         locationInfo_->selectNodeByIp(remoteOverride);
     }
 }
@@ -40,7 +40,7 @@ void ManualConnSettingsPolicy::putFailedConnection()
     if (failedManualModeCounter_ >= 2)
     {
         QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-        if (!IpValidation::isIp(remoteOverride) || connectionSettings_.protocol() != types::Protocol::WIREGUARD) {
+        if (!IpValidation::isIpv4Address(remoteOverride) || connectionSettings_.protocol() != types::Protocol::WIREGUARD) {
             // try switch to another node for manual mode
             locationInfo_->selectNextNode();
         }

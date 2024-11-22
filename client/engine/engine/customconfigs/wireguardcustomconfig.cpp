@@ -1,5 +1,6 @@
 #include "wireguardcustomconfig.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
+#include "utils/log/clean_sensitive_info.h"
 
 #include <QFileInfo>
 #include <QSettings>

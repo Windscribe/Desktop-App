@@ -1,6 +1,6 @@
 #include "defaultroutemonitor.h"
 #include "../utils.h"
-#include "../logger.h"
+#include <spdlog/spdlog.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -14,7 +14,7 @@ void RouteMonitorThread(void *callerContext)
     auto *this_ = static_cast<DefaultRouteMonitor *>(callerContext);
     int socket_fd = socket(PF_ROUTE, SOCK_RAW, AF_INET);
     if (socket_fd < 0) {
-        LOG("Failed to open PF_ROUTE socket");
+        spdlog::error("Failed to open PF_ROUTE socket");
         return;
     }
     char message[2048];
@@ -35,7 +35,7 @@ void RouteMonitorThread(void *callerContext)
             }
         }
     }
-    LOG("Default route monitoring finished");
+    spdlog::info("Default route monitoring finished");
 }
 }  // namespace
 
@@ -91,7 +91,7 @@ bool DefaultRouteMonitor::executeCommandWithLogging(const std::string &command) 
     std::string output;
     const auto status = Utils::executeCommand(command, {}, &output);
     if (!output.empty())
-        LOG("%s", output.c_str());
+        spdlog::info("{}", output);
     return status == 0;
 }
 
@@ -107,7 +107,7 @@ std::string DefaultRouteMonitor::getDefaultGateway() const
         if (!gateways.empty() && !gateways[0].empty())
             return gateways[0];
     }
-    LOG("Failed to get default gateway (%s)", output.c_str());
+    spdlog::error("Failed to get default gateway ({})", output);
     return "";
 }
 

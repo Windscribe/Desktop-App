@@ -32,9 +32,6 @@ public:
 
 signals:
     void advParametersClick();
-#ifdef Q_OS_WIN
-    void setIpv6StateInOS(bool bEnabled, bool bRestartNow);
-#endif
 private slots:
     void onApiResolutionChanged(const types::ApiResolutionSettings &dns);
     void onIgnoreSslErrorsStateChanged(bool isChecked);
@@ -53,11 +50,6 @@ private slots:
     void onApiResolutionPreferencesChanged(const types::ApiResolutionSettings &dns);
 
     void onLanguageChanged();
-
-#ifdef Q_OS_WIN
-    void onIPv6StateChanged(bool isChecked);
-    void onPreferencesIpv6InOSStateChanged(bool bEnabled);
-#endif
 
 signals:
     void exportSettingsClick();
@@ -90,11 +82,6 @@ private:
     PreferencesHelper *preferencesHelper_;
 
     ADVANCED_SCREEN currentScreen_;
-
-#ifdef Q_OS_WIN
-    PreferenceGroup *ipv6Group_;
-    ToggleItem *checkBoxIPv6_;
-#endif
 };
 
 } // namespace PreferencesWindow

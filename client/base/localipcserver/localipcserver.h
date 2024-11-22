@@ -3,6 +3,7 @@
 #include <QVector>
 #include "api_responses/checkupdate.h"
 #include "backend/backend.h"
+#include "ipc/clicommands.h"
 #include "ipc/server.h"
 #include "ipc/connection.h"
 #include "types/connectstate.h"
@@ -22,8 +23,9 @@ public:
     void setDisconnectedByKeyLimit();
 
 signals:
-    void showLocations();
+    void showLocations(IPC::CliCommands::LocationType type);
     void connectToLocation(const LocationID &id, const types::Protocol &protocol);
+    void connectToStaticIpLocation(const QString &location, const types::Protocol &protocol);
     void attemptLogin(const QString &username, const QString &password, const QString &code2fa);
     void setKeyLimitBehavior(bool deleteKey);
     void update();
@@ -43,6 +45,7 @@ private slots:
     void onBackendTestTunnelResult(bool success);
     void onBackendUpdateDownloaded(const QString &path);
     void onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error);
+    void onBackendConnectionIdChanged(const QString &connId);
 
 private:
     Backend *backend_;
@@ -63,6 +66,8 @@ private:
     uint port_;
     TUNNEL_TEST_STATE tunnelTestState_;
     bool disconnectedByKeyLimit_;
+    QString connectId_;
+    bool tunnelTestSuccess_;
 
     void sendState();
     void sendCommand(const IPC::Command &command);

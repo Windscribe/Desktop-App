@@ -1,7 +1,6 @@
 #include "split_tunneling.h"
+#include <spdlog/spdlog.h>
 #include "../firewallcontroller.h"
-#include "../logger.h"
-#include "../utils.h"
 
 SplitTunneling::SplitTunneling(): isExclude_(false)
 {
@@ -17,7 +16,7 @@ SplitTunneling::~SplitTunneling()
 void SplitTunneling::setConnectParams(CMD_SEND_CONNECT_STATUS &connectStatus)
 {
     std::lock_guard<std::mutex> guard(mutex_);
-    LOG("isConnected: %d, protocol: %d", connectStatus.isConnected, (int)connectStatus_.protocol);
+    spdlog::debug("isConnected: {}, protocol: {}", connectStatus.isConnected, (int)connectStatus_.protocol);
     connectStatus_ = connectStatus;
     routesManager_.updateState(connectStatus_, isSplitTunnelActive_, isExclude_);
     updateState();
@@ -29,7 +28,7 @@ void SplitTunneling::setSplitTunnelingParams(bool isActive, bool isExclude, cons
     std::lock_guard<std::mutex> guard(mutex_);
     std::vector<std::string> allHosts = hosts;
 
-    LOG("isSplitTunnelingActive: %d, isExclude: %d", isActive, isExclude);
+    spdlog::debug("isSplitTunnelingActive: {}, isExclude: {}", isActive, isExclude);
 
     isSplitTunnelActive_ = isActive;
     isExclude_ = isExclude;

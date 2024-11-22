@@ -59,11 +59,8 @@ public:
 
     void startWifiSharing(const QString &ssid, const QString &password);
     void stopWifiSharing();
-    void startProxySharing(PROXY_SHARING_TYPE proxySharingMode, uint port);
+    void startProxySharing(PROXY_SHARING_TYPE proxySharingMode, uint port, bool whileConnected);
     void stopProxySharing();
-
-    void setIPv6StateInOS(bool bEnabled);
-    void getAndUpdateIPv6StateInOS();
 
     void gotoCustomOvpnConfigMode();
 
@@ -241,6 +238,7 @@ signals:
     void protocolStatusChanged(const QVector<types::ProtocolStatus> &status);
 
     void helperSplitTunnelingStartFailed();
+    void connectionIdChanged(const QString &connId);
 
 private:
     bool isSavedApiSettingsExists_;

@@ -5,7 +5,7 @@
 #include <QStringList>
 #include <QTextStream>
 
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/openssl_utils.h"
 
 WireGuardConfig::WireGuardConfig()

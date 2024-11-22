@@ -7,7 +7,6 @@
 #include "utils/makecustomshadow.h"
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
-#include "utils/logger.h"
 
 namespace CommonWidgets {
 

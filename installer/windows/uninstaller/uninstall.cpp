@@ -3,13 +3,13 @@
 #include <filesystem>
 #include <shlwapi.h>
 #include <Shobjidl.h>
+#include <spdlog/spdlog.h>
 
 #include "authhelper.h"
 #include "registry.h"
 #include "remove_directory.h"
 #include "resource.h"
 #include "../utils/applicationinfo.h"
-#include "../utils/logger.h"
 #include "../utils/path.h"
 #include "../utils/utils.h"
 
@@ -91,13 +91,13 @@ void Uninstaller::DelayDeleteFile(const wstring Filename, const unsigned int Max
 
 void Uninstaller::DeleteUninstallDataFiles()
 {
-    Log::instance().out(L"Deleting data file %s", UninstExeFile.c_str());
+    spdlog::info(L"Deleting data file {}", UninstExeFile.c_str());
     DelayDeleteFile(UninstExeFile, 13, 50, 250);
 }
 
 bool Uninstaller::PerformUninstall(const P_DeleteUninstallDataFilesProc DeleteUninstallDataFilesProc, const wstring& path_for_installation)
 {
-    Log::instance().out(L"Starting the uninstallation process.");
+    spdlog::info(L"Starting the uninstallation process.");
 
     ::CoInitialize(nullptr);
 
@@ -105,12 +105,12 @@ bool Uninstaller::PerformUninstall(const P_DeleteUninstallDataFilesProc DeleteUn
     LSTATUS ret = Registry::RegDeleteKeyIncludingSubkeys1(HKEY_LOCAL_MACHINE, keyName.c_str());
 
     if (ret != ERROR_SUCCESS) {
-        Log::instance().out(L"Uninstaller::PerformUninstall - failed to delete registry entry %s (%lu)", keyName.c_str(), ret);
+        spdlog::error(L"Uninstaller::PerformUninstall - failed to delete registry entry {} ({})", keyName, ret);
     }
 
     RemoveDir::DelTree(path_for_installation, true, true, true, false);
 
-    Log::instance().out(L"Deleting shortcuts.");
+    spdlog::info(L"Deleting shortcuts.");
 
     wstring common_desktop = Utils::desktopFolder();
     wstring group = Utils::startMenuProgramsFolder();
@@ -124,17 +124,17 @@ bool Uninstaller::PerformUninstall(const P_DeleteUninstallDataFilesProc DeleteUn
 
     ::CoUninitialize();
 
-    Log::instance().out(L"Uninstallation process succeeded.");
+    spdlog::info(L"Uninstallation process succeeded.");
 
     return true;
 }
 
 void Uninstaller::RunSecondPhase()
 {
-    Log::instance().out(L"Original Uninstall EXE: " + UninstExeFile);
+    spdlog::info(L"Original Uninstall EXE: {}", UninstExeFile);
 
     if (!InitializeUninstall()) {
-        Log::instance().out(L"return after InitializeUninstall()");
+        spdlog::info(L"return after InitializeUninstall()");
         PostQuitMessage(0);
         return;
     }
@@ -143,7 +143,7 @@ void Uninstaller::RunSecondPhase()
 
     wstring path_for_installation = Path::extractDir(UninstExeFile);
 
-    Log::instance().out(L"Running uninstall second phase with path: %s", path_for_installation.c_str());
+    spdlog::info(L"Running uninstall second phase with path: {}", path_for_installation);
 
     // Clear any existing auto-login entries.
     Registry::regDeleteProperty(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe2", L"username");
@@ -152,31 +152,31 @@ void Uninstaller::RunSecondPhase()
     AuthHelper::removeRegEntriesForAuthHelper(path_for_installation);
 
     if (!isSilent_) {
-        Log::instance().out(L"turn off firewall: %s", path_for_installation.c_str());
+        spdlog::info(L"turn off firewall: {}", path_for_installation);
         Utils::instExec(Path::append(path_for_installation, L"WindscribeService.exe"), L"-firewall_off", INFINITE, SW_HIDE);
     }
 
-    Log::instance().out(L"uninstall WireGuard service");
+    spdlog::info(L"uninstall WireGuard service");
     UninstallWireGuardService();
 
     const auto taskkillExe = Path::append(Utils::getSystemDir(), L"taskkill.exe");
 
-    Log::instance().out(L"kill openvpn process");
+    spdlog::info(L"kill openvpn process");
     Utils::instExec(taskkillExe, L"/f /im windscribeopenvpn.exe", INFINITE, SW_HIDE);
 
-    Log::instance().out(L"kill wstunnel process");
+    spdlog::info(L"kill wstunnel process");
     Utils::instExec(taskkillExe, L"/f /im windscribewstunnel.exe", INFINITE, SW_HIDE);
 
-    Log::instance().out(L"kill ctrld process");
+    spdlog::info(L"kill ctrld process");
     Utils::instExec(taskkillExe, L"/f /im windscribectrld.exe", INFINITE, SW_HIDE);
 
-    Log::instance().out(L"uninstall split tunnel driver");
+    spdlog::info(L"uninstall split tunnel driver");
     UninstallSplitTunnelDriver();
 
-    Log::instance().out(L"uninstall OpenVPN DCO driver");
+    spdlog::info(L"uninstall OpenVPN DCO driver");
     UninstallOpenVPNDCODriver(path_for_installation);
 
-    Log::instance().out(L"perform uninstall");
+    spdlog::info(L"perform uninstall");
     PerformUninstall(&DeleteUninstallDataFiles, path_for_installation);
 
     // open uninstall screen in browser
@@ -200,13 +200,13 @@ void Uninstaller::RunSecondPhase()
         }
     }
 
-    Log::instance().out(L"Removing directory %s", path_for_installation.c_str());
+    spdlog::info(L"Removing directory {}", path_for_installation);
     ::RemoveDirectory(path_for_installation.c_str());
 
     // remove any leftover files in Program Files, since we write some configs/logs here regardless of installation path
     wstring wsPath = Path::append(Utils::programFilesFolder(), L"Windscribe");
     if (!Path::equivalent(wsPath, path_for_installation)) {
-        Log::instance().out(L"Removing directory in Program Files");
+        spdlog::info(L"Removing directory in Program Files");
         RemoveDir::DelTree(wsPath.c_str(), true, true, true, false);
     }
 
@@ -257,7 +257,7 @@ void Uninstaller::UninstallSplitTunnelDriver()
         }
     }
     catch (system_error& ex) {
-        Log::instance().out(L"WARNING: failed to uninstall the split tunnel driver - %hs", ex.what());
+        spdlog::warn("WARNING: failed to uninstall the split tunnel driver - {}", ex.what());
     }
 }
 
@@ -273,7 +273,7 @@ void Uninstaller::UninstallHelper()
         }
     }
     catch (system_error& ex) {
-        Log::instance().out(L"WARNING: failed to delete the Windscribe service - %hs", ex.what());
+        spdlog::warn("WARNING: failed to delete the Windscribe service - {}", ex.what());
     }
 }
 
@@ -290,13 +290,13 @@ int Uninstaller::messageBox(const UINT resourceID, const UINT type, HWND ownerWi
     HMODULE hModule = ::GetModuleHandle(NULL);
     int result = ::LoadString(hModule, IDS_MSGBOX_TITLE, title, bufSize);
     if (result == 0) {
-        Log::instance().out(L"WARNING: loading of the message box title string resource failed (%lu).", ::GetLastError());
+        spdlog::error(L"Loading of the message box title string resource failed ({}).", ::GetLastError());
         wcscpy_s(title, bufSize, L"Uninstall Windscribe");
     }
 
     result = ::LoadString(hModule, resourceID, message, bufSize);
     if (result == 0) {
-        Log::instance().out(L"WARNING: loading of string resource %d failed (%lu).", resourceID, ::GetLastError());
+        spdlog::error(L"Loading of string resource {} failed ({}).", resourceID, ::GetLastError());
         wcscpy_s(message, bufSize, L"Windscribe uninstall encountered a technical failure.");
     }
 
@@ -311,7 +311,7 @@ void Uninstaller::UninstallOpenVPNDCODriver(const wstring& installationPath)
     const wstring keyName = ApplicationInfo::installerRegistryKey(false);
     Registry::RegQueryStringValue(HKEY_CURRENT_USER, keyName.c_str(), L"ovpnDCODriverOEMIdentifier", adapterOEMIdentifier);
     if (adapterOEMIdentifier.empty()) {
-        Log::instance().out(L"WARNING: failed to find 'ovpnDCODriverOEMIdentifier' entry in the installer registry key.");
+        spdlog::warn(L"WARNING: failed to find 'ovpnDCODriverOEMIdentifier' entry in the installer registry key.");
         return;
     }
 
@@ -321,16 +321,16 @@ void Uninstaller::UninstallOpenVPNDCODriver(const wstring& installationPath)
     auto result = Utils::instExec(appName, commandLine, 30 * 1000, SW_HIDE);
 
     if (!result.has_value()) {
-        Log::instance().out(L"WARNING: The OpenVPN DCO driver uninstall failed to launch.");
+        spdlog::warn(L"WARNING: The OpenVPN DCO driver uninstall failed to launch.");
     }
     else if (result.value() == WAIT_TIMEOUT) {
-        Log::instance().out(L"WARNING: The OpenVPN DCO driver uninstall stage timed out.");
+        spdlog::warn(L"WARNING: The OpenVPN DCO driver uninstall stage timed out.");
     }
     else if (result.value() != NO_ERROR) {
-        Log::instance().out(L"WARNING: The OpenVPN DCO driver uninstall returned a failure code (%lu).", result.value());
+        spdlog::warn(L"WARNING: The OpenVPN DCO driver uninstall returned a failure code ({}).", result.value());
     }
     else {
-        Log::instance().out(L"OpenVPN DCO driver (%s) successfully removed from the Windows driver store", adapterOEMIdentifier.c_str());
+        spdlog::info(L"OpenVPN DCO driver ({}) successfully removed from the Windows driver store", adapterOEMIdentifier);
     }
 }
 
@@ -341,7 +341,7 @@ void Uninstaller::UninstallWireGuardService()
         svcCtrl.openSCM(SC_MANAGER_ALL_ACCESS);
 
         if (svcCtrl.isServiceInstalled(kWireGuardServiceIdentifier.c_str())) {
-            Log::instance().out(L"UninstallWireGuardService - deleting WireGuard service");
+            spdlog::info(L"UninstallWireGuardService - deleting WireGuard service");
             std::error_code ec;
             if (!svcCtrl.deleteService(kWireGuardServiceIdentifier.c_str(), ec)) {
                 throw std::system_error(ec);
@@ -351,9 +351,9 @@ void Uninstaller::UninstallWireGuardService()
         return;
     }
     catch (std::system_error& ex) {
-        Log::instance().out(L"WARNING: failed to delete the WireGuard service - %hs", ex.what());
+        spdlog::error("Failed to delete the WireGuard service - {}", ex.what());
     }
 
-    Log::instance().out(L"UninstallWireGuardService - task killing the WireGuard service");
+    spdlog::info(L"UninstallWireGuardService - task killing the WireGuard service");
     Utils::instExec(Path::append(Utils::getSystemDir(), L"taskkill.exe"), L"/f /t /im WireguardService.exe", INFINITE, SW_HIDE);
 }

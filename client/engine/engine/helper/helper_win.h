@@ -63,10 +63,6 @@ public:
     QString enableBFE();
     QString resetAndStartRAS();
 
-    void setIPv6EnabledInFirewall(bool b);
-    void setIPv6EnabledInOS(bool b);
-    bool IPv6StateInOS();
-
     bool addHosts(const QString &hosts);
     bool removeHosts();
 
@@ -111,7 +107,6 @@ private:
     QStringList customDnsIp_;
     std::atomic<STATE> curState_;
 
-    bool bIPV6State_;
     QMutex mutex_;
     wsl::ServiceControlManager scm_;
     wsl::Win32Handle helperPipe_;
@@ -119,9 +114,6 @@ private:
     MessagePacketResult sendCmdToHelper(int cmdId, const std::string &data);
     bool disableIPv6();
     bool enableIPv6();
-
-    bool disableIPv6InOS();
-    bool enableIPv6InOS();
 
     int debugGetActiveUnblockingCmdCount();
 

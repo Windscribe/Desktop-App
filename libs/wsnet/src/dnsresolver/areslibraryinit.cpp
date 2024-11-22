@@ -29,7 +29,7 @@ bool AresLibraryInit::init()
 #endif
             int status = ares_library_init(ARES_LIB_INIT_ALL);
             if (status != ARES_SUCCESS) {
-                spdlog::critical("ares_library_init failed: {}", ares_strerror(status));
+                spdlog::error("ares_library_init failed: {}", ares_strerror(status));
                 bFailedInitialize_ = true;
                 return false;
             } else  {
@@ -67,7 +67,7 @@ bool AresLibraryInit::initAndroid()
     assert(connectivity_manager);
     int status = ares_library_init_android(connectivity_manager);
     if (status != ARES_SUCCESS) {
-        spdlog::critical("ares_library_init_android failed: {}", ares_strerror(status));
+        spdlog::error("ares_library_init_android failed: {}", ares_strerror(status));
         return false;
     }
 #endif

@@ -182,7 +182,7 @@ def GetVisualStudioEnvironment(target_arm64_arch=False):
             stdout, _ = process.communicate()
             exitcode = process.wait()
             if exitcode == 0:
-                result = eval(stdout.decode('ascii').strip('environ'))
+                result = eval(stdout.decode('utf-8').strip('environ'))
             break
     if not result:
         raise InstallError("Error setting up Visual Studio environment.")

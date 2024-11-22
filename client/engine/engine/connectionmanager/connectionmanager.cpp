@@ -1,4 +1,4 @@
-#include "utils/logger.h"
+#include "utils/log/logger.h"
 #include <QStandardPaths>
 #include <QThread>
 #include <QCoreApplication>
@@ -943,7 +943,7 @@ void ConnectionManager::doConnectPart2()
         // we need to exclude these DNS-addresses from DNS leak protection on Windows
         QStringList dnsIps;
         dnsIps << ctrldManager_->listenIp();
-        if (IpValidation::isIp(connectedDnsInfo_.upStream1)) {
+        if (IpValidation::isIpv4Address(connectedDnsInfo_.upStream1)) {
             dnsIps << connectedDnsInfo_.upStream1;
         }
         dynamic_cast<Helper_win*>(helper_)->setCustomDnsIps(dnsIps);
@@ -1095,7 +1095,7 @@ void ConnectionManager::doConnectPart3()
         } else if (connectedDnsInfo_.isCustomIPv4Address()) {
             dnsIps << connectedDnsInfo_.upStream1;
         } else {
-            if (IpValidation::isIp(connectedDnsInfo_.upStream1)) {
+            if (IpValidation::isIpv4Address(connectedDnsInfo_.upStream1)) {
                 dnsIps << connectedDnsInfo_.upStream1;
             }
             dnsIps << ctrldManager_->listenIp();
@@ -1576,11 +1576,12 @@ QString ConnectionManager::dnsServersFromConnectedDnsInfo() const
 
 void ConnectionManager::disconnect()
 {
-    Logger::instance().endConnectionMode();
+    log_utils::Logger::instance().endConnectionMode();
     timerReconnection_.stop();
     connectTimer_.stop();
     connectingTimer_.stop();
     state_ = STATE_DISCONNECTED;
+    emit connectionEnded();
 }
 
 void ConnectionManager::onConnectTrigger()

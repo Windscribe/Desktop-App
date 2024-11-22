@@ -3,7 +3,7 @@
 #include <QScopeGuard>
 
 #import "reachability.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 Reachability *g_Reachability = nil;
 ReachAbilityEvents *g_ReachabilityEvents = NULL;

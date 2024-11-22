@@ -10,8 +10,8 @@
 #include <sys/types.h>
 #include <sys/utsname.h>
 #include <unistd.h>
+#include "log/categories.h"
 
-#include "logger.h"
 #include "utils.h"
 
 namespace LinuxUtils

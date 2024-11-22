@@ -1,6 +1,6 @@
 #include "autodetectproxy_mac.h"
 #include "pmachelpers.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #import <Foundation/Foundation.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 

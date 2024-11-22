@@ -286,10 +286,6 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <source>Merge all logs by timestamp</source>
-        <translation>Sloučit všechny protokoly podle časového razítka</translation>
-    </message>
-    <message>
         <source>Word Wrap</source>
         <translation>Zalamování</translation>
     </message>
@@ -964,32 +960,12 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Rozšířené možnosti</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>Je vyžadováno restartování</translation>
-    </message>
-    <message>
-        <source>In order to toggle IPv6, a computer restart is required. Do it now?</source>
-        <translation>Chcete-li přepnout protokol IPv6, je vyžadován restart počítače. Udělej to hned?</translation>
-    </message>
-    <message>
-        <source>Restart later</source>
-        <translation>Restartovat později</translation>
-    </message>
-    <message>
         <source>Make advanced tweaks to the way the app functions.</source>
         <translation>Proveďte pokročilé úpravy způsobu, jakým aplikace funguje.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
         <translation>Pokročilé parametry</translation>
-    </message>
-    <message>
-        <source>Enables / disables system-wide IPv6 connectivity.</source>
-        <translation>Povolí/zakáže připojení IPv6 v celém systému.</translation>
-    </message>
-    <message>
-        <source>IPv6</source>
-        <translation>Protokol IPv6</translation>
     </message>
     <message>
         <source>Resolve server API address automatically, or use one provided by the Support team.</source>
@@ -1738,6 +1714,10 @@ Nejprve se připojte k síti</translation>
         <source>Auto</source>
         <translation>Auto</translation>
     </message>
+    <message>
+        <source>Only when VPN is connected</source>
+        <translation>Pouze v případě, že je připojena VPN</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
@@ -2143,6 +2123,14 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Auto-detect</source>
         <translation>Automatická detekce</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Uvolnit</translation>
+    </message>
+    <message>
+        <source>Beta</source>
+        <translation>Beta</translation>
     </message>
     <message>
         <source>Guinea Pig</source>

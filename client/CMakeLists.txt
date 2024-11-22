@@ -18,6 +18,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(OpenSSL REQUIRED)
 find_package(Boost REQUIRED COMPONENTS serialization)
+find_package(spdlog CONFIG REQUIRED)
 
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
 option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
@@ -168,7 +169,7 @@ else()
     set(CLIENT_LIBS gui base Qt6::Widgets)
 endif()
 
-target_link_libraries(Windscribe PRIVATE ${CLIENT_LIBS} engine common wsnet::wsnet Qt6::Network ${OS_SPECIFIC_LIBRARIES})
+target_link_libraries(Windscribe PRIVATE ${CLIENT_LIBS} engine common wsnet::wsnet spdlog::spdlog Qt6::Network ${OS_SPECIFIC_LIBRARIES})
 
 target_include_directories(Windscribe PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/engine

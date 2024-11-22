@@ -1,5 +1,6 @@
 #pragma once
 
+#include <windows.h>
 #include <ifdef.h>
 #include "ip_address/ip4_address_and_mask.h"
 #include "ip_address/ip6_address_and_prefix.h"
@@ -41,7 +42,7 @@ namespace Utils
                      uint16_t localPort = 0, uint16_t remotePort = 0, AppsIds *appsIds = nullptr, bool persistent = true);
     bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
                      GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid = nullptr,
-                     const std::vector<Ip6AddressAndPrefix> *range = nullptr, bool persistent = true);
+                     const std::vector<Ip6AddressAndPrefix> *range = nullptr, AppsIds *appsIds = nullptr, bool persistent = true);
 
     std::string ssidFromInterfaceGUID(const std::wstring &interfaceGUID);
 };

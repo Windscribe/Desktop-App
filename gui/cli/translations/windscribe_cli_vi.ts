@@ -11,6 +11,10 @@
         <source>Unlimited</source>
         <translation>Vô hạn</translation>
     </message>
+    <message>
+        <source>No locations.</source>
+        <translation>Không có địa điểm.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -249,6 +253,22 @@
     <message>
         <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
         <translation>Đăng xuất đang được tiến hành.  Sử dụng &apos;windscribe-cli status&apos; để kiểm tra trạng thái.</translation>
+    </message>
+    <message>
+        <source>Connection has been overridden by another command.</source>
+        <translation>Kết nối đã bị ghi đè bởi một lệnh khác.</translation>
+    </message>
+    <message>
+        <source>Disconnection has been overridden by another command.</source>
+        <translation>Việc ngắt kết nối đã bị ghi đè bởi một lệnh khác.</translation>
+    </message>
+    <message>
+        <source>Already disconnected</source>
+        <translation>Đã ngắt kết nối</translation>
+    </message>
+    <message>
+        <source>Logging out</source>
+        <translation>Đăng xuất</translation>
     </message>
 </context>
 </TS>

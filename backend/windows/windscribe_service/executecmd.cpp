@@ -1,6 +1,6 @@
 #include "executecmd.h"
 
-#include "logger.h"
+#include <spdlog/spdlog.h>
 #include "utils.h"
 #include "utils/win32handle.h"
 
@@ -32,7 +32,7 @@ MessagePacketResult ExecuteCmd::executeBlockingCmd(const std::wstring &cmd, HAND
     wsl::Win32Handle pipeRead;
     wsl::Win32Handle pipeWrite;
     if (!CreatePipe(pipeRead.data(), pipeWrite.data(), &sa, 0)) {
-        Logger::instance().out(L"executeBlockingCmd CreatePipe failed: %lu", ::GetLastError());
+        spdlog::error("executeBlockingCmd CreatePipe failed: {}", ::GetLastError());
         return mpr;
     }
 
@@ -72,7 +72,7 @@ MessagePacketResult ExecuteCmd::executeBlockingCmd(const std::wstring &cmd, HAND
         mpr.success = true;
     }
     else {
-        Logger::instance().out(L"executeBlockingCmd CreateProcess failed: %lu", ::GetLastError());
+        spdlog::error("executeBlockingCmd CreateProcess failed: {}", ::GetLastError());
     }
 
     return mpr;
@@ -127,7 +127,7 @@ MessagePacketResult ExecuteCmd::executeUnblockingCmd(const std::wstring &cmd, co
     }
     else
     {
-        Logger::instance().out(L"Failed create process: %x", GetLastError());
+        spdlog::error("Failed create process: {}", GetLastError());
         delete blockingCmd;
     }
 
@@ -219,11 +219,10 @@ void ExecuteCmd::waitOrTimerCallback(PVOID lpParameter, BOOLEAN /*timerOrWaitFir
         {
             SetEvent(hEvent);
             CloseHandle(hEvent);
-            Logger::instance().out(L"OpenEvent success");
         }
         else
         {
-            Logger::instance().out(L"OpenEvent failed, err=%d", GetLastError());
+            spdlog::error("OpenEvent failed, err={}", GetLastError());
         }
     }
 }

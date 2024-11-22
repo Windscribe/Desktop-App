@@ -1,7 +1,7 @@
 #include "launchonstartup_mac.h"
 #include <AppKit/AppKit.h>
 #include <ServiceManagement/ServiceManagement.h>
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "names.h"
 
 

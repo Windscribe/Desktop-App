@@ -6,11 +6,8 @@
 
 #include "dpiscalemanager.h"
 #include "commongraphics/baseitem.h"
-#include "commongraphics/scrollarea.h"
 #include "graphicresources/fontmanager.h"
 #include "languagecontroller.h"
-#include "utils/hardcodedsettings.h"
-#include "utils/logger.h"
 #ifdef Q_OS_MACOS
 #include "utils/macutils.h"
 #endif

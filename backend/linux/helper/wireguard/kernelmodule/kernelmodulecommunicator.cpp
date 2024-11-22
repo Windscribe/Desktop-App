@@ -1,11 +1,11 @@
 #include "../../../../posix_common/helper_commands.h"
 #include "kernelmodulecommunicator.h"
-#include "../../logger.h"
 #include "../../utils.h"
 #include "wireguard.h"
 #include <boost/asio.hpp>
 #include <boost/algorithm/hex.hpp>
 #include <sys/socket.h>
+#include <spdlog/spdlog.h>
 
 bool KernelModuleCommunicator::start(const std::string &deviceName)
 {
@@ -138,10 +138,10 @@ bool KernelModuleCommunicator::configure(const std::string &clientPrivateKey,
 
     memset(&new_peer, 0, sizeof(wg_peer));
 
-    new_peer.flags = (enum wg_peer_flags)0;
+    new_peer.flags = (enum wg_peer_flags)0; // NOLINT: ignore C-style flag casting
     if (!peerPublicKey.empty())
     {
-        new_peer.flags = (enum wg_peer_flags)(WGPEER_HAS_PUBLIC_KEY | new_peer.flags);
+        new_peer.flags = (enum wg_peer_flags)(WGPEER_HAS_PUBLIC_KEY | new_peer.flags); // NOLINT: ignore C-style flag casting
         buf = boost::algorithm::unhex(peerPublicKey);
         if (buf.size() != sizeof(wg_key))
             return false;
@@ -149,7 +149,7 @@ bool KernelModuleCommunicator::configure(const std::string &clientPrivateKey,
     }
     if (!peerPresharedKey.empty())
     {
-        new_peer.flags = (enum wg_peer_flags)(WGPEER_HAS_PRESHARED_KEY | new_peer.flags);
+        new_peer.flags = (enum wg_peer_flags)(WGPEER_HAS_PRESHARED_KEY | new_peer.flags); // NOLINT: ignore C-style flag casting
         buf = boost::algorithm::unhex(peerPresharedKey);
         if (buf.size() != sizeof(wg_key))
             return false;
@@ -161,7 +161,7 @@ bool KernelModuleCommunicator::configure(const std::string &clientPrivateKey,
 
     if (allowedIps.size() != 0)
     {
-        new_peer.flags = (enum wg_peer_flags)(WGPEER_REPLACE_ALLOWEDIPS | new_peer.flags);
+        new_peer.flags = (enum wg_peer_flags)(WGPEER_REPLACE_ALLOWEDIPS | new_peer.flags); // NOLINT: ignore C-style flag casting
         if (!setPeerAllowedIps(&new_peer, allowedIps))
             return false;
     }
@@ -169,11 +169,11 @@ bool KernelModuleCommunicator::configure(const std::string &clientPrivateKey,
     wg_device new_device;
     memset(&new_device, 0, sizeof(wg_device));
 
-    strcpy(new_device.name, deviceName_.c_str());
+    strcpy(new_device.name, deviceName_.c_str()); // NOLINT: ignore usage of strcpy since this buffer is always big enough
     new_device.flags = (enum wg_device_flags)(WGDEVICE_HAS_FWMARK);
     if (!clientPrivateKey.empty())
     {
-        new_device.flags = (enum wg_device_flags)(WGDEVICE_HAS_PRIVATE_KEY | new_device.flags);
+        new_device.flags = (enum wg_device_flags)(WGDEVICE_HAS_PRIVATE_KEY | new_device.flags); // NOLINT: ignore C-style flag casting
         buf = boost::algorithm::unhex(clientPrivateKey);
         if (buf.size() != sizeof(wg_key))
         {
@@ -186,7 +186,7 @@ bool KernelModuleCommunicator::configure(const std::string &clientPrivateKey,
     new_device.last_peer = &new_peer;
     new_device.fwmark = fwmark;
     if (listenPort) {
-        new_device.flags = (enum wg_device_flags)(WGDEVICE_HAS_LISTEN_PORT | new_device.flags);
+        new_device.flags = (enum wg_device_flags)(WGDEVICE_HAS_LISTEN_PORT | new_device.flags); // NOLINT: ignore C-style flag casting
         new_device.listen_port = listenPort;
     }
 
@@ -216,7 +216,7 @@ unsigned long KernelModuleCommunicator::getStatus(unsigned int *errorCode,
         int rc = gettimeofday(&tv, NULL);
         if (rc || tv.tv_sec - device->first_peer->last_handshake_time.tv_sec > 180)
         {
-            Logger::instance().out("Time since last handshake time exceeded 3 minutes, disconnecting");
+            spdlog::info("Time since last handshake time exceeded 3 minutes, disconnecting");
             return kWgStateError;
         }
         *bytesReceived = device->first_peer->rx_bytes;

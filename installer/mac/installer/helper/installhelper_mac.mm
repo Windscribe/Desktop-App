@@ -4,8 +4,10 @@
 #import <ServiceManagement/ServiceManagement.h>
 #import <Security/Authorization.h>
 
-#import "../Logger.h"
+#include <spdlog/spdlog.h>
+#include "../string_utils.h"
 #include "../../../../client/common/version/windscribe_version.h"
+
 
 bool InstallHelper_mac::installHelper(bool bForceDeleteOld)
 {
@@ -24,7 +26,7 @@ bool InstallHelper_mac::installHelper(bool bForceDeleteOld)
         NSString*       installedBundleVersion  = [installedInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       installedVersion        = [installedBundleVersion integerValue];
 
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"InstallHelper - installed helper version: %li", (long)installedVersion]];
+        spdlog::info("InstallHelper - installed helper version: {}", (long)installedVersion);
 
         NSBundle*       appBundle       = [NSBundle mainBundle];
         NSURL*          appBundleURL    = [appBundle bundleURL];
@@ -34,14 +36,14 @@ bool InstallHelper_mac::installHelper(bool bForceDeleteOld)
         NSString*       currentBundleVersion    = [currentInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       currentVersion          = [currentBundleVersion integerValue];
 
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"InstallHelper - current helper version: %li", (long)currentVersion]];
+        spdlog::info("InstallHelper - current helper version: {}", (long)currentVersion);
 
         if (installedVersion == currentVersion && isAppMajorMinorVersionSame() && !bForceDeleteOld) {
             return true;
         } else if (installedVersion >= currentVersion || bForceDeleteOld) {
             // If we are downgrading (or the helper version is the same but app version differs),
             // we need to uninstall the previous helper (SMJobBless will not let us downgrade)
-            [[Logger sharedLogger] logAndStdOut:@"Force reinstalling helper."];
+            spdlog::info("Force reinstalling helper.");
             NSString *scriptContents = @"do shell script \"launchctl remove /Library/LaunchDaemons/com.windscribe.helper.macos.plist;"
                                                           "rm /Library/LaunchDaemons/com.windscribe.helper.macos.plist;"
                                                           "rm /Library/PrivilegedHelperTools/com.windscribe.helper.macos\" with administrator privileges";
@@ -49,13 +51,13 @@ bool InstallHelper_mac::installHelper(bool bForceDeleteOld)
             NSAppleEventDescriptor *desc;
             desc = [script executeAndReturnError:nil];
             if (desc == nil) {
-                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Couldn't remove the previous helper."]];
+                spdlog::error("Couldn't remove the previous helper.");
             } else {
-                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Removed previous helper."]];
+                spdlog::info("Removed previous helper.");
             }
         }
     } else {
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"InstallHelper - helper not installed"]];
+        spdlog::error("InstallHelper - helper not installed");
     }
 
     AuthorizationItem authItem     = { kSMRightBlessPrivilegedHelper, 0, NULL, 0 };
@@ -70,7 +72,7 @@ bool InstallHelper_mac::installHelper(bool bForceDeleteOld)
     // Obtain the right to install privileged helper tools (kSMRightBlessPrivilegedHelper).
     OSStatus status = AuthorizationCreate(&authRights, kAuthorizationEmptyEnvironment, flags, &authRef);
     if (status != errAuthorizationSuccess) {
-        [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"InstallHelper - failed to create AuthorizationRef. Error code: %i", (int)status]];
+        spdlog::error("InstallHelper - failed to create AuthorizationRef. Error code: {}", (int)status);
     } else {
         // This does all the work of verifying the helper tool against the application
         // and vice-versa. Once verification has passed, the embedded launchd.plist
@@ -84,13 +86,13 @@ bool InstallHelper_mac::installHelper(bool bForceDeleteOld)
 #pragma clang diagnostic pop
         if (!result) {
             if (outError) {
-                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"InstallHelper - SMJobBless failed. Error code: %li", CFErrorGetCode(outError)]];
-                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Description: %@", CFErrorCopyDescription(outError)]];
-                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Reason: %@", CFErrorCopyFailureReason(outError)]];
-                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"Recovery: %@", CFErrorCopyRecoverySuggestion(outError)]];
+                spdlog::error("InstallHelper - SMJobBless failed. Error code: {}", CFErrorGetCode(outError));
+                spdlog::error("Description: {}", toStdString(CFErrorCopyDescription(outError)));
+                spdlog::error("Reason: {}", toStdString(CFErrorCopyFailureReason(outError)));
+                spdlog::error("Recovery: {}", toStdString(CFErrorCopyRecoverySuggestion(outError)));
                 CFRelease(outError);
             } else {
-                [[Logger sharedLogger] logAndStdOut:[NSString stringWithFormat:@"InstallHelper - SMJobBless failed. No error info available."]];
+                spdlog::error("InstallHelper - SMJobBless failed. No error info available.");
             }
         }
     }

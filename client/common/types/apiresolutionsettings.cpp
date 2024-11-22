@@ -1,7 +1,7 @@
 #include "apiresolutionsettings.h"
 #include "types/enums.h"
 #include "utils/ipvalidation.h"
-#include "utils/logger.h"
+#include "utils/log/logger.h"
 
 namespace types {
 
@@ -17,7 +17,7 @@ ApiResolutionSettings::ApiResolutionSettings(const QJsonObject &json)
 
     if (json.contains(kJsonManualAddressProp) && json[kJsonManualAddressProp].isString()) {
         QString address = json[kJsonManualAddressProp].toString();
-        if (IpValidation::isIp(address)) {
+        if (IpValidation::isIpv4Address(address)) {
             manualAddress_ = address;
         }
     }
@@ -63,7 +63,7 @@ void ApiResolutionSettings::fromIni(const QSettings &settings)
     TOGGLE_MODE mode = TOGGLE_MODE_fromString(settings.value(kIniIsAutomaticProp, prevMode).toString());
     bAutomatic_ = (mode == TOGGLE_MODE_AUTO);
     QString address = settings.value(kIniManualAddressProp, manualAddress_).toString();
-    if (IpValidation::isIp(address)) {
+    if (IpValidation::isIpv4Address(address)) {
         manualAddress_ = address;
     }
 }

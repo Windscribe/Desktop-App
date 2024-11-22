@@ -18,8 +18,6 @@ ScrollArea::ScrollArea(ScalableGraphicsObject *parent, int height, int width) : 
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape);
 
-    const int scrollBarHeight = height_ - static_cast<int>(SCROLL_BAR_GAP*2.5*G_SCALE);
-
     scrollBar_ = new CommonWidgets::ScrollBar();
     connect(scrollBar_, &CommonWidgets::ScrollBar::valueChanged, this, &ScrollArea::onScrollBarValueChanged);
     connect(scrollBar_, &CommonWidgets::ScrollBar::actionTriggered, this, &ScrollArea::onScrollBarActionTriggered);

@@ -6,7 +6,7 @@
 #include <pdhmsg.h>
 
 #include "engine/helper/helper_win.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 #include "utils/ws_assert.h"
 
 MeasurementCpuUsage::MeasurementCpuUsage(QObject *parent, IHelper *helper, IConnectStateController *connectStateController)

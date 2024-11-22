@@ -3,7 +3,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
-#include "logger.h"
+#include <spdlog/spdlog.h>
 #include "utils.h"
 
 MacSpoofingOnBootManager::MacSpoofingOnBootManager()
@@ -47,7 +47,7 @@ bool MacSpoofingOnBootManager::enable(const std::string &interface, const std::s
 
     int fd = open("/etc/windscribe/boot_macspoofing.sh", O_CREAT | O_WRONLY | O_TRUNC);
     if (fd < 0) {
-        LOG("Could not open boot script for writing");
+        spdlog::error("Could not open boot script for writing");
         return false;
     }
 
@@ -83,7 +83,7 @@ bool MacSpoofingOnBootManager::enable(const std::string &interface, const std::s
 
     fd = open("/Library/LaunchDaemons/com.aaa.windscribe.macspoofing_on.plist", O_CREAT | O_WRONLY | O_TRUNC);
     if (fd < 0) {
-        LOG("Could not open boot plist for writing");
+        spdlog::error("Could not open boot plist for writing");
         return false;
     }
     write(fd, plist.str().c_str(), plist.str().length());

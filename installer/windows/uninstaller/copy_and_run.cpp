@@ -2,8 +2,8 @@
 
 #include <shlwapi.h>
 #include <sstream>
+#include <spdlog/spdlog.h>
 
-#include "../utils/logger.h"
 #include "../utils/path.h"
 
 #pragma comment(lib, "Shlwapi.lib")
@@ -49,7 +49,7 @@ int CopyAndRun::runFirstPhase(const std::wstring& uninstExeFile, const char *lps
     wchar_t tempPath[MAX_PATH];
     DWORD result = GetTempPath(MAX_PATH, tempPath);
     if (result == 0) {
-        Log::instance().out(L"Couldn't locate Windows temporary directory (%lu)", GetLastError());
+        spdlog::error(L"Couldn't locate Windows temporary directory ({})", GetLastError());
         return MAXDWORD;
     }
 
@@ -59,14 +59,14 @@ int CopyAndRun::runFirstPhase(const std::wstring& uninstExeFile, const char *lps
     // they are running.
     std::wstring tempFile;
     if (!generateNonRandomUniqueFilename(tempPath, tempFile)) {
-        Log::instance().out(L"CopyAndRun::runFirstPhase generateNonRandomUniqueFilename failed");
+        spdlog::error(L"CopyAndRun::runFirstPhase generateNonRandomUniqueFilename failed");
         return MAXDWORD;
     }
 
     // We should have generated a unique filename that does not exist in the target folder,
     // thus CopyFile should fail if the file already exists.
     if (!CopyFile(uninstExeFile.c_str(), tempFile.c_str(), TRUE)) {
-        Log::instance().out(L"CopyAndRun::runFirstPhase failed to copy [%s] to [%s] (%lu)", uninstExeFile.c_str(), tempFile.c_str(), ::GetLastError());
+        spdlog::error(L"CopyAndRun::runFirstPhase failed to copy [{}] to [{}] ({})", uninstExeFile, tempFile, ::GetLastError());
         return MAXDWORD;
     }
 
@@ -81,7 +81,7 @@ int CopyAndRun::runFirstPhase(const std::wstring& uninstExeFile, const char *lps
         pars = stream.str();
     }
 
-    Log::instance().out(L"Start process: %s %s", tempFile.c_str(), pars.c_str());
+    spdlog::info(L"Start process: {} {}", tempFile, pars);
 
     std::wstring cmdLine = L"\"" + tempFile + L"\" " + pars;
 
@@ -93,7 +93,7 @@ int CopyAndRun::runFirstPhase(const std::wstring& uninstExeFile, const char *lps
     result = ::CreateProcess(nullptr, const_cast<wchar_t*>(cmdLine.c_str()), nullptr, nullptr, false, 0, nullptr,
                              tempPath, &startupInfo, &processInfo);
     if (result == FALSE) {
-        Log::instance().out(L"CopyAndRun::exec - CreateProcess(%s) failed (%lu)", cmdLine.c_str(), ::GetLastError());
+        spdlog::error(L"CopyAndRun::exec - CreateProcess({}) failed ({})", cmdLine, ::GetLastError());
         return MAXDWORD;
     }
 

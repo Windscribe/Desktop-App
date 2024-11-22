@@ -1,6 +1,6 @@
 #include "all_headers.h"
 #include "apps_ids.h"
-#include "logger.h"
+#include <spdlog/spdlog.h>
 
 AppsIds::AppsIds()
 {
@@ -104,7 +104,7 @@ void AppsIds::addFromListImpl(const std::vector<std::wstring> &apps)
             FwpmFreeMemory((void **)&fwpApplicationByteBlob);
         }
         else {
-            Logger::instance().out(L"FwpmGetAppIdFromFileName(%s) failed: %d", it->c_str(), result);
+            spdlog::error(L"FwpmGetAppIdFromFileName({}) failed: {}", it->c_str(), result);
         }
     }
 }

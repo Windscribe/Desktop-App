@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 project(installer)
 
+find_package(fmt CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS
              Widgets
              Gui
@@ -19,7 +21,6 @@ set(SOURCES
     ../../../client/common/utils/servicecontrolmanager.cpp
     ../../../client/common/utils/wincryptutils.cpp
     ../utils/applicationinfo.cpp
-    ../utils/logger.cpp
     ../utils/path.cpp
     ../utils/utils.cpp
     ../utils/windscribepathcheck.cpp
@@ -66,6 +67,8 @@ target_link_libraries(installer
     Ws2_32
     delayimp
     Crypt32.lib
+    spdlog::spdlog_header_only
+    fmt::fmt-header-only
     Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg
 )
 

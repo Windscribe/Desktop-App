@@ -1,5 +1,5 @@
 #include "detectlanrange.h"
-#include "utils/logger.h"
+#include "utils/log/categories.h"
 
 // static
 bool DetectLanRange::isRfcLoopbackAddress(quint32 ip)

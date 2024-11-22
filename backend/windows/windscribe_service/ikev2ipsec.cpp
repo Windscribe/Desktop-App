@@ -1,9 +1,9 @@
 #include "all_headers.h"
-#include "ikev2ipsec.h"
-#include "executecmd.h"
-#include "logger.h"
+#include <spdlog/spdlog.h>
 #include <shlobj.h>
 #include <wtsapi32.h>
+#include "ikev2ipsec.h"
+#include "executecmd.h"
 
 #pragma comment(lib, "Wtsapi32.lib")
 
@@ -84,7 +84,7 @@ bool IKEv2IPSec::setIKEv2IPSecParametersInPhoneBook()
             !WritePrivateProfileString( kWindscribeConnectionName, L"IpNBTFlags", L"0", pbk_path)) {
             // This is a valid phonebook, but we cannot write it. Don't try other locations, they
             // won't make any sense; better to try other IPSec setup functions, like PowerShell.
-            Logger::instance().out(L"Phonebook is not accessible: %ls", pbk_path);
+            spdlog::warn(L"Phonebook is not accessible: {}", pbk_path);
             break;
         }
         return true;
@@ -108,9 +108,9 @@ bool IKEv2IPSec::setIKEv2IPSecParametersPowerShell()
     auto mpr = ExecuteCmd::instance().executeBlockingCmd(
         command_buffer, impersonation_helper.token());
     if (!mpr.success) {
-        Logger::instance().out(L"Command failed: %ls", command_buffer);
+        spdlog::error(L"Command failed: {}", command_buffer);
         if (!mpr.additionalString.empty())
-            Logger::instance().out("Output: %s", mpr.additionalString.c_str());
+            spdlog::info("Output: {}", mpr.additionalString);
     }
     return mpr.success;
 }
@@ -137,17 +137,17 @@ void IKEv2IPSec::disableMODP2048Support()
                 dwValue = 0;
                 result = ::RegSetValueEx(hKey, L"NegotiateDH2048_AES256", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(dwValue));
                 if (result != ERROR_SUCCESS) {
-                    Logger::instance().out("IKEv2IPSec::disableMODP2048Support: failed to set the 'NegotiateDH2048_AES256' value (%lu)", result);
+                    spdlog::error("IKEv2IPSec::disableMODP2048Support: failed to set the 'NegotiateDH2048_AES256' value ({})", result);
                 }
             }
         }
         else if (result != ERROR_FILE_NOT_FOUND) {
-            Logger::instance().out("IKEv2IPSec::disableMODP2048Support: failed to query the 'NegotiateDH2048_AES256' value (%lu)", result);
+            spdlog::error("IKEv2IPSec::disableMODP2048Support: failed to query the 'NegotiateDH2048_AES256' value ({})", result);
         }
 
         ::RegCloseKey(hKey);
     }
     else {
-        Logger::instance().out("IKEv2IPSec::disableMODP2048Support: failed to open the 'Rasman Parameters' key (%lu)", result);
+        spdlog::error("IKEv2IPSec::disableMODP2048Support: failed to open the 'Rasman Parameters' key ({})", result);
     }
 }

@@ -1,5 +1,6 @@
 #import "downloader.h"
-#import "../Logger.h"
+#import <Cocoa/Cocoa.h>
+
 
 @implementation Downloader
 
