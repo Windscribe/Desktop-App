@@ -81,7 +81,7 @@ QMap<QString, QString> enumerateInstalledPrograms()
 
     // On Linux, we are looking for desktop entries. These are located under the applications dir at ~/.local/share, and each dir in $XDG_DATA_DIRS
     QStringList dirs = QString::fromLocal8Bit(qgetenv("XDG_DATA_DIRS")).split(":");
-    dirs.prepend(QDir::homePath() + ".local/share");
+    dirs.prepend(QDir::homePath() + "/.local/share");
 
     for (auto dir : dirs) {
         for (auto filename : QDir(dir + "/applications").entryList(QStringList("*.desktop"), QDir::Files)) {
@@ -123,6 +123,23 @@ QMap<QString, QString> enumerateInstalledPrograms()
                 }
             }
         }
+    }
+
+    qCDebug(LOG_BASIC) << "checking additional apps list";
+    // also open the additional apps list so undetected apps can be added simply
+    QFile f(QString(QDir::homePath() + "/.config/Windscribe/additionalapps.list"));
+    if (f.open(QFile::ReadOnly | QFile::Text))
+    {
+        QTextStream in(&f);
+        QStringList contents = in.readAll().split(QRegularExpression("[\r\n]"), Qt::SkipEmptyParts);
+        for(auto line: contents)
+        {
+            qCDebug(LOG_BASIC) << "added line for " << line;
+            programs[line] = line;
+        }
+    }
+    else {
+        qCDebug(LOG_BASIC) << "couldn't open additional apps list" << QString(QDir::homePath() + ".config/Windscribe/additionalapps.list");
     }
     return programs;
 }
