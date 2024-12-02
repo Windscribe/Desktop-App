@@ -818,6 +818,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  यदि आप एक प्रतिबंधात्मक नेटवर्क पर हैं, तो कृपया फिर से डाउनलोड करने का प्रयास करने से पहले वीपीएन कनेक्ट करें।</translation>
     </message>
+    <message>
+        <source>Custom Config Directory Import</source>
+        <translation>कस्टम कॉन्फ़िग निर्देशिका आयात</translation>
+    </message>
+    <message>
+        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
+        <translation>कस्टम कॉन्फ़िग निर्देशिका आयात की जा रही है.  Windscribe सही अनुमतियों की जांच के लिए आपके व्यवस्थापक पासवर्ड के लिए संकेत देगा।</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1854,6 +1862,10 @@ Connect to a network first</source>
     <message>
         <source>At least 8 characters</source>
         <translation>कम से कम 8 वर्ण</translation>
+    </message>
+    <message>
+        <source>To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode.</source>
+        <translation>सुरक्षित हॉटस्पॉट चालू करने के लिए, कृपया विभाजित टनलिंग बंद करें या अनन्य मोड का उपयोग करें।</translation>
     </message>
 </context>
 <context>

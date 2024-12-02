@@ -329,7 +329,6 @@ bool TestLocationsModel::isLocationsModelEqualTo(const LocationID &bestLocation,
     LocationID foundBestLocation;
     int handledCount = 0;
 
-    int g = locationsModel_->rowCount();
     for (int i = 0; i < locationsModel_->rowCount(); ++i)
     {
         QModelIndex miCountry = locationsModel_->index(i, 0);

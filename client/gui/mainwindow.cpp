@@ -73,8 +73,6 @@ MainWindow::MainWindow() :
     trayIcon_(),
     bNotificationConnectedShowed_(false),
     bytesTransferred_(0),
-    bMousePressed_(false),
-    bMoveEnabled_(true),
     logoutReason_(LOGOUT_UNDEFINED),
     isInitializationAborted_(false),
     isLoginOkAndConnectWindowVisible_(false),
@@ -100,12 +98,16 @@ MainWindow::MainWindow() :
     g_mainWindow = this;
 
     // Initialize "fallback" tray icon geometry.
-    const QScreen *screen = qApp->screens().at(0);
-    if (!screen) qDebug() << "No screen for fallback tray icon init"; // This shouldn't ever happen
-
-    const QRect desktopAvailableRc = screen->availableGeometry();
-    savedTrayIconRect_.setTopLeft(QPoint(desktopAvailableRc.right() - WINDOW_WIDTH * G_SCALE, 0));
-    savedTrayIconRect_.setSize(QSize(22, 22));
+    const QScreen *screen = nullptr;
+    QRect desktopAvailableRc;
+    if (qApp->screens().size() == 0 || qApp->screens().at(0) == NULL) {
+        qCCritical(LOG_BASIC) << "No screen for fallback tray icon init"; // This shouldn't ever happen
+    } else {
+        screen = qApp->screens().at(0);
+        desktopAvailableRc = screen->availableGeometry();
+        savedTrayIconRect_.setTopLeft(QPoint(desktopAvailableRc.right() - WINDOW_WIDTH * G_SCALE, 0));
+        savedTrayIconRect_.setSize(QSize(22, 22));
+    }
 
 #if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
     // We should do this part for Linux in the other place of the constructor in order to avoid incorrect icon color setup.
@@ -117,11 +119,14 @@ MainWindow::MainWindow() :
 #endif
 
     trayIcon_.show();
+
 #ifdef Q_OS_MACOS
-    const QRect desktopScreenRc = screen->geometry();
-    if (desktopScreenRc.top() != desktopAvailableRc.top()) {
-        while (trayIcon_.geometry().isEmpty())
-            qApp->processEvents();
+    if (screen) {
+        const QRect desktopScreenRc = screen->geometry();
+        if (desktopScreenRc.top() != desktopAvailableRc.top()) {
+            while (trayIcon_.geometry().isEmpty())
+                qApp->processEvents();
+        }
     }
 #endif
 
@@ -206,6 +211,7 @@ MainWindow::MainWindow() :
     locationsWindow_->setShowLocationLoad(backend_->getPreferences()->isShowLocationLoad());
     connect(backend_->getPreferences(), &Preferences::showLocationLoadChanged, locationsWindow_, &LocationsWindow::setShowLocationLoad);
     connect(backend_->getPreferences(), &Preferences::isAutoConnectChanged, this, &MainWindow::onAutoConnectUpdated);
+    connect(backend_->getPreferences(), &Preferences::customConfigNeedsUpdate, this, &MainWindow::onPreferencesCustomConfigPathNeedsUpdate);
 
     localIpcServer_ = new LocalIPCServer(backend_, this);
     connect(localIpcServer_, &LocalIPCServer::showLocations, this, &MainWindow::onIpcOpenLocations);
@@ -359,12 +365,11 @@ MainWindow::MainWindow() :
 
     // WindscribeApplication signals
     WindscribeApplication * app = WindscribeApplication::instance();
-    connect(app, &WindscribeApplication::clickOnDock, this, &MainWindow::toggleVisibilityIfDocked);
+    connect(app, &WindscribeApplication::clickOnDock, this, &MainWindow::onDockIconClicked);
     connect(app, &WindscribeApplication::activateFromAnotherInstance, this, &MainWindow::onAppActivateFromAnotherInstance);
     connect(app, &WindscribeApplication::shouldTerminate_mac, this, &MainWindow::onAppShouldTerminate_mac);
     connect(app, &WindscribeApplication::focusWindowChanged, this, &MainWindow::onFocusWindowChanged);
     connect(app, &WindscribeApplication::applicationCloseRequest, this, &MainWindow::onAppCloseRequest);
-    connect(app, &WindscribeApplication::applicationStateChanged, this, &MainWindow::onAppStateChanged);
 #if defined(Q_OS_WIN)
     connect(app, &WindscribeApplication::winIniChanged, this, &MainWindow::onAppWinIniChanged);
 #endif
@@ -401,10 +406,11 @@ MainWindow::MainWindow() :
     mainWindowController_->getInitWindow()->startWaitingAnimation();
 
     mainWindowController_->setIsDockedToTray(backend_->getPreferences()->isDockedToTray());
-    bMoveEnabled_ = !backend_->getPreferences()->isDockedToTray();
 
-    if (bMoveEnabled_)
+
+    if (!backend_->getPreferences()->isDockedToTray()) {
         mainWindowController_->setWindowPosFromPersistent();
+    }
 
 #if defined(Q_OS_MACOS)
     hideShowDockIconTimer_.setSingleShot(true);
@@ -426,13 +432,13 @@ MainWindow::~MainWindow()
 void MainWindow::showAfterLaunch()
 {
     if (!backend_) {
-        qCDebug(LOG_BASIC) << "Backend is nullptr!";
+        qCWarning(LOG_BASIC) << "Backend is nullptr!";
     }
 
     // Report the tray geometry after we've given the app some startup time.
     qCDebug(LOG_BASIC) << "Tray Icon geometry:" << trayIcon_.geometry();
 
-    #ifdef Q_OS_MACOS
+#ifdef Q_OS_MACOS
     // Do not showMinimized if hide from dock is enabled.  Otherwise, the app will fail to show
     // itself when the user selects 'Show' in the app's system tray menu.
     if (backend_ && backend_->getPreferences()->isHideFromDock()) {
@@ -440,14 +446,14 @@ void MainWindow::showAfterLaunch()
         hideShowDockIconImpl(!backend_->getPreferences()->isStartMinimized());
         return;
     }
-    #endif
+#endif
 
     bool showAppMinimized = false;
 
     if (backend_ && backend_->getPreferences()->isStartMinimized()) {
         showAppMinimized = true;
     }
-    #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
+#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     else if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
         QCommandLineParser cmdParser;
         cmdParser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
@@ -458,18 +464,21 @@ void MainWindow::showAfterLaunch()
             showAppMinimized = true;
         }
     }
-    #endif
+#endif
 
     if (showAppMinimized) {
-        #ifdef Q_OS_WIN
+        // Set active state to false; this affects the first click of the dock icon after launch if the app is docked.
+        // This state is 'true' by default, and if left as is, the first click of the dock icon will not activate the app.
+        activeState_ = false;
+#ifdef Q_OS_WIN
         // showMinimized, as of Qt 6.3.1, on Windows does not work.  The app is displayed (shown)
         // and all user input is disabled until ones clicks on the taskbar icon or alt-tabs back
         // to the app.
         show();
         QTimer::singleShot(50, this, &MainWindow::onMinimizeClick);
-        #else
+#else
         showMinimized();
-        #endif
+#endif
     }
     else {
         show();
@@ -480,9 +489,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
     // qDebug() << "MainWindow eventFilter: " << event->type();
 
-    if (watched == mainWindowController_->getViewport() && event->type() == QEvent::MouseMove) {
-        mouseMoveEvent((QMouseEvent *)event);
-    } else if (watched == mainWindowController_->getViewport() && event->type() == QEvent::MouseButtonRelease) {
+    if (watched == mainWindowController_->getViewport() && event->type() == QEvent::MouseButtonRelease) {
         mouseReleaseEvent((QMouseEvent *)event);
     }
     return QWidget::eventFilter(watched, event);
@@ -530,7 +537,7 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
         GetSystemMetrics(SM_SHUTTINGDOWN) &&
         !WindscribeApplication::instance()->isExitWithRestart())
     {
-        qCDebug(LOG_BASIC) << "Turning off firewall for non-restart logout";
+        qCInfo(LOG_BASIC) << "Turning off firewall for non-restart logout";
         backend_->firewallOff();
     }
 #endif
@@ -546,13 +553,13 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     {
         if (WindscribeApplication::instance()->isExitWithRestart()) {
             if (!backend_->getPreferences()->isLaunchOnStartup() || !backend_->getPreferences()->isAutoConnect()) {
-                qCDebug(LOG_BASIC) << "Setting firewall persistence to false for restart-triggered shutdown";
+                qCInfo(LOG_BASIC) << "Setting firewall persistence to false for restart-triggered shutdown";
                 PersistentState::instance().setFirewallState(false);
             }
         }
         else { // non-restart close
             if (!backend_->getPreferences()->isAutoConnect()) {
-                qCDebug(LOG_BASIC) << "Setting firewall persistence to false for non-restart auto-mode";
+                qCInfo(LOG_BASIC) << "Setting firewall persistence to false for non-restart auto-mode";
                 PersistentState::instance().setFirewallState(false);
             }
         }
@@ -560,7 +567,7 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
         PersistentState::instance().setFirewallState(true);
     }
 
-    qCDebug(LOG_BASIC) << "Firewall on next startup: " << PersistentState::instance().isFirewallOn();
+    qCInfo(LOG_BASIC) << "Firewall on next startup: " << PersistentState::instance().isFirewallOn();
 
     PersistentState::instance().setAppGeometry(this->saveGeometry());
 
@@ -586,11 +593,11 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
         disconnect(WindscribeApplication::instance(), &WindscribeApplication::shouldTerminate_mac, this, nullptr);
 
         if (isFromSigTerm_mac) {
-            qCDebug(LOG_BASIC) << "close main window with SIGTERM";
+            qCInfo(LOG_BASIC) << "close main window with SIGTERM";
         } else if (isSpontaneousCloseEvent_) {
-            qCDebug(LOG_BASIC) << "close main window with close event";
+            qCInfo(LOG_BASIC) << "close main window with close event";
         } else {
-            qCDebug(LOG_BASIC) << "close main window with restart OS";
+            qCInfo(LOG_BASIC) << "close main window with restart OS";
         }
         isSpontaneousCloseEvent_ = false;
 
@@ -608,7 +615,7 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     }
     else {
         isSpontaneousCloseEvent_ = false;
-        qCDebug(LOG_BASIC) << "close main window";
+        qCInfo(LOG_BASIC) << "close main window";
         if (event) {
             event->ignore();
             QTimer::singleShot(TIME_BEFORE_SHOW_SHUTDOWN_WINDOW, this, &MainWindow::showShutdownWindow);
@@ -658,8 +665,9 @@ bool MainWindow::event(QEvent *event)
     if (event->type() == QEvent::WindowActivate) {
         MainWindowState::instance().setActive(true);
         // qDebug() << "WindowActivate";
-        if (backend_->getPreferences()->isDockedToTray())
+        if (backend_->getPreferences()->isDockedToTray()) {
             activateAndShow();
+        }
         setBackendAppActiveState(true);
         activeState_ = true;
     } else if (event->type() == QEvent::WindowDeactivate) {
@@ -696,63 +704,31 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
-void MainWindow::mouseMoveEvent(QMouseEvent *event)
-{
-#ifdef Q_OS_WIN
-    if (!bMoveEnabled_) {
-        return;
-    }
-
-    if (event->buttons() & Qt::LeftButton && bMousePressed_) {
-        // On Windows, do not allow dragging the window beyond the top of the screen.
-        // You can still drag past the screen edge on the left/right/bottom.  This is the same as MacOS.
-        if (event->globalPosition().y() - dragPosition_.y() < -mainWindowController_->getShadowMargin() &&
-            event->globalPosition().y() - this->frameGeometry().top() < dragPosition_.y())
-        {
-            event->ignore();
-            return;
-        }
-
-        this->move(event->globalPosition().toPoint() - dragPosition_);
-        mainWindowController_->hideAllToolTips();
-        event->accept();
-    }
-#endif
-}
-
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
-    if (bMoveEnabled_) {
+    if (!backend_->getPreferences()->isDockedToTray()) {
         if (event->button() == Qt::LeftButton) {
-            dragPosition_ = event->globalPosition().toPoint() - this->frameGeometry().topLeft();
-
-            if (dragPosition_.x() < mainWindowController_->getShadowMargin() ||
-                dragPosition_.x() > this->width() - mainWindowController_->getShadowMargin() ||
-                dragPosition_.y() < mainWindowController_->getShadowMargin() ||
-                dragPosition_.y() > this->height() - mainWindowController_->getShadowMargin())
+            // Ignore drag on shadow
+            QPoint dragPosition = event->globalPosition().toPoint() - this->frameGeometry().topLeft();
+            if (dragPosition.x() < mainWindowController_->getShadowMargin() ||
+                dragPosition.x() > this->width() - mainWindowController_->getShadowMargin() ||
+                dragPosition.y() < mainWindowController_->getShadowMargin() ||
+                dragPosition.y() > this->height() - mainWindowController_->getShadowMargin())
             {
-                // Ignore drag on shadow
                 return;
             }
 
-            //event->accept();
-            bMousePressed_ = true;
-
-#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
             this->window()->windowHandle()->startSystemMove();
-#endif
+            bMovingWindow_ = true;
         }
     }
 }
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (bMoveEnabled_)
-    {
-        if (event->button() == Qt::LeftButton && bMousePressed_)
-        {
-            bMousePressed_ = false;
-        }
+    if (bMovingWindow_) {
+        bMovingWindow_ = false;
+        mainWindowController_->updateMaximumHeight();
     }
 }
 
@@ -1032,7 +1008,6 @@ void MainWindow::onConnectWindowNetworkButtonClick()
 
 void MainWindow::onConnectWindowLocationsClick()
 {
-    // qCDebug(LOG_USER) << "Locations button clicked";
     if (!mainWindowController_->isLocationsExpanded())
     {
         mainWindowController_->expandLocations();
@@ -1254,7 +1229,7 @@ void MainWindow::normalizeConnectionSettings(types::ConnectionSettings &cs)
     // Check that the port in cs is valid per the portmap
     QVector<uint> ports = backend_->getPreferencesHelper()->getAvailablePortsForProtocol(cs.protocol());
     if (!ports.contains(cs.port())) {
-        qCDebug(LOG_BASIC) << "Port" << cs.port() << "does not exist in port map, setting to default port.";
+        qCInfo(LOG_BASIC) << "Port" << cs.port() << "does not exist in port map, setting to default port.";
         cs.setPort(types::Protocol::defaultPortForProtocol(cs.protocol()));
     }
 }
@@ -1544,7 +1519,7 @@ void MainWindow::selectLocation(const LocationID &lid, const types::Protocol &pr
             // determine default port for protocol
             QVector<uint> ports = backend_->getPreferencesHelper()->getAvailablePortsForProtocol(protocol);
             if (ports.size() == 0) {
-                qCDebug(LOG_BASIC) << "Could not determine port for protocol" << protocol.toLongString();
+                qCWarning(LOG_BASIC) << "Could not determine port for protocol" << protocol.toLongString();
             } else {
                 port = ports[0];
             }
@@ -1593,46 +1568,66 @@ void MainWindow::onLocationsAddCustomConfigClicked()
         this, tr("Select Custom Config Folder"), "", QFileDialog::ShowDirsOnly);
     ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
 
-    if (!path.isEmpty()) {
-        // qCDebug(LOG_BASIC) << "User selected custom config path:" << path;
+    checkCustomConfigPath(path);
+}
 
-        WriteAccessRightsChecker checker(path);
-        if (checker.isWriteable())
-        {
-            if (!checker.isElevated())
-            {
-                std::unique_ptr<IAuthChecker> authChecker = AuthCheckerFactory::createAuthChecker();
+void MainWindow::onPreferencesCustomConfigPathNeedsUpdate(const QString &path)
+{
+#ifdef Q_OS_WIN
+    // On Windows, the user gets an UAC prompt (possibly requesting admin credentials)
+    // The prompt contains the context of why we need admin credentials, so we don't need to show an additional message.
+    checkCustomConfigPath(path);
+#else
+    // For Mac & Linux, show an alert that describes why we're about to prompt for admin password,
+    // because the prompt does not show any useful context.
+    GeneralMessageController::instance().showMessage(
+        "WARNING_WHITE",
+        tr("Custom Config Directory Import"),
+        tr("A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions."),
+        GeneralMessageController::tr(GeneralMessageController::kOk),
+        "",
+        "",
+        [this, path](bool b) { checkCustomConfigPath(path); });
+#endif
+}
 
-                AuthCheckerError err = authChecker->authenticate();
-                if (err == AuthCheckerError::AUTH_AUTHENTICATION_ERROR)
-                {
-                    qCDebug(LOG_BASIC) << "Cannot change path when non-system directory when windscribe is not elevated.";
-                    const QString desc = tr(
-                        "Cannot select this directory because it is writeable for non-privileged users. "
-                        "Custom configs in this directory may pose a potential security risk. "
-                        "Please authenticate with an admin user to select this directory.");
-                    GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Can't select directory"), desc, GeneralMessageController::tr(GeneralMessageController::kOk));
-                    return;
-                }
-                else if (err == AuthCheckerError::AUTH_HELPER_ERROR)
-                {
-                    qCDebug(LOG_AUTH_HELPER) << "Failed to verify AuthHelper, binary may be corrupted.";
-                    const QString desc = tr("The application is corrupted.  Please reinstall Windscribe.");
-                    GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Validation Error"), desc, GeneralMessageController::tr(GeneralMessageController::kOk));
-                    return;
-                }
+void MainWindow::checkCustomConfigPath(const QString &path)
+{
+    if (path.isEmpty()) {
+        return;
+    }
+
+    WriteAccessRightsChecker checker(path);
+    if (checker.isWriteable()) {
+        if (!checker.isElevated()) {
+            std::unique_ptr<IAuthChecker> authChecker = AuthCheckerFactory::createAuthChecker();
+
+            AuthCheckerError err = authChecker->authenticate();
+            if (err == AuthCheckerError::AUTH_AUTHENTICATION_ERROR) {
+                qCWarning(LOG_BASIC) << "Cannot change path to non-system directory when windscribe is not elevated.";
+                const QString desc = tr(
+                    "Cannot select this directory because it is writeable for non-privileged users. "
+                    "Custom configs in this directory may pose a potential security risk. "
+                    "Please authenticate with an admin user to select this directory.");
+                GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Can't select directory"), desc, GeneralMessageController::tr(GeneralMessageController::kOk));
+                return;
+            } else if (err == AuthCheckerError::AUTH_HELPER_ERROR) {
+                qCWarning(LOG_AUTH_HELPER) << "Failed to verify AuthHelper, binary may be corrupted.";
+                const QString desc = tr("The application is corrupted.  Please reinstall Windscribe.");
+                GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Validation Error"), desc, GeneralMessageController::tr(GeneralMessageController::kOk));
+                return;
             }
-
-            // warn, but still allow path setting
-            const QString desc = tr(
-                "The selected directory is writeable for non-privileged users. "
-                "Custom configs in this directory may pose a potential security risk.");
-            GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Security Risk"), desc, GeneralMessageController::tr(GeneralMessageController::kOk));
         }
 
-        // set the path
-        backend_->getPreferences()->setCustomOvpnConfigsPath(path);
+        // warn, but still allow path setting
+        const QString desc = tr(
+            "The selected directory is writeable for non-privileged users. "
+            "Custom configs in this directory may pose a potential security risk.");
+        GeneralMessageController::instance().showMessage("WARNING_YELLOW", tr("Security Risk"), desc, GeneralMessageController::tr(GeneralMessageController::kOk));
     }
+
+    // set the path
+    backend_->getPreferences()->setCustomOvpnConfigsPath(path);
 }
 
 void MainWindow::onBackendInitFinished(INIT_STATE initState)
@@ -1728,7 +1723,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
         QTimer::singleShot(0, this, &MainWindow::close);
     } else {
         if (!isInitializationAborted_) {
-            qCDebug(LOG_BASIC) << "Engine failed to start.";
+            qCCritical(LOG_BASIC) << "Engine failed to start.";
             WS_ASSERT(false);
         }
         QTimer::singleShot(0, this, &MainWindow::close);
@@ -1756,7 +1751,7 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
             WS_ASSERT(bestLocation.isValid());
             if (!bestLocation.isValid())
             {
-                qCDebug(LOG_BASIC) << "Fatal error: MainWindow::onBackendLoginFinished, WS_ASSERT(bestLocation.isValid());";
+                qCCritical(LOG_BASIC) << "Fatal error: MainWindow::onBackendLoginFinished, WS_ASSERT(bestLocation.isValid());";
             }
             selectedLocation_->set(bestLocation);
             PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
@@ -1822,14 +1817,14 @@ void MainWindow::onBackendLoginError(wsnet::LoginResult loginError, const QStrin
         if (loginError == wsnet::LoginResult::kSessionInvalid) {
             onBackendSessionDeleted();
         } else {
-            qCDebug(LOG_BASIC) << "Session error while logged in: " << (int)loginError;
+            qCWarning(LOG_BASIC) << "Session error while logged in: " << (int)loginError;
         }
         return;
     }
 
     if (loginError == wsnet::LoginResult::kBadUsername) {
         if (backend_->isLastLoginWithAuthHash()) {
-            qCDebug(LOG_BASIC) << "Got 'bad username' with auth hash login";
+            qCCritical(LOG_BASIC) << "Got 'bad username' with auth hash login";
             WS_ASSERT(false);
         } else {
             loginAttemptsController_.pushIncorrectLogin();
@@ -1875,7 +1870,6 @@ void MainWindow::onBackendSessionStatusChanged(const api_responses::SessionStatu
     if (bEntryIsPresent && (!sessionStatus.isPremium()) && sessionStatus.getAlc().size() == 0 && sessionStatus.getStatus() == 1 && entryUsername != sessionStatus.getUsername())
     {
         status = 2;
-        //qCDebug(LOG_BASIC) << "Abuse detection: User session status was changed to 2. Original username:" << entryUsername;
         blockConnect_.setBlockedMultiAccount(entryUsername);
     }
     else if (bEntryIsPresent && entryUsername == sessionStatus.getUsername() && sessionStatus.getStatus() == 1)
@@ -1961,7 +1955,7 @@ void MainWindow::onBackendCheckUpdateChanged(const api_responses::CheckUpdate &c
 {
     if (checkUpdateInfo.isAvailable())
     {
-        qCDebug(LOG_BASIC) << "Update available";
+        qCInfo(LOG_BASIC) << "Update available";
         if (!checkUpdateInfo.isSupported())
         {
             blockConnect_.setNeedUpgrade();
@@ -1990,7 +1984,7 @@ void MainWindow::onBackendCheckUpdateChanged(const api_responses::CheckUpdate &c
     }
     else
     {
-        qCDebug(LOG_BASIC) << "No available update";
+        qCInfo(LOG_BASIC) << "No available update";
         mainWindowController_->hideUpdateWidget();
     }
 }
@@ -2027,7 +2021,7 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
                                                                               selectedLocation_->locationdId().isCustomConfigsLocation());
             }
             else {
-                qCDebug(LOG_BASIC) << "Fatal error: MainWindow::onBackendConnectStateChanged, WS_ASSERT(selectedLocation_.isValid());";
+                qCCritical(LOG_BASIC) << "Fatal error: MainWindow::onBackendConnectStateChanged, WS_ASSERT(selectedLocation_.isValid());";
                 WS_ASSERT(false);
             }
         }
@@ -2131,7 +2125,7 @@ void MainWindow::onBackendFirewallStateChanged(bool isEnabled)
 
 void MainWindow::onNetworkChanged(types::NetworkInterface network)
 {
-    qCDebug(LOG_BASIC) << "Network Changed: "
+    qCInfo(LOG_BASIC) << "Network Changed: "
                        << "Index: " << network.interfaceIndex
                        << ", Network/SSID: " << network.networkOrSsid
                        << ", MAC: " << network.physicalAddress
@@ -2204,7 +2198,7 @@ void MainWindow::onBackendLogoutFinished()
 
 void MainWindow::onBackendCleanupFinished()
 {
-    qCDebug(LOG_BASIC) << "Backend Cleanup Finished";
+    qCInfo(LOG_BASIC) << "Backend Cleanup Finished";
     close();
 }
 
@@ -2363,7 +2357,7 @@ void MainWindow::onBackendRequestCustomOvpnConfigPrivKeyPassword()
 
 void MainWindow::onBackendSessionDeleted()
 {
-    qCDebug(LOG_BASIC) << "Handle deleted session";
+    qCInfo(LOG_BASIC) << "Handle deleted session";
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
     setEnabled(false);
@@ -2427,7 +2421,7 @@ void MainWindow::onBackendTestTunnelResult(bool success)
 
 void MainWindow::onBackendLostConnectionToHelper()
 {
-    qCDebug(LOG_BASIC) << "Helper connection was lost";
+    qCWarning(LOG_BASIC) << "Helper connection was lost";
     GeneralMessageController::instance().showMessage("ERROR_ICON",
                                            tr("Service Error"),
                                            tr("Windscribe is malfunctioning.  Please restart the application."),
@@ -2446,7 +2440,7 @@ void MainWindow::onBackendHighCpuUsage(const QStringList &processesList)
             processesListString += processName;
         }
 
-        qCDebug(LOG_BASIC) << "Detected high CPU usage in processes:" << processesListString;
+        qCInfo(LOG_BASIC) << "Detected high CPU usage in processes:" << processesListString;
 
         QString msg = QString(tr("Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?").arg(processesListString));
 
@@ -2523,13 +2517,13 @@ void MainWindow::onBackendPacketSizeDetectionStateChanged(bool on, bool isError)
 
 void MainWindow::onPreferencesGetRobertFilters()
 {
-    qCDebug(LOG_USER) << "Requesting ROBERT filters from server";
+    qCInfo(LOG_USER) << "Requesting ROBERT filters from server";
     backend_->getRobertFilters();
 }
 
 void MainWindow::onBackendRobertFiltersChanged(bool success, const QVector<api_responses::RobertFilter> &filters)
 {
-    qCDebug(LOG_USER) << "Get ROBERT filters response: " << success;
+    qCInfo(LOG_USER) << "Get ROBERT filters response: " << success;
     if (success)
     {
         mainWindowController_->getPreferencesWindow()->setRobertFilters(filters);
@@ -2542,13 +2536,13 @@ void MainWindow::onBackendRobertFiltersChanged(bool success, const QVector<api_r
 
 void MainWindow::onPreferencesSetRobertFilter(const api_responses::RobertFilter &filter)
 {
-    qCDebug(LOG_USER) << "Set ROBERT filter: " << filter.id << ", " << filter.status;
+    qCInfo(LOG_USER) << "Set ROBERT filter: " << filter.id << ", " << filter.status;
     backend_->setRobertFilter(filter);
 }
 
 void MainWindow::onBackendSetRobertFilterResult(bool success)
 {
-    qCDebug(LOG_BASIC) << "Set ROBERT filter response:" << success;
+    qCInfo(LOG_BASIC) << "Set ROBERT filter response:" << success;
     if (success)
     {
         backend_->syncRobert();
@@ -2557,7 +2551,7 @@ void MainWindow::onBackendSetRobertFilterResult(bool success)
 
 void MainWindow::onBackendSyncRobertResult(bool success)
 {
-    qCDebug(LOG_BASIC) << "Sync ROBERT response:" << success;
+    qCInfo(LOG_BASIC) << "Sync ROBERT response:" << success;
 }
 
 void MainWindow::onBackendProtocolStatusChanged(const QVector<types::ProtocolStatus> &status)
@@ -2821,7 +2815,6 @@ void MainWindow::onPreferencesNetworkPreferredProtocolsChanged(QMap<QString, typ
 void MainWindow::onPreferencesIsDockedToTrayChanged(bool isDocked)
 {
     mainWindowController_->setIsDockedToTray(isDocked);
-    bMoveEnabled_ = !isDocked;
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 
@@ -2868,7 +2861,6 @@ const QRect MainWindow::trayIconRectForScreenContainingPt(const QPoint &pt)
 {
     QScreen *screen = WidgetUtils::slightlySaferScreenAt(pt);
     if (!screen) {
-        // qCDebug(LOG_BASIC) << "Cannot find screen while determining tray icon";
         return QRect(0,0,0,0);
     }
     return guessTrayIconLocationOnScreen(screen);
@@ -3004,25 +2996,19 @@ void MainWindow::setBackendAppActiveState(bool state)
     }
 }
 
-void MainWindow::toggleVisibilityIfDocked()
+void MainWindow::onDockIconClicked()
 {
-    // qDebug() << "on dock click Application State: " << qApp->applicationState();
-
-    if (backend_->getPreferences()->isDockedToTray())
-    {
-        if (isVisible() && activeState_)
-        {
-            // qDebug() << "dock click deactivate";
+    // Toggle visibility if docked
+    if (backend_->getPreferences()->isDockedToTray()) {
+        if (isVisible() && activeState_) {
             deactivateAndHide();
             setBackendAppActiveState(false);
-        }
-        else
-        {
-            // qDebug() << "dock click activate";
-
+        } else {
             activateAndShow();
             setBackendAppActiveState(true);
         }
+    } else {
+        activateAndShow();
     }
 }
 
@@ -3152,27 +3138,21 @@ QRect MainWindow::trayIconRect()
 #if defined(Q_OS_MACOS)
     if (trayIcon_.isVisible()) {
         const QRect rc = trayIcon_.geometry();
-        // qDebug() << "System-reported tray icon rect: " << rc;
 
         // check for valid tray icon
         if (!rc.isValid()) {
-            // qCDebug(LOG_BASIC) << "   Tray icon invalid - check last screen " << rc;
             QRect lastGuess = bestGuessForTrayIconRectFromLastScreen(rc.topLeft());
             if (lastGuess.isValid()) return lastGuess;
-            //qDebug() << "Using cached rect: " << savedTrayIconRect_;
             return savedTrayIconRect_;
         }
 
         // check for valid screen
         QScreen *screen = QGuiApplication::screenAt(rc.center());
         if (!screen) {
-            // qCDebug(LOG_BASIC) << "No screen at point -- make best guess " << rc;
             QRect bestGuess = trayIconRectForScreenContainingPt(rc.topLeft());
             if (bestGuess.isValid()) {
-                //qDebug() << "Using best guess rect << " << bestGuess;
                 return bestGuess;
             }
-            //qDebug() << "Using cached rect: " << savedTrayIconRect_;
             return savedTrayIconRect_;
         }
 
@@ -3182,11 +3162,8 @@ QRect MainWindow::trayIconRect()
         systemTrayIconRelativeGeoScreenHistory_[screen->name()] = QRect(abs(rc.x() - screenGeo.x()), abs(rc.y() - screenGeo.y()), rc.width(), rc.height());
         lastScreenName_ = screen->name();
         savedTrayIconRect_ = rc;
-        // qCDebug(LOG_BASIC) << "Caching: Screen with system-reported tray icon relative geo : " << screen->name() << " " << screenGeo << "; Tray Icon Rect: " << sii.iconRelativeGeo;
         return savedTrayIconRect_;
     }
-
-    // qCDebug(LOG_BASIC) << "Tray Icon not visible -- using last saved TrayIconRect";
 
 #else
     if (trayIcon_.isVisible()) {
@@ -3222,7 +3199,7 @@ void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
                 WidgetUtils_win::fixSystemTrayIconDblClick();
 #else
             if (backend_->getPreferences()->isDockedToTray()) {
-                toggleVisibilityIfDocked();
+                onDockIconClicked();
             } else if (!isVisible()) { // closed to tray
                 activateAndShow();
                 setBackendAppActiveState(true);
@@ -3281,7 +3258,11 @@ void MainWindow::onFreeTrafficNotification(const QString &message)
 void MainWindow::onSplitTunnelingAppsAddButtonClick()
 {
     ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
+#ifdef Q_OS_WIN
     QString filename = QFileDialog::getOpenFileName(this, tr("Select an application"), "C:\\");
+#else
+    QString filename = QFileDialog::getOpenFileName(this, tr("Select an application"), "/");
+#endif
     ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
 
     if (!filename.isEmpty()) // TODO: validation
@@ -3455,17 +3436,6 @@ void MainWindow::onDpiScaleManagerNewScreen(QScreen *screen)
         // qDebug() << "New scale from DpiScaleManager (docked app) - hide app";
         deactivateAndHide();
     }
-#elif defined(Q_OS_WIN)
-    // When dragging the app between displays, it occasionally does not resize itself correctly, causing portions
-    // of the app to be cut off.  Debugging showed that MainWindowController::updateMainAndViewGeometry is setting
-    // the correct app geometry, but Qt/Windows appear to be losing the resize event.  I tried calling QWidget's
-    // update(), repaint(), unpdateGeometry(), resize(), etc. here and none worked.
-    // Disabling our use of QGuiApplication::setHighDpiScaleFactorRoundingPolicy() fixes the issue.  The downside
-    // of disabling this API is that fonts and icons will be a bit blurry/jaggy on displays set to a non-integer
-    // scale factor (e.g. 150% = 1.5 scale factor).
-    QTimer::singleShot(500, this, [this]() {
-        mainWindowController_->updateScaling();
-    });
 #endif
 }
 
@@ -3597,7 +3567,7 @@ QString MainWindow::getConnectionTransferred()
 void MainWindow::setInitialFirewallState()
 {
     bool bFirewallStateOn = PersistentState::instance().isFirewallOn();
-    qCDebug(LOG_BASIC) << "Firewall state from last app start:" << bFirewallStateOn;
+    qCInfo(LOG_BASIC) << "Firewall state from last app start:" << bFirewallStateOn;
 
     if (bFirewallStateOn)
     {
@@ -3627,7 +3597,7 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
 
     QString msg;
     if (connectState.connectError == LOCATION_NOT_EXIST || connectState.connectError == LOCATION_NO_ACTIVE_NODES) {
-        qCDebug(LOG_BASIC) << "Location not exist or no active nodes, try connect to best location";
+        qCWarning(LOG_BASIC) << "Location not exist or no active nodes, try connect to best location";
         LocationID bestLocation = backend_->locationsModelManager()->getBestLocationId();
         selectedLocation_->set(bestLocation);
         PersistentState::instance().setLastLocation(selectedLocation_->locationdId());
@@ -3637,7 +3607,7 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
                                                                           selectedLocation_->locationdId().isCustomConfigsLocation());
             onConnectWindowConnectClick();
         } else {
-            qCDebug(LOG_BASIC) << "Best Location not exist or no active nodes, goto disconnected mode";
+            qCWarning(LOG_BASIC) << "Best Location not exist or no active nodes, goto disconnected mode";
         }
         return;
     } else if (connectState.connectError == IKEV_FAILED_MODIFY_HOSTS_WIN) {
@@ -3929,7 +3899,7 @@ void MainWindow::showTrayMessage(const QString &message)
                         "org.freedesktop.Notifications", QDBusConnection::sessionBus());
 
     if (!dbus.isValid()) {
-        qCDebug(LOG_BASIC) << "MainWindow::showTrayMessage - could not connect to the notification manager using dbus."
+        qCWarning(LOG_BASIC) << "MainWindow::showTrayMessage - could not connect to the notification manager using dbus."
                            << (dbus.lastError().isValid() ? dbus.lastError().message() : "");
         return;
     }
@@ -3945,11 +3915,11 @@ void MainWindow::showTrayMessage(const QString &message)
     QDBusReply<uint> reply = dbus.call("Notify", "Windscribe VPN", replacesId, appIcon,
                                        "Windscribe", message, actions, hints, 10000);
     if (!reply.isValid()) {
-        qCDebug(LOG_BASIC) << "MainWindow::showTrayMessage - could not display the message."
+        qCWarning(LOG_BASIC) << "MainWindow::showTrayMessage - could not display the message."
                            << (dbus.lastError().isValid() ? dbus.lastError().message() : "");
     }
 #else
-    qCDebug(LOG_BASIC) << "QSystemTrayIcon reports the system tray is not available";
+    qCWarning(LOG_BASIC) << "QSystemTrayIcon reports the system tray is not available";
 #endif
 }
 
@@ -3972,28 +3942,6 @@ types::Protocol MainWindow::getDefaultProtocolForNetwork(const QString &network)
     }
 }
 
-void MainWindow::onAppStateChanged(Qt::ApplicationState state)
-{
-#if defined(Q_OS_MACOS)
-    // In some cases (e.g. with "Minimize windows into application icon"), this event will trigger
-    // on the first showMinimize() call.  If we proceed to activateAndShow(), the window will be shown.
-    // Instead, ignore the first event here if starting minimized.
-    if (firstShow_) {
-        firstShow_ = false;
-        if (backend_->getPreferences()->isStartMinimized()) {
-            return;
-        }
-    }
-
-    // in the case where we are minimized/closed to tray, this event lets us know if the user has clicked the dock icon,
-    // which means we should show the window again
-    if (state == Qt::ApplicationActive) {
-        activateAndShow();
-        setBackendAppActiveState(true);
-    }
-#endif
-}
-
 #if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
 void MainWindow::setSigTermHandler(int fd)
 {
@@ -4008,7 +3956,7 @@ void MainWindow::onSigTerm()
     socketNotifier_->setEnabled(false);
     char tmp;
     if (::read(fd_, &tmp, sizeof(tmp)) < 0) {
-        qCDebug(LOG_BASIC) << "Could not read from signal socket";
+        qCWarning(LOG_BASIC) << "Could not read from signal socket";
         return;
     }
 
@@ -4025,7 +3973,7 @@ void MainWindow::checkLocationPermission()
 
 #if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
     if (PersistentState::instance().isIgnoreLocationServicesDisabled()) {
-        qCDebug(LOG_BASIC) << "Location permission prompt not required";
+        qCInfo(LOG_BASIC) << "Location permission prompt not required";
         return;
     }
 
@@ -4070,9 +4018,9 @@ void MainWindow::onLocationPermissionUpdated()
 {
 #if defined(Q_OS_MACOS)
     if (qApp->checkPermission(QLocationPermission{}) == Qt::PermissionStatus::Granted) {
-        qCDebug(LOG_BASIC) << "Location permission granted";
+        qCInfo(LOG_BASIC) << "Location permission granted";
     } else if (qApp->checkPermission(QLocationPermission{}) == Qt::PermissionStatus::Denied) {
-        qCDebug(LOG_BASIC) << "Location permission denied";
+        qCInfo(LOG_BASIC) << "Location permission denied";
     }
     backend_->updateCurrentNetworkInterface();
 #endif

@@ -11,7 +11,7 @@
 void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHelper *helper)
 {
     if (adapterName.isEmpty()) {
-        qCDebug(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(), Error, adapterName is empty";
+        qCCritical(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(), Error, adapterName is empty";
         WS_ASSERT(false);
         return;
     }
@@ -27,7 +27,7 @@ void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHe
     }
 
     if (result != NO_ERROR) {
-        qCDebug(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(): GetAdaptersAddresses failed (" << result << ")";
+        qCCritical(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(): GetAdaptersAddresses failed (" << result << ")";
         return;
     }
 
@@ -57,7 +57,7 @@ void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHe
             tapFriendlyName = QString::fromStdWString(aa->FriendlyName);
             if (bTapAdapterFound) {
                 WS_ASSERT(false);
-                qCDebug(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(), Error, two adapters with the same name found";
+                qCCritical(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(), Error, two adapters with the same name found";
             }
             bTapAdapterFound = true;
         }
@@ -99,6 +99,6 @@ void AdapterMetricsController_win::updateMetrics(const QString &adapterName, IHe
         }
     }
     else {
-        qCDebug(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(), TAP-adapter not found";
+        qCWarning(LOG_BASIC) << "AdapterMetricsController_win::updateMetrics(), TAP-adapter not found";
     }
 }

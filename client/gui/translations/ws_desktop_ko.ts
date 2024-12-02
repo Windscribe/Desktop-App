@@ -818,6 +818,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  제한적인 네트워크에 있는 경우 다운로드를 다시 시도하기 전에 VPN을 연결하세요.</translation>
     </message>
+    <message>
+        <source>Custom Config Directory Import</source>
+        <translation>사용자 지정 Config 디렉터리 가져오기</translation>
+    </message>
+    <message>
+        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
+        <translation>사용자 지정 구성 디렉토리를 가져오는 중입니다.  Windscribe는 올바른 권한을 확인하기 위해 관리자 암호를 묻는 메시지를 표시합니다.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1854,6 +1862,10 @@ Connect to a network first</source>
     <message>
         <source>At least 8 characters</source>
         <translation>8자 이상</translation>
+    </message>
+    <message>
+        <source>To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode.</source>
+        <translation>보안 핫스팟을 켜려면 분할 터널링을 끄거나 전용 모드를 사용하십시오.</translation>
     </message>
 </context>
 <context>

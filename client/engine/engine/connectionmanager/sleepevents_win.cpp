@@ -11,7 +11,7 @@ SleepEvents_win::SleepEvents_win(QObject *parent) : ISleepEvents(parent), hwnd_(
     hThread_ = CreateThread(NULL, 0, hiddenWindowThread, NULL, 0, NULL);
     if (!hThread_)
     {
-        qCDebug(LOG_BASIC) << "SleepEvents_win::SleepEvents_win(), can't create thread";
+        qCCritical(LOG_BASIC) << "SleepEvents_win::SleepEvents_win(), can't create thread";
     }
 }
 
@@ -39,13 +39,13 @@ DWORD SleepEvents_win::hiddenWindowThread(void *param)
         this_->hwnd_ = CreateWindow( className, className, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, GetModuleHandle(NULL), NULL);
         if (!this_->hwnd_)
         {
-            qCDebug(LOG_BASIC) << "SleepEvents_win::hiddenWindowThread(), can't create window";
+            qCCritical(LOG_BASIC) << "SleepEvents_win::hiddenWindowThread(), can't create window";
             return 0;
         }
     }
     else
     {
-        qCDebug(LOG_BASIC) << "SleepEvents_win::hiddenWindowThread(), can't register window class";
+        qCCritical(LOG_BASIC) << "SleepEvents_win::hiddenWindowThread(), can't register window class";
         return 0;
     }
 

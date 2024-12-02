@@ -37,6 +37,7 @@ set(SOURCES
     languagecontroller.cpp
     main.cpp
     strings.cpp
+    utils.cpp
     ../../client/common/utils/ipvalidation.cpp
     ../../client/common/ipc/commandfactory.cpp
     ../../client/common/ipc/connection.cpp
@@ -153,4 +154,3 @@ target_include_directories(windscribe-cli PRIVATE
 install(TARGETS windscribe-cli
     RUNTIME DESTINATION .
 )
-

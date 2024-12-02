@@ -31,7 +31,7 @@ struct MacAddrSpoofing
         if (json.contains(kJsonMacAddressProp) && json[kJsonMacAddressProp].isString()) {
             QString str = json[kJsonMacAddressProp].toString();
             if (NetworkUtils::isValidMacAddress(str)) {
-                macAddress = str;
+                macAddress = NetworkUtils::normalizeMacAddress(str);
             }
         }
 
@@ -118,12 +118,17 @@ struct MacAddrSpoofing
     void fromIni(const QSettings &settings)
     {
         isEnabled = settings.value(kIniIsEnabledProp, false).toBool();
-        macAddress = settings.value(kIniMacAddressProp).toString();
+
+        QString mac = settings.value(kIniMacAddressProp).toString();
+        if (NetworkUtils::isValidMacAddress(mac)) {
+            macAddress = NetworkUtils::normalizeMacAddress(mac);
+        }
+
         isAutoRotate = settings.value(kIniIsAutoRotateProp, false).toBool();
 
 #ifdef Q_OS_LINUX
         QString name = settings.value(kIniInterfaceProp).toString();
-        NetworkUtils_linux::networkInterfaceByName(name);
+        selectedNetworkInterface = NetworkUtils_linux::networkInterfaceByName(name);
 #endif
     }
 
@@ -140,6 +145,7 @@ struct MacAddrSpoofing
         QDebugStateSaver saver(dbg);
         dbg.nospace();
         dbg << "{isEnabled:" << m.isEnabled << "; ";
+        dbg << "autoRotate:" << m.isAutoRotate << "; ";
         dbg << "macAddress:" << m.macAddress << "; ";
         dbg << "selectedNetworkInterface:" << m.selectedNetworkInterface << "; ";
         dbg << "networkInterfaces:{";

@@ -25,9 +25,9 @@ void CRASH_LOG_ERROR(const T *str, Args &&... args)
 #else
     auto s = fmt::format(str, args...);
     if constexpr(std::is_same<char, T>::value)
-        qCDebug(LOG_BASIC) << QString::fromStdString(s);
+        qCCritical(LOG_BASIC) << QString::fromStdString(s);
     else if constexpr(std::is_same<wchar_t, T>::value)
-        qCDebug(LOG_BASIC) << QString::fromStdWString(s);
+        qCCritical(LOG_BASIC) << QString::fromStdWString(s);
 #endif
 }
 
@@ -39,9 +39,9 @@ void CRASH_LOG_INFO(const T *str, Args &&... args)
 #else
     auto s = fmt::format(str, args...);
     if constexpr(std::is_same<char, T>::value)
-        qCDebug(LOG_BASIC) << QString::fromStdString(s);
+        qCInfo(LOG_BASIC) << QString::fromStdString(s);
     else if constexpr(std::is_same<wchar_t, T>::value)
-        qCDebug(LOG_BASIC) << QString::fromStdWString(s);
+        qCInfo(LOG_BASIC) << QString::fromStdWString(s);
 #endif
 }
 

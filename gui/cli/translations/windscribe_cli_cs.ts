@@ -247,14 +247,6 @@
         <translation>Je nastaveno chování klíčového limitu.</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Přihlášení probíhá.  Pro kontrolu stavu použijte &apos;windscribe-cli status&apos;.</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Probíhá odhlášení.  Pro kontrolu stavu použijte &apos;windscribe-cli status&apos;.</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>Připojení bylo přepsáno jiným příkazem.</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>Odhlášení</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>Potřebujete kód 2FA</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>Nesprávný kód 2FA</translation>
     </message>
 </context>
 </TS>

@@ -112,7 +112,7 @@ void EmergencyController::blockingDisconnect()
 
                 if (elapsedTimer.elapsed() > 10000)
                 {
-                    qCDebug(LOG_EMERGENCY_CONNECT) << "EmergencyController::blockingDisconnect() delay more than 10 seconds";
+                    qCWarning(LOG_EMERGENCY_CONNECT) << "EmergencyController::blockingDisconnect() delay more than 10 seconds";
                     connector_->startDisconnect();
                     break;
                 }
@@ -140,7 +140,7 @@ void EmergencyController::onConnectionConnected(const AdapterGatewayInfo &connec
     qCDebug(LOG_EMERGENCY_CONNECT) << "EmergencyController::onConnectionConnected(), state_ =" << state_;
 
     vpnAdapterInfo_ = connectionAdapterInfo;
-    qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
+    qCInfo(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
     state_ = STATE_CONNECTED;
     emit connected();
@@ -198,7 +198,7 @@ void EmergencyController::onConnectionReconnecting()
 
 void EmergencyController::onConnectionError(CONNECT_ERROR err)
 {
-    qCDebug(LOG_EMERGENCY_CONNECT) << "EmergencyController::onConnectionError(), err =" << err;
+    qCInfo(LOG_EMERGENCY_CONNECT) << "EmergencyController::onConnectionError(), err =" << err;
 
     connector_->startDisconnect();
     if (err == CONNECT_ERROR::AUTH_ERROR
@@ -230,14 +230,14 @@ void EmergencyController::onConnectionError(CONNECT_ERROR err)
     }
     else
     {
-        qCDebug(LOG_EMERGENCY_CONNECT) << "Unknown error from openvpn: " << err;
+        qCInfo(LOG_EMERGENCY_CONNECT) << "Unknown error from openvpn: " << err;
     }
 }
 
 void EmergencyController::doConnect()
 {
     defaultAdapterInfo_ = AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo();
-    qCDebug(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
+    qCInfo(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
 
     WS_ASSERT(!endpoints_.empty());
     auto endpoint = endpoints_[0];
@@ -255,16 +255,16 @@ void EmergencyController::doConnect()
         if (mss <= 0)
         {
             mss = 0;
-            qCDebug(LOG_PACKET_SIZE) << "Using default MSS - OpenVpn EmergencyController MSS too low: " << mss;
+            qCInfo(LOG_PACKET_SIZE) << "Using default MSS - OpenVpn EmergencyController MSS too low: " << mss;
         }
         else
         {
-            qCDebug(LOG_PACKET_SIZE) << "OpenVpn EmergencyController MSS: " << mss;
+            qCInfo(LOG_PACKET_SIZE) << "OpenVpn EmergencyController MSS: " << mss;
         }
     }
     else
     {
-        qCDebug(LOG_PACKET_SIZE) << "Packet size mode auto - using default MSS (EmergencyController)";
+        qCInfo(LOG_PACKET_SIZE) << "Packet size mode auto - using default MSS (EmergencyController)";
     }
 
     QString protocol;
@@ -284,12 +284,12 @@ void EmergencyController::doConnect()
                                                 endpoint->port(), 0, mss, defaultAdapterInfo_.gateway(), "", "", isAntiCensorship_, true);
     if (!bOvpnSuccess )
     {
-        qCDebug(LOG_EMERGENCY_CONNECT) << "Failed create ovpn config";
+        qCCritical(LOG_EMERGENCY_CONNECT) << "Failed create ovpn config";
         WS_ASSERT(false);
         return;
     }
 
-    qCDebug(LOG_EMERGENCY_CONNECT) << "Connecting to IP:" << QString::fromStdString(endpoint->ip()) << " protocol:" << protocol << " port:" << endpoint->port();
+    qCInfo(LOG_EMERGENCY_CONNECT) << "Connecting to IP:" << QString::fromStdString(endpoint->ip()) << " protocol:" << protocol << " port:" << endpoint->port();
 
     QString username = QString::fromStdString(WSNet::instance()->emergencyConnect()->username());
     QString password = QString::fromStdString(WSNet::instance()->emergencyConnect()->password());
@@ -299,7 +299,7 @@ void EmergencyController::doConnect()
         connector_->startConnect(makeOVPNFile_->config(), "", "", username, password, proxySettings_, nullptr, false, false, false, QString());
         lastIp_ = QString::fromStdString(endpoint->ip());
     } else {
-        qCDebug(LOG_EMERGENCY_CONNECT) << "Emergency credentials are empty";
+        qCCritical(LOG_EMERGENCY_CONNECT) << "Emergency credentials are empty";
         WS_ASSERT(false);
         return;
     }

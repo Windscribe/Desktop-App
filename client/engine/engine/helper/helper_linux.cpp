@@ -36,7 +36,7 @@ std::optional<bool> Helper_linux::installUpdate(const QString &package) const
     process.setArguments(QStringList() << package);
     int ret = process.startDetached();
     if (!ret) {
-        qCDebug(LOG_AUTO_UPDATER) << "Install failed to start" << ret;
+        qCCritical(LOG_AUTO_UPDATER) << "Install failed to start" << ret;
         return false;
     }
 

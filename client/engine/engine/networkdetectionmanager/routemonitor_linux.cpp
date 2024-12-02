@@ -23,7 +23,7 @@ RouteMonitor_linux::~RouteMonitor_linux()
 void RouteMonitor_linux::init()
 {
     if ((fd_ = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE)) < 0) {
-        qCDebug(LOG_BASIC) << "RouteMonitor_linux could not open netlink socket";
+        qCCritical(LOG_BASIC) << "RouteMonitor_linux could not open netlink socket";
         WS_ASSERT(false);
         return;
     }
@@ -35,7 +35,7 @@ void RouteMonitor_linux::init()
     addr.nl_groups = RTMGRP_IPV4_ROUTE;
 
     if (bind(fd_, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
-        qCDebug(LOG_BASIC) << "RouteMonitor_linux could not bind address";
+        qCCritical(LOG_BASIC) << "RouteMonitor_linux could not bind address";
         WS_ASSERT(false);
         return;
     }

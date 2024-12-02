@@ -120,6 +120,10 @@ bool ExecutableSignaturePrivate::verify(const std::string& exePath)
             lastError_ << "Failed to update digest";
             return false;
         }
+
+        if (ferror(datafile) || feof(datafile)) {
+            break;
+        }
     }
 
     if (EVP_DigestVerifyFinal(mdctx, sigData.get(), 512) != 1) {

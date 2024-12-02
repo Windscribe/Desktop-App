@@ -29,7 +29,7 @@ bool Server::start()
 #endif
 
     if (!b)
-        qCDebug(LOG_IPC) << "IPC server listen error:" << server_.errorString();
+        qCCritical(LOG_IPC) << "IPC server listen error:" << server_.errorString();
     return b;
 }
 

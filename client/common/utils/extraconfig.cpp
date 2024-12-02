@@ -368,7 +368,7 @@ bool ExtraConfig::useOpenVpnDCO()
     if (useDCO) {
         if (WinUtils::getOSBuildNumber() < kMinWindowsBuildNumberForOpenVPNDCO) {
             useDCO = false;
-            qCDebug(LOG_CONNECTION) << "WARNING: OS version is not compatible with the OpenVPN DCO driver.  Windows 10 build"
+            qCWarning(LOG_CONNECTION) << "WARNING: OS version is not compatible with the OpenVPN DCO driver.  Windows 10 build"
                                     << kMinWindowsBuildNumberForOpenVPNDCO << "or newer is required to use this driver.";
         }
     }

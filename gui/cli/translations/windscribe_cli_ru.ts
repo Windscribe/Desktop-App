@@ -247,14 +247,6 @@
         <translation>Задается поведение ограничения клавиш.</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Вход в систему выполняется.  Используйте &apos;windscribe-cli status&apos; для проверки статуса.</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Выполняется выход из системы.  Используйте &apos;windscribe-cli status&apos; для проверки статуса.</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>Соединение было переопределено другой командой.</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>Выход из системы</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>Нужен код 2FA</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>Неверный код 2FA</translation>
     </message>
 </context>
 </TS>

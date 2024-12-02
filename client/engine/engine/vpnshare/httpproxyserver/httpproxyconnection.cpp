@@ -73,7 +73,7 @@ void HttpProxyConnection::onSocketReadyRead()
             else
             {
                 //todo send error reply
-                qCDebug(LOG_HTTP_SERVER) << "extractHostAndPort from request failed";
+                qCWarning(LOG_HTTP_SERVER) << "extractHostAndPort from request failed";
                 closeSocketsAndEmitFinished();
             }
         }
@@ -87,7 +87,7 @@ void HttpProxyConnection::onSocketReadyRead()
             writeAllSocket_->write(httpError_.toBuffer());
             writeAllSocket_->setEmitAllDataWritten();
             state_ = STATE_WRITE_HTTP_ERROR;
-            qCDebug(LOG_HTTP_SERVER) << "Parse client request failed";
+            qCWarning(LOG_HTTP_SERVER) << "Parse client request failed";
         }
     }
     else if (state_ == CONNECTING_TO_EXTERNAL_SERVER)
@@ -201,7 +201,7 @@ void HttpProxyConnection::onExternalSocketReadyRead()
         else if (ret == TRI_FALSE)
         {
             //todo send error reply
-            qCDebug(LOG_HTTP_SERVER) << "Parse webserver answer and headers failed";
+            qCWarning(LOG_HTTP_SERVER) << "Parse webserver answer and headers failed";
             closeSocketsAndEmitFinished();
         }
     }

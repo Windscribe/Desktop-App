@@ -30,7 +30,7 @@ void TestVPNTunnel::startTests(const types::Protocol &protocol)
 
     if (advParamExists)
     {
-        qCDebug(LOG_CONNECTION) << "Delaying tunnel test start for" << delay << "ms";
+        qCInfo(LOG_CONNECTION) << "Delaying tunnel test start for" << delay << "ms";
         QTimer::singleShot(delay, this, &TestVPNTunnel::startTestImpl);
     }
     else {
@@ -87,11 +87,11 @@ void TestVPNTunnel::startTestImpl()
     }
 
     if (doCustomTunnelTest_) {
-        qCDebug(LOG_CONNECTION) << "Running custom tunnel test with" << attempts << "attempts, timeout of" << timeout << "ms, and retry delay of" << testRetryDelay_ << "ms";
+        qCInfo(LOG_CONNECTION) << "Running custom tunnel test with" << attempts << "attempts, timeout of" << timeout << "ms, and retry delay of" << testRetryDelay_ << "ms";
     }
 
     // start first test
-    qCDebug(LOG_CONNECTION) << "Doing tunnel test 1";
+    qCInfo(LOG_CONNECTION) << "Doing tunnel test 1";
     bRunning_ = true;
     curTest_ = 1;
     elapsed_.start();
@@ -110,7 +110,7 @@ void TestVPNTunnel::stopTests()
             curRequest_->cancel();
             curRequest_.reset();
         }
-        qCDebug(LOG_CONNECTION) << "Tunnel tests stopped";
+        qCInfo(LOG_CONNECTION) << "Tunnel tests stopped";
     }
 }
 
@@ -122,12 +122,12 @@ void TestVPNTunnel::onPingTestAnswer(wsnet::ServerApiRetCode serverApiRetCode, c
     if (bRunning_) {
         const QString trimmedData = QString::fromStdString(ipAddress).trimmed();
         if (serverApiRetCode == ServerApiRetCode::kSuccess && IpValidation::isIpv4Address(trimmedData)) {
-            qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "successfully finished with IP:" << trimmedData << ", total test time =" << elapsedOverallTimer_.elapsed();
+            qCInfo(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "successfully finished with IP:" << trimmedData << ", total test time =" << elapsedOverallTimer_.elapsed();
             bRunning_ = false;
             emit testsFinished(true, trimmedData);
         } else {
             if (doCustomTunnelTest_) {
-                qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "failed";
+                qCInfo(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "failed";
 
                 if (curTest_ < timeouts_.size()) {
                     curTest_++;
@@ -141,7 +141,7 @@ void TestVPNTunnel::onPingTestAnswer(wsnet::ServerApiRetCode serverApiRetCode, c
                     // next ping attempt after 100 ms
                     QTimer::singleShot(100, this, &TestVPNTunnel::doNextPingTest);
                 } else {
-                    qCDebug(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "failed";
+                    qCInfo(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "failed";
 
                     if (curTest_ < timeouts_.size()) {
                         curTest_++;

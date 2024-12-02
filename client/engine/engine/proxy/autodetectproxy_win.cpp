@@ -14,7 +14,7 @@ types::ProxySettings AutoDetectProxy_win::detect(bool &bSuccessfully)
     {
         bSuccessfully = true;
         QNetworkProxy proxy = listOfProxies[0];
-        qCDebug(LOG_BASIC) << "Autodected proxy:" << proxy;
+        qCInfo(LOG_BASIC) << "Autodected proxy:" << proxy;
 
         if (proxy.type() == QNetworkProxy::NoProxy)
         {

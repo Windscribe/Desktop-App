@@ -80,7 +80,6 @@ QSet<QString> FirewallExceptions::getIPAddressesForFirewall() const
         for (std::vector<std::wstring>::iterator it = listDns.begin(); it != listDns.end(); ++it) {
             ipList.add(QString::fromStdWString(*it));
         }
-        //qCDebug(LOG_FIREWALL_CONTROLLER) << "Get OS default DNS list:" << ipList.get();
     } else if (dnsPolicyType_ == DNS_TYPE_OPEN_DNS) {
         for (const QString &s : HardcodedSettings::instance().openDns()) {
             ipList.add(s);

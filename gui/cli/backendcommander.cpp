@@ -10,6 +10,7 @@
 #include "ipc/connection.h"
 #include "languagecontroller.h"
 #include "strings.h"
+#include "utils.h"
 #include "utils/log/categories.h"
 #include "utils/utils.h"
 
@@ -184,7 +185,7 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
             emit finished(1, QObject::tr("Password too short"));
             return;
         }
-        cmd.code2fa_ = cliArgs_.code2fa();
+        cmd.code2fa_ = code2fa_;
         connection_->sendCommand(cmd);
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGOUT) {
@@ -336,12 +337,6 @@ void BackendCommander::onAcknowledge()
     else if (cliArgs_.cliCommand() == CLI_COMMAND_SET_KEYLIMIT_BEHAVIOR) {
         emit(finished(0, QObject::tr("Key limit behavior is set.")));
     }
-    else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGIN) {
-        emit(finished(0, QObject::tr("Login is in progress.  Use 'windscribe-cli status' to check for status.")));
-    }
-    else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGOUT) {
-        emit(finished(0, QObject::tr("Logout is in progress.  Use 'windscribe-cli status' to check for status.")));
-    }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_SEND_LOGS) {
         emit(finished(0, QObject::tr("Logs sent.")));
     }
@@ -398,7 +393,10 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
             sendStateCommand();
         }
     } else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGIN) {
-        if (cmd->loginState_ == LOGIN_STATE_LOGGED_IN || cmd->loginState_ == LOGIN_STATE_LOGIN_ERROR) {
+        if (cmd->loginState_ == LOGIN_STATE_LOGIN_ERROR && cmd->loginError_ == wsnet::LoginResult::kMissingCode2fa) {
+            code2fa_ = Utils::getInput("2FA code: ", false);
+            sendCommand(cmd);
+        } else if (cmd->loginState_ == LOGIN_STATE_LOGGED_IN || cmd->loginState_ == LOGIN_STATE_LOGIN_ERROR) {
             emit(finished(0, loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_, false)));
         } else {
             str = loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_, false).toStdString();

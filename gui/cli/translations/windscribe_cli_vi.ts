@@ -247,14 +247,6 @@
         <translation>Hành vi giới hạn chính được đặt.</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Đăng nhập đang được tiến hành.  Sử dụng &apos;windscribe-cli status&apos; để kiểm tra trạng thái.</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Đăng xuất đang được tiến hành.  Sử dụng &apos;windscribe-cli status&apos; để kiểm tra trạng thái.</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>Kết nối đã bị ghi đè bởi một lệnh khác.</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>Đăng xuất</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>Cần mã 2FA</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>Mã 2FA không chính xác</translation>
     </message>
 </context>
 </TS>

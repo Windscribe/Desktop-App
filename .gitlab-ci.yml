@@ -924,7 +924,7 @@ test:wsnet:mac:
     GIT_STRATEGY: clone
   script:
     - !reference [.build_mac_installer_common, script]
-    - tools/build_all --build-app --build-tests
+    - tools/build_all --static-analysis --build-app --build-tests
     - !reference [.run_tests_posix, script]
 
   after_script:
@@ -948,7 +948,8 @@ test:wsnet:rhel:
   script:
     - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --build-app --build-tests
+    - python3 -m pip install clang-tidy
+    - tools/build_all --static-analysis --build-app --build-tests
     - !reference [.run_tests_posix, script]
 
   after_script:

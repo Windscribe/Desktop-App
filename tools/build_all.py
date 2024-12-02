@@ -252,6 +252,7 @@ def build_component(component, qt_root, buildenv=None):
             # Excluding clang-analyzer-osx.cocoa.RetainCount because clang-tidy does not understand ARC
             generate_cmd.extend(["-DCMAKE_CXX_CLANG_TIDY=clang-tidy;"
                                  "--checks=-clang-analyzer-optin.cplusplus.VirtualCall,-clang-diagnostic-deprecated-declarations,-clang-analyzer-osx.cocoa.RetainCount;"
+                                 "--allow-no-checks;"
                                  "--warnings-as-errors=*"])
 
         if CURRENT_OS == "macos":

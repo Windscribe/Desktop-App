@@ -121,7 +121,7 @@ bool regGetProperty(HKEY h, const std::wstring& subkeyName, const std::wstring& 
     nError = RegQueryValueExW(hKey, valueName.c_str(), 0, NULL, value, size);
 
     if (nError != ERROR_SUCCESS) {
-        spdlog::error(L"Property %s not found for key {}: {}", valueName, subkeyName, nError);
+        spdlog::error(L"Property {} not found for key {}: {}", valueName, subkeyName, nError);
         return false;
     }
 

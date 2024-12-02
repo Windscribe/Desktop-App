@@ -51,36 +51,36 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
         {
             if (networkInterface.interfaceIndex == -1)
             {
-                qCDebug(LOG_BASIC) << "Primary Adapter down: " << lastNetworkInterface_.interfaceName;
+                qCInfo(LOG_BASIC) << "Primary Adapter down: " << lastNetworkInterface_.interfaceName;
                 emit primaryAdapterDown(lastNetworkInterface_);
             }
             else if (lastNetworkInterface_.interfaceIndex == -1)
             {
-                qCDebug(LOG_BASIC) << "Primary Adapter up: " << networkInterface.interfaceName;
+                qCInfo(LOG_BASIC) << "Primary Adapter up: " << networkInterface.interfaceName;
                 emit primaryAdapterUp(networkInterface);
             }
             else
             {
-                qCDebug(LOG_BASIC) << "Primary Adapter changed: " << networkInterface.interfaceName;
+                qCInfo(LOG_BASIC) << "Primary Adapter changed: " << networkInterface.interfaceName;
                 emit primaryAdapterChanged(networkInterface);
             }
         }
         else if (networkInterface.networkOrSsid != lastNetworkInterface_.networkOrSsid)
         {
-            qCDebug(LOG_BASIC) << "Primary Network Changed: "
+            qCInfo(LOG_BASIC) << "Primary Network Changed: "
                                << networkInterface.interfaceName
                                << " : " << networkInterface.networkOrSsid;
 
             // if network change or adapter down (no comeup)
             if (lastNetworkInterface_.networkOrSsid != "")
             {
-                qCDebug(LOG_BASIC) << "Primary Adapter Network changed or lost";
+                qCInfo(LOG_BASIC) << "Primary Adapter Network changed or lost";
                 emit primaryAdapterNetworkLostOrChanged(networkInterface);
             }
         }
         else
         {
-            qCDebug(LOG_BASIC) << "Unidentified interface change";
+            qCInfo(LOG_BASIC) << "Unidentified interface change";
             // Can happen when changing interfaces
         }
 
@@ -92,13 +92,13 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
         if (NetworkUtils_mac::isWifiAdapter(networkInterface.interfaceName)
                 || NetworkUtils_mac::isWifiAdapter(lastNetworkInterface_.interfaceName))
         {
-            qCDebug(LOG_BASIC) << "Wifi adapter (primary) up state changed: " << wifiAdapterUp;
+            qCInfo(LOG_BASIC) << "Wifi adapter (primary) up state changed: " << wifiAdapterUp;
             emit wifiAdapterChanged(wifiAdapterUp);
         }
     }
     else if (networkList != lastNetworkList_)
     {
-        qCDebug(LOG_BASIC) << "Network list changed";
+        qCInfo(LOG_BASIC) << "Network list changed";
         emit networkListChanged(networkList);
     }
 

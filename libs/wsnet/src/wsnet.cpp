@@ -36,7 +36,8 @@ public:
     virtual ~WSNet_impl()
     {
         apiResourcesManager_.reset();
-        work_.reset();  // Allow all handlers to be allowed to finish normally
+        // This will cause the io_context run() call to return as soon as possible, abandoning unfinished operations and without permitting ready handlers to be dispatched.
+        io_context_.stop();
         thread_.join();
     }
 

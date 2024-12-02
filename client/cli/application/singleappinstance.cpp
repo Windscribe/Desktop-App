@@ -26,7 +26,7 @@ bool SingleAppInstance::isRunning()
         }
 
         if (lockFile_->error() != QLockFile::NoError) {
-            qCDebug(LOG_BASIC) << "SingleAppInstance could not create the lock file. A new instance will be launched.";
+            qCInfo(LOG_BASIC) << "SingleAppInstance could not create the lock file. A new instance will be launched.";
         }
     }
 #endif

@@ -247,14 +247,6 @@
         <translation>设置了密钥限制行为。</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>登录正在进行中。 使用“windscribe-cli status”检查状态。</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>注销正在进行中。 使用“windscribe-cli status”检查状态。</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>Connection 已被另一个命令覆盖。</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>注销</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>需要 2FA 代码</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>2FA 代码不正确</translation>
     </message>
 </context>
 </TS>

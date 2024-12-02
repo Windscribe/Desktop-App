@@ -247,14 +247,6 @@
         <translation>Le comportement de la limite de touches est défini.</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>La connexion est en cours.  Utilisez &apos;windscribe-cli status&apos; pour vérifier l’état.</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>La déconnexion est en cours.  Utilisez &apos;windscribe-cli status&apos; pour vérifier l’état.</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>La connexion a été remplacée par une autre commande.</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>Déconnexion</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>Besoin de code 2FA</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>Code 2FA incorrect</translation>
     </message>
 </context>
 </TS>

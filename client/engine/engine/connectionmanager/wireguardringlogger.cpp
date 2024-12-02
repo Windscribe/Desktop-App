@@ -68,7 +68,7 @@ WireguardRingLogger::mapWireguardRinglogFile()
     }
 
     if (!wireguardLogFile_.open(QIODevice::ReadOnly)) {
-        qCDebug(LOG_CONNECTION) << "Failed to open the wireguard service log file";
+        qCCritical(LOG_CONNECTION) << "Failed to open the wireguard service log file";
         return false;
     }
 
@@ -82,14 +82,14 @@ WireguardRingLogger::mapWireguardRinglogFile()
     });
 
     if (wireguardLogFile_.size() != kWGLogFileSize) {
-        qCDebug(LOG_CONNECTION) << "The wireguard service log file size is incorrect: expected" <<
+        qCCritical(LOG_CONNECTION) << "The wireguard service log file size is incorrect: expected" <<
                                    kWGLogFileSize << "bytes, actual size" << wireguardLogFile_.size() << "bytes";
         return false;
     }
 
     logData_ = wireguardLogFile_.map(0, kWGLogFileSize);
     if (!logData_) {
-        qCDebug(LOG_CONNECTION) << "Failed to map the wireguard service log file";
+        qCCritical(LOG_CONNECTION) << "Failed to map the wireguard service log file";
         return false;
     }
 
@@ -97,7 +97,7 @@ WireguardRingLogger::mapWireguardRinglogFile()
 
     const uint32_t magicHeader = 0xbadbabe;
     if (memcmp(logData_, &magicHeader, sizeof(uint32_t)) != 0) {
-        qCDebug(LOG_CONNECTION) << "Incorrect magic header value in wireguard service log file" << QString::number(*(uint32_t*)logData_, 16);
+        qCCritical(LOG_CONNECTION) << "Incorrect magic header value in wireguard service log file" << QString::number(*(uint32_t*)logData_, 16);
         return false;
     }
 
@@ -200,7 +200,7 @@ void WireguardRingLogger::getFinalLogEntries()
     getNewLogEntries();
 
     if (invalidNoncePackets_ > 0) {
-        qCDebug(LOG_WIREGUARD) << "Warning:" << invalidNoncePackets_ << "packets discarded since the start of this connection due to an invalid nonce";
+        qCWarning(LOG_WIREGUARD) << "Warning:" << invalidNoncePackets_ << "packets discarded since the start of this connection due to an invalid nonce";
     }
 }
 

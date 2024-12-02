@@ -55,7 +55,7 @@ void handler_sigterm(int signum)
         // Instead, write a byte to a local socket
         char a = 1;
         if (::write(fds[0], &a, sizeof(a)) < 0) {
-            qCDebug(LOG_BASIC) << "Could not write to signal socket";
+            qCWarning(LOG_BASIC) << "Could not write to signal socket";
         }
     }
 }
@@ -66,19 +66,19 @@ int main(int argc, char *argv[])
 #if defined (Q_OS_LINUX)
     gid_t gid = LinuxUtils::getWindscribeGid();
     if (gid == -1) {
-        qCDebug(LOG_BASIC) << "windscribe group does not exist";
+        qCCritical(LOG_BASIC) << "windscribe group does not exist";
         return -1;
     }
     qCDebug(LOG_BASIC) << "Setting gid to:" << gid;
     if (setgid(gid) < 0) {
-        qCDebug(LOG_BASIC) << "Could not set windscribe group";
+        qCCritical(LOG_BASIC) << "Could not set windscribe group";
         return -1;
     }
 #endif
 
 #if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
     if (::socketpair(AF_UNIX, SOCK_STREAM, 0, fds)) {
-        qCDebug(LOG_BASIC) << "Could not open signal socket";
+        qCCritical(LOG_BASIC) << "Could not open signal socket";
     }
     signal(SIGTERM, handler_sigterm);
 #endif
@@ -175,29 +175,29 @@ int main(int argc, char *argv[])
 
     log_utils::Logger::instance().install(log_utils::paths::clientLogLocation(), true);
 
-    qCDebug(LOG_BASIC) << "=== Started ===";
-    qCDebug(LOG_BASIC) << "App version:" << AppVersion::instance().fullVersionString();
-    qCDebug(LOG_BASIC) << "Platform:" << QGuiApplication::platformName();
-    qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
+    qCInfo(LOG_BASIC) << "=== Started ===";
+    qCInfo(LOG_BASIC) << "App version:" << AppVersion::instance().fullVersionString();
+    qCInfo(LOG_BASIC) << "Platform:" << QGuiApplication::platformName();
+    qCInfo(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
 #if defined(Q_OS_LINUX)
-    qCDebug(LOG_BASIC) << "Distribution:" << LinuxUtils::getDistroName();
+    qCInfo(LOG_BASIC) << "Distribution:" << LinuxUtils::getDistroName();
 #endif
-    qCDebug(LOG_BASIC) << "CPU architecture:" << QSysInfo::currentCpuArchitecture();
+    qCInfo(LOG_BASIC) << "CPU architecture:" << QSysInfo::currentCpuArchitecture();
     // To aid us in diagnosing possible region-specific issues.
-    qCDebug(LOG_BASIC) << "UI languages:" << QLocale::system().uiLanguages();
+    qCInfo(LOG_BASIC) << "UI languages:" << QLocale::system().uiLanguages();
 
     ExtraConfig::instance().logExtraConfig();
 
 #ifdef Q_OS_WIN
     InstalledAntiviruses_win::outToLog();
     if (!WinUtils::isOSCompatible()) {
-        qCDebug(LOG_BASIC) << "WARNING: OS version is not fully compatible.  Windows 10 build"
+        qCWarning(LOG_BASIC) << "WARNING: OS version is not fully compatible.  Windows 10 build"
                            << kMinWindowsBuildNumber << "or newer is required for full functionality.";
     }
 #endif
 
     if (!QFileInfo::exists(OpenVpnVersionController::instance().getOpenVpnFilePath())) {
-        qCDebug(LOG_BASIC) << "OpenVPN executable not found";
+        qCCritical(LOG_BASIC) << "OpenVPN executable not found";
         return 0;
     }
 

@@ -31,7 +31,7 @@ const QString AutoUpdaterHelper_mac::copyInternalInstallerToTempFromDmg(const QS
     const QString volumeInstallerFilename = volumeMountPoint + "/" + INSTALLER_FILENAME_MAC_APP;
     if (!QFileInfo::exists(volumeInstallerFilename))
     {
-        qCDebug(LOG_AUTO_UPDATER) << "Volume installer does not exist: " + volumeInstallerFilename;
+        qCCritical(LOG_AUTO_UPDATER) << "Volume installer does not exist: " + volumeInstallerFilename;
         unmountVolume(volumeMountPoint);
         error_ = UPDATE_VERSION_ERROR_DMG_HAS_NO_INSTALLER_FAIL;
         return "";
@@ -47,7 +47,7 @@ const QString AutoUpdaterHelper_mac::copyInternalInstallerToTempFromDmg(const QS
         qCDebug(LOG_AUTO_UPDATER) << "Temp installer already exists -- removing: " << tempInstallerFilename;
         if (!Utils::removeDirectory(tempInstallerFilename))
         {
-            qCDebug(LOG_AUTO_UPDATER) << "Couldn't remove temp file: " << tempInstallerFilename;
+            qCCritical(LOG_AUTO_UPDATER) << "Couldn't remove temp file: " << tempInstallerFilename;
             unmountVolume(volumeMountPoint);
             error_ = UPDATE_VERSION_ERROR_CANNOT_REMOVE_EXISTING_TEMP_INSTALLER_FAIL;
             return "";
@@ -58,7 +58,7 @@ const QString AutoUpdaterHelper_mac::copyInternalInstallerToTempFromDmg(const QS
     // copy/replace installer to temp
     if (!Utils::copyDirectoryRecursive(volumeInstallerFilename, tempInstallerFilename))
     {
-        qCDebug(LOG_AUTO_UPDATER) << "Failed to copy installer into temp folder";
+        qCCritical(LOG_AUTO_UPDATER) << "Failed to copy installer into temp folder";
         unmountVolume(volumeMountPoint);
         Utils::removeDirectory(tempInstallerFilename); // remove any partially copied application
         error_ = UPDATE_VERSION_ERROR_COPY_FAIL;
@@ -76,7 +76,7 @@ bool AutoUpdaterHelper_mac::verifyAndRun(const QString &tempInstallerFilename,
 {
     if (error_ != UPDATE_VERSION_ERROR_NO_ERROR)
     {
-        qCDebug(LOG_AUTO_UPDATER) << "Cannot verify and run when dmg unpacking has failed";
+        qCCritical(LOG_AUTO_UPDATER) << "Cannot verify and run when dmg unpacking has failed";
         return false;
     }
 
@@ -85,7 +85,7 @@ bool AutoUpdaterHelper_mac::verifyAndRun(const QString &tempInstallerFilename,
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(tempInstallerFilename.toStdWString()))
     {
-        qDebug(LOG_AUTO_UPDATER) << "Failed to verify signature and certificate of downloaded installer: " << QString::fromStdString(sigCheck.lastError());
+        qCCritical(LOG_AUTO_UPDATER) << "Failed to verify signature and certificate of downloaded installer: " << QString::fromStdString(sigCheck.lastError());
         Utils::removeDirectory(tempInstallerFilename);
         error_ = UPDATE_VERSION_ERROR_SIGN_FAIL;
         return false;
@@ -111,10 +111,10 @@ bool AutoUpdaterHelper_mac::verifyAndRun(const QString &tempInstallerFilename,
     qint64 pid;
     if (!process.startDetached(&pid))
     {
-        qCDebug(LOG_AUTO_UPDATER) << "Could not start installer process - Removing unsigned installer";
+        qCCritical(LOG_AUTO_UPDATER) << "Could not start installer process - Removing unsigned installer";
         if (!Utils::removeDirectory(tempInstallerFilename))
         {
-            qCDebug(LOG_AUTO_UPDATER) << "Could not remove unsigned installer";
+            qCCritical(LOG_AUTO_UPDATER) << "Could not remove unsigned installer";
         }
         error_ = UPDATE_VERSION_ERROR_START_INSTALLER_FAIL;
         return false;
@@ -148,7 +148,7 @@ const QString AutoUpdaterHelper_mac::mountDmg(const QString &dmgFilename)
     c.wait(ec);
 
     if (ec.value() != 0) {
-        qCDebug(LOG_AUTO_UPDATER) << "Mounting process failed with exit code: " << ec.value();
+        qCCritical(LOG_AUTO_UPDATER) << "Mounting process failed with exit code: " << ec.value();
         return "";
     }
 
@@ -169,7 +169,7 @@ const QString AutoUpdaterHelper_mac::mountDmg(const QString &dmgFilename)
         }
     }
 
-    qCDebug(LOG_AUTO_UPDATER) << "Failed to mount " << dmgFilename << " hdiutil error output: " << lines;
+    qCCritical(LOG_AUTO_UPDATER) << "Failed to mount " << dmgFilename << " hdiutil error output: " << lines;
 
     return "";
 }

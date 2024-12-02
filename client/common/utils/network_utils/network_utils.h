@@ -9,6 +9,7 @@ namespace NetworkUtils
 {
     QString generateRandomMacAddress();
     QString formatMacAddress(QString macAddress);
+    QString normalizeMacAddress(const QString &macAddress);
     bool isValidMacAddress(const QString &macAddress);
 
     // Network

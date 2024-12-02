@@ -48,7 +48,7 @@ MainService::~MainService()
 void MainService::onBackendInitFinished(INIT_STATE initState)
 {
     if (initState != INIT_STATE_SUCCESS) {
-        qCDebug(LOG_BASIC) << "Could not initialize helper";
+        qCCritical(LOG_BASIC) << "Could not initialize helper";
         qApp->exit();
     }
 
@@ -76,7 +76,7 @@ void MainService::onBackendInitFinished(INIT_STATE initState)
 void MainService::setInitialFirewallState()
 {
     bool bFirewallStateOn = PersistentState::instance().isFirewallOn();
-    qCDebug(LOG_BASIC) << "Firewall state from last app start:" << bFirewallStateOn;
+    qCInfo(LOG_BASIC) << "Firewall state from last app start:" << bFirewallStateOn;
 
     if (bFirewallStateOn) {
         backend_->firewallOn();
@@ -92,7 +92,7 @@ void MainService::setInitialFirewallState()
 void MainService::onConnectToLocation(const LocationID &lid, const types::Protocol &protocol)
 {
     if (!lid.isValid()) {
-        qCDebug(LOG_USER) << "Invalid location";
+        qCInfo(LOG_USER) << "Invalid location";
         return;
     }
 
@@ -104,7 +104,7 @@ void MainService::onConnectToLocation(const LocationID &lid, const types::Protoc
         // determine default port for protocol
         QVector<uint> ports = backend_->getPreferencesHelper()->getAvailablePortsForProtocol(protocol);
         if (ports.size() == 0) {
-            qCDebug(LOG_BASIC) << "Could not determine port for protocol" << protocol.toLongString();
+            qCWarning(LOG_BASIC) << "Could not determine port for protocol" << protocol.toLongString();
         } else {
             port = ports[0];
         }
@@ -245,7 +245,7 @@ void MainService::stop()
         backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_AUTOMATIC)
     {
         if (!backend_->getPreferences()->isLaunchOnStartup() || !backend_->getPreferences()->isAutoConnect()) {
-            qCDebug(LOG_BASIC) << "Setting firewall persistence to false";
+            qCInfo(LOG_BASIC) << "Setting firewall persistence to false";
             PersistentState::instance().setFirewallState(false);
         }
     } else if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
@@ -275,7 +275,7 @@ void MainService::onBackendWireGuardAtKeyLimit()
         localIpcServer_->setDisconnectedByKeyLimit();
     }
 
-    qCDebug(LOG_BASIC) << "WireGuard key limit response:" << keyLimitDelete_;
+    qCInfo(LOG_BASIC) << "WireGuard key limit response:" << keyLimitDelete_;
     emit wireGuardKeyLimitUserResponse(keyLimitDelete_);
     keyLimitDelete_ = false;
 }

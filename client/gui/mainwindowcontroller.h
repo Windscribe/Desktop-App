@@ -92,6 +92,8 @@ public:
     bool isNeedShadow();
     int getShadowMargin();
 
+    void updateMaximumHeight();
+
     void hideAllToolTips();
 
     LoginWindow::LoginWindowItem *getLoginWindow() { return loginWindow_; }

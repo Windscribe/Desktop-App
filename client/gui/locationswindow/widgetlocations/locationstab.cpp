@@ -273,7 +273,6 @@ void LocationsTab::mouseReleaseEvent(QMouseEvent *event)
         if (curTabMouseOver_ != LOCATION_TAB_NONE &&  curTabMouseOver_ != curTab_ && tabPress_ == curTabMouseOver_)
         {
             // Currently this should only handle non-search icons
-            // qCDebug(LOG_USER) << "Clicked tab: " << curTabMouseOver_;
             if (!searchTabSelected_) {
                 changeTab(curTabMouseOver_);
             }
@@ -352,7 +351,6 @@ bool LocationsTab::eventFilter(QObject *object, QEvent *event)
             {
                 if (searchLineEdit_->text() == "")
                 {
-                    // qCDebug(LOG_USER) << "Search cancel via [Escape]";
                     hideSearchTab();
                 }
                 else
@@ -800,7 +798,6 @@ void LocationsTab::hideSearchTab()
 
 void LocationsTab::hideSearchTabWithoutAnimation()
 {
-    // qCDebug(LOG_LOCATION_LIST) << "hide search without animation";
     if (searchTabSelected_)
     {
         searchButtonPosAnimation_.stop();

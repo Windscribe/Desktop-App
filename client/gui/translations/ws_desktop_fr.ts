@@ -818,6 +818,14 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  Si vous êtes sur un réseau restrictif, veuillez connecter le VPN avant de réessayer le téléchargement.</translation>
     </message>
+    <message>
+        <source>Custom Config Directory Import</source>
+        <translation>Importation de répertoire de configuration personnalisée</translation>
+    </message>
+    <message>
+        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
+        <translation>Un répertoire de configuration personnalisé est en cours d’importation.  Windscribe vous demandera votre mot de passe administrateur pour vérifier si les autorisations sont correctes.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1854,6 +1862,10 @@ Se connecter d’abord à un réseau</translation>
     <message>
         <source>At least 8 characters</source>
         <translation>Au moins 8 caractères</translation>
+    </message>
+    <message>
+        <source>To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode.</source>
+        <translation>Pour activer le point d’accès sécurisé, désactivez le tunneling fractionné ou utilisez le mode exclusif.</translation>
     </message>
 </context>
 <context>

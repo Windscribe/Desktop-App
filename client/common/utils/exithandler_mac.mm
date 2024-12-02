@@ -20,13 +20,13 @@ NSApplicationTerminateReply exitMacHandler(id self, SEL _cmd,...)
         if (descQuitReason != nil) {
             OSType eventType = [descQuitReason enumCodeValue];
             if (eventType == kAELogOut || eventType == kAEReallyLogOut) {
-                qCDebug(LOG_BASIC) << "app close, reason: log out";
+                qCInfo(LOG_BASIC) << "app close, reason: log out";
                 ExitHandler_mac::this_->setExitWithRestart();
             } else if (eventType == kAEShowRestartDialog || eventType == kAERestart) {
-                qCDebug(LOG_BASIC) << "app close, reason: system restart";
+                qCInfo(LOG_BASIC) << "app close, reason: system restart";
                 ExitHandler_mac::this_->setExitWithRestart();
             } else if (eventType == kAEShowShutdownDialog || eventType == kAEShutDown) {
-                qCDebug(LOG_BASIC) << "app close, reason: system shutdown";
+                qCInfo(LOG_BASIC) << "app close, reason: system shutdown";
                 ExitHandler_mac::this_->setExitWithRestart();
             }
         }

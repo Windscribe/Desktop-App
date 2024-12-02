@@ -76,7 +76,7 @@ void TooltipController::showTooltipInteractive(TooltipId id, int x, int y, int d
     }
     else
     {
-        qCDebug(LOG_BASIC) << "Tooltip ID is not interactive: " << id;
+        qCCritical(LOG_BASIC) << "Tooltip ID is not interactive: " << id;
         WS_ASSERT(false);
     }
 }

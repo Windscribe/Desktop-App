@@ -97,7 +97,7 @@ bool EngineSettings::loadFromSettings()
 
         // Automatically enable anti-censorship feature for first-run users.
         if (LanguagesUtil::isCensorshipCountry()) {
-            qCDebug(LOG_BASIC) << "Automatically enabled anti-censorship feature due to locale";
+            qCInfo(LOG_BASIC) << "Automatically enabled anti-censorship feature due to locale";
             // TODO: **JDRM** refactor this logic at some point so we don't have two sources of truth for the anti-censorship state.
             setIsAntiCensorship(true);
         }

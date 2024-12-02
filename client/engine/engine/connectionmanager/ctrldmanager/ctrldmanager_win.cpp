@@ -31,13 +31,13 @@ bool CtrldManager_win::runProcess(const QString &upstream1, const QString &upstr
 {
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(ctrldExePath_.toStdWString())) {
-        qCDebug(LOG_CTRLD) << "Failed to verify ctrld signature: " << QString::fromStdString(sigCheck.lastError());
+        qCCritical(LOG_CTRLD) << "Failed to verify ctrld signature: " << QString::fromStdString(sigCheck.lastError());
         return false;
     }
 
     QString ip = getAvailableIp();
     if (ip.isEmpty()) {
-        qCDebug(LOG_CTRLD) << "ctrld cannot be started, all IP-addresses are occupied";
+        qCCritical(LOG_CTRLD) << "ctrld cannot be started, all IP-addresses are occupied";
         return false;
     }
 
@@ -68,7 +68,7 @@ void CtrldManager_win::killProcess()
         bProcessStarted_ = false;
         process_->close();
         process_->waitForFinished(-1);
-        qCDebug(LOG_CTRLD) << "ctrld stopped";
+        qCInfo(LOG_CTRLD) << "ctrld stopped";
     }
 }
 
@@ -79,14 +79,14 @@ QString CtrldManager_win::listenIp() const
 
 void CtrldManager_win::onProcessStarted()
 {
-    qCDebug(LOG_CTRLD) << "ctrld started on " << listenIp_ + ":53";
+    qCInfo(LOG_CTRLD) << "ctrld started on " << listenIp_ + ":53";
 }
 
 void CtrldManager_win::onProcessFinished()
 {
     if (bProcessStarted_) {
-        qCDebug(LOG_CTRLD) << "ctrld finished";
-        qCDebug(LOG_CTRLD) << process_->readAllStandardError();
+        qCInfo(LOG_CTRLD) << "ctrld finished";
+        qCInfo(LOG_CTRLD) << process_->readAllStandardError();
     }
 }
 
@@ -109,7 +109,7 @@ void CtrldManager_win::onReadyReadStandardOutput()
 
 void CtrldManager_win::onProcessErrorOccurred(QProcess::ProcessError /*error*/)
 {
-    qCDebug(LOG_CTRLD) << "ctrld process error:" << process_->errorString();
+    qCWarning(LOG_CTRLD) << "ctrld process error:" << process_->errorString();
 }
 
 QString CtrldManager_win::getNextStringFromInputBuffer(bool &bSuccess, int &outSize)

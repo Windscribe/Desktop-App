@@ -818,6 +818,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  إذا كنت تستخدم شبكة مقيدة ، فيرجى توصيل VPN قبل محاولة التنزيل مرة أخرى.</translation>
     </message>
+    <message>
+        <source>Custom Config Directory Import</source>
+        <translation>استيراد دليل التكوين المخصص</translation>
+    </message>
+    <message>
+        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
+        <translation>يتم استيراد دليل تكوين مخصص.  سيطالب Windscribe بكلمة مرور المسؤول الخاصة بك للتحقق من الأذونات الصحيحة.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1854,6 +1862,10 @@ Connect to a network first</source>
     <message>
         <source>At least 8 characters</source>
         <translation>8 أحرف على الأقل</translation>
+    </message>
+    <message>
+        <source>To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode.</source>
+        <translation>لتشغيل نقطة الاتصال الآمنة، يرجى إيقاف تشغيل الانقسام النفقي أو استخدام الوضع الحصري.</translation>
     </message>
 </context>
 <context>

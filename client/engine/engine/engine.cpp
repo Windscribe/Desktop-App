@@ -105,7 +105,7 @@ Engine::Engine() : QObject(nullptr),
         wchar_t p[MAX_PATH];
         const auto pathLen = ::GetModuleFileNameW(NULL, p, MAX_PATH);
         if (pathLen == 0) {
-            qCDebug(LOG_BASIC) << L"Engine GetModuleFileName failed (PQ algorithms not enabled):" << ::GetLastError();
+            qCCritical(LOG_BASIC) << L"Engine GetModuleFileName failed (PQ algorithms not enabled):" << ::GetLastError();
         }
         else {
             std::string pathStr = std::filesystem::path(p).parent_path().string();
@@ -143,13 +143,12 @@ Engine::Engine() : QObject(nullptr),
         WSNet::instance()->apiResourcersManager()->setAuthHash(settings.value("authHash").toString().toStdString());
     }
 
-
     // Skip printing the engine settings if we loaded the defaults.
-    if (engineSettings_.loadFromSettings()) {
-        qCDebug(LOG_BASIC) << "Engine settings" << engineSettings_;
-    } else {
+    if (!engineSettings_.loadFromSettings()) {
         checkAutoEnableAntiCensorship_ = true;
-    }
+    } 
+
+    qCInfo(LOG_BASIC) << "Engine settings" << engineSettings_;
 
     connectStateController_ = new ConnectStateController(nullptr);
     connect(connectStateController_, &ConnectStateController::stateChanged, this, &Engine::onConnectStateChanged);
@@ -539,7 +538,7 @@ void Engine::makeHostsFileWritableWin()
             emit hostsFileBecameWritable();
         }
         else {
-            qCDebug(LOG_BASIC) << "Error: was not able to make 'hosts' file writable.";
+            qCCritical(LOG_BASIC) << "Error: was not able to make 'hosts' file writable.";
         }
     }
 #endif
@@ -557,7 +556,7 @@ void Engine::init()
 
     HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
     if (FAILED(hr)) {
-        qCDebug(LOG_BASIC) << "Error: CoInitializeEx failed:" << hr;
+        qCCritical(LOG_BASIC) << "Error: CoInitializeEx failed:" << hr;
     }
 #endif
 
@@ -785,7 +784,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     disconnect(this, &Engine::initCleanup, nullptr, nullptr);
 
     if (isCleanupFinished_) {
-        qCDebug(LOG_BASIC) << "WARNING - Engine::cleanupImpl called repeatedly. Verify code logic as this should not happen.";
+        qCCritical(LOG_BASIC) << "WARNING - Engine::cleanupImpl called repeatedly. Verify code logic as this should not happen.";
         return;
     }
 
@@ -821,9 +820,9 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
                     DnsInfo_win::outputDebugDnsInfo();
                 }
 #endif
-            qCDebug(LOG_BASIC) << "Cleanup, connection manager disconnected";
+            qCInfo(LOG_BASIC) << "Cleanup, connection manager disconnected";
         } else {
-            qCDebug(LOG_BASIC) << "Cleanup, connection manager no need disconnect";
+            qCInfo(LOG_BASIC) << "Cleanup, connection manager no need disconnect";
         }
 
         connectionManager_->removeIkev2ConnectionFromOS();
@@ -905,7 +904,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     SAFE_DELETE(networkDetectionManager_);
     SAFE_DELETE(downloadHelper_);
     isCleanupFinished_ = true;
-    qCDebug(LOG_BASIC) << "Cleanup finished";
+    qCInfo(LOG_BASIC) << "Cleanup finished";
 
 #ifdef Q_OS_WIN
     crashHandler_.reset();
@@ -935,7 +934,7 @@ void Engine::recordInstallImpl()
 {
     WSNet::instance()->serverAPI()->recordInstall(true, [](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
         // nothing to do in callback, just log message
-        qCDebug(LOG_BASIC) << "The recordInstall request finished with an answer:" << jsonData;
+        qCInfo(LOG_BASIC) << "The recordInstall request finished with an answer:" << jsonData;
     });
 }
 
@@ -981,7 +980,7 @@ void Engine::connectClickImpl(const LocationID &locationId, const types::Connect
     {
         bool bFirewallStateOn = firewallController_->firewallActualState();
         if (!bFirewallStateOn) {
-            qCDebug(LOG_BASIC) << "Automatic enable firewall before connection";
+            qCInfo(LOG_BASIC) << "Automatic enable firewall before connection";
             firewallController_->firewallOn(
                 firewallExceptions_.connectingIp(),
                 firewallExceptions_.getIPAddressesForFirewall(),
@@ -1015,17 +1014,17 @@ void Engine::sendDebugLogImpl()
         [this](ServerApiRetCode serverApiRetCode, const std::string &jsonData) {
 
             if (serverApiRetCode != ServerApiRetCode::kSuccess) {
-                qCDebug(LOG_BASIC) << "DebugLog returned failed error code:" << (int)serverApiRetCode;
+                qCWarning(LOG_BASIC) << "DebugLog returned failed error code:" << (int)serverApiRetCode;
                 emit sendDebugLogFinished(false);
                 return;
             }
 
             api_responses::DebugLog debugLog(jsonData);
             if (debugLog.isSuccess()) {
-                qCDebug(LOG_BASIC) << "DebugLog sent";
+                qCInfo(LOG_BASIC) << "DebugLog sent";
                 emit sendDebugLogFinished(true);
             } else {
-                qCDebug(LOG_BASIC) << "DebugLog returned error in json:" << QString::fromStdString(jsonData);
+                qCWarning(LOG_BASIC) << "DebugLog returned error in json:" << QString::fromStdString(jsonData);
                 emit sendDebugLogFinished(false);
             }
     });
@@ -1204,8 +1203,6 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     if (engineSettings_ == engineSettings)
         return;
 
-    qCDebug(LOG_BASIC) << "Engine::setSettingsImpl";
-
     bool isAllowLanTrafficChanged = engineSettings_.isAllowLanTraffic() != engineSettings.isAllowLanTraffic();
     bool isUpdateChannelChanged = engineSettings_.updateChannel() != engineSettings.updateChannel();
     bool isTerminateSocketsChanged = engineSettings_.isTerminateSockets() != engineSettings.isTerminateSockets();
@@ -1303,7 +1300,6 @@ void Engine::onCheckUpdateUpdated(const api_responses::CheckUpdate &checkUpdate)
 
 void Engine::onHostIPsChanged(const QSet<QString> &hostIps)
 {
-    //qCDebug(LOG_BASIC) << "on host ips changed event:" << hostIps;    // too much spam from this
     firewallExceptions_.setHostIPs(hostIps);
     updateFirewallSettings();
     // resume callback from wsnet
@@ -1369,7 +1365,7 @@ void Engine::onConnectionManagerConnected()
         if (!helper_win->setCustomDnsWhileConnected( connectionManager_->getVpnAdapterInfo().ifIndex(),
                                                     connectionManager_->getVpnAdapterInfo().dnsServers().first()))
         {
-            qCDebug(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
+            qCCritical(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
         }
     }
 #endif
@@ -1540,11 +1536,11 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
     {
         if (connectionManager_->isCustomOvpnConfigCurrentConnection())
         {
-            qCDebug(LOG_BASIC) << "Incorrect username or password for custom ovpn config";
+            qCWarning(LOG_BASIC) << "Incorrect username or password for custom ovpn config";
         }
         else
         {
-            qCDebug(LOG_BASIC) << "Incorrect username or password, refetch server credentials";
+            qCWarning(LOG_BASIC) << "Incorrect username or password, refetch server credentials";
         }
 
         doDisconnectRestoreStuff();
@@ -1571,7 +1567,7 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
     }
     else if (err == CONNECT_ERROR::PRIV_KEY_PASSWORD_ERROR)
     {
-        qCDebug(LOG_BASIC) << "Incorrect priv key password for custom ovpn config";
+        qCWarning(LOG_BASIC) << "Incorrect priv key password for custom ovpn config";
         doDisconnectRestoreStuff();
 
         customOvpnAuthCredentialsStorage_->removePrivKeyPassword(connectionManager_->getCustomOvpnConfigFileName());
@@ -1589,13 +1585,13 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
 #ifdef Q_OS_WIN
     else if (err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP)
     {
-        qCDebug(LOG_BASIC) << "OpenVPN failed to detect the Windscribe wintun adapter";
+        qCWarning(LOG_BASIC) << "OpenVPN failed to detect the Windscribe wintun adapter";
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::WINTUN_FATAL_ERROR);
         return;
     }
     else if (err == CONNECT_ERROR::WINTUN_FATAL_ERROR)
     {
-        qCDebug(LOG_BASIC) << "OpenVPN reported the Windscribe wintun adapter as already in use";
+        qCWarning(LOG_BASIC) << "OpenVPN reported the Windscribe wintun adapter as already in use";
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::WINTUN_FATAL_ERROR);
         return;
     }
@@ -1744,7 +1740,7 @@ void Engine::detectAppropriatePacketSizeImpl()
     }
     else
     {
-        qCDebug(LOG_PACKET_SIZE) << "No internet, cannot detect appropriate packet size. Using: " << QString::number(packetSize_.mtu);
+        qCWarning(LOG_PACKET_SIZE) << "No internet, cannot detect appropriate packet size. Using: " << QString::number(packetSize_.mtu);
     }
 }
 
@@ -1809,24 +1805,24 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
 
     if (state != DownloadHelper::DOWNLOAD_STATE_SUCCESS)
     {
-        qCDebug(LOG_DOWNLOADER) << "Removing incomplete installer";
+        qCInfo(LOG_DOWNLOADER) << "Removing incomplete installer";
         QFile::remove(installerPath_);
         emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_DL_FAIL);
         return;
     }
-    qCDebug(LOG_DOWNLOADER) << "Successful download";
+    qCInfo(LOG_DOWNLOADER) << "Successful download";
 
 #ifdef Q_OS_WIN
 
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(installerPath_.toStdWString()))
     {
-        qCDebug(LOG_AUTO_UPDATER) << "Incorrect signature, removing unsigned installer: " << QString::fromStdString(sigCheck.lastError());
+        qCInfo(LOG_AUTO_UPDATER) << "Incorrect signature, removing unsigned installer: " << QString::fromStdString(sigCheck.lastError());
         QFile::remove(installerPath_);
         emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_SIGN_FAIL);
         return;
     }
-    qCDebug(LOG_AUTO_UPDATER) << "Installer signature valid";
+    qCInfo(LOG_AUTO_UPDATER) << "Installer signature valid";
 #elif defined Q_OS_MACOS
 
     const QString tempInstallerFilename = autoUpdaterHelper_->copyInternalInstallerToTempFromDmg(installerPath_);
@@ -1843,7 +1839,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
     // if api for some reason doesn't return sha256 field
     if (installerHash_ == "")
     {
-        qCDebug(LOG_BASIC) << "Hash from API is empty -- cannot verify";
+        qCWarning(LOG_BASIC) << "Hash from API is empty -- cannot verify";
         if (QFile::exists(installerPath_)) QFile::remove(installerPath_);
         emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_API_HASH_INVALID);
         return;
@@ -1851,7 +1847,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
 
     if (!verifyContentsSha256(installerPath_, installerHash_)) // installerPath_
     {
-        qCDebug(LOG_AUTO_UPDATER) << "Incorrect hash, removing installer";
+        qCWarning(LOG_AUTO_UPDATER) << "Incorrect hash, removing installer";
         if (QFile::exists(installerPath_)) QFile::remove(installerPath_);
         emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL);
         return;
@@ -1887,7 +1883,7 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
 
     if (!ShellExecuteEx(&shExInfo)) {
         DWORD lastError = GetLastError();
-        qCDebug(LOG_AUTO_UPDATER) << "Can't start installer: errorCode = " << lastError;
+        qCCritical(LOG_AUTO_UPDATER) << "Can't start installer: errorCode = " << lastError;
         QFile::remove(installerPath_);
         emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
         return;
@@ -1922,7 +1918,7 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
     }
 #endif
 
-    qCDebug(LOG_AUTO_UPDATER) << "Installer valid and executed";
+    qCInfo(LOG_AUTO_UPDATER) << "Installer valid and executed";
     installerPath_.clear();
 
     emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_NO_ERROR);
@@ -2038,7 +2034,7 @@ void Engine::onNetworkOnlineStateChange(bool isOnline)
 {
     if (!isOnline && runningPacketDetection_)
     {
-        qCDebug(LOG_BASIC) << "Internet lost during packet size detection -- stopping";
+        qCInfo(LOG_BASIC) << "Internet lost during packet size detection -- stopping";
         stopPacketDetection();
     }
     WSNet::instance()->setConnectivityState(isOnline);
@@ -2287,7 +2283,7 @@ void Engine::onApiResourcesManagerReadyForLogin(bool isLoginFromSavedSettings)
 
 void Engine::onApiResourcesManagerLoginFailed(LoginResult loginResult, const QString &errorMessage)
 {
-    qCDebug(LOG_BASIC) << "onApiResourcesManagerLoginFailed, retCode =" << (int)loginResult << ";errorMessage =" << errorMessage;
+    qCInfo(LOG_BASIC) << "onApiResourcesManagerLoginFailed, retCode =" << (int)loginResult << ";errorMessage =" << errorMessage;
 
     if (loginResult == LoginResult::kNoConnectivity) {
         emit loginError(LoginResult::kNoConnectivity, QString());
@@ -2321,7 +2317,7 @@ void Engine::onApiResourcesManagerLocationsUpdated()
     if (checkAutoEnableAntiCensorship_) {
         checkAutoEnableAntiCensorship_ = false;
         if (!serverLocations.countryOverride().isEmpty() && !ExtraConfig::instance().haveServerListCountryOverride()) {
-            qCDebug(LOG_BASIC) << "Automatically enabled anti-censorship feature due to country override";
+            qCInfo(LOG_BASIC) << "Automatically enabled anti-censorship feature due to country override";
             emit autoEnableAntiCensorship();
         }
     }
@@ -2332,7 +2328,7 @@ void Engine::onApiResourcesManagerServerCredentialsFetched()
 {
     if (isFetchingServerCredentials_) {
         stopFetchingServerCredentials();
-        qCDebug(LOG_BASIC) << "Engine::onRefetchServerCredentialsFinished, successfully";
+        qCInfo(LOG_BASIC) << "Engine::onRefetchServerCredentialsFinished, successfully";
         doConnect(false);
         isFetchingServerCredentials_ = false;
     }
@@ -2387,7 +2383,7 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
                 ip = QString::fromStdString(res->ips()[0]);
                 ExtraConfig::instance().setDetectedIp(ip);
             } else {
-                qCDebug(LOG_BASIC) << "Failed to resolve IP for" << strHost;
+                qCWarning(LOG_BASIC) << "Failed to resolve IP for" << strHost;
                 ExtraConfig::instance().setDetectedIp("");
             }
         }
@@ -2415,14 +2411,14 @@ void Engine::doConnect(bool bEmitAuthError)
     {
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::LOCATION_NOT_EXIST);
         myIpManager_->getIP(1);
-        qCDebug(LOG_BASIC) << "Engine::connectError(LOCATION_NOT_EXIST)";
+        qCWarning(LOG_BASIC) << "Engine::connectError(LOCATION_NOT_EXIST)";
         return;
     }
     if (!bli->isExistSelectedNode())
     {
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::LOCATION_NO_ACTIVE_NODES);
         myIpManager_->getIP(1);
-        qCDebug(LOG_BASIC) << "Engine::connectError(LOCATION_NO_ACTIVE_NODES)";
+        qCWarning(LOG_BASIC) << "Engine::connectError(LOCATION_NO_ACTIVE_NODES)";
         return;
     }
 
@@ -2445,12 +2441,12 @@ void Engine::doConnect(bool bEmitAuthError)
             qCDebug(LOG_BASIC) << "radiusUsername openvpn: " << ovpnCredentials.username();
             qCDebug(LOG_BASIC) << "radiusUsername ikev2: " << ikev2Credentials.username();
         }
-        qCDebug(LOG_CONNECTION) << "Connecting to" << locationName_;
+        qCInfo(LOG_CONNECTION) << "Connecting to" << locationName_;
 
         types::ConnectionSettings connectionSettings;
         // User requested one time override
         if (!connectionSettingsOverride_.isAutomatic()) {
-            qCDebug(LOG_BASIC) << "One-time override (" << connectionSettingsOverride_.protocol().toLongString() << ")";
+            qCInfo(LOG_BASIC) << "One-time override (" << connectionSettingsOverride_.protocol().toLongString() << ")";
             connectionSettings = connectionSettingsOverride_;
         } else {
             connectionSettings = engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid);
@@ -2464,7 +2460,7 @@ void Engine::doConnect(bool bEmitAuthError)
     // for custom configs without login
     else
     {
-        qCDebug(LOG_CONNECTION) << "Connecting to" << locationName_;
+        qCInfo(LOG_CONNECTION) << "Connecting to" << locationName_;
         connectionManager_->clickConnect("", api_responses::ServerCredentials(), api_responses::ServerCredentials(), bli,
             engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), api_responses::PortMap(),
             ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.customOvpnConfigsPath(), engineSettings_.isAntiCensorship());
@@ -2561,7 +2557,7 @@ bool Engine::verifyContentsSha256(const QString &filename, const QString &compar
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly))
     {
-        qCDebug(LOG_BASIC) << "Failed to open installer for reading";
+        qCCritical(LOG_BASIC) << "Failed to open installer for reading";
         return false;
     }
     QByteArray contentsBytes = file.readAll();
@@ -2588,7 +2584,7 @@ void Engine::doCheckUpdate()
 {
     UPDATE_CHANNEL channel = engineSettings_.updateChannel();
     if (overrideUpdateChannelWithInternal_) {
-        qCDebug(LOG_BASIC) << "Overriding update channel: internal";
+        qCInfo(LOG_BASIC) << "Overriding update channel: internal";
         channel = UPDATE_CHANNEL_INTERNAL;
     }
 

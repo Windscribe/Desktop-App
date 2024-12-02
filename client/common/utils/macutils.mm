@@ -177,7 +177,7 @@ bool MacUtils::dynamicStoreEntryHasKey(const QString &entry, const QString &key)
 {
     SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("WindscribeKeyChecker"), NULL, NULL);
     if (dynRef == NULL) {
-        qCDebug(LOG_BASIC) << "dynamicStoreEntryHasKey - SCDynamicStoreCreate failed";
+        qCCritical(LOG_BASIC) << "dynamicStoreEntryHasKey - SCDynamicStoreCreate failed";
         return false;
     }
 
@@ -189,7 +189,7 @@ bool MacUtils::dynamicStoreEntryHasKey(const QString &entry, const QString &key)
         setByWindscribeValue = (CFStringRef) CFDictionaryGetValue(dnskey, keyCFString);
         CFRelease(dnskey);
     } else {
-        qCDebug(LOG_BASIC) << "dynamicStoreEntryHasKey - SCDynamicStoreCopyValue failed";
+        qCCritical(LOG_BASIC) << "dynamicStoreEntryHasKey - SCDynamicStoreCopyValue failed";
     }
     CFRelease(dynRef);
     CFRelease(entryCFString);
@@ -205,13 +205,11 @@ bool MacUtils::verifyAppBundleIntegrity()
 #else
     QString mainBundlePath = getBundlePath();
 
-    qCDebug(LOG_BASIC) << "verifyAppBundleIntegrity on " << mainBundlePath;
-
     // Create a URL that points to this file.
     auto url = (__bridge CFURLRef)[NSURL fileURLWithPath:@(qPrintable(mainBundlePath))];
     if (url == nullptr)
     {
-        qCDebug(LOG_BASIC) << "verifyAppBundleIntegrity: could not create URL from file";
+        qCCritical(LOG_BASIC) << "verifyAppBundleIntegrity: could not create URL from file";
         return false;
     }
 
@@ -226,7 +224,7 @@ bool MacUtils::verifyAppBundleIntegrity()
             CFRelease(static_code);
         }
 
-        qCDebug(LOG_BASIC) << "verifyAppBundleIntegrity: could not create static code object";
+        qCCritical(LOG_BASIC) << "verifyAppBundleIntegrity: could not create static code object";
         return false;
     }
 
@@ -259,7 +257,7 @@ bool MacUtils::isParentProcessGui()
                 return true;
             }
 
-            qCDebug(LOG_BASIC) << "isParentProcessGui incorrect signature: " << QString::fromStdString(sigCheck.lastError());
+            qCCritical(LOG_BASIC) << "isParentProcessGui incorrect signature: " << QString::fromStdString(sigCheck.lastError());
         }
     }
     return false;
@@ -277,7 +275,7 @@ static QStringList getOsDnsServersFromPath(CFStringRef path)
 
     SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("DNSSETTING"), NULL, NULL);
     if (dynRef == NULL) {
-        qCDebug(LOG_BASIC) << "getOsDnsServersFromPath - SCDynamicStoreCreate failed";
+        qCCritical(LOG_BASIC) << "getOsDnsServersFromPath - SCDynamicStoreCreate failed";
         return servers;
     }
 
@@ -294,18 +292,14 @@ static QStringList getOsDnsServersFromPath(CFStringRef path)
         CFDictionaryRef dict = (CFDictionaryRef)propList;
         CFArrayRef addresses = (CFArrayRef)CFDictionaryGetValue(dict, CFSTR("ServerAddresses"));
         if (addresses == NULL) {
-            qCDebug(LOG_BASIC) << "getOsDnsServersFromPath - CFDictionaryGetValue failed";
+            qCCritical(LOG_BASIC) << "getOsDnsServersFromPath - CFDictionaryGetValue failed";
             return servers;
         }
         for (int j = 0; j < CFArrayGetCount(addresses); j++) {
             NSString *addr = (NSString *)CFArrayGetValueAtIndex(addresses, j);
             servers << QString([addr UTF8String]);
         }
-    } else {
-        // We appear to get here quite often, with no ill effects, so commenting this out to
-        // reduce log spam.
-        //qCDebug(LOG_BASIC) << "getOsDnsServersFromPath - SCDynamicStoreCopyValue failed";
-    }
+    } 
 
     return servers;
 }
@@ -314,7 +308,7 @@ QSet<QString> MacUtils::getOsDnsServers()
 {
     SCPreferencesRef prefsDNS = SCPreferencesCreate(NULL, CFSTR("DNSSETTING"), NULL);
     if (prefsDNS == NULL) {
-        qCDebug(LOG_BASIC) << "getOsDnsServers - SCPreferencesCreate failed";
+        qCCritical(LOG_BASIC) << "getOsDnsServers - SCPreferencesCreate failed";
         return QSet<QString>();
     }
 
@@ -328,7 +322,7 @@ QSet<QString> MacUtils::getOsDnsServers()
 
     services = SCNetworkServiceCopyAll(prefsDNS);
     if (services == NULL) {
-        qCDebug(LOG_BASIC) << "getOsDnsServers - SCNetworkServiceCopyAll failed";
+        qCCritical(LOG_BASIC) << "getOsDnsServers - SCNetworkServiceCopyAll failed";
         return QSet<QString>();
     }
 
@@ -338,7 +332,7 @@ QSet<QString> MacUtils::getOsDnsServers()
         CFStringRef serviceId = SCNetworkServiceGetServiceID(service);
         CFStringRef path = CFStringCreateWithFormat(NULL, NULL, CFSTR("State:/Network/Service/%@/DNS"), serviceId);
         if (path == NULL) {
-            qCDebug(LOG_BASIC) << "getOsDnsServers - CFStringCreateWithFormat(Service) failed";
+            qCCritical(LOG_BASIC) << "getOsDnsServers - CFStringCreateWithFormat(Service) failed";
             return QSet<QString>();
         }
         servers << getOsDnsServersFromPath(path);
@@ -347,7 +341,7 @@ QSet<QString> MacUtils::getOsDnsServers()
 
     CFStringRef globalPath = CFStringCreateWithFormat(NULL, NULL, CFSTR("State:/Network/Global/DNS"));
     if (globalPath == NULL) {
-        qCDebug(LOG_BASIC) << "getOsDnsServers - CFStringCreateWithFormat(Global) failed";
+        qCCritical(LOG_BASIC) << "getOsDnsServers - CFStringCreateWithFormat(Global) failed";
         return QSet<QString>();
     }
 

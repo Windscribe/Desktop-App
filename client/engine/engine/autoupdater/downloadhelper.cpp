@@ -111,7 +111,7 @@ void DownloadHelper::onReplyFinished(std::uint64_t requestId, NetworkError errCo
 
     // if any reply fails, we fail
     if (errCode != NetworkError::kSuccess) {
-        qCDebug(LOG_DOWNLOADER) << "Download failed";
+        qCWarning(LOG_DOWNLOADER) << "Download failed";
         deleteAllCurrentReplies();
         busy_ = false;
         emit finished(DOWNLOAD_STATE_FAIL);
@@ -119,7 +119,7 @@ void DownloadHelper::onReplyFinished(std::uint64_t requestId, NetworkError errCo
     }
 
     if (allRepliesDone()) {
-        qCDebug(LOG_DOWNLOADER) << "Download finished successfully";
+        qCInfo(LOG_DOWNLOADER) << "Download finished successfully";
         deleteAllCurrentReplies();
         busy_ = false;
         emit finished(DOWNLOAD_STATE_SUCCESS);
@@ -127,7 +127,7 @@ void DownloadHelper::onReplyFinished(std::uint64_t requestId, NetworkError errCo
     }
 
     // still waiting on replies
-    qCDebug(LOG_DOWNLOADER) << "Download single file successful";
+    qCInfo(LOG_DOWNLOADER) << "Download single file successful";
 }
 
 void DownloadHelper::onReplyDownloadProgress(std::uint64_t requestId, std::uint64_t bytesReceived, std::uint64_t bytesTotal)
@@ -162,7 +162,7 @@ void DownloadHelper::onReplyReadyRead(std::uint64_t requestId, const std::string
         if (it->second->file.isOpen()) {
             it->second->file.write(data.c_str(), data.size());
         } else {
-            qCDebug(LOG_DOWNLOADER) << "Download error occurred (file not opened)";
+            qCWarning(LOG_DOWNLOADER) << "Download error occurred (file not opened)";
         }
     }
 }
@@ -177,7 +177,7 @@ void DownloadHelper::getInner(const QString url, const QString targetFilenamePat
     fileAndProgess->file.setFileName(targetFilenamePath);
     if (!fileAndProgess->file.open(QIODevice::WriteOnly))
     {
-        qCDebug(LOG_DOWNLOADER) << "Failed to open file for download" << url;
+        qCWarning(LOG_DOWNLOADER) << "Failed to open file for download" << url;
         return;
     }
 

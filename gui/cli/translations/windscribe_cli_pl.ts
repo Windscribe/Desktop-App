@@ -247,14 +247,6 @@
         <translation>Zachowanie limitu klucza jest ustawione.</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Logowanie jest w toku.  Użyj &apos;windscribe-cli status&apos;, aby sprawdzić status.</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Wylogowanie jest w toku.  Użyj &apos;windscribe-cli status&apos;, aby sprawdzić status.</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>Połączenie zostało zastąpione przez inne polecenie.</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>Wylogowanie się</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>Potrzebujesz kodu 2FA</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>Nieprawidłowy kod 2FA</translation>
     </message>
 </context>
 </TS>

@@ -17,41 +17,41 @@ WlanUtils_win::WlanUtils_win() : loaded_(false)
     const QString dll = WinUtils::getSystemDir() + QString("\\wlanapi.dll");
     wlanDll_ = ::LoadLibraryEx(qUtf16Printable(dll), NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
     if (wlanDll_ == NULL) {
-        qCDebug(LOG_BASIC) << "WlanUtils_win: wlanapi.dll does not exist on this computer or could not be loaded:" << ::GetLastError();
+        qCWarning(LOG_BASIC) << "WlanUtils_win: wlanapi.dll does not exist on this computer or could not be loaded:" << ::GetLastError();
         return;
     }
 
     pfnWlanOpenHandle_ = (WlanOpenHandleFunc)::GetProcAddress(wlanDll_, "WlanOpenHandle");
     if (pfnWlanOpenHandle_ == NULL) {
-        qCDebug(LOG_BASIC) << "WlanUtils_win: failed to load WlanOpenHandle:" << ::GetLastError();
+        qCWarning(LOG_BASIC) << "WlanUtils_win: failed to load WlanOpenHandle:" << ::GetLastError();
         ::FreeLibrary(wlanDll_);
         return;
     }
 
     pfnWlanCloseHandle_ = (WlanCloseHandleFunc)::GetProcAddress(wlanDll_, "WlanCloseHandle");
     if (pfnWlanCloseHandle_ == NULL) {
-        qCDebug(LOG_BASIC) << "WlanUtils_win: failed to load WlanCloseHandle:" << ::GetLastError();
+        qCWarning(LOG_BASIC) << "WlanUtils_win: failed to load WlanCloseHandle:" << ::GetLastError();
         ::FreeLibrary(wlanDll_);
         return;
     }
 
     pfnWlanFreeMemory_ = (WlanFreeMemoryFunc)::GetProcAddress(wlanDll_, "WlanFreeMemory");
     if (pfnWlanFreeMemory_ == NULL) {
-        qCDebug(LOG_BASIC) << "WlanUtils_win: failed to load WlanFreeMemory:" << ::GetLastError();
+        qCWarning(LOG_BASIC) << "WlanUtils_win: failed to load WlanFreeMemory:" << ::GetLastError();
         ::FreeLibrary(wlanDll_);
         return;
     }
 
     pfnWlanEnumInterfaces_ = (WlanEnumInterfacesFunc)::GetProcAddress(wlanDll_, "WlanEnumInterfaces");
     if (pfnWlanEnumInterfaces_ == NULL) {
-        qCDebug(LOG_BASIC) << "WlanUtils_win: failed to load WlanEnumInterfaces:" << ::GetLastError();
+        qCWarning(LOG_BASIC) << "WlanUtils_win: failed to load WlanEnumInterfaces:" << ::GetLastError();
         ::FreeLibrary(wlanDll_);
         return;
     }
 
     pfnWlanQueryInterface_ = (WlanQueryInterfaceFunc)::GetProcAddress(wlanDll_, "WlanQueryInterface");
     if (pfnWlanQueryInterface_ == NULL) {
-        qCDebug(LOG_BASIC) << "WlanUtils_win: failed to load WlanQueryInterface:" << ::GetLastError();
+        qCWarning(LOG_BASIC) << "WlanUtils_win: failed to load WlanQueryInterface:" << ::GetLastError();
         ::FreeLibrary(wlanDll_);
         return;
     }
@@ -69,7 +69,7 @@ WlanUtils_win::~WlanUtils_win()
 DWORD WlanUtils_win::ssidFromInterfaceGUID(const QString &interfaceGUID, QString &ssid)
 {
     if (!loaded_) {
-        qCDebug(LOG_BASIC) << "ssidFromInterfaceGUID called when wlanapi.dll is not loaded";
+        qCWarning(LOG_BASIC) << "ssidFromInterfaceGUID called when wlanapi.dll is not loaded";
         return ERROR_INVALID_STATE;
     }
 
@@ -77,7 +77,7 @@ DWORD WlanUtils_win::ssidFromInterfaceGUID(const QString &interfaceGUID, QString
     HANDLE hClient = NULL;
     auto result = pfnWlanOpenHandle_(2, NULL, &dwCurVersion, &hClient);
     if (result != ERROR_SUCCESS) {
-        qCDebug(LOG_BASIC) << "WlanOpenHandle failed with error:" << result;
+        qCCritical(LOG_BASIC) << "WlanOpenHandle failed with error:" << result;
         return result;
     }
 
@@ -107,7 +107,7 @@ DWORD WlanUtils_win::ssidFromInterfaceGUID(const QString &interfaceGUID, QString
 
         // Will receive these error codes when an adapter is being reset.
         if (result != ERROR_NOT_FOUND && result != ERROR_INVALID_STATE) {
-            qCDebug(LOG_BASIC) << "WlanQueryInterface failed with error:" << result;
+            qCCritical(LOG_BASIC) << "WlanQueryInterface failed with error:" << result;
         }
 
         return result;
@@ -137,13 +137,13 @@ bool WlanUtils_win::isWifiRadioOn()
     PWLAN_INTERFACE_INFO_LIST pIfList = NULL;
 
     if (!loaded_) {
-        qCDebug(LOG_BASIC) << "isWifiRadioOn called when wlanapi.dll is not loaded";
+        qCWarning(LOG_BASIC) << "isWifiRadioOn called when wlanapi.dll is not loaded";
         return false;
     }
 
     result = pfnWlanOpenHandle_(2, NULL, &dwCurVersion, &hClient);
     if (result != ERROR_SUCCESS) {
-        qCDebug(LOG_BASIC) << "WlanOpenHandle failed with error:" << result;
+        qCCritical(LOG_BASIC) << "WlanOpenHandle failed with error:" << result;
         return false;
     }
 
@@ -156,7 +156,7 @@ bool WlanUtils_win::isWifiRadioOn()
 
     result = pfnWlanEnumInterfaces_(hClient, NULL, &pIfList);
     if (result != ERROR_SUCCESS) {
-        qCDebug(LOG_BASIC) << "WlanEnumInterfaces failed with error:" << result;
+        qCCritical(LOG_BASIC) << "WlanEnumInterfaces failed with error:" << result;
         return false;
     }
 
@@ -168,7 +168,7 @@ bool WlanUtils_win::isWifiRadioOn()
 
         result = pfnWlanQueryInterface_(hClient, &pIfInfo->InterfaceGuid, wlan_intf_opcode_radio_state, NULL, &dwDataSize, (PVOID *)&pRadioState, &opCode);
         if (result != ERROR_SUCCESS) {
-            qCDebug(LOG_BASIC) << "WlanQueryInterface failed with error: " << result;
+            qCCritical(LOG_BASIC) << "WlanQueryInterface failed with error: " << result;
             continue;
         }
 
@@ -212,14 +212,14 @@ DWORD WlanUtils_win::getSsidFromHelper(const QString &interfaceGUID, QString &ou
     if (result == ERROR_ACCESS_DENIED) {
         if (warnWLanAPIBlocked) {
             warnWLanAPIBlocked = false;
-            qCDebug(LOG_BASIC) << "*** the WlanQueryInterface API is blocked on this computer. Windscribe will be unable to determine your Wi-Fi SSID until you enable Location services for Windows.";
+            qCWarning(LOG_BASIC) << "*** the WlanQueryInterface API is blocked on this computer. Windscribe will be unable to determine your Wi-Fi SSID until you enable Location services for Windows.";
         }
         return result;
     }
 
     else if (result != ERROR_NOT_FOUND && result != ERROR_INVALID_STATE) {
         // Will receive these error codes when an adapter is being reset.
-        qCDebug(LOG_BASIC) << "getSsidFromHelper failed with error:" << result;
+        qCCritical(LOG_BASIC) << "getSsidFromHelper failed with error:" << result;
     }
 
     return result;

@@ -68,7 +68,7 @@ AdapterGatewayInfo AdapterUtils_win::getAdapterInfo(bool byIfIndex, unsigned lon
                         info.addDnsServer(QString::fromLocal8Bit(buf, lenStr));
                     }
                     else {
-                        qCDebug(LOG_CONNECTION) << "AdapterUtils_win::getAdapterInfo - WSAAddressToString failed:" << ::WSAGetLastError();
+                        qCWarning(LOG_CONNECTION) << "AdapterUtils_win::getAdapterInfo - WSAAddressToString failed:" << ::WSAGetLastError();
                     }
 
                     dns_address = dns_address->Next;

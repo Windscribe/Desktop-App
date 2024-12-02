@@ -92,7 +92,7 @@ void SplitTunnelingGroup::onActiveSwitchStateChanged(bool checked)
             }
         }
         catch (std::system_error& ex) {
-            qCDebug(LOG_PREFERENCES) << "SplitTunnelingGroup::onActiveSwitchStateChanged -" << ex.what();
+            qCWarning(LOG_PREFERENCES) << "SplitTunnelingGroup::onActiveSwitchStateChanged -" << ex.what();
         }
     }
 #endif

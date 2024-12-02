@@ -47,7 +47,7 @@ bool WiFiDirectManager::start(const QString &ssid, const QString &password)
         }
     } catch (winrt::hresult_error const& ex) {
         winrt::hstring message = ex.message();
-        qCDebug(LOG_WIFI_SHARED) << QString::fromStdWString(message.c_str());
+        qCWarning(LOG_WIFI_SHARED) << QString::fromStdWString(message.c_str());
     }
 
     reset();
@@ -87,7 +87,7 @@ bool WiFiDirectManager::start(const QString &ssid, const QString &password)
         publisher_.Start();
     } catch (winrt::hresult_error const& ex) {
         winrt::hstring message = ex.message();
-        qCDebug(LOG_WIFI_SHARED) << QString::fromStdWString(message.c_str());
+        qCWarning(LOG_WIFI_SHARED) << QString::fromStdWString(message.c_str());
     }
 
     return true;
@@ -104,7 +104,7 @@ void WiFiDirectManager::stop()
     }
     catch (winrt::hresult_error const& ex) {
         winrt::hstring message = ex.message();
-        qCDebug(LOG_WIFI_SHARED) << QString::fromStdWString(message.c_str());
+        qCWarning(LOG_WIFI_SHARED) << QString::fromStdWString(message.c_str());
     }
 
     reset();
@@ -143,7 +143,7 @@ void WiFiDirectManager::startListener()
         connectionRequestedToken_ = connectionListener_.ConnectionRequested(handler);
     } catch(winrt::hresult_error const& ex) {
         winrt::hstring message = ex.message();
-        qCDebug(LOG_WIFI_SHARED) << QString::fromStdWString(message.c_str());
+        qCWarning(LOG_WIFI_SHARED) << QString::fromStdWString(message.c_str());
     }
 }
 
@@ -158,7 +158,7 @@ void WiFiDirectManager::onStatusChanged(winrt::Windows::Devices::WiFiDirect::WiF
         case winrt::Windows::Devices::WiFiDirect::WiFiDirectAdvertisementPublisherStatus::Started:
         {
             startListener();
-            qCDebug(LOG_WIFI_SHARED) << "Advertisement started";
+            qCInfo(LOG_WIFI_SHARED) << "Advertisement started";
             emit started();
             break;
         }
@@ -170,15 +170,15 @@ void WiFiDirectManager::onStatusChanged(winrt::Windows::Devices::WiFiDirect::WiF
             {
                 case winrt::Windows::Devices::WiFiDirect::WiFiDirectError::RadioNotAvailable:
                     reason = WIFI_SHARING_ERROR_RADIO_OFF;
-                    qCDebug(LOG_WIFI_SHARED) << "Advertisement aborted, Wi-Fi radio is turned off";
+                    qCInfo(LOG_WIFI_SHARED) << "Advertisement aborted, Wi-Fi radio is turned off";
                     break;
 
                 case winrt::Windows::Devices::WiFiDirect::WiFiDirectError::ResourceInUse:
-                    qCDebug(LOG_WIFI_SHARED) << "Advertisement aborted, Resource In Use";
+                    qCInfo(LOG_WIFI_SHARED) << "Advertisement aborted, Resource In Use";
                     break;
 
                 default:
-                    qCDebug(LOG_WIFI_SHARED) << "Advertisement aborted, unknown reason";
+                    qCInfo(LOG_WIFI_SHARED) << "Advertisement aborted, unknown reason";
                     break;
             }
             emit failed(reason);
@@ -187,7 +187,7 @@ void WiFiDirectManager::onStatusChanged(winrt::Windows::Devices::WiFiDirect::WiF
 
         case winrt::Windows::Devices::WiFiDirect::WiFiDirectAdvertisementPublisherStatus::Stopped:
         {
-            qCDebug(LOG_WIFI_SHARED) << "Advertisement stopped";
+            qCInfo(LOG_WIFI_SHARED) << "Advertisement stopped";
             break;
         }
         default:
@@ -196,7 +196,7 @@ void WiFiDirectManager::onStatusChanged(winrt::Windows::Devices::WiFiDirect::WiF
 
     } catch(winrt::hresult_error const& ex) {
         winrt::hstring message = ex.message();
-        qCDebug(LOG_WIFI_SHARED) << QString::fromStdWString(message.c_str());
+        qCWarning(LOG_WIFI_SHARED) << QString::fromStdWString(message.c_str());
     }
 }
 
@@ -245,6 +245,6 @@ void WiFiDirectManager::onConnectionRequested(const winrt::Windows::Devices::WiF
 
     } catch(winrt::hresult_error const& ex) {
         winrt::hstring message = ex.message();
-        qCDebug(LOG_WIFI_SHARED) << QString::fromStdWString(message.c_str());
+        qCWarning(LOG_WIFI_SHARED) << QString::fromStdWString(message.c_str());
     }
 }

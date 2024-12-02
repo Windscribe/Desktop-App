@@ -9,6 +9,7 @@
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/rotating_file_sink.h>
+#include <spdlog/sinks/stdout_sinks.h>
 
 #include "spdlog_utils.h"
 #include "paths.h"
@@ -41,6 +42,13 @@ bool Logger::install(const QString &logFilePath, bool consoleOutput)
         // Create the logger without formatting for logging output from libraries such as wsnet, which format logs themselves
         auto rawLogger = std::make_shared<spdlog::logger>("raw", fileSink);
         spdlog::register_logger(rawLogger);
+
+#if defined QT_DEBUG
+        // Also output logs to stdout in debug mode
+        auto sinkDebug = std::make_shared<spdlog::sinks::stdout_sink_mt>();
+        spdlog::default_logger()->sinks().push_back(sinkDebug);
+        spdlog::get("raw")->sinks().push_back(sinkDebug);
+#endif
 
         // this will trigger flush on every log message
         defaultLogger->flush_on(spdlog::level::trace);
@@ -82,7 +90,15 @@ void Logger::myMessageHandler(QtMsgType type, const QMessageLogContext &context,
     }
 
     std::string escapedMsg = log_utils::escape_string(s.toStdString());
-    spdlog::debug("\"mod\": \"{}\", \"msg\": \"{}\"", context.category, escapedMsg);
+    static const std::string fmt = "\"mod\": \"{}\", \"msg\": \"{}\"";
+    if (type == QtDebugMsg)
+        spdlog::debug(fmt, context.category, escapedMsg);
+    else if (type == QtWarningMsg)
+        spdlog::warn(fmt, context.category, escapedMsg);
+    else if (type == QtInfoMsg)
+        spdlog::info(fmt, context.category, escapedMsg);
+    else
+        spdlog::error(fmt, context.category, escapedMsg);
 }
 
 void Logger::startConnectionMode(const std::string &id)

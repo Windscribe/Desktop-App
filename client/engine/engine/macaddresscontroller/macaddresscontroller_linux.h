@@ -31,4 +31,8 @@ private:
     void disableSpoofing();
     void applySpoof(const types::NetworkInterface &interface, const QString &macAddress);
     void removeSpoofs();
+
+#ifdef CLI_ONLY
+    bool spoofInProgress_;
+#endif
 };

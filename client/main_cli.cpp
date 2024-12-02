@@ -34,7 +34,7 @@ void handler_sigterm(int signum)
         // Instead, write a byte to a local socket
         char a = 1;
         if (::write(fds[0], &a, sizeof(a)) < 0) {
-            qCDebug(LOG_BASIC) << "Could not write to signal socket";
+            qCWarning(LOG_BASIC) << "Could not write to signal socket";
         }
     }
 }
@@ -45,12 +45,12 @@ int main(int argc, char *argv[])
 #if defined (Q_OS_LINUX)
     gid_t gid = LinuxUtils::getWindscribeGid();
     if (gid == -1) {
-        qCDebug(LOG_BASIC) << "windscribe group does not exist";
+        qCCritical(LOG_BASIC) << "windscribe group does not exist";
         return -1;
     }
     qCDebug(LOG_BASIC) << "Setting gid to:" << gid;
     if (setgid(gid) < 0) {
-        qCDebug(LOG_BASIC) << "Could not set windscribe group";
+        qCCritical(LOG_BASIC) << "Could not set windscribe group";
         return -1;
     }
 #endif
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     signal(SIGTERM, handler_sigterm);
 
     if (::socketpair(AF_UNIX, SOCK_STREAM, 0, fds)) {
-        qCDebug(LOG_BASIC) << "Could not create socket pair";
+        qCCritical(LOG_BASIC) << "Could not create socket pair";
         return -1;
     }
 
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
     // so it can be started early.
     windscribe::SingleAppInstance appSingleInstGuard;
     if (appSingleInstGuard.isRunning()) {
-        qCDebug(LOG_BASIC) << "Windscribe already running";
+        qCInfo(LOG_BASIC) << "Windscribe already running";
         return 0;
     }
 
@@ -104,18 +104,18 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    log_utils::Logger::instance().install(log_utils::paths::cliLogLocation(), true);
+    log_utils::Logger::instance().install(log_utils::paths::clientLogLocation(), true);
 
-    qCDebug(LOG_BASIC) << "=== Started ===";
-    qCDebug(LOG_BASIC) << "App version:" << AppVersion::instance().fullVersionString();
-    qCDebug(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
-    qCDebug(LOG_BASIC) << "Platform: CLI";
+    qCInfo(LOG_BASIC) << "=== Started ===";
+    qCInfo(LOG_BASIC) << "App version:" << AppVersion::instance().fullVersionString();
+    qCInfo(LOG_BASIC) << "OS Version:" << Utils::getOSVersion();
+    qCInfo(LOG_BASIC) << "Platform: CLI";
 #if defined(Q_OS_LINUX)
-    qCDebug(LOG_BASIC) << "Distribution:" << LinuxUtils::getDistroName();
+    qCInfo(LOG_BASIC) << "Distribution:" << LinuxUtils::getDistroName();
 #endif
-    qCDebug(LOG_BASIC) << "CPU architecture:" << QSysInfo::currentCpuArchitecture();
+    qCInfo(LOG_BASIC) << "CPU architecture:" << QSysInfo::currentCpuArchitecture();
     // To aid us in diagnosing possible region-specific issues.
-    qCDebug(LOG_BASIC) << "UI languages:" << QLocale::system().uiLanguages();
+    qCInfo(LOG_BASIC) << "UI languages:" << QLocale::system().uiLanguages();
 
     ExtraConfig::instance().logExtraConfig();
 
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
     a.setService(service);
 
     if (!QFileInfo::exists(OpenVpnVersionController::instance().getOpenVpnFilePath())) {
-        qCDebug(LOG_BASIC) << "OpenVPN executable not found";
+        qCCritical(LOG_BASIC) << "OpenVPN executable not found";
         return 0;
     }
 

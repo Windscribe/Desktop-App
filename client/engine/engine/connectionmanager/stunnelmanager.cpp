@@ -37,7 +37,7 @@ bool StunnelManager::runProcess(const QString &hostname, unsigned int port, bool
 #if defined(Q_OS_WIN)
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(stunnelExePath_.toStdWString())) {
-        qCDebug(LOG_BASIC) << "Failed to verify stunnel signature: " << QString::fromStdString(sigCheck.lastError());
+        qCWarning(LOG_BASIC) << "Failed to verify stunnel signature: " << QString::fromStdString(sigCheck.lastError());
         return false;
     }
 
@@ -64,9 +64,9 @@ bool StunnelManager::runProcess(const QString &hostname, unsigned int port, bool
     }
 #endif
     if (ret) {
-        qCDebug(LOG_BASIC) << "stunnel started on port " << port_;
+        qCInfo(LOG_BASIC) << "stunnel started on port " << port_;
     } else {
-        qCDebug(LOG_BASIC) << "stunnel failed to start";
+        qCWarning(LOG_BASIC) << "stunnel failed to start";
     }
     bProcessStarted_ = ret;
     return ret;
@@ -84,7 +84,7 @@ void StunnelManager::killProcess()
     helper_posix->executeTaskKill(kTargetStunnel);
 #endif
     bProcessStarted_ = false;
-    qCDebug(LOG_BASIC) << "stunnel stopped";
+    qCInfo(LOG_BASIC) << "stunnel stopped";
 }
 
 unsigned int StunnelManager::getPort()
@@ -95,7 +95,7 @@ unsigned int StunnelManager::getPort()
 
 void StunnelManager::onProcessStarted()
 {
-    qCDebug(LOG_BASIC) << "stunnel started";
+    qCInfo(LOG_BASIC) << "stunnel started";
     emit stunnelStarted();
 }
 
@@ -103,8 +103,8 @@ void StunnelManager::onProcessFinished()
 {
 #ifdef Q_OS_WIN
     if (bProcessStarted_) {
-        qCDebug(LOG_BASIC) << "Stunnel finished";
-        qCDebug(LOG_BASIC) << process_->readAllStandardError();
+        qCInfo(LOG_BASIC) << "Stunnel finished";
+        qCInfo(LOG_BASIC) << process_->readAllStandardError();
         emit stunnelFinished();
     }
 #endif
@@ -113,13 +113,13 @@ void StunnelManager::onProcessFinished()
 
 void StunnelManager::onProcessErrorOccurred(QProcess::ProcessError /*error*/)
 {
-    qCDebug(LOG_BASIC) << "stunnel process error:" << process_->errorString();
+    qCWarning(LOG_BASIC) << "stunnel process error:" << process_->errorString();
 }
 
 void StunnelManager::onProcessReadyRead()
 {
     QStringList strs = QString(process_->readAll()).split("\n", Qt::SkipEmptyParts);
     for (auto str : strs) {
-        qCDebug(LOG_WSTUNNEL) << str;
+        qCInfo(LOG_WSTUNNEL) << str;
     }
 }

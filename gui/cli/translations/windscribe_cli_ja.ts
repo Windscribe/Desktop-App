@@ -247,14 +247,6 @@
         <translation>キー制限の動作が設定されます。</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>ログインが進行中です。 「windscribe-cli status」を使用してステータスを確認します。</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>ログアウトが進行中です。 「windscribe-cli status」を使用してステータスを確認します。</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>接続が別のコマンドによってオーバーライドされました。</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>ログアウト</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>2FAコードが必要</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>2FAコードが正しくありません</translation>
     </message>
 </context>
 </TS>

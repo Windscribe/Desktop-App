@@ -318,7 +318,7 @@ CMD_ANSWER setDnsScriptEnabled(boost::archive::text_iarchive &ia)
     CMD_ANSWER answer;
     CMD_SET_DNS_SCRIPT_ENABLED cmd;
     ia >> cmd;
-    spdlog::info("Set DNS script: %s", cmd.enabled ? "enabled" : "disabled");
+    spdlog::info("Set DNS script: {}", cmd.enabled ? "enabled" : "disabled");
 
     answer.executed = 1;
     std::string out;
@@ -655,7 +655,7 @@ CMD_ANSWER installerCreateCliSymlink(boost::archive::text_iarchive &ia)
     }
 
     spdlog::debug("Creating CLI symlink");
-    std::string filepath = Utils::getExePath() + "/windscribe-cli";
+    std::string filepath = Utils::getExePath() + "/../MacOS/windscribe-cli";
     std::string sympath = "/usr/local/bin/windscribe-cli";
     std::filesystem::remove(sympath, err);
     if (err) {

@@ -22,12 +22,12 @@ bool SocksProxyServer::startServer(quint16 port)
 
     if (listen(QHostAddress::AnyIPv4, port))
     {
-        qCDebug(LOG_SOCKS_SERVER) << "Socks proxy server started on port" << serverPort();
+        qCInfo(LOG_SOCKS_SERVER) << "Socks proxy server started on port" << serverPort();
         return true;
     }
     else
     {
-        qCDebug(LOG_SOCKS_SERVER) << "Can't start socks proxy server on port" << port;
+        qCCritical(LOG_SOCKS_SERVER) << "Can't start socks proxy server on port" << port;
         return false;
     }
 }
@@ -36,7 +36,7 @@ void SocksProxyServer::stopServer()
 {
     if (isListening())
     {
-        qCDebug(LOG_SOCKS_SERVER) << "Socks proxy server stopped on port" << serverPort();
+        qCInfo(LOG_SOCKS_SERVER) << "Socks proxy server stopped on port" << serverPort();
         close();
     }
     connectionManager_->stop();

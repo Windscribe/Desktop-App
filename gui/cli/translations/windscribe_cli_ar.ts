@@ -247,14 +247,6 @@
         <translation>يتم تعيين سلوك حد المفتاح.</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>تسجيل الدخول قيد التقدم.  استخدم &quot;حالة windscribe-cli&quot; للتحقق من الحالة.</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>تسجيل الخروج قيد التقدم.  استخدم &quot;حالة windscribe-cli&quot; للتحقق من الحالة.</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>تم تجاوز الاتصال بواسطة أمر آخر.</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>تسجيل الخروج</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>تحتاج إلى رمز 2FA</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>رمز 2FA غير صحيح</translation>
     </message>
 </context>
 </TS>

@@ -34,8 +34,8 @@ void MacAddressController_win::setMacAddrSpoofing(const types::MacAddrSpoofing &
         return;
     }
 
-    qCDebug(LOG_BASIC) << "MacAddressController_win::setMacAddrSpoofing MacAddrSpoofing has changed. actuallyAutoRotate_=" << actuallyAutoRotate_;
-    qCDebug(LOG_BASIC) << macAddrSpoofing;
+    qCInfo(LOG_BASIC) << "MacAddressController_win::setMacAddrSpoofing MacAddrSpoofing has changed. actuallyAutoRotate_=" << actuallyAutoRotate_;
+    qCInfo(LOG_BASIC) << macAddrSpoofing;
 
     types::NetworkInterface currentAdapter = NetworkUtils_win::currentNetworkInterface();
     types::NetworkInterface selectedInterface = macAddrSpoofing.selectedNetworkInterface;
@@ -93,7 +93,7 @@ void MacAddressController_win::setMacAddrSpoofing(const types::MacAddrSpoofing &
         lastSpoofIndex_ = spoofIndex.value();
         // Only attempt to apply the spoof if we have a MAC address to spoof with.
         if (!macAddrSpoofing.macAddress.isEmpty()) {
-            qCDebug(LOG_BASIC) << "Attempting spoof on interface:" << lastSpoofIndex_;
+            qCInfo(LOG_BASIC) << "Attempting spoof on interface:" << lastSpoofIndex_;
             networkDetectionManager_->applyMacAddressSpoof(lastSpoofIndex_, macAddrSpoofing.macAddress);
             if (!interfacesToReset.contains(lastSpoofIndex_) && networkDetectionManager_->interfaceEnabled(lastSpoofIndex_)) {
                 interfacesToReset.append(lastSpoofIndex_);
@@ -139,13 +139,13 @@ void MacAddressController_win::onNetworkChange(types::NetworkInterface /*network
     types::NetworkInterface currentAdapter = NetworkUtils_win::currentNetworkInterface();
 
     if (currentAdapter.interfaceIndex != lastNetworkInterface_.interfaceIndex) {
-        qCDebug(LOG_BASIC) << "MacAddressController network change detected" << currentAdapter.interfaceIndex << lastNetworkInterface_.interfaceIndex << macAddrSpoofing_.selectedNetworkInterface.interfaceIndex;
+        qCInfo(LOG_BASIC) << "MacAddressController network change detected" << currentAdapter.interfaceIndex << lastNetworkInterface_.interfaceIndex << macAddrSpoofing_.selectedNetworkInterface.interfaceIndex;
         types::MacAddrSpoofing updatedMacAddrSpoofing = macAddrSpoofing_;
         bool setSpoofing = false;
 
         if (networkInterfaces != updatedMacAddrSpoofing.networkInterfaces) {
             // An adapter has been added/removed/disabled/enabled, or the settings of an existing adapter have changed (e.g. changed wi-fi networks).
-            qCDebug(LOG_BASIC) << "Current active adapters: " << NetworkUtils::networkInterfacesToString(networkInterfaces, true);
+            qCInfo(LOG_BASIC) << "Current active adapters: " << NetworkUtils::networkInterfacesToString(networkInterfaces, true);
             updatedMacAddrSpoofing.networkInterfaces = networkInterfaces;
             setSpoofing = true;
         }
@@ -157,7 +157,7 @@ void MacAddressController_win::onNetworkChange(types::NetworkInterface /*network
                 if (currentAdapter.interfaceIndex == updatedMacAddrSpoofing.selectedNetworkInterface.interfaceIndex &&
                     networkDetectionManager_->interfaceEnabled(currentAdapter.interfaceIndex))
                 {
-                    qCDebug(LOG_BASIC) << "MacAddressController detected spoofed adapter state/network change, new MAC address auto-generated";
+                    qCInfo(LOG_BASIC) << "MacAddressController detected spoofed adapter state/network change, new MAC address auto-generated";
                     updatedMacAddrSpoofing.macAddress = NetworkUtils::generateRandomMacAddress();
                     actuallyAutoRotate_ = true;
                     setSpoofing = true;
@@ -178,7 +178,7 @@ void MacAddressController_win::checkMacSpoofAppliedCorrectly()
     QString attemptedSpoof = macAddrSpoofing_.macAddress;
 
     if (currentMacAddress != attemptedSpoof.toLower()) {
-        qCDebug(LOG_BASIC) << "Detected failure to change MAC address";
+        qCWarning(LOG_BASIC) << "Detected failure to change MAC address";
         emit sendUserWarning(USER_WARNING_MAC_SPOOFING_FAILURE_HARD);
     }
 }

@@ -13,7 +13,7 @@ class SecureHotspotGroup : public PreferenceGroup
 {
     Q_OBJECT
 public:
-    enum HOTSPOT_SUPPORT_TYPE { HOTSPOT_SUPPORTED, HOTSPOT_NOT_SUPPORTED, HOTSPOT_NOT_SUPPORTED_BY_IKEV2 };
+    enum HOTSPOT_SUPPORT_TYPE { HOTSPOT_SUPPORTED, HOTSPOT_NOT_SUPPORTED, HOTSPOT_NOT_SUPPORTED_BY_IKEV2, HOTSPOT_NOT_SUPPORTED_BY_INCLUSIVE_SPLIT_TUNNELING };
 
     explicit SecureHotspotGroup(ScalableGraphicsObject *parent,
                                 const QString &desc = "",

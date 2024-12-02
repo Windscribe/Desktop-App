@@ -42,6 +42,7 @@ private:
     bool bCommandSent_ = false;
     bool bLoggingInMessageShown_ = false;
     QString connectId_ = "";
+    QString code2fa_ = "";
 
     void onStateResponse(IPC::Command *command);
     void onUpdateStateResponse(IPC::Command *command);

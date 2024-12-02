@@ -818,6 +818,14 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  Kısıtlayıcı bir ağdaysanız, indirmeyi tekrar denemeden önce lütfen VPN&apos;i bağlayın.</translation>
     </message>
+    <message>
+        <source>Custom Config Directory Import</source>
+        <translation>Özel Yapılandırma Dizini İçe Aktarma</translation>
+    </message>
+    <message>
+        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
+        <translation>Özel bir yapılandırma dizini içe aktarılıyor.  Windscribe, doğru izinleri kontrol etmek için yönetici parolanızı isteyecektir.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1854,6 +1862,10 @@ Connect to a network first</source>
     <message>
         <source>At least 8 characters</source>
         <translation>En az 8 karakter</translation>
+    </message>
+    <message>
+        <source>To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode.</source>
+        <translation>Secure Hotspot&apos;u açmak için lütfen ayrık tünellemeyi kapatın veya özel modu kullanın.</translation>
     </message>
 </context>
 <context>

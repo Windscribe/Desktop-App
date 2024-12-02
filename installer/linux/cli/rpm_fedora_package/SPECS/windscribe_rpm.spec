@@ -32,6 +32,8 @@ Requires:	procps-ng
 Requires:	polkit
 Requires:	iproute
 Requires:	iputils
+Requires:	iw
+Requires:	ethtool
 
 %description
 Windscribe CLI client.

@@ -82,7 +82,7 @@ namespace KeyChainUtils
 
         OSStatus status = SecItemDelete((__bridge CFDictionaryRef)dict);
         if (status != noErr) {
-            qCDebug(LOG_IKEV2) << "removeKeychainItem, SecItemDelete return:" << (int)status;
+            qCWarning(LOG_IKEV2) << "removeKeychainItem, SecItemDelete return:" << (int)status;
         }
     }
 }
@@ -144,7 +144,7 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
 
         if (err)
         {
-            qCDebug(LOG_IKEV2) << "First load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
+            qCInfo(LOG_IKEV2) << "First load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
             state_ = STATE_DISCONNECTED;
             emit error(IKEV_FAILED_LOAD_PREFERENCES_MAC);
             waitConditionLocal.wakeAll();
@@ -179,14 +179,14 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
             [manager setLocalizedDescription:@"Windscribe VPN"];
 
             NSString *strProtocol = [NSString stringWithFormat:@"{Protocol: %@", protocol];
-            qCDebug(LOG_IKEV2) << QString::fromNSString(strProtocol);
+            qCInfo(LOG_IKEV2) << QString::fromNSString(strProtocol);
 
             // do config stuff
             [manager saveToPreferencesWithCompletionHandler:^(NSError *err)
             {
                 if (err)
                 {
-                    qCDebug(LOG_IKEV2) << "First save vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
+                    qCWarning(LOG_IKEV2) << "First save vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
                     state_ = STATE_DISCONNECTED;
                     emit error(IKEV_FAILED_SAVE_PREFERENCES_MAC);
                     waitConditionLocal.wakeAll();
@@ -199,7 +199,7 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
                     {
                         if (err)
                         {
-                            qCDebug(LOG_IKEV2) << "Second load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
+                            qCWarning(LOG_IKEV2) << "Second load vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
                             state_ = STATE_DISCONNECTED;
                             emit error(IKEV_FAILED_SAVE_PREFERENCES_MAC);
                             waitConditionLocal.wakeAll();
@@ -211,7 +211,7 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
                             {
                                 if (err)
                                 {
-                                    qCDebug(LOG_IKEV2) << "Second Save vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
+                                    qCWarning(LOG_IKEV2) << "Second Save vpn preferences failed:" << QString::fromNSString(err.localizedDescription);
                                     state_ = STATE_DISCONNECTED;
                                     emit error(IKEV_FAILED_SAVE_PREFERENCES_MAC);
                                     waitConditionLocal.wakeAll();
@@ -224,13 +224,13 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
                                         this->handleNotification(notification);
                                     }];
 
-                                    qCDebug(LOG_IKEV2) << "NEVPNConnection current status:" << (int)manager.connection.status;
+                                    qCInfo(LOG_IKEV2) << "NEVPNConnection current status:" << (int)manager.connection.status;
 
                                     NSError *startError;
                                     [manager.connection startVPNTunnelAndReturnError:&startError];
                                     if (startError)
                                     {
-                                        qCDebug(LOG_IKEV2) << "Error starting ikev2 connection:" << QString::fromNSString(startError.localizedDescription);
+                                        qCWarning(LOG_IKEV2) << "Error starting ikev2 connection:" << QString::fromNSString(startError.localizedDescription);
                                         [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
                                         state_ = STATE_DISCONNECTED;
                                         emit error(IKEV_FAILED_START_MAC);
@@ -329,7 +329,7 @@ void IKEv2Connection_mac::closeWindscribeActiveConnection()
                 {
                     if ([manager.localizedDescription isEqualToString:@"Windscribe VPN"] == YES)
                     {
-                        qCDebug(LOG_IKEV2) << "Previous IKEv2 connection is active. Stop it.";
+                        qCInfo(LOG_IKEV2) << "Previous IKEv2 connection is active. Stop it.";
                         [connection stopVPNTunnel];
                     }
                 }
@@ -350,7 +350,7 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
 
     if (status == NEVPNStatusInvalid)
     {
-        qCDebug(LOG_IKEV2) << "Connection status changed: NEVPNStatusInvalid";
+        qCInfo(LOG_IKEV2) << "Connection status changed: NEVPNStatusInvalid";
         [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
         state_ = STATE_DISCONNECTED;
         statisticsTimer_.stop();
@@ -358,7 +358,7 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
     }
     else if (status == NEVPNStatusDisconnected)
     {
-        qCDebug(LOG_IKEV2) << "Connection status changed: NEVPNStatusDisconnected";
+        qCInfo(LOG_IKEV2) << "Connection status changed: NEVPNStatusDisconnected";
 
         if (state_ == STATE_DISCONNECTING_ANY_ERROR)
         {
@@ -382,18 +382,18 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
     else if (status == NEVPNStatusConnecting)
     {
         isConnectingStateReachedAfterStartingConnection_ = true;
-        qCDebug(LOG_IKEV2) << "Connection status changed: NEVPNStatusConnecting";
+        qCInfo(LOG_IKEV2) << "Connection status changed: NEVPNStatusConnecting";
     }
     else if (status == NEVPNStatusConnected)
     {
         if (!overrideDnsIp_.isEmpty()) {
             if (!setCustomDns(overrideDnsIp_)) {
-                qCDebug(LOG_IKEV2) << "Failed to set custom DNS ip for ikev2";
+                qCCritical(LOG_IKEV2) << "Failed to set custom DNS ip for ikev2";
                 WS_ASSERT(false);
             }
         }
 
-        qCDebug(LOG_IKEV2) << "Connection status changed: NEVPNStatusConnected";
+        qCInfo(LOG_IKEV2) << "Connection status changed: NEVPNStatusConnected";
         state_ = STATE_CONNECTED;
 
         // note: route gateway not used for ikev2 in AdapterGatewayInfo
@@ -408,12 +408,12 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
     }
     else if (status == NEVPNStatusReasserting)
     {
-        qCDebug(LOG_IKEV2) << "Connection status changed: NEVPNStatusReasserting";
+        qCInfo(LOG_IKEV2) << "Connection status changed: NEVPNStatusReasserting";
         emit reconnecting();
     }
     else if (status == NEVPNStatusDisconnecting)
     {
-        qCDebug(LOG_IKEV2) << "Connection status changed: NEVPNStatusDisconnecting";
+        qCInfo(LOG_IKEV2) << "Connection status changed: NEVPNStatusDisconnecting";
 
         if (state_ == STATE_START_CONNECT)
         {
@@ -504,7 +504,7 @@ bool IKEv2Connection_mac::setKeyChain(const QString &username, const QString &pa
     KeyChainUtils::removeKeychainItem();
     if (KeyChainUtils::createKeychainItem(username.toStdString().c_str(), password.toStdString().c_str()))
     {
-        qCDebug(LOG_IKEV2) << "Can't set username/password in keychain";
+        qCWarning(LOG_IKEV2) << "Can't set username/password in keychain";
         return false;
     }
     return true;
@@ -556,10 +556,10 @@ bool IKEv2Connection_mac::setCustomDns(const QString &overrideDnsIpAddress)
         if (MacUtils::dynamicStoreEntryHasKey(service, "ConfirmedServiceID"))
             dnsNetworkServices.append(service);
 
-    qCDebug(LOG_IKEV2) << "Applying custom 'while connected' DNS change to network services: " << dnsNetworkServices;
+    qCInfo(LOG_IKEV2) << "Applying custom 'while connected' DNS change to network services: " << dnsNetworkServices;
 
     if (dnsNetworkServices.isEmpty()) {
-        qCDebug(LOG_IKEV2) << "No network services to configure 'while connected' DNS";
+        qCInfo(LOG_IKEV2) << "No network services to configure 'while connected' DNS";
         return false;
     }
 
@@ -568,7 +568,7 @@ bool IKEv2Connection_mac::setCustomDns(const QString &overrideDnsIpAddress)
     for (const QString &service : dnsNetworkServices) {
         if (!helper_->setDnsOfDynamicStoreEntry(overrideDnsIpAddress, service)) {
             successAll = false;
-            qCDebug(LOG_CONNECTED_DNS) << "Failed to set network service DNS: " << service;
+            qCWarning(LOG_CONNECTED_DNS) << "Failed to set network service DNS: " << service;
             break;
         }
     }

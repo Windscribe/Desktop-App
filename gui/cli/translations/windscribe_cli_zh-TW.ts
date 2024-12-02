@@ -247,14 +247,6 @@
         <translation>設置了金鑰限制行為。</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>登錄正在進行中。 使用“windscribe-cli status”檢查狀態。</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>註銷正在進行中。 使用“windscribe-cli status”檢查狀態。</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>Connection 已被另一個命令覆蓋。</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>註銷</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>需要 2FA 代碼</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>2FA 代碼不正確</translation>
     </message>
 </context>
 </TS>

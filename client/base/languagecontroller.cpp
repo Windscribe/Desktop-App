@@ -49,12 +49,12 @@ bool LanguageController::loadLanguage(const QString &language)
     const QString filename = ":/translations/ws_desktop_" + language + ".qm";
 
     if (translator_.load(filename)) {
-        qCDebug(LOG_BASIC) << "LanguageController::setLanguage - language changed:" << language;
+        qCInfo(LOG_BASIC) << "LanguageController::setLanguage - language changed:" << language;
         qApp->installTranslator(&translator_);
         language_ = language;
         return true;
     }
 
-    qCDebug(LOG_BASIC) << "LanguageController::setLanguage - failed to load language file:" << filename;
+    qCCritical(LOG_BASIC) << "LanguageController::setLanguage - failed to load language file:" << filename;
     return false;
 }

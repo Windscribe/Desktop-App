@@ -247,14 +247,6 @@
         <translation>Il comportamento del limite dei tasti è impostato.</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>L&apos;accesso è in corso.  Utilizzare &apos;windscribe-cli status&apos; per verificare lo stato.</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Il logout è in corso.  Utilizzare &apos;windscribe-cli status&apos; per verificare lo stato.</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>La connessione è stata sostituita da un altro comando.</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>Disconnessione</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>Hai bisogno del codice 2FA</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>Codice 2FA errato</translation>
     </message>
 </context>
 </TS>

@@ -33,28 +33,23 @@ public:
     const QString &location() const;
     const QString &username() const;
     const QString &password() const;
-    const QString &code2fa() const;
     const QString &protocol() const;
     bool keepFirewallOn() const;
     bool keyLimitDelete() const;
     bool nonBlocking() const;
-    bool need2FA() const;
 
     void setUsername(const QString &username);
     void setPassword(const QString &password);
-    void set2FACode(const QString &code);
 
 private:
     CliCommand cliCommand_ = CLI_COMMAND_NONE;
     QString locationStr_ = "";
     QString username_;
     QString password_;
-    QString code2fa_;
     QString protocol_ = "";
     bool keepFirewallOn_ = false;
     bool keyLimitDelete_ = false;
     bool nonBlocking_ = false;
-    bool need2FA_ = false;
 
     void parseConnect(const QStringList &args);
     void parseDisconnect(const QStringList &args);

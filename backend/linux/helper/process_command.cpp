@@ -334,6 +334,12 @@ CMD_ANSWER setMacAddress(boost::archive::text_iarchive &ia)
     // reset addresses on other networks
     Utils::resetMacAddresses(cmd.network);
 
+#ifdef CLI_ONLY
+    // Must bring interface down to change the MAC address
+    Utils::executeCommand("ip", {"link", "set", "dev", cmd.interface, "down"});
+    Utils::executeCommand("ip", {"link", "set", "dev", cmd.interface, "address", mac});
+    Utils::executeCommand("ip", {"link", "set", "dev", cmd.interface, "up"});
+#else
     std::string out;
     if (cmd.isWifi) {
         Utils::executeCommand("nmcli", {"connection", "modify", cmd.network.c_str(), "wifi.cloned-mac-address", mac.c_str()}, &out);
@@ -342,6 +348,7 @@ CMD_ANSWER setMacAddress(boost::archive::text_iarchive &ia)
     }
     // restart the connection
     Utils::executeCommand("nmcli", {"connection", "up", cmd.network.c_str()});
+#endif
     answer.executed = 1;
     return answer;
 }

@@ -140,7 +140,7 @@ public:
     QString customOvpnConfigsPath() const;
     void setCustomOvpnConfigsPath(const QString &path);
 
-    void setEngineSettings(const types::EngineSettings &es);
+    void setEngineSettings(const types::EngineSettings &es, bool fromJson = false);
     types::EngineSettings getEngineSettings() const;
 
     void setGuiSettings(const types::GuiSettings& gs);
@@ -186,6 +186,7 @@ signals:
     void macAddrSpoofingChanged(const types::MacAddrSpoofing &mas);
     void isIgnoreSslErrorsChanged(bool b);
     void customConfigsPathChanged(QString path);
+    void customConfigNeedsUpdate(const QString &path);
     void showLocationLoadChanged(bool b);
     void isAutoSecureNetworksChanged(bool b);
     void minimizeAndCloseToTrayChanged(bool b);

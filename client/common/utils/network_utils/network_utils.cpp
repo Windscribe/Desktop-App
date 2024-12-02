@@ -48,11 +48,20 @@ QString NetworkUtils::formatMacAddress(QString macAddress)
     return formattedMac;
 }
 
+QString NetworkUtils::normalizeMacAddress(const QString &str)
+{
+    QString macAddr = str;
+    macAddr.remove(":");
+    return macAddr.toUpper();
+}
+
 bool NetworkUtils::isValidMacAddress(const QString &macAddress)
 {
     // Check if the MAC address is in the format XX:XX:XX:XX:XX:XX, where X is a hex digit.
-    QRegExp macAddressRegex("([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}");
-    return macAddressRegex.exactMatch(macAddress);
+    QRegExp macAddressRegex1("([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}");
+    // Same but no colons
+    QRegExp macAddressRegex2("([0-9A-Fa-f]{12}");
+    return macAddressRegex1.exactMatch(macAddress) || macAddressRegex2.exactMatch(macAddress);
 }
 
 QVector<types::NetworkInterface> NetworkUtils::interfacesExceptOne(const QVector<types::NetworkInterface> &interfaces, const types::NetworkInterface &exceptInterface)

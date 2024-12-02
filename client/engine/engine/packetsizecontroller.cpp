@@ -64,7 +64,7 @@ void PacketSizeController::detectAppropriatePacketSizeImpl(const QString &hostna
     QMutexLocker locker(&mutex_);
     if (mtu > 0)
     {
-        qCDebug(LOG_PACKET_SIZE) << "Found mtu: " << mtu;
+        qCInfo(LOG_PACKET_SIZE) << "Found mtu: " << mtu;
         types::PacketSize packetSize;
         packetSize.isAutomatic = packetSize_.isAutomatic;
         packetSize.mtu = mtu;
@@ -99,7 +99,7 @@ int PacketSizeController::getIdealPacketSize(const QString &hostname)
         QMutexLocker locker(&mutex_);
         if (earlyStop_)
         {
-            qCDebug(LOG_PACKET_SIZE) << "Exiting packet size detection loop early";
+            qCInfo(LOG_PACKET_SIZE) << "Exiting packet size detection loop early";
             break;
         }
 
@@ -114,7 +114,7 @@ int PacketSizeController::getIdealPacketSize(const QString &hostname)
 
     if (!success)
     {
-        qCDebug(LOG_PACKET_SIZE) << "Couldn't find appropriate MTU -- check internet connection";
+        qCWarning(LOG_PACKET_SIZE) << "Couldn't find appropriate MTU -- check internet connection";
         return -1;
     }
 

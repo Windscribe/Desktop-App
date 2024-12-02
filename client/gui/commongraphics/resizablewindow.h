@@ -23,6 +23,8 @@ public:
 
     void setMinimumHeight(int height);
     int minimumHeight();
+    void setMaximumHeight(int height);
+    int maximumHeight();
     void setXOffset(int x);
     void setHeight(int height);
     void setScrollBarVisibility(bool on);
@@ -57,6 +59,7 @@ protected:
     Preferences *preferences_;
 
     int minHeight_;
+    int maxHeight_;
     int curHeight_;
     double curScale_;
     int heightAtResizeStart_;

@@ -708,7 +708,7 @@ QJsonObject Preferences::toJson() const
 void Preferences::updateFromJson(const QJsonObject& json)
 {
     if (json.contains(kJsonEngineSettingsProp) && json[kJsonEngineSettingsProp].isObject()) {
-        setEngineSettings(json[kJsonEngineSettingsProp].toObject());
+        setEngineSettings(json[kJsonEngineSettingsProp].toObject(), true);
         emitEngineSettingsChanged();
     }
 
@@ -736,7 +736,7 @@ void Preferences::emitEngineSettingsChanged()
 #endif
 }
 
-void Preferences::setEngineSettings(const types::EngineSettings &es)
+void Preferences::setEngineSettings(const types::EngineSettings &es, bool fromJson)
 {
     isSettingEngineSettings_ = true;
     setLanguage(es.language());
@@ -755,7 +755,19 @@ void Preferences::setEngineSettings(const types::EngineSettings &es)
     setMacAddrSpoofing(es.macAddrSpoofing());
     setDnsPolicy(es.dnsPolicy());
     setKeepAlive(es.isKeepAliveEnabled());
-    setCustomOvpnConfigsPath(es.customOvpnConfigsPath());
+    if (fromJson) {
+        if (es.customOvpnConfigsPath() != engineSettings_.customOvpnConfigsPath()) {
+            if (es.customOvpnConfigsPath().isEmpty()) {
+                // if the imported path is empty, we don't need to check permissions, just remove it
+                setCustomOvpnConfigsPath(es.customOvpnConfigsPath());
+            } else {
+                // let the gui handle checking the path
+                emit customConfigNeedsUpdate(es.customOvpnConfigsPath());
+            }
+        }
+    } else {
+        setCustomOvpnConfigsPath(es.customOvpnConfigsPath());
+    }
     setConnectedDnsInfo(es.connectedDnsInfo());
 #ifdef Q_OS_LINUX
     setDnsManager(es.dnsManager());
@@ -882,7 +894,7 @@ void Preferences::loadGuiSettings()
     PersistentState::instance().fromIni(ini);
 #endif
 
-    qCDebug(LOG_BASIC) << "Gui settings" << guiSettings_;
+    qCInfo(LOG_BASIC) << "Gui settings" << guiSettings_;
 }
 
 void Preferences::loadIni()

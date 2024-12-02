@@ -77,7 +77,7 @@ bool WireGuardGoCommunicator::Connection::getOutput(ResultMap *results_map) cons
     char prev = 0, c = 0;
     for (;;) {
         c = static_cast<char>(fgetc(fileHandle_));
-        if ((c == '\n' && prev == '\n') || feof(fileHandle_)) {
+        if ((c == '\n' && prev == '\n') || feof(fileHandle_) || ferror(fileHandle_)) {
             break;
         }
         prev = c;

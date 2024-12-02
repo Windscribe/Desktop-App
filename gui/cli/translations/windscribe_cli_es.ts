@@ -247,14 +247,6 @@
         <translation>Se ha establecido el comportamiento del límite de claves.</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Inicio de sesión en curso.  Usa &apos;windscribe-cli status&apos; para verificar el estado.</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Cierre de sesión en curso.  Usa &apos;windscribe-cli status&apos; para verificar el estado.</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>La conexión ha sido anulada por otro comando.</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>Cierre de sesión</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>Necesita código 2FA</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>Código 2FA incorrecto</translation>
     </message>
 </context>
 </TS>

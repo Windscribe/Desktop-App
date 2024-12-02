@@ -247,14 +247,6 @@
         <translation>Key limit behavior is set.</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>Connection has been overridden by another command.</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>Logging out</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>Need 2FA code</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>Incorrect 2FA code</translation>
     </message>
 </context>
 </TS>

@@ -359,7 +359,7 @@ MessagePacketResult wmicGetConfigErrorCode(boost::archive::text_iarchive &ia)
     ia >> cmdWmicGetConfigErrorCode;
 
     std::wstring wmicCmd = Utils::getSystemDir() + L"\\wbem\\wmic.exe path win32_networkadapter where description=\"" + cmdWmicGetConfigErrorCode.szAdapterName + L"\" get ConfigManagerErrorCode";
-    spdlog::debug(L"AA_COMMAND_WMIC_GET_CONFIG_ERROR_CODE, cmd=%s", wmicCmd);
+    spdlog::debug(L"AA_COMMAND_WMIC_GET_CONFIG_ERROR_CODE, cmd={}", wmicCmd);
     return ExecuteCmd::instance().executeBlockingCmd(wmicCmd);
 }
 

@@ -46,7 +46,7 @@ bool DpiScaleManager::setMainWindow(QWidget *mainWindow)
     QScreen *screen = mainWindow_->screen();
 
     if (screen == nullptr) {
-        qCDebug(LOG_BASIC) << "DpiScaleManager::setMainWindow - WARNING mainWindow_->screen() is null";
+        qCCritical(LOG_BASIC) << "DpiScaleManager::setMainWindow - WARNING mainWindow_->screen() is null";
         return false;
     }
 
@@ -127,7 +127,7 @@ QRect DpiScaleManager::curScreenGeometry() const
         return GetGeometryForScreen(mainWindow_->screen());
     }
 
-    qCDebug(LOG_BASIC) << "WARNING - DpiScaleManager::curScreenGeometry() returning cached geometry, which may be incorrect:" << curGeometry_;
+    qCWarning(LOG_BASIC) << "WARNING - DpiScaleManager::curScreenGeometry() returning cached geometry, which may be incorrect:" << curGeometry_;
     return curGeometry_;
 }
 

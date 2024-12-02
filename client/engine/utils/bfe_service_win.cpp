@@ -18,17 +18,17 @@ void BFE_Service_win::enableBFE(IHelper *helper)
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
     WS_ASSERT(helper_win);
     QString strLog = helper_win->enableBFE();
-    qCDebug(LOG_BASIC) << "Enable BFE; Answer:" << strLog;
+    qCInfo(LOG_BASIC) << "Enable BFE; Answer:" << strLog;
 }
 
 bool BFE_Service_win::checkAndEnableBFE(IHelper *helper)
 {
     if (isBFEEnabled()) {
-        qCDebug(LOG_BASIC) << "Base filtering platform service is running";
+        qCInfo(LOG_BASIC) << "Base filtering platform service is running";
         return true;
     }
 
-    qCDebug(LOG_BASIC) << "Base filtering platform service is not running";
+    qCInfo(LOG_BASIC) << "Base filtering platform service is not running";
 
     int attempts = 2;
     while (attempts > 0) {
@@ -41,7 +41,7 @@ bool BFE_Service_win::checkAndEnableBFE(IHelper *helper)
             Sleep(1);
 
             if (isBFEEnabled()) {
-                qCDebug(LOG_BASIC) << "Base filtering platform service is now running";
+                qCInfo(LOG_BASIC) << "Base filtering platform service is now running";
                 return true;
             }
         }

@@ -155,7 +155,7 @@ IHelper::ExecuteError OpenVPNConnection::runOpenVPN(unsigned int port, const typ
         WS_ASSERT(false);
     }
 
-    qCDebug(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getOpenVpnVersion();
+    qCInfo(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getOpenVpnVersion();
 
     return helper_->executeOpenVPN(config_, port, httpProxy, httpPort, socksProxy, socksPort, outCmdId, isCustomConfig);
 }
@@ -184,8 +184,8 @@ void OpenVPNConnection::run()
 
 void OpenVPNConnection::onKillControllerTimer()
 {
-    qCDebug(LOG_CONNECTION) << "openvpn process not finished after " << KILL_TIMEOUT << "ms";
-    qCDebug(LOG_CONNECTION) << "kill the openvpn process";
+    qCInfo(LOG_CONNECTION) << "openvpn process not finished after " << KILL_TIMEOUT << "ms";
+    qCInfo(LOG_CONNECTION) << "kill the openvpn process";
     killControllerTimer_.stop();
 #ifdef Q_OS_WIN
     Helper_win *helper_win= dynamic_cast<Helper_win *>(helper_);
@@ -213,7 +213,7 @@ void OpenVPNConnection::funcRunOpenVPN()
 
         if (retries >= 2)
         {
-            qCDebug(LOG_CONNECTION) << "Can't run openvpn process";
+            qCCritical(LOG_CONNECTION) << "Can't run openvpn process";
             setCurrentStateAndEmitError(STATUS_DISCONNECTED, CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
             return;
         }
@@ -227,7 +227,7 @@ void OpenVPNConnection::funcRunOpenVPN()
         msleep(1000);
     }
 
-    qCDebug(LOG_CONNECTION) << "openvpn process runned: " << stateVariables_.openVpnPort;
+    qCInfo(LOG_CONNECTION) << "openvpn process runned: " << stateVariables_.openVpnPort;
 
     boost::asio::ip::tcp::endpoint endpoint;
     endpoint.port(stateVariables_.openVpnPort);
@@ -241,7 +241,7 @@ void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& er
 {
     if (err.value() == 0)
     {
-        qCDebug(LOG_CONNECTION) << "Program connected to openvpn socket";
+        qCInfo(LOG_CONNECTION) << "Program connected to openvpn socket";
         helper_->suspendUnblockingCmd(stateVariables_.lastCmdId);
         setCurrentState(STATUS_CONNECTED_TO_SOCKET);
         stateVariables_.buffer.reset(new boost::asio::streambuf());
@@ -261,7 +261,7 @@ void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& er
         // check timeout
         if (stateVariables_.elapsedTimer.elapsed() > MAX_WAIT_OPENVPN_ON_START)
         {
-            qCDebug(LOG_CONNECTION) << "Can't connect to openvpn socket during"
+            qCCritical(LOG_CONNECTION) << "Can't connect to openvpn socket during"
                                     << (MAX_WAIT_OPENVPN_ON_START/1000) << "secs";
             helper_->clearUnblockingCmd(stateVariables_.lastCmdId);
             setCurrentStateAndEmitError(STATUS_DISCONNECTED, CONNECT_ERROR::NO_OPENVPN_SOCKET);
@@ -275,8 +275,8 @@ void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& er
 
         if (bFinished)
         {
-            qCDebug(LOG_CONNECTION) << "openvpn process finished before connected to openvpn socket";
-            qCDebug(LOG_CONNECTION) << "answer from openvpn process, answer =" << logStr;
+            qCInfo(LOG_CONNECTION) << "openvpn process finished before connected to openvpn socket";
+            qCInfo(LOG_CONNECTION) << "answer from openvpn process, answer =" << logStr;
 
             if (bStopThread_)
             {
@@ -287,7 +287,7 @@ void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& er
             //try second attempt to run openvpn after pause 2 sec
             if (!stateVariables_.bWasSecondAttemptToStartOpenVpn)
             {
-                qCDebug(LOG_CONNECTION) << "try second attempt to run openvpn after pause 2 sec";
+                qCInfo(LOG_CONNECTION) << "try second attempt to run openvpn after pause 2 sec";
                 msleep(2000);
                 stateVariables_.bWasSecondAttemptToStartOpenVpn = true;
                 io_service_.post(boost::bind( &OpenVPNConnection::funcRunOpenVPN, this ));
@@ -324,7 +324,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         // skip log out BYTECOUNT
         if (!serverReply.contains(">BYTECOUNT:", Qt::CaseInsensitive))
         {
-            qCDebug(LOG_OPENVPN) << serverReply;
+            qCInfo(LOG_OPENVPN) << serverReply;
         }
         if (serverReply.contains("HOLD:Waiting for hold release", Qt::CaseInsensitive))
         {
@@ -475,7 +475,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 {
                     if (connectionAdapterInfo_.adapterIp() != windscribeAdapter.adapterIp())
                     {
-                        qCDebug(LOG_CONNECTION) << "Error: Adapter IP detected from openvpn log not equal to the adapter IP from AdapterUtils_win::getWindscribeConnectedAdapterInfo()";
+                        qCCritical(LOG_CONNECTION) << "Error: Adapter IP detected from openvpn log not equal to the adapter IP from AdapterUtils_win::getWindscribeConnectedAdapterInfo()";
                         WS_ASSERT(false);
                     }
                     connectionAdapterInfo_.setAdapterName(windscribeAdapter.adapterName());
@@ -485,7 +485,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 }
                 else
                 {
-                    qCDebug(LOG_CONNECTION) << "Can't detect connected Windscribe adapter";
+                    qCCritical(LOG_CONNECTION) << "Can't detect connected Windscribe adapter";
                 }
 #endif
 
@@ -496,7 +496,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 }
                 else
                 {
-                    qCDebug(LOG_CONNECTION) << "Can't parse CONNECTED,SUCCESS control message";
+                    qCCritical(LOG_CONNECTION) << "Can't parse CONNECTED,SUCCESS control message";
                 }
                 setCurrentState(STATUS_CONNECTED);
                 emit connected(connectionAdapterInfo_);
@@ -564,7 +564,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 bool isRedirectDefaultGateway = true;
                 if (!parsePushReply(serverReply, connectionAdapterInfo_, isRedirectDefaultGateway))
                 {
-                    qCDebug(LOG_CONNECTION) << "Can't parse PUSH Received control message";
+                    qCCritical(LOG_CONNECTION) << "Can't parse PUSH Received control message";
                 }
 
                 if (isRedirectDefaultGateway)
@@ -587,7 +587,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
     }
     else
     {
-        qCDebug(LOG_CONNECTION) << "Read from openvpn socket connection failed, error:" << QString::fromStdString(err.message());
+        qCInfo(LOG_CONNECTION) << "Read from openvpn socket connection failed, error:" << QString::fromStdString(err.message());
         setCurrentStateAndEmitDisconnected(STATUS_DISCONNECTED);
     }
 }
@@ -615,7 +615,7 @@ void OpenVPNConnection::checkErrorAndContinue(boost::system::error_code &write_e
 {
     if (write_error.value() != 0)
     {
-        qCDebug(LOG_CONNECTION) << "Write to openvpn socket connection failed, error:" << QString::fromStdString(write_error.message());
+        qCWarning(LOG_CONNECTION) << "Write to openvpn socket connection failed, error:" << QString::fromStdString(write_error.message());
         setCurrentStateAndEmitDisconnected(STATUS_DISCONNECTED);
     }
     else
@@ -700,7 +700,7 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
             const QVector<QStringRef> v = it.split(' ');
             if (v.count() != 2)
             {
-                qCDebug(LOG_CONNECTION) << "Can't parse route-gateway message";
+                qCCritical(LOG_CONNECTION) << "Can't parse route-gateway message";
                 return false;
             }
             else
@@ -708,7 +708,7 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
                 const QString ipStr = v[1].toString();
                 if (!IpValidation::isIpv4Address(ipStr))
                 {
-                    qCDebug(LOG_CONNECTION) << "Can't parse route-gateway message (incorrect IPv4 address)";
+                    qCCritical(LOG_CONNECTION) << "Can't parse route-gateway message (incorrect IPv4 address)";
                     return false;
                 }
                 else
@@ -722,7 +722,7 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
             const QVector<QStringRef> v = it.split(' ');
             if (v.count() != 3)
             {
-                qCDebug(LOG_CONNECTION) << "Can't parse ifconfig message";
+                qCCritical(LOG_CONNECTION) << "Can't parse ifconfig message";
                 return false;
             }
             else
@@ -730,7 +730,7 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
                 const QString ipStr = v[1].toString();
                 if (!IpValidation::isIpv4Address(ipStr))
                 {
-                    qCDebug(LOG_CONNECTION) << "Can't parse ifconfig message (incorrect IPv4 address)";
+                    qCCritical(LOG_CONNECTION) << "Can't parse ifconfig message (incorrect IPv4 address)";
                     return false;
                 }
                 else
@@ -744,7 +744,7 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
             const QVector<QStringRef> v = it.split(' ');
             if (v.count() != 3)
             {
-                qCDebug(LOG_CONNECTION) << "Can't parse dhcp-option message";
+                qCCritical(LOG_CONNECTION) << "Can't parse dhcp-option message";
                 return false;
             }
             else
@@ -754,7 +754,7 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
                     const QString ipStr = v[2].toString();
                     if (!IpValidation::isIpv4Address(ipStr))
                     {
-                        qCDebug(LOG_CONNECTION) << "Can't parse dhcp-option DNS message (incorrect IPv4 address)";
+                        qCCritical(LOG_CONNECTION) << "Can't parse dhcp-option DNS message (incorrect IPv4 address)";
                         return false;
                     }
                     else
@@ -774,13 +774,13 @@ bool OpenVPNConnection::parseDeviceOpenedReply(const QString &reply, QString &ou
     const QVector<QStringRef> v = str.split(',');
     if (v.count() != 3)
     {
-        qCDebug(LOG_CONNECTION) << "Can't parse opened device message";
+        qCCritical(LOG_CONNECTION) << "Can't parse opened device message";
         return false;
     }
     const QVector<QStringRef> v2 = v.last().split(' ');
     if (v2.count() != 4)
     {
-        qCDebug(LOG_CONNECTION) << "Can't parse opened device message (divide into 4 strings)";
+        qCCritical(LOG_CONNECTION) << "Can't parse opened device message (divide into 4 strings)";
         return false;
     }
 #ifdef Q_OS_MACOS
@@ -799,7 +799,7 @@ bool OpenVPNConnection::parseConnectedSuccessReply(const QString &reply, QString
     const QVector<QStringRef> v = str.split(',');
     if (v.count() != 8)
     {
-        qCDebug(LOG_CONNECTION) << "Can't parse CONNECT SUCCESS message (inccorect number of words)";
+        qCCritical(LOG_CONNECTION) << "Can't parse CONNECT SUCCESS message (inccorect number of words)";
         return false;
     }
     else
@@ -807,7 +807,7 @@ bool OpenVPNConnection::parseConnectedSuccessReply(const QString &reply, QString
         outRemoteIp = v[4].toString();
         if (outRemoteIp.isEmpty())
         {
-            qCDebug(LOG_CONNECTION) << "Can't parse CONNECT SUCCESS message (remote ip is empty)";
+            qCCritical(LOG_CONNECTION) << "Can't parse CONNECT SUCCESS message (remote ip is empty)";
             return false;
         }
     }

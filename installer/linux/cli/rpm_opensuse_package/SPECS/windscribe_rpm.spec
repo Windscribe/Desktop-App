@@ -33,6 +33,8 @@ Requires:	polkit
 Requires:	pkexec
 Requires:	iproute2
 Requires:	libcap-progs
+Requires:	iw
+Requires:	ethtool
 
 %description
 Windscribe CLI client.

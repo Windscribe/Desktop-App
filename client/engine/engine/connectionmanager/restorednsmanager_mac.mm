@@ -8,7 +8,7 @@
 bool RestoreDNSManager_mac::restoreState(IHelper *helper)
 {
     Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper);
-    qCDebug(LOG_BASIC) << "=== RestoreDNSManager::restoreState() ===";
+    qCDebug(LOG_BASIC) << "RestoreDNSManager::restoreState()";
 
     return helper_mac->setDnsScriptEnabled(false);
 }

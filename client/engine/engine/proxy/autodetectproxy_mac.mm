@@ -54,13 +54,13 @@ types::ProxySettings AutoDetectProxy_mac::detect(bool &bSuccessfully)
                     if (err)
                     {
                         CFStringRef errorStr = SecCopyErrorMessageString(err, NULL);
-                        qCDebug(LOG_BASIC) << "MacAutoDetectProxy::detect() -> " << QString::fromCFString(errorStr);
+                        qCCritical(LOG_BASIC) << "MacAutoDetectProxy::detect() -> " << QString::fromCFString(errorStr);
                         CFRelease(errorStr);
                         bSuccessfully = false;
                     }
                     else
                     {
-                        qCDebug(LOG_BASIC) << "MacAutoDetectProxy::detect() -> detected SOCKS Proxy with username and password";
+                        qCInfo(LOG_BASIC) << "MacAutoDetectProxy::detect() -> detected SOCKS Proxy with username and password";
                         QString password = QString::fromUtf8((const char *)passwordBuffer, passwordLength);
                         proxySettings.setPassword(password);
                         SecKeychainItemFreeContent(NULL, passwordBuffer);
@@ -68,7 +68,7 @@ types::ProxySettings AutoDetectProxy_mac::detect(bool &bSuccessfully)
                 }
                 else
                 {
-                    qCDebug(LOG_BASIC) << "MacAutoDetectProxy::detect() -> detected SOCKS Proxy without username and password";
+                    qCInfo(LOG_BASIC) << "MacAutoDetectProxy::detect() -> detected SOCKS Proxy without username and password";
                 }
             }
         }
@@ -105,13 +105,13 @@ types::ProxySettings AutoDetectProxy_mac::detect(bool &bSuccessfully)
                     if (err)
                     {
                         CFStringRef errorStr = SecCopyErrorMessageString(err, NULL);
-                        qCDebug(LOG_BASIC) << "MacAutoDetectProxy::detect() -> " << QString::fromCFString(errorStr);
+                        qCCritical(LOG_BASIC) << "MacAutoDetectProxy::detect() -> " << QString::fromCFString(errorStr);
                         CFRelease(errorStr);
                         bSuccessfully = false;
                     }
                     else
                     {
-                        qCDebug(LOG_BASIC) << "MacAutoDetectProxy::detect() -> detected HTTPS Proxy with username and password";
+                        qCInfo(LOG_BASIC) << "MacAutoDetectProxy::detect() -> detected HTTPS Proxy with username and password";
                         QString password = QString::fromUtf8((const char *)passwordBuffer, passwordLength);
                         proxySettings.setPassword(password);
                         SecKeychainItemFreeContent(NULL, passwordBuffer);
@@ -119,7 +119,7 @@ types::ProxySettings AutoDetectProxy_mac::detect(bool &bSuccessfully)
                 }
                 else
                 {
-                    qCDebug(LOG_BASIC) << "MacAutoDetectProxy::detect() -> detected HTTPS Proxy without username and password";
+                    qCInfo(LOG_BASIC) << "MacAutoDetectProxy::detect() -> detected HTTPS Proxy without username and password";
                 }
             }
         }
@@ -156,13 +156,13 @@ types::ProxySettings AutoDetectProxy_mac::detect(bool &bSuccessfully)
                     if (err)
                     {
                         CFStringRef errorStr = SecCopyErrorMessageString(err, NULL);
-                        qCDebug(LOG_BASIC) << "MacAutoDetectProxy::detect() -> " << QString::fromCFString(errorStr);
+                        qCCritical(LOG_BASIC) << "MacAutoDetectProxy::detect() -> " << QString::fromCFString(errorStr);
                         CFRelease(errorStr);
                         bSuccessfully = false;
                     }
                     else
                     {
-                        qCDebug(LOG_BASIC) << "MacAutoDetectProxy::detect() -> detected HTTP Proxy with username and password";
+                        qCInfo(LOG_BASIC) << "MacAutoDetectProxy::detect() -> detected HTTP Proxy with username and password";
                         QString password = QString::fromUtf8((const char *)passwordBuffer, passwordLength);
                         proxySettings.setPassword(password);
                         SecKeychainItemFreeContent(NULL, passwordBuffer);
@@ -170,7 +170,7 @@ types::ProxySettings AutoDetectProxy_mac::detect(bool &bSuccessfully)
                 }
                 else
                 {
-                    qCDebug(LOG_BASIC) << "MacAutoDetectProxy::detect() -> detected HTTP Proxy without username and password";
+                    qCInfo(LOG_BASIC) << "MacAutoDetectProxy::detect() -> detected HTTP Proxy without username and password";
                 }
             }
         }

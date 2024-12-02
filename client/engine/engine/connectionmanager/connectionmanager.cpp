@@ -238,7 +238,7 @@ void ConnectionManager::blockingDisconnect()
 
                 if (elapsedTimer.elapsed() > 10000)
                 {
-                    qCDebug(LOG_CONNECTION) << "ConnectionManager::blockingDisconnect() delay more than 10 seconds";
+                    qCWarning(LOG_CONNECTION) << "ConnectionManager::blockingDisconnect() delay more than 10 seconds";
                     connector_->startDisconnect();
                     break;
                 }
@@ -355,13 +355,13 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
 
     vpnAdapterInfo_ = connectionAdapterInfo;
 
-    qCDebug(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
+    qCInfo(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
     // override the DNS if we are using custom
     if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM) {
         QString customDnsIp = dnsServersFromConnectedDnsInfo();
         vpnAdapterInfo_.setDnsServers(QStringList() << customDnsIp);
-        qCDebug(LOG_CONNECTION) << "Custom DNS detected, will override with: " << customDnsIp;
+        qCInfo(LOG_CONNECTION) << "Custom DNS detected, will override with: " << customDnsIp;
     }
 
     if (state_ == STATE_DISCONNECTING_FROM_USER_CLICK) {
@@ -554,7 +554,7 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
         return;
     }
 
-    qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionError(), state_ =" << state_ << ", error =" << (int)err;
+    qCInfo(LOG_CONNECTION) << "ConnectionManager::onConnectionError(), state_ =" << state_ << ", error =" << (int)err;
     testVPNTunnel_->stopTests();
 
     if ((err == CONNECT_ERROR::AUTH_ERROR && bEmitAuthError_)
@@ -657,7 +657,7 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
     }
     else
     {
-        qCDebug(LOG_CONNECTION) << "Unknown error from openvpn: " << err;
+        qCWarning(LOG_CONNECTION) << "Unknown error from openvpn: " << err;
     }
 }
 
@@ -688,7 +688,7 @@ void ConnectionManager::onConnectionRequestPrivKeyPassword()
 
 void ConnectionManager::onSleepMode()
 {
-    qCDebug(LOG_CONNECTION) << "ConnectionManager::onSleepMode(), state_ =" << state_;
+    qCInfo(LOG_CONNECTION) << "ConnectionManager::onSleepMode(), state_ =" << state_;
 
     timerReconnection_.stop();
     connectTimer_.stop();
@@ -727,7 +727,7 @@ void ConnectionManager::onSleepMode()
 
 void ConnectionManager::onWakeMode()
 {
-    qCDebug(LOG_CONNECTION) << "ConnectionManager::onWakeMode(), state_ =" << state_;
+    qCInfo(LOG_CONNECTION) << "ConnectionManager::onWakeMode(), state_ =" << state_;
     timerReconnection_.stop();
     connectTimer_.stop();
     bWakeSignalReceived_ = true;
@@ -756,7 +756,7 @@ void ConnectionManager::onWakeMode()
 
 void ConnectionManager::onNetworkOnlineStateChanged(bool isAlive)
 {
-    qCDebug(LOG_CONNECTION) << "ConnectionManager::onNetworkOnlineStateChanged(), isAlive =" << isAlive << ", state_ =" << state_;
+    qCInfo(LOG_CONNECTION) << "ConnectionManager::onNetworkOnlineStateChanged(), isAlive =" << isAlive << ", state_ =" << state_;
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     emit internetConnectivityChanged(isAlive);
@@ -838,7 +838,7 @@ void ConnectionManager::onNetworkOnlineStateChanged(bool isAlive)
 
 void ConnectionManager::onTimerReconnection()
 {
-    qCDebug(LOG_CONNECTION) << "Time for reconnection exceed";
+    qCInfo(LOG_CONNECTION) << "Time for reconnection exceed";
     state_ = STATE_RECONNECTION_TIME_EXCEED;
     if (connector_)
     {
@@ -883,7 +883,7 @@ void ConnectionManager::doConnect()
         return;
     }
 
-    qCDebug(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
+    qCInfo(LOG_CONNECTION) << "Default adapter and gateway:" << defaultAdapterInfo_.makeLogString();
     connectTimer_.stop();
 
     connectingTimer_.setSingleShot(true);
@@ -908,13 +908,13 @@ void ConnectionManager::doConnectPart2()
 
     if (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_ERROR)
     {
-        qCDebug(LOG_CONNECTION) << "connSettingsPolicy_.getCurrentConnectionSettings returned incorrect value";
+        qCWarning(LOG_CONNECTION) << "connSettingsPolicy_.getCurrentConnectionSettings returned incorrect value";
         disconnect();
         emit errorDuringConnection(CONNECT_ERROR::LOCATION_NO_ACTIVE_NODES);
         return;
     }
 
-    qCDebug(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
+    qCInfo(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
     emit protocolPortChanged(currentConnectionDescr_.protocol, currentConnectionDescr_.port);
 
 #if defined(Q_OS_WIN)
@@ -934,7 +934,7 @@ void ConnectionManager::doConnectPart2()
             bStarted = ctrldManager_->runProcess(connectedDnsInfo_.upStream1, QString(), QStringList());
 
         if (!bStarted) {
-            qCDebug(LOG_BASIC) << "connection manager ctrld start failed";
+            qCCritical(LOG_BASIC) << "connection manager ctrld start failed";
             disconnect();
             emit errorDuringConnection(CONNECT_ERROR::CTRLD_START_FAILED);
             return;
@@ -976,16 +976,16 @@ void ConnectionManager::doConnectPart2()
                 if (mss <= 0)
                 {
                     mss = 0;
-                    qCDebug(LOG_PACKET_SIZE) << "Using default MSS - OpenVpn ConnectionManager MSS too low: " << mss;
+                    qCInfo(LOG_PACKET_SIZE) << "Using default MSS - OpenVpn ConnectionManager MSS too low: " << mss;
                 }
                 else
                 {
-                    qCDebug(LOG_PACKET_SIZE) << "OpenVpn connection MSS: " << mss;
+                    qCInfo(LOG_PACKET_SIZE) << "OpenVpn connection MSS: " << mss;
                 }
             }
             else
             {
-                qCDebug(LOG_PACKET_SIZE) << "Packet size mode auto - using default MSS (ConnectionManager)";
+                qCInfo(LOG_PACKET_SIZE) << "Packet size mode auto - using default MSS (ConnectionManager)";
             }
 
             uint localPort = 0;
@@ -1003,7 +1003,7 @@ void ConnectionManager::doConnectPart2()
                 currentConnectionDescr_.verifyX509name,
                 dnsServersFromConnectedDnsInfo(), isAntiCensorship_, false);
             if (!bOvpnSuccess) {
-                qCDebug(LOG_CONNECTION) << "Failed create ovpn config";
+                qCCritical(LOG_CONNECTION) << "Failed create ovpn config";
                 WS_ASSERT(false);
                 return;
             }
@@ -1035,13 +1035,13 @@ void ConnectionManager::doConnectPart2()
                 currentConnectionDescr_.hostname = remoteHostname;
                 currentConnectionDescr_.ip = ExtraConfig::instance().getDetectedIp();
                 currentConnectionDescr_.dnsHostName = IpValidation::getRemoteIdFromDomain(remoteHostname);
-                qCDebug(LOG_CONNECTION) << "Use data from extra config: hostname=" << currentConnectionDescr_.hostname << ", ip=" << currentConnectionDescr_.ip << ", remoteId=" << currentConnectionDescr_.dnsHostName;
+                qCInfo(LOG_CONNECTION) << "Use data from extra config: hostname=" << currentConnectionDescr_.hostname << ", ip=" << currentConnectionDescr_.ip << ", remoteId=" << currentConnectionDescr_.dnsHostName;
 
             }
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
-            qCDebug(LOG_CONNECTION) << "Requesting WireGuard config for hostname =" << currentConnectionDescr_.hostname;
+            qCInfo(LOG_CONNECTION) << "Requesting WireGuard config for hostname =" << currentConnectionDescr_.hostname;
             QString deviceId = (isStaticIpsLocation() ? GetDeviceId::instance().getDeviceId() : QString());
             getWireGuardConfig(currentConnectionDescr_.hostname, false, deviceId);
             return;
@@ -1055,7 +1055,7 @@ void ConnectionManager::doConnectPart2()
                 currentConnectionDescr_.remoteCmdLine);
             if (!bOvpnSuccess)
             {
-                qCDebug(LOG_CONNECTION) << "Failed create ovpn config for custom ovpn file:"
+                qCCritical(LOG_CONNECTION) << "Failed create ovpn config for custom ovpn file:"
                                         << currentConnectionDescr_.customConfigFilename;
                 //WS_ASSERT(false);
                 disconnect();
@@ -1065,7 +1065,7 @@ void ConnectionManager::doConnectPart2()
         } else if (currentConnectionDescr_.protocol.isWireGuardProtocol()) {
             WS_ASSERT(currentConnectionDescr_.wgCustomConfig != nullptr);
             if (currentConnectionDescr_.wgCustomConfig == nullptr) {
-                qCDebug(LOG_CONNECTION) << "Failed to get config for custom WG file:"
+                qCCritical(LOG_CONNECTION) << "Failed to get config for custom WG file:"
                                         << currentConnectionDescr_.customConfigFilename;
                 disconnect();
                 emit errorDuringConnection(CONNECT_ERROR::CANNOT_OPEN_CUSTOM_CONFIG);
@@ -1220,7 +1220,7 @@ void ConnectionManager::startReconnectionTimer()
 
 void ConnectionManager::waitForNetworkConnectivity()
 {
-    qCDebug(LOG_CONNECTION) << "No internet connection, waiting maximum: " << MAX_RECONNECTION_TIME << "ms";
+    qCInfo(LOG_CONNECTION) << "No internet connection, waiting maximum: " << MAX_RECONNECTION_TIME << "ms";
     timerWaitNetworkConnectivity_.start(1000);
 }
 
@@ -1279,7 +1279,7 @@ void ConnectionManager::restoreConnectionAfterWakeUp()
 {
     if (bLastIsOnline_)
     {
-        qCDebug(LOG_CONNECTION) <<
+        qCInfo(LOG_CONNECTION) <<
             "ConnectionManager::restoreConnectionAfterWakeUp(), reconnecting";
         state_ = STATE_WAKEUP_RECONNECTING;
         if (connector_) {
@@ -1291,7 +1291,7 @@ void ConnectionManager::restoreConnectionAfterWakeUp()
     }
     else
     {
-        qCDebug(LOG_CONNECTION) <<
+        qCInfo(LOG_CONNECTION) <<
             "ConnectionManager::restoreConnectionAfterWakeUp(), waiting for network connectivity";
         state_ = STATE_WAIT_FOR_NETWORK_CONNECTIVITY;
     }
@@ -1348,7 +1348,7 @@ void ConnectionManager::onTimerWaitNetworkConnectivity()
 {
     if (networkDetectionManager_->isOnline() && !AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo().isEmpty())
     {
-        qCDebug(LOG_CONNECTION) << "We online, make the connection";
+        qCInfo(LOG_CONNECTION) << "We online, make the connection";
         timerWaitNetworkConnectivity_.stop();
         doConnect();
     }
@@ -1356,7 +1356,7 @@ void ConnectionManager::onTimerWaitNetworkConnectivity()
     {
         if (timerReconnection_.remainingTime() == 0)
         {
-            qCDebug(LOG_CONNECTION) << "Time for wait network connection exceed";
+            qCInfo(LOG_CONNECTION) << "Time for wait network connection exceed";
             timerWaitNetworkConnectivity_.stop();
             disconnect();
             emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);
@@ -1595,7 +1595,7 @@ void ConnectionManager::setLastKnownGoodProtocol(const types::Protocol protocol)
 
 void ConnectionManager::onConnectingTimeout()
 {
-    qCDebug(LOG_CONNECTION) << "Connection timed out";
+    qCInfo(LOG_CONNECTION) << "Connection timed out";
     state_ = STATE_RECONNECTING;
     emit reconnecting();
     startReconnectionTimer();

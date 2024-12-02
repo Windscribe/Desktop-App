@@ -818,6 +818,14 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  Pokud jste v omezující síti, připojte VPN, než se pokusíte o stažení znovu.</translation>
     </message>
+    <message>
+        <source>Custom Config Directory Import</source>
+        <translation>Import adresáře vlastní konfigurace</translation>
+    </message>
+    <message>
+        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
+        <translation>Importuje se adresář vlastní konfigurace.  Windscribe vás vyzve k zadání hesla správce, aby zkontroloval správná oprávnění.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1854,6 +1862,10 @@ Nejprve se připojte k síti</translation>
     <message>
         <source>At least 8 characters</source>
         <translation>Alespoň 8 znaků</translation>
+    </message>
+    <message>
+        <source>To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode.</source>
+        <translation>Chcete-li zapnout Secure Hotspot, vypněte rozdělené tunelování nebo použijte exkluzivní režim.</translation>
     </message>
 </context>
 <context>

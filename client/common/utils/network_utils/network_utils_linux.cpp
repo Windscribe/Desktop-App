@@ -25,7 +25,7 @@ static RoutingTableEntry parseEntry(const char *buf)
     RoutingTableEntry entry;
 
     if (split.size() < 9) {
-        qCDebug(LOG_BASIC) << "NetworkUtils_linux::parseEntry() failed to parse routing table entry:" << buf;
+        qCWarning(LOG_BASIC) << "NetworkUtils_linux::parseEntry() failed to parse routing table entry:" << buf;
         return entry;
     }
 
@@ -45,7 +45,7 @@ static QList<RoutingTableEntry> getRoutingTableAsList()
 
     FILE *f = fopen("/proc/net/route", "r");
     if (f == NULL) {
-        qCDebug(LOG_BASIC) << "NetworkUtils_linux::getRoutingTable() failed to open /proc/net/route:" << errno;
+        qCCritical(LOG_BASIC) << "NetworkUtils_linux::getRoutingTable() failed to open /proc/net/route:" << errno;
         return entries;
     }
 
@@ -59,7 +59,7 @@ static QList<RoutingTableEntry> getRoutingTableAsList()
 
     // skip the first line, which is just labels
     if (fgets(buf, 1024, f) == NULL) {
-        qCDebug(LOG_BASIC) << "NetworkUtils_linux::getRoutingTable() failed to read routing table";
+        qCCritical(LOG_BASIC) << "NetworkUtils_linux::getRoutingTable() failed to read routing table";
         return entries;
     }
 
@@ -140,7 +140,7 @@ QString getLocalIP()
     }
 
     if (sLocalIP.isEmpty()) {
-        qCDebug(LOG_BASIC) << "LinuxUtils::getLocalIP() failed to determine the local IP";
+        qCCritical(LOG_BASIC) << "LinuxUtils::getLocalIP() failed to determine the local IP";
     }
 
     return sLocalIP;
@@ -208,6 +208,26 @@ static bool checkWirelessByIfName(const QString &ifname)
 
 static QString getNetworkForInterface(const QString &ifname)
 {
+#ifdef CLI_ONLY
+    // When using CLI only, the network is likely not managed by nmcli, even if network-manager is even installed.
+    // Instead, we use iwgetid to get the SSID if it is Wi-Fi.  Otherwise, the name is just the name of the interface.
+    if (!checkWirelessByIfName(ifname)) {
+        return ifname;
+    }
+
+    QString command = QString("iw dev ") + ifname + QString(" link | grep SSID | cut -d ' ' -f 2-");
+    FILE *file = popen(command.toStdString().c_str(), "r");
+    if (file) {
+        char szLine[1024];
+        char *ret = fgets(szLine, sizeof(szLine), file);
+        pclose(file);
+        if (ret != NULL) {
+            return QString(szLine).trimmed();
+        } else {
+            return "";
+        }
+    }
+#else
     QString strReply;
     FILE *file = popen("nmcli -t -f NAME,DEVICE c show", "r");
     if (file) {
@@ -227,6 +247,7 @@ static QString getNetworkForInterface(const QString &ifname)
             }
         }
     }
+#endif
     return QString();
 }
 

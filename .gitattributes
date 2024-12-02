@@ -1,0 +1,7 @@
+# Use default line ending for Git (LF)
+* text=auto
+
+# Except in tools/vcpkg, as this dir contains patches that should retain their line endings.
+tools/vcpkg/**/* -text
+# Except in installer/windows/additional_files, as this dir contains *.inf files that should retain their line endings.
+installer/windows/additional_files/**/* -text

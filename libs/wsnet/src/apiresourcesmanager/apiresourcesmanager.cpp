@@ -23,6 +23,10 @@ ApiResourcesManager::~ApiResourcesManager()
 {
     loginTimer_.cancel();
     fetchTimer_.cancel();
+
+    for (const auto &it : requestsInProgress_) {
+        it.second->cancel();
+    }
 }
 
 std::shared_ptr<WSNetCancelableCallback> ApiResourcesManager::setCallback(WSNetApiResourcesManagerCallback callback)

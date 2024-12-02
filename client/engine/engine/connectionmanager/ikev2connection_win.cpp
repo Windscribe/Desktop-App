@@ -99,7 +99,7 @@ void IKEv2Connection_win::removeIkev2ConnectionFromOS()
     DWORD dwErr = RasDeleteEntry(NULL, IKEV2_CONNECTION_NAME);
     if (dwErr != ERROR_SUCCESS && dwErr != ERROR_CANNOT_FIND_PHONEBOOK_ENTRY)
     {
-        qCDebug(LOG_IKEV2) << "RasDeleteEntry failed with error:" << dwErr;
+        qCWarning(LOG_IKEV2) << "RasDeleteEntry failed with error:" << dwErr;
     }
 }
 
@@ -241,7 +241,7 @@ void IKEv2Connection_win::handleErrorReinstallWan()
             {
                 if (CheckAdapterEnable::isAdapterDisabled(helper_, "WAN Miniport (IKEv2)") || CheckAdapterEnable::isAdapterDisabled(helper_, "WAN Miniport (IP)"))
                 {
-                    qCDebug(LOG_IKEV2) << "WAN Miniport (IKEv2) or WAN Miniport (IP) disabled, try enable it";
+                    qCInfo(LOG_IKEV2) << "WAN Miniport (IKEv2) or WAN Miniport (IP) disabled, try enable it";
                     helper_->enableWanIkev2();
                     // pause 3 secs, before connect
                     QThread::msleep(3000);
@@ -253,7 +253,7 @@ void IKEv2Connection_win::handleErrorReinstallWan()
                     {
                         helper_->reinstallWanIkev2();
                         wanReinstalled_ = true;
-                        qCDebug(LOG_IKEV2) << "Reinstalled Wan IKEv2";
+                        qCInfo(LOG_IKEV2) << "Reinstalled Wan IKEv2";
                         // pause 3 secs, before connect
                         QThread::msleep(3000);
                         doConnect();
@@ -281,7 +281,7 @@ void IKEv2Connection_win::handleErrorReinstallWan()
             {
                 helper_->reinstallWanIkev2();
                 wanReinstalled_ = true;
-                qCDebug(LOG_IKEV2) << "Reinstalled Wan IKEv2";
+                qCInfo(LOG_IKEV2) << "Reinstalled Wan IKEv2";
                 // pause 3 secs, before connect
                 QThread::msleep(3000);
                 doConnect();
@@ -303,7 +303,7 @@ void IKEv2Connection_win::handleErrorReinstallWan()
             {
                 if (CheckAdapterEnable::isAdapterDisabled(helper_, "WAN Miniport (IKEv2)") || CheckAdapterEnable::isAdapterDisabled(helper_, "WAN Miniport (IP)"))
                 {
-                    qCDebug(LOG_IKEV2) << "WAN Miniport (IKEv2) or WAN Miniport (IP) disabled, try enable it";
+                    qCInfo(LOG_IKEV2) << "WAN Miniport (IKEv2) or WAN Miniport (IP) disabled, try enable it";
                     helper_->enableWanIkev2();
                     // pause 3 secs, before connect
                     QThread::msleep(3000);
@@ -330,18 +330,18 @@ void IKEv2Connection_win::doConnect()
     RASDEVINFO devInfo;
     if (!getIKEv2Device(&devInfo))
     {
-        qCDebug(LOG_IKEV2) << "Trying resrart SstpSvc and RasMan";
+        qCInfo(LOG_IKEV2) << "Trying restart SstpSvc and RasMan";
         if (!RAS_Service_win::instance().restartRASServices(helper_))
         {
-            qCDebug(LOG_IKEV2) << "Failed to start SstpSvc and/or RasMan services, so return disconnect error";
+            qCInfo(LOG_IKEV2) << "Failed to start SstpSvc and/or RasMan services, so return disconnect error";
         }
         else
         {
-            qCDebug(LOG_IKEV2) << "SstpSvc and/or RasMan services restarted, so try getIKEv2Device again";
+            qCInfo(LOG_IKEV2) << "SstpSvc and/or RasMan services restarted, so try getIKEv2Device again";
             ikev2DeviceInitialized = getIKEv2Device(&devInfo);
             if (!ikev2DeviceInitialized)
             {
-                qCDebug(LOG_IKEV2) << "getIKEv2Device failed again";
+                qCWarning(LOG_IKEV2) << "getIKEv2Device failed again";
             }
         }
     }
@@ -398,7 +398,7 @@ void IKEv2Connection_win::doConnect()
         }
         if (dwErr != ERROR_SUCCESS)
         {
-            qCDebug(LOG_IKEV2) << "RasSetEntryProperties failed with error:" << dwErr;
+            qCCritical(LOG_IKEV2) << "RasSetEntryProperties failed with error:" << dwErr;
             state_ = STATE_DISCONNECTED;
             emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
             return;
@@ -418,7 +418,7 @@ void IKEv2Connection_win::doConnect()
     dwErr = RasSetEntryDialParams(NULL, &dialparams, FALSE);
     if (dwErr != ERROR_SUCCESS)
     {
-        qCDebug(LOG_IKEV2) << "RasSetEntryDialParams failed with error:" << dwErr;
+        qCCritical(LOG_IKEV2) << "RasSetEntryDialParams failed with error:" << dwErr;
         state_ = STATE_DISCONNECTED;
         emit error(CONNECT_ERROR::IKEV_FAILED_SET_ENTRY_WIN);
         return;
@@ -426,7 +426,7 @@ void IKEv2Connection_win::doConnect()
 
     if (!helper_->addHosts(initialIp_ + " " + initialUrl_))
     {
-        qCDebug(LOG_IKEV2) << "Can't modify hosts file";
+        qCCritical(LOG_IKEV2) << "Can't modify hosts file";
         state_ = STATE_DISCONNECTED;
         emit error(CONNECT_ERROR::IKEV_FAILED_MODIFY_HOSTS_WIN);
         return;
@@ -441,7 +441,7 @@ void IKEv2Connection_win::doConnect()
     dwErr = RasDial(NULL, NULL, &dialparams, 1, (void *)staticRasDialFunc, &connHandle_);
     if (dwErr != ERROR_SUCCESS)
     {
-        qCDebug(LOG_IKEV2) << "RasDial failed with error:" << dwErr;
+        qCCritical(LOG_IKEV2) << "RasDial failed with error:" << dwErr;
         connHandle_ = NULL;
         helper_->disableDnsLeaksProtection();
         helper_->removeHosts();
@@ -463,7 +463,7 @@ void IKEv2Connection_win::rasDialFuncCallback(HRASCONN hrasconn, UINT unMsg, tag
     QString str = rasConnStateToString(rascs);
     if (dwError == 0)
     {
-        qCDebug(LOG_IKEV2) << "RasDial state:" << str << "ok" << "(" << state_ << ")";
+        qCInfo(LOG_IKEV2) << "RasDial state:" << str << "ok" << "(" << state_ << ")";
     }
     else
     {
@@ -475,7 +475,7 @@ void IKEv2Connection_win::rasDialFuncCallback(HRASCONN hrasconn, UINT unMsg, tag
             WinUtils::Win32GetErrorString(dwError, strErr, _countof(strErr));
         }
 
-        qCDebug(LOG_IKEV2) << "RasDial state:" << str << "Error code:" << dwError << QString::fromWCharArray(strErr) << "(" << state_ << ")";
+        qCInfo(LOG_IKEV2) << "RasDial state:" << str << "Error code:" << dwError << QString::fromWCharArray(strErr) << "(" << state_ << ")";
     }
 
     // skip dispatch in disconnecting state
@@ -541,7 +541,7 @@ bool IKEv2Connection_win::getIKEv2Device(tagRASDEVINFOW *outDevInfo)
     DWORD dwErr = RasEnumDevices(0, &dwSize, &dwNumberDevices);
     if (dwErr != ERROR_BUFFER_TOO_SMALL && dwErr != ERROR_SUCCESS)
     {
-        qCDebug(LOG_IKEV2) << "RasEnumDevices failed with error:" << dwErr;
+        qCCritical(LOG_IKEV2) << "RasEnumDevices failed with error:" << dwErr;
         return false;
     }
 
@@ -575,11 +575,11 @@ bool IKEv2Connection_win::getIKEv2Device(tagRASDEVINFOW *outDevInfo)
             }
         }
 
-        qCDebug(LOG_IKEV2) << "Not found ikev2 device in list:" << strLog;
+        qCInfo(LOG_IKEV2) << "Not found ikev2 device in list:" << strLog;
     }
     else
     {
-        qCDebug(LOG_IKEV2) << "RasEnumDevices failed with error:" << dwErr;
+        qCCritical(LOG_IKEV2) << "RasEnumDevices failed with error:" << dwErr;
         return false;
     }
 
@@ -639,7 +639,7 @@ QString IKEv2Connection_win::rasConnStateToString(tagRASCONNSTATE state)
 void IKEv2Connection_win::staticRasDialFunc(HRASCONN hRasConn, UINT unMsg, RASCONNSTATE rascs, DWORD dwError, DWORD dwExtendedError)
 {
     if (this_ == NULL) {
-        qCDebug(LOG_IKEV2) << "RasDialFunc callback called after connection object has been deleted";
+        qCWarning(LOG_IKEV2) << "RasDialFunc callback called after connection object has been deleted";
         return;
     }
 

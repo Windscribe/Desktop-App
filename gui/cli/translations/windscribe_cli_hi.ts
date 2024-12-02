@@ -247,14 +247,6 @@
         <translation>कुंजी सीमा व्यवहार सेट है।</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>लॉगिन प्रगति पर है।  स्थिति की जांच के लिए &apos;विंडसाइड-क्ली स्थिति&apos; का उपयोग करें।</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>लॉगआउट प्रगति पर है।  स्थिति की जांच के लिए &apos;विंडसाइड-क्ली स्थिति&apos; का उपयोग करें।</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>कनेक्शन किसी अन्य आदेश द्वारा ओवरराइड किया गया है।</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>लॉग आउट करना</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>2FA कोड चाहिए</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>गलत 2FA कोड</translation>
     </message>
 </context>
 </TS>

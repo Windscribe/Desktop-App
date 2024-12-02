@@ -10,6 +10,7 @@
 #include <shellapi.h>
 #include <ShObjIdl_core.h>
 
+#include "dpiscalemanager.h"
 #include "utils/log/categories.h"
 
 Q_GUI_EXPORT QPixmap qt_pixmapFromWinHICON(HICON icon);
@@ -203,13 +204,13 @@ void WidgetUtils_win::setTaskbarIconOverlay(const QWidget &appMainWindow, const 
 
     HRESULT result = ::CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList4, reinterpret_cast<void **>(&taskbarInterface));
     if (FAILED(result)) {
-        qCDebug(LOG_BASIC) << "WidgetUtils_win::setTaskbarIconOverlay() could not create an IID_ITaskbarList4 instance" << HRESULT_CODE(result);
+        qCCritical(LOG_BASIC) << "WidgetUtils_win::setTaskbarIconOverlay() could not create an IID_ITaskbarList4 instance" << HRESULT_CODE(result);
         return;
     }
 
     result = taskbarInterface->HrInit();
     if (FAILED(result)) {
-        qCDebug(LOG_BASIC) << "WidgetUtils_win::setTaskbarIconOverlay() IID_ITaskbarList4::HrInit failed" << HRESULT_CODE(result);
+        qCCritical(LOG_BASIC) << "WidgetUtils_win::setTaskbarIconOverlay() IID_ITaskbarList4::HrInit failed" << HRESULT_CODE(result);
         return;
     }
 
@@ -222,7 +223,7 @@ void WidgetUtils_win::setTaskbarIconOverlay(const QWidget &appMainWindow, const 
     HWND hwnd = reinterpret_cast<HWND>(appMainWindow.winId());
     result = taskbarInterface->SetOverlayIcon(hwnd, iconHandle, L"");
     if (FAILED(result)) {
-        qCDebug(LOG_BASIC) << "WidgetUtils_win::setTaskbarIconOverlay() IID_ITaskbarList4::SetOverlayIcon failed" << HRESULT_CODE(result);
+        qCCritical(LOG_BASIC) << "WidgetUtils_win::setTaskbarIconOverlay() IID_ITaskbarList4::SetOverlayIcon failed" << HRESULT_CODE(result);
     }
 }
 
@@ -235,7 +236,7 @@ QRect WidgetUtils_win::availableGeometry(const QWidget &appMainWindow, const QSc
     HWND hwnd = reinterpret_cast<HWND>(appMainWindow.winId());
     HMONITOR hMonitor = ::MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
     if (hMonitor == NULL) {
-        qCDebug(LOG_BASIC) << "WidgetUtils_win::availableGeometry() MonitorFromWindow failed" << ::GetLastError();
+        qCCritical(LOG_BASIC) << "WidgetUtils_win::availableGeometry() MonitorFromWindow failed" << ::GetLastError();
         return screen.availableGeometry();
     }
 
@@ -244,10 +245,12 @@ QRect WidgetUtils_win::availableGeometry(const QWidget &appMainWindow, const QSc
     minfo.cbSize = sizeof(MONITORINFO);
     BOOL result = ::GetMonitorInfo(hMonitor, &minfo);
     if (!result) {
-        qCDebug(LOG_BASIC) << "WidgetUtils_win::availableGeometry() GetMonitorInfo failed" << ::GetLastError();
+        qCCritical(LOG_BASIC) << "WidgetUtils_win::availableGeometry() GetMonitorInfo failed" << ::GetLastError();
         return screen.availableGeometry();
     }
 
-    QRect geo = QRect(QPoint(minfo.rcWork.left, minfo.rcWork.top), QPoint(minfo.rcWork.right - 1, minfo.rcWork.bottom - 1));
-    return geo;
+    return QRect(minfo.rcWork.left,
+                 minfo.rcWork.top,
+                 (minfo.rcWork.right - minfo.rcWork.left)/DpiScaleManager::instance().curDevicePixelRatio(),
+                 (minfo.rcWork.bottom - minfo.rcWork.top)/DpiScaleManager::instance().curDevicePixelRatio());
 }

@@ -57,7 +57,6 @@ protected:
     bool event(QEvent *event);
     void closeEvent(QCloseEvent *event);
 
-    virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
@@ -123,6 +122,7 @@ private slots:
     void onPreferencesCustomConfigsPathChanged(QString path);
     void onPreferencesAdvancedParametersChanged(const QString &advParams);
     void onPreferencesLastKnownGoodProtocolChanged(const QString &network, const types::Protocol &protocol, uint port);
+    void onPreferencesCustomConfigPathNeedsUpdate(const QString &path);
 
     // emergency window signals
     void onEmergencyConnectClick();
@@ -238,11 +238,10 @@ private slots:
     void onPreferencesTrayIconColorChanged(TRAY_ICON_COLOR c);
 #endif
     // WindscribeApplications signals
-    void toggleVisibilityIfDocked();
+    void onDockIconClicked();
     void onAppActivateFromAnotherInstance();
     void onAppShouldTerminate_mac();
     void onAppCloseRequest();
-    void onAppStateChanged(Qt::ApplicationState state);
 #if defined(Q_OS_WIN)
     void onAppWinIniChanged();
 #endif
@@ -336,11 +335,7 @@ private:
     bool bNotificationConnectedShowed_;
     QElapsedTimer connectionElapsedTimer_;
     quint64 bytesTransferred_;
-
-    QPoint dragPosition_;
-    QPoint dragPositionForTooltip_;
-    bool bMousePressed_;
-    bool bMoveEnabled_;
+    bool bMovingWindow_;
 
     enum LOGOUT_REASON { LOGOUT_UNDEFINED, LOGOUT_FROM_MENU, LOGOUT_SESSION_EXPIRED, LOGOUT_WITH_MESSAGE, LOGOUT_GO_TO_LOGIN };
     LOGOUT_REASON logoutReason_;
@@ -438,9 +433,9 @@ private:
     void normalizeConnectionSettings(types::ConnectionSettings &cs);
 
 #ifdef Q_OS_MACOS
-    bool firstShow_ = true;
     PermissionMonitor_mac *permissionMonitor_;
 #endif
     void checkLocationPermission();
 
+    void checkCustomConfigPath(const QString &path);
 };

@@ -37,27 +37,27 @@ void InstalledAntiviruses_win::outToLog()
 
     if (listSpywares.count() > 0)
     {
-        qCDebug(LOG_BASIC) << "Detected AntiSpyware products:" << makeStrFromList(listSpywares);
+        qCInfo(LOG_BASIC) << "Detected AntiSpyware products:" << makeStrFromList(listSpywares);
     }
     else
     {
-        qCDebug(LOG_BASIC) << "Detected AntiSpyware products: empty";
+        qCInfo(LOG_BASIC) << "Detected AntiSpyware products: empty";
     }
     if (listAntiViruses.count() > 0)
     {
-        qCDebug(LOG_BASIC) << "Detected AntiVirus products:" << makeStrFromList(listAntiViruses);
+        qCInfo(LOG_BASIC) << "Detected AntiVirus products:" << makeStrFromList(listAntiViruses);
     }
     else
     {
-        qCDebug(LOG_BASIC) << "Detected AntiVirus products: empty";
+        qCInfo(LOG_BASIC) << "Detected AntiVirus products: empty";
     }
     if (listFirewalls.count() > 0)
     {
-        qCDebug(LOG_BASIC) << "Detected Firewall products:" <<  makeStrFromList(listFirewalls);
+        qCInfo(LOG_BASIC) << "Detected Firewall products:" <<  makeStrFromList(listFirewalls);
     }
     else
     {
-        qCDebug(LOG_BASIC) << "Detected Firewall products: empty";
+        qCInfo(LOG_BASIC) << "Detected Firewall products: empty";
     }
 }
 

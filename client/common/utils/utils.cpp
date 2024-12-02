@@ -265,7 +265,7 @@ QString Utils::getDirPathFromFullPath(const QString &fullPath)
 
     if (index < 0)
     {
-        qCDebug(LOG_BASIC) << "Failed to find index of delimiter";
+        qCCritical(LOG_BASIC) << "Failed to find index of delimiter";
         WS_ASSERT(false);
         return fullPath;
     }

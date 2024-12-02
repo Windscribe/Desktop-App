@@ -818,6 +818,14 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  Si se encuentra en una red restrictiva, conecte la VPN antes de volver a intentar la descarga.</translation>
     </message>
+    <message>
+        <source>Custom Config Directory Import</source>
+        <translation>Importación de directorio de configuración personalizada</translation>
+    </message>
+    <message>
+        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
+        <translation>Se está importando un directorio de configuración personalizado.  Windscribe te pedirá tu contraseña de administrador para comprobar si los permisos son correctos.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1854,6 +1862,10 @@ Conéctate primero a una red</translation>
     <message>
         <source>Secure hotspot is not supported for IKEv2 protocol.</source>
         <translation>El punto de acceso seguro no es compatible con el protocolo IKEv2.</translation>
+    </message>
+    <message>
+        <source>To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode.</source>
+        <translation>Para activar el punto de acceso seguro, desactive el túnel dividido o use el modo exclusivo.</translation>
     </message>
 </context>
 <context>

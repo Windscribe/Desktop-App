@@ -74,7 +74,7 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
         config_ += "\r\nproto tcp\r\n";
 #if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)
         if (!defaultGateway.isEmpty()) {
-            qCDebug(LOG_CONNECTION) << "defaultGateway for stunnel/wstunnel ovpn config: " << defaultGateway;
+            qCInfo(LOG_CONNECTION) << "defaultGateway for stunnel/wstunnel ovpn config: " << defaultGateway;
             config_ += QString("route %1 255.255.255.255 %2\r\n").arg(ip).arg(defaultGateway);
         }
 #endif
@@ -93,7 +93,7 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
 
     // concatenate with windscribe_extra.conf file, if it exists
     if (!strExtraConfig.isEmpty()) {
-        qCDebug(LOG_CONNECTION) << "Adding extra options to OVPN config:" << strExtraConfig;
+        qCInfo(LOG_CONNECTION) << "Adding extra options to OVPN config:" << strExtraConfig;
         config_ += strExtraConfig;
     }
 

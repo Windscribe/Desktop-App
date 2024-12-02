@@ -42,15 +42,11 @@ QScreen *WidgetUtils::slightlySaferScreenAt(QPoint pt)
 
     if (!screen)
     {
-        // qDebug() << "Screen at point not found -- grabbing first screen available:";
-
         if (!QGuiApplication::screens().empty())
         {
             screen = QGuiApplication::screens().at(0);
-            // qDebug() << "Backup screen: " << screen << " " << screen->geometry();
             return screen;
         }
-        // qCDebug(LOG_BASIC) << "No screens available -- this should never happen";
     }
     return screen;
 }

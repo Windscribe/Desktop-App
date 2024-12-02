@@ -48,22 +48,22 @@ static bool authorizeWithUac()
     if (FAILED(hr)) {
         int errorCode = HRESULT_CODE(hr);
         if (errorCode == ERROR_CANCELLED) {
-            qCDebug(LOG_AUTH_HELPER) << "Authentication failed due to user selection";
+            qCInfo(LOG_AUTH_HELPER) << "Authentication failed due to user selection";
         }
         else {
             // Can fail here if StubProxyDll isn't in CLSID\InprocServer32
             int facility = HRESULT_FACILITY(hr); // If returns 4 (FACILITY_ITF) then error codes are interface specific
             wchar_t strErr[1024];
             WinUtils::Win32GetErrorString(errorCode, strErr, _countof(strErr));
-            qCDebug(LOG_AUTH_HELPER) << "Failed to CoCreateInstance of MyThing, facility: " << facility << ", code: " << errorCode;
-            qCDebug(LOG_AUTH_HELPER) << " (" << hr << "): " << strErr;
+            qCCritical(LOG_AUTH_HELPER) << "Failed to CoCreateInstance of MyThing, facility: " << facility << ", code: " << errorCode;
+            qCCritical(LOG_AUTH_HELPER) << " (" << hr << "): " << strErr;
         }
 
         return false;
     }
 
     // CoCreateInstanceAsAdmin will return S_OK if authorization was successful
-    qCDebug(LOG_AUTH_HELPER) << "Helper process is Authorized";
+    qCInfo(LOG_AUTH_HELPER) << "Helper process is Authorized";
     return true;
 }
 
@@ -79,19 +79,19 @@ AuthCheckerError AuthChecker_win::authenticate()
 
     QString comServerPath = appDir + "/ws_com_server.exe";
     if (!sigCheck.verify(comServerPath.toStdWString())) {
-        qCDebug(LOG_AUTH_HELPER) << "Could not verify " << comServerPath << ". File may be corrupted. " << QString::fromStdString(sigCheck.lastError());
+        qCCritical(LOG_AUTH_HELPER) << "Could not verify " << comServerPath << ". File may be corrupted. " << QString::fromStdString(sigCheck.lastError());
         return AuthCheckerError::AUTH_HELPER_ERROR;
     }
 
     QString comDllPath    = appDir + "/ws_com.dll";
     if (!sigCheck.verify(comDllPath.toStdWString())) {
-        qCDebug(LOG_AUTH_HELPER) << "Could not verify " << comDllPath << ". File may be corrupted. " << QString::fromStdString(sigCheck.lastError());
+        qCCritical(LOG_AUTH_HELPER) << "Could not verify " << comDllPath << ". File may be corrupted. " << QString::fromStdString(sigCheck.lastError());
         return AuthCheckerError::AUTH_HELPER_ERROR;
     }
 
     QString comStubPath   = appDir + "/ws_proxy_stub.dll";
     if (!sigCheck.verify(comStubPath.toStdWString())) {
-        qCDebug(LOG_AUTH_HELPER) << "Could not verify " << comStubPath << ". File may be corrupted. " << QString::fromStdString(sigCheck.lastError());
+        qCCritical(LOG_AUTH_HELPER) << "Could not verify " << comStubPath << ". File may be corrupted. " << QString::fromStdString(sigCheck.lastError());
         return AuthCheckerError::AUTH_HELPER_ERROR;
     }
 

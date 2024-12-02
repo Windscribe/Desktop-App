@@ -12,6 +12,14 @@ if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
     add_definitions(-DUSE_SIGNATURE_CHECK)
 endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
 
+if(UNIX AND (NOT APPLE))
+    # if build requested a headless client, set the necessary definitions
+    option(DEFINE_CLI_ONLY_MACRO "Build GUI-less client" OFF)
+    if(DEFINE_CLI_ONLY_MACRO)
+        add_definitions(-DCLI_ONLY)
+    endif(DEFINE_CLI_ONLY_MACRO)
+endif()
+
 project(helper)
 
 find_package(Boost REQUIRED COMPONENTS serialization thread filesystem)

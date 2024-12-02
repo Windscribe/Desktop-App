@@ -28,8 +28,9 @@ QString loginStateString(LOGIN_STATE state, wsnet::LoginResult loginError, const
         case LoginResult::kNoApiConnectivity:
             return msg.arg(error.arg(QObject::tr("No API connectivity")));
         case LoginResult::kBadUsername:
-        case LoginResult::kMissingCode2fa:
             return msg.arg(error.arg(QObject::tr("Incorrect username, password, or 2FA code")));
+        case LoginResult::kMissingCode2fa:
+            return msg.arg(error.arg(QObject::tr("Need 2FA code")));
         case LoginResult::kAccountDisabled:
             return msg.arg(error.arg(loginErrorMessage));
         case LoginResult::kSslError:
@@ -38,6 +39,8 @@ QString loginStateString(LOGIN_STATE state, wsnet::LoginResult loginError, const
             return msg.arg(error.arg(QObject::tr("Session expired")));
         case LoginResult::kRateLimited:
             return msg.arg(error.arg(QObject::tr("Rate limited")));
+        case LoginResult::kBadCode2fa:
+            return msg.arg(error.arg(QObject::tr("Incorrect 2FA code")));
         case LoginResult::kIncorrectJson:
         case LoginResult::kSuccess:
         default:

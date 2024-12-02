@@ -12,21 +12,21 @@ bool CheckAdapterEnable::isAdapterDisabled(IHelper *helper, const QString &adapt
     QStringList list = str.split("\n");
     if (list.count() < 2)
     {
-        qCDebug(LOG_BASIC) << "CheckAdapterEnable::isAdapterDisabled(), wmic command return incorrect output: " << str;
+        qCCritical(LOG_BASIC) << "CheckAdapterEnable::isAdapterDisabled(), wmic command return incorrect output: " << str;
         return false;
     }
     QString par1 = list[0].trimmed();
     QString par2 = list[1].trimmed();
     if (par1 != "ConfigManagerErrorCode")
     {
-        qCDebug(LOG_BASIC) << "CheckAdapterEnable::isAdapterDisabled(), wmic command return incorrect output: " << str;
+        qCCritical(LOG_BASIC) << "CheckAdapterEnable::isAdapterDisabled(), wmic command return incorrect output: " << str;
         return false;
     }
     bool bOk;
     int code = par2.toInt(&bOk);
     if (!bOk)
     {
-        qCDebug(LOG_BASIC) << "CheckAdapterEnable::isAdapterDisabled(), wmic command return incorrect output: " << str;
+        qCCritical(LOG_BASIC) << "CheckAdapterEnable::isAdapterDisabled(), wmic command return incorrect output: " << str;
         return false;
     }
     return code != 0;

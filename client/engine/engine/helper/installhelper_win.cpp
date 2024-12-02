@@ -20,7 +20,7 @@ static void outputLogFileToLoggerAndRemove(const QString &logPath)
     if (file.exists() && file.open(QIODevice::ReadOnly)) {
         QTextStream in(&file);
         while (!in.atEnd()) {
-            qCDebug(LOG_BASIC) << in.readLine();
+            qCInfo(LOG_BASIC) << in.readLine();
         }
         file.close();
         file.remove();
@@ -33,19 +33,19 @@ bool executeInstallHelperCmd()
 
     QString installHelperExe = installDir + "/WindscribeInstallHelper.exe";
     if (!QFile::exists(installHelperExe)) {
-        qCDebug(LOG_BASIC) << "WindscribeInstallHelper.exe not found in the app directory";
+        qCCritical(LOG_BASIC) << "WindscribeInstallHelper.exe not found in the app directory";
         return false;
     }
 
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(installHelperExe.toStdWString())) {
-        qCDebug(LOG_BASIC) << "WindscribeInstallHelper.exe incorrect signature:" << QString::fromStdString(sigCheck.lastError());
+        qCCritical(LOG_BASIC) << "WindscribeInstallHelper.exe incorrect signature:" << QString::fromStdString(sigCheck.lastError());
         return false;
     }
 
     QString helperExe = installDir + "/WindscribeService.exe";
     if (!QFile::exists(helperExe)) {
-        qCDebug(LOG_BASIC) << "Windscribe service not found in path:" << helperExe;
+        qCCritical(LOG_BASIC) << "Windscribe service not found in path:" << helperExe;
         return false;
     }
 
@@ -66,7 +66,7 @@ bool executeInstallHelperCmd()
         return true;
     }
 
-    qCDebug(LOG_BASIC) << "InstallHelper::executeInstallHelperCmd ShellExecuteEx failed:" << GetLastError();
+    qCCritical(LOG_BASIC) << "InstallHelper::executeInstallHelperCmd ShellExecuteEx failed:" << GetLastError();
     return false;
 }
 

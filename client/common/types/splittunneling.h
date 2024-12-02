@@ -344,6 +344,9 @@ struct SplitTunneling
             for (auto appPath : appsList) {
                 std::error_code ec;
                 std::filesystem::path path(appPath.toStdString());
+                if (path.empty()) {
+                    continue;
+                }
                 bool exists = std::filesystem::exists(path, ec);
                 if (ec || !exists) {
                     qCDebug(LOG_BASIC) << "Skipping non-existent split tunneling app '" << appPath << "'";
@@ -365,6 +368,9 @@ struct SplitTunneling
             QStringList networkRoutesList;
             networkRoutesList = s.value(kIniSplitTunnelingRoutesProp).toStringList();
             for (auto route : networkRoutesList) {
+                if (route.isEmpty()) {
+                    continue;
+                }
                 SplitTunnelingNetworkRoute r;
                 r.name = route;
                 if (IpValidation::isIpCidr(route)) {

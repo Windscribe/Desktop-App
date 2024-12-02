@@ -247,14 +247,6 @@
         <translation>Perilaku batas kunci diatur.</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Login sedang berlangsung.  Gunakan &apos;windscribe-cli status&apos; untuk memeriksa status.</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Logout sedang berlangsung.  Gunakan &apos;windscribe-cli status&apos; untuk memeriksa status.</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>Koneksi telah diganti oleh perintah lain.</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>Keluar</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>Butuh kode 2FA</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>Kode 2FA salah</translation>
     </message>
 </context>
 </TS>

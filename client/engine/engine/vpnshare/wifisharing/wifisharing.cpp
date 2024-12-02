@@ -36,13 +36,13 @@ void WifiSharing::startSharing(const QString &ssid, const QString &password)
 {
     if (!icsManager_->startIcs())
     {
-        qCDebug(LOG_WIFI_SHARED) << "icsManager_->startIcs() failed";
+        qCWarning(LOG_WIFI_SHARED) << "icsManager_->startIcs() failed";
         return;
     }
 
     if (!wifiDirectManager_->start(ssid, password))
     {
-        qCDebug(LOG_WIFI_SHARED) << "wlanManager_->start() failed";
+        qCWarning(LOG_WIFI_SHARED) << "wlanManager_->start() failed";
         return;
     }
     ssid_ = ssid;
@@ -164,7 +164,7 @@ GUID getGuidForPrimaryAdapter(bool &bSuccess, bool bForWindscribeAdapter, const 
             if (wcsstr(pCurrAddresses->Description, vpnAdapterName.toStdWString().c_str()) != 0)
             //if (pCurrAddresses->OperStatus == IfOperStatusUp)
             {
-                    qCDebug(LOG_WIFI_SHARED) << "Detected Windscribe VPN tap adapter" << QString::fromStdString(pCurrAddresses->AdapterName) << QString::fromStdWString(pCurrAddresses->FriendlyName);
+                    qCInfo(LOG_WIFI_SHARED) << "Detected Windscribe VPN tap adapter" << QString::fromStdString(pCurrAddresses->AdapterName) << QString::fromStdWString(pCurrAddresses->FriendlyName);
                     bSuccess = true;
                     GUID guid = WinUtils::stringToGuid(pCurrAddresses->AdapterName);
                     return guid;
@@ -181,7 +181,7 @@ GUID getGuidForPrimaryAdapter(bool &bSuccess, bool bForWindscribeAdapter, const 
         if (pCurrAddresses->IfType == IF_TYPE_ETHERNET_CSMACD || pCurrAddresses->IfType == IF_TYPE_IEEE80211)
         if (pCurrAddresses->IfIndex == dwBestIfIndex)
         {
-            qCDebug(LOG_WIFI_SHARED) << "Detected primary network adapter" << QString::fromStdString(pCurrAddresses->AdapterName) << QString::fromStdWString(pCurrAddresses->FriendlyName);
+            qCInfo(LOG_WIFI_SHARED) << "Detected primary network adapter" << QString::fromStdString(pCurrAddresses->AdapterName) << QString::fromStdWString(pCurrAddresses->FriendlyName);
             bSuccess = true;
             GUID guid = WinUtils::stringToGuid(pCurrAddresses->AdapterName);
             return guid;

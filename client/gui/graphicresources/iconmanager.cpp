@@ -82,7 +82,7 @@ void IconManager::initWinLinuxIcons(const std::map<IconType, QString>& iconPaths
     for (const auto& iconPath : iconPaths) {
         QIcon ico(iconPath.second);
         if (ico.isNull()) {
-            qCDebug(LOG_BASIC) << "IconManager failed to load: " << iconPath.second;
+            qCWarning(LOG_BASIC) << "IconManager failed to load: " << iconPath.second;
         }
         icons_[iconPath.first] = ico;
     }
@@ -93,7 +93,7 @@ void IconManager::initMacIcons(const std::map<IconType, QString>& iconPaths) {
     for (const auto& iconPath : iconPaths) {
         QPixmap p;
         if (!p.load(iconPath.second)) {
-            qCDebug(LOG_BASIC) << "IconManager failed to load: " << iconPath.second;
+            qCWarning(LOG_BASIC) << "IconManager failed to load: " << iconPath.second;
         }
         if (isDoublePixelRatio)
             p.setDevicePixelRatio(2);

@@ -35,7 +35,6 @@ void SocksProxyConnectionManager::newConnection(qintptr socketDescriptor)
     SocksProxyConnection *connection = new SocksProxyConnection(socketDescriptor, ip);
     connect(connection, &SocksProxyConnection::finished, this, &SocksProxyConnectionManager::onConnectionFinished);
     addConnectionToThread(thread, connection);
-    //qCDebug(LOG_SOCKS_SERVER) << "Count of connections:" << connections_.count();
 }
 
 void SocksProxyConnectionManager::closeAllConnections()
@@ -63,7 +62,6 @@ void SocksProxyConnectionManager::onConnectionFinished(const QString &hostname)
     usersCounter_->userDiconnected(hostname);
 
     SocksProxyConnection *connection = static_cast<SocksProxyConnection *>(sender());
-    //qCDebug(LOG_SOCKS_SERVER) << "Connection finished:" << connection;
     QMap<SocksProxyConnection *, QThread *>::iterator it = connections_.find(connection);
     WS_ASSERT(it != connections_.end());
 
@@ -73,8 +71,6 @@ void SocksProxyConnectionManager::onConnectionFinished(const QString &hostname)
 
     it.key()->deleteLater();
     connections_.erase(it);
-
-    //qCDebug(LOG_SOCKS_SERVER) << "Count of connections:" << connections_.count();
 }
 
 QThread *SocksProxyConnectionManager::getLessBusyThread()
@@ -95,7 +91,6 @@ QThread *SocksProxyConnectionManager::getLessBusyThread()
 
 void SocksProxyConnectionManager::addConnectionToThread(QThread *thread, SocksProxyConnection *connection)
 {
-    //qCDebug(LOG_SOCKS_SERVER) << "Connection started:" << connection;
     connection->moveToThread(thread);
     QTimer::singleShot(0, connection, SLOT(start()));
     WS_ASSERT(!connections_.contains(connection));

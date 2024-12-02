@@ -30,17 +30,17 @@ void InitializeHelper::onTimerControlHelper()
     {
         timer->stop();
         timer->deleteLater();
-        qCDebug(LOG_BASIC) << "Windscribe helper connect failed";
+        qCWarning(LOG_BASIC) << "Windscribe helper connect failed";
         if (helperInitAttempts_ >= 1)
         {
             emit finished(INIT_HELPER_FAILED);
         }
         else
         {
-            qCDebug(LOG_BASIC) << "Attempting to reinstall helper";
+            qCInfo(LOG_BASIC) << "Attempting to reinstall helper";
             if (helper_->reinstallHelper())
             {
-                qCDebug(LOG_BASIC) << "Helper reinstalled";
+                qCInfo(LOG_BASIC) << "Helper reinstalled";
                 helper_->startInstallHelper();
                 helperInitAttempts_++;
                 QTimer *newtimer = new QTimer(this);
@@ -49,7 +49,7 @@ void InitializeHelper::onTimerControlHelper()
             }
             else
             {
-                qCDebug(LOG_BASIC) << "Failed to reinstall helper";
+                qCCritical(LOG_BASIC) << "Failed to reinstall helper";
                 emit finished(INIT_HELPER_FAILED);
             }
         }
@@ -58,7 +58,7 @@ void InitializeHelper::onTimerControlHelper()
     {
         timer->stop();
         timer->deleteLater();
-        qCDebug(LOG_BASIC) << "Failed to install helper (user canceled)";
+        qCInfo(LOG_BASIC) << "Failed to install helper (user canceled)";
         emit finished(INIT_HELPER_USER_CANCELED);
     }
 }
@@ -84,6 +84,6 @@ void InitializeHelper::printHelperVersion()
     QString helperVersion = helper_->getHelperVersion();
     if (!helperVersion.isEmpty())
     {
-        qCDebug(LOG_BASIC) << "Helper version" << helperVersion;
+        qCInfo(LOG_BASIC) << "Helper version" << helperVersion;
     }
 }

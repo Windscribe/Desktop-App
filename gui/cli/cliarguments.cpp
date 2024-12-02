@@ -34,11 +34,6 @@ void CliArguments::setPassword(const QString &password)
     password_ = password;
 }
 
-void CliArguments::set2FACode(const QString &code)
-{
-    code2fa_ = code;
-}
-
 void CliArguments::parseConnect(const QStringList &args)
 {
     if (args.length() <= 2) {
@@ -158,25 +153,6 @@ void CliArguments::parseLogin(const QStringList &args)
     }
 
     int idx = 2;
-    QString arg;
-    QString opt;
-
-    do {
-        arg = args[idx].toLower();
-        opt = getOptions(arg);
-
-        if (opt == "n") {
-            nonBlocking_ = true;
-            idx++;
-        } else if (opt == "2") {
-            need2FA_ = true;
-            idx++;
-        } else if (!opt.isEmpty()) {
-            cliCommand_ = CLI_COMMAND_HELP;
-            return;
-        }
-    } while (!opt.isEmpty() && args.length() > idx);
-
     if (args.length() > idx) {
         // More positional arguments exist, consider it 'username'
         username_ = args.at(idx++);
@@ -196,18 +172,11 @@ void CliArguments::parseLogout(const QStringList &args)
     }
 
     cliCommand_ = CLI_COMMAND_LOGOUT;
-
     if (args.length() == 2) {
         return;
     }
 
     int idx = 2;
-    QString arg = args[idx].toLower();
-    if (getOptions(arg) == "n") {
-        nonBlocking_ = true;
-        idx++;
-    }
-
     if (args.length() > idx && args[idx].toLower() == "on") {
         keepFirewallOn_ = true;
     } else {
@@ -305,11 +274,6 @@ const QString &CliArguments::password() const
     return password_;
 }
 
-const QString &CliArguments::code2fa() const
-{
-    return code2fa_;
-}
-
 const QString &CliArguments::protocol() const
 {
     return protocol_;
@@ -333,17 +297,12 @@ bool CliArguments::nonBlocking() const
         case CLI_COMMAND_CONNECT_LOCATION:
         case CLI_COMMAND_CONNECT_STATIC:
         case CLI_COMMAND_DISCONNECT:
+            return nonBlocking_;
         case CLI_COMMAND_LOGIN:
         case CLI_COMMAND_LOGOUT:
-            return nonBlocking_;
         case CLI_COMMAND_UPDATE:
             return false;
         default:
             return true;
     }
-}
-
-bool CliArguments::need2FA() const
-{
-    return need2FA_;
 }

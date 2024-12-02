@@ -31,7 +31,7 @@ void HttpProxyRequest::debugToLog()
     }
     str += ")";
 
-    qCDebug(LOG_HTTP_SERVER) << "Request:" << str;
+    qCInfo(LOG_HTTP_SERVER) << "Request:" << str;
 }
 
 #ifdef Q_OS_WIN

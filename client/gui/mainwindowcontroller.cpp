@@ -98,60 +98,40 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     windowSizeManager_->addWindow(logoutWindow_, ShadowManager::SHAPE_ID_EXIT, EXPAND_WINDOW_RESIZE_DURATION);
     windowSizeManager_->addWindow(exitWindow_, ShadowManager::SHAPE_ID_EXIT, EXPAND_WINDOW_RESIZE_DURATION);
 
-    scene_->addItem(loginWindow_);
-    scene_->addItem(loggingInWindow_);
-    scene_->addItem(initWindow_);
-    scene_->addItem(bottomInfoWindow_);
-    scene_->addItem(connectWindow_);
-    scene_->addItem(emergencyConnectWindow_);
-    scene_->addItem(externalConfigWindow_);
-    scene_->addItem(twoFactorAuthWindow_);
-    scene_->addItem(preferencesWindow_);
-    scene_->addItem(updateWindow_);
-    scene_->addItem(upgradeAccountWindow_);
-    scene_->addItem(updateAppItem_);
-    scene_->addItem(newsFeedWindow_);
-    scene_->addItem(protocolWindow_);
-    scene_->addItem(generalMessageWindow_);
-    scene_->addItem(exitWindow_);
-    scene_->addItem(logoutWindow_);
+    updateMaximumHeight();
 
-    loginWindow_->setVisible(false);
-    loggingInWindow_->setVisible(false);
-    initWindow_->setVisible(false);
-    bottomInfoWindow_->setVisible(false);
-    connectWindow_->setVisible(false);
-    emergencyConnectWindow_->setVisible(false);
-    externalConfigWindow_->setVisible(false);
-    twoFactorAuthWindow_->setVisible(false);
-    preferencesWindow_->setVisible(false);
-    updateWindow_->setVisible(false);
-    upgradeAccountWindow_->setVisible(false);
-    updateAppItem_->setVisible(false);
-    newsFeedWindow_->setVisible(false);
-    protocolWindow_->setVisible(false);
-    generalMessageWindow_->setVisible(false);
-    exitWindow_->setVisible(false);
-    logoutWindow_->setVisible(false);
+    for (const auto &w : windowSizeManager_->windows()) {
+        connect(w, &ResizableWindow::sizeChanged, this, &MainWindowController::onWindowResize);
+        connect(w, &ResizableWindow::resizeFinished, this, &MainWindowController::onWindowResizeFinished);
+    }
 
-    // bottomInfoWindow_->setPos(0, BOTTOM_INFO_POS_Y_SHOWING);
+    QList<ScalableGraphicsObject *> windows = {
+        loginWindow_,
+        loggingInWindow_,
+        initWindow_,
+        bottomInfoWindow_,
+        connectWindow_,
+        emergencyConnectWindow_,
+        externalConfigWindow_,
+        twoFactorAuthWindow_,
+        preferencesWindow_,
+        updateWindow_,
+        upgradeAccountWindow_,
+        updateAppItem_,
+        newsFeedWindow_,
+        protocolWindow_,
+        generalMessageWindow_,
+        exitWindow_,
+        logoutWindow_};
+
+    for (const auto &w : windows) {
+        scene_->addItem(w);
+        w->setVisible(false);
+    }
 
     connect(locationsWindow_, &LocationsWindow::heightChanged, this, &MainWindowController::onLocationsWindowHeightChanged);
     connect(bottomInfoWindow_, &SharingFeatures::BottomInfoItem::heightChanged, this, &MainWindowController::onBottomInfoHeightChanged);
     connect(bottomInfoWindow_, &QGraphicsObject::yChanged, this, &MainWindowController::onBottomInfoPosChanged);
-    connect(preferencesWindow_, &ResizableWindow::sizeChanged, this, &MainWindowController::onWindowResize);
-    connect(preferencesWindow_, &ResizableWindow::resizeFinished, this, &MainWindowController::onWindowResizeFinished);
-    connect(newsFeedWindow_, &ResizableWindow::sizeChanged, this, &MainWindowController::onWindowResize);
-    connect(newsFeedWindow_, &ResizableWindow::resizeFinished, this, &MainWindowController::onWindowResizeFinished);
-    connect(protocolWindow_, &ResizableWindow::sizeChanged, this, &MainWindowController::onWindowResize);
-    connect(protocolWindow_, &ResizableWindow::resizeFinished, this, &MainWindowController::onWindowResizeFinished);
-    connect(generalMessageWindow_, &ResizableWindow::sizeChanged, this, &MainWindowController::onWindowResize);
-    connect(generalMessageWindow_, &ResizableWindow::resizeFinished, this, &MainWindowController::onWindowResizeFinished);
-    connect(logoutWindow_, &ResizableWindow::sizeChanged, this, &MainWindowController::onWindowResize);
-    connect(logoutWindow_, &ResizableWindow::resizeFinished, this, &MainWindowController::onWindowResizeFinished);
-    connect(exitWindow_, &ResizableWindow::sizeChanged, this, &MainWindowController::onWindowResize);
-    connect(exitWindow_, &ResizableWindow::resizeFinished, this, &MainWindowController::onWindowResizeFinished);
-
     connect(preferences_, &Preferences::appSkinChanged, this, &MainWindowController::onAppSkinChanged);
 
     if (PersistentState::instance().havePreferencesWindowHeight()) {
@@ -380,7 +360,7 @@ void MainWindowController::setWindowPosFromPersistent()
 
             qCDebug(LOG_BASIC) << "setWindowPosFromPersistent() - did not locate a display containing restored app position:" << mainWindow_->pos();
         } else {
-            qCDebug(LOG_BASIC) << "setWindowPosFromPersistent() - restoreGeometry failed";
+            qCWarning(LOG_BASIC) << "setWindowPosFromPersistent() - restoreGeometry failed";
         }
     } else {
         qCDebug(LOG_BASIC) << "setWindowPosFromPersistent() - saved app geometry was not found";
@@ -512,7 +492,6 @@ void MainWindowController::expandLocations()
     if (curWindow_ == WINDOW_ID_GENERAL_MESSAGE)
         return;
 
-    // qCDebug(LOG_LOCATION_LIST) << "MainWindowController::expandLocations";
     WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
     WS_ASSERT(expandLocationsAnimationGroup_ != NULL);
 
@@ -545,7 +524,6 @@ void MainWindowController::expandLocations()
 
 void MainWindowController::collapseLocations()
 {
-    // qCDebug(LOG_LOCATION_LIST) << "MainWindowController::collapseLocations";
     WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT);
     WS_ASSERT(expandLocationsAnimationGroup_ != NULL);
 
@@ -771,7 +749,6 @@ void MainWindowController::onCollapseBottomInfoWindowAnimationValueChanged(const
 
 void MainWindowController::onLocationsWindowHeightChanged() // manual resizing
 {
-    // qCDebug(LOG_USER) << "MainController:: Resizing Locations";
     locationWindowHeightScaled_ = locationsWindow_->tabAndFooterHeight() * G_SCALE;
     updateLocationsWindowAndTabGeometry();
     updateMainAndViewGeometry(false);
@@ -2328,8 +2305,6 @@ void MainWindowController::closeExitWindow(bool fromPrefs)
 
 void MainWindowController::expandPreferencesFromLogin()
 {
-    // qCDebug(LOG_BASIC) << "MainWindowController::expandPreferencesFromLogin";
-
     if (windowSizeManager_->state(preferencesWindow_) != WindowSizeManager::kWindowCollapsed) {
         return;
     }
@@ -2415,8 +2390,6 @@ void MainWindowController::expandPreferencesFromLogin()
 
 void MainWindowController::expandWindow(ResizableWindow *window)
 {
-    // qCDebug(LOG_BASIC) << "MainWindowController::expandWindow";
-
     if (windowSizeManager_->state(window) != WindowSizeManager::kWindowCollapsed) {
         return;
     }
@@ -2560,8 +2533,6 @@ void MainWindowController::expandWindow(ResizableWindow *window)
 
 void MainWindowController::collapsePreferencesFromLogin()
 {
-    // qCDebug(LOG_BASIC) << "MainWindowController::collapsePreferencesFromLogin";
-
     if (windowSizeManager_->state(preferencesWindow_) != WindowSizeManager::kWindowExpanded) {
         return;
     }
@@ -2645,8 +2616,6 @@ void MainWindowController::collapsePreferencesFromLogin()
 
 void MainWindowController::collapseWindow(ResizableWindow *window, bool bSkipBottomInfoWindowAnimate, bool bSkipSetClickable)
 {
-    // qCDebug(LOG_BASIC) << "MainWindowController::collapseWindow";
-
     if (windowSizeManager_->state(window) != WindowSizeManager::kWindowExpanded) {
         return;
     }
@@ -2874,7 +2843,7 @@ MainWindowController::TaskbarLocation MainWindowController::primaryScreenTaskbar
     QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
     QScreen *screen = WidgetUtils::slightlySaferScreenAt(rcIcon.center());
     if (!screen) {
-        qCDebug(LOG_BASIC) << "Couldn't find screen at system icon location";
+        qCWarning(LOG_BASIC) << "Couldn't find screen at system icon location";
         return taskbarLocation;
     }
 
@@ -2913,6 +2882,7 @@ QRect MainWindowController::taskbarAwareDockedGeometry_win(int width, int shadow
     }
 
     const QRect desktopAvailableRc = WidgetUtils_win::availableGeometry(*mainWindow_, *screen);
+    qCDebug(LOG_BASIC) << "taskbarAwareDockedGeometry_win() screen->availableGeometry(): " << screen->availableGeometry();
     const int kRightOffset = 16 * G_SCALE;
     const int kVerticalOffset = 16 * G_SCALE;
 
@@ -3310,11 +3280,14 @@ void MainWindowController::clearMaskForGraphicsView()
 void MainWindowController::keepWindowInsideScreenCoordinates()
 {
     QRect rcWindow = mainWindow_->geometry();
-    QRect rcScreen = mainWindow_->screen()->availableGeometry();
+    int bottom = 0;
+    for (const auto &screen : qApp->screens()) {
+        bottom = std::max(bottom, screen->availableGeometry().bottom());
+    }
 
-    if (rcWindow.bottom() > (rcScreen.bottom())) {
+    if (rcWindow.bottom() > bottom) {
         // qDebug() << "KEEPING MAINWINDOW INSIDE SCREEN COORDINATES";
-        rcWindow.moveBottom(rcScreen.bottom());
+        rcWindow.moveBottom(bottom);
         mainWindow_->setGeometry(rcWindow);
     }
 }
@@ -3418,4 +3391,17 @@ void MainWindowController::onLanguageChanged()
     logoutWindow_->setTitle(tr(kLogOutTitle));
     logoutWindow_->setAcceptText(tr(kLogOut));
     logoutWindow_->setRejectText(tr(kCancel));
+}
+
+void MainWindowController::updateMaximumHeight()
+{
+#ifdef Q_OS_WIN
+    int maxHeight = WidgetUtils_win::availableGeometry(*mainWindow_, *mainWindow_->screen()).height()/G_SCALE - 2*shadowManager_->getShadowMargin()/G_SCALE;
+#else
+    int maxHeight = mainWindow_->screen()->availableGeometry().height()/G_SCALE - 2*shadowManager_->getShadowMargin()/G_SCALE;
+#endif
+
+    for (auto w : windowSizeManager_->windows()) {
+        w->setMaximumHeight(maxHeight);
+    }
 }

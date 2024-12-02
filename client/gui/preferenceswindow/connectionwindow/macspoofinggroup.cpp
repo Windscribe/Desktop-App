@@ -89,10 +89,10 @@ void MacSpoofingGroup::onInterfaceItemChanged(const QVariant &value)
     {
         settings_.macAddress = NetworkUtils::generateRandomMacAddress();
         macAddressItem_->setMacAddress(settings_.macAddress);
-        qCDebug(LOG_BASIC) << "Automatically generated a MAC address: " << settings_.macAddress;
+        qCInfo(LOG_BASIC) << "Automatically generated a MAC address: " << settings_.macAddress;
     }
 
-    qCDebug(LOG_USER) << "Changed MAC Spoof Interface Selection: " << settings_.selectedNetworkInterface.interfaceName;
+    qCInfo(LOG_USER) << "Changed MAC Spoof Interface Selection: " << settings_.selectedNetworkInterface.interfaceName;
     emit macAddrSpoofingChanged(settings_);
 }
 
@@ -102,7 +102,7 @@ void MacSpoofingGroup::onCycleMacAddressClick()
         if (curNetwork_.interfaceIndex != -1) {
             emit cycleMacAddressClick();
         } else {
-            qCDebug(LOG_BASIC) << "Cannot spoof on 'No Interface'";
+            qCInfo(LOG_BASIC) << "Cannot spoof on 'No Interface'";
             GeneralMessageController::instance().showMessage(
                 "ERROR_ICON",
                 tr("Cannot spoof on 'No Interface'"),
@@ -116,7 +116,7 @@ void MacSpoofingGroup::onCycleMacAddressClick()
                 GeneralMessage::kFromPreferences);
         }
     } else {
-        qCDebug(LOG_BASIC) << "Cannot spoof the current interface -- must match selected interface";
+        qCInfo(LOG_BASIC) << "Cannot spoof the current interface -- must match selected interface";
         GeneralMessageController::instance().showMessage(
             "ERROR_ICON",
             tr("Cannot spoof the current interface"),

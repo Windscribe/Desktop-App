@@ -247,14 +247,6 @@
         <translation>Anahtar sınırı davranışı ayarlandı.</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Giriş devam ediyor.  Durumu kontrol etmek için &apos;windscribe-cli status&apos; komutunu kullanın.</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Oturum kapatma işlemi devam ediyor.  Durumu kontrol etmek için &apos;windscribe-cli status&apos; komutunu kullanın.</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>Bağlantı başka bir komut tarafından geçersiz kılındı.</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>Oturumu kapatma</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>2FA koduna ihtiyacınız var</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>Yanlış 2FA kodu</translation>
     </message>
 </context>
 </TS>

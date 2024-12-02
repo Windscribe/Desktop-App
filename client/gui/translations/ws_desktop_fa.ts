@@ -818,6 +818,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  اگر در یک شبکه محدود کننده هستید، لطفا قبل از تلاش مجدد دانلود، VPN را وصل کنید.</translation>
     </message>
+    <message>
+        <source>Custom Config Directory Import</source>
+        <translation>ایمپورت دایرکتوری پیکربندی سفارشی</translation>
+    </message>
+    <message>
+        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
+        <translation>یک دایرکتوری پیکربندی سفارشی در حال وارد شدن است.  Windscribe رمز عبور مدیریت شما را برای بررسی مجوزهای صحیح درخواست می کند.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1854,6 +1862,10 @@ Connect to a network first</source>
     <message>
         <source>At least 8 characters</source>
         <translation>حداقل 8 کاراکتر</translation>
+    </message>
+    <message>
+        <source>To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode.</source>
+        <translation>برای روشن کردن هات اسپات امن، لطفا تونل تقسیم شده را خاموش کنید یا از حالت انحصاری استفاده کنید.</translation>
     </message>
 </context>
 <context>

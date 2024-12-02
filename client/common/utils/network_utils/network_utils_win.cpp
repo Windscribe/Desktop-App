@@ -42,7 +42,7 @@ static QList<IfTableRow> getIfTable()
     DWORD dwSize = 0;
     auto result = GetIfTable(NULL, &dwSize, FALSE);
     if (result != ERROR_INSUFFICIENT_BUFFER) {
-        qCDebug(LOG_BASIC) << "Initial GetIfTable unexpected failure:" << result;
+        qCCritical(LOG_BASIC) << "Initial GetIfTable unexpected failure:" << result;
         return table;
     }
 
@@ -52,7 +52,7 @@ static QList<IfTableRow> getIfTable()
     // Make a second call to GetIfTable to get the actual data we want.
     result = GetIfTable(pIfTable, &dwSize, FALSE);
     if (result != NO_ERROR) {
-        qCDebug(LOG_BASIC) << "GetIfTable failed with error:" << result;
+        qCCritical(LOG_BASIC) << "GetIfTable failed with error:" << result;
         return table;
     }
 
@@ -105,7 +105,7 @@ static QList<IfTable2Row> getIfTable2()
     PMIB_IF_TABLE2 pIfTable2;
     auto result = GetIfTable2(&pIfTable2);
     if (result != NO_ERROR) {
-        qCDebug(LOG_BASIC) << "GetIfTable2 failed:" << result;
+        qCCritical(LOG_BASIC) << "GetIfTable2 failed:" << result;
         return if2Table;
     }
 
@@ -240,7 +240,7 @@ static QList<IpForwardRow> getIpForwardTable()
     auto result = GetIpForwardTable(NULL, &dwSize, 0);
     if (result != ERROR_INSUFFICIENT_BUFFER) {
         if (result != ERROR_NO_DATA) {
-            qCDebug(LOG_BASIC) << "Initial GetIpForwardTable unexpected failure:" << result;
+            qCCritical(LOG_BASIC) << "Initial GetIpForwardTable unexpected failure:" << result;
         }
         return forwardTable;
     }
@@ -253,7 +253,7 @@ static QList<IpForwardRow> getIpForwardTable()
      */
     result = GetIpForwardTable(pIpForwardTable, &dwSize, 0);
     if (result != NO_ERROR) {
-        qCDebug(LOG_BASIC) << "GetIpForwardTable failed:" << result;
+        qCCritical(LOG_BASIC) << "GetIpForwardTable failed:" << result;
         return forwardTable;
     }
 
@@ -319,12 +319,12 @@ static QList<AdapterAddress> getAdapterAddressesTable()
     }
     else {
         if (result == ERROR_NO_DATA) {
-            qCDebug(LOG_BASIC) << "getAdapterAddressesTable: GetAdaptersAddresses returned no addresses for the requested parameters";
+            qCWarning(LOG_BASIC) << "getAdapterAddressesTable: GetAdaptersAddresses returned no addresses for the requested parameters";
         }
         else {
             wchar_t strErr[1024];
             WinUtils::Win32GetErrorString(result, strErr, _countof(strErr));
-            qCDebug(LOG_BASIC) << "getAdapterAddressesTable: GetAdaptersAddresses failed (" << result << ")" << strErr;
+            qCCritical(LOG_BASIC) << "getAdapterAddressesTable: GetAdaptersAddresses failed (" << result << ")" << strErr;
         }
     }
 
@@ -341,7 +341,7 @@ static QString networkNameFromInterfaceGUID(QString adapterGUID)
                                   CLSCTX_ALL, IID_INetworkListManager,
                                   (LPVOID *)&pNetListManager);
     if (FAILED(hr)) {
-        qCDebug(LOG_BASIC) << "Failed to create CLSID_NetworkListManager:" << hr;
+        qCCritical(LOG_BASIC) << "Failed to create CLSID_NetworkListManager:" << hr;
         return result;
     }
 
@@ -595,7 +595,7 @@ std::optional<bool> NetworkUtils_win::haveInternetConnectivity()
     HRESULT res = ::CoCreateInstance(CLSID_NetworkListManager, NULL, CLSCTX_ALL,
                                      IID_INetworkListManager, reinterpret_cast<void**>(&mgr));
     if (res != S_OK) {
-        qCDebug(LOG_BASIC) << "haveInternetConnectivity: could not create an INetworkListManager instance" << HRESULT_CODE(res);
+        qCCritical(LOG_BASIC) << "haveInternetConnectivity: could not create an INetworkListManager instance" << HRESULT_CODE(res);
         return std::nullopt;
     }
 
@@ -609,7 +609,7 @@ std::optional<bool> NetworkUtils_win::haveInternetConnectivity()
     res = mgr->GetConnectivity(&connectivity);
 
     if (res != S_OK) {
-        qCDebug(LOG_BASIC) << "haveInternetConnectivity: GetConnectivity failed" << HRESULT_CODE(res);
+        qCCritical(LOG_BASIC) << "haveInternetConnectivity: GetConnectivity failed" << HRESULT_CODE(res);
         return std::nullopt;
     }
 

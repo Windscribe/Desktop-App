@@ -30,7 +30,7 @@ std::vector<std::wstring> getOSDefaultDnsServers_NMCLI()
 
     if (strReply.isEmpty())
     {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Can't get OS default DNS list: probably the nmcli utility (network-manager package) is not installed";
+        qCWarning(LOG_FIREWALL_CONTROLLER) << "Can't get OS default DNS list: probably the nmcli utility (network-manager package) is not installed";
         return dnsServers;
     }
 
@@ -65,7 +65,7 @@ std::vector<std::wstring> getOSDefaultDnsServers_Resolvectl()
 
     if (strReply.isEmpty())
     {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Can't get OS default DNS list: resolvectl return empty string";
+        qCWarning(LOG_FIREWALL_CONTROLLER) << "Can't get OS default DNS list: resolvectl return empty string";
         return dnsServers;
     }
 

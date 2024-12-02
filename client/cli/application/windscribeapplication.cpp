@@ -31,7 +31,7 @@ void WindscribeApplication::onSigTerm()
     socketNotifier_->setEnabled(false);
     char tmp;
     if (::read(fd_, &tmp, sizeof(tmp)) < 0) {
-        qCDebug(LOG_BASIC) << "Could not read from signal socket";
+        qCCritical(LOG_BASIC) << "Could not read from signal socket";
         return;
     }
 

@@ -22,12 +22,12 @@ bool HttpProxyServer::startServer(quint16 port)
 
     if (listen(QHostAddress::AnyIPv4, port))
     {
-        qCDebug(LOG_HTTP_SERVER) << "Http proxy server started on port" << serverPort();
+        qCInfo(LOG_HTTP_SERVER) << "Http proxy server started on port" << serverPort();
         return true;
     }
     else
     {
-        qCDebug(LOG_HTTP_SERVER) << "Can't start http proxy server on port" << port;
+        qCCritical(LOG_HTTP_SERVER) << "Can't start http proxy server on port" << port;
         return false;
     }
 }
@@ -36,7 +36,7 @@ void HttpProxyServer::stopServer()
 {
     if (isListening())
     {
-        qCDebug(LOG_HTTP_SERVER) << "Http proxy server stopped on port" << serverPort();
+        qCInfo(LOG_HTTP_SERVER) << "Http proxy server stopped on port" << serverPort();
         close();
     }
     connectionManager_->stop();

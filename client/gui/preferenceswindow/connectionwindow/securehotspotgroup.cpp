@@ -106,6 +106,9 @@ void SecureHotspotGroup::updateDescription()
         case HOTSPOT_SUPPORTED:
             setDescription(tr("Share your secure Windscribe connection wirelessly."));
             break;
+        case HOTSPOT_NOT_SUPPORTED_BY_INCLUSIVE_SPLIT_TUNNELING:
+            setDescription(tr("To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode."));
+            break;
     }
 }
 

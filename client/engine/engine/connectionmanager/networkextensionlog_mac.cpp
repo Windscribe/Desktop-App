@@ -32,17 +32,17 @@ QMap<time_t, QString> NetworkExtensionLog_mac::collectLogs(const QDateTime &star
     QJsonParseError errCode;
     const QJsonDocument doc = QJsonDocument::fromJson(answer.toLocal8Bit(), &errCode);
     if (errCode.error != QJsonParseError::NoError || !doc.isArray()) {
-        qCDebug(LOG_NETWORK_EXTENSION_MAC) << "Can't parse json from log command";
+        qCCritical(LOG_NETWORK_EXTENSION_MAC) << "Can't parse json from log command";
         return logs;
     }
     for (const QJsonValue &value : doc.array()) {
         QJsonObject jsonObj = value.toObject();
         if (!jsonObj.contains("machTimestamp")) {
-            qCDebug(LOG_NETWORK_EXTENSION_MAC) << "Can't parse json from log command (no field machTimestamp)";
+            qCCritical(LOG_NETWORK_EXTENSION_MAC) << "Can't parse json from log command (no field machTimestamp)";
             break;
         }
         if (!jsonObj.contains("eventMessage")) {
-            qCDebug(LOG_NETWORK_EXTENSION_MAC) << "Can't parse json from log command (no field eventMessage)";
+            qCCritical(LOG_NETWORK_EXTENSION_MAC) << "Can't parse json from log command (no field eventMessage)";
             break;
         }
 

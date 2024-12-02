@@ -51,7 +51,7 @@ const QString getLastInstallPlatform()
 
     if (!QFile::exists(LAST_INSTALL_PLATFORM_FILE))
     {
-        qCDebug(LOG_BASIC) << "Couldn't find previous install platform file: " << LAST_INSTALL_PLATFORM_FILE;
+        qCInfo(LOG_BASIC) << "Couldn't find previous install platform file: " << LAST_INSTALL_PLATFORM_FILE;
         return "";
     }
 
@@ -59,7 +59,7 @@ const QString getLastInstallPlatform()
 
     if (!lastInstallPlatform.open(QIODevice::ReadOnly))
     {
-        qCDebug(LOG_BASIC) << "Couldn't open previous install platform file: " << LAST_INSTALL_PLATFORM_FILE;
+        qCInfo(LOG_BASIC) << "Couldn't open previous install platform file: " << LAST_INSTALL_PLATFORM_FILE;
         return "";
     }
 
@@ -81,7 +81,7 @@ QMap<QString, QString> enumerateInstalledPrograms()
 
     // On Linux, we are looking for desktop entries. These are located under the applications dir at ~/.local/share, and each dir in $XDG_DATA_DIRS
     QStringList dirs = QString::fromLocal8Bit(qgetenv("XDG_DATA_DIRS")).split(":");
-    dirs.prepend(QDir::homePath() + ".local/share");
+    dirs.prepend(QDir::homePath() + "/.local/share");
 
     for (auto dir : dirs) {
         for (auto filename : QDir(dir + "/applications").entryList(QStringList("*.desktop"), QDir::Files)) {
@@ -168,7 +168,8 @@ QString extractExeName(const QString &execLine)
         }
 
         // ignore other lines with '='; they either set environment variables or are arguments
-        if (block.contains("=")) {
+        // ignore 'env', since this is often used to set environement variables before the actual command
+        if (block.contains("=") || block == "env") {
             continue;
         }
 

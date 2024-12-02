@@ -51,8 +51,6 @@ void CustomMenuLineEdit::changeEvent(QEvent *event)
 
 void CustomMenuLineEdit::keyPressEvent(QKeyEvent *event)
 {
-    // qCDebug(LOG_USER) << "CusomMenuLineEdit::keyPressEvent";
-
     BlockableQLineEdit::keyPressEvent(event);
 }
 

@@ -27,6 +27,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     setSpacerHeight(PREFERENCES_MARGIN);
 
     connect(preferences, &Preferences::splitTunnelingChanged, this, &ConnectionWindowItem::onSplitTunnelingPreferencesChanged);
+    connect(preferences, &Preferences::splitTunnelingChanged, this, &ConnectionWindowItem::onUpdateIsSecureHotspotSupported);
     connect(preferences, &Preferences::firewallSettingsChanged, this, &ConnectionWindowItem::onFirewallPreferencesChanged);
     connect(preferences, &Preferences::connectionSettingsChanged, this, &ConnectionWindowItem::onConnectionModePreferencesChanged);
     connect(preferences, &Preferences::packetSizeChanged, this, &ConnectionWindowItem::onPacketSizePreferencesChanged);
@@ -143,7 +144,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
                                                  QString("https://%1/features/secure-hotspot").arg(HardcodedSettings::instance().windscribeServerUrl()));
     connect(secureHotspotGroup_, &SecureHotspotGroup::secureHotspotPreferencesChanged, this, &ConnectionWindowItem::onSecureHotspotPreferencesChangedByUser);
     secureHotspotGroup_->setSecureHotspotSettings(preferences->shareSecureHotspot());
-    updateIsSecureHotspotSupported();
+    onUpdateIsSecureHotspotSupported();
     addItem(secureHotspotGroup_);
 #endif
 
@@ -400,8 +401,6 @@ void ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser(const types::C
 
 void ConnectionWindowItem::hideOpenPopups()
 {
-    // qCDebug(LOG_PREFERENCES) << "Hiding Connection popups";
-
     CommonGraphics::BasePage::hideOpenPopups();
 }
 
@@ -459,12 +458,12 @@ void ConnectionWindowItem::onProxyGatewayPreferencesChanged(const types::SharePr
 
 void ConnectionWindowItem::onPreferencesHelperWifiSharingSupportedChanged(bool bSupported)
 {
-    updateIsSecureHotspotSupported();
+    onUpdateIsSecureHotspotSupported();
 }
 
 void ConnectionWindowItem::onPreferencesHelperCurrentProtocolChanged(const types::Protocol &protocol)
 {
-    updateIsSecureHotspotSupported();
+    onUpdateIsSecureHotspotSupported();
 }
 
 bool ConnectionWindowItem::isIkev2(const types::ConnectionSettings &cs) const
@@ -472,7 +471,7 @@ bool ConnectionWindowItem::isIkev2(const types::ConnectionSettings &cs) const
     return cs.protocol() == types::Protocol::IKEV2;
 }
 
-void ConnectionWindowItem::updateIsSecureHotspotSupported()
+void ConnectionWindowItem::onUpdateIsSecureHotspotSupported()
 {
 #if defined(Q_OS_WIN)
     if (secureHotspotGroup_) {
@@ -480,6 +479,8 @@ void ConnectionWindowItem::updateIsSecureHotspotSupported()
             secureHotspotGroup_->setSupported(SecureHotspotGroup::HOTSPOT_NOT_SUPPORTED);
         } else if (preferencesHelper_->currentProtocol().isIkev2Protocol()) {
             secureHotspotGroup_->setSupported(SecureHotspotGroup::HOTSPOT_NOT_SUPPORTED_BY_IKEV2);
+        } else if (preferences_->splitTunneling().settings.active && preferences_->splitTunneling().settings.mode == SPLIT_TUNNELING_MODE_INCLUDE) {
+            secureHotspotGroup_->setSupported(SecureHotspotGroup::HOTSPOT_NOT_SUPPORTED_BY_INCLUSIVE_SPLIT_TUNNELING);
         } else {
             secureHotspotGroup_->setSupported(SecureHotspotGroup::HOTSPOT_SUPPORTED);
         }

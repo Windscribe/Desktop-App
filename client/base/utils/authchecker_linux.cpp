@@ -24,14 +24,13 @@ AuthCheckerError AuthChecker_linux::authenticate()
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(authHelperPath.toStdString()))
     {
-        qCDebug(LOG_AUTH_HELPER) << "Failed to verify AuthHelper, executable may be corrupted: " << QString::fromStdString(sigCheck.lastError());
+        qCCritical(LOG_AUTH_HELPER) << "Failed to verify AuthHelper, executable may be corrupted: " << QString::fromStdString(sigCheck.lastError());
         return AuthCheckerError::AUTH_HELPER_ERROR;
     }
 
     QStringList args;
     args << authHelperPath;
 
-    // qCDebug(LOG_AUTH_HELPER) << "Authenticating...";
     process_->start("/usr/bin/pkexec", args);
     process_->waitForFinished(-1);
 
@@ -42,7 +41,7 @@ AuthCheckerError AuthChecker_linux::authenticate()
         return AuthCheckerError::AUTH_NO_ERROR;
     }
 
-    qCDebug(LOG_AUTH_HELPER) << "Failed to authenticate: " << process_->exitStatus()
+    qCCritical(LOG_AUTH_HELPER) << "Failed to authenticate: " << process_->exitStatus()
                              << ", code: " << process_->exitCode()
                              << ", error: " << process_->error();
     return AuthCheckerError::AUTH_AUTHENTICATION_ERROR;

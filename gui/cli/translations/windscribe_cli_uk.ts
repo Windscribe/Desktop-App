@@ -247,14 +247,6 @@
         <translation>Встановлено поведінку ліміту ключів.</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Вхід триває.  Використовуйте &apos;windscribe-cli status&apos;, щоб перевірити статус.</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>Виконується вихід із системи.  Використовуйте &apos;windscribe-cli status&apos;, щоб перевірити статус.</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>З&apos;єднання було перевизначено іншою командою.</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>Вихід із системи</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>Потрібен код 2FA</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>Неправильний код 2FA</translation>
     </message>
 </context>
 </TS>

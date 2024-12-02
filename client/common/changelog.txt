@@ -1,3 +1,24 @@
+2.13.3 (02/12/2024)
+All:
+   * Improved logs in the client. #1184
+   * Improved login/logout CLI flow. #1181
+   * Improved UX and performance when dragging windows to different screens. #1207
+   * Fixed missing null checks. #1172
+   * Fixed a potential program quit hang [wsnet]. #1198
+   * Fixed custom config path not checked when importing preferences. #1206
+Windows:
+   * Fixed window can't be dragged to a screen above the initial screen. #1203
+   * Fixed window is invisible when app is docked and device pixel ratio is not 1. #1204
+   * Removed ability to use Secure Hotspot together with inclusive split tunneling. #1174
+MacOS:
+   * Fixed symlink target for windscribe-cli. #1186
+   * Fixed additional 'Start Minimized' use cases. #1193
+Linux:
+   * Improved split tunneling apps list population, based on contributions from GitHub user intangir. #1205
+   * Fixed incorrect usage of nmcli in the CLI client. #1202
+   * Fixed incorrect log names for CLI client. #1202
+
+
 2.13.2 (20/11/2024)
 All:
    * Added IPv6 support for split tunneling. #1111

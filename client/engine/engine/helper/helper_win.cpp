@@ -48,7 +48,7 @@ void Helper_win::startInstallHelper()
     QString serviceExePath = QCoreApplication::applicationDirPath() + "/WindscribeService.exe";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(serviceExePath.toStdWString())) {
-        qCDebug(LOG_BASIC) << "WindscribeService signature incorrect: " << QString::fromStdString(sigCheck.lastError());
+        qCCritical(LOG_BASIC) << "WindscribeService signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         curState_ = STATE_USER_CANCELED;
         return;
     }
@@ -348,7 +348,7 @@ bool Helper_win::executeTaskKill(CmdKillTarget target)
     if (mpr.success && mpr.exitCode != 0) {
         QString result = QString::fromStdString(mpr.additionalString).trimmed();
         if (!result.startsWith("ERROR: The process") && !result.endsWith("not found.")) {
-            qCDebug(LOG_BASIC) << QString("executeTaskKill(%1) failed: %2").arg(target).arg(result);
+            qCWarning(LOG_BASIC) << QString("executeTaskKill(%1) failed: %2").arg(target).arg(result);
         }
     }
 
@@ -472,7 +472,7 @@ void Helper_win::closeAllTcpConnections(bool isKeepLocalSockets)
     boost::archive::text_oarchive oa(stream, boost::archive::no_header);
     oa << cmdCloseTcpConnections;
 
-    qCDebug(LOG_BASIC) << "Close all active TCP connections (keepLocalSockets = "
+    qCInfo(LOG_BASIC) << "Close all active TCP connections (keepLocalSockets = "
                        << cmdCloseTcpConnections.isKeepLocalSockets << ")";
     sendCmdToHelper(AA_COMMAND_CLOSE_TCP_CONNECTIONS, stream.str());
 }
@@ -648,10 +648,10 @@ bool Helper_win::makeHostsFileWritable()
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_MAKE_HOSTS_FILE_WRITABLE, "");
     if (mpr.success) {
-        qCDebug(LOG_BASIC) << "\"hosts\" file is writable now.";
+        qCInfo(LOG_BASIC) << "\"hosts\" file is writable now.";
     }
     else {
-        qCDebug(LOG_BASIC) << "Was not able to change \"hosts\" file permissions from read-only.";
+        qCWarning(LOG_BASIC) << "Was not able to change \"hosts\" file permissions from read-only.";
     }
     return mpr.success;
 }
@@ -674,7 +674,7 @@ void Helper_win::run()
         curState_ = STATE_CONNECTED;
     }
     catch (std::system_error& ex) {
-        qCDebug(LOG_BASIC) << "Helper_win::run -" << ex.what();
+        qCCritical(LOG_BASIC) << "Helper_win::run -" << ex.what();
         curState_ = STATE_FAILED_CONNECT;
     }
 
@@ -691,7 +691,7 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
         DWORD flags;
         BOOL result = ::GetNamedPipeInfo(helperPipe_.getHandle(), &flags, NULL, NULL, NULL);
         if (result == FALSE) {
-            qCDebug(LOG_BASIC) << "Reconnecting helper pipe as existing handle instance is invalid" << ::GetLastError();
+            qCCritical(LOG_BASIC) << "Reconnecting helper pipe as existing handle instance is invalid" << ::GetLastError();
             helperPipe_.closeHandle();
         }
     }

@@ -108,7 +108,7 @@ bool WireGuardConnection::isDisconnected() const
         }
     }
     catch (std::system_error& ex) {
-        qCDebug(LOG_CONNECTION) << "WireGuardConnection::isDisconnected -" << ex.what();
+        qCWarning(LOG_CONNECTION) << "WireGuardConnection::isDisconnected -" << ex.what();
     }
 
     return (dwStatus == SERVICE_STOPPED || dwStatus == SERVICE_STOP_PENDING);
@@ -124,7 +124,7 @@ void WireGuardConnection::run()
     IHelper::ExecuteError err = helper_->startWireGuard();
     if (err != IHelper::EXECUTE_SUCCESS)
     {
-        qCDebug(LOG_CONNECTION) << "Windscribe service could not install the WireGuard service";
+        qCCritical(LOG_CONNECTION) << "Windscribe service could not install the WireGuard service";
         emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
         emit disconnected();
         return;
@@ -203,7 +203,7 @@ void WireGuardConnection::run()
     }
 
     if (!helper_->stopWireGuard()) {
-        qCDebug(LOG_CONNECTION) << "WireGuardConnection::run - windscribe service failed to stop the WireGuard service instance";
+        qCCritical(LOG_CONNECTION) << "WireGuardConnection::run - windscribe service failed to stop the WireGuard service instance";
     }
 
     stopWireGuard.dismiss();
@@ -232,7 +232,7 @@ void WireGuardConnection::stop()
     if (stopThreadEvent_.isValid()) {
         BOOL result = ::SetEvent(stopThreadEvent_.getHandle());
         if (result == FALSE) {
-            qCDebug(LOG_CONNECTION) << "WireGuardConnection::stop - SetEvent failed:" << ::GetLastError();
+            qCCritical(LOG_CONNECTION) << "WireGuardConnection::stop - SetEvent failed:" << ::GetLastError();
         }
     }
 }
@@ -240,7 +240,7 @@ void WireGuardConnection::stop()
 void WireGuardConnection::onCheckServiceRunning()
 {
     if (isDisconnected()) {
-        qCDebug(LOG_CONNECTION) << "The WireGuard service has stopped unexpectedly";
+        qCWarning(LOG_CONNECTION) << "The WireGuard service has stopped unexpectedly";
         stop();
     }
 }
@@ -293,7 +293,7 @@ void WireGuardConnection::onWireguardHandshakeFailure()
 {
     auto haveInternet = NetworkUtils_win::haveInternetConnectivity();
     if (!haveInternet.has_value()) {
-        qCDebug(LOG_CONNECTION) << "The WireGuard service reported a handshake failure, but the Internet connectivity check failed.";
+        qCWarning(LOG_CONNECTION) << "The WireGuard service reported a handshake failure, but the Internet connectivity check failed.";
         return;
     }
 
@@ -306,13 +306,13 @@ void WireGuardConnection::onWireguardHandshakeFailure()
             qint64 secsTo = lastHandshake.secsTo(QDateTime::currentDateTimeUtc());
 
             if (secsTo >= 3*60) {
-                qCDebug(LOG_CONNECTION) << secsTo << "seconds have passed since the last WireGuard handshake, disconnecting the tunnel.";
+                qCWarning(LOG_CONNECTION) << secsTo << "seconds have passed since the last WireGuard handshake, disconnecting the tunnel.";
                 stop();
             }
         }
     }
     else {
-        qCDebug(LOG_CONNECTION) << "The WireGuard service reported a handshake failure and Windows reports no Internet connectivity, disconnecting the tunnel.";
+        qCWarning(LOG_CONNECTION) << "The WireGuard service reported a handshake failure and Windows reports no Internet connectivity, disconnecting the tunnel.";
         stop();
     }
 }
@@ -364,7 +364,7 @@ bool WireGuardConnection::startService()
         } while (!startupDeadline.hasExpired());
     }
     catch (std::system_error& ex) {
-        qCDebug(LOG_CONNECTION) << ex.what();
+        qCCritical(LOG_CONNECTION) << ex.what();
     }
 
     return false;
@@ -379,7 +379,7 @@ void WireGuardConnection::stopService()
         scm.stopService();
     }
     catch (std::system_error& ex) {
-        qCDebug(LOG_CONNECTION) << ex.what();
+        qCCritical(LOG_CONNECTION) << ex.what();
     }
 }
 
@@ -435,7 +435,7 @@ void WireGuardConnection::resetLogReader()
     if (FAILED(hr)) {
         // It should be exceedingly rare for this API to fail.  If it does, we're going to assume the OS is installed
         // to the C drive, as we do elsewhere in the app, and proceed with the connection startup.
-        qCDebug(LOG_CONNECTION) << "WireGuardConnection::resetLogReader - SHGetKnownFolderPath failed to get Program Files dir:" << HRESULT_CODE(hr);
+        qCCritical(LOG_CONNECTION) << "WireGuardConnection::resetLogReader - SHGetKnownFolderPath failed to get Program Files dir:" << HRESULT_CODE(hr);
         logFile = "C:\\Program Files";
     } else {
         logFile = QString::fromWCharArray(programFilesPath);

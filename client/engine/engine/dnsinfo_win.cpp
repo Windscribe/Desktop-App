@@ -11,7 +11,7 @@ namespace DnsInfo_win
 
 void outputDebugDnsInfo()
 {
-    qCDebug(LOG_BASIC) << "=== DNS Configuration begin ===";
+    qCInfo(LOG_BASIC) << "=== DNS Configuration begin ===";
 
     ULONG bufSize = sizeof(IP_ADAPTER_INFO) * 32;
     QByteArray adapterInfo(bufSize, Qt::Uninitialized);
@@ -25,10 +25,10 @@ void outputDebugDnsInfo()
 
     if (result != NO_ERROR) {
         if (result == ERROR_NO_DATA) {
-            qCDebug(LOG_BASIC) << "No adapters information is available";
+            qCWarning(LOG_BASIC) << "No adapters information is available";
         }
         else {
-            qCDebug(LOG_BASIC) << "GetAdaptersInfo failed:" << result;
+            qCCritical(LOG_BASIC) << "GetAdaptersInfo failed:" << result;
         }
     }
     else {
@@ -53,17 +53,17 @@ void outputDebugDnsInfo()
                         dnsIps += pAddrStr->IpAddress.String;
                         pAddrStr = pAddrStr->Next;
                     }
-                    qCDebug(LOG_BASIC) << pAdapter->Description << "(" << QString::fromStdString(dnsIps) << ")";
+                    qCInfo(LOG_BASIC) << pAdapter->Description << "(" << QString::fromStdString(dnsIps) << ")";
                 }
                 else {
-                    qCDebug(LOG_BASIC) << "GetPerAdapterInfo (" << pAdapter->Description << ") failed:" << result;
+                    qCWarning(LOG_BASIC) << "GetPerAdapterInfo (" << pAdapter->Description << ") failed:" << result;
                 }
             }
             pAdapter = pAdapter->Next;
         } while (pAdapter);
     }
 
-    qCDebug(LOG_BASIC) << "=== DNS Configuration end ===";
+    qCInfo(LOG_BASIC) << "=== DNS Configuration end ===";
 }
 
 }

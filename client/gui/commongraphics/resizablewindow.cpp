@@ -15,7 +15,8 @@ ResizableWindow::ResizableWindow(QGraphicsObject *parent, Preferences *preferenc
     setFlags(QGraphicsObject::ItemIsFocusable);
     installEventFilter(this);
 
-    minHeight_ = WINDOW_HEIGHT*G_SCALE;
+    minHeight_ = WINDOW_HEIGHT;
+    maxHeight_ = INT_MAX;
     curHeight_ = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? minHeight_ - kVanGoghOffset : minHeight_;
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
@@ -70,8 +71,32 @@ int ResizableWindow::minimumHeight()
     return preferences_->appSkin() == APP_SKIN_VAN_GOGH ? minHeight_ - kVanGoghOffset : minHeight_;
 }
 
+void ResizableWindow::setMaximumHeight(int height)
+{
+    if (height < minHeight_) {
+        height = minHeight_;
+    }
+    maxHeight_ = height;
+
+    if (curHeight_ > maxHeight_) {
+        setHeight(maxHeight_*G_SCALE);
+        emit sizeChanged(this);
+    }
+}
+
+int ResizableWindow::maximumHeight()
+{
+    return preferences_->appSkin() == APP_SKIN_VAN_GOGH ? maxHeight_ - kVanGoghOffset : maxHeight_;
+}
+
 void ResizableWindow::setHeight(int height)
 {
+    if (height < minimumHeight()*G_SCALE) {
+        height = minimumHeight()*G_SCALE;
+    } else if (height > maximumHeight()*G_SCALE) {
+        height = maximumHeight()*G_SCALE;
+    }
+
     prepareGeometryChange();
     curHeight_ = height;
     updatePositions();
@@ -90,9 +115,10 @@ void ResizableWindow::onResizeStarted()
 
 void ResizableWindow::onResizeChange(int y)
 {
-    int min = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? minHeight_ - kVanGoghOffset : minHeight_;
+    int min = minimumHeight();
+    int max = maximumHeight();
 
-    if ((heightAtResizeStart_ + y) >= min*G_SCALE) {
+    if ((heightAtResizeStart_ + y) >= min*G_SCALE && (heightAtResizeStart_ + y) <= max*G_SCALE) {
         prepareGeometryChange();
         curHeight_ = heightAtResizeStart_ + y;
         updatePositions();

@@ -13,7 +13,7 @@ MultipleAccountDetection_posix::MultipleAccountDetection_posix() : crypt_(0xFA72
 
 void MultipleAccountDetection_posix::userBecomeExpired(const QString &username)
 {
-    qCDebug(LOG_BASIC) << "MultipleAccountDetection::userBecomeExpired, username =" << username;
+    qCInfo(LOG_BASIC) << "MultipleAccountDetection::userBecomeExpired, username =" << username;
     MultipleAccountDetection_posix::TEntry entry;
 
     bool bNeedWrite = false;
@@ -28,7 +28,7 @@ void MultipleAccountDetection_posix::userBecomeExpired(const QString &username)
         entry.username_ = username;
         entry.date_ = QDate::currentDate();
         writeEntry(entry);
-        qCDebug(LOG_BASIC) << "Abuse detection: User session expired, created/updated entry in settings";
+        qCInfo(LOG_BASIC) << "Abuse detection: User session expired, created/updated entry in settings";
     }
 }
 
@@ -49,7 +49,7 @@ void MultipleAccountDetection_posix::removeEntry()
 {
     QSettings settings("Windscribe", "location");
     settings.remove(entryName_);
-    qCDebug(LOG_BASIC) << "Abuse detection: Entry for abuse detection removed";
+    qCInfo(LOG_BASIC) << "Abuse detection: Entry for abuse detection removed";
 }
 
 bool MultipleAccountDetection_posix::readEntry(MultipleAccountDetection_posix::TEntry &entry)

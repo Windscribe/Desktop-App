@@ -146,6 +146,9 @@ deploy_files:
         - vcruntime140.dll
         - vcruntime140_1.dll
       additional_files:
+        # If removing this file in the future, check that moving windows between^M
+        # screens of different resolutions still works without issue, since the^M
+        # below option fixes this behavior.^M
         - qt/qt.conf -> qt.conf
       libs:
         qt:

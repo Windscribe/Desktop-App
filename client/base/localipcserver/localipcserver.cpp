@@ -40,7 +40,7 @@ void LocalIPCServer::start()
     connect(server_, &IPC::Server::newConnection, this, &LocalIPCServer::onServerCallbackAcceptFunction);
 
     if (!server_->start()) {
-        qCDebug(LOG_CLI_IPC) << "Can't start IPC server for CLI";
+        qCCritical(LOG_CLI_IPC) << "Can't start IPC server for CLI";
     } else {
         qCDebug(LOG_CLI_IPC) << "IPC server for CLI started";
     }
@@ -150,7 +150,7 @@ void LocalIPCServer::onConnectionStateCallback(int state, IPC::Connection *conne
         connection->close();
         delete connection;
     } else if (state == IPC::CONNECTION_ERROR) {
-        qCDebug(LOG_BASIC) << "CLI disconnected from server with error";
+        qCWarning(LOG_BASIC) << "CLI disconnected from server with error";
         connections_.removeOne(connection);
         connection->close();
         delete connection;

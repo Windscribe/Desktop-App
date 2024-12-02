@@ -310,7 +310,7 @@ void CustomConfigLocationInfo::onDnsRequestFinished(const std::string &hostname,
                 strIps += ip + "; ";
             }
 
-            qCDebug(LOG_CONNECTION) << "Hostname:" << QString::fromStdString(hostname) << " resolved -> " << QString::fromStdString(strIps);
+            qCInfo(LOG_CONNECTION) << "Hostname:" << QString::fromStdString(hostname) << " resolved -> " << QString::fromStdString(strIps);
             remotes_[i].isResolved = true;
             break;
         }

@@ -24,10 +24,10 @@ bool FirewallController_linux::firewallOn(const QString &connectingIp, const QSe
     QMutexLocker locker(&mutex_);
     FirewallController::firewallOn(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig);
     if (isStateChanged()) {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count() + 1;
+        qCInfo(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count() + 1;
         return firewallOnImpl(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, latestStaticIpPorts_);
     } else if (forceUpdateInterfaceToSkip_) {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall changed due to interface-to-skip update";
+        qCInfo(LOG_FIREWALL_CONTROLLER) << "firewall changed due to interface-to-skip update";
         return firewallOnImpl(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, latestStaticIpPorts_);
     }
     return true;
@@ -38,7 +38,7 @@ bool FirewallController_linux::firewallOff()
     QMutexLocker locker(&mutex_);
     FirewallController::firewallOff();
     if (isStateChanged()) {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall off";
+        qCInfo(LOG_FIREWALL_CONTROLLER) << "firewall off";
         QString cmd;
 
         // remove IPv4 rules
@@ -49,7 +49,7 @@ bool FirewallController_linux::firewallOff()
 
         bool ret = helper_->clearFirewallRules(false);
         if (!ret) {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "Clear firewall rules unsuccessful:" << ret;
+            qCWarning(LOG_FIREWALL_CONTROLLER) << "Clear firewall rules unsuccessful:" << ret;
         }
         return true;
     }
@@ -79,7 +79,7 @@ bool FirewallController_linux::deleteWhitelistPorts()
 void FirewallController_linux::setInterfaceToSkip_posix(const QString &interfaceToSkip)
 {
     QMutexLocker locker(&mutex_);
-    qCDebug(LOG_BASIC) << "FirewallController_linux::setInterfaceToSkip_posix ->" << interfaceToSkip;
+    qCInfo(LOG_BASIC) << "FirewallController_linux::setInterfaceToSkip_posix ->" << interfaceToSkip;
     if (interfaceToSkip_ != interfaceToSkip) {
         interfaceToSkip_ = interfaceToSkip;
         forceUpdateInterfaceToSkip_ = true;
@@ -210,7 +210,7 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
 
         bool ret = helper_->setFirewallRules(kIpv4, "", "", rules.join("\n"));
         if (!ret) {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "Could not set v4 firewall rules:" << ret;
+            qCCritical(LOG_FIREWALL_CONTROLLER) << "Could not set v4 firewall rules:" << ret;
         }
     }
 
@@ -241,7 +241,7 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
 
         bool ret = helper_->setFirewallRules(kIpv6, "", "", rules.join("\n"));
         if (!ret) {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "Could not set v6 firewall rules:" << ret;
+            qCCritical(LOG_FIREWALL_CONTROLLER) << "Could not set v6 firewall rules:" << ret;
         }
     }
 
@@ -255,7 +255,7 @@ QStringList FirewallController_linux::getWindscribeRules(const QString &comment,
     QStringList outRules;
     bool ret = helper_->getFirewallRules(isIPv6 ? kIpv6 : kIpv4, "", "", rules);
     if (!ret) {
-      qCDebug(LOG_FIREWALL_CONTROLLER) << "Could not get firewall rules:" << ret;
+      qCWarning(LOG_FIREWALL_CONTROLLER) << "Could not get firewall rules:" << ret;
       return {};
     }
 
@@ -307,7 +307,7 @@ void FirewallController_linux::removeWindscribeRules(const QString &comment, boo
 
     bool ret = helper_->setFirewallRules(isIPv6 ? kIpv6 : kIpv4, "", "", rules.join("\n") + "\n");
     if (!ret) {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Could not remove windscribe rules:" << ret;
+        qCWarning(LOG_FIREWALL_CONTROLLER) << "Could not remove windscribe rules:" << ret;
     }
 }
 
@@ -318,7 +318,7 @@ QStringList FirewallController_linux::getLocalAddresses(const QString iface) con
     struct ifaddrs *cur;
 
     if (getifaddrs(&ifap)) {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Error: could not get local interface addresses";
+        qCCritical(LOG_FIREWALL_CONTROLLER) << "Error: could not get local interface addresses";
         return addrs;
     }
 
@@ -344,6 +344,7 @@ QStringList FirewallController_linux::getLocalAddresses(const QString iface) con
 // Return hotspot adapter name, or empty string if hotspot adapter not found on not connected
 QString FirewallController_linux::getHotspotAdapter() const
 {
+#ifndef CLI_ONLY
     QString strReply;
     FILE *file = popen("nmcli d | grep Hotspot", "r");
     if (file)
@@ -363,13 +364,14 @@ QString FirewallController_linux::getHotspotAdapter() const
     QStringList list = strReply.split(regExp, Qt::SkipEmptyParts);
     // must be 4 values
     if (list.count() != 4) {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Can't parse get hotspot adapter name function output:" << strReply;
+        qCCritical(LOG_FIREWALL_CONTROLLER) << "Can't parse get hotspot adapter name function output:" << strReply;
         return QString();
     }
 
     if (list[2].compare("connected", Qt::CaseInsensitive) == 0) {
         return list[0];
     }
+#endif
 
     return QString();
 }

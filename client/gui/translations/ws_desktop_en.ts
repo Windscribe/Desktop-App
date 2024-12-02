@@ -818,6 +818,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  If you are on a restrictive network, please connect the VPN before trying the download again.</translation>
     </message>
+    <message>
+        <source>Custom Config Directory Import</source>
+        <translation>Custom Config Directory Import</translation>
+    </message>
+    <message>
+        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
+        <translation>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1854,6 +1862,10 @@ Connect to a network first</translation>
     <message>
         <source>At least 8 characters</source>
         <translation>At least 8 characters</translation>
+    </message>
+    <message>
+        <source>To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode.</source>
+        <translation>To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode.</translation>
     </message>
 </context>
 <context>

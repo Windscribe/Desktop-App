@@ -99,7 +99,7 @@ std::string getFullCommand(const std::string &exePath, const std::string &execut
 #endif
 
     std::string fullCmd = std::string(canonicalPath) + "/" + executable + " " + arguments;
-    spdlog::debug("Resolved command: %s", fullCmd);
+    spdlog::debug("Resolved command: {}", fullCmd);
     free(canonicalPath);
 
     if (fullCmd.find_first_of(";|&`") != std::string::npos) {

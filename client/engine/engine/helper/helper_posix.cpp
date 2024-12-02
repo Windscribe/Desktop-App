@@ -321,7 +321,7 @@ bool Helper_posix::configureWireGuard(const WireGuardConfig &config)
 
     CMD_ANSWER answer;
     if (!runCommand(HELPER_CMD_CONFIGURE_WIREGUARD, stream.str(), answer) || answer.executed == 0) {
-        qCDebug(LOG_WIREGUARD) << "WireGuard configuration failed";
+        qCCritical(LOG_WIREGUARD) << "WireGuard configuration failed";
         doDisconnectAndReconnect();
         return false;
     }
@@ -402,7 +402,7 @@ bool Helper_posix::startCtrld(const QString &upstream1, const QString &upstream2
 
     CMD_ANSWER answer;
     if (!runCommand(HELPER_CMD_START_CTRLD, stream.str(), answer) || answer.executed == 0) {
-        qCDebug(LOG_BASIC) << "helper returned error starting ctrld";
+        qCCritical(LOG_BASIC) << "helper returned error starting ctrld";
         doDisconnectAndReconnect();
         return false;
     }
@@ -672,18 +672,18 @@ void Helper_posix::connectHandler(const boost::system::error_code &ec)
         if (!g_this_->bHelperConnectedEmitted_) {
             g_this_->bHelperConnectedEmitted_ = true;
         }
-        qCDebug(LOG_BASIC) << "connected to helper socket";
+        qCInfo(LOG_BASIC) << "connected to helper socket";
     } else {
         // only report the first error while connecting to helper in order to prevent log bloat
         // we want to see first error in case it is different than all following errors
         if (!g_this_->firstConnectToHelperErrorReported_) {
-            qCDebug(LOG_BASIC) << "Error while connecting to helper (first): " << ec.value();
+            qCWarning(LOG_BASIC) << "Error while connecting to helper (first): " << ec.value();
             g_this_->firstConnectToHelperErrorReported_ = true;
         }
 
         if (g_this_->reconnectElapsedTimer_.elapsed() > MAX_WAIT_HELPER) {
             if (!g_this_->bHelperConnectedEmitted_) {
-                qCDebug(LOG_BASIC) << "Error while connecting to helper: " << ec.value();
+                qCCritical(LOG_BASIC) << "Error while connecting to helper: " << ec.value();
                 g_this_->curState_ = STATE_FAILED_CONNECT;
             } else {
                 emit g_this_->lostConnectionToHelper();
@@ -703,7 +703,7 @@ void Helper_posix::doDisconnectAndReconnect()
 {
     if (!isRunning())
     {
-        qCDebug(LOG_BASIC) << "Disconnected from helper socket, try reconnect";
+        qCWarning(LOG_BASIC) << "Disconnected from helper socket, try reconnect";
         g_this_->curState_ = STATE_INIT;
         start(QThread::LowPriority);
     }

@@ -70,8 +70,8 @@ void AutoConnSettingsPolicy::reset()
 
 void AutoConnSettingsPolicy::debugLocationInfoToLog() const
 {
-    qCDebug(LOG_CONNECTION) << "Connection settings: automatic";
-    qCDebug(LOG_CONNECTION) << locationInfo_->getLogString();
+    qCInfo(LOG_CONNECTION) << "Connection settings: automatic";
+    qCInfo(LOG_CONNECTION) << locationInfo_->getLogString();
 }
 
 void AutoConnSettingsPolicy::putFailedConnection()

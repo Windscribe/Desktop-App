@@ -32,7 +32,7 @@ bool FirewallController_win::firewallOn(const QString &connectingIp, const QSet<
             ipStr = ipStr.remove(ipStr.length() - 1, 1);
         }
 
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count();
+        qCInfo(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count();
         return helper_win_->firewallOn(connectingIp, ipStr, bAllowLanTraffic, bIsCustomConfig);
     }
     else
@@ -47,7 +47,7 @@ bool FirewallController_win::firewallOff()
     FirewallController::firewallOff();
     if (isStateChanged())
     {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "firewall disabled";
+        qCInfo(LOG_FIREWALL_CONTROLLER) << "firewall disabled";
         return helper_win_->firewallOff();
     }
     else

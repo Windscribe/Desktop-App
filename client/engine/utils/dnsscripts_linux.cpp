@@ -87,7 +87,7 @@ DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::detectScript()
     // first method: based on check that the resolvconf utility is installed and it's not a symlink to something else (for example on Fedora it's symlink to resolvectl.
     if (isResolvConfInstalled && resolvConfSymlink == "/sbin/resolvconf")
     {
-        qCDebug(LOG_BASIC) << "The DNS installation method -> resolvconf";
+        qCInfo(LOG_BASIC) << "The DNS installation method -> resolvconf";
         return RESOLV_CONF;
     }
 
@@ -99,18 +99,18 @@ DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::detectScript()
         // relevant for Fedora
         if (isResolvConfInstalled && resolvConfSymlink.contains("resolvectl", Qt::CaseInsensitive))
         {
-            qCDebug(LOG_BASIC) << "The DNS installation method -> resolvconf";
+            qCInfo(LOG_BASIC) << "The DNS installation method -> resolvconf";
             return RESOLV_CONF;
         }
         else
         {
-            qCDebug(LOG_BASIC) << "The DNS installation method -> systemd-resolve";
+            qCInfo(LOG_BASIC) << "The DNS installation method -> systemd-resolve";
             return SYSTEMD_RESOLVED;
         }
     }
 
     // by default use NetworkManager script
-    qCDebug(LOG_BASIC) << "The DNS installation method -> NetworkManager";
+    qCInfo(LOG_BASIC) << "The DNS installation method -> NetworkManager";
     return NETWORK_MANAGER;
 }
 

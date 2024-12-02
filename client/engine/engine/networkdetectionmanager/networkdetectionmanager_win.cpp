@@ -44,13 +44,13 @@ void NetworkDetectionManager_win::applyMacAddressSpoof(int ifIndex, QString macA
     }
     else
     {
-        qCDebug(LOG_BASIC) << "Apply MacAddress Failed. Couldn't find adapter in Registry matching interface " << ifIndex;
+        qCWarning(LOG_BASIC) << "Apply MacAddress Failed. Couldn't find adapter in Registry matching interface " << ifIndex;
     }
 }
 
 void NetworkDetectionManager_win::removeMacAddressSpoof(int ifIndex)
 {
-    qCDebug(LOG_BASIC) << "Removing spoof on interface: " << ifIndex;
+    qCInfo(LOG_BASIC) << "Removing spoof on interface: " << ifIndex;
     QString interfaceSubkeyN = NetworkUtils_win::interfaceSubkeyName(ifIndex);
 
     if (interfaceSubkeyN != "")
@@ -59,13 +59,13 @@ void NetworkDetectionManager_win::removeMacAddressSpoof(int ifIndex)
     }
     else
     {
-        qCDebug(LOG_BASIC) << "Remove MacAddress failed. Couldn't find adapter in Registry matching interface " << ifIndex;
+        qCWarning(LOG_BASIC) << "Remove MacAddress failed. Couldn't find adapter in Registry matching interface " << ifIndex;
     }
 }
 
 void NetworkDetectionManager_win::resetAdapter(int ifIndex, bool bringBackUp)
 {
-    qCDebug(LOG_BASIC) << "Resetting interface: " << ifIndex;
+    qCInfo(LOG_BASIC) << "Resetting interface: " << ifIndex;
     QString subkeyName = NetworkUtils_win::interfaceSubkeyName(ifIndex);
 
     if (subkeyName != "")
@@ -74,7 +74,7 @@ void NetworkDetectionManager_win::resetAdapter(int ifIndex, bool bringBackUp)
     }
     else
     {
-        qCDebug(LOG_BASIC) << "Couldn't reset adapter -- No index matching adapter in Registry:" << ifIndex;
+        qCWarning(LOG_BASIC) << "Couldn't reset adapter -- No index matching adapter in Registry:" << ifIndex;
     }
 }
 
@@ -115,7 +115,7 @@ void NetworkDetectionManager_win::onNetworkChanged()
         }
         else
         {
-            qCDebug(LOG_BASIC) << "Network update skipped: unidentified network ("
+            qCInfo(LOG_BASIC) << "Network update skipped: unidentified network ("
                 << "valid =" << newNetworkInterface.isValid()
                 << "interface =" << newNetworkInterface.friendlyName
                 << "id =" << newNetworkInterface.interfaceIndex

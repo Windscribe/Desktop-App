@@ -21,7 +21,7 @@ MeasurementCpuUsage::MeasurementCpuUsage(QObject *parent, IHelper *helper, IConn
         connect(&timer_, &QTimer::timeout, this, &MeasurementCpuUsage::onTimer);
     }
     else {
-        qCDebug(LOG_BASIC) << "MeasurementCpuUsage - PdhOpenQuery failed: " << status;
+        qCCritical(LOG_BASIC) << "MeasurementCpuUsage - PdhOpenQuery failed: " << status;
         hQuery_ = NULL;
     }
 }
@@ -196,7 +196,7 @@ bool MeasurementCpuUsage::getPerformanceCounters()
                     }
                     if (IsErrorSeverity(status)) {
                         if (status != PDH_CSTATUS_NO_OBJECT && status != PDH_CSTATUS_NO_COUNTER) {
-                            qCDebug(LOG_BASIC) << "MeasurementCpuUsage::getPerformanceCounters failed to add counter for process" << processName << status;
+                            qCWarning(LOG_BASIC) << "MeasurementCpuUsage::getPerformanceCounters failed to add counter for process" << processName << status;
                         }
                     }
                 }

@@ -25,11 +25,7 @@ namespace log_utils {
 
 QString paths::clientLogLocation(bool previous)
 {
-#ifdef CLI_ONLY
-    return cliLogLocation(previous);
-#else
     return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + addPreviousSuffix("/client.log", previous);
-#endif
 }
 
 QString paths::cliLogLocation(bool previous)

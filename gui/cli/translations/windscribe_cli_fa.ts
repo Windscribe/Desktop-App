@@ -247,14 +247,6 @@
         <translation>رفتار حد کلید تنظیم شده است.</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>ورود در حال انجام است.  از «وضعیت windscribe-cli» برای بررسی وضعیت استفاده کنید.</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>خروج از سیستم در حال انجام است.  از «وضعیت windscribe-cli» برای بررسی وضعیت استفاده کنید.</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>اتصال توسط دستور دیگری لغو شده است.</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>خروج از سیستم</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>به کد 2FA نیاز دارید</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>کد 2FA نادرست</translation>
     </message>
 </context>
 </TS>

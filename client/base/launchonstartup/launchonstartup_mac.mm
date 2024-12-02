@@ -29,11 +29,11 @@ void LaunchOnStartup_mac::setLaunchOnStartup(bool enable)
 
     if (success)
     {
-        qCDebug(LOG_LAUNCH_ON_STARTUP) << "Successfully updated Launch on startup mode: " << enable;
+        qCInfo(LOG_LAUNCH_ON_STARTUP) << "Successfully updated Launch on startup mode: " << enable;
     }
     else
     {
-        qCDebug(LOG_LAUNCH_ON_STARTUP) << "Couldn't update launch on startup mode";
+        qCCritical(LOG_LAUNCH_ON_STARTUP) << "Couldn't update launch on startup mode";
     }
 }
 

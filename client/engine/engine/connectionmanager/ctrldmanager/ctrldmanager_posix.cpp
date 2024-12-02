@@ -21,7 +21,7 @@ bool CtrldManager_posix::runProcess(const QString &upstream1, const QString &ups
 
     if (helper_->startCtrld(addWsSuffix(upstream1), addWsSuffix(upstream2), domains, isCreateLog_)) {
         bProcessStarted_ = true;
-        qCDebug(LOG_CTRLD) << "ctrld started";
+        qCInfo(LOG_CTRLD) << "ctrld started";
     }
     return bProcessStarted_;
 }
@@ -31,7 +31,7 @@ void CtrldManager_posix::killProcess()
     if (bProcessStarted_) {
         bProcessStarted_ = false;
         helper_->stopCtrld();
-        qCDebug(LOG_CTRLD) << "ctrld stopped";
+        qCInfo(LOG_CTRLD) << "ctrld stopped";
     }
 }
 

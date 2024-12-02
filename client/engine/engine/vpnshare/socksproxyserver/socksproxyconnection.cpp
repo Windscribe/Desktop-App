@@ -141,7 +141,7 @@ void SocksProxyConnection::onSocketReadyRead()
             }
             else
             {
-                qCDebug(LOG_SOCKS_SERVER) << "SocksProxyConnection::onSocketReadyRead() unknown command:" << commandParser_.cmd().Cmd;
+                qCCritical(LOG_SOCKS_SERVER) << "SocksProxyConnection::onSocketReadyRead() unknown command:" << commandParser_.cmd().Cmd;
                 closeSocketsAndEmitFinished();
                 WS_ASSERT(false);
             }
@@ -152,7 +152,7 @@ void SocksProxyConnection::onSocketReadyRead()
         }
         else
         {
-            qCDebug(LOG_SOCKS_SERVER) << "SocksProxyConnection::onSocketReadyRead() incorrect input command packet";
+            qCCritical(LOG_SOCKS_SERVER) << "SocksProxyConnection::onSocketReadyRead() incorrect input command packet";
             closeSocketsAndEmitFinished();
             WS_ASSERT(false);
         }
@@ -164,7 +164,7 @@ void SocksProxyConnection::onSocketReadyRead()
     }
     else
     {
-        qCDebug(LOG_SOCKS_SERVER) << "SocksProxyConnection::onSocketReadyRead() unknown state:" << state_;
+        qCCritical(LOG_SOCKS_SERVER) << "SocksProxyConnection::onSocketReadyRead() unknown state:" << state_;
         closeSocketsAndEmitFinished();
         WS_ASSERT(false);
     }

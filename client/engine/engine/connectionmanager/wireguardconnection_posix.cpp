@@ -59,14 +59,14 @@ void WireGuardConnectionImpl::connect()
         {
             if (retry >= 2)
             {
-                qCDebug(LOG_WIREGUARD) << "Can't start WireGuard after" << retry << "retries";
+                qCCritical(LOG_WIREGUARD) << "Can't start WireGuard after" << retry << "retries";
                 host_->setError(WIREGUARD_CONNECTION_ERROR);
                 return;
             }
             ++retry;
             QThread::msleep(1000);
         }
-        qCDebug(LOG_WIREGUARD) << "WireGuard started after" << retry << "retries";
+        qCInfo(LOG_WIREGUARD) << "WireGuard started after" << retry << "retries";
         isStarted_ = true;
     }
 }
@@ -77,7 +77,7 @@ void WireGuardConnectionImpl::configure()
 
     // Configure the client and the peer.
     if (!host_->helper_->configureWireGuard(config_)) {
-        qCDebug(LOG_WIREGUARD) << "Failed to configure WireGuard";
+        qCCritical(LOG_WIREGUARD) << "Failed to configure WireGuard";
         host_->setError(WIREGUARD_CONNECTION_ERROR);
     }
 }
@@ -100,13 +100,13 @@ bool WireGuardConnectionImpl::stopWireGuard()
         int retry = 0;
         while (!host_->helper_->stopWireGuard()) {
             if (retry >= 4) {
-                qCDebug(LOG_WIREGUARD) << "Can't stop WireGuard daemon after" << retry << "retries";
+                qCCritical(LOG_WIREGUARD) << "Can't stop WireGuard daemon after" << retry << "retries";
                 return false;
             }
             ++retry;
             QThread::msleep(500);
         }
-        qCDebug(LOG_WIREGUARD) << "WireGuard daemon stopped after" << retry << "retries";
+        qCInfo(LOG_WIREGUARD) << "WireGuard daemon stopped after" << retry << "retries";
         isStarted_ = false;
     }
     return true;
@@ -221,7 +221,7 @@ void WireGuardConnection::run()
                 elapsedTimer.invalidate();
 
             if (!pimpl_->getStatus(&status)) {
-                qCDebug(LOG_WIREGUARD) << "Failed to get WireGuard status";
+                qCCritical(LOG_WIREGUARD) << "Failed to get WireGuard status";
                 pimpl_->disconnect();
                 break;
             }
@@ -231,7 +231,7 @@ void WireGuardConnection::run()
                 break;
             case types::WireGuardState::FAILURE:
                 // Error state.
-                qCDebug(LOG_WIREGUARD) << "WireGuard daemon error";
+                qCCritical(LOG_WIREGUARD) << "WireGuard daemon error";
                 do_stop_thread_ = true;
                 break;
             case types::WireGuardState::STARTING:
@@ -240,7 +240,7 @@ void WireGuardConnection::run()
             case types::WireGuardState::LISTENING:
                 // Accepting configuration.
                 if (!is_configured) {
-                    qCDebug(LOG_WIREGUARD) << "Configuring WireGuard...";
+                    qCInfo(LOG_WIREGUARD) << "Configuring WireGuard...";
                     is_configured = true;
                     pimpl_->configure();
                     emit interfaceUpdated(pimpl_->getAdapterName());
@@ -253,7 +253,7 @@ void WireGuardConnection::run()
             case types::WireGuardState::ACTIVE:
             {
                 if (!is_connected) {
-                    qCDebug(LOG_WIREGUARD) << "WireGuard daemon reported successful handshake";
+                    qCInfo(LOG_WIREGUARD) << "WireGuard daemon reported successful handshake";
                     is_connected = true;
                     setCurrentStateAndEmitSignal(WireGuardConnection::ConnectionState::CONNECTED);
                 }
@@ -280,9 +280,9 @@ void WireGuardConnection::run()
 
 void WireGuardConnection::onProcessKillTimeout()
 {
-    qCDebug(LOG_CONNECTION) << "WireGuard process not finished after "
+    qCWarning(LOG_CONNECTION) << "WireGuard process not finished after "
                             << PROCESS_KILL_TIMEOUT << "ms";
-    qCDebug(LOG_CONNECTION) << "kill the WireGuard process";
+    qCInfo(LOG_CONNECTION) << "kill the WireGuard process";
     kill_process_timer_.stop();
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
     helper_posix->executeTaskKill(kTargetWireGuard);

@@ -10,11 +10,11 @@ void DnsServersConfiguration::setDnsServersPolicy(DNS_POLICY_TYPE policy)
     ips = dnsPolicyTypeToStringList(policy);
     if (ips.isEmpty())
     {
-        qCDebug(LOG_BASIC) << "Changed DNS servers for DnsResolver to OS default";
+        qCInfo(LOG_BASIC) << "Changed DNS servers for DnsResolver to OS default";
     }
     else
     {
-        qCDebug(LOG_BASIC) << "Changed DNS servers for DnsResolver to:" << ips;
+        qCInfo(LOG_BASIC) << "Changed DNS servers for DnsResolver to:" << ips;
     }
 }
 

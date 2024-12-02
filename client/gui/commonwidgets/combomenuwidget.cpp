@@ -152,7 +152,6 @@ void ComboMenuWidget::onButtonClick()
 
     if (button != nullptr)
     {
-        // qCDebug(LOG_USER) << "ComboMenu item clicked: " << button->text();
         emit itemClicked(button->text(), button->data());
     }
 }
@@ -205,7 +204,6 @@ void ComboMenuWidget::paintEvent(QPaintEvent *event)
 
 void ComboMenuWidget::keyPressEvent(QKeyEvent *event)
 {
-    // qCDebug(LOG_USER) << "ComboMenu keypress: " << event->text();
     if (event->key() == Qt::Key_Escape)
     {
         hide();
@@ -219,7 +217,6 @@ void ComboMenuWidget::keyPressEvent(QKeyEvent *event)
 void ComboMenuWidget::hideEvent(QHideEvent *event)
 {
     Q_UNUSED(event)
-    // qCDebug(LOG_PREFERENCES) << "ComboMenu hide event";
     emit hidden();
 }
 
@@ -241,14 +238,12 @@ void ComboMenuWidget::wheelEvent(QWheelEvent *event)
 
     if (change > TRACKPAD_DELTA_THRESHOLD) // scroll up
     {
-        //qCDebug(LOG_USER) << "ComboMenu wheeling (up): " << event->delta();
         int newY = menuListPosY_ + TRACKPAD_DELTA_THRESHOLD; // moves inner down
         trackpadDeltaSum_ = change - TRACKPAD_DELTA_THRESHOLD;
         moveListPos(newY);
     }
     else if (change < -TRACKPAD_DELTA_THRESHOLD) // scroll down
     {
-        //qCDebug(LOG_USER) << "ComboMenu wheeling (down): " << event->delta();
         int newY = menuListPosY_ - TRACKPAD_DELTA_THRESHOLD; // moves inner up
         trackpadDeltaSum_ = change + TRACKPAD_DELTA_THRESHOLD;
         moveListPos(newY);

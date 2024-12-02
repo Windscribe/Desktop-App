@@ -102,14 +102,14 @@ bool WireGuardConfig::generateKeyPair()
     wsl::EvpPkeyCtx ctxKey(EVP_PKEY_CTX_new_id(EVP_PKEY_X25519, NULL));
 
     if (!ctxKey.isValid()) {
-        qCDebug(LOG_CONNECTION) << "WireGuardConfig::generateKeyPair - EVP_PKEY_CTX_new_id failed";
+        qCCritical(LOG_CONNECTION) << "WireGuardConfig::generateKeyPair - EVP_PKEY_CTX_new_id failed";
         return false;
     }
 
     int nResult = EVP_PKEY_keygen_init(ctxKey.context());
 
     if (nResult <= 0) {
-        qCDebug(LOG_CONNECTION) << "WireGuardConfig::generateKeyPair - EVP_PKEY_keygen_init failed:" << nResult;
+        qCCritical(LOG_CONNECTION) << "WireGuardConfig::generateKeyPair - EVP_PKEY_keygen_init failed:" << nResult;
         return false;
     }
 
@@ -117,7 +117,7 @@ bool WireGuardConfig::generateKeyPair()
     nResult = EVP_PKEY_keygen(ctxKey.context(), keyX25519.ppkey());
 
     if (nResult <= 0) {
-        qCDebug(LOG_CONNECTION) << "WireGuardConfig::generateKeyPair - EVP_PKEY_keygen failed:" << nResult;
+        qCCritical(LOG_CONNECTION) << "WireGuardConfig::generateKeyPair - EVP_PKEY_keygen failed:" << nResult;
         return false;
     }
 
@@ -126,7 +126,7 @@ bool WireGuardConfig::generateKeyPair()
     nResult = EVP_PKEY_get_raw_private_key(keyX25519.pkey(), keyBuf, &keyBufLen);
 
     if (nResult <= 0) {
-        qCDebug(LOG_CONNECTION) << "WireGuardConfig::generateKeyPair - EVP_PKEY_get_raw_private_key failed:" << nResult;
+        qCCritical(LOG_CONNECTION) << "WireGuardConfig::generateKeyPair - EVP_PKEY_get_raw_private_key failed:" << nResult;
         return false;
     }
 
@@ -136,7 +136,7 @@ bool WireGuardConfig::generateKeyPair()
     nResult = EVP_PKEY_get_raw_public_key(keyX25519.pkey(), keyBuf, &keyBufLen);
 
     if (nResult <= 0) {
-        qCDebug(LOG_CONNECTION) << "WireGuardConfig::generateKeyPair - EVP_PKEY_get_raw_public_key failed:" << nResult;
+        qCCritical(LOG_CONNECTION) << "WireGuardConfig::generateKeyPair - EVP_PKEY_get_raw_public_key failed:" << nResult;
         return false;
     }
 

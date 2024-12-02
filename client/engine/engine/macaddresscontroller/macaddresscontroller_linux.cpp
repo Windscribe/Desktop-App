@@ -11,6 +11,10 @@ MacAddressController_linux::MacAddressController_linux(QObject *parent, INetwork
     networkDetectionManager_ = dynamic_cast<NetworkDetectionManager_linux *>(ndManager);
     connect(networkDetectionManager_, &NetworkDetectionManager_linux::networkListChanged, this, &MacAddressController_linux::onNetworkListChanged);
     networkDetectionManager_->getCurrentNetworkInterface(lastInterface_);
+
+#ifdef CLI_ONLY
+    spoofInProgress_ = false;
+#endif
 }
 
 MacAddressController_linux::~MacAddressController_linux()
@@ -22,7 +26,7 @@ void MacAddressController_linux::initMacAddrSpoofing(const types::MacAddrSpoofin
     spoofing_ = spoofing;
 
     if (spoofing.isEnabled) {
-        enableSpoofing();
+        enableSpoofing(spoofing_.isAutoRotate);
     }
 }
 
@@ -32,12 +36,13 @@ void MacAddressController_linux::setMacAddrSpoofing(const types::MacAddrSpoofing
         return;
     }
 
-    qCDebug(LOG_BASIC) << "MacAddressController_linux::setMacAddrSpoofing MacAddrSpoofing has changed.";
-    qCDebug(LOG_BASIC) << spoofing;
+    qCInfo(LOG_BASIC) << "MacAddressController_linux::setMacAddrSpoofing MacAddrSpoofing has changed.";
+    qCInfo(LOG_BASIC) << spoofing;
 
     if (spoofing.isEnabled) {
+        bool autoRotateChanged = (spoofing_.isAutoRotate != spoofing.isAutoRotate);
         spoofing_ = spoofing;
-        enableSpoofing();
+        enableSpoofing(autoRotateChanged);
     } else if (spoofing_.isEnabled && !spoofing.isEnabled) {
         spoofing_ = spoofing;
         disableSpoofing();
@@ -53,14 +58,18 @@ void MacAddressController_linux::enableSpoofing(bool networkChanged)
 
     if (interface.interfaceIndex != spoofing_.selectedNetworkInterface.interfaceIndex) {
         // Current interface is not the spoofed interface, ignore
+#ifdef CLI_ONLY
+        helper_->resetMacAddresses(spoofing_.selectedNetworkInterface.interfaceName);
+#else
         helper_->resetMacAddresses(spoofing_.selectedNetworkInterface.networkOrSsid);
+#endif
         return;
     }
 
-    qCDebug(LOG_BASIC) << "Enabling spoofing" << (networkChanged ? "(network changed)" : "");
+    qCInfo(LOG_BASIC) << "Enabling spoofing" << (networkChanged ? "(network changed)" : "");
 
     if (networkChanged && spoofing_.isAutoRotate) {
-        qCDebug(LOG_BASIC) << "Applying auto rotate";
+        qCInfo(LOG_BASIC) << "Applying auto rotate";
         spoofing_.macAddress = NetworkUtils::generateRandomMacAddress();
         emit macAddrSpoofingChanged(spoofing_);
     } else {
@@ -68,7 +77,7 @@ void MacAddressController_linux::enableSpoofing(bool networkChanged)
             // MAC is already set correctly, do nothing.
             return;
         }
-        qCDebug(LOG_BASIC) << "Applying manual MAC address";
+        qCInfo(LOG_BASIC) << "Applying manual MAC address";
         if (spoofing_.macAddress.isEmpty()) {
             spoofing_.macAddress = NetworkUtils::generateRandomMacAddress();
             emit macAddrSpoofingChanged(spoofing_);
@@ -81,7 +90,7 @@ void MacAddressController_linux::enableSpoofing(bool networkChanged)
 
 void MacAddressController_linux::disableSpoofing()
 {
-    qCDebug(LOG_BASIC) << "Disabling spoofing";
+    qCInfo(LOG_BASIC) << "Disabling spoofing";
     removeSpoofs();
 }
 
@@ -111,14 +120,32 @@ void MacAddressController_linux::onNetworkListChanged(const QList<types::Network
 
         if (interface.interfaceIndex == lastInterface_.interfaceIndex && interface.networkOrSsid == lastInterface_.networkOrSsid) {
             // Same interface as before
+#ifdef CLI_ONLY
+            if (spoofInProgress_) {
+                spoofInProgress_ = false;
+            }
+#endif
             return;
         }
 
         if (interface.isNoNetworkInterface() || interface.networkOrSsid.isEmpty()) {
             // No interface or disconnected network
-            lastInterface_ = interface;
+#ifdef CLI_ONLY
+            // For CLI only, the helper brings down the interface, changes the MAC, and then brings it back up.  We ignore 'no interface' events until this is done.
+            if (!spoofInProgress_) {
+#endif
+                lastInterface_ = interface;
+#ifdef CLI_ONLY
+            }
+#endif
             return;
         }
+
+
+#ifdef CLI_ONLY
+        // if we got this far, then an actual interface change interrupted the spoofing operation.  Reset the flag.
+        spoofInProgress_ = false;
+#endif
 
         if (spoofing_.selectedNetworkInterface.interfaceIndex != interface.interfaceIndex) {
             removeSpoofs();
@@ -136,20 +163,24 @@ void MacAddressController_linux::applySpoof(const types::NetworkInterface &inter
     }
 
     if (types::NetworkInterface::isNoNetworkInterface(interface.interfaceIndex)) {
-        qCDebug(LOG_BASIC) << "MacAddressController_linux::applySpoof Skipping (no interface selected)";
+        qCInfo(LOG_BASIC) << "MacAddressController_linux::applySpoof Skipping (no interface selected)";
         return;
     }
 
     if (interface.interfaceIndex != spoofing_.selectedNetworkInterface.interfaceIndex) {
-        qCDebug(LOG_BASIC) << "MacAddressController_linux::applySpoof Skipping (Selected interface is different than current)";
+        qCInfo(LOG_BASIC) << "MacAddressController_linux::applySpoof Skipping (Selected interface is different than current)";
         return;
     }
 
     if (!helper_->setMacAddress(interface.interfaceName, macAddress, interface.networkOrSsid, interface.interfaceType == NETWORK_INTERFACE_WIFI)) {
-        qCDebug(LOG_BASIC) << "MacAddressController_linux::applySpoof failed.";
+        qCWarning(LOG_BASIC) << "MacAddressController_linux::applySpoof failed.";
         emit sendUserWarning(USER_WARNING_MAC_SPOOFING_FAILURE_HARD);
         return;
     }
+
+#ifdef CLI_ONLY
+    spoofInProgress_ = true;
+#endif
 }
 
 void MacAddressController_linux::removeSpoofs()

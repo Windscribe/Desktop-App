@@ -818,6 +818,14 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
         <translation>  Nếu bạn đang sử dụng mạng hạn chế, vui lòng kết nối VPN trước khi thử tải xuống lại.</translation>
     </message>
+    <message>
+        <source>Custom Config Directory Import</source>
+        <translation>Nhập thư mục cấu hình tùy chỉnh</translation>
+    </message>
+    <message>
+        <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
+        <translation>Một thư mục cấu hình tùy chỉnh đang được nhập.  Windscribe sẽ nhắc nhập mật khẩu quản trị viên của bạn để kiểm tra các quyền chính xác.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1854,6 +1862,10 @@ Kết nối với mạng trước</translation>
     <message>
         <source>At least 8 characters</source>
         <translation>Ít nhất 8 ký tự</translation>
+    </message>
+    <message>
+        <source>To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode.</source>
+        <translation>Để bật Điểm phát sóng bảo mật, vui lòng tắt đường hầm phân chia hoặc sử dụng chế độ độc quyền.</translation>
     </message>
 </context>
 <context>

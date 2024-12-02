@@ -21,7 +21,7 @@ void SecretValue_win::setValue(const QString &value)
 
     if (nError != ERROR_SUCCESS)
     {
-        qCDebug(LOG_BASIC) << "SecretValue::setValue fatal error:" << nError;
+        qCCritical(LOG_BASIC) << "SecretValue::setValue fatal error:" << nError;
     }
     else
     {
@@ -29,7 +29,7 @@ void SecretValue_win::setValue(const QString &value)
         nError = RegSetValueEx(hKey, L"State", 0, REG_BINARY, (const BYTE *)arr.data(), arr.size());
         if (nError != ERROR_SUCCESS)
         {
-            qCDebug(LOG_BASIC) << "SecretValue::setValue RegSetValueEx fatal error:" << nError;
+            qCCritical(LOG_BASIC) << "SecretValue::setValue RegSetValueEx fatal error:" << nError;
         }
         RegCloseKey(hKey);
     }

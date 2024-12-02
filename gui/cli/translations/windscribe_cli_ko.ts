@@ -247,14 +247,6 @@
         <translation>키 제한 동작이 설정됩니다.</translation>
     </message>
     <message>
-        <source>Login is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>로그인이 진행 중입니다.  &apos;windscribe-cli status&apos;를 사용하여 상태를 확인합니다.</translation>
-    </message>
-    <message>
-        <source>Logout is in progress.  Use &apos;windscribe-cli status&apos; to check for status.</source>
-        <translation>로그아웃이 진행 중입니다.  &apos;windscribe-cli status&apos;를 사용하여 상태를 확인합니다.</translation>
-    </message>
-    <message>
         <source>Connection has been overridden by another command.</source>
         <translation>연결이 다른 명령에 의해 재정의되었습니다.</translation>
     </message>
@@ -269,6 +261,14 @@
     <message>
         <source>Logging out</source>
         <translation>로그아웃</translation>
+    </message>
+    <message>
+        <source>Need 2FA code</source>
+        <translation>2FA 코드 필요</translation>
+    </message>
+    <message>
+        <source>Incorrect 2FA code</source>
+        <translation>잘못된 2FA 코드</translation>
     </message>
 </context>
 </TS>

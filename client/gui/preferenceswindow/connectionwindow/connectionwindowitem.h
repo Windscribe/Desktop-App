@@ -78,6 +78,8 @@ private slots:
     void onAntiCensorshipPreferencesChangedByUser(bool isChecked);
     void onIsAutoConnectPreferencesChangedByUser(bool b);
 
+    void onUpdateIsSecureHotspotSupported();
+
     void onLanguageChanged();
 
 protected:
@@ -107,7 +109,6 @@ private:
     ProxyGatewayGroup *proxyGatewayGroup_;
 
     bool isIkev2(const types::ConnectionSettings &cs) const;
-    void updateIsSecureHotspotSupported();
 
     CONNECTION_SCREEN_TYPE currentScreen_;
 };

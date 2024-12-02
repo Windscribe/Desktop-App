@@ -62,7 +62,7 @@ FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper)
     } else if (firewallState.isEnabled && firewallState.isBasicWindscribeRulesCorrect) {
         windscribeIps_ = firewallState.windscribeIps;
         if (windscribeIps_.isEmpty()) {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "Warning: the firewall was enabled at the start, but windscribe_ips table not found or empty.";
+            qCWarning(LOG_FIREWALL_CONTROLLER) << "Warning: the firewall was enabled at the start, but windscribe_ips table not found or empty.";
             WS_ASSERT(false);
         }
         interfaceToSkip_ = firewallState.interfaceToSkip;
@@ -93,7 +93,7 @@ bool FirewallController_mac::firewallOn(const QString &connectingIp, const QSet<
             isCustomConfig_ = bIsCustomConfig;
             isWindscribeFirewallEnabled_ = true;
         } else {
-            qCDebug(LOG_FIREWALL_CONTROLLER) << "Fatal error: can't set firewall rules";
+            qCCritical(LOG_FIREWALL_CONTROLLER) << "Fatal error: can't set firewall rules";
         }
     } else {
         if (bIsCustomConfig != isCustomConfig_) {
@@ -178,7 +178,7 @@ void FirewallController_mac::firewallOffImpl()
 {
     helper_->clearFirewallRules(isPfWasEnabled());
     isWindscribeFirewallEnabled_ = false;
-    qCDebug(LOG_FIREWALL_CONTROLLER) << "firewallOff disabled";
+    qCInfo(LOG_FIREWALL_CONTROLLER) << "firewallOff disabled";
 }
 
 
@@ -450,7 +450,7 @@ QStringList FirewallController_mac::getLocalAddresses(const QString iface) const
     struct ifaddrs *cur;
 
     if (getifaddrs(&ifap)) {
-        qCDebug(LOG_FIREWALL_CONTROLLER) << "Error: could not get local interface addresses";
+        qCCritical(LOG_FIREWALL_CONTROLLER) << "Error: could not get local interface addresses";
         return addrs;
     }
 

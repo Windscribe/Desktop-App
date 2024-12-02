@@ -18,7 +18,7 @@ void CustomConfigConnSettingsPolicy::reset()
 
 void CustomConfigConnSettingsPolicy::debugLocationInfoToLog() const
 {
-    qCDebug(LOG_CONNECTION) << locationInfo_->getLogString();
+    qCInfo(LOG_CONNECTION) << locationInfo_->getLogString();
 }
 
 void CustomConfigConnSettingsPolicy::putFailedConnection()

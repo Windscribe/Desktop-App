@@ -26,8 +26,8 @@ void ManualConnSettingsPolicy::reset()
 
 void ManualConnSettingsPolicy::debugLocationInfoToLog() const
 {
-    qCDebug(LOG_CONNECTION) << "Connection settings:" << connectionSettings_;
-    qCDebug(LOG_CONNECTION) << locationInfo_->getLogString();
+    qCInfo(LOG_CONNECTION) << "Connection settings:" << connectionSettings_;
+    qCInfo(LOG_CONNECTION) << locationInfo_->getLogString();
 }
 
 void ManualConnSettingsPolicy::putFailedConnection()

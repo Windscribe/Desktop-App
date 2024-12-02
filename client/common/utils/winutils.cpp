@@ -499,7 +499,7 @@ QString WinUtils::executeBlockingCmd(QString cmd, const QString & /*params*/, in
     }
     else
     {
-        qCDebug(LOG_BASIC) << "Failed create process: %x", GetLastError();
+        qCCritical(LOG_BASIC) << "Failed create process: %x", GetLastError();
         CloseHandle(rPipe);
         CloseHandle(wPipe);
     }
@@ -516,7 +516,7 @@ bool WinUtils::isServiceRunning(const QString &serviceName)
         dwStatus = scm.queryServiceStatus();
     }
     catch (std::system_error& ex) {
-        qCDebug(LOG_BASIC) << "WinUtils::isServiceRunning -" << ex.what();
+        qCWarning(LOG_BASIC) << "WinUtils::isServiceRunning -" << ex.what();
     }
 
     return (dwStatus == SERVICE_RUNNING);
@@ -621,14 +621,14 @@ FindAppWindowHandleProc(HWND hwnd, LPARAM lParam)
     ::GetWindowThreadProcessId(hwnd, &processID);
 
     if (processID == 0) {
-        qCDebug(LOG_BASIC) << "FindAppWindowHandleProc GetWindowThreadProcessId failed" << ::GetLastError();
+        qCInfo(LOG_BASIC) << "FindAppWindowHandleProc GetWindowThreadProcessId failed" << ::GetLastError();
         return TRUE;
     }
 
     wsl::Win32Handle hProcess(::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processID));
     if (!hProcess.isValid()) {
         if (::GetLastError() != ERROR_ACCESS_DENIED) {
-            qCDebug(LOG_BASIC) << "FindAppWindowHandleProc OpenProcess failed" << ::GetLastError();
+            qCCritical(LOG_BASIC) << "FindAppWindowHandleProc OpenProcess failed" << ::GetLastError();
         }
         return TRUE;
     }
@@ -638,7 +638,7 @@ FindAppWindowHandleProc(HWND hwnd, LPARAM lParam)
     BOOL result = ::QueryFullProcessImageName(hProcess.getHandle(), 0, imageName, &pathLen);
 
     if (result == FALSE) {
-        qCDebug(LOG_BASIC) << "FindAppWindowHandleProc QueryFullProcessImageName failed" << ::GetLastError();
+        qCCritical(LOG_BASIC) << "FindAppWindowHandleProc QueryFullProcessImageName failed" << ::GetLastError();
         return TRUE;
     }
 
@@ -698,7 +698,7 @@ QString WinUtils::getSystemDir()
     wchar_t path[MAX_PATH];
     UINT result = ::GetSystemDirectory(path, MAX_PATH);
     if (result == 0 || result >= MAX_PATH) {
-        qCDebug(LOG_BASIC) << "GetSystemDirectory failed" << ::GetLastError();
+        qCCritical(LOG_BASIC) << "GetSystemDirectory failed" << ::GetLastError();
         return QString("C:\\Windows\\System32");
     }
 

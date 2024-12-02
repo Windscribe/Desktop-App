@@ -8,6 +8,7 @@
 #include "backendcommander.h"
 #include "cliarguments.h"
 #include "languagecontroller.h"
+#include "utils.h"
 #include "utils/languagesutil.h"
 #include "utils/log/logger.h"
 #include "utils/log/paths.h"
@@ -15,16 +16,13 @@
 
 #ifdef Q_OS_LINUX
     #include <semaphore.h>
-    #include <termios.h>
     #include <time.h>
     #include <unistd.h>
 #elif defined(Q_OS_MACOS)
-    #include <readpassphrase.h>
     #include <semaphore.h>
     #include <time.h>
     #include <unistd.h>
 #else
-    #include <windows.h>
     #include "utils/winutils.h"
 #endif
 
@@ -35,61 +33,6 @@
 // (observation made with GUI and Engine each running in Qt Creator instances in debug mode)
 
 void logAndCout(const QString & str);
-
-static QString getInput(const QString &prompt, bool disableEcho)
-{
-#if defined(Q_OS_WIN)
-    DWORD mode;
-    HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE); 
-
-    if (disableEcho) {
-        GetConsoleMode(hStdin, &mode);
-        SetConsoleMode(hStdin, mode & ~ENABLE_ECHO_INPUT);
-    }
-
-    std::string input;
-    std::cout << prompt.toStdString();
-    std::cin >> input;
-
-    if (disableEcho) {
-        std::cout << std::endl;
-        SetConsoleMode(hStdin, mode);
-    }
-
-    return QString::fromStdString(input);
-#elif defined(Q_OS_MAC)
-    char buf[1024];
-    memset(buf, 0, 1024);
-
-    char *ret = readpassphrase(prompt.toStdString().c_str(), buf, 1024, disableEcho ? RPP_ECHO_OFF : RPP_ECHO_ON);
-    if (ret == NULL) {
-        return "";
-    }
-    return ret;
-#else
-    struct termios tty;
-    tcflag_t oldFlags;
-
-    if (disableEcho) {
-        tcgetattr(STDIN_FILENO, &tty);
-        oldFlags = tty.c_lflag;
-        tty.c_lflag &= ~ECHO;
-        (void) tcsetattr(STDIN_FILENO, TCSANOW, &tty);
-    }
-
-    std::cout << prompt.toStdString();
-    std::string input;
-    std::cin >> input;
-
-    if (disableEcho) {
-        std::cout << std::endl;
-        tty.c_lflag = oldFlags;
-        (void) tcsetattr(STDIN_FILENO, TCSANOW, &tty);
-    }
-
-    return QString::fromStdString(input);
-#endif
-}
 
 int main(int argc, char *argv[])
 {
@@ -108,8 +51,8 @@ int main(int argc, char *argv[])
 
     log_utils::Logger::instance().install(log_utils::paths::cliLogLocation(), false);
 
-    qCDebug(LOG_CLI) << "=== Started ===";
-    qCDebug(LOG_CLI) << "OS Version:" << Utils::getOSVersion();
+    qCInfo(LOG_CLI) << "=== Started ===";
+    qCInfo(LOG_CLI) << "OS Version:" << Utils::getOSVersion();
 
     QCoreApplication a(argc, argv);
 
@@ -125,11 +68,11 @@ int main(int argc, char *argv[])
         std::cout << "windscribe-cli <command>:" << std::endl;
         std::cout << std::endl;
         std::cout << "Authenticating with Windscribe" << std::endl;
-        std::cout << "    login [options] [username [password]]" << std::endl;
+        std::cout << "    login [username [password]]" << std::endl;
         std::cout << "        " << "Login with given credentials." << std::endl;
         std::cout << "        " << "If any input has special characters in it, it should be wrapped in single quotes or escaped." << std::endl;
-        std::cout << "        " << "If any credentials are not provided, a prompt will be presented." << std::endl;
-        std::cout << "    logout [options] [on|off]" << std::endl;
+        std::cout << "        " << "If any credentials are not provided, a prompt will be presented. 2FA code is always prompted if required." << std::endl;
+        std::cout << "    logout [on|off]" << std::endl;
         std::cout << "        " << "Sign out of the application, and optionally leave the firewall ON/OFF" << std::endl;
         std::cout << std::endl;
         std::cout << "Getting application state" << std::endl;
@@ -174,7 +117,6 @@ int main(int argc, char *argv[])
         std::cout << "Protocols: " << "wireguard, ikev2, udp, tcp, stealth, wstunnel" << std::endl;
 #endif
         std::cout << "Options: " << std::endl;
-        std::cout << "    -2: Use 2-factor authentication.  You will be prompted for the code.  Only for the 'login' operation." << std::endl;
         std::cout << "    -n: non-blocking mode. Command returns immediately instead of waiting to complete." << std::endl;
         std::cout << std::endl;
         std::cout << "Application administration" << std::endl;
@@ -188,13 +130,10 @@ int main(int argc, char *argv[])
     // If logging in, prompt for any missing credentials
     if (cliArgs.cliCommand() == CLI_COMMAND_LOGIN) {
         if (cliArgs.username().isEmpty()) {
-            cliArgs.setUsername(getInput("Username: ", false));
+            cliArgs.setUsername(Utils::getInput("Username: ", false));
         }
         if (cliArgs.password().isEmpty()) {
-            cliArgs.setPassword(getInput("Password: ", true));
-        }
-        if (cliArgs.need2FA()) {
-            cliArgs.set2FACode(getInput("2FA code: ", false));
+            cliArgs.setPassword(Utils::getInput("Password: ", true));
         }
     }
 
@@ -261,7 +200,7 @@ void logAndCout(const QString &str)
     if (str.isEmpty()) {
         return;
     }
-    qCDebug(LOG_CLI) << str;
+    qCInfo(LOG_CLI) << str;
     std::cout << str.toStdString() << std::endl;
 }
 

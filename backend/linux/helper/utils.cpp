@@ -235,8 +235,86 @@ bool isMacAddressSpoofed(const std::string &network)
     return false;
 }
 
+#ifdef CLI_ONLY
+static std::vector<std::string> getInterfaceNames()
+{
+    std::string output;
+    std::string line;
+    std::vector<std::string> interfaces;
+
+    Utils::executeCommand("ip", {"link"}, &output);
+
+    std::stringstream is(output);
+    while (std::getline(is, line)) {
+        if (line.empty() || line[0] == ' ') {
+            continue;
+        }
+
+        // Interface name is between the first space and the next colon
+        size_t start = line.find(' ');
+        if (start == std::string::npos) {
+            continue;
+        }
+        start++; // Move past the space
+        size_t end = line.find(':', start);
+        if (end == std::string::npos) {
+            continue;
+        }
+        interfaces.push_back(line.substr(start, end - start));
+    }
+
+    return interfaces;
+}
+
+static std::string getHwMac(const std::string &ifname)
+{
+    std::string output;
+    Utils::executeCommand("ethtool", {"-P", ifname}, &output);
+
+    // Address is between the second space and new line
+	size_t start = output.find(' ', output.find(' ') + 1);
+	if (start == std::string::npos) {
+        return "";
+	}
+	size_t end = output.find('\n', start);
+	if (end == std::string::npos) {
+        return "";
+	}
+
+    return output.substr(start, end - start);
+}
+
+static std::string getCurrentMac(const std::string &ifname)
+{
+    std::string output;
+    Utils::executeCommand("cat", {"/sys/class/net/" + ifname + "/address"}, &output);
+    // Remove trailing whitespace
+    output.erase(output.find_last_not_of(" \n\r\t") + 1);
+    return output;
+}
+#endif
+
 bool resetMacAddresses(const std::string &ignoreNetwork)
 {
+#ifdef CLI_ONLY
+    std::vector<std::string> interfaces = getInterfaceNames();
+
+    for (const auto interface : interfaces) {
+        // skip ignored network
+        if (interface == "lo" || interface == ignoreNetwork) {
+            continue;
+        }
+
+        std::string hwAddr = getHwMac(interface);
+        std::string curAddr = getCurrentMac(interface);
+        if (hwAddr != curAddr) {
+            // Must bring down interface to change the MAC address
+            Utils::executeCommand("ip", {"link", "set", "dev", interface, "down"});
+            Utils::executeCommand("ip", {"link", "set", "dev", interface, "address", hwAddr});
+            Utils::executeCommand("ip", {"link", "set", "dev", interface, "up"});
+        }
+    }
+#else
     std::string output;
     std::string line;
     bool firstline = true;
@@ -277,6 +355,7 @@ bool resetMacAddresses(const std::string &ignoreNetwork)
             Utils::executeCommand("nmcli", {"connection", "up", name.c_str()});
         }
     }
+#endif
     return true;
 }
 

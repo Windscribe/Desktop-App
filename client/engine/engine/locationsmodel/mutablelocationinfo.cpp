@@ -105,7 +105,7 @@ void MutableLocationInfo::selectNodeByIp(const QString &addr)
             }
         }
     }
-    qCDebug(LOG_BASIC) << "Could not find node for IP: " << addr;
+    qCWarning(LOG_BASIC) << "Could not find node for IP: " << addr;
 }
 
 QString MutableLocationInfo::getIpForSelectedNode(int indIp) const

@@ -681,7 +681,7 @@ void Backend::onEnginePacketSizeDetectionStateChanged(bool on, bool isError)
 
 void Backend::onEngineHostsFileBecameWritable()
 {
-    qCDebug(LOG_BASIC) << "Hosts file became writable -- Connecting..";
+    qCInfo(LOG_BASIC) << "Hosts file became writable -- Connecting..";
     sendConnect(PersistentState::instance().lastLocation());
 }
 
@@ -752,12 +752,12 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
             // disconnect VPN on an unsecured network -- connect VPN on a secured network if auto-connect is on
             if (foundInterface.trustType == NETWORK_TRUST_UNSECURED) {
                 if (!connectStateHelper_.isDisconnected()) {
-                    qCDebug(LOG_BASIC) << "Network Whitelisting detected UNSECURED network -- Disconnecting..";
+                    qCInfo(LOG_BASIC) << "Network Whitelisting detected UNSECURED network -- Disconnecting..";
                     sendDisconnect();
                 }
             } else { // SECURED
                 if (preferences_.isAutoConnect() && connectStateHelper_.isDisconnected()) {
-                    qCDebug(LOG_BASIC) << "Network Whitelisting detected SECURED network -- Connecting..";
+                    qCInfo(LOG_BASIC) << "Network Whitelisting detected SECURED network -- Connecting..";
                     if (PersistentState::instance().lastLocation().isValid()) {
                         qCDebug(LOG_BASIC) << "Using last location: " << PersistentState::instance().lastLocation().getHashString();
                         sendConnect(PersistentState::instance().lastLocation());
@@ -897,7 +897,7 @@ QString Backend::getAutoLoginCredential(const QString &key)
         }
     }
     catch (std::system_error& ex) {
-        qCDebug(LOG_BASIC) << "ApiInfo::getAutoLoginCredential() -" << ex.what() << ex.code().value();
+        qCCritical(LOG_BASIC) << "ApiInfo::getAutoLoginCredential() -" << ex.what() << ex.code().value();
     }
 #endif
 
