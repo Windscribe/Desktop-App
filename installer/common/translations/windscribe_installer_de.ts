@@ -89,10 +89,6 @@
         <translation>Das Deinstallationsprogramm für die bestehende Installation von Windscribe konnte nicht gefunden werden. Bitte deinstallieren Sie die Anwendung manuell und versuchen Sie es erneut.</translation>
     </message>
     <message>
-        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>Der Installationsordner enthält Daten, die nicht deinstalliert werden konnten. Bitte deinstallieren Sie die Anwendung manuell und versuchen Sie es erneut.</translation>
-    </message>
-    <message>
         <source>Security Warning</source>
         <translation>Sicherheitswarnung</translation>
     </message>
@@ -103,6 +99,18 @@
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
         <translation>Ihr aktueller Benutzername lautet &quot;windscribe&quot;, der von der Windscribe-App benötigt wird. Windscribe kann nicht installiert werden.</translation>
+    </message>
+    <message>
+        <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>Die Installation in Ihrem benutzerdefinierten Ordner war nicht erfolgreich. Deinstallieren Sie die Anwendung manuell, stellen Sie sicher, dass keine Anwendungen auf den benutzerdefinierten Ordner zugreifen, und versuchen Sie es erneut.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>Der benutzerdefinierte Installationsordner konnte nicht gelöscht werden. Deinstallieren Sie die Anwendung manuell, stellen Sie sicher, dass keine Anwendungen auf den benutzerdefinierten Ordner zugreifen, und versuchen Sie es erneut.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
+        <translation>Der benutzerdefinierte Installationsordner ist nicht leer. Aus Sicherheitsgründen kann Windscribe nur in einem leeren Ordner installiert werden. Bitte löschen Sie alle Dateien aus dem Ordner und versuchen Sie es erneut.</translation>
     </message>
 </context>
 <context>

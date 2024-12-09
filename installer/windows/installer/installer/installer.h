@@ -3,6 +3,7 @@
 #include <functional>
 #include <list>
 
+#include "installerenums.h"
 #include "installer_base.h"
 #include "iinstall_block.h"
 
@@ -12,8 +13,8 @@ public:
     Installer();
     ~Installer() override;
 
-    INSTALLER_CURRENT_STATE state();
-    INSTALLER_ERROR lastError();
+    wsl::INSTALLER_STATE state();
+    wsl::INSTALLER_ERROR lastError();
     int progress();
     void setCallback(std::function<void()> func);
 
@@ -26,8 +27,8 @@ protected:
     int totalWork_ = 0;
 
     std::function<void()> callback_;
-    INSTALLER_CURRENT_STATE state_;
-    INSTALLER_ERROR error_;
+    wsl::INSTALLER_STATE state_;
+    wsl::INSTALLER_ERROR error_;
     int progress_;
 
 private:

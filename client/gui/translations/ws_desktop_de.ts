@@ -917,6 +917,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <source>Software Licenses</source>
         <translation>Software-Lizenzen</translation>
     </message>
+    <message>
+        <source>Changelog</source>
+        <translation>Änderungsprotokoll</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AccountWindowItem</name>

@@ -917,6 +917,10 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <source>Software Licenses</source>
         <translation>Licencje oprogramowania</translation>
     </message>
+    <message>
+        <source>Changelog</source>
+        <translation>Lista zmian</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AccountWindowItem</name>

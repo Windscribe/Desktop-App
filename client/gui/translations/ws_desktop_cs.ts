@@ -917,6 +917,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>Software Licenses</source>
         <translation>Softwarové licence</translation>
     </message>
+    <message>
+        <source>Changelog</source>
+        <translation>Seznam změn</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AccountWindowItem</name>

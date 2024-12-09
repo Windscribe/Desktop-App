@@ -89,10 +89,6 @@
         <translation>Windscribe की मौजूदा स्थापना के लिए अनइंस्टालर नहीं मिल सका। कृपया अनुप्रयोग की स्थापना मैन्युअल रूप से रद्द करें और पुन: प्रयास करें.</translation>
     </message>
     <message>
-        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>स्थापना फ़ोल्डर में वह डेटा है जिसकी स्थापना रद्द नहीं की जा सकी. कृपया अनुप्रयोग की स्थापना मैन्युअल रूप से रद्द करें और पुन: प्रयास करें.</translation>
-    </message>
-    <message>
         <source>Security Warning</source>
         <translation>सुरक्षा चेतावनी</translation>
     </message>
@@ -103,6 +99,18 @@
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
         <translation>आपका वर्तमान उपयोगकर्ता नाम &apos;विंडसाइड&apos; है, जिसकी आवश्यकता विंडसाइड ऐप को है। Windscribe स्थापित नहीं किया जा सकता।</translation>
+    </message>
+    <message>
+        <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>आपके कस्टम फ़ोल्डर में स्थापना असफल रही. कृपया एप्लिकेशन को मैन्युअल रूप से अनइंस्टॉल करें, सुनिश्चित करें कि कोई भी एप्लिकेशन कस्टम फ़ोल्डर तक नहीं पहुंच रहा है, और पुनः प्रयास करें।</translation>
+    </message>
+    <message>
+        <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>कस्टम स्थापना फ़ोल्डर हटाया नहीं जा सका. कृपया एप्लिकेशन को मैन्युअल रूप से अनइंस्टॉल करें, सुनिश्चित करें कि कोई भी एप्लिकेशन कस्टम फ़ोल्डर तक नहीं पहुंच रहा है, और पुनः प्रयास करें।</translation>
+    </message>
+    <message>
+        <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
+        <translation>कस्टम स्थापना फ़ोल्डर रिक्त नहीं है. सुरक्षा एहतियात के रूप में, विंडसाइड को केवल एक खाली फ़ोल्डर में स्थापित किया जा सकता है। कृपया फ़ोल्डर से सभी फ़ाइलें हटाएँ और पुन: प्रयास करें.</translation>
     </message>
 </context>
 <context>

@@ -44,6 +44,10 @@ AboutWindowItem::AboutWindowItem(ScalableGraphicsObject *parent, Preferences *pr
                                  QString("https://%1/terms/oss").arg(HardcodedSettings::instance().windscribeServerUrl()));
     group_->addItem(licensesLink_);
 
+    changelogLink_ = new LinkItem(group_, LinkItem::LinkType::EXTERNAL_LINK, "",
+                                  QString("https://%1/changelog").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    group_->addItem(changelogLink_);
+
     addItem(group_);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &AboutWindowItem::onLanguageChanged);
@@ -64,6 +68,7 @@ void AboutWindowItem::onLanguageChanged()
     blogLink_->setTitle(tr("Blog"));
     jobsLink_->setTitle(tr("Jobs"));
     licensesLink_->setTitle(tr("Software Licenses"));
+    changelogLink_->setTitle(tr("Changelog"));
 }
 
 } // namespace PreferencesWindow

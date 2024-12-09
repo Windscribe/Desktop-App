@@ -917,6 +917,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Software Licenses</source>
         <translation>مجوزهای نرم افزار</translation>
     </message>
+    <message>
+        <source>Changelog</source>
+        <translation>تغییرات</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AccountWindowItem</name>

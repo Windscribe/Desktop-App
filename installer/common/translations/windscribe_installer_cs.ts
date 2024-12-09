@@ -89,10 +89,6 @@
         <translation>Odinstalační program pro stávající instalaci aplikace Windscribe nebyl nalezen. Odinstalujte aplikaci ručně a zkuste to znovu.</translation>
     </message>
     <message>
-        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>Instalační složka obsahuje data, která nelze odinstalovat. Odinstalujte aplikaci ručně a zkuste to znovu.</translation>
-    </message>
-    <message>
         <source>Security Warning</source>
         <translation>Upozornění zabezpečení</translation>
     </message>
@@ -103,6 +99,18 @@
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
         <translation>Vaše aktuální uživatelské jméno je &quot;windscribe&quot;, které je vyžadováno aplikací Windscribe. Windscribe nelze nainstalovat.</translation>
+    </message>
+    <message>
+        <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>Instalace do vlastní složky byla neúspěšná. Odinstalujte aplikaci ručně, ujistěte se, že žádné aplikace nemají přístup k vlastní složce, a zkuste to znovu.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>Vlastní instalační složku nelze odstranit. Odinstalujte aplikaci ručně, ujistěte se, že žádné aplikace nemají přístup k vlastní složce, a zkuste to znovu.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
+        <translation>Složka vlastní instalace není prázdná. Z bezpečnostních důvodů lze Windscribe nainstalovat pouze do prázdné složky. Odstraňte prosím všechny soubory ze složky a zkuste to znovu.</translation>
     </message>
 </context>
 <context>

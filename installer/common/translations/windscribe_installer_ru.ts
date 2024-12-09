@@ -89,10 +89,6 @@
         <translation>Не удалось найти деинсталлятор для существующей установки Windscribe. Удалите приложение вручную и повторите попытку.</translation>
     </message>
     <message>
-        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>Папка установки содержит данные, которые не удалось удалить. Удалите приложение вручную и повторите попытку.</translation>
-    </message>
-    <message>
         <source>Security Warning</source>
         <translation>Предупреждение системы безопасности</translation>
     </message>
@@ -103,6 +99,18 @@
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
         <translation>Ваше текущее имя пользователя — «windscribe», которое необходимо приложению Windscribe. Windscribe не может быть установлен.</translation>
+    </message>
+    <message>
+        <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>Установка в пользовательскую папку не удалась. Удалите приложение вручную, убедитесь, что приложения не обращаются к пользовательской папке, и повторите попытку.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>Не удалось удалить пользовательскую папку установки. Удалите приложение вручную, убедитесь, что приложения не обращаются к пользовательской папке, и повторите попытку.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
+        <translation>Пользовательская папка установки не пуста. В качестве меры предосторожности Windscribe можно установить только в пустую папку. Пожалуйста, удалите все файлы из папки и повторите попытку.</translation>
     </message>
 </context>
 <context>

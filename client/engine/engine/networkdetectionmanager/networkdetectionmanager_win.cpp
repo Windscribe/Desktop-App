@@ -78,66 +78,37 @@ void NetworkDetectionManager_win::resetAdapter(int ifIndex, bool bringBackUp)
     }
 }
 
-
 void NetworkDetectionManager_win::onNetworkChanged()
 {
     bool bCurIsOnline = isOnlineImpl();
-    if (bLastIsOnline_ != bCurIsOnline)
-    {
+    if (bLastIsOnline_ != bCurIsOnline) {
         bLastIsOnline_ = bCurIsOnline;
         emit onlineStateChanged(bLastIsOnline_);
     }
 
-    types::NetworkInterface newNetworkInterface = NetworkUtils_win::currentNetworkInterface();
-    newNetworkInterface.requested = false;
+    // This is a method to check if the current interface has changed, without updating the list of interfaces
+    // Doing this avoids e.g. repopulating SSIDs, which causes a location request in Windows 11 24H2 and later.
+    QString guid = NetworkUtils_win::currentNetworkInterfaceGuid();
+    if (curNetworkInterface_.active && guid == curNetworkInterface_.interfaceGuid) {
+        return;
+    }
 
-    // Only report a changed, properly formed
-    if (curNetworkInterface_.active != newNetworkInterface.active || !curNetworkInterface_.sameNetworkInterface(newNetworkInterface))
-    {
-        const QString name = newNetworkInterface.networkOrSsid;
-        if (name != "Unidentified network" && name != "Identifying...")
-        {
-            // if still online: Don't send the NoInterface since this can happen during
-            // VPN CONNECTING
-            if (newNetworkInterface.interfaceIndex == -1)
-            {
-                if (!bLastIsOnline_)
-                {
-                    curNetworkInterface_ = newNetworkInterface;
-                    emit networkChanged(curNetworkInterface_);
-                }
-            }
-            else
-            {
-                curNetworkInterface_ = newNetworkInterface;
-                emit networkChanged(curNetworkInterface_);
-            }
-        }
-        else
-        {
-            qCInfo(LOG_BASIC) << "Network update skipped: unidentified network ("
-                << "valid =" << newNetworkInterface.isValid()
-                << "interface =" << newNetworkInterface.friendlyName
-                << "id =" << newNetworkInterface.interfaceIndex
-                << "active =" << newNetworkInterface.active << ")";
-        }
+    // Now that we know the interface changed, force an update of the current network interfaces list
+    NetworkUtils_win::currentNetworkInterfaces(false, true);
+
+    curNetworkInterface_ = NetworkUtils_win::currentNetworkInterface();
+
+    // If still online, but current interface is "no interface", don't emit the signal
+    // In theory this should never happen, since we exclude Windscribe interfaces when getting the current interface,
+    // but this code has historically been here and doesn't seem to cause any problems.
+    if ((curNetworkInterface_.interfaceIndex == -1 && !bLastIsOnline_) || curNetworkInterface_.interfaceIndex != -1) {
+        emit networkChanged(curNetworkInterface_);
     }
 }
 
 bool NetworkDetectionManager_win::isOnlineImpl()
 {
-    bool result = false;
-
-    QVector<types::NetworkInterface> nis = NetworkUtils_win::currentNetworkInterfaces(true);
-
-    for (const auto &it : nis) {
-        if (it.active) {
-            result = true;
-            break;
-        }
-    }
-
-    return result;
+    return NetworkUtils_win::haveActiveInterface();
 }
 
 void NetworkDetectionManager_win::getCurrentNetworkInterface(types::NetworkInterface &networkInterface, bool forceUpdate)

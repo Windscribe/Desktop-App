@@ -89,10 +89,6 @@
         <translation>无法找到现有安装的 Windscribe 的卸载程序。请手动卸载应用程序，然后重试。</translation>
     </message>
     <message>
-        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>安装文件夹包含无法卸载的数据。请手动卸载应用程序，然后重试。</translation>
-    </message>
-    <message>
         <source>Security Warning</source>
         <translation>安全警告</translation>
     </message>
@@ -103,6 +99,18 @@
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
         <translation>您当前的用户名是“windscribe”，这是 Windscribe 应用程序需要的用户名。无法安装 Windscribe。</translation>
+    </message>
+    <message>
+        <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>安装到自定义文件夹失败。请手动卸载应用程序，确保没有应用程序访问自定义文件夹，然后重试。</translation>
+    </message>
+    <message>
+        <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>无法删除自定义安装文件夹。请手动卸载应用程序，确保没有应用程序访问自定义文件夹，然后重试。</translation>
+    </message>
+    <message>
+        <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
+        <translation>自定义安装文件夹不为空。作为安全预防措施，Windscribe 只能安装到空文件夹中。请从文件夹中删除所有文件，然后重试。</translation>
     </message>
 </context>
 <context>

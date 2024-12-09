@@ -89,10 +89,6 @@
         <translation>تعذر العثور على برنامج إلغاء التثبيت للتثبيت الحالي ل Windscribe. الرجاء إلغاء تثبيت التطبيق يدويا والمحاولة مرة أخرى.</translation>
     </message>
     <message>
-        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>يحتوي مجلد التثبيت على بيانات تعذر إلغاء تثبيتها. الرجاء إلغاء تثبيت التطبيق يدويا والمحاولة مرة أخرى.</translation>
-    </message>
-    <message>
         <source>Security Warning</source>
         <translation>تحذير أمني</translation>
     </message>
@@ -103,6 +99,18 @@
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
         <translation>اسم المستخدم الحالي الخاص بك هو &quot;windscribe&quot; ، وهو ما يحتاجه تطبيق Windscribe. لا يمكن تثبيت Windscribe.</translation>
+    </message>
+    <message>
+        <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>لم ينجح التثبيت على المجلد المخصص. يرجى إلغاء تثبيت التطبيق يدويا ، والتأكد من عدم وصول أي تطبيقات إلى المجلد المخصص ، والمحاولة مرة أخرى.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>تعذر حذف مجلد التثبيت المخصص. يرجى إلغاء تثبيت التطبيق يدويا ، والتأكد من عدم وصول أي تطبيقات إلى المجلد المخصص ، والمحاولة مرة أخرى.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
+        <translation>مجلد التثبيت المخصص ليس فارغا. كإجراء احترازي أمني ، لا يمكن تثبيت Windscribe إلا في مجلد فارغ. يرجى حذف جميع الملفات من المجلد والمحاولة مرة أخرى.</translation>
     </message>
 </context>
 <context>

@@ -74,11 +74,12 @@ struct IfTable2Row
     bool endPointInterface;
     bool valid;
     unsigned long interfaceType;
+    bool mediaConnected;
 
-    IfTable2Row(): index(0), interfaceGuid(""), description(""), alias(""), op_status(0), connectorPresent(false), endPointInterface(false), valid(false), interfaceType(0) {}
-    IfTable2Row(unsigned long index, QString guid, QString description, QString alias, int op_status, bool connectorPresent, bool endPointInterface, unsigned long interfaceType) :
+    IfTable2Row(): index(0), interfaceGuid(""), description(""), alias(""), op_status(0), connectorPresent(false), endPointInterface(false), valid(false), interfaceType(0), mediaConnected(false) {}
+    IfTable2Row(unsigned long index, QString guid, QString description, QString alias, int op_status, bool connectorPresent, bool endPointInterface, unsigned long interfaceType, bool mediaConnected) :
         index(index), interfaceGuid(guid), description(description), alias(alias), op_status(op_status), connectorPresent(connectorPresent),
-        endPointInterface(endPointInterface), valid(true), interfaceType(interfaceType) {}
+        endPointInterface(endPointInterface), valid(true), interfaceType(interfaceType), mediaConnected(mediaConnected) {}
 
     bool isWindscribeAdapter() const
     {
@@ -93,7 +94,8 @@ struct IfTable2Row
                  << ", description: " << description
                  << ", alias: " << alias
                  << ", op status: " << op_status
-                 << ", interfaceType: " << interfaceType;
+                 << ", interfaceType: " << interfaceType
+                 << ", mediaConnected: " << mediaConnected;
     }
 };
 

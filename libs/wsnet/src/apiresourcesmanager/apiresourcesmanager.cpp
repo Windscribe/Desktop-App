@@ -1,5 +1,5 @@
 #include "apiresourcesmanager.h"
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 #include "utils/cancelablecallback.h"
 #include "utils/utils.h"
 #include "settings.h"
@@ -66,7 +66,7 @@ bool ApiResourcesManager::loginWithAuthHash()
     std::lock_guard locker(mutex_);
 
     if (requestsInProgress_.find(RequestType::kSessionStatus) != requestsInProgress_.end()) {
-        spdlog::error("Incorrect use of API, the function ApiResourcesManager::loginWithAuthHash is called twice");
+        g_logger->error("Incorrect use of API, the function ApiResourcesManager::loginWithAuthHash is called twice");
         assert(false);
     }
 
@@ -104,7 +104,7 @@ void ApiResourcesManager::login(const std::string &username, const std::string &
     std::lock_guard locker(mutex_);
 
     if (requestsInProgress_.find(RequestType::kSessionStatus) != requestsInProgress_.end()) {
-        spdlog::error("Incorrect use of API, the function ApiResourcesManager::login is called twice");
+        g_logger->error("Incorrect use of API, the function ApiResourcesManager::login is called twice");
         assert(false);
     }
 
@@ -512,7 +512,7 @@ void ApiResourcesManager::updateSessionStatus()
             prevSessionStatus_->alcList() != sessionStatus_->alcList() ||
             prevSessionStatus_->lastResetDate() != sessionStatus_->lastResetDate())
         {
-            spdlog::info("update session status (changed since last call)");
+            g_logger->info("update session status (changed since last call)");
             sessionStatus_->debugLog();
         }
 
@@ -543,7 +543,7 @@ void ApiResourcesManager::updateSessionStatus()
             fetchServerCredentialsIkev2(persistentSettings_.authHash());
         }
     } else {
-        spdlog::info("update session status (changed since last call)");
+        g_logger->info("update session status (changed since last call)");
         sessionStatus_->debugLog();
     }
 
@@ -562,7 +562,7 @@ void ApiResourcesManager::onFetchTimer(const boost::system::error_code &err)
     if (!persistentSettings_.authHash().empty()) {
         fetchAll();
     } else  {
-        spdlog::error("ApiResourcesManager::onFetchTimer, authHash is empty although it shouldn't");
+        g_logger->error("ApiResourcesManager::onFetchTimer, authHash is empty although it shouldn't");
         assert(false);
     }
 
@@ -731,7 +731,7 @@ void ApiResourcesManager::onCheckUpdateAnswer(ServerApiRetCode serverApiRetCode,
 void ApiResourcesManager::onDeleteSessionAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData)
 {
     std::lock_guard locker(mutex_);
-    spdlog::info("ApiResourcesManager::onDeleteSessionAnswer retCode: {}", (int)serverApiRetCode);
+    g_logger->info("ApiResourcesManager::onDeleteSessionAnswer retCode: {}", (int)serverApiRetCode);
     callback_->call(ApiResourcesManagerNotification::kLogoutFinished, LoginResult::kSuccess, std::string());
 }
 

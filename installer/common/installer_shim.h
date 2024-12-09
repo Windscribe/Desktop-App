@@ -3,20 +3,19 @@
 #include <functional>
 #include <string>
 
+#include "installerenums.h"
+
 class InstallerShim
 {
 public:
-    enum INSTALLER_STATE { STATE_INIT, STATE_EXTRACTING, STATE_CANCELED, STATE_FINISHED, STATE_ERROR, STATE_LAUNCHED, STATE_EXTRACTED };
-    enum INSTALLER_ERROR { ERROR_OTHER = 1, ERROR_PERMISSION, ERROR_KILL, ERROR_CONNECT_HELPER, ERROR_DELETE, ERROR_UNINSTALL, ERROR_MOVE_CUSTOM_DIR };
-
     static InstallerShim &instance()
     {
         static InstallerShim shim;
         return shim;
     }
 
-    INSTALLER_STATE state();
-    INSTALLER_ERROR lastError();
+    wsl::INSTALLER_STATE state();
+    wsl::INSTALLER_ERROR lastError();
     int progress();
     void setCallback(std::function<void()> func);
     // NB: can't ifdef platform-specific functions out for Mac here because we can't pull in any Qt headers
@@ -43,4 +42,3 @@ private:
     InstallerShim();
     ~InstallerShim();
 };
-

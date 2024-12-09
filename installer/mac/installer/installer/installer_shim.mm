@@ -34,9 +34,9 @@ void InstallerShim::cancel()
     [(__bridge Installer *)installer_ cancel];
 }
 
-InstallerShim::INSTALLER_STATE InstallerShim::state()
+wsl::INSTALLER_STATE InstallerShim::state()
 {
-    return (InstallerShim::INSTALLER_STATE)(((__bridge Installer *)installer_).currentState);
+    return ((__bridge Installer *)installer_).currentState;
 }
 
 int InstallerShim::progress()
@@ -78,9 +78,9 @@ void InstallerShim::setFactoryReset(bool on)
     ((__bridge Installer *)installer_).factoryReset = on;
 }
 
-InstallerShim::INSTALLER_ERROR InstallerShim::lastError()
+wsl::INSTALLER_ERROR InstallerShim::lastError()
 {
-    return (InstallerShim::INSTALLER_ERROR)(((__bridge Installer *)installer_).lastError);
+    return ((__bridge Installer *)installer_).lastError;
 }
 
 bool InstallerShim::isAutoStartEnabled()

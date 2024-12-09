@@ -917,6 +917,10 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <source>Software Licenses</source>
         <translation>Licencias de software</translation>
     </message>
+    <message>
+        <source>Changelog</source>
+        <translation>Registro de cambios</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AccountWindowItem</name>

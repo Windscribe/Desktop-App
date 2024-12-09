@@ -917,6 +917,10 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>Software Licenses</source>
         <translation>Licences logicielles</translation>
     </message>
+    <message>
+        <source>Changelog</source>
+        <translation>Journal des modifications</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AccountWindowItem</name>

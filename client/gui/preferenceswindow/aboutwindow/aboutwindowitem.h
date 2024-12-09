@@ -28,6 +28,7 @@ private:
     LinkItem *blogLink_;
     LinkItem *jobsLink_;
     LinkItem *licensesLink_;
+    LinkItem *changelogLink_;
 };
 
 } // namespace PreferencesWindow

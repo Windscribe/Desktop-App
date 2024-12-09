@@ -157,28 +157,12 @@ bool LegacyProtobufSupport::loadEngineSettings(const QByteArray &arr, types::Eng
                 out.d->macAddrSpoofing.selectedNetworkInterface.active = es->mac_addr_spoofing->selected_network_interface->active;
             }
             out.d->macAddrSpoofing.selectedNetworkInterface.friendlyName = es->mac_addr_spoofing->selected_network_interface->friendly_name;
-            if (es->mac_addr_spoofing->selected_network_interface->has_requested) {
-                out.d->macAddrSpoofing.selectedNetworkInterface.requested = es->mac_addr_spoofing->selected_network_interface->requested;
-            }
             if (es->mac_addr_spoofing->selected_network_interface->has_metric) {
                 out.d->macAddrSpoofing.selectedNetworkInterface.metric = es->mac_addr_spoofing->selected_network_interface->metric;
             }
             out.d->macAddrSpoofing.selectedNetworkInterface.physicalAddress = es->mac_addr_spoofing->selected_network_interface->physical_address;
             if (es->mac_addr_spoofing->selected_network_interface->has_mtu) {
                 out.d->macAddrSpoofing.selectedNetworkInterface.mtu = es->mac_addr_spoofing->selected_network_interface->mtu;
-            }
-            if (es->mac_addr_spoofing->selected_network_interface->has_state) {
-                out.d->macAddrSpoofing.selectedNetworkInterface.state = es->mac_addr_spoofing->selected_network_interface->state;
-            }
-            if (es->mac_addr_spoofing->selected_network_interface->has_dw_type) {
-                out.d->macAddrSpoofing.selectedNetworkInterface.dwType = es->mac_addr_spoofing->selected_network_interface->dw_type;
-            }
-            out.d->macAddrSpoofing.selectedNetworkInterface.deviceName = es->mac_addr_spoofing->selected_network_interface->device_name;
-            if (es->mac_addr_spoofing->selected_network_interface->has_connector_present) {
-                out.d->macAddrSpoofing.selectedNetworkInterface.connectorPresent = es->mac_addr_spoofing->selected_network_interface->connector_present;
-            }
-            if (es->mac_addr_spoofing->selected_network_interface->has_end_point_interface) {
-                out.d->macAddrSpoofing.selectedNetworkInterface.endPointInterface = es->mac_addr_spoofing->selected_network_interface->end_point_interface;
             }
         }
 
@@ -206,28 +190,12 @@ bool LegacyProtobufSupport::loadEngineSettings(const QByteArray &arr, types::Eng
                     networkInterface.active = ni->active;
                 }
                 networkInterface.friendlyName = ni->friendly_name;
-                if (ni->has_requested) {
-                    networkInterface.requested = ni->requested;
-                }
                 if (ni->has_metric) {
                     networkInterface.metric = ni->metric;
                 }
                 networkInterface.physicalAddress = ni->physical_address;
                 if (ni->has_mtu) {
                     networkInterface.mtu = ni->mtu;
-                }
-                if (ni->has_state) {
-                    networkInterface.state = ni->state;
-                }
-                if (ni->has_dw_type) {
-                    networkInterface.dwType = ni->dw_type;
-                }
-                networkInterface.deviceName = ni->device_name;
-                if (ni->has_connector_present) {
-                    networkInterface.connectorPresent = ni->connector_present;
-                }
-                if (ni->has_end_point_interface) {
-                    networkInterface.endPointInterface = ni->end_point_interface;
                 }
 
                 out.d->macAddrSpoofing.networkInterfaces << networkInterface;
@@ -293,9 +261,6 @@ bool LegacyProtobufSupport::loadGuiPersistentState(const QByteArray &arr, types:
                     networkInterface.active = ni->active;
                 }
                 networkInterface.friendlyName = ni->friendly_name;
-                if (ni->has_requested) {
-                    networkInterface.requested = ni->requested;
-                }
                 if (ni->has_metric) {
                     networkInterface.metric = ni->metric;
                 }
@@ -303,20 +268,6 @@ bool LegacyProtobufSupport::loadGuiPersistentState(const QByteArray &arr, types:
                 if (ni->has_mtu) {
                     networkInterface.mtu = ni->mtu;
                 }
-                if (ni->has_state) {
-                    networkInterface.state = ni->state;
-                }
-                if (ni->has_dw_type) {
-                    networkInterface.dwType = ni->dw_type;
-                }
-                networkInterface.deviceName = ni->device_name;
-                if (ni->has_connector_present) {
-                    networkInterface.connectorPresent = ni->connector_present;
-                }
-                if (ni->has_end_point_interface) {
-                    networkInterface.endPointInterface = ni->end_point_interface;
-                }
-
                 out.networkWhiteList << networkInterface;
             }
         }

@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <spdlog/spdlog.h>
 
-#include "../installer_base.h"
+#include "installerenums.h"
 #include "../settings.h"
 #include "../../../utils/path.h"
 #include "../../../utils/utils.h"
@@ -49,7 +49,7 @@ int InstallSplitTunnel::executeStep()
     }
     catch (system_error& ex) {
         spdlog::error("InstallSplitTunnel {}", ex.what());
-        result = -ERROR_OTHER;
+        result = -wsl::ERROR_OTHER;
     }
 
     if (hService != NULL) {

@@ -89,10 +89,6 @@
         <translation>Windscribe의 기존 설치에 대한 제거 프로그램을 찾을 수 없습니다. 응용 프로그램을 수동으로 제거하고 다시 시도하십시오.</translation>
     </message>
     <message>
-        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>설치 폴더에는 제거할 수 없는 데이터가 포함되어 있습니다. 응용 프로그램을 수동으로 제거하고 다시 시도하십시오.</translation>
-    </message>
-    <message>
         <source>Security Warning</source>
         <translation>보안 경고</translation>
     </message>
@@ -103,6 +99,18 @@
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
         <translation>현재 사용자 이름은 Windscribe 앱에 필요한 &apos;windscribe&apos;입니다. Windscribe를 설치할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>사용자 지정 폴더에 설치하지 못했습니다. 응용 프로그램을 수동으로 제거하고 사용자 지정 폴더에 액세스하는 응용 프로그램이 없는지 확인한 다음 다시 시도하십시오.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>사용자 지정 설치 폴더를 삭제할 수 없습니다. 응용 프로그램을 수동으로 제거하고 사용자 지정 폴더에 액세스하는 응용 프로그램이 없는지 확인한 다음 다시 시도하십시오.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
+        <translation>사용자 지정 설치 폴더가 비어 있지 않습니다. 보안을 위해 Windscribe는 빈 폴더에만 설치할 수 있습니다. 폴더에서 모든 파일을 삭제하고 다시 시도하십시오.</translation>
     </message>
 </context>
 <context>

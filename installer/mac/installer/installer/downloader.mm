@@ -29,7 +29,7 @@
 -(void)start: (BOOL)keepBoth
 {
     self.progress = 0;
-    self.currentState = STATE_EXTRACTING;
+    self.currentState = wsl::STATE_EXTRACTING;
     [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
     NSURLSessionConfiguration *conf = [NSURLSessionConfiguration defaultSessionConfiguration];
     session_ = [NSURLSession sessionWithConfiguration:conf  delegate: self delegateQueue: nil];
@@ -40,7 +40,7 @@
 // cancel and do uninstall
 -(void)cancel
 {
-    self.currentState = STATE_CANCELED;
+    self.currentState = wsl::STATE_CANCELED;
     if (session_)
     {
         [session_ invalidateAndCancel];
@@ -70,7 +70,7 @@
     [[NSWorkspace sharedWorkspace] openURL: [NSURL fileURLWithPath:@"/Volumes/Windscribe" isDirectory:YES]];
 
     self.progress = 100;
-    self.currentState = STATE_LAUNCHED;
+    self.currentState = wsl::STATE_LAUNCHED;
     [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
 }
 
@@ -87,7 +87,7 @@
         double progress = (double)totalBytesWritten / (double)totalBytesExpectedToWrite * 100.0f;
 
         self.progress = progress;
-        self.currentState = STATE_EXTRACTING;
+        self.currentState = wsl::STATE_EXTRACTING;
         [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
     }
 }
@@ -106,14 +106,14 @@
         [data writeToFile:filePath_ atomically:YES];
 
         self.progress = 100;
-        self.currentState = STATE_FINISHED;
+        self.currentState = wsl::STATE_FINISHED;
         [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
     }
     else
     {
         self.progress = 0;
-        self.currentState = STATE_ERROR;
-        self.lastError = ERROR_OTHER;
+        self.currentState = wsl::STATE_ERROR;
+        self.lastError = wsl::ERROR_OTHER;
         [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
     }
 }
@@ -125,8 +125,8 @@
     if (error)
     {
         self.progress = 0;
-        self.currentState = STATE_ERROR;
-        self.lastError = ERROR_OTHER;
+        self.currentState = wsl::STATE_ERROR;
+        self.lastError = wsl::ERROR_OTHER;
         [callbackObject_ performSelectorOnMainThread:callbackSelector_ withObject:self waitUntilDone:NO];
     }
 }

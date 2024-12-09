@@ -89,10 +89,6 @@
         <translation>Uninstaller untuk instalasi Windscribe yang ada tidak dapat ditemukan. Hapus instalan aplikasi secara manual dan coba lagi.</translation>
     </message>
     <message>
-        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>Folder instalasi berisi data yang tidak dapat dihapus. Hapus instalan aplikasi secara manual dan coba lagi.</translation>
-    </message>
-    <message>
         <source>Security Warning</source>
         <translation>Peringatan Keamanan</translation>
     </message>
@@ -103,6 +99,18 @@
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
         <translation>Nama pengguna Anda saat ini adalah &apos;windscribe&apos;, yang diperlukan oleh aplikasi Windscribe. Windscribe tidak dapat diinstal.</translation>
+    </message>
+    <message>
+        <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>Penginstalan ke folder kustom Anda tidak berhasil. Harap hapus instalan aplikasi secara manual, pastikan tidak ada aplikasi yang mengakses folder kustom, dan coba lagi.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>Folder instalasi kustom tidak dapat dihapus. Harap hapus instalan aplikasi secara manual, pastikan tidak ada aplikasi yang mengakses folder kustom, dan coba lagi.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
+        <translation>Folder instalasi kustom tidak kosong. Sebagai tindakan pencegahan keamanan, Windscribe hanya dapat diinstal ke folder kosong. Silakan hapus semua file dari folder dan coba lagi.</translation>
     </message>
 </context>
 <context>

@@ -89,10 +89,6 @@
         <translation>Không thể tìm thấy trình gỡ cài đặt cho cài đặt Windscribe hiện có. Vui lòng gỡ cài đặt ứng dụng theo cách thủ công và thử lại.</translation>
     </message>
     <message>
-        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>Thư mục cài đặt chứa dữ liệu không thể gỡ cài đặt. Vui lòng gỡ cài đặt ứng dụng theo cách thủ công và thử lại.</translation>
-    </message>
-    <message>
         <source>Security Warning</source>
         <translation>Cảnh báo bảo mật</translation>
     </message>
@@ -103,6 +99,18 @@
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
         <translation>Tên người dùng hiện tại của bạn là &apos;windscribe&apos;, ứng dụng Windscribe cần thiết. Không thể cài đặt Windscribe.</translation>
+    </message>
+    <message>
+        <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>Cài đặt vào thư mục tùy chỉnh của bạn không thành công. Vui lòng gỡ cài đặt ứng dụng theo cách thủ công, đảm bảo không có ứng dụng nào đang truy cập thư mục tùy chỉnh và thử lại.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>Không thể xóa thư mục cài đặt tùy chỉnh. Vui lòng gỡ cài đặt ứng dụng theo cách thủ công, đảm bảo không có ứng dụng nào đang truy cập thư mục tùy chỉnh và thử lại.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
+        <translation>Thư mục cài đặt tùy chỉnh không trống. Để phòng ngừa bảo mật, Windscribe chỉ có thể được cài đặt vào một thư mục trống. Vui lòng xóa tất cả các tệp khỏi thư mục và thử lại.</translation>
     </message>
 </context>
 <context>

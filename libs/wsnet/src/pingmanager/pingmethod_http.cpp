@@ -1,6 +1,6 @@
 #include "pingmethod_http.h"
 #include <rapidjson/document.h>
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 #include <skyr/url.hpp>
 #include "utils/utils.h"
 
@@ -23,7 +23,7 @@ PingMethodHttp::~PingMethodHttp()
 void PingMethodHttp::ping(bool isFromDisconnectedVpnState)
 {
     if (!utils::isIpAddress(ip_)) {
-        spdlog::error("PingMethodHttp::ping incorrect IP-address: {}", ip_);
+        g_logger->error("PingMethodHttp::ping incorrect IP-address: {}", ip_);
         callFinished();
         return;
     }
@@ -32,7 +32,7 @@ void PingMethodHttp::ping(bool isFromDisconnectedVpnState)
         auto url = skyr::url(hostname_);
     }
     catch(...) {
-        spdlog::error("PingMethodHttp::ping incorrect URL: {}", hostname_);
+        g_logger->error("PingMethodHttp::ping incorrect URL: {}", hostname_);
         callFinished();
         return;
     }

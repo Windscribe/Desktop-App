@@ -917,6 +917,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>Software Licenses</source>
         <translation>Giấy phép phần mềm</translation>
     </message>
+    <message>
+        <source>Changelog</source>
+        <translation>Nhật ký thay đổi</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AccountWindowItem</name>

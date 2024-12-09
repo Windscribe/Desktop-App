@@ -110,6 +110,7 @@ void MacAddressController_linux::onNetworkListChanged(const QList<types::Network
 
     if (!found) {
         spoofing_.selectedNetworkInterface = types::NetworkInterface::noNetworkInterface();
+        spoofing_.isEnabled = false;
     }
 
     emit macAddrSpoofingChanged(spoofing_);
@@ -149,7 +150,6 @@ void MacAddressController_linux::onNetworkListChanged(const QList<types::Network
 
         if (spoofing_.selectedNetworkInterface.interfaceIndex != interface.interfaceIndex) {
             removeSpoofs();
-            return;
         } else {
             enableSpoofing(true);
         }

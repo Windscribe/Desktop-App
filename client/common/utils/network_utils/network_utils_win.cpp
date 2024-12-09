@@ -34,6 +34,21 @@ static QList<QString> singleHexChars()
     return QList<QString>() << "0" << "1" << "2" << "3" << "4" << "5" << "6" << "7" << "8" << "9" << "a" << "b" << "c" << "d" << "e" << "f";
 }
 
+template <typename T>
+static T tableRowByIndex(const QList<T> &table, int index)
+{
+    T found;
+
+    for (const T &row : table) {
+        if (index == static_cast<int>(row.index)) { // TODO: convert all ifIndices to int
+            found = row;
+            break;
+        }
+    }
+
+    return found;
+}
+
 static QList<IfTableRow> getIfTable()
 {
     QList<IfTableRow> table;
@@ -123,7 +138,8 @@ static QList<IfTable2Row> getIfTable2()
                             pEntry->AccessType,
                             pEntry->InterfaceAndOperStatusFlags.ConnectorPresent,
                             pEntry->InterfaceAndOperStatusFlags.EndPointInterface,
-                            pEntry->Type);
+                            pEntry->Type,
+                            !pEntry->InterfaceAndOperStatusFlags.NotMediaConnected);
             if2Table.append(row);
         }
     }
@@ -133,24 +149,9 @@ static QList<IfTable2Row> getIfTable2()
     return if2Table;
 }
 
-static IfTableRow ifRowByIndex(int index)
-{
-    IfTableRow found;
-
-    const auto if_table = getIfTable();
-    for (const IfTableRow &row : if_table) {
-        if (index == static_cast<int>(row.index)) { // TODO: convert all ifIndices to int
-            found = row;
-            break;
-        }
-    }
-
-    return found;
-}
-
 static QString interfaceSubkeyPath(int interfaceIndex)
 {
-    IfTableRow row = ifRowByIndex(interfaceIndex);
+    IfTableRow row = tableRowByIndex(getIfTable(), interfaceIndex);
 
     const QString keyPath("SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}");
     const QStringList ifSubkeys = WinUtils::enumerateSubkeyNames(HKEY_LOCAL_MACHINE, keyPath);
@@ -173,21 +174,6 @@ static bool interfaceSubkeyHasProperty(int interfaceIndex, QString propertyName)
 {
     QString interfaceSubkeyP = interfaceSubkeyPath(interfaceIndex);
     return WinUtils::regHasLocalMachineSubkeyProperty(interfaceSubkeyP, propertyName);
-}
-
-static IfTable2Row ifTable2RowByIndex(int index)
-{
-    IfTable2Row found;
-
-    const auto if_table = getIfTable2();
-    for (const IfTable2Row &row : if_table) {
-        if (index == static_cast<int>(row.index)) { // TODO: convert all ifIndices to int
-            found = row;
-            break;
-        }
-    }
-
-    return found;
 }
 
 static QList<IpAdapter> getIpAdapterTable()
@@ -266,6 +252,69 @@ static QList<IpForwardRow> getIpForwardTable()
     return forwardTable;
 }
 
+static QString networkNameFromInterfaceGUID(QString adapterGUID)
+{
+    QString result = "";
+
+    INetworkListManager *pNetListManager = NULL;
+    HRESULT hr = CoCreateInstance(CLSID_NetworkListManager, NULL,
+                                  CLSCTX_ALL, IID_INetworkListManager,
+                                  (LPVOID *)&pNetListManager);
+    if (FAILED(hr)) {
+        qCCritical(LOG_BASIC) << "Failed to create CLSID_NetworkListManager:" << hr;
+        return result;
+    }
+
+    CComPtr<IEnumNetworkConnections> pEnumNetworkConnections;
+    hr = pNetListManager->GetNetworkConnections(&pEnumNetworkConnections);
+    if (SUCCEEDED(hr)) {
+        DWORD dwReturn = 0;
+        while (true) {
+            CComPtr<INetworkConnection> pNetConnection;
+            hr = pEnumNetworkConnections->Next(1, &pNetConnection, &dwReturn);
+            if (SUCCEEDED(hr) && dwReturn > 0) {
+                GUID adapterID;
+                if (pNetConnection->GetAdapterId(&adapterID) == S_OK) {
+                    QString adapterIDStr = guidToQString(adapterID);
+
+                    if (adapterGUID == adapterIDStr) {
+                        CComPtr<INetwork> pNetwork;
+                        if (pNetConnection->GetNetwork(&pNetwork) == S_OK) {
+                            BSTR bstrName = NULL;
+                            if (pNetwork->GetName(&bstrName) == S_OK) {
+                                result = QString::fromWCharArray(bstrName);
+                                SysFreeString(bstrName);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            else {
+                break;
+            }
+        }
+    }
+
+    pEnumNetworkConnections.Release();
+    pNetListManager->Release();
+
+    return result;
+}
+
+static bool isRowUsableForWindscribe(const IfTable2Row &row)
+{
+    if (row.interfaceType == IF_TYPE_ETHERNET_CSMACD) {
+        QString networkOrSsid = networkNameFromInterfaceGUID(row.interfaceGuid);
+        if (networkOrSsid == "Identifying..." || networkOrSsid == "Unidentified network") {
+            return false;
+        }
+    }
+
+    return row.valid && row.interfaceType != IF_TYPE_PPP && !row.endPointInterface &&
+        (row.interfaceType == IF_TYPE_ETHERNET_CSMACD || row.connectorPresent);
+}
+
 static IfTable2Row lowestMetricNonWindscribeIfTableRow()
 {
     IfTable2Row lowestMetricIfRow;
@@ -278,8 +327,9 @@ static IfTable2Row lowestMetricNonWindscribeIfTableRow()
     for (const IpForwardRow &row: fwdTable) {
         for (const IpAdapter &ipAdapter: ipAdapters) {
             if (ipAdapter.index == row.index) {
-                IfTable2Row ifRow = ifTable2RowByIndex(row.index);
-                if (ifRow.valid && ifRow.interfaceType != IF_TYPE_PPP && !ifRow.isWindscribeAdapter()) {
+                IfTable2Row ifRow = tableRowByIndex(getIfTable2(), row.index);
+                // We call this function to determine the current interface, so also make sure that the row is media-connected.
+                if (isRowUsableForWindscribe(ifRow) && ifRow.mediaConnected && !ifRow.isWindscribeAdapter()) {
                     const auto row_metric = static_cast<int>(row.metric);
                     if (row_metric < lowestMetric) {
                         lowestMetric = row_metric;
@@ -331,57 +381,6 @@ static QList<AdapterAddress> getAdapterAddressesTable()
     return adapters;
 }
 
-
-static QString networkNameFromInterfaceGUID(QString adapterGUID)
-{
-    QString result = "";
-
-    INetworkListManager *pNetListManager = NULL;
-    HRESULT hr = CoCreateInstance(CLSID_NetworkListManager, NULL,
-                                  CLSCTX_ALL, IID_INetworkListManager,
-                                  (LPVOID *)&pNetListManager);
-    if (FAILED(hr)) {
-        qCCritical(LOG_BASIC) << "Failed to create CLSID_NetworkListManager:" << hr;
-        return result;
-    }
-
-    CComPtr<IEnumNetworkConnections> pEnumNetworkConnections;
-    hr = pNetListManager->GetNetworkConnections(&pEnumNetworkConnections);
-    if (SUCCEEDED(hr)) {
-        DWORD dwReturn = 0;
-        while (true) {
-            CComPtr<INetworkConnection> pNetConnection;
-            hr = pEnumNetworkConnections->Next(1, &pNetConnection, &dwReturn);
-            if (SUCCEEDED(hr) && dwReturn > 0) {
-                GUID adapterID;
-                if (pNetConnection->GetAdapterId(&adapterID) == S_OK) {
-                    QString adapterIDStr = guidToQString(adapterID);
-
-                    if (adapterGUID == adapterIDStr) {
-                        CComPtr<INetwork> pNetwork;
-                        if (pNetConnection->GetNetwork(&pNetwork) == S_OK) {
-                            BSTR bstrName = NULL;
-                            if (pNetwork->GetName(&bstrName) == S_OK) {
-                                result = QString::fromWCharArray(bstrName);
-                                SysFreeString(bstrName);
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-            else {
-                break;
-            }
-        }
-    }
-
-    pEnumNetworkConnections.Release();
-    pNetListManager->Release();
-
-    return result;
-}
-
 bool NetworkUtils_win::isInterfaceSpoofed(int interfaceIndex)
 {
     return interfaceSubkeyHasProperty(interfaceIndex, "WindscribeMACSpoofed");
@@ -421,6 +420,36 @@ QString NetworkUtils_win::getLocalIP()
     return "";
 }
 
+QString NetworkUtils_win::currentNetworkInterfaceGuid()
+{
+    // This function is used primarily by network detection manager to check if the current interface has changed.
+    // We do not want to use currentNetworkInterfaces() here, because that returns a cached list
+    // (which is not useful to determine if the interface has changed), or it forces an update
+    // (which we want to avoid until we know something actually changed).
+
+    IfTable2Row row = lowestMetricNonWindscribeIfTableRow();
+    if (!row.valid) {
+        return "";
+    }
+
+    return row.interfaceGuid;
+}
+
+bool NetworkUtils_win::haveActiveInterface()
+{
+    // TODO: reconcile this with haveInternetConnectivity().  This function is used by NetworkDetectionManager::isOnlineImpl()
+    // to determine if there is an active interface, without forcing a network list update.
+    // Changing it to use haveInternetConnectivity() would reduce the amount of logic in this file, but may cause slightly different behavior.
+    QList<IpAdapter> ipAdapters = getIpAdapterTable();
+    for (const IpAdapter &ia : ipAdapters) {
+        IfTable2Row row = tableRowByIndex(getIfTable2(), ia.index);
+        if (isRowUsableForWindscribe(row) && row.mediaConnected) {
+            return true;
+        }
+    }
+    return false;
+}
+
 types::NetworkInterface NetworkUtils_win::currentNetworkInterface()
 {
     types::NetworkInterface curNetworkInterface = types::NetworkInterface::noNetworkInterface();
@@ -439,18 +468,6 @@ types::NetworkInterface NetworkUtils_win::currentNetworkInterface()
         }
     }
 
-    // Checking for a cellular modem
-    // It is not detectable by lowest metric because Windows assigns it the maximum metric as a rule
-    if (curNetworkInterface.isNoNetworkInterface()) {
-        for (const auto &networkInterface : networkInterfaces) {
-            if (networkInterface.active &&
-               (networkInterface.dwType == IF_TYPE_IEEE80216_WMAN || networkInterface.dwType == IF_TYPE_WWANPP ||  networkInterface.dwType == IF_TYPE_WWANPP2)) {
-                curNetworkInterface = networkInterface;
-                break;
-            }
-        }
-    }
-
     // qDebug() << "#########Current interface found to be: ";
     // Utils::printInterface(curNetworkInterface);
     // qDebug() << "Of: ";
@@ -459,98 +476,98 @@ types::NetworkInterface NetworkUtils_win::currentNetworkInterface()
     return curNetworkInterface;
 }
 
-QVector<types::NetworkInterface> NetworkUtils_win::currentNetworkInterfaces(bool includeNoInterface)
+static QVector<types::NetworkInterface> addNoInterface(bool includeNoInterface, const QVector<types::NetworkInterface> &networkInterfaces)
 {
-    QVector<types::NetworkInterface> networkInterfaces;
-
-    // Add "No Interface" selection
     if (includeNoInterface) {
-        networkInterfaces << types::NetworkInterface::noNetworkInterface();
+        QVector<types::NetworkInterface> ret;
+        ret << types::NetworkInterface::noNetworkInterface();
+        ret << networkInterfaces;
+        return ret;
+    } else {
+        return networkInterfaces;
     }
+}
 
-    const QList<IpAdapter> ipAdapters = getIpAdapterTable();
-    const QList<AdapterAddress> adapterAddresses = getAdapterAddressesTable(); // TODO: invalid parameters passed to C runtime
-
-    const QList<IfTableRow> ifTable = getIfTable();
-    const QList<IfTable2Row> ifTable2 = getIfTable2();
-    const QList<IpForwardRow> ipForwardTable = getIpForwardTable();
+QVector<types::NetworkInterface> NetworkUtils_win::currentNetworkInterfaces(bool includeNoInterface, bool forceUpdate)
+{
+    static QVector<types::NetworkInterface> networkInterfaces;
+    if (!forceUpdate && !networkInterfaces.isEmpty()) {
+        return addNoInterface(includeNoInterface, networkInterfaces);
+    }
+    qCInfo(LOG_BASIC) << "Clearing cached network interfaces";
+    networkInterfaces.clear();
 
     WlanUtils_win wlanUtils;
 
-    for (const IpAdapter &ia: ipAdapters) { // IpAdapters holds list of live adapters
+    for (const IpAdapter &ia: getIpAdapterTable()) { // IpAdapters holds list of live adapters
         types::NetworkInterface networkInterface;
         networkInterface.interfaceIndex = ia.index;
         networkInterface.interfaceGuid = ia.guid;
         networkInterface.physicalAddress = ia.physicalAddress;
 
-        NETWORK_INTERFACE_TYPE nicType = NETWORK_INTERFACE_NONE;
+        IfTableRow itRow = tableRowByIndex(getIfTable(), ia.index);
+        if (!itRow.valid) {
+            // Should never happen
+            assert(false);
+            continue;
+        }
 
-        for (const IfTableRow &itRow: ifTable) {
-            if (itRow.index == static_cast<int>(ia.index)) {
-                nicType = itRow.type;
-                networkInterface.mtu = itRow.mtu;
-                networkInterface.interfaceType = nicType;
-                networkInterface.active = itRow.connected;
-                networkInterface.dwType = itRow.dwType;
-                networkInterface.deviceName = itRow.interfaceName;
+        networkInterface.mtu = itRow.mtu;
+        networkInterface.interfaceType = itRow.type;
+        networkInterface.active = itRow.connected;
 
-                if (nicType == NETWORK_INTERFACE_WIFI) {
-                    DWORD ret = wlanUtils.ssidFromInterfaceGUID(itRow.guidName, networkInterface.networkOrSsid);
-                    if (ret != ERROR_SUCCESS) {
-                        if (ret == ERROR_ACCESS_DENIED) {
-                            g_SsidAccessDenied = true;
-                        }
-                        networkInterface.networkOrSsid = "Wi-Fi";
-                    } else {
-                        g_SsidAccessDenied = false;
-                    }
-                } else if (nicType == NETWORK_INTERFACE_MOBILE_BROADBAND) {
-                    networkInterface.networkOrSsid = itRow.interfaceName;
+        if (networkInterface.interfaceType == NETWORK_INTERFACE_WIFI) {
+            DWORD ret = wlanUtils.ssidFromInterfaceGUID(itRow.guidName, networkInterface.networkOrSsid);
+            if (ret != ERROR_SUCCESS) {
+                if (ret == ERROR_ACCESS_DENIED) {
+                    g_SsidAccessDenied = true;
                 }
-                break;
+                networkInterface.networkOrSsid = "Wi-Fi";
+            } else {
+                g_SsidAccessDenied = false;
             }
+        } else if (networkInterface.interfaceType == NETWORK_INTERFACE_MOBILE_BROADBAND) {
+            networkInterface.networkOrSsid = itRow.interfaceName;
         }
 
-        for (const IfTable2Row &it2Row: ifTable2) {
-            if (it2Row.index == ia.index) {
-                if (nicType == NETWORK_INTERFACE_ETH) {
-                    networkInterface.networkOrSsid = networkNameFromInterfaceGUID(it2Row.interfaceGuid);
-                }
-                networkInterface.connectorPresent = it2Row.connectorPresent;
-                networkInterface.endPointInterface = it2Row.endPointInterface;
-                break;
-            }
+        IfTable2Row it2Row = tableRowByIndex(getIfTable2(), ia.index);
+        if (!it2Row.valid) {
+            // Should never happen
+            assert(false);
+            continue;
+        }
+        if (!isRowUsableForWindscribe(it2Row)) {
+            continue;
         }
 
-        for (const IpForwardRow &ipfRow: ipForwardTable) {
-            if (ipfRow.index == ia.index) {
-                networkInterface.metric = ipfRow.metric;
-                break;
-            }
+        if (networkInterface.interfaceType == NETWORK_INTERFACE_ETH) {
+            networkInterface.networkOrSsid = networkNameFromInterfaceGUID(it2Row.interfaceGuid);
         }
 
-        for (const AdapterAddress &aa: adapterAddresses) {
-            if (aa.index == ia.index) {
-                networkInterface.interfaceName = aa.friendlyName;
-                networkInterface.friendlyName  = networkInterface.interfaceName;
-            }
+        IpForwardRow ipfRow = tableRowByIndex(getIpForwardTable(), ia.index);
+        if (!ipfRow.valid) {
+            // Should never happen
+            assert(false);
+            continue;
         }
 
-        // Filter out virtual physical adapters, but keep virtual adapters that act as Ethernet
-        // network bridges (e.g. Hyper-V virtual switches on the host side).
-        if (networkInterface.dwType != IF_TYPE_PPP && !networkInterface.endPointInterface &&
-            (networkInterface.interfaceType == NETWORK_INTERFACE_ETH || networkInterface.connectorPresent))
-        {
-            networkInterfaces << networkInterface;
+        networkInterface.metric = ipfRow.metric;
+
+        AdapterAddress aa = tableRowByIndex(getAdapterAddressesTable(), ia.index);
+        if (aa.valid) {
+            networkInterface.interfaceName = aa.friendlyName;
+            networkInterface.friendlyName  = networkInterface.interfaceName;
         }
+
+        networkInterfaces << networkInterface;
     }
 
-    return networkInterfaces;
+    return addNoInterface(includeNoInterface, networkInterfaces);
 }
 
 QString NetworkUtils_win::interfaceSubkeyName(int interfaceIndex)
 {
-    IfTableRow row = ifRowByIndex(interfaceIndex);
+    IfTableRow row = tableRowByIndex(getIfTable(), interfaceIndex);
 
     const QString keyPath("SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}");
     const QStringList ifSubkeys = WinUtils::enumerateSubkeyNames(HKEY_LOCAL_MACHINE, keyPath);

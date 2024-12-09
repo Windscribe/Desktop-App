@@ -1,3 +1,16 @@
+2.13.4 (09/12/2024)
+All:
+   * Added changelog link in preferences. #1209
+   * Fixed Ecuador flag. #1210
+Windows:
+   * Added detection to the Windows installer that checks to see if the Windows service has been installed or failed. #680
+   * Improved network detection and minimized location service requests on W11 24H2. #1200
+   * Improved error reporting if installation to a custom folder fails. #1199
+Linux:
+   * Fixed invalid MAC spoofing loop when specifying an invalid address. #1202
+   * Fixed Linux logs for wsnet are double encapsulated. #1211
+
+
 2.13.3 (02/12/2024)
 All:
    * Improved logs in the client. #1184

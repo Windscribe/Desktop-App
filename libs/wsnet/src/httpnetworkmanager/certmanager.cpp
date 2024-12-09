@@ -1,6 +1,6 @@
 #include "certmanager.h"
 #include <assert.h>
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 #include <cmrc/cmrc.hpp>
 
 CMRC_DECLARE(wsnet);
@@ -21,7 +21,7 @@ CertManager::CertManager()
     auto fdCert = fs.open("resources/windscribe_cert.crt");
     parseCertsBundle(std::string(fdCert.begin(), fdCert.end()));
 
-    spdlog::debug("CertManager number of certificates : {}", certs_.size());
+    g_logger->debug("CertManager number of certificates : {}", certs_.size());
 }
 
 CertManager::~CertManager()

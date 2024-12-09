@@ -917,6 +917,10 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <source>Software Licenses</source>
         <translation>Licenze software</translation>
     </message>
+    <message>
+        <source>Changelog</source>
+        <translation>Registro delle modifiche</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AccountWindowItem</name>

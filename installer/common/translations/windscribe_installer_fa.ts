@@ -89,10 +89,6 @@
         <translation>حذف نصب برای نصب موجود Windscribe یافت نشد. لطفا برنامه را به صورت دستی حذف کنید و دوباره امتحان کنید.</translation>
     </message>
     <message>
-        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>پوشه نصب حاوی داده هایی است که نمی توان انها را حذف نصب کرد. لطفا برنامه را به صورت دستی حذف کنید و دوباره امتحان کنید.</translation>
-    </message>
-    <message>
         <source>Security Warning</source>
         <translation>هشدار امنیتی</translation>
     </message>
@@ -103,6 +99,18 @@
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
         <translation>نام کاربری فعلی شما &apos;windscribe&apos; است که توسط برنامه Windscribe مورد نیاز است. Windscribe را نمی توان نصب کرد.</translation>
+    </message>
+    <message>
+        <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>نصب در پوشه سفارشی شما ناموفق بود. لطفا برنامه را به صورت دستی حذف نصب کنید، مطمئن شوید که هیچ برنامه ای به پوشه سفارشی دسترسی ندارد و دوباره امتحان کنید.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>پوشه نصب سفارشی قابل حذف نیست. لطفا برنامه را به صورت دستی حذف نصب کنید، مطمئن شوید که هیچ برنامه ای به پوشه سفارشی دسترسی ندارد و دوباره امتحان کنید.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
+        <translation>پوشه نصب سفارشی خالی نیست. به عنوان یک اقدام احتیاطی امنیتی، Windscribe را فقط می توان در یک پوشه خالی نصب کرد. لطفا همه فایل ها را از پوشه حذف کنید و دوباره امتحان کنید.</translation>
     </message>
 </context>
 <context>

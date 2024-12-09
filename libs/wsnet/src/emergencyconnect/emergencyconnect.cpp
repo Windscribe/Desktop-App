@@ -1,6 +1,6 @@
 #include "emergencyconnect.h"
 #include <cmrc/cmrc.hpp>
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 #include "failover/failovercontainer.h"
 #include "emergencyconnectendpoint.h"
 #include "utils/utils.h"
@@ -96,7 +96,7 @@ void EmergencyConnect::onDnsResolved(std::uint64_t requestId, const std::string 
                 endpoints.push_back(std::make_shared<EmergencyConnectEndpoint>(ip, 443, Protocol::kTcp));
             }
         } else {
-            spdlog::warn("EmergencyConnect::onDnsResolved failed");
+            g_logger->warn("EmergencyConnect::onDnsResolved failed");
         }
 
         std::vector<std::shared_ptr<WSNetEmergencyConnectEndpoint>> endpointsHardcoded;

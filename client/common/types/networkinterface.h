@@ -48,10 +48,6 @@ struct NetworkInterface
             friendlyName = Utils::fromBase64(json[kJsonFriendlyNameProp].toString());
         }
 
-        if (json.contains(kJsonRequestedProp) && json[kJsonRequestedProp].isBool()) {
-            requested = json[kJsonRequestedProp].toBool();
-        }
-
         if (json.contains(kJsonMetricProp) && json[kJsonMetricProp].isDouble()) {
             metric = static_cast<int>(json[kJsonMetricProp].toDouble(100));
         }
@@ -67,26 +63,6 @@ struct NetworkInterface
                 mtu = mtuValue;
             }
         }
-
-        if (json.contains(kJsonStateProp) && json[kJsonStateProp].isDouble()) {
-            state = static_cast<int>(json[kJsonStateProp].toDouble(0));
-        }
-
-        if (json.contains(kJsonDwTypeProp) && json[kJsonDwTypeProp].isDouble()) {
-            dwType = static_cast<int>(json[kJsonDwTypeProp].toDouble(0));
-        }
-
-        if (json.contains(kJsonDeviceNameProp) && json[kJsonDeviceNameProp].isString()) {
-            deviceName = Utils::fromBase64(json[kJsonDeviceNameProp].toString());
-        }
-
-        if (json.contains(kJsonConnectorPresentProp) && json[kJsonConnectorPresentProp].isBool()) {
-            connectorPresent = json[kJsonConnectorPresentProp].toBool();
-        }
-
-        if (json.contains(kJsonEndPointInterfaceProp) && json[kJsonEndPointInterfaceProp].isBool()) {
-            endPointInterface = json[kJsonEndPointInterfaceProp].toBool();
-        }
     }
 
     int interfaceIndex = -1;
@@ -97,15 +73,9 @@ struct NetworkInterface
     NETWORK_TRUST_TYPE trustType = NETWORK_TRUST_SECURED;
     bool active = false;
     QString friendlyName;
-    bool requested = false;
     int metric = 100;
     QString physicalAddress;
     int mtu = 1470;
-    int state = 0;
-    int dwType = 0;
-    QString deviceName;
-    bool connectorPresent = false;
-    bool endPointInterface = false;
 
     bool operator==(const NetworkInterface &other) const
     {
@@ -117,15 +87,9 @@ struct NetworkInterface
                other.trustType == trustType &&
                other.active == active &&
                other.friendlyName == friendlyName &&
-               other.requested == requested &&
                other.metric == metric &&
                other.physicalAddress == physicalAddress &&
-               other.mtu == mtu &&
-               other.state == state &&
-               other.dwType == dwType &&
-               other.deviceName == deviceName &&
-               other.connectorPresent == connectorPresent &&
-               other.endPointInterface == endPointInterface;
+               other.mtu == mtu;
     }
 
     bool operator!=(const NetworkInterface &other) const
@@ -163,15 +127,9 @@ struct NetworkInterface
         json[kJsonTrustTypeProp] = static_cast<int>(trustType);
         json[kJsonActiveProp] = active;
         json[kJsonFriendlyNameProp] = Utils::toBase64(friendlyName);
-        json[kJsonRequestedProp] = requested;
         json[kJsonMetricProp] = metric;
         json[kJsonPhysicalAddressProp] = Utils::toBase64(physicalAddress);
         json[kJsonMtuProp] = mtu;
-        json[kJsonStateProp] = state;
-        json[kJsonDwTypeProp] = dwType;
-        json[kJsonDeviceNameProp] = Utils::toBase64(deviceName);
-        json[kJsonConnectorPresentProp] = connectorPresent;
-        json[kJsonEndPointInterfaceProp] = endPointInterface;
         return json;
     }
 
@@ -194,8 +152,7 @@ struct NetworkInterface
     {
         stream << versionForSerialization_;
         stream << o.interfaceIndex << o.interfaceName << o.interfaceGuid << o.networkOrSsid << o.interfaceType << o.trustType << o.active <<
-                  o.friendlyName << o.requested << o.metric << o.physicalAddress << o.mtu << o.state << o.dwType << o.deviceName <<
-                  o.connectorPresent << o.endPointInterface;
+                  o.friendlyName << o.metric << o.physicalAddress << o.mtu;
         return stream;
     }
 
@@ -209,11 +166,25 @@ struct NetworkInterface
             return stream;
         }
         stream >> o.interfaceIndex >> o.interfaceName >> o.interfaceGuid >> o.networkOrSsid >> o.interfaceType >> o.trustType >> o.active >>
-                  o.friendlyName >> o.requested >> o.metric >> o.physicalAddress >> o.mtu >> o.state >> o.dwType >> o.deviceName >>
-                  o.connectorPresent >> o.endPointInterface;
+                  o.friendlyName;
+
+        if (version < 2) {
+            bool requested;
+            stream >> requested; // Deprecated
+        }
+
+        stream >> o.metric >> o.physicalAddress >> o.mtu;
+
+        if (version < 2) {
+            int dwType;
+            int state;
+            QString deviceName;
+            bool connectorPresent;
+            bool endPointInterface;
+            stream >> state >> dwType >> deviceName >> connectorPresent >> endPointInterface; // Deprecated
+        }
         return stream;
     }
-
 
     friend QDebug operator<<(QDebug dbg, const NetworkInterface &ni)
     {
@@ -233,17 +204,11 @@ private:
     static const inline QString kJsonTrustTypeProp = "trustType";
     static const inline QString kJsonActiveProp = "active";
     static const inline QString kJsonFriendlyNameProp = "friendlyName";
-    static const inline QString kJsonRequestedProp = "requested";
     static const inline QString kJsonMetricProp = "metric";
     static const inline QString kJsonPhysicalAddressProp = "physicalAddress";
     static const inline QString kJsonMtuProp = "mtu";
-    static const inline QString kJsonStateProp = "state";
-    static const inline QString kJsonDwTypeProp = "dwType";
-    static const inline QString kJsonDeviceNameProp = "deviceName";
-    static const inline QString kJsonConnectorPresentProp = "connectorPresent";
-    static const inline QString kJsonEndPointInterfaceProp = "endPointInterface";
 
-    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+    static constexpr quint32 versionForSerialization_ = 2;  // should increment the version if the data format is changed
 };
 
 } // types namespace

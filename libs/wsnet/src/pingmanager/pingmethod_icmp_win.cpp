@@ -5,7 +5,7 @@
 #include <winternl.h>
 #include <icmpapi.h>
 
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 
 namespace wsnet {
 
@@ -31,7 +31,7 @@ void PingMethodIcmp_win::ping(bool isFromDisconnectedVpnState)
 
     icmpFile_ = ::IcmpCreateFile();
     if (icmpFile_ == INVALID_HANDLE_VALUE) {
-        spdlog::error("PingHost_ICMP_win IcmpCreateFile failed, error: {}", ::GetLastError());
+        g_logger->error("PingHost_ICMP_win IcmpCreateFile failed, error: {}", ::GetLastError());
         assert(false);
         callFinished();
         return;
@@ -43,7 +43,7 @@ void PingMethodIcmp_win::ping(bool isFromDisconnectedVpnState)
 
     IN_ADDR ipAddr;
     if (inet_pton(AF_INET, ip_.c_str(), &ipAddr) != 1) {
-        spdlog::error("PingHost_ICMP_win inet_pton failed, error: {}", ::WSAGetLastError());
+        g_logger->error("PingHost_ICMP_win inet_pton failed, error: {}", ::WSAGetLastError());
         callFinished();
         return;
     }
@@ -57,7 +57,7 @@ void PingMethodIcmp_win::ping(bool isFromDisconnectedVpnState)
                                    (LPVOID)dataForSend, sizeof(dataForSend), NULL,
                                    replyBuffer_.get(), replySize_, 2000);
     if (result != 0) {
-        spdlog::error("PingHost_ICMP_win IcmpSendEcho2 returned unexpected result, error: {}", ::GetLastError());
+        g_logger->error("PingHost_ICMP_win IcmpSendEcho2 returned unexpected result, error: {}", ::GetLastError());
         assert(false);
         callFinished();
         return;

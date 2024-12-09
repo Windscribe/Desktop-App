@@ -17,4 +17,5 @@ private:
 
     int moveFiles();
     bool copyLibs();
+    void logCustomFolderContents(const std::wstring &folder);
 };

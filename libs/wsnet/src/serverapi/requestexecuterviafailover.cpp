@@ -1,5 +1,5 @@
 #include "requestexecuterviafailover.h"
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 #include "serverapi_utils.h"
 
 namespace wsnet {
@@ -65,7 +65,7 @@ void RequestExecuterViaFailover::onFailoverCallback(const std::vector<FailoverDa
     // if we have already tried this domain and it is failed skip it
     // keep in mind the failover can contain several domains
     while (curIndFailoverData_ < failoverData_.size() && failedFailovers_.isContains(failoverData_[curIndFailoverData_]))  {
-        spdlog::debug("Got an already failed domain, skip it");
+        g_logger->debug("Got an already failed domain, skip it");
         curIndFailoverData_++;
     }
     if (curIndFailoverData_ >= failoverData_.size())
@@ -100,8 +100,8 @@ void RequestExecuterViaFailover::onHttpNetworkRequestFinished(std::uint64_t http
     if (errCode == NetworkError::kSuccess) {
         request_->handle(data);
         if (advancedParameters_->isLogApiResponce()) {
-            spdlog::info("API request {} finished", request_->name());
-            spdlog::info("{}", data);
+            g_logger->info("API request {} finished", request_->name());
+            g_logger->info("{}", data);
         }
     }
 

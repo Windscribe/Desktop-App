@@ -20,7 +20,7 @@
 
 using namespace std;
 
-Installer::Installer() : InstallerBase(), state_(STATE_INIT), progress_(0), error_(ERROR_OTHER)
+Installer::Installer() : InstallerBase(), state_(wsl::STATE_INIT), progress_(0), error_(wsl::ERROR_OTHER)
 {
 }
 
@@ -55,7 +55,7 @@ void Installer::executionImpl()
     int overallProgress = 0;
     int prevOverallProgress = 0;
 
-    state_ = STATE_EXTRACTING;
+    state_ = wsl::STATE_EXTRACTING;
     callback_();
 
     vector<DWORD> ticks;
@@ -74,7 +74,7 @@ void Installer::executionImpl()
             {
                 lock_guard<mutex> lock(mutex_);
                 if (isCanceled_) {
-                    state_ = STATE_CANCELED;
+                    state_ = wsl::STATE_CANCELED;
                     progress_ = 0;
                     return;
                 }
@@ -98,8 +98,8 @@ void Installer::executionImpl()
             // error from block?
             else if (progressOfBlock < 0) {
                 progress_ = overallProgress;
-                error_ = static_cast<INSTALLER_ERROR>(-progressOfBlock);
-                state_ = STATE_ERROR;
+                error_ = static_cast<wsl::INSTALLER_ERROR>(-progressOfBlock);
+                state_ = wsl::STATE_ERROR;
                 callback_();
                 spdlog::error(L"{}", block->getLastError());
                 return;
@@ -117,7 +117,7 @@ void Installer::executionImpl()
     deleteBlocks();
     exitGuard.dismiss();
 
-    state_ = STATE_FINISHED;
+    state_ = wsl::STATE_FINISHED;
     progress_ = 100;
     callback_();
 }
@@ -131,11 +131,11 @@ void Installer::launchAppImpl()
     } else {
         spdlog::info(L"Skip launching app");
     }
-    state_ = STATE_LAUNCHED;
+    state_ = wsl::STATE_LAUNCHED;
     callback_();
 }
 
-INSTALLER_CURRENT_STATE Installer::state()
+wsl::INSTALLER_STATE Installer::state()
 {
     return state_;
 }
@@ -150,7 +150,7 @@ void Installer::setCallback(function<void()> func)
     callback_ = func;
 }
 
-INSTALLER_ERROR Installer::lastError()
+wsl::INSTALLER_ERROR Installer::lastError()
 {
     return error_;
 }

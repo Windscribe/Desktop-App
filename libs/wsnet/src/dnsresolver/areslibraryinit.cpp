@@ -1,5 +1,5 @@
 #include "areslibraryinit.h"
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 #include <ares.h>
 
 #if defined(ANDROID) || defined(__ANDROID__)
@@ -10,7 +10,7 @@ namespace wsnet {
 
 AresLibraryInit::AresLibraryInit() : bInitialized_(false), bFailedInitialize_(false)
 {
-    spdlog::info("c-ares version: {}", ARES_VERSION_STR);
+    g_logger->info("c-ares version: {}", ARES_VERSION_STR);
 }
 
 AresLibraryInit::~AresLibraryInit()
@@ -29,7 +29,7 @@ bool AresLibraryInit::init()
 #endif
             int status = ares_library_init(ARES_LIB_INIT_ALL);
             if (status != ARES_SUCCESS) {
-                spdlog::error("ares_library_init failed: {}", ares_strerror(status));
+                g_logger->error("ares_library_init failed: {}", ares_strerror(status));
                 bFailedInitialize_ = true;
                 return false;
             } else  {
@@ -67,7 +67,7 @@ bool AresLibraryInit::initAndroid()
     assert(connectivity_manager);
     int status = ares_library_init_android(connectivity_manager);
     if (status != ARES_SUCCESS) {
-        spdlog::error("ares_library_init_android failed: {}", ares_strerror(status));
+        g_logger->error("ares_library_init_android failed: {}", ares_strerror(status));
         return false;
     }
 #endif

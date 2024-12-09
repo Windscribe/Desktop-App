@@ -2,7 +2,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 
 
 namespace wsnet {
@@ -12,18 +12,18 @@ PersistentSettings::PersistentSettings(const std::string &settings)
     using namespace rapidjson;
 
     if (settings.empty()) {
-        spdlog::info("Use default ServerAPI settings");
+        g_logger->info("Use default ServerAPI settings");
     } else {
         Document doc;
         doc.Parse(settings.c_str());
         if (doc.HasParseError() || !doc.IsObject()) {
-            spdlog::error("ServerAPI settings incorrect format, use default ServerAPI settings");
+            g_logger->error("ServerAPI settings incorrect format, use default ServerAPI settings");
             return;
         }
 
         auto jsonObject = doc.GetObj();
         if (!jsonObject.HasMember("version")) {
-            spdlog::error("ServerAPI settings incorrect format, use default ServerAPI settings");
+            g_logger->error("ServerAPI settings incorrect format, use default ServerAPI settings");
             return;
         }
 
@@ -51,7 +51,7 @@ PersistentSettings::PersistentSettings(const std::string &settings)
         if (jsonObject.HasMember("notifications"))
             notifications_ = jsonObject["notifications"].GetString();
 
-        spdlog::info("ServerAPI settings settled sucessfully");
+        g_logger->info("ServerAPI settings settled sucessfully");
     }
 }
 

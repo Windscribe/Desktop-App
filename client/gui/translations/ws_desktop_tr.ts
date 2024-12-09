@@ -917,6 +917,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>Software Licenses</source>
         <translation>Yazılım Lisansları</translation>
     </message>
+    <message>
+        <source>Changelog</source>
+        <translation>Değişiklik</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AccountWindowItem</name>

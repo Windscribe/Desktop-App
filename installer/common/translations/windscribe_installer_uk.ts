@@ -89,10 +89,6 @@
         <translation>Не вдалося знайти деінсталятор для існуючої інсталяції Windscribe. Будь ласка, видаліть програму вручну та повторіть спробу.</translation>
     </message>
     <message>
-        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>Папка інсталяції містить дані, які не вдалося видалити. Будь ласка, видаліть програму вручну та повторіть спробу.</translation>
-    </message>
-    <message>
         <source>Security Warning</source>
         <translation>Попередження системи безпеки</translation>
     </message>
@@ -103,6 +99,18 @@
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
         <translation>Ваше поточне ім&apos;я користувача - &quot;windscribe&quot;, яке потрібне для додатку Windscribe. Windscribe не можна встановити.</translation>
+    </message>
+    <message>
+        <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>Інсталяція до вашої користувацької папки не увінчалася успіхом. Будь ласка, видаліть програму вручну, переконайтеся, що жодна програма не отримує доступ до спеціальної папки, і повторіть спробу.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>Папку з користувацькою інсталяцією не вдалося видалити. Будь ласка, видаліть програму вручну, переконайтеся, що жодна програма не отримує доступ до спеціальної папки, і повторіть спробу.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
+        <translation>Папка користувацької інсталяції не порожня. З міркувань безпеки Windscribe можна встановити тільки в порожню папку. Будь ласка, видаліть усі файли з папки та повторіть спробу.</translation>
     </message>
 </context>
 <context>

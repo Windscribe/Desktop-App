@@ -917,6 +917,10 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <source>Software Licenses</source>
         <translation>Licenças de Software</translation>
     </message>
+    <message>
+        <source>Changelog</source>
+        <translation>Registo de alterações</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AccountWindowItem</name>

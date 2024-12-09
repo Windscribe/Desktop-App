@@ -1,5 +1,5 @@
 #include "serverapi_impl.h"
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 #include "settings.h"
 #include "serverapi_utils.h"
 
@@ -20,12 +20,12 @@ ServerAPI_impl::ServerAPI_impl(WSNetHttpNetworkManager *httpNetworkManager, IFai
 
     // if it fails, use the first one
     if (!failover) {
-        spdlog::info("ServerAPI_impl::ServerAPI_impl, use the first failover");
+        g_logger->info("ServerAPI_impl::ServerAPI_impl, use the first failover");
         resetFailover();
     } else {
         curFailoverUid_ = failover->uniqueId();
         startFailoverUid_ = curFailoverUid_;
-        spdlog::info("ServerAPI_impl::ServerAPI_impl, use a failover from settings");
+        g_logger->info("ServerAPI_impl::ServerAPI_impl, use a failover from settings");
     }
 }
 
@@ -40,23 +40,23 @@ void ServerAPI_impl::setApiResolutionsSettings(bool isAutomatic, std::string man
 {
     if (!isAutomatic && !manualAddress.empty()) {
         if (!utils::isIpAddress(manualAddress)) {
-            spdlog::error("ServerAPI_impl::setApiResolutionsSettings, manualAddress = {} is not correct IP, reset to an automatic resolution", manualAddress);
+            g_logger->error("ServerAPI_impl::setApiResolutionsSettings, manualAddress = {} is not correct IP, reset to an automatic resolution", manualAddress);
             return;
         }
     }
     apiResolutionSettings_ = ApiResolutionSettings {isAutomatic, manualAddress};
-    spdlog::info("ServerAPI_impl::setApiResolutionsSettings, isAutomatic = {}, manualAddress = {}", isAutomatic, manualAddress);
+    g_logger->info("ServerAPI_impl::setApiResolutionsSettings, isAutomatic = {}, manualAddress = {}", isAutomatic, manualAddress);
 }
 
 void ServerAPI_impl::setIgnoreSslErrors(bool bIgnore)
 {
     bIgnoreSslErrors_ = bIgnore;
-    spdlog::info("ServerAPI_impl::setIgnoreSslErrors, {}", bIgnore);
+    g_logger->info("ServerAPI_impl::setIgnoreSslErrors, {}", bIgnore);
 }
 
 void ServerAPI_impl::resetFailover()
 {
-    spdlog::info("ServerAPI_impl::resetFailover");
+    g_logger->info("ServerAPI_impl::resetFailover");
     failedFailovers_.clear();
     auto failover = failoverContainer_->first();
     curFailoverUid_ = failover->uniqueId();
@@ -124,7 +124,7 @@ void ServerAPI_impl::executeRequest(std::unique_ptr<BaseRequest> request)
             bUseFailover = true;
         } else if (failoverState_ == FailoverState::kReady) {
             if (failoverData_->isExpired()) {
-                spdlog::info("The current failover domain is expired. Reset the failover state.");
+                g_logger->info("The current failover domain is expired. Reset the failover state.");
                 failoverState_ = FailoverState::kUnknown;
                 bUseFailover = true;
             }
@@ -132,7 +132,7 @@ void ServerAPI_impl::executeRequest(std::unique_ptr<BaseRequest> request)
 
         if (bUseFailover) {
             auto curFailover = failoverContainer_->failoverById(curFailoverUid_);
-            spdlog::info("Trying: {}", curFailover->name());
+            g_logger->info("Trying: {}", curFailover->name());
 
             // Do not emit this signal for the first failover
             if (failoverState_ == FailoverState::kUnknown && curInternalFailoverInd_ > 0 && tryingBackupEndpointCallback_)
@@ -217,7 +217,7 @@ void ServerAPI_impl::onRequestExecuterViaFailoverFinished(RequestExecuterRetCode
             failoverState_ = FailoverState::kFailed;
 
             if (!isFailoverFailedLogAlreadyDone_) {
-                spdlog::info("API request {} failed: API not ready", request->name());
+                g_logger->info("API request {} failed: API not ready", request->name());
                 isFailoverFailedLogAlreadyDone_ = true;
             }
 
@@ -246,13 +246,13 @@ void ServerAPI_impl::onHttpNetworkRequestFinished(std::uint64_t requestId, std::
 
     if (errCode == NetworkError::kSuccess) {
         if (advancedParameters_->isLogApiResponce()) {
-            spdlog::info("API request {} finished", it->second.request->name());
-            spdlog::info("{}", data);
+            g_logger->info("API request {} finished", it->second.request->name());
+            g_logger->info("{}", data);
         }
         it->second.request->handle(data);
         it->second.request->callCallback();
     } else {
-        spdlog::info("API request {} failed with retCode = {} and curlError = {}", it->second.request->name(), (int)errCode, curlError);
+        g_logger->info("API request {} failed with retCode = {} and curlError = {}", it->second.request->name(), (int)errCode, curlError);
 
         // we need to start going through the backup domains again
         // except for the DNS resolve error
@@ -268,7 +268,7 @@ void ServerAPI_impl::onHttpNetworkRequestFinished(std::uint64_t requestId, std::
                 failoverState_ = FailoverState::kUnknown;
                 failedFailovers_.clear();
                 persistentSettings_.setFailovedId("");    // clear setting
-                spdlog::info("ServerAPI_impl::onHttpNetworkRequestFinished, reset failover");
+                g_logger->info("ServerAPI_impl::onHttpNetworkRequestFinished, reset failover");
 
                 // mark all pending requests for discard
                 for (auto &req : activeHttpRequests_) {
@@ -315,7 +315,7 @@ std::unique_ptr<BaseFailover> ServerAPI_impl::getNextFailover(const std::string 
 void ServerAPI_impl::logAllFailoversFailed(BaseRequest *request)
 {
     if (!isFailoverFailedLogAlreadyDone_) {
-        spdlog::info("API request {} failed: API not ready", request->name());
+        g_logger->info("API request {} failed: API not ready", request->name());
         isFailoverFailedLogAlreadyDone_ = true;
     }
 }

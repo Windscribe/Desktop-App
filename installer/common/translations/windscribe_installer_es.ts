@@ -89,10 +89,6 @@
         <translation>No se pudo encontrar el desinstalador de la instalación existente de Windscribe. Desinstale la aplicación manualmente e inténtelo de nuevo.</translation>
     </message>
     <message>
-        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>La carpeta de instalación contiene datos que no se han podido desinstalar. Desinstale la aplicación manualmente e inténtelo de nuevo.</translation>
-    </message>
-    <message>
         <source>Security Warning</source>
         <translation>Advertencia de seguridad</translation>
     </message>
@@ -103,6 +99,18 @@
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
         <translation>Tu nombre de usuario actual es &apos;windscribe&apos;, que es necesario para la aplicación Windscribe. Windscribe no se puede instalar.</translation>
+    </message>
+    <message>
+        <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>La instalación en la carpeta personalizada no se ha realizado correctamente. Desinstale la aplicación manualmente, asegúrese de que ninguna aplicación esté accediendo a la carpeta personalizada y vuelva a intentarlo.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>No se pudo eliminar la carpeta de instalación personalizada. Desinstale la aplicación manualmente, asegúrese de que ninguna aplicación esté accediendo a la carpeta personalizada y vuelva a intentarlo.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
+        <translation>La carpeta de instalación personalizada no está vacía. Como medida de seguridad, Windscribe solo se puede instalar en una carpeta vacía. Elimine todos los archivos de la carpeta y vuelva a intentarlo.</translation>
     </message>
 </context>
 <context>

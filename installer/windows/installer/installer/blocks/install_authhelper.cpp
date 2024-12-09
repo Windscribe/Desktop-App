@@ -2,7 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include "../installer_base.h"
+#include "installerenums.h"
 #include "../settings.h"
 #include "../../../Utils/path.h"
 
@@ -30,7 +30,7 @@ int InstallAuthHelper::executeStep()
     if (hProxyStubLib == NULL) {
         spdlog::error(L"Failed to load Auth Helper Proxy Stub Library");
         lastError_ = L"An error occurred when loading the Auth Helper Proxy Stub library";
-        return -ERROR_OTHER;
+        return -wsl::ERROR_OTHER;
     }
 
     typedef HRESULT(*simpleFunc) (void);
@@ -42,13 +42,13 @@ int InstallAuthHelper::executeStep()
             spdlog::error(L"Call to Proxy Stub DllRegisterServer failed");
             lastError_ = L"An error occurred when calling Proxy Stub DllRegisterServer";
             FreeLibrary(hProxyStubLib);
-            return -ERROR_OTHER;
+            return -wsl::ERROR_OTHER;
         }
     } else {
         spdlog::error(L"Failed to get proxy stub DllRegisterServer");
         lastError_ = L"An error occurred when getting proxy stub DllRegisterServer";
         FreeLibrary(hProxyStubLib);
-        return -ERROR_OTHER;
+        return -wsl::ERROR_OTHER;
     }
     FreeLibrary(hProxyStubLib);
 
@@ -60,7 +60,7 @@ int InstallAuthHelper::executeStep()
     if (hLib == NULL) {
         spdlog::error(L"Failed to load Auth Helper Library");
         lastError_ = L"An error occurred when loading the Auth Helper library: ";
-        return -ERROR_OTHER;
+        return -wsl::ERROR_OTHER;
     }
 
     typedef HRESULT(__stdcall *someFunc) (const std::wstring &, const std::wstring &, const std::wstring &);
@@ -74,13 +74,13 @@ int InstallAuthHelper::executeStep()
             spdlog::error(L"Call to RegisterServerWithTargetPaths failed");
             lastError_ = L"An error occurred when calling RegisterServerWithTargetPaths: ";
             FreeLibrary(hLib);
-            return -ERROR_OTHER;
+            return -wsl::ERROR_OTHER;
         }
     } else {
         spdlog::error(L"Failed to get reg server function");
         lastError_ = L"An error occurred when getting RegisterServerWithTargetPaths: ";
         FreeLibrary(hLib);
-        return -ERROR_OTHER;
+        return -wsl::ERROR_OTHER;
     }
     FreeLibrary(hLib);
     spdlog::info(L"Auth helper installed successfully");

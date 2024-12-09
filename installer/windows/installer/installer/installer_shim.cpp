@@ -15,9 +15,9 @@ InstallerShim::~InstallerShim()
     delete reinterpret_cast<Installer *>(installer_);
 }
 
-InstallerShim::INSTALLER_STATE InstallerShim::state()
+wsl::INSTALLER_STATE InstallerShim::state()
 {
-    return (InstallerShim::INSTALLER_STATE)reinterpret_cast<Installer *>(installer_)->state();
+    return reinterpret_cast<Installer *>(installer_)->state();
 }
 
 int InstallerShim::progress()
@@ -78,9 +78,9 @@ bool InstallerShim::isCreateShortcutEnabled()
     return Settings::instance().getCreateShortcut();
 }
 
-InstallerShim::INSTALLER_ERROR InstallerShim::lastError()
+wsl::INSTALLER_ERROR InstallerShim::lastError()
 {
-    return (InstallerShim::INSTALLER_ERROR)reinterpret_cast<Installer *>(installer_)->lastError();
+    return reinterpret_cast<Installer *>(installer_)->lastError();
 }
 
 bool InstallerShim::isAutoStartEnabled()

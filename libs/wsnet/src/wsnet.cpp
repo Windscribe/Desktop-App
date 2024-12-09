@@ -2,10 +2,12 @@
 #include "WSNet.h"
 
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/null_sink.h>
 #include <boost/asio.hpp>
 #include "utils/wsnet_callback_sink.h"
 #include "utils/persistentsettings.h"
 #include "utils/spdlog_utils.h"
+#include "utils/wsnet_logger.h"
 #include "dnsresolver/dnsresolver_cares.h"
 #include "httpnetworkmanager/httpnetworkmanager.h"
 #include "settings.h"
@@ -30,6 +32,10 @@ class WSNet_impl : public WSNet
 public:
     WSNet_impl() : work_(boost::asio::make_work_guard(io_context_))
     {
+        // no logging by default
+        if (!g_logger) {
+            g_logger = spdlog::null_logger_mt("wsnet");
+        }
         thread_ = std::thread([this](){ io_context_.run(); });
     }
 
@@ -45,27 +51,27 @@ public:
                         const std::string &openVpnVersion, const std::string &sessionTypeId,
                         bool isUseStagingDomains, const std::string &language, const std::string &persistentSettings)
     {
-        spdlog::info("wsnet version: {}.{}.{}", WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION, WINDSCRIBE_BUILD_VERSION);
+        g_logger->info("wsnet version: {}.{}.{}", WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION, WINDSCRIBE_BUILD_VERSION);
 
         dnsResolver_ = std::make_shared<DnsResolver_cares>();
         if (!dnsResolver_->init()) {
-            spdlog::error("Failed to initialize DnsResolver");
+            g_logger->error("Failed to initialize DnsResolver");
             return false;
         }
 
         httpNetworkManager_ = std::make_shared<HttpNetworkManager>(io_context_, dnsResolver_.get());
         if (!httpNetworkManager_->init()) {
-            spdlog::error("Failed to initialize HttpNetworkManager");
+            g_logger->error("Failed to initialize HttpNetworkManager");
             return false;
         }
 
         Settings::instance().setUseStaging(isUseStagingDomains);
-        spdlog::info("Base platform: {}", basePlatform);
-        spdlog::info("Platform name: {}", platformName);
-        spdlog::info("Use staging domains: {}", isUseStagingDomains);
-        spdlog::info("App version: {}", appVersion);
-        spdlog::info("OpenVpn version: {}", openVpnVersion);
-        spdlog::info("Language: {}", language);
+        g_logger->info("Base platform: {}", basePlatform);
+        g_logger->info("Platform name: {}", platformName);
+        g_logger->info("Use staging domains: {}", isUseStagingDomains);
+        g_logger->info("App version: {}", appVersion);
+        g_logger->info("OpenVpn version: {}", openVpnVersion);
+        g_logger->info("Language: {}", language);
 
         Settings::instance().setPlatformName(platformName);
         Settings::instance().setAppVersion(appVersion);
@@ -139,19 +145,18 @@ std::mutex g_mutex;
 
 void WSNet::setLogger(WSNetLoggerFunction loggerFunction, bool debugLog)
 {
+    assert(g_logger == nullptr);
     if (loggerFunction) {
-        auto logger = callback_logger_mt("wsnet", loggerFunction);
-        spdlog::set_default_logger(logger);
+        g_logger = callback_logger_mt("wsnet", loggerFunction);
         auto formatter = spdlog_utils::createJsonFormatter();
-        spdlog::set_formatter(std::move(formatter));
+        g_logger->set_formatter(std::move(formatter));
 
         if (debugLog)
-            spdlog::set_level(spdlog::level::trace);
+            g_logger->set_level(spdlog::level::trace);
         else
-            spdlog::set_level(spdlog::level::info);
+            g_logger->set_level(spdlog::level::info);
     } else {
-        spdlog::set_level(spdlog::level::off);
-        spdlog::shutdown();
+        g_logger = spdlog::null_logger_mt("wsnet");
     }
 }
 

@@ -2,7 +2,7 @@
 #include <ares.h>
 #include "dnsresolver_cares.h"
 #include <assert.h>
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 #include "utils/utils.h"
 
 #if defined(__APPLE__) || defined(__linux__)
@@ -119,7 +119,7 @@ void DnsResolver_cares::run()
         ares_free_string(servers);
     }
 
-    spdlog::info("DNS servers in channel: {}", dnsServersInChannel.getAsCsv());
+    g_logger->info("DNS servers in channel: {}", dnsServersInChannel.getAsCsv());
 
     std::queue<QueueItem> localQueue;
     while (!finish_) {
@@ -157,7 +157,7 @@ void DnsResolver_cares::run()
                 assert(status == ARES_SUCCESS);
                 dnsServersInChannel = dnsServersInTempChannel;
 
-                spdlog::info("DNS servers in channel are changed: {}", dnsServersInChannel.getAsCsv());
+                g_logger->info("DNS servers in channel are changed: {}", dnsServersInChannel.getAsCsv());
             }
             ares_destroy(tempChannel);
 
@@ -166,10 +166,10 @@ void DnsResolver_cares::run()
                 ares_cancel(channel);
                 status = ares_set_servers_csv(channel, dnsServersInstalled.getAsCsv().c_str());
                 if (status != ARES_SUCCESS) {
-                    spdlog::error("Failed to set DNS servers to channel: {}", dnsServersInstalled.getAsCsv());
+                    g_logger->error("Failed to set DNS servers to channel: {}", dnsServersInstalled.getAsCsv());
                 } else {
                     dnsServersInChannel = dnsServersInstalled;
-                    spdlog::info("DNS servers in channel are changed: {}", dnsServersInChannel.getAsCsv());
+                    g_logger->info("DNS servers in channel are changed: {}", dnsServersInChannel.getAsCsv());
                 }
             }
         }

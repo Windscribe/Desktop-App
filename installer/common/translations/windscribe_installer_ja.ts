@@ -89,10 +89,6 @@
         <translation>Windscribeの既存のインストールのアンインストーラーが見つかりませんでした。アプリケーションを手動でアンインストールして、もう一度やり直してください。</translation>
     </message>
     <message>
-        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>インストールフォルダには、アンインストールできなかったデータが含まれています。アプリケーションを手動でアンインストールして、もう一度やり直してください。</translation>
-    </message>
-    <message>
         <source>Security Warning</source>
         <translation>セキュリティ警告</translation>
     </message>
@@ -103,6 +99,18 @@
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
         <translation>現在のユーザー名は「windscribe」で、Windscribeアプリで必要です。Windscribeはインストールできません。</translation>
+    </message>
+    <message>
+        <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>カスタムフォルダへのインストールに失敗しました。アプリケーションを手動でアンインストールし、カスタムフォルダにアクセスしているアプリケーションがないことを確認してから、再試行してください。</translation>
+    </message>
+    <message>
+        <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>カスタム インストール フォルダを削除できませんでした。アプリケーションを手動でアンインストールし、カスタムフォルダにアクセスしているアプリケーションがないことを確認してから、再試行してください。</translation>
+    </message>
+    <message>
+        <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
+        <translation>カスタムインストールフォルダが空ではありません。セキュリティ上の理由から、Windscribeは空のフォルダにのみインストールできます。フォルダからすべてのファイルを削除して、もう一度やり直してください。</translation>
     </message>
 </context>
 <context>

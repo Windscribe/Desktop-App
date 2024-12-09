@@ -1,5 +1,5 @@
 #include "processmanager.h"
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 
 namespace wsnet {
 
@@ -50,7 +50,7 @@ bool ProcessManager::execute(const std::string &cmd, const std::vector<std::stri
         }
 
     } catch(...) {
-        spdlog::error("Cannot start a process: {}", cmd);
+        g_logger->error("Cannot start a process: {}", cmd);
         return false;
     }
 

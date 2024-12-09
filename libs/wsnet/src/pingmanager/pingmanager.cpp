@@ -89,7 +89,7 @@ IPingMethod *PingManager::createPingMethod(std::uint64_t id, const std::string &
 #ifdef _WIN32
         return new PingMethodIcmp_win(eventCallbackManager_, id, ip, hostname, true, callback, std::bind(&PingManager::onPingMethodFinished, this, std::placeholders::_1));
 #elif defined IS_TVOS
-    spdlog::error("ICMP pings are not supported on Apple tvOS");
+    g_logger->error("ICMP pings are not supported on Apple tvOS");
     assert(false);
 #else
         return new PingMethodIcmp_posix(id, ip, hostname, true, callback, std::bind(&PingManager::onPingMethodFinished, this, std::placeholders::_1), processManager_.get());

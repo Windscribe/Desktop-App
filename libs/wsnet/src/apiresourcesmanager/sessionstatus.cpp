@@ -1,6 +1,6 @@
 #include "sessionstatus.h"
 #include <rapidjson/document.h>
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 
 namespace {
     std::string safeGetString(const rapidjson::Document::Object &obj, const std::string &name)
@@ -249,7 +249,7 @@ std::string SessionStatus::jsonData() const
 
 void SessionStatus::debugLog() const
 {
-    spdlog::info("[SessionStatus] (is_premium: {}; status: {}; rebill: {}; billing_plan_id: {}; premium_expire_date: {}; traffic_used: {}; "
+    g_logger->info("[SessionStatus] (is_premium: {}; status: {}; rebill: {}; billing_plan_id: {}; premium_expire_date: {}; traffic_used: {}; "
                  "traffic_max: {}; email_status: {}; static_ips_count: {}; alc_count: {}; last_reset_date: {})",
                  is_premium_, status_, rebill_, billingPlanId_, premiumExpireDate_, trafficUsed_, trafficMax_, emailStatus_,
                  staticIps_, alc_.size(), lastResetDate_);

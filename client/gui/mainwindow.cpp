@@ -2129,7 +2129,6 @@ void MainWindow::onNetworkChanged(types::NetworkInterface network)
                        << "Index: " << network.interfaceIndex
                        << ", Network/SSID: " << network.networkOrSsid
                        << ", MAC: " << network.physicalAddress
-                       << ", device name: " << network.deviceName
                        << " friendly: " << network.friendlyName;
 
     mainWindowController_->getConnectWindow()->updateNetworkState(network);

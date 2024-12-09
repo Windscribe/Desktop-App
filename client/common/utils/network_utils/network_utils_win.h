@@ -14,7 +14,7 @@ namespace NetworkUtils_win
     QString getRoutingTable();
 
     types::NetworkInterface currentNetworkInterface();
-    QVector<types::NetworkInterface> currentNetworkInterfaces(bool includeNoInterface);
+    QVector<types::NetworkInterface> currentNetworkInterfaces(bool includeNoInterface, bool forceUpdate = false);
 
     types::NetworkInterface interfaceByIndex(int index, bool &success);
 
@@ -23,4 +23,7 @@ namespace NetworkUtils_win
     std::optional<bool> haveInternetConnectivity();
 
     bool isSsidAccessAvailable();
+
+    QString currentNetworkInterfaceGuid();
+    bool haveActiveInterface();
 }

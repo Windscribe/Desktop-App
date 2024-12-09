@@ -6,7 +6,7 @@
 #include <QString>
 #include <spdlog/spdlog.h>
 
-#include "../installer_base.h"
+#include "installerenums.h"
 #include "../installer_utils.h"
 #include "../settings.h"
 #include "../../../utils/applicationinfo.h"
@@ -26,7 +26,7 @@ int InstallOpenVPNDCO::executeStep()
         spdlog::warn(
             L"WARNING: OS version is not compatible with the OpenVPN DCO driver.  Windows 10 build {} or newer is required"
             L" to use this driver.", kMinWindowsBuildNumberForOpenVPNDCO);
-        return -ERROR_OTHER;
+        return -wsl::ERROR_OTHER;
     }
 
     const QString installPath = QString::fromStdWString(Settings::instance().getPath());
@@ -43,7 +43,7 @@ int InstallOpenVPNDCO::executeStep()
     if (process.exitCode() != 0) {
         spdlog::error(L"InstallOpenVPNDCO: devcon.exe returned exit code {}", process.exitCode());
         spdlog::info("InstallOpenVPNDCO: devcon.exe output ({})", appOutput.constData());
-        return -ERROR_OTHER;
+        return -wsl::ERROR_OTHER;
     }
 
     // Parse the OEM identifier from the output and store it for use during uninstall.
@@ -51,7 +51,7 @@ int InstallOpenVPNDCO::executeStep()
     const QRegularExpressionMatch match = re.match(appOutput);
     if (!match.hasMatch()) {
         spdlog::error("InstallOpenVPNDCO: failed to find OEM indentifier in devcon.exe output ({})", appOutput.constData());
-        return -ERROR_OTHER;
+        return -wsl::ERROR_OTHER;
     }
 
     QString adapterOEMIdentifier = match.captured(0);

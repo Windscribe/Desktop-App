@@ -22,6 +22,7 @@ public:
     virtual ~WSNet() {}
 
     // set debugLog to true for more verbose log output
+    // call this function only once before initialize the library
     static void setLogger(WSNetLoggerFunction loggerFunction, bool debugLog);
 
     // basePlatform value can be "windows", "mac", "linux", "android", "ios"

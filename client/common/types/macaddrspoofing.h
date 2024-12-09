@@ -129,6 +129,9 @@ struct MacAddrSpoofing
 #ifdef Q_OS_LINUX
         QString name = settings.value(kIniInterfaceProp).toString();
         selectedNetworkInterface = NetworkUtils_linux::networkInterfaceByName(name);
+        if (NetworkInterface::isNoNetworkInterface(selectedNetworkInterface.interfaceIndex)) {
+            isEnabled = false;
+        }
 #endif
     }
 

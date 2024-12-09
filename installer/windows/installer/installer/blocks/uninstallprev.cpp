@@ -7,7 +7,7 @@
 #include <windows.h>
 #include <spdlog/spdlog.h>
 
-#include "../installer_base.h"
+#include "installerenums.h"
 #include "../../../utils/applicationinfo.h"
 #include "../../../utils/archive.h"
 #include "../../../utils/path.h"
@@ -88,17 +88,17 @@ int UninstallPrev::executeStep()
             if (!uninstallOldVersion(uninstallString, lastError)) {
                 spdlog::error(L"UninstallPrev::executeStep: uninstallOldVersion failed: {}", lastError);
                 if (lastError != 2) { // Any error other than "Not found"
-                    return -ERROR_OTHER;
+                    return -wsl::ERROR_OTHER;
                 }
 
                 // Uninstall failed because the uninstaller doesn't exist.
                 if (!isPrevInstall64Bit()) {
-                    return -ERROR_UNINSTALL;
+                    return -wsl::ERROR_UNINSTALL;
                 }
 
                 if (!extractUninstaller()) {
                     spdlog::error(L"UninstallPrev::executeStep: could not extract uninstaller.");
-                    return -ERROR_OTHER;
+                    return -wsl::ERROR_OTHER;
                 }
                 spdlog::info(L"UninstallPrev::executeStep: successfully extracted uninstaller, trying again.");
                 return 65;
@@ -309,12 +309,12 @@ int UninstallPrev::taskKill(const std::wstring &exeName) const
     const auto result = Utils::instExec(appName, commandLine, INFINITE, SW_HIDE);
     if (!result.has_value()) {
         spdlog::warn(L"WARNING: an error was encountered attempting to start taskkill.exe.");
-        return -ERROR_OTHER;
+        return -wsl::ERROR_OTHER;
     }
 
     if (result.value() != NO_ERROR && result.value() != ERROR_WAIT_NO_CHILDREN) {
         spdlog::warn(L"WARNING: unable to kill {} ({}).", exeName, result.value());
-        return -ERROR_OTHER;
+        return -wsl::ERROR_OTHER;
     }
 
     spdlog::info(L"taskkill executed on {} ({})", exeName, result.value());

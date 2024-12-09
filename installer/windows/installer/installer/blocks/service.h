@@ -9,5 +9,5 @@ public:
     int executeStep();
 
 private:
-    void installWindscribeService();
+    bool installWindscribeService();
 };

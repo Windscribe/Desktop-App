@@ -1,6 +1,6 @@
 #include "curlnetworkmanager.h"
 #include <regex>
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 #include "utils/utils.h"
 #include "utils/crypto_utils.h"
 #include "settings.h"
@@ -33,15 +33,15 @@ CurlNetworkManager::~CurlNetworkManager()
 bool CurlNetworkManager::init()
 {
     if (!isCurlGlobalInitialized_) {
-        spdlog::info("openssl version: {}", OPENSSL_FULL_VERSION_STR);
-        spdlog::info("curl version: {}", LIBCURL_VERSION);
+        g_logger->info("openssl version: {}", OPENSSL_FULL_VERSION_STR);
+        g_logger->info("curl version: {}", LIBCURL_VERSION);
         if (curl_global_sslset(CURLSSLBACKEND_OPENSSL, nullptr, nullptr) != CURLSSLSET_OK) {
-            spdlog::critical("curl_global_sslset failed");
+            g_logger->critical("curl_global_sslset failed");
             return false;
         }
 
         if (curl_global_init(CURL_GLOBAL_DEFAULT) != CURLE_OK) {
-            spdlog::critical("curl_global_init failed");
+            g_logger->critical("curl_global_init failed");
             return false;
         }
         isCurlGlobalInitialized_ = true;
@@ -173,12 +173,12 @@ void CurlNetworkManager::run()
                     assert(it->second->curlEasyHandle == curlEasyHandle);
 
                     if (result != CURLE_OK) {
-                        spdlog::debug("Curl request error: {}", curl_easy_strerror(result));
+                        g_logger->debug("Curl request error: {}", curl_easy_strerror(result));
 
                         // Log all curl output for a failed request
                         if (it->second->isDebugLogCurlError) {
                             for (const auto &log: it->second->debugLogs) {
-                                spdlog::info("{}", log);
+                                g_logger->info("{}", log);
                             }
                         }
                     } else {
@@ -186,7 +186,7 @@ void CurlNetworkManager::run()
                         if (it->second->isDebugLogCurlError) {
                             for (const auto &log: it->second->debugLogs) {
                                 if (log.find("Trying") != std::string::npos || log.find("Connected") != std::string::npos) {
-                                    spdlog::info("{}", log);
+                                    g_logger->info("{}", log);
                                 }
                             }
                         }
@@ -305,7 +305,7 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CLOSESOCKETFUNCTION, curlCloseSocketCallback) != CURLE_OK) return false;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CLOSESOCKETDATA, this) != CURLE_OK) return false;
 
-    spdlog::debug("New curl request : {}", request->url().c_str());
+    g_logger->debug("New curl request : {}", request->url().c_str());
 
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FRESH_CONNECT, 1L) != CURLE_OK) return false;
     // make connection get closed at once after use

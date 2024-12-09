@@ -917,6 +917,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Software Licenses</source>
         <translation>ソフトウェアライセンス</translation>
     </message>
+    <message>
+        <source>Changelog</source>
+        <translation>変更履歴</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AccountWindowItem</name>

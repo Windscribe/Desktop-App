@@ -917,6 +917,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>Software Licenses</source>
         <translation>Lisensi Perangkat Lunak</translation>
     </message>
+    <message>
+        <source>Changelog</source>
+        <translation>Log Perubahan</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AccountWindowItem</name>

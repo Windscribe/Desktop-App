@@ -89,10 +89,6 @@
         <translation>Windscribe&apos;ın mevcut kurulumu için kaldırıcı bulunamadı. Lütfen uygulamayı manuel olarak kaldırın ve tekrar deneyin.</translation>
     </message>
     <message>
-        <source>The installation folder contains data which could not be uninstalled. Please uninstall the application manually and try again.</source>
-        <translation>Yükleme klasörü kaldırılamayan veriler içeriyor. Lütfen uygulamayı manuel olarak kaldırın ve tekrar deneyin.</translation>
-    </message>
-    <message>
         <source>Security Warning</source>
         <translation>Güvenlik Uyarısı</translation>
     </message>
@@ -103,6 +99,18 @@
     <message>
         <source>Your current username is &apos;windscribe&apos;, which is needed by the Windscribe app. Windscribe can&apos;t be installed.</source>
         <translation>Mevcut kullanıcı adınız, Windscribe uygulaması için gerekli olan &apos;windscribe&apos;dır. Windscribe yüklenemiyor.</translation>
+    </message>
+    <message>
+        <source>Installation to your custom folder was unsuccessful. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>Özel klasörünüze yükleme başarısız oldu. Lütfen uygulamayı manuel olarak kaldırın, hiçbir uygulamanın özel klasöre erişmediğinden emin olun ve tekrar deneyin.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder could not be deleted. Please uninstall the application manually, ensure no applications are accessing the custom folder, and try again.</source>
+        <translation>Özel yükleme klasörü silinemedi. Lütfen uygulamayı manuel olarak kaldırın, hiçbir uygulamanın özel klasöre erişmediğinden emin olun ve tekrar deneyin.</translation>
+    </message>
+    <message>
+        <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
+        <translation>Özel yükleme klasörü boş değil. Bir güvenlik önlemi olarak, Windscribe yalnızca boş bir klasöre kurulabilir. Lütfen klasördeki tüm dosyaları silin ve tekrar deneyin.</translation>
     </message>
 </context>
 <context>

@@ -1,6 +1,6 @@
 #include "serverlocations_request.h"
 #include <skyr/url.hpp>
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 #include <rapidjson/document.h>
 
 namespace wsnet {
@@ -43,7 +43,7 @@ std::string ServerLocationsRequest::url(const std::string &domain) const
 
     if (!countryOverride.empty()) {
         sp.set("country_override", countryOverride);
-        spdlog::info("API request ServerLocations added countryOverride = {}", countryOverride);
+        g_logger->info("API request ServerLocations added countryOverride = {}", countryOverride);
     }
 
     return url.c_str();
@@ -84,12 +84,12 @@ void ServerLocationsRequest::handle(const std::string &arr)
             if (isFromDisconnectedVPNState_ && (!connectState_.isVPNConnected())) {
                 auto countryOverride = jsonInfo["country_override"].GetString();
                 persistentSettings_.setCountryOverride(countryOverride);
-                spdlog::info("API request ServerLocations saved countryOverride = {}", countryOverride);
+                g_logger->info("API request ServerLocations saved countryOverride = {}", countryOverride);
             }
         } else {
             if (isFromDisconnectedVPNState_ && (!connectState_.isVPNConnected())) {
                 persistentSettings_.setCountryOverride(std::string());
-                spdlog::info("API request ServerLocations removed countryOverride flag");
+                g_logger->info("API request ServerLocations removed countryOverride flag");
             }
         }
     }

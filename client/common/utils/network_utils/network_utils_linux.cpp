@@ -7,6 +7,7 @@
 
 #include <net/if.h>
 #include <arpa/inet.h>
+#include <linux/if_arp.h>
 #include <linux/rtnetlink.h>
 #include <linux/wireless.h>
 #include <sys/socket.h>
@@ -255,6 +256,10 @@ static void populateInterface(const QString &ifname, types::NetworkInterface &in
 {
     interface.interfaceName = ifname;
     interface.interfaceIndex = if_nametoindex(ifname.toStdString().c_str());
+    if (interface.interfaceIndex == 0) {
+        // interface index can not be 0 on Linux, this is an error.
+        interface.interfaceIndex = -1;
+    }
     interface.physicalAddress = getMacAddressByIfName(ifname);
     interface.networkOrSsid = getNetworkForInterface(ifname);
 
@@ -280,8 +285,6 @@ QList<types::NetworkInterface> currentNetworkInterfaces(bool includeNoInterface)
 
     QDir dir("/sys/class/net");
     names = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-    // Ignore loopback
-    names.removeOne("lo");
 
     for (const QString name : names) {
         interfaces.push_back(networkInterfaceByName(name));
@@ -292,6 +295,23 @@ QList<types::NetworkInterface> currentNetworkInterfaces(bool includeNoInterface)
 types::NetworkInterface networkInterfaceByName(const QString &name)
 {
     types::NetworkInterface interface = types::NetworkInterface::noNetworkInterface();
+
+    // Exclude loopback type
+    QString type;
+    QFile f("/sys/class/net/" + name + "/type");
+    if (f.open(QFile::ReadOnly | QFile::Text)) {
+        QTextStream in(&f);
+        type = in.readAll().trimmed();
+    }
+
+    bool ok = false;
+    if (!type.isEmpty()) {
+        int interfaceType = type.toInt(&ok);
+        if (!ok || interfaceType == ARPHRD_LOOPBACK) {
+            return interface;
+        }
+    }
+
     if (!name.isEmpty()) {
         populateInterface(name, interface);
     }

@@ -1,5 +1,5 @@
 #include "pingmethod_icmp_posix.h"
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 #include "utils/utils.h"
 
 namespace wsnet {
@@ -18,7 +18,7 @@ PingMethodIcmp_posix::~PingMethodIcmp_posix()
 void PingMethodIcmp_posix::ping(bool isFromDisconnectedVpnState)
 {
     if (!utils::isIpAddress(ip_)) {
-        spdlog::error("PingMethodIcmp_posix::ping incorrect IP-address: {}", ip_);
+        g_logger->error("PingMethodIcmp_posix::ping incorrect IP-address: {}", ip_);
         callFinished();
         return;
     }
@@ -27,7 +27,7 @@ void PingMethodIcmp_posix::ping(bool isFromDisconnectedVpnState)
     isFromDisconnectedVpnState_ = isFromDisconnectedVpnState;
 
     if (!processManager_->execute("ping", {"-c", "1", "-W", "2000", ip_}, std::bind(&PingMethodIcmp_posix::onProcessFinished, this, _1, _2))) {
-        spdlog::error("PingMethodIcmp_posix::ping cannot execute ping command");
+        g_logger->error("PingMethodIcmp_posix::ping cannot execute ping command");
         callFinished();
         return;
     }
@@ -47,14 +47,14 @@ void PingMethodIcmp_posix::onProcessFinished(int exitCode, const std::string &ou
                         isSuccess_ = true;
                     }
                 } else {
-                    spdlog::error("Something incorrect in ping utility output: {}", output);
+                    g_logger->error("Something incorrect in ping utility output: {}", output);
                     assert(false);
                 }
                 break;
             }
         }
     } else if (exitCode != 2) {
-        spdlog::error("ping utility return not 0 or 2 exitCode, exitCode: {}", exitCode);
+        g_logger->error("ping utility return not 0 or 2 exitCode, exitCode: {}", exitCode);
     }
     callFinished();
 }

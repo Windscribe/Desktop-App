@@ -1,6 +1,6 @@
 #include "dnscache.h"
 #include <assert.h>
-#include <spdlog/spdlog.h>
+#include "utils/wsnet_logger.h"
 #include "settings.h"
 #include "utils/utils.h"
 
@@ -39,7 +39,7 @@ void DnsCache::clear()
 {
     std::lock_guard locker(mutex_);
     cache_.clear();
-    spdlog::info("Clear DNS cache");
+    g_logger->info("Clear DNS cache");
 }
 
 void DnsCache::onDnsResolved(std::uint64_t id, const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result)
@@ -56,7 +56,7 @@ void DnsCache::onDnsResolved(std::uint64_t id, const std::string &hostname, std:
     }
     // useful log for tunnel test
     if (isNeedLog && hostname.find(Settings::instance().serverTunnelTestSubdomain()) != std::string::npos) {
-        spdlog::info("DNS resolution for tunnel test, result: {}, timems: {}", result->errorString(), result->elapsedMs());
+        g_logger->info("DNS resolution for tunnel test, result: {}, timems: {}", result->errorString(), result->elapsedMs());
         tunnelTestLastLogTime_ = std::chrono::steady_clock::now();
     }
 

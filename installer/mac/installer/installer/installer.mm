@@ -65,7 +65,7 @@
     {
         std::lock_guard<std::mutex> lock(mutex_);
         isCanceled_ = true;
-        self.currentState = STATE_CANCELED;
+        self.currentState = wsl::STATE_CANCELED;
     }
     [self waitForCompletion];
 
@@ -78,7 +78,7 @@
         spdlog::error("App failed to launch");
     }
     self.progress = 100;
-    self.currentState = STATE_LAUNCHED;
+    self.currentState = wsl::STATE_LAUNCHED;
     callback_();
 }
 
@@ -110,7 +110,7 @@
     bool terminated = false;
     self.progress = 0;
     spdlog::info("Starting execution");
-    self.currentState = STATE_EXTRACTING;
+    self.currentState = wsl::STATE_EXTRACTING;
     callback_();
 
     ProcessesHelper processesHelper;
@@ -142,8 +142,8 @@
         // Still could not terminate, return error
         if (!terminated) {
             spdlog::error("Couldn't kill running Windscribe programs in time. Please close running Windscribe programs manually and try install again.");
-            self.lastError = ERROR_KILL;
-            self.currentState = STATE_ERROR;
+            self.lastError = wsl::ERROR_KILL;
+            self.currentState = wsl::STATE_ERROR;
             callback_();
             return;
         }
@@ -166,8 +166,8 @@
             desc = [script executeAndReturnError:nil];
             if (desc == nil) {
                 spdlog::error("Couldn't re-enable the helper.");
-                self.lastError = ERROR_OTHER;
-                self.currentState = STATE_ERROR;
+                self.lastError = wsl::ERROR_OTHER;
+                self.currentState = wsl::STATE_ERROR;
                 callback_();
                 return;
             }
@@ -178,16 +178,16 @@
     // client app to hang when we pull the old helper out from under it.
     if (!InstallHelper_mac::installHelper(self.factoryReset)) {
         spdlog::error("Couldn't install the helper.");
-        self.lastError = ERROR_PERMISSION;
-        self.currentState = STATE_ERROR;
+        self.lastError = wsl::ERROR_PERMISSION;
+        self.currentState = wsl::STATE_ERROR;
         callback_();
         return;
     }
 
     if (!self.connectHelper) {
         spdlog::error("Couldn't connect to new helper in time");
-        self.lastError = ERROR_CONNECT_HELPER;
-        self.currentState = STATE_ERROR;
+        self.lastError = wsl::ERROR_CONNECT_HELPER;
+        self.currentState = wsl::STATE_ERROR;
         callback_();
         return;
     }
@@ -201,8 +201,8 @@
         bool success = helper_.removeOldInstall([[self getOldInstallPath] UTF8String]);
         if (!success) {
             spdlog::error("Previous version of the program cannot be deleted. Please contact support.");
-            self.lastError = ERROR_DELETE;
-            self.currentState = STATE_ERROR;
+            self.lastError = wsl::ERROR_DELETE;
+            self.currentState = wsl::STATE_ERROR;
             callback_();
             helper_.stop();
             return;
@@ -245,13 +245,13 @@
     std::wstring strPath = NSStringToStringW([self getInstallPath]);
 
     self.progress = 50;
-    self.currentState = STATE_EXTRACTING;
+    self.currentState = wsl::STATE_EXTRACTING;
     callback_();
 
     if (!helper_.setPaths(strArchivePath, strPath)) {
         spdlog::error("setPaths in helper failed");
-        self.lastError = ERROR_OTHER;
-        self.currentState = STATE_ERROR;
+        self.lastError = wsl::ERROR_OTHER;
+        self.currentState = wsl::STATE_ERROR;
         callback_();
         helper_.stop();
         return;
@@ -259,8 +259,8 @@
 
     if (!helper_.executeFilesStep()) {
         spdlog::error("executeFilesStep in helper failed");
-        self.lastError = ERROR_OTHER;
-        self.currentState = STATE_ERROR;
+        self.lastError = wsl::ERROR_OTHER;
+        self.currentState = wsl::STATE_ERROR;
         callback_();
         helper_.stop();
         return;
@@ -269,13 +269,13 @@
     spdlog::info("Windscribe app installed");
 
     self.progress = 75;
-    self.currentState = STATE_EXTRACTED;
+    self.currentState = wsl::STATE_EXTRACTED;
     callback_();
 
     helper_.createCliSymlink();
 
     self.progress = 90;
-    self.currentState = STATE_FINISHED;
+    self.currentState = wsl::STATE_FINISHED;
     callback_();
 
     helper_.stop();

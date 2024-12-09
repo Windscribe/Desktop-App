@@ -15,11 +15,13 @@ Service::Service(double weight) : IInstallBlock(weight, L"Service")
 
 int Service::executeStep()
 {
-    installWindscribeService();
-    return 100;
+    if (installWindscribeService())
+        return 100;
+    else
+        return -1;
 }
 
-void Service::installWindscribeService()
+bool Service::installWindscribeService()
 {
     try {
         std::wstring serviceName = ApplicationInfo::serviceName();
@@ -42,5 +44,7 @@ void Service::installWindscribeService()
     }
     catch (std::system_error& ex) {
         spdlog::error("installWindscribeService - {}", ex.what());
+        return false;
     }
+    return true;
 }

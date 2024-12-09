@@ -9,7 +9,7 @@
 {
     if (self = [super init])
     {
-        self.currentState = STATE_INIT;
+        self.currentState = wsl::STATE_INIT;
         self.path = [self getDefaultInstallPath];
         isUseUpdatePath_ = false;
     }
@@ -20,7 +20,7 @@
 {
     if (self = [super init])
     {
-        self.currentState = STATE_INIT;
+        self.currentState = wsl::STATE_INIT;
         isUseUpdatePath_ = true;
         updatePath_ = path;
         self.path = [self getDefaultInstallPath];
