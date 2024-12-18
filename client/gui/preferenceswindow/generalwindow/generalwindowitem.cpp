@@ -405,24 +405,12 @@ void GeneralWindowItem::onAppSkinPreferencesChanged(APP_SKIN s)
 
 void GeneralWindowItem::onVersionInfoClicked()
 {
-#ifdef Q_OS_WIN
-    QString platform = "windows";
-#elif defined(Q_OS_MACOS)
+#if defined(Q_OS_MACOS)
+    // macOS platform name on website is "mac" instead of "macos"
     QString platform = "mac";
 #else
-    QString platform;
-    QString lastPlatform = LinuxUtils::getLastInstallPlatform();
-    if (lastPlatform == LinuxUtils::DEB_PLATFORM_NAME_X64 ||
-        lastPlatform == LinuxUtils::DEB_PLATFORM_NAME_ARM64) {
-        platform = "linux_deb";
-    } else if (lastPlatform == LinuxUtils::RPM_PLATFORM_NAME) {
-        platform = "linux_rpm";
-    } else {
-        // We don't have a website changelog for zst yet, go to top page instead
-        platform = "";
-    }
+    QString platform = Utils::getPlatformName();
 #endif
-
     QDesktopServices::openUrl(QUrl(
         QString("https://%1/changelog/%2")
             .arg(HardcodedSettings::instance().windscribeServerUrl())

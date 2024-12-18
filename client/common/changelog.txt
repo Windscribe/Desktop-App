@@ -1,3 +1,10 @@
+2.13.5 (16/12/2024)
+All:
+   * Fixed scroll position not retained when leaving/reentering a window. #1218
+   * Fixed importing JSON may put the Secure Hotspot preference in an invalid state. #1217
+   * Fixed changelog link for many platforms in General Preferences. #1219
+
+
 2.13.4 (09/12/2024)
 All:
    * Added changelog link in preferences. #1209

@@ -47,7 +47,7 @@ void SecureHotspotGroup::setSecureHotspotSettings(const types::ShareSecureHotspo
     }
 
     settings_ = ss;
-    checkBoxEnable_->setState(ss.isEnabled);
+    checkBoxEnable_->setState(ss.isEnabled && supported_ == HOTSPOT_SUPPORTED);
     editBoxSSID_->setText(ss.ssid);
     editBoxPassword_->setText(ss.password);
     updateMode();
@@ -56,8 +56,7 @@ void SecureHotspotGroup::setSecureHotspotSettings(const types::ShareSecureHotspo
 void SecureHotspotGroup::setSupported(HOTSPOT_SUPPORT_TYPE supported)
 {
     supported_ = supported;
-    if (supported_ != HOTSPOT_SUPPORTED)
-    {
+    if (supported_ != HOTSPOT_SUPPORTED) {
         checkBoxEnable_->setState(false);
         settings_.isEnabled = false;
         emit secureHotspotPreferencesChanged(settings_);
@@ -114,12 +113,9 @@ void SecureHotspotGroup::updateDescription()
 
 void SecureHotspotGroup::updateMode()
 {
-    if (checkBoxEnable_->isChecked())
-    {
+    if (checkBoxEnable_->isChecked()) {
         showItems(indexOf(editBoxSSID_), indexOf(editBoxPassword_));
-    }
-    else
-    {
+    } else {
         hideItems(indexOf(editBoxSSID_), indexOf(editBoxPassword_));
     }
 }
