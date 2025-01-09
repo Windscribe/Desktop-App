@@ -354,10 +354,12 @@ void FirewallFilter::addPermitFilterForAppsIds(HANDLE engineHandle)
             }
         }
     } else {
-        // In inclusive mode, block IPv6 traffic for the included apps, since we can't pass IPv6 traffic over the IPv4 tunnel.
-        ret = Utils::addFilterV6(engineHandle, &filterIdsApps_, FWP_ACTION_BLOCK, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, &appsIds_);
-        if (!ret) {
-            spdlog::error("Could not add split tunnel (v6) app block filters");
+        if (appsIds_.count() != 0) {
+            // In inclusive mode, block IPv6 traffic for the included apps, since we can't pass IPv6 traffic over the IPv4 tunnel.
+            ret = Utils::addFilterV6(engineHandle, &filterIdsApps_, FWP_ACTION_BLOCK, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, nullptr, &appsIds_);
+            if (!ret) {
+                spdlog::error("Could not add split tunnel (v6) app block filters");
+            }
         }
         // Allow other IPv6 traffic.
         ret = Utils::addFilterV6(engineHandle, &filterIdsApps_, FWP_ACTION_PERMIT, 2, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW);

@@ -281,4 +281,6 @@ private:
 
     LOGIN_STATE loginState_;
     wsnet::LoginResult lastLoginError_;
+
+    void triggerAutoConnect(const types::NetworkInterface &interface);
 };

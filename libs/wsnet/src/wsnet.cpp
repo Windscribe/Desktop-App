@@ -75,7 +75,7 @@ public:
 
         Settings::instance().setPlatformName(platformName);
         Settings::instance().setAppVersion(appVersion);
-        Settings::instance().setBasePlatform(platformName);
+        Settings::instance().setBasePlatform(basePlatform);
         Settings::instance().setDeviceId(deviceId);
         Settings::instance().setOpenVpnVersion(openVpnVersion);
         Settings::instance().setLanguage(language);

@@ -59,11 +59,13 @@ private:
         std::vector<std::string> ips() override { return ips_; }
         std::uint32_t elapsedMs() override { return elapsedMs_; }
         bool isError() override { return isError_; }
+        bool isConnectionRefusedError() override { return isConnectionRefusedError_; }
         std::string errorString() override { return errorString_; }
 
         std::vector<std::string> ips_;
         unsigned int elapsedMs_;
         bool isError_;
+        bool isConnectionRefusedError_;
         std::string errorString_;
     };
     AresLibraryInit aresLibraryInit_;

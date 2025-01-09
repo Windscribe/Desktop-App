@@ -320,6 +320,7 @@ static IfTable2Row lowestMetricNonWindscribeIfTableRow()
     IfTable2Row lowestMetricIfRow;
 
     const QList<IpForwardRow> fwdTable = getIpForwardTable();
+    const QList<IfTable2Row> ifTable2 = getIfTable2();
     const QList<IpAdapter> ipAdapters = getIpAdapterTable();
 
     int lowestMetric = 999999;
@@ -327,7 +328,7 @@ static IfTable2Row lowestMetricNonWindscribeIfTableRow()
     for (const IpForwardRow &row: fwdTable) {
         for (const IpAdapter &ipAdapter: ipAdapters) {
             if (ipAdapter.index == row.index) {
-                IfTable2Row ifRow = tableRowByIndex(getIfTable2(), row.index);
+                IfTable2Row ifRow = tableRowByIndex(ifTable2, row.index);
                 // We call this function to determine the current interface, so also make sure that the row is media-connected.
                 if (isRowUsableForWindscribe(ifRow) && ifRow.mediaConnected && !ifRow.isWindscribeAdapter()) {
                     const auto row_metric = static_cast<int>(row.metric);
@@ -441,8 +442,9 @@ bool NetworkUtils_win::haveActiveInterface()
     // to determine if there is an active interface, without forcing a network list update.
     // Changing it to use haveInternetConnectivity() would reduce the amount of logic in this file, but may cause slightly different behavior.
     QList<IpAdapter> ipAdapters = getIpAdapterTable();
+    QList<IfTable2Row> ifTable2 = getIfTable2();
     for (const IpAdapter &ia : ipAdapters) {
-        IfTable2Row row = tableRowByIndex(getIfTable2(), ia.index);
+        IfTable2Row row = tableRowByIndex(ifTable2, ia.index);
         if (isRowUsableForWindscribe(row) && row.mediaConnected) {
             return true;
         }
@@ -546,12 +548,10 @@ QVector<types::NetworkInterface> NetworkUtils_win::currentNetworkInterfaces(bool
 
         IpForwardRow ipfRow = tableRowByIndex(getIpForwardTable(), ia.index);
         if (!ipfRow.valid) {
-            // Should never happen
-            assert(false);
-            continue;
+            networkInterface.metric = -1;
+        } else {
+            networkInterface.metric = ipfRow.metric;
         }
-
-        networkInterface.metric = ipfRow.metric;
 
         AdapterAddress aa = tableRowByIndex(getAdapterAddressesTable(), ia.index);
         if (aa.valid) {

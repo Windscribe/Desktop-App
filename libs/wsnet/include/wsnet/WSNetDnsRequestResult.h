@@ -15,6 +15,7 @@ public:
     virtual std::vector<std::string> ips() = 0;
     virtual std::uint32_t elapsedMs() = 0;
     virtual bool isError() = 0;
+    virtual bool isConnectionRefusedError() = 0;
     virtual std::string errorString() = 0;
 };
 

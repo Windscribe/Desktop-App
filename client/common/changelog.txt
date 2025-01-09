@@ -1,3 +1,17 @@
+2.13.6 (09/01/2025)
+All:
+   * Fixed autoconnect attempting to connect to invalid locations. #1221
+   * Fixed incorrect static device name on Mac/Linux. #1233 
+Windows:
+   * Fixed incorrect firewall rule blocking IPv6 during inclusive split tunnel. #1111
+   * Fixed missing interface in MAC spoofing dropdown. #1200
+   * Fixed potential local privilege escalation vulnerability in the installer bootstrap. #1226
+MacOS:
+   * Fixed incorrect connectivity detection on MacOS 15.x+ when rebooting the OS with the firewall set to always on. #1168
+Linux:
+   * Fixed missing 'psmisc' dependency. #1124
+
+
 2.13.5 (16/12/2024)
 All:
    * Fixed scroll position not retained when leaving/reentering a window. #1218

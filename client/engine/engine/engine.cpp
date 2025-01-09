@@ -582,7 +582,7 @@ void Engine::initPart2()
     ReachAbilityEvents::instance().init();
 #endif
 
-    networkDetectionManager_ = CrossPlatformObjectFactory::createNetworkDetectionManager(this, helper_);
+    networkDetectionManager_ = CrossPlatformObjectFactory::createNetworkDetectionManager(this, helper_, engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON);
 
     DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
     WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());

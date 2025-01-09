@@ -35,6 +35,7 @@ Requires:	iproute2
 Requires:	libcap-progs
 Requires:	iw
 Requires:	ethtool
+Requires:	psmisc
 
 %description
 Windscribe CLI client.

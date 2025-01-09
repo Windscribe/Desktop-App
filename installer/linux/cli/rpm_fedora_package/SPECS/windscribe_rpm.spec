@@ -34,6 +34,7 @@ Requires:	iproute
 Requires:	iputils
 Requires:	iw
 Requires:	ethtool
+Requires:	psmisc
 
 %description
 Windscribe CLI client.

@@ -236,9 +236,11 @@ void DnsResolver_cares::caresCallback(void *arg, int status, int timeouts, struc
             result->ips_.push_back(addr_buf);
         }
         result->isError_ = false;
+        result->isConnectionRefusedError_ = false;
     } else {
         result->errorString_ = ares_strerror(status);
         result->isError_ = true;
+        result->isConnectionRefusedError_ = (status == ARES_ECONNREFUSED);
     }
 
     result->elapsedMs_ = (unsigned int)utils::since(pars->qi.startTime).count();

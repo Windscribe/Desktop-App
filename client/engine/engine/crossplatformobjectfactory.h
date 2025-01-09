@@ -9,7 +9,7 @@
 namespace CrossPlatformObjectFactory
 {
     IHelper *createHelper(QObject *parent);
-    INetworkDetectionManager *createNetworkDetectionManager(QObject *parent, IHelper *helper);
+    INetworkDetectionManager *createNetworkDetectionManager(QObject *parent, IHelper *helper, bool isInitialFirewallAlwaysOn);
     FirewallController *createFirewallController(QObject *parent, IHelper *helper);
     IMacAddressController *createMacAddressController(QObject *parent, INetworkDetectionManager *ndManager, IHelper *helper);
     ICtrldManager *createCtrldManager(QObject *parent, IHelper *helper, bool isCreateLog);

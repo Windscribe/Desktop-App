@@ -32,7 +32,7 @@ Requires:	freetype2
 Requires:	libsystemd0
 Requires:	libxcb1
 Requires:	libxcb-util1
-Requires:   xcb-util-cursor-devel
+Requires:	xcb-util-cursor-devel
 Requires:	sudo
 Requires:	shadow
 Requires:	procps
@@ -40,6 +40,7 @@ Requires:	polkit
 Requires:	pkexec
 Requires:	iproute2
 Requires:	libcap-progs
+Requires:	psmisc
 
 %description
 Windscribe client.

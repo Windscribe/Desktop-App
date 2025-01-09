@@ -45,6 +45,7 @@ Requires:	procps-ng
 Requires:	polkit
 Requires:	iproute
 Requires:	iputils
+Requires:	psmisc
 
 %description
 Windscribe client.

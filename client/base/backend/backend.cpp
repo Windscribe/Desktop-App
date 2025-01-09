@@ -433,6 +433,9 @@ void Backend::onEngineLoginFinished(bool isLoginFromSavedSettings, const api_res
 {
     loginState_ = LOGIN_STATE_LOGGED_IN;
     preferencesHelper_.setPortMap(portMap);
+
+    triggerAutoConnect(currentNetworkInterface_);
+
     emit loginFinished(isLoginFromSavedSettings);
 }
 
@@ -749,25 +752,7 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
         // actual network change or explicit trigger from preference change
         // prevents brief/rare network loss during CONNECTING from triggering network change
         if (!currentNetworkInterface_.sameNetworkInterface(networkInterface) || manual) {
-            // disconnect VPN on an unsecured network -- connect VPN on a secured network if auto-connect is on
-            if (foundInterface.trustType == NETWORK_TRUST_UNSECURED) {
-                if (!connectStateHelper_.isDisconnected()) {
-                    qCInfo(LOG_BASIC) << "Network Whitelisting detected UNSECURED network -- Disconnecting..";
-                    sendDisconnect();
-                }
-            } else { // SECURED
-                if (preferences_.isAutoConnect() && connectStateHelper_.isDisconnected()) {
-                    qCInfo(LOG_BASIC) << "Network Whitelisting detected SECURED network -- Connecting..";
-                    if (PersistentState::instance().lastLocation().isValid()) {
-                        qCDebug(LOG_BASIC) << "Using last location: " << PersistentState::instance().lastLocation().getHashString();
-                        sendConnect(PersistentState::instance().lastLocation());
-                    } else {
-                        qCDebug(LOG_BASIC) << "Using best location: " << locationsModelManager_->getBestLocationId().getHashString();
-                        sendConnect(locationsModelManager_->getBestLocationId());
-                    }
-                }
-            }
-
+            triggerAutoConnect(foundInterface);
             currentNetworkInterface_ = networkInterface;
         }
 
@@ -780,6 +765,37 @@ void Backend::handleNetworkChange(types::NetworkInterface networkInterface, bool
 
         // inform UI no network
         emit networkChanged(networkInterface);
+    }
+}
+
+void Backend::triggerAutoConnect(const types::NetworkInterface &interface)
+{
+    if (!interface.active) {
+        return;
+    }
+
+    // disconnect VPN on an unsecured network -- connect VPN on a secured network if auto-connect is on
+    if (interface.trustType == NETWORK_TRUST_UNSECURED && loginState_ == LOGIN_STATE_LOGGED_IN) {
+        if (!connectStateHelper_.isDisconnected()) {
+            qCInfo(LOG_BASIC) << "Network Whitelisting detected UNSECURED network -- Disconnecting..";
+            sendDisconnect();
+        }
+    } else if (loginState_ == LOGIN_STATE_LOGGED_IN) { // SECURED
+        if (preferences_.isAutoConnect() && connectStateHelper_.isDisconnected()) {
+            qCInfo(LOG_BASIC) << "Network Whitelisting detected SECURED network -- Connecting..";
+            if (PersistentState::instance().lastLocation().isValid()) {
+                qCInfo(LOG_BASIC) << "Using last location: " << PersistentState::instance().lastLocation().getHashString();
+                sendConnect(PersistentState::instance().lastLocation());
+            } else {
+                LocationID bestLocation = locationsModelManager_->getBestLocationId();
+                if (bestLocation.isValid()) {
+                    qCInfo(LOG_BASIC) << "Using best location: " << locationsModelManager_->getBestLocationId().getHashString();
+                    sendConnect(locationsModelManager_->getBestLocationId());
+                } else {
+                    qCDebug(LOG_BASIC) << "No last location or best location found, not connecting.";
+                }
+            }
+        }
     }
 }
 
