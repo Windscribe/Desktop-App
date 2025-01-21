@@ -12,7 +12,7 @@ variables:
   BUILD_LINUX_CLI: 'y'
   GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
   NEXUS_PATH_ROOT: 'https://nexus.int.windscribe.com/repository/client-desktop/client-desktop'
-  NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/current'
+  NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/2.13'
   NEXUS_PATH_VCPKG_CACHE: '$NEXUS_PATH_ROOT/vcpkg_cache/current'
   NEXUS_PATH_BRANCH_UPLOAD: '${NEXUS_PATH_ROOT}/branches/${CI_COMMIT_BRANCH}'
   NEXUS_PATH_TAGGED_UPLOAD: '${NEXUS_PATH_ROOT}/tagged-builds'

@@ -162,22 +162,35 @@ static bool setFolderPermissions(const std::filesystem::path &folder)
         return false;
     }
 
-    // Set up an EXPLICIT_ACCESS structure for the Administrators group.
-    EXPLICIT_ACCESS ea;
-    ::ZeroMemory(&ea, sizeof(ea));
-    ea.grfAccessPermissions = GENERIC_ALL;
-    ea.grfAccessMode = SET_ACCESS;
-    ea.grfInheritance = SUB_CONTAINERS_AND_OBJECTS_INHERIT;
-    ea.Trustee.TrusteeForm = TRUSTEE_IS_NAME;
-    ea.Trustee.TrusteeType = TRUSTEE_IS_GROUP;
-    ea.Trustee.ptstrName = (LPWCH)L"Administrators";
+    // Create a SID for the BUILTIN\Administrators group
+    SID_IDENTIFIER_AUTHORITY SIDAuthNT = SECURITY_NT_AUTHORITY;
+    PSID sidAdmin = NULL;
+    result = ::AllocateAndInitializeSid(&SIDAuthNT, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &sidAdmin);
+    if (!result) {
+        debugMessage(_T("setFolderPermissions AllocateAndInitializeSid failed: %lu"), ::GetLastError());
+        return false;
+    }
 
     PACL pACL = NULL;
     auto exitGuard = wsl::wsScopeGuard([&] {
         if (pACL) {
             ::LocalFree(pACL);
         }
+
+        if (sidAdmin) {
+            ::FreeSid(sidAdmin);
+        }
     });
+
+    // Set up an EXPLICIT_ACCESS structure for the Administrators group.
+    EXPLICIT_ACCESS ea;
+    ::ZeroMemory(&ea, sizeof(ea));
+    ea.grfAccessPermissions = GENERIC_ALL;
+    ea.grfAccessMode = SET_ACCESS;
+    ea.grfInheritance = SUB_CONTAINERS_AND_OBJECTS_INHERIT;
+    ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+    ea.Trustee.TrusteeType = TRUSTEE_IS_GROUP;
+    ea.Trustee.ptstrName = reinterpret_cast<LPTSTR>(sidAdmin);
 
     // Create a new ACL with these permissions.
     result = ::SetEntriesInAcl(1, &ea, NULL, &pACL);

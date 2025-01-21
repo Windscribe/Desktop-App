@@ -1,7 +1,12 @@
+2.13.7 (21/01/2025)
+Windows:
+   * Fixed installer bootstrap cannot set folder permissions on non-English Windows. #1226
+
+
 2.13.6 (09/01/2025)
 All:
    * Fixed autoconnect attempting to connect to invalid locations. #1221
-   * Fixed incorrect static device name on Mac/Linux. #1233 
+   * Fixed incorrect static device name on Mac/Linux. #1233
 Windows:
    * Fixed incorrect firewall rule blocking IPv6 during inclusive split tunnel. #1111
    * Fixed missing interface in MAC spoofing dropdown. #1200
