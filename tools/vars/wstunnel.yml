@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2025, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
-  VERSION_WSTUNNEL: '1.0.1'
+  VERSION_WSTUNNEL: '1.0.5'
   ARTIFACT_WSTUNNEL: 'wstunnel.zip'

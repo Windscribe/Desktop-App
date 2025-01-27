@@ -50,9 +50,9 @@ public:
     bool getLogAPIResponse();
     bool getLogCtrld();
     bool getLogPings();
+    bool getLogSplitTunnelExtension();
     bool getUsingScreenTransitionHotkeys();
     bool getUseICMPPings();
-    bool getUsePQAlgorithms();
     bool getStealthExtraTLSPadding();
     bool getAPIExtraTLSPadding();
 

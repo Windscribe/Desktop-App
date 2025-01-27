@@ -826,6 +826,30 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
         <translation>正在导入自定义配置目录。 Windscribe 将提示您输入管理员密码以检查正确的权限。</translation>
     </message>
+    <message>
+        <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
+        <translation>您的“连接的 DNS”服务器设置为操作系统默认 DNS 服务器，这将导致 DNS 泄漏。 它已更改为 Auto。</translation>
+    </message>
+    <message>
+        <source>Invalid DNS Settings</source>
+        <translation>DNS 设置无效</translation>
+    </message>
+    <message>
+        <source>System notifications are disabled</source>
+        <translation>系统通知已禁用</translation>
+    </message>
+    <message>
+        <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
+        <translation>您已选择显示通知，但系统通知已禁用。请在系统设置中启用系统通知。</translation>
+    </message>
+    <message>
+        <source>App not signed</source>
+        <translation>应用程序未签名</translation>
+    </message>
+    <message>
+        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
+        <translation>所选应用程序未签名。只有 macOS 上的签名应用程序才支持拆分隧道。</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1115,6 +1139,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Domains</source>
         <translation>域</translation>
+    </message>
+    <message>
+        <source>DNS leak detected</source>
+        <translation>检测到 DNS 泄漏</translation>
+    </message>
+    <message>
+        <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
+        <translation>使用 LAN 或本地 IP 地址进行连接的 DNS 将导致 DNS 泄漏。 我们强烈建议使用 ROBERT 或公有 DNS 服务器。</translation>
     </message>
 </context>
 <context>
@@ -1945,6 +1977,13 @@ Connect to a network first</source>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>请登录以修改拆分隧道规则。</translation>
     </message>
+    <message>
+        <source>
+
+On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
+        <translation>
+在 macOS 上，应用程序由其签名标识符标识，因此无法通过隧道拆分未签名的应用程序。 当应用程序通过隧道拆分时，该应用程序的所有副本都将通过隧道拆分，无论其路径如何。</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingGroup</name>
@@ -1961,16 +2000,8 @@ If the reinstall does not help, please contact Windscribe support for assistance
 如果重新安装没用，请联系 Windscribe 支持以寻求帮助。</translation>
     </message>
     <message>
-        <source>Selected IPs and hostnames will not go through Windscribe when connected.</source>
-        <translation>选定的 IP 和主机名不会通过 Windscribe 连接。</translation>
-    </message>
-    <message>
         <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
         <translation>选定的应用程序、IP 和主机名不会通过 Windscribe 连接。</translation>
-    </message>
-    <message>
-        <source>Only selected IPs and hostnames will go through Windscribe when connected.</source>
-        <translation>只有选定的 IP 和主机名会通过 Windscribe 连接。</translation>
     </message>
     <message>
         <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
@@ -2010,10 +2041,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>在 VPN 隧道中包含或排除应用和主机名。</translation>
-    </message>
-    <message>
-        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
-        <translation>在 VPN 隧道中包含或排除 IP 和主机名。</translation>
     </message>
 </context>
 <context>

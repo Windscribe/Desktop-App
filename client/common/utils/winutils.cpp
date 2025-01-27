@@ -5,6 +5,7 @@
 #include <LM.h>
 #include <psapi.h>
 #include <filesystem>
+#include <shellapi.h>
 
 #include "types/global_consts.h"
 #include "log/categories.h"
@@ -717,4 +718,31 @@ QStringList WinUtils::enumerateProcesses(const QString &processName)
     }
 
     return result;
+}
+
+bool WinUtils::isNotificationEnabled()
+{
+    int value = 0;
+
+    if (regGetCurrentUserRegistryDword("Software\\Microsoft\\Windows\\CurrentVersion\\PushNotifications", "ToastEnabled", value)) {
+        return value != 0;
+    }
+
+    return true; // Windows defaults to notifications enabled if this key does not exist
+}
+
+void WinUtils::openNotificationSettings()
+{
+    SHELLEXECUTEINFO shExInfo;
+    memset(&shExInfo, 0, sizeof(shExInfo));
+
+    shExInfo.cbSize = sizeof(shExInfo);
+    shExInfo.hwnd = NULL;
+    shExInfo.lpVerb = L"open";
+    shExInfo.lpFile = L"ms-settings:notifications";
+    shExInfo.nShow = SW_SHOWNORMAL;
+
+    if (!ShellExecuteEx(&shExInfo)) {
+        qCWarning(LOG_BASIC) << "WinUtils::openNotificationSettings ShellExecuteEx failed" << ::GetLastError();
+    }
 }

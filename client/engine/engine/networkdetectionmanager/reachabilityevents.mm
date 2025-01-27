@@ -2,10 +2,11 @@
 
 #include <QScopeGuard>
 
-#import "reachability.h"
+#import <Foundation/Foundation.h>
+#import <SystemConfiguration/SystemConfiguration.h>
+
 #include "utils/log/categories.h"
 
-Reachability *g_Reachability = nil;
 ReachAbilityEvents *g_ReachabilityEvents = NULL;
 
 @interface MacReachabilityEvents : NSObject
@@ -85,7 +86,6 @@ ReachAbilityEvents::ReachAbilityEvents(QObject *parent) : QObject(parent)
 
 ReachAbilityEvents::~ReachAbilityEvents()
 {
-    g_Reachability = nil;
     [g_MacReachabilityEvents release];
     g_MacReachabilityEvents = nil;
     g_ReachabilityEvents = NULL;

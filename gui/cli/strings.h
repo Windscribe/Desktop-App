@@ -12,4 +12,4 @@ QString firewallStateString(bool isFirewallOn, bool isFirewallAlwaysOn);
 QString dataString(const QString &language, qint64 data);
 QString updateString(const QString &updateAvailable);
 QString updateErrorString(UPDATE_VERSION_ERROR error);
-
+QString deviceNameString(const QString &deviceName);

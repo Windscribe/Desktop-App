@@ -187,7 +187,7 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig,
     doConnect();
 }
 
-void ConnectionManager::clickDisconnect()
+void ConnectionManager::clickDisconnect(DISCONNECT_REASON reason)
 {
     WS_ASSERT(state_ == STATE_CONNECTING_FROM_USER_CLICK || state_ == STATE_CONNECTED || state_ == STATE_RECONNECTING ||
               state_ == STATE_WAKEUP_RECONNECTING || state_ == STATE_DISCONNECTING_FROM_USER_CLICK ||
@@ -197,16 +197,13 @@ void ConnectionManager::clickDisconnect()
     connectTimer_.stop();
     connectingTimer_.stop();
 
-    if (state_ != STATE_DISCONNECTING_FROM_USER_CLICK)
-    {
+    if (state_ != STATE_DISCONNECTING_FROM_USER_CLICK) {
         state_ = STATE_DISCONNECTING_FROM_USER_CLICK;
         qCDebug(LOG_CONNECTION) << "ConnectionManager::clickDisconnect()";
-        if (connector_)
-        {
+        if (connector_) {
+            userDisconnectReason_ = reason;
             connector_->startDisconnect();
-        }
-        else
-        {
+        } else {
             disconnect();
             if (!connSettingsPolicy_.isNull())
             {
@@ -215,8 +212,15 @@ void ConnectionManager::clickDisconnect()
             stunnelManager_->killProcess();
             wstunnelManager_->killProcess();
             ctrldManager_->killProcess();
-            emit disconnected(DISCONNECTED_BY_USER);
+            emit disconnected(reason);
         }
+    }
+}
+
+void ConnectionManager::reconnect()
+{
+    if (connector_) {
+        onConnectionReconnecting();
     }
 }
 
@@ -399,7 +403,8 @@ void ConnectionManager::onConnectionDisconnected()
         case STATE_DISCONNECTING_FROM_USER_CLICK:
             disconnect();
             connSettingsPolicy_->reset();
-            emit disconnected(DISCONNECTED_BY_USER);
+            emit disconnected(userDisconnectReason_);
+            userDisconnectReason_ = DISCONNECTED_BY_USER; // reset to default value
             break;
         case STATE_CONNECTED:
             // goto reconnection state, start reconnection timer and do connection again

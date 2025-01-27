@@ -123,6 +123,7 @@ private slots:
     void onPreferencesAdvancedParametersChanged(const QString &advParams);
     void onPreferencesLastKnownGoodProtocolChanged(const QString &network, const types::Protocol &protocol, uint port);
     void onPreferencesCustomConfigPathNeedsUpdate(const QString &path);
+    void onPreferencesShowNotificationsChanged();
 
     // emergency window signals
     void onEmergencyConnectClick();
@@ -436,6 +437,7 @@ private:
     PermissionMonitor_mac *permissionMonitor_;
 #endif
     void checkLocationPermission();
+    void checkNotificationEnabled();
 
     void checkCustomConfigPath(const QString &path);
 };

@@ -30,6 +30,9 @@ struct GuiPersistentState
     // added in ver 5
     bool isIgnoreLocationServicesDisabled = false;
 
+    // added in ver 6
+    bool isIgnoreNotificationDisabled = false;
+
     bool operator==(const GuiPersistentState &other) const
     {
         return other.isFirewallOn == isFirewallOn &&
@@ -44,7 +47,8 @@ struct GuiPersistentState
                other.appGeometry == appGeometry &&
                other.preferencesWindowHeight == preferencesWindowHeight &&
                other.lastLocationTab == lastLocationTab &&
-               other.isIgnoreLocationServicesDisabled == isIgnoreLocationServicesDisabled;
+               other.isIgnoreLocationServicesDisabled == isIgnoreLocationServicesDisabled &&
+               other.isIgnoreNotificationDisabled == isIgnoreNotificationDisabled;
     }
 
     bool operator!=(const GuiPersistentState &other) const
@@ -58,7 +62,7 @@ struct GuiPersistentState
         stream << o.isFirewallOn << o.windowOffsX << o.windowOffsY << o.countVisibleLocations <<
                   o.isFirstLogin << o.isIgnoreCpuUsageWarnings << o.lastLocation << o.lastExternalIp <<
                   o.networkWhiteList << o.appGeometry << o.preferencesWindowHeight << o.lastLocationTab <<
-                  o.isIgnoreLocationServicesDisabled;
+                  o.isIgnoreLocationServicesDisabled << o.isIgnoreNotificationDisabled;
 
         return stream;
     }
@@ -93,11 +97,15 @@ struct GuiPersistentState
             stream >> o.isIgnoreLocationServicesDisabled;
         }
 
+        if (version >= 6) {
+            stream >> o.isIgnoreNotificationDisabled;
+        }
+
         return stream;
     }
 
 private:
-    static constexpr int versionForSerialization_ = 5;  // should increment the version if the data format is changed
+    static constexpr int versionForSerialization_ = 6;  // should increment the version if the data format is changed
 };
 
 } // types namespace

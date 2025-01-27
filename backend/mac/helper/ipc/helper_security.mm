@@ -4,7 +4,7 @@
 #include <spdlog/spdlog.h>
 #include "utils/executable_signature/executable_signature_defs.h"
 
-#define REQUIREMENT_STRING "anchor apple generic and (identifier \"com.windscribe.gui.macos\" or identifier \"com.windscribe.installer.macos\")" \
+#define REQUIREMENT_STRING "anchor apple generic and (identifier \"com.windscribe.client\" or identifier \"com.windscribe.installer.macos\")" \
                            "and certificate leaf[subject.CN] = \"" MACOS_CERT_DEVELOPER_ID "\""
 
 bool HelperSecurity::isValidXpcConnection(xpc_object_t event)

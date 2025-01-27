@@ -3,7 +3,7 @@ if(EXISTS "${CURRENT_INSTALLED_DIR}/share/libressl/copyright"
     message(FATAL_ERROR "Can't build openssl if libressl/boringssl is installed. Please remove libressl/boringssl, and try install openssl again if you need it.")
 endif()
 
-if(NOT (VCPKG_TARGET_IS_IOS OR VCPKG_TARGET_IS_ANDROID))
+if(NOT (VCPKG_TARGET_IS_IOS OR VCPKG_TARGET_IS_ANDROID OR VCPKG_TARGET_IS_WINDOWS))
     vcpkg_check_linkage(ONLY_DYNAMIC_LIBRARY)
 endif()
 

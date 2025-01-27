@@ -18,6 +18,7 @@ vcpkg_from_github(
     PATCHES
         fix-cmakelist.patch
         anti-censorship.patch
+        windows-static-openssl.patch
 )
 
 set(VCPKG_BUILD_TYPE release)

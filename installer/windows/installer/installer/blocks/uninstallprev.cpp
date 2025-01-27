@@ -14,6 +14,7 @@
 #include "../../../utils/utils.h"
 #include "global_consts.h"
 #include "servicecontrolmanager.h"
+#include "../installer_utils.h"
 #include "win32handle.h"
 
 using namespace std;
@@ -77,7 +78,14 @@ int UninstallPrev::executeStep()
 
         wstring uninstallString = getUninstallString();
         if (!uninstallString.empty()) {
-            spdlog::info(L"Found a previous installation of the application: {}", getPrevClientVersion());
+
+            // log the previous installed program version
+            // Read the path of the installed client from the registry and determine Windscribe.exe version
+            QSettings reg(QString::fromStdWString(ApplicationInfo::installerRegistryKey()), QSettings::NativeFormat);
+            if (reg.contains("applicationPath")) {
+                const auto path = reg.value("applicationPath").toString().toStdWString() + L"\\Windscribe.exe";
+                spdlog::info(L"Found a previous installation of the application: {}", InstallerUtils::getExecutableVersion(path));
+            }
 
             if (!isFactoryReset_) {
                 QSettings reg(QString::fromStdWString(ApplicationInfo::appRegistryKey()), QSettings::NativeFormat);
@@ -265,41 +273,6 @@ void UninstallPrev::terminateProtocolHandlers() const
     taskKill(L"windscribeopenvpn.exe");
     taskKill(L"windscribewstunnel.exe");
     taskKill(L"windscribectrld.exe");
-}
-
-wstring UninstallPrev::getPrevClientVersion() const
-{
-    // Read the path of the installed client from the registry and determine Windscribe.exe version
-    QSettings reg(QString::fromStdWString(ApplicationInfo::installerRegistryKey()), QSettings::NativeFormat);
-    if (!reg.contains("applicationPath"))
-        return wstring();
-
-    const auto path = reg.value("applicationPath").toString().toStdWString() + L"\\Windscribe.exe";
-
-    DWORD dwSize = GetFileVersionInfoSize(path.c_str(), NULL);
-    if (dwSize == 0) {
-        spdlog::error("Error in GetFileVersionInfoSize: {}", GetLastError());
-        return wstring();
-    }
-
-    std::vector<BYTE> pVersionInfo(dwSize);
-    if (!GetFileVersionInfo(path.c_str(), 0, dwSize, pVersionInfo.data())) {
-        spdlog::error("Error in GetFileVersionInfo: {}", GetLastError());
-        return wstring();
-    }
-
-    VS_FIXEDFILEINFO    *pFileInfo          = NULL;
-    UINT                pLenFileInfo        = 0;
-    if (!VerQueryValue(pVersionInfo.data(), TEXT("\\"), (LPVOID*) &pFileInfo, &pLenFileInfo)) {
-        spdlog::error("Error in VerQueryValue: {}", GetLastError());
-        return wstring();
-    }
-
-    DWORD major  =  ( pFileInfo->dwFileVersionMS >> 16 ) & 0xffff ;
-    DWORD minor  =  ( pFileInfo->dwFileVersionMS) & 0xffff;
-    DWORD build =  ( pFileInfo->dwFileVersionLS >>  16 ) & 0xffff;
-
-    return fmt::format(L"v{}.{}.{}", major, minor, build);
 }
 
 int UninstallPrev::taskKill(const std::wstring &exeName) const

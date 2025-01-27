@@ -8,9 +8,7 @@
 #include "generalmessagecontroller.h"
 #include "languagecontroller.h"
 
-#if defined(Q_OS_MACOS)
-    #include "utils/macutils.h"
-#elif defined(Q_OS_WINDOWS)
+#if defined(Q_OS_WIN)
     #include "utils/log/categories.h"
     #include "utils/servicecontrolmanager.h"
 #endif
@@ -35,13 +33,9 @@ SplitTunnelingGroup::SplitTunnelingGroup(ScalableGraphicsObject *parent, const Q
     connect(modeComboBox_, &ComboBoxItem::currentItemChanged, this, &SplitTunnelingGroup::onCurrentModeChanged);
     addItem(modeComboBox_);
 
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     appsLinkItem_ = new LinkItem(this, LinkItem::LinkType::SUBPAGE_LINK);
     connect(appsLinkItem_, &LinkItem::clicked, this, &SplitTunnelingGroup::appsPageClick);
     addItem(appsLinkItem_);
-#else
-    appsLinkItem_ = nullptr;
-#endif
 
     addressesLinkItem_ = new LinkItem(this, LinkItem::LinkType::SUBPAGE_LINK);
     connect(addressesLinkItem_, &LinkItem::clicked, this, &SplitTunnelingGroup::addressesPageClick);
@@ -66,7 +60,7 @@ void SplitTunnelingGroup::setSettings(types::SplitTunnelingSettings settings)
 
 void SplitTunnelingGroup::onActiveSwitchStateChanged(bool checked)
 {
-#if defined(Q_OS_WINDOWS)
+#if defined(Q_OS_WIN)
     if (checked) {
         try {
             // Note: accessing the Windows SCM could potentially be a slow operation.  Be careful if
@@ -130,18 +124,10 @@ void SplitTunnelingGroup::updateDescription()
 {
     switch(settings_.mode) {
         case SPLIT_TUNNELING_MODE_EXCLUDE:
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
             setDescription(tr("Selected apps, IPs, and hostnames will not go through Windscribe when connected."));
-#else
-            setDescription(tr("Selected IPs and hostnames will not go through Windscribe when connected."));
-#endif
             break;
         case SPLIT_TUNNELING_MODE_INCLUDE:
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
             setDescription(tr("Only selected apps, IPs, and hostnames will go through Windscribe when connected."));
-#else
-            setDescription(tr("Only selected IPs and hostnames will go through Windscribe when connected."));
-#endif
             break;
         default:
             break;
@@ -185,9 +171,7 @@ void SplitTunnelingGroup::onLanguageChanged()
     list << qMakePair(tr("Inclusive"), SPLIT_TUNNELING_MODE_INCLUDE);
     modeComboBox_->setItems(list, settings_.mode);
 
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     appsLinkItem_->setTitle(tr("Apps"));
-#endif
     addressesLinkItem_->setTitle(tr("IPs & Hostnames"));
 
     updateDescription();

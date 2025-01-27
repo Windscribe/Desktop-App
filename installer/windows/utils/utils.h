@@ -15,6 +15,7 @@ std::wstring desktopFolder();
 std::wstring getExePath();
 std::wstring getSystemDir();
 std::wstring programFilesFolder();
+bool isInstallerPathInProgramFilesX86(const std::wstring &installerPath);
 std::wstring startMenuProgramsFolder();
 
 // Run appName with the given commandLine and showWindowFlags.  Wait timeoutMS milliseconds for

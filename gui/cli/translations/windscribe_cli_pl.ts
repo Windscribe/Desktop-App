@@ -270,5 +270,9 @@
         <source>Incorrect 2FA code</source>
         <translation>Nieprawidłowy kod 2FA</translation>
     </message>
+    <message>
+        <source>(Device name: %1)</source>
+        <translation>(Nazwa urządzenia: %1)</translation>
+    </message>
 </context>
 </TS>

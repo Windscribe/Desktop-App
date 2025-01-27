@@ -5,10 +5,6 @@
 #include "utils/hardcodedsettings.h"
 #include "languagecontroller.h"
 
-#ifdef Q_OS_MACOS
-    #include "utils/macutils.h"
-#endif
-
 namespace PreferencesWindow {
 
 SplitTunnelingWindowItem::SplitTunnelingWindowItem(ScalableGraphicsObject *parent, Preferences *preferences) : CommonGraphics::BasePage(parent)
@@ -74,11 +70,7 @@ void SplitTunnelingWindowItem::setActive(bool active)
 
 void SplitTunnelingWindowItem::onLanguageChanged()
 {
-#ifdef Q_OS_WIN
     desc_->setDescription(tr("Include or exclude apps and hostnames from the VPN tunnel."));
-#else
-    desc_->setDescription(tr("Include or exclude IPs and hostnames from the VPN tunnel."));
-#endif
 }
 
 void SplitTunnelingWindowItem::onPreferencesChanged()

@@ -81,26 +81,6 @@ static wstring getVersionInfoItem(const wstring &exeName, const wstring &itemNam
     return itemValue;
 }
 
-bool installedAppVersionLessThan(const wstring &version)
-{
-    filesystem::path appExe(Settings::instance().getPath());
-    appExe.append(ApplicationInfo::appExeName());
-
-    error_code ec;
-    if (!filesystem::exists(appExe, ec)) {
-        return false;
-    }
-
-    const wstring installedAppVersion = getVersionInfoItem(appExe.native(), L"ProductVersion");
-    if (installedAppVersion.empty()) {
-        spdlog::error(L"installedAppVersionLessThan - failed to retrieve installed app version");
-        return false;
-    }
-
-    int result = ::StrCmpLogicalW(installedAppVersion.c_str(), version.c_str());
-    return (result < 0);
-}
-
 static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 {
     if (uMsg == BFFM_INITIALIZED) {
@@ -135,6 +115,53 @@ wstring selectInstallFolder(HWND owner, const wstring &title, const wstring &ini
     }
 
     return installFolder;
+}
+
+wstring getExecutableVersion(const std::wstring &path)
+{
+    filesystem::path appExe(path);
+
+    error_code ec;
+    if (!filesystem::exists(appExe, ec)) {
+        spdlog::error(L"getExecutableVersion - file does not exist: {}", path);
+        return L"";
+    }
+
+    const wstring installedAppVersion = getVersionInfoItem(appExe.native(), L"ProductVersion");
+    if (installedAppVersion.empty()) {
+        spdlog::error(L"installedAppVersionLessThan - failed to retrieve app version from {}", path);
+        return L"";
+    }
+    return installedAppVersion;
+}
+
+bool installedAppVersionLessThan(const wstring &version)
+{
+    filesystem::path appExe(Settings::instance().getPath());
+    appExe.append(ApplicationInfo::appExeName());
+
+    auto installedVersion = getExecutableVersion(appExe);
+    if (installedVersion.empty()) {
+        return false;
+    } else {
+        int result = ::StrCmpLogicalW(installedVersion.c_str(), version.c_str());
+        return (result < 0);
+    }
+}
+
+// very old versions of the program before 2.4 had a 4-digit string version format, for example 2.0.3.1.
+// this function returns true if we are dealing with this versions.
+bool installedAppVersion2_3orLess()
+{
+    filesystem::path appExe(Settings::instance().getPath());
+    appExe.append(ApplicationInfo::appExeName());
+
+    auto installedVersion = getExecutableVersion(appExe);
+    if (installedVersion.empty()) {
+        return false;
+    } else {
+        return installedVersion.starts_with(L"2.0.");
+    }
 }
 
 }

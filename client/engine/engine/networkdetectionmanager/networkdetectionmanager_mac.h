@@ -1,15 +1,15 @@
 #pragma once
 
 #include <QMutex>
-#include <QTimer>
 #include "engine/helper/ihelper.h"
 #include "inetworkdetectionmanager.h"
+#include "pathmonitor.h"
 
 class NetworkDetectionManager_mac : public INetworkDetectionManager
 {
     Q_OBJECT
 public:
-    NetworkDetectionManager_mac(QObject *parent, IHelper *helper, bool isInitialFirewallAlwaysOn);
+    NetworkDetectionManager_mac(QObject *parent, IHelper *helper);
     ~NetworkDetectionManager_mac() override;
     void getCurrentNetworkInterface(types::NetworkInterface &networkInterface, bool forceUpdate = false) override;
     bool isOnline() override;
@@ -24,7 +24,7 @@ signals:
 
 private slots:
     void onNetworkStateChanged();
-    void onCheckDnsTimer();
+    void onOnlineStateChanged(bool isOnline);
 
 private:
     IHelper *helper_;
@@ -33,11 +33,11 @@ private:
     types::NetworkInterface lastNetworkInterface_;
     QVector<types::NetworkInterface> lastNetworkList_;
 
-    QTimer dnsCheckTimer_;
+    PathMonitor pathMonitor_;
 
     bool isWifiAdapterUp(const QVector<types::NetworkInterface> &networkList);
     const types::NetworkInterface currentNetworkInterfaceFromNetworkList(const QVector<types::NetworkInterface> &networkList);
 
-    bool isOnlineImpl(bool withDnsServerCheck);
+    bool isOnlineOldImpl();
 
 };

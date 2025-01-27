@@ -41,7 +41,7 @@ public:
     bool isLastLoginWithAuthHash() const;
     void logout(bool keepFirewallOn);
     void sendConnect(const LocationID &lid, const types::ConnectionSettings &connectionSettings = types::ConnectionSettings(types::Protocol(), 0, true));
-    void sendDisconnect();
+    void sendDisconnect(DISCONNECT_REASON reason = DISCONNECTED_BY_USER);
     bool isDisconnected() const;
     LOGIN_STATE currentLoginState() const;
     wsnet::LoginResult lastLoginError() const;
@@ -115,6 +115,9 @@ public:
     bool haveAutoLoginCredentials(QString &username, QString &password);
 
     void updateCurrentNetworkInterface();
+
+    void reconnect();
+    bool osDnsServersListContains(const std::wstring &dnsServer);
 
 private slots:
     void onEngineSettingsChangedInPreferences();
@@ -281,6 +284,8 @@ private:
 
     LOGIN_STATE loginState_;
     wsnet::LoginResult lastLoginError_;
+
+    std::vector<std::wstring> osDnsServers_;
 
     void triggerAutoConnect(const types::NetworkInterface &interface);
 };

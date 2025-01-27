@@ -49,17 +49,12 @@ helper:
       - OTHER_CODE_SIGN_FLAGS=--timestamp
       - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
       - -quiet
-
   linux:
     name:     Helper
     subdir:   backend/linux/helper
     target:   helper
 
 authhelper:
-  win32:
-    name:     "Auth Helper"
-    subdir:   gui/authhelper/win
-    target:   [ "ws_com.dll", "ws_com_server.exe", "ws_proxy_stub.dll" ]
   linux:
     name:     "Auth Helper"
     subdir:   gui/authhelper/linux
@@ -118,6 +113,24 @@ bootstrap:
     subdir:  installer/windows/bootstrap
     target:  windscribe_installer.exe
 
+wssecure:
+  win32:
+    name:    wssecure
+    subdir:  libs/wssecure
+    target:  wssecure.dll
+
+splittunnelextension:
+  macos:
+    name:     SplitTunnelExtension
+    subdir:   backend/mac/splittunnelextension
+    target:   com.windscribe.client.splittunnelextension.systemextension
+    generator: Xcode
+    entitlements: True
+    xcflags:
+      - OTHER_CODE_SIGN_FLAGS=--timestamp
+      - CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
+      - -quiet
+
 targets:
     - cli
     - helper
@@ -126,6 +139,8 @@ targets:
     - wireguardservice
     - authhelper
     - launcher
+    - wssecure
+    - splittunnelextension
     - client
 
 signing_cert_win:
@@ -137,26 +152,12 @@ deploy_files:
   win32:
     installer:
       # also used for bootstrap
-      msvc:
-        - concrt140.dll
-        - msvcp140.dll
-        - msvcp140_1.dll
-        - msvcp140_2.dll
-        - vccorlib140.dll
-        - vcruntime140.dll
-        - vcruntime140_1.dll
       additional_files:
         # If removing this file in the future, check that moving windows between^M
         # screens of different resolutions still works without issue, since the^M
         # below option fixes this behavior.^M
         - qt/qt.conf -> qt.conf
       libs:
-        qt:
-          # Add Qt libraries here if they are only used by the app and not the installer
-          - bin/Qt6Core5Compat.dll ->Qt6Core5Compat.dll
-          - bin/Qt6Network.dll -> Qt6Network.dll
-          - plugins/networkinformation/qnetworklistmanager.dll -> networkinformation/qnetworklistmanager.dll
-          - plugins/tls/qschannelbackend.dll -> tls/qschannelbackend.dll
         wireguard:
           - tunnel.dll -> tunnel.dll
           - wireguard.dll -> wireguard.dll
@@ -172,20 +173,6 @@ deploy_files:
           - win11/ovpn-dco.inf -> openvpndco/win11/ovpn-dco.inf
           - win11/ovpn-dco.sys -> openvpndco/win11/ovpn-dco.sys
     bootstrap:
-      libs:
-        qt:
-          # Add Qt libraries here if they are used by both the installer and app.
-          # These libs are copied into the app installation folder during the install.
-          - bin/Qt6Core.dll -> Qt6Core.dll
-          - bin/Qt6Gui.dll -> Qt6Gui.dll
-          - bin/Qt6Svg.dll -> Qt6Svg.dll
-          - bin/Qt6Widgets.dll -> Qt6Widgets.dll
-          - plugins/imageformats/qgif.dll -> imageformats/qgif.dll
-          - plugins/imageformats/qico.dll -> imageformats/qico.dll
-          - plugins/imageformats/qsvg.dll -> imageformats/qsvg.dll
-          - plugins/imageformats/qjpeg.dll -> imageformats/qjpeg.dll
-          - plugins/platforms/qwindows.dll -> platforms/qwindows.dll
-          - plugins/styles/qwindowsvistastyle.dll -> styles/qwindowsvistastyle.dll
 
   win32_x86_64:
     installer:
@@ -206,10 +193,16 @@ deploy_files:
         - splittunnel/arm64/windscribesplittunnel.sys -> splittunnel/windscribesplittunnel.sys
 
   macos:
+    splittunnelextension:
+      entitlements:
+        entitlements_binary: Contents/MacOS/com.windscribe.client.splittunnelextension
+        entitlements_file: backend/mac/splittunnelextension/splittunnelextension.entitlements
+        provision_profile: backend/mac/provisioning_profile/splittunnelextension.provisionprofile
     client:
       entitlements:
         entitlements_binary: Contents/MacOS/Windscribe
         entitlements_file: client/engine/mac/windscribe_engine.entitlements
+        provision_profile: backend/mac/provisioning_profile/embedded.provisionprofile
       remove:
         # Remove unused Qt frameworks.
         - Contents/Frameworks/QtQml.framework

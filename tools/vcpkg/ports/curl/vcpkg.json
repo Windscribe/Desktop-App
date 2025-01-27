@@ -1,6 +1,7 @@
 {
   "name": "curl",
   "version": "8.8.1",
+  "port-version": 1,
   "description": "A library for transferring data with URLs. Experimental ECH version",
   "homepage": "https://github.com/sftcd/curl/tree/ECH-experimental",
   "license": null,

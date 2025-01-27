@@ -50,7 +50,8 @@ public:
                       const api_responses::PortMap &portMap, const types::ProxySettings &proxySettings,
                       bool bEmitAuthError, const QString &customConfigPath, bool isAntiCensorship);
 
-    void clickDisconnect();
+    void clickDisconnect(DISCONNECT_REASON reason = DISCONNECTED_BY_USER);
+    void reconnect();
     void blockingDisconnect();
     bool isDisconnected();
 
@@ -221,6 +222,8 @@ private:
     QSharedPointer<locationsmodel::BaseLocationInfo> bli_;
 
     types::Protocol lastKnownGoodProtocol_;
+
+    DISCONNECT_REASON userDisconnectReason_ = DISCONNECTED_BY_USER;
 
     void doConnect();
     void doConnectPart2();

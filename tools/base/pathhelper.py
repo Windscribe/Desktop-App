@@ -28,7 +28,6 @@ TEMP_DIR = os.path.join(ROOT_DIR, "temp")
 
 # some filenames
 NOTARIZE_SCRIPT = "notarize.sh"
-PROVISION_PROFILE = "embedded.provisionprofile"
 
 
 def notarize_script_filename_absolute():
@@ -37,10 +36,6 @@ def notarize_script_filename_absolute():
 
 def mac_provision_profile_folder_name_absolute():
     return os.path.join(ROOT_DIR, "backend", "mac", "provisioning_profile")
-
-
-def mac_provision_profile_filename_absolute():
-    return os.path.join(mac_provision_profile_folder_name_absolute(), PROVISION_PROFILE)
 
 
 def linux_public_key_filename_absolute():

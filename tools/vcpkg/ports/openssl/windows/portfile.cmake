@@ -85,7 +85,7 @@ vcpkg_build_nmake(
         install_runtime install_ssldirs # extra targets
 )
 
-set(scripts "bin/c_rehash.pl" "misc/CA.pl" "misc/tsget.pl")
+set(scripts "misc/CA.pl" "misc/tsget.pl")
 if("tools" IN_LIST FEATURES)
     file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/tools/${PORT}")
     file(RENAME "${CURRENT_PACKAGES_DIR}/openssl.cnf" "${CURRENT_PACKAGES_DIR}/tools/${PORT}/openssl.cnf")

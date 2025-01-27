@@ -10,6 +10,7 @@
 #include "utils/log/categories.h"
 #include "utils/log/mergelog.h"
 #include "utils/log/logger.h"
+#include "utils/dns_utils/dnsserversconfiguration.h"
 #include "utils/extraconfig.h"
 #include "utils/ipvalidation.h"
 #include "utils/hardcodedsettings.h"
@@ -20,7 +21,6 @@
 #include "wireguardconfig/getwireguardconfig.h"
 #include "proxy/proxyservercontroller.h"
 #include "connectstatecontroller/connectstatecontroller.h"
-#include "dns_utils/dnsserversconfiguration.h"
 #include "crossplatformobjectfactory.h"
 #include "types/global_consts.h"
 #include "api_responses/websession.h"
@@ -44,6 +44,9 @@
 #elif defined Q_OS_MACOS
     #include "networkdetectionmanager/networkdetectionmanager_mac.h"
     #include "networkdetectionmanager/reachabilityevents.h"
+    #include "splittunnelextension/systemextensions_mac.h"
+    #include "splittunnelextension/splittunnelextensionmanager_mac.h"
+    #include "utils/macutils.h"
     #include "utils/network_utils/network_utils_mac.h"
     #include "utils/interfaceutils_mac.h"
 #elif defined Q_OS_LINUX
@@ -99,28 +102,17 @@ Engine::Engine() : QObject(nullptr),
         spdlog::get("raw")->info(logStr);
     }, false);
 
-    if (ExtraConfig::instance().getUsePQAlgorithms()) {
-        // Enable PQ algorithms.  We need to set some environment variables so OpenSSL can find the right provider.
+    // Enable post-quantum algorithms.  We need to set some environment variables so OpenSSL can find the right provider.
 #ifdef Q_OS_WIN
-        wchar_t p[MAX_PATH];
-        const auto pathLen = ::GetModuleFileNameW(NULL, p, MAX_PATH);
-        if (pathLen == 0) {
-            qCCritical(LOG_BASIC) << L"Engine GetModuleFileName failed (PQ algorithms not enabled):" << ::GetLastError();
-        }
-        else {
-            std::string pathStr = std::filesystem::path(p).parent_path().string();
-            _putenv_s("OPENSSL_MODULES", pathStr.c_str());
-            pathStr = std::filesystem::path(p).parent_path().append("openssl.cnf").string();
-            _putenv_s("OPENSSL_CONF", pathStr.c_str());
-        }
+    // NOOP: on Windows we have statically linked libraries, including oqsprovider.
+    // WSNet/OpenVPN will enable the additional algorithms automatically.
 #elif defined(Q_OS_MACOS)
-        setenv("OPENSSL_CONF", "/Applications/Windscribe.app/Contents/Resources/openssl.cnf", 1);
-        setenv("OPENSSL_MODULES", "/Applications/Windscribe.app/Contents/Frameworks", 1);
+    setenv("OPENSSL_CONF", "/Applications/Windscribe.app/Contents/Resources/openssl.cnf", 1);
+    setenv("OPENSSL_MODULES", "/Applications/Windscribe.app/Contents/Frameworks", 1);
 #elif defined(Q_OS_LINUX)
-        setenv("OPENSSL_CONF", "/opt/windscribe/openssl.cnf", 1);
-        setenv("OPENSSL_MODULES", "/opt/windscribe/lib", 1);
+    setenv("OPENSSL_CONF", "/opt/windscribe/openssl.cnf", 1);
+    setenv("OPENSSL_MODULES", "/opt/windscribe/lib", 1);
 #endif
-    }
 
     QSettings settings;
     std::string wsnetSettings = settings.value("wsnetSettings").toString().toStdString();
@@ -314,7 +306,7 @@ void Engine::connectClick(const LocationID &locationId, const types::ConnectionS
     }
 }
 
-void Engine::disconnectClick()
+void Engine::disconnectClick(DISCONNECT_REASON reason)
 {
     QMutexLocker locker(&mutex_);
     if (bInitialized_)
@@ -322,7 +314,7 @@ void Engine::disconnectClick()
         if (connectStateController_->currentState() == CONNECT_STATE_CONNECTED || connectStateController_->currentState() == CONNECT_STATE_CONNECTING)
         {
             connectStateController_->setDisconnectingState();
-            QMetaObject::invokeMethod(this, "disconnectClickImpl");
+            QMetaObject::invokeMethod(this, "disconnectClickImpl", Q_ARG(DISCONNECT_REASON, reason));
         }
     }
 }
@@ -549,6 +541,11 @@ void Engine::updateCurrentNetworkInterface()
     QMetaObject::invokeMethod(this, "updateCurrentNetworkInterfaceImpl");
 }
 
+void Engine::reconnect()
+{
+    QMetaObject::invokeMethod(this, "reconnectImpl");
+}
+
 void Engine::init()
 {
 #ifdef Q_OS_WIN
@@ -582,7 +579,7 @@ void Engine::initPart2()
     ReachAbilityEvents::instance().init();
 #endif
 
-    networkDetectionManager_ = CrossPlatformObjectFactory::createNetworkDetectionManager(this, helper_, engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON);
+    networkDetectionManager_ = CrossPlatformObjectFactory::createNetworkDetectionManager(this, helper_);
 
     DnsServersConfiguration::instance().setDnsServersPolicy(engineSettings_.dnsPolicy());
     WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
@@ -716,6 +713,9 @@ void Engine::initPart2()
     macSpoofTimer_ = new QTimer(this);
     connect(macSpoofTimer_, &QTimer::timeout, this, &Engine::onMacSpoofTimerTick);
     macSpoofTimer_->setInterval(1000);
+
+    // Connect system extension state change signal
+    connect(SystemExtensions_mac::instance(), &SystemExtensions_mac::stateChanged, this, &Engine::onSystemExtensionStateChanged);
 #endif
 
 #ifdef Q_OS_WIN
@@ -992,11 +992,11 @@ void Engine::connectClickImpl(const LocationID &locationId, const types::Connect
     doConnect(true);
 }
 
-void Engine::disconnectClickImpl()
+void Engine::disconnectClickImpl(DISCONNECT_REASON reason)
 {
     stopFetchingServerCredentials();
     connectionManager_->setProperty("senderSource", QVariant());
-    connectionManager_->clickDisconnect();
+    connectionManager_->clickDisconnect(reason);
 }
 
 void Engine::sendDebugLogImpl()
@@ -1136,6 +1136,11 @@ void Engine::updateCurrentInternetConnectivityImpl()
 {
     online_ = networkDetectionManager_->isOnline();
     emit internetConnectivityChanged(online_);
+}
+
+void Engine::reconnectImpl()
+{
+    connectionManager_->reconnect();
 }
 
 void Engine::updateCurrentNetworkInterfaceImpl()
@@ -1446,6 +1451,15 @@ void Engine::onConnectionManagerConnected()
     // Update ICS sharing. The operation may take a few seconds.
     vpnShareController_->onConnectedToVPNEvent(adapterName);
 
+#ifdef Q_OS_MACOS
+    if (SystemExtensions_mac::instance()->getSystemExtensionState() == SystemExtensions_mac::SystemExtensionState::Active) {
+        types::NetworkInterface interface;
+        networkDetectionManager_->getCurrentNetworkInterface(interface, false);
+        // This may do nothing if split tunneling is not enabled
+        SplitTunnelExtensionManager::instance().startExtension(interface.interfaceName, adapterName);
+    }
+#endif
+
     connectStateController_->setConnectedState(locationId_);
     connectionManager_->startTunnelTests(); // It is important that startTunnelTests() are after setConnectedState().
 
@@ -1480,6 +1494,9 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
 
 #ifdef Q_OS_WIN
     DnsInfo_win::outputDebugDnsInfo();
+#elif defined(Q_OS_MACOS)
+    // Stop the proxy when disconnecting
+    SplitTunnelExtensionManager::instance().stopExtension();
 #endif
 
     if (senderSource == "logoutImpl")
@@ -2217,6 +2234,22 @@ void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const 
 {
     WS_ASSERT(helper_ != NULL);
     helper_->setSplitTunnelingSettings(isActive, isExclude, engineSettings_.isAllowLanTraffic(), files, ips, hosts);
+
+#ifdef Q_OS_MACOS
+    // Activate the extension if it's not already active
+    SystemExtensions_mac::instance()->setAppProxySystemExtensionActive(isActive);
+
+    // Make sure settings are set before (re)starting the extension.
+    SplitTunnelExtensionManager::instance().setSplitTunnelSettings(isActive, isExclude, files);
+
+    // Always stop the extension first.
+    SplitTunnelExtensionManager::instance().stopExtension();
+
+    // If extension active, trigger the state change signal to start/stop the extension.  This (re)starts the extension with the new settings, if any have changed.
+    if (isActive) {
+        onSystemExtensionStateChanged(SystemExtensions_mac::instance()->getSystemExtensionState());
+    }
+#endif
 }
 
 void Engine::onApiResourceManagerCallback(ApiResourcesManagerNotification notification, LoginResult loginResult, const std::string &errorMessage)
@@ -2630,3 +2663,17 @@ void Engine::onConnectionManagerConnectionEnded()
     connId_.clear();
     emit connectionIdChanged(connId_);
 }
+
+#ifdef Q_OS_MACOS
+void Engine::onSystemExtensionStateChanged(SystemExtensions_mac::SystemExtensionState newState)
+{
+    if (newState == SystemExtensions_mac::Active && helper_ && connectStateController_->currentState() == CONNECT_STATE_CONNECTED) {
+        types::NetworkInterface interface;
+        networkDetectionManager_->getCurrentNetworkInterface(interface, false);
+        // This may do nothing if split tunneling is not enabled
+        SplitTunnelExtensionManager::instance().startExtension(interface.interfaceName, connectionManager_->getVpnAdapterInfo().adapterName());
+    } else if (newState == SystemExtensions_mac::Inactive) {
+        SplitTunnelExtensionManager::instance().stopExtension();
+    }
+}
+#endif

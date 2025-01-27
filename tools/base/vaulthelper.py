@@ -39,16 +39,10 @@ class VaultParser:
     def client_token():
         sys.stdout.write(VaultParser.parse_vault_json('auth', 'client_token'))
 
-    @staticmethod
-    def mac_provision_profile():
-        sys.stdout.write(VaultParser.parse_vault_json_raw('data', 'CODE_SIGN_PROVISION_PROFILE_MAC'))
-
 
 if __name__ == "__main__":
     if "--get-client-token" in sys.argv:
         VaultParser.client_token()
-    elif "--get-mac-provision-profile" in sys.argv:
-        VaultParser.mac_provision_profile()
     else:
         print("Error, pass argument that specifies what to parse for")
         sys.exit(1)

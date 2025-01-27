@@ -826,6 +826,30 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
         <translation>Importuje se adresář vlastní konfigurace.  Windscribe vás vyzve k zadání hesla správce, aby zkontroloval správná oprávnění.</translation>
     </message>
+    <message>
+        <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
+        <translation>Váš server &quot;Connected DNS&quot; je nastaven na výchozí server DNS operačního systému, což by mělo za následek únik DNS.  Byl změněn na Auto.</translation>
+    </message>
+    <message>
+        <source>Invalid DNS Settings</source>
+        <translation>Neplatné nastavení DNS</translation>
+    </message>
+    <message>
+        <source>System notifications are disabled</source>
+        <translation>Systémové notifikace jsou deaktivovány</translation>
+    </message>
+    <message>
+        <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
+        <translation>Zvolili jste zobrazení oznámení, ale systémová oznámení jsou deaktivována. Povolte systémová oznámení v Nastavení systému.</translation>
+    </message>
+    <message>
+        <source>App not signed</source>
+        <translation>Aplikace není podepsaná</translation>
+    </message>
+    <message>
+        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
+        <translation>Vybraná aplikace není podepsaná. Rozdělené tunelování je podporováno pouze u podepsaných aplikací v systému macOS.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1115,6 +1139,14 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Domains</source>
         <translation>Domény</translation>
+    </message>
+    <message>
+        <source>DNS leak detected</source>
+        <translation>Byl zjištěn únik DNS dat</translation>
+    </message>
+    <message>
+        <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
+        <translation>Použití LAN nebo místní IP adresy pro připojené DNS bude mít za následek únik DNS.  Důrazně doporučujeme používat server ROBERT nebo veřejný server DNS.</translation>
     </message>
 </context>
 <context>
@@ -1945,6 +1977,13 @@ Nejprve se připojte k síti</translation>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>Chcete-li změnit pravidla děleného tunelového propojení, přihlaste se.</translation>
     </message>
+    <message>
+        <source>
+
+On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
+        <translation>
+V systému macOS jsou aplikace identifikovány svým podpisovým identifikátorem, takže nepodepsané aplikace nelze rozdělit do tunelového propojení.  Když je aplikace rozdělena tunelovým propojením, jsou rozděleny všechny kopie této aplikace bez ohledu na jejich cestu.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingGroup</name>
@@ -1961,16 +2000,8 @@ If the reinstall does not help, please contact Windscribe support for assistance
 Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte o pomoc.</translation>
     </message>
     <message>
-        <source>Selected IPs and hostnames will not go through Windscribe when connected.</source>
-        <translation>Vybrané IP adresy a názvy hostitelů nebudou po připojení procházet programem Windscribe.</translation>
-    </message>
-    <message>
         <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
         <translation>Vybrané aplikace, IP adresy a názvy hostitelů nebudou po připojení procházet programem Windscribe.</translation>
-    </message>
-    <message>
-        <source>Only selected IPs and hostnames will go through Windscribe when connected.</source>
-        <translation>Po připojení budou přes Windscribe procházet pouze vybrané IP adresy a názvy hostitelů.</translation>
     </message>
     <message>
         <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
@@ -2010,10 +2041,6 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Zahrňte nebo vylučte aplikace a názvy hostitelů z tunelu VPN.</translation>
-    </message>
-    <message>
-        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
-        <translation>Zahrňte nebo vylučte IP adresy a názvy hostitelů z tunelu VPN.</translation>
     </message>
 </context>
 <context>

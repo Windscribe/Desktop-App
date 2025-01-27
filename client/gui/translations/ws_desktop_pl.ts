@@ -826,6 +826,30 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
         <translation>Importowany jest niestandardowy katalog konfiguracyjny.  Windscribe poprosi o podanie hasła administratora, aby sprawdzić, czy uprawnienia są poprawne.</translation>
     </message>
+    <message>
+        <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
+        <translation>Twój serwer &quot;Connected DNS&quot; jest ustawiony na domyślny serwer DNS systemu operacyjnego, co spowodowałoby wyciek DNS.  Został zmieniony na Auto.</translation>
+    </message>
+    <message>
+        <source>Invalid DNS Settings</source>
+        <translation>Nieprawidłowe ustawienia DNS</translation>
+    </message>
+    <message>
+        <source>System notifications are disabled</source>
+        <translation>Powiadomienia systemowe są wyłączone</translation>
+    </message>
+    <message>
+        <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
+        <translation>Wybrałeś wyświetlanie powiadomień, ale powiadomienia systemowe są wyłączone. Włącz powiadomienia systemowe w Ustawieniach systemu.</translation>
+    </message>
+    <message>
+        <source>App not signed</source>
+        <translation>Aplikacja nie jest podpisana</translation>
+    </message>
+    <message>
+        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
+        <translation>Wybrana aplikacja nie jest podpisana. Dzielone tunelowanie jest obsługiwane tylko w przypadku podpisanych aplikacji w systemie macOS.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1115,6 +1139,14 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
     <message>
         <source>Domains</source>
         <translation>Domeny</translation>
+    </message>
+    <message>
+        <source>DNS leak detected</source>
+        <translation>Wykryto wyciek DNS</translation>
+    </message>
+    <message>
+        <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
+        <translation>Użycie sieci LAN lub lokalnego adresu IP dla podłączonego DNS spowoduje wyciek DNS.  Zdecydowanie zalecamy korzystanie z ROBERT lub publicznego serwera DNS.</translation>
     </message>
 </context>
 <context>
@@ -1945,6 +1977,13 @@ Najpierw połącz się z siecią</translation>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>Zaloguj się, aby zmodyfikować reguły dzielonego tunelowania.</translation>
     </message>
+    <message>
+        <source>
+
+On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
+        <translation>
+W systemie macOS aplikacje są identyfikowane za pomocą identyfikatora podpisywania, więc niepodpisanych aplikacji nie można tunelować dzielenie.  Gdy aplikacja jest tunelowana dzielenie, wszystkie kopie tej aplikacji są tunelowane dzielenie, niezależnie od ich ścieżki.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingGroup</name>
@@ -1961,16 +2000,8 @@ If the reinstall does not help, please contact Windscribe support for assistance
 Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Windscribe w celu uzyskania pomocy.</translation>
     </message>
     <message>
-        <source>Selected IPs and hostnames will not go through Windscribe when connected.</source>
-        <translation>Wybrane adresy IP i nazwy hostów nie będą przechodzić przez Windscribe po podłączeniu.</translation>
-    </message>
-    <message>
         <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
         <translation>Wybrane aplikacje, adresy IP i nazwy hostów nie będą przechodzić przez Windscribe po podłączeniu.</translation>
-    </message>
-    <message>
-        <source>Only selected IPs and hostnames will go through Windscribe when connected.</source>
-        <translation>Tylko wybrane adresy IP i nazwy hostów przejdą przez Windscribe po podłączeniu.</translation>
     </message>
     <message>
         <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
@@ -2010,10 +2041,6 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Uwzględnij lub wyklucz aplikacje i nazwy hostów z tunelu sieci VPN.</translation>
-    </message>
-    <message>
-        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
-        <translation>Uwzględnij lub wyklucz adresy IP i nazwy hostów z tunelu VPN.</translation>
     </message>
 </context>
 <context>

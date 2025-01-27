@@ -337,6 +337,14 @@ QString FirewallController_mac::generatePfConf(const QString &connectingIp, cons
     pf += "pass in quick from <windscribe_ips> to any no state\n";
 
     // this table is filled in by the helper
+    pf += "table <windscribe_dns> persist\n";
+    // Allow VPN DNS, disllow other DNS
+    pf += "pass out quick proto udp from any to <windscribe_dns> port 53\n";
+    pf += "pass in quick proto udp from <windscribe_dns> port 53 to any\n";
+    pf += "block out quick proto {tcp, udp} from any to any port 53\n";
+    pf += "block in quick proto {tcp, udp} from any port 53 to any\n";
+
+    // this table is filled in by the helper
     pf += "table <windscribe_split_tunnel_ips> persist\n";
     pf += "pass out quick from any to <windscribe_split_tunnel_ips> no state\n";
     pf += "pass in quick from <windscribe_split_tunnel_ips> to any no state\n";
@@ -423,6 +431,9 @@ QStringList FirewallController_mac::vpnTrafficRules(const QString &connectingIp,
         // Allow other traffic on VPN interface
         rules << "pass out quick on " + interfaceToSkip + " inet from any to any";
         rules << "pass in quick on " + interfaceToSkip + " inet from any to any";
+
+        // allow windscribe group to send to any address, for split tunnel extension
+        rules << "pass out quick inet from any to any group windscribe flags any";
     }
 
     if (!connectingIp.isEmpty()) {

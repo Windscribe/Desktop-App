@@ -11,6 +11,7 @@ public:
 
     void connectClickFromUser();
     void disconnectClickFromUser();
+    void disconnect(DISCONNECT_REASON reason);
     void setConnectStateFromEngine(const types::ConnectState &connectState);
     bool isDisconnected() const;
     types::ConnectState currentConnectState() const;

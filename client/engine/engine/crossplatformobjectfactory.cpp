@@ -44,12 +44,12 @@ FirewallController *CrossPlatformObjectFactory::createFirewallController(QObject
 
 }
 
-INetworkDetectionManager *CrossPlatformObjectFactory::createNetworkDetectionManager(QObject *parent, IHelper *helper, bool isInitialFirewallAlwaysOn)
+INetworkDetectionManager *CrossPlatformObjectFactory::createNetworkDetectionManager(QObject *parent, IHelper *helper)
 {
 #ifdef Q_OS_WIN
     return new NetworkDetectionManager_win(parent, helper);
 #elif defined Q_OS_MACOS
-    return new NetworkDetectionManager_mac(parent, helper, isInitialFirewallAlwaysOn);
+    return new NetworkDetectionManager_mac(parent, helper);
 #elif defined Q_OS_LINUX
     return new NetworkDetectionManager_linux(parent, helper);
 #endif

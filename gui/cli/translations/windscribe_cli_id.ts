@@ -270,5 +270,9 @@
         <source>Incorrect 2FA code</source>
         <translation>Kode 2FA salah</translation>
     </message>
+    <message>
+        <source>(Device name: %1)</source>
+        <translation>(Nama perangkat: %1)</translation>
+    </message>
 </context>
 </TS>

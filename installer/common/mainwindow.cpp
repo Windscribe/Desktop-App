@@ -7,6 +7,8 @@
 #include <QScreen>
 #include <QWidget>
 
+#include <spdlog/spdlog.h>
+
 #include "languagecontroller.h"
 #include "themecontroller.h"
 
@@ -15,6 +17,7 @@
 #include "../windows/utils/applicationinfo.h"
 #include "../windows/utils/path.h"
 #include "../windows/utils/windscribepathcheck.h"
+#include "../windows/utils/utils.h"
 #endif
 
 MainWindow::MainWindow(bool isAdmin, InstallerOptions &options) : QWidget(nullptr), options_(options)
@@ -23,6 +26,15 @@ MainWindow::MainWindow(bool isAdmin, InstallerOptions &options) : QWidget(nullpt
 
     std::function<void()> callback = std::bind(&MainWindow::onInstallerCallback, this);
     installerShim_->setCallback(callback);
+
+#ifdef Q_OS_WIN
+    // for some old versions of program installed in the directory "Program Files (x86)" changes silently to "Program Files"
+    if (Utils::isInstallerPathInProgramFilesX86(installerShim_->installDir())) {
+        const auto defaultPath = ApplicationInfo::defaultInstallPath();
+        spdlog::info(L"Replace install directory for the old version of program from {} to {}", installerShim_->installDir(), defaultPath);
+        installerShim_->setInstallDir(defaultPath);
+    }
+#endif
 
     qApp->setWindowIcon(QIcon(":/resources/Windscribe.ico"));
     setWindowFlags(Qt::FramelessWindowHint | Qt::MSWindowsFixedSizeDialogHint);
@@ -112,7 +124,6 @@ MainWindow::MainWindow(bool isAdmin, InstallerOptions &options) : QWidget(nullpt
         return;
 
     }
-
 #endif
 
     if (!isAdmin) {
@@ -136,10 +147,18 @@ MainWindow::~MainWindow()
 void MainWindow::onInstallClicked()
 {
 #ifdef Q_OS_WIN
+    // For very old programs version 2.3 or less, changes the directory to the "Program Files" directory silently during updating
+    // because of possible bugs like #1236
+    if (options_.updating && InstallerUtils::installedAppVersion2_3orLess()) {
+        const auto defaultPath = ApplicationInfo::defaultInstallPath();
+        spdlog::info(L"Replace install directory for the old version (<= 2.3.x) of program from {} to {}", installerShim_->installDir(), defaultPath);
+        installerShim_->setInstallDir(defaultPath);
+    }
     // Display the warning every time if a user is manually upgrading and they're using a custom folder.
     // We'll only pester users doing an in-app upgrade if they are upgrading from a version not containing
     // this security check.
-    if (isWarnUserCustomPath()) {
+    else if (isWarnUserCustomPath())
+    {
         if (!options_.updating || InstallerUtils::installedAppVersionLessThan(L"2.10.10")) {
             showCustomPathWarning(true);
             return;
@@ -312,8 +331,7 @@ void MainWindow::showError(const QString &title, const QString &desc, bool fatal
     connect(alertWindow_, &AlertWindow::primaryButtonClicked, this, &MainWindow::onAlertWindowPrimaryButtonClicked);
     connect(alertWindow_, &AlertWindow::escapeClicked, this, &MainWindow::onAlertWindowEscapeClicked);
 
-    alertWindow_->show();
-    alertWindow_->setFocus();
+    showAlertWindow();
 }
 
 void MainWindow::showExitPrompt()
@@ -338,8 +356,7 @@ void MainWindow::showExitPrompt()
     connect(alertWindow_, &AlertWindow::primaryButtonClicked, this, &MainWindow::onAlertWindowPrimaryButtonClicked);
     connect(alertWindow_, &AlertWindow::escapeClicked, this, &MainWindow::onAlertWindowEscapeClicked);
 
-    alertWindow_->show();
-    alertWindow_->setFocus();
+    showAlertWindow();
 }
 
 void MainWindow::showCustomPathWarning(bool installing)
@@ -391,8 +408,7 @@ void MainWindow::showCustomPathWarning(bool installing)
         });
     }
 
-    alertWindow_->show();
-    alertWindow_->setFocus();
+    showAlertWindow();
 #else
     Q_UNUSED(installing)
 #endif
@@ -459,6 +475,7 @@ void MainWindow::setInstallPath(const QString &path)
 
 void MainWindow::showActiveWindowAfterAlert()
 {
+    setFixedHeight(kWindowHeight);
     alertWindow_->hide();
     if (settingsWindow_->isVisible()) {
         settingsWindow_->setFocus();
@@ -483,4 +500,11 @@ bool MainWindow::isWarnUserCustomPath() const
 #else
     return false;
 #endif
+}
+
+void MainWindow::showAlertWindow()
+{
+    setFixedHeight(std::max(alertWindow_->height(), kWindowHeight));
+    alertWindow_->show();
+    alertWindow_->setFocus();
 }

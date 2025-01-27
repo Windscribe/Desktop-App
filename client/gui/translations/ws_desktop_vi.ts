@@ -826,6 +826,30 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
         <translation>Một thư mục cấu hình tùy chỉnh đang được nhập.  Windscribe sẽ nhắc nhập mật khẩu quản trị viên của bạn để kiểm tra các quyền chính xác.</translation>
     </message>
+    <message>
+        <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
+        <translation>Máy chủ &quot;DNS được kết nối&quot; của bạn được đặt thành máy chủ DNS mặc định của hệ điều hành, điều này sẽ dẫn đến rò rỉ DNS.  Nó đã được đổi thành Tự động.</translation>
+    </message>
+    <message>
+        <source>Invalid DNS Settings</source>
+        <translation>Cài đặt DNS không hợp lệ</translation>
+    </message>
+    <message>
+        <source>System notifications are disabled</source>
+        <translation>Thông báo hệ thống bị tắt</translation>
+    </message>
+    <message>
+        <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
+        <translation>Bạn đã chọn hiển thị thông báo, nhưng thông báo hệ thống bị tắt. Vui lòng bật thông báo hệ thống trong Cài đặt hệ thống của bạn.</translation>
+    </message>
+    <message>
+        <source>App not signed</source>
+        <translation>Ứng dụng chưa được ký</translation>
+    </message>
+    <message>
+        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
+        <translation>Ứng dụng đã chọn chưa được ký. Tạo đường hầm phân chia chỉ được hỗ trợ cho các ứng dụng đã ký trên macOS.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1115,6 +1139,14 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Domains</source>
         <translation>Tên miền</translation>
+    </message>
+    <message>
+        <source>DNS leak detected</source>
+        <translation>Phát hiện rò rỉ DNS</translation>
+    </message>
+    <message>
+        <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
+        <translation>Sử dụng mạng LAN hoặc địa chỉ IP cục bộ cho DNS được kết nối sẽ dẫn đến rò rỉ DNS.  Chúng tôi thực sự khuyên bạn nên sử dụng ROBERT hoặc máy chủ DNS công cộng.</translation>
     </message>
 </context>
 <context>
@@ -1945,6 +1977,13 @@ Kết nối với mạng trước</translation>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>Vui lòng đăng nhập để sửa đổi các quy tắc tạo đường hầm phân chia.</translation>
     </message>
+    <message>
+        <source>
+
+On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
+        <translation>
+Trên macOS, các ứng dụng được xác định bằng mã định danh ký của chúng, vì vậy các ứng dụng chưa được ký không thể được phân chia đường hầm.  Khi một ứng dụng được tạo đường hầm phân chia, tất cả các bản sao của ứng dụng đó sẽ được tạo đường hầm phân chia, bất kể đường dẫn của chúng.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingGroup</name>
@@ -1961,16 +2000,8 @@ If the reinstall does not help, please contact Windscribe support for assistance
 Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với bộ phận hỗ trợ của Windscribe để được hỗ trợ.</translation>
     </message>
     <message>
-        <source>Selected IPs and hostnames will not go through Windscribe when connected.</source>
-        <translation>Các IP và tên máy chủ đã chọn sẽ không đi qua Windscribe khi được kết nối.</translation>
-    </message>
-    <message>
         <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
         <translation>Các ứng dụng, IP và tên máy chủ đã chọn sẽ không đi qua Windscribe khi được kết nối.</translation>
-    </message>
-    <message>
-        <source>Only selected IPs and hostnames will go through Windscribe when connected.</source>
-        <translation>Chỉ các IP và tên máy chủ được chọn mới đi qua Windscribe khi được kết nối.</translation>
     </message>
     <message>
         <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
@@ -2010,10 +2041,6 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Bao gồm hoặc loại trừ các ứng dụng và tên máy chủ khỏi đường hầm VPN.</translation>
-    </message>
-    <message>
-        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
-        <translation>Bao gồm hoặc loại trừ IP và tên máy chủ khỏi đường hầm VPN.</translation>
     </message>
 </context>
 <context>

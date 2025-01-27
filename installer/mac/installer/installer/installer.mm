@@ -224,7 +224,7 @@
         [self runProcess:@"/bin/rm" args:@[path]];
 
         [path setString:NSHomeDirectory()];
-        [path appendString:@"/Library/Preferences/com.windscribe.gui.macos.plist"];
+        [path appendString:@"/Library/Preferences/com.windscribe.client.plist"];
         [self runProcess:@"/bin/rm" args:@[path]];
 
         [path setString:NSHomeDirectory()];

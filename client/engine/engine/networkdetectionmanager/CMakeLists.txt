@@ -15,8 +15,8 @@ elseif(APPLE)
     target_sources(engine PRIVATE
         networkdetectionmanager_mac.cpp
         networkdetectionmanager_mac.h
-        reachability.h
-        reachability.m
+        pathmonitor.h
+        pathmonitor.mm
         reachabilityevents.h
         reachabilityevents.mm
     )

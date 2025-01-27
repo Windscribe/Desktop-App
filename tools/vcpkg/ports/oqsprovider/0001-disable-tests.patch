@@ -1,0 +1,15 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 67786df..0091857 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -87,5 +87,8 @@ endfunction()
+ add_subdirectory(oqsprov)
+ 
+ # Testing
+-enable_testing()
+-add_subdirectory(test)
++option(BUILD_TESTING "" OFF)
++if(BUILD_TESTING)
++    enable_testing()
++    add_subdirectory(test)
++endif()

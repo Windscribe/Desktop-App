@@ -270,5 +270,9 @@
         <source>Incorrect 2FA code</source>
         <translation>Yanlış 2FA kodu</translation>
     </message>
+    <message>
+        <source>(Device name: %1)</source>
+        <translation>(Cihaz adı: %1)</translation>
+    </message>
 </context>
 </TS>

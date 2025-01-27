@@ -50,6 +50,9 @@ public:
     void setIgnoreLocationServicesDisabled(bool suppress);
     bool isIgnoreLocationServicesDisabled() const;
 
+    void setIgnoreNotificationDisabled(bool suppress);
+    bool isIgnoreNotificationDisabled() const;
+
     void fromIni(QSettings &settings);
     void toIni(QSettings &settings);
 

@@ -826,6 +826,30 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
         <translation>カスタム設定ディレクトリをインポートしています。 Windscribeは、正しい権限を確認するために管理者パスワードの入力を求めます。</translation>
     </message>
+    <message>
+        <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
+        <translation>「接続されたDNS」サーバーがOSのデフォルトDNSサーバーに設定されているため、DNSリークが発生する可能性があります。 オートに変更されました。</translation>
+    </message>
+    <message>
+        <source>Invalid DNS Settings</source>
+        <translation>無効なDNS設定</translation>
+    </message>
+    <message>
+        <source>System notifications are disabled</source>
+        <translation>システム通知が無効になります</translation>
+    </message>
+    <message>
+        <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
+        <translation>通知を表示するように選択しましたが、システム通知は無効になっています。システム設定でシステム通知を有効にしてください。</translation>
+    </message>
+    <message>
+        <source>App not signed</source>
+        <translation>アプリが署名されていません</translation>
+    </message>
+    <message>
+        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
+        <translation>選択したアプリが署名されていません。分割トンネリングは、macOS 上の署名済みアプリでのみサポートされています。</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1115,6 +1139,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Domains</source>
         <translation>ドメイン</translation>
+    </message>
+    <message>
+        <source>DNS leak detected</source>
+        <translation>DNSリークが検出されました</translation>
+    </message>
+    <message>
+        <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
+        <translation>接続されたDNSにLANまたはローカルIPアドレスを使用すると、DNSリークが発生します。 ROBERTまたはパブリックDNSサーバーを使用することを強くお勧めします。</translation>
     </message>
 </context>
 <context>
@@ -1945,6 +1977,13 @@ Connect to a network first</source>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>スプリットトンネリングルールを変更するにはログインしてください。</translation>
     </message>
+    <message>
+        <source>
+
+On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
+        <translation>
+macOS では、アプリは署名識別子によって識別されるため、署名されていないアプリを分割トンネリングすることはできません。 アプリが分割トンネリングされると、そのアプリのすべてのコピーが、パスに関係なく分割トンネリングされます。</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingGroup</name>
@@ -1961,16 +2000,8 @@ If the reinstall does not help, please contact Windscribe support for assistance
 再インストールしても問題が解決しない場合は、Windscribeのサポートにお問い合わせください。</translation>
     </message>
     <message>
-        <source>Selected IPs and hostnames will not go through Windscribe when connected.</source>
-        <translation>選択した IP とホスト名は、接続時に Windscribe を通過しません。</translation>
-    </message>
-    <message>
         <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
         <translation>選択したアプリ、IP、ホスト名は、接続時に Windscribe を通過しません。</translation>
-    </message>
-    <message>
-        <source>Only selected IPs and hostnames will go through Windscribe when connected.</source>
-        <translation>選択したIPとホスト名のみが、接続時にWindscribeを通過します。</translation>
     </message>
     <message>
         <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
@@ -2010,10 +2041,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>VPN トンネルにアプリとホスト名を含めるか、VPN トンネルから除外します。</translation>
-    </message>
-    <message>
-        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
-        <translation>VPN トンネルに IP とホスト名を含めるか除外します。</translation>
     </message>
 </context>
 <context>

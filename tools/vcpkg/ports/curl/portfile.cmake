@@ -12,6 +12,7 @@ vcpkg_from_github(
         dependencies.patch
         cmake-config.patch
         super-large-padding-extension.patch
+        static-oqsprovider.patch
 )
 
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS

@@ -15,6 +15,8 @@ public:
     AlertWindow(QWidget *parent);
     ~AlertWindow();
 
+    int height();
+
     void setStyle(Style style);
     void setIcon(const QString &path);
     void setTitle(const QString &title);
@@ -39,4 +41,5 @@ signals:
 
 private:
     AlertWindowContents *contents_;
+    int height_;
 };

@@ -58,4 +58,5 @@ private:
     void setInstallPath(const QString &path);
     void showCustomPathWarning(bool installing);
     void startInstall();
+    void showAlertWindow();
 };

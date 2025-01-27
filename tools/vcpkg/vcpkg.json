@@ -7,8 +7,8 @@
         "boost-thread",
         "boost-process",
         "openssl",
-        "openvpn",
         "oqsprovider",
+        "openvpn",
         "gtest",
    	{	
             "name": "spdlog",

@@ -137,14 +137,14 @@ public:
     {
         QByteArray arr(buf, size);
         QDataStream ds(&arr, QIODevice::ReadOnly);
-        ds >> locations_;
+        ds >> locations_ >> deviceName_;
     }
 
     std::vector<char> getData() const override
     {
         QByteArray arr;
         QDataStream ds(&arr, QIODevice::WriteOnly);
-        ds << locations_;
+        ds << locations_ << deviceName_;
         return std::vector<char>(arr.begin(), arr.end());
     }
 
@@ -156,6 +156,7 @@ public:
     static std::string getCommandStringId() { return "CliCommands::LocationsList";  }
 
     QStringList locations_;
+    QString deviceName_;
 };
 
 class Firewall : public Command

@@ -85,7 +85,7 @@ qt_add_resources(gui "translations"
         ${WS_QM_FILES}
 )
 
-target_link_libraries(gui PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Svg Qt6::Core5Compat wsnet::wsnet Boost::serialization)
+target_link_libraries(gui PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Svg Qt6::Core5Compat wsnet::wsnet spdlog::spdlog Boost::serialization)
 
 if (WIN32)
     target_compile_definitions(gui PRIVATE CMAKE_LIBRARY_LIBRARY

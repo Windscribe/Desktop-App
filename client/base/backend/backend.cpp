@@ -4,6 +4,7 @@
 
 #include "engine/engine.h"
 #include "persistentstate.h"
+#include "utils/dns_utils/dnsutils.h"
 #include "utils/log/categories.h"
 #include "utils/network_utils/network_utils.h"
 
@@ -171,14 +172,21 @@ void Backend::logout(bool keepFirewallOn)
 
 void Backend::sendConnect(const LocationID &lid, const types::ConnectionSettings &connectionSettings)
 {
+    if (isDisconnected()) {
+        osDnsServers_ = DnsUtils::getOSDefaultDnsServers();
+    }
     connectStateHelper_.connectClickFromUser();
     engine_->connectClick(lid, connectionSettings);
 }
 
-void Backend::sendDisconnect()
+void Backend::sendDisconnect(DISCONNECT_REASON reason)
 {
-    connectStateHelper_.disconnectClickFromUser();
-    engine_->disconnectClick();
+    if (reason == DISCONNECTED_BY_USER) {
+        connectStateHelper_.disconnectClickFromUser();
+    } else {
+        connectStateHelper_.disconnect(reason);
+    }
+    engine_->disconnectClick(reason);
 }
 
 bool Backend::isDisconnected() const
@@ -957,4 +965,14 @@ void Backend::onEngineAutoEnableAntiCensorship()
 void Backend::updateCurrentNetworkInterface()
 {
     engine_->updateCurrentNetworkInterface();
+}
+
+void Backend::reconnect()
+{
+    engine_->reconnect();
+}
+
+bool Backend::osDnsServersListContains(const std::wstring &dnsServer)
+{
+    return std::find(osDnsServers_.begin(), osDnsServers_.end(), dnsServer) != osDnsServers_.end();
 }

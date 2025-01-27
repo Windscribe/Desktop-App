@@ -198,6 +198,9 @@ def apply_mac_deploy_fixes(configdata, target, appname, fullpath):
     # The Mac app must be signed in order to install and operate properly.
     msg.Info("Signing the app bundle...")
     iutl.RunCommand(["codesign", "--deep", fullpath, "--options", "runtime", "--timestamp", "-s", MAC_DEV_ID_KEY_NAME, "-f"])
+
+
+def sign_mac_entitlements(configdata, target, appname, fullpath):
     # This validation is optional.
     iutl.RunCommand(["codesign", "-v", fullpath])
     if "entitlements" in configdata["deploy_files"]["macos"][target] \
@@ -205,7 +208,8 @@ def apply_mac_deploy_fixes(configdata, target, appname, fullpath):
             and "entitlements_file" in configdata["deploy_files"]["macos"][target]["entitlements"]:
         # Can only sign with entitlements if the embedded provisioning file exists.  The client will segfault on
         # launch otherwise with a "EXC_CRASH (Code Signature Invalid)" exception type.
-        if os.path.exists(pathhelper.mac_provision_profile_filename_absolute()):
+        provision_profile = os.path.join(pathhelper.ROOT_DIR, configdata["deploy_files"]["macos"][target]["entitlements"]["provision_profile"])
+        if os.path.exists(provision_profile):
             msg.Info("Signing a binary with entitlements...")
             entitlements_binary = os.path.join(fullpath, configdata["deploy_files"]["macos"][target]["entitlements"]["entitlements_binary"])
             entitlements_file = os.path.join(pathhelper.ROOT_DIR, configdata["deploy_files"]["macos"][target]["entitlements"]["entitlements_file"])
@@ -217,7 +221,7 @@ def apply_mac_deploy_fixes(configdata, target, appname, fullpath):
                              entitlements_binary])
             utl.RemoveFile(entitlements_file_temp)
         else:
-            msg.Warn("No embedded.provisionprofile found for this project.  IKEv2 will not function in this build.")
+            msg.Warn("No provisioning profile ({}) found for this project.".format(provision_profile))
 
 
 def build_component(component, qt_root, buildenv=None):
@@ -265,15 +269,11 @@ def build_component(component, qt_root, buildenv=None):
         elif CURRENT_OS == "win32":
             generate_cmd.append('-G Ninja')
             generate_cmd.append("-DCMAKE_GENERATOR:STRING=Ninja")
-        if arghelper.target_arm64_arch() and CURRENT_OS == "win32":
-            generate_cmd.append("-DVCPKG_TARGET_TRIPLET=arm64-windows")
-            generate_cmd.append("-DQT_HOST_PATH:PATH={}".format(os.path.join(pathhelper.ROOT_DIR, "build-libs", "qt")))
-            generate_cmd.append("-DCMAKE_SYSTEM_NAME:STRING=Windows")
-            generate_cmd.append("-DCMAKE_SYSTEM_PROCESSOR:STRING=arm64")
-            generate_cmd.append("-DCMAKE_SYSTEM_VERSION:STRING=10")
-            # generate_cmd.append(f"-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE:FILEPATH={qt_root}\\lib\\cmake\\Qt6\\qt.toolchain.cmake")
-            # if arghelper.ci_mode():
-            #    generate_cmd.append("-DQT_HOST_PATH={}".format(os.path.join(pathhelper.ROOT_DIR, "build-libs", "qt")))
+            if arghelper.target_arm64_arch():
+                generate_cmd.append("-DQT_HOST_PATH:PATH={}".format(os.path.join(pathhelper.ROOT_DIR, "build-libs", "qt")))
+                generate_cmd.append("-DCMAKE_SYSTEM_NAME:STRING=Windows")
+                generate_cmd.append("-DCMAKE_SYSTEM_PROCESSOR:STRING=arm64")
+                generate_cmd.append("-DCMAKE_SYSTEM_VERSION:STRING=10")
         if component["name"] == "Client":
             try:
                 build_id = re.search(r"\d+", proc.ExecuteAndGetOutput(["git", "branch", "--show-current"], env=buildenv, shell=False)).group()
@@ -326,15 +326,19 @@ def deploy_component(configdata, component_name, buildenv=None, target_name_over
         else:
             target_location = "Release"
 
+        appfullname = os.path.join(temp_wd, target_location, c_target)
         if CURRENT_OS == "macos" and "deploy" in component and component["deploy"]:
-            appfullname = os.path.join(temp_wd, target_location, c_target)
             deploy_cmd = [BUILD_MAC_DEPLOY, appfullname]
             if "plugins" in component and not component["plugins"]:
                 deploy_cmd.append("-no-plugins")
             iutl.RunCommand(deploy_cmd, env=buildenv)
             update_version_in_plist(os.path.join(temp_wd, appfullname, "Contents", "Info.plist"))
             update_team_id(os.path.join(temp_wd, appfullname, "Contents", "Info.plist"))
+            msg.Info("Applying mac deploy fixes...")
             apply_mac_deploy_fixes(configdata, component_name, c_target, appfullname)
+
+        if CURRENT_OS == "macos" and ("deploy" in component and component["deploy"]) or ("entitlements" in component and component["entitlements"]):
+            sign_mac_entitlements(configdata, component_name, c_target, appfullname)
 
         # TODO: refactor, currently only relevant for Mac bundles
         # Copy output file(s).
@@ -452,12 +456,9 @@ def sign_app_win32(configdata):
         sign_executable_win32(configdata, f)
 
 
-def prep_installer_win32(configdata, crt_root):
+def prep_installer_win32(configdata):
     # Copy Windows files.
     msg.Info("Copying libs ...")
-
-    if crt_root:
-        utl.CopyAllFiles(crt_root, BUILD_INSTALLER_FILES)
 
     if "additional_files" in configdata["deploy_files"]["win32"]["installer"]:
         additional_dir = os.path.join(pathhelper.ROOT_DIR, "installer", "windows", "additional_files")
@@ -511,7 +512,7 @@ def sign_installer_win32(configdata):
     sign_executable_win32(configdata, os.path.normpath(os.path.join(BUILD_INSTALLER_FILES, configdata["installer"]["win32"]["target"])))
 
 
-def build_bootstrap_win32(configdata, qt_root, msvc_root):
+def build_bootstrap_win32(configdata, qt_root):
     installer_name = "Windscribe_{}.exe".format(extractor.app_version(True))
     installer_info = configdata["installer"]["win32"]
     buildenv = os.environ.copy()
@@ -519,17 +520,9 @@ def build_bootstrap_win32(configdata, qt_root, msvc_root):
     buildenv.update(iutl.GetVisualStudioEnvironment(arghelper.target_arm64_arch()))
     buildenv.update({"CL": "/MP"})
 
-    # The installer requires Qt to run.  Pack installer exe and required Qt things into 7z archive, again
+    # Pack installer exe into 7z archive
     utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES, installer_info["target"])),
                    os.path.normpath(os.path.join(BUILD_INSTALLER_BOOTSTRAP_FILES, installer_name)))
-
-    if "msvc" in configdata["deploy_files"]["win32"]["installer"]:
-        copy_files("MSVC", configdata["deploy_files"]["win32"]["installer"]["msvc"], msvc_root, BUILD_INSTALLER_BOOTSTRAP_FILES)
-
-    if "libs" in configdata["deploy_files"]["win32"]["bootstrap"]:
-        for k, v in configdata["deploy_files"]["win32"]["bootstrap"]["libs"].items():
-            lib_root = iutl.GetDependencyBuildRoot(k)
-            copy_files(k, v, lib_root, BUILD_INSTALLER_BOOTSTRAP_FILES)
 
     archive_filename = os.path.normpath(os.path.join(pathhelper.ROOT_DIR, configdata["bootstrap"]["win32"]["subdir"], "resources", "windscribeinstaller.7z"))
     if os.path.exists(archive_filename):
@@ -554,6 +547,9 @@ def sign_bootstrap_win32(configdata):
 
 
 def build_installer_mac(configdata, qt_root, build_path):
+    if arghelper.notarize():
+        msg.Print("Notarizing app...")
+        iutl.RunCommand([pathhelper.notarize_script_filename_absolute(), MAC_DEV_TEAM_ID, BUILD_INSTALLER_FILES, "Windscribe"])
     # Place everything in a lzma tarball.
     msg.Info("Zipping...")
     installer_info = configdata["installer"]["macos"]
@@ -569,8 +565,8 @@ def build_installer_mac(configdata, qt_root, build_path):
     build_component(installer_info, qt_root, buildenv)
     deploy_component(configdata, "installer", target_name_override="WindscribeInstaller.app")
     if arghelper.notarize():
-        msg.Print("Notarizing...")
-        iutl.RunCommand([pathhelper.notarize_script_filename_absolute(), MAC_DEV_TEAM_ID])
+        msg.Print("Notarizing installer...")
+        iutl.RunCommand([pathhelper.notarize_script_filename_absolute(), MAC_DEV_TEAM_ID, os.path.join(BUILD_INSTALLER_FILES, "installer"), "WindscribeInstaller"])
     # Drop DMG.
     msg.Print("Preparing dmg...")
     dmg_dir = BUILD_INSTALLER_FILES
@@ -708,8 +704,11 @@ def update_vcpkg_dependencies():
         if arghelper.ci_mode():
             # Build an universal binary only on CI
             cmd.extend(["--triplet=universal-osx"])
-    elif CURRENT_OS == "win32" and arghelper.target_arm64_arch():
-        cmd.extend(["--triplet=arm64-windows"])
+    elif CURRENT_OS == "win32":
+        if arghelper.target_arm64_arch():
+            cmd.extend(["--triplet=arm64-windows-static"])
+        else:
+            cmd.extend(["--triplet=x64-windows-static"])
     iutl.RunCommand(cmd)
 
 
@@ -734,24 +733,10 @@ def build_all():
         if not qt_root:
             raise iutl.InstallError("Qt is not installed.")
 
-    # Do some preliminary VS checks on Windows.
-    # TODO: JDRM not sure we should be copying the crt_root files.  I removed them all from the install
-    #       on the ARM laptop and the app still starts.  Plus, arm64 versions are not available in the
-    #       SDK, only 32-bit arm...
     if CURRENT_OS == "win32":
+        # Verify Visual Studio is good-to-go.
         buildenv = os.environ.copy()
         buildenv.update(iutl.GetVisualStudioEnvironment(arghelper.target_arm64_arch()))
-        if arghelper.target_arm64_arch():
-            msvc_root = os.path.join(buildenv["VCTOOLSREDISTDIR"], "arm64", "Microsoft.VC142.CRT")
-            # crt_root = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\{}\\ucrt\\DLLS\\arm".format(buildenv["WINDOWSSDKVERSION"])
-            crt_root = ""
-        else:
-            msvc_root = os.path.join(buildenv["VCTOOLSREDISTDIR"], "x64", "Microsoft.VC142.CRT")
-            crt_root = "C:\\Program Files (x86)\\Windows Kits\\10\\Redist\\{}\\ucrt\\DLLS\\x64".format(buildenv["WINDOWSSDKVERSION"])
-        if not os.path.exists(msvc_root):
-            raise iutl.InstallError("MSVS installation not found.")
-        if crt_root and not os.path.exists(crt_root):
-            raise iutl.InstallError("CRT files not found.")
 
     # Prepare output.
     artifact_dir = os.path.join(pathhelper.ROOT_DIR, "build-exe")
@@ -779,14 +764,8 @@ def build_all():
         if arghelper.build_app():
             build_components(configdata, configdata["targets"], qt_root)
             if (CURRENT_OS == "win32"):
-                prep_installer_win32(configdata, crt_root)
+                prep_installer_win32(configdata)
                 if arghelper.build_tests():
-                    utl.CopyAllFiles(crt_root, BUILD_TEST_FILES)
-                    copy_files("MSVC", configdata["deploy_files"]["win32"]["installer"]["msvc"], msvc_root, BUILD_TEST_FILES)
-                    for file in glob.glob(os.path.join(build_dir, "client", "*.dll")):
-                        utl.CopyFile(file, os.path.join(BUILD_TEST_FILES, os.path.basename(file)))
-                    for file in glob.glob(os.path.join(build_dir, "client", "wsnet", "*.dll")):
-                        utl.CopyFile(file, os.path.join(BUILD_TEST_FILES, os.path.basename(file)))
                     copy_files("Test", ["wsnet_test.exe"], os.path.join(build_dir, "client"), BUILD_TEST_FILES)
         if arghelper.sign_app():
             if (CURRENT_OS == "win32"):
@@ -797,7 +776,7 @@ def build_all():
             if arghelper.sign_installer():
                 sign_installer_win32(configdata)
             if arghelper.build_bootstrap():
-                build_bootstrap_win32(configdata, qt_root, msvc_root)
+                build_bootstrap_win32(configdata, qt_root)
                 if (not arghelper.sign_bootstrap()):
                     install_artifacts(configdata, artifact_dir, temp_dir)
             if arghelper.sign_bootstrap():
@@ -876,11 +855,6 @@ def prechecks():
         if CURRENT_OS == utl.CURRENT_OS_WIN:
             if (os.getenv('WINDOWS_SIGNING_TOKEN_PASSWORD') is None or os.getenv('WINDOWS_SIGNING_TOKEN_PASSWORD') == ""):
                 raise IOError("Cannot sign without token password. Please set WINDOWS_SIGNING_TOKEN_PASSWORD environment variable.")
-
-        # early check for provision profile on mac
-        if CURRENT_OS == utl.CURRENT_OS_MAC:
-            if not os.path.exists(pathhelper.mac_provision_profile_filename_absolute()):
-                raise IOError("Cannot sign without provisioning profile.")
 
 
 def print_banner(title, width):

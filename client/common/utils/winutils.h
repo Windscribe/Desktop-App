@@ -14,6 +14,8 @@ namespace WinUtils
     bool isWindows10orGreater();
     bool isOSCompatible();
     bool isDohSupported();
+    bool isNotificationEnabled();
+    void openNotificationSettings();
     QString getSystemDir();
     QString getWinVersionString();
     void getOSVersionAndBuild(QString &osVersion, QString &build);

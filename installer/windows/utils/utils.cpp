@@ -232,4 +232,20 @@ wstring programFilesFolder()
     return wstring(programFilesPath);
 }
 
+bool isInstallerPathInProgramFilesX86(const std::wstring &installerPath)
+{
+    TCHAR programFilesPath[MAX_PATH];
+    BOOL result = ::SHGetSpecialFolderPath(0, programFilesPath, CSIDL_PROGRAM_FILESX86, FALSE);
+    if (!result) {
+        spdlog::error(L"programFilesFolder - SHGetSpecialFolderPath failed, using default");
+        return false;
+    }
+
+    std::filesystem::path p1(programFilesPath);
+    std::filesystem::path p2(installerPath);
+    // compare it exactly to the parent in order to truncate the Windscribe folder
+    return p1 == p2.parent_path();
+}
+
+
 }

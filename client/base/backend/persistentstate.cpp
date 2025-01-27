@@ -207,6 +207,17 @@ void PersistentState::setIgnoreLocationServicesDisabled(bool suppress)
     save();
 }
 
+bool PersistentState::isIgnoreNotificationDisabled() const
+{
+    return state_.isIgnoreNotificationDisabled;
+}
+
+void PersistentState::setIgnoreNotificationDisabled(bool suppress)
+{
+    state_.isIgnoreNotificationDisabled = suppress;
+    save();
+}
+
 void PersistentState::fromIni(QSettings &settings)
 {
     QVector<types::NetworkInterface> networks = state_.networkWhiteList;

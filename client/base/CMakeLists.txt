@@ -24,7 +24,7 @@ set(PROJECT_SOURCES
 
 add_library(base STATIC ${PROJECT_SOURCES})
 
-target_link_libraries(base PRIVATE Qt6::Core Qt6::Network Qt6::Core5Compat wsnet::wsnet Boost::serialization)
+target_link_libraries(base PRIVATE Qt6::Core Qt6::Network Qt6::Core5Compat wsnet::wsnet spdlog::spdlog Boost::serialization)
 if (NOT DEFINE_CLI_ONLY_MACRO)
     target_link_libraries(base PRIVATE Qt6::Widgets)
 endif()

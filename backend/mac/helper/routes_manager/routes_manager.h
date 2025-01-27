@@ -20,10 +20,6 @@ private:
     BoundRoute boundRoute_;
     Routes dnsServersRoutes_;
     Routes vpnRoutes_;
-    Routes ikev2OverrideRoutes_;
-
-    void deleteOpenVpnDefaultRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus);
-    void deleteWireGuardDefaultRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus);
 
     void addDnsRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus);
     void addIkev2RoutesForInclusiveMode(const CMD_SEND_CONNECT_STATUS &connectStatus);

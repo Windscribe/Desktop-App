@@ -8,13 +8,13 @@
     #ifdef __GNUC__
       #define EXPORTED __attribute__ ((dllexport))
     #else
-      #define EXPORTED __declspec(dllexport) // Note: actually gcc seems to also supports this syntax.
+      #define EXPORTED
     #endif
   #else
     #ifdef __GNUC__
       #define EXPORTED __attribute__ ((dllimport))
     #else
-      #define EXPORTED __declspec(dllimport) // Note: actually gcc seems to also supports this syntax.
+      #define EXPORTED
     #endif
   #endif
   #define NOT_EXPORTED

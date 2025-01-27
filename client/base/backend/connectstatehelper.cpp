@@ -40,3 +40,13 @@ types::ConnectState ConnectStateHelper::currentConnectState() const
 {
     return curState_;
 }
+
+void ConnectStateHelper::disconnect(DISCONNECT_REASON reason)
+{
+    isDisconnected_ = true;
+    types::ConnectState cs;
+    cs.connectState = CONNECT_STATE_DISCONNECTING;
+    cs.disconnectReason = reason;
+    curState_ = cs;
+    emit connectStateChanged(cs);
+}

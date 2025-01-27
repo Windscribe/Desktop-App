@@ -826,6 +826,30 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
         <translation>Özel bir yapılandırma dizini içe aktarılıyor.  Windscribe, doğru izinleri kontrol etmek için yönetici parolanızı isteyecektir.</translation>
     </message>
+    <message>
+        <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
+        <translation>&quot;Bağlı DNS&quot; sunucunuz, DNS sızıntısına neden olacak bir işletim sistemi varsayılan DNS sunucusuna ayarlanmıştır.  Otomatik olarak değiştirildi.</translation>
+    </message>
+    <message>
+        <source>Invalid DNS Settings</source>
+        <translation>Geçersiz DNS Ayarları</translation>
+    </message>
+    <message>
+        <source>System notifications are disabled</source>
+        <translation>Sistem bildirimleri devre dışı bırakıldı</translation>
+    </message>
+    <message>
+        <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
+        <translation>Bildirimleri göstermeyi seçtiniz, ancak sistem bildirimleri devre dışı bırakıldı. Lütfen Sistem Ayarlarınızda sistem bildirimlerini etkinleştirin.</translation>
+    </message>
+    <message>
+        <source>App not signed</source>
+        <translation>Uygulama imzalanmadı</translation>
+    </message>
+    <message>
+        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
+        <translation>Seçilen uygulama imzalı değil. Ayrık tünelleme yalnızca macOS&apos;ta imzalı uygulamalar için desteklenir.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1115,6 +1139,14 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Domains</source>
         <translation>Etki alanları</translation>
+    </message>
+    <message>
+        <source>DNS leak detected</source>
+        <translation>DNS sızıntısı tespit edildi</translation>
+    </message>
+    <message>
+        <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
+        <translation>Bağlı DNS için bir LAN veya yerel IP adresi kullanmak, DNS sızıntısına neden olur.  ROBERT veya genel bir DNS sunucusu kullanmanızı şiddetle tavsiye ederiz.</translation>
     </message>
 </context>
 <context>
@@ -1945,6 +1977,13 @@ Connect to a network first</source>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>Bölünmüş tünelleme kurallarını değiştirmek için lütfen oturum açın.</translation>
     </message>
+    <message>
+        <source>
+
+On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
+        <translation>
+macOS&apos;te uygulamalar imzalama tanımlayıcılarıyla tanımlanır, bu nedenle imzasız uygulamalar bölünmüş tünele giremez.  Bir uygulama bölünmüş tünel haline getirildiğinde, bu uygulamanın tüm kopyaları, yollarından bağımsız olarak bölünmüş tünele tabi tutulur.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingGroup</name>
@@ -1961,16 +2000,8 @@ If the reinstall does not help, please contact Windscribe support for assistance
 Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği ile iletişime geçin.</translation>
     </message>
     <message>
-        <source>Selected IPs and hostnames will not go through Windscribe when connected.</source>
-        <translation>Seçilen IP&apos;ler ve ana bilgisayar adları, bağlanıldığında Windscribe&apos;dan geçmeyecektir.</translation>
-    </message>
-    <message>
         <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
         <translation>Seçilen uygulamalar, IP&apos;ler ve ana bilgisayar adları, bağlandıklarında Windscribe&apos;dan geçmez.</translation>
-    </message>
-    <message>
-        <source>Only selected IPs and hostnames will go through Windscribe when connected.</source>
-        <translation>Yalnızca seçilen IP&apos;ler ve ana bilgisayar adları, bağlanıldığında Windscribe&apos;dan geçecektir.</translation>
     </message>
     <message>
         <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
@@ -2010,10 +2041,6 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Uygulamaları ve ana bilgisayar adlarını VPN tüneline dahil edin veya hariç tutun.</translation>
-    </message>
-    <message>
-        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
-        <translation>IP&apos;leri ve ana bilgisayar adlarını VPN tüneline dahil edin veya hariç tutun.</translation>
     </message>
 </context>
 <context>

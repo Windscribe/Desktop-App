@@ -20,6 +20,8 @@ LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(pare
     connect(backend_, &Backend::updateDownloaded, this, &LocalIPCServer::onBackendUpdateDownloaded);
     connect(backend_, &Backend::updateVersionChanged, this, &LocalIPCServer::onBackendUpdateVersionChanged);
     connect(backend_, &Backend::connectionIdChanged, this, &LocalIPCServer::onBackendConnectionIdChanged);
+
+    connect(backend_->locationsModelManager(), &gui_locations::LocationsModelManager::deviceNameChanged, this, &LocalIPCServer::onLocationsModelManagerDeviceNameChanged);
 }
 
 LocalIPCServer::~LocalIPCServer()
@@ -46,10 +48,13 @@ void LocalIPCServer::start()
     }
 }
 
-void LocalIPCServer::sendLocations(const QStringList &list)
+void LocalIPCServer::sendLocations(const QStringList &list, IPC::CliCommands::LocationType type)
 {
     IPC::CliCommands::LocationsList cmd;
     cmd.locations_ = list;
+    if (type == IPC::CliCommands::LocationType::kStaticIp) {
+        cmd.deviceName_ = deviceName_;
+    }
     sendCommand(cmd);
 }
 
@@ -269,4 +274,9 @@ void LocalIPCServer::setDisconnectedByKeyLimit()
 void LocalIPCServer::onBackendConnectionIdChanged(const QString &connId)
 {
     connectId_ = connId;
+}
+
+void LocalIPCServer::onLocationsModelManagerDeviceNameChanged(const QString &deviceName)
+{
+    deviceName_ = deviceName;
 }

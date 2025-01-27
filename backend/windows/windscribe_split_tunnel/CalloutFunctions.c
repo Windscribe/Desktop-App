@@ -75,7 +75,7 @@ ClassifyFn(
     if (!layerData || !classifyContext || !(classifyOut->rights & FWPS_RIGHT_ACTION_WRITE)) {
         return;
     }
-   
+
     status = FwpsAcquireClassifyHandle((void*)classifyContext, 0, &classifyHandle);
     if (status != STATUS_SUCCESS) {
         KdPrintEx((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "WindscribeSplitTunnel: FwpsAcquireClassifyHandle failed\n"));

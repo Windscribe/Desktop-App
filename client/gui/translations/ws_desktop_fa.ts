@@ -826,6 +826,30 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
         <translation>یک دایرکتوری پیکربندی سفارشی در حال وارد شدن است.  Windscribe رمز عبور مدیریت شما را برای بررسی مجوزهای صحیح درخواست می کند.</translation>
     </message>
+    <message>
+        <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
+        <translation>سرور &quot;DNS متصل&quot; شما روی یک سرور DNS پیش فرض سیستم عامل تنظیم شده است که منجر به نشت DNS می شود.  به خودکار تغییر یافته است.</translation>
+    </message>
+    <message>
+        <source>Invalid DNS Settings</source>
+        <translation>تنظیمات DNS نامعتبر</translation>
+    </message>
+    <message>
+        <source>System notifications are disabled</source>
+        <translation>اعلان های سیستم غیرفعال هستند</translation>
+    </message>
+    <message>
+        <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
+        <translation>شما انتخاب کرده اید که اعلان ها را نشان دهید، اما اعلان های سیستم غیرفعال هستند. لطفا اعلان های سیستم را در تنظیمات سیستم خود فعال کنید.</translation>
+    </message>
+    <message>
+        <source>App not signed</source>
+        <translation>برنامه امضا نشده است</translation>
+    </message>
+    <message>
+        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
+        <translation>برنامه انتخاب شده امضا نشده است. Split tunneling فقط برای برنامه های امضا شده در macOS پشتیبانی می شود.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1115,6 +1139,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Domains</source>
         <translation>دامنه</translation>
+    </message>
+    <message>
+        <source>DNS leak detected</source>
+        <translation>نشت DNS شناسایی شد</translation>
+    </message>
+    <message>
+        <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
+        <translation>استفاده از LAN یا آدرس IP محلی برای DNS متصل منجر به نشت DNS می شود.  ما اکیدا توصیه می کنیم از ROBERT یا یک سرور DNS عمومی استفاده کنید.</translation>
     </message>
 </context>
 <context>
@@ -1945,6 +1977,13 @@ Connect to a network first</source>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>لطفا برای تغییر قوانین شکافتن تونل وارد شوید.</translation>
     </message>
+    <message>
+        <source>
+
+On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
+        <translation>
+در macOS، برنامه ها با شناسه امضای آنها شناسایی می شوند، بنابراین برنامه های امضا نشده را نمی توان تونل تقسیم کرد.  هنگامی که یک برنامه تونل تقسیم می شود، همه نسخه های آن برنامه بدون توجه به مسیر آنها تونل تقسیم می شوند.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingGroup</name>
@@ -1961,16 +2000,8 @@ If the reinstall does not help, please contact Windscribe support for assistance
 اگر نصب مجدد کمک نمی کند، لطفا با پشتیبانی Windscribe برای کمک تماس بگیرید.</translation>
     </message>
     <message>
-        <source>Selected IPs and hostnames will not go through Windscribe when connected.</source>
-        <translation>ای پی های انتخاب شده و نام میزبان ها هنگام اتصال از طریق Windscribe عبور نمی کنند.</translation>
-    </message>
-    <message>
         <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
         <translation>برنامه های انتخاب شده، ای پی ها و نام های میزبان هنگام اتصال از طریق Windscribe عبور نخواهند کرد.</translation>
-    </message>
-    <message>
-        <source>Only selected IPs and hostnames will go through Windscribe when connected.</source>
-        <translation>فقط ای پی های انتخاب شده و نام میزبان ها هنگام اتصال از طریق Windscribe عبور می کنند.</translation>
     </message>
     <message>
         <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
@@ -2010,10 +2041,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>شامل یا حذف برنامه ها و نام میزبان از تونل VPN.</translation>
-    </message>
-    <message>
-        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
-        <translation>IP ها و نام های میزبان را از تونل VPN حذف یا حذف کنید.</translation>
     </message>
 </context>
 <context>

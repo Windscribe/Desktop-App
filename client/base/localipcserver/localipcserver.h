@@ -19,7 +19,7 @@ public:
     ~LocalIPCServer();
 
     void start();
-    void sendLocations(const QStringList &locations);
+    void sendLocations(const QStringList &locations, IPC::CliCommands::LocationType type);
     void setDisconnectedByKeyLimit();
 
 signals:
@@ -47,6 +47,8 @@ private slots:
     void onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error);
     void onBackendConnectionIdChanged(const QString &connId);
 
+    void onLocationsModelManagerDeviceNameChanged(const QString &deviceName);
+
 private:
     Backend *backend_;
     IPC::Server *server_ = nullptr;
@@ -68,6 +70,7 @@ private:
     bool disconnectedByKeyLimit_;
     QString connectId_;
     bool tunnelTestSuccess_;
+    QString deviceName_;
 
     void sendState();
     void sendCommand(const IPC::Command &command);

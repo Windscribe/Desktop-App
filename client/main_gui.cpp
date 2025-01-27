@@ -22,6 +22,9 @@
     #include "utils/crashhandler.h"
     #include "utils/installedantiviruses_win.h"
     #include "utils/winutils.h"
+#ifndef _DEBUG
+    #include "../libs/wssecure/wssecure.h"
+#endif
 #elif defined (Q_OS_MACOS)
     #include <sys/socket.h>
     #include <unistd.h>
@@ -74,6 +77,16 @@ int main(int argc, char *argv[])
         qCCritical(LOG_BASIC) << "Could not set windscribe group";
         return -1;
     }
+#elif defined(Q_OS_WIN)
+#ifndef _DEBUG
+    // We don't load the mitigations DLL in debug builds.
+    std::wstring errorMsg;
+    if (!verifyProcessMitigations(errorMsg)) {
+        qCCritical(LOG_BASIC) << "Process mitigations not enabled:" << QString::fromStdWString(errorMsg);
+        return -1;
+    }
+    qCInfo(LOG_BASIC) << "Process mitigations enabled";
+#endif
 #endif
 
 #if defined (Q_OS_MACOS) || defined (Q_OS_LINUX)

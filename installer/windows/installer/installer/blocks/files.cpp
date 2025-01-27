@@ -67,11 +67,6 @@ int Files::executeStep()
         return -wsl::ERROR_OTHER;
     }
 
-    if (!copyLibs()) {
-        spdlog::error(L"Failed to copy libs");
-        return -wsl::ERROR_OTHER;
-    }
-
     return moveFiles();
 }
 
@@ -144,48 +139,6 @@ int Files::moveFiles()
     }
 
     return result;
-}
-
-bool Files::copyLibs()
-{
-    error_code ec;
-    filesystem::copy_options opts = filesystem::copy_options::overwrite_existing;
-
-    const filesystem::path installPath = installPath_;
-    const wstring exeStr = Utils::getExePath();
-    if (exeStr.empty()) {
-        spdlog::error(L"Could not get exe path");
-        return false;
-    }
-    const filesystem::path exePath = exeStr;
-
-    // Copy DLLs
-    for (const auto &entry : filesystem::directory_iterator(exePath, ec)) {
-        if (entry.is_regular_file() && entry.path().extension() == ".dll") {
-            filesystem::copy_file(entry.path(), installPath / entry.path().filename(), opts, ec);
-            if (ec) {
-                spdlog::error(L"Could not copy DLL {}, error {}", entry.path().c_str(), ec.value());
-                return false;
-            }
-        }
-    }
-
-    if (ec) {
-        spdlog::error("Files::copyLibs: filesystem::directory_iterator failed ({})", ec.message().c_str());
-        return false;
-    }
-
-    // Copy Qt plugins
-    wstring paths[3] = { L"imageformats", L"platforms", L"styles" };
-    for (auto p : paths) {
-        filesystem::copy(exePath / p, installPath / p, opts, ec);
-        if (ec) {
-            spdlog::error(L"Could not copy {}, error {}", p.c_str(), ec.value());
-            return false;
-        }
-    }
-
-    return true;
 }
 
 void Files::logCustomFolderContents(const wstring &folder)

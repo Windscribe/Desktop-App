@@ -92,7 +92,10 @@ bool regDeleteProperty(HKEY h, const wstring &subkeyName, const wstring &valueNa
 
     nError = RegDeleteValue(hKey, valueName.c_str());
 
-    if (nError != ERROR_SUCCESS) {
+    if (nError == ERROR_FILE_NOT_FOUND) {
+        return true;
+    }
+    else if (nError != ERROR_SUCCESS) {
         spdlog::error(L"Error deleting registry key value {} - {}: {}", subkeyName, valueName, nError);
         return false;
     }

@@ -15,6 +15,8 @@ AlertWindow::AlertWindow(QWidget *parent) : QWidget(parent)
 {
     setFocusPolicy(Qt::StrongFocus);
 
+    height_ = parentWidget()->height();
+
     contents_ = new AlertWindowContents(this);
     connect(contents_, &AlertWindowContents::primaryButtonClicked, this, &AlertWindow::primaryButtonClicked);
     connect(contents_, &AlertWindowContents::escapeClicked, this, &AlertWindow::escapeClicked);
@@ -39,7 +41,7 @@ void AlertWindow::paintEvent(QPaintEvent *event)
 {
     const ThemeController &themeCtrl = ThemeController::instance();
     QPainter painter(this);
-    painter.fillRect(0, 0, 350, 350, ThemeController::instance().windowBackgroundColor());
+    painter.fillRect(0, 0, 350, height_, ThemeController::instance().windowBackgroundColor());
 }
 
 void AlertWindow::setIcon(const QString &path)
@@ -92,6 +94,12 @@ void AlertWindow::onContentsSizeChanged()
     int height = contents_->size().height();
 
     contents_->move(25, (size().height() - height)/2);
+    if (height > parentWidget()->height()) {
+        height_ = height;
+    } else {
+        height_ = parentWidget()->height();
+    }
+    setFixedHeight(height_);
 }
 
 void AlertWindow::keyPressEvent(QKeyEvent *event)
@@ -101,4 +109,8 @@ void AlertWindow::keyPressEvent(QKeyEvent *event)
     } else if (event->key() == Qt::Key_Escape) {
         emit escapeClicked();
     }
+}
+
+int AlertWindow::height() {
+    return height_;
 }

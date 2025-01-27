@@ -13,6 +13,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 #set(CMAKE_VISIBILITY_INLINES_HIDDEN True)
 
+if (WIN32)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+        set(VCPKG_TARGET_TRIPLET arm64-windows-static)
+    else()
+        set(VCPKG_TARGET_TRIPLET x64-windows-static)
+    endif()
+endif()
+
 project(wsnet
     DESCRIPTION "The wsnet library for Windscribe client programs"
     LANGUAGES CXX
@@ -52,7 +61,11 @@ cmrc_add_resource_library(
 )
 set_property(TARGET cert-resources PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-add_library(wsnet SHARED ${WS_CPP_PUBLIC_HEADERS})
+if (WIN32)
+    add_library(wsnet STATIC ${WS_CPP_PUBLIC_HEADERS})
+else()
+    add_library(wsnet SHARED ${WS_CPP_PUBLIC_HEADERS})
+endif()
 add_library(wsnet::wsnet ALIAS wsnet)
 
 target_compile_features(wsnet PUBLIC cxx_std_17)

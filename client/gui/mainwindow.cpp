@@ -212,6 +212,7 @@ MainWindow::MainWindow() :
     connect(backend_->getPreferences(), &Preferences::showLocationLoadChanged, locationsWindow_, &LocationsWindow::setShowLocationLoad);
     connect(backend_->getPreferences(), &Preferences::isAutoConnectChanged, this, &MainWindow::onAutoConnectUpdated);
     connect(backend_->getPreferences(), &Preferences::customConfigNeedsUpdate, this, &MainWindow::onPreferencesCustomConfigPathNeedsUpdate);
+    connect(backend_->getPreferences(), &Preferences::isShowNotificationsChanged, this, &MainWindow::onPreferencesShowNotificationsChanged);
 
     localIpcServer_ = new LocalIPCServer(backend_, this);
     connect(localIpcServer_, &LocalIPCServer::showLocations, this, &MainWindow::onIpcOpenLocations);
@@ -1643,9 +1644,6 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
         backend_->sendSplitTunneling(p->splitTunneling());
 
 #ifdef Q_OS_MACOS
-        // on Mac, remove apps from the split tunnel config since we don't support them
-        p->setSplitTunnelingApps(QList<types::SplitTunnelingApp>());
-
         // on MacOS 14.4 and later, MAC spoofing no longer works.  If it was enabled, disable the feature.
         if (MacUtils::isOsVersionAtLeast(14, 4) && p->macAddrSpoofing().isEnabled) {
             types::MacAddrSpoofing mas = p->macAddrSpoofing();
@@ -1774,6 +1772,7 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
     PersistentState::instance().setFirstLogin(false);
 
     checkLocationPermission();
+    checkNotificationEnabled();
 }
 
 void MainWindow::onBackendTryingBackupEndpoint(int num, int cnt)
@@ -1888,7 +1887,7 @@ void MainWindow::onBackendSessionStatusChanged(const api_responses::SessionStatu
             if ((!selectedLocation_->locationdId().isCustomConfigsLocation()) &&
                 (backend_->currentConnectState() == CONNECT_STATE_CONNECTED || backend_->currentConnectState() == CONNECT_STATE_CONNECTING))
             {
-                backend_->sendDisconnect();
+                backend_->sendDisconnect(DISCONNECTED_BY_DATA_LIMIT);
                 mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPGRADE);
             }
 
@@ -2368,13 +2367,32 @@ void MainWindow::onBackendSessionDeleted()
 void MainWindow::onBackendTestTunnelResult(bool success)
 {
     if (!ExtraConfig::instance().getIsTunnelTestNoError() && !success) {
-        GeneralMessageController::instance().showMessage("WARNING_YELLOW",
-                                               tr("Network Settings Interference"),
-                                               tr("We've detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot."),
-                                               tr("Send Debug Log"),
-                                               GeneralMessageController::tr(GeneralMessageController::kCancel),
-                                               "",
-                                               [this](bool b) { sendDebugLogOnDisconnect_ = true; });
+        types::ConnectedDnsInfo cdi = backend_->getPreferences()->connectedDnsInfo();
+
+        if (cdi.type == CONNECTED_DNS_TYPE_CUSTOM && backend_->osDnsServersListContains(cdi.upStream1.toStdWString())) {
+            GeneralMessageController::instance().showMessage(
+                "WARNING_YELLOW",
+                tr("Invalid DNS Settings"),
+                tr("Your \"Connected DNS\" server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto."),
+                GeneralMessageController::tr(GeneralMessageController::kOk),
+                "",
+                "",
+                [this](bool b) {
+                    types::ConnectedDnsInfo cdi = backend_->getPreferences()->connectedDnsInfo();
+                    cdi.type = CONNECTED_DNS_TYPE_AUTO;
+                    backend_->getPreferences()->setConnectedDnsInfo(cdi);
+                    backend_->reconnect();
+                });
+        } else {
+            GeneralMessageController::instance().showMessage(
+                "WARNING_YELLOW",
+                tr("Network Settings Interference"),
+                tr("We've detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot."),
+                tr("Send Debug Log"),
+                GeneralMessageController::tr(GeneralMessageController::kCancel),
+                "",
+                [this](bool b) { sendDebugLogOnDisconnect_ = true; });
+        }
     }
 
     if (success && selectedLocation_->isValid() && !selectedLocation_->locationdId().isCustomConfigsLocation()) {
@@ -3264,8 +3282,24 @@ void MainWindow::onSplitTunnelingAppsAddButtonClick()
 #endif
     ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
 
-    if (!filename.isEmpty()) // TODO: validation
-    {
+    if (!filename.isEmpty()) {
+#ifdef Q_OS_MACOS
+        // Check that the selected app is signed
+        if (MacUtils::getSigningIdentifier(filename).isEmpty()) {
+            GeneralMessageController::instance().showMessage(
+                "WARNING_YELLOW",
+                tr("App not signed"),
+                tr("The selected app is not signed. Split tunneling is only supported for signed apps on macOS."),
+                GeneralMessageController::tr(GeneralMessageController::kOk),
+                "",
+                "",
+                std::function<void(bool)>(nullptr),
+                std::function<void(bool)>(nullptr),
+                std::function<void(bool)>(nullptr),
+                GeneralMessage::kFromPreferences);
+            return;
+        }
+#endif
         mainWindowController_->getPreferencesWindow()->addApplicationManually(filename);
     }
 }
@@ -4024,3 +4058,51 @@ void MainWindow::onLocationPermissionUpdated()
     backend_->updateCurrentNetworkInterface();
 #endif
 }
+
+void MainWindow::checkNotificationEnabled()
+{
+#ifdef Q_OS_WIN
+    if (!backend_->getPreferences()->isShowNotifications()) {
+        // Not showing notifications, ignore
+        return;
+    }
+
+    if (WinUtils::isNotificationEnabled()) {
+        // System notifications are enabled, ignore
+        return;
+    }
+
+    if (PersistentState::instance().isIgnoreNotificationDisabled()) {
+        // User previously selected 'Ignore warnings'
+        qCInfo(LOG_BASIC) << "Notification prompt not required";
+        return;
+    }
+
+    GeneralMessageController::instance().showMessage(
+        "WARNING_YELLOW",
+        tr("System notifications are disabled"),
+        tr("You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings."),
+        GeneralMessageController::tr(GeneralMessageController::kOk),
+        GeneralMessageController::tr(GeneralMessageController::kCancel),
+        "",
+        [this](bool b) {
+            // User clicked "Ok", bring up the notification settings
+            WinUtils::openNotificationSettings();
+            // If user selected 'Ignore warnings', don't show the prompt again
+            PersistentState::instance().setIgnoreNotificationDisabled(b);
+        },
+        [this](bool b) {
+            // User clicked "Cancel"
+            // If user selected 'Ignore warnings', don't show the prompt again
+            PersistentState::instance().setIgnoreNotificationDisabled(b);
+        },
+        std::function<void(bool)>(nullptr),
+        GeneralMessage::kShowBottomPanel);
+#endif
+}
+
+void MainWindow::onPreferencesShowNotificationsChanged()
+{
+    checkNotificationEnabled();
+}
+

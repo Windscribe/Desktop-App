@@ -12,14 +12,12 @@ variables:
   BUILD_LINUX_CLI: 'y'
   GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
   NEXUS_PATH_ROOT: 'https://nexus.int.windscribe.com/repository/client-desktop/client-desktop'
-  NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/2.13'
+  NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/current'
   NEXUS_PATH_VCPKG_CACHE: '$NEXUS_PATH_ROOT/vcpkg_cache/current'
   NEXUS_PATH_BRANCH_UPLOAD: '${NEXUS_PATH_ROOT}/branches/${CI_COMMIT_BRANCH}'
   NEXUS_PATH_TAGGED_UPLOAD: '${NEXUS_PATH_ROOT}/tagged-builds'
   LINUX_SIGNING_PATH: 'client/common/keys/linux'
   LINUX_PUBLIC_KEY_PATH: '$LINUX_SIGNING_PATH/key.pub'
-  MAC_PROVISION_PROFILE_PATH : 'backend/mac/provisioning_profile'
-  MAC_PROVISION_PROFILE_FILE_PATH: '$MAC_PROVISION_PROFILE_PATH/embedded.provisionprofile'
   ARCH_LINUX_BUILD_PATH: '/home/build/windscribe'
   RHEL_CMAKE_BUILD_PATH: '/home/build/windscribe'
   BUILD_LIBS_FOLDER: 'build-libs'
@@ -93,6 +91,11 @@ variables:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --create-dirs -o ${BUILD_LIBS_FOLDER}/qt.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/qt.zip"
 
+.download_dependency_qt_static:
+  script:
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --create-dirs -o ${BUILD_LIBS_FOLDER}/qt-static.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/qt-static.zip"
+
 .download_dependency_wintun:
   script:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -116,7 +119,7 @@ variables:
 .download_dependencies_win:
   script:
     - !reference [.download_dependency_openvpn_dco, script]
-    - !reference [.download_dependency_qt, script]
+    - !reference [.download_dependency_qt_static, script]
     - !reference [.download_dependency_wintun, script]
     - !reference [.download_dependency_wireguard, script]
     - !reference [.download_dependency_wstunnel, script]
@@ -222,7 +225,7 @@ build:win:x64:installer:
     VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
   script:
     - Set-Variable -name OS_IDENTIFIER -value "windows"
-    - !reference [.download_dependency_qt, script]
+    - !reference [.download_dependency_qt_static, script]
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - tools/build_all --build-installer --ci-mode
   artifacts:
@@ -269,7 +272,7 @@ build:win:x64:bootstrap:
     VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
   script:
     - Set-Variable -name OS_IDENTIFIER -value "windows"
-    - !reference [.download_dependency_qt, script]
+    - !reference [.download_dependency_qt_static, script]
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - tools/build_all --build-bootstrap --ci-mode
   artifacts:
@@ -362,7 +365,7 @@ build:win:arm64:app:
     # Need the x64 Qt package so we can reference it as the QT_HOST_PATH in build_all.
     - Set-Variable -name OS_IDENTIFIER -value "windows"
     - Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs"
-    - !reference [.download_dependency_qt, script]
+    - !reference [.download_dependency_qt_static, script]
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
     - Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs-arm64"
@@ -388,7 +391,7 @@ build:win:arm64:mr:
     # Need the x64 Qt package so we can reference it as the QT_HOST_PATH in build_all.
     - Set-Variable -name OS_IDENTIFIER -value "windows"
     - Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs"
-    - !reference [.download_dependency_qt, script]
+    - !reference [.download_dependency_qt_static, script]
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
     - Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs-arm64"
@@ -408,11 +411,11 @@ build:win:arm64:installer:
   script:
     - Set-Variable -name OS_IDENTIFIER -value "windows"
     - Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs"
-    - !reference [.download_dependency_qt, script]
+    - !reference [.download_dependency_qt_static, script]
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
     - Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs-arm64"
-    - !reference [.download_dependency_qt, script]
+    - !reference [.download_dependency_qt_static, script]
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - tools/build_all --build-installer --arm64 --ci-mode
   artifacts:
@@ -437,7 +440,7 @@ build:win:arm64:bootstrap:
   script:
     - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
     - Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs-arm64"
-    - !reference [.download_dependency_qt, script]
+    - !reference [.download_dependency_qt_static, script]
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - tools/build_all --build-bootstrap --arm64 --ci-mode
   artifacts:
@@ -455,20 +458,11 @@ build:win:arm64:bootstrap:
 
 .build_mac_installer_common:
   script:
+    # Download the provisioning profiles
+    - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
     - OS_IDENTIFIER="macos"
     - !reference [.download_dependencies_posix, script]
     - if [ -d ./${BUILD_LIBS_FOLDER}/ ]; then for z in ./${BUILD_LIBS_FOLDER}/*.zip; do unzip -qod ./${BUILD_LIBS_FOLDER} $z; done; fi
-    - VAULT_CLIENT_TOKEN=$(curl --cacert tools/cacert.pem --data "{\"role_id\":\"$VAULT_ROLE_ID\",\"secret_id\":\"$VAULT_SECRET_ID\"}"
-      $VAULT_ADDR/v1/auth/approle/login | python3 tools/base/vaulthelper.py --get-client-token)
-    # get the secrets JSON and put in VAULT_RESPONSE_JSON
-    # Note: the single quotes MUST be used here or we'll get a syntax error
-    - 'VAULT_RESPONSE_JSON=$(curl --cacert tools/cacert.pem -H "X-Vault-Token: $VAULT_CLIENT_TOKEN" $VAULT_ADDR/v1/kv/cicd/client-desktop)'
-    # parse the secrets
-    - PROVISION_PROFILE_BASE64=$(echo $VAULT_RESPONSE_JSON | python3 tools/base/vaulthelper.py --get-mac-provision-profile)
-    # write the secrets to file -- Nice to have: use secrets without files, no need to cleanup
-    # use echo -e to print \n as newlines
-    - mkdir -p $MAC_PROVISION_PROFILE_PATH
-    - echo -e ${PROVISION_PROFILE_BASE64} | base64 -d > $MAC_PROVISION_PROFILE_FILE_PATH
     - VERSION=$(python3 tools/base/extract.py)
 
 build:mac:installer:
@@ -477,6 +471,7 @@ build:mac:installer:
   stage: Build
   variables:
     GIT_STRATEGY: clone
+    SECURE_FILES_DOWNLOAD_PATH: 'backend/mac/provisioning_profile'
   script:
     - !reference [.build_mac_installer_common, script]
     - tools/build_all --ci-mode --sign
@@ -492,6 +487,7 @@ build:mac:installer:mr:
   stage: Build
   variables:
     GIT_STRATEGY: clone
+    SECURE_FILES_DOWNLOAD_PATH: 'backend/mac/provisioning_profile'
   script:
     - !reference [.build_mac_installer_common, script]
     - tools/build_all --ci-mode --sign
@@ -504,6 +500,7 @@ build:mac:installer:tagged:
   stage: Build
   variables:
     GIT_STRATEGY: clone
+    SECURE_FILES_DOWNLOAD_PATH: 'backend/mac/provisioning_profile'
   script:
     - !reference [.build_mac_installer_common, script]
     # Only tagged builds are notarized

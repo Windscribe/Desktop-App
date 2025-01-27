@@ -1,8 +1,10 @@
 #include "connecteddnsgroup.h"
 
 #include "dpiscalemanager.h"
+#include "generalmessagecontroller.h"
 #include "languagecontroller.h"
 #include "graphicresources/imageresourcessvg.h"
+#include "utils/ipvalidation.h"
 
 #if defined(Q_OS_WIN)
 #include "utils/winutils.h"
@@ -90,6 +92,9 @@ void ConnectedDnsGroup::onConnectedDnsModeChanged(QVariant v)
 {
     if (settings_.type != v.toInt())
     {
+        if (v.toInt() == CONNECTED_DNS_TYPE_CUSTOM) {
+            checkDnsLeak(settings_.upStream1, settings_.isSplitDns ? settings_.upStream2 : "");
+        }
         settings_.type = (CONNECTED_DNS_TYPE)v.toInt();
         updateMode();
         emit connectedDnsInfoChanged(settings_);
@@ -99,6 +104,7 @@ void ConnectedDnsGroup::onConnectedDnsModeChanged(QVariant v)
 void ConnectedDnsGroup::onUpstream1Changed(QString v)
 {
     if (settings_.upStream1 != v) {
+        checkDnsLeak(v);
         settings_.upStream1 = v;
         emit connectedDnsInfoChanged(settings_);
     }
@@ -107,6 +113,7 @@ void ConnectedDnsGroup::onUpstream1Changed(QString v)
 void ConnectedDnsGroup::onUpstream2Changed(QString v)
 {
     if (settings_.upStream2 != v) {
+        checkDnsLeak(v);
         settings_.upStream2 = v;
         emit connectedDnsInfoChanged(settings_);
     }
@@ -120,11 +127,29 @@ void ConnectedDnsGroup::onSplitDnsStateChanged(bool checked)
         if (settings_.isSplitDns && !checked) {
             hideItems(indexOf(editBoxUpstream2_), indexOf(domainsItem_));
         } else  {        // show additional items
+            checkDnsLeak(settings_.upStream2);
             showItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_));
         }
 
         settings_.isSplitDns = checked;
         emit connectedDnsInfoChanged(settings_);
+    }
+}
+
+void ConnectedDnsGroup::checkDnsLeak(const QString &v1, const QString &v2)
+{
+    if (IpValidation::isLocalIpv4Address(v1) || IpValidation::isLocalIpv4Address(v2)) {
+        GeneralMessageController::instance().showMessage(
+            "WARNING_YELLOW",
+            tr("DNS leak detected"),
+            tr("Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server."),
+            GeneralMessageController::tr(GeneralMessageController::kOk),
+            "",
+            "",
+            std::function<void(bool)>(nullptr),
+            std::function<void(bool)>(nullptr),
+            std::function<void(bool)>(nullptr),
+            GeneralMessage::kFromPreferences);
     }
 }
 

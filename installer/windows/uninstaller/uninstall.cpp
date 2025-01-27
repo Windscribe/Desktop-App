@@ -5,7 +5,6 @@
 #include <Shobjidl.h>
 #include <spdlog/spdlog.h>
 
-#include "authhelper.h"
 #include "registry.h"
 #include "remove_directory.h"
 #include "resource.h"
@@ -148,8 +147,6 @@ void Uninstaller::RunSecondPhase()
     // Clear any existing auto-login entries.
     Registry::regDeleteProperty(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe2", L"username");
     Registry::regDeleteProperty(HKEY_CURRENT_USER, L"Software\\Windscribe\\Windscribe2", L"password");
-
-    AuthHelper::removeRegEntriesForAuthHelper(path_for_installation);
 
     if (!isSilent_) {
         spdlog::info(L"turn off firewall: {}", path_for_installation);

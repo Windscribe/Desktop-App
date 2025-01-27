@@ -223,20 +223,13 @@ void AccountWindowItem::setDataLeft() const
 
 void AccountWindowItem::updatePlanGroupItemVisibility()
 {
-    if (planItem_->isPremium()) {
+    if (isUnlimitedData()) {
         planGroup_->showItems(planGroup_->indexOf(expireDateItem_));
         planGroup_->hideItems(planGroup_->indexOf(resetDateItem_), planGroup_->indexOf(dataLeftItem_));
     }
     else {
         planGroup_->hideItems(planGroup_->indexOf(expireDateItem_));
-        planGroup_->showItems(planGroup_->indexOf(resetDateItem_));
-
-        if (isUnlimitedData()) {
-            planGroup_->hideItems(planGroup_->indexOf(dataLeftItem_));
-        }
-        else {
-            planGroup_->showItems(planGroup_->indexOf(dataLeftItem_));
-        }
+        planGroup_->showItems(planGroup_->indexOf(resetDateItem_), planGroup_->indexOf(dataLeftItem_));
     }
 }
 

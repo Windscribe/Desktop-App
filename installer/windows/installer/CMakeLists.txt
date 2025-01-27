@@ -2,7 +2,14 @@ cmake_minimum_required(VERSION 3.23)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+    set(VCPKG_TARGET_TRIPLET arm64-windows-static)
+else()
+    set(VCPKG_TARGET_TRIPLET x64-windows-static)
+endif()
+
 project(installer)
 
 find_package(fmt CONFIG REQUIRED)
@@ -30,7 +37,6 @@ set(SOURCES
     installer/installer_utils.cpp
     installer/blocks/files.cpp
     installer/blocks/icons.cpp
-    installer/blocks/install_authhelper.cpp
     installer/blocks/install_openvpn_dco.cpp
     installer/blocks/install_splittunnel.cpp
     installer/blocks/service.cpp
@@ -66,7 +72,7 @@ target_link_libraries(installer
     Fwpuclnt
     Ws2_32
     delayimp
-    Crypt32.lib
+    Crypt32
     spdlog::spdlog_header_only
     fmt::fmt-header-only
     Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg

@@ -173,6 +173,12 @@ void SplitTunnelingAppsGroup::populateSearchApps()
 #endif
             QFile f(exePath);
             QString name = QFileInfo(f).fileName();
+#ifdef Q_OS_MACOS
+            // On macOS, remove the ".app" suffix when used as a name
+            if (name.endsWith(".app")) {
+                name = name.left(name.length() - 4);
+            }
+#endif
             types::SplitTunnelingApp app;
             app.name = name;
             app.type = SPLIT_TUNNELING_APP_TYPE_SYSTEM;

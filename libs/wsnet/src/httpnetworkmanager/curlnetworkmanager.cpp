@@ -361,6 +361,11 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
 
     curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_PRIVATE, new std::uint64_t(requestInfo->id));    // our user data, must be deleted in the RequestInfo destructor
 
+#ifdef _WIN32
+    // Set OQS KEMs: on Windows we use fully static libraries and need to set the curves manually
+    curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_EC_CURVES, "p521_kyber1024:kyber1024:kyber768:p384_kyber768:X448:X25519:secp521r1:secp384r1:secp256k1:ffdhe8192:ffdhe6144:ffdhe4096:ffdhe3072:ffdhe2048");
+#endif
+
     // set post data
     std::string postData = request->postData();
     if (!postData.empty()) {

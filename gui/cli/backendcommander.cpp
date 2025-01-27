@@ -58,6 +58,11 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::Connec
         }
     } else if (command->getStringId() == IPC::CliCommands::LocationsList::getCommandStringId()) {
         IPC::CliCommands::LocationsList *cmd = static_cast<IPC::CliCommands::LocationsList *>(command);
+
+        if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_STATIC) {
+            std::cout << deviceNameString(cmd->deviceName_).toStdString() << std::endl << std::endl;
+        }
+
         if (cmd->locations_.isEmpty()) {
             emit finished(1, tr("No locations."));
         } else {

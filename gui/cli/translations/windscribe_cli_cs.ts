@@ -270,5 +270,9 @@
         <source>Incorrect 2FA code</source>
         <translation>Nesprávný kód 2FA</translation>
     </message>
+    <message>
+        <source>(Device name: %1)</source>
+        <translation>(Název zařízení: %1)</translation>
+    </message>
 </context>
 </TS>

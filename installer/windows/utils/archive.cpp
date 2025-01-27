@@ -205,10 +205,10 @@ void Archive::executeCmd(const std::wstring &cmd)
         throw std::system_error(::GetLastError(), std::system_category(), "executeCmd WaitForSingleObject failed");
     }
 
-    DWORD exitCode;
+    DWORD exitCode = 1;
     result = ::GetExitCodeProcess(process.getHandle(), &exitCode);
-    if (result != FALSE) {
-        log(L"executeCmd completed with exit code " + std::to_wstring(exitCode));
+    if (result == FALSE) {
+        log(L"executeCmd GetExitCodeProcess failed: " + std::to_wstring(::GetLastError()));
     }
 
     pipeWrite.closeHandle();
@@ -226,6 +226,10 @@ void Archive::executeCmd(const std::wstring &cmd)
 
     if (!programOutput.empty()) {
         log(L"executeCmd output: " + to_wstring(programOutput));
+    }
+
+    if (exitCode != 0) {
+        throw std::system_error(ERROR_INVALID_DATA, std::system_category(), "executeCmd process returned failure code " + std::to_string(exitCode));
     }
 }
 

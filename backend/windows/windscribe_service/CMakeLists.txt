@@ -5,10 +5,13 @@ set(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+    set(VCPKG_TARGET_TRIPLET arm64-windows-static)
     set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../build-libs-arm64)
 else()
+    set(VCPKG_TARGET_TRIPLET x64-windows-static)
     set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../build-libs)
 endif()
 
@@ -89,6 +92,8 @@ target_link_libraries(WindscribeService
                       wsnet::wsnet
                       Boost::serialization
                       spdlog::spdlog
+                      ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/oqs.lib
+                      ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/oqsprovider.lib
 )
 
 target_include_directories(WindscribeService PRIVATE
@@ -97,6 +102,6 @@ target_include_directories(WindscribeService PRIVATE
                            ${WINREG_INCLUDE_DIRS}
 )
 
-install(TARGETS WindscribeService wsnet
+install(TARGETS WindscribeService
     RUNTIME DESTINATION .
 )

@@ -146,3 +146,8 @@ QString updateErrorString(UPDATE_VERSION_ERROR error)
         return "";
     }
 }
+
+QString deviceNameString(const QString &deviceName)
+{
+    return QObject::tr("(Device name: %1)").arg(deviceName);
+}

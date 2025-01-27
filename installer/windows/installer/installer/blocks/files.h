@@ -16,6 +16,5 @@ private:
     std::wstring installPath_;
 
     int moveFiles();
-    bool copyLibs();
     void logCustomFolderContents(const std::wstring &folder);
 };

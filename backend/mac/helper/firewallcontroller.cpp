@@ -11,7 +11,7 @@ FirewallController::FirewallController() : enabled_(false), connected_(false), s
     // If firewall on boot is enabled, restore boot rules
     if (Utils::isFileExists("/etc/windscribe/boot_pf.conf")) {
         spdlog::info("Applying boot pfctl rules");
-        Utils::executeCommand("pfctl", {"-e", "-f", "/etc/windscribe/boot_pf.conf"});
+        Utils::executeCommand("/sbin/pfctl", {"-e", "-f", "/etc/windscribe/boot_pf.conf"});
     }
 }
 
@@ -31,15 +31,15 @@ bool FirewallController::enable(const std::string &rules, const std::string &tab
     close(fd);
 
     if (table.empty() && group.empty()) {
-        Utils::executeCommand("pfctl", {"-v", "-F", "all", "-f", "/etc/windscribe/pf.conf"});
-        Utils::executeCommand("pfctl", {"-e"});
+        Utils::executeCommand("/sbin/pfctl", {"-v", "-F", "all", "-f", "/etc/windscribe/pf.conf"});
+        Utils::executeCommand("/sbin/pfctl", {"-e"});
 
         // reapply split tunneling rules if necessary
         setSplitTunnelExceptions(splitTunnelIps_);
     } else if (!table.empty()) {
-        Utils::executeCommand("pfctl", {"-T", "load", "-f", "/etc/windscribe/pf.conf"});
+        Utils::executeCommand("/sbin/pfctl", {"-T", "load", "-f", "/etc/windscribe/pf.conf"});
     } else if (!group.empty()) {
-        Utils::executeCommand("pfctl", {"-a", group.c_str(), "-f", "/etc/windscribe/pf.conf"});
+        Utils::executeCommand("/sbin/pfctl", {"-a", group.c_str(), "-f", "/etc/windscribe/pf.conf"});
     }
 
     enabled_ = true;
@@ -49,19 +49,19 @@ bool FirewallController::enable(const std::string &rules, const std::string &tab
 void FirewallController::getRules(const std::string &table, const std::string &group, std::string *outRules)
 {
     if (table.empty() && group.empty()) {
-        Utils::executeCommand("pfctl", {"-s", "rules"}, outRules, false);
+        Utils::executeCommand("/sbin/pfctl", {"-s", "rules"}, outRules, false);
     } else if (!table.empty()) {
-        Utils::executeCommand("pfctl", {"-t", table.c_str(), "-T", "show"}, outRules, false);
+        Utils::executeCommand("/sbin/pfctl", {"-t", table.c_str(), "-T", "show"}, outRules, false);
     } else if (!group.empty()) {
-        Utils::executeCommand("pfctl", {"-a", group.c_str(), "-s", "rules"}, outRules, false);
+        Utils::executeCommand("/sbin/pfctl", {"-a", group.c_str(), "-s", "rules"}, outRules, false);
     }
 }
 
 void FirewallController::disable(bool keepPfEnabled)
 {
-    Utils::executeCommand("pfctl", {"-v", "-F", "all", "-f", "/etc/pf.conf"});
+    Utils::executeCommand("/sbin/pfctl", {"-v", "-F", "all", "-f", "/etc/pf.conf"});
     if (!keepPfEnabled) {
-        Utils::executeCommand("pfctl", {"-d"});
+        Utils::executeCommand("/sbin/pfctl", {"-d"});
     }
     enabled_ = false;
 }
@@ -70,7 +70,7 @@ bool FirewallController::enabled()
 {
     std::string output;
 
-    Utils::executeCommand("pfctl", {"-si"}, &output);
+    Utils::executeCommand("/sbin/pfctl", {"-si"}, &output);
     return (output.find("Status: Enabled") != std::string::npos);
 }
 
@@ -123,6 +123,6 @@ void FirewallController::setSplitTunnelExceptions(const std::vector<std::string>
     write(fd, ipStr.c_str(), ipStr.length());
     close(fd);
 
-    Utils::executeCommand("pfctl", {"-T", "load", "-f", "/etc/windscribe/pf_st.conf"});
+    Utils::executeCommand("/sbin/pfctl", {"-T", "load", "-f", "/etc/windscribe/pf_st.conf"});
     Utils::executeCommand("rm", {"/etc/windscribe/pf_st.conf"});
 }

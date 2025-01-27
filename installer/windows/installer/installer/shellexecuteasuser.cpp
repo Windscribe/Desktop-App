@@ -1,48 +1,85 @@
-#include <shlobj.h>
+#include "shellexecuteasuser.h"
+
 #include <atlbase.h>
+#include <shlobj.h>
+#include <wrl/client.h>
 
-namespace ShellExec {
+#include <system_error>
 
-static void findDesktopFolderView(REFIID riid, void **ppv)
+#include "wsscopeguard.h"
+
+namespace wsl {
+
+void RunDeElevated(const std::wstring &path)
 {
-    CComPtr<IShellWindows> spShellWindows;
-    spShellWindows.CoCreateInstance(CLSID_ShellWindows);
+    HRESULT hr = ::CoInitialize(nullptr);
+    if (FAILED(hr)) {
+        throw std::system_error(HRESULT_CODE(hr), std::system_category(), "RunDeElevated CoInitialize failed");
+    }
 
+    auto exitGuard = wsl::wsScopeGuard([&] {
+        ::CoUninitialize();
+    });
+
+    Microsoft::WRL::ComPtr<IShellWindows> shell;
+    hr = ::CoCreateInstance(CLSID_ShellWindows, nullptr, CLSCTX_LOCAL_SERVER, IID_PPV_ARGS(&shell));
+    if (FAILED(hr)) {
+        throw std::system_error(HRESULT_CODE(hr), std::system_category(), "RunDeElevated CoCreateInstance(CLSID_ShellWindows) failed");
+    }
+
+    long hwnd = 0;
     CComVariant vtLoc(CSIDL_DESKTOP);
     CComVariant vtEmpty;
-    long lhwnd;
-    CComPtr<IDispatch> spdisp;
-    spShellWindows->FindWindowSW(&vtLoc, &vtEmpty, SWC_DESKTOP, &lhwnd, SWFO_NEEDDISPATCH, &spdisp);
+    Microsoft::WRL::ComPtr<IDispatch> dispatch;
+    hr = shell->FindWindowSW(&vtLoc, &vtEmpty, SWC_DESKTOP, &hwnd, SWFO_NEEDDISPATCH, &dispatch);
+    if (hr == S_FALSE || FAILED(hr)) {
+        throw std::system_error(HRESULT_CODE(hr), std::system_category(), "RunDeElevated FindWindowSW failed");
+    }
 
-    CComPtr<IShellBrowser> spBrowser;
-    CComQIPtr<IServiceProvider>(spdisp)->QueryService(SID_STopLevelBrowser, IID_PPV_ARGS(&spBrowser));
+    Microsoft::WRL::ComPtr<IServiceProvider> service;
+    hr = dispatch.As(&service);
+    if (FAILED(hr)) {
+        throw std::system_error(HRESULT_CODE(hr), std::system_category(), "RunDeElevated IServiceProvider failed");
+    }
 
-    CComPtr<IShellView> spView;
-    spBrowser->QueryActiveShellView(&spView);
+    Microsoft::WRL::ComPtr<IShellBrowser> browser;
+    hr = service->QueryService(SID_STopLevelBrowser, IID_PPV_ARGS(&browser));
+    if (FAILED(hr)) {
+        throw std::system_error(HRESULT_CODE(hr), std::system_category(), "RunDeElevated IShellBrowser failed");
+    }
 
-    spView->QueryInterface(riid, ppv);
-}
+    Microsoft::WRL::ComPtr<IShellView> view;
+    hr = browser->QueryActiveShellView(&view);
+    if (FAILED(hr)) {
+        throw std::system_error(HRESULT_CODE(hr), std::system_category(), "RunDeElevated IShellView failed");
+    }
 
-static void getDesktopAutomationObject(REFIID riid, void **ppv)
-{
-    CComPtr<IShellView> spsv;
-    findDesktopFolderView(IID_PPV_ARGS(&spsv));
-    CComPtr<IDispatch> spdispView;
-    spsv->GetItemObject(SVGIO_BACKGROUND, IID_PPV_ARGS(&spdispView));
-    spdispView->QueryInterface(riid, ppv);
-}
+    hr = view->GetItemObject(SVGIO_BACKGROUND, IID_PPV_ARGS(&dispatch));
+    if (FAILED(hr)) {
+        throw std::system_error(HRESULT_CODE(hr), std::system_category(), "RunDeElevated GetItemObject failed");
+    }
 
-void executeFromExplorer(const wchar_t *pszFile, const wchar_t *pszParameters, const wchar_t *pszDirectory,
-                         const wchar_t *pszOperation, int nShowCmd)
-{
-    CComPtr<IShellFolderViewDual> spFolderView;
-    getDesktopAutomationObject(IID_PPV_ARGS(&spFolderView));
-    CComPtr<IDispatch> spdispShell;
-    spFolderView->get_Application(&spdispShell);
+    Microsoft::WRL::ComPtr<IShellFolderViewDual> folder;
+    hr = dispatch.As(&folder);
+    if (FAILED(hr)) {
+        throw std::system_error(HRESULT_CODE(hr), std::system_category(), "RunDeElevated IShellFolderViewDual failed");
+    }
 
-    CComQIPtr<IShellDispatch2>(spdispShell)->ShellExecute(
-            CComBSTR(pszFile), CComVariant(pszParameters), CComVariant(pszDirectory),
-            CComVariant(pszOperation), CComVariant(nShowCmd));
+    hr = folder->get_Application(&dispatch);
+    if (FAILED(hr)) {
+        throw std::system_error(HRESULT_CODE(hr), std::system_category(), "RunDeElevated get_Application failed");
+    }
+
+    Microsoft::WRL::ComPtr<IShellDispatch2> shell_dispatch;
+    hr = dispatch.As(&shell_dispatch);
+    if (FAILED(hr)) {
+        throw std::system_error(HRESULT_CODE(hr), std::system_category(), "RunDeElevated IShellDispatch2 failed");
+    }
+
+    hr = shell_dispatch->ShellExecute(CComBSTR(path.c_str()), CComVariant(L""), CComVariant(L""), CComVariant(L""), CComVariant(SW_RESTORE));
+    if (FAILED(hr)) {
+        throw std::system_error(HRESULT_CODE(hr), std::system_category(), "RunDeElevated ShellExecute failed");
+    }
 }
 
 }

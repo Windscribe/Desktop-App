@@ -4,7 +4,7 @@
 #include "utils/ws_assert.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/log/categories.h"
-#include "engine/dns_utils/dnsutils.h"
+#include "utils/dns_utils/dnsutils.h"
 
 void FirewallExceptions::setHostIPs(const QSet<QString> &hostIPs)
 {

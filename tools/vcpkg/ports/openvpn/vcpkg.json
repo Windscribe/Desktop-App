@@ -1,7 +1,7 @@
 {
   "name": "openvpn",
   "version": "2.6.12",
-  "port-version": 4,
+  "port-version": 5,
   "description": "OpenVPN is an open source VPN daemon",
   "homepage": "https://github.com/OpenVPN/openvpn",
   "dependencies": [
@@ -20,6 +20,10 @@
       {
           "name": "pkgconf",
           "host": true
+      },
+      {
+          "name": "oqsprovider",
+          "platform": "windows"
       }
   ]
 }

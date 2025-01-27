@@ -7,7 +7,6 @@
 
 #include "blocks/files.h"
 #include "blocks/icons.h"
-#include "blocks/install_authhelper.h"
 #include "blocks/install_openvpn_dco.h"
 #include "blocks/install_splittunnel.h"
 #include "blocks/service.h"
@@ -33,7 +32,7 @@ void Installer::startImpl()
 {
     blocks_.push_back(new UninstallPrev(Settings::instance().getFactoryReset(), 10));
     blocks_.push_back(new Files(40));
-    blocks_.push_back(new Service(5));
+    blocks_.push_back(new Service(10));
 
     // Leaving this option here for now in anticipation of us adding installation of the OpenVPN DCO
     // driver in a future release.
@@ -44,7 +43,6 @@ void Installer::startImpl()
     blocks_.push_back(new InstallSplitTunnel(10));
     blocks_.push_back(new UninstallInfo(5));
     blocks_.push_back(new Icons(Settings::instance().getCreateShortcut(), 5));
-    blocks_.push_back(new InstallAuthHelper(5));
 
     for (auto block : blocks_)
         totalWork_ += block->getWeight();
@@ -124,13 +122,19 @@ void Installer::executionImpl()
 
 void Installer::launchAppImpl()
 {
-    if (Settings::instance().getAutoStart()) {
-        wstring app = Path::append(Settings::instance().getPath(), ApplicationInfo::appExeName());
-        spdlog::info(L"Launching Windscribe app");
-        ShellExec::executeFromExplorer(app.c_str(), NULL, NULL, NULL, SW_RESTORE);
-    } else {
-        spdlog::info(L"Skip launching app");
+    try {
+        if (Settings::instance().getAutoStart()) {
+            spdlog::info(L"Launching Windscribe app");
+            const wstring app = Path::append(Settings::instance().getPath(), ApplicationInfo::appExeName());
+            wsl::RunDeElevated(app);
+        } else {
+            spdlog::info(L"Skipped launching Windscribe app");
+        }
     }
+    catch (system_error& ex) {
+        spdlog::error("Failed to launch Windscribe app: {}", ex.what());
+    }
+
     state_ = wsl::STATE_LAUNCHED;
     callback_();
 }

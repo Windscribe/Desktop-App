@@ -1,11 +1,10 @@
 #pragma once
 
-#include <Windows.h>
+#include <string>
 
-namespace ShellExec
+namespace wsl
 {
 
-void executeFromExplorer(const wchar_t *pszFile, const wchar_t *pszParameters = L"", const wchar_t *pszDirectory = L"",
-                         const wchar_t *pszOperation = L"", int nShowCmd = SW_SHOWNORMAL);
+extern void RunDeElevated(const std::wstring &path);
 
 };

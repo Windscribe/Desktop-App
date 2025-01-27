@@ -1,71 +1,11 @@
 #include "authchecker_win.h"
 
-#include <QCoreApplication>
-#include <QScopeGuard>
+#include <Windows.h>
+#include <shellapi.h>
 
-#include <strsafe.h>
-
-#include "utils/executable_signature/executable_signature.h"
 #include "utils/log/categories.h"
+
 #include "utils/winutils.h"
-
-#include "../../gui/authhelper/win/ws_com/guids.h"
-
-static HRESULT CoCreateInstanceAsAdmin(HWND hwnd, REFCLSID rclsid, REFIID riid, __out void ** ppv)
-{
-    BIND_OPTS3 bo;
-    WCHAR  wszCLSID[50];
-    WCHAR  wszMonikerName[300];
-
-    StringFromGUID2(rclsid, wszCLSID, sizeof(wszCLSID) / sizeof(wszCLSID[0]));
-    HRESULT hr = StringCchPrintf(wszMonikerName, sizeof(wszMonikerName) / sizeof(wszMonikerName[0]), L"Elevation:Administrator!new:%s", wszCLSID);
-    if (FAILED(hr))
-        return hr;
-    // std::wcout << L"Moniker name: " << wszMonikerName << std::endl;
-
-    memset(&bo, 0, sizeof(bo));
-    bo.cbStruct = sizeof(bo);
-    bo.hwnd = hwnd;
-    bo.dwClassContext = CLSCTX_LOCAL_SERVER;
-    return CoGetObject(wszMonikerName, &bo, riid, ppv);
-}
-
-static bool authorizeWithUac()
-{
-    CoInitializeEx(0, COINIT_APARTMENTTHREADED);
-
-    IUnknown *pThing = NULL;
-    auto comRelease = qScopeGuard([&] {
-        if (pThing != NULL) {
-            pThing->Release();
-        }
-
-        CoUninitialize();
-    });
-
-
-    HRESULT hr = CoCreateInstanceAsAdmin(NULL, CLSID_AUTH_HELPER, IID_AUTH_HELPER, (void**)&pThing);
-    if (FAILED(hr)) {
-        int errorCode = HRESULT_CODE(hr);
-        if (errorCode == ERROR_CANCELLED) {
-            qCInfo(LOG_AUTH_HELPER) << "Authentication failed due to user selection";
-        }
-        else {
-            // Can fail here if StubProxyDll isn't in CLSID\InprocServer32
-            int facility = HRESULT_FACILITY(hr); // If returns 4 (FACILITY_ITF) then error codes are interface specific
-            wchar_t strErr[1024];
-            WinUtils::Win32GetErrorString(errorCode, strErr, _countof(strErr));
-            qCCritical(LOG_AUTH_HELPER) << "Failed to CoCreateInstance of MyThing, facility: " << facility << ", code: " << errorCode;
-            qCCritical(LOG_AUTH_HELPER) << " (" << hr << "): " << strErr;
-        }
-
-        return false;
-    }
-
-    // CoCreateInstanceAsAdmin will return S_OK if authorization was successful
-    qCInfo(LOG_AUTH_HELPER) << "Helper process is Authorized";
-    return true;
-}
 
 AuthChecker_win::AuthChecker_win(QObject *parent) : IAuthChecker(parent)
 {
@@ -73,27 +13,35 @@ AuthChecker_win::AuthChecker_win(QObject *parent) : IAuthChecker(parent)
 
 AuthCheckerError AuthChecker_win::authenticate()
 {
-    QString appDir = QCoreApplication::applicationDirPath();
+    /* Design Note:
+    We perform the following logic to confirm the user has knowledge of admin credentials to avoid this
+    edge case privilege escalation exploit:
 
-    ExecutableSignature sigCheck;
+    1. Start app as low privilege user.
+    2. Select a configuration directory that you control.
+    3. Add a script that is executed by OpenVPN into a custom config and connect.
+    4. Script runs as admin user since the helper runs windscribeopenvpn.exe as admin.
 
-    QString comServerPath = appDir + "/ws_com_server.exe";
-    if (!sigCheck.verify(comServerPath.toStdWString())) {
-        qCCritical(LOG_AUTH_HELPER) << "Could not verify " << comServerPath << ". File may be corrupted. " << QString::fromStdString(sigCheck.lastError());
-        return AuthCheckerError::AUTH_HELPER_ERROR;
+    We have logic in the helper to remove potentially harmful scripts... but just in case that is ever
+    removed, we have opted to keep the below logic alive.
+     */
+
+    const QString cmd = WinUtils::getSystemDir() + QString("\\whoami.exe");
+
+    SHELLEXECUTEINFO shExInfo;
+    memset(&shExInfo, 0, sizeof(shExInfo));
+    shExInfo.cbSize = sizeof(shExInfo);
+    shExInfo.fMask = SEE_MASK_DEFAULT;
+    shExInfo.lpVerb = L"runas";
+    shExInfo.lpFile = qUtf16Printable(cmd);
+    shExInfo.nShow = SW_HIDE;
+
+    const auto result = ::ShellExecuteEx(&shExInfo);
+
+    if (!result) {
+        qCWarning(LOG_AUTH_HELPER) << "AuthChecker_win::authenticate() ShellExecuteEx failed:" << ::GetLastError();
+        return AuthCheckerError::AUTH_AUTHENTICATION_ERROR;
     }
 
-    QString comDllPath    = appDir + "/ws_com.dll";
-    if (!sigCheck.verify(comDllPath.toStdWString())) {
-        qCCritical(LOG_AUTH_HELPER) << "Could not verify " << comDllPath << ". File may be corrupted. " << QString::fromStdString(sigCheck.lastError());
-        return AuthCheckerError::AUTH_HELPER_ERROR;
-    }
-
-    QString comStubPath   = appDir + "/ws_proxy_stub.dll";
-    if (!sigCheck.verify(comStubPath.toStdWString())) {
-        qCCritical(LOG_AUTH_HELPER) << "Could not verify " << comStubPath << ". File may be corrupted. " << QString::fromStdString(sigCheck.lastError());
-        return AuthCheckerError::AUTH_HELPER_ERROR;
-    }
-
-    return authorizeWithUac() ? AuthCheckerError::AUTH_NO_ERROR : AuthCheckerError::AUTH_AUTHENTICATION_ERROR;
+    return AuthCheckerError::AUTH_NO_ERROR;
 }

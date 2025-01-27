@@ -2,8 +2,8 @@
 #include "../../../client/common/version/windscribe_version.h"
 
 VS_VERSION_INFO VERSIONINFO
-    FILEVERSION 1, 0, 1, 0
-    PRODUCTVERSION 1, 0, 1, 0
+    FILEVERSION 1, 0, 5, 0
+    PRODUCTVERSION 1, 0, 5, 0
     FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
     FILEFLAGS VS_FF_DEBUG
@@ -20,11 +20,11 @@ VS_VERSION_INFO VERSIONINFO
             BEGIN
                 VALUE "CompanyName", "Windscribe Limited\0"
                 VALUE "FileDescription", "Windscribe wstunnel\0"
-                VALUE "FileVersion", "1.0.1\0"
+                VALUE "FileVersion", "1.0.5\0"
                 VALUE "LegalCopyright", WINDSCRIBE_COPYRIGHT_STR
                 VALUE "OriginalFilename", "windscribewstunnel.exe\0"
                 VALUE "ProductName", "Windscribe wstunnel\0"
-                VALUE "ProductVersion", "1.0.1\0"
+                VALUE "ProductVersion", "1.0.5\0"
             END
         END
         BLOCK "VarFileInfo"
@@ -33,4 +33,3 @@ VS_VERSION_INFO VERSIONINFO
         END
     END
 /* End of Version info */
-

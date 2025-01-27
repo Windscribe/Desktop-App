@@ -54,11 +54,6 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::setTryingBackupEndpointCallb
 
 std::shared_ptr<WSNetCancelableCallback> ServerAPI::login(const std::string &username, const std::string &password, const std::string &code2fa, WSNetRequestFinishedCallback callback)
 {
-    // For login only request, we reset a failover to the initial state
-    boost::asio::post(io_context_, [this] {
-        impl_->resetFailover();
-    });
-
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
     BaseRequest *request = requests_factory::login(username, password, code2fa, Settings::instance().sessionTypeId(), cancelableCallback);
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });

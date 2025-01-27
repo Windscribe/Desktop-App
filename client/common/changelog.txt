@@ -1,6 +1,39 @@
-2.13.8 (27/01/2025)
+2.14.3 (22/01/2025)
 All:
-   * Stable build - no changes from beta.
+   * Fixed "reset date" being shown on account screen instead of "expiry date" for some plans. #1239
+   * Fixed 2FA code expires before working endpoint can be found [wsnet]. #1232
+   * Updated wstunnel dependency to v1.0.5.  Adds support for anti-censorship TLS stuffing. #1237
+Windows:
+   * Fixed "System notifications are disabled" alert shown unexpectedly. #1229
+   * Fixed spammy log message. #1238
+   * Fixed app updates fails when using pre-2.4 app. #1236
+   * Fixed installer alerts may be not fit in window. #1240
+MacOS:
+   * Added per-app split tunneling. #45
+   * Fixed incorrect network status detection. #1228, #1168
+   * Fixed missing firewall rule allowing the VPN DNS when using IKEv2. #1141
+   * Fixed installer alerts may be not fit in window. #1240
+
+
+2.14.2 (09/01/2025)
+All:
+   * Fixed disconnecting due to out of data turns off firewall. #1225
+   * Fixed incorrect check for LAN address for custom DNS. #1214
+Windows:
+   * Improved flow when user enables "Show notifications" but system notifications is disabled. #1229
+   * Fixed OpenVPN protocols not working on virgin Windows installs due to official tapctl.exe binaries depending on Microsoft C runtime DLL. #1169
+MacOS:
+   * Fixed syntax error in firewall. #1214
+Linux:
+   * Added showing device name when requesting list of static IP locations in CLI. #1130
+
+
+2.14.1 (19/12/2025)
+All:
+   * Improved custom connected DNS error UX. #1214
+Windows:
+   * Improved build process to produce statically linked executables to mitigate code-injection attacks. #1169
+   * Improved Windows-on-Arm installer to use arm64 7-zip extractor. #1222
 
 
 2.13.7 (21/01/2025)
@@ -11,15 +44,16 @@ Windows:
 2.13.6 (09/01/2025)
 All:
    * Fixed autoconnect attempting to connect to invalid locations. #1221
-   * Fixed incorrect static device name on Mac/Linux. #1233
 Windows:
    * Fixed incorrect firewall rule blocking IPv6 during inclusive split tunnel. #1111
    * Fixed missing interface in MAC spoofing dropdown. #1200
    * Fixed potential local privilege escalation vulnerability in the installer bootstrap. #1226
 MacOS:
    * Fixed incorrect connectivity detection on MacOS 15.x+ when rebooting the OS with the firewall set to always on. #1168
+   * Fixed incorrect static device name. #1233
 Linux:
    * Fixed missing 'psmisc' dependency. #1124
+   * Fixed incorrect static device name. #1233
 
 
 2.13.5 (16/12/2024)

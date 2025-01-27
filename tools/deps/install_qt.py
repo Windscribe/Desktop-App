@@ -33,28 +33,28 @@ QT_SKIP_MODULES = ["qtdoc", "qt3d", "qtactiveqt", "qtcanvas3d", "qtcharts", "qtc
                    "qtmultimedia", "qtnetworkauth", "qtpurchasing", "qtquickcontrols", "qtquickcontrols2",
                    "qtremoteobjects", "qtscript", "qtscxml", "qtserialbus", "qtserialport", "qtspeech",
                    "qtvirtualkeyboard", "qtwebchannel", "qtwebengine", "qtwebglplugin", "qtwebsockets",
-                   "qtwebview", "qtlottie", "qtmqtt", "qtopcua", "qtquicktimeline", "qtquick3d", "qtcoap", "qtpositioning",
-                   "qtsensors", "qtopengl", "qtquick3dphysics", "qtquickeffectmaker"]
-
-QT_SOURCE_CHANGES_JSON_PATH = "deps/custom_qt/source_changes.json"
+                   "qtwebview", "qtlottie", "qtmqtt", "qtopcua", "qtquicktimeline", "qtquick3d", "qtcoap",
+                   "qtpositioning", "qtsensors", "qtopengl", "qtquick3dphysics", "qtquickeffectmaker",
+                   "qtlanguageserver", "qtwayland", "qthttpserver"]
 
 
 def BuildDependencyMSVC(installpath, outpath):
     # Create an environment with VS vars.
     buildenv = os.environ.copy()
-    buildenv.update({"MAKEFLAGS": "S"})
     buildenv.update(iutl.GetVisualStudioEnvironment())
-    buildenv.update({"CL": "/MP"})
     # Configure.
     configure_cmd = \
-        ["configure.bat", "-opensource", "-confirm-license", "-nomake", "examples"]
+        ["configure.bat", "-static", "-static-runtime", "-no-openssl", "-schannel", "-c++std", "c++20", "-dbus-runtime", "-no-icu",
+         "-no-glib", "-qt-doubleconversion", "-qt-pcre", "-qt-zlib", "-qt-freetype", "-qt-harfbuzz", "-qt-libpng", "-qt-libjpeg",
+         "-qt-sqlite", "-qt-tiff", "-qt-webp", "-confirm-license", "-release", "-platform", "win32-msvc", "-nomake", "examples",
+         "-nomake", "tests"]
     configure_cmd.extend(["-prefix", installpath])
     if QT_SKIP_MODULES:
         configure_cmd.extend(x for t in zip(["-skip"] * len(QT_SKIP_MODULES), QT_SKIP_MODULES) for x in t)
     iutl.RunCommand(configure_cmd, env=buildenv, shell=True)
     # Build and install.
-    iutl.RunCommand(iutl.GetMakeBuildCommand(), env=buildenv, shell=True)
-    iutl.RunCommand(["nmake", "install"], env=buildenv, shell=True)
+    iutl.RunCommand(["cmake", "--build", ".", "--parallel"], env=buildenv, shell=True)
+    iutl.RunCommand(["cmake", "--install", "."], env=buildenv, shell=True)
 
 
 def BuildDependencyGNU(installpath, outpath):

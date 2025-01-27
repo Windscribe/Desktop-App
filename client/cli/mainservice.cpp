@@ -179,7 +179,7 @@ void MainService::onShowLocations(IPC::CliCommands::LocationType type)
         assert(false);
     }
 
-    localIpcServer_->sendLocations(locations);
+    localIpcServer_->sendLocations(locations, type);
 }
 
 void MainService::onBackendCheckUpdateChanged(const api_responses::CheckUpdate &info)
@@ -211,7 +211,7 @@ void MainService::onBackendSessionStatusChanged(const api_responses::SessionStat
             multipleAccountDetection_->userBecomeExpired(sessionStatus.getUsername());
 
             if (backend_->currentConnectState() == CONNECT_STATE_CONNECTED || backend_->currentConnectState() == CONNECT_STATE_CONNECTING) {
-                backend_->sendDisconnect();
+                backend_->sendDisconnect(DISCONNECTED_BY_DATA_LIMIT);
             }
             if (!blockConnect_.isBlocked()) {
                 blockConnect_.setBlockedExceedTraffic();

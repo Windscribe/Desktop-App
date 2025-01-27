@@ -12,8 +12,6 @@ set(SOURCES
     installer.rc
     main.cpp
     ossupport.manifest
-    resources/7zr.exe
-    resources/windscribeinstaller.7z
     version.rc
 )
 
@@ -24,7 +22,14 @@ if(WINDSCRIBE_INSTALLER_NAME)
     add_definitions(-DWINDSCRIBE_INSTALLER_NAME=L\"${WINDSCRIBE_INSTALLER_NAME}\")
 endif(WINDSCRIBE_INSTALLER_NAME)
 
-set_source_files_properties(installer.rc OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/resources/7zr.exe)
+if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+    # JDRM - I could find no built-in way to detect arm64 compilation in the MS resource compiler.
+    add_definitions(-DWINDSCRIBE_ARM64_TARGET)
+    set_source_files_properties(installer.rc OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/resources/arm64/7zr.exe)
+else()
+    set_source_files_properties(installer.rc OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/resources/amd64/7zr.exe)
+endif()
+
 set_source_files_properties(installer.rc OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/resources/windscribeinstaller.7z)
 set_property(TARGET windscribe_installer PROPERTY COMPILE_WARNING_AS_ERROR ON)
 set_property(TARGET windscribe_installer PROPERTY VS_DPI_AWARE "PerMonitor")

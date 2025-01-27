@@ -39,6 +39,7 @@ protected:
 
 private:
     void updateMode();
+    void checkDnsLeak(const QString &v1, const QString &v2 = "");
 
     ComboBoxItem *comboBoxDns_;
     VerticalEditBoxItem *editBoxUpstream1_;

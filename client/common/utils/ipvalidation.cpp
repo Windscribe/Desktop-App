@@ -81,6 +81,10 @@ bool IpValidation::isCtrldCorrectAddress(const QString &str)
 
 bool IpValidation::isLocalIpv4Address(const QString &str)
 {
+    if (!isIpv4Address(str)) {
+        return false;
+    }
+
     // NB: QHostAddress::isPrivateUse() is not available in Qt 6.5, so implement the logic manually
 
     // Rules are given from https://en.wikipedia.org/wiki/Private_network

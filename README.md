@@ -6,7 +6,7 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 
 ### Prerequisites
 
-- Windows 10/11.
+- Windows 10/11 x86_64.  We do not currently support building on the WoA (arm64) platform.
 - Install [git](https://git-scm.com/downloads). When installing Git, you can stick with all the default options presented to you by the installer.
 - Clone the repository.
 - Install Visual Studio Community Edition 2019 (run `install_vs.bat` from `/tools/prepare_build_environment/windows`).
@@ -15,7 +15,7 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 - Install Ninja v1.10.2 from [here](https://github.com/ninja-build/ninja/releases)
 - Install vcpkg from [here](https://vcpkg.io/en/getting-started.html)
     - Create a `VCPKG_ROOT` environment variable referencing the full path to your vcpkg install folder.
-    - Go to the vcpkg directory and `git checkout 576379156e82da642f8d1834220876759f13534d`.
+    - Go to the vcpkg directory and `git checkout 52fc0d8c1e2cbd12c9907284566f5c17e5ef0d12`.
     - Do the bootstrap step after the above command.
 - Verify the following entries are in your System `PATH` environment variable. If they are not, add them to the System `PATH` environment variable and reboot.
     - `C:\Program Files\Git\cmd`
@@ -24,6 +24,11 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 - Verify that `python3` is available in your System `PATH` environment variable.
   - If you installed Python from the Microsoft Store, enable the `python3.exe` execution alias in System Settings `Manage App Execution Aliases`.
   - If you installed Python from python.org, you can `mklink /path/to/your/python3.exe /path/to/your/python.exe`
+- If you plan to build the `wstunnel` dependency listed in the `Build libraries` section:
+  - Install golang (minimum version 1.18) following the instructions from `https://go.dev/doc/install`
+  - Download the latest llvm-mingw msvcrt x86_64 package from `https://github.com/mstorsjo/llvm-mingw/releases`.
+  - Extract the `bin` and `include` folders to a folder of your choosing.
+  - Before running `install_wstunnel`, set the environment variable `LLVM_MINGW_ROOT` to the folder you created in the previous step.
 
 ### Install build script dependencies
 - You will have to go to `Manage App Execution Aliases` in System Settings and disable app installer for `python.exe` and `python3.exe`
@@ -32,11 +37,11 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
   python3 -m pip install -r tools/requirements.txt
 ```
 
-In case of `pyyaml` [building issue on Windows](https://github.com/yaml/pyyaml/issues/724#issuecomment-1638636728), execute the following:
+In case of `pyyaml` [building issue on Windows](https://github.com/yaml/pyyaml/issues/724#issuecomment-1638636728), execute the following and then re-execute the above python step:
 
 ```python
-pip install "cython<3.0.0" && pip install --no-build-isolation pyyaml==6.0
 pip install setuptools wheel
+pip install "cython<3.0.0" && pip install --no-build-isolation pyyaml==6.0
 ```
 
 ### Install signing certificate (optional)
@@ -113,7 +118,7 @@ See `build_all --help` for other build options.
 - Install CMake v3.28.x or newer from [here](https://cmake.org/download/) and make sure that the cmake executable is in the path and available for execution. The project will build with older versions of CMake, but you may encounter some warnings.
 - Install vcpkg from [here](https://vcpkg.io/en/getting-started.html)
     - Create a `VCPKG_ROOT` environment variable referencing the full path to your vcpkg install folder.
-    - Go to the vcpkg directory and `git checkout 576379156e82da642f8d1834220876759f13534d`.
+    - Go to the vcpkg directory and `git checkout 52fc0d8c1e2cbd12c9907284566f5c17e5ef0d12`.
     - Do the bootstrap step after the above command.
 - Clone the repository.
 - Install python deps:
@@ -164,7 +169,7 @@ The repository contains Dockerfile to simplify building process. Skip all the ot
 ```
 - Install vcpkg:
 ```bash
-  sudo docker run --rm -v .:/w ws-builder /bin/bash -c "git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg && git checkout 576379156e82da642f8d1834220876759f13534d && ./bootstrap-vcpkg.sh --disableMetrics"
+  sudo docker run --rm -v .:/w ws-builder /bin/bash -c "git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg && git checkout 52fc0d8c1e2cbd12c9907284566f5c17e5ef0d12 && ./bootstrap-vcpkg.sh --disableMetrics"
 ```
 - Build all the dependencies:
 ```bash
@@ -190,7 +195,7 @@ Build process tested on Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
 ```
 - Install vcpkg from [here](https://vcpkg.io/en/getting-started.html)
     - Create a `VCPKG_ROOT` environment variable referencing the full path to your vcpkg install folder.
-    - Go to the vcpkg directory and `git checkout 576379156e82da642f8d1834220876759f13534d`.
+    - Go to the vcpkg directory and `git checkout 52fc0d8c1e2cbd12c9907284566f5c17e5ef0d12`.
     - Do the bootstrap step after the above command.
 - Install golang (minimum version 1.18): follow instructions from `https://go.dev/doc/install`
 - Clone the repository.

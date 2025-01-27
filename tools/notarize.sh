@@ -1,39 +1,37 @@
 #!/bin/bash
 
-ABSOLUTE_PATH_TOOLS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ABSOLUTE_PATH_INSTALLER_BINS="$ABSOLUTE_PATH_TOOLS/../temp/installer/InstallerFiles/installer"
+# Usage: ./notarize.sh <TEAM_ID> <ROOT_DIR> <APP_BASE_NAME>
+
 NOTARIZE_YML=$ABSOLUTE_PATH_TOOLS/notarize.yml
 
 #(time in seconds, default 600 = 10 minutes)
 APPLE_NOTARIZE_TIMEOUT=600
 
 # move to dir
-pushd "$ABSOLUTE_PATH_INSTALLER_BINS"
+pushd "$2"
 if [ $? -ne 0 ]; then
     echo "Installer binary folder does not exist"
     exit 1
 fi
 
 # check that installer exists
-if [ -d "WindscribeInstaller.app" ]; then
-    echo "WindscribeInstaller.app exists"
+if [ -d "$3.app" ]; then
+    echo "$3.app exists"
 else
-    echo "WindscribeInstaller.app does not exist"
+    echo "$3.app does not exist"
     exit 1
 fi
 
 # get yml variables
-APP_BUNDLE="com.windscribe.installer.macos"
-
 echo "Compressing installer"
-ditto -c -k --keepParent "WindscribeInstaller.app" "WindscribeInstaller.zip"
+ditto -c -k --keepParent "$3.app" "$3.zip"
 
 echo "Sending to Apple for notarization"
 
 # Outputs are written to stderr
 # Upload the tool for notarization
 # (Tee through /dev/stderr so the output is logged in case we exit here due to set -e)
-notarizeOutput=$( (xcrun notarytool submit "WindscribeInstaller.zip" --wait --apple-id "$APPLE_ID_EMAIL" --team-id "$1" --password "$APPLE_ID_PASSWORD") 2>&1 | tee /dev/stderr)
+notarizeOutput=$( (xcrun notarytool submit "$3.zip" --wait --apple-id "$APPLE_ID_EMAIL" --team-id "$1" --password "$APPLE_ID_PASSWORD") 2>&1 | tee /dev/stderr)
 
 if [[ $notarizeOutput == *"Processing complete"* ]];
 then
@@ -46,7 +44,7 @@ else
 fi
 
 # Assuming that the package has been approved by this point
-stapleOutput=$( (xcrun stapler staple "WindscribeInstaller.app") 2>&1)
+stapleOutput=$( (xcrun stapler staple "$3.app") 2>&1)
 
 if [[ $stapleOutput == *"action worked"* ]];
 then
@@ -58,6 +56,6 @@ else
     exit 3
 fi
 
-rm "WindscribeInstaller.zip"
+rm "$3.zip"
 
 popd

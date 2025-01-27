@@ -826,6 +826,30 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
         <translation>Direktori konfigurasi kustom sedang diimpor.  Windscribe akan meminta kata sandi admin Anda untuk memeriksa izin yang benar.</translation>
     </message>
+    <message>
+        <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
+        <translation>Server &quot;Connected DNS&quot; Anda diatur ke server DNS default OS, yang akan mengakibatkan kebocoran DNS.  Ini telah diubah menjadi Otomatis.</translation>
+    </message>
+    <message>
+        <source>Invalid DNS Settings</source>
+        <translation>Pengaturan DNS Tidak Valid</translation>
+    </message>
+    <message>
+        <source>System notifications are disabled</source>
+        <translation>Pemberitahuan sistem dinonaktifkan</translation>
+    </message>
+    <message>
+        <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
+        <translation>Anda telah memilih untuk menampilkan notifikasi, tetapi notifikasi sistem dinonaktifkan. Harap aktifkan pemberitahuan sistem di Pengaturan Sistem Anda.</translation>
+    </message>
+    <message>
+        <source>App not signed</source>
+        <translation>Aplikasi tidak ditandatangani</translation>
+    </message>
+    <message>
+        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
+        <translation>Aplikasi yang dipilih tidak ditandatangani. Terowongan terpisah hanya didukung untuk aplikasi yang ditandatangani di macOS.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1115,6 +1139,14 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Domains</source>
         <translation>Domain</translation>
+    </message>
+    <message>
+        <source>DNS leak detected</source>
+        <translation>Kebocoran DNS terdeteksi</translation>
+    </message>
+    <message>
+        <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
+        <translation>Menggunakan LAN atau alamat IP lokal untuk DNS yang terhubung akan mengakibatkan kebocoran DNS.  Kami sangat menyarankan untuk menggunakan ROBERT atau server DNS publik.</translation>
     </message>
 </context>
 <context>
@@ -1945,6 +1977,13 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>Silakan masuk untuk mengubah aturan tunneling terpisah.</translation>
     </message>
+    <message>
+        <source>
+
+On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
+        <translation>
+Di macOS, app diidentifikasi dengan pengenal penandatanganannya, sehingga app yang tidak ditandatangani tidak dapat dipisahkan melalui terowongan.  Saat aplikasi dikanalisasi terpisah, semua salinan aplikasi tersebut diterowongan terpisah, terlepas dari jalurnya.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::SplitTunnelingGroup</name>
@@ -1961,16 +2000,8 @@ If the reinstall does not help, please contact Windscribe support for assistance
 Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendapatkan bantuan.</translation>
     </message>
     <message>
-        <source>Selected IPs and hostnames will not go through Windscribe when connected.</source>
-        <translation>IP dan nama host yang dipilih tidak akan melalui Windscribe saat terhubung.</translation>
-    </message>
-    <message>
         <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
         <translation>Aplikasi, IP, dan nama host yang dipilih tidak akan melalui Windscribe saat terhubung.</translation>
-    </message>
-    <message>
-        <source>Only selected IPs and hostnames will go through Windscribe when connected.</source>
-        <translation>Hanya IP dan nama host yang dipilih yang akan melalui Windscribe saat terhubung.</translation>
     </message>
     <message>
         <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
@@ -2010,10 +2041,6 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Sertakan atau kecualikan aplikasi dan nama host dari terowongan VPN.</translation>
-    </message>
-    <message>
-        <source>Include or exclude IPs and hostnames from the VPN tunnel.</source>
-        <translation>Sertakan atau kecualikan IP dan nama host dari terowongan VPN.</translation>
     </message>
 </context>
 <context>

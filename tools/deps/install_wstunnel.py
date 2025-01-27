@@ -6,7 +6,6 @@
 # Purpose: installs Wstunnel executables.
 import os
 import platform
-import shutil
 import sys
 import time
 TOOLS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -29,8 +28,10 @@ DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = ["windscribewstunnel.exe", "windscribewstunnel"]
 
 
-def BuildDependencyMSVC():
+def BuildDependencyMSVC(llvm_mingw_root):
     buildenv = os.environ.copy()
+    windres_app = os.path.join(llvm_mingw_root, "bin", "aarch64-w64-mingw32-windres.exe" if is_arm64_build else "x86_64-w64-mingw32-windres.exe")
+    iutl.RunCommand([windres_app, "-i", os.path.join(TOOLS_DIR, "deps", "custom_wstunnel", "wstunnel.rc"), "-O", "coff", "-o", "rsrc.syso"], env=buildenv)
     buildenv.update({"GOARCH": "arm64" if is_arm64_build else "amd64", "GOOS": "windows"})
     iutl.RunCommand(["go", "build", "-o", os.path.join("build", "windscribewstunnel.exe"), "-a", "-gcflags=all=-l -B", "-ldflags=-w -s"], env=buildenv)
 
@@ -62,6 +63,10 @@ def InstallDependency():
     dep_version_str = os.environ.get(dep_version_var, None)
     if not dep_version_str:
         raise iutl.InstallError("{} not defined.".format(dep_version_var))
+    if utl.GetCurrentOS() == "win32":
+        llvm_mingw_root = os.environ.get("LLVM_MINGW_ROOT", None)
+        if not llvm_mingw_root:
+            raise iutl.InstallError("LLVM_MINGW_ROOT not defined.")
     # Prepare output.
     temp_dir = iutl.PrepareTempDirectory(dep_name)
     with utl.PushDir(os.path.join(temp_dir)):
@@ -86,9 +91,8 @@ def InstallDependency():
                 "-output",
                 os.path.join("build", "windscribewstunnel")])
     elif utl.GetCurrentOS() == "win32":
-        shutil.copyfile(os.path.join(TOOLS_DIR, "deps", "custom_wstunnel", "rsrc_windows_arm64.syso" if is_arm64_build else "rsrc_windows_amd64.syso"), os.path.join(temp_dir, "rsrc.syso"))
         with utl.PushDir(temp_dir):
-            BuildDependencyMSVC()
+            BuildDependencyMSVC(llvm_mingw_root)
     else:
         with utl.PushDir(temp_dir):
             BuildDependencyLinux()

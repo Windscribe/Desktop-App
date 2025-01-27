@@ -270,5 +270,9 @@
         <source>Incorrect 2FA code</source>
         <translation>잘못된 2FA 코드</translation>
     </message>
+    <message>
+        <source>(Device name: %1)</source>
+        <translation>(장치 이름: %1)</translation>
+    </message>
 </context>
 </TS>

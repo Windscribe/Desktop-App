@@ -5,6 +5,15 @@ set(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "11" CACHE STRING "Minimum OS X deployment version")
 
+if (WIN32)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+        set(VCPKG_TARGET_TRIPLET arm64-windows-static)
+    else()
+        set(VCPKG_TARGET_TRIPLET x64-windows-static)
+    endif()
+endif()
+
 project(Windscribe)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -62,7 +71,19 @@ else()
 endif()
 
 if (WIN32)
-    set (OS_SPECIFIC_LIBRARIES psapi.lib iphlpapi.lib dnsapi.lib rasapi32.lib pdh.lib Crypt32.lib Version.lib)
+    set (OS_SPECIFIC_LIBRARIES
+         psapi.lib
+         iphlpapi.lib
+         dnsapi.lib
+         rasapi32.lib
+         pdh.lib
+         Crypt32.lib
+         Version.lib
+         ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/oqs.lib
+         ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/oqsprovider.lib
+         $<$<NOT:$<CONFIG:Debug>>:../libs/wssecure/wssecure>
+    )
+
     list(APPEND PROJECT_SOURCES client.rc)
     # Generate debug information (symbol files) for Windows (release build only)
     add_compile_options("$<$<CONFIG:Release>:/Zi>")
@@ -81,6 +102,7 @@ elseif (APPLE)
         "-framework Security"
         "-framework ServiceManagement"
         "-framework SystemConfiguration"
+        "-framework SystemExtensions"
     )
 
     # add Mac icon to Resources bundle subfolder
@@ -104,12 +126,9 @@ if (WIN32)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                       ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools/openvpn/openvpn.exe $<TARGET_FILE_DIR:Windscribe>/windscribeopenvpn.exe)
 
-    # post-quantum libs
-    add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                      ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/oqsprovider.dll $<TARGET_FILE_DIR:Windscribe>/oqsprovider.dll)
-
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                                     ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools/ctrld/ctrld.exe $<TARGET_FILE_DIR:Windscribe>/windscribectrld.exe)
+
 elseif (APPLE)
     #postbuild copy commands for Mac
     set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../build-libs)
@@ -127,6 +146,10 @@ elseif (APPLE)
 
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                        ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools/openvpn/sbin/openvpn $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribeopenvpn)
+
+    # split tunnel extension
+    add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_CURRENT_SOURCE_DIR}/../build/backend/mac/splittunnelextension/$<CONFIG>/com.windscribe.client.splittunnelextension.systemextension $<TARGET_FILE_DIR:Windscribe>/../Library/SystemExtensions/com.windscribe.client.splittunnelextension.systemextension)
 
     # apply install_name_tool commands for the windscribeopenvpn binary, fix for the openssl libs
     add_custom_command(TARGET Windscribe POST_BUILD
@@ -200,7 +223,7 @@ endif()
 qt_finalize_executable(Windscribe)
 
 # ----- Install section -----
-install(TARGETS Windscribe wsnet
+install(TARGETS Windscribe
     RUNTIME DESTINATION .
     LIBRARY DESTINATION lib
     BUNDLE DESTINATION .
@@ -209,7 +232,6 @@ install(TARGETS Windscribe wsnet
 if (WIN32)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/windscribeopenvpn.exe DESTINATION .)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/windscribectrld.exe DESTINATION .)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/oqsprovider.dll DESTINATION .)
 endif()
 
 if(UNIX AND (NOT APPLE))

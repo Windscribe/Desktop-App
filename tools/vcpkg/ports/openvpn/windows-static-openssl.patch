@@ -1,0 +1,87 @@
+diff --git "a/CMakeLists.txt" "b/CMakeLists.txt"
+index a91cd32..8b2a129 100644
+--- "a/CMakeLists.txt"
++++ "b/CMakeLists.txt"
+@@ -511,6 +511,13 @@ add_executable(openvpn ${SOURCE_FILES})
+ 
+ add_library_deps(openvpn)
+ 
++if (WIN32 AND NOT ${MBED} AND NOT ${WOLFSSL})
++    target_link_libraries(openvpn PRIVATE
++        ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/oqs.lib
++        ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/oqsprovider.lib
++    )
++endif()
++
+ if (MINGW)
+     target_compile_options(openvpn PRIVATE
+         -DWIN32_LEAN_AND_MEAN
+diff --git "a/src/openvpn/ssl_openssl.c" "b/src/openvpn/ssl_openssl.c"
+index 2595f87..92e520b 100644
+--- "a/src/openvpn/ssl_openssl.c"
++++ "b/src/openvpn/ssl_openssl.c"
+@@ -64,7 +64,14 @@
+ #include <openssl/ec.h>
+ #endif
+ 
+-#if defined(_MSC_VER) && !defined(_M_ARM64)
++#ifdef _WIN32
++#include <openssl/crypto.h>
++#include <openssl/provider.h>
++extern OSSL_provider_init_fn oqs_provider_init;
++static const char *kOQSProviderName = "oqsprovider";
++#endif
++
++#if defined(_MSC_VER) && !defined(_M_ARM64) && defined(OPENSSL_USE_APPLINK)
+ #include <openssl/applink.c>
+ #endif
+ 
+@@ -80,6 +87,36 @@ static void unload_xkey_provider(void);
+ 
+ int mydata_index; /* GLOBAL */
+ 
++#ifdef _WIN32
++static int load_oqs_provider(OSSL_LIB_CTX *libctx)
++{
++    OSSL_PROVIDER *provider;
++    int ret;
++
++    ret = OSSL_PROVIDER_available(libctx, kOQSProviderName);
++    if (ret != 0) {
++        return 0;
++    }
++
++    ret = OSSL_PROVIDER_add_builtin(libctx, kOQSProviderName, oqs_provider_init);
++    if (ret != 1) {
++        return -1;
++    }
++
++    provider = OSSL_PROVIDER_load(libctx, kOQSProviderName);
++    if (provider == NULL) {
++        return -1;
++    }
++
++    ret = OSSL_PROVIDER_available(libctx, kOQSProviderName);
++    if (ret != 1) {
++        return -1;
++    }
++
++    return 0;
++}
++#endif
++
+ void
+ tls_init_lib(void)
+ {
+@@ -92,6 +129,11 @@ tls_init_lib(void)
+ #endif
+     mydata_index = SSL_get_ex_new_index(0, "struct session *", NULL, NULL, NULL);
+     ASSERT(mydata_index >= 0);
++
++#ifdef _WIN32
++  // Use statically linked OpenSSL provider for OQS
++  load_oqs_provider(OSSL_LIB_CTX_get0_global_default());
++#endif
+ }
+ 
+ void

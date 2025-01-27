@@ -1,4 +1,7 @@
 target_sources(common PRIVATE
+    dns_utils/dnsserversconfiguration.cpp
+    dns_utils/dnsserversconfiguration.h
+    dns_utils/dnsutils.h
     executable_signature/executable_signature.cpp
     executable_signature/executable_signature.h
     extraconfig.cpp
@@ -34,6 +37,7 @@ if (WIN32)
     target_sources(common PRIVATE
         crashdump.cpp
         crashhandler.cpp
+        dns_utils/dnsutils_win.cpp
         executable_signature/executable_signature_win.cpp
         network_utils/network_utils_win.cpp
         network_utils/network_utils_win.h
@@ -48,6 +52,7 @@ if (WIN32)
     )
 elseif(APPLE)
     target_sources(common PRIVATE
+        dns_utils/dnsutils_mac.cpp
         exithandler_mac.mm
         exithandler_mac.h
         executable_signature/executable_signature_mac.h
@@ -59,6 +64,7 @@ elseif(APPLE)
     )
 elseif(UNIX)
     target_sources(common PRIVATE
+        dns_utils/dnsutils_linux.cpp
         executable_signature/executablesignature_linux.cpp
         executable_signature/executablesignature_linux.h
         linuxutils.cpp

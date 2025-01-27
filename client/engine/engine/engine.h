@@ -35,6 +35,7 @@
     #include "utils/crashhandler.h"
 #elif defined(Q_OS_MACOS)
     #include "autoupdater/autoupdaterhelper_mac.h"
+    #include "splittunnelextension/systemextensions_mac.h"
 #endif
 
 // all the functionality of the connections, firewall, helper, etc
@@ -81,7 +82,7 @@ public:
     bool firewallOff();
 
     void connectClick(const LocationID &locationId, const types::ConnectionSettings &connectionSettings);
-    void disconnectClick();
+    void disconnectClick(DISCONNECT_REASON reason);
 
     bool isBlockConnect() const;
     void setBlockConnect(bool isBlockConnect);
@@ -122,6 +123,7 @@ public:
     void makeHostsFileWritableWin();
 
     void updateCurrentNetworkInterface();
+    void reconnect();
 
 public slots:
     void init();
@@ -200,7 +202,7 @@ private slots:
     void recordInstallImpl();
     void sendConfirmEmailImpl();
     void connectClickImpl(const LocationID &locationId, const types::ConnectionSettings &connectionSettings);
-    void disconnectClickImpl();
+    void disconnectClickImpl(DISCONNECT_REASON reason);
     void sendDebugLogImpl();
     void getWebSessionTokenImpl(WEB_SESSION_PURPOSE purpose);
     void logoutImpl(bool keepFirewallOn);
@@ -212,6 +214,7 @@ private slots:
     void gotoCustomOvpnConfigModeImpl();
 
     void updateCurrentInternetConnectivityImpl();
+    void reconnectImpl();
     void updateCurrentNetworkInterfaceImpl();
 
     void firewallOnImpl();
@@ -303,6 +306,7 @@ private slots:
 
 #ifdef Q_OS_MACOS
     void onMacSpoofTimerTick();
+    void onSystemExtensionStateChanged(SystemExtensions_mac::SystemExtensionState newState);
 #endif
 
 private:
