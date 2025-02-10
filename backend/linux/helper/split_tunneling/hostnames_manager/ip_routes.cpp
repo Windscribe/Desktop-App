@@ -11,9 +11,7 @@ void IpRoutes::setIps(const std::string &defaultRouteIp, const std::vector<std::
     // exclude duplicates
     std::set<std::string> ipsSet;
     for (auto ip = ips.begin(); ip != ips.end(); ++ip) {
-        if (Utils::isValidIpv4Address(*ip)) {
-            ipsSet.insert(*ip);
-        }
+        ipsSet.insert(*ip);
     }
 
     // find route which need to delete

@@ -3,7 +3,6 @@
 
 #include "split_tunneling.h"
 #include "../close_tcp_connections.h"
-#include "../registry.h"
 #include "../utils.h"
 
 SplitTunneling::SplitTunneling(FwpmWrapper& fwpmWrapper)
@@ -33,21 +32,12 @@ void SplitTunneling::setSettings(bool isEnabled, bool isExclude, const std::vect
 
     apps_ = apps;
 
-    std::vector<Ip4AddressAndMask> ipsListV4;
-    std::vector<Ip6AddressAndPrefix> ipsListV6;
+    std::vector<Ip4AddressAndMask> ipsList;
     for (auto it = ips.begin(); it != ips.end(); ++it) {
-        Ip4AddressAndMask ip4(it->c_str());
-        if (ip4.isValid()) {
-            ipsListV4.push_back(Ip4AddressAndMask(it->c_str()));
-        } else {
-            Ip6AddressAndPrefix ip6(it->c_str());
-            if (ip6.isValid()) {
-                ipsListV6.push_back(ip6);
-            }
-        }
+        ipsList.push_back(Ip4AddressAndMask(it->c_str()));
     }
 
-    hostnamesManager_.setSettings(isExclude, ipsListV4, ipsListV6, hosts);
+    hostnamesManager_.setSettings(isExclude, ipsList, hosts);
     routesManager_.updateState(connectStatus_, isSplitTunnelEnabled_, isExclude_);
 
     updateState();
@@ -140,10 +130,6 @@ bool SplitTunneling::updateState()
             hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp, connectStatus_.vpnAdapter.ifIndex);
         }
 
-        // Ensure that we request AAAA records in the tunnel, even if we don't have an IPv6 address.
-        // This is needed for IPv6 split tunneling to work correctly.
-        setEnableIPv6Dns(true);
-
         // For ctrld utility and Windscribe.exe we need special rules for inclusive mode
         AppsIds windscribeExecutablesForInclusive;
         if (!isExclude_) {
@@ -157,7 +143,6 @@ bool SplitTunneling::updateState()
         hostnamesManager_.disable();
         FirewallFilter::instance().setSplitTunnelingDisabled();
         splitTunnelServiceManager_.stop();
-        setEnableIPv6Dns(false);
     }
 
     // close TCP sockets if state changed
@@ -175,18 +160,4 @@ bool SplitTunneling::updateState()
     spdlog::debug("SplitTunneling::updateState end");
 
     return true;
-}
-
-void SplitTunneling::setEnableIPv6Dns(bool enable)
-{
-    // In order for IPv6 addresses to be resolved correctly, we need to be able to resolve them with the VPN DNS.
-    // This registry value forces Windows to request AAAA records from the DNS server, even if we don't have an IPv6 address.
-    static const std::wstring keyPath = L"SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters";
-    static const std::wstring propertyName= L"AddrConfigControl";
-
-    if (enable) {
-        Registry::regWriteDwordProperty(HKEY_LOCAL_MACHINE, keyPath, propertyName, 0);
-    } else {
-        Registry::regDeleteProperty(HKEY_LOCAL_MACHINE, keyPath, propertyName);
-    }
 }

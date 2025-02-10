@@ -80,7 +80,7 @@ int PacketSizeController::getIdealPacketSize(const QString &hostname)
     QString modifiedHostname = hostname;
 
     // if this is IP, use without change
-    if (IpValidation::isIpv4Address(hostname))
+    if (IpValidation::isIp(hostname))
     {
         modifiedHostname = hostname;
     }

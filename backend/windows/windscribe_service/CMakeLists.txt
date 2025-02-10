@@ -35,6 +35,7 @@ set(SOURCES
     active_processes.cpp
     adapters_info.cpp
     apps_ids.cpp
+    changeics/icsmanager.cpp
     close_tcp_connections.cpp
     dns_firewall.cpp
     executecmd.cpp
@@ -44,9 +45,11 @@ set(SOURCES
     ikev2ipsec.cpp
     ikev2route.cpp
     ioutils.cpp
+    ipv6_firewall.cpp
     ip_address/ip4_address_and_mask.cpp
     ip_address/ip6_address_and_prefix.cpp
-    changeics/icsmanager.cpp
+    network_category.cpp
+    openvpncontroller.cpp
     ovpn.cpp
     pipe_for_process.cpp
     process_command.cpp
@@ -66,14 +69,13 @@ set(SOURCES
     split_tunneling/split_tunnel_service_manager.cpp
     utils.cpp
     windscribe_service.cpp
-    openvpncontroller.cpp
     wireguard/wireguardcontroller.cpp
+    windscribe_service.rc
     ../../../client/common/utils/crashdump.cpp
     ../../../client/common/utils/crashhandler.cpp
     ../../../client/common/utils/executable_signature/executable_signature.cpp
     ../../../client/common/utils/executable_signature/executable_signature_win.cpp
     ../../../client/common/utils/servicecontrolmanager.cpp
-    windscribe_service.rc
 )
 
 add_compile_options("$<$<CONFIG:Release>:/Zi>")

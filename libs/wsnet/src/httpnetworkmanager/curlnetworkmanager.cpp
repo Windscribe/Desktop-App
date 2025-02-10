@@ -327,8 +327,11 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
     }
 
     struct curl_slist *list = NULL;
-    list = curl_slist_append(list, request->contentTypeHeader().c_str());
-    if (list == NULL) return false;
+    auto headers = request->httpHeaders();
+    for (const auto &it : headers) {
+        list = curl_slist_append(list, it.c_str());
+        if (list == NULL) return false;
+    }
 
     // set the user-agent request header
     std::string userAgentHeader = "User-Agent: Windscribe/" + Settings::instance().appVersion() + " (" + Settings::instance().platformName() + ")";
@@ -363,7 +366,7 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
 
 #ifdef _WIN32
     // Set OQS KEMs: on Windows we use fully static libraries and need to set the curves manually
-    curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_EC_CURVES, "p521_kyber1024:kyber1024:kyber768:p384_kyber768:X448:X25519:secp521r1:secp384r1:secp256k1:ffdhe8192:ffdhe6144:ffdhe4096:ffdhe3072:ffdhe2048");
+    curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_EC_CURVES, "p521_kyber1024:kyber1024:kyber768:p384_kyber768:X448:X25519:secp521r1:secp384r1:secp256r1:ffdhe8192:ffdhe6144:ffdhe4096:ffdhe3072:ffdhe2048");
 #endif
 
     // set post data

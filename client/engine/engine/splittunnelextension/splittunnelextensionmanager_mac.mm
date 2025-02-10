@@ -8,15 +8,15 @@ static NSDictionary *getExtensionOptions(const QString &primaryInterface, const 
 {
     NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
 
-    NSMutableArray<NSString *> *signingIdArray = [[NSMutableArray alloc] init];
+    NSMutableArray<NSString *> *appPathsArray = [[NSMutableArray alloc] init];
     for (const QString &appPath : appPaths) {
-        QString signingId = MacUtils::getSigningIdentifier(appPath);
-        if (!signingId.isEmpty()) {
-            qCInfo(LOG_SPLIT_TUNNEL_EXTENSION) << "Adding app signing ID:" << signingId;
-            [signingIdArray addObject:signingId.toNSString()];
-        }
+        [appPathsArray addObject:appPath.toNSString()];
     }
-    [options setObject:signingIdArray forKey:@"bundleIds"];
+    if (!isExclude) {
+        // For inclusive tunnels, always add the Windscribe client itself to the tunnel as with other platforms.
+        [appPathsArray addObject:[[NSBundle mainBundle] bundlePath]];
+    }
+    [options setObject:appPathsArray forKey:@"appPaths"];
     [options setObject:primaryInterface.toNSString() forKey:@"primaryInterface"];
     [options setObject:vpnInterface.toNSString() forKey:@"vpnInterface"];
     [options setObject:(isActive ? @"1" : @"0") forKey:@"isActive"];
@@ -41,7 +41,9 @@ bool SplitTunnelExtensionManager::startExtension(const QString &primaryInterface
         return false;
     }
 
-    if (appPaths_.isEmpty()) {
+    // If excluding nothing, then we don't need to start the extension.
+    // Note that for inclusive tunnels, we always add the Windscribe client itself to the tunnel, so we need the extension even if no apps are included.
+    if (appPaths_.isEmpty() && isExclude_) {
         return false;
     }
 
@@ -151,7 +153,6 @@ bool SplitTunnelExtensionManager::isActive() const
 
 void SplitTunnelExtensionManager::setSplitTunnelSettings(bool isActive, bool isExclude, const QStringList &appPaths)
 {
-    qCDebug(LOG_SPLIT_TUNNEL_EXTENSION) << "Setting split tunnel settings:" << isActive << isExclude << appPaths;
     isActive_ = isActive;
     isExclude_ = isExclude;
     appPaths_ = appPaths;

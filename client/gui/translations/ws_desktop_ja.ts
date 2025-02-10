@@ -842,14 +842,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>通知を表示するように選択しましたが、システム通知は無効になっています。システム設定でシステム通知を有効にしてください。</translation>
     </message>
-    <message>
-        <source>App not signed</source>
-        <translation>アプリが署名されていません</translation>
-    </message>
-    <message>
-        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
-        <translation>選択したアプリが署名されていません。分割トンネリングは、macOS 上の署名済みアプリでのみサポートされています。</translation>
-    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1258,6 +1250,41 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>接続の MTU を自動的に決定するか、手動でオーバーライドします。 これは、TCP ベースのプロトコルには影響しません。</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::DecoyTrafficGroup</name>
+    <message>
+        <source>Decoy Traffic</source>
+        <translation>おとりのトラフィック</translation>
+    </message>
+    <message>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <translation>これは、敵対的ネットワークに対するトラフィック相関攻撃に対抗しようとする実験的な機能です。有効にすると、アプリはトンネル上でランダムなアクティビティを生成し、選択した間隔でランダムなデータをアップロードおよびダウンロードします。</translation>
+    </message>
+    <message>
+        <source>Fake Traffic Volume</source>
+        <translation>偽のトラフィック量</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>低い</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>中程度</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>高い</translation>
+    </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>推定データ使用量</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/時間</translation>
     </message>
 </context>
 <context>
@@ -1976,13 +2003,6 @@ Connect to a network first</source>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>スプリットトンネリングルールを変更するにはログインしてください。</translation>
-    </message>
-    <message>
-        <source>
-
-On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
-        <translation>
-macOS では、アプリは署名識別子によって識別されるため、署名されていないアプリを分割トンネリングすることはできません。 アプリが分割トンネリングされると、そのアプリのすべてのコピーが、パスに関係なく分割トンネリングされます。</translation>
     </message>
 </context>
 <context>

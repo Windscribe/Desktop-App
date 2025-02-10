@@ -2,7 +2,7 @@
 #include <spdlog/spdlog.h>
 #include "../firewallcontroller.h"
 
-IpHostnamesManager::IpHostnamesManager(): isEnabled_(false), checkipResolved_(false)
+IpHostnamesManager::IpHostnamesManager(): isEnabled_(false)
 {
     dnsResolver_.setResolveDomainsCallbackHandler(std::bind(&IpHostnamesManager::dnsResolverCallback, this, std::placeholders::_1));
 }
@@ -28,12 +28,6 @@ void IpHostnamesManager::enable(const std::string &gatewayIp)
     dnsResolver_.cancelAll();
     dnsResolver_.resolveDomains(hostsLatest_);
 
-    if (std::find(hostsLatest_.begin(), hostsLatest_.end(), "checkip.windscribe.com") != hostsLatest_.end()) {
-        // Wait at most 3 seconds, until checkip is resolved, so that tunnel tests will have the correct IP.
-       std::unique_lock<std::mutex> lk(mutex_);
-       cv_.wait_for(lk, std::chrono::seconds(3), [this]{ return checkipResolved_; });
-    }
-
     spdlog::debug("IpHostnamesManager::enable(), end");
 }
 
@@ -49,7 +43,6 @@ void IpHostnamesManager::disable()
         }
         ipRoutes_.clear();
         isEnabled_ = false;
-        checkipResolved_ = false;
     }
     dnsResolver_.cancelAll();
     FirewallController::instance().setSplitTunnelExceptions(std::vector<std::string>());
@@ -75,14 +68,14 @@ void IpHostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::
             for (const auto addr : it->second.addresses) {
                 if (addr == "0.0.0.0") {
                     // ROBERT sometimes will give us an address of 0.0.0.0 for a 'blocked' resource.  This is not a valid address.
-                    spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : {}, IP: 0.0.0.0 (Ignored)", it->first.c_str());
+                    spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : {}, IP: 0.0.0.0 (Ignored)", it->first);
                 } else {
-                    spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : {}, IP: {}", it->first.c_str(), addr.c_str());
+                    spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : {}, IP: {}", it->first, addr);
                     hostsIps.insert(hostsIps.end(), addr);
                 }
             }
         } else {
-            spdlog::warn("IpHostnamesManager::dnsResolverCallback(), Failed resolve : {}", it->first.c_str());
+            spdlog::warn("IpHostnamesManager::dnsResolverCallback(), Failed resolve : {}", it->first);
         }
     }
 
@@ -91,11 +84,5 @@ void IpHostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::
     if (isEnabled_) {
         ipRoutes_.setIps(gatewayIp_, hostsIps);
         FirewallController::instance().setSplitTunnelExceptions(hostsIps);
-
-        // If checkip is resolved, signal the condition variable.
-        if (hostInfos.find("checkip.windscribe.com") != hostInfos.end()) {
-            checkipResolved_ = true;
-            cv_.notify_all();
-        }
     }
 }

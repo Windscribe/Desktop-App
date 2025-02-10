@@ -50,6 +50,10 @@ void ServerAPI_impl::setApiResolutionsSettings(bool isAutomatic, std::string man
 
 void ServerAPI_impl::setIgnoreSslErrors(bool bIgnore)
 {
+    if (!bIgnoreSslErrors_ && bIgnore && failoverState_ != FailoverState::kReady) {
+        // User turned on ignore SSL errors.  If the API is currently not ready, reset failover
+        resetFailover();
+    }
     bIgnoreSslErrors_ = bIgnore;
     g_logger->info("ServerAPI_impl::setIgnoreSslErrors, {}", bIgnore);
 }

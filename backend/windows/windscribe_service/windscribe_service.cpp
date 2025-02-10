@@ -13,6 +13,7 @@
 #include "fwpm_wrapper.h"
 #include "ioutils.h"
 #include "ipc/servicecommunication.h"
+#include "ipv6_firewall.h"
 #include "openvpncontroller.h"
 #include "process_command.h"
 #include "split_tunneling/split_tunneling.h"
@@ -40,6 +41,7 @@ int main(int argc, char *argv[])
             if (isElevated()) {
                 FwpmWrapper fwpmWrapper;
                 if (fwpmWrapper.initialize()) {
+                    Ipv6Firewall::instance(&fwpmWrapper).enableIPv6();
                     DnsFirewall::instance(&fwpmWrapper).disable();
                     FirewallFilter::instance(&fwpmWrapper).off();
                     SplitTunneling::removeAllFilters(fwpmWrapper);
@@ -350,6 +352,7 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
     // Initialize singletons
     DnsFirewall::instance(&fwpmWrapper);
     FirewallFilter::instance(&fwpmWrapper);
+    Ipv6Firewall::instance(&fwpmWrapper);
     SplitTunneling::instance(&fwpmWrapper);
 
     OVERLAPPED overlapped;
@@ -381,6 +384,7 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
     // to reference the FwpmWrapper after it is released.
     DnsFirewall::instance().release();
     FirewallFilter::instance().release();
+    Ipv6Firewall::instance().release();
     SplitTunneling::instance().release();
 
     // Uses COM, so must release it before we CoUninitialize() below.

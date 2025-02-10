@@ -31,7 +31,7 @@ bool ProxyServerController::updateProxySettings(const types::ProxySettings &prox
             newProxySettings = autoProxySettings;
         }
     } else if (proxySettings.option() == PROXY_OPTION_HTTP || proxySettings.option() == PROXY_OPTION_SOCKS) {
-        if (!IpValidation::isIpv4Address(proxySettings.address())) {
+        if (!IpValidation::isIp(proxySettings.address())) {
             newProxySettings.setOption(PROXY_OPTION_NONE);
             newProxySettings.setAddress("");
             newProxySettings.setPassword("");

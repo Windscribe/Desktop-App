@@ -95,7 +95,7 @@ void MutableLocationInfo::selectNextNode()
 
 void MutableLocationInfo::selectNodeByIp(const QString &addr)
 {
-    WS_ASSERT(IpValidation::isIpv4Address(addr));
+    WS_ASSERT(IpValidation::isIp(addr));
     for (int i = 0; i < nodes_.count(); i++) {
         for (int j = 0; j < 3; j++) {
             if (nodes_[i]->getIp(j) == addr) {
@@ -232,3 +232,4 @@ QString MutableLocationInfo::getLogForNode(int ind) const
 }*/
 
 } //namespace locationsmodel
+

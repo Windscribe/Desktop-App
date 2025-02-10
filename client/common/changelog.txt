@@ -1,3 +1,25 @@
+2.14.4 (06/02/2025)
+All:
+   * Added Decoy Traffic feature. #1208
+   * Fixed app stuck during login after accepting prompt to ignore SSL errors. #1248
+   * Fixed incorrect post quantum KE algorithm. #1249
+   * Removed IPv6 split tunneling (for now) due to edge cases. #1247, #1257
+Windows:
+   * Fixed VPN interface network category is public. #1235
+   * Fixed install fails if uninstall registry information is missing. #1252
+   * Fixed incorrect characters displayed in installer bootstrap error message. #1252
+   * Removed some log spam. #1243
+   * Removed DLL injection mitigation. #1169
+MacOS:
+   * Improved app split tunneling to not require signature identifier. #45
+   * Fixed codesigning for macOS 11. #45
+   * Fixed sometimes IP does not change after connecting with inclusive split tunnel. #45
+   * Removed some log spam. #1243
+Linux:
+   * Added --cacheonly to the update script for Fedora RPMs. #1242
+   * Fixed some CLI commands may indicate that the operation was interrupted when it wasn't. #1162
+
+
 2.14.3 (22/01/2025)
 All:
    * Fixed "reset date" being shown on account screen instead of "expiry date" for some plans. #1239

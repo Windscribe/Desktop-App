@@ -11,9 +11,6 @@ DnsResolver::DnsResolver(std::function<void (std::map<std::string, HostInfo>)> r
         spdlog::error("WSNet::initialize failed");
     }
 
-    // Return both IPv4 and v6 results
-    WSNet::instance()->dnsResolver()->setAddressFamily(AF_UNSPEC);
-
     thread_ = std::thread([this](){ io_service_.run(); });
 }
 

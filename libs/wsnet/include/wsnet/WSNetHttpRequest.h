@@ -31,8 +31,8 @@ public:
     virtual bool isUseDnsCache() const = 0;
 
     // empty by default
-    virtual void setContentTypeHeader(const std::string &header) = 0;
-    virtual std::string contentTypeHeader() const = 0;
+    virtual void addHttpHeader(const std::string &header) = 0;
+    virtual std::vector<std::string> httpHeaders() const = 0;
 
     // false by default
     virtual void setIgnoreSslErrors(bool isIgnore) = 0;

@@ -842,14 +842,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>Zvolili jste zobrazení oznámení, ale systémová oznámení jsou deaktivována. Povolte systémová oznámení v Nastavení systému.</translation>
     </message>
-    <message>
-        <source>App not signed</source>
-        <translation>Aplikace není podepsaná</translation>
-    </message>
-    <message>
-        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
-        <translation>Vybraná aplikace není podepsaná. Rozdělené tunelování je podporováno pouze u podepsaných aplikací v systému macOS.</translation>
-    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1258,6 +1250,41 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Automaticky určete jednotku MTU pro připojení nebo ručně přepište.  To nemá žádný vliv na protokoly založené na protokolu TCP.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::DecoyTrafficGroup</name>
+    <message>
+        <source>Decoy Traffic</source>
+        <translation>Návnada Provoz</translation>
+    </message>
+    <message>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <translation>Jedná se o experimentální funkci, která se pokouší bojovat proti útokům na korelaci provozu v nepřátelských sítích. Pokud je tato možnost povolena, aplikace bude generovat náhodnou aktivitu prostřednictvím tunelu a ve zvolených intervalech odesílat a stahovat náhodná data.</translation>
+    </message>
+    <message>
+        <source>Fake Traffic Volume</source>
+        <translation>Falešný objem provozu</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Nízký</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Středně</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Vysoko</translation>
+    </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>Odhadované využití dat</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/hod</translation>
     </message>
 </context>
 <context>
@@ -1976,13 +2003,6 @@ Nejprve se připojte k síti</translation>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>Chcete-li změnit pravidla děleného tunelového propojení, přihlaste se.</translation>
-    </message>
-    <message>
-        <source>
-
-On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
-        <translation>
-V systému macOS jsou aplikace identifikovány svým podpisovým identifikátorem, takže nepodepsané aplikace nelze rozdělit do tunelového propojení.  Když je aplikace rozdělena tunelovým propojením, jsou rozděleny všechny kopie této aplikace bez ohledu na jejich cestu.</translation>
     </message>
 </context>
 <context>

@@ -34,6 +34,4 @@ namespace MacUtils
     bool verifyAppBundleIntegrity();
 
     bool isParentProcessGui();
-
-    QString getSigningIdentifier(const QString &path);
 }

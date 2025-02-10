@@ -2882,7 +2882,6 @@ QRect MainWindowController::taskbarAwareDockedGeometry_win(int width, int shadow
     }
 
     const QRect desktopAvailableRc = WidgetUtils_win::availableGeometry(*mainWindow_, *screen);
-    qCDebug(LOG_BASIC) << "taskbarAwareDockedGeometry_win() screen->availableGeometry(): " << screen->availableGeometry();
     const int kRightOffset = 16 * G_SCALE;
     const int kVerticalOffset = 16 * G_SCALE;
 

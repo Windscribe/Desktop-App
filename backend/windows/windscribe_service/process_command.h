@@ -13,6 +13,7 @@
 #include "hostsedit.h"
 #include "ipc/servicecommunication.h"
 #include "ipc/serialize_structs.h"
+#include "ipv6_firewall.h"
 #include "split_tunneling/split_tunneling.h"
 #include "wireguard/wireguardcontroller.h"
 
@@ -29,6 +30,8 @@ struct SPLIT_TUNNELING_PARS
 MessagePacketResult firewallOn(boost::archive::text_iarchive &ia);
 MessagePacketResult firewallOff(boost::archive::text_iarchive &ia);
 MessagePacketResult firewallStatus(boost::archive::text_iarchive &ia);
+MessagePacketResult firewallIpv6Enable(boost::archive::text_iarchive &ia);
+MessagePacketResult firewallIpv6Disable(boost::archive::text_iarchive &ia);
 MessagePacketResult removeFromHosts(boost::archive::text_iarchive &ia);
 MessagePacketResult checkUnblockingCmdStatus(boost::archive::text_iarchive &ia);
 MessagePacketResult getUnblockingCmdCount(boost::archive::text_iarchive &ia);
@@ -75,11 +78,14 @@ MessagePacketResult removeOpenVPNAdapter(boost::archive::text_iarchive &ia);
 MessagePacketResult disableDohSettings(boost::archive::text_iarchive &ia);
 MessagePacketResult enableDohSettings(boost::archive::text_iarchive &ia);
 MessagePacketResult ssidFromInterfaceGUID(boost::archive::text_iarchive &ia);
+MessagePacketResult setNetworkCategory(boost::archive::text_iarchive &ia);
 
 static const std::map<const int, std::function<MessagePacketResult(boost::archive::text_iarchive &)>> kCommands = {
     { AA_COMMAND_FIREWALL_ON, firewallOn },
     { AA_COMMAND_FIREWALL_OFF, firewallOff },
     { AA_COMMAND_FIREWALL_STATUS, firewallStatus },
+    { AA_COMMAND_FIREWALL_IPV6_ENABLE, firewallIpv6Enable },
+    { AA_COMMAND_FIREWALL_IPV6_DISABLE, firewallIpv6Disable },
     { AA_COMMAND_REMOVE_WINDSCRIBE_FROM_HOSTS, removeFromHosts },
     { AA_COMMAND_CHECK_UNBLOCKING_CMD_STATUS, checkUnblockingCmdStatus },
     { AA_COMMAND_GET_UNBLOCKING_CMD_COUNT, getUnblockingCmdCount },
@@ -125,7 +131,8 @@ static const std::map<const int, std::function<MessagePacketResult(boost::archiv
     { AA_COMMAND_REMOVE_OPENVPN_ADAPTER, removeOpenVPNAdapter },
     { AA_COMMAND_DISABLE_DOH_SETTINGS, disableDohSettings },
     { AA_COMMAND_ENABLE_DOH_SETTINGS, enableDohSettings },
-    { AA_COMMAND_SSID_FROM_INTERFACE_GUID, ssidFromInterfaceGUID }
+    { AA_COMMAND_SSID_FROM_INTERFACE_GUID, ssidFromInterfaceGUID },
+    { AA_COMMAND_SET_NETWORK_CATEGORY, setNetworkCategory }
 };
 
 MessagePacketResult processCommand(int cmdId, const std::string &packet);

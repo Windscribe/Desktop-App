@@ -25,8 +25,8 @@ public:
     bool isUseDnsCache() const override;
 
     // empty by default
-    void setContentTypeHeader(const std::string &header) override;
-    std::string contentTypeHeader() const override;
+    void addHttpHeader(const std::string &header) override;
+    std::vector<std::string> httpHeaders() const override;
 
     // false by default
     void setIgnoreSslErrors(bool isIgnore) override;

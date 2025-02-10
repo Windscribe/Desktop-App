@@ -17,7 +17,7 @@ ApiResolutionSettings::ApiResolutionSettings(const QJsonObject &json)
 
     if (json.contains(kJsonManualAddressProp) && json[kJsonManualAddressProp].isString()) {
         QString address = json[kJsonManualAddressProp].toString();
-        if (IpValidation::isIpv4Address(address)) {
+        if (IpValidation::isIp(address)) {
             manualAddress_ = address;
         }
     }
@@ -63,7 +63,7 @@ void ApiResolutionSettings::fromIni(const QSettings &settings)
     TOGGLE_MODE mode = TOGGLE_MODE_fromString(settings.value(kIniIsAutomaticProp, prevMode).toString());
     bAutomatic_ = (mode == TOGGLE_MODE_AUTO);
     QString address = settings.value(kIniManualAddressProp, manualAddress_).toString();
-    if (IpValidation::isIpv4Address(address)) {
+    if (IpValidation::isIp(address)) {
         manualAddress_ = address;
     }
 }
@@ -104,3 +104,4 @@ QDebug operator<<(QDebug dbg, const ApiResolutionSettings &ds)
 }
 
 } //namespace types
+

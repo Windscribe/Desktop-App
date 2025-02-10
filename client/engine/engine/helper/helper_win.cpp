@@ -441,6 +441,21 @@ QString Helper_win::resetAndStartRAS()
     return QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
 }
 
+void Helper_win::setIPv6EnabledInFirewall(bool b)
+{
+    if (bIPV6State_ != b) {
+        if (!b) {
+            disableIPv6();
+            qCDebug(LOG_BASIC) << "IPv6 disabled";
+        }
+        else {
+            enableIPv6();
+            qCDebug(LOG_BASIC) << "IPv6 enabled";
+        }
+        bIPV6State_ = b;
+    }
+}
+
 bool Helper_win::addHosts(const QString &hosts)
 {
     QMutexLocker locker(&mutex_);
@@ -758,6 +773,22 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
     return mpr;
 }
 
+bool Helper_win::disableIPv6()
+{
+    QMutexLocker locker(&mutex_);
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_FIREWALL_IPV6_DISABLE, std::string());
+    return mpr.success;
+}
+
+bool Helper_win::enableIPv6()
+{
+    QMutexLocker locker(&mutex_);
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_FIREWALL_IPV6_ENABLE, std::string());
+    return mpr.success;
+}
+
 int Helper_win::debugGetActiveUnblockingCmdCount()
 {
     QMutexLocker locker(&mutex_);
@@ -802,6 +833,7 @@ bool Helper_win::firewallActualState()
 void Helper_win::initVariables()
 {
     curState_= STATE_INIT;
+    bIPV6State_ = true;
     scm_.unblockStartStopRequests();
 }
 
@@ -894,4 +926,20 @@ DWORD Helper_win::ssidFromInterfaceGUID(const QString &interfaceGUID, QString &s
     }
 
     return mpr.exitCode;
+}
+
+bool Helper_win::setNetworkCategory(const QString &networkName, NETWORK_CATEGORY category)
+{
+    QMutexLocker locker(&mutex_);
+
+    CMD_SET_NETWORK_CATEGORY cmd;
+    cmd.networkName = networkName.toStdWString();
+    cmd.category = static_cast<NetworkCategory>(category);
+
+    std::stringstream stream;
+    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
+    oa << cmd;
+
+    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_SET_NETWORK_CATEGORY, stream.str());
+    return mpr.success;
 }

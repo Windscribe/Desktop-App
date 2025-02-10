@@ -842,14 +842,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</translation>
     </message>
-    <message>
-        <source>App not signed</source>
-        <translation>App not signed</translation>
-    </message>
-    <message>
-        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
-        <translation>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</translation>
-    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1258,6 +1250,41 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::DecoyTrafficGroup</name>
+    <message>
+        <source>Decoy Traffic</source>
+        <translation>Decoy Traffic</translation>
+    </message>
+    <message>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <translation>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks. When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</translation>
+    </message>
+    <message>
+        <source>Fake Traffic Volume</source>
+        <translation>Fake Traffic Volume</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Low</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Medium</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>High</translation>
+    </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>Estimated Data Usage</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/Hour</translation>
     </message>
 </context>
 <context>
@@ -1976,13 +2003,6 @@ Connect to a network first</translation>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>Please log in to modify split tunneling rules.</translation>
-    </message>
-    <message>
-        <source>
-
-On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
-        <translation>
-On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</translation>
     </message>
 </context>
 <context>

@@ -842,14 +842,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>您已选择显示通知，但系统通知已禁用。请在系统设置中启用系统通知。</translation>
     </message>
-    <message>
-        <source>App not signed</source>
-        <translation>应用程序未签名</translation>
-    </message>
-    <message>
-        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
-        <translation>所选应用程序未签名。只有 macOS 上的签名应用程序才支持拆分隧道。</translation>
-    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1258,6 +1250,41 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>自动确定 MTU，或手动覆盖。这对基于 TCP 的协议没有影响。</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::DecoyTrafficGroup</name>
+    <message>
+        <source>Decoy Traffic</source>
+        <translation>诱饵流量</translation>
+    </message>
+    <message>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <translation>这是一项实验性功能，旨在打击对抗性网络上的流量关联攻击。启用后，该应用程序将在隧道上生成随机活动，并按选定的时间间隔上传和下载随机数据。</translation>
+    </message>
+    <message>
+        <source>Fake Traffic Volume</source>
+        <translation>虚假流量</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>低</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>中等</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>高</translation>
+    </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>估计数据使用量</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/小时</translation>
     </message>
 </context>
 <context>
@@ -1976,13 +2003,6 @@ Connect to a network first</source>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>请登录以修改拆分隧道规则。</translation>
-    </message>
-    <message>
-        <source>
-
-On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
-        <translation>
-在 macOS 上，应用程序由其签名标识符标识，因此无法通过隧道拆分未签名的应用程序。 当应用程序通过隧道拆分时，该应用程序的所有副本都将通过隧道拆分，无论其路径如何。</translation>
     </message>
 </context>
 <context>

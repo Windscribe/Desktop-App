@@ -103,15 +103,7 @@ void FirewallController::setSplitTunnelExceptions(const std::vector<std::string>
     } else {
         // For inclusive tunnel, ignore the ips and apply a rule to allow any traffic
         // NB: pfctl tables do not allow 0/0 so we split it into two
-        ipStr += " 0/1 128/1";
-        // For IPv6, we allow everything too, except the passed IPs
-        ipStr += " 0::/1 8000::/1";
-        for (const auto ip : ips) {
-            if (Utils::isValidIpv6Address(ip)) {
-                ipStr += " !" + ip;
-            }
-        }
-        ipStr += " }\n";
+        ipStr += " 0/1 128/1 }\n";
     }
 
     int fd = open("/etc/windscribe/pf_st.conf", O_CREAT | O_WRONLY | O_TRUNC);

@@ -14,7 +14,8 @@ public:
 
     int executeStep();
 
+    static void addMissingUninstallInfo(const std::wstring &uninstaller);
+
 private:
     void registerUninstallInfo();
-    void setStringValue(QSettings &reg, const char *key, const std::wstring &value);
 };

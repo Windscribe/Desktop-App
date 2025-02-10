@@ -301,7 +301,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
                            _T("\n\nThe folder is: %s"), installPath.c_str());
             return -1;
         } else if (ec) {
-            debugMessage(L"Windscribe bootstrapper failed to check if temp install folder exists %s", ec.message().c_str());
+            debugMessage(L"Windscribe bootstrapper failed to check if temp install folder exists (%hs)", ec.message().c_str());
         }
 
         // Create the target directory and set its permissions to restrict access to only members of the
@@ -309,7 +309,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpszC
         std::filesystem::create_directories(installPath, ec);
         if (ec) {
             showMessageBox(NULL, _T("Windscribe Installer"), MB_OK | MB_ICONSTOP,
-                           _T("Failed to create the installer directory '%s' (%s)"), installPath.c_str(), ec.message().c_str());
+                           _T("Failed to create the installer directory '%s' (%hs)"), installPath.c_str(), ec.message().c_str());
             return -1;
         }
 

@@ -28,8 +28,7 @@ public:
     void setSplitTunnelingDisabled();
 
     void setSplitTunnelingAppsIds(const AppsIds &appsIds);
-    void setSplitTunnelingWhitelistIpsV4(const std::vector<Ip4AddressAndMask> &ips);
-    void setSplitTunnelingWhitelistIpsV6(const std::vector<Ip6AddressAndPrefix> &ips);
+    void setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressAndMask> &ips);
     void setWindscribeAppsIds(const AppsIds &appsIds);
     void setParentAdapterIndex(NET_IFINDEX index);
 
@@ -63,8 +62,7 @@ private:
     bool isSplitTunnelingExclusiveMode_;
     AppsIds appsIds_;
     AppsIds windscribeAppsIds_;
-    std::vector<Ip4AddressAndMask> splitRoutingIpsV4_;
-    std::vector<Ip6AddressAndPrefix> splitRoutingIpsV6_;
+    std::vector<Ip4AddressAndMask> splitRoutingIps_;
 
     std::vector<UINT64> filterIdsApps_;
     std::vector<UINT64> filterIdsSplitRoutingIps_;

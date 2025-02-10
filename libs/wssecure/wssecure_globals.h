@@ -3,6 +3,8 @@
 // Defines global scope structs to be included in any app that is unable to utilize the wssecure library.
 // E.g. the Windows bootstrapper and uninstaller which are designed to be stand-alone executables.
 
+// Disabled for now since the mitigation is blocking 'legitimate' DLL injection (e.g. FileZilla Pro's shell extension DLL).
+/*
 struct ProcessMitigation
 {
     ProcessMitigation()
@@ -12,7 +14,7 @@ struct ProcessMitigation
         sp.MicrosoftSignedOnly = 1;
         BOOL result = ::SetProcessMitigationPolicy(ProcessSignaturePolicy, &sp, sizeof(sp));
         if (!result) {
-            ::OutputDebugString(L"SetProcessMitigationPolicy(MicrosoftSignedOnly) failed");
+            ::OutputDebugString(L"SetProcessMitigationPolicy(ProcessSignaturePolicy) failed");
         }
 
         // This mitigation by itself does not block DLL injection.
@@ -21,10 +23,19 @@ struct ProcessMitigation
         PMDCP.ProhibitDynamicCode = 1;
         result = ::SetProcessMitigationPolicy(ProcessDynamicCodePolicy, &PMDCP, sizeof(PMDCP));
         if (!result) {
-            ::OutputDebugString(L"SetProcessMitigationPolicy(Dynamic Code) failed");
+            ::OutputDebugString(L"SetProcessMitigationPolicy(ProcessDynamicCodePolicy) failed");
+        }
+
+        PROCESS_MITIGATION_IMAGE_LOAD_POLICY ilp = {};
+        ilp.PreferSystem32Images = 1;
+        result = ::SetProcessMitigationPolicy(ProcessImageLoadPolicy, &ilp, sizeof(ilp));
+        if (!result) {
+            ::OutputDebugString(L"SetProcessMitigationPolicy(ProcessImageLoadPolicy) failed");
         }
     }
 } processMitigation;
+*/
+
 
 // Set the DLL load directory to the system directory before entering WinMain().
 struct LoadSystemDLLsFromSystem32

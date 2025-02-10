@@ -1,6 +1,8 @@
 #import "TransparentProxyProvider.h"
 
 #include <spdlog/spdlog.h>
+#import <Security/Security.h>
+#include "../../../client/common/utils/wsscopeguard.h"
 
 #import "FlowTCP.h"
 #import "FlowUDP.h"
@@ -38,7 +40,7 @@
     spdlog::get("splittunnelextension")->flush_on(level);
     spdlog::info("Debug mode: {}", isDebug_);
 
-    bundleIds_ = options[@"bundleIds"];
+    appPaths_ = options[@"appPaths"];
     isExclude_ = [options[@"isExclude"] boolValue];
     spdlog::debug("Exclude: {}", isExclude_);
     primaryInterface_ = [Utils findInterfaceByName:options[@"primaryInterface"]];
@@ -61,7 +63,7 @@
 
 - (void)stopProxyWithReason:(NEProviderStopReason)reason completionHandler:(void (^)(void))completionHandler {
     spdlog::info("Stopping Windscribe split tunnel extension");
-    bundleIds_ = nil;
+    appPaths_ = nil;
     primaryInterface_ = nil;
     vpnInterface_ = nil;
     isExclude_ = false;
@@ -73,26 +75,91 @@
 - (BOOL)handleNewFlow:(NEAppProxyFlow *)flow {
     NSString *appId = flow.metaData.sourceAppSigningIdentifier;
 
-    // exclusive, and app is not in the list, or inclusive, and app is in the list
-    if (isExclude_ != [bundleIds_ containsObject:appId]) {
+    if (![self isInAppList:flow]) {
         return NO; // Let the flow go out normally
     }
 
-    if (strcmp(nw_interface_get_name(flow.networkInterface), nw_interface_get_name(vpnInterface_)) != 0) {
-        // Not on VPN interface, do nothing
+    nw_interface_t interface = isExclude_ ? primaryInterface_ : vpnInterface_;
+
+    if ([flow isKindOfClass:[NEAppProxyTCPFlow class]]) {
+        spdlog::info("Handling new TCP flow to interface: {} => {}", [appId UTF8String], nw_interface_get_name(interface));
+        return [tcpHandler_ setupTCPConnection:(NEAppProxyTCPFlow *)flow interface:interface];
+    } else if ([flow isKindOfClass:[NEAppProxyUDPFlow class]]) {
+        spdlog::info("Handling new UDP flow to interface: {} => {}", [appId UTF8String], nw_interface_get_name(interface));
+        return [udpHandler_ setupUDPConnection:(NEAppProxyUDPFlow *)flow interface:interface];
+    }
+}
+
+- (BOOL)isInAppList:(NEAppProxyFlow *)flow {
+    BOOL result = NO;
+
+    // Create mutable attributes dictionary
+    CFMutableDictionaryRef mutableAttributes = CFDictionaryCreateMutable(NULL, 1,
+        &kCFTypeDictionaryKeyCallBacks,
+        &kCFTypeDictionaryValueCallBacks);
+
+    if (!mutableAttributes) {
+        spdlog::error("Failed to create mutable attributes dictionary");
         return NO;
     }
 
-    // Handle flow based on type
-    if ([flow isKindOfClass:[NEAppProxyTCPFlow class]]) {
-        spdlog::info("Handling new TCP flow for app: {} => {}", [appId UTF8String], nw_interface_get_name(primaryInterface_));
-        [tcpHandler_ setupTCPConnection:(NEAppProxyTCPFlow *)flow interface:primaryInterface_];
-    } else if ([flow isKindOfClass:[NEAppProxyUDPFlow class]]) {
-        spdlog::info("Handling new UDP flow for app: {} => {}", [appId UTF8String], nw_interface_get_name(primaryInterface_));
-        [udpHandler_ setupUDPConnection:(NEAppProxyUDPFlow *)flow interface:primaryInterface_];
+    // Add audit token to dictionary
+    CFDictionaryAddValue(mutableAttributes, kSecGuestAttributeAudit, (CFDataRef)(flow.metaData.sourceAppAuditToken));
+
+    // Create immutable copy
+    CFDictionaryRef attributes = CFDictionaryCreateCopy(NULL, mutableAttributes);
+    CFRelease(mutableAttributes);
+
+    if (!attributes) {
+        spdlog::error("Failed to create immutable attributes dictionary");
+        return NO;
+    }
+    auto attributesGuard = wsl::wsScopeGuard([attributes]{ CFRelease(attributes); });
+
+    // Get dynamic code reference
+    SecCodeRef dynamicCodeRef = NULL;
+    OSStatus status = SecCodeCopyGuestWithAttributes(nil, attributes, kSecCSDefaultFlags, &dynamicCodeRef);
+    if (status != errSecSuccess) {
+        spdlog::error("Failed to create code reference from audit token: {}", status);
+        return NO;
+    }
+    auto dynamicCodeGuard = wsl::wsScopeGuard([dynamicCodeRef]{ CFRelease(dynamicCodeRef); });
+
+    // Get static code reference
+    SecStaticCodeRef codeRef = NULL;
+    status = SecCodeCopyStaticCode(dynamicCodeRef, kSecCSDefaultFlags, &codeRef);
+    if (status != errSecSuccess) {
+        spdlog::error("Failed to get static code reference: {}", status);
+        return NO;
+    }
+    auto codeGuard = wsl::wsScopeGuard([codeRef]{ CFRelease(codeRef); });
+
+    // Get path URL
+    CFURLRef pathURL = NULL;
+    status = SecCodeCopyPath(codeRef, kSecCSDefaultFlags, &pathURL);
+    if (status != errSecSuccess) {
+        spdlog::error("Failed to get path URL: {}", status);
+        return NO;
+    }
+    auto pathGuard = wsl::wsScopeGuard([pathURL]{ CFRelease(pathURL); });
+
+    // Convert URL to path string
+    NSString *appPath = [(__bridge NSURL *)pathURL path];
+    if (!appPath) {
+        spdlog::error("Failed to get path string");
+        return NO;
     }
 
-    return YES;
+    // Check if the app path starts with any of the paths in appPaths_
+    for (NSString *path in appPaths_) {
+        if ([appPath hasPrefix:path]) {
+            result = YES;
+            break;
+        }
+    }
+
+    return result;
 }
+
 
 @end

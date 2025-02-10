@@ -34,6 +34,15 @@ bool Service::installWindscribeService()
 
         wsl::ServiceControlManager scm;
         scm.openSCM(SC_MANAGER_ALL_ACCESS);
+
+        if (scm.isServiceInstalled(serviceName.c_str())) {
+            spdlog::warn("The Windscribe service is already installed, attempting to delete it.");
+            std::error_code ec;
+            if (!scm.deleteService(serviceName.c_str(), ec)) {
+                spdlog::error("Failed to remove existing Windscribe service - {}", ec.message());
+            }
+        }
+
         scm.installService(serviceName.c_str(), serviceCmdLine.c_str(),
                            L"Windscribe Service", L"Manages the firewall and controls the VPN tunnel",
                            SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, L"Nsi\0TcpIp\0", true);

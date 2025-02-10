@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2023-2024 Windscribe Limited
+# Copyright (C) 2023-2025 Windscribe Limited
 
 # Requirements:
 # - Translate toolkit: pip install translate-toolkit[XML]
@@ -16,11 +16,11 @@ import uuid
 from requests.exceptions import HTTPError
 from translate.storage import ts2 as tsparser
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __mstranslator_environ_key_name__ = "MSTRANSLATOR_API_KEY"
 
 
-def simulate(in_file):
+def simulate_for_file(in_file):
     tsfile = tsparser.tsfile.parsefile(in_file)
 
     target_language = tsfile.gettargetlanguage()
@@ -47,6 +47,18 @@ def simulate(in_file):
                 strings_to_remove += 1
 
         print(f"{strings_to_remove} strings to remove")
+
+
+def simulate(in_file):
+    if os.path.isdir(in_file):
+        print(f"Simulating translation for files in {in_file}")
+        fullmask = os.path.join(in_file, "*.ts")
+        for filename in glob.glob(fullmask):
+            if not os.path.isdir(filename):
+                print(f"Translating {filename}")
+                simulate_for_file(filename)
+    else:
+        simulate_for_file(in_file)
 
 
 def remove_vanished_from_file(in_file):
@@ -139,6 +151,18 @@ def translate_tsfile(in_file):
     print("{} strings translated".format(len(strings_to_translate)))
 
 
+def translate_tsfiles(in_file):
+    if os.path.isdir(in_file):
+        print(f"Translating all files in {in_file}")
+        fullmask = os.path.join(in_file, "*.ts")
+        for filename in glob.glob(fullmask):
+            if not os.path.isdir(filename):
+                print(f"Translating {filename}")
+                translate_tsfile(filename)
+    else:
+        translate_tsfile(in_file)
+
+
 def process_response_json(in_file):
     target_dir = os.path.join(os.path.dirname(in_file), "translated")
     with open(os.path.join(target_dir, "mstranslator_response.json"), "r") as json_file:
@@ -150,9 +174,9 @@ def process_response_json(in_file):
 
 if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(description="Translate 'unfinished' entries in a Qt ts file to the target language specified in the file")
-    parser.add_argument('source', metavar='SOURCE', type=str, action='store', help="The Qt ts file to process.")
+    parser.add_argument('source', metavar='SOURCE', type=str, action='store', help="The Qt ts file to process, or all ts files in a folder.")
     parser.add_argument('--output', metavar='DIR', type=str, action='store', help="Output modified file, and translator json response if translating, to this directory.  Default is to overwrite the SOURCE file.")
-    parser.add_argument('--remove-vanished', default=False, action='store_true', help="Remove all 'vanished' entries from the ts file, or all ts files in a folder.")
+    parser.add_argument('--remove-vanished', default=False, action='store_true', help="Remove all 'vanished' entries from the ts file(s).")
     parser.add_argument('--simulate', default=False, action='store_true', help="Print entries requiring translation/removal, but do not translate/remove them.")
     args = parser.parse_args()
 
@@ -167,7 +191,7 @@ if __name__ == "__main__":  # pragma: no cover
         else:
             if __mstranslator_environ_key_name__ not in os.environ:
                 raise IOError("Please set the '{}' environment variable to your API key.".format(__mstranslator_environ_key_name__))
-            translate_tsfile(in_file)
+            translate_tsfiles(in_file)
     except HTTPError as http_err:
         print(f'HTTP error occurred: {http_err}')
     except IOError as io_err:

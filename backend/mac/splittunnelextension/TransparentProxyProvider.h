@@ -8,7 +8,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface TransparentProxyProvider : NETransparentProxyProvider {
-    NSArray *bundleIds_;
+    NSArray *appPaths_;
     nw_interface_t primaryInterface_;
     nw_interface_t vpnInterface_;
     bool isExclude_;
@@ -24,6 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
           completionHandler:(void (^ _Nonnull)(void))completionHandler;
 
 - (BOOL)handleNewFlow:(NEAppProxyFlow * _Nonnull)flow;
+
+- (BOOL)isInAppList:(NEAppProxyFlow * _Nonnull)flow;
 
 @end
 

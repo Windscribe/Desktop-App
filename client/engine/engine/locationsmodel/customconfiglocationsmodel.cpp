@@ -37,7 +37,7 @@ void CustomConfigLocationsModel::setCustomConfigs(const QVector<QSharedPointer<c
         {
             RemoteItem ri;
             ri.ipOrHostname.ip = hostname;
-            ri.isHostname = !IpValidation::isIpv4Address(hostname);
+            ri.isHostname = !IpValidation::isIp(hostname);
 
             if (!ri.isHostname)
             {

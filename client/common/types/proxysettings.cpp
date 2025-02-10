@@ -33,7 +33,7 @@ ProxySettings::ProxySettings(const QJsonObject &json) : option_(PROXY_OPTION_NON
 
     if (json.contains(kJsonAddressProp) && json[kJsonAddressProp].isString()) {
         QString str = json[kJsonAddressProp].toString();
-        if (IpValidation::isIpv4Address(str)) {
+        if (IpValidation::isIp(str)) {
             address_ = str;
         }
     }
@@ -63,7 +63,7 @@ void ProxySettings::fromIni(const QSettings &settings)
     }
 
     QString address = settings.value(kIniAddressProp).toString();
-    if (IpValidation::isIpv4AddressOrDomain(address)) {
+    if (IpValidation::isIpOrDomain(address)) {
         address_ = address;
     }
 

@@ -842,14 +842,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>Bạn đã chọn hiển thị thông báo, nhưng thông báo hệ thống bị tắt. Vui lòng bật thông báo hệ thống trong Cài đặt hệ thống của bạn.</translation>
     </message>
-    <message>
-        <source>App not signed</source>
-        <translation>Ứng dụng chưa được ký</translation>
-    </message>
-    <message>
-        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
-        <translation>Ứng dụng đã chọn chưa được ký. Tạo đường hầm phân chia chỉ được hỗ trợ cho các ứng dụng đã ký trên macOS.</translation>
-    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1258,6 +1250,41 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Tự động xác định MTU cho kết nối của bạn hoặc ghi đè theo cách thủ công.  Điều này không ảnh hưởng đến các giao thức dựa trên TCP.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::DecoyTrafficGroup</name>
+    <message>
+        <source>Decoy Traffic</source>
+        <translation>Giao thông mồi nhử</translation>
+    </message>
+    <message>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <translation>Đây là một tính năng thử nghiệm cố gắng chống lại các cuộc tấn công tương quan lưu lượng truy cập vào các mạng đối thủ. Khi được bật, ứng dụng sẽ tạo hoạt động ngẫu nhiên qua đường hầm và tải lên và tải xuống dữ liệu ngẫu nhiên theo các khoảng thời gian đã chọn.</translation>
+    </message>
+    <message>
+        <source>Fake Traffic Volume</source>
+        <translation>Lưu lượng truy cập giả mạo</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Thấp</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Đau vừa</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Cao</translation>
+    </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>Sử dụng dữ liệu ước tính</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/giờ</translation>
     </message>
 </context>
 <context>
@@ -1976,13 +2003,6 @@ Kết nối với mạng trước</translation>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>Vui lòng đăng nhập để sửa đổi các quy tắc tạo đường hầm phân chia.</translation>
-    </message>
-    <message>
-        <source>
-
-On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
-        <translation>
-Trên macOS, các ứng dụng được xác định bằng mã định danh ký của chúng, vì vậy các ứng dụng chưa được ký không thể được phân chia đường hầm.  Khi một ứng dụng được tạo đường hầm phân chia, tất cả các bản sao của ứng dụng đó sẽ được tạo đường hầm phân chia, bất kể đường dẫn của chúng.</translation>
     </message>
 </context>
 <context>

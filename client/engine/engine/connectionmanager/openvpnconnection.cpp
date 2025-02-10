@@ -706,7 +706,7 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
             else
             {
                 const QString ipStr = v[1].toString();
-                if (!IpValidation::isIpv4Address(ipStr))
+                if (!IpValidation::isIp(ipStr))
                 {
                     qCCritical(LOG_CONNECTION) << "Can't parse route-gateway message (incorrect IPv4 address)";
                     return false;
@@ -728,7 +728,7 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
             else
             {
                 const QString ipStr = v[1].toString();
-                if (!IpValidation::isIpv4Address(ipStr))
+                if (!IpValidation::isIp(ipStr))
                 {
                     qCCritical(LOG_CONNECTION) << "Can't parse ifconfig message (incorrect IPv4 address)";
                     return false;
@@ -752,7 +752,7 @@ bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo 
                 if (v[1] == "DNS")
                 {
                     const QString ipStr = v[2].toString();
-                    if (!IpValidation::isIpv4Address(ipStr))
+                    if (!IpValidation::isIp(ipStr))
                     {
                         qCCritical(LOG_CONNECTION) << "Can't parse dhcp-option DNS message (incorrect IPv4 address)";
                         return false;

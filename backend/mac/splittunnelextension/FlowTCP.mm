@@ -13,18 +13,23 @@
     return self;
 }
 
-- (void)setupTCPConnection:(NEAppProxyTCPFlow *)flow interface:(nw_interface_t)interface {
-    // Create and configure parameters for secure TCP connection
-    nw_parameters_t parameters = nw_parameters_create_secure_tcp(NW_PARAMETERS_DISABLE_PROTOCOL, NW_PARAMETERS_DEFAULT_CONFIGURATION);
-    nw_parameters_require_interface(parameters, interface);
-
+- (BOOL)setupTCPConnection:(NEAppProxyTCPFlow *)flow interface:(nw_interface_t)interface {
     nw_endpoint_t endpoint = [Utils convertToNewEndpoint:flow.remoteEndpoint];
     if (!endpoint) {
         spdlog::error("[TCP] No endpoint found, cleaning up flow");
         [self cleanupFlow:flow withError:nil andConnection:nil];
-        return;
+        return NO;
     }
 
+    // If it's a LAN range (except the reserved 10.255.255.0/24 range), we leave the traffic on the original interface.
+    // Note that the firewall may still block this later.
+    if ([Utils isLanRange:endpoint]) {
+        spdlog::info("[TCP] Ignoring LAN traffic");
+        return NO;
+    }
+
+    nw_parameters_t parameters = nw_parameters_create_secure_tcp(NW_PARAMETERS_DISABLE_PROTOCOL, NW_PARAMETERS_DEFAULT_CONFIGURATION);
+    nw_parameters_require_interface(parameters, interface);
     nw_connection_t connection = nw_connection_create(endpoint, parameters);
     nw_connection_set_queue(connection, dispatch_get_main_queue());
 
@@ -57,6 +62,7 @@
     // Store and start the connection
     [activeConnections_ setObject:(id)connection forKey:[NSValue valueWithPointer:(__bridge void *)flow]];
     nw_connection_start(connection);
+    return YES;
 }
 
 - (void)handleTCPOutboundFlow:(NEAppProxyTCPFlow *)flow interface:(nw_interface_t)interface {

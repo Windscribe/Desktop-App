@@ -5,8 +5,8 @@
 #define AA_COMMAND_FIREWALL_OFF                             2
 #define AA_COMMAND_FIREWALL_CHANGE                          3 // deprecated
 #define AA_COMMAND_FIREWALL_STATUS                          4
-#define AA_COMMAND_FIREWALL_IPV6_ENABLE                     5 // deprecated
-#define AA_COMMAND_FIREWALL_IPV6_DISABLE                    6 // deprecated
+#define AA_COMMAND_FIREWALL_IPV6_ENABLE                     5
+#define AA_COMMAND_FIREWALL_IPV6_DISABLE                    6
 #define AA_COMMAND_REMOVE_WINDSCRIBE_FROM_HOSTS             7
 #define AA_COMMAND_CHECK_UNBLOCKING_CMD_STATUS              8
 #define AA_COMMAND_GET_UNBLOCKING_CMD_COUNT                 9
@@ -57,6 +57,7 @@
 #define AA_COMMAND_ENABLE_DOH_SETTINGS                      54
 #define AA_COMMAND_CONFIGURE_WIREGUARD                      55
 #define AA_COMMAND_SSID_FROM_INTERFACE_GUID                 56
+#define AA_COMMAND_SET_NETWORK_CATEGORY                     57
 
 #include <string>
 #include <vector>
@@ -174,7 +175,6 @@ struct ADAPTER_GATEWAY_INFO
     unsigned long ifIndex;
 };
 
-
 enum CMD_PROTOCOL_TYPE {
     CMD_PROTOCOL_IKEV2,
     CMD_PROTOCOL_OPENVPN,
@@ -246,6 +246,18 @@ struct CMD_CREATE_OPENVPN_ADAPTER
 struct CMD_SSID_FROM_INTERFACE_GUID
 {
     std::wstring interfaceGUID;
+};
+
+enum NetworkCategory {
+    kNetworkCategoryPublic = 0,
+    kNetworkCategoryPrivate,
+    kNetworkCategoryDomainAuthenticated
+};
+
+struct CMD_SET_NETWORK_CATEGORY
+{
+    std::wstring networkName;
+    NetworkCategory category;
 };
 
 struct MessagePacketResult

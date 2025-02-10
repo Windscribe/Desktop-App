@@ -21,7 +21,7 @@ static void OnlyLoadMSSignedBinaries()
     sigPolicy.MicrosoftSignedOnly = 1;
     BOOL result = ::SetProcessMitigationPolicy(ProcessSignaturePolicy, &sigPolicy, sizeof(sigPolicy));
     if (!result) {
-        debugMessage(L"**wssecure** SetProcessMitigationPolicy(MicrosoftSignedOnly) failed (%lu)", ::GetLastError());
+        debugMessage(L"**wssecure** SetProcessMitigationPolicy(ProcessSignaturePolicy) failed (%lu)", ::GetLastError());
     }
 
     // This mitigation by itself does not block DLL injection.
@@ -30,7 +30,14 @@ static void OnlyLoadMSSignedBinaries()
     dynamicCodePolicy.ProhibitDynamicCode = 1;
     result = ::SetProcessMitigationPolicy(ProcessDynamicCodePolicy, &dynamicCodePolicy, sizeof(dynamicCodePolicy));
     if (!result) {
-        debugMessage(L"**wssecure** SetProcessMitigationPolicy(Dynamic Code) failed (%lu)", ::GetLastError());
+        debugMessage(L"**wssecure** SetProcessMitigationPolicy(ProcessDynamicCodePolicy) failed (%lu)", ::GetLastError());
+    }
+
+    PROCESS_MITIGATION_IMAGE_LOAD_POLICY ilp = {};
+    ilp.PreferSystem32Images = 1;
+    result = ::SetProcessMitigationPolicy(ProcessImageLoadPolicy, &ilp, sizeof(ilp));
+    if (!result) {
+        debugMessage(L"**wssecure** SetProcessMitigationPolicy(ProcessImageLoadPolicy) failed (%lu)", ::GetLastError());
     }
 }
 

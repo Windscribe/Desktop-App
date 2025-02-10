@@ -138,7 +138,7 @@ Engine::Engine() : QObject(nullptr),
     // Skip printing the engine settings if we loaded the defaults.
     if (!engineSettings_.loadFromSettings()) {
         checkAutoEnableAntiCensorship_ = true;
-    } 
+    }
 
     qCInfo(LOG_BASIC) << "Engine settings" << engineSettings_;
 
@@ -885,6 +885,11 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
             firewallController_->setFirewallOnBoot(false);
 #endif
         }
+#ifdef Q_OS_WIN
+        Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+        helper_win->setIPv6EnabledInFirewall(true);
+#endif
+
     }
 
     SAFE_DELETE(vpnShareController_);
@@ -1216,6 +1221,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     bool isMACSpoofingChanged = engineSettings_.macAddrSpoofing() != engineSettings.macAddrSpoofing();
     bool isPacketSizeChanged =  engineSettings_.packetSize() != engineSettings.packetSize();
     bool isDnsWhileConnectedChanged = engineSettings_.connectedDnsInfo() != engineSettings.connectedDnsInfo();
+    bool isDecoyTrafficSettingsChanged = engineSettings_.decoyTrafficSettings() != engineSettings.decoyTrafficSettings();
 
 #ifdef Q_OS_LINUX
     // On Linux, the system may reboot without ever sending us SIGTERM, which means we never get to clean up and
@@ -1275,6 +1281,15 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
         customConfigs_->changeDir(engineSettings_.customOvpnConfigsPath());
         if (engineSettings_.customOvpnConfigsPath().isEmpty()) {
             customOvpnAuthCredentialsStorage_->clearCredentials();
+        }
+    }
+
+    if (isDecoyTrafficSettingsChanged) {
+        WSNet::instance()->decoyTraffic()->setFakeTrafficVolume((int)engineSettings_.decoyTrafficSettings().volume());
+        if (engineSettings_.decoyTrafficSettings().isEnabled() && (!connectionManager_->isDisconnected())) {
+            WSNet::instance()->decoyTraffic()->start();
+        } else {
+            WSNet::instance()->decoyTraffic()->stop();
         }
     }
 
@@ -1373,6 +1388,7 @@ void Engine::onConnectionManagerConnected()
             qCCritical(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
         }
     }
+    helper_win->setIPv6EnabledInFirewall(false);
 #endif
 
     bool result = helper_->sendConnectStatus(true, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
@@ -1491,6 +1507,7 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
     }
 
     doDisconnectRestoreStuff();
+    WSNet::instance()->decoyTraffic()->stop();
 
 #ifdef Q_OS_WIN
     DnsInfo_win::outputDebugDnsInfo();
@@ -1675,6 +1692,9 @@ void Engine::onConnectionManagerTestTunnelResult(bool success, const QString &ip
     if (!ipAddress.isEmpty())
     {
         emit myIpUpdated(ipAddress, false); // sends IP address to UI // test should only occur in connected state
+    }
+    if (engineSettings_.decoyTrafficSettings().isEnabled()) {
+        WSNet::instance()->decoyTraffic()->start();
     }
 }
 
@@ -2402,7 +2422,7 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
     QString strHost = ExtraConfig::instance().getRemoteIpFromExtraConfig();
     if (!strHost.isEmpty())
     {
-        if (IpValidation::isIpv4Address(strHost))
+        if (IpValidation::isIp(strHost))
         {
             ip = strHost;
         }
@@ -2526,6 +2546,11 @@ void Engine::doDisconnectRestoreStuff()
             engineSettings_.isAllowLanTraffic(),
             locationId_.isCustomConfigsLocation());
     }
+
+#ifdef Q_OS_WIN
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    helper_win->setIPv6EnabledInFirewall(true);
+#endif
 
     // If we have disconnected and are still not logged then try again.
     if (tryLoginNextConnectOrDisconnect_) {

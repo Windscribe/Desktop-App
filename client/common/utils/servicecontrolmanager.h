@@ -55,6 +55,8 @@ public:
 
     LPCTSTR getServerName() const;
 
+    std::wstring exePath() const;
+
 private:
     std::wstring serverName_;
     std::wstring serviceName_;

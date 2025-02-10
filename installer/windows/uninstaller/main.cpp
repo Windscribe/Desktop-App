@@ -17,18 +17,23 @@
 // If they are different then we do not uninstall, to avoid deleting 3-rd party files
 static bool isRightInstallation(const std::wstring& uninstExeFile)
 {
-    std::wstring subkeyName = ApplicationInfo::uninstallerRegistryKey(false);
+    bool isRightInstallation = false;
 
-    bool bRet = false;
     HKEY hKey;
-    if (Registry::RegOpenKeyExView(HKEY_LOCAL_MACHINE, subkeyName.c_str(), 0, KEY_QUERY_VALUE, hKey) == ERROR_SUCCESS) {
+    const auto subkeyName = ApplicationInfo::uninstallerRegistryKey(false);
+    const auto result = Registry::RegOpenKeyExView(HKEY_LOCAL_MACHINE, subkeyName.c_str(), 0, KEY_QUERY_VALUE, hKey);
+    if (result == ERROR_SUCCESS) {
         std::wstring path;
         if (Registry::RegQueryStringValue1(hKey, L"InstallLocation", path)) {
-            bRet = Path::equivalent(Path::extractDir(uninstExeFile), path);
+            isRightInstallation = Path::equivalent(Path::extractDir(uninstExeFile), path);
+        } else {
+            spdlog::warn(L"isRightInstallation failed to query the 'InstallLocation' value");
         }
         RegCloseKey(hKey);
+    } else {
+        spdlog::warn(L"isRightInstallation failed to open the uninstall registry key '{}' ({})", subkeyName, result);
     }
-    return bRet;
+    return isRightInstallation;
 }
 
 // /SECONDPHASE="C:\Program Files\Windscribe\uninstall.exe" /VERYSILENT

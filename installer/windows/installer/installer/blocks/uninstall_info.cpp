@@ -10,6 +10,11 @@
 
 using namespace std;
 
+static void setStringValue(QSettings &reg, const char *key, const wstring &value)
+{
+    reg.setValue(key, QString::fromStdWString(value));
+}
+
 UninstallInfo::UninstallInfo(double weight) : IInstallBlock(weight, L"uninstall_info")
 {
 }
@@ -64,7 +69,11 @@ void UninstallInfo::registerUninstallInfo()
     reg.setValue("NoRepair", 1);
 }
 
-void UninstallInfo::setStringValue(QSettings &reg, const char *key, const wstring &value)
+void UninstallInfo::addMissingUninstallInfo(const std::wstring &uninstaller)
 {
-    reg.setValue(key, QString::fromStdWString(value));
+    const wstring installPath = Path::extractDir(uninstaller);
+
+    QSettings reg(QString::fromStdWString(ApplicationInfo::uninstallerRegistryKey()), QSettings::NativeFormat);
+    setStringValue(reg, "InstallLocation", Path::addSeparator(installPath));
+    setStringValue(reg, "UninstallString", L"\"" + uninstaller + L"\"");
 }

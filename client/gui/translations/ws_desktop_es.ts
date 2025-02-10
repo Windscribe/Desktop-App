@@ -842,14 +842,6 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>Ha elegido mostrar notificaciones, pero las notificaciones del sistema están deshabilitadas. Habilite las notificaciones del sistema en la configuración del sistema.</translation>
     </message>
-    <message>
-        <source>App not signed</source>
-        <translation>Aplicación no firmada</translation>
-    </message>
-    <message>
-        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
-        <translation>La aplicación seleccionada no está firmada. El túnel dividido solo es compatible con aplicaciones firmadas en macOS.</translation>
-    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1258,6 +1250,41 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Determina automáticamente la MTU para tu conexión o cámbiala manualmente.  Esto no tiene ningún efecto en los protocolos basados en TCP.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::DecoyTrafficGroup</name>
+    <message>
+        <source>Decoy Traffic</source>
+        <translation>Tráfico señuelo</translation>
+    </message>
+    <message>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <translation>Se trata de una función experimental que intenta combatir los ataques de correlación de tráfico en redes adversarias. Cuando está habilitada, la aplicación generará actividad aleatoria a través del túnel y cargará y descargará datos aleatorios a intervalos elegidos.</translation>
+    </message>
+    <message>
+        <source>Fake Traffic Volume</source>
+        <translation>Volumen de tráfico falso</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Bajo</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Medio</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Alto</translation>
+    </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>Uso estimado de datos</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/hora</translation>
     </message>
 </context>
 <context>
@@ -1976,13 +2003,6 @@ Conéctate primero a una red</translation>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>Inicia sesión para modificar las reglas de túnel dividido.</translation>
-    </message>
-    <message>
-        <source>
-
-On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
-        <translation>
-En macOS, las aplicaciones se identifican por su identificador de firma, por lo que las aplicaciones sin firmar no se pueden tunelizar en división.  Cuando una aplicación se tuneliza en dos partes, todas las copias de esa aplicación se dividen, independientemente de su ruta de acceso.</translation>
     </message>
 </context>
 <context>

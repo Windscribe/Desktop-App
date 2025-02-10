@@ -842,14 +842,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>알림을 표시하도록 선택했지만 시스템 알림이 비활성화되어 있습니다. 시스템 설정에서 시스템 알림을 활성화하십시오.</translation>
     </message>
-    <message>
-        <source>App not signed</source>
-        <translation>앱이 서명되지 않음</translation>
-    </message>
-    <message>
-        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
-        <translation>선택한 앱이 서명되지 않았습니다. 분할 터널링은 macOS의 서명된 앱에만 지원됩니다.</translation>
-    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1258,6 +1250,41 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>연결에 대한 MTU를 자동으로 결정하거나 수동으로 재정의합니다.  이는 TCP 기반 프로토콜에는 영향을 주지 않습니다.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::DecoyTrafficGroup</name>
+    <message>
+        <source>Decoy Traffic</source>
+        <translation>미끼 교통</translation>
+    </message>
+    <message>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <translation>이는 적대적 네트워크에 대한 트래픽 상관 관계 공격에 맞서기 위한 실험적 기능입니다. 활성화되면 앱은 터널을 통해 무작위 활동을 생성하고 선택한 간격으로 무작위 데이터를 업로드 및 다운로드합니다.</translation>
+    </message>
+    <message>
+        <source>Fake Traffic Volume</source>
+        <translation>가짜 트래픽 볼륨</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>낮다</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>보통</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>높다</translation>
+    </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>예상 데이터 사용량</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/시간</translation>
     </message>
 </context>
 <context>
@@ -1976,13 +2003,6 @@ Connect to a network first</source>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>분할 터널링 규칙을 수정하려면 로그인하십시오.</translation>
-    </message>
-    <message>
-        <source>
-
-On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
-        <translation>
-macOS에서 앱은 서명 식별자로 식별되므로 서명되지 않은 앱은 분할 터널링할 수 없습니다.  앱이 분할 터널링되면 해당 앱의 모든 복사본은 경로에 관계없이 분할 터널링됩니다.</translation>
     </message>
 </context>
 <context>

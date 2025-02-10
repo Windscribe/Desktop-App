@@ -36,6 +36,7 @@ target_link_libraries(com.windscribe.client.splittunnelextension PRIVATE
     "-framework NetworkExtension"
     "-framework Foundation"
     "-framework Network"
+    "-framework Security"
     "-sectcreate __TEXT __info_plist ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist"
     spdlog::spdlog
 )

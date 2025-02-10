@@ -138,7 +138,7 @@ void ConnectedDnsGroup::onSplitDnsStateChanged(bool checked)
 
 void ConnectedDnsGroup::checkDnsLeak(const QString &v1, const QString &v2)
 {
-    if (IpValidation::isLocalIpv4Address(v1) || IpValidation::isLocalIpv4Address(v2)) {
+    if (IpValidation::isLocalIp(v1) || IpValidation::isLocalIp(v2)) {
         GeneralMessageController::instance().showMessage(
             "WARNING_YELLOW",
             tr("DNS leak detected"),

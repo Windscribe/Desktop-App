@@ -106,74 +106,50 @@ void FirewallController::setSplitTunnelingEnabled(bool isConnected, bool isEnabl
 void FirewallController::removeExclusiveIpRules()
 {
     for (auto ip : splitTunnelIps_) {
-        removeRule({"windscribe_input", "-s", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag}, Utils::isValidIpv6Address(ip));
-        removeRule({"windscribe_output", "-d", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag}, Utils::isValidIpv6Address(ip));
+        Utils::executeCommand("iptables", {"-D", "windscribe_input", "-s", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
+        Utils::executeCommand("iptables", {"-D", "windscribe_output", "-d", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
     }
 }
 
 void FirewallController::removeInclusiveIpRules()
 {
-    // v4
-    removeRule({"windscribe_input", "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
-    removeRule({"windscribe_output", "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
-    // v6
-    removeRule({"windscribe_input", "-j", "ACCEPT", "-m", "comment", "--comment", kTag}, true);
-    removeRule({"windscribe_output", "-j", "ACCEPT", "-m", "comment", "--comment", kTag}, true);
+    Utils::executeCommand("iptables", {"-D", "windscribe_input", "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
+    Utils::executeCommand("iptables", {"-D", "windscribe_output", "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
 }
 
 void FirewallController::removeExclusiveAppRules()
 {
-    // v4
-    removeRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
+    Utils::executeCommand("iptables", {"-D", "OUTPUT", "-t", "mangle", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
     if (!prevAdapter_.empty()) {
-        removeRule({"POSTROUTING", "-t", "nat", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-o", prevAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag});
+        Utils::executeCommand("iptables", {"-D", "POSTROUTING", "-t", "nat", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-o", prevAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag});
     }
-    removeRule({"windscribe_input", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
-    removeRule({"windscribe_output", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
 
-    // v6
-    removeRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag}, true);
-    if (!prevAdapter_.empty()) {
-        removeRule({"POSTROUTING", "-t", "nat", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-o", prevAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag}, true);
-    }
-    removeRule({"windscribe_input", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag}, true);
-    removeRule({"windscribe_output", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag}, true);
+    Utils::executeCommand("iptables", {"-D", "windscribe_input", "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
+    Utils::executeCommand("iptables", {"-D", "windscribe_output", "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
 }
 
 void FirewallController::removeInclusiveAppRules()
 {
-    // v4
-    removeRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "!", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
+    Utils::executeCommand("iptables", {"-D", "OUTPUT", "-t", "mangle", "-m", "cgroup", "!", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
     if (!prevAdapter_.empty()) {
-        removeRule({"POSTROUTING", "-t", "nat", "-m", "cgroup", "!", "--cgroup", CGroups::instance().netClassId(), "-o", prevAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag});
+        Utils::executeCommand("iptables", {"-D", "POSTROUTING", "-t", "nat", "-m", "cgroup", "!", "--cgroup", CGroups::instance().netClassId(), "-o", prevAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag});
     }
-
-    // v6
-    removeRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "DROP", "-m", "comment", "--comment", kTag}, true);
 }
 
 void FirewallController::setSplitTunnelIngressRules(const std::string &defaultAdapterIp)
 {
-    if (defaultAdapterIp.empty()) {
+	if (defaultAdapterIp.empty()) {
         return;
-    }
+	}
 
     if (!connected_ || !splitTunnelEnabled_ || splitTunnelExclude_) {
-        // v4
-        removeRule({"PREROUTING", "-t", "mangle", "-d", defaultAdapterIp.c_str(), "-j", "CONNMARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
-        removeRule({"OUTPUT", "-t", "mangle", "-j", "CONNMARK", "--restore-mark", "-m", "comment", "--comment", kTag});
-        // v6
-        removeRule({"PREROUTING", "-t", "mangle", "-d", defaultAdapterIp.c_str(), "-j", "CONNMARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag}, true);
-        removeRule({"OUTPUT", "-t", "mangle", "-j", "CONNMARK", "--restore-mark", "-m", "comment", "--comment", kTag}, true);
+        Utils::executeCommand("iptables", {"-D", "PREROUTING", "-t", "mangle", "-d", defaultAdapterIp.c_str(), "-j", "CONNMARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
+        Utils::executeCommand("iptables", {"-D", "OUTPUT", "-t", "mangle", "-j", "CONNMARK", "--restore-mark", "-m", "comment", "--comment", kTag});
         return;
     }
 
-    // v4
     addRule({"PREROUTING", "-t", "mangle", "-d", defaultAdapterIp.c_str(), "-j", "CONNMARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
     addRule({"OUTPUT", "-t", "mangle", "-j", "CONNMARK", "--restore-mark", "-m", "comment", "--comment", kTag});
-    // v6
-    addRule({"PREROUTING", "-t", "mangle", "-d", defaultAdapterIp.c_str(), "-j", "CONNMARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag}, true);
-    addRule({"OUTPUT", "-t", "mangle", "-j", "CONNMARK", "--restore-mark", "-m", "comment", "--comment", kTag}, true);
 }
 
 void FirewallController::setSplitTunnelAppExceptions()
@@ -187,43 +163,24 @@ void FirewallController::setSplitTunnelAppExceptions()
     if (splitTunnelExclude_) {
         removeInclusiveAppRules();
 
-        // v4
         addRule({"POSTROUTING",  "-t", "nat", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-o", defaultAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag});
-        addRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag}, false, true);
-
-        // v6
-        addRule({"POSTROUTING",  "-t", "nat", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-o", defaultAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag}, true);
-        addRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag}, true, true);
+        addRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
 
         // allow packets from excluded apps, if firewall is on
         if (enabled()) {
-            // v4
             addRule({"windscribe_input", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
             addRule({"windscribe_output", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
-
-            // v6
-            addRule({"windscribe_input", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag}, true);
-            addRule({"windscribe_output", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag}, true);
         }
     } else {
         removeExclusiveAppRules();
 
-        // v4
         addRule({"POSTROUTING", "-t", "nat", "-m", "cgroup", "!", "--cgroup", CGroups::instance().netClassId(), "-o", defaultAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag});
-        addRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "!", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag}, false, true);
-
-        // v6 -- We can't route IPv6 traffic into the v4 tunnel, so we drop IPv6 traffic for included apps
-        addRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "DROP", "-m", "comment", "--comment", kTag}, true, true);
+        addRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "!", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
 
         // For inclusive, allow all packets
         if (enabled()) {
-            // v4
             addRule({"windscribe_input", "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
             addRule({"windscribe_output", "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
-
-            // v6
-            addRule({"windscribe_input", "-j", "DROP", "-m", "comment", "--comment", kTag}, true);
-            addRule({"windscribe_output", "-j", "DROP", "-m", "comment", "--comment", kTag}, true);
         }
     }
 }
@@ -241,67 +198,38 @@ void FirewallController::setSplitTunnelIpExceptions(const std::vector<std::strin
     if (splitTunnelExclude_) {
         removeInclusiveIpRules();
 
-        // Remove rules for addresses no longer in "ips"
+        // For exclusive, remove rules for addresses no longer in "ips"
         for (auto ip : splitTunnelIps_) {
             if (std::find(ips.begin(), ips.end(), ip) == ips.end()) {
-                removeRule({"windscribe_input", "-s", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag}, Utils::isValidIpv6Address(ip));
-                removeRule({"windscribe_output", "-d", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag}, Utils::isValidIpv6Address(ip));
+                Utils::executeCommand("iptables", {"-D", "windscribe_input", "-s", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
+                Utils::executeCommand("iptables", {"-D", "windscribe_output", "-d", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
             }
         }
 
         // Add rules for new IPs
         for (auto ip : ips) {
-            addRule({"windscribe_input", "-s", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag}, Utils::isValidIpv6Address(ip));
-            addRule({"windscribe_output", "-d", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag}, Utils::isValidIpv6Address(ip));
+            addRule({"windscribe_input", "-s", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
+            addRule({"windscribe_output", "-d", ip.c_str(), "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
         }
     } else {
         removeExclusiveIpRules();
 
         // For inclusive, keep the "allow all" rules; these rules only apply to non-included apps
-        // v4
         addRule({"windscribe_input", "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
         addRule({"windscribe_output", "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
-
-        // v6
-        addRule({"windscribe_input", "-j", "ACCEPT", "-m", "comment", "--comment", kTag}, true);
-        addRule({"windscribe_output", "-j", "ACCEPT", "-m", "comment", "--comment", kTag}, true);
-
-        // Remove rules for addresses no longer in "ips"
-        for (auto ip : splitTunnelIps_) {
-            if (Utils::isValidIpv6Address(ip)) {
-                if (std::find(ips.begin(), ips.end(), ip) == ips.end()) {
-                    removeRule({"windscribe_input", "-s", ip.c_str(), "-j", "DROP", "-m", "comment", "--comment", kTag}, true);
-                    removeRule({"windscribe_output", "-d", ip.c_str(), "-j", "DROP", "-m", "comment", "--comment", kTag}, true);
-                }
-            }
-        }
-
-        for (auto ip : ips) {
-            if (Utils::isValidIpv6Address(ip)) {
-                addRule({"windscribe_input", "-s", ip.c_str(), "-j", "DROP", "-m", "comment", "--comment", kTag}, true);
-                addRule({"windscribe_output", "-d", ip.c_str(), "-j", "DROP", "-m", "comment", "--comment", kTag}, true);
-            }
-        }
     }
 
     splitTunnelIps_ = ips;
 }
 
-void FirewallController::addRule(const std::vector<std::string> &args, bool ipv6, bool append)
+void FirewallController::addRule(const std::vector<std::string> &args)
 {
     std::vector<std::string> checkArgs = args;
     checkArgs.insert(checkArgs.begin(), "-C");
-    int ret = Utils::executeCommand(ipv6 ? "ip6tables" : "iptables", checkArgs);
+    int ret = Utils::executeCommand("iptables", checkArgs);
     if (ret) {
         std::vector<std::string> insertArgs = args;
-        insertArgs.insert(insertArgs.begin(), append ? "-A" : "-I");
-        Utils::executeCommand(ipv6 ? "ip6tables" : "iptables", insertArgs);
+        insertArgs.insert(insertArgs.begin(), "-I");
+        Utils::executeCommand("iptables", insertArgs);
     }
-}
-
-void FirewallController::removeRule(const std::vector<std::string> &args, bool ipv6)
-{
-    std::vector<std::string> deleteArgs = args;
-    deleteArgs.insert(deleteArgs.begin(), "-D");
-    Utils::executeCommand(ipv6 ? "ip6tables" : "iptables", deleteArgs);
 }

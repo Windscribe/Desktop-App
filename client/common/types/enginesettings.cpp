@@ -32,7 +32,7 @@ void EngineSettings::saveToSettings()
               d->firewallSettings << d->connectionSettings << d->apiResolutionSettings << d->proxySettings << d->packetSize <<
               d->macAddrSpoofing << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
               d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols << d->networkLastKnownGoodProtocols <<
-              d->isAntiCensorship;
+            d->isAntiCensorship << d->decoyTrafficSettings;
     }
 
     QSettings settings;
@@ -72,6 +72,9 @@ bool EngineSettings::loadFromSettings()
             }
             if (version >= 5) {
                 d->tapAdapter = WINTUN_ADAPTER;
+            }
+            if (version >= 6) {
+                ds >> d->decoyTrafficSettings;
             }
             if (ds.status() == QDataStream::Ok) {
                 bLoaded = true;
@@ -287,6 +290,16 @@ void EngineSettings::setIsKeepAliveEnabled(bool enabled)
     d->isKeepAliveEnabled = enabled;
 }
 
+DecoyTrafficSettings EngineSettings::decoyTrafficSettings() const
+{
+    return d->decoyTrafficSettings;
+}
+
+void EngineSettings::setDecoyTrafficSettings(const DecoyTrafficSettings &decoyTrafficSettings)
+{
+    d->decoyTrafficSettings = decoyTrafficSettings;
+}
+
 void EngineSettings::setMacAddrSpoofing(const MacAddrSpoofing &macAddrSpoofing)
 {
     d->macAddrSpoofing = macAddrSpoofing;
@@ -351,6 +364,7 @@ bool EngineSettings::operator==(const EngineSettings &other) const
             other.d->isKeepAliveEnabled == d->isKeepAliveEnabled &&
             other.d->connectedDnsInfo == d->connectedDnsInfo &&
             other.d->dnsManager == d->dnsManager &&
+            other.d->decoyTrafficSettings == d->decoyTrafficSettings &&
             other.d->networkPreferredProtocols == d->networkPreferredProtocols &&
             other.d->networkLastKnownGoodProtocols == d->networkLastKnownGoodProtocols;
 }
@@ -394,6 +408,7 @@ QDebug operator<<(QDebug dbg, const EngineSettings &es)
     dbg << "packetSize: " << es.d->packetSize << "; ";
     dbg << "macAddrSpoofing: " << es.d->macAddrSpoofing << "; ";
     dbg << "dnsPolicy: " << DNS_POLICY_TYPE_toString(es.d->dnsPolicy) << "; ";
+    dbg << "decoyTraffic: " << es.d->decoyTrafficSettings << "; ";
 #ifdef Q_OS_WIN
     dbg << "tapAdapter: " << TAP_ADAPTER_TYPE_toString(es.d->tapAdapter) << "; ";
 #endif
@@ -438,6 +453,10 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
 
     if (json.contains(kJsonDnsPolicyProp) && json[kJsonDnsPolicyProp].isDouble()) {
         dnsPolicy = DNS_POLICY_TYPE_fromInt(json[kJsonDnsPolicyProp].toInt());
+    }
+
+    if (json.contains(kJsonDecoyTrafficSettingsProp) && json[kJsonDecoyTrafficSettingsProp].isObject()) {
+        decoyTrafficSettings = types::DecoyTrafficSettings(json[kJsonDecoyTrafficSettingsProp].toObject());
     }
 
     if (json.contains(kJsonFirewallSettingsProp) && json[kJsonFirewallSettingsProp].isObject()) {
@@ -530,6 +549,7 @@ QJsonObject EngineSettingsData::toJson() const
     json[kJsonConnectionSettingsProp] = connectionSettings.toJson();
     json[kJsonCustomOvpnConfigsPathProp] = Utils::toBase64(customOvpnConfigsPath);
     json[kJsonDnsPolicyProp] = static_cast<int>(dnsPolicy);
+    json[kJsonDecoyTrafficSettingsProp] = decoyTrafficSettings.toJson();
     json[kJsonFirewallSettingsProp] = firewallSettings.toJson();
     json[kJsonIsAllowLanTrafficProp] = isAllowLanTraffic;
     json[kJsonIsAntiCensorshipProp] = isAntiCensorship;
@@ -587,6 +607,7 @@ void EngineSettingsData::fromIni(QSettings &settings)
     macAddrSpoofing.fromIni(settings);
     connectedDnsInfo.fromIni(settings);
     isAllowLanTraffic = settings.value(kIniIsAllowLanTrafficProp, isAllowLanTraffic).toBool();
+    decoyTrafficSettings.fromIni(settings);
     isAntiCensorship = settings.value(kIniIsAntiCensorshipProp, isAntiCensorship).toBool();
     settings.endGroup();
 
@@ -619,6 +640,7 @@ void EngineSettingsData::toIni(QSettings &settings) const
     macAddrSpoofing.toIni(settings);
     connectedDnsInfo.toIni(settings);
     settings.setValue(kIniIsAllowLanTrafficProp, isAllowLanTraffic);
+    decoyTrafficSettings.toIni(settings);
     settings.setValue(kIniIsAntiCensorshipProp, isAntiCensorship);
     settings.endGroup();
 

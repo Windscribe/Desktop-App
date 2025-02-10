@@ -10,7 +10,7 @@ struct HttpRequest::Impl
     std::string postData;
     HttpMethod httpMethod;
     bool isUseDnsCache = true;
-    std::string contentHeader;
+    std::vector<std::string> httpHeaders;
     bool isIgnoreSslErrors = false;
     bool isRemoveFromWhitelistIps = false;
     std::string echConfig;
@@ -81,14 +81,14 @@ bool HttpRequest::isUseDnsCache() const
     return pImpl_->isUseDnsCache;
 }
 
-void HttpRequest::setContentTypeHeader(const std::string &header)
+void HttpRequest::addHttpHeader(const std::string &header)
 {
-    pImpl_->contentHeader = header;
+    pImpl_->httpHeaders.push_back(header);
 }
 
-std::string HttpRequest::contentTypeHeader() const
+std::vector<std::string> HttpRequest::httpHeaders() const
 {
-    return pImpl_->contentHeader;
+    return pImpl_->httpHeaders;
 }
 
 void HttpRequest::setIgnoreSslErrors(bool isIgnore)

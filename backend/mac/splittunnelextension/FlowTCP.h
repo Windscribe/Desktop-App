@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)init;
-- (void)setupTCPConnection:(NEAppProxyTCPFlow *)flow interface:(nw_interface_t)interface;
+- (BOOL)setupTCPConnection:(NEAppProxyTCPFlow *)flow interface:(nw_interface_t)interface;
 - (void)cleanup;
 
 @end

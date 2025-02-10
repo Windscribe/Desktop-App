@@ -842,14 +842,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>आपने सूचनाएँ दिखाना चुना है, लेकिन सिस्टम सूचनाएँ अक्षम हैं. कृपया अपनी सिस्टम सेटिंग्स में सिस्टम सूचनाएँ सक्षम करें.</translation>
     </message>
-    <message>
-        <source>App not signed</source>
-        <translation>ऐप हस्ताक्षरित नहीं है</translation>
-    </message>
-    <message>
-        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
-        <translation>चयनित अनुप्रयोग हस्ताक्षरित नहीं है. स्प्लिट टनलिंग केवल macOS पर साइन किए गए ऐप्स के लिए समर्थित है।</translation>
-    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1258,6 +1250,41 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>स्वचालित रूप से अपने कनेक्शन के लिए MTU निर्धारित करें, या मैन्युअल रूप से ओवरराइड करें।  TCP-आधारित प्रोटोकॉल पर इसका कोई प्रभाव नहीं है।</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::DecoyTrafficGroup</name>
+    <message>
+        <source>Decoy Traffic</source>
+        <translation>डिकॉय ट्रैफिक</translation>
+    </message>
+    <message>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <translation>यह एक प्रयोगात्मक विशेषता है जो प्रतिकूल नेटवर्क पर यातायात सहसंबंध हमलों का मुकाबला करने का प्रयास करती है। सक्षम होने पर, ऐप सुरंग पर यादृच्छिक गतिविधि उत्पन्न करेगा, और चुने हुए अंतराल पर यादृच्छिक डेटा अपलोड और डाउनलोड करेगा।</translation>
+    </message>
+    <message>
+        <source>Fake Traffic Volume</source>
+        <translation>नकली ट्रैफ़िक वॉल्यूम</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>संख्‍या आदि</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>मध्यम</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>उच्च</translation>
+    </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>अनुमानित डेटा उपयोग</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>जीबी/घंटा</translation>
     </message>
 </context>
 <context>
@@ -1976,13 +2003,6 @@ Connect to a network first</source>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>विभाजित टनलिंग नियमों को संशोधित करने के लिए कृपया लॉग इन करें.</translation>
-    </message>
-    <message>
-        <source>
-
-On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
-        <translation>
-macOS पर, ऐप्स को उनके साइनिंग आइडेंटिफ़ायर द्वारा पहचाना जाता है, इसलिए अहस्ताक्षरित ऐप्स को टनल में विभाजित नहीं किया जा सकता है।  जब किसी ऐप्लिकेशन को विभाजित सुरंग में विभाजित किया जाता है, तो उस ऐप्लिकेशन की सभी कॉपियां विभाजित सुरंग में विभाजित हो जाती हैं, चाहे उनका पथ कुछ भी हो.</translation>
     </message>
 </context>
 <context>

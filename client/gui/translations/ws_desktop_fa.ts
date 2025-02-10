@@ -842,14 +842,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>شما انتخاب کرده اید که اعلان ها را نشان دهید، اما اعلان های سیستم غیرفعال هستند. لطفا اعلان های سیستم را در تنظیمات سیستم خود فعال کنید.</translation>
     </message>
-    <message>
-        <source>App not signed</source>
-        <translation>برنامه امضا نشده است</translation>
-    </message>
-    <message>
-        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
-        <translation>برنامه انتخاب شده امضا نشده است. Split tunneling فقط برای برنامه های امضا شده در macOS پشتیبانی می شود.</translation>
-    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1258,6 +1250,41 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>MTU را به طور خودکار برای اتصال خود تعیین کنید یا به صورت دستی لغو کنید.  این هیچ تاثیری بر پروتکل های مبتنی بر TCP ندارد.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::DecoyTrafficGroup</name>
+    <message>
+        <source>Decoy Traffic</source>
+        <translation>فریب ترافیک</translation>
+    </message>
+    <message>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <translation>این یک ویژگی تجربی است که تلاش می کند با حملات همبستگی ترافیکی به شبکه های متخاصم مبارزه کند. در صورت فعال بودن، برنامه فعالیت تصادفی را روی تونل ایجاد می کند و داده های تصادفی را در فواصل زمانی انتخاب شده آپلود و دانلود می کند.</translation>
+    </message>
+    <message>
+        <source>Fake Traffic Volume</source>
+        <translation>حجم ترافیک جعلی</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>کم</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>متوسط</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>بالا</translation>
+    </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>مصرف تخمینی داده ها</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>گیگابایت در ساعت</translation>
     </message>
 </context>
 <context>
@@ -1976,13 +2003,6 @@ Connect to a network first</source>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>لطفا برای تغییر قوانین شکافتن تونل وارد شوید.</translation>
-    </message>
-    <message>
-        <source>
-
-On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
-        <translation>
-در macOS، برنامه ها با شناسه امضای آنها شناسایی می شوند، بنابراین برنامه های امضا نشده را نمی توان تونل تقسیم کرد.  هنگامی که یک برنامه تونل تقسیم می شود، همه نسخه های آن برنامه بدون توجه به مسیر آنها تونل تقسیم می شوند.</translation>
     </message>
 </context>
 <context>

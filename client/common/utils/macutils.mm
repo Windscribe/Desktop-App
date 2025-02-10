@@ -122,16 +122,7 @@ QString MacUtils::iconPathFromBinPath(const QString &binPath)
 QList<QString> MacUtils::enumerateInstalledPrograms()
 {
     QString cmd = "ls -d1 /Applications/* | grep .app";
-
-    // Filter out apps that are not signed
-    QList<QString> apps = listedCmdResults(cmd);
-    QList<QString> ret = apps;
-    for (const QString &app : apps) {
-        if (getSigningIdentifier(app).isEmpty()) {
-            ret.removeAll(app);
-        }
-    }
-    return ret;
+    return listedCmdResults(cmd);
 }
 
 NSRunningApplication *guiApplicationByBundleName()
@@ -358,37 +349,4 @@ QSet<QString> MacUtils::getOsDnsServers()
     CFRelease(globalPath);
 
     return QSet<QString>(servers.begin(), servers.end());
-}
-
-QString MacUtils::getSigningIdentifier(const QString &path)
-{
-    SecStaticCodeRef codeRef = NULL;
-    CFDictionaryRef signingInfo = NULL;
-
-    auto exitGuard = qScopeGuard([&] {
-        if (signingInfo != NULL) CFRelease(signingInfo);
-        if (codeRef != NULL) CFRelease(codeRef);
-    });
-
-    NSString *appPath = path.toNSString();
-    OSStatus status = SecStaticCodeCreateWithPath((__bridge CFURLRef)[NSURL fileURLWithPath:appPath],
-                                                kSecCSDefaultFlags,
-                                                &codeRef);
-
-    if (status != errSecSuccess) {
-        qCWarning(LOG_SPLIT_TUNNEL_EXTENSION) << "Failed to create static code reference for:" << path;
-        return QString();
-    }
-
-    status = SecCodeCopySigningInformation(codeRef,
-                                         kSecCSSigningInformation,
-                                         &signingInfo);
-
-    if (status != errSecSuccess) {
-        qCWarning(LOG_SPLIT_TUNNEL_EXTENSION) << "Failed to get signing information for:" << path;
-        return QString();
-    }
-
-    NSString *signingId = [(__bridge NSDictionary *)signingInfo objectForKey:(__bridge NSString *)kSecCodeInfoIdentifier];
-    return QString::fromNSString(signingId);
 }

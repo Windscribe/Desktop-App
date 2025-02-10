@@ -8,6 +8,7 @@
 
 #include "ihelper.h"
 #include "../../../../backend/windows/windscribe_service/ipc/servicecommunication.h"
+#include "types/enums.h"
 #include "utils/servicecontrolmanager.h"
 #include "utils/win32handle.h"
 
@@ -63,6 +64,8 @@ public:
     QString enableBFE();
     QString resetAndStartRAS();
 
+    void setIPv6EnabledInFirewall(bool b);
+
     bool addHosts(const QString &hosts);
     bool removeHosts();
 
@@ -97,6 +100,8 @@ public:
 
     DWORD ssidFromInterfaceGUID(const QString &interfaceGUID, QString &ssid);
 
+    bool setNetworkCategory(const QString &networkName, NETWORK_CATEGORY category);
+
 protected:
     void run() override;
 
@@ -107,6 +112,7 @@ private:
     QStringList customDnsIp_;
     std::atomic<STATE> curState_;
 
+    bool bIPV6State_;
     QMutex mutex_;
     wsl::ServiceControlManager scm_;
     wsl::Win32Handle helperPipe_;

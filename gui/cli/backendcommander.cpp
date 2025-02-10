@@ -359,11 +359,13 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
 
     if (cliArgs_.cliCommand() == CLI_COMMAND_CONNECT || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_BEST
             || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_LOCATION || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_STATIC) {
-        if (connectId_.isEmpty()) {
+        if (connectId_.isEmpty() && cmd->connectState_.connectState == CONNECT_STATE_CONNECTING) {
             connectId_ = cmd->connectId_;
         }
 
-        if (cmd->connectId_ != connectId_ && !cmd->connectId_.isEmpty()) {
+        if (cmd->connectId_ != connectId_ && connectId_.isEmpty() && !cmd->connectId_.isEmpty() &&
+            cmd->connectState_.connectState == CONNECT_STATE_CONNECTING || cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED)
+        {
             emit(finished(1, QObject::tr("Connection has been overridden by another command.")));
         } else if (cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectState_.connectError != NO_CONNECT_ERROR ||
                    cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectState_.disconnectReason == DISCONNECTED_BY_KEY_LIMIT ||

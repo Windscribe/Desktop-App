@@ -139,7 +139,7 @@ targets:
     - wireguardservice
     - authhelper
     - launcher
-    - wssecure
+#    - wssecure
     - splittunnelextension
     - client
 

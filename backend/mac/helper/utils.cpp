@@ -198,19 +198,8 @@ std::string getExePath()
 
 bool isValidIpAddress(const std::string &address)
 {
-    return isValidIpv4Address(address) || isValidIpv6Address(address);
-}
-
-bool isValidIpv4Address(const std::string &address)
-{
     struct sockaddr_in sa;
     return inet_pton(AF_INET, address.c_str(), &(sa.sin_addr)) != 0;
-}
-
-bool isValidIpv6Address(const std::string &address)
-{
-    struct sockaddr_in6 sa;
-    return inet_pton(AF_INET6, address.c_str(), &(sa.sin6_addr)) != 0;
 }
 
 bool isValidDomain(const std::string &address)

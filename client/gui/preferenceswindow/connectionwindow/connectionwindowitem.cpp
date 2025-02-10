@@ -34,6 +34,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferences, &Preferences::isAllowLanTrafficChanged, this, &ConnectionWindowItem::onIsAllowLanTrafficPreferencesChanged);
     connect(preferences, &Preferences::macAddrSpoofingChanged, this, &ConnectionWindowItem::onMacAddrSpoofingPreferencesChanged);
     connect(preferences, &Preferences::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChanged);
+    connect(preferences, &Preferences::decoyTrafficSettingsChanged, this, &ConnectionWindowItem::onDecoyTrafficPreferencesChanged);
     connect(preferences_, &Preferences::shareSecureHotspotChanged, this, &ConnectionWindowItem::onSecureHotspotPreferencesChanged);
     connect(preferences_, &Preferences::shareProxyGatewayChanged, this, &ConnectionWindowItem::onProxyGatewayPreferencesChanged);
     connect(preferencesHelper, &PreferencesHelper::wifiSharingSupportedChanged, this, &ConnectionWindowItem::onPreferencesHelperWifiSharingSupportedChanged);
@@ -154,6 +155,13 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(proxyGatewayGroup_, &ProxyGatewayGroup::proxyGatewayPreferencesChanged, this, &ConnectionWindowItem::onProxyGatewayPreferencesChangedByUser);
     proxyGatewayGroup_->setProxyGatewaySettings(preferences->shareProxyGateway());
     addItem(proxyGatewayGroup_);
+
+    decoyTrafficGroup_ = new DecoyTrafficGroup(this,
+                                               "",
+                                               QString("https://%1/features/decoy-traffic").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    decoyTrafficGroup_->setDecoyTrafficSettings(preferences->decoyTrafficSettings());
+    connect(decoyTrafficGroup_, &DecoyTrafficGroup::decoyTrafficSettingsChanged, this, &ConnectionWindowItem::onDecoyTrafficSettingsChangedByUser);
+    addItem(decoyTrafficGroup_);
 
     antiCensorshipGroup_ = new PreferenceGroup(this,
                                               "",
@@ -309,6 +317,11 @@ void ConnectionWindowItem::onConnectedDnsPreferencesChanged(const types::Connect
     connectedDnsGroup_->setConnectedDnsInfo(dns);
 }
 
+void ConnectionWindowItem::onDecoyTrafficPreferencesChanged(const types::DecoyTrafficSettings &decoyTrafficSettings)
+{
+    decoyTrafficGroup_->setDecoyTrafficSettings(decoyTrafficSettings);
+}
+
 void ConnectionWindowItem::onProxyGatewayAddressChanged(const QString &address)
 {
     proxyGatewayGroup_->setProxyGatewayAddress(address);
@@ -397,6 +410,11 @@ void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser(bool b)
 void ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser(const types::ConnectedDnsInfo &dns)
 {
     preferences_->setConnectedDnsInfo(dns);
+}
+
+void ConnectionWindowItem::onDecoyTrafficSettingsChangedByUser(const types::DecoyTrafficSettings &decoyTrafficSettings)
+{
+    preferences_->setDecoyTrafficSettings(decoyTrafficSettings);
 }
 
 void ConnectionWindowItem::hideOpenPopups()

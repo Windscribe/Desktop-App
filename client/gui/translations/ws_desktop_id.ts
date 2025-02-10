@@ -842,14 +842,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>Anda telah memilih untuk menampilkan notifikasi, tetapi notifikasi sistem dinonaktifkan. Harap aktifkan pemberitahuan sistem di Pengaturan Sistem Anda.</translation>
     </message>
-    <message>
-        <source>App not signed</source>
-        <translation>Aplikasi tidak ditandatangani</translation>
-    </message>
-    <message>
-        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
-        <translation>Aplikasi yang dipilih tidak ditandatangani. Terowongan terpisah hanya didukung untuk aplikasi yang ditandatangani di macOS.</translation>
-    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1258,6 +1250,41 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Secara otomatis menentukan MTU untuk koneksi Anda, atau mengganti secara manual.  Ini tidak berpengaruh pada protokol berbasis TCP.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::DecoyTrafficGroup</name>
+    <message>
+        <source>Decoy Traffic</source>
+        <translation>Lalu Lintas Umpan</translation>
+    </message>
+    <message>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <translation>Ini adalah fitur eksperimental yang mencoba memerangi serangan korelasi lalu lintas pada jaringan musuh. Saat diaktifkan, aplikasi akan menghasilkan aktivitas acak melalui terowongan, dan mengunggah dan mengunduh data acak pada interval yang dipilih.</translation>
+    </message>
+    <message>
+        <source>Fake Traffic Volume</source>
+        <translation>Volume Lalu Lintas Palsu</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Rendah</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Sedang</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Tinggi</translation>
+    </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>Perkiraan Penggunaan Data</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/Jam</translation>
     </message>
 </context>
 <context>
@@ -1976,13 +2003,6 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>Silakan masuk untuk mengubah aturan tunneling terpisah.</translation>
-    </message>
-    <message>
-        <source>
-
-On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
-        <translation>
-Di macOS, app diidentifikasi dengan pengenal penandatanganannya, sehingga app yang tidak ditandatangani tidak dapat dipisahkan melalui terowongan.  Saat aplikasi dikanalisasi terpisah, semua salinan aplikasi tersebut diterowongan terpisah, terlepas dari jalurnya.</translation>
     </message>
 </context>
 <context>

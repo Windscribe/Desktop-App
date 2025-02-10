@@ -219,5 +219,13 @@ void serialize(Archive & ar, CMD_SSID_FROM_INTERFACE_GUID & g, const unsigned in
     ar & g.interfaceGUID;
 }
 
+template<class Archive>
+void serialize(Archive & ar, CMD_SET_NETWORK_CATEGORY & g, const unsigned int version)
+{
+    UNREFERENCED_PARAMETER(version);
+    ar & g.networkName;
+    ar & g.category;
+}
+
 } // namespace serialization
 } // namespace boost

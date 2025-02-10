@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../ip_address/ip4_address_and_mask.h"
-#include "../../ip_address/ip6_address_and_prefix.h"
 #include "../../firewallfilter.h"
 #include "dns_resolver.h"
 #include "ip_routes.h"
@@ -14,10 +13,7 @@ public:
 
     void enable(const std::string &gatewayIp, unsigned long ifIndex);
     void disable();
-    void setSettings(bool isExclude,
-                     const std::vector<Ip4AddressAndMask> &ipsV4,
-                     const std::vector<Ip6AddressAndPrefix> &ipsV6,
-                     const std::vector<std::string> &hosts);
+    void setSettings(bool isExclude, const std::vector<Ip4AddressAndMask> &ips, const std::vector<std::string> &hosts);
 
 private:
     DnsResolver dnsResolver_;
@@ -29,8 +25,7 @@ private:
     bool isExcludeMode_;
 
     // latest ips and hosts list
-    std::vector<Ip4AddressAndMask> ipsLatestV4_;
-    std::vector<Ip6AddressAndPrefix> ipsLatestV6_;
+    std::vector<Ip4AddressAndMask> ipsLatest_;
     std::vector<std::string> hostsLatest_;
 
     std::string gatewayIp_;

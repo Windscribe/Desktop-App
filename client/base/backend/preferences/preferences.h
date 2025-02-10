@@ -110,6 +110,9 @@ public:
     DNS_POLICY_TYPE dnsPolicy() const;
     void setDnsPolicy(DNS_POLICY_TYPE d);
 
+    types::DecoyTrafficSettings decoyTrafficSettings() const;
+    void setDecoyTrafficSettings(const types::DecoyTrafficSettings &d);
+
 #ifdef Q_OS_LINUX
     DNS_MANAGER_TYPE dnsManager() const;
     void setDnsManager(DNS_MANAGER_TYPE d);
@@ -197,6 +200,7 @@ signals:
     void shareProxyGatewayChanged(const types::ShareProxyGateway &sp);
     void debugAdvancedParametersChanged(const QString &pars);
     void dnsPolicyChanged(DNS_POLICY_TYPE d);
+    void decoyTrafficSettingsChanged(const types::DecoyTrafficSettings &d);
     void dnsManagerChanged(DNS_MANAGER_TYPE d);
     void appSkinChanged(APP_SKIN s);
 

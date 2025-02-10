@@ -37,7 +37,4 @@ private:
 
     bool isWifiAdapterUp(const QVector<types::NetworkInterface> &networkList);
     const types::NetworkInterface currentNetworkInterfaceFromNetworkList(const QVector<types::NetworkInterface> &networkList);
-
-    bool isOnlineOldImpl();
-
 };

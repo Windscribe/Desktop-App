@@ -121,7 +121,7 @@ void TestVPNTunnel::onPingTestAnswer(wsnet::ServerApiRetCode serverApiRetCode, c
 
     if (bRunning_) {
         const QString trimmedData = QString::fromStdString(ipAddress).trimmed();
-        if (serverApiRetCode == ServerApiRetCode::kSuccess && IpValidation::isIpv4Address(trimmedData)) {
+        if (serverApiRetCode == ServerApiRetCode::kSuccess && IpValidation::isIp(trimmedData)) {
             qCInfo(LOG_CONNECTION) << "Tunnel test " << QString::number(curTest_) << "successfully finished with IP:" << trimmedData << ", total test time =" << elapsedOverallTimer_.elapsed();
             bRunning_ = false;
             emit testsFinished(true, trimmedData);

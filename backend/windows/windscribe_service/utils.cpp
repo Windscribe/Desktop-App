@@ -439,7 +439,7 @@ bool addFilterV4(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
 
 bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_TYPE type, UINT8 weight,
                  GUID subLayerKey, wchar_t *subLayerName, PNET_LUID pluid,
-                 const std::vector<Ip6AddressAndPrefix> *ranges, AppsIds *appsIds, bool persistent)
+                 const std::vector<Ip6AddressAndPrefix> *ranges, bool persistent)
 {
     UINT64 id = 0;
     bool success = true;
@@ -487,17 +487,6 @@ bool addFilterV6(HANDLE engineHandle, std::vector<UINT64> *filterId, FWP_ACTION_
             condition.conditionValue.type = FWP_UINT64;
             condition.conditionValue.uint64 = &pluid->Value;
             conditions.push_back(condition);
-        }
-
-        if (appsIds != nullptr) {
-            for (size_t i = 0; i < (*appsIds).count(); ++i) {
-                FWPM_FILTER_CONDITION0 condition;
-                condition.fieldKey = FWPM_CONDITION_ALE_APP_ID;
-                condition.matchType = FWP_MATCH_EQUAL;
-                condition.conditionValue.type = FWP_BYTE_BLOB_TYPE;
-                condition.conditionValue.byteBlob = (FWP_BYTE_BLOB *)(*appsIds).getAppId(i);
-                conditions.push_back(condition);
-            }
         }
 
         filter.filterCondition = &conditions[0];

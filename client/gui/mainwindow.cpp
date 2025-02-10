@@ -3283,23 +3283,6 @@ void MainWindow::onSplitTunnelingAppsAddButtonClick()
     ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
 
     if (!filename.isEmpty()) {
-#ifdef Q_OS_MACOS
-        // Check that the selected app is signed
-        if (MacUtils::getSigningIdentifier(filename).isEmpty()) {
-            GeneralMessageController::instance().showMessage(
-                "WARNING_YELLOW",
-                tr("App not signed"),
-                tr("The selected app is not signed. Split tunneling is only supported for signed apps on macOS."),
-                GeneralMessageController::tr(GeneralMessageController::kOk),
-                "",
-                "",
-                std::function<void(bool)>(nullptr),
-                std::function<void(bool)>(nullptr),
-                std::function<void(bool)>(nullptr),
-                GeneralMessage::kFromPreferences);
-            return;
-        }
-#endif
         mainWindowController_->getPreferencesWindow()->addApplicationManually(filename);
     }
 }

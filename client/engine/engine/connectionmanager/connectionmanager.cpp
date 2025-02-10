@@ -359,6 +359,16 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
 
     vpnAdapterInfo_ = connectionAdapterInfo;
 
+#ifdef Q_OS_WIN
+    // Set network category
+    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
+    if (connector_->getConnectionType() == ConnectionType::WIREGUARD) {
+        helper_win->setNetworkCategory(QString::fromStdWString(kWireGuardAdapterIdentifier), NETWORK_CATEGORY_PRIVATE);
+    } else {
+        helper_win->setNetworkCategory(vpnAdapterInfo_.adapterName(), NETWORK_CATEGORY_PRIVATE);
+    }
+#endif
+
     qCInfo(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
     // override the DNS if we are using custom
@@ -948,7 +958,7 @@ void ConnectionManager::doConnectPart2()
         // we need to exclude these DNS-addresses from DNS leak protection on Windows
         QStringList dnsIps;
         dnsIps << ctrldManager_->listenIp();
-        if (IpValidation::isIpv4Address(connectedDnsInfo_.upStream1)) {
+        if (IpValidation::isIp(connectedDnsInfo_.upStream1)) {
             dnsIps << connectedDnsInfo_.upStream1;
         }
         dynamic_cast<Helper_win*>(helper_)->setCustomDnsIps(dnsIps);
@@ -1100,7 +1110,7 @@ void ConnectionManager::doConnectPart3()
         } else if (connectedDnsInfo_.isCustomIPv4Address()) {
             dnsIps << connectedDnsInfo_.upStream1;
         } else {
-            if (IpValidation::isIpv4Address(connectedDnsInfo_.upStream1)) {
+            if (IpValidation::isIp(connectedDnsInfo_.upStream1)) {
                 dnsIps << connectedDnsInfo_.upStream1;
             }
             dnsIps << ctrldManager_->listenIp();

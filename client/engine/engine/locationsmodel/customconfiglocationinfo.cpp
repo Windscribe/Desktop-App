@@ -88,7 +88,7 @@ void CustomConfigLocationInfo::resolveHostnamesForWireGuardConfig()
         rd.ipOrHostname_ = remote;
         rd.isHostname = false;
         rd.port = globalPort_;
-        if (!IpValidation::isIpv4Address(remote))
+        if (!IpValidation::isIp(remote))
         {
             rd.isHostname = true;
             rd.isResolved = false;
@@ -127,7 +127,7 @@ void CustomConfigLocationInfo::resolveHostnamesForOVPNConfig()
     const QVector<customconfigs::RemoteCommandLine> remotes = config->remotes();
     for (const auto &remote : remotes)
     {
-        if (IpValidation::isIpv4Address(remote.hostname))
+        if (IpValidation::isIp(remote.hostname))
         {
             RemoteDescr rd;
             rd.ipOrHostname_ = remote.hostname;

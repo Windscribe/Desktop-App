@@ -104,10 +104,6 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
 
 void NetworkDetectionManager_mac::onOnlineStateChanged(bool isOnline)
 {
-    // Left the old implementation of checking network status for debugging information.
-    // If there are no problems with this in the future then we can delete it.
-    qCDebug(LOG_BASIC) << "NetworkDetectionManager_mac::isOnlineOldImpl = " << isOnlineOldImpl();
-
     if (lastIsOnlineState_ != isOnline) {
         lastIsOnlineState_ = isOnline;
         emit onlineStateChanged(isOnline);
@@ -138,16 +134,6 @@ const types::NetworkInterface NetworkDetectionManager_mac::currentNetworkInterfa
     }
 
     return types::NetworkInterface::noNetworkInterface();
-}
-
-bool NetworkDetectionManager_mac::isOnlineOldImpl()
-{
-    QString command = "netstat -nr -f inet | sed '1,3 d' | awk 'NR==1 { for (i=1; i<=NF; i++) { f[$i] = i  } } NR>1 && $(f[\"Destination\"])==\"default\" { print $(f[\"Gateway\"]), $(f[\"Netif\"]) ; exit }'";
-    QString strReply = Utils::execCmd(command).trimmed();
-    if (strReply.isEmpty())
-        return false;
-
-    return true;
 }
 
 void NetworkDetectionManager_mac::getCurrentNetworkInterface(types::NetworkInterface &networkInterface, bool forceUpdate)

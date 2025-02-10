@@ -19,6 +19,8 @@ target_sources(gui PRIVATE
     connectionwindow/connecteddnsgroup.h
     connectionwindow/connectionwindowitem.cpp
     connectionwindow/connectionwindowitem.h
+    connectionwindow/decoytrafficgroup.cpp
+    connectionwindow/decoytrafficgroup.h
     connectionwindow/firewallgroup.cpp
     connectionwindow/firewallgroup.h
     connectionwindow/macaddressitem.cpp
@@ -112,4 +114,6 @@ target_sources(gui PRIVATE
     toggleitem.h
     verticaleditboxitem.cpp
     verticaleditboxitem.h
+    statictext.cpp
+    statictext.h
 )

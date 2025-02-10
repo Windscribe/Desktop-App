@@ -63,9 +63,6 @@ void SplitTunnelingAppsWindowItem::setLoggedIn(bool loggedIn)
     if (loggedIn) {
         desc_->clearError();
         QString desc = tr("Add the apps you wish to include in or exclude from the VPN tunnel below.");
-#ifdef Q_OS_MACOS
-        desc += tr("\n\nOn macOS, apps are identified by their signing identifier, so unsigned apps can't be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.");
-#endif
         desc_->setDescription(desc, false);
     } else {
         desc_->setDescription(tr("Please log in to modify split tunneling rules."), true);

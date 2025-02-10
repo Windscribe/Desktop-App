@@ -842,14 +842,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>Bildirimleri göstermeyi seçtiniz, ancak sistem bildirimleri devre dışı bırakıldı. Lütfen Sistem Ayarlarınızda sistem bildirimlerini etkinleştirin.</translation>
     </message>
-    <message>
-        <source>App not signed</source>
-        <translation>Uygulama imzalanmadı</translation>
-    </message>
-    <message>
-        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
-        <translation>Seçilen uygulama imzalı değil. Ayrık tünelleme yalnızca macOS&apos;ta imzalı uygulamalar için desteklenir.</translation>
-    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1258,6 +1250,41 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Bağlantınız için MTU&apos;yu otomatik olarak belirleyin veya manuel olarak geçersiz kılın.  Bunun TCP tabanlı protokoller üzerinde hiçbir etkisi yoktur.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::DecoyTrafficGroup</name>
+    <message>
+        <source>Decoy Traffic</source>
+        <translation>Tuzak Trafik</translation>
+    </message>
+    <message>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <translation>Bu, düşman ağlara yönelik trafik korelasyon saldırılarıyla mücadele etmeye çalışan deneysel bir özelliktir. Etkinleştirildiğinde, uygulama tünel üzerinden rastgele etkinlik oluşturur ve seçilen aralıklarla rastgele verileri karşıya yükler ve indirir.</translation>
+    </message>
+    <message>
+        <source>Fake Traffic Volume</source>
+        <translation>Sahte Trafik Hacmi</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Alçak</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Orta</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Yüksek</translation>
+    </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>Tahmini Veri Kullanımı</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/Saat</translation>
     </message>
 </context>
 <context>
@@ -1976,13 +2003,6 @@ Connect to a network first</source>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>Bölünmüş tünelleme kurallarını değiştirmek için lütfen oturum açın.</translation>
-    </message>
-    <message>
-        <source>
-
-On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
-        <translation>
-macOS&apos;te uygulamalar imzalama tanımlayıcılarıyla tanımlanır, bu nedenle imzasız uygulamalar bölünmüş tünele giremez.  Bir uygulama bölünmüş tünel haline getirildiğinde, bu uygulamanın tüm kopyaları, yollarından bağımsız olarak bölünmüş tünele tabi tutulur.</translation>
     </message>
 </context>
 <context>

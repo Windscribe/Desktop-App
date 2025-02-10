@@ -57,7 +57,7 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
     }
 
     QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-    if (IpValidation::isIpv4Address(remoteOverride) && attempts_.size() > 0 && attempts_[0].protocol == types::Protocol::WIREGUARD) {
+    if (IpValidation::isIp(remoteOverride) && attempts_.size() > 0 && attempts_[0].protocol == types::Protocol::WIREGUARD) {
         locationInfo_->selectNodeByIp(remoteOverride);
     }
 }
@@ -83,7 +83,7 @@ void AutoConnSettingsPolicy::putFailedConnection()
     if (curAttempt_ < (attempts_.count() - 1)) {
         if (attempts_[curAttempt_].changeNode) {
             QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-            if (IpValidation::isIpv4Address(remoteOverride) && attempts_[curAttempt_ + 1].protocol == types::Protocol::WIREGUARD) {
+            if (IpValidation::isIp(remoteOverride) && attempts_[curAttempt_ + 1].protocol == types::Protocol::WIREGUARD) {
                 locationInfo_->selectNodeByIp(remoteOverride);
             } else {
                 locationInfo_->selectNextNode();
@@ -117,7 +117,7 @@ CurrentConnectionDescr AutoConnSettingsPolicy::getCurrentConnectionSettings() co
     ccd.port = portMap_.const_items()[attempts_[curAttempt_].portMapInd].ports[0];
 
     QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-    if (IpValidation::isIpv4Address(remoteOverride) && ccd.protocol == types::Protocol::WIREGUARD) {
+    if (IpValidation::isIp(remoteOverride) && ccd.protocol == types::Protocol::WIREGUARD) {
         ccd.ip = remoteOverride;
     } else {
         int useIpInd = portMap_.getUseIpInd(ccd.protocol);
@@ -198,3 +198,4 @@ bool AutoConnSettingsPolicy::hasProtocolChanged()
 {
     return (curAttempt_ % 2 == 0);
 }
+

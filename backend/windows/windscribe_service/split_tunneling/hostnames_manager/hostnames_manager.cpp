@@ -20,9 +20,8 @@ void HostnamesManager::enable(const std::string &gatewayIp, unsigned long ifInde
         gatewayIp_ = gatewayIp;
         ifIndex_ = ifIndex;
         ipRoutes_.clear();
-        ipRoutes_.setIps(gatewayIp_, ifIndex_, ipsLatestV4_);
-        FirewallFilter::instance().setSplitTunnelingWhitelistIpsV4(ipsLatestV4_);
-        FirewallFilter::instance().setSplitTunnelingWhitelistIpsV6(ipsLatestV6_);
+        ipRoutes_.setIps(gatewayIp_, ifIndex_, ipsLatest_);
+        FirewallFilter::instance().setSplitTunnelingWhitelistIps(ipsLatest_);
         isEnabled_ = true;
     }
 
@@ -37,7 +36,8 @@ void HostnamesManager::disable()
     {
         std::lock_guard<std::recursive_mutex> guard(mutex_);
 
-        if (!isEnabled_) {
+        if (!isEnabled_)
+        {
             return;
         }
         ipRoutes_.clear();
@@ -47,58 +47,42 @@ void HostnamesManager::disable()
     spdlog::debug("HostnamesManager::disable(), end");
 }
 
-void HostnamesManager::setSettings(
-    bool isExclude,
-    const std::vector<Ip4AddressAndMask> &ipsV4,
-    const std::vector<Ip6AddressAndPrefix> &ipsV6,
-    const std::vector<std::string> &hosts)
+void HostnamesManager::setSettings(bool isExclude, const std::vector<Ip4AddressAndMask> &ips, const std::vector<std::string> &hosts)
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
-    ipsLatestV4_ = ipsV4;
-    ipsLatestV6_ = ipsV6;
+    ipsLatest_ = ips;
     hostsLatest_ = hosts;
     isExcludeMode_ = isExclude;
     spdlog::debug("HostnamesManager::setSettings(), end");
+
 }
 
 void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::HostInfo> hostInfos)
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
 
-    std::vector<Ip4AddressAndMask> hostsIpV4;
-    std::vector<Ip6AddressAndPrefix> hostsIpV6;
-
+    std::vector<Ip4AddressAndMask> hostsIps;
     for (auto it = hostInfos.begin(); it != hostInfos.end(); ++it) {
         if (!it->second.error) {
             std::vector<std::string> addresses = it->second.addresses;
             for (const auto addr : it->second.addresses) {
                 if (addr == "0.0.0.0") {
                     // ROBERT sometimes will give us an address of 0.0.0.0 for a 'blocked' resource.  This is not a valid address.
-                    spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : {}, IP: 0.0.0.0 (Ignored)", it->first.c_str());
+                    spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : %s, IP: 0.0.0.0 (Ignored)", it->first.c_str());
                 } else {
-                    spdlog::debug("RoutesManager::dnsResolverCallback(), Resolved : {}, IP: {}", it->first.c_str(), addr.c_str());
-                    Ip4AddressAndMask ip4(addr.c_str());
-                    if (ip4.isValid()) {
-                        hostsIpV4.push_back(ip4);
-                    } else {
-                        Ip6AddressAndPrefix ip6(addr.c_str());
-                        if (ip6.isValid()) {
-                            hostsIpV6.push_back(ip6);
-                        }
-                    }
+                    hostsIps.push_back(Ip4AddressAndMask(addr.c_str()));
+                    spdlog::debug("RoutesManager::dnsResolverCallback(), Resolved : %s, IP: %s", it->first.c_str(), addr.c_str());
                 }
             }
         } else {
-            spdlog::warn("RoutesManager::dnsResolverCallback(), Failed resolve : {}", it->first.c_str());
+            spdlog::warn("RoutesManager::dnsResolverCallback(), Failed resolve : %s", it->first.c_str());
         }
     }
 
-    hostsIpV4.insert(hostsIpV4.end(), ipsLatestV4_.begin(), ipsLatestV4_.end());
-    hostsIpV6.insert(hostsIpV6.end(), ipsLatestV6_.begin(), ipsLatestV6_.end());
+    hostsIps.insert(hostsIps.end(), ipsLatest_.begin(), ipsLatest_.end());
 
     if (isEnabled_) {
-        ipRoutes_.setIps(gatewayIp_, ifIndex_, hostsIpV4);
-        FirewallFilter::instance().setSplitTunnelingWhitelistIpsV4(hostsIpV4);
-        FirewallFilter::instance().setSplitTunnelingWhitelistIpsV6(hostsIpV6);
+        ipRoutes_.setIps(gatewayIp_, ifIndex_, hostsIps);
+        FirewallFilter::instance().setSplitTunnelingWhitelistIps(hostsIps);
     }
 }

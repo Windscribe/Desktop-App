@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)init;
-- (void)setupUDPConnection:(NEAppProxyUDPFlow *)flow interface:(nw_interface_t)interface;
+- (BOOL)setupUDPConnection:(NEAppProxyUDPFlow *)flow interface:(nw_interface_t)interface;
 - (void)cleanup;
 
 @end

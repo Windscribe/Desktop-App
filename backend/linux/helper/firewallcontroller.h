@@ -46,6 +46,5 @@ private:
     void removeInclusiveAppRules();
     void setSplitTunnelAppExceptions();
     void setSplitTunnelIngressRules(const std::string &defaultAdapterIp);
-    void addRule(const std::vector<std::string> &args, bool ipv6 = false, bool append = false);
-    void removeRule(const std::vector<std::string> &args, bool ipv6 = false);
+    void addRule(const std::vector<std::string> &args);
 };

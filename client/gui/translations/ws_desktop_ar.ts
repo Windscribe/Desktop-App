@@ -842,14 +842,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>لقد اخترت إظهار الإعلامات، ولكن يتم تعطيل إعلامات النظام. يرجى تمكين إشعارات النظام في إعدادات النظام الخاصة بك.</translation>
     </message>
-    <message>
-        <source>App not signed</source>
-        <translation>التطبيق غير موقع</translation>
-    </message>
-    <message>
-        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
-        <translation>لم يتم توقيع التطبيق المحدد. يتم دعم الانقسام النفقي فقط للتطبيقات الموقعة على macOS.</translation>
-    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1258,6 +1250,41 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>تحديد وحدة الإرسال الكبرى تلقائيا لاتصالك، أو تجاوزها يدويا. هذا ليس له أي تأثير على البروتوكولات المستندة إلى TCP.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::DecoyTrafficGroup</name>
+    <message>
+        <source>Decoy Traffic</source>
+        <translation>شرك حركة المرور</translation>
+    </message>
+    <message>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <translation>هذه ميزة تجريبية تحاول مكافحة هجمات ارتباط حركة المرور على الشبكات العدائية. عند التمكين، سيقوم التطبيق بإنشاء نشاط عشوائي عبر النفق، وتحميل وتنزيل بيانات عشوائية على فترات زمنية محددة.</translation>
+    </message>
+    <message>
+        <source>Fake Traffic Volume</source>
+        <translation>حجم حركة المرور المزيفة</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>منخفض</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>متوسط</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>عال</translation>
+    </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>الاستخدام المقدر للبيانات</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>جيجابايت / ساعة</translation>
     </message>
 </context>
 <context>
@@ -1976,13 +2003,6 @@ Connect to a network first</source>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>يرجى تسجيل الدخول لتعديل قواعد الانقسام النفقي.</translation>
-    </message>
-    <message>
-        <source>
-
-On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
-        <translation>
-على macOS، يتم تحديد التطبيقات من خلال معرف التوقيع الخاص بها، لذلك لا يمكن تقسيم التطبيقات غير الموقعة إلى النفق.  عند تقسيم أحد التطبيقات، يتم تقسيم جميع نسخ هذا التطبيق إلى النفق، بغض النظر عن مساره.</translation>
     </message>
 </context>
 <context>

@@ -52,8 +52,7 @@
     [flow closeWriteWithError:error];
 }
 
-- (void)setupUDPConnection:(NEAppProxyUDPFlow *)flow
-                 interface:(nw_interface_t)interface {
+- (BOOL)setupUDPConnection:(NEAppProxyUDPFlow *)flow interface:(nw_interface_t)interface {
     // Open the flow
     [flow openWithLocalEndpoint:(NWHostEndpoint *)flow.localEndpoint completionHandler:^(NSError * _Nullable error) {
         if (error) {
@@ -65,11 +64,10 @@
         // Outbound flows that create connections will start the inbound handler
         [self handleUDPOutboundFlow:flow interface:interface];
     }];
+    return YES;
 }
 
-- (void)handleUDPOutboundFlow:(NEAppProxyUDPFlow *)flow
-                   interface:(nw_interface_t)interface {
-
+- (void)handleUDPOutboundFlow:(NEAppProxyUDPFlow *)flow interface:(nw_interface_t)interface {
     [flow readDatagramsWithCompletionHandler:^(NSArray<NSData *> * _Nullable datagrams, NSArray<NWEndpoint *> * _Nullable endpoints, NSError * _Nullable error) {
         if (error) {
             spdlog::error("[UDP] Read error: {} ({})", [[error localizedDescription] UTF8String], error.code);
@@ -102,12 +100,16 @@
                 return;
             }
 
+            nw_interface_t targetInterface = interface;
+
             // DNS traffic should stay on the original (VPN) interface.  ROBERT can only be reached from the VPN interface.
-            if (nw_endpoint_get_port(endpoint) == 53) {
-                nw_parameters_require_interface(parameters, flow.networkInterface);
-            } else {
-                nw_parameters_require_interface(parameters, interface);
+            // If it's a LAN range (except the reserved 10.255.255.0/24 range), we leave the traffic on the original interface.
+            // Note that the firewall may still block this later.
+            if (nw_endpoint_get_port(endpoint) == 53 || [Utils isLanRange:endpoint]) {
+                targetInterface = flow.networkInterface;
             }
+
+            nw_parameters_require_interface(parameters, targetInterface);
 
             // Check for existing connection to the same endpoint and flow
             nw_connection_t existingConnection = nil;

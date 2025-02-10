@@ -13,6 +13,7 @@
 #include "packetsizegroup.h"
 #include "proxygatewaygroup.h"
 #include "securehotspotgroup.h"
+#include "decoytrafficgroup.h"
 
 enum CONNECTION_SCREEN_TYPE { CONNECTION_SCREEN_HOME,
                               CONNECTION_SCREEN_NETWORK_OPTIONS,
@@ -55,6 +56,7 @@ private slots:
     void onIsAllowLanTrafficPreferencesChanged(bool b);
     void onAllowLanTrafficButtonHoverLeave();
     void onConnectedDnsPreferencesChanged(const types::ConnectedDnsInfo &dns);
+    void onDecoyTrafficPreferencesChanged(const types::DecoyTrafficSettings &decoyTrafficSettings);
     void onSecureHotspotPreferencesChanged(const types::ShareSecureHotspot &ss);
     void onProxyGatewayAddressChanged(const QString &address);
     void onProxyGatewayPreferencesChanged(const types::ShareProxyGateway &sp);
@@ -71,6 +73,7 @@ private slots:
     void onPacketSizePreferencesChangedByUser(const types::PacketSize &ps);
     void onMacAddrSpoofingPreferencesChangedByUser(const types::MacAddrSpoofing &mas);
     void onConnectedDnsPreferencesChangedByUser(const types::ConnectedDnsInfo &dns);
+    void onDecoyTrafficSettingsChangedByUser(const types::DecoyTrafficSettings &decoyTrafficSettings);
     void onIsAllowLanTrafficPreferencesChangedByUser(bool b);
     void onSecureHotspotPreferencesChangedByUser(const types::ShareSecureHotspot &ss);
     void onProxyGatewayPreferencesChangedByUser(const types::ShareProxyGateway &sp);
@@ -107,6 +110,7 @@ private:
     ToggleItem *antiCensorshipItem_;
     SecureHotspotGroup *secureHotspotGroup_;
     ProxyGatewayGroup *proxyGatewayGroup_;
+    DecoyTrafficGroup *decoyTrafficGroup_;
 
     bool isIkev2(const types::ConnectionSettings &cs) const;
 

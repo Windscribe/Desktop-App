@@ -842,14 +842,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>Вы выбрали отображение уведомлений, но системные уведомления отключены. Пожалуйста, включите системные уведомления в ваших системных настройках.</translation>
     </message>
-    <message>
-        <source>App not signed</source>
-        <translation>Приложение не подписано</translation>
-    </message>
-    <message>
-        <source>The selected app is not signed. Split tunneling is only supported for signed apps on macOS.</source>
-        <translation>Выбранное приложение не подписано. Раздельное туннелирование поддерживается только для подписанных приложений на macOS.</translation>
-    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1258,6 +1250,41 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Автоматически определите MTU для подключения или переопределите его вручную.  Это никак не влияет на протоколы на основе TCP.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::DecoyTrafficGroup</name>
+    <message>
+        <source>Decoy Traffic</source>
+        <translation>Трафик приманок</translation>
+    </message>
+    <message>
+        <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
+        <translation>Это экспериментальная функция, которая пытается бороться с атаками корреляции трафика в состязательных сетях. Когда этот параметр включен, приложение будет генерировать случайную активность в туннеле, а также загружать и скачивать случайные данные через выбранные промежутки времени.</translation>
+    </message>
+    <message>
+        <source>Fake Traffic Volume</source>
+        <translation>Фейковый объем трафика</translation>
+    </message>
+    <message>
+        <source>Low</source>
+        <translation>Низкий</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Терпимая</translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation>Высокий</translation>
+    </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>Предполагаемое использование данных</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>ГБ/час</translation>
     </message>
 </context>
 <context>
@@ -1976,13 +2003,6 @@ Connect to a network first</source>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
         <translation>Пожалуйста, войдите в систему, чтобы изменить правила раздельного туннелирования.</translation>
-    </message>
-    <message>
-        <source>
-
-On macOS, apps are identified by their signing identifier, so unsigned apps can&apos;t be split tunneled.  When an app is split tunneled, all copies of that app are split tunneled, regardless of their path.</source>
-        <translation>
-В macOS приложения идентифицируются по идентификатору подписи, поэтому неподписанные приложения не могут быть разделены туннелированием.  Когда приложение разделяется на части и туннелируется, все копии этого приложения разделяются по туннелированию, независимо от пути к ним.</translation>
     </message>
 </context>
 <context>

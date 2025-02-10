@@ -17,6 +17,7 @@
 #include "apiresourcesmanager/apiresourcesmanager.h"
 #include "emergencyconnect/emergencyconnect.h"
 #include "pingmanager/pingmanager.h"
+#include "decoytraffic/decoytraffic.h"
 #include "advancedparameters.h"
 #include "connectstate.h"
 #include "../../../client/common/version/windscribe_version.h"
@@ -89,6 +90,7 @@ public:
         apiResourcesManager_ = std::make_shared<ApiResourcesManager>(io_context_, serverAPI_.get(), *persistentSettings_, connectState_);
         emergencyConnect_ = std::make_shared<EmergencyConnect>(io_context_, failoverContainer_.get(), dnsResolver_.get());
         pingManager_ = std::make_shared<PingManager>(io_context_, httpNetworkManager_.get(), advancedParameters_.get());
+        decoyTraffic_ = std::make_shared<DecoyTraffic>(io_context_, httpNetworkManager_.get());
         utils_ = std::make_shared<WSNetUtils_impl>(io_context_, httpNetworkManager_.get(), failoverContainer_.get(), advancedParameters_.get());
 
         return true;
@@ -118,6 +120,7 @@ public:
     std::shared_ptr<WSNetApiResourcesManager> apiResourcersManager() override { return apiResourcesManager_; }
     std::shared_ptr<WSNetEmergencyConnect> emergencyConnect() override { return emergencyConnect_; };
     std::shared_ptr<WSNetPingManager> pingManager() override { return pingManager_; }
+    std::shared_ptr<WSNetDecoyTraffic> decoyTraffic() override { return decoyTraffic_; }
     std::shared_ptr<WSNetAdvancedParameters> advancedParameters() override { return advancedParameters_; }
     std::shared_ptr<WSNetUtils> utils() override { return utils_; }
 
@@ -136,6 +139,7 @@ private:
     std::shared_ptr<WSNetApiResourcesManager> apiResourcesManager_;
     std::shared_ptr<EmergencyConnect> emergencyConnect_;
     std::shared_ptr<PingManager> pingManager_;
+    std::shared_ptr<DecoyTraffic> decoyTraffic_;
     std::shared_ptr<WSNetUtils_impl> utils_;
 };
 

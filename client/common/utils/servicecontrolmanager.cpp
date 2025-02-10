@@ -2,6 +2,7 @@
 
 #include <NTSecAPI.h>
 #include <sddl.h>
+#include <shellapi.h>
 
 #include <codecvt>
 #include <sstream>
@@ -1017,6 +1018,81 @@ void ServiceControlManager::grantUserStartStopPermission() const
         throw std::system_error(lastError, std::system_category(),
             std::string("grantUserStartStopPermission: SetServiceObjectSecurity failed - ") + std::to_string(lastError));
     }
+}
+
+/******************************************************************************
+* METHOD:  exePath
+*
+* PURPOSE: Retrieves the full path to the service's executable.
+*
+* THROWS:  A system_error object.
+*******************************************************************************/
+std::wstring ServiceControlManager::exePath() const
+{
+    DWORD numBytesNeeded = 0;
+    DWORD bufferSize = 1024;
+    std::unique_ptr< unsigned char[] > buffer(new unsigned char[bufferSize]);
+
+    bool secondTry = false;
+
+    for (int i = 0; i < 2; i++) {
+        if (::QueryServiceConfig(service_, (LPQUERY_SERVICE_CONFIG)buffer.get(),
+                                 bufferSize, &numBytesNeeded)) {
+            break;
+        }
+
+        DWORD lastError = ::GetLastError();
+        std::wostringstream errorMsg;
+
+        switch (lastError) {
+        case ERROR_INSUFFICIENT_BUFFER:
+            if (secondTry) {
+                errorMsg << "queryServiceConfig: insufficient buffer space to query the service's configuration - " << serviceName_;
+                break;
+            }
+
+            buffer.reset(new unsigned char[numBytesNeeded]);
+            numBytesNeeded = 0;
+            secondTry = true;
+            continue;
+
+        case ERROR_ACCESS_DENIED:
+            errorMsg << "queryServiceConfig: insufficient user rights to query the service's configuration - " << serviceName_;
+            break;
+
+        case ERROR_INVALID_HANDLE:
+            errorMsg << "queryServiceConfig: the service has not been opened - " << serviceName_;
+            break;
+
+        default:
+            errorMsg << "queryServiceConfig failed to query the service " << serviceName_ << " - " << lastError;
+            break;
+        }
+
+        throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
+    }
+
+    LPQUERY_SERVICE_CONFIG lpConfig = (LPQUERY_SERVICE_CONFIG)buffer.get();
+    std::wstring cmdLine(lpConfig->lpBinaryPathName);
+    if (cmdLine.empty()) {
+        return std::wstring();
+    }
+
+    // Separate the exe path from its arguments, if any.
+    int numArgs = 0;
+    LPWSTR *argList = ::CommandLineToArgvW(cmdLine.c_str(), &numArgs);
+    if (argList == NULL) {
+        return std::wstring();
+    }
+
+    std::wstring exePath;
+    if (numArgs > 0) {
+        exePath = std::wstring(argList[0]);
+    }
+
+    ::LocalFree(argList);
+
+    return exePath;
 }
 
 } // end namespace wsl

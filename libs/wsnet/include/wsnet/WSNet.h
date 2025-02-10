@@ -10,6 +10,7 @@
 #include "WSNetPingManager.h"
 #include "WSNetAdvancedParameters.h"
 #include "WSNetApiResourcesManager.h"
+#include "WSNetDecoyTraffic.h"
 #include "WSNetUtils.h"
 
 namespace wsnet {
@@ -49,6 +50,7 @@ public:
     virtual std::shared_ptr<WSNetApiResourcesManager> apiResourcersManager() = 0;
     virtual std::shared_ptr<WSNetEmergencyConnect> emergencyConnect() = 0;
     virtual std::shared_ptr<WSNetPingManager> pingManager() = 0;
+    virtual std::shared_ptr<WSNetDecoyTraffic> decoyTraffic() = 0;
     virtual std::shared_ptr<WSNetAdvancedParameters> advancedParameters() = 0;
     virtual std::shared_ptr<WSNetUtils> utils() = 0;
 };

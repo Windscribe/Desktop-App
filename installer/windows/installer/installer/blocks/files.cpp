@@ -35,14 +35,14 @@ int Files::executeStep()
     if (filesystem::exists(installPath_, ec)) {
         if (!filesystem::is_empty(installPath_, ec)) {
             if (ec) {
-                spdlog::error("Files::executeStep: filesystem::is_empty failed ({}).", ec.message().c_str());
+                spdlog::error("Files::executeStep: filesystem::is_empty failed ({}).", ec.message());
             }
             spdlog::warn(L"Warning: the default install directory exists and is not empty.");
         }
     }
     else {
         if (ec) {
-            spdlog::error("Files::executeStep: filesystem::exists failed ({}).", ec.message().c_str());
+            spdlog::error("Files::executeStep: filesystem::exists failed ({}).", ec.message());
         }
 
         auto result = ::SHCreateDirectoryEx(NULL, installPath_.c_str(), NULL);
@@ -73,7 +73,7 @@ int Files::executeStep()
 int Files::moveFiles()
 {
     int result = -wsl::ERROR_MOVE_CUSTOM_DIR;
-    const wstring& settingsInstallPath = Settings::instance().getPath();
+    const wstring settingsInstallPath = Settings::instance().getPath();
 
     try {
         if (Path::equivalent(installPath_, settingsInstallPath)) {
@@ -150,7 +150,7 @@ void Files::logCustomFolderContents(const wstring &folder)
     }
 
     if (ec) {
-        spdlog::error("Files::logCustomFolderContents: filesystem::recursive_directory_iterator failed ({})", ec.message().c_str());
+        spdlog::error("Files::logCustomFolderContents: filesystem::recursive_directory_iterator failed ({})", ec.message());
         return;
     }
 

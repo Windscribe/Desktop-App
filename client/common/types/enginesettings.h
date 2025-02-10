@@ -14,6 +14,7 @@
 #include "types/macaddrspoofing.h"
 #include "types/packetsize.h"
 #include "types/proxysettings.h"
+#include "types/decoytrafficsettings.h"
 
 class LegacyProtobufSupport;
 
@@ -40,6 +41,7 @@ struct EngineSettingsData : public QSharedData
     bool isKeepAliveEnabled = false;
     types::ConnectedDnsInfo connectedDnsInfo;
     DNS_MANAGER_TYPE dnsManager = DNS_MANAGER_AUTOMATIC;
+    DecoyTrafficSettings decoyTrafficSettings;
     QMap<QString, types::ConnectionSettings> networkPreferredProtocols;
     QMap<QString, std::pair<types::Protocol, uint>> networkLastKnownGoodProtocols;
     QString language;
@@ -65,6 +67,7 @@ private:
     static const inline QString kJsonCustomOvpnConfigsPathProp = "customOvpnConfigsPath";
     static const inline QString kJsonDnsManagerProp = "dnsManager";
     static const inline QString kJsonDnsPolicyProp = "dnsPolicy";
+    static const inline QString kJsonDecoyTrafficSettingsProp = "decoyTrafficSettings";
     static const inline QString kJsonFirewallSettingsProp = "firewallSettings";
     static const inline QString kJsonIsAllowLanTrafficProp = "isAllowLanTraffic";
     static const inline QString kJsonIsAntiCensorshipProp = "isAntiCensorship";
@@ -142,6 +145,9 @@ public:
     bool isKeepAliveEnabled() const;
     void setIsKeepAliveEnabled(bool enabled);
 
+    DecoyTrafficSettings decoyTrafficSettings() const;
+    void setDecoyTrafficSettings(const DecoyTrafficSettings &decoyTrafficSettings);
+
     bool operator==(const EngineSettings &other) const;
     bool operator!=(const EngineSettings &other) const;
     QJsonObject toJson() const;
@@ -159,7 +165,7 @@ private:
 
     // for serialization
     static constexpr quint32 magic_ = 0x7745C2AE;
-    static constexpr int versionForSerialization_ = 5;  // should increment the version if the data format is changed
+    static constexpr int versionForSerialization_ = 6;  // should increment the version if the data format is changed
 };
 
 } // types namespace

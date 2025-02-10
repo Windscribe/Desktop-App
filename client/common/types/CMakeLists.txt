@@ -7,6 +7,8 @@ target_sources(common PRIVATE
     connectionsettings.cpp
     connectionsettings.h
     connectstate.h
+    decoytrafficsettings.cpp
+    decoytrafficsettings.h
     enginesettings.cpp
     enginesettings.h
     enums.cpp

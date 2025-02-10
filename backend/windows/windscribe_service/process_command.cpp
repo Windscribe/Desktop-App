@@ -10,6 +10,7 @@
 #include "ikev2ipsec.h"
 #include "ikev2route.h"
 #include "ipc/servicecommunication.h"
+#include "network_category.h"
 #include "openvpncontroller.h"
 #include "ovpn.h"
 #include "registry.h"
@@ -81,6 +82,28 @@ MessagePacketResult firewallStatus(boost::archive::text_iarchive &ia)
         spdlog::debug("AA_COMMAND_FIREWALL_STATUS, Off");
         mpr.exitCode = 0;
     }
+    return mpr;
+}
+
+MessagePacketResult firewallIpv6Enable(boost::archive::text_iarchive &ia)
+{
+    MessagePacketResult mpr;
+
+    spdlog::debug("AA_COMMAND_FIREWALL_IPV6_ENABLE");
+    Ipv6Firewall::instance().enableIPv6();
+    mpr.success = true;
+    mpr.exitCode = 0;
+    return mpr;
+}
+
+MessagePacketResult firewallIpv6Disable(boost::archive::text_iarchive &ia)
+{
+    MessagePacketResult mpr;
+
+    spdlog::debug("AA_COMMAND_FIREWALL_IPV6_DISABLE");
+    Ipv6Firewall::instance().disableIPv6();
+    mpr.success = true;
+    mpr.exitCode = 0;
     return mpr;
 }
 
@@ -676,6 +699,7 @@ MessagePacketResult connectStatus(boost::archive::text_iarchive &ia)
     CMD_CONNECT_STATUS cmdConnectStatus;
     ia >> cmdConnectStatus;
     spdlog::debug("AA_COMMAND_CONNECT_STATUS: {}", cmdConnectStatus.isConnected);
+
     mpr.success = SplitTunneling::instance().setConnectStatus(cmdConnectStatus);
     g_SplitTunnelingPars.isVpnConnected = cmdConnectStatus.isConnected;
 
@@ -836,6 +860,20 @@ MessagePacketResult ssidFromInterfaceGUID(boost::archive::text_iarchive &ia)
             // are blocked on the computer, and the other two when an adapter is being reset.
             spdlog::debug("ssidFromInterfaceGUID - {}", ex.what());
         }
+    }
+
+    return mpr;
+}
+
+MessagePacketResult setNetworkCategory(boost::archive::text_iarchive &ia)
+{
+    CMD_SET_NETWORK_CATEGORY cmd;
+    ia >> cmd;
+
+    MessagePacketResult mpr;
+    mpr.success = NetworkCategoryManager::instance().setCategory(cmd.networkName, cmd.category);
+    if (!mpr.success) {
+        spdlog::error(L"Failed to set network category to private for adapter name {}", cmd.networkName);
     }
 
     return mpr;

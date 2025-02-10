@@ -53,11 +53,14 @@ void DnsResolver::resolveDomains(const std::vector<std::string> &hostnames)
 
     {
         // cancel any lookups currently in channel
-        if (!hostnamesInProgress_.empty()) {
+        if (!hostnamesInProgress_.empty())
+        {
             ares_cancel(channel_);
             ares_destroy(channel_);
             this_->channel_ = NULL;
-        } else {
+        }
+        else
+        {
             assert(channel_ == NULL);
         }
         hostnamesInProgress_.clear();
@@ -70,25 +73,23 @@ void DnsResolver::resolveDomains(const std::vector<std::string> &hostnames)
         options.tries = 3;
 
         int status = ares_init_options(&channel_, &options, optmask);
-        if (status != ARES_SUCCESS) {
+        if (status != ARES_SUCCESS)
+        {
             spdlog::error("ares_init_options failed: {}", ares_strerror(status));
             return;
         }
 
-        for (auto &hostname : hostnames) {
+        for (auto &hostname : hostnames)
+        {
             hostnamesInProgress_.insert(hostname);
         }
 
         // filter for unique hostnames and execute request
-        for (auto &hostname : hostnames) {
+        for (auto &hostname : hostnames)
+        {
             USER_ARG *userArg = new USER_ARG();
             userArg->hostname = hostname;
-
-            struct ares_addrinfo_hints hints;
-            memset(&hints, 0, sizeof(hints));
-            hints.ai_family = AF_UNSPEC;
-
-            ares_getaddrinfo(channel_, hostname.c_str(), NULL, &hints, aresLookupFinishedCallback, userArg);
+            ares_gethostbyname(channel_, hostname.c_str(), AF_INET, aresLookupFinishedCallback, userArg);
         }
     }
 
@@ -99,7 +100,8 @@ void DnsResolver::resolveDomains(const std::vector<std::string> &hostnames)
 void DnsResolver::cancelAll()
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    if (channel_) {
+    if (channel_)
+    {
         ares_cancel(channel_);
         hostnamesInProgress_.clear();
         ares_destroy(channel_);
@@ -108,12 +110,13 @@ void DnsResolver::cancelAll()
 }
 
 
-void DnsResolver::aresLookupFinishedCallback(void * arg, int status, int /*timeouts*/, ares_addrinfo *results)
+void DnsResolver::aresLookupFinishedCallback(void * arg, int status, int /*timeouts*/, struct hostent * host)
 {
     USER_ARG *userArg = static_cast<USER_ARG *>(arg);
 
     // cancel and fail cases
-    if (status == ARES_ECANCELLED) {
+    if (status == ARES_ECANCELLED)
+    {
         delete userArg;
         return;
     }
@@ -121,19 +124,17 @@ void DnsResolver::aresLookupFinishedCallback(void * arg, int status, int /*timeo
     HostInfo hostInfo;
     hostInfo.hostname = userArg->hostname;
 
-    if (status != ARES_SUCCESS) {
+    if (status != ARES_SUCCESS)
+    {
         hostInfo.error = true;
-    } else {
+    }
+    else
+    {
         // add ips
-        for (struct ares_addrinfo_node *node = results->nodes; node != NULL; node = node->ai_next) {
+        for (char **p = host->h_addr_list; *p; p++)
+        {
             char addr_buf[46] = "??";
-            if (node->ai_family == AF_INET) {
-                ares_inet_ntop(node->ai_family, &((const struct sockaddr_in *)node->ai_addr)->sin_addr, addr_buf, sizeof(addr_buf));
-            } else if (node->ai_family == AF_INET6) {
-                ares_inet_ntop(node->ai_family, &((const struct sockaddr_in6 *)node->ai_addr)->sin6_addr, addr_buf, sizeof(addr_buf));
-            } else {
-                continue;
-            }
+            ares_inet_ntop(host->h_addrtype, *p, addr_buf, sizeof(addr_buf));
             hostInfo.addresses.push_back(std::string(addr_buf));
         }
     }
@@ -141,7 +142,8 @@ void DnsResolver::aresLookupFinishedCallback(void * arg, int status, int /*timeo
     this_->hostinfoResults_[hostInfo.hostname] = hostInfo;
     this_->hostnamesInProgress_.erase(userArg->hostname);
 
-    if (this_->hostnamesInProgress_.empty()) {
+    if (this_->hostnamesInProgress_.empty())
+    {
         this_->resolveDomainsCallback_(this_->hostinfoResults_);
     }
 
@@ -153,14 +155,17 @@ void DnsResolver::threadFunc(void *arg)
     //BIND_CRASH_HANDLER_FOR_THREAD();
     DnsResolver *resolver = static_cast<DnsResolver *>(arg);
 
-    while (true) {
+    while (true)
+    {
         {
             std::unique_lock<std::mutex> lockWait(resolver->mutex_);
-            if (resolver->bNeedFinish_) {
+            if (resolver->bNeedFinish_)
+            {
                 break;
             }
 
-            if (resolver->channel_ != NULL && !resolver->processChannel(resolver->channel_)) {
+            if (resolver->channel_ != NULL && !resolver->processChannel(resolver->channel_))
+            {
                 resolver->waitCondition_.wait(lockWait);
             }
         }

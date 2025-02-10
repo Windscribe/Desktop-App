@@ -14,7 +14,7 @@
 
 namespace wsnet {
 
-DnsResolver_cares::DnsResolver_cares() : curRequestId_(0), addressFamily_(AF_INET)
+DnsResolver_cares::DnsResolver_cares() : curRequestId_(0)
 {
 }
 
@@ -38,11 +38,6 @@ void DnsResolver_cares::setDnsServers(const std::vector<std::string> &dnsServers
 {
     std::lock_guard locker(mutex_);
     dnsServers_ = DnsServers(dnsServers);
-}
-
-void DnsResolver_cares::setAddressFamily(int addressFamily)
-{
-    addressFamily_ = addressFamily;
 }
 
 std::shared_ptr<WSNetCancelableCallback> DnsResolver_cares::lookup(const std::string &hostname, std::uint64_t userDataId, WSNetDnsResolverCallback callback)
@@ -182,11 +177,7 @@ void DnsResolver_cares::run()
             arg->qi = qi;
             arg->qi.startTime = std::chrono::steady_clock::now();
 
-            struct ares_addrinfo_hints hints;
-            memset(&hints, 0, sizeof(hints));
-            hints.ai_family = addressFamily_;
-
-            ares_getaddrinfo(channel, arg->qi.hostname.c_str(), NULL, &hints, caresCallback, arg);
+            ares_gethostbyname(channel, arg->qi.hostname.c_str(), AF_INET, caresCallback, arg);
             localQueue.pop();
         }
 
@@ -208,7 +199,7 @@ void DnsResolver_cares::run()
     ares_destroy(channel);
 }
 
-void DnsResolver_cares::caresCallback(void *arg, int status, int timeouts, struct ares_addrinfo *results)
+void DnsResolver_cares::caresCallback(void *arg, int status, int timeouts, hostent *host)
 {
     ArgToCaresCallback *pars = (ArgToCaresCallback *)arg;
 
@@ -224,15 +215,9 @@ void DnsResolver_cares::caresCallback(void *arg, int status, int timeouts, struc
 
     std::shared_ptr<DnsRequestResult> result = std::make_shared<DnsRequestResult>();
     if (status == ARES_SUCCESS) {
-        for (struct ares_addrinfo_node *node = results->nodes; node != NULL; node = node->ai_next) {
+        for (char **p = host->h_addr_list; *p; p++) {
             char addr_buf[46] = "??";
-            if (node->ai_family == AF_INET) {
-                ares_inet_ntop(node->ai_family, &((const struct sockaddr_in *)node->ai_addr)->sin_addr, addr_buf, sizeof(addr_buf));
-            } else if (node->ai_family == AF_INET6) {
-                ares_inet_ntop(node->ai_family, &((const struct sockaddr_in6 *)node->ai_addr)->sin6_addr, addr_buf, sizeof(addr_buf));
-            } else {
-                continue;
-            }
+            ares_inet_ntop(host->h_addrtype, *p, addr_buf, sizeof(addr_buf));
             result->ips_.push_back(addr_buf);
         }
         result->isError_ = false;

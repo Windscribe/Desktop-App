@@ -3,11 +3,13 @@
 #include <QDeadlineTimer>
 #include <QSettings>
 
+#include <filesystem>
 #include <shlobj_core.h>
 #include <windows.h>
 #include <spdlog/spdlog.h>
 
 #include "installerenums.h"
+#include "uninstall_info.h"
 #include "../../../utils/applicationinfo.h"
 #include "../../../utils/archive.h"
 #include "../../../utils/path.h"
@@ -111,7 +113,10 @@ int UninstallPrev::executeStep()
                 spdlog::info(L"UninstallPrev::executeStep: successfully extracted uninstaller, trying again.");
                 return 65;
             }
+        } else {
+            spdlog::info(L"UninstallPrev did not find a previous install and is skipping the uninstall step.");
         }
+
         return 100;
     }
     return 100;
@@ -131,6 +136,50 @@ wstring UninstallPrev::getUninstallString() const
     QSettings reg32(QString::fromStdWString(ApplicationInfo::uninstallerRegistryKey()), QSettings::Registry32Format);
     if (reg32.contains(L"UninstallString")) {
         uninstallString = reg32.value(L"UninstallString").toString().toStdWString();
+    }
+
+    if (uninstallString.empty()) {
+        // It's possible we arrived here because this is a virgin install.  In that case the installer reg key shouldn't exist,
+        // nor will the Windscribe service be installed.
+        wstring prevInstallPath;
+        QSettings reg(QString::fromStdWString(ApplicationInfo::installerRegistryKey()), QSettings::NativeFormat);
+        if (reg.contains("applicationPath")) {
+            prevInstallPath = reg.value("applicationPath").toString().toStdWString();
+            spdlog::warn(L"No uninstaller information found in the registry. Found previous installer application path in registry ({}).", prevInstallPath);
+        } else {
+            // As a last ditch effort, check if the Windscribe service is installed and use its path.
+            try {
+                wsl::ServiceControlManager scm;
+                scm.openSCM(SC_MANAGER_CONNECT);
+                const auto serviceName = ApplicationInfo::serviceName();
+                if (scm.isServiceInstalled(serviceName.c_str())) {
+                    scm.openService(serviceName.c_str(), SERVICE_QUERY_CONFIG | SERVICE_QUERY_STATUS);
+                    prevInstallPath = Path::extractDir(scm.exePath());
+                    if (!prevInstallPath.empty()) {
+                        spdlog::warn(L"No uninstaller information found in the registry. Found previous helper install in SCM ({}).", prevInstallPath);
+                    }
+                }
+            }
+            catch (std::system_error& ex) {
+                spdlog::warn("getUninstallString failed to query helper install status: {}", ex.what());
+            }
+        }
+
+        if (!prevInstallPath.empty()) {
+            error_code ec;
+            if (filesystem::exists(prevInstallPath, ec)) {
+                uninstallString = Path::append(prevInstallPath, ApplicationInfo::uninstaller());
+                // We need to write the missing uninstaller location info to the registry or the uninstaller will error out with
+                // its "The uninstall cannot proceed. The installation directory does not match the removal directory." error.
+                // Unfortunately cannot simply patch the uninstaller to fix this, as this might be an old uninstaller.
+                UninstallInfo::addMissingUninstallInfo(uninstallString);
+            } else {
+                if (ec) {
+                    spdlog::error("UninstallPrev::getUninstallString: filesystem::exists failed ({}).", ec.message());
+                }
+                spdlog::warn(L"Previous install path ({}) does not exist.", prevInstallPath);
+            }
+        }
     }
 
     return uninstallString;
@@ -250,7 +299,7 @@ bool UninstallPrev::extractUninstaller() const
 
     const wstring targetFolder = Path::extractDir(removeQuotes(getUninstallString()));
 
-    if (!archive.extract(L"Windscribe", L"windscribe.7z", exePath, L"uninstall.exe", targetFolder)) {
+    if (!archive.extract(L"Windscribe", L"windscribe.7z", exePath, ApplicationInfo::uninstaller(), targetFolder)) {
         return false;
     }
 

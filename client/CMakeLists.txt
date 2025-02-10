@@ -81,7 +81,7 @@ if (WIN32)
          Version.lib
          ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/oqs.lib
          ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/oqsprovider.lib
-         $<$<NOT:$<CONFIG:Debug>>:../libs/wssecure/wssecure>
+         # $<$<NOT:$<CONFIG:Debug>>:../libs/wssecure/wssecure>
     )
 
     list(APPEND PROJECT_SOURCES client.rc)

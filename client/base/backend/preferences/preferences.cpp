@@ -499,6 +499,21 @@ void Preferences::setDnsPolicy(DNS_POLICY_TYPE d)
     }
 }
 
+types::DecoyTrafficSettings Preferences::decoyTrafficSettings() const
+{
+    return engineSettings_.decoyTrafficSettings();
+}
+
+void Preferences::setDecoyTrafficSettings(const types::DecoyTrafficSettings &d)
+{
+    if (engineSettings_.decoyTrafficSettings() != d)
+    {
+        engineSettings_.setDecoyTrafficSettings(d);
+        emitEngineSettingsChanged();
+        emit decoyTrafficSettingsChanged(d);
+    }
+}
+
 #ifdef Q_OS_LINUX
 DNS_MANAGER_TYPE Preferences::dnsManager() const
 {
@@ -769,6 +784,7 @@ void Preferences::setEngineSettings(const types::EngineSettings &es, bool fromJs
         setCustomOvpnConfigsPath(es.customOvpnConfigsPath());
     }
     setConnectedDnsInfo(es.connectedDnsInfo());
+    setDecoyTrafficSettings(es.decoyTrafficSettings());
 #ifdef Q_OS_LINUX
     setDnsManager(es.dnsManager());
 #endif

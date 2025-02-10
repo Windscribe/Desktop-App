@@ -23,7 +23,7 @@
     #include "utils/installedantiviruses_win.h"
     #include "utils/winutils.h"
 #ifndef _DEBUG
-    #include "../libs/wssecure/wssecure.h"
+    //#include "../libs/wssecure/wssecure.h"
 #endif
 #elif defined (Q_OS_MACOS)
     #include <sys/socket.h>
@@ -79,6 +79,9 @@ int main(int argc, char *argv[])
     }
 #elif defined(Q_OS_WIN)
 #ifndef _DEBUG
+    /*
+    // Disabled for now since the mitigation is blocking 'legitimate' DLL injection (e.g. FileZilla Pro's shell extension DLL).
+
     // We don't load the mitigations DLL in debug builds.
     std::wstring errorMsg;
     if (!verifyProcessMitigations(errorMsg)) {
@@ -86,6 +89,7 @@ int main(int argc, char *argv[])
         return -1;
     }
     qCInfo(LOG_BASIC) << "Process mitigations enabled";
+    */
 #endif
 #endif
 
