@@ -18,6 +18,7 @@ public:
     // Mac specific functions
     bool enableMacSpoofingOnBoot(bool bEnable, const QString &interfaceName, const QString &macAddress);
     bool setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &dynEnties);
+    bool setIpv6Enabled(bool bEnabled);
 
     QString getInterfaceSsid(const QString &interfaceName);
 

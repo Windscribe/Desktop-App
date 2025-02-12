@@ -68,14 +68,14 @@ void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::Ho
             for (const auto addr : it->second.addresses) {
                 if (addr == "0.0.0.0") {
                     // ROBERT sometimes will give us an address of 0.0.0.0 for a 'blocked' resource.  This is not a valid address.
-                    spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : %s, IP: 0.0.0.0 (Ignored)", it->first.c_str());
+                    spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : {}, IP: 0.0.0.0 (Ignored)", it->first);
                 } else {
                     hostsIps.push_back(Ip4AddressAndMask(addr.c_str()));
-                    spdlog::debug("RoutesManager::dnsResolverCallback(), Resolved : %s, IP: %s", it->first.c_str(), addr.c_str());
+                    spdlog::debug("RoutesManager::dnsResolverCallback(), Resolved : {}, IP: {}", it->first, addr);
                 }
             }
         } else {
-            spdlog::warn("RoutesManager::dnsResolverCallback(), Failed resolve : %s", it->first.c_str());
+            spdlog::warn("RoutesManager::dnsResolverCallback(), Failed resolve : {}", it->first);
         }
     }
 

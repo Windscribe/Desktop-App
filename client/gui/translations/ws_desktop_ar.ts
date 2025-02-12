@@ -154,7 +154,7 @@
     <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
         <source>Access for %1 Only</source>
-        <translation>الوصول ل ٪1 فقط</translation>
+        <translation>الوصول ل %1 فقط</translation>
     </message>
 </context>
 <context>
@@ -176,7 +176,7 @@
     <name>FreeTrafficNotificationController</name>
     <message>
         <source>You reached %1% of your free bandwidth allowance</source>
-        <translation>لقد وصلت إلى ٪1٪ من رصيد النطاق الترددي المجاني</translation>
+        <translation>لقد وصلت إلى %1٪ من رصيد النطاق الترددي المجاني</translation>
     </message>
 </context>
 <context>
@@ -496,7 +496,7 @@
     </message>
     <message>
         <source>Could not run updater (Error %1).  Please contact support</source>
-        <translation>تعذر تشغيل المحدث (خطأ ٪ 1).  يرجى الاتصال بالدعم</translation>
+        <translation>تعذر تشغيل المحدث (خطأ %1).  يرجى الاتصال بالدعم</translation>
     </message>
     <message>
         <source>Read-only file</source>
@@ -508,7 +508,7 @@
     </message>
     <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
-        <translation>حدث خطأ غير متوقع أثناء تأسيس اتصال VPN (خطأ ٪ 1).  إذا استمر هذا الخطأ، فحاول استخدام بروتوكول مختلف أو اتصل بالدعم.</translation>
+        <translation>حدث خطأ غير متوقع أثناء تأسيس اتصال VPN (خطأ %1).  إذا استمر هذا الخطأ، فحاول استخدام بروتوكول مختلف أو اتصل بالدعم.</translation>
     </message>
     <message>
         <source>Can&apos;t select directory</source>
@@ -544,7 +544,7 @@
     </message>
     <message>
         <source>Trying Backup Endpoints %1/%2</source>
-        <translation>محاولة النسخ الاحتياطي لنقاط النهاية ٪1/٪2</translation>
+        <translation>محاولة النسخ الاحتياطي لنقاط النهاية %1/%2</translation>
     </message>
     <message>
         <source>SSL Error</source>
@@ -560,13 +560,13 @@
     </message>
     <message>
         <source>You are now connected to Windscribe (%1).</source>
-        <translation>أنت الآن متصل ب Windscribe (٪1).</translation>
+        <translation>أنت الآن متصل ب Windscribe (%1).</translation>
     </message>
     <message>
         <source>Connection to Windscribe has been terminated.
 %1 transferred in %2</source>
         <translation>تم إنهاء الاتصال ب Windscribe.
-٪1 محولة في ٪2</translation>
+%1 محولة في %2</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -574,7 +574,7 @@
     </message>
     <message>
         <source>Set “%1” as preferred protocol?</source>
-        <translation>تعيين &quot;٪ 1&quot; كبروتوكول مفضل؟</translation>
+        <translation>تعيين &quot;%1&quot; كبروتوكول مفضل؟</translation>
     </message>
     <message>
         <source>Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.</source>
@@ -590,7 +590,7 @@
     </message>
     <message>
         <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
-        <translation>اكتشف Windscribe أن ٪1 يستخدم كمية كبيرة من وحدة المعالجة المركزية بسبب تعارض محتمل مع اتصال VPN. هل تريد تعطيل ميزة إنهاء مأخذ التوصيل TCP Windscribe التي قد تسبب هذه المشكلة؟</translation>
+        <translation>اكتشف Windscribe أن %1 يستخدم كمية كبيرة من وحدة المعالجة المركزية بسبب تعارض محتمل مع اتصال VPN. هل تريد تعطيل ميزة إنهاء مأخذ التوصيل TCP Windscribe التي قد تسبب هذه المشكلة؟</translation>
     </message>
     <message>
         <source>High CPU Usage</source>
@@ -1481,6 +1481,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Tray Icon Color</source>
         <translation>لون أيقونة الدرج</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>سطح مكتب متعدد</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>حدد السلوك عند تنشيط النافذة مع أجهزة سطح مكتب متعددة.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -1686,7 +1694,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>%1/Month</source>
-        <translation>٪1/شهر</translation>
+        <translation>%1/شهر</translation>
     </message>
     <message>
         <source>Pro</source>
@@ -2067,7 +2075,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>ProtocolWindow::ProtocolLineItem</name>
     <message>
         <source>NEXT UP IN %1s</source>
-        <translation>التالي في ٪1S</translation>
+        <translation>التالي في %1S</translation>
     </message>
     <message>
         <source>Connected to</source>
@@ -2273,7 +2281,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
-        <translation>انتهت صلاحية حسابك الأصلي ٪1. يحظر إنشاء حسابات متعددة لتجاوز قيود الطبقة المجانية. يرجى تسجيل الدخول إلى الحساب الأصلي والانتظار حتى يتم إعادة تعيين النطاق الترددي. يمكنك أيضا الترقية إلى Pro.</translation>
+        <translation>انتهت صلاحية حسابك الأصلي %1. يحظر إنشاء حسابات متعددة لتجاوز قيود الطبقة المجانية. يرجى تسجيل الدخول إلى الحساب الأصلي والانتظار حتى يتم إعادة تعيين النطاق الترددي. يمكنك أيضا الترقية إلى Pro.</translation>
     </message>
     <message>
         <source>Your account is disabled for abuse.</source>
@@ -2310,6 +2318,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Forced</source>
         <translation>مجبر</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>نقل المساحات</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>نقل النافذة</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>مكرره</translation>
     </message>
 </context>
 <context>
@@ -2453,7 +2473,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>%1 DAYS LEFT</source>
-        <translation>٪1 أيام متبقية</translation>
+        <translation>%1 أيام متبقية</translation>
     </message>
     <message>
         <source>LOGIN</source>

@@ -12,7 +12,7 @@ public:
     void stopExtension();
     bool isActive() const;
 
-    void setSplitTunnelSettings(bool isActive, bool isExclude, const QStringList &bundleIds);
+    void setSplitTunnelSettings(bool isActive, bool isExclude, const QStringList &bundleIds, const QStringList &ips, const QStringList &hostnames);
 
 private:
     SplitTunnelExtensionManager();
@@ -23,4 +23,6 @@ private:
     bool isActive_;
     bool isExclude_;
     QStringList appPaths_;
+    QStringList ips_;
+    QStringList hostnames_;
 };

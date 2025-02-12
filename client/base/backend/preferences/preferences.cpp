@@ -741,6 +741,22 @@ void Preferences::updateFromJson(const QJsonObject& json)
     }
 }
 
+#if defined(Q_OS_MACOS)
+MULTI_DESKTOP_BEHAVIOR Preferences::multiDesktopBehavior() const
+{
+    return guiSettings_.multiDesktopBehavior;
+}
+
+void Preferences::setMultiDesktopBehavior(MULTI_DESKTOP_BEHAVIOR m)
+{
+    if (guiSettings_.multiDesktopBehavior != m) {
+        guiSettings_.multiDesktopBehavior = m;
+        saveGuiSettings();
+        emit multiDesktopBehaviorChanged(m);
+    }
+}
+#endif
+
 void Preferences::emitEngineSettingsChanged()
 {
     if (!isSettingEngineSettings_)
@@ -928,6 +944,9 @@ void Preferences::loadIni()
     setAutoConnect(gs.isAutoConnect);
     setAutoSecureNetworks(gs.isAutoSecureNetworks);
     setLaunchOnStartup(gs.isLaunchOnStartup);
+#if defined(Q_OS_MACOS)
+    setMultiDesktopBehavior(gs.multiDesktopBehavior);
+#endif
     setShareProxyGateway(gs.shareProxyGateway);
     setSplitTunnelingApps(gs.splitTunneling.apps);
     setSplitTunnelingNetworkRoutes(gs.splitTunneling.networkRoutes);
@@ -954,6 +973,7 @@ void Preferences::loadIni()
 #ifdef Q_OS_LINUX
     setDnsManager(es.dnsManager());
 #endif
+    setDecoyTrafficSettings(es.decoyTrafficSettings());
     isSettingEngineSettings_ = false;
 
     emitEngineSettingsChanged();

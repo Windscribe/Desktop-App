@@ -2,6 +2,7 @@
 
 #include <spdlog/spdlog.h>
 #import "Utils.h"
+#import "ip_hostnames/ip_hostnames_manager.h"
 
 @implementation FlowTCP
 
@@ -9,11 +10,21 @@
     self = [super init];
     if (self) {
         activeConnections_ = [[NSMutableDictionary alloc] init];
+        settings_ = nil;
     }
     return self;
 }
 
+- (void)setSettings:(Settings *)settings {
+    settings_ = settings;
+}
+
 - (BOOL)setupTCPConnection:(NEAppProxyTCPFlow *)flow interface:(nw_interface_t)interface {
+    if (!settings_) {
+        spdlog::error("[TCP] Settings not initialized");
+        return NO;
+    }
+
     nw_endpoint_t endpoint = [Utils convertToNewEndpoint:flow.remoteEndpoint];
     if (!endpoint) {
         spdlog::error("[TCP] No endpoint found, cleaning up flow");
@@ -21,12 +32,20 @@
         return NO;
     }
 
-    // If it's a LAN range (except the reserved 10.255.255.0/24 range), we leave the traffic on the original interface.
-    // Note that the firewall may still block this later.
-    if ([Utils isLanRange:endpoint]) {
-        spdlog::info("[TCP] Ignoring LAN traffic");
+    // If it's inclusive mode and the endpoint is in a LAN range (including the reserved 10.255.255.0/24 range),
+    // we leave the traffic on the original interface.  The firewall may block this depending on the Allow LAN traffic setting.
+    if (![settings_ isExclude] && [Utils isLanRange:endpoint]) {
+        spdlog::debug("[TCP] Ignoring LAN traffic");
         return NO;
     }
+
+    // Check if split tunnel applies to this flow and endpoint
+    if (![settings_ isSplitTunnelApplicable:flow remoteEndpoint:endpoint]) {
+        spdlog::debug("[TCP] Flow not in app list or hostname list: {}", nw_endpoint_get_hostname(endpoint));
+        return NO;
+    }
+
+    spdlog::info("[TCP] Handling flow from {} => {}", [flow.metaData.sourceAppSigningIdentifier UTF8String], nw_interface_get_name(interface));
 
     nw_parameters_t parameters = nw_parameters_create_secure_tcp(NW_PARAMETERS_DISABLE_PROTOCOL, NW_PARAMETERS_DEFAULT_CONFIGURATION);
     nw_parameters_require_interface(parameters, interface);

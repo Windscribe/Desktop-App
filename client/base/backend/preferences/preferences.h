@@ -143,6 +143,11 @@ public:
     QString customOvpnConfigsPath() const;
     void setCustomOvpnConfigsPath(const QString &path);
 
+#if defined(Q_OS_MACOS)
+    MULTI_DESKTOP_BEHAVIOR multiDesktopBehavior() const;
+    void setMultiDesktopBehavior(MULTI_DESKTOP_BEHAVIOR m);
+#endif
+
     void setEngineSettings(const types::EngineSettings &es, bool fromJson = false);
     types::EngineSettings getEngineSettings() const;
 
@@ -206,6 +211,8 @@ signals:
 
 #if defined(Q_OS_LINUX)
     void trayIconColorChanged(TRAY_ICON_COLOR c);
+#elif defined(Q_OS_MACOS)
+    void multiDesktopBehaviorChanged(MULTI_DESKTOP_BEHAVIOR m);
 #endif
 
     void connectedDnsInfoChanged(types::ConnectedDnsInfo dnsWcInfo);

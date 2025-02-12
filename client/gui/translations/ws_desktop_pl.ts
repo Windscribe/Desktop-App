@@ -1481,6 +1481,14 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <source>Tray Icon Color</source>
         <translation>Kolor ikony zasobnika</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>Wiele pulpitów</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>Wybierz zachowanie, gdy okno jest aktywowane na wielu pulpitach.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -2310,6 +2318,18 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
     <message>
         <source>Forced</source>
         <translation>Zmuszona</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>Przenoszenie spacji</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>Przesuń okno</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Duplikat</translation>
     </message>
 </context>
 <context>

@@ -1,13 +1,18 @@
 cmake_minimum_required(VERSION 3.15)
 project(com.windscribe.client.splittunnelextension)
 
+find_package(c-ares REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 
 # Create the system extension target
 add_executable(com.windscribe.client.splittunnelextension MACOSX_BUNDLE
-    main.mm
     FlowTCP.mm
     FlowUDP.mm
+    ip_hostnames/ares_library_init.cpp
+    ip_hostnames/dns_resolver.cpp
+    ip_hostnames/ip_hostnames_manager.cpp
+    main.mm
+    Settings.mm
     TransparentProxyProvider.mm
     Utils.mm
 )
@@ -39,6 +44,7 @@ target_link_libraries(com.windscribe.client.splittunnelextension PRIVATE
     "-framework Security"
     "-sectcreate __TEXT __info_plist ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist"
     spdlog::spdlog
+    c-ares::cares
 )
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../provisioning_profile/splittunnelextension.provisionprofile")

@@ -12,10 +12,11 @@
 #include "files_manager.h"
 #include "firewallcontroller.h"
 #include "firewallonboot.h"
+#include "ipv6/ipv6manager.h"
 #include "macspoofingonboot.h"
 #include "macutils.h"
 #include "ovpn.h"
-#include "split_tunneling/split_tunneling.h"
+#include "routes_manager/routes_manager.h"
 #include "utils.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "wireguard/wireguardcontroller.h"
@@ -112,9 +113,8 @@ CMD_ANSWER splitTunnelingSettings(boost::archive::text_iarchive &ia)
     CMD_SPLIT_TUNNELING_SETTINGS cmd;
     ia >> cmd;
 
-    SplitTunneling::instance().setSplitTunnelingParams(cmd.isActive, cmd.isExclude, cmd.files, cmd.ips, cmd.hosts);
+    RoutesManager::instance().setSplitTunnelSettings(cmd.isActive, cmd.isExclude);
     answer.executed = 1;
-
     return answer;
 }
 
@@ -131,8 +131,8 @@ CMD_ANSWER sendConnectStatus(boost::archive::text_iarchive &ia)
     } else {
         Utils::executeCommand("pfctl", {"-T", "windscribe_dns", "flush"});
     }
+    RoutesManager::instance().setConnectStatus(cmd);
 
-    SplitTunneling::instance().setConnectParams(cmd);
     answer.executed = 1;
 
     return answer;
@@ -318,6 +318,17 @@ CMD_ANSWER deleteRoute(boost::archive::text_iarchive &ia)
     str << cmd.range << "/" << cmd.mask;
     Utils::executeCommand("route", {"-n", "delete", str.str().c_str(), cmd.gateway.c_str()});
 
+    return answer;
+}
+
+CMD_ANSWER setIpv6Enabled(boost::archive::text_iarchive &ia)
+{
+    CMD_ANSWER answer;
+    CMD_SET_IPV6_ENABLED cmd;
+    ia >> cmd;
+    spdlog::debug("Set IPv6: {}", cmd.enabled ? "enabled" : "disabled");
+
+    answer.executed = Ipv6Manager::instance().setEnabled(cmd.enabled);
     return answer;
 }
 

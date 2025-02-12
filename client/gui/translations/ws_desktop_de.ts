@@ -1481,6 +1481,14 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <source>Tray Icon Color</source>
         <translation>Farbe des Tray-Symbols</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>Multi-Desktop-Funktion</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>Wählen Sie das Verhalten aus, wenn das Fenster mit mehreren Desktops aktiviert wird.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -2310,6 +2318,18 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     <message>
         <source>Forced</source>
         <translation>Erzwungen</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>Verschieben von Räumen</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>Fenster verschieben</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Duplikat</translation>
     </message>
 </context>
 <context>

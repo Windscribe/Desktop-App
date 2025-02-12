@@ -1,104 +1,181 @@
 #include "copy_and_run.h"
 
+#include <aclapi.h>
+#include <shlobj.h>
 #include <shlwapi.h>
+
+#include <filesystem>
 #include <sstream>
 #include <spdlog/spdlog.h>
 
-#include "../utils/path.h"
+#include "remove_directory.h"
+#include "../utils/applicationinfo.h"
+#include "../utils/utils.h"
+#include "wsscopeguard.h"
 
-#pragma comment(lib, "Shlwapi.lib")
-
-static std::wstring intToBase32(LONG number)
+static bool setFolderPermissions(const std::filesystem::path &folder)
 {
-    const wchar_t* table = L"0123456789ABCDEFGHIJKLMNOPQRSTUV";
+    SECURITY_DESCRIPTOR sd;
+    ::ZeroMemory(&sd, sizeof(sd));
 
-    std::wstring result = L"";
-    for (int I = 0; I <= 4; I++) {
-        result.insert(0, std::wstring(&table[number & 31], 1));
-        number = number >> 5;
+    BOOL result = ::InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
+    if (!result) {
+        spdlog::error(L"setFolderPermissions InitializeSecurityDescriptor failed: {}", ::GetLastError());
+        return false;
     }
 
-    return result;
-}
+    // Create a SID for the BUILTIN\Administrators group
+    SID_IDENTIFIER_AUTHORITY SIDAuthNT = SECURITY_NT_AUTHORITY;
+    PSID sidAdmin = NULL;
+    result = ::AllocateAndInitializeSid(&SIDAuthNT, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &sidAdmin);
+    if (!result) {
+        spdlog::error(L"setFolderPermissions AllocateAndInitializeSid failed: {}", ::GetLastError());
+        return false;
+    }
 
-static bool generateNonRandomUniqueFilename(std::wstring path1, std::wstring& outFilename)
-{
-    long RandOrig = 0x123456;
-    long Rand = RandOrig;
-
-    while (true) {
-        Rand++;
-        if (Rand > 0x1FFFFFF) Rand = 0;
-        if (Rand == RandOrig) {
-            //  practically impossible to go through 33 million possibilities, but check "just in case"...
-            return false;
+    PACL pACL = NULL;
+    auto exitGuard = wsl::wsScopeGuard([&] {
+        if (pACL) {
+            ::LocalFree(pACL);
         }
 
-        std::wstring FN = Path::append(path1, L"_iu") + intToBase32(Rand) + L".tmp";
-        if (::PathFileExists(FN.c_str()) == FALSE) {
-            outFilename = FN;
-            break;
+        if (sidAdmin) {
+            ::FreeSid(sidAdmin);
         }
+    });
+
+    // Set up an EXPLICIT_ACCESS structure for the Administrators group.
+    EXPLICIT_ACCESS ea;
+    ::ZeroMemory(&ea, sizeof(ea));
+    ea.grfAccessPermissions = GENERIC_ALL;
+    ea.grfAccessMode = SET_ACCESS;
+    ea.grfInheritance = SUB_CONTAINERS_AND_OBJECTS_INHERIT;
+    ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+    ea.Trustee.TrusteeType = TRUSTEE_IS_GROUP;
+    ea.Trustee.ptstrName = reinterpret_cast<LPTSTR>(sidAdmin);
+
+    // Create a new ACL with these permissions.
+    result = ::SetEntriesInAcl(1, &ea, NULL, &pACL);
+    if (result != ERROR_SUCCESS) {
+        spdlog::error(L"setFolderPermissions SetEntriesInAcl failed: {}", result);
+        return false;
+    }
+
+    result = ::SetSecurityDescriptorDacl(&sd, TRUE, pACL, FALSE);
+    if (!result) {
+        spdlog::error(L"setFolderPermissions SetSecurityDescriptorDacl failed: {}", ::GetLastError());
+        return false;
+    }
+
+    SECURITY_ATTRIBUTES sa;
+    ::ZeroMemory(&sa, sizeof(sa));
+    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+    sa.lpSecurityDescriptor = &sd;
+    sa.bInheritHandle = FALSE;
+
+    // Apply the security descriptor to the directory
+    result = ::SetFileSecurity(folder.c_str(), DACL_SECURITY_INFORMATION, &sd);
+    if (!result) {
+        spdlog::error(L"setFolderPermissions SetFileSecurity failed: {}", ::GetLastError());
+        return false;
     }
 
     return true;
 }
 
-int CopyAndRun::runFirstPhase(const std::wstring& uninstExeFile, const char *lpszCmdParam)
+unsigned long CopyAndRun::runFirstPhase(const std::wstring& uninstExeFile, const char *lpszCmdParam)
 {
-    wchar_t tempPath[MAX_PATH];
-    DWORD result = GetTempPath(MAX_PATH, tempPath);
-    if (result == 0) {
-        spdlog::error(L"Couldn't locate Windows temporary directory ({})", GetLastError());
+    wchar_t *windowsPath = NULL;
+    HRESULT hr = ::SHGetKnownFolderPath(FOLDERID_Windows, 0, NULL, &windowsPath);
+    if (FAILED(hr)) {
+        spdlog::error(L"SHGetKnownFolderPath failed to locate Windows directory: {}", HRESULT_CODE(hr));
         return MAXDWORD;
     }
 
-    // Copy self to TEMP directory with a name like _iu14D2N.tmp. The
-    // actual uninstallation process must be done from somewhere outside
-    // the application directory since EXE's can't delete themselves while
-    // they are running.
-    std::wstring tempFile;
-    if (!generateNonRandomUniqueFilename(tempPath, tempFile)) {
-        spdlog::error(L"CopyAndRun::runFirstPhase generateNonRandomUniqueFilename failed");
+    srand(time(NULL));
+    std::filesystem::path tempUninstallerPath(windowsPath);
+    ::CoTaskMemFree(windowsPath);
+    tempUninstallerPath.append(L"Temp");
+    tempUninstallerPath.append(L"WindscribeUninstaller" + std::to_wstring(rand()));
+
+    std::error_code ec;
+    if (std::filesystem::exists(tempUninstallerPath, ec)) {
+        spdlog::error(L"The randomly selected temporary uninstall folder already exists.  This is highly unusual and may indicate"
+                      L" an attack on your system.  The uninstaller is aborting to protect the integrity of your system."
+                      L" The folder is: {}", tempUninstallerPath.c_str());
+        return MAXDWORD;
+    } else if (ec) {
+        spdlog::warn("Windscribe uninstaller failed to check if temp uninstall folder exists ({})", ec.message());
+    }
+
+    // Create the target directory and set its permissions to restrict access to only members of the
+    // built-in Administrators group.
+    spdlog::info(L"Creating temporary uninstaller directory '{}'", tempUninstallerPath.c_str());
+    std::filesystem::create_directories(tempUninstallerPath, ec);
+    if (ec) {
+        spdlog::error("Failed to create the temporary uninstaller directory: {}", ec.message());
         return MAXDWORD;
     }
 
-    // We should have generated a unique filename that does not exist in the target folder,
-    // thus CopyFile should fail if the file already exists.
-    if (!CopyFile(uninstExeFile.c_str(), tempFile.c_str(), TRUE)) {
-        spdlog::error(L"CopyAndRun::runFirstPhase failed to copy [{}] to [{}] ({})", uninstExeFile, tempFile, ::GetLastError());
+    auto deleteTempFolderOnError = wsl::wsScopeGuard([&] {
+        if (!tempUninstallerPath.empty()) {
+            RemoveDir::DelTree(tempUninstallerPath.c_str(), true, true, true, false);
+        }
+    });
+
+    if (!setFolderPermissions(tempUninstallerPath)) {
+        return MAXDWORD;
+    }
+
+    std::filesystem::path tempUninstaller(tempUninstallerPath);
+    tempUninstaller.append(ApplicationInfo::uninstaller());
+
+    // We should have created a unique folder, thus we want CopyFile to fail if the file already exists.
+    BOOL result = ::CopyFile(uninstExeFile.c_str(), tempUninstaller.c_str(), TRUE);
+    if (result == FALSE) {
+        spdlog::error(L"CopyAndRun::runFirstPhase failed to copy [{}] to [{}] ({})", uninstExeFile, tempUninstaller.c_str(), ::GetLastError());
         return MAXDWORD;
     }
 
     // Don't want any attribute like read-only transferred
-    ::SetFileAttributes(tempFile.c_str(), FILE_ATTRIBUTE_NORMAL);
+    ::SetFileAttributes(tempUninstaller.c_str(), FILE_ATTRIBUTE_NORMAL);
 
-    // Execute the copy of itself ("second phase")
-    std::wstring pars;
+    // As per the Win32 docs; the Unicode version of CreateProcess 'may' modify its lpCommandLine
+    // parameter.  Therefore, this parameter cannot be a pointer to read-only memory (such as a
+    // const variable or a literal string).  If this parameter is a constant string, CreateProcess
+    // may cause an access violation.  Maximum length of the lpCommandLine parameter is 32767.
+    std::unique_ptr<wchar_t[]> cmdLine(new wchar_t[32767]);
     {
         std::wostringstream stream;
-        stream << L"/SECONDPHASE=\"" << uninstExeFile << L"\" " << lpszCmdParam;
-        pars = stream.str();
+        stream << L"\"" << tempUninstaller.c_str() << L"\" /SECONDPHASE=\"" << uninstExeFile << L"\" " << lpszCmdParam;
+        wcsncpy_s(cmdLine.get(), 32767, stream.str().c_str(), _TRUNCATE);
     }
 
-    spdlog::info(L"Start process: {} {}", tempFile, pars);
-
-    std::wstring cmdLine = L"\"" + tempFile + L"\" " + pars;
+    spdlog::info(L"Starting uninstaller process: {}", cmdLine.get());
 
     STARTUPINFO startupInfo;
-    ZeroMemory(&startupInfo, sizeof(startupInfo));
+    ::ZeroMemory(&startupInfo, sizeof(startupInfo));
     startupInfo.cb = sizeof(startupInfo);
 
     PROCESS_INFORMATION processInfo;
-    result = ::CreateProcess(nullptr, const_cast<wchar_t*>(cmdLine.c_str()), nullptr, nullptr, false, 0, nullptr,
-                             tempPath, &startupInfo, &processInfo);
+    ::ZeroMemory(&processInfo, sizeof(processInfo));
+
+    // Execute the copy of itself ("second phase")
+    result = ::CreateProcess(nullptr, cmdLine.get(), nullptr, nullptr, false, 0, nullptr,
+                             tempUninstallerPath.c_str(), &startupInfo, &processInfo);
     if (result == FALSE) {
-        spdlog::error(L"CopyAndRun::exec - CreateProcess({}) failed ({})", cmdLine, ::GetLastError());
+        spdlog::error(L"CopyAndRun::exec - CreateProcess({}) failed ({})", cmdLine.get(), ::GetLastError());
         return MAXDWORD;
     }
 
     ::CloseHandle(processInfo.hThread);
     ::CloseHandle(processInfo.hProcess);
+
+    deleteTempFolderOnError.dismiss();
+
+    // Mark the uninstaller for deletion, then the folder, as this method will fail to remove a non-empty folder.
+    Utils::deleteFileOnReboot(tempUninstaller);
+    Utils::deleteFileOnReboot(tempUninstallerPath);
 
     return processInfo.dwProcessId;
 }

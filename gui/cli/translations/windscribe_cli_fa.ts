@@ -5,7 +5,7 @@
     <name>BackendCommander</name>
     <message>
         <source>Data usage: %1 / %2</source>
-        <translation>کاربرد داده:٪ 1 /٪ 2</translation>
+        <translation>کاربرد داده:%1 /%2</translation>
     </message>
     <message>
         <source>Unlimited</source>
@@ -56,11 +56,11 @@
     </message>
     <message>
         <source>Internet connectivity: %1</source>
-        <translation>اتصال اینترنت:٪ 1</translation>
+        <translation>اتصال اینترنت:%1</translation>
     </message>
     <message>
         <source>Login state: %1</source>
-        <translation>وضعیت ورود:٪ 1</translation>
+        <translation>وضعیت ورود:%1</translation>
     </message>
     <message>
         <source>Logged out</source>
@@ -76,7 +76,7 @@
     </message>
     <message>
         <source>Error: %1</source>
-        <translation>خطا:٪ 1</translation>
+        <translation>خطا:%1</translation>
     </message>
     <message>
         <source>No internet connectivity</source>
@@ -108,11 +108,11 @@
     </message>
     <message>
         <source>Connect state: %1</source>
-        <translation>وضعیت اتصال:٪ 1</translation>
+        <translation>وضعیت اتصال:%1</translation>
     </message>
     <message>
         <source>Connected: %1</source>
-        <translation>متصل:٪ 1</translation>
+        <translation>متصل:%1</translation>
     </message>
     <message>
         <source>Connected</source>
@@ -124,7 +124,7 @@
     </message>
     <message>
         <source>Connecting: %1</source>
-        <translation>اتصال:٪ 1</translation>
+        <translation>اتصال:%1</translation>
     </message>
     <message>
         <source>Connecting</source>
@@ -164,11 +164,11 @@
     </message>
     <message>
         <source>Protocol: %1:%2</source>
-        <translation>قرارداد:٪ 1:٪ 2</translation>
+        <translation>قرارداد:%1:%2</translation>
     </message>
     <message>
         <source>Firewall state: %1</source>
-        <translation>وضعیت دیواراتش:٪ 1</translation>
+        <translation>وضعیت دیواراتش:%1</translation>
     </message>
     <message>
         <source>Always On</source>
@@ -188,11 +188,11 @@
     </message>
     <message>
         <source>Update error: %1</source>
-        <translation>خطای بهروزرسانی:٪ 1</translation>
+        <translation>خطای بهروزرسانی:%1</translation>
     </message>
     <message>
         <source>Update available: %1</source>
-        <translation>بهروزرسانی موجود است:٪ 1</translation>
+        <translation>بهروزرسانی موجود است:%1</translation>
     </message>
     <message>
         <source>available</source>
@@ -208,7 +208,7 @@
     </message>
     <message>
         <source>Downloading: %1%</source>
-        <translation>دانلود: ٪1٪</translation>
+        <translation>دانلود: %1٪</translation>
     </message>
     <message>
         <source>Username too short</source>
@@ -272,7 +272,7 @@
     </message>
     <message>
         <source>(Device name: %1)</source>
-        <translation>(نام دستگاه: ٪1)</translation>
+        <translation>(نام دستگاه: %1)</translation>
     </message>
 </context>
 </TS>

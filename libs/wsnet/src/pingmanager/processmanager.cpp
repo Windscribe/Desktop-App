@@ -18,8 +18,8 @@ ProcessManager::~ProcessManager()
 
 bool ProcessManager::execute(const std::string &cmd, const std::vector<std::string> &args, ProcessManagerCallback callback)
 {
-
     try {
+        std::lock_guard locker(mutex_); // NOLINT
         auto childProcess = std::make_unique<ChildProcess>();
         childProcess->callback = callback;
         childProcess->process = boost::process::child(boost::process::search_path(cmd), args,
@@ -33,21 +33,21 @@ bool ProcessManager::execute(const std::string &cmd, const std::vector<std::stri
                 {
                     std::lock_guard locker(mutex_);
                     auto it = processes_.find(id);
-                    assert(it != processes_.end());
-                    std::ostringstream os;
-                    os << it->second->data.rdbuf();
-                    data = os.str();
-                    callback = it->second->callback;
-                    processes_.erase(it);
+                    if (it != processes_.end()) {
+                        std::ostringstream os;
+                        os << it->second->data.rdbuf();
+                        data = os.str();
+                        callback = it->second->callback;
+                        processes_.erase(it);
+                    } else {
+                        assert(false);
+                    }
                 }
                 // call callback
                 callback(exit, data);
             });
 
-        {
-            std::lock_guard locker(mutex_);
-            processes_[curId_++] = std::move(childProcess);
-        }
+        processes_[curId_++] = std::move(childProcess);
 
     } catch(...) {
         g_logger->error("Cannot start a process: {}", cmd);

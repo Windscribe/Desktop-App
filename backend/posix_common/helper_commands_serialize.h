@@ -151,6 +151,13 @@ void serialize(Archive &ar, CMD_DELETE_ROUTE &a, const unsigned int version)
 }
 
 template<class Archive>
+void serialize(Archive &ar, CMD_SET_IPV6_ENABLED &a, const unsigned int version)
+{
+    UNUSED(version);
+    ar & a.enabled;
+}
+
+template<class Archive>
 void serialize(Archive &ar, CMD_SET_DNS_LEAK_PROTECT_ENABLED &a, const unsigned int version)
 {
     UNUSED(version);

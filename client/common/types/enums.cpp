@@ -651,3 +651,39 @@ QString TOGGLE_MODE_toString(TOGGLE_MODE t)
     }
 }
 
+MULTI_DESKTOP_BEHAVIOR MULTI_DESKTOP_BEHAVIOR_fromInt(int t)
+{
+    if (t == 0) return MULTI_DESKTOP_AUTO;
+    else if (t == 1) return MULTI_DESKTOP_MOVE_SPACES;
+    else if (t == 2) return MULTI_DESKTOP_MOVE_WINDOW;
+    else {
+        WS_ASSERT(false);
+        return MULTI_DESKTOP_AUTO;
+    }
+}
+
+QString MULTI_DESKTOP_BEHAVIOR_toString(MULTI_DESKTOP_BEHAVIOR m)
+{
+    if (m == MULTI_DESKTOP_AUTO) {
+        return QObject::tr("Auto");
+    } else if (m == MULTI_DESKTOP_DUPLICATE) {
+        return QObject::tr("Duplicate");
+    } else if (m == MULTI_DESKTOP_MOVE_SPACES) {
+        return QObject::tr("Move spaces");
+    } else if (m == MULTI_DESKTOP_MOVE_WINDOW) {
+        return QObject::tr("Move window");
+    } else {
+        WS_ASSERT(false);
+        return QObject::tr("Auto");
+    }
+}
+
+QList<QPair<QString, QVariant>> MULTI_DESKTOP_BEHAVIOR_toList()
+{
+    QList<QPair<QString, QVariant>> l;
+    l << qMakePair(MULTI_DESKTOP_BEHAVIOR_toString(MULTI_DESKTOP_AUTO), MULTI_DESKTOP_AUTO);
+    l << qMakePair(MULTI_DESKTOP_BEHAVIOR_toString(MULTI_DESKTOP_DUPLICATE), MULTI_DESKTOP_DUPLICATE);
+    l << qMakePair(MULTI_DESKTOP_BEHAVIOR_toString(MULTI_DESKTOP_MOVE_SPACES), MULTI_DESKTOP_MOVE_SPACES);
+    l << qMakePair(MULTI_DESKTOP_BEHAVIOR_toString(MULTI_DESKTOP_MOVE_WINDOW), MULTI_DESKTOP_MOVE_WINDOW);
+    return l;
+}

@@ -4,6 +4,6 @@
 
 namespace CopyAndRun
 {
-    int runFirstPhase(const std::wstring &uninstExeFile, const char *lpszCmdParam);
+    unsigned long runFirstPhase(const std::wstring &uninstExeFile, const char *lpszCmdParam);
 };
 

@@ -1481,6 +1481,14 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>Tray Icon Color</source>
         <translation>Warna Ikon Baki</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>Multi-desktop</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>Pilih perilaku saat jendela diaktifkan dengan beberapa desktop.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -2310,6 +2318,18 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Forced</source>
         <translation>Dipaksa</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>Memindahkan ruang</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>Pindahkan jendela</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Duplikat</translation>
     </message>
 </context>
 <context>

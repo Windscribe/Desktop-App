@@ -154,7 +154,7 @@
     <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
         <source>Access for %1 Only</source>
-        <translation>دسترسی فقط برای٪ 1</translation>
+        <translation>دسترسی فقط برای%1</translation>
     </message>
 </context>
 <context>
@@ -176,7 +176,7 @@
     <name>FreeTrafficNotificationController</name>
     <message>
         <source>You reached %1% of your free bandwidth allowance</source>
-        <translation>به ٪1٪ از کمک هزینه پهنای باند رایگان خود رسیدید</translation>
+        <translation>به %1٪ از کمک هزینه پهنای باند رایگان خود رسیدید</translation>
     </message>
 </context>
 <context>
@@ -512,7 +512,7 @@
     </message>
     <message>
         <source>Trying Backup Endpoints %1/%2</source>
-        <translation>تلاش برای پشتیبانگیری نقاط پایانی٪ 1/٪ 2</translation>
+        <translation>تلاش برای پشتیبانگیری نقاط پایانی%1/%2</translation>
     </message>
     <message>
         <source>SSL Error</source>
@@ -532,13 +532,13 @@
     </message>
     <message>
         <source>You are now connected to Windscribe (%1).</source>
-        <translation>اکنون به Windscribe متصل هستید)٪ 1 (.</translation>
+        <translation>اکنون به Windscribe متصل هستید)%1 (.</translation>
     </message>
     <message>
         <source>Connection to Windscribe has been terminated.
 %1 transferred in %2</source>
         <translation>اتصال به Windscribe قطع شده است.
-٪ 1 منتقل شده در٪ 2</translation>
+%1 منتقل شده در%2</translation>
     </message>
     <message>
         <source>Network Settings Interference</source>
@@ -554,7 +554,7 @@
     </message>
     <message>
         <source>Set “%1” as preferred protocol?</source>
-        <translation>تنظیم »٪ 1 به عنوان قرارداد ترجیحی ؟</translation>
+        <translation>تنظیم »%1 به عنوان قرارداد ترجیحی ؟</translation>
     </message>
     <message>
         <source>Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.</source>
@@ -570,7 +570,7 @@
     </message>
     <message>
         <source>Windscribe has detected that %1 is using a high amount of CPU due to a potential conflict with the VPN connection. Do you want to disable the Windscribe TCP socket termination feature that may be causing this issue?</source>
-        <translation>Windscribe تشخیص داده است که ٪1 به دلیل درگیری احتمالی با اتصال VPN از مقدار زیادی CPU استفاده می کند. ایا می خواهید ویژگی خاتمه سوکت TCP Windscribe را که ممکن است باعث این مشکل شود غیرفعال کنید؟</translation>
+        <translation>Windscribe تشخیص داده است که %1 به دلیل درگیری احتمالی با اتصال VPN از مقدار زیادی CPU استفاده می کند. ایا می خواهید ویژگی خاتمه سوکت TCP Windscribe را که ممکن است باعث این مشکل شود غیرفعال کنید؟</translation>
     </message>
     <message>
         <source>High CPU Usage</source>
@@ -626,7 +626,7 @@
     </message>
     <message>
         <source>Could not run updater (Error %1).  Please contact support</source>
-        <translation>نتوانست بهروزرسانی را اجرا کند) خطای٪ 1 (.  لطفا با پشتیبانی تماس بگیرید</translation>
+        <translation>نتوانست بهروزرسانی را اجرا کند) خطای%1 (.  لطفا با پشتیبانی تماس بگیرید</translation>
     </message>
     <message>
         <source>Lost connection to the backend process.
@@ -700,7 +700,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
-        <translation>یک خطای غیر منتظره در برقراری اتصال VPN رخ داد (خطای٪1).  اگر این خطا ادامه داشت، سعی کنید از پروتکل یا پشتیبانی تماس دیگری استفاده کنید.</translation>
+        <translation>یک خطای غیر منتظره در برقراری اتصال VPN رخ داد (خطای%1).  اگر این خطا ادامه داشت، سعی کنید از پروتکل یا پشتیبانی تماس دیگری استفاده کنید.</translation>
     </message>
     <message>
         <source>Connection Error</source>
@@ -1481,6 +1481,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Tray Icon Color</source>
         <translation>رنگ شمایل سینی</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>چند دسکتاپ</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>هنگامی که پنجره با چندین دسکتاپ فعال می شود، رفتار را انتخاب کنید.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -1686,7 +1694,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>%1/Month</source>
-        <translation>٪ 1/ ماه</translation>
+        <translation>%1/ ماه</translation>
     </message>
     <message>
         <source>Pro</source>
@@ -2067,7 +2075,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>ProtocolWindow::ProtocolLineItem</name>
     <message>
         <source>NEXT UP IN %1s</source>
-        <translation>بعدی در٪ 1s</translation>
+        <translation>بعدی در%1s</translation>
     </message>
     <message>
         <source>Connected to</source>
@@ -2273,7 +2281,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
-        <translation>حساب اصلی شما٪ 1 منقضی شده است. ایجاد چندین حساب برای دور زدن محدودیت های ردیف ازاد ممنوع است. لطفا به حساب اصلی وارد شوید و صبر کنید تا پهنای باند بازنشانی شود. شما همچنین می توانید به Pro ارتقا دهید.</translation>
+        <translation>حساب اصلی شما%1 منقضی شده است. ایجاد چندین حساب برای دور زدن محدودیت های ردیف ازاد ممنوع است. لطفا به حساب اصلی وارد شوید و صبر کنید تا پهنای باند بازنشانی شود. شما همچنین می توانید به Pro ارتقا دهید.</translation>
     </message>
     <message>
         <source>Your account is disabled for abuse.</source>
@@ -2310,6 +2318,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Forced</source>
         <translation>مجبور</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>فضاها را جابجا کنید</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>پنجره را انتقال دهید</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>تکراری</translation>
     </message>
 </context>
 <context>
@@ -2453,7 +2473,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>%1 DAYS LEFT</source>
-        <translation>٪ 1 روز باقیمانده</translation>
+        <translation>%1 روز باقیمانده</translation>
     </message>
     <message>
         <source>LOGIN</source>

@@ -359,6 +359,7 @@ MainWindow::MainWindow() :
     connect(backend_->getPreferences(), &Preferences::reportErrorToUser, this, &MainWindow::onPreferencesReportErrorToUser);
 #if defined(Q_OS_MACOS)
     connect(backend_->getPreferences(), &Preferences::hideFromDockChanged, this, &MainWindow::onPreferencesHideFromDockChanged);
+    connect(backend_->getPreferences(), &Preferences::multiDesktopBehaviorChanged, this, &MainWindow::onPreferencesMultiDesktopBehaviorChanged);
 #elif defined(Q_OS_LINUX)
     connect(backend_->getPreferences(), &Preferences::trayIconColorChanged, this, &MainWindow::onPreferencesTrayIconColorChanged);
 #endif
@@ -442,10 +443,14 @@ void MainWindow::showAfterLaunch()
 #ifdef Q_OS_MACOS
     // Do not showMinimized if hide from dock is enabled.  Otherwise, the app will fail to show
     // itself when the user selects 'Show' in the app's system tray menu.
-    if (backend_ && backend_->getPreferences()->isHideFromDock()) {
-        desiredDockIconVisibility_ = false;
-        hideShowDockIconImpl(!backend_->getPreferences()->isStartMinimized());
-        return;
+    if (backend_) {
+        if (backend_->getPreferences()->isHideFromDock()) {
+            desiredDockIconVisibility_ = false;
+            hideShowDockIconImpl(!backend_->getPreferences()->isStartMinimized());
+            return;
+        }
+
+        onPreferencesMultiDesktopBehaviorChanged(backend_->getPreferences()->multiDesktopBehavior());
     }
 #endif
 
@@ -484,6 +489,7 @@ void MainWindow::showAfterLaunch()
     else {
         show();
     }
+
 }
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
@@ -2939,7 +2945,7 @@ void MainWindow::hideShowDockIconImpl(bool bAllowActivateAndShow)
 }
 #endif
 
-void MainWindow::activateAndShow(bool moveBetweenVirtualDesktops)
+void MainWindow::activateAndShow()
 {
     // qDebug() << "ActivateAndShow()";
 #ifdef Q_OS_MACOS
@@ -2947,8 +2953,6 @@ void MainWindow::activateAndShow(bool moveBetweenVirtualDesktops)
         MacUtils::showDockIcon();
     }
 
-    const bool kAllowMoveBetweenSpaces = backend_->getPreferences()->isHideFromDock();
-    WidgetUtils_mac::allowMoveBetweenSpacesForWindow(this, kAllowMoveBetweenSpaces, moveBetweenVirtualDesktops);
 #endif
     mainWindowController_->updateMainAndViewGeometry(true);
 
@@ -2972,16 +2976,6 @@ void MainWindow::activateAndShow(bool moveBetweenVirtualDesktops)
 #endif
 
     lastWindowStateChange_ = QDateTime::currentMSecsSinceEpoch();
-}
-
-void MainWindow::activateAndShow() {
-#ifdef Q_OS_MACOS
-    // True is passed for Mac in order to fix issue #48 and #647.
-    // App should appear always on the active virtual desktop.
-    activateAndShow(true);
-#else
-    activateAndShow(false);
-#endif
 }
 
 void MainWindow::deactivateAndHide()
@@ -3442,9 +3436,9 @@ void MainWindow::onScaleChanged()
 void MainWindow::onDpiScaleManagerNewScreen(QScreen *screen)
 {
     Q_UNUSED(screen)
-#if defined(Q_OS_MACOS)
+#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
     // There is a bug that causes the app to be drawn in strange locations under the following scenario:
-    // On Mac: when laptop lid is closed/opened and app is docked
+    // On Windows/Mac: when laptop lid is closed/opened and app is docked
     // Instead we hide the app because an explicit click will redraw the click correctly and this should be relatively rare
     // Any attempt to remove the bug resulted in only pushing the bug around and this is extremely tedious to test. Fair warning.
     if (backend_->getPreferences()->isDockedToTray())
@@ -4089,3 +4083,15 @@ void MainWindow::onPreferencesShowNotificationsChanged()
     checkNotificationEnabled();
 }
 
+#if defined(Q_OS_MACOS)
+void MainWindow::onPreferencesMultiDesktopBehaviorChanged(MULTI_DESKTOP_BEHAVIOR m)
+{
+    MULTI_DESKTOP_BEHAVIOR mdb = backend_->getPreferences()->multiDesktopBehavior();
+    if (mdb == MULTI_DESKTOP_AUTO) {
+        // When set to auto, duplicate window if docked, otherwise move window
+        WidgetUtils_mac::allowMoveBetweenSpacesForWindow(this, backend_->getPreferences()->isDockedToTray(), true);
+    } else {
+        WidgetUtils_mac::allowMoveBetweenSpacesForWindow(this, mdb == MULTI_DESKTOP_DUPLICATE, mdb == MULTI_DESKTOP_MOVE_WINDOW);
+    }
+}
+#endif

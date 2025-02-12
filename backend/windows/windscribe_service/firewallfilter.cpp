@@ -286,21 +286,20 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
         spdlog::error("Could not add IPv4 unicast allow filter.");
     }
 
-    // add permit filters for Local Network
-    if (bAllowLocalTraffic) {
-        const std::vector<Ip4AddressAndMask> privV4 = Ip4AddressAndMask::fromVector(
-            {L"10.0.0.0/8", L"172.16.0.0/12", L"192.168.0.0/16", L"169.254.0.0/16"});
-        ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &privV4);
-        if (!ret) {
-            spdlog::error("Could not add IPv4 LAN traffic allow filter.");
-        }
+    // add permit/block filters for Local Network.
+    // We explicitly block if not allowed, since this setting should take precedence over split tunneling filters.
+    const std::vector<Ip4AddressAndMask> privV4 = Ip4AddressAndMask::fromVector(
+        {L"10.0.0.0/8", L"172.16.0.0/12", L"192.168.0.0/16", L"169.254.0.0/16"});
+    ret = Utils::addFilterV4(engineHandle, nullptr, bAllowLocalTraffic ? FWP_ACTION_PERMIT : FWP_ACTION_BLOCK, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &privV4);
+    if (!ret) {
+        spdlog::error("Could not add IPv4 LAN traffic allow/block filter.");
+    }
 
-        const std::vector<Ip6AddressAndPrefix> privV6 = Ip6AddressAndPrefix::fromVector(
-            {L"fe80::/10", L"ff00::/64"});
-        ret = Utils::addFilterV6(engineHandle, nullptr, FWP_ACTION_PERMIT, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &privV6);
-        if (!ret) {
-            spdlog::error("Could not add IPv6 LAN traffic allow filter.");
-        }
+    const std::vector<Ip6AddressAndPrefix> privV6 = Ip6AddressAndPrefix::fromVector(
+        {L"fe80::/10", L"ff00::/64"});
+    ret = Utils::addFilterV6(engineHandle, nullptr, bAllowLocalTraffic ? FWP_ACTION_PERMIT : FWP_ACTION_BLOCK, 4, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &privV6);
+    if (!ret) {
+        spdlog::error("Could not add IPv6 LAN traffic allow/block filter.");
     }
 }
 

@@ -247,5 +247,16 @@ bool isInstallerPathInProgramFilesX86(const std::wstring &installerPath)
     return p1 == p2.parent_path();
 }
 
+bool deleteFileOnReboot(const std::wstring &file)
+{
+    BOOL result = ::MoveFileEx(file.c_str(), NULL, MOVEFILE_DELAY_UNTIL_REBOOT);
+    if (result == FALSE) {
+        spdlog::error(L"deleteFileOnReboot - MoveFileEx({}) failed: {}", file, ::GetLastError());
+        return false;
+    }
+
+    spdlog::info(L"deleteFileOnReboot successful for {}", file);
+    return true;
+}
 
 }

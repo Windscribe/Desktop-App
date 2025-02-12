@@ -4,7 +4,7 @@
 #include "utils/log/categories.h"
 #include "utils/macutils.h"
 
-static NSDictionary *getExtensionOptions(const QString &primaryInterface, const QString &vpnInterface, bool isActive, bool isExclude, const QStringList &appPaths)
+static NSDictionary *getExtensionOptions(const QString &primaryInterface, const QString &vpnInterface, bool isActive, bool isExclude, const QStringList &appPaths, const QStringList &ips, const QStringList &hostnames)
 {
     NSMutableDictionary *options = [[NSMutableDictionary alloc] init];
 
@@ -21,6 +21,18 @@ static NSDictionary *getExtensionOptions(const QString &primaryInterface, const 
     [options setObject:vpnInterface.toNSString() forKey:@"vpnInterface"];
     [options setObject:(isActive ? @"1" : @"0") forKey:@"isActive"];
     [options setObject:(isExclude ? @"1" : @"0") forKey:@"isExclude"];
+    NSMutableArray<NSString *> *ipsArray = [[NSMutableArray alloc] init];
+    for (const QString &ip : ips) {
+        [ipsArray addObject:ip.toNSString()];
+    }
+    [options setObject:ipsArray forKey:@"ips"];
+
+    NSMutableArray<NSString *> *hostnamesArray = [[NSMutableArray alloc] init];
+    for (const QString &hostname : hostnames) {
+        [hostnamesArray addObject:hostname.toNSString()];
+    }
+    [options setObject:hostnamesArray forKey:@"hostnames"];
+
     [options setObject:(ExtraConfig::instance().getLogSplitTunnelExtension() ? @"1" : @"0") forKey:@"debug"];
 
     return options;
@@ -32,7 +44,7 @@ SplitTunnelExtensionManager &SplitTunnelExtensionManager::instance()
     return instance;
 }
 
-SplitTunnelExtensionManager::SplitTunnelExtensionManager() : isActive_(false), isExclude_(false), appPaths_() {
+SplitTunnelExtensionManager::SplitTunnelExtensionManager() : isActive_(false), isExclude_(false), appPaths_(), ips_(), hostnames_() {
 }
 
 bool SplitTunnelExtensionManager::startExtension(const QString &primaryInterface, const QString &vpnInterface)
@@ -50,7 +62,7 @@ bool SplitTunnelExtensionManager::startExtension(const QString &primaryInterface
     qCDebug(LOG_SPLIT_TUNNEL_EXTENSION) << "Starting split tunnel extension";
 
     // Get proxy options here.  The interfaces above are references and may no longer be valid by the time the completion handlers run.
-    NSDictionary *extensionOptions = getExtensionOptions(primaryInterface, vpnInterface, isActive_, isExclude_, appPaths_);
+    NSDictionary *extensionOptions = getExtensionOptions(primaryInterface, vpnInterface, isActive_, isExclude_, appPaths_, ips_, hostnames_);
 
     [NETransparentProxyManager loadAllFromPreferencesWithCompletionHandler:^(NSArray<NETransparentProxyManager *> *managers, NSError *error) {
         if (error) {
@@ -151,9 +163,11 @@ bool SplitTunnelExtensionManager::isActive() const
     return isActive_;
 }
 
-void SplitTunnelExtensionManager::setSplitTunnelSettings(bool isActive, bool isExclude, const QStringList &appPaths)
+void SplitTunnelExtensionManager::setSplitTunnelSettings(bool isActive, bool isExclude, const QStringList &appPaths, const QStringList &ips, const QStringList &hostnames)
 {
     isActive_ = isActive;
     isExclude_ = isExclude;
     appPaths_ = appPaths;
+    ips_ = ips;
+    hostnames_ = hostnames;
 }

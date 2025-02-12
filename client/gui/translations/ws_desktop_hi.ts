@@ -1481,6 +1481,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Tray Icon Color</source>
         <translation>ट्रे आइकन रंग</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>मल्टी-डेस्कटॉप</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>एकाधिक डेस्कटॉप के साथ विंडो सक्रिय होने पर व्यवहार का चयन करें।</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -2310,6 +2318,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Forced</source>
         <translation>मजबूर</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>रिक्तियाँ ले जाएँ</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>विंडो ले जाएँ</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>हूबहू नक़ल</translation>
     </message>
 </context>
 <context>

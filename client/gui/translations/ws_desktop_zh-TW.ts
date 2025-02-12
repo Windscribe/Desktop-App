@@ -1481,6 +1481,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Tray Icon Color</source>
         <translation>托盤圖示顏色</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>多桌面</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>選擇使用多個桌面啟動視窗時的行為。</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -2310,6 +2318,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Forced</source>
         <translation>強迫</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>移動空間</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>移動視窗</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>重複</translation>
     </message>
 </context>
 <context>

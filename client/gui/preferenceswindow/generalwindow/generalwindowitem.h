@@ -72,6 +72,11 @@ private slots:
     void onPreferencesTrayIconColorChanged(QVariant value);
 #endif
 
+#if defined(Q_OS_MACOS)
+    void onMultiDesktopBehaviorChanged(QVariant value);
+    void onMultiDesktopBehaviorPreferencesChanged(QVariant value);
+#endif
+
 signals:
     void languageChanged();
 
@@ -95,7 +100,7 @@ private:
     ToggleItem *checkBoxShowLocationLoad_;
     PreferenceGroup *closeToTrayGroup_;
     ToggleItem *checkBoxMinimizeAndCloseToTray_;
-#if defined Q_OS_MACOS
+#if defined(Q_OS_MACOS)
     PreferenceGroup *hideFromDockGroup_;
     ToggleItem *checkBoxHideFromDock_;
 #endif
@@ -108,16 +113,19 @@ private:
     ComboBoxItem *comboBoxLocationOrder_;
     PreferenceGroup *latencyDisplayGroup_;
     ComboBoxItem *comboBoxLatencyDisplay_;
+#if defined(Q_OS_LINUX)
+    PreferenceGroup *trayIconColorGroup_;
+    ComboBoxItem *trayIconColorItem_;
+#endif
+#if defined(Q_OS_MACOS)
+    PreferenceGroup *multiDesktopBehaviorGroup_;
+    ComboBoxItem *multiDesktopBehaviorItem_;
+#endif
     PreferenceGroup *updateChannelGroup_;
     ComboBoxItem *comboBoxUpdateChannel_;
 
     PreferenceGroup *versionGroup_;
     VersionInfoItem *versionInfoItem_;
-
-#if defined(Q_OS_LINUX)
-    PreferenceGroup *trayIconColorGroup_;
-    ComboBoxItem *trayIconColorItem_;
-#endif
 };
 
 } // namespace PreferencesWindow

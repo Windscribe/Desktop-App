@@ -1481,6 +1481,14 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>Tray Icon Color</source>
         <translation>Màu biểu tượng khay</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>Đa máy tính để bàn</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>Chọn hành vi khi cửa sổ được kích hoạt với nhiều màn hình nền.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -2310,6 +2318,18 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Forced</source>
         <translation>Gượng</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>Di chuyển không gian</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>Di chuyển cửa sổ</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Bản sao</translation>
     </message>
 </context>
 <context>

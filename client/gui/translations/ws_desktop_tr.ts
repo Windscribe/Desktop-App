@@ -1481,6 +1481,14 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>Tray Icon Color</source>
         <translation>Tepsi Simgesi Rengi</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>Çoklu masaüstü</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>Pencere birden çok masaüstü ile etkinleştirildiğinde davranışı seçin.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -2310,6 +2318,18 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Forced</source>
         <translation>Zorla</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>Boşlukları taşıma</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>Pencereyi taşı</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Yinelenen</translation>
     </message>
 </context>
 <context>

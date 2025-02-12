@@ -42,6 +42,7 @@
     #include "utils/network_utils/wlan_utils_win.h"
     #include "utils/winutils.h"
 #elif defined Q_OS_MACOS
+    #include "ipv6controller_mac.h"
     #include "networkdetectionmanager/networkdetectionmanager_mac.h"
     #include "networkdetectionmanager/reachabilityevents.h"
     #include "splittunnelextension/systemextensions_mac.h"
@@ -575,6 +576,7 @@ void Engine::initPart2()
 #if defined(Q_OS_WIN)
     WlanUtils_win::setHelper(helper_);
 #elif defined(Q_OS_MACOS)
+    Ipv6Controller_mac::instance().setHelper(helper_);
     InterfaceUtils_mac::instance().setHelper(static_cast<Helper_mac *>(helper_));
     ReachAbilityEvents::instance().init();
 #endif
@@ -885,11 +887,15 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
             firewallController_->setFirewallOnBoot(false);
 #endif
         }
+
 #ifdef Q_OS_WIN
         Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
         helper_win->setIPv6EnabledInFirewall(true);
 #endif
-
+ 
+#ifdef Q_OS_MACOS
+        Ipv6Controller_mac::instance().restoreIpv6();
+#endif
     }
 
     SAFE_DELETE(vpnShareController_);
@@ -977,6 +983,8 @@ void Engine::connectClickImpl(const LocationID &locationId, const types::Connect
 
 #ifdef Q_OS_WIN
     DnsInfo_win::outputDebugDnsInfo();
+#elif defined Q_OS_MACOS
+    Ipv6Controller_mac::instance().disableIpv6();
 #endif
 
     stopFetchingServerCredentials();
@@ -1480,6 +1488,7 @@ void Engine::onConnectionManagerConnected()
     connectionManager_->startTunnelTests(); // It is important that startTunnelTests() are after setConnectedState().
 
     if (tryLoginNextConnectOrDisconnect_) {
+        tryLoginNextConnectOrDisconnect_ = false;
         loginImpl(true, QString(), QString(), QString());
     }
 }
@@ -1635,6 +1644,9 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
         //emit connectError(err);
     }
 
+#ifdef Q_OS_MACOS
+    Ipv6Controller_mac::instance().restoreIpv6();
+#endif
     connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, err);
 }
 
@@ -2075,6 +2087,10 @@ void Engine::onNetworkOnlineStateChange(bool isOnline)
         stopPacketDetection();
     }
     WSNet::instance()->setConnectivityState(isOnline);
+    if (isOnline && tryLoginNextConnectOrDisconnect_) {
+        tryLoginNextConnectOrDisconnect_ = false;
+        loginImpl(true, QString(), QString(), QString());
+    }
 }
 
 void Engine::onNetworkChange(const types::NetworkInterface &networkInterface)
@@ -2260,7 +2276,7 @@ void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const 
     SystemExtensions_mac::instance()->setAppProxySystemExtensionActive(isActive);
 
     // Make sure settings are set before (re)starting the extension.
-    SplitTunnelExtensionManager::instance().setSplitTunnelSettings(isActive, isExclude, files);
+    SplitTunnelExtensionManager::instance().setSplitTunnelSettings(isActive, isExclude, files, ips, hosts);
 
     // Always stop the extension first.
     SplitTunnelExtensionManager::instance().stopExtension();
@@ -2552,8 +2568,13 @@ void Engine::doDisconnectRestoreStuff()
     helper_win->setIPv6EnabledInFirewall(true);
 #endif
 
+#ifdef Q_OS_MACOS
+    Ipv6Controller_mac::instance().restoreIpv6();
+#endif
+
     // If we have disconnected and are still not logged then try again.
     if (tryLoginNextConnectOrDisconnect_) {
+        tryLoginNextConnectOrDisconnect_ = false;
         loginImpl(true, QString(), QString(), QString());
     }
 }

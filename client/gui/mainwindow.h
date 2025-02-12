@@ -229,6 +229,9 @@ private slots:
     void onPreferencesGetRobertFilters();
     void onPreferencesSetRobertFilter(const api_responses::RobertFilter &filter);
     void onPreferencesReportErrorToUser(const QString &title, const QString &desc);
+#if defined(Q_OS_MACOS)
+    void onPreferencesMultiDesktopBehaviorChanged(MULTI_DESKTOP_BEHAVIOR m);
+#endif
 
     void onPreferencesCollapsed();
 
@@ -376,7 +379,6 @@ private:
 
     types::NetworkInterface curNetwork_;
 
-    void activateAndShow(bool moveBetweenVirtualDesktops);
     void activateAndShow();
     void deactivateAndHide();
     void createTrayMenuItems();

@@ -20,6 +20,11 @@ if (WIN32)
         measurementcpuusage.cpp
         measurementcpuusage.h
     )
+elseif(APPLE)
+    target_sources(engine PRIVATE
+        ipv6controller_mac.cpp
+        ipv6controller_mac.h
+    )
 endif()
 
 

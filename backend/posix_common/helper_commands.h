@@ -24,7 +24,7 @@
 #define HELPER_CMD_APPLY_CUSTOM_DNS                  16
 #define HELPER_CMD_CHANGE_MTU                        17
 #define HELPER_CMD_DELETE_ROUTE                      18
-#define HELPER_CMD_SET_IPV6_ENABLED                  19 // deprecated
+#define HELPER_CMD_SET_IPV6_ENABLED                  19
 #define HELPER_CMD_SET_DNS_LEAK_PROTECT_ENABLED      20 // this script disables DNS queries on non-VPN interfaces
 #define HELPER_CMD_SET_DNS_SCRIPT_ENABLED            21 // this script sets/unsets the VPN DNS as the system default
 #define HELPER_CMD_CHECK_FOR_WIREGUARD_KERNEL_MODULE 22 // deprecated
@@ -193,6 +193,10 @@ struct CMD_DELETE_ROUTE {
     std::string range;
     int mask;
     std::string gateway;
+};
+
+struct CMD_SET_IPV6_ENABLED {
+    bool enabled;
 };
 
 struct CMD_SET_DNS_LEAK_PROTECT_ENABLED {

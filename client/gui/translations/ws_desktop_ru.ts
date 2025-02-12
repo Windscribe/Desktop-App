@@ -1481,6 +1481,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Tray Icon Color</source>
         <translation>Цвет значка в трее</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>Мультидесктоп</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>Выберите поведение при активации окна с несколькими рабочими столами.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -2310,6 +2318,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Forced</source>
         <translation>Принудительный</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>Перемещение пространств</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>Переместить окно</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Дублировать</translation>
     </message>
 </context>
 <context>

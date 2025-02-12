@@ -1481,6 +1481,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Tray Icon Color</source>
         <translation>Tray Icon Color</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>Multi-desktop</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>Select behavior when window is activated with multiple desktops.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -2310,6 +2318,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Forced</source>
         <translation>Forced</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>Move spaces</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>Move window</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Duplicate</translation>
     </message>
 </context>
 <context>

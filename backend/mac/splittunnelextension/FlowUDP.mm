@@ -9,8 +9,13 @@
     self = [super init];
     if (self) {
         activeConnections_ = [[NSMutableDictionary alloc] init];
+        settings_ = nil;
     }
     return self;
+}
+
+- (void)setSettings:(Settings *)settings {
+    settings_ = settings;
 }
 
 - (void)removeConnection:(nw_connection_t)connection {
@@ -53,7 +58,11 @@
 }
 
 - (BOOL)setupUDPConnection:(NEAppProxyUDPFlow *)flow interface:(nw_interface_t)interface {
-    // Open the flow
+    if (!settings_) {
+        spdlog::error("[UDP] Settings not initialized");
+        return NO;
+    }
+
     [flow openWithLocalEndpoint:(NWHostEndpoint *)flow.localEndpoint completionHandler:^(NSError * _Nullable error) {
         if (error) {
             spdlog::error("[UDP] flow open error: {}", [[error localizedDescription] UTF8String]);
@@ -64,6 +73,9 @@
         // Outbound flows that create connections will start the inbound handler
         [self handleUDPOutboundFlow:flow interface:interface];
     }];
+
+    // For UDP, we don't know what the remote endpoint is until we process the datagrams, so we always accept the flow.
+    spdlog::info("[UDP] Handling flow from {} => {}", [flow.metaData.sourceAppSigningIdentifier UTF8String], nw_interface_get_name(interface));
     return YES;
 }
 
@@ -103,9 +115,9 @@
             nw_interface_t targetInterface = interface;
 
             // DNS traffic should stay on the original (VPN) interface.  ROBERT can only be reached from the VPN interface.
-            // If it's a LAN range (except the reserved 10.255.255.0/24 range), we leave the traffic on the original interface.
+            // If it's a LAN range (including the reserved 10.255.255.0/24 range), we leave the traffic on the original interface.
             // Note that the firewall may still block this later.
-            if (nw_endpoint_get_port(endpoint) == 53 || [Utils isLanRange:endpoint]) {
+            if (nw_endpoint_get_port(endpoint) == 53 || [Utils isLanRange:endpoint] || ![settings_ isSplitTunnelApplicable:flow remoteEndpoint:endpoint]) {
                 targetInterface = flow.networkInterface;
             }
 
@@ -137,7 +149,7 @@
                 [self handleUDPInboundFlow:connection flow:flow interface:interface];
             }
 
-            spdlog::debug("[UDP] sending {} bytes to {}", datagram.length, (nw_endpoint_get_hostname(endpoint) == NULL) ? "<null>" : nw_endpoint_get_hostname(endpoint));
+            spdlog::debug("[UDP] sending {} bytes to {} on {}", datagram.length, (nw_endpoint_get_hostname(endpoint) == NULL) ? "<null>" : nw_endpoint_get_hostname(endpoint), nw_interface_get_name(targetInterface));
 
             nw_connection_send(
                 connection,

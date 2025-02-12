@@ -35,6 +35,7 @@ struct GuiSettings
     ShareSecureHotspot shareSecureHotspot;
     SplitTunneling splitTunneling;
     TRAY_ICON_COLOR trayIconColor = TRAY_ICON_COLOR_WHITE;
+    MULTI_DESKTOP_BEHAVIOR multiDesktopBehavior = MULTI_DESKTOP_AUTO;
 
     bool operator==(const GuiSettings &other) const
     {
@@ -54,7 +55,8 @@ struct GuiSettings
                other.isShowLocationHealth == isShowLocationHealth &&
                other.isAutoSecureNetworks == isAutoSecureNetworks &&
                other.appSkin == appSkin &&
-               other.trayIconColor == trayIconColor;
+               other.trayIconColor == trayIconColor &&
+               other.multiDesktopBehavior == multiDesktopBehavior;
     }
 
     bool operator!=(const GuiSettings &other) const
@@ -108,6 +110,7 @@ struct GuiSettings
         json[kJsonShareSecureHotspotProp] = shareSecureHotspot.toJson();
         json[kJsonSplitTunnelingProp] = splitTunneling.toJson();
         json[kJsonTrayIconColorProp] = static_cast<int>(trayIconColor);
+        json[kJsonMultiDesktopBehaviorProp] = static_cast<int>(multiDesktopBehavior);
         json[kJsonVersionProp] = static_cast<int>(versionForSerialization_);
 
         return json;
@@ -118,7 +121,8 @@ struct GuiSettings
         stream << versionForSerialization_;
         stream << o.isLaunchOnStartup << o.isAutoConnect << o.isHideFromDock << o.isShowNotifications << o.orderLocation << o.latencyDisplay <<
                   o.shareSecureHotspot << o.shareProxyGateway << o.splitTunneling << o.isDockedToTray << o.isMinimizeAndCloseToTray <<
-                  o.backgroundSettings << o.isStartMinimized << o.isShowLocationHealth << o.isAutoSecureNetworks << o.appSkin << o.trayIconColor;
+                  o.backgroundSettings << o.isStartMinimized << o.isShowLocationHealth << o.isAutoSecureNetworks << o.appSkin << o.trayIconColor <<
+                  o.multiDesktopBehavior;
 
         return stream;
     }
@@ -146,6 +150,11 @@ struct GuiSettings
             stream >> o.trayIconColor;
         }
 
+        if (version >= 4)
+        {
+            stream >> o.multiDesktopBehavior;
+        }
+
         return stream;
     }
 
@@ -169,7 +178,8 @@ struct GuiSettings
         dbg << "isShowLocationHealth:" << gs.isShowLocationHealth << "; ";
         dbg << "isAutoSecureNetworks:" << gs.isAutoSecureNetworks << "; ";
         dbg << "appSkin:" << APP_SKIN_toString(gs.appSkin) << ";";
-        dbg << "trayIconColor:" << gs.trayIconColor << ";}";
+        dbg << "trayIconColor:" << gs.trayIconColor << ";";
+        dbg << "multiDesktopBehavior:" << gs.multiDesktopBehavior << ";}";
 
         return dbg;
     }
@@ -197,9 +207,10 @@ private:
     static const inline QString kJsonShareSecureHotspotProp = "shareSecureHotspot";
     static const inline QString kJsonSplitTunnelingProp = "splitTunneling";
     static const inline QString kJsonTrayIconColorProp = "trayIconColor";
+    static const inline QString kJsonMultiDesktopBehaviorProp = "multiDesktopBehavior";
     static const inline QString kJsonVersionProp = "version";
 
-    static constexpr quint32 versionForSerialization_ = 3;  // should increment the version if the data format is changed
+    static constexpr quint32 versionForSerialization_ = 4;  // should increment the version if the data format is changed
 };
 
 inline GuiSettings::GuiSettings(const QJsonObject &json)
@@ -279,6 +290,12 @@ inline GuiSettings::GuiSettings(const QJsonObject &json)
     if (json.contains(kJsonSplitTunnelingProp) && json[kJsonSplitTunnelingProp].isObject()) {
         splitTunneling = types::SplitTunneling(json[kJsonSplitTunnelingProp].toObject());
     }
+
+#if defined(Q_OS_MACOS)
+    if (json.contains(kJsonMultiDesktopBehaviorProp) && json[kJsonMultiDesktopBehaviorProp].isDouble()) {
+        multiDesktopBehavior = MULTI_DESKTOP_BEHAVIOR_fromInt(json[kJsonMultiDesktopBehaviorProp].toInt());
+    }
+#endif
 }
 
 } // types namespace

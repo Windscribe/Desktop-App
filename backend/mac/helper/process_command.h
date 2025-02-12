@@ -24,6 +24,7 @@ CMD_ANSWER installerRemoveOldInstall(boost::archive::text_iarchive &ia);
 CMD_ANSWER applyCustomDns(boost::archive::text_iarchive &ia);
 CMD_ANSWER changeMtu(boost::archive::text_iarchive &ia);
 CMD_ANSWER deleteRoute(boost::archive::text_iarchive &ia);
+CMD_ANSWER setIpv6Enabled(boost::archive::text_iarchive &ia);
 CMD_ANSWER setDnsScriptEnabled(boost::archive::text_iarchive &ia);
 CMD_ANSWER clearFirewallRules(boost::archive::text_iarchive &ia);
 CMD_ANSWER checkFirewallState(boost::archive::text_iarchive &ia);
@@ -57,6 +58,7 @@ static const std::map<const int, std::function<CMD_ANSWER(boost::archive::text_i
     { HELPER_CMD_APPLY_CUSTOM_DNS, applyCustomDns },
     { HELPER_CMD_CHANGE_MTU, changeMtu },
     { HELPER_CMD_DELETE_ROUTE, deleteRoute },
+    { HELPER_CMD_SET_IPV6_ENABLED, setIpv6Enabled },
     { HELPER_CMD_SET_DNS_SCRIPT_ENABLED, setDnsScriptEnabled },
     { HELPER_CMD_CLEAR_FIREWALL_RULES, clearFirewallRules },
     { HELPER_CMD_CHECK_FIREWALL_STATE, checkFirewallState },

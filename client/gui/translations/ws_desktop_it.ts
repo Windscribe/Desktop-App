@@ -1481,6 +1481,14 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <source>Tray Icon Color</source>
         <translation>Colore dell&apos;icona del vassoio</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>Multi-desktop</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>Selezionare il comportamento quando la finestra è attivata con più desktop.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -2310,6 +2318,18 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     <message>
         <source>Forced</source>
         <translation>Forzato</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>Spostare gli spazi</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>Sposta finestra</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Duplicare</translation>
     </message>
 </context>
 <context>

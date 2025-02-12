@@ -1481,6 +1481,14 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>Tray Icon Color</source>
         <translation>Couleur de l’icône du bac</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>Multi-bureau</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>Sélectionnez le comportement lorsque la fenêtre est activée avec plusieurs postes de travail.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -2310,6 +2318,18 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
     <message>
         <source>Forced</source>
         <translation>Forcé</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>Déplacer des espaces</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>Déplacer la fenêtre</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Dupliquer</translation>
     </message>
 </context>
 <context>

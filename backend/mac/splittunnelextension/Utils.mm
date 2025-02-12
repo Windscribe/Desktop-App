@@ -125,22 +125,9 @@
     const struct sockaddr_in *addr_in = (const struct sockaddr_in *)addr;
     uint32_t ip = ntohl(addr_in->sin_addr.s_addr);
 
-    // Check for link-local range (169.254.0.0/16)
-    if ((ip & 0xFFFF0000) == 0xA9FE0000) {
-        return YES;
-    }
-
-    // Check for 10.0.0.0/8 range, excluding 10.255.255.0/24
-    if ((ip & 0xFF000000) == 0x0A000000) {
-        // Exclude 10.255.255.0/24
-        if ((ip & 0xFFFFFF00) == 0x0AFFFF00) {
-            return NO;
-        }
-        return YES;
-    }
-
-    // Check for other private ranges
-    return ((ip & 0xFFF00000) == 0xAC100000) ||    // 172.16.0.0/12
+    return ((ip & 0xFF000000) == 0x0A000000) ||    // 10.0.0.0/8
+           ((ip & 0xFFFF0000) == 0xA9FE0000) ||    // 169.254.0.0/16
+           ((ip & 0xFFF00000) == 0xAC100000) ||    // 172.16.0.0/12
            ((ip & 0xFFFF0000) == 0xC0A80000);      // 192.168.0.0/16
 }
 

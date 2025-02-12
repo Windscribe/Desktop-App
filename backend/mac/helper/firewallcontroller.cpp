@@ -6,7 +6,7 @@
 
 #include "utils.h"
 
-FirewallController::FirewallController() : enabled_(false), connected_(false), splitTunnelEnabled_(false), splitTunnelExclude_(false)
+FirewallController::FirewallController() : enabled_(false)
 {
     // If firewall on boot is enabled, restore boot rules
     if (Utils::isFileExists("/etc/windscribe/boot_pf.conf")) {
@@ -33,9 +33,6 @@ bool FirewallController::enable(const std::string &rules, const std::string &tab
     if (table.empty() && group.empty()) {
         Utils::executeCommand("/sbin/pfctl", {"-v", "-F", "all", "-f", "/etc/windscribe/pf.conf"});
         Utils::executeCommand("/sbin/pfctl", {"-e"});
-
-        // reapply split tunneling rules if necessary
-        setSplitTunnelExceptions(splitTunnelIps_);
     } else if (!table.empty()) {
         Utils::executeCommand("/sbin/pfctl", {"-T", "load", "-f", "/etc/windscribe/pf.conf"});
     } else if (!group.empty()) {
@@ -72,49 +69,4 @@ bool FirewallController::enabled()
 
     Utils::executeCommand("/sbin/pfctl", {"-si"}, &output);
     return (output.find("Status: Enabled") != std::string::npos);
-}
-
-void FirewallController::setSplitTunnelingEnabled(bool isConnected, bool isEnabled, bool isExclude)
-{
-    connected_ = isConnected;
-    splitTunnelEnabled_ = isEnabled;
-    splitTunnelExclude_ = isExclude;
-
-    // If firewall is on, apply rules immediately
-    if (enabled_) {
-        setSplitTunnelExceptions(splitTunnelIps_);
-    }
-}
-
-void FirewallController::setSplitTunnelExceptions(const std::vector<std::string> &ips)
-{
-    splitTunnelIps_ = ips;
-
-    std::string ipStr = "table <windscribe_split_tunnel_ips> persist { ";
-
-    if (!connected_ || !splitTunnelEnabled_) {
-        // If split tunneling is disabled, treat this table as if there are no IPs
-        ipStr += " }\n";
-    } else if (splitTunnelExclude_) {
-        for (const auto ip : ips) {
-            ipStr += ip + " ";
-        }
-        ipStr += " }\n";
-    } else {
-        // For inclusive tunnel, ignore the ips and apply a rule to allow any traffic
-        // NB: pfctl tables do not allow 0/0 so we split it into two
-        ipStr += " 0/1 128/1 }\n";
-    }
-
-    int fd = open("/etc/windscribe/pf_st.conf", O_CREAT | O_WRONLY | O_TRUNC);
-    if (fd < 0) {
-        spdlog::error("Could not open firewall rules for writing");
-        return;
-    }
-
-    write(fd, ipStr.c_str(), ipStr.length());
-    close(fd);
-
-    Utils::executeCommand("/sbin/pfctl", {"-T", "load", "-f", "/etc/windscribe/pf_st.conf"});
-    Utils::executeCommand("rm", {"/etc/windscribe/pf_st.conf"});
 }

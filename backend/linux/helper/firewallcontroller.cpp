@@ -148,8 +148,8 @@ void FirewallController::setSplitTunnelIngressRules(const std::string &defaultAd
         return;
     }
 
-    addRule({"PREROUTING", "-t", "mangle", "-d", defaultAdapterIp.c_str(), "-j", "CONNMARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
-    addRule({"OUTPUT", "-t", "mangle", "-j", "CONNMARK", "--restore-mark", "-m", "comment", "--comment", kTag});
+    addRule({"PREROUTING", "-t", "mangle", "-d", defaultAdapterIp.c_str(), "-j", "CONNMARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag}, true);
+    addRule({"OUTPUT", "-t", "mangle", "-j", "CONNMARK", "--restore-mark", "-m", "comment", "--comment", kTag}, true);
 }
 
 void FirewallController::setSplitTunnelAppExceptions()
@@ -163,8 +163,8 @@ void FirewallController::setSplitTunnelAppExceptions()
     if (splitTunnelExclude_) {
         removeInclusiveAppRules();
 
-        addRule({"POSTROUTING",  "-t", "nat", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-o", defaultAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag});
-        addRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
+        addRule({"POSTROUTING",  "-t", "nat", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-o", defaultAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag}, true);
+        addRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag}, true);
 
         // allow packets from excluded apps, if firewall is on
         if (enabled()) {
@@ -174,8 +174,8 @@ void FirewallController::setSplitTunnelAppExceptions()
     } else {
         removeExclusiveAppRules();
 
-        addRule({"POSTROUTING", "-t", "nat", "-m", "cgroup", "!", "--cgroup", CGroups::instance().netClassId(), "-o", defaultAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag});
-        addRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "!", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});
+        addRule({"POSTROUTING", "-t", "nat", "-m", "cgroup", "!", "--cgroup", CGroups::instance().netClassId(), "-o", defaultAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag}, true);
+        addRule({"OUTPUT", "-t", "mangle", "-m", "cgroup", "!", "--cgroup", CGroups::instance().netClassId(), "-j", "MARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag}, true);
 
         // For inclusive, allow all packets
         if (enabled()) {
@@ -222,14 +222,18 @@ void FirewallController::setSplitTunnelIpExceptions(const std::vector<std::strin
     splitTunnelIps_ = ips;
 }
 
-void FirewallController::addRule(const std::vector<std::string> &args)
+void FirewallController::addRule(const std::vector<std::string> &args, bool prepend)
 {
     std::vector<std::string> checkArgs = args;
     checkArgs.insert(checkArgs.begin(), "-C");
     int ret = Utils::executeCommand("iptables", checkArgs);
     if (ret) {
         std::vector<std::string> insertArgs = args;
-        insertArgs.insert(insertArgs.begin(), "-I");
+        if (prepend) {
+            insertArgs.insert(insertArgs.begin(), "-I");
+        } else {
+            insertArgs.insert(insertArgs.begin(), "-A");
+        }
         Utils::executeCommand("iptables", insertArgs);
     }
 }

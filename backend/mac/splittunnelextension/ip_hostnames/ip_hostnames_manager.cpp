@@ -1,6 +1,5 @@
 #include "ip_hostnames_manager.h"
 #include <spdlog/spdlog.h>
-#include "../firewallcontroller.h"
 
 IpHostnamesManager::IpHostnamesManager(): isEnabled_(false)
 {
@@ -12,16 +11,13 @@ IpHostnamesManager::~IpHostnamesManager()
     dnsResolver_.stop();
 }
 
-void IpHostnamesManager::enable(const std::string &gatewayIp)
+void IpHostnamesManager::enable()
 {
     spdlog::debug("IpHostnamesManager::enable(), begin");
     {
         std::lock_guard<std::mutex> guard(mutex_);
-
-        gatewayIp_ = gatewayIp;
-        ipRoutes_.clear();
-        ipRoutes_.setIps(gatewayIp_, ipsLatest_);
-        FirewallController::instance().setSplitTunnelExceptions(ipsLatest_);
+        addressesList_.clear();
+        addressesList_.insert(ipsLatest_.begin(), ipsLatest_.end());
         isEnabled_ = true;
     }
 
@@ -41,11 +37,9 @@ void IpHostnamesManager::disable()
         if (!isEnabled_) {
             return;
         }
-        ipRoutes_.clear();
         isEnabled_ = false;
     }
     dnsResolver_.cancelAll();
-    FirewallController::instance().setSplitTunnelExceptions(std::vector<std::string>());
     spdlog::debug("IpHostnamesManager::disable(), end");
 }
 
@@ -61,8 +55,6 @@ void IpHostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::
 {
     std::lock_guard<std::mutex> guard(mutex_);
 
-    std::vector<std::string> hostsIps;
-
     for (auto it = hostInfos.begin(); it != hostInfos.end(); ++it) {
         if (!it->second.error) {
             for (const auto addr : it->second.addresses) {
@@ -71,18 +63,17 @@ void IpHostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::
                     spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : {}, IP: 0.0.0.0 (Ignored)", it->first);
                 } else {
                     spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : {}, IP: {}", it->first, addr);
-                    hostsIps.insert(hostsIps.end(), addr);
+                    addressesList_.insert(addr);
                 }
             }
         } else {
             spdlog::warn("IpHostnamesManager::dnsResolverCallback(), Failed resolve : {}", it->first);
         }
     }
+}
 
-    hostsIps.insert(hostsIps.end(), ipsLatest_.begin(), ipsLatest_.end());
-
-    if (isEnabled_) {
-        ipRoutes_.setIps(gatewayIp_, hostsIps);
-        FirewallController::instance().setSplitTunnelExceptions(hostsIps);
-    }
+bool IpHostnamesManager::isIpInList(const std::string &ip)
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    return addressesList_.count(ip) == 1;
 }

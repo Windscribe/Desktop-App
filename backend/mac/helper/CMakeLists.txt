@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(com.windscribe.helper.macos)
 
 find_package(Boost REQUIRED COMPONENTS serialization thread)
-find_package(c-ares REQUIRED)
 find_package(skyr-url CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 
@@ -34,16 +33,10 @@ set(SOURCES
     installer/files.cpp
     installer/files.h
     installer/iinstall_block.h
-    ip_hostnames/ares_library_init.cpp
-    ip_hostnames/ares_library_init.h
-    ip_hostnames/dns_resolver.cpp
-    ip_hostnames/dns_resolver.h
-    ip_hostnames/ip_hostnames_manager.cpp
-    ip_hostnames/ip_hostnames_manager.h
-    ip_hostnames/ip_routes.cpp
-    ip_hostnames/ip_routes.h
     ipc/helper_security.h
     ipc/helper_security.mm
+    ipv6/ipv6manager.cpp
+    ipv6/ipv6manager.h
     macspoofingonboot.cpp
     macspoofingonboot.h
     macutils.h
@@ -60,8 +53,6 @@ set(SOURCES
     routes_manager/routes_manager.h
     server.cpp
     server.h
-    split_tunneling/split_tunneling.cpp
-    split_tunneling/split_tunneling.h
     utils.cpp
     utils.h
     wireguard/defaultroutemonitor.cpp
@@ -84,7 +75,6 @@ target_link_libraries(com.windscribe.helper.macos
                       PRIVATE
                       Boost::serialization
                       Boost::thread
-                      c-ares::cares
                       skyr::skyr-url
                       spdlog::spdlog
                       "-framework Foundation"

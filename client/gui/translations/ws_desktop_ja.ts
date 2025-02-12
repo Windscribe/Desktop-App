@@ -1481,6 +1481,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Tray Icon Color</source>
         <translation>トレイアイコンの色</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>マルチデスクトップ</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>ウィンドウが複数のデスクトップでアクティブ化されている場合の動作を選択します。</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -2310,6 +2318,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Forced</source>
         <translation>強制的</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>スペースを移動する</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>ウィンドウの移動</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>デュプリケート</translation>
     </message>
 </context>
 <context>

@@ -4,12 +4,19 @@
 #include "bound_route.h"
 #include "routes.h"
 
-// state-based route management, depends on parameters isConnected, isSplitTunnelActive,
-// exclusive/inclusive split tunneling mode
 class RoutesManager
 {
 public:
-    RoutesManager();
+    static RoutesManager& instance()
+    {
+        static RoutesManager instance;
+        return instance;
+    }
+    RoutesManager(const RoutesManager&) = delete;
+    RoutesManager& operator=(const RoutesManager&) = delete;
+
+    void setSplitTunnelSettings(bool isSplitTunnelActive, bool isExcludeMode);
+    void setConnectStatus(const CMD_SEND_CONNECT_STATUS &connectStatus);
     void updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bool isSplitTunnelActive, bool isExcludeMode);
 
 private:
@@ -21,6 +28,7 @@ private:
     Routes dnsServersRoutes_;
     Routes vpnRoutes_;
 
+    RoutesManager();
     void addDnsRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus);
     void addIkev2RoutesForInclusiveMode(const CMD_SEND_CONNECT_STATUS &connectStatus);
     void clearAllRoutes();

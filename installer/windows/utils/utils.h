@@ -11,6 +11,7 @@ namespace Utils
 // If the app is running, retrieve its main window handle.
 HWND appMainWindowHandle();
 
+bool deleteFileOnReboot(const std::wstring &file);
 std::wstring desktopFolder();
 std::wstring getExePath();
 std::wstring getSystemDir();

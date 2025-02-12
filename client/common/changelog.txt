@@ -1,3 +1,18 @@
+2.14.5 (12/02/2025)
+All:
+   * Fixed mangled ar/fa translations. #1268
+   * Fixed app does not retry login if first attempt failed due to lack of connectivity. #1254
+   * Fixed Allow LAN traffic precedence. #1267
+Windows:
+   * Improved uninstaller folder security. #1263
+   * Fixed VPN interface network category is public, for OpenVPN connections. #1235
+   * Fixed docked window is sometimes in the wrong position. #1234
+MacOS:
+   * Improved multi-desktop app window behavior. #1246
+   * Fixed potential crash in ProcessManager [wsnet]. #1261
+   * Fixed inclusive split tunneling, IPv6 interactions, and split tunneling extension versioning. #45
+
+
 2.14.4 (06/02/2025)
 All:
    * Added Decoy Traffic feature. #1208

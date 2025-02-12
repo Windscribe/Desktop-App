@@ -1481,6 +1481,14 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>Tray Icon Color</source>
         <translation>Barva ikony na hlavním panelu</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>Více ploch</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>Chování Select při aktivaci okna s více plochami.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -2310,6 +2318,18 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Forced</source>
         <translation>Vynucený</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>Přemístění prostorů</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>Přesunout okno</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Duplikát</translation>
     </message>
 </context>
 <context>

@@ -45,6 +45,7 @@ target_include_directories(uninstall
 target_link_libraries(uninstall
                       PRIVATE
                       delayimp
+                      shlwapi
                       fmt::fmt-header-only
                       spdlog::spdlog_header_only
 )

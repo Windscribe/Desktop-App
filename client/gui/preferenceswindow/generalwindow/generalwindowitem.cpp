@@ -34,6 +34,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(preferences, &Preferences::minimizeAndCloseToTrayChanged, this, &GeneralWindowItem::onMinimizeAndCloseToTrayPreferencesChanged);
 #if defined Q_OS_MACOS
     connect(preferences, &Preferences::hideFromDockChanged, this, &GeneralWindowItem::onHideFromDockPreferecesChanged);
+    connect(preferences, &Preferences::multiDesktopBehaviorChanged, this, &GeneralWindowItem::onMultiDesktopBehaviorPreferencesChanged);
 #elif defined Q_OS_LINUX
     connect(preferences, &Preferences::trayIconColorChanged, this, &GeneralWindowItem::onPreferencesTrayIconColorChanged);
 #endif
@@ -118,6 +119,17 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     latencyDisplayGroup_->addItem(comboBoxLatencyDisplay_);
     addItem(latencyDisplayGroup_);
 
+#if defined(Q_OS_MACOS)
+    multiDesktopBehaviorGroup_ = new PreferenceGroup(this,
+                                                     QString(),
+                                                     "https://github.com/Windscribe/Desktop-App/wiki/macOS-Multi%E2%80%90desktop-preference");
+    multiDesktopBehaviorItem_ = new ComboBoxItem(multiDesktopBehaviorGroup_);
+    multiDesktopBehaviorItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/MULTI_DESKTOP"));
+    connect(multiDesktopBehaviorItem_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onMultiDesktopBehaviorChanged);
+    multiDesktopBehaviorGroup_->addItem(multiDesktopBehaviorItem_);
+    addItem(multiDesktopBehaviorGroup_);
+#endif
+
     languageGroup_ = new PreferenceGroup(this);
     comboBoxLanguage_ = new ComboBoxItem(languageGroup_);
     comboBoxLanguage_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/LANGUAGE"));
@@ -141,7 +153,6 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     trayIconColorGroup_->addItem(trayIconColorItem_);
     addItem(trayIconColorGroup_);
 #endif
-
     backgroundSettingsGroup_ = new BackgroundSettingsGroup(this);
     backgroundSettingsGroup_->setBackgroundSettings(preferences->backgroundSettings());
     connect(backgroundSettingsGroup_, &BackgroundSettingsGroup::backgroundSettingsChanged, this, &GeneralWindowItem::onBackgroundSettingsChanged);
@@ -341,6 +352,11 @@ void GeneralWindowItem::onLanguageChanged()
     trayIconColorItem_->setLabelCaption(tr("Tray Icon Color"));
     trayIconColorItem_->setItems(TRAY_ICON_COLOR_toList(), preferences_->trayIconColor());
 #endif
+#if defined(Q_OS_MACOS)
+    multiDesktopBehaviorGroup_->setDescription(tr("Select behavior when window is activated with multiple desktops."));
+    multiDesktopBehaviorItem_->setLabelCaption(tr("Multi-desktop"));
+    multiDesktopBehaviorItem_->setItems(MULTI_DESKTOP_BEHAVIOR_toList(), preferences_->multiDesktopBehavior());
+#endif
 
     backgroundSettingsGroup_->setDescription(tr("Customize the background of the main app screen."));
     updateChannelGroup_->setDescription(tr("Choose to receive stable, beta, or experimental builds."));
@@ -402,6 +418,18 @@ void GeneralWindowItem::onAppSkinPreferencesChanged(APP_SKIN s)
 {
     appSkinItem_->setCurrentItem(s);
 }
+
+#if defined(Q_OS_MACOS)
+void GeneralWindowItem::onMultiDesktopBehaviorChanged(QVariant value)
+{
+    preferences_->setMultiDesktopBehavior((MULTI_DESKTOP_BEHAVIOR)value.toInt());
+}
+
+void GeneralWindowItem::onMultiDesktopBehaviorPreferencesChanged(QVariant value)
+{
+    multiDesktopBehaviorItem_->setCurrentItem(value);
+}
+#endif
 
 void GeneralWindowItem::onVersionInfoClicked()
 {

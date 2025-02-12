@@ -9,6 +9,17 @@ RoutesManager::RoutesManager()
     connectStatus_.isConnected = false;
 }
 
+void RoutesManager::setSplitTunnelSettings(bool isSplitTunnelActive, bool isExcludeMode)
+{
+    updateState(connectStatus_, isSplitTunnelActive, isExcludeMode);
+}
+
+void RoutesManager::setConnectStatus(const CMD_SEND_CONNECT_STATUS &connectStatus)
+{
+    updateState(connectStatus, isSplitTunnelActive_, isExcludeMode_);
+}
+
+
 void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bool isSplitTunnelActive, bool isExcludeMode)
 {
     bool prevIsConnected = connectStatus_.isConnected;

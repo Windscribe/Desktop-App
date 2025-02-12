@@ -364,6 +364,8 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
     if (connector_->getConnectionType() == ConnectionType::WIREGUARD) {
         helper_win->setNetworkCategory(QString::fromStdWString(kWireGuardAdapterIdentifier), NETWORK_CATEGORY_PRIVATE);
+    } else if (connector_->getConnectionType() == ConnectionType::OPENVPN) {
+        helper_win->setNetworkCategory(QString::fromStdWString(kOpenVPNAdapterIdentifier), NETWORK_CATEGORY_PRIVATE);
     } else {
         helper_win->setNetworkCategory(vpnAdapterInfo_.adapterName(), NETWORK_CATEGORY_PRIVATE);
     }

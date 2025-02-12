@@ -1481,6 +1481,14 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <source>Tray Icon Color</source>
         <translation>Color del icono de la bandeja</translation>
     </message>
+    <message>
+        <source>Multi-desktop</source>
+        <translation>Multiescritorio</translation>
+    </message>
+    <message>
+        <source>Select behavior when window is activated with multiple desktops.</source>
+        <translation>Seleccione el comportamiento cuando la ventana está activada con varios escritorios.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::HelpWindowItem</name>
@@ -2310,6 +2318,18 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     <message>
         <source>Forced</source>
         <translation>Forzado</translation>
+    </message>
+    <message>
+        <source>Move spaces</source>
+        <translation>Mover espacios</translation>
+    </message>
+    <message>
+        <source>Move window</source>
+        <translation>Mover ventana</translation>
+    </message>
+    <message>
+        <source>Duplicate</source>
+        <translation>Duplicado</translation>
     </message>
 </context>
 <context>
