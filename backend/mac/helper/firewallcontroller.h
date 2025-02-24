@@ -15,10 +15,13 @@ public:
     bool enabled();
     void disable(bool keepPfEnabled = false);
     void getRules(const std::string &table, const std::string &group, std::string *outRules);
+    void setVpnDns(const std::string &dns);
 
 private:
     FirewallController();
     ~FirewallController();
+    void updateDns();
 
     bool enabled_;
+    std::string windscribeDns_;
 };

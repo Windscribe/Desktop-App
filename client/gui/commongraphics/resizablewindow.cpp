@@ -89,9 +89,10 @@ int ResizableWindow::maximumHeight()
     return preferences_->appSkin() == APP_SKIN_VAN_GOGH ? maxHeight_ - kVanGoghOffset : maxHeight_;
 }
 
-void ResizableWindow::setHeight(int height)
+void ResizableWindow::setHeight(int height, bool ignoreMinimum)
 {
-    if (height < minimumHeight()*G_SCALE) {
+    // Callers may set ignoreMinimum to true for transient animations.
+    if (!ignoreMinimum && height < minimumHeight()*G_SCALE) {
         height = minimumHeight()*G_SCALE;
     } else if (height > maximumHeight()*G_SCALE) {
         height = maximumHeight()*G_SCALE;

@@ -2,7 +2,7 @@
 
 #define WINDSCRIBE_MAJOR_VERSION 2
 #define WINDSCRIBE_MINOR_VERSION 14
-#define WINDSCRIBE_BUILD_VERSION 5
+#define WINDSCRIBE_BUILD_VERSION 6
 
 // only one of these should be enabled; neither -> stable
 //#define WINDSCRIBE_IS_BETA

@@ -44,7 +44,9 @@ public:
     {
         apiResourcesManager_.reset();
         // This will cause the io_context run() call to return as soon as possible, abandoning unfinished operations and without permitting ready handlers to be dispatched.
+        g_logger->info("wsnet io_context_.stop");
         io_context_.stop();
+        g_logger->info("wsnet thread_.join");
         thread_.join();
     }
 
@@ -184,8 +186,11 @@ std::shared_ptr<WSNet> WSNet::instance()
 
 void WSNet::cleanup()
 {
+    // Added more logs to debug cleanup hangs. Later can be deleted
+    g_logger->info("wsnet cleanup started");
     std::lock_guard locker(g_mutex);
     g_wsNet.reset();
+    g_logger->info("wsnet cleanup finished");
 }
 
 bool WSNet::isValid()

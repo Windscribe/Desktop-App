@@ -51,9 +51,3 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../provisioning_profile/splittunnelextens
     add_custom_command(TARGET com.windscribe.client.splittunnelextension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_CURRENT_SOURCE_DIR}/../provisioning_profile/splittunnelextension.provisionprofile" $<TARGET_FILE_DIR:com.windscribe.client.splittunnelextension>/../embedded.provisionprofile)
 endif()
-
-# Install rules
-install(TARGETS com.windscribe.client.splittunnelextension
-    BUNDLE DESTINATION .
-    COMPONENT Runtime
-)

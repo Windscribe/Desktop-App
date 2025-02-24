@@ -1,7 +1,7 @@
 #include "singleappinstance.h"
 #include "singleappinstance_p.h"
 
-#if defined(Q_OS_WINDOWS)
+#if defined(Q_OS_WIN)
 #include <tchar.h>
 #include "utils/winutils.h"
 #else
@@ -26,7 +26,7 @@ SingleAppInstancePrivate::~SingleAppInstancePrivate()
 
 bool SingleAppInstancePrivate::activateRunningInstance()
 {
-    #if defined(Q_OS_WINDOWS)
+    #if defined(Q_OS_WIN)
 
     HWND hwnd = WinUtils::appMainWindowHandle();
     if (hwnd) {
@@ -72,7 +72,7 @@ bool SingleAppInstancePrivate::activateRunningInstance()
 
 bool SingleAppInstancePrivate::isRunning()
 {
-    #if defined(Q_OS_WINDOWS)
+    #if defined(Q_OS_WIN)
 
     if (!appSingletonObj_.isValid())
     {
@@ -125,7 +125,7 @@ bool SingleAppInstancePrivate::isRunning()
 
 void SingleAppInstancePrivate::release()
 {
-    #if defined(Q_OS_WINDOWS)
+    #if defined(Q_OS_WIN)
     appSingletonObj_.closeHandle();
     #else
     localServer_.close();

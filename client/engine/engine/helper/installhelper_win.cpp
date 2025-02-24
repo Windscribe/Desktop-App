@@ -54,9 +54,9 @@ bool executeInstallHelperCmd()
     sinfo.cbSize = sizeof(SHELLEXECUTEINFO);
     sinfo.fMask = SEE_MASK_FLAG_DDEWAIT | SEE_MASK_NOCLOSEPROCESS;
     sinfo.hwnd = NULL;
-    sinfo.lpFile = installHelperExe.toStdWString().c_str();
+    sinfo.lpFile = qUtf16Printable(installHelperExe);
     sinfo.lpParameters = L"/InstallService";
-    sinfo.lpVerb       = L"runas";
+    sinfo.lpVerb       = L"open";
     sinfo.nShow        = SW_HIDE;
 
     if (ShellExecuteEx(&sinfo)) {

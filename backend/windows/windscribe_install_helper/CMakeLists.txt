@@ -28,6 +28,7 @@ add_compile_options("$<$<CONFIG:Release>:/Zi>")
 add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
 
 add_executable(WindscribeInstallHelper ${SOURCES})
+set_property(TARGET WindscribeInstallHelper PROPERTY LINK_FLAGS "/MANIFESTUAC:\"level='requireAdministrator' uiAccess='false'\"")
 
 target_include_directories(WindscribeInstallHelper
     PRIVATE

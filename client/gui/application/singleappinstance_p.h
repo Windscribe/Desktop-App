@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-#if defined(Q_OS_WINDOWS)
+#if defined(Q_OS_WIN)
 #include "utils/win32handle.h"
 #else
 #include <QLockFile>
@@ -27,7 +27,7 @@ signals:
     void anotherInstanceRunning();
 
 private:
-    #if defined(Q_OS_WINDOWS)
+    #if defined(Q_OS_WIN)
     wsl::Win32Handle appSingletonObj_;
     #else
     QString socketName_;

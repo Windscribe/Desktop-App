@@ -124,13 +124,7 @@ CMD_ANSWER sendConnectStatus(boost::archive::text_iarchive &ia)
     CMD_SEND_CONNECT_STATUS cmd;
     ia >> cmd;
 
-    // We need to add/remove the Connected DNS server to the firewall
-    if (cmd.isConnected) {
-        std::string pf = "table <windscribe_dns> persist { " + cmd.vpnAdapter.dnsServers.front() + "}\n";
-        FirewallController::instance().enable(pf, "windscribe_dns", "");
-    } else {
-        Utils::executeCommand("pfctl", {"-T", "windscribe_dns", "flush"});
-    }
+    FirewallController::instance().setVpnDns(cmd.isConnected ? cmd.vpnAdapter.dnsServers.front() : "");
     RoutesManager::instance().setConnectStatus(cmd);
 
     answer.executed = 1;

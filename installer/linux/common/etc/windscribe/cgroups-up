@@ -65,7 +65,6 @@ if [ ! -f "$net_cls_root/windscribe/net_cls.classid" ]; then
     echo "$netclass" > "$net_cls_root/windscribe/net_cls.classid"
 fi
 
-if [ "$mode" == "inclusive" ]; then
 # Allow IP rules to consult main routing table first, ignoring /0 or /1 routes
 ip rule add priority 16383 table main suppress_prefixlength 1
 priority="`ip rule show | grep 51820 | cut -d ":" -f1`" # priority of WireGuard rule, if it exists
@@ -75,7 +74,6 @@ if [ -n "$priority" ]; then
 else
     # For non-WG protocols, remove rule forcing other traffic into the tunnel
     ip rule del priority 16385 table windscribe_include
-fi
 fi
 
 # make sure to exit with code 0 since an above command may fail if we are adding a duplicate rule or

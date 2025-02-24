@@ -1,6 +1,7 @@
 #include "pingmanager.h"
 #include <spdlog/spdlog.h>
 #include "pingmethod_http.h"
+#include "utils/wsnet_logger.h"
 
 #ifdef _WIN32
     #include "pingmethod_icmp_win.h"
@@ -23,6 +24,7 @@ PingManager::PingManager(boost::asio::io_context &io_context, WSNetHttpNetworkMa
 
 PingManager::~PingManager()
 {
+    g_logger->info("PingManager destructor started");
     std::lock_guard locker(mutex_);
 #ifdef _WIN32
     eventCallbackManager_.stop();
@@ -30,6 +32,7 @@ PingManager::~PingManager()
     processManager_.reset();
 #endif
     map_.clear();
+    g_logger->info("PingManager destructor finished");
 }
 
 std::shared_ptr<WSNetCancelableCallback> PingManager::ping(const std::string &ip, const std::string &hostname, PingType pingType, WSNetPingCallback callback)

@@ -1135,6 +1135,7 @@ void MainWindowController::gotoLoginWindow()
             loginWindow_->setClickable(true);
             loginWindow_->setFocus();
             isAtomicAnimationActive_ = false;
+            updateMainAndViewGeometry(true);
             handleNextWindowChange();
         });
 
@@ -2344,7 +2345,7 @@ void MainWindowController::expandPreferencesFromLogin()
     animResize->setEndValue(target);
     animResize->setDuration(EXPAND_PREFERENCES_RESIZE_DURATION);
     connect(animResize, &QVariantAnimation::valueChanged, [this](const QVariant &value) {
-        preferencesWindow_->setHeight(value.toInt());
+        preferencesWindow_->setHeight(value.toInt(), true);
         updateMainAndViewGeometry(false);
         shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_PREFERENCES,
                                             QRect(0, childWindowShadowOffsetY(true), preferencesWindow_->boundingRect().width(),
@@ -2414,7 +2415,7 @@ void MainWindowController::expandWindow(ResizableWindow *window)
             }
         }
         int target = windowSizeManager_->windowHeight(window)*G_SCALE;
-        window->setHeight(start);
+        window->setHeight(start, true);
 
         window->setScrollBarVisibility(false);
         window->setOpacity(0.0);
@@ -2445,7 +2446,7 @@ void MainWindowController::expandWindow(ResizableWindow *window)
         animResize->setEndValue(target);
         animResize->setDuration(windowSizeManager_->resizeDurationMs(window));
         connect(animResize, &QVariantAnimation::valueChanged, [this, window](const QVariant &value) {
-            window->setHeight(value.toInt());
+            window->setHeight(value.toInt(), true);
             updateMainAndViewGeometry(false);
             shadowManager_->changeRectangleSize(windowSizeManager_->shapeId(window),
                                                 QRect(0,
@@ -2575,7 +2576,7 @@ void MainWindowController::collapsePreferencesFromLogin()
     animResize->setEndValue((int)loginWindow_->boundingRect().height());
     animResize->setDuration(EXPAND_PREFERENCES_RESIZE_DURATION);
     connect(animResize, &QVariantAnimation::valueChanged, [this](const QVariant &value) {
-        preferencesWindow_->setHeight(value.toInt());
+        preferencesWindow_->setHeight(value.toInt(), true);
         shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_NEWS_FEED,
                                             QRect(0, childWindowShadowOffsetY(true), preferencesWindow_->boundingRect().width(),
                                                   preferencesWindow_->boundingRect().height() - childWindowShadowOffsetY(false)));
@@ -2651,7 +2652,7 @@ void MainWindowController::collapseWindow(ResizableWindow *window, bool bSkipBot
     animResize->setEndValue(target);
     animResize->setDuration(windowSizeManager_->resizeDurationMs(window));
     connect(animResize, &QVariantAnimation::valueChanged, [this, window](const QVariant &value) {
-        window->setHeight(value.toInt());
+        window->setHeight(value.toInt(), true);
         updateMainAndViewGeometry(false);
         shadowManager_->changeRectangleSize(windowSizeManager_->shapeId(window),
                                             QRect(0,
@@ -3056,7 +3057,7 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
     getGraphicsRegionWidthAndHeight(width, height, addHeightToGeometry);
 
     int shadowSize = shadowManager_->getShadowMargin();
-    int widthWithShadow = width +  shadowSize * 2;
+    int widthWithShadow = width + shadowSize * 2;
     int heightWithShadow = height + shadowSize * 2 + addHeightToGeometry;
 
     QRect geo = QRect(mainWindow_->pos().x(), mainWindow_->pos().y(), widthWithShadow, heightWithShadow);
@@ -3107,16 +3108,17 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
 
     }
 
-    // qDebug() << "Updating mainwindow geo: " << geo;
-    mainWindow_->setGeometry(geo);
 #ifdef Q_OS_LINUX
     // This is a workaround for #930.  In some DEs on Linux, if the window is completely occluded by another,
-    // the above setGeometry() does not actually resize the window.  Force the window to resize by setting a minimum size.
+    // the below setGeometry() does not actually resize the window.  Force the window to resize by setting a minimum size.
     // Only do this if updateShadow is true, since doing this on every animation frame may make it seem jittery.
     if (updateShadow) {
         mainWindow_->setMinimumSize(geo.width(), geo.height());
     }
 #endif
+
+    // qDebug() << "Updating mainwindow geo: " << geo;
+    mainWindow_->setGeometry(geo);
     updateViewAndScene(width, height, shadowSize, updateShadow);
 }
 
@@ -3284,7 +3286,9 @@ void MainWindowController::keepWindowInsideScreenCoordinates()
         bottom = std::max(bottom, screen->availableGeometry().bottom());
     }
 
-    if (rcWindow.bottom() > bottom) {
+    // Subtract the shadow margin to match how taskbarAwareDockedGeometry_win calculates it.
+    // If we don't subtract the shadow margin, the window will move up slightly after being shown.
+    if (rcWindow.bottom() - shadowManager_->getShadowMargin() > bottom) {
         // qDebug() << "KEEPING MAINWINDOW INSIDE SCREEN COORDINATES";
         rcWindow.moveBottom(bottom);
         mainWindow_->setGeometry(rcWindow);

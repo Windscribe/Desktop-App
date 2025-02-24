@@ -26,7 +26,7 @@ public:
     void setMaximumHeight(int height);
     int maximumHeight();
     void setXOffset(int x);
-    void setHeight(int height);
+    void setHeight(int height, bool ignoreMinimum = false);
     void setScrollBarVisibility(bool on);
     void updateScaling() override;
     int scrollPos();

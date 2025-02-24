@@ -1,3 +1,20 @@
+2.14.6 (24/02/2025)
+All:
+   * Added extended cleanup logs in wsnet. #1250
+   * Improved initialization and preferences animations. #1260
+   * Improved the log frequency [wsnet]. #1269
+   * Fixed inconsistent behavior when starting app and 'close to tray' is enabled. #1280
+   * Fixed window size after dismissing alert at the login window. #1282
+Windows:
+   * Fixed Windows error message box may be displayed when reinstalling deleted/disabled Windscribe service. #1266
+MacOS:
+   * Fixed split tunnel extension versioning. #45
+   * Fixed DNS no longer allowed by firewall if toggled while connected. #1277
+Linux:
+   * Fixed split tunnel rule in exclusive mode. #1267
+   * Fixed window size is incorrect after expanding then collapsing preferences. #1271
+
+
 2.14.5 (12/02/2025)
 All:
    * Fixed mangled ar/fa translations. #1268

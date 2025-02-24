@@ -22,12 +22,14 @@ CurlNetworkManager::CurlNetworkManager(CurlFinishedCallback finishedCallback, Cu
 
 CurlNetworkManager::~CurlNetworkManager()
 {
+    g_logger->info("CurlNetworkManager destructor started");
     finish_ = true;
     condition_.notify_all();
     thread_.join();
 
     if (isCurlGlobalInitialized_)
         curl_global_cleanup();
+    g_logger->info("CurlNetworkManager destructor finished");
 }
 
 bool CurlNetworkManager::init()
@@ -108,6 +110,9 @@ void CurlNetworkManager::setWhitelistSocketsCallback(std::shared_ptr<CancelableC
 
 void CurlNetworkManager::run()
 {
+    // To reduce the frequency of logs, only once per domain unless errors happen
+    std::set<std::string> loggedSuccessDomains;
+
     while (!finish_) {
 
         {
@@ -175,6 +180,8 @@ void CurlNetworkManager::run()
                     if (result != CURLE_OK) {
                         g_logger->debug("Curl request error: {}", curl_easy_strerror(result));
 
+                        loggedSuccessDomains.erase(it->second->domain);
+
                         // Log all curl output for a failed request
                         if (it->second->isDebugLogCurlError) {
                             for (const auto &log: it->second->debugLogs) {
@@ -183,12 +190,13 @@ void CurlNetworkManager::run()
                         }
                     } else {
                         // Log curl output for a successful request, only strings containing "Trying" and "Connected" substrings to reduce log bloat
-                        if (it->second->isDebugLogCurlError) {
+                        if (it->second->isDebugLogCurlError && (!loggedSuccessDomains.count(it->second->domain))) {
                             for (const auto &log: it->second->debugLogs) {
                                 if (log.find("Trying") != std::string::npos || log.find("Connected") != std::string::npos) {
                                     g_logger->info("{}", log);
                                 }
                             }
+                            loggedSuccessDomains.insert(it->second->domain);
                         }
                     }
 

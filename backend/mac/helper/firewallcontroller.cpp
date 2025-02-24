@@ -30,16 +30,18 @@ bool FirewallController::enable(const std::string &rules, const std::string &tab
     write(fd, rules.c_str(), rules.length());
     close(fd);
 
+    enabled_ = true;
+
     if (table.empty() && group.empty()) {
         Utils::executeCommand("/sbin/pfctl", {"-v", "-F", "all", "-f", "/etc/windscribe/pf.conf"});
         Utils::executeCommand("/sbin/pfctl", {"-e"});
+        updateDns();
     } else if (!table.empty()) {
         Utils::executeCommand("/sbin/pfctl", {"-T", "load", "-f", "/etc/windscribe/pf.conf"});
     } else if (!group.empty()) {
         Utils::executeCommand("/sbin/pfctl", {"-a", group.c_str(), "-f", "/etc/windscribe/pf.conf"});
     }
 
-    enabled_ = true;
     return true;
 }
 
@@ -69,4 +71,21 @@ bool FirewallController::enabled()
 
     Utils::executeCommand("/sbin/pfctl", {"-si"}, &output);
     return (output.find("Status: Enabled") != std::string::npos);
+}
+
+void FirewallController::setVpnDns(const std::string &dns)
+{
+    spdlog::info("Setting VPN dns: {}", dns.empty() ? "empty" : dns);
+    windscribeDns_ = dns;
+    updateDns();
+}
+
+void FirewallController::updateDns()
+{
+    if (enabled_ && !windscribeDns_.empty()) {
+        std::string rules = "table <windscribe_dns> persist { " + windscribeDns_ + "}\n";
+        enable(rules, "windscribe_dns", "");
+    } else {
+        Utils::executeCommand("/sbin/pfctl", {"-T", "windscribe_dns", "flush"});
+    }
 }

@@ -89,6 +89,11 @@ void Logger::myMessageHandler(QtMsgType type, const QMessageLogContext &context,
         }
     }
 
+#ifdef Q_OS_WIN
+    // Uncomment this line if you want to see app output in the debugger.
+    //::OutputDebugString(qUtf16Printable(s + '\n'));
+#endif
+
     std::string escapedMsg = log_utils::escape_string(s.toStdString());
     static const std::string fmt = "\"mod\": \"{}\", \"msg\": \"{}\"";
     if (type == QtDebugMsg)

@@ -64,7 +64,7 @@ QString paths::serviceLogLocation(bool previous)
 
 QString paths::wireguardServiceLogLocation(bool previous)
 {
-#if defined(Q_OS_WINDOWS)
+#if defined(Q_OS_WIN)
     return qApp->applicationDirPath() + addPreviousSuffix("/wireguard_service.log", previous);
 #else
     return "";

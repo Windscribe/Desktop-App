@@ -20,9 +20,11 @@ DnsResolver_cares::DnsResolver_cares() : curRequestId_(0)
 
 DnsResolver_cares::~DnsResolver_cares()
 {
+    g_logger->info("DnsResolver_cares destructor started");
     finish_ = true;
     condition_.notify_all();
     thread_.join();
+    g_logger->info("DnsResolver_cares destructor finished");
 }
 
 bool DnsResolver_cares::init()

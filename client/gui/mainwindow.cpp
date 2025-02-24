@@ -457,34 +457,10 @@ void MainWindow::showAfterLaunch()
     bool showAppMinimized = false;
 
     if (backend_ && backend_->getPreferences()->isStartMinimized()) {
-        showAppMinimized = true;
-    }
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    else if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
-        QCommandLineParser cmdParser;
-        cmdParser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
-        QCommandLineOption osRestartOption("os_restart");
-        cmdParser.addOption(osRestartOption);
-        cmdParser.process(*WindscribeApplication::instance());
-        if (cmdParser.isSet(osRestartOption)) {
-            showAppMinimized = true;
-        }
-    }
-#endif
-
-    if (showAppMinimized) {
         // Set active state to false; this affects the first click of the dock icon after launch if the app is docked.
         // This state is 'true' by default, and if left as is, the first click of the dock icon will not activate the app.
         activeState_ = false;
-#ifdef Q_OS_WIN
-        // showMinimized, as of Qt 6.3.1, on Windows does not work.  The app is displayed (shown)
-        // and all user input is disabled until ones clicks on the taskbar icon or alt-tabs back
-        // to the app.
-        show();
-        QTimer::singleShot(50, this, &MainWindow::onMinimizeClick);
-#else
         showMinimized();
-#endif
     }
     else {
         show();
