@@ -262,16 +262,11 @@ struct CMD_SET_NETWORK_CATEGORY
 
 struct MessagePacketResult
 {
-    __int64 id;
-    bool success;
-    unsigned long exitCode;
-    unsigned long blockingCmdId;    // id for check status of blocking cmd
-    bool blockingCmdFinished;
-    unsigned __int64 customInfoValue[3];
+    __int64 id = 0;
+    bool success = false;
+    unsigned long exitCode = 0;
+    unsigned long blockingCmdId = 0;    // id for check status of blocking cmd
+    bool blockingCmdFinished = false;
+    unsigned __int64 customInfoValue[3] = { 0, 0, 0 };
     std::string additionalString;
-
-    MessagePacketResult() : id(0), success(false), exitCode(0), blockingCmdId(0),
-        blockingCmdFinished(false), customInfoValue()
-    {
-    }
 };

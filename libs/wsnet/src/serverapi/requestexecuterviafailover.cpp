@@ -30,8 +30,8 @@ void RequestExecuterViaFailover::start()
 {
     // if true then a result is ready immediately
     // otherwise we are waiting for the onFailoverCallback
-    if (failover_->getData(bIgnoreSslErrors_, failoverData_, std::bind(&RequestExecuterViaFailover::onFailoverCallback, this, std::placeholders::_1))) {
-        onFailoverCallback(failoverData_);
+    if (failover_->getData(bIgnoreSslErrors_, failoverData_, std::bind(&RequestExecuterViaFailover::onFailoverCallback, this, std::placeholders::_1, std::placeholders::_2))) {
+        onFailoverCallback(FailoverResult::kSuccess, failoverData_);
     }
 }
 
@@ -42,20 +42,22 @@ void RequestExecuterViaFailover::setIsConnectedToVpnState(bool isConnected)
     }
 }
 
-void RequestExecuterViaFailover::onFailoverCallback(const std::vector<FailoverData> &data)
+void RequestExecuterViaFailover::onFailoverCallback(FailoverResult result, const std::vector<FailoverData> &data)
 {
     // if connect state changed then we can't be sure what failover worked right. Must repeat the request in ServerAPI
     if (isConnectStateChanged_) {
         callback_(RequestExecuterRetCode::kConnectStateChanged, std::move(request_), FailoverData(""));
         return;
     }
-    if (data.empty()) {
-        callback_(RequestExecuterRetCode::kFailoverFailed, std::move(request_), FailoverData(""));
-        return;
-    }
-
     if (request_->isCanceled()) {
         callback_(RequestExecuterRetCode::kRequestCanceled, std::move(request_), FailoverData(""));
+        return;
+    }
+    if (result == FailoverResult::kFailed) {
+        callback_(RequestExecuterRetCode::kFailoverFailed, std::move(request_), FailoverData(""));
+        return;
+    } else if (result == FailoverResult::kNoNetwork) {
+        callback_(RequestExecuterRetCode::kNoNetwork, std::move(request_), FailoverData(""));
         return;
     }
 
@@ -79,11 +81,11 @@ void RequestExecuterViaFailover::executeBaseRequest(const FailoverData &failover
     using namespace std::placeholders;
     auto httpRequest = serverapi_utils::createHttpRequestWithFailoverParameters(httpNetworkManager_, failoverData, request_.get(), bIgnoreSslErrors_, advancedParameters_->isAPIExtraTLSPadding());
     httpRequest->setIsDebugLogCurlError(true);
-    asyncCallback_ = httpNetworkManager_->executeRequestEx(httpRequest, 0, std::bind(&RequestExecuterViaFailover::onHttpNetworkRequestFinished, this, _1, _2, _3, _4, _5),
+    asyncCallback_ = httpNetworkManager_->executeRequestEx(httpRequest, 0, std::bind(&RequestExecuterViaFailover::onHttpNetworkRequestFinished, this, _1, _2, _3, _4),
                                                            std::bind(&RequestExecuterViaFailover::onHttpNetworkRequestProgressCallback, this, _1, _2, _3));
 }
 
-void RequestExecuterViaFailover::onHttpNetworkRequestFinished(std::uint64_t httpRequestId, std::uint32_t elapsedMs, NetworkError errCode, const std::string &curlError, const std::string &data)
+void RequestExecuterViaFailover::onHttpNetworkRequestFinished(std::uint64_t httpRequestId, std::uint32_t elapsedMs, std::shared_ptr<WSNetRequestError> error, const std::string &data)
 {
     asyncCallback_.reset();
     if (request_->isCanceled()) {
@@ -97,7 +99,7 @@ void RequestExecuterViaFailover::onHttpNetworkRequestFinished(std::uint64_t http
         return;
     }
 
-    if (errCode == NetworkError::kSuccess) {
+    if (error->isSuccess()) {
         request_->handle(data);
         if (advancedParameters_->isLogApiResponce()) {
             g_logger->info("API request {} finished", request_->name());
@@ -105,7 +107,7 @@ void RequestExecuterViaFailover::onHttpNetworkRequestFinished(std::uint64_t http
         }
     }
 
-    if (errCode != NetworkError::kSuccess || request_->retCode() == ServerApiRetCode::kIncorrectJson) {
+    if (!error->isSuccess() || request_->retCode() == ServerApiRetCode::kIncorrectJson) {
         failedFailovers_.add(failoverData_[curIndFailoverData_]);
         // failover can contain several domains, let's try another one if there is one
         curIndFailoverData_++;

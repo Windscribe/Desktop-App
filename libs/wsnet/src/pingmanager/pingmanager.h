@@ -6,6 +6,7 @@
 #include "WSNetPingManager.h"
 #include "WSNetHttpNetworkManager.h"
 #include "WSNetAdvancedParameters.h"
+#include "connectstate.h"
 #include "ipingmethod.h"
 
 #ifdef _WIN32
@@ -20,13 +21,11 @@ namespace wsnet {
 class PingManager : public WSNetPingManager
 {
 public:
-    explicit PingManager(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager, WSNetAdvancedParameters *advancedParameters);
+    explicit PingManager(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager, WSNetAdvancedParameters *advancedParameters, ConnectState &connectState);
     virtual ~PingManager();
 
     std::shared_ptr<WSNetCancelableCallback> ping(const std::string &ip, const std::string &hostname,
                                                   PingType pingType, WSNetPingCallback callback) override;
-
-    void setIsConnectedToVpnState(bool isConnected);
 
 private:
     boost::asio::io_context &io_context_;
@@ -40,7 +39,7 @@ private:
     // Required for ICMP pings for posix systems
     std::unique_ptr<ProcessManager> processManager_;
 #endif
-    bool isConnectedToVpn_ = false;
+    ConnectState &connectState_;
     std::mutex mutex_;
     std::uint64_t curPingId_ = 0;
     std::queue<std::uint64_t> queue_;

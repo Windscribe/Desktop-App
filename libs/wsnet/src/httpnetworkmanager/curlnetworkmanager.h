@@ -8,12 +8,13 @@
 #include <condition_variable>
 #include "WSNetHttpRequest.h"
 #include "WSNetHttpNetworkManager.h"
+#include "WSNetRequestError.h"
 #include "certmanager.h"
 #include "utils/cancelablecallback.h"
 
 namespace wsnet {
 
-typedef std::function<void(std::uint64_t requestId, bool bSuccess, const std::string &curlError)> CurlFinishedCallback;
+typedef std::function<void(std::uint64_t requestId, std::shared_ptr<WSNetRequestError> error)> CurlFinishedCallback;
 typedef std::function<void(std::uint64_t requestId, std::uint64_t bytesReceived, std::uint64_t bytesTotal)> CurlProgressCallback;
 typedef std::function<void(std::uint64_t requestId, const std::string &data)> CurlReadyDataCallback;
 

@@ -1,12 +1,8 @@
 target_sources(engine PRIVATE
     keepalivemanager.cpp
     keepalivemanager.h
-    failedpinglogcontroller.cpp
-    failedpinglogcontroller.h
     pingmanager.cpp
     pingmanager.h
-    pinglog.cpp
-    pinglog.h
     pingstorage.cpp
     pingstorage.h
 )

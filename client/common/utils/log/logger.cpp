@@ -31,7 +31,10 @@ bool Logger::install(const QString &logFilePath, bool consoleOutput)
     try
     {
         if (log_utils::isOldLogFormat(path)) {
-            std::filesystem::remove(path);
+            // Use the nothrow version of remove since the removal is not critical and we would
+            // like to continue with spdlog creation if the removal does fail.
+            std::error_code ec;
+            std::filesystem::remove(path, ec);
         }
         // Create rotation logger with 2 file with unlimited size
         // rotate it on open, the first file is the current log, the 2nd is the previous log
@@ -91,7 +94,7 @@ void Logger::myMessageHandler(QtMsgType type, const QMessageLogContext &context,
 
 #ifdef Q_OS_WIN
     // Uncomment this line if you want to see app output in the debugger.
-    //::OutputDebugString(qUtf16Printable(s + '\n'));
+    //::OutputDebugString(qUtf16Printable(s));
 #endif
 
     std::string escapedMsg = log_utils::escape_string(s.toStdString());

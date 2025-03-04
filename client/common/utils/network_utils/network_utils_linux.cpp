@@ -31,11 +31,11 @@ static RoutingTableEntry parseEntry(const char *buf)
     }
 
     entry.interface = split[0];
-    entry.destination = QHostAddress((quint32)ntohl(split[1].toInt(nullptr, 16))).toString();
-    entry.gateway = QHostAddress((quint32)ntohl(split[2].toInt(nullptr, 16))).toString();
+    entry.destination = QHostAddress((quint32)ntohl(split[1].toUInt(nullptr, 16))).toString();
+    entry.gateway = QHostAddress((quint32)ntohl(split[2].toUInt(nullptr, 16))).toString();
     entry.flags = split[3].toInt();
     entry.metric = split[6].toInt();
-    entry.netmask = qPopulationCount((quint32)split[7].toInt(nullptr, 16));
+    entry.netmask = qPopulationCount((quint32)split[7].toUInt(nullptr, 16));
     entry.mtu = split[8].toInt();
     return entry;
 }

@@ -5,15 +5,13 @@
 #include "scapix_object.h"
 #include "WSNetHttpRequest.h"
 #include "WSNetCancelableCallback.h"
+#include "WSNetRequestError.h"
 
 
 namespace wsnet {
 
-//TODO: kTimeoutExceed remove?
-enum class NetworkError { kSuccess, kTimeoutExceed, kDnsResolveError, kCurlError };
-
 typedef std::function<void(std::uint64_t requestId, std::uint32_t elapsedMs,
-                           NetworkError errCode, const std::string &curlError, const std::string &data)> WSNetHttpNetworkManagerFinishedCallback;
+                           std::shared_ptr<WSNetRequestError> error, const std::string &data)> WSNetHttpNetworkManagerFinishedCallback;
 
 typedef std::function<void(std::uint64_t requestId, std::uint64_t bytesReceived,
                            std::uint64_t bytesTotal)> WSNetHttpNetworkManagerProgressCallback;

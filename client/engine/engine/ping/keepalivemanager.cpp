@@ -56,7 +56,7 @@ void KeepAliveManager::onTimer()
 
 void KeepAliveManager::onDnsRequestFinished(std::uint64_t requestId, const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result)
 {
-    if (!result->isError()) {
+    if (result->error()->isSuccess()) {
         ips_.clear();
         for (const auto &ip : result->ips()) {
             ips_ << IP_DESCR(QString::fromStdString(ip));

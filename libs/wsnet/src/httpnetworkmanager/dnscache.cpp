@@ -3,6 +3,7 @@
 #include "utils/wsnet_logger.h"
 #include "settings.h"
 #include "utils/utils.h"
+#include "utils/requesterror.h"
 
 namespace wsnet {
 
@@ -27,12 +28,12 @@ DnsCacheResult DnsCache::resolve(std::uint64_t id, const std::string &hostname, 
     if (!bypassCache) {
         auto it = cache_.find(hostname);
         if (it != cache_.end()) {
-            return DnsCacheResult { id, true, it->second, true, 0 };
+            return DnsCacheResult { id, true, it->second, 0, RequestError::createCaresSuccess() };
         }
     }
     auto asyncRequest = dnsResolver_->lookup(hostname, id, std::bind(&DnsCache::onDnsResolved, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
     activeRequests_[id] = asyncRequest;
-    return DnsCacheResult { id, false, std::vector<std::string>(), false };
+    return DnsCacheResult { id, false, std::vector<std::string>(), 0, RequestError::createCaresSuccess() };
 }
 
 void DnsCache::clear()
@@ -56,18 +57,16 @@ void DnsCache::onDnsResolved(std::uint64_t id, const std::string &hostname, std:
     }
     // useful log for tunnel test
     if (isNeedLog && hostname.find(Settings::instance().serverTunnelTestSubdomain()) != std::string::npos) {
-        g_logger->info("DNS resolution for tunnel test, result: {}, timems: {}", result->errorString(), result->elapsedMs());
+        g_logger->info("DNS resolution for tunnel test, result: {}, timems: {}", result->error()->toString(), result->elapsedMs());
         tunnelTestLastLogTime_ = std::chrono::steady_clock::now();
     }
 
-    if (!result->isError()) {
+    if (result->error()->isSuccess()) {
         cache_[hostname] = result->ips();
-        callback_(DnsCacheResult { id, true, result->ips(), false,  result->elapsedMs()} );
-
     } else {
         cache_.erase(hostname);
-        callback_(DnsCacheResult { id, false, std::vector<std::string>(), false, result->elapsedMs() } );
     }
+    callback_(DnsCacheResult { id, false, result->ips(), result->elapsedMs(), result->error() } );
 
     activeRequests_.erase(it);
 }

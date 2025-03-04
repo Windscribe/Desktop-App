@@ -136,43 +136,6 @@ MessagePacketResult clearUnblockingCmd(boost::archive::text_iarchive &ia)
     return ExecuteCmd::instance().clearUnblockingCmd(cmdClearUnblockingCmd.blockingCmdId);
 }
 
-MessagePacketResult getHelperVersion(boost::archive::text_iarchive &ia)
-{
-    MessagePacketResult mpr;
-
-    wchar_t szModPath[MAX_PATH];
-    szModPath[0] = '\0';
-    GetModuleFileName(NULL, szModPath, sizeof(szModPath));
-
-    DWORD dwArg;
-    DWORD dwInfoSize = GetFileVersionInfoSize(szModPath, &dwArg);
-    if (dwInfoSize == 0) {
-        mpr.success = false;
-        return mpr;
-    }
-
-    std::unique_ptr<unsigned char> arr(new unsigned char[dwInfoSize]);
-    if (GetFileVersionInfo(szModPath, 0, dwInfoSize, arr.get()) == 0) {
-        mpr.success = false;
-        return mpr;
-    }
-    VS_FIXEDFILEINFO *vInfo;
-
-    UINT uInfoSize;
-    if (VerQueryValue(arr.get(), TEXT("\\"), (LPVOID*)&vInfo, &uInfoSize) == 0) {
-        mpr.success = false;
-        return mpr;
-    }
-    WORD v1 = HIWORD(vInfo->dwFileVersionMS);
-    WORD v2 = LOWORD(vInfo->dwFileVersionMS);
-    WORD v3 = HIWORD(vInfo->dwFileVersionLS);
-    WORD v4 = LOWORD(vInfo->dwFileVersionLS);
-
-    mpr.success = true;
-    mpr.additionalString = std::to_string(v1) + "." + std::to_string(v2) + "." + std::to_string(v3) + "." + std::to_string(v4);
-    return mpr;
-}
-
 MessagePacketResult icsIsSupported(boost::archive::text_iarchive &ia)
 {
     MessagePacketResult mpr;

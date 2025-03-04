@@ -3,6 +3,7 @@
 #include "utils/wsnet_logger.h"
 #include "utils/utils.h"
 #include "utils/crypto_utils.h"
+#include "utils/requesterror.h"
 #include "settings.h"
 
 #include <openssl/opensslv.h>
@@ -169,6 +170,8 @@ void CurlNetworkManager::run()
                 CURLcode result = curlMsg->data.result;
 
                 std::uint64_t id;
+                long osErrno;
+
                 //remove request from activeRequests
                 {
                     std::lock_guard locker(mutex_);
@@ -179,7 +182,6 @@ void CurlNetworkManager::run()
 
                     if (result != CURLE_OK) {
                         g_logger->debug("Curl request error: {}", curl_easy_strerror(result));
-
                         loggedSuccessDomains.erase(it->second->domain);
 
                         // Log all curl output for a failed request
@@ -188,6 +190,9 @@ void CurlNetworkManager::run()
                                 g_logger->info("{}", log);
                             }
                         }
+
+                        curl_easy_getinfo(curlEasyHandle, CURLINFO_OS_ERRNO, &osErrno);
+
                     } else {
                         // Log curl output for a successful request, only strings containing "Trying" and "Connected" substrings to reduce log bloat
                         if (it->second->isDebugLogCurlError && (!loggedSuccessDomains.count(it->second->domain))) {
@@ -203,7 +208,12 @@ void CurlNetworkManager::run()
                     delete it->second;
                     activeRequests_.erase(id);
                 }
-                finishedCallback_(id, result == CURLE_OK, curl_easy_strerror(result));
+
+                if (result != CURLE_OK) {
+                    finishedCallback_(id, std::make_shared<RequestError>(result, RequestErrorType::kCurl, osErrno));
+                } else {
+                    finishedCallback_(id, std::make_shared<RequestError>(result, RequestErrorType::kCurl));
+                }
             }
         } while(curlMsg);
 

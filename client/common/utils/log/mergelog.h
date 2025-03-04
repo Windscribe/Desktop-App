@@ -29,14 +29,15 @@ private:
         quint32 datasize = 0;
     };
 
-
     static QString merge(const QString &guiLogFilename, const QString &serviceLogFilename, const QString &servicePrevLogFilename,
                          const QString &wireguardServiceLogFilename, const QString &installerLogFilename);
 
     static std::unique_ptr<ParseTaskResult> parseTask(const QString *filename, LineSource source);
 
-
-
+    static void addLogEntry(LineSource source, int timestamp, const QDateTime &dt, const QString &msg, MergeLog::ParseTaskResult *res);
+    static void checkForCrashDumps(QString &log);
+    static QString formatErrorMessage(const QString &error);
+    static void verifyLogFileExists(const QString& logFile, QString &log);
 };
 
 }  // namespace log_utils

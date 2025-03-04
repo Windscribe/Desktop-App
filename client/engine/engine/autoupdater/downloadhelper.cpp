@@ -100,7 +100,7 @@ void DownloadHelper::stop()
     busy_ = false;
 }
 
-void DownloadHelper::onReplyFinished(std::uint64_t requestId, NetworkError errCode, const std::string &data)
+void DownloadHelper::onReplyFinished(std::uint64_t requestId, std::shared_ptr<WSNetRequestError> error, const std::string &data)
 {
     auto it = replies_.find(requestId);
     if (it == replies_.end()) {
@@ -110,7 +110,7 @@ void DownloadHelper::onReplyFinished(std::uint64_t requestId, NetworkError errCo
     it->second->done = true;
 
     // if any reply fails, we fail
-    if (errCode != NetworkError::kSuccess) {
+    if (!error->isSuccess()) {
         qCWarning(LOG_DOWNLOADER) << "Download failed";
         deleteAllCurrentReplies();
         busy_ = false;
@@ -182,10 +182,10 @@ void DownloadHelper::getInner(const QString url, const QString targetFilenamePat
     }
 
     auto callbackFinished = [this] (std::uint64_t requestId, std::uint32_t elapsedMs,
-                                    NetworkError errCode, const std::string &curlError, const std::string &data)
+                                    std::shared_ptr<WSNetRequestError> error, const std::string &data)
     {
-        QMetaObject::invokeMethod(this, [this, requestId, errCode, data] {
-            onReplyFinished(requestId, errCode, data);
+        QMetaObject::invokeMethod(this, [this, requestId, error, data] {
+            onReplyFinished(requestId, error, data);
         }) ;
     };
 

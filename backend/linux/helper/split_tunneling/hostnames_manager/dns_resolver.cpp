@@ -31,7 +31,7 @@ void DnsResolver::onDnsResolved(uint64_t requestId, const std::string &hostname,
         HostInfo hi;
         hi.hostname = hostname;
         hi.addresses = result->ips();
-        hi.error = result->isError();
+        hi.error = !result->error()->isSuccess();
         results_[hostname] = hi;
         activeRequests_.erase(request);
         if (activeRequests_.empty()) {

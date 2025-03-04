@@ -91,7 +91,7 @@ public:
         serverAPI_ = std::make_shared<ServerAPI>(io_context_, httpNetworkManager_.get(), failoverContainer_.get(), *persistentSettings_, advancedParameters_.get(), connectState_);
         apiResourcesManager_ = std::make_shared<ApiResourcesManager>(io_context_, serverAPI_.get(), *persistentSettings_, connectState_);
         emergencyConnect_ = std::make_shared<EmergencyConnect>(io_context_, failoverContainer_.get(), dnsResolver_.get());
-        pingManager_ = std::make_shared<PingManager>(io_context_, httpNetworkManager_.get(), advancedParameters_.get());
+        pingManager_ = std::make_shared<PingManager>(io_context_, httpNetworkManager_.get(), advancedParameters_.get(), connectState_);
         decoyTraffic_ = std::make_shared<DecoyTraffic>(io_context_, httpNetworkManager_.get());
         utils_ = std::make_shared<WSNetUtils_impl>(io_context_, httpNetworkManager_.get(), failoverContainer_.get(), advancedParameters_.get());
 

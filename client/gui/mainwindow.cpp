@@ -369,7 +369,7 @@ MainWindow::MainWindow() :
     WindscribeApplication * app = WindscribeApplication::instance();
     connect(app, &WindscribeApplication::clickOnDock, this, &MainWindow::onDockIconClicked);
     connect(app, &WindscribeApplication::activateFromAnotherInstance, this, &MainWindow::onAppActivateFromAnotherInstance);
-    connect(app, &WindscribeApplication::shouldTerminate_mac, this, &MainWindow::onAppShouldTerminate_mac);
+    connect(app, &WindscribeApplication::shouldTerminate, this, &MainWindow::onAppShouldTerminate);
     connect(app, &WindscribeApplication::focusWindowChanged, this, &MainWindow::onFocusWindowChanged);
     connect(app, &WindscribeApplication::applicationCloseRequest, this, &MainWindow::onAppCloseRequest);
 #if defined(Q_OS_WIN)
@@ -454,15 +454,25 @@ void MainWindow::showAfterLaunch()
     }
 #endif
 
-    bool showAppMinimized = false;
-
     if (backend_ && backend_->getPreferences()->isStartMinimized()) {
         // Set active state to false; this affects the first click of the dock icon after launch if the app is docked.
         // This state is 'true' by default, and if left as is, the first click of the dock icon will not activate the app.
         activeState_ = false;
-        showMinimized();
-    }
-    else {
+
+        if (backend_ && backend_->getPreferences()->isMinimizeAndCloseToTray()) {
+            minimizeToTray();
+        } else {
+#ifdef Q_OS_WIN
+            // showMinimized, as of Qt 6.3.1, on Windows does not work.  The app is displayed (shown)
+            // and all user input is disabled until ones clicks on the taskbar icon or alt-tabs back
+            // to the app.
+            show();
+            QTimer::singleShot(50, this, &MainWindow::onMinimizeClick);
+#else
+            showMinimized();
+#endif
+        }
+    } else {
         show();
     }
 
@@ -569,11 +579,12 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     ImageResourcesSvg::instance().finishGracefully();
 
     if (WindscribeApplication::instance()->isExitWithRestart() || isFromSigTerm_mac || isSpontaneousCloseEvent_) {
-        // Since we may process events below, disable UI updates and prevent the slot for this signal
+        // Since we may process events below, disable UI updates and prevent the slots for these signals
         // from attempting to close this widget. We have encountered instances of that occurring during
         // the app update process on macOS.
         setUpdatesEnabled(false);
-        disconnect(WindscribeApplication::instance(), &WindscribeApplication::shouldTerminate_mac, this, nullptr);
+        disconnect(WindscribeApplication::instance(), &WindscribeApplication::shouldTerminate, this, nullptr);
+        disconnect(backend_, &Backend::cleanupFinished, this, nullptr);
 
         if (isFromSigTerm_mac) {
             qCInfo(LOG_BASIC) << "close main window with SIGTERM";
@@ -589,12 +600,16 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
             qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
         }
 
+#if defined(Q_OS_WIN)
+        // Let Windows know it can proceed with shutdown.  The block reason was created in WindowsNativeEventFilter.
+        ::ShutdownBlockReasonDestroy(reinterpret_cast<HWND>(this->winId()));
+#endif
+
         if (event) {
             QWidget::closeEvent(event);
         }
-        else {
-            close();
-        }
+        QApplication::closeAllWindows();
+        QApplication::quit();
     }
     else {
         isSpontaneousCloseEvent_ = false;
@@ -3005,9 +3020,9 @@ void MainWindow::onAppActivateFromAnotherInstance()
     activateAndShow();
 }
 
-void MainWindow::onAppShouldTerminate_mac()
+void MainWindow::onAppShouldTerminate()
 {
-    qCDebug(LOG_BASIC) << "onShouldTerminate_mac signal in MainWindow";
+    qCDebug(LOG_BASIC) << "onShouldTerminate signal in MainWindow";
     isSpontaneousCloseEvent_ = true;
     close();
 }

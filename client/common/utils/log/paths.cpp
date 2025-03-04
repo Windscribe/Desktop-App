@@ -25,17 +25,17 @@ namespace log_utils {
 
 QString paths::clientLogLocation(bool previous)
 {
-    return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + addPreviousSuffix("/client.log", previous);
+    return clientLogFolder() + addPreviousSuffix("/client.log", previous);
 }
 
 QString paths::cliLogLocation(bool previous)
 {
-    return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + addPreviousSuffix("/cli.log", previous);
+    return clientLogFolder() + addPreviousSuffix("/cli.log", previous);
 }
 
 void paths::deleteOldUnusedLogs()
 {
-    QString appDataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    QString appDataPath = clientLogFolder();
     QFile::remove(appDataPath + "/log_gui.txt");
     QFile::remove(appDataPath + "/prev_log_gui.txt");
     QFile::remove(appDataPath + "/ping_log.txt");
@@ -53,12 +53,10 @@ void paths::deleteOldUnusedLogs()
 
 QString paths::serviceLogLocation(bool previous)
 {
-#if defined(Q_OS_LINUX)
-    return "/var/log/windscribe" + addPreviousSuffix("/helper.log", previous);
-#elif defined(Q_OS_MACOS)
-    return "/Library/Logs/com.windscribe.helper.macos" + addPreviousSuffix("/helper.log", previous);
+#if defined(Q_OS_WIN)
+    return serviceLogFolder() + addPreviousSuffix("/windscribe_service.log", previous);
 #else
-    return qApp->applicationDirPath() + addPreviousSuffix("/windscribe_service.log", previous);
+    return serviceLogFolder() + addPreviousSuffix("/helper.log", previous);
 #endif
 }
 
@@ -79,6 +77,22 @@ QString paths::installerLogLocation()
     return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/installer.log";
 #else
     return qApp->applicationDirPath() + "/installer.log";
+#endif
+}
+
+QString paths::clientLogFolder()
+{
+    return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+}
+
+QString paths::serviceLogFolder()
+{
+#if defined(Q_OS_LINUX)
+    return "/var/log/windscribe";
+#elif defined(Q_OS_MACOS)
+    return "/Library/Logs/com.windscribe.helper.macos";
+#else
+    return qApp->applicationDirPath();
 #endif
 }
 

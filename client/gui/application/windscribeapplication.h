@@ -23,7 +23,6 @@ public:
 
     void onClickOnDock();
     void setWasRestartOSFlag() { bWasRestartOS_ = true; }
-    void clearWasRestartOSFlag() { bWasRestartOS_ = false; }
     bool isExitWithRestart();
 
     bool isNeedAskClose() { return bNeedAskClose_; }
@@ -38,18 +37,21 @@ public:
 signals:
     void clickOnDock();
     void activateFromAnotherInstance();
-    void shouldTerminate_mac();
+    void shouldTerminate();
     void applicationCloseRequest();
 #ifdef Q_OS_WIN
     void winIniChanged();
 #endif
 
+public slots:
+    void initiateAppShutdown();
+
 protected:
     bool event(QEvent *e) override;
 
 private:
-    bool bNeedAskClose_;
-    bool bWasRestartOS_;
+    bool bNeedAskClose_ = false;
+    bool bWasRestartOS_ = false;
 #ifdef Q_OS_WIN
     WindowsNativeEventFilter windowsNativeEventFilter_;
 #endif

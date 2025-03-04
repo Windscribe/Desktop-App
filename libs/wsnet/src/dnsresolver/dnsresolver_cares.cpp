@@ -3,6 +3,7 @@
 #include "dnsresolver_cares.h"
 #include <assert.h>
 #include "utils/wsnet_logger.h"
+#include "utils/requesterror.h"
 #include "utils/utils.h"
 
 #if defined(__APPLE__) || defined(__linux__)
@@ -222,15 +223,10 @@ void DnsResolver_cares::caresCallback(void *arg, int status, int timeouts, hoste
             ares_inet_ntop(host->h_addrtype, *p, addr_buf, sizeof(addr_buf));
             result->ips_.push_back(addr_buf);
         }
-        result->isError_ = false;
-        result->isConnectionRefusedError_ = false;
-    } else {
-        result->errorString_ = ares_strerror(status);
-        result->isError_ = true;
-        result->isConnectionRefusedError_ = (status == ARES_ECONNREFUSED);
     }
 
     result->elapsedMs_ = (unsigned int)utils::since(pars->qi.startTime).count();
+    result->error_ = std::make_shared<RequestError>(status, RequestErrorType::kCares);
 
     // if the channel was destroyed, then do not call a callback function
     if (status != ARES_EDESTRUCTION) {

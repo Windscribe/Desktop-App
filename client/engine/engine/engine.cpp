@@ -96,7 +96,8 @@ Engine::Engine() : QObject(nullptr),
     guiWindowHandle_(0),
     overrideUpdateChannelWithInternal_(false),
     bPrevNetworkInterfaceInitialized_(false),
-    connectionSettingsOverride_(types::Protocol(types::Protocol::TYPE::UNINITIALIZED), 0, true)
+    connectionSettingsOverride_(types::Protocol(types::Protocol::TYPE::UNINITIALIZED), 0, true),
+    loginWaitForNetworkConnectivity_(nullptr)
 {
     WSNet::setLogger([](const std::string &logStr) {
         // log wsnet outputs without formatting
@@ -898,6 +899,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
 #endif
     }
 
+    SAFE_DELETE(loginWaitForNetworkConnectivity_);
     SAFE_DELETE(vpnShareController_);
     SAFE_DELETE(emergencyController_);
     SAFE_DELETE(connectionManager_);
@@ -2447,7 +2449,7 @@ void Engine::addCustomRemoteIpToFirewallIfNeed()
             // make DNS-resolution for add IP to firewall exceptions
             qCDebug(LOG_BASIC) << "Make DNS-resolution for" << strHost;
             auto res = WSNet::instance()->dnsResolver()->lookupBlocked(strHost.toStdString());
-            if (!res->isError() && res->ips().size() > 0) {
+            if (res->error()->isSuccess() && res->ips().size() > 0) {
                 qCDebug(LOG_BASIC) << "Resolved IP address for" << strHost << ":" << res->ips()[0];
                 ip = QString::fromStdString(res->ips()[0]);
                 ExtraConfig::instance().setDetectedIp(ip);
@@ -2676,14 +2678,39 @@ void Engine::doCheckUpdate()
 
 void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QString &password, const QString &code2fa)
 {
+    bool isOnline = networkDetectionManager_->isOnline();
+
     if (isUseAuthHash) {
         if (WSNet::instance()->apiResourcersManager()->isExist()) {
             onApiResourcesManagerReadyForLogin(true);
         }
-        WSNet::instance()->apiResourcersManager()->loginWithAuthHash();
+
+        if (isOnline) {
+            WSNet::instance()->apiResourcersManager()->loginWithAuthHash();
+        } else {
+            tryLoginNextConnectOrDisconnect_ = true;
+        }
     }
     else {
-        WSNet::instance()->apiResourcersManager()->login(username.toStdString(), password.toStdString(), code2fa.toStdString());
+        if (isOnline) {
+            WSNet::instance()->apiResourcersManager()->login(username.toStdString(), password.toStdString(), code2fa.toStdString());
+        } else {
+            // wait for network connectivity maximum 10 sec
+            WS_ASSERT(loginWaitForNetworkConnectivity_ == nullptr);
+            loginWaitForNetworkConnectivity_ = new WaitForNetworkConnectivity(this, networkDetectionManager_);
+
+            connect(loginWaitForNetworkConnectivity_, &WaitForNetworkConnectivity::timeoutExpired, [this]() {
+                SAFE_DELETE_LATER(loginWaitForNetworkConnectivity_);
+                emit loginError(LoginResult::kNoConnectivity, QString());
+            });
+
+            connect(loginWaitForNetworkConnectivity_, &WaitForNetworkConnectivity::connectivityOnline, [this, username, password, code2fa]() {
+                SAFE_DELETE_LATER(loginWaitForNetworkConnectivity_);
+                WSNet::instance()->apiResourcersManager()->login(username.toStdString(), password.toStdString(), code2fa.toStdString());
+            });
+
+            loginWaitForNetworkConnectivity_->wait(kLoginWaitTimeForNoNetwork);
+        }
     }
 }
 

@@ -45,4 +45,6 @@ namespace Utils
                      const std::vector<Ip6AddressAndPrefix> *range = nullptr, bool persistent = true);
 
     std::string ssidFromInterfaceGUID(const std::wstring &interfaceGUID);
+
+    void debugOut(const char* format, ...);
 };

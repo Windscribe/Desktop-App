@@ -15,6 +15,7 @@
 #include "types/wireguardtypes.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "utils/log/categories.h"
+#include "utils/winutils.h"
 #include "utils/ws_assert.h"
 
 #define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
@@ -45,9 +46,9 @@ void Helper_win::startInstallHelper()
 {
     initVariables();
 
-    QString serviceExePath = QCoreApplication::applicationDirPath() + "/WindscribeService.exe";
+    const QString exe = helperExe();
     ExecutableSignature sigCheck;
-    if (!sigCheck.verify(serviceExePath.toStdWString())) {
+    if (!sigCheck.verify(exe.toStdWString())) {
         qCCritical(LOG_BASIC) << "WindscribeService signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         curState_ = STATE_USER_CANCELED;
         return;
@@ -73,13 +74,11 @@ void Helper_win::setNeedFinish()
 
 QString Helper_win::getHelperVersion()
 {
-    QMutexLocker locker(&mutex_);
-    MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_GET_HELPER_VERSION, std::string());
-    if (mpr.success) {
-        return QString::fromLocal8Bit(mpr.additionalString.c_str(), mpr.additionalString.size());
+    QString version = WinUtils::getVersionInfoItem(helperExe(), "ProductVersion");
+    if (version.isEmpty()) {
+        version = "Failed to extract ProductVersion from executable";
     }
-
-    return "failed detect";
+    return version;
 }
 
 void Helper_win::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished)
@@ -686,7 +685,13 @@ void Helper_win::run()
         if (status != SERVICE_RUNNING) {
             scm_.startService();
         }
-        curState_ = STATE_CONNECTED;
+
+        // The SCM reports the service as running.  Verify we can connect to the helper pipe.
+        if (connectToHelper()) {
+            curState_ = STATE_CONNECTED;
+        } else {
+            curState_ = STATE_FAILED_CONNECT;
+        }
     }
     catch (std::system_error& ex) {
         qCCritical(LOG_BASIC) << "Helper_win::run -" << ex.what();
@@ -701,30 +706,10 @@ void Helper_win::run()
 
 MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &data)
 {
-    if (helperPipe_.isValid()) {
-        // Check if our IPC connection has become invalid (e.g. the helper is restarted while the app is running).
-        DWORD flags;
-        BOOL result = ::GetNamedPipeInfo(helperPipe_.getHandle(), &flags, NULL, NULL, NULL);
-        if (result == FALSE) {
-            qCCritical(LOG_BASIC) << "Reconnecting helper pipe as existing handle instance is invalid" << ::GetLastError();
-            helperPipe_.closeHandle();
-        }
-    }
+    MessagePacketResult mpr;
 
-    if (!helperPipe_.isValid()) {
-        HANDLE hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
-        if (hPipe == INVALID_HANDLE_VALUE) {
-            if (::WaitNamedPipe(SERVICE_PIPE_NAME, MAX_WAIT_TIME_FOR_PIPE) == FALSE) {
-                return MessagePacketResult();
-            }
-
-            hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
-            if (hPipe == INVALID_HANDLE_VALUE) {
-                return MessagePacketResult();
-            }
-        }
-
-        helperPipe_.setHandle(hPipe);
+    if (!connectToHelper()) {
+        return mpr;
     }
 
     auto closePipe = qScopeGuard([&] {
@@ -734,24 +719,23 @@ MessagePacketResult Helper_win::sendCmdToHelper(int cmdId, const std::string &da
 
     // first 4 bytes - cmdId
     if (!writeAllToPipe(helperPipe_.getHandle(), (char *)&cmdId, sizeof(cmdId))) {
-        return MessagePacketResult();
+        return mpr;
     }
 
     // second 4 bytes - size of buffer
     unsigned long sizeOfBuf = data.size();
     if (!writeAllToPipe(helperPipe_.getHandle(), (char *)&sizeOfBuf, sizeof(sizeOfBuf))) {
-        return MessagePacketResult();
+        return mpr;
     }
 
     // body of message
     if (sizeOfBuf > 0) {
         if (!writeAllToPipe(helperPipe_.getHandle(), data.c_str(), sizeOfBuf)) {
-            return MessagePacketResult();
+            return mpr;
         }
     }
 
     // read MessagePacketResult
-    MessagePacketResult mpr;
     if (!readAllFromPipe(helperPipe_.getHandle(), (char *)&sizeOfBuf, sizeof(sizeOfBuf))) {
         return mpr;
     }
@@ -837,38 +821,73 @@ void Helper_win::initVariables()
     scm_.unblockStartStopRequests();
 }
 
-bool Helper_win::readAllFromPipe(HANDLE hPipe, char *buf, DWORD len)
+bool Helper_win::connectToHelper()
 {
-    char *ptr = buf;
-    DWORD dwRead = 0;
-    DWORD lenCopy = len;
-    while (lenCopy > 0) {
-        if (::ReadFile(hPipe, ptr, lenCopy, &dwRead, 0)) {
-            ptr += dwRead;
-            lenCopy -= dwRead;
+    if (helperPipe_.isValid()) {
+        // Check if our IPC connection has become invalid (e.g. the helper is restarted while the app is running).
+        DWORD flags;
+        BOOL result = ::GetNamedPipeInfo(helperPipe_.getHandle(), &flags, NULL, NULL, NULL);
+        if (result == FALSE) {
+            qCCritical(LOG_IPC) << "Reconnecting helper pipe as existing connection is invalid:" << ::GetLastError();
+            helperPipe_.closeHandle();
         }
-        else {
-            return false;
+    }
+
+    if (!helperPipe_.isValid()) {
+        HANDLE hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+        if (hPipe == INVALID_HANDLE_VALUE) {
+            if (::WaitNamedPipe(SERVICE_PIPE_NAME, MAX_WAIT_TIME_FOR_PIPE) == FALSE) {
+                qCCritical(LOG_IPC) << "Wait for helper pipe to become available failed:" << ::GetLastError();
+                return false;
+            }
+
+            hPipe = ::CreateFileW(SERVICE_PIPE_NAME, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+            if (hPipe == INVALID_HANDLE_VALUE) {
+                qCCritical(LOG_IPC) << "Failed to connect to the helper pipe:" << ::GetLastError();
+                return false;
+            }
         }
+
+        helperPipe_.setHandle(hPipe);
     }
 
     return true;
 }
 
+bool Helper_win::readAllFromPipe(HANDLE hPipe, char *buf, DWORD len)
+{
+    bool result = true;
+    char *ptr = buf;
+    DWORD dwRead = 0;
+    DWORD lenCopy = len;
+    while (lenCopy > 0) {
+        if (::ReadFile(hPipe, ptr, lenCopy, &dwRead, 0) == FALSE) {
+            qCWarning(LOG_IPC) << "Failed to read from the helper pipe:" << ::GetLastError();
+            result = false;
+            break;
+        }
+        ptr += dwRead;
+        lenCopy -= dwRead;
+    }
+
+    return result;
+}
+
 bool Helper_win::writeAllToPipe(HANDLE hPipe, const char *buf, DWORD len)
 {
+    bool result = true;
     const char *ptr = buf;
     DWORD dwWrite = 0;
     while (len > 0) {
-        if (::WriteFile(hPipe, ptr, len, &dwWrite, 0)) {
-            ptr += dwWrite;
-            len -= dwWrite;
+        if (::WriteFile(hPipe, ptr, len, &dwWrite, 0) == FALSE) {
+            qCWarning(LOG_IPC) << "Failed to write to the helper pipe:" << ::GetLastError();
+            result = false;
+            break;
         }
-        else {
-            return false;
-        }
+        ptr += dwWrite;
+        len -= dwWrite;
     }
-    return true;
+    return result;
 }
 
 bool Helper_win::createOpenVpnAdapter(bool useDCODriver)
@@ -942,4 +961,9 @@ bool Helper_win::setNetworkCategory(const QString &networkName, NETWORK_CATEGORY
 
     MessagePacketResult mpr = sendCmdToHelper(AA_COMMAND_SET_NETWORK_CATEGORY, stream.str());
     return mpr.success;
+}
+
+QString Helper_win::helperExe() const
+{
+    return QCoreApplication::applicationDirPath() + "/WindscribeService.exe";
 }

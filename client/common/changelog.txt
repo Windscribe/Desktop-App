@@ -1,3 +1,19 @@
+2.14.7 (04/03/2025)
+All:
+   * Improved reliability of wsnet in unstable network environments. #1264
+   * Improved ping logging. #1274
+   * Fixed app is launched minimized instead of minimized to tray when Start Minimized and Close to Tray are enabled. #1280
+Windows:
+   * Improved detection and logging of failures in the client<->helper communication mechanism. #1265
+   * Fixed "start minimized" not working by reinstating workaround. #1280
+   * Fixed automatic-mode firewall remains on when Windows is restarted and the app is closed to the tray. #1279
+   * Fixed app remains running, but non-functioning, if user cancels OS shutdown. #1279
+MacOS:
+   * Fixed split tunnel extension sometimes not started. #45
+Linux:
+   * Fixed possible error when parsing the routing table. #1286
+
+
 2.14.6 (24/02/2025)
 All:
    * Added extended cleanup logs in wsnet. #1250

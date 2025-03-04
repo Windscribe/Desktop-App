@@ -10,7 +10,6 @@ using namespace std::chrono;
 
 ApiResourcesManager::ApiResourcesManager(boost::asio::io_context &io_context, WSNetServerAPI *serverAPI, PersistentSettings &persistentSettings, ConnectState &connectState) :
     io_context_(io_context),
-    loginTimer_(io_context, boost::asio::chrono::seconds(1)),
     fetchTimer_(io_context, boost::asio::chrono::seconds(1)),
     serverAPI_(serverAPI),
     persistentSettings_(persistentSettings),
@@ -21,7 +20,6 @@ ApiResourcesManager::ApiResourcesManager(boost::asio::io_context &io_context, WS
 
 ApiResourcesManager::~ApiResourcesManager()
 {
-    loginTimer_.cancel();
     fetchTimer_.cancel();
 
     for (const auto &it : requestsInProgress_) {
@@ -73,29 +71,9 @@ bool ApiResourcesManager::loginWithAuthHash()
     if (persistentSettings_.authHash().empty())
         return false;
 
-    if (connectState_.isOnline()) {
-        using namespace std::placeholders;
-        requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->session(persistentSettings_.authHash(), appleId_, gpDeviceId_, std::bind(&ApiResourcesManager::onInitialSessionAnswer, this, _1, _2));
-    } else {
-        // If we're not online, do it again in a second
-        if (!startLoginTime_.has_value()) {
-            startLoginTime_ = std::chrono::steady_clock::now();
-        } else {
-            if (utils::since(*startLoginTime_).count() > kWaitTimeForNoNetwork) {
-                boost::asio::post(io_context_, [this] {
-                    std::lock_guard locker(mutex_);
-                    callback_->call(ApiResourcesManagerNotification::kLoginFailed, LoginResult::kNoConnectivity, std::string());
-                });
-                return true;
-            }
-        }
+    using namespace std::placeholders;
+    requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->session(persistentSettings_.authHash(), appleId_, gpDeviceId_, std::bind(&ApiResourcesManager::onInitialSessionAnswer, this, _1, _2));
 
-        loginTimer_.async_wait([this] (boost::system::error_code const& err)  {
-            if (!err) {
-                loginWithAuthHash();
-            }
-        });
-    }
     return true;
 }
 
@@ -108,35 +86,13 @@ void ApiResourcesManager::login(const std::string &username, const std::string &
         assert(false);
     }
 
-    if (connectState_.isOnline()) {
-        using namespace std::placeholders;
-        requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->login(username, password, code2fa, std::bind(&ApiResourcesManager::onLoginAnswer, this, _1, _2, username, password, code2fa));
-    } else {
-        // If we're not online, do it again in a second
-        if (!startLoginTime_.has_value()) {
-            startLoginTime_ = std::chrono::steady_clock::now();
-        } else {
-            if (utils::since(*startLoginTime_).count() > kWaitTimeForNoNetwork) {
-                boost::asio::post(io_context_, [this] {
-                    std::lock_guard locker(mutex_);
-                    callback_->call(ApiResourcesManagerNotification::kLoginFailed, LoginResult::kNoConnectivity, std::string());
-                });
-                return;
-            }
-        }
-
-        loginTimer_.async_wait([this, username, password, code2fa] (boost::system::error_code const& err)  {
-            if (!err) {
-                login(username, password, code2fa);
-            }
-        });
-    }
+    using namespace std::placeholders;
+    requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->login(username, password, code2fa, std::bind(&ApiResourcesManager::onLoginAnswer, this, _1, _2, username, password, code2fa));
 }
 
 void ApiResourcesManager::logout()
 {
     std::lock_guard locker(mutex_);
-    loginTimer_.cancel();
     fetchTimer_.cancel();
 
     using namespace std::placeholders;
@@ -575,6 +531,8 @@ void ApiResourcesManager::onInitialSessionAnswer(ServerApiRetCode serverApiRetCo
 {
     std::lock_guard locker(mutex_);
     requestsInProgress_.erase(RequestType::kSessionStatus);
+    handleLoginOrSessionAnswer(serverApiRetCode, jsonData);
+
     if (serverApiRetCode == ServerApiRetCode::kNetworkError) {
         // repeat the request
         boost::asio::post(io_context_, [this] {
@@ -759,7 +717,6 @@ void ApiResourcesManager::clearValues()
     sessionStatus_.reset();
     prevSessionStatus_.reset();
     checkUpdate_.clear();
-    startLoginTime_.reset();
     lastUpdateTimeMs_.clear();
     persistentSettings_.setAuthHash(std::string());
     persistentSettings_.setSessionStatus(std::string());

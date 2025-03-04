@@ -8,6 +8,7 @@
 #include "helper/ihelper.h"
 #include "helper/initializehelper.h"
 #include "networkdetectionmanager/inetworkdetectionmanager.h"
+#include "networkdetectionmanager/waitfornetworkconnectivity.h"
 #include "firewall/firewallcontroller.h"
 #include "api_responses/notification.h"
 #include "locationsmodel/enginelocationsmodel.h"
@@ -409,6 +410,9 @@ private:
     bool tryLoginNextConnectOrDisconnect_ = false;
 
     QString lastUsernameForCustomConfig_;
+
+    static constexpr int kLoginWaitTimeForNoNetwork = 10000;    // 10 sec
+    WaitForNetworkConnectivity *loginWaitForNetworkConnectivity_;
 
     // Identifier for current connection.  This identifier changes when a new connect request is made to the engine.
     // This is also used for logging to separate logs for different connections.

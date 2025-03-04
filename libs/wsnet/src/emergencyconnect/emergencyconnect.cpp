@@ -87,7 +87,7 @@ void EmergencyConnect::onDnsResolved(std::uint64_t requestId, const std::string 
             return;
 
         std::vector<std::shared_ptr<WSNetEmergencyConnectEndpoint>> endpoints;
-        if (!result->isError()) {
+        if (result->error()->isSuccess()) {
             std::vector<std::shared_ptr<WSNetEmergencyConnectEndpoint>> list;
             auto ips = result->ips();
             ips = utils::randomizeList(ips);
@@ -96,7 +96,7 @@ void EmergencyConnect::onDnsResolved(std::uint64_t requestId, const std::string 
                 endpoints.push_back(std::make_shared<EmergencyConnectEndpoint>(ip, 443, Protocol::kTcp));
             }
         } else {
-            g_logger->warn("EmergencyConnect::onDnsResolved failed");
+            g_logger->warn("EmergencyConnect::onDnsResolved failed. {}", result->error()->toString());
         }
 
         std::vector<std::shared_ptr<WSNetEmergencyConnectEndpoint>> endpointsHardcoded;

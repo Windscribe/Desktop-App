@@ -10,8 +10,6 @@
 #include "engine/connectstatecontroller/iconnectstatecontroller.h"
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "pingstorage.h"
-#include "failedpinglogcontroller.h"
-#include "pinglog.h"
 
 struct PingIpInfo
 {
@@ -53,7 +51,6 @@ private:
     INetworkDetectionManager* const networkDetectionManager_;
 
     PingStorage pingStorage_;
-    FailedPingLogController failedPingLogController_;
 
     struct PingIpState
     {
@@ -93,12 +90,16 @@ private:
 
     QHash<QString, PingIpState> ips_;
     QTimer pingTimer_;
+    bool isLogPings_;
+    bool isUseIcmpPings_;
 
     void onPingFinished(const std::string &ip, bool isSuccess, std::int32_t timeMs, bool isFromDisconnectedVpnState);
-
 
     // Exponential Backoff algorithm, get next delay
     // We start re-ping failed nodes after 1 second. Then the delay increases according to the algorithm to a maximum of 1 minute.
     int exponentialBackoff_GetNextDelay(int curDelay, float factor = 2.0f, float jitter = 0.1f, float maxDelay = 60.0f);
+
+    bool isAllIpsHaveCurIteration() const;
+    void addLog(const QString &tag, const QString &str);
 };
 

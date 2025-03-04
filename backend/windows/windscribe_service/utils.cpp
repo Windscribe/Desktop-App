@@ -649,4 +649,16 @@ std::string ssidFromInterfaceGUID(const std::wstring &interfaceGUID)
     return ssid;
 }
 
+void debugOut(const char* format, ...)
+{
+    va_list arg_list;
+    va_start(arg_list, format);
+
+    char szMsg[1024];
+    _vsnprintf_s(szMsg, 1024, _TRUNCATE, format, arg_list);
+    va_end(arg_list);
+
+    ::OutputDebugStringA(szMsg);
+}
+
 }

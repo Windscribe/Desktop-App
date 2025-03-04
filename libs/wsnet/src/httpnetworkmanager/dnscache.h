@@ -10,10 +10,10 @@ namespace wsnet {
 struct DnsCacheResult
 {
     std::uint64_t id;
-    bool bSuccess;
-    std::vector<std::string> ips;
     bool bFromCache;
+    std::vector<std::string> ips;
     std::uint32_t elapsedMs;
+    std::shared_ptr<WSNetRequestError> error;
 };
 
 typedef std::function<void(const DnsCacheResult &result)> DnsCacheCallback;

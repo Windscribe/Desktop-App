@@ -130,6 +130,9 @@ private:
     bool firewallActualState();
     void initVariables();
 
+    bool connectToHelper();
     bool readAllFromPipe(HANDLE hPipe, char *buf, DWORD len);
     bool writeAllToPipe(HANDLE hPipe, const char *buf, DWORD len);
+
+    QString helperExe() const;
 };

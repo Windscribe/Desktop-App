@@ -53,12 +53,6 @@ bool SplitTunnelExtensionManager::startExtension(const QString &primaryInterface
         return false;
     }
 
-    // If excluding nothing, then we don't need to start the extension.
-    // Note that for inclusive tunnels, we always add the Windscribe client itself to the tunnel, so we need the extension even if no apps are included.
-    if (appPaths_.isEmpty() && isExclude_) {
-        return false;
-    }
-
     qCDebug(LOG_SPLIT_TUNNEL_EXTENSION) << "Starting split tunnel extension";
 
     // Get proxy options here.  The interfaces above are references and may no longer be valid by the time the completion handlers run.
@@ -129,9 +123,13 @@ bool SplitTunnelExtensionManager::startExtension(const QString &primaryInterface
 
 void SplitTunnelExtensionManager::stopExtension()
 {
+    __block dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    __block id observer = nil;
+
     [NETransparentProxyManager loadAllFromPreferencesWithCompletionHandler:^(NSArray<NETransparentProxyManager *> *managers, NSError *error) {
         if (error) {
             qCWarning(LOG_SPLIT_TUNNEL_EXTENSION) << "Failed to load provider managers:" << QString::fromNSString(error.localizedDescription);
+            dispatch_semaphore_signal(semaphore);
             return;
         }
 
@@ -148,14 +146,38 @@ void SplitTunnelExtensionManager::stopExtension()
 
         if (!manager) {
             qCInfo(LOG_SPLIT_TUNNEL_EXTENSION) << "Could not find provider manager, nothing to do";
+            dispatch_semaphore_signal(semaphore);
             return;
         }
 
         NETunnelProviderSession *session = (NETunnelProviderSession *)manager.connection;
-        [session stopTunnel];
 
-        qCInfo(LOG_SPLIT_TUNNEL_EXTENSION) << "Split tunnel extension disabled";
+        // Set up an observer to monitor the connection status
+        observer = [[NSNotificationCenter defaultCenter] addObserverForName:NEVPNStatusDidChangeNotification
+                                                          object:session
+                                                           queue:[NSOperationQueue mainQueue]
+                                                      usingBlock:^(NSNotification * _Nonnull notification) {
+            NEVPNStatus status = session.status;
+            if (status == NEVPNStatusDisconnected || status == NEVPNStatusInvalid) {
+                [[NSNotificationCenter defaultCenter] removeObserver:observer];
+                observer = nil;
+                dispatch_semaphore_signal(semaphore);
+            }
+        }];
+
+        [session stopTunnel];
     }];
+
+    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC));
+    if (dispatch_semaphore_wait(semaphore, timeout) != 0) {
+        qCWarning(LOG_SPLIT_TUNNEL_EXTENSION) << "Timeout waiting for extension to stop";
+    } else {
+        qCInfo(LOG_SPLIT_TUNNEL_EXTENSION) << "Split tunnel extension disabled";
+    }
+
+    if (observer) {
+        [[NSNotificationCenter defaultCenter] removeObserver:observer];
+    }
 }
 
 bool SplitTunnelExtensionManager::isActive() const

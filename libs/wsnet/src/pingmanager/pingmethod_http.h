@@ -22,7 +22,7 @@ private:
     std::shared_ptr<WSNetCancelableCallback> request_;
     WSNetAdvancedParameters *advancedParameters_;
 
-    void onNetworkRequestFinished(std::uint64_t requestId, std::uint32_t elapsedMs, NetworkError errCode, const std::string &curlError, const std::string &data);
+    void onNetworkRequestFinished(std::uint64_t requestId, std::uint32_t elapsedMs, std::shared_ptr<WSNetRequestError> error, const std::string &data);
     int parseReplyString(const std::string &data);
 };
 

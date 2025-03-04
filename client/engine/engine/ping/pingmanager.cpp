@@ -11,12 +11,14 @@ PingManager::PingManager(QObject *parent, IConnectStateController *stateControll
                          INetworkDetectionManager *networkDetectionManager, const QString &storageSettingName) : QObject(parent),
     connectStateController_(stateController), networkDetectionManager_(networkDetectionManager), pingStorage_(storageSettingName)
 {
+    isLogPings_ = ExtraConfig::instance().getLogPings();
+    isUseIcmpPings_ = ExtraConfig::instance().getUseICMPPings();
     connect(&pingTimer_, &QTimer::timeout, this, &PingManager::onPingTimer);
 }
 
 void PingManager::updateIps(const QVector<PingIpInfo> &ips)
 {
-    PingLog::addLog("PingIpsController::updateIps", "update ips:" + QString::number(ips.count()));
+    addLog("PingManager::updateIps", "update ips:" + QString::number(ips.count()));
 
     for (auto it = ips_.begin(); it != ips_.end(); ++it) {
         it.value().existThisIp = false;
@@ -40,7 +42,7 @@ void PingManager::updateIps(const QVector<PingIpInfo> &ips)
     auto it = ips_.begin();
     while (it != ips_.end()) {
         if (!it.value().existThisIp) {
-            PingLog::addLog("PingIpsController::updateIps", "removed unused ip: " + it.key());
+            addLog("PingManager::updateIps", "removed unused ip: " + it.key());
             pingStorage_.removePingNode(it.key());
             it = ips_.erase(it);
         }
@@ -48,8 +50,6 @@ void PingManager::updateIps(const QVector<PingIpInfo> &ips)
             ++it;
         }
     }
-
-    failedPingLogController_.clear();
 
     onPingTimer();
     pingTimer_.start(PING_TIMER_INTERVAL);
@@ -92,9 +92,9 @@ void PingManager::onPingTimer()
             it.value().resetState();
         }
         if (curDateTime > nextDateTime)
-            PingLog::addLog("PingIpsController::onPingTimer", "Re-ping all nodes by time");
+            addLog("PingManager::onPingTimer", "Re-ping all nodes by time");
         else
-            PingLog::addLog("PingIpsController::onPingTimer", "Re-ping all nodes by network change");
+            addLog("PingManager::onPingTimer", "Re-ping all nodes by network change");
     }
 
     for (auto it = ips_.begin(); it != ips_.end(); ++it) {
@@ -105,23 +105,14 @@ void PingManager::onPingTimer()
 
         // Checking the option ws-use-icmp-pings and force ICMP pings if enabled.
         wsnet::PingType pingType = pni.ipInfo.pingType;
-        if (ExtraConfig::instance().getUseICMPPings()) {
+        if (isUseIcmpPings_) {
             pingType = wsnet::PingType::kIcmp;
         }
 
-        if (pni.iterationTime != pingStorage_.currentIterationTime()) {
-            PingLog::addLog("PingNodesController::onPingTimer", QString::fromLatin1("ping new node: %1 (%2 - %3)").arg(pni.ipInfo.ip, pni.ipInfo.city, pni.ipInfo.nick));
-            pni.nowPinging = true;
-            WSNet::instance()->pingManager()->ping(pni.ipInfo.ip.toStdString(), pni.ipInfo.hostname.toStdString(), pingType,
-                        [this](const std::string &ip, bool isSuccess, std::int32_t timeMs, bool isFromDisconnectedVpnState) {
-                            QMetaObject::invokeMethod(this, [this, ip, isSuccess, timeMs, isFromDisconnectedVpnState] {
-                                onPingFinished(ip, isSuccess, timeMs, isFromDisconnectedVpnState);
-                        });
-            });
-        } else if (pni.latestPingFailed) {
+        if (pni.latestPingFailed) {
             if (pni.nextTimeForFailedPing == 0 || QDateTime::currentMSecsSinceEpoch() >= pni.nextTimeForFailedPing) {
                 pni.nowPinging = true;
-                PingLog::addLog("PingNodesController::onPingTimer", "start ping because latest ping failed: " + it.key());
+                addLog("PingManager::onPingTimer", "start ping because latest ping failed: " + it.key());
                 WSNet::instance()->pingManager()->ping(pni.ipInfo.ip.toStdString(), pni.ipInfo.hostname.toStdString(), pingType,
                    [this](const std::string &ip, bool isSuccess, std::int32_t timeMs, bool isFromDisconnectedVpnState) {
                        QMetaObject::invokeMethod(this, [this, ip, isSuccess, timeMs, isFromDisconnectedVpnState] { // NOLINT: false positive for memory leak
@@ -129,12 +120,22 @@ void PingManager::onPingTimer()
                     });
                 });
             }
+        } else if (pni.iterationTime != pingStorage_.currentIterationTime()) {
+            addLog("PingManager::onPingTimer", QString::fromLatin1("ping new node: %1 (%2 - %3)").arg(pni.ipInfo.ip, pni.ipInfo.city, pni.ipInfo.nick));
+            pni.nowPinging = true;
+            WSNet::instance()->pingManager()->ping(pni.ipInfo.ip.toStdString(), pni.ipInfo.hostname.toStdString(), pingType,
+                                                   [this](const std::string &ip, bool isSuccess, std::int32_t timeMs, bool isFromDisconnectedVpnState) {
+                                                       QMetaObject::invokeMethod(this, [this, ip, isSuccess, timeMs, isFromDisconnectedVpnState] {
+                                                           onPingFinished(ip, isSuccess, timeMs, isFromDisconnectedVpnState);
+                                                       });
+                                                   });
         }
     }
 }
 
 void PingManager::onPingFinished(const std::string &ip, bool isSuccess, int32_t timeMs, bool isFromDisconnectedVpnState)
 {
+    Q_UNUSED(isFromDisconnectedVpnState);
     QString ipStr = QString::fromStdString(ip);
 
     auto itNode = ips_.find(ipStr);
@@ -157,10 +158,10 @@ void PingManager::onPingFinished(const std::string &ip, bool isSuccess, int32_t 
             p.iterationTime = pingStorage_.currentIterationTime();
             pingStorage_.setPing(ipStr, timeMs);
             emit pingInfoChanged(ipStr, timeMs);
-            PingLog::addLog("PingIpsController::onPingFinished", QString::fromLatin1("ping successful: %1 (%2 - %3) %4ms").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick).arg(timeMs));
+            addLog("PingManager::onPingFinished", QString::fromLatin1("ping successful: %1 (%2 - %3) %4ms").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick).arg(timeMs));
         }
         else {
-            PingLog::addLog("PingIpsController::onPingFinished", QString::fromLatin1("discarding ping while connected: %1 (%2 - %3) %4ms").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick).arg(timeMs));
+            addLog("PingManager::onPingFinished", QString::fromLatin1("discarding ping while connected: %1 (%2 - %3) %4ms").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick).arg(timeMs));
         }
     }
     else {
@@ -172,23 +173,24 @@ void PingManager::onPingFinished(const std::string &ip, bool isSuccess, int32_t 
             p.nextTimeForFailedPing = QDateTime::currentMSecsSinceEpoch() + 1000 * 60;
             p.curDelayForFailedPing = MIN_DELAY_FOR_FAILED_IN_ROW_PINGS;
 
-            if (isFromDisconnectedVpnState) {
-                p.iterationTime = pingStorage_.currentIterationTime();
-                pingStorage_.setPing(ipStr, PingTime::PING_FAILED);
-                emit pingInfoChanged(ipStr, PingTime::PING_FAILED);
-            }
+            p.iterationTime = pingStorage_.currentIterationTime();
+            pingStorage_.setPing(ipStr, PingTime::PING_FAILED);
+            emit pingInfoChanged(ipStr, PingTime::PING_FAILED);
 
-            if (failedPingLogController_.logFailedIPs(ipStr)) {
-                PingLog::addLog("PingIpsController::onPingFinished", QString::fromLatin1("ping failed: %1 (%2 - %3)").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick));
-            }
+            addLog("PingManager::onPingFinished", QString::fromLatin1("ping failed: %1 (%2 - %3)").arg(p.ipInfo.ip, p.ipInfo.city, p.ipInfo.nick));
         }
         else {
             p.curDelayForFailedPing = exponentialBackoff_GetNextDelay(p.curDelayForFailedPing);
             p.nextTimeForFailedPing = QDateTime::currentMSecsSinceEpoch() + 1000 * p.curDelayForFailedPing;
         }
+
     }
     if (pingStorage_.isAllNodesHaveCurIteration()) {
-        PingLog::addLog("PingIpsController::onPingFinished", "All nodes have the same iteration time");
+        addLog("PingManager::onPingFinished", "All nodes have the same iteration time");
+    }
+
+    if (isLogPings_ && isAllIpsHaveCurIteration()) {
+        addLog("PingManager::onPingFinished", "isAllIpsHaveCurIteration = true");
     }
 }
 
@@ -196,4 +198,19 @@ int PingManager::exponentialBackoff_GetNextDelay(int curDelay, float factor, flo
 {
     float res = std::min((float)curDelay * factor, maxDelay);
     return res + Utils::generateDoubleRandom(0, res * jitter);
+}
+
+bool PingManager::isAllIpsHaveCurIteration() const
+{
+    for (const auto &it : qAsConst(ips_))
+        if (it.iterationTime != pingStorage_.currentIterationTime())
+            return false;
+
+    return true;
+}
+
+void PingManager::addLog(const QString &tag, const QString &str)
+{
+    if (isLogPings_)
+        qCDebug(LOG_PING) << tag << "   " << str;
 }

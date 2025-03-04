@@ -5,7 +5,9 @@
 
 namespace wsnet {
 
-typedef std::function<void(const std::vector<FailoverData> &data)> FailoverCallback;
+enum class FailoverResult { kSuccess, kNoNetwork, kFailed };
+
+typedef std::function<void(FailoverResult result, const std::vector<FailoverData> &data)> FailoverCallback;
 
 class BaseFailover
 {

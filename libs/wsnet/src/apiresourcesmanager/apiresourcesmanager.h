@@ -63,7 +63,6 @@ private:
     std::shared_ptr<CancelableCallback<WSNetApiResourcesManagerCallback>> callback_ = nullptr;
 
     boost::asio::io_context &io_context_;
-    boost::asio::steady_timer loginTimer_;
     boost::asio::steady_timer fetchTimer_;
     WSNetServerAPI *serverAPI_;
     PersistentSettings &persistentSettings_;
@@ -101,9 +100,6 @@ private:
     std::map<RequestType, UpdateInfo > lastUpdateTimeMs_;
 
     std::map<RequestType, std::shared_ptr<wsnet::WSNetCancelableCallback> > requestsInProgress_;
-
-    static constexpr int kWaitTimeForNoNetwork = 10000;
-    std::optional< std::chrono::time_point<std::chrono::steady_clock> > startLoginTime_;
 
     bool isLoginOkEmitted_ = false;
 

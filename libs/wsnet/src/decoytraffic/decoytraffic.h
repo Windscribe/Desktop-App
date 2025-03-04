@@ -43,7 +43,7 @@ private:
     void job(bool skipCalc, const boost::system::error_code &err);
 
     void sendRequest(unsigned int dataToSendSize, unsigned int dataToReceiveSize);
-    void onFinishedRequest(std::uint64_t requestId, std::uint32_t elapsedMs, NetworkError errCode, const std::string &curlError, const std::string &data,
+    void onFinishedRequest(std::uint64_t requestId, std::uint32_t elapsedMs, std::shared_ptr<WSNetRequestError> error, const std::string &data,
                            unsigned int dataToSendSize, unsigned int dataToReceiveSize);
 
     std::uint32_t toBytes(FakeTrafficType fakeTraffic) const;

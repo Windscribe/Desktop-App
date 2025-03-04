@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
                     printf("Failed to initialize access to the Windows firewall manager.\n");
                 }
             } else {
-                printf("Need run program with admin rights.\n");
+                printf("Please run the program with administrator rights.\n");
             }
             return 0;
         }
@@ -64,7 +64,10 @@ int main(int argc, char *argv[])
     try
     {
         if (log_utils::isOldLogFormat(logPath)) {
-            std::filesystem::remove(logPath);
+            // Use the nothrow version of remove since the removal is not critical and we would
+            // like to continue with spdlog creation if the removal does fail.
+            std::error_code ec;
+            std::filesystem::remove(logPath, ec);
         }
         // Create rotation logger with 2 file with unlimited size
         // rotate it on open, the first file is the current log, the 2nd is the previous log
@@ -77,7 +80,8 @@ int main(int argc, char *argv[])
     }
     catch (const spdlog::spdlog_ex &ex)
     {
-        printf("spdlog init failed: %s\n", ex.what());
+        // Allow user/us to see this error when the program is running as a service.
+        Utils::debugOut("spdlog init failed: %s", ex.what());
         return 0;
     }
 
@@ -102,7 +106,8 @@ int main(int argc, char *argv[])
     };
 
     if (StartServiceCtrlDispatcher(serviceTable) == FALSE) {
-        return GetLastError();
+        spdlog::error("StartServiceCtrlDispatcher failed {}", ::GetLastError());
+        return 0;
     }
 #endif
 
@@ -146,6 +151,7 @@ VOID WINAPI serviceMain(DWORD, LPTSTR *)
     g_StatusHandle = RegisterServiceCtrlHandler(SERVICE_NAME, serviceCtrlHandler);
 
     if (g_StatusHandle == NULL) {
+        spdlog::error("RegisterServiceCtrlHandler failed {}", ::GetLastError());
         return;
     }
 
@@ -159,7 +165,7 @@ VOID WINAPI serviceMain(DWORD, LPTSTR *)
     g_ServiceStatus.dwCheckPoint = 0;
 
     if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE) {
-        spdlog::error("SetServiceStatus returned error");
+        spdlog::error("SetServiceStatus(start pending) failed {}", ::GetLastError());
     }
 
     g_ServiceExiting = false;
@@ -180,7 +186,7 @@ VOID WINAPI serviceMain(DWORD, LPTSTR *)
     g_ServiceStatus.dwCheckPoint = 3;
 
     if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE) {
-        spdlog::error("SetServiceStatus returned error");
+        spdlog::error("SetServiceStatus(stopped) failed {}", ::GetLastError());
     }
 
     if (g_hThread != NULL) {
@@ -206,7 +212,7 @@ VOID WINAPI serviceCtrlHandler(DWORD CtrlCode)
         g_ServiceStatus.dwCheckPoint = 4;
 
         if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE) {
-            spdlog::error("SetServiceStatus returned error");
+            spdlog::error("SetServiceStatus(stop pending) failed {}", ::GetLastError());
         }
 
         stopServiceThread();
@@ -337,6 +343,7 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
 
     HANDLE hClientConnectedEvent = ::CreateEvent(NULL, TRUE, TRUE, NULL);
     if (hClientConnectedEvent == NULL) {
+        spdlog::error("CreateEvent for client connection failed {}", ::GetLastError());
         return 0;
     }
 
@@ -346,7 +353,7 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
     g_ServiceStatus.dwCheckPoint = 0;
 
     if (SetServiceStatus(g_StatusHandle, &g_ServiceStatus) == FALSE) {
-        spdlog::error("SetServiceStatus returned error");
+        spdlog::error("SetServiceStatus(running) failed {}", ::GetLastError());
     }
 
     // Initialize singletons
@@ -361,13 +368,23 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
         ::ZeroMemory(&overlapped, sizeof(overlapped));
         overlapped.hEvent = hClientConnectedEvent;
 
-        ::ConnectNamedPipe(hPipe, &overlapped);
+        BOOL result = ::ConnectNamedPipe(hPipe, &overlapped);
+        if (result == FALSE) {
+            DWORD lastError = ::GetLastError();
+            if ((lastError != ERROR_IO_PENDING) && (lastError != ERROR_PIPE_CONNECTED)) {
+                spdlog::error("ConnectNamedPipe failed {}", lastError);
+                break;
+            }
+        }
 
         DWORD dwWait = ::WaitForSingleObjectEx(hClientConnectedEvent, INFINITE, TRUE);
         if (dwWait == WAIT_OBJECT_0) {
             processClientRequests(hPipe);
             ::DisconnectNamedPipe(hPipe);
         } else {
+            if (dwWait == WAIT_FAILED) {
+                spdlog::error("WaitForSingleObjectEx(client connect event) failed {}", ::GetLastError());
+            }
             break;
         }
     }

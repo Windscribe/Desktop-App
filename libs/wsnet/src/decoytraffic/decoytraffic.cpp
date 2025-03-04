@@ -110,14 +110,14 @@ void DecoyTraffic::sendRequest(unsigned int dataToSendSize, unsigned int dataToR
     auto req = httpNetworkManager_->createPostRequest("http://10.255.255.1:8085", 5000, sp.to_string());
     req->addHttpHeader("Content-type: text/plain; charset=utf-8");
     req->addHttpHeader("X-DECOY-RESPONSE: " + std::to_string(dataToReceiveSize));
-    request_ = httpNetworkManager_->executeRequest(req, 1, std::bind(&DecoyTraffic::onFinishedRequest, this, _1, _2, _3, _4, _5, dataToSendSize, dataToReceiveSize));
+    request_ = httpNetworkManager_->executeRequest(req, 1, std::bind(&DecoyTraffic::onFinishedRequest, this, _1, _2, _3, _4, dataToSendSize, dataToReceiveSize));
 }
 
-void DecoyTraffic::onFinishedRequest(std::uint64_t requestId, std::uint32_t elapsedMs, NetworkError errCode, const std::string &curlError, const std::string &data,
+void DecoyTraffic::onFinishedRequest(std::uint64_t requestId, std::uint32_t elapsedMs, std::shared_ptr<WSNetRequestError> error, const std::string &data,
                                      unsigned int dataToSendSize, unsigned int dataToReceiveSize)
 {
     std::lock_guard locker(mutex_);
-    if (errCode != NetworkError::kSuccess) {
+    if (!error->isSuccess()) {
         //g_logger->warn("Request failed: {}, {}", (int) errCode, curlError);
     } else {
         //g_logger->warn("Request finished");

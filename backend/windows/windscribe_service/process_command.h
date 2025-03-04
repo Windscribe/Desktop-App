@@ -36,7 +36,6 @@ MessagePacketResult removeFromHosts(boost::archive::text_iarchive &ia);
 MessagePacketResult checkUnblockingCmdStatus(boost::archive::text_iarchive &ia);
 MessagePacketResult getUnblockingCmdCount(boost::archive::text_iarchive &ia);
 MessagePacketResult clearUnblockingCmd(boost::archive::text_iarchive &ia);
-MessagePacketResult getHelperVersion(boost::archive::text_iarchive &ia);
 MessagePacketResult icsIsSupported(boost::archive::text_iarchive &ia);
 MessagePacketResult icsStart(boost::archive::text_iarchive &ia);
 MessagePacketResult icsChange(boost::archive::text_iarchive &ia);
@@ -90,7 +89,6 @@ static const std::map<const int, std::function<MessagePacketResult(boost::archiv
     { AA_COMMAND_CHECK_UNBLOCKING_CMD_STATUS, checkUnblockingCmdStatus },
     { AA_COMMAND_GET_UNBLOCKING_CMD_COUNT, getUnblockingCmdCount },
     { AA_COMMAND_CLEAR_UNBLOCKING_CMD, clearUnblockingCmd },
-    { AA_COMMAND_GET_HELPER_VERSION, getHelperVersion },
     { AA_COMMAND_ICS_IS_SUPPORTED, icsIsSupported },
     { AA_COMMAND_ICS_START, icsStart },
     { AA_COMMAND_ICS_CHANGE, icsChange },

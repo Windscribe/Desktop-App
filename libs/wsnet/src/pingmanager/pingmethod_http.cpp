@@ -45,14 +45,14 @@ void PingMethodHttp::ping(bool isFromDisconnectedVpnState)
     httpRequest->setIsWhiteListIps(false);
     httpRequest->setExtraTLSPadding(advancedParameters_->isAPIExtraTLSPadding());
     using namespace std::placeholders;
-    request_ = httpNetworkManager_->executeRequest(httpRequest, 0, std::bind(&PingMethodHttp::onNetworkRequestFinished, this, _1, _2, _3, _4, _5));
+    request_ = httpNetworkManager_->executeRequest(httpRequest, 0, std::bind(&PingMethodHttp::onNetworkRequestFinished, this, _1, _2, _3, _4));
 }
 
 void PingMethodHttp::onNetworkRequestFinished(std::uint64_t requestId, std::uint32_t elapsedMs,
-                                              NetworkError errCode, const std::string &curlError, const std::string &data)
+                                              std::shared_ptr<WSNetRequestError> error, const std::string &data)
 {
     request_.reset();
-    if (errCode == NetworkError::kSuccess) {
+    if (error->isSuccess()) {
         auto timems = parseReplyString(data);
         if (timems != -1) {
             isSuccess_ = true;

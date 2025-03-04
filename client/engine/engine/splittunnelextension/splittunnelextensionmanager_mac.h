@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 

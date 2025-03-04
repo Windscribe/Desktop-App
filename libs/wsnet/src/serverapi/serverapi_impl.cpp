@@ -167,7 +167,7 @@ void ServerAPI_impl::executeRequestImpl(std::unique_ptr<BaseRequest> request, co
     auto httpRequest = serverapi_utils::createHttpRequestWithFailoverParameters(httpNetworkManager_, failoverData, request.get(), bIgnoreSslErrors_, advancedParameters_->isAPIExtraTLSPadding());
     httpRequest->setIsDebugLogCurlError(true);
     std::uint64_t requestId = curUniqueId_++;
-    auto asyncCallback_ = httpNetworkManager_->executeRequestEx(httpRequest, requestId, std::bind(&ServerAPI_impl::onHttpNetworkRequestFinished, this, _1, _2, _3, _4, _5),
+    auto asyncCallback_ = httpNetworkManager_->executeRequestEx(httpRequest, requestId, std::bind(&ServerAPI_impl::onHttpNetworkRequestFinished, this, _1, _2, _3, _4),
                                                            std::bind(&ServerAPI_impl::onHttpNetworkRequestProgressCallback, this, _1, _2, _3));
     HttpRequestInfo hti { std::move(request), asyncCallback_, !isConnectedToVpn_, false};
     activeHttpRequests_[requestId] = std::move(hti);
@@ -233,12 +233,15 @@ void ServerAPI_impl::onRequestExecuterViaFailoverFinished(RequestExecuterRetCode
     } else if (retCode == RequestExecuterRetCode::kConnectStateChanged) {
         // Repeat the execution of the request via failover
         executeRequest(std::move(request));
+    } else if (retCode == RequestExecuterRetCode::kNoNetwork) {
+        setErrorCodeAndEmitRequestFinished(request.get(), ServerApiRetCode::kNoNetworkConnection);
+        executeWaitingInQueueRequests();
     } else {
         assert(false);
     }
 }
 
-void ServerAPI_impl::onHttpNetworkRequestFinished(std::uint64_t requestId, std::uint32_t elapsedMs, NetworkError errCode, const std::string &curlError, const std::string &data)
+void ServerAPI_impl::onHttpNetworkRequestFinished(std::uint64_t requestId, std::uint32_t elapsedMs, std::shared_ptr<WSNetRequestError> error, const std::string &data)
 {
     auto it = activeHttpRequests_.find(requestId);
     assert(it != activeHttpRequests_.end());
@@ -248,19 +251,22 @@ void ServerAPI_impl::onHttpNetworkRequestFinished(std::uint64_t requestId, std::
         return;
     }
 
-    if (errCode == NetworkError::kSuccess) {
+    if (error->isSuccess()) {
         if (advancedParameters_->isLogApiResponce()) {
             g_logger->info("API request {} finished", it->second.request->name());
             g_logger->info("{}", data);
         }
         it->second.request->handle(data);
         it->second.request->callCallback();
+    } else if (error->isNoNetworkError()) {
+        g_logger->info("API request {} failed with error = {}", it->second.request->name(), error->toString());
+        setErrorCodeAndEmitRequestFinished(it->second.request.get(), ServerApiRetCode::kNoNetworkConnection);
     } else {
-        g_logger->info("API request {} failed with retCode = {} and curlError = {}", it->second.request->name(), (int)errCode, curlError);
+        g_logger->info("API request {} failed with error = {}", it->second.request->name(), error->toString());
 
         // we need to start going through the backup domains again
         // except for the DNS resolve error
-        if (it->second.bFromDisconnectedVPNState_ && (errCode != NetworkError::kDnsResolveError || it->second.request->retCode() == ServerApiRetCode::kIncorrectJson)) {
+        if (it->second.bFromDisconnectedVPNState_ && (!error->isDnsError() || it->second.request->retCode() == ServerApiRetCode::kIncorrectJson)) {
 
             if (!it->second.bDiscard) {
                 startFailoverUid_.clear();

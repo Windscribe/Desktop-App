@@ -11,10 +11,11 @@
 
 namespace wsnet {
 
-PingManager::PingManager(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager, WSNetAdvancedParameters *advancedParameters) :
+PingManager::PingManager(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager, WSNetAdvancedParameters *advancedParameters, ConnectState &connectState) :
     io_context_(io_context),
     httpNetworkManager_(httpNetworkManager),
-    advancedParameters_(advancedParameters)
+    advancedParameters_(advancedParameters),
+    connectState_(connectState)
 {
 
 #if !defined _WIN32 && !defined IS_TVOS
@@ -47,7 +48,7 @@ std::shared_ptr<WSNetCancelableCallback> PingManager::ping(const std::string &ip
     //TODO: add a delay between pings
     // We do HTTPS-requests right away
     if (pingType == PingType::kHttp) {
-        ping->ping(!isConnectedToVpn_);
+        ping->ping(!connectState_.isVPNConnected());
     }
     // while tcp and icmp are in parallel in queue
     else {
@@ -56,12 +57,6 @@ std::shared_ptr<WSNetCancelableCallback> PingManager::ping(const std::string &ip
     }
     curPingId_++;
     return callbackFunc;
-}
-
-void PingManager::setIsConnectedToVpnState(bool isConnected)
-{
-    std::lock_guard locker(mutex_);
-    isConnectedToVpn_ = isConnected;
 }
 
 void PingManager::onPingMethodFinished(std::uint64_t id)
@@ -109,7 +104,7 @@ void PingManager::processNextPingsInQueue()
         auto id = queue_.front();
         curParallelPings_++;
         auto &ping = map_[id];
-        ping->ping(!isConnectedToVpn_);
+        ping->ping(!connectState_.isVPNConnected());
         queue_.pop();
     }
 }

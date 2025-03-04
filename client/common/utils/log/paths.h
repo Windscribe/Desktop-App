@@ -15,6 +15,9 @@ namespace paths
     QString wireguardServiceLogLocation(bool previous = false);
     QString installerLogLocation();
 
+    QString clientLogFolder();
+    QString serviceLogFolder();
+
     // Delete all unused old logs from previous versions of the program
     void deleteOldUnusedLogs();
 

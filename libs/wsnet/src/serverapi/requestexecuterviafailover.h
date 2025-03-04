@@ -14,7 +14,7 @@ namespace wsnet {
 // Tries to execute a request through the specified failover and returns the result of this execution.
 // In short it executes the failover request first and then, if successful, the request itself
 
-enum class RequestExecuterRetCode { kSuccess, kRequestCanceled, kFailoverFailed, kConnectStateChanged};
+enum class RequestExecuterRetCode { kSuccess, kNoNetwork, kRequestCanceled, kFailoverFailed, kConnectStateChanged};
 
 typedef std::function<void(RequestExecuterRetCode retCode, std::unique_ptr<BaseRequest> request, FailoverData failoverData)> RequestExecuterViaFailoverCallback;
 
@@ -48,9 +48,9 @@ private:
     std::vector<FailoverData> failoverData_;
     int curIndFailoverData_;
 
-    void onFailoverCallback(const std::vector<FailoverData> &data);
+    void onFailoverCallback(FailoverResult result, const std::vector<FailoverData> &data);
     void executeBaseRequest(const FailoverData &failoverData);
-    void onHttpNetworkRequestFinished(std::uint64_t httpRequestId, std::uint32_t elapsedMs, NetworkError errCode, const std::string &curlError, const std::string &data);
+    void onHttpNetworkRequestFinished(std::uint64_t httpRequestId, std::uint32_t elapsedMs, std::shared_ptr<WSNetRequestError> error, const std::string &data);
     // This callback function is necessary to cancel the request as quickly as possible if it was canceled on the calling side
     void onHttpNetworkRequestProgressCallback(std::uint64_t requestId, std::uint64_t bytesReceived, std::uint64_t bytesTotal);
 };

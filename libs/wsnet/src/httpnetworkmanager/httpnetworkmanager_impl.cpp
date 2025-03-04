@@ -1,13 +1,14 @@
 #include "httpnetworkmanager_impl.h"
 #include <spdlog/spdlog.h>
 #include "utils/utils.h"
+#include "utils/requesterror.h"
 
 namespace wsnet {
 
 HttpNetworkManager_impl::HttpNetworkManager_impl(boost::asio::io_context &io_context, WSNetDnsResolver *dnsResolver) :
     io_context_(io_context),
     dnsCache_(dnsResolver, std::bind(&HttpNetworkManager_impl::onDnsResolvedCallback, this, std::placeholders::_1)),
-    curlNetworkManager_(std::bind(&HttpNetworkManager_impl::onCurlFinishedCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
+    curlNetworkManager_(std::bind(&HttpNetworkManager_impl::onCurlFinishedCallback, this, std::placeholders::_1, std::placeholders::_2),
                         std::bind(&HttpNetworkManager_impl::onCurlProgressCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
                         std::bind(&HttpNetworkManager_impl::onCurlReadyDataCallback, this, std::placeholders::_1, std::placeholders::_2))
 {
@@ -33,7 +34,7 @@ void HttpNetworkManager_impl::executeRequest(const std::shared_ptr<WSNetHttpRequ
     if (!request->overrideIp().empty()) {
         std::vector<std::string> ips;
         ips.push_back(request->overrideIp());
-        onDnsResolvedImpl( DnsCacheResult { curRequestId_, true, ips, false });
+        onDnsResolvedImpl( DnsCacheResult { curRequestId_, true, ips, 0, RequestError::createCaresSuccess() });
     } else {
         DnsCacheResult result;
         // take into account that a SNI domain can be specified
@@ -88,14 +89,14 @@ void HttpNetworkManager_impl::onDnsResolvedImpl(const DnsCacheResult &result)
         return;
     }
 
-    if (!result.bSuccess) {
-        request->second.callbacks->callFinished(request->second.userDataId, (std::uint32_t)utils::since(request->second.startTime).count(), NetworkError::kDnsResolveError, std::string(), std::string());
+    if (!result.error->isSuccess()) {
+        request->second.callbacks->callFinished(request->second.userDataId, (std::uint32_t)utils::since(request->second.startTime).count(), result.error, std::string());
         requestsMap_.erase(request);
         return;
     }
 
     if (request->second.request->timeoutMs() <= result.elapsedMs) {
-        request->second.callbacks->callFinished(request->second.userDataId, (std::uint32_t)utils::since(request->second.startTime).count(), NetworkError::kTimeoutExceed, std::string(), std::string());
+        request->second.callbacks->callFinished(request->second.userDataId, (std::uint32_t)utils::since(request->second.startTime).count(), RequestError::createCaresTimeout(), std::string());
         requestsMap_.erase(request);
         return;
     }
@@ -108,10 +109,10 @@ void HttpNetworkManager_impl::onDnsResolvedImpl(const DnsCacheResult &result)
     curlNetworkManager_.executeRequest(request->first, request->second.request, result.ips, request->second.request->timeoutMs() - result.elapsedMs);
 }
 
-void HttpNetworkManager_impl::onCurlFinishedCallback(std::uint64_t requestId, bool bSuccess, const std::string &curlError)
+void HttpNetworkManager_impl::onCurlFinishedCallback(std::uint64_t requestId, std::shared_ptr<WSNetRequestError> error)
 {
-    boost::asio::post(io_context_, [this, requestId, bSuccess, curlError] {
-        onCurlFinishedCallbackImpl(requestId, bSuccess, curlError);
+    boost::asio::post(io_context_, [this, requestId, error] {
+        onCurlFinishedCallbackImpl(requestId, error);
     });
 }
 
@@ -129,13 +130,12 @@ void HttpNetworkManager_impl::onCurlReadyDataCallback(std::uint64_t requestId, c
     });
 }
 
-void HttpNetworkManager_impl::onCurlFinishedCallbackImpl(std::uint64_t requestId, bool bSuccess, const std::string &curlError)
+void HttpNetworkManager_impl::onCurlFinishedCallbackImpl(std::uint64_t requestId, std::shared_ptr<WSNetRequestError> error)
 {
     auto request = requestsMap_.find(requestId);
     if (request != requestsMap_.end()) {
-        NetworkError networkError = (bSuccess ? NetworkError::kSuccess : NetworkError::kCurlError);
         RequestData &rd = request->second;
-        rd.callbacks->callFinished(rd.userDataId, utils::since(rd.startTime).count(), networkError, curlError, rd.data);
+        rd.callbacks->callFinished(rd.userDataId, utils::since(rd.startTime).count(), error, rd.data);
         if (rd.request->isRemoveFromWhitelistIpsAfterFinish())
             removeWhitelistIps(rd.ips);
         requestsMap_.erase(requestId);

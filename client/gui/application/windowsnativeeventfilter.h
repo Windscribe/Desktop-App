@@ -1,17 +1,17 @@
 #pragma once
 
 #include <QAbstractNativeEventFilter>
+#include <qt_windows.h>
 
 class WindowsNativeEventFilter : public QAbstractNativeEventFilter
 {
 public:
     WindowsNativeEventFilter();
-    virtual bool nativeEventFilter(const QByteArray &b, void *message, qintptr *l);
+    virtual bool nativeEventFilter(const QByteArray &b, void *message, qintptr *result);
 
 private:
     bool bShutdownAlreadyReceived_;
-
-#ifdef Q_OS_WIN
     unsigned int dwActivateMessage_;
-#endif
+
+    void initiateAppShutdown(HWND hwnd);
 };

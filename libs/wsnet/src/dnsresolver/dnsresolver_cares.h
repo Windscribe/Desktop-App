@@ -55,17 +55,13 @@ private:
     class DnsRequestResult : public WSNetDnsRequestResult
     {
     public:
-        std::vector<std::string> ips() override { return ips_; }
-        std::uint32_t elapsedMs() override { return elapsedMs_; }
-        bool isError() override { return isError_; }
-        bool isConnectionRefusedError() override { return isConnectionRefusedError_; }
-        std::string errorString() override { return errorString_; }
+        std::vector<std::string> ips() const override { return ips_; }
+        std::uint32_t elapsedMs() const override { return elapsedMs_; }
+        std::shared_ptr<WSNetRequestError> error() const  override { return error_; }
 
         std::vector<std::string> ips_;
         unsigned int elapsedMs_;
-        bool isError_;
-        bool isConnectionRefusedError_;
-        std::string errorString_;
+        std::shared_ptr<WSNetRequestError> error_;
     };
     AresLibraryInit aresLibraryInit_;
     std::thread thread_;

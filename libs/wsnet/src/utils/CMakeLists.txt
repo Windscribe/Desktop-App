@@ -9,6 +9,8 @@ target_sources(wsnet PRIVATE
     wsnet_logger.h
     persistentsettings.cpp
     persistentsettings.h
+    requesterror.cpp
+    requesterror.h
     spdlog_utils.h
     urlquery_utils.cpp
     urlquery_utils.h

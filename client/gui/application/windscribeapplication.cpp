@@ -38,8 +38,7 @@ void setupDockClickHandler()
 
 #endif
 
-WindscribeApplication::WindscribeApplication(int &argc, char **argv) : QApplication(argc, argv),
-    bNeedAskClose_(false), bWasRestartOS_(false)
+WindscribeApplication::WindscribeApplication(int &argc, char **argv) : QApplication(argc, argv)
 {
     setQuitOnLastWindowClosed(false);
 #ifdef Q_OS_WIN
@@ -48,7 +47,7 @@ WindscribeApplication::WindscribeApplication(int &argc, char **argv) : QApplicat
 
 #ifdef Q_OS_MACOS
     setupDockClickHandler();
-    connect(&exitHandlerMac_, &ExitHandler_mac::shouldTerminate, this, &WindscribeApplication::shouldTerminate_mac);
+    connect(&exitHandlerMac_, &ExitHandler_mac::shouldTerminate, this, &WindscribeApplication::shouldTerminate);
 #endif
 }
 
@@ -83,4 +82,10 @@ bool WindscribeApplication::event(QEvent *e)
     if (e->type() == QEvent::Close)
         emit applicationCloseRequest();
     return QApplication::event(e);
+}
+
+void WindscribeApplication::initiateAppShutdown()
+{
+    bWasRestartOS_ = true;
+    emit shouldTerminate();
 }

@@ -56,7 +56,7 @@ private:
     void deleteAllCurrentReplies();
 
     void onReplyFinished(std::uint64_t requestId,
-                         wsnet::NetworkError errCode, const std::string &data);
+                         std::shared_ptr<wsnet::WSNetRequestError> error, const std::string &data);
     void onReplyDownloadProgress(std::uint64_t requestId, std::uint64_t bytesReceived,
                                  std::uint64_t bytesTotal);
     void onReplyReadyRead(std::uint64_t requestId, const std::string &data);

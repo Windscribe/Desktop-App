@@ -244,7 +244,7 @@ private slots:
     // WindscribeApplications signals
     void onDockIconClicked();
     void onAppActivateFromAnotherInstance();
-    void onAppShouldTerminate_mac();
+    void onAppShouldTerminate();
     void onAppCloseRequest();
 #if defined(Q_OS_WIN)
     void onAppWinIniChanged();
