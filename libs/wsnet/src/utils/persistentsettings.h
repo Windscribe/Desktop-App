@@ -12,7 +12,7 @@ public:
     explicit PersistentSettings(const std::string &settings);
 
     // empty string means no value for all functions
-    void setFailovedId(const std::string &failoverId);
+    void setFailoverId(const std::string &failoverId);
     std::string failoverId() const;
 
     void setCountryOverride(const std::string &countryOverride);

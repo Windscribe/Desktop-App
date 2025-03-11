@@ -44,7 +44,7 @@ SplitTunnelExtensionManager &SplitTunnelExtensionManager::instance()
     return instance;
 }
 
-SplitTunnelExtensionManager::SplitTunnelExtensionManager() : isActive_(false), isExclude_(false), appPaths_(), ips_(), hostnames_() {
+SplitTunnelExtensionManager::SplitTunnelExtensionManager() : isStarted_(false), isActive_(false), isExclude_(false), appPaths_(), ips_(), hostnames_() {
 }
 
 bool SplitTunnelExtensionManager::startExtension(const QString &primaryInterface, const QString &vpnInterface)
@@ -113,6 +113,8 @@ bool SplitTunnelExtensionManager::startExtension(const QString &primaryInterface
                 [session startTunnelWithOptions:extensionOptions andReturnError:&ret];
                 if (ret) {
                     qCWarning(LOG_SPLIT_TUNNEL_EXTENSION) << "Failed to start extension:" << QString::fromNSString(ret.localizedDescription);
+                } else {
+                    isStarted_ = true;
                 }
             }];
         }];
@@ -123,6 +125,10 @@ bool SplitTunnelExtensionManager::startExtension(const QString &primaryInterface
 
 void SplitTunnelExtensionManager::stopExtension()
 {
+    if (!isStarted_) {
+        return;
+    }
+
     __block dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     __block id observer = nil;
 
@@ -178,6 +184,7 @@ void SplitTunnelExtensionManager::stopExtension()
     if (observer) {
         [[NSNotificationCenter defaultCenter] removeObserver:observer];
     }
+    isStarted_ = false;
 }
 
 bool SplitTunnelExtensionManager::isActive() const

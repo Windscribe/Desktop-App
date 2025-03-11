@@ -22,9 +22,6 @@ DecoyTrafficGroup::DecoyTrafficGroup(ScalableGraphicsObject *parent, const QStri
     connect(comboBox_, &ComboBoxItem::currentItemChanged, this, &DecoyTrafficGroup::onDecoyTrafficOptionChanged);
     addItem(comboBox_);
 
-    staticText_ = new StaticText(this);
-    addItem(staticText_);
-
     updateMode();
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &DecoyTrafficGroup::onLanguageChanged);
@@ -38,7 +35,6 @@ void DecoyTrafficGroup::setDecoyTrafficSettings(const types::DecoyTrafficSetting
         checkBoxEnable_->setState(decoyTrafficSettings_.isEnabled());
         comboBox_->setCurrentItem((int)decoyTrafficSettings_.volume());
         updateMode();
-        updateStaticText();
     }
 }
 
@@ -52,20 +48,10 @@ void DecoyTrafficGroup::onCheckBoxStateChanged(bool isChecked)
 void DecoyTrafficGroup::updateMode()
 {
     if (!decoyTrafficSettings_.isEnabled()) {
-        hideItems(indexOf(comboBox_), indexOf(staticText_));
+        hideItems(indexOf(comboBox_), indexOf(comboBox_));
     } else  {
-        showItems(indexOf(comboBox_), indexOf(staticText_));
+        showItems(indexOf(comboBox_), indexOf(comboBox_));
     }
-}
-
-void DecoyTrafficGroup::updateStaticText()
-{
-    if (decoyTrafficSettings_.volume() == types::DecoyTrafficVolume::kLow)
-        staticText_->setText("1.7" + textGbHour_);
-    else if (decoyTrafficSettings_.volume() == types::DecoyTrafficVolume::kMedium)
-        staticText_->setText("7" + textGbHour_);
-    else if (decoyTrafficSettings_.volume() == types::DecoyTrafficVolume::kHigh)
-        staticText_->setText("16" + textGbHour_);
 }
 
 void DecoyTrafficGroup::onDecoyTrafficOptionChanged(QVariant v)
@@ -73,7 +59,6 @@ void DecoyTrafficGroup::onDecoyTrafficOptionChanged(QVariant v)
     if ((int)decoyTrafficSettings_.volume() != v.toInt())
     {
         decoyTrafficSettings_.setVolume((types::DecoyTrafficVolume)v.toInt());
-        updateStaticText();
         emit decoyTrafficSettingsChanged(decoyTrafficSettings_);
     }
 }
@@ -96,10 +81,6 @@ void DecoyTrafficGroup::onLanguageChanged()
     list.push_back(qMakePair(tr("High"), (int)types::DecoyTrafficVolume::kHigh));
 
     comboBox_->setItems(list, (int)decoyTrafficSettings_.volume());
-
-    staticText_->setCaption(tr("Estimated Data Usage"));
-    textGbHour_ = tr("GB/Hour");
-    updateStaticText();
 }
 
 }

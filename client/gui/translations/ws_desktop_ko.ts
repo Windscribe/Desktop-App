@@ -1278,14 +1278,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>High</source>
         <translation>높다</translation>
     </message>
-    <message>
-        <source>Estimated Data Usage</source>
-        <translation>예상 데이터 사용량</translation>
-    </message>
-    <message>
-        <source>GB/Hour</source>
-        <translation>GB/시간</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>

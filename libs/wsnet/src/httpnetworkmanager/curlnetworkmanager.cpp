@@ -325,9 +325,11 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
 
     g_logger->debug("New curl request : {}", request->url().c_str());
 
-    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FRESH_CONNECT, 1L) != CURLE_OK) return false;
-    // make connection get closed at once after use
-    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FORBID_REUSE, 1L) != CURLE_OK) return false;
+    if (request->isEnableFreshConnect()) {
+        if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FRESH_CONNECT, 1L) != CURLE_OK) return false;
+        // make connection get closed at once after use
+        if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_FORBID_REUSE, 1L) != CURLE_OK) return false;
+    }
 
     // timeout for the connect phase, this timeout only limits the connection phase, it has no impact once libcurl has connected
     // I noticed that this time curl distributes equally between all IP addresses of the domain,

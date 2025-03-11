@@ -33,13 +33,10 @@ protected:
 
 private:
     void updateMode();
-    void updateStaticText();
 
     ToggleItem *checkBoxEnable_;
     ComboBoxItem *comboBox_;
-    StaticText *staticText_;
     types::DecoyTrafficSettings decoyTrafficSettings_;
-    QString textGbHour_;
 };
 
 }

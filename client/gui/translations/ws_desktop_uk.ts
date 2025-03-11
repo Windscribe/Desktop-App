@@ -1278,14 +1278,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>High</source>
         <translation>Високий</translation>
     </message>
-    <message>
-        <source>Estimated Data Usage</source>
-        <translation>Приблизне використання даних</translation>
-    </message>
-    <message>
-        <source>GB/Hour</source>
-        <translation>ГБ/год</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>

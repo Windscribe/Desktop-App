@@ -870,8 +870,8 @@ bool LocationsTab::handleKeyPressEvent(QKeyEvent *event)
     // set locations tab to search screen
     if (curTab_ != LOCATION_TAB_SEARCH_LOCATIONS)
     {
-        if (event->key() != Qt::Key_Space) // prevent space from triggering search when intention is to close locations tray
-        {
+        // prevent space from triggering search when intention is to close locations tray
+        if (!event->text().isEmpty() && event->key() != Qt::Key_Space) {
             switchToTabAndRestoreCursorToAccentedItem(LOCATION_TAB_SEARCH_LOCATIONS);
 
             // Adding text to search text must be handled in the keyPress instead of keyRelease because

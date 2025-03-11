@@ -1,13 +1,12 @@
 #pragma once
 
-#include "WSNetDecoyTraffic.h"
 #include <boost/asio.hpp>
+#include <deque>
+#include "WSNetDecoyTraffic.h"
 #include "WSNetHttpNetworkManager.h"
-#include "traffictrend.h"
+#include "decoytraffic_impl.h"
 
 namespace wsnet {
-
-enum class FakeTrafficType { kLow = 0, kMedium, kHigh };
 
 // Thread safe
 class DecoyTraffic : public WSNetDecoyTraffic
@@ -22,34 +21,13 @@ public:
     void stop() override;
 
 private:
+    DecoyTraffic_impl uploadTraffic_;
+    DecoyTraffic_impl downloadTraffic_;
     std::mutex mutex_;
-    boost::asio::io_context &io_context_;
-    WSNetHttpNetworkManager *httpNetworkManager_;
-    TrafficTrend trafficTrend_;
-    std::uint32_t fakeTrafficVolume_;
-    FakeTrafficType fakeTraffic_;
-
-    boost::asio::steady_timer timer_;
     bool bStarted_ = false;
-
-    std::shared_ptr<wsnet::WSNetCancelableCallback> request_;
-    std::chrono::time_point<std::chrono::steady_clock> lastRequestSendTime_;
-    std::uint32_t sendTrafficIntervalInSeconds_ = 1;
-
     std::chrono::time_point<std::chrono::steady_clock> startTime_;
-    std::uint64_t download_;
-    std::uint64_t upload_;
 
-    void job(bool skipCalc, const boost::system::error_code &err);
-
-    void sendRequest(unsigned int dataToSendSize, unsigned int dataToReceiveSize);
-    void onFinishedRequest(std::uint64_t requestId, std::uint32_t elapsedMs, std::shared_ptr<WSNetRequestError> error, const std::string &data,
-                           unsigned int dataToSendSize, unsigned int dataToReceiveSize);
-
-    std::uint32_t toBytes(FakeTrafficType fakeTraffic) const;
-    std::uint32_t toMultiplier(FakeTrafficType fakeTraffic) const;
-    std::uint32_t toInterval(FakeTrafficType fakeTraffic) const;
+    void stopImpl();
 };
-
 
 } // namespace wsnet

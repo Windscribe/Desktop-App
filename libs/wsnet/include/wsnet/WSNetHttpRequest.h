@@ -68,6 +68,11 @@ public:
     // makes additional logs through which IP the request was made and its curl error
     virtual void setIsDebugLogCurlError(bool isEnabled) = 0;
     virtual bool isDebugLogCurlError() const = 0;
+
+    // Make a fresh connect (enable curl options CURLOPT_FRESH_CONNECT and CURLOPT_FORBID_REUSE)
+    // true by default
+    virtual void setIsEnableFreshConnect(bool bEnabled) = 0;
+    virtual bool isEnableFreshConnect() const = 0;
 };
 
 } // namespace wsnet

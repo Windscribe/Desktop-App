@@ -1562,6 +1562,7 @@ void Engine::onConnectionManagerReconnecting()
     qCDebug(LOG_BASIC) << "on reconnecting event";
 
     DnsServersConfiguration::instance().setDisconnectedState();
+
     WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
 
     if (firewallController_->firewallActualState()) {
@@ -1571,6 +1572,8 @@ void Engine::onConnectionManagerReconnecting()
             engineSettings_.isAllowLanTraffic(),
             locationId_.isCustomConfigsLocation());
     }
+
+    WSNet::instance()->decoyTraffic()->stop();
 
     connectStateController_->setConnectingState(LocationID());
 }

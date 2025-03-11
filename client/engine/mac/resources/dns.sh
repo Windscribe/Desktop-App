@@ -2,116 +2,10 @@
 
 PATH=/usr/sbin:$PATH
 
-CUR_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-PRI_IFACE=`echo 'show State:/Network/Global/IPv4' | scutil | grep PrimaryInterface | sed -e 's/.*PrimaryInterface : //'`
-PSID=`echo 'show State:/Network/Global/IPv4' | scutil | grep PrimaryService | sed -e 's/.*PrimaryService : //'`
-PSID_SAVED=`echo "show State:/Network/Windscribe/DNS" | scutil | grep NetworkInterfaceID | sed -e 's/.*NetworkInterfaceID : //'`
-
-if [[ "${PRI_IFACE}" == "" ]]; then
-    echo "Error: Primary interface not found"
-    echo
-    if [ "$1" != "-down" ] ; then
-        exit 1
-    fi
-else
-    echo "Primary interface: ${PRI_IFACE}"
-    echo "PSID: ${PSID}"
-    echo "PSID_SAVED: ${PSID_SAVED}"
-    echo
-fi
-
-function print_state {
-
-    S_STATE=`echo "show State:/Network/Service/${PSID}/DNS" | scutil`
-    S_SETUP=`echo "show Setup:/Network/Service/${PSID}/DNS" | scutil`
-
-    echo "State: ${S_STATE}"
-    echo
-    echo "Setup: ${S_SETUP}"
-    echo
-}
-
-function is_dns_changed {
-
-    PREFIX=$1
-
-    DNS_STATE=`echo "show ${PREFIX}:/Network/Service/${PSID}/DNS" | scutil`
-    VPN_STATE=`echo "show State:/Network/Windscribe/DNS" | scutil`
-
-    if [[ "${DNS_STATE}" == "${VPN_STATE}" ]]; then
-        return 1
-    fi
-
-    return 0
-}
-
-function is_vpn_dns_state_set {
-    echo "show State:/Network/Windscribe/Original/DNS/State" | scutil | grep ServerAddresses >/dev/null
-}
-
-function is_vpn_dns_setup_set {
-    echo "show State:/Network/Windscribe/Original/DNS/Setup" | scutil | grep ServerAddresses >/dev/null
-}
-
-
-function is_dns_set_by_windscribe {
-    PREFIX=$1
-    echo "show ${PREFIX}:/Network/Service/${PSID}/DNS" | scutil | grep SetByWindscribe >/dev/null
-    return $?
-}
-
-function store_user_setting {
-    PREFIX=$1
-
-    echo "Storing ${PREFIX}:/ dns settings"
-
-    if is_dns_set_by_windscribe "${PREFIX}"; then
-        echo "Ignoring: Current DNS change was made by Windscribe"
-        return 1
-    fi
-
-    scutil <<_EOF
-    d.init
-    get ${PREFIX}:/Network/Service/${PSID}/DNS
-    set State:/Network/Windscribe/Original/DNS/${PREFIX}
-_EOF
-}
-
-function restore_user_setting {
-    PREFIX=$1
-
-    echo "Restoring ${PREFIX}:/ dns settings"
-
-    scutil <<_EOF
-    d.init
-    get State:/Network/Windscribe/Original/DNS/${PREFIX}
-    set ${PREFIX}:/Network/Service/${PSID_SAVED}/DNS
-_EOF
-}
-
-function update_setting {
-    PREFIX=$1
-
-    scutil <<_EOF
-    d.init
-    get State:/Network/Windscribe/DNS
-    set ${PREFIX}:/Network/Service/${PSID}/DNS
-_EOF
-}
-
-function store_and_update {
-    PREFIX=$1
-
-    if [[ "${PREFIX}" == "" ]]; then
-        return 127
-    fi
-
-    store_user_setting "${PREFIX}"
-    update_setting "${PREFIX}"
-}
+# Arbitrary UUID
+SERVICE_UUID="019566B0-ECE7-707F-9A54-EED796210EB0"
 
 if [ "$1" = "-up" ] ; then
-
     DOMAIN_NAME="windscribe-client"
     FOREIGN_OPTIONS=`env | grep -E '^foreign_option_' | sort | sed -e 's/foreign_option_.*=//'`
 
@@ -130,46 +24,101 @@ if [ "$1" = "-up" ] ; then
     echo "DOMAIN: $DOMAIN_NAME"
     echo "VPN DNS: $VPN_DNS"
 
+    # Save the current global settings
+    echo "Saving current global network settings"
+    scutil <<_EOF
+        d.init
+        get State:/Network/Global/IPv4
+        set State:/Network/Windscribe/Original/Global/IPv4
+
+        d.init
+        get State:/Network/Global/DNS
+        set State:/Network/Windscribe/Original/Global/DNS
+_EOF
+
+    # Create a new network service with the VPN DNS
+    VPN_IF="$dev"
+    VPN_IF_INDEX=`ifconfig -v ${VPN_IF} 2>/dev/null | grep -w index | awk '{print $6}'`
+    VPN_ROUTER=`ifconfig -v ${VPN_IF} 2>/dev/null | grep -w inet | awk '{print $2}'`
+    if [[ "${VPN_ROUTER}" == "" ]]; then
+        VPN_ROUTER=${ifconfig_local}
+    fi
+
+    echo "Creating new network service with UUID: ${SERVICE_UUID}"
     scutil <<_EOF
         d.init
         d.add ServerAddresses * ${VPN_DNS}
         d.add DomainName "${DOMAIN_NAME}"
-        d.add NetworkInterfaceID "${PSID}"
-        d.add SetByWindscribe "true"
+        d.add ConfirmedServiceID "${SERVICE_UUID}"
+        d.add InterfaceName "${VPN_IF}"
+        set State:/Network/Service/${SERVICE_UUID}/DNS
 
-        set State:/Network/Windscribe/DNS
+        # Set the PrimaryRank to First for this service
+        d.init
+        d.add PrimaryRank "First"
+        set State:/Network/Service/${SERVICE_UUID}
+
+        d.init
+        d.add Addresses * ${VPN_ROUTER}
+        d.add InterfaceName "${VPN_IF}"
+        d.add Router "${VPN_ROUTER}"
+        set State:/Network/Service/${SERVICE_UUID}/IPv4
+
+        d.init
+        d.add ServerAddresses * ${VPN_DNS}
+        d.add DomainName "${DOMAIN_NAME}"
+        d.add "__CONFIGURATION_ID__" "Default: 0"
+        d.add "__FLAGS__" 2
+        d.add "__IF_INDEX__" ${VPN_IF_INDEX}
+        d.add "__ORDER__" 0
+        set State:/Network/Global/DNS
+
+        d.init
+        d.add PrimaryService ${SERVICE_UUID}
+        d.add PrimaryInterface ${VPN_IF}
+        d.add Router ${VPN_ROUTER}
+        set State:/Network/Global/IPv4
 _EOF
-
-    store_and_update "Setup"
-    store_and_update "State"
 
 elif [ "$1" = "-down" ] ; then
+    echo "Restoring original global network settings"
 
-    if ! is_vpn_dns_state_set ; then
-        if ! is_vpn_dns_setup_set ; then
-            echo "Error: Cannot find original DNS Setup and State configuration"
-            exit 0
-        else
-            echo "Finded original DNS Setup configuration"
-        fi
+    # Check if we have saved settings
+    SAVED_IPV4=`echo "show State:/Network/Windscribe/Original/Global/IPv4" | scutil | grep PrimaryService`
+    SAVED_DNS=`echo "show State:/Network/Windscribe/Original/Global/DNS" | scutil | grep ServerAddresses`
+
+    if [[ "${SAVED_IPV4}" == "" ]]; then
+        echo "Error: Cannot find original Global IPv4 configuration"
     else
-            echo "Finded original DNS State configuration"
+        echo "Found original Global IPv4 configuration"
+
+        # Restore original global settings
+        scutil <<_EOF
+            d.init
+            get State:/Network/Windscribe/Original/Global/IPv4
+            set State:/Network/Global/IPv4
+_EOF
     fi
 
-    restore_user_setting "State"
+    if [[ "${SAVED_DNS}" == "" ]]; then
+        echo "Error: Cannot find original Global DNS configuration"
+    else
+        echo "Found original Global DNS configuration"
 
-    restore_user_setting "Setup"
-
-    echo "Remove saved keys"
+        # Restore original global DNS settings
+        scutil <<_EOF
+            d.init
+            get State:/Network/Windscribe/Original/Global/DNS
+            set State:/Network/Global/DNS
+_EOF
+    fi
 
     scutil <<_EOF
-        remove State:/Network/Windscribe/Original/DNS/Setup
-        remove State:/Network/Windscribe/Original/DNS/State
-        remove State:/Network/Windscribe/DNS
-
-        quit
+        remove State:/Network/Service/${SERVICE_UUID}
+        remove State:/Network/Service/${SERVICE_UUID}/DNS
+        remove State:/Network/Service/${SERVICE_UUID}/IPv4
+        remove State:/Network/Windscribe/Original/Global/IPv4
+        remove State:/Network/Windscribe/Original/Global/DNS
 _EOF
-else
-    print_state
-fi
 
+fi

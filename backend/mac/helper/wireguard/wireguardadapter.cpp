@@ -81,6 +81,7 @@ bool WireGuardAdapter::setDnsServers(const std::string &addressList, const std::
         env_block.append("foreign_option_" + std::to_string(i) + "=\"dhcp-option DNS "
                          + dns_servers_list[i] + "\" ");
     }
+    env_block.append("dev=" + getName() + " ");
     is_dns_server_set_ = true;
     std::vector<std::string> cmdlist;
     if (access(dns_script_name_.c_str(), X_OK) != 0)
@@ -97,6 +98,7 @@ bool WireGuardAdapter::enableRouting(const std::vector<std::string> &allowedIps)
             has_default_route_ = true;
             cmdlist.push_back("route -q -n add -inet 0.0.0.0/1 -interface " + getName());
             cmdlist.push_back("route -q -n add -inet 128.0.0.0/1 -interface " + getName());
+            cmdlist.push_back("route -q -n delete -inet 0/0 -interface " + getName());
         } else {
             cmdlist.push_back("route -q -n add -inet \"" + ip + "\" -interface " + getName());
         }

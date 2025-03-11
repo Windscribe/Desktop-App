@@ -81,6 +81,12 @@ bool DefaultRouteMonitor::checkDefaultRoutes()
     if (newGateway == lastGateway_)
         return true;
 
+    // In the case where we are switching split tunnel modes, the gateway may temporarily be empty. Ignore this.
+    // If the gateway actually legitimately is empty, the main client will detect lack of internet connectivity.
+    if (newGateway.empty()) {
+        return true;
+    }
+
     unsetEndpointDirectRoute();
     lastGateway_ = newGateway;
     return setEndpointDirectRoute();

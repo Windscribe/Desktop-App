@@ -63,6 +63,11 @@ public:
     void setIsDebugLogCurlError(bool isEnabled) override;
     bool isDebugLogCurlError() const override;
 
+    // Make a fresh connect (enable curl options CURLOPT_FRESH_CONNECT and CURLOPT_FORBID_REUSE)
+    // true by default
+    void setIsEnableFreshConnect(bool bEnabled) override;
+    bool isEnableFreshConnect() const override;
+
 private:
     // internal implementation class (to hide include skyr/url.hpp from this header, there were compilation errors in Windows)
     struct Impl;

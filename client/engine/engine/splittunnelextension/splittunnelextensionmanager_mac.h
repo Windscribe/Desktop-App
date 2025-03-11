@@ -21,7 +21,8 @@ private:
     SplitTunnelExtensionManager(const SplitTunnelExtensionManager&) = delete;
     SplitTunnelExtensionManager& operator=(const SplitTunnelExtensionManager&) = delete;
 
-    bool isActive_;
+    bool isStarted_; // Whether the extension is started
+    bool isActive_; // Whether split tunnel is enabled
     bool isExclude_;
     QStringList appPaths_;
     QStringList ips_;

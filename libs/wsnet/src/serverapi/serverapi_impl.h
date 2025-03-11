@@ -74,6 +74,7 @@ private:
     std::optional<FailoverData> failoverData_;      // valid only in kReady state
     bool isFailoverFailedLogAlreadyDone_ = false;   // log "failover failed: API not ready" only once to avoid spam
     FailedFailovers failedFailovers_;
+    bool bWasSuccesfullRequest_ = false;    // was at least one successful request?
 
     void executeRequest(std::uint64_t requestId);
     void executeRequestImpl(std::unique_ptr<BaseRequest> request, const FailoverData &failoverData);
@@ -87,7 +88,8 @@ private:
     // This callback function is necessary to cancel the request as quickly as possible if it was canceled on the calling side
     void onHttpNetworkRequestProgressCallback(std::uint64_t requestId, std::uint64_t bytesReceived, std::uint64_t bytesTotal);
 
-    std::unique_ptr<BaseFailover> getNextFailover(const std::string &failoverUniqueId);
+    std::unique_ptr<BaseFailover> getNextFailover();
+    void resetFailoverImpl(bool toFirst);
 
     void logAllFailoversFailed(BaseRequest *request);
 };

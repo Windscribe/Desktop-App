@@ -46,6 +46,7 @@ Requires:	polkit
 Requires:	iproute
 Requires:	iputils
 Requires:	psmisc
+Requires:	libxkbcommon-x11
 
 %description
 Windscribe client.

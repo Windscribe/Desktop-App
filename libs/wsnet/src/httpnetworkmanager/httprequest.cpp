@@ -19,6 +19,7 @@ struct HttpRequest::Impl
     std::string overrideIp;
     bool isWhiteListIps = true;
     bool isDebugLogCurlError = false;
+    bool isEnableFreshConnect = true;
     skyr::url skyrUrl;
 };
 
@@ -176,6 +177,16 @@ void HttpRequest::setIsDebugLogCurlError(bool isEnabled)
 bool HttpRequest::isDebugLogCurlError() const
 {
     return pImpl_->isDebugLogCurlError;
+}
+
+void HttpRequest::setIsEnableFreshConnect(bool bEnabled)
+{
+    pImpl_->isEnableFreshConnect = bEnabled;
+}
+
+bool HttpRequest::isEnableFreshConnect() const
+{
+    return pImpl_->isEnableFreshConnect;
 }
 
 } // namespace wsnet

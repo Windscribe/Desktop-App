@@ -6,6 +6,7 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <spdlog/spdlog.h>
 
 WireGuardController::WireGuardController()
     : daemonCmdId_(0), is_initialized_(false)
@@ -29,11 +30,11 @@ bool WireGuardController::stop()
     if (!is_initialized_)
         return false;
 
+    adapter_.reset();
     comm_->stop();
     comm_.reset();
-
     drm_.reset();
-    adapter_.reset();
+
     is_initialized_ = false;
     return true;
 }

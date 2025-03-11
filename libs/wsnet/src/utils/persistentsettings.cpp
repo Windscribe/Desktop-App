@@ -55,7 +55,7 @@ PersistentSettings::PersistentSettings(const std::string &settings)
     }
 }
 
-void PersistentSettings::setFailovedId(const std::string &failoverId)
+void PersistentSettings::setFailoverId(const std::string &failoverId)
 {
     std::lock_guard locker(mutex_);
     failoverId_ = failoverId;

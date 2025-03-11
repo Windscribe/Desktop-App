@@ -1278,14 +1278,6 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>High</source>
         <translation>Haut</translation>
     </message>
-    <message>
-        <source>Estimated Data Usage</source>
-        <translation>Utilisation estimée des données</translation>
-    </message>
-    <message>
-        <source>GB/Hour</source>
-        <translation>GB/heure</translation>
-    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>

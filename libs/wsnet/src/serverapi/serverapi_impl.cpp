@@ -61,13 +61,7 @@ void ServerAPI_impl::setIgnoreSslErrors(bool bIgnore)
 void ServerAPI_impl::resetFailover()
 {
     g_logger->info("ServerAPI_impl::resetFailover");
-    failedFailovers_.clear();
-    auto failover = failoverContainer_->first();
-    curFailoverUid_ = failover->uniqueId();
-    startFailoverUid_ = curFailoverUid_;
-    curInternalFailoverInd_ = 0;
-    failoverState_ = FailoverState::kUnknown;
-    persistentSettings_.setFailovedId("");    // clear setting
+    resetFailoverImpl(true);
 }
 
 void ServerAPI_impl::setIsConnectedToVpnState(bool isConnected)
@@ -205,29 +199,37 @@ void ServerAPI_impl::onRequestExecuterViaFailoverFinished(RequestExecuterRetCode
 
     if (retCode == RequestExecuterRetCode::kSuccess) {
         failoverState_ = FailoverState::kReady;
-        persistentSettings_.setFailovedId(curFailoverUid_);
+        persistentSettings_.setFailoverId(curFailoverUid_);
         failoverData_ = failoverData;
         request->callCallback();
         executeWaitingInQueueRequests();
     } else if (retCode == RequestExecuterRetCode::kRequestCanceled) {
         executeWaitingInQueueRequests();
     } else if (retCode == RequestExecuterRetCode::kFailoverFailed) {
-        auto nextFailover = getNextFailover(curFailoverUid_);
+        auto nextFailover = getNextFailover();
         if (nextFailover) {
             curFailoverUid_ = nextFailover->uniqueId();
             curInternalFailoverInd_++;
             executeRequest(std::move(request));
         } else {
-            failoverState_ = FailoverState::kFailed;
+            // If there was at least one successful request, we never go to state FailoverState::kFailed
+            // In this case we go through all the failovers again
+            if (bWasSuccesfullRequest_) {
+                g_logger->info("API request {} failed: all failovers failed, reset failover", request->name());
+                resetFailoverImpl(false);
+                setErrorCodeAndEmitRequestFinished(request.get(), ServerApiRetCode::kNetworkError);
+                executeWaitingInQueueRequests();
+            } else {
+                failoverState_ = FailoverState::kFailed;
+                if (!isFailoverFailedLogAlreadyDone_) {
+                    g_logger->info("API request {} failed: API not ready", request->name());
+                    isFailoverFailedLogAlreadyDone_ = true;
+                }
 
-            if (!isFailoverFailedLogAlreadyDone_) {
-                g_logger->info("API request {} failed: API not ready", request->name());
-                isFailoverFailedLogAlreadyDone_ = true;
+                logAllFailoversFailed(request.get());
+                setErrorCodeAndEmitRequestFinished(request.get(), ServerApiRetCode::kFailoverFailed);
+                executeWaitingInQueueRequests();
             }
-
-            logAllFailoversFailed(request.get());
-            setErrorCodeAndEmitRequestFinished(request.get(), ServerApiRetCode::kFailoverFailed);
-            executeWaitingInQueueRequests();
         }
 
     } else if (retCode == RequestExecuterRetCode::kConnectStateChanged) {
@@ -256,6 +258,7 @@ void ServerAPI_impl::onHttpNetworkRequestFinished(std::uint64_t requestId, std::
             g_logger->info("API request {} finished", it->second.request->name());
             g_logger->info("{}", data);
         }
+        bWasSuccesfullRequest_ = true;
         it->second.request->handle(data);
         it->second.request->callCallback();
     } else if (error->isNoNetworkError()) {
@@ -269,15 +272,7 @@ void ServerAPI_impl::onHttpNetworkRequestFinished(std::uint64_t requestId, std::
         if (it->second.bFromDisconnectedVPNState_ && (!error->isDnsError() || it->second.request->retCode() == ServerApiRetCode::kIncorrectJson)) {
 
             if (!it->second.bDiscard) {
-                startFailoverUid_.clear();
-                auto nextFailover = getNextFailover(curFailoverUid_);
-                assert(nextFailover);
-                curFailoverUid_ = nextFailover->uniqueId();
-                startFailoverUid_ = curFailoverUid_;
-                curInternalFailoverInd_ = 0;
-                failoverState_ = FailoverState::kUnknown;
-                failedFailovers_.clear();
-                persistentSettings_.setFailovedId("");    // clear setting
+                resetFailoverImpl(false);
                 g_logger->info("ServerAPI_impl::onHttpNetworkRequestFinished, reset failover");
 
                 // mark all pending requests for discard
@@ -306,7 +301,7 @@ void ServerAPI_impl::onHttpNetworkRequestProgressCallback(std::uint64_t requestI
     }
 }
 
-std::unique_ptr<BaseFailover> ServerAPI_impl::getNextFailover(const std::string &failoverUniqueId)
+std::unique_ptr<BaseFailover> ServerAPI_impl::getNextFailover()
 {
     // switching to the next failover
     // we consider the last one to be the one we started with,  i.e. startFailoverUid_
@@ -320,6 +315,25 @@ std::unique_ptr<BaseFailover> ServerAPI_impl::getNextFailover(const std::string 
         return nullptr;
     else
         return nextFailover;
+}
+
+void ServerAPI_impl::resetFailoverImpl(bool toFirst)
+{
+    std::unique_ptr<BaseFailover> failover;
+    if (toFirst) {
+        failover = failoverContainer_->first();
+    } else {
+        startFailoverUid_.clear();
+        failover = getNextFailover();
+        assert(failover);
+    }
+
+    curFailoverUid_ = failover->uniqueId();
+    startFailoverUid_ = curFailoverUid_;
+    curInternalFailoverInd_ = 0;
+    failoverState_ = FailoverState::kUnknown;
+    failedFailovers_.clear();
+    persistentSettings_.setFailoverId("");    // clear setting
 }
 
 void ServerAPI_impl::logAllFailoversFailed(BaseRequest *request)

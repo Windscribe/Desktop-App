@@ -1,3 +1,17 @@
+2.14.8 (11/03/2025)
+All:
+   * Improved reliability of wsnet in unstable network environments, part2. #1264
+   * Improved Decoy Traffic algorithm, UI fixes. #1208
+   * Fixed location tab transitions to search tab even when modifier keys are pressed. #1294
+MacOS:
+   * Fixed unnecessary delay when disconnecting. #1288
+   * Fixed DNS not working on macOS 15.4 Beta 2. #1288
+   * Fixed toggling split tunneling mode while connected with WireGuard may cause loss of connection. #45
+Linux:
+   * Fixed CLI platform may be misdetected on Raspberry Pi. #1289
+   * Fixed missing dependency for the Fedora package. #1291
+
+
 2.14.7 (04/03/2025)
 All:
    * Improved reliability of wsnet in unstable network environments. #1264
