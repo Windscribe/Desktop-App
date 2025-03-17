@@ -122,7 +122,13 @@ QString MacUtils::iconPathFromBinPath(const QString &binPath)
 QList<QString> MacUtils::enumerateInstalledPrograms()
 {
     QString cmd = "ls -d1 /Applications/* | grep .app";
-    return listedCmdResults(cmd);
+    QList<QString> list = listedCmdResults(cmd);
+    QList<QString> apps;
+
+    for (const QString &path: qAsConst(list)) {
+        apps << QString::fromStdString(QFileInfo(path).filesystemCanonicalFilePath());
+    }
+    return apps;
 }
 
 NSRunningApplication *guiApplicationByBundleName()

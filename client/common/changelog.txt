@@ -1,3 +1,8 @@
+2.14.9 (17/03/2025)
+MacOS:
+   * Fixed split tunnel apps added via the search method may not be split tunneled. #1299
+
+
 2.14.8 (11/03/2025)
 All:
    * Improved reliability of wsnet in unstable network environments, part2. #1264
