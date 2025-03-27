@@ -1278,6 +1278,14 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>High</source>
         <translation>Yüksek</translation>
     </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>Tahmini Veri Kullanımı</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/Saat</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>

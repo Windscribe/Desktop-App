@@ -1278,6 +1278,14 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <source>High</source>
         <translation>Alto</translation>
     </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>Utilizzo stimato dei dati</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/Ora</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>

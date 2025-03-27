@@ -1278,6 +1278,14 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>High</source>
         <translation>Vysoko</translation>
     </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>Odhadované využití dat</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/hod</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>

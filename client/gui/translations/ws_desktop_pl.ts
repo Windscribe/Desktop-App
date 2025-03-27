@@ -1278,6 +1278,14 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <source>High</source>
         <translation>Wysoki</translation>
     </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>Szacowane zużycie danych</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/godz.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>

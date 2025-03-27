@@ -1278,6 +1278,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>High</source>
         <translation>عال</translation>
     </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>الاستخدام المقدر للبيانات</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>جيجابايت / ساعة</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>

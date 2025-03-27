@@ -1278,6 +1278,14 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <source>High</source>
         <translation>Alto</translation>
     </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>Uso estimado de dados</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/Hora</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>

@@ -21,6 +21,9 @@ public:
     void stop() override;
 
 private:
+    const double kUploadTrafficShare = 0.6;     // share of upload traffic 60%
+    const double kDownloadTrafficShare = 0.4;   // share of download traffic 40%
+
     DecoyTraffic_impl uploadTraffic_;
     DecoyTraffic_impl downloadTraffic_;
     std::mutex mutex_;
@@ -28,6 +31,8 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> startTime_;
 
     void stopImpl();
+
+    std::uint32_t toVolumePerMinute(std::uint32_t volume);
 };
 
 } // namespace wsnet

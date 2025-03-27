@@ -1278,6 +1278,14 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>High</source>
         <translation>Cao</translation>
     </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>Sử dụng dữ liệu ước tính</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/giờ</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>

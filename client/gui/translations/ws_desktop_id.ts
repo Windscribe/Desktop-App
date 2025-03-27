@@ -1278,6 +1278,14 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>High</source>
         <translation>Tinggi</translation>
     </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>Perkiraan Penggunaan Data</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/Jam</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>

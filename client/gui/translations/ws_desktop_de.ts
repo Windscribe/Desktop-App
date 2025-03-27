@@ -1278,6 +1278,14 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <source>High</source>
         <translation>Hoch</translation>
     </message>
+    <message>
+        <source>Estimated Data Usage</source>
+        <translation>Geschätzte Datennutzung</translation>
+    </message>
+    <message>
+        <source>GB/Hour</source>
+        <translation>GB/Stunde</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DnsDomainsGroup</name>

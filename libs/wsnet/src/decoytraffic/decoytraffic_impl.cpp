@@ -6,12 +6,14 @@
 
 namespace wsnet {
 
-DecoyTraffic_impl::DecoyTraffic_impl(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager, bool isUpload) :
+DecoyTraffic_impl::DecoyTraffic_impl(boost::asio::io_context &io_context, WSNetHttpNetworkManager *httpNetworkManager, bool isUpload, std::uint32_t volumePerMinute) :
     io_context_(io_context), httpNetworkManager_(httpNetworkManager),
     isUpload_(isUpload),
-    timer_(io_context)
+    timer_(io_context),
+    targetSpeed_(volumePerMinute / 60.0),
+    intervalDist_(1.0 / AVERAGE_INTERVAL)
 {
-    setFakeTrafficVolume(0);
+    gen_.seed(std::random_device()());
 }
 
 DecoyTraffic_impl::~DecoyTraffic_impl()
@@ -19,11 +21,10 @@ DecoyTraffic_impl::~DecoyTraffic_impl()
     stop();
 }
 
-void DecoyTraffic_impl::setFakeTrafficVolume(std::uint32_t volume)
+void DecoyTraffic_impl::setTrafficVolumePerMinute(std::uint32_t volumePerMinute)
 {
     std::lock_guard locker(mutex_);
-    assert(volume >= 0 && volume <= 2);
-    fakeTraffic_ = (FakeTrafficType)volume;
+    targetSpeed_ = volumePerMinute / 60.0;
 }
 
 void DecoyTraffic_impl::start(std::uint32_t startIntervalSeconds)
@@ -32,12 +33,17 @@ void DecoyTraffic_impl::start(std::uint32_t startIntervalSeconds)
     assert(!bStarted_);
 
     bStarted_ = true;
-    lastRequestFinishedTime_ = {}; // set to zero
-    sendTrafficIntervalInSeconds_ = startIntervalSeconds;
+    requestFinishedTime_ = {}; // set to zero
     total_ = 0;
-    bandwidth_ = 1000000;   // initial bandwidth estimation 1 Mb/sec
-    timer_.expires_after(std::chrono::seconds(sendTrafficIntervalInSeconds_));
-    timer_.async_wait(std::bind(&DecoyTraffic_impl::job, this, false, boost::asio::placeholders::error));
+    avgNetworkSpeed_ = targetSpeed_;  // initial assumption
+    // For the first request we make the size small enough to determine the bandwidth
+    // Because if the size is large and the actual bandwidth is small, the request may take a very long time to complete
+    averageSize_ = 10000;   // 1 Kb
+    sizeDist_ = std::exponential_distribution<>(1.0 / averageSize_);
+    speedHistory_.clear();
+
+    timer_.expires_after(std::chrono::seconds(startIntervalSeconds));
+    timer_.async_wait(std::bind(&DecoyTraffic_impl::sendJob, this, boost::asio::placeholders::error));
 }
 
 double DecoyTraffic_impl::stop()
@@ -54,32 +60,15 @@ double DecoyTraffic_impl::stop()
     return total_ / 1000000.0;
 }
 
-void DecoyTraffic_impl::job(bool skipCalc, boost::system::error_code const& err)
+void DecoyTraffic_impl::sendJob(boost::system::error_code const& err)
 {
     std::lock_guard locker(mutex_);
     if (err) return;
 
-    if (!skipCalc) {
-        auto timeUsed = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - lastRequestFinishedTime_).count();
-        auto interval = toInterval(fakeTraffic_);
-        if (timeUsed >= interval) {
-            sendTrafficIntervalInSeconds_ = interval;
-        } else {
-            sendTrafficIntervalInSeconds_ = interval - timeUsed;
-            if (sendTrafficIntervalInSeconds_ < 1) {
-                sendTrafficIntervalInSeconds_ = 1;
-            }
-
-            timer_.expires_after(std::chrono::seconds(sendTrafficIntervalInSeconds_));
-            timer_.async_wait(std::bind(&DecoyTraffic_impl::job, this, true, boost::asio::placeholders::error));
-            return;
-        }
-    }
-
-    // the request is expected to take from 1 to 3 seconds to complete depending on the bandwidth
-    // the difference between low, medium, high is adjusted by shortening the time intervals between requests, see toInterval() function
-    initialSize_ = bandwidth_ * utils::random(1, 3);
+     // generate packet size
+    initialSize_ = std::max((std::uint32_t)1, (std::uint32_t)(sizeDist_(gen_) + 0.5));
     remainingSize_ = initialSize_;
+    requestStartTime_ = std::chrono::high_resolution_clock::now();
 
     if (isUpload_) {
         sendRequest(remainingSize_, 1);
@@ -111,15 +100,20 @@ void DecoyTraffic_impl::sendRequest(std::uint32_t dataToSendSize, std::uint32_t 
     //g_logger->info("sendRequest {} {}", dataToSendSize, dataToReceiveSize);
 
     unsigned int size = isUpload_ ? dataToSendSize : dataToReceiveSize;
-    request_ = httpNetworkManager_->executeRequest(req, 1, std::bind(&DecoyTraffic_impl::onFinishedRequest, this, _1, _2, _3, _4, size, std::chrono::high_resolution_clock::now()));
+    request_ = httpNetworkManager_->executeRequest(req, 1, std::bind(&DecoyTraffic_impl::onFinishedRequest, this, _1, _2, _3, _4, size));
 }
 
 void DecoyTraffic_impl::onFinishedRequest(std::uint64_t requestId, std::uint32_t elapsedMs, std::shared_ptr<WSNetRequestError> error, const std::string &data,
-                                          unsigned int size, std::chrono::time_point<std::chrono::high_resolution_clock> startTime)
+                                          unsigned int size)
 {
     std::lock_guard locker(mutex_);
     if (!error->isSuccess()) {
         //g_logger->warn("Request failed: {}, {}", (int) errCode, curlError);
+        // Repeat in a second
+        timer_.expires_after(std::chrono::seconds(1));
+        timer_.async_wait(std::bind(&DecoyTraffic_impl::sendJob, this,  boost::asio::placeholders::error));
+        return;
+
     } else {
         // always +1 byte for upload/download data
         total_ += size + 1;
@@ -135,22 +129,50 @@ void DecoyTraffic_impl::onFinishedRequest(std::uint64_t requestId, std::uint32_t
             return;
         }
 
-        auto endTime = std::chrono::high_resolution_clock::now();
-        double elapsed_seconds = std::chrono::duration<double>(endTime - startTime).count();
+        // calculate request execution time
+        requestFinishedTime_ = std::chrono::high_resolution_clock::now();
+        double sendDuration = std::chrono::duration<double>(requestFinishedTime_ - requestStartTime_).count();
 
-        const double alpha = 0.1;  // adaptation factor
-        if (elapsed_seconds > 0) {
-            double current_bw = initialSize_ / elapsed_seconds;
-            bandwidth_ = alpha * current_bw  + (1 - alpha) * bandwidth_;
-        }
+        double currentSpeed = sendDuration > 0 ? initialSize_ / sendDuration : 0;
+        updateNetworkSpeed(currentSpeed);
 
-        lastRequestFinishedTime_ = std::chrono::steady_clock::now();
+        //g_logger->info("Request finished in {} size {} Mb", sendDuration, initialSize_ / 1024.0f / 1024.0f);
 
-        //g_logger->info("Request finished in {} size {} Mb", elapsed_seconds, initialSize_ / 1024.0f / 1024.0f);
-        //g_logger->info("bandwidth {}", bandwidth_);
+        // adapting sending parameters
+        double allowedSpeed = std::min(targetSpeed_, avgNetworkSpeed_);
+        // adjusting the packet size to reflect the new interval
+        averageSize_ = std::clamp(
+            allowedSpeed * AVERAGE_INTERVAL,
+            10.0,
+            targetSpeed_ * 5.0 // Maximum size 5x of average
+            );
+
+        //g_logger->info("averageSize_ {}", averageSize_);
+
+        // distribution update
+        sizeDist_ = std::exponential_distribution<>(1.0 / averageSize_);
+
+        // generating the waiting interval
+        double delaySeconds = intervalDist_(gen_);
+        delaySeconds = std::max(delaySeconds - sendDuration, 0.0);
+
+        //g_logger->info("Delay {}", delaySeconds);
+
+        timer_.expires_after(std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::duration<double>(delaySeconds)
+            ));
+        timer_.async_wait(std::bind(&DecoyTraffic_impl::sendJob, this, boost::asio::placeholders::error));
     }
-    timer_.expires_after(std::chrono::milliseconds(1));
-    timer_.async_wait(std::bind(&DecoyTraffic_impl::job, this, false, boost::asio::placeholders::error));
+}
+
+void DecoyTraffic_impl::updateNetworkSpeed(double newSpeed)
+{
+    speedHistory_.push_back(newSpeed);
+    if (speedHistory_.size() > kWindowSize) {
+        speedHistory_.pop_front();
+    }
+    // Calculation of moving average
+    avgNetworkSpeed_ = std::accumulate(speedHistory_.begin(), speedHistory_.end(), 0.0) / speedHistory_.size();
 }
 
 std::uint32_t DecoyTraffic_impl::toInterval(FakeTrafficType fakeTraffic) const

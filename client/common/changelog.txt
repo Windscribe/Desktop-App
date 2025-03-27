@@ -1,3 +1,8 @@
+2.14.10 (26/03/2025)
+All:
+   * Improved Decoy Traffic algorithm data rate limits on high-bandwidth networks. #1307
+
+
 2.14.9 (17/03/2025)
 MacOS:
    * Fixed split tunnel apps added via the search method may not be split tunneled. #1299
