@@ -1,3 +1,13 @@
+2.14.12 (01/04/2025)
+Linux:
+   * Fixed always-on firewall not functional after reboot. #1317
+
+
+2.14.11 (31/03/2025)
+Linux:
+   * Fixed always-on firewall not functional after reboot. #1317
+
+
 2.14.10 (26/03/2025)
 All:
    * Improved Decoy Traffic algorithm data rate limits on high-bandwidth networks. #1307

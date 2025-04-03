@@ -138,9 +138,9 @@ void FirewallController::removeInclusiveAppRules()
 
 void FirewallController::setSplitTunnelIngressRules(const std::string &defaultAdapterIp)
 {
-	if (defaultAdapterIp.empty()) {
+    if (defaultAdapterIp.empty()) {
         return;
-	}
+    }
 
     if (!connected_ || !splitTunnelEnabled_ || splitTunnelExclude_) {
         Utils::executeCommand("iptables", {"-D", "PREROUTING", "-t", "mangle", "-d", defaultAdapterIp.c_str(), "-j", "CONNMARK", "--set-mark", CGroups::instance().mark(), "-m", "comment", "--comment", kTag});

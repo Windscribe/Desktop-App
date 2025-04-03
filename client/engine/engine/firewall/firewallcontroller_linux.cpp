@@ -109,8 +109,11 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
 
         if (!bExists) {
             rules << "-I INPUT -j windscribe_input -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A INPUT -j windscribe_block -m comment --comment \"" + comment_ + "\"\n";
             rules << "-I OUTPUT -j windscribe_output -m comment --comment \"" + comment_ + "\"\n";
+        }
+
+        if (!hasBlockRule()) {
+            rules << "-A INPUT -j windscribe_block -m comment --comment \"" + comment_ + "\"\n";
             rules << "-A OUTPUT -j windscribe_block -m comment --comment \"" + comment_ + "\"\n";
         }
 
@@ -183,25 +186,25 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
         rules << "-A windscribe_input -s 127.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
         rules << "-A windscribe_output -d 127.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
-		// Local Network
+        // Local Network
         QString action = bAllowLanTraffic ? "ACCEPT" : "DROP";
-		rules << "-A windscribe_input -s 192.168.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
-		rules << "-A windscribe_output -d 192.168.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_input -s 192.168.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -d 192.168.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
 
-		rules << "-A windscribe_input -s 172.16.0.0/12 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
-		rules << "-A windscribe_output -d 172.16.0.0/12 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_input -s 172.16.0.0/12 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -d 172.16.0.0/12 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
 
-		rules << "-A windscribe_input -s 169.254.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
-		rules << "-A windscribe_output -d 169.254.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_input -s 169.254.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -d 169.254.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
 
-		rules << "-A windscribe_input -s 10.255.255.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-		rules << "-A windscribe_output -d 10.255.255.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-		rules << "-A windscribe_input -s 10.0.0.0/8 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
-		rules << "-A windscribe_output -d 10.0.0.0/8 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_input -s 10.255.255.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -d 10.255.255.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_input -s 10.0.0.0/8 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -d 10.0.0.0/8 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
 
-		// Multicast addresses
-		rules << "-A windscribe_input -s 224.0.0.0/4 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
-		rules << "-A windscribe_output -d 224.0.0.0/4 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        // Multicast addresses
+        rules << "-A windscribe_input -s 224.0.0.0/4 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -d 224.0.0.0/4 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
 
         rules << "-A windscribe_block -j DROP -m comment --comment \"" + comment_ + "\"\n";
         rules << "COMMIT\n";
@@ -368,4 +371,22 @@ QString FirewallController_linux::getHotspotAdapter() const
 #endif
 
     return QString();
+}
+
+bool FirewallController_linux::hasBlockRule()
+{
+    QString rules;
+    bool ret = helper_->getFirewallRules(kIpv4, "", "", rules);
+    if (!ret) {
+        return false;
+    }
+
+    QTextStream in(&rules);
+    while (!in.atEnd()) {
+        std::string line = in.readLine().toStdString();
+        if (line.find("-j windscribe_block") != std::string::npos) {
+            return true;
+        }
+    }
+    return false;
 }

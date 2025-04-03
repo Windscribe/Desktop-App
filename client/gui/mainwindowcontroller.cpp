@@ -3103,7 +3103,7 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
             geo.moveRight(kMaxGeometryRightPosition);
         }
 #elif defined(Q_OS_LINUX)
-	(void)desktopAvailableRc;
+        (void)desktopAvailableRc;
 #endif
 
     }
