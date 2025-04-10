@@ -3,7 +3,7 @@
 #include "userspace/wireguardgocommunicator.h"
 #include "kernelmodule/kernelmodulecommunicator.h"
 #include "defaultroutemonitor.h"
-#include "../../../posix_common/helper_commands.h"
+#include "../../../common/helper_commands.h"
 #include "../execute_cmd.h"
 #include "../utils.h"
 #include <boost/algorithm/string/classification.hpp>

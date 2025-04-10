@@ -14,6 +14,7 @@
 #include "proxygatewaygroup.h"
 #include "securehotspotgroup.h"
 #include "decoytrafficgroup.h"
+#include "utils/network_utils/dnschecker.h"
 
 enum CONNECTION_SCREEN_TYPE { CONNECTION_SCREEN_HOME,
                               CONNECTION_SCREEN_NETWORK_OPTIONS,
@@ -45,6 +46,9 @@ signals:
     void cycleMacAddressClick();
     void detectPacketSize();
     void connectedDnsDomainsClick(const QStringList &domains);
+
+public slots:
+    void checkLocalDns();
 
 private slots:
     // slots for preference changes
@@ -82,7 +86,6 @@ private slots:
     void onIsAutoConnectPreferencesChangedByUser(bool b);
 
     void onUpdateIsSecureHotspotSupported();
-
     void onLanguageChanged();
 
 protected:
@@ -91,6 +94,7 @@ protected:
 private:
     Preferences *preferences_;
     PreferencesHelper *preferencesHelper_;
+    NetworkUtils::DnsChecker dnsChecker_;
     PreferenceGroup *subpagesGroup_;
     LinkItem *networkOptionsItem_;
     LinkItem *splitTunnelingItem_;

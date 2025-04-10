@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../posix_common/helper_commands.h"
+#include "../../../common/helper_commands.h"
 #include "bound_route.h"
 #include "routes.h"
 
@@ -16,11 +16,11 @@ public:
     RoutesManager& operator=(const RoutesManager&) = delete;
 
     void setSplitTunnelSettings(bool isSplitTunnelActive, bool isExcludeMode);
-    void setConnectStatus(const CMD_SEND_CONNECT_STATUS &connectStatus);
-    void updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bool isSplitTunnelActive, bool isExcludeMode);
+    void setConnectStatus(const ConnectStatus &connectStatus);
+    void updateState(const ConnectStatus &connectStatus, bool isSplitTunnelActive, bool isExcludeMode);
 
 private:
-    CMD_SEND_CONNECT_STATUS connectStatus_;
+    ConnectStatus connectStatus_;
     bool isSplitTunnelActive_;
     bool isExcludeMode_;
 
@@ -29,7 +29,6 @@ private:
     Routes vpnRoutes_;
 
     RoutesManager();
-    void addDnsRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus);
-    void addIkev2RoutesForInclusiveMode(const CMD_SEND_CONNECT_STATUS &connectStatus);
+    void addDnsRoutes(const ConnectStatus &connectStatus);
     void clearAllRoutes();
 };

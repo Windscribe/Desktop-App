@@ -4,17 +4,21 @@
 #include <QVariant>
 #include <QVariantAnimation>
 
+#include "commongraphics/commongraphics.h"
+
 namespace CommonWidgets {
 
 class IconButtonWidget : public QPushButton
 {
     Q_OBJECT
 public:
+    explicit IconButtonWidget(const QString &imagePath, const QString &text, QWidget * parent = nullptr);
     explicit IconButtonWidget(QString imagePath, QWidget * parent = nullptr);
 
     int width();
     int height();
-    void setImage(QString imagePath);
+    void setText(const QString &text);
+    void setImage(const QString &imagePath);
 
     void setUnhoverHoverOpacity(double unhoverOpacity, double hoverOpacity);
     void animateOpacityChange(double targetOpacity);
@@ -36,16 +40,15 @@ private slots:
 
 private:
     QString imagePath_;
+    QString text_;
 
-    double unhoverOpacity_;
-    double hoverOpacity_;
-
-    double curOpacity_;
+    double unhoverOpacity_ = OPACITY_UNHOVER_ICON_STANDALONE;
+    double hoverOpacity_ = OPACITY_FULL;
+    double curOpacity_ = OPACITY_UNHOVER_ICON_STANDALONE;
     QVariantAnimation opacityAnimation_;
 
-    int width_ ;
-    int height_;
-
+    int width_ = 0;
+    int height_ = 0;
 };
 
 }

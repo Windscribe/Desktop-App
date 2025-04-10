@@ -21,12 +21,13 @@ public:
     void tooltipLeaveEvent(int tooltipId) const override;
 
 private:
-    const int CITY_CAPTION_MAX_WIDTH = 210;
+    const int kCityItemMaxWidth = 210;
+    const int kCityCaptionMaxWidth = 110;
 
     QString pingIconNameString(int connectionSpeedIndex) const;
     QRect latencyIconRect(const QRect &itemRect) const;
     QRect captionRect(const QRect &itemRect, const IItemCacheData *cacheData) const;
+    QRect nicknameRect(const QRect &itemRect, const IItemCacheData *cacheData) const;
 };
 
 } // namespace gui_locations
-

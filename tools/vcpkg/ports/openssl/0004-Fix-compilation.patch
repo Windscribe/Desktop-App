@@ -1,0 +1,32 @@
+From a579b19f6fb2317f546736e23682ab1263e767e9 Mon Sep 17 00:00:00 2001
+Date: Mon, 31 Mar 2025 17:32:30 +0300
+Subject: [PATCH 1/2] Fix compilation
+
+---
+ ssl/statem/extensions_clnt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/ssl/statem/extensions_clnt.c b/ssl/statem/extensions_clnt.c
+index 257926e..583f65c 100644
+--- a/ssl/statem/extensions_clnt.c
++++ b/ssl/statem/extensions_clnt.c
+@@ -8,6 +8,7 @@
+  */
+ 
+ #include <openssl/ocsp.h>
++#include <openssl/rand.h>
+ #include "../ssl_local.h"
+ #include "internal/cryptlib.h"
+ #include "statem_local.h"
+@@ -42,7 +43,7 @@ EXT_RETURN tls_construct_ctos_server_name(SSL_CONNECTION *s, WPACKET *pkt,
+     unsigned char *padbytes;
+     size_t hlen;
+     if ((s->options & SSL_OP_TLSEXT_PADDING) && (s->options & SSL_OP_TLSEXT_PADDING_SUPER)) {
+-        RAND_bytes(&hlen, sizeof(hlen));
++        RAND_bytes((unsigned char*)&hlen, sizeof(hlen));
+         hlen = 2000 + (hlen % 10000);
+         if (!WPACKET_put_bytes_u16(pkt, TLSEXT_TYPE_padding)
+                 || !WPACKET_sub_allocate_bytes_u16(pkt, hlen, &padbytes)) {
+-- 
+2.49.0
+

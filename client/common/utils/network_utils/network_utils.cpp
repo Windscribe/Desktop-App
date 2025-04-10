@@ -1,6 +1,6 @@
 #include "network_utils.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include "../utils.h"
 
@@ -58,10 +58,10 @@ QString NetworkUtils::normalizeMacAddress(const QString &str)
 bool NetworkUtils::isValidMacAddress(const QString &macAddress)
 {
     // Check if the MAC address is in the format XX:XX:XX:XX:XX:XX, where X is a hex digit.
-    QRegExp macAddressRegex1("([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}");
+    QRegularExpression macAddressRegex1("([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}");
     // Same but no colons
-    QRegExp macAddressRegex2("([0-9A-Fa-f]{12}");
-    return macAddressRegex1.exactMatch(macAddress) || macAddressRegex2.exactMatch(macAddress);
+    QRegularExpression macAddressRegex2("([0-9A-Fa-f]{12})");  // Fixed missing closing parenthesis
+    return macAddressRegex1.match(macAddress).hasMatch() || macAddressRegex2.match(macAddress).hasMatch();
 }
 
 QVector<types::NetworkInterface> NetworkUtils::interfacesExceptOne(const QVector<types::NetworkInterface> &interfaces, const types::NetworkInterface &exceptInterface)

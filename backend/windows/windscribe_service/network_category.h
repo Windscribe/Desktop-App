@@ -4,7 +4,7 @@
 #include <string>
 #include <boost/asio.hpp>
 
-#include "ipc/servicecommunication.h"
+#include "../../common/helper_commands.h"
 
 class NetworkCategoryManager {
 public:

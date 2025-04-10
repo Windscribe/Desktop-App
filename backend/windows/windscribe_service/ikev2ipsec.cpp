@@ -109,8 +109,8 @@ bool IKEv2IPSec::setIKEv2IPSecParametersPowerShell()
         command_buffer, impersonation_helper.token());
     if (!mpr.success) {
         spdlog::error(L"Command failed: {}", command_buffer);
-        if (!mpr.additionalString.empty())
-            spdlog::info("Output: {}", mpr.additionalString);
+        if (!mpr.output.empty())
+            spdlog::info(L"Output: {}", mpr.output);
     }
     return mpr.success;
 }

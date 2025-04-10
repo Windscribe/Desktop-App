@@ -38,7 +38,7 @@ class ConnectionManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit ConnectionManager(QObject *parent, IHelper *helper, INetworkDetectionManager *networkDetectionManager,
+    explicit ConnectionManager(QObject *parent, Helper *helper, INetworkDetectionManager *networkDetectionManager,
                                CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage);
     ~ConnectionManager() override;
 
@@ -149,7 +149,7 @@ private:
           STATE_DISCONNECTING_FROM_USER_CLICK, STATE_WAIT_FOR_NETWORK_CONNECTIVITY, STATE_RECONNECTION_TIME_EXCEED,
           STATE_SLEEP_MODE_NEED_RECONNECT, STATE_WAKEUP_RECONNECTING, STATE_AUTO_DISCONNECT, STATE_ERROR_DURING_CONNECTION};
 
-    IHelper *helper_;
+    Helper *helper_;
     INetworkDetectionManager *networkDetectionManager_;
     CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage_;
 

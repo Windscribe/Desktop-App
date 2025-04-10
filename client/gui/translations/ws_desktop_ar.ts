@@ -279,8 +279,8 @@
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
-        <source>Add Static IP</source>
-        <translation>إضافة IP ثابت</translation>
+        <source>Add</source>
+        <translation>جمع</translation>
     </message>
 </context>
 <context>
@@ -483,10 +483,6 @@
         <translation>لقد اكتشفنا أن إعدادات الشبكة الخاصة بك قد تتداخل مع Windscribe.  يرجى إرسال سجل تصحيح الأخطاء إلينا لاستكشاف الأخطاء وإصلاحها.</translation>
     </message>
     <message>
-        <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>Windscribe معطل.  الرجاء إعادة تشغيل التطبيق.</translation>
-    </message>
-    <message>
         <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
         <translation>تعذر محاكاة عنوان MAC.  يرجى تجربة واجهة شبكة مختلفة أو الاتصال بالدعم.</translation>
     </message>
@@ -623,10 +619,6 @@
     <message>
         <source>Send Debug Log</source>
         <translation>إرسال سجل التصحيح</translation>
-    </message>
-    <message>
-        <source>Debug Sent!</source>
-        <translation>تم إرسال التصحيح!</translation>
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
@@ -841,6 +833,58 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>لقد اخترت إظهار الإعلامات، ولكن يتم تعطيل إعلامات النظام. يرجى تمكين إشعارات النظام في إعدادات النظام الخاصة بك.</translation>
+    </message>
+    <message>
+        <source>Error Starting Split Tunneling</source>
+        <translation>خطأ في بدء الانقسام النفقي</translation>
+    </message>
+    <message>
+        <source>Export Location Names To</source>
+        <translation>تصدير أسماء المواقع إلى</translation>
+    </message>
+    <message>
+        <source>Unable to export location names</source>
+        <translation>تعذر تصدير أسماء المواقع</translation>
+    </message>
+    <message>
+        <source>Import Location Names From</source>
+        <translation>استيراد أسماء المواقع من</translation>
+    </message>
+    <message>
+        <source>Unable to import location names</source>
+        <translation>تعذر استيراد أسماء المواقع</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>تم تعطيل ميزة الانقسام النفقي لأن ملحق النفق المنفصل Windscribe غير ممكن في إعدادات النظام.  لاستخدام هذه الميزة، يرجى تمكين الامتداد في إعدادات النظام، وتشغيل الميزة مرة أخرى.</translation>
+    </message>
+    <message>
+        <source>Debug Log Sent!</source>
+        <translation>تم إرسال سجل التصحيح!</translation>
+    </message>
+    <message>
+        <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
+        <translation>تعذر الاتصال بخدمة Windscribe.  سوف يخرج Windscribe الآن.  يرجى الاتصال بالدعم.</translation>
+    </message>
+    <message>
+        <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
+        <translation>فقد الاتصال بخدمة Windscribe.  سوف يخرج Windscribe الآن.  أرسل لنا سجل تصحيح الأخطاء حتى نتمكن من تحسين ذلك.</translation>
+    </message>
+    <message>
+        <source>Local DNS server is not available</source>
+        <translation>خادم DNS المحلي غير متوفر</translation>
+    </message>
+    <message>
+        <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
+        <translation>خادم DNS المحلي غير متوفر.  تمت إعادة تعيين DNS المتصل إلى تلقائي.</translation>
+    </message>
+    <message>
+        <source>DNS Server Conflict</source>
+        <translation>تعارض خادم DNS</translation>
+    </message>
+    <message>
+        <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
+        <translation>تعذر بدء تشغيل خدمة DNS المخصصة - المنفذ 53 قيد الاستخدام بالفعل.  هل ترغب في تغيير DNS المتصل إلى الخادم المحلي؟</translation>
     </message>
 </context>
 <context>
@@ -1283,8 +1327,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>الاستخدام المقدر للبيانات</translation>
     </message>
     <message>
-        <source>GB/Hour</source>
-        <translation>جيجابايت / ساعة</translation>
+        <source>%1/hour</source>
+        <translation>1٪ / ساعة</translation>
     </message>
 </context>
 <context>
@@ -1488,6 +1532,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Select behavior when window is activated with multiple desktops.</source>
         <translation>حدد السلوك عند تنشيط النافذة مع أجهزة سطح مكتب متعددة.</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>تصدير</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>استورد</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>اعاده تعيين</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>قم بتغيير أسماء المواقع حسب رغبتك.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>إعادة تسمية المواقع</translation>
     </message>
 </context>
 <context>
@@ -2330,6 +2394,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Duplicate</source>
         <translation>مكرره</translation>
+    </message>
+    <message>
+        <source>Local DNS</source>
+        <translation>DNS المحلي</translation>
     </message>
 </context>
 <context>

@@ -28,7 +28,7 @@ if(VCPKG_TARGET_IS_OSX)
       WORKING_DIRECTORY "${SOURCE_PATH_AMD64}"
       LOGNAME "ctrld_${TARGET_TRIPLET}.log"
    )
-   vcpkg_copy_tools(TOOL_NAMES ctrld${EXECUTABLE_EXTENSION} 
+   vcpkg_copy_tools(TOOL_NAMES ctrld${EXECUTABLE_EXTENSION}
                     SEARCH_DIR ${SOURCE_PATH_AMD64}
                     AUTO_CLEAN)
 
@@ -64,7 +64,7 @@ else()
       ARCHIVE "${ARCHIVE}"
    )
 
-   vcpkg_copy_tools(TOOL_NAMES ctrld 
+   vcpkg_copy_tools(TOOL_NAMES ctrld
                     SEARCH_DIR ${SOURCE_PATH}/${CTRLD_FILE_NAME}
                     AUTO_CLEAN)
 endif()

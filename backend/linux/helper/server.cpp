@@ -41,7 +41,7 @@ Server::~Server()
     unlink(SOCK_PATH);
 }
 
-bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, CMD_ANSWER &outCmdAnswer)
+bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, std::string &outCmdAnswer)
 {
     // not enough data for read command
     if (buf->size() < sizeof(int)*3) {
@@ -82,7 +82,7 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
     memcpy(&vector[0], bufPtr + headerSize, length);
     std::string str(vector.begin(), vector.end());
     std::istringstream stream(str);
-    outCmdAnswer = processCommand(cmdId, str);
+    outCmdAnswer = processCommand((HelperCommand)cmdId, str);
 
     buf->consume(headerSize + length);
 
@@ -96,14 +96,14 @@ void Server::receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::st
     if (!ec.value()) {
         // read and handle commands
         while (true) {
-            CMD_ANSWER cmdAnswer;
-            if (!readAndHandleCommand(sock, buf.get(), cmdAnswer)) {
+            std::string answer;
+            if (!readAndHandleCommand(sock, buf.get(), answer)) {
                 // goto receive next commands
                 boost::asio::async_read(*sock, *buf, boost::asio::transfer_at_least(1),
                                         boost::bind(&Server::receiveCmdHandle, this, sock, buf, _1, _2));
                 break;
             } else {
-                if (!sendAnswerCmd(sock, cmdAnswer)) {
+                if (!sendAnswerCmd(sock, answer)) {
                     spdlog::info("client app disconnected");
                     return;
                 }
@@ -133,20 +133,16 @@ void Server::startAccept()
     acceptor_->async_accept(*sock, boost::bind(&Server::acceptHandler, this, boost::asio::placeholders::error, sock));
 }
 
-bool Server::sendAnswerCmd(socket_ptr sock, const CMD_ANSWER &cmdAnswer)
+bool Server::sendAnswerCmd(socket_ptr sock, const std::string &answer)
 {
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << cmdAnswer;
-    std::string str = stream.str();
-    int length = (int)str.length();
+    int length = (int)answer.length();
     // send answer to client
     boost::system::error_code er;
     boost::asio::write(*sock, boost::asio::buffer(&length, sizeof(length)), boost::asio::transfer_exactly(sizeof(length)), er);
     if (er.value()) {
         return false;
     } else {
-        boost::asio::write(*sock, boost::asio::buffer(str.data(), str.length()), boost::asio::transfer_exactly(str.length()), er);
+        boost::asio::write(*sock, boost::asio::buffer(answer.data(), answer.length()), boost::asio::transfer_exactly(answer.length()), er);
         if (er.value()) {
             return false;
         }

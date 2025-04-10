@@ -2,7 +2,7 @@
 
 #include <QDateTime>
 #include "imacaddresscontroller.h"
-#include "engine/helper/helper_linux.h"
+#include "engine/helper/helper.h"
 #include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
 #include "engine/networkdetectionmanager/networkdetectionmanager_linux.h"
 
@@ -10,7 +10,7 @@ class MacAddressController_linux : public IMacAddressController
 {
     Q_OBJECT
 public:
-    MacAddressController_linux(QObject *parent, INetworkDetectionManager *ndManager, IHelper *helper);
+    MacAddressController_linux(QObject *parent, INetworkDetectionManager *ndManager, Helper *helper);
     ~MacAddressController_linux() override;
 
     void initMacAddrSpoofing(const types::MacAddrSpoofing &macAddrSpoofing) override;
@@ -20,7 +20,7 @@ private slots:
     void onNetworkListChanged(const QList<types::NetworkInterface> &interfaces);
 
 private:
-    Helper_linux *helper_;
+    Helper *helper_;
     types::MacAddrSpoofing spoofing_;
     NetworkDetectionManager_linux *networkDetectionManager_;
     types::NetworkInterface lastInterface_;

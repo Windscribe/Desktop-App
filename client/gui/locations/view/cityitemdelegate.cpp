@@ -235,12 +235,17 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
 IItemCacheData *CityItemDelegate::createCacheData(const QModelIndex &index) const
 {
     CityItemDelegateCache *cache = new CityItemDelegateCache();
+    bool is10Gbps = index.data(kIs10Gbps).toBool();
+    int maxWidth = is10Gbps ? (kCityItemMaxWidth - 32)*G_SCALE : kCityItemMaxWidth*G_SCALE;
 
-    QString cityCaption = CommonGraphics::maybeTruncatedText(index.data(kName).toString(),
-                                                              FontManager::instance().getFont(16, true),
-                                                              static_cast<int>(CITY_CAPTION_MAX_WIDTH * G_SCALE));
+    QString cityCaption = CommonGraphics::maybeTruncatedText(index.data().toString(),
+                                                             FontManager::instance().getFont(16, true),
+                                                             static_cast<int>(kCityCaptionMaxWidth*G_SCALE));
     cache->add(CityItemDelegateCache::kCityId, cityCaption, FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
-    cache->add(CityItemDelegateCache::kNickId, index.data(kNick).toString(), FontManager::instance().getFont(16, false), DpiScaleManager::instance().curDevicePixelRatio());
+    QString nickCaption = CommonGraphics::maybeTruncatedText(index.data(kDisplayNickname).toString(),
+                                                             FontManager::instance().getFont(16, false),
+                                                             static_cast<int>(maxWidth) - 8*G_SCALE - cache->pixmap(CityItemDelegateCache::kCityId).width());
+    cache->add(CityItemDelegateCache::kNickId, nickCaption, FontManager::instance().getFont(16, false), DpiScaleManager::instance().curDevicePixelRatio());
     cache->add(CityItemDelegateCache::kStaticIpId, index.data(kStaticIp).toString(), FontManager::instance().getFont(13, false), DpiScaleManager::instance().curDevicePixelRatio());
     return cache;
 }
@@ -248,11 +253,17 @@ IItemCacheData *CityItemDelegate::createCacheData(const QModelIndex &index) cons
 void CityItemDelegate::updateCacheData(const QModelIndex &index, IItemCacheData *cacheData) const
 {
     CityItemDelegateCache *cache = static_cast<CityItemDelegateCache *>(cacheData);
-    QString cityCaption = CommonGraphics::maybeTruncatedText(index.data(kName).toString(),
+    bool is10Gbps = index.data(kIs10Gbps).toBool();
+    int maxWidth = is10Gbps ? (kCityItemMaxWidth - 32)*G_SCALE : kCityItemMaxWidth*G_SCALE;
+
+    QString cityCaption = CommonGraphics::maybeTruncatedText(index.data().toString(),
                                                               FontManager::instance().getFont(16, true),
-                                                              static_cast<int>(CITY_CAPTION_MAX_WIDTH * G_SCALE));
+                                                              static_cast<int>(kCityCaptionMaxWidth*G_SCALE));
     cache->updateIfTextChanged(CityItemDelegateCache::kCityId, cityCaption, FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
-    cache->updateIfTextChanged(CityItemDelegateCache::kNickId, index.data(kNick).toString(), FontManager::instance().getFont(16, false), DpiScaleManager::instance().curDevicePixelRatio());
+    QString nickCaption = CommonGraphics::maybeTruncatedText(index.data(kDisplayNickname).toString(),
+                                                             FontManager::instance().getFont(16, false),
+                                                             static_cast<int>(maxWidth) - 8*G_SCALE - cache->pixmap(CityItemDelegateCache::kCityId).width());
+    cache->updateIfTextChanged(CityItemDelegateCache::kNickId, nickCaption, FontManager::instance().getFont(16, false), DpiScaleManager::instance().curDevicePixelRatio());
     cache->updateIfTextChanged(CityItemDelegateCache::kStaticIpId, index.data(kStaticIp).toString(), FontManager::instance().getFont(13, false), DpiScaleManager::instance().curDevicePixelRatio());
 }
 
@@ -306,12 +317,28 @@ int CityItemDelegate::isInTooltipArea(const ItemStyleOption &option, const QMode
     }
 
     if (captionRect(option.rect, cacheData).contains(point)) {
-        QString originalCaption = index.data(kName).toString();
+        QString originalCaption = index.data().toString();
         QString truncatedCaption = CommonGraphics::maybeTruncatedText(originalCaption,
                                                                       FontManager::instance().getFont(16, true),
-                                                                      static_cast<int>(CITY_CAPTION_MAX_WIDTH * G_SCALE));
+                                                                      static_cast<int>(kCityCaptionMaxWidth*G_SCALE));
         if (originalCaption != truncatedCaption)
             return (int)TooltipRect::kItemCaption;
+    }
+
+    // Check if nickname is elided and mouse is over it
+    if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
+        if (nicknameRect(option.rect, cacheData).contains(point)) {
+            QString originalNickname = index.data(kDisplayNickname).toString();
+            bool is10Gbps = index.data(kIs10Gbps).toBool();
+            int maxWidth = is10Gbps ? (kCityItemMaxWidth - 32)*G_SCALE : kCityItemMaxWidth*G_SCALE;
+
+            const CityItemDelegateCache *cache = static_cast<const CityItemDelegateCache *>(cacheData);
+            QString truncatedNickname = CommonGraphics::maybeTruncatedText(originalNickname,
+                                                                           FontManager::instance().getFont(16, false),
+                                                                           static_cast<int>(maxWidth) - 8*G_SCALE - cache->pixmap(CityItemDelegateCache::kCityId).width());
+            if (originalNickname != truncatedNickname)
+                return (int)TooltipRect::kItemNickname;
+        }
     }
 
     return (int)TooltipRect::kNone;
@@ -349,13 +376,23 @@ void CityItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const QM
         TooltipController::instance().showTooltipBasic(ti);
     } else if (tooltipId == (int)TooltipRect::kItemCaption) {
         QRect rc = captionRect(option.rect, cacheData);
-        QPoint pt = widget->mapToGlobal(QPoint(rc.x() + rc.width()*0.1, rc.top() - 3*G_SCALE));
+        QPoint pt = widget->mapToGlobal(QPoint(rc.x() + rc.width()/2, rc.top() - 3*G_SCALE));
         TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);
         ti.x = pt.x();
         ti.y = pt.y();
-        ti.title = index.data(kName).toString();
+        ti.title = index.data().toString();
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-        ti.tailPosPercent = 0.1;
+        ti.tailPosPercent = 0.5;
+        TooltipController::instance().showTooltipBasic(ti);
+    } else if (tooltipId == (int)TooltipRect::kItemNickname) {
+        QRect rc = nicknameRect(option.rect, cacheData);
+        QPoint pt = widget->mapToGlobal(QPoint(rc.x() + rc.width()/2, rc.top() - 3*G_SCALE));
+        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_ELIDED_TEXT);
+        ti.x = pt.x();
+        ti.y = pt.y();
+        ti.title = index.data(kDisplayNickname).toString();
+        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+        ti.tailPosPercent = 0.5;
         TooltipController::instance().showTooltipBasic(ti);
     } else
     {
@@ -371,6 +408,8 @@ void CityItemDelegate::tooltipLeaveEvent(int tooltipId) const
         TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_PING_TIME);
     else if (tooltipId == (int)TooltipRect::kItemCaption)
         TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_ITEM_CAPTION);
+    else if (tooltipId == (int)TooltipRect::kItemNickname)
+        TooltipController::instance().hideTooltip(TOOLTIP_ID_ELIDED_TEXT);
     else
         WS_ASSERT(false);
 }
@@ -412,6 +451,21 @@ QRect CityItemDelegate::captionRect(const QRect &itemRect, const IItemCacheData 
     return QRect(itemRect.left() + LOCATION_ITEM_MARGIN * G_SCALE * 4 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE,
                  itemRect.top() + (itemRect.height() - pixmapCaption.height()) / 2,
                  pixmapCaption.width(), pixmapCaption.height());
+}
+
+QRect CityItemDelegate::nicknameRect(const QRect &itemRect, const IItemCacheData *cacheData) const
+{
+    const CityItemDelegateCache *cache = static_cast<const CityItemDelegateCache *>(cacheData);
+    IndependentPixmap pixmapCaption = cache->pixmap(CityItemDelegateCache::kCityId);
+    IndependentPixmap pixmapNick = cache->pixmap(CityItemDelegateCache::kNickId);
+
+    QRect rcCaption(itemRect.left() + LOCATION_ITEM_MARGIN * G_SCALE * 4 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE,
+                   itemRect.top() + (itemRect.height() - pixmapCaption.height()) / 2,
+                   pixmapCaption.width(), pixmapCaption.height());
+
+    return QRect(rcCaption.left() + rcCaption.width() + 8*G_SCALE,
+                itemRect.top() + (itemRect.height() - pixmapNick.height()) / 2,
+                pixmapNick.width(), pixmapNick.height());
 }
 
 } // namespace gui_locations

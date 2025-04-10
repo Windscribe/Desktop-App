@@ -1,6 +1,8 @@
 #include "launchonstartup.h"
 
 #include <QtGlobal>
+#include <QCommandLineParser>
+#include <QCoreApplication>
 
 #ifdef Q_OS_WIN
     #include "launchonstartup_win.h"
@@ -20,4 +22,3 @@ void LaunchOnStartup::setLaunchOnStartup(bool enable)
     LaunchOnStartup_linux::setLaunchOnStartup(enable);
 #endif
 }
-

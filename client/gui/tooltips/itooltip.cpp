@@ -120,7 +120,7 @@ void ITooltip::initWindowFlags()
     // though the tooltip bug is much more rare and I haven't yet found a way to reliably reproduce
     // Similarly, I removed Qt::Tooltip from flags and added WA_ShowWithoutActivating to prevent the tooltips
     // from stealing activation from the app and visibly updating the cursor type on every tooltip show
-    setWindowFlags(Qt::FramelessWindowHint);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
     setAttribute(Qt::WA_ShowWithoutActivating, true);
 #endif
     setAttribute(Qt::WA_TranslucentBackground, true);

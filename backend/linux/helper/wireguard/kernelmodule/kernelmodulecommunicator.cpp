@@ -1,4 +1,4 @@
-#include "../../../../posix_common/helper_commands.h"
+#include "../../../../common/helper_commands.h"
 #include "kernelmodulecommunicator.h"
 #include "../../utils.h"
 #include "wireguard.h"

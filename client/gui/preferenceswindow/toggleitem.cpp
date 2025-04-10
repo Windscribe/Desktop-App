@@ -1,24 +1,28 @@
 #include "toggleitem.h"
 
 #include <QCursor>
+#include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
+#include <QGraphicsView>
 #include <QPainter>
 
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "preferencesconst.h"
+#include "tooltips/tooltipcontroller.h"
 
 namespace PreferencesWindow {
 
 ToggleItem::ToggleItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip)
   : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), strCaption_(caption), strTooltip_(tooltip),
-    captionFont_(12, true), icon_(nullptr)
+    captionFont_(12, true), icon_(nullptr), isCaptionElided_(false)
 {
     checkBoxButton_ = new ToggleButton(this);
     connect(checkBoxButton_, &ToggleButton::stateChanged, this, &ToggleItem::stateChanged);
     connect(checkBoxButton_, &ToggleButton::hoverEnter, this, &ToggleItem::buttonHoverEnter);
     connect(checkBoxButton_, &ToggleButton::hoverLeave, this, &ToggleItem::buttonHoverLeave);
 
+    setAcceptHoverEvents(true);
     updateScaling();
 }
 
@@ -40,9 +44,22 @@ void ToggleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     QFontMetrics fm(font);
     int availableWidth = checkBoxButton_->pos().x() - xOffset - DESCRIPTION_MARGIN*G_SCALE;
     QString elidedText = strCaption_;
+
+    // Reset elided flag
+    isCaptionElided_ = false;
+
     if (availableWidth < fm.horizontalAdvance(strCaption_)) {
         elidedText = fm.elidedText(strCaption_, Qt::ElideRight, availableWidth, 0);
+        isCaptionElided_ = true;
     }
+
+    // Store the caption rectangle for mouse hover detection
+    captionRect_ = QRectF(
+        xOffset,
+        PREFERENCES_MARGIN*G_SCALE,
+        fm.horizontalAdvance(elidedText),
+        fm.height()
+    );
 
     painter->drawText(boundingRect().adjusted(xOffset,
                                               PREFERENCES_MARGIN*G_SCALE,
@@ -95,6 +112,33 @@ void ToggleItem::setCaption(const QString &caption)
 {
     strCaption_ = caption;
     update();
+}
+
+void ToggleItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+    if (isCaptionElided_ && captionRect_.contains(event->pos())) {
+        QGraphicsView *view = scene()->views().first();
+        QPoint globalPt = view->mapToGlobal(view->mapFromScene(scenePos()));
+
+        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_ELIDED_TEXT);
+        ti.x = globalPt.x() + captionRect_.x() + captionRect_.width()/2;
+        ti.y = globalPt.y();
+        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+        ti.tailPosPercent = 0.5;
+        ti.title = strCaption_;
+
+        TooltipController::instance().showTooltipBasic(ti);
+    } else {
+        TooltipController::instance().hideTooltip(TOOLTIP_ID_ELIDED_TEXT);
+    }
+
+    BaseItem::hoverMoveEvent(event);
+}
+
+void ToggleItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_ELIDED_TEXT);
+    BaseItem::hoverLeaveEvent(event);
 }
 
 } // namespace PreferencesWindow

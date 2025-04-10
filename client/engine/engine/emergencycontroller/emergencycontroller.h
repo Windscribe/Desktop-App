@@ -3,7 +3,7 @@
 #include <QHostInfo>
 #include <QObject>
 #include <wsnet/WSNet.h>
-#include "engine/helper/ihelper.h"
+#include "engine/helper/helper.h"
 #include "types/enums.h"
 #include "types/packetsize.h"
 #include "engine/connectionmanager/iconnection.h"
@@ -18,7 +18,7 @@ class EmergencyController : public QObject
 {
     Q_OBJECT
 public:
-    explicit EmergencyController(QObject *parent, IHelper *helper);
+    explicit EmergencyController(QObject *parent, Helper *helper);
     virtual ~EmergencyController();
 
     void clickConnect(const types::ProxySettings &proxySettings, bool isAntiCensorship);
@@ -45,7 +45,7 @@ private:
     enum {STATE_DISCONNECTED, STATE_CONNECTING_FROM_USER_CLICK, STATE_CONNECTED,
           STATE_DISCONNECTING_FROM_USER_CLICK, STATE_ERROR_DURING_CONNECTION};
 
-    IHelper *helper_;
+    Helper *helper_;
     IConnection *connector_;
     MakeOVPNFile *makeOVPNFile_;
     types::ProxySettings proxySettings_;

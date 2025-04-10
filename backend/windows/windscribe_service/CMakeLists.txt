@@ -40,6 +40,7 @@ set(SOURCES
     dns_firewall.cpp
     executecmd.cpp
     firewallfilter.cpp
+    firewallonboot.cpp
     fwpm_wrapper.cpp
     hostsedit.cpp
     ikev2ipsec.cpp
@@ -87,7 +88,6 @@ set_property(TARGET WindscribeService PROPERTY COMPILE_WARNING_AS_ERROR ON)
 target_link_libraries(WindscribeService
                       PRIVATE
                       Iphlpapi
-                      version
                       rpcrt4
                       Fwpuclnt
                       Ws2_32

@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include "../../posix_common/helper_commands.h"
+#include "../../common/helper_commands.h"
 
 #ifndef UNUSED
 #define UNUSED(x) (void)(x)

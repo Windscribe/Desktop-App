@@ -13,7 +13,7 @@ CGroups::~CGroups()
 {
 }
 
-bool CGroups::enable(CMD_SEND_CONNECT_STATUS &connectStatus, bool isAllowLanTraffic, bool isExclude)
+bool CGroups::enable(const ConnectStatus &connectStatus, bool isAllowLanTraffic, bool isExclude)
 {
     spdlog::debug("cgroups enable");
 

@@ -2,20 +2,14 @@
 
 #include "helper_posix.h"
 
+// Linux commands
 class Helper_linux : public Helper_posix
 {
-    Q_OBJECT
 public:
-    explicit Helper_linux(QObject *parent = 0);
-    ~Helper_linux() override;
+    // Take ownership of the backend
+    explicit Helper_linux(std::unique_ptr<IHelperBackend> backend);
 
-    // Common functions
-    void startInstallHelper() override;
-    bool reinstallHelper() override;
-    QString getHelperVersion() override;
-
-    // linux specific
-    std::optional<bool> installUpdate(const QString& package) const;
-    bool setDnsLeakProtectEnabled(bool bEnabled);
-    bool resetMacAddresses(const QString &ignoreNetwork = "");
+    bool installUpdate(const QString& package) const;
+    void setDnsLeakProtectEnabled(bool bEnabled);
+    void resetMacAddresses(const QString &ignoreNetwork = "");
 };

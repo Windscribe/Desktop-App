@@ -1,21 +1,18 @@
 #include "firewallcontroller_win.h"
 #include <QStandardPaths>
 #include <QDir>
-#include "utils/ws_assert.h"
 #include "utils/log/categories.h"
 
-FirewallController_win::FirewallController_win(QObject *parent, IHelper *helper) : FirewallController(parent)
+FirewallController_win::FirewallController_win(QObject *parent, Helper *helper) : FirewallController(parent),
+    helper_(helper)
 {
-    helper_win_ = dynamic_cast<Helper_win *>(helper);
-    WS_ASSERT(helper_win_);
 }
 
 FirewallController_win::~FirewallController_win()
 {
-
 }
 
-bool FirewallController_win::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
+void FirewallController_win::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     QMutexLocker locker(&mutex_);
     FirewallController::firewallOn(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig);
@@ -33,45 +30,37 @@ bool FirewallController_win::firewallOn(const QString &connectingIp, const QSet<
         }
 
         qCInfo(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count();
-        return helper_win_->firewallOn(connectingIp, ipStr, bAllowLanTraffic, bIsCustomConfig);
-    }
-    else
-    {
-        return true;
+        helper_->firewallOn(connectingIp, ipStr, bAllowLanTraffic, bIsCustomConfig);
     }
 }
 
-bool FirewallController_win::firewallOff()
+void FirewallController_win::firewallOff()
 {
     QMutexLocker locker(&mutex_);
     FirewallController::firewallOff();
     if (isStateChanged())
     {
         qCInfo(LOG_FIREWALL_CONTROLLER) << "firewall disabled";
-        return helper_win_->firewallOff();
-    }
-    else
-    {
-        return true;
+        helper_->firewallOff();
     }
 }
 
 bool FirewallController_win::firewallActualState()
 {
     QMutexLocker locker(&mutex_);
-    return helper_win_->firewallActualState();
+    return helper_->firewallActualState();
 }
 
 bool FirewallController_win::whitelistPorts(const api_responses::StaticIpPortsVector &ports)
 {
     QMutexLocker locker(&mutex_);
-    return helper_win_->whitelistPorts(ports.getAsStringWithDelimiters());
+    return helper_->whitelistPorts(ports.getAsStringWithDelimiters());
 }
 
 bool FirewallController_win::deleteWhitelistPorts()
 {
     QMutexLocker locker(&mutex_);
-    return helper_win_->deleteWhitelistPorts();
+    return helper_->deleteWhitelistPorts();
 }
 
 void FirewallController_win::setInterfaceToSkip_posix(const QString &interfaceToSkip)
@@ -82,6 +71,6 @@ void FirewallController_win::setInterfaceToSkip_posix(const QString &interfaceTo
 
 void FirewallController_win::setFirewallOnBoot(bool bEnable, const QSet<QString> &ipTable, bool isAllowLanTraffic)
 {
-    Q_UNUSED(bEnable);
-    //nothing todo for Windows
+    // On Windows firewall on boot just retains existing firewall if enabled
+    helper_->setFirewallOnBoot(bEnable);
 }

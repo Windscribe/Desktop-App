@@ -5,7 +5,7 @@
 #include "utils/log/categories.h"
 #include "utils/ws_assert.h"
 
-CtrldManager_posix::CtrldManager_posix(QObject *parent, IHelper *helper, bool isCreateLog) : ICtrldManager(parent, isCreateLog), helper_(helper), bProcessStarted_(false)
+CtrldManager_posix::CtrldManager_posix(QObject *parent, Helper *helper, bool isCreateLog) : ICtrldManager(parent, isCreateLog), helper_(helper), bProcessStarted_(false)
 {
     listenIp_ = "127.0.0.1";    // default listen ip for ctrld utility
 }

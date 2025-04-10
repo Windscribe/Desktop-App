@@ -1,4 +1,7 @@
 #include "locationsmodel.h"
+
+#include <QJsonArray>
+
 #include "locationsmodel_utils.h"
 #include "../locationsmodel_roles.h"
 #include "languagecontroller.h"
@@ -9,6 +12,7 @@ LocationsModel::LocationsModel(QObject *parent) : QAbstractItemModel(parent), is
 {
     root_ = new int();
     favoriteLocationsStorage_.readFromSettings();
+    renamedLocationsStorage_.readFromSettings();
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &LocationsModel::onLanguageChanged);
 }
@@ -359,7 +363,33 @@ bool LocationsModel::setData(const QModelIndex &index, const QVariant &value, in
             emit dataChanged(index, index, QList<int>() << kIsFavorite);
             return true;
         }
+    } else if (role == Qt::DisplayRole) {
+        if (!index.isValid()) {
+            return false;
+        }
+        if (index.internalPointer() == (void *)root_) {
+            renamedLocationsStorage_.setName(locations_[index.row()]->location().idNum, RenamedLocationsStorage::kInvalidCityId, value.toString());
+        } else {
+            LocationItem *li = (LocationItem *)index.internalPointer();
+            renamedLocationsStorage_.setName(li->location().idNum, li->location().cities[index.row()].idNum, value.toString());
+        }
+        emit dataChanged(index, index, QList<int>() << Qt::DisplayRole);
+        return true;
+    } else if (role == kDisplayNickname) {
+        if (!index.isValid()) {
+            return false;
+        }
+        if (index.internalPointer() == (void *)root_) {
+            // Best location only
+            renamedLocationsStorage_.setNickname(locations_[index.row()]->location().idNum, RenamedLocationsStorage::kInvalidCityId, value.toString());
+        } else {
+            LocationItem *li = (LocationItem *)index.internalPointer();
+            renamedLocationsStorage_.setNickname(li->location().idNum, li->location().cities[index.row()].idNum, value.toString());
+        }
+        emit dataChanged(index, index, QList<int>() << kDisplayNickname);
+        return true;
     }
+
     return false;
 }
 
@@ -463,7 +493,15 @@ QVariant LocationsModel::dataForLocation(int row, int role) const
 {
     if (role == Qt::DisplayRole)
     {
-        return locations_[row]->location().name;
+        LocationID lid = locations_[row]->location().id;
+        if (lid.isBestLocation()) {
+            return locations_[row]->location().name;
+        }
+        QString name = renamedLocationsStorage_.name(lid.id(), RenamedLocationsStorage::kInvalidCityId);
+        if (name.isEmpty()) {
+            name = locations_[row]->location().name;
+        }
+        return name;
     }
     else if (role == kIsTopLevelLocation)
     {
@@ -516,6 +554,14 @@ QVariant LocationsModel::dataForLocation(int row, int role) const
             return locations_[row]->location().cities.isEmpty();
         }
     }
+    else if (role == kDisplayNickname)
+    {
+        QString nickname = renamedLocationsStorage_.nickname(locations_[row]->location().idNum, RenamedLocationsStorage::kInvalidCityId);
+        if (nickname.isEmpty()) {
+            nickname = locations_[row]->nickname();
+        }
+        return nickname;
+    }
 
     return QVariant();
 }
@@ -524,11 +570,17 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
 {
     if (role == Qt::DisplayRole)
     {
-        if (l->location().cities[row].id.isStaticIpsLocation()) {
-            return l->location().cities[row].city + " - " + l->location().cities[row].staticIp;
-        }
-        else  {
+        LocationID lid = l->location().cities[row].id;
+        if (lid.isStaticIpsLocation()) {
+            return l->location().cities[row].city;
+        } else if (lid.isBestLocation()) {
             return l->location().cities[row].city + " - " + l->location().cities[row].nick;
+        } else {
+            QString name = renamedLocationsStorage_.name(l->location().idNum, l->location().cities[row].idNum);
+            if (name.isEmpty()) {
+                name = l->location().cities[row].city;
+            }
+            return name;
         }
     }
     else if (role == kLocationId)
@@ -634,13 +686,25 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
     {
         return l->location().cities[row].customConfigErrorMessage;
     }
+    else if (role == kDisplayNickname) {
+        LocationID lid = l->location().cities[row].id;
+        if (lid.isStaticIpsLocation()) {
+            return l->location().cities[row].staticIp;
+        } else {
+            QString nickname = renamedLocationsStorage_.nickname(l->location().idNum, l->location().cities[row].idNum);
+            if (nickname.isEmpty()) {
+                nickname = l->location().cities[row].nick;
+            }
+            return nickname;
+        }
+    }
 
     return QVariant();
 }
 
 void LocationsModel::clearLocations()
 {
-    for (auto it : qAsConst(locations_))
+    for (auto it : std::as_const(locations_))
     {
         delete it;
     }
@@ -744,6 +808,168 @@ void LocationsModel::onLanguageChanged()
 
     locations_[0]->setName(tr(BEST_LOCATION_NAME));
     emit dataChanged(index(0, 0), index(0, 0), QList<int>() << kName);
+}
+
+QJsonObject LocationsModel::renamedLocations() const
+{
+    QJsonObject root;
+    QJsonArray locations;
+
+    for (int i = 0; i < rowCount(); ++i) {
+        QModelIndex mi = index(i, 0);
+        if (!mi.isValid()) {
+            continue;
+        }
+
+        LocationID locationId = qvariant_cast<LocationID>(data(mi, Roles::kLocationId));
+        if (!locationId.isValid() || locationId.isBestLocation() || locationId.isStaticIpsLocation() || locationId.isCustomConfigsLocation()) {
+            continue;
+        }
+
+        QJsonObject countryObj;
+        countryObj["id"] = locations_[i]->location().idNum;
+        countryObj["country"] = data(mi).toString();
+
+        QJsonArray cities;
+        for (int j = 0; j < rowCount(mi); ++j) {
+            QModelIndex cityMi = index(j, 0, mi);
+            if (!cityMi.isValid()) {
+                continue;
+            }
+
+            LocationID cityLocationId = qvariant_cast<LocationID>(data(cityMi, Roles::kLocationId));
+            if (!cityLocationId.isValid() || cityLocationId.isBestLocation() || cityLocationId.isStaticIpsLocation() || cityLocationId.isCustomConfigsLocation()) {
+                continue;
+            }
+
+            QJsonObject cityObj;
+            cityObj["id"] = locations_[i]->location().cities[j].idNum;
+            cityObj["name"] = data(cityMi).toString();
+            cityObj["nickname"] = data(cityMi, Roles::kDisplayNickname).toString();
+            cities.append(cityObj);
+        }
+
+        countryObj["cities"] = cities;
+        locations.append(countryObj);
+    }
+
+    root["locations"] = locations;
+    return root;
+}
+
+void LocationsModel::setRenamedLocations(const QJsonObject &obj)
+{
+    QJsonArray locations = obj["locations"].toArray();
+    for (const auto &location : locations) {
+        QJsonObject locationObj = location.toObject();
+
+        int id = locationObj["id"].toInt();
+        int countryRow = -1;
+        QModelIndex locationIndex = QModelIndex();
+
+        for (int i = 0; i < rowCount(); ++i) {
+            LocationID lid = qvariant_cast<LocationID>(data(index(i, 0), Roles::kLocationId));
+            if (lid.id() == id && !lid.isBestLocation()) {
+                locationIndex = createIndex(i, 0, (void *)root_);
+                countryRow = i;
+                break;
+            }
+        }
+        if (!locationIndex.isValid()) {
+            continue;
+        }
+
+        if (data(locationIndex).toString() != locationObj["country"].toString()) {
+            qCDebug(LOG_LOCATION_LIST) << "Setting renamed country" << id << data(locationIndex).toString() << "->" << locationObj["country"].toString();
+            setData(locationIndex, locationObj["country"].toString(), Qt::DisplayRole);
+            emit dataChanged(locationIndex, locationIndex);
+        }
+
+        QJsonArray cities = locationObj["cities"].toArray();
+        for (const auto &city : cities) {
+            QJsonObject cityObj = city.toObject();
+            int cityId = cityObj["id"].toInt();
+
+            QModelIndex cityIndex = QModelIndex();
+            for (int j = 0; j < rowCount(locationIndex); ++j) {
+                if (locations_[countryRow]->location().cities[j].idNum == cityId) {
+                    cityIndex = index(j, 0, locationIndex);
+                    break;
+                }
+            }
+            if (!cityIndex.isValid()) {
+                continue;
+            }
+
+            if (cityObj["name"].toString() != data(cityIndex, Roles::kName).toString()) {
+                qCDebug(LOG_LOCATION_LIST) << "Setting renamed city" << cityId << data(cityIndex, Roles::kName).toString() << "->" << cityObj["name"].toString();
+                setData(cityIndex, cityObj["name"].toString(), Qt::DisplayRole);
+                emit dataChanged(cityIndex, cityIndex, QList<int>() << Qt::DisplayRole);
+            }
+            if (cityObj["nickname"].toString() != data(cityIndex, Roles::kNick).toString()) {
+                qCDebug(LOG_LOCATION_LIST) << "Setting renamed city nickname" << cityId << data(cityIndex, Roles::kNick).toString() << "->" << cityObj["nickname"].toString();
+                setData(cityIndex, cityObj["nickname"].toString(), Roles::kDisplayNickname);
+                emit dataChanged(cityIndex, cityIndex, QList<int>() << Roles::kDisplayNickname);
+
+                QModelIndex bestLocationIndex = getBestLocationIndex();
+                if (bestLocationIndex.isValid()) {
+                    LocationID best = qvariant_cast<LocationID>(data(bestLocationIndex, Roles::kLocationId));
+                    LocationID city = qvariant_cast<LocationID>(data(cityIndex, Roles::kLocationId));
+                    if (best.bestLocationToApiLocation() == city) {
+                        qCDebug(LOG_LOCATION_LIST) << "Setting renamed best location nickname" << cityId << data(bestLocationIndex, Roles::kNick).toString() << "->" << cityObj["nickname"].toString();
+                        setData(bestLocationIndex, cityObj["nickname"].toString(), Roles::kDisplayNickname);
+                        emit dataChanged(bestLocationIndex, bestLocationIndex);
+                    }
+                }
+            }
+        }
+    }
+    renamedLocationsStorage_.prune(locations_);
+}
+
+void LocationsModel::resetRenamedLocations()
+{
+    for (int i = 0; i < rowCount(); ++i) {
+        QModelIndex mi = index(i, 0);
+        if (!mi.isValid()) {
+            continue;
+        }
+
+        if (data(mi).toString() != data(mi, Roles::kName).toString()) {
+            setData(mi, QString(), Qt::DisplayRole);
+            emit dataChanged(mi, mi, QList<int>() << Qt::DisplayRole);
+        }
+
+        for (int j = 0; j < rowCount(mi); ++j) {
+            QModelIndex cityMi = index(j, 0, mi);
+            if (!cityMi.isValid()) {
+                continue;
+            }
+            if (data(cityMi).toString() != data(cityMi, Roles::kName).toString()) {
+                setData(cityMi, QString(), Qt::DisplayRole);
+                emit dataChanged(cityMi, cityMi, QList<int>() << Qt::DisplayRole);
+            }
+            if (data(cityMi, Roles::kDisplayNickname).toString() != data(cityMi, Roles::kNick).toString()) {
+                setData(cityMi, QString(), Roles::kDisplayNickname);
+                emit dataChanged(cityMi, cityMi, QList<int>() << Qt::DisplayRole << Roles::kDisplayNickname);
+
+            }
+        }
+    }
+
+    // Reset best location nickname, if necessary
+    LocationID bestLocation = qvariant_cast<LocationID>(data(index(0, 0), Roles::kLocationId));
+    if (bestLocation.isValid() &&
+        bestLocation.isBestLocation() &&
+        locations_[0]->location().name != data(index(0, 0), Roles::kDisplayNickname).toString())
+    {
+        setData(index(0, 0), QString(), Roles::kDisplayNickname);
+        emit dataChanged(index(0, 0), index(0, 0));
+    }
+
+    renamedLocationsStorage_.reset();
+
+    qCDebug(LOG_LOCATION_LIST) << "Reset renamed locations";
 }
 
 } //namespace gui_locations

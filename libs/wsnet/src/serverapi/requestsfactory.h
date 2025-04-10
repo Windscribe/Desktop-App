@@ -35,7 +35,7 @@ namespace requests_factory
     BaseRequest *speedRating(const std::string &authHash, const std::string &hostname, const std::string &ip,
                                                          std::int32_t rating, RequestFinishedCallback callback);
 
-    BaseRequest *staticIps(const std::string &authHash, const std::string &platform, const std::string &deviceId, RequestFinishedCallback callback);
+    BaseRequest *staticIps(const std::string &authHash, std::uint32_t version, const std::string &platform, const std::string &deviceId, RequestFinishedCallback callback);
     BaseRequest *pingTest(std::uint32_t timeoutMs, RequestFinishedCallback callback);
 
     BaseRequest *notifications(const std::string &authHash, const std::string &pcpid, const std::string &language, RequestFinishedCallback callback);

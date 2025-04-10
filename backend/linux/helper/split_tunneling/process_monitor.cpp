@@ -5,28 +5,30 @@
 #include <dirent.h>
 #include <fstream>
 #include <iterator>
-#include <linux/netlink.h>
-#include <linux/connector.h>
 #include <linux/cn_proc.h>
+#include <linux/connector.h>
+#include <linux/netlink.h>
 #include <poll.h>
 #include <sstream>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <spdlog/spdlog.h>
 
 #include "cgroups.h"
 #include "../utils.h"
 
+#define SEND_MESSAGE_LEN (NLMSG_LENGTH(sizeof(struct cn_msg) + sizeof(enum proc_cn_mcast_op)))
+#define RECV_MESSAGE_LEN (NLMSG_LENGTH(sizeof(struct cn_msg) + sizeof(struct proc_event)))
+#define SEND_MESSAGE_SIZE (NLMSG_SPACE(SEND_MESSAGE_LEN))
+#define RECV_MESSAGE_SIZE (NLMSG_SPACE(RECV_MESSAGE_LEN))
+#define BUFSIZE (std::max(std::max(SEND_MESSAGE_SIZE, RECV_MESSAGE_SIZE), 1024UL))
+
 void ProcessMonitor::monitorWorker(void *ctx)
 {
     int ret;
-    struct __attribute__ ((aligned(NLMSG_ALIGNTO))) {
-        struct nlmsghdr nl_hdr;
-        struct __attribute__ ((__packed__)) {
-            struct cn_msg cn_msg;
-            struct proc_event proc_ev;
-        };
-    } nlcn_msg;
+    char buff[BUFSIZE];
+    struct nlmsghdr *nlh = (struct nlmsghdr*)buff;
 
     spdlog::debug("process monitor thread started");
     running_ = true;
@@ -44,7 +46,7 @@ void ProcessMonitor::monitorWorker(void *ctx)
             continue;
         }
 
-        ret = read(sock_, &nlcn_msg, sizeof(nlcn_msg));
+        ret = read(sock_, &buff, sizeof(buff));
         if (ret <= 0) {
             continue;
         }
@@ -53,25 +55,43 @@ void ProcessMonitor::monitorWorker(void *ctx)
             break;
         }
 
-        std::string cmd;
-        switch (nlcn_msg.proc_ev.what) {
-            case 0x00000001: // PROC_EVENT_FORK:
-                if (compareCmd(nlcn_msg.proc_ev.event_data.fork.child_pid, apps_)) {
-                    CGroups::instance().addApp(nlcn_msg.proc_ev.event_data.fork.child_pid);
-                }
-                break;
-            case 0x00000002: // PROC_EVENT_EXEC:
-                if (compareCmd(nlcn_msg.proc_ev.event_data.exec.process_pid, apps_)) {
-                    CGroups::instance().addApp(nlcn_msg.proc_ev.event_data.exec.process_pid);
-                }
-                break;
-            case 0x80000000: // PROC_EVENT_EXIT:
-                if (compareCmd(nlcn_msg.proc_ev.event_data.exit.process_pid, apps_)) {
-                    CGroups::instance().removeApp(nlcn_msg.proc_ev.event_data.exit.process_pid);
-                }
-                break;
-            default:
-                break;
+        while (NLMSG_OK(nlh, ret)) {
+            std::string cmd;
+
+            if (nlh->nlmsg_type == NLMSG_NOOP) {
+                NLMSG_NEXT(nlh, ret);
+				continue;
+            }
+			if ((nlh->nlmsg_type == NLMSG_ERROR) || (nlh->nlmsg_type == NLMSG_OVERRUN)) {
+				break;
+            }
+            struct cn_msg *cn_hdr = (struct cn_msg *)NLMSG_DATA(nlh);
+            struct proc_event *ev = (struct proc_event *)cn_hdr->data;
+
+            switch (ev->what) {
+                case 0x00000001: // PROC_EVENT_FORK:
+                    if (compareCmd(ev->event_data.fork.child_pid, apps_)) {
+                        CGroups::instance().addApp(ev->event_data.fork.child_pid);
+                    }
+                    break;
+                case 0x00000002: // PROC_EVENT_EXEC:
+                    if (compareCmd(ev->event_data.exec.process_pid, apps_)) {
+                        CGroups::instance().addApp(ev->event_data.exec.process_pid);
+                    }
+                    break;
+                case 0x80000000: // PROC_EVENT_EXIT:
+                    if (compareCmd(ev->event_data.exit.process_pid, apps_)) {
+                        CGroups::instance().removeApp(ev->event_data.exit.process_pid);
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            if (nlh->nlmsg_type == NLMSG_DONE) {
+				break;
+            }
+            nlh = NLMSG_NEXT(nlh, ret);
         }
     }
     running_ = false;
@@ -262,6 +282,7 @@ bool ProcessMonitor::prepareMonitoring()
 {
     int ret = 0;
     struct sockaddr_nl addr;
+    char buf[BUFSIZE];
 
     sock_ = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR);
     if (sock_ == -1) {
@@ -283,25 +304,26 @@ bool ProcessMonitor::prepareMonitoring()
     }
 
     // Request for events
-    struct __attribute__ ((aligned(NLMSG_ALIGNTO))) {
-        struct nlmsghdr nl_hdr;
-        struct __attribute__ ((__packed__)) {
-            struct cn_msg cn_msg;
-            enum proc_cn_mcast_op cn_mcast;
-        };
-    } nlcn_msg;
+    struct nlmsghdr *nl_hdr = (struct nlmsghdr *)buf;
+    struct cn_msg *cn_hdr = (struct cn_msg *)NLMSG_DATA(nl_hdr);
+    enum proc_cn_mcast_op *mcop_msg = (enum proc_cn_mcast_op *)&cn_hdr->data[0];
 
-    memset(&nlcn_msg, 0, sizeof(nlcn_msg));
-    nlcn_msg.nl_hdr.nlmsg_len = sizeof(nlcn_msg);
-    nlcn_msg.nl_hdr.nlmsg_pid = getpid();
-    nlcn_msg.nl_hdr.nlmsg_type = NLMSG_DONE;
+    memset(buf, 0, sizeof(buf));
+    *mcop_msg = PROC_CN_MCAST_LISTEN;
 
-    nlcn_msg.cn_msg.id.idx = CN_IDX_PROC;
-    nlcn_msg.cn_msg.id.val = CN_VAL_PROC;
-    nlcn_msg.cn_msg.len = sizeof(enum proc_cn_mcast_op);
-    nlcn_msg.cn_mcast = PROC_CN_MCAST_LISTEN;
+    nl_hdr->nlmsg_len = SEND_MESSAGE_LEN;
+    nl_hdr->nlmsg_pid = getpid();
+    nl_hdr->nlmsg_type = NLMSG_DONE;
+    nl_hdr->nlmsg_flags = 0;
+    nl_hdr->nlmsg_seq = 0;
 
-    ret = send(sock_, &nlcn_msg, sizeof(nlcn_msg), 0);
+    cn_hdr->id.idx = CN_IDX_PROC;
+    cn_hdr->id.val = CN_VAL_PROC;
+    cn_hdr->len = sizeof(enum proc_cn_mcast_op);
+    cn_hdr->seq = 0;
+    cn_hdr->ack = 0;
+
+    ret = send(sock_, nl_hdr, nl_hdr->nlmsg_len, 0); // NOLINT
     if (ret == -1) {
         spdlog::error("Could not request events");
         close(sock_);

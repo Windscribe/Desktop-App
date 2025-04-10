@@ -140,10 +140,6 @@
         <translation>لا تقم بتشغيل التطبيق بعد التثبيت.</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>يرشد المثبت لتخطي تثبيت برامج التشغيل.</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>احذف التفضيلات والسجلات والبيانات الأخرى الموجودة، إن وجدت.</translation>
     </message>

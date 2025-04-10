@@ -140,10 +140,6 @@
         <translation>Po instalaci aplikaci nespouštějte.</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>Pokyn instalačnímu programu, aby přeskočil instalaci ovladačů.</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>Odstraňte existující předvolby, protokoly a další data, pokud existují.</translation>
     </message>

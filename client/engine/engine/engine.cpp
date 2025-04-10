@@ -11,6 +11,7 @@
 #include "utils/log/mergelog.h"
 #include "utils/log/logger.h"
 #include "utils/dns_utils/dnsserversconfiguration.h"
+#include "utils/network_utils/dnschecker.h"
 #include "utils/extraconfig.h"
 #include "utils/ipvalidation.h"
 #include "utils/hardcodedsettings.h"
@@ -35,7 +36,6 @@
     #include <shellapi.h>
     #include "engine/adaptermetricscontroller_win.h"
     #include "engine/dnsinfo_win.h"
-    #include "helper/helper_win.h"
     #include "utils/bfe_service_win.h"
     #include "utils/executable_signature/executable_signature.h"
     #include "utils/network_utils/network_utils_win.h"
@@ -51,7 +51,6 @@
     #include "utils/network_utils/network_utils_mac.h"
     #include "utils/interfaceutils_mac.h"
 #elif defined Q_OS_LINUX
-    #include "helper/helper_linux.h"
     #include "utils/executable_signature/executablesignature_linux.h"
     #include "utils/dnsscripts_linux.h"
     #include "utils/linuxutils.h"
@@ -103,18 +102,6 @@ Engine::Engine() : QObject(nullptr),
         // log wsnet outputs without formatting
         spdlog::get("raw")->info(logStr);
     }, false);
-
-    // Enable post-quantum algorithms.  We need to set some environment variables so OpenSSL can find the right provider.
-#ifdef Q_OS_WIN
-    // NOOP: on Windows we have statically linked libraries, including oqsprovider.
-    // WSNet/OpenVPN will enable the additional algorithms automatically.
-#elif defined(Q_OS_MACOS)
-    setenv("OPENSSL_CONF", "/Applications/Windscribe.app/Contents/Resources/openssl.cnf", 1);
-    setenv("OPENSSL_MODULES", "/Applications/Windscribe.app/Contents/Frameworks", 1);
-#elif defined(Q_OS_LINUX)
-    setenv("OPENSSL_CONF", "/opt/windscribe/openssl.cnf", 1);
-    setenv("OPENSSL_MODULES", "/opt/windscribe/lib", 1);
-#endif
 
     QSettings settings;
     std::string wsnetSettings = settings.value("wsnetSettings").toString().toStdString();
@@ -173,13 +160,13 @@ void Engine::setSettings(const types::EngineSettings &engineSettings)
     QMetaObject::invokeMethod(this, "setSettingsImpl", Q_ARG(types::EngineSettings, engineSettings));
 }
 
-void Engine::cleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart)
+void Engine::cleanup(bool isUpdating)
 {
     // Cannot use invokeMethod("cleanupImpl") here.  Any code called by cleanupImpl causing the message queue
     // to be processed (e.g. qApp->processEvents() in ConnectionManager::blockingDisconnect) would then cause
     // cleanupImpl to be invoked repeatedly before the initial call has completed.  One of the cleanupImpl calls
     // would SAFE_DELETE all the pointers, thereby causing the other pending calls to segfault.
-    emit initCleanup(isExitWithRestart, isFirewallChecked, isFirewallAlwaysOn, isLaunchOnStart);
+    emit initCleanup(isUpdating);
 }
 
 bool Engine::isCleanupFinished()
@@ -526,14 +513,11 @@ void Engine::stopUpdateVersion()
 void Engine::makeHostsFileWritableWin()
 {
 #ifdef Q_OS_WIN
-    const auto winHelper = dynamic_cast<Helper_win*>(helper_);
-    if (winHelper) {
-        if (winHelper->makeHostsFileWritable()) {
-            emit hostsFileBecameWritable();
-        }
-        else {
-            qCCritical(LOG_BASIC) << "Error: was not able to make 'hosts' file writable.";
-        }
+    if (helper_->makeHostsFileWritable()) {
+        emit hostsFileBecameWritable();
+    }
+    else {
+        qCCritical(LOG_BASIC) << "Error: was not able to make 'hosts' file writable.";
     }
 #endif
 }
@@ -563,10 +547,10 @@ void Engine::init()
     connect(this, &Engine::initCleanup, this, &Engine::cleanupImpl);
 
     helper_ = CrossPlatformObjectFactory::createHelper(this);
-    connect(helper_, &IHelper::lostConnectionToHelper, this, &Engine::onLostConnectionToHelper);
-    helper_->startInstallHelper();
+    connect(helper_->backend(), &IHelperBackend::lostConnectionToHelper, this, &Engine::onLostConnectionToHelper);
+    helper_->backend()->startInstallHelper();
 
-    inititalizeHelper_ = new InitializeHelper(this, helper_);
+    inititalizeHelper_ = new InitializeHelper(this, helper_->backend());
     connect(inititalizeHelper_, &InitializeHelper::finished, this, &Engine::onInitializeHelper);
     inititalizeHelper_->start();
 }
@@ -578,7 +562,6 @@ void Engine::initPart2()
     WlanUtils_win::setHelper(helper_);
 #elif defined(Q_OS_MACOS)
     Ipv6Controller_mac::instance().setHelper(helper_);
-    InterfaceUtils_mac::instance().setHelper(static_cast<Helper_mac *>(helper_));
     ReachAbilityEvents::instance().init();
 #endif
 
@@ -627,19 +610,15 @@ void Engine::initPart2()
     packetSizeControllerThread_->start(QThread::LowPriority);
 
     firewallController_ = CrossPlatformObjectFactory::createFirewallController(this, helper_);
-#ifdef Q_OS_LINUX
-    // On Linux, the system may reboot without ever sending us SIGTERM, which means we never get to clean up and
-    // set the boot firewall rules.  Set the boot rules here if applicable.
-    if (engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
-        firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
-    } else {
-        firewallController_->setFirewallOnBoot(false);
-    }
-#endif
+    updateFirewallOnBoot();
 
     // do not return from this function until Engine::onHostIPsChanged() is finished
     // callback comes from another thread, so synchronization is needed
     WSNet::instance()->httpNetworkManager()->setWhitelistIpsCallback([this](const std::set<std::string> &ips) {
+        // skip handling if cleanup started
+        if (isCleanup_) {
+            return;
+        }
         mutexForOnHostIPsChanged_.lock();
         QMetaObject::invokeMethod(this, [this, ips] {
             QSet<QString> hostIps;
@@ -742,6 +721,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
     if (ret == INIT_HELPER_SUCCESS)
     {
         QMutexLocker locker(&mutex_);
+        qCInfo(LOG_BASIC) << "Helper version" << helper_->getHelperVersion();
         bInitialized_ = true;
 
         initPart2();
@@ -781,7 +761,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
     }
 }
 
-void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart)
+void Engine::cleanupImpl(bool isUpdating)
 {
     // Ensure this slot only gets invoked once.
     disconnect(this, &Engine::initCleanup, nullptr, nullptr);
@@ -793,6 +773,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
 
     qCDebug(LOG_BASIC) << "Cleanup started";
 
+    isCleanup_ = true;
     saveWsnetSettings();
     // stop all network requests here, because we won't have callback's called for deleted objects
     WSNet::cleanup();
@@ -803,11 +784,6 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     }
 #endif
 
-    // to skip blocking calls
-    if (helper_) {
-        helper_->setNeedFinish();
-    }
-
     if (emergencyController_) {
         emergencyController_->blockingDisconnect();
     }
@@ -817,11 +793,7 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
         connectionManager_->blockingDisconnect();
         if (bWasIsConnected) {
 #ifdef Q_OS_WIN
-                enableDohSettings();
-                // Avoid delaying app cleanup if the PC is restarting.
-                if (!isExitWithRestart) {
-                    DnsInfo_win::outputDebugDnsInfo();
-                }
+            enableDohSettings();
 #endif
             qCInfo(LOG_BASIC) << "Cleanup, connection manager disconnected";
         } else {
@@ -838,66 +810,34 @@ void Engine::cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool is
     }
 
 #ifdef Q_OS_WIN
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    if (helper_win) {
-        helper_win->removeWindscribeNetworkProfiles();
-    }
+    helper_->removeWindscribeNetworkProfiles();
 #endif
 
-    if (!isExitWithRestart) {
-        if (vpnShareController_) {
-            vpnShareController_->stopWifiSharing();
-            vpnShareController_->stopProxySharing();
-        }
+    if (vpnShareController_) {
+        vpnShareController_->stopWifiSharing();
+        vpnShareController_->stopProxySharing();
     }
 
     if (helper_ && firewallController_) {
-        if (isFirewallChecked) {
-            if (isExitWithRestart) {
-                if (isLaunchOnStart) {
-#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
-                    firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
-#endif
-                } else {
-                    if (isFirewallAlwaysOn) {
-#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
-                        firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
-#endif
-                    } else {
-#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
-                        firewallController_->setFirewallOnBoot(false);
-#endif
-                        firewallController_->firewallOff();
-                    }
-                }
-            } else { // if exit without restart
-                if (isFirewallAlwaysOn) {
-#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
-                    firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
-#endif
-                } else {
-#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
-                    firewallController_->setFirewallOnBoot(false);
-#endif
-                    firewallController_->firewallOff();
-                }
-            }
-        } else { // if (!isFirewallChecked)
+        if (firewallController_->firewallActualState() && !isUpdating && engineSettings_.firewallSettings().mode != FIREWALL_MODE_ALWAYS_ON) {
+            qCInfo(LOG_BASIC) << "Turning firewall off for non-always-on, non-upgrade app shutdown";
             firewallController_->firewallOff();
-#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
-            firewallController_->setFirewallOnBoot(false);
-#endif
         }
 
-#ifdef Q_OS_WIN
-        Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-        helper_win->setIPv6EnabledInFirewall(true);
-#endif
- 
-#ifdef Q_OS_MACOS
-        Ipv6Controller_mac::instance().restoreIpv6();
-#endif
+        if (isUpdating) {
+            // If we're updating, we temporarily enable firewall on boot.  This tells the helper (once it relaunches)
+            // that it should keep the firewall on.  If we don't do this, the firewall blips out briefly when the new helper starts,
+            // until the app re-enables the firewall.
+            qCInfo(LOG_BASIC) << "Turning on firewall on boot for update";
+            firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
+        }
     }
+
+#ifdef Q_OS_WIN
+    helper_->setIPv6EnabledInFirewall(true);
+#elif defined(Q_OS_MACOS)
+    Ipv6Controller_mac::instance().restoreIpv6();
+#endif
 
     SAFE_DELETE(loginWaitForNetworkConnectivity_);
     SAFE_DELETE(vpnShareController_);
@@ -990,6 +930,18 @@ void Engine::connectClickImpl(const LocationID &locationId, const types::Connect
 #endif
 
     stopFetchingServerCredentials();
+
+    // Before turning on the firewall, check that the local DNS server is available, if set to local.
+    // We do this here because once the firewall is enabled, it may block the local DNS from functioning briefly,
+    // which can cause bad detection results.
+    if (engineSettings_.connectedDnsInfo().type == CONNECTED_DNS_TYPE_LOCAL) {
+        // This should succeed very quickly usually, so it's fine to block here
+        if (!NetworkUtils::DnsChecker::checkAvailabilityBlocking()) {
+            qCWarning(LOG_CONNECTION) << "Local DNS server is not available, abort connection";
+            emit localDnsServerNotAvailable();
+            return;
+        }
+    }
 
     if (engineSettings_.firewallSettings().mode == FIREWALL_MODE_AUTOMATIC && engineSettings_.firewallSettings().when == FIREWALL_WHEN_BEFORE_CONNECTION)
     {
@@ -1202,12 +1154,14 @@ void Engine::firewallOnImpl()
             locationId_.isCustomConfigsLocation());
     }
     emit firewallStateChanged(true);
+    updateFirewallOnBoot();
 }
 
 void Engine::firewallOffImpl()
 {
     firewallController_->firewallOff();
     emit firewallStateChanged(false);
+    updateFirewallOnBoot();
 }
 
 void Engine::speedRatingImpl(int rating, const QString &localExternalIp)
@@ -1233,17 +1187,10 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     bool isDnsWhileConnectedChanged = engineSettings_.connectedDnsInfo() != engineSettings.connectedDnsInfo();
     bool isDecoyTrafficSettingsChanged = engineSettings_.decoyTrafficSettings() != engineSettings.decoyTrafficSettings();
 
-#ifdef Q_OS_LINUX
-    // On Linux, the system may reboot without ever sending us SIGTERM, which means we never get to clean up and
-    // set the boot firewall rules.  Set the boot rules here if applicable.
-    if (engineSettings.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
-        firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
-    } else {
-        firewallController_->setFirewallOnBoot(false);
-    }
-#endif
     engineSettings_ = engineSettings;
     engineSettings_.saveToSettings();
+
+    updateFirewallOnBoot();
 
 #ifdef Q_OS_LINUX
     DnsScripts_linux::instance().setDnsManager(engineSettings.dnsManager());
@@ -1388,24 +1335,23 @@ void Engine::onConnectionManagerConnected()
 
     // For Windows we should to set the custom dns for the adapter explicitly except WireGuard protocol
 #ifdef Q_OS_WIN
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
     if (connectionManager_->connectedDnsInfo().type == CONNECTED_DNS_TYPE_CUSTOM && connectionManager_->currentProtocol() != types::Protocol::WIREGUARD)
     {
         WS_ASSERT(connectionManager_->getVpnAdapterInfo().dnsServers().count() == 1);
-        if (!helper_win->setCustomDnsWhileConnected( connectionManager_->getVpnAdapterInfo().ifIndex(),
+        if (!helper_->setCustomDnsWhileConnected( connectionManager_->getVpnAdapterInfo().ifIndex(),
                                                     connectionManager_->getVpnAdapterInfo().dnsServers().first()))
         {
             qCCritical(LOG_CONNECTED_DNS) << "Failed to set Custom 'while connected' DNS";
         }
     }
-    helper_win->setIPv6EnabledInFirewall(false);
+    helper_->setIPv6EnabledInFirewall(false);
 #endif
 
     bool result = helper_->sendConnectStatus(true, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(),
                                              connectionManager_->getDefaultAdapterInfo(), connectionManager_->getVpnAdapterInfo(),
                                              connectionManager_->getLastConnectedIp(), lastConnectingProtocol_);
     if (!result) {
-        emit helperSplitTunnelingStartFailed();
+        emit splitTunnelingStartFailed();
     }
 
     if (firewallController_->firewallActualState() && !isFirewallAlreadyEnabled)
@@ -1469,8 +1415,7 @@ void Engine::onConnectionManagerConnected()
     if (engineSettings_.isTerminateSockets())
     {
 #ifdef Q_OS_WIN
-        Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-        helper_win->closeAllTcpConnections(engineSettings_.isAllowLanTraffic());
+        helper_->closeAllTcpConnections(engineSettings_.isAllowLanTraffic());
 #endif
     }
 
@@ -1483,6 +1428,9 @@ void Engine::onConnectionManagerConnected()
         networkDetectionManager_->getCurrentNetworkInterface(interface, false);
         // This may do nothing if split tunneling is not enabled
         SplitTunnelExtensionManager::instance().startExtension(interface.interfaceName, adapterName);
+    } else if (SplitTunnelExtensionManager::instance().isActive()) {
+        // Split tunneling is enabled, but the extension is not active.
+        emit splitTunnelingStartFailed();
     }
 #endif
 
@@ -1958,15 +1906,8 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
     Q_UNUSED(windowCenterX);
     Q_UNUSED(windowCenterY);
 
-    Helper_linux* helperLinux = dynamic_cast<Helper_linux*>(helper_);
-    WS_ASSERT(helperLinux != nullptr);
-
-    auto result = helperLinux->installUpdate(installerPath_);
-    if (!result.has_value()) {
-        emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_OTHER_FAIL);
-        return;
-    }
-    if (!result.value()) {
+    bool result = helper_->installUpdate(installerPath_);
+    if (!result) {
         emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
         return;
     }
@@ -2569,8 +2510,7 @@ void Engine::doDisconnectRestoreStuff()
     }
 
 #ifdef Q_OS_WIN
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
-    helper_win->setIPv6EnabledInFirewall(true);
+    helper_->setIPv6EnabledInFirewall(true);
 #endif
 
 #ifdef Q_OS_MACOS
@@ -2657,9 +2597,7 @@ bool Engine::verifyContentsSha256(const QString &filename, const QString &compar
 void Engine::enableDohSettings()
 {
     if (WinUtils::isDohSupported()) {
-        auto* helperWin = dynamic_cast<Helper_win*>(helper_);
-        WS_ASSERT(helperWin);
-        helperWin->enableDohSettings();
+        helper_->enableDohSettings();
     }
 }
 #endif
@@ -2753,3 +2691,14 @@ void Engine::onSystemExtensionStateChanged(SystemExtensions_mac::SystemExtension
     }
 }
 #endif
+
+void Engine::updateFirewallOnBoot()
+{
+    if (engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
+        qCInfo(LOG_BASIC) << "Turning boot firewall on for always-on mode";
+        firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
+    } else {
+        qCInfo(LOG_BASIC) << "Turning boot firewall off for non-always-on mode";
+        firewallController_->setFirewallOnBoot(false);
+    }
+}

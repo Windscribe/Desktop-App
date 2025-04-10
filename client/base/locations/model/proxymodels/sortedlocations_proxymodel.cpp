@@ -62,7 +62,9 @@ bool SortedLocationsProxyModel::filterAcceptsRow(int source_row, const QModelInd
 
         for (int i = 0; i < sourceModel()->rowCount(mi); ++i) {
             QModelIndex childMi = sourceModel()->index(i, 0, mi);
-            if (childMi.data().toString().contains(filter_, Qt::CaseInsensitive)) {
+            if (childMi.data().toString().contains(filter_, Qt::CaseInsensitive) ||
+                childMi.data(kDisplayNickname).toString().contains(filter_, Qt::CaseInsensitive))
+            {
                 return true;
             }
         }
@@ -75,7 +77,9 @@ bool SortedLocationsProxyModel::filterAcceptsRow(int source_row, const QModelInd
         }
 
         QModelIndex childMi = sourceModel()->index(source_row, 0, source_parent);
-        if (childMi.data().toString().contains(filter_, Qt::CaseInsensitive)) {
+        if (childMi.data().toString().contains(filter_, Qt::CaseInsensitive) ||
+            childMi.data(kDisplayNickname).toString().contains(filter_, Qt::CaseInsensitive))
+        {
             return true;
         }
     }
@@ -188,7 +192,7 @@ int SortedLocationsProxyModel::getSortGroup(const QModelIndex &index) const
                 return childGroup;
             }
         }
-    } else if (sourceModel()->data(index, kNick).toString().startsWith(filter_, Qt::CaseInsensitive) || sourceModel()->data(index, kName).toString().startsWith(filter_, Qt::CaseInsensitive)) {
+    } else if (sourceModel()->data(index, kDisplayNickname).toString().startsWith(filter_, Qt::CaseInsensitive) || sourceModel()->data(index).toString().startsWith(filter_, Qt::CaseInsensitive)) {
         return 1;
     }
     // Did not match any beginning of any filter, so it goes last

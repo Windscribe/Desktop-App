@@ -10,8 +10,10 @@ namespace LinuxUtils
     const QString DEB_PLATFORM_NAME_X64_CLI = QString("linux_deb_x64_cli");
     const QString DEB_PLATFORM_NAME_ARM64 = QString("linux_deb_arm64");
     const QString DEB_PLATFORM_NAME_ARM64_CLI = QString("linux_deb_arm64_cli");
-    const QString RPM_PLATFORM_NAME = QString("linux_rpm_x64");
-    const QString RPM_PLATFORM_NAME_CLI = QString("linux_rpm_x64_cli");
+    const QString RPM_PLATFORM_NAME_X64 = QString("linux_rpm_x64");
+    const QString RPM_PLATFORM_NAME_X64_CLI = QString("linux_rpm_x64_cli");
+    const QString RPM_PLATFORM_NAME_ARM64  = QString("linux_rpm_arm64");
+    const QString RPM_PLATFORM_NAME_ARM64_CLI = QString("linux_rpm_arm64_cli");
     const QString RPM_OPENSUSE_PLATFORM_NAME = QString("linux_rpm_opensuse_x64");
     const QString RPM_OPENSUSE_PLATFORM_NAME_CLI = QString("linux_rpm_opensuse_x64_cli");
     const QString ZST_PLATFORM_NAME = QString("linux_zst_x64");

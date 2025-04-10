@@ -8,7 +8,7 @@
 #include "process_monitor.h"
 #include "../routes_manager/routes.h"
 #include "../routes_manager/routes_manager.h"
-#include "../../../posix_common/helper_commands.h"
+#include "../../../common/helper_commands.h"
 
 class SplitTunneling
 {
@@ -19,14 +19,14 @@ public:
         return st;
     }
 
-    bool setConnectParams(CMD_SEND_CONNECT_STATUS &connectStatus);
+    bool setConnectParams(ConnectStatus &connectStatus);
     void setSplitTunnelingParams(bool isActive, bool isExclude, const std::vector<std::string> &apps,
                                  const std::vector<std::string> &ips, const std::vector<std::string> &hosts, bool isAllowLanTraffic);
 
 private:
     std::mutex mutex_;
 
-    CMD_SEND_CONNECT_STATUS connectStatus_;
+    ConnectStatus connectStatus_;
 
     bool isSplitTunnelActive_;
     bool isExclude_;

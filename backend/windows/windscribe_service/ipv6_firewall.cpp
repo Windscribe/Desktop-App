@@ -20,6 +20,9 @@ void Ipv6Firewall::release()
 
 void Ipv6Firewall::enableIPv6()
 {
+    if (!isDisabled_)
+        return;
+
     HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
     fwpmWrapper_.beginTransaction();
 
@@ -31,10 +34,14 @@ void Ipv6Firewall::enableIPv6()
 
     fwpmWrapper_.endTransaction();
     fwpmWrapper_.unlock();
+    isDisabled_ = false;
 }
 
 void Ipv6Firewall::disableIPv6()
 {
+    if (isDisabled_)
+        return;
+
     HANDLE hEngine = fwpmWrapper_.getHandleAndLock();
     fwpmWrapper_.beginTransaction();
 
@@ -58,6 +65,7 @@ void Ipv6Firewall::disableIPv6()
 
     fwpmWrapper_.endTransaction();
     fwpmWrapper_.unlock();
+    isDisabled_ = true;
 }
 
 void Ipv6Firewall::addFilters(HANDLE engineHandle)

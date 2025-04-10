@@ -20,9 +20,11 @@ public:
     void tooltipLeaveEvent(int tooltipId) const override;
 
 private:
+    const int kCountryItemMaxWidth = 210;
+
     QRect p2pRect(const QRect &itemRect) const;
+    QRect captionRect(const QRect &itemRect, const IItemCacheData *cacheData) const;
 
 };
 
 } // namespace gui_locations
-

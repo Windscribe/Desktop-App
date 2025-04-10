@@ -43,7 +43,7 @@ void SplitTunneling::setSettings(bool isEnabled, bool isExclude, const std::vect
     updateState();
 }
 
-bool SplitTunneling::setConnectStatus(CMD_CONNECT_STATUS& connectStatus)
+bool SplitTunneling::setConnectStatus(ConnectStatus &connectStatus)
 {
     connectStatus_ = connectStatus;
     routesManager_.updateState(connectStatus_, isSplitTunnelEnabled_, isExclude_);

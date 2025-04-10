@@ -2,7 +2,7 @@
 #include <QCoreApplication>
 #include "utils/ws_assert.h"
 
-IKEv2Connection_linux::IKEv2Connection_linux(QObject *parent, IHelper *helper) : IConnection(parent)
+IKEv2Connection_linux::IKEv2Connection_linux(QObject *parent, Helper *helper) : IConnection(parent)
 {
 }
 

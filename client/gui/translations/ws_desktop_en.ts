@@ -279,8 +279,8 @@
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
-        <source>Add Static IP</source>
-        <translation>Add Static IP</translation>
+        <source>Add</source>
+        <translation>Add</translation>
     </message>
 </context>
 <context>
@@ -507,10 +507,6 @@
         <translation>Failed to Start</translation>
     </message>
     <message>
-        <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>Windscribe is malfunctioning.  Please restart the application.</translation>
-    </message>
-    <message>
         <source>Trying Backup Endpoints %1/%2</source>
         <translation>Trying Backup Endpoints %1/%2</translation>
     </message>
@@ -603,10 +599,6 @@
     <message>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</translation>
-    </message>
-    <message>
-        <source>Debug Sent!</source>
-        <translation>Debug Sent!</translation>
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
@@ -841,6 +833,58 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</translation>
+    </message>
+    <message>
+        <source>Error Starting Split Tunneling</source>
+        <translation>Error Starting Split Tunneling</translation>
+    </message>
+    <message>
+        <source>Export Location Names To</source>
+        <translation>Export Location Names To</translation>
+    </message>
+    <message>
+        <source>Unable to export location names</source>
+        <translation>Unable to export location names</translation>
+    </message>
+    <message>
+        <source>Import Location Names From</source>
+        <translation>Import Location Names From</translation>
+    </message>
+    <message>
+        <source>Unable to import location names</source>
+        <translation>Unable to import location names</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</translation>
+    </message>
+    <message>
+        <source>Debug Log Sent!</source>
+        <translation>Debug Log Sent!</translation>
+    </message>
+    <message>
+        <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
+        <translation>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</translation>
+    </message>
+    <message>
+        <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
+        <translation>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</translation>
+    </message>
+    <message>
+        <source>Local DNS server is not available</source>
+        <translation>Local DNS server is not available</translation>
+    </message>
+    <message>
+        <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
+        <translation>The local DNS server is not available.  Connected DNS has been set back to Auto.</translation>
+    </message>
+    <message>
+        <source>DNS Server Conflict</source>
+        <translation>DNS Server Conflict</translation>
+    </message>
+    <message>
+        <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
+        <translation>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</translation>
     </message>
 </context>
 <context>
@@ -1283,8 +1327,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Estimated Data Usage</translation>
     </message>
     <message>
-        <source>GB/Hour</source>
-        <translation>GB/Hour</translation>
+        <source>%1/hour</source>
+        <translation>%1/hour</translation>
     </message>
 </context>
 <context>
@@ -1488,6 +1532,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Select behavior when window is activated with multiple desktops.</source>
         <translation>Select behavior when window is activated with multiple desktops.</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Export</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Import</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Reset</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>Change location names to your liking.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>Rename Locations</translation>
     </message>
 </context>
 <context>
@@ -2330,6 +2394,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Duplicate</source>
         <translation>Duplicate</translation>
+    </message>
+    <message>
+        <source>Local DNS</source>
+        <translation>Local DNS</translation>
     </message>
 </context>
 <context>

@@ -693,8 +693,12 @@ def build_rpm(distro, build_config):
     update_version_in_config(os.path.join(pathlib.Path.home(), "rpmbuild", "SPECS", "windscribe_rpm.spec"))
     iutl.RunCommand(["rpmbuild", "-bb", os.path.join(pathlib.Path.home(), "rpmbuild", "SPECS", "windscribe_rpm.spec")])
 
-    utl.CopyFile(os.path.join(pathlib.Path.home(), "rpmbuild", "RPMS", "x86_64", "windscribe{}-{}-0.x86_64.rpm".format("-cli" if arghelper.build_cli_only() else "", extractor.app_version(False))),
-                 os.path.join(BUILD_INSTALLER_FILES, "..", "windscribe{}_{}_x86_64_{}.rpm".format("-cli" if arghelper.build_cli_only() else "", extractor.app_version(True), distro)))
+    # We use 'arm64' while rpmbuild uses 'aarch64'
+    arch1 = "x86_64" if platform.processor() == "x86_64" else "arm64"
+    arch2 = "x86_64" if platform.processor() == "x86_64" else "aarch64"
+
+    utl.CopyFile(os.path.join(pathlib.Path.home(), "rpmbuild", "RPMS", arch2, "windscribe{}-{}-0.{}.rpm".format("-cli" if arghelper.build_cli_only() else "", extractor.app_version(False), arch2)),
+                 os.path.join(BUILD_INSTALLER_FILES, "..", "windscribe{}_{}_{}_{}.rpm".format("-cli" if arghelper.build_cli_only() else "", extractor.app_version(True), arch1, distro)))
 
 
 def update_vcpkg_dependencies():

@@ -1,14 +1,12 @@
 #include "icsmanager.h"
-#include "utils/ws_assert.h"
 
 #include <winsock2.h>
 #include <iphlpapi.h>
 
 
-IcsManager::IcsManager(QObject *parent, IHelper *helper) : QObject(parent)
+IcsManager::IcsManager(QObject *parent, Helper *helper) :
+    QObject(parent), helper_(helper)
 {
-    helper_ = dynamic_cast<Helper_win *>(helper);
-    WS_ASSERT(helper_);
 }
 
 bool IcsManager::isSupportedIcs()

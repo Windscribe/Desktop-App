@@ -24,6 +24,9 @@ Steps to reproduce the behavior:
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
+**Debug log or username**
+A debug log is required to report a bug.  If there is concern with personal info being publicly available in the log, you may send the debug log from the app and provide your username here.
+
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 

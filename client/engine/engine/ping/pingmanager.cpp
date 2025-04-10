@@ -1,5 +1,7 @@
 #include "pingmanager.h"
 
+#include <QTimeZone>
+
 #include "../connectstatecontroller/iconnectstatecontroller.h"
 #include "types/pingtime.h"
 #include "utils/extraconfig.h"
@@ -24,7 +26,7 @@ void PingManager::updateIps(const QVector<PingIpInfo> &ips)
         it.value().existThisIp = false;
     }
 
-    for (const PingIpInfo &ip_info : qAsConst(ips)) {
+    for (const PingIpInfo &ip_info : std::as_const(ips)) {
         auto it = ips_.find(ip_info.ip);
         if (it == ips_.end()) {
             pingStorage_.initPingDataIfNotExists(ip_info.ip);
@@ -81,7 +83,7 @@ void PingManager::onPingTimer()
         return;
 
     QDateTime curDateTime = QDateTime::currentDateTimeUtc();
-    QDateTime nextDateTime = QDateTime::fromMSecsSinceEpoch(pingStorage_.currentIterationTime(), Qt::UTC).addSecs(NEXT_PERIOD_SECS);
+    QDateTime nextDateTime = QDateTime::fromMSecsSinceEpoch(pingStorage_.currentIterationTime(), QTimeZone::utc()).addSecs(NEXT_PERIOD_SECS);
 
     // if the network has changed or ping by time, then re-ping all nodes
     types::NetworkInterface curNetworkInterface;
@@ -125,7 +127,7 @@ void PingManager::onPingTimer()
             pni.nowPinging = true;
             WSNet::instance()->pingManager()->ping(pni.ipInfo.ip.toStdString(), pni.ipInfo.hostname.toStdString(), pingType,
                                                    [this](const std::string &ip, bool isSuccess, std::int32_t timeMs, bool isFromDisconnectedVpnState) {
-                                                       QMetaObject::invokeMethod(this, [this, ip, isSuccess, timeMs, isFromDisconnectedVpnState] {
+                                                       QMetaObject::invokeMethod(this, [this, ip, isSuccess, timeMs, isFromDisconnectedVpnState] { // NOLINT: false positive for memory leak
                                                            onPingFinished(ip, isSuccess, timeMs, isFromDisconnectedVpnState);
                                                        });
                                                    });
@@ -202,7 +204,7 @@ int PingManager::exponentialBackoff_GetNextDelay(int curDelay, float factor, flo
 
 bool PingManager::isAllIpsHaveCurIteration() const
 {
-    for (const auto &it : qAsConst(ips_))
+    for (const auto &it : std::as_const(ips_))
         if (it.iterationTime != pingStorage_.currentIterationTime())
             return false;
 

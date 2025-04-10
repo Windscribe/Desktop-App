@@ -28,6 +28,7 @@ private slots:
     void onBackendSessionStatusChanged(const api_responses::SessionStatus &sessionStatus);
     void onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error);
     void onBackendWireGuardAtKeyLimit();
+    void onBackendLocalDnsServerNotAvailable();
 
     void onPreferencesAllowLanTrafficChanged(bool allowLanTraffic);
     void onPreferencesFirewallSettingsChanged(const types::FirewallSettings &fm);

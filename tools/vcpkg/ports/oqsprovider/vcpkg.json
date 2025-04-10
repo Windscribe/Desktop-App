@@ -1,7 +1,7 @@
 {
   "name": "oqsprovider",
-  "version": "0.5.3",
-  "port-version": 2,
+  "version": "0.8.0",
+  "port-version": 1,
   "description": "oqs-provider is an OpenSSL provider for the Open Quantum Safe project",
   "homepage": "https://github.com/open-quantum-safe/oqs-provider",
   "license": "MIT",

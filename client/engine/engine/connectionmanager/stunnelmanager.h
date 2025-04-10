@@ -2,13 +2,13 @@
 
 #include <QObject>
 #include <QProcess>
-#include "engine/helper/ihelper.h"
+#include "engine/helper/helper.h"
 
 class StunnelManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit StunnelManager(QObject *parent, IHelper *helper);
+    explicit StunnelManager(QObject *parent, Helper *helper);
     virtual ~StunnelManager();
 
     bool runProcess(const QString &hostname, unsigned int port, bool isExtraPadding);
@@ -29,7 +29,7 @@ private slots:
 private:
     static constexpr unsigned int kDefaultPort = 1194;
 
-    IHelper *helper_;
+    Helper *helper_;
     unsigned int port_;
     bool bProcessStarted_;
     QString path_;

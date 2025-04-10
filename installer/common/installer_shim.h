@@ -27,8 +27,6 @@ public:
     void setCreateShortcut(bool on);
     bool isAutoStartEnabled();
     void setAutoStart(bool on);
-    bool isInstallDriversEnabled(bool on);
-    void setInstallDrivers(bool on);
     void setCredentials(const std::wstring &username, const std::wstring &password);
     std::string username();
 

@@ -3,9 +3,6 @@
 #include <assert.h>
 #include <sstream>
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/serialization/vector.hpp>
 #include <spdlog/spdlog.h>
 #include "firewallcontroller.h"
 #include "ipc/helper_security.h"
@@ -76,15 +73,10 @@ void Server::peer_event_handler(xpc_connection_t peer, xpc_object_t event)
             data = std::string((const char *)buf, length);
         }
 
-        CMD_ANSWER cmdAnswer = processCommand(cmdId, data);
+        std::string answer = processCommand((HelperCommand)cmdId, data);
 
-        // send answer
-        std::stringstream stream;
-        boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-        oa << cmdAnswer;
-        std::string str = stream.str();
         xpc_object_t message = xpc_dictionary_create_reply(event);
-        xpc_dictionary_set_data(message, "data", str.data(), str.length());
+        xpc_dictionary_set_data(message, "data", answer.data(), answer.length());
         xpc_connection_send_message(peer, message);
         xpc_release(event);
         xpc_release(message);

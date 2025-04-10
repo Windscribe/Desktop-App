@@ -7,7 +7,7 @@
 #include "utils/winutils.h"
 #else
 #include "boost/process.hpp"
-#include <QRegExp>
+#include <QRegularExpression>
 #endif
 
 #include "utils/ws_assert.h"
@@ -79,12 +79,10 @@ void OpenVpnVersionController::detectVersion()
     c.wait();
 
     // parse version from process output
-    QRegExp rx("\\d{1,}.\\d{1,}.\\d{1,}");
-    rx.indexIn(strAnswer);
-    QStringList list = rx.capturedTexts();
-    WS_ASSERT(list.count() == 1);
-    if (list.count() == 1) {
-        ovpnVersion_ = list[0];
+    QRegularExpression rx("\\d{1,}.\\d{1,}.\\d{1,}");
+    QRegularExpressionMatch match = rx.match(strAnswer);
+    if (match.hasMatch()) {
+        ovpnVersion_ = match.captured(0);
     }
 #endif
 }

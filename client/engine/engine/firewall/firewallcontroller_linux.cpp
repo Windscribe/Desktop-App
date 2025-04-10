@@ -2,35 +2,34 @@
 #include <QStandardPaths>
 #include "utils/log/categories.h"
 #include <ifaddrs.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <QDir>
 #include <QRegularExpression>
-#include "engine/helper/ihelper.h"
 
-FirewallController_linux::FirewallController_linux(QObject *parent, IHelper *helper) :
-    FirewallController(parent), forceUpdateInterfaceToSkip_(false), comment_("Windscribe client rule")
+FirewallController_linux::FirewallController_linux(QObject *parent, Helper *helper) :
+    FirewallController(parent), helper_(helper), forceUpdateInterfaceToSkip_(false), comment_("Windscribe client rule")
 {
-    helper_ = dynamic_cast<Helper_linux *>(helper);
 }
 
 FirewallController_linux::~FirewallController_linux()
 {
 }
 
-bool FirewallController_linux::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
+void FirewallController_linux::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     QMutexLocker locker(&mutex_);
     FirewallController::firewallOn(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig);
     if (isStateChanged()) {
         qCInfo(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count() + 1;
-        return firewallOnImpl(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, latestStaticIpPorts_);
+        firewallOnImpl(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, latestStaticIpPorts_);
     } else if (forceUpdateInterfaceToSkip_) {
         qCInfo(LOG_FIREWALL_CONTROLLER) << "firewall changed due to interface-to-skip update";
-        return firewallOnImpl(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, latestStaticIpPorts_);
+        firewallOnImpl(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, latestStaticIpPorts_);
     }
-    return true;
 }
 
-bool FirewallController_linux::firewallOff()
+void FirewallController_linux::firewallOff()
 {
     QMutexLocker locker(&mutex_);
     FirewallController::firewallOff();
@@ -48,17 +47,12 @@ bool FirewallController_linux::firewallOff()
         if (!ret) {
             qCWarning(LOG_FIREWALL_CONTROLLER) << "Clear firewall rules unsuccessful:" << ret;
         }
-        return true;
     }
-    return true;
 }
 
 bool FirewallController_linux::firewallActualState()
 {
     QMutexLocker locker(&mutex_);
-    if (helper_->currentState() != IHelper::STATE_CONNECTED) {
-        return false;
-    }
     return helper_->checkFirewallState(comment_);
 }
 
@@ -229,8 +223,8 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
         }
 
         // Loopback addresses to the local host
-        rules << "-A windscribe_input -s ::1/128 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
-        rules << "-A windscribe_output -d ::1/128 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_input -s ::1 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A windscribe_output -d ::1 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
         rules << "-A windscribe_input -j DROP -m comment --comment \"" + comment_ + "\"\n";
         rules << "-A windscribe_output -j DROP -m comment --comment \"" + comment_ + "\"\n";
@@ -298,6 +292,7 @@ void FirewallController_linux::removeWindscribeRules(const QString &comment, boo
         if (rules[ind].contains("COMMIT") && curTable.contains("*filter")) {
             rules.insert(ind, "-X windscribe_input");
             rules.insert(ind + 1, "-X windscribe_output");
+            rules.insert(ind + 2, "-X windscribe_block");
             break;
         }
     }

@@ -12,8 +12,8 @@ variables:
   BUILD_LINUX_CLI: 'y'
   GIT_DEPTH: 5 # Only grab the last 5 commits when cloning
   NEXUS_PATH_ROOT: 'https://nexus.int.windscribe.com/repository/client-desktop/client-desktop'
-  NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/2.14'
-  NEXUS_PATH_VCPKG_CACHE: '$NEXUS_PATH_ROOT/vcpkg_cache/2.14'
+  NEXUS_PATH_DEPS: '$NEXUS_PATH_ROOT/dependencies/current'
+  NEXUS_PATH_VCPKG_CACHE: '$NEXUS_PATH_ROOT/vcpkg_cache/current'
   NEXUS_PATH_BRANCH_UPLOAD: '${NEXUS_PATH_ROOT}/branches/${CI_COMMIT_BRANCH}'
   NEXUS_PATH_TAGGED_UPLOAD: '${NEXUS_PATH_ROOT}/tagged-builds'
   LINUX_SIGNING_PATH: 'client/common/keys/linux'
@@ -55,7 +55,7 @@ variables:
 
 .template_aarch64_ubuntu_build: &template_aarch64_ubuntu_build
   tags: [linux-arm64-qt6]
-  image: registry.gitlab.int.windscribe.com:5005/ws/client/desktop/client-desktop/ubuntu20.04-aarch64
+  image: registry.gitlab.int.windscribe.com:5005/ws/client/desktop/client-desktop/ubuntu-aarch64
   before_script:
     - python3 -m pip install --user -r tools/requirements.txt
     # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
@@ -72,13 +72,14 @@ variables:
 .template_rhel_build: &template_rhel_build
   # RHEL 8.4 is the minimum build target for Qt 6.5
   # Could not use the RHEL 8.4 ubi Docker images, as they require a subscription license in order to install many of the packages we require below.
-  image: registry.gitlab.int.windscribe.com:5005/ws/client/desktop/client-desktop/fedora32
+  image: registry.gitlab.int.windscribe.com:5005/ws/client/desktop/client-desktop/fedora36
   before_script:
     # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
     - chmod -R o-w installer/linux
     # vcpkg settings
     - export VCPKG_ROOT="${HOME}/vcpkg"
     - export PATH=${RHEL_CMAKE_BUILD_PATH}/bin:$PATH
+    - python3 -m pip install -r tools/requirements.txt
   interruptible: true
 
 .download_dependency_openvpn_dco:
@@ -298,17 +299,17 @@ sign:win:bootstrap:
       tools/build_all --sign-bootstrap --ci-mode;
       Set-Variable -name OS_IDENTIFIER -value "windows";
       curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_$VERSION.exe";
+      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_amd64.exe";
       curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/WindscribeSymbols_$VERSION.zip"
+      --upload-file build-exe/WindscribeSymbols_${VERSION}.zip "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/WindscribeSymbols_${VERSION}_amd64.zip"
       }
     - if ($BUILD_WIN_ARM64 -eq "y") {
       tools/build_all --sign-bootstrap --arm64 --ci-mode;
       Set-Variable -name OS_IDENTIFIER -value "windows-arm64";
       curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_arm64.exe";
+      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_arm64.exe";
       curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/WindscribeSymbols_${VERSION}_arm64.zip"
+      --upload-file build-exe/WindscribeSymbols_${VERSION}.zip "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/WindscribeSymbols_${VERSION}_arm64.zip"
       }
   needs:
     - job: build:win:x64:bootstrap
@@ -332,17 +333,17 @@ sign:win:bootstrap:tagged:
       tools/build_all --sign-bootstrap --ci-mode;
       Set-Variable -name OS_IDENTIFIER -value "windows";
       curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_$VERSION.exe";
+      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_amd64.exe";
       curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/WindscribeSymbols_$VERSION.zip"
+      --upload-file build-exe/WindscribeSymbols_${VERSION}.zip "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/WindscribeSymbols_${VERSION}_amd64.zip"
       }
     - if ($BUILD_WIN_ARM64 -eq "y") {
       tools/build_all --sign-bootstrap --arm64 --ci-mode;
       Set-Variable -name OS_IDENTIFIER -value "windows-arm64";
       curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_arm64.exe";
+      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_arm64.exe";
       curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_$VERSION.zip "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/WindscribeSymbols_${VERSION}_arm64.zip"
+      --upload-file build-exe/WindscribeSymbols_${VERSION}.zip "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/WindscribeSymbols_${VERSION}_arm64.zip"
       }
   needs:
     - job: build:win:x64:bootstrap
@@ -476,7 +477,7 @@ build:mac:installer:
     - !reference [.build_mac_installer_common, script]
     - tools/build_all --ci-mode --sign
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_$VERSION.dmg"
+      --upload-file build-exe/Windscribe_${VERSION}.dmg "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_universal.dmg"
   rules:
     - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -508,7 +509,7 @@ build:mac:installer:tagged:
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_$VERSION.dmg "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_$VERSION.dmg"
+      --upload-file build-exe/Windscribe_${VERSION}.dmg "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_universal.dmg"
   rules:
     - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG != null
 
@@ -532,9 +533,11 @@ build:aarch64_ubuntu:installer:
   script:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign
+    - tools/build_all --ci-mode --sign --build-deb --build-rpm
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe_${VERSION}_arm64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_arm64.deb"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/windscribe_${VERSION}_arm64_fedora.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_arm64_fedora.rpm"
     - !reference [.package_vcpkg_cache, script]
   rules:
     - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
@@ -547,9 +550,11 @@ build:aarch64_ubuntu_cli:installer:
   script:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign --build-cli-only
+    - tools/build_all --ci-mode --sign --build-cli-only --build-deb --build-rpm
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe-cli_${VERSION}_arm64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_arm64.deb"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/windscribe-cli_${VERSION}_arm64_fedora.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_arm64_fedora.rpm"
     - !reference [.package_vcpkg_cache, script]
   rules:
     - if: $BUILD_LINUX_ARM64 == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
@@ -563,7 +568,7 @@ build:aarch64_ubuntu:installer:mr:
   script:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign
+    - tools/build_all --ci-mode --sign --build-deb --build-rpm
   rules:
     - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -575,7 +580,7 @@ build:aarch64_ubuntu_cli:installer:mr:
   script:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign --build-cli-only
+    - tools/build_all --ci-mode --sign --build-cli-only --build-deb --build-rpm
   rules:
     - if: $BUILD_LINUX_ARM64 == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -587,11 +592,13 @@ build:aarch64_ubuntu:installer:tagged:
   script:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign
+    - tools/build_all --ci-mode --sign --build-deb --build-rpm
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe_${VERSION}_arm64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_arm64.deb"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/windscribe_${VERSION}_arm64_fedora.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_arm64_fedora.rpm"
   rules:
     - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -603,11 +610,13 @@ build:aarch64_ubuntu_cli:installer:tagged:
   script:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign --build-cli-only
+    - tools/build_all --ci-mode --sign --build-cli-only --build-deb --build-rpm
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe-cli_${VERSION}_arm64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_arm64.deb"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/windscribe-cli_${VERSION}_arm64_fedora.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_arm64_fedora.rpm"
   rules:
     - if: $BUILD_LINUX_ARM64 == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -621,9 +630,9 @@ build:rhel:installer:
     - !reference [.build_linux_installer_common, script]
     - tools/build_all --ci-mode --sign --build-deb --build-rpm --build-rpm-opensuse
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_x86_64_fedora.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_x86_64_fedora.rpm"
+      --upload-file build-exe/windscribe_${VERSION}_x86_64_fedora.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64_fedora.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_x86_64_opensuse.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_x86_64_opensuse.rpm"
+      --upload-file build-exe/windscribe_${VERSION}_x86_64_opensuse.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64_opensuse.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64.deb"
     - !reference [.package_vcpkg_cache, script]
@@ -640,9 +649,9 @@ build:rhel_cli:installer:
     - !reference [.build_linux_installer_common, script]
     - tools/build_all --ci-mode --sign --build-deb --build-rpm --build-rpm-opensuse --build-cli-only
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe-cli_${VERSION}_x86_64_fedora.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_x86_64_fedora.rpm"
+      --upload-file build-exe/windscribe-cli_${VERSION}_x86_64_fedora.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_amd64_fedora.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe-cli_${VERSION}_x86_64_opensuse.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_x86_64_opensuse.rpm"
+      --upload-file build-exe/windscribe-cli_${VERSION}_x86_64_opensuse.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_amd64_opensuse.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe-cli_${VERSION}_amd64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_amd64.deb"
     - !reference [.package_vcpkg_cache, script]
@@ -686,9 +695,9 @@ build:rhel:installer:tagged:
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_x86_64_fedora.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_x86_64_fedora.rpm"
+      --upload-file build-exe/windscribe_${VERSION}_x86_64_fedora.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64_fedora.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_x86_64_opensuse.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_x86_64_opensuse.rpm"
+      --upload-file build-exe/windscribe_${VERSION}_x86_64_opensuse.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64_opensuse.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64.deb"
   rules:
@@ -706,9 +715,9 @@ build:rhel_cli:installer:tagged:
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe-cli_${VERSION}_x86_64_fedora.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_x86_64_fedora.rpm"
+      --upload-file build-exe/windscribe-cli_${VERSION}_x86_64_fedora.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64_fedora.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe-cli_${VERSION}_x86_64_opensuse.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_x86_64_opensuse.rpm"
+      --upload-file build-exe/windscribe-cli_${VERSION}_x86_64_opensuse.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64_opensuse.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe-cli_${VERSION}_amd64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64.deb"
   rules:
@@ -748,7 +757,7 @@ build:archlinux:installer:
     - !reference [.build_archlinux_installer_makepkg, script]
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file ${ARCH_LINUX_BUILD_PATH}/windscribe-$VERSION_NO_SUFFIX-1-x86_64.pkg.tar.zst
-      "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_x86_64.pkg.tar.zst"
+      "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64.pkg.tar.zst"
   needs:
     - job: "build:rhel:installer"
       optional: true
@@ -768,7 +777,7 @@ build:archlinux_cli:installer:
     - !reference [.build_archlinux_installer_makepkg, script]
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file ${ARCH_LINUX_BUILD_PATH}/windscribe-cli-$VERSION_NO_SUFFIX-1-x86_64.pkg.tar.zst
-      "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_x86_64.pkg.tar.zst"
+      "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_amd64.pkg.tar.zst"
   needs:
     - job: "build:rhel_cli:installer"
       optional: true
@@ -788,7 +797,7 @@ build:archlinux:installer:tagged:
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file ${ARCH_LINUX_BUILD_PATH}/windscribe-$VERSION_NO_SUFFIX-1-x86_64.pkg.tar.zst
-      "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_x86_64.pkg.tar.zst"
+      "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64.pkg.tar.zst"
   needs:
     - job: "build:rhel:installer:tagged"
       optional: true
@@ -808,7 +817,7 @@ build:archlinux_cli:installer:tagged:
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file ${ARCH_LINUX_BUILD_PATH}/windscribe-cli-$VERSION_NO_SUFFIX-1-x86_64.pkg.tar.zst
-      "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_x86_64.pkg.tar.zst"
+      "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64.pkg.tar.zst"
   needs:
     - job: "build:rhel_cli:installer:tagged"
       optional: true
@@ -820,19 +829,19 @@ build:artifact:links:
   stage: Artifact Links
   script:
     - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
-    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/windows/Windscribe_$VERSION.exe
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/windows/Windscribe_${VERSION}_amd64.exe
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/windows-arm64/Windscribe_${VERSION}_arm64.exe
-    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/macos/Windscribe_$VERSION.dmg
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/macos/Windscribe_${VERSION}_universal.dmg
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_amd64.deb
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux-arm64/windscribe_${VERSION}_arm64.deb
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe-cli_${VERSION}_amd64.deb
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux-arm64/windscribe-cli_${VERSION}_arm64.deb
-    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_x86_64_fedora.rpm
-    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe-cli_${VERSION}_x86_64_fedora.rpm
-    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_x86_64_opensuse.rpm
-    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe-cli_${VERSION}_x86_64_opensuse.rpm
-    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_x86_64.pkg.tar.zst
-    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe-cli_${VERSION}_x86_64.pkg.tar.zst
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_amd64_fedora.rpm
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe-cli_${VERSION}_amd64_fedora.rpm
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_amd64_opensuse.rpm
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe-cli_${VERSION}_amd64_opensuse.rpm
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_amd64.pkg.tar.zst
+    - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe-cli_${VERSION}_amd64.pkg.tar.zst
   dependencies: []
   rules:
     - if: $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
@@ -843,19 +852,19 @@ build:artifact:links:tagged:
   script:
     - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
     - Set-Variable -name TAG -value $($CI_COMMIT_TAG -replace '^v([0-9].*)','$1')
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_$VERSION.exe
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_amd64.exe
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_arm64.exe
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_$VERSION.dmg
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_universal.dmg
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64.deb
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_arm64.deb
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64.deb
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_arm64.deb
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_x86_64_fedora.rpm
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_x86_64_fedora.rpm
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_x86_64_opensuse.rpm
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_x86_64_opensuse.rpm
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_x86_64.pkg.tar.zst
-    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_x86_64.pkg.tar.zst
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64_fedora.rpm
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64_fedora.rpm
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64_opensuse.rpm
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64_opensuse.rpm
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64.pkg.tar.zst
+    - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64.pkg.tar.zst
   dependencies: []
   rules:
     - if: $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
@@ -961,3 +970,26 @@ test:wsnet:rhel:
         path: coverage.xml
   rules:
     - if: $BUILD_LINUX == "y" && $NIGHTLY_TEST_BUILD == "y"
+
+test:version:mac:
+  <<: *template_mac_build
+  tags: [macos11qt6]
+  stage: Test
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - |
+      git fetch
+      HELPER_CHANGES=$(git diff --name-only origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -- backend/mac/helper)
+      if [ ! -z "$HELPER_CHANGES" ] && [[ ! "$HELPER_CHANGES" == *"backend/mac/helper/helper-info.plist"* ]]; then
+        echo "Files in backend/mac/helper were changed, but backend/mac/helper/helper-info.plist was not updated"
+        exit 1
+      fi
+      EXTENSION_CHANGES=$(git diff --name-only origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -- backend/mac/splittunnelextension)
+      if [ ! -z "$EXTENSION_CHANGES" ] && [[ ! "$EXTENSION_CHANGES" == *"backend/mac/splittunnelextension/Info.plist"* ]]; then
+        echo "Files in backend/mac/splittunnelextension were changed, but backend/mac/splittunnelextension/Info.plist was not updated"
+        exit 1
+      fi
+  dependencies: []
+  rules:
+    - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"

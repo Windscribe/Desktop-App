@@ -28,14 +28,14 @@ DEP_URL = "https://download.qt.io/archive/qt/"
 DEP_OS_LIST = ["win32", "macos", "linux"]
 DEP_FILE_MASK = ["bin/**", "include/**", "lib/**", "libexec/**", "mkspecs/**", "phrasebooks/**", "plugins/**", "translations/**"]
 
-QT_SKIP_MODULES = ["qtdoc", "qt3d", "qtactiveqt", "qtcanvas3d", "qtcharts", "qtconnectivity",
-                   "qtdatavis3d", "qtdeclarative", "qtdoc", "qtgamepad", "qtgraphicaleffects", "qtlocation",
-                   "qtmultimedia", "qtnetworkauth", "qtpurchasing", "qtquickcontrols", "qtquickcontrols2",
+QT_SKIP_MODULES = ["qtdoc", "qt3d", "qtactiveqt", "qtcanvas3d", "qtcharts", "qtconnectivity", "qtdatavis3d",
+                   "qtdeclarative", "qtdoc", "qtgamepad", "qtgraphicaleffects", "qtgraphs", "qtlocation",
+                   "qtnetworkauth", "qtpurchasing", "qtquickcontrols", "qtquickcontrols2",
                    "qtremoteobjects", "qtscript", "qtscxml", "qtserialbus", "qtserialport", "qtspeech",
                    "qtvirtualkeyboard", "qtwebchannel", "qtwebengine", "qtwebglplugin", "qtwebsockets",
                    "qtwebview", "qtlottie", "qtmqtt", "qtopcua", "qtquicktimeline", "qtquick3d", "qtcoap",
                    "qtpositioning", "qtsensors", "qtopengl", "qtquick3dphysics", "qtquickeffectmaker",
-                   "qtlanguageserver", "qtwayland", "qthttpserver"]
+                   "qtlanguageserver", "qthttpserver", "qt5compat"]
 
 
 def BuildDependencyMSVC(installpath, outpath):
@@ -44,13 +44,15 @@ def BuildDependencyMSVC(installpath, outpath):
     buildenv.update(iutl.GetVisualStudioEnvironment())
     # Configure.
     configure_cmd = \
-        ["configure.bat", "-static", "-static-runtime", "-no-openssl", "-schannel", "-c++std", "c++20", "-dbus-runtime", "-no-icu",
+        ["configure.bat", "-static", "-static-runtime", "-no-openssl", "-schannel", "-c++std", "c++17", "-dbus-runtime", "-no-icu",
          "-no-glib", "-qt-doubleconversion", "-qt-pcre", "-qt-zlib", "-qt-freetype", "-qt-harfbuzz", "-qt-libpng", "-qt-libjpeg",
          "-qt-sqlite", "-qt-tiff", "-qt-webp", "-confirm-license", "-release", "-platform", "win32-msvc", "-nomake", "examples",
          "-nomake", "tests"]
     configure_cmd.extend(["-prefix", installpath])
     if QT_SKIP_MODULES:
         configure_cmd.extend(x for t in zip(["-skip"] * len(QT_SKIP_MODULES), QT_SKIP_MODULES) for x in t)
+    configure_cmd.append("--")
+    configure_cmd.append("-DQT_NO_MSVC_MIN_VERSION_CHECK=ON")
     iutl.RunCommand(configure_cmd, env=buildenv, shell=True)
     # Build and install.
     iutl.RunCommand(["cmake", "--build", ".", "--parallel"], env=buildenv, shell=True)
@@ -61,12 +63,11 @@ def BuildDependencyGNU(installpath, outpath):
     c_ismac = utl.GetCurrentOS() == "macos"
     # Create an environment.
     buildenv = os.environ.copy()
-    if c_ismac:
-        buildenv.update({"CMAKE_OSX_ARCHITECTURES": "x86_64;arm64"})
 
     # Configure.
     configure_cmd = \
         ["./configure", "-opensource", "-confirm-license", "-release", "-nomake", "examples"]
+
     configure_cmd.append("-qt-zlib")
     configure_cmd.append("-qt-pcre")
     configure_cmd.append("-no-icu")
@@ -76,7 +77,12 @@ def BuildDependencyGNU(installpath, outpath):
         configure_cmd.append("-qt-libpng")
     if QT_SKIP_MODULES:
         configure_cmd.extend(x for t in zip(["-skip"] * len(QT_SKIP_MODULES), QT_SKIP_MODULES) for x in t)
+    if c_ismac:
+        configure_cmd.append("--")
+        configure_cmd.append("-DCMAKE_OSX_ARCHITECTURES=\"x86_64;arm64\"")
+        configure_cmd.append("-DQT_FORCE_WARN_APPLE_SDK_AND_XCODE_CHECK=ON")
     iutl.RunCommand(configure_cmd, env=buildenv)
+
     # Build and install.
     iutl.RunCommand(["cmake", "--build", ".", "--parallel", str(multiprocessing.cpu_count())], env=buildenv)
     iutl.RunCommand(["cmake", "--install", "."], env=buildenv)

@@ -212,6 +212,19 @@ void LocationsModelManager::onChangeConnectionSpeedTimer()
     timer_.stop();
 }
 
+QJsonObject LocationsModelManager::renamedLocations() const
+{
+    return locationsModel_->renamedLocations();
+}
 
+void LocationsModelManager::setRenamedLocations(const QJsonObject &obj)
+{
+    locationsModel_->setRenamedLocations(obj);
+}
+
+void LocationsModelManager::resetRenamedLocations()
+{
+    locationsModel_->resetRenamedLocations();
+}
 
 } //namespace gui_locations

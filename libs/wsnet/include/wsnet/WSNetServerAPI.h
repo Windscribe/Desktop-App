@@ -69,7 +69,7 @@ public:
     virtual std::shared_ptr<WSNetCancelableCallback> speedRating(const std::string &authHash, const std::string &hostname, const std::string &ip,
                                                                  std::int32_t rating, WSNetRequestFinishedCallback callback) = 0;
 
-    virtual std::shared_ptr<WSNetCancelableCallback> staticIps(const std::string &authHash, WSNetRequestFinishedCallback callback) = 0;
+    virtual std::shared_ptr<WSNetCancelableCallback> staticIps(const std::string &authHash, std::uint32_t version, WSNetRequestFinishedCallback callback) = 0;
 
     virtual std::shared_ptr<WSNetCancelableCallback> pingTest(std::uint32_t timeoutMs, WSNetRequestFinishedCallback callback) = 0;
 

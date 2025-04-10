@@ -10,13 +10,14 @@
 #include "dns_firewall.h"
 #include "executecmd.h"
 #include "firewallfilter.h"
+#include "firewallonboot.h"
 #include "fwpm_wrapper.h"
 #include "ioutils.h"
-#include "ipc/servicecommunication.h"
 #include "ipv6_firewall.h"
 #include "openvpncontroller.h"
 #include "process_command.h"
 #include "split_tunneling/split_tunneling.h"
+#include "active_processes.h"
 #include "utils.h"
 #include "utils/win32handle.h"
 
@@ -267,18 +268,13 @@ static HANDLE CreatePipe()
     return hPipe;
 }
 
-static bool writeMessagePacketResult(HANDLE hPipe, HANDLE hIOEvent, MessagePacketResult &mpr)
+static bool writeCmdResult(HANDLE hPipe, HANDLE hIOEvent, const std::string &data)
 {
-    std::stringstream stream;
-    boost::archive::text_oarchive oa(stream, boost::archive::no_header);
-    oa << mpr;
-    const std::string str = stream.str();
-
     // first 4 bytes - size of buffer
-    const auto sizeOfBuf = static_cast<unsigned long>(str.size());
+    const auto sizeOfBuf = static_cast<unsigned long>(data.size());
     if (IOUtils::writeAll(hPipe, hIOEvent, (char *)&sizeOfBuf, sizeof(sizeOfBuf))) {
         if (sizeOfBuf > 0) {
-            bool bRet = IOUtils::writeAll(hPipe, hIOEvent, str.c_str(), sizeOfBuf);
+            bool bRet = IOUtils::writeAll(hPipe, hIOEvent, data.c_str(), sizeOfBuf);
             return bRet;
         }
     }
@@ -318,8 +314,8 @@ static void processClientRequests(HANDLE hPipe)
             strData = std::string(buffer.begin(), buffer.end());
         }
 
-        MessagePacketResult mpr = processCommand(cmdId, strData);
-        writeMessagePacketResult(hPipe, ioCompletedEvent.getHandle(), mpr);
+        auto result = processCommand((HelperCommand)cmdId, strData);
+        writeCmdResult(hPipe, ioCompletedEvent.getHandle(), result);
         ::FlushFileBuffers(hPipe);
     }
 }
@@ -362,6 +358,12 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
     Ipv6Firewall::instance(&fwpmWrapper);
     SplitTunneling::instance(&fwpmWrapper);
 
+    // Check if firewall on boot is enabled
+    if (!FirewallOnBootManager::instance().isEnabled()) {
+        spdlog::info("Firewall on boot is not enabled, turning off firewall");
+        FirewallFilter::instance().off();
+    }
+
     OVERLAPPED overlapped;
 
     while (!g_ServiceExiting) {
@@ -393,7 +395,7 @@ DWORD WINAPI serviceWorkerThread(LPVOID)
     CloseHandle(hPipe);
 
     // turn off split tunneling
-    CMD_CONNECT_STATUS connectStatus = { 0 };
+    ConnectStatus connectStatus = { 0 };
     connectStatus.isConnected = false;
     SplitTunneling::instance().setConnectStatus(connectStatus);
 

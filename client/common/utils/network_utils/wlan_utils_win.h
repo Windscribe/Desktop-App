@@ -5,6 +5,8 @@
 #include <Windows.h>
 #include <wlanapi.h>
 
+#include "../engine/engine/helper/helper.h"
+
 typedef DWORD (WINAPI * WlanOpenHandleFunc)(DWORD dwClientVersion, PVOID pReserved, PDWORD pdwNegotiatedVersion, PHANDLE phClientHandle);
 typedef DWORD (WINAPI * WlanCloseHandleFunc)(HANDLE hClientHandle, PVOID pReserved);
 typedef VOID  (WINAPI * WlanFreeMemoryFunc)(PVOID pMemory);
@@ -21,12 +23,12 @@ public:
     DWORD ssidFromInterfaceGUID(const QString &interfaceGUID, QString &outSsid);
     bool isWifiRadioOn();
 
-    static void setHelper(void* helper);
+    static void setHelper(Helper* helper);
 
 private:
     HMODULE wlanDll_;
     bool loaded_;
-    static void *helper_;
+    static Helper *helper_;
 
     WlanOpenHandleFunc pfnWlanOpenHandle_;
     WlanCloseHandleFunc pfnWlanCloseHandle_;

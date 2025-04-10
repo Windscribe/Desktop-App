@@ -150,19 +150,20 @@ void ExpandableItemsWidget::updateSelectedItemByCursorPos()
     if (sel != selectedInd_)
     {
         // close tooltips for prev selected item
-        if (selectedInd_.isValid())
+        if (selectedInd_.isValid()) {
             closeAndClearAllActiveTooltips(selectedInd_);
+        }
 
         selectedInd_ = sel;
-        if (selectedInd_.isValid() && delegateForItem(selectedInd_)->isForbiddenCursor(selectedInd_))
-        {
+    }
+
+    // update cursor
+    if (selectedInd_.isValid()) {
+        if (selectedInd_.isValid() && delegateForItem(selectedInd_)->isForbiddenCursor(selectedInd_)) {
             cursorUpdateHelper_->setForbiddenCursor();
-        }
-        else
-        {
+        } else {
             cursorUpdateHelper_->setPointingHandCursor();
         }
-
         update();
     }
 
@@ -281,7 +282,7 @@ void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     QVector<ItemRect> items = getItemRects();
-    for (const auto &item : qAsConst(items)) {
+    for (const auto &item : std::as_const(items)) {
         IItemDelegate *delegate = delegateForItem(item.modelIndex);
         double expandedProgress;
         if (item.modelIndex == expandingItem_)
@@ -416,7 +417,7 @@ void ExpandableItemsWidget::resetItemsList()
 QPersistentModelIndex ExpandableItemsWidget::detectSelectedItem(const QPoint &pt, QRect *outputRect)
 {
     QVector<ItemRect> items = getItemRects();
-    for (const auto &item : qAsConst(items)) {
+    for (const auto &item : std::as_const(items)) {
         if (item.rc.contains(pt)) {
             if (outputRect) {
                 *outputRect = item.rc;
@@ -445,7 +446,7 @@ bool ExpandableItemsWidget::isExpandableItem(const QPersistentModelIndex &ind)
 void ExpandableItemsWidget::updateHeight()
 {
     int curHeight = 0;
-    for (const auto &it : qAsConst(items_)) {
+    for (const auto &it : std::as_const(items_)) {
         curHeight += itemHeight_;
         if (expandedItems_.contains(it)) {
             if (it == expandingItem_)
@@ -477,7 +478,7 @@ int ExpandableItemsWidget::calcHeightOfChildItems(const QPersistentModelIndex &i
 int ExpandableItemsWidget::getOffsForTopLevelItem(const QPersistentModelIndex &ind)
 {
     int top = 0;
-    for (const auto &it : qAsConst(items_)) {
+    for (const auto &it : std::as_const(items_)) {
         if (it == ind)
             return top;
         top += itemHeight_;
@@ -565,7 +566,7 @@ void ExpandableItemsWidget::setupExpandingAnimation(QAbstractAnimation::Directio
 void ExpandableItemsWidget::closeAndClearAllActiveTooltips(const QPersistentModelIndex &modelIndex)
 {
     WS_ASSERT(modelIndex.isValid());
-    for (auto id : qAsConst(hoveringToolTips_)) {
+    for (auto id : std::as_const(hoveringToolTips_)) {
         delegateForItem(modelIndex)->tooltipLeaveEvent(id);
     }
     hoveringToolTips_.clear();
@@ -669,7 +670,7 @@ QVector<ExpandableItemsWidget::ItemRect> ExpandableItemsWidget::getItemRects()
     result.reserve(items_.count() * 3);
     int top = 0;
 
-    for (const auto &it : qAsConst(items_)) {
+    for (const auto &it : std::as_const(items_)) {
         bool isExpandedItem = expandedItems_.contains(it);
         QRect rcItem = QRect(0, top, size().width(), itemHeight_);
         result << ItemRect{it, rcItem, isExpandedItem};

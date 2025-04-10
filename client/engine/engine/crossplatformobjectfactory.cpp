@@ -1,38 +1,41 @@
 #include "crossplatformobjectfactory.h"
+#include "utils/log/logger.h"
 
 #ifdef Q_OS_WIN
-    #include "helper/helper_win.h"
+    #include "helper/helperbackend_win.h"
     #include "networkdetectionmanager/networkdetectionmanager_win.h"
     #include "firewall/firewallcontroller_win.h"
     #include "macaddresscontroller/macaddresscontroller_win.h"
     #include "connectionmanager/ctrldmanager/ctrldmanager_win.h"
 
 #elif defined Q_OS_MACOS
-    #include "helper/helper_mac.h"
+    #include "helper/helperbackend_mac.h"
     #include "networkdetectionmanager/networkdetectionmanager_mac.h"
     #include "firewall/firewallcontroller_mac.h"
     #include "macaddresscontroller/macaddresscontroller_mac.h"
     #include "connectionmanager/ctrldmanager/ctrldmanager_posix.h"
 #elif defined Q_OS_LINUX
-    #include "helper/helper_linux.h"
+    #include "helper/helperbackend_linux.h"
     #include "networkdetectionmanager/networkdetectionmanager_linux.h"
     #include "firewall/firewallcontroller_linux.h"
     #include "macaddresscontroller/macaddresscontroller_linux.h"
     #include "connectionmanager/ctrldmanager/ctrldmanager_posix.h"
 #endif
 
-IHelper *CrossPlatformObjectFactory::createHelper(QObject *parent)
+Helper *CrossPlatformObjectFactory::createHelper(QObject *parent)
 {
+    IHelperBackend *backend;
 #ifdef Q_OS_WIN
-    return new Helper_win(parent);
+    backend = new HelperBackend_win(parent);
 #elif defined Q_OS_MACOS
-    return new Helper_mac(parent);
+    backend = new HelperBackend_mac(parent, log_utils::Logger::instance().getSpdLogger("basic"));
 #elif defined Q_OS_LINUX
-    return new Helper_linux(parent);
+    backend = new HelperBackend_linux(parent);
 #endif
+    return new Helper(std::unique_ptr<IHelperBackend>(backend));
 }
 
-FirewallController *CrossPlatformObjectFactory::createFirewallController(QObject *parent, IHelper *helper)
+FirewallController *CrossPlatformObjectFactory::createFirewallController(QObject *parent, Helper *helper)
 {
 #ifdef Q_OS_WIN
     return new FirewallController_win(parent, helper);
@@ -44,7 +47,7 @@ FirewallController *CrossPlatformObjectFactory::createFirewallController(QObject
 
 }
 
-INetworkDetectionManager *CrossPlatformObjectFactory::createNetworkDetectionManager(QObject *parent, IHelper *helper)
+INetworkDetectionManager *CrossPlatformObjectFactory::createNetworkDetectionManager(QObject *parent, Helper *helper)
 {
 #ifdef Q_OS_WIN
     return new NetworkDetectionManager_win(parent, helper);
@@ -55,7 +58,7 @@ INetworkDetectionManager *CrossPlatformObjectFactory::createNetworkDetectionMana
 #endif
 }
 
-IMacAddressController *CrossPlatformObjectFactory::createMacAddressController(QObject *parent, INetworkDetectionManager *ndManager, IHelper *helper)
+IMacAddressController *CrossPlatformObjectFactory::createMacAddressController(QObject *parent, INetworkDetectionManager *ndManager, Helper *helper)
 {
 #ifdef Q_OS_WIN
     Q_UNUSED(helper);
@@ -67,7 +70,7 @@ IMacAddressController *CrossPlatformObjectFactory::createMacAddressController(QO
 #endif
 }
 
-ICtrldManager *CrossPlatformObjectFactory::createCtrldManager(QObject *parent, IHelper *helper, bool isCreateLog)
+ICtrldManager *CrossPlatformObjectFactory::createCtrldManager(QObject *parent, Helper *helper, bool isCreateLog)
 {
 #ifdef Q_OS_WIN
     Q_UNUSED(helper);

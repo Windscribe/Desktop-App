@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "../../../posix_common/helper_commands.h"
+#include "../../../common/helper_commands.h"
 
 class CGroups
 {
@@ -12,7 +12,7 @@ public:
         return cg;
     }
 
-    bool enable(CMD_SEND_CONNECT_STATUS &connectStatus, bool isAllowLanTraffic, bool isExclude);
+    bool enable(const ConnectStatus &connectStatus, bool isAllowLanTraffic, bool isExclude);
     void disable();
 
     void addApp(pid_t pid);

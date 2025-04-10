@@ -92,7 +92,7 @@ void getDefaultRoute(QString &outGatewayIp, QString &outInterfaceName, QString &
     int lowestMetric = INT32_MAX;
 
     QList<RoutingTableEntry> entries = getRoutingTableAsList();
-    for (const RoutingTableEntry& entry : qAsConst(entries)) {
+    for (const RoutingTableEntry& entry : std::as_const(entries)) {
         // if ignoring tun interfaces, remove them from contention
         if (ignoreTun && (entry.interface.startsWith("tun") || entry.interface.startsWith("utun"))) {
             continue;
@@ -132,7 +132,7 @@ QString getLocalIP()
     int lowestMetric = INT32_MAX;
 
     QList<RoutingTableEntry> entries = getRoutingTableAsList();
-    for (const RoutingTableEntry& entry : qAsConst(entries)) {
+    for (const RoutingTableEntry& entry : std::as_const(entries)) {
         QString adapterIp = getAdapterIp(entry.interface);
         if (!adapterIp.isEmpty() && entry.metric < lowestMetric) {
             lowestMetric = entry.metric;

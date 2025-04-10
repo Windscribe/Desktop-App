@@ -191,6 +191,12 @@ void Preferences::setLanguage(const QString &lang)
         emitEngineSettingsChanged();
         emit languageChanged(lang);
     }
+
+    // Also update the language in the general settings file
+    // This is so a future installer (update or reinstall) can determine the correct language to use
+    QSettings settings;
+    settings.setValue("language", lang);
+    settings.sync();
 }
 
 ORDER_LOCATION_TYPE Preferences::locationOrder() const

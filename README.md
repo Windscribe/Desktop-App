@@ -13,6 +13,7 @@ This repo contains the complete source code for the Windscribe 2.0 app. This inc
 - Install Python 3 via either the Microsoft Store or from [here](https://www.python.org/downloads/). Minimum tested version is 3.6.8.
 - Install CMake v3.28.x or newer from [here](https://cmake.org/download/). The project will build with older versions of CMake, but you may encounter some warnings.
 - Install Ninja v1.10.2 from [here](https://github.com/ninja-build/ninja/releases)
+- Install Windows 11 SDK (10.0.22000) from [here](https://go.microsoft.com/fwlink/?linkid=2173743).  Newer versions may work as well.
 - Install vcpkg from [here](https://vcpkg.io/en/getting-started.html)
     - Create a `VCPKG_ROOT` environment variable referencing the full path to your vcpkg install folder.
     - Go to the vcpkg directory and `git checkout 52fc0d8c1e2cbd12c9907284566f5c17e5ef0d12`.

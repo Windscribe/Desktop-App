@@ -18,7 +18,7 @@ void CitiesProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
     beginResetModel();
     if (this->sourceModel())
     {
-        for (const QMetaObject::Connection& discIter : qAsConst(sourceConnections_))
+        for (const QMetaObject::Connection& discIter : std::as_const(sourceConnections_))
             disconnect(discIter);
     }
     sourceConnections_.clear();

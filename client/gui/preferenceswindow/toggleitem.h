@@ -34,7 +34,12 @@ signals:
     void buttonHoverEnter();
     void buttonHoverLeave();
 
+protected:
+    void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
+
 private:
+
     // Height of typical BaseItem (48) - height of checkbox item (22), divided by 2.
     static constexpr int CHECKBOX_MARGIN_Y = 13;
 
@@ -44,6 +49,8 @@ private:
     ToggleButton *checkBoxButton_;
     FontDescr captionFont_;
     QSharedPointer<IndependentPixmap> icon_;
+    bool isCaptionElided_ = false;
+    QRectF captionRect_;
 };
 
 } // namespace PreferencesWindow

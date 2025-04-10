@@ -7,6 +7,8 @@ enum class TooltipRect {
     kP2P,
     kPingTime,
     kItemCaption,
+    kItemNickname,
+    kCountryCaption,
     kCustomConfigErrorMessage,
 };
 
@@ -16,5 +18,3 @@ enum class ClickableRect {
 };
 
 } // namespace gui
-
-

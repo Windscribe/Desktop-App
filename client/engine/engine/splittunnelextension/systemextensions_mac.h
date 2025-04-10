@@ -26,7 +26,7 @@ public slots:
 private:
     SystemExtensions_mac();
     ~SystemExtensions_mac();
-    
+
     // Delete copy constructor and assignment operator
     SystemExtensions_mac(const SystemExtensions_mac&) = delete;
     SystemExtensions_mac& operator=(const SystemExtensions_mac&) = delete;

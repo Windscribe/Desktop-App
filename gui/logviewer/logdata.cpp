@@ -130,7 +130,7 @@ void LogData::addLines(QStringList lines, LogDataType type, quint32 index,
     default:
         break;
     }
-    for (auto &line : qAsConst(lines)) {
+    for (auto &line : std::as_const(lines)) {
         processLine(line, type, index, kCurrentYearOffset,
             (rangeCheck != LogRangeCheckType::NONE) ? range : nullptr);
     }

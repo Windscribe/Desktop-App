@@ -1,18 +1,19 @@
 #pragma once
 
 #include "firewallcontroller.h"
-#include "engine/helper/helper_linux.h"
+#include <QRecursiveMutex>
+#include "engine/helper/helper.h"
 
 //thread safe
 class FirewallController_linux : public FirewallController
 {
     Q_OBJECT
 public:
-    explicit FirewallController_linux(QObject *parent, IHelper *helper);
+    explicit FirewallController_linux(QObject *parent, Helper *helper);
     ~FirewallController_linux() override;
 
-    bool firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig) override;
-    bool firewallOff() override;
+    void firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig) override;
+    void firewallOff() override;
     bool firewallActualState() override;
 
     bool whitelistPorts(const api_responses::StaticIpPortsVector &ports) override;
@@ -22,7 +23,7 @@ public:
     void setFirewallOnBoot(bool bEnable, const QSet<QString>& ipTable = QSet<QString>(), bool isAllowLanTraffic = false) override;
 
 private:
-    Helper_linux *helper_;
+    Helper *helper_;
     QString interfaceToSkip_;
     bool forceUpdateInterfaceToSkip_;
     QRecursiveMutex mutex_;

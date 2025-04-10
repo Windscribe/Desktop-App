@@ -46,7 +46,6 @@ MainWindow::MainWindow(bool isAdmin, InstallerOptions &options) : QWidget(nullpt
 
     installerShim_->setFactoryReset(options_.factoryReset);
     installerShim_->setAutoStart(options_.autostart);
-    installerShim_->setInstallDrivers(options_.installDrivers);
     std::wstring username = options_.username.toStdWString();
     std::wstring password = options_.password.toStdWString();
     installerShim_->setCredentials(username, password);

@@ -224,7 +224,7 @@ void ShadowManager::updateShadow()
 
     {
         QPainter painter(&pixmap);
-        for (const ShadowObject &so : qAsConst(objects_))
+        for (const ShadowObject &so : std::as_const(objects_))
         {
             if (so.isVisible)
             {

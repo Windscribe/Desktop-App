@@ -1,12 +1,14 @@
 #include "firewallcontroller_mac.h"
-#include <QStandardPaths>
-#include "utils/ws_assert.h"
-#include "utils/log/categories.h"
-#include "utils/network_utils/network_utils_mac.h"
+
 #include <ifaddrs.h>
-#include <QDir>
-#include <QCoreApplication>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <QSettings>
+
+#include "utils/log/categories.h"
+#include "utils/macutils.h"
+#include "utils/network_utils/network_utils_mac.h"
+#include "utils/ws_assert.h"
 
 class Anchor
 {
@@ -46,11 +48,9 @@ private:
     QStringList rules_;
 };
 
-FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper) :
-    FirewallController(parent), isWindscribeFirewallEnabled_(false), isAllowLanTraffic_(false), isCustomConfig_(false), connectingIp_("")
+FirewallController_mac::FirewallController_mac(QObject *parent, Helper *helper) :
+    FirewallController(parent), helper_(helper), isWindscribeFirewallEnabled_(false), isAllowLanTraffic_(false), isCustomConfig_(false), connectingIp_("")
 {
-    helper_ = dynamic_cast<Helper_mac *>(helper);
-
     awdl_p2p_interfaces_ = NetworkUtils_mac::getP2P_AWDL_NetworkInterfaces();
 
     FirewallState firewallState;
@@ -75,7 +75,7 @@ FirewallController_mac::FirewallController_mac(QObject *parent, IHelper *helper)
     }
 }
 
-bool FirewallController_mac::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
+void FirewallController_mac::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     QMutexLocker locker(&mutex_);
     FirewallState firewallState;
@@ -121,11 +121,9 @@ bool FirewallController_mac::firewallOn(const QString &connectingIp, const QSet<
             isAllowLanTraffic_ = bAllowLanTraffic;
         }
     }
-
-    return true;
 }
 
-bool FirewallController_mac::firewallOff()
+void FirewallController_mac::firewallOff()
 {
     QMutexLocker locker(&mutex_);
 
@@ -133,7 +131,6 @@ bool FirewallController_mac::firewallOff()
     firewallOffImpl();
     isWindscribeFirewallEnabled_ = false;
     windscribeIps_.clear();
-    return true;
 }
 
 bool FirewallController_mac::firewallActualState()
@@ -338,8 +335,15 @@ QString FirewallController_mac::generatePfConf(const QString &connectingIp, cons
     // Allow VPN DNS, disllow other DNS
     pf += "pass out quick proto udp from any to <windscribe_dns> port 53\n";
     pf += "pass in quick proto udp from <windscribe_dns> port 53 to any\n";
-    pf += "block out quick proto {tcp, udp} from any to any port 53\n";
-    pf += "block in quick proto {tcp, udp} from any port 53 to any\n";
+
+    pf += "table <disallowed_dns> persist {";
+    QSet<QString> disallowedDns = MacUtils::getOsDnsServers();
+    for (auto &ip : disallowedDns) {
+        pf += ip + " ";
+    }
+    pf += "}\n";
+    pf += "block out quick proto {tcp, udp} from any to <disallowed_dns> port 53\n";
+    pf += "block in quick proto {tcp, udp} from <disallowed_dns> port 53 to any\n";
 
     // LAN traffic rules have precedence over split tunnel rules.  This is because on an inclusive tunnel,
     // whether included apps should be able to access the LAN should by controlled by the "Allow LAN traffic" setting.

@@ -279,8 +279,8 @@
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
-        <source>Add Static IP</source>
-        <translation>静的 IP の追加</translation>
+        <source>Add</source>
+        <translation>足す</translation>
     </message>
 </context>
 <context>
@@ -507,10 +507,6 @@
         <translation>開始に失敗しました</translation>
     </message>
     <message>
-        <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>ウインドスクライブが誤動作しています。 アプリケーションを再起動してください。</translation>
-    </message>
-    <message>
         <source>Trying Backup Endpoints %1/%2</source>
         <translation>バックアップ エンドポイント %1/%2 を試行しています</translation>
     </message>
@@ -603,10 +599,6 @@
     <message>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation>このネットワークに接続できませんでした。何が起こったのかを把握できるように、デバッグログを送信してください。</translation>
-    </message>
-    <message>
-        <source>Debug Sent!</source>
-        <translation>デバッグが送信されました!</translation>
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
@@ -841,6 +833,58 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>通知を表示するように選択しましたが、システム通知は無効になっています。システム設定でシステム通知を有効にしてください。</translation>
+    </message>
+    <message>
+        <source>Error Starting Split Tunneling</source>
+        <translation>スプリット トンネリングの開始エラー</translation>
+    </message>
+    <message>
+        <source>Export Location Names To</source>
+        <translation>ロケーション名のエクスポート先</translation>
+    </message>
+    <message>
+        <source>Unable to export location names</source>
+        <translation>ロケーション名をエクスポートできません</translation>
+    </message>
+    <message>
+        <source>Import Location Names From</source>
+        <translation>ロケーション名のインポート元</translation>
+    </message>
+    <message>
+        <source>Unable to import location names</source>
+        <translation>ロケーション名をインポートできません</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Windscribeスプリットトンネル拡張機能がシステム設定で有効になっていないため、スプリットトンネリング機能が無効になっています。 この機能を使用するには、システム設定で拡張機能を有効にし、再度機能をオンにしてください。</translation>
+    </message>
+    <message>
+        <source>Debug Log Sent!</source>
+        <translation>デバッグログ送信!</translation>
+    </message>
+    <message>
+        <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
+        <translation>Windscribeサービスに接続できませんでした。 これでWindscribeが終了します。 サポートにお問い合わせください。</translation>
+    </message>
+    <message>
+        <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
+        <translation>Windscribeサービスへの接続が失われました。 これでWindscribeが終了します。 これを改善できるように、デバッグログをお送りください。</translation>
+    </message>
+    <message>
+        <source>Local DNS server is not available</source>
+        <translation>ローカル DNS サーバーを使用できません</translation>
+    </message>
+    <message>
+        <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
+        <translation>ローカル DNS サーバーは使用できません。 接続された DNS は [自動] に戻されました。</translation>
+    </message>
+    <message>
+        <source>DNS Server Conflict</source>
+        <translation>DNS サーバーの競合</translation>
+    </message>
+    <message>
+        <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
+        <translation>カスタム DNS サービスを開始できません - ポート 53 は既に使用されています。 接続DNSをローカルサーバーに変更しますか?</translation>
     </message>
 </context>
 <context>
@@ -1283,8 +1327,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>推定データ使用量</translation>
     </message>
     <message>
-        <source>GB/Hour</source>
-        <translation>GB/時間</translation>
+        <source>%1/hour</source>
+        <translation>%1/時間</translation>
     </message>
 </context>
 <context>
@@ -1488,6 +1532,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Select behavior when window is activated with multiple desktops.</source>
         <translation>ウィンドウが複数のデスクトップでアクティブ化されている場合の動作を選択します。</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>輸出</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>輸入</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>リセット</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>場所の名前を好みに合わせて変更してください。</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>ロケーション名の変更</translation>
     </message>
 </context>
 <context>
@@ -2330,6 +2394,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Duplicate</source>
         <translation>デュプリケート</translation>
+    </message>
+    <message>
+        <source>Local DNS</source>
+        <translation>ローカル DNS</translation>
     </message>
 </context>
 <context>

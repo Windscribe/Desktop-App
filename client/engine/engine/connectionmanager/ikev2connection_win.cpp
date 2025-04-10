@@ -19,14 +19,11 @@ IKEv2Connection_win *IKEv2Connection_win::this_ = NULL;
 bool IKEv2Connection_win::wanReinstalled_ = false;
 
 
-IKEv2Connection_win::IKEv2Connection_win(QObject *parent, IHelper *helper) : IConnection(parent),
-    state_(STATE_DISCONNECTED), initialEnableIkev2Compression_(false),
+IKEv2Connection_win::IKEv2Connection_win(QObject *parent, Helper *helper) : IConnection(parent),
+    state_(STATE_DISCONNECTED), helper_(helper), initialEnableIkev2Compression_(false),
     isAutomaticConnectionMode_(false), connHandle_(NULL),
     disconnectLogic_(this), cntFailedConnectionAttempts_(0)
 {
-    helper_ = dynamic_cast<Helper_win *>(helper);
-    WS_ASSERT(helper_);
-
     WS_ASSERT(this_ == NULL);
     this_ = this;
     initMapConnStates();

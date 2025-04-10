@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QMutex>
 #include <QLoggingCategory>
+#include <spdlog/spdlog.h>
 
 namespace log_utils {
 
@@ -23,6 +24,9 @@ public:
     void endConnectionMode();
     const QLoggingCategory& connectionModeLoggingCategory();
 
+    // To use spdlog instead of qDebug
+    spdlog::logger *getSpdLogger(const std::string &category);
+
 private:
     Logger();
 
@@ -38,6 +42,7 @@ private:
     bool connectionMode_;
     std::unique_ptr<QLoggingCategory> connectionCategoryDefault_;
     std::unique_ptr<QLoggingCategory> connectionModeLoggingCategory_;
+    std::unordered_map<std::string, std::shared_ptr<spdlog::logger> > spd_loggers_;
 };
 
 }  // namespace log_utils

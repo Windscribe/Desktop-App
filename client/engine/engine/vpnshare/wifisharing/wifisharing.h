@@ -3,9 +3,9 @@
 #include <QObject>
 #include <QTimer>
 
+#include "engine/helper/helper.h"
 #include "types/enums.h"
 
-class IHelper;
 class WiFiDirectManager;
 class IcsManager;
 
@@ -13,7 +13,7 @@ class WifiSharing : public QObject
 {
     Q_OBJECT
 public:
-    explicit WifiSharing(QObject *parent, IHelper *helper);
+    explicit WifiSharing(QObject *parent, Helper *helper);
     virtual ~WifiSharing();
 
     bool isSupported();

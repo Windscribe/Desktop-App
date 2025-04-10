@@ -1,12 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 16">
-  <g fill="none" fill-rule="evenodd">
-    <polygon fill="#DE3831" points="0 0 32 0 32 8 0 8"/>
-    <rect width="32" height="8" y="8" fill="#002395"/>
-    <polygon fill="#FFF" points="4 0 12 6 32 6 32 10 12 10 4 16 0 16 0 0"/>
-    <polygon fill="#007A4D" points="11.5 7 32 7 32 9 11.5 9 2 16 0 16 0 0 2 0"/>
-    <g transform="translate(0 1.5)">
-      <polygon fill="#FFB612" points="0 13 9 6.5 0 0"/>
-      <polygon fill="#000" points="0 11.5 7 6.5 0 1.5"/>
-    </g>
-  </g>
-</svg>
+<svg id="vector" xmlns="http://www.w3.org/2000/svg" width="32" height="16" viewBox="0 0 500.0 250.0"><path fill="#002395" fill-rule="evenodd" d="M0 250h500V0H0z" id="path_0"/><path fill="#DE3831" fill-rule="evenodd" d="M0 125h500V0H0z" id="path_1"/><path fill="#000" fill-rule="evenodd" d="M0 0v250l187.48-124.98L0 0zm187.48 125.02H375 187.48z" id="path_2"/><path fill="#FFF" fill-rule="evenodd" d="M0.03 0L0 40.1l127.38 84.92L0 209.9v40.06l60.14 0.03 137.45-91.66L500 158.67V92l-302.41-0.34L60.14 0z" id="path_3"/><path fill="#000" fill-rule="evenodd" d="M0 250l188-125.02L0 0z" id="path_4"/><path fill="#FFB612" fill-rule="evenodd" d="M0 0.03V40.1L127.73 125 0 209.9v40.06l0.03 0.03L188 124.98 0.03 0z" id="path_5"/><path fill="#007A4D" fill-rule="evenodd" d="M0 0v24.05l151.4 100.97L0 225.95V250h36.06l157.51-105H500v-40.03H193.57L36.06 0z" id="path_6"/></svg>

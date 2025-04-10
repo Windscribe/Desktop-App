@@ -140,10 +140,6 @@
         <translation>Не запускать приложение после установки.</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>Указывает установщику пропустить установку драйверов.</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>Удалить существующие настройки, журналы и другие данные, если они существуют.</translation>
     </message>

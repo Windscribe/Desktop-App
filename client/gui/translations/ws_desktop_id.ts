@@ -279,8 +279,8 @@
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
-        <source>Add Static IP</source>
-        <translation>Tambahkan IP Statis</translation>
+        <source>Add</source>
+        <translation>Tambah</translation>
     </message>
 </context>
 <context>
@@ -507,10 +507,6 @@
         <translation>Gagal Memulai</translation>
     </message>
     <message>
-        <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>Windscribe tidak berfungsi.  Silakan restart aplikasi.</translation>
-    </message>
-    <message>
         <source>Trying Backup Endpoints %1/%2</source>
         <translation>Mencoba Titik Akhir Pencadangan %1/%2</translation>
     </message>
@@ -603,10 +599,6 @@
     <message>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation>Kami tidak dapat menghubungkan Anda di jaringan ini. Kirimkan log debug Anda kepada kami agar kami dapat mengetahui apa yang terjadi.</translation>
-    </message>
-    <message>
-        <source>Debug Sent!</source>
-        <translation>Debug Terkirim!</translation>
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
@@ -841,6 +833,58 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>Anda telah memilih untuk menampilkan notifikasi, tetapi notifikasi sistem dinonaktifkan. Harap aktifkan pemberitahuan sistem di Pengaturan Sistem Anda.</translation>
+    </message>
+    <message>
+        <source>Error Starting Split Tunneling</source>
+        <translation>Kesalahan Memulai Terowongan Terpisah</translation>
+    </message>
+    <message>
+        <source>Export Location Names To</source>
+        <translation>Ekspor Nama Lokasi Ke</translation>
+    </message>
+    <message>
+        <source>Unable to export location names</source>
+        <translation>Tidak dapat mengekspor nama lokasi</translation>
+    </message>
+    <message>
+        <source>Import Location Names From</source>
+        <translation>Mengimpor Nama Lokasi Dari</translation>
+    </message>
+    <message>
+        <source>Unable to import location names</source>
+        <translation>Tidak dapat mengimpor nama lokasi</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Fitur terowongan terpisah telah dinonaktifkan karena ekstensi terowongan terpisah Windscribe tidak diaktifkan di Pengaturan Sistem.  Untuk menggunakan fitur ini, aktifkan ekstensi di Pengaturan Sistem, dan aktifkan fitur tersebut lagi.</translation>
+    </message>
+    <message>
+        <source>Debug Log Sent!</source>
+        <translation>Debug Log Dikirim!</translation>
+    </message>
+    <message>
+        <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
+        <translation>Tidak dapat terhubung ke layanan Windscribe.  Windscribe sekarang akan keluar.  Silakan hubungi dukungan.</translation>
+    </message>
+    <message>
+        <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
+        <translation>Koneksi ke layanan Windscribe terputus.  Windscribe sekarang akan keluar.  Kirimkan log debug kepada kami sehingga kami dapat memperbaikinya.</translation>
+    </message>
+    <message>
+        <source>Local DNS server is not available</source>
+        <translation>Server DNS lokal tidak tersedia</translation>
+    </message>
+    <message>
+        <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
+        <translation>Server DNS lokal tidak tersedia.  DNS yang terhubung telah diatur kembali ke Otomatis.</translation>
+    </message>
+    <message>
+        <source>DNS Server Conflict</source>
+        <translation>Konflik Server DNS</translation>
+    </message>
+    <message>
+        <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
+        <translation>Tidak dapat memulai layanan DNS kustom - port 53 sudah digunakan.  Apakah Anda ingin mengubah DNS Terhubung Anda ke server lokal?</translation>
     </message>
 </context>
 <context>
@@ -1283,8 +1327,8 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Perkiraan Penggunaan Data</translation>
     </message>
     <message>
-        <source>GB/Hour</source>
-        <translation>GB/Jam</translation>
+        <source>%1/hour</source>
+        <translation>%1/jam</translation>
     </message>
 </context>
 <context>
@@ -1488,6 +1532,26 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Select behavior when window is activated with multiple desktops.</source>
         <translation>Pilih perilaku saat jendela diaktifkan dengan beberapa desktop.</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Ekspor</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Mengimpor</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Reset</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>Ubah nama lokasi sesuai keinginan Anda.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>Ganti Nama Lokasi</translation>
     </message>
 </context>
 <context>
@@ -2330,6 +2394,10 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Duplicate</source>
         <translation>Duplikat</translation>
+    </message>
+    <message>
+        <source>Local DNS</source>
+        <translation>DNS Lokal</translation>
     </message>
 </context>
 <context>

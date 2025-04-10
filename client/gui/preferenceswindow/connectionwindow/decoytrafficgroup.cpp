@@ -60,12 +60,17 @@ void DecoyTrafficGroup::updateMode()
 
 void DecoyTrafficGroup::updateStaticText()
 {
-    if (decoyTrafficSettings_.volume() == types::DecoyTrafficVolume::kLow)
-        staticText_->setText("1.5" + textGbHour_);
-    else if (decoyTrafficSettings_.volume() == types::DecoyTrafficVolume::kMedium)
-        staticText_->setText("7" + textGbHour_);
-    else if (decoyTrafficSettings_.volume() == types::DecoyTrafficVolume::kHigh)
-        staticText_->setText("18" + textGbHour_);
+    QLocale locale(LanguageController::instance().getLanguage());
+    unsigned long long size = 0;
+
+    if (decoyTrafficSettings_.volume() == types::DecoyTrafficVolume::kLow) {
+        size = 1610612736; // 1.5 GB
+    } else if (decoyTrafficSettings_.volume() == types::DecoyTrafficVolume::kMedium) {
+        size = 7516192768; // 7.0 GB
+    } else if (decoyTrafficSettings_.volume() == types::DecoyTrafficVolume::kHigh) {
+        size = 19327352832; // 18.0 GB
+    }
+    staticText_->setText(textPerHour_.arg(locale.formattedDataSize(size, 1, QLocale::DataSizeTraditionalFormat)));
 }
 
 void DecoyTrafficGroup::onDecoyTrafficOptionChanged(QVariant v)
@@ -98,7 +103,7 @@ void DecoyTrafficGroup::onLanguageChanged()
     comboBox_->setItems(list, (int)decoyTrafficSettings_.volume());
 
     staticText_->setCaption(tr("Estimated Data Usage"));
-    textGbHour_ = tr("GB/Hour");
+    textPerHour_ = tr("%1/hour");
     updateStaticText();
 }
 

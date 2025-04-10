@@ -1,5 +1,4 @@
 #include "firewallcontroller.h"
-#include "engine/helper/ihelper.h"
 
 FirewallController::FirewallController(QObject *parent) : QObject(parent),
     latestAllowLanTraffic_(false), latestEnabledState_(false),
@@ -7,7 +6,7 @@ FirewallController::FirewallController(QObject *parent) : QObject(parent),
 {
 }
 
-bool FirewallController::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
+void FirewallController::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
     if (!bInitialized_) {
         bStateChanged_ = true;
@@ -24,10 +23,9 @@ bool FirewallController::firewallOn(const QString &connectingIp, const QSet<QStr
     latestAllowLanTraffic_ = bAllowLanTraffic;
     latestIsCustomConfig_ = bIsCustomConfig;
     latestEnabledState_ = true;
-    return true;
 }
 
-bool FirewallController::firewallOff()
+void FirewallController::firewallOff()
 {
     if (!bInitialized_) {
         bStateChanged_ = true;
@@ -36,7 +34,6 @@ bool FirewallController::firewallOff()
         bStateChanged_ = (latestEnabledState_ != false);
     }
     latestEnabledState_ = false;
-    return true;
 }
 
 bool FirewallController::whitelistPorts(const api_responses::StaticIpPortsVector &ports)

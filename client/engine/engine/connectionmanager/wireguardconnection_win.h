@@ -4,7 +4,7 @@
 
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "iconnection.h"
-#include "engine/helper/helper_win.h"
+#include "engine/helper/helper.h"
 #include "wireguardringlogger.h"
 #include "utils/win32handle.h"
 
@@ -13,7 +13,7 @@ class WireGuardConnection : public IConnection
     Q_OBJECT
 
 public:
-    WireGuardConnection(QObject *parent, IHelper *helper);
+    WireGuardConnection(QObject *parent, Helper *helper);
     ~WireGuardConnection() override;
 
     void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
@@ -45,7 +45,7 @@ private:
     static constexpr int kTimeoutForLogUpdate    = 250;   // 250ms timeout for getting log updates from the ring logger
     static constexpr int kTimeoutForAutomatic    = 20000; // 20s timeout for the automatic connection mode
 
-    Helper_win* const helper_;
+    Helper* const helper_;
     WireGuardConfig wireGuardConfig_;
 
     bool connectedSignalEmited_ = false;

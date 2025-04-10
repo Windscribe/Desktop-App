@@ -279,8 +279,8 @@
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
-        <source>Add Static IP</source>
-        <translation>Statik IP Ekle</translation>
+        <source>Add</source>
+        <translation>Eklemek</translation>
     </message>
 </context>
 <context>
@@ -507,10 +507,6 @@
         <translation>Başlatılamadı</translation>
     </message>
     <message>
-        <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>Windscribe arızalı.  Lütfen uygulamayı yeniden başlatın.</translation>
-    </message>
-    <message>
         <source>Trying Backup Endpoints %1/%2</source>
         <translation>Yedekleme Uç Noktaları Deneniyor %1/%2</translation>
     </message>
@@ -603,10 +599,6 @@
     <message>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation>Sizi bu ağa bağlayamadık. Ne olduğunu anlayabilmemiz için hata ayıklama günlüğünüzü bize gönderin.</translation>
-    </message>
-    <message>
-        <source>Debug Sent!</source>
-        <translation>Hata Ayıklama Gönderildi!</translation>
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
@@ -841,6 +833,58 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>Bildirimleri göstermeyi seçtiniz, ancak sistem bildirimleri devre dışı bırakıldı. Lütfen Sistem Ayarlarınızda sistem bildirimlerini etkinleştirin.</translation>
+    </message>
+    <message>
+        <source>Error Starting Split Tunneling</source>
+        <translation>Ayrık tünelleme başlatılırken hata oluştu</translation>
+    </message>
+    <message>
+        <source>Export Location Names To</source>
+        <translation>Konum adlarını şuraya aktar:</translation>
+    </message>
+    <message>
+        <source>Unable to export location names</source>
+        <translation>Konum adları dışa aktarılamıyor</translation>
+    </message>
+    <message>
+        <source>Import Location Names From</source>
+        <translation>Konum adlarını şuradan içe aktar:</translation>
+    </message>
+    <message>
+        <source>Unable to import location names</source>
+        <translation>Konum adları içe aktarılamıyor</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Windscribe bölünmüş tünel uzantısı Sistem Ayarları&apos;nda etkinleştirilmediği için bölünmüş tünel özelliği devre dışı bırakıldı.  Bu özelliği kullanmak için lütfen Sistem Ayarları&apos;nda uzantıyı etkinleştirin ve özelliği tekrar açın.</translation>
+    </message>
+    <message>
+        <source>Debug Log Sent!</source>
+        <translation>Hata Ayıklama Günlüğü Gönderildi!</translation>
+    </message>
+    <message>
+        <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
+        <translation>Windscribe hizmetine bağlanılamadı.  Windscribe şimdi çıkacak.  Lütfen destek ile iletişime geçin.</translation>
+    </message>
+    <message>
+        <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
+        <translation>Windscribe hizmetiyle bağlantı kesildi.  Windscribe şimdi çıkacak.  Bunu iyileştirebilmemiz için bize bir hata ayıklama günlüğü gönderin.</translation>
+    </message>
+    <message>
+        <source>Local DNS server is not available</source>
+        <translation>Yerel DNS sunucusu kullanılamıyor</translation>
+    </message>
+    <message>
+        <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
+        <translation>Yerel DNS sunucusu kullanılamıyor.  Bağlı DNS tekrar Otomatik olarak ayarlandı.</translation>
+    </message>
+    <message>
+        <source>DNS Server Conflict</source>
+        <translation>DNS Sunucusu Çakışması</translation>
+    </message>
+    <message>
+        <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
+        <translation>Özel DNS hizmeti başlatılamıyor - 53 numaralı bağlantı noktası zaten kullanımda.  Bağlı DNS&apos;nizi yerel sunucuya değiştirmek ister misiniz?</translation>
     </message>
 </context>
 <context>
@@ -1283,8 +1327,8 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Tahmini Veri Kullanımı</translation>
     </message>
     <message>
-        <source>GB/Hour</source>
-        <translation>GB/Saat</translation>
+        <source>%1/hour</source>
+        <translation>%1/saat</translation>
     </message>
 </context>
 <context>
@@ -1488,6 +1532,26 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Select behavior when window is activated with multiple desktops.</source>
         <translation>Pencere birden çok masaüstü ile etkinleştirildiğinde davranışı seçin.</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Ihracat</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Ithalat</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Sıfırlama</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>Konum adlarını beğeninize göre değiştirin.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>Konumları Yeniden Adlandırma</translation>
     </message>
 </context>
 <context>
@@ -2330,6 +2394,10 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Duplicate</source>
         <translation>Yinelenen</translation>
+    </message>
+    <message>
+        <source>Local DNS</source>
+        <translation>Yerel DNS</translation>
     </message>
 </context>
 <context>

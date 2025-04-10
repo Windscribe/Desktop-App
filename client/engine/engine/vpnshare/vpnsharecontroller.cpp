@@ -8,8 +8,7 @@
 #include "utils/utils.h"
 #include "utils/ws_assert.h"
 
-VpnShareController::VpnShareController(QObject *parent, IHelper *helper) : QObject(parent),
-    helper_(helper),
+VpnShareController::VpnShareController(QObject *parent, Helper *helper) : QObject(parent),
     httpProxyServer_(NULL),
     socksProxyServer_(NULL),
     vpnConnected_(false),
@@ -19,7 +18,7 @@ VpnShareController::VpnShareController(QObject *parent, IHelper *helper) : QObje
 #endif
 {
 #ifdef Q_OS_WIN
-    wifiSharing_ = new WifiSharing(this, helper_);
+    wifiSharing_ = new WifiSharing(this, helper);
     connect(wifiSharing_, &WifiSharing::usersCountChanged, this, &VpnShareController::onWifiUsersCountChanged);
     connect(wifiSharing_, &WifiSharing::failed, this, &VpnShareController::wifiSharingFailed);
 #endif

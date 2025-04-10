@@ -56,8 +56,7 @@ public:
     void setSplitTunnelingActive(bool active);
     void setWebSessionCompleted();
     void setPreferencesImportCompleted();
-
-    void onCollapse();
+    void setLocationNamesImportCompleted();
 
 signals:
     void logoutClick();
@@ -67,6 +66,9 @@ signals:
     void viewLogClick();
     void exportSettingsClick();
     void importSettingsClick();
+    void exportLocationNamesClick();
+    void importLocationNamesClick();
+    void resetLocationNamesClick();
     void sendConfirmEmailClick();
     void sendDebugLogClick();
     void accountLoginClick();
@@ -83,6 +85,10 @@ signals:
 
     void getRobertFilters();
     void setRobertFilter(const api_responses::RobertFilter &filter);
+
+public slots:
+    virtual void onWindowExpanded() override;
+    virtual void onWindowCollapsed() override;
 
 private slots:
     void onCurrentTabChanged(PREFERENCES_TAB_TYPE tab);

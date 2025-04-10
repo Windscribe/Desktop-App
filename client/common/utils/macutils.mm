@@ -125,7 +125,7 @@ QList<QString> MacUtils::enumerateInstalledPrograms()
     QList<QString> list = listedCmdResults(cmd);
     QList<QString> apps;
 
-    for (const QString &path: qAsConst(list)) {
+    for (const QString &path: std::as_const(list)) {
         apps << QString::fromStdString(QFileInfo(path).filesystemCanonicalFilePath());
     }
     return apps;
@@ -305,7 +305,7 @@ static QStringList getOsDnsServersFromPath(CFStringRef path)
             NSString *addr = (NSString *)CFArrayGetValueAtIndex(addresses, j);
             servers << QString([addr UTF8String]);
         }
-    } 
+    }
 
     return servers;
 }

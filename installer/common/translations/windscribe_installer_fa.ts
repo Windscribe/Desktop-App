@@ -140,10 +140,6 @@
         <translation>برنامه را پس از نصب راه اندازی نکنید.</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>اموزش نصب کننده به جست و خیز نصب درایور.</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>حذف ترجیحات موجود، سیاهههای مربوط و سایر داده ها، در صورت وجود.</translation>
     </message>

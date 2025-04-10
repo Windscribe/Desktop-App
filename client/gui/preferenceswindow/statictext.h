@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QGraphicsObject>
+#include <QRectF>
 #include "commongraphics/baseitem.h"
 
 namespace PreferencesWindow {
@@ -19,9 +20,17 @@ public:
 
     void updateScaling() override;
 
+protected:
+    void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
+
 private:
     QString caption_;
     QString text_;
+    bool isCaptionElided_ = false;
+    bool isTextElided_ = false;
+    QRectF captionRect_;
+    QRectF textRect_;
 };
 
 } // namespace PreferencesWindow

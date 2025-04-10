@@ -14,7 +14,7 @@
 
 const int typeIdNetworkInterface = qRegisterMetaType<types::NetworkInterface>("types::NetworkInterface");
 
-NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, IHelper *helper) : INetworkDetectionManager(parent)
+NetworkDetectionManager_linux::NetworkDetectionManager_linux(QObject *parent, Helper *helper) : INetworkDetectionManager(parent)
 {
     Q_UNUSED(helper);
 

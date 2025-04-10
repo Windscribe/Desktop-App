@@ -21,7 +21,7 @@ Conflicts:	windscribe-cli
 
 Requires:	bash
 Requires:	iptables
-Requires:	glibc >= 2.28
+Requires:	glibc >= 2.35
 Requires:	libstdc++6
 Requires:	glib2
 Requires:	zlib

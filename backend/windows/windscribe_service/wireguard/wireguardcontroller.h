@@ -16,7 +16,7 @@ public:
     bool configure(const std::wstring &config);
     bool deleteService();
 
-    UINT getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT64& rxBytes) const;
+    UINT getStatus(ULONG64 &lastHandshake, ULONG64 &txBytes, ULONG64 &rxBytes) const;
 
 private:
     bool is_initialized_ = false;

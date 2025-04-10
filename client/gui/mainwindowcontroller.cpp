@@ -565,6 +565,10 @@ void MainWindowController::collapseLocations()
 
 bool MainWindowController::isLocationsExpanded() const
 {
+    if (expandLocationsAnimationGroup_ == nullptr) {
+        return false;
+    }
+
     if (expandLocationsAnimationGroup_->direction() == QAbstractAnimation::Forward &&
         expandLocationsAnimationGroup_->state() == QAbstractAnimation::Running)
     {
@@ -2375,6 +2379,7 @@ void MainWindowController::expandPreferencesFromLogin()
                                                   preferencesWindow_->boundingRect().width(),
                                                   preferencesWindow_->boundingRect().height() - childWindowShadowOffsetY(false)));
         preferencesWindow_->setScrollPos(windowSizeManager_->scrollPos(preferencesWindow_));
+        preferencesWindow_->onWindowExpanded();
         invalidateShadow_mac();
 
         isAtomicAnimationActive_ = false;
@@ -2479,9 +2484,7 @@ void MainWindowController::expandWindow(ResizableWindow *window)
             invalidateShadow_mac();
             window->setScrollBarVisibility(true);
             window->setFocus();
-            if (window == newsFeedWindow_) {
-                newsFeedWindow_->updateRead();
-            }
+            window->onWindowExpanded();
             window->setScrollPos(windowSizeManager_->scrollPos(window));
 
             shadowManager_->setVisible(windowSizeManager_->shapeId(window), true);
@@ -2596,6 +2599,7 @@ void MainWindowController::collapsePreferencesFromLogin()
         loginWindow_->setClickable(true);
         loginWindow_->setFocus();
         windowSizeManager_->setState(preferencesWindow_, WindowSizeManager::kWindowCollapsed);
+        preferencesWindow_->onWindowCollapsed();
         emit preferencesCollapsed();
         shadowManager_->setOpacity(ShadowManager::SHAPE_ID_CONNECT_WINDOW, 1.0, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_LOGIN_WINDOW, true);
@@ -2672,8 +2676,8 @@ void MainWindowController::collapseWindow(ResizableWindow *window, bool bSkipBot
     QParallelAnimationGroup *animGroup = new QParallelAnimationGroup(this);
     connect(animGroup, &QVariantAnimation::finished, [this, window, bSkipBottomInfoWindowAnimate, bSkipSetClickable]() {
         windowSizeManager_->setState(window, WindowSizeManager::kWindowCollapsed);
+        window->onWindowCollapsed();
         if (window == preferencesWindow_) {
-            preferencesWindow_->onCollapse();
             emit preferencesCollapsed();
         }
         TooltipController::instance().hideAllTooltips();
@@ -3172,7 +3176,7 @@ void MainWindowController::updateBottomInfoWindowVisibilityAndPos(bool forceColl
             bottomInfoWindow_->hide();
             bottomInfoWindow_->setClickable(false);
             shadowManager_->removeObject(ShadowManager::SHAPE_ID_BOTTOM_INFO);
-            if (expandLocationsAnimationGroup_->state() != QAbstractAnimation::Stopped || locationListAnimationState_ != LOCATION_LIST_ANIMATION_COLLAPSED) {
+            if (expandLocationsAnimationGroup_ != nullptr && expandLocationsAnimationGroup_->state() != QAbstractAnimation::Stopped || locationListAnimationState_ != LOCATION_LIST_ANIMATION_COLLAPSED) {
                 connectWindow_->setCornerColor(QColor(14, 25, 38));
             } else {
                 connectWindow_->setCornerColor(Qt::transparent);

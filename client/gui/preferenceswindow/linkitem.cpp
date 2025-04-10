@@ -1,6 +1,9 @@
 #include "linkitem.h"
 
 #include <QDesktopServices>
+#include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
+#include <QGraphicsView>
 #include <QPainter>
 #include <QUrl>
 
@@ -9,11 +12,12 @@
 #include "graphicresources/independentpixmap.h"
 #include "dpiscalemanager.h"
 #include "preferencesconst.h"
+#include "tooltips/tooltipcontroller.h"
 
 namespace PreferencesWindow {
 
 LinkItem::LinkItem(ScalableGraphicsObject *parent, LinkType type, const QString &title, const QString &url)
-  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), title_(title), url_(url), linkText_(""), type_(type), icon_(nullptr), linkIcon_(nullptr), inProgress_(false), spinnerRotation_(0)
+  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), title_(title), url_(url), linkText_(""), type_(type), icon_(nullptr), linkIcon_(nullptr), inProgress_(false), spinnerRotation_(0), isTitleElided_(false)
 {
     curArrowOpacity_= OPACITY_HALF;
     if (type == LinkType::TEXT_ONLY) {
@@ -29,6 +33,8 @@ LinkItem::LinkItem(ScalableGraphicsObject *parent, LinkType type, const QString 
         connect(&spinnerAnimation_, &QVariantAnimation::valueChanged, this, &LinkItem::onSpinnerRotationChanged);
         connect(&spinnerAnimation_, &QVariantAnimation::finished, this, &LinkItem::onSpinnerRotationFinished);
     }
+
+    setAcceptHoverEvents(true);
 }
 
 void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -38,8 +44,14 @@ void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
 
     // link text
     QFont font = FontManager::instance().getFont(12, true);
+    QFontMetrics fm(font);
     painter->setFont(font);
     painter->setPen(Qt::white);
+
+    // Reset elided flags
+    isTitleElided_ = false;
+
+    // link text
     painter->setOpacity(curTextOpacity_);
 
     int linkTextWidth = CommonGraphics::textWidth(linkText_, font);
@@ -84,13 +96,28 @@ void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
         painter->setOpacity(curTextOpacity_);
     }
 
-    QFontMetrics fm(font);
+    QString title = title_;
+    int availableTitleWidth = linkTextPosX - xOffset;
+
+    if (availableTitleWidth < fm.horizontalAdvance(title_)) {
+        title = fm.elidedText(title_, Qt::ElideRight, availableTitleWidth);
+        isTitleElided_ = true;
+    }
+
+    // Store the title rectangle for mouse hover detection
+    titleRect_ = QRectF(
+        xOffset,
+        PREFERENCES_MARGIN*G_SCALE,
+        fm.horizontalAdvance(title),
+        fm.height()
+    );
+
     painter->drawText(boundingRect().adjusted(xOffset,
                                               PREFERENCES_MARGIN*G_SCALE,
                                               -PREFERENCES_MARGIN*G_SCALE,
                                               -PREFERENCES_MARGIN*G_SCALE),
                       Qt::AlignLeft,
-                      fm.elidedText(title_, Qt::ElideRight, linkTextPosX - xOffset - PREFERENCES_MARGIN*G_SCALE));
+                      title);
 }
 
 void LinkItem::hideOpenPopups()
@@ -194,6 +221,33 @@ void LinkItem::onSpinnerRotationChanged(const QVariant &value)
 void LinkItem::onSpinnerRotationFinished()
 {
     startAnAnimation<int>(spinnerAnimation_, 0, 360, ANIMATION_SPEED_VERY_SLOW);
+}
+
+void LinkItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+    if (isTitleElided_ && titleRect_.contains(event->pos())) {
+        QGraphicsView *view = scene()->views().first();
+        QPoint globalPt = view->mapToGlobal(view->mapFromScene(scenePos()));
+
+        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_ELIDED_TEXT);
+        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+        ti.tailPosPercent = 0.5;
+        ti.x = globalPt.x() + titleRect_.x() + titleRect_.width()/2;
+        ti.y = globalPt.y();
+        ti.title = title_;
+
+        TooltipController::instance().showTooltipBasic(ti);
+    } else {
+        TooltipController::instance().hideTooltip(TOOLTIP_ID_ELIDED_TEXT);
+    }
+
+    BaseItem::hoverMoveEvent(event);
+}
+
+void LinkItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_ELIDED_TEXT);
+    BaseItem::hoverLeaveEvent(event);
 }
 
 } // namespace PreferencesWindow

@@ -1,31 +1,57 @@
 diff --git a/lib/vtls/openssl.c b/lib/vtls/openssl.c
-index 98fa962ab..77bd3b2ea 100644
+index 98fa962ab..1a134ef70 100644
 --- a/lib/vtls/openssl.c
 +++ b/lib/vtls/openssl.c
-@@ -82,6 +82,13 @@
+@@ -31,6 +31,7 @@
+ 
+ #if defined(USE_QUICHE) || defined(USE_OPENSSL)
+ 
++#include <stdlib.h>
+ #include <limits.h>
+ 
+ /* Wincrypt must be included before anything that could include OpenSSL. */
+@@ -82,6 +83,15 @@
  #include <openssl/tls1.h>
  #include <openssl/evp.h>
  
-+#ifdef _WIN32 && (OPENSSL_VERSION_NUMBER >= 0x30000000L)
++#if (OPENSSL_VERSION_NUMBER >= 0x30000000L)
 +#include <openssl/crypto.h>
 +#include <openssl/provider.h>
-+extern OSSL_provider_init_fn oqs_provider_init;
 +static const char *kOQSProviderName = "oqsprovider";
++#if defined(_WIN32)
++extern OSSL_provider_init_fn oqs_provider_init;
++#endif
 +#endif
 +
  #ifdef USE_ECH
  # ifndef OPENSSL_IS_BORINGSSL
  #  include <openssl/ech.h>
-@@ -3513,6 +3520,36 @@ CURLcode Curl_ssl_setup_x509_store(struct Curl_cfilter *cf,
+@@ -3513,6 +3523,53 @@ CURLcode Curl_ssl_setup_x509_store(struct Curl_cfilter *cf,
  }
  #endif /* HAVE_SSL_X509_STORE_SHARE */
  
-+#ifdef _WIN32 && (OPENSSL_VERSION_NUMBER >= 0x30000000L)
++#if (OPENSSL_VERSION_NUMBER >= 0x30000000L)
 +static int load_oqs_provider(OSSL_LIB_CTX *libctx)
 +{
 +    OSSL_PROVIDER *provider;
-+    int ret;
++    int ret = 1;
 +
++#if defined(__linux__) || defined(__APPLE__)
++    if (getenv("WS_DISABLE_OQS") != NULL) {
++        return 0;
++    }
++#endif
++
++#if defined(__linux__)
++    ret = OSSL_PROVIDER_set_default_search_path(libctx, "/opt/windscribe/lib");
++#elif defined(__APPLE__)
++    ret = OSSL_PROVIDER_set_default_search_path(libctx, "/Applications/Windscribe.app/Contents/Frameworks");
++#endif
++    if (ret != 1) {
++        return -1;
++    }
++
++#if defined(_WIN32)
 +    ret = OSSL_PROVIDER_available(libctx, kOQSProviderName);
 +    if (ret != 0) {
 +        return 0;
@@ -35,6 +61,7 @@ index 98fa962ab..77bd3b2ea 100644
 +    if (ret != 1) {
 +        return -1;
 +    }
++#endif
 +
 +    provider = OSSL_PROVIDER_load(libctx, kOQSProviderName);
 +    if (provider == NULL) {
@@ -53,12 +80,11 @@ index 98fa962ab..77bd3b2ea 100644
  CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
                              struct Curl_cfilter *cf,
                              struct Curl_easy *data,
-@@ -3596,6 +3633,12 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
+@@ -3596,6 +3653,11 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
      return CURLE_SSL_CONNECT_ERROR;
    }
  
-+#ifdef _WIN32 && (OPENSSL_VERSION_NUMBER >= 0x30000000L)
-+  // Use statically linked OpenSSL provider for OQS
++#if (OPENSSL_VERSION_NUMBER >= 0x30000000L)
 +  if (load_oqs_provider(OSSL_LIB_CTX_get0_global_default()) != 0) {
 +    return 0;
 +  }

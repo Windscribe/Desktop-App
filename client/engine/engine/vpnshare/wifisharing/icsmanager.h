@@ -1,13 +1,14 @@
 #pragma once
 
-#include "Engine/Helper/helper_win.h"
+#include <QObject>
+#include "engine/helper/helper.h"
 
 // IcsManager works through helper, because need admin rights
 class IcsManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit IcsManager(QObject *parent, IHelper *helper);
+    explicit IcsManager(QObject *parent, Helper *helper);
 
     bool isSupportedIcs();
     bool startIcs();
@@ -15,5 +16,5 @@ public:
     bool changeIcs(const QString &adapterName);
 
 private:
-    Helper_win *helper_;
+    Helper *helper_;
 };

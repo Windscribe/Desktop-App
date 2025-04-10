@@ -372,7 +372,7 @@ void ApiResourcesManager::fetchStaticIps(const std::string &authHash)
     if (sessionStatus_->staticIpsCount() > 0) {
 
         using namespace std::placeholders;
-        requestsInProgress_[RequestType::kStaticIps] = serverAPI_->staticIps(authHash, std::bind(&ApiResourcesManager::onStaticIpsAnswer, this, _1, _2));
+        requestsInProgress_[RequestType::kStaticIps] = serverAPI_->staticIps(authHash, 2, std::bind(&ApiResourcesManager::onStaticIpsAnswer, this, _1, _2));
     } else {
         // We can't use an empty string because the initialization logic relies on comparison with the empty string
         // So use empty json object

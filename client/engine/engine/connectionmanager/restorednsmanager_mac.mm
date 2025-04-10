@@ -3,12 +3,9 @@
 #import <SystemConfiguration/SystemConfiguration.h>
 #include "utils/log/categories.h"
 #include <QFile>
-#include "engine/helper/helper_mac.h"
 
-bool RestoreDNSManager_mac::restoreState(IHelper *helper)
+void RestoreDNSManager_mac::restoreState(Helper *helper)
 {
-    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper);
     qCDebug(LOG_BASIC) << "RestoreDNSManager::restoreState()";
-
-    return helper_mac->setDnsScriptEnabled(false);
+    helper->setDnsScriptEnabled(false);
 }

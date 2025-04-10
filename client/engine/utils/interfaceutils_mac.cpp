@@ -7,7 +7,6 @@
 #include "utils/utils.h"
 
 InterfaceUtils_mac::InterfaceUtils_mac()
-    : helper_(nullptr)
 {
 }
 
@@ -15,12 +14,7 @@ InterfaceUtils_mac::~InterfaceUtils_mac()
 {
 }
 
-void InterfaceUtils_mac::setHelper(Helper_mac *helper)
-{
-    helper_ = helper;
-}
-
-QString ssidOfInterface(const QString &networkInterface, Helper_mac *helper = nullptr)
+QString ssidOfInterface(const QString &networkInterface)
 {
     // In MacOS 15.0, Apple removed the SSID from networksetup -getairportnetwork as well.
     // As of 24A335, even wdutil redacts it, so we must have the locations permission, otherwise we just use "Wi-F"
@@ -160,7 +154,7 @@ QVector<types::NetworkInterface> InterfaceUtils_mac::currentNetworkInterfaces(bo
         // from a macOS API.
         if (wifi) {
             networkInterface.interfaceType = NETWORK_INTERFACE_WIFI;
-            QString ssid = ssidOfInterface(interfaceName, helper_);
+            QString ssid = ssidOfInterface(interfaceName);
             networkInterface.networkOrSsid = ssid;
             networkInterface.friendlyName = "Wi-Fi";
         }

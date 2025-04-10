@@ -279,8 +279,8 @@
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
-        <source>Add Static IP</source>
-        <translation>स्थैतिक IP जोड़ें</translation>
+        <source>Add</source>
+        <translation>आगे कहना</translation>
     </message>
 </context>
 <context>
@@ -483,10 +483,6 @@
         <translation>हमने पाया है कि आपकी नेटवर्क सेटिंग्स विंडस्क्राइब में हस्तक्षेप कर सकती हैं।  कृपया समस्या निवारण के लिए हमें एक डीबग लॉग भेजें.</translation>
     </message>
     <message>
-        <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>विंडस्क्राइब खराब हो रहा है।  कृपया अनुप्रयोग को पुनरारंभ करें।</translation>
-    </message>
-    <message>
         <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
         <translation>MAC पते को स्पूफ नहीं कर सका.  कृपया किसी भिन्न नेटवर्क इंटरफ़ेस का प्रयास करें या समर्थन से संपर्क करें.</translation>
     </message>
@@ -623,10 +619,6 @@
     <message>
         <source>Send Debug Log</source>
         <translation>डीबग लॉग भेजें</translation>
-    </message>
-    <message>
-        <source>Debug Sent!</source>
-        <translation>डीबग भेजा गया!</translation>
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
@@ -841,6 +833,58 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>आपने सूचनाएँ दिखाना चुना है, लेकिन सिस्टम सूचनाएँ अक्षम हैं. कृपया अपनी सिस्टम सेटिंग्स में सिस्टम सूचनाएँ सक्षम करें.</translation>
+    </message>
+    <message>
+        <source>Error Starting Split Tunneling</source>
+        <translation>स्प्लिट टनलिंग प्रारंभ करने में त्रुटि</translation>
+    </message>
+    <message>
+        <source>Export Location Names To</source>
+        <translation>स्थान के नाम निर्यात करें</translation>
+    </message>
+    <message>
+        <source>Unable to export location names</source>
+        <translation>स्थान नाम निर्यात करने में असमर्थ</translation>
+    </message>
+    <message>
+        <source>Import Location Names From</source>
+        <translation>से स्थान नाम आयात करें</translation>
+    </message>
+    <message>
+        <source>Unable to import location names</source>
+        <translation>स्थान नाम आयात करने में असमर्थ</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>स्प्लिट टनलिंग सुविधा अक्षम कर दी गई है क्योंकि सिस्टम सेटिंग्स में Windscribe स्प्लिट टनल एक्सटेंशन सक्षम नहीं है।  इस सुविधा का उपयोग करने के लिए, कृपया सिस्टम सेटिंग्स में एक्सटेंशन सक्षम करें, और सुविधा को फिर से चालू करें।</translation>
+    </message>
+    <message>
+        <source>Debug Log Sent!</source>
+        <translation>डिबग लॉग भेजा गया!</translation>
+    </message>
+    <message>
+        <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
+        <translation>Windscribe सेवा से कनेक्ट नहीं हो सका।  विंडसाइड अब बाहर निकल जाएगा।  कृपया समर्थन से संपर्क करें।</translation>
+    </message>
+    <message>
+        <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
+        <translation>Windscribe सेवा से कनेक्शन खो गया।  विंडसाइड अब बाहर निकल जाएगा।  हमें एक डीबग लॉग भेजें ताकि हम इसे सुधार सकें।</translation>
+    </message>
+    <message>
+        <source>Local DNS server is not available</source>
+        <translation>स्थानीय DNS सर्वर उपलब्ध नहीं है</translation>
+    </message>
+    <message>
+        <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
+        <translation>स्थानीय DNS सर्वर उपलब्ध नहीं है।  कनेक्टेड DNS को वापस ऑटो पर सेट कर दिया गया है।</translation>
+    </message>
+    <message>
+        <source>DNS Server Conflict</source>
+        <translation>DNS सर्वर विरोध</translation>
+    </message>
+    <message>
+        <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
+        <translation>कस्टम DNS सेवा प्रारंभ करने में असमर्थ - पोर्ट 53 पहले से उपयोग में है।  क्या आप अपने कनेक्टेड DNS को स्थानीय सर्वर से बदलना चाहेंगे?</translation>
     </message>
 </context>
 <context>
@@ -1283,8 +1327,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>अनुमानित डेटा उपयोग</translation>
     </message>
     <message>
-        <source>GB/Hour</source>
-        <translation>जीबी/घंटा</translation>
+        <source>%1/hour</source>
+        <translation>%1/घंटा</translation>
     </message>
 </context>
 <context>
@@ -1488,6 +1532,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Select behavior when window is activated with multiple desktops.</source>
         <translation>एकाधिक डेस्कटॉप के साथ विंडो सक्रिय होने पर व्यवहार का चयन करें।</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>निर्यातित माल</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>आयात</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>रीसेट</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>अपनी पसंद के अनुसार स्थान के नाम बदलें।</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>स्थानों का नाम बदलें</translation>
     </message>
 </context>
 <context>
@@ -2330,6 +2394,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Duplicate</source>
         <translation>हूबहू नक़ल</translation>
+    </message>
+    <message>
+        <source>Local DNS</source>
+        <translation>स्थानीय डीएनएस</translation>
     </message>
 </context>
 <context>

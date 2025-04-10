@@ -5,6 +5,7 @@
 #include "types/global_consts.h"
 #include "api_responses/wgconfigs_connect.h"
 #include "api_responses/wgconfigs_init.h"
+#include "utils/log/categories.h"
 #include "utils/utils.h"
 #include "utils/ws_assert.h"
 
@@ -83,6 +84,9 @@ void GetWireGuardConfig::onWgConfigsInitAnswer(wsnet::ServerApiRetCode serverApi
             newRetCode = WireGuardConfigRetCode::kKeyLimit;
         }
 
+        if (newRetCode != WireGuardConfigRetCode::kKeyLimit) {
+            qCDebug(LOG_WIREGUARD) << "Failed to get WG config, code: " << res.errorCode();
+        }
         emit getWireGuardConfigAnswer(newRetCode, wireGuardConfig_);
         return;
     }

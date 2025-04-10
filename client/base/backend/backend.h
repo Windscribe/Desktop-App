@@ -30,7 +30,7 @@ public:
     virtual ~Backend();
 
     void init();
-    void cleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
+    void cleanup(bool isUpdating);
     void enableBFE_win();
     void login(const QString &username, const QString &password, const QString &code2fa);
     bool isCanLoginWithAuthHash() const;
@@ -240,8 +240,9 @@ signals:
     void wireGuardKeyLimitUserResponse(bool deleteOldestKey);
     void protocolStatusChanged(const QVector<types::ProtocolStatus> &status);
 
-    void helperSplitTunnelingStartFailed();
+    void splitTunnelingStartFailed();
     void connectionIdChanged(const QString &connId);
+    void localDnsServerNotAvailable();
 
 private:
     bool isSavedApiSettingsExists_;

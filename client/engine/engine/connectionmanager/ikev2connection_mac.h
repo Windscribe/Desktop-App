@@ -1,15 +1,16 @@
 #pragma once
 
+#include "iconnection.h"
 #include <QObject>
 #include <QTimer>
-#include "iconnection.h"
-#include "engine/helper/helper_mac.h"
+#include <QRecursiveMutex>
+#include "engine/helper/helper.h"
 
 class IKEv2Connection_mac : public IConnection
 {
     Q_OBJECT
 public:
-    explicit IKEv2Connection_mac(QObject *parent, IHelper *helper);
+    explicit IKEv2Connection_mac(QObject *parent, Helper *helper);
     ~IKEv2Connection_mac() override;
 
     // config path for openvpn, url for ikev2
@@ -37,7 +38,7 @@ private:
 
     int state_;
 
-    Helper_mac *helper_;
+    Helper *helper_;
     bool bConnected_;
     mutable QRecursiveMutex mutex_;
     void *notificationId_;

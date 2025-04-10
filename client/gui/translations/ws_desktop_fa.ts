@@ -279,8 +279,8 @@
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
-        <source>Add Static IP</source>
-        <translation>افزودن IP استاتیک</translation>
+        <source>Add</source>
+        <translation>اضافه کردن</translation>
     </message>
 </context>
 <context>
@@ -507,10 +507,6 @@
         <translation>خرابی در اغاز</translation>
     </message>
     <message>
-        <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>&quot;ویندس کاتب&quot; داره خراب میشه.  لطفا برنامه را مجددا راهاندازی کنید.</translation>
-    </message>
-    <message>
         <source>Trying Backup Endpoints %1/%2</source>
         <translation>تلاش برای پشتیبانگیری نقاط پایانی%1/%2</translation>
     </message>
@@ -603,10 +599,6 @@
     <message>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation>ما نتوانستیم شما را در این شبکه متصل کنیم. گزارش اشکال زدایی خود را برای ما ارسال کنید تا بتوانیم بفهمیم چه اتفاقی افتاده است.</translation>
-    </message>
-    <message>
-        <source>Debug Sent!</source>
-        <translation>اشکالزدایی ارسال شد!</translation>
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
@@ -841,6 +833,58 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>شما انتخاب کرده اید که اعلان ها را نشان دهید، اما اعلان های سیستم غیرفعال هستند. لطفا اعلان های سیستم را در تنظیمات سیستم خود فعال کنید.</translation>
+    </message>
+    <message>
+        <source>Error Starting Split Tunneling</source>
+        <translation>خطا در شروع Split Tunneling</translation>
+    </message>
+    <message>
+        <source>Export Location Names To</source>
+        <translation>صادرات نام مکان به</translation>
+    </message>
+    <message>
+        <source>Unable to export location names</source>
+        <translation>صادر کردن نام مکان ها امکان پذیر نیست</translation>
+    </message>
+    <message>
+        <source>Import Location Names From</source>
+        <translation>وارد کردن نام مکان از</translation>
+    </message>
+    <message>
+        <source>Unable to import location names</source>
+        <translation>وارد کردن نام مکان ها امکان پذیر نیست</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>ویژگی تقسیم تونل زنی غیرفعال شده است زیرا پسوند تونل تقسیم Windscribe در تنظیمات سیستم فعال نیست.  برای استفاده از این ویژگی، لطفا افزونه را در تنظیمات سیستم فعال کنید و دوباره این ویژگی را روشن کنید.</translation>
+    </message>
+    <message>
+        <source>Debug Log Sent!</source>
+        <translation>اشکال زدایی گزارش ارسال شد!</translation>
+    </message>
+    <message>
+        <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
+        <translation>نمی توان به سرویس Windscribe متصل شد.  Windscribe اکنون خارج خواهد شد.  لطفا با پشتیبانی تماس بگیرید.</translation>
+    </message>
+    <message>
+        <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
+        <translation>ارتباط با سرویس Windscribe قطع شد.  Windscribe اکنون خارج خواهد شد.  یک گزارش اشکال زدایی برای ما ارسال کنید تا بتوانیم آن را بهبود بخشیم.</translation>
+    </message>
+    <message>
+        <source>Local DNS server is not available</source>
+        <translation>سرور DNS محلی در دسترس نیست</translation>
+    </message>
+    <message>
+        <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
+        <translation>سرور DNS محلی در دسترس نیست.  DNS متصل به خودکار بازگردانده شده است.</translation>
+    </message>
+    <message>
+        <source>DNS Server Conflict</source>
+        <translation>تضاد سرور DNS</translation>
+    </message>
+    <message>
+        <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
+        <translation>راه اندازی سرویس DNS سفارشی امکان پذیر نیست - پورت 53 در حال حاضر در حال استفاده است.  آیا می خواهید DNS متصل خود را به سرور محلی تغییر دهید؟</translation>
     </message>
 </context>
 <context>
@@ -1283,8 +1327,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>مصرف تخمینی داده ها</translation>
     </message>
     <message>
-        <source>GB/Hour</source>
-        <translation>گیگابایت در ساعت</translation>
+        <source>%1/hour</source>
+        <translation>٪1 در ساعت</translation>
     </message>
 </context>
 <context>
@@ -1488,6 +1532,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Select behavior when window is activated with multiple desktops.</source>
         <translation>هنگامی که پنجره با چندین دسکتاپ فعال می شود، رفتار را انتخاب کنید.</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>صادرات</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>واردات</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>تنظیم مجدد</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>نام مکان ها را به دلخواه تغییر دهید.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>تغییر نام مکان ها</translation>
     </message>
 </context>
 <context>
@@ -2330,6 +2394,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Duplicate</source>
         <translation>تکراری</translation>
+    </message>
+    <message>
+        <source>Local DNS</source>
+        <translation>DNS محلی</translation>
     </message>
 </context>
 <context>

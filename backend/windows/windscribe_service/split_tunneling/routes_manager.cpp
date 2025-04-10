@@ -9,7 +9,7 @@ RoutesManager::RoutesManager()
     connectStatus_.isConnected = false;
 }
 
-void RoutesManager::updateState(const CMD_CONNECT_STATUS &connectStatus, bool isSplitTunnelActive, bool isExcludeMode)
+void RoutesManager::updateState(const ConnectStatus &connectStatus, bool isSplitTunnelActive, bool isExcludeMode)
 {
     bool prevIsConnected = connectStatus_.isConnected;
 
@@ -19,15 +19,15 @@ void RoutesManager::updateState(const CMD_CONNECT_STATUS &connectStatus, bool is
         {
             if (!isExcludeMode)
             {
-                if (connectStatus.protocol == CMD_PROTOCOL_OPENVPN || connectStatus.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
+                if (connectStatus.protocol == kCmdProtocolOpenvpn || connectStatus.protocol == kCmdProtocolStunnelOrWstunnel)
                 {
                     doActionsForInclusiveModeOpenVpn(connectStatus);
                 }
-                else if (connectStatus.protocol == CMD_PROTOCOL_IKEV2)
+                else if (connectStatus.protocol == kCmdProtocolIkev2)
                 {
                     doActionsForInclusiveModeIkev2(connectStatus);
                 }
-                else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
+                else if (connectStatus.protocol == kCmdProtocolWireGuard)
                 {
                     doActionsForInclusiveModeWireGuard(connectStatus);
                 }
@@ -51,15 +51,15 @@ void RoutesManager::updateState(const CMD_CONNECT_STATUS &connectStatus, bool is
 
             if (!isExcludeMode)
             {
-                if (connectStatus.protocol == CMD_PROTOCOL_OPENVPN || connectStatus.protocol == CMD_PROTOCOL_STUNNEL_OR_WSTUNNEL)
+                if (connectStatus.protocol == kCmdProtocolOpenvpn || connectStatus.protocol == kCmdProtocolStunnelOrWstunnel)
                 {
                     doActionsForInclusiveModeOpenVpn(connectStatus);
                 }
-                else if (connectStatus.protocol == CMD_PROTOCOL_IKEV2)
+                else if (connectStatus.protocol == kCmdProtocolIkev2)
                 {
                     doActionsForInclusiveModeIkev2(connectStatus);
                 }
-                else if (connectStatus.protocol == CMD_PROTOCOL_WIREGUARD)
+                else if (connectStatus.protocol == kCmdProtocolWireGuard)
                 {
                     doActionsForInclusiveModeWireGuard(connectStatus);
                 }
@@ -82,7 +82,7 @@ void RoutesManager::clearAllRoutes()
     wgRoutes_.revertRoutes();
 }
 
-void RoutesManager::doActionsForInclusiveModeOpenVpn(const CMD_CONNECT_STATUS &connectStatus)
+void RoutesManager::doActionsForInclusiveModeOpenVpn(const ConnectStatus &connectStatus)
 {
     // delete openvpn default routes
     IpForwardTable table;
@@ -93,7 +93,7 @@ void RoutesManager::doActionsForInclusiveModeOpenVpn(const CMD_CONNECT_STATUS &c
     boundRoute_.addRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.gatewayIp, connectStatus.vpnAdapter.ifIndex, true);
 }
 
-void RoutesManager::doActionsForInclusiveModeWireGuard(const CMD_CONNECT_STATUS &connectStatus)
+void RoutesManager::doActionsForInclusiveModeWireGuard(const ConnectStatus &connectStatus)
 {
     // delete wireguard default route
     IpForwardTable table;
@@ -103,7 +103,7 @@ void RoutesManager::doActionsForInclusiveModeWireGuard(const CMD_CONNECT_STATUS 
     boundRoute_.addRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex, true);
 }
 
-void RoutesManager::doActionsForInclusiveModeIkev2(const CMD_CONNECT_STATUS &connectStatus)
+void RoutesManager::doActionsForInclusiveModeIkev2(const ConnectStatus &connectStatus)
 {
     // delete ikev2 default route
     IpForwardTable table;
@@ -112,7 +112,7 @@ void RoutesManager::doActionsForInclusiveModeIkev2(const CMD_CONNECT_STATUS &con
     boundRoute_.addRoute(table, "0.0.0.0", "0.0.0.0", connectStatus.vpnAdapter.adapterIp, connectStatus.vpnAdapter.ifIndex, true);
 }
 
-void RoutesManager::addDnsRoutes(const CMD_CONNECT_STATUS &connectStatus)
+void RoutesManager::addDnsRoutes(const ConnectStatus &connectStatus)
 {
     IpForwardTable table;
 

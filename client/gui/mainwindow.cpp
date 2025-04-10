@@ -90,6 +90,7 @@ MainWindow::MainWindow() :
     isExitingFromPreferences_(false),
     isSpontaneousCloseEvent_(false),
     isExitingAfterUpdate_(false),
+    isExitingAfterCriticalError_(false),
     downloadRunning_(false),
     ignoreUpdateUntilNextRun_(false),
     userProtocolOverride_(false),
@@ -195,7 +196,8 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::robertFiltersChanged, this, &MainWindow::onBackendRobertFiltersChanged);
     connect(backend_, &Backend::setRobertFilterResult, this, &MainWindow::onBackendSetRobertFilterResult);
     connect(backend_, &Backend::protocolStatusChanged, this, &MainWindow::onBackendProtocolStatusChanged);
-    connect(backend_, &Backend::helperSplitTunnelingStartFailed, this, &MainWindow::onHelperSplitTunnelingStartFailed);
+    connect(backend_, &Backend::splitTunnelingStartFailed, this, &MainWindow::onSplitTunnelingStartFailed);
+    connect(backend_, &Backend::localDnsServerNotAvailable, this, &MainWindow::onLocalDnsServerNotAvailable);
     notificationsController_.connect(backend_, &Backend::notificationsChanged, &notificationsController_, &NotificationsController::updateNotifications);
     connect(this, &MainWindow::wireGuardKeyLimitUserResponse, backend_, &Backend::wireGuardKeyLimitUserResponse);
 
@@ -292,6 +294,9 @@ MainWindow::MainWindow() :
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::getRobertFilters, this, &MainWindow::onPreferencesGetRobertFilters);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::setRobertFilter, this, &MainWindow::onPreferencesSetRobertFilter);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::splitTunnelingAppsAddButtonClick, this, &MainWindow::onSplitTunnelingAppsAddButtonClick);
+    connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::exportLocationNamesClick, this, &MainWindow::onPreferencesExportLocationNamesClick);
+    connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::importLocationNamesClick, this, &MainWindow::onPreferencesImportLocationNamesClick);
+    connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::resetLocationNamesClick, this, &MainWindow::onPreferencesResetLocationNamesClick);
 
     // emergency window signals
     connect(mainWindowController_->getEmergencyConnectWindow(), &EmergencyConnectWindow::EmergencyConnectWindowItem::minimizeClick, this, &MainWindow::onMinimizeClick);
@@ -535,31 +540,15 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     }
 #endif
 
-    backend_->cleanup(WindscribeApplication::instance()->isExitWithRestart(), PersistentState::instance().isFirewallOn(),
-                      backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON || isExitingAfterUpdate_,
-                      backend_->getPreferences()->isLaunchOnStartup());
+    backend_->cleanup(isExitingAfterUpdate_);
 
     // Backend handles setting firewall state after app closes
     // This block handles initializing the firewall state on next run
-    if (PersistentState::instance().isFirewallOn() &&
-        backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_AUTOMATIC)
-    {
-        if (WindscribeApplication::instance()->isExitWithRestart()) {
-            if (!backend_->getPreferences()->isLaunchOnStartup() || !backend_->getPreferences()->isAutoConnect()) {
-                qCInfo(LOG_BASIC) << "Setting firewall persistence to false for restart-triggered shutdown";
-                PersistentState::instance().setFirewallState(false);
-            }
-        }
-        else { // non-restart close
-            if (!backend_->getPreferences()->isAutoConnect()) {
-                qCInfo(LOG_BASIC) << "Setting firewall persistence to false for non-restart auto-mode";
-                PersistentState::instance().setFirewallState(false);
-            }
-        }
+    if (PersistentState::instance().isFirewallOn() && backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_AUTOMATIC) {
+        PersistentState::instance().setFirewallState(false);
     } else if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
         PersistentState::instance().setFirewallState(true);
     }
-
     qCInfo(LOG_BASIC) << "Firewall on next startup: " << PersistentState::instance().isFirewallOn();
 
     PersistentState::instance().setAppGeometry(this->saveGeometry());
@@ -605,11 +594,16 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
         ::ShutdownBlockReasonDestroy(reinterpret_cast<HWND>(this->winId()));
 #endif
 
+#ifdef Q_OS_MACOS
+        // On macOS, just close(), otherwise the application may crash on exit.
+        close();
+#else
         if (event) {
             QWidget::closeEvent(event);
         }
         QApplication::closeAllWindows();
         QApplication::quit();
+#endif
     }
     else {
         isSpontaneousCloseEvent_ = false;
@@ -727,6 +721,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
     if (bMovingWindow_) {
         bMovingWindow_ = false;
         mainWindowController_->updateMaximumHeight();
+        mainWindowController_->updateMainAndViewGeometry(true);
     }
 }
 
@@ -1708,7 +1703,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
     } else if (initState == INIT_STATE_HELPER_FAILED) {
         GeneralMessageController::instance().showMessage("ERROR_ICON",
                                                tr("Failed to Start"),
-                                               tr("Windscribe is malfunctioning.  Please restart the application."),
+                                               tr("Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support."),
                                                GeneralMessageController::tr(GeneralMessageController::kOk),
                                                "",
                                                "",
@@ -1754,7 +1749,12 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
         mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
                                                                       selectedLocation_->countryCode(), selectedLocation_->pingTime(),
                                                                       selectedLocation_->locationdId().isCustomConfigsLocation());
-        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+        // If the general message window is being shown before we finished login, we have had a critical error.  Do not override the window until it is dismissed.
+        if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
+            GeneralMessageController::instance().setSource(MainWindowController::WINDOW_ID_CONNECT);
+        } else {
+            mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+        }
         isLoginOkAndConnectWindowVisible_ = true;
     }
 
@@ -2435,11 +2435,45 @@ void MainWindow::onBackendTestTunnelResult(bool success)
 
 void MainWindow::onBackendLostConnectionToHelper()
 {
+    if (isExitingAfterCriticalError_) {
+        // Already exiting, don't show the message again.
+        return;
+    }
+
+    isExitingAfterCriticalError_ = true;
     qCWarning(LOG_BASIC) << "Helper connection was lost";
-    GeneralMessageController::instance().showMessage("ERROR_ICON",
-                                           tr("Service Error"),
-                                           tr("Windscribe is malfunctioning.  Please restart the application."),
-                                           GeneralMessageController::tr(GeneralMessageController::kOk));
+    GeneralMessageController::instance().showMessage(
+        "ERROR_ICON",
+        tr("Service Error"),
+        tr("Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this."),
+        tr("Send Debug Log"),
+        GeneralMessageController::tr(GeneralMessageController::kCancel),
+        "",
+        [this](bool b) {
+            backend_->sendDebugLog();
+            GeneralMessageController::instance().showMessage(
+                "CHECKMARK_IN_CIRCLE",
+                tr("Debug Log Sent!"),
+                tr("Your debug log has been received. Please contact support if you want assistance with this issue."),
+                tr("Contact Support"),
+                GeneralMessageController::tr(GeneralMessageController::kCancel),
+                "",
+                [this](bool b) {
+                    QDesktopServices::openUrl(QUrl(QString("https://%1/support/ticket").arg(HardcodedSettings::instance().windscribeServerUrl())));
+                    doClose();
+                    qApp->quit();
+                },
+                [this](bool b) {
+                    // User pressed cancel on "Contact Support" prompt, just exit.
+                    doClose();
+                    qApp->quit();
+                });
+        },
+        [this](bool b) {
+            // User pressed cancel on "Send Debug Log" prompt, just exit.
+            doClose();
+            qApp->quit();
+        });
 }
 
 void MainWindow::onBackendHighCpuUsage(const QStringList &processesList)
@@ -2585,7 +2619,7 @@ void MainWindow::onBackendProtocolStatusChanged(const QVector<types::ProtocolSta
                 backend_->sendDebugLog();
                 GeneralMessageController::instance().showMessage(
                     "CHECKMARK_IN_CIRCLE",
-                    tr("Debug Sent!"),
+                    tr("Debug Log Sent!"),
                     tr("Your debug log has been received. Please contact support if you want assistance with this issue."),
                     tr("Contact Support"),
                     GeneralMessageController::tr(GeneralMessageController::kCancel),
@@ -3568,25 +3602,32 @@ QString MainWindow::getConnectionTransferred()
 void MainWindow::setInitialFirewallState()
 {
     bool bFirewallStateOn = PersistentState::instance().isFirewallOn();
-    qCInfo(LOG_BASIC) << "Firewall state from last app start:" << bFirewallStateOn;
+    bool bLaunchedOnStartup = wasLaunchedOnStartup();
+    qCInfo(LOG_BASIC) << "Firewall state from last app start:" << bFirewallStateOn << "launched on startup:" << bLaunchedOnStartup;
 
-    if (bFirewallStateOn)
-    {
-        backend_->firewallOn();
-        if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON)
-        {
-            mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
-        }
-    }
-    else
-    {
-        if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON)
-        {
+    if (bLaunchedOnStartup) {
+        // After a reboot, we should NOT use the persisted firewall state, unless firewall is always on, or it was manual.
+        if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
             backend_->firewallOn();
             mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
+        } else if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_MANUAL && bFirewallStateOn) {
+            backend_->firewallOn();
+        } else {
+            backend_->firewallOff();
         }
-        else
-        {
+    } else {
+        // Otherwise, this app was manually started by the user.  In this case, we should use the persisted firewall state.
+        // The firewall may be on and persisted in the following cases:
+        // - The firewall is set to manual and user turned it on, and closed the app.
+        // - The firewall is set to always on.
+        // - The firewall was on and the app stopped without a chance to cleanup (crashed, or force killed, etc)
+        // - The app was updated while the firewall was on.
+        if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
+            backend_->firewallOn();
+            mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
+        } else if (bFirewallStateOn) {
+            backend_->firewallOn();
+        } else {
             backend_->firewallOff();
         }
     }
@@ -3644,7 +3685,28 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
         }
         msg = tr("The custom configuration could not be loaded.  Please check that it’s correct or contact support.");
     } else if (connectState.connectError == CTRLD_START_FAILED) {
-        msg = tr("Unable to start custom DNS service.  Please ensure you don't have any other local DNS services running, or contact support.");
+        // Couldn't start ctrld.  Is there an existing local DNS service?
+        if (NetworkUtils::DnsChecker::checkAvailabilityBlocking()) {
+            // There is a local DNS service running, prompt to use it instead.
+            GeneralMessageController::instance().showMessage(
+                "WARNING_YELLOW",
+                tr("DNS Server Conflict"),
+                tr("Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?"),
+                GeneralMessageController::tr(GeneralMessageController::kYes),
+                GeneralMessageController::tr(GeneralMessageController::kNo),
+                "",
+                [this](bool b) {
+                    types::ConnectedDnsInfo connectedDnsInfo = backend_->getPreferences()->connectedDnsInfo();
+                    connectedDnsInfo.type = CONNECTED_DNS_TYPE::CONNECTED_DNS_TYPE_LOCAL;
+                    backend_->getPreferences()->setConnectedDnsInfo(connectedDnsInfo);
+                    if (selectedLocation_ && selectedLocation_->isValid()) {
+                        backend_->sendConnect(selectedLocation_->locationdId());
+                    }
+                });
+            return;
+        } else {
+            msg = tr("Unable to start custom DNS service.  Please ensure you don't have any other local DNS services running, or contact support.");
+        }
     } else if (connectState.connectError == WIREGUARD_ADAPTER_SETUP_FAILED) {
         msg = tr("WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again,"
                  " please try restarting your computer.\n\nIf the problem persists after a restart, please send a debug log and open"
@@ -3877,15 +3939,22 @@ void MainWindow::onSelectedLocationRemoved()
     }
 }
 
-void MainWindow::onHelperSplitTunnelingStartFailed()
+void MainWindow::onSplitTunnelingStartFailed()
 {
     mainWindowController_->getConnectWindow()->setSplitTunnelingState(false);
     mainWindowController_->getPreferencesWindow()->setSplitTunnelingActive(false);
 
+#if defined(Q_OS_WIN)
     GeneralMessageController::instance().showMessage("WARNING_YELLOW",
                                            tr("Error Starting Service"),
                                            tr("The split tunneling feature could not be started, and has been disabled in Preferences."),
                                            GeneralMessageController::tr(GeneralMessageController::kOk));
+#elif defined(Q_OS_MACOS)
+    GeneralMessageController::instance().showMessage("WARNING_YELLOW",
+                                           tr("Error Starting Split Tunneling"),
+                                           tr("The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again."),
+                                           GeneralMessageController::tr(GeneralMessageController::kOk));
+#endif
 }
 
 void MainWindow::showTrayMessage(const QString &message)
@@ -4086,3 +4155,111 @@ void MainWindow::onPreferencesMultiDesktopBehaviorChanged(MULTI_DESKTOP_BEHAVIOR
     }
 }
 #endif
+
+bool MainWindow::wasLaunchedOnStartup()
+{
+    QCommandLineParser cmdParser;
+    QCommandLineOption option("autostart");
+    cmdParser.addOption(option);
+    cmdParser.process(*WindscribeApplication::instance());
+
+    return cmdParser.isSet(option);
+}
+
+void MainWindow::onPreferencesExportLocationNamesClick()
+{
+    QString settingsFilename;
+
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
+#if !defined(Q_OS_LINUX)
+    settingsFilename = QFileDialog::getSaveFileName(this, tr("Export Location Names To"), "", tr("JSON Files (*.json)"));
+#else
+    QFileDialog dialog(this, tr("Export Location Names To"), "", tr("JSON Files (*.json)"));
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setDefaultSuffix("json");
+    dialog.setFileMode(QFileDialog::AnyFile);
+    if (!dialog.exec()) {
+        ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
+        return;
+    }
+    settingsFilename = dialog.selectedFiles().first();
+#endif
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
+
+    if (settingsFilename.isEmpty()) {
+        return;
+    }
+
+    QFile file(settingsFilename);
+    if (!file.open(QIODevice::WriteOnly)) {
+        onPreferencesReportErrorToUser(tr("Unable to export location names"), tr("Could not open file for writing.  Check your permissions and try again."));
+        return;
+    }
+
+    QJsonDocument doc(backend_->locationsModelManager()->renamedLocations());
+    file.write(doc.toJson());
+    qCDebug(LOG_LOCATION_LIST) << "Exported location names to the file.";
+}
+
+void MainWindow::onPreferencesImportLocationNamesClick()
+{
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
+    const QString settingsFilename = QFileDialog::getOpenFileName(this, tr("Import Location Names From"), "", tr("JSON Files (*.json)"));
+    ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
+    if (settingsFilename.isEmpty()) {
+        return;
+    }
+
+    QFile file(settingsFilename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        onPreferencesReportErrorToUser(tr("Unable to import location names"), tr("Could not open file."));
+        return;
+    }
+
+    QByteArray jsonData = file.readAll();
+    file.close();
+    QJsonParseError parseError;
+    const QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData, &parseError);
+
+    if (parseError.error != QJsonParseError::NoError) {
+        onPreferencesReportErrorToUser(tr("Unable to import location names"), tr("The selected file's format is incorrect."));
+        qDebug() << "Error parsing JSON while importing location names from :" << parseError.errorString();
+        return;
+    }
+
+    if (!jsonDoc.isObject()) {
+        onPreferencesReportErrorToUser(tr("Unable to import location names"), tr("The selected file's format is incorrect."));
+        qDebug() << "Expected JSON object not found when importing location names";
+        return;
+    }
+
+    backend_->locationsModelManager()->setRenamedLocations(jsonDoc.object());
+    mainWindowController_->getPreferencesWindow()->setLocationNamesImportCompleted();
+    qCDebug(LOG_LOCATION_LIST) << "Imported location names from file.";
+}
+
+void MainWindow::onPreferencesResetLocationNamesClick()
+{
+    qCDebug(LOG_LOCATION_LIST) << "Reset location names";
+    backend_->locationsModelManager()->resetRenamedLocations();
+}
+
+void MainWindow::onLocalDnsServerNotAvailable()
+{
+    types::ConnectedDnsInfo connectedDnsInfo = backend_->getPreferences()->connectedDnsInfo();
+    connectedDnsInfo.type = CONNECTED_DNS_TYPE::CONNECTED_DNS_TYPE_AUTO;
+    backend_->getPreferences()->setConnectedDnsInfo(connectedDnsInfo);
+
+    GeneralMessageController::instance().showMessage(
+        "WARNING_YELLOW",
+        tr("Local DNS server is not available"),
+        tr("The local DNS server is not available.  Connected DNS has been set back to Auto."),
+        GeneralMessageController::tr(GeneralMessageController::kOk),
+        "",
+        "",
+        [this](bool b) {
+            if (selectedLocation_ && selectedLocation_->isValid()) {
+                backend_->sendConnect(selectedLocation_->locationdId());
+            }
+        });
+}

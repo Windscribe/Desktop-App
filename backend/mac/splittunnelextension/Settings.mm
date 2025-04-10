@@ -78,7 +78,7 @@
     vpnInterface_ = nil;
     isExclude_ = false;
     isDebug_ = false;
-    
+
     if (ipHostnamesManager_) {
         ipHostnamesManager_->disable();
         delete ipHostnamesManager_;
@@ -198,7 +198,7 @@
 
     char ipStr[INET6_ADDRSTRLEN];
     const void *addrPtr;
-    
+
     if (addr->sa_family == AF_INET) {
         const struct sockaddr_in *addr_in = (const struct sockaddr_in *)addr;
         addrPtr = &(addr_in->sin_addr);
@@ -208,7 +208,7 @@
     } else {
         return NO;
     }
-    
+
     if (inet_ntop(addr->sa_family, addrPtr, ipStr, sizeof(ipStr))) {
         // If excluding and IP is in the list, or if including and IP is not in the list, split tunnel this flow.
         return isExclude_ == ipHostnamesManager_->isIpInList(ipStr);

@@ -279,8 +279,8 @@
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
-        <source>Add Static IP</source>
-        <translation>고정 IP 추가</translation>
+        <source>Add</source>
+        <translation>더하다</translation>
     </message>
 </context>
 <context>
@@ -507,10 +507,6 @@
         <translation>시작하지 못했습니다.</translation>
     </message>
     <message>
-        <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>Windscribe가 오작동하고 있습니다.  응용 프로그램을 다시 시작하십시오.</translation>
-    </message>
-    <message>
         <source>Trying Backup Endpoints %1/%2</source>
         <translation>백업 끝점 %1/%2 시도 중</translation>
     </message>
@@ -603,10 +599,6 @@
     <message>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation>이 네트워크에서 연결할 수 없습니다. 무슨 일이 일어났는지 파악할 수 있도록 디버그 로그를 보내주세요.</translation>
-    </message>
-    <message>
-        <source>Debug Sent!</source>
-        <translation>디버그가 전송되었습니다!</translation>
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
@@ -841,6 +833,58 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>알림을 표시하도록 선택했지만 시스템 알림이 비활성화되어 있습니다. 시스템 설정에서 시스템 알림을 활성화하십시오.</translation>
+    </message>
+    <message>
+        <source>Error Starting Split Tunneling</source>
+        <translation>분할 터널링 시작 오류</translation>
+    </message>
+    <message>
+        <source>Export Location Names To</source>
+        <translation>위치 이름 내보내기</translation>
+    </message>
+    <message>
+        <source>Unable to export location names</source>
+        <translation>위치 이름을 내보낼 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Import Location Names From</source>
+        <translation>위치 이름 가져오기</translation>
+    </message>
+    <message>
+        <source>Unable to import location names</source>
+        <translation>위치 이름을 가져올 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>시스템 설정에서 Windscribe 분할 터널 확장이 활성화되어 있지 않기 때문에 분할 터널링 기능이 비활성화되었습니다.  이 기능을 사용하려면 시스템 설정에서 확장 프로그램을 활성화하고 기능을 다시 켜십시오.</translation>
+    </message>
+    <message>
+        <source>Debug Log Sent!</source>
+        <translation>디버그 로그가 전송되었습니다!</translation>
+    </message>
+    <message>
+        <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
+        <translation>Windscribe 서비스에 연결할 수 없습니다.  이제 Windscribe가 종료됩니다.  지원팀에 문의하시기 바랍니다.</translation>
+    </message>
+    <message>
+        <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
+        <translation>Windscribe 서비스에 대한 연결이 끊어졌습니다.  이제 Windscribe가 종료됩니다.  이 문제를 개선할 수 있도록 디버그 로그를 보내주세요.</translation>
+    </message>
+    <message>
+        <source>Local DNS server is not available</source>
+        <translation>로컬 DNS 서버를 사용할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
+        <translation>로컬 DNS 서버를 사용할 수 없습니다.  연결된 DNS가 자동으로 다시 설정되었습니다.</translation>
+    </message>
+    <message>
+        <source>DNS Server Conflict</source>
+        <translation>DNS 서버 충돌</translation>
+    </message>
+    <message>
+        <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
+        <translation>사용자 지정 DNS 서비스를 시작할 수 없음 - 포트 53이 이미 사용 중입니다.  연결된 DNS를 로컬 서버로 변경하시겠습니까?</translation>
     </message>
 </context>
 <context>
@@ -1283,8 +1327,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>예상 데이터 사용량</translation>
     </message>
     <message>
-        <source>GB/Hour</source>
-        <translation>GB/시간</translation>
+        <source>%1/hour</source>
+        <translation>%1/시간</translation>
     </message>
 </context>
 <context>
@@ -1488,6 +1532,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Select behavior when window is activated with multiple desktops.</source>
         <translation>창이 여러 데스크톱에서 활성화될 때의 동작을 선택합니다.</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>수출</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>수입</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>재설정</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>위치 이름을 원하는 대로 변경합니다.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>위치 이름 바꾸기</translation>
     </message>
 </context>
 <context>
@@ -2330,6 +2394,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Duplicate</source>
         <translation>복사하다</translation>
+    </message>
+    <message>
+        <source>Local DNS</source>
+        <translation>로컬 DNS</translation>
     </message>
 </context>
 <context>

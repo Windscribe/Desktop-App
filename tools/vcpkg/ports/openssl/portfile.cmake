@@ -26,6 +26,8 @@ vcpkg_from_github(
         script-prefix.patch
         0002-super-large-padding-extension.patch
         0003-OpenSSL-anticen-Move-TLS-padding-before-the-domain-n.patch
+        0004-Fix-compilation.patch
+        0005-Use-random-unallocated-extension-ID-for-padding.patch
         windows/install-layout.patch
         windows/install-pdbs.patch
         unix/android-cc.patch

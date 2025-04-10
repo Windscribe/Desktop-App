@@ -140,10 +140,6 @@
         <translation>Jangan meluncurkan aplikasi setelah instalasi.</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>Menginstruksikan penginstal untuk melewati penginstalan driver.</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>Hapus preferensi, log, dan data lain yang ada, jika ada.</translation>
     </message>

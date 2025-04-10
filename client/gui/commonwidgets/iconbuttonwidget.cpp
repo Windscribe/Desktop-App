@@ -2,21 +2,24 @@
 
 #include <QPainter>
 #include "commongraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 #include "tooltips/tooltipcontroller.h"
 
 namespace CommonWidgets {
 
-IconButtonWidget::IconButtonWidget(QString imagePath, QWidget * parent) : QPushButton(parent)
-  , unhoverOpacity_(OPACITY_UNHOVER_ICON_STANDALONE)
-  , hoverOpacity_(OPACITY_FULL)
-  , curOpacity_(OPACITY_UNHOVER_ICON_STANDALONE)
-  , width_(0)
-  , height_(0)
+IconButtonWidget::IconButtonWidget(QString imagePath, QWidget *parent) : IconButtonWidget(imagePath, "", parent)
+{
+}
+
+IconButtonWidget::IconButtonWidget(const QString &imagePath, const QString &text, QWidget * parent) : QPushButton(parent)
 {
     setImage(imagePath);
+    setText(text);
     connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &IconButtonWidget::onOpacityChanged);
+
+    updateSize();
 }
 
 int IconButtonWidget::width()
@@ -29,7 +32,13 @@ int IconButtonWidget::height()
     return height_;
 }
 
-void IconButtonWidget::setImage(QString imagePath)
+void IconButtonWidget::setText(const QString &text)
+{
+    text_ = text;
+    updateSize();
+}
+
+void IconButtonWidget::setImage(const QString &imagePath)
 {
     imagePath_ = imagePath;
     updateSize();
@@ -53,8 +62,19 @@ void IconButtonWidget::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     qreal initOpacity = painter.opacity();
     painter.setOpacity(curOpacity_ * initOpacity);
-    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
-    p->draw(0,0,&painter);
+
+    if (!text_.isEmpty()) {
+        painter.setPen(Qt::white);
+        painter.setFont(FontManager::instance().getFont(16, true));
+        painter.drawText(QRect(0, 0, width_, height_), Qt::AlignVCenter, text_);
+    }
+
+    if (!imagePath_.isEmpty()) {
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+        if (!p.isNull()) {
+            p->draw(width() - p->width(), height()/2 - p->height()/2, &painter);
+        }
+    }
 }
 
 void IconButtonWidget::enterEvent(QEnterEvent *event)
@@ -81,19 +101,33 @@ void IconButtonWidget::onOpacityChanged(const QVariant &value)
 
 void IconButtonWidget::updateSize()
 {
+    int width = 0;
+    int height = 0;
+
     if (!imagePath_.isEmpty()) {
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
-        if (p != nullptr) {
-            int width =  p->width();
-            int height = p->height();
-
-            if (width != width_ || height != height_) {
-                width_ = width;
-                height_ = height;
-                emit sizeChanged(width, height);
-            }
+        if (!p.isNull()) {
+            width =  p->width();
+            height = p->height();
         }
     }
+
+    if (!text_.isEmpty()) {
+        QFontMetrics fm(FontManager::instance().getFont(16, true));
+        int textWidth = fm.horizontalAdvance(text_);
+        int textHeight = fm.height();
+        width += textWidth + (width > 0 ? 8*G_SCALE : 0);
+        if (textHeight > height) {
+            height = textHeight;
+        }
+    }
+
+    if (width != width_ || height != height_) {
+        width_ = width;
+        height_ = height;
+        emit sizeChanged(width, height);
+    }
+
     update();
 }
 

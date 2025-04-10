@@ -12,7 +12,7 @@ fi
 
 if [ $platform == "linux_deb_x64" -o $platform == "linux_deb_arm64" ]; then
     pkexec sh -c "killall -q -w Windscribe && APT_LISTBUGS_FRONTEND=none apt install -y --reinstall \"$1\""
-elif [ $platform == "linux_rpm_x64" ]; then
+elif [ $platform == "linux_rpm_x64" -o $platform == "linux_rpm_arm64" ]; then
     if command -v rpm-ostree; then
         killall -q -w Windscribe && rpm-ostree upgrade --cache-only --reboot --uninstall windscribe --install "$1"
     else

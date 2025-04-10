@@ -9,6 +9,7 @@ namespace types {
 struct City
 {
     LocationID id;
+    int idNum;
     QString city;
     QString nick;
     PingTime pingTimeMs;
@@ -35,6 +36,7 @@ struct City
 struct Location
 {
     LocationID id;
+    int idNum;
     QString name;
     QString countryCode;
     bool isPremiumOnly = false;

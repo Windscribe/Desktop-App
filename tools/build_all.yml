@@ -216,7 +216,6 @@ deploy_files:
       libs:
         qt:
           - lib/libQt6Core.so.6 -> lib/libQt6Core.so.6
-          - lib/libQt6Core5Compat.so.6 -> lib/libQt6Core5Compat.so.6
           - lib/libQt6DBus.so.6 -> lib/libQt6DBus.so.6
           - lib/libQt6Gui.so.6 -> lib/libQt6Gui.so.6
           - lib/libQt6Network.so.6 -> lib/libQt6Network.so.6
@@ -263,7 +262,6 @@ deploy_files:
       libs:
         qt:
           - lib/libQt6Core.so.6 -> lib/libQt6Core.so.6
-          - lib/libQt6Core5Compat.so.6 -> lib/libQt6Core5Compat.so.6
           - lib/libQt6DBus.so.6 -> lib/libQt6DBus.so.6
           - lib/libQt6Network.so.6 -> lib/libQt6Network.so.6
           - plugins/networkinformation/libqnetworkmanager.so -> plugins/networkinformation/libqnetworkmanager.so
@@ -294,5 +292,4 @@ codesign_files:
     - Windscribe
 
 common_files:
-  - config/openssl.cnf -> openssl.cnf
   - licenses/open_source_licenses.txt -> open_source_licenses.txt

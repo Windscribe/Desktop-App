@@ -230,3 +230,11 @@ void ResizableWindow::onLanguageChanged()
 {
     updatePositions();
 }
+
+void ResizableWindow::onWindowExpanded()
+{
+}
+
+void ResizableWindow::onWindowCollapsed()
+{
+}

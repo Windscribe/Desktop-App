@@ -1,6 +1,6 @@
 #pragma once
 
-class IHelper;
+#include "engine/helper/helper.h"
 
 // manage BFE (Base filtering engine) service
 class BFE_Service_win
@@ -12,11 +12,11 @@ public:
         return s;
     }
 
-    bool checkAndEnableBFE(IHelper *helper);
+    bool checkAndEnableBFE(Helper *helper);
     bool isBFEEnabled();
 
 private:
     BFE_Service_win();
 
-    void enableBFE(IHelper *helper);
+    void enableBFE(Helper *helper);
 };

@@ -175,7 +175,7 @@ void SplitTunnelExtensionManager::stopExtension()
     }];
 
     dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC));
-    if (dispatch_semaphore_wait(semaphore, timeout) != 0) {
+    if (dispatch_semaphore_wait(semaphore, timeout) != 0) { // NOLINT
         qCWarning(LOG_SPLIT_TUNNEL_EXTENSION) << "Timeout waiting for extension to stop";
     } else {
         qCInfo(LOG_SPLIT_TUNNEL_EXTENSION) << "Split tunnel extension disabled";

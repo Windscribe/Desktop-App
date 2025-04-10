@@ -27,29 +27,27 @@
 #include "connsettingspolicy/manualconnsettingspolicy.h"
 #include "connsettingspolicy/customconfigconnsettingspolicy.h"
 
+#include "engine/helper/helper.h"
 
 // Had to move this here to prevent a compile error with boost already including winsock.h
 #include "connectionmanager.h"
-
 
 #ifdef Q_OS_WIN
     #include "sleepevents_win.h"
     #include "ikev2connection_win.h"
     #include "wireguardconnection_win.h"
-    #include "engine/helper/helper_win.h"
     #include "utils/winutils.h"
 #elif defined Q_OS_MACOS
     #include "sleepevents_mac.h"
     #include "utils/macutils.h"
     #include "ikev2connection_mac.h"
-    #include "engine/helper/helper_mac.h"
     #include "wireguardconnection_posix.h"
 #elif defined Q_OS_LINUX
     #include "ikev2connection_linux.h"
     #include "wireguardconnection_posix.h"
 #endif
 
-ConnectionManager::ConnectionManager(QObject *parent, IHelper *helper, INetworkDetectionManager *networkDetectionManager, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
+ConnectionManager::ConnectionManager(QObject *parent, Helper *helper, INetworkDetectionManager *networkDetectionManager, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
     helper_(helper),
     networkDetectionManager_(networkDetectionManager),
     customOvpnAuthCredentialsStorage_(customOvpnAuthCredentialsStorage),
@@ -361,13 +359,12 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
 
 #ifdef Q_OS_WIN
     // Set network category
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper_);
     if (connector_->getConnectionType() == ConnectionType::WIREGUARD) {
-        helper_win->setNetworkCategory(QString::fromStdWString(kWireGuardAdapterIdentifier), NETWORK_CATEGORY_PRIVATE);
+        helper_->setNetworkCategory(QString::fromStdWString(kWireGuardAdapterIdentifier), NETWORK_CATEGORY_PRIVATE);
     } else if (connector_->getConnectionType() == ConnectionType::OPENVPN) {
-        helper_win->setNetworkCategory(QString::fromStdWString(kOpenVPNAdapterIdentifier), NETWORK_CATEGORY_PRIVATE);
+        helper_->setNetworkCategory(QString::fromStdWString(kOpenVPNAdapterIdentifier), NETWORK_CATEGORY_PRIVATE);
     } else {
-        helper_win->setNetworkCategory(vpnAdapterInfo_.adapterName(), NETWORK_CATEGORY_PRIVATE);
+        helper_->setNetworkCategory(vpnAdapterInfo_.adapterName(), NETWORK_CATEGORY_PRIVATE);
     }
 #endif
 
@@ -378,6 +375,10 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
         QString customDnsIp = dnsServersFromConnectedDnsInfo();
         vpnAdapterInfo_.setDnsServers(QStringList() << customDnsIp);
         qCInfo(LOG_CONNECTION) << "Custom DNS detected, will override with: " << customDnsIp;
+    } else if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_LOCAL) {
+        QString localDnsIp = "127.0.0.1";
+        vpnAdapterInfo_.setDnsServers(QStringList() << localDnsIp);
+        qCInfo(LOG_CONNECTION) << "Local DNS detected, will override with: " << localDnsIp;
     }
 
     if (state_ == STATE_DISCONNECTING_FROM_USER_CLICK) {
@@ -936,9 +937,7 @@ void ConnectionManager::doConnectPart2()
 
 #if defined(Q_OS_WIN)
     if (WinUtils::isDohSupported() && connectedDnsInfo_.type == CONNECTED_DNS_TYPE_FORCED) {
-        auto helperWin = dynamic_cast<Helper_win *>(helper_);
-        WS_ASSERT(helperWin);
-        helperWin->disableDohSettings();
+        helper_->disableDohSettings();
     }
 #endif
 
@@ -956,22 +955,20 @@ void ConnectionManager::doConnectPart2()
             emit errorDuringConnection(CONNECT_ERROR::CTRLD_START_FAILED);
             return;
         }
-    #ifdef Q_OS_WIN
+#ifdef Q_OS_WIN
         // we need to exclude these DNS-addresses from DNS leak protection on Windows
         QStringList dnsIps;
         dnsIps << ctrldManager_->listenIp();
         if (IpValidation::isIp(connectedDnsInfo_.upStream1)) {
             dnsIps << connectedDnsInfo_.upStream1;
         }
-        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIps(dnsIps);
-    #endif
+        helper_->setCustomDnsIps(dnsIps);
+    } else if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_LOCAL) {
+        helper_->setCustomDnsIps(QStringList() << "127.0.0.1");
     } else if (connectedDnsInfo_.isCustomIPv4Address())  {
-#ifdef Q_OS_WIN
-        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIps(QStringList() << connectedDnsInfo_.upStream1);
-#endif
+        helper_->setCustomDnsIps(QStringList() << connectedDnsInfo_.upStream1);
     } else {
-#ifdef Q_OS_WIN
-        dynamic_cast<Helper_win*>(helper_)->setCustomDnsIps(QStringList());
+        helper_->setCustomDnsIps(QStringList());
 #endif
     }
 
@@ -1109,6 +1106,8 @@ void ConnectionManager::doConnectPart3()
         QStringList dnsIps;
         if (connectedDnsTypeAuto()) {
             dnsIps << pConfig->clientDnsAddress();
+        } else if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_LOCAL) {
+            dnsIps << "127.0.0.1";
         } else if (connectedDnsInfo_.isCustomIPv4Address()) {
             dnsIps << connectedDnsInfo_.upStream1;
         } else {
@@ -1585,6 +1584,8 @@ QString ConnectionManager::dnsServersFromConnectedDnsInfo() const
 {
     if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_AUTO || connectedDnsInfo_.type == CONNECTED_DNS_TYPE_FORCED)
         return QString();
+    else if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_LOCAL)
+        return "127.0.0.1";
     else if (connectedDnsInfo_.isCustomIPv4Address())
         return connectedDnsInfo_.upStream1;
     else

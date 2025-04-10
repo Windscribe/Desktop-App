@@ -5,7 +5,7 @@
 #include <QObject>
 #include <QWaitCondition>
 #include "firewall/firewallexceptions.h"
-#include "helper/ihelper.h"
+#include "helper/helper.h"
 #include "helper/initializehelper.h"
 #include "networkdetectionmanager/inetworkdetectionmanager.h"
 #include "networkdetectionmanager/waitfornetworkconnectivity.h"
@@ -51,7 +51,7 @@ public:
 
     void setSettings(const types::EngineSettings &engineSettings);
 
-    void cleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
+    void cleanup(bool isUpdating);
     bool isCleanupFinished();
 
     bool isInitialized();
@@ -186,19 +186,21 @@ signals:
 
     void wireGuardAtKeyLimit();
     void protocolStatusChanged(const QVector<types::ProtocolStatus> status);
-    void initCleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
+    void initCleanup(bool isUpdating);
 
-    void helperSplitTunnelingStartFailed();
+    void splitTunnelingStartFailed();
 
     void autoEnableAntiCensorship();
 
     void connectionIdChanged(const QString &connId);
 
+    void localDnsServerNotAvailable();
+
 private slots:
     void onLostConnectionToHelper();
     void onInitializeHelper(INIT_HELPER_RET ret);
 
-    void cleanupImpl(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart);
+    void cleanupImpl(bool isUpdating);
     void enableBFE_winImpl();
     void recordInstallImpl();
     void sendConfirmEmailImpl();
@@ -320,7 +322,7 @@ private:
 #endif
 
     types::EngineSettings engineSettings_;
-    IHelper *helper_;
+    Helper *helper_;
     FirewallController *firewallController_;
     ConnectionManager *connectionManager_;
     ConnectStateController *connectStateController_;
@@ -362,6 +364,7 @@ private:
 
     std::atomic<bool> isBlockConnect_;
     std::atomic<bool> isCleanupFinished_;
+    bool isCleanup_ = false;
 
     LocationID locationId_;
     QString locationName_;
@@ -418,4 +421,6 @@ private:
     // This is also used for logging to separate logs for different connections.
     QString connId_;
     QString createConnectionId();
+
+    void updateFirewallOnBoot();
 };

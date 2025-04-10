@@ -1,6 +1,6 @@
 #include "ipvalidation.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include "ws_assert.h"
 
@@ -10,15 +10,15 @@ bool IpValidation::isIp(const QString &str)
     const QString kIPRange("(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])");
     const QString kRegExp("^" + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "$");
 
-    QRegExp ipRegex(kRegExp);
-    return ipRegex.exactMatch(str);
+    QRegularExpression ipRegex(kRegExp);
+    return ipRegex.match(str).hasMatch();
 }
 
 bool IpValidation::isIpCidr(const QString &str)
 {
     const QString kIPRange("(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])");
-    const QRegExp kRegExp("^" + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "(\\/([0-9]|[1-2][0-9]|3[0-2]))?$");
-    return kRegExp.exactMatch(str);
+    const QRegularExpression kRegExp("^" + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "\\." + kIPRange + "(\\/([0-9]|[1-2][0-9]|3[0-2]))?$");
+    return kRegExp.match(str).hasMatch();
 }
 
 bool IpValidation::isDomain(const QString &str)
@@ -27,8 +27,8 @@ bool IpValidation::isDomain(const QString &str)
         return false;
     }
 
-    QRegExp domainRegex("^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.){1,}([a-zA-Z][a-zA-Z0-9-]*[a-zA-Z])$");
-    return domainRegex.exactMatch(str);
+    QRegularExpression domainRegex("^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.){1,}([a-zA-Z][a-zA-Z0-9-]*[a-zA-Z])$");
+    return domainRegex.match(str).hasMatch();
 }
 
 // the same as isDomain() but also allows the use the wildcard '*', for example "*.company.int" or "*.lol"
@@ -38,8 +38,8 @@ bool IpValidation::isDomainWithWildcard(const QString &str)
         return false;
     }
 
-    QRegExp domainRegex("^([a-zA-Z0-9*]([a-zA-Z0-9-*]{0,61}[a-zA-Z0-9*])?\\.){1,}([a-zA-Z][a-zA-Z0-9-]*[a-zA-Z])$");
-    return domainRegex.exactMatch(str);
+    QRegularExpression domainRegex("^([a-zA-Z0-9*]([a-zA-Z0-9-*]{0,61}[a-zA-Z0-9*])?\\.){1,}([a-zA-Z][a-zA-Z0-9-]*[a-zA-Z])$");
+    return domainRegex.match(str).hasMatch();
 }
 
 bool IpValidation::isIpOrDomain(const QString &str)
@@ -97,9 +97,9 @@ bool IpValidation::isLocalIp(const QString &str)
 
 bool IpValidation::isValidUrlForCtrld(const QString &str)
 {
-    QRegExp httpsRegex("^((https|h3):\\/)\\/?([^:\\/\\s]+)((\\/\\w+)*\\/)([\\w\\-\\.]+[^#?\\s]+)(.*)?(#[\\w\\-]+)?$");
-    QRegExp sdnsRegex("^sdns:\\/\\/[A-Za-z0-9]+$");
-    return httpsRegex.exactMatch(str) || sdnsRegex.exactMatch(str);
+    QRegularExpression httpsRegex("^((https|h3):\\/)\\/?([^:\\/\\s]+)((\\/\\w+)*\\/)([\\w\\-\\.]+[^#?\\s]+)(.*)?(#[\\w\\-]+)?$");
+    QRegularExpression sdnsRegex("^sdns:\\/\\/[A-Za-z0-9]+$");
+    return httpsRegex.match(str).hasMatch() || sdnsRegex.match(str).hasMatch();
 }
 
 bool IpValidation::isWindscribeReservedIp(const QString &str)

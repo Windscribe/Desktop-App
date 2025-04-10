@@ -140,10 +140,6 @@
         <translation>No iniciar la aplicación después de la instalación.</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>Indica al instalador que omita la instalación de controladores.</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>Elimine las preferencias, los registros y otros datos existentes, si existen.</translation>
     </message>

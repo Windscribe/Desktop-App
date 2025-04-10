@@ -140,10 +140,6 @@
         <translation>Do not launch the application after installation.</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>Instructs the installer to skip installing drivers.</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>Delete existing preferences, logs, and other data, if they exist.</translation>
     </message>

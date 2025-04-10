@@ -2,9 +2,9 @@
 #include "utils/ws_assert.h"
 #include "utils/log/logger.h"
 
-void Ipv6Controller_mac::setHelper(IHelper *helper)
+void Ipv6Controller_mac::setHelper(Helper *helper)
 {
-    helper_ = dynamic_cast<Helper_mac *>(helper);
+    helper_ = helper;
 }
 
 void Ipv6Controller_mac::disableIpv6()

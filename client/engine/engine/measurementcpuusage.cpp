@@ -5,16 +5,13 @@
 
 #include <pdhmsg.h>
 
-#include "engine/helper/helper_win.h"
+#include "engine/helper/helper.h"
 #include "utils/log/categories.h"
-#include "utils/ws_assert.h"
 
-MeasurementCpuUsage::MeasurementCpuUsage(QObject *parent, IHelper *helper, IConnectStateController *connectStateController)
+MeasurementCpuUsage::MeasurementCpuUsage(QObject *parent, Helper *helper, IConnectStateController *connectStateController)
     : QObject(parent),
-      helper_(dynamic_cast<Helper_win*>(helper))
+      helper_(helper)
 {
-    WS_ASSERT(helper_);
-
     PDH_STATUS status = PdhOpenQuery(NULL, 0, &hQuery_);
     if (status == ERROR_SUCCESS) {
         connect(connectStateController, &IConnectStateController::stateChanged, this, &MeasurementCpuUsage::onConnectStateChanged);

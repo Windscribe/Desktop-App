@@ -3,7 +3,7 @@ set(VCPKG_POLICY_EMPTY_INCLUDE_FOLDER enabled)
 if(VCPKG_HOST_IS_OSX)
    execute_process(COMMAND "uname" "-m" OUTPUT_VARIABLE HOST_ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
 elseif(VCPKG_HOST_IS_WINDOWS)
-   set(HOST_ARCH "AMD64") 
+   set(HOST_ARCH "AMD64")
 elseif(VCPKG_HOST_IS_LINUX)
    set(HOST_ARCH "x86_64")
 else()
@@ -38,7 +38,7 @@ vcpkg_cmake_install()
 vcpkg_cmake_config_fixup()
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug")
 
-vcpkg_copy_tools(TOOL_NAMES scapix scapix_java 
+vcpkg_copy_tools(TOOL_NAMES scapix scapix_java
                  SEARCH_DIR ${SOURCE_PATH}/${CMAKE_HOST_SYSTEM_NAME}-${HOST_ARCH}
                  DESTINATION ${CURRENT_PACKAGES_DIR}/tools/${PORT}/${CMAKE_HOST_SYSTEM_NAME}-${HOST_ARCH}
                  AUTO_CLEAN)

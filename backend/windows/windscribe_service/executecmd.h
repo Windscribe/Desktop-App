@@ -3,9 +3,19 @@
 #include <Windows.h>
 
 #include <mutex>
+#include <vector>
+#include <optional>
 
-#include "ipc/servicecommunication.h"
 #include "pipe_for_process.h"
+
+struct ExecuteCmdResult
+{
+    unsigned long exitCode = 0;
+    std::wstring output;
+    bool success = false;
+    unsigned long blockingCmdId;    // id for check status of blocking cmd
+    bool blockingCmdFinished = false;
+};
 
 class ExecuteCmd
 {
@@ -18,12 +28,12 @@ public:
 
     void release();
 
-    MessagePacketResult executeBlockingCmd(const std::wstring &cmd, HANDLE user_token = INVALID_HANDLE_VALUE);
-    MessagePacketResult executeUnblockingCmd(const std::wstring &cmd, const wchar_t *szEventName, const std::wstring &workingDir);
-    MessagePacketResult getUnblockingCmdStatus(unsigned long cmdId);
-    MessagePacketResult getActiveUnblockingCmdCount();
-    MessagePacketResult clearUnblockingCmd(unsigned long id);
-    MessagePacketResult suspendUnblockingCmd(unsigned long id);
+    ExecuteCmdResult executeBlockingCmd(const std::wstring &cmd, HANDLE user_token = INVALID_HANDLE_VALUE);
+    ExecuteCmdResult executeUnblockingCmd(const std::wstring &cmd, const wchar_t *szEventName, const std::wstring &workingDir);
+    ExecuteCmdResult getUnblockingCmdStatus(unsigned long cmdId);
+    ExecuteCmdResult getActiveUnblockingCmdCount();
+    ExecuteCmdResult clearUnblockingCmd(unsigned long id);
+    ExecuteCmdResult suspendUnblockingCmd(unsigned long id);
 
 private:
     ExecuteCmd();
@@ -63,4 +73,7 @@ private:
 
     BOOL isTokenElevated(HANDLE handle);
     void safeCloseHandle(HANDLE handle);
+
+    //  convert std::string to std::wstring with automatic encoding detection
+    std::wstring toWString(const std::string &input);
 };

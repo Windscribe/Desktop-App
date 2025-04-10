@@ -1,10 +1,11 @@
 #pragma once
 
 #include "firewallcontroller.h"
-#include "engine/helper/helper_mac.h"
+#include "engine/helper/helper.h"
 #include "api_responses/staticips.h"
 
 #include <QTemporaryFile>
+#include <QMutex>
 
 class Anchor;
 
@@ -13,10 +14,10 @@ class FirewallController_mac : public FirewallController
 {
     Q_OBJECT
 public:
-    explicit FirewallController_mac(QObject *parent, IHelper *helper);
+    explicit FirewallController_mac(QObject *parent, Helper *helper);
 
-    bool firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig) override;
-    bool firewallOff() override;
+    void firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig) override;
+    void firewallOff() override;
     bool firewallActualState() override;
 
     bool whitelistPorts(const api_responses::StaticIpPortsVector &ports) override;
@@ -26,7 +27,7 @@ public:
     void setFirewallOnBoot(bool bEnable, const QSet<QString>& ipTable = QSet<QString>(), bool isAllowLanTraffic = false) override;
 
 private:
-    Helper_mac *helper_;
+    Helper *helper_;
     QMutex mutex_;
 
     struct FirewallState

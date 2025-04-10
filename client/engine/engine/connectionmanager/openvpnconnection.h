@@ -4,7 +4,7 @@
 #include <QElapsedTimer>
 #include <QTimer>
 #include <QMutex>
-#include "engine/helper/ihelper.h"
+#include "engine/helper/helper.h"
 #include "iconnection.h"
 #include "types/proxysettings.h"
 #include "utils/boost_includes.h"
@@ -15,7 +15,7 @@ class OpenVPNConnection : public IConnection
     Q_OBJECT
 
 public:
-    explicit OpenVPNConnection(QObject *parent, IHelper *helper);
+    explicit OpenVPNConnection(QObject *parent, Helper *helper);
     ~OpenVPNConnection() override;
 
     void startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName,
@@ -48,7 +48,7 @@ private:
     static constexpr int DEFAULT_PORT = 9544;
     static constexpr int MAX_WAIT_OPENVPN_ON_START = 20000;
 
-    IHelper *helper_;
+    Helper *helper_;
     std::atomic<bool> bStopThread_;
 
     boost::asio::io_service io_service_;
@@ -69,7 +69,7 @@ private:
     void setCurrentStateAndEmitDisconnected(CONNECTION_STATUS state);
     void setCurrentStateAndEmitError(CONNECTION_STATUS state, CONNECT_ERROR err);
     CONNECTION_STATUS getCurrentState() const;
-    IHelper::ExecuteError runOpenVPN(unsigned int port, const types::ProxySettings &proxySettings, unsigned long &outCmdId, bool isCustomConfig);
+    bool runOpenVPN(unsigned int port, const types::ProxySettings &proxySettings, unsigned long &outCmdId, bool isCustomConfig);
 
     struct StateVariables
     {

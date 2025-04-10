@@ -2,10 +2,10 @@
 
 #include <QVector>
 #include <QString>
-#include "engine/helper/ihelper.h"
+#include "engine/helper/helper.h"
 
 class RestoreDNSManager_mac
 {
 public:
-    static bool restoreState(IHelper *helper);
+    static void restoreState(Helper *helper);
 };

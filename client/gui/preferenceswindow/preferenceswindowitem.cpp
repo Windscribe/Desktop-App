@@ -34,6 +34,9 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     scrollAreaItem_ = new CommonGraphics::ScrollArea(this, curHeight_ - 102*G_SCALE, WINDOW_WIDTH - kTabAreaWidth);
 
     generalWindowItem_ = new GeneralWindowItem(nullptr, preferences, preferencesHelper);
+    connect(generalWindowItem_, &GeneralWindowItem::exportLocationNamesClick, this, &PreferencesWindowItem::exportLocationNamesClick);
+    connect(generalWindowItem_, &GeneralWindowItem::importLocationNamesClick, this, &PreferencesWindowItem::importLocationNamesClick);
+    connect(generalWindowItem_, &GeneralWindowItem::resetLocationNamesClick, this, &PreferencesWindowItem::resetLocationNamesClick);
 
     accountWindowItem_ = new AccountWindowItem(nullptr, accountInfo);
     accountWindowItem_->setLoggedIn(false);
@@ -478,7 +481,7 @@ void PreferencesWindowItem::onSplitTunnelingAddressesClick()
 void PreferencesWindowItem::updateSplitTunnelingAppsCount(QList<types::SplitTunnelingApp> apps)
 {
     int activeApps = 0;
-    for (types::SplitTunnelingApp app : qAsConst(apps)) {
+    for (types::SplitTunnelingApp app : std::as_const(apps)) {
         if (app.active) activeApps++;
     }
     splitTunnelingWindowItem_->setAppsCount(activeApps);
@@ -576,20 +579,32 @@ void PreferencesWindowItem::setSplitTunnelingActive(bool active)
     splitTunnelingWindowItem_->setActive(active);
 }
 
-void PreferencesWindowItem::onCollapse()
-{
-    robertWindowItem_->setLoading(false);
-}
-
 void PreferencesWindowItem::setPreferencesImportCompleted()
 {
     advancedWindowItem_->setPreferencesImportCompleted();
+}
+
+void PreferencesWindowItem::setLocationNamesImportCompleted()
+{
+    generalWindowItem_->setLocationNamesImportCompleted();
 }
 
 void PreferencesWindowItem::setWebSessionCompleted()
 {
     accountWindowItem_->setWebSessionCompleted();
     robertWindowItem_->setWebSessionCompleted();
+}
+
+void PreferencesWindowItem::onWindowExpanded()
+{
+    if (tabControlItem_->currentTab() == TAB_CONNECTION && connectionWindowItem_->getScreen() == CONNECTION_SCREEN_HOME) {
+        connectionWindowItem_->checkLocalDns();
+    }
+}
+
+void PreferencesWindowItem::onWindowCollapsed()
+{
+    robertWindowItem_->setLoading(false);
 }
 
 } // namespace PreferencesWindow

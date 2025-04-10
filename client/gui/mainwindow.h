@@ -124,6 +124,9 @@ private slots:
     void onPreferencesLastKnownGoodProtocolChanged(const QString &network, const types::Protocol &protocol, uint port);
     void onPreferencesCustomConfigPathNeedsUpdate(const QString &path);
     void onPreferencesShowNotificationsChanged();
+    void onPreferencesExportLocationNamesClick();
+    void onPreferencesImportLocationNamesClick();
+    void onPreferencesResetLocationNamesClick();
 
     // emergency window signals
     void onEmergencyConnectClick();
@@ -208,7 +211,8 @@ private slots:
     void onBackendSetRobertFilterResult(bool success);
     void onBackendSyncRobertResult(bool success);
     void onBackendProtocolStatusChanged(const QVector<types::ProtocolStatus> &status);
-    void onHelperSplitTunnelingStartFailed();
+    void onLocalDnsServerNotAvailable();
+    void onSplitTunnelingStartFailed();
 
     void onBackendEngineCrash();
 
@@ -411,6 +415,7 @@ private:
     bool isExitingFromPreferences_;
     bool isSpontaneousCloseEvent_;
     bool isExitingAfterUpdate_;
+    bool isExitingAfterCriticalError_;
 
     void minimizeToTray();
 
@@ -442,4 +447,5 @@ private:
     void checkNotificationEnabled();
 
     void checkCustomConfigPath(const QString &path);
+    bool wasLaunchedOnStartup();
 };

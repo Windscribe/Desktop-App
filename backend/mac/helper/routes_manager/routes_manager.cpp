@@ -14,13 +14,13 @@ void RoutesManager::setSplitTunnelSettings(bool isSplitTunnelActive, bool isExcl
     updateState(connectStatus_, isSplitTunnelActive, isExcludeMode);
 }
 
-void RoutesManager::setConnectStatus(const CMD_SEND_CONNECT_STATUS &connectStatus)
+void RoutesManager::setConnectStatus(const ConnectStatus &connectStatus)
 {
     updateState(connectStatus, isSplitTunnelActive_, isExcludeMode_);
 }
 
 
-void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bool isSplitTunnelActive, bool isExcludeMode)
+void RoutesManager::updateState(const ConnectStatus &connectStatus, bool isSplitTunnelActive, bool isExcludeMode)
 {
     bool prevIsConnected = connectStatus_.isConnected;
     bool prevIsActive = isSplitTunnelActive_;
@@ -58,7 +58,7 @@ void RoutesManager::updateState(const CMD_SEND_CONNECT_STATUS &connectStatus, bo
     isExcludeMode_ = isExcludeMode;
 }
 
-void RoutesManager::addDnsRoutes(const CMD_SEND_CONNECT_STATUS &connectStatus)
+void RoutesManager::addDnsRoutes(const ConnectStatus &connectStatus)
 {
     // 10.255.255.0/24 contains the default DNS servers, on-node APIs, decoy traffic servers, etc
     // and always goes through the tunnel.

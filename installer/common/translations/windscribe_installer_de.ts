@@ -140,10 +140,6 @@
         <translation>Starten Sie die Anwendung nach der Installation nicht.</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>Weist das Installationsprogramm an, die Installation von Treibern zu überspringen.</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>Löschen Sie vorhandene Einstellungen, Protokolle und andere Daten, falls vorhanden.</translation>
     </message>

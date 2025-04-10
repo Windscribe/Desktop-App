@@ -1,7 +1,6 @@
 #pragma once
 
-#include "engine/helper/helper_mac.h"
-
+#include "engine/helper/helper.h"
 #include <QMap>
 
 class Ipv6Controller_mac
@@ -13,7 +12,7 @@ public:
         return i;
     }
 
-    void setHelper(IHelper *helper);
+    void setHelper(Helper *helper);
     void disableIpv6();
     void restoreIpv6();
 
@@ -22,7 +21,7 @@ private:
     ~Ipv6Controller_mac();
 
     bool bIsDisabled_;
-    Helper_mac *helper_;
+    Helper *helper_;
 
 
     QMap<QString, QString> ipv6States_;

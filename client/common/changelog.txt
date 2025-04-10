@@ -1,3 +1,58 @@
+2.15.3 (10/04/2025)
+All:
+   * Added support for local DNS as connected DNS. #1255
+   * Improved client log when unable to get WG config from server. #1321
+   * Improved anti-censorship mechanisms. #1316
+   * Improved IPC communication between the client and helper/service, refactoring without changing the functionality of the program. #991
+   * Improved consistency of install package naming. #1326
+   * Fixed postquantum KEMs should not be proposed for mobile platforms in wsnet. #1315
+   * Fixed searching for nicknames not working after location renaming feature. #1321
+   * Fixed Ecuador flag, redux. #1305
+MacOS:
+   * Fixed firewall blocking VPN connections on port 53. #1325
+   * Fixed potential crash at exit. #1319
+Linux:
+   * Fixed split tunneling sometimes not working after Qt update. #1320
+
+
+2.15.2 (01/04/2025)
+All:
+   * Added location renaming. #1259
+   * Improved confusing "No P2P" icon. #1304
+   * Improved flag assets. #1305 #1312
+   * Improved UX when unable to connect to the Windscribe helper/service. #1301
+   * Fixed the app freezing on exit. #1250
+   * Fixed cursor may not change when a location becomes disabled/enabled. #1262
+   * Fixed static IP link color may be incorrect. #1293
+   * Updated OpenVPN to 2.6.13. #1310
+   * Updated Qt to 6.8.3. #1215
+Windows:
+   * Improved installer language detection to use app language if available. #1296
+   * Fixed firewall may be briefly incorrectly disabled after in-app update. #1283
+   * Removed -no-drivers argument for installer. #1311
+MacOS:
+   * Improved installer language detection to use app language if available. #1296
+   * Fixed firewall may be briefly incorrectly disabled after in-app update. #1283
+   * Fixed tooltip sometimes shows behind main window. #368
+Linux:
+   * Fixed firewall behavior due to iptables 1.8.11 bug. #1308
+   * Fixed postquantum KEMs not being proposed. #1315
+
+
+2.15.1 (18/03/2025)
+All:
+   * Added Fedora arm64 build. #1244
+   * Improved behavior when the firewall is on and the app exits unexpectedly. #1283
+   * Improved UX and fixed text overlaps on the static IPs screen. #306 #1293
+   * Fixed static IP locations that are unavailable are not displayed. #1262
+   * Fixed window height is cut off if window transitions while being dragged. #1295
+   * Updated liboqs to 0.12.0 and oqs-provider to 0.7.0. #1104
+   * Updated ctrld to 1.4.1. #1284
+   * Removed code usage of Qt5 compatibility module. #1272
+MacOS:
+   * Improved UX when user connects with split tunneling enabled, but has not approved the extension. #1298
+
+
 2.14.12 (01/04/2025)
 Linux:
    * Fixed always-on firewall not functional after reboot. #1317
@@ -10,7 +65,7 @@ Linux:
 
 2.14.10 (26/03/2025)
 All:
-   * Improved Decoy Traffic algorithm data rate limits on high-bandwidth networks. #1307
+   * Improved Decoy Traffic algorithm, UI fixes. #1307
 
 
 2.14.9 (17/03/2025)

@@ -1,11 +1,13 @@
 #pragma once
 
 #include <QAbstractItemModel>
+#include <QJsonObject>
 #include "favoritelocationsstorage.h"
 #include "types/location.h"
 #include "types/locationid.h"
 #include "types/pingtime.h"
 #include "locationitem.h"
+#include "renamedlocationsstorage.h"
 
 namespace gui_locations {
 
@@ -61,8 +63,12 @@ public:
     QModelIndex getBestLocationIndex() const;
     QModelIndex getCustomConfigLocationIndex() const;
 
-    // the client of the class must explicitly save locations  if required
+    // the client of the class must explicitly save locations if required
     void saveFavoriteLocations();
+
+    QJsonObject renamedLocations() const;
+    void setRenamedLocations(const QJsonObject &obj);
+    void resetRenamedLocations();
 
 signals:
     void deviceNameChanged(const QString &deviceName);
@@ -77,6 +83,7 @@ private:
     int *root_;   // Fake root node. The typename does not matter, only the pointer to identify the root node matters.
     bool isFreeSessionStatus_;
     FavoriteLocationsStorage favoriteLocationsStorage_;
+    RenamedLocationsStorage renamedLocationsStorage_;
     const char *BEST_LOCATION_NAME = QT_TR_NOOP("Best Location");
 
     QVariant dataForLocation(int row, int role) const;

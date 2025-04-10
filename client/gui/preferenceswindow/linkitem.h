@@ -36,6 +36,10 @@ public:
     void setLinkIcon(QSharedPointer<IndependentPixmap> icon);
     void setInProgress(bool inProgress);
 
+protected:
+    void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
+
 private slots:
     void onOpenUrl();
     void onHoverEnter();
@@ -63,6 +67,9 @@ private:
     QVariantAnimation textOpacityAnimation_;
     QVariantAnimation arrowOpacityAnimation_;
     QVariantAnimation spinnerAnimation_;
+
+    bool isTitleElided_ = false;
+    QRectF titleRect_;
 };
 
 } // namespace PreferencesWindow

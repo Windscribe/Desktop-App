@@ -22,10 +22,11 @@ qt_standard_project_setup(REQUIRES 6.5)
 
 set(SOURCES
     Assets.xcassets
-    helper/helper_mac.h
-    helper/installhelper_mac.mm
-    helper/installhelper_mac.h
-    helper/helper_mac.mm
+    ../../../client/engine/engine/helper/ihelperbackend.h
+    ../../../client/engine/engine/helper/helperbackend_mac.cpp
+    ../../../client/engine/engine/helper/installhelper_mac.mm
+    helper/helper_installer.cpp
+    helper/helper_installer.h
     installer/base_installer.h
     installer/base_installer.mm
     installer/downloader.h
@@ -55,6 +56,7 @@ set_target_properties(installer
 
 target_include_directories(installer PRIVATE
                            ../../../client/common
+                           ../../../client/engine/engine/helper
                            ../../../common
                            ../../common
                            ./installer
@@ -99,7 +101,7 @@ set(CMAKE_XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES YES)
 set(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM})
 set(CMAKE_XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME "YES")
 set(CMAKE_XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks")
-set(CMAKE_XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET "11.0")
+set(CMAKE_XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET "12.0")
 set(CMAKE_XCODE_ATTRIBUTE_PROVISIONING_PROFILE "")
 set(CMAKE_XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "")
 set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.windscribe.installer.macos")

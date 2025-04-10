@@ -77,8 +77,8 @@ void SelectedLocation::fillData()
     LocationID extractedLid = qvariant_cast<LocationID>(selIndex_.data((int)Roles::kLocationId));
     prevId_ = id_;
     id_ = extractedLid;
-    firstName_ = selIndex_.data(Roles::kName).toString();
-    secondName_ = selIndex_.data(Roles::kNick).toString();
+    firstName_ = selIndex_.data().toString();
+    secondName_ = selIndex_.data(Roles::kDisplayNickname).toString();
     countryCode_ = selIndex_.data(Roles::kCountryCode).toString();
     pingTime_ = selIndex_.data(Roles::kPingTime).toInt();
 }

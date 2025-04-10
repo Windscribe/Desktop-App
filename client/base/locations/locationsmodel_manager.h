@@ -43,6 +43,10 @@ public:
 
     void saveFavoriteLocations();
 
+    QJsonObject renamedLocations() const;
+    void setRenamedLocations(const QJsonObject &obj);
+    void resetRenamedLocations();
+
 signals:
     void deviceNameChanged(const QString &deviceName);
 

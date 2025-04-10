@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.23)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET "11" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "12" CACHE STRING "Minimum OS X deployment version")
 
 if (WIN32)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
@@ -20,7 +20,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 COMPONENTS Core Network Core5Compat LinguistTools)
+find_package(Qt6 COMPONENTS Core Network LinguistTools)
 find_package(OpenSSL REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 
@@ -152,7 +152,6 @@ target_link_libraries(windscribe-cli
                       spdlog::spdlog
                       Qt6::Core
                       Qt6::Network
-                      Qt6::Core5Compat
 )
 
 target_include_directories(windscribe-cli PRIVATE

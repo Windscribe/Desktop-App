@@ -19,6 +19,7 @@ MainService::MainService() : QObject(), isExitingAfterUpdate_(false), keyLimitDe
     connect(backend_, &Backend::sessionStatusChanged, this, &MainService::onBackendSessionStatusChanged);
     connect(backend_, &Backend::updateVersionChanged, this, &MainService::onBackendUpdateVersionChanged);
     connect(backend_, &Backend::wireGuardAtKeyLimit, this, &MainService::onBackendWireGuardAtKeyLimit);
+    connect(backend_, &Backend::localDnsServerNotAvailable, this, &MainService::onBackendLocalDnsServerNotAvailable);
     backend_->init();
 
     // signals from here to Backend
@@ -235,19 +236,12 @@ void MainService::onPreferencesLaunchOnStartupChanged(bool enabled)
 
 void MainService::stop()
 {
-    backend_->cleanup(true, PersistentState::instance().isFirewallOn(),
-                      backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON || isExitingAfterUpdate_,
-                      backend_->getPreferences()->isLaunchOnStartup());
+    backend_->cleanup(isExitingAfterUpdate_);
 
     // Backend handles setting firewall state after app closes
     // This block handles initializing the firewall state on next run
-    if (PersistentState::instance().isFirewallOn() &&
-        backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_AUTOMATIC)
-    {
-        if (!backend_->getPreferences()->isLaunchOnStartup() || !backend_->getPreferences()->isAutoConnect()) {
-            qCInfo(LOG_BASIC) << "Setting firewall persistence to false";
-            PersistentState::instance().setFirewallState(false);
-        }
+    if (PersistentState::instance().isFirewallOn() && backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_AUTOMATIC) {
+        PersistentState::instance().setFirewallState(false);
     } else if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
         PersistentState::instance().setFirewallState(true);
     }
@@ -314,3 +308,9 @@ void MainService::onSetKeyLimitBehavior(bool deleteKey)
     keyLimitDelete_ = deleteKey;
 }
 
+void MainService::onBackendLocalDnsServerNotAvailable()
+{
+    types::ConnectedDnsInfo connectedDnsInfo = backend_->getPreferences()->connectedDnsInfo();
+    connectedDnsInfo.type = CONNECTED_DNS_TYPE::CONNECTED_DNS_TYPE_AUTO;
+    backend_->getPreferences()->setConnectedDnsInfo(connectedDnsInfo);
+}

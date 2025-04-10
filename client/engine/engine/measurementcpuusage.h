@@ -6,13 +6,13 @@
 #include <pdh.h>
 
 #include "connectstatecontroller/iconnectstatecontroller.h"
-#include "helper/helper_win.h"
+#include "helper/helper.h"
 
 class MeasurementCpuUsage : public QObject
 {
     Q_OBJECT
 public:
-    explicit MeasurementCpuUsage(QObject *parent, IHelper *helper, IConnectStateController *connectStateController);
+    explicit MeasurementCpuUsage(QObject *parent, Helper *helper, IConnectStateController *connectStateController);
     virtual ~MeasurementCpuUsage();
 
     void setEnabled(bool bEnabled);
@@ -25,7 +25,7 @@ private slots:
     void onTimer();
 
 private:
-    Helper_win* const helper_;
+    Helper* const helper_;
     PDH_HQUERY hQuery_ = NULL;
     bool bEnabled_ = false;
 

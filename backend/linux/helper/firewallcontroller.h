@@ -40,6 +40,7 @@ private:
     std::string prevAdapter_;
     std::string netclassid_;
 
+    void removeRuleInPosition(const std::string &chain, const std::string &rule, int position);
     void removeExclusiveIpRules();
     void removeInclusiveIpRules();
     void removeExclusiveAppRules();

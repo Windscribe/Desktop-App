@@ -11,16 +11,14 @@
 #ifdef Q_OS_MACOS
     #include "restorednsmanager_mac.h"
     #include "ikev2connection_mac.h"
-    #include "engine/helper/helper_mac.h"
     #include "wireguardconnection_posix.h"
 #endif
 
 #ifdef Q_OS_LINUX
-    #include "engine/helper/helper_linux.h"
     #include "wireguardconnection_posix.h"
 #endif
 
-void FinishActiveConnections::finishAllActiveConnections(IHelper *helper)
+void FinishActiveConnections::finishAllActiveConnections(Helper *helper)
 {
 #ifdef Q_OS_WIN
     finishAllActiveConnections_win(helper);
@@ -30,22 +28,20 @@ void FinishActiveConnections::finishAllActiveConnections(IHelper *helper)
 }
 
 #ifdef Q_OS_WIN
-void FinishActiveConnections::finishAllActiveConnections_win(IHelper *helper)
+void FinishActiveConnections::finishAllActiveConnections_win(Helper *helper)
 {
     finishOpenVpnActiveConnections_win(helper);
     finishIkev2ActiveConnections_win(helper);
     finishWireGuardActiveConnections_win(helper);
 }
 
-void FinishActiveConnections::finishOpenVpnActiveConnections_win(IHelper *helper)
+void FinishActiveConnections::finishOpenVpnActiveConnections_win(Helper *helper)
 {
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
-    helper_win->executeTaskKill(kTargetOpenVpn);
+    helper->executeTaskKill(kTargetOpenVpn);
 }
 
-void FinishActiveConnections::finishIkev2ActiveConnections_win(IHelper *helper)
+void FinishActiveConnections::finishIkev2ActiveConnections_win(Helper *helper)
 {
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
     const QVector<HRASCONN> v = IKEv2Connection_win::getActiveWindscribeConnections();
 
     if (!v.isEmpty())
@@ -55,19 +51,18 @@ void FinishActiveConnections::finishIkev2ActiveConnections_win(IHelper *helper)
             IKEv2ConnectionDisconnectLogic_win::blockingDisconnect(hRas);
         }
 
-        helper_win->disableDnsLeaksProtection();
-        helper_win->removeHosts();
+        helper->disableDnsLeaksProtection();
+        helper->removeHosts();
     }
 }
 
-void FinishActiveConnections::finishWireGuardActiveConnections_win(IHelper *helper)
+void FinishActiveConnections::finishWireGuardActiveConnections_win(Helper *helper)
 {
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
-    helper_win->stopWireGuard();
-    helper_win->disableDnsLeaksProtection();
+    helper->stopWireGuard();
+    helper->disableDnsLeaksProtection();
 }
 #elif defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
-void FinishActiveConnections::finishAllActiveConnections_posix(IHelper *helper)
+void FinishActiveConnections::finishAllActiveConnections_posix(Helper *helper)
 {
 #if defined(Q_OS_LINUX)
     removeDnsLeaksprotection_linux(helper);
@@ -79,28 +74,26 @@ void FinishActiveConnections::finishAllActiveConnections_posix(IHelper *helper)
 #endif
 }
 
-void FinishActiveConnections::finishOpenVpnActiveConnections_posix(IHelper *helper)
+void FinishActiveConnections::finishOpenVpnActiveConnections_posix(Helper *helper)
 {
-    Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper);
-    helper_posix->executeTaskKill(kTargetOpenVpn);
-    helper_posix->executeTaskKill(kTargetStunnel);
-    helper_posix->executeTaskKill(kTargetWStunnel);
+    helper->executeTaskKill(kTargetOpenVpn);
+    helper->executeTaskKill(kTargetStunnel);
+    helper->executeTaskKill(kTargetWStunnel);
 #if defined(Q_OS_MACOS)
     RestoreDNSManager_mac::restoreState(helper);
 #endif
 }
 
-void FinishActiveConnections::finishWireGuardActiveConnections_posix(IHelper *helper)
+void FinishActiveConnections::finishWireGuardActiveConnections_posix(Helper *helper)
 {
     helper->stopWireGuard();
 }
 #endif
 
 #if defined(Q_OS_LINUX)
-void FinishActiveConnections::removeDnsLeaksprotection_linux(IHelper *helper)
+void FinishActiveConnections::removeDnsLeaksprotection_linux(Helper *helper)
 {
-    Helper_linux *helperLinux = dynamic_cast<Helper_linux *>(helper);
-    helperLinux->setDnsLeakProtectEnabled(false);
+    helper->setDnsLeakProtectEnabled(false);
 }
 #endif
 

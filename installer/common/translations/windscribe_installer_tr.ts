@@ -140,10 +140,6 @@
         <translation>Kurulumdan sonra uygulamayı başlatmayın.</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>Yükleyiciye sürücüleri yüklemeyi atlamasını söyler.</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>Varsa mevcut tercihleri, günlükleri ve diğer verileri silin.</translation>
     </message>

@@ -2,12 +2,11 @@
 
 #include <Windows.h>
 
-#include "../engine/engine/helper/helper_win.h"
 #include "utils/log/logger.h"
 #include "utils/winutils.h"
 #include "utils/ws_assert.h"
 
-void *WlanUtils_win::helper_ = nullptr;
+Helper *WlanUtils_win::helper_ = nullptr;
 
 WlanUtils_win::WlanUtils_win() : loaded_(false)
 {
@@ -186,7 +185,7 @@ bool WlanUtils_win::isWifiRadioOn()
     return false;
 }
 
-void WlanUtils_win::setHelper(void *helper)
+void WlanUtils_win::setHelper(Helper *helper)
 {
     helper_ = helper;
 }
@@ -196,11 +195,8 @@ DWORD WlanUtils_win::getSsidFromHelper(const QString &interfaceGUID, QString &ou
     // To avoid spamming the log with this warning.
     static bool warnWLanAPIBlocked = true;
 
-    WS_ASSERT(helper_ != nullptr);
-    Helper_win *helper_win = static_cast<Helper_win*>(helper_);
-
     QString ssid;
-    DWORD result = helper_win->ssidFromInterfaceGUID(interfaceGUID, ssid);
+    DWORD result = helper_->ssidFromInterfaceGUID(interfaceGUID, ssid);
     if (result == NO_ERROR) {
         // Reset this to cover the case where the user has enabled/disabled Location services while the
         // app is running.

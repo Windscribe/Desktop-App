@@ -5,7 +5,6 @@
 #include "types/enums.h"
 #include "adaptergatewayinfo.h"
 
-class IHelper;
 class WireGuardConfig;
 
 enum class ConnectionType { IKEV2, OPENVPN, WIREGUARD };

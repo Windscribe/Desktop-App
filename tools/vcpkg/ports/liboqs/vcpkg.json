@@ -1,6 +1,6 @@
 {
   "name": "liboqs",
-  "version": "0.10.1",
+  "version": "0.12.0",
   "port-version": 1,
   "description": "liboqs is an open source C library for quantum-safe cryptographic algorithms.",
   "homepage": "https://github.com/open-quantum-safe/liboqs",

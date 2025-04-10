@@ -279,8 +279,8 @@
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
-        <source>Add Static IP</source>
-        <translation>Додайте статичну IP-адресу</translation>
+        <source>Add</source>
+        <translation>Додати</translation>
     </message>
 </context>
 <context>
@@ -507,10 +507,6 @@
         <translation>Не вдалося запустити</translation>
     </message>
     <message>
-        <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>Windscribe не працює належним чином.  Будь ласка, перезапустіть програму.</translation>
-    </message>
-    <message>
         <source>Trying Backup Endpoints %1/%2</source>
         <translation>Спроба резервного копіювання кінцевих точок %1/%2</translation>
     </message>
@@ -603,10 +599,6 @@
     <message>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation>Ми не змогли підключити вас до цієї мережі. Надішліть нам свій журнал налагодження, щоб ми могли з&apos;ясувати, що сталося.</translation>
-    </message>
-    <message>
-        <source>Debug Sent!</source>
-        <translation>Налагодження надіслано!</translation>
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
@@ -841,6 +833,58 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>Ви вибрали відображення сповіщень, але системні сповіщення вимкнені. Будь ласка, увімкніть системні сповіщення у ваших Системних налаштуваннях.</translation>
+    </message>
+    <message>
+        <source>Error Starting Split Tunneling</source>
+        <translation>Помилка під час запуску роздільного тунелювання</translation>
+    </message>
+    <message>
+        <source>Export Location Names To</source>
+        <translation>Експортувати назви місцезнаходжень у</translation>
+    </message>
+    <message>
+        <source>Unable to export location names</source>
+        <translation>Не вдається експортувати назви місцеположень</translation>
+    </message>
+    <message>
+        <source>Import Location Names From</source>
+        <translation>Імпортуйте назви місцеположень з</translation>
+    </message>
+    <message>
+        <source>Unable to import location names</source>
+        <translation>Не вдається імпортувати назви місцеположень</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Функцію роздільного тунелювання було вимкнено, оскільки розширення розділеного тунелю Windscribe не увімкнено у Системних параметрах.  Щоб скористатися цією можливістю, будь ласка, увімкніть розширення у Системних параметрах і знову увімкніть цю функцію.</translation>
+    </message>
+    <message>
+        <source>Debug Log Sent!</source>
+        <translation>Журнал налагодження відправлено!</translation>
+    </message>
+    <message>
+        <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
+        <translation>Не вдалося підключитися до сервісу Windscribe.  Тепер Windscribe вийде.  Будь ласка, зверніться до служби підтримки.</translation>
+    </message>
+    <message>
+        <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
+        <translation>Втрачено з&apos;єднання з сервісом Windscribe.  Тепер Windscribe вийде.  Надішліть нам журнал налагодження, щоб ми могли покращити це.</translation>
+    </message>
+    <message>
+        <source>Local DNS server is not available</source>
+        <translation>Локальний DNS-сервер недоступний</translation>
+    </message>
+    <message>
+        <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
+        <translation>Локальний DNS-сервер недоступний.  Підключений DNS було знову встановлено в положення Авто.</translation>
+    </message>
+    <message>
+        <source>DNS Server Conflict</source>
+        <translation>Конфлікт DNS-сервера</translation>
+    </message>
+    <message>
+        <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
+        <translation>Не вдається запустити спеціальну службу DNS - порт 53 вже використовується.  Чи хотіли б ви змінити підключений DNS на локальний сервер?</translation>
     </message>
 </context>
 <context>
@@ -1283,8 +1327,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Приблизне використання даних</translation>
     </message>
     <message>
-        <source>GB/Hour</source>
-        <translation>ГБ/год</translation>
+        <source>%1/hour</source>
+        <translation>%1/год</translation>
     </message>
 </context>
 <context>
@@ -1488,6 +1532,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Select behavior when window is activated with multiple desktops.</source>
         <translation>Виберіть поведінку, коли вікно активовано на кількох робочих столах.</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Експорт</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Імпорт</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Скинути</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>Змінюйте назви локацій на свій смак.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>Перейменування місцеположень</translation>
     </message>
 </context>
 <context>
@@ -2330,6 +2394,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Duplicate</source>
         <translation>Дублювати</translation>
+    </message>
+    <message>
+        <source>Local DNS</source>
+        <translation>Локальний DNS</translation>
     </message>
 </context>
 <context>

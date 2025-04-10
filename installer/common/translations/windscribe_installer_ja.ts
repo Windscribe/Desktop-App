@@ -140,10 +140,6 @@
         <translation>インストール後にアプリケーションを起動しないでください。</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>ドライバーのインストールをスキップするようにインストーラーに指示します。</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>既存の設定、ログ、およびその他のデータが存在する場合は削除します。</translation>
     </message>

@@ -2,19 +2,32 @@
 
 #include "../../../common/version/windscribe_version.h"
 #include "names.h"
-#include "utils/log/categories.h"
 
 #import <Foundation/Foundation.h>
 #import <ServiceManagement/ServiceManagement.h>
 #import <Security/Authorization.h>
 
-bool InstallHelper_mac::installHelper(bool &isUserCanceled)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
+namespace {
+  std::string toStdString(CFStringRef str)
+  {
+      std::string res;
+      if (str)
+          res = [(__bridge NSString *)str UTF8String];
+      return res;
+  }
+}
+
+bool InstallHelper_mac::installHelper(bool bForceDeleteOld, bool &isUserCanceled, spdlog::logger *logger)
 {
     isUserCanceled = false;
     NSString *helperLabel = @HELPER_BUNDLE_ID;
     BOOL result = NO;
 
-    NSDictionary *installedHelperJobData  = CFBridgingRelease(SMJobCopyDictionary(kSMDomainSystemLaunchd, (CFStringRef)helperLabel));
+    NSDictionary *installedHelperJobData  = CFBridgingRelease(SMJobCopyDictionary(kSMDomainSystemLaunchd, (__bridge CFStringRef)helperLabel));
+
     if (installedHelperJobData) {
         NSString*       installedPath           = [[installedHelperJobData objectForKey:@"ProgramArguments"] objectAtIndex:0];
         NSURL*          installedPathURL        = [NSURL fileURLWithPath:installedPath];
@@ -23,7 +36,7 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
         NSString*       installedBundleVersion  = [installedInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       installedVersion        = [installedBundleVersion integerValue];
 
-        qCInfo(LOG_BASIC) << "installed helper version: " << (long)installedVersion;
+        logger->info("Installed helper version: {}", (long)installedVersion);
 
         NSBundle*       appBundle       = [NSBundle mainBundle];
         NSURL*          appBundleURL    = [appBundle bundleURL];
@@ -33,17 +46,17 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
         NSString*       currentBundleVersion    = [currentInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       currentVersion          = [currentBundleVersion integerValue];
 
-        qCInfo(LOG_BASIC) << "current helper version: " << (long)currentVersion;
+        logger->info("Current helper version: {}", (long)currentVersion);
 
-        if (installedVersion == currentVersion && isAppMajorMinorVersionSame()) {
+        if (installedVersion == currentVersion && isAppMajorMinorVersionSame() && !bForceDeleteOld) {
             return true;
-        } else if (installedVersion >= currentVersion) {
+        } else if (installedVersion >= currentVersion || bForceDeleteOld) {
             // If we are downgrading, (or the helper version is the same but app version differs),
             // we need to uninstall the previous helper first (SMJobBless will not let us downgrade)
-            uninstallHelper();
+            uninstallHelper(logger);
         }
     } else {
-        qCInfo(LOG_BASIC) << "Not installed helper";
+        logger->info("Helper not installed");
     }
 
     AuthorizationItem authItem      = { kSMRightBlessPrivilegedHelper, 0, NULL, 0 };
@@ -58,7 +71,7 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
     // Obtain the right to install privileged helper tools (kSMRightBlessPrivilegedHelper).
     OSStatus status = AuthorizationCreate(&authRights, kAuthorizationEmptyEnvironment, flags, &authRef);
     if (status != errAuthorizationSuccess) {
-        qCWarning(LOG_BASIC) << "Failed to create AuthorizationRef. Error code:" << (int)status;
+        logger->warn("Failed to create AuthorizationRef. Error code: {}", (int)status);
         isUserCanceled = true;
     } else {
         // This does all the work of verifying the helper tool against the application
@@ -68,19 +81,25 @@ bool InstallHelper_mac::installHelper(bool &isUserCanceled)
         //
         CFErrorRef outError = NULL;
         result = SMJobBless(kSMDomainSystemLaunchd, (__bridge CFStringRef)helperLabel, authRef, &outError);
-        if (outError) {
-            NSError *error = (NSError *)outError;
-            qCCritical(LOG_BASIC) << QString::fromCFString((CFStringRef)[error localizedDescription]);
-            CFRelease(outError);
+        if (!result) {
+            if (outError) {
+                logger->error("InstallHelper - SMJobBless failed. Error code: {}", CFErrorGetCode(outError));
+                logger->error("Description: {}", toStdString(CFErrorCopyDescription(outError)));
+                logger->error("Reason: {}", toStdString(CFErrorCopyFailureReason(outError)));
+                logger->error("Recovery: {}", toStdString(CFErrorCopyRecoverySuggestion(outError)));
+                CFRelease(outError);
+            } else {
+                logger->error("InstallHelper - SMJobBless failed. No error info available.");
+            }
         }
     }
 
     return result == YES;
 }
 
-bool InstallHelper_mac::uninstallHelper()
+bool InstallHelper_mac::uninstallHelper(spdlog::logger *logger)
 {
-    qCDebug(LOG_BASIC) << "Uninstalling helper.";
+    logger->info("Uninstalling helper");
     NSString *scriptContents = @"do shell script \"launchctl remove /Library/LaunchDaemons/com.windscribe.helper.macos.plist;"
                                                   "rm /Library/LaunchDaemons/com.windscribe.helper.macos.plist;"
                                                   "rm /Library/PrivilegedHelperTools/com.windscribe.helper.macos\" with administrator privileges";
@@ -88,10 +107,10 @@ bool InstallHelper_mac::uninstallHelper()
     NSAppleEventDescriptor *desc;
     desc = [script executeAndReturnError:nil];
     if (desc == nil) {
-        qCWarning(LOG_BASIC) << "Couldn't remove the previous helper.";
+        logger->error("Couldn't remove the previous helper");
         return true;
     } else {
-        qCInfo(LOG_BASIC) << "Removed previous helper.";
+        logger->info("Removed previous helper");
         return false;
     }
 }
@@ -118,3 +137,5 @@ bool InstallHelper_mac::isAppMajorMinorVersionSame()
 
     return false;
 }
+
+#pragma clang diagnostic pop

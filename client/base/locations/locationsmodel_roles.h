@@ -24,7 +24,9 @@ enum Roles {
 
     kIsCustomConfigCorrect,              // city only
     kCustomConfigType,                   // city only
-    kCustomConfigErrorMessage            // city only
+    kCustomConfigErrorMessage,           // city only
+
+    kDisplayNickname,                    // city only and best location
 };
 
 } //namespace gui_locations

@@ -4,7 +4,7 @@
 #include <QMutex>
 #include "httpproxyserver/httpproxyserver.h"
 #include "socksproxyserver/socksproxyserver.h"
-#include "engine/helper/ihelper.h"
+#include "engine/helper/helper.h"
 #include "types/enums.h"
 
 #ifdef Q_OS_WIN
@@ -16,7 +16,7 @@ class VpnShareController : public QObject
 {
     Q_OBJECT
 public:
-    explicit VpnShareController(QObject *parent, IHelper *helper);
+    explicit VpnShareController(QObject *parent, Helper *helper);
     virtual ~VpnShareController();
 
     void onConnectedToVPNEvent(const QString &vpnAdapterName);
@@ -45,7 +45,6 @@ private slots:
 
 private:
     QRecursiveMutex mutex_;
-    IHelper *helper_;
     bool vpnConnected_;
     bool shareWhileConnected_;
     PROXY_SHARING_TYPE type_;

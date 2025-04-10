@@ -21,5 +21,6 @@ private:
 
     FwpmWrapper &fwpmWrapper_;
     GUID subLayerGUID_;
+    bool isDisabled_ = false;
     void addFilters(HANDLE engineHandle);
 };

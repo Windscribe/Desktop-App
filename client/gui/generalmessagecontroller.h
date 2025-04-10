@@ -42,6 +42,7 @@ public:
     void showMessage(GeneralMessage *message);
     void showCredentialsPrompt(GeneralMessage *message);
     bool hasMessages() const;
+    void setSource(MainWindowController::WINDOW_ID source);
 
     static inline const char *kOk = QT_TR_NOOP("Ok");
     static inline const char *kYes = QT_TR_NOOP("Yes");

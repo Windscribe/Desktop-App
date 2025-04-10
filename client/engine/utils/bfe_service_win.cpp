@@ -3,25 +3,21 @@
 #include <QCoreApplication>
 #include <QElapsedTimer>
 
-#include "engine/helper/helper_win.h"
 #include "utils/log/categories.h"
 #include "utils/winutils.h"
-#include "utils/ws_assert.h"
 
 bool BFE_Service_win::isBFEEnabled()
 {
     return WinUtils::isServiceRunning("BFE");
 }
 
-void BFE_Service_win::enableBFE(IHelper *helper)
+void BFE_Service_win::enableBFE(Helper *helper)
 {
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
-    WS_ASSERT(helper_win);
-    QString strLog = helper_win->enableBFE();
+    QString strLog = helper->enableBFE();
     qCInfo(LOG_BASIC) << "Enable BFE; Answer:" << strLog;
 }
 
-bool BFE_Service_win::checkAndEnableBFE(IHelper *helper)
+bool BFE_Service_win::checkAndEnableBFE(Helper *helper)
 {
     if (isBFEEnabled()) {
         qCInfo(LOG_BASIC) << "Base filtering platform service is running";

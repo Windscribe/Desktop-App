@@ -140,10 +140,6 @@
         <translation>Nie uruchamiaj aplikacji po zakończeniu instalacji.</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>Nakazuje instalatorowi pominięcie instalowania sterowników.</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>Usuń istniejące preferencje, dzienniki i inne dane, jeśli istnieją.</translation>
     </message>

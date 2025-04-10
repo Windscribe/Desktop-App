@@ -1,58 +1,52 @@
 #pragma once
 
-#include <QMutex>
-#include <QTimer>
-#include <qt_windows.h>
-
-#include <atomic>
-
-#include "ihelper.h"
-#include "../../../../backend/windows/windscribe_service/ipc/servicecommunication.h"
+#include "helper_base.h"
+#include "types/protocol.h"
 #include "types/enums.h"
-#include "utils/servicecontrolmanager.h"
-#include "utils/win32handle.h"
 
-class Helper_win : public IHelper
+class AdapterGatewayInfo;
+class WireGuardConfig;
+namespace types
 {
-    Q_OBJECT
+    struct WireGuardStatus;
+}
+
+// Windows commands
+class Helper_win : public HelperBase
+{
 public:
-    explicit Helper_win(QObject *parent = NULL);
-    ~Helper_win() override;
+    explicit Helper_win(std::unique_ptr<IHelperBackend> backend);
+    virtual ~Helper_win() {}
 
-    void startInstallHelper() override;
-    STATE currentState() const override;
-    bool reinstallHelper() override;
-    void setNeedFinish() override;
-    QString getHelperVersion() override;
+    QString getHelperVersion();
 
-    void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished) override;
-    void clearUnblockingCmd(unsigned long cmdId) override;
-    void suspendUnblockingCmd(unsigned long cmdId) override;
+    void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished);
+    void clearUnblockingCmd(unsigned long cmdId);
+    void suspendUnblockingCmd(unsigned long cmdId);
 
-    bool setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
+    void setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
                                    const QStringList &files, const QStringList &ips,
-                                   const QStringList &hosts) override;
+                                   const QStringList &hosts);
     bool sendConnectStatus(bool isConnected, bool isTerminateSocket, bool isKeepLocalSocket,
                            const AdapterGatewayInfo &defaultAdapter, const AdapterGatewayInfo &vpnAdapter,
-                           const QString &connectedIp, const types::Protocol &protocol) override;
-    bool setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress);
-    bool changeMtu(const QString &adapter, int mtu) override;
+                           const QString &connectedIp, const types::Protocol &protocol);
+    void changeMtu(const QString &adapter, int mtu);
+    bool executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort,
+                                const QString &socksProxy, unsigned int socksPort, bool isCustomConfig, unsigned long &outCmdId);
+
     bool executeTaskKill(CmdKillTarget target);
-    ExecuteError executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort,
-                                const QString &socksProxy, unsigned int socksPort, unsigned long &outCmdId, bool isCustomConfig) override;
 
-    // WireGuard functions
-    IHelper::ExecuteError startWireGuard() override;
-    bool stopWireGuard() override;
-    bool configureWireGuard(const WireGuardConfig &config) override;
-    bool getWireGuardStatus(types::WireGuardStatus *status) override;
+    bool startWireGuard();
+    bool stopWireGuard();
+    bool configureWireGuard(const WireGuardConfig &config);
+    bool getWireGuardStatus(types::WireGuardStatus *status);
 
-    // ctrld functions
-    bool startCtrld(const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog) override;
-    bool stopCtrld() override;
+    void firewallOn(const QString &connectingIp, const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig);
+    void firewallOff();
+    bool firewallActualState();
 
-    // Windows specific functions
-    bool isHelperConnected() const;
+    bool setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress);
+
     QString executeSetMetric(const QString &interfaceType, const QString &interfaceName, const QString &metricNumber);
     QString executeWmicGetConfigManagerErrorCode(const QString &adapterName);
 
@@ -65,6 +59,7 @@ public:
     QString resetAndStartRAS();
 
     void setIPv6EnabledInFirewall(bool b);
+    void setFirewallOnBoot(bool b);
 
     bool addHosts(const QString &hosts);
     bool removeHosts();
@@ -78,61 +73,30 @@ public:
     void enableDnsLeaksProtection();
     void disableDnsLeaksProtection();
 
-    bool reinstallWanIkev2();
-    bool enableWanIkev2();
+    void reinstallWanIkev2();
+    void enableWanIkev2();
 
-    bool setMacAddressRegistryValueSz(QString subkeyInterfaceName, QString value);
-    bool removeMacAddressRegistryProperty(QString subkeyInterfaceName);
-    bool resetNetworkAdapter(QString subkeyInterfaceName, bool bringAdapterBackUp);
+    void setMacAddressRegistryValueSz(const QString &subkeyInterfaceName, const QString &value);
+    void removeMacAddressRegistryProperty(const QString &subkeyInterfaceName);
+    void resetNetworkAdapter(const QString &subkeyInterfaceName, bool bringAdapterBackUp);
 
-    bool addIKEv2DefaultRoute();
-    bool removeWindscribeNetworkProfiles();
+    void addIKEv2DefaultRoute();
+    void removeWindscribeNetworkProfiles();
     void setIKEv2IPSecParameters();
     bool makeHostsFileWritable();
 
     void setCustomDnsIps(const QStringList& ips);
 
-    bool createOpenVpnAdapter(bool useDCODriver);
-    bool removeOpenVpnAdapter();
+    void createOpenVpnAdapter(bool useDCODriver);
+    void removeOpenVpnAdapter();
 
-    bool disableDohSettings();
-    bool enableDohSettings();
+    void disableDohSettings();
+    void enableDohSettings();
 
-    DWORD ssidFromInterfaceGUID(const QString &interfaceGUID, QString &ssid);
+    unsigned long ssidFromInterfaceGUID(const QString &interfaceGUID, QString &ssid);
 
-    bool setNetworkCategory(const QString &networkName, NETWORK_CATEGORY category);
-
-protected:
-    void run() override;
+    void setNetworkCategory(const QString &networkName, NETWORK_CATEGORY category);
 
 private:
-    enum {MAX_WAIT_TIME_FOR_PIPE = 10000};
-    enum {CHECK_UNBLOCKING_CMD_PERIOD = 2000};
-
     QStringList customDnsIp_;
-    std::atomic<STATE> curState_;
-
-    bool bIPV6State_;
-    QMutex mutex_;
-    wsl::ServiceControlManager scm_;
-    wsl::Win32Handle helperPipe_;
-
-    MessagePacketResult sendCmdToHelper(int cmdId, const std::string &data);
-    bool disableIPv6();
-    bool enableIPv6();
-
-    int debugGetActiveUnblockingCmdCount();
-
-    friend class FirewallController_win;
-    // friend functions for windows firewall controller class
-    bool firewallOn(const QString &connectingIp, const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig);
-    bool firewallOff();
-    bool firewallActualState();
-    void initVariables();
-
-    bool connectToHelper();
-    bool readAllFromPipe(HANDLE hPipe, char *buf, DWORD len);
-    bool writeAllToPipe(HANDLE hPipe, const char *buf, DWORD len);
-
-    QString helperExe() const;
 };

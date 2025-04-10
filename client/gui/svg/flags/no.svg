@@ -1,7 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 16">
-  <g fill="none" fill-rule="evenodd">
-    <rect width="32" height="16" fill="#EF2B2D" transform="matrix(1 0 0 -1 0 16)"/>
-    <polygon fill="#FFF" points="11 0 11 6 32 6 32 10 11 10 11 16 7 16 7 10 0 10 0 6 7 6 7 0"/>
-    <path fill="#002868" d="M10,0 L10,7 L32,7 L32,9 L10,9 L10,16 L8,16 L8,9 L0,9 L0,7 L8,7 L8,0 L10,0 Z"/>
-  </g>
-</svg>
+<svg id="vector" xmlns="http://www.w3.org/2000/svg" width="32" height="16" viewBox="0 0 500.0 250.0"><path fill="#EF2B2D" d="M0 0h500v250H0z" id="path_0"/><path fill="#FFF" d="M109 0h76v250h-76z" id="path_1"/><path fill="#FFF" d="M0 87h500v76H0z" id="path_2"/><path fill="#002868" d="M0 105h500v40H0z" id="path_3"/><path fill="#002868" d="M127 0h40v250h-40z" id="path_4"/></svg>

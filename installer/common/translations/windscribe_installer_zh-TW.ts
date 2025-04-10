@@ -140,10 +140,6 @@
         <translation>安裝後不要啟動應用程式。</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>指示安裝程式跳過安裝驅動程式。</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>刪除現有首選項、日誌和其他資料（如果存在）。</translation>
     </message>

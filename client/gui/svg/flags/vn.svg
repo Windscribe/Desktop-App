@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 16">
-  <g fill="none" fill-rule="evenodd">
-    <rect width="32" height="16" fill="#DA251D"/>
-    <polygon fill="#FF0" points="17.146 8.708 19 7.292 16.708 7.292 16 5 15.292 7.292 13 7.292 14.854 8.708 14.146 11 16 9.584 17.854 11"/>
-  </g>
-</svg>
+<svg id="vector" xmlns="http://www.w3.org/2000/svg" width="32" height="16" viewBox="0 0 500.0 250.0"><path fill="#DA251D" fill-rule="evenodd" d="M0 250h500V0H0z" id="path_0"/><path fill="#FF0" fill-rule="evenodd" d="M267.72 130.9l29.39-21.35h-36.33L249.55 75l-11.22 34.55H202l29.39 21.35-11.23 34.55 29.4-21.35 29.38 21.35z" id="path_1"/></svg>

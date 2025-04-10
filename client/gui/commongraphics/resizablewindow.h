@@ -41,6 +41,10 @@ signals:
     void sizeChanged(ResizableWindow *window);
     void resizeFinished(ResizableWindow *window);
 
+public slots:
+    virtual void onWindowExpanded();
+    virtual void onWindowCollapsed();
+
 protected slots:
     virtual void onResizeStarted();
     virtual void onResizeChange(int y);

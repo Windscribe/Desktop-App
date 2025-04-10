@@ -279,8 +279,8 @@
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
-        <source>Add Static IP</source>
-        <translation>添加靜態IP</translation>
+        <source>Add</source>
+        <translation>加</translation>
     </message>
 </context>
 <context>
@@ -507,10 +507,6 @@
         <translation>無法啟動</translation>
     </message>
     <message>
-        <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>風抄寫員出現故障。 請重新啟動應用程式。</translation>
-    </message>
-    <message>
         <source>Trying Backup Endpoints %1/%2</source>
         <translation>正在嘗試備份終結點 %1/%2</translation>
     </message>
@@ -603,10 +599,6 @@
     <message>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation>我們無法在此網路上連接您。將您的調試日誌發送給我們，以便我們弄清楚發生了什麼。</translation>
-    </message>
-    <message>
-        <source>Debug Sent!</source>
-        <translation>調試已發送！</translation>
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
@@ -841,6 +833,58 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>您已選擇顯示通知，但系統通知已禁用。請在系統設定中啟用系統通知。</translation>
+    </message>
+    <message>
+        <source>Error Starting Split Tunneling</source>
+        <translation>啟動拆分隧道時出錯</translation>
+    </message>
+    <message>
+        <source>Export Location Names To</source>
+        <translation>將位置名稱匯出到</translation>
+    </message>
+    <message>
+        <source>Unable to export location names</source>
+        <translation>無法匯出位置名稱</translation>
+    </message>
+    <message>
+        <source>Import Location Names From</source>
+        <translation>匯入位置名稱自</translation>
+    </message>
+    <message>
+        <source>Unable to import location names</source>
+        <translation>無法匯入位置名稱</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>拆分隧道功能已被禁用，因為Windscribe拆分隧道擴展未在系統設置中啟用。 要使用此功能，請在 系統設置中啟用該擴展，然後再次開啟該功能。</translation>
+    </message>
+    <message>
+        <source>Debug Log Sent!</source>
+        <translation>調試日誌已發送！</translation>
+    </message>
+    <message>
+        <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
+        <translation>無法連接到Windscribe服務。 Windscribe 現在將退出。 請聯繫支持人員。</translation>
+    </message>
+    <message>
+        <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
+        <translation>失去與Windscribe服務的連接。 Windscribe 現在將退出。 向我們發送調試日誌，以便我們改進此問題。</translation>
+    </message>
+    <message>
+        <source>Local DNS server is not available</source>
+        <translation>本地 DNS 伺服器不可用</translation>
+    </message>
+    <message>
+        <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
+        <translation>本地 DNS 伺服器不可用。 連接的 DNS 已設置回 Auto（自動）。</translation>
+    </message>
+    <message>
+        <source>DNS Server Conflict</source>
+        <translation>DNS 伺服器衝突</translation>
+    </message>
+    <message>
+        <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
+        <translation>無法啟動自定義 DNS 服務 - 埠 53 已在使用中。 是否要將已連接的 DNS 更改為本地伺服器？</translation>
     </message>
 </context>
 <context>
@@ -1283,8 +1327,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>估計數據使用量</translation>
     </message>
     <message>
-        <source>GB/Hour</source>
-        <translation>GB/小時</translation>
+        <source>%1/hour</source>
+        <translation>%1/小時</translation>
     </message>
 </context>
 <context>
@@ -1488,6 +1532,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Select behavior when window is activated with multiple desktops.</source>
         <translation>選擇使用多個桌面啟動視窗時的行為。</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>出口</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>進口</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>重置</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>根據自己的喜好更改位置名稱。</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>重新命名位置</translation>
     </message>
 </context>
 <context>
@@ -2330,6 +2394,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Duplicate</source>
         <translation>重複</translation>
+    </message>
+    <message>
+        <source>Local DNS</source>
+        <translation>本地 DNS</translation>
     </message>
 </context>
 <context>

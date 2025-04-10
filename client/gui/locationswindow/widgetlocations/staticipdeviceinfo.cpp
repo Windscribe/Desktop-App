@@ -8,22 +8,21 @@
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
+#include "languagecontroller.h"
+#include "tooltips/tooltipcontroller.h"
+#include "tooltips/tooltiptypes.h"
 
 namespace GuiLocations {
 
-
-StaticIPDeviceInfo::StaticIPDeviceInfo(QWidget *parent) : QWidget(parent)
-  , pressed_(false)
-  , iconPath_("preferences/EXTERNAL_LINK_ICON")
-  , addStaticTextWidth_(0)
-  , addStaticTextHeight_(0)
-  , deviceName_("")
-  , font_(FontManager::instance().getFont(16, true))
-  , curTextOpacity_(OPACITY_UNHOVER_TEXT)
-  , curIconOpacity_(OPACITY_UNHOVER_ICON_TEXT)
+StaticIPDeviceInfo::StaticIPDeviceInfo(QWidget *parent) : QWidget(parent), deviceName_(""), isNameElided_(false)
 {
-    connect(&textOpacityAnimation_, &QVariantAnimation::valueChanged, this, &StaticIPDeviceInfo::onTextOpacityChange);
-    connect(&iconOpacityAnimation_, &QVariantAnimation::valueChanged, this, &StaticIPDeviceInfo::onIconOpacityChange);
+    // Enable mouse tracking to receive mouseMoveEvent even when no mouse button is pressed
+    setMouseTracking(true);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &StaticIPDeviceInfo::onLanguageChanged);
+
+    addButton_ = new CommonWidgets::IconButtonWidget("preferences/EXTERNAL_LINK_ICON", tr("Add"), this);
+    connect(addButton_, &CommonWidgets::IconButtonWidget::clicked, this, &StaticIPDeviceInfo::addStaticIpClicked);
 }
 
 void StaticIPDeviceInfo::setDeviceName(QString deviceName)
@@ -40,97 +39,83 @@ QSize StaticIPDeviceInfo::sizeHint() const
 void StaticIPDeviceInfo::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
-    QString addStaticText = tr("Add Static IP");
 
     QPainter painter(this);
-    qreal initOpacity = painter.opacity();
 
     // background
-    painter.fillRect(QRect(0,0, sizeHint().width(), height()),
+    painter.fillRect(QRect(0, 0, sizeHint().width(), height()),
         FontManager::instance().getCarbonBlackColor());
 
     const int kBottomLineHeight = BOTTOM_LINE_HEIGHT * G_SCALE;
     painter.fillRect(QRect(0, height() - kBottomLineHeight, sizeHint().width(), kBottomLineHeight),
         FontManager::instance().getMidnightColor());
 
-    font_ = FontManager::instance().getFont(16, true);
+    QString name = deviceName_;
+    QFont font = FontManager::instance().getFont(16, true);
+
+    // Calculate remaining width after the add button, margins, and space between the button and text
+    int remainingWidth = width() - WINDOW_MARGIN*2*G_SCALE - addButton_->width() - 16*G_SCALE;
+
+    QFontMetrics metrics(font);
+    int textWidth = metrics.horizontalAdvance(deviceName_);
+    isNameElided_ = (textWidth > remainingWidth);
+    if (isNameElided_) {
+        name = metrics.elidedText(deviceName_, Qt::ElideRight, remainingWidth);
+    }
+
+    // Store the device name rectangle for tooltip positioning
+    deviceNameRect_ = QRect(WINDOW_MARGIN*G_SCALE, 0, remainingWidth, height());
 
     // device name text
-    painter.setOpacity(initOpacity * 0.5);
+    painter.setOpacity(OPACITY_HALF);
     painter.setPen(Qt::white);
-    painter.setFont(font_);
-    painter.drawText(QRect(WINDOW_MARGIN * G_SCALE, 14 * G_SCALE, CommonGraphics::textWidth(deviceName_, font_),
-                           CommonGraphics::textHeight(font_)), Qt::AlignVCenter, deviceName_);
-
-    // Add static IP text
-    painter.setOpacity(initOpacity * curTextOpacity_);
-    painter.setPen(Qt::white);
-    painter.setFont(FontManager::instance().getFont(16, false));
-    int rightmostMargin = (WINDOW_WIDTH - 32) * G_SCALE;
-    int rightmostStaticText = rightmostMargin - 5*G_SCALE;
-    painter.drawText(QRect(0,0, rightmostStaticText, height()), Qt::AlignRight | Qt::AlignVCenter, addStaticText);
-
-    // External Pixmap
-    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(iconPath_);
-    int iconHeight = pixmap->height();
-    painter.setOpacity(initOpacity * curIconOpacity_);
-    pixmap->draw((rightmostMargin),
-                  height()/2 - iconHeight/2,
-                  &painter);
+    painter.setFont(font);
+    painter.drawText(deviceNameRect_, Qt::AlignVCenter, name);
 }
 
-void StaticIPDeviceInfo::enterEvent(QEnterEvent *event)
+void StaticIPDeviceInfo::onLanguageChanged()
 {
-    Q_UNUSED(event);
-    setCursor(Qt::PointingHandCursor);
+    addButton_->setText(tr("Add"));
+    update();
+}
 
-    startAnAnimation<double>(textOpacityAnimation_, curTextOpacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
-    startAnAnimation<double>(iconOpacityAnimation_, curIconOpacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
+void StaticIPDeviceInfo::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    updatePositions();
+}
+
+void StaticIPDeviceInfo::updatePositions()
+{
+    addButton_->setGeometry(width() - addButton_->width() - 16*G_SCALE, height()/2 - addButton_->height()/2, addButton_->width(), addButton_->height());
+}
+
+void StaticIPDeviceInfo::mouseMoveEvent(QMouseEvent *event)
+{
+    if (isNameElided_ && deviceNameRect_.contains(event->pos())) {
+        // Show tooltip with full device name
+        QPoint globalPos = mapToGlobal(QPoint(deviceNameRect_.x() + deviceNameRect_.width()/2, 0));
+
+        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_STATIC_IP_DEVICE_NAME);
+        ti.x = globalPos.x();
+        ti.y = globalPos.y();
+        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+        ti.tailPosPercent = 0.5;
+        ti.title = deviceName_;
+        TooltipController::instance().showTooltipBasic(ti);
+    } else {
+        // Hide tooltip if mouse is not over the device name
+        TooltipController::instance().hideTooltip(TOOLTIP_ID_STATIC_IP_DEVICE_NAME);
+    }
+
+    QWidget::mouseMoveEvent(event);
 }
 
 void StaticIPDeviceInfo::leaveEvent(QEvent *event)
 {
-    Q_UNUSED(event);
-    setCursor(Qt::PointingHandCursor);
-
-    startAnAnimation<double>(textOpacityAnimation_, curTextOpacity_, OPACITY_UNHOVER_TEXT, ANIMATION_SPEED_FAST);
-    startAnAnimation<double>(iconOpacityAnimation_, curIconOpacity_, OPACITY_UNHOVER_ICON_TEXT, ANIMATION_SPEED_FAST);
+    // Hide tooltip when mouse leaves the widget
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_STATIC_IP_DEVICE_NAME);
+    QWidget::leaveEvent(event);
 }
 
-void StaticIPDeviceInfo::mousePressEvent(QMouseEvent *event)
-{
-    if (event->button() == Qt::LeftButton) {
-        pressed_ = true;
-    }
-}
-
-void StaticIPDeviceInfo::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (pressed_)
-    {
-        pressed_ = false;
-
-        int x = geometry().x() + event->pos().x();
-        int y = geometry().y() + event->pos().y();
-        QPoint pt2 = QPoint(x, y);
-
-        if (geometry().contains(pt2))
-        {
-            emit addStaticIpClicked();
-        }
-    }
-}
-
-void StaticIPDeviceInfo::onTextOpacityChange(const QVariant &value)
-{
-    curTextOpacity_ = value.toDouble();
-    update();
-}
-
-void StaticIPDeviceInfo::onIconOpacityChange(const QVariant &value)
-{
-    curIconOpacity_ = value.toDouble();
-    update();
-}
-
-}
+} // namespace GuiLocations

@@ -10,410 +10,248 @@
 #include "firewallcontroller.h"
 #include "firewallonboot.h"
 #include "ovpn.h"
-#include "routes_manager/routes_manager.h"
 #include "split_tunneling/split_tunneling.h"
 #include "utils.h"
 #include "utils/executable_signature/executable_signature.h"
 #include "wireguard/wireguardcontroller.h"
 
-CMD_ANSWER processCommand(int cmdId, const std::string packet)
+std::string processCommand(HelperCommand cmdId, const std::string &pars)
 {
     const auto command = kCommands.find(cmdId);
     if (command == kCommands.end()) {
-        spdlog::error("Unknown command id: {}", cmdId);
-        return CMD_ANSWER();
+        spdlog::error("Unknown command id: {}", (int)cmdId);
+        return std::string();
     }
-
-    std::istringstream stream(packet);
-    boost::archive::text_iarchive ia(stream, boost::archive::no_header);
-
-    return (command->second)(ia);
+    return (command->second)(pars);
 }
 
-CMD_ANSWER startOpenvpn(boost::archive::text_iarchive &ia)
+std::string getHelperVersion(const std::string &pars)
 {
-    CMD_ANSWER answer;
-    CMD_START_OPENVPN cmd;
-    ia >> cmd;
+    return serializeResult(std::string("Linux helper"));
+}
 
-    std::string script = Utils::getDnsScript(cmd.dnsManager);
+std::string getUnblockingCmdStatus(const std::string &pars)
+{
+    unsigned long cmdId;
+    deserializePars(pars, cmdId);
+    bool bFinished;
+    std::string log;
+    ExecuteCmd::instance().getStatus(cmdId, bFinished, log);
+    return serializeResult(bFinished, log);
+}
+
+std::string clearUnblockingCmd(const std::string &pars)
+{
+    unsigned long cmdId;
+    deserializePars(pars, cmdId);
+    ExecuteCmd::instance().clearCmds();
+    return std::string();
+}
+
+std::string setSplitTunnelingSettings(const std::string &pars)
+{
+    bool isActive, isExclude, isAllowLanTraffic;
+    std::vector<std::string> files, ips, hosts;
+    deserializePars(pars, isActive, isExclude, isAllowLanTraffic, files, ips, hosts);
+    SplitTunneling::instance().setSplitTunnelingParams(isActive, isExclude, files, ips, hosts, isAllowLanTraffic);
+    return std::string();
+}
+
+std::string sendConnectStatus(const std::string &pars)
+{
+    ConnectStatus cs;
+    deserializePars(pars, cs.isConnected, cs.protocol, cs.defaultAdapter, cs.vpnAdapter, cs.connectedIp, cs.remoteIp);
+    bool success = !SplitTunneling::instance().setConnectParams(cs);
+    return serializeResult(success);
+}
+
+std::string changeMtu(const std::string &pars)
+{
+    std::string adapterName;
+    int mtu;
+    deserializePars(pars, adapterName, mtu);
+    spdlog::info("Change MTU: {}", mtu);
+    Utils::executeCommand("ip", {"link", "set", "dev", adapterName.c_str(), "mtu", std::to_string(mtu)});
+    return std::string();
+}
+
+std::string executeOpenVPN(const std::string &pars)
+{
+    std::string config, httpProxy, socksProxy;
+    unsigned int port, httpPort, socksPort;
+    bool isCustomConfig;
+    CmdDnsManager dnsManager;
+    deserializePars(pars, config, port, httpProxy, httpPort, socksProxy, socksPort, isCustomConfig, dnsManager);
+
+    unsigned long cmdId = 0;
+    std::string script = Utils::getDnsScript(dnsManager);
     if (script.empty()) {
         spdlog::error("Could not find appropriate DNS manager script");
-        answer.executed = 0;
-        return answer;
+        return serializeResult(false, cmdId);
     }
 
     // sanitize
-    if (Utils::hasWhitespaceInString(cmd.httpProxy) ||
-        Utils::hasWhitespaceInString(cmd.socksProxy))
+    if (Utils::hasWhitespaceInString(httpProxy) ||
+        Utils::hasWhitespaceInString(socksProxy))
     {
-        cmd.httpProxy = "";
-        cmd.socksProxy = "";
+        httpProxy = "";
+        socksProxy = "";
     }
 
-    if (!OVPN::writeOVPNFile(script, cmd.port, cmd.config, cmd.httpProxy, cmd.httpPort, cmd.socksProxy, cmd.socksPort, cmd.isCustomConfig)) {
+    if (!OVPN::writeOVPNFile(script, port, config, httpProxy, httpPort, socksProxy, socksPort, isCustomConfig)) {
         spdlog::error("Could not write OpenVPN config");
-        answer.executed = 0;
-        return answer;
+        return serializeResult(false, cmdId);
     }
 
     std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribeopenvpn", "--config /etc/windscribe/config.ovpn");
     if (fullCmd.empty()) {
         // Something wrong with the command
-        answer.executed = 0;
-        return answer;
+        return serializeResult(false, cmdId);
     }
 
     const std::string fullPath = Utils::getExePath() + "/windscribeopenvpn";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(fullPath)) {
         spdlog::error("OpenVPN executable signature incorrect: {}", sigCheck.lastError());
-        answer.executed = 0;
+        return serializeResult(false, cmdId);
     } else {
-        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, "/etc/windscribe");
-        answer.executed = 1;
+
+        cmdId = ExecuteCmd::instance().execute(fullCmd, "/etc/windscribe");
+        return serializeResult(true, cmdId);
     }
-    return answer;
 }
 
-CMD_ANSWER getCmdStatus(boost::archive::text_iarchive &ia)
+std::string executeTaskKill(const std::string &pars)
 {
-    CMD_ANSWER answer;
-    CMD_GET_CMD_STATUS cmd;
-    ia >> cmd;
+    CmdKillTarget target;
+    deserializePars(pars, target);
+    bool success = false;
 
-    bool bFinished;
-    std::string log;
-    ExecuteCmd::instance().getStatus(cmd.cmdId, bFinished, log);
-
-    if (bFinished) {
-        answer.executed = 1;
-        answer.body = log;
+    if (target == kTargetWindscribe) {
+        spdlog::info("Killing Windscribe processes");
+        Utils::executeCommand("pkill", {"Windscribe"});
+        Utils::executeCommand("pkill", {"WindscribeEngine"}); // For older 1.x clients
+        success = true;
+    } else if (target == kTargetOpenVpn) {
+        spdlog::info("Killing OpenVPN processes");
+        const std::vector<std::string> exes = Utils::getOpenVpnExeNames();
+        for (auto exe : exes) {
+            Utils::executeCommand("pkill", {"-f", exe.c_str()});
+        }
+        success = true;
+    } else if (target == kTargetStunnel) {
+        spdlog::info("Killing Stunnel processes");
+        Utils::executeCommand("pkill", {"-f", "windscribewstunnel"});
+        success = true;
+    } else if (target == kTargetWStunnel) {
+        spdlog::info("Killing WStunnel processes");
+        Utils::executeCommand("pkill", {"-f", "windscribewstunnel"});
+        success = true;
+    } else if (target == kTargetWireGuard) {
+        spdlog::info("Killing WireGuard processes");
+        Utils::executeCommand("pkill", {"-f", "windscribewireguard"});
+        success = true;
+    } else if (target == kTargetCtrld) {
+        spdlog::info("Killing ctrld processes");
+        Utils::executeCommand("pkill", {"-f", "windscribectrld"});
+        success = true;
     } else {
-        answer.executed = 2;
+        spdlog::error("Did not kill processes for type {}", (int)target);
+        success = false;
     }
-    return answer;
+    return serializeResult(success);
 }
 
-CMD_ANSWER clearCmds(boost::archive::text_iarchive &ia)
+std::string startWireGuard(const std::string &pars)
 {
-    CMD_ANSWER answer;
-    CMD_CLEAR_CMDS cmd;
-    ia >> cmd;
-
-    ExecuteCmd::instance().clearCmds();
-    answer.executed = 2;
-
-    return answer;
+    bool success = WireGuardController::instance().start();
+    return serializeResult(success);
 }
 
-CMD_ANSWER splitTunnelingSettings(boost::archive::text_iarchive &ia)
+std::string stopWireGuard(const std::string &pars)
 {
-    CMD_ANSWER answer;
-    CMD_SPLIT_TUNNELING_SETTINGS cmd;
-    ia >> cmd;
-
-    SplitTunneling::instance().setSplitTunnelingParams(cmd.isActive, cmd.isExclude, cmd.files, cmd.ips, cmd.hosts, cmd.isAllowLanTraffic);
-    answer.executed = 1;
-
-    return answer;
+    bool success = WireGuardController::instance().stop();
+    return serializeResult(success);
 }
 
-CMD_ANSWER sendConnectStatus(boost::archive::text_iarchive &ia)
+std::string configureWireGuard(const std::string &pars)
 {
-    CMD_ANSWER answer;
-    CMD_SEND_CONNECT_STATUS cmd;
-    ia >> cmd;
+    std::string clientPrivateKey, clientIpAddress, clientDnsAddressList, peerPublicKey,
+                peerPresharedKey, peerEndpoint, allowedIps;
+    uint16_t listenPort;
+    CmdDnsManager dnsManager;
+    deserializePars(pars, clientPrivateKey, clientIpAddress, clientDnsAddressList, peerPublicKey,
+                    peerPresharedKey, peerEndpoint, allowedIps, listenPort, dnsManager);
 
-    if (SplitTunneling::instance().setConnectParams(cmd)) {
-        answer.executed = 0;
-    } else {
-        answer.executed = 1;
-    }
-
-    return answer;
-}
-
-CMD_ANSWER startWireGuard(boost::archive::text_iarchive &ia)
-{
-    CMD_ANSWER answer;
-
-    if (WireGuardController::instance().start()) {
-        answer.executed = 1;
-    }
-    return answer;
-}
-
-CMD_ANSWER stopWireGuard(boost::archive::text_iarchive &ia)
-{
-    CMD_ANSWER answer;
-    if (WireGuardController::instance().stop()) {
-        answer.executed = 1;
-    }
-    return answer;
-}
-
-CMD_ANSWER configureWireGuard(boost::archive::text_iarchive &ia)
-{
-    CMD_ANSWER answer;
-    CMD_CONFIGURE_WIREGUARD cmd;
-    ia >> cmd;
-
-    answer.executed = 0;
+    bool success = false;
     if (WireGuardController::instance().isInitialized()) {
         do {
-            std::vector<std::string> allowed_ips_vector = WireGuardController::instance().splitAndDeduplicateAllowedIps(cmd.allowedIps);
+            std::vector<std::string> allowed_ips_vector = WireGuardController::instance().splitAndDeduplicateAllowedIps(allowedIps);
             if (allowed_ips_vector.size() < 1) {
-                spdlog::error("WireGuard: invalid AllowedIps \"{}\"", cmd.allowedIps);
+                spdlog::error("WireGuard: invalid AllowedIps \"{}\"", allowedIps);
                 break;
             }
 
             uint32_t fwmark = WireGuardController::instance().getFwmark();
             spdlog::info("Fwmark = {}", fwmark);
 
-            if (!WireGuardController::instance().configure(cmd.clientPrivateKey,
-                                                cmd.peerPublicKey, cmd.peerPresharedKey,
-                                                cmd.peerEndpoint, allowed_ips_vector,
-                                                fwmark, cmd.listenPort)) {
+            if (!WireGuardController::instance().configure(clientPrivateKey,
+                                                           peerPublicKey, peerPresharedKey,
+                                                           peerEndpoint, allowed_ips_vector,
+                                                           fwmark, listenPort)) {
                 spdlog::error("WireGuard: configure() failed");
                 break;
             }
 
-            if (!WireGuardController::instance().configureDefaultRouteMonitor(cmd.peerEndpoint)) {
+            if (!WireGuardController::instance().configureDefaultRouteMonitor(peerEndpoint)) {
                 spdlog::error("WireGuard: configureDefaultRouteMonitor() failed");
                 break;
             }
-            std::string script = Utils::getDnsScript(cmd.dnsManager);
+            std::string script = Utils::getDnsScript(dnsManager);
             if (script.empty()) {
                 spdlog::error("WireGuard: could not find appropriate dns manager script");
                 break;
             }
-            if (!WireGuardController::instance().configureAdapter(cmd.clientIpAddress,
-                                                       cmd.clientDnsAddressList,
-                                                       script,
-                                                       allowed_ips_vector, fwmark)) {
+            if (!WireGuardController::instance().configureAdapter(clientIpAddress,
+                                                                  clientDnsAddressList,
+                                                                  script,
+                                                                  allowed_ips_vector, fwmark)) {
                 spdlog::error("WireGuard: configureAdapter() failed");
                 break;
             }
-
-            answer.executed = 1;
+            success = true;
         } while (0);
     }
-    return answer;
+    return serializeResult(success);
 }
 
-CMD_ANSWER getWireGuardStatus(boost::archive::text_iarchive &ia)
+std::string getWireGuardStatus(const std::string &pars)
 {
-    CMD_ANSWER answer;
     unsigned int errorCode = 0;
     unsigned long long bytesReceived = 0, bytesTransmitted = 0;
-
-    answer.executed = 1;
-    answer.cmdId = WireGuardController::instance().getStatus(&errorCode, &bytesReceived, &bytesTransmitted);
-    if (answer.cmdId == kWgStateError) {
-        if (errorCode) {
-            answer.customInfoValue[0] = errorCode;
-        } else {
-            answer.customInfoValue[0] = -1;
-        }
-    } else if (answer.cmdId == kWgStateActive) {
-        answer.customInfoValue[0] = bytesReceived;
-        answer.customInfoValue[1] = bytesTransmitted;
-    }
-    return answer;
+    WireGuardServiceState state = (WireGuardServiceState)WireGuardController::instance().getStatus(&errorCode, &bytesReceived, &bytesTransmitted);
+    return serializeResult(errorCode, state, bytesReceived, bytesTransmitted);
 }
 
-CMD_ANSWER changeMtu(boost::archive::text_iarchive &ia)
+std::string startCtrld(const std::string &pars)
 {
-    CMD_ANSWER answer;
-    CMD_CHANGE_MTU cmd;
-    ia >> cmd;
-    spdlog::info("Change MTU: {}", cmd.mtu);
+    std::string upstream1, upstream2;
+    std::vector<std::string> domains;
+    bool isCreateLog;
+    deserializePars(pars, upstream1, upstream2, domains, isCreateLog);
 
-    answer.executed = 1;
-    Utils::executeCommand("ip", {"link", "set", "dev", cmd.adapterName.c_str(), "mtu", std::to_string(cmd.mtu)});
-    return answer;
-}
-
-CMD_ANSWER setDnsLeakProtectEnabled(boost::archive::text_iarchive &ia)
-{
-    CMD_ANSWER answer;
-    CMD_SET_DNS_LEAK_PROTECT_ENABLED cmd;
-    ia >> cmd;
-    spdlog::debug("Set DNS leak protect: {}", cmd.enabled ? "enabled" : "disabled");
-
-    // We only handle the down case; the 'up' trigger for this script happens in the DNS manager script
-    if (!cmd.enabled) {
-        Utils::executeCommand("/etc/windscribe/dns-leak-protect", {"down"});
-        answer.executed = 1;
-    }
-    return answer;
-}
-
-CMD_ANSWER clearFirewallRules(boost::archive::text_iarchive &ia)
-{
-    CMD_ANSWER answer;
-    CMD_CLEAR_FIREWALL_RULES cmd;
-    ia >> cmd;
-    spdlog::debug("Clear firewall rules");
-    FirewallController::instance().disable();
-    answer.executed = 1;
-    return answer;
-}
-
-CMD_ANSWER checkFirewallState(boost::archive::text_iarchive &ia)
-{
-    CMD_ANSWER answer;
-    CMD_CHECK_FIREWALL_STATE cmd;
-    ia >> cmd;
-
-    answer.executed = 1;
-    answer.exitCode = FirewallController::instance().enabled(cmd.tag) ? 1 : 0;
-    return answer;
-}
-
-CMD_ANSWER setFirewallRules(boost::archive::text_iarchive &ia)
-{
-    CMD_ANSWER answer;
-    CMD_SET_FIREWALL_RULES cmd;
-    ia >> cmd;
-    spdlog::debug("Set firewall rules");
-
-    answer.executed = 1;
-    answer.exitCode = FirewallController::instance().enable(cmd.ipVersion == kIpv6, cmd.rules) ? 1 : 0;
-
-    return answer;
-}
-
-CMD_ANSWER getFirewallRules(boost::archive::text_iarchive &ia)
-{
-    CMD_ANSWER answer;
-    CMD_GET_FIREWALL_RULES cmd;
-    ia >> cmd;
-
-    FirewallController::instance().getRules(cmd.ipVersion == kIpv6, &answer.body);
-    answer.executed = 1;
-    return answer;
-}
-
-CMD_ANSWER setFirewallOnBoot(boost::archive::text_iarchive &ia)
-{
-    CMD_ANSWER answer;
-    CMD_SET_FIREWALL_ON_BOOT cmd;
-    ia >> cmd;
-    spdlog::debug("Set firewall on boot: {}", cmd.enabled ? "true" : "false");
-
-    FirewallOnBootManager::instance().setIpTable(cmd.ipTable);
-    answer.executed = FirewallOnBootManager::instance().setEnabled(cmd.enabled, cmd.allowLanTraffic);
-
-    return answer;
-}
-
-CMD_ANSWER setMacAddress(boost::archive::text_iarchive &ia)
-{
-    CMD_ANSWER answer;
-    CMD_SET_MAC_ADDRESS cmd;
-    ia >> cmd;
-
-    if (cmd.macAddress.size() < 12) {
-        spdlog::warn("Invalid MAC address");
-        answer.executed = 0;
-        return answer;
-    }
-
-    std::string mac =
-        cmd.macAddress.substr(0, 2) + ":" +
-        cmd.macAddress.substr(2, 2) + ":" +
-        cmd.macAddress.substr(4, 2) + ":" +
-        cmd.macAddress.substr(6, 2) + ":" +
-        cmd.macAddress.substr(8, 2) + ":" +
-        cmd.macAddress.substr(10, 2);
-
-    spdlog::debug("Set MAC address on {} ({} - {}): {}", cmd.interface, cmd.network, (cmd.isWifi ? "wifi" : "ethernet"),  mac);
-
-    // reset addresses on other networks
-    Utils::resetMacAddresses(cmd.network);
-
-#ifdef CLI_ONLY
-    // Must bring interface down to change the MAC address
-    Utils::executeCommand("ip", {"link", "set", "dev", cmd.interface, "down"});
-    Utils::executeCommand("ip", {"link", "set", "dev", cmd.interface, "address", mac});
-    Utils::executeCommand("ip", {"link", "set", "dev", cmd.interface, "up"});
-#else
-    std::string out;
-    if (cmd.isWifi) {
-        Utils::executeCommand("nmcli", {"connection", "modify", cmd.network.c_str(), "wifi.cloned-mac-address", mac.c_str()}, &out);
-    } else {
-        Utils::executeCommand("nmcli", {"connection", "modify", cmd.network.c_str(), "ethernet.cloned-mac-address", mac.c_str()}, &out);
-    }
-    // restart the connection
-    Utils::executeCommand("nmcli", {"connection", "up", cmd.network.c_str()});
-#endif
-    answer.executed = 1;
-    return answer;
-}
-
-CMD_ANSWER taskKill(boost::archive::text_iarchive &ia)
-{
-    CMD_ANSWER answer;
-    CMD_TASK_KILL cmd;
-    ia >> cmd;
-
-    if (cmd.target == kTargetWindscribe) {
-        spdlog::info("Killing Windscribe processes");
-        Utils::executeCommand("pkill", {"Windscribe"});
-        Utils::executeCommand("pkill", {"WindscribeEngine"}); // For older 1.x clients
-        answer.executed = 1;
-    } else if (cmd.target == kTargetOpenVpn) {
-        spdlog::info("Killing OpenVPN processes");
-        const std::vector<std::string> exes = Utils::getOpenVpnExeNames();
-        for (auto exe : exes) {
-            Utils::executeCommand("pkill", {"-f", exe.c_str()});
-        }
-        answer.executed = 1;
-    } else if (cmd.target == kTargetStunnel) {
-        spdlog::info("Killing Stunnel processes");
-        Utils::executeCommand("pkill", {"-f", "windscribewstunnel"});
-        answer.executed = 1;
-    } else if (cmd.target == kTargetWStunnel) {
-        spdlog::info("Killing WStunnel processes");
-        Utils::executeCommand("pkill", {"-f", "windscribewstunnel"});
-        answer.executed = 1;
-    } else if (cmd.target == kTargetWireGuard) {
-        spdlog::info("Killing WireGuard processes");
-        Utils::executeCommand("pkill", {"-f", "windscribewireguard"});
-        answer.executed = 1;
-    } else if (cmd.target == kTargetCtrld) {
-        spdlog::info("Killing ctrld processes");
-        Utils::executeCommand("pkill", {"-f", "windscribectrld"});
-        answer.executed = 1;
-    } else {
-        spdlog::error("Did not kill processes for type {}", (int)cmd.target);
-        answer.executed = 0;
-    }
-
-    return answer;
-}
-
-CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
-{
-    CMD_ANSWER answer;
-    CMD_START_CTRLD cmd;
-    ia >> cmd;
 
     spdlog::debug("Starting ctrld");
 
     // Validate URLs
-    if (cmd.upstream1.empty() || Utils::normalizeAddress(cmd.upstream1).empty() || (!cmd.upstream2.empty() && Utils::normalizeAddress(cmd.upstream2).empty())) {
+    if (upstream1.empty() || Utils::normalizeAddress(upstream1).empty() || (!upstream2.empty() && Utils::normalizeAddress(upstream2).empty())) {
         spdlog::error("Invalid upstream URL(s)");
-        answer.executed = 0;
-        return answer;
+        return serializeResult(false);
     }
-    for (const auto domain: cmd.domains) {
+    for (const auto &domain: domains) {
         if (!Utils::isValidDomain(domain)) {
             spdlog::error("Invalid domain: {}", domain);
-            answer.executed = 0;
-            return answer;
+            return serializeResult(false);
         }
     }
 
@@ -421,20 +259,20 @@ CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
     arguments << "run";
     arguments << " --daemon";
     arguments << " --listen=127.0.0.1:53";
-    arguments << " --primary_upstream=" + cmd.upstream1;
-    if (!cmd.upstream2.empty()) {
-        arguments << " --secondary_upstream=" + cmd.upstream2;
-        if (!cmd.domains.empty()) {
-            std::stringstream domains;
-            std::copy(cmd.domains.begin(), cmd.domains.end(), std::ostream_iterator<std::string>(domains, ","));
+    arguments << " --primary_upstream=" + upstream1;
+    if (!upstream2.empty()) {
+        arguments << " --secondary_upstream=" + upstream2;
+        if (!domains.empty()) {
+            std::stringstream domainsStream;
+            std::copy(domains.begin(), domains.end(), std::ostream_iterator<std::string>(domainsStream, ","));
 
-            std::string domainsStr = domains.str();
+            std::string domainsStr = domainsStream.str();
             domainsStr.erase(domainsStr.length() - 1); // remove last comma
 
             arguments << " --domains=" + domainsStr;
         }
     }
-    if (cmd.isCreateLog) {
+    if (isCreateLog) {
         arguments << " --log /var/log/windscribe/ctrld.log";
         arguments << " -vv";
     }
@@ -442,38 +280,85 @@ CMD_ANSWER startCtrld(boost::archive::text_iarchive &ia)
     std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribectrld", arguments.str());
     if (fullCmd.empty()) {
         // Something wrong with the command
-        answer.executed = 0;
-        return answer;
+        return serializeResult(false);
     }
 
     const std::string fullPath = Utils::getExePath() + "/windscribectrld";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(fullPath)) {
         spdlog::error("ctrld executable signature incorrect: {}", sigCheck.lastError());
-        answer.executed = 0;
+        return serializeResult(false);
     } else {
-        answer.executed = Utils::executeCommand(fullCmd) ? 0 : 1;
+        bool executed = Utils::executeCommand(fullCmd) == 0;
+        return serializeResult(executed);
     }
-    return answer;
 }
 
-CMD_ANSWER startStunnel(boost::archive::text_iarchive &ia)
+std::string checkFirewallState(const std::string &pars)
 {
-    CMD_ANSWER answer;
-    CMD_START_STUNNEL cmd;
-    ia >> cmd;
+    std::string tag;
+    deserializePars(pars, tag);
+    return serializeResult(FirewallController::instance().enabled(tag));
+}
+
+std::string clearFirewallRules(const std::string &pars)
+{
+    bool isKeepPfEnabled;
+    deserializePars(pars, isKeepPfEnabled);
+    spdlog::debug("Clear firewall rules");
+    FirewallController::instance().disable();
+    return std::string();
+}
+
+std::string setFirewallRules(const std::string &pars)
+{
+    CmdIpVersion ipVersion;
+    std::string table, group, rules;
+    deserializePars(pars, ipVersion, table, group, rules);
+    spdlog::debug("Set firewall rules");
+    FirewallController::instance().enable(ipVersion == kIpv6, rules);
+    return std::string();
+}
+
+std::string getFirewallRules(const std::string &pars)
+{
+    CmdIpVersion ipVersion;
+    std::string table, group;
+    deserializePars(pars, ipVersion, table, group);
+    std::string rules;
+    FirewallController::instance().getRules(ipVersion == kIpv6, &rules);
+    return serializeResult(rules);
+}
+
+std::string setFirewallOnBoot(const std::string &pars)
+{
+    bool enabled, allowLanTraffic;
+    std::string ipTable;
+    deserializePars(pars, enabled, allowLanTraffic, ipTable);
+    spdlog::debug("Set firewall on boot: {}", enabled ? "true" : "false");
+    FirewallOnBootManager::instance().setIpTable(ipTable);
+    FirewallOnBootManager::instance().setEnabled(enabled, allowLanTraffic);
+    return std::string();
+}
+
+std::string startStunnel(const std::string &pars)
+{
+    std::string hostname;
+    unsigned int port, localPort;
+    bool extraPadding;
+    deserializePars(pars, hostname, port, localPort, extraPadding);
+
     spdlog::debug("Starting stunnel");
 
-    if (!Utils::isValidIpAddress(cmd.hostname)) {
-        answer.executed = 0;
-        return answer;
+    if (!Utils::isValidIpAddress(hostname)) {
+        return serializeResult(false);
     }
 
     std::stringstream arguments;
-    arguments << "--listenAddress :" << cmd.localPort;
-    arguments << " --remoteAddress https://" << cmd.hostname << ":" << cmd.port;
+    arguments << "--listenAddress :" << localPort;
+    arguments << " --remoteAddress https://" << hostname << ":" << port;
     arguments << " --logFilePath \"\"";
-    if (cmd.extraPadding) {
+    if (extraPadding) {
         arguments << " --extraTlsPadding";
     }
     arguments << " --tunnelType 2";
@@ -481,66 +366,113 @@ CMD_ANSWER startStunnel(boost::archive::text_iarchive &ia)
     std::string fullCmd = Utils::getFullCommandAsUser("windscribe", Utils::getExePath(), "windscribewstunnel", arguments.str());
     if (fullCmd.empty()) {
         // Something wrong with the command
-        answer.executed = 0;
-        return answer;
+        return serializeResult(false);
     }
 
     const std::string fullPath = Utils::getExePath() + "/windscribewstunnel";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(fullPath)) {
         spdlog::error("stunnel executable signature incorrect: {}", sigCheck.lastError());
-        answer.executed = 0;
+        return serializeResult(false);
     } else {
-        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string(), true);
-        answer.executed = 1;
+        ExecuteCmd::instance().execute(fullCmd, std::string(), true);
+        return serializeResult(true);
     }
-    return answer;
 }
 
-CMD_ANSWER startWstunnel(boost::archive::text_iarchive &ia)
+std::string startWstunnel(const std::string &pars)
 {
-    CMD_ANSWER answer;
-    CMD_START_WSTUNNEL cmd;
-    ia >> cmd;
+    std::string hostname;
+    unsigned int port, localPort;
+    deserializePars(pars, hostname, port, localPort);
+
     spdlog::debug("Starting wstunnel");
 
-    if (!Utils::isValidIpAddress(cmd.hostname)) {
-        answer.executed = 0;
-        return answer;
+    if (!Utils::isValidIpAddress(hostname)) {
+        return serializeResult(false);
     }
 
     std::stringstream arguments;
-    arguments << "--listenAddress :" << cmd.localPort;
-    arguments << " --remoteAddress wss://" << cmd.hostname << ":" << cmd.port << "/tcp/127.0.0.1/1194";
+    arguments << "--listenAddress :" << localPort;
+    arguments << " --remoteAddress wss://" << hostname << ":" << port << "/tcp/127.0.0.1/1194";
     arguments << " --logFilePath \"\"";
     //arguments << " --dev"; // enables verbose logging when necessary
     std::string fullCmd = Utils::getFullCommandAsUser("windscribe", Utils::getExePath(), "windscribewstunnel", arguments.str());
     if (fullCmd.empty()) {
         // Something wrong with the command
-        answer.executed = 0;
-        return answer;
+        return serializeResult(false);
     }
 
     const std::string fullPath = Utils::getExePath() + "/windscribewstunnel";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(fullPath)) {
         spdlog::error("wstunnel executable signature incorrect: {}", sigCheck.lastError());
-        answer.executed = 0;
+        return serializeResult(false);
     } else {
-        answer.cmdId = ExecuteCmd::instance().execute(fullCmd, std::string(), true);
-        answer.executed = 1;
+        ExecuteCmd::instance().execute(fullCmd, std::string(), true);
+        return serializeResult(true);
     }
-    return answer;
 }
 
-CMD_ANSWER resetMacAddresses(boost::archive::text_iarchive &ia)
+std::string setMacAddress(const std::string &pars)
 {
-    CMD_ANSWER answer;
-    CMD_RESET_MAC_ADDRESSES cmd;
-    ia >> cmd;
+    std::string interface, macAddress, network;
+    bool isWifi;
+    deserializePars(pars, interface, macAddress, network, isWifi);
 
+    if (macAddress.size() < 12) {
+        spdlog::warn("Invalid MAC address");
+        return serializeResult(false);
+    }
+
+    std::string mac =
+        macAddress.substr(0, 2) + ":" +
+        macAddress.substr(2, 2) + ":" +
+        macAddress.substr(4, 2) + ":" +
+        macAddress.substr(6, 2) + ":" +
+        macAddress.substr(8, 2) + ":" +
+        macAddress.substr(10, 2);
+
+    spdlog::debug("Set MAC address on {} ({} - {}): {}", interface, network, (isWifi ? "wifi" : "ethernet"),  mac);
+
+    // reset addresses on other networks
+    Utils::resetMacAddresses(network);
+
+#ifdef CLI_ONLY
+    // Must bring interface down to change the MAC address
+    Utils::executeCommand("ip", {"link", "set", "dev", interface, "down"});
+    Utils::executeCommand("ip", {"link", "set", "dev", interface, "address", mac});
+    Utils::executeCommand("ip", {"link", "set", "dev", interface, "up"});
+#else
+    std::string out;
+    if (isWifi) {
+        Utils::executeCommand("nmcli", {"connection", "modify", network, "wifi.cloned-mac-address", mac}, &out);
+    } else {
+        Utils::executeCommand("nmcli", {"connection", "modify", network, "ethernet.cloned-mac-address", mac}, &out);
+    }
+    // restart the connection
+    Utils::executeCommand("nmcli", {"connection", "up", network});
+#endif
+    return serializeResult(true);
+}
+
+std::string setDnsLeakProtectEnabled(const std::string &pars)
+{
+    bool enabled;
+    deserializePars(pars, enabled);
+    spdlog::debug("Set DNS leak protect: {}", enabled ? "enabled" : "disabled");
+    // We only handle the down case; the 'up' trigger for this script happens in the DNS manager script
+    if (!enabled) {
+        Utils::executeCommand("/etc/windscribe/dns-leak-protect", {"down"});
+    }
+    return std::string();
+}
+
+std::string resetMacAddresses(const std::string &pars)
+{
+    std::string ignoreNetwork;
+    deserializePars(pars, ignoreNetwork);
     spdlog::debug("Resetting MAC addresses");
-
-    answer.executed = Utils::resetMacAddresses(cmd.ignoreNetwork) ? 1 : 0;
-    return answer;
+    Utils::resetMacAddresses(ignoreNetwork);
+    return std::string();
 }

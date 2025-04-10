@@ -12,9 +12,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (DEFINE_CLI_ONLY_MACRO)
-    find_package(Qt6 REQUIRED COMPONENTS Core5Compat Network)
+    find_package(Qt6 REQUIRED COMPONENTS Network)
 else()
-    find_package(Qt6 REQUIRED COMPONENTS Core5Compat Network Widgets)
+    find_package(Qt6 REQUIRED COMPONENTS Network Widgets)
 endif()
 
 set(PROJECT_SOURCES
@@ -24,7 +24,7 @@ set(PROJECT_SOURCES
 
 add_library(base STATIC ${PROJECT_SOURCES})
 
-target_link_libraries(base PRIVATE Qt6::Core Qt6::Network Qt6::Core5Compat wsnet::wsnet spdlog::spdlog Boost::serialization)
+target_link_libraries(base PRIVATE Qt6::Core Qt6::Network wsnet::wsnet spdlog::spdlog Boost::serialization)
 if (NOT DEFINE_CLI_ONLY_MACRO)
     target_link_libraries(base PRIVATE Qt6::Widgets)
 endif()

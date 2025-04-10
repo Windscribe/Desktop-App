@@ -12,7 +12,7 @@ fi
 
 if [ $platform = "linux_deb_x64_cli" -o $platform = "linux_deb_arm64_cli" ]; then
     cmd="killall -q -w Windscribe && APT_LISTBUGS_FRONTEND=none apt install -y --reinstall \"$1\""
-elif [ $platform = "linux_rpm_x64_cli" ]; then
+elif [ $platform = "linux_rpm_x64_cli" -o $platform = "linux_rpm_arm64_cli" ]; then
     if command -v rpm-ostree; then
         cmd=""
         killall -q -w Windscribe && rpm-ostree upgrade --cache-only --reboot --uninstall windscribe --install "$1"

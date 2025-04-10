@@ -7,7 +7,6 @@
 #include <QStandardPaths>
 #include <QString>
 
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
 
@@ -54,10 +53,8 @@ bool Logger::install(const QString &logFilePath, bool consoleOutput)
 #endif
 
         // this will trigger flush on every log message
-        defaultLogger->flush_on(spdlog::level::trace);
-        defaultLogger->set_level(spdlog::level::trace);
-        rawLogger->flush_on(spdlog::level::trace);
-        rawLogger->set_level(spdlog::level::trace);
+        spdlog::flush_on(spdlog::level::trace);
+        spdlog::set_level(spdlog::level::trace);
 
         auto formatter = std::make_unique<log_utils::CustomFormatter>(spdlog::details::make_unique<spdlog::pattern_formatter>("{\"tm\": \"%Y-%m-%d %H:%M:%S.%e\", \"lvl\": \"%^%l%$\", %v}"));
         defaultLogger->set_formatter(std::move(formatter));
@@ -131,6 +128,21 @@ const QLoggingCategory &Logger::connectionModeLoggingCategory()
         return *connectionModeLoggingCategory_;
     else
         return *connectionCategoryDefault_;
+}
+
+spdlog::logger *Logger::getSpdLogger(const std::string &category)
+{
+    auto it = spd_loggers_.find(category);
+    if (it == spd_loggers_.end()) {
+        auto formatter = log_utils::createJsonFormatter();
+        auto sinks = spdlog::default_logger()->sinks();
+        auto logger = std::make_shared<spdlog::logger>(category, sinks.begin(), sinks.end());
+        logger->set_formatter(std::move(formatter));
+        spd_loggers_[category] = logger;
+        return logger.get();
+    } else {
+        return it->second.get();
+    }
 }
 
 }  // namespace log_utils

@@ -9,10 +9,14 @@
 #include <openssl/opensslv.h>
 #include <openssl/ssl.h>
 
-#ifdef _WIN32
-#else
-    #include <unistd.h>
+#ifndef _WIN32
+#include <unistd.h>
 #endif
+
+#ifdef __APPLE__
+#include <TargetConditionals.h>
+#endif
+
 namespace wsnet {
 
 CurlNetworkManager::CurlNetworkManager(CurlFinishedCallback finishedCallback, CurlProgressCallback progressCallback, CurlReadyDataCallback readyDataCallback) :
@@ -384,9 +388,12 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
 
     curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_PRIVATE, new std::uint64_t(requestInfo->id));    // our user data, must be deleted in the RequestInfo destructor
 
-#ifdef _WIN32
-    // Set OQS KEMs: on Windows we use fully static libraries and need to set the curves manually
-    curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_EC_CURVES, "p521_kyber1024:kyber1024:kyber768:p384_kyber768:X448:X25519:secp521r1:secp384r1:secp256r1:ffdhe8192:ffdhe6144:ffdhe4096:ffdhe3072:ffdhe2048");
+#if (defined(_WIN32) || (defined(__APPLE__) && defined(TARGET_OS_OSX)) || (defined(__linux__) && !defined(__ANDROID__)))
+    // Set OQS KEMs for desktop platforms only, and only when WS_DISABLE_OQS is not set.
+    // This env variable is set during testing since curl has a hardcoded search path.
+    if (getenv("WS_DISABLE_OQS") == nullptr) {
+        curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_EC_CURVES, "p521_mlkem1024:mlkem1024:mlkem768:p384_mlkem768:p521_kyber1024:kyber1024:kyber768:p384_kyber768:X448:X25519:secp521r1:secp384r1:secp256r1:ffdhe8192:ffdhe6144:ffdhe4096:ffdhe3072:ffdhe2048");
+    }
 #endif
 
     // set post data

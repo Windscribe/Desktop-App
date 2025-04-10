@@ -99,7 +99,7 @@ bool OpenVPNController::createDCOAdapter()
     auto result = ExecuteCmd::instance().executeBlockingCmd(stream.str());
 
     if (result.success && result.exitCode != 0) {
-        spdlog::error("createDCOAdapter cmd failed: {}", result.additionalString);
+        spdlog::error(L"createDCOAdapter cmd failed: {}", result.output);
     }
 
     return result.success;
@@ -114,6 +114,6 @@ void OpenVPNController::removeDCOAdapter()
     auto result = ExecuteCmd::instance().executeBlockingCmd(stream.str());
 
     if (result.success && result.exitCode != 0) {
-        spdlog::error("removeDCOAdapter cmd failed: {}", result.additionalString);
+        spdlog::error(L"removeDCOAdapter cmd failed: {}", result.output);
     }
 }

@@ -11,7 +11,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Network Core5Compat)
+find_package(Qt6 REQUIRED COMPONENTS Network)
 
 set(PROJECT_SOURCES
     names.h
@@ -22,7 +22,7 @@ set(PROJECT_SOURCES
 
 add_library(common STATIC ${PROJECT_SOURCES})
 
-target_link_libraries(common PRIVATE Qt6::Core Qt6::Network Qt6::Core5Compat OpenSSL::Crypto wsnet::wsnet spdlog::spdlog)
+target_link_libraries(common PRIVATE Qt6::Core Qt6::Network OpenSSL::Crypto wsnet::wsnet spdlog::spdlog)
 target_compile_definitions(common PRIVATE CMAKE_LIBRARY_LIBRARY
                                   WINVER=0x0601
                                   _WIN32_WINNT=0x0601

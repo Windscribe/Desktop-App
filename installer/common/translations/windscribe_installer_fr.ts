@@ -140,10 +140,6 @@
         <translation>Ne lancez pas l’application après l’installation.</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>Indique au programme d’installation d’ignorer l’installation des pilotes.</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>Supprimez les préférences, journaux et autres données existants, le cas échéant.</translation>
     </message>

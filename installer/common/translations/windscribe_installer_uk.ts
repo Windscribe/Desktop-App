@@ -140,10 +140,6 @@
         <translation>Не запускайте програму після встановлення.</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>Наказує інсталятору пропустити встановлення драйверів.</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>Видаліть наявні параметри, журнали та інші дані, якщо вони існують.</translation>
     </message>

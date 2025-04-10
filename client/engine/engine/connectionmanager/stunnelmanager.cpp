@@ -10,7 +10,7 @@
 #include "utils/log/categories.h"
 #include "utils/extraconfig.h"
 
-StunnelManager::StunnelManager(QObject *parent, IHelper *helper)
+StunnelManager::StunnelManager(QObject *parent, Helper *helper)
   : QObject(parent), helper_(helper), port_(0), bProcessStarted_(false)
 {
 #if defined Q_OS_WIN
@@ -56,9 +56,7 @@ bool StunnelManager::runProcess(const QString &hostname, unsigned int port, bool
     process_->start(stunnelExePath_, args);
     ret = true;
 #else
-    Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-
-    ret = !helper_posix->startStunnel(hostname, port, port_, isExtraPadding);
+    ret = helper_->startStunnel(hostname, port, port_, isExtraPadding);
     if (ret) {
         emit stunnelStarted();
     }

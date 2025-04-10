@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ipc/servicecommunication.h"
+#include "../../../common/helper_commands.h"
 #include "routes.h"
 
 // state-based route management, depends on parameters isConnected, isSplitTunnelActive,
@@ -9,10 +9,10 @@ class RoutesManager
 {
 public:
     RoutesManager();
-    void updateState(const CMD_CONNECT_STATUS &connectStatus, bool isSplitTunnelActive, bool isExcludeMode);
+    void updateState(const ConnectStatus &connectStatus, bool isSplitTunnelActive, bool isExcludeMode);
 
 private:
-    CMD_CONNECT_STATUS connectStatus_;
+    ConnectStatus connectStatus_;
     bool isSplitTunnelActive_;
     bool isExcludeMode_;
 
@@ -24,8 +24,8 @@ private:
 
     void clearAllRoutes();
 
-    void doActionsForInclusiveModeOpenVpn(const CMD_CONNECT_STATUS &connectStatus);
-    void doActionsForInclusiveModeWireGuard(const CMD_CONNECT_STATUS &connectStatus);
-    void doActionsForInclusiveModeIkev2(const CMD_CONNECT_STATUS &connectStatus);
-    void addDnsRoutes(const CMD_CONNECT_STATUS &connectStatus);
+    void doActionsForInclusiveModeOpenVpn(const ConnectStatus &connectStatus);
+    void doActionsForInclusiveModeWireGuard(const ConnectStatus &connectStatus);
+    void doActionsForInclusiveModeIkev2(const ConnectStatus &connectStatus);
+    void addDnsRoutes(const ConnectStatus &connectStatus);
 };

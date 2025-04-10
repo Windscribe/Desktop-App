@@ -1,12 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="32px" height="16px" viewBox="0 0 32 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>ghana-small</title>
-    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="ghana-small" fill-rule="nonzero">
-            <polygon id="Path" fill="#006B3F" points="0 0 32 0 32 16 0 16"></polygon>
-            <polygon id="Path" fill="#FCD116" points="0 0 32 0 32 11 0 11"></polygon>
-            <polygon id="Path" fill="#CE1126" points="0 0 32 0 32 5 0 5"></polygon>
-            <polygon id="Path" fill="#000000" points="16 5 17.853923 11 13 7.2917 19 7.2917 14.146077 11"></polygon>
-        </g>
-    </g>
-</svg>
+<svg id="vector" xmlns="http://www.w3.org/2000/svg" width="32" height="16" viewBox="0 0 414 207"><path fill="#006B3F" fill-rule="nonzero" d="M0,0l414,0l0,207l-414,0z" stroke-width="1" stroke="#00000000" id="path_0"/><path fill="#FCD116" fill-rule="nonzero" d="M0,0l414,0l0,142.313l-414,0z" stroke-width="1" stroke="#00000000" id="path_1"/><path fill="#CE1126" fill-rule="nonzero" d="M0,0l414,0l0,64.688l-414,0z" stroke-width="1" stroke="#00000000" id="path_2"/><path fill="#000000" fill-rule="nonzero" d="M207,64.688l23.985,77.625l-62.798,-47.976l77.625,0l-62.798,47.976z" stroke-width="1" stroke="#00000000" id="path_3"/></svg>

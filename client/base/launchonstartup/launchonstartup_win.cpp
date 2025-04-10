@@ -10,7 +10,7 @@ void LaunchOnStartup_win::setLaunchOnStartup(bool enable)
     {
         {
             QSettings settingsRun("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
-            QString exePath = "\"" + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + "\" -os_restart";
+            QString exePath = "\"" + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + "\" --autostart";
             settingsRun.setValue("Windscribe", exePath);
         }
         clearDisableAutoStartFlag();

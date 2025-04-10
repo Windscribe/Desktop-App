@@ -14,13 +14,12 @@ Group:		Applications/Internet
 License:	GPLv2
 URL:		https://www.windscribe.com
 Vendor:		Windscribe Limited
-BuildArch:	x86_64
 Source0:	windscribe.tar
 Conflicts:	windscribe
 
 Requires:	bash
 Requires:	iptables
-Requires:	glibc >= 2.28
+Requires:	glibc >= 2.35
 Requires:	libstdc++
 Requires:	glib2
 Requires:	zlib
@@ -57,7 +56,11 @@ systemctl restart windscribe-helper || true
 %post
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
 setcap cap_setgid+ep /opt/windscribe/Windscribe
-echo linux_rpm_x64_cli > ../etc/windscribe/platform
+if [ "`uname -m`" = "aarch64" ]; then
+    echo linux_rpm_arm64_cli > ../etc/windscribe/platform
+else
+    echo linux_rpm_x64_cli > ../etc/windscribe/platform
+fi
 
 %preun
 if [ $1 -eq 0 ]; then

@@ -9,7 +9,7 @@
 #include <QTimer>
 
 #include "IConnection.h"
-#include "engine/helper/helper_win.h"
+#include "engine/helper/helper.h"
 #include "ikev2connectiondisconnectlogic_win.h"
 
 
@@ -17,7 +17,7 @@ class IKEv2Connection_win : public IConnection
 {
     Q_OBJECT
 public:
-    explicit IKEv2Connection_win(QObject *parent, IHelper *helper);
+    explicit IKEv2Connection_win(QObject *parent, Helper *helper);
     ~IKEv2Connection_win() override;
 
     void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,  const QString &username, const QString &password, const types::ProxySettings &proxySettings,
@@ -50,7 +50,7 @@ private:
     };
 
     int state_;
-    Helper_win *helper_;
+    Helper *helper_;
 
     QString initialUrl_;
     QString initialIp_;

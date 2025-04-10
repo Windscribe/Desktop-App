@@ -1,14 +1,10 @@
 #include "checkadapterenable.h"
 
-#include "engine/helper/helper_win.h"
 #include "utils/log/categories.h"
-#include "utils/ws_assert.h"
 
-bool CheckAdapterEnable::isAdapterDisabled(IHelper *helper, const QString &adapterName)
+bool CheckAdapterEnable::isAdapterDisabled(Helper *helper, const QString &adapterName)
 {
-    Helper_win *helper_win = dynamic_cast<Helper_win *>(helper);
-    WS_ASSERT(helper_win);
-    QString str = helper_win->executeWmicGetConfigManagerErrorCode(adapterName);
+    QString str = helper->executeWmicGetConfigManagerErrorCode(adapterName);
     QStringList list = str.split("\n");
     if (list.count() < 2)
     {

@@ -47,8 +47,10 @@ const QString DownloadHelper::downloadInstallerPath()
         platform_ == LinuxUtils::DEB_PLATFORM_NAME_ARM64_CLI) {
         path = downloadInstallerPathWithoutExtension() + ".deb";
     }
-    else if (platform_ == LinuxUtils::RPM_PLATFORM_NAME ||
-             platform_ == LinuxUtils::RPM_PLATFORM_NAME_CLI ||
+    else if (platform_ == LinuxUtils::RPM_PLATFORM_NAME_X64 ||
+             platform_ == LinuxUtils::RPM_PLATFORM_NAME_X64_CLI ||
+             platform_ == LinuxUtils::RPM_PLATFORM_NAME_ARM64 ||
+             platform_ == LinuxUtils::RPM_PLATFORM_NAME_ARM64_CLI ||
              platform_ == LinuxUtils::RPM_OPENSUSE_PLATFORM_NAME ||
              platform_ == LinuxUtils::RPM_OPENSUSE_PLATFORM_NAME_CLI) {
         path = downloadInstallerPathWithoutExtension() + ".rpm";

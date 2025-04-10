@@ -13,16 +13,16 @@ void LaunchOnStartup_linux::setLaunchOnStartup(bool enable)
     }
 #else
     if (enable) {
-        if (QFile::exists("/usr/share/applications/windscribe.desktop"))
+        if (QFile::exists("/etc/windscribe/autostart/windscribe.desktop"))
         {
             QString destDir = QDir::homePath() + "/.config/autostart";
             QDir dir(destDir);
             dir.mkpath(destDir);
             QString destFile = destDir + "/windscribe.desktop";
             QFile::remove(destFile);
-            QFile::link("/usr/share/applications/windscribe.desktop", destFile);
+            QFile::link("/etc/windscribe/autostart/windscribe.desktop", destFile);
         } else {
-            qCWarning(LOG_BASIC) << "LaunchOnStartup_linux: File /usr/share/applications/windscribe.desktop doesn't exists";
+            qCWarning(LOG_BASIC) << "LaunchOnStartup_linux: File /etc/windscribe/autostart/windscribe.desktop doesn't exist";
         }
     } else {
         QString destFile = QDir::homePath() + "/.config/autostart/windscribe.desktop";

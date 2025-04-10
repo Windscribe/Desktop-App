@@ -12,7 +12,6 @@
 #include "utils/log/categories.h"
 #include "utils/macutils.h"
 #include "utils/network_utils/network_utils_mac.h"
-#include "engine/helper/ihelper.h"
 #include "networkextensionlog_mac.h"
 
 #include <sys/sysctl.h>
@@ -87,11 +86,10 @@ namespace KeyChainUtils
     }
 }
 
-IKEv2Connection_mac::IKEv2Connection_mac(QObject *parent, IHelper *helper) : IConnection(parent),
+IKEv2Connection_mac::IKEv2Connection_mac(QObject *parent, Helper *helper) : IConnection(parent), helper_(helper),
     state_(STATE_DISCONNECTED), bConnected_(false), notificationId_(NULL), isStateConnectingAfterClick_(false), isDisconnectClicked_(false),
     isPrevConnectionStatusInitialized_(false)
 {
-    helper_ = dynamic_cast<Helper_mac *>(helper);
     connect(&statisticsTimer_, &QTimer::timeout, this, &IKEv2Connection_mac::onStatisticsTimer);
 }
 

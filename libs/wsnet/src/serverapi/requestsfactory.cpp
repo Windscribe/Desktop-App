@@ -191,10 +191,11 @@ BaseRequest *requests_factory::speedRating(const std::string &authHash, const st
     return request;
 }
 
-BaseRequest *requests_factory::staticIps(const std::string &authHash, const std::string &platform, const std::string &deviceId, RequestFinishedCallback callback)
+BaseRequest *requests_factory::staticIps(const std::string &authHash, std::uint32_t version, const std::string &platform, const std::string &deviceId, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
     extraParams["session_auth_hash"] = authHash;
+    extraParams["version"] = std::to_string(version);
     extraParams["os"] = platform;
     extraParams["device_id"] = deviceId;
     return new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "StaticIps", extraParams, callback);

@@ -20,6 +20,7 @@ public:
                                const QString &descUrl = "");
 
     void setConnectedDnsInfo(const types::ConnectedDnsInfo &dns);
+    void setLocalDnsAvailable(bool available);
     bool hasItemWithFocus() override;
 
 signals:
@@ -40,6 +41,7 @@ protected:
 private:
     void updateMode();
     void checkDnsLeak(const QString &v1, const QString &v2 = "");
+    void populateDnsTypes(bool isLocalDnsAvailable);
 
     ComboBoxItem *comboBoxDns_;
     VerticalEditBoxItem *editBoxUpstream1_;
@@ -48,6 +50,7 @@ private:
     LinkItem *domainsItem_;
 
     types::ConnectedDnsInfo settings_;
+    bool isLocalDnsAvailable_;
 };
 
 }

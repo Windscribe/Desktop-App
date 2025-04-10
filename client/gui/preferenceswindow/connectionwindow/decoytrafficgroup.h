@@ -39,7 +39,7 @@ private:
     ComboBoxItem *comboBox_;
     StaticText *staticText_;
     types::DecoyTrafficSettings decoyTrafficSettings_;
-    QString textGbHour_;
+    QString textPerHour_;
 };
 
 }

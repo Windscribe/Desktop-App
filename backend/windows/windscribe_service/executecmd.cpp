@@ -20,9 +20,9 @@ void ExecuteCmd::release()
     this_ = NULL;
 }
 
-MessagePacketResult ExecuteCmd::executeBlockingCmd(const std::wstring &cmd, HANDLE user_token)
+ExecuteCmdResult ExecuteCmd::executeBlockingCmd(const std::wstring &cmd, HANDLE user_token)
 {
-    MessagePacketResult mpr;
+    ExecuteCmdResult res;
 
     SECURITY_ATTRIBUTES sa;
     ZeroMemory(&sa,sizeof(sa));
@@ -33,7 +33,7 @@ MessagePacketResult ExecuteCmd::executeBlockingCmd(const std::wstring &cmd, HAND
     wsl::Win32Handle pipeWrite;
     if (!CreatePipe(pipeRead.data(), pipeWrite.data(), &sa, 0)) {
         spdlog::error("executeBlockingCmd CreatePipe failed: {}", ::GetLastError());
-        return mpr;
+        return res;
     }
 
     STARTUPINFO si;
@@ -61,24 +61,24 @@ MessagePacketResult ExecuteCmd::executeBlockingCmd(const std::wstring &cmd, HAND
 
     if (run_result) {
         WaitForSingleObject(pi.hProcess, INFINITE);
-        GetExitCodeProcess(pi.hProcess, &mpr.exitCode);
+        GetExitCodeProcess(pi.hProcess, &res.exitCode);
 
         pipeWrite.closeHandle();
-        mpr.additionalString = Utils::readAllFromPipe(pipeRead.getHandle());
+        res.output = toWString(Utils::readAllFromPipe(pipeRead.getHandle()));
 
         CloseHandle(pi.hThread);
         CloseHandle(pi.hProcess);
 
-        mpr.success = true;
+        res.success = true;
     }
     else {
         spdlog::error("executeBlockingCmd CreateProcess failed: {}", ::GetLastError());
     }
 
-    return mpr;
+    return res;
 }
 
-MessagePacketResult ExecuteCmd::executeUnblockingCmd(const std::wstring &cmd, const wchar_t *szEventName, const std::wstring &workingDir)
+ExecuteCmdResult ExecuteCmd::executeUnblockingCmd(const std::wstring &cmd, const wchar_t *szEventName, const std::wstring &workingDir)
 {
     std::lock_guard<std::mutex> lock(mutex_);
 
@@ -89,7 +89,7 @@ MessagePacketResult ExecuteCmd::executeUnblockingCmd(const std::wstring &cmd, co
     std::unique_ptr<wchar_t[]> exec(new wchar_t[32767]);
     wcsncpy_s(exec.get(), 32767, cmd.c_str(), _TRUNCATE);
 
-    MessagePacketResult mpr;
+    ExecuteCmdResult res;
 
     SECURITY_ATTRIBUTES sa;
     ZeroMemory(&sa,sizeof(sa));
@@ -116,8 +116,8 @@ MessagePacketResult ExecuteCmd::executeUnblockingCmd(const std::wstring &cmd, co
         blockingCmd->hThread = pi.hThread;
         blockingCmd->id = blockingCmdId_;
 
-        mpr.success = true;
-        mpr.blockingCmdId = blockingCmdId_;
+        res.success = true;
+        res.blockingCmdId = blockingCmdId_;
         blockingCmdId_++;
 
         blockingCmds_.push_back(blockingCmd);
@@ -131,14 +131,14 @@ MessagePacketResult ExecuteCmd::executeUnblockingCmd(const std::wstring &cmd, co
         delete blockingCmd;
     }
 
-    return mpr;
+    return res;
 }
 
-MessagePacketResult ExecuteCmd::getUnblockingCmdStatus(unsigned long cmdId)
+ExecuteCmdResult ExecuteCmd::getUnblockingCmdStatus(unsigned long cmdId)
 {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    MessagePacketResult mpr;
+    ExecuteCmdResult res;
     for (auto it = blockingCmds_.begin(); it != blockingCmds_.end(); ++it)
     {
         if ((*it)->id == cmdId)
@@ -146,48 +146,48 @@ MessagePacketResult ExecuteCmd::getUnblockingCmdStatus(unsigned long cmdId)
             BlockingCmd *blockingCmd = *it;
             if (blockingCmd->bFinished)
             {
-                mpr.success = true;
-                mpr.exitCode = blockingCmd->dwExitCode;
-                mpr.blockingCmdFinished = true;
-                mpr.additionalString = blockingCmd->strLogOutput.c_str();
+                res.success = true;
+                res.exitCode = blockingCmd->dwExitCode;
+                res.blockingCmdFinished = true;
+                res.output = toWString(blockingCmd->strLogOutput);
 
                 blockingCmds_.erase(it);
                 delete blockingCmd;
             }
             else
             {
-                mpr.success = true;
-                mpr.blockingCmdFinished = false;
+                res.success = true;
+                res.blockingCmdFinished = false;
             }
             break;
         }
     }
-    return mpr;
+    return res;
 }
 
-MessagePacketResult ExecuteCmd::getActiveUnblockingCmdCount()
+ExecuteCmdResult ExecuteCmd::getActiveUnblockingCmdCount()
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    MessagePacketResult mpr;
-    mpr.success = true;
-    mpr.exitCode = (DWORD)blockingCmds_.size();
-    return mpr;
+    ExecuteCmdResult res;
+    res.success = true;
+    res.exitCode = (DWORD)blockingCmds_.size();
+    return res;
 }
 
-MessagePacketResult ExecuteCmd::clearUnblockingCmd(unsigned long id)
+ExecuteCmdResult ExecuteCmd::clearUnblockingCmd(unsigned long id)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     clearCmd(id);
-    MessagePacketResult mpr;
-    mpr.success = true;
-    return mpr;
+    ExecuteCmdResult res;
+    res.success = true;
+    return res;
 }
 
-MessagePacketResult ExecuteCmd::suspendUnblockingCmd(unsigned long /*id*/)
+ExecuteCmdResult ExecuteCmd::suspendUnblockingCmd(unsigned long /*id*/)
 {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    MessagePacketResult mpr;
+    ExecuteCmdResult mpr;
     mpr.success = true;
     return mpr;
 }
@@ -313,4 +313,30 @@ void ExecuteCmd::safeCloseHandle(HANDLE handle)
 {
     if (handle)
         CloseHandle(handle);
+}
+
+std::wstring ExecuteCmd::toWString(const std::string &input)
+{
+    // Automatic encoding detection
+    auto tryDecode = [](const std::string& bytes, UINT codePage) -> std::optional<std::wstring> {
+        int wideLen = MultiByteToWideChar(codePage, MB_ERR_INVALID_CHARS,
+                                          bytes.data(), bytes.size(), nullptr, 0);
+        if (wideLen <= 0) return std::nullopt;
+
+        std::wstring result(wideLen, L'\0');
+        if (MultiByteToWideChar(codePage, 0, bytes.data(), bytes.size(),
+                                result.data(), wideLen) == 0) {
+            return std::nullopt;
+        }
+        return result;
+    };
+
+    // Priorities: UTF-8 -> Console CP -> OEM CP -> ANSI CP
+    std::wstring result;
+    for (UINT cp : {(UINT)CP_UTF8, GetConsoleOutputCP(), GetOEMCP(), GetACP()}) {
+        if (auto decoded = tryDecode(input, cp)) {
+            return *decoded;
+        }
+    }
+    return L"Error converting process output to std::wstring";
 }

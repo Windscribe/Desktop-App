@@ -279,8 +279,8 @@
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
-        <source>Add Static IP</source>
-        <translation>Añadir IP estática</translation>
+        <source>Add</source>
+        <translation>Agregar</translation>
     </message>
 </context>
 <context>
@@ -483,10 +483,6 @@
         <translation>Hemos detectado que la configuración de red puede interferir con Windscribe.  Por favor, envíanos un registro de depuración para solucionar problemas.</translation>
     </message>
     <message>
-        <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>Windscribe no funciona correctamente.  Por favor,reinicia la aplicación.</translation>
-    </message>
-    <message>
         <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
         <translation>No se pudo suplantar la dirección MAC.  Pruebe con una interfaz de red diferente o ponte en contacto con el servicio de asistencia técnica.</translation>
     </message>
@@ -623,10 +619,6 @@
     <message>
         <source>Send Debug Log</source>
         <translation>Enviar registro de depuración</translation>
-    </message>
-    <message>
-        <source>Debug Sent!</source>
-        <translation>¡Registro enviado!</translation>
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
@@ -841,6 +833,58 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     <message>
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>Ha elegido mostrar notificaciones, pero las notificaciones del sistema están deshabilitadas. Habilite las notificaciones del sistema en la configuración del sistema.</translation>
+    </message>
+    <message>
+        <source>Error Starting Split Tunneling</source>
+        <translation>Error al iniciar la tunelización dividida</translation>
+    </message>
+    <message>
+        <source>Export Location Names To</source>
+        <translation>Exportar nombres de ubicación a</translation>
+    </message>
+    <message>
+        <source>Unable to export location names</source>
+        <translation>No se pueden exportar los nombres de las ubicaciones</translation>
+    </message>
+    <message>
+        <source>Import Location Names From</source>
+        <translation>Importar nombres de ubicaciones desde</translation>
+    </message>
+    <message>
+        <source>Unable to import location names</source>
+        <translation>No se pueden importar nombres de ubicación</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>La función de túnel dividido se ha desactivado porque la extensión de túnel dividido de Windscribe no está habilitada en Configuración del sistema.  Para usar esta función, habilite la extensión en Configuración del sistema y vuelva a activar la función.</translation>
+    </message>
+    <message>
+        <source>Debug Log Sent!</source>
+        <translation>¡Registro de depuración enviado!</translation>
+    </message>
+    <message>
+        <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
+        <translation>No se pudo conectar al servicio de Windscribe.  Windscribe ahora saldrá.  Póngase en contacto con el servicio de asistencia.</translation>
+    </message>
+    <message>
+        <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
+        <translation>Se ha perdido la conexión con el servicio de Windscribe.  Windscribe ahora saldrá.  Envíenos un registro de depuración para que podamos mejorar esto.</translation>
+    </message>
+    <message>
+        <source>Local DNS server is not available</source>
+        <translation>El servidor DNS local no está disponible</translation>
+    </message>
+    <message>
+        <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
+        <translation>El servidor DNS local no está disponible.  El DNS conectado se ha restablecido en Automático.</translation>
+    </message>
+    <message>
+        <source>DNS Server Conflict</source>
+        <translation>Conflicto del servidor DNS</translation>
+    </message>
+    <message>
+        <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
+        <translation>No se puede iniciar el servicio DNS personalizado: el puerto 53 ya está en uso.  ¿Te gustaría cambiar tu DNS conectado al servidor local?</translation>
     </message>
 </context>
 <context>
@@ -1283,8 +1327,8 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <translation>Uso estimado de datos</translation>
     </message>
     <message>
-        <source>GB/Hour</source>
-        <translation>GB/hora</translation>
+        <source>%1/hour</source>
+        <translation>%1/hora</translation>
     </message>
 </context>
 <context>
@@ -1488,6 +1532,26 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     <message>
         <source>Select behavior when window is activated with multiple desktops.</source>
         <translation>Seleccione el comportamiento cuando la ventana está activada con varios escritorios.</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Exportar</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Importación</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Restablecimiento</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>Cambia los nombres de las ubicaciones a tu gusto.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>Cambiar el nombre de las ubicaciones</translation>
     </message>
 </context>
 <context>
@@ -2330,6 +2394,10 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     <message>
         <source>Duplicate</source>
         <translation>Duplicado</translation>
+    </message>
+    <message>
+        <source>Local DNS</source>
+        <translation>Local DNS</translation>
     </message>
 </context>
 <context>

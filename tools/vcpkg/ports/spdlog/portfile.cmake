@@ -12,11 +12,11 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
         wchar     SPDLOG_WCHAR_SUPPORT
 )
 
-# Making the static lib for Windscribe projects. 
+# Making the static lib for Windscribe projects.
 set(VCPKG_LIBRARY_LINKAGE static)
 
 # A local copy of the port was made for the sake of this change.
-# We need to enable both options for Windows. 
+# We need to enable both options for Windows.
 if(SPDLOG_WCHAR_SUPPORT)
     set(SPDLOG_WCHAR_FILENAMES ON)
 endif()

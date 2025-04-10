@@ -23,17 +23,17 @@
 
 - (void)startProxyWithOptions:(NSDictionary<NSString *,id> * _Nullable)options completionHandler:(void (^ _Nonnull)(NSError * _Nullable))completionHandler {
     spdlog::info("Starting Windscribe split tunnel extension");
-    
+
     NSError *error = nil;
     settings_ = [[Settings alloc] initWithOptions:options error:&error];
     if (!settings_) {
         completionHandler(error);
         return;
     }
-    
+
     [tcpHandler_ setSettings:settings_];
     [udpHandler_ setSettings:settings_];
-    
+
     [Utils applyNetworkSettings:self completionHandler:completionHandler];
 }
 

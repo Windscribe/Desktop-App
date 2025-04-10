@@ -140,10 +140,6 @@
         <translation>Não inicie o aplicativo após a instalação.</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>Instrui o instalador a ignorar a instalação de drivers.</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>Exclua preferências, logs e outros dados existentes, se existirem.</translation>
     </message>

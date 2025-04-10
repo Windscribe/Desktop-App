@@ -465,6 +465,7 @@ CONNECTED_DNS_TYPE CONNECTED_DNS_TYPE_fromInt(int t)
     if (t == 0) return CONNECTED_DNS_TYPE_AUTO;
     else if (t == 1) return CONNECTED_DNS_TYPE_CUSTOM;
     else if (t == 2) return CONNECTED_DNS_TYPE_FORCED;
+    else if (t == 3) return CONNECTED_DNS_TYPE_LOCAL;
     else {
         WS_ASSERT(false);
         return CONNECTED_DNS_TYPE_AUTO;
@@ -482,6 +483,9 @@ QString CONNECTED_DNS_TYPE_toString(CONNECTED_DNS_TYPE t)
     else if (t == CONNECTED_DNS_TYPE_FORCED) {
         return QObject::tr("Forced");
     }
+    else if (t == CONNECTED_DNS_TYPE_LOCAL) {
+        return QObject::tr("Local DNS");
+    }
     else {
         WS_ASSERT(false);
         return QObject::tr("UNKNOWN");
@@ -498,6 +502,9 @@ CONNECTED_DNS_TYPE CONNECTED_DNS_TYPE_fromString(const QString &s)
     }
     else if (s == "Forced") {
         return CONNECTED_DNS_TYPE_FORCED;
+    }
+    else if (s == "Local DNS") {
+        return CONNECTED_DNS_TYPE_LOCAL;
     }
     else {
         WS_ASSERT(false);

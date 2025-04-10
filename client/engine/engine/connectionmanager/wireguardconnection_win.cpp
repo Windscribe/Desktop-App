@@ -32,9 +32,9 @@
 // - IConnection::interfaceUpdated signal is not currently used in Engine::onConnectionManagerInterfaceUpdated
 //   on Windows, so no need to emit it.
 
-WireGuardConnection::WireGuardConnection(QObject *parent, IHelper *helper)
+WireGuardConnection::WireGuardConnection(QObject *parent, Helper *helper)
     : IConnection(parent),
-      helper_(dynamic_cast<Helper_win*>(helper))
+      helper_(helper)
 {
     stopThreadEvent_.setHandle(::CreateEvent(NULL, TRUE, FALSE, NULL));
 }
@@ -121,8 +121,8 @@ void WireGuardConnection::run()
     qCDebug(LOG_CONNECTION) << "Starting WireGuardService";
 
     // Installing the wireguard service requires admin privilege.
-    IHelper::ExecuteError err = helper_->startWireGuard();
-    if (err != IHelper::EXECUTE_SUCCESS)
+    bool bSuccess = helper_->startWireGuard();
+    if (!bSuccess)
     {
         qCCritical(LOG_CONNECTION) << "Windscribe service could not install the WireGuard service";
         emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);

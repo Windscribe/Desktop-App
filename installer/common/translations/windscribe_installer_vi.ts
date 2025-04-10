@@ -140,10 +140,6 @@
         <translation>Không khởi chạy ứng dụng sau khi cài đặt.</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>Hướng dẫn trình cài đặt bỏ qua cài đặt trình điều khiển.</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>Xóa các tùy chọn, nhật ký và dữ liệu khác hiện có, nếu chúng tồn tại.</translation>
     </message>

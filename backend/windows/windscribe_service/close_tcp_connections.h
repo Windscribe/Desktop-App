@@ -1,5 +1,7 @@
 #pragma once
 
+#include "all_headers.h"
+
 class CloseTcpConnections
 {
 public:

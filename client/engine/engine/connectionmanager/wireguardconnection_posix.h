@@ -4,6 +4,8 @@
 #include <atomic>
 #include <QMutex>
 #include <QTimer>
+#include "engine/helper/helper.h"
+
 
 class WireGuardConnectionImpl;
 
@@ -13,7 +15,7 @@ class WireGuardConnection : public IConnection
     Q_OBJECT
 
 public:
-    WireGuardConnection(QObject *parent, IHelper *helper);
+    WireGuardConnection(QObject *parent, Helper *helper);
     ~WireGuardConnection() override;
 
     void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
@@ -49,7 +51,7 @@ private:
     void setError(CONNECT_ERROR err);
     bool checkForKernelModule();
 
-    IHelper *helper_;
+    Helper *helper_;
     bool using_kernel_module_;
     std::unique_ptr<WireGuardConnectionImpl> pimpl_;
     ConnectionState current_state_;

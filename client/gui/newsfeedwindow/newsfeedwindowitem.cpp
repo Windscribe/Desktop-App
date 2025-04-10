@@ -90,4 +90,9 @@ void NewsFeedWindowItem::updateRead()
     contentItem_->updateRead();
 }
 
+void NewsFeedWindowItem::onWindowExpanded()
+{
+    updateRead();
+}
+
 } // namespace NewsFeedWindow

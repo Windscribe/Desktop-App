@@ -74,6 +74,10 @@ public:
 
     void setIcon(QSharedPointer<IndependentPixmap> icon);
 
+protected:
+    void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
+
 signals:
     void currentItemChanged(QVariant value);
     void buttonHoverEnter();
@@ -100,6 +104,8 @@ private:
     CommonWidgets::ComboMenuWidget *menu_;
 
     QSharedPointer<IndependentPixmap> icon_;
+    bool isCaptionElided_ = false;
+    QRectF captionRect_;
 };
 
 } // namespace PreferencesWindow

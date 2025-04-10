@@ -1,7 +1,8 @@
 #import "installer.h"
 #import <Cocoa/Cocoa.h>
 #include <spdlog/spdlog.h>
-#include "../helper/installhelper_mac.h"
+#include "installhelper_mac.h"
+#include "helperbackend_mac.h"
 #include "../string_utils.h"
 #include "processes_helper.h"
 
@@ -18,6 +19,7 @@
 {
     if (self = [super init]) {
         d_group_ = nil;
+        helper_.reset(new HelperInstaller(std::unique_ptr<IHelperBackend>(new HelperBackend_mac(nullptr, spdlog::default_logger_raw()))));
     }
     return self;
 }
@@ -176,7 +178,8 @@
 
     // Install new helper now that we are sure the client app has exited. Otherwise we may cause the
     // client app to hang when we pull the old helper out from under it.
-    if (!InstallHelper_mac::installHelper(self.factoryReset)) {
+    bool isUserCanceled;
+    if (!InstallHelper_mac::installHelper(self.factoryReset, isUserCanceled, spdlog::default_logger_raw())) {
         spdlog::error("Couldn't install the helper.");
         self.lastError = wsl::ERROR_PERMISSION;
         self.currentState = wsl::STATE_ERROR;
@@ -198,13 +201,12 @@
         spdlog::info("Windscribe exists in desired folder, {}", toStdString(bundleVersion));
         spdlog::info("Attempting to remove: {}", toStdString([self getOldInstallPath]));
 
-        bool success = helper_.removeOldInstall([[self getOldInstallPath] UTF8String]);
+        bool success = helper_->removeOldInstall([[self getOldInstallPath] UTF8String]);
         if (!success) {
             spdlog::error("Previous version of the program cannot be deleted. Please contact support.");
             self.lastError = wsl::ERROR_DELETE;
             self.currentState = wsl::STATE_ERROR;
             callback_();
-            helper_.stop();
             return;
         }
 
@@ -248,21 +250,19 @@
     self.currentState = wsl::STATE_EXTRACTING;
     callback_();
 
-    if (!helper_.setPaths(strArchivePath, strPath)) {
+    if (!helper_->setInstallerPaths(strArchivePath, strPath)) {
         spdlog::error("setPaths in helper failed");
         self.lastError = wsl::ERROR_OTHER;
         self.currentState = wsl::STATE_ERROR;
         callback_();
-        helper_.stop();
         return;
     }
 
-    if (!helper_.executeFilesStep()) {
+    if (!helper_->executeFilesStep()) {
         spdlog::error("executeFilesStep in helper failed");
         self.lastError = wsl::ERROR_OTHER;
         self.currentState = wsl::STATE_ERROR;
         callback_();
-        helper_.stop();
         return;
     }
 
@@ -272,13 +272,11 @@
     self.currentState = wsl::STATE_EXTRACTED;
     callback_();
 
-    helper_.createCliSymlink();
+    helper_->createCliSymlink();
 
     self.progress = 90;
     self.currentState = wsl::STATE_FINISHED;
     callback_();
-
-    helper_.stop();
 }
 
 -(void)waitForCompletion
@@ -309,7 +307,8 @@ NSString* StringWToNSString ( const std::wstring& Str )
 
 - (BOOL)connectHelper
 {
-    if (helper_.connect())
+    helper_->backend()->startInstallHelper();
+    if (helper_->backend()->currentState() == IHelperBackend::State::kConnected)
       return YES;
     else
       return NO;

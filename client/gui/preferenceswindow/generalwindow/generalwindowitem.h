@@ -3,8 +3,9 @@
 #include "commongraphics/basepage.h"
 #include "backend/preferences/preferenceshelper.h"
 #include "backend/preferences/preferences.h"
-#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/comboboxitem.h"
+#include "preferenceswindow/linkitem.h"
+#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/preferencegroup.h"
 #include "backgroundsettingsgroup.h"
 #include "versioninfoitem.h"
@@ -19,6 +20,8 @@ public:
 
     QString caption() const override;
     void updateScaling() override;
+
+    void setLocationNamesImportCompleted();
 
 private slots:
     void onIsLaunchOnStartupClicked(bool isChecked);
@@ -77,8 +80,13 @@ private slots:
     void onMultiDesktopBehaviorPreferencesChanged(QVariant value);
 #endif
 
+    void onResetLocationNamesClicked();
+
 signals:
     void languageChanged();
+    void exportLocationNamesClick();
+    void importLocationNamesClick();
+    void resetLocationNamesClick();
 
 protected:
     void hideOpenPopups() override;
@@ -92,6 +100,11 @@ private:
     PreferenceGroup *showNotificationsGroup_;
     ToggleItem *checkBoxShowNotifications_;
     BackgroundSettingsGroup *backgroundSettingsGroup_;
+    PreferenceGroup *renameLocationsGroup_;
+    LinkItem *renameLocationsItem_;
+    LinkItem *exportSettingsItem_;
+    LinkItem *importSettingsItem_;
+    LinkItem *resetLocationsItem_;
     PreferenceGroup *dockedGroup_;
     ToggleItem *checkBoxDockedToTray_;
     PreferenceGroup *startMinimizedGroup_;

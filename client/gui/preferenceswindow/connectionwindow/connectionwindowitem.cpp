@@ -175,6 +175,8 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectionWindowItem::onLanguageChanged);
     onLanguageChanged();
+
+    connect(&dnsChecker_, &NetworkUtils::DnsChecker::dnsCheckCompleted, connectedDnsGroup_, &ConnectedDnsGroup::setLocalDnsAvailable);
 }
 
 QString ConnectionWindowItem::caption() const
@@ -195,6 +197,14 @@ CONNECTION_SCREEN_TYPE ConnectionWindowItem::getScreen()
 void ConnectionWindowItem::setScreen(CONNECTION_SCREEN_TYPE subScreen)
 {
     currentScreen_ = subScreen;
+    if (subScreen == CONNECTION_SCREEN_HOME) {
+        checkLocalDns();
+    }
+}
+
+void ConnectionWindowItem::checkLocalDns()
+{
+    dnsChecker_.checkAvailability();
 }
 
 void ConnectionWindowItem::setCurrentNetwork(const types::NetworkInterface &networkInterface)

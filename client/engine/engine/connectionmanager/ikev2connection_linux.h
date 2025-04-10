@@ -4,13 +4,14 @@
 #include <QMap>
 #include <QTimer>
 #include <QMutex>
+#include "engine/helper/helper.h"
 #include "iconnection.h"
 
 class IKEv2Connection_linux : public IConnection
 {
     Q_OBJECT
 public:
-    explicit IKEv2Connection_linux(QObject *parent, IHelper *helper);
+    explicit IKEv2Connection_linux(QObject *parent, Helper *helper);
     ~IKEv2Connection_linux() override;
 
     void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,  const QString &username, const QString &password, const types::ProxySettings &proxySettings,

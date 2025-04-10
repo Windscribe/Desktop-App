@@ -11,7 +11,7 @@
 
 GUID getGuidForPrimaryAdapter(bool &bSuccess, bool bForWindscribeAdapter, const QString &vpnAdapterName);
 
-WifiSharing::WifiSharing(QObject *parent, IHelper *helper) : QObject(parent),
+WifiSharing::WifiSharing(QObject *parent, Helper *helper) : QObject(parent),
     isSharingStarted_(false), sharingState_(STATE_DISCONNECTED)
 {
     icsManager_ = new IcsManager(this, helper);

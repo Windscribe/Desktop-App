@@ -18,8 +18,8 @@
 #include "../../../client/common/utils/servicecontrolmanager.h"
 #include "../../../client/common/utils/win32handle.h"
 #include "../../../client/common/utils/wsscopeguard.h"
+#include "../../../common/helper_commands.h"
 #include "../executecmd.h"
-#include "../ipc/servicecommunication.h"
 #include "../utils.h"
 
 #if defined(USE_SIGNATURE_CHECK)
@@ -122,9 +122,9 @@ bool WireGuardController::deleteService()
     return bServiceDeleted;
 }
 
-UINT WireGuardController::getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT64& rxBytes) const
+UINT WireGuardController::getStatus(ULONG64& lastHandshake, ULONG64& txBytes, ULONG64& rxBytes) const
 {
-    UINT result = WIREGUARD_STATE_ACTIVE;
+    UINT result = kWgStateActive;
 
     try {
         if (!is_initialized_) {
@@ -187,7 +187,7 @@ UINT WireGuardController::getStatus(UINT64& lastHandshake, UINT64& txBytes, UINT
         }
     }
     catch (std::system_error& ex) {
-        result = WIREGUARD_STATE_ERROR;
+        result = kWgStateError;
         spdlog::error("WireGuardController::getStatus - {}", ex.what());
     }
 

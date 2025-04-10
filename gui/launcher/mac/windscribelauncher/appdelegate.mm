@@ -14,8 +14,7 @@
 
     // determine if already running
     bool isRunning = false;
-    for (NSRunningApplication *a in apps)
-    {
+    for (NSRunningApplication *a in apps) {
         NSString *str = [NSString stringWithFormat:@"%s", GUI_BUNDLE_ID];
         if ([a.bundleIdentifier isEqualToString:str]) {
             isRunning = true;
@@ -24,15 +23,16 @@
     }
 
     // run if not already running
-    if (!isRunning)
-    {
+    if (!isRunning) {
         NSString *bundlePath = [[NSBundle mainBundle] bundlePath];
-        for (int i = 0; i < 4; ++i)
-        {
+        for (int i = 0; i < 4; ++i) {
             bundlePath = [bundlePath stringByDeletingLastPathComponent];
         }
 
-        [workspace launchApplication:bundlePath];
+        NSWorkspaceOpenConfiguration *configuration = [NSWorkspaceOpenConfiguration configuration];
+        configuration.arguments = @[@"--autostart"];
+
+        [workspace openApplicationAtURL:[NSURL fileURLWithPath:bundlePath] configuration:configuration completionHandler:nil];
     }
 }
 

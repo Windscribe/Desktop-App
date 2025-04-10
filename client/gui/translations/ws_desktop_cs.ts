@@ -279,8 +279,8 @@
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
-        <source>Add Static IP</source>
-        <translation>Přidat statickou IP adresu</translation>
+        <source>Add</source>
+        <translation>Přidat</translation>
     </message>
 </context>
 <context>
@@ -507,10 +507,6 @@
         <translation>Nepodařilo se spustit</translation>
     </message>
     <message>
-        <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>Windscribe nefunguje správně.  Restartujte aplikaci.</translation>
-    </message>
-    <message>
         <source>Trying Backup Endpoints %1/%2</source>
         <translation>Zkouší koncové body zálohování %1/%2</translation>
     </message>
@@ -603,10 +599,6 @@
     <message>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation>V této síti se nám nepodařilo vás připojit. Pošlete nám svůj protokol ladění, abychom mohli zjistit, co se stalo.</translation>
-    </message>
-    <message>
-        <source>Debug Sent!</source>
-        <translation>Ladění odesláno!</translation>
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
@@ -841,6 +833,58 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>Zvolili jste zobrazení oznámení, ale systémová oznámení jsou deaktivována. Povolte systémová oznámení v Nastavení systému.</translation>
+    </message>
+    <message>
+        <source>Error Starting Split Tunneling</source>
+        <translation>Chyba při spuštění rozděleného tunelového propojení</translation>
+    </message>
+    <message>
+        <source>Export Location Names To</source>
+        <translation>Exportovat názvy míst do</translation>
+    </message>
+    <message>
+        <source>Unable to export location names</source>
+        <translation>Nelze exportovat názvy lokací</translation>
+    </message>
+    <message>
+        <source>Import Location Names From</source>
+        <translation>Importovat názvy míst z</translation>
+    </message>
+    <message>
+        <source>Unable to import location names</source>
+        <translation>Nelze importovat názvy míst</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Funkce rozděleného tunelového propojení byla zakázána, protože rozšíření rozděleného tunelu Windscribe není v nastavení systému povoleno.  Chcete-li tuto funkci používat, povolte rozšíření v Nastavení systému a znovu ji zapněte.</translation>
+    </message>
+    <message>
+        <source>Debug Log Sent!</source>
+        <translation>Protokol ladění odeslán!</translation>
+    </message>
+    <message>
+        <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
+        <translation>Nelze se připojit ke službě Windscribe.  Aplikace Windscribe se nyní ukončí.  Obraťte se na podporu.</translation>
+    </message>
+    <message>
+        <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
+        <translation>Ztráta připojení ke službě Windscribe.  Aplikace Windscribe se nyní ukončí.  Pošlete nám protokol ladění, abychom to mohli vylepšit.</translation>
+    </message>
+    <message>
+        <source>Local DNS server is not available</source>
+        <translation>Lokální DNS server není k dispozici</translation>
+    </message>
+    <message>
+        <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
+        <translation>Místní server DNS není k dispozici.  Připojený DNS byl nastaven zpět na Auto.</translation>
+    </message>
+    <message>
+        <source>DNS Server Conflict</source>
+        <translation>Konflikt serveru DNS</translation>
+    </message>
+    <message>
+        <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
+        <translation>Nelze spustit vlastní službu DNS - port 53 je již používán.  Chcete změnit připojený DNS server na lokální server?</translation>
     </message>
 </context>
 <context>
@@ -1283,8 +1327,8 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Odhadované využití dat</translation>
     </message>
     <message>
-        <source>GB/Hour</source>
-        <translation>GB/hod</translation>
+        <source>%1/hour</source>
+        <translation>%1/hodina</translation>
     </message>
 </context>
 <context>
@@ -1488,6 +1532,26 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Select behavior when window is activated with multiple desktops.</source>
         <translation>Chování Select při aktivaci okna s více plochami.</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Vývoz</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Dovoz</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Resetovat</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>Změňte názvy lokací podle svých představ.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>Přejmenování míst</translation>
     </message>
 </context>
 <context>
@@ -2330,6 +2394,10 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Duplicate</source>
         <translation>Duplikát</translation>
+    </message>
+    <message>
+        <source>Local DNS</source>
+        <translation>Místní DNS</translation>
     </message>
 </context>
 <context>

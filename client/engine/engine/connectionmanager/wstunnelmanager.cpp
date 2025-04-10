@@ -10,7 +10,7 @@
 #include "utils/executable_signature/executable_signature.h"
 
 
-WstunnelManager::WstunnelManager(QObject *parent, IHelper *helper)
+WstunnelManager::WstunnelManager(QObject *parent, Helper *helper)
   : QObject(parent), helper_(helper), bProcessStarted_(false), port_(0)
 {
 #if defined Q_OS_WIN
@@ -51,7 +51,7 @@ bool WstunnelManager::runProcess(const QString &hostname, unsigned int port)
     ret = true;
 #else
     Helper_posix *helper_posix = dynamic_cast<Helper_posix *>(helper_);
-    ret = !helper_posix->startWstunnel(hostname, port, port_);
+    ret = helper_posix->startWstunnel(hostname, port, port_);
     if (ret) {
         emit wstunnelStarted();
     }

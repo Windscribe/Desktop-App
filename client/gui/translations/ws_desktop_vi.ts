@@ -279,8 +279,8 @@
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
-        <source>Add Static IP</source>
-        <translation>Thêm IP tĩnh</translation>
+        <source>Add</source>
+        <translation>Thêm</translation>
     </message>
 </context>
 <context>
@@ -507,10 +507,6 @@
         <translation>Không thể bắt đầu</translation>
     </message>
     <message>
-        <source>Windscribe is malfunctioning.  Please restart the application.</source>
-        <translation>Windscribe đang gặp trục trặc.  Vui lòng khởi động lại ứng dụng.</translation>
-    </message>
-    <message>
         <source>Trying Backup Endpoints %1/%2</source>
         <translation>Thử sao lưu điểm cuối %1/%2</translation>
     </message>
@@ -603,10 +599,6 @@
     <message>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
         <translation>Chúng tôi không thể kết nối bạn trên mạng này. Gửi cho chúng tôi nhật ký gỡ lỗi của bạn để chúng tôi có thể tìm ra điều gì đã xảy ra.</translation>
-    </message>
-    <message>
-        <source>Debug Sent!</source>
-        <translation>Gỡ lỗi đã gửi!</translation>
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
@@ -841,6 +833,58 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>You have chosen to show notifications, but system notifications are disabled. Please enable system notifications in your System Settings.</source>
         <translation>Bạn đã chọn hiển thị thông báo, nhưng thông báo hệ thống bị tắt. Vui lòng bật thông báo hệ thống trong Cài đặt hệ thống của bạn.</translation>
+    </message>
+    <message>
+        <source>Error Starting Split Tunneling</source>
+        <translation>Lỗi bắt đầu tạo đường hầm phân chia</translation>
+    </message>
+    <message>
+        <source>Export Location Names To</source>
+        <translation>Xuất tên vị trí sang</translation>
+    </message>
+    <message>
+        <source>Unable to export location names</source>
+        <translation>Không thể xuất tên địa điểm</translation>
+    </message>
+    <message>
+        <source>Import Location Names From</source>
+        <translation>Nhập tên địa điểm từ</translation>
+    </message>
+    <message>
+        <source>Unable to import location names</source>
+        <translation>Không thể nhập tên địa điểm</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Tính năng tạo đường hầm phân chia đã bị tắt vì phần mở rộng đường hầm phân chia Windscribe không được bật trong Cài đặt hệ thống.  Để sử dụng tính năng này, vui lòng bật tiện ích mở rộng trong Cài đặt hệ thống và bật lại tính năng này.</translation>
+    </message>
+    <message>
+        <source>Debug Log Sent!</source>
+        <translation>Nhật ký gỡ lỗi đã gửi!</translation>
+    </message>
+    <message>
+        <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
+        <translation>Không thể kết nối với dịch vụ Windscribe.  Windscribe bây giờ sẽ thoát.  Vui lòng liên hệ với bộ phận hỗ trợ.</translation>
+    </message>
+    <message>
+        <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
+        <translation>Mất kết nối với dịch vụ Windscribe.  Windscribe bây giờ sẽ thoát.  Gửi cho chúng tôi nhật ký gỡ lỗi để chúng tôi có thể cải thiện điều này.</translation>
+    </message>
+    <message>
+        <source>Local DNS server is not available</source>
+        <translation>Máy chủ DNS cục bộ không khả dụng</translation>
+    </message>
+    <message>
+        <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
+        <translation>Máy chủ DNS cục bộ không khả dụng.  DNS được kết nối đã được đặt trở lại Tự động.</translation>
+    </message>
+    <message>
+        <source>DNS Server Conflict</source>
+        <translation>Xung đột máy chủ DNS</translation>
+    </message>
+    <message>
+        <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
+        <translation>Không thể bắt đầu dịch vụ DNS tùy chỉnh - cổng 53 đã được sử dụng.  Bạn có muốn thay đổi DNS được kết nối của mình thành máy chủ cục bộ không?</translation>
     </message>
 </context>
 <context>
@@ -1283,8 +1327,8 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Sử dụng dữ liệu ước tính</translation>
     </message>
     <message>
-        <source>GB/Hour</source>
-        <translation>GB/giờ</translation>
+        <source>%1/hour</source>
+        <translation>%1/giờ</translation>
     </message>
 </context>
 <context>
@@ -1488,6 +1532,26 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Select behavior when window is activated with multiple desktops.</source>
         <translation>Chọn hành vi khi cửa sổ được kích hoạt với nhiều màn hình nền.</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Xuất khẩu</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Nhập khẩu</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Reset</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>Thay đổi tên địa điểm theo ý thích của bạn.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>Đổi tên vị trí</translation>
     </message>
 </context>
 <context>
@@ -2330,6 +2394,10 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Duplicate</source>
         <translation>Bản sao</translation>
+    </message>
+    <message>
+        <source>Local DNS</source>
+        <translation>DNS cục bộ</translation>
     </message>
 </context>
 <context>

@@ -6,7 +6,6 @@
 #include "hostnames_manager/hostnames_manager.h"
 #include "../apps_ids.h"
 #include "../firewallfilter.h"
-#include "../ipc/servicecommunication.h"
 
 class SplitTunneling
 {
@@ -21,7 +20,7 @@ public:
 
     void setSettings(bool isEnabled, bool isExclude, const std::vector<std::wstring>& apps, const std::vector<std::wstring>& ips,
                      const std::vector<std::string>& hosts, bool isAllowLanTraffic);
-    bool setConnectStatus(CMD_CONNECT_STATUS& connectStatus);
+    bool setConnectStatus(ConnectStatus& connectStatus);
     bool updateState();
 
     static void removeAllFilters(FwpmWrapper& fwmpWrapper);
@@ -36,7 +35,7 @@ private:
     AppsIds windscribeOtherExecutablesId_;
     AppsIds ctrldExecutableId_;
 
-    CMD_CONNECT_STATUS connectStatus_;
+    ConnectStatus connectStatus_;
     bool isSplitTunnelEnabled_ = false;
     bool isExclude_ = false;
     bool isAllowLanTraffic_ = false;

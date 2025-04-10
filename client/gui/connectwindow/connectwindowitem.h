@@ -53,6 +53,7 @@ public slots:
     void onNetworkHoverLeave();
     void onConnectStateTextHoverEnter();
     void onConnectStateTextHoverLeave();
+    void onFirewallButtonHoverLeave();
     void onFirewallButtonClick();
     void onFirewallInfoHoverEnter();
     void onFirewallInfoHoverLeave();

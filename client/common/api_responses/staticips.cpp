@@ -107,6 +107,11 @@ StaticIps::StaticIps(const std::string &json) : d(new StaticIpsData)
             d->deviceName_ = obj["device_name"].toString();
         }
 
+        if (obj.contains("status"))
+        {
+            sid.status = obj["status"].toDouble();
+        }
+
         d->ips_ << sid;
     }
 }
@@ -203,7 +208,8 @@ bool StaticIpDescr::operator==(const StaticIpDescr &other) const
            wgPubKey == other.wgPubKey &&
            ovpnX509 == other.ovpnX509 &&
            pingHost == other.pingHost &&
-           ports == other.ports;
+           ports == other.ports &&
+           status == other.status;
 }
 
 bool StaticIpDescr::operator!=(const StaticIpDescr &other) const
@@ -215,7 +221,7 @@ QDataStream& operator <<(QDataStream& stream, const StaticIpDescr& s)
 {
     stream << s.versionForSerialization_;
     stream << s.id << s.ipId << s.staticIp << s.type << s.name << s.countryCode << s.shortName << s.cityName << s.serverId << s.nodeIPs
-           << s.hostname << s.dnsHostname << s.username << s.password << s.wgIp << s.wgPubKey << s.ovpnX509 << s.pingHost << s.ports;
+           << s.hostname << s.dnsHostname << s.username << s.password << s.wgIp << s.wgPubKey << s.ovpnX509 << s.pingHost << s.ports << s.status;
     return stream;
 }
 
@@ -231,9 +237,15 @@ QDataStream& operator >>(QDataStream& stream, StaticIpDescr& s)
     if (version == 1) {
         stream >> s.id >> s.ipId >> s.staticIp >> s.type >> s.name >> s.countryCode >> s.shortName >> s.cityName >> s.serverId >> s.nodeIPs
                >> s.hostname >> s.dnsHostname >> s.username >> s.password >> s.wgIp >> s.wgPubKey >> s.ovpnX509 >> s.ports;
-    } else {
+    }
+
+    if (version >= 2) {
         stream >> s.id >> s.ipId >> s.staticIp >> s.type >> s.name >> s.countryCode >> s.shortName >> s.cityName >> s.serverId >> s.nodeIPs
                >> s.hostname >> s.dnsHostname >> s.username >> s.password >> s.wgIp >> s.wgPubKey >> s.ovpnX509 >> s.pingHost >> s.ports;
+    }
+
+    if (version >= 3) {
+        stream >> s.status;
     }
     return stream;
 }

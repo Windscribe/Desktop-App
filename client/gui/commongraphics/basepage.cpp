@@ -113,7 +113,7 @@ void BasePage::setIndent(int indent)
 
 void BasePage::hideOpenPopups()
 {
-    for (BaseItem *item : qAsConst(items_))
+    for (BaseItem *item : std::as_const(items_))
     {
         item->hideOpenPopups();
     }
@@ -127,7 +127,7 @@ void BasePage::updateScaling()
 
 bool BasePage::hasItemWithFocus()
 {
-    for (BaseItem *item : qAsConst(items_))
+    for (BaseItem *item : std::as_const(items_))
     {
         if (item->hasItemWithFocus())
         {
@@ -145,7 +145,7 @@ QList<BaseItem *> BasePage::items() const
 void BasePage::recalcItemsPos()
 {
     int newHeight = firstItemOffset_*G_SCALE;
-    for (BaseItem *item : qAsConst(items_))
+    for (BaseItem *item : std::as_const(items_))
     {
         if (!item->isVisible())
             continue;
@@ -166,7 +166,7 @@ int BasePage::fullHeight() const
 {
     int height = firstItemOffset_*G_SCALE;
 
-    for (BaseItem *item : qAsConst(items_)) {
+    for (BaseItem *item : std::as_const(items_)) {
         height += item->boundingRect().height() + spacerHeight_*G_SCALE;
     }
     height += endSpacing_*G_SCALE;

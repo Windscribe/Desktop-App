@@ -15,7 +15,7 @@ SplitTunneling::~SplitTunneling()
 {
 }
 
-bool SplitTunneling::setConnectParams(CMD_SEND_CONNECT_STATUS &connectStatus)
+bool SplitTunneling::setConnectParams(ConnectStatus &connectStatus)
 {
     std::lock_guard<std::mutex> guard(mutex_);
     spdlog::debug("isConnected: {}, protocol: {}", connectStatus.isConnected, (int)connectStatus_.protocol);

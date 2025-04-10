@@ -17,8 +17,6 @@ public:
     void setPath(const std::wstring &path);
     void setCreateShortcut(bool create_shortcut);
     bool getCreateShortcut() const;
-    void setInstallDrivers(bool install);
-    bool getInstallDrivers() const;
     void setAutoStart(bool autostart);
     bool getAutoStart() const;
     void setFactoryReset(bool autostart);
@@ -33,7 +31,6 @@ private:
     std::wstring username_;
     std::wstring password_;
     bool isCreateShortcut_ = true;
-    bool isInstallDrivers_ = true;
     bool isAutoStart_ = true;
     bool isFactoryReset_ = false;
 

@@ -3,15 +3,14 @@
 #include <QObject>
 
 #include "types/enums.h"
-
-class IHelper;
+#include "engine/helper/ihelperbackend.h"
 
 // wait for initialize helper
 class InitializeHelper : public QObject
 {
     Q_OBJECT
 public:
-    explicit InitializeHelper(QObject *parent, IHelper *helper);
+    explicit InitializeHelper(QObject *parent, IHelperBackend *helperBackend);
     void start();
 
 signals:
@@ -22,8 +21,6 @@ private slots:
     void handleHelperInit();
 
 private:
-    IHelper *helper_;
+    IHelperBackend *helperBackend_;
     int helperInitAttempts_;
-
-    void printHelperVersion();
 };

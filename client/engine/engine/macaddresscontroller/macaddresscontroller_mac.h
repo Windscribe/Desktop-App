@@ -2,14 +2,14 @@
 
 #include <QDateTime>
 #include "imacaddresscontroller.h"
-#include "engine/helper/helper_mac.h"
+#include "engine/helper/helper.h"
 #include "../networkdetectionmanager/networkdetectionmanager_mac.h"
 
 class MacAddressController_mac : public IMacAddressController
 {
     Q_OBJECT
 public:
-    MacAddressController_mac(QObject *parent, NetworkDetectionManager_mac *ndManager, IHelper *helper);
+    MacAddressController_mac(QObject *parent, NetworkDetectionManager_mac *ndManager, Helper *helper);
     ~MacAddressController_mac() override;
 
     void initMacAddrSpoofing(const types::MacAddrSpoofing &macAddrSpoofing) override;

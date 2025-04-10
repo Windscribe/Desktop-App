@@ -2,13 +2,13 @@
 
 #include <QObject>
 #include <QProcess>
-#include "engine/helper/ihelper.h"
+#include "engine/helper/helper.h"
 
 class WstunnelManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit WstunnelManager(QObject *parent, IHelper *helper);
+    explicit WstunnelManager(QObject *parent, Helper *helper);
     virtual ~WstunnelManager();
 
     bool runProcess(const QString &hostname, unsigned int port);
@@ -29,7 +29,7 @@ private slots:
 private:
     static constexpr unsigned int kDefaultPort = 1194;
 
-    IHelper *helper_;
+    Helper *helper_;
     QProcess *process_;
     QString wstunnelExePath_;
     bool bProcessStarted_;

@@ -12,8 +12,7 @@
 
 const int typeIdNetworkInterface = qRegisterMetaType<types::NetworkInterface>("types::NetworkInterface");
 
-NetworkDetectionManager_mac::NetworkDetectionManager_mac(QObject *parent, IHelper *helper) : INetworkDetectionManager (parent)
-    , helper_(helper)
+NetworkDetectionManager_mac::NetworkDetectionManager_mac(QObject *parent, Helper *helper) : INetworkDetectionManager (parent)
     , lastWifiAdapterUp_(false)
 {
     connect(&ReachAbilityEvents::instance(), &ReachAbilityEvents::networkStateChanged, this, &NetworkDetectionManager_mac::onNetworkStateChanged);

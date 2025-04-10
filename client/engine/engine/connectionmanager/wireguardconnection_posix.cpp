@@ -2,15 +2,9 @@
 #include "utils/ws_assert.h"
 #include "utils/crashhandler.h"
 #include "utils/log/categories.h"
-#include "engine/helper/ihelper.h"
 #include "types/enums.h"
 #include "engine/wireguardconfig/wireguardconfig.h"
 #include "types/wireguardtypes.h"
-#include "engine/helper/helper_posix.h"
-
-#ifdef Q_OS_LINUX
-#include "engine/helper/helper_linux.h"
-#endif
 
 class WireGuardConnectionImpl
 {
@@ -55,7 +49,7 @@ void WireGuardConnectionImpl::connect()
     if (!isStarted_) {
         int retry = 0;
 
-        while (host_->helper_->startWireGuard() != IHelper::EXECUTE_SUCCESS)
+        while (!host_->helper_->startWireGuard())
         {
             if (retry >= 2)
             {
@@ -112,7 +106,7 @@ bool WireGuardConnectionImpl::stopWireGuard()
     return true;
 }
 
-WireGuardConnection::WireGuardConnection(QObject *parent, IHelper *helper)
+WireGuardConnection::WireGuardConnection(QObject *parent, Helper *helper)
     : IConnection(parent),
       helper_(helper),
       pimpl_(new WireGuardConnectionImpl(this)),

@@ -140,10 +140,6 @@
         <translation>설치 후 응용 프로그램을 실행하지 마십시오.</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>설치 관리자가 드라이버 설치를 건너뛰도록 지시합니다.</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>기존 기본 설정, 로그 및 기타 데이터(있는 경우)를 삭제합니다.</translation>
     </message>

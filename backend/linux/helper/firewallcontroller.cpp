@@ -4,8 +4,10 @@
 #include <fcntl.h>
 #include <fstream>
 #include <sstream>
+#include <unistd.h>
 #include <spdlog/spdlog.h>
 
+#include "../../common/helper_commands.h"
 #include "split_tunneling/cgroups.h"
 #include "utils.h"
 
@@ -111,10 +113,24 @@ void FirewallController::removeExclusiveIpRules()
     }
 }
 
+void FirewallController::removeRuleInPosition(const std::string &chain, const std::string &rule, int position)
+{
+    std::string out;
+    Utils::executeCommand("iptables", {"-S", chain}, &out);
+    std::istringstream iss(out);
+    std::string line;
+    for (int i = 0; i < position; i++) {
+        std::getline(iss, line);
+    }
+    if (line == rule) {
+        Utils::executeCommand("iptables", {"-D", std::to_string(position)});
+    }
+}
+
 void FirewallController::removeInclusiveIpRules()
 {
-    Utils::executeCommand("iptables", {"-D", "windscribe_input", "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
-    Utils::executeCommand("iptables", {"-D", "windscribe_output", "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
+    removeRuleInPosition("windscribe_input", "-A windscribe_input -m comment --comment \"Windscribe client rule\" -j ACCEPT", 1);
+    removeRuleInPosition("windscribe_output", "-A windscribe_output -m comment --comment \"Windscribe client rule\" -j ACCEPT", 1);
 }
 
 void FirewallController::removeExclusiveAppRules()
@@ -123,9 +139,6 @@ void FirewallController::removeExclusiveAppRules()
     if (!prevAdapter_.empty()) {
         Utils::executeCommand("iptables", {"-D", "POSTROUTING", "-t", "nat", "-m", "cgroup", "--cgroup", CGroups::instance().netClassId(), "-o", prevAdapter_.c_str(), "-j", "MASQUERADE", "-m", "comment", "--comment", kTag});
     }
-
-    Utils::executeCommand("iptables", {"-D", "windscribe_input", "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
-    Utils::executeCommand("iptables", {"-D", "windscribe_output", "-j", "ACCEPT", "-m", "comment", "--comment", kTag});
 }
 
 void FirewallController::removeInclusiveAppRules()

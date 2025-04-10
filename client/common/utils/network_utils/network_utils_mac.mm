@@ -6,7 +6,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include <arpa/inet.h>
 #include <ifaddrs.h>

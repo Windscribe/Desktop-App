@@ -290,6 +290,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
     {
         types::Location item;
         item.id = LocationID::createTopApiLocationId(l.getId());
+        item.idNum = l.getId();
         item.name = l.getName();
         item.countryCode = l.getCountryCode();
         item.isPremiumOnly = l.isPremiumOnly();
@@ -300,6 +301,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
             const api_responses::Group group = l.getGroup(i);
             types::City city;
             city.id = LocationID::createApiLocationId(l.getId(), group.getCity(), group.getNick());
+            city.idNum = group.getId();
             city.city = group.getCity();
             city.nick = group.getNick();
             city.isPro = group.isPro();
@@ -364,7 +366,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
             city.city = sid.cityName;
             city.pingTimeMs = pingManager_.getPing(sid.getPingIp());
             city.isPro = true;
-            city.isDisabled = false;
+            city.isDisabled = (sid.status != 1);
             city.staticIpCountryCode = sid.countryCode;
             city.staticIp = sid.staticIp;
             city.staticIpType = sid.type;

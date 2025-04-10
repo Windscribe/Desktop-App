@@ -1,12 +1,21 @@
 #include "languagecontroller.h"
 
 #include <QApplication>
+#include <QSettings>
+#include <spdlog/spdlog.h>
 
 #include "utils/languagesutil.h"
 
 LanguageController::LanguageController() : language_(LanguagesUtil::systemLanguage())
 {
-    loadLanguage(language_);
+    spdlog::info("System language: {}", language_.toStdString());
+
+    // Attempt to read the language setting from the Windscribe settings file
+    QSettings settings("Windscribe", "Windscribe2");
+    const QString lang = settings.value("language", language_).toString();
+
+    spdlog::info("Using language: {}", lang.toStdString());
+    loadLanguage(lang);
 }
 
 LanguageController::~LanguageController()

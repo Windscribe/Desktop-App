@@ -4,6 +4,7 @@
 
 namespace OVPN {
 
-bool writeOVPNFile(const std::string &dnsScript, int port, const std::string &config, const std::string &httpProxy, int httpPort, const std::string &socksProxy, int socksPort, bool isCustomConfig);
+bool writeOVPNFile(const std::string &dnsScript, unsigned int port, const std::string &config, const std::string &httpProxy,
+                   unsigned int httpPort, const std::string &socksProxy, unsigned int socksPort, bool isCustomConfig);
 
 } //namespace OVPN

@@ -8,7 +8,6 @@ typedef struct InstallerOptions
     int centerY;
     bool updating;
     bool autostart;
-    bool installDrivers;
     bool silent;
     bool factoryReset;
     QString installPath;
@@ -16,7 +15,7 @@ typedef struct InstallerOptions
     QString password;
 
     InstallerOptions()
-        : centerX(-1), centerY(-1), updating(false), autostart(true), installDrivers(true), silent(false),
+        : centerX(-1), centerY(-1), updating(false), autostart(true), silent(false),
           factoryReset(false), installPath(""), username(""), password("")
     {
     }

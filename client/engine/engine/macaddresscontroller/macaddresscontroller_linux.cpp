@@ -4,10 +4,9 @@
 #include "utils/log/categories.h"
 #include "utils/network_utils/network_utils.h"
 
-MacAddressController_linux::MacAddressController_linux(QObject *parent, INetworkDetectionManager *ndManager, IHelper *helper)
-  : IMacAddressController(parent)
+MacAddressController_linux::MacAddressController_linux(QObject *parent, INetworkDetectionManager *ndManager, Helper *helper)
+    : IMacAddressController(parent), helper_(helper)
 {
-    helper_ = dynamic_cast<Helper_linux *>(helper);
     networkDetectionManager_ = dynamic_cast<NetworkDetectionManager_linux *>(ndManager);
     connect(networkDetectionManager_, &NetworkDetectionManager_linux::networkListChanged, this, &MacAddressController_linux::onNetworkListChanged);
     networkDetectionManager_->getCurrentNetworkInterface(lastInterface_);

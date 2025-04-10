@@ -1,6 +1,5 @@
 #pragma once
-
-class IHelper;
+#include "engine/helper/helper.h"
 
 // manage SstpSvc and RasMan services (required for IKEv2)
 class RAS_Service_win
@@ -12,7 +11,7 @@ public:
         return s;
     }
 
-    bool restartRASServices(IHelper *helper);
+    bool restartRASServices(Helper *helper);
     bool isRASRunning();
 
 private:

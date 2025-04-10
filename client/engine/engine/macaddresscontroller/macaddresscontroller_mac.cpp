@@ -8,13 +8,13 @@
 const int MINIMUM_TIME_AUTO_SPOOF = 5000;
 
 
-MacAddressController_mac::MacAddressController_mac(QObject *parent, NetworkDetectionManager_mac *ndManager, IHelper *helper) : IMacAddressController (parent)
+MacAddressController_mac::MacAddressController_mac(QObject *parent, NetworkDetectionManager_mac *ndManager, Helper *helper) : IMacAddressController (parent)
+  , helper_(helper)
   , autoRotate_(false)
   , actuallyAutoRotate_(false)
   , lastSpoofIndex_(-1)
   , networkDetectionManager_(ndManager)
 {
-    helper_ = dynamic_cast<Helper_mac *>(helper);
     connect(networkDetectionManager_, &NetworkDetectionManager_mac::primaryAdapterUp, this, &MacAddressController_mac::onPrimaryAdapterUp);
     connect(networkDetectionManager_, &NetworkDetectionManager_mac::primaryAdapterDown, this, &MacAddressController_mac::onPrimaryAdapterDown);
     connect(networkDetectionManager_, &NetworkDetectionManager_mac::primaryAdapterChanged, this, &MacAddressController_mac::onPrimaryAdapterChanged);
@@ -329,7 +329,7 @@ void MacAddressController_mac::removeSpoofs(QMap<QString, QString> spoofsToRemov
     for (const QString &removeInterface : spoofsToRemoveKeys) {
         networksBeingUpdated_.append(removeInterface);
     }
-    for (const QString &removeInterface : qAsConst(networksBeingUpdated_)) {
+    for (const QString &removeInterface : std::as_const(networksBeingUpdated_)) {
         qCInfo(LOG_BASIC) << "Removing spoof: " << removeInterface;
         removeMacAddressSpoof(removeInterface);
     }

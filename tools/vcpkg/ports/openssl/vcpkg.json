@@ -1,7 +1,7 @@
 {
   "name": "openssl",
   "version": "3.4.0",
-  "port-version": 5,
+  "port-version": 6,
   "description": "OpenSSL with ECH support",
   "homepage": "https://github.com/sftcd/openssl/tree/ECH-draft-13c",
   "license": "Apache-2.0",

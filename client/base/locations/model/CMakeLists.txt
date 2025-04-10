@@ -19,6 +19,8 @@ target_sources(base PRIVATE
     locationsmodel_utils.h
     locationitem.cpp
     locationitem.h
+    renamedlocationsstorage.cpp
+    renamedlocationsstorage.h
     selectedlocation.cpp
     selectedlocation.h
 )

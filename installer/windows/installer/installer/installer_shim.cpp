@@ -93,16 +93,6 @@ void InstallerShim::setAutoStart(bool on)
     Settings::instance().setAutoStart(on);
 }
 
-bool InstallerShim::isInstallDriversEnabled(bool on)
-{
-    return Settings::instance().getInstallDrivers();
-}
-
-void InstallerShim::setInstallDrivers(bool on)
-{
-    Settings::instance().setInstallDrivers(on);
-}
-
 void InstallerShim::setCredentials(const std::wstring &username, const std::wstring &password)
 {
     Settings::instance().setCredentials(username, password);

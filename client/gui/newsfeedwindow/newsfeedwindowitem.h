@@ -19,6 +19,9 @@ public:
     void setMessages(const QVector<api_responses::Notification> &arr, const QSet<qint64> &shownIds);
     void setMessagesWithCurrentOverride(const QVector<api_responses::Notification> &arr, const QSet<qint64> &shownIds, int overrideCurrentMessageId);
 
+public slots:
+    virtual void onWindowExpanded() override;
+
 signals:
     void messageRead(qint64 messageId);
 

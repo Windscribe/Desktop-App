@@ -1,11 +1,10 @@
 #pragma once
 
 #include <QString>
-
-class IHelper;
+#include "engine/helper/helper.h"
 
 class CheckAdapterEnable
 {
 public:
-    static bool isAdapterDisabled(IHelper *helper, const QString &adapterName);
+    static bool isAdapterDisabled(Helper *helper, const QString &adapterName);
 };

@@ -158,6 +158,25 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     connect(backgroundSettingsGroup_, &BackgroundSettingsGroup::backgroundSettingsChanged, this, &GeneralWindowItem::onBackgroundSettingsChanged);
     addItem(backgroundSettingsGroup_);
 
+    renameLocationsGroup_ = new PreferenceGroup(this);
+    renameLocationsItem_ = new LinkItem(renameLocationsGroup_, LinkItem::LinkType::TEXT_ONLY);
+    renameLocationsItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/RENAME_LOCATIONS"));
+    renameLocationsGroup_->addItem(renameLocationsItem_);
+
+    exportSettingsItem_ = new LinkItem(renameLocationsGroup_, LinkItem::LinkType::SUBPAGE_LINK);
+    connect(exportSettingsItem_, &LinkItem::clicked, this, &GeneralWindowItem::exportLocationNamesClick);
+    renameLocationsGroup_->addItem(exportSettingsItem_);
+
+    importSettingsItem_ = new LinkItem(renameLocationsGroup_, LinkItem::LinkType::SUBPAGE_LINK);
+    connect(importSettingsItem_, &LinkItem::clicked, this, &GeneralWindowItem::importLocationNamesClick);
+    renameLocationsGroup_->addItem(importSettingsItem_);
+
+    resetLocationsItem_ = new LinkItem(renameLocationsGroup_, LinkItem::LinkType::SUBPAGE_LINK);
+    connect(resetLocationsItem_, &LinkItem::clicked, this, &GeneralWindowItem::onResetLocationNamesClicked);
+    renameLocationsGroup_->addItem(resetLocationsItem_);
+
+    addItem(renameLocationsGroup_);
+
     updateChannelGroup_ = new PreferenceGroup(this,
                                               QString(),
                                               QString("https://%1/features/update-channels").arg(HardcodedSettings::instance().windscribeServerUrl()));
@@ -359,6 +378,11 @@ void GeneralWindowItem::onLanguageChanged()
 #endif
 
     backgroundSettingsGroup_->setDescription(tr("Customize the background of the main app screen."));
+    renameLocationsGroup_->setDescription(tr("Change location names to your liking."));
+    renameLocationsItem_->setTitle(tr("Rename Locations"));
+    exportSettingsItem_->setTitle(tr("Export"));
+    importSettingsItem_->setTitle(tr("Import"));
+    resetLocationsItem_->setTitle(tr("Reset"));
     updateChannelGroup_->setDescription(tr("Choose to receive stable, beta, or experimental builds."));
     comboBoxUpdateChannel_->setLabelCaption(tr("Update Channel"));
     QList<QPair<QString, QVariant>> updateChannelList = UPDATE_CHANNEL_toList();
@@ -443,6 +467,28 @@ void GeneralWindowItem::onVersionInfoClicked()
         QString("https://%1/changelog/%2")
             .arg(HardcodedSettings::instance().windscribeServerUrl())
             .arg(platform)));
+}
+
+void GeneralWindowItem::setLocationNamesImportCompleted()
+{
+    importSettingsItem_->setLinkIcon(ImageResourcesSvg::instance().getIndependentPixmap("CHECKMARK"));
+
+    // Revert to old icon after 5 seconds
+    QTimer::singleShot(5000, [this](){
+        importSettingsItem_->setLinkIcon(nullptr);
+    });
+}
+
+void GeneralWindowItem::onResetLocationNamesClicked()
+{
+    emit resetLocationNamesClick();
+
+    resetLocationsItem_->setLinkIcon(ImageResourcesSvg::instance().getIndependentPixmap("CHECKMARK"));
+
+    // Revert to old icon after 5 seconds
+    QTimer::singleShot(5000, [this](){
+        resetLocationsItem_->setLinkIcon(nullptr);
+    });
 }
 
 } // namespace PreferencesWindow

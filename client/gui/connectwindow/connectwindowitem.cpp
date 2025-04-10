@@ -100,6 +100,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     middleItem_ = new MiddleItem(this, "---.---.---.---");
 
     firewallButton_ = new FirewallButton(this);
+    connect(firewallButton_, &FirewallButton::hoverLeave, this, &ConnectWindowItem::onFirewallButtonHoverLeave);
     connect(firewallButton_, &FirewallButton::clicked, this, &ConnectWindowItem::onFirewallButtonClick);
 
     firewallInfo_ = new IconButton(16, 16, "INFO_ICON", "", this, 0.25, 0.25);
@@ -406,6 +407,11 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
 void ConnectWindowItem::onConnectStateTextHoverLeave()
 {
     TooltipController::instance().hideTooltip(TOOLTIP_ID_CONNECTION_INFO);
+}
+
+void ConnectWindowItem::onFirewallButtonHoverLeave()
+{
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_FIREWALL_BLOCKED);
 }
 
 void ConnectWindowItem::onFirewallButtonClick()

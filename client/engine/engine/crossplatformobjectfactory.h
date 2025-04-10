@@ -1,6 +1,6 @@
 #pragma once
 
-#include "helper/ihelper.h"
+#include "helper/helper.h"
 #include "networkdetectionmanager/inetworkdetectionmanager.h"
 #include "firewall/firewallcontroller.h"
 #include "macaddresscontroller/imacaddresscontroller.h"
@@ -8,9 +8,9 @@
 
 namespace CrossPlatformObjectFactory
 {
-    IHelper *createHelper(QObject *parent);
-    INetworkDetectionManager *createNetworkDetectionManager(QObject *parent, IHelper *helper);
-    FirewallController *createFirewallController(QObject *parent, IHelper *helper);
-    IMacAddressController *createMacAddressController(QObject *parent, INetworkDetectionManager *ndManager, IHelper *helper);
-    ICtrldManager *createCtrldManager(QObject *parent, IHelper *helper, bool isCreateLog);
+    Helper *createHelper(QObject *parent);
+    INetworkDetectionManager *createNetworkDetectionManager(QObject *parent, Helper *helper);
+    FirewallController *createFirewallController(QObject *parent, Helper *helper);
+    IMacAddressController *createMacAddressController(QObject *parent, INetworkDetectionManager *ndManager, Helper *helper);
+    ICtrldManager *createCtrldManager(QObject *parent, Helper *helper, bool isCreateLog);
 }

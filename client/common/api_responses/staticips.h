@@ -47,6 +47,7 @@ struct StaticIpDescr
     QString wgPubKey;
     QString ovpnX509;
     QString pingHost;
+    uint status = 1;
     QVector<StaticIpPortDescr> ports;
 
     const QString& getPingIp() const { WS_ASSERT(!nodeIPs.isEmpty()); return nodeIPs[0]; }
@@ -104,7 +105,7 @@ public:
 
 private:
     QSharedDataPointer<StaticIpsData> d;
-    static constexpr quint32 versionForSerialization_ = 1;
+    static constexpr quint32 versionForSerialization_ = 3;
 };
 
 } //namespace api_responses

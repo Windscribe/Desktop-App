@@ -200,3 +200,8 @@ bool GeneralMessageController::hasMessages() const
 {
     return !messages_.isEmpty();
 }
+
+void GeneralMessageController::setSource(MainWindowController::WINDOW_ID source)
+{
+    messages_.last()->source = source;
+}

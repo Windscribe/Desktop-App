@@ -12,12 +12,11 @@
 
 #ifdef Q_OS_MACOS
     #include "utils/macutils.h"
-    #include "engine/helper/helper_mac.h"
 #endif
 
 using namespace wsnet;
 
-EmergencyController::EmergencyController(QObject *parent, IHelper *helper) : QObject(parent),
+EmergencyController::EmergencyController(QObject *parent, Helper *helper) : QObject(parent),
     helper_(helper),
     state_(STATE_DISCONNECTED)
 {
@@ -308,8 +307,7 @@ void EmergencyController::doConnect()
 void EmergencyController::doMacRestoreProcedures()
 {
 #ifdef Q_OS_MACOS
-    Helper_mac *helper_mac = dynamic_cast<Helper_mac *>(helper_);
-    helper_mac->deleteRoute(lastIp_, 32, defaultAdapterInfo_.gateway());
+    helper_->deleteRoute(lastIp_, 32, defaultAdapterInfo_.gateway());
     RestoreDNSManager_mac::restoreState(helper_);
 #endif
 }

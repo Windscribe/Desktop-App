@@ -140,10 +140,6 @@
         <translation>स्थापना के बाद अनुप्रयोग लॉन्च न करें।</translation>
     </message>
     <message>
-        <source>Instructs the installer to skip installing drivers.</source>
-        <translation>इंस्टॉलर को ड्राइवरों को स्थापित करना छोड़ने का निर्देश देता है।</translation>
-    </message>
-    <message>
         <source>Delete existing preferences, logs, and other data, if they exist.</source>
         <translation>मौजूदा प्राथमिकताएं, लॉग, और अन्य डेटा हटाएँ, यदि वे मौजूद हैं.</translation>
     </message>

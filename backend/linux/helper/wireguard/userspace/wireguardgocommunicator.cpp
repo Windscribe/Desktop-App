@@ -1,6 +1,6 @@
 #include "wireguardgocommunicator.h"
 #include "../../../../../client/common/utils/executable_signature/executable_signature.h"
-#include "../../../../posix_common/helper_commands.h"
+#include "../../../../common/helper_commands.h"
 #include "../../execute_cmd.h"
 #include "../../utils.h"
 #include <codecvt>

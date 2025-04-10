@@ -36,16 +36,16 @@ void PingMultiplePings_test::testBasic()
     });
 
     PingType pt = PingType::kTcp;
-    for (const auto &ip : qAsConst(testIps_)) {
+    for (const auto &ip : std::as_const(testIps_)) {
         pingHosts.addHostForPing(ip.first, ip.second, pt);
         pt = getNextPingType(pt);
     }
 
-    for (const auto &ip : qAsConst(testFailedIps_)) {
+    for (const auto &ip : std::as_const(testFailedIps_)) {
         pingHosts.addHostForPing(ip.first, ip.second, PingType::kIcmp);
     }
 
-    for (const auto &ip : qAsConst(testIps_)) {
+    for (const auto &ip : std::as_const(testIps_)) {
         pingHosts.addHostForPing(ip.first, ip.second, PingType::kIcmp);
     }
 

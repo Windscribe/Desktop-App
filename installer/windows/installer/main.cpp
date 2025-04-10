@@ -250,11 +250,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     if (CheckCommandLineArgument(L"-help"))
     {
         WSMessageBox(QObject::tr("Windscribe Install Options"),
-                     QString("%1\n\n-help\n%2\n\n-no-auto-start\n%3\n\n-no-drivers\n%4\n\n-silent\n%5\n\n-factory-reset\n%6\n\n-dir \"C:\\dirname\"\n%7\n\n-username \"my username\"\n%8\n\n-password \"my password\"\n%9")
+                     QString("%1\n\n-help\n%2\n\n-no-auto-start\n%3\n\n-silent\n%4\n\n-factory-reset\n%5\n\n-dir \"C:\\dirname\"\n%6\n\n-username \"my username\"\n%7\n\n-password \"my password\"\n%8")
                          .arg(QObject::tr("The Windscribe installer accepts the following optional commmand-line parameters: "))
                          .arg(QObject::tr("Show this information."))
                          .arg(QObject::tr("Do not launch the application after installation."))
-                         .arg(QObject::tr("Instructs the installer to skip installing drivers."))
                          .arg(QObject::tr("Instructs the installer to hide its user interface."))
                          .arg(QObject::tr("Delete existing preferences, logs, and other data, if they exist."))
                          .arg(QObject::tr("Overrides the default installation directory. Installation directory must be on the system drive."))
@@ -282,10 +281,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
     {
         ops.silent = CheckCommandLineArgument(L"-silent");
         if (ops.silent) {
-            expectedArgumentCount += 1;
-        }
-        ops.installDrivers = !CheckCommandLineArgument(L"-no-drivers");
-        if (!ops.installDrivers) {
             expectedArgumentCount += 1;
         }
         ops.autostart = !CheckCommandLineArgument(L"-no-auto-start");

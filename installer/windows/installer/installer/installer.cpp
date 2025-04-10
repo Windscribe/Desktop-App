@@ -33,13 +33,7 @@ void Installer::startImpl()
     blocks_.push_back(new UninstallPrev(Settings::instance().getFactoryReset(), 10));
     blocks_.push_back(new Files(40));
     blocks_.push_back(new Service(10));
-
-    // Leaving this option here for now in anticipation of us adding installation of the OpenVPN DCO
-    // driver in a future release.
-    if (Settings::instance().getInstallDrivers()) {
-        blocks_.push_back(new InstallOpenVPNDCO(10));
-    }
-
+    blocks_.push_back(new InstallOpenVPNDCO(10));
     blocks_.push_back(new InstallSplitTunnel(10));
     blocks_.push_back(new UninstallInfo(5));
     blocks_.push_back(new Icons(Settings::instance().getCreateShortcut(), 5));

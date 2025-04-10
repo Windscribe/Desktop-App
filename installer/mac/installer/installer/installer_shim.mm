@@ -94,17 +94,6 @@ void InstallerShim::setAutoStart(bool on)
     // not supported on Mac
 }
 
-bool InstallerShim::isInstallDriversEnabled(bool on)
-{
-    // not supported on Mac
-    return true;
-}
-
-void InstallerShim::setInstallDrivers(bool on)
-{
-    // not supported on Mac
-}
-
 void InstallerShim::setCredentials(const std::wstring &username, const std::wstring &password)
 {
     // not supported on Mac

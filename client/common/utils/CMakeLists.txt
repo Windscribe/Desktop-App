@@ -24,6 +24,8 @@ target_sources(common PRIVATE
     log/multiline_message_logger.h
     log/paths.cpp
     log/paths.h
+    network_utils/dnschecker.cpp
+    network_utils/dnschecker.h
     network_utils/network_utils.cpp
     network_utils/network_utils.h
     simplecrypt.cpp

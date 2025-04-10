@@ -11,7 +11,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Network Svg Core5Compat LinguistTools)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Network Svg LinguistTools)
 
 set(WS_TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_ar.ts
@@ -85,7 +85,7 @@ qt_add_resources(gui "translations"
         ${WS_QM_FILES}
 )
 
-target_link_libraries(gui PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Svg Qt6::Core5Compat wsnet::wsnet spdlog::spdlog Boost::serialization)
+target_link_libraries(gui PRIVATE Qt6::Core Qt6::Network Qt6::Widgets Qt6::Svg wsnet::wsnet spdlog::spdlog Boost::serialization)
 
 if (WIN32)
     target_compile_definitions(gui PRIVATE CMAKE_LIBRARY_LIBRARY

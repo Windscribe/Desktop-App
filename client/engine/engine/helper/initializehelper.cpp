@@ -2,11 +2,10 @@
 
 #include <QTimer>
 
-#include "engine/helper/ihelper.h"
 #include "utils/log/categories.h"
 
-InitializeHelper::InitializeHelper(QObject *parent, IHelper *helper) : QObject(parent),
-    helper_(helper), helperInitAttempts_(0)
+InitializeHelper::InitializeHelper(QObject *parent, IHelperBackend *helperBackend) : QObject(parent),
+    helperBackend_(helperBackend), helperInitAttempts_(0)
 {
 }
 
@@ -18,15 +17,14 @@ void InitializeHelper::start()
 void InitializeHelper::onTimerControlHelper()
 {
     QTimer *timer = (QTimer *)sender();
-    if (helper_->currentState() == IHelper::STATE_CONNECTED)
+    if (helperBackend_->currentState() == IHelperBackend::State::kConnected)
     {
         qCDebug(LOG_BASIC) << "Windscribe helper connected ok";
         timer->stop();
         timer->deleteLater();
-        printHelperVersion();
         emit finished(INIT_HELPER_SUCCESS);
     }
-    else if (helper_->currentState() == IHelper::STATE_FAILED_CONNECT || helper_->currentState() == IHelper::STATE_INSTALL_FAILED)
+    else if (helperBackend_->currentState() == IHelperBackend::State::kFailedConnect || helperBackend_->currentState() == IHelperBackend::State::kInstallFailed)
     {
         timer->stop();
         timer->deleteLater();
@@ -38,10 +36,10 @@ void InitializeHelper::onTimerControlHelper()
         else
         {
             qCInfo(LOG_BASIC) << "Attempting to reinstall helper";
-            if (helper_->reinstallHelper())
+            if (helperBackend_->reinstallHelper())
             {
                 qCInfo(LOG_BASIC) << "Helper reinstalled";
-                helper_->startInstallHelper();
+                helperBackend_->startInstallHelper();
                 helperInitAttempts_++;
                 QTimer *newtimer = new QTimer(this);
                 connect(newtimer, &QTimer::timeout, this, &InitializeHelper::onTimerControlHelper);
@@ -54,7 +52,7 @@ void InitializeHelper::onTimerControlHelper()
             }
         }
     }
-    else if (helper_->currentState() == IHelper::STATE_USER_CANCELED)
+    else if (helperBackend_->currentState() == IHelperBackend::State::kUserCanceled)
     {
         timer->stop();
         timer->deleteLater();
@@ -65,10 +63,9 @@ void InitializeHelper::onTimerControlHelper()
 
 void InitializeHelper::handleHelperInit()
 {
-    if (helper_->currentState() == IHelper::STATE_CONNECTED)
+    if (helperBackend_->currentState() == IHelperBackend::State::kConnected)
     {
         qCDebug(LOG_BASIC) << "Windscribe helper connected ok";
-        printHelperVersion();
         emit finished(INIT_HELPER_SUCCESS);
     }
     else
@@ -79,11 +76,3 @@ void InitializeHelper::handleHelperInit()
     }
 }
 
-void InitializeHelper::printHelperVersion()
-{
-    QString helperVersion = helper_->getHelperVersion();
-    if (!helperVersion.isEmpty())
-    {
-        qCInfo(LOG_BASIC) << "Helper version" << helperVersion;
-    }
-}

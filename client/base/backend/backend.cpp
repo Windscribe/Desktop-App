@@ -107,16 +107,17 @@ void Backend::init()
     connect(engine_, &Engine::robertFiltersUpdated, this, &Backend::onEngineRobertFiltersUpdated);
     connect(engine_, &Engine::setRobertFilterFinished, this, &Backend::onEngineSetRobertFilterFinished);
     connect(engine_, &Engine::syncRobertFinished, this, &Backend::onEngineSyncRobertFinished);
-    connect(engine_, &Engine::helperSplitTunnelingStartFailed, this, &Backend::helperSplitTunnelingStartFailed);
+    connect(engine_, &Engine::splitTunnelingStartFailed, this, &Backend::splitTunnelingStartFailed);
     connect(engine_, &Engine::autoEnableAntiCensorship, this, &Backend::onEngineAutoEnableAntiCensorship);
     connect(engine_, &Engine::connectionIdChanged, this, &Backend::connectionIdChanged);
+    connect(engine_, &Engine::localDnsServerNotAvailable, this, &Backend::localDnsServerNotAvailable);
     threadEngine_->start(QThread::LowPriority);
 }
 
-void Backend::cleanup(bool isExitWithRestart, bool isFirewallChecked, bool isFirewallAlwaysOn, bool isLaunchOnStart)
+void Backend::cleanup(bool isUpdating)
 {
     qCDebug(LOG_BASIC) << "Backend::cleanup()";
-    engine_->cleanup(isExitWithRestart, isFirewallChecked, isFirewallAlwaysOn, isLaunchOnStart);
+    engine_->cleanup(isUpdating);
 }
 
 void Backend::enableBFE_win()

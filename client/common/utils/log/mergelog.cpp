@@ -138,28 +138,28 @@ QString MergeLog::merge(const QString &guiLogFilename, const QString &serviceLog
     QMap<quint64, QString> lines;
 
     // insert client's log into the map
-    for (const auto &it : qAsConst(clientLogRes->lines)) {
+    for (const auto &it : std::as_const(clientLogRes->lines)) {
         lines.insert(it.uniqkey, it.str);
     }
 
     // insert other logs into the map considering the min and max date
-    for (const auto &it : qAsConst(serviceLogRes->lines)) {
+    for (const auto &it : std::as_const(serviceLogRes->lines)) {
         if (it.datetime >= minDate && it.datetime <= maxDate)
             lines.insert(it.uniqkey, it.str);
     }
 
-    for (const auto &it : qAsConst(servicePrevLogRes->lines)) {
+    for (const auto &it : std::as_const(servicePrevLogRes->lines)) {
         if (it.datetime >= minDate && it.datetime <= maxDate)
             lines.insert(it.uniqkey, it.str);
     }
 
-    for (const auto &it : qAsConst(wgServiceLogRes->lines)) {
+    for (const auto &it : std::as_const(wgServiceLogRes->lines)) {
         if (it.datetime >= minDate && it.datetime <= maxDate)
             lines.insert(it.uniqkey, it.str);
     }
 
     // Include the installer log regardless of the date, it will always be at the beginning.
-    for (const auto &it : qAsConst(installerLogRes->lines)) {
+    for (const auto &it : std::as_const(installerLogRes->lines)) {
         lines.insert(it.uniqkey, it.str);
     }
 

@@ -10,13 +10,14 @@
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "preferencesconst.h"
+#include "tooltips/tooltipcontroller.h"
 #include "utils/ws_assert.h"
 
 namespace PreferencesWindow {
 
 ComboBoxItem::ComboBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip)
   : CommonGraphics::BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), strCaption_(caption), strTooltip_(tooltip),
-    captionFont_(12, true), icon_(nullptr)
+    captionFont_(12, true), icon_(nullptr), isCaptionElided_(false)
 {
     connect(this, &ComboBoxItem::heightChanged, this, &ComboBoxItem::updatePositions);
 
@@ -33,6 +34,7 @@ ComboBoxItem::ComboBoxItem(ScalableGraphicsObject *parent, const QString &captio
     connect(menu_, &CommonWidgets::ComboMenuWidget::hidden, this, &ComboBoxItem::onMenuHidden);
     connect(menu_, &CommonWidgets::ComboMenuWidget::sizeChanged, this, &ComboBoxItem::onMenuSizeChanged);
 
+    setAcceptHoverEvents(true);
     updateScaling();
 }
 
@@ -62,10 +64,23 @@ void ComboBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     QFontMetrics fm(font);
     int availableWidth = boundingRect().width() - xOffset - button_->boundingRect().width() - PREFERENCES_MARGIN*G_SCALE;
     QString elidedText = strCaption_;
+
+    // Reset elided flag
+    isCaptionElided_ = false;
+
     if (availableWidth < fm.horizontalAdvance(strCaption_))
     {
         elidedText = fm.elidedText(strCaption_, Qt::ElideRight, availableWidth, 0);
+        isCaptionElided_ = true;
     }
+
+    // Store the caption rectangle for mouse hover detection
+    captionRect_ = QRectF(
+        xOffset,
+        PREFERENCES_MARGIN*G_SCALE,
+        fm.horizontalAdvance(elidedText),
+        fm.height()
+    );
 
     painter->drawText(boundingRect().adjusted(xOffset,
                                               PREFERENCES_MARGIN*G_SCALE,
@@ -111,7 +126,7 @@ void ComboBoxItem::removeItem(const QVariant &value)
 
 void ComboBoxItem::setCurrentItem(QVariant value)
 {
-    for (const ComboBoxItemDescr &cb : qAsConst(items_))
+    for (const ComboBoxItemDescr &cb : std::as_const(items_))
     {
         if (cb.userValue() == value)
         {
@@ -352,6 +367,33 @@ void ComboBoxItem::setItems(const QList<QPair<QString, QVariant>> &list, QVarian
     }
     setCurrentItem(curValue);
     updatePositions();
+}
+
+void ComboBoxItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+    if (isCaptionElided_ && captionRect_.contains(event->pos())) {
+        QGraphicsView *view = scene()->views().first();
+        QPoint globalPt = view->mapToGlobal(view->mapFromScene(scenePos()));
+
+        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_ELIDED_TEXT);
+        ti.x = globalPt.x() + captionRect_.x() + captionRect_.width()/2;
+        ti.y = globalPt.y();
+        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+        ti.tailPosPercent = 0.5;
+        ti.title = strCaption_;
+
+        TooltipController::instance().showTooltipBasic(ti);
+    } else {
+        TooltipController::instance().hideTooltip(TOOLTIP_ID_ELIDED_TEXT);
+    }
+
+    BaseItem::hoverMoveEvent(event);
+}
+
+void ComboBoxItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_ELIDED_TEXT);
+    BaseItem::hoverLeaveEvent(event);
 }
 
 } // namespace PreferencesWindow

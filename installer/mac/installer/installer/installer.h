@@ -7,7 +7,7 @@
 #include <thread>
 #include "base_installer.h"
 #include "processes_helper.h"
-#include "../helper/helper_mac.h"
+#include "../helper/helper_installer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
     std::mutex mutex_;
     bool isCanceled_;
 
-    Helper_mac helper_;
+    std::unique_ptr<HelperInstaller> helper_;
 
     std::function<void()> callback_;
 }

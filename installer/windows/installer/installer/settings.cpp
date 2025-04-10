@@ -33,16 +33,6 @@ bool Settings::getCreateShortcut() const
     return isCreateShortcut_;
 }
 
-void Settings::setInstallDrivers(bool install)
-{
-    isInstallDrivers_ = install;
-}
-
-bool Settings::getInstallDrivers() const
-{
-    return isInstallDrivers_;
-}
-
 void Settings::setAutoStart(bool autostart)
 {
     isAutoStart_ = autostart;

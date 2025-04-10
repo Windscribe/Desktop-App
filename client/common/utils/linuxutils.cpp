@@ -2,7 +2,6 @@
 
 #include <QDir>
 #include <QFile>
-#include <QRegExp>
 #include <QRegularExpression>
 #include <QTextStream>
 
@@ -31,9 +30,10 @@ QString getLinuxKernelVersion()
 {
     struct utsname unameData;
     if (uname(&unameData) == 0) {
-        QRegExp rx("(\\d+\\.\\d+(\\.\\d+)*)");
-        if (rx.indexIn(unameData.release, 0) != -1) {
-            return rx.cap(1);
+        QRegularExpression rx("(\\d+\\.\\d+(\\.\\d+)*)");
+        QRegularExpressionMatch match = rx.match(unameData.release);
+        if (match.hasMatch()) {
+            return match.captured(1);
         }
     }
 
