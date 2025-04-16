@@ -21,8 +21,7 @@ public:
     void getPingData(const QString &ip, PingTime &outPingTime, qint64 &outIterationTime) const;
     void initPingDataIfNotExists(const QString &ip);
 
-
-    void removePingNode(const QString &ip);
+    void removeUnusedNodes(const QSet<QString> &ips);
     bool isAllNodesHaveCurIteration() const;
 
 private:

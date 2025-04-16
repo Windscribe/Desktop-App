@@ -67,17 +67,26 @@ int PingMethodHttp::parseReplyString(const std::string &data)
     using namespace rapidjson;
     Document doc;
     doc.Parse(data.c_str());
-    if (doc.HasParseError() || !doc.IsObject())
-        return - 1;
-
+    if (doc.HasParseError() || !doc.IsObject()) {
+        g_logger->error("PingMethodHttp::parseReplyString incorrect JSON: {}", data);
+        return -1;
+    }
     auto jsonObject = doc.GetObject();
     if (jsonObject.HasMember("rtt")) {
         std::string value = jsonObject["rtt"].GetString();
         if (!value.empty()) {
-            return std::stoi(value);
+            try {
+                int res = std::stoi(value);
+                if (res < 1000) {  // is result < 1 ms, log it as a warning
+                    g_logger->warn("PingMethodHttp::parseReplyString, rtt value < 1000: {}", value);
+                }
+                return res;
+            } catch(...) {
+                // goto end of function and log error
+            }
         }
     }
-
+    g_logger->error("PingMethodHttp::parseReplyString incorrect JSON: {}", data);
     return -1;
 }
 

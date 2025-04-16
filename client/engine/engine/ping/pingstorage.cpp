@@ -57,9 +57,15 @@ void PingStorage::initPingDataIfNotExists(const QString &ip)
         pingDataDB_[ip] = PingData();
 }
 
-void PingStorage::removePingNode(const QString &ip)
+void PingStorage::removeUnusedNodes(const QSet<QString> &ips)
 {
-    pingDataDB_.remove(ip);
+    for (auto it = pingDataDB_.begin(); it != pingDataDB_.end();) {
+        if (!ips.contains(it.key())) {
+            it = pingDataDB_.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 bool PingStorage::isAllNodesHaveCurIteration() const

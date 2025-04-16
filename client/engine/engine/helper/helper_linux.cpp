@@ -26,6 +26,6 @@ void Helper_linux::setDnsLeakProtectEnabled(bool bEnabled)
 
 void Helper_linux::resetMacAddresses(const QString &ignoreNetwork)
 {
-    sendCommand(HelperCommand::startWstunnel, ignoreNetwork.toStdString());
+    sendCommand(HelperCommand::resetMacAddresses, ignoreNetwork.toStdString());
 }
 

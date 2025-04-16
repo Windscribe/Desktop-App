@@ -11,7 +11,7 @@ using namespace wsnet;
 
 PingManager::PingManager(QObject *parent, IConnectStateController *stateController,
                          INetworkDetectionManager *networkDetectionManager, const QString &storageSettingName) : QObject(parent),
-    connectStateController_(stateController), networkDetectionManager_(networkDetectionManager), pingStorage_(storageSettingName)
+    connectStateController_(stateController), networkDetectionManager_(networkDetectionManager), storageSettingName_(storageSettingName), pingStorage_(storageSettingName)
 {
     isLogPings_ = ExtraConfig::instance().getLogPings();
     isUseIcmpPings_ = ExtraConfig::instance().getUseICMPPings();
@@ -26,7 +26,9 @@ void PingManager::updateIps(const QVector<PingIpInfo> &ips)
         it.value().existThisIp = false;
     }
 
+    QSet<QString> ipsSet;
     for (const PingIpInfo &ip_info : std::as_const(ips)) {
+        ipsSet.insert(ip_info.ip);
         auto it = ips_.find(ip_info.ip);
         if (it == ips_.end()) {
             pingStorage_.initPingDataIfNotExists(ip_info.ip);
@@ -45,13 +47,15 @@ void PingManager::updateIps(const QVector<PingIpInfo> &ips)
     while (it != ips_.end()) {
         if (!it.value().existThisIp) {
             addLog("PingManager::updateIps", "removed unused ip: " + it.key());
-            pingStorage_.removePingNode(it.key());
             it = ips_.erase(it);
         }
         else {
             ++it;
         }
     }
+
+    // update ips in the ping storage
+    pingStorage_.removeUnusedNodes(ipsSet);
 
     onPingTimer();
     pingTimer_.start(PING_TIMER_INTERVAL);
@@ -190,10 +194,6 @@ void PingManager::onPingFinished(const std::string &ip, bool isSuccess, int32_t 
     if (pingStorage_.isAllNodesHaveCurIteration()) {
         addLog("PingManager::onPingFinished", "All nodes have the same iteration time");
     }
-
-    if (isLogPings_ && isAllIpsHaveCurIteration()) {
-        addLog("PingManager::onPingFinished", "isAllIpsHaveCurIteration = true");
-    }
 }
 
 int PingManager::exponentialBackoff_GetNextDelay(int curDelay, float factor, float jitter, float maxDelay)
@@ -202,17 +202,9 @@ int PingManager::exponentialBackoff_GetNextDelay(int curDelay, float factor, flo
     return res + Utils::generateDoubleRandom(0, res * jitter);
 }
 
-bool PingManager::isAllIpsHaveCurIteration() const
-{
-    for (const auto &it : std::as_const(ips_))
-        if (it.iterationTime != pingStorage_.currentIterationTime())
-            return false;
-
-    return true;
-}
 
 void PingManager::addLog(const QString &tag, const QString &str)
 {
     if (isLogPings_)
-        qCDebug(LOG_PING) << tag << "   " << str;
+        qCDebug(LOG_PING) << tag << storageSettingName_  << "   " << str;
 }

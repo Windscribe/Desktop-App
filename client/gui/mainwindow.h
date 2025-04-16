@@ -397,15 +397,6 @@ private:
     QTimer hideShowDockIconTimer_;
     bool currentDockIconVisibility_;
     bool desiredDockIconVisibility_;
-
-    typedef QRect TrayIconRelativeGeometry ;
-    QMap<QString, TrayIconRelativeGeometry> systemTrayIconRelativeGeoScreenHistory_;
-    QString lastScreenName_;
-
-    const QRect bestGuessForTrayIconRectFromLastScreen(const QPoint &pt);
-    const QRect trayIconRectForLastScreen();
-    const QRect trayIconRectForScreenContainingPt(const QPoint &pt);
-    const QRect generateTrayIconRectFromHistory(const QString &screenName);
 #endif
     QTimer deactivationTimer_;
 
@@ -424,7 +415,6 @@ private:
     void cleanupAdvParametersWindow();
     void cleanupLogViewerWindow();
 
-    QRect guessTrayIconLocationOnScreen(QScreen *screen);
     void showUserWarning(USER_WARNING_TYPE userWarningType);
     void openBrowserToMyAccountWithToken(const QString &tempSessionToken);
     void updateConnectWindowStateProtocolPortDisplay();

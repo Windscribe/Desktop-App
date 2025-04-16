@@ -1,8 +1,36 @@
-# Windscribe 2.0 Desktop Application
+# Windscribe Desktop Application
 
-This repo contains the complete source code for the Windscribe 2.0 app. This includes installer, service/helper, and GUI.
+![Windscribe splash image](/windscribe_banner.jpg)
 
-## Windows
+The Windscribe VPN desktop application hides your physical location, blocks ads and trackers, and keeps you safe online.  Features available in the application are:
+
+- Offers 6 different protocols to choose from, along with over 20 different connection ports:
+  - WireGuard
+  - OpenVPN UDP/TCP
+  - IKEv2
+  - Stealth
+  - WSTunnel
+- Proactive firewall eliminates the chance of any kind of leak.
+- Network and per-app split tunneling.
+- Appear as a brand new user, every time you connect using MAC address spoofing.
+- Network rules allowing you to connect or disconnect automatically.
+- Custom config support for importing any VPN config into Windscribe.
+- Create a secure HTTP or SOCKS5 proxy server on your computer, allowing any device on your network to use this proxy server in order to make requests over the VPN tunnel.
+- Custom DNS support for using any 3rd party DNS server, including our sister product [ctrld](https://github.com/Control-D-Inc/ctrld).
+- CLI support on all platforms, including a pure CLI environment for Linux.
+
+## OS Support
+- Windows 10/11 amd64 (minimum build 17763)
+- Windows 11 arm64
+- Windows Server 2022 amd64
+- macOS 12+ (amd64, arm64)
+- Ubuntu 22.04+ (amd64, arm64)
+- Fedora 36+ (amd64, arm64)
+- openSUSE Leap 15.6 amd64
+- Arch amd64 (with a minimum glibc version of 2.35)
+- Immutable distros (e.g. Fedora Silverblue 40, openSUSE Aeon/MicroOS)
+
+## Windows Build Process
 
 ### Prerequisites
 
@@ -79,7 +107,7 @@ See `build_all --help` for other build options.
 - Uninstaller: system Debug View
 - `<Windscribe_installation_path>` defaults to `C:/Program Files/Windscribe`
 
-## Mac
+## macOS Build Process
 
 ### Prerequisites
 
@@ -158,7 +186,7 @@ See `build_all --help` for other build options.
 - Installer: `/Users/<user_name>/Library/Application Support/Windscribe/Windscribe/log_installer.txt`
 - Helper: `/Library/Logs/com.windscribe.helper.macos/helper_log.txt`
 
-## Linux
+## Linux Build Process
 
 ### Build with Docker
 

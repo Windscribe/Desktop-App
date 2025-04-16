@@ -1,3 +1,18 @@
+2.15.4 (16/04/2025)
+All:
+   * Fixed Best Location is chosen incorrectly. #1274, #1333
+   * Updated ctrld to 1.4.2. #1327
+Windows:
+   * Fixed split tunneling regression. #1329
+   * Fixed installer buttons not being transparent. #1330
+   * Fixed regression of MTU value setting. #991
+MacOS:
+   * Fixed docked window is sometimes in the wrong position. #1334
+   * Fixed ctrld sometimes does not start when using custom DNS. #1227
+Linux:
+   * Fixed Linux Mac Spoofing regression. #1328
+
+
 2.15.3 (10/04/2025)
 All:
    * Added support for local DNS as connected DNS. #1255

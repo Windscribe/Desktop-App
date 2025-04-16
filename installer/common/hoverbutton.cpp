@@ -43,7 +43,7 @@ void HoverButton::init()
     setCursor(Qt::PointingHandCursor);
     setAttribute(Qt::WA_TranslucentBackground, true);
 
-    setStyleSheet("QPushButton:pressed { background-color: transparent; }");
+    setStyleSheet("QPushButton { background-color: transparent; } QPushButton:pressed { background-color: transparent; } QPushButton:hover { background-color: transparent; }");
 
     QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(this);
     effect->setOpacity(hoverOpacity_);

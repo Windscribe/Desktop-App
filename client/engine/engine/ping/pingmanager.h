@@ -50,6 +50,7 @@ private:
     IConnectStateController* const connectStateController_;
     INetworkDetectionManager* const networkDetectionManager_;
 
+    QString storageSettingName_;
     PingStorage pingStorage_;
 
     struct PingIpState
@@ -99,7 +100,6 @@ private:
     // We start re-ping failed nodes after 1 second. Then the delay increases according to the algorithm to a maximum of 1 minute.
     int exponentialBackoff_GetNextDelay(int curDelay, float factor = 2.0f, float jitter = 0.1f, float maxDelay = 60.0f);
 
-    bool isAllIpsHaveCurIteration() const;
     void addLog(const QString &tag, const QString &str);
 };
 

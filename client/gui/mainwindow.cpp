@@ -83,7 +83,6 @@ MainWindow::MainWindow() :
     hideShowDockIconTimer_(this),
     currentDockIconVisibility_(true),
     desiredDockIconVisibility_(true),
-    lastScreenName_(""),
 #endif
     activeState_(true),
     lastWindowStateChange_(0),
@@ -125,7 +124,7 @@ MainWindow::MainWindow() :
     if (screen) {
         const QRect desktopScreenRc = screen->geometry();
         if (desktopScreenRc.top() != desktopAvailableRc.top()) {
-            while (trayIcon_.geometry().isEmpty())
+            while (trayIcon_.geometry().isEmpty() || QGuiApplication::screenAt(trayIcon_.geometry().center()) != screen)
                 qApp->processEvents();
         }
     }
@@ -413,7 +412,6 @@ MainWindow::MainWindow() :
     mainWindowController_->getInitWindow()->startWaitingAnimation();
 
     mainWindowController_->setIsDockedToTray(backend_->getPreferences()->isDockedToTray());
-
 
     if (!backend_->getPreferences()->isDockedToTray()) {
         mainWindowController_->setWindowPosFromPersistent();
@@ -1092,18 +1090,6 @@ void MainWindow::cleanupLogViewerWindow()
         logViewerWindow_->deleteLater();
         logViewerWindow_ = nullptr;
     }
-}
-
-QRect MainWindow::guessTrayIconLocationOnScreen(QScreen *screen)
-{
-    const QRect screenGeo = screen->geometry();
-    QRect newIconRect = QRect(static_cast<int>(screenGeo.right() - WINDOW_WIDTH *G_SCALE),
-                              screenGeo.top(),
-                              savedTrayIconRect_.width(),
-                              savedTrayIconRect_.height());
-
-    return newIconRect;
-
 }
 
 void MainWindow::onPreferencesViewLogClick()
@@ -2883,60 +2869,6 @@ void MainWindow::hideShowDockIcon(bool hideFromDock)
     hideShowDockIconTimer_.start(300);
 }
 
-const QRect MainWindow::bestGuessForTrayIconRectFromLastScreen(const QPoint &pt)
-{
-    QRect lastScreenTrayRect = trayIconRectForLastScreen();
-    if (lastScreenTrayRect.isValid()) {
-        return lastScreenTrayRect;
-    }
-    // qDebug() << "No valid history of last screen";
-    return trayIconRectForScreenContainingPt(pt);
-}
-
-const QRect MainWindow::trayIconRectForLastScreen()
-{
-    if (lastScreenName_ != "") {
-        QRect rect = generateTrayIconRectFromHistory(lastScreenName_);
-        if (rect.isValid()) {
-            return rect;
-        }
-    }
-    // qDebug() << "No valid last screen";
-    return QRect(0,0,0,0); // invalid
-}
-
-const QRect MainWindow::trayIconRectForScreenContainingPt(const QPoint &pt)
-{
-    QScreen *screen = WidgetUtils::slightlySaferScreenAt(pt);
-    if (!screen) {
-        return QRect(0,0,0,0);
-    }
-    return guessTrayIconLocationOnScreen(screen);
-}
-
-const QRect MainWindow::generateTrayIconRectFromHistory(const QString &screenName)
-{
-    if (systemTrayIconRelativeGeoScreenHistory_.contains(screenName)) {
-        // ensure is in current list
-        QScreen *screen = WidgetUtils::screenByName(screenName);
-
-        if (screen) {
-            // const QRect screenGeo = WidgetUtils::smartScreenGeometry(screen);
-            const QRect screenGeo = screen->geometry();
-
-            TrayIconRelativeGeometry &rect = systemTrayIconRelativeGeoScreenHistory_[lastScreenName_];
-            QRect newIconRect = QRect(screenGeo.x() + rect.x(),
-                                      screenGeo.y() + rect.y(),
-                                      rect.width(), rect.height());
-            return newIconRect;
-        }
-        //qDebug() << "   No screen by name: " << screenName;
-        return QRect(0,0,0,0);
-    }
-    //qDebug() << "   No history for screen: " << screenName;
-    return QRect(0,0,0,0);
-}
-
 void MainWindow::onPreferencesHideFromDockChanged(bool hideFromDock)
 {
     hideShowDockIcon(hideFromDock);
@@ -3171,44 +3103,13 @@ void MainWindow::onAutoConnectUpdated(bool on)
 
 QRect MainWindow::trayIconRect()
 {
-#if defined(Q_OS_MACOS)
-    if (trayIcon_.isVisible()) {
-        const QRect rc = trayIcon_.geometry();
-
-        // check for valid tray icon
-        if (!rc.isValid()) {
-            QRect lastGuess = bestGuessForTrayIconRectFromLastScreen(rc.topLeft());
-            if (lastGuess.isValid()) return lastGuess;
-            return savedTrayIconRect_;
-        }
-
-        // check for valid screen
-        QScreen *screen = QGuiApplication::screenAt(rc.center());
-        if (!screen) {
-            QRect bestGuess = trayIconRectForScreenContainingPt(rc.topLeft());
-            if (bestGuess.isValid()) {
-                return bestGuess;
-            }
-            return savedTrayIconRect_;
-        }
-
-        QRect screenGeo = screen->geometry();
-
-        // valid screen and tray icon -- update the cache
-        systemTrayIconRelativeGeoScreenHistory_[screen->name()] = QRect(abs(rc.x() - screenGeo.x()), abs(rc.y() - screenGeo.y()), rc.width(), rc.height());
-        lastScreenName_ = screen->name();
-        savedTrayIconRect_ = rc;
-        return savedTrayIconRect_;
-    }
-
-#else
     if (trayIcon_.isVisible()) {
         QRect trayIconRect = trayIcon_.geometry();
         if (trayIconRect.isValid()) {
             savedTrayIconRect_ = trayIconRect;
         }
     }
-#endif
+
     return savedTrayIconRect_;
 }
 

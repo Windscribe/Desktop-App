@@ -129,9 +129,9 @@ std::string sendConnectStatus(const std::string &pars)
 
 std::string changeMtu(const std::string &pars)
 {
-    int mtu;
     std::wstring adapterName;
-    deserializePars(pars, mtu, adapterName);
+    int mtu;
+    deserializePars(pars, adapterName, mtu);
     std::wstring netshCmd = Utils::getSystemDir() + L"\\netsh.exe interface ipv4 set subinterface \"" + adapterName + L"\" mtu=" + std::to_wstring(mtu) + L" store=active";
     spdlog::debug(L"changeMtu: {}", netshCmd);
     ExecuteCmd::instance().executeBlockingCmd(netshCmd);

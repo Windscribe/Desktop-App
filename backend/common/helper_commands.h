@@ -169,6 +169,7 @@ void serialize(Archive &ar, ADAPTER_GATEWAY_INFO &a, const unsigned int /*versio
     ar & a.adapterIp;
     ar & a.gatewayIp;
     ar & a.dnsServers;
+    ar & a.ifIndex;
 }
 }
 }
