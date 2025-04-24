@@ -13,7 +13,7 @@ public:
     explicit IHelperBackend(QObject *parent = 0) : QThread(parent) {}
     virtual ~IHelperBackend() {}
 
-    virtual void startInstallHelper() = 0;
+    virtual void startInstallHelper(bool bForceDeleteOld = false) = 0;
     virtual State currentState() const = 0;
     virtual bool reinstallHelper() = 0;
 

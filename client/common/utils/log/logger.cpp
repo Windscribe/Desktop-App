@@ -78,14 +78,16 @@ Logger::Logger()
 void Logger::myMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &s)
 {
     // Skip some of the non-value warnings of the Qt library.
-    if (type == QtMsgType::QtWarningMsg) {
-        static std::vector<std::string> pointlessStrings = {
-            "parseIconEntryInfo(): Failed, OSType doesn't match:",
-            "OpenType support missing for"};
+    static QStringList pointlessStrings = {
+        "parseIconEntryInfo(): Failed, OSType doesn't match:",
+        "OpenType support missing for"
+    };
 
+    if (type == QtMsgType::QtInfoMsg || type == QtMsgType::QtWarningMsg) {
         for (const auto &it : pointlessStrings) {
-            if (s.contains(it.c_str()))
+            if (s.contains(it)) {
                 return;
+            }
         }
     }
 

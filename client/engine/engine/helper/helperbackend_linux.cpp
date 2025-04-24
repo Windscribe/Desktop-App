@@ -17,7 +17,7 @@ HelperBackend_linux::~HelperBackend_linux()
     wait();
 }
 
-void HelperBackend_linux::startInstallHelper()
+void HelperBackend_linux::startInstallHelper(bool /*bForceDeleteOld*/)
 {
     start(QThread::LowPriority);
 }

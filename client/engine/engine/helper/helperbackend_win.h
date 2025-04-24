@@ -13,7 +13,7 @@ public:
     explicit HelperBackend_win(QObject *parent = NULL);
     ~HelperBackend_win() override;
 
-    void startInstallHelper() override;
+    void startInstallHelper(bool bForceDeleteOld = false) override;
     State currentState() const override;
     bool reinstallHelper() override;
 

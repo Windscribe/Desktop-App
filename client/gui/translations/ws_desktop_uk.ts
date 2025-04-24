@@ -2399,6 +2399,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Local DNS</source>
         <translation>Локальний DNS</translation>
     </message>
+    <message>
+        <source>Latency test pending</source>
+        <translation>Очікується тест затримки</translation>
+    </message>
+    <message>
+        <source>Latency test failed</source>
+        <translation>Тест на затримку не пройшов</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>

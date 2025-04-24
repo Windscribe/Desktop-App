@@ -235,9 +235,7 @@ std::string startCtrld(const std::string &pars)
     deserializePars(pars, upstream1, upstream2, domains, isCreateLog);
 
     // Validate URLs
-    std::string normalized1 = Utils::normalizeAddress(upstream1);
-    std::string normalized2 = Utils::normalizeAddress(upstream2);
-    if (upstream1.empty() || normalized1.empty() || (!upstream2.empty() && normalized2.empty())) {
+    if (upstream1.empty() || Utils::normalizeAddress(upstream1).empty() || (!upstream2.empty() && Utils::normalizeAddress(upstream2).empty())) {
         spdlog::error("Invalid upstream URL(s)");
         return serializeResult(false);
     }
@@ -252,9 +250,9 @@ std::string startCtrld(const std::string &pars)
     arguments << "run";
     arguments << " --daemon";
     arguments << " --listen=127.0.0.1:53";
-    arguments << " --primary_upstream=" + normalized1;
+    arguments << " --primary_upstream=" + upstream1;
     if (!upstream2.empty()) {
-        arguments << " --secondary_upstream=" + normalized2;
+        arguments << " --secondary_upstream=" + upstream2;
         if (!domains.empty()) {
             std::stringstream domainsStream;
             std::copy(domains.begin(), domains.end(), std::ostream_iterator<std::string>(domainsStream, ","));

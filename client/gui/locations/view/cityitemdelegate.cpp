@@ -1,5 +1,6 @@
 #include "cityitemdelegate.h"
 
+#include <QObject>
 #include <QPainter>
 #include <QtMath>
 
@@ -236,16 +237,20 @@ IItemCacheData *CityItemDelegate::createCacheData(const QModelIndex &index) cons
 {
     CityItemDelegateCache *cache = new CityItemDelegateCache();
     bool is10Gbps = index.data(kIs10Gbps).toBool();
-    int maxWidth = is10Gbps ? (kCityItemMaxWidth - 32)*G_SCALE : kCityItemMaxWidth*G_SCALE;
+    int maxWidth = is10Gbps ? (kCityItemMaxWidth - 32) : kCityItemMaxWidth;
+    LocationID lid = qvariant_cast<LocationID>(index.data(kLocationId));
 
     QString cityCaption = CommonGraphics::maybeTruncatedText(index.data().toString(),
                                                              FontManager::instance().getFont(16, true),
-                                                             static_cast<int>(kCityCaptionMaxWidth*G_SCALE));
+                                                             (lid.isCustomConfigsLocation() ? maxWidth : kCityCaptionMaxWidth)*G_SCALE);
     cache->add(CityItemDelegateCache::kCityId, cityCaption, FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
-    QString nickCaption = CommonGraphics::maybeTruncatedText(index.data(kDisplayNickname).toString(),
-                                                             FontManager::instance().getFont(16, false),
-                                                             static_cast<int>(maxWidth) - 8*G_SCALE - cache->pixmap(CityItemDelegateCache::kCityId).width());
-    cache->add(CityItemDelegateCache::kNickId, nickCaption, FontManager::instance().getFont(16, false), DpiScaleManager::instance().curDevicePixelRatio());
+
+    if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
+        QString nickCaption = CommonGraphics::maybeTruncatedText(index.data(kDisplayNickname).toString(),
+                                                                 FontManager::instance().getFont(16, false),
+                                                                 (maxWidth - 8)*G_SCALE - cache->pixmap(CityItemDelegateCache::kCityId).width());
+        cache->add(CityItemDelegateCache::kNickId, nickCaption, FontManager::instance().getFont(16, false), DpiScaleManager::instance().curDevicePixelRatio());
+    }
     cache->add(CityItemDelegateCache::kStaticIpId, index.data(kStaticIp).toString(), FontManager::instance().getFont(13, false), DpiScaleManager::instance().curDevicePixelRatio());
     return cache;
 }
@@ -254,16 +259,20 @@ void CityItemDelegate::updateCacheData(const QModelIndex &index, IItemCacheData 
 {
     CityItemDelegateCache *cache = static_cast<CityItemDelegateCache *>(cacheData);
     bool is10Gbps = index.data(kIs10Gbps).toBool();
-    int maxWidth = is10Gbps ? (kCityItemMaxWidth - 32)*G_SCALE : kCityItemMaxWidth*G_SCALE;
+    int maxWidth = is10Gbps ? (kCityItemMaxWidth - 32) : kCityItemMaxWidth;
+    LocationID lid = qvariant_cast<LocationID>(index.data(kLocationId));
 
     QString cityCaption = CommonGraphics::maybeTruncatedText(index.data().toString(),
                                                               FontManager::instance().getFont(16, true),
-                                                              static_cast<int>(kCityCaptionMaxWidth*G_SCALE));
+                                                              (lid.isCustomConfigsLocation() ? maxWidth : kCityCaptionMaxWidth)*G_SCALE);
     cache->updateIfTextChanged(CityItemDelegateCache::kCityId, cityCaption, FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
-    QString nickCaption = CommonGraphics::maybeTruncatedText(index.data(kDisplayNickname).toString(),
-                                                             FontManager::instance().getFont(16, false),
-                                                             static_cast<int>(maxWidth) - 8*G_SCALE - cache->pixmap(CityItemDelegateCache::kCityId).width());
-    cache->updateIfTextChanged(CityItemDelegateCache::kNickId, nickCaption, FontManager::instance().getFont(16, false), DpiScaleManager::instance().curDevicePixelRatio());
+
+    if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
+        QString nickCaption = CommonGraphics::maybeTruncatedText(index.data(kDisplayNickname).toString(),
+                                                                 FontManager::instance().getFont(16, false),
+                                                                 (maxWidth - 8)*G_SCALE - cache->pixmap(CityItemDelegateCache::kCityId).width());
+        cache->updateIfTextChanged(CityItemDelegateCache::kNickId, nickCaption, FontManager::instance().getFont(16, false), DpiScaleManager::instance().curDevicePixelRatio());
+    }
     cache->updateIfTextChanged(CityItemDelegateCache::kStaticIpId, index.data(kStaticIp).toString(), FontManager::instance().getFont(13, false), DpiScaleManager::instance().curDevicePixelRatio());
 }
 
@@ -316,11 +325,14 @@ int CityItemDelegate::isInTooltipArea(const ItemStyleOption &option, const QMode
         }
     }
 
+    int maxWidth = (index.data(kIs10Gbps).toBool() ? (kCityItemMaxWidth - 32) : kCityItemMaxWidth);
+
     if (captionRect(option.rect, cacheData).contains(point)) {
         QString originalCaption = index.data().toString();
-        QString truncatedCaption = CommonGraphics::maybeTruncatedText(originalCaption,
-                                                                      FontManager::instance().getFont(16, true),
-                                                                      static_cast<int>(kCityCaptionMaxWidth*G_SCALE));
+        QString truncatedCaption = CommonGraphics::maybeTruncatedText(
+            originalCaption,
+            FontManager::instance().getFont(16, true),
+            (lid.isCustomConfigsLocation() ? maxWidth : kCityCaptionMaxWidth)*G_SCALE);
         if (originalCaption != truncatedCaption)
             return (int)TooltipRect::kItemCaption;
     }
@@ -329,13 +341,10 @@ int CityItemDelegate::isInTooltipArea(const ItemStyleOption &option, const QMode
     if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
         if (nicknameRect(option.rect, cacheData).contains(point)) {
             QString originalNickname = index.data(kDisplayNickname).toString();
-            bool is10Gbps = index.data(kIs10Gbps).toBool();
-            int maxWidth = is10Gbps ? (kCityItemMaxWidth - 32)*G_SCALE : kCityItemMaxWidth*G_SCALE;
-
             const CityItemDelegateCache *cache = static_cast<const CityItemDelegateCache *>(cacheData);
             QString truncatedNickname = CommonGraphics::maybeTruncatedText(originalNickname,
                                                                            FontManager::instance().getFont(16, false),
-                                                                           static_cast<int>(maxWidth) - 8*G_SCALE - cache->pixmap(CityItemDelegateCache::kCityId).width());
+                                                                           (maxWidth - 8)*G_SCALE - cache->pixmap(CityItemDelegateCache::kCityId).width());
             if (originalNickname != truncatedNickname)
                 return (int)TooltipRect::kItemNickname;
         }
@@ -362,7 +371,6 @@ void CityItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const QM
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.8;
         TooltipController::instance().showTooltipBasic(ti);
-
     } else if (tooltipId == (int)TooltipRect::kPingTime) {
         QRect rc = latencyIconRect(option.rect);
         QPoint pt = widget->mapToGlobal(QPoint(rc.center().x(), rc.top() - 3*G_SCALE));
@@ -370,7 +378,13 @@ void CityItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const QM
         TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_PING_TIME);
         ti.x = pt.x();
         ti.y = pt.y();
-        ti.title = QString("%1 ms").arg(pingTime);
+        if (pingTime == PingTime::NO_PING_INFO) {
+            ti.title = QObject::tr("Latency test pending");
+        } else if (pingTime == PingTime::PING_FAILED) {
+            ti.title = QObject::tr("Latency test failed");
+        } else {
+            ti.title = QString("%1 ms").arg(pingTime);
+        }
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.5;
         TooltipController::instance().showTooltipBasic(ti);

@@ -120,16 +120,6 @@ MainWindow::MainWindow() :
 
     trayIcon_.show();
 
-#ifdef Q_OS_MACOS
-    if (screen) {
-        const QRect desktopScreenRc = screen->geometry();
-        if (desktopScreenRc.top() != desktopAvailableRc.top()) {
-            while (trayIcon_.geometry().isEmpty() || QGuiApplication::screenAt(trayIcon_.geometry().center()) != screen)
-                qApp->processEvents();
-        }
-    }
-#endif
-
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
 #if defined(Q_OS_WIN)
     // Fix resize problem on DPI change by assigning a fixed size flag, because the main window is
@@ -3103,6 +3093,20 @@ void MainWindow::onAutoConnectUpdated(bool on)
 
 QRect MainWindow::trayIconRect()
 {
+#ifdef Q_OS_MACOS
+    if (qApp->screens().size() == 0 || qApp->screens().at(0) == NULL) {
+        qCDebug(LOG_BASIC) << "No screens found, could not determine tray icon rect.  Using saved rect:" << savedTrayIconRect_;
+        return savedTrayIconRect_;
+    }
+
+    // Only wait for tray icon geometry if docked
+    if (backend_->getPreferences()->isDockedToTray()) {
+        while (trayIcon_.geometry().isEmpty() || QGuiApplication::screenAt(trayIcon_.geometry().center()) != qApp->screens().at(0)) {
+            qApp->processEvents();
+        }
+    }
+#endif
+
     if (trayIcon_.isVisible()) {
         QRect trayIconRect = trayIcon_.geometry();
         if (trayIconRect.isValid()) {
@@ -4060,11 +4064,14 @@ void MainWindow::onPreferencesMultiDesktopBehaviorChanged(MULTI_DESKTOP_BEHAVIOR
 bool MainWindow::wasLaunchedOnStartup()
 {
     QCommandLineParser cmdParser;
+    cmdParser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
+    QCommandLineOption option_old("os_restart");
+    cmdParser.addOption(option_old);
     QCommandLineOption option("autostart");
     cmdParser.addOption(option);
     cmdParser.process(*WindscribeApplication::instance());
 
-    return cmdParser.isSet(option);
+    return cmdParser.isSet(option) || cmdParser.isSet(option_old);
 }
 
 void MainWindow::onPreferencesExportLocationNamesClick()

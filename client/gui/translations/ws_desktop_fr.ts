@@ -2399,6 +2399,14 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
         <source>Local DNS</source>
         <translation>Local DNS</translation>
     </message>
+    <message>
+        <source>Latency test pending</source>
+        <translation>Test de latence en attente</translation>
+    </message>
+    <message>
+        <source>Latency test failed</source>
+        <translation>Échec du test de latence</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>

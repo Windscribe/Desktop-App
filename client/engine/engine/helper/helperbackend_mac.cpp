@@ -16,10 +16,10 @@ HelperBackend_mac::~HelperBackend_mac()
     }
 }
 
-void HelperBackend_mac::startInstallHelper()
+void HelperBackend_mac::startInstallHelper(bool bForceDeleteOld)
 {
     bool isUserCanceled;
-    if (InstallHelper_mac::installHelper(false, isUserCanceled, logger_)) {
+    if (InstallHelper_mac::installHelper(bForceDeleteOld, isUserCanceled, logger_)) {
         // start XPC connection
         connection_ = xpc_connection_create_mach_service("com.windscribe.helper.macos", NULL, 0);
         if (!connection_)

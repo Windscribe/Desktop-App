@@ -2399,6 +2399,14 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
         <source>Local DNS</source>
         <translation>DNS cục bộ</translation>
     </message>
+    <message>
+        <source>Latency test pending</source>
+        <translation>Kiểm tra độ trễ đang chờ xử lý</translation>
+    </message>
+    <message>
+        <source>Latency test failed</source>
+        <translation>Kiểm tra độ trễ không thành công</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>

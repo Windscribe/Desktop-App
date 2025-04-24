@@ -220,22 +220,15 @@ std::string normalizeAddress(const std::string &address)
 {
     std::string addr = address;
 
-    // Workaround for golang panic in ctrld in macOS 14+ (#1227)
-    const std::string controld = "dns.controld.com";
-    int pos = addr.find(controld);
-    if (pos != std::string::npos) {
-        addr = addr.replace(pos, controld.length(), "76.76.2.22");
-    }
-
-    if (isValidIpAddress(addr)) {
+    if (isValidIpAddress(address)) {
         return addr;
     }
 
-    if (isValidDomain(addr)) {
+    if (isValidDomain(address)) {
         return addr;
     }
 
-    auto url = skyr::parse(addr);
+    auto url = skyr::parse(address);
     if (!url) {
         return "";
     }

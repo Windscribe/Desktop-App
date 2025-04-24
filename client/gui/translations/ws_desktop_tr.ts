@@ -2399,6 +2399,14 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
         <source>Local DNS</source>
         <translation>Yerel DNS</translation>
     </message>
+    <message>
+        <source>Latency test pending</source>
+        <translation>Gecikme testi bekleniyor</translation>
+    </message>
+    <message>
+        <source>Latency test failed</source>
+        <translation>Gecikme testi başarısız oldu</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>

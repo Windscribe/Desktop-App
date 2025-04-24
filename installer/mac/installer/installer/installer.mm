@@ -1,7 +1,6 @@
 #import "installer.h"
 #import <Cocoa/Cocoa.h>
 #include <spdlog/spdlog.h>
-#include "installhelper_mac.h"
 #include "helperbackend_mac.h"
 #include "../string_utils.h"
 #include "processes_helper.h"
@@ -176,18 +175,9 @@
         }
     }
 
-    // Install new helper now that we are sure the client app has exited. Otherwise we may cause the
+    // Install and connect to the new helper now that we are sure the client app has exited. Otherwise we may cause the
     // client app to hang when we pull the old helper out from under it.
-    bool isUserCanceled;
-    if (!InstallHelper_mac::installHelper(self.factoryReset, isUserCanceled, spdlog::default_logger_raw())) {
-        spdlog::error("Couldn't install the helper.");
-        self.lastError = wsl::ERROR_PERMISSION;
-        self.currentState = wsl::STATE_ERROR;
-        callback_();
-        return;
-    }
-
-    if (!self.connectHelper) {
+    if (![self connectHelper: self.factoryReset]) {
         spdlog::error("Couldn't connect to new helper in time");
         self.lastError = wsl::ERROR_CONNECT_HELPER;
         self.currentState = wsl::STATE_ERROR;
@@ -305,9 +295,9 @@ NSString* StringWToNSString ( const std::wstring& Str )
     return pString;
 }
 
-- (BOOL)connectHelper
+- (BOOL)connectHelper : (bool)forceDeleteOld
 {
-    helper_->backend()->startInstallHelper();
+    helper_->backend()->startInstallHelper(forceDeleteOld);
     if (helper_->backend()->currentState() == IHelperBackend::State::kConnected)
       return YES;
     else

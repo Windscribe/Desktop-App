@@ -12,7 +12,7 @@ public:
     explicit HelperBackend_linux(QObject *parent = NULL);
     ~HelperBackend_linux() override;
 
-    void startInstallHelper() override;
+    void startInstallHelper(bool bForceDeleteOld = false) override;
     State currentState() const override;
     bool reinstallHelper() override;
 

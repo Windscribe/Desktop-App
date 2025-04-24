@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)runProcess: (NSString *)exePath args:(NSArray *)args;
 - (BOOL)waitForProcessFinish: (std::vector<pid_t>)processes helper:(ProcessesHelper *)helper timeoutSec:(size_t)timeoutSec;
 - (void)waitForCompletion;
-- (BOOL)connectHelper;
+- (BOOL)connectHelper: (bool)forceDeleteOld;
 
 @end
 

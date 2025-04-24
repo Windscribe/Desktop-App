@@ -2399,6 +2399,14 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
         <source>Local DNS</source>
         <translation>DNS Lokal</translation>
     </message>
+    <message>
+        <source>Latency test pending</source>
+        <translation>Pengujian latensi tertunda</translation>
+    </message>
+    <message>
+        <source>Latency test failed</source>
+        <translation>Pengujian latensi gagal</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>

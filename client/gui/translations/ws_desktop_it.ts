@@ -2399,6 +2399,14 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
         <source>Local DNS</source>
         <translation>DNS locale</translation>
     </message>
+    <message>
+        <source>Latency test pending</source>
+        <translation>Test di latenza in sospeso</translation>
+    </message>
+    <message>
+        <source>Latency test failed</source>
+        <translation>Test di latenza non riuscito</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>

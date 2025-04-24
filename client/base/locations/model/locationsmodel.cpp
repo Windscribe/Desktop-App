@@ -901,13 +901,13 @@ void LocationsModel::setRenamedLocations(const QJsonObject &obj)
                 continue;
             }
 
-            if (cityObj["name"].toString() != data(cityIndex, Roles::kName).toString()) {
+            if (cityObj["name"].toString() != data(cityIndex).toString()) {
                 qCDebug(LOG_LOCATION_LIST) << "Setting renamed city" << cityId << data(cityIndex, Roles::kName).toString() << "->" << cityObj["name"].toString();
                 setData(cityIndex, cityObj["name"].toString(), Qt::DisplayRole);
                 emit dataChanged(cityIndex, cityIndex, QList<int>() << Qt::DisplayRole);
             }
-            if (cityObj["nickname"].toString() != data(cityIndex, Roles::kNick).toString()) {
-                qCDebug(LOG_LOCATION_LIST) << "Setting renamed city nickname" << cityId << data(cityIndex, Roles::kNick).toString() << "->" << cityObj["nickname"].toString();
+            if (cityObj["nickname"].toString() != data(cityIndex, Roles::kDisplayNickname).toString()) {
+                qCDebug(LOG_LOCATION_LIST) << "Setting renamed city nickname" << cityId << data(cityIndex, Roles::kDisplayNickname).toString() << "->" << cityObj["nickname"].toString();
                 setData(cityIndex, cityObj["nickname"].toString(), Roles::kDisplayNickname);
                 emit dataChanged(cityIndex, cityIndex, QList<int>() << Roles::kDisplayNickname);
 

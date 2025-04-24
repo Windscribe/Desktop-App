@@ -2399,6 +2399,14 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
         <source>Local DNS</source>
         <translation>Lokalny DNS</translation>
     </message>
+    <message>
+        <source>Latency test pending</source>
+        <translation>Oczekiwanie na test opóźnienia</translation>
+    </message>
+    <message>
+        <source>Latency test failed</source>
+        <translation>Test opóźnienia nie powiódł się</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>

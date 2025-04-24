@@ -1,3 +1,18 @@
+2.15.5 (25/04/2025)
+All:
+   * Fixed incorrect comparison when importing location renames. #1323
+   * Fixed custom config name is cut too short. #1321
+Windows:
+   * Fixed unhandled -os_restart argument from older version. #1341
+   * Fixed latency bars display 'full strength' when ping information is not available/failed for the location. #1338
+MacOS:
+   * Improved startup time when not docked. #1308
+   * Fixed double installation of the helper in the installer. #1343
+   * Removed partial workaround for ctrld panic. #1227
+Linux:
+   * Fixed erroneous 'missing log' warning in merged logs due to Linux not having an installer log. #1339
+
+
 2.15.4 (16/04/2025)
 All:
    * Fixed Best Location is chosen incorrectly. #1274, #1333

@@ -14,7 +14,7 @@ public:
     explicit HelperBackend_mac(QObject *parent, spdlog::logger *logger);
     ~HelperBackend_mac() override;
 
-    void startInstallHelper() override;
+    void startInstallHelper(bool bForceDeleteOld = false) override;
     State currentState() const override;
     bool reinstallHelper() override;
 

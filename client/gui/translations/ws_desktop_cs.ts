@@ -2399,6 +2399,14 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
         <source>Local DNS</source>
         <translation>Místní DNS</translation>
     </message>
+    <message>
+        <source>Latency test pending</source>
+        <translation>Čeká na vyřízení testu latence</translation>
+    </message>
+    <message>
+        <source>Latency test failed</source>
+        <translation>Test latence se nezdařil</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>

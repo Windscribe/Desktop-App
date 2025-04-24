@@ -22,7 +22,7 @@ HelperBackend_win::~HelperBackend_win()
     wait();
 }
 
-void HelperBackend_win::startInstallHelper()
+void HelperBackend_win::startInstallHelper(bool /*bForceDeleteOld*/)
 {
     QMutexLocker locker(&mutex_);
     initVariables();

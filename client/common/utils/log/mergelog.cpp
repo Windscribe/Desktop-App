@@ -231,7 +231,7 @@ QString MergeLog::formatErrorMessage(const QString &error)
 
 void MergeLog::verifyLogFileExists(const QString& logFile, QString &log)
 {
-    if (!QFile::exists(logFile)) {
+    if (!logFile.isEmpty() && !QFile::exists(logFile)) {
         log += formatErrorMessage(QString("'%1' log file is missing.").arg(logFile));
     }
 }
