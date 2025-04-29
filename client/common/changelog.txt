@@ -1,3 +1,9 @@
+2.15.6 (29/04/2025)
+All:
+   * Fixed translations for Arabic/Farsi in Decoy Traffic. #1346
+   * Updated ctrld to 1.4.3. #1347
+
+
 2.15.5 (25/04/2025)
 All:
    * Fixed incorrect comparison when importing location renames. #1323

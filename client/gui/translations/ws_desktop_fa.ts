@@ -1328,7 +1328,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>%1/hour</source>
-        <translation>٪1 در ساعت</translation>
+        <translation>%1 در ساعت</translation>
     </message>
 </context>
 <context>
