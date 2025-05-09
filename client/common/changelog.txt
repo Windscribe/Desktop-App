@@ -1,3 +1,8 @@
+2.15.7 (07/05/2025)
+All:
+   * Fixed CI-produced macOS artifacts generate a 'one or more files in the app bundle have been suspiciously modified' error from macOS. #1352
+
+
 2.15.6 (29/04/2025)
 All:
    * Fixed translations for Arabic/Farsi in Decoy Traffic. #1346

@@ -459,11 +459,12 @@ build:win:arm64:bootstrap:
 
 .build_mac_installer_common:
   script:
-    # Download the provisioning profiles
-    - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
     - OS_IDENTIFIER="macos"
     - !reference [.download_dependencies_posix, script]
     - if [ -d ./${BUILD_LIBS_FOLDER}/ ]; then for z in ./${BUILD_LIBS_FOLDER}/*.zip; do unzip -qod ./${BUILD_LIBS_FOLDER} $z; done; fi
+    # Download the provisioning profiles from Nexus
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o backend/mac/provisioning_profile/embedded.provisionprofile "$NEXUS_PATH_ROOT/secrets/embedded.provisionprofile"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o backend/mac/provisioning_profile/splittunnelextension.provisionprofile "$NEXUS_PATH_ROOT/secrets/splittunnelextension.provisionprofile"
     - VERSION=$(python3 tools/base/extract.py)
 
 build:mac:installer:
@@ -472,7 +473,6 @@ build:mac:installer:
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    SECURE_FILES_DOWNLOAD_PATH: 'backend/mac/provisioning_profile'
   script:
     - !reference [.build_mac_installer_common, script]
     - tools/build_all --ci-mode --sign
@@ -488,7 +488,6 @@ build:mac:installer:mr:
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    SECURE_FILES_DOWNLOAD_PATH: 'backend/mac/provisioning_profile'
   script:
     - !reference [.build_mac_installer_common, script]
     - tools/build_all --ci-mode --sign
@@ -501,7 +500,6 @@ build:mac:installer:tagged:
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    SECURE_FILES_DOWNLOAD_PATH: 'backend/mac/provisioning_profile'
   script:
     - !reference [.build_mac_installer_common, script]
     # Only tagged builds are notarized
