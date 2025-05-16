@@ -1,3 +1,8 @@
+2.15.8 (16/05/2025)
+MacOS:
+   * Fixed delayed app shutdown on MacOS. #1353
+
+
 2.15.7 (07/05/2025)
 All:
    * Fixed CI-produced macOS artifacts generate a 'one or more files in the app bundle have been suspiciously modified' error from macOS. #1352

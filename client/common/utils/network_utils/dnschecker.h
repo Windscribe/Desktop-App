@@ -1,13 +1,12 @@
 #pragma once
 
-#include <QDnsLookup>
-#include <QObject>
-#include <QString>
-#include <QTimer>
+#include <QThread>
 
 namespace NetworkUtils {
 
-class DnsChecker : public QObject
+// Implemented on the basis of c-ares
+// Do not use QDnsLookup here, as it can block program termination for a long time
+class DnsChecker : public QThread
 {
     Q_OBJECT
 public:
@@ -20,13 +19,14 @@ public:
 signals:
     void dnsCheckCompleted(bool available);
 
-private slots:
-    void handleLookupFinished();
-    void handleTimeout();
+protected:
+    void run() override;
 
 private:
-    QDnsLookup *dnsLookup_;
-    QTimer timer_;
+    QString dnsAddress_;
+    uint port_;
+    int timeoutMs_;
+    std::atomic_bool bFinish_ = false;
 };
 
 } // namespace NetworkUtils
