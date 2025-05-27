@@ -257,7 +257,7 @@ void LocationsTrayMenuWidget::updateSubmenuForSelection()
                 for (int i = 0; i < citiesCount; ++i)
                 {
                     QModelIndex cityInd = curIndex.model()->index(i, 0, curIndex);
-                    QString cityName = cityInd.data().toString();
+                    QString cityName = cityInd.data().toString() + " - " + cityInd.data(gui_locations::kDisplayNickname).toString();
                     bool isShowAsPremium = cityInd.data(gui_locations::kIsShowAsPremium).toBool();
                     if (isShowAsPremium)
                     {

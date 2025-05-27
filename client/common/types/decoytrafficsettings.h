@@ -40,8 +40,6 @@ public:
     friend QDataStream& operator <<(QDataStream &stream, const DecoyTrafficSettings &o);
     friend QDataStream& operator >>(QDataStream &stream, DecoyTrafficSettings &o);
 
-    friend QDebug operator<<(QDebug dbg, const DecoyTrafficSettings &ds);
-
 private:
     bool bEnabled_ = false;
     DecoyTrafficVolume volume_ = DecoyTrafficVolume::kLow;
@@ -54,4 +52,3 @@ private:
 };
 
 } //namespace types
-

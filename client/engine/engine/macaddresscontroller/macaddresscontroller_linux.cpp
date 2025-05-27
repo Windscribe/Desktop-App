@@ -36,7 +36,7 @@ void MacAddressController_linux::setMacAddrSpoofing(const types::MacAddrSpoofing
     }
 
     qCInfo(LOG_BASIC) << "MacAddressController_linux::setMacAddrSpoofing MacAddrSpoofing has changed.";
-    qCInfo(LOG_BASIC) << spoofing;
+    qCInfo(LOG_BASIC) << "MacAddrSpoofing settings:" << spoofing.toJson(true);
 
     if (spoofing.isEnabled) {
         bool autoRotateChanged = (spoofing_.isAutoRotate != spoofing.isAutoRotate);

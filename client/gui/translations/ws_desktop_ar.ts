@@ -1295,6 +1295,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>تحديد وحدة الإرسال الكبرى تلقائيا لاتصالك، أو تجاوزها يدويا. هذا ليس له أي تأثير على البروتوكولات المستندة إلى TCP.</translation>
     </message>
+    <message>
+        <source>Caution</source>
+        <translation>أنذر</translation>
+    </message>
+    <message>
+        <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
+        <translation>في وضع جدار الحماية هذا ، لن تكون واجهة برمجة تطبيقات Windscribe متاحة أثناء قطع الاتصال ، وقد يكون لذلك عواقب غير مقصودة. استخدم على مسؤوليتهم الخاصة.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DecoyTrafficGroup</name>
@@ -2406,6 +2414,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Latency test failed</source>
         <translation>فشل اختبار زمن الوصول</translation>
+    </message>
+    <message>
+        <source>Always On+</source>
+        <translation>تشغيل دائما+</translation>
     </message>
 </context>
 <context>

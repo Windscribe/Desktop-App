@@ -1295,6 +1295,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>स्वचालित रूप से अपने कनेक्शन के लिए MTU निर्धारित करें, या मैन्युअल रूप से ओवरराइड करें।  TCP-आधारित प्रोटोकॉल पर इसका कोई प्रभाव नहीं है।</translation>
     </message>
+    <message>
+        <source>Caution</source>
+        <translation>सावधानी</translation>
+    </message>
+    <message>
+        <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
+        <translation>इस फ़ायरवॉल मोड में, डिस्कनेक्ट होने पर विंडसाइड एपीआई उपलब्ध नहीं होगा, इसके अनपेक्षित परिणाम हो सकते हैं। अपने जोखिम पर उपयोग करें।</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DecoyTrafficGroup</name>
@@ -2406,6 +2414,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Latency test failed</source>
         <translation>विलंबता परीक्षण विफल रहा</translation>
+    </message>
+    <message>
+        <source>Always On+</source>
+        <translation>हमेशा चालू+</translation>
     </message>
 </context>
 <context>

@@ -116,20 +116,25 @@ struct NetworkInterface
         return (interfaceIndex == -1 && interfaceType == NETWORK_INTERFACE_NONE && interfaceName == "No Interface");
     }
 
-    QJsonObject toJson() const
+    QJsonObject toJson(bool isForDebugLog) const
     {
         QJsonObject json;
-        json[kJsonInterfaceIndexProp] = interfaceIndex;
-        json[kJsonInterfaceNameProp] = Utils::toBase64(interfaceName);
-        json[kJsonInterfaceGuidProp] = Utils::toBase64(interfaceGuid);
-        json[kJsonNetworkOrSsidProp] = Utils::toBase64(networkOrSsid);
-        json[kJsonInterfaceTypeProp] = static_cast<int>(interfaceType);
-        json[kJsonTrustTypeProp] = static_cast<int>(trustType);
-        json[kJsonActiveProp] = active;
-        json[kJsonFriendlyNameProp] = Utils::toBase64(friendlyName);
-        json[kJsonMetricProp] = metric;
-        json[kJsonPhysicalAddressProp] = Utils::toBase64(physicalAddress);
-        json[kJsonMtuProp] = mtu;
+        if (isForDebugLog) {
+            json[kJsonNetworkOrSsidProp] = networkOrSsid;
+            json[kJsonFriendlyNameProp] = friendlyName;
+        } else {
+            json[kJsonInterfaceIndexProp] = interfaceIndex;
+            json[kJsonInterfaceNameProp] = Utils::toBase64(interfaceName);
+            json[kJsonInterfaceGuidProp] = Utils::toBase64(interfaceGuid);
+            json[kJsonNetworkOrSsidProp] = Utils::toBase64(networkOrSsid);
+            json[kJsonInterfaceTypeProp] = static_cast<int>(interfaceType);
+            json[kJsonTrustTypeProp] = static_cast<int>(trustType);
+            json[kJsonActiveProp] = active;
+            json[kJsonFriendlyNameProp] = Utils::toBase64(friendlyName);
+            json[kJsonMetricProp] = metric;
+            json[kJsonPhysicalAddressProp] = Utils::toBase64(physicalAddress);
+            json[kJsonMtuProp] = mtu;
+        }
         return json;
     }
 
@@ -184,15 +189,6 @@ struct NetworkInterface
             stream >> state >> dwType >> deviceName >> connectorPresent >> endPointInterface; // Deprecated
         }
         return stream;
-    }
-
-    friend QDebug operator<<(QDebug dbg, const NetworkInterface &ni)
-    {
-        QDebugStateSaver saver(dbg);
-        dbg.nospace();
-        dbg << "{friendlyName:" << ni.friendlyName << "; ";
-        dbg << "networkOrSsid:" << ni.networkOrSsid << "}";
-        return dbg;
     }
 
 private:

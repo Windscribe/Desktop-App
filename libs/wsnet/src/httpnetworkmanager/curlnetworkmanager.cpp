@@ -388,7 +388,7 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
 
     curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_PRIVATE, new std::uint64_t(requestInfo->id));    // our user data, must be deleted in the RequestInfo destructor
 
-#if (defined(_WIN32) || (defined(__APPLE__) && defined(TARGET_OS_OSX)) || (defined(__linux__) && !defined(__ANDROID__)))
+#if (!defined(IS_MOBILE_PLATFORM))
     // Set OQS KEMs for desktop platforms only, and only when WS_DISABLE_OQS is not set.
     // This env variable is set during testing since curl has a hardcoded search path.
     if (getenv("WS_DISABLE_OQS") == nullptr) {

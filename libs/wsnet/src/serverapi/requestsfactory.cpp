@@ -2,20 +2,23 @@
 #include "setrobertfilter_request.h"
 #include "serverlocations_request.h"
 #include "utils/utils.h"
-
+#include "utils/urlquery_utils.h"
 #include <cpp-base64/base64.h>
 #include <cpp-base64/base64.cpp>
 
 namespace wsnet {
 
-BaseRequest *requests_factory::login(const std::string &username, const std::string &password, const std::string &code2fa, const std::string &sessionTypeId, RequestFinishedCallback callback)
+BaseRequest *requests_factory::login(const std::string &username, const std::string &password, const std::string &code2fa,
+                                     const std::string &sessionTypeId, const std::string &secureToken, const std::string &captchaSolution,
+                                     const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
     extraParams["username"] = username;
     extraParams["password"] = password;
     extraParams["2fa_code"] = code2fa;
     extraParams["session_type_id"] = sessionTypeId;
-
+    auto captchaParams = urlquery_utils::buildCaptchaParams(secureToken, captchaSolution, captchaTrailX, captchaTrailY);
+    extraParams.insert(captchaParams.begin(), captchaParams.end());
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "Session", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
     return request;
@@ -127,7 +130,8 @@ BaseRequest *requests_factory::addEmail(const std::string &authHash, const std::
 }
 
 BaseRequest *requests_factory::signup(const std::string &username, const std::string &password, const std::string &referringUsername, const std::string &email,
-                                      const std::string &sessionTypeId, const std::string &voucherCode, RequestFinishedCallback callback)
+                                      const std::string &sessionTypeId, const std::string &voucherCode, const std::string &secureToken, const std::string &captchaSolution,
+                                      const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
     extraParams["session_type_id"] = sessionTypeId;
@@ -136,6 +140,8 @@ BaseRequest *requests_factory::signup(const std::string &username, const std::st
     extraParams["referring_username"] = referringUsername;
     extraParams["email"] = email;
     extraParams["voucher_code"] = voucherCode;
+    auto captchaParams = urlquery_utils::buildCaptchaParams(secureToken, captchaSolution, captchaTrailX, captchaTrailY);
+    extraParams.insert(captchaParams.begin(), captchaParams.end());
     return new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "Users", extraParams, callback);
 }
 
@@ -425,6 +431,29 @@ BaseRequest *requests_factory::cancelAccount(const std::string &authHash, const 
     extraParams["type"] = "account";
     extraParams["message"] = "iOS inapp deletetion";
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "Cancel", extraParams, callback);
+    request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    return request;
+}
+BaseRequest* requests_factory::sso(const std::string& provider, const std::string& token, RequestFinishedCallback callback)
+{
+    std::map<std::string, std::string> extraParams;
+    extraParams["token"] = token;
+    std::string path = "Sso/" + provider;
+    auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, path, extraParams, callback);
+    request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    return request;
+}
+BaseRequest* requests_factory::authTokenLogin(RequestFinishedCallback callback)
+{
+    std::map<std::string, std::string> extraParams;
+    auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "AuthToken/login", extraParams, callback);
+    request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    return request;
+}
+BaseRequest* requests_factory::authTokenSignup(RequestFinishedCallback callback)
+{
+    std::map<std::string, std::string> extraParams;
+    auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "AuthToken/signup", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
     return request;
 }

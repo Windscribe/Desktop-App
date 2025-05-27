@@ -534,7 +534,7 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
     // This block handles initializing the firewall state on next run
     if (PersistentState::instance().isFirewallOn() && backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_AUTOMATIC) {
         PersistentState::instance().setFirewallState(false);
-    } else if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
+    } else if (backend_->getPreferences()->firewallSettings().isAlwaysOnMode()) {
         PersistentState::instance().setFirewallState(true);
     }
     qCInfo(LOG_BASIC) << "Firewall on next startup: " << PersistentState::instance().isFirewallOn();
@@ -1701,7 +1701,7 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
     mainWindowController_->getPreferencesWindow()->setLoggedIn(true);
     mainWindowController_->getTwoFactorAuthWindow()->clearCurrentCredentials();
 
-    if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON)
+    if (backend_->getPreferences()->firewallSettings().isAlwaysOnMode())
     {
         backend_->firewallOn();
         mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
@@ -2175,7 +2175,7 @@ void MainWindow::onBackendCleanupFinished()
 
 void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
 {
-    if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
+    if (backend_->getPreferences()->firewallSettings().isAlwaysOnMode()) {
         backend_->firewallOn();
         mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
     }
@@ -2725,7 +2725,7 @@ void MainWindow::onNotificationControllerNewPopupMessage(int messageId)
 
 void MainWindow::onPreferencesFirewallSettingsChanged(const types::FirewallSettings &fm)
 {
-    if (fm.mode == FIREWALL_MODE_ALWAYS_ON)
+    if (fm.isAlwaysOnMode())
     {
         mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
         if (!PersistentState::instance().isFirewallOn())
@@ -3512,7 +3512,7 @@ void MainWindow::setInitialFirewallState()
 
     if (bLaunchedOnStartup) {
         // After a reboot, we should NOT use the persisted firewall state, unless firewall is always on, or it was manual.
-        if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
+        if (backend_->getPreferences()->firewallSettings().isAlwaysOnMode()) {
             backend_->firewallOn();
             mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
         } else if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_MANUAL && bFirewallStateOn) {
@@ -3527,7 +3527,7 @@ void MainWindow::setInitialFirewallState()
         // - The firewall is set to always on.
         // - The firewall was on and the app stopped without a chance to cleanup (crashed, or force killed, etc)
         // - The app was updated while the firewall was on.
-        if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
+        if (backend_->getPreferences()->firewallSettings().isAlwaysOnMode()) {
             backend_->firewallOn();
             mainWindowController_->getConnectWindow()->setFirewallAlwaysOn(true);
         } else if (bFirewallStateOn) {

@@ -38,10 +38,12 @@ const QString WS_WG_UDP_STUFFING = WS_PREFIX + "wireguard-udp-stuffing";
 const QString WS_SERVERLIST_COUNTRY_OVERRIDE = WS_PREFIX + "serverlist-country-override";
 
 const QString WS_USE_OPENVPN_WINTUN = WS_PREFIX + "use-openvpn-wintun";
+const QString WS_USE_PUBLIC_NETWORK_CATEGORY = WS_PREFIX + "use-public-network-category";
 
 const QString WS_LOG_CTRLD = WS_PREFIX + "log-ctrld";
 const QString WS_LOG_PINGS = WS_PREFIX + "log-pings";
 const QString WS_LOG_SPLITTUNNELEXTENSION = WS_PREFIX + "log-splittunnelextension";
+const QString WS_NO_PINGS = WS_PREFIX + "no-pings";
 
 
 void ExtraConfig::writeConfig(const QString &cfg)
@@ -288,6 +290,11 @@ bool ExtraConfig::getWireGuardUdpStuffing()
     return getFlagFromExtraConfigLines(WS_WG_UDP_STUFFING);
 }
 
+bool ExtraConfig::getNoPings()
+{
+    return getFlagFromExtraConfigLines(WS_NO_PINGS);
+}
+
 std::optional<QString> ExtraConfig::serverlistCountryOverride()
 {
     auto value = getValue(WS_SERVERLIST_COUNTRY_OVERRIDE);
@@ -374,6 +381,11 @@ bool ExtraConfig::useOpenVpnDCO()
     }
 #endif
     return useDCO;
+}
+
+bool ExtraConfig::usePublicNetworkCategory()
+{
+    return getFlagFromExtraConfigLines(WS_USE_PUBLIC_NETWORK_CATEGORY);
 }
 
 ExtraConfig::ExtraConfig() : path_(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)

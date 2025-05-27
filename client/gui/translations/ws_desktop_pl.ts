@@ -1295,6 +1295,14 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Automatycznie określ jednostkę MTU dla swojego połączenia lub zastąp ją ręcznie.  Nie ma to wpływu na protokoły oparte na protokole TCP.</translation>
     </message>
+    <message>
+        <source>Caution</source>
+        <translation>Ostrożność</translation>
+    </message>
+    <message>
+        <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
+        <translation>W tym trybie zapory interfejs API Windscribe nie będzie dostępny po rozłączeniu, co może mieć niezamierzone konsekwencje. Używaj na własne ryzyko.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DecoyTrafficGroup</name>
@@ -2406,6 +2414,10 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
     <message>
         <source>Latency test failed</source>
         <translation>Test opóźnienia nie powiódł się</translation>
+    </message>
+    <message>
+        <source>Always On+</source>
+        <translation>Zawsze włączony+</translation>
     </message>
 </context>
 <context>

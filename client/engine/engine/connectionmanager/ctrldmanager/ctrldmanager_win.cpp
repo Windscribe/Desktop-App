@@ -131,23 +131,11 @@ QString CtrldManager_win::getNextStringFromInputBuffer(bool &bSuccess, int &outS
 
 QString CtrldManager_win::getAvailableIp()
 {
-    // reset if we previously failed to find an available IP
-    if (listenIp_.isEmpty()) {
-        listenIp_ = "127.0.0.1";
-    }
+    listenIp_ = "127.0.0.1";
 
-    if (!AvailablePort::isPortBusy(listenIp_, 53))
+    if (!AvailablePort::isPortBusy(listenIp_, 53)) {
         return listenIp_;
-
-    for (int i = 1; i <= 255; ++i) {
-        QString ip = QString("127.0.0.%1").arg(i);
-        if (ip != listenIp_ && !AvailablePort::isPortBusy(ip, 53)) {
-            listenIp_ = ip;
-            return listenIp_;
-        }
     }
-    // All IP-addresses are occupied
-    listenIp_.clear();
     return "";
 }
 

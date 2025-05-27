@@ -1295,6 +1295,14 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Secara otomatis menentukan MTU untuk koneksi Anda, atau mengganti secara manual.  Ini tidak berpengaruh pada protokol berbasis TCP.</translation>
     </message>
+    <message>
+        <source>Caution</source>
+        <translation>Hati</translation>
+    </message>
+    <message>
+        <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
+        <translation>Dalam mode firewall ini, API Windscribe tidak akan tersedia saat terputus, ini dapat memiliki konsekuensi yang tidak diinginkan. Gunakan dengan risiko sendiri.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DecoyTrafficGroup</name>
@@ -2406,6 +2414,10 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Latency test failed</source>
         <translation>Pengujian latensi gagal</translation>
+    </message>
+    <message>
+        <source>Always On+</source>
+        <translation>Selalu Aktif+</translation>
     </message>
 </context>
 <context>

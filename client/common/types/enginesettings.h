@@ -47,7 +47,7 @@ struct EngineSettingsData : public QSharedData
     QString language;
 
     void fromJson(const QJsonObject &json);
-    QJsonObject toJson() const;
+    QJsonObject toJson(bool isForDebugLog) const;
     void fromIni(QSettings &settings);
     void toIni(QSettings &settings) const;
 
@@ -150,7 +150,7 @@ public:
 
     bool operator==(const EngineSettings &other) const;
     bool operator!=(const EngineSettings &other) const;
-    QJsonObject toJson() const;
+    QJsonObject toJson(bool isForDebugLog) const;
     void fromIni(QSettings &settings);
     void toIni(QSettings & settings) const;
 

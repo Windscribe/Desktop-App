@@ -358,13 +358,15 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     vpnAdapterInfo_ = connectionAdapterInfo;
 
 #ifdef Q_OS_WIN
-    // Set network category
-    if (connector_->getConnectionType() == ConnectionType::WIREGUARD) {
-        helper_->setNetworkCategory(QString::fromStdWString(kWireGuardAdapterIdentifier), NETWORK_CATEGORY_PRIVATE);
-    } else if (connector_->getConnectionType() == ConnectionType::OPENVPN) {
-        helper_->setNetworkCategory(QString::fromStdWString(kOpenVPNAdapterIdentifier), NETWORK_CATEGORY_PRIVATE);
-    } else {
-        helper_->setNetworkCategory(vpnAdapterInfo_.adapterName(), NETWORK_CATEGORY_PRIVATE);
+    if (!ExtraConfig::instance().usePublicNetworkCategory()) {
+        // Set network category
+        if (connector_->getConnectionType() == ConnectionType::WIREGUARD) {
+            helper_->setNetworkCategory(QString::fromStdWString(kWireGuardAdapterIdentifier), NETWORK_CATEGORY_PRIVATE);
+        } else if (connector_->getConnectionType() == ConnectionType::OPENVPN) {
+            helper_->setNetworkCategory(QString::fromStdWString(kOpenVPNAdapterIdentifier), NETWORK_CATEGORY_PRIVATE);
+        } else {
+            helper_->setNetworkCategory(vpnAdapterInfo_.adapterName(), NETWORK_CATEGORY_PRIVATE);
+        }
     }
 #endif
 
@@ -977,7 +979,6 @@ void ConnectionManager::doConnectPart2()
     {
         if (currentConnectionDescr_.protocol.isOpenVpnProtocol())
         {
-
             int mss = 0;
             if (!packetSize_.isAutomatic)
             {
@@ -1055,9 +1056,17 @@ void ConnectionManager::doConnectPart2()
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
-            qCInfo(LOG_CONNECTION) << "Requesting WireGuard config for hostname =" << currentConnectionDescr_.hostname;
-            QString deviceId = (isStaticIpsLocation() ? GetDeviceId::instance().getDeviceId() : QString());
-            getWireGuardConfig(currentConnectionDescr_.hostname, false, deviceId);
+            // We can't get a config with Firewall Always On+ mode
+            // In the normal logic of program execution, we should not here be
+            if (isFirewallAlwaysOnPlusEnabled_) {
+                qCInfo(LOG_CONNECTION) << "Skip requesting WireGuard config since Firewall Always On+ mode is enabled";
+                disconnect();
+                emit errorDuringConnection(WIREGUARD_COULD_NOT_RETRIEVE_CONFIG);
+            } else {
+                qCInfo(LOG_CONNECTION) << "Requesting WireGuard config for hostname =" << currentConnectionDescr_.hostname;
+                QString deviceId = (isStaticIpsLocation() ? GetDeviceId::instance().getDeviceId() : QString());
+                getWireGuardConfig(currentConnectionDescr_.hostname, false, deviceId);
+            }
             return;
         }
     }
@@ -1544,12 +1553,26 @@ void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSe
         connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(bli_));
     } else if (connectionSettings.isAutomatic()) {
 #ifdef Q_OS_MACOS
-        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_, MacUtils::isLockdownMode()));
+        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_, MacUtils::isLockdownMode(), isFirewallAlwaysOnPlusEnabled_));
 #else
-        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_, false));
+        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_, false, isFirewallAlwaysOnPlusEnabled_));
 #endif
     } else {
-        connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli_, connectionSettings, portMap));
+        // override WireGuard protocol to ikev2 if Firewal is Awlays On+ mode enabled
+        types::ConnectionSettings overrideConnectionSettings = connectionSettings;
+        if (isFirewallAlwaysOnPlusEnabled_ && connectionSettings.protocol().isWireGuardProtocol()) {
+            auto it = portMap.getPortItemByProtocolType(types::Protocol::IKEV2);
+            // if no ikev2 in available protocol list then try UDP
+            if (!it) {
+                it = portMap.getPortItemByProtocolType(types::Protocol::OPENVPN_UDP);
+            }
+            if (it) {
+                // select the first port in the list
+                if (it->ports.size() > 0)
+                    overrideConnectionSettings = types::ConnectionSettings(it->protocol, it->ports[0], false);
+            }
+        }
+        connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli_, overrideConnectionSettings, portMap));
     }
     connSettingsPolicy_->start();
     connect(connSettingsPolicy_.data(), &BaseConnSettingsPolicy::hostnamesResolved, this, &ConnectionManager::onHostnamesResolved);
@@ -1609,6 +1632,11 @@ void ConnectionManager::onConnectTrigger()
 
 void ConnectionManager::setLastKnownGoodProtocol(const types::Protocol protocol) {
     lastKnownGoodProtocol_ = protocol;
+}
+
+void ConnectionManager::setFirewallAlwaysOnPlusEnabled(bool isEnabled)
+{
+    isFirewallAlwaysOnPlusEnabled_ = isEnabled;
 }
 
 void ConnectionManager::onConnectingTimeout()

@@ -92,6 +92,7 @@ public:
         const types::ProxySettings &proxySettings);
 
     void setLastKnownGoodProtocol(const types::Protocol protocol);
+    void setFirewallAlwaysOnPlusEnabled(bool isEnabled);
 
 signals:
     void connected();
@@ -201,6 +202,7 @@ private:
     int state_;
     bool bLastIsOnline_;
     bool bWakeSignalReceived_;
+    bool isFirewallAlwaysOnPlusEnabled_ = false;
 
     types::Protocol currentProtocol_;
 

@@ -12,10 +12,10 @@ FirewallController_win::~FirewallController_win()
 {
 }
 
-void FirewallController_win::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
+void FirewallController_win::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, bool isVpnConnected)
 {
     QMutexLocker locker(&mutex_);
-    FirewallController::firewallOn(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig);
+    FirewallController::firewallOn(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, isVpnConnected);
     if (isStateChanged())
     {
         QString ipStr;

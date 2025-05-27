@@ -1295,6 +1295,14 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Bağlantınız için MTU&apos;yu otomatik olarak belirleyin veya manuel olarak geçersiz kılın.  Bunun TCP tabanlı protokoller üzerinde hiçbir etkisi yoktur.</translation>
     </message>
+    <message>
+        <source>Caution</source>
+        <translation>Dikkat</translation>
+    </message>
+    <message>
+        <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
+        <translation>Bu güvenlik duvarı modunda, bağlantı kesildiğinde Windscribe API&apos;si kullanılamaz, bunun istenmeyen sonuçları olabilir. Kendi sorumluluğunuzdadır kullanın.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DecoyTrafficGroup</name>
@@ -2406,6 +2414,10 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Latency test failed</source>
         <translation>Gecikme testi başarısız oldu</translation>
+    </message>
+    <message>
+        <source>Always On+</source>
+        <translation>Her Zaman Açık+</translation>
     </message>
 </context>
 <context>

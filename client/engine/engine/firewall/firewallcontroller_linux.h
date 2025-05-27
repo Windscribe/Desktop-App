@@ -12,7 +12,7 @@ public:
     explicit FirewallController_linux(QObject *parent, Helper *helper);
     ~FirewallController_linux() override;
 
-    void firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig) override;
+    void firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, bool isVpnConnected) override;
     void firewallOff() override;
     bool firewallActualState() override;
 

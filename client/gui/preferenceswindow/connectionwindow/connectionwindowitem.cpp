@@ -225,6 +225,20 @@ void ConnectionWindowItem::showPacketSizeDetectionError(const QString &title,
 
 void ConnectionWindowItem::onFirewallPreferencesChangedByUser(const types::FirewallSettings &fm)
 {
+    // Show a warning for "Firewall Always On+" mode
+    if (fm.mode == FIREWALL_MODE_ALWAYS_ON_PLUS) {
+        GeneralMessageController::instance().showMessage(
+            "WARNING_YELLOW",
+            tr("Caution"),
+            tr("In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk."),
+            GeneralMessageController::tr(GeneralMessageController::kOk),
+            "",
+            "",
+            std::function<void(bool)>(nullptr),
+            std::function<void(bool)>(nullptr),
+            std::function<void(bool)>(nullptr),
+            GeneralMessage::kFromPreferences);
+    }
     preferences_->setFirewallSettings(fm);
 }
 

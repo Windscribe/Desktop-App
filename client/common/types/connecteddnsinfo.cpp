@@ -161,13 +161,4 @@ QDataStream& operator >>(QDataStream &stream, ConnectedDnsInfo &o)
     return stream;
 }
 
-
-QDebug operator<<(QDebug dbg, const ConnectedDnsInfo &ds)
-{
-    QDebugStateSaver saver(dbg);
-    dbg.nospace();
-    dbg << "{type:" << ds.type << "}";
-    return dbg;
-}
-
 } // types namespace

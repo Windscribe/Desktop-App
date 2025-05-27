@@ -23,6 +23,7 @@ public:
 
     void removeUnusedNodes(const QSet<QString> &ips);
     bool isAllNodesHaveCurIteration() const;
+    void clearAllPingData();
 
 private:
     struct PingData

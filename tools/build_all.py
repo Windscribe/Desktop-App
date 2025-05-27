@@ -126,9 +126,9 @@ def update_arch_in_config(filename):
     with open(filename, "r") as f:
         filedata = f.read()
     # update Bundle Version
-    if platform.processor() == "x86_64":
+    if platform.machine() == "x86_64":
         filedata = re.sub("Architecture:[^\n]+", "Architecture: amd64", filedata, flags=re.M)
-    elif platform.processor() == "aarch64":
+    elif platform.machine() == "aarch64":
         filedata = re.sub("Architecture:[^\n]+", "Architecture: arm64", filedata, flags=re.M)
     with open(filename, "w") as f:
         f.write(filedata)
@@ -647,12 +647,12 @@ def build_installer_linux(configdata, qt_root):
         src_package_path = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "common")
         deb_files_path = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", build_config, "debian_package")
 
-        if platform.processor() == "x86_64":
+        if platform.machine() == "x86_64":
             if arghelper.build_cli_only():
                 dest_package_name = "windscribe-cli_{}_amd64".format(extractor.app_version(True))
             else:
                 dest_package_name = "windscribe_{}_amd64".format(extractor.app_version(True))
-        elif platform.processor() == "aarch64":
+        elif platform.machine() == "aarch64":
             if arghelper.build_cli_only():
                 dest_package_name = "windscribe-cli_{}_arm64".format(extractor.app_version(True))
             else:
@@ -694,8 +694,8 @@ def build_rpm(distro, build_config):
     iutl.RunCommand(["rpmbuild", "-bb", os.path.join(pathlib.Path.home(), "rpmbuild", "SPECS", "windscribe_rpm.spec")])
 
     # We use 'arm64' while rpmbuild uses 'aarch64'
-    arch1 = "x86_64" if platform.processor() == "x86_64" else "arm64"
-    arch2 = "x86_64" if platform.processor() == "x86_64" else "aarch64"
+    arch1 = "x86_64" if platform.machine() == "x86_64" else "arm64"
+    arch2 = "x86_64" if platform.machine() == "x86_64" else "aarch64"
 
     utl.CopyFile(os.path.join(pathlib.Path.home(), "rpmbuild", "RPMS", arch2, "windscribe{}-{}-0.{}.rpm".format("-cli" if arghelper.build_cli_only() else "", extractor.app_version(False), arch2)),
                  os.path.join(BUILD_INSTALLER_FILES, "..", "windscribe{}_{}_{}_{}.rpm".format("-cli" if arghelper.build_cli_only() else "", extractor.app_version(True), arch1, distro)))

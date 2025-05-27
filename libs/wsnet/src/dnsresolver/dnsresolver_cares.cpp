@@ -2,6 +2,7 @@
 #include <ares.h>
 #include "dnsresolver_cares.h"
 #include <assert.h>
+#include <fmt/ranges.h>
 #include "utils/wsnet_logger.h"
 #include "utils/requesterror.h"
 #include "utils/utils.h"
@@ -40,6 +41,7 @@ bool DnsResolver_cares::init()
 void DnsResolver_cares::setDnsServers(const std::vector<std::string> &dnsServers)
 {
     std::lock_guard locker(mutex_);
+    g_logger->info("Set dns servers by client: {}", fmt::join(dnsServers, ","));
     dnsServers_ = DnsServers(dnsServers);
 }
 

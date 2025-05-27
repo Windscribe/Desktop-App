@@ -162,6 +162,7 @@ FIREWALL_MODE FIREWALL_MODE_fromInt(int t)
     if (t == 0) return FIREWALL_MODE_MANUAL;
     else if (t == 1) return FIREWALL_MODE_AUTOMATIC;
     else if (t == 2) return FIREWALL_MODE_ALWAYS_ON;
+    else if (t == 3) return FIREWALL_MODE_ALWAYS_ON_PLUS;
     else {
         WS_ASSERT(false);
         return FIREWALL_MODE_AUTOMATIC;
@@ -174,6 +175,7 @@ FIREWALL_MODE FIREWALL_MODE_fromString(const QString &s)
     if (s == "Manual") return FIREWALL_MODE_MANUAL;
     else if (s == "Auto") return FIREWALL_MODE_AUTOMATIC;
     else if (s == "Always On") return FIREWALL_MODE_ALWAYS_ON;
+    else if (s == "Always On+") return FIREWALL_MODE_ALWAYS_ON_PLUS;
     else {
         WS_ASSERT(false);
         return FIREWALL_MODE_AUTOMATIC;
@@ -185,6 +187,7 @@ QString FIREWALL_MODE_toString(FIREWALL_MODE t)
     if (t == FIREWALL_MODE_MANUAL) return QObject::tr("Manual");
     else if (t == FIREWALL_MODE_AUTOMATIC) return QObject::tr("Auto");
     else if (t == FIREWALL_MODE_ALWAYS_ON) return QObject::tr("Always On");
+    else if (t == FIREWALL_MODE_ALWAYS_ON_PLUS) return QObject::tr("Always On+");
     else {
         WS_ASSERT(false);
         return QObject::tr("UNKNOWN");
@@ -197,6 +200,7 @@ QList<QPair<QString, QVariant>> FIREWALL_MODE_toList()
     l << qMakePair(FIREWALL_MODE_toString(FIREWALL_MODE_MANUAL), FIREWALL_MODE_MANUAL);
     l << qMakePair(FIREWALL_MODE_toString(FIREWALL_MODE_AUTOMATIC), FIREWALL_MODE_AUTOMATIC);
     l << qMakePair(FIREWALL_MODE_toString(FIREWALL_MODE_ALWAYS_ON), FIREWALL_MODE_ALWAYS_ON);
+    l << qMakePair(FIREWALL_MODE_toString(FIREWALL_MODE_ALWAYS_ON_PLUS), FIREWALL_MODE_ALWAYS_ON_PLUS);
     return l;
 }
 

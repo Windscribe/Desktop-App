@@ -71,7 +71,7 @@
     </message>
     <message>
         <source>Connect to rate</source>
-        <translation>连接费率</translation>
+        <translation>连接质量</translation>
     </message>
 </context>
 <context>
@@ -280,7 +280,7 @@
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
         <source>Add</source>
-        <translation>加</translation>
+        <translation>添加</translation>
     </message>
 </context>
 <context>
@@ -311,7 +311,7 @@
     </message>
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
-        <translation>无法导出日志。 确保您有文件访问权限。</translation>
+        <translation>无法导出日志，请确保您有文件访问权限。</translation>
     </message>
 </context>
 <context>
@@ -472,7 +472,7 @@
     </message>
     <message>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>应用程序已损坏。 请重新安装 Windscribe。</translation>
+        <translation>应用程序已损坏，请重新安装 Windscribe。</translation>
     </message>
     <message>
         <source>Validation Error</source>
@@ -500,7 +500,7 @@
     </message>
     <message>
         <source>Could not start &apos;Base Filtering Engine&apos; service.  Please enable this service manually in Windows Services.</source>
-        <translation>无法启动“基本筛选引擎”服务。 请在 Windows 服务中手动启用此服务。</translation>
+        <translation>无法启动“Base Filtering Engine”服务，请在 Windows 服务中手动启用此服务。</translation>
     </message>
     <message>
         <source>Failed to Start</source>
@@ -692,7 +692,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
-        <translation>建立 VPN 连接时发生意外错误（错误 %1）。 如果此错误仍然存在，请尝试使用其他协议或联系支持人员。</translation>
+        <translation>建立 VPN 连接时发生意外错误（错误 %1）。如果此错误仍然存在，请尝试使用其他协议或联系支持人员。</translation>
     </message>
     <message>
         <source>Connection Error</source>
@@ -788,11 +788,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>...hmm are you sure this is correct?</source>
-        <translation>啊？这好像不对呢</translation>
+        <translation>Hmm，这看起来不太对呢</translation>
     </message>
     <message>
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
-        <translation>Windscribe 检测到 Wi-Fi 当前已关闭。要使用安全热点，必须打开 Wi-Fi。</translation>
+        <translation>Windscribe 检测到当前 Wi-Fi 已关闭。要使用安全热点，必须打开 Wi-Fi。</translation>
     </message>
     <message>
         <source>Location Services is disabled</source>
@@ -800,27 +800,27 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
-        <translation>Windscribe 需要定位服务来确定您的 Wi-Fi SSID。如果未启用，则每个网络的设置将应用于所有 Wi-Fi 网络。请在您的系统设置中启用定位服务并授予 Windscribe 的权限。</translation>
+        <translation>Windscribe 需要定位服务来确定您的 Wi-Fi SSID。如果未启用，则网络设置将应用于所有 Wi-Fi 网络。请在您的系统设置中启用定位服务并将权限授予 Windscribe。</translation>
     </message>
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
-        <translation>Windscribe 需要定位服务来确定您的 Wi-Fi SSID。如果未启用，则每个网络的设置将应用于所有 Wi-Fi 网络。请在系统设置中启用定位服务。</translation>
+        <translation>Windscribe 需要定位服务来确定您的 Wi-Fi SSID。如果未启用，则网络设置将应用于所有 Wi-Fi 网络。请在系统设置中启用定位服务。</translation>
     </message>
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
-        <translation>如果您使用的是受限网络，请先连接 VPN，然后再尝试再次下载。</translation>
+        <translation>如果您使用的是受限网络，请先连接 VPN，然后再次尝试下载。</translation>
     </message>
     <message>
         <source>Custom Config Directory Import</source>
-        <translation>自定义配置目录导入</translation>
+        <translation>导入自定义配置目录</translation>
     </message>
     <message>
         <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>正在导入自定义配置目录。 Windscribe 将提示您输入管理员密码以检查正确的权限。</translation>
+        <translation>正在导入自定义配置目录。Windscribe 将提示您输入管理员密码以验证权限是否正确。</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
-        <translation>您的“连接的 DNS”服务器设置为操作系统默认 DNS 服务器，这将导致 DNS 泄漏。 它已更改为 Auto。</translation>
+        <translation>您正在使用的是操作系统默认的 DNS 服务器，这将导致 DNS 泄漏。我们已将其更改为自动配置。</translation>
     </message>
     <message>
         <source>Invalid DNS Settings</source>
@@ -848,7 +848,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Import Location Names From</source>
-        <translation>导入位置名称自</translation>
+        <translation>导入位置名称</translation>
     </message>
     <message>
         <source>Unable to import location names</source>
@@ -856,7 +856,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>拆分隧道功能已被禁用，因为 Windscribe 拆分隧道扩展未在系统设置中启用。 要使用此功能，请在 系统设置中启用该扩展，然后再次开启该功能。</translation>
+        <translation>拆分隧道功能已被禁用，因为 Windscribe 拆分隧道扩展未在系统设置中启用。要使用此功能，请在系统设置中启用该扩展，然后再次开启该功能。</translation>
     </message>
     <message>
         <source>Debug Log Sent!</source>
@@ -864,11 +864,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
-        <translation>无法连接到 Windscribe 服务。 Windscribe 现在将退出。 请联系支持人员。</translation>
+        <translation>无法连接到 Windscribe 服务，Windscribe 即将退出。请联系支持人员。</translation>
     </message>
     <message>
         <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
-        <translation>失去与 Windscribe 服务的连接。 Windscribe 现在将退出。 向我们发送调试日志，以便我们改进此问题。</translation>
+        <translation>与 Windscribe 服务的连接已丢失，Windscribe 即将退出。请向我们发送调试日志，以便我们能够改进并优化程序。</translation>
     </message>
     <message>
         <source>Local DNS server is not available</source>
@@ -876,7 +876,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>The local DNS server is not available.  Connected DNS has been set back to Auto.</source>
-        <translation>本地 DNS 服务器不可用。 连接的 DNS 已设置回 Auto（自动）。</translation>
+        <translation>本地 DNS 服务器不可用，DNS 设置已切换回 Auto（自动）。</translation>
     </message>
     <message>
         <source>DNS Server Conflict</source>
@@ -884,7 +884,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
-        <translation>无法启动自定义 DNS 服务 - 端口 53 已在使用中。 是否要将已连接的 DNS 更改为本地服务器？</translation>
+        <translation>无法启动自定义 DNS 服务，端口 53 已在使用中。是否要将已连接的 DNS 更改为本地服务器？</translation>
     </message>
 </context>
 <context>
@@ -979,7 +979,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Changelog</source>
-        <translation>更改日志</translation>
+        <translation>更新日志</translation>
     </message>
 </context>
 <context>
@@ -1053,7 +1053,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Prevents connections from dying (by time-out) by periodically pinging the server.</source>
-        <translation>通过定期 ping 服务器来防止连接停止（超时）。</translation>
+        <translation>通过定期 ping 服务器来保持连接。</translation>
     </message>
     <message>
         <source>Client-side Keepalive</source>
@@ -1065,11 +1065,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Warning: Using &quot;OS Default&quot; may sometimes cause DNS leaks during reconnects.</source>
-        <translation>警告：使用“操作系统默认值”有时可能会导致重新连接期间 DNS 泄漏。</translation>
+        <translation>警告：使用“操作系统默认值”有可能会在重新连接期间导致 DNS 泄漏。</translation>
     </message>
     <message>
         <source>App Internal DNS</source>
-        <translation>应用内部 DNS</translation>
+        <translation>应用程序内部 DNS</translation>
     </message>
     <message>
         <source>Select the DNS system service Windscribe enforces. Experienced users only.</source>
@@ -1182,7 +1182,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
-        <translation>使用 LAN 或本地 IP 地址进行连接的 DNS 将导致 DNS 泄漏。 我们强烈建议使用 ROBERT 或公有 DNS 服务器。</translation>
+        <translation>使用本地 DNS 服务器可能导致 DNS 泄漏。我们强烈建议使用 ROBERT 或公有 DNS 服务器。</translation>
     </message>
 </context>
 <context>
@@ -1193,7 +1193,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Terminate Sockets</source>
-        <translation>终止套接字</translation>
+        <translation>终止所有连接</translation>
     </message>
     <message>
         <source>Circumvent Censorship</source>
@@ -1205,11 +1205,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Exclusive</source>
-        <translation>专属</translation>
+        <translation>排除</translation>
     </message>
     <message>
         <source>Inclusive</source>
-        <translation>包容</translation>
+        <translation>包含</translation>
     </message>
     <message>
         <source>Off</source>
@@ -1257,7 +1257,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
-        <translation>建立 VPN 隧道后关闭所有活动的 TCP 套接字。</translation>
+        <translation>建立 VPN 隧道后关闭所有活动的 TCP 连接。</translation>
     </message>
     <message>
         <source>Configure your TV, gaming console, or other devices that support proxy servers.</source>
@@ -1293,22 +1293,30 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
-        <translation>自动确定 MTU，或手动覆盖。这对基于 TCP 的协议没有影响。</translation>
+        <translation>自动确定 MTU，或手动指定。这不影响 TCP 协议。</translation>
+    </message>
+    <message>
+        <source>Caution</source>
+        <translation>谨慎</translation>
+    </message>
+    <message>
+        <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
+        <translation>在这种防火墙模式下，Windscribe API 在断开连接时将不可用，这可能会产生意想不到的后果。使用风险自负。</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::DecoyTrafficGroup</name>
     <message>
         <source>Decoy Traffic</source>
-        <translation>诱饵流量</translation>
+        <translation>虚假流量</translation>
     </message>
     <message>
         <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
-        <translation>这是一项实验性功能，旨在打击对抗性网络上的流量关联攻击。启用后，该应用程序将在隧道上生成随机活动，并按选定的时间间隔上传和下载随机数据。</translation>
+        <translation>这是一项实验性功能，旨在打击对抗性网络上的流量关联攻击。启用后，应用程序将在隧道上按照流量设置随机上传或下载数据。</translation>
     </message>
     <message>
         <source>Fake Traffic Volume</source>
-        <translation>虚假流量</translation>
+        <translation>流量设置</translation>
     </message>
     <message>
         <source>Low</source>
@@ -1324,7 +1332,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Estimated Data Usage</source>
-        <translation>估计数据使用量</translation>
+        <translation>预计数据使用量</translation>
     </message>
     <message>
         <source>%1/hour</source>
@@ -1475,11 +1483,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Display latency as signal strength bars or in milliseconds.</source>
-        <translation>将延迟显示为信号强度条或以毫秒为单位。</translation>
+        <translation>将延迟显示为信号条，或以毫秒为数值单位显示详细延迟。</translation>
     </message>
     <message>
         <source>Latency Display</source>
-        <translation>延迟显示</translation>
+        <translation>延迟显示方式</translation>
     </message>
     <message>
         <source>Localize Windscribe to supported languages.</source>
@@ -1507,7 +1515,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Update Channel</source>
-        <translation>更新频道</translation>
+        <translation>更新通道</translation>
     </message>
     <message>
         <source>Version</source>
@@ -1535,11 +1543,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Export</source>
-        <translation>出口</translation>
+        <translation>导出</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation>进口</translation>
+        <translation>导入</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -1859,7 +1867,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Only when VPN is connected</source>
-        <translation>仅当连接 VPN 时</translation>
+        <translation>仅当已连接 VPN 时</translation>
     </message>
 </context>
 <context>
@@ -1905,11 +1913,11 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>代理端口无效。请在 0-65535 范围内输入有效端口。</translation>
+        <translation>代理端口无效，有效端口范围为 0-65535。</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address.</source>
-        <translation>代理地址无效。请输入有效的 IP 地址。</translation>
+        <translation>代理地址无效，请输入有效的 IP 地址。</translation>
     </message>
 </context>
 <context>
@@ -1920,7 +1928,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>If your network has a LAN proxy, configure it here.</source>
-        <translation>如果您的网络具有 LAN 代理，请在此处进行配置。</translation>
+        <translation>如果您有 LAN 代理，请在此处进行配置。</translation>
     </message>
 </context>
 <context>
@@ -1984,7 +1992,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
-        <translation>无线共享您的 Windscribe 连接。</translation>
+        <translation>通过无线热点共享您的 Windscribe 连接。</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2087,7 +2095,7 @@ Connect to a network first</source>
         <source>The split tunneling driver is not installed.  To enable this feature, try reinstalling the Windscribe application.
 
 If the reinstall does not help, please contact Windscribe support for assistance.</source>
-        <translation>未安装拆分隧道驱动程序。 要启用此功能，请尝试重新安装 Windscribe 应用程序。
+        <translation>未安装拆分隧道驱动程序。要启用此功能，请尝试重新安装 Windscribe 应用程序。
 
 如果重新安装没用，请联系 Windscribe 支持以寻求帮助。</translation>
     </message>
@@ -2109,11 +2117,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Exclusive</source>
-        <translation>独家</translation>
+        <translation>排除</translation>
     </message>
     <message>
         <source>Inclusive</source>
-        <translation>包容</translation>
+        <translation>包含</translation>
     </message>
     <message>
         <source>Apps</source>
@@ -2213,7 +2221,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Geography</source>
-        <translation>地理</translation>
+        <translation>地理位置</translation>
     </message>
     <message>
         <source>Alphabet</source>
@@ -2225,11 +2233,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Bars</source>
-        <translation>酒吧</translation>
+        <translation>信号条</translation>
     </message>
     <message>
         <source>ms</source>
-        <translation>女士</translation>
+        <translation>毫秒</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2253,7 +2261,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>None</source>
-        <translation>没有</translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>Auto-detect</source>
@@ -2261,15 +2269,15 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Release</source>
-        <translation>发布</translation>
+        <translation>正式版</translation>
     </message>
     <message>
         <source>Beta</source>
-        <translation>测试</translation>
+        <translation>测试版</translation>
     </message>
     <message>
         <source>Guinea Pig</source>
-        <translation>实验</translation>
+        <translation>实验版</translation>
     </message>
     <message>
         <source>Internal</source>
@@ -2285,11 +2293,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Alpha</source>
-        <translation>阿尔法</translation>
+        <translation>Alpha</translation>
     </message>
     <message>
         <source>Van Gogh</source>
-        <translation>梵高</translation>
+        <translation>Van Gogh</translation>
     </message>
     <message>
         <source>Failed to open file</source>
@@ -2406,6 +2414,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Latency test failed</source>
         <translation>延迟测试失败</translation>
+    </message>
+    <message>
+        <source>Always On+</source>
+        <translation>始终开启+</translation>
     </message>
 </context>
 <context>

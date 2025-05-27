@@ -32,8 +32,6 @@ struct ConnectedDnsInfo
     friend QDataStream& operator <<(QDataStream &stream, const ConnectedDnsInfo &o);
     friend QDataStream& operator >>(QDataStream &stream, ConnectedDnsInfo &o);
 
-    friend QDebug operator<<(QDebug dbg, const ConnectedDnsInfo &ds);
-
     bool operator==(const ConnectedDnsInfo &other) const;
     bool operator!=(const ConnectedDnsInfo &other) const;
 

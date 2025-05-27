@@ -991,3 +991,65 @@ test:version:mac:
   dependencies: []
   rules:
     - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
+
+
+build:wsnet:ios:
+  stage: Build
+  tags: [macos11qt6]
+  script:
+    # Patched vcpkg needed for iOS simulator support.
+    - git clone https://github.com/Windscribe/vcpkg.git ./libs/wsnet/tools/vcpkg
+    - cd ./libs/wsnet/tools/vcpkg
+    - ./bootstrap-vcpkg.sh &> /dev/null
+    - cd -
+    - export VCPKG_ROOT=$(pwd)/libs/wsnet/tools/vcpkg
+    - echo "Building iOS xcframework..."
+    - cd ./libs/wsnet/tools
+    - ./build_ios.sh &> /dev/null
+    - ls -lh ./build/WSNet.xcframework
+    - cd ./build
+    - zip -r WSNet.xcframework.zip WSNet.xcframework
+  artifacts:
+    name: "WSNet_iOS_${CI_COMMIT_SHORT_SHA}"
+    paths:
+      - ./libs/wsnet/tools/build/WSNet.xcframework.zip
+    expire_in: 1 week
+  rules:
+    - if: $BUILD_WSNET_IOS == "y"
+
+build:wsnet:android:
+  <<: *template_rhel_build
+  stage: Build
+  script:
+    # Install dependencies.
+    - dnf install -y java-17-openjdk java-17-openjdk-devel zip unzip wget cmake ninja-build git gcc-c++ make
+    # Setup vcpkg.
+    - git clone https://github.com/microsoft/vcpkg.git /root/vcpkg
+    - cd /root/vcpkg
+    - git reset --hard f7423ee180c4b7f40d43402c2feb3859161ef625
+    - ./bootstrap-vcpkg.sh &> /dev/null
+    - export VCPKG_ROOT=/root/vcpkg
+    - export PATH="$VCPKG_ROOT:$PATH"
+    # Setup Java
+    - cd -
+    - echo "Setting up Java..."
+    - export JAVA_HOME=/usr/lib/jvm/java-17
+    - export PATH=$JAVA_HOME/bin:$PATH
+    # Setup NDK
+    - mkdir -p /opt/android-ndk
+    - wget https://dl.google.com/android/repository/android-ndk-r25b-linux.zip -O ndk.zip
+    - unzip -q ndk.zip -d /opt/android-ndk
+    - export ANDROID_NDK_HOME=/opt/android-ndk/android-ndk-r25b
+    - export PATH=$ANDROID_NDK_HOME:$PATH
+    - $ANDROID_NDK_HOME/ndk-build --version || true
+    # Build .aar
+    - cd ./libs/wsnet/tools
+    - ./build_android.sh &> /dev/null
+    - zip -r WSNet.aar.zip wsnet.aar
+  artifacts:
+    name: "WSNet_Android_${CI_COMMIT_SHORT_SHA}"
+    paths:
+      - ./libs/wsnet/tools/WSNet.aar.zip
+    expire_in: 1 week
+  rules:
+    - if: $BUILD_WSNET_ANDROID == "y"

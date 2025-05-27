@@ -87,7 +87,9 @@ void ApiResourcesManager::login(const std::string &username, const std::string &
     }
 
     using namespace std::placeholders;
-    requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->login(username, password, code2fa, std::bind(&ApiResourcesManager::onLoginAnswer, this, _1, _2, username, password, code2fa));
+    std::vector<float> captchaTrailX = {};
+    std::vector<float> captchaTrailY = {};
+    requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->login(username, password, code2fa, "", "", captchaTrailX, captchaTrailY, std::bind(&ApiResourcesManager::onLoginAnswer, this, _1, _2, username, password, code2fa));
 }
 
 void ApiResourcesManager::logout()
@@ -523,7 +525,7 @@ void ApiResourcesManager::onFetchTimer(const boost::system::error_code &err)
     }
 
     // repeat the update timer
-    fetchTimer_.expires_from_now(boost::asio::chrono::seconds(1));
+    fetchTimer_.expires_after(boost::asio::chrono::seconds(1));
     fetchTimer_.async_wait(std::bind(&ApiResourcesManager::onFetchTimer, this, std::placeholders::_1));
 }
 

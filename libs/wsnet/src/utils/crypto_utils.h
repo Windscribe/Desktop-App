@@ -6,4 +6,5 @@ namespace crypto_utils
 {
     std::string sha1(const std::string &str);
     std::string md5(const std::string &str);
+    std::string sha256(const std::string &str);
 }

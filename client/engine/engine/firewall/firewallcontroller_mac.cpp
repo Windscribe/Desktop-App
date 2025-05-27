@@ -75,7 +75,7 @@ FirewallController_mac::FirewallController_mac(QObject *parent, Helper *helper) 
     }
 }
 
-void FirewallController_mac::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
+void FirewallController_mac::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, bool isVpnConnected)
 {
     QMutexLocker locker(&mutex_);
     FirewallState firewallState;

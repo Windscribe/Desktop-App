@@ -15,6 +15,13 @@ PingManager::PingManager(QObject *parent, IConnectStateController *stateControll
 {
     isLogPings_ = ExtraConfig::instance().getLogPings();
     isUseIcmpPings_ = ExtraConfig::instance().getUseICMPPings();
+
+    // Check if pings are disabled and clear existing ping data if so
+    if (ExtraConfig::instance().getNoPings()) {
+        pingStorage_.clearAllPingData();
+        addLog("PingManager::PingManager", "Cleared all existing ping data");
+    }
+
     connect(&pingTimer_, &QTimer::timeout, this, &PingManager::onPingTimer);
 }
 
@@ -56,6 +63,14 @@ void PingManager::updateIps(const QVector<PingIpInfo> &ips)
 
     // update ips in the ping storage
     pingStorage_.removeUnusedNodes(ipsSet);
+
+    // Check if pings are disabled via ws-no-pings flag
+    if (ExtraConfig::instance().getNoPings()) {
+        addLog("PingManager::updateIps", "Pings disabled by ws-no-pings flag - timer not started, clearing ping data");
+        pingTimer_.stop();
+        pingStorage_.clearAllPingData();
+        return;
+    }
 
     onPingTimer();
     pingTimer_.start(PING_TIMER_INTERVAL);

@@ -720,8 +720,8 @@ void Preferences::clearLastKnownGoodProtocols(const QString &network)
 QJsonObject Preferences::toJson() const
 {
     QJsonObject json;
-    json[kJsonGuiSettingsProp] = guiSettings_.toJson();
-    json[kJsonEngineSettingsProp] = engineSettings_.toJson();
+    json[kJsonGuiSettingsProp] = guiSettings_.toJson(false);
+    json[kJsonEngineSettingsProp] = engineSettings_.toJson(false);
     json[kJsonPersistentStateProp] = PersistentState::instance().toJson();
     return json;
 }
@@ -932,7 +932,7 @@ void Preferences::loadGuiSettings()
     PersistentState::instance().fromIni(ini);
 #endif
 
-    qCInfo(LOG_BASIC) << "Gui settings" << guiSettings_;
+    qCInfo(LOG_BASIC) << "GUI settings" << guiSettings_;
 }
 
 void Preferences::loadIni()

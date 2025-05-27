@@ -77,7 +77,7 @@ void LocationsTrayMenuNative::buildMenu(QAbstractItemModel *model)
             for (int cityInd = 0; cityInd < childsCount; ++cityInd)
             {
                 QModelIndex cityMi = model->index(cityInd, 0, mi);
-                QString visibleName = cityMi.data().toString();
+                QString visibleName = cityMi.data().toString() + " - " + cityMi.data(gui_locations::kDisplayNickname).toString();
                 if (cityMi.data(gui_locations::kIsShowAsPremium).toBool()) {
                     visibleName += " (Pro)";
                 }

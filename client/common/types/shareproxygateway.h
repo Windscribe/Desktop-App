@@ -71,13 +71,16 @@ struct ShareProxyGateway
         settings.setValue(kIniWhileConnectedProp, whileConnected);
     }
 
-    QJsonObject toJson() const
+    QJsonObject toJson(bool isForDebugLog) const
     {
         QJsonObject json;
         json[kJsonIsEnabledProp] = isEnabled;
         json[kJsonProxySharingModeProp] = static_cast<int>(proxySharingMode);
         json[kJsonPortProp] = static_cast<int>(port);
         json[kJsonWhileConnectedProp] = whileConnected;
+        if (isForDebugLog) {
+            json["proxySharingModeDesc"] = PROXY_SHARING_TYPE_toString(proxySharingMode);
+        }
         return json;
     }
 
@@ -105,17 +108,6 @@ struct ShareProxyGateway
             stream >> o.whileConnected;
         }
         return stream;
-    }
-
-    friend QDebug operator<<(QDebug dbg, const ShareProxyGateway &s)
-    {
-        QDebugStateSaver saver(dbg);
-        dbg.nospace();
-        dbg << "{isEnabled:" << s.isEnabled << "; ";
-        dbg << "proxySharingMode:" << PROXY_SHARING_TYPE_toString(s.proxySharingMode) << "; ";
-        dbg << "port:" << s.port << "; ";
-        dbg << "whileConnected:" << s.whileConnected << "}";
-        return dbg;
     }
 
 private:

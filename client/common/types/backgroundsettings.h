@@ -51,12 +51,14 @@ struct BackgroundSettings
         return !(*this == other);
     }
 
-    QJsonObject toJson() const
+    QJsonObject toJson(bool isForDebugLog) const
     {
         QJsonObject json;
         json[kJsonBackgroundTypeProp] = static_cast<int>(backgroundType);
-        json[kJsonBackgroundImageDisconnectedProp] = backgroundImageDisconnected;
-        json[kJsonBackgroundImageConnectedProp] = backgroundImageConnected;
+        if (!isForDebugLog) {
+            json[kJsonBackgroundImageDisconnectedProp] = backgroundImageDisconnected;
+            json[kJsonBackgroundImageConnectedProp] = backgroundImageConnected;
+        }
         return json;
     }
 
@@ -78,16 +80,6 @@ struct BackgroundSettings
         }
         stream >> o.backgroundType >> o.backgroundImageDisconnected >> o.backgroundImageConnected;
         return stream;
-    }
-
-    friend QDebug operator<<(QDebug dbg, const BackgroundSettings &s)
-    {
-        QDebugStateSaver saver(dbg);
-        dbg.nospace();
-        dbg << "{backgroundType:" << s.backgroundType << "; ";
-        dbg << "backgroundImageDisconnected:" << (s.backgroundImageDisconnected.isEmpty() ? "empty" : "settled") << "; ";
-        dbg << "backgroundImageConnected:" << (s.backgroundImageConnected.isEmpty() ? "empty" : "settled") << "}";
-        return dbg;
     }
 
 private:

@@ -26,7 +26,7 @@ void ManualConnSettingsPolicy::reset()
 
 void ManualConnSettingsPolicy::debugLocationInfoToLog() const
 {
-    qCInfo(LOG_CONNECTION) << "Connection settings:" << connectionSettings_;
+    qCInfo(LOG_CONNECTION) << "Connection settings:" << connectionSettings_.toJson(true);
     qCInfo(LOG_CONNECTION) << locationInfo_->getLogString();
 }
 

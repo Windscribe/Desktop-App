@@ -206,12 +206,15 @@ bool WireGuardCommunicator::configure(const std::string &clientPrivateKey,
 
     // Send set command.
     fputs("set=1\n", connection);
+    // persistent_keepalive_interval is needed to force handshake right after
+    // the interface is configured. Otherwise, Wireguard waits for any incoming
+    // packet to the network interface, which interfere with the blocking firewall.
     fprintf(connection,
         "private_key=%s\n"
         "replace_peers=true\n"
         "public_key=%s\n"
         "endpoint=%s\n"
-        "persistent_keepalive_interval=0\n",
+        "persistent_keepalive_interval=600\n",
         clientPrivateKey.c_str(), peerPublicKey.c_str(), peerEndpoint.c_str());
     if (!peerPresharedKey.empty())
         fprintf(connection, "preshared_key=%s\n", peerPresharedKey.c_str());

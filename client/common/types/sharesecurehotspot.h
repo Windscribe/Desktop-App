@@ -42,12 +42,17 @@ struct ShareSecureHotspot
         return !(*this == other);
     }
 
-    QJsonObject toJson() const
+    QJsonObject toJson(bool isForDebugLog) const
     {
         QJsonObject json;
         json[kJsonIsEnabledProp] = isEnabled;
-        json[kJsonSSIDProp] = Utils::toBase64(ssid);
-        json[kJsonPasswordProp] = Utils::toBase64(password);
+        if (isForDebugLog) {
+            json["ssidDesc"] = ssid.isEmpty() ? "empty" : "settled";
+            json["passwordDesc"] = password.isEmpty() ? "empty" : "settled";
+        } else {
+            json[kJsonSSIDProp] = Utils::toBase64(ssid);
+            json[kJsonPasswordProp] = Utils::toBase64(password);
+        }
         return json;
     }
 
@@ -73,16 +78,6 @@ struct ShareSecureHotspot
             stream >> o.ssid;
         }
         return stream;
-    }
-
-    friend QDebug operator<<(QDebug dbg, const ShareSecureHotspot &s)
-    {
-        QDebugStateSaver saver(dbg);
-        dbg.nospace();
-        dbg << "{isEnabled:" << s.isEnabled << "; ";
-        dbg << "ssid:" << (s.ssid.isEmpty() ? "empty" : "settled") << "; ";
-        dbg << "password:" << (s.password.isEmpty() ? "empty" : "settled") << "}";
-        return dbg;
     }
 
 private:

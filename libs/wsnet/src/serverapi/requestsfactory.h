@@ -8,8 +8,9 @@ namespace wsnet {
 
 namespace requests_factory
 {
-    BaseRequest *login(const std::string &username, const std::string &password,
-                       const std::string &code2fa, const std::string &sessionTypeId, RequestFinishedCallback callback);
+    BaseRequest *login(const std::string &username, const std::string &password, const std::string &code2fa,
+                       const std::string &sessionTypeId, const std::string &secureToken, const std::string &captchaSolution,
+                       const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY, RequestFinishedCallback callback);
     BaseRequest *session(const std::string &authHash, const std::string &appleId, const std::string &gpDeviceId, RequestFinishedCallback callback);
     BaseRequest *claimVoucherCode(const std::string &authHash, const std::string &voucherCode, RequestFinishedCallback callback);
     BaseRequest *deleteSession(const std::string &authHash, RequestFinishedCallback callback);
@@ -24,7 +25,10 @@ namespace requests_factory
     BaseRequest *addEmail(const std::string &authHash, const std::string &email, RequestFinishedCallback callback);
     BaseRequest *confirmEmail(const std::string &authHash, RequestFinishedCallback callback);
     BaseRequest *signup(const std::string &username, const std::string &password,
-                        const std::string &referringUsername, const std::string &email, const std::string &sessionTypeId, const std::string &voucherCode, RequestFinishedCallback callback);
+                        const std::string &referringUsername, const std::string &email,
+                        const std::string &sessionTypeId, const std::string &voucherCode,
+                        const std::string &secureToken, const std::string &captchaSolution,
+                        const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY,RequestFinishedCallback callback);
 
 
     BaseRequest *webSession(const std::string &authHash, RequestFinishedCallback callback);
@@ -84,6 +88,9 @@ namespace requests_factory
 
     BaseRequest *verifyTvLoginCode(const std::string &authHash, const std::string &xpressCode, RequestFinishedCallback callback);
     BaseRequest *cancelAccount(const std::string &authHash, const std::string &password, RequestFinishedCallback callback);
+    BaseRequest *sso(const std::string &provider, const std::string &token, RequestFinishedCallback callback);
+    BaseRequest *authTokenLogin(RequestFinishedCallback callback);
+    BaseRequest *authTokenSignup(RequestFinishedCallback callback);
 }
 
 } // namespace wsnet

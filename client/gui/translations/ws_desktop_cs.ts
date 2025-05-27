@@ -1295,6 +1295,14 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Automaticky určete jednotku MTU pro připojení nebo ručně přepište.  To nemá žádný vliv na protokoly založené na protokolu TCP.</translation>
     </message>
+    <message>
+        <source>Caution</source>
+        <translation>Opatrnost</translation>
+    </message>
+    <message>
+        <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
+        <translation>V tomto režimu brány firewall nebude rozhraní API Windscribe k dispozici, když bude odpojeno, což by mohlo mít nezamýšlené důsledky. Používejte na vlastní riziko.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DecoyTrafficGroup</name>
@@ -2406,6 +2414,10 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Latency test failed</source>
         <translation>Test latence se nezdařil</translation>
+    </message>
+    <message>
+        <source>Always On+</source>
+        <translation>Vždy zapnuto+</translation>
     </message>
 </context>
 <context>

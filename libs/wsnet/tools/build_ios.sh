@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 VERSION="1.0.0"
-export VCPKG_ROOT="$HOME/vcpkg"
 export PATH=/opt/homebrew/bin:$PATH
 
 ARCHITECTURES=("SIMULATORARM64" "OS64" "TVOS" "SIMULATORARM64_TVOS")

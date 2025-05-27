@@ -1,4 +1,4 @@
 colorama
-pyyaml==6.0
+pyyaml
 requests
 translate-toolkit[XML]

@@ -58,12 +58,14 @@ public:
 
     bool getWireGuardVerboseLogging();
     bool getWireGuardUdpStuffing();
+    bool getNoPings();
 
     std::optional<QString> serverlistCountryOverride();
     bool serverListIgnoreCountryOverride();
     bool haveServerListCountryOverride();
 
     bool useOpenVpnDCO();
+    bool usePublicNetworkCategory();
 
 private:
     ExtraConfig();

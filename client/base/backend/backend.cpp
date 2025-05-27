@@ -229,7 +229,7 @@ bool Backend::isFirewallEnabled()
 
 bool Backend::isFirewallAlwaysOn()
 {
-    return getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON;
+    return getPreferences()->firewallSettings().isAlwaysOnMode();
 }
 
 void Backend::emergencyConnectClick()

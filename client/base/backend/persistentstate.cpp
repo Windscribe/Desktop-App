@@ -270,7 +270,7 @@ QJsonObject PersistentState::toJson()
     QJsonArray arr;
 
     for (auto network : state_.networkWhiteList) {
-        arr.append(network.toJson());
+        arr.append(network.toJson(false));
     }
 
     json[kJsonNetworksProp] = arr;

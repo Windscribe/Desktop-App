@@ -77,6 +77,16 @@ bool PingStorage::isAllNodesHaveCurIteration() const
     return true;
 }
 
+void PingStorage::clearAllPingData()
+{
+    for (auto it = pingDataDB_.begin(); it != pingDataDB_.end(); ++it) {
+        it.value().timeMs_ = PingTime::NO_PING_INFO;
+        it.value().iterationTime_ = 0;
+    }
+    curIterationTime_ = 0;
+    curIterationNetworkOrSsid_.clear();
+}
+
 void PingStorage::saveToSettings()
 {
     QByteArray arr;

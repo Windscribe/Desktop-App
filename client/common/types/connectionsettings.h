@@ -34,14 +34,12 @@ struct ConnectionSettings
         return !(*this == other);
     }
 
-    QJsonObject toJson() const;
+    QJsonObject toJson(bool isForDebugLog) const;
     void fromIni(QSettings &settings, const QString &key = "");
     void toIni(QSettings &settings, const QString &key = "") const;
 
     friend QDataStream& operator <<(QDataStream &stream, const ConnectionSettings &o);
     friend QDataStream& operator >>(QDataStream &stream, ConnectionSettings &o);
-
-    friend QDebug operator<<(QDebug dbg, const ConnectionSettings &cs);
 
     // if the currently settled protocol is not supported on this OS, then replace it.
     void checkForUnavailableProtocolAndFix();

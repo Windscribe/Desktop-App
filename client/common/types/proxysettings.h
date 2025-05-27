@@ -47,12 +47,10 @@ public:
 
     void fromIni(const QSettings &settings);
     void toIni(QSettings &settings) const;
-    QJsonObject toJson() const;
+    QJsonObject toJson(bool isForDebugLog) const;
 
     friend QDataStream& operator <<(QDataStream &stream, const ProxySettings &o);
     friend QDataStream& operator >>(QDataStream &stream, ProxySettings &o);
-
-    friend QDebug operator<<(QDebug dbg, const ProxySettings &ps);
 
 private:
     PROXY_OPTION option_ = PROXY_OPTION_NONE;

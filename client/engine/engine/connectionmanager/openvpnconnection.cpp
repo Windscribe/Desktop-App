@@ -74,7 +74,7 @@ void OpenVPNConnection::startDisconnect()
         }
 
         bStopThread_ = true;
-        io_service_.post(boost::bind( &OpenVPNConnection::funcDisconnect, this ));
+        boost::asio::post(io_context_, boost::bind( &OpenVPNConnection::funcDisconnect, this));
     }
 }
 
@@ -92,19 +92,19 @@ void OpenVPNConnection::continueWithUsernameAndPassword(const QString &username,
 {
     username_ = username;
     password_ = password;
-    io_service_.post(boost::bind( &OpenVPNConnection::continueWithUsernameImpl, this ));
+    boost::asio::post(io_context_, boost::bind( &OpenVPNConnection::continueWithUsernameImpl, this));
 }
 
 void OpenVPNConnection::continueWithPassword(const QString &password)
 {
     password_ = password;
-    io_service_.post(boost::bind( &OpenVPNConnection::continueWithPasswordImpl, this ));
+    boost::asio::post(io_context_, boost::bind( &OpenVPNConnection::continueWithPasswordImpl, this));
 }
 
 void OpenVPNConnection::continueWithPrivKeyPassword(const QString &password)
 {
     privKeyPassword_ = password;
-    io_service_.post(boost::bind( &OpenVPNConnection::continueWithPrivKeyPasswordImpl, this ));
+    boost::asio::post(io_context_, boost::bind( &OpenVPNConnection::continueWithPrivKeyPasswordImpl, this));
 }
 
 void OpenVPNConnection::setCurrentState(CONNECTION_STATUS state)
@@ -166,9 +166,9 @@ void OpenVPNConnection::run()
     helper_->enableDnsLeaksProtection();
 #endif
 
-    io_service_.reset();
-    io_service_.post(boost::bind( &OpenVPNConnection::funcRunOpenVPN, this ));
-    io_service_.run();
+    io_context_.restart();
+    boost::asio::post(io_context_, boost::bind( &OpenVPNConnection::funcRunOpenVPN, this));
+    io_context_.run();
 
 #ifdef Q_OS_WIN
     helper_->disableDnsLeaksProtection();
@@ -226,8 +226,8 @@ void OpenVPNConnection::funcRunOpenVPN()
 
     boost::asio::ip::tcp::endpoint endpoint;
     endpoint.port(stateVariables_.openVpnPort);
-    endpoint.address(boost::asio::ip::address_v4::from_string("127.0.0.1"));
-    stateVariables_.socket.reset(new boost::asio::ip::tcp::socket(io_service_));
+    endpoint.address(boost::asio::ip::make_address("127.0.0.1"));
+    stateVariables_.socket.reset(new boost::asio::ip::tcp::socket(io_context_));
     stateVariables_.socket->async_connect(endpoint, boost::bind(&OpenVPNConnection::funcConnectToOpenVPN, this,
                                                                 boost::asio::placeholders::error));
 }
@@ -285,7 +285,7 @@ void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& er
                 qCInfo(LOG_CONNECTION) << "try second attempt to run openvpn after pause 2 sec";
                 msleep(2000);
                 stateVariables_.bWasSecondAttemptToStartOpenVpn = true;
-                io_service_.post(boost::bind( &OpenVPNConnection::funcRunOpenVPN, this ));
+                boost::asio::post(io_context_, boost::bind( &OpenVPNConnection::funcRunOpenVPN, this ));
                 return;
             }
             else
@@ -297,8 +297,8 @@ void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& er
 
         boost::asio::ip::tcp::endpoint endpoint;
         endpoint.port(stateVariables_.openVpnPort);
-        endpoint.address(boost::asio::ip::address_v4::from_string("127.0.0.1"));
-        stateVariables_.socket.reset(new boost::asio::ip::tcp::socket(io_service_));
+        endpoint.address(boost::asio::ip::make_address("127.0.0.1"));
+        stateVariables_.socket.reset(new boost::asio::ip::tcp::socket(io_context_));
         stateVariables_.socket->async_connect(endpoint, boost::bind(&OpenVPNConnection::funcConnectToOpenVPN, this,
                                                                     boost::asio::placeholders::error));
     }

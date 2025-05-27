@@ -33,6 +33,21 @@ std::string crypto_utils::md5(const std::string &str)
     return fmt::format("{:02x}", fmt::join(message_digest, ""));
 }
 
+std::string crypto_utils::sha256(const std::string &str)
+{
+    std::vector<unsigned char> message_digest(SHA256_DIGEST_LENGTH);
+    SHA256_CTX ctx;
+    SHA256_Init(&ctx);
+    SHA256_Update(&ctx, str.data(), str.size());
+    SHA256_Final(message_digest.data(), &ctx);
+    std::string result;
+    result.reserve(SHA256_DIGEST_LENGTH * 2);
+    for (unsigned char byte : message_digest) {
+        result += fmt::format("{:02x}", byte);
+    }
+    return result;
+}
+
 #ifdef _MSC_VER
     #pragma warning (default : 4996)
 #else

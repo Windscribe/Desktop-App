@@ -106,6 +106,11 @@ public:
             return "www.windscribe.com";
     }
 
+    std::string signatureToken() const
+    {
+        return "if_you_copy_this_you_might_die_a_painful_death";
+    }
+
     std::string serverSharedKey() const { return OBFUSCATED("952b4412f002315aa50751032fcaab03"); }
 
 private:

@@ -109,6 +109,7 @@ endif()
 
 # For Android and iOS using the scapix library for automatic binding to Java/Objective C languages
 if(ANDROID OR IOS)
+    target_compile_definitions(wsnet PUBLIC "IS_MOBILE_PLATFORM")
     find_package(scapix CONFIG REQUIRED)
     scapix_bridge_headers(wsnet "com.wsnet.lib" ${WS_CPP_PUBLIC_HEADERS})
 endif()

@@ -72,12 +72,15 @@ void ConnectionSettings::setIsAutomatic(bool isAutomatic)
     isAutomatic_ = isAutomatic;
 }
 
-QJsonObject ConnectionSettings::toJson() const
+QJsonObject ConnectionSettings::toJson(bool isForDebugLog) const
 {
     QJsonObject json;
     json[kJsonProtocolProp] = protocol_.toInt();
     json[kJsonPortProp] = static_cast<int>(port_);
     json[kJsonIsAutomaticProp] = isAutomatic_;
+    if (isForDebugLog) {
+        json["protocolDesc"] = protocol_.toLongString();
+    }
     return json;
 }
 
@@ -152,15 +155,4 @@ QDataStream& operator >>(QDataStream &stream, ConnectionSettings &o)
     return stream;
 }
 
-QDebug operator<<(QDebug dbg, const ConnectionSettings &cs)
-{
-    QDebugStateSaver saver(dbg);
-    dbg.nospace();
-    dbg << "{isAutomatic:" << cs.isAutomatic_ << "; ";
-    dbg << "protocol:" << cs.protocol_.toLongString() << "; ";
-    dbg << "port:" << cs.port_ << "}";
-    return dbg;
-}
-
 } //namespace types
-

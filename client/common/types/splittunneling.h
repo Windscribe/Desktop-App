@@ -42,11 +42,14 @@ struct SplitTunnelingSettings
         return !(*this == other);
     }
 
-    QJsonObject toJson() const
+    QJsonObject toJson(bool isForDebugLog) const
     {
         QJsonObject json;
         json[kJsonActiveProp] = active;
         json[kJsonModeProp] = static_cast<int>(mode);
+        if (isForDebugLog) {
+            json["modeDesc"] = SPLIT_TUNNELING_MODE_toString(mode);
+        }
         return json;
     }
 
@@ -67,15 +70,6 @@ struct SplitTunnelingSettings
         }
         stream >> o.active >> o.mode;
         return stream;
-    }
-
-    friend QDebug operator<<(QDebug dbg, const SplitTunnelingSettings &s)
-    {
-        QDebugStateSaver saver(dbg);
-        dbg.nospace();
-        dbg << "{active:" << s.active << "; ";
-        dbg << "mode:" << SPLIT_TUNNELING_MODE_toString(s.mode) << "}";
-        return dbg;
     }
 
 private:
@@ -144,15 +138,6 @@ struct SplitTunnelingNetworkRoute
         return stream;
     }
 
-    friend QDebug operator<<(QDebug dbg, const SplitTunnelingNetworkRoute &s)
-    {
-        QDebugStateSaver saver(dbg);
-        dbg.nospace();
-        dbg << "{type:" << (int)s.type << "; ";
-        dbg << "name:" << s.name << "}";
-        return dbg;
-    }
-
 private:
     static const inline QString kJsonTypeProp = "type";
     static const inline QString kJsonNameProp = "name";
@@ -216,14 +201,19 @@ struct SplitTunnelingApp
         return !(*this == other);
     }
 
-    QJsonObject toJson() const
+    QJsonObject toJson(bool isForDebugLog) const
     {
         QJsonObject json;
         json[kJsonActiveProp] = active;
-        json[kJsonFullNameProp] = fullName;
         json[kJsonNameProp] = name;
         json[kJsonTypeProp] = static_cast<int>(type);
-        json[kJsonIconProp] = icon;
+        if (isForDebugLog) {
+            json["fullNameDesc"] = fullName.isEmpty() ? "empty" : "settled";
+            json["iconDesc"] = icon.isEmpty() ? "empty" : "settled";
+        } else {
+            json[kJsonFullNameProp] = fullName;
+            json[kJsonIconProp] = icon;
+        }
         return json;
     }
 
@@ -248,18 +238,6 @@ struct SplitTunnelingApp
             stream >> o.icon;
         }
         return stream;
-    }
-
-    friend QDebug operator<<(QDebug dbg, const SplitTunnelingApp &s)
-    {
-        QDebugStateSaver saver(dbg);
-        dbg.nospace();
-        dbg << "{type:" << (int)s.type << "; ";
-        dbg << "name:" << s.name << "; ";
-        dbg << "fullName:" << (s.fullName.isEmpty() ? "empty" : "settled") << "; ";
-        dbg << "active:" << s.active << "; ";
-        dbg << "icon:" << (s.icon.isEmpty() ? "empty" : "settled") << "}";
-        return dbg;
     }
 
 private:
@@ -412,21 +390,19 @@ struct SplitTunneling
         }
     }
 
-    QJsonObject toJson() const
+    QJsonObject toJson(bool isForDebugLog) const
     {
         QJsonObject json;
-        json[kJsonSettingsProp] = settings.toJson();
+        json[kJsonSettingsProp] = settings.toJson(isForDebugLog);
 
         QJsonArray appsArray;
-        for (const SplitTunnelingApp& app : apps)
-        {
-            appsArray.append(app.toJson());
+        for (const SplitTunnelingApp& app : apps) {
+            appsArray.append(app.toJson(isForDebugLog));
         }
         json[kJsonAppsProp] = appsArray;
 
         QJsonArray networkRoutesArray;
-        for (const SplitTunnelingNetworkRoute& route : networkRoutes)
-        {
+        for (const SplitTunnelingNetworkRoute& route : networkRoutes) {
             networkRoutesArray.append(route.toJson());
         }
         json[kJsonNetworkRoutesProp] = networkRoutesArray;
@@ -451,16 +427,6 @@ struct SplitTunneling
         }
         stream >> o.settings >> o.apps >> o.networkRoutes;
         return stream;
-    }
-
-    friend QDebug operator<<(QDebug dbg, const SplitTunneling &s)
-    {
-        QDebugStateSaver saver(dbg);
-        dbg.nospace();
-        dbg << "{settings:" << s.settings << "; ";
-        dbg << "apps:" << s.apps << "; ";
-        dbg << "networkRoutes:" << s.networkRoutes << "}";
-        return dbg;
     }
 
 private:

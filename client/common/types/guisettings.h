@@ -1,9 +1,11 @@
 #pragma once
 
 #include <QDebug>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QSettings>
 #include <QString>
+
 #include "enums.h"
 #include "sharesecurehotspot.h"
 #include "shareproxygateway.h"
@@ -90,11 +92,11 @@ struct GuiSettings
         settings.endGroup();
     }
 
-    QJsonObject toJson() const
+    QJsonObject toJson(bool isForDebugLog) const
     {
         QJsonObject json;
         json[kJsonAppSkinProp] = static_cast<int>(appSkin);
-        json[kJsonBackgroundSettingsProp] = backgroundSettings.toJson();
+        json[kJsonBackgroundSettingsProp] = backgroundSettings.toJson(isForDebugLog);
         json[kJsonIsAutoConnectProp] = isAutoConnect;
         json[kJsonIsAutoSecureNetworksProp] = isAutoSecureNetworks;
         json[kJsonIsDockedToTrayProp] = isDockedToTray;
@@ -106,12 +108,18 @@ struct GuiSettings
         json[kJsonIsStartMinimizedProp] = isStartMinimized;
         json[kJsonLatencyDisplayProp] = static_cast<int>(latencyDisplay);
         json[kJsonOrderLocationProp] = static_cast<int>(orderLocation);
-        json[kJsonShareProxyGatewayProp] = shareProxyGateway.toJson();
-        json[kJsonShareSecureHotspotProp] = shareSecureHotspot.toJson();
-        json[kJsonSplitTunnelingProp] = splitTunneling.toJson();
+        json[kJsonShareProxyGatewayProp] = shareProxyGateway.toJson(isForDebugLog);
+        json[kJsonShareSecureHotspotProp] = shareSecureHotspot.toJson(isForDebugLog);
+        json[kJsonSplitTunnelingProp] = splitTunneling.toJson(isForDebugLog);
         json[kJsonTrayIconColorProp] = static_cast<int>(trayIconColor);
         json[kJsonMultiDesktopBehaviorProp] = static_cast<int>(multiDesktopBehavior);
         json[kJsonVersionProp] = static_cast<int>(versionForSerialization_);
+
+        if (isForDebugLog) {
+            json["appSkinDesc"] = APP_SKIN_toString(appSkin);
+            json["latencyDisplayDesc"] = LATENCY_DISPLAY_TYPE_toString(latencyDisplay);
+            json["orderLocationDesc"] = ORDER_LOCATION_TYPE_toString(orderLocation);
+        }
 
         return json;
     }
@@ -160,27 +168,10 @@ struct GuiSettings
 
     friend QDebug operator<<(QDebug dbg, const GuiSettings &gs)
     {
+        QJsonDocument doc(gs.toJson(true));
         QDebugStateSaver saver(dbg);
-        dbg.nospace();
-        dbg << "{isLaunchOnStartup:" << gs.isLaunchOnStartup << "; ";
-        dbg << "isAutoConnect:" << gs.isAutoConnect << "; ";
-        dbg << "isHideFromDock:" << gs.isHideFromDock << "; ";
-        dbg << "isShowNotifications:" << gs.isShowNotifications << "; ";
-        dbg << "orderLocation:" << ORDER_LOCATION_TYPE_toString(gs.orderLocation) << "; ";
-        dbg << "latencyDisplay:" << LATENCY_DISPLAY_TYPE_toString(gs.latencyDisplay) << "; ";
-        dbg << "shareSecureHotspot:" << gs.shareSecureHotspot << "; ";
-        dbg << "shareProxyGateway:" << gs.shareProxyGateway << "; ";
-        dbg << "splitTunneling:" << gs.splitTunneling << "; ";
-        dbg << "isDockedToTray:" << gs.isDockedToTray << "; ";
-        dbg << "isMinimizeAndCloseToTray:" << gs.isMinimizeAndCloseToTray << "; ";
-        dbg << "backgroundSettings:" << gs.backgroundSettings << "; ";
-        dbg << "isStartMinimized:" << gs.isStartMinimized << "; ";
-        dbg << "isShowLocationHealth:" << gs.isShowLocationHealth << "; ";
-        dbg << "isAutoSecureNetworks:" << gs.isAutoSecureNetworks << "; ";
-        dbg << "appSkin:" << APP_SKIN_toString(gs.appSkin) << ";";
-        dbg << "trayIconColor:" << gs.trayIconColor << ";";
-        dbg << "multiDesktopBehavior:" << gs.multiDesktopBehavior << ";}";
-
+        dbg.noquote();
+        dbg << doc.toJson(QJsonDocument::Compact);
         return dbg;
     }
 

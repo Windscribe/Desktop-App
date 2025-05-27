@@ -75,19 +75,19 @@ struct MacAddrSpoofing
         return !(*this == other);
     }
 
-    QJsonObject toJson() const
+    QJsonObject toJson(bool isForDebugLog) const
     {
         QJsonObject json;
 
         json[kJsonIsEnabledProp] = isEnabled;
         json[kJsonMacAddressProp] = macAddress;
         json[kJsonIsAutoRotateProp] = isAutoRotate;
-        json[kJsonSelectedNetworkInterfaceProp] = selectedNetworkInterface.toJson();
+        json[kJsonSelectedNetworkInterfaceProp] = selectedNetworkInterface.toJson(isForDebugLog);
 
         if (!networkInterfaces.isEmpty()) {
             QJsonArray networkInterfacesArray;
             for (const NetworkInterface& iface : networkInterfaces) {
-                networkInterfacesArray.append(iface.toJson());
+                networkInterfacesArray.append(iface.toJson(isForDebugLog));
             }
             json[kJsonNetworkInterfacesProp] = networkInterfacesArray;
         }
@@ -141,24 +141,6 @@ struct MacAddrSpoofing
         settings.setValue(kIniMacAddressProp, macAddress);
         settings.setValue(kIniIsAutoRotateProp, isAutoRotate);
         settings.setValue(kIniInterfaceProp, selectedNetworkInterface.interfaceName);
-    }
-
-    friend QDebug operator<<(QDebug dbg, const MacAddrSpoofing &m)
-    {
-        QDebugStateSaver saver(dbg);
-        dbg.nospace();
-        dbg << "{isEnabled:" << m.isEnabled << "; ";
-        dbg << "autoRotate:" << m.isAutoRotate << "; ";
-        dbg << "macAddress:" << m.macAddress << "; ";
-        dbg << "selectedNetworkInterface:" << m.selectedNetworkInterface << "; ";
-        dbg << "networkInterfaces:{";
-        for (const auto &i : m.networkInterfaces)
-        {
-            dbg << i;
-        }
-
-        dbg << "}";
-        return dbg;
     }
 
 private:

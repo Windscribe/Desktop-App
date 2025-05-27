@@ -3,6 +3,7 @@
 #include "types/enums.h"
 
 #include <QJsonObject>
+#include <QSettings>
 
 namespace types {
 
@@ -24,6 +25,11 @@ struct FirewallSettings
     FIREWALL_MODE mode = FIREWALL_MODE_AUTOMATIC;
     FIREWALL_WHEN when = FIREWALL_WHEN_BEFORE_CONNECTION;
 
+    bool isAlwaysOnMode() const
+    {
+        return mode == FIREWALL_MODE_ALWAYS_ON || mode == FIREWALL_MODE_ALWAYS_ON_PLUS;
+    }
+
     bool operator==(const FirewallSettings &other) const
     {
         return other.mode == mode &&
@@ -35,11 +41,15 @@ struct FirewallSettings
         return !(*this == other);
     }
 
-    QJsonObject toJson() const
+    QJsonObject toJson(bool isForDebugLog) const
     {
         QJsonObject json;
         json[kJsonModeProp] = static_cast<int>(mode);
         json[kJsonWhenProp] = static_cast<int>(when);
+        if (isForDebugLog) {
+            json["modeDesc"] = FIREWALL_MODE_toString(mode);
+            json["whenDesc"] = FIREWALL_WHEN_toString(when);
+        }
         return json;
     }
 
@@ -73,16 +83,6 @@ struct FirewallSettings
         }
         stream >> o.mode >> o.when;
         return stream;
-    }
-
-
-    friend QDebug operator<<(QDebug dbg, const FirewallSettings &fs)
-    {
-        QDebugStateSaver saver(dbg);
-        dbg.nospace();
-        dbg << "{mode:" << FIREWALL_MODE_toString(fs.mode) << "; ";
-        dbg << "when:" << FIREWALL_WHEN_toString(fs.when) << "}";
-        return dbg;
     }
 
 private:

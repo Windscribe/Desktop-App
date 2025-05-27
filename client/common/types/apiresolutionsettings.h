@@ -37,8 +37,6 @@ public:
     friend QDataStream& operator <<(QDataStream &stream, const ApiResolutionSettings &o);
     friend QDataStream& operator >>(QDataStream &stream, ApiResolutionSettings &o);
 
-    friend QDebug operator<<(QDebug dbg, const ApiResolutionSettings &ds);
-
 private:
     bool bAutomatic_ = true;
     QString manualAddress_;

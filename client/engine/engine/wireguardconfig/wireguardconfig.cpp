@@ -77,6 +77,10 @@ QString WireGuardConfig::generateConfigFile() const
     else {
         ts << "AllowedIPs = " << peer_.allowedIps << '\n';
     }
+    // PersistentKeepalive is needed to force handshake right after
+    // the interface is configured. Otherwise, Wireguard waits for any incoming
+    // packet to the network interface, which interfere with the blocking firewall.
+    ts << "PersistentKeepalive = 900\n";
     ts.flush();
 
     return config;

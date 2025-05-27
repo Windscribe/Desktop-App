@@ -51,7 +51,7 @@ private:
     Helper *helper_;
     std::atomic<bool> bStopThread_;
 
-    boost::asio::io_service io_service_;
+    boost::asio::io_context io_context_;
 
     QString config_;
     QString username_;

@@ -97,13 +97,4 @@ QDataStream& operator >>(QDataStream &stream, DecoyTrafficSettings &o)
     return stream;
 }
 
-QDebug operator<<(QDebug dbg, const DecoyTrafficSettings &ds)
-{
-    QDebugStateSaver saver(dbg);
-    dbg.nospace();
-    dbg << "{isEnabled:" << ds.bEnabled_ << "; ";
-    dbg << "volume:" << decoyTrafficVolumeToString(ds.volume_) << "}";
-    return dbg;
-}
-
 } //namespace types

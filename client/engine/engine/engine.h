@@ -383,7 +383,7 @@ private:
     void doCheckUpdate();
     void loginImpl(bool isUseAuthHash, const QString &username, const QString &password, const QString &code2fa);
     void updateServerLocations(const api_responses::ServerList &serverLocations, const api_responses::StaticIps &staticIps);
-    void updateFirewallSettings();
+    void updateFirewallSettings(bool forceTurnOn = false);
 
     void addCustomRemoteIpToFirewallIfNeed();
     void doConnect(bool bEmitAuthError);

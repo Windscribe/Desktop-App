@@ -84,16 +84,6 @@ struct PacketSize
         return stream;
     }
 
-
-    friend QDebug operator<<(QDebug dbg, const PacketSize &ps)
-    {
-        QDebugStateSaver saver(dbg);
-        dbg.nospace();
-        dbg << "{isAutomatic:" << ps.isAutomatic << "; ";
-        dbg << "mtu:" << ps.mtu << "}";
-        return dbg;
-    }
-
 private:
     static const inline QString kIniIsAutomaticProp = "PacketSizeMode";
     static const inline QString kIniMTUProp = "PacketSizeMTU";

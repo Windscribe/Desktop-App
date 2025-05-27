@@ -1,7 +1,9 @@
 #include "backendcommander.h"
 
+#include <chrono>
 #include <iostream>
 #include <QTimer>
+#include <thread>
 #ifdef CLI_ONLY
 #include <unistd.h>
 #endif
@@ -379,6 +381,8 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
                 std::cout << str << std::endl;
                 prevStr = str;
             }
+            // In progress: wait a short period before requesting status again
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             sendStateCommand();
         }
     } else if (cliArgs_.cliCommand() == CLI_COMMAND_DISCONNECT) {
@@ -397,6 +401,8 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
                 std::cout << str << std::endl;
                 prevStr = str;
             }
+            // In progress: wait a short period before requesting status again
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             sendStateCommand();
         }
     } else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGIN) {
@@ -411,6 +417,8 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
                 std::cout << str << std::endl;
                 prevStr = str;
             }
+            // In progress: wait a short period before requesting status again
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             sendStateCommand();
         }
     } else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGOUT) {
@@ -422,6 +430,8 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
                 std::cout << str << std::endl;
                 prevStr = str;
             }
+            // In progress: wait a short period before requesting status again
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             sendStateCommand();
         }
     } else if (cliArgs_.cliCommand() == CLI_COMMAND_UPDATE) {

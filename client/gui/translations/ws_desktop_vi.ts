@@ -1295,6 +1295,14 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Tự động xác định MTU cho kết nối của bạn hoặc ghi đè theo cách thủ công.  Điều này không ảnh hưởng đến các giao thức dựa trên TCP.</translation>
     </message>
+    <message>
+        <source>Caution</source>
+        <translation>Thận trọng</translation>
+    </message>
+    <message>
+        <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
+        <translation>Ở chế độ tường lửa này, API Windscribe sẽ không khả dụng khi ngắt kết nối, điều này có thể gây ra những hậu quả không mong muốn. Tự chịu rủi ro khi sử dụng.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DecoyTrafficGroup</name>
@@ -2406,6 +2414,10 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Latency test failed</source>
         <translation>Kiểm tra độ trễ không thành công</translation>
+    </message>
+    <message>
+        <source>Always On+</source>
+        <translation>Luôn bật+</translation>
     </message>
 </context>
 <context>

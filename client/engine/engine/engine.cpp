@@ -646,6 +646,7 @@ void Engine::initPart2()
     connectionManager_ = new ConnectionManager(this, helper_, networkDetectionManager_, customOvpnAuthCredentialsStorage_);
     connectionManager_->setPacketSize(packetSize_);
     connectionManager_->setConnectedDnsInfo(engineSettings_.connectedDnsInfo());
+    connectionManager_->setFirewallAlwaysOnPlusEnabled(engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS);
     connect(connectionManager_, &ConnectionManager::connected, this, &Engine::onConnectionManagerConnected);
     connect(connectionManager_, &ConnectionManager::disconnected, this, &Engine::onConnectionManagerDisconnected);
     connect(connectionManager_, &ConnectionManager::reconnecting, this, &Engine::onConnectionManagerReconnecting);
@@ -819,7 +820,7 @@ void Engine::cleanupImpl(bool isUpdating)
     }
 
     if (helper_ && firewallController_) {
-        if (firewallController_->firewallActualState() && !isUpdating && engineSettings_.firewallSettings().mode != FIREWALL_MODE_ALWAYS_ON) {
+        if (firewallController_->firewallActualState() && !isUpdating && !engineSettings_.firewallSettings().isAlwaysOnMode()) {
             qCInfo(LOG_BASIC) << "Turning firewall off for non-always-on, non-upgrade app shutdown";
             firewallController_->firewallOff();
         }
@@ -829,7 +830,10 @@ void Engine::cleanupImpl(bool isUpdating)
             // that it should keep the firewall on.  If we don't do this, the firewall blips out briefly when the new helper starts,
             // until the app re-enables the firewall.
             qCInfo(LOG_BASIC) << "Turning on firewall on boot for update";
-            firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
+            firewallController_->setFirewallOnBoot(true, engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS ?
+                                                             firewallExceptions_.getIPAddressesForFirewallForConnectedState() :
+                                                             firewallExceptions_.getIPAddressesForFirewall(),
+                                                   engineSettings_.isAllowLanTraffic());
         }
     }
 
@@ -952,7 +956,7 @@ void Engine::connectClickImpl(const LocationID &locationId, const types::Connect
                 firewallExceptions_.connectingIp(),
                 firewallExceptions_.getIPAddressesForFirewall(),
                 engineSettings_.isAllowLanTraffic(),
-                locationId_.isCustomConfigsLocation());
+                locationId_.isCustomConfigsLocation(), false);
             emit firewallStateChanged(true);
         }
     }
@@ -1140,19 +1144,7 @@ void Engine::updateCurrentNetworkInterfaceImpl()
 
 void Engine::firewallOnImpl()
 {
-    if (connectStateController_->currentState() != CONNECT_STATE_CONNECTED) {
-        firewallController_->firewallOn(
-            firewallExceptions_.connectingIp(),
-            firewallExceptions_.getIPAddressesForFirewall(),
-            engineSettings_.isAllowLanTraffic(),
-            locationId_.isCustomConfigsLocation());
-    } else {
-        firewallController_->firewallOn(
-            connectionManager_->getLastConnectedIp(),
-            firewallExceptions_.getIPAddressesForFirewallForConnectedState(),
-            engineSettings_.isAllowLanTraffic(),
-            locationId_.isCustomConfigsLocation());
-    }
+    updateFirewallSettings(true);
     emit firewallStateChanged(true);
     updateFirewallOnBoot();
 }
@@ -1208,6 +1200,8 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
         // tell connection manager about new settings (it will use them onConnect)
         connectionManager_->setConnectedDnsInfo(engineSettings.connectedDnsInfo());
     }
+
+    connectionManager_->setFirewallAlwaysOnPlusEnabled(engineSettings.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS);
 
     if (isAllowLanTrafficChanged || isDnsPolicyChanged)
         updateFirewallSettings();
@@ -1316,7 +1310,7 @@ void Engine::onConnectionManagerConnected()
                     connectionManager_->getLastConnectedIp(),
                     firewallExceptions_.getIPAddressesForFirewallForConnectedState(),
                     engineSettings_.isAllowLanTraffic(),
-                    locationId_.isCustomConfigsLocation());
+                    locationId_.isCustomConfigsLocation(), true);
                 emit firewallStateChanged(true);
                 isFirewallAlreadyEnabled = true;
             }
@@ -1360,7 +1354,7 @@ void Engine::onConnectionManagerConnected()
             connectionManager_->getLastConnectedIp(),
             firewallExceptions_.getIPAddressesForFirewallForConnectedState(),
             engineSettings_.isAllowLanTraffic(),
-            locationId_.isCustomConfigsLocation());
+            locationId_.isCustomConfigsLocation(), true);
     }
 
 
@@ -1509,21 +1503,16 @@ void Engine::onConnectionManagerReconnecting()
 {
     qCDebug(LOG_BASIC) << "on reconnecting event";
 
+#if defined(Q_OS_MACOS)
+    // Stop the proxy when reconnecting
+    SplitTunnelExtensionManager::instance().stopExtension();
+#endif
+
     DnsServersConfiguration::instance().setDisconnectedState();
-
     WSNet::instance()->dnsResolver()->setDnsServers(DnsServersConfiguration::instance().getCurrentDnsServers());
-
-    if (firewallController_->firewallActualState()) {
-        firewallController_->firewallOn(
-            firewallExceptions_.connectingIp(),
-            firewallExceptions_.getIPAddressesForFirewall(),
-            engineSettings_.isAllowLanTraffic(),
-            locationId_.isCustomConfigsLocation());
-    }
-
-    WSNet::instance()->decoyTraffic()->stop();
-
     connectStateController_->setConnectingState(LocationID());
+    updateFirewallSettings();
+    WSNet::instance()->decoyTraffic()->stop();
 }
 
 void Engine::onConnectionManagerError(CONNECT_ERROR err)
@@ -2359,21 +2348,23 @@ void Engine::updateServerLocations(const api_responses::ServerList &serverLocati
     checkForceDisconnectNode(serverLocations.forceDisconnectNodes());
 }
 
-void Engine::updateFirewallSettings()
+void Engine::updateFirewallSettings(bool forceTurnOn)
 {
-    if (firewallController_->firewallActualState()) {
+    if (forceTurnOn || firewallController_->firewallActualState()) {
         if (connectStateController_->currentState() != CONNECT_STATE_CONNECTED) {
             firewallController_->firewallOn(
                 firewallExceptions_.connectingIp(),
-                firewallExceptions_.getIPAddressesForFirewall(),
+                // For Firewall Always On+ mode, only the IP-address we connect to is whitelisted in the firewall
+                engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS ? firewallExceptions_.getIPAddressesForFirewallForConnectedState()
+                                                                                        : firewallExceptions_.getIPAddressesForFirewall(),
                 engineSettings_.isAllowLanTraffic(),
-                locationId_.isCustomConfigsLocation());
+                locationId_.isCustomConfigsLocation(), false);
         } else {
             firewallController_->firewallOn(
                 connectionManager_->getLastConnectedIp(),
                 firewallExceptions_.getIPAddressesForFirewallForConnectedState(),
                 engineSettings_.isAllowLanTraffic(),
-                locationId_.isCustomConfigsLocation());
+                locationId_.isCustomConfigsLocation(), true);
         }
     }
 }
@@ -2504,9 +2495,10 @@ void Engine::doDisconnectRestoreStuff()
     if (firewallController_->firewallActualState()) {
         firewallController_->firewallOn(
             firewallExceptions_.connectingIp(),
-            firewallExceptions_.getIPAddressesForFirewall(),
+            engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS ? firewallExceptions_.getIPAddressesForFirewallForConnectedState()
+                                                                                    : firewallExceptions_.getIPAddressesForFirewall(),
             engineSettings_.isAllowLanTraffic(),
-            locationId_.isCustomConfigsLocation());
+            locationId_.isCustomConfigsLocation(), false);
     }
 
 #ifdef Q_OS_WIN
@@ -2694,9 +2686,12 @@ void Engine::onSystemExtensionStateChanged(SystemExtensions_mac::SystemExtension
 
 void Engine::updateFirewallOnBoot()
 {
-    if (engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
+    if (engineSettings_.firewallSettings().isAlwaysOnMode()) {
         qCInfo(LOG_BASIC) << "Turning boot firewall on for always-on mode";
-        firewallController_->setFirewallOnBoot(true, firewallExceptions_.getIPAddressesForFirewall(), engineSettings_.isAllowLanTraffic());
+        firewallController_->setFirewallOnBoot(true, engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS ?
+                                                     firewallExceptions_.getIPAddressesForFirewallForConnectedState() :
+                                                     firewallExceptions_.getIPAddressesForFirewall(),
+                                                     engineSettings_.isAllowLanTraffic());
     } else {
         qCInfo(LOG_BASIC) << "Turning boot firewall off for non-always-on mode";
         firewallController_->setFirewallOnBoot(false);

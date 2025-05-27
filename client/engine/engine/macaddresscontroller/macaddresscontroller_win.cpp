@@ -35,7 +35,7 @@ void MacAddressController_win::setMacAddrSpoofing(const types::MacAddrSpoofing &
     }
 
     qCInfo(LOG_BASIC) << "MacAddressController_win::setMacAddrSpoofing MacAddrSpoofing has changed. actuallyAutoRotate_=" << actuallyAutoRotate_;
-    qCInfo(LOG_BASIC) << macAddrSpoofing;
+    qCInfo(LOG_BASIC) << "MacAddrSpoofing settings:" << macAddrSpoofing.toJson(true);
 
     types::NetworkInterface currentAdapter = NetworkUtils_win::currentNetworkInterface();
     types::NetworkInterface selectedInterface = macAddrSpoofing.selectedNetworkInterface;

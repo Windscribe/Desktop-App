@@ -1,18 +1,27 @@
 string(REPLACE "." "_" curl_version "curl-${VERSION}")
+
+set(PATCH_LIST
+   0005_remove_imp_suffix.patch
+   0020-fix-pc-file.patch
+   0022-deduplicate-libs.patch
+   export-components.patch
+   dependencies.patch
+   cmake-config.patch
+   super-large-padding-extension.patch
+)
+
+if(NOT VCPKG_TARGET_IS_ANDROID AND NOT VCPKG_TARGET_IS_IOS)
+    list(APPEND PATCH_LIST oqsprovider.patch)
+else()
+    message(STATUS "Skipping oqsprovider.patch for mobile platforms")
+endif()
+
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO sftcd/curl
     REF 2b52fe4115e930e94dae75329bd0c11c79880176
     SHA512 347f333aae83cd9bb96791489742811aaf0041774a1f2edf2c694fb93be8800b1934ff55c02f432bbfa0ac865e4c1dcb7559b49d174cb20af29574c7e7337764
-    PATCHES
-        0005_remove_imp_suffix.patch
-        0020-fix-pc-file.patch
-        0022-deduplicate-libs.patch
-        export-components.patch
-        dependencies.patch
-        cmake-config.patch
-        oqsprovider.patch
-        super-large-padding-extension.patch
+    PATCHES ${PATCH_LIST}
 )
 
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS

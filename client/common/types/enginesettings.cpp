@@ -1,8 +1,9 @@
 #include "enginesettings.h"
 
+#include <QJsonDocument>
+
 #include "legacy_protobuf_support/legacy_protobuf.h"
 #include "types/global_consts.h"
-#include "utils/extraconfig.h"
 #include "utils/languagesutil.h"
 #include "utils/log/categories.h"
 #include "utils/simplecrypt.h"
@@ -374,9 +375,9 @@ bool EngineSettings::operator!=(const EngineSettings &other) const
     return !(*this == other);
 }
 
-QJsonObject EngineSettings::toJson() const
+QJsonObject EngineSettings::toJson(bool isForDebugLog) const
 {
-    auto json = d->toJson();
+    auto json = d->toJson(isForDebugLog);
     json[kJsonVersionProp] = static_cast<int>(versionForSerialization_);
     return json;
 }
@@ -393,37 +394,10 @@ void EngineSettings::toIni(QSettings &settings) const
 
 QDebug operator<<(QDebug dbg, const EngineSettings &es)
 {
+    QJsonDocument doc(es.toJson(true));
     QDebugStateSaver saver(dbg);
-    dbg.nospace();
-    dbg << "{language:" << es.d->language << "; ";
-    dbg << "updateChannel:" << UPDATE_CHANNEL_toString(es.d->updateChannel) << "; ";
-    dbg << "isIgnoreSslErrors:" << es.d->isIgnoreSslErrors << "; ";
-    dbg << "isTerminateSockets:" << es.d->isTerminateSockets << "; ";
-    dbg << "isAntiCensorship:" << es.d->isAntiCensorship << "; ";
-    dbg << "isAllowLanTraffic:" << es.d->isAllowLanTraffic << "; ";
-    dbg << "firewallSettings: " << es.d->firewallSettings << "; ";
-    dbg << "connectionSettings: " << es.d->connectionSettings << "; ";
-    dbg << "apiResolutionSettings: " << es.d->apiResolutionSettings << "; ";
-    dbg << "proxySettings: " << es.d->proxySettings << "; ";
-    dbg << "packetSize: " << es.d->packetSize << "; ";
-    dbg << "macAddrSpoofing: " << es.d->macAddrSpoofing << "; ";
-    dbg << "dnsPolicy: " << DNS_POLICY_TYPE_toString(es.d->dnsPolicy) << "; ";
-    dbg << "decoyTraffic: " << es.d->decoyTrafficSettings << "; ";
-#ifdef Q_OS_WIN
-    dbg << "tapAdapter: " << TAP_ADAPTER_TYPE_toString(es.d->tapAdapter) << "; ";
-#endif
-    dbg << "customOvpnConfigsPath: " << (es.d->customOvpnConfigsPath.isEmpty() ? "empty" : "settled") << "; ";
-    dbg << "isKeepAliveEnabled:" << es.d->isKeepAliveEnabled << "; ";
-    dbg << "connectedDnsInfo:" << es.d->connectedDnsInfo << "; ";
-    dbg << "dnsManager:" << DNS_MANAGER_TYPE_toString(es.d->dnsManager) << "; ";
-    dbg << "networkPreferredProtocols:" << es.d->networkPreferredProtocols << "; ";
-    dbg << "networkLastKnownGoodProtocols: {" << es.d->networkPreferredProtocols << "; ";
-    for (auto network : es.d->networkLastKnownGoodProtocols.keys()) {
-        dbg << network << ": ";
-        dbg << es.d->networkLastKnownGoodProtocols[network].first.toLongString() << ":";
-        dbg << es.d->networkLastKnownGoodProtocols[network].second << "; ";
-    }
-    dbg << "}}";
+    dbg.noquote();
+    dbg << doc.toJson(QJsonDocument::Compact);
     return dbg;
 }
 
@@ -540,24 +514,23 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
     }
 }
 
-QJsonObject EngineSettingsData::toJson() const
+QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
 {
     QJsonObject json;
 
     json[kJsonApiResolutionSettingsProp] = apiResolutionSettings.toJson();
     json[kJsonConnectedDnsInfoProp] = connectedDnsInfo.toJson();
-    json[kJsonConnectionSettingsProp] = connectionSettings.toJson();
-    json[kJsonCustomOvpnConfigsPathProp] = Utils::toBase64(customOvpnConfigsPath);
+    json[kJsonConnectionSettingsProp] = connectionSettings.toJson(isForDebugLog);
     json[kJsonDnsPolicyProp] = static_cast<int>(dnsPolicy);
     json[kJsonDecoyTrafficSettingsProp] = decoyTrafficSettings.toJson();
-    json[kJsonFirewallSettingsProp] = firewallSettings.toJson();
+    json[kJsonFirewallSettingsProp] = firewallSettings.toJson(isForDebugLog);
     json[kJsonIsAllowLanTrafficProp] = isAllowLanTraffic;
     json[kJsonIsAntiCensorshipProp] = isAntiCensorship;
     json[kJsonIsIgnoreSslErrorsProp] = isIgnoreSslErrors;
     json[kJsonIsKeepAliveEnabledProp] = isKeepAliveEnabled;
     json[kJsonIsTerminateSocketsProp] = isTerminateSockets;
     json[kJsonLanguageProp] = language;
-    json[kJsonMacAddrSpoofingProp] = macAddrSpoofing.toJson();
+    json[kJsonMacAddrSpoofingProp] = macAddrSpoofing.toJson(isForDebugLog);
 
     QJsonObject networkLastKnownGoodProtocolsObj;
     for (const auto& key : networkLastKnownGoodProtocols.keys()) {
@@ -565,20 +538,34 @@ QJsonObject EngineSettingsData::toJson() const
         QJsonObject innerObj;
         innerObj[kJsonProtocolProp] = value.first.toInt();
         innerObj[kJsonValueProp] = static_cast<int>(value.second);
-        networkLastKnownGoodProtocolsObj[Utils::toBase64(key)] = innerObj;
+        if (isForDebugLog) {
+            innerObj["protocolDesc"] = value.first.toLongString();
+            networkLastKnownGoodProtocolsObj[key] = innerObj;
+        } else {
+            networkLastKnownGoodProtocolsObj[Utils::toBase64(key)] = innerObj;
+        }
     }
     json[kJsonNetworkLastKnownGoodProtocolsProp] = networkLastKnownGoodProtocolsObj;
 
     QJsonObject networkPreferredProtocolsObj;
     for (const auto& key : networkPreferredProtocols.keys()) {
-        networkPreferredProtocolsObj[Utils::toBase64(key)] = networkPreferredProtocols[key].toJson();
+        const auto jsonKey = isForDebugLog ? key : Utils::toBase64(key);
+        networkPreferredProtocolsObj[jsonKey] = networkPreferredProtocols[key].toJson(isForDebugLog);
     }
     json[kJsonNetworkPreferredProtocolsProp] = networkPreferredProtocolsObj;
 
     json[kJsonPacketSizeProp] = packetSize.toJson();
-    json[kJsonProxySettingsProp] = proxySettings.toJson();
+    json[kJsonProxySettingsProp] = proxySettings.toJson(isForDebugLog);
     json[kJsonTapAdapterProp] = static_cast<int>(tapAdapter);
     json[kJsonUpdateChannelProp] = static_cast<int>(updateChannel);
+    if (isForDebugLog) {
+        // For log readability by humans/AI.
+        json["dnsManagerDesc"] = DNS_MANAGER_TYPE_toString(dnsManager);
+        json["dnsPolicyDesc"] = DNS_POLICY_TYPE_toString(dnsPolicy);
+        json["updateChannelDesc"] = UPDATE_CHANNEL_toString(updateChannel);
+    } else {
+        json[kJsonCustomOvpnConfigsPathProp] = Utils::toBase64(customOvpnConfigsPath);
+    }
     return json;
 }
 

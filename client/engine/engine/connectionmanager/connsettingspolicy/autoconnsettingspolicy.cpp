@@ -11,7 +11,7 @@ types::Protocol AutoConnSettingsPolicy::lastKnownGoodProtocol_;
 
 AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                                                const api_responses::PortMap &portMap, bool isProxyEnabled,
-                                               const types::Protocol protocol, bool isLockdownMode)
+                                               const types::Protocol protocol, bool isLockdownMode, bool skipWireguardProtocol)
 {
     attempts_.clear();
     curAttempt_ = 0;
@@ -32,6 +32,10 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
         }
 
         if (isLockdownMode && portMap_.items()[portMapInd].protocol == types::Protocol::IKEV2) {
+            continue;
+        }
+
+        if (skipWireguardProtocol && portMap_.items()[portMapInd].protocol.isWireGuardProtocol()) {
             continue;
         }
 

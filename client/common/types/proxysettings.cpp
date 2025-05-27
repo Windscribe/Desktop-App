@@ -84,14 +84,18 @@ void ProxySettings::toIni(QSettings &settings) const
     settings.setValue(kIniPasswordProp, password_);
 }
 
-QJsonObject ProxySettings::toJson() const
+QJsonObject ProxySettings::toJson(bool isForDebugLog) const
 {
     QJsonObject json;
     json[kJsonOptionProp] = static_cast<int>(option_);
     json[kJsonAddressProp] = address_;
     json[kJsonPortProp] = static_cast<int>(port_);
-    json[kJsonUsernameProp] = username_;
-    json[kJsonPasswordProp] = Utils::toBase64(password_);
+    if (isForDebugLog) {
+        json["optionDesc"] = PROXY_OPTION_toString(option_);
+    } else {
+        json[kJsonUsernameProp] = username_;
+        json[kJsonPasswordProp] = Utils::toBase64(password_);
+    }
     return json;
 }
 
@@ -216,19 +220,6 @@ QDataStream& operator >>(QDataStream &stream, ProxySettings &o)
     }
     stream >> o.option_ >> o.address_ >> o.port_ >> o.username_ >> o.password_;
     return stream;
-}
-
-
-QDebug operator<<(QDebug dbg, const ProxySettings &ps)
-{
-    QDebugStateSaver saver(dbg);
-    dbg.nospace();
-    dbg << "{option:" << PROXY_OPTION_toString(ps.option_) << "; ";
-    dbg << "address:" << ps.address_ << "; ";
-    dbg << "port:" << ps.port_ << "; ";
-    dbg << "username:" << (ps.username_.isEmpty() ? "empty" : "settled") << "; ";
-    dbg << "password:" << (ps.password_.isEmpty() ? "empty" : "settled") << "}";
-    return dbg;
 }
 
 } //namespace types

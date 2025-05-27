@@ -1295,6 +1295,14 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>Determine automaticamente o MTU da sua conexão ou substitua manualmente.  Isso não tem efeito sobre protocolos baseados em TCP.</translation>
     </message>
+    <message>
+        <source>Caution</source>
+        <translation>Atenção</translation>
+    </message>
+    <message>
+        <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
+        <translation>Neste modo de firewall, a API Windscribe não estará disponível enquanto estiver desconectada, isso pode ter consequências indesejadas. Utilização por conta e risco.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DecoyTrafficGroup</name>
@@ -2406,6 +2414,10 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
     <message>
         <source>Latency test failed</source>
         <translation>Falha no teste de latência</translation>
+    </message>
+    <message>
+        <source>Always On+</source>
+        <translation>Sempre Ligado+</translation>
     </message>
 </context>
 <context>

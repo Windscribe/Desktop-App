@@ -5,7 +5,7 @@
 The Windscribe VPN desktop application hides your physical location, blocks ads and trackers, and keeps you safe online.  Features available in the application are:
 
 - Offers 6 different protocols to choose from, along with over 20 different connection ports:
-  - WireGuard
+  - WireGuard®
   - OpenVPN UDP/TCP
   - IKEv2
   - Stealth
@@ -16,8 +16,10 @@ The Windscribe VPN desktop application hides your physical location, blocks ads 
 - Network rules allowing you to connect or disconnect automatically.
 - Custom config support for importing any VPN config into Windscribe.
 - Create a secure HTTP or SOCKS5 proxy server on your computer, allowing any device on your network to use this proxy server in order to make requests over the VPN tunnel.
+- Content filtering with our integrated DNS-based blocker (R.O.B.E.R.T.) for ads, trackers, malware, and custom domains.
 - Custom DNS support for using any 3rd party DNS server, including our sister product [ctrld](https://github.com/Control-D-Inc/ctrld).
 - CLI support on all platforms, including a pure CLI environment for Linux.
+- No per-device or simultaneous connection restrictions. Use one account across all your personal systems.
 
 ## OS Support
 - Windows 10/11 amd64 (minimum build 17763)
@@ -54,7 +56,7 @@ The Windscribe VPN desktop application hides your physical location, blocks ads 
   - If you installed Python from the Microsoft Store, enable the `python3.exe` execution alias in System Settings `Manage App Execution Aliases`.
   - If you installed Python from python.org, you can `mklink /path/to/your/python3.exe /path/to/your/python.exe`
 - If you plan to build the `wstunnel` dependency listed in the `Build libraries` section:
-  - Install golang (minimum version 1.18) following the instructions from `https://go.dev/doc/install`
+  - Install golang (minimum version 1.23) following the instructions from `https://go.dev/doc/install`
   - Download the latest llvm-mingw msvcrt x86_64 package from `https://github.com/mstorsjo/llvm-mingw/releases`.
   - Extract the `bin` and `include` folders to a folder of your choosing.
   - Before running `install_wstunnel`, set the environment variable `LLVM_MINGW_ROOT` to the folder you created in the previous step.
@@ -154,7 +156,7 @@ See `build_all --help` for other build options.
 ```python
   python3 -m pip install -r tools/requirements.txt
 ```
-- Install golang (minimum version 1.18): follow instructions from `https://go.dev/doc/install`
+- Install golang (minimum version 1.23): follow instructions from `https://go.dev/doc/install`
 
 ### Install signing certificate (required)
 - Install your Developer ID Application signing certificate from your Apple Developer account in Keychain Access.
@@ -218,7 +220,7 @@ Build process tested on Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
   sudo apt-get update
   sudo apt-get install build-essential git curl patchelf libpam0g-dev software-properties-common libgl1-mesa-dev fakeroot python3-pip zip unzip libnl-genl-3-dev pkg-config libcap-ng-dev wget autoconf libtool libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-cursor-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libwayland-dev
 
-  # install CMake 3.28.x or newer (default for Ubuntu 20.04 is 3.16.3).
+  # install CMake 3.28.x or newer.
   # Make sure that the cmake executable is in the path and available for execution.
   sudo snap install cmake --classic
 ```
@@ -226,9 +228,9 @@ Build process tested on Ubuntu 20.04/ZorinOS 16 (gcc 9.3.0).
     - Create a `VCPKG_ROOT` environment variable referencing the full path to your vcpkg install folder.
     - Go to the vcpkg directory and `git checkout 52fc0d8c1e2cbd12c9907284566f5c17e5ef0d12`.
     - Do the bootstrap step after the above command.
-- Install golang (minimum version 1.18): follow instructions from `https://go.dev/doc/install`
+- Install golang (minimum version 1.23): follow instructions from `https://go.dev/doc/install`
 - Clone the repository.
-- Install python deps:
+- Install Python (if necessary) and Python deps.  You may want to use a virtual environment for Python (e.g. with pyenv), but this is up to you (and possibly your distribution).  We recommend 3.11 or later.
 ```python
   python3 -m pip install -r tools/requirements.txt
 ```
@@ -262,3 +264,5 @@ Please see our [Contributing Guidelines](https://github.com/Windscribe/Desktop-A
 ## License
 
 The Windscribe Desktop Client app [License](https://github.com/Windscribe/Desktop-App/blob/master/LICENSE)
+
+“WireGuard” is a registered trademark of Jason A. Donenfeld. [Open Source Software Attributions](https://windscribe.com/terms/oss/)

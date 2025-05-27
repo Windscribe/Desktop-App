@@ -91,17 +91,6 @@ QDataStream& operator >>(QDataStream &stream, ApiResolutionSettings &o)
     }
     stream >> o.bAutomatic_ >> o.manualAddress_;
     return stream;
-
-}
-
-QDebug operator<<(QDebug dbg, const ApiResolutionSettings &ds)
-{
-    QDebugStateSaver saver(dbg);
-    dbg.nospace();
-    dbg << "{isAutomatic:" << ds.bAutomatic_ << "; ";
-    dbg << "manualAddress:" << ds.manualAddress_ << "}";
-    return dbg;
 }
 
 } //namespace types
-

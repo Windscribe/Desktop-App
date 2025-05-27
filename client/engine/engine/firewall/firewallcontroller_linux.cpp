@@ -16,10 +16,10 @@ FirewallController_linux::~FirewallController_linux()
 {
 }
 
-void FirewallController_linux::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig)
+void FirewallController_linux::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, bool isVpnConnected)
 {
     QMutexLocker locker(&mutex_);
-    FirewallController::firewallOn(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig);
+    FirewallController::firewallOn(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, isVpnConnected);
     if (isStateChanged()) {
         qCInfo(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count() + 1;
         firewallOnImpl(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, latestStaticIpPorts_);

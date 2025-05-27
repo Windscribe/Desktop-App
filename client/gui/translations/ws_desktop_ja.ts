@@ -1295,6 +1295,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
         <translation>接続の MTU を自動的に決定するか、手動でオーバーライドします。 これは、TCP ベースのプロトコルには影響しません。</translation>
     </message>
+    <message>
+        <source>Caution</source>
+        <translation>注意</translation>
+    </message>
+    <message>
+        <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
+        <translation>このファイアウォールモードでは、切断中はWindscribe APIを使用できないため、意図しない結果を招く可能性があります。自己責任で使用してください。</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::DecoyTrafficGroup</name>
@@ -2406,6 +2414,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Latency test failed</source>
         <translation>レイテンシ テストに失敗しました</translation>
+    </message>
+    <message>
+        <source>Always On+</source>
+        <translation>常時オン+</translation>
     </message>
 </context>
 <context>
