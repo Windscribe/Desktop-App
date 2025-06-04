@@ -77,10 +77,16 @@ int PingMethodHttp::parseReplyString(const std::string &data)
         if (!value.empty()) {
             try {
                 int res = std::stoi(value);
-                if (res < 1000) {  // is result < 1 ms, log it as a warning
-                    g_logger->warn("PingMethodHttp::parseReplyString, rtt value < 1000: {}", value);
+                if (res == 0) {
+                    // If the result is exactly 0, either server gave us an invalid value, or we failed to parse it.  Treat it as invalid
+                    g_logger->warn("PingMethodHttp::parseReplyString, rtt value is 0: {}", value);
+                    return -1;
+                } else {
+                    if (res < 1000) {  // is result < 1 ms, log it as a warning
+                        g_logger->warn("PingMethodHttp::parseReplyString, rtt value < 1000: {}", value);
+                    }
+                    return res;
                 }
-                return res;
             } catch(...) {
                 // goto end of function and log error
             }

@@ -25,7 +25,7 @@ MacSpoofingGroup::MacSpoofingGroup(ScalableGraphicsObject *parent, const QString
     addItem(macAddressItem_);
 
     comboBoxInterface_ = new ComboBoxItem(this);
-    comboBoxInterface_ ->setCaptionFont(FontDescr(12, false));
+    comboBoxInterface_ ->setCaptionFont(FontDescr(12, QFont::Normal));
     connect(comboBoxInterface_, &ComboBoxItem::currentItemChanged, this, &MacSpoofingGroup::onInterfaceItemChanged);
     addItem(comboBoxInterface_);
 
@@ -180,6 +180,11 @@ void MacSpoofingGroup::setEnabled(bool enabled)
     if (!enabled) {
         checkBoxEnable_->setState(false);
     }
+}
+
+void MacSpoofingGroup::setDescription(const QString &desc, const QString &descUrl)
+{
+    checkBoxEnable_->setDescription(desc, descUrl);
 }
 
 } // namespace PreferencesWindow

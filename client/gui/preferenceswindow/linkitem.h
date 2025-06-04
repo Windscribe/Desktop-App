@@ -36,6 +36,8 @@ public:
     void setLinkIcon(QSharedPointer<IndependentPixmap> icon);
     void setInProgress(bool inProgress);
 
+    void setDescription(const QString &description, const QString &url = "");
+
 protected:
     void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
     void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
@@ -49,6 +51,7 @@ private slots:
     void onArrowOpacityChanged(const QVariant &value);
     void onSpinnerRotationChanged(const QVariant &value);
     void onSpinnerRotationFinished();
+    void onInfoIconClicked();
 
 private:
     IconButton *button_;
@@ -70,6 +73,15 @@ private:
 
     bool isTitleElided_ = false;
     QRectF titleRect_;
+
+    QString desc_;
+    QString descUrl_;
+    IconButton *infoIcon_;
+    int descHeight_ = 0;
+    int descRightMargin_ = 0;
+    int yOffset_;
+
+    void updatePositions();
 };
 
 } // namespace PreferencesWindow

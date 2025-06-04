@@ -6,6 +6,7 @@
 #include "backend/backend.h"
 #include "commongraphics/clickablegraphicsobject.h"
 #include "commongraphics/imageitem.h"
+#include "locationsmenu.h"
 
 namespace ConnectWindow {
 
@@ -27,25 +28,32 @@ public:
     void onLocationsExpandStateChanged(bool isExpanded);
 
     void setTextColor(QColor color);
-
     void updateScaling() override;
+
+    bool handleKeyPressEvent(QKeyEvent *event);
 
 signals:
     void arrowRotationChanged();
+    void locationTabClicked(LOCATION_TAB tab);
+    void searchFilterChanged(const QString &filter);
+    void locationsKeyPressed(QKeyEvent *event);
 
 private slots:
-    void onBackgroundOpacityChange(const QVariant &value);
+    void onOpacityValueChanged(const QVariant &value);
+    void onHoverEnter();
+    void onHoverLeave();
+    void onLanguageChanged();
 
 private:
     qreal arrowRotation_;
     ImageItem *arrowItem_;
     QPropertyAnimation *rotationAnimation_;
+    QVariantAnimation opacityAnimation_;
+    double curOpacity_;
 
-    QVariantAnimation backgroundOpacityAnimation_;
-    double backgroundDarkOpacity_;
-    double backgroundLightOpacity_;
-    QString backgroundDark_;
-    QString backgroundLight_;
+    LocationsMenu *locationsMenu_;
+
+    QString background_;
 
     QColor curTextColor_;
     bool isExpanded_;

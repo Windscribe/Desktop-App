@@ -243,7 +243,7 @@
         <translation>वरीयताएँ पुनः लोड की गईं।</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
+        <source>Key limit behaviour is set.</source>
         <translation>कुंजी सीमा व्यवहार सेट है।</translation>
     </message>
     <message>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>(डिवाइस का नाम: %1)</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>इंटरनेट कनेक्टिविटी उपलब्ध नहीं है.  बाद में पुनः प्रयास करें.</translation>
     </message>
 </context>
 </TS>

@@ -82,21 +82,20 @@ private:
     int height_;
 
     // constants:
-    static constexpr int TITLE_POS_Y = 51;
+    static constexpr int TITLE_POS_Y = 35;
 
     static constexpr int DESCRIPTION_WIDTH_MIN = 275;
-    static constexpr int DESCRIPTION_POS_Y = 102;
+    static constexpr int DESCRIPTION_POS_Y = 86;
 
     static constexpr int LOWER_DESCRIPTION_WIDTH_MIN = 168;
     static constexpr int LOWER_DESCRIPTION_POS_Y = 184;
 
-    static constexpr int ACCEPT_BUTTON_POS_Y = 180;
-    static constexpr int CANCEL_BUTTON_POS_Y = 236;
+    static constexpr int ACCEPT_BUTTON_POS_Y = 164;
+    static constexpr int CANCEL_BUTTON_POS_Y = 212;
 
     static constexpr int SPINNER_ROTATION_TARGET = 360;
 
-    static constexpr int SPINNER_POS_X_OFFSET = 155;
-    static constexpr int SPINNER_POS_Y = 118;
+    static constexpr int SPINNER_POS_Y = 102;
     static constexpr int SPINNER_HALF_WIDTH = 20;
     static constexpr int SPINNER_HALF_HEIGHT = 20;
 

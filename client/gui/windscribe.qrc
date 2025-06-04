@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>resources/fonts/ibmplexsans-bold.ttf</file>
-        <file>resources/fonts/ibmplexsans-regular.ttf</file>
+        <file>resources/fonts/ibmplexsans.ttf</file>
         <file>resources/icons/linux/connected_dark.ico</file>
         <file>resources/icons/linux/connected_light.ico</file>
         <file>resources/icons/linux/connecting_dark.ico</file>

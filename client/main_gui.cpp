@@ -123,9 +123,8 @@ int main(int argc, char *argv[])
     #endif
 #endif
 
-    Q_INIT_RESOURCE(gif);
-    Q_INIT_RESOURCE(jpg);
-    Q_INIT_RESOURCE(svg);
+    Q_INIT_RESOURCE(images);
+    Q_INIT_RESOURCE(sounds);
     Q_INIT_RESOURCE(windscribe);
     #ifdef Q_OS_MACOS
         Q_INIT_RESOURCE(windscribe_mac);

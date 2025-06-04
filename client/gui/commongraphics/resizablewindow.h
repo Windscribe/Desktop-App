@@ -32,6 +32,7 @@ public:
     int scrollPos();
     void setScrollPos(int pos);
     void setScrollOffset(int offset);
+    void setVanGoghOffset(int offset);
 
     void setBackButtonEnabled(bool b);
     void setResizeBarEnabled(bool b);
@@ -55,10 +56,10 @@ protected slots:
 
 protected:
     static constexpr int kBottomAreaHeight = 16;
-    static constexpr int kBottomResizeOriginX = 155;
+    static constexpr int kBottomResizeOriginX = 160;
     static constexpr int kBottomResizeOffsetY = 13;
     static constexpr int kDefaultXOffset = 16;
-    static constexpr int kVanGoghOffset = 28;
+    static constexpr int kVanGoghOffset = 16;
 
     Preferences *preferences_;
 
@@ -68,9 +69,13 @@ protected:
     double curScale_;
     int heightAtResizeStart_;
     int xOffset_;
+    int vanGoghOffset_;
 
     QString backgroundBase_;
     QString backgroundHeader_;
+    QString backgroundBorder_;
+    QString backgroundBorderExtension_;
+    QString backgroundBorderBottom_;
 
     IconButton *backArrowButton_;
     CommonGraphics::ScrollArea *scrollAreaItem_;

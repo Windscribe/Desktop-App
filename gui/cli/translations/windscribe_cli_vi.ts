@@ -243,7 +243,7 @@
         <translation>Tùy chọn được tải lại.</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
+        <source>Key limit behaviour is set.</source>
         <translation>Hành vi giới hạn chính được đặt.</translation>
     </message>
     <message>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>(Tên thiết bị: %1)</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>Kết nối Internet không khả dụng.  Thử lại sau.</translation>
     </message>
 </context>
 </TS>

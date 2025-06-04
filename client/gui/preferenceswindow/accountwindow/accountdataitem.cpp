@@ -17,16 +17,16 @@ void AccountDataItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont font1 = FontManager::instance().getFont(12, true);
+    QFont font1 = FontManager::instance().getFont(12, QFont::DemiBold);
     QFontMetrics fm1(font1);
     painter->setFont(font1);
     painter->setOpacity(OPACITY_FULL);
     painter->setPen(Qt::white);
-    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE), Qt::AlignLeft, value1_);
+    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, -PREFERENCES_MARGIN_X*G_SCALE, -PREFERENCES_MARGIN_Y*G_SCALE), Qt::AlignLeft, value1_);
 
-    int remainingSpace = boundingRect().width() - fm1.horizontalAdvance(value1_) - (2*PREFERENCES_MARGIN + APP_ICON_MARGIN_X)*G_SCALE;
+    int remainingSpace = boundingRect().width() - fm1.horizontalAdvance(value1_) - (2*PREFERENCES_MARGIN_X + APP_ICON_MARGIN_X)*G_SCALE;
 
-    QFont font2 = FontManager::instance().getFont(12, true);
+    QFont font2 = FontManager::instance().getFont(12, QFont::DemiBold);
     QFontMetrics fm2(font2);
     painter->setFont(font2);
     painter->setOpacity(OPACITY_HALF);
@@ -35,7 +35,7 @@ void AccountDataItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     {
         elidedText = fm2.elidedText(value2_, Qt::TextElideMode::ElideRight, remainingSpace);
     }
-    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE), Qt::AlignRight, elidedText);
+    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, -PREFERENCES_MARGIN_X*G_SCALE, -PREFERENCES_MARGIN_Y*G_SCALE), Qt::AlignRight, elidedText);
 }
 
 void AccountDataItem::updateScaling()

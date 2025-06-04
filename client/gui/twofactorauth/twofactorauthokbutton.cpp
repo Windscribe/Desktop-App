@@ -13,7 +13,7 @@ namespace TwoFactorAuthWindow
 {
 TwoFactorAuthOkButton::TwoFactorAuthOkButton(ScalableGraphicsObject *parent)
         : ClickableGraphicsObject(parent), width_(OK_BUTTON_WIDTH), height_(OK_BUTTON_HEIGHT), arcWidth_(16),
-          arcHeight_(16), fontDescr_(14, false), text_()
+          arcHeight_(16), fontDescr_(14, QFont::Normal), text_()
 {
     setButtonType(BUTTON_TYPE_ADD);
     fillColorAnimation_.setTargetObject(this);

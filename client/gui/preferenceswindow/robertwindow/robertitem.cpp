@@ -10,7 +10,7 @@
 namespace PreferencesWindow {
 
 RobertItem::RobertItem(ScalableGraphicsObject *parent, const api_responses::RobertFilter &filter)
-  : BaseItem(parent, ROBERT_ITEM_HEIGHT*G_SCALE), captionFont_(12, true), icon_(nullptr), filter_(filter)
+  : BaseItem(parent, ROBERT_ITEM_HEIGHT*G_SCALE), captionFont_(12, QFont::Bold), icon_(nullptr), filter_(filter)
 {
     checkBoxButton_ = new ToggleButton(this);
     connect(checkBoxButton_, &ToggleButton::stateChanged, this, &RobertItem::onStateChanged);
@@ -37,22 +37,22 @@ void RobertItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->setPen(Qt::white);
     painter->setOpacity(OPACITY_FULL);
 
-    int xOffset = PREFERENCES_MARGIN*G_SCALE;
+    int xOffset = PREFERENCES_MARGIN_X*G_SCALE;
     if (icon_) {
-        xOffset = (2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE;
-        icon_->draw(PREFERENCES_MARGIN*G_SCALE, ROBERT_ICON_MARGIN_Y*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
+        xOffset = (2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE;
+        icon_->draw(PREFERENCES_MARGIN_X*G_SCALE, ROBERT_ICON_MARGIN_Y*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
     }
 
     // Title text
     painter->drawText(boundingRect().adjusted(xOffset,
                                               ROBERT_TEXT_FIRST_MARGIN_Y*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE,
+                                              -PREFERENCES_MARGIN_X*G_SCALE,
                                              -(ROBERT_TEXT_GAP_Y + ROBERT_TEXT_FIRST_MARGIN_Y)*G_SCALE),
                       Qt::AlignLeft,
                       strCaption_);
 
     // Bottom text (Allowing or Blocking)
-    painter->setFont(FontManager::instance().getFont(10, false));
+    painter->setFont(FontManager::instance().getFont(10,  QFont::Normal));
     QString text = tr("Blocking");
 
     if (checkBoxButton_->isChecked()) {
@@ -65,7 +65,7 @@ void RobertItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     }
     painter->drawText(boundingRect().adjusted(xOffset,
                                               ROBERT_TEXT_SECOND_MARGIN_Y*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE,
+                                              -PREFERENCES_MARGIN_X*G_SCALE,
                                               -(ROBERT_TEXT_FIRST_MARGIN_Y)*G_SCALE),
                         Qt::AlignLeft,
                         text);
@@ -91,7 +91,7 @@ void RobertItem::updateScaling()
 {
     BaseItem::updateScaling();
     setHeight(ROBERT_ITEM_HEIGHT*G_SCALE);
-    checkBoxButton_->setPos(boundingRect().width() - checkBoxButton_->boundingRect().width() - PREFERENCES_MARGIN*G_SCALE,
+    checkBoxButton_->setPos(boundingRect().width() - checkBoxButton_->boundingRect().width() - PREFERENCES_MARGIN_X*G_SCALE,
                             ROBERT_CHECKBOX_MARGIN_Y*G_SCALE);
 }
 

@@ -38,7 +38,7 @@ void EmptyListWidget::setButton(const QString &buttonText)
     } else {
         WS_ASSERT(button_ == nullptr);
         button_ = new CommonWidgets::TextButtonWidget(buttonText, this);
-        button_->setFont(FontDescr(12, false));
+        button_->setFont(FontDescr(12, QFont::Normal));
         connect(button_, &CommonWidgets::TextButtonWidget::clicked, [this]() {
             emit clicked();
         });
@@ -61,7 +61,7 @@ void EmptyListWidget::paintEvent(QPaintEvent *event)
     QRect bkgd(0,0,geometry().width(), geometry().height());
     painter.fillRect(bkgd, FontManager::instance().getMidnightColor());
 
-    const int kVerticalOffset = (button_ == nullptr) ? 0 : 16;
+    const int kVerticalOffset = (button_ == nullptr) ? 16 : 32;
     if (!icon_.isEmpty()) {
         QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(icon_);
         pixmap->draw(width() / 2 - 16 * G_SCALE, height() / 2 - (kVerticalOffset + 32) * G_SCALE, &painter);
@@ -69,7 +69,7 @@ void EmptyListWidget::paintEvent(QPaintEvent *event)
 
     if (!text_.isEmpty()) {
         painter.save();
-        QFont font = FontManager::instance().getFont(12, false);
+        QFont font = FontManager::instance().getFont(12,  QFont::Normal);
         painter.setFont(font);
         painter.setPen(Qt::white);
         painter.setOpacity(0.5);
@@ -94,7 +94,7 @@ void EmptyListWidget::updateButtonPos()
 
     const auto sizeHint = button_->sizeHint();
     const int xpos = (width() - sizeHint.width()) / 2;
-    const int ypos = height() / 2 + textHeight_ + 16 * G_SCALE;
+    const int ypos = height() / 2 + textHeight_;
     button_->setGeometry(xpos, ypos, sizeHint.width(), sizeHint.height());
 }
 

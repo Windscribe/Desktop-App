@@ -11,8 +11,8 @@
 #include <QUrl>
 #include <QDebug>
 #include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcespng.h"
 #include "graphicresources/imageresourcessvg.h"
-#include "graphicresources/imageresourcesjpg.h"
 #include "languagecontroller.h"
 #include "utils/ws_assert.h"
 #include "utils/hardcodedsettings.h"
@@ -62,18 +62,24 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
     firewallTurnOffButton_ = new FirewallTurnOffButton("", this);
     connect(firewallTurnOffButton_, &FirewallTurnOffButton::clicked, this, &WelcomeWindowItem::onFirewallTurnOffClick);
 
-    gotoLoginButton_ = new CommonGraphics::TextButton("", FontDescr(14, true), QColor(255, 255, 255), true, this );
-    connect(gotoLoginButton_, &CommonGraphics::TextButton::clicked, this, &WelcomeWindowItem::onGotoLoginButtonClick);
-    gotoLoginButton_->setClickable(true);
-    gotoLoginButton_->show();
-
-    getStartedButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kBright, 130, 32, 15);
-    getStartedButton_->setFont(FontDescr(14, false));
+    getStartedButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kWelcome, 121, 38, 19);
+    getStartedButton_->setFont(FontDescr(15, QFont::Medium));
     connect(getStartedButton_, &CommonGraphics::BubbleButton::clicked, this, &WelcomeWindowItem::onGetStartedButtonClick);
     getStartedButton_->setClickable(true);
     getStartedButton_->show();
 
+    gotoLoginButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kWelcomeSecondary, 121, 38, 19);
+    gotoLoginButton_->setFont(FontDescr(15, QFont::Medium));
+    connect(gotoLoginButton_, &CommonGraphics::BubbleButton::clicked, this, &WelcomeWindowItem::onGotoLoginButtonClick);
+    gotoLoginButton_->setClickable(true);
+    gotoLoginButton_->show();
+
     // Lower Region:
+    emergencyButton_ = new IconHoverEngageButton(EMERGENCY_ICON_DISABLED_PATH, EMERGENCY_ICON_ENABLED_PATH, this);
+    connect(emergencyButton_, &IconHoverEngageButton::clicked, this, &WelcomeWindowItem::onEmergencyButtonClick);
+    connect(emergencyButton_, &IconHoverEngageButton::hoverEnter, this, &WelcomeWindowItem::onEmergencyHoverEnter);
+    connect(emergencyButton_, &IconHoverEngageButton::hoverLeave, this, &WelcomeWindowItem::onTooltipButtonHoverLeave);
+
     settingsButton_ = new IconButton(24, 24, SETTINGS_ICON_PATH, "", this);
     connect(settingsButton_, &IconButton::clicked, this, &WelcomeWindowItem::onSettingsButtonClick);
     connect(settingsButton_, &IconButton::hoverEnter, this, &WelcomeWindowItem::onSettingsHoverEnter);
@@ -83,11 +89,6 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
     connect(configButton_, &IconButton::clicked, this, &WelcomeWindowItem::onConfigButtonClick);
     connect(configButton_, &IconButton::hoverEnter, this, &WelcomeWindowItem::onConfigHoverEnter);
     connect(configButton_, &IconButton::hoverLeave, this, &WelcomeWindowItem::onTooltipButtonHoverLeave);
-
-    emergencyButton_ = new IconHoverEngageButton(EMERGENCY_ICON_DISABLED_PATH, EMERGENCY_ICON_ENABLED_PATH, this);
-    connect(emergencyButton_, &IconHoverEngageButton::clicked, this, &WelcomeWindowItem::onEmergencyButtonClick);
-    connect(emergencyButton_, &IconHoverEngageButton::hoverEnter, this, &WelcomeWindowItem::onEmergencyHoverEnter);
-    connect(emergencyButton_, &IconHoverEngageButton::hoverLeave, this, &WelcomeWindowItem::onTooltipButtonHoverLeave);
 
     emergencyConnectOn_ = false;
 
@@ -138,31 +139,31 @@ void WelcomeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     Q_UNUSED(widget);
 
     painter->setRenderHint(QPainter::Antialiasing);
-    qreal initOpacity = painter->opacity();
+    painter->setOpacity(OPACITY_FULL);
 
-    painter->save();
+    QPainterPath path;
+    path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
+    painter->setPen(Qt::NoPen);
+    painter->fillPath(path, QColor(2, 13, 28));
+    painter->setPen(Qt::SolidLine);
 
-    QSharedPointer<IndependentPixmap> pixmap_background = ImageResourcesJpg::instance().getIndependentPixmap("welcome", WINDOW_WIDTH*G_SCALE, LOGIN_HEIGHT*G_SCALE);
-    pixmap_background->draw(0, 0, WINDOW_WIDTH*G_SCALE, LOGIN_HEIGHT*G_SCALE, painter);
+    painter->setCompositionMode(QPainter::CompositionMode_SourceIn);
+    QSharedPointer<IndependentPixmap> pixmap_background = ImageResourcesPng::instance().getIndependentPixmap("welcome");
+    pixmap_background->draw(boundingRect().toRect(), painter);
+    painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
 
-    painter->setOpacity(initOpacity);
+    QSharedPointer<IndependentPixmap> pixmap_logo = ImageResourcesSvg::instance().getIndependentPixmap("LOGO");
+    pixmap_logo->draw(centeredOffset(WINDOW_WIDTH, LOGO_WIDTH)*G_SCALE, LOGO_POS_Y*G_SCALE, LOGO_WIDTH*G_SCALE, LOGO_HEIGHT*G_SCALE, painter);
 
-    QSharedPointer<IndependentPixmap> pixmap_badge = ImageResourcesSvg::instance().getIndependentPixmap("WINDSCRIBE_ICON");
-    pixmap_badge->draw(centeredOffset(WINDOW_WIDTH, BADGE_WIDTH)*G_SCALE, BADGE_POS_Y*G_SCALE, BADGE_WIDTH*G_SCALE, BADGE_HEIGHT*G_SCALE, painter);
+    // Border
+    QSharedPointer<IndependentPixmap> pixmapBorder = ImageResourcesSvg::instance().getIndependentPixmap("background/MAIN_BORDER_TOP_INNER_VAN_GOGH");
+    pixmapBorder->draw(0, 0, 350*G_SCALE, 32*G_SCALE, painter);
 
-    painter->setFont(FontManager::instance().getFont(24, true));
-    painter->setPen(Qt::white);
-    painter->drawText(QRect(0, 113*G_SCALE, WINDOW_WIDTH*G_SCALE, 40*G_SCALE), Qt::AlignCenter, tr("Keep Your Secrets."));
+    QSharedPointer<IndependentPixmap> pixmapBorderExtension = ImageResourcesSvg::instance().getIndependentPixmap("background/MAIN_BORDER_TOP_INNER_EXTENSION");
+    pixmapBorderExtension->draw(0, 32*G_SCALE, 350*G_SCALE, 286*G_SCALE, painter);
 
-    // dividers -- bottom buttons
-    painter->setOpacity(OPACITY_UNHOVER_DIVIDER * initOpacity);
-    const int bottom_button_y = LOGIN_HEIGHT * G_SCALE - settingsButton_->boundingRect().width();
-    const int window_center_x_offset = WINDOW_WIDTH/2 * G_SCALE ;
-
-    painter->fillRect(QRect(window_center_x_offset - 30*G_SCALE, bottom_button_y, 2*G_SCALE,  LOGIN_HEIGHT * G_SCALE), Qt::white);
-    painter->fillRect(QRect(window_center_x_offset + 29*G_SCALE, bottom_button_y, 2*G_SCALE,  LOGIN_HEIGHT * G_SCALE), Qt::white);
-
-    painter->restore();
+    QSharedPointer<IndependentPixmap> pixmapBorderFooter = ImageResourcesSvg::instance().getIndependentPixmap("background/MAIN_BORDER_BOTTOM_INNER");
+    pixmapBorderFooter->draw(0, 318*G_SCALE, 350*G_SCALE, 32*G_SCALE, painter);
 }
 
 void WelcomeWindowItem::setClickable(bool enabled)
@@ -281,22 +282,19 @@ void WelcomeWindowItem::updatePositions()
     minimizeButton_->setPos((LOGIN_WIDTH - 16 - 16 - 32)*G_SCALE, 14*G_SCALE);
     firewallTurnOffButton_->setPos(8*G_SCALE, 0);
 #else
-    minimizeButton_->setPos(28*G_SCALE, 8*G_SCALE);
-    closeButton_->setPos(8*G_SCALE,8*G_SCALE);
-    firewallTurnOffButton_->setPos((LOGIN_WIDTH - 8 - firewallTurnOffButton_->getWidth())*G_SCALE, 0);
+    minimizeButton_->setPos(38*G_SCALE, 16*G_SCALE);
+    closeButton_->setPos(16*G_SCALE, 16*G_SCALE);
+    firewallTurnOffButton_->setPos((LOGIN_WIDTH - 16 - firewallTurnOffButton_->getWidth())*G_SCALE, 0);
 #endif
 
-    gotoLoginButton_->recalcBoundingRect();
-    gotoLoginButton_->setPos((LOGIN_WIDTH*G_SCALE - gotoLoginButton_->boundingRect().width()) / 2, LOGIN_BUTTON_POS_Y*G_SCALE);
     getStartedButton_->setPos((LOGIN_WIDTH*G_SCALE - getStartedButton_->boundingRect().width()) / 2, GET_STARTED_BUTTON_POS_Y*G_SCALE);
+    gotoLoginButton_->setPos((LOGIN_WIDTH*G_SCALE - gotoLoginButton_->boundingRect().width()) / 2, LOGIN_BUTTON_POS_Y*G_SCALE);
 
-    int bottom_button_y = LOGIN_HEIGHT*G_SCALE - settingsButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
+    int bottom_button_y = LOGIN_HEIGHT*G_SCALE - settingsButton_->boundingRect().width() - 24*G_SCALE;
     int window_center_x_offset = WINDOW_WIDTH/2*G_SCALE - settingsButton_->boundingRect().width()/2;
-    settingsButton_->setPos(window_center_x_offset - 58*G_SCALE, bottom_button_y);
-
-    emergencyButton_->setPos(window_center_x_offset, bottom_button_y);
-
-    configButton_->setPos(window_center_x_offset + 58*G_SCALE, bottom_button_y);
+    emergencyButton_->setPos(window_center_x_offset - 48*G_SCALE, bottom_button_y);
+    settingsButton_->setPos(window_center_x_offset, bottom_button_y);
+    configButton_->setPos(window_center_x_offset + 48*G_SCALE, bottom_button_y);
 }
 
 void WelcomeWindowItem::keyPressEvent(QKeyEvent *event)
@@ -313,7 +311,9 @@ void WelcomeWindowItem::keyPressEvent(QKeyEvent *event)
 void WelcomeWindowItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
+
     updatePositions();
+    update();
 }
 
 void WelcomeWindowItem::onTooltipButtonHoverLeave()

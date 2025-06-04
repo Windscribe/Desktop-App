@@ -1,10 +1,9 @@
 #pragma once
 
+#include <QColor>
 #include <QGraphicsObject>
 #include <QVariantAnimation>
 #include "clickablegraphicsobject.h"
-
-namespace PreferencesWindow {
 
 class ToggleButton : public ClickableGraphicsObject
 {
@@ -18,6 +17,7 @@ public:
     void setState(bool isChecked);
     bool isChecked() const;
     void setEnabled(bool enabled);
+    void setColor(const QColor &color);
 
 signals:
     void stateChanged(bool isChecked);
@@ -39,7 +39,6 @@ private:
     double animationProgress_;
     bool isChecked_;
     bool enabled_;
+    QColor color_;
     QVariantAnimation opacityAnimation_;
 };
-
-} // namespace PreferencesWindow

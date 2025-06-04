@@ -25,8 +25,8 @@
 #include "backend/persistentstate.h"
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
+#include "graphicresources/imageresourcespng.h"
 #include "graphicresources/imageresourcessvg.h"
-#include "graphicresources/imageresourcesjpg.h"
 #include "languagecontroller.h"
 #include "launchonstartup/launchonstartup.h"
 #include "locations/locationsmodel_roles.h"
@@ -83,6 +83,7 @@ MainWindow::MainWindow() :
     hideShowDockIconTimer_(this),
     currentDockIconVisibility_(true),
     desiredDockIconVisibility_(true),
+    lastScreenName_(""),
 #endif
     activeState_(true),
     lastWindowStateChange_(0),
@@ -120,6 +121,16 @@ MainWindow::MainWindow() :
 
     trayIcon_.show();
 
+#ifdef Q_OS_MACOS
+    if (screen) {
+        const QRect desktopScreenRc = screen->geometry();
+        if (desktopScreenRc.top() != desktopAvailableRc.top()) {
+            while (trayIcon_.geometry().isEmpty())
+                qApp->processEvents();
+        }
+    }
+#endif
+
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
 #if defined(Q_OS_WIN)
     // Fix resize problem on DPI change by assigning a fixed size flag, because the main window is
@@ -146,6 +157,7 @@ MainWindow::MainWindow() :
 #endif
 
     connect(backend_, &Backend::initFinished, this, &MainWindow::onBackendInitFinished);
+    connect(backend_, &Backend::captchaRequired, this, &MainWindow::onBackendCaptchaRequired);
     connect(backend_, &Backend::loginFinished, this, &MainWindow::onBackendLoginFinished);
     connect(backend_, &Backend::tryingBackupEndpoint, this, &MainWindow::onBackendTryingBackupEndpoint);
     connect(backend_, &Backend::loginError, this, &MainWindow::onBackendLoginError);
@@ -196,11 +208,8 @@ MainWindow::MainWindow() :
     connect(locationsWindow_, &LocationsWindow::addStaticIpClicked, this, &MainWindow::onLocationsAddStaticIpClicked);
     connect(locationsWindow_, &LocationsWindow::clearCustomConfigClicked, this, &MainWindow::onLocationsClearCustomConfigClicked);
     connect(locationsWindow_, &LocationsWindow::addCustomConfigClicked, this, &MainWindow::onLocationsAddCustomConfigClicked);
+    connect(locationsWindow_, &LocationsWindow::upgradeBannerClicked, this, &MainWindow::onLocationsUpgradeBannerClicked);
 
-    locationsWindow_->setLatencyDisplay(backend_->getPreferences()->latencyDisplay());
-    locationsWindow_->connect(backend_->getPreferences(), &Preferences::latencyDisplayChanged, locationsWindow_, &LocationsWindow::setLatencyDisplay);
-    locationsWindow_->setShowLocationLoad(backend_->getPreferences()->isShowLocationLoad());
-    connect(backend_->getPreferences(), &Preferences::showLocationLoadChanged, locationsWindow_, &LocationsWindow::setShowLocationLoad);
     connect(backend_->getPreferences(), &Preferences::isAutoConnectChanged, this, &MainWindow::onAutoConnectUpdated);
     connect(backend_->getPreferences(), &Preferences::customConfigNeedsUpdate, this, &MainWindow::onPreferencesCustomConfigPathNeedsUpdate);
     connect(backend_->getPreferences(), &Preferences::isShowNotificationsChanged, this, &MainWindow::onPreferencesShowNotificationsChanged);
@@ -240,6 +249,9 @@ MainWindow::MainWindow() :
     connect(mainWindowController_->getLoginWindow(), &LoginWindow::LoginWindowItem::twoFactorAuthClick, this, &MainWindow::onLoginTwoFactorAuthWindowClick);
     connect(mainWindowController_->getLoginWindow(), &LoginWindow::LoginWindowItem::firewallTurnOffClick, this, &MainWindow::onLoginFirewallTurnOffClick);
 
+    // captcha window signals
+    connect(mainWindowController_->getLoggingInWindow(), &LoginWindow::LoggingInWindowItem::captchaResolved, this, &MainWindow::onCaptchaResolved);
+
     // connect window signals
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::minimizeClick, this, &MainWindow::onMinimizeClick);
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::closeClick, this, &MainWindow::onCloseClick);
@@ -251,6 +263,10 @@ MainWindow::MainWindow() :
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::notificationsClick, this, &MainWindow::onConnectWindowNotificationsClick);
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::splitTunnelingButtonClick, this, &MainWindow::onConnectWindowSplitTunnelingClick);
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::protocolsClick, this, &MainWindow::onConnectWindowProtocolsClick);
+
+    connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::locationTabClicked, this, &MainWindow::onConnectWindowLocationTabClicked);
+    connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::searchFilterChanged, this, &MainWindow::onConnectWindowSearchFilterChanged);
+    connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::locationsKeyPressed, this, &MainWindow::onConnectWindowLocationsKeyPressed);
 
     mainWindowController_->getConnectWindow()->connect(backend_, &Backend::firewallStateChanged, mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::updateFirewallState);
 
@@ -288,8 +304,6 @@ MainWindow::MainWindow() :
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::resetLocationNamesClick, this, &MainWindow::onPreferencesResetLocationNamesClick);
 
     // emergency window signals
-    connect(mainWindowController_->getEmergencyConnectWindow(), &EmergencyConnectWindow::EmergencyConnectWindowItem::minimizeClick, this, &MainWindow::onMinimizeClick);
-    connect(mainWindowController_->getEmergencyConnectWindow(), &EmergencyConnectWindow::EmergencyConnectWindowItem::closeClick, this, &MainWindow::onCloseClick);
     connect(mainWindowController_->getEmergencyConnectWindow(), &EmergencyConnectWindow::EmergencyConnectWindowItem::escapeClick, this, &MainWindow::onEscapeClick);
     connect(mainWindowController_->getEmergencyConnectWindow(), &EmergencyConnectWindow::EmergencyConnectWindowItem::connectClick, this, &MainWindow::onEmergencyConnectClick);
     connect(mainWindowController_->getEmergencyConnectWindow(), &EmergencyConnectWindow::EmergencyConnectWindowItem::disconnectClick, this, &MainWindow::onEmergencyDisconnectClick);
@@ -297,8 +311,6 @@ MainWindow::MainWindow() :
     // external config window signals
     connect(mainWindowController_->getExternalConfigWindow(), &ExternalConfigWindow::ExternalConfigWindowItem::buttonClick, this, &MainWindow::onExternalConfigWindowNextClick);
     connect(mainWindowController_->getExternalConfigWindow(), &ExternalConfigWindow::ExternalConfigWindowItem::escapeClick, this, &MainWindow::onEscapeClick);
-    connect(mainWindowController_->getExternalConfigWindow(), &ExternalConfigWindow::ExternalConfigWindowItem::closeClick, this, &MainWindow::onCloseClick);
-    connect(mainWindowController_->getExternalConfigWindow(), &ExternalConfigWindow::ExternalConfigWindowItem::minimizeClick, this, &MainWindow::onMinimizeClick);
 
     // 2FA window signals
     connect(mainWindowController_->getTwoFactorAuthWindow(), &TwoFactorAuthWindow::TwoFactorAuthWindowItem::addClick, this, &MainWindow::onTwoFactorAuthWindowButtonAddClick);
@@ -387,6 +399,8 @@ MainWindow::MainWindow() :
 
     connect(&DpiScaleManager::instance(), &DpiScaleManager::scaleChanged, this, &MainWindow::onScaleChanged);
     connect(&DpiScaleManager::instance(), &DpiScaleManager::newScreen, this, &MainWindow::onDpiScaleManagerNewScreen);
+
+    soundManager_ = new SoundManager(this, backend_->getPreferences());
 
     backend_->init();
 
@@ -783,7 +797,14 @@ bool MainWindow::handleKeyPressEvent(QKeyEvent *event)
                         "WARNING_WHITE",
                         "Test Message",
                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                        GeneralMessageController::tr(GeneralMessageController::kOk));
+                        GeneralMessageController::kOk,
+                        "",
+                        "",
+                        std::function<void(bool)>(nullptr),
+                        std::function<void(bool)>(nullptr),
+                        std::function<void(bool)>(nullptr),
+                        GeneralMessage::kShowBottomPanel,
+                        "https://www.windscribe.com");
                 } else {
                     GeneralMessageController::instance().showMessage(
                         "WARNING_YELLOW",
@@ -902,7 +923,7 @@ void MainWindow::onLoginClick(const QString &username, const QString &password, 
     mainWindowController_->getLoggingInWindow()->startAnimation();
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
 
-    locationsWindow_->setOnlyConfigTabVisible(false);
+    mainWindowController_->getConnectWindow()->setCustomConfigMode(false);
 
     backend_->login(username, password, code2fa);
 }
@@ -979,6 +1000,12 @@ void MainWindow::onLoginFirewallTurnOffClick()
 {
     if (backend_->isFirewallEnabled())
         backend_->firewallOff();
+}
+
+void MainWindow::onCaptchaResolved(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY)
+{
+    mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
+    backend_->continueLoginWithCaptcha(captchaSolution, captchaTrailX, captchaTrailY);
 }
 
 void MainWindow::onConnectWindowNetworkButtonClick()
@@ -1080,6 +1107,18 @@ void MainWindow::cleanupLogViewerWindow()
         logViewerWindow_->deleteLater();
         logViewerWindow_ = nullptr;
     }
+}
+
+QRect MainWindow::guessTrayIconLocationOnScreen(QScreen *screen)
+{
+    const QRect screenGeo = screen->geometry();
+    QRect newIconRect = QRect(static_cast<int>(screenGeo.right() - WINDOW_WIDTH *G_SCALE),
+                              screenGeo.top(),
+                              savedTrayIconRect_.width(),
+                              savedTrayIconRect_.height());
+
+    return newIconRect;
+
 }
 
 void MainWindow::onPreferencesViewLogClick()
@@ -1358,7 +1397,7 @@ void MainWindow::onExternalConfigWindowNextClick()
     mainWindowController_->getExternalConfigWindow()->setClickable(false);
     mainWindowController_->getPreferencesWindow()->setLoggedIn(true);
     backend_->getPreferencesHelper()->setIsExternalConfigMode(true);
-    locationsWindow_->setOnlyConfigTabVisible(true);
+    mainWindowController_->getConnectWindow()->setCustomConfigMode(true);
     backend_->gotoCustomOvpnConfigMode();
 }
 
@@ -1696,6 +1735,12 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
     }
 }
 
+void MainWindow::onBackendCaptchaRequired(const QString &background, const QString &slider, int top)
+{
+    mainWindowController_->getLoggingInWindow()->showCaptcha(background, slider, top);
+    mainWindowController_->getLoggingInWindow()->setMessage(tr("Slide to complete the puzzle"));
+}
+
 void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
 {
     mainWindowController_->getPreferencesWindow()->setLoggedIn(true);
@@ -1826,6 +1871,8 @@ void MainWindow::onBackendLoginError(wsnet::LoginResult loginError, const QStrin
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_SESSION_EXPIRED);
     } else if (loginError == wsnet::LoginResult::kRateLimited) {
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_RATE_LIMITED);
+    } else if (loginError == wsnet::LoginResult::kInvalidSecurityToken) {
+        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_INVALID_SECURITY_TOKEN, errorMessage);
     }
 
     mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
@@ -1839,21 +1886,18 @@ void MainWindow::onBackendSessionStatusChanged(const api_responses::SessionStatu
     // multiple account abuse detection
     QString entryUsername;
     bool bEntryIsPresent = multipleAccountDetection_->entryIsPresent(entryUsername);
-    if (bEntryIsPresent && (!sessionStatus.isPremium()) && sessionStatus.getAlc().size() == 0 && sessionStatus.getStatus() == 1 && entryUsername != sessionStatus.getUsername())
-    {
+    if (bEntryIsPresent && (!sessionStatus.isPremium()) && sessionStatus.getAlc().size() == 0 && sessionStatus.getStatus() == 1 && entryUsername != sessionStatus.getUsername()) {
         status = 2;
         blockConnect_.setBlockedMultiAccount(entryUsername);
-    }
-    else if (bEntryIsPresent && entryUsername == sessionStatus.getUsername() && sessionStatus.getStatus() == 1)
-    {
+    } else if (bEntryIsPresent && entryUsername == sessionStatus.getUsername() && sessionStatus.getStatus() == 1) {
         multipleAccountDetection_->removeEntry();
     }
 
     // free account
-    if (!sessionStatus.isPremium())
-    {
-        if (status == 2)
-        {
+    if (!sessionStatus.isPremium()) {
+        mainWindowController_->getConnectWindow()->setIsPremium(false);
+        mainWindowController_->getLocationsWindow()->setIsPremium(false);
+        if (status == 2) {
             // write entry into registry expired_user = username
             multipleAccountDetection_->userBecomeExpired(sessionStatus.getUsername());
 
@@ -1865,54 +1909,42 @@ void MainWindow::onBackendSessionStatusChanged(const api_responses::SessionStatu
             }
 
             mainWindowController_->getBottomInfoWindow()->setDataRemaining(0, 0);
-            if (!blockConnect_.isBlocked())
-            {
+            if (!blockConnect_.isBlocked()) {
                 blockConnect_.setBlockedExceedTraffic();
             }
-        }
-        else
-        {
-            if (sessionStatus.getTrafficMax() == -1)
-            {
+        } else {
+            if (sessionStatus.getTrafficMax() == -1) {
+                mainWindowController_->getLocationsWindow()->setDataRemaining(-1, -1);
                 mainWindowController_->getBottomInfoWindow()->setDataRemaining(-1, -1);
-            }
-            else
-            {
-                if (backend_->getPreferences()->isShowNotifications())
-                {
+            } else {
+                if (backend_->getPreferences()->isShowNotifications()) {
                     freeTrafficNotificationController_->updateTrafficInfo(sessionStatus.getTrafficUsed(), sessionStatus.getTrafficMax());
                 }
-
+                mainWindowController_->getLocationsWindow()->setDataRemaining(sessionStatus.getTrafficUsed(), sessionStatus.getTrafficMax());
                 mainWindowController_->getBottomInfoWindow()->setDataRemaining(sessionStatus.getTrafficUsed(), sessionStatus.getTrafficMax());
             }
         }
     }
     // premium account
-    else
-    {
-        if (sessionStatus.getRebill() == 0)
-        {
+    else {
+        mainWindowController_->getConnectWindow()->setIsPremium(true);
+        mainWindowController_->getLocationsWindow()->setIsPremium(true);
+        if (sessionStatus.getRebill() == 0) {
             QDate curDate = QDateTime::currentDateTimeUtc().date();
             QDate expireDate = QDate::fromString(sessionStatus.getPremiumExpireDate(), "yyyy-MM-dd");
 
             int days = curDate.daysTo(expireDate);
-            if (days >= 0 && days <= 5)
-            {
+            if (days >= 0 && days <= 5) {
                 mainWindowController_->getBottomInfoWindow()->setDaysRemaining(days);
-            }
-            else
-            {
+            } else {
                 mainWindowController_->getBottomInfoWindow()->setDaysRemaining(-1);
             }
-        }
-        else
-        {
+        } else {
             mainWindowController_->getBottomInfoWindow()->setDaysRemaining(-1);
         }
     }
 
-    if (status == 3)
-    {
+    if (status == 3) {
         blockConnect_.setBlockedBannedUser();
         if ((!selectedLocation_->locationdId().isCustomConfigsLocation()) &&
             (backend_->currentConnectState() == CONNECT_STATE_CONNECTED || backend_->currentConnectState() == CONNECT_STATE_CONNECTING))
@@ -2061,7 +2093,6 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
             updateTrayIconType(AppIconType::DISCONNECTED);
         }
 
-
         if (bNotificationConnectedShowed_) {
             if (backend_->getPreferences()->isShowNotifications()) {
                 showTrayMessage(tr("Connection to Windscribe has been terminated.\n%1 transferred in %2").arg(getConnectionTransferred(), getConnectionTime()));
@@ -2081,6 +2112,7 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
             backend_->sendDebugLog();
         }
     }
+    soundManager_->play(connectState.connectState);
 }
 
 void MainWindow::onBackendEmergencyConnectStateChanged(const types::ConnectState &connectState)
@@ -2859,6 +2891,60 @@ void MainWindow::hideShowDockIcon(bool hideFromDock)
     hideShowDockIconTimer_.start(300);
 }
 
+const QRect MainWindow::bestGuessForTrayIconRectFromLastScreen(const QPoint &pt)
+{
+    QRect lastScreenTrayRect = trayIconRectForLastScreen();
+    if (lastScreenTrayRect.isValid()) {
+        return lastScreenTrayRect;
+    }
+    // qDebug() << "No valid history of last screen";
+    return trayIconRectForScreenContainingPt(pt);
+}
+
+const QRect MainWindow::trayIconRectForLastScreen()
+{
+    if (lastScreenName_ != "") {
+        QRect rect = generateTrayIconRectFromHistory(lastScreenName_);
+        if (rect.isValid()) {
+            return rect;
+        }
+    }
+    // qDebug() << "No valid last screen";
+    return QRect(0,0,0,0); // invalid
+}
+
+const QRect MainWindow::trayIconRectForScreenContainingPt(const QPoint &pt)
+{
+    QScreen *screen = WidgetUtils::slightlySaferScreenAt(pt);
+    if (!screen) {
+        return QRect(0,0,0,0);
+    }
+    return guessTrayIconLocationOnScreen(screen);
+}
+
+const QRect MainWindow::generateTrayIconRectFromHistory(const QString &screenName)
+{
+    if (systemTrayIconRelativeGeoScreenHistory_.contains(screenName)) {
+        // ensure is in current list
+        QScreen *screen = WidgetUtils::screenByName(screenName);
+
+        if (screen) {
+            // const QRect screenGeo = WidgetUtils::smartScreenGeometry(screen);
+            const QRect screenGeo = screen->geometry();
+
+            TrayIconRelativeGeometry &rect = systemTrayIconRelativeGeoScreenHistory_[lastScreenName_];
+            QRect newIconRect = QRect(screenGeo.x() + rect.x(),
+                                      screenGeo.y() + rect.y(),
+                                      rect.width(), rect.height());
+            return newIconRect;
+        }
+        //qDebug() << "   No screen by name: " << screenName;
+        return QRect(0,0,0,0);
+    }
+    //qDebug() << "   No history for screen: " << screenName;
+    return QRect(0,0,0,0);
+}
+
 void MainWindow::onPreferencesHideFromDockChanged(bool hideFromDock)
 {
     hideShowDockIcon(hideFromDock);
@@ -3093,27 +3179,44 @@ void MainWindow::onAutoConnectUpdated(bool on)
 
 QRect MainWindow::trayIconRect()
 {
-#ifdef Q_OS_MACOS
-    if (qApp->screens().size() == 0 || qApp->screens().at(0) == NULL) {
-        qCDebug(LOG_BASIC) << "No screens found, could not determine tray icon rect.  Using saved rect:" << savedTrayIconRect_;
+#if defined(Q_OS_MACOS)
+    if (trayIcon_.isVisible()) {
+        const QRect rc = trayIcon_.geometry();
+
+        // check for valid tray icon
+        if (!rc.isValid()) {
+            QRect lastGuess = bestGuessForTrayIconRectFromLastScreen(rc.topLeft());
+            if (lastGuess.isValid()) return lastGuess;
+            return savedTrayIconRect_;
+        }
+
+        // check for valid screen
+        QScreen *screen = QGuiApplication::screenAt(rc.center());
+        if (!screen) {
+            QRect bestGuess = trayIconRectForScreenContainingPt(rc.topLeft());
+            if (bestGuess.isValid()) {
+                return bestGuess;
+            }
+            return savedTrayIconRect_;
+        }
+
+        QRect screenGeo = screen->geometry();
+
+        // valid screen and tray icon -- update the cache
+        systemTrayIconRelativeGeoScreenHistory_[screen->name()] = QRect(abs(rc.x() - screenGeo.x()), abs(rc.y() - screenGeo.y()), rc.width(), rc.height());
+        lastScreenName_ = screen->name();
+        savedTrayIconRect_ = rc;
         return savedTrayIconRect_;
     }
 
-    // Only wait for tray icon geometry if docked
-    if (backend_->getPreferences()->isDockedToTray()) {
-        while (trayIcon_.geometry().isEmpty() || QGuiApplication::screenAt(trayIcon_.geometry().center()) != qApp->screens().at(0)) {
-            qApp->processEvents();
-        }
-    }
-#endif
-
+#else
     if (trayIcon_.isVisible()) {
         QRect trayIconRect = trayIcon_.geometry();
         if (trayIconRect.isValid()) {
             savedTrayIconRect_ = trayIconRect;
         }
     }
-
+#endif
     return savedTrayIconRect_;
 }
 
@@ -3358,7 +3461,7 @@ void MainWindow::onLocationsTrayMenuLocationSelected(const LocationID &lid)
 void MainWindow::onScaleChanged()
 {
     ImageResourcesSvg::instance().clearHashAndStartPreloading();
-    ImageResourcesJpg::instance().clearHash();
+    ImageResourcesPng::instance().clearHash();
     mainWindowController_->updateScaling();
     updateTrayIconType(currentAppIconType_);
 }
@@ -4170,4 +4273,24 @@ void MainWindow::onLocalDnsServerNotAvailable()
                 backend_->sendConnect(selectedLocation_->locationdId());
             }
         });
+}
+
+void MainWindow::onConnectWindowLocationTabClicked(LOCATION_TAB tab)
+{
+    mainWindowController_->getLocationsWindow()->setTab(tab);
+}
+
+void MainWindow::onConnectWindowSearchFilterChanged(const QString &filter)
+{
+    mainWindowController_->getLocationsWindow()->onSearchFilterChanged(filter);
+}
+
+void MainWindow::onConnectWindowLocationsKeyPressed(QKeyEvent *event)
+{
+    mainWindowController_->getLocationsWindow()->onLocationsKeyPressed(event);
+}
+
+void MainWindow::onLocationsUpgradeBannerClicked()
+{
+    openUpgradeExternalWindow();
 }

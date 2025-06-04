@@ -5,16 +5,16 @@
 class FontDescr
 {
 public:
-    FontDescr(int size, bool isBold, int stretch = 100, qreal letterSpacing = 0.0);
+    FontDescr(int size, int weight, int stretch = 100, qreal letterSpacing = 0.0);
 
     int size() const;
-    bool isBold() const;
+    int weight() const;
     int stretch() const;
     qreal letterSpacing() const;
 
 private:
     int size_;
-    bool isBold_;
+    int weight_;
     int stretch_;
     qreal letterSpacing_;
 };

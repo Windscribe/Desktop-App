@@ -21,10 +21,6 @@
         <source>Install</source>
         <translation>نصب</translation>
     </message>
-    <message>
-        <source>%1%</source>
-        <translation>%1%</translation>
-    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -111,6 +107,13 @@
     <message>
         <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
         <translation>پوشه نصب سفارشی خالی نیست. به عنوان یک اقدام احتیاطی امنیتی، Windscribe را فقط می توان در یک پوشه خالی نصب کرد. لطفا همه فایل ها را از پوشه حذف کنید و دوباره امتحان کنید.</translation>
+    </message>
+</context>
+<context>
+    <name>ProgressDisplay</name>
+    <message>
+        <source>%1%</source>
+        <translation>%1%</translation>
     </message>
 </context>
 <context>

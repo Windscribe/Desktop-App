@@ -10,13 +10,8 @@
 namespace ConnectWindow {
 
 LogoNotificationsButton::LogoNotificationsButton(ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent)
-    , curBackgroundOpacity_(OPACITY_ALL_READ)
-    , numNotifications_("0")
-    , unread_(0)
+    , curBackgroundOpacity_(OPACITY_ALL_READ), numNotifications_("0"), unread_(0), isPremium_(false)
 {
-    //font_ = *FontManager::instance().getFont(10, true);
-    //numberWidth_ = CommonGraphics::textWidth(numNotifications_, font_);
-
     connect(this, &ClickableGraphicsObject::hoverEnter, this, &LogoNotificationsButton::onHoverEnter);
     connect(this, &ClickableGraphicsObject::hoverLeave, this, &LogoNotificationsButton::onHoverLeave);
 
@@ -36,15 +31,21 @@ void LogoNotificationsButton::paint(QPainter *painter, const QStyleOptionGraphic
     qreal initOpacity = painter->opacity();
     painter->setRenderHint(QPainter::Antialiasing);
 
+    int notificationXOffset = 110*G_SCALE;
+
     // LOGO
     QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("LOGO");
-    p->draw(0, 7*G_SCALE, painter);
+    p->draw(0, 10*G_SCALE, painter);
 
-    const int notificationXOffset = 120*G_SCALE;
-    QFont font = FontManager::instance().getFont(9, true);
+    if (isPremium_) {
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("PRO");
+        p->draw(118*G_SCALE, 11*G_SCALE, painter);
+        notificationXOffset += 43*G_SCALE;
+    }
 
-    if (unread_ > 0 || hovered_)
-    {
+    QFont font = FontManager::instance().getFont(9, QFont::Bold);
+
+    if (unread_ > 0 || hovered_) {
         // notification background
         painter->setFont(font);
         painter->setOpacity(curBackgroundOpacity_ * initOpacity);
@@ -55,12 +56,9 @@ void LogoNotificationsButton::paint(QPainter *painter, const QStyleOptionGraphic
         // notification number
         painter->setOpacity(initOpacity);
         painter->setPen(numberColor_);
-        if (unread_ > 0)
-        {
+        if (unread_ > 0) {
             painter->drawText(QRect(notificationXOffset, 0, 14*G_SCALE, 14*G_SCALE), Qt::AlignVCenter | Qt::AlignHCenter, QString::number(unread_));
-        }
-        else
-        {
+        } else {
             painter->drawText(QRect(notificationXOffset, 0, 14*G_SCALE, 14*G_SCALE), Qt::AlignVCenter | Qt::AlignHCenter, numNotifications_);
         }
     }
@@ -96,6 +94,12 @@ void LogoNotificationsButton::onHoverEnter()
 
 void LogoNotificationsButton::onHoverLeave()
 {
+    update();
+}
+
+void LogoNotificationsButton::setIsPremium(bool isPremium)
+{
+    isPremium_ = isPremium;
     update();
 }
 

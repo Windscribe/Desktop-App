@@ -4,6 +4,7 @@
 
 #include "commongraphics/baseitem.h"
 #include "commongraphics/togglebutton.h"
+#include "commongraphics/iconbutton.h"
 #include "graphicresources/fontdescr.h"
 #include "graphicresources/independentpixmap.h"
 
@@ -29,6 +30,8 @@ public:
     void setCaption(const QString &caption);
     void setCaptionFont(const FontDescr &fontDescr);
 
+    void setDescription(const QString &description, const QString &url = "");
+
 signals:
     void stateChanged(bool isChecked);
     void buttonHoverEnter();
@@ -38,10 +41,12 @@ protected:
     void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
     void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
 
-private:
+private slots:
+    void onInfoIconClicked();
 
-    // Height of typical BaseItem (48) - height of checkbox item (22), divided by 2.
-    static constexpr int CHECKBOX_MARGIN_Y = 13;
+private:
+    // Height of typical BaseItem (46) - height of checkbox item (22), divided by 2.
+    static constexpr int CHECKBOX_MARGIN_Y = 12;
 
     QString strCaption_;
     QString strTooltip_;
@@ -51,6 +56,14 @@ private:
     QSharedPointer<IndependentPixmap> icon_;
     bool isCaptionElided_ = false;
     QRectF captionRect_;
+
+    QString desc_;
+    QString descUrl_;
+    IconButton *infoIcon_;
+    int descHeight_ = 0;
+    int descRightMargin_ = 0;
+
+    void updatePositions();
 };
 
 } // namespace PreferencesWindow

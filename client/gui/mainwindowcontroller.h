@@ -155,7 +155,7 @@ private slots:
     void onTooltipControllerSendServerRatingDown();
 
     void onAppSkinChanged(APP_SKIN s);
-    void onVanGoghAnimationProgressChanged(QVariant value);
+    void onUpdateWidgetAnimationProgressChanged(QVariant value);
     void onVanGoghAnimationFinished();
     void onLanguageChanged();
 
@@ -213,10 +213,10 @@ private:
     static constexpr int EXPAND_WINDOW_RESIZE_DURATION = 200;
     static constexpr int EXPAND_ANIMATION_DURATION = 250;
     static constexpr int HIDE_BOTTOM_INFO_ANIMATION_DURATION = 150;
-    static constexpr int BOTTOM_INFO_POS_Y_SHOWING = 287;
-    static constexpr int BOTTOM_INFO_POS_Y_HIDING = 295;
-    static constexpr int BOTTOM_INFO_POS_Y_VAN_GOGH = 264;
-    static constexpr int UPDATE_WIDGET_HEIGHT = 28;
+    static constexpr int BOTTOM_INFO_POS_Y_SHOWING = 260;
+    static constexpr int BOTTOM_INFO_POS_Y_HIDING = 260;
+    static constexpr int BOTTOM_INFO_POS_Y_VAN_GOGH = 244;
+    static constexpr int UPDATE_WIDGET_HEIGHT = 24;
 
     bool isAtomicAnimationActive_;      // animation which cannot be interrupted is active
     QQueue<WINDOW_ID> queueWindowChanges_;
@@ -229,8 +229,8 @@ private:
     // function used in onExpandLocationsAnimationGroupFinished for to do some actions after animation finished
     std::function<void()> functionOnAnimationFinished_;
 
-    QVariantAnimation vanGoghUpdateWidgetAnimation_;
-    double vanGoghUpdateWidgetAnimationProgress_;
+    QVariantAnimation updateWidgetAnimation_;
+    double updateWidgetAnimationProgress_;
 
     void gotoInitializationWindow();
     void gotoLoginWindow();
@@ -301,4 +301,6 @@ private:
 
     void expandWindow(ResizableWindow *window);
     void collapseWindow(ResizableWindow *window, bool bSkipBottomInfoWindowAnimate = false, bool bSkipSetClickable = false);
+
+    int getUpdateWidgetOffset() const;
 };

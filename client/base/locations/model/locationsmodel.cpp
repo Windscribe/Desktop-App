@@ -110,29 +110,28 @@ void LocationsModel::updateBestLocation(const LocationID &bestLocation)
     if (locations_.isEmpty()) {
         return;
     }
-    LocationItem *liBestLocation = findAndCreateBestLocationItem(bestLocation);
+    int idNum = -1;
+    int cityIdNum = -1;
+    LocationItem *liBestLocation = findAndCreateBestLocationItem(bestLocation, &idNum, &cityIdNum);
     LocationID firstLocationId = locations_[0]->location().id;
-    if (firstLocationId.isBestLocation())
-    {
-        if (liBestLocation)
-        {
+    if (firstLocationId.isBestLocation()) {
+        if (liBestLocation) {
             // change the best location only if it has actually changed
-            if (*liBestLocation != *locations_[0])
-            {
+            if (*liBestLocation != *locations_[0]) {
                 delete locations_[0];
                 mapLocations_.remove(firstLocationId);
                 locations_[0] = liBestLocation;
                 mapLocations_[liBestLocation->location().id] = liBestLocation;
 
-                emit dataChanged(index(0, 0), index(0, 0));
-            }
-            else
-            {
+                // Update the display nickname for new best location
+                QModelIndex idx = index(0, 0);
+                setData(idx, renamedLocationsStorage_.nickname(idNum, cityIdNum), Roles::kDisplayNickname);
+                renamedLocationsStorage_.writeToSettings();
+                emit dataChanged(idx, idx);
+            } else {
                 delete liBestLocation;
             }
-        }
-        else
-        {
+        } else {
             // delete the best location (first item) because the best location is not found
             beginRemoveRows(QModelIndex(), 0, 0);
             mapLocations_.remove(firstLocationId);
@@ -140,16 +139,17 @@ void LocationsModel::updateBestLocation(const LocationID &bestLocation)
             locations_.remove(0);
             endRemoveRows();
         }
-    }
-    else
-    {
+    } else {
         // insert the best location to the top of the list
-        if (liBestLocation)
-        {
+        if (liBestLocation) {
             beginInsertRows(QModelIndex(), 0, 0);
             locations_.insert(0, liBestLocation);
             mapLocations_[liBestLocation->location().id] = liBestLocation;
             endInsertRows();
+
+            // Update the display nickname for new best location
+            setData(index(0, 0), renamedLocationsStorage_.nickname(idNum, cityIdNum), Roles::kDisplayNickname);
+            renamedLocationsStorage_.writeToSettings();
         }
     }
     onLanguageChanged();
@@ -776,7 +776,7 @@ void LocationsModel::handleChangedLocation(int ind, const types::Location &newLo
     emit dataChanged(rootIndex, rootIndex);
 }
 
-LocationItem *LocationsModel::findAndCreateBestLocationItem(const LocationID &bestLocation)
+LocationItem *LocationsModel::findAndCreateBestLocationItem(const LocationID &bestLocation, int *idNum, int *cityIdNum)
 {
     if (!bestLocation.isValid()) {
         return nullptr;
@@ -793,6 +793,12 @@ LocationItem *LocationsModel::findAndCreateBestLocationItem(const LocationID &be
             {
                 LocationItem *liBestLocation = new LocationItem(bestLocation, li->location(), c);
                 liBestLocation->setName(tr(BEST_LOCATION_NAME));
+                if (idNum) {
+                    *idNum = li->location().idNum;
+                }
+                if (cityIdNum) {
+                    *cityIdNum = li->location().cities[c].idNum;
+                }
                 return liBestLocation;
             }
         }

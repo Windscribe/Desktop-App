@@ -68,6 +68,12 @@ SessionStatus *SessionStatus::createFromJson(const std::string &json)
             ss->errorCode_ = SessionErrorCode::kRateLimited;
             break;
 
+        // 708 - Invalid or expired security token
+        case 708:
+            ss->errorMessage_ = safeGetString(jsonObj, "errorMessage");
+            ss->errorCode_ = SessionErrorCode::kInvalidSecurityToken;
+            break;
+
         case 1340:
             ss->errorCode_ = SessionErrorCode::kMissingCode2FA;
             break;

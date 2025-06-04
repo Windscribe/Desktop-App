@@ -11,7 +11,7 @@
 
 namespace wsnet {
 
-enum class RequestType { kSessionStatus, kLocations, kServerCredentialsOpenVPN, kServerCredentialsIkev2, kServerConfigs, kPortMap, kStaticIps, kNotifications, kCheckUpdate };
+enum class RequestType { kSessionStatus, kAuthTokenLogin, kLocations, kServerCredentialsOpenVPN, kServerCredentialsIkev2, kServerConfigs, kPortMap, kStaticIps, kNotifications, kCheckUpdate };
 
 class ApiResourcesManager : public WSNetApiResourcesManager
 {
@@ -25,8 +25,14 @@ public:
 
     bool isExist() const override;
 
+
+
     bool loginWithAuthHash() override;
-    void login(const std::string &username, const std::string &password, const std::string &code2fa) override;
+    void authTokenLogin() override;
+    void login(const std::string &username, const std::string &password, const std::string &code2fa, const std::string &secureToken,
+               const std::string &captchaSolution = std::string(),
+               const std::vector<float> &captchaTrailX = std::vector<float>(),
+               const std::vector<float> &captchaTrailY = std::vector<float>()) override;
     void logout() override;
 
     void fetchSession() override;
@@ -53,6 +59,7 @@ public:
     std::string serverConfigs() const override;
     std::string notifications() const override;
     std::string checkUpdate() const override;
+    std::string authTokenLoginResult() const override;
 
     void setUpdateIntervals(int sessionInDisconnectedStateMs, int sessionInConnectedStateMs,
                             int locationsMs, int staticIpsMs, int serverConfigsAndCredentialsMs,
@@ -76,6 +83,8 @@ private:
 
     std::string appleId_;
     std::string gpDeviceId_;
+
+    std::string authTokenLoginResult_;    // result from authTokenLogin call
 
     static constexpr int kMinute = 60 * 1000;
     static constexpr int kHour = 60 * 60 * 1000;
@@ -139,9 +148,12 @@ private:
 
     void onFetchTimer(boost::system::error_code const& err);
 
+    void onAuthTokenLoginAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
     void onInitialSessionAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
     void onLoginAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData,
-                       const std::string &username, const std::string &password, const std::string &code2fa);
+                       const std::string &username, const std::string &password, const std::string &code2fa,
+                       const std::string &secureToken,
+                       const std::string &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY);
     void onSessionAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
     void onServerLocationsAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
     void onStaticIpsAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);

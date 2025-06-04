@@ -21,10 +21,6 @@
         <source>Install</source>
         <translation>बैठाना</translation>
     </message>
-    <message>
-        <source>%1%</source>
-        <translation>%1%</translation>
-    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -111,6 +107,13 @@
     <message>
         <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
         <translation>कस्टम स्थापना फ़ोल्डर रिक्त नहीं है. सुरक्षा एहतियात के रूप में, विंडसाइड को केवल एक खाली फ़ोल्डर में स्थापित किया जा सकता है। कृपया फ़ोल्डर से सभी फ़ाइलें हटाएँ और पुन: प्रयास करें.</translation>
+    </message>
+</context>
+<context>
+    <name>ProgressDisplay</name>
+    <message>
+        <source>%1%</source>
+        <translation>%1%</translation>
     </message>
 </context>
 <context>

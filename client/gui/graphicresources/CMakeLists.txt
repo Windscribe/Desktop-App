@@ -5,8 +5,8 @@ target_sources(gui PRIVATE
     fontmanager.h
     iconmanager.cpp
     iconmanager.h
-    imageresourcesjpg.cpp
-    imageresourcesjpg.h
+    imageresourcespng.cpp
+    imageresourcespng.h
     imageresourcessvg.cpp
     imageresourcessvg.h
     independentpixmap.cpp

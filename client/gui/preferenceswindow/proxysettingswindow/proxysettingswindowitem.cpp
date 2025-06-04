@@ -10,7 +10,7 @@ ProxySettingsWindowItem::ProxySettingsWindowItem(ScalableGraphicsObject *parent,
     preferences_(preferences)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
-    setSpacerHeight(PREFERENCES_MARGIN);
+    setSpacerHeight(PREFERENCES_MARGIN_Y);
 
     connect(preferences, &Preferences::proxySettingsChanged, this, &ProxySettingsWindowItem::onProxySettingsPreferencesChanged);
 

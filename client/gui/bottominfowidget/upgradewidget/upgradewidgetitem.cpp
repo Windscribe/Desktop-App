@@ -19,15 +19,15 @@ UpgradeWidgetItem::UpgradeWidgetItem(ScalableGraphicsObject *parent) : ScalableG
   , bytesMax_(-1)
   , modePro_(false)
   , isExtConfigMode_(false)
-  , curDataIconPath_("DATA_OVER_ICON")
+  , curDataIconPath_("")
   , curLeftTextOffset_(LEFT_TEXT_WITH_ICON_OFFSET)
   , roundedRectXRadius_(10)
 {
-    QString buttonText = tr("GET MORE DATA");
-    textButton_ = new CommonGraphics::TextButton(buttonText, fontDescr_, Qt::white, true, this, 15);
-    textButton_->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    QString buttonText = tr("Get more data");
+    textButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kBanner, 15, HEIGHT_-2, HEIGHT_/2);
+    textButton_->setFont(FontDescr(12, QFont::Medium));
 
-    connect(textButton_, &CommonGraphics::TextButton::clicked, this, &UpgradeWidgetItem::onButtonClick);
+    connect(textButton_, &CommonGraphics::BubbleButton::clicked, this, &UpgradeWidgetItem::onButtonClick);
 
     curBackgroundOpacity_ = OPACITY_FULL;
     curDataRemainingIconOpacity_ = OPACITY_FULL;
@@ -69,7 +69,7 @@ void UpgradeWidgetItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     painter->drawRoundedRect(rect, roundedRectXRadius_, 100, Qt::RelativeSize);
     painter->restore();
 
-    // version text
+    // data text
     painter->save();
     QFont font = FontManager::instance().getFont(fontDescr_);
     QFontMetrics fm(font);
@@ -80,12 +80,27 @@ void UpgradeWidgetItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     painter->drawText(curLeftTextOffset_*G_SCALE, 0, currentText());
     painter->restore();
 
-    if (!isExtConfigMode_)
-    {
-        // Data Icon
-        painter->setOpacity(curDataRemainingIconOpacity_ * initOpacity);
-        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(curDataIconPath_);
-        pixmap->draw(3*G_SCALE+0.5, 3*G_SCALE+0.5, painter);
+    if (!isExtConfigMode_) {
+        if (!curDataIconPath_.isEmpty()) {
+            // Data Icon
+            painter->setOpacity(curDataRemainingIconOpacity_ * initOpacity);
+            QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(curDataIconPath_);
+            pixmap->draw(3*G_SCALE+0.5, 3*G_SCALE+0.5, painter);
+        } else {
+            // Draw background arc
+            QPen pen = painter->pen();
+            pen.setWidth(2*G_SCALE);
+            pen.setColor(QColor(255, 255, 255, 51));
+
+            painter->setPen(pen);
+            painter->drawArc(QRectF(3*G_SCALE, 3*G_SCALE, 16*G_SCALE, 16*G_SCALE), 180*16, -360*16);
+
+            // Draw unused arc
+            painter->setPen(curDataRemainingColor_);
+            double pct = 1 - (double)bytesUsed_/(double)bytesMax_;
+            painter->drawArc(QRectF(3*G_SCALE, 3*G_SCALE, 16*G_SCALE, 16*G_SCALE), 180*16, -pct*360*16);
+
+        }
     }
 }
 
@@ -116,31 +131,20 @@ QColor UpgradeWidgetItem::getTextColor()
 {
     QColor dataColor;
 
-    if (modePro_)
-    {
-        if (daysLeft_ > 1)
-        {
+    if (modePro_) {
+        if (daysLeft_ > 1) {
             dataColor = FontManager::instance().getBrightYellowColor();
-        }
-        else // 0, 1
-        {
+        } else { // 0, 1
             dataColor = FontManager::instance().getErrorRedColor();
         }
-    }
-    else
-    {
+    } else {
         qint64 bytesLeft = bytesMax_ - bytesUsed_;
 
-        if (bytesLeft > TEN_GB_IN_BYTES/2) // 5+ GB
-        {
+        if (bytesLeft > TEN_GB_IN_BYTES/2) { // 5+ GB
             dataColor = FontManager::instance().getSeaGreenColor();
-        }
-        else if (bytesLeft > TEN_GB_IN_BYTES/10) // 1-4 GB
-        {
+        } else if (bytesLeft > TEN_GB_IN_BYTES/10) { // 1-4 GB
             dataColor = FontManager::instance().getBrightYellowColor();
-        }
-        else // < 1GB
-        {
+        } else { // < 1GB
             dataColor = FontManager::instance().getErrorRedColor();
         }
     }
@@ -150,41 +154,23 @@ QColor UpgradeWidgetItem::getTextColor()
 
 void UpgradeWidgetItem::updateIconPath()
 {
-    qint64 bytesLeft = bytesMax_ - bytesUsed_;
-
-    if (modePro_)
-    {
+    if (modePro_) {
         curDataIconPath_ = "RENEW_PRO_ICON";
-    }
-    else
-    {
-        if (bytesLeft > TEN_GB_IN_BYTES/2) // 5GB+
-        {
-            curDataIconPath_ = "DATA_FULL_ICON";
-        }
-        else if (bytesLeft > TEN_GB_IN_BYTES/10) // 1-4 GB
-        {
-            curDataIconPath_ = "DATA_LOW_ICON";
-        }
-        else // < 1GB
-        {
-            curDataIconPath_ = "DATA_OVER_ICON";
-        }
+    } else {
+        curDataIconPath_ = "";
     }
 }
 
 void UpgradeWidgetItem::setClickable(bool enable)
 {
-    if (textButton_ != nullptr)
-    {
+    if (textButton_ != nullptr) {
         textButton_->setClickable(enable);
     }
 }
 
 void UpgradeWidgetItem::setDataRemaining(qint64 bytesUsed, qint64 bytesMax)
 {
-    if (!isExtConfigMode_)
-    {
+    if (!isExtConfigMode_) {
         modePro_ = false;
 
         bytesUsed_ = bytesUsed;
@@ -204,8 +190,7 @@ void UpgradeWidgetItem::updateDisplayElements()
 
 void UpgradeWidgetItem::setDaysRemaining(int days)
 {
-    if (!isExtConfigMode_)
-    {
+    if (!isExtConfigMode_) {
         modePro_ = true;
         daysLeft_ = days;
 
@@ -264,37 +249,23 @@ void UpgradeWidgetItem::updateScaling()
 
 void UpgradeWidgetItem::updateTextPos()
 {
-    // Constrain the text button to the remaining space in this widget.
     QFont font = FontManager::instance().getFont(fontDescr_);
-    int currentTextWidth = CommonGraphics::textWidth(currentText(), font);
-    int nAvailableWidth = width_*G_SCALE - curLeftTextOffset_*G_SCALE - currentTextWidth - 20*G_SCALE;
-    textButton_->setMaxWidth(nAvailableWidth);
-
-    textButton_->recalcBoundingRect();
-
-    int updatePosX = curLeftTextOffset_*G_SCALE + currentTextWidth + 10*G_SCALE;
-    textButton_->setPos(updatePosX, (int)(G_SCALE+0.5));
+    int width = CommonGraphics::textWidth(tr("Get more data"), font) + 16*G_SCALE;
+    textButton_->setWidth(width);
+    textButton_->setPos(width_*G_SCALE - textButton_->boundingRect().width(), 1*G_SCALE);
 }
 
 QString UpgradeWidgetItem::currentText()
 {
     QString result = "";
 
-    if (isExtConfigMode_)
-    {
-        result = tr("EXT CONFIG MODE");
-    }
-    else
-    {
-        if (modePro_)
-        {
+    if (!isExtConfigMode_) {
+        if (modePro_) {
             result = makeDaysLeftString(daysLeft_);
-        }
-        else
-        {
+        } else {
             const auto bytes_remaining = qMax(qint64(0), bytesMax_ - bytesUsed_);
             QLocale locale(LanguageController::instance().getLanguage());
-            result = locale.formattedDataSize(bytes_remaining, 1, QLocale::DataSizeTraditionalFormat);
+            result = tr("%1 left").arg(locale.formattedDataSize(bytes_remaining, 1, QLocale::DataSizeTraditionalFormat));
         }
     }
 
@@ -304,40 +275,34 @@ QString UpgradeWidgetItem::currentText()
 QString UpgradeWidgetItem::makeDaysLeftString(int days)
 {
     if (days == 0)
-        return tr("0 DAYS LEFT");
+        return tr("0 days left");
     else if (days == 1)
-        return tr("1 DAY LEFT");
+        return tr("1 day left");
     else if (days == 2)
-        return tr("2 DAYS LEFT");
+        return tr("2 days left");
     else if (days == 3)
-        return tr("3 DAYS LEFT");
+        return tr("3 days left");
     else if (days == 4)
-        return tr("4 DAYS LEFT");
+        return tr("4 days left");
     else if (days == 5)
-        return tr("5 DAYS LEFT");
+        return tr("5 days left");
     else
     {
         WS_ASSERT(false);
-        return tr("%1 DAYS LEFT").arg(QString::number(days));
+        return tr("%1 days left").arg(QString::number(days));
     }
 }
 
 void UpgradeWidgetItem::updateButtonText()
 {
-    if (isExtConfigMode_)
-    {
-        QString buttonText = tr("LOGIN");
+    if (isExtConfigMode_) {
+        QString buttonText = tr("Login");
         textButton_->setText(buttonText);
-    }
-    else
-    {
-        if (modePro_)
-        {
-            textButton_->setText(tr("RENEW"));
-        }
-        else
-        {
-            textButton_->setText(tr("GET MORE DATA"));
+    } else {
+        if (modePro_) {
+            textButton_->setText(tr("Renew"));
+        } else {
+            textButton_->setText(tr("Get more data"));
         }
     }
 }
@@ -348,13 +313,10 @@ void UpgradeWidgetItem::setExtConfigMode(bool isExtConfigMode)
     {
         isExtConfigMode_ = isExtConfigMode;
 
-        if (isExtConfigMode)
-        {
+        if (isExtConfigMode) {
             curLeftTextOffset_ = LEFT_TEXT_NO_ICON_OFFSET;
             curDataRemainingColor_ = Qt::white;
-        }
-        else
-        {
+        } else {
             curLeftTextOffset_ = LEFT_TEXT_WITH_ICON_OFFSET;
             curDataRemainingColor_ = getTextColor();
             updateIconPath();

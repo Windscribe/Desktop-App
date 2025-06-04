@@ -26,7 +26,14 @@ public:
     int getSize() const { return BUTTON_SIZE; }
 
 public slots:
+    void onTextOpacityChanged(const QVariant &value);
     void onLanguageChanged();
+
+protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
 
 signals:
     void clicked();
@@ -34,8 +41,13 @@ signals:
 private:
     IconButton *iconButton_;
     TEXT_POSITION textPosition_;
+    QVariantAnimation textOpacityAnim_;
+    double currentOpacity_;
+    bool isClickable_;
 
-    static constexpr int BUTTON_SIZE = 24;
+    static constexpr int BUTTON_SIZE = 32;
+
+    void hover();
 };
 
 } // namespace CommonGraphics

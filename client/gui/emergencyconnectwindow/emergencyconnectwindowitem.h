@@ -23,8 +23,6 @@ public:
     void setClickable(bool isClickable);
 
 signals:
-    void minimizeClick();
-    void closeClick();
     void escapeClick();
     void connectClick();
     void disconnectClick();
@@ -41,7 +39,6 @@ private slots:
     void onTitleOpacityChange(const QVariant &value);
     void onDescriptionTransition(const QVariant &value);
     void onIconOpacityChange(const QVariant &value);
-    void onMinimizeCloseOpacityChange(const QVariant &value);
 
     void onSpinnerTransition(const QVariant &value );
     void onSubDescriptionTextTransition(const QVariant &value);
@@ -74,12 +71,10 @@ private:
 
     double curTitleOpacity_;
     double curIconOpacity_;
-    double curMinimizeCloseOpacity_;
 
     QVariantAnimation titleOpacityAnimation_;
     QVariantAnimation descriptionOpacityAnimation_;
     QVariantAnimation iconOpacityAnimation_;
-    QVariantAnimation minimizeCloseOpacityAnimation_;
 
     QVariantAnimation spinnerOpacityAnimation_;
     QVariantAnimation subDescriptionTextOpacityAnimation_;
@@ -94,9 +89,6 @@ private:
     int curSpinnerRotation_;
     int curTargetRotation_;
     int lastSpinnerRotationStart_;
-
-    IconButton *closeButton_;
-    IconButton *minimizeButton_;
 
     // constants:
     static constexpr int ICON_POS_Y = 48;

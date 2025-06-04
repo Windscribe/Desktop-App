@@ -31,7 +31,6 @@ target_compile_definitions(common PRIVATE CMAKE_LIBRARY_LIBRARY
 
 add_subdirectory(api_responses)
 add_subdirectory(ipc)
-add_subdirectory(legacy_protobuf_support)
 add_subdirectory(types)
 add_subdirectory(utils)
 

@@ -13,7 +13,7 @@ namespace CommonGraphics {
 
 TextIconButton::TextIconButton(int spacerWidth, const QString text, const QString &imagePath, ScalableGraphicsObject *parent, bool bSetClickable)
   : ClickableGraphicsObject(parent), width_(0), maxWidth_(-1), height_(0), spacerWidth_(spacerWidth), iconPath_(imagePath), text_(text),
-    curTextOpacity_(OPACITY_HALF), curIconOpacity_(OPACITY_HALF), fontDescr_(16, true), yOffset_(0)
+    curTextOpacity_(OPACITY_HALF), curIconOpacity_(OPACITY_HALF), fontDescr_(16, QFont::Bold), yOffset_(0)
 {
     recalcHeight();
     recalcWidth();
@@ -52,7 +52,12 @@ void TextIconButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
     // Right Arrow
     painter->setOpacity(curIconOpacity_);
-    iconPixmap->draw(boundingRect().width() - iconPixmap->width(), 0, painter);
+
+    int y = 0;
+    if (iconPixmap->height() < boundingRect().height()) {
+        y = (boundingRect().height() - iconPixmap->height()) / 2;
+    }
+    iconPixmap->draw(boundingRect().width() - iconPixmap->width(), y, painter);
 }
 
 void TextIconButton::setFont(const FontDescr &fontDescr)
@@ -185,6 +190,21 @@ void TextIconButton::recalcHeight()
 void TextIconButton::setVerticalOffset(int offset)
 {
     yOffset_ = offset;
+}
+
+void TextIconButton::setImagePath(const QString &imagePath)
+{
+    iconPath_ = imagePath;
+    recalcWidth();
+    recalcHeight();
+    update();
+}
+
+void TextIconButton::setSpacerWidth(int spacerWidth)
+{
+    spacerWidth_ = spacerWidth;
+    recalcWidth();
+    update();
 }
 
 }

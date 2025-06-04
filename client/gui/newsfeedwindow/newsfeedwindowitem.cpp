@@ -26,48 +26,48 @@ NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent,
 void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     // resize area background
-    qreal initialOpacity = painter->opacity();
-    painter->fillRect(boundingRect().adjusted(0, 286*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
+    painter->setOpacity(OPACITY_FULL);
+    painter->fillRect(boundingRect().adjusted(0, 270*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
 
     QRect rcCaption;
     // base background
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
         QPainterPath path;
-#ifdef Q_OS_MACOS
-        path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
-#else
-        path.addRect(boundingRect().toRect());
-#endif
+        path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
         painter->setPen(Qt::NoPen);
         painter->fillPath(path, QColor(2, 13, 28));
         painter->setPen(Qt::SolidLine);
         QSharedPointer<IndependentPixmap> pixmapHeader = ImageResourcesSvg::instance().getIndependentPixmap(backgroundHeader_);
         pixmapHeader->draw(0, 0, painter);
-        rcCaption = QRect(64*G_SCALE, 2*G_SCALE, 200*G_SCALE, 56*G_SCALE);
+        rcCaption = QRect(52*G_SCALE, 0, 200*G_SCALE, 56*G_SCALE);
     } else {
         QSharedPointer<IndependentPixmap> pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);
         pixmapBaseBackground->draw(0, 0, painter);
         QSharedPointer<IndependentPixmap> pixmapHeader = ImageResourcesSvg::instance().getIndependentPixmap(backgroundHeader_);
-        pixmapHeader->draw(0, 27*G_SCALE, painter);
-        rcCaption = QRect(64*G_SCALE, 30*G_SCALE, 200*G_SCALE, 56*G_SCALE);
+        pixmapHeader->draw(0, 16*G_SCALE, painter);
+        rcCaption = QRect(52*G_SCALE, 16*G_SCALE, 200*G_SCALE, 56*G_SCALE);
     }
+
+    QSharedPointer<IndependentPixmap> pixmapBorder = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBorder_);
+    pixmapBorder->draw(0, 0, 350*G_SCALE, 32*G_SCALE, painter);
+
+    QSharedPointer<IndependentPixmap> pixmapBorderExtension = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBorderExtension_);
+    pixmapBorderExtension->draw(0, 32*G_SCALE, 350*G_SCALE, getBottomResizeArea().toRect().top() - 32*G_SCALE, painter);
 
     // draw page caption
     painter->setPen(Qt::white);
-    QFont font = FontManager::instance().getFont(16, true);
+    QFont font = FontManager::instance().getFont(16, QFont::Bold);
     painter->setFont(font);
     painter->drawText(rcCaption, Qt::AlignLeft | Qt::AlignVCenter, tr("News Feed"));
 
     // bottom-most background
-    painter->setOpacity(initialOpacity);
+    painter->setOpacity(OPACITY_FULL);
     if (roundedFooter_) {
         painter->setPen(footerColor_);
         painter->setBrush(footerColor_);
-        painter->drawRoundedRect(getBottomResizeArea(), 8*G_SCALE, 8*G_SCALE);
+        painter->drawRoundedRect(getBottomResizeArea(), 9*G_SCALE, 9*G_SCALE);
         painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -7*G_SCALE), QBrush(footerColor_));
-    }
-    else
-    {
+    } else {
         painter->fillRect(getBottomResizeArea(), QBrush(footerColor_));
     }
 }

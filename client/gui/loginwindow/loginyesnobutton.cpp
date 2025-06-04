@@ -44,7 +44,7 @@ void LoginYesNoButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     qreal initOpacity = painter->opacity();
 
-    QFont font = FontManager::instance().getFont(16, true);
+    QFont font = FontManager::instance().getFont(16, QFont::Bold);
     painter->setFont(font);
     painter->setPen(Qt::white);
 

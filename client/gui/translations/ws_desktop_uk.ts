@@ -70,8 +70,8 @@
         <translation>Блокує всі підключення в разі раптового відключення</translation>
     </message>
     <message>
-        <source>Connect to rate</source>
-        <translation>Підключитися до тарифу</translation>
+        <source>FIREWALL</source>
+        <translation>БРАНДМАУЕР</translation>
     </message>
 </context>
 <context>
@@ -82,10 +82,26 @@
     </message>
 </context>
 <context>
-    <name>ConnectWindow::MiddleItem</name>
+    <name>ConnectWindow::LocationsMenu</name>
     <message>
-        <source>Firewall</source>
-        <translation>Брандмауер</translation>
+        <source>All</source>
+        <translation>Усі</translation>
+    </message>
+    <message>
+        <source>Configured</source>
+        <translation>Налаштовані</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Статичні IP-адреси</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Обране</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Шукати</translation>
     </message>
 </context>
 <context>
@@ -224,26 +240,6 @@
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
-        <source>All</source>
-        <translation>Усі</translation>
-    </message>
-    <message>
-        <source>Configured</source>
-        <translation>Налаштовані</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Статичні IP-адреси</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Обране</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation>Шукати</translation>
-    </message>
-    <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
         <translation>Виберіть каталог, який містить користувацькі налаштування, які ви хочете відобразити тут</translation>
     </message>
@@ -275,6 +271,10 @@
         <source>Buy</source>
         <translation>Купити</translation>
     </message>
+    <message>
+        <source>All locations (%1)</source>
+        <translation>Усі місцеположення (%1)</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -290,7 +290,7 @@
         <translation>Перенесення слів</translation>
     </message>
     <message>
-        <source>Color highlighting</source>
+        <source>Colour highlighting</source>
         <translation>Виділення кольором</translation>
     </message>
     <message>
@@ -403,10 +403,6 @@
 </context>
 <context>
     <name>LoginWindow::WelcomeWindowItem</name>
-    <message>
-        <source>Keep Your Secrets.</source>
-        <translation>Зберігайте свої секрети.</translation>
-    </message>
     <message>
         <source>Emergency Connect</source>
         <translation>Аварійне підключення</translation>
@@ -886,6 +882,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
         <translation>Не вдається запустити спеціальну службу DNS - порт 53 вже використовується.  Чи хотіли б ви змінити підключений DNS на локальний сервер?</translation>
     </message>
+    <message>
+        <source>Slide to complete the puzzle</source>
+        <translation>Проведіть пальцем, щоб зібрати пазл</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -997,16 +997,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Обліковий запис</translation>
     </message>
     <message>
-        <source>INFO</source>
-        <translation>ІНФОРМАЦІЯ</translation>
-    </message>
-    <message>
         <source>Username</source>
         <translation>Ім&apos;я користувача</translation>
-    </message>
-    <message>
-        <source>PLAN</source>
-        <translation>ПЛАН</translation>
     </message>
     <message>
         <source>Reset Date</source>
@@ -1023,6 +1015,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Expiry Date</source>
         <translation>Закінчення терміну дії</translation>
+    </message>
+    <message>
+        <source>ACCOUNT INFO</source>
+        <translation>ІНФОРМАЦІЯ ПРО ОБЛІКОВИЙ ЗАПИС</translation>
+    </message>
+    <message>
+        <source>PLAN INFO</source>
+        <translation>ІНФОРМАЦІЯ ПРО ПЛАН</translation>
+    </message>
+    <message>
+        <source>UPGRADE &gt;</source>
+        <translation>ОНОВЛЕННЯ &gt;</translation>
     </message>
 </context>
 <context>
@@ -1124,30 +1128,62 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::BackgroundSettingsGroup</name>
+    <name>PreferencesWindow::AppBackgroundGroup</name>
     <message>
-        <source>Disconnected</source>
-        <translation>Відключено</translation>
+        <source>App Background</source>
+        <translation>Фон програми</translation>
     </message>
     <message>
-        <source>Connected</source>
-        <translation>Підключено</translation>
+        <source>Aspect Ratio Mode</source>
+        <translation>Режим співвідношення сторін</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>При відключенні</translation>
     </message>
     <message>
         <source>Flags</source>
-        <translation>Прапори країн</translation>
+        <translation>Прапори</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>Комплекті</translation>
     </message>
     <message>
         <source>None</source>
-        <translation>Нічого</translation>
+        <translation>Ніхто</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>Користувальницький</translation>
+        <translation>Нестандартний</translation>
     </message>
     <message>
-        <source>App Background</source>
-        <translation>Фон додатку</translation>
+        <source>When Connected</source>
+        <translation>При підключенні</translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation>Виберіть зображення</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>Квадрат</translation>
+    </message>
+    <message>
+        <source>Palm</source>
+        <translation>Пальма</translation>
+    </message>
+    <message>
+        <source>Drip</source>
+        <translation>Крапельне</translation>
+    </message>
+    <message>
+        <source>Snow</source>
+        <translation>Сніг</translation>
+    </message>
+    <message>
+        <source>Ripple</source>
+        <translation>Хвильовий</translation>
     </message>
 </context>
 <context>
@@ -1236,7 +1272,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Автопідключення</translation>
     </message>
     <message>
-        <source>Control the mode of behavior of the Windscribe firewall.</source>
+        <source>Control the mode of behaviour of the Windscribe firewall.</source>
         <translation>Керуйте режимом поведінки брандмауера Windscribe.</translation>
     </message>
     <message>
@@ -1486,32 +1522,12 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Упорядкування локацій</translation>
     </message>
     <message>
-        <source>Display latency as signal strength bars or in milliseconds.</source>
-        <translation>Відображає затримку у вигляді стовпчиків потужності сигналу або в мілісекундах.</translation>
-    </message>
-    <message>
-        <source>Latency Display</source>
-        <translation>Відображення затримки</translation>
-    </message>
-    <message>
         <source>Localize Windscribe to supported languages.</source>
         <translation>Локалізуйте Windscribe підтримуваними мовами.</translation>
     </message>
     <message>
         <source>Language</source>
         <translation>Мова</translation>
-    </message>
-    <message>
-        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>Вибирайте між класичним графічним інтерфейсом або «безвухим» альтернативним графічним інтерфейсом.</translation>
-    </message>
-    <message>
-        <source>App Skin</source>
-        <translation>Оформлення програми</translation>
-    </message>
-    <message>
-        <source>Customize the background of the main app screen.</source>
-        <translation>Налаштуйте фон головного екрана програми.</translation>
     </message>
     <message>
         <source>Choose to receive stable, beta, or experimental builds.</source>
@@ -1530,7 +1546,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Виберіть між білою та чорною іконкою лотка.</translation>
     </message>
     <message>
-        <source>Tray Icon Color</source>
+        <source>Tray Icon Colour</source>
         <translation>Колір піктограми лотка</translation>
     </message>
     <message>
@@ -1538,28 +1554,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Мультинастільний комп&apos;ютер</translation>
     </message>
     <message>
-        <source>Select behavior when window is activated with multiple desktops.</source>
+        <source>Select behaviour when window is activated with multiple desktops.</source>
         <translation>Виберіть поведінку, коли вікно активовано на кількох робочих столах.</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Експорт</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>Імпорт</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Скинути</translation>
-    </message>
-    <message>
-        <source>Change location names to your liking.</source>
-        <translation>Змінюйте назви локацій на свій смак.</translation>
-    </message>
-    <message>
-        <source>Rename Locations</source>
-        <translation>Перейменування місцеположень</translation>
     </message>
 </context>
 <context>
@@ -1619,6 +1615,49 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
         <translation>Маєте проблему, яку Гаррі не може вирішити? Зверніться до людської служби підтримки.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::LookAndFeelWindowItem</name>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>Зовнішній вигляд і поведінка</translation>
+    </message>
+    <message>
+        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
+        <translation>Вибирайте між класичним графічним інтерфейсом або «безвухим» альтернативним графічним інтерфейсом.</translation>
+    </message>
+    <message>
+        <source>App Skin</source>
+        <translation>Оформлення програми</translation>
+    </message>
+    <message>
+        <source>Customize the background of the main app screen.</source>
+        <translation>Налаштуйте фон головного екрана програми.</translation>
+    </message>
+    <message>
+        <source>Choose sounds to play when connection events occur.</source>
+        <translation>Виберіть звуки, які відтворюватимуться під час подій з&apos;єднання.</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>Змінюйте назви локацій на свій смак.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>Перейменування місцеположень</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Експорт</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Імпорт</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Скинути</translation>
     </message>
 </context>
 <context>
@@ -1761,20 +1800,12 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::PlanItem</name>
     <message>
-        <source>Unlimited Data</source>
-        <translation>Необмежений об&apos;єм даних</translation>
+        <source>Free</source>
+        <translation>Безкоштовний</translation>
     </message>
     <message>
-        <source>%1/Month</source>
-        <translation>%1/місяць</translation>
-    </message>
-    <message>
-        <source>Pro</source>
-        <translation>Про</translation>
-    </message>
-    <message>
-        <source>Upgrade</source>
-        <translation>Оновлення</translation>
+        <source>Plan Type</source>
+        <translation>Тип плану</translation>
     </message>
 </context>
 <context>
@@ -1818,6 +1849,10 @@ Connect to a network first</source>
     <message>
         <source>Quit</source>
         <translation>Вийти</translation>
+    </message>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>Зовнішній вигляд і поведінка</translation>
     </message>
 </context>
 <context>
@@ -2012,14 +2047,41 @@ Connect to a network first</source>
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::SelectImageItem</name>
+    <name>PreferencesWindow::SelectFileItem</name>
     <message>
         <source>[no selection]</source>
-        <translation>[не вибрано]</translation>
+        <translation>[без вибору]</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::SoundsGroup</name>
+    <message>
+        <source>Sound Notifications</source>
+        <translation>Звукові сповіщення</translation>
     </message>
     <message>
-        <source>Select an image</source>
-        <translation>Виберіть зображення</translation>
+        <source>None</source>
+        <translation>Ніхто</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>При відключенні</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>Комплекті</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Нестандартний</translation>
+    </message>
+    <message>
+        <source>Select a sound</source>
+        <translation>Виберіть звук</translation>
+    </message>
+    <message>
+        <source>When Connected</source>
+        <translation>При підключенні</translation>
     </message>
 </context>
 <context>
@@ -2100,14 +2162,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 Якщо перевстановлення не допомогло, зверніться по допомогу до служби підтримки Windscribe.</translation>
     </message>
     <message>
-        <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
-        <translation>Вибрані програми, IP-адреси та імена хостів не проходитимуть через Windscribe після підключення.</translation>
-    </message>
-    <message>
-        <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
-        <translation>Лише вибрані програми, IP-адреси та імена хостів проходитимуть через Windscribe після підключення.</translation>
-    </message>
-    <message>
         <source>Split Tunneling</source>
         <translation>Роздільне тунелювання</translation>
     </message>
@@ -2130,6 +2184,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>IPs &amp; Hostnames</source>
         <translation>IP-адреси та імена хостів</translation>
+    </message>
+    <message>
+        <source>When enabled, selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
+        <translation>Коли увімкнено, вибрані програми, IP-адреси та імена хостів не проходитимуть через Windscribe при підключенні.</translation>
+    </message>
+    <message>
+        <source>When enabled, only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
+        <translation>Якщо увімкнено, лише вибрані програми, IP-адреси та імена хостів проходитимуть через Windscribe під час підключення.</translation>
     </message>
 </context>
 <context>
@@ -2230,14 +2292,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Latency</source>
         <translation>За затримкою</translation>
-    </message>
-    <message>
-        <source>Bars</source>
-        <translation>Стовпчики</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>Мілісекунди</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2408,12 +2462,16 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>Локальний DNS</translation>
     </message>
     <message>
-        <source>Latency test pending</source>
-        <translation>Очікується тест затримки</translation>
+        <source>Stretch</source>
+        <translation>Розтягнути</translation>
     </message>
     <message>
-        <source>Latency test failed</source>
-        <translation>Тест на затримку не пройшов</translation>
+        <source>Fill</source>
+        <translation>Заповнити</translation>
+    </message>
+    <message>
+        <source>Tile</source>
+        <translation>Плитка</translation>
     </message>
     <message>
         <source>Always On+</source>
@@ -2490,8 +2548,8 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>v</translation>
     </message>
     <message>
-        <source>UPDATE</source>
-        <translation>ОНОВИТИ</translation>
+        <source>Update</source>
+        <translation>Оновлювати</translation>
     </message>
 </context>
 <context>
@@ -2526,50 +2584,61 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
 </context>
 <context>
+    <name>UpgradeBanner</name>
+    <message>
+        <source>Unlock full access to Windscribe</source>
+        <translation>Розблокуйте повний доступ до Windscribe</translation>
+    </message>
+    <message>
+        <source>Go Pro for unlimited everything</source>
+        <translation>Go Pro без обмежень на все</translation>
+    </message>
+</context>
+<context>
     <name>UpgradeWidget::UpgradeWidgetItem</name>
     <message>
-        <source>GET MORE DATA</source>
-        <translation>ОТРИМАТИ БІЛЬШЕ ДАННИХ</translation>
+        <source>Get more data</source>
+        <translation>Отримуйте більше даних</translation>
     </message>
     <message>
-        <source>EXT CONFIG MODE</source>
-        <translation>РЕЖИМ КОНФІГУРАЦІЇ EXT</translation>
+        <source>%1 left</source>
+        <translation>%1 ліворуч</translation>
     </message>
     <message>
-        <source>0 DAYS LEFT</source>
-        <translation>ЗАЛИШИЛОСЯ 0 ДНІВ</translation>
+        <source>0 days left</source>
+        <translation>Залишилось 0 днів</translation>
     </message>
     <message>
-        <source>1 DAY LEFT</source>
-        <translation>ЗАЛИШИВСЯ 1 ДЕНЬ</translation>
+        <source>1 day left</source>
+        <translation>Залишилось 1 днів</translation>
     </message>
     <message>
-        <source>2 DAYS LEFT</source>
-        <translation>ЗАЛИШИЛОСЬ 2 ДНІ</translation>
+        <source>2 days left</source>
+        <translation>Залишилось 2 дні</translation>
     </message>
     <message>
-        <source>3 DAYS LEFT</source>
-        <translation>ЗАЛИШИЛОСЬ 3 ДНІ</translation>
+        <source>3 days left</source>
+        <translation>Залишилось 3 дні</translation>
     </message>
     <message>
-        <source>4 DAYS LEFT</source>
-        <translation>ЗАЛИШИЛОСЬ 4 ДНІ</translation>
+        <source>4 days left</source>
+        <translation>Залишилось 4 дні</translation>
     </message>
     <message>
-        <source>5 DAYS LEFT</source>
-        <translation>ЗАЛИШИЛОСЬ 5 ДНІВ</translation>
+        <source>5 days left</source>
+        <translation>Залишилось 5 днів</translation>
     </message>
     <message>
-        <source>%1 DAYS LEFT</source>
-        <translation>ЗАЛИШИЛОСЬ %1 ДНІВ</translation>
+        <source>%1 days left</source>
+        <translation>Залишилось %1 днів</translation>
     </message>
     <message>
-        <source>LOGIN</source>
-        <translation>ЛОГІН</translation>
+        <source>Login</source>
+        <translation>Логін</translation>
     </message>
     <message>
-        <source>RENEW</source>
-        <translation>ПОНОВИТИ</translation>
+        <source>Renew</source>
+        <translation>Обновляти</translation>
     </message>
 </context>
 <context>

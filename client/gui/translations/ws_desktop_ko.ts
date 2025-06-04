@@ -70,8 +70,8 @@
         <translation>갑작스런 연결 끊김 시 모든 연결을 차단합니다.</translation>
     </message>
     <message>
-        <source>Connect to rate</source>
-        <translation>요금에 연결</translation>
+        <source>FIREWALL</source>
+        <translation>방화벽</translation>
     </message>
 </context>
 <context>
@@ -82,10 +82,26 @@
     </message>
 </context>
 <context>
-    <name>ConnectWindow::MiddleItem</name>
+    <name>ConnectWindow::LocationsMenu</name>
     <message>
-        <source>Firewall</source>
-        <translation>방화벽</translation>
+        <source>All</source>
+        <translation>모두</translation>
+    </message>
+    <message>
+        <source>Configured</source>
+        <translation>구성</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>고정 IP</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>즐겨찾기</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>검색</translation>
     </message>
 </context>
 <context>
@@ -224,26 +240,6 @@
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
-        <source>All</source>
-        <translation>모두</translation>
-    </message>
-    <message>
-        <source>Configured</source>
-        <translation>구성</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>고정 IP</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>즐겨찾기</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation>검색</translation>
-    </message>
-    <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
         <translation>여기에 표시할 사용자 지정 구성이 포함된 디렉토리를 선택합니다</translation>
     </message>
@@ -275,6 +271,10 @@
         <source>Buy</source>
         <translation>사다</translation>
     </message>
+    <message>
+        <source>All locations (%1)</source>
+        <translation>모든 위치(%1)</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -290,7 +290,7 @@
         <translation>줄 바꿈</translation>
     </message>
     <message>
-        <source>Color highlighting</source>
+        <source>Colour highlighting</source>
         <translation>색상 강조 표시</translation>
     </message>
     <message>
@@ -403,10 +403,6 @@
 </context>
 <context>
     <name>LoginWindow::WelcomeWindowItem</name>
-    <message>
-        <source>Keep Your Secrets.</source>
-        <translation>비밀을 지키세요.</translation>
-    </message>
     <message>
         <source>Emergency Connect</source>
         <translation>비상 연결</translation>
@@ -886,6 +882,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
         <translation>사용자 지정 DNS 서비스를 시작할 수 없음 - 포트 53이 이미 사용 중입니다.  연결된 DNS를 로컬 서버로 변경하시겠습니까?</translation>
     </message>
+    <message>
+        <source>Slide to complete the puzzle</source>
+        <translation>슬라이드하여 퍼즐을 완성하세요.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -997,16 +997,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>계좌</translation>
     </message>
     <message>
-        <source>INFO</source>
-        <translation>정보</translation>
-    </message>
-    <message>
         <source>Username</source>
         <translation>사용자 이름</translation>
-    </message>
-    <message>
-        <source>PLAN</source>
-        <translation>계획</translation>
     </message>
     <message>
         <source>Reset Date</source>
@@ -1023,6 +1015,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Expiry Date</source>
         <translation>만기일</translation>
+    </message>
+    <message>
+        <source>ACCOUNT INFO</source>
+        <translation>계정 정보</translation>
+    </message>
+    <message>
+        <source>PLAN INFO</source>
+        <translation>플랜 정보</translation>
+    </message>
+    <message>
+        <source>UPGRADE &gt;</source>
+        <translation>업그레이드 &gt;</translation>
     </message>
 </context>
 <context>
@@ -1124,18 +1128,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::BackgroundSettingsGroup</name>
+    <name>PreferencesWindow::AppBackgroundGroup</name>
     <message>
-        <source>Disconnected</source>
-        <translation>연결이 끊어진</translation>
+        <source>App Background</source>
+        <translation>앱 배경</translation>
     </message>
     <message>
-        <source>Connected</source>
-        <translation>연결</translation>
+        <source>Aspect Ratio Mode</source>
+        <translation>종횡비 모드</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>연결이 끊긴 경우</translation>
     </message>
     <message>
         <source>Flags</source>
-        <translation>국기</translation>
+        <translation>플래그</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>번들</translation>
     </message>
     <message>
         <source>None</source>
@@ -1146,8 +1158,32 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>관습</translation>
     </message>
     <message>
-        <source>App Background</source>
-        <translation>앱 배경</translation>
+        <source>When Connected</source>
+        <translation>연결되었을 때</translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation>이미지 선택</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>정사각형</translation>
+    </message>
+    <message>
+        <source>Palm</source>
+        <translation>손바닥</translation>
+    </message>
+    <message>
+        <source>Drip</source>
+        <translation>물방울</translation>
+    </message>
+    <message>
+        <source>Snow</source>
+        <translation>눈</translation>
+    </message>
+    <message>
+        <source>Ripple</source>
+        <translation>잔물결</translation>
     </message>
 </context>
 <context>
@@ -1236,7 +1272,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>자동 연결</translation>
     </message>
     <message>
-        <source>Control the mode of behavior of the Windscribe firewall.</source>
+        <source>Control the mode of behaviour of the Windscribe firewall.</source>
         <translation>Windscribe 방화벽의 동작 모드를 제어합니다.</translation>
     </message>
     <message>
@@ -1486,32 +1522,12 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>위치 순서</translation>
     </message>
     <message>
-        <source>Display latency as signal strength bars or in milliseconds.</source>
-        <translation>지연 시간을 신호 강도 막대 또는 밀리초 단위로 표시합니다.</translation>
-    </message>
-    <message>
-        <source>Latency Display</source>
-        <translation>레이턴시 디스플레이</translation>
-    </message>
-    <message>
         <source>Localize Windscribe to supported languages.</source>
         <translation>Windscribe를 지원되는 언어로 지역화합니다.</translation>
     </message>
     <message>
         <source>Language</source>
         <translation>언어</translation>
-    </message>
-    <message>
-        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>클래식 GUI 또는 &quot;earless&quot; 대체 GUI 중에서 선택합니다.</translation>
-    </message>
-    <message>
-        <source>App Skin</source>
-        <translation>앱 스킨</translation>
-    </message>
-    <message>
-        <source>Customize the background of the main app screen.</source>
-        <translation>기본 앱 화면의 배경을 사용자 지정합니다.</translation>
     </message>
     <message>
         <source>Choose to receive stable, beta, or experimental builds.</source>
@@ -1530,7 +1546,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>흰색과 검은색 트레이 아이콘 중에서 선택합니다.</translation>
     </message>
     <message>
-        <source>Tray Icon Color</source>
+        <source>Tray Icon Colour</source>
         <translation>트레이 아이콘 색상</translation>
     </message>
     <message>
@@ -1538,28 +1554,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>멀티 데스크톱</translation>
     </message>
     <message>
-        <source>Select behavior when window is activated with multiple desktops.</source>
+        <source>Select behaviour when window is activated with multiple desktops.</source>
         <translation>창이 여러 데스크톱에서 활성화될 때의 동작을 선택합니다.</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>수출</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>수입</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>재설정</translation>
-    </message>
-    <message>
-        <source>Change location names to your liking.</source>
-        <translation>위치 이름을 원하는 대로 변경합니다.</translation>
-    </message>
-    <message>
-        <source>Rename Locations</source>
-        <translation>위치 이름 바꾸기</translation>
     </message>
 </context>
 <context>
@@ -1619,6 +1615,49 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
         <translation>Garry가 해결할 수 없는 문제가 있습니까? 인적 지원에 문의하세요.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::LookAndFeelWindowItem</name>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>룩 앤 필(Look &amp; Feel)</translation>
+    </message>
+    <message>
+        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
+        <translation>클래식 GUI 또는 &quot;earless&quot; 대체 GUI 중에서 선택합니다.</translation>
+    </message>
+    <message>
+        <source>App Skin</source>
+        <translation>앱 스킨</translation>
+    </message>
+    <message>
+        <source>Customize the background of the main app screen.</source>
+        <translation>기본 앱 화면의 배경을 사용자 지정합니다.</translation>
+    </message>
+    <message>
+        <source>Choose sounds to play when connection events occur.</source>
+        <translation>연결 이벤트가 발생할 때 재생할 소리를 선택합니다.</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>위치 이름을 원하는 대로 변경합니다.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>위치 이름 바꾸기</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>수출</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>수입</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>재설정</translation>
     </message>
 </context>
 <context>
@@ -1761,20 +1800,12 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::PlanItem</name>
     <message>
-        <source>Unlimited Data</source>
-        <translation>무제한 데이터</translation>
+        <source>Free</source>
+        <translation>무료</translation>
     </message>
     <message>
-        <source>%1/Month</source>
-        <translation>%1/월</translation>
-    </message>
-    <message>
-        <source>Pro</source>
-        <translation>프로</translation>
-    </message>
-    <message>
-        <source>Upgrade</source>
-        <translation>업그레이드</translation>
+        <source>Plan Type</source>
+        <translation>플랜 유형</translation>
     </message>
 </context>
 <context>
@@ -1818,6 +1849,10 @@ Connect to a network first</source>
     <message>
         <source>Quit</source>
         <translation>사임하다</translation>
+    </message>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>룩 앤 필(Look &amp; Feel)</translation>
     </message>
 </context>
 <context>
@@ -2012,14 +2047,41 @@ Connect to a network first</source>
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::SelectImageItem</name>
+    <name>PreferencesWindow::SelectFileItem</name>
     <message>
         <source>[no selection]</source>
         <translation>[선택 없음]</translation>
     </message>
+</context>
+<context>
+    <name>PreferencesWindow::SoundsGroup</name>
     <message>
-        <source>Select an image</source>
-        <translation>이미지 선택</translation>
+        <source>Sound Notifications</source>
+        <translation>소리 알림</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>없음</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>연결이 끊긴 경우</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>번들</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>관습</translation>
+    </message>
+    <message>
+        <source>Select a sound</source>
+        <translation>사운드 선택</translation>
+    </message>
+    <message>
+        <source>When Connected</source>
+        <translation>연결되었을 때</translation>
     </message>
 </context>
 <context>
@@ -2100,14 +2162,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 다시 설치해도 도움이 되지 않으면 Windscribe 지원팀에 도움을 요청하세요.</translation>
     </message>
     <message>
-        <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
-        <translation>선택한 앱, IP 및 호스트 이름은 연결될 때 Windscribe를 거치지 않습니다.</translation>
-    </message>
-    <message>
-        <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
-        <translation>연결된 경우 선택한 앱, IP 및 호스트 이름만 Windscribe를 통과합니다.</translation>
-    </message>
-    <message>
         <source>Split Tunneling</source>
         <translation>스플릿 터널링</translation>
     </message>
@@ -2130,6 +2184,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>IPs &amp; Hostnames</source>
         <translation>IP &amp; 호스트 이름</translation>
+    </message>
+    <message>
+        <source>When enabled, selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
+        <translation>활성화하면 선택한 앱, IP 및 호스트 이름이 연결될 때 Windscribe를 거치지 않습니다.</translation>
+    </message>
+    <message>
+        <source>When enabled, only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
+        <translation>활성화하면 연결된 경우 선택한 앱, IP 및 호스트 이름만 Windscribe를 거칩니다.</translation>
     </message>
 </context>
 <context>
@@ -2230,14 +2292,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Latency</source>
         <translation>숨어 있음</translation>
-    </message>
-    <message>
-        <source>Bars</source>
-        <translation>바</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>미시시피</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2408,12 +2462,16 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>로컬 DNS</translation>
     </message>
     <message>
-        <source>Latency test pending</source>
-        <translation>대기 시간 테스트 보류 중</translation>
+        <source>Stretch</source>
+        <translation>뻗다</translation>
     </message>
     <message>
-        <source>Latency test failed</source>
-        <translation>지연 시간 테스트 실패</translation>
+        <source>Fill</source>
+        <translation>채우다</translation>
+    </message>
+    <message>
+        <source>Tile</source>
+        <translation>타일</translation>
     </message>
     <message>
         <source>Always On+</source>
@@ -2490,7 +2548,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>v</translation>
     </message>
     <message>
-        <source>UPDATE</source>
+        <source>Update</source>
         <translation>업데이트</translation>
     </message>
 </context>
@@ -2526,49 +2584,60 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
 </context>
 <context>
+    <name>UpgradeBanner</name>
+    <message>
+        <source>Unlock full access to Windscribe</source>
+        <translation>Windscribe에 대한 전체 액세스 권한 잠금 해제</translation>
+    </message>
+    <message>
+        <source>Go Pro for unlimited everything</source>
+        <translation>모든 것을 무제한으로 즐길 수 있는 Pro가 되세요</translation>
+    </message>
+</context>
+<context>
     <name>UpgradeWidget::UpgradeWidgetItem</name>
     <message>
-        <source>GET MORE DATA</source>
-        <translation>더 많은 데이터 가져오기</translation>
+        <source>Get more data</source>
+        <translation>더 많은 데이터 얻기</translation>
     </message>
     <message>
-        <source>EXT CONFIG MODE</source>
-        <translation>EXT 구성 모드</translation>
+        <source>%1 left</source>
+        <translation>%1 남음</translation>
     </message>
     <message>
-        <source>0 DAYS LEFT</source>
-        <translation>0일 남음</translation>
+        <source>0 days left</source>
+        <translation>0 일 남음</translation>
     </message>
     <message>
-        <source>1 DAY LEFT</source>
+        <source>1 day left</source>
         <translation>1일 남음</translation>
     </message>
     <message>
-        <source>2 DAYS LEFT</source>
+        <source>2 days left</source>
         <translation>2일 남음</translation>
     </message>
     <message>
-        <source>3 DAYS LEFT</source>
-        <translation>3일 남음</translation>
+        <source>3 days left</source>
+        <translation>3 일 남음</translation>
     </message>
     <message>
-        <source>4 DAYS LEFT</source>
+        <source>4 days left</source>
         <translation>4일 남음</translation>
     </message>
     <message>
-        <source>5 DAYS LEFT</source>
-        <translation>5일 남음</translation>
+        <source>5 days left</source>
+        <translation>5 일 남음</translation>
     </message>
     <message>
-        <source>%1 DAYS LEFT</source>
-        <translation>%1일 남음</translation>
+        <source>%1 days left</source>
+        <translation>%1 일 남음</translation>
     </message>
     <message>
-        <source>LOGIN</source>
+        <source>Login</source>
         <translation>로그인</translation>
     </message>
     <message>
-        <source>RENEW</source>
+        <source>Renew</source>
         <translation>갱신</translation>
     </message>
 </context>

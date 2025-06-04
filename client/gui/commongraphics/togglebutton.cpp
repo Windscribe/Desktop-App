@@ -7,12 +7,12 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 
-namespace PreferencesWindow {
-
 ToggleButton::ToggleButton(ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent),
     animationProgress_(0.0), isChecked_(false), enabled_(true)
 {
     setAcceptHoverEvents(true);
+
+    color_ = QColor(85, 255, 138);
 
     connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &ToggleButton::onOpacityChanged);
     opacityAnimation_.setStartValue(0.0);
@@ -40,7 +40,9 @@ void ToggleButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     painter->setRenderHint(QPainter::Antialiasing);
     // At 100%, this would be R85 G255 B138
-    QColor bgColor = QColor(255-170*animationProgress_, 255, 255-117*animationProgress_);
+    QColor bgColor = QColor(255 - (255 - color_.red())*animationProgress_,
+                            255 - (255 - color_.green())*animationProgress_,
+                            255 - (255 - color_.blue())*animationProgress_);
     painter->setBrush(bgColor);
     painter->setPen(Qt::NoPen);
     painter->drawRoundedRect(boundingRect().toRect(), TOGGLE_RADIUS*G_SCALE, TOGGLE_RADIUS*G_SCALE);
@@ -135,4 +137,8 @@ void ToggleButton::setEnabled(bool enabled)
     update();
 }
 
-} // namespace PreferencesWindow
+void ToggleButton::setColor(const QColor &color)
+{
+    color_ = color;
+    update();
+}

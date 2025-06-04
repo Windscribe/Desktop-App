@@ -49,28 +49,28 @@ void AppIncludedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     if (!p) {
         p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
     }
-    p->draw(PREFERENCES_MARGIN*G_SCALE, APP_ICON_MARGIN_Y*G_SCALE, APP_ICON_WIDTH*G_SCALE, APP_ICON_HEIGHT*G_SCALE, painter);
+    p->draw(PREFERENCES_MARGIN_X*G_SCALE, APP_ICON_MARGIN_Y*G_SCALE, APP_ICON_WIDTH*G_SCALE, APP_ICON_HEIGHT*G_SCALE, painter);
     painter->restore();
 #else
     QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/WHITE_QUESTION_MARK_ICON");
     QPixmap pixmap = QIcon::fromTheme(app_.icon, p->getIcon()).pixmap(QSize(APP_ICON_WIDTH*G_SCALE, APP_ICON_HEIGHT*G_SCALE));
 
-    painter->drawPixmap(PREFERENCES_MARGIN*G_SCALE, APP_ICON_MARGIN_Y*G_SCALE, pixmap);
+    painter->drawPixmap(PREFERENCES_MARGIN_X*G_SCALE, APP_ICON_MARGIN_Y*G_SCALE, pixmap);
 #endif
 
     // app name
     painter->setOpacity(OPACITY_FULL * initOpacity);
     painter->setPen(Qt::white);
-    QFont font = FontManager::instance().getFont(12, false);
+    QFont font = FontManager::instance().getFont(12,  QFont::Normal);
     painter->setFont(font);
     QFontMetrics fm(font);
     QString elidedName = fm.elidedText(app_.name,
                                        Qt::TextElideMode::ElideRight,
-                                       boundingRect().width() - (3*PREFERENCES_MARGIN + APP_ICON_MARGIN_X + APP_ICON_WIDTH + ICON_WIDTH)*G_SCALE);
-    painter->drawText(boundingRect().adjusted((PREFERENCES_MARGIN + APP_ICON_WIDTH + APP_ICON_MARGIN_X)*G_SCALE,
-                                              PREFERENCES_MARGIN*G_SCALE,
-                                              -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE),
+                                       boundingRect().width() - (3*PREFERENCES_MARGIN_X + APP_ICON_MARGIN_X + APP_ICON_WIDTH + ICON_WIDTH)*G_SCALE);
+    painter->drawText(boundingRect().adjusted((PREFERENCES_MARGIN_X + APP_ICON_WIDTH + APP_ICON_MARGIN_X)*G_SCALE,
+                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              -(2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE,
+                                              -PREFERENCES_MARGIN_Y*G_SCALE),
                       elidedName);
 }
 
@@ -100,7 +100,7 @@ void AppIncludedItem::updateScaling()
 
 void AppIncludedItem::updatePositions()
 {
-    deleteButton_->setPos(boundingRect().width() - ICON_WIDTH*G_SCALE - PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
+    deleteButton_->setPos(boundingRect().width() - ICON_WIDTH*G_SCALE - PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
 }
 
 void AppIncludedItem::setClickable(bool clickable)

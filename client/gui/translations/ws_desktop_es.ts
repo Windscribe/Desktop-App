@@ -70,8 +70,8 @@
         <translation>Bloquea toda la conectividad en caso de una desconexión repentina</translation>
     </message>
     <message>
-        <source>Connect to rate</source>
-        <translation>Conéctate para valorar</translation>
+        <source>FIREWALL</source>
+        <translation>CORTAFUEGOS</translation>
     </message>
 </context>
 <context>
@@ -82,10 +82,26 @@
     </message>
 </context>
 <context>
-    <name>ConnectWindow::MiddleItem</name>
+    <name>ConnectWindow::LocationsMenu</name>
     <message>
-        <source>Firewall</source>
-        <translation>Cortafuegos</translation>
+        <source>All</source>
+        <translation>Todo</translation>
+    </message>
+    <message>
+        <source>Configured</source>
+        <translation>Configurado</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IPs estáticas</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoritos</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Buscar</translation>
     </message>
 </context>
 <context>
@@ -224,26 +240,6 @@
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
-        <source>All</source>
-        <translation>Todo</translation>
-    </message>
-    <message>
-        <source>Configured</source>
-        <translation>Configurado</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>IPs estáticas</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Favoritos</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation>Buscar</translation>
-    </message>
-    <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
         <translation>Elige el directorio que contiene las configuraciones personalizadas que deseas mostrar aquí</translation>
     </message>
@@ -275,6 +271,10 @@
         <source>Buy</source>
         <translation>Comprar</translation>
     </message>
+    <message>
+        <source>All locations (%1)</source>
+        <translation>Todas las ubicaciones (%1)</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -290,7 +290,7 @@
         <translation>Ajuste de línea</translation>
     </message>
     <message>
-        <source>Color highlighting</source>
+        <source>Colour highlighting</source>
         <translation>Resaltado en color</translation>
     </message>
     <message>
@@ -403,10 +403,6 @@
 </context>
 <context>
     <name>LoginWindow::WelcomeWindowItem</name>
-    <message>
-        <source>Keep Your Secrets.</source>
-        <translation>Guarda tus secretos.</translation>
-    </message>
     <message>
         <source>Emergency Connect</source>
         <translation>Conexión de emergencia</translation>
@@ -886,6 +882,10 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
         <translation>No se puede iniciar el servicio DNS personalizado: el puerto 53 ya está en uso.  ¿Te gustaría cambiar tu DNS conectado al servidor local?</translation>
     </message>
+    <message>
+        <source>Slide to complete the puzzle</source>
+        <translation>Desliza para completar el rompecabezas</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -997,16 +997,8 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <translation>Cuenta</translation>
     </message>
     <message>
-        <source>INFO</source>
-        <translation>INFORMACIÓN</translation>
-    </message>
-    <message>
         <source>Username</source>
         <translation>Nombre de usuario</translation>
-    </message>
-    <message>
-        <source>PLAN</source>
-        <translation>PLAN</translation>
     </message>
     <message>
         <source>Reset Date</source>
@@ -1023,6 +1015,18 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     <message>
         <source>Expiry Date</source>
         <translation>Fecha de caducidad</translation>
+    </message>
+    <message>
+        <source>ACCOUNT INFO</source>
+        <translation>INFORMACIÓN DE LA CUENTA</translation>
+    </message>
+    <message>
+        <source>PLAN INFO</source>
+        <translation>INFORMACIÓN DEL PLAN</translation>
+    </message>
+    <message>
+        <source>UPGRADE &gt;</source>
+        <translation>ACTUALIZAR &gt;</translation>
     </message>
 </context>
 <context>
@@ -1124,18 +1128,26 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::BackgroundSettingsGroup</name>
+    <name>PreferencesWindow::AppBackgroundGroup</name>
     <message>
-        <source>Disconnected</source>
-        <translation>Desconectado</translation>
+        <source>App Background</source>
+        <translation>Fondo de la aplicación</translation>
     </message>
     <message>
-        <source>Connected</source>
-        <translation>Conectado</translation>
+        <source>Aspect Ratio Mode</source>
+        <translation>Modo de relación de aspecto</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>Cuando está desconectado</translation>
     </message>
     <message>
         <source>Flags</source>
         <translation>Banderas</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>Liado</translation>
     </message>
     <message>
         <source>None</source>
@@ -1143,11 +1155,35 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Custom</source>
-        <translation>Personalizado</translation>
+        <translation>Costumbre</translation>
     </message>
     <message>
-        <source>App Background</source>
-        <translation>Fondo de la aplicación</translation>
+        <source>When Connected</source>
+        <translation>Cuando está conectado</translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation>Seleccionar una imagen</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>Cuadrado</translation>
+    </message>
+    <message>
+        <source>Palm</source>
+        <translation>Palma</translation>
+    </message>
+    <message>
+        <source>Drip</source>
+        <translation>Gotear</translation>
+    </message>
+    <message>
+        <source>Snow</source>
+        <translation>Nieve</translation>
+    </message>
+    <message>
+        <source>Ripple</source>
+        <translation>Ondulación</translation>
     </message>
 </context>
 <context>
@@ -1232,7 +1268,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <translation>Conexión automática</translation>
     </message>
     <message>
-        <source>Control the mode of behavior of the Windscribe firewall.</source>
+        <source>Control the mode of behaviour of the Windscribe firewall.</source>
         <translation>Controla el modo de comportamiento del cortafuegos de Windscribe.</translation>
     </message>
     <message>
@@ -1482,32 +1518,12 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <translation>Orden de ubicaciones</translation>
     </message>
     <message>
-        <source>Display latency as signal strength bars or in milliseconds.</source>
-        <translation>Muestre la latencia como barras de intensidad de señal o en milisegundos.</translation>
-    </message>
-    <message>
-        <source>Latency Display</source>
-        <translation>Visualización de latencia</translation>
-    </message>
-    <message>
         <source>Localize Windscribe to supported languages.</source>
         <translation>Localiza Windscribe a los idiomas admitidos.</translation>
     </message>
     <message>
         <source>Language</source>
         <translation>Idioma</translation>
-    </message>
-    <message>
-        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>Elige entre la interfaz clásica o la interfaz alternativa &quot;sin orejas&quot;.</translation>
-    </message>
-    <message>
-        <source>App Skin</source>
-        <translation>Aspecto de la aplicación</translation>
-    </message>
-    <message>
-        <source>Customize the background of the main app screen.</source>
-        <translation>Personaliza el fondo de la pantalla principal de la aplicación.</translation>
     </message>
     <message>
         <source>Choose to receive stable, beta, or experimental builds.</source>
@@ -1530,7 +1546,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <translation>Elija entre el icono de la bandeja blanca y negra.</translation>
     </message>
     <message>
-        <source>Tray Icon Color</source>
+        <source>Tray Icon Colour</source>
         <translation>Color del icono de la bandeja</translation>
     </message>
     <message>
@@ -1538,28 +1554,8 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <translation>Multiescritorio</translation>
     </message>
     <message>
-        <source>Select behavior when window is activated with multiple desktops.</source>
+        <source>Select behaviour when window is activated with multiple desktops.</source>
         <translation>Seleccione el comportamiento cuando la ventana está activada con varios escritorios.</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Exportar</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>Importación</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Restablecimiento</translation>
-    </message>
-    <message>
-        <source>Change location names to your liking.</source>
-        <translation>Cambia los nombres de las ubicaciones a tu gusto.</translation>
-    </message>
-    <message>
-        <source>Rename Locations</source>
-        <translation>Cambiar el nombre de las ubicaciones</translation>
     </message>
 </context>
 <context>
@@ -1619,6 +1615,49 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
         <translation>¿Tienes un problema que Garry no puede resolver? Póngase en contacto con el servicio de asistencia humana.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::LookAndFeelWindowItem</name>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>Apariencia</translation>
+    </message>
+    <message>
+        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
+        <translation>Elige entre la interfaz clásica o la interfaz alternativa &quot;sin orejas&quot;.</translation>
+    </message>
+    <message>
+        <source>App Skin</source>
+        <translation>Aspecto de la aplicación</translation>
+    </message>
+    <message>
+        <source>Customize the background of the main app screen.</source>
+        <translation>Personaliza el fondo de la pantalla principal de la aplicación.</translation>
+    </message>
+    <message>
+        <source>Choose sounds to play when connection events occur.</source>
+        <translation>Elija los sonidos que se reproducirán cuando se produzcan eventos de conexión.</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>Cambia los nombres de las ubicaciones a tu gusto.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>Cambiar el nombre de las ubicaciones</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Exportar</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Importación</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Restablecimiento</translation>
     </message>
 </context>
 <context>
@@ -1761,20 +1800,12 @@ Conéctate primero a una red</translation>
 <context>
     <name>PreferencesWindow::PlanItem</name>
     <message>
-        <source>Unlimited Data</source>
-        <translation>Datos ilimitados</translation>
+        <source>Free</source>
+        <translation>Gratis</translation>
     </message>
     <message>
-        <source>%1/Month</source>
-        <translation>%1/mes</translation>
-    </message>
-    <message>
-        <source>Pro</source>
-        <translation>Pro</translation>
-    </message>
-    <message>
-        <source>Upgrade</source>
-        <translation>Actualizar</translation>
+        <source>Plan Type</source>
+        <translation>Tipo de plan</translation>
     </message>
 </context>
 <context>
@@ -1818,6 +1849,10 @@ Conéctate primero a una red</translation>
     <message>
         <source>Quit</source>
         <translation>Salir</translation>
+    </message>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>Apariencia</translation>
     </message>
 </context>
 <context>
@@ -2012,14 +2047,41 @@ Conéctate primero a una red</translation>
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::SelectImageItem</name>
+    <name>PreferencesWindow::SelectFileItem</name>
     <message>
         <source>[no selection]</source>
         <translation>[sin selección]</translation>
     </message>
+</context>
+<context>
+    <name>PreferencesWindow::SoundsGroup</name>
     <message>
-        <source>Select an image</source>
-        <translation>Seleccionar una imagen</translation>
+        <source>Sound Notifications</source>
+        <translation>Notificaciones sonoras</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Ninguno</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>Cuando está desconectado</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>Liado</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Costumbre</translation>
+    </message>
+    <message>
+        <source>Select a sound</source>
+        <translation>Selecciona un sonido</translation>
+    </message>
+    <message>
+        <source>When Connected</source>
+        <translation>Cuando está conectado</translation>
     </message>
 </context>
 <context>
@@ -2100,14 +2162,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe para obtener ayuda.</translation>
     </message>
     <message>
-        <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
-        <translation>Las aplicaciones, direcciones IP y nombres de dominio seleccionados no pasarán por Windscribe cuando estés conectado.</translation>
-    </message>
-    <message>
-        <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
-        <translation>Sólo las aplicaciones, direcciones IP y nombres de dominio seleccionados pasarán por Windscribe cuando estés conectado.</translation>
-    </message>
-    <message>
         <source>Split Tunneling</source>
         <translation>Túnel dividido</translation>
     </message>
@@ -2130,6 +2184,14 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     <message>
         <source>IPs &amp; Hostnames</source>
         <translation>IPs y nombres de dominio</translation>
+    </message>
+    <message>
+        <source>When enabled, selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
+        <translation>Cuando está habilitado, las aplicaciones, las IP y los nombres de host seleccionados no pasarán por Windscribe cuando estén conectados.</translation>
+    </message>
+    <message>
+        <source>When enabled, only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
+        <translation>Cuando está habilitado, solo las aplicaciones, las IP y los nombres de host seleccionados pasarán por Windscribe cuando estén conectados.</translation>
     </message>
 </context>
 <context>
@@ -2230,14 +2292,6 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     <message>
         <source>Latency</source>
         <translation>Latencia</translation>
-    </message>
-    <message>
-        <source>Bars</source>
-        <translation>Barras</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>ms</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2408,12 +2462,16 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
         <translation>Local DNS</translation>
     </message>
     <message>
-        <source>Latency test pending</source>
-        <translation>Prueba de latencia pendiente</translation>
+        <source>Stretch</source>
+        <translation>Elasticidad</translation>
     </message>
     <message>
-        <source>Latency test failed</source>
-        <translation>Error en la prueba de latencia</translation>
+        <source>Fill</source>
+        <translation>Llenar</translation>
+    </message>
+    <message>
+        <source>Tile</source>
+        <translation>Teja</translation>
     </message>
     <message>
         <source>Always On+</source>
@@ -2490,8 +2548,8 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
         <translation>v</translation>
     </message>
     <message>
-        <source>UPDATE</source>
-        <translation>ACTUALIZAR</translation>
+        <source>Update</source>
+        <translation>Actualizar</translation>
     </message>
 </context>
 <context>
@@ -2526,50 +2584,61 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
 </context>
 <context>
+    <name>UpgradeBanner</name>
+    <message>
+        <source>Unlock full access to Windscribe</source>
+        <translation>Desbloquea el acceso completo a Windscribe</translation>
+    </message>
+    <message>
+        <source>Go Pro for unlimited everything</source>
+        <translation>Conviértete en Pro para todo ilimitado</translation>
+    </message>
+</context>
+<context>
     <name>UpgradeWidget::UpgradeWidgetItem</name>
     <message>
-        <source>GET MORE DATA</source>
-        <translation>OBTÉN MÁS DATOS</translation>
+        <source>Get more data</source>
+        <translation>Obtener más datos</translation>
     </message>
     <message>
-        <source>EXT CONFIG MODE</source>
-        <translation>MODO DE CONFIGURACIÓN EXT</translation>
+        <source>%1 left</source>
+        <translation>%1 izquierda</translation>
     </message>
     <message>
-        <source>0 DAYS LEFT</source>
-        <translation>QUEDAN 0 DÍAS</translation>
+        <source>0 days left</source>
+        <translation>Quedan 0 días</translation>
     </message>
     <message>
-        <source>1 DAY LEFT</source>
-        <translation>QUEDA 1 DÍA</translation>
+        <source>1 day left</source>
+        <translation>Queda 1 día</translation>
     </message>
     <message>
-        <source>2 DAYS LEFT</source>
-        <translation>QUEDAN 2 DÍAS</translation>
+        <source>2 days left</source>
+        <translation>Quedan 2 días</translation>
     </message>
     <message>
-        <source>3 DAYS LEFT</source>
-        <translation>QUEDAN 3 DÍAS</translation>
+        <source>3 days left</source>
+        <translation>Quedan 3 días</translation>
     </message>
     <message>
-        <source>4 DAYS LEFT</source>
-        <translation>QUEDAN 4 DÍAS</translation>
+        <source>4 days left</source>
+        <translation>Quedan 4 días</translation>
     </message>
     <message>
-        <source>5 DAYS LEFT</source>
-        <translation>QUEDAN 5 DÍAS</translation>
+        <source>5 days left</source>
+        <translation>Quedan 5 días</translation>
     </message>
     <message>
-        <source>%1 DAYS LEFT</source>
-        <translation>QUEDAN %1 DÍAS</translation>
+        <source>%1 days left</source>
+        <translation>%1 días restantes</translation>
     </message>
     <message>
-        <source>LOGIN</source>
-        <translation>INICIAR SESIÓN</translation>
+        <source>Login</source>
+        <translation>Iniciar sesión</translation>
     </message>
     <message>
-        <source>RENEW</source>
-        <translation>RENOVAR</translation>
+        <source>Renew</source>
+        <translation>Renovar</translation>
     </message>
 </context>
 <context>

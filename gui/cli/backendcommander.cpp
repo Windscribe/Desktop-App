@@ -109,6 +109,13 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
 
     if (cliArgs_.cliCommand() == CLI_COMMAND_CONNECT || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_BEST
             || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_LOCATION || cliArgs_.cliCommand() == CLI_COMMAND_CONNECT_STATIC) {
+#ifdef CLI_ONLY
+        if (!state->connectivity_) {
+            emit(finished(1, QObject::tr("Internet connectivity is not available.  Try again later.")));
+            return;
+        }
+#endif
+
         if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
             emit finished(1, QObject::tr("Not logged in"));
             return;
@@ -177,6 +184,12 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
         connection_->sendCommand(cmd);
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGIN) {
+#ifdef CLI_ONLY
+        if (!state->connectivity_) {
+            emit(finished(1, QObject::tr("Internet connectivity is not available.  Try again later.")));
+            return;
+        }
+#endif
         if (state->loginState_ == LOGIN_STATE_LOGGED_IN) {
             emit finished(1, QObject::tr("Already logged in"));
             return;
@@ -196,6 +209,12 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
         connection_->sendCommand(cmd);
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGOUT) {
+#ifdef CLI_ONLY
+        if (!state->connectivity_) {
+            emit(finished(1, QObject::tr("Internet connectivity is not available.  Try again later.")));
+            return;
+        }
+#endif
         if (state->loginState_ == LOGIN_STATE_LOGGED_OUT) {
             emit finished(1, QObject::tr("Already logged out"));
             return;
@@ -205,10 +224,22 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
         connection_->sendCommand(cmd);
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_SEND_LOGS) {
+#ifdef CLI_ONLY
+        if (!state->connectivity_) {
+            emit(finished(1, QObject::tr("Internet connectivity is not available.  Try again later.")));
+            return;
+        }
+#endif
         IPC::CliCommands::SendLogs cmd;
         connection_->sendCommand(cmd);
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_UPDATE) {
+#ifdef CLI_ONLY
+        if (!state->connectivity_) {
+            emit(finished(1, QObject::tr("Internet connectivity is not available.  Try again later.")));
+            return;
+        }
+#endif
         if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
             emit finished(1, QObject::tr("Not logged in"));
             return;
@@ -342,7 +373,7 @@ void BackendCommander::onAcknowledge()
         emit(finished(0, QObject::tr("Firewall is off.")));
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_SET_KEYLIMIT_BEHAVIOR) {
-        emit(finished(0, QObject::tr("Key limit behavior is set.")));
+        emit(finished(0, QObject::tr("Key limit behaviour is set.")));
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_SEND_LOGS) {
         emit(finished(0, QObject::tr("Logs sent.")));
@@ -365,16 +396,19 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
             connectId_ = cmd->connectId_;
         }
 
-        if (cmd->connectId_ != connectId_ && connectId_.isEmpty() && !cmd->connectId_.isEmpty() &&
+        if (cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectState_.connectError != NO_CONNECT_ERROR ||
+            cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectState_.disconnectReason == DISCONNECTED_BY_KEY_LIMIT ||
+            cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectId_.isEmpty())
+        {
+            // Disconnected with error
+            emit(finished(1, connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false)));
+        } else if (cmd->connectState_.connectState == CONNECT_STATE_CONNECTED && cmd->tunnelTestState_ != TUNNEL_TEST_STATE_UNKNOWN) {
+            // connected with a known tunnel test state
+            emit(finished(0, connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false)));
+        } else if (cmd->connectId_ != connectId_ && connectId_.isEmpty() && !cmd->connectId_.isEmpty() &&
             cmd->connectState_.connectState == CONNECT_STATE_CONNECTING || cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED)
         {
             emit(finished(1, QObject::tr("Connection has been overridden by another command.")));
-        } else if (cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectState_.connectError != NO_CONNECT_ERROR ||
-                   cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectState_.disconnectReason == DISCONNECTED_BY_KEY_LIMIT ||
-                   cmd->connectState_.connectState == CONNECT_STATE_CONNECTED && cmd->tunnelTestState_ != TUNNEL_TEST_STATE_UNKNOWN ||
-                   cmd->connectState_.connectState == CONNECT_STATE_DISCONNECTED && cmd->connectId_.isEmpty()) {
-            // Either disconnected with error or connected with a known tunnel test state
-            emit(finished(0, connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false)));
         } else {
             str = connectStateString(cmd->connectState_, cmd->location_, cmd->tunnelTestState_, false).toStdString();
             if (str != prevStr) {

@@ -35,17 +35,12 @@ ProtocolWindowItem::ProtocolWindowItem(QGraphicsObject *parent,
 void ProtocolWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     // resize area background
-    qreal initialOpacity = painter->opacity();
-    painter->fillRect(boundingRect().adjusted(0, 286*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
+    painter->fillRect(boundingRect().adjusted(0, 270*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
 
     // base background
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
         QPainterPath path;
-#ifdef Q_OS_MACOS
-        path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
-#else
-        path.addRect(boundingRect().toRect());
-#endif
+        path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
         painter->setPen(Qt::NoPen);
         painter->fillPath(path, QColor(2, 13, 28));
         painter->setPen(Qt::SolidLine);
@@ -54,12 +49,18 @@ void ProtocolWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
         pixmapBaseBackground->draw(0, 0, painter);
     }
 
+    QSharedPointer<IndependentPixmap> pixmapBorder = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBorder_);
+    pixmapBorder->draw(0, 0, 350*G_SCALE, 32*G_SCALE, painter);
+
+    QSharedPointer<IndependentPixmap> pixmapBorderExtension = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBorderExtension_);
+    pixmapBorderExtension->draw(0, 32*G_SCALE, 350*G_SCALE, getBottomResizeArea().toRect().top() - 32*G_SCALE, painter);
+
     // bottom-most background
-    painter->setOpacity(initialOpacity);
+    painter->setOpacity(OPACITY_FULL);
     if (roundedFooter_) {
         painter->setPen(footerColor_);
         painter->setBrush(footerColor_);
-        painter->drawRoundedRect(getBottomResizeArea(), 8*G_SCALE, 8*G_SCALE);
+        painter->drawRoundedRect(getBottomResizeArea(), 9*G_SCALE, 9*G_SCALE);
         painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -7*G_SCALE), QBrush(footerColor_));
     } else {
         painter->fillRect(getBottomResizeArea(), QBrush(footerColor_));

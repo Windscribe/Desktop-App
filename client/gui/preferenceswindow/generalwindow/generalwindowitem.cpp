@@ -18,19 +18,16 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     preferences_(preferences), preferencesHelper_(preferencesHelper)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
-    setSpacerHeight(PREFERENCES_MARGIN);
+    setSpacerHeight(PREFERENCES_MARGIN_Y);
 
     connect(preferences, &Preferences::isLaunchOnStartupChanged, this, &GeneralWindowItem::onIsLaunchOnStartupPreferencesChanged);
     connect(preferences, &Preferences::isShowNotificationsChanged, this, &GeneralWindowItem::onIsShowNotificationsPreferencesChanged);
     connect(preferences, &Preferences::isDockedToTrayChanged, this, &GeneralWindowItem::onIsDockedToTrayPreferencesChanged);
     connect(preferences, &Preferences::languageChanged, this, &GeneralWindowItem::onLanguagePreferencesChanged);
     connect(preferences, &Preferences::locationOrderChanged, this, &GeneralWindowItem::onLocationOrderPreferencesChanged);
-    connect(preferences, &Preferences::latencyDisplayChanged, this, &GeneralWindowItem::onLatencyDisplayPreferencesChanged);
     connect(preferences, &Preferences::updateChannelChanged, this, &GeneralWindowItem::onUpdateChannelPreferencesChanged);
-    connect(preferences, &Preferences::backgroundSettingsChanged, this, &GeneralWindowItem::onPreferencesBackgroundSettingsChanged);
     connect(preferences, &Preferences::isStartMinimizedChanged, this, &GeneralWindowItem::onStartMinimizedPreferencesChanged);
     connect(preferences, &Preferences::showLocationLoadChanged, this, &GeneralWindowItem::onShowLocationLoadPreferencesChanged);
-    connect(preferences, &Preferences::appSkinChanged, this, &GeneralWindowItem::onAppSkinPreferencesChanged);
     connect(preferences, &Preferences::minimizeAndCloseToTrayChanged, this, &GeneralWindowItem::onMinimizeAndCloseToTrayPreferencesChanged);
 #if defined Q_OS_MACOS
     connect(preferences, &Preferences::hideFromDockChanged, this, &GeneralWindowItem::onHideFromDockPreferecesChanged);
@@ -112,17 +109,8 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     locationOrderGroup_->addItem(comboBoxLocationOrder_);
     addItem(locationOrderGroup_);
 
-    latencyDisplayGroup_ = new PreferenceGroup(this);
-    comboBoxLatencyDisplay_ = new ComboBoxItem(latencyDisplayGroup_);
-    comboBoxLatencyDisplay_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/LATENCY_DISPLAY"));
-    connect(comboBoxLatencyDisplay_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onLatencyItemChanged);
-    latencyDisplayGroup_->addItem(comboBoxLatencyDisplay_);
-    addItem(latencyDisplayGroup_);
-
 #if defined(Q_OS_MACOS)
-    multiDesktopBehaviorGroup_ = new PreferenceGroup(this,
-                                                     QString(),
-                                                     "https://github.com/Windscribe/Desktop-App/wiki/macOS-Multi%E2%80%90desktop-preference");
+    multiDesktopBehaviorGroup_ = new PreferenceGroup(this);
     multiDesktopBehaviorItem_ = new ComboBoxItem(multiDesktopBehaviorGroup_);
     multiDesktopBehaviorItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/MULTI_DESKTOP"));
     connect(multiDesktopBehaviorItem_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onMultiDesktopBehaviorChanged);
@@ -137,13 +125,6 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     languageGroup_->addItem(comboBoxLanguage_);
     addItem(languageGroup_);
 
-    appSkinGroup_ = new PreferenceGroup(this);
-    appSkinItem_ = new ComboBoxItem(appSkinGroup_);
-    appSkinItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/APP_SKIN"));
-    connect(appSkinItem_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onAppSkinChanged);
-    appSkinGroup_->addItem(appSkinItem_);
-    addItem(appSkinGroup_);
-
 #if defined(Q_OS_LINUX)
     trayIconColorGroup_ = new PreferenceGroup(this);
     trayIconColorItem_ = new ComboBoxItem(trayIconColorGroup_);
@@ -153,33 +134,8 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     trayIconColorGroup_->addItem(trayIconColorItem_);
     addItem(trayIconColorGroup_);
 #endif
-    backgroundSettingsGroup_ = new BackgroundSettingsGroup(this);
-    backgroundSettingsGroup_->setBackgroundSettings(preferences->backgroundSettings());
-    connect(backgroundSettingsGroup_, &BackgroundSettingsGroup::backgroundSettingsChanged, this, &GeneralWindowItem::onBackgroundSettingsChanged);
-    addItem(backgroundSettingsGroup_);
 
-    renameLocationsGroup_ = new PreferenceGroup(this);
-    renameLocationsItem_ = new LinkItem(renameLocationsGroup_, LinkItem::LinkType::TEXT_ONLY);
-    renameLocationsItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/RENAME_LOCATIONS"));
-    renameLocationsGroup_->addItem(renameLocationsItem_);
-
-    exportSettingsItem_ = new LinkItem(renameLocationsGroup_, LinkItem::LinkType::SUBPAGE_LINK);
-    connect(exportSettingsItem_, &LinkItem::clicked, this, &GeneralWindowItem::exportLocationNamesClick);
-    renameLocationsGroup_->addItem(exportSettingsItem_);
-
-    importSettingsItem_ = new LinkItem(renameLocationsGroup_, LinkItem::LinkType::SUBPAGE_LINK);
-    connect(importSettingsItem_, &LinkItem::clicked, this, &GeneralWindowItem::importLocationNamesClick);
-    renameLocationsGroup_->addItem(importSettingsItem_);
-
-    resetLocationsItem_ = new LinkItem(renameLocationsGroup_, LinkItem::LinkType::SUBPAGE_LINK);
-    connect(resetLocationsItem_, &LinkItem::clicked, this, &GeneralWindowItem::onResetLocationNamesClicked);
-    renameLocationsGroup_->addItem(resetLocationsItem_);
-
-    addItem(renameLocationsGroup_);
-
-    updateChannelGroup_ = new PreferenceGroup(this,
-                                              QString(),
-                                              QString("https://%1/features/update-channels").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    updateChannelGroup_ = new PreferenceGroup(this);
     comboBoxUpdateChannel_ = new ComboBoxItem(updateChannelGroup_);
     comboBoxUpdateChannel_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/UPDATE_CHANNEL"));
     connect(comboBoxUpdateChannel_, &ComboBoxItem::currentItemChanged, this, &GeneralWindowItem::onUpdateChannelItemChanged);
@@ -292,16 +248,6 @@ void GeneralWindowItem::onLocationItemChanged(QVariant o)
     preferences_->setLocationOrder((ORDER_LOCATION_TYPE)o.toInt());
 }
 
-void GeneralWindowItem::onLatencyDisplayPreferencesChanged(LATENCY_DISPLAY_TYPE l)
-{
-    comboBoxLatencyDisplay_->setCurrentItem((int)l);
-}
-
-void GeneralWindowItem::onLatencyItemChanged(QVariant o)
-{
-    preferences_->setLatencyDisplay((LATENCY_DISPLAY_TYPE)o.toInt());
-}
-
 void GeneralWindowItem::onUpdateChannelPreferencesChanged(const UPDATE_CHANNEL &c)
 {
     comboBoxUpdateChannel_->setCurrentItem((int)c);
@@ -312,29 +258,19 @@ void GeneralWindowItem::onUpdateChannelItemChanged(QVariant o)
     preferences_->setUpdateChannel((UPDATE_CHANNEL)o.toInt());
 }
 
-void GeneralWindowItem::onBackgroundSettingsChanged(const types::BackgroundSettings &settings)
-{
-    preferences_->setBackgroundSettings(settings);
-}
-
-void GeneralWindowItem::onPreferencesBackgroundSettingsChanged(const types::BackgroundSettings &settings)
-{
-    backgroundSettingsGroup_->setBackgroundSettings(settings);
-}
-
 void GeneralWindowItem::onLanguageChanged()
 {
-    launchOnStartGroup_->setDescription(tr("Run Windscribe when your device starts."));
+    checkBoxLaunchOnStart_->setDescription(tr("Run Windscribe when your device starts."));
     checkBoxLaunchOnStart_->setCaption(tr("Launch on Startup"));
-    startMinimizedGroup_->setDescription(tr("Launch Windscribe in a minimized state."));
+    checkBoxStartMinimized_->setDescription(tr("Launch Windscribe in a minimized state."));
     checkBoxStartMinimized_->setCaption(tr("Start Minimized"));
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
     if (closeToTrayGroup_) {
-        closeToTrayGroup_->setDescription(tr("Windscribe minimizes to system tray and no longer appears in the task bar."));
+        checkBoxMinimizeAndCloseToTray_->setDescription(tr("Windscribe minimizes to system tray and no longer appears in the task bar."));
     }
 #else
     if (closeToTrayGroup_) {
-        closeToTrayGroup_->setDescription(tr("Windscribe minimizes to menubar and no longer appears in the dock."));
+        checkBoxMinimizeAndCloseToTray_->setDescription(tr("Windscribe minimizes to menubar and no longer appears in the dock."));
     }
 #endif
 
@@ -342,48 +278,38 @@ void GeneralWindowItem::onLanguageChanged()
         checkBoxMinimizeAndCloseToTray_->setCaption(tr("Close to Tray"));
     }
 #if defined(Q_OS_MACOS)
-    hideFromDockGroup_->setDescription(tr("Don't show the Windscribe icon in dock."));
+    checkBoxHideFromDock_->setDescription(tr("Don't show the Windscribe icon in dock."));
     checkBoxHideFromDock_->setCaption(tr("Hide from Dock"));
 #endif
 #if !defined(Q_OS_LINUX)
-    dockedGroup_->setDescription(tr("Pin Windscribe near the system tray or menu bar."));
+    checkBoxDockedToTray_->setDescription(tr("Pin Windscribe near the system tray or menu bar."));
     checkBoxDockedToTray_->setCaption(tr("Docked"));
 #endif
-    showNotificationsGroup_->setDescription(tr("Display system-level notifications when connection events occur."));
+    checkBoxShowNotifications_->setDescription(tr("Display system-level notifications when connection events occur."));
     checkBoxShowNotifications_->setCaption(tr("Show Notifications"));
-    showLocationLoadGroup_->setDescription(tr("Display a location's load. Shorter bars mean lesser load (usage)."));
+    checkBoxShowLocationLoad_->setDescription(tr("Display a location's load. Shorter bars mean lesser load (usage)."));
     checkBoxShowLocationLoad_->setCaption(tr("Show Location Load"));
-    locationOrderGroup_->setDescription(tr("Arrange locations alphabetically, geographically, or by latency."));
+    comboBoxLocationOrder_->setDescription(tr("Arrange locations alphabetically, geographically, or by latency."));
     comboBoxLocationOrder_->setLabelCaption(tr("Location Order"));
     comboBoxLocationOrder_->setItems(ORDER_LOCATION_TYPE_toList(), preferences_->locationOrder());
-    latencyDisplayGroup_->setDescription(tr("Display latency as signal strength bars or in milliseconds."));
-    comboBoxLatencyDisplay_->setLabelCaption(tr("Latency Display"));
-    comboBoxLatencyDisplay_->setItems(LATENCY_DISPLAY_TYPE_toList(), preferences_->latencyDisplay());
-    languageGroup_->setDescription(tr("Localize Windscribe to supported languages."));
+    comboBoxLanguage_->setDescription(tr("Localize Windscribe to supported languages."));
     comboBoxLanguage_->setLabelCaption(tr("Language"));
     comboBoxLanguage_->setItems(preferencesHelper_->availableLanguages(), preferences_->language());
-    appSkinGroup_->setDescription(tr("Choose between the classic GUI or the \"earless\" alternative GUI."));
-    appSkinItem_->setLabelCaption(tr("App Skin"));
-    appSkinItem_->setItems(APP_SKIN_toList(), preferences_->appSkin());
 
 #if defined(Q_OS_LINUX)
-    trayIconColorGroup_->setDescription(tr("Choose between white and black tray icon."));
-    trayIconColorItem_->setLabelCaption(tr("Tray Icon Color"));
+    trayIconColorItem_->setDescription(tr("Choose between white and black tray icon."));
+    trayIconColorItem_->setLabelCaption(tr("Tray Icon Colour"));
     trayIconColorItem_->setItems(TRAY_ICON_COLOR_toList(), preferences_->trayIconColor());
 #endif
 #if defined(Q_OS_MACOS)
-    multiDesktopBehaviorGroup_->setDescription(tr("Select behavior when window is activated with multiple desktops."));
+    multiDesktopBehaviorItem_->setDescription(tr("Select behaviour when window is activated with multiple desktops."),
+                                              "https://github.com/Windscribe/Desktop-App/wiki/macOS-Multi%E2%80%90desktop-preference");
     multiDesktopBehaviorItem_->setLabelCaption(tr("Multi-desktop"));
     multiDesktopBehaviorItem_->setItems(MULTI_DESKTOP_BEHAVIOR_toList(), preferences_->multiDesktopBehavior());
 #endif
 
-    backgroundSettingsGroup_->setDescription(tr("Customize the background of the main app screen."));
-    renameLocationsGroup_->setDescription(tr("Change location names to your liking."));
-    renameLocationsItem_->setTitle(tr("Rename Locations"));
-    exportSettingsItem_->setTitle(tr("Export"));
-    importSettingsItem_->setTitle(tr("Import"));
-    resetLocationsItem_->setTitle(tr("Reset"));
-    updateChannelGroup_->setDescription(tr("Choose to receive stable, beta, or experimental builds."));
+    comboBoxUpdateChannel_->setDescription(tr("Choose to receive stable, beta, or experimental builds."),
+                                           QString("https://%1/features/update-channels").arg(HardcodedSettings::instance().windscribeServerUrl()));
     comboBoxUpdateChannel_->setLabelCaption(tr("Update Channel"));
     QList<QPair<QString, QVariant>> updateChannelList = UPDATE_CHANNEL_toList();
     for (auto item : updateChannelList) {
@@ -407,7 +333,6 @@ void GeneralWindowItem::hideOpenPopups()
 
     comboBoxLanguage_      ->hideMenu();
     comboBoxLocationOrder_ ->hideMenu();
-    comboBoxLatencyDisplay_->hideMenu();
     comboBoxUpdateChannel_ ->hideMenu();
 }
 
@@ -421,11 +346,6 @@ void GeneralWindowItem::onShowLocationLoadPreferencesChanged(bool b)
     checkBoxShowLocationLoad_->setState(b);
 }
 
-void GeneralWindowItem::onAppSkinChanged(QVariant value)
-{
-    preferences_->setAppSkin((APP_SKIN)value.toInt());
-}
-
 #if defined(Q_OS_LINUX)
 void GeneralWindowItem::onTrayIconColorChanged(QVariant value)
 {
@@ -437,11 +357,6 @@ void GeneralWindowItem::onPreferencesTrayIconColorChanged(QVariant value)
     trayIconColorItem_->setCurrentItem(value);
 }
 #endif
-
-void GeneralWindowItem::onAppSkinPreferencesChanged(APP_SKIN s)
-{
-    appSkinItem_->setCurrentItem(s);
-}
 
 #if defined(Q_OS_MACOS)
 void GeneralWindowItem::onMultiDesktopBehaviorChanged(QVariant value)
@@ -467,28 +382,6 @@ void GeneralWindowItem::onVersionInfoClicked()
         QString("https://%1/changelog/%2")
             .arg(HardcodedSettings::instance().windscribeServerUrl())
             .arg(platform)));
-}
-
-void GeneralWindowItem::setLocationNamesImportCompleted()
-{
-    importSettingsItem_->setLinkIcon(ImageResourcesSvg::instance().getIndependentPixmap("CHECKMARK"));
-
-    // Revert to old icon after 5 seconds
-    QTimer::singleShot(5000, [this](){
-        importSettingsItem_->setLinkIcon(nullptr);
-    });
-}
-
-void GeneralWindowItem::onResetLocationNamesClicked()
-{
-    emit resetLocationNamesClick();
-
-    resetLocationsItem_->setLinkIcon(ImageResourcesSvg::instance().getIndependentPixmap("CHECKMARK"));
-
-    // Revert to old icon after 5 seconds
-    QTimer::singleShot(5000, [this](){
-        resetLocationsItem_->setLinkIcon(nullptr);
-    });
 }
 
 } // namespace PreferencesWindow

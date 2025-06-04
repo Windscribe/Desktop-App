@@ -78,7 +78,7 @@ private:
 
     double curOpacity_;
 
-    static const int WIDTH = 332;
+    static const int WIDTH = 350;
     int height_;
 
     const char *TEXT_SHARING_FEATURES = QT_TR_NOOP("Sharing Features");

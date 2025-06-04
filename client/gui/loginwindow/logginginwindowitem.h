@@ -2,7 +2,8 @@
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
-#include "loginbutton.h"
+#include "commongraphics/scalablegraphicsobject.h"
+#include "captchaitem.h"
 
 namespace LoginWindow {
 
@@ -13,6 +14,7 @@ public:
     explicit LoggingInWindowItem(QGraphicsObject *parent = nullptr);
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+    void setClickable(bool enabled);
     void updateScaling() override;
 
     void startAnimation();
@@ -21,8 +23,14 @@ public:
     void setMessage(const QString &msg);
     void setAdditionalMessage(const QString &msg);
 
+    void showCaptcha(const QString &background, const QString &slider, int top);
+
+signals:
+    void captchaResolved(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY);
+
 private slots:
     void onSpinnerRotationChanged(const QVariant &value);
+    void onCaptchaResolved(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY);
 
 private:
     int curSpinnerRotation_;
@@ -35,6 +43,9 @@ private:
     QString message_;
     QString additionalMessage_;
 
+    CaptchaItem *captchaItem_ = nullptr;
+
+    void updatePositions();
 };
 
 }

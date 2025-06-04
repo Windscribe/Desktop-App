@@ -25,7 +25,7 @@ private:
     const int kCityCaptionMaxWidth = 110;
 
     QString pingIconNameString(int connectionSpeedIndex) const;
-    QRect latencyIconRect(const QRect &itemRect) const;
+    QRect customConfigErrorRect(const QRect &itemRect) const;
     QRect captionRect(const QRect &itemRect, const IItemCacheData *cacheData) const;
     QRect nicknameRect(const QRect &itemRect, const IItemCacheData *cacheData) const;
 };

@@ -21,10 +21,6 @@
         <source>Install</source>
         <translation>取り付ける</translation>
     </message>
-    <message>
-        <source>%1%</source>
-        <translation>%1%</translation>
-    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -111,6 +107,13 @@
     <message>
         <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
         <translation>カスタムインストールフォルダが空ではありません。セキュリティ上の理由から、Windscribeは空のフォルダにのみインストールできます。フォルダからすべてのファイルを削除して、もう一度やり直してください。</translation>
+    </message>
+</context>
+<context>
+    <name>ProgressDisplay</name>
+    <message>
+        <source>%1%</source>
+        <translation>%1%</translation>
     </message>
 </context>
 <context>

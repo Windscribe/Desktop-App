@@ -77,7 +77,19 @@ bool ApiResourcesManager::loginWithAuthHash()
     return true;
 }
 
-void ApiResourcesManager::login(const std::string &username, const std::string &password, const std::string &code2fa)
+void ApiResourcesManager::authTokenLogin()
+{
+    std::lock_guard locker(mutex_);
+    if (requestsInProgress_.find(RequestType::kAuthTokenLogin) != requestsInProgress_.end()) {
+        g_logger->error("Incorrect use of API, the function ApiResourcesManager::authTokenLogin is called twice");
+        assert(false);
+    }
+    using namespace std::placeholders;
+    requestsInProgress_[RequestType::kAuthTokenLogin] = serverAPI_->authTokenLogin(std::bind(&ApiResourcesManager::onAuthTokenLoginAnswer, this, _1, _2));
+}
+
+void ApiResourcesManager::login(const std::string &username, const std::string &password, const std::string &code2fa, const std::string &secureToken,
+                                const std::string &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY)
 {
     std::lock_guard locker(mutex_);
 
@@ -87,9 +99,8 @@ void ApiResourcesManager::login(const std::string &username, const std::string &
     }
 
     using namespace std::placeholders;
-    std::vector<float> captchaTrailX = {};
-    std::vector<float> captchaTrailY = {};
-    requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->login(username, password, code2fa, "", "", captchaTrailX, captchaTrailY, std::bind(&ApiResourcesManager::onLoginAnswer, this, _1, _2, username, password, code2fa));
+        requestsInProgress_[RequestType::kSessionStatus] = serverAPI_->login(username, password, code2fa, secureToken, captchaSolution, captchaTrailX, captchaTrailY,
+                                                                         std::bind(&ApiResourcesManager::onLoginAnswer, this, _1, _2, username, password, code2fa, secureToken, captchaSolution, captchaTrailX, captchaTrailY));
 }
 
 void ApiResourcesManager::logout()
@@ -99,7 +110,6 @@ void ApiResourcesManager::logout()
 
     using namespace std::placeholders;
     serverAPI_->deleteSession(persistentSettings_.authHash(), std::bind(&ApiResourcesManager::onDeleteSessionAnswer, this, _1, _2));
-
     clearValues();
 }
 
@@ -210,6 +220,12 @@ std::string ApiResourcesManager::checkUpdate() const
     return checkUpdate_;
 }
 
+std::string ApiResourcesManager::authTokenLoginResult() const
+{
+    std::lock_guard locker(mutex_);
+    return authTokenLoginResult_;
+}
+
 void ApiResourcesManager::setUpdateIntervals(int sessionInDisconnectedStateMs, int sessionInConnectedStateMs,
                                              int locationsMs, int staticIpsMs, int serverConfigsAndCredentialsMs,
                                              int portMapMs, int notificationsMs, int checkUpdateMs)
@@ -257,6 +273,8 @@ void ApiResourcesManager::handleLoginOrSessionAnswer(ServerApiRetCode serverApiR
                 callback_->call(ApiResourcesManagerNotification::kLoginFailed, LoginResult::kSessionInvalid, ss->errorMessage());
             } else if (ss->errorCode() == SessionErrorCode::kRateLimited) {
                 callback_->call(ApiResourcesManagerNotification::kLoginFailed, LoginResult::kRateLimited, ss->errorMessage());
+            } else if (ss->errorCode() == SessionErrorCode::kInvalidSecurityToken) {
+                callback_->call(ApiResourcesManagerNotification::kLoginFailed, LoginResult::kInvalidSecurityToken, ss->errorMessage());
             } else {
                 assert(false);
                 callback_->call(ApiResourcesManagerNotification::kLoginFailed, LoginResult::kNoApiConnectivity, ss->errorMessage());
@@ -529,6 +547,31 @@ void ApiResourcesManager::onFetchTimer(const boost::system::error_code &err)
     fetchTimer_.async_wait(std::bind(&ApiResourcesManager::onFetchTimer, this, std::placeholders::_1));
 }
 
+void ApiResourcesManager::onAuthTokenLoginAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData)
+{
+    std::lock_guard locker(mutex_);
+    requestsInProgress_.erase(RequestType::kAuthTokenLogin);
+    if (serverApiRetCode == ServerApiRetCode::kNetworkError) {
+        // repeat the request
+        boost::asio::post(io_context_, [this] {
+            authTokenLogin();
+        });
+    } else if (serverApiRetCode == ServerApiRetCode::kNoNetworkConnection) {
+        callback_->call(ApiResourcesManagerNotification::kAuthTokenLoginFinished, LoginResult::kNoConnectivity, std::string());
+    } else if (serverApiRetCode == ServerApiRetCode::kIncorrectJson) {
+        callback_->call(ApiResourcesManagerNotification::kAuthTokenLoginFinished, LoginResult::kIncorrectJson, std::string());
+    } else if (serverApiRetCode == ServerApiRetCode::kFailoverFailed) {
+        callback_->call(ApiResourcesManagerNotification::kAuthTokenLoginFinished, LoginResult::kNoApiConnectivity, std::string());
+    } else {
+        if (serverApiRetCode == ServerApiRetCode::kSuccess) {
+            authTokenLoginResult_ = jsonData;
+        } else {
+            authTokenLoginResult_.clear();
+        }
+        callback_->call(ApiResourcesManagerNotification::kAuthTokenLoginFinished, LoginResult::kSuccess, std::string());
+    }
+}
+
 void ApiResourcesManager::onInitialSessionAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData)
 {
     std::lock_guard locker(mutex_);
@@ -545,14 +588,15 @@ void ApiResourcesManager::onInitialSessionAnswer(ServerApiRetCode serverApiRetCo
     }
 }
 
-void ApiResourcesManager::onLoginAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData, const std::string &username, const std::string &password, const std::string &code2fa)
+void ApiResourcesManager::onLoginAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData, const std::string &username, const std::string &password, const std::string &code2fa, const std::string &secureToken,
+                                        const std::string &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY)
 {
     std::lock_guard locker(mutex_);
     requestsInProgress_.erase(RequestType::kSessionStatus);
     if (serverApiRetCode == ServerApiRetCode::kNetworkError) {
         // repeat the request
-        boost::asio::post(io_context_, [this, username, password, code2fa] {
-            login(username, password, code2fa);
+        boost::asio::post(io_context_, [this, username, password, code2fa, secureToken, captchaSolution, captchaTrailX, captchaTrailY] {
+            login(username, password, code2fa, secureToken, captchaSolution, captchaTrailX, captchaTrailY);
         });
     } else {
         handleLoginOrSessionAnswer(serverApiRetCode, jsonData);

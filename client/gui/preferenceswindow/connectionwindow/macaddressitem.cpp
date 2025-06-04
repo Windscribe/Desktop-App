@@ -22,13 +22,13 @@ void MacAddressItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont font = FontManager::instance().getFont(12, false);
+    QFont font = FontManager::instance().getFont(12,  QFont::Normal);
     painter->setFont(font);
     painter->setPen(Qt::white);
-    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
-                                              PREFERENCES_MARGIN*G_SCALE,
-                                              -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE),
+    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
+                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              -(2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE,
+                                              -PREFERENCES_MARGIN_Y*G_SCALE),
                       Qt::AlignLeft,
                       tr(caption_.toStdString().c_str()));
 
@@ -43,10 +43,10 @@ void MacAddressItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
         t = "--";
     }
 
-    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
-                                              PREFERENCES_MARGIN*G_SCALE,
-                                              -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE),
+    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
+                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              -(2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE,
+                                              -PREFERENCES_MARGIN_Y*G_SCALE),
                       Qt::AlignRight,
                       t);
 }
@@ -70,7 +70,7 @@ void MacAddressItem::onUpdateClick()
 
 void MacAddressItem::updatePositions()
 {
-    updateButton_->setPos(boundingRect().width() - (PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
+    updateButton_->setPos(boundingRect().width() - (PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
 }
 
 void MacAddressItem::setCaption(const QString &caption)

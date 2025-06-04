@@ -43,42 +43,35 @@ void VerticalEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     Q_UNUSED(option)
     Q_UNUSED(widget)
 
-    QFont font = FontManager::instance().getFont(12, false);
+    QFont font = FontManager::instance().getFont(12,  QFont::Normal);
     QFontMetrics fm(font);
     painter->setFont(font);
     painter->setPen(Qt::white);
-    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
-                                              PREFERENCES_MARGIN*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE),
+    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
+                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              -PREFERENCES_MARGIN_X*G_SCALE,
+                                              -PREFERENCES_MARGIN_Y*G_SCALE),
                       Qt::AlignLeft, caption_);
 
-    if (!isEditMode_)
-    {
-
+    if (!isEditMode_) {
         painter->setOpacity(OPACITY_HALF);
         QString t;
-        if (text_.isEmpty())
-        {
+        if (text_.isEmpty()) {
             t = "--";
-        }
-        else if (!maskingChar_.isNull())
-        {
+        } else if (!maskingChar_.isNull()) {
             t = QString(text_.size(), maskingChar_);
-        }
-        else
-        {
+        } else {
             t = text_;
         }
 
-        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
-                                                  (PREFERENCES_MARGIN + PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
-                                                  -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
-                                                  -PREFERENCES_MARGIN),
+        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
+                                                  (PREFERENCES_ITEM_Y + PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE,
+                                                  -(2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE,
+                                                  -PREFERENCES_MARGIN_Y),
                           Qt::AlignLeft,
                           fm.elidedText(t,
                                         Qt::ElideRight,
-                                        boundingRect().width() - (3*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE));
+                                        boundingRect().width() - (3*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE));
     }
 }
 
@@ -179,27 +172,27 @@ void VerticalEditBoxItem::onUndoClick()
 void VerticalEditBoxItem::updateScaling()
 {
     CommonGraphics::BaseItem::updateScaling();
-    setHeight((PREFERENCE_GROUP_ITEM_HEIGHT + PREFERENCES_MARGIN + ICON_HEIGHT)*G_SCALE);
+    setHeight((PREFERENCE_GROUP_ITEM_HEIGHT + PREFERENCES_ITEM_Y + ICON_HEIGHT)*G_SCALE);
     updatePositions();
 }
 
 void VerticalEditBoxItem::updatePositions()
 {
-    qreal top = (PREFERENCES_MARGIN + PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE;
-    btnEdit_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, top);
-    btnConfirm_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, top);
-    btnUndo_->setPos(boundingRect().width() - (2*ICON_WIDTH + 2*PREFERENCES_MARGIN)*G_SCALE, top);
-    lineEdit_->setFont(FontManager::instance().getFont(12, false));
+    qreal top = (PREFERENCES_ITEM_Y + PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE;
+    btnEdit_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN_X)*G_SCALE, top);
+    btnConfirm_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN_X)*G_SCALE, top);
+    btnUndo_->setPos(boundingRect().width() - (2*ICON_WIDTH + 2*PREFERENCES_MARGIN_X)*G_SCALE, top);
+    lineEdit_->setFont(FontManager::instance().getFont(12,  QFont::Normal));
 
     if (!proxyWidget_->isVisible()) // workaround Qt bug (setGeometry not working when proxyWidget_ is not visible)
     {
         proxyWidget_->show();
-        lineEdit_->setGeometry((PREFERENCES_MARGIN-2)*G_SCALE, top, boundingRect().width() - (2*ICON_WIDTH + 3*PREFERENCES_MARGIN - 2)*G_SCALE, ICON_HEIGHT*G_SCALE);
+        lineEdit_->setGeometry((PREFERENCES_MARGIN_X)*G_SCALE, top, boundingRect().width() - (2*ICON_WIDTH + 3*PREFERENCES_MARGIN_X)*G_SCALE, ICON_HEIGHT*G_SCALE);
         proxyWidget_->hide();
     }
     else
     {
-        lineEdit_->setGeometry((PREFERENCES_MARGIN-2)*G_SCALE, top, boundingRect().width() - (2*ICON_WIDTH + 3*PREFERENCES_MARGIN - 2)*G_SCALE, ICON_HEIGHT*G_SCALE);
+        lineEdit_->setGeometry((PREFERENCES_MARGIN_X)*G_SCALE, top, boundingRect().width() - (2*ICON_WIDTH + 3*PREFERENCES_MARGIN_X)*G_SCALE, ICON_HEIGHT*G_SCALE);
     }
 }
 

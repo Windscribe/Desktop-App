@@ -7,7 +7,6 @@
 #include "preferenceswindow/linkitem.h"
 #include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/preferencegroup.h"
-#include "backgroundsettingsgroup.h"
 #include "versioninfoitem.h"
 
 namespace PreferencesWindow {
@@ -20,8 +19,6 @@ public:
 
     QString caption() const override;
     void updateScaling() override;
-
-    void setLocationNamesImportCompleted();
 
 private slots:
     void onIsLaunchOnStartupClicked(bool isChecked);
@@ -53,22 +50,13 @@ private slots:
     void onLocationOrderPreferencesChanged(ORDER_LOCATION_TYPE o);
     void onLocationItemChanged(QVariant o);
 
-    void onLatencyDisplayPreferencesChanged(LATENCY_DISPLAY_TYPE l);
-    void onLatencyItemChanged(QVariant o);
-
     void onUpdateChannelPreferencesChanged(const UPDATE_CHANNEL &c);
     void onUpdateChannelItemChanged(QVariant o);
-
-    void onBackgroundSettingsChanged(const types::BackgroundSettings &settings);
-    void onPreferencesBackgroundSettingsChanged(const types::BackgroundSettings &settings);
 
     void onLanguageChanged();
 
     void onShowLocationLoadPreferencesChanged(bool b);
     void onShowLocationLoadClicked(bool b);
-
-    void onAppSkinPreferencesChanged(APP_SKIN s);
-    void onAppSkinChanged(QVariant value);
 
 #if defined(Q_OS_LINUX)
     void onTrayIconColorChanged(QVariant value);
@@ -79,8 +67,6 @@ private slots:
     void onMultiDesktopBehaviorChanged(QVariant value);
     void onMultiDesktopBehaviorPreferencesChanged(QVariant value);
 #endif
-
-    void onResetLocationNamesClicked();
 
 signals:
     void languageChanged();
@@ -99,12 +85,6 @@ private:
     ToggleItem *checkBoxLaunchOnStart_;
     PreferenceGroup *showNotificationsGroup_;
     ToggleItem *checkBoxShowNotifications_;
-    BackgroundSettingsGroup *backgroundSettingsGroup_;
-    PreferenceGroup *renameLocationsGroup_;
-    LinkItem *renameLocationsItem_;
-    LinkItem *exportSettingsItem_;
-    LinkItem *importSettingsItem_;
-    LinkItem *resetLocationsItem_;
     PreferenceGroup *dockedGroup_;
     ToggleItem *checkBoxDockedToTray_;
     PreferenceGroup *startMinimizedGroup_;
@@ -124,8 +104,6 @@ private:
     ComboBoxItem *comboBoxLanguage_;
     PreferenceGroup *locationOrderGroup_;
     ComboBoxItem *comboBoxLocationOrder_;
-    PreferenceGroup *latencyDisplayGroup_;
-    ComboBoxItem *comboBoxLatencyDisplay_;
 #if defined(Q_OS_LINUX)
     PreferenceGroup *trayIconColorGroup_;
     ComboBoxItem *trayIconColorItem_;

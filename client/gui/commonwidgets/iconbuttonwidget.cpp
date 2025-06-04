@@ -65,7 +65,7 @@ void IconButtonWidget::paintEvent(QPaintEvent *event)
 
     if (!text_.isEmpty()) {
         painter.setPen(Qt::white);
-        painter.setFont(FontManager::instance().getFont(16, true));
+        painter.setFont(FontManager::instance().getFont(16, QFont::Bold));
         painter.drawText(QRect(0, 0, width_, height_), Qt::AlignVCenter, text_);
     }
 
@@ -113,7 +113,7 @@ void IconButtonWidget::updateSize()
     }
 
     if (!text_.isEmpty()) {
-        QFontMetrics fm(FontManager::instance().getFont(16, true));
+        QFontMetrics fm(FontManager::instance().getFont(16, QFont::Bold));
         int textWidth = fm.horizontalAdvance(text_);
         int textHeight = fm.height();
         width += textWidth + (width > 0 ? 8*G_SCALE : 0);

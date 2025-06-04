@@ -14,11 +14,9 @@ RobertWindowItem::RobertWindowItem(ScalableGraphicsObject *parent, Preferences *
     Q_UNUSED(preferencesHelper);
 
     setFlag(QGraphicsItem::ItemIsFocusable);
-    setSpacerHeight(PREFERENCES_MARGIN);
+    setSpacerHeight(PREFERENCES_MARGIN_Y);
 
-    desc_ = new PreferenceGroup(this,
-                                "",
-                                QString("https://%1/features/robert").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    desc_ = new PreferenceGroup(this);
     addItem(desc_);
 
     // Loading items
@@ -27,20 +25,20 @@ RobertWindowItem::RobertWindowItem(ScalableGraphicsObject *parent, Preferences *
 
     // Item for case where we could not get status from server
     errorMessage_ = new QGraphicsTextItem(this);
-    errorMessage_->setFont(FontManager::instance().getFont(14, false));
+    errorMessage_->setFont(FontManager::instance().getFont(14,  QFont::Normal));
     errorMessage_->setDefaultTextColor(Qt::white);
     errorMessage_->setTextWidth(125);
     errorMessage_->document()->setDefaultTextOption(QTextOption(Qt::AlignHCenter));
 
     // Below items for case when not logged in
     loginPrompt_ = new QGraphicsTextItem(this);
-    loginPrompt_->setFont(FontManager::instance().getFont(14, false));
+    loginPrompt_->setFont(FontManager::instance().getFont(14,  QFont::Normal));
     loginPrompt_->setDefaultTextColor(Qt::white);
     loginPrompt_->setTextWidth(125);
     loginPrompt_->document()->setDefaultTextOption(QTextOption(Qt::AlignHCenter));
 
     loginButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kOutline, 69, 24, 12);
-    loginButton_->setFont(FontDescr(12,false));
+    loginButton_->setFont(FontDescr(12, QFont::Normal));
     connect(loginButton_, &CommonGraphics::BubbleButton::clicked, this, &RobertWindowItem::accountLoginClick);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &RobertWindowItem::onLanguageChanged);
@@ -98,8 +96,8 @@ void RobertWindowItem::updateScaling()
 {
     BasePage::updateScaling();
     updatePositions();
-    errorMessage_->setFont(FontManager::instance().getFont(14, false));
-    loginPrompt_->setFont(FontManager::instance().getFont(14, false));
+    errorMessage_->setFont(FontManager::instance().getFont(14,  QFont::Normal));
+    loginPrompt_->setFont(FontManager::instance().getFont(14,  QFont::Normal));
 }
 
 void RobertWindowItem::updatePositions()
@@ -111,7 +109,7 @@ void RobertWindowItem::updatePositions()
     loginPrompt_->setPos(promptCenterX, kMessageOffsetY*G_SCALE);
 
     int loginCenterX = static_cast<int>(boundingRect().width()/2 - loginButton_->boundingRect().width()/2);
-    loginButton_->setPos(loginCenterX, (kMessageOffsetY + PREFERENCES_MARGIN)*G_SCALE + loginPrompt_->boundingRect().height());
+    loginButton_->setPos(loginCenterX, (kMessageOffsetY + PREFERENCES_MARGIN_Y)*G_SCALE + loginPrompt_->boundingRect().height());
 
     int loadingCenterX = static_cast<int>(boundingRect().width()/2 - kLoadingIconSize*G_SCALE/2);
     loadingIcon_->setPos(loadingCenterX, kLoadingIconOffsetY*G_SCALE);
@@ -169,7 +167,8 @@ void RobertWindowItem::updateVisibility()
 
 void RobertWindowItem::onLanguageChanged()
 {
-    desc_->setDescription(tr("R.O.B.E.R.T. is a customizable server-side domain and IP blocking tool. Select the block lists you wish to apply on all your devices by toggling the switch."));
+    desc_->setDescription(tr("R.O.B.E.R.T. is a customizable server-side domain and IP blocking tool. Select the block lists you wish to apply on all your devices by toggling the switch."),
+                          QString("https://%1/features/robert").arg(HardcodedSettings::instance().windscribeServerUrl()));
     errorMessage_->setPlainText(tr("Could not retrieve R.O.B.E.R.T. preferences from server. Try again later."));
     loginPrompt_->setPlainText(tr("Login to view or change R.O.B.E.R.T preferences"));
     loginButton_->setText(tr("Login"));

@@ -8,7 +8,7 @@
 
 namespace wsnet {
 
-enum class SessionErrorCode { kSuccess, kSessionInvalid, kBadUsername, kAccountDisabled, kMissingCode2FA, kBadCode2FA, kRateLimited, kUnknownError };
+enum class SessionErrorCode { kSuccess, kSessionInvalid, kBadUsername, kAccountDisabled, kMissingCode2FA, kBadCode2FA, kRateLimited, kInvalidSecurityToken, kUnknownError };
 
 // wrapper for SessionStatus json text
 class SessionStatus

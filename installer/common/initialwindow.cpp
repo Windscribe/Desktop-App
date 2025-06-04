@@ -3,36 +3,44 @@
 #include <QApplication>
 #include <QDesktopServices>
 #include <QKeyEvent>
+#include <QPainterPath>
 #include <QWidget>
+#include <spdlog/spdlog.h>
 
 #include "languagecontroller.h"
 #include "svgresources.h"
 #include "themecontroller.h"
+#include "utils.h"
 
 InitialWindow::InitialWindow(QWidget *parent) : QWidget(parent)
 {
     setFocusPolicy(Qt::StrongFocus);
 
     QLabel *background = new QLabel(this);
-    background->setPixmap(QPixmap(":/resources/background.png").scaled(350, 350));
+    background->setPixmap(getRoundedRectPixmap(":/resources/background.png", 350, 350, 8));
     background->move(0, 0);
 
     QLabel *logo = new QLabel(this);
-    logo->setPixmap(SvgResources::instance().pixmap(":/resources/WINDSCRIBE_ICON.svg"));
-    logo->move(155, 16);
+    logo->setPixmap(SvgResources::instance().pixmap(":/resources/WINDSCRIBE.svg"));
+    logo->move(113, 24);
 
     installButton_ = new InstallButton(this);
     connect(installButton_, &QPushButton::clicked, this, &InitialWindow::onInstallClicked);
-    installButton_->move(175 - installButton_->width()/2, 154);
+    installButton_->move(175 - installButton_->width()/2, 158);
 
     settingsButton_ = new HoverButton(this, ":/resources/SETTINGS_ICON.svg");
-    settingsButton_->setGeometry(163, 285, 24, 24);
+    settingsButton_->setGeometry(162, 285, 24, 24);
     connect(settingsButton_, &QPushButton::clicked, this, &InitialWindow::settingsClicked);
 
     eulaButton_ = new HoverButton(this);
     eulaButton_->setText(tr("Read EULA"));
-    eulaButton_->move(175 - eulaButton_->width()/2, 322);
+    eulaButton_->setTextAttributes(12, true);
+    eulaButton_->move(175 - eulaButton_->width()/2, 318);
     connect(eulaButton_, &QPushButton::clicked, this, &InitialWindow::onEulaClicked);
+
+    progressDisplay_ = new ProgressDisplay(this);
+    progressDisplay_->move(142, 141);
+    progressDisplay_->hide();
 
 #ifdef Q_OS_MACOS
     HoverButton *closeButton = new HoverButton(this, ":/resources/MAC_CLOSE_DEFAULT.svg", ":/resources/MAC_CLOSE_HOVER.svg");
@@ -50,19 +58,19 @@ InitialWindow::InitialWindow(QWidget *parent) : QWidget(parent)
 
     if (LanguageController::instance().isRtlLanguage()) {
 #ifdef Q_OS_MACOS
-        closeButton->setGeometry(328, 8, 14, 14);
-        minimizeButton->setGeometry(306, 8, 14, 14);
+        closeButton->setGeometry(320, 16, 14, 14);
+        minimizeButton->setGeometry(298, 16, 14, 14);
 #else
         closeButton->setGeometry(16, 16, 28, 28);
-        minimizeButton->setGeometry(52, 16, 28, 28);
+        minimizeButton->setGeometry(46, 16, 28, 28);
 #endif
     } else {
 #ifdef Q_OS_MACOS
-        closeButton->setGeometry(8, 8, 14, 14);
-        minimizeButton->setGeometry(28, 8, 14, 14);
+        closeButton->setGeometry(16, 16, 14, 14);
+        minimizeButton->setGeometry(38, 16, 14, 14);
 #else
         closeButton->setGeometry(306, 16, 28, 28);
-        minimizeButton->setGeometry(270, 16, 28, 28);
+        minimizeButton->setGeometry(262, 16, 28, 28);
 #endif
     }
 }
@@ -78,8 +86,7 @@ void InitialWindow::onEulaClicked()
 
 void InitialWindow::setProgress(int progress)
 {
-    installButton_->setProgress(progress);
-    installButton_->move(175 - installButton_->width()/2, 154);
+    progressDisplay_->setProgress(progress);
     update();
 }
 
@@ -87,6 +94,9 @@ void InitialWindow::onInstallClicked()
 {
     settingsButton_->hide();
     eulaButton_->hide();
+    installButton_->hide();
+    progressDisplay_->show();
+    progressDisplay_->setProgress(0);
 
     emit installClicked();
 }

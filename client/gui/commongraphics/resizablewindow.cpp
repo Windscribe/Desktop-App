@@ -1,6 +1,5 @@
 #include "resizablewindow.h"
 
-#include <QPainter>
 #include <QCursor>
 #include <QGraphicsSceneMouseEvent>
 #include <QCoreApplication>
@@ -15,20 +14,17 @@ ResizableWindow::ResizableWindow(QGraphicsObject *parent, Preferences *preferenc
     setFlags(QGraphicsObject::ItemIsFocusable);
     installEventFilter(this);
 
+    vanGoghOffset_ = kVanGoghOffset;
     minHeight_ = WINDOW_HEIGHT;
     maxHeight_ = INT_MAX;
-    curHeight_ = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? minHeight_ - kVanGoghOffset : minHeight_;
+    curHeight_ = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? minHeight_ - vanGoghOffset_ : minHeight_;
 
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    backgroundBase_ = "background/WIN_TOP_BG";
-    backgroundHeader_ = "background/WIN_HEADER_BG_OVERLAY";
-    roundedFooter_ = false;
-#else
-    backgroundBase_ = "background/MAC_TOP_BG";
-    backgroundHeader_ = "background/MAC_HEADER_BG_OVERLAY";
-    roundedFooter_ = true;
-#endif
+    backgroundBase_ = "background/MAIN_BG_TOP";
+    backgroundHeader_ = "background/HEADER_BG";
+    backgroundBorderExtension_ = "background/MAIN_BORDER_TOP_INNER_EXTENSION";
+    backgroundBorderBottom_ = "background/MAIN_BORDER_BOTTOM_INNER";
     footerColor_ = FontManager::instance().getCharcoalColor();
+    roundedFooter_ = true;
 
     connect(preferences, &Preferences::appSkinChanged, this, &ResizableWindow::onAppSkinChanged);
 
@@ -68,7 +64,7 @@ void ResizableWindow::setMinimumHeight(int height)
 
 int ResizableWindow::minimumHeight()
 {
-    return preferences_->appSkin() == APP_SKIN_VAN_GOGH ? minHeight_ - kVanGoghOffset : minHeight_;
+    return preferences_->appSkin() == APP_SKIN_VAN_GOGH ? minHeight_ - vanGoghOffset_ : minHeight_;
 }
 
 void ResizableWindow::setMaximumHeight(int height)
@@ -76,6 +72,7 @@ void ResizableWindow::setMaximumHeight(int height)
     if (height < minHeight_) {
         height = minHeight_;
     }
+
     maxHeight_ = height;
 
     if (curHeight_ > maxHeight_) {
@@ -86,7 +83,7 @@ void ResizableWindow::setMaximumHeight(int height)
 
 int ResizableWindow::maximumHeight()
 {
-    return preferences_->appSkin() == APP_SKIN_VAN_GOGH ? maxHeight_ - kVanGoghOffset : maxHeight_;
+    return preferences_->appSkin() == APP_SKIN_VAN_GOGH ? maxHeight_ - vanGoghOffset_ : maxHeight_;
 }
 
 void ResizableWindow::setHeight(int height, bool ignoreMinimum)
@@ -98,10 +95,12 @@ void ResizableWindow::setHeight(int height, bool ignoreMinimum)
         height = maximumHeight()*G_SCALE;
     }
 
-    prepareGeometryChange();
-    curHeight_ = height;
-    updatePositions();
-    update();
+    if (height != curHeight_) {
+        prepareGeometryChange();
+        curHeight_ = height;
+        updatePositions();
+        update();
+    }
 }
 
 void ResizableWindow::setScrollBarVisibility(bool on)
@@ -152,20 +151,21 @@ void ResizableWindow::updatePositions()
 {
     bottomResizeItem_->setPos(kBottomResizeOriginX*G_SCALE, curHeight_ - kBottomResizeOffsetY*G_SCALE);
     escapeButton_->onLanguageChanged();
-    escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 16*G_SCALE);
     int heightOffset = 0;
     if (!bottomResizeItem_->isVisible()) {
         heightOffset = 9*G_SCALE;
     }
 
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
+        escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 12*G_SCALE);
         backArrowButton_->setPos(16*G_SCALE, 12*G_SCALE);
         scrollAreaItem_->setPos(0, 55*G_SCALE);
-        scrollAreaItem_->setHeight(curHeight_ - 74*G_SCALE + heightOffset);
+        scrollAreaItem_->setHeight(curHeight_ - 62*G_SCALE + heightOffset);
     } else {
-        backArrowButton_->setPos(16*G_SCALE, 40*G_SCALE);
-        scrollAreaItem_->setPos(0, 83*G_SCALE);
-        scrollAreaItem_->setHeight(curHeight_ - 102*G_SCALE + heightOffset);
+        escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 16*G_SCALE);
+        backArrowButton_->setPos(16*G_SCALE, 28*G_SCALE);
+        scrollAreaItem_->setPos(0, 71*G_SCALE);
+        scrollAreaItem_->setHeight(curHeight_ - 90*G_SCALE + heightOffset);
     }
 }
 
@@ -200,8 +200,10 @@ void ResizableWindow::onAppSkinChanged(APP_SKIN s)
 {
     if (s == APP_SKIN_ALPHA) {
         escapeButton_->setTextPosition(CommonGraphics::EscapeButton::TEXT_POSITION_BOTTOM);
+        backgroundBorder_ = "background/MAIN_BORDER_TOP_INNER";
     } else if (s == APP_SKIN_VAN_GOGH) {
         escapeButton_->setTextPosition(CommonGraphics::EscapeButton::TEXT_POSITION_LEFT);
+        backgroundBorder_ = "background/MAIN_BORDER_TOP_INNER_VAN_GOGH";
     }
     updatePositions();
     update();
@@ -237,4 +239,10 @@ void ResizableWindow::onWindowExpanded()
 
 void ResizableWindow::onWindowCollapsed()
 {
+}
+
+void ResizableWindow::setVanGoghOffset(int offset)
+{
+    vanGoghOffset_ = offset;
+    setHeight(minimumHeight()*G_SCALE);
 }

@@ -15,7 +15,7 @@ EmailItem::EmailItem(ScalableGraphicsObject *parent)
     emailSendState_(EMAIL_NOT_INITIALIZED)
 {
     sendButton_ = new CommonGraphics::TextButton(tr("Sent!"),
-                                                 FontDescr(10, true),
+                                                 FontDescr(10, QFont::Bold),
                                                  QColor(253, 239, 0),
                                                  true,
                                                  this);
@@ -27,7 +27,7 @@ EmailItem::EmailItem(ScalableGraphicsObject *parent)
     connect(sendButton_, &CommonGraphics::TextButton::clicked, this, &EmailItem::onSendEmailClick);
 
     emptyEmailButton_ = new CommonGraphics::TextButton(tr(ADD_TEXT),
-                                                       FontDescr(12, true),
+                                                       FontDescr(12, QFont::Bold),
                                                        Qt::white,
                                                        true,
                                                        this);
@@ -51,7 +51,7 @@ void EmailItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont font = FontManager::instance().getFont(12, true);
+    QFont font = FontManager::instance().getFont(12, QFont::DemiBold);
     QFontMetrics fm(font);
     int textWidth = fm.horizontalAdvance(tr(EMAIL_TEXT));
 
@@ -70,43 +70,43 @@ void EmailItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
             painter->setPen(color);
 
             painter->setOpacity(OPACITY_HALF);
-            QFont font = FontManager::instance().getFont(12, false);
+            QFont font = FontManager::instance().getFont(12,  QFont::Normal);
             painter->setFont(font);
             QFontMetrics fmEmail(font);
-            QString elidedEmail = fmEmail.elidedText(email_, Qt::TextElideMode::ElideMiddle, boundingRect().width() - (2*PREFERENCES_MARGIN + 2*APP_ICON_MARGIN_X + ICON_WIDTH)*G_SCALE - textWidth);
-            painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE), Qt::AlignRight, elidedEmail);
+            QString elidedEmail = fmEmail.elidedText(email_, Qt::TextElideMode::ElideMiddle, boundingRect().width() - (2*PREFERENCES_MARGIN_X + 2*APP_ICON_MARGIN_X + ICON_WIDTH)*G_SCALE - textWidth);
+            painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, -PREFERENCES_MARGIN_X*G_SCALE, -PREFERENCES_MARGIN_Y*G_SCALE), Qt::AlignRight, elidedEmail);
         }
         painter->setOpacity(OPACITY_FULL);
-        pixmapInfoIcon->draw(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
+        pixmapInfoIcon->draw(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
 
         if (emailSendState_ == EMAIL_ADDING) {
             QSharedPointer<IndependentPixmap> p;
             painter->setOpacity(1.0);
             p = ImageResourcesSvg::instance().getIndependentPixmap("SPINNER");
             painter->save();
-            painter->translate(static_cast<int>(boundingRect().width() - p->width()/2 - PREFERENCES_MARGIN*G_SCALE), PREFERENCES_MARGIN*G_SCALE + p->height()/2);
+            painter->translate(static_cast<int>(boundingRect().width() - p->width()/2 - PREFERENCES_MARGIN_X*G_SCALE), PREFERENCES_ITEM_Y*G_SCALE + p->height()/2);
             painter->rotate(spinnerRotation_);
             p->draw(-p->width()/2, -p->height()/2, painter);
             painter->restore();
         }
 
-        painter->setFont(FontManager::instance().getFont(12, true));
-        painter->drawText(boundingRect().adjusted((PREFERENCES_MARGIN + ICON_WIDTH + DESCRIPTION_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE), Qt::AlignLeft, tr(EMAIL_TEXT));
+        painter->setFont(FontManager::instance().getFont(12, QFont::DemiBold));
+        painter->drawText(boundingRect().adjusted((PREFERENCES_MARGIN_X + ICON_WIDTH + DESCRIPTION_MARGIN)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, -PREFERENCES_MARGIN_X*G_SCALE, -PREFERENCES_MARGIN_Y*G_SCALE), Qt::AlignLeft, tr(EMAIL_TEXT));
 
         // subrect
         painter->setOpacity(OPACITY_WARNING_BACKGROUND);
         painter->setPen(Qt::NoPen);
         QPainterPath path;
-        QRectF rect = boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
+        QRectF rect = boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
                                               WARNING_OFFSET_Y*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE);
+                                              -PREFERENCES_MARGIN_X*G_SCALE,
+                                              -PREFERENCES_MARGIN_Y*G_SCALE);
         path.addRoundedRect(rect, SMALL_ROUNDED_RECT_RADIUS*G_SCALE, SMALL_ROUNDED_RECT_RADIUS*G_SCALE);
         painter->fillPath(path, QBrush(color));
         painter->setPen(Qt::SolidLine);
 
         // Text inside subrect
-        painter->setFont(FontManager::instance().getFont(10, false));
+        painter->setFont(FontManager::instance().getFont(10,  QFont::Normal));
         QString text;
         if (email_.isEmpty()) {
             painter->setPen(Qt::white);
@@ -125,15 +125,15 @@ void EmailItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         }
     } else {
         painter->setPen(Qt::white);
-        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE), Qt::AlignLeft, tr(EMAIL_TEXT));
+        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, -PREFERENCES_MARGIN_X*G_SCALE, -PREFERENCES_MARGIN_Y*G_SCALE), Qt::AlignLeft, tr(EMAIL_TEXT));
 
         if (!email_.isEmpty()) {
             painter->setOpacity(OPACITY_HALF);
-            QFont font = FontManager::instance().getFont(12, false);
+            QFont font = FontManager::instance().getFont(12,  QFont::Normal);
             painter->setFont(font);
             QFontMetrics fmEmail(font);
-            QString elidedEmail = fmEmail.elidedText(email_, Qt::TextElideMode::ElideMiddle, boundingRect().width() - (2*PREFERENCES_MARGIN + APP_ICON_MARGIN_X)*G_SCALE - textWidth);
-            painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE, -PREFERENCES_MARGIN*G_SCALE), Qt::AlignRight, elidedEmail);
+            QString elidedEmail = fmEmail.elidedText(email_, Qt::TextElideMode::ElideMiddle, boundingRect().width() - (2*PREFERENCES_MARGIN_X + APP_ICON_MARGIN_X)*G_SCALE - textWidth);
+            painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, -PREFERENCES_MARGIN_X*G_SCALE, -PREFERENCES_MARGIN_Y*G_SCALE), Qt::AlignRight, elidedEmail);
         }
     }
 }
@@ -159,32 +159,32 @@ void EmailItem::updatePositions()
         }
         sendButton_->hide();
 
-        QFontMetrics fm(FontManager::instance().getFont(10, false));
-        msgHeight_ = fm.boundingRect(boundingRect().adjusted((PREFERENCES_MARGIN + DESCRIPTION_MARGIN)*G_SCALE,
+        QFontMetrics fm(FontManager::instance().getFont(10,  QFont::Normal));
+        msgHeight_ = fm.boundingRect(boundingRect().adjusted((PREFERENCES_MARGIN_X + DESCRIPTION_MARGIN)*G_SCALE,
                                                              0,
-                                                             -(PREFERENCES_MARGIN + DESCRIPTION_MARGIN)*G_SCALE,
+                                                             -(PREFERENCES_MARGIN_X + DESCRIPTION_MARGIN)*G_SCALE,
                                                              0).toRect(),
                                      Qt::AlignLeft | Qt::TextWordWrap,
                                      tr(UPGRADE_TEXT)).height();
 
-        height_ = (WARNING_OFFSET_Y + 2*DESCRIPTION_MARGIN + PREFERENCES_MARGIN)*G_SCALE + msgHeight_;
-        emptyEmailButton_->setPos(boundingRect().width() - emptyEmailButton_->boundingRect().width() - PREFERENCES_MARGIN*G_SCALE,
-                                  PREFERENCES_MARGIN*G_SCALE);
+        height_ = (WARNING_OFFSET_Y + 2*DESCRIPTION_MARGIN + PREFERENCES_MARGIN_Y)*G_SCALE + msgHeight_;
+        emptyEmailButton_->setPos(boundingRect().width() - emptyEmailButton_->boundingRect().width() - PREFERENCES_MARGIN_X*G_SCALE,
+                                  PREFERENCES_MARGIN_Y*G_SCALE);
 
     } else if (isNeedConfirmEmail_) {
         emptyEmailButton_->setClickable(false);
         emptyEmailButton_->setVisible(false);
 
-        QFontMetrics fm(FontManager::instance().getFont(10, false));
-        msgHeight_ = fm.boundingRect(boundingRect().adjusted((PREFERENCES_MARGIN + DESCRIPTION_MARGIN)*G_SCALE,
+        QFontMetrics fm(FontManager::instance().getFont(10,  QFont::Normal));
+        msgHeight_ = fm.boundingRect(boundingRect().adjusted((PREFERENCES_MARGIN_X + DESCRIPTION_MARGIN)*G_SCALE,
                                                              0,
-                                                             -(PREFERENCES_MARGIN + DESCRIPTION_MARGIN)*G_SCALE - sendButton_->boundingRect().width(),
+                                                             -(PREFERENCES_MARGIN_X + DESCRIPTION_MARGIN)*G_SCALE - sendButton_->boundingRect().width(),
                                                              0).toRect(),
                                      Qt::AlignLeft | Qt::TextWordWrap,
                                      tr(CONFIRM_TEXT)).height();
 
-        height_ = (WARNING_OFFSET_Y + 2*DESCRIPTION_MARGIN + PREFERENCES_MARGIN)*G_SCALE + msgHeight_;
-        sendButton_->setPos(boundingRect().width() - sendButton_->boundingRect().width() - (PREFERENCES_MARGIN + DESCRIPTION_MARGIN)*G_SCALE,
+        height_ = (WARNING_OFFSET_Y + 2*DESCRIPTION_MARGIN + PREFERENCES_MARGIN_Y)*G_SCALE + msgHeight_;
+        sendButton_->setPos(boundingRect().width() - sendButton_->boundingRect().width() - (PREFERENCES_MARGIN_X + DESCRIPTION_MARGIN)*G_SCALE,
                             (WARNING_OFFSET_Y + DESCRIPTION_MARGIN)*G_SCALE);
         sendButton_->show();
     } else {

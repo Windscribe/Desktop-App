@@ -216,4 +216,9 @@ void ConnectedDnsGroup::onLanguageChanged()
     domainsItem_->setTitle(tr("Domains"));
 }
 
+void ConnectedDnsGroup::setDescription(const QString &desc, const QString &descUrl)
+{
+    comboBoxDns_->setDescription(desc, descUrl);
+}
+
 }

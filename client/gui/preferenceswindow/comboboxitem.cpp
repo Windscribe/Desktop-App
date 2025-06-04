@@ -1,11 +1,13 @@
 #include "comboboxitem.h"
 
 #include <QCursor>
+#include <QDesktopServices>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
 #include <QKeyEvent>
 #include <QPainter>
+#include <QUrl>
 
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
@@ -17,14 +19,14 @@ namespace PreferencesWindow {
 
 ComboBoxItem::ComboBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip)
   : CommonGraphics::BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), strCaption_(caption), strTooltip_(tooltip),
-    captionFont_(12, true), icon_(nullptr), isCaptionElided_(false)
+    captionFont_(12, QFont::Bold), icon_(nullptr), isCaptionElided_(false)
 {
     connect(this, &ComboBoxItem::heightChanged, this, &ComboBoxItem::updatePositions);
 
-    button_ = new CommonGraphics::TextIconButton(8, caption, "preferences/CNTXT_MENU_ICON", this, false);
+    button_ = new CommonGraphics::TextIconButton(4, caption, "preferences/CNTXT_MENU_ICON", this, false);
     button_->setClickable(true);
     connect(button_, &CommonGraphics::TextIconButton::clicked, this, &ComboBoxItem::onMenuOpened);
-    button_->setFont(FontDescr(12, false));
+    button_->setFont(FontDescr(12, QFont::Normal));
     connect(button_, &CommonGraphics::TextIconButton::widthChanged, this, &ComboBoxItem::updatePositions);
     connect(button_, &CommonGraphics::TextIconButton::hoverEnter, this, &ComboBoxItem::buttonHoverEnter);
     connect(button_, &CommonGraphics::TextIconButton::hoverLeave, this, &ComboBoxItem::buttonHoverLeave);
@@ -33,6 +35,12 @@ ComboBoxItem::ComboBoxItem(ScalableGraphicsObject *parent, const QString &captio
     connect(menu_, &CommonWidgets::ComboMenuWidget::itemClicked, this, &ComboBoxItem::onMenuItemSelected);
     connect(menu_, &CommonWidgets::ComboMenuWidget::hidden, this, &ComboBoxItem::onMenuHidden);
     connect(menu_, &CommonWidgets::ComboMenuWidget::sizeChanged, this, &ComboBoxItem::onMenuSizeChanged);
+
+    infoIcon_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/INFO_ICON", "", this, OPACITY_HALF);
+    connect(infoIcon_, &IconButton::clicked, this, &ComboBoxItem::onInfoIconClicked);
+
+    curCaptionY_ = PREFERENCES_ITEM_Y*G_SCALE;
+    connect(&captionPosAnimation_, &QVariantAnimation::valueChanged, this, &ComboBoxItem::onCaptionPosUpdated);
 
     setAcceptHoverEvents(true);
     updateScaling();
@@ -54,15 +62,15 @@ void ComboBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     painter->setFont(font);
     painter->setPen(Qt::white);
 
-    qreal xOffset = PREFERENCES_MARGIN*G_SCALE;
+    qreal xOffset = PREFERENCES_MARGIN_X*G_SCALE;
     if (icon_)
     {
-        xOffset = (1.5*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE;
-        icon_->draw(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
+        xOffset = (2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE;
+        icon_->draw(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
     }
 
     QFontMetrics fm(font);
-    int availableWidth = boundingRect().width() - xOffset - button_->boundingRect().width() - PREFERENCES_MARGIN*G_SCALE;
+    int availableWidth = boundingRect().width() - xOffset - button_->boundingRect().width() - PREFERENCES_MARGIN_X*G_SCALE;
     QString elidedText = strCaption_;
 
     // Reset elided flag
@@ -77,17 +85,24 @@ void ComboBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     // Store the caption rectangle for mouse hover detection
     captionRect_ = QRectF(
         xOffset,
-        PREFERENCES_MARGIN*G_SCALE,
+        PREFERENCES_ITEM_Y*G_SCALE,
         fm.horizontalAdvance(elidedText),
         fm.height()
     );
 
-    painter->drawText(boundingRect().adjusted(xOffset,
-                                              PREFERENCES_MARGIN*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE),
-                      Qt::AlignLeft,
-                      elidedText);
+    painter->drawText(boundingRect().adjusted(xOffset, curCaptionY_, -PREFERENCES_MARGIN_X*G_SCALE, 0), Qt::AlignLeft, elidedText);
+
+    // If there's a description draw it
+    if (!desc_.isEmpty()) {
+        QFont font = FontManager::instance().getFont(10, QFont::Normal);
+        painter->setFont(font);
+        painter->setPen(Qt::white);
+        painter->setOpacity(OPACITY_HALF);
+        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
+                                                  boundingRect().height() - PREFERENCES_MARGIN_Y*G_SCALE - descHeight_,
+                                                  -descRightMargin_,
+                                                  0), Qt::AlignLeft | Qt::TextWordWrap, desc_);
+    }
 }
 
 bool ComboBoxItem::hasItems()
@@ -238,7 +253,6 @@ void ComboBoxItem::setClickable(bool clickable)
 void ComboBoxItem::updateScaling()
 {
     CommonGraphics::BaseItem::updateScaling();
-    setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
     menu_->updateScaling();
     updatePositions();
 }
@@ -250,16 +264,54 @@ void ComboBoxItem::updatePositions()
 
     int used;
     if (icon_) {
-        used = (3*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE + captionWidth;
+        used = (3*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE + captionWidth;
     }
     else {
-        used = 2*PREFERENCES_MARGIN*G_SCALE + captionWidth;
+        used = 2*PREFERENCES_MARGIN_X*G_SCALE + captionWidth;
     }
 
-    // Ensure a minimum combobox width so we do not completely hide all of its text.
-    // This widget's text (strCaption_) will then elide if need be when we render it in the paint() method.
-    button_->setMaxWidth(qMax(boundingRect().width() - used, MIN_COMBOBOX_WIDTH*G_SCALE));
-    button_->setPos(boundingRect().width() - button_->boundingRect().width() - PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
+    if (desc_.isEmpty()) {
+        setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
+        infoIcon_->setVisible(false);
+    }
+
+    if (useMinimumSize_) {
+        // When using minimum size, the spacer width is 4, which the TextIconButton uses to the left of the text as well as between the text and the icon.
+        // We want to offset this and put the button exactly PREFERENCES_MARGIN_X from the left edge.
+        infoIcon_->setVisible(false);
+        button_->setPos((PREFERENCES_MARGIN_X - 4)*G_SCALE, 0);
+    } else {
+        // Ensure a minimum combobox width so we do not completely hide all of its text.
+        // This widget's text (strCaption_) will then elide if need be when we render it in the paint() method.
+        button_->setMaxWidth(qMax(boundingRect().width() - used, MIN_COMBOBOX_WIDTH*G_SCALE));
+        button_->setPos(boundingRect().width() - button_->boundingRect().width() - PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
+    }
+
+    // Descriptions
+    if (desc_.isEmpty()) {
+        return;
+    }
+
+    descRightMargin_ = PREFERENCES_MARGIN_X*G_SCALE;
+    if (!descUrl_.isEmpty()) {
+        descRightMargin_ += PREFERENCES_MARGIN_X*G_SCALE + ICON_WIDTH*G_SCALE;
+    }
+
+    QFontMetrics fm(FontManager::instance().getFont(10, QFont::Normal));
+    descHeight_ = fm.boundingRect(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, 0, -descRightMargin_, 0).toRect(),
+                                  Qt::AlignLeft | Qt::TextWordWrap,
+                                  desc_).height();
+
+    if (descUrl_.isEmpty()) {
+        infoIcon_->setVisible(false);
+    } else {
+        infoIcon_->setVisible(true);
+        infoIcon_->setPos(boundingRect().width() + PREFERENCES_MARGIN_X*G_SCALE - descRightMargin_,
+                          boundingRect().height() - PREFERENCES_MARGIN_Y*G_SCALE - descHeight_/2 - ICON_HEIGHT*G_SCALE/2);
+    }
+
+    setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE + descHeight_ + DESCRIPTION_MARGIN*G_SCALE);
+    update();
 }
 
 void ComboBoxItem::onMenuOpened()
@@ -394,6 +446,61 @@ void ComboBoxItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     TooltipController::instance().hideTooltip(TOOLTIP_ID_ELIDED_TEXT);
     BaseItem::hoverLeaveEvent(event);
+}
+
+void ComboBoxItem::setDescription(const QString &description, const QString &url)
+{
+    desc_ = description;
+    descUrl_ = url;
+    updatePositions();
+}
+
+void ComboBoxItem::onInfoIconClicked()
+{
+    QDesktopServices::openUrl(QUrl(descUrl_));
+}
+
+void ComboBoxItem::setCaptionY(int y)
+{
+    if (y == -1) {
+        captionY_ = PREFERENCES_ITEM_Y*G_SCALE;
+    } else {
+        captionY_ = y;
+    }
+    startAnAnimation(captionPosAnimation_, curCaptionY_, captionY_, ANIMATION_SPEED_VERY_FAST);
+}
+
+void ComboBoxItem::onCaptionPosUpdated(const QVariant &value)
+{
+    curCaptionY_ = value.toInt();
+    update();
+}
+
+void ComboBoxItem::setButtonFont(const FontDescr &fontDescr)
+{
+    button_->setFont(fontDescr);
+}
+
+void ComboBoxItem::setButtonIcon(const QString &icon)
+{
+    button_->setImagePath(icon);
+}
+
+void ComboBoxItem::setUseMinimumSize(bool useMinimumSize)
+{
+    useMinimumSize_ = useMinimumSize;
+    if (useMinimumSize_) {
+        width_ = (PREFERENCES_MARGIN_X - 4) + button_->boundingRect().width()/G_SCALE;
+    } else {
+        width_ = PAGE_WIDTH;
+    }
+    prepareGeometryChange();
+    update();
+}
+
+int ComboBoxItem::buttonWidth() const
+{
+    return button_->boundingRect().width();
 }
 
 } // namespace PreferencesWindow

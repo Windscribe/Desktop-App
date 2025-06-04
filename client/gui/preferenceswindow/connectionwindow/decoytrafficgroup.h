@@ -20,6 +20,8 @@ public:
 
     void setDecoyTrafficSettings(const types::DecoyTrafficSettings &decoyTrafficSettings);
 
+    void setDescription(const QString &desc, const QString &descUrl = "");
+
 signals:
     void decoyTrafficSettingsChanged(const types::DecoyTrafficSettings &decoyTrafficSettings);
 

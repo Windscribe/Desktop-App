@@ -29,6 +29,7 @@ public:
 
     void setConnectionSettings(const types::ConnectionSettings &cm);
     void setTitle(const QString &title);
+    void setDescription(const QString &description, const QString &descUrl = "");
 
 signals:
     void connectionModePreferencesChanged(const types::ConnectionSettings &settings);

@@ -46,7 +46,7 @@ const QString WS_LOG_SPLITTUNNELEXTENSION = WS_PREFIX + "log-splittunnelextensio
 const QString WS_NO_PINGS = WS_PREFIX + "no-pings";
 
 
-void ExtraConfig::writeConfig(const QString &cfg)
+void ExtraConfig::writeConfig(const QString &cfg, bool bWithLog)
 {
     QMutexLocker locker(&mutex_);
     QFile file(path_);
@@ -60,8 +60,10 @@ void ExtraConfig::writeConfig(const QString &cfg)
         file.write(cfg.toLocal8Bit());
         file.close();
 
-        qCDebug(LOG_BASIC) << "Wrote extra config file:" << path_;
-        qCDebug(LOG_BASIC) << "Extra options:" << cfg.toLocal8Bit();
+        if (bWithLog) {
+            qCDebug(LOG_BASIC) << "Wrote extra config file:" << path_;
+            qCDebug(LOG_BASIC) << "Extra options:" << cfg.toLocal8Bit();
+        }
     }
 }
 
@@ -397,4 +399,24 @@ ExtraConfig::ExtraConfig() : path_(QStandardPaths::writableLocation(QStandardPat
 void ExtraConfig::logExtraConfig()
 {
     getExtraConfig(true);
+}
+
+void ExtraConfig::fromJson(const QJsonObject &json)
+{
+    if (json.contains(kJsonFileContentsProp) && json[kJsonFileContentsProp].isString()) {
+        const auto fileContents = QByteArray::fromBase64(json[kJsonFileContentsProp].toString().toUtf8(), QByteArray::AbortOnBase64DecodingErrors);
+        if (!fileContents.isEmpty()) {
+            writeConfig(fileContents, false);
+        }
+    }
+}
+
+QJsonObject ExtraConfig::toJson()
+{
+    QJsonObject json;
+    const auto fileContents = getExtraConfig(false);
+    if (!fileContents.isEmpty()) {
+        json[kJsonFileContentsProp] = QString(fileContents.toUtf8().toBase64());
+    }
+    return json;
 }

@@ -12,7 +12,6 @@ namespace ConnectWindow {
 class Background : public ScalableGraphicsObject
 {
     Q_PROPERTY(qreal opacityConnecting READ opacityConnecting WRITE setOpacityConnecting)
-    Q_PROPERTY(qreal opacityConnected READ opacityConnected WRITE setOpacityConnected)
     Q_PROPERTY(qreal opacityDisconnected READ opacityDisconnected WRITE setOpacityDisconnected)
     Q_OBJECT
 public:
@@ -25,7 +24,6 @@ public:
     void onLocationSelected(const QString &countryCode);
     void setDarkMode(bool dark);
     QPixmap getShadowPixmap();
-    void setCornerColor(QColor color);
 
     void updateScaling() override;
 
@@ -34,36 +32,24 @@ private slots:
 
 private:
     static constexpr int ANIMATION_DURATION = 600;
-    static constexpr int WIDTH = 332;
-    static constexpr int HEIGHT = 316;
+    static constexpr int WIDTH = 350;
+    static constexpr int HEIGHT = 271;
 
     Preferences *preferences_;
 
     qreal opacityConnecting_;
-    qreal opacityConnected_;
     qreal opacityDisconnected_;
     QPropertyAnimation opacityConnectingAnimation_;
-    QPropertyAnimation opacityConnectedAnimation_;
     QPropertyAnimation opacityDisconnectedAnimation_;
 
     BackgroundImage backgroundImage_;
 
-    QString topFrameBG_         ;
-    QString headerDisconnected_ ;
-    QString headerConnected_    ;
-    QString headerConnecting_   ;
-    QString bottomFrameBG_      ;
-
-    QString bottomLeftHorizDivider_;
-    QScopedPointer<ImageWithShadow> midRightVertDivider_;
-
-    QColor cornerColor_;
+    QString mainBG_;
+    QString borderInner_;
+    QString bottomFrameBG_;
 
     qreal opacityConnecting();
     void setOpacityConnecting(qreal v);
-
-    qreal opacityConnected();
-    void setOpacityConnected(qreal v);
 
     qreal opacityDisconnected();
     void setOpacityDisconnected(qreal v);

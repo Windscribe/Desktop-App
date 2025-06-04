@@ -11,13 +11,7 @@ class InstallButton : public QPushButton
 public:
     explicit InstallButton(QWidget *parent);
 
-    void setProgress(int progress);
-
 private:
     QLabel *icon_;
     QLabel *text_;
-    Spinner *spinner_;
-
-    bool installing_;
 };
-

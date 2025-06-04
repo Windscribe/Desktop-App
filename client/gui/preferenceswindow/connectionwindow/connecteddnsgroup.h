@@ -23,6 +23,8 @@ public:
     void setLocalDnsAvailable(bool available);
     bool hasItemWithFocus() override;
 
+    void setDescription(const QString &desc, const QString &descUrl = "");
+
 signals:
     void connectedDnsInfoChanged(const types::ConnectedDnsInfo &dns);
     void domainsClick(const QStringList &domains);

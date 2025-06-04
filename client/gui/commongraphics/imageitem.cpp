@@ -1,13 +1,13 @@
 #include "imageitem.h"
 
 #include <QPainter>
+#include "commongraphics/commongraphics.h"
 #include "graphicresources/imageresourcessvg.h"
 
 ImageItem::ImageItem(ScalableGraphicsObject *parent, const QString &imagePath, const QString &shadowImagePath) : ScalableGraphicsObject(parent),
   imagePath_(imagePath), shadowImagePath_(shadowImagePath)
 {
-    if (!shadowImagePath_.isEmpty())
-    {
+    if (!shadowImagePath_.isEmpty()) {
         imageWithShadow_.reset(new ImageWithShadow(imagePath_, shadowImagePath_));
     }
     updateScaling();
@@ -23,12 +23,11 @@ void ImageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    if (imageWithShadow_)
-    {
+    painter->setOpacity(opacity());
+
+    if (imageWithShadow_) {
         imageWithShadow_->draw(painter, 0, 0);
-    }
-    else
-    {
+    } else {
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
         p->draw(0, 0, painter);
     }

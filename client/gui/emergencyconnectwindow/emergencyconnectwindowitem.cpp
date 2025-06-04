@@ -23,7 +23,6 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
     curTitleOpacity_ = OPACITY_FULL;
     curDescriptionOpacity_ = OPACITY_FULL;
     curIconOpacity_ = OPACITY_FULL;
-    curMinimizeCloseOpacity_= OPACITY_FULL;
 
     curSpinnerPageOpacity_ = OPACITY_HIDDEN;
     curSubDescriptionTextOpacity_ = OPACITY_HIDDEN;
@@ -41,18 +40,9 @@ EmergencyConnectWindowItem::EmergencyConnectWindowItem(QGraphicsObject *parent,
     escButton_ = new CommonGraphics::EscapeButton(this);
     connect(escButton_, &CommonGraphics::EscapeButton::clicked, this, &EmergencyConnectWindowItem::onEscClicked);
 
-#ifdef Q_OS_WIN
-    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
-    connect(closeButton_, &IconButton::clicked, this, &EmergencyConnectWindowItem::closeClick);
-
-    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
-    connect(minimizeButton_, &IconButton::clicked, this, &EmergencyConnectWindowItem::minimizeClick);
-#endif
-
     connect(&titleOpacityAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onTitleOpacityChange);
     connect(&descriptionOpacityAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onDescriptionTransition);
     connect(&iconOpacityAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onIconOpacityChange);
-    connect(&minimizeCloseOpacityAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onMinimizeCloseOpacityChange);
 
     connect(&spinnerOpacityAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onSpinnerTransition);
     connect(&subDescriptionTextOpacityAnimation_, &QVariantAnimation::valueChanged, this, &EmergencyConnectWindowItem::onSubDescriptionTextTransition);
@@ -83,14 +73,9 @@ void EmergencyConnectWindowItem::paint(QPainter *painter, const QStyleOptionGrap
 
     // background
     QColor black = FontManager::instance().getMidnightColor();
-#ifdef Q_OS_WIN
-    painter->fillRect(boundingRect(), black);
-#else
-    //todo scale
     painter->setPen(black);
     painter->setBrush(black);
-    painter->drawRoundedRect(boundingRect().adjusted(0,0,0,0), 5*G_SCALE, 5*G_SCALE);
-#endif
+    painter->drawRoundedRect(boundingRect(), 9*G_SCALE, 9*G_SCALE);
 
     // Icon
     painter->setOpacity(curIconOpacity_*initialOpacity);
@@ -101,14 +86,14 @@ void EmergencyConnectWindowItem::paint(QPainter *painter, const QStyleOptionGrap
 
     // title
     painter->setOpacity(curTitleOpacity_*initialOpacity);
-    painter->setFont(FontManager::instance().getFont(16, true, 100));
+    painter->setFont(FontManager::instance().getFont(16, QFont::Bold, 100));
     QRectF titleRect(0, TITLE_POS_Y * G_SCALE, LOGIN_WIDTH * G_SCALE, LOGIN_HEIGHT * G_SCALE);
     painter->drawText(titleRect, Qt::AlignHCenter, tr("Emergency Connect"));
 
     // desc
     painter->save();
     painter->setOpacity(curDescriptionOpacity_*initialOpacity);
-    painter->setFont(FontManager::instance().getFont(14, false, 100));
+    painter->setFont(FontManager::instance().getFont(14, QFont::Normal, 100));
 
     QString descriptionText;
     int desiredLines = 1;
@@ -234,11 +219,6 @@ void EmergencyConnectWindowItem::setClickable(bool isClickable)
     }
 
     escButton_->setClickable(isClickable);
-
-#ifdef Q_OS_WIN
-    closeButton_->setClickable(isClickable);
-    minimizeButton_->setClickable(isClickable);
-#endif
 }
 
 void EmergencyConnectWindowItem::updateScaling()
@@ -318,14 +298,9 @@ void EmergencyConnectWindowItem::updatePositions()
 {
     connectButton_->setPos(WINDOW_WIDTH/2*G_SCALE - connectButton_->boundingRect().width()/2, CONNECT_BUTTON_POS_Y*G_SCALE);
     disconnectButton_->setPos(WINDOW_WIDTH/2*G_SCALE - disconnectButton_->boundingRect().width()/2, DISCONNECT_BUTTON_POS_Y*G_SCALE);
-    escButton_->setPos(WINDOW_MARGIN*G_SCALE, WINDOW_MARGIN*G_SCALE);
+    escButton_->setPos(WINDOW_WIDTH*G_SCALE - escButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE, WINDOW_MARGIN*G_SCALE);
     accessText_->setFixedWidth(WINDOW_WIDTH*G_SCALE);
     accessText_->move(0, LINK_TEXT_POS_Y*G_SCALE);
-
-#ifdef Q_OS_WIN
-    closeButton_->setPos((LOGIN_WIDTH - 16 - WINDOW_MARGIN)*G_SCALE, 14*G_SCALE);
-    minimizeButton_->setPos((LOGIN_WIDTH -16 - WINDOW_MARGIN -32)*G_SCALE, 14*G_SCALE);
-#endif
 }
 
 void EmergencyConnectWindowItem::onConnectClicked()
@@ -354,11 +329,6 @@ void EmergencyConnectWindowItem::onIconOpacityChange(const QVariant &value)
 {
     curIconOpacity_ = value.toDouble();
     update();
-}
-
-void EmergencyConnectWindowItem::onMinimizeCloseOpacityChange(const QVariant &value)
-{
-    curMinimizeCloseOpacity_ = value.toDouble();
 }
 
 void EmergencyConnectWindowItem::onSubDescriptionTextTransition(const QVariant &value)

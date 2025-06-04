@@ -46,14 +46,14 @@ void EditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
     if (!isEditMode_)
     {
-        QFont font = FontManager::instance().getFont(12, false);
+        QFont font = FontManager::instance().getFont(12,  QFont::Normal);
         QFontMetrics fm(font);
         painter->setFont(font);
         painter->setPen(Qt::white);
-        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
-                                                  PREFERENCES_MARGIN*G_SCALE,
-                                                  -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
-                                                  -PREFERENCES_MARGIN*G_SCALE),
+        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
+                                                  PREFERENCES_ITEM_Y*G_SCALE,
+                                                  -(2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE,
+                                                  -PREFERENCES_MARGIN_Y*G_SCALE),
                           Qt::AlignLeft, caption_);
 
         painter->setOpacity(OPACITY_HALF);
@@ -71,14 +71,14 @@ void EditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
             t = text_;
         }
 
-        painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN*G_SCALE) + fm.horizontalAdvance(caption_),
-                                                  PREFERENCES_MARGIN*G_SCALE,
-                                                  -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
-                                                  -PREFERENCES_MARGIN),
+        painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN_X*G_SCALE) + fm.horizontalAdvance(caption_),
+                                                  PREFERENCES_ITEM_Y*G_SCALE,
+                                                  -(2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE,
+                                                  -PREFERENCES_MARGIN_Y),
                           Qt::AlignRight,
                           fm.elidedText(t,
                                         Qt::ElideRight,
-                                        boundingRect().width() - (4*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE - fm.horizontalAdvance(caption_)));
+                                        boundingRect().width() - (4*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE - fm.horizontalAdvance(caption_)));
     }
 }
 
@@ -186,20 +186,20 @@ void EditBoxItem::updateScaling()
 
 void EditBoxItem::updatePositions()
 {
-    btnEdit_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
-    btnConfirm_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
-    btnUndo_->setPos(boundingRect().width() - (2*ICON_WIDTH + 2*PREFERENCES_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
-    lineEdit_->setFont(FontManager::instance().getFont(12, true));
+    btnEdit_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN_X)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
+    btnConfirm_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN_X)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
+    btnUndo_->setPos(boundingRect().width() - (2*ICON_WIDTH + 2*PREFERENCES_MARGIN_X)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
+    lineEdit_->setFont(FontManager::instance().getFont(12, QFont::DemiBold));
 
     if (!proxyWidget_->isVisible()) // workaround Qt bug (setGeometry not working when proxyWidget_ is not visible)
     {
         proxyWidget_->show();
-        lineEdit_->setGeometry(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, boundingRect().width() - (2*ICON_WIDTH + 3*PREFERENCES_MARGIN)*G_SCALE, ICON_HEIGHT*G_SCALE);
+        lineEdit_->setGeometry(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, boundingRect().width() - (2*ICON_WIDTH + 3*PREFERENCES_MARGIN_X)*G_SCALE, ICON_HEIGHT*G_SCALE);
         proxyWidget_->hide();
     }
     else
     {
-        lineEdit_->setGeometry(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, boundingRect().width() - (2*ICON_WIDTH + 3*PREFERENCES_MARGIN)*G_SCALE, ICON_HEIGHT*G_SCALE);
+        lineEdit_->setGeometry(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, boundingRect().width() - (2*ICON_WIDTH + 3*PREFERENCES_MARGIN_X)*G_SCALE, ICON_HEIGHT*G_SCALE);
     }
 }
 

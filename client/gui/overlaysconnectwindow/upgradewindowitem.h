@@ -38,13 +38,13 @@ private:
 
     int height_;
 
-    static constexpr int TITLE_POS_Y = 51;
+    static constexpr int TITLE_POS_Y = 35;
 
     static constexpr int DESCRIPTION_WIDTH_MIN = 230;
-    static constexpr int DESCRIPTION_POS_Y = 102;
+    static constexpr int DESCRIPTION_POS_Y = 86;
 
-    static constexpr int ACCEPT_BUTTON_POS_Y = 180;
-    static constexpr int CANCEL_BUTTON_POS_Y = 236;
+    static constexpr int ACCEPT_BUTTON_POS_Y = 164;
+    static constexpr int CANCEL_BUTTON_POS_Y = 212;
 };
 
 }

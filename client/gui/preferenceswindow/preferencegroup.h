@@ -19,6 +19,7 @@ public:
     void addItem(CommonGraphics::BaseItem *item, bool isWideDividerLine = false);
 
     void setDescription(const QString &desc, bool error = false);
+    void setDescription(const QString &desc, const QString &descUrl);
     void showDescription();
     void hideDescription();
     void setDrawBackground(bool draw);

@@ -76,11 +76,11 @@ CredentialsWindowItem::CredentialsWindowItem(QGraphicsObject *parent, Preference
     curErrorOpacity_ = OPACITY_HIDDEN;
     connect(&errorAnimation_, &QVariantAnimation::valueChanged, this, &CredentialsWindowItem::onErrorChanged);
 
-    twoFactorAuthButton_ = new CommonGraphics::TextButton("", FontDescr(12, false), Qt::white, true, this);
+    twoFactorAuthButton_ = new CommonGraphics::TextButton("", FontDescr(12, QFont::Normal), Qt::white, true, this);
     connect(twoFactorAuthButton_, &CommonGraphics::TextButton::clicked, this, &CredentialsWindowItem::onTwoFactorAuthClick);
     twoFactorAuthButton_->quickHide();
 
-    forgotPassButton_ = new CommonGraphics::TextButton("", FontDescr(12, false), Qt::white, true, this);
+    forgotPassButton_ = new CommonGraphics::TextButton("", FontDescr(12, QFont::Normal), Qt::white, true, this);
     connect(forgotPassButton_, &CommonGraphics::TextButton::clicked, this, &CredentialsWindowItem::onForgotPassClick);
     forgotPassButton_->quickHide();
 
@@ -169,6 +169,9 @@ void CredentialsWindowItem::setErrorMessage(LoginWindow::ERROR_MESSAGE_TYPE erro
         case LoginWindow::ERR_MSG_ACCOUNT_DISABLED:
             curErrorText_ = errorMessage;
             break;
+        case LoginWindow::ERR_MSG_INVALID_SECURITY_TOKEN:
+            curErrorText_ = errorMessage;
+            break;
         default:
             WS_ASSERT(false);
             break;
@@ -233,77 +236,61 @@ void CredentialsWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->setRenderHint(QPainter::Antialiasing);
     qreal initOpacity = painter->opacity();
 
-#if defined Q_OS_WIN || defined (Q_OS_LINUX)
-        const int pushDownSquare = 0;
-#else
-        const int pushDownSquare = 5;
-#endif
 
-        QRectF rcTopRect(0, 0, WINDOW_WIDTH*G_SCALE, HEADER_HEIGHT*G_SCALE);
-        QRectF rcBottomRect(0, HEADER_HEIGHT*G_SCALE, WINDOW_WIDTH*G_SCALE, (LOGIN_HEIGHT - HEADER_HEIGHT)*G_SCALE);
-        QColor black = FontManager::instance().getMidnightColor();
-        QColor darkblue = FontManager::instance().getDarkBlueColor();
+    QPainterPath path;
+    path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
+    painter->setPen(Qt::NoPen);
+    painter->fillPath(path, QColor(2, 13, 28));
+    painter->setPen(Qt::SolidLine);
 
-#ifdef Q_OS_MACOS // round background
-        painter->setPen(black);
-        painter->setBrush(black);
-        painter->drawRoundedRect(rcTopRect, 5*G_SCALE, 5*G_SCALE);
+    QRectF rcBottomRect(0, HEADER_HEIGHT*G_SCALE, WINDOW_WIDTH*G_SCALE, (LOGIN_HEIGHT - HEADER_HEIGHT)*G_SCALE);
 
-        painter->setBrush(darkblue);
-        painter->setPen(darkblue);
-        painter->drawRoundedRect(rcBottomRect.adjusted(0, 5*G_SCALE, 0, 0), 5*G_SCALE, 5*G_SCALE);
-#endif
+    QColor darkblue = FontManager::instance().getDarkBlueColor();
+    painter->setBrush(darkblue);
+    painter->setPen(darkblue);
+    painter->drawRoundedRect(rcBottomRect, 9*G_SCALE, 9*G_SCALE);
 
-        // Square background
-        painter->fillRect(rcTopRect.adjusted(0, pushDownSquare, 0, 0), black);
-        painter->fillRect(rcBottomRect.adjusted(0,0,0, -pushDownSquare*2), darkblue);
+    // We don't actually want the upper corners of the bottom rect to be rounded.  Fill them in
+    painter->fillRect(QRect(0, HEADER_HEIGHT*G_SCALE, WINDOW_WIDTH*G_SCALE, 9*G_SCALE), darkblue);
 
-        // Login Text
-        painter->save();
-        painter->setOpacity(curLoginTextOpacity_ * initOpacity);
-        painter->setFont(FontManager::instance().getFont(24, false));
-        painter->setPen(QColor(255,255,255)); //  white
+    // Login Text
+    painter->save();
+    painter->setOpacity(curLoginTextOpacity_ * initOpacity);
+    painter->setFont(FontManager::instance().getFont(24,  QFont::Normal));
+    painter->setPen(QColor(255,255,255)); //  white
 
-        QString loginText = tr("Login");
-        QFontMetrics fm = painter->fontMetrics();
-        const int loginTextWidth = fm.horizontalAdvance(loginText);
-        painter->drawText(centeredOffset(WINDOW_WIDTH*G_SCALE, loginTextWidth),
-                          (HEADER_HEIGHT/2 + LOGIN_TEXT_HEIGHT/2)*G_SCALE,
-                          loginText);
-        painter->restore();
+    QString loginText = tr("Login");
+    QFontMetrics fm = painter->fontMetrics();
+    const int loginTextWidth = fm.horizontalAdvance(loginText);
+    painter->drawText(centeredOffset(WINDOW_WIDTH*G_SCALE, loginTextWidth),
+                        (HEADER_HEIGHT/2 + LOGIN_TEXT_HEIGHT/2)*G_SCALE,
+                        loginText);
+    painter->restore();
 
-        // Error Text
-        painter->setFont(FontManager::instance().getFont(12, false));
-        painter->setPen(FontManager::instance().getErrorRedColor());
-        painter->setOpacity(curErrorOpacity_ * initOpacity);
-        QRectF rect(WINDOW_MARGIN*G_SCALE, 232*G_SCALE, 180*G_SCALE, 100*G_SCALE);
-        painter->drawText(rect, curErrorText_);
+    // Error Text
+    painter->setFont(FontManager::instance().getFont(12,  QFont::Normal));
+    painter->setPen(FontManager::instance().getErrorRedColor());
+    painter->setOpacity(curErrorOpacity_ * initOpacity);
+    QRectF rect(WINDOW_MARGIN*G_SCALE, 232*G_SCALE, 180*G_SCALE, 100*G_SCALE);
+    painter->drawText(rect, curErrorText_);
 
-        // Emergency Connect Text
-        painter->save();
-        painter->setPen(FontManager::instance().getBrightBlueColor());
-        painter->setOpacity(curEmergencyTextOpacity_ * initOpacity);
-        painter->drawText(centeredOffset(WINDOW_WIDTH*G_SCALE, EMERGENCY_CONNECT_TEXT_WIDTH*G_SCALE), EMERGENCY_CONNECT_TEXT_POS_Y*G_SCALE, tr("Emergency Connect is ON"));
-        painter->restore();
+    // Emergency Connect Text
+    painter->save();
+    painter->setPen(FontManager::instance().getBrightBlueColor());
+    painter->setOpacity(curEmergencyTextOpacity_ * initOpacity);
+    painter->drawText(centeredOffset(WINDOW_WIDTH*G_SCALE, EMERGENCY_CONNECT_TEXT_WIDTH*G_SCALE), EMERGENCY_CONNECT_TEXT_POS_Y*G_SCALE, tr("Emergency Connect is ON"));
+    painter->restore();
 
-        // dividers -- bottom buttons
-        painter->setOpacity(OPACITY_UNHOVER_DIVIDER * initOpacity);
-        const int bottom_button_y = LOGIN_HEIGHT * G_SCALE - settingsButton_->boundingRect().width();
-        const int window_center_x_offset = WINDOW_WIDTH/2 * G_SCALE ;
-
-        painter->fillRect(QRect(window_center_x_offset - 30*G_SCALE, bottom_button_y, 2*G_SCALE,  LOGIN_HEIGHT * G_SCALE), Qt::white);
-        painter->fillRect(QRect(window_center_x_offset + 29*G_SCALE, bottom_button_y, 2*G_SCALE,  LOGIN_HEIGHT * G_SCALE), Qt::white);
-
-        // divider -- between 2FA and forgot password.
-        if (twoFactorAuthButton_->getOpacity() != OPACITY_HIDDEN) {
-            fm = painter->fontMetrics();
-            const int forgot_and_2fa_divider_x = (WINDOW_MARGIN*G_SCALE
-                + twoFactorAuthButton_->boundingRect().width() + forgotPassButton_->x()) / 2;
-            const int forgot_and_2fa_divider_y = ( 1 + curForgotAnd2FAPosY_ ) * G_SCALE
-                + (twoFactorAuthButton_->boundingRect().height() - fm.ascent()) / 2;
-            painter->fillRect(QRect(forgot_and_2fa_divider_x, forgot_and_2fa_divider_y,
-                                    1 * G_SCALE, fm.ascent()), Qt::white);
-        }
+    // divider -- between 2FA and forgot password.
+    if (twoFactorAuthButton_->getOpacity() != OPACITY_HIDDEN) {
+        fm = painter->fontMetrics();
+        const int forgot_and_2fa_divider_x = (WINDOW_MARGIN*G_SCALE
+            + twoFactorAuthButton_->boundingRect().width() + forgotPassButton_->x()) / 2;
+        const int forgot_and_2fa_divider_y = ( 1 + curForgotAnd2FAPosY_ ) * G_SCALE
+            + (twoFactorAuthButton_->boundingRect().height() - fm.ascent()) / 2;
+        painter->fillRect(QRect(forgot_and_2fa_divider_x, forgot_and_2fa_divider_y,
+                                1 * G_SCALE, fm.ascent()), Qt::white);
+    }
 }
 
 void CredentialsWindowItem::resetState()
@@ -573,13 +560,12 @@ void CredentialsWindowItem::updatePositions()
 
     backButton_->setPos(16*G_SCALE, 28*G_SCALE);
 
-    int bottom_button_y = LOGIN_HEIGHT*G_SCALE - settingsButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
+    int bottom_button_y = LOGIN_HEIGHT*G_SCALE - settingsButton_->boundingRect().width() - 24*G_SCALE;
     int window_center_x_offset = WINDOW_WIDTH/2*G_SCALE - settingsButton_->boundingRect().width()/2;
-    settingsButton_->setPos(window_center_x_offset - 58*G_SCALE, bottom_button_y);
 
-    emergencyButton_->setPos(window_center_x_offset, bottom_button_y);
-
-    configButton_->setPos(window_center_x_offset + 58*G_SCALE, bottom_button_y);
+    emergencyButton_->setPos(window_center_x_offset - 48*G_SCALE, bottom_button_y);
+    settingsButton_->setPos(window_center_x_offset, bottom_button_y);
+    configButton_->setPos(window_center_x_offset + 48*G_SCALE, bottom_button_y);
 
     usernameEntry_->setPos(0, USERNAME_POS_Y_VISIBLE*G_SCALE);
     passwordEntry_->setPos(0, PASSWORD_POS_Y_VISIBLE*G_SCALE);

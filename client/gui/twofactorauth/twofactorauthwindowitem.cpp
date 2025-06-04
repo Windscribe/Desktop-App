@@ -77,49 +77,39 @@ void TwoFactorAuthWindowItem::paint(QPainter *painter, const QStyleOptionGraphic
     painter->setRenderHint(QPainter::Antialiasing);
     const qreal initialOpacity = painter->opacity();
 
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    const int pushDownSquare = 0;
-#else
-    const int pushDownSquare = 5;
-#endif
+    QPainterPath path;
+    path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
+    painter->setPen(Qt::NoPen);
+    painter->fillPath(path, QColor(2, 13, 28));
+    painter->setPen(Qt::SolidLine);
 
-    QRectF rcTopRect(0, 0, WINDOW_WIDTH*G_SCALE, HEADER_HEIGHT*G_SCALE);
-    QRectF rcBottomRect(0, HEADER_HEIGHT*G_SCALE, WINDOW_WIDTH*G_SCALE,
-                        (LOGIN_HEIGHT - HEADER_HEIGHT)*G_SCALE);
-    QColor black = FontManager::instance().getMidnightColor();
+    QRectF rcBottomRect(0, HEADER_HEIGHT*G_SCALE, WINDOW_WIDTH*G_SCALE, (LOGIN_HEIGHT - HEADER_HEIGHT)*G_SCALE);
+
     QColor darkblue = FontManager::instance().getDarkBlueColor();
-
-#ifndef Q_OS_WIN // round background
-    painter->setPen(black);
-    painter->setBrush(black);
-    painter->drawRoundedRect(rcTopRect, 5 * G_SCALE, 5 * G_SCALE);
-
     painter->setBrush(darkblue);
     painter->setPen(darkblue);
-    painter->drawRoundedRect(rcBottomRect.adjusted(0, 5 * G_SCALE, 0, 0), 5 * G_SCALE, 5 * G_SCALE);
-#endif
+    painter->drawRoundedRect(rcBottomRect, 9*G_SCALE, 9*G_SCALE);
 
-    // Square background
-    painter->fillRect(rcTopRect.adjusted(0, pushDownSquare, 0, 0), black);
-    painter->fillRect(rcBottomRect.adjusted(0, 0, 0, -pushDownSquare * 2), darkblue);
+    // We don't actually want the upper corners of the bottom rect to be rounded.  Fill them in
+    painter->fillRect(QRect(0, HEADER_HEIGHT*G_SCALE, WINDOW_WIDTH*G_SCALE, 9*G_SCALE), darkblue);
 
     // Icon
     painter->setPen(QColor(255, 255, 255));
     painter->setOpacity(curTextOpacity_ * initialOpacity);
     QSharedPointer<IndependentPixmap> pixmap =
         ImageResourcesSvg::instance().getIndependentPixmap("login/TWOFA_ICON");
-    pixmap->draw((WINDOW_WIDTH / 2 - 20)*G_SCALE, (HEADER_HEIGHT - 40)*G_SCALE, painter);
+    pixmap->draw((WINDOW_WIDTH / 2 - 20)*G_SCALE, (HEADER_HEIGHT - 52)*G_SCALE, painter);
 
     // Title
     painter->setOpacity(curTextOpacity_ * initialOpacity);
-    painter->setFont(FontManager::instance().getFont(16, true));
+    painter->setFont(FontManager::instance().getFont(16, QFont::Bold));
     painter->setPen(Qt::white);
     painter->drawText(QRect(0, 87 * G_SCALE, WINDOW_WIDTH * G_SCALE, 20 * G_SCALE),
                       Qt::AlignCenter, tr("Two-factor Auth"));
 
     // Message
     painter->setOpacity(curTextOpacity_ * initialOpacity);
-    painter->setFont(FontManager::instance().getFont(14, false));
+    painter->setFont(FontManager::instance().getFont(14,  QFont::Normal));
     painter->setPen(Qt::white);
     painter->drawText(QRect(((WINDOW_WIDTH - CODE_ENTRY_WIDTH) / 2)*G_SCALE, 123*G_SCALE,
                             CODE_ENTRY_WIDTH*G_SCALE, 36*G_SCALE),
@@ -128,7 +118,7 @@ void TwoFactorAuthWindowItem::paint(QPainter *painter, const QStyleOptionGraphic
 
     // Error Text
     if (!curErrorText_.isEmpty()) {
-        painter->setFont(FontManager::instance().getFont(12, false));
+        painter->setFont(FontManager::instance().getFont(12,  QFont::Normal));
         painter->setPen(FontManager::instance().getErrorRedColor());
         painter->setOpacity(curErrorOpacity_ * initialOpacity);
         QRectF rect(WINDOW_MARGIN*G_SCALE, 270*G_SCALE, (WINDOW_WIDTH- WINDOW_MARGIN*2)*G_SCALE,
@@ -215,7 +205,7 @@ void TwoFactorAuthWindowItem::setClickable(bool isClickable)
 void TwoFactorAuthWindowItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
-    okButton_->setFont(FontDescr(14, false));
+    okButton_->setFont(FontDescr(14, QFont::Normal));
     codeEntry_->updateScaling();
     updatePositions();
 }

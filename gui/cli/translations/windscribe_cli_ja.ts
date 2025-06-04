@@ -243,7 +243,7 @@
         <translation>設定が再読み込みされました。</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
+        <source>Key limit behaviour is set.</source>
         <translation>キー制限の動作が設定されます。</translation>
     </message>
     <message>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>(デバイス名: %1)</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>インターネット接続はご利用いただけません。 後でもう一度やり直してください。</translation>
     </message>
 </context>
 </TS>

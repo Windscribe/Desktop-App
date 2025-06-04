@@ -57,7 +57,7 @@ void NumbersPixmap::rescale()
     SAFE_DELETE(dotPixmap_);
     SAFE_DELETE(naPixmap_);
 
-    font_ = FontManager::instance().getFont(16, false);
+    font_ = FontManager::instance().getFont(15,  QFont::Normal);
 
     QFontMetrics fm(font_);
     itemHeight_ = fm.height();
@@ -81,7 +81,7 @@ void NumbersPixmap::rescale()
     QPainter painter(&pixmap);
     painter.setFont(font_);
     painter.setPen(Qt::white);
-    painter.setOpacity(0.5);
+    painter.setOpacity(0.7);
 
     for (int i = 0; i <= 10; ++i)
     {
@@ -103,7 +103,7 @@ void NumbersPixmap::rescale()
     QPainter painter2(&dotPixmap);
     painter2.setFont(font_);
     painter2.setPen(Qt::white);
-    painter2.setOpacity(0.5);
+    painter2.setOpacity(0.7);
     painter2.drawText(QRect(0, 0, itemWidth_, itemHeight_), ".");
     dotPixmap_ = new IndependentPixmap(dotPixmap);
 
@@ -114,7 +114,7 @@ void NumbersPixmap::rescale()
     QPainter painter3(&naPixmap);
     painter3.setFont(font_);
     painter3.setPen(Qt::white);
-    painter3.setOpacity(0.5);
+    painter3.setOpacity(0.7);
     painter3.drawText(QRect(0, 0, naWidth, itemHeight_), "---.---.---.---");
     naPixmap_ = new IndependentPixmap(naPixmap);
 }

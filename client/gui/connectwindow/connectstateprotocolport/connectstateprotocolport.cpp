@@ -11,7 +11,7 @@ const int PROTOCOL_OPACITY_ANIMATION_DURATION = 500;
 namespace ConnectWindow {
 
 ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent)
-    , fontDescr_(11, true, 100, 0.5)
+    , fontDescr_(11, QFont::Bold, 100, 0.5)
     , connectivity_(false)
     , textColor_(QColor(255, 255, 255))
     , textOpacity_(0.5)
@@ -76,29 +76,15 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
     painter->setOpacity(textOpacity_ * initOpacity);
     painter->setPen(textColor_);
 
-    const int textHeight = CommonGraphics::textHeight(font);
-    const int posYTop = badgePixmap_.height()/2 - textHeight/2;
-    const int posYBot = posYTop + textHeight;
-    const int separatorMinusProtocolPosX = badgePixmap_.width() + 2*kSpacerWidth*G_SCALE;
-
     // types::Protocol and port string
     QString protocolString = protocol_.toLongString();
-    textShadowProtocol_.drawText(painter, QRect(badgePixmap_.width() + kSpacerWidth*G_SCALE, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, protocolString, font, textColor_ );
+    textShadowProtocol_.drawText(painter, QRect(badgePixmap_.width() + kSpacerWidth*G_SCALE, 1*G_SCALE, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, protocolString, font, textColor_ );
 
     // port
     const QString portString = QString::number(port_);
-    const int portPosX = separatorMinusProtocolPosX + kSpacerWidth*G_SCALE + textShadowProtocol_.width();
-    textShadowPort_.drawText(painter, QRect(portPosX, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, portString, font, textColor_ );
-
-    // separator
-    painter->setPen(Qt::white);
-    painter->setOpacity(0.15 * initOpacity);
-    painter->drawLine(QPoint(separatorMinusProtocolPosX + textShadowProtocol_.width(), posYTop),
-                      QPoint(separatorMinusProtocolPosX + textShadowProtocol_.width(), posYBot));
-
-    painter->setPen(QColor(0x02, 0x0D, 0x1C));
-    painter->drawLine(QPoint(separatorMinusProtocolPosX + textShadowProtocol_.width()+1, posYTop),
-                      QPoint(separatorMinusProtocolPosX + textShadowProtocol_.width()+1, posYBot));
+    const int portPosX = badgePixmap_.width() + kSpacerWidth*G_SCALE + textShadowProtocol_.width();
+    font.setWeight(QFont::Light);
+    textShadowPort_.drawText(painter, QRect(portPosX, 1*G_SCALE, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, portString, font, textColor_ );
 
     painter->restore();
 }
@@ -282,14 +268,17 @@ void ConnectStateProtocolPort::recalcSize()
 
     const QString protocolString = protocol_.toLongString();
     const int protocolWidth = fm.horizontalAdvance(protocolString);
+    QFont portFont = FontManager::instance().getFont(fontDescr_);
+    portFont.setWeight(QFont::Light);
+    QFontMetrics portFm(portFont);
     const QString portString = QString::number(port_);
-    const int portWidth = fm.horizontalAdvance(portString);
+    const int portWidth = portFm.horizontalAdvance(portString);
     const int badgeWidth = 36*G_SCALE;
     const int separatorWidth = kSpacerWidth*G_SCALE;
     const int badgeHeight = 20*G_SCALE;
     const int protocolArrowWidth = 16*G_SCALE;
 
-    width_ = protocolWidth + portWidth + badgeWidth + protocolArrowWidth + 4*separatorWidth + 8*G_SCALE;
+    width_ = protocolWidth + portWidth + badgeWidth + protocolArrowWidth + 2*separatorWidth;
     if (isPreferredProtocol_) {
         width_ += preferredProtocolBadge_->boundingRect().width() + separatorWidth;
     }
@@ -298,11 +287,11 @@ void ConnectStateProtocolPort::recalcSize()
     }
     height_ = badgeHeight;
 
-    protocolArrow_->setPos(width_ - protocolArrowWidth - 4*G_SCALE + arrowShift_*G_SCALE, 2*G_SCALE);
+    protocolArrow_->setPos(width_ - protocolArrowWidth - 4*G_SCALE + arrowShift_*G_SCALE, 4*G_SCALE);
 
     preferredProtocolBadge_->setVisible(isPreferredProtocol_);
     if (isPreferredProtocol_) {
-        preferredProtocolBadge_->setPos(protocolWidth + portWidth + badgeWidth + 4*separatorWidth + 4*G_SCALE,
+        preferredProtocolBadge_->setPos(protocolWidth + portWidth + badgeWidth + 2*separatorWidth + 4*G_SCALE,
                                         boundingRect().height()/2 - preferredProtocolBadge_->boundingRect().height()/2);
     }
 

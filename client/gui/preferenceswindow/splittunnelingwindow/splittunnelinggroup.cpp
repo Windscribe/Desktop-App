@@ -29,7 +29,7 @@ SplitTunnelingGroup::SplitTunnelingGroup(ScalableGraphicsObject *parent, const Q
     addItem(activeCheckBox_);
 
     modeComboBox_ = new ComboBoxItem(this);
-    modeComboBox_->setCaptionFont(FontDescr(12, false));
+    modeComboBox_->setCaptionFont(FontDescr(12, QFont::Normal));
     connect(modeComboBox_, &ComboBoxItem::currentItemChanged, this, &SplitTunnelingGroup::onCurrentModeChanged);
     addItem(modeComboBox_);
 
@@ -124,10 +124,10 @@ void SplitTunnelingGroup::updateDescription()
 {
     switch(settings_.mode) {
         case SPLIT_TUNNELING_MODE_EXCLUDE:
-            setDescription(tr("Selected apps, IPs, and hostnames will not go through Windscribe when connected."));
+            activeCheckBox_->setDescription(tr("When enabled, selected apps, IPs, and hostnames will not go through Windscribe when connected."));
             break;
         case SPLIT_TUNNELING_MODE_INCLUDE:
-            setDescription(tr("Only selected apps, IPs, and hostnames will go through Windscribe when connected."));
+            activeCheckBox_->setDescription(tr("When enabled, only selected apps, IPs, and hostnames will go through Windscribe when connected."));
             break;
         default:
             break;
@@ -153,11 +153,9 @@ void SplitTunnelingGroup::updateUIState(bool active)
     }
 
     if (active) {
-        showDescription();
         showItems(indexOf(modeComboBox_), size() - 1);
     }
     else {
-        hideDescription();
         hideItems(indexOf(modeComboBox_), size() - 1);
     }
 }

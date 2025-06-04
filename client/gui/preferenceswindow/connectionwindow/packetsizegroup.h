@@ -22,6 +22,8 @@ public:
     void setPacketSizeDetectionState(bool on);
     void showPacketSizeDetectionError(const QString &title, const QString &message);
 
+    void setDescription(const QString &desc, const QString &descUrl = "");
+
 signals:
     void packetSizeChanged(const types::PacketSize &settings);
     void detectPacketSize();

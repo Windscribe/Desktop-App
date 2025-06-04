@@ -3,27 +3,23 @@
 #include <QBitmap>
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
+
+#include "commongraphics/commongraphics.h"
+#include "dpiscalemanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "graphicresources/fontmanager.h"
-#include "commongraphics/commongraphics.h"
+#include "languagecontroller.h"
 #include "utils/utils.h"
-#include "dpiscalemanager.h"
 
 namespace ConnectWindow {
 
 LocationsButton::LocationsButton(ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent),
-    arrowRotation_(0), backgroundDarkOpacity_(OPACITY_FULL),
-    backgroundLightOpacity_(OPACITY_HIDDEN),
-#ifdef Q_OS_WIN
-    backgroundDark_("background/WIN_LOCATION_BUTTON_BG_DARK"),
-    backgroundLight_("background/WIN_LOCATION_BUTTON_BG_BRIGHT"),
-#else
-    backgroundDark_("background/MAC_LOCATION_BUTTON_BG_DARK"),
-    backgroundLight_("background/MAC_LOCATION_BUTTON_BG_BRIGHT"),
-#endif
-    curTextColor_(Qt::white), isExpanded_(false)
+    arrowRotation_(0),
+    background_("background/LOCATIONS_BG"),
+    curTextColor_(Qt::white), isExpanded_(false),
+    curOpacity_(0.7)
 {
-    arrowItem_ = new ImageItem(this, "ARROW_DOWN_WHITE");
+    arrowItem_ = new ImageItem(this, "ARROW_DOWN_CIRCLE");
     //arrowItem_->setTransformationMode(Qt::SmoothTransformation);
     arrowItem_->setOpacity(0.5);
 
@@ -34,22 +30,31 @@ LocationsButton::LocationsButton(ScalableGraphicsObject *parent) : ClickableGrap
     rotationAnimation_->setEndValue(180.0);
     rotationAnimation_->setDuration(270);
 
-    backgroundOpacityAnimation_.setStartValue(OPACITY_FULL);
-    backgroundOpacityAnimation_.setEndValue(OPACITY_HIDDEN);
-    backgroundOpacityAnimation_.setDuration(270);
-    connect(&backgroundOpacityAnimation_, &QVariantAnimation::valueChanged, this, &LocationsButton::onBackgroundOpacityChange);
-    setClickable(true);
+    locationsMenu_ = new LocationsMenu(this);
+    connect(locationsMenu_, &LocationsMenu::locationTabClicked, this, &LocationsButton::locationTabClicked);
+    connect(locationsMenu_, &LocationsMenu::searchFilterChanged, this, &LocationsButton::searchFilterChanged);
+    connect(locationsMenu_, &LocationsMenu::locationsKeyPressed, this, &LocationsButton::locationsKeyPressed);
+    locationsMenu_->hide();
+
+    connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &LocationsButton::onOpacityValueChanged);
+
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &LocationsButton::onLanguageChanged);
+
+    setClickableHoverable(true, true);
+    connect(this, &ClickableGraphicsObject::hoverEnter, this, &LocationsButton::onHoverEnter);
+    connect(this, &ClickableGraphicsObject::hoverLeave, this, &LocationsButton::onHoverLeave);
+
     updatePositions();
 }
 
 QRectF LocationsButton::boundingRect() const
 {
-    return QRectF(0, 0, 257 * G_SCALE, 48 * G_SCALE);
+    return QRectF(0, 0, 252 * G_SCALE, 58 * G_SCALE);
 }
 
 QPainterPath LocationsButton::shape() const
 {
-    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(backgroundDark_);
+    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(background_);
 
     QPainterPath path;
     path.addRegion(QRegion(pixmap->mask()));
@@ -62,64 +67,47 @@ void LocationsButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     Q_UNUSED(widget);
 
     //painter->fillRect(boundingRect(), QBrush(QColor(0, 25, 255)));
-    double initOpacity = painter->opacity();
-    painter->setOpacity(backgroundDarkOpacity_ * initOpacity);
-    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(backgroundDark_);
+    QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(background_);
     pixmap->draw(0, 0, painter);
 
-    painter->setOpacity(backgroundLightOpacity_ * initOpacity);
-    QSharedPointer<IndependentPixmap> pixmapLight = ImageResourcesSvg::instance().getIndependentPixmap(backgroundLight_);
-    pixmapLight->draw(0, 0, painter);
-
-    painter->setOpacity(initOpacity);
-    QFont font = FontManager::instance().getFont(16, false);
-    painter->setFont(font);
-    painter->setPen(curTextColor_);
-    painter->drawText(QRect(boundingRect().left()+40*G_SCALE, boundingRect().top(), boundingRect().width(), boundingRect().height() - 2*G_SCALE), Qt::AlignVCenter, tr("Locations"));
+    if (!isExpanded_) {
+        painter->setOpacity(curOpacity_);
+        QFont font = FontManager::instance().getFont(15,  QFont::Normal);
+        painter->setFont(font);
+        painter->setPen(curTextColor_);
+        painter->drawText(QRect(boundingRect().left() + 40*G_SCALE, boundingRect().top(), boundingRect().width(), boundingRect().height()), Qt::AlignVCenter, tr("Locations"));
+    }
 }
 
 void LocationsButton::setArrowRotation(qreal r)
 {
     arrowRotation_ = r;
     QTransform tr;
-    tr.translate(0, 8 * G_SCALE);
+    tr.translate(0, 12*G_SCALE);
     tr.rotate(arrowRotation_, Qt::XAxis);
-    tr.translate(0, -8 * G_SCALE);
+    tr.translate(0, -12*G_SCALE);
     arrowItem_->setTransform(tr);
     emit arrowRotationChanged();
 }
 
 void LocationsButton::onLocationsExpandStateChanged(bool isExpanded)
 {
-    if (isExpanded)
-    {
+    if (isExpanded) {
         rotationAnimation_->setDirection(QPropertyAnimation::Forward);
-        if (rotationAnimation_->state() != QPropertyAnimation::Running)
-        {
+        if (rotationAnimation_->state() != QPropertyAnimation::Running) {
             rotationAnimation_->start();
         }
-
-        backgroundOpacityAnimation_.setDirection(QPropertyAnimation::Forward);
-        if (backgroundOpacityAnimation_.state() != QVariantAnimation::Running)
-        {
-            backgroundOpacityAnimation_.start();
-        }
-    }
-    else
-    {
+        locationsMenu_->show();
+    } else {
         rotationAnimation_->setDirection(QPropertyAnimation::Backward);
-        if (rotationAnimation_->state() != QPropertyAnimation::Running)
-        {
+        if (rotationAnimation_->state() != QPropertyAnimation::Running) {
             rotationAnimation_->start();
         }
-
-        backgroundOpacityAnimation_.setDirection(QPropertyAnimation::Backward);
-        if (backgroundOpacityAnimation_.state() != QVariantAnimation::Running)
-        {
-            backgroundOpacityAnimation_.start();
-        }
+        locationsMenu_->dismiss();
+        locationsMenu_->hide();
     }
     isExpanded_ = isExpanded;
+    curOpacity_ = isExpanded ? OPACITY_FULL : 0.7;
 }
 
 void LocationsButton::setTextColor(QColor color)
@@ -131,21 +119,53 @@ void LocationsButton::setTextColor(QColor color)
 void LocationsButton::updateScaling()
 {
     ClickableGraphicsObject::updateScaling();
+    locationsMenu_->setPos(32*G_SCALE, 12*G_SCALE);
     updatePositions();
 }
 
 
-void LocationsButton::onBackgroundOpacityChange(const QVariant &value)
+void LocationsButton::updatePositions()
 {
-    backgroundDarkOpacity_ = value.toDouble();
-    backgroundLightOpacity_ = OPACITY_FULL - value.toDouble();
+    arrowItem_->setPos(212*G_SCALE, 16*G_SCALE);
+    setArrowRotation(isExpanded_ ? 180 : 0);
+}
+
+void LocationsButton::onHoverEnter()
+{
+    if (!isExpanded_) {
+        startAnAnimation<double>(opacityAnimation_, curOpacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
+    }
+}
+
+void LocationsButton::onHoverLeave()
+{
+    if (!isExpanded_) {
+        startAnAnimation<double>(opacityAnimation_, curOpacity_, 0.7, ANIMATION_SPEED_FAST);
+    }
+}
+
+void LocationsButton::onOpacityValueChanged(const QVariant &value)
+{
+    curOpacity_ = value.toDouble();
+    arrowItem_->setOpacity(curOpacity_);
     update();
 }
 
-void LocationsButton::updatePositions()
+void LocationsButton::onLanguageChanged()
 {
-    arrowItem_->setPos(205*G_SCALE, 16*G_SCALE);
-    setArrowRotation(isExpanded_ ? 180 : 0);
+    update();
+}
+
+bool LocationsButton::handleKeyPressEvent(QKeyEvent *event)
+{
+    if (!locationsMenu_->handleKeyPressEvent(event)) {
+        if (event->key() == Qt::Key_Escape && isExpanded_) {
+            emit clicked();
+            return true;
+        }
+        return false;
+    }
+    return true;
 }
 
 } //namespace ConnectWindow

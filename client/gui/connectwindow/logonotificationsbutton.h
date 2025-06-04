@@ -16,6 +16,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setCountState(int countAll, int countUnread);
+    void setIsPremium(bool isPremium);
 
 private slots:
     void onHoverEnter();
@@ -37,6 +38,7 @@ private:
     static constexpr int MARGIN = 4;
 
     int unread_;
+    bool isPremium_;
 };
 
 }

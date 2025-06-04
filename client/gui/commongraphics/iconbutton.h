@@ -29,6 +29,7 @@ public:
     void updateScaling() override;
 
     void setTintColor(const QColor &color);
+    void setTooltip(const QString &tooltip);
 
     void hover();
     void unhover();
@@ -51,6 +52,8 @@ private:
 
     double unhoverOpacity_;
     double hoverOpacity_;
+
+    QString tooltip_;
 
     QColor tintColor_;
 };

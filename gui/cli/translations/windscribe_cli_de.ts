@@ -243,7 +243,7 @@
         <translation>Einstellungen neu geladen.</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
+        <source>Key limit behaviour is set.</source>
         <translation>Das Verhalten der Tastenbegrenzung ist festgelegt.</translation>
     </message>
     <message>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>(Gerätename: %1)</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>Eine Internetverbindung ist nicht verfügbar.  Versuchen Sie es später erneut.</translation>
     </message>
 </context>
 </TS>

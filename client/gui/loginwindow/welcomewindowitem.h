@@ -1,8 +1,7 @@
 #pragma once
 
 #include <QGraphicsObject>
-#include <QGraphicsTextItem>
-#include <QGraphicsPixmapItem>
+#include <QPixmap>
 #include <QTimer>
 #include "backend/backend.h"
 #include "loginyesnobutton.h"
@@ -86,7 +85,7 @@ private:
     IconButton *closeButton_;
 
     CommonGraphics::BubbleButton *getStartedButton_;
-    CommonGraphics::TextButton *gotoLoginButton_;
+    CommonGraphics::BubbleButton *gotoLoginButton_;
 
     IconButton *settingsButton_;
     IconButton *configButton_;
@@ -105,11 +104,11 @@ private:
     FirewallTurnOffButton *firewallTurnOffButton_;
     bool emergencyConnectOn_;
 
-    static constexpr int GET_STARTED_BUTTON_POS_Y = 169;
-    static constexpr int LOGIN_BUTTON_POS_Y       = 219;
-    static constexpr int BADGE_HEIGHT = 40;
-    static constexpr int BADGE_WIDTH = 40;
-    static constexpr int BADGE_POS_Y = 16;
+    static constexpr int GET_STARTED_BUTTON_POS_Y = 136;
+    static constexpr int LOGIN_BUTTON_POS_Y       = 186;
+    static constexpr int LOGO_HEIGHT = 19;
+    static constexpr int LOGO_WIDTH = 123;
+    static constexpr int LOGO_POS_Y = 24;
 };
 
 } // namespace LoginWindow

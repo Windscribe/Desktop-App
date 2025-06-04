@@ -17,8 +17,6 @@ target_sources(gui PRIVATE
     connectstateprotocolport/connectstateprotocolport.h
     connectwindowitem.cpp
     connectwindowitem.h
-    firewallbutton.cpp
-    firewallbutton.h
     ipaddressitem/ipaddressitem.cpp
     ipaddressitem/ipaddressitem.h
     ipaddressitem/numberitem.cpp
@@ -29,10 +27,8 @@ target_sources(gui PRIVATE
     ipaddressitem/octetitem.h
     locationsbutton.cpp
     locationsbutton.h
+    locationsmenu.cpp
+    locationsmenu.h
     logonotificationsbutton.cpp
     logonotificationsbutton.h
-    middleitem.cpp
-    middleitem.h
-    serverratingindicator.cpp
-    serverratingindicator.h
 )

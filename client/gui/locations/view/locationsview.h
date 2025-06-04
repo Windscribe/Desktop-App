@@ -20,7 +20,6 @@ public:
     ~LocationsView() override;
 
     void setModel(QAbstractItemModel *model);
-    void setShowLatencyInMs(bool isShowLatencyInMs);
     void setShowLocationLoad(bool isShowLocationLoad);
     void updateScaling();
     bool isEmptyList() const { return widget_->isEmptyList(); }
@@ -29,6 +28,8 @@ public:
     void collapseAll() { widget_->collapseAll(); }
     void scrollToTop();
     void updateSelected();
+
+    int count() const;
 
     bool handleKeyPressEvent(QKeyEvent *event);
 

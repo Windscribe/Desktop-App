@@ -65,9 +65,9 @@ const QString AdvancedParametersDialog::advancedParametersText()
 
 void AdvancedParametersDialog::updateScaling()
 {
-    textEdit_->setFont(FontManager::instance().getFontWithCustomScale(currentScale(), 12, false));
+    textEdit_->setFont(FontManager::instance().getFontWithCustomScale(currentScale(), 12, QFont::Normal));
     // Update viewport font as well, for placeholder text.
-    textEdit_->viewport()->setFont(FontManager::instance().getFontWithCustomScale(currentScale(), 12, false));
+    textEdit_->viewport()->setFont(FontManager::instance().getFontWithCustomScale(currentScale(), 12, QFont::Normal));
 
     hSpacer_->changeSize(UNSCALED_SPACER_WIDTH * currentScale(), 1, QSizePolicy::Expanding);
     update();

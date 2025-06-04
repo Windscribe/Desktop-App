@@ -243,7 +243,7 @@
         <translation>Настройки перезагружены.</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
+        <source>Key limit behaviour is set.</source>
         <translation>Задается поведение ограничения клавиш.</translation>
     </message>
     <message>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>(Имя устройства: %1)</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>Подключение к Интернету недоступно.  Повторите попытку позже.</translation>
     </message>
 </context>
 </TS>

@@ -5,6 +5,7 @@
 
 #include "hoverbutton.h"
 #include "installbutton.h"
+#include "progressdisplay.h"
 
 class InitialWindow : public QWidget
 {
@@ -34,4 +35,5 @@ private:
     InstallButton *installButton_;
     HoverButton *settingsButton_;
     HoverButton *eulaButton_;
+    ProgressDisplay *progressDisplay_;
 };

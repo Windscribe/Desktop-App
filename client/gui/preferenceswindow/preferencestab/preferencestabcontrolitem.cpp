@@ -26,6 +26,9 @@ PreferencesTabControlItem::PreferencesTabControlItem(ScalableGraphicsObject * pa
     robertButton_ = new TabButton(this, TAB_ROBERT, "preferences/ROBERT_ICON");
     connect(robertButton_, &TabButton::tabClicked, this, &PreferencesTabControlItem::onTabClicked);
 
+    lookAndFeelButton_ = new TabButton(this, TAB_LOOK_AND_FEEL, "preferences/LOOK_AND_FEEL_ICON");
+    connect(lookAndFeelButton_, &TabButton::tabClicked, this, &PreferencesTabControlItem::onTabClicked);
+
     advancedButton_ = new TabButton(this, TAB_ADVANCED, "preferences/ADVANCED_ICON");
     connect(advancedButton_, &TabButton::tabClicked, this, &PreferencesTabControlItem::onTabClicked);
 
@@ -41,15 +44,13 @@ PreferencesTabControlItem::PreferencesTabControlItem(ScalableGraphicsObject * pa
         accountButton_,
         connectionButton_,
         robertButton_,
+        lookAndFeelButton_,
         advancedButton_,
         helpButton_,
         aboutButton_
     };
 
     updateTopAnchoredButtonsPos();
-
-    dividerLine_ = new CommonGraphics::DividerLine(this, 32, 0);
-    dividerLine_->setOpacity(0.1);
 
     logoutButton_ = new TabButton(this, TAB_UNDEFINED, "preferences/LOGOUT_ICON", QColor(0xff, 0xef, 0x02));
     connect(logoutButton_, &TabButton::tabClicked, this, &PreferencesTabControlItem::onTabClicked);
@@ -76,6 +77,7 @@ void PreferencesTabControlItem::onLanguageChanged()
     accountButton_->setText(tr("Account"));
     connectionButton_->setText(tr("Connection"));
     robertButton_->setText(tr("R.O.B.E.R.T."));
+    lookAndFeelButton_->setText(tr("Look & Feel"));
     advancedButton_->setText(tr("Advanced Options"));
     helpButton_->setText(tr("Help"));
     aboutButton_->setText(tr("About"));
@@ -200,9 +202,7 @@ void PreferencesTabControlItem::updateBottomAnchoredButtonPos()
 {
     int quitButtonPosY = height_ - (BUTTON_MARGIN + TabButton::BUTTON_HEIGHT)*G_SCALE;
     int logoutButtonPosY = quitButtonPosY - (BUTTON_MARGIN + TabButton::BUTTON_HEIGHT)*G_SCALE;
-    int dividerPosY = logoutButtonPosY - (BUTTON_MARGIN + CommonGraphics::DividerLine::DIVIDER_HEIGHT)*G_SCALE;
 
-    dividerLine_->setPos(0, dividerPosY);
     logoutButton_->setPos(buttonMarginX(), logoutButtonPosY);
     quitButton_->setPos(buttonMarginX(), quitButtonPosY);
 }

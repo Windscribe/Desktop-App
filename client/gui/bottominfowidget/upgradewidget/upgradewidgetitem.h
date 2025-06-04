@@ -2,7 +2,7 @@
 
 #include <QGraphicsObject>
 #include <QVariantAnimation>
-#include "commongraphics/textbutton.h"
+#include "commongraphics/bubblebutton.h"
 
 namespace UpgradeWidget {
 
@@ -43,7 +43,7 @@ private slots:
 
 private:
     static constexpr qint64 TEN_GB_IN_BYTES = 10737418240;
-    static constexpr int LEFT_TEXT_WITH_ICON_OFFSET = 32;
+    static constexpr int LEFT_TEXT_WITH_ICON_OFFSET = 24;
     static constexpr int LEFT_TEXT_NO_ICON_OFFSET = 8;
     static constexpr int VERSION_TEXT_HEIGHT = 14;
 
@@ -61,9 +61,9 @@ private:
 
     int width_ = 230;
     static constexpr int HEIGHT_ = 22;
-    const FontDescr fontDescr_ = { 11, true, 105 };
+    const FontDescr fontDescr_ = { 12, QFont::Normal };
 
-    CommonGraphics::TextButton *textButton_;
+    CommonGraphics::BubbleButton *textButton_;
 
     double curBackgroundOpacity_;
     double curDataRemainingIconOpacity_;

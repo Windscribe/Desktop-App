@@ -66,38 +66,35 @@ void PacketSizeEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     if (!isEditMode_)
     {
         // caption text
-        QFont font = FontManager::instance().getFont(12, false);
+        QFont font = FontManager::instance().getFont(12,  QFont::Normal);
         QFontMetrics fm(font);
         QString caption = tr(caption_.toStdString().c_str());
         painter->setFont(font);
         painter->setPen(Qt::white);
-        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
-                                                  PREFERENCES_MARGIN*G_SCALE,
-                                                  -(3*PREFERENCES_MARGIN + 2*ICON_WIDTH)*G_SCALE,
-                                                  -PREFERENCES_MARGIN*G_SCALE),
+        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
+                                                  PREFERENCES_ITEM_Y*G_SCALE,
+                                                  -(3*PREFERENCES_MARGIN_X + 2*ICON_WIDTH)*G_SCALE,
+                                                  -PREFERENCES_MARGIN_Y*G_SCALE),
                           Qt::AlignLeft,
                           caption);
 
         // user text box
         painter->setOpacity(OPACITY_HALF);
         QString t;
-        if (!text_.isEmpty())
-        {
+        if (!text_.isEmpty()) {
             t = text_;
-        }
-        else
-        {
+        } else {
             t = "--";
         }
 
-        painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN*G_SCALE) + fm.horizontalAdvance(caption),
-                                                  PREFERENCES_MARGIN*G_SCALE,
-                                                  -(3*PREFERENCES_MARGIN + 2*ICON_WIDTH)*G_SCALE,
-                                                  -PREFERENCES_MARGIN*G_SCALE),
+        painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN_X*G_SCALE) + fm.horizontalAdvance(caption),
+                                                  PREFERENCES_ITEM_Y*G_SCALE,
+                                                  -(3*PREFERENCES_MARGIN_X + 2*ICON_WIDTH)*G_SCALE,
+                                                  -PREFERENCES_MARGIN_Y*G_SCALE),
                           Qt::AlignRight,
                           fm.elidedText(t,
                                         Qt::ElideRight,
-                                        boundingRect().width() - (5*PREFERENCES_MARGIN + 2*ICON_WIDTH)*G_SCALE - fm.horizontalAdvance(caption)));
+                                        boundingRect().width() - (5*PREFERENCES_MARGIN_X + 2*ICON_WIDTH)*G_SCALE - fm.horizontalAdvance(caption)));
 
         // spinner
         painter->setOpacity(busySpinnerOpacity_);
@@ -143,13 +140,11 @@ void PacketSizeEditBoxItem::onBusySpinnerStartSpinning()
 
 void PacketSizeEditBoxItem::setDetectButtonBusyState(bool on)
 {
-    if (detectButtonBusy_ != on)
-    {
+    if (detectButtonBusy_ != on) {
         detectButtonBusy_ = on;
 
         // smooth transition
-        if (on)
-        {
+        if (on) {
             // show spinner
             busySpinnerTimer_.start();
 
@@ -166,9 +161,7 @@ void PacketSizeEditBoxItem::setDetectButtonBusyState(bool on)
             detectButtonOpacityAnimation_.setStartValue(detectButtonOpacity_);
             detectButtonOpacityAnimation_.setEndValue(OPACITY_HIDDEN);
             detectButtonOpacityAnimation_.start();
-        }
-        else
-        {
+        } else {
             // hide spinner
             busySpinnerTimer_.stop();
             busySpinnerOpacityAnimation_.stop();
@@ -177,8 +170,7 @@ void PacketSizeEditBoxItem::setDetectButtonBusyState(bool on)
             busySpinnerOpacityAnimation_.setEndValue(OPACITY_HIDDEN);
             busySpinnerOpacityAnimation_.start();
 
-            QTimer::singleShot(BUSY_SPINNER_OPACITY_ANIMATION_TIME/2, [this]()
-            {
+            QTimer::singleShot(BUSY_SPINNER_OPACITY_ANIMATION_TIME/2, [this]() {
                 // stop rotation
                 busySpinnerRotationAnimation_.stop();
                 busySpinnerRotation_ = 0;
@@ -284,24 +276,21 @@ void PacketSizeEditBoxItem::onAdditionalButtonOpacityAnimationValueChanged(const
 
 void PacketSizeEditBoxItem::updatePositions()
 {
-    editButton_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
-    detectButton_->setPos(boundingRect().width() - 2*(ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
-    confirmButton_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
-    undoButton_->setPos(boundingRect().width() - 2*(ICON_WIDTH + PREFERENCES_MARGIN)*G_SCALE, PREFERENCES_MARGIN*G_SCALE);
-    lineEdit_->setFont(FontManager::instance().getFont(12, true));
+    editButton_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN_X)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
+    detectButton_->setPos(boundingRect().width() - 2*(ICON_WIDTH + PREFERENCES_MARGIN_X)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
+    confirmButton_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN_X)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
+    undoButton_->setPos(boundingRect().width() - 2*(ICON_WIDTH + PREFERENCES_MARGIN_X)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
+    lineEdit_->setFont(FontManager::instance().getFont(12, QFont::DemiBold));
 
-    spinnerPosX_ = boundingRect().width() - (2*ICON_WIDTH + 2*PREFERENCES_MARGIN)*G_SCALE;
-    spinnerPosY_ = PREFERENCES_MARGIN*G_SCALE;
+    spinnerPosX_ = boundingRect().width() - (2*ICON_WIDTH + 2*PREFERENCES_MARGIN_X)*G_SCALE;
+    spinnerPosY_ = PREFERENCES_ITEM_Y*G_SCALE;
 
-    if (!proxyWidget_->isVisible()) // workaround Qt bug (setGeometry not working when proxyWidget_ is not visible)
-    {
+    if (!proxyWidget_->isVisible()) { // workaround Qt bug (setGeometry not working when proxyWidget_ is not visible)
         proxyWidget_->show();
-        lineEdit_->setGeometry(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, 180*G_SCALE, ICON_HEIGHT*G_SCALE);
+        lineEdit_->setGeometry(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, 180*G_SCALE, ICON_HEIGHT*G_SCALE);
         proxyWidget_->hide();
-    }
-    else
-    {
-        lineEdit_->setGeometry(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, 180*G_SCALE, ICON_HEIGHT*G_SCALE);
+    } else {
+        lineEdit_->setGeometry(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, 180*G_SCALE, ICON_HEIGHT*G_SCALE);
     }
 }
 

@@ -6,6 +6,7 @@
 
 #include "commonwidgets/combomenuwidget.h"
 #include "commongraphics/baseitem.h"
+#include "commongraphics/iconbutton.h"
 #include "commongraphics/texticonbutton.h"
 #include "graphicresources/fontdescr.h"
 #include "graphicresources/independentpixmap.h"
@@ -49,15 +50,17 @@ public:
 
     bool hasItems();
     void addItem(const QString &caption, const QVariant &userValue);
-    void setItems(const QList<QPair<QString, QVariant>> &list, QVariant curValue = QVariant::fromValue(nullptr));
+    virtual void setItems(const QList<QPair<QString, QVariant>> &list, QVariant curValue = QVariant::fromValue(nullptr));
     void removeItem(const QVariant &value);
-    void setCurrentItem(QVariant value);
+    virtual void setCurrentItem(QVariant value);
     QVariant currentItem() const;
     QString caption() const;
 
     void setLabelCaption(QString text);
     QString labelCaption() const;
     void setCaptionFont(const FontDescr &fontDescr);
+
+    void setCaptionY(int y);
 
     void clear();
 
@@ -73,10 +76,16 @@ public:
     void updateScaling() override;
 
     void setIcon(QSharedPointer<IndependentPixmap> icon);
+    void setButtonFont(const FontDescr &fontDescr);
+    void setButtonIcon(const QString &icon);
+    void setUseMinimumSize(bool useMinimumSize);
+
+    void setDescription(const QString &description, const QString &url = "");
 
 protected:
     void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
     void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
+    int buttonWidth() const;
 
 signals:
     void currentItemChanged(QVariant value);
@@ -88,7 +97,8 @@ private slots:
     void onMenuItemSelected(QString text, QVariant data);
     void onMenuHidden();
     void onMenuSizeChanged(int width, int height);
-    void updatePositions();
+    void onInfoIconClicked();
+    void onCaptionPosUpdated(const QVariant &value);
 
 private:
     QString strCaption_;
@@ -106,6 +116,19 @@ private:
     QSharedPointer<IndependentPixmap> icon_;
     bool isCaptionElided_ = false;
     QRectF captionRect_;
+
+    QString desc_;
+    QString descUrl_;
+    IconButton *infoIcon_;
+    int descHeight_ = 0;
+    int descRightMargin_ = 0;
+
+    int captionY_ = -1;
+    int curCaptionY_ = -1;
+    QVariantAnimation captionPosAnimation_;
+    bool useMinimumSize_ = false;
+
+    void updatePositions();
 };
 
 } // namespace PreferencesWindow

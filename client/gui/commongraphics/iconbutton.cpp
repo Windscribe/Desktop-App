@@ -1,22 +1,21 @@
 #include "iconbutton.h"
 
 #include <QGraphicsSceneMouseEvent>
+#include <QGraphicsView>
 #include <QImage>
 #include <QPixmap>
 #include <QPainter>
 #include <QCursor>
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
-
-#include <QDebug>
+#include "tooltips/tooltipcontroller.h"
 
 IconButton::IconButton(int width, int height, const QString &imagePath, const QString &shadowPath, ScalableGraphicsObject *parent, double unhoverOpacity, double hoverOpacity) : ClickableGraphicsObject(parent),
   imagePath_(imagePath), shadowPath_(shadowPath), width_(width), height_(height),
   curOpacity_(unhoverOpacity), unhoverOpacity_(unhoverOpacity), hoverOpacity_(hoverOpacity),
   tintColor_(QColor(Qt::transparent))
 {
-    if (!shadowPath_.isEmpty())
-    {
+    if (!shadowPath_.isEmpty()) {
         imageWithShadow_.reset(new ImageWithShadow(imagePath_, shadowPath_));
     }
 
@@ -42,14 +41,11 @@ void IconButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     int rcW = static_cast<int>(boundingRect().width());
     int rcH = static_cast<int>(boundingRect().height());
 
-    if (imageWithShadow_)
-    {
+    if (imageWithShadow_) {
         int w = static_cast<int>(imageWithShadow_->width());
         int h = static_cast<int>(imageWithShadow_->height());
         imageWithShadow_->draw(painter, (rcW - w) / 2, (rcH - h) / 2);
-    }
-    else
-    {
+    } else {
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
         int w = static_cast<int>(p->width());
         int h = static_cast<int>(p->height());
@@ -94,12 +90,9 @@ void IconButton::setSelected(bool selected)
     selected_ = selected;
     hovered_ = selected;
 
-    if (selected)
-    {
+    if (selected) {
         onHoverEnter();
-    }
-    else if (!stickySelection_)
-    {
+    } else if (!stickySelection_) {
         onHoverLeave();
     }
 }
@@ -117,14 +110,27 @@ void IconButton::setHoverOpacity(double hoverOpacity)
 void IconButton::updateScaling()
 {
     ClickableGraphicsObject::updateScaling();
-    if (!shadowPath_.isEmpty())
-    {
+    if (!shadowPath_.isEmpty()) {
         imageWithShadow_.reset(new ImageWithShadow(imagePath_, shadowPath_));
     }
 }
 
 void IconButton::onHoverEnter()
 {
+    if (!tooltip_.isEmpty()) {
+        QGraphicsView *view = scene()->views().first();
+        QPoint buttonGlobalPoint = view->mapToGlobal(view->mapFromScene(scenePos()));
+        int posX = buttonGlobalPoint.x() + boundingRect().width()/2;
+        int posY = buttonGlobalPoint.y() - 5 * G_SCALE;
+
+        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_TAB_INFO);
+        ti.x = posX;
+        ti.y = posY;
+        ti.title = tooltip_;
+        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+        ti.tailPosPercent = 0.5;
+        TooltipController::instance().showTooltipBasic(ti);
+    }
     hover();
 }
 
@@ -135,13 +141,13 @@ void IconButton::hover()
 
 void IconButton::onHoverLeave()
 {
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_TAB_INFO);
     unhover();
 }
 
 void IconButton::unhover()
 {
-    if (!selected_)
-    {
+    if (!selected_) {
         startAnAnimation<double>(imageOpacityAnimation_, curOpacity_, unhoverOpacity_, ANIMATION_SPEED_FAST);
     }
 }
@@ -156,4 +162,9 @@ void IconButton::setTintColor(const QColor &color)
 {
     tintColor_ = color;
     update();
+}
+
+void IconButton::setTooltip(const QString &tooltip)
+{
+    tooltip_ = tooltip;
 }

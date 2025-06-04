@@ -243,7 +243,7 @@
         <translation>تنظیمات برگزیده دوباره بارگذاری شد.</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
+        <source>Key limit behaviour is set.</source>
         <translation>رفتار حد کلید تنظیم شده است.</translation>
     </message>
     <message>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>(نام دستگاه: %1)</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>اتصال به اینترنت در دسترس نیست.  بعدا دوباره امتحان کنید.</translation>
     </message>
 </context>
 </TS>

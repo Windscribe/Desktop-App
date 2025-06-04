@@ -30,7 +30,7 @@ void StaticText::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont font = FontManager::instance().getFont(12, false);
+    QFont font = FontManager::instance().getFont(12, QFont::Normal);
     QFontMetrics fm(font);
 
     QString text = text_;
@@ -43,21 +43,21 @@ void StaticText::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     isCaptionElided_ = false;
     isTextElided_ = false;
 
-    if (boundingRect().width() < textWidth + captionWidth + (2*PREFERENCES_MARGIN + 8)*G_SCALE) {
+    if (boundingRect().width() < textWidth + captionWidth + (2*PREFERENCES_MARGIN_X + 8)*G_SCALE) {
         if (textWidth < boundingRect().width()/2) {
             // text is less than half the width, so let's show all of it and elide the caption.
-            caption = fm.elidedText(caption, Qt::ElideRight, boundingRect().width() - textWidth - (2*PREFERENCES_MARGIN + 8)*G_SCALE);
+            caption = fm.elidedText(caption, Qt::ElideRight, boundingRect().width() - textWidth - (2*PREFERENCES_MARGIN_X + 8)*G_SCALE);
             isCaptionElided_ = true;
             captionWidth = fm.horizontalAdvance(caption);
         } else if (captionWidth < boundingRect().width()/2) {
             // caption is less than half the width, so let's show all of it and elide the text.
-            text = fm.elidedText(text, Qt::ElideRight, boundingRect().width() - captionWidth - (2*PREFERENCES_MARGIN + 8)*G_SCALE);
+            text = fm.elidedText(text, Qt::ElideRight, boundingRect().width() - captionWidth - (2*PREFERENCES_MARGIN_X + 8)*G_SCALE);
             isTextElided_ = true;
             textWidth = fm.horizontalAdvance(text);
         } else {
             // text and caption are both too long, so let's elide both.
-            text = fm.elidedText(text, Qt::ElideRight, boundingRect().width()/2 - (PREFERENCES_MARGIN + 4)*G_SCALE);
-            caption = fm.elidedText(caption, Qt::ElideRight, boundingRect().width()/2 - (PREFERENCES_MARGIN + 4)*G_SCALE);
+            text = fm.elidedText(text, Qt::ElideRight, boundingRect().width()/2 - (PREFERENCES_MARGIN_X + 4)*G_SCALE);
+            caption = fm.elidedText(caption, Qt::ElideRight, boundingRect().width()/2 - (PREFERENCES_MARGIN_X + 4)*G_SCALE);
             isCaptionElided_ = true;
             isTextElided_ = true;
             textWidth = fm.horizontalAdvance(text);
@@ -66,33 +66,33 @@ void StaticText::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
     // Store the caption and text rectangles for mouse hover detection
     captionRect_ = QRectF(
-        PREFERENCES_MARGIN*G_SCALE,
-        PREFERENCES_MARGIN*G_SCALE,
+        PREFERENCES_MARGIN_X*G_SCALE,
+        PREFERENCES_MARGIN_Y*G_SCALE,
         captionWidth,
         fm.height()
     );
 
     textRect_ = QRectF(
-        boundingRect().width() - PREFERENCES_MARGIN*G_SCALE - textWidth,
-        PREFERENCES_MARGIN*G_SCALE,
+        boundingRect().width() - PREFERENCES_MARGIN_X*G_SCALE - textWidth,
+        PREFERENCES_MARGIN_Y*G_SCALE,
         textWidth,
         fm.height()
     );
 
     painter->setFont(font);
     painter->setPen(Qt::white);
-    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
-                                              PREFERENCES_MARGIN*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE),
+    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
+                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              -PREFERENCES_MARGIN_X*G_SCALE,
+                                              -PREFERENCES_MARGIN_Y*G_SCALE),
                       Qt::AlignLeft,
                       caption);
 
     painter->setOpacity(OPACITY_HALF);
-    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
-                                              PREFERENCES_MARGIN*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE),
+    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
+                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              -PREFERENCES_MARGIN_X*G_SCALE,
+                                              -PREFERENCES_MARGIN_Y*G_SCALE),
                       Qt::AlignRight,
                       text);
 }

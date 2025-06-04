@@ -33,6 +33,9 @@ public:
 
     void setClickable(bool enabled);
 
+private slots:
+    void updateDisplay();
+
 signals:
     void heightChanged(int newHeight);
     void upgradeClick();
@@ -58,15 +61,14 @@ private:
 
     int height_;
 
-    void updateDisplay();
     void updateSecureHotspotState();
     void recalcHeight();
 
     // constants:
-    static constexpr int WIDTH_ = 332;
+    static constexpr int WIDTH_ = 350;
 
     static constexpr int UPGRADE_POS_X_DEFAULT = 85;
-    static constexpr int UPGRADE_WIDTH_DEFAULT = 230;
+    static constexpr int UPGRADE_WIDTH_DEFAULT = 248;
     static constexpr int UPGRADE_POS_Y_DEFAULT = 172;
 
     static constexpr int SHARING_UPGRADE_SPACE = 2;

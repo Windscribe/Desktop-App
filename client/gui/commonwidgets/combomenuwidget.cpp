@@ -50,7 +50,7 @@ ComboMenuWidget::ComboMenuWidget(QWidget *parent) : QWidget(parent)
 void ComboMenuWidget::addItem(QString text, const QVariant &item_data)
 {
     ComboMenuWidgetButton *button = new ComboMenuWidgetButton(item_data);
-    QFont font = FontManager::instance().getFont(12, false);
+    QFont font = FontManager::instance().getFont(12,  QFont::Normal);
     button->setFont(font);
     button->setCheckable(true);
 
@@ -350,7 +350,7 @@ void ComboMenuWidget::updateScrollBarVisibility()
 void ComboMenuWidget::updateScaling()
 {
     // update button widths
-    QFont font = FontManager::instance().getFont(12, false);
+    QFont font = FontManager::instance().getFont(12,  QFont::Normal);
     for (auto buttonItem : items_)
     {
         ComboMenuWidgetButton * button  = static_cast<ComboMenuWidgetButton *>(buttonItem);

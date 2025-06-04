@@ -3,7 +3,7 @@
 #include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
 
-CustomMenuWidget::CustomMenuWidget() : QMenu(), fontDescr_(12,false), is_dark_mode_(false)
+CustomMenuWidget::CustomMenuWidget() : QMenu(), fontDescr_(12, QFont::Normal), is_dark_mode_(false)
 {
 }
 

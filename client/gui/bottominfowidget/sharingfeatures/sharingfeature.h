@@ -49,7 +49,7 @@ private:
 
     bool rounded_;
 
-    static constexpr int WIDTH = 332;
+    static constexpr int WIDTH = 350;
 
     static constexpr int DIVIDER_POS_X = 56;
     static constexpr int SECONDARY_ICON_POS_X = DIVIDER_POS_X + 16;

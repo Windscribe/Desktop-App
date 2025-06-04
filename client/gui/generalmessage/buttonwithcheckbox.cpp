@@ -16,7 +16,7 @@ ButtonWithCheckbox::ButtonWithCheckbox(ScalableGraphicsObject *parent, const Com
     connect(button_, &CommonGraphics::BubbleButton::clicked, this, &ButtonWithCheckbox::clicked);
     connect(button_, &CommonGraphics::BubbleButton::hoverEnter, this, &ButtonWithCheckbox::buttonHoverEnter);
     connect(button_, &CommonGraphics::BubbleButton::hoverLeave, this, &ButtonWithCheckbox::buttonHoverLeave);
-    button_->setFont(FontDescr(14, false));
+    button_->setFont(FontDescr(14, QFont::Normal));
     button_->setText(buttonText);
 
     setShowCheckbox(checkboxText);
@@ -74,7 +74,7 @@ void ButtonWithCheckbox::setShowCheckbox(const QString &text)
 }
 
 int ButtonWithCheckbox::textWidth() const {
-    QFont font = FontManager::instance().getFont(14, false);
+    QFont font = FontManager::instance().getFont(14,  QFont::Normal);
     QFontMetrics metrics(font);
 
     return metrics.horizontalAdvance(buttonText_);

@@ -70,8 +70,8 @@
         <translation>अचानक डिस्कनेक्ट होने की स्थिति में सभी कनेक्टिविटी ब्लॉक</translation>
     </message>
     <message>
-        <source>Connect to rate</source>
-        <translation>दर से कनेक्ट करें</translation>
+        <source>FIREWALL</source>
+        <translation>फ़ायरवॉल</translation>
     </message>
 </context>
 <context>
@@ -82,10 +82,26 @@
     </message>
 </context>
 <context>
-    <name>ConnectWindow::MiddleItem</name>
+    <name>ConnectWindow::LocationsMenu</name>
     <message>
-        <source>Firewall</source>
-        <translation>फ़ायरवॉल</translation>
+        <source>All</source>
+        <translation>सब</translation>
+    </message>
+    <message>
+        <source>Configured</source>
+        <translation>कॉन्फ़िगर</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>स्थैतिक आईपी</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>पसंदीदा</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>ढूँढ</translation>
     </message>
 </context>
 <context>
@@ -224,26 +240,6 @@
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
-        <source>All</source>
-        <translation>सब</translation>
-    </message>
-    <message>
-        <source>Configured</source>
-        <translation>कॉन्फ़िगर</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>स्थैतिक आईपी</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>पसंदीदा</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation>ढूँढ</translation>
-    </message>
-    <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
         <translation>वह निर्देशिका चुनें जिसमें कस्टम कॉन्फ़िगरेशन शामिल हैं जिन्हें आप यहां प्रदर्शित करना चाहते हैं</translation>
     </message>
@@ -275,6 +271,10 @@
         <source>Buy</source>
         <translation>खरीद</translation>
     </message>
+    <message>
+        <source>All locations (%1)</source>
+        <translation>सभी स्थान (%1)</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -290,7 +290,7 @@
         <translation>Word Wrap</translation>
     </message>
     <message>
-        <source>Color highlighting</source>
+        <source>Colour highlighting</source>
         <translation>रंग हाइलाइटिंग</translation>
     </message>
     <message>
@@ -403,10 +403,6 @@
 </context>
 <context>
     <name>LoginWindow::WelcomeWindowItem</name>
-    <message>
-        <source>Keep Your Secrets.</source>
-        <translation>अपने रहस्य रखें।</translation>
-    </message>
     <message>
         <source>Emergency Connect</source>
         <translation>आपातकालीन कनेक्ट</translation>
@@ -886,6 +882,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
         <translation>कस्टम DNS सेवा प्रारंभ करने में असमर्थ - पोर्ट 53 पहले से उपयोग में है।  क्या आप अपने कनेक्टेड DNS को स्थानीय सर्वर से बदलना चाहेंगे?</translation>
     </message>
+    <message>
+        <source>Slide to complete the puzzle</source>
+        <translation>पहेली को पूरा करने के लिए स्लाइड करें</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -997,16 +997,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>खाता</translation>
     </message>
     <message>
-        <source>INFO</source>
-        <translation>जानकारी</translation>
-    </message>
-    <message>
         <source>Username</source>
         <translation>उपयोगकर्ता नाम</translation>
-    </message>
-    <message>
-        <source>PLAN</source>
-        <translation>योजना</translation>
     </message>
     <message>
         <source>Reset Date</source>
@@ -1023,6 +1015,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Expiry Date</source>
         <translation>समाप्ति तिथि</translation>
+    </message>
+    <message>
+        <source>ACCOUNT INFO</source>
+        <translation>खाता जानकारी</translation>
+    </message>
+    <message>
+        <source>PLAN INFO</source>
+        <translation>प्लान की जानकारी</translation>
+    </message>
+    <message>
+        <source>UPGRADE &gt;</source>
+        <translation>अपग्रेड &gt;</translation>
     </message>
 </context>
 <context>
@@ -1124,18 +1128,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::BackgroundSettingsGroup</name>
+    <name>PreferencesWindow::AppBackgroundGroup</name>
     <message>
-        <source>Disconnected</source>
-        <translation>डिस्कनेक्ट</translation>
+        <source>App Background</source>
+        <translation>ऐप पृष्ठभूमि</translation>
     </message>
     <message>
-        <source>Connected</source>
-        <translation>जुड़ा</translation>
+        <source>Aspect Ratio Mode</source>
+        <translation>पहलू अनुपात मोड</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>डिस्कनेक्ट होने पर</translation>
     </message>
     <message>
         <source>Flags</source>
-        <translation>देश के झंडे</translation>
+        <translation>ध्वज</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>बंडल</translation>
     </message>
     <message>
         <source>None</source>
@@ -1146,8 +1158,32 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>परम्परा</translation>
     </message>
     <message>
-        <source>App Background</source>
-        <translation>अनुप्रयोग पृष्ठभूमि</translation>
+        <source>When Connected</source>
+        <translation>कनेक्ट होने पर</translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation>एक छवि का चयन करें</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>वर्ग</translation>
+    </message>
+    <message>
+        <source>Palm</source>
+        <translation>हथेली</translation>
+    </message>
+    <message>
+        <source>Drip</source>
+        <translation>ड्रिप</translation>
+    </message>
+    <message>
+        <source>Snow</source>
+        <translation>हिमपात होना</translation>
+    </message>
+    <message>
+        <source>Ripple</source>
+        <translation>लहराना</translation>
     </message>
 </context>
 <context>
@@ -1236,7 +1272,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>ऑटो-कनेक्ट</translation>
     </message>
     <message>
-        <source>Control the mode of behavior of the Windscribe firewall.</source>
+        <source>Control the mode of behaviour of the Windscribe firewall.</source>
         <translation>विंडस्क्राइब फ़ायरवॉल के व्यवहार के तरीके को नियंत्रित करें।</translation>
     </message>
     <message>
@@ -1482,32 +1518,12 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>स्थान क्रम</translation>
     </message>
     <message>
-        <source>Display latency as signal strength bars or in milliseconds.</source>
-        <translation>विलंबता को सिग्नल शक्ति सलाखों के रूप में या मिलीसेकंड में प्रदर्शित करें।</translation>
-    </message>
-    <message>
-        <source>Latency Display</source>
-        <translation>विलंबता प्रदर्शन</translation>
-    </message>
-    <message>
         <source>Localize Windscribe to supported languages.</source>
         <translation>विंडस्क्राइब को समर्थित भाषाओं में स्थानीयकृत करें।</translation>
     </message>
     <message>
         <source>Language</source>
         <translation>भाषा</translation>
-    </message>
-    <message>
-        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>क्लासिक जीयूआई या &quot;ईयरलेस&quot; वैकल्पिक जीयूआई के बीच चयन करें।</translation>
-    </message>
-    <message>
-        <source>App Skin</source>
-        <translation>अनुप्रयोग त्वचा</translation>
-    </message>
-    <message>
-        <source>Customize the background of the main app screen.</source>
-        <translation>मुख्य ऐप स्क्रीन की पृष्ठभूमि अनुकूलित करें।</translation>
     </message>
     <message>
         <source>Choose to receive stable, beta, or experimental builds.</source>
@@ -1530,7 +1546,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>सफेद और काले ट्रे आइकन के बीच चुनें।</translation>
     </message>
     <message>
-        <source>Tray Icon Color</source>
+        <source>Tray Icon Colour</source>
         <translation>ट्रे आइकन रंग</translation>
     </message>
     <message>
@@ -1538,28 +1554,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>मल्टी-डेस्कटॉप</translation>
     </message>
     <message>
-        <source>Select behavior when window is activated with multiple desktops.</source>
+        <source>Select behaviour when window is activated with multiple desktops.</source>
         <translation>एकाधिक डेस्कटॉप के साथ विंडो सक्रिय होने पर व्यवहार का चयन करें।</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>निर्यातित माल</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>आयात</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>रीसेट</translation>
-    </message>
-    <message>
-        <source>Change location names to your liking.</source>
-        <translation>अपनी पसंद के अनुसार स्थान के नाम बदलें।</translation>
-    </message>
-    <message>
-        <source>Rename Locations</source>
-        <translation>स्थानों का नाम बदलें</translation>
     </message>
 </context>
 <context>
@@ -1619,6 +1615,49 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
         <translation>एक समस्या है कि गैरी हल नहीं कर सकता? मानव सहायता से संपर्क करें।</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::LookAndFeelWindowItem</name>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>देखो और महसूस करो</translation>
+    </message>
+    <message>
+        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
+        <translation>क्लासिक जीयूआई या &quot;ईयरलेस&quot; वैकल्पिक जीयूआई के बीच चयन करें।</translation>
+    </message>
+    <message>
+        <source>App Skin</source>
+        <translation>अनुप्रयोग त्वचा</translation>
+    </message>
+    <message>
+        <source>Customize the background of the main app screen.</source>
+        <translation>मुख्य ऐप स्क्रीन की पृष्ठभूमि अनुकूलित करें।</translation>
+    </message>
+    <message>
+        <source>Choose sounds to play when connection events occur.</source>
+        <translation>कनेक्शन ईवेंट होने पर चलाने के लिए ध्वनियाँ चुनें।</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>अपनी पसंद के अनुसार स्थान के नाम बदलें।</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>स्थानों का नाम बदलें</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>निर्यातित माल</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>आयात</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>रीसेट</translation>
     </message>
 </context>
 <context>
@@ -1761,20 +1800,12 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::PlanItem</name>
     <message>
-        <source>Unlimited Data</source>
-        <translation>असीमित डेटा</translation>
+        <source>Free</source>
+        <translation>उचित</translation>
     </message>
     <message>
-        <source>%1/Month</source>
-        <translation>%1/महीना</translation>
-    </message>
-    <message>
-        <source>Pro</source>
-        <translation>प्रो</translation>
-    </message>
-    <message>
-        <source>Upgrade</source>
-        <translation>अपग्रेड</translation>
+        <source>Plan Type</source>
+        <translation>प्लान का प्रकार</translation>
     </message>
 </context>
 <context>
@@ -1818,6 +1849,10 @@ Connect to a network first</source>
     <message>
         <source>Quit</source>
         <translation>छोड़ना</translation>
+    </message>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>देखो और महसूस करो</translation>
     </message>
 </context>
 <context>
@@ -2012,14 +2047,41 @@ Connect to a network first</source>
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::SelectImageItem</name>
+    <name>PreferencesWindow::SelectFileItem</name>
     <message>
         <source>[no selection]</source>
         <translation>[कोई चयन नहीं]</translation>
     </message>
+</context>
+<context>
+    <name>PreferencesWindow::SoundsGroup</name>
     <message>
-        <source>Select an image</source>
-        <translation>किसी छवि का चयन करें</translation>
+        <source>Sound Notifications</source>
+        <translation>ध्वनि सूचनाएं</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>कोई नहीं</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>डिस्कनेक्ट होने पर</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>बंडल</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>परम्परा</translation>
+    </message>
+    <message>
+        <source>Select a sound</source>
+        <translation>किसी ध्वनि का चयन करें</translation>
+    </message>
+    <message>
+        <source>When Connected</source>
+        <translation>कनेक्ट होने पर</translation>
     </message>
 </context>
 <context>
@@ -2100,14 +2162,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 यदि पुनर्स्थापना मदद नहीं करती है, तो कृपया सहायता के लिए विंडस्क्राइब समर्थन से संपर्क करें।</translation>
     </message>
     <message>
-        <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
-        <translation>कनेक्ट होने पर चयनित ऐप्स, आईपी और होस्टनाम विंडस्क्राइब के माध्यम से नहीं जाएंगे।</translation>
-    </message>
-    <message>
-        <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
-        <translation>कनेक्ट होने पर केवल चयनित ऐप्स, आईपी और होस्टनेम विंडस्क्राइब के माध्यम से जाएंगे।</translation>
-    </message>
-    <message>
         <source>Split Tunneling</source>
         <translation>स्प्लिट टनलिंग</translation>
     </message>
@@ -2130,6 +2184,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>IPs &amp; Hostnames</source>
         <translation>आईपी और होस्टनाम</translation>
+    </message>
+    <message>
+        <source>When enabled, selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
+        <translation>सक्षम होने पर, चयनित ऐप्स, आईपी और होस्टनाम कनेक्ट होने पर विंडसाइड से नहीं गुजरेंगे।</translation>
+    </message>
+    <message>
+        <source>When enabled, only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
+        <translation>सक्षम होने पर, कनेक्ट होने पर केवल चयनित ऐप्स, आईपी और होस्टनाम विंडसाइड से गुजरेंगे।</translation>
     </message>
 </context>
 <context>
@@ -2230,14 +2292,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Latency</source>
         <translation>लेटेंसी</translation>
-    </message>
-    <message>
-        <source>Bars</source>
-        <translation>सलाखों</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>सुश्री</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2408,12 +2462,16 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>स्थानीय डीएनएस</translation>
     </message>
     <message>
-        <source>Latency test pending</source>
-        <translation>विलंबता परीक्षण लंबित</translation>
+        <source>Stretch</source>
+        <translation>अँगड़ाई</translation>
     </message>
     <message>
-        <source>Latency test failed</source>
-        <translation>विलंबता परीक्षण विफल रहा</translation>
+        <source>Fill</source>
+        <translation>भरना</translation>
+    </message>
+    <message>
+        <source>Tile</source>
+        <translation>टाइल</translation>
     </message>
     <message>
         <source>Always On+</source>
@@ -2490,7 +2548,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>v</translation>
     </message>
     <message>
-        <source>UPDATE</source>
+        <source>Update</source>
         <translation>आधुनिकीकरणअ</translation>
     </message>
 </context>
@@ -2526,49 +2584,60 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
 </context>
 <context>
+    <name>UpgradeBanner</name>
+    <message>
+        <source>Unlock full access to Windscribe</source>
+        <translation>Windscribe के लिए पूर्ण पहुँच अनलॉक करें</translation>
+    </message>
+    <message>
+        <source>Go Pro for unlimited everything</source>
+        <translation>असीमित सब कुछ के लिए प्रो जाओ</translation>
+    </message>
+</context>
+<context>
     <name>UpgradeWidget::UpgradeWidgetItem</name>
     <message>
-        <source>GET MORE DATA</source>
-        <translation>अधिक जानकारी प्राप्त करें</translation>
+        <source>Get more data</source>
+        <translation>अधिक डेटा प्राप्त करें</translation>
     </message>
     <message>
-        <source>EXT CONFIG MODE</source>
-        <translation>EXT CONFIG MODE</translation>
+        <source>%1 left</source>
+        <translation>%1 बाएँ</translation>
     </message>
     <message>
-        <source>0 DAYS LEFT</source>
-        <translation>0 दिन शेष</translation>
+        <source>0 days left</source>
+        <translation>0 दिन बचे हैं</translation>
     </message>
     <message>
-        <source>1 DAY LEFT</source>
+        <source>1 day left</source>
         <translation>1 दिन बचा है</translation>
     </message>
     <message>
-        <source>2 DAYS LEFT</source>
+        <source>2 days left</source>
         <translation>2 दिन बचे हैं</translation>
     </message>
     <message>
-        <source>3 DAYS LEFT</source>
+        <source>3 days left</source>
         <translation>3 दिन बचे हैं</translation>
     </message>
     <message>
-        <source>4 DAYS LEFT</source>
-        <translation>4 दिन बचे हैं</translation>
+        <source>4 days left</source>
+        <translation>4 दिन बाकी</translation>
     </message>
     <message>
-        <source>5 DAYS LEFT</source>
-        <translation>5 दिन बचे हैं</translation>
+        <source>5 days left</source>
+        <translation>5 दिन बाकी</translation>
     </message>
     <message>
-        <source>%1 DAYS LEFT</source>
-        <translation>%1 दिन शेष</translation>
+        <source>%1 days left</source>
+        <translation>%1 दिन बचे हैं</translation>
     </message>
     <message>
-        <source>LOGIN</source>
+        <source>Login</source>
         <translation>लॉगिन</translation>
     </message>
     <message>
-        <source>RENEW</source>
+        <source>Renew</source>
         <translation>बदलना</translation>
     </message>
 </context>

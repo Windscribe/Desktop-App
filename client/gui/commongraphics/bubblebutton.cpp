@@ -12,7 +12,7 @@ namespace CommonGraphics {
 
 BubbleButton::BubbleButton(ScalableGraphicsObject *parent, Style style, int width, int height, int radius)
     : ClickableGraphicsObject(parent), style_(style), width_(width), height_(height), radius_(radius),
-      fontDescr_(16, false), text_(""), curOutlineFillOpacity_(0), curTextOpacity_(OPACITY_FULL)
+      fontDescr_(16, QFont::Normal), text_(""), curOutlineFillOpacity_(0), curTextOpacity_(OPACITY_FULL), curFillColor2_(Qt::transparent)
 {
     setStyle(style);
     connect(&textOpacityAnimation_, &QVariantAnimation::valueChanged, this, &BubbleButton::onTextOpacityChanged);
@@ -45,8 +45,25 @@ void BubbleButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     // fill
     painter->setOpacity(curTextOpacity_);
     QRectF roundRect(0, 0, width_*G_SCALE, height_*G_SCALE);
-    painter->setBrush(QBrush(curFillColor_, Qt::SolidPattern)); // fill color
+
+    // update button background
+    if (curFillColor2_ != Qt::transparent) {
+        QLinearGradient gradient(boundingRect().topLeft(), boundingRect().bottomLeft());
+        gradient.setColorAt(0.0, curFillColor_);
+        gradient.setColorAt(1.0, curFillColor2_);
+        painter->setBrush(gradient);
+        painter->setPen(Qt::NoPen);
+    } else {
+        painter->setBrush(QBrush(curFillColor_, Qt::SolidPattern));
+    }
     painter->drawRoundedRect(roundRect, radius_*G_SCALE, radius_*G_SCALE);
+
+    if (style_ == kBanner) {
+        // draw a border
+        QPen pen(curFillColor_, 1*G_SCALE);
+        painter->setPen(pen);
+        painter->drawRoundedRect(roundRect, radius_*G_SCALE, radius_*G_SCALE);
+    }
 
     // text
     painter->setOpacity(curTextOpacity_);
@@ -64,13 +81,29 @@ void BubbleButton::setStyle(Style style)
     if (style == kBright) {
         curFillColor_ = FontManager::instance().getSeaGreenColor();
         curTextColor_ = FontManager::instance().getMidnightColor();
+        hoverColor_ = Qt::white;
     } else if (style == kDark) {
         curFillColor_ = QColor(255, 255, 255, 35);
         curTextColor_ = QColor(255, 255, 255);
+        hoverColor_ = Qt::white;
     } else if (style == kOutline) {
         curFillColor_ = FontManager::instance().getMidnightColor();
         curTextColor_ = QColor(255, 255, 255);
         curOutlineFillOpacity_ = OPACITY_UNHOVER_ICON_STANDALONE;
+        hoverColor_ = Qt::white;
+    } else if (style == kWelcome) {
+        curFillColor_ = Qt::white;
+        curTextColor_ = Qt::black;
+        hoverColor_ = FontManager::instance().getSeaGreenColor();
+    } else if (style == kWelcomeSecondary) {
+        curFillColor_ = QColor(255, 255, 255, 26);
+        curTextColor_ = Qt::white;
+        hoverColor_ = FontManager::instance().getSeaGreenColor();
+    } else if (style == kBanner) {
+        curFillColor_ = QColor(44, 139, 255);
+        curFillColor2_ = QColor(0, 106, 255, 178);
+        curTextColor_ = QColor(223, 238, 255);
+        hoverColor_ = Qt::white;
     }
 
     fillColor_ = curFillColor_;
@@ -191,7 +224,7 @@ void BubbleButton::hover()
     if (hoverable_) {
         if (clickable_) {
             startAnAnimation(textColorAnimation_, curTextColor_, FontManager::instance().getMidnightColor(), ANIMATION_SPEED_FAST);
-            startAnAnimation(fillColorAnimation_, curFillColor_, QColor(255, 255, 255), ANIMATION_SPEED_FAST);
+            startAnAnimation(fillColorAnimation_, curFillColor_, hoverColor_, ANIMATION_SPEED_FAST);
             startAnAnimation(outlineOpacityAnimation_, curOutlineFillOpacity_, OPACITY_FULL, ANIMATION_SPEED_FAST);
         }
 

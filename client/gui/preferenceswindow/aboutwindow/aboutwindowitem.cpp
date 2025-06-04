@@ -12,7 +12,7 @@ AboutWindowItem::AboutWindowItem(ScalableGraphicsObject *parent, Preferences *pr
     Q_UNUSED(preferencesHelper);
 
     setFlag(QGraphicsItem::ItemIsFocusable);
-    setSpacerHeight(PREFERENCES_MARGIN);
+    setSpacerHeight(PREFERENCES_MARGIN_Y);
 
     group_ = new PreferenceGroup(this, "", "");
 

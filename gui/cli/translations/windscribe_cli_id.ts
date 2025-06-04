@@ -243,7 +243,7 @@
         <translation>Preferensi dimuat ulang.</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
+        <source>Key limit behaviour is set.</source>
         <translation>Perilaku batas kunci diatur.</translation>
     </message>
     <message>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>(Nama perangkat: %1)</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>Konektivitas internet tidak tersedia.  Coba lagi nanti.</translation>
     </message>
 </context>
 </TS>

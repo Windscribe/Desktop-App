@@ -10,7 +10,7 @@ namespace PreferencesWindow {
 NetworkOptionsNetworkWindowItem::NetworkOptionsNetworkWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper)
   : CommonGraphics::BasePage(parent), preferences_(preferences), preferencesHelper_(preferencesHelper)
 {
-    setSpacerHeight(PREFERENCES_MARGIN);
+    setSpacerHeight(PREFERENCES_MARGIN_Y);
 
     autoSecureGroup_ = new PreferenceGroup(this);
     autoSecureCheckBox_ = new ToggleItem(autoSecureGroup_);
@@ -124,7 +124,7 @@ QString NetworkOptionsNetworkWindowItem::caption() const
 
 void NetworkOptionsNetworkWindowItem::onLanguageChanged()
 {
-    autoSecureGroup_->setDescription(tr("Windscribe auto-connects if the device connects to this network."));
+    autoSecureCheckBox_->setDescription(tr("Windscribe auto-connects if the device connects to this network."));
     autoSecureCheckBox_->setCaption(tr("Auto-Secure"));
     preferredProtocolGroup_->setTitle(tr("Preferred Protocol"));
     preferredProtocolGroup_->setDescription(tr("Choose whether to connect using the recommended tunneling protocol, or to specify a protocol of your choice."));

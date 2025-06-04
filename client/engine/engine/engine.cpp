@@ -26,6 +26,7 @@
 #include "types/global_consts.h"
 #include "api_responses/websession.h"
 #include "api_responses/debuglog.h"
+#include "api_responses/authtoken.h"
 #include "firewall/firewallexceptions.h"
 #include "getdeviceid.h"
 #include "openvpnversioncontroller.h"
@@ -199,6 +200,14 @@ void Engine::loginWithUsernameAndPassword(const QString &username, const QString
     QMetaObject::invokeMethod(this, [this, username, password, code2fa]() {
         loginImpl(false, username, password, code2fa);
     }, Qt::QueuedConnection);
+}
+
+void Engine::continueLoginWithCaptcha(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY)
+{
+    WS_ASSERT(loginCredentials_ != nullptr);
+    WSNet::instance()->apiResourcersManager()->login(loginCredentials_->username.toStdString(), loginCredentials_->password.toStdString(), loginCredentials_->code2fa.toStdString(),
+                                                     loginCredentials_->authToken.toStdString(), captchaSolution.toStdString(), captchaTrailX, captchaTrailY);
+    loginCredentials_.reset();  // no longer required
 }
 
 bool Engine::isApiSavedSettingsExists()
@@ -1178,6 +1187,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     bool isPacketSizeChanged =  engineSettings_.packetSize() != engineSettings.packetSize();
     bool isDnsWhileConnectedChanged = engineSettings_.connectedDnsInfo() != engineSettings.connectedDnsInfo();
     bool isDecoyTrafficSettingsChanged = engineSettings_.decoyTrafficSettings() != engineSettings.decoyTrafficSettings();
+    bool isFirewallSettingsChanged = engineSettings_.firewallSettings() != engineSettings.firewallSettings();
 
     engineSettings_ = engineSettings;
     engineSettings_.saveToSettings();
@@ -1203,7 +1213,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
 
     connectionManager_->setFirewallAlwaysOnPlusEnabled(engineSettings.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS);
 
-    if (isAllowLanTrafficChanged || isDnsPolicyChanged)
+    if (isAllowLanTrafficChanged || isDnsPolicyChanged || isFirewallSettingsChanged)
         updateFirewallSettings();
 
     if (isUpdateChannelChanged)
@@ -2228,7 +2238,9 @@ void Engine::onApiResourceManagerCallback(ApiResourcesManagerNotification notifi
     // To keep the data in persistent settings when the OS reboots or kills the process
     saveWsnetSettings();
 
-    if (notification == ApiResourcesManagerNotification::kLoginOk) {
+    if (notification == ApiResourcesManagerNotification::kAuthTokenLoginFinished) {
+        onApiResourcesManagerAuthTokenLoginFinished(loginResult);
+    } else if (notification == ApiResourcesManagerNotification::kLoginOk) {
         onApiResourcesManagerReadyForLogin(false);
     } else if (notification == ApiResourcesManagerNotification::kLoginFailed) {
         onApiResourcesManagerLoginFailed(loginResult, QString::fromStdString(errorMessage));
@@ -2304,7 +2316,7 @@ void Engine::onApiResourcesManagerLoginFailed(LoginResult loginResult, const QSt
         tryLoginNextConnectOrDisconnect_ = true;
     } else if (loginResult == LoginResult::kBadUsername || loginResult == LoginResult::kBadCode2fa ||
              loginResult == LoginResult::kMissingCode2fa || loginResult == LoginResult::kAccountDisabled ||
-               loginResult == LoginResult::kSessionInvalid || loginResult == LoginResult::kRateLimited) {
+               loginResult == LoginResult::kSessionInvalid || loginResult == LoginResult::kRateLimited || loginResult == LoginResult::kInvalidSecurityToken) {
         emit loginError(loginResult, errorMessage);
     } else {
         WS_ASSERT(false);
@@ -2335,6 +2347,43 @@ void Engine::onApiResourcesManagerServerCredentialsFetched()
         qCInfo(LOG_BASIC) << "Engine::onRefetchServerCredentialsFinished, successfully";
         doConnect(false);
         isFetchingServerCredentials_ = false;
+    }
+}
+
+void Engine::onApiResourcesManagerAuthTokenLoginFinished(LoginResult loginResult)
+{
+    WS_ASSERT(loginCredentials_ != nullptr);
+
+    if (loginResult == LoginResult::kNoConnectivity) {
+        emit loginError(LoginResult::kNoConnectivity, QString());
+    } else if (loginResult == LoginResult::kNoApiConnectivity) {
+        if (engineSettings_.isIgnoreSslErrors()) {
+            emit loginError(LoginResult::kNoApiConnectivity, QString());
+        } else {
+            emit loginError(LoginResult::kSslError, QString());
+        }
+    } else if (loginResult == LoginResult::kIncorrectJson) {
+        emit loginError(LoginResult::kIncorrectJson, QString());
+    } else {
+        api_responses::AuthToken authToken(WSNet::instance()->apiResourcersManager()->authTokenLoginResult());
+        if (!authToken.isValid()) {
+            qCInfo(LOG_BASIC) << "onApiResourcesManagerAuthTokenLoginFinished failed, ret:" << QString::fromStdString(WSNet::instance()->apiResourcersManager()->authTokenLoginResult());
+            emit loginError(LoginResult::kIncorrectJson, QString());
+        } else {
+            if (authToken.isRateLimitError()) {
+                emit loginError(LoginResult::kRateLimited, QString());
+            } else {
+                if (authToken.isCaptchaRequired()) {
+                    loginCredentials_->authToken = authToken.token();
+                    emit captchaRequired(authToken.captchaData().background, authToken.captchaData().slider, authToken.captchaData().top);
+                } else {
+                    // continue login with a secure token
+                    WSNet::instance()->apiResourcersManager()->login(loginCredentials_->username.toStdString(), loginCredentials_->password.toStdString(), loginCredentials_->code2fa.toStdString(),
+                                                                     authToken.token().toStdString());
+                    loginCredentials_.reset();
+                }
+            }
+        }
     }
 }
 
@@ -2625,8 +2674,14 @@ void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QStrin
         }
     }
     else {
+        // Let's save this data as we will need it later when calling the login API
+        loginCredentials_ = std::make_unique<LoginCredentials>();
+        loginCredentials_->username = username;
+        loginCredentials_->password = password;
+        loginCredentials_->code2fa = code2fa;
+
         if (isOnline) {
-            WSNet::instance()->apiResourcersManager()->login(username.toStdString(), password.toStdString(), code2fa.toStdString());
+            WSNet::instance()->apiResourcersManager()->authTokenLogin();
         } else {
             // wait for network connectivity maximum 10 sec
             WS_ASSERT(loginWaitForNetworkConnectivity_ == nullptr);
@@ -2637,9 +2692,9 @@ void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QStrin
                 emit loginError(LoginResult::kNoConnectivity, QString());
             });
 
-            connect(loginWaitForNetworkConnectivity_, &WaitForNetworkConnectivity::connectivityOnline, [this, username, password, code2fa]() {
+            connect(loginWaitForNetworkConnectivity_, &WaitForNetworkConnectivity::connectivityOnline, [this]() {
                 SAFE_DELETE_LATER(loginWaitForNetworkConnectivity_);
-                WSNet::instance()->apiResourcersManager()->login(username.toStdString(), password.toStdString(), code2fa.toStdString());
+                WSNet::instance()->apiResourcersManager()->authTokenLogin();
             });
 
             loginWaitForNetworkConnectivity_->wait(kLoginWaitTimeForNoNetwork);

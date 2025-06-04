@@ -18,7 +18,7 @@ DecoyTrafficGroup::DecoyTrafficGroup(ScalableGraphicsObject *parent, const QStri
 
 
     comboBox_ = new ComboBoxItem(this);
-    comboBox_->setCaptionFont(FontDescr(12, false));
+    comboBox_->setCaptionFont(FontDescr(12, QFont::Normal));
     connect(comboBox_, &ComboBoxItem::currentItemChanged, this, &DecoyTrafficGroup::onDecoyTrafficOptionChanged);
     addItem(comboBox_);
 
@@ -105,6 +105,11 @@ void DecoyTrafficGroup::onLanguageChanged()
     staticText_->setCaption(tr("Estimated Data Usage"));
     textPerHour_ = tr("%1/hour");
     updateStaticText();
+}
+
+void DecoyTrafficGroup::setDescription(const QString &desc, const QString &descUrl)
+{
+    checkBoxEnable_->setDescription(desc, descUrl);
 }
 
 }

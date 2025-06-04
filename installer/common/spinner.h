@@ -19,6 +19,7 @@ private slots:
 
 private:
     int angle_;
+    bool isStarted_;
 };
 
 

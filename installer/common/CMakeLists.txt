@@ -44,9 +44,11 @@ target_sources(installer PRIVATE
     installbutton.cpp
     languagecontroller.cpp
     mainwindow.cpp
+    progressdisplay.cpp
     settingswindow.cpp
     spinner.cpp
     svgresources.cpp
     themecontroller.cpp
     togglebutton.cpp
+    utils.cpp
 )

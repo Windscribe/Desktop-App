@@ -66,6 +66,7 @@ void Backend::init()
     connect(engine_, &Engine::bfeEnableFinished, this, &Backend::onEngineBfeEnableFinished);
     connect(engine_, &Engine::firewallStateChanged, this, &Backend::onEngineFirewallStateChanged);
     connect(engine_, &Engine::loginFinished, this, &Backend::onEngineLoginFinished);
+    connect(engine_, &Engine::captchaRequired, this, &Backend::captchaRequired);
     connect(engine_, &Engine::tryingBackupEndpoint, this, &Backend::onEngineTryingBackupEndpoint);
     connect(engine_, &Engine::notificationsUpdated, this, &Backend::onEngineNotificationsUpdated);
     connect(engine_, &Engine::checkUpdateUpdated, this, &Backend::onEngineCheckUpdateUpdated);
@@ -133,6 +134,11 @@ void Backend::login(const QString &username, const QString &password, const QStr
     lastPassword_ = password;
     lastCode2fa_ = code2fa;
     engine_->loginWithUsernameAndPassword(username, password, code2fa);
+}
+
+void Backend::continueLoginWithCaptcha(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY)
+{
+     engine_->continueLoginWithCaptcha(captchaSolution, captchaTrailX, captchaTrailY);
 }
 
 bool Backend::isCanLoginWithAuthHash() const

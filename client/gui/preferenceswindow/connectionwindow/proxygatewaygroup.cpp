@@ -19,7 +19,7 @@ ProxyGatewayGroup::ProxyGatewayGroup(ScalableGraphicsObject *parent, const QStri
     addItem(checkBoxEnable_);
 
     comboBoxProxyType_ = new ComboBoxItem(this);
-    comboBoxProxyType_->setCaptionFont(FontDescr(12, false));
+    comboBoxProxyType_->setCaptionFont(FontDescr(12, QFont::Normal));
     connect(comboBoxProxyType_, &ComboBoxItem::currentItemChanged, this, &ProxyGatewayGroup::onProxyTypeItemChanged);
     addItem(comboBoxProxyType_);
 
@@ -163,6 +163,11 @@ void ProxyGatewayGroup::onPortEditClicked()
     if (settings_.port == 0) {
         editBoxPort_->setText(QString::number(0));
     }
+}
+
+void ProxyGatewayGroup::setDescription(const QString &desc, const QString &descUrl)
+{
+    checkBoxEnable_->setDescription(desc, descUrl);
 }
 
 } // namespace PreferencesWindow

@@ -61,11 +61,6 @@ LocationsView::~LocationsView()
     delete cityItemDelegate_;
 }
 
-void LocationsView::setShowLatencyInMs(bool isShowLatencyInMs)
-{
-    widget_->setShowLatencyInMs(isShowLatencyInMs);
-}
-
 void LocationsView::setShowLocationLoad(bool isShowLocationLoad)
 {
     widget_->setShowLocationLoad(isShowLocationLoad);
@@ -178,6 +173,11 @@ void LocationsView::onScrollBarActionTriggered(int action)
 void LocationsView::onExpandingAnimationStarted(int top, int height)
 {
     ensureVisible(top, height + top + qCeil(LOCATION_ITEM_HEIGHT * G_SCALE));
+}
+
+int LocationsView::count() const
+{
+    return widget_->count();
 }
 
 } // namespace gui_locations

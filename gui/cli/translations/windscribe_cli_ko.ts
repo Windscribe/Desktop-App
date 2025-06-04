@@ -243,7 +243,7 @@
         <translation>환경 설정이 다시 로드되었습니다.</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
+        <source>Key limit behaviour is set.</source>
         <translation>키 제한 동작이 설정됩니다.</translation>
     </message>
     <message>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>(장치 이름: %1)</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>인터넷 연결을 사용할 수 없습니다.  나중에 다시 시도하세요.</translation>
     </message>
 </context>
 </TS>

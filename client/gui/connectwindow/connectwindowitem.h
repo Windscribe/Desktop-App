@@ -6,13 +6,12 @@
 #include "background.h"
 #include "commongraphics/iconbutton.h"
 #include "commongraphics/textbutton.h"
+#include "commongraphics/togglebutton.h"
 #include "connectbutton.h"
 #include "connectstateprotocolport/connectstateprotocolport.h"
-#include "firewallbutton.h"
+#include "ipaddressitem/ipaddressitem.h"
 #include "locationsbutton.h"
 #include "logonotificationsbutton.h"
-#include "middleitem.h"
-#include "serverratingindicator.h"
 
 namespace ConnectWindow {
 
@@ -33,9 +32,12 @@ public:
     void setConnectionTimeAndData(QString connectionTime, QString dataTransferred);
     void setFirewallAlwaysOn(bool isFirewallAlwaysOn);
     void setTestTunnelResult(bool success);
-    void setCornerColor(QColor color);
     types::ProtocolStatus getProtocolStatus();
     void setIsPreferredProtocol(bool on);
+    void setIsPremium(bool isPremium);
+    void setCustomConfigMode(bool isCustomConfig);
+
+    bool handleKeyPressEvent(QKeyEvent *event);
 
 public slots:
     void updateLocationInfo(const QString &firstName, const QString &secondName, const QString &countryCode, PingTime pingTime, bool isCustomConfig);
@@ -60,10 +62,10 @@ public slots:
     void onFirstNameHoverEnter();
     void onSecondNameHoverEnter();
     void onFirstOrSecondNameHoverLeave();
-    void onServerRatingIndicatorHoverEnter();
-    void onServerRatingIndicatorHoverLeave();
     void onDockedModeChanged(bool bIsDockedToTray);
     void onProtocolsClick();
+    void onIpAddressWidthChanged(int width);
+    void onLocationsCollapsed();
 
 signals:
     void minimizeClick();
@@ -76,6 +78,10 @@ signals:
     void networkButtonClick();
     void splitTunnelingButtonClick();
     void protocolsClick();
+
+    void locationTabClicked(LOCATION_TAB tab);
+    void searchFilterChanged(const QString &filter);
+    void locationsKeyPressed(QKeyEvent *event);
 
 private slots:
     void onAppSkinChanged(APP_SKIN s);
@@ -96,23 +102,24 @@ private:
     CommonGraphics::TextButton *cityName1Text_;
     CommonGraphics::TextButton *cityName2Text_;
     LocationsButton *locationsButton_;
-    ServerRatingIndicator *serverRatingIndicator_;
-    MiddleItem *middleItem_;
-    FirewallButton *firewallButton_;
+    ToggleButton *firewallButton_;
     IconButton *firewallInfo_;
     IconButton *preferencesButton_;
     IconButton *networkTrustButton_;
-
+    IconButton *dotMenuButton_;
+    IPAddressItem *ipAddressItem_;
+    CommonGraphics::TextButton *firewallLabel_;
+    CommonGraphics::TextButton *networkNameText_;
     LogoNotificationsButton *logoButton_;
 
     types::ConnectState prevConnectState_;
-    QString networkName_;
     NETWORK_TRUST_TYPE trustType_;
     NETWORK_INTERFACE_TYPE interfaceType_;
     bool networkActive_;
 
     QString fullFirstName_;
     QString fullSecondName_;
+    QString networkName_;
 
     QString connectionTime_;
     QString dataTransferred_;

@@ -6,7 +6,7 @@
 namespace CommonGraphics {
 
 DividerLine::DividerLine(ScalableGraphicsObject *parent, int width, int startX)
-  : CommonGraphics::BaseItem(parent, DIVIDER_HEIGHT*G_SCALE, "", false, width), opacity_(OPACITY_DIVIDER_LINE), startX_(startX)
+  : CommonGraphics::BaseItem(parent, DIVIDER_HEIGHT*G_SCALE, "", false, width), opacity_(OPACITY_FULL), startX_(startX)
 {
 }
 
@@ -21,7 +21,7 @@ void DividerLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     Q_UNUSED(widget);
 
     painter->setOpacity(opacity_);
-    painter->fillRect(boundingRect().adjusted(startX_*G_SCALE, 0, 0, 0).toRect(), QBrush(Qt::white));
+    painter->fillRect(boundingRect().adjusted(startX_*G_SCALE, 0, 0, 0).toRect(), QColor(2, 13, 28));
 }
 
 void DividerLine::updateScaling()

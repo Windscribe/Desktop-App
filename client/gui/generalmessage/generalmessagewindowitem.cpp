@@ -25,6 +25,8 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(ScalableGraphicsObject *paren
     contentItem_->setRejectText(rejectText);
     scrollAreaItem_->setItem(contentItem_);
 
+    setVanGoghOffset(31);
+
     // Do not go into Van Gogh mode if at login screen
     if (shape_ == GeneralMessageWindow::kLoginScreenShape) {
         escapeButton_->setTextPosition(CommonGraphics::EscapeButton::TEXT_POSITION_BOTTOM);
@@ -42,48 +44,57 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(ScalableGraphicsObject *paren
 
 void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
-    // base background
-    if (shape_ == GeneralMessageWindow::kConnectScreenAlphaShape) {
-        QSharedPointer<IndependentPixmap> pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);
-        pixmapBaseBackground->draw(0, 0, painter);
-        painter->fillRect(boundingRect().adjusted(0, pixmapBaseBackground->height(), 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
-    } else {
-        QPainterPath path;
-#ifdef Q_OS_MACOS
-        path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
-#else
-        path.addRect(boundingRect().toRect());
-#endif
-        painter->setPen(Qt::NoPen);
-        painter->fillPath(path, QColor(2, 13, 28));
-        painter->setPen(Qt::SolidLine);
-    }
-
-    // bottom-most background
+    // bottom-most background: draw this first since the base background has a border
+    setOpacity(OPACITY_FULL);
     if (roundedFooter_) {
         painter->setPen(QColor(2, 13, 28));
         painter->setBrush(QColor(2, 13, 28));
-        painter->drawRoundedRect(getBottomResizeArea(), 8*G_SCALE, 8*G_SCALE);
+        painter->drawRoundedRect(getBottomResizeArea(), 9*G_SCALE, 9*G_SCALE);
         painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
     } else {
         painter->fillRect(getBottomResizeArea(), QBrush(QColor(2, 13, 28)));
     }
 
+    // base background
+    if (shape_ == GeneralMessageWindow::kConnectScreenAlphaShape) {
+        painter->setOpacity(OPACITY_FULL);
+        painter->fillRect(boundingRect().adjusted(0, 270*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
+
+        QSharedPointer<IndependentPixmap> pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);
+        pixmapBaseBackground->draw(0, 0, painter);
+    } else {
+        QPainterPath path;
+        path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
+        painter->setPen(Qt::NoPen);
+        painter->fillPath(path, QColor(2, 13, 28));
+        painter->setPen(Qt::SolidLine);
+    }
+
     if (isSpinnerMode_) {
         int offset = 0;
-        if (shape_ == GeneralMessageWindow::kConnectScreenAlphaShape) {
-            offset = 10*G_SCALE;
-        } else if (shape_ == GeneralMessageWindow::kConnectScreenVanGoghShape) {
-            offset = -24*G_SCALE;
+        if (shape_ == GeneralMessageWindow::kConnectScreenVanGoghShape) {
+            offset = -16*G_SCALE;
         }
-
-        // spinner
         painter->setPen(QPen(Qt::white, 2 * G_SCALE));
         painter->translate(boundingRect().width()/2, boundingRect().height()/2 + offset);
         painter->rotate(curSpinnerRotation_);
         const int circleDiameter = 80*G_SCALE;
         painter->drawArc(QRect(-circleDiameter/2, -circleDiameter/2, circleDiameter, circleDiameter), 0, 4 * 360);
     }
+
+    if (shape_ == GeneralMessageWindow::kConnectScreenAlphaShape) {
+        QSharedPointer<IndependentPixmap> pixmapBorder = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBorder_);
+        pixmapBorder->draw(0, 0, 350*G_SCALE, 32*G_SCALE, painter);
+    } else {
+        QSharedPointer<IndependentPixmap> pixmapBorder = ImageResourcesSvg::instance().getIndependentPixmap("background/MAIN_BORDER_TOP_INNER_VAN_GOGH");
+        pixmapBorder->draw(0, 0, 350*G_SCALE, 32*G_SCALE, painter);
+    }
+
+    QSharedPointer<IndependentPixmap> pixmapBorderExtension = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBorderExtension_);
+    pixmapBorderExtension->draw(0, 32*G_SCALE, 350*G_SCALE, boundingRect().height() - 64*G_SCALE, painter);
+
+    QSharedPointer<IndependentPixmap> pixmapBorderBottom = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBorderBottom_);
+    pixmapBorderBottom->draw(0, curHeight_ - 32*G_SCALE, 350*G_SCALE, 32*G_SCALE, painter);
 }
 
 void GeneralMessageWindowItem::setStyle(GeneralMessageWindow::Style style)
@@ -164,9 +175,10 @@ void GeneralMessageWindowItem::onEscape()
 
 void GeneralMessageWindowItem::onAppSkinChanged(APP_SKIN s)
 {
-    if (shape_ != GeneralMessageWindow::kLoginScreenShape) {
-        ResizableWindow::onAppSkinChanged(s);
-    }
+    ResizableWindow::onAppSkinChanged(s);
+    contentItem_->update();
+    updateHeight();
+    update();
 }
 
 void GeneralMessageWindowItem::setSpinnerMode(bool on)
@@ -205,12 +217,22 @@ void GeneralMessageWindowItem::updatePositions()
     escapeButton_->onLanguageChanged();
     escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 16*G_SCALE);
 
-    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH && shape_ != GeneralMessageWindow::kLoginScreenShape) {
-        scrollAreaItem_->setPos(0, 55*G_SCALE);
-        scrollAreaItem_->setHeight(curHeight_ - 55*G_SCALE);
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
+        if (shape_ != GeneralMessageWindow::kLoginScreenShape) {
+            scrollAreaItem_->setPos(0, 39*G_SCALE);
+            scrollAreaItem_->setHeight(curHeight_ - 39*G_SCALE);
+        } else {
+            scrollAreaItem_->setPos(0, 83*G_SCALE);
+            scrollAreaItem_->setHeight(curHeight_ - 83*G_SCALE);
+        }
     } else {
-        scrollAreaItem_->setPos(0, 83*G_SCALE);
-        scrollAreaItem_->setHeight(curHeight_ - 83*G_SCALE);
+        if (shape_ != GeneralMessageWindow::kLoginScreenShape) {
+            scrollAreaItem_->setPos(0, 67*G_SCALE);
+            scrollAreaItem_->setHeight(curHeight_ - 67*G_SCALE);
+        } else {
+            scrollAreaItem_->setPos(0, 83*G_SCALE);
+            scrollAreaItem_->setHeight(curHeight_ - 83*G_SCALE);
+        }
     }
 
     updateHeight();
@@ -228,13 +250,15 @@ void GeneralMessageWindowItem::updateHeight()
         }
     } else {
         if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
-            height = contentItem_->fullHeight() + 70*G_SCALE;
+            height = contentItem_->fullHeight() + 40*G_SCALE;
+            if (height < WINDOW_HEIGHT_VAN_GOGH*G_SCALE) {
+                height = WINDOW_HEIGHT_VAN_GOGH*G_SCALE;
+            }
         } else {
-            height = contentItem_->fullHeight() + 98*G_SCALE;
-        }
-
-        if (height < WINDOW_HEIGHT*G_SCALE) {
-            height = WINDOW_HEIGHT*G_SCALE;
+            height = contentItem_->fullHeight() + 70*G_SCALE;
+            if (height < WINDOW_HEIGHT*G_SCALE) {
+                height = WINDOW_HEIGHT*G_SCALE;
+            }
         }
     }
 
@@ -243,6 +267,7 @@ void GeneralMessageWindowItem::updateHeight()
         emit sizeChanged(this);
     }
 
+    update();
     contentItem_->update();
 }
 

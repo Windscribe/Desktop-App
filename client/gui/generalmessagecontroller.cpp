@@ -120,8 +120,8 @@ void GeneralMessageController::showNext()
     window->setRejectText(message->rejectText);
     if (message->type == GeneralMessage::Type::kAlert) {
         if (message->flags & GeneralMessage::kShowBottomPanel) {
-            window->setShowBottomPanel(true);
             window->setLearnMoreUrl(message->learnMoreUrl);
+            window->setShowBottomPanel(true);
         } else {
             window->setShowBottomPanel(false);
         }

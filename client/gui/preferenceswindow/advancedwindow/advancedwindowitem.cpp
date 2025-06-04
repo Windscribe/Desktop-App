@@ -16,7 +16,7 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
     currentScreen_(ADVANCED_SCREEN_HOME)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
-    setSpacerHeight(PREFERENCES_MARGIN);
+    setSpacerHeight(PREFERENCES_MARGIN_Y);
 
     connect(preferences, &Preferences::apiResolutionChanged, this, &AdvancedWindowItem::onApiResolutionPreferencesChanged);
     connect(preferences, &Preferences::dnsPolicyChanged, this, &AdvancedWindowItem::onDnsPolicyPreferencesChanged);
@@ -164,19 +164,19 @@ void AdvancedWindowItem::onApiResolutionPreferencesChanged(const types::ApiResol
 
 void AdvancedWindowItem::onLanguageChanged()
 {
-    advParametersGroup_->setDescription(tr("Make advanced tweaks to the way the app functions."));
+    advParametersItem_->setDescription(tr("Make advanced tweaks to the way the app functions."));
     advParametersItem_->setTitle(tr("Advanced Parameters"));
     apiResolutionGroup_->setDescription(tr("Resolve server API address automatically, or use one provided by the Support team."));
-    ignoreSslErrorsGroup_->setDescription(tr("Ignore SSL certificate validation errors."));
+    cbIgnoreSslErrors_->setDescription(tr("Ignore SSL certificate validation errors."));
     cbIgnoreSslErrors_->setCaption(tr("Ignore SSL Errors"));
-    keepAliveGroup_->setDescription(tr("Prevents connections from dying (by time-out) by periodically pinging the server."));
+    cbKeepAlive_->setDescription(tr("Prevents connections from dying (by time-out) by periodically pinging the server."));
     cbKeepAlive_->setCaption(tr("Client-side Keepalive"));
-    internalDnsGroup_->setDescription(tr("Windscribe uses this DNS server to resolve addresses outside the VPN.") + "\n" + tr("Warning: Using \"OS Default\" may sometimes cause DNS leaks during reconnects."));
+    comboBoxAppInternalDns_->setDescription(tr("Windscribe uses this DNS server to resolve addresses outside the VPN.") + "\n" + tr("Warning: Using \"OS Default\" may sometimes cause DNS leaks during reconnects."));
     comboBoxAppInternalDns_->setLabelCaption(tr("App Internal DNS"));
     comboBoxAppInternalDns_->setItems(DNS_POLICY_TYPE_toList(), preferences_->dnsPolicy());
 
 #ifdef Q_OS_LINUX
-    dnsManagerGroup_->setDescription(tr("Select the DNS system service Windscribe enforces. Experienced users only."));
+    comboBoxDnsManager_->setDescription(tr("Select the DNS system service Windscribe enforces. Experienced users only."));
     comboBoxDnsManager_->setLabelCaption(tr("DNS Manager"));
     comboBoxDnsManager_->setItems(DNS_MANAGER_TYPE_toList(), preferences_->dnsManager());
 #endif

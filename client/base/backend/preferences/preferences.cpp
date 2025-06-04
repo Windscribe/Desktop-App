@@ -1,5 +1,6 @@
 #include "preferences.h"
 
+#include <QIODevice>
 #include <QSettings>
 #ifndef CLI_ONLY
 #include <QSystemTrayIcon>
@@ -13,7 +14,7 @@
 #include "utils/ipvalidation.h"
 #include "utils/simplecrypt.h"
 #include "types/global_consts.h"
-#include "legacy_protobuf_support/legacy_protobuf.h"
+
 
 Preferences::Preferences(QObject *parent) : QObject(parent)
   , isSettingEngineSettings_(false)
@@ -158,6 +159,21 @@ void Preferences::setBackgroundSettings(const types::BackgroundSettings &backgro
     }
 }
 
+types::SoundSettings Preferences::soundSettings() const
+{
+    return guiSettings_.soundSettings;
+}
+
+void Preferences::setSoundSettings(const types::SoundSettings &soundSettings)
+{
+    if (guiSettings_.soundSettings != soundSettings)
+    {
+        guiSettings_.soundSettings = soundSettings;
+        saveGuiSettings();
+        emit soundSettingsChanged(soundSettings);
+    }
+}
+
 bool Preferences::isDockedToTray() const
 {
     // no longer supported on Linux
@@ -211,21 +227,6 @@ void Preferences::setLocationOrder(ORDER_LOCATION_TYPE o)
         guiSettings_.orderLocation = o;
         saveGuiSettings();
         emit locationOrderChanged(guiSettings_.orderLocation);
-    }
-}
-
-LATENCY_DISPLAY_TYPE Preferences::latencyDisplay() const
-{
-    return guiSettings_.latencyDisplay;
-}
-
-void Preferences::setLatencyDisplay(LATENCY_DISPLAY_TYPE l)
-{
-    if (guiSettings_.latencyDisplay != l)
-    {
-        guiSettings_.latencyDisplay = l;
-        saveGuiSettings();
-        emit latencyDisplayChanged(guiSettings_.latencyDisplay);
     }
 }
 
@@ -723,6 +724,10 @@ QJsonObject Preferences::toJson() const
     json[kJsonGuiSettingsProp] = guiSettings_.toJson(false);
     json[kJsonEngineSettingsProp] = engineSettings_.toJson(false);
     json[kJsonPersistentStateProp] = PersistentState::instance().toJson();
+    const auto extraConfigJson = ExtraConfig::instance().toJson();
+    if (!extraConfigJson.isEmpty()) {
+        json[kJsonAdvancedParamsProp] = extraConfigJson;
+    }
     return json;
 }
 
@@ -744,6 +749,10 @@ void Preferences::updateFromJson(const QJsonObject& json)
         if (oldList != newList) {
             emit networkWhiteListChanged(newList);
         }
+    }
+
+    if (json.contains(kJsonAdvancedParamsProp) && json[kJsonAdvancedParamsProp].isObject()) {
+        ExtraConfig::instance().fromJson(json[kJsonAdvancedParamsProp].toObject());
     }
 }
 
@@ -823,6 +832,7 @@ void Preferences::setGuiSettings(const types::GuiSettings &gs)
 {
     setAppSkin(gs.appSkin);
     setBackgroundSettings(gs.backgroundSettings);
+    setSoundSettings(gs.soundSettings);
     setAutoConnect(gs.isAutoConnect);
     setDockedToTray(gs.isDockedToTray);
 
@@ -835,7 +845,6 @@ void Preferences::setGuiSettings(const types::GuiSettings &gs)
     setShowLocationLoad(gs.isShowLocationHealth);
     setShowNotifications(gs.isShowNotifications);
     setStartMinimized(gs.isStartMinimized);
-    setLatencyDisplay(gs.latencyDisplay);
     setLocationOrder(gs.orderLocation);
 
 #ifdef Q_OS_LINUX
@@ -886,19 +895,7 @@ void Preferences::loadGuiSettings()
     SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
 
     QSettings settings;
-    if (settings.contains("guiSettings"))
-    {
-        // try load from legacy protobuf
-        // todo remove this code at some point later
-        QByteArray arr = settings.value("guiSettings").toByteArray();
-        bLoaded = LegacyProtobufSupport::loadGuiSettings(arr, guiSettings_);
-        if (bLoaded)
-        {
-            settings.remove("guiSettings");
-        }
-    }
-    if (!bLoaded && settings.contains("guiSettings2"))
-    {
+    if (settings.contains("guiSettings2")) {
         QString str = settings.value("guiSettings2").toString();
         QByteArray arr = simpleCrypt.decryptToByteArray(str);
 

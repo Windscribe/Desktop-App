@@ -20,6 +20,8 @@ public:
     void setCurrentNetwork(const types::NetworkInterface &networkInterface);
     void setEnabled(bool enabled);
 
+    void setDescription(const QString &desc, const QString &descUrl = "");
+
 signals:
     void macAddrSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing);
     void cycleMacAddressClick();

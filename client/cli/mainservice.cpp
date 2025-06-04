@@ -82,7 +82,7 @@ void MainService::setInitialFirewallState()
     if (bFirewallStateOn) {
         backend_->firewallOn();
     } else {
-        if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
+        if (backend_->getPreferences()->firewallSettings().isAlwaysOnMode()) {
             backend_->firewallOn();
         } else {
             backend_->firewallOff();
@@ -242,7 +242,7 @@ void MainService::stop()
     // This block handles initializing the firewall state on next run
     if (PersistentState::instance().isFirewallOn() && backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_AUTOMATIC) {
         PersistentState::instance().setFirewallState(false);
-    } else if (backend_->getPreferences()->firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON) {
+    } else if (backend_->getPreferences()->firewallSettings().isAlwaysOnMode()) {
         PersistentState::instance().setFirewallState(true);
     }
 
@@ -281,7 +281,7 @@ void MainService::onPreferencesSplitTunnelingChanged(const types::SplitTunneling
 
 void MainService::onPreferencesFirewallSettingsChanged(const types::FirewallSettings &fm)
 {
-    if (fm.mode == FIREWALL_MODE_ALWAYS_ON) {
+    if (fm.isAlwaysOnMode()) {
         if (!PersistentState::instance().isFirewallOn()) {
             backend_->firewallOn();
         }
@@ -314,3 +314,4 @@ void MainService::onBackendLocalDnsServerNotAvailable()
     connectedDnsInfo.type = CONNECTED_DNS_TYPE::CONNECTED_DNS_TYPE_AUTO;
     backend_->getPreferences()->setConnectedDnsInfo(connectedDnsInfo);
 }
+

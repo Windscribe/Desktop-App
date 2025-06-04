@@ -1,3 +1,23 @@
+2.16.3 (04/06/2025)
+All:
+   * Added bundled backgrounds and sound notifications. #1150
+   * Added Look & Feel tab in preferences. #1150
+   * Added new app UI design. #1151
+   * Added two stage login and CAPTCHA. #1351
+   * Improved inconsistent (English) spelling. #1371
+   * Improved preferences import/export to include advanced parameters. #1373
+   * Fixed Always On+ mode sometimes not applied instantly. #1369
+   * Fixed renamed best location nickname not updated if best location changes. #1372
+   * Fixed Best Location is chosen incorrectly. #1274
+   * Removed legacy protobuf settings. #1212
+MacOS:
+   * Fixed missing icons, nickname in Favourites. #1357
+Linux:
+   * Fixed Always On+ mode for CLI-only clients. #1369
+   * Fixed CLI-only client waits forever to connect without internet connectivity. #1370
+   * Fixed CLI-only client may not display a useful error. #1374
+
+
 2.16.2 (27/05/2025)
 All:
    * Added warning when Firewall Always On+ mode is enabled. #1318
@@ -5,9 +25,9 @@ All:
    * Improved Chinese translation from GitHub user YerongAI. #1358
    * Improved build instructions. #1360
    * Improved WireGuard support on adverse networks by forcing a handshake after interface configuration. #1190
-   * Fixed the Firewall Always On+ mode doesn't keep state on Mac/Linux reboot. #1318 
+   * Fixed the Firewall Always On+ mode doesn't keep state on Mac/Linux reboot. #1318
    * Fixed some blocking CLI commands may consume more CPU than intended. #1361
-   * Removed oqs algoritms on ios [wsnet]. #1359
+   * Removed oqs algorithms on ios [wsnet]. #1359
 Windows:
    * Fixed locations missing nicknames in tray menu. #1357
    * Fixed existing local DNS ignored when using custom DNS. #1363
@@ -30,7 +50,12 @@ Windows:
    * Added advanced parameter for configuring the VPN adapter network category as public. #1349
 
 
-2.15.8 (DD/MM/2025)
+2.15.9 (29/05/2025)
+MacOS:
+   * Fixed MacOS app consuming memory extremely quickly after opening the app when docked.  Reverted changes made for issue #1334. #1367
+
+
+2.15.8 (16/05/2025)
 MacOS:
    * Fixed delayed app shutdown on MacOS. #1353
 

@@ -19,7 +19,6 @@ public:
     QPixmap *currentPixmap();
 
     QPixmap *currentConnectingPixmap();
-    QPixmap *currentConnectedPixmap();
 
     void changeFlag(const QString &countryCode);
     void setIsConnected(bool isConnected);
@@ -35,34 +34,29 @@ private slots:
     void onAppSkinChanged(APP_SKIN s);
 
 private:
-    static constexpr int WIDTH = 332;
+    static constexpr int WIDTH = 350;
     static constexpr int ANIMATION_DURATION = 500;
 
     QString connectingGradient_;
-    QString connectedGradient_;
-    QString connectingCustomGradient_;
-    QString connectedCustomGradient_;
 
     Preferences *preferences_;
     types::BackgroundSettings curBackgroundSettings_;
-    bool isDisconnectedAndConnectedImagesTheSame_;
 
     QSharedPointer<QMovie> disconnectedMovie_;
     QSharedPointer<QMovie> connectedMovie_;
 
     ImageChanger imageChanger_;
     SimpleImageChanger connectingGradientChanger_;
-    SimpleImageChanger connectedGradientChanger_;
 
     QString prevCountryCode_;
     QString countryCode_;
     bool isConnected_;
-    bool isCustomBackground_;
 
     void safeChangeToDisconnectedImage(bool bShowPrevChangeAnimation);
     void safeChangeToConnectedImage(bool bShowPrevChangeAnimation);
-    void switchConnectGradient(bool isCustomBackground);
+    void switchConnectGradient();
     void updateImages();
+    QSharedPointer<QMovie> customMovie(const QString &path, bool isConnected);
 };
 
 } //namespace ConnectWindow

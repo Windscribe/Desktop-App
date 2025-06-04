@@ -78,7 +78,7 @@ MainWindow::MainWindow() : QWidget(), dpiScale_(1.0), logAutoScrollMode_(true),
     cbMultiColumn_->setChecked(logDisplayMode_ == LogDisplayMode::MULTI_COLUMNS);
     cbMultiColumn_->setEnabled(false);
     connect(cbMultiColumn_, &QCheckBox::toggled, this, &MainWindow::setMultiColumn);
-    cbHighlight_ = new QCheckBox(tr("Color highlighting"), this);
+    cbHighlight_ = new QCheckBox(tr("Colour highlighting"), this);
     cbHighlight_->setChecked(logHightlightMode_);
     connect(cbHighlight_, &QCheckBox::toggled, this, &MainWindow::setHighlight);
     cbAutoScroll_ = new QCheckBox(tr("Auto-scroll"), this);

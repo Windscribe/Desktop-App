@@ -4,8 +4,9 @@
 #include <QPainter>
 #include <QKeyEvent>
 #include "commongraphics/commongraphics.h"
-#include "graphicresources/fontmanager.h"
 #include "dpiscalemanager.h"
+#include "graphicresources/fontmanager.h"
+#include "types/enums.h"
 
 namespace GeneralMessageWindow {
 
@@ -21,7 +22,7 @@ GeneralMessageItem::GeneralMessageItem(ScalableGraphicsObject *parent, int width
     checkbox_ = new Checkbox(this, tr(kRemember));
     checkbox_->setVisible(false);
 
-    learnMoreLink_ = new CommonGraphics::TextButton(tr(kLearnMore), FontDescr(12, false), QColor(255, 255, 255), true, this);
+    learnMoreLink_ = new CommonGraphics::TextButton(tr(kLearnMore), FontDescr(12, QFont::Normal), QColor(255, 255, 255), true, this);
     learnMoreLink_->setVisible(false);
     learnMoreLink_->setMarginHeight(0);
     learnMoreLink_->setUnderline(true);
@@ -35,7 +36,7 @@ void GeneralMessageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 {
     // title
     painter->setOpacity(OPACITY_FULL);
-    QFont titleFont = FontManager::instance().getFont(titleSize_, true);
+    QFont titleFont = FontManager::instance().getFont(titleSize_, QFont::Bold);
     painter->setFont(titleFont);
     painter->setPen(QColor(Qt::white));
 
@@ -48,7 +49,7 @@ void GeneralMessageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     // description
     if (!desc_.isEmpty()) {
         painter->setOpacity(OPACITY_HALF);
-        QFont descFont = FontManager::instance().getFont(14, false);
+        QFont descFont = FontManager::instance().getFont(14,  QFont::Normal);
         painter->setFont(descFont);
 
         // 60 for icon + 24 spacing + title + 16 spacing
@@ -107,7 +108,7 @@ void GeneralMessageItem::setStyle(GeneralMessageWindow::Style style)
 void GeneralMessageItem::setTitle(const QString &title)
 {
     title_ = title;
-    QFont font = FontManager::instance().getFont(titleSize_, true);
+    QFont font = FontManager::instance().getFont(titleSize_, QFont::Bold);
     QFontMetrics fm(font);
     titleHeight_ = fm.boundingRect(boundingRect().adjusted(36*G_SCALE, 0, -36*G_SCALE, 0).toRect(),
                                    Qt::AlignHCenter | Qt::TextWordWrap, title_).height();
@@ -118,7 +119,7 @@ void GeneralMessageItem::setTitle(const QString &title)
 void GeneralMessageItem::setDescription(const QString &desc)
 {
     desc_ = desc;
-    QFont font = FontManager::instance().getFont(14, true);
+    QFont font = FontManager::instance().getFont(14, QFont::Bold);
     QFontMetrics fm(font);
     descHeight_ = fm.boundingRect(boundingRect().adjusted(36*G_SCALE, 0, -36*G_SCALE, 0).toRect(),
                                   Qt::AlignHCenter | Qt::TextWordWrap, desc_).height();
@@ -347,13 +348,14 @@ void GeneralMessageItem::setShowBottomPanel(bool on)
     showBottomPanel_ = on;
 
     if (on) {
-        QFontMetrics fm(FontManager::instance().getFont(14, false));
+        QFontMetrics fm(FontManager::instance().getFont(12,  QFont::Normal));
         int textWidth = fm.horizontalAdvance(tr(kLearnMore));
-        checkbox_->setPos(16*G_SCALE, fullHeight() + 40*G_SCALE);
-        learnMoreLink_->setPos(boundingRect().width() - 16*G_SCALE - textWidth, fullHeight() + 40*G_SCALE);
+        checkbox_->setPos(16*G_SCALE, fullHeight() + 34*G_SCALE);
+        learnMoreLink_->setPos(boundingRect().width() - 16*G_SCALE - textWidth, fullHeight() + 34*G_SCALE);
     }
     checkbox_->setVisible(on);
     if (!learnMoreUrl_.isEmpty()) {
+        qCInfo(LOG_BASIC) << "jaxu Learn more url: " << learnMoreUrl_ << " on: " << on;
         learnMoreLink_->setVisible(on);
     }
 

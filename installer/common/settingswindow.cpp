@@ -11,20 +11,19 @@
 #include "svgresources.h"
 #include "themecontroller.h"
 #include "togglebutton.h"
+#include "utils.h"
 
 SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent), animValue_(0), path_(nullptr), factoryReset_(nullptr), createShortcut_(nullptr)
 {
     setFocusPolicy(Qt::StrongFocus);
 
-    backgroundPixmap_ = QPixmap(":/resources/background.png").scaled(350, 350);
-
-    background_ = new QLabel(this);
-    background_->setPixmap(backgroundPixmap_);
-    background_->move(0, 0);
+    QLabel *background = new QLabel(this);
+    background->setPixmap(getRoundedRectPixmap(":/resources/background.png", 350, 350, 8));
+    background->move(0, 0);
 
     QLabel *logo = new QLabel(this);
-    logo->setPixmap(SvgResources::instance().pixmap(":/resources/WINDSCRIBE_ICON.svg"));
-    logo->move(155, 16);
+    logo->setPixmap(SvgResources::instance().pixmap(":/resources/WINDSCRIBE.svg"));
+    logo->move(113, 24);
 
     QLabel *title = new QLabel(this);
     title->setFont(ThemeController::instance().defaultFont(16, QFont::Weight::Bold));
@@ -35,7 +34,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent), animValue_(0)
 
     HoverButton *escapeButton = new HoverButton(this, ":/resources/CHECK_ICON.svg");
     escapeButton->setText(tr("OK"));
-    escapeButton->setTextSize(10);
+    escapeButton->setTextAttributes(10);
     escapeButton->move(175 - escapeButton->width()/2, 290);
     connect(escapeButton, &QPushButton::clicked, this, &SettingsWindow::escapeClicked);
 
@@ -84,19 +83,19 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent), animValue_(0)
 
     if (LanguageController::instance().isRtlLanguage()) {
 #ifdef Q_OS_MACOS
-        closeButton->setGeometry(328, 8, 14, 14);
-        minimizeButton->setGeometry(306, 8, 14, 14);
+        closeButton->setGeometry(320, 16, 14, 14);
+        minimizeButton->setGeometry(298, 16, 14, 14);
 #else
         closeButton->setGeometry(16, 16, 28, 28);
-        minimizeButton->setGeometry(52, 16, 28, 28);
+        minimizeButton->setGeometry(46, 16, 28, 28);
 #endif
     } else {
 #ifdef Q_OS_MACOS
-        closeButton->setGeometry(8, 8, 14, 14);
-        minimizeButton->setGeometry(28, 8, 14, 14);
+        closeButton->setGeometry(16, 16, 14, 14);
+        minimizeButton->setGeometry(38, 16, 14, 14);
 #else
         closeButton->setGeometry(306, 16, 28, 28);
-        minimizeButton->setGeometry(270, 16, 28, 28);
+        minimizeButton->setGeometry(262, 16, 28, 28);
 #endif
     }
 
@@ -128,13 +127,6 @@ void SettingsWindow::setDimmedBackground(bool dimmed)
 void SettingsWindow::onAnimValueChanged(const QVariant &value)
 {
     animValue_ = value.toInt();
-
-    QPixmap res(backgroundPixmap_.width(), backgroundPixmap_.height());
-    res.fill(Qt::transparent);
-    QPainter painter(&res);
-    painter.drawPixmap(0, 0, backgroundPixmap_);
-    painter.fillRect(0, 0, res.width(), res.height(), QColor(0, 0, 0, animValue_));
-    background_->setPixmap(res);
 }
 
 void SettingsWindow::onAnimFinished()
@@ -191,9 +183,9 @@ QLineEdit *SettingsWindow::addLineEdit(int top, const QString &text)
     lineedit->setStyleSheet("QLineEdit { background-color: transparent; color: #66FFFFFF; border: none; }");
     if (LanguageController::instance().isRtlLanguage()) {
         lineedit->setLayoutDirection(Qt::RightToLeft);
-        lineedit->setGeometry(54, top, 274, 16);
+        lineedit->setGeometry(54, top, 296, 16);
     } else {
-        lineedit->setGeometry(22, top, 274, 16);
+        lineedit->setGeometry(22, top, 296, 16);
     }
     return lineedit;
 }

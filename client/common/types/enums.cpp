@@ -116,34 +116,26 @@ QString ORDER_LOCATION_TYPE_toString(ORDER_LOCATION_TYPE p)
     }
 }
 
-LATENCY_DISPLAY_TYPE LATENCY_DISPLAY_TYPE_fromInt(int t)
-{
-    if (t == 0) return LATENCY_DISPLAY_BARS;
-    else if (t == 1) return LATENCY_DISPLAY_MS;
-    else {
-        WS_ASSERT(false);
-        return LATENCY_DISPLAY_BARS;
-    }
-}
-
-QString LATENCY_DISPLAY_TYPE_toString(LATENCY_DISPLAY_TYPE t)
-{
-    if (t == LATENCY_DISPLAY_BARS) return QObject::tr("Bars");
-    else if (t == LATENCY_DISPLAY_MS) return QObject::tr("ms");
-    else {
-        WS_ASSERT(false);
-        return QObject::tr("UNKNOWN");
-    }
-}
-
 BACKGROUND_TYPE BACKGROUND_TYPE_fromInt(int t)
 {
     if (t == 0) return BACKGROUND_TYPE_NONE;
     else if (t == 1) return BACKGROUND_TYPE_COUNTRY_FLAGS;
     else if (t == 2) return BACKGROUND_TYPE_CUSTOM;
+    else if (t == 3) return BACKGROUND_TYPE_BUNDLED;
     else {
         WS_ASSERT(false);
         return BACKGROUND_TYPE_NONE;
+    }
+}
+
+SOUND_NOTIFICATION_TYPE SOUND_NOTIFICATION_TYPE_fromInt(int t)
+{
+    if (t == 0) return SOUND_NOTIFICATION_TYPE_NONE;
+    else if (t == 1) return SOUND_NOTIFICATION_TYPE_BUNDLED;
+    else if (t == 2) return SOUND_NOTIFICATION_TYPE_CUSTOM;
+    else {
+        WS_ASSERT(false);
+        return SOUND_NOTIFICATION_TYPE_NONE;
     }
 }
 
@@ -361,14 +353,6 @@ QList<QPair<QString, QVariant>> ORDER_LOCATION_TYPE_toList()
     l << qMakePair(ORDER_LOCATION_TYPE_toString(ORDER_LOCATION_BY_LATENCY), ORDER_LOCATION_BY_LATENCY);
     return l;
 
-}
-
-QList<QPair<QString, QVariant>> LATENCY_DISPLAY_TYPE_toList()
-{
-    QList<QPair<QString, QVariant>> l;
-    l << qMakePair(LATENCY_DISPLAY_TYPE_toString(LATENCY_DISPLAY_BARS), LATENCY_DISPLAY_BARS);
-    l << qMakePair(LATENCY_DISPLAY_TYPE_toString(LATENCY_DISPLAY_MS), LATENCY_DISPLAY_MS);
-    return l;
 }
 
 UPDATE_CHANNEL UPDATE_CHANNEL_fromInt(int t)
@@ -696,5 +680,39 @@ QList<QPair<QString, QVariant>> MULTI_DESKTOP_BEHAVIOR_toList()
     l << qMakePair(MULTI_DESKTOP_BEHAVIOR_toString(MULTI_DESKTOP_DUPLICATE), MULTI_DESKTOP_DUPLICATE);
     l << qMakePair(MULTI_DESKTOP_BEHAVIOR_toString(MULTI_DESKTOP_MOVE_SPACES), MULTI_DESKTOP_MOVE_SPACES);
     l << qMakePair(MULTI_DESKTOP_BEHAVIOR_toString(MULTI_DESKTOP_MOVE_WINDOW), MULTI_DESKTOP_MOVE_WINDOW);
+    return l;
+}
+
+ASPECT_RATIO_MODE ASPECT_RATIO_MODE_fromInt(int t)
+{
+    if (t == 0) return ASPECT_RATIO_MODE_STRETCH;
+    else if (t == 1) return ASPECT_RATIO_MODE_FILL;
+    else if (t == 2) return ASPECT_RATIO_MODE_TILE;
+    else {
+        WS_ASSERT(false);
+        return ASPECT_RATIO_MODE_STRETCH;
+    }
+}
+
+QString ASPECT_RATIO_MODE_toString(ASPECT_RATIO_MODE t)
+{
+    if (t == ASPECT_RATIO_MODE_STRETCH) {
+        return QObject::tr("Stretch");
+    } else if (t == ASPECT_RATIO_MODE_FILL) {
+        return QObject::tr("Fill");
+    } else if (t == ASPECT_RATIO_MODE_TILE) {
+        return QObject::tr("Tile");
+    } else {
+        WS_ASSERT(false);
+        return QObject::tr("UNKNOWN");
+    }
+}
+
+QList<QPair<QString, QVariant>> ASPECT_RATIO_MODE_toList()
+{
+    QList<QPair<QString, QVariant>> l;
+    l << qMakePair(ASPECT_RATIO_MODE_toString(ASPECT_RATIO_MODE_STRETCH), ASPECT_RATIO_MODE_STRETCH);
+    l << qMakePair(ASPECT_RATIO_MODE_toString(ASPECT_RATIO_MODE_FILL), ASPECT_RATIO_MODE_FILL);
+    l << qMakePair(ASPECT_RATIO_MODE_toString(ASPECT_RATIO_MODE_TILE), ASPECT_RATIO_MODE_TILE);
     return l;
 }

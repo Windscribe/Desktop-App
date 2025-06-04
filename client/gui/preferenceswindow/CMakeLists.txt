@@ -45,18 +45,24 @@ target_sources(gui PRIVATE
     dnsdomainswindow/dnsdomainswindowitem.h
     editboxitem.cpp
     editboxitem.h
-    generalwindow/backgroundsettingsgroup.cpp
-    generalwindow/backgroundsettingsgroup.h
     generalwindow/generalwindowitem.cpp
     generalwindow/generalwindowitem.h
-    generalwindow/selectimageitem.cpp
-    generalwindow/selectimageitem.h
     generalwindow/versioninfoitem.cpp
     generalwindow/versioninfoitem.h
     helpwindow/helpwindowitem.cpp
     helpwindow/helpwindowitem.h
     linkitem.cpp
     linkitem.h
+    lookandfeelwindow/appbackgroundgroup.cpp
+    lookandfeelwindow/appbackgroundgroup.h
+    lookandfeelwindow/lookandfeelwindowitem.cpp
+    lookandfeelwindow/lookandfeelwindowitem.h
+    lookandfeelwindow/mixedcomboboxitem.cpp
+    lookandfeelwindow/mixedcomboboxitem.h
+    lookandfeelwindow/selectfileitem.cpp
+    lookandfeelwindow/selectfileitem.h
+    lookandfeelwindow/soundsgroup.cpp
+    lookandfeelwindow/soundsgroup.h
     networkoptionswindow/networklistgroup.cpp
     networkoptionswindow/networklistgroup.h
     networkoptionswindow/networkoptionsnetworkwindowitem.cpp

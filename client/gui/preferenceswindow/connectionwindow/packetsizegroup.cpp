@@ -150,4 +150,9 @@ void PacketSizeGroup::onLanguageChanged()
     editBoxItem_->setPrompt(tr("MTU"));
 }
 
+void PacketSizeGroup::setDescription(const QString &desc, const QString &descUrl)
+{
+    packetSizeModeItem_->setDescription(desc, descUrl);
+}
+
 } // namespace PreferencesWindow

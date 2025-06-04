@@ -1,13 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 48.1 (47250) - http://www.bohemiancoding.com/sketch -->
-    <title>ESC_BUTTON</title>
-    <desc>Created with Sketch.</desc>
-    <defs></defs>
-    <g id="Artboard-Copy-3" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-582.000000, -189.000000)">
-        <g id="ESC_BUTTON" transform="translate(582.000000, 189.000000)" fill="#FFFFFF" fill-rule="nonzero">
-            <path d="M12,22 C17.5228475,22 22,17.5228475 22,12 C22,6.4771525 17.5228475,2 12,2 C6.4771525,2 2,6.4771525 2,12 C2,17.5228475 6.4771525,22 12,22 Z M12,24 C5.372583,24 0,18.627417 0,12 C0,5.372583 5.372583,0 12,0 C18.627417,0 24,5.372583 24,12 C24,18.627417 18.627417,24 12,24 Z" id="Oval-11" opacity="0.25243433"></path>
-            <path d="M11.2928932,12 L7.64644661,8.35355339 L8.35355339,7.64644661 L12,11.2928932 L15.6464466,7.64644661 L16.3535534,8.35355339 L12.7071068,12 L16.3535534,15.6464466 L15.6464466,16.3535534 L12,12.7071068 L8.35355339,16.3535534 L7.64644661,15.6464466 L11.2928932,12 Z" id="Combined-Shape"></path>
-        </g>
-    </g>
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="32" height="32" rx="16" fill="#1E2937"/>
+<rect x="0.5" y="0.5" width="31" height="31" rx="15.5" stroke="white" stroke-opacity="0.05"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M11.5303 10.4697C11.2374 10.1768 10.7626 10.1768 10.4697 10.4697C10.1768 10.7626 10.1768 11.2374 10.4697 11.5303L14.9393 16L10.4697 20.4697C10.1768 20.7626 10.1768 21.2374 10.4697 21.5303C10.7626 21.8232 11.2374 21.8232 11.5303 21.5303L16 17.0607L20.4697 21.5303C20.7626 21.8232 21.2374 21.8232 21.5303 21.5303C21.8232 21.2374 21.8232 20.7626 21.5303 20.4697L17.0607 16L21.5303 11.5303C21.8232 11.2374 21.8232 10.7626 21.5303 10.4697C21.2374 10.1768 20.7626 10.1768 20.4697 10.4697L16 14.9393L11.5303 10.4697Z" fill="#FFF"/>
 </svg>

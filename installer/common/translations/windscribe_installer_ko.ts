@@ -21,10 +21,6 @@
         <source>Install</source>
         <translation>설치하다</translation>
     </message>
-    <message>
-        <source>%1%</source>
-        <translation>%1%</translation>
-    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -111,6 +107,13 @@
     <message>
         <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
         <translation>사용자 지정 설치 폴더가 비어 있지 않습니다. 보안을 위해 Windscribe는 빈 폴더에만 설치할 수 있습니다. 폴더에서 모든 파일을 삭제하고 다시 시도하십시오.</translation>
+    </message>
+</context>
+<context>
+    <name>ProgressDisplay</name>
+    <message>
+        <source>%1%</source>
+        <translation>%1%</translation>
     </message>
 </context>
 <context>

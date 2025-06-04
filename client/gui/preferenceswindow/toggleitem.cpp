@@ -1,13 +1,17 @@
 #include "toggleitem.h"
 
 #include <QCursor>
+#include <QDesktopServices>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsView>
 #include <QPainter>
+#include <QUrl>
 
+#include "utils/log/categories.h"
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "preferencesconst.h"
 #include "tooltips/tooltipcontroller.h"
 
@@ -15,12 +19,15 @@ namespace PreferencesWindow {
 
 ToggleItem::ToggleItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip)
   : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), strCaption_(caption), strTooltip_(tooltip),
-    captionFont_(12, true), icon_(nullptr), isCaptionElided_(false)
+    captionFont_(12, QFont::Bold), icon_(nullptr), isCaptionElided_(false)
 {
     checkBoxButton_ = new ToggleButton(this);
     connect(checkBoxButton_, &ToggleButton::stateChanged, this, &ToggleItem::stateChanged);
     connect(checkBoxButton_, &ToggleButton::hoverEnter, this, &ToggleItem::buttonHoverEnter);
     connect(checkBoxButton_, &ToggleButton::hoverLeave, this, &ToggleItem::buttonHoverLeave);
+
+    infoIcon_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/INFO_ICON", "", this, OPACITY_HALF);
+    connect(infoIcon_, &IconButton::clicked, this, &ToggleItem::onInfoIconClicked);
 
     setAcceptHoverEvents(true);
     updateScaling();
@@ -35,10 +42,10 @@ void ToggleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->setFont(font);
     painter->setPen(Qt::white);
 
-    qreal xOffset = PREFERENCES_MARGIN*G_SCALE;
+    qreal xOffset = PREFERENCES_MARGIN_X*G_SCALE;
     if (icon_) {
-        xOffset = (1.5*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE;
-        icon_->draw(PREFERENCES_MARGIN*G_SCALE, PREFERENCES_MARGIN*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
+        xOffset = (2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE;
+        icon_->draw(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
     }
 
     QFontMetrics fm(font);
@@ -56,23 +63,36 @@ void ToggleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     // Store the caption rectangle for mouse hover detection
     captionRect_ = QRectF(
         xOffset,
-        PREFERENCES_MARGIN*G_SCALE,
+        PREFERENCES_ITEM_Y*G_SCALE,
         fm.horizontalAdvance(elidedText),
         fm.height()
     );
 
     painter->drawText(boundingRect().adjusted(xOffset,
-                                              PREFERENCES_MARGIN*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE),
+                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              -PREFERENCES_MARGIN_X*G_SCALE,
+                                              -PREFERENCES_MARGIN_Y*G_SCALE),
                       Qt::AlignLeft,
                       elidedText);
+
+    // If there's a description draw it
+    if (!desc_.isEmpty()) {
+        QFont font = FontManager::instance().getFont(10, QFont::Normal);
+        painter->setFont(font);
+        painter->setPen(Qt::white);
+        painter->setOpacity(OPACITY_HALF);
+        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
+                                                  boundingRect().height() - PREFERENCES_MARGIN_Y*G_SCALE - descHeight_,
+                                                  -descRightMargin_,
+                                                  0), Qt::AlignLeft | Qt::TextWordWrap, desc_);
+    }
 }
 
 void ToggleItem::setEnabled(bool enabled)
 {
     BaseItem::setEnabled(enabled);
     checkBoxButton_->setEnabled(enabled);
+    infoIcon_->setEnabled(true);
 }
 
 void ToggleItem::setState(bool isChecked)
@@ -93,9 +113,9 @@ QPointF ToggleItem::getButtonScenePos() const
 void ToggleItem::updateScaling()
 {
     BaseItem::updateScaling();
-    setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
-    checkBoxButton_->setPos(boundingRect().width() - checkBoxButton_->boundingRect().width() - PREFERENCES_MARGIN*G_SCALE,
+    checkBoxButton_->setPos(boundingRect().width() - checkBoxButton_->boundingRect().width() - PREFERENCES_MARGIN_X*G_SCALE,
                             CHECKBOX_MARGIN_Y*G_SCALE);
+    updatePositions();
 }
 
 void ToggleItem::setIcon(QSharedPointer<IndependentPixmap> icon)
@@ -139,6 +159,48 @@ void ToggleItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     TooltipController::instance().hideTooltip(TOOLTIP_ID_ELIDED_TEXT);
     BaseItem::hoverLeaveEvent(event);
+}
+
+void ToggleItem::setDescription(const QString &description, const QString &url)
+{
+    desc_ = description;
+    descUrl_ = url;
+    updatePositions();
+}
+
+void ToggleItem::updatePositions()
+{
+    if (desc_.isEmpty()) {
+        setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
+        infoIcon_->setVisible(false);
+        return;
+    }
+
+    descRightMargin_ = PREFERENCES_MARGIN_X*G_SCALE;
+    if (!descUrl_.isEmpty()) {
+        descRightMargin_ += PREFERENCES_MARGIN_X*G_SCALE + ICON_WIDTH*G_SCALE;
+    }
+
+    QFontMetrics fm(FontManager::instance().getFont(10, QFont::Normal));
+    descHeight_ = fm.boundingRect(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, 0, -descRightMargin_, 0).toRect(),
+                                  Qt::AlignLeft | Qt::TextWordWrap,
+                                  desc_).height();
+
+    if (descUrl_.isEmpty()) {
+        infoIcon_->setVisible(false);
+    } else {
+        infoIcon_->setVisible(true);
+        infoIcon_->setPos(boundingRect().width() + PREFERENCES_MARGIN_X*G_SCALE - descRightMargin_,
+                          boundingRect().height() - PREFERENCES_MARGIN_Y*G_SCALE - descHeight_/2 - ICON_HEIGHT*G_SCALE/2);
+    }
+
+    setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE + descHeight_ + DESCRIPTION_MARGIN*G_SCALE);
+    update();
+}
+
+void ToggleItem::onInfoIconClicked()
+{
+    QDesktopServices::openUrl(QUrl(descUrl_));
 }
 
 } // namespace PreferencesWindow

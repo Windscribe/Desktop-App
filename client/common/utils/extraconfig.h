@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QJsonObject>
 #include <QMutex>
 #include <QRegularExpression>
 #include <QString>
@@ -21,7 +22,7 @@ public:
     }
 
     void logExtraConfig();
-    void writeConfig(const QString &cfg);
+    void writeConfig(const QString &cfg, bool bWithLog = true);
 
     QString getExtraConfig(bool bWithLog = false);
     QString getExtraConfigForOpenVpn();
@@ -67,6 +68,9 @@ public:
     bool useOpenVpnDCO();
     bool usePublicNetworkCategory();
 
+    void fromJson(const QJsonObject &json);
+    QJsonObject toJson();
+
 private:
     ExtraConfig();
 
@@ -74,6 +78,8 @@ private:
     QString path_;
     QRegularExpression regExp_;
     QString detectedIp_;
+
+    static const inline QString kJsonFileContentsProp = "fileContents";
 
     int getIntFromExtraConfigLines(const QString &variableName, bool &success);
     bool getFlagFromExtraConfigLines(const QString &flagName);

@@ -70,8 +70,8 @@
         <translation>يحظر كل الاتصال في حالة انقطاع الاتصال المفاجئ</translation>
     </message>
     <message>
-        <source>Connect to rate</source>
-        <translation>الاتصال بالسعر</translation>
+        <source>FIREWALL</source>
+        <translation>جدار حمايه</translation>
     </message>
 </context>
 <context>
@@ -82,10 +82,26 @@
     </message>
 </context>
 <context>
-    <name>ConnectWindow::MiddleItem</name>
+    <name>ConnectWindow::LocationsMenu</name>
     <message>
-        <source>Firewall</source>
-        <translation>جدار حمايه</translation>
+        <source>All</source>
+        <translation>كل</translation>
+    </message>
+    <message>
+        <source>Configured</source>
+        <translation>تكوين</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>عناوين IP ثابتة</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>المفضلة</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>بحث</translation>
     </message>
 </context>
 <context>
@@ -224,26 +240,6 @@
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
-        <source>All</source>
-        <translation>كل</translation>
-    </message>
-    <message>
-        <source>Configured</source>
-        <translation>تكوين</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>عناوين IP ثابتة</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>المفضلة</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation>بحث</translation>
-    </message>
-    <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
         <translation>اختر الدليل الذي يحتوي على تكوينات مخصصة ترغب في عرضها هنا</translation>
     </message>
@@ -275,6 +271,10 @@
         <source>Buy</source>
         <translation>ابتاع</translation>
     </message>
+    <message>
+        <source>All locations (%1)</source>
+        <translation>جميع المواقع (٪1)</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -290,7 +290,7 @@
         <translation>التفاف</translation>
     </message>
     <message>
-        <source>Color highlighting</source>
+        <source>Colour highlighting</source>
         <translation>تسليط الضوء على اللون</translation>
     </message>
     <message>
@@ -403,10 +403,6 @@
 </context>
 <context>
     <name>LoginWindow::WelcomeWindowItem</name>
-    <message>
-        <source>Keep Your Secrets.</source>
-        <translation>حافظ على أسرارك.</translation>
-    </message>
     <message>
         <source>Emergency Connect</source>
         <translation>اتصال الطوارئ</translation>
@@ -886,6 +882,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
         <translation>تعذر بدء تشغيل خدمة DNS المخصصة - المنفذ 53 قيد الاستخدام بالفعل.  هل ترغب في تغيير DNS المتصل إلى الخادم المحلي؟</translation>
     </message>
+    <message>
+        <source>Slide to complete the puzzle</source>
+        <translation>انزلق لإكمال اللغز</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -997,16 +997,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>حساب</translation>
     </message>
     <message>
-        <source>INFO</source>
-        <translation>معلومات</translation>
-    </message>
-    <message>
         <source>Username</source>
         <translation>اسم المستخدم</translation>
-    </message>
-    <message>
-        <source>PLAN</source>
-        <translation>خطة</translation>
     </message>
     <message>
         <source>Reset Date</source>
@@ -1023,6 +1015,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Expiry Date</source>
         <translation>تاريخ انتهاء الصلاحية</translation>
+    </message>
+    <message>
+        <source>ACCOUNT INFO</source>
+        <translation>معلومات الحساب</translation>
+    </message>
+    <message>
+        <source>PLAN INFO</source>
+        <translation>معلومات الخطة</translation>
+    </message>
+    <message>
+        <source>UPGRADE &gt;</source>
+        <translation>ترقية &gt;</translation>
     </message>
 </context>
 <context>
@@ -1124,18 +1128,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::BackgroundSettingsGroup</name>
+    <name>PreferencesWindow::AppBackgroundGroup</name>
     <message>
-        <source>Disconnected</source>
-        <translation>قطع اتصال</translation>
+        <source>App Background</source>
+        <translation>خلفية التطبيق</translation>
     </message>
     <message>
-        <source>Connected</source>
-        <translation>متصل</translation>
+        <source>Aspect Ratio Mode</source>
+        <translation>وضع نسبة العرض إلى الارتفاع</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>عند قطع الاتصال</translation>
     </message>
     <message>
         <source>Flags</source>
-        <translation>أعلام الدول</translation>
+        <translation>الاعلام</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>المجمعه</translation>
     </message>
     <message>
         <source>None</source>
@@ -1146,8 +1158,32 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>تقليد</translation>
     </message>
     <message>
-        <source>App Background</source>
-        <translation>خلفية التطبيق</translation>
+        <source>When Connected</source>
+        <translation>عند الاتصال</translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation>حدد صورة</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>مربع</translation>
+    </message>
+    <message>
+        <source>Palm</source>
+        <translation>النخيل</translation>
+    </message>
+    <message>
+        <source>Drip</source>
+        <translation>تقطر</translation>
+    </message>
+    <message>
+        <source>Snow</source>
+        <translation>ثلج</translation>
+    </message>
+    <message>
+        <source>Ripple</source>
+        <translation>موج</translation>
     </message>
 </context>
 <context>
@@ -1236,7 +1272,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>الاتصال التلقائي</translation>
     </message>
     <message>
-        <source>Control the mode of behavior of the Windscribe firewall.</source>
+        <source>Control the mode of behaviour of the Windscribe firewall.</source>
         <translation>تحكم في وضع سلوك جدار الحماية Windscribe.</translation>
     </message>
     <message>
@@ -1482,32 +1518,12 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>ترتيب الموقع</translation>
     </message>
     <message>
-        <source>Display latency as signal strength bars or in milliseconds.</source>
-        <translation>اعرض زمن الوصول كأشرطة قوة إشارة أو بالمللي ثانية.</translation>
-    </message>
-    <message>
-        <source>Latency Display</source>
-        <translation>عرض زمن الوصول</translation>
-    </message>
-    <message>
         <source>Localize Windscribe to supported languages.</source>
         <translation>ترجمة Windscribe إلى اللغات المدعومة.</translation>
     </message>
     <message>
         <source>Language</source>
         <translation>اللغة</translation>
-    </message>
-    <message>
-        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>اختر بين واجهة المستخدم الرسومية الكلاسيكية أو واجهة المستخدم الرسومية البديلة &quot;بدون أذن&quot;.</translation>
-    </message>
-    <message>
-        <source>App Skin</source>
-        <translation>مظهر التطبيق</translation>
-    </message>
-    <message>
-        <source>Customize the background of the main app screen.</source>
-        <translation>تخصيص خلفية شاشة التطبيق الرئيسية.</translation>
     </message>
     <message>
         <source>Choose to receive stable, beta, or experimental builds.</source>
@@ -1530,7 +1546,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>اختر بين أيقونة الدرج الأبيض والأسود.</translation>
     </message>
     <message>
-        <source>Tray Icon Color</source>
+        <source>Tray Icon Colour</source>
         <translation>لون أيقونة الدرج</translation>
     </message>
     <message>
@@ -1538,28 +1554,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>سطح مكتب متعدد</translation>
     </message>
     <message>
-        <source>Select behavior when window is activated with multiple desktops.</source>
+        <source>Select behaviour when window is activated with multiple desktops.</source>
         <translation>حدد السلوك عند تنشيط النافذة مع أجهزة سطح مكتب متعددة.</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>تصدير</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>استورد</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>اعاده تعيين</translation>
-    </message>
-    <message>
-        <source>Change location names to your liking.</source>
-        <translation>قم بتغيير أسماء المواقع حسب رغبتك.</translation>
-    </message>
-    <message>
-        <source>Rename Locations</source>
-        <translation>إعادة تسمية المواقع</translation>
     </message>
 </context>
 <context>
@@ -1619,6 +1615,49 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
         <translation>هل لديك مشكلة لا يستطيع غاري حلها؟ اتصل بالدعم البشري.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::LookAndFeelWindowItem</name>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>الشكل والمظهر</translation>
+    </message>
+    <message>
+        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
+        <translation>اختر بين واجهة المستخدم الرسومية الكلاسيكية أو واجهة المستخدم الرسومية البديلة &quot;بدون أذن&quot;.</translation>
+    </message>
+    <message>
+        <source>App Skin</source>
+        <translation>مظهر التطبيق</translation>
+    </message>
+    <message>
+        <source>Customize the background of the main app screen.</source>
+        <translation>تخصيص خلفية شاشة التطبيق الرئيسية.</translation>
+    </message>
+    <message>
+        <source>Choose sounds to play when connection events occur.</source>
+        <translation>اختر الأصوات التي تريد تشغيلها عند حدوث أحداث الاتصال.</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>قم بتغيير أسماء المواقع حسب رغبتك.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>إعادة تسمية المواقع</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>تصدير</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>استورد</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>اعاده تعيين</translation>
     </message>
 </context>
 <context>
@@ -1761,20 +1800,12 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::PlanItem</name>
     <message>
-        <source>Unlimited Data</source>
-        <translation>بيانات غير محدودة</translation>
+        <source>Free</source>
+        <translation>خال</translation>
     </message>
     <message>
-        <source>%1/Month</source>
-        <translation>%1/شهر</translation>
-    </message>
-    <message>
-        <source>Pro</source>
-        <translation>برو</translation>
-    </message>
-    <message>
-        <source>Upgrade</source>
-        <translation>ترقيه</translation>
+        <source>Plan Type</source>
+        <translation>نوع الخطة</translation>
     </message>
 </context>
 <context>
@@ -1818,6 +1849,10 @@ Connect to a network first</source>
     <message>
         <source>Quit</source>
         <translation>انهاء</translation>
+    </message>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>الشكل والمظهر</translation>
     </message>
 </context>
 <context>
@@ -2012,14 +2047,41 @@ Connect to a network first</source>
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::SelectImageItem</name>
+    <name>PreferencesWindow::SelectFileItem</name>
     <message>
         <source>[no selection]</source>
-        <translation>[بدون اختيار]</translation>
+        <translation>[لا يوجد اختيار]</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::SoundsGroup</name>
+    <message>
+        <source>Sound Notifications</source>
+        <translation>الإشعارات الصوتية</translation>
     </message>
     <message>
-        <source>Select an image</source>
-        <translation>اختر صورة</translation>
+        <source>None</source>
+        <translation>اي</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>عند قطع الاتصال</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>المجمعه</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>تقليد</translation>
+    </message>
+    <message>
+        <source>Select a sound</source>
+        <translation>حدد صوتا</translation>
+    </message>
+    <message>
+        <source>When Connected</source>
+        <translation>عند الاتصال</translation>
     </message>
 </context>
 <context>
@@ -2100,14 +2162,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 إذا لم تساعد إعادة التثبيت، فيرجى الاتصال بدعم Windscribe للحصول على المساعدة.</translation>
     </message>
     <message>
-        <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
-        <translation>لن تمر التطبيقات وعناوين IP وأسماء المضيفين المحددة عبر Windscribe عند الاتصال.</translation>
-    </message>
-    <message>
-        <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
-        <translation>فقط التطبيقات المحددة وعناوين IP وأسماء المضيفين ستمر عبر Windscribe عند الاتصال.</translation>
-    </message>
-    <message>
         <source>Split Tunneling</source>
         <translation>الانقسام النفقي</translation>
     </message>
@@ -2130,6 +2184,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>IPs &amp; Hostnames</source>
         <translation>عناوين IP وأسماء المضيفين</translation>
+    </message>
+    <message>
+        <source>When enabled, selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
+        <translation>عند التمكين، لن تمر التطبيقات وعناوين IP وأسماء المضيفين المحددة عبر Windscribe عند الاتصال.</translation>
+    </message>
+    <message>
+        <source>When enabled, only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
+        <translation>عند التمكين، ستنتقل التطبيقات وعناوين IP وأسماء المضيفين المحددة فقط عبر Windscribe عند الاتصال.</translation>
     </message>
 </context>
 <context>
@@ -2230,14 +2292,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Latency</source>
         <translation>كمون</translation>
-    </message>
-    <message>
-        <source>Bars</source>
-        <translation>البارات</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>السيدة</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2408,12 +2462,16 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>DNS المحلي</translation>
     </message>
     <message>
-        <source>Latency test pending</source>
-        <translation>اختبار زمن الانتقال معلق</translation>
+        <source>Stretch</source>
+        <translation>مد</translation>
     </message>
     <message>
-        <source>Latency test failed</source>
-        <translation>فشل اختبار زمن الوصول</translation>
+        <source>Fill</source>
+        <translation>ملء</translation>
+    </message>
+    <message>
+        <source>Tile</source>
+        <translation>بلاط</translation>
     </message>
     <message>
         <source>Always On+</source>
@@ -2490,7 +2548,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>v</translation>
     </message>
     <message>
-        <source>UPDATE</source>
+        <source>Update</source>
         <translation>تحديث</translation>
     </message>
 </context>
@@ -2526,49 +2584,60 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
 </context>
 <context>
+    <name>UpgradeBanner</name>
+    <message>
+        <source>Unlock full access to Windscribe</source>
+        <translation>افتح الوصول الكامل إلى Windscribe</translation>
+    </message>
+    <message>
+        <source>Go Pro for unlimited everything</source>
+        <translation>Go Pro لكل شيء غير محدود</translation>
+    </message>
+</context>
+<context>
     <name>UpgradeWidget::UpgradeWidgetItem</name>
     <message>
-        <source>GET MORE DATA</source>
-        <translation>الحصول على مزيد من البيانات</translation>
+        <source>Get more data</source>
+        <translation>الحصول على المزيد من البيانات</translation>
     </message>
     <message>
-        <source>EXT CONFIG MODE</source>
-        <translation>وضع التكوين EXT</translation>
+        <source>%1 left</source>
+        <translation>٪1 متبقي</translation>
     </message>
     <message>
-        <source>0 DAYS LEFT</source>
-        <translation>0 يوم متبقي</translation>
+        <source>0 days left</source>
+        <translation>0 أيام متبقية</translation>
     </message>
     <message>
-        <source>1 DAY LEFT</source>
+        <source>1 day left</source>
         <translation>1 يوم متبقي</translation>
     </message>
     <message>
-        <source>2 DAYS LEFT</source>
+        <source>2 days left</source>
         <translation>2 أيام متبقية</translation>
     </message>
     <message>
-        <source>3 DAYS LEFT</source>
+        <source>3 days left</source>
         <translation>3 أيام متبقية</translation>
     </message>
     <message>
-        <source>4 DAYS LEFT</source>
-        <translation>4 ايام متبقية</translation>
+        <source>4 days left</source>
+        <translation>4 أيام متبقية</translation>
     </message>
     <message>
-        <source>5 DAYS LEFT</source>
+        <source>5 days left</source>
         <translation>5 أيام متبقية</translation>
     </message>
     <message>
-        <source>%1 DAYS LEFT</source>
-        <translation>%1 أيام متبقية</translation>
+        <source>%1 days left</source>
+        <translation>٪1 أيام متبقية</translation>
     </message>
     <message>
-        <source>LOGIN</source>
+        <source>Login</source>
         <translation>تسجيل الدخول</translation>
     </message>
     <message>
-        <source>RENEW</source>
+        <source>Renew</source>
         <translation>جدد</translation>
     </message>
 </context>

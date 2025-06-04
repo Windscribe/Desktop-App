@@ -24,7 +24,6 @@ public:
     void setItemDelegate(IItemDelegate *itemDelegateExpandableItem, IItemDelegate *itemDelegateNonExpandableItem);
     void setItemHeight(int height);
 
-    void setShowLatencyInMs(bool isShowLatencyInMs);
     void setShowLocationLoad(bool isShowLocationLoad);
 
     void selectFirstItemIfNoSelected();
@@ -38,6 +37,7 @@ public:
     void collapseAll();
 
     bool isEmptyList() const { return isEmptyList_; }
+    int count() const;
     void doActionOnSelectedItem();
 
     void updateScaling();
@@ -93,6 +93,10 @@ private:
     bool isAnimationJustStarted_ = false;
 
     QSet<int> hoveringToolTips_;
+
+    bool isPremium_;
+    qint64 bytesUsed_;
+    qint64 bytesMax_;
 
     struct ItemRect {
         QPersistentModelIndex modelIndex;

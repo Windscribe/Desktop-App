@@ -42,6 +42,9 @@ public:
     types::BackgroundSettings backgroundSettings() const;
     void setBackgroundSettings(const types::BackgroundSettings &backgroundSettings);
 
+    types::SoundSettings soundSettings() const;
+    void setSoundSettings(const types::SoundSettings &soundSettings);
+
     bool isDockedToTray() const;
     void setDockedToTray(bool b);
 
@@ -50,9 +53,6 @@ public:
 
     ORDER_LOCATION_TYPE locationOrder() const;
     void setLocationOrder(ORDER_LOCATION_TYPE o);
-
-    LATENCY_DISPLAY_TYPE latencyDisplay() const;
-    void setLatencyDisplay(LATENCY_DISPLAY_TYPE l);
 
     UPDATE_CHANNEL updateChannel() const;
     void setUpdateChannel(UPDATE_CHANNEL c);
@@ -179,12 +179,12 @@ signals:
     void isAllowLanTrafficChanged(bool b);
     void isShowNotificationsChanged(bool b);
     void backgroundSettingsChanged(const types::BackgroundSettings &backgroundSettings);
+    void soundSettingsChanged(const types::SoundSettings &soundSettings);
 
     void isStartMinimizedChanged(bool b);
     void isDockedToTrayChanged(bool b);
     void languageChanged(const QString &lang);
     void locationOrderChanged(ORDER_LOCATION_TYPE o);
-    void latencyDisplayChanged(LATENCY_DISPLAY_TYPE l);
     void updateChannelChanged(UPDATE_CHANNEL c);
     void proxySettingsChanged(const types::ProxySettings &ps);
     void firewallSettingsChanged(const types::FirewallSettings &fs);
@@ -240,6 +240,7 @@ private:
     static const inline QString kJsonEngineSettingsProp = "engineSettings";
     static const inline QString kJsonGuiSettingsProp = "guiSettings";
     static const inline QString kJsonPersistentStateProp = "persistentState";
+    static const inline QString kJsonAdvancedParamsProp = "advancedParameters";
 
     // for serialization
     static constexpr quint32 magic_ = 0x7715C211;

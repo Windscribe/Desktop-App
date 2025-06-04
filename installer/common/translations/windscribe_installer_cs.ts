@@ -21,10 +21,6 @@
         <source>Install</source>
         <translation>Nainstalovat</translation>
     </message>
-    <message>
-        <source>%1%</source>
-        <translation>%1%</translation>
-    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -111,6 +107,13 @@
     <message>
         <source>The custom installation folder is not empty. As a security precaution, Windscribe can only be installed to an empty folder. Please delete all files from the folder and try again.</source>
         <translation>Složka vlastní instalace není prázdná. Z bezpečnostních důvodů lze Windscribe nainstalovat pouze do prázdné složky. Odstraňte prosím všechny soubory ze složky a zkuste to znovu.</translation>
+    </message>
+</context>
+<context>
+    <name>ProgressDisplay</name>
+    <message>
+        <source>%1%</source>
+        <translation>%1%</translation>
     </message>
 </context>
 <context>

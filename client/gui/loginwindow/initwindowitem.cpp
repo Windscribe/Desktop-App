@@ -52,19 +52,15 @@ void InitWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
 
     // background
     QColor black = FontManager::instance().getMidnightColor();
-#ifdef Q_OS_WIN
-    painter->fillRect(croppedRect, black);
-#else
     painter->setPen(black);
     painter->setBrush(black);
-    painter->drawRoundedRect(croppedRect.adjusted(0,0,0,0), 5*G_SCALE, 5*G_SCALE);
-#endif
+    painter->drawRoundedRect(croppedRect, 9*G_SCALE, 9*G_SCALE);
 
     // additional message
     if (!msg_.isEmpty())
     {
         const int kFontSize = isgMsgSmallFont_ ? MSG_SMALL_FONT : MSG_LARGE_FONT;
-        painter->setFont(FontManager::instance().getFont(kFontSize, false, 105));
+        painter->setFont(FontManager::instance().getFont(kFontSize, QFont::Normal, 105));
         //painter->setPen(FontManager::instance().getMidnightColor());
         painter->setPen(Qt::white);
         int textPosY = (LOGO_POS_CENTER + 55)*G_SCALE;

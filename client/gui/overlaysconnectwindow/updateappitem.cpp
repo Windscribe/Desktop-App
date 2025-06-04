@@ -1,5 +1,6 @@
 #include "updateappitem.h"
 
+#include <QFontMetrics>
 #include <QPainter>
 #include "commongraphics/commongraphics.h"
 #include "graphicresources/fontmanager.h"
@@ -13,8 +14,9 @@ UpdateAppItem::UpdateAppItem(Preferences *preferences, QGraphicsObject *parent) 
     preferences_(preferences), mode_(UPDATE_APP_ITEM_MODE_PROMPT), curVersionText_(""), curBackgroundOpacity_(OPACITY_FULL), curVersionOpacity_(OPACITY_FULL),
     curProgressBackgroundOpacity_(OPACITY_HIDDEN), curProgressForegroundOpacity_(OPACITY_HIDDEN), curProgressBarPos_(0)
 {
-    updateButton_ = new CommonGraphics::TextButton("", FontDescr(11, true, 105), Qt::white, true, this, 15);
-    connect(updateButton_, &CommonGraphics::TextButton::clicked, this, &UpdateAppItem::onUpdateClick);
+    updateButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kBanner, 15, HEIGHT-2, HEIGHT/2);
+    updateButton_->setFont(FontDescr(12, QFont::Medium));
+    connect(updateButton_, &CommonGraphics::BubbleButton::clicked, this, &UpdateAppItem::onUpdateClick);
 
     updateButton_->animateShow(ANIMATION_SPEED_FAST);
 
@@ -75,17 +77,17 @@ void UpdateAppItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
 
     // version text
     painter->save();
-    QFont font = FontManager::instance().getFont(11,true, 105);
+    QFont font = FontManager::instance().getFont(11,QFont::Bold, 105);
     QFontMetrics fm(font);
     painter->translate(0, VERSION_TEXT_HEIGHT*G_SCALE);
-    painter->setPen(FontManager::instance().getBrightYellowColor());
+    painter->setPen(Qt::white);
     painter->setFont(font);
     painter->setOpacity(curVersionOpacity_ * initOpacity);
     painter->drawText(25*G_SCALE, (HEIGHT*G_SCALE - fm.height() - fm.ascent() / 2) - (G_SCALE+0.5), curVersionText_);
     painter->restore();
 
     painter->save();
-    painter->setBrush(FontManager::instance().getBrightYellowColor());
+    painter->setBrush(Qt::white);
 
     int xRadius = 6;
     int yRadius = 100;
@@ -211,11 +213,10 @@ void UpdateAppItem::onUpdateClick()
 
 void UpdateAppItem::onLanguageChanged()
 {
-    updateButton_->setText(tr("UPDATE"));
-    updateButton_->recalcBoundingRect();
+    updateButton_->setText(tr("Update"));
     int width = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? WIDTH_VAN_GOGH*G_SCALE : WIDTH*G_SCALE;
-    int updatePosX = width - updateButton_->boundingRect().width() - 15;
-    updateButton_->setPos(updatePosX, 0);
+    int updatePosX = width - updateButton_->boundingRect().width();
+    updateButton_->setPos(updatePosX, 1*G_SCALE);
     update();
 }
 
@@ -239,8 +240,11 @@ void UpdateAppItem::animateTransitionToVersion()
 
 void UpdateAppItem::updatePositions()
 {
-    updateButton_->recalcBoundingRect();
     int width = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? WIDTH_VAN_GOGH : WIDTH;
+
+    QFontMetrics fm(FontManager::instance().getFont(12, QFont::Normal));
+    updateButton_->setWidth(fm.horizontalAdvance(tr("Update")) + 16*G_SCALE);
+
     int updatePosX = width*G_SCALE - updateButton_->boundingRect().width();
     int updatePosY = (HEIGHT*G_SCALE - updateButton_->boundingRect().height()) / 2;
     updateButton_->setPos(updatePosX, updatePosY);

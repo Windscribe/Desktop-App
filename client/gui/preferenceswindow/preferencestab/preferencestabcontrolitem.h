@@ -3,7 +3,6 @@
 #include <QGraphicsObject>
 #include <QTimer>
 #include "backend/preferences/preferenceshelper.h"
-#include "commongraphics/dividerline.h"
 #include "commongraphics/iconbutton.h"
 #include "preferencestabtypes.h"
 #include "tabbutton.h"
@@ -47,10 +46,10 @@ private:
     TabButton *accountButton_;
     TabButton *connectionButton_;
     TabButton *robertButton_;
+    TabButton *lookAndFeelButton_;
     TabButton *advancedButton_;
     TabButton *helpButton_;
     TabButton *aboutButton_;
-    CommonGraphics::DividerLine *dividerLine_;
     TabButton *logoutButton_;
     TabButton *quitButton_;
     QList<TabButton *> buttonList_;

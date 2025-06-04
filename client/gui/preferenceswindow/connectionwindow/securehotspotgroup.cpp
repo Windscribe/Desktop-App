@@ -6,6 +6,7 @@
 #include "generalmessagecontroller.h"
 #include "languagecontroller.h"
 #include "dpiscalemanager.h"
+#include "utils/hardcodedsettings.h"
 
 extern QWidget *g_mainWindow;
 
@@ -97,16 +98,20 @@ void SecureHotspotGroup::updateDescription()
     switch(supported_)
     {
         case HOTSPOT_NOT_SUPPORTED:
-            setDescription(tr("Secure hotspot is not supported by your network adapter."));
+            checkBoxEnable_->setDescription(tr("Secure hotspot is not supported by your network adapter."),
+                                            QString("https://%1/features/secure-hotspot").arg(HardcodedSettings::instance().windscribeServerUrl()));
             break;
         case HOTSPOT_NOT_SUPPORTED_BY_IKEV2:
-            setDescription(tr("Secure hotspot is not supported for IKEv2 protocol."));
+            checkBoxEnable_->setDescription(tr("Secure hotspot is not supported for IKEv2 protocol."),
+                                            QString("https://%1/features/secure-hotspot").arg(HardcodedSettings::instance().windscribeServerUrl()));
             break;
         case HOTSPOT_SUPPORTED:
-            setDescription(tr("Share your secure Windscribe connection wirelessly."));
+            checkBoxEnable_->setDescription(tr("Share your secure Windscribe connection wirelessly."),
+                                            QString("https://%1/features/secure-hotspot").arg(HardcodedSettings::instance().windscribeServerUrl()));
             break;
         case HOTSPOT_NOT_SUPPORTED_BY_INCLUSIVE_SPLIT_TUNNELING:
-            setDescription(tr("To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode."));
+            checkBoxEnable_->setDescription(tr("To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode."),
+                                            QString("https://%1/features/secure-hotspot").arg(HardcodedSettings::instance().windscribeServerUrl()));
             break;
     }
 }

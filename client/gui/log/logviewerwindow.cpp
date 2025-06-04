@@ -40,7 +40,7 @@ LogViewerWindow::LogViewerWindow(QWidget *parent)
     connect(cbWordWrap_, &QCheckBox::toggled, this, &LogViewerWindow::onWordWrapToggled);
 
     cbColorHighlighting_ = new QCheckBox(this);
-    cbColorHighlighting_->setText(tr("Color highlighting"));
+    cbColorHighlighting_->setText(tr("Colour highlighting"));
     cbColorHighlighting_->setChecked(isColorHighlighting_);
     connect(cbColorHighlighting_, &QCheckBox::toggled, this, &LogViewerWindow::updateColorHighlighting);
 
@@ -114,7 +114,7 @@ void LogViewerWindow::onExportClick()
 
 void LogViewerWindow::updateScaling()
 {
-    textEdit_->setFont(FontManager::instance().getFontWithCustomScale(currentScale(), 12, false));
+    textEdit_->setFont(FontManager::instance().getFontWithCustomScale(currentScale(), 12, QFont::Normal));
 }
 
 void LogViewerWindow::highlightBlocks()

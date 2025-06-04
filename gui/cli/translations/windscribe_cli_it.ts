@@ -243,7 +243,7 @@
         <translation>Preferenze ricaricate.</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
+        <source>Key limit behaviour is set.</source>
         <translation>Il comportamento del limite dei tasti è impostato.</translation>
     </message>
     <message>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>(Nome dispositivo: %1)</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>La connettività Internet non è disponibile.  Riprova più tardi.</translation>
     </message>
 </context>
 </TS>

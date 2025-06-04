@@ -1,4 +1,6 @@
 target_sources(common PRIVATE
+    authtoken.cpp
+    authtoken.h
     checkupdate.cpp
     checkupdate.h
     debuglog.cpp

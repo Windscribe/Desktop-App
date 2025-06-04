@@ -4,6 +4,7 @@
 #include <QVariantAnimation>
 
 #include "commongraphics/baseitem.h"
+#include "commongraphics/imageitem.h"
 #include "graphicresources/independentpixmap.h"
 #include "messageitem.h"
 #include "api_responses/notification.h"
@@ -34,6 +35,7 @@ public:
 signals:
     void messageRead(qint64 id);
     void scrollToItem(EntryItem *item);
+    void heightChanged(int height);
 
 private slots:
     void onExpandRotationAnimationValueChanged(const QVariant &value);
@@ -56,16 +58,17 @@ private:
     double expandAnimationProgress_;
     double opacityAnimationProgress_;
     double textOpacity_;
-    double plusIconOpacity_;
+    double iconOpacity_;
     QVariantAnimation expandAnimation_;
     QVariantAnimation opacityAnimation_;
     bool read_;
     int titleHeight_;
     int expandedHeight_;
     MessageItem *messageItem_;
-    QSharedPointer<IndependentPixmap> icon_;
+    ImageItem *icon_;
 
     void updatePositions();
+    void setIconRotation(qreal rotation);
 };
 
 }

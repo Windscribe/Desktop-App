@@ -41,9 +41,6 @@ private slots:
     void onAnimFinished();
 
 private:
-    QLabel *background_;
-    QPixmap backgroundPixmap_;
-
     QVariantAnimation anim_;
     int animValue_;
 

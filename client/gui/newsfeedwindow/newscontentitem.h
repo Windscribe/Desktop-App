@@ -2,8 +2,9 @@
 
 #include <QSet>
 
-#include "entryitem.h"
 #include "commongraphics/basepage.h"
+#include "entryitem.h"
+#include "newsentrycontainer.h"
 
 namespace NewsFeedWindow {
 
@@ -20,20 +21,15 @@ public:
                                         int overrideCurrentMessageId);
     void updateRead();
 
-public slots:
-    void onScrollToItem(NewsFeedWindow::EntryItem *item);
-
 signals:
     void messageRead(qint64 id);
+    void scrollToPosition(int position);
 
 private:
     static constexpr int SPACER_HEIGHT = 16;
     static constexpr int INDENT = 16;
 
-    void setMessagesInternal(const QVector<api_responses::Notification> &arr,
-                             const QSet<qint64> &shownIds,
-                             int id);
-    void scrollToItem(EntryItem *item, bool expanded = false);
+    NewsEntryContainer *container_;
 
     int width_;
 };

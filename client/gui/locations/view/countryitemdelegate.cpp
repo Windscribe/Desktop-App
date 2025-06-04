@@ -32,135 +32,105 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     painter->save();
 
     // background
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->setOpacity(OPACITY_FULL);
     painter->fillRect(option.rect, FontManager::instance().getMidnightColor());
 
     int left_offs = option.rect.left();
     int top_offs = option.rect.top();
 
     // flag
-    QSharedPointer<IndependentPixmap> flag = ImageResourcesSvg::instance().getFlag(index.data(kCountryCode).toString());
-    if (flag)
-    {
-        const int pixmapFlagHeight = flag->height();
-        flag->draw(left_offs + LOCATION_ITEM_MARGIN*2*G_SCALE, top_offs + (option.rect.height() - pixmapFlagHeight) / 2, painter);
+    QSharedPointer<IndependentPixmap> flag = ImageResourcesSvg::instance().getCircleFlag(index.data(kCountryCode).toString());
+    QRect flagRect = QRect(left_offs + 16*G_SCALE, top_offs + (option.rect.height() - flag->height()) / 2, flag->width(), flag->height());
+    if (flag) {
+        flag->draw(flagRect, painter);
+    }
+
+    double textOpacity = OPACITY_UNHOVER_TEXT + (OPACITY_FULL - OPACITY_UNHOVER_TEXT) * option.selectedOpacity();
+
+    painter->setOpacity(OPACITY_FULL);
+    QPen penLoad(QColor(53, 61, 73));
+    penLoad.setWidth(2*G_SCALE);
+    // Draw a full circle with grey color: this is (255, 255, 255, 51) blended with (2, 13, 28).
+    // Drawing (255, 255, 255, 51) is not visible since it draws on top of some transparent pixels.
+    penLoad.setColor(QColor(53, 61, 73));
+    painter->setPen(penLoad);
+    painter->drawArc(flagRect, 0, 360 * 16);
+
+    if (option.isShowLocationLoad()) {
+        int locationLoad = index.data(kLoad).toInt();
+        if (locationLoad > 0) {
+            Qt::GlobalColor penColor;
+            if (locationLoad < 60) {
+                penColor = Qt::green;
+            } else if (locationLoad < 90) {
+                penColor = Qt::yellow;
+            } else {
+                penColor = Qt::red;
+            }
+            // Draw arc with pen color
+            penLoad.setColor(penColor);
+            painter->setPen(penLoad);
+            painter->drawArc(flagRect, 180 * 16, -360 * locationLoad * 16 / 100);
+        }
     }
 
     // pro star
-    if (index.data(kIsShowAsPremium).toBool())
-    {
+    if (index.data(kIsShowAsPremium).toBool()) {
         QSharedPointer<IndependentPixmap> proRegionStar = ImageResourcesSvg::instance().getIndependentPixmap("locations/PRO_REGION_STAR_LIGHT");
         proRegionStar->draw(left_offs + 8 * G_SCALE, top_offs + (option.rect.height() - 16*G_SCALE) / 2 - 9*G_SCALE, painter);
     }
 
-
     // text
-    double textOpacity = OPACITY_UNHOVER_TEXT + (OPACITY_FULL - OPACITY_UNHOVER_TEXT) * option.selectedOpacity();
     const CountryItemDelegateCache *cache = static_cast<const CountryItemDelegateCache *>(cacheData);
     painter->setOpacity(textOpacity );
     QRect rc = option.rect;
-    rc.adjust(64*G_SCALE, 0, 0, 0);
+    rc.adjust(56*G_SCALE, 0, 0, 0);
     IndependentPixmap pixmap = cache->pixmap(CountryItemDelegateCache::kCaptionId);
     pixmap.draw(rc.left(), rc.top() + (rc.height() - pixmap.height()) / 2, painter);
 
-    // p2p icon
-    if (index.data(kIsShowP2P).toBool())
-    {
-        painter->setOpacity(OPACITY_HALF);
+    LocationID lid = qvariant_cast<LocationID>(index.data(kLocationId));
+    if (lid.isBestLocation()) {
+        if (index.data(kIs10Gbps).toBool()) {
+            painter->setOpacity(OPACITY_FULL);
+            int xOffset = 0;
+            if (index.data(kIsShowP2P).toBool()) {
+                xOffset = -24*G_SCALE;
+            }
+            QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON");
+            QRect tenGbpsRect = QRect(option.rect.width() - 40*G_SCALE + xOffset - p->width(), (option.rect.height() - p->height()) / 2, p->width(), p->height());
+            p->draw(left_offs + tenGbpsRect.x(), top_offs + tenGbpsRect.y(), painter);
+        }
+    }
 
+    // p2p icon
+    if (index.data(kIsShowP2P).toBool()) {
+        painter->setOpacity(OPACITY_FULL);
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
-        QRect p2pr = QRect(option.rect.width() - 57*G_SCALE,
+        QRect p2pr = QRect(option.rect.width() - 40*G_SCALE - p->width(),
                            (option.rect.height() - p->height()) / 2,
                            p->width(),
                            p->height());
         p->draw(left_offs + p2pr.x(), top_offs + p2pr.y(), painter);
     }
 
-    LocationID lid = qvariant_cast<LocationID>(index.data(kLocationId));
-    if (lid.isBestLocation())
-    {
-        // 10gbps icon
-        if (index.data(kIs10Gbps).toBool())
-        {
-            painter->setOpacity(OPACITY_FULL);
-            QSharedPointer<IndependentPixmap> tenGbpsPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON");
-            tenGbpsPixmap->draw(left_offs + option.rect.width() - LOCATION_ITEM_MARGIN*G_SCALE - tenGbpsPixmap->width(), top_offs + (option.rect.height() - tenGbpsPixmap->height()) / 2, painter);
-        }
-    }
-    // plus/cross
-    else
-    {
+    if (lid.isBestLocation()) {
+        double arrowOpacity = OPACITY_THIRD + (OPACITY_FULL - OPACITY_THIRD) * option.selectedOpacity();
+        painter->setOpacity(arrowOpacity);
+        QSharedPointer<IndependentPixmap> arrowPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/ARROW_RIGHT");
+        arrowPixmap->draw(left_offs + option.rect.width() - 16*G_SCALE - arrowPixmap->width(), top_offs + (option.rect.height() - arrowPixmap->height()) / 2, painter);
+    } else { // plus/cross
         double plusIconOpacity_ = OPACITY_THIRD + (OPACITY_FULL - OPACITY_THIRD) * option.selectedOpacity();
         painter->setOpacity(plusIconOpacity_);
-        QSharedPointer<IndependentPixmap> expandPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/EXPAND_ICON");
-
-        // this part is kind of magical - could use some more clear math
-        painter->save();
-        painter->translate(QPoint(left_offs + option.rect.width() - LOCATION_ITEM_MARGIN*G_SCALE - expandPixmap->width()/2, top_offs + option.rect.height()/2));
-        painter->rotate(45 * option.expandedProgress());
-        expandPixmap->draw(-expandPixmap->width() / 2,
-                           -expandPixmap->height()/ 2,
-                           painter);
-        painter->restore();
-    }
-
-    // bottom lines
-    int left = left_offs + static_cast<int>(24 * G_SCALE);
-    int right = left_offs + static_cast<int>(option.rect.width() - 2 * G_SCALE);
-    int bottom = top_offs + option.rect.height() - 1; // 1 is not scaled since we want bottom-most pixel inside geometry
-    painter->setOpacity(1.0);
-
-    // TODO: lines not scaled since we draw just single pixels
-    // background line (darker line)
-    QPen pen(QColor(0x29, 0x2E, 0x3E));
-    pen.setWidth(1);
-    painter->setPen(pen);
-    painter->drawLine(left, bottom - 1, right, bottom - 1);
-    painter->drawLine(left, bottom, right, bottom);
-
-
-    if (option.isShowLocationLoad())
-    {
-        int locationLoad = index.data(kLoad).toInt();
-        if (locationLoad > 0)
-        {
-            Qt::GlobalColor penColor;
-            if (locationLoad < 60) {
-                penColor = Qt::green;
-            }
-            else if (locationLoad < 90) {
-                penColor = Qt::yellow;
-            }
-            else {
-                penColor = Qt::red;
-            }
-            int rightX = left + ((right - left) * locationLoad / 100);
-            QPen penLoad(penColor);
-            penLoad.setWidth(1);
-            painter->setOpacity(textOpacity);
-            painter->setPen(penLoad);
-            painter->drawLine(left, bottom - 1, rightX, bottom - 1);
-            painter->drawLine(left, bottom, rightX, bottom);
-            painter->setOpacity(1.0);
+        QSharedPointer<IndependentPixmap> togglePixmap;
+        if (qFabs(1.0 - option.expandedProgress()) < 0.000001) {
+            togglePixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/COLLAPSE_ICON");
+        } else {
+            togglePixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/EXPAND_ICON");
         }
-    }
-
-    // top-most line (white)
-    if ( qFabs(1.0 - option.expandedProgress()) < 0.000001 )
-    {
-        QPen white_pen(Qt::white);
-        white_pen.setWidth(1);
-        painter->setPen(white_pen);
-        painter->drawLine(left, bottom, right, bottom);
-        painter->drawLine(left, bottom - 1, right, bottom - 1);
-    }
-    else if (option.expandedProgress() > 0.000001)
-    {
-        int w = (right - left) * option.expandedProgress();
-        QPen white_pen(Qt::white);
-        white_pen.setWidth(1);
-        painter->setPen(white_pen);
-        painter->drawLine(left, bottom, left + w, bottom);
-        painter->drawLine(left, bottom - 1, left + w, bottom - 1);
+        togglePixmap->draw(left_offs + option.rect.width() - 16*G_SCALE - togglePixmap->width(),
+                           top_offs + (option.rect.height() - togglePixmap->height()) / 2,
+                           painter);
     }
 
     painter->restore();
@@ -170,12 +140,19 @@ IItemCacheData *CountryItemDelegate::createCacheData(const QModelIndex &index) c
 {
     CountryItemDelegateCache *cache = new CountryItemDelegateCache();
     bool isShowP2P = index.data(kIsShowP2P).toBool();
-    int maxWidth = isShowP2P ? (kCountryItemMaxWidth - 32)*G_SCALE : kCountryItemMaxWidth*G_SCALE;
+    int maxWidth = kCountryItemMaxWidth*G_SCALE;
+    if (isShowP2P) {
+        maxWidth -= 32*G_SCALE;
+    }
+    bool isShow10Gbps = index.data(kIs10Gbps).toBool();
+    if (isShow10Gbps) {
+        maxWidth -= 32*G_SCALE;
+    }
 
     QString countryCaption = CommonGraphics::maybeTruncatedText(index.data().toString(),
-                                                                FontManager::instance().getFont(16, true),
+                                                                FontManager::instance().getFont(16, QFont::Medium),
                                                                 static_cast<int>(maxWidth));
-    cache->add(CountryItemDelegateCache::kCaptionId, countryCaption, FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->add(CountryItemDelegateCache::kCaptionId, countryCaption, FontManager::instance().getFont(16, QFont::Medium), DpiScaleManager::instance().curDevicePixelRatio());
     return cache;
 }
 
@@ -183,12 +160,18 @@ void CountryItemDelegate::updateCacheData(const QModelIndex &index, IItemCacheDa
 {
     CountryItemDelegateCache *cache = static_cast<CountryItemDelegateCache *>(cacheData);
     bool isShowP2P = index.data(kIsShowP2P).toBool();
-    int maxWidth = isShowP2P ? (kCountryItemMaxWidth - 32)*G_SCALE : kCountryItemMaxWidth*G_SCALE;
-
+    int maxWidth = kCountryItemMaxWidth*G_SCALE;
+    if (isShowP2P) {
+        maxWidth -= 32*G_SCALE;
+    }
+    bool isShow10Gbps = index.data(kIs10Gbps).toBool();
+    if (isShow10Gbps) {
+        maxWidth -= 32*G_SCALE;
+    }
     QString countryCaption = CommonGraphics::maybeTruncatedText(index.data().toString(),
-                                                                FontManager::instance().getFont(16, true),
+                                                                FontManager::instance().getFont(16, QFont::Medium),
                                                                 static_cast<int>(maxWidth));
-    cache->updateIfTextChanged(CountryItemDelegateCache::kCaptionId, countryCaption, FontManager::instance().getFont(16, true), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->updateIfTextChanged(CountryItemDelegateCache::kCaptionId, countryCaption, FontManager::instance().getFont(16, QFont::Medium), DpiScaleManager::instance().curDevicePixelRatio());
 }
 
 bool CountryItemDelegate::isForbiddenCursor(const QModelIndex &index) const
@@ -224,7 +207,7 @@ int CountryItemDelegate::isInTooltipArea(const ItemStyleOption &option, const QM
         int maxWidth = isShowP2P ? (kCountryItemMaxWidth - 32)*G_SCALE : kCountryItemMaxWidth*G_SCALE;
 
         QString truncatedCaption = CommonGraphics::maybeTruncatedText(originalCaption,
-                                                                     FontManager::instance().getFont(16, true),
+                                                                     FontManager::instance().getFont(16, QFont::Medium),
                                                                      static_cast<int>(maxWidth));
         if (originalCaption != truncatedCaption)
             return (int)TooltipRect::kCountryCaption;
@@ -276,7 +259,7 @@ void CountryItemDelegate::tooltipLeaveEvent(int tooltipId) const
 QRect CountryItemDelegate::p2pRect(const QRect &itemRect) const
 {
     QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
-    return QRect(itemRect.width() - 57*G_SCALE + itemRect.left(),
+    return QRect(itemRect.width() - 40*G_SCALE - p->width(),
                 (itemRect.height() - p->height()) / 2 + itemRect.top(),
                  p->width(),
                  p->height());
@@ -286,7 +269,7 @@ QRect CountryItemDelegate::captionRect(const QRect &itemRect, const IItemCacheDa
 {
     const CountryItemDelegateCache *cache = static_cast<const CountryItemDelegateCache *>(cacheData);
     IndependentPixmap pixmap = cache->pixmap(CountryItemDelegateCache::kCaptionId);
-    return QRect(itemRect.left() + 64*G_SCALE,
+    return QRect(itemRect.left() + 56*G_SCALE,
                 itemRect.top() + (itemRect.height() - pixmap.height()) / 2,
                 pixmap.width(),
                 pixmap.height());

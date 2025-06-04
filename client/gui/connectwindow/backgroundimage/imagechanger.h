@@ -4,6 +4,7 @@
 #include <QVariantAnimation>
 #include <QMovie>
 #include "../../graphicresources/independentpixmap.h"
+#include "types/enums.h"
 
 namespace ConnectWindow {
 
@@ -18,6 +19,7 @@ public:
     QPixmap *currentPixmap();
     void setImage(QSharedPointer<IndependentPixmap> pixmap, bool bShowPrevChangeAnimation);
     void setMovie(QSharedPointer<QMovie> movie, bool bShowPrevChangeAnimation);
+    void setAspectRatioMode(ASPECT_RATIO_MODE mode) { aspectRatioMode_ = mode; }
 
 signals:
     void updated();
@@ -29,7 +31,7 @@ private slots:
     void onMainWindowIsActiveChanged(bool isActive);
 
 private:
-    static constexpr int WIDTH = 332;
+    static constexpr int WIDTH = 350;
 
     QPixmap *pixmap_;
     qreal opacityCurImage_;
@@ -74,9 +76,7 @@ private:
     ImageInfo prevImage_;
 
     QPixmap customGradient_;
-
-    void generateCustomGradient(const QSize &size);
-
+    ASPECT_RATIO_MODE aspectRatioMode_ = ASPECT_RATIO_MODE_STRETCH;
 };
 
 } //namespace ConnectWindow

@@ -9,7 +9,7 @@ SplitTunnelingAppsWindowItem::SplitTunnelingAppsWindowItem(ScalableGraphicsObjec
   : CommonGraphics::BasePage(parent), preferences_(preferences), loggedIn_(false)
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
-    setSpacerHeight(PREFERENCES_MARGIN);
+    setSpacerHeight(PREFERENCES_MARGIN_Y);
 
     desc_ = new PreferenceGroup(this);
     desc_->setDescriptionBorderWidth(2);

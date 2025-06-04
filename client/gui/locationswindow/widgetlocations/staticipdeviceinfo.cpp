@@ -51,7 +51,7 @@ void StaticIPDeviceInfo::paintEvent(QPaintEvent *event)
         FontManager::instance().getMidnightColor());
 
     QString name = deviceName_;
-    QFont font = FontManager::instance().getFont(16, true);
+    QFont font = FontManager::instance().getFont(16, QFont::Bold);
 
     // Calculate remaining width after the add button, margins, and space between the button and text
     int remainingWidth = width() - WINDOW_MARGIN*2*G_SCALE - addButton_->width() - 16*G_SCALE;

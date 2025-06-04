@@ -1,30 +1,19 @@
 #include "persistentstate.h"
 
-#include <QRect>
+#include <QDataStream>
+#include <QIODevice>
 #include <QSettings>
 
 #include "utils/log/categories.h"
 #include "utils/simplecrypt.h"
 #include "types/global_consts.h"
-#include "legacy_protobuf_support/legacy_protobuf.h"
 
 void PersistentState::load()
 {
     QSettings settings;
     bool bLoaded = false;
-    // try load from legacy protobuf
-    // todo remove this code at some point later
-    if (settings.contains("persistentGuiSettings"))
-    {
-        QByteArray arr = settings.value("persistentGuiSettings").toByteArray();
-        bLoaded = LegacyProtobufSupport::loadGuiPersistentState(arr, state_);
-        if (bLoaded)
-        {
-            settings.remove("persistentGuiSettings");
-        }
-    }
-    if (!bLoaded && settings.contains("guiPersistentState"))
-    {
+
+    if (settings.contains("guiPersistentState")) {
         SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
         QString str = settings.value("guiPersistentState", "").toString();
         QByteArray arr = simpleCrypt.decryptToByteArray(str);

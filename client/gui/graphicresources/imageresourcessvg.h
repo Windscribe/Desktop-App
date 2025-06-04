@@ -15,6 +15,7 @@ public:
     {
         IMAGE_FLAG_GRAYED = 1,
         IMAGE_FLAG_SQUARE = 2,
+        IMAGE_FLAG_CIRCLE = 4,
     };
 
     static ImageResourcesSvg &instance()
@@ -30,6 +31,7 @@ public:
     QSharedPointer<IndependentPixmap> getIconIndependentPixmap(const QString &name);
 
     QSharedPointer<IndependentPixmap> getFlag(const QString &flagName);
+    QSharedPointer<IndependentPixmap> getCircleFlag(const QString &flagName);
     QSharedPointer<IndependentPixmap> getScaledFlag(const QString &flagName, int width, int height, int flags = 0);
 
 protected:

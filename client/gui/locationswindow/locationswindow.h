@@ -19,22 +19,20 @@ public:
     void setCountVisibleItemSlots(int cnt);
     int getCountVisibleItems();
 
-    void setOnlyConfigTabVisible(bool onlyConfig);
-
     void updateLocationsTabGeometry();
     void updateScaling();
 
-    void hideSearchTabWithoutAnimation();
-    LOCATION_TAB currentTab();
     void setTab(LOCATION_TAB tab);
 
-    bool handleKeyPressEvent(QKeyEvent *event);
+    void setIsPremium(bool isPremium);
+    void setDataRemaining(qint64 bytesUsed, qint64 bytesMax);
 
 public slots:
-    void setLatencyDisplay(LATENCY_DISPLAY_TYPE l);
     void setCustomConfigsPath(QString path);
-    void onLanguageChanged();
     void setShowLocationLoad(bool showLocationLoad);
+    void onSearchFilterChanged(const QString &filter);
+    void onLocationsKeyPressed(QKeyEvent *event);
+    void onAppSkinChanged(APP_SKIN s);
 
 signals:
     void heightChanged();
@@ -43,6 +41,7 @@ signals:
     void addStaticIpClicked();
     void clearCustomConfigClicked();
     void addCustomConfigClicked();
+    void upgradeBannerClicked();
 
 protected:
     void paintEvent(QPaintEvent *event)        override;
@@ -55,7 +54,7 @@ private:
     const int LOCATIONS_TAB_HEIGHT_INIT = 398; // 7 * 50 + TAB_HEADER_HEIGHT
     static constexpr int FOOTER_HEIGHT = 14; //
     static constexpr int FOOTER_HEIGHT_FULL = 16;
-    static constexpr int MIN_VISIBLE_LOCATIONS = 3;
+    static constexpr int MIN_VISIBLE_LOCATIONS = 4;
     static constexpr int MAX_VISIBLE_LOCATIONS = 12;
 
     GuiLocations::LocationsTab *locationsTab_;

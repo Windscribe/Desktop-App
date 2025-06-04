@@ -12,7 +12,7 @@ SplitTunnelingWindowItem::SplitTunnelingWindowItem(ScalableGraphicsObject *paren
     , preferences_(preferences)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
-    setSpacerHeight(PREFERENCES_MARGIN);
+    setSpacerHeight(PREFERENCES_MARGIN_Y);
 
     splitTunnelingGroup_ = new SplitTunnelingGroup(this);
     connect(splitTunnelingGroup_, &SplitTunnelingGroup::addressesPageClick, this, &SplitTunnelingWindowItem::addressesPageClick);

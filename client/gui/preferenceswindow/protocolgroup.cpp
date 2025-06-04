@@ -152,4 +152,13 @@ void ProtocolGroup::onLanguageChanged()
     portItem_->setLabelCaption(tr("Port"));
 }
 
+void ProtocolGroup::setDescription(const QString &description, const QString &descUrl)
+{
+    if (type_ == SelectionType::COMBO_BOX) {
+        connectionModeItem_->setDescription(description, descUrl);
+    } else {
+        checkBoxEnable_->setDescription(description, descUrl);
+    }
+}
+
 } // namespace PreferencesWindow

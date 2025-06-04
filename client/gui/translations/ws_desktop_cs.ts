@@ -70,8 +70,8 @@
         <translation>Blokuje veškerou konektivitu v případě náhlého odpojení</translation>
     </message>
     <message>
-        <source>Connect to rate</source>
-        <translation>Připojit k sazbě</translation>
+        <source>FIREWALL</source>
+        <translation>FIREWALL</translation>
     </message>
 </context>
 <context>
@@ -82,10 +82,26 @@
     </message>
 </context>
 <context>
-    <name>ConnectWindow::MiddleItem</name>
+    <name>ConnectWindow::LocationsMenu</name>
     <message>
-        <source>Firewall</source>
-        <translation>Firewall</translation>
+        <source>All</source>
+        <translation>Všichni</translation>
+    </message>
+    <message>
+        <source>Configured</source>
+        <translation>Nastavený</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Statické IP adresy</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Oblíbené</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Hledání</translation>
     </message>
 </context>
 <context>
@@ -224,26 +240,6 @@
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
-        <source>All</source>
-        <translation>Všichni</translation>
-    </message>
-    <message>
-        <source>Configured</source>
-        <translation>Nastavený</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Statické IP adresy</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Oblíbené</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation>Hledání</translation>
-    </message>
-    <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
         <translation>Vyberte adresář, který obsahuje vlastní konfigurace, které zde chcete zobrazit</translation>
     </message>
@@ -275,6 +271,10 @@
         <source>Buy</source>
         <translation>Kupovat</translation>
     </message>
+    <message>
+        <source>All locations (%1)</source>
+        <translation>Všechny lokality (%1)</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -290,7 +290,7 @@
         <translation>Zalamování</translation>
     </message>
     <message>
-        <source>Color highlighting</source>
+        <source>Colour highlighting</source>
         <translation>Barevné zvýraznění</translation>
     </message>
     <message>
@@ -403,10 +403,6 @@
 </context>
 <context>
     <name>LoginWindow::WelcomeWindowItem</name>
-    <message>
-        <source>Keep Your Secrets.</source>
-        <translation>Uchovávejte svá tajemství.</translation>
-    </message>
     <message>
         <source>Emergency Connect</source>
         <translation>Tísňové připojení</translation>
@@ -886,6 +882,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
         <translation>Nelze spustit vlastní službu DNS - port 53 je již používán.  Chcete změnit připojený DNS server na lokální server?</translation>
     </message>
+    <message>
+        <source>Slide to complete the puzzle</source>
+        <translation>skluzavkou dokončit puzzle</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -997,16 +997,8 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Účet</translation>
     </message>
     <message>
-        <source>INFO</source>
-        <translation>INFORMACE</translation>
-    </message>
-    <message>
         <source>Username</source>
         <translation>Uživatelské jméno</translation>
-    </message>
-    <message>
-        <source>PLAN</source>
-        <translation>PLÁN</translation>
     </message>
     <message>
         <source>Reset Date</source>
@@ -1023,6 +1015,18 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Expiry Date</source>
         <translation>Platnosti</translation>
+    </message>
+    <message>
+        <source>ACCOUNT INFO</source>
+        <translation>INFORMACE O ÚČTU</translation>
+    </message>
+    <message>
+        <source>PLAN INFO</source>
+        <translation>INFORMACE O PLÁNU</translation>
+    </message>
+    <message>
+        <source>UPGRADE &gt;</source>
+        <translation>UPGRADOVAT &gt;</translation>
     </message>
 </context>
 <context>
@@ -1124,18 +1128,26 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::BackgroundSettingsGroup</name>
+    <name>PreferencesWindow::AppBackgroundGroup</name>
     <message>
-        <source>Disconnected</source>
-        <translation>Nesouvislý</translation>
+        <source>App Background</source>
+        <translation>Pozadí aplikace</translation>
     </message>
     <message>
-        <source>Connected</source>
-        <translation>Připojený</translation>
+        <source>Aspect Ratio Mode</source>
+        <translation>Režim poměru stran</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>Při odpojení</translation>
     </message>
     <message>
         <source>Flags</source>
-        <translation>Vlajky zemí</translation>
+        <translation>Vlajky</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>Zabalený v balíku</translation>
     </message>
     <message>
         <source>None</source>
@@ -1146,8 +1158,32 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Zvyk</translation>
     </message>
     <message>
-        <source>App Background</source>
-        <translation>Pozadí aplikace</translation>
+        <source>When Connected</source>
+        <translation>Při připojení</translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation>Vybrat obrázek</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>Náměstí</translation>
+    </message>
+    <message>
+        <source>Palm</source>
+        <translation>Dlaň</translation>
+    </message>
+    <message>
+        <source>Drip</source>
+        <translation>Kapka</translation>
+    </message>
+    <message>
+        <source>Snow</source>
+        <translation>Sníh</translation>
+    </message>
+    <message>
+        <source>Ripple</source>
+        <translation>Zvlnění</translation>
     </message>
 </context>
 <context>
@@ -1236,7 +1272,7 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Automatické připojení</translation>
     </message>
     <message>
-        <source>Control the mode of behavior of the Windscribe firewall.</source>
+        <source>Control the mode of behaviour of the Windscribe firewall.</source>
         <translation>Ovládejte režim chování brány firewall Windscribe.</translation>
     </message>
     <message>
@@ -1482,32 +1518,12 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Objednávka umístění</translation>
     </message>
     <message>
-        <source>Display latency as signal strength bars or in milliseconds.</source>
-        <translation>Zobrazení latence jako pruhů síly signálu nebo v milisekundách.</translation>
-    </message>
-    <message>
-        <source>Latency Display</source>
-        <translation>Zobrazení latence</translation>
-    </message>
-    <message>
         <source>Localize Windscribe to supported languages.</source>
         <translation>Lokalizujte Windscribe do podporovaných jazyků.</translation>
     </message>
     <message>
         <source>Language</source>
         <translation>Jazyk</translation>
-    </message>
-    <message>
-        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>Vyberte si mezi klasickým grafickým uživatelským rozhraním nebo alternativním grafickým uživatelským rozhraním &quot;bez uší&quot;.</translation>
-    </message>
-    <message>
-        <source>App Skin</source>
-        <translation>Vzhled aplikace</translation>
-    </message>
-    <message>
-        <source>Customize the background of the main app screen.</source>
-        <translation>Přizpůsobte pozadí hlavní obrazovky aplikace.</translation>
     </message>
     <message>
         <source>Choose to receive stable, beta, or experimental builds.</source>
@@ -1530,7 +1546,7 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Vyberte si mezi bílou a černou ikonou na hlavním panelu.</translation>
     </message>
     <message>
-        <source>Tray Icon Color</source>
+        <source>Tray Icon Colour</source>
         <translation>Barva ikony na hlavním panelu</translation>
     </message>
     <message>
@@ -1538,28 +1554,8 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Více ploch</translation>
     </message>
     <message>
-        <source>Select behavior when window is activated with multiple desktops.</source>
+        <source>Select behaviour when window is activated with multiple desktops.</source>
         <translation>Chování Select při aktivaci okna s více plochami.</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Vývoz</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>Dovoz</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Resetovat</translation>
-    </message>
-    <message>
-        <source>Change location names to your liking.</source>
-        <translation>Změňte názvy lokací podle svých představ.</translation>
-    </message>
-    <message>
-        <source>Rename Locations</source>
-        <translation>Přejmenování míst</translation>
     </message>
 </context>
 <context>
@@ -1619,6 +1615,49 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
         <translation>Máte problém, který Garry nedokáže vyřešit? Obraťte se na lidskou podporu.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::LookAndFeelWindowItem</name>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>Vzhled a dojem</translation>
+    </message>
+    <message>
+        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
+        <translation>Vyberte si mezi klasickým grafickým uživatelským rozhraním nebo alternativním grafickým uživatelským rozhraním &quot;bez uší&quot;.</translation>
+    </message>
+    <message>
+        <source>App Skin</source>
+        <translation>Vzhled aplikace</translation>
+    </message>
+    <message>
+        <source>Customize the background of the main app screen.</source>
+        <translation>Přizpůsobte pozadí hlavní obrazovky aplikace.</translation>
+    </message>
+    <message>
+        <source>Choose sounds to play when connection events occur.</source>
+        <translation>Vyberte zvuky, které se mají přehrát při událostech připojení.</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>Změňte názvy lokací podle svých představ.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>Přejmenování míst</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Vývoz</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Dovoz</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Resetovat</translation>
     </message>
 </context>
 <context>
@@ -1761,20 +1800,12 @@ Nejprve se připojte k síti</translation>
 <context>
     <name>PreferencesWindow::PlanItem</name>
     <message>
-        <source>Unlimited Data</source>
-        <translation>Neomezená data</translation>
+        <source>Free</source>
+        <translation>Bezplatně</translation>
     </message>
     <message>
-        <source>%1/Month</source>
-        <translation>%1/měsíc</translation>
-    </message>
-    <message>
-        <source>Pro</source>
-        <translation>Profík</translation>
-    </message>
-    <message>
-        <source>Upgrade</source>
-        <translation>Upgrade</translation>
+        <source>Plan Type</source>
+        <translation>Typ plánu</translation>
     </message>
 </context>
 <context>
@@ -1818,6 +1849,10 @@ Nejprve se připojte k síti</translation>
     <message>
         <source>Quit</source>
         <translation>Přestat</translation>
+    </message>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>Vzhled a dojem</translation>
     </message>
 </context>
 <context>
@@ -2012,14 +2047,41 @@ Nejprve se připojte k síti</translation>
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::SelectImageItem</name>
+    <name>PreferencesWindow::SelectFileItem</name>
     <message>
         <source>[no selection]</source>
-        <translation>[bez výběru]</translation>
+        <translation>[žádný výběr]</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::SoundsGroup</name>
+    <message>
+        <source>Sound Notifications</source>
+        <translation>Zvuková upozornění</translation>
     </message>
     <message>
-        <source>Select an image</source>
-        <translation>Vyberte obrázek</translation>
+        <source>None</source>
+        <translation>Žádný</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>Při odpojení</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>Zabalený v balíku</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Zvyk</translation>
+    </message>
+    <message>
+        <source>Select a sound</source>
+        <translation>Výběr zvuku</translation>
+    </message>
+    <message>
+        <source>When Connected</source>
+        <translation>Při připojení</translation>
     </message>
 </context>
 <context>
@@ -2100,14 +2162,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte o pomoc.</translation>
     </message>
     <message>
-        <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
-        <translation>Vybrané aplikace, IP adresy a názvy hostitelů nebudou po připojení procházet programem Windscribe.</translation>
-    </message>
-    <message>
-        <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
-        <translation>Po připojení budou Windscribe procházet pouze vybrané aplikace, IP adresy a názvy hostitelů.</translation>
-    </message>
-    <message>
         <source>Split Tunneling</source>
         <translation>Dělené tunelové propojení</translation>
     </message>
@@ -2130,6 +2184,14 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>IPs &amp; Hostnames</source>
         <translation>IP adresy a názvy hostitelů</translation>
+    </message>
+    <message>
+        <source>When enabled, selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
+        <translation>Pokud je tato možnost povolena, vybrané aplikace, IP adresy a názvy hostitelů nebudou po připojení procházet přes Windscribe.</translation>
+    </message>
+    <message>
+        <source>When enabled, only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
+        <translation>Pokud je tato možnost povolena, budou po připojení přes Windscribe procházet pouze vybrané aplikace, IP adresy a názvy hostitelů.</translation>
     </message>
 </context>
 <context>
@@ -2230,14 +2292,6 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Latency</source>
         <translation>Latence</translation>
-    </message>
-    <message>
-        <source>Bars</source>
-        <translation>Tyče</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>Milisekunda</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2408,12 +2462,16 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
         <translation>Místní DNS</translation>
     </message>
     <message>
-        <source>Latency test pending</source>
-        <translation>Čeká na vyřízení testu latence</translation>
+        <source>Stretch</source>
+        <translation>Natáhnout</translation>
     </message>
     <message>
-        <source>Latency test failed</source>
-        <translation>Test latence se nezdařil</translation>
+        <source>Fill</source>
+        <translation>Vyplnit</translation>
+    </message>
+    <message>
+        <source>Tile</source>
+        <translation>Dlaždice</translation>
     </message>
     <message>
         <source>Always On+</source>
@@ -2490,8 +2548,8 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
         <translation>v</translation>
     </message>
     <message>
-        <source>UPDATE</source>
-        <translation>AKTUALIZACE</translation>
+        <source>Update</source>
+        <translation>Aktualizace</translation>
     </message>
 </context>
 <context>
@@ -2526,50 +2584,61 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     </message>
 </context>
 <context>
+    <name>UpgradeBanner</name>
+    <message>
+        <source>Unlock full access to Windscribe</source>
+        <translation>Odemkněte plný přístup k Windscribe</translation>
+    </message>
+    <message>
+        <source>Go Pro for unlimited everything</source>
+        <translation>Go Pro pro neomezené množství všeho</translation>
+    </message>
+</context>
+<context>
     <name>UpgradeWidget::UpgradeWidgetItem</name>
     <message>
-        <source>GET MORE DATA</source>
-        <translation>ZÍSKEJTE VÍCE DAT</translation>
+        <source>Get more data</source>
+        <translation>Získání dalších dat</translation>
     </message>
     <message>
-        <source>EXT CONFIG MODE</source>
-        <translation>REŽIM EXT CONFIG</translation>
+        <source>%1 left</source>
+        <translation>%1 vlevo</translation>
     </message>
     <message>
-        <source>0 DAYS LEFT</source>
-        <translation>0 ZBÝVÁ 0 DNÍ</translation>
+        <source>0 days left</source>
+        <translation>Zbývá 0 dní</translation>
     </message>
     <message>
-        <source>1 DAY LEFT</source>
-        <translation>ZBÝVÁ 1 DEN</translation>
+        <source>1 day left</source>
+        <translation>Zbývá 1 den</translation>
     </message>
     <message>
-        <source>2 DAYS LEFT</source>
-        <translation>ZBÝVÁ 2 DNY</translation>
+        <source>2 days left</source>
+        <translation>Zbývá 2 dny</translation>
     </message>
     <message>
-        <source>3 DAYS LEFT</source>
-        <translation>ZBÝVÁ 3 DNY</translation>
+        <source>3 days left</source>
+        <translation>Do konce sezóny zbývají 3 dny</translation>
     </message>
     <message>
-        <source>4 DAYS LEFT</source>
-        <translation>ZBÝVÁ 4 DNY</translation>
+        <source>4 days left</source>
+        <translation>Do konce sezóny zbývají 4 dny</translation>
     </message>
     <message>
-        <source>5 DAYS LEFT</source>
-        <translation>5 DNÍ ZBÝVÁ</translation>
+        <source>5 days left</source>
+        <translation>Zbývá 5 dní</translation>
     </message>
     <message>
-        <source>%1 DAYS LEFT</source>
-        <translation>%1 ZBÝVÁ 1 DNÍ</translation>
+        <source>%1 days left</source>
+        <translation>Zbývá 1 dní</translation>
     </message>
     <message>
-        <source>LOGIN</source>
-        <translation>PŘIHLÁŠENÍ DO SYSTÉMU</translation>
+        <source>Login</source>
+        <translation>Přihlášení do systému</translation>
     </message>
     <message>
-        <source>RENEW</source>
-        <translation>OBNOVIT</translation>
+        <source>Renew</source>
+        <translation>Obnovit</translation>
     </message>
 </context>
 <context>

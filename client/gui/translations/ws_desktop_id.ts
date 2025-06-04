@@ -70,8 +70,8 @@
         <translation>Memblokir semua konektivitas jika terjadi pemutusan tiba-tiba</translation>
     </message>
     <message>
-        <source>Connect to rate</source>
-        <translation>Hubungkan ke tarif</translation>
+        <source>FIREWALL</source>
+        <translation>FIREWALL</translation>
     </message>
 </context>
 <context>
@@ -82,10 +82,26 @@
     </message>
 </context>
 <context>
-    <name>ConnectWindow::MiddleItem</name>
+    <name>ConnectWindow::LocationsMenu</name>
     <message>
-        <source>Firewall</source>
-        <translation>Firewall</translation>
+        <source>All</source>
+        <translation>Semua</translation>
+    </message>
+    <message>
+        <source>Configured</source>
+        <translation>Dikonfigurasi</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP statis</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favorit</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Mencari</translation>
     </message>
 </context>
 <context>
@@ -224,26 +240,6 @@
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
-        <source>All</source>
-        <translation>Semua</translation>
-    </message>
-    <message>
-        <source>Configured</source>
-        <translation>Dikonfigurasi</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>IP statis</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Favorit</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation>Mencari</translation>
-    </message>
-    <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
         <translation>Pilih direktori yang berisi konfigurasi kustom yang ingin Anda tampilkan di sini</translation>
     </message>
@@ -275,6 +271,10 @@
         <source>Buy</source>
         <translation>Membeli</translation>
     </message>
+    <message>
+        <source>All locations (%1)</source>
+        <translation>Semua lokasi (%1)</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -290,7 +290,7 @@
         <translation>Bungkus Kata</translation>
     </message>
     <message>
-        <source>Color highlighting</source>
+        <source>Colour highlighting</source>
         <translation>Sorotan warna</translation>
     </message>
     <message>
@@ -403,10 +403,6 @@
 </context>
 <context>
     <name>LoginWindow::WelcomeWindowItem</name>
-    <message>
-        <source>Keep Your Secrets.</source>
-        <translation>Simpan rahasia Anda.</translation>
-    </message>
     <message>
         <source>Emergency Connect</source>
         <translation>Koneksi Darurat</translation>
@@ -886,6 +882,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
         <translation>Tidak dapat memulai layanan DNS kustom - port 53 sudah digunakan.  Apakah Anda ingin mengubah DNS Terhubung Anda ke server lokal?</translation>
     </message>
+    <message>
+        <source>Slide to complete the puzzle</source>
+        <translation>Geser untuk menyelesaikan teka-teki</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -997,16 +997,8 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Rekening</translation>
     </message>
     <message>
-        <source>INFO</source>
-        <translation>INFO</translation>
-    </message>
-    <message>
         <source>Username</source>
         <translation>Nama pengguna</translation>
-    </message>
-    <message>
-        <source>PLAN</source>
-        <translation>RENCANA</translation>
     </message>
     <message>
         <source>Reset Date</source>
@@ -1023,6 +1015,18 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Expiry Date</source>
         <translation>Tanggal kadaluwarsa</translation>
+    </message>
+    <message>
+        <source>ACCOUNT INFO</source>
+        <translation>INFO AKUN</translation>
+    </message>
+    <message>
+        <source>PLAN INFO</source>
+        <translation>INFO RENCANA</translation>
+    </message>
+    <message>
+        <source>UPGRADE &gt;</source>
+        <translation>TINGKATKAN &gt;</translation>
     </message>
 </context>
 <context>
@@ -1124,18 +1128,26 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::BackgroundSettingsGroup</name>
+    <name>PreferencesWindow::AppBackgroundGroup</name>
     <message>
-        <source>Disconnected</source>
-        <translation>Terputus</translation>
+        <source>App Background</source>
+        <translation>Latar Belakang Aplikasi</translation>
     </message>
     <message>
-        <source>Connected</source>
-        <translation>Terhubung</translation>
+        <source>Aspect Ratio Mode</source>
+        <translation>Mode Rasio Aspek</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>Saat Terputus</translation>
     </message>
     <message>
         <source>Flags</source>
-        <translation>Bendera Negara</translation>
+        <translation>Bendera</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>Dibundel</translation>
     </message>
     <message>
         <source>None</source>
@@ -1146,8 +1158,32 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Adat</translation>
     </message>
     <message>
-        <source>App Background</source>
-        <translation>Latar Belakang Aplikasi</translation>
+        <source>When Connected</source>
+        <translation>Saat Terhubung</translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation>Pilih gambar</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>Lapangan</translation>
+    </message>
+    <message>
+        <source>Palm</source>
+        <translation>Telapak tangan</translation>
+    </message>
+    <message>
+        <source>Drip</source>
+        <translation>Tetes</translation>
+    </message>
+    <message>
+        <source>Snow</source>
+        <translation>Salju</translation>
+    </message>
+    <message>
+        <source>Ripple</source>
+        <translation>Riak</translation>
     </message>
 </context>
 <context>
@@ -1236,7 +1272,7 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Hubungkan Otomatis</translation>
     </message>
     <message>
-        <source>Control the mode of behavior of the Windscribe firewall.</source>
+        <source>Control the mode of behaviour of the Windscribe firewall.</source>
         <translation>Kontrol mode perilaku firewall Windscribe.</translation>
     </message>
     <message>
@@ -1486,32 +1522,12 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Pesanan Lokasi</translation>
     </message>
     <message>
-        <source>Display latency as signal strength bars or in milliseconds.</source>
-        <translation>Menampilkan latensi sebagai bilah kekuatan sinyal atau dalam milidetik.</translation>
-    </message>
-    <message>
-        <source>Latency Display</source>
-        <translation>Tampilan Latensi</translation>
-    </message>
-    <message>
         <source>Localize Windscribe to supported languages.</source>
         <translation>Melokalkan Windscribe ke bahasa yang didukung.</translation>
     </message>
     <message>
         <source>Language</source>
         <translation>Bahasa</translation>
-    </message>
-    <message>
-        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>Pilih antara GUI klasik atau GUI alternatif &quot;tanpa telinga&quot;.</translation>
-    </message>
-    <message>
-        <source>App Skin</source>
-        <translation>Kulit Aplikasi</translation>
-    </message>
-    <message>
-        <source>Customize the background of the main app screen.</source>
-        <translation>Sesuaikan latar belakang layar aplikasi utama.</translation>
     </message>
     <message>
         <source>Choose to receive stable, beta, or experimental builds.</source>
@@ -1530,7 +1546,7 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Pilih antara ikon baki putih dan hitam.</translation>
     </message>
     <message>
-        <source>Tray Icon Color</source>
+        <source>Tray Icon Colour</source>
         <translation>Warna Ikon Baki</translation>
     </message>
     <message>
@@ -1538,28 +1554,8 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Multi-desktop</translation>
     </message>
     <message>
-        <source>Select behavior when window is activated with multiple desktops.</source>
+        <source>Select behaviour when window is activated with multiple desktops.</source>
         <translation>Pilih perilaku saat jendela diaktifkan dengan beberapa desktop.</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Ekspor</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>Mengimpor</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Reset</translation>
-    </message>
-    <message>
-        <source>Change location names to your liking.</source>
-        <translation>Ubah nama lokasi sesuai keinginan Anda.</translation>
-    </message>
-    <message>
-        <source>Rename Locations</source>
-        <translation>Ganti Nama Lokasi</translation>
     </message>
 </context>
 <context>
@@ -1619,6 +1615,49 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
         <translation>Punya masalah yang tidak bisa diselesaikan Garry? Hubungi dukungan manusia.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::LookAndFeelWindowItem</name>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>Tampilan dan Nuansa</translation>
+    </message>
+    <message>
+        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
+        <translation>Pilih antara GUI klasik atau GUI alternatif &quot;tanpa telinga&quot;.</translation>
+    </message>
+    <message>
+        <source>App Skin</source>
+        <translation>Kulit Aplikasi</translation>
+    </message>
+    <message>
+        <source>Customize the background of the main app screen.</source>
+        <translation>Sesuaikan latar belakang layar aplikasi utama.</translation>
+    </message>
+    <message>
+        <source>Choose sounds to play when connection events occur.</source>
+        <translation>Pilih suara yang akan diputar saat peristiwa koneksi terjadi.</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>Ubah nama lokasi sesuai keinginan Anda.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>Ganti Nama Lokasi</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Ekspor</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Mengimpor</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Reset</translation>
     </message>
 </context>
 <context>
@@ -1761,20 +1800,12 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
 <context>
     <name>PreferencesWindow::PlanItem</name>
     <message>
-        <source>Unlimited Data</source>
-        <translation>Data Tidak Terbatas</translation>
+        <source>Free</source>
+        <translation>Bebas</translation>
     </message>
     <message>
-        <source>%1/Month</source>
-        <translation>%1/Bulan</translation>
-    </message>
-    <message>
-        <source>Pro</source>
-        <translation>Pro</translation>
-    </message>
-    <message>
-        <source>Upgrade</source>
-        <translation>Upgrade</translation>
+        <source>Plan Type</source>
+        <translation>Jenis Paket</translation>
     </message>
 </context>
 <context>
@@ -1818,6 +1849,10 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
     <message>
         <source>Quit</source>
         <translation>Berhenti</translation>
+    </message>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>Tampilan dan Nuansa</translation>
     </message>
 </context>
 <context>
@@ -2012,14 +2047,41 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::SelectImageItem</name>
+    <name>PreferencesWindow::SelectFileItem</name>
     <message>
         <source>[no selection]</source>
         <translation>[tidak ada pilihan]</translation>
     </message>
+</context>
+<context>
+    <name>PreferencesWindow::SoundsGroup</name>
     <message>
-        <source>Select an image</source>
-        <translation>Pilih gambar</translation>
+        <source>Sound Notifications</source>
+        <translation>Pemberitahuan Suara</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Tidak</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>Saat Terputus</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>Dibundel</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Adat</translation>
+    </message>
+    <message>
+        <source>Select a sound</source>
+        <translation>Pilih suara</translation>
+    </message>
+    <message>
+        <source>When Connected</source>
+        <translation>Saat Terhubung</translation>
     </message>
 </context>
 <context>
@@ -2100,14 +2162,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendapatkan bantuan.</translation>
     </message>
     <message>
-        <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
-        <translation>Aplikasi, IP, dan nama host yang dipilih tidak akan melalui Windscribe saat terhubung.</translation>
-    </message>
-    <message>
-        <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
-        <translation>Hanya aplikasi, IP, dan nama host tertentu yang akan melalui Windscribe saat terhubung.</translation>
-    </message>
-    <message>
         <source>Split Tunneling</source>
         <translation>Terowongan Terpisah</translation>
     </message>
@@ -2130,6 +2184,14 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>IPs &amp; Hostnames</source>
         <translation>IP &amp;; Nama Host</translation>
+    </message>
+    <message>
+        <source>When enabled, selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
+        <translation>Saat diaktifkan, aplikasi, IP, dan nama host yang dipilih tidak akan melalui Windscribe saat terhubung.</translation>
+    </message>
+    <message>
+        <source>When enabled, only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
+        <translation>Saat diaktifkan, hanya aplikasi, IP, dan nama host yang dipilih yang akan melalui Windscribe saat terhubung.</translation>
     </message>
 </context>
 <context>
@@ -2230,14 +2292,6 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Latency</source>
         <translation>Latency</translation>
-    </message>
-    <message>
-        <source>Bars</source>
-        <translation>Bar</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>ms</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2408,12 +2462,16 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
         <translation>DNS Lokal</translation>
     </message>
     <message>
-        <source>Latency test pending</source>
-        <translation>Pengujian latensi tertunda</translation>
+        <source>Stretch</source>
+        <translation>Merentangkan</translation>
     </message>
     <message>
-        <source>Latency test failed</source>
-        <translation>Pengujian latensi gagal</translation>
+        <source>Fill</source>
+        <translation>Isi</translation>
+    </message>
+    <message>
+        <source>Tile</source>
+        <translation>Ubin</translation>
     </message>
     <message>
         <source>Always On+</source>
@@ -2490,8 +2548,8 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
         <translation>v</translation>
     </message>
     <message>
-        <source>UPDATE</source>
-        <translation>PEMUTAKHIRAN</translation>
+        <source>Update</source>
+        <translation>Pemutakhiran</translation>
     </message>
 </context>
 <context>
@@ -2526,50 +2584,61 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     </message>
 </context>
 <context>
+    <name>UpgradeBanner</name>
+    <message>
+        <source>Unlock full access to Windscribe</source>
+        <translation>Buka kunci akses penuh ke Windscribe</translation>
+    </message>
+    <message>
+        <source>Go Pro for unlimited everything</source>
+        <translation>Go Pro untuk semuanya tanpa batas</translation>
+    </message>
+</context>
+<context>
     <name>UpgradeWidget::UpgradeWidgetItem</name>
     <message>
-        <source>GET MORE DATA</source>
-        <translation>DAPATKAN LEBIH BANYAK DATA</translation>
+        <source>Get more data</source>
+        <translation>Dapatkan lebih banyak data</translation>
     </message>
     <message>
-        <source>EXT CONFIG MODE</source>
-        <translation>MODE KONFIGURASI EXT</translation>
+        <source>%1 left</source>
+        <translation>%1 tersisa</translation>
     </message>
     <message>
-        <source>0 DAYS LEFT</source>
-        <translation>0 HARI TERSISA</translation>
+        <source>0 days left</source>
+        <translation>0 hari tersisa</translation>
     </message>
     <message>
-        <source>1 DAY LEFT</source>
-        <translation>TERSISA 1 HARI</translation>
+        <source>1 day left</source>
+        <translation>1 hari tersisa</translation>
     </message>
     <message>
-        <source>2 DAYS LEFT</source>
-        <translation>2 HARI TERSISA</translation>
+        <source>2 days left</source>
+        <translation>2 hari tersisa</translation>
     </message>
     <message>
-        <source>3 DAYS LEFT</source>
-        <translation>3 HARI TERSISA</translation>
+        <source>3 days left</source>
+        <translation>3 hari tersisa</translation>
     </message>
     <message>
-        <source>4 DAYS LEFT</source>
-        <translation>4 HARI TERSISA</translation>
+        <source>4 days left</source>
+        <translation>4 hari tersisa</translation>
     </message>
     <message>
-        <source>5 DAYS LEFT</source>
-        <translation>5 HARI TERSISA</translation>
+        <source>5 days left</source>
+        <translation>5 hari tersisa</translation>
     </message>
     <message>
-        <source>%1 DAYS LEFT</source>
-        <translation>%1 HARI TERSISA</translation>
+        <source>%1 days left</source>
+        <translation>%1 hari tersisa</translation>
     </message>
     <message>
-        <source>LOGIN</source>
-        <translation>LOGIN</translation>
+        <source>Login</source>
+        <translation>Login</translation>
     </message>
     <message>
-        <source>RENEW</source>
-        <translation>MEMPERBAHARUI</translation>
+        <source>Renew</source>
+        <translation>Memperbaharui</translation>
     </message>
 </context>
 <context>

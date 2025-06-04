@@ -45,7 +45,11 @@ void LocationsTrayMenuNative::buildMenu(QAbstractItemModel *model)
             flag = ImageResourcesSvg::instance().getScaledFlag(countryCode, 20 * G_SCALE, 10 * G_SCALE, flags);
         }
 
+        QString nick = mi.data(gui_locations::kDisplayNickname).toString();
         QString rootVisibleName = mi.data().toString();
+        if (!nick.isEmpty()) {
+            rootVisibleName += " - " + nick;
+        }
         bool bRootShowAsPremium = mi.data(gui_locations::kIsShowAsPremium).toBool();
         if (bRootShowAsPremium) {
             rootVisibleName += " (Pro)";
@@ -57,6 +61,7 @@ void LocationsTrayMenuNative::buildMenu(QAbstractItemModel *model)
             QAction *action = addAction(rootVisibleName);
             connect(action, &QAction::triggered, this, &LocationsTrayMenuNative::onMenuActionTriggered);
             if (flag) {
+                action->setIconVisibleInMenu(true);
                 action->setIcon(flag->getIcon());
             }
 
@@ -71,6 +76,7 @@ void LocationsTrayMenuNative::buildMenu(QAbstractItemModel *model)
             connect(subMenu, &QMenu::triggered, this, &LocationsTrayMenuNative::onMenuTriggered);
             subMenu->setEnabled(!mi.data(gui_locations::kIsDisabled).toBool());
             if (flag) {
+                subMenu->menuAction()->setIconVisibleInMenu(true);
                 subMenu->setIcon(flag->getIcon());
             }
 

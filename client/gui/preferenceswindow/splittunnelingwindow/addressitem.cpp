@@ -31,16 +31,16 @@ void AddressItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     painter->setOpacity(OPACITY_FULL * initOpacity);
     painter->setPen(Qt::white);
 
-    QFont font = FontManager::instance().getFont(12, false);
+    QFont font = FontManager::instance().getFont(12,  QFont::Normal);
     painter->setFont(font);
     QFontMetrics fm(font);
     QString elidedName = fm.elidedText(text_,
                                        Qt::TextElideMode::ElideRight,
-                                       boundingRect().width() - (3*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE);
-    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN*G_SCALE,
-                                              PREFERENCES_MARGIN*G_SCALE,
-                                              -(2*PREFERENCES_MARGIN + ICON_WIDTH)*G_SCALE,
-                                              -PREFERENCES_MARGIN*G_SCALE),
+                                       boundingRect().width() - (3*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE);
+    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
+                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              -(2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE,
+                                              -PREFERENCES_MARGIN_Y*G_SCALE),
                       elidedName);
 }
 
@@ -79,7 +79,7 @@ void AddressItem::onDeleteButtonHoverEnter()
 
 void AddressItem::updatePositions()
 {
-    deleteButton_->setPos(boundingRect().width() - ICON_WIDTH*G_SCALE - PREFERENCES_MARGIN*G_SCALE, boundingRect().height()/2 - ICON_HEIGHT/2*G_SCALE);
+    deleteButton_->setPos(boundingRect().width() - ICON_WIDTH*G_SCALE - PREFERENCES_MARGIN_X*G_SCALE, boundingRect().height()/2 - ICON_HEIGHT/2*G_SCALE);
 }
 
 void AddressItem::setClickable(bool clickable)

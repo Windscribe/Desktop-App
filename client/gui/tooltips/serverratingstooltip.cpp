@@ -36,7 +36,7 @@ ServerRatingsTooltip::ServerRatingsTooltip(QWidget *parent) : ITooltip(parent)
 
 void ServerRatingsTooltip::updateScaling()
 {
-    font_ = FontManager::instance().getFont(12, false);
+    font_ = FontManager::instance().getFont(12,  QFont::Normal);
     recalcWidth();
     recalcHeight();
     updatePositions();

@@ -70,8 +70,8 @@
         <translation>مسدود کردن تمام اتصالات در صورت قطع ناگهانی</translation>
     </message>
     <message>
-        <source>Connect to rate</source>
-        <translation>اتصال به نرخ</translation>
+        <source>FIREWALL</source>
+        <translation>فایروال</translation>
     </message>
 </context>
 <context>
@@ -82,10 +82,26 @@
     </message>
 </context>
 <context>
-    <name>ConnectWindow::MiddleItem</name>
+    <name>ConnectWindow::LocationsMenu</name>
     <message>
-        <source>Firewall</source>
-        <translation>فایروال</translation>
+        <source>All</source>
+        <translation>همه</translation>
+    </message>
+    <message>
+        <source>Configured</source>
+        <translation>پیکربندی</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP های استاتیک</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>مورد علاقه</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>جستجو</translation>
     </message>
 </context>
 <context>
@@ -224,26 +240,6 @@
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
-        <source>All</source>
-        <translation>همه</translation>
-    </message>
-    <message>
-        <source>Configured</source>
-        <translation>پیکربندی</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>IP های استاتیک</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>مورد علاقه</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation>جستجو</translation>
-    </message>
-    <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
         <translation>فهرست راهنمای حاوی پیکربندیهای سفارشی که میخواهید در اینجا نمایش داده شود را انتخاب کنید</translation>
     </message>
@@ -275,6 +271,10 @@
         <source>Buy</source>
         <translation>فروش</translation>
     </message>
+    <message>
+        <source>All locations (%1)</source>
+        <translation>همه مکان ها (٪1)</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -290,7 +290,7 @@
         <translation>سطربندی واژهها</translation>
     </message>
     <message>
-        <source>Color highlighting</source>
+        <source>Colour highlighting</source>
         <translation>برجستهسازی رنگ</translation>
     </message>
     <message>
@@ -403,10 +403,6 @@
 </context>
 <context>
     <name>LoginWindow::WelcomeWindowItem</name>
-    <message>
-        <source>Keep Your Secrets.</source>
-        <translation>اسرار خود را نگه دارید.</translation>
-    </message>
     <message>
         <source>Emergency Connect</source>
         <translation>اتصال اضطراری</translation>
@@ -886,6 +882,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
         <translation>راه اندازی سرویس DNS سفارشی امکان پذیر نیست - پورت 53 در حال حاضر در حال استفاده است.  آیا می خواهید DNS متصل خود را به سرور محلی تغییر دهید؟</translation>
     </message>
+    <message>
+        <source>Slide to complete the puzzle</source>
+        <translation>برای تکمیل پازل اسلاید کنید</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -997,16 +997,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>حساب</translation>
     </message>
     <message>
-        <source>INFO</source>
-        <translation>اطلاعات</translation>
-    </message>
-    <message>
         <source>Username</source>
         <translation>نام کاربری</translation>
-    </message>
-    <message>
-        <source>PLAN</source>
-        <translation>طرح</translation>
     </message>
     <message>
         <source>Reset Date</source>
@@ -1023,6 +1015,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Expiry Date</source>
         <translation>تاریخ انقضا</translation>
+    </message>
+    <message>
+        <source>ACCOUNT INFO</source>
+        <translation>اطلاعات حساب</translation>
+    </message>
+    <message>
+        <source>PLAN INFO</source>
+        <translation>اطلاعات برنامه</translation>
+    </message>
+    <message>
+        <source>UPGRADE &gt;</source>
+        <translation>ارتقا &gt;</translation>
     </message>
 </context>
 <context>
@@ -1124,18 +1128,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::BackgroundSettingsGroup</name>
+    <name>PreferencesWindow::AppBackgroundGroup</name>
     <message>
-        <source>Disconnected</source>
-        <translation>قطع</translation>
+        <source>App Background</source>
+        <translation>پس زمینه برنامه</translation>
     </message>
     <message>
-        <source>Connected</source>
-        <translation>متصل</translation>
+        <source>Aspect Ratio Mode</source>
+        <translation>حالت نسبت تصویر</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>هنگام قطع شدن</translation>
     </message>
     <message>
         <source>Flags</source>
-        <translation>پرچم کشور</translation>
+        <translation>پرچم</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>همراه</translation>
     </message>
     <message>
         <source>None</source>
@@ -1146,8 +1158,32 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>سفارشی</translation>
     </message>
     <message>
-        <source>App Background</source>
-        <translation>زمینه برنامه</translation>
+        <source>When Connected</source>
+        <translation>هنگام اتصال</translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation>یک تصویر را انتخاب کنید</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>مربع</translation>
+    </message>
+    <message>
+        <source>Palm</source>
+        <translation>پالم</translation>
+    </message>
+    <message>
+        <source>Drip</source>
+        <translation>قطره</translation>
+    </message>
+    <message>
+        <source>Snow</source>
+        <translation>برف</translation>
+    </message>
+    <message>
+        <source>Ripple</source>
+        <translation>موج دار شدن</translation>
     </message>
 </context>
 <context>
@@ -1236,7 +1272,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>اتصال خودکار</translation>
     </message>
     <message>
-        <source>Control the mode of behavior of the Windscribe firewall.</source>
+        <source>Control the mode of behaviour of the Windscribe firewall.</source>
         <translation>نحوه رفتار فایروال Windscribe را کنترل کنید.</translation>
     </message>
     <message>
@@ -1486,32 +1522,12 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>محل سفارش</translation>
     </message>
     <message>
-        <source>Display latency as signal strength bars or in milliseconds.</source>
-        <translation>نمایش تاخیر به عنوان میله های قدرت سیگنال یا در میلی ثانیه.</translation>
-    </message>
-    <message>
-        <source>Latency Display</source>
-        <translation>نمایش تاخیر</translation>
-    </message>
-    <message>
         <source>Localize Windscribe to supported languages.</source>
         <translation>محلی سازی Windscribe به زبان های پشتیبانی شده.</translation>
     </message>
     <message>
         <source>Language</source>
         <translation>زبان</translation>
-    </message>
-    <message>
-        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>بین GUI کلاسیک یا GUI جایگزین &quot;earless&quot; را انتخاب کنید.</translation>
-    </message>
-    <message>
-        <source>App Skin</source>
-        <translation>برنامه پوست</translation>
-    </message>
-    <message>
-        <source>Customize the background of the main app screen.</source>
-        <translation>سفارشی کردن پس زمینه صفحه اصلی برنامه.</translation>
     </message>
     <message>
         <source>Choose to receive stable, beta, or experimental builds.</source>
@@ -1530,7 +1546,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>بین نماد سینی سفید و سیاه یکی را انتخاب کنید.</translation>
     </message>
     <message>
-        <source>Tray Icon Color</source>
+        <source>Tray Icon Colour</source>
         <translation>رنگ شمایل سینی</translation>
     </message>
     <message>
@@ -1538,28 +1554,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>چند دسکتاپ</translation>
     </message>
     <message>
-        <source>Select behavior when window is activated with multiple desktops.</source>
+        <source>Select behaviour when window is activated with multiple desktops.</source>
         <translation>هنگامی که پنجره با چندین دسکتاپ فعال می شود، رفتار را انتخاب کنید.</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>صادرات</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>واردات</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>تنظیم مجدد</translation>
-    </message>
-    <message>
-        <source>Change location names to your liking.</source>
-        <translation>نام مکان ها را به دلخواه تغییر دهید.</translation>
-    </message>
-    <message>
-        <source>Rename Locations</source>
-        <translation>تغییر نام مکان ها</translation>
     </message>
 </context>
 <context>
@@ -1619,6 +1615,49 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
         <translation>مشکلی دارید که گری نتواند ان را حل کند؟ تماس با پشتیبانی انسانی</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::LookAndFeelWindowItem</name>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>نگاه و احساس</translation>
+    </message>
+    <message>
+        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
+        <translation>بین GUI کلاسیک یا GUI جایگزین &quot;earless&quot; را انتخاب کنید.</translation>
+    </message>
+    <message>
+        <source>App Skin</source>
+        <translation>برنامه پوست</translation>
+    </message>
+    <message>
+        <source>Customize the background of the main app screen.</source>
+        <translation>سفارشی کردن پس زمینه صفحه اصلی برنامه.</translation>
+    </message>
+    <message>
+        <source>Choose sounds to play when connection events occur.</source>
+        <translation>صداهایی را برای پخش هنگام وقوع رویدادهای اتصال انتخاب کنید.</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>نام مکان ها را به دلخواه تغییر دهید.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>تغییر نام مکان ها</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>صادرات</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>واردات</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>تنظیم مجدد</translation>
     </message>
 </context>
 <context>
@@ -1761,20 +1800,12 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::PlanItem</name>
     <message>
-        <source>Unlimited Data</source>
-        <translation>اطلاعات نامحدود</translation>
+        <source>Free</source>
+        <translation>رایگان</translation>
     </message>
     <message>
-        <source>%1/Month</source>
-        <translation>%1/ ماه</translation>
-    </message>
-    <message>
-        <source>Pro</source>
-        <translation>طرفدار</translation>
-    </message>
-    <message>
-        <source>Upgrade</source>
-        <translation>ارتقاء</translation>
+        <source>Plan Type</source>
+        <translation>نوع طرح</translation>
     </message>
 </context>
 <context>
@@ -1818,6 +1849,10 @@ Connect to a network first</source>
     <message>
         <source>Quit</source>
         <translation>ترک</translation>
+    </message>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>نگاه و احساس</translation>
     </message>
 </context>
 <context>
@@ -2012,14 +2047,41 @@ Connect to a network first</source>
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::SelectImageItem</name>
+    <name>PreferencesWindow::SelectFileItem</name>
     <message>
         <source>[no selection]</source>
         <translation>[بدون انتخاب]</translation>
     </message>
+</context>
+<context>
+    <name>PreferencesWindow::SoundsGroup</name>
     <message>
-        <source>Select an image</source>
-        <translation>یک تصویر انتخاب کنید</translation>
+        <source>Sound Notifications</source>
+        <translation>اعلان های صوتی</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>هیچ کدام</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>هنگام قطع شدن</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>همراه</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>سفارشی</translation>
+    </message>
+    <message>
+        <source>Select a sound</source>
+        <translation>یک صدا را انتخاب کنید</translation>
+    </message>
+    <message>
+        <source>When Connected</source>
+        <translation>هنگام اتصال</translation>
     </message>
 </context>
 <context>
@@ -2100,14 +2162,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 اگر نصب مجدد کمک نمی کند، لطفا با پشتیبانی Windscribe برای کمک تماس بگیرید.</translation>
     </message>
     <message>
-        <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
-        <translation>برنامه های انتخاب شده، ای پی ها و نام های میزبان هنگام اتصال از طریق Windscribe عبور نخواهند کرد.</translation>
-    </message>
-    <message>
-        <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
-        <translation>فقط برنامه های انتخاب شده، ای پی ها و نام های میزبان هنگام اتصال از طریق Windscribe عبور می کنند.</translation>
-    </message>
-    <message>
         <source>Split Tunneling</source>
         <translation>تونل زنی اسپلیت</translation>
     </message>
@@ -2130,6 +2184,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>IPs &amp; Hostnames</source>
         <translation>ایپیها و نام میزبانها</translation>
+    </message>
+    <message>
+        <source>When enabled, selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
+        <translation>در صورت فعال بودن، برنامه ها، IP ها و نام های میزبان انتخاب شده هنگام اتصال از طریق Windscribe عبور نمی کنند.</translation>
+    </message>
+    <message>
+        <source>When enabled, only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
+        <translation>در صورت فعال بودن، فقط برنامه ها، IP ها و نام های میزبان انتخاب شده هنگام اتصال از طریق Windscribe عبور می کنند.</translation>
     </message>
 </context>
 <context>
@@ -2230,14 +2292,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Latency</source>
         <translation>پوشیدگی</translation>
-    </message>
-    <message>
-        <source>Bars</source>
-        <translation>میله</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>خانم</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2408,12 +2462,16 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>DNS محلی</translation>
     </message>
     <message>
-        <source>Latency test pending</source>
-        <translation>تست تأخیر در انتظار است</translation>
+        <source>Stretch</source>
+        <translation>کشش</translation>
     </message>
     <message>
-        <source>Latency test failed</source>
-        <translation>تست تأخیر ناموفق بود</translation>
+        <source>Fill</source>
+        <translation>پر کردن</translation>
+    </message>
+    <message>
+        <source>Tile</source>
+        <translation>کاشی</translation>
     </message>
     <message>
         <source>Always On+</source>
@@ -2490,7 +2548,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>v</translation>
     </message>
     <message>
-        <source>UPDATE</source>
+        <source>Update</source>
         <translation>روز رسانی</translation>
     </message>
 </context>
@@ -2526,49 +2584,60 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
 </context>
 <context>
+    <name>UpgradeBanner</name>
+    <message>
+        <source>Unlock full access to Windscribe</source>
+        <translation>دسترسی کامل به Windscribe را باز کنید</translation>
+    </message>
+    <message>
+        <source>Go Pro for unlimited everything</source>
+        <translation>برای همه چیز نامحدود برو پرو</translation>
+    </message>
+</context>
+<context>
     <name>UpgradeWidget::UpgradeWidgetItem</name>
     <message>
-        <source>GET MORE DATA</source>
-        <translation>دریافت اطلاعات بیشتر</translation>
+        <source>Get more data</source>
+        <translation>داده های بیشتری دریافت کنید</translation>
     </message>
     <message>
-        <source>EXT CONFIG MODE</source>
-        <translation>حالت پیکربندی EXT</translation>
+        <source>%1 left</source>
+        <translation>٪1 باقی مانده</translation>
     </message>
     <message>
-        <source>0 DAYS LEFT</source>
+        <source>0 days left</source>
         <translation>0 روز باقی مانده</translation>
     </message>
     <message>
-        <source>1 DAY LEFT</source>
+        <source>1 day left</source>
         <translation>1 روز باقی مانده</translation>
     </message>
     <message>
-        <source>2 DAYS LEFT</source>
+        <source>2 days left</source>
         <translation>2 روز باقی مانده</translation>
     </message>
     <message>
-        <source>3 DAYS LEFT</source>
-        <translation>3 روز باقی مانده</translation>
+        <source>3 days left</source>
+        <translation>3 روز باقی مانده است</translation>
     </message>
     <message>
-        <source>4 DAYS LEFT</source>
+        <source>4 days left</source>
         <translation>4 روز باقی مانده</translation>
     </message>
     <message>
-        <source>5 DAYS LEFT</source>
+        <source>5 days left</source>
         <translation>5 روز باقی مانده</translation>
     </message>
     <message>
-        <source>%1 DAYS LEFT</source>
-        <translation>%1 روز باقیمانده</translation>
+        <source>%1 days left</source>
+        <translation>٪1 روز باقی مانده</translation>
     </message>
     <message>
-        <source>LOGIN</source>
+        <source>Login</source>
         <translation>ورود</translation>
     </message>
     <message>
-        <source>RENEW</source>
+        <source>Renew</source>
         <translation>تجدید</translation>
     </message>
 </context>

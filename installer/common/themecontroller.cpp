@@ -6,10 +6,7 @@
 
 ThemeController::ThemeController()
 {
-#ifdef Q_OS_MACOS
-    QFontDatabase::addApplicationFont(":/resources/IBMPlexSans-Bold.ttf");
-    QFontDatabase::addApplicationFont(":/resources/IBMPlexSans-Regular.ttf");
-#endif
+    QFontDatabase::addApplicationFont(":/resources/ibmplexsans.ttf");
 }
 
 ThemeController::~ThemeController()
@@ -21,11 +18,12 @@ QString ThemeController::defaultFontName() const
     return "IBM Plex Sans";
 }
 
-QFont ThemeController::defaultFont(int sizePx, QFont::Weight weight) const
+QFont ThemeController::defaultFont(int sizePx, int weight) const
 {
     QFont font = QFont(defaultFontName());
     font.setPixelSize(sizePx);
-    font.setWeight(weight);
+    font.setWeight(static_cast<QFont::Weight>(weight));
+    font.setStyleStrategy(QFont::PreferAntialias);
     return font;
 }
 

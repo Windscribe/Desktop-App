@@ -24,6 +24,7 @@
 #include "api_responses/robertfilter.h"
 #include "api_responses/checkupdate.h"
 #include "protocolwindow/protocolwindowmode.h"
+#include "sounds/soundmanager.h"
 
 #if defined(Q_OS_MACOS)
 #include "permissions/permissionmonitor_mac.h"
@@ -85,6 +86,9 @@ private slots:
     void onLoginTwoFactorAuthWindowClick(const QString &username, const QString &password);
     void onLoginFirewallTurnOffClick();
 
+    // captcha window signals
+    void onCaptchaResolved(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY);
+
     // connect window signals
     void onConnectWindowConnectClick();
     void onConnectWindowFirewallClick();
@@ -94,6 +98,9 @@ private slots:
     void onConnectWindowNotificationsClick();
     void onConnectWindowSplitTunnelingClick();
     void onConnectWindowProtocolsClick();
+    void onConnectWindowLocationTabClicked(LOCATION_TAB tab);
+    void onConnectWindowSearchFilterChanged(const QString &filter);
+    void onConnectWindowLocationsKeyPressed(QKeyEvent *event);
 
     // news feed window signals
     void onEscapeNotificationsClick();
@@ -166,12 +173,14 @@ private slots:
     void onLocationsAddStaticIpClicked();
     void onLocationsClearCustomConfigClicked();
     void onLocationsAddCustomConfigClicked();
+    void onLocationsUpgradeBannerClicked();
 
     void onLanguageChanged();
 
     // backend state signals
     void onBackendInitFinished(INIT_STATE initState);
 
+    void onBackendCaptchaRequired(const QString &background, const QString &slider, int top);
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
     void onBackendTryingBackupEndpoint(int num, int cnt);
     void onBackendLoginError(wsnet::LoginResult loginError, const QString &errorMessage);
@@ -397,6 +406,15 @@ private:
     QTimer hideShowDockIconTimer_;
     bool currentDockIconVisibility_;
     bool desiredDockIconVisibility_;
+
+    typedef QRect TrayIconRelativeGeometry ;
+    QMap<QString, TrayIconRelativeGeometry> systemTrayIconRelativeGeoScreenHistory_;
+    QString lastScreenName_;
+
+    const QRect bestGuessForTrayIconRectFromLastScreen(const QPoint &pt);
+    const QRect trayIconRectForLastScreen();
+    const QRect trayIconRectForScreenContainingPt(const QPoint &pt);
+    const QRect generateTrayIconRectFromHistory(const QString &screenName);
 #endif
     QTimer deactivationTimer_;
 
@@ -415,6 +433,7 @@ private:
     void cleanupAdvParametersWindow();
     void cleanupLogViewerWindow();
 
+    QRect guessTrayIconLocationOnScreen(QScreen *screen);
     void showUserWarning(USER_WARNING_TYPE userWarningType);
     void openBrowserToMyAccountWithToken(const QString &tempSessionToken);
     void updateConnectWindowStateProtocolPortDisplay();
@@ -438,4 +457,6 @@ private:
 
     void checkCustomConfigPath(const QString &path);
     bool wasLaunchedOnStartup();
+
+    SoundManager *soundManager_;
 };

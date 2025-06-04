@@ -243,7 +243,7 @@
         <translation>Preferencje zostały ponownie załadowane.</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
+        <source>Key limit behaviour is set.</source>
         <translation>Zachowanie limitu klucza jest ustawione.</translation>
     </message>
     <message>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>(Nazwa urządzenia: %1)</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>Połączenie z Internetem nie jest dostępne.  Spróbuj ponownie później.</translation>
     </message>
 </context>
 </TS>

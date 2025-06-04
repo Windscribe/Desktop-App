@@ -1,0 +1,29 @@
+<RCC>
+    <qresource prefix="/">
+        <file>sounds/Arcade_off.mp3</file>
+        <file>sounds/Arcade_on.mp3</file>
+        <file>sounds/Boing_off.mp3</file>
+        <file>sounds/Boing_on.mp3</file>
+        <file>sounds/Fart_(Deluxe)_loop.mp3</file>
+        <file>sounds/Fart_(Deluxe)_off.mp3</file>
+        <file>sounds/Fart_(Deluxe)_on.mp3</file>
+        <file>sounds/Fart_off.mp3</file>
+        <file>sounds/Fart_on.mp3</file>
+        <file>sounds/Ghost_Wind_off.mp3</file>
+        <file>sounds/Ghost_Wind_on.mp3</file>
+        <file>sounds/Pop_Can_off.mp3</file>
+        <file>sounds/Pop_Can_on.mp3</file>
+        <file>sounds/Sci-fi_off.mp3</file>
+        <file>sounds/Sci-fi_on.mp3</file>
+        <file>sounds/Sub_Ping_off.mp3</file>
+        <file>sounds/Sub_Ping_on.mp3</file>
+        <file>sounds/Sword_off.mp3</file>
+        <file>sounds/Sword_on.mp3</file>
+        <file>sounds/Video_Game_off.mp3</file>
+        <file>sounds/Video_Game_on.mp3</file>
+        <file>sounds/Windscribe_off.mp3</file>
+        <file>sounds/Windscribe_on.mp3</file>
+        <file>sounds/Wiz_By_off.mp3</file>
+        <file>sounds/Wiz_By_on.mp3</file>
+   </qresource>
+</RCC>

@@ -577,7 +577,7 @@ def build_installer_mac(configdata, qt_root, build_path):
                          pathhelper.ROOT_DIR + "/installer/mac/dmgbuild/dmgbuild_settings.py",
                          "WindscribeInstaller",
                          "WindscribeInstaller.dmg", "-D", "app=WindscribeInstaller.app", "-D",
-                         "background=" + pathhelper.ROOT_DIR + "/installer/mac/dmgbuild/osx_install_background.tiff"])
+                         "background=" + pathhelper.ROOT_DIR + "/installer/mac/dmgbuild/installer_background.png"])
         final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg"
                                                              .format(extractor.app_version(True))))
     utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)

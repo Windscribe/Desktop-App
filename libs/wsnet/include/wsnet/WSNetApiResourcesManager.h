@@ -20,7 +20,8 @@ enum class ApiResourcesManagerNotification {
     kStaticIpsUpdated,
     kNotificationsUpdated,
     kCheckUpdate,
-    kLogoutFinished
+    kLogoutFinished,
+    kAuthTokenLoginFinished
 };
 
 enum class LoginResult {
@@ -34,7 +35,8 @@ enum class LoginResult {
     kMissingCode2fa,
     kAccountDisabled,
     kSessionInvalid,
-    kRateLimited
+    kRateLimited,
+    kInvalidSecurityToken
 };
 
 typedef std::function<void(ApiResourcesManagerNotification notification, LoginResult loginResult, const std::string &errorMessage)> WSNetApiResourcesManagerCallback;
@@ -65,9 +67,17 @@ public:
     // Returns the result in the notifications kLoginOk/kLoginFailed
     virtual bool loginWithAuthHash() = 0;
 
+    // authTokenLogin call, must be called before login API call. Required for two stage login + CAPTCHA
+    virtual void authTokenLogin() = 0;
+
     // login with username/password
+    // optionally send captcha data
     // Returns the result in the notifications kLoginOk/kLoginFailed
-    virtual void login(const std::string &username, const std::string &password, const std::string &code2fa) = 0;
+    virtual void login(const std::string &username, const std::string &password, const std::string &code2fa,
+                       const std::string &secureToken,
+                       const std::string &captchaSolution = std::string(),
+                       const std::vector<float> &captchaTrailX = std::vector<float>(),
+                       const std::vector<float> &captchaTrailY = std::vector<float>()) = 0;
 
     // does session deletion and deletes all saved data from persistent storage
     virtual void logout() = 0;
@@ -104,6 +114,7 @@ public:
     virtual std::string serverConfigs() const = 0;
     virtual std::string notifications() const = 0;
     virtual std::string checkUpdate() const = 0;
+    virtual std::string authTokenLoginResult() const = 0;
 
     // this function is for debugging purposes, allows to set arbitrary resource update intervals
     virtual void setUpdateIntervals(int sessionInDisconnectedStateMs, int sessionInConnectedStateMs,

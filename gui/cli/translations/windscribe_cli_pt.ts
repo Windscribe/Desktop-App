@@ -243,7 +243,7 @@
         <translation>Preferências recarregadas.</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
+        <source>Key limit behaviour is set.</source>
         <translation>O comportamento do limite de chave é definido.</translation>
     </message>
     <message>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>(Nome do dispositivo: %1)</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>A conectividade com a Internet não está disponível.  Tente novamente mais tarde.</translation>
     </message>
 </context>
 </TS>

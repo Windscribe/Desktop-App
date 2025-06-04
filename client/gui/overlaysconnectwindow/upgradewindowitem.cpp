@@ -22,7 +22,7 @@ UpgradeWindowItem::UpgradeWindowItem(Preferences *preferences, ScalableGraphicsO
     connect(acceptButton_, &CommonGraphics::BubbleButton::clicked, this, &UpgradeWindowItem::acceptClick);
     // cancel
     double cancelOpacity = OPACITY_UNHOVER_TEXT;
-    cancelButton_ = new CommonGraphics::TextButton("", FontDescr(16, false), Qt::white, true, this);
+    cancelButton_ = new CommonGraphics::TextButton("", FontDescr(16, QFont::Normal), Qt::white, true, this);
     connect(cancelButton_, &CommonGraphics::TextButton::clicked, this, &UpgradeWindowItem::cancelClick);
     cancelButton_->quickSetOpacity(cancelOpacity);
 
@@ -45,28 +45,21 @@ void UpgradeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     qreal initialOpacity = painter->opacity();
 
     // background
-    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
-    {
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
         painter->setPen(Qt::NoPen);
-#ifdef Q_OS_MACOS
         QPainterPath path;
-        path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
+        path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
         painter->fillPath(path, QColor(2, 13, 28));
-#else
-        painter->fillRect(boundingRect().toRect(), QColor(2, 13, 28));
-#endif
         painter->setPen(Qt::SolidLine);
-    }
-    else
-    {
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-        QString background = "background/WIN_MAIN_BG";
-#else
-        QString background = "background/MAC_MAIN_BG";
-#endif
+    } else {
+        QString background = "background/MAIN_BG";
         painter->setOpacity(OPACITY_FULL * initialOpacity);
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(background);
         p->draw(0, 0, painter);
+
+        QString borderInner = "background/MAIN_BORDER_INNER";
+        QSharedPointer<IndependentPixmap> borderInnerPixmap = ImageResourcesSvg::instance().getIndependentPixmap(borderInner);
+        borderInnerPixmap->draw(0, 0, painter);
     }
 
     int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -16*G_SCALE : 0;
@@ -74,14 +67,14 @@ void UpgradeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     // title
     painter->setOpacity(OPACITY_FULL * initialOpacity);
     painter->setPen(FontManager::instance().getErrorRedColor());
-    QFont titleFont = FontManager::instance().getFont(24, true);
+    QFont titleFont = FontManager::instance().getFont(24, QFont::Bold);
     painter->setFont(titleFont);
     QRectF titleRect(0, (TITLE_POS_Y + yOffset)*G_SCALE, WINDOW_WIDTH*G_SCALE, CommonGraphics::textHeight(titleFont));
     painter->drawText(titleRect, Qt::AlignCenter, tr("You're out of data!"));
 
     // main description
     painter->setOpacity(OPACITY_FULL * initialOpacity);
-    QFont descFont(FontManager::instance().getFont(14, false));
+    QFont descFont(FontManager::instance().getFont(14,  QFont::Normal));
     painter->setFont(descFont);
     painter->setPen(Qt::white);
 

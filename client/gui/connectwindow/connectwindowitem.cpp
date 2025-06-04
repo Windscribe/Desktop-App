@@ -12,7 +12,6 @@
 #include "tooltips/tooltiputil.h"
 #include "utils/ws_assert.h"
 
-
 namespace ConnectWindow {
 
 ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper)
@@ -36,24 +35,18 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     minimizeButton_ = new IconButton(10, 10, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, &IconButton::clicked, this, &ConnectWindowItem::minimizeClick);
 #else
-
-    //fullScreenButton_ = new IconButton(14,14,"MAC_EMPTY_DEFAULT", this);
-
-    //fullScreenButton_->setSelected(true);
-    //fullScreenButton_->setClickable(false);
-    minimizeButton_ = new IconButton(14,14,"MAC_MINIMIZE_DEFAULT", "", this);
+    minimizeButton_ = new IconButton(14, 14, "MAC_MINIMIZE_DEFAULT", "", this);
     connect(minimizeButton_, &IconButton::clicked, this, &ConnectWindowItem::minimizeClick);
     connect(minimizeButton_, &IconButton::hoverEnter, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_HOVER"); });
     connect(minimizeButton_, &IconButton::hoverLeave, [=](){ minimizeButton_->setIcon("MAC_MINIMIZE_DEFAULT"); });
     minimizeButton_->setVisible(!preferencesHelper->isDockedToTray());
     minimizeButton_->setSelected(true);
 
-    closeButton_ = new IconButton(14,14, "MAC_CLOSE_DEFAULT", "", this);
+    closeButton_ = new IconButton(14, 14, "MAC_CLOSE_DEFAULT", "", this);
     connect(closeButton_, &IconButton::clicked, this, &ConnectWindowItem::closeClick);
     connect(closeButton_, &IconButton::hoverEnter, [=](){ closeButton_->setIcon("MAC_CLOSE_HOVER"); });
     connect(closeButton_, &IconButton::hoverLeave, [=](){ closeButton_->setIcon("MAC_CLOSE_DEFAULT"); });
     closeButton_->setSelected(true);
-
 #endif
 
     connectButton_ = new ConnectButton(this);
@@ -65,14 +58,14 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(connectStateProtocolPort_, &ClickableGraphicsObject::clicked, this, &ConnectWindowItem::onProtocolsClick);
     connect(preferences_, &Preferences::isAntiCensorshipChanged, connectStateProtocolPort_, &ConnectStateProtocolPort::antiCensorshipChanged);
 
-    cityName1Text_ = new CommonGraphics::TextButton("", FontDescr(28, true), Qt::white, true, this, 0, true);
+    cityName1Text_ = new CommonGraphics::TextButton("", FontDescr(21, QFont::DemiBold), Qt::white, true, this, 0, true);
     cityName1Text_->setUnhoverOpacity(OPACITY_FULL);
     cityName1Text_->setCurrentOpacity(OPACITY_FULL);
     cityName1Text_->setClickableHoverable(false, true);
     connect(cityName1Text_, &CommonGraphics::TextButton::hoverEnter, this, &ConnectWindowItem::onFirstNameHoverEnter);
     connect(cityName1Text_, &CommonGraphics::TextButton::hoverLeave, this, &ConnectWindowItem::onFirstOrSecondNameHoverLeave);
 
-    cityName2Text_ = new CommonGraphics::TextButton("", FontDescr(16, false), Qt::white, true, this, 0, true);
+    cityName2Text_ = new CommonGraphics::TextButton("", FontDescr(21, QFont::Light), Qt::white, true, this, 0, true);
     cityName2Text_->setUnhoverOpacity(OPACITY_FULL);
     cityName2Text_->setCurrentOpacity(OPACITY_FULL);
     cityName2Text_->setClickableHoverable(false, true);
@@ -85,11 +78,9 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     locationsButton_ = new LocationsButton(this);
     locationsButton_->setCursor(Qt::PointingHandCursor);
     connect(locationsButton_, &LocationsButton::clicked, this, &ConnectWindowItem::locationsClick);
-
-    serverRatingIndicator_ = new ServerRatingIndicator(this);
-    serverRatingIndicator_->setClickableHoverable(false, true);
-    connect(serverRatingIndicator_, &ServerRatingIndicator::hoverEnter, this, &ConnectWindowItem::onServerRatingIndicatorHoverEnter);
-    connect(serverRatingIndicator_, &ServerRatingIndicator::hoverLeave, this, &ConnectWindowItem::onServerRatingIndicatorHoverLeave);
+    connect(locationsButton_, &LocationsButton::locationTabClicked, this, &ConnectWindowItem::locationTabClicked);
+    connect(locationsButton_, &LocationsButton::searchFilterChanged, this, &ConnectWindowItem::searchFilterChanged);
+    connect(locationsButton_, &LocationsButton::locationsKeyPressed, this, &ConnectWindowItem::locationsKeyPressed);
 
     networkTrustButton_ = new IconButton(28, 22, "network/WIFI_UNSECURED", "network/WIFI_UNSECURED_SHADOW", this, OPACITY_FULL);
     networkTrustButton_->setOpacity(.2);
@@ -97,13 +88,26 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(networkTrustButton_, &IconButton::hoverEnter, this, &ConnectWindowItem::onNetworkHoverEnter);
     connect(networkTrustButton_, &IconButton::hoverLeave, this, &ConnectWindowItem::onNetworkHoverLeave);
 
-    middleItem_ = new MiddleItem(this, "---.---.---.---");
+    networkNameText_ = new CommonGraphics::TextButton("", FontDescr(15, QFont::Normal), Qt::white, false, this, 0, false);
+    networkNameText_->setUnhoverOpacity(0.7);
+    networkNameText_->setCurrentOpacity(0.7);
 
-    firewallButton_ = new FirewallButton(this);
-    connect(firewallButton_, &FirewallButton::hoverLeave, this, &ConnectWindowItem::onFirewallButtonHoverLeave);
-    connect(firewallButton_, &FirewallButton::clicked, this, &ConnectWindowItem::onFirewallButtonClick);
+    ipAddressItem_ = new IPAddressItem(this);
+    connect(ipAddressItem_, &IPAddressItem::widthChanged, this, &ConnectWindowItem::onIpAddressWidthChanged);
 
-    firewallInfo_ = new IconButton(16, 16, "INFO_ICON", "", this, 0.25, 0.25);
+    // dotMenuButton_ = new IconButton(24, 24, "DOT_MENU", "", this);
+    // dotMenuButton_->setUnhoverOpacity(0.6);
+
+    firewallLabel_ = new CommonGraphics::TextButton(tr("FIREWALL"), FontDescr(12, QFont::Medium, 100, 2), Qt::white, false, this, 0, false);
+    firewallLabel_->setUnhoverOpacity(0.6);
+    firewallLabel_->setCurrentOpacity(0.6);
+
+    firewallButton_ = new ToggleButton(this);
+    // firewallButton_->setColor(QColor(0, 106, 255));
+    connect(firewallButton_, &ToggleButton::hoverLeave, this, &ConnectWindowItem::onFirewallButtonHoverLeave);
+    connect(firewallButton_, &ToggleButton::clicked, this, &ConnectWindowItem::onFirewallButtonClick);
+
+    firewallInfo_ = new IconButton(16, 16, "INFO_ICON", "", this, OPACITY_QUARTER, OPACITY_QUARTER);
     firewallInfo_->setClickableHoverable(false, true);
     connect(firewallInfo_, &IconButton::hoverEnter, this, &ConnectWindowItem::onFirewallInfoHoverEnter);
     connect(firewallInfo_, &IconButton::hoverLeave, this, &ConnectWindowItem::onFirewallInfoHoverLeave);
@@ -146,7 +150,6 @@ void ConnectWindowItem::setClickable(bool isClickable)
     logoButton_->setClickable(isClickable);
 
     firewallInfo_->setClickableHoverable(false, isClickable);
-    serverRatingIndicator_->setClickableHoverable(false, isClickable);
     connectStateProtocolPort_->setHoverable(isClickable);
     connectStateProtocolPort_->setClickable(isClickable);
 }
@@ -161,8 +164,8 @@ QRegion ConnectWindowItem::getMask()
 
     polygon << QPoint(0, 0)
             << QPoint(windowWidth, 0)
-            << QPoint(windowWidth, (WINDOW_HEIGHT - 25) * G_SCALE)
-            << QPoint(xOffset,     (WINDOW_HEIGHT - 25) * G_SCALE)
+            << QPoint(windowWidth, (WINDOW_HEIGHT - 16) * G_SCALE)
+            << QPoint(xOffset,     (WINDOW_HEIGHT - 16) * G_SCALE)
             << QPoint(xOffset2,    (WINDOW_HEIGHT     ) * G_SCALE)
             << QPoint(0,           (WINDOW_HEIGHT     ) * G_SCALE);
     return QRegion(polygon);
@@ -205,7 +208,6 @@ void ConnectWindowItem::updateLocationInfo(const QString &firstName, const QStri
         updateShortenedText();
     }
     background_->onLocationSelected(countryCode);
-    serverRatingIndicator_->setPingTime(pingTime);
 
     // if custom but button is visible, make it invisible
     // if not custom but button is invisible, make it visible
@@ -219,13 +221,10 @@ void ConnectWindowItem::updateConnectState(const types::ConnectState &newConnect
 {
     if (newConnectState != prevConnectState_)
     {
-        middleItem_->setIsSecured(newConnectState.connectState == CONNECT_STATE_CONNECTED);
-
-        firewallButton_->setDisabled(newConnectState.connectState == CONNECT_STATE_CONNECTING || newConnectState.connectState == CONNECT_STATE_DISCONNECTING);
+        firewallButton_->setEnabled(newConnectState.connectState != CONNECT_STATE_CONNECTING && newConnectState.connectState != CONNECT_STATE_DISCONNECTING);
 
         background_->onConnectStateChanged(newConnectState.connectState, prevConnectState_.connectState);
         connectButton_->onConnectStateChanged(newConnectState.connectState, prevConnectState_.connectState);
-        serverRatingIndicator_->onConnectStateChanged(newConnectState.connectState, prevConnectState_.connectState);
         connectStateProtocolPort_->onConnectStateChanged(newConnectState, prevConnectState_);
 
         prevConnectState_ = newConnectState;
@@ -234,7 +233,7 @@ void ConnectWindowItem::updateConnectState(const types::ConnectState &newConnect
 
 void ConnectWindowItem::updateFirewallState(bool isFirewallEnabled)
 {
-    firewallButton_->setFirewallState(isFirewallEnabled);
+    firewallButton_->setState(isFirewallEnabled);
 }
 
 void ConnectWindowItem::updateLocationsState(bool isExpanded)
@@ -244,7 +243,8 @@ void ConnectWindowItem::updateLocationsState(bool isExpanded)
 
 void ConnectWindowItem::updateMyIp(const QString &ip)
 {
-    middleItem_->setIpAddress(ip);
+    ipAddressItem_->setIpAddress(ip);
+    updatePositions();
 }
 
 void ConnectWindowItem::updateNotificationsState(int totalMessages, int unread)
@@ -258,35 +258,24 @@ void ConnectWindowItem::updateNetworkState(types::NetworkInterface network)
     NETWORK_INTERFACE_TYPE type = network.interfaceType;
     bool networkActive = network.active;
 
-    if (trustType_ != trusted || interfaceType_ != type || networkActive_ != networkActive)
-    {
+    if (trustType_ != trusted || interfaceType_ != type || networkActive_ != networkActive) {
         QString icon = "";
-        if (type == NETWORK_INTERFACE_WIFI || type == NETWORK_INTERFACE_MOBILE_BROADBAND)
-        {
+        if (type == NETWORK_INTERFACE_WIFI || type == NETWORK_INTERFACE_MOBILE_BROADBAND) {
             icon += "network/WIFI_";
-        }
-        else if (type == NETWORK_INTERFACE_ETH)
-        {
+        } else if (type == NETWORK_INTERFACE_ETH) {
             icon += "network/ETHERNET_";
         }
 
-        if (networkActive)
-        {
+        if (networkActive) {
             networkTrustButton_->setOpacity(1);
-        }
-        else
-        {
+        } else {
             networkTrustButton_->setOpacity(.2);
         }
 
-        if (icon != "")
-        {
-            if (trusted == NETWORK_TRUST_UNSECURED)
-            {
+        if (icon != "") {
+            if (trusted == NETWORK_TRUST_UNSECURED) {
                 icon += "UNSECURED";
-            }
-            else
-            {
+            } else {
                 icon += "SECURED";
             }
 
@@ -295,6 +284,7 @@ void ConnectWindowItem::updateNetworkState(types::NetworkInterface network)
     }
 
     networkName_ = network.friendlyName;
+    networkNameText_->setText(networkName_);
     trustType_ = trusted;
     interfaceType_ = type;
     networkActive_ = networkActive;
@@ -321,20 +311,14 @@ void ConnectWindowItem::setProtocolPort(const types::Protocol &protocol, const u
 void ConnectWindowItem::onNetworkHoverEnter()
 {
     QString title = "";
-    if (networkName_ == "")
-    {
+    if (networkName_ == "") {
         title = tr("No Network Info");
-    }
-    else
-    {
+    } else {
         title = networkName_ + ": ";
 
-        if (trustType_)
-        {
+        if (trustType_) {
             title += tr("Unsecured");
-        }
-        else
-        {
+        } else {
             title += tr("Secured");
         }
     }
@@ -361,18 +345,15 @@ void ConnectWindowItem::onNetworkHoverLeave()
 
 void ConnectWindowItem::onConnectStateTextHoverEnter()
 {
-    if (prevConnectState_.connectState == CONNECT_STATE_CONNECTED || prevConnectState_.connectState == CONNECT_STATE_DISCONNECTED)
-    {
-        if (connectionTime_ != "") // only show if connection has been started at least once
-        {
+    if (prevConnectState_.connectState == CONNECT_STATE_CONNECTED || prevConnectState_.connectState == CONNECT_STATE_DISCONNECTED) {
+        if (connectionTime_ != "") { // only show if connection has been started at least once
             QGraphicsView *view = scene()->views().first();
             QPoint globalPt = view->mapToGlobal(view->mapFromScene(connectStateProtocolPort_->scenePos()));
 
             int posX = globalPt.x() + 16 * G_SCALE;
             int posY = globalPt.y() - 3 * G_SCALE;
 
-            if (prevConnectState_.connectState == CONNECT_STATE_DISCONNECTED)
-            {
+            if (prevConnectState_.connectState == CONNECT_STATE_DISCONNECTED) {
                 QString text = tr("Connection to Windscribe has been terminated. ") +
                         dataTransferred_ + tr(" transferred in ") +
                         connectionTime_;
@@ -386,9 +367,7 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
                 ti.desc = text;
                 ti.width = 275 * G_SCALE;
                 TooltipController::instance().showTooltipDescriptive(ti);
-            }
-            else // CONNECTED
-            {
+            } else { // CONNECTED
                 QString text = tr("Connected for ") +
                         connectionTime_ + ", " + dataTransferred_ + tr(" transferred");
 
@@ -492,8 +471,7 @@ void ConnectWindowItem::onFirstNameHoverEnter()
 
 void ConnectWindowItem::onSecondNameHoverEnter()
 {
-    if (fullSecondName_ != cityName2Text_->text())
-    {
+    if (fullSecondName_ != cityName2Text_->text()) {
         QGraphicsView *view = scene()->views().first();
         QPoint globalPt = view->mapToGlobal(view->mapFromScene(cityName2Text_->scenePos()));
 
@@ -515,77 +493,44 @@ void ConnectWindowItem::onFirstOrSecondNameHoverLeave()
     TooltipController::instance().hideTooltip(TOOLTIP_ID_FULL_SERVER_NAME);
 }
 
-void ConnectWindowItem::onServerRatingIndicatorHoverEnter()
-{
-    if (prevConnectState_.connectState == CONNECT_STATE_CONNECTED)
-    {
-        QGraphicsView *view = scene()->views().first();
-        QPoint globalPt = view->mapToGlobal(serverRatingIndicator_->scenePos().toPoint());
-        int posX = globalPt.x() + 7 * G_SCALE;
-        int posY = globalPt.y() - 3 * G_SCALE;
-
-        TooltipInfo ti(TOOLTIP_TYPE_INTERACTIVE, TOOLTIP_ID_SERVER_RATINGS);
-        ti.x = posX;
-        ti.y = posY;
-        TooltipController::instance().showTooltipInteractive(ti.id, ti.x, ti.y, ti.delay);
-    }
-    else
-    {
-        QGraphicsView *view = scene()->views().first();
-        QPoint globalPt = view->mapToGlobal(serverRatingIndicator_->scenePos().toPoint());
-        int posX = globalPt.x() + 8 * G_SCALE;
-        int posY = globalPt.y() - 3 * G_SCALE;
-
-        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_CONNECT_TO_RATE);
-        ti.id = TOOLTIP_ID_CONNECT_TO_RATE;
-        ti.x = posX;
-        ti.y = posY;
-        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-        ti.tailPosPercent = 0.9;
-        ti.title = tr("Connect to rate");
-        ti.type = TOOLTIP_TYPE_BASIC;
-        TooltipController::instance().showTooltipBasic(ti);
-    }
-}
-
-void ConnectWindowItem::onServerRatingIndicatorHoverLeave()
-{
-    TooltipController::instance().hideTooltip(TOOLTIP_ID_CONNECT_TO_RATE);
-    TooltipController::instance().hideTooltip(TOOLTIP_ID_SERVER_RATINGS);
-}
-
 void ConnectWindowItem::updatePositions()
 {
     cityName1Text_->recalcBoundingRect();
     cityName2Text_->recalcBoundingRect();
 
-    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
-    {
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
         int closePosY = WINDOW_WIDTH*G_SCALE - closeButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
         closeButton_->setPos(closePosY, 14*G_SCALE);
         minimizeButton_->setPos(closePosY - minimizeButton_->boundingRect().width() - 26*G_SCALE, 14*G_SCALE);
 #else
-        int rightMostPosX = static_cast<int>(boundingRect().width()) - static_cast<int>(closeButton_->boundingRect().width()) - 8*G_SCALE;
-        int middlePosX = rightMostPosX - static_cast<int>(closeButton_->boundingRect().width()) - 8*G_SCALE;
+        int rightMostPosX = WINDOW_WIDTH*G_SCALE - closeButton_->boundingRect().width() - 8*G_SCALE;
+        int middlePosX = rightMostPosX - closeButton_->boundingRect().width() - 8*G_SCALE;
         closeButton_->setPos(rightMostPosX, 8*G_SCALE);
         minimizeButton_->setPos(middlePosX, 8*G_SCALE);
 #endif
         preferencesButton_->setPos(22*G_SCALE, 16*G_SCALE);
-        logoButton_->setPos(64*G_SCALE, 8*G_SCALE);
-        connectButton_->setPos(235*G_SCALE, 34*G_SCALE);
-        connectStateProtocolPort_->setPos(13*G_SCALE, 69*G_SCALE);
-        cityName1Text_->setPos(14*G_SCALE, 88*G_SCALE);
-        cityName2Text_->setPos(16*G_SCALE, 127*G_SCALE);
-        locationsButton_->setPos(93*G_SCALE, 216*G_SCALE);
-        networkTrustButton_->setPos(236*G_SCALE, 132*G_SCALE);
-        serverRatingIndicator_->setPos(296*G_SCALE, 129*G_SCALE);
-        middleItem_->setPos(0, 182*G_SCALE);
-        firewallButton_->setPos(16*G_SCALE, 224*G_SCALE);
-        firewallInfo_->setPos(middleItem_->firewallTextRight() + 8*G_SCALE, 184*G_SCALE);
-    }
-    else
-    {
+        logoButton_->setPos(54*G_SCALE, 10*G_SCALE);
+#if defined(Q_OS_MACOS)
+        connectButton_->setPos(254*G_SCALE, 26*G_SCALE);
+#else
+        // Shift down slightly on Windows/Linux since the minimize/close buttons take up more space, and the
+        // connect button is too close to them.
+        connectButton_->setPos(254*G_SCALE, 30*G_SCALE);
+#endif
+        connectStateProtocolPort_->setPos(13*G_SCALE, 74*G_SCALE);
+        cityName1Text_->setPos(16*G_SCALE, 101*G_SCALE);
+        cityName2Text_->setPos(24*G_SCALE + cityName1Text_->boundingRect().width(), 101*G_SCALE);
+        locationsButton_->setPos(97*G_SCALE, 183*G_SCALE);
+        networkTrustButton_->setPos(16*G_SCALE, 147*G_SCALE);
+        networkNameText_->setPos(48*G_SCALE, 142*G_SCALE);
+        // If FreshScribe API available, IP should shift 32*G_SCALE to the left and dotMenuButton_ should be visible
+        ipAddressItem_->setPos(boundingRect().width() - ipAddressItem_->boundingRect().width() - 16*G_SCALE, 146*G_SCALE);
+        // dotMenuButton_->setPos(boundingRect().width() - 40*G_SCALE, 144*G_SCALE);
+        firewallLabel_->setPos(14*G_SCALE, 177*G_SCALE);
+        firewallButton_->setPos(16*G_SCALE, 202*G_SCALE);
+        firewallInfo_->setPos(69*G_SCALE, 205*G_SCALE);
+    } else {
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
         int closePosY = WINDOW_WIDTH*G_SCALE - closeButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
         closeButton_->setPos(closePosY, 14*G_SCALE);
@@ -597,42 +542,73 @@ void ConnectWindowItem::updatePositions()
         minimizeButton_->setPos(middlePosX, 8*G_SCALE);
 #endif
 
-        preferencesButton_->setPos(22*G_SCALE, 45*G_SCALE);
-        logoButton_->setPos(64*G_SCALE, 37*G_SCALE);
-        connectButton_->setPos(235*G_SCALE, 50*G_SCALE);
-        connectStateProtocolPort_->setPos(13*G_SCALE, 95*G_SCALE);
-        cityName1Text_->setPos(14*G_SCALE, 115*G_SCALE);
-        cityName2Text_->setPos(16*G_SCALE, 154*G_SCALE);
-        locationsButton_->setPos(93*G_SCALE, 242*G_SCALE);
-        serverRatingIndicator_->setPos(296*G_SCALE, 153*G_SCALE);
-        networkTrustButton_->setPos(boundingRect().width() - 98*G_SCALE, 156*G_SCALE);
-        middleItem_->setPos(0, 208*G_SCALE);
-        firewallButton_->setPos(16*G_SCALE, 276*G_SCALE);
-        firewallInfo_->setPos(30*G_SCALE, 241*G_SCALE);
+        preferencesButton_->setPos(22*G_SCALE, 33*G_SCALE);
+        logoButton_->setPos(54*G_SCALE, 27*G_SCALE);
+        connectButton_->setPos(254*G_SCALE, 41*G_SCALE);
+        connectStateProtocolPort_->setPos(13*G_SCALE, 90*G_SCALE);
+        cityName1Text_->setPos(16*G_SCALE, 118*G_SCALE);
+        cityName2Text_->setPos(24*G_SCALE + cityName1Text_->boundingRect().width(), 118*G_SCALE);
+        locationsButton_->setPos(98*G_SCALE, 197*G_SCALE);
+        networkTrustButton_->setPos(16*G_SCALE, 162*G_SCALE);
+        networkNameText_->setPos(48*G_SCALE, 158*G_SCALE);
+        // If FreshScribe API available, IP should shift 32*G_SCALE to the left and dotMenuButton_ should be visible
+        ipAddressItem_->setPos(boundingRect().width() - ipAddressItem_->boundingRect().width() - 16*G_SCALE, 161*G_SCALE);
+        // dotMenuButton_->setPos(boundingRect().width() - 40*G_SCALE, 159*G_SCALE);
+        firewallLabel_->setPos(14*G_SCALE, 210*G_SCALE);
+        firewallButton_->setPos(16*G_SCALE, 235*G_SCALE);
+        firewallInfo_->setPos(69*G_SCALE, 238*G_SCALE);
     }
 }
 
 void ConnectWindowItem::updateShortenedText()
 {
-    QString shortenedFirstName =
-        CommonGraphics::truncatedText(fullFirstName_, cityName1Text_->getFont(),
-            boundingRect().width() - 114 * G_SCALE);
-    cityName1Text_->setText(shortenedFirstName);
+    // Network name
+    QFont networkFont = networkNameText_->getFont();
+    QFontMetrics fmNetwork(networkFont);
+    if (fmNetwork.horizontalAdvance(networkName_) > boundingRect().width()/2 - 48*G_SCALE) {
+        networkNameText_->setText(fmNetwork.elidedText(networkName_, Qt::ElideMiddle, boundingRect().width()/2 - 48*G_SCALE));
+    }
 
-    QString shortenedSecondName =
-        CommonGraphics::truncatedText(fullSecondName_, cityName2Text_->getFont(), 175 * G_SCALE);
-    cityName2Text_->setText(shortenedSecondName);
+    // City name
+    QString shortenedFirstName;
+    QString shortenedSecondName;
+
+    QFont font1 = cityName1Text_->getFont();
+    QFontMetrics fm1(font1);
+    QFont font2 = cityName2Text_->getFont();
+    QFontMetrics fm2(font2);
+
+    // 16px on either end and 8px between the two names
+    int availableWidth = boundingRect().width() - 40*G_SCALE;
+
+    // Everything fits, no need to elide
+    if (fm1.horizontalAdvance(fullFirstName_) + fm2.horizontalAdvance(fullSecondName_) <= availableWidth) {
+        cityName1Text_->setText(fullFirstName_);
+        cityName2Text_->setText(fullSecondName_);
+        updatePositions();
+        return;
+    }
+
+    // Elide first name to at most 1/2 of the total width
+    shortenedFirstName = fm1.elidedText(fullFirstName_, Qt::ElideMiddle, availableWidth/2);
+
+    if (fm1.horizontalAdvance(shortenedFirstName) + fm2.horizontalAdvance(fullSecondName_) <= availableWidth) {
+        // If it fits now, we're done
+        cityName1Text_->setText(shortenedFirstName);
+        cityName2Text_->setText(fullSecondName_);
+    } else {
+        // Still doesn't fit, elide second name too
+        cityName1Text_->setText(shortenedFirstName);
+        shortenedSecondName = fm2.elidedText(fullSecondName_, Qt::ElideMiddle, availableWidth/2);
+        cityName2Text_->setText(shortenedSecondName);
+    }
+    updatePositions();
 }
 
 void ConnectWindowItem::onAppSkinChanged(APP_SKIN s)
 {
     Q_UNUSED(s);
     updatePositions();
-}
-
-void ConnectWindowItem::setCornerColor(QColor color)
-{
-    background_->setCornerColor(color);
 }
 
 types::ProtocolStatus ConnectWindowItem::getProtocolStatus()
@@ -654,7 +630,33 @@ void ConnectWindowItem::setIsPreferredProtocol(bool on)
 
 void ConnectWindowItem::onLanguageChanged()
 {
+    firewallLabel_->setText(tr("FIREWALL"));
     updatePositions();
+}
+
+void ConnectWindowItem::setIsPremium(bool isPremium)
+{
+    logoButton_->setIsPremium(isPremium);
+}
+
+void ConnectWindowItem::onIpAddressWidthChanged(int width)
+{
+    updatePositions();
+}
+
+void ConnectWindowItem::setCustomConfigMode(bool isCustomConfig)
+{
+    // TBD: change locations tab etc
+}
+
+void ConnectWindowItem::onLocationsCollapsed()
+{
+    // TBD: change locations tab etc
+}
+
+bool ConnectWindowItem::handleKeyPressEvent(QKeyEvent *event)
+{
+    return locationsButton_->handleKeyPressEvent(event);
 }
 
 } //namespace ConnectWindow

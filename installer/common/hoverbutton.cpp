@@ -37,6 +37,7 @@ void HoverButton::init()
 {
     text_ = nullptr;
     textSize_ = 12;
+    textWeight_ = QFont::Normal;
     hoverOpacity_ = 0.5;
 
     setFlat(true);
@@ -86,11 +87,15 @@ void HoverButton::setText(const QString &text)
         delete text_;
     }
     text_ = new QLabel(this);
-    text_->setFont(ThemeController::instance().defaultFont(textSize_));
-    text_->setText(text);
+    text_->setFont(ThemeController::instance().defaultFont(textSize_, textWeight_));
     text_->setStyleSheet("QLabel { color: #FFFFFF; }");
+    if (underline_) {
+        text_->setText("<u>" + text + "</u>");
+    } else {
+        text_->setText(text);
+    }
 
-    QFontMetrics fm(ThemeController::instance().defaultFont(textSize_));
+    QFontMetrics fm(ThemeController::instance().defaultFont(textSize_, textWeight_));
     setFixedWidth(std::max(fm.horizontalAdvance(text), icon_ ? icon_->width() : 0));
 
     if (icon_) {
@@ -105,9 +110,11 @@ void HoverButton::setText(const QString &text)
     }
 }
 
-void HoverButton::setTextSize(int size)
+void HoverButton::setTextAttributes(int size, bool underline, int weight)
 {
     textSize_ = size;
+    underline_ = underline;
+    textWeight_ = weight;
     if (text_) {
         setText(text_->text());
     }

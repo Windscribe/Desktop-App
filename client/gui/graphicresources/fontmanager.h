@@ -15,10 +15,10 @@ public:
         return fm;
     }
 
-    QFont getFontWithCustomScale(double scale, double size, bool isBold, int stretch = 100, qreal letterSpacing = 0.0);
-    QFont getFont(double size, bool isBold, int stretch = 100, qreal letterSpacing = 0.0);
+    QFont getFontWithCustomScale(double scale, double size, int weight, int stretch = 100, qreal letterSpacing = 0.0);
+    QFont getFont(double size, int weight, int stretch = 100, qreal letterSpacing = 0.0);
     QFont getFont(const FontDescr &fd);
-    QString getFontStyleSheet(double size, bool isBold);
+    QString getFontStyleSheet(double size, int weight);
     void clearCache();
 
     void languageChanged();

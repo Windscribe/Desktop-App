@@ -12,6 +12,7 @@
 #include "configfooterinfo.h"
 #include "locations/locationsmodel_manager.h"
 #include "staticipdeviceinfo.h"
+#include "upgradebanner.h"
 #include "widgetswitcher.h"
 
 
@@ -27,37 +28,22 @@ public:
     int unscaledHeightOfItemViewport();
     void setCountVisibleItemSlots(int cnt);
     int getCountVisibleItems();
-    void setOnlyConfigTabVisible(bool onlyConfig);
 
-    void updateIconRectsAndLine();
     void updateLocationWidgetsGeometry(int newHeight);
     void updateScaling();
 
-    void updateLanguage();
-    void showSearchTab();
-    void hideSearchTab();
-    void hideSearchTabWithoutAnimation();
-
-    bool handleKeyPressEvent(QKeyEvent *event);
-
-    LOCATION_TAB currentTab();
-    void setTab(LOCATION_TAB tab);
-
-    static constexpr int TAB_HEADER_HEIGHT = 48;
+    int headerHeight() const;
     static constexpr int COVER_LAST_ITEM_LINE = 4;
 
+    void setIsPremium(bool isPremium);
+    void setDataRemaining(qint64 bytesUsed, qint64 bytesMax);
+
 public slots:
-    void setLatencyDisplay(LATENCY_DISPLAY_TYPE l);
     void setCustomConfigsPath(QString path);
     void setShowLocationLoad(bool showLocationLoad);
 
 protected:
     void paintEvent(QPaintEvent *event)        override;
-    void mouseMoveEvent(QMouseEvent *event)    override;
-    void mousePressEvent(QMouseEvent *event)   override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
-    void leaveEvent(QEvent *event)             override;
-    bool eventFilter(QObject *object, QEvent *event) override;
 
 signals:
     void selected(LocationID id);
@@ -65,27 +51,23 @@ signals:
     void addStaticIpClicked();
     void clearCustomConfigClicked();
     void addCustomConfigClicked();
+    void upgradeBannerClicked();
+
+public slots:
+    void onClickAllLocations();
+    void onClickConfiguredLocations();
+    void onClickStaticIpsLocations();
+    void onClickFavoriteLocations();
+    void onClickSearchLocations();
+    void onSearchFilterChanged(const QString &filter);
+    void onLocationsKeyPressed(QKeyEvent *event);
 
 private slots:
-    void onWhiteLinePosChanged(const QVariant &value);
-
     void onDeviceNameChanged(const QString &deviceName);
     void onAddCustomConfigClicked();
-
-    void onSearchButtonHoverEnter();
-    void onSearchButtonHoverLeave();
-    void onSearchButtonClicked();
-    void onSearchCancelButtonClicked();
-    void onSearchButtonPosAnimationValueChanged(const QVariant &value);
-
-    void onDelayShowIconsTimerTimeout();
-    void onSearchTypingDelayTimerTimeout();
-    void onSearchLineEditTextChanged(QString text);
-    void onSearchLineEditFocusOut();
     void onAppSkinChanged(APP_SKIN s);
     void onLocationSelected(const LocationID &lid);
     void onClickedOnPremiumStarCity();
-
     void onLanguageChanged();
 
 private:
@@ -101,6 +83,9 @@ private:
     // ribbons
     StaticIPDeviceInfo *staticIPDeviceInfo_;
     ConfigFooterInfo *configFooterInfo_;
+    UpgradeBanner *upgradeBanner_;
+
+    bool isPremium_;
 
     LOCATION_TAB curTab_;
     LOCATION_TAB lastTab_;
@@ -116,26 +101,6 @@ private:
     static constexpr int FIRST_TAB_ICON_POS_X = 106;
     static constexpr int LAST_TAB_ICON_POS_X = 300;
 
-    QString filterText_;
-    QTimer searchTypingDelayTimer_; // saves some drawing cycles for fast typers -- most significant slowdown should be fixed by hide/show widgets instead of create/destroy (as it does now)
-    QElapsedTimer focusOutTimer_;
-    bool searchTabSelected_; // better way to do this
-    CommonWidgets::IconButtonWidget *searchButton_;
-    CommonWidgets::IconButtonWidget *searchCancelButton_;
-    CommonWidgets::CustomMenuLineEdit *searchLineEdit_;
-    QTimer delayShowIconsTimer_;
-
-    QRect rcAllLocationsIcon_;
-    QRect rcConfiguredLocationsIcon_;
-    QRect rcStaticIpsLocationsIcon_;
-    QRect rcFavoriteLocationsIcon_;
-
-    Qt::CursorShape curCursorShape_;
-    LOCATION_TAB curTabMouseOver_;
-
-    int curWhiteLinePos_;
-    QVariantAnimation whiteLineAnimation_;
-
     int countOfVisibleItemSlots_;
     int currentLocationListHeight_;
     bool isRibbonVisible_;
@@ -143,31 +108,9 @@ private:
 
     QColor tabBackgroundColor_;
 
-    void changeTab(LOCATION_TAB newTab, bool animateChange = true);
-
-    void onClickAllLocations();
-    void onClickConfiguredLocations();
-    void onClickStaticIpsLocations();
-    void onClickFavoriteLocations();
-    void onClickSearchLocations();
-
-    void switchToTabAndRestoreCursorToAccentedItem(LOCATION_TAB locationTab);
-
-    void drawTabRegion(QPainter &painter, const QRect &rc);
-    void drawBottomLine(QPainter &painter, int bottom, int whiteLinePos);
-    void setArrowCursor();
-    void setPointingHandCursor();
-    bool isWhiteAnimationActive();
-
-    void rectHoverEnter(QRect buttonRect, QString text, int offsetX, int offsetY);
-
     void updateCustomConfigsEmptyListVisibility();
     void updateRibbonVisibility();
 
-    int searchButtonPosUnscaled_;
-    QVariantAnimation searchButtonPosAnimation_;
-    void updateTabIconRects();
-    void passEventToLocationWidget(QKeyEvent *event);
     WidgetSwitcher *getCurrentWidget() const;
 };
 

@@ -6,26 +6,26 @@
 #include <QFont>
 #include <QPixmap>
 
-const int WINDOW_WIDTH = 332;
-const int WINDOW_HEIGHT_VAN_GOGH = 264;
-const int WINDOW_HEIGHT = 316;
+const int WINDOW_WIDTH = 350;
+const int WINDOW_HEIGHT_VAN_GOGH = 240;
+const int WINDOW_HEIGHT = 271;
 const int WINDOW_MARGIN = 16;
 
 // This is the WINDOW_WIDTH, minus the size of the tab icons, which is margin (16) + icon (32) + margin (16),
 // and finally subtracting rightmost margin (16).
-const int PAGE_WIDTH = 252;
+const int PAGE_WIDTH = 270;
 
 // Re: heavy use of qCeil(LOCATION_ITEM_HEIGHT*G_SCALE):
 // When scaling is 125% or 175% a truncated value will drastically affect the size of the list
 // and affect it's scrollability, especially when dragging the scroller with the mouse
-const int LOCATION_ITEM_HEIGHT = 50;
+const int LOCATION_ITEM_HEIGHT = 38;
 
 const int LOCATION_ITEM_MARGIN = 8;
 const int LOCATION_ITEM_MARGIN_TO_LINE = 24;
 const int LOCATION_ITEM_FLAG_WIDTH = 32;
 
-const int LOGIN_WIDTH = 332;
-const int LOGIN_HEIGHT = 354;
+const int LOGIN_WIDTH = 350;
+const int LOGIN_HEIGHT = 350;
 
 const int LOGIN_BUTTON_POS_Y                 = 232;
 

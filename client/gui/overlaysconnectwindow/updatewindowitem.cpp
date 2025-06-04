@@ -44,7 +44,7 @@ UpdateWindowItem::UpdateWindowItem(Preferences *preferences, ScalableGraphicsObj
 
     // cancel
     double cancelOpacity = OPACITY_UNHOVER_TEXT;
-    cancelButton_ = new CommonGraphics::TextButton("", FontDescr(16, false), Qt::white, true, this);
+    cancelButton_ = new CommonGraphics::TextButton("", FontDescr(16, QFont::Normal), Qt::white, true, this);
     connect(cancelButton_, &CommonGraphics::TextButton::clicked, this, &UpdateWindowItem::onCancelClick);
     cancelButton_->quickSetOpacity(cancelOpacity);
 
@@ -67,51 +67,44 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     qreal initialOpacity = painter->opacity();
 
     // background
-    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
-    {
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
         painter->setPen(Qt::NoPen);
-#ifdef Q_OS_MACOS
         QPainterPath path;
-        path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
+        path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
         painter->fillPath(path, QColor(2, 13, 28));
-#else
-        painter->fillRect(boundingRect().toRect(), QColor(2, 13, 28));
-#endif
         painter->setPen(Qt::SolidLine);
-    }
-    else
-    {
-#if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-        const QString background = "background/WIN_MAIN_BG";
-#else
-        const QString background = "background/MAC_MAIN_BG";
-#endif
+    } else {
+        const QString background = "background/MAIN_BG";
         painter->setOpacity(OPACITY_FULL * initialOpacity);
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(background);
         p->draw(0, 0, painter);
+
+        QString borderInner = "background/MAIN_BORDER_INNER";
+        QSharedPointer<IndependentPixmap> borderInnerPixmap = ImageResourcesSvg::instance().getIndependentPixmap(borderInner);
+        borderInnerPixmap->draw(0, 0, painter);
     }
 
-    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -28*G_SCALE : 0;
+    int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -16*G_SCALE : 0;
 
     // title
     painter->setOpacity(curTitleOpacity_ * initialOpacity);
     painter->setPen(FontManager::instance().getBrightYellowColor());
 
-    QFont titleFont = FontManager::instance().getFont(24, true);
+    QFont titleFont = FontManager::instance().getFont(24, QFont::Bold);
     painter->setFont(titleFont);
 
     QRectF titleRect(0, (TITLE_POS_Y + yOffset)*G_SCALE, WINDOW_WIDTH*G_SCALE, CommonGraphics::textHeight(titleFont));
     painter->drawText(titleRect, Qt::AlignCenter, tr(curTitleText_.toStdString().c_str()));
 
     painter->setOpacity(curLowerTitleOpacity_ * initialOpacity);
-    painter->setFont(FontManager::instance().getFont(24, false));
+    painter->setFont(FontManager::instance().getFont(24,  QFont::Normal));
     QRectF lowerTitleRect(0, (TITLE_POS_Y + yOffset)*G_SCALE, WINDOW_WIDTH*G_SCALE, CommonGraphics::textHeight(titleFont));
 
     const QString lowerTitleText = tr("Updating ");
-    int widthUpdating = CommonGraphics::textWidth(lowerTitleText, FontManager::instance().getFont(24, false));
+    int widthUpdating = CommonGraphics::textWidth(lowerTitleText, FontManager::instance().getFont(24,  QFont::Normal));
 
     QString progressPercent = QString("%1%").arg(curProgress_);
-    int widthPercent = CommonGraphics::textWidth(progressPercent, FontManager::instance().getFont(24, false));
+    int widthPercent = CommonGraphics::textWidth(progressPercent, FontManager::instance().getFont(24,  QFont::Normal));
 
     int widthTotal = widthUpdating + widthPercent;
     int posX = CommonGraphics::centeredOffset(WINDOW_WIDTH * G_SCALE, widthTotal);
@@ -122,7 +115,7 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
     // main description
     painter->setOpacity(curDescriptionOpacity_ * initialOpacity);
-    QFont descFont(FontManager::instance().getFont(14, false));
+    QFont descFont(FontManager::instance().getFont(14,  QFont::Normal));
     painter->setFont(descFont);
     painter->setPen(Qt::white);
 

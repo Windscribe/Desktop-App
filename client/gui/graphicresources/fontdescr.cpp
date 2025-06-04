@@ -1,8 +1,8 @@
 #include "fontdescr.h"
 
-FontDescr::FontDescr(int size, bool isBold, int stretch, qreal letterSpacing):
+FontDescr::FontDescr(int size, int weight, int stretch, qreal letterSpacing):
     size_(size),
-    isBold_(isBold),
+    weight_(weight),
     stretch_(stretch),
     letterSpacing_(letterSpacing)
 {
@@ -14,9 +14,9 @@ int FontDescr::size() const
     return size_;
 }
 
-bool FontDescr::isBold() const
+int FontDescr::weight() const
 {
-    return isBold_;
+    return weight_;
 }
 
 int FontDescr::stretch() const

@@ -33,6 +33,7 @@ public:
     void cleanup(bool isUpdating);
     void enableBFE_win();
     void login(const QString &username, const QString &password, const QString &code2fa);
+    void continueLoginWithCaptcha(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY);
     bool isCanLoginWithAuthHash() const;
     bool isSavedApiSettingsExists() const;
     void loginWithAuthHash();
@@ -188,6 +189,7 @@ signals:
 
     void gotoCustomOvpnConfigModeFinished();
 
+    void captchaRequired(const QString &background, const QString &slider, int top);
     void loginFinished(bool isLoginFromSavedSettings);
     void tryingBackupEndpoint(int num, int cnt);
     void loginError(wsnet::LoginResult loginError, const QString &errorMessage);

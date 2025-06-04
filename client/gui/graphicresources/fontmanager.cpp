@@ -9,38 +9,34 @@
 #include "utils/ws_assert.h"
 #include "dpiscalemanager.h"
 
-QFont FontManager::getFontWithCustomScale(double scale, double size, bool isBold, int stretch, qreal letterSpacing)
+QFont FontManager::getFontWithCustomScale(double scale, double size, int weight, int stretch, qreal letterSpacing)
 {
     WS_ASSERT(QApplication::instance()->thread() == QThread::currentThread());
 
     QFont font;
     font.setFamily("IBM Plex Sans");
     font.setPixelSize(size * scale);
-    font.setBold(isBold);
+    font.setWeight(QFont::Weight(weight));
     font.setStretch(stretch);
     font.setLetterSpacing(QFont::AbsoluteSpacing, letterSpacing);
     return font;
 }
 
-QFont FontManager::getFont(double size, bool isBold, int stretch, qreal letterSpacing)
+QFont FontManager::getFont(double size, int weight, int stretch, qreal letterSpacing)
 {
-    return getFontWithCustomScale(G_SCALE, size, isBold, stretch, letterSpacing);
+    return getFontWithCustomScale(G_SCALE, size, weight, stretch, letterSpacing);
 }
 
 QFont FontManager::getFont(const FontDescr &fd)
 {
-    return getFont(fd.size(), fd.isBold(), fd.stretch(), fd.letterSpacing());
+    return getFont(fd.size(), fd.weight(), fd.stretch(), fd.letterSpacing());
 }
 
-QString FontManager::getFontStyleSheet(double size, bool isBold)
+QString FontManager::getFontStyleSheet(double size, int weight)
 {
     QString s = QString("font-family: IBM Plex Sans;font-size: %1px").arg(size*G_SCALE);
 
-    if (isBold)
-    {
-        s += ";font-weight: bold";
-    }
-
+    s += ";font-weight: " + QString::number(weight);
     return s;
 }
 
@@ -127,8 +123,7 @@ QColor FontManager::getSeaGreenColor()
 
 FontManager::FontManager()
 {
-    QFontDatabase::addApplicationFont(":/resources/fonts/ibmplexsans-bold.ttf");
-    QFontDatabase::addApplicationFont(":/resources/fonts/ibmplexsans-regular.ttf");
+    QFontDatabase::addApplicationFont(":/resources/fonts/ibmplexsans.ttf");
 }
 
 FontManager::~FontManager()

@@ -70,8 +70,8 @@
         <translation>发生意外断开时断开所有活动连接</translation>
     </message>
     <message>
-        <source>Connect to rate</source>
-        <translation>连接质量</translation>
+        <source>FIREWALL</source>
+        <translation>防火墙</translation>
     </message>
 </context>
 <context>
@@ -82,10 +82,26 @@
     </message>
 </context>
 <context>
-    <name>ConnectWindow::MiddleItem</name>
+    <name>ConnectWindow::LocationsMenu</name>
     <message>
-        <source>Firewall</source>
-        <translation>防火墙</translation>
+        <source>All</source>
+        <translation>全部</translation>
+    </message>
+    <message>
+        <source>Configured</source>
+        <translation>已配置</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>静态 IP</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>收藏夹</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>搜索</translation>
     </message>
 </context>
 <context>
@@ -224,26 +240,6 @@
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
-        <source>All</source>
-        <translation>全部</translation>
-    </message>
-    <message>
-        <source>Configured</source>
-        <translation>已配置</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>静态 IP</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>收藏夹</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation>搜索</translation>
-    </message>
-    <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
         <translation>选择包含自定义配置的目录，所有配置将在这里显示</translation>
     </message>
@@ -275,6 +271,10 @@
         <source>Buy</source>
         <translation>购买</translation>
     </message>
+    <message>
+        <source>All locations (%1)</source>
+        <translation>所有位置 （%1）</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -290,7 +290,7 @@
         <translation>自动换行</translation>
     </message>
     <message>
-        <source>Color highlighting</source>
+        <source>Colour highlighting</source>
         <translation>突出显示颜色</translation>
     </message>
     <message>
@@ -403,10 +403,6 @@
 </context>
 <context>
     <name>LoginWindow::WelcomeWindowItem</name>
-    <message>
-        <source>Keep Your Secrets.</source>
-        <translation>保护你的连接</translation>
-    </message>
     <message>
         <source>Emergency Connect</source>
         <translation>紧急连接</translation>
@@ -886,6 +882,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
         <translation>无法启动自定义 DNS 服务，端口 53 已在使用中。是否要将已连接的 DNS 更改为本地服务器？</translation>
     </message>
+    <message>
+        <source>Slide to complete the puzzle</source>
+        <translation>滑动以完成拼图</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -997,16 +997,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>帐户</translation>
     </message>
     <message>
-        <source>INFO</source>
-        <translation>信息</translation>
-    </message>
-    <message>
         <source>Username</source>
         <translation>用户名</translation>
-    </message>
-    <message>
-        <source>PLAN</source>
-        <translation>订阅计划</translation>
     </message>
     <message>
         <source>Reset Date</source>
@@ -1023,6 +1015,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Expiry Date</source>
         <translation>过期时间</translation>
+    </message>
+    <message>
+        <source>ACCOUNT INFO</source>
+        <translation>账户信息</translation>
+    </message>
+    <message>
+        <source>PLAN INFO</source>
+        <translation>计划信息</translation>
+    </message>
+    <message>
+        <source>UPGRADE &gt;</source>
+        <translation>升级&gt;</translation>
     </message>
 </context>
 <context>
@@ -1124,30 +1128,62 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::BackgroundSettingsGroup</name>
-    <message>
-        <source>Disconnected</source>
-        <translation>已断开</translation>
-    </message>
-    <message>
-        <source>Connected</source>
-        <translation>已连接</translation>
-    </message>
-    <message>
-        <source>Flags</source>
-        <translation>国旗</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>无</translation>
-    </message>
-    <message>
-        <source>Custom</source>
-        <translation>自定义</translation>
-    </message>
+    <name>PreferencesWindow::AppBackgroundGroup</name>
     <message>
         <source>App Background</source>
         <translation>应用背景</translation>
+    </message>
+    <message>
+        <source>Aspect Ratio Mode</source>
+        <translation>纵横比模式</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>断开连接时</translation>
+    </message>
+    <message>
+        <source>Flags</source>
+        <translation>标志</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>捆绑</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>没有</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>习惯</translation>
+    </message>
+    <message>
+        <source>When Connected</source>
+        <translation>连接时</translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation>选择图像</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>广场</translation>
+    </message>
+    <message>
+        <source>Palm</source>
+        <translation>手掌</translation>
+    </message>
+    <message>
+        <source>Drip</source>
+        <translation>滴</translation>
+    </message>
+    <message>
+        <source>Snow</source>
+        <translation>雪</translation>
+    </message>
+    <message>
+        <source>Ripple</source>
+        <translation>脉动</translation>
     </message>
 </context>
 <context>
@@ -1236,7 +1272,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>自动连接</translation>
     </message>
     <message>
-        <source>Control the mode of behavior of the Windscribe firewall.</source>
+        <source>Control the mode of behaviour of the Windscribe firewall.</source>
         <translation>控制 Windscribe 防火墙的行为模式。</translation>
     </message>
     <message>
@@ -1482,32 +1518,12 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>位置顺序</translation>
     </message>
     <message>
-        <source>Display latency as signal strength bars or in milliseconds.</source>
-        <translation>将延迟显示为信号条，或以毫秒为数值单位显示详细延迟。</translation>
-    </message>
-    <message>
-        <source>Latency Display</source>
-        <translation>延迟显示方式</translation>
-    </message>
-    <message>
         <source>Localize Windscribe to supported languages.</source>
         <translation>将 Windscribe 本地化为支持的语言。</translation>
     </message>
     <message>
         <source>Language</source>
         <translation>语言</translation>
-    </message>
-    <message>
-        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>在经典 GUI 或无边框 GUI 之间进行选择。</translation>
-    </message>
-    <message>
-        <source>App Skin</source>
-        <translation>应用皮肤</translation>
-    </message>
-    <message>
-        <source>Customize the background of the main app screen.</source>
-        <translation>自定义应用程序主屏幕的背景。</translation>
     </message>
     <message>
         <source>Choose to receive stable, beta, or experimental builds.</source>
@@ -1530,7 +1546,7 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>在白色和黑色托盘图标之间进行选择。</translation>
     </message>
     <message>
-        <source>Tray Icon Color</source>
+        <source>Tray Icon Colour</source>
         <translation>托盘图标颜色</translation>
     </message>
     <message>
@@ -1538,28 +1554,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>多桌面</translation>
     </message>
     <message>
-        <source>Select behavior when window is activated with multiple desktops.</source>
+        <source>Select behaviour when window is activated with multiple desktops.</source>
         <translation>选择使用多个桌面激活窗口时的行为。</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>导出</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>导入</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>重置</translation>
-    </message>
-    <message>
-        <source>Change location names to your liking.</source>
-        <translation>根据自己的喜好更改位置名称。</translation>
-    </message>
-    <message>
-        <source>Rename Locations</source>
-        <translation>重命名位置</translation>
     </message>
 </context>
 <context>
@@ -1619,6 +1615,49 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
         <translation>有 Garry 无法解决的问题吗？联系人工支持。</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::LookAndFeelWindowItem</name>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>外观与感觉</translation>
+    </message>
+    <message>
+        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
+        <translation>在经典 GUI 或无边框 GUI 之间进行选择。</translation>
+    </message>
+    <message>
+        <source>App Skin</source>
+        <translation>应用皮肤</translation>
+    </message>
+    <message>
+        <source>Customize the background of the main app screen.</source>
+        <translation>自定义应用程序主屏幕的背景。</translation>
+    </message>
+    <message>
+        <source>Choose sounds to play when connection events occur.</source>
+        <translation>选择在连接事件发生时要播放的声音。</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>根据自己的喜好更改位置名称。</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>重命名位置</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>导出</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>导入</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>重置</translation>
     </message>
 </context>
 <context>
@@ -1761,20 +1800,12 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::PlanItem</name>
     <message>
-        <source>Unlimited Data</source>
-        <translation>无限流量</translation>
+        <source>Free</source>
+        <translation>自由</translation>
     </message>
     <message>
-        <source>%1/Month</source>
-        <translation>%1/月</translation>
-    </message>
-    <message>
-        <source>Pro</source>
-        <translation>专业版</translation>
-    </message>
-    <message>
-        <source>Upgrade</source>
-        <translation>升级</translation>
+        <source>Plan Type</source>
+        <translation>计划类型</translation>
     </message>
 </context>
 <context>
@@ -1818,6 +1849,10 @@ Connect to a network first</source>
     <message>
         <source>Quit</source>
         <translation>退出</translation>
+    </message>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>外观与感觉</translation>
     </message>
 </context>
 <context>
@@ -2012,14 +2047,41 @@ Connect to a network first</source>
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::SelectImageItem</name>
+    <name>PreferencesWindow::SelectFileItem</name>
     <message>
         <source>[no selection]</source>
         <translation>[无选择]</translation>
     </message>
+</context>
+<context>
+    <name>PreferencesWindow::SoundsGroup</name>
     <message>
-        <source>Select an image</source>
-        <translation>选择一张图片</translation>
+        <source>Sound Notifications</source>
+        <translation>声音通知</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>没有</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>断开连接时</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>捆绑</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>习惯</translation>
+    </message>
+    <message>
+        <source>Select a sound</source>
+        <translation>选择声音</translation>
+    </message>
+    <message>
+        <source>When Connected</source>
+        <translation>连接时</translation>
     </message>
 </context>
 <context>
@@ -2100,14 +2162,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 如果重新安装没用，请联系 Windscribe 支持以寻求帮助。</translation>
     </message>
     <message>
-        <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
-        <translation>选定的应用程序、IP 和主机名不会通过 Windscribe 连接。</translation>
-    </message>
-    <message>
-        <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
-        <translation>只有选定的应用程序、IP和主机名会通过 Windscribe 连接。</translation>
-    </message>
-    <message>
         <source>Split Tunneling</source>
         <translation>拆分隧道</translation>
     </message>
@@ -2130,6 +2184,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>IPs &amp; Hostnames</source>
         <translation>IP 和主机名</translation>
+    </message>
+    <message>
+        <source>When enabled, selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
+        <translation>启用后，选定的应用程序、IP 和主机名在连接时将不会通过 Windscribe。</translation>
+    </message>
+    <message>
+        <source>When enabled, only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
+        <translation>启用后，只有选定的应用程序、IP 和主机名在连接时才会通过 Windscribe。</translation>
     </message>
 </context>
 <context>
@@ -2230,14 +2292,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Latency</source>
         <translation>延迟</translation>
-    </message>
-    <message>
-        <source>Bars</source>
-        <translation>信号条</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>毫秒</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2408,12 +2462,16 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>本地 DNS</translation>
     </message>
     <message>
-        <source>Latency test pending</source>
-        <translation>延迟测试待定</translation>
+        <source>Stretch</source>
+        <translation>伸展</translation>
     </message>
     <message>
-        <source>Latency test failed</source>
-        <translation>延迟测试失败</translation>
+        <source>Fill</source>
+        <translation>填补</translation>
+    </message>
+    <message>
+        <source>Tile</source>
+        <translation>瓦</translation>
     </message>
     <message>
         <source>Always On+</source>
@@ -2490,7 +2548,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>v</translation>
     </message>
     <message>
-        <source>UPDATE</source>
+        <source>Update</source>
         <translation>更新</translation>
     </message>
 </context>
@@ -2526,50 +2584,61 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
 </context>
 <context>
+    <name>UpgradeBanner</name>
+    <message>
+        <source>Unlock full access to Windscribe</source>
+        <translation>解锁对 Windscribe 的完全访问权限</translation>
+    </message>
+    <message>
+        <source>Go Pro for unlimited everything</source>
+        <translation>Go Pro 无限</translation>
+    </message>
+</context>
+<context>
     <name>UpgradeWidget::UpgradeWidgetItem</name>
     <message>
-        <source>GET MORE DATA</source>
-        <translation>获取更多数据流量</translation>
+        <source>Get more data</source>
+        <translation>获取更多数据</translation>
     </message>
     <message>
-        <source>EXT CONFIG MODE</source>
-        <translation>分机配置模式</translation>
+        <source>%1 left</source>
+        <translation>剩余 %1</translation>
     </message>
     <message>
-        <source>0 DAYS LEFT</source>
+        <source>0 days left</source>
         <translation>剩余 0 天</translation>
     </message>
     <message>
-        <source>1 DAY LEFT</source>
+        <source>1 day left</source>
         <translation>剩余 1 天</translation>
     </message>
     <message>
-        <source>2 DAYS LEFT</source>
+        <source>2 days left</source>
         <translation>剩余 2 天</translation>
     </message>
     <message>
-        <source>3 DAYS LEFT</source>
+        <source>3 days left</source>
         <translation>剩余 3 天</translation>
     </message>
     <message>
-        <source>4 DAYS LEFT</source>
+        <source>4 days left</source>
         <translation>剩余 4 天</translation>
     </message>
     <message>
-        <source>5 DAYS LEFT</source>
+        <source>5 days left</source>
         <translation>剩余 5 天</translation>
     </message>
     <message>
-        <source>%1 DAYS LEFT</source>
+        <source>%1 days left</source>
         <translation>剩余 %1 天</translation>
     </message>
     <message>
-        <source>LOGIN</source>
+        <source>Login</source>
         <translation>登录</translation>
     </message>
     <message>
-        <source>RENEW</source>
-        <translation>续订</translation>
+        <source>Renew</source>
+        <translation>更新</translation>
     </message>
 </context>
 <context>

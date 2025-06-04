@@ -24,7 +24,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
   : CommonGraphics::BasePage(parent), preferences_(preferences), preferencesHelper_(preferencesHelper), currentScreen_(CONNECTION_SCREEN_HOME)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
-    setSpacerHeight(PREFERENCES_MARGIN);
+    setSpacerHeight(PREFERENCES_MARGIN_Y);
 
     connect(preferences, &Preferences::splitTunnelingChanged, this, &ConnectionWindowItem::onSplitTunnelingPreferencesChanged);
     connect(preferences, &Preferences::splitTunnelingChanged, this, &ConnectionWindowItem::onUpdateIsSecureHotspotSupported);
@@ -70,9 +70,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     autoConnectGroup_->addItem(checkBoxAutoConnect_);
     addItem(autoConnectGroup_);
 
-    firewallGroup_ = new FirewallGroup(this,
-                                       "",
-                                       QString("https://%1/features/firewall").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    firewallGroup_ = new FirewallGroup(this);
     connect(firewallGroup_, &FirewallGroup::firewallPreferencesChanged, this, &ConnectionWindowItem::onFirewallPreferencesChangedByUser);
     firewallGroup_->setFirewallSettings(preferences->firewallSettings());
     addItem(firewallGroup_);
@@ -81,31 +79,23 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
                                              preferencesHelper,
                                              "",
                                              "preferences/CONNECTION_MODE",
-                                             ProtocolGroup::SelectionType::COMBO_BOX,
-                                             "",
-                                             QString("https://%1/features/flexible-connectivity").arg(HardcodedSettings::instance().windscribeServerUrl()));
+                                             ProtocolGroup::SelectionType::COMBO_BOX);
     connectionModeGroup_->setConnectionSettings(preferences->connectionSettings());
     connect(connectionModeGroup_, &ProtocolGroup::connectionModePreferencesChanged, this, &ConnectionWindowItem::onConnectionModePreferencesChangedByUser);
     addItem(connectionModeGroup_);
 
-    packetSizeGroup_ = new PacketSizeGroup(this,
-                                           "",
-                                           QString("https://%1/features/packet-size").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    packetSizeGroup_ = new PacketSizeGroup(this);
     packetSizeGroup_->setPacketSizeSettings(preferences->packetSize());
     connect(packetSizeGroup_, &PacketSizeGroup::packetSizeChanged, this, &ConnectionWindowItem::onPacketSizePreferencesChangedByUser);
     connect(packetSizeGroup_, &PacketSizeGroup::detectPacketSize, this, &ConnectionWindowItem::detectPacketSize);
     addItem(packetSizeGroup_);
 
-    connectedDnsGroup_ = new ConnectedDnsGroup(this,
-                                               "",
-                                               QString("https://%1/features/flexible-dns").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    connectedDnsGroup_ = new ConnectedDnsGroup(this);
     connectedDnsGroup_->setConnectedDnsInfo(preferences->connectedDnsInfo());
     connect(connectedDnsGroup_, &ConnectedDnsGroup::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser);
     connect(connectedDnsGroup_, &ConnectedDnsGroup::domainsClick, this, &ConnectionWindowItem::connectedDnsDomainsClick);
     addItem(connectedDnsGroup_);
-    allowLanTrafficGroup_ = new PreferenceGroup(this,
-                                                "",
-                                                QString("https://%1/features/lan-traffic").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    allowLanTrafficGroup_ = new PreferenceGroup(this);
     checkBoxAllowLanTraffic_ = new ToggleItem(allowLanTrafficGroup_, tr("Allow LAN Traffic"));
     checkBoxAllowLanTraffic_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/ALLOW_LAN_TRAFFIC"));
     checkBoxAllowLanTraffic_->setState(preferences->isAllowLanTraffic());
@@ -114,9 +104,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     allowLanTrafficGroup_->addItem(checkBoxAllowLanTraffic_);
     addItem(allowLanTrafficGroup_);
 
-    macSpoofingGroup_ = new MacSpoofingGroup(this,
-                                             "",
-                                             QString("https://%1/features/mac-spoofing").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    macSpoofingGroup_ = new MacSpoofingGroup(this);
     connect(macSpoofingGroup_, &MacSpoofingGroup::macAddrSpoofingChanged, this, &ConnectionWindowItem::onMacAddrSpoofingPreferencesChangedByUser);
     connect(macSpoofingGroup_, &MacSpoofingGroup::cycleMacAddressClick, this, &ConnectionWindowItem::cycleMacAddressClick);
     macSpoofingGroup_->setMacSpoofingSettings(preferences->macAddrSpoofing());
@@ -128,9 +116,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 #endif
 
 #if defined(Q_OS_WIN)
-    terminateSocketsGroup_ = new PreferenceGroup(this,
-                                                 "",
-                                                 QString("https://%1/features/tcp-socket-termination").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    terminateSocketsGroup_ = new PreferenceGroup(this);
     terminateSocketsItem_ = new ToggleItem(terminateSocketsGroup_, tr("Terminate Sockets"));
     terminateSocketsItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/TERMINATE_SOCKETS"));
     terminateSocketsItem_->setState(preferences->isTerminateSockets());
@@ -140,32 +126,24 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
 #endif
 
 #if defined(Q_OS_WIN)
-    secureHotspotGroup_ = new SecureHotspotGroup(this,
-                                                 "",
-                                                 QString("https://%1/features/secure-hotspot").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    secureHotspotGroup_ = new SecureHotspotGroup(this);
     connect(secureHotspotGroup_, &SecureHotspotGroup::secureHotspotPreferencesChanged, this, &ConnectionWindowItem::onSecureHotspotPreferencesChangedByUser);
     secureHotspotGroup_->setSecureHotspotSettings(preferences->shareSecureHotspot());
     onUpdateIsSecureHotspotSupported();
     addItem(secureHotspotGroup_);
 #endif
 
-    proxyGatewayGroup_ = new ProxyGatewayGroup(this,
-                                               "",
-                                               QString("https://%1/features/proxy-gateway").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    proxyGatewayGroup_ = new ProxyGatewayGroup(this);
     connect(proxyGatewayGroup_, &ProxyGatewayGroup::proxyGatewayPreferencesChanged, this, &ConnectionWindowItem::onProxyGatewayPreferencesChangedByUser);
     proxyGatewayGroup_->setProxyGatewaySettings(preferences->shareProxyGateway());
     addItem(proxyGatewayGroup_);
 
-    decoyTrafficGroup_ = new DecoyTrafficGroup(this,
-                                               "",
-                                               QString("https://%1/features/decoy-traffic").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    decoyTrafficGroup_ = new DecoyTrafficGroup(this);
     decoyTrafficGroup_->setDecoyTrafficSettings(preferences->decoyTrafficSettings());
     connect(decoyTrafficGroup_, &DecoyTrafficGroup::decoyTrafficSettingsChanged, this, &ConnectionWindowItem::onDecoyTrafficSettingsChangedByUser);
     addItem(decoyTrafficGroup_);
 
-    antiCensorshipGroup_ = new PreferenceGroup(this,
-                                              "",
-                                              QString("https://%1/features/circumvent-censorship").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    antiCensorshipGroup_ = new PreferenceGroup(this);
     antiCensorshipItem_ = new ToggleItem(antiCensorshipGroup_, tr("Circumvent Censorship"));
     antiCensorshipItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/CIRCUMVENT_CENSORSHIP"));
     antiCensorshipItem_->setState(preferences->isAntiCensorship());
@@ -363,33 +341,43 @@ void ConnectionWindowItem::onLanguageChanged()
     onSplitTunnelingPreferencesChanged(preferences_->splitTunneling());
     proxySettingsItem_->setTitle(tr("Proxy Settings"));
 
-    autoConnectGroup_->setDescription(tr("Connects to last used location when the app launches or joins a network."));
+    checkBoxAutoConnect_->setDescription(tr("Connects to last used location when the app launches or joins a network."));
     checkBoxAutoConnect_->setCaption(tr("Auto-Connect"));
-    firewallGroup_->setDescription(tr("Control the mode of behavior of the Windscribe firewall."));
+    firewallGroup_->setDescription(tr("Control the mode of behaviour of the Windscribe firewall."),
+                                   QString("https://%1/features/firewall").arg(HardcodedSettings::instance().windscribeServerUrl()));
     connectionModeGroup_->setTitle(tr("Connection Mode"));
-    connectionModeGroup_->setDescription(tr("Automatically choose the VPN protocol, or select one manually. NOTE: \"Preferred Protocol\" will override this setting."));
-    packetSizeGroup_->setDescription(tr("Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols."));
-    connectedDnsGroup_->setDescription(tr("Select the DNS server while connected to Windscribe."));
-    allowLanTrafficGroup_->setDescription(tr("Allow access to local services and printers while connected to Windscribe."));
+    connectionModeGroup_->setDescription(tr("Automatically choose the VPN protocol, or select one manually. NOTE: \"Preferred Protocol\" will override this setting."),
+                                         QString("https://%1/features/connection-mode").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    packetSizeGroup_->setDescription(tr("Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols."),
+                                     QString("https://%1/features/packet-size").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    connectedDnsGroup_->setDescription(tr("Select the DNS server while connected to Windscribe."),
+                                       QString("https://%1/features/flexible-dns").arg(HardcodedSettings::instance().windscribeServerUrl()));
+    checkBoxAllowLanTraffic_->setDescription(tr("Allow access to local services and printers while connected to Windscribe."),
+                                             QString("https://%1/features/lan-traffic").arg(HardcodedSettings::instance().windscribeServerUrl()));
     checkBoxAllowLanTraffic_->setCaption(tr("Allow LAN Traffic"));
 
-    macSpoofingGroup_->setDescription(tr("Spoof your device's physical address (MAC address)."));
+    macSpoofingGroup_->setDescription(tr("Spoof your device's physical address (MAC address)."),
+                                      QString("https://%1/features/mac-spoofing").arg(HardcodedSettings::instance().windscribeServerUrl()));
 #ifdef Q_OS_MACOS
     if (MacUtils::isOsVersionAtLeast(14, 4)) {
-        macSpoofingGroup_->setDescription(tr("MAC spoofing is not supported on your version of MacOS."));
+        macSpoofingGroup_->setDescription(tr("MAC spoofing is not supported on your version of MacOS."),
+                                          QString("https://%1/features/mac-spoofing").arg(HardcodedSettings::instance().windscribeServerUrl()));
     }
 #endif
 
 #if defined(Q_OS_WIN)
     terminateSocketsItem_->setCaption(tr("Terminate Sockets"));
-    terminateSocketsGroup_->setDescription(tr("Close all active TCP sockets when the VPN tunnel is established."));
+    terminateSocketsItem_->setDescription(tr("Close all active TCP sockets when the VPN tunnel is established."),
+                                          QString("https://%1/features/tcp-socket-termination").arg(HardcodedSettings::instance().windscribeServerUrl()));
 #endif
 
     //secureHotspotGroup_ sets its own description
 
-    proxyGatewayGroup_->setDescription(tr("Configure your TV, gaming console, or other devices that support proxy servers."));
+    proxyGatewayGroup_->setDescription(tr("Configure your TV, gaming console, or other devices that support proxy servers."),
+                                       QString("https://%1/features/proxy-gateway").arg(HardcodedSettings::instance().windscribeServerUrl()));
     antiCensorshipItem_->setCaption(tr("Circumvent Censorship"));
-    antiCensorshipGroup_->setDescription(tr("Connect to the VPN even in hostile environment."));
+    antiCensorshipItem_->setDescription(tr("Connect to the VPN even in hostile environment."),
+                                        QString("https://%1/features/circumvent-censorship").arg(HardcodedSettings::instance().windscribeServerUrl()));
 }
 
 void ConnectionWindowItem::onIsAllowLanTrafficPreferencesChangedByUser(bool b)

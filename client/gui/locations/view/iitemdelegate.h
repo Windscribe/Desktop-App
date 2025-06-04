@@ -9,11 +9,10 @@ namespace gui_locations {
 class ItemStyleOption : public QStyleOption
 {
 public:
-    explicit ItemStyleOption(QObject *object, const QRect &rc, double selectedOpacity, double expandedProgress, bool isShowLocationLoad, bool isShowLatencyInMs) :
+    explicit ItemStyleOption(QObject *object, const QRect &rc, double selectedOpacity, double expandedProgress, bool isShowLocationLoad) :
         selectedOpacity_(selectedOpacity),
         expandedProgress_(expandedProgress),
-        isShowLocationLoad_(isShowLocationLoad),
-        isShowLatencyInMs_(isShowLatencyInMs)
+        isShowLocationLoad_(isShowLocationLoad)
     {
         styleObject = object;
         rect = rc;
@@ -36,16 +35,10 @@ public:
         return isShowLocationLoad_;
     }
 
-    bool isShowLatencyInMs() const
-    {
-        return isShowLatencyInMs_;
-    }
-
 private:
     double selectedOpacity_;
     double expandedProgress_;
     bool isShowLocationLoad_;
-    bool isShowLatencyInMs_;
 };
 
 class IItemCacheData

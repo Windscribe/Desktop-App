@@ -15,8 +15,8 @@ namespace NewsFeedWindow {
 
 EntryItem::EntryItem(ScalableGraphicsObject *parent, const api_responses::Notification &item, int width)
     : BaseItem(parent, COLLAPSED_HEIGHT*G_SCALE, "", false, width), item_(item), expanded_(false), accented_(false), expandAnimationProgress_(0),
-      opacityAnimationProgress_(0), textOpacity_(OPACITY_HALF), plusIconOpacity_(OPACITY_QUARTER), read_(false),
-      icon_(ImageResourcesSvg::instance().getIndependentPixmap("locations/EXPAND_ICON"))
+      opacityAnimationProgress_(0), textOpacity_(OPACITY_HALF), iconOpacity_(OPACITY_HALF), read_(false),
+      icon_(new ImageItem(this, "ARROW_DOWN_WHITE"))
 {
     opacityAnimation_.setStartValue(0.0);
     opacityAnimation_.setEndValue(1.0);
@@ -36,19 +36,17 @@ EntryItem::EntryItem(ScalableGraphicsObject *parent, const api_responses::Notifi
 
     messageItem_ = new MessageItem(this, width, item_.message);
 
+    icon_->setOpacity(iconOpacity_);
+
     updateScaling();
 }
 
 void EntryItem::setAccented(bool accented)
 {
-    if (accented != accented_)
-    {
-        if (accented)
-        {
+    if (accented != accented_) {
+        if (accented) {
             opacityAnimation_.setDirection(QAbstractAnimation::Forward);
-        }
-        else
-        {
+        } else {
             opacityAnimation_.setDirection(QAbstractAnimation::Backward);
         }
         accented_ = accented;
@@ -73,20 +71,16 @@ int EntryItem::expandedHeight()
 
 void EntryItem::setExpanded(bool expanded, bool read)
 {
-    if (expanded)
-    {
+    if (expanded) {
         expandAnimation_.setDirection(QAbstractAnimation::Forward);
-        plusIconOpacity_ = OPACITY_FULL;
+        iconOpacity_ = OPACITY_FULL;
         textOpacity_ = OPACITY_FULL;
         opacityAnimationProgress_ = OPACITY_FULL;
         accented_ = true;
-        if (read)
-        {
+        if (read) {
             setRead(true);
         }
-    }
-    else
-    {
+    } else {
         expandAnimation_.setDirection(QAbstractAnimation::Backward);
     }
     expanded_ = expanded;
@@ -95,8 +89,7 @@ void EntryItem::setExpanded(bool expanded, bool read)
 
 void EntryItem::setRead(bool read)
 {
-    if (read && !read_)
-    {
+    if (read && !read_) {
         emit messageRead(item_.id);
     }
     read_ = read;
@@ -105,12 +98,6 @@ void EntryItem::setRead(bool read)
 void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     painter->setRenderHint(QPainter::Antialiasing);
-
-    // rounded rectangle background
-    painter->setOpacity(0.08);
-    QPainterPath path;
-    path.addRoundedRect(boundingRect(), ROUNDED_RECT_RADIUS*G_SCALE, ROUNDED_RECT_RADIUS*G_SCALE);
-    painter->fillPath(path, QBrush(Qt::white));
 
     // unread marker
     if (!read_) {
@@ -127,7 +114,7 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
     painter->setPen(Qt::SolidLine);
     painter->setPen(Qt::white);
     painter->setOpacity(textOpacity_);
-    QFont font = FontManager::instance().getFont(12, true);
+    QFont font = FontManager::instance().getFont(12, QFont::Bold);
     painter->setFont(font);
     if (expanded_) {
         painter->drawText(boundingRect().adjusted(TEXT_MARGIN*G_SCALE,
@@ -147,15 +134,6 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
                           elided);
     }
 
-    // +/X icon
-    painter->save();
-    painter->setOpacity(plusIconOpacity_);
-    painter->translate(QPoint(boundingRect().width() - TEXT_MARGIN*G_SCALE - icon_->width()/2,
-                       TEXT_MARGIN*G_SCALE + icon_->height()/2));
-    painter->rotate(45 * expandAnimationProgress_);
-    icon_->draw(-icon_->width()/2, -icon_->height()/2, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
-    painter->restore();
-
     // body
     if (expanded_) {
         messageItem_->setVisible(true);
@@ -168,7 +146,7 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
 void EntryItem::updateScaling()
 {
     BaseItem::updateScaling();
-    QFontMetrics metrics(FontManager::instance().getFont(12, true));
+    QFontMetrics metrics(FontManager::instance().getFont(12, QFont::Bold));
     titleHeight_ = metrics.boundingRect(boundingRect().adjusted(TEXT_MARGIN*G_SCALE,
                                                                 TEXT_MARGIN*G_SCALE,
                                                                 -(2*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE),
@@ -176,6 +154,7 @@ void EntryItem::updateScaling()
                                         Qt::AlignLeft | Qt::TextWordWrap,
                                         item_.title.toUpper()).height();
     expandedHeight_ = titleHeight_ + TEXT_MARGIN*G_SCALE + messageItem_->boundingRect().height();
+    icon_->setPos(boundingRect().width() - (TEXT_MARGIN + ICON_WIDTH)*G_SCALE, TEXT_MARGIN*G_SCALE);
     setHeight(COLLAPSED_HEIGHT*G_SCALE + expandAnimationProgress_ * (expandedHeight_ - COLLAPSED_HEIGHT*G_SCALE));
 
     updatePositions();
@@ -190,14 +169,18 @@ void EntryItem::onExpandRotationAnimationValueChanged(const QVariant &value)
 {
     expandAnimationProgress_ = value.toDouble();
     setHeight(COLLAPSED_HEIGHT*G_SCALE + expandAnimationProgress_ * (expandedHeight_ - COLLAPSED_HEIGHT*G_SCALE));
+    setIconRotation(180 * expandAnimationProgress_);
     update();
+
+    emit heightChanged(opacityAnimationProgress_ * boundingRect().height());
 }
 
 void EntryItem::onOpacityAnimationValueChanged(const QVariant &value)
 {
     opacityAnimationProgress_ = value.toDouble();
-    plusIconOpacity_ = OPACITY_QUARTER + (opacityAnimationProgress_ * (1-OPACITY_QUARTER));
+    iconOpacity_ = OPACITY_QUARTER + (opacityAnimationProgress_ * (1-OPACITY_QUARTER));
     textOpacity_ = OPACITY_HALF + (opacityAnimationProgress_ * (1-OPACITY_HALF));
+    icon_->setOpacity(iconOpacity_);
     update();
 }
 
@@ -205,8 +188,7 @@ void EntryItem::onClicked()
 {
     setExpanded(!expanded_);
 
-    if (expanded_)
-    {
+    if (expanded_) {
         emit scrollToItem(this);
     }
 }
@@ -218,8 +200,7 @@ void EntryItem::onHoverEnter()
 
 void EntryItem::onHoverLeave()
 {
-    if (!expanded_)
-    {
+    if (!expanded_) {
         setAccented(false);
     }
 }
@@ -241,6 +222,15 @@ void EntryItem::setItem(const api_responses::Notification &item)
 bool EntryItem::isRead() const
 {
     return read_;
+}
+
+void EntryItem::setIconRotation(qreal rotation)
+{
+    QTransform tr;
+    tr.translate(0, 8*G_SCALE);
+    tr.rotate(rotation, Qt::XAxis);
+    tr.translate(0, -8*G_SCALE);
+    icon_->setTransform(tr);
 }
 
 } // namespace NewsFeedWindow

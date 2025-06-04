@@ -17,7 +17,6 @@ ExpandableItemsWidget::ExpandableItemsWidget(QWidget *parent, QAbstractItemModel
   , cursorUpdateHelper_(new CursorUpdateHelper(this))
   , isEmptyList_(true)
   , itemHeight_(0)
-  , isShowLatencyInMs_(false)
   , isShowLocationLoad_(false)
   , model_(nullptr)
   , expandableItemDelegate_(nullptr)
@@ -131,12 +130,6 @@ void ExpandableItemsWidget::setItemHeight(int height)
     update();
 }
 
-void ExpandableItemsWidget::setShowLatencyInMs(bool isShowLatencyInMs)
-{
-    isShowLatencyInMs_ = isShowLatencyInMs;
-    update();
-}
-
 void ExpandableItemsWidget::setShowLocationLoad(bool isShowLocationLoad)
 {
     isShowLocationLoad_ = isShowLocationLoad;
@@ -169,7 +162,7 @@ void ExpandableItemsWidget::updateSelectedItemByCursorPos()
 
     // update tooltips
     if (selectedInd_.isValid()) {
-        ItemStyleOption opt(this, selectedIndRect_, 1.0, 0, isShowLocationLoad_, isShowLatencyInMs_);
+        ItemStyleOption opt(this, selectedIndRect_, 1.0, 0, isShowLocationLoad_);
         int tooltipId = delegateForItem(selectedInd_)->isInTooltipArea(opt, selectedInd_, localCursorPos, itemsCacheData_[selectedInd_].get());
         if (tooltipId == (int)TooltipRect::kNone) {
             closeAndClearAllActiveTooltips(selectedInd_);
@@ -292,7 +285,7 @@ void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
 
         if (item.rc.intersects(event->rect())) {
             QRect fullItemRect(item.rc.left(), item.rc.top(), item.rc.width(), itemHeight_);
-            ItemStyleOption opt(this, fullItemRect, item.modelIndex == selectedInd_ ? 1.0 : 0.0, expandedProgress, isShowLocationLoad_, isShowLatencyInMs_);
+            ItemStyleOption opt(this, fullItemRect, item.modelIndex == selectedInd_ ? 1.0 : 0.0, expandedProgress, isShowLocationLoad_);
             delegate->paint(&painter, opt, item.modelIndex, itemsCacheData_[item.modelIndex].get());
         }
     }
@@ -313,7 +306,7 @@ void ExpandableItemsWidget::mousePressEvent(QMouseEvent *event)
         QRect rcItem;
         mousePressedItem_ = detectSelectedItem(event->pos(), &rcItem);
         if (mousePressedItem_.isValid()) {
-            ItemStyleOption opt(this, rcItem, 1.0, 0, isShowLocationLoad_, isShowLatencyInMs_);
+            ItemStyleOption opt(this, rcItem, 1.0, 0, isShowLocationLoad_);
             mousePressedClickableId_ = delegateForItem(mousePressedItem_)->isInClickableArea(opt, mousePressedItem_, event->pos());
 
             if (isExpandableItem(mousePressedItem_) && model_->rowCount(mousePressedItem_) > 0) {
@@ -345,7 +338,7 @@ void ExpandableItemsWidget::mouseReleaseEvent(QMouseEvent *event)
             else    // non expandable item
             {
                 // todo city click
-                ItemStyleOption opt(this, rcItem, 1.0, 0, isShowLocationLoad_, isShowLatencyInMs_);
+                ItemStyleOption opt(this, rcItem, 1.0, 0, isShowLocationLoad_);
                 int clickableId = delegateForItem(mousePressedItem_)->isInClickableArea(opt, mousePressedItem_, event->pos());
                 if (clickableId != -1 && clickableId == mousePressedClickableId_)
                 {
@@ -700,6 +693,22 @@ QVector<ExpandableItemsWidget::ItemRect> ExpandableItemsWidget::getItemRects()
         }
     }
     return result;
+}
+
+int ExpandableItemsWidget::count() const
+{
+    int count = 0;
+
+    for (const auto &it : std::as_const(items_)) {
+        count += it.model()->rowCount(it);
+    }
+
+    // If 0, return the number of top level items instead
+    if (count == 0) {
+        count = items_.count();
+    }
+
+    return count;
 }
 
 } // namespace gui_locations

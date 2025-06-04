@@ -26,8 +26,9 @@ LocationsWindow::LocationsWindow(QWidget *parent, Preferences *preferences, gui_
     connect(locationsTab_, &GuiLocations::LocationsTab::addStaticIpClicked, this, &LocationsWindow::addStaticIpClicked);
     connect(locationsTab_, &GuiLocations::LocationsTab::clearCustomConfigClicked, this, &LocationsWindow::clearCustomConfigClicked);
     connect(locationsTab_, &GuiLocations::LocationsTab::addCustomConfigClicked, this, &LocationsWindow::addCustomConfigClicked);
+    connect(locationsTab_, &GuiLocations::LocationsTab::upgradeBannerClicked, this, &LocationsWindow::upgradeBannerClicked);
 
-    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &LocationsWindow::onLanguageChanged);
+    connect(preferences, &Preferences::appSkinChanged, this, &LocationsWindow::onAppSkinChanged);
 
     setCountVisibleItemSlots(PersistentState::instance().countVisibleLocations());
 }
@@ -41,8 +42,8 @@ void LocationsWindow::setCountVisibleItemSlots(int cnt)
 {
     locationsTab_->setCountVisibleItemSlots(cnt);
     // Previously there were issues directly grabbing locationsTab height... keeping a cache somehow helped. Not sure if the original issue persists
-    locationsTabHeightUnscaled_ = locationsTab_->unscaledHeightOfItemViewport() + GuiLocations::LocationsTab::TAB_HEADER_HEIGHT;
-    locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, qCeil(locationsTabHeightUnscaled_ * G_SCALE));
+    locationsTabHeightUnscaled_ = locationsTab_->unscaledHeightOfItemViewport() + locationsTab_->headerHeight();
+    locationsTab_->setGeometry(0, 0, WINDOW_WIDTH*G_SCALE, qCeil(locationsTabHeightUnscaled_*G_SCALE));
     PersistentState::instance().setCountVisibleLocations(getCountVisibleItems());
     emit heightChanged();
 }
@@ -52,48 +53,17 @@ int LocationsWindow::getCountVisibleItems()
     return locationsTab_->getCountVisibleItems();
 }
 
-void LocationsWindow::setOnlyConfigTabVisible(bool onlyConfig)
-{
-    locationsTab_->setOnlyConfigTabVisible(onlyConfig);
-}
-
 void LocationsWindow::updateLocationsTabGeometry()
 {
-    locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, qCeil(locationsTabHeightUnscaled_ * G_SCALE));
+    locationsTab_->setGeometry(0, 0, WINDOW_WIDTH*G_SCALE, qCeil(locationsTabHeightUnscaled_*G_SCALE));
 
     locationsTab_->updateLocationWidgetsGeometry(locationsTab_->unscaledHeightOfItemViewport());
-    locationsTab_->updateIconRectsAndLine();
     locationsTab_->update();
 }
 
 void LocationsWindow::updateScaling()
 {
     locationsTab_->updateScaling();
-}
-
-void LocationsWindow::hideSearchTabWithoutAnimation()
-{
-    locationsTab_->hideSearchTabWithoutAnimation();
-}
-
-LOCATION_TAB LocationsWindow::currentTab()
-{
-    return locationsTab_->currentTab();
-}
-
-void LocationsWindow::setTab(LOCATION_TAB tab)
-{
-    locationsTab_->setTab(tab);
-}
-
-bool LocationsWindow::handleKeyPressEvent(QKeyEvent *event)
-{
-    return locationsTab_->handleKeyPressEvent(event);
-}
-
-void LocationsWindow::setLatencyDisplay(LATENCY_DISPLAY_TYPE l)
-{
-    locationsTab_->setLatencyDisplay(l);
 }
 
 void LocationsWindow::setShowLocationLoad(bool showLocationLoad)
@@ -104,11 +74,6 @@ void LocationsWindow::setShowLocationLoad(bool showLocationLoad)
 void LocationsWindow::setCustomConfigsPath(QString path)
 {
     locationsTab_->setCustomConfigsPath(path);
-}
-
-void LocationsWindow::onLanguageChanged()
-{
-    locationsTab_->updateLanguage();
 }
 
 void LocationsWindow::paintEvent(QPaintEvent *event)
@@ -228,4 +193,55 @@ QRect LocationsWindow::getResizeHandleClickableRect()
     return QRect(width() / 2 - 14*G_SCALE,
                  height() - FOOTER_HEIGHT_FULL*G_SCALE / 2 - 2*G_SCALE,
                  28*G_SCALE, 8*G_SCALE);
+}
+
+void LocationsWindow::setTab(LOCATION_TAB tab)
+{
+    switch (tab) {
+        case LOCATION_TAB_ALL_LOCATIONS:
+            locationsTab_->onClickAllLocations();
+            break;
+        case LOCATION_TAB_CONFIGURED_LOCATIONS:
+            locationsTab_->onClickConfiguredLocations();
+            break;
+        case LOCATION_TAB_STATIC_IPS_LOCATIONS:
+            locationsTab_->onClickStaticIpsLocations();
+            break;
+        case LOCATION_TAB_FAVORITE_LOCATIONS:
+            locationsTab_->onClickFavoriteLocations();
+            break;
+        case LOCATION_TAB_SEARCH_LOCATIONS:
+            locationsTab_->onClickSearchLocations();
+            break;
+        default:
+            WS_ASSERT(false);
+    }
+}
+
+void LocationsWindow::onSearchFilterChanged(const QString &filter)
+{
+    locationsTab_->onSearchFilterChanged(filter);
+}
+
+void LocationsWindow::onLocationsKeyPressed(QKeyEvent *event)
+{
+    locationsTab_->onLocationsKeyPressed(event);
+}
+
+void LocationsWindow::setIsPremium(bool isPremium)
+{
+    locationsTab_->setIsPremium(isPremium);
+}
+
+void LocationsWindow::setDataRemaining(qint64 bytesUsed, qint64 bytesMax)
+{
+    locationsTab_->setDataRemaining(bytesUsed, bytesMax);
+}
+
+void LocationsWindow::onAppSkinChanged(APP_SKIN s)
+{
+    Q_UNUSED(s);
+    locationsTabHeightUnscaled_ = locationsTab_->unscaledHeightOfItemViewport() + locationsTab_->headerHeight();
+    locationsTab_->setGeometry(0, 0, WINDOW_WIDTH*G_SCALE, qCeil(locationsTabHeightUnscaled_*G_SCALE));
+    emit heightChanged();
 }

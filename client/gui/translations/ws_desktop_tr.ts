@@ -70,8 +70,8 @@
         <translation>Ani bir bağlantı kesilmesi durumunda tüm bağlantıyı engeller</translation>
     </message>
     <message>
-        <source>Connect to rate</source>
-        <translation>Fiyata bağlanın</translation>
+        <source>FIREWALL</source>
+        <translation>GÜVENLİK DUVARI</translation>
     </message>
 </context>
 <context>
@@ -82,10 +82,26 @@
     </message>
 </context>
 <context>
-    <name>ConnectWindow::MiddleItem</name>
+    <name>ConnectWindow::LocationsMenu</name>
     <message>
-        <source>Firewall</source>
-        <translation>Güvenlik duvarı</translation>
+        <source>All</source>
+        <translation>Tüm</translation>
+    </message>
+    <message>
+        <source>Configured</source>
+        <translation>Yapılandırılmış</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Statik IP&apos;ler</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoriler</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Aramak</translation>
     </message>
 </context>
 <context>
@@ -224,26 +240,6 @@
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
-        <source>All</source>
-        <translation>Tüm</translation>
-    </message>
-    <message>
-        <source>Configured</source>
-        <translation>Yapılandırılmış</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Statik IP&apos;ler</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Favoriler</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation>Aramak</translation>
-    </message>
-    <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
         <translation>Burada görüntülemek istediğiniz özel yapılandırmaları içeren dizini seçin</translation>
     </message>
@@ -275,6 +271,10 @@
         <source>Buy</source>
         <translation>Almak</translation>
     </message>
+    <message>
+        <source>All locations (%1)</source>
+        <translation>Tüm lokasyonlar (%1)</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -290,7 +290,7 @@
         <translation>Sözcük Kaydırma</translation>
     </message>
     <message>
-        <source>Color highlighting</source>
+        <source>Colour highlighting</source>
         <translation>Renk vurgulama</translation>
     </message>
     <message>
@@ -403,10 +403,6 @@
 </context>
 <context>
     <name>LoginWindow::WelcomeWindowItem</name>
-    <message>
-        <source>Keep Your Secrets.</source>
-        <translation>Sırlarını sakla.</translation>
-    </message>
     <message>
         <source>Emergency Connect</source>
         <translation>Acil Durum Bağlantısı</translation>
@@ -886,6 +882,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
         <translation>Özel DNS hizmeti başlatılamıyor - 53 numaralı bağlantı noktası zaten kullanımda.  Bağlı DNS&apos;nizi yerel sunucuya değiştirmek ister misiniz?</translation>
     </message>
+    <message>
+        <source>Slide to complete the puzzle</source>
+        <translation>Bulmacayı tamamlamak için kaydırın</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -997,16 +997,8 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Hesap</translation>
     </message>
     <message>
-        <source>INFO</source>
-        <translation>BİLGİ</translation>
-    </message>
-    <message>
         <source>Username</source>
         <translation>Kullanıcı adı</translation>
-    </message>
-    <message>
-        <source>PLAN</source>
-        <translation>PLAN</translation>
     </message>
     <message>
         <source>Reset Date</source>
@@ -1023,6 +1015,18 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Expiry Date</source>
         <translation>Son kullanma tarihi</translation>
+    </message>
+    <message>
+        <source>ACCOUNT INFO</source>
+        <translation>HESAP BİLGİLERİ</translation>
+    </message>
+    <message>
+        <source>PLAN INFO</source>
+        <translation>PLAN BİLGİLERİ</translation>
+    </message>
+    <message>
+        <source>UPGRADE &gt;</source>
+        <translation>YÜKSELTME &gt;</translation>
     </message>
 </context>
 <context>
@@ -1124,18 +1128,26 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::BackgroundSettingsGroup</name>
+    <name>PreferencesWindow::AppBackgroundGroup</name>
     <message>
-        <source>Disconnected</source>
-        <translation>Bağlantısı kesilmiş</translation>
+        <source>App Background</source>
+        <translation>Uygulama Arka Planı</translation>
     </message>
     <message>
-        <source>Connected</source>
-        <translation>Bağlandı</translation>
+        <source>Aspect Ratio Mode</source>
+        <translation>En Boy Oranı Modu</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>Bağlantı Kesildiğinde</translation>
     </message>
     <message>
         <source>Flags</source>
-        <translation>Ülke Bayrakları</translation>
+        <translation>Bayrak</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>Birlikte</translation>
     </message>
     <message>
         <source>None</source>
@@ -1146,8 +1158,32 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Töre</translation>
     </message>
     <message>
-        <source>App Background</source>
-        <translation>Uygulama Arka Planı</translation>
+        <source>When Connected</source>
+        <translation>Bağlandığında</translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation>Bir resim seçin</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>Kare</translation>
+    </message>
+    <message>
+        <source>Palm</source>
+        <translation>Aya</translation>
+    </message>
+    <message>
+        <source>Drip</source>
+        <translation>Damlamak</translation>
+    </message>
+    <message>
+        <source>Snow</source>
+        <translation>Kar</translation>
+    </message>
+    <message>
+        <source>Ripple</source>
+        <translation>Dalgalanma</translation>
     </message>
 </context>
 <context>
@@ -1236,7 +1272,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Otomatik Bağlan</translation>
     </message>
     <message>
-        <source>Control the mode of behavior of the Windscribe firewall.</source>
+        <source>Control the mode of behaviour of the Windscribe firewall.</source>
         <translation>Windscribe güvenlik duvarının davranış modunu kontrol edin.</translation>
     </message>
     <message>
@@ -1486,32 +1522,12 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Konum Sırası</translation>
     </message>
     <message>
-        <source>Display latency as signal strength bars or in milliseconds.</source>
-        <translation>Gecikmeyi sinyal gücü çubukları olarak veya milisaniye cinsinden görüntüleyin.</translation>
-    </message>
-    <message>
-        <source>Latency Display</source>
-        <translation>Gecikme Göstergesi</translation>
-    </message>
-    <message>
         <source>Localize Windscribe to supported languages.</source>
         <translation>Windscribe&apos;ı desteklenen dillere yerelleştirin.</translation>
     </message>
     <message>
         <source>Language</source>
         <translation>Dil</translation>
-    </message>
-    <message>
-        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>Klasik GUI veya &quot;kulaksız&quot; alternatif GUI arasında seçim yapın.</translation>
-    </message>
-    <message>
-        <source>App Skin</source>
-        <translation>Uygulama Dış Görünümü</translation>
-    </message>
-    <message>
-        <source>Customize the background of the main app screen.</source>
-        <translation>Ana uygulama ekranının arka planını özelleştirin.</translation>
     </message>
     <message>
         <source>Choose to receive stable, beta, or experimental builds.</source>
@@ -1530,7 +1546,7 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Beyaz ve siyah tepsi simgesi arasında seçim yapın.</translation>
     </message>
     <message>
-        <source>Tray Icon Color</source>
+        <source>Tray Icon Colour</source>
         <translation>Tepsi Simgesi Rengi</translation>
     </message>
     <message>
@@ -1538,28 +1554,8 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Çoklu masaüstü</translation>
     </message>
     <message>
-        <source>Select behavior when window is activated with multiple desktops.</source>
+        <source>Select behaviour when window is activated with multiple desktops.</source>
         <translation>Pencere birden çok masaüstü ile etkinleştirildiğinde davranışı seçin.</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Ihracat</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>Ithalat</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Sıfırlama</translation>
-    </message>
-    <message>
-        <source>Change location names to your liking.</source>
-        <translation>Konum adlarını beğeninize göre değiştirin.</translation>
-    </message>
-    <message>
-        <source>Rename Locations</source>
-        <translation>Konumları Yeniden Adlandırma</translation>
     </message>
 </context>
 <context>
@@ -1619,6 +1615,49 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
         <translation>Garry&apos;nin çözemediği bir sorununuz mu var? İnsan desteğine başvurun.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::LookAndFeelWindowItem</name>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>Bak ve Hisset</translation>
+    </message>
+    <message>
+        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
+        <translation>Klasik GUI veya &quot;kulaksız&quot; alternatif GUI arasında seçim yapın.</translation>
+    </message>
+    <message>
+        <source>App Skin</source>
+        <translation>Uygulama Dış Görünümü</translation>
+    </message>
+    <message>
+        <source>Customize the background of the main app screen.</source>
+        <translation>Ana uygulama ekranının arka planını özelleştirin.</translation>
+    </message>
+    <message>
+        <source>Choose sounds to play when connection events occur.</source>
+        <translation>Bağlantı olayları gerçekleştiğinde çalınacak sesleri seçin.</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>Konum adlarını beğeninize göre değiştirin.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>Konumları Yeniden Adlandırma</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Ihracat</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Ithalat</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Sıfırlama</translation>
     </message>
 </context>
 <context>
@@ -1761,20 +1800,12 @@ Connect to a network first</source>
 <context>
     <name>PreferencesWindow::PlanItem</name>
     <message>
-        <source>Unlimited Data</source>
-        <translation>Sınırsız Veri</translation>
+        <source>Free</source>
+        <translation>Serbest</translation>
     </message>
     <message>
-        <source>%1/Month</source>
-        <translation>%1/Ay</translation>
-    </message>
-    <message>
-        <source>Pro</source>
-        <translation>Lehinde</translation>
-    </message>
-    <message>
-        <source>Upgrade</source>
-        <translation>Yükseltmek</translation>
+        <source>Plan Type</source>
+        <translation>Plan Türü</translation>
     </message>
 </context>
 <context>
@@ -1818,6 +1849,10 @@ Connect to a network first</source>
     <message>
         <source>Quit</source>
         <translation>İstifa etmek</translation>
+    </message>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>Bak ve Hisset</translation>
     </message>
 </context>
 <context>
@@ -2012,14 +2047,41 @@ Connect to a network first</source>
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::SelectImageItem</name>
+    <name>PreferencesWindow::SelectFileItem</name>
     <message>
         <source>[no selection]</source>
-        <translation>[seçim yok]</translation>
+        <translation>[Seçim yok]</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::SoundsGroup</name>
+    <message>
+        <source>Sound Notifications</source>
+        <translation>Sesli Bildirimler</translation>
     </message>
     <message>
-        <source>Select an image</source>
-        <translation>Bir resim seçin</translation>
+        <source>None</source>
+        <translation>Hiç kimse</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>Bağlantı Kesildiğinde</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>Birlikte</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Töre</translation>
+    </message>
+    <message>
+        <source>Select a sound</source>
+        <translation>Bir ses seçin</translation>
+    </message>
+    <message>
+        <source>When Connected</source>
+        <translation>Bağlandığında</translation>
     </message>
 </context>
 <context>
@@ -2100,14 +2162,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği ile iletişime geçin.</translation>
     </message>
     <message>
-        <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
-        <translation>Seçilen uygulamalar, IP&apos;ler ve ana bilgisayar adları, bağlandıklarında Windscribe&apos;dan geçmez.</translation>
-    </message>
-    <message>
-        <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
-        <translation>Yalnızca seçilen uygulamalar, IP&apos;ler ve ana bilgisayar adları bağlandığında Windscribe&apos;dan geçer.</translation>
-    </message>
-    <message>
         <source>Split Tunneling</source>
         <translation>Bölünmüş Tünel Açma</translation>
     </message>
@@ -2130,6 +2184,14 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>IPs &amp; Hostnames</source>
         <translation>IP&apos;ler ve Ana Bilgisayar Adları</translation>
+    </message>
+    <message>
+        <source>When enabled, selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
+        <translation>Etkinleştirildiğinde, seçilen uygulamalar, IP&apos;ler ve ana bilgisayar adları bağlanıldığında Windscribe&apos;dan geçmez.</translation>
+    </message>
+    <message>
+        <source>When enabled, only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
+        <translation>Etkinleştirildiğinde, yalnızca seçilen uygulamalar, IP&apos;ler ve ana bilgisayar adları bağlandığında Windscribe&apos;dan geçer.</translation>
     </message>
 </context>
 <context>
@@ -2230,14 +2292,6 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Latency</source>
         <translation>Gecikme</translation>
-    </message>
-    <message>
-        <source>Bars</source>
-        <translation>Bar</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>ms</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2408,12 +2462,16 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
         <translation>Yerel DNS</translation>
     </message>
     <message>
-        <source>Latency test pending</source>
-        <translation>Gecikme testi bekleniyor</translation>
+        <source>Stretch</source>
+        <translation>Uzatmak</translation>
     </message>
     <message>
-        <source>Latency test failed</source>
-        <translation>Gecikme testi başarısız oldu</translation>
+        <source>Fill</source>
+        <translation>Doldurmak</translation>
+    </message>
+    <message>
+        <source>Tile</source>
+        <translation>Kiremit</translation>
     </message>
     <message>
         <source>Always On+</source>
@@ -2490,8 +2548,8 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
         <translation>v</translation>
     </message>
     <message>
-        <source>UPDATE</source>
-        <translation>GÜNCELLEŞTİRMEK</translation>
+        <source>Update</source>
+        <translation>Güncelleştirmek</translation>
     </message>
 </context>
 <context>
@@ -2526,50 +2584,61 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     </message>
 </context>
 <context>
+    <name>UpgradeBanner</name>
+    <message>
+        <source>Unlock full access to Windscribe</source>
+        <translation>Windscribe&apos;a tam erişimin kilidini açın</translation>
+    </message>
+    <message>
+        <source>Go Pro for unlimited everything</source>
+        <translation>Sınırsız her şey için Pro&apos;ya geçin</translation>
+    </message>
+</context>
+<context>
     <name>UpgradeWidget::UpgradeWidgetItem</name>
     <message>
-        <source>GET MORE DATA</source>
-        <translation>DAHA FAZLA VERİ ALIN</translation>
+        <source>Get more data</source>
+        <translation>Daha fazla veri alın</translation>
     </message>
     <message>
-        <source>EXT CONFIG MODE</source>
-        <translation>EXT YAPILANDIRMA MODU</translation>
+        <source>%1 left</source>
+        <translation>%1 kaldı</translation>
     </message>
     <message>
-        <source>0 DAYS LEFT</source>
-        <translation>0 GÜN KALDI</translation>
+        <source>0 days left</source>
+        <translation>0 gün kaldı</translation>
     </message>
     <message>
-        <source>1 DAY LEFT</source>
-        <translation>1 GÜN KALDI</translation>
+        <source>1 day left</source>
+        <translation>1 gün kaldı</translation>
     </message>
     <message>
-        <source>2 DAYS LEFT</source>
-        <translation>2 GÜN KALDI</translation>
+        <source>2 days left</source>
+        <translation>2 gün kaldı</translation>
     </message>
     <message>
-        <source>3 DAYS LEFT</source>
-        <translation>3 GÜN KALDI</translation>
+        <source>3 days left</source>
+        <translation>3 gün kaldı</translation>
     </message>
     <message>
-        <source>4 DAYS LEFT</source>
-        <translation>4 GÜN KALDI</translation>
+        <source>4 days left</source>
+        <translation>4 gün kaldı</translation>
     </message>
     <message>
-        <source>5 DAYS LEFT</source>
-        <translation>5 GÜN KALDI</translation>
+        <source>5 days left</source>
+        <translation>5 gün kaldı</translation>
     </message>
     <message>
-        <source>%1 DAYS LEFT</source>
-        <translation>%1 GÜN KALDI</translation>
+        <source>%1 days left</source>
+        <translation>%1 gün kaldı</translation>
     </message>
     <message>
-        <source>LOGIN</source>
-        <translation>OTURUM AÇMA</translation>
+        <source>Login</source>
+        <translation>Oturum açma</translation>
     </message>
     <message>
-        <source>RENEW</source>
-        <translation>YENİLEMEK</translation>
+        <source>Renew</source>
+        <translation>Yenilemek</translation>
     </message>
 </context>
 <context>

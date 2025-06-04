@@ -70,8 +70,8 @@
         <translation>Chặn tất cả kết nối trong trường hợp ngắt kết nối đột ngột</translation>
     </message>
     <message>
-        <source>Connect to rate</source>
-        <translation>Kết nối với giá cước</translation>
+        <source>FIREWALL</source>
+        <translation>TƯỜNG LỬA</translation>
     </message>
 </context>
 <context>
@@ -82,10 +82,26 @@
     </message>
 </context>
 <context>
-    <name>ConnectWindow::MiddleItem</name>
+    <name>ConnectWindow::LocationsMenu</name>
     <message>
-        <source>Firewall</source>
-        <translation>Tường lửa</translation>
+        <source>All</source>
+        <translation>Tất cả</translation>
+    </message>
+    <message>
+        <source>Configured</source>
+        <translation>Cấu hình</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP tĩnh</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Yêu thích</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Tìm kiếm</translation>
     </message>
 </context>
 <context>
@@ -224,26 +240,6 @@
 <context>
     <name>GuiLocations::LocationsTab</name>
     <message>
-        <source>All</source>
-        <translation>Tất cả</translation>
-    </message>
-    <message>
-        <source>Configured</source>
-        <translation>Cấu hình</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>IP tĩnh</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Yêu thích</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation>Tìm kiếm</translation>
-    </message>
-    <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
         <translation>Chọn thư mục chứa cấu hình tùy chỉnh mà bạn muốn hiển thị ở đây</translation>
     </message>
@@ -275,6 +271,10 @@
         <source>Buy</source>
         <translation>Mua</translation>
     </message>
+    <message>
+        <source>All locations (%1)</source>
+        <translation>Tất cả các địa điểm (%1)</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -290,7 +290,7 @@
         <translation>Bọc Word</translation>
     </message>
     <message>
-        <source>Color highlighting</source>
+        <source>Colour highlighting</source>
         <translation>Làm nổi bật màu sắc</translation>
     </message>
     <message>
@@ -403,10 +403,6 @@
 </context>
 <context>
     <name>LoginWindow::WelcomeWindowItem</name>
-    <message>
-        <source>Keep Your Secrets.</source>
-        <translation>Giữ bí mật của bạn.</translation>
-    </message>
     <message>
         <source>Emergency Connect</source>
         <translation>Kết nối khẩn cấp</translation>
@@ -886,6 +882,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
         <translation>Không thể bắt đầu dịch vụ DNS tùy chỉnh - cổng 53 đã được sử dụng.  Bạn có muốn thay đổi DNS được kết nối của mình thành máy chủ cục bộ không?</translation>
     </message>
+    <message>
+        <source>Slide to complete the puzzle</source>
+        <translation>Trượt để hoàn thành câu đố</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -997,16 +997,8 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Tài khoản</translation>
     </message>
     <message>
-        <source>INFO</source>
-        <translation>Thông tin</translation>
-    </message>
-    <message>
         <source>Username</source>
         <translation>Tên đăng nhập</translation>
-    </message>
-    <message>
-        <source>PLAN</source>
-        <translation>Kế hoạch</translation>
     </message>
     <message>
         <source>Reset Date</source>
@@ -1023,6 +1015,18 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Expiry Date</source>
         <translation>Ngày hết hạn</translation>
+    </message>
+    <message>
+        <source>ACCOUNT INFO</source>
+        <translation>THÔNG TIN TÀI KHOẢN</translation>
+    </message>
+    <message>
+        <source>PLAN INFO</source>
+        <translation>THÔNG TIN KẾ HOẠCH</translation>
+    </message>
+    <message>
+        <source>UPGRADE &gt;</source>
+        <translation>NÂNG CẤP &gt;</translation>
     </message>
 </context>
 <context>
@@ -1124,18 +1128,26 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::BackgroundSettingsGroup</name>
+    <name>PreferencesWindow::AppBackgroundGroup</name>
     <message>
-        <source>Disconnected</source>
-        <translation>Rời rạc</translation>
+        <source>App Background</source>
+        <translation>Nền ứng dụng</translation>
     </message>
     <message>
-        <source>Connected</source>
-        <translation>Kết nối</translation>
+        <source>Aspect Ratio Mode</source>
+        <translation>Chế độ tỷ lệ khung hình</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>Khi bị ngắt kết nối</translation>
     </message>
     <message>
         <source>Flags</source>
-        <translation>Cờ quốc gia</translation>
+        <translation>Cờ</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>Kèm</translation>
     </message>
     <message>
         <source>None</source>
@@ -1146,8 +1158,32 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Phong tục</translation>
     </message>
     <message>
-        <source>App Background</source>
-        <translation>Nền ứng dụng</translation>
+        <source>When Connected</source>
+        <translation>Khi được kết nối</translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation>Chọn một hình ảnh</translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation>Vuông</translation>
+    </message>
+    <message>
+        <source>Palm</source>
+        <translation>Bàn tay</translation>
+    </message>
+    <message>
+        <source>Drip</source>
+        <translation>Chảy nhỏ giọt</translation>
+    </message>
+    <message>
+        <source>Snow</source>
+        <translation>Tuyết</translation>
+    </message>
+    <message>
+        <source>Ripple</source>
+        <translation>Gợn</translation>
     </message>
 </context>
 <context>
@@ -1236,7 +1272,7 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Tự động kết nối</translation>
     </message>
     <message>
-        <source>Control the mode of behavior of the Windscribe firewall.</source>
+        <source>Control the mode of behaviour of the Windscribe firewall.</source>
         <translation>Kiểm soát chế độ hành vi của tường lửa Windscribe.</translation>
     </message>
     <message>
@@ -1486,32 +1522,12 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Thứ tự địa điểm</translation>
     </message>
     <message>
-        <source>Display latency as signal strength bars or in milliseconds.</source>
-        <translation>Hiển thị độ trễ dưới dạng thanh cường độ tín hiệu hoặc tính bằng mili giây.</translation>
-    </message>
-    <message>
-        <source>Latency Display</source>
-        <translation>Hiển thị độ trễ</translation>
-    </message>
-    <message>
         <source>Localize Windscribe to supported languages.</source>
         <translation>Bản địa hóa Windscribe sang các ngôn ngữ được hỗ trợ.</translation>
     </message>
     <message>
         <source>Language</source>
         <translation>Ngôn ngữ</translation>
-    </message>
-    <message>
-        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>Chọn giữa GUI cổ điển hoặc GUI thay thế &quot;không tai&quot;.</translation>
-    </message>
-    <message>
-        <source>App Skin</source>
-        <translation>Giao diện ứng dụng</translation>
-    </message>
-    <message>
-        <source>Customize the background of the main app screen.</source>
-        <translation>Tùy chỉnh nền của màn hình ứng dụng chính.</translation>
     </message>
     <message>
         <source>Choose to receive stable, beta, or experimental builds.</source>
@@ -1530,7 +1546,7 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Chọn giữa biểu tượng khay trắng và đen.</translation>
     </message>
     <message>
-        <source>Tray Icon Color</source>
+        <source>Tray Icon Colour</source>
         <translation>Màu biểu tượng khay</translation>
     </message>
     <message>
@@ -1538,28 +1554,8 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Đa máy tính để bàn</translation>
     </message>
     <message>
-        <source>Select behavior when window is activated with multiple desktops.</source>
+        <source>Select behaviour when window is activated with multiple desktops.</source>
         <translation>Chọn hành vi khi cửa sổ được kích hoạt với nhiều màn hình nền.</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Xuất khẩu</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>Nhập khẩu</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Reset</translation>
-    </message>
-    <message>
-        <source>Change location names to your liking.</source>
-        <translation>Thay đổi tên địa điểm theo ý thích của bạn.</translation>
-    </message>
-    <message>
-        <source>Rename Locations</source>
-        <translation>Đổi tên vị trí</translation>
     </message>
 </context>
 <context>
@@ -1619,6 +1615,49 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
         <translation>Có một vấn đề mà Garry không thể giải quyết? Liên hệ với bộ phận hỗ trợ của con người.</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesWindow::LookAndFeelWindowItem</name>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>Giao diện</translation>
+    </message>
+    <message>
+        <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
+        <translation>Chọn giữa GUI cổ điển hoặc GUI thay thế &quot;không tai&quot;.</translation>
+    </message>
+    <message>
+        <source>App Skin</source>
+        <translation>Giao diện ứng dụng</translation>
+    </message>
+    <message>
+        <source>Customize the background of the main app screen.</source>
+        <translation>Tùy chỉnh nền của màn hình ứng dụng chính.</translation>
+    </message>
+    <message>
+        <source>Choose sounds to play when connection events occur.</source>
+        <translation>Chọn âm thanh để phát khi xảy ra sự kiện kết nối.</translation>
+    </message>
+    <message>
+        <source>Change location names to your liking.</source>
+        <translation>Thay đổi tên địa điểm theo ý thích của bạn.</translation>
+    </message>
+    <message>
+        <source>Rename Locations</source>
+        <translation>Đổi tên vị trí</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Xuất khẩu</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Nhập khẩu</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation>Reset</translation>
     </message>
 </context>
 <context>
@@ -1761,20 +1800,12 @@ Kết nối với mạng trước</translation>
 <context>
     <name>PreferencesWindow::PlanItem</name>
     <message>
-        <source>Unlimited Data</source>
-        <translation>Dữ liệu không giới hạn</translation>
+        <source>Free</source>
+        <translation>Tự do</translation>
     </message>
     <message>
-        <source>%1/Month</source>
-        <translation>%1/Tháng</translation>
-    </message>
-    <message>
-        <source>Pro</source>
-        <translation>Pro</translation>
-    </message>
-    <message>
-        <source>Upgrade</source>
-        <translation>Nâng cấp</translation>
+        <source>Plan Type</source>
+        <translation>Loại kế hoạch</translation>
     </message>
 </context>
 <context>
@@ -1818,6 +1849,10 @@ Kết nối với mạng trước</translation>
     <message>
         <source>Quit</source>
         <translation>Bỏ</translation>
+    </message>
+    <message>
+        <source>Look &amp; Feel</source>
+        <translation>Giao diện</translation>
     </message>
 </context>
 <context>
@@ -2012,14 +2047,41 @@ Kết nối với mạng trước</translation>
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::SelectImageItem</name>
+    <name>PreferencesWindow::SelectFileItem</name>
     <message>
         <source>[no selection]</source>
         <translation>[không có lựa chọn]</translation>
     </message>
+</context>
+<context>
+    <name>PreferencesWindow::SoundsGroup</name>
     <message>
-        <source>Select an image</source>
-        <translation>Chọn một hình ảnh</translation>
+        <source>Sound Notifications</source>
+        <translation>Thông báo bằng âm thanh</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Không ai</translation>
+    </message>
+    <message>
+        <source>When Disconnected</source>
+        <translation>Khi bị ngắt kết nối</translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation>Kèm</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Phong tục</translation>
+    </message>
+    <message>
+        <source>Select a sound</source>
+        <translation>Chọn âm thanh</translation>
+    </message>
+    <message>
+        <source>When Connected</source>
+        <translation>Khi được kết nối</translation>
     </message>
 </context>
 <context>
@@ -2100,14 +2162,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với bộ phận hỗ trợ của Windscribe để được hỗ trợ.</translation>
     </message>
     <message>
-        <source>Selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
-        <translation>Các ứng dụng, IP và tên máy chủ đã chọn sẽ không đi qua Windscribe khi được kết nối.</translation>
-    </message>
-    <message>
-        <source>Only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
-        <translation>Chỉ các ứng dụng, IP và tên máy chủ được chọn mới đi qua Windscribe khi được kết nối.</translation>
-    </message>
-    <message>
         <source>Split Tunneling</source>
         <translation>Tạo đường hầm phân chia</translation>
     </message>
@@ -2130,6 +2184,14 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>IPs &amp; Hostnames</source>
         <translation>IP &amp;; Tên máy chủ</translation>
+    </message>
+    <message>
+        <source>When enabled, selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
+        <translation>Khi được bật, các ứng dụng, IP và tên máy chủ đã chọn sẽ không đi qua Windscribe khi được kết nối.</translation>
+    </message>
+    <message>
+        <source>When enabled, only selected apps, IPs, and hostnames will go through Windscribe when connected.</source>
+        <translation>Khi được bật, chỉ các ứng dụng, IP và tên máy chủ đã chọn mới đi qua Windscribe khi được kết nối.</translation>
     </message>
 </context>
 <context>
@@ -2230,14 +2292,6 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Latency</source>
         <translation>Trễ</translation>
-    </message>
-    <message>
-        <source>Bars</source>
-        <translation>Quán bar</translation>
-    </message>
-    <message>
-        <source>ms</source>
-        <translation>ms</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -2408,12 +2462,16 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
         <translation>DNS cục bộ</translation>
     </message>
     <message>
-        <source>Latency test pending</source>
-        <translation>Kiểm tra độ trễ đang chờ xử lý</translation>
+        <source>Stretch</source>
+        <translation>Căng</translation>
     </message>
     <message>
-        <source>Latency test failed</source>
-        <translation>Kiểm tra độ trễ không thành công</translation>
+        <source>Fill</source>
+        <translation>Nhồi</translation>
+    </message>
+    <message>
+        <source>Tile</source>
+        <translation>Ngói</translation>
     </message>
     <message>
         <source>Always On+</source>
@@ -2490,8 +2548,8 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
         <translation>v</translation>
     </message>
     <message>
-        <source>UPDATE</source>
-        <translation>CẬP NHẬT</translation>
+        <source>Update</source>
+        <translation>Cập nhật</translation>
     </message>
 </context>
 <context>
@@ -2526,50 +2584,61 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     </message>
 </context>
 <context>
+    <name>UpgradeBanner</name>
+    <message>
+        <source>Unlock full access to Windscribe</source>
+        <translation>Mở khóa toàn quyền truy cập vào Windscribe</translation>
+    </message>
+    <message>
+        <source>Go Pro for unlimited everything</source>
+        <translation>Go Pro cho mọi thứ không giới hạn</translation>
+    </message>
+</context>
+<context>
     <name>UpgradeWidget::UpgradeWidgetItem</name>
     <message>
-        <source>GET MORE DATA</source>
-        <translation>NHẬN THÊM DỮ LIỆU</translation>
+        <source>Get more data</source>
+        <translation>Nhận thêm dữ liệu</translation>
     </message>
     <message>
-        <source>EXT CONFIG MODE</source>
-        <translation>CHẾ ĐỘ CẤU HÌNH EXT</translation>
+        <source>%1 left</source>
+        <translation>%1 còn lại</translation>
     </message>
     <message>
-        <source>0 DAYS LEFT</source>
-        <translation>CÒN 0 NGÀY</translation>
+        <source>0 days left</source>
+        <translation>Còn 0 ngày nữa</translation>
     </message>
     <message>
-        <source>1 DAY LEFT</source>
-        <translation>CÒN 1 NGÀY</translation>
+        <source>1 day left</source>
+        <translation>Còn 1 ngày nữa</translation>
     </message>
     <message>
-        <source>2 DAYS LEFT</source>
-        <translation>CÒN 2 NGÀY</translation>
+        <source>2 days left</source>
+        <translation>Còn 2 ngày nữa</translation>
     </message>
     <message>
-        <source>3 DAYS LEFT</source>
-        <translation>CÒN 3 NGÀY</translation>
+        <source>3 days left</source>
+        <translation>Còn 3 ngày nữa</translation>
     </message>
     <message>
-        <source>4 DAYS LEFT</source>
-        <translation>CÒN 4 NGÀY</translation>
+        <source>4 days left</source>
+        <translation>Còn 4 ngày nữa</translation>
     </message>
     <message>
-        <source>5 DAYS LEFT</source>
-        <translation>CÒN 5 NGÀY</translation>
+        <source>5 days left</source>
+        <translation>Còn 5 ngày nữa</translation>
     </message>
     <message>
-        <source>%1 DAYS LEFT</source>
-        <translation>%1 NGÀY CÒN LẠI</translation>
+        <source>%1 days left</source>
+        <translation>%1 ngày còn lại</translation>
     </message>
     <message>
-        <source>LOGIN</source>
-        <translation>ĐĂNG NHẬP</translation>
+        <source>Login</source>
+        <translation>Đăng nhập</translation>
     </message>
     <message>
-        <source>RENEW</source>
-        <translation>RENEW</translation>
+        <source>Renew</source>
+        <translation>Renew</translation>
     </message>
 </context>
 <context>

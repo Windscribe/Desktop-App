@@ -17,6 +17,7 @@
 #include "dnsdomainswindow/dnsdomainswindowitem.h"
 #include "generalwindow/generalwindowitem.h"
 #include "helpwindow/helpwindowitem.h"
+#include "lookandfeelwindow/lookandfeelwindowitem.h"
 #include "networkoptionswindow/networkoptionswindowitem.h"
 #include "networkoptionswindow/networkoptionsnetworkwindowitem.h"
 #include "preferencestab/preferencestabcontrolitem.h"
@@ -122,13 +123,14 @@ protected slots:
 
 private:
     static constexpr int kTabAreaWidth = 64;
-    static constexpr int kMinHeight = 572;
+    static constexpr int kMinHeight = 596;
 
     PreferencesTabControlItem *tabControlItem_;
     GeneralWindowItem *generalWindowItem_;
     AccountWindowItem *accountWindowItem_;
     ConnectionWindowItem *connectionWindowItem_;
     RobertWindowItem *robertWindowItem_;
+    LookAndFeelWindowItem *lookAndFeelWindowItem_;
     AdvancedWindowItem *advancedWindowItem_;
     HelpWindowItem *helpWindowItem_;
     AboutWindowItem *aboutWindowItem_;

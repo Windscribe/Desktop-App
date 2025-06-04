@@ -1,7 +1,7 @@
 #include "getwireguardconfig.h"
-#include <QSettings>
-#include <QTimer>
+#include <QDataStream>
 #include <QIODevice>
+#include <QSettings>
 #include "types/global_consts.h"
 #include "api_responses/wgconfigs_connect.h"
 #include "api_responses/wgconfigs_init.h"
@@ -9,11 +9,6 @@
 #include "utils/utils.h"
 #include "utils/ws_assert.h"
 
-extern "C" {
-    #include "legacy_protobuf_support/apiinfo.pb-c.h"
-
-#include <QDataStream>
-}
 
 const QString GetWireGuardConfig::KEY_WIREGUARD_CONFIG = "wireguardConfig";
 
@@ -244,30 +239,6 @@ WireGuardConfig GetWireGuardConfig::readWireGuardConfigFromSettings()
                     }
                 }
             }
-
-            WireGuardConfig wgConfig;
-            {
-                SimpleCrypt simpleCryptLegacy(0x4572A4ACF31A31BA);
-                QByteArray arr = simpleCryptLegacy.decryptToByteArray(s);
-                // try load from legacy protobuf
-                // todo remove this code at some point later
-                ProtoApiInfo__WireGuardConfig *wgc = proto_api_info__wire_guard_config__unpack(NULL, arr.size(), (const uint8_t *)arr.data());
-                if (wgc)
-                {
-                    if (wgc->public_key && wgc->private_key)
-                        wgConfig.setKeyPair(QString::fromStdString(wgc->public_key), QString::fromStdString(wgc->private_key));
-
-                    if (wgc->preshared_key)
-                        wgConfig.setPeerPresharedKey(QString::fromStdString(wgc->preshared_key));
-
-                    if (wgc->allowed_ips)
-                        wgConfig.setPeerAllowedIPs(QString::fromStdString(wgc->allowed_ips));
-
-                    proto_api_info__wire_guard_config__free_unpacked(wgc, NULL);
-                }
-            }
-
-            return wgConfig;
         }
     }
     return WireGuardConfig();

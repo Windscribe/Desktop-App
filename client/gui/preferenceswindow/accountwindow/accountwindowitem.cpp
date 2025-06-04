@@ -20,7 +20,7 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     trafficUsed_ = accountInfo->trafficUsed();
 
     setFlag(QGraphicsItem::ItemIsFocusable);
-    setSpacerHeight(PREFERENCES_MARGIN);
+    setSpacerHeight(PREFERENCES_MARGIN_Y);
 
     connect(accountInfo, &AccountInfo::usernameChanged, this, &AccountWindowItem::onUsernameChanged);
     connect(accountInfo, &AccountInfo::emailChanged, this, &AccountWindowItem::onEmailChanged);
@@ -47,12 +47,12 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     addItem(infoGroup_);
 
     planTitle_ = new TitleItem(this);
+    connect(planTitle_, &TitleItem::linkClicked, this, &AccountWindowItem::onUpgradeClicked);
     addItem(planTitle_);
 
     planGroup_ = new PreferenceGroup(this);
 
     planItem_ = new PlanItem(planGroup_);
-    connect(planItem_, &PlanItem::upgradeClicked, this, &AccountWindowItem::onUpgradeClicked);
     planItem_->setIsPremium(accountInfo->isPremium());
     planItem_->setPlan(plan_);
     planGroup_->addItem(planItem_);
@@ -82,14 +82,14 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     // Below items for case when not logged in
     textItem_ = new QGraphicsTextItem(this);
     textItem_->setPlainText(tr("Login to view your account info"));
-    textItem_->setFont(FontManager::instance().getFont(14, false));
+    textItem_->setFont(FontManager::instance().getFont(14, QFont::Normal));
     textItem_->setDefaultTextColor(Qt::white);
     textItem_->setTextWidth(125);
     textItem_->document()->setDefaultTextOption(QTextOption(Qt::AlignHCenter));
 
     loginButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kOutline, 69, 24, 12);
     loginButton_->setText(tr("Login"));
-    loginButton_->setFont(FontDescr(12,false));
+    loginButton_->setFont(FontDescr(12, QFont::Normal));
     connect(loginButton_, &CommonGraphics::BubbleButton::clicked, this, &AccountWindowItem::accountLoginClick);
 
     updateWidgetPos();
@@ -128,7 +128,7 @@ void AccountWindowItem::setConfirmEmailResult(bool bSuccess)
 void AccountWindowItem::updateScaling()
 {
     CommonGraphics::BasePage::updateScaling();
-    textItem_->setFont(FontManager::instance().getFont(14, false));
+    textItem_->setFont(FontManager::instance().getFont(14,  QFont::Normal));
     textItem_->setTextWidth(125*G_SCALE);
     updateWidgetPos();
 }
@@ -186,9 +186,12 @@ void AccountWindowItem::onLanguageChanged()
     loginButton_->setText(tr("Login"));
     textItem_->setPlainText(tr("Login to view your account info"));
 
-    infoTitle_->setTitle(tr("INFO"));
+    infoTitle_->setTitle(tr("ACCOUNT INFO"));
     usernameItem_->setValue1(tr("Username"));
-    planTitle_->setTitle(tr("PLAN"));
+    planTitle_->setTitle(tr("PLAN INFO"));
+    if (!planItem_->isPremium()) {
+        planTitle_->setLink(tr("UPGRADE >"));
+    }
     expireDateItem_->setValue1(tr("Expiry Date"));
     resetDateItem_->setValue1(tr("Reset Date"));
     dataLeftItem_->setValue1(tr("Data Left"));

@@ -7,7 +7,6 @@
 
 #include "utils/simplecrypt.h"
 #include "types/global_consts.h"
-#include "legacy_protobuf_support/legacy_protobuf.h"
 
 namespace gui_locations {
 
@@ -61,15 +60,6 @@ void FavoriteLocationsStorage::readFromSettings()
                     favoriteLocations_.clear();
                 else
                     bLoaded = true;
-            }
-        }
-
-        // try load from legacy protobuf
-        if (!bLoaded) {
-            QByteArray buf = settings.value("favoriteLocations").toByteArray();
-            QSet<LocationID> lids;
-            if (LegacyProtobufSupport::loadFavoriteLocations(buf, lids)) {
-                favoriteLocations_ = lids;
             }
         }
     }

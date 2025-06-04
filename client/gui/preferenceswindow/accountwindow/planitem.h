@@ -2,6 +2,7 @@
 
 #include "commongraphics/baseitem.h"
 #include "commongraphics/textbutton.h"
+#include "graphicresources/independentpixmap.h"
 
 namespace PreferencesWindow {
 
@@ -27,15 +28,11 @@ private slots:
 
 private:
     CommonGraphics::TextButton *textButton_;
+    QSharedPointer<IndependentPixmap> iconButton_;
     qint64 planBytes_;
     bool isPremium_;
-    QString planStr_;
 
-    void generatePlanString();
-    void updateTextButtonPos();
-
-    const char *PRO_TEXT = QT_TR_NOOP("Pro");
-    const char *UPGRADE_TEXT = QT_TR_NOOP("Upgrade");
+    void updatePositions();
 };
 
 } // namespace PreferencesWindow

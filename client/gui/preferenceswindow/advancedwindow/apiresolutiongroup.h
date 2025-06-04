@@ -21,6 +21,8 @@ public:
     void setApiResolution(const types::ApiResolutionSettings &ar);
     bool hasItemWithFocus() override;
 
+    void setDescription(const QString &desc, const QString &url = "");
+
 signals:
     void apiResolutionChanged(const types::ApiResolutionSettings &ar);
 

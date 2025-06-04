@@ -1,9 +1,11 @@
 #include "logginginwindowitem.h"
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
+#include <QCursor>
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
+#include "utils/utils.h"
 #include "dpiscalemanager.h"
 
 namespace LoginWindow {
@@ -33,14 +35,9 @@ void LoggingInWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     painter->setRenderHint(QPainter::Antialiasing);
 
     QColor color = FontManager::instance().getMidnightColor();
-#ifdef Q_OS_WIN
-    painter->fillRect(boundingRect(), QBrush(color));
-#else
-    //todo scale
     painter->setPen(color);
     painter->setBrush(color);
-    painter->drawRoundedRect(boundingRect().adjusted(0,0,0,0), 5*G_SCALE, 5*G_SCALE);
-#endif
+    painter->drawRoundedRect(boundingRect(), 9*G_SCALE, 9*G_SCALE);
 
     // login circle
     QRectF rect = QRectF(0, 0, LOGIN_BUTTON_WIDTH*G_SCALE, LOGIN_BUTTON_HEIGHT*G_SCALE);
@@ -51,7 +48,7 @@ void LoggingInWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     painter->drawEllipse(rect);
 
     // text
-    painter->setFont(FontManager::instance().getFont(12, false));
+    painter->setFont(FontManager::instance().getFont(12,  QFont::Normal));
     painter->setPen(QColor(255,255,255));
     painter->drawText(WINDOW_MARGIN*G_SCALE, (LOGIN_BUTTON_POS_Y+LOGGING_IN_TEXT_OFFSET_Y)*G_SCALE, message_);
 
@@ -69,6 +66,13 @@ void LoggingInWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     pixmap->draw(-LOGIN_SPINNER_OFFSET/2*G_SCALE, -LOGIN_SPINNER_OFFSET/2*G_SCALE, painter);
     painter->restore();
 
+}
+
+void LoggingInWindowItem::setClickable(bool enabled)
+{
+    if (captchaItem_) {
+        captchaItem_->setClickable(enabled);
+    }
 }
 
 void LoggingInWindowItem::startAnimation()
@@ -100,9 +104,19 @@ void LoggingInWindowItem::setAdditionalMessage(const QString &msg)
     update();
 }
 
+void LoggingInWindowItem::showCaptcha(const QString &background, const QString &slider, int top)
+{
+    SAFE_DELETE(captchaItem_);
+    captchaItem_ = new CaptchaItem(this, background, slider, top);
+    captchaItem_->setClickable(true);
+    connect(captchaItem_, &CaptchaItem::captchaResolved, this, &LoggingInWindowItem::onCaptchaResolved);
+    updatePositions();
+}
+
 void LoggingInWindowItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
+    updatePositions();
 }
 
 void LoggingInWindowItem::onSpinnerRotationChanged(const QVariant &value)
@@ -116,6 +130,20 @@ void LoggingInWindowItem::onSpinnerRotationChanged(const QVariant &value)
     }
 
     update();
+}
+
+void LoggingInWindowItem::onCaptchaResolved(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY)
+{
+    SAFE_DELETE_LATER(captchaItem_);
+    emit captchaResolved(captchaSolution, captchaTrailX, captchaTrailY);
+}
+
+void LoggingInWindowItem::updatePositions()
+{
+    if (captchaItem_) {
+        auto rc = captchaItem_->boundingRect();
+        captchaItem_->setPos((LOGIN_WIDTH*G_SCALE - rc.width()) / 2 , ((LOGIN_BUTTON_POS_Y)*G_SCALE - rc.height()) / 2);
+    }
 }
 
 }

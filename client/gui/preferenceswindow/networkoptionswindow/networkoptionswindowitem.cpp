@@ -10,7 +10,7 @@ namespace PreferencesWindow {
 NetworkOptionsWindowItem::NetworkOptionsWindowItem(ScalableGraphicsObject *parent, Preferences *preferences)
   : CommonGraphics::BasePage(parent), preferences_(preferences), currentScreen_(NETWORK_OPTIONS_HOME)
 {
-    setSpacerHeight(PREFERENCES_MARGIN);
+    setSpacerHeight(PREFERENCES_MARGIN_Y);
 
     desc_ = new PreferenceGroup(this);
     addItem(desc_);
@@ -125,7 +125,7 @@ void NetworkOptionsWindowItem::onNetworkWhitelistChanged(QVector<types::NetworkI
 void NetworkOptionsWindowItem::onLanguageChanged()
 {
     desc_->setDescription(tr("Windscribe will auto-disconnect when the device connects to a network tagged \"Unsecured\"."));
-    autosecureGroup_->setDescription(tr("Mark all newly encountered networks as Secured."));
+    autosecureCheckbox_->setDescription(tr("Mark all newly encountered networks as Secured."));
     autosecureCheckbox_->setCaption(tr("Auto-Secure Networks"));
     placeholderItem_->setTitle(tr("No Network Detected"));
 

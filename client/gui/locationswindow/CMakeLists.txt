@@ -9,6 +9,8 @@ target_sources(gui PRIVATE
     widgetlocations/locationstab.h
     widgetlocations/staticipdeviceinfo.cpp
     widgetlocations/staticipdeviceinfo.h
+    widgetlocations/upgradebanner.cpp
+    widgetlocations/upgradebanner.h
     widgetlocations/widgetswitcher.cpp
     widgetlocations/widgetswitcher.h
 )

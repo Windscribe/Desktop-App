@@ -2,7 +2,6 @@
 
 #include <QJsonDocument>
 
-#include "legacy_protobuf_support/legacy_protobuf.h"
 #include "types/global_consts.h"
 #include "utils/languagesutil.h"
 #include "utils/log/categories.h"
@@ -81,18 +80,6 @@ bool EngineSettings::loadFromSettings()
                 bLoaded = true;
             }
         }
-    }
-
-    if (!bLoaded && settings.contains("engineSettings2")) {
-        // try load from legacy protobuf
-        // todo remove this code at some point later
-        QString str = settings.value("engineSettings2", "").toString();
-        QByteArray arr = simpleCrypt.decryptToByteArray(str);
-        if (LegacyProtobufSupport::loadEngineSettings(arr, *this)) {
-            bLoaded = true;
-        }
-
-        settings.remove("engineSettings2");
     }
 
     if (!bLoaded) {

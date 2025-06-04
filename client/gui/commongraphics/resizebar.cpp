@@ -3,6 +3,7 @@
 #include <QPainter>
 #include <QCursor>
 #include <QGraphicsSceneMouseEvent>
+#include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 
 namespace CommonGraphics {

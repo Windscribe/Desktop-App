@@ -18,6 +18,7 @@ public:
                            const QString &descUrl = "");
 
     void setFirewallSettings(types::FirewallSettings settings);
+    void setDescription(const QString &desc, const QString &descUrl);
 
 signals:
     void firewallPreferencesChanged(const types::FirewallSettings &settings);

@@ -18,7 +18,7 @@ public:
         return tc;
     }
 
-    QFont defaultFont(int szPx = 14, QFont::Weight weight = QFont::Normal) const;
+    QFont defaultFont(int szPx = 14, int weight = QFont::Normal) const;
     QColor defaultFontColor() const;
     QString defaultFontName() const;
 

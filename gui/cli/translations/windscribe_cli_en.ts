@@ -243,8 +243,8 @@
         <translation>Preferences reloaded.</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
-        <translation>Key limit behavior is set.</translation>
+        <source>Key limit behaviour is set.</source>
+        <translation>Key limit behaviour is set.</translation>
     </message>
     <message>
         <source>Connection has been overridden by another command.</source>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>(Device name: %1)</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>Internet connectivity is not available.  Try again later.</translation>
     </message>
 </context>
 </TS>

@@ -33,6 +33,9 @@ public:
 
     void setOpacityByFactor(double opacityFactor);
 
+    void setImagePath(const QString &imagePath);
+    void setSpacerWidth(int spacerWidth);
+
 signals:
     void widthChanged(int newWidth);
     void heightChanged(int newHeight);

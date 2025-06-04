@@ -71,11 +71,11 @@ icon = icon_from_app(application)
 
 # Where to put the icons
 icon_locations = {
-    appname: (176, 192)
+    appname: (175, 192)
     }
 
 # .. Window configuration ......................................................
-background = defines.get('background', 'osx_install_background.tiff')
+background = defines.get('background', 'install_background.png')
 
 show_status_bar = False
 show_tab_view = False
@@ -85,7 +85,7 @@ show_sidebar = False
 sidebar_width = 180
 
 # Window position in ((x, y), (w, h)) format
-window_rect = ((100, 425), (350, 375))
+window_rect = ((100, 425), (350, 350))
 
 # Select the default view; must be one of
 #

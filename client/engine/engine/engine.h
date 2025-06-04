@@ -59,6 +59,7 @@ public:
 
     void loginWithAuthHash();
     void loginWithUsernameAndPassword(const QString &username, const QString &password, const QString &code2fa);
+    void continueLoginWithCaptcha(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY);
     bool isApiSavedSettingsExists();
 
     void logout(bool keepFirewallOn);
@@ -135,6 +136,7 @@ signals:
     void initFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void bfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void cleanupFinished();
+    void captchaRequired(const QString &background, const QString &slider, int top);
     void loginFinished(bool isLoginFromSavedSettings, const api_responses::PortMap &portMap);
     void tryingBackupEndpoint(int num, int cnt);
     void loginError(wsnet::LoginResult retCode, const QString &errorMessage);
@@ -240,6 +242,7 @@ private slots:
     void onApiResourcesManagerLoginFailed(wsnet::LoginResult loginResult, const QString &errorMessage);
     void onApiResourcesManagerLocationsUpdated();
     void onApiResourcesManagerServerCredentialsFetched();
+    void onApiResourcesManagerAuthTokenLoginFinished(wsnet::LoginResult loginResult);
 
     void onApiResourceManagerCallback(wsnet::ApiResourcesManagerNotification notification, wsnet::LoginResult loginResult, const std::string &errorMessage);
 
@@ -379,6 +382,14 @@ private:
     types::PacketSize packetSize_;
     QThread *packetSizeControllerThread_;
     bool runningPacketDetection_;
+
+    struct LoginCredentials {
+        QString username;
+        QString password;
+        QString code2fa;
+        QString authToken;
+    };
+    std::unique_ptr<LoginCredentials> loginCredentials_;
 
     void doCheckUpdate();
     void loginImpl(bool isUseAuthHash, const QString &username, const QString &password, const QString &code2fa);

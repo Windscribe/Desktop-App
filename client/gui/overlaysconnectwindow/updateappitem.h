@@ -3,7 +3,7 @@
 #include <QGraphicsObject>
 #include <QVariantAnimation>
 #include "backend/preferences/preferences.h"
-#include "commongraphics/textbutton.h"
+#include "commongraphics/bubblebutton.h"
 
 namespace UpdateApp {
 
@@ -45,12 +45,12 @@ private:
 
     Preferences *preferences_;
 
-    CommonGraphics::TextButton *updateButton_;
+    CommonGraphics::BubbleButton *updateButton_;
     UpdateAppItemMode mode_;
     QString curVersionText_;
 
-    static constexpr int WIDTH = 230;
-    static constexpr int WIDTH_VAN_GOGH = 332;
+    static constexpr int WIDTH = 248;
+    static constexpr int WIDTH_VAN_GOGH = 350;
     static constexpr int HEIGHT = 20;
 
     double curBackgroundOpacity_;

@@ -12,7 +12,7 @@ HelpWindowItem::HelpWindowItem(ScalableGraphicsObject *parent, Preferences *pref
     Q_UNUSED(preferencesHelper);
 
     setFlag(QGraphicsItem::ItemIsFocusable);
-    setSpacerHeight(PREFERENCES_MARGIN);
+    setSpacerHeight(PREFERENCES_MARGIN_Y);
 
     connect(accountInfo, &AccountInfo::isPremiumChanged, this, &HelpWindowItem::onIsPremiumChanged);
 
@@ -104,13 +104,13 @@ void HelpWindowItem::onSendLogClick()
 
 void HelpWindowItem::onLanguageChanged()
 {
-    knowledgeBaseGroup_->setDescription(tr("All you need to know about Windscribe."));
+    knowledgeBaseItem_->setDescription(tr("All you need to know about Windscribe."));
     knowledgeBaseItem_->setTitle(tr("Knowledge Base"));
-    talkToGarryGroup_->setDescription(tr("Need help? Garry can help you with most issues, go talk to him."));
+    talkToGarryItem_->setDescription(tr("Need help? Garry can help you with most issues, go talk to him."));
     talkToGarryItem_->setTitle(tr("Talk to Garry"));
-    contactHumansGroup_->setDescription(tr("Have a problem that Garry can't resolve? Contact human support."));
+    contactHumansItem_->setDescription(tr("Have a problem that Garry can't resolve? Contact human support."));
     contactHumansItem_->setTitle(tr("Contact Humans"));
-    communitySupportGroup_->setDescription(tr("Best places to help and get help from other users."));
+    communitySupportItem_->setDescription(tr("Best places to help and get help from other users."));
     communitySupportItem_->setTitle(tr("Community Support"));
     redditItem_->setTitle("Reddit"); // Don't translate company names.
     discordItem_->setTitle("Discord");

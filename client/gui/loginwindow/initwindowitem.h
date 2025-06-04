@@ -35,7 +35,7 @@ private slots:
 
 private:
     static constexpr int LOGO_POS_TOP = 87;
-    static constexpr int LOGO_POS_CENTER = 135;
+    static constexpr int LOGO_POS_CENTER = 120;
     static constexpr int ABORT_POS_Y = 225;
     static constexpr int SPINNER_SPEED = 500;
 

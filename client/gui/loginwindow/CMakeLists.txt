@@ -1,6 +1,8 @@
 target_sources(gui PRIVATE
     blockableqlineedit.cpp
     blockableqlineedit.h
+    captchaitem.cpp
+    captchaitem.h
     credentialswindowitem.cpp
     credentialswindowitem.h
     firewallturnoffbutton.cpp

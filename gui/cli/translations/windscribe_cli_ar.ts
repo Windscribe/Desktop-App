@@ -243,7 +243,7 @@
         <translation>تمت إعادة تحميل التفضيلات.</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
+        <source>Key limit behaviour is set.</source>
         <translation>يتم تعيين سلوك حد المفتاح.</translation>
     </message>
     <message>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>(اسم الجهاز: %1)</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>الاتصال بالإنترنت غير متوفر.  حاول مرة أخرى لاحقا.</translation>
     </message>
 </context>
 </TS>

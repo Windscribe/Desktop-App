@@ -60,7 +60,7 @@ void UsernamePasswordEntry::paint(QPainter *painter, const QStyleOptionGraphicsI
     if (!descriptionText_.isEmpty()) {
         painter->save();
         painter->translate(0, DESCRIPTION_TEXT_HEIGHT / 2 * G_SCALE);
-        painter->setFont(FontManager::instance().getFont(12, true));
+        painter->setFont(FontManager::instance().getFont(12, QFont::Bold));
         painter->setOpacity(curDescriptionOpacity_ * initOpacity);
         painter->drawText(WINDOW_MARGIN*G_SCALE, 0, tr(descriptionText_.toStdString().c_str()));
         painter->restore();
@@ -125,7 +125,7 @@ void UsernamePasswordEntry::updateScaling()
 {
     ClickableGraphicsObject::updateScaling();
     userEntryProxy_->setPos(WINDOW_MARGIN*G_SCALE, 20*G_SCALE);
-    userEntryLine_->setFont(FontManager::instance().getFont(14, false));
+    userEntryLine_->setFont(FontManager::instance().getFont(14,  QFont::Normal));
     userEntryLine_->setFixedHeight(height_*G_SCALE - userEntryProxy_->pos().y()); // keep text box within drawing region and above line
     userEntryLine_->setFixedWidth( width_ * G_SCALE - WINDOW_MARGIN*G_SCALE * 2);
     userEntryLine_->updateScaling();

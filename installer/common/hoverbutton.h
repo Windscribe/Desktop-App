@@ -16,7 +16,7 @@ public:
     explicit HoverButton(QWidget *parent, const QString &imagePath, const QString &hoverImagePath);
 
     void setText(const QString &text);
-    void setTextSize(int size);
+    void setTextAttributes(int size, bool underline = false, int weight = QFont::Normal);
 
 protected:
     void enterEvent(QEnterEvent *event) override;
@@ -27,6 +27,8 @@ private:
     QLabel *hoverIcon_;
     QLabel *text_;
     int textSize_;
+    int textWeight_;
+    bool underline_;
     double hoverOpacity_;
 
     QPropertyAnimation anim;

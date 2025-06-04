@@ -243,7 +243,7 @@
         <translation>Preferencias recargadas.</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
+        <source>Key limit behaviour is set.</source>
         <translation>Se ha establecido el comportamiento del límite de claves.</translation>
     </message>
     <message>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>(Nombre del dispositivo: %1)</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>La conexión a Internet no está disponible.  Vuelva a intentarlo más tarde.</translation>
     </message>
 </context>
 </TS>

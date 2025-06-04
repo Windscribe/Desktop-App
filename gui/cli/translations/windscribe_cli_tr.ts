@@ -243,7 +243,7 @@
         <translation>Tercihler yeniden yüklendi.</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
+        <source>Key limit behaviour is set.</source>
         <translation>Anahtar sınırı davranışı ayarlandı.</translation>
     </message>
     <message>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>(Cihaz adı: %1)</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>İnternet bağlantısı mevcut değil.  Daha sonra yeniden deneyin.</translation>
     </message>
 </context>
 </TS>

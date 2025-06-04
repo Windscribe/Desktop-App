@@ -20,7 +20,7 @@ FirewallGroup::FirewallGroup(ScalableGraphicsObject *parent, const QString &desc
 
     firewallWhenItem_ = new ComboBoxItem(this);
     connect(firewallWhenItem_, &ComboBoxItem::currentItemChanged, this, &FirewallGroup::onFirewallWhenChanged);
-    firewallWhenItem_->setCaptionFont(FontDescr(12, false));
+    firewallWhenItem_->setCaptionFont(FontDescr(12, QFont::Normal));
     addItem(firewallWhenItem_);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &FirewallGroup::onLanguageChanged);
@@ -72,6 +72,11 @@ void FirewallGroup::onLanguageChanged()
     firewallModeItem_->setItems(FIREWALL_MODE_toList(), settings_.mode);
     firewallWhenItem_->setLabelCaption(tr("When?"));
     firewallWhenItem_->setItems(FIREWALL_WHEN_toList(), settings_.when);
+}
+
+void FirewallGroup::setDescription(const QString &desc, const QString &descUrl)
+{
+    firewallModeItem_->setDescription(desc, descUrl);
 }
 
 } // namespace PreferencesWindow

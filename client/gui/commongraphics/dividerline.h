@@ -9,7 +9,7 @@ class DividerLine : public CommonGraphics::BaseItem
 {
 
 public:
-    explicit DividerLine(ScalableGraphicsObject *parent, int width = PAGE_WIDTH, int startX = 16);
+    explicit DividerLine(ScalableGraphicsObject *parent, int width = PAGE_WIDTH, int startX = 0);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void updateScaling() override;
 

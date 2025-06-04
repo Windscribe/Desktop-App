@@ -97,4 +97,9 @@ void ApiResolutionGroup::onLanguageChanged()
     editBoxAddress_->setPrompt(tr("Enter IP or Hostname"));
 }
 
+void ApiResolutionGroup::setDescription(const QString &desc, const QString &url)
+{
+    resolutionModeItem_->setDescription(desc, url);
+}
+
 } // namespace PreferencesWindow

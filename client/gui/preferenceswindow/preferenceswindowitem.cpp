@@ -34,9 +34,11 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     scrollAreaItem_ = new CommonGraphics::ScrollArea(this, curHeight_ - 102*G_SCALE, WINDOW_WIDTH - kTabAreaWidth);
 
     generalWindowItem_ = new GeneralWindowItem(nullptr, preferences, preferencesHelper);
-    connect(generalWindowItem_, &GeneralWindowItem::exportLocationNamesClick, this, &PreferencesWindowItem::exportLocationNamesClick);
-    connect(generalWindowItem_, &GeneralWindowItem::importLocationNamesClick, this, &PreferencesWindowItem::importLocationNamesClick);
-    connect(generalWindowItem_, &GeneralWindowItem::resetLocationNamesClick, this, &PreferencesWindowItem::resetLocationNamesClick);
+
+    lookAndFeelWindowItem_ = new LookAndFeelWindowItem(nullptr, preferences, preferencesHelper);
+    connect(lookAndFeelWindowItem_, &LookAndFeelWindowItem::exportLocationNamesClick, this, &PreferencesWindowItem::exportLocationNamesClick);
+    connect(lookAndFeelWindowItem_, &LookAndFeelWindowItem::importLocationNamesClick, this, &PreferencesWindowItem::importLocationNamesClick);
+    connect(lookAndFeelWindowItem_, &LookAndFeelWindowItem::resetLocationNamesClick, this, &PreferencesWindowItem::resetLocationNamesClick);
 
     accountWindowItem_ = new AccountWindowItem(nullptr, accountInfo);
     accountWindowItem_->setLoggedIn(false);
@@ -105,6 +107,7 @@ PreferencesWindowItem::~PreferencesWindowItem()
     delete generalWindowItem_;
     delete accountWindowItem_;
     delete connectionWindowItem_;
+    delete lookAndFeelWindowItem_;
     delete robertWindowItem_;
     delete advancedWindowItem_;
     delete helpWindowItem_;
@@ -117,54 +120,52 @@ void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     Q_UNUSED(widget);
 
     // resize area background
-    qreal initialOpacity = painter->opacity();
-    painter->fillRect(boundingRect().adjusted(0, 286*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
+    painter->setOpacity(OPACITY_FULL);
+    painter->fillRect(boundingRect().adjusted(0, 270*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
 
     QRect rcCaption;
     // base background
-    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
-    {
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
         QPainterPath path;
-#ifdef Q_OS_MACOS
-        path.addRoundedRect(boundingRect().toRect(), 5*G_SCALE, 5*G_SCALE);
-#else
-        path.addRect(boundingRect().toRect());
-#endif
+        path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
         painter->setPen(Qt::NoPen);
         painter->fillPath(path, QColor(2, 13, 28));
         painter->setPen(Qt::SolidLine);
+
         QSharedPointer<IndependentPixmap> pixmapHeader = ImageResourcesSvg::instance().getIndependentPixmap(backgroundHeader_);
         pixmapHeader->draw(0, 0, painter);
-        rcCaption = QRect(64*G_SCALE, 2*G_SCALE, 200*G_SCALE, 56*G_SCALE);
-    }
-    else
-    {
+        rcCaption = QRect(52*G_SCALE, 0*G_SCALE, 200*G_SCALE, 56*G_SCALE);
+
+    } else {
         QSharedPointer<IndependentPixmap> pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);
         pixmapBaseBackground->draw(0, 0, painter);
+
         QSharedPointer<IndependentPixmap> pixmapHeader = ImageResourcesSvg::instance().getIndependentPixmap(backgroundHeader_);
-        pixmapHeader->draw(0, 27*G_SCALE, painter);
-        rcCaption = QRect(64*G_SCALE, 30*G_SCALE, 200*G_SCALE, 56*G_SCALE);
+        pixmapHeader->draw(0, 16*G_SCALE, painter);
+        rcCaption = QRect(52*G_SCALE, 16*G_SCALE, 200*G_SCALE, 56*G_SCALE);
     }
+
+    QSharedPointer<IndependentPixmap> pixmapBorder = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBorder_);
+    pixmapBorder->draw(0, 0, 350*G_SCALE, 32*G_SCALE, painter);
+
+    QSharedPointer<IndependentPixmap> pixmapBorderExtension = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBorderExtension_);
+    pixmapBorderExtension->draw(0, 32*G_SCALE, 350*G_SCALE, getBottomResizeArea().toRect().top() - 32*G_SCALE, painter);
 
     // draw page caption
     //painter->fillRect(rcCaption, QBrush(QColor(255, 45, 61)));
     painter->setPen(Qt::white);
-    QFont font = FontManager::instance().getFont(16, true);
+    QFont font = FontManager::instance().getFont(16, QFont::DemiBold);
     painter->setFont(font);
     QFontMetrics fm(font);
     painter->drawText(rcCaption, Qt::AlignLeft | Qt::AlignVCenter, fm.elidedText(scrollAreaItem_->item()->caption(), Qt::ElideRight, 140*G_SCALE));
 
     // bottom-most background
-    painter->setOpacity(initialOpacity);
-    if (roundedFooter_)
-    {
+    if (roundedFooter_) {
         painter->setPen(footerColor_);
         painter->setBrush(footerColor_);
-        painter->drawRoundedRect(getBottomResizeArea(), 8*G_SCALE, 8*G_SCALE);
+        painter->drawRoundedRect(getBottomResizeArea(), 9*G_SCALE, 9*G_SCALE);
         painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -7*G_SCALE), QBrush(footerColor_));
-    }
-    else
-    {
+    } else {
         painter->fillRect(getBottomResizeArea(), QBrush(footerColor_));
     }
 }
@@ -252,6 +253,13 @@ void PreferencesWindowItem::changeTab(PREFERENCES_TAB_TYPE tab)
         scrollAreaItem_->setItem(connectionWindowItem_);
         connectionWindowItem_->updateScaling();
         connectionWindowItem_->setScreen(CONNECTION_SCREEN_HOME);
+        setShowSubpageMode(false);
+        update();
+    }
+    else if (tab == TAB_LOOK_AND_FEEL)
+    {
+        scrollAreaItem_->setItem(lookAndFeelWindowItem_);
+        lookAndFeelWindowItem_->updateScaling();
         setShowSubpageMode(false);
         update();
     }
@@ -490,20 +498,21 @@ void PreferencesWindowItem::updateSplitTunnelingAppsCount(QList<types::SplitTunn
 void PreferencesWindowItem::updatePositions()
 {
     bottomResizeItem_->setPos(kBottomResizeOriginX*G_SCALE, curHeight_ - kBottomResizeOffsetY*G_SCALE);
-    escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 16*G_SCALE);
 
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
+        escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 12*G_SCALE);
         tabControlItem_->setPos(0, 54*G_SCALE);
         backArrowButton_->setPos(16*G_SCALE, 12*G_SCALE);
         scrollAreaItem_->setPos(kTabAreaWidth*G_SCALE, 55*G_SCALE);
-        tabControlItem_->setHeight(curHeight_ - 71*G_SCALE);
-        scrollAreaItem_->setHeight(curHeight_ - 74*G_SCALE);
+        tabControlItem_->setHeight(curHeight_ - 75*G_SCALE);
+        scrollAreaItem_->setHeight(curHeight_ - 73*G_SCALE);
     } else {
-        tabControlItem_->setPos(0, 82*G_SCALE);
-        backArrowButton_->setPos(16*G_SCALE, 40*G_SCALE);
-        scrollAreaItem_->setPos(kTabAreaWidth*G_SCALE, 83*G_SCALE);
-        tabControlItem_->setHeight(curHeight_ - 99*G_SCALE);
-        scrollAreaItem_->setHeight(curHeight_ - 102*G_SCALE);
+        escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 16*G_SCALE);
+        tabControlItem_->setPos(0, 70*G_SCALE);
+        backArrowButton_->setPos(16*G_SCALE, 28*G_SCALE);
+        scrollAreaItem_->setPos(kTabAreaWidth*G_SCALE, 71*G_SCALE);
+        tabControlItem_->setHeight(curHeight_ - 91*G_SCALE);
+        scrollAreaItem_->setHeight(curHeight_ - 89*G_SCALE);
     }
 }
 
@@ -586,7 +595,7 @@ void PreferencesWindowItem::setPreferencesImportCompleted()
 
 void PreferencesWindowItem::setLocationNamesImportCompleted()
 {
-    generalWindowItem_->setLocationNamesImportCompleted();
+    lookAndFeelWindowItem_->setLocationNamesImportCompleted();
 }
 
 void PreferencesWindowItem::setWebSessionCompleted()

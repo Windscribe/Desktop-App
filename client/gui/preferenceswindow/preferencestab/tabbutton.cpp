@@ -38,18 +38,33 @@ void TabButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
     painter->setRenderHint(QPainter::Antialiasing);
 
+    double percent = (iconOpacity_ - OPACITY_HALF) / OPACITY_HALF;
     // circle background
-    painter->setOpacity(circleOpacity_);
-    painter->setBrush(Qt::white);
+    if (iconColor_ == Qt::white) {
+        painter->setOpacity(circleOpacity_);
+        painter->setBrush(Qt::white);
+        painter->setPen(Qt::NoPen);
+    } else {
+        painter->setOpacity(OPACITY_FULL);
+        QColor iconColor(qMax(static_cast<int>(iconColor_.red() + percent * (255 - iconColor_.red())), 0),
+                         qMax(static_cast<int>(iconColor_.green() + percent * (255 - iconColor_.green())), 0),
+                         qMax(static_cast<int>(iconColor_.blue() + percent * (255 - iconColor_.blue())), 0));
+        painter->setBrush(iconColor);
+        painter->setPen(Qt::NoPen);
+    }
     painter->drawEllipse(0, 0, BUTTON_WIDTH*G_SCALE, BUTTON_HEIGHT*G_SCALE);
 
     // icon
-    double percent = (iconOpacity_ - OPACITY_HALF) / OPACITY_HALF;
     painter->setOpacity((iconColor_ == Qt::white) ? iconOpacity_ : 1.0);
-    QColor iconColor(qMax(static_cast<int>(iconColor_.red() - percent * (255 - ICON_SELECTED_COLOR_RED)), 0),
-                     qMax(static_cast<int>(iconColor_.green() - percent * (255 - ICON_SELECTED_COLOR_GREEN)), 0),
-                     qMax(static_cast<int>(iconColor_.blue() - percent * (255 - ICON_SELECTED_COLOR_BLUE)), 0));
-    icon_->draw(ICON_MARGIN*G_SCALE, ICON_MARGIN*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter, iconColor);
+    if (iconColor_ == Qt::white) {
+        QColor iconColor(qMax(static_cast<int>(iconColor_.red() - percent * (255 - ICON_SELECTED_COLOR_RED)), 0),
+                         qMax(static_cast<int>(iconColor_.green() - percent * (255 - ICON_SELECTED_COLOR_GREEN)), 0),
+                         qMax(static_cast<int>(iconColor_.blue() - percent * (255 - ICON_SELECTED_COLOR_BLUE)), 0));
+        icon_->draw(ICON_MARGIN*G_SCALE, ICON_MARGIN*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter, iconColor);
+    } else {
+        QColor iconColor(ICON_SELECTED_COLOR_RED, ICON_SELECTED_COLOR_GREEN, ICON_SELECTED_COLOR_BLUE);
+        icon_->draw(ICON_MARGIN*G_SCALE, ICON_MARGIN*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter, iconColor);
+    }
 }
 
 void TabButton::updateScaling()

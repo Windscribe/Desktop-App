@@ -10,6 +10,7 @@
 #include "hoverbutton.h"
 #include "languagecontroller.h"
 #include "themecontroller.h"
+#include "utils.h"
 
 AlertWindow::AlertWindow(QWidget *parent) : QWidget(parent)
 {
@@ -24,11 +25,11 @@ AlertWindow::AlertWindow(QWidget *parent) : QWidget(parent)
 
     HoverButton *escapeButton = new HoverButton(this, ":/resources/ESCAPE_BUTTON.svg");
     escapeButton->setText(tr("ESC"));
-    escapeButton->setTextSize(8);
+    escapeButton->setTextAttributes(8, false, QFont::Medium);
     if (LanguageController::instance().isRtlLanguage()) {
         escapeButton->setGeometry(16, 16, 24, 40);
     } else {
-        escapeButton->setGeometry(310, 16, 24, 40);
+        escapeButton->setGeometry(302, 16, 24, 40);
     }
     connect(escapeButton, &QPushButton::clicked, this, &AlertWindow::escapeClicked);
 }
@@ -41,7 +42,9 @@ void AlertWindow::paintEvent(QPaintEvent *event)
 {
     const ThemeController &themeCtrl = ThemeController::instance();
     QPainter painter(this);
-    painter.fillRect(0, 0, 350, height_, ThemeController::instance().windowBackgroundColor());
+
+    QPixmap bgPixmap = getRoundedRectPixmap("", 350, 350, 8);
+    painter.drawPixmap(0, 0, bgPixmap);
 }
 
 void AlertWindow::setIcon(const QString &path)

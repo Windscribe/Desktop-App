@@ -20,6 +20,8 @@ public:
     void setProxyGatewaySettings(const types::ShareProxyGateway &sp);
     void setProxyGatewayAddress(const QString &address);
 
+    void setDescription(const QString &desc, const QString &descUrl = "");
+
 signals:
     void proxyGatewayPreferencesChanged(const types::ShareProxyGateway &sp);
 

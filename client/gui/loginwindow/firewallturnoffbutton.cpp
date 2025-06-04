@@ -9,7 +9,7 @@ namespace LoginWindow {
 
 FirewallTurnOffButton::FirewallTurnOffButton(const QString &text, ScalableGraphicsObject *parent)
                       : ClickableGraphicsObject(parent),
-                        width_(106), height_(24), font_descr_(12, false),
+                        width_(106), height_(24), font_descr_(12, QFont::Normal),
                         text_(text), is_animating_(false), animation_()
 {
     setFlag(GraphicsItemFlag::ItemIsMovable);

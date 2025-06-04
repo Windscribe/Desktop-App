@@ -91,7 +91,7 @@ ConnectButton::ConnectButton(ScalableGraphicsObject *parent) : ClickableGraphics
 
 QRectF ConnectButton::boundingRect() const
 {
-    return QRectF(0, 0, 82*G_SCALE, 82*G_SCALE);
+    return QRectF(0, 0, 85*G_SCALE, 85*G_SCALE);
 }
 
 void ConnectButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

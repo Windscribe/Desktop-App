@@ -243,7 +243,7 @@
         <translation>首選項已重新載入。</translation>
     </message>
     <message>
-        <source>Key limit behavior is set.</source>
+        <source>Key limit behaviour is set.</source>
         <translation>設置了金鑰限制行為。</translation>
     </message>
     <message>
@@ -273,6 +273,10 @@
     <message>
         <source>(Device name: %1)</source>
         <translation>（裝置名稱： %1）</translation>
+    </message>
+    <message>
+        <source>Internet connectivity is not available.  Try again later.</source>
+        <translation>Internet 連接不可用。 請稍後重試。</translation>
     </message>
 </context>
 </TS>

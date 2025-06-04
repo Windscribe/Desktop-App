@@ -11,7 +11,7 @@ TextButtonWidget::TextButtonWidget(QString text, QWidget * parent) : QPushButton
     unhoverOpacity_(OPACITY_UNHOVER_ICON_STANDALONE),
     hoverOpacity_(OPACITY_FULL),
     curOpacity_(OPACITY_UNHOVER_ICON_STANDALONE),
-    fontDescr_(12, false)
+    fontDescr_(12, QFont::Normal)
 {
     connect(this, &QPushButton::clicked, this, &TextButtonWidget::resetHoverState);
     connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &TextButtonWidget::onOpacityChanged);

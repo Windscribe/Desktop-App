@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
         std::cout << "        " << "Connect to a static IP location by city or by IP." << std::endl;
 #ifdef CLI_ONLY
         std::cout << "    keylimit keep|delete" << std::endl;
-        std::cout << "        " << "Configure behavior for the next time during this run that the key limit is reached for WireGuard." << std::endl;
+        std::cout << "        " << "Configure behaviour for the next time during this run that the key limit is reached for WireGuard." << std::endl;
         std::cout << "        " << "keep [default] - Do not delete key.  Connection attempt will fail if the key limit is reached." << std::endl;
         std::cout << "        " << "delete - Delete the oldest WireGuard key if key limit is reached." << std::endl;
 #endif

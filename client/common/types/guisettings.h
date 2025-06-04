@@ -6,11 +6,12 @@
 #include <QSettings>
 #include <QString>
 
+#include "backgroundsettings.h"
 #include "enums.h"
 #include "sharesecurehotspot.h"
 #include "shareproxygateway.h"
 #include "splittunneling.h"
-#include "backgroundsettings.h"
+#include "soundsettings.h"
 
 namespace types {
 
@@ -31,13 +32,13 @@ struct GuiSettings
     bool isShowLocationHealth = false;
     bool isShowNotifications = false;
     bool isStartMinimized = false;
-    LATENCY_DISPLAY_TYPE latencyDisplay = LATENCY_DISPLAY_BARS;
     ORDER_LOCATION_TYPE orderLocation = ORDER_LOCATION_BY_GEOGRAPHY;
     ShareProxyGateway shareProxyGateway;
     ShareSecureHotspot shareSecureHotspot;
     SplitTunneling splitTunneling;
     TRAY_ICON_COLOR trayIconColor = TRAY_ICON_COLOR_WHITE;
     MULTI_DESKTOP_BEHAVIOR multiDesktopBehavior = MULTI_DESKTOP_AUTO;
+    SoundSettings soundSettings;
 
     bool operator==(const GuiSettings &other) const
     {
@@ -46,7 +47,6 @@ struct GuiSettings
                other.isHideFromDock == isHideFromDock &&
                other.isShowNotifications == isShowNotifications &&
                other.orderLocation == orderLocation &&
-               other.latencyDisplay == latencyDisplay &&
                other.shareSecureHotspot == shareSecureHotspot &&
                other.shareProxyGateway == shareProxyGateway &&
                other.splitTunneling == splitTunneling &&
@@ -58,7 +58,8 @@ struct GuiSettings
                other.isAutoSecureNetworks == isAutoSecureNetworks &&
                other.appSkin == appSkin &&
                other.trayIconColor == trayIconColor &&
-               other.multiDesktopBehavior == multiDesktopBehavior;
+               other.multiDesktopBehavior == multiDesktopBehavior &&
+               other.soundSettings == soundSettings;
     }
 
     bool operator!=(const GuiSettings &other) const
@@ -106,18 +107,17 @@ struct GuiSettings
         json[kJsonIsShowLocationHealthProp] = isShowLocationHealth;
         json[kJsonIsShowNotificationsProp] = isShowNotifications;
         json[kJsonIsStartMinimizedProp] = isStartMinimized;
-        json[kJsonLatencyDisplayProp] = static_cast<int>(latencyDisplay);
         json[kJsonOrderLocationProp] = static_cast<int>(orderLocation);
         json[kJsonShareProxyGatewayProp] = shareProxyGateway.toJson(isForDebugLog);
         json[kJsonShareSecureHotspotProp] = shareSecureHotspot.toJson(isForDebugLog);
         json[kJsonSplitTunnelingProp] = splitTunneling.toJson(isForDebugLog);
-        json[kJsonTrayIconColorProp] = static_cast<int>(trayIconColor);
-        json[kJsonMultiDesktopBehaviorProp] = static_cast<int>(multiDesktopBehavior);
+        json[kJsonTrayIconColourProp] = static_cast<int>(trayIconColor);
+        json[kJsonMultiDesktopBehaviourProp] = static_cast<int>(multiDesktopBehavior);
+        json[kJsonSoundSettingsProp] = soundSettings.toJson();
         json[kJsonVersionProp] = static_cast<int>(versionForSerialization_);
 
         if (isForDebugLog) {
             json["appSkinDesc"] = APP_SKIN_toString(appSkin);
-            json["latencyDisplayDesc"] = LATENCY_DISPLAY_TYPE_toString(latencyDisplay);
             json["orderLocationDesc"] = ORDER_LOCATION_TYPE_toString(orderLocation);
         }
 
@@ -127,10 +127,10 @@ struct GuiSettings
     friend QDataStream& operator <<(QDataStream &stream, const GuiSettings &o)
     {
         stream << versionForSerialization_;
-        stream << o.isLaunchOnStartup << o.isAutoConnect << o.isHideFromDock << o.isShowNotifications << o.orderLocation << o.latencyDisplay <<
+        stream << o.isLaunchOnStartup << o.isAutoConnect << o.isHideFromDock << o.isShowNotifications << o.orderLocation <<
                   o.shareSecureHotspot << o.shareProxyGateway << o.splitTunneling << o.isDockedToTray << o.isMinimizeAndCloseToTray <<
                   o.backgroundSettings << o.isStartMinimized << o.isShowLocationHealth << o.isAutoSecureNetworks << o.appSkin << o.trayIconColor <<
-                  o.multiDesktopBehavior;
+                  o.multiDesktopBehavior << o.soundSettings;
 
         return stream;
     }
@@ -139,28 +139,35 @@ struct GuiSettings
     {
         quint32 version;
         stream >> version;
-        if (version > o.versionForSerialization_)
-        {
+        if (version > o.versionForSerialization_) {
             stream.setStatus(QDataStream::ReadCorruptData);
             return stream;
         }
-        stream >> o.isLaunchOnStartup >> o.isAutoConnect >> o.isHideFromDock >> o.isShowNotifications >> o.orderLocation >> o.latencyDisplay >>
-                  o.shareSecureHotspot >> o.shareProxyGateway >> o.splitTunneling >> o.isDockedToTray >> o.isMinimizeAndCloseToTray >>
+        stream >> o.isLaunchOnStartup >> o.isAutoConnect >> o.isHideFromDock >> o.isShowNotifications >> o.orderLocation;
+        
+        if (version < 6) {
+            // latencyDisplay was removed in version 6, ignore it if it exists
+            int latencyDisplay;
+            stream >> latencyDisplay;
+        }
+        
+        stream >> o.shareSecureHotspot >> o.shareProxyGateway >> o.splitTunneling >> o.isDockedToTray >> o.isMinimizeAndCloseToTray >>
                   o.backgroundSettings >> o.isStartMinimized >> o.isShowLocationHealth >> o.isAutoSecureNetworks;
 
-        if (version >= 2)
-        {
+        if (version >= 2) {
             stream >> o.appSkin;
         }
 
-        if (version >= 3)
-        {
+        if (version >= 3) {
             stream >> o.trayIconColor;
         }
 
-        if (version >= 4)
-        {
+        if (version >= 4) {
             stream >> o.multiDesktopBehavior;
+        }
+
+        if (version >= 5) {
+            stream >> o.soundSettings;
         }
 
         return stream;
@@ -192,16 +199,18 @@ private:
     static const inline QString kJsonIsShowLocationHealthProp = "isShowLocationHealth";
     static const inline QString kJsonIsShowNotificationsProp = "isShowNotifications";
     static const inline QString kJsonIsStartMinimizedProp = "isStartMinimized";
-    static const inline QString kJsonLatencyDisplayProp = "latencyDisplay";
     static const inline QString kJsonOrderLocationProp = "orderLocation";
     static const inline QString kJsonShareProxyGatewayProp = "shareProxyGateway";
     static const inline QString kJsonShareSecureHotspotProp = "shareSecureHotspot";
     static const inline QString kJsonSplitTunnelingProp = "splitTunneling";
     static const inline QString kJsonTrayIconColorProp = "trayIconColor";
+    static const inline QString kJsonTrayIconColourProp = "trayIconColour";
     static const inline QString kJsonMultiDesktopBehaviorProp = "multiDesktopBehavior";
+    static const inline QString kJsonMultiDesktopBehaviourProp = "multiDesktopBehaviour";
+    static const inline QString kJsonSoundSettingsProp = "soundSettings";
     static const inline QString kJsonVersionProp = "version";
 
-    static constexpr quint32 versionForSerialization_ = 4;  // should increment the version if the data format is changed
+    static constexpr quint32 versionForSerialization_ = 6;  // should increment the version if the data format is changed
 };
 
 inline GuiSettings::GuiSettings(const QJsonObject &json)
@@ -254,16 +263,14 @@ inline GuiSettings::GuiSettings(const QJsonObject &json)
         isStartMinimized = json[kJsonIsStartMinimizedProp].toBool();
     }
 
-    if (json.contains(kJsonLatencyDisplayProp) && json[kJsonLatencyDisplayProp].isDouble()) {
-        latencyDisplay = LATENCY_DISPLAY_TYPE_fromInt(json[kJsonLatencyDisplayProp].toInt());
-    }
-
     if (json.contains(kJsonOrderLocationProp) && json[kJsonOrderLocationProp].isDouble()) {
         orderLocation = ORDER_LOCATION_TYPE_fromInt(json[kJsonOrderLocationProp].toInt());
     }
 
 #if defined(Q_OS_LINUX)
-    if (json.contains(kJsonTrayIconColorProp) && json[kJsonTrayIconColorProp].isDouble()) {
+    if (json.contains(kJsonTrayIconColourProp) && json[kJsonTrayIconColourProp].isDouble()) {
+        trayIconColor = TRAY_ICON_COLOR_fromInt(json[kJsonTrayIconColourProp].toInt());
+    } else if (json.contains(kJsonTrayIconColorProp) && json[kJsonTrayIconColorProp].isDouble()) {
         trayIconColor = TRAY_ICON_COLOR_fromInt(json[kJsonTrayIconColorProp].toInt());
     }
 #endif
@@ -283,10 +290,16 @@ inline GuiSettings::GuiSettings(const QJsonObject &json)
     }
 
 #if defined(Q_OS_MACOS)
-    if (json.contains(kJsonMultiDesktopBehaviorProp) && json[kJsonMultiDesktopBehaviorProp].isDouble()) {
+    if (json.contains(kJsonMultiDesktopBehaviourProp) && json[kJsonMultiDesktopBehaviourProp].isDouble()) {
+        multiDesktopBehavior = MULTI_DESKTOP_BEHAVIOR_fromInt(json[kJsonMultiDesktopBehaviourProp].toInt());
+    } else if (json.contains(kJsonMultiDesktopBehaviorProp) && json[kJsonMultiDesktopBehaviorProp].isDouble()) {
         multiDesktopBehavior = MULTI_DESKTOP_BEHAVIOR_fromInt(json[kJsonMultiDesktopBehaviorProp].toInt());
     }
 #endif
+
+    if (json.contains(kJsonSoundSettingsProp) && json[kJsonSoundSettingsProp].isObject()) {
+        soundSettings = types::SoundSettings(json[kJsonSoundSettingsProp].toObject());
+    }
 }
 
 } // types namespace

@@ -21,6 +21,8 @@ BottomInfoItem::BottomInfoItem(Preferences *preferences, QGraphicsObject *parent
 
     currentUpgradePosX = 0;
     currentUpgradePosY = 0;
+
+    connect(preferences_, &Preferences::appSkinChanged, this, &BottomInfoItem::updateDisplay);
 }
 
 QRectF BottomInfoItem::boundingRect() const

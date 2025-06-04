@@ -7,7 +7,7 @@ DnsDomainsWindowItem::DnsDomainsWindowItem(ScalableGraphicsObject *parent, Prefe
   : CommonGraphics::BasePage(parent), preferences_(preferences), loggedIn_(false)
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
-    setSpacerHeight(PREFERENCES_MARGIN);
+    setSpacerHeight(PREFERENCES_MARGIN_Y);
 
     connect(preferences, &Preferences::connectedDnsInfoChanged, this, &DnsDomainsWindowItem::onConnectedDnsPreferencesChanged);
 
