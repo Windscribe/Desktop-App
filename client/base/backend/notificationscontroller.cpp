@@ -124,10 +124,8 @@ void NotificationsController::readFromSettings()
 {
     QSettings settings;
     SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
-    bool bLoaded = false;
 
-    if (settings.contains("notifications"))
-    {
+    if (settings.contains("notifications")) {
         QString str = settings.value("notifications", "").toString();
         QByteArray arr = simpleCrypt.decryptToByteArray(str);
 
@@ -135,16 +133,10 @@ void NotificationsController::readFromSettings()
 
         quint32 magic, version;
         ds >> magic;
-        if (magic == magic_)
-        {
+        if (magic == magic_) {
             ds >> version;
-            if (version <= versionForSerialization_)
-            {
+            if (version <= versionForSerialization_) {
                 ds >> notifications_ >> idOfShownNotifications_;
-                if (ds.status() == QDataStream::Ok)
-                {
-                    bLoaded = true;
-                }
             }
         }
     }

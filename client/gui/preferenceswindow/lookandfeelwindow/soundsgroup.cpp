@@ -143,11 +143,11 @@ void SoundsGroup::hideOpenPopups()
 void SoundsGroup::setSoundSettings(const types::SoundSettings &settings)
 {
     if (settings_ != settings) {
+        disconnectedComboBox_->setCurrentItem(settings.disconnectedSoundType);
+        disconnectedComboBox_->setPath(settings.disconnectedSoundPath);
+        connectedComboBox_->setCurrentItem(settings.connectedSoundType);
+        connectedComboBox_->setPath(settings.connectedSoundPath);
         settings_ = settings;
-        disconnectedComboBox_->setCurrentItem(settings_.disconnectedSoundType);
-        disconnectedComboBox_->setPath(settings_.disconnectedSoundPath);
-        connectedComboBox_->setCurrentItem(settings_.connectedSoundType);
-        connectedComboBox_->setPath(settings_.connectedSoundPath);
     }
 }
 

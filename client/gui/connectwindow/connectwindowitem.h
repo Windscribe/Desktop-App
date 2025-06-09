@@ -56,7 +56,8 @@ public slots:
     void onConnectStateTextHoverEnter();
     void onConnectStateTextHoverLeave();
     void onFirewallButtonHoverLeave();
-    void onFirewallButtonClick();
+    void onFirewallButtonToggleIgnored();
+    void onFirewallButtonStateChanged(bool isEnabled);
     void onFirewallInfoHoverEnter();
     void onFirewallInfoHoverLeave();
     void onFirstNameHoverEnter();

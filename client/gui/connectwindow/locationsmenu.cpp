@@ -10,15 +10,15 @@ namespace ConnectWindow {
 LocationsMenu::LocationsMenu(ScalableGraphicsObject *parent)
     : ScalableGraphicsObject(parent), curSearchPos_(140)
 {
-    allLocations_ = new IconButton(32, 32, "locations/ALL_LOCATION_ICON", "", this);
+    allLocations_ = new IconButton(32, 32, "locations/ALL_LOCATION_ICON_DESELECTED", "", this);
     connect(allLocations_, &IconButton::clicked, this, &LocationsMenu::onAllLocationsClicked);
-    favoriteLocations_ = new IconButton(32, 32, "locations/FAV_ICON", "", this);
+    favoriteLocations_ = new IconButton(32, 32, "locations/FAV_ICON_DESELECTED", "", this);
     connect(favoriteLocations_, &IconButton::clicked, this, &LocationsMenu::onFavoriteLocationsClicked);
-    configuredLocations_ = new IconButton(32, 32, "locations/CONFIG_ICON", "", this);
+    configuredLocations_ = new IconButton(32, 32, "locations/CONFIG_ICON_DESELECTED", "", this);
     connect(configuredLocations_, &IconButton::clicked, this, &LocationsMenu::onConfiguredLocationsClicked);
-    staticIpsLocations_ = new IconButton(32, 32, "locations/STATIC_IP_ICON", "", this);
+    staticIpsLocations_ = new IconButton(32, 32, "locations/STATIC_IP_ICON_DESELECTED", "", this);
     connect(staticIpsLocations_, &IconButton::clicked, this, &LocationsMenu::onStaticIpsLocationsClicked);
-    searchLocations_ = new IconButton(32, 32, "locations/SEARCH_ICON", "", this);
+    searchLocations_ = new IconButton(32, 32, "locations/SEARCH_ICON_DESELECTED", "", this);
     connect(searchLocations_, &IconButton::clicked, this, &LocationsMenu::onSearchLocationsClicked);
 
     searchLineEdit_ = new CommonWidgets::CustomMenuLineEdit();
@@ -126,11 +126,17 @@ void LocationsMenu::onSearchLocationsClicked()
 
 void LocationsMenu::updateSelectedTab(IconButton *selectedButton)
 {
-    for (IconButton *button : {allLocations_, configuredLocations_, staticIpsLocations_, favoriteLocations_, searchLocations_}) {
+    static const QString prefixes[] = { "locations/ALL_LOCATION_ICON", "locations/CONFIG_ICON", "locations/STATIC_IP_ICON", "locations/FAV_ICON", "locations/SEARCH_ICON" };
+    IconButton *buttons[] = { allLocations_, configuredLocations_, staticIpsLocations_, favoriteLocations_, searchLocations_ };
+
+    for (int i = 0; i < 5; i++) {
+        IconButton *button = buttons[i];
         if (button == selectedButton) {
+            button->setIcon(prefixes[i] + "_SELECTED", false);
             button->setUnhoverOpacity(OPACITY_FULL);
             button->hover();
         } else {
+            button->setIcon(prefixes[i] + "_DESELECTED", false);
             button->setUnhoverOpacity(OPACITY_HALF);
             button->unhover();
         }

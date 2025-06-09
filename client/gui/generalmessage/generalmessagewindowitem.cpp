@@ -72,14 +72,13 @@ void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
 
     if (isSpinnerMode_) {
         int offset = 0;
-        if (shape_ == GeneralMessageWindow::kConnectScreenVanGoghShape) {
-            offset = -16*G_SCALE;
-        }
+        painter->save();
         painter->setPen(QPen(Qt::white, 2 * G_SCALE));
         painter->translate(boundingRect().width()/2, boundingRect().height()/2 + offset);
         painter->rotate(curSpinnerRotation_);
         const int circleDiameter = 80*G_SCALE;
         painter->drawArc(QRect(-circleDiameter/2, -circleDiameter/2, circleDiameter, circleDiameter), 0, 4 * 360);
+        painter->restore();
     }
 
     if (shape_ == GeneralMessageWindow::kConnectScreenAlphaShape) {

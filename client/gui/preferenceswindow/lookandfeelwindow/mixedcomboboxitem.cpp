@@ -45,6 +45,7 @@ void MixedComboBoxItem::updateScaling()
 void MixedComboBoxItem::setCurrentItem(QVariant value)
 {
     ComboBoxItem::setCurrentItem(value);
+    updateSecondaryItemVisibility(false);
 }
 
 void MixedComboBoxItem::onCurrentItemChanged(QVariant value)
@@ -69,7 +70,7 @@ void MixedComboBoxItem::updatePositions()
     secondaryComboBox_->setPos(0, kSecondaryItemMarginTop * G_SCALE);
 }
 
-void MixedComboBoxItem::updateSecondaryItemVisibility()
+void MixedComboBoxItem::updateSecondaryItemVisibility(bool signal)
 {
     QVariant currentValue = currentItem();
 
@@ -77,12 +78,16 @@ void MixedComboBoxItem::updateSecondaryItemVisibility()
         selectFileItem_->show();
         secondaryComboBox_->hide();
         setCaptionY(8*G_SCALE);
-        emit pathChanged(selectFileItem_->path());
+        if (signal) {
+            emit pathChanged(selectFileItem_->path());
+        }
     } else if (currentValue == bundledValue_) {
         selectFileItem_->hide();
         secondaryComboBox_->show();
         setCaptionY(8*G_SCALE);
-        emit pathChanged(secondaryComboBox_->currentItem());
+        if (signal) {
+            emit pathChanged(secondaryComboBox_->currentItem());
+        }
     } else {
         selectFileItem_->hide();
         secondaryComboBox_->hide();

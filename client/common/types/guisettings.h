@@ -113,7 +113,7 @@ struct GuiSettings
         json[kJsonSplitTunnelingProp] = splitTunneling.toJson(isForDebugLog);
         json[kJsonTrayIconColourProp] = static_cast<int>(trayIconColor);
         json[kJsonMultiDesktopBehaviourProp] = static_cast<int>(multiDesktopBehavior);
-        json[kJsonSoundSettingsProp] = soundSettings.toJson();
+        json[kJsonSoundSettingsProp] = soundSettings.toJson(isForDebugLog);
         json[kJsonVersionProp] = static_cast<int>(versionForSerialization_);
 
         if (isForDebugLog) {

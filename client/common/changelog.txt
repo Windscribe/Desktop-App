@@ -1,3 +1,16 @@
+2.16.4 (09/06/2025)
+All:
+   * Fixed various regressions and oddities with new app UI design. #1151
+   * Fixed JSON import not working for some new preferences. #1383
+Windows:
+   * Fixed locations missing nicknames in tray menu, redux. #1357
+   * Fixed faint minimize button. #1382
+Linux:
+   * Fixed faint minimize button. #1382
+   * Fixed IPv6 firewall rules not cleared after disconnect. #1385
+   * Removed captcha for CLI-only client. #1384
+
+
 2.16.3 (04/06/2025)
 All:
    * Added bundled backgrounds and sound notifications. #1150

@@ -42,18 +42,12 @@ struct BackgroundSettings
 
         if (json.contains(kJsonBackgroundImageDisconnectedProp) && json[kJsonBackgroundImageDisconnectedProp].isString()) {
             QString img = json[kJsonBackgroundImageDisconnectedProp].toString();
-            std::error_code ec;
-            if (std::filesystem::exists(img.toStdString(), ec)) {
-                backgroundImageDisconnected = img;
-            }
+            backgroundImageDisconnected = img;
         }
 
         if (json.contains(kJsonBackgroundImageConnectedProp) && json[kJsonBackgroundImageConnectedProp].isString()) {
             QString img = json[kJsonBackgroundImageConnectedProp].toString();
-            std::error_code ec;
-            if (std::filesystem::exists(img.toStdString(), ec)) {
-                backgroundImageConnected = img;
-            }
+            backgroundImageConnected = img;
         }
     }
 

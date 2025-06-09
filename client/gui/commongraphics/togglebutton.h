@@ -19,8 +19,11 @@ public:
     void setEnabled(bool enabled);
     void setColor(const QColor &color);
 
+    void setToggleable(bool toggleable);
+
 signals:
     void stateChanged(bool isChecked);
+    void toggleIgnored();
 
 protected:
     static constexpr int TOGGLE_RADIUS = 12;
@@ -38,6 +41,7 @@ private slots:
 private:
     double animationProgress_;
     bool isChecked_;
+    bool isToggleable_;
     bool enabled_;
     QColor color_;
     QVariantAnimation opacityAnimation_;

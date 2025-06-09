@@ -838,6 +838,7 @@ void Preferences::setGuiSettings(const types::GuiSettings &gs)
 
 #ifdef Q_OS_MACOS
     setHideFromDock(gs.isHideFromDock);
+    setMultiDesktopBehavior(gs.multiDesktopBehavior);
 #endif
 
     setLaunchOnStartup(gs.isLaunchOnStartup);

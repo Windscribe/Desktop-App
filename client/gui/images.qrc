@@ -34,8 +34,6 @@
         <file>svg/MAC_MINIMIZE_DEFAULT.svg</file>
         <file>svg/MAC_MINIMIZE_HOVER.svg</file>
         <file>svg/MENU_ICON.svg</file>
-        <file>svg/MIDRIGHT_VERT_DIVIDER.svg</file>
-        <file>svg/MIDRIGHT_VERT_DIVIDER_SHADOW.svg</file>
         <file>svg/NOTIFICATION_ICON.svg</file>
         <file>svg/PASSWORD_HIDE.svg</file>
         <file>svg/PASSWORD_REVEAL.svg</file>
@@ -166,18 +164,19 @@
         <file>svg/flags/vn.svg</file>
         <file>svg/flags/za.svg</file>
         <file>svg/locations/10_GBPS_ICON.svg</file>
-        <file>svg/locations/ALL_LOCATION_ICON.svg</file>
+        <file>svg/locations/ALL_LOCATION_ICON_DESELECTED.svg</file>
+        <file>svg/locations/ALL_LOCATION_ICON_SELECTED.svg</file>
         <file>svg/locations/ARROW_RIGHT.svg</file>
         <file>svg/locations/BROKEN_HEART_ICON.svg</file>
         <file>svg/locations/CITY_ICON.svg</file>
         <file>svg/locations/CLEAR_ICON.svg</file>
         <file>svg/locations/COLLAPSE_ICON.svg</file>
-        <file>svg/locations/CONFIG_ICON.svg</file>
+        <file>svg/locations/CONFIG_ICON_DESELECTED.svg</file>
+        <file>svg/locations/CONFIG_ICON_SELECTED.svg</file>
         <file>svg/locations/DATACENTER_ICON.svg</file>
         <file>svg/locations/EDIT_ICON.svg</file>
         <file>svg/locations/EXPAND_ICON.svg</file>
         <file>svg/locations/ERROR_ICON.svg</file>
-        <file>svg/locations/FAV_ICON.svg</file>
         <file>svg/locations/FAV_ICON_DESELECTED.svg</file>
         <file>svg/locations/FAV_ICON_SELECTED.svg</file>
         <file>svg/locations/FOLDER_ICON_BIG.svg</file>
@@ -191,9 +190,11 @@
         <file>svg/locations/PRO_REGION_STAR_LIGHT.svg</file>
         <file>svg/locations/RES_IP_ICON.svg</file>
         <file>svg/locations/SEARCH_CANCEL_ICON.svg</file>
-        <file>svg/locations/SEARCH_ICON.svg</file>
-        <file>svg/locations/STATIC_IP_ICON.svg</file>
+        <file>svg/locations/SEARCH_ICON_DESELECTED.svg</file>
+        <file>svg/locations/SEARCH_ICON_SELECTED.svg</file>
         <file>svg/locations/STATIC_IP_ICON_BIG.svg</file>
+        <file>svg/locations/STATIC_IP_ICON_DESELECTED.svg</file>
+        <file>svg/locations/STATIC_IP_ICON_SELECTED.svg</file>
         <file>svg/locations/UNDER_CONSTRUCTION_ICON.svg</file>
         <file>svg/locations/WG_ICON.svg</file>
         <file>svg/login/BADGE_ICON.svg</file>

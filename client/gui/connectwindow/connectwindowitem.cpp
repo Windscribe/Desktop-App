@@ -30,9 +30,9 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     background_ = new Background(this, preferences);
 
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    closeButton_ = new IconButton(10, 10, "WINDOWS_CLOSE_ICON", "", this);
+    closeButton_ = new IconButton(16, 16, "WINDOWS_CLOSE_ICON", "", this);
     connect(closeButton_, &IconButton::clicked, this, &ConnectWindowItem::closeClick);
-    minimizeButton_ = new IconButton(10, 10, "WINDOWS_MINIMIZE_ICON", "", this);
+    minimizeButton_ = new IconButton(16, 16, "WINDOWS_MINIMIZE_ICON", "", this);
     connect(minimizeButton_, &IconButton::clicked, this, &ConnectWindowItem::minimizeClick);
 #else
     minimizeButton_ = new IconButton(14, 14, "MAC_MINIMIZE_DEFAULT", "", this);
@@ -105,7 +105,8 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     firewallButton_ = new ToggleButton(this);
     // firewallButton_->setColor(QColor(0, 106, 255));
     connect(firewallButton_, &ToggleButton::hoverLeave, this, &ConnectWindowItem::onFirewallButtonHoverLeave);
-    connect(firewallButton_, &ToggleButton::clicked, this, &ConnectWindowItem::onFirewallButtonClick);
+    connect(firewallButton_, &ToggleButton::toggleIgnored, this, &ConnectWindowItem::onFirewallButtonToggleIgnored);
+    connect(firewallButton_, &ToggleButton::stateChanged, this, &ConnectWindowItem::onFirewallButtonStateChanged);
 
     firewallInfo_ = new IconButton(16, 16, "INFO_ICON", "", this, OPACITY_QUARTER, OPACITY_QUARTER);
     firewallInfo_->setClickableHoverable(false, true);
@@ -185,6 +186,7 @@ void ConnectWindowItem::setConnectionTimeAndData(QString connectionTime, QString
 void ConnectWindowItem::setFirewallAlwaysOn(bool isFirewallAlwaysOn)
 {
     isFirewallAlwaysOn_ = isFirewallAlwaysOn;
+    firewallButton_->setToggleable(!isFirewallAlwaysOn_);
 }
 
 void ConnectWindowItem::setTestTunnelResult(bool success)
@@ -393,10 +395,16 @@ void ConnectWindowItem::onFirewallButtonHoverLeave()
     TooltipController::instance().hideTooltip(TOOLTIP_ID_FIREWALL_BLOCKED);
 }
 
-void ConnectWindowItem::onFirewallButtonClick()
+void ConnectWindowItem::onFirewallButtonStateChanged(bool isFirewallEnabled)
 {
     if (!isFirewallAlwaysOn_) {
         emit firewallClick();
+    }
+}
+
+void ConnectWindowItem::onFirewallButtonToggleIgnored()
+{
+    if (!isFirewallAlwaysOn_) {
         return;
     }
 
@@ -501,8 +509,8 @@ void ConnectWindowItem::updatePositions()
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
         int closePosY = WINDOW_WIDTH*G_SCALE - closeButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
-        closeButton_->setPos(closePosY, 14*G_SCALE);
-        minimizeButton_->setPos(closePosY - minimizeButton_->boundingRect().width() - 26*G_SCALE, 14*G_SCALE);
+        closeButton_->setPos(closePosY, 10*G_SCALE);
+        minimizeButton_->setPos(closePosY - minimizeButton_->boundingRect().width() - 20*G_SCALE, 10*G_SCALE);
 #else
         int rightMostPosX = WINDOW_WIDTH*G_SCALE - closeButton_->boundingRect().width() - 8*G_SCALE;
         int middlePosX = rightMostPosX - closeButton_->boundingRect().width() - 8*G_SCALE;
@@ -533,8 +541,8 @@ void ConnectWindowItem::updatePositions()
     } else {
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
         int closePosY = WINDOW_WIDTH*G_SCALE - closeButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
-        closeButton_->setPos(closePosY, 14*G_SCALE);
-        minimizeButton_->setPos(closePosY - minimizeButton_->boundingRect().width() - 26*G_SCALE, 14*G_SCALE);
+        closeButton_->setPos(closePosY, 10*G_SCALE);
+        minimizeButton_->setPos(closePosY - minimizeButton_->boundingRect().width() - 20*G_SCALE, 10*G_SCALE);
 #else
         int rightMostPosX = static_cast<int>(boundingRect().width()) - static_cast<int>(closeButton_->boundingRect().width()) - 8*G_SCALE;
         int middlePosX = rightMostPosX - static_cast<int>(closeButton_->boundingRect().width()) - 8*G_SCALE;

@@ -22,7 +22,11 @@ void LocationsTrayMenuItemDelegate::paint(QPainter *painter, const QStyleOptionV
     if (!index.isValid())
         return;
 
-    QString text = index.model()->data(index, Qt::DisplayRole).toString();
+    QString text = index.model()->data(index).toString();
+    QString nick = index.model()->data(index, gui_locations::kDisplayNickname).toString();
+    if (!nick.isEmpty()) {
+        text += " - " + nick;
+    }
 
     if (index.data(gui_locations::kIsShowAsPremium).toBool())
     {
@@ -111,7 +115,12 @@ int LocationsTrayMenuItemDelegate::calcWidth(const QModelIndex & index) const
         width += flag->width() + 10 * scale_;
     }
 
-    QString text = index.model()->data(index, Qt::DisplayRole).toString();
+    QString text = index.model()->data(index).toString();
+    QString nick = index.model()->data(index, gui_locations::kDisplayNickname).toString();
+    if (!nick.isEmpty()) {
+        text += " - " + nick;
+    }
+
     text = CommonGraphics::maybeTruncatedText(text, font_, static_cast<int>(CITY_CAPTION_MAX_WIDTH * scale_));
     QFontMetrics fm(font_);
     QRect rc = fm.boundingRect(text);

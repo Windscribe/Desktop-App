@@ -191,6 +191,8 @@ void AccountWindowItem::onLanguageChanged()
     planTitle_->setTitle(tr("PLAN INFO"));
     if (!planItem_->isPremium()) {
         planTitle_->setLink(tr("UPGRADE >"));
+    } else {
+        planTitle_->setLink("");
     }
     expireDateItem_->setValue1(tr("Expiry Date"));
     resetDateItem_->setValue1(tr("Reset Date"));
@@ -214,6 +216,7 @@ void AccountWindowItem::onIsPremiumChanged(bool isPremium)
 {
     planItem_->setIsPremium(isPremium);
     updatePlanGroupItemVisibility();
+    onLanguageChanged();
 }
 
 void AccountWindowItem::setDataLeft() const

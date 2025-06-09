@@ -39,7 +39,6 @@ void FavoriteLocationsStorage::readFromSettings()
 {
     favoriteLocations_.clear();
     QSettings settings;
-    bool bLoaded = false;
     if (settings.contains("favoriteLocations"))
     {
         SimpleCrypt simpleCrypt(SIMPLE_CRYPT_KEY);
@@ -58,8 +57,6 @@ void FavoriteLocationsStorage::readFromSettings()
                 ds >> favoriteLocations_;
                 if (ds.status() != QDataStream::Ok)
                     favoriteLocations_.clear();
-                else
-                    bLoaded = true;
             }
         }
     }

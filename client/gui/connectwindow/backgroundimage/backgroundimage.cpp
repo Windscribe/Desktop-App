@@ -92,6 +92,10 @@ QSharedPointer<QMovie> BackgroundImage::customMovie(const QString &path, bool is
         !isConnected && curBackgroundSettings_.disconnectedBackgroundType == BACKGROUND_TYPE_BUNDLED)
     {
         height = WIDTH * 9 / 16;
+    } else if (isConnected && curBackgroundSettings_.connectedBackgroundType == BACKGROUND_TYPE_COUNTRY_FLAGS ||
+               !isConnected && curBackgroundSettings_.disconnectedBackgroundType == BACKGROUND_TYPE_COUNTRY_FLAGS) {
+        // Use 2:1 for now for country flags
+        height = 175;
     } else if (curBackgroundSettings_.aspectRatioMode == ASPECT_RATIO_MODE_FILL) {
         QSize sizeOfImage = QImageReader(isConnected ? curBackgroundSettings_.backgroundImageConnected : curBackgroundSettings_.backgroundImageDisconnected).size();
         height = (double)WIDTH / (double)sizeOfImage.width() * (double)sizeOfImage.height();

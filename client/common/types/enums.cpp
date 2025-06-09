@@ -649,8 +649,9 @@ QString TOGGLE_MODE_toString(TOGGLE_MODE t)
 MULTI_DESKTOP_BEHAVIOR MULTI_DESKTOP_BEHAVIOR_fromInt(int t)
 {
     if (t == 0) return MULTI_DESKTOP_AUTO;
-    else if (t == 1) return MULTI_DESKTOP_MOVE_SPACES;
-    else if (t == 2) return MULTI_DESKTOP_MOVE_WINDOW;
+    else if (t == 1) return MULTI_DESKTOP_DUPLICATE;
+    else if (t == 2) return MULTI_DESKTOP_MOVE_SPACES;
+    else if (t == 3) return MULTI_DESKTOP_MOVE_WINDOW;
     else {
         WS_ASSERT(false);
         return MULTI_DESKTOP_AUTO;

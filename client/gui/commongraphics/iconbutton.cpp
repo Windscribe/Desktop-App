@@ -62,27 +62,31 @@ void IconButton::animateOpacityChange(double newOpacity, int animationSpeed)
     startAnAnimation<double>(imageOpacityAnimation_, curOpacity_, newOpacity, animationSpeed);
 }
 
-void IconButton::setIcon(const QString &imagePath)
+void IconButton::setIcon(const QString &imagePath, bool updateDimensions)
 {
     imagePath_ = imagePath;
     shadowPath_.clear();
     imageWithShadow_.reset();
     prepareGeometryChange();
     QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
-    width_ = p->width()/G_SCALE;
-    height_ = p->height()/G_SCALE;
+    if (updateDimensions) {
+        width_ = p->width()/G_SCALE;
+        height_ = p->height()/G_SCALE;
+    }
 
     // qDebug() << "New Width: " << width_;
 }
 
-void IconButton::setIcon(const QString &imagePath, const QString &shadowPath)
+void IconButton::setIcon(const QString &imagePath, const QString &shadowPath, bool updateDimensions)
 {
     imagePath_ = imagePath;
     shadowPath_ = shadowPath;
     imageWithShadow_.reset(new ImageWithShadow(imagePath_, shadowPath_));
     prepareGeometryChange();
-    width_ = imageWithShadow_->width()/G_SCALE;
-    height_ = imageWithShadow_->height()/G_SCALE;
+    if (updateDimensions) {
+        width_ = imageWithShadow_->width()/G_SCALE;
+        height_ = imageWithShadow_->height()/G_SCALE;
+    }
 }
 
 void IconButton::setSelected(bool selected)

@@ -120,12 +120,12 @@ void AppBackgroundGroup::hideOpenPopups()
 void AppBackgroundGroup::setBackgroundSettings(const types::BackgroundSettings &settings)
 {
     if (settings_ != settings) {
+        comboBoxAspectRatioMode_->setCurrentItem(settings.aspectRatioMode);
+        disconnectedComboBox_->setCurrentItem(settings.disconnectedBackgroundType);
+        disconnectedComboBox_->setPath(settings.backgroundImageDisconnected);
+        connectedComboBox_->setCurrentItem(settings.connectedBackgroundType);
+        connectedComboBox_->setPath(settings.backgroundImageConnected);
         settings_ = settings;
-        comboBoxAspectRatioMode_->setCurrentItem(settings_.aspectRatioMode);
-        disconnectedComboBox_->setCurrentItem(settings_.disconnectedBackgroundType);
-        disconnectedComboBox_->setPath(settings_.backgroundImageDisconnected);
-        connectedComboBox_->setCurrentItem(settings_.connectedBackgroundType);
-        connectedComboBox_->setPath(settings_.backgroundImageConnected);
     }
 }
 

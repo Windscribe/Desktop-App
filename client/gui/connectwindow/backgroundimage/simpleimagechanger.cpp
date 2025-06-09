@@ -7,7 +7,7 @@
 namespace ConnectWindow {
 
 SimpleImageChanger::SimpleImageChanger(QObject *parent, int animationDuration) : QObject(parent),
-    animationDuration_(animationDuration), opacityCurImage_(1.0), opacityPrevImage_(0.0)
+    animationDuration_(animationDuration), opacityCurImage_(0.8), opacityPrevImage_(0.0)
 {
     connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &SimpleImageChanger::onOpacityChanged);
 }
@@ -29,7 +29,7 @@ void SimpleImageChanger::setImage(QSharedPointer<IndependentPixmap> image, bool 
         curImage_ = image;
         prevImage_.reset();
         opacityPrevImage_ = 0.0;
-        opacityCurImage_ = 1.0;
+        opacityCurImage_ = 0.8;
         updatePixmap();
     }
     else
@@ -43,7 +43,7 @@ void SimpleImageChanger::setImage(QSharedPointer<IndependentPixmap> image, bool 
         curImage_ = image;
 
         opacityPrevImage_ = opacityCurImage_;
-        opacityCurImage_ = 1.0 - opacityPrevImage_;
+        opacityCurImage_ = 0.8 - opacityPrevImage_;
 
         if (opacityAnimation_.state() == QVariantAnimation::Running)
         {
@@ -51,8 +51,8 @@ void SimpleImageChanger::setImage(QSharedPointer<IndependentPixmap> image, bool 
         }
 
         opacityAnimation_.setStartValue(opacityCurImage_);
-        opacityAnimation_.setEndValue(1.0);
-        opacityAnimation_.setDuration((1.0 - opacityCurImage_) * animationDuration_);
+        opacityAnimation_.setEndValue(0.8);
+        opacityAnimation_.setDuration((0.8 - opacityCurImage_) * animationDuration_);
         opacityAnimation_.start();
         updatePixmap();
     }
@@ -60,7 +60,7 @@ void SimpleImageChanger::setImage(QSharedPointer<IndependentPixmap> image, bool 
 
 void SimpleImageChanger::onOpacityChanged(const QVariant &value)
 {
-    opacityPrevImage_ = 1.0 - value.toDouble();
+    opacityPrevImage_ = 0.8 - value.toDouble();
     opacityCurImage_ = value.toDouble();
     updatePixmap();
 }
@@ -87,7 +87,7 @@ void SimpleImageChanger::updatePixmap()
                 prevImage_->draw(0, 0, &p);
             }
 
-            p.setOpacity(opacityCurImage_);
+            p.setOpacity(opacityCurImage_ * 0.8);
             curImage_->draw(0, 0, &p);
         }
     }

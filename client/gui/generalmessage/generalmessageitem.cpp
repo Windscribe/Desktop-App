@@ -355,7 +355,6 @@ void GeneralMessageItem::setShowBottomPanel(bool on)
     }
     checkbox_->setVisible(on);
     if (!learnMoreUrl_.isEmpty()) {
-        qCInfo(LOG_BASIC) << "jaxu Learn more url: " << learnMoreUrl_ << " on: " << on;
         learnMoreLink_->setVisible(on);
     }
 

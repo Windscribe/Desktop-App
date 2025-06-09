@@ -209,6 +209,8 @@ MainWindow::MainWindow() :
     connect(locationsWindow_, &LocationsWindow::clearCustomConfigClicked, this, &MainWindow::onLocationsClearCustomConfigClicked);
     connect(locationsWindow_, &LocationsWindow::addCustomConfigClicked, this, &MainWindow::onLocationsAddCustomConfigClicked);
     connect(locationsWindow_, &LocationsWindow::upgradeBannerClicked, this, &MainWindow::onLocationsUpgradeBannerClicked);
+    locationsWindow_->setShowLocationLoad(backend_->getPreferences()->isShowLocationLoad());
+    connect(backend_->getPreferences(), &Preferences::showLocationLoadChanged, locationsWindow_, &LocationsWindow::setShowLocationLoad);
 
     connect(backend_->getPreferences(), &Preferences::isAutoConnectChanged, this, &MainWindow::onAutoConnectUpdated);
     connect(backend_->getPreferences(), &Preferences::customConfigNeedsUpdate, this, &MainWindow::onPreferencesCustomConfigPathNeedsUpdate);
@@ -812,6 +814,9 @@ bool MainWindow::handleKeyPressEvent(QKeyEvent *event)
                         "Lorem ipsum dolor sit amet",
                         GeneralMessageController::tr(GeneralMessageController::kOk));
                 }
+            } else if (event->key() == Qt::Key_S) {
+                showShutdownWindow();
+                gotoExitWindow();
             }
         }
     }

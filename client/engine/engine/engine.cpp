@@ -2675,13 +2675,19 @@ void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QStrin
     }
     else {
         // Let's save this data as we will need it later when calling the login API
+#ifndef CLI_ONLY
         loginCredentials_ = std::make_unique<LoginCredentials>();
         loginCredentials_->username = username;
         loginCredentials_->password = password;
         loginCredentials_->code2fa = code2fa;
+#endif
 
         if (isOnline) {
+#ifdef CLI_ONLY
+            WSNet::instance()->apiResourcersManager()->login(username.toStdString(), password.toStdString(), code2fa.toStdString(), std::string());
+#else
             WSNet::instance()->apiResourcersManager()->authTokenLogin();
+#endif
         } else {
             // wait for network connectivity maximum 10 sec
             WS_ASSERT(loginWaitForNetworkConnectivity_ == nullptr);
@@ -2692,10 +2698,17 @@ void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QStrin
                 emit loginError(LoginResult::kNoConnectivity, QString());
             });
 
+#ifdef CLI_ONLY
+            connect(loginWaitForNetworkConnectivity_, &WaitForNetworkConnectivity::connectivityOnline, [this, username, password, code2fa]() {
+                SAFE_DELETE_LATER(loginWaitForNetworkConnectivity_);
+                WSNet::instance()->apiResourcersManager()->login(username.toStdString(), password.toStdString(), code2fa.toStdString(), std::string());
+            });
+#else
             connect(loginWaitForNetworkConnectivity_, &WaitForNetworkConnectivity::connectivityOnline, [this]() {
                 SAFE_DELETE_LATER(loginWaitForNetworkConnectivity_);
                 WSNet::instance()->apiResourcersManager()->authTokenLogin();
             });
+#endif
 
             loginWaitForNetworkConnectivity_->wait(kLoginWaitTimeForNoNetwork);
         }

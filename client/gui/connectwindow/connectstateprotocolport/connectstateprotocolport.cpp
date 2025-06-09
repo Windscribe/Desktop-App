@@ -278,7 +278,7 @@ void ConnectStateProtocolPort::recalcSize()
     const int badgeHeight = 20*G_SCALE;
     const int protocolArrowWidth = 16*G_SCALE;
 
-    width_ = protocolWidth + portWidth + badgeWidth + protocolArrowWidth + 2*separatorWidth;
+    width_ = protocolWidth + portWidth + badgeWidth + protocolArrowWidth + 3*separatorWidth;
     if (isPreferredProtocol_) {
         width_ += preferredProtocolBadge_->boundingRect().width() + separatorWidth;
     }
@@ -287,11 +287,11 @@ void ConnectStateProtocolPort::recalcSize()
     }
     height_ = badgeHeight;
 
-    protocolArrow_->setPos(width_ - protocolArrowWidth - 4*G_SCALE + arrowShift_*G_SCALE, 4*G_SCALE);
+    protocolArrow_->setPos(width_ - protocolArrowWidth + arrowShift_*G_SCALE, 4*G_SCALE);
 
     preferredProtocolBadge_->setVisible(isPreferredProtocol_);
     if (isPreferredProtocol_) {
-        preferredProtocolBadge_->setPos(protocolWidth + portWidth + badgeWidth + 2*separatorWidth + 4*G_SCALE,
+        preferredProtocolBadge_->setPos(protocolWidth + portWidth + badgeWidth + 3*separatorWidth,
                                         boundingRect().height()/2 - preferredProtocolBadge_->boundingRect().height()/2);
     }
 
@@ -302,7 +302,7 @@ void ConnectStateProtocolPort::recalcSize()
             antiCensorshipBadgeLeft = preferredProtocolBadge_->pos().x() + preferredProtocolBadge_->boundingRect().width() + separatorWidth;
         }
         else {
-            antiCensorshipBadgeLeft = protocolWidth + portWidth + badgeWidth + 4*separatorWidth + 4*G_SCALE;
+            antiCensorshipBadgeLeft = protocolWidth + portWidth + badgeWidth + 3*separatorWidth;
         }
 
         antiCensorshipBadge_->setPos(antiCensorshipBadgeLeft, boundingRect().height()/2 - antiCensorshipBadge_->boundingRect().height()/2);

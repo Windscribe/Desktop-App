@@ -44,7 +44,7 @@ private:
     QVariant customValue_ = "Custom";
     QVariant bundledValue_ = "Bundled";
 
-    void updateSecondaryItemVisibility();
+    void updateSecondaryItemVisibility(bool signal = true);
 };
 
 } // namespace PreferencesWindow

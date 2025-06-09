@@ -19,7 +19,7 @@ struct SoundSettings
 
     SoundSettings(const QJsonObject &json)
     {
-        if (json.contains(kJsonDisconnectedSoundTypeProp) && json[kJsonDisconnectedSoundTypeProp].isString()) {
+        if (json.contains(kJsonDisconnectedSoundTypeProp) && json[kJsonDisconnectedSoundTypeProp].isDouble()) {
             disconnectedSoundType = static_cast<SOUND_NOTIFICATION_TYPE>(json[kJsonDisconnectedSoundTypeProp].toInt());
         }
 
@@ -27,7 +27,7 @@ struct SoundSettings
             disconnectedSoundPath = json[kJsonSoundDisconnectedProp].toString();
         }
 
-        if (json.contains(kJsonConnectedSoundTypeProp) && json[kJsonConnectedSoundTypeProp].isString()) {
+        if (json.contains(kJsonConnectedSoundTypeProp) && json[kJsonConnectedSoundTypeProp].isDouble()) {
             connectedSoundType = static_cast<SOUND_NOTIFICATION_TYPE>(json[kJsonConnectedSoundTypeProp].toInt());
         }
 
@@ -49,13 +49,15 @@ struct SoundSettings
         return !(*this == other);
     }
 
-    QJsonObject toJson() const
+    QJsonObject toJson(bool isForDebugLog) const
     {
         QJsonObject json;
-        json[kJsonDisconnectedSoundTypeProp] = disconnectedSoundType;
-        json[kJsonSoundDisconnectedProp] = disconnectedSoundPath;
-        json[kJsonConnectedSoundTypeProp] = connectedSoundType;
-        json[kJsonSoundConnectedProp] = connectedSoundPath;
+        if (!isForDebugLog) {
+            json[kJsonSoundDisconnectedProp] = disconnectedSoundPath;
+            json[kJsonSoundConnectedProp] = connectedSoundPath;
+        }
+        json[kJsonDisconnectedSoundTypeProp] = static_cast<int>(disconnectedSoundType);
+        json[kJsonConnectedSoundTypeProp] = static_cast<int>(connectedSoundType);
         return json;
     }
 

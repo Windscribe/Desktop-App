@@ -19,8 +19,8 @@ public:
 
     void animateOpacityChange(double newOpacity, int animationSpeed);
 
-    void setIcon(const QString &imagePath);
-    void setIcon(const QString &imagePath, const QString &shadowPath);
+    void setIcon(const QString &imagePath, bool updateDimensions = true);
+    void setIcon(const QString &imagePath, const QString &shadowPath, bool updateDimensions = true);
 
     void setSelected(bool selected) override;
 

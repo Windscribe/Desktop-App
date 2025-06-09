@@ -292,7 +292,9 @@ void FirewallController_linux::removeWindscribeRules(const QString &comment, boo
         if (rules[ind].contains("COMMIT") && curTable.contains("*filter")) {
             rules.insert(ind, "-X windscribe_input");
             rules.insert(ind + 1, "-X windscribe_output");
-            rules.insert(ind + 2, "-X windscribe_block");
+            if (!isIPv6) {
+                rules.insert(ind + 2, "-X windscribe_block");
+            }
             break;
         }
     }

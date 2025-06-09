@@ -137,11 +137,12 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
     if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
         QSharedPointer<IndependentPixmap> favIcon;
         if (index.data(kIsFavorite).toBool() == true) {
+            painter->setOpacity(OPACITY_FULL);
             favIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_SELECTED");
         } else {
+            painter->setOpacity(OPACITY_HALF);
             favIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_DESELECTED");
         }
-        painter->setOpacity(OPACITY_HALF);
         xOffset -= favIcon->width();
         favIcon->draw(xOffset, top_offs + (option.rect.height() - favIcon->height()) / 2, painter);
         xOffset -= LOCATION_ITEM_MARGIN*G_SCALE;

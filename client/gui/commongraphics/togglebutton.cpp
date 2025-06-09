@@ -8,7 +8,7 @@
 #include "dpiscalemanager.h"
 
 ToggleButton::ToggleButton(ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent),
-    animationProgress_(0.0), isChecked_(false), enabled_(true)
+    animationProgress_(0.0), isChecked_(false), isToggleable_(true), enabled_(true)
 {
     setAcceptHoverEvents(true);
 
@@ -86,6 +86,11 @@ void ToggleButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             pressed_ = false;
             if (contains(event->pos()))
             {
+                if (!isToggleable_) {
+                    emit toggleIgnored();
+                    return;
+                }
+
                 isChecked_ = !isChecked_;
                 emit stateChanged(isChecked_);
 
@@ -141,4 +146,9 @@ void ToggleButton::setColor(const QColor &color)
 {
     color_ = color;
     update();
+}
+
+void ToggleButton::setToggleable(bool toggleable)
+{
+    isToggleable_ = toggleable;
 }
