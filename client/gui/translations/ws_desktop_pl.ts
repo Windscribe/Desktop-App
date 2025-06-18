@@ -88,10 +88,6 @@
         <translation>Wszystkie</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Skonfigurowano</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Statyczne adresy IP</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>Szukaj</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Konfiguracje niestandardowe</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>Wszystkie lokalizacje (%1)</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Ulubione</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Statyczne adresy IP</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Konfiguracje niestandardowe</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Szukać</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>Nie udało się wyeksportować dziennika.  Upewnij się, że masz odpowiednie uprawnienia.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>Wsuń element układanki na miejsce</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>Hasło</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>Login</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Ukończ łamigłówkę, aby kontynuować</translation>
     </message>
 </context>
 <context>
@@ -647,10 +681,6 @@ Próba przywrócenia...</translation>
         <translation>Statyczne adresy IP</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Skonfigurowano</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>Pokaż/Ukryj</translation>
     </message>
@@ -883,8 +913,8 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Nie można uruchomić niestandardowej usługi DNS — port 53 jest już używany.  Czy chcesz zmienić swój Connected DNS na serwer lokalny?</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>Przesuń, aby ułożyć puzzle</translation>
+        <source>Custom configs</source>
+        <translation>Konfiguracje niestandardowe</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
         <translation>Statyczne adresy IP</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>Konfiguracje niestandardowe</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>Wersja aplikacji nie jest już wspierana. Zaktualizuj, aby dalej korzystać z Windscribe.</translation>
     </message>
@@ -2476,6 +2502,10 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
     <message>
         <source>Always On+</source>
         <translation>Zawsze włączony+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Konfiguracje niestandardowe</translation>
     </message>
 </context>
 <context>

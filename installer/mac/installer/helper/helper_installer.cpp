@@ -1,6 +1,6 @@
 #include "helper_installer.h"
 
-HelperInstaller::HelperInstaller(std::unique_ptr<IHelperBackend> backend) : HelperBase(std::move(backend))
+HelperInstaller::HelperInstaller(std::unique_ptr<IHelperBackend> backend) : HelperBase(std::move(backend), spdlog::default_logger_raw())
 {
 }
 

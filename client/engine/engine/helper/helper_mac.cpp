@@ -1,6 +1,6 @@
 #include "helper_mac.h"
 
-Helper_mac::Helper_mac(std::unique_ptr<IHelperBackend> backend) : Helper_posix(std::move(backend))
+Helper_mac::Helper_mac(std::unique_ptr<IHelperBackend> backend, spdlog::logger *logger) : Helper_posix(std::move(backend), logger)
 {
 }
 
@@ -17,7 +17,7 @@ void Helper_mac::enableMacSpoofingOnBoot(bool bEnabled, const QString &interface
 bool Helper_mac::setDnsOfDynamicStoreEntry(const QString &ipAddress, const QString &entry)
 {
     auto result = sendCommand(HelperCommand::setDnsOfDynamicStoreEntry, ipAddress.toStdString(), entry.toStdString());
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }

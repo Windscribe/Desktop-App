@@ -88,10 +88,6 @@
         <translation>すべての</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>構成</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>静的 IP アドレス</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>検索</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>カスタム構成</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>すべてのロケーション (%1)</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>お気に入り</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>静的IP</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>カスタム構成</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>捜索</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>ログのエクスポートに失敗しました。 適切なアクセス許可があることを確認します。</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>パズルのピースを所定の位置にスライドさせます</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>パスワード</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>ログイン</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>パズルを完成させて続行</translation>
     </message>
 </context>
 <context>
@@ -647,10 +681,6 @@ Recovering...</source>
         <translation>静的 IP アドレス</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>構成</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>表示/非表示</translation>
     </message>
@@ -883,8 +913,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>カスタム DNS サービスを開始できません - ポート 53 は既に使用されています。 接続DNSをローカルサーバーに変更しますか?</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>スライドしてパズルを完成させます</translation>
+        <source>Custom configs</source>
+        <translation>カスタム構成</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>静的 IP アドレス</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>カスタム構成</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>アプリケーションのバージョンはサポートされなくなりました。Windscribeを引き続き使用するには、更新してください。</translation>
     </message>
@@ -2476,6 +2502,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Always On+</source>
         <translation>常時オン+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>カスタム構成</translation>
     </message>
 </context>
 <context>

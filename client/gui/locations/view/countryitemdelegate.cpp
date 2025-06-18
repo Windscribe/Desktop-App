@@ -125,12 +125,23 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
         QSharedPointer<IndependentPixmap> togglePixmap;
         if (qFabs(1.0 - option.expandedProgress()) < 0.000001) {
             togglePixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/COLLAPSE_ICON");
+            togglePixmap->draw(left_offs + option.rect.width() - 16*G_SCALE - togglePixmap->width(),
+                               top_offs + (option.rect.height() - togglePixmap->height()) / 2,
+                               painter);
         } else {
             togglePixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/EXPAND_ICON");
+            int pixmapHeight = (1 - option.expandedProgress())*togglePixmap->height();
+            if (pixmapHeight < 2*G_SCALE) {
+                // Clamp a minimum height so the image doesn't 'flicker' as it goes to 0 height before the collapse icon is shown
+                pixmapHeight = 2*G_SCALE;
+            }
+            togglePixmap->draw(left_offs + option.rect.width() - 16*G_SCALE - togglePixmap->width(),
+                               top_offs + (option.rect.height() - pixmapHeight) / 2,
+                               togglePixmap->width(),
+                               pixmapHeight,
+                               painter,
+                               0, (togglePixmap->height() - pixmapHeight)/2, togglePixmap->width(), pixmapHeight);
         }
-        togglePixmap->draw(left_offs + option.rect.width() - 16*G_SCALE - togglePixmap->width(),
-                           top_offs + (option.rect.height() - togglePixmap->height()) / 2,
-                           painter);
     }
 
     painter->restore();

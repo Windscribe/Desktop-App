@@ -89,7 +89,7 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         borderInner->draw(0, 0, WINDOW_WIDTH*G_SCALE, WINDOW_HEIGHT_VAN_GOGH*G_SCALE, painter);
     } else {
         QSharedPointer<IndependentPixmap> borderInner = ImageResourcesSvg::instance().getIndependentPixmap("background/MAIN_BORDER_INNER");
-        borderInner->draw(0, 0, WINDOW_WIDTH*G_SCALE, WINDOW_HEIGHT*G_SCALE, painter);
+        borderInner->draw(0, 0, WINDOW_WIDTH*G_SCALE, (WINDOW_HEIGHT-1)*G_SCALE, painter);
     }
 }
 

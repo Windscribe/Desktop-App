@@ -88,7 +88,7 @@ private:
     static constexpr int DESCRIPTION_POS_Y = 86;
 
     static constexpr int LOWER_DESCRIPTION_WIDTH_MIN = 168;
-    static constexpr int LOWER_DESCRIPTION_POS_Y = 184;
+    static constexpr int LOWER_DESCRIPTION_POS_Y = 156;
 
     static constexpr int ACCEPT_BUTTON_POS_Y = 164;
     static constexpr int CANCEL_BUTTON_POS_Y = 212;

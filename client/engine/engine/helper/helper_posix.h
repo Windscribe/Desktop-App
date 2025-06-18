@@ -15,7 +15,7 @@ struct WireGuardStatus;
 class Helper_posix : public HelperBase
 {
 public:
-    explicit Helper_posix(std::unique_ptr<IHelperBackend> backend);
+    explicit Helper_posix(std::unique_ptr<IHelperBackend> backend, spdlog::logger *logger);
 
     QString getHelperVersion();
 

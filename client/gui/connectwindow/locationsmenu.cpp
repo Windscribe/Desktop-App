@@ -146,7 +146,7 @@ void LocationsMenu::updateSelectedTab(IconButton *selectedButton)
 void LocationsMenu::onLanguageChanged()
 {
     allLocations_->setTooltip(tr("All"));
-    configuredLocations_->setTooltip(tr("Configured"));
+    configuredLocations_->setTooltip(tr("Custom configs"));
     staticIpsLocations_->setTooltip(tr("Static IPs"));
     favoriteLocations_->setTooltip(tr("Favourites"));
     searchLocations_->setTooltip(tr("Search"));
@@ -257,8 +257,30 @@ bool LocationsMenu::handleKeyPressEvent(QKeyEvent *event)
         emit locationsKeyPressed(event);
     } else if (event->key() == Qt::Key_Left) {
         return handleLeftKey();
-    } else if (event->key() == Qt::Key_Right) {
+    } else if (event->key() == Qt::Key_Right || event->key() == Qt::Key_Tab) {
         return handleRightKey();
+    } else if (event->key() == Qt::Key_Home) {
+        searchLineEdit_->home(event->modifiers() & Qt::ShiftModifier);
+    } else if (event->key() == Qt::Key_End) {
+        searchLineEdit_->end(event->modifiers() & Qt::ShiftModifier);
+    } else {
+        if (curTab_ != LOCATION_TAB_SEARCH_LOCATIONS) {
+            // If search tab is not open, and the user presses space, collapse locations.
+            // For any other printable character, open the search tab and append the text.
+            if (event->key() != Qt::Key_Space && !event->text().isEmpty()) {
+                onSearchLocationsClicked();
+                searchLineEdit_->appendText(event->text());
+                searchLineEdit_->setFocus();
+                return true;
+            }
+        } else {
+            // Already on search tab, append the text
+            if (!event->text().isEmpty()) {
+                searchLineEdit_->appendText(event->text());
+                searchLineEdit_->setFocus();
+                return true;
+            }
+        }
     }
     return false;
 }
@@ -270,11 +292,11 @@ bool LocationsMenu::handleLeftKey()
     }
 
     if (curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS) {
-        onAllLocationsClicked();
-    } else if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS) {
-        onConfiguredLocationsClicked();
-    } else if (curTab_ == LOCATION_TAB_FAVORITE_LOCATIONS) {
         onStaticIpsLocationsClicked();
+    } else if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS) {
+        onFavoriteLocationsClicked();
+    } else if (curTab_ == LOCATION_TAB_FAVORITE_LOCATIONS) {
+        onAllLocationsClicked();
     }
     return true;
 }
@@ -286,13 +308,13 @@ bool LocationsMenu::handleRightKey()
     }
 
     if (curTab_ == LOCATION_TAB_ALL_LOCATIONS) {
-        onConfiguredLocationsClicked();
-    } else if (curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS) {
-        onStaticIpsLocationsClicked();
-    } else if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS) {
         onFavoriteLocationsClicked();
-    } else if (curTab_ == LOCATION_TAB_FAVORITE_LOCATIONS) {
+    } else if (curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS) {
         onSearchLocationsClicked();
+    } else if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS) {
+        onConfiguredLocationsClicked();
+    } else if (curTab_ == LOCATION_TAB_FAVORITE_LOCATIONS) {
+        onStaticIpsLocationsClicked();
     }
     return true;
 }

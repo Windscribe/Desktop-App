@@ -25,7 +25,6 @@ private:
 
     Preferences *preferences_;
     QMediaPlayer *player_;
-    QAudioOutput *audioOutput_;
 
     bool connectedEventQueued_ = false;
     qint64 position_ = 0;

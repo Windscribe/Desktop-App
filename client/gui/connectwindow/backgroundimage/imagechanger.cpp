@@ -118,7 +118,7 @@ void ImageChanger::updatePixmap()
 {
     SAFE_DELETE(pixmap_);
 
-    pixmap_ = new QPixmap(WIDTH * G_SCALE * DpiScaleManager::instance().curDevicePixelRatio(), 239 * G_SCALE * DpiScaleManager::instance().curDevicePixelRatio());
+    pixmap_ = new QPixmap(WIDTH*G_SCALE*DpiScaleManager::instance().curDevicePixelRatio(), 238*G_SCALE*DpiScaleManager::instance().curDevicePixelRatio());
     pixmap_->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
     pixmap_->fill(QColor(2, 13, 28));
 
@@ -173,7 +173,7 @@ void ImageChanger::updatePixmap()
                 }
             } else {
                 // Start at y = 0 if image height is 197 (16:9)
-                int yOffset = (197*G_SCALE - framePixmap.height() / DpiScaleManager::instance().curDevicePixelRatio()) / 2;
+                int yOffset = (197*G_SCALE - framePixmap.height())/2;
                 p.drawPixmap(0, yOffset, framePixmap, 0, 0, framePixmap.width(), 197*G_SCALE - yOffset);
             }
 
@@ -189,7 +189,7 @@ void ImageChanger::updatePixmap()
         int yOffset = 0;
         if (!curImage_.isMovie) {
             p.setOpacity(opacityCurImage_  * 0.4);
-            yOffset = (239 - curImage_.pixmap->height() / DpiScaleManager::instance().curDevicePixelRatio())/2;
+            yOffset = (238*G_SCALE - curImage_.pixmap->height())/2;
             curImage_.pixmap->draw(0, yOffset, &p);
 
             // for non-movie (not custom background draw flag gradient)
@@ -219,7 +219,7 @@ void ImageChanger::updatePixmap()
                 }
             } else {
                 // Start at y = 0 if image height is 197 (16:9)
-                yOffset = (197*G_SCALE - framePixmap.height() / DpiScaleManager::instance().curDevicePixelRatio()) / 2;
+                yOffset = (197*G_SCALE - framePixmap.height())/2;
                 p.drawPixmap(0, yOffset, framePixmap, 0, 0, framePixmap.width(), 197*G_SCALE - yOffset);
             }
 

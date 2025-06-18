@@ -88,10 +88,6 @@
         <translation>Todo</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Configurado</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>IPs estáticas</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>Buscar</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Configuraciones personalizadas</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>Todas las ubicaciones (%1)</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoritos</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IPs estáticas</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Configuraciones personalizadas</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Buscar</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>Error al exportar el registro.  Asegúrate de tener los permisos correctos.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>Desliza la pieza del rompecabezas en su lugar</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>Contraseña</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>Iniciar sesión</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Completa el rompecabezas para continuar</translation>
     </message>
 </context>
 <context>
@@ -659,10 +693,6 @@ Recuperación...</translation>
         <translation>IPs estáticas</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Configurado</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>Mostrar/Ocultar</translation>
     </message>
@@ -883,8 +913,8 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <translation>No se puede iniciar el servicio DNS personalizado: el puerto 53 ya está en uso.  ¿Te gustaría cambiar tu DNS conectado al servidor local?</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>Desliza para completar el rompecabezas</translation>
+        <source>Custom configs</source>
+        <translation>Configuraciones personalizadas</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
         <translation>IPs estáticas</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>Configuraciones personalizadas</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>La versión de la aplicación ya no está soportada. Actualiza para seguir usando Windscribe.</translation>
     </message>
@@ -2476,6 +2502,10 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     <message>
         <source>Always On+</source>
         <translation>Siempre activo+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Configuraciones personalizadas</translation>
     </message>
 </context>
 <context>

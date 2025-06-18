@@ -2,7 +2,7 @@
 #include <QProcess>
 #include "utils/log/categories.h"
 
-Helper_linux::Helper_linux(std::unique_ptr<IHelperBackend> backend) : Helper_posix(std::move(backend))
+Helper_linux::Helper_linux(std::unique_ptr<IHelperBackend> backend, spdlog::logger *logger) : Helper_posix(std::move(backend), logger)
 {
 }
 

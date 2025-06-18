@@ -271,8 +271,8 @@ void CredentialsWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->setFont(FontManager::instance().getFont(12,  QFont::Normal));
     painter->setPen(FontManager::instance().getErrorRedColor());
     painter->setOpacity(curErrorOpacity_ * initOpacity);
-    QRectF rect(WINDOW_MARGIN*G_SCALE, 232*G_SCALE, 180*G_SCALE, 100*G_SCALE);
-    painter->drawText(rect, curErrorText_);
+    QRectF rect(WINDOW_MARGIN*G_SCALE, 232*G_SCALE, WINDOW_WIDTH*G_SCALE - loginButton_->boundingRect().width() - 48*G_SCALE, 32*G_SCALE);
+    painter->drawText(rect, Qt::AlignVCenter | Qt::TextWordWrap, curErrorText_);
 
     // Emergency Connect Text
     painter->save();

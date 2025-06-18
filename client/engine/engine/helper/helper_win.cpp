@@ -11,7 +11,7 @@
 
 using namespace convert_utils;
 
-Helper_win::Helper_win(std::unique_ptr<IHelperBackend> backend) : HelperBase(std::move(backend))
+Helper_win::Helper_win(std::unique_ptr<IHelperBackend> backend, spdlog::logger *logger) : HelperBase(std::move(backend), logger)
 {
 }
 
@@ -29,6 +29,7 @@ void Helper_win::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bo
 {
     auto result = sendCommand(HelperCommand::getUnblockingCmdStatus, cmdId);
     universal_string log;
+    outFinished = false;
     deserializeAnswer(result, outFinished, log);
     outLog = toQString(log);
 }
@@ -97,8 +98,8 @@ void Helper_win::changeMtu(const QString &adapter, int mtu)
 bool Helper_win::executeTaskKill(CmdKillTarget target)
 {
     auto result = sendCommand(HelperCommand::executeTaskKill, (int)target);
-    bool success;
-    unsigned long exitCode;
+    bool success = false;
+    unsigned long exitCode = 0;
     universal_string log;
     deserializeAnswer(result, success, exitCode, log);
 
@@ -118,7 +119,7 @@ bool Helper_win::executeOpenVPN(const QString &config, unsigned int port, const 
 {
     auto result = sendCommand(HelperCommand::executeOpenVPN, config.toStdWString(), port, httpProxy.toStdWString(), httpPort,
                               socksProxy.toStdWString(), socksPort, isCustomConfig);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success, outCmdId);
     return success;
 }
@@ -126,7 +127,7 @@ bool Helper_win::executeOpenVPN(const QString &config, unsigned int port, const 
 bool Helper_win::startWireGuard()
 {
     auto result = sendCommand(HelperCommand::startWireGuard);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -134,7 +135,7 @@ bool Helper_win::startWireGuard()
 bool Helper_win::stopWireGuard()
 {
     auto result = sendCommand(HelperCommand::stopWireGuard);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -142,7 +143,7 @@ bool Helper_win::stopWireGuard()
 bool Helper_win::configureWireGuard(const WireGuardConfig &config)
 {
     auto result = sendCommand(HelperCommand::configureWireGuard, config.generateConfigFile().toStdWString());
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -150,8 +151,8 @@ bool Helper_win::configureWireGuard(const WireGuardConfig &config)
 bool Helper_win::getWireGuardStatus(types::WireGuardStatus *status)
 {
     auto result = sendCommand(HelperCommand::getWireGuardStatus);
-    UINT64 lastHandshake, txBytes, rxBytes;
-    bool success;
+    UINT64 lastHandshake = 0, txBytes = 0, rxBytes = 0;
+    bool success = false;
     deserializeAnswer(result, success, lastHandshake, txBytes, rxBytes);
     if (!success) {
         status->state = types::WireGuardState::FAILURE;
@@ -181,7 +182,7 @@ void Helper_win::firewallOff()
 bool Helper_win::firewallActualState()
 {
     auto result = sendCommand(HelperCommand::firewallActualState);
-    bool state;
+    bool state = false;
     deserializeAnswer(result, state);
     return state;
 }
@@ -189,7 +190,7 @@ bool Helper_win::firewallActualState()
 bool Helper_win::setCustomDnsWhileConnected(unsigned long ifIndex, const QString &overrideDnsIpAddress)
 {
     auto result = sendCommand(HelperCommand::setCustomDnsWhileConnected, ifIndex, overrideDnsIpAddress.toStdWString());
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -213,7 +214,7 @@ QString Helper_win::executeWmicGetConfigManagerErrorCode(const QString &adapterN
 bool Helper_win::isIcsSupported()
 {
     auto result = sendCommand(HelperCommand::isIcsSupported);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -221,7 +222,7 @@ bool Helper_win::isIcsSupported()
 bool Helper_win::startIcs()
 {
     auto result = sendCommand(HelperCommand::startIcs);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -229,7 +230,7 @@ bool Helper_win::startIcs()
 bool Helper_win::changeIcs(const QString &adapterName)
 {
     auto result = sendCommand(HelperCommand::changeIcs, adapterName.toStdWString());
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -237,7 +238,7 @@ bool Helper_win::changeIcs(const QString &adapterName)
 bool Helper_win::stopIcs()
 {
     auto result = sendCommand(HelperCommand::stopIcs);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -271,7 +272,7 @@ void Helper_win::setFirewallOnBoot(bool b)
 bool Helper_win::addHosts(const QString &hosts)
 {
     auto result = sendCommand(HelperCommand::addHosts, hosts.toStdWString());
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -279,7 +280,7 @@ bool Helper_win::addHosts(const QString &hosts)
 bool Helper_win::removeHosts()
 {
     auto result = sendCommand(HelperCommand::removeHosts);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -300,7 +301,7 @@ QStringList Helper_win::getProcessesList()
 bool Helper_win::whitelistPorts(const QString &ports)
 {
     auto result = sendCommand(HelperCommand::whitelistPorts, ports.toStdWString());
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -308,7 +309,7 @@ bool Helper_win::whitelistPorts(const QString &ports)
 bool Helper_win::deleteWhitelistPorts()
 {
     auto result = sendCommand(HelperCommand::deleteWhitelistPorts);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -366,7 +367,7 @@ void Helper_win::setIKEv2IPSecParameters()
 bool Helper_win::makeHostsFileWritable()
 {
     auto result = sendCommand(HelperCommand::makeHostsFileWritable);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     if (success) {
         qCInfo(LOG_BASIC) << "\"hosts\" file is writable now.";
@@ -404,8 +405,8 @@ void Helper_win::enableDohSettings()
 unsigned long Helper_win::ssidFromInterfaceGUID(const QString &interfaceGUID, QString &ssid)
 {
     auto result = sendCommand(HelperCommand::ssidFromInterfaceGUID, interfaceGUID.toStdWString());
-    unsigned long exitCode;
-    bool success;
+    unsigned long exitCode = 0;
+    bool success = false;
     std::string temp;
     deserializeAnswer(result, success, exitCode, temp);
     if (success) {

@@ -154,12 +154,12 @@ private:
     static constexpr int Y_COORD_NO_LINE             = 244;
 
     static constexpr int EMERGENCY_CONNECT_TEXT_WIDTH = 125;
-    static constexpr int EMERGENCY_CONNECT_TEXT_POS_Y = 282;
+    static constexpr int EMERGENCY_CONNECT_TEXT_POS_Y = 286;
 
     static constexpr int LOGIN_TEXT_HEIGHT    = 32;
 
     static constexpr int FORGOT_AND_2FA_POS_Y_DEFAULT = 240;
-    static constexpr int FORGOT_AND_2FA_POS_Y_ERROR   = 280;
+    static constexpr int FORGOT_AND_2FA_POS_Y_ERROR   = 266;
     static constexpr int FORGOT_POS_X_SPACING = 24;
 
     static constexpr int LINE_EDIT_POS_Y_INVISIBLE = -50;

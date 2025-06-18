@@ -15,20 +15,21 @@ AuthToken::AuthToken(const std::string &json)
     }
 
     auto jsonObject = doc.object();
-    if (!jsonObject.contains("data")) {
-        return;
-    }
-
     if (jsonObject.contains("errorCode")) {
         int errorCode = jsonObject["errorCode"].toInt();
         // We have been rate limited by the server
         if (errorCode == 707) {
             isRateLimitError_ = true;
+            isValid_ = true;
         } else {
             // For now only error 707 is possible, anything else is an error that requires attention
             qCWarning(LOG_BASIC) << "Unknown error code in AuthToken:" << errorCode;
             return;
         }
+    }
+
+    if (!jsonObject.contains("data")) {
+        return;
     }
 
     auto jsonData =  jsonObject["data"].toObject();

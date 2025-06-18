@@ -6,7 +6,7 @@
 class Helper_mac : public Helper_posix
 {
 public:
-    explicit Helper_mac(std::unique_ptr<IHelperBackend> backend);
+    explicit Helper_mac(std::unique_ptr<IHelperBackend> backend, spdlog::logger *logger);
 
     void setDnsScriptEnabled(bool bEnabled);
     void enableMacSpoofingOnBoot(bool bEnabled, const QString &interfaceName, const QString &macAddress);

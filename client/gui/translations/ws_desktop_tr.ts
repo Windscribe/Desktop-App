@@ -88,10 +88,6 @@
         <translation>Tüm</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Yapılandırılmış</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Statik IP&apos;ler</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>Aramak</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Özel yapılandırmalar</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>Tüm lokasyonlar (%1)</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoriler</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Statik IP&apos;ler</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Özel yapılandırmalar</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Aramak</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>Günlük dışa aktarılamadı.  Doğru izinlere sahip olduğunuzdan emin olun.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>Yapboz parçasını yerine kaydırın</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>Parola</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>Oturum açma</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Devam etmek için Bulmacayı tamamlayın</translation>
     </message>
 </context>
 <context>
@@ -647,10 +681,6 @@ Kurtarma...</translation>
         <translation>Statik IP&apos;ler</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Yapılandırılmış</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>Göster/Gizle</translation>
     </message>
@@ -883,8 +913,8 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Özel DNS hizmeti başlatılamıyor - 53 numaralı bağlantı noktası zaten kullanımda.  Bağlı DNS&apos;nizi yerel sunucuya değiştirmek ister misiniz?</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>Bulmacayı tamamlamak için kaydırın</translation>
+        <source>Custom configs</source>
+        <translation>Özel yapılandırmalar</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
         <translation>Statik IP&apos;ler</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>Özel Yapılandırmalar</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>Uygulama sürümünüz artık desteklenmiyor. Windscribe&apos;ı kullanmaya devam etmek için lütfen güncelleyin.</translation>
     </message>
@@ -2476,6 +2502,10 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Always On+</source>
         <translation>Her Zaman Açık+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Özel yapılandırmalar</translation>
     </message>
 </context>
 <context>

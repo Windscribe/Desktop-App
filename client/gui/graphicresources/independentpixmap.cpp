@@ -50,6 +50,11 @@ void IndependentPixmap::draw(int x, int y, QPainter *painter, int x1, int y1, in
     painter->drawPixmap(x, y, pixmap_, x1*pixmap_.devicePixelRatio(), y1*pixmap_.devicePixelRatio(), w*pixmap_.devicePixelRatio(), h*pixmap_.devicePixelRatio());
 }
 
+void IndependentPixmap::draw(int x, int y, int w, int h, QPainter *painter, int sx, int sy, int sw, int sh)
+{
+    painter->drawPixmap(x, y, w, h, pixmap_, sx, sy, sw, sh);
+}
+
 void IndependentPixmap::draw(const QRect &rect, QPainter *painter)
 {
     painter->drawPixmap(rect, pixmap_);

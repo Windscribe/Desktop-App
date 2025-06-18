@@ -12,7 +12,7 @@
 namespace ConnectWindow {
 
 BackgroundImage::BackgroundImage(QObject *parent, Preferences *preferences) : QObject(parent), preferences_(preferences),
-    imageChanger_(this, ANIMATION_DURATION), connectingGradientChanger_(this, ANIMATION_DURATION), isConnected_(false)
+    imageChanger_(this, kAnimationDuration), connectingGradientChanger_(this, kAnimationDuration), isConnected_(false)
 {
     // Initialize with the current aspect ratio mode
     imageChanger_.setAspectRatioMode(preferences_->backgroundSettings().aspectRatioMode);
@@ -46,13 +46,13 @@ void BackgroundImage::changeFlag(const QString &countryCode)
     {
         if (countryCode_.isEmpty()) {
             QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
-                countryCode, WIDTH * G_SCALE, 175 * G_SCALE);
+                countryCode, kWidth*G_SCALE, kFlagHeight*G_SCALE);
             imageChanger_.setImage(indPix, false);
             switchConnectGradient();
         }
         else if (countryCode_ != countryCode) {
             QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
-                countryCode, WIDTH * G_SCALE, 175 * G_SCALE);
+                countryCode, kWidth*G_SCALE, kFlagHeight*G_SCALE);
             imageChanger_.setImage(indPix, true);
             switchConnectGradient();
         }
@@ -87,22 +87,22 @@ QSharedPointer<QMovie> BackgroundImage::customMovie(const QString &path, bool is
         return nullptr;
     }
 
-    int height = 197; // ~= 350 * 9 / 16
+    int height = kDefaultHeight; // ~= 350 * 9 / 16
     if (isConnected && curBackgroundSettings_.connectedBackgroundType == BACKGROUND_TYPE_BUNDLED ||
         !isConnected && curBackgroundSettings_.disconnectedBackgroundType == BACKGROUND_TYPE_BUNDLED)
     {
-        height = WIDTH * 9 / 16;
+        height = kWidth * 9 / 16;
     } else if (isConnected && curBackgroundSettings_.connectedBackgroundType == BACKGROUND_TYPE_COUNTRY_FLAGS ||
                !isConnected && curBackgroundSettings_.disconnectedBackgroundType == BACKGROUND_TYPE_COUNTRY_FLAGS) {
         // Use 2:1 for now for country flags
-        height = 175;
+        height = kFlagHeight;
     } else if (curBackgroundSettings_.aspectRatioMode == ASPECT_RATIO_MODE_FILL) {
         QSize sizeOfImage = QImageReader(isConnected ? curBackgroundSettings_.backgroundImageConnected : curBackgroundSettings_.backgroundImageDisconnected).size();
-        height = (double)WIDTH / (double)sizeOfImage.width() * (double)sizeOfImage.height();
+        height = (double)kWidth / (double)sizeOfImage.width() * (double)sizeOfImage.height();
     }
 
     if (curBackgroundSettings_.aspectRatioMode != ASPECT_RATIO_MODE_TILE) {
-        movie->setScaledSize(QSize(WIDTH*G_SCALE, height*G_SCALE) * DpiScaleManager::instance().curDevicePixelRatio());
+        movie->setScaledSize(QSize(kWidth*G_SCALE, height*G_SCALE) * DpiScaleManager::instance().curDevicePixelRatio());
     }
     return movie;
 }
@@ -116,13 +116,13 @@ void BackgroundImage::handleBackgroundsChange()
         } else if (curBackgroundSettings_.connectedBackgroundType == BACKGROUND_TYPE_NONE) {
             connectedMovie_.reset();
             QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
-                "noflag", WIDTH * G_SCALE, 197*G_SCALE);
+                "noflag", kWidth*G_SCALE, kFlagHeight*G_SCALE);
             imageChanger_.setImage(indPix, false);
             switchConnectGradient();
         } else if (curBackgroundSettings_.connectedBackgroundType == BACKGROUND_TYPE_COUNTRY_FLAGS) {
             connectedMovie_.reset();
             QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
-                (countryCode_.isEmpty() ? "noflag" : countryCode_), WIDTH * G_SCALE, 197*G_SCALE);
+                (countryCode_.isEmpty() ? "noflag" : countryCode_), kWidth*G_SCALE, kFlagHeight*G_SCALE);
             imageChanger_.setImage(indPix, false);
             switchConnectGradient();
         }
@@ -133,13 +133,13 @@ void BackgroundImage::handleBackgroundsChange()
         } else if (curBackgroundSettings_.disconnectedBackgroundType == BACKGROUND_TYPE_NONE) {
             disconnectedMovie_.reset();
             QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
-                "noflag", WIDTH * G_SCALE, 197*G_SCALE);
+                "noflag", kWidth*G_SCALE, kFlagHeight*G_SCALE);
             imageChanger_.setImage(indPix, false);
             switchConnectGradient();
         } else if (curBackgroundSettings_.disconnectedBackgroundType == BACKGROUND_TYPE_COUNTRY_FLAGS) {
             disconnectedMovie_.reset();
             QSharedPointer<IndependentPixmap> indPix = ImageResourcesSvg::instance().getScaledFlag(
-                (countryCode_.isEmpty() ? "noflag" : countryCode_), WIDTH * G_SCALE, 197*G_SCALE);
+                (countryCode_.isEmpty() ? "noflag" : countryCode_), kWidth*G_SCALE, kFlagHeight*G_SCALE);
             imageChanger_.setImage(indPix, false);
             switchConnectGradient();
         }
@@ -154,7 +154,7 @@ void BackgroundImage::safeChangeToDisconnectedImage(bool bShowPrevChangeAnimatio
     }
     else {
         imageChanger_.setImage(
-            ImageResourcesSvg::instance().getScaledFlag("noflag", WIDTH*G_SCALE, 197*G_SCALE),
+            ImageResourcesSvg::instance().getScaledFlag("noflag", kWidth*G_SCALE, kFlagHeight*G_SCALE),
             bShowPrevChangeAnimation);
         switchConnectGradient();
     }
@@ -168,7 +168,7 @@ void BackgroundImage::safeChangeToConnectedImage(bool bShowPrevChangeAnimation)
     }
     else {
         imageChanger_.setImage(
-            ImageResourcesSvg::instance().getScaledFlag("noflag", WIDTH*G_SCALE, 197*G_SCALE),
+            ImageResourcesSvg::instance().getScaledFlag("noflag", kWidth*G_SCALE, kFlagHeight*G_SCALE),
             bShowPrevChangeAnimation);
         switchConnectGradient();
     }

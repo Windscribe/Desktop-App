@@ -88,10 +88,6 @@
         <translation>Tutto</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Configurato</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>IP statici</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>Ricerca</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Configurazioni personalizzate</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>Tutte le località (%1)</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Preferiti</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP statici</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Configurazioni personalizzate</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Ricerca</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>Impossibile esportare il registro.  Assicurati di disporre delle autorizzazioni corrette.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>Fai scorrere il pezzo del puzzle in posizione</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>Parola d’ordine</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>Accesso</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Completa il puzzle per continuare</translation>
     </message>
 </context>
 <context>
@@ -647,10 +681,6 @@ Recupero...</translation>
         <translation>IP statici</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Configurato</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>Mostra/Nascondi</translation>
     </message>
@@ -883,8 +913,8 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <translation>Impossibile avviare il servizio DNS personalizzato - la porta 53 è già in uso.  Volete cambiare il vostro DNS connesso al server locale?</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>Scorri per completare il puzzle</translation>
+        <source>Custom configs</source>
+        <translation>Configurazioni personalizzate</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
         <translation>IP statici</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>Configurazioni personalizzate</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>La versione dell&apos;applicazione non è più supportata. Aggiorna per continuare a utilizzare Windscribe.</translation>
     </message>
@@ -2476,6 +2502,10 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     <message>
         <source>Always On+</source>
         <translation>Sempre attivo+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Configurazioni personalizzate</translation>
     </message>
 </context>
 <context>

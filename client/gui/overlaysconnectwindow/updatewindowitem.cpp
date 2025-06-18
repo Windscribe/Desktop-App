@@ -81,7 +81,7 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
         QString borderInner = "background/MAIN_BORDER_INNER";
         QSharedPointer<IndependentPixmap> borderInnerPixmap = ImageResourcesSvg::instance().getIndependentPixmap(borderInner);
-        borderInnerPixmap->draw(0, 0, painter);
+        borderInnerPixmap->draw(0, 0, WINDOW_WIDTH*G_SCALE, (WINDOW_HEIGHT-1)*G_SCALE, painter);
     }
 
     int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -16*G_SCALE : 0;
@@ -138,8 +138,7 @@ void UpdateWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     // lower description
     painter->setOpacity(curLowerDescriptionOpacity_ * initialOpacity);
     const QString lowerDescText = tr("Your update is in progress, hang in there...");
-    int lowerDescWidth = CommonGraphics::idealWidthOfTextRect((LOWER_DESCRIPTION_POS_Y + yOffset)*G_SCALE,
-                                                              WINDOW_WIDTH * G_SCALE, 2,
+    int lowerDescWidth = CommonGraphics::idealWidthOfTextRect(LOWER_DESCRIPTION_WIDTH_MIN*G_SCALE, WINDOW_WIDTH*G_SCALE, 2,
                                                               lowerDescText, descFont);
     painter->drawText(CommonGraphics::centeredOffset(WINDOW_WIDTH*G_SCALE, lowerDescWidth),
                       (LOWER_DESCRIPTION_POS_Y + yOffset)*G_SCALE,

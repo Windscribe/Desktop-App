@@ -45,20 +45,18 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(ScalableGraphicsObject *paren
 void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     // bottom-most background: draw this first since the base background has a border
-    setOpacity(OPACITY_FULL);
     if (roundedFooter_) {
         painter->setPen(QColor(2, 13, 28));
         painter->setBrush(QColor(2, 13, 28));
         painter->drawRoundedRect(getBottomResizeArea(), 9*G_SCALE, 9*G_SCALE);
-        painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
+        painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -9*G_SCALE), QBrush(QColor(2, 13, 28)));
     } else {
         painter->fillRect(getBottomResizeArea(), QBrush(QColor(2, 13, 28)));
     }
 
     // base background
     if (shape_ == GeneralMessageWindow::kConnectScreenAlphaShape) {
-        painter->setOpacity(OPACITY_FULL);
-        painter->fillRect(boundingRect().adjusted(0, 270*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
+        painter->fillRect(boundingRect().adjusted(0, 32*G_SCALE, 0, -9*G_SCALE), QBrush(QColor(2, 13, 28)));
 
         QSharedPointer<IndependentPixmap> pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);
         pixmapBaseBackground->draw(0, 0, painter);

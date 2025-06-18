@@ -88,10 +88,6 @@
         <translation>Tudo</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Configurado</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>IPs estáticos</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>Pesquisar</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Configurações personalizadas</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>Todos os locais (%1)</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoritos</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IPs estáticos</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Configurações personalizadas</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Pesquisar</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>Falha ao exportar log.  Certifique-se de que tem as permissões corretas.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>Deslize a peça do quebra-cabeça no lugar</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>Palavra-passe</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>Iniciar sessão</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Complete Puzzle para continuar</translation>
     </message>
 </context>
 <context>
@@ -647,10 +681,6 @@ A recuperar...</translation>
         <translation>IPs estáticos</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Configurado</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>Mostrar/Ocultar</translation>
     </message>
@@ -883,8 +913,8 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Não é possível iniciar o serviço DNS personalizado - a porta 53 já está em uso.  Gostaria de alterar o DNS conectado para o servidor local?</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>Deslize para completar o puzzle</translation>
+        <source>Custom configs</source>
+        <translation>Configurações personalizadas</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
         <translation>IPs estáticos</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>Configurações personalizadas</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>Sua versão do aplicativo não é mais suportada. Por favor, atualize para continuar a usar o Windscribe.</translation>
     </message>
@@ -2476,6 +2502,10 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
     <message>
         <source>Always On+</source>
         <translation>Sempre Ligado+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Configurações personalizadas</translation>
     </message>
 </context>
 <context>

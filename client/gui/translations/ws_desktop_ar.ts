@@ -88,10 +88,6 @@
         <translation>كل</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>تكوين</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>عناوين IP ثابتة</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>بحث</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>التكوينات المخصصة</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>جميع المواقع (٪1)</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>المفضلة</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>عناوين IP الثابتة</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>التكوينات المخصصة</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>بحث</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>فشل تصدير السجل.  تأكد من أن لديك الأذونات الصحيحة.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>حرك قطعة اللغز في مكانها</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>شعار</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>تسجيل الدخول</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>أكمل اللغز للمتابعة</translation>
     </message>
 </context>
 <context>
@@ -659,10 +693,6 @@ Recovering...</source>
         <translation>عناوين IP ثابتة</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>تكوين</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>إظهار/إخفاء</translation>
     </message>
@@ -883,8 +913,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>تعذر بدء تشغيل خدمة DNS المخصصة - المنفذ 53 قيد الاستخدام بالفعل.  هل ترغب في تغيير DNS المتصل إلى الخادم المحلي؟</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>انزلق لإكمال اللغز</translation>
+        <source>Custom configs</source>
+        <translation>التكوينات المخصصة</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>عناوين IP ثابتة</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>تكوينات مخصصة</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>لم يعد إصدار التطبيق الخاص بك مدعوما. يرجى التحديث لمواصلة استخدام Windscribe.</translation>
     </message>
@@ -2476,6 +2502,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Always On+</source>
         <translation>تشغيل دائما+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>التكوينات المخصصة</translation>
     </message>
 </context>
 <context>

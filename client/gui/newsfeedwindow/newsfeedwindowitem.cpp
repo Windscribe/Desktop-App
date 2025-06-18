@@ -26,8 +26,7 @@ NewsFeedWindowItem::NewsFeedWindowItem(QGraphicsObject *parent,
 void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     // resize area background
-    painter->setOpacity(OPACITY_FULL);
-    painter->fillRect(boundingRect().adjusted(0, 270*G_SCALE, 0, -7*G_SCALE), QBrush(QColor(2, 13, 28)));
+    painter->fillRect(boundingRect().adjusted(0, 32*G_SCALE, 0, -9*G_SCALE), QBrush(QColor(2, 13, 28)));
 
     QRect rcCaption;
     // base background
@@ -66,7 +65,7 @@ void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
         painter->setPen(footerColor_);
         painter->setBrush(footerColor_);
         painter->drawRoundedRect(getBottomResizeArea(), 9*G_SCALE, 9*G_SCALE);
-        painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -7*G_SCALE), QBrush(footerColor_));
+        painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -9*G_SCALE), QBrush(footerColor_));
     } else {
         painter->fillRect(getBottomResizeArea(), QBrush(footerColor_));
     }

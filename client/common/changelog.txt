@@ -1,3 +1,17 @@
+2.16.5 (17/06/2025)
+All:
+   * Added and updated flags. #1386
+   * Fixed minor UI bugs. #1151 #1387 #1388 #1394 #1395
+   * Updated ctrld to 1.4.4. #1362
+   * Updated CAPTCHA screen design. #1351
+Windows:
+   * Fixed internet connectivity detection when using PPPoE. #1377
+MacOS:
+   * Updated CI to build macOS artifact on arm64 runners. #1392
+Linux:
+   * Fixed Linux app aborting due to exception, improved logging and error handling in helper IPC. #1368
+
+
 2.16.4 (09/06/2025)
 All:
    * Fixed various regressions and oddities with new app UI design. #1151
@@ -5,6 +19,7 @@ All:
 Windows:
    * Fixed locations missing nicknames in tray menu, redux. #1357
    * Fixed faint minimize button. #1382
+   * Fixed internet connectivity detection when using PPPoE. #1377
 Linux:
    * Fixed faint minimize button. #1382
    * Fixed IPv6 firewall rules not cleared after disconnect. #1385

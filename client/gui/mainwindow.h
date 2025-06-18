@@ -87,6 +87,7 @@ private slots:
     void onLoginFirewallTurnOffClick();
 
     // captcha window signals
+    void onCaptchaBackClicked();
     void onCaptchaResolved(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY);
 
     // connect window signals
@@ -459,4 +460,6 @@ private:
     bool wasLaunchedOnStartup();
 
     SoundManager *soundManager_;
+
+    void setDataRemaining(qint64 bytesUsed, qint64 bytesMax);
 };

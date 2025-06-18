@@ -6,12 +6,13 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/vector.hpp>
 #include "../../../../backend/common/helper_commands.h"
+#include <spdlog/spdlog.h>
 
 class HelperBase
 {
 public:
     // Take ownership of the backend
-    explicit HelperBase(std::unique_ptr<IHelperBackend> backend) : backend_(std::move(backend)) {}
+    explicit HelperBase(std::unique_ptr<IHelperBackend> backend, spdlog::logger *logger) : backend_(std::move(backend)), logger_(logger) {}
     virtual ~HelperBase() {}
 
     IHelperBackend *backend() { return backend_.get(); }
@@ -34,14 +35,23 @@ protected:
     template<typename... Args>
     void deserializeAnswer(const std::string &data, Args&... args)
     {
-        std::istringstream iss(data, std::ios::binary);
-        boost::archive::binary_iarchive archive(iss, boost::archive::no_header);
-        if constexpr (sizeof...(Args) > 0) {
-            (archive >> ... >> args);
+        if (data.empty()) {
+            logger_->error("HelperBase::deserializeAnswer error: data is empty");
+            return;
+        }
+        try {
+            std::istringstream iss(data, std::ios::binary);
+            boost::archive::binary_iarchive archive(iss, boost::archive::no_header);
+            if constexpr (sizeof...(Args) > 0) {
+                (archive >> ... >> args);
+            }
+        } catch(const std::exception & ex) {
+
+            logger_->error("HelperBase::deserializeAnswer exception: {}", ex.what());
         }
     }
 
 private:
     std::unique_ptr<IHelperBackend> backend_;
-
+    spdlog::logger *logger_;
 };

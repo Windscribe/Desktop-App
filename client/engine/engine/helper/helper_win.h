@@ -15,7 +15,7 @@ namespace types
 class Helper_win : public HelperBase
 {
 public:
-    explicit Helper_win(std::unique_ptr<IHelperBackend> backend);
+    explicit Helper_win(std::unique_ptr<IHelperBackend> backend, spdlog::logger *logger);
     virtual ~Helper_win() {}
 
     QString getHelperVersion();

@@ -278,12 +278,16 @@ void ConnectStateProtocolPort::recalcSize()
     const int badgeHeight = 20*G_SCALE;
     const int protocolArrowWidth = 16*G_SCALE;
 
-    width_ = protocolWidth + portWidth + badgeWidth + protocolArrowWidth + 3*separatorWidth;
+    width_ = protocolWidth + portWidth + badgeWidth + protocolArrowWidth + 2*separatorWidth;
     if (isPreferredProtocol_) {
         width_ += preferredProtocolBadge_->boundingRect().width() + separatorWidth;
     }
     if (isAntiCensorshipEnabled_) {
         width_ += antiCensorshipBadge_->boundingRect().width() + separatorWidth;
+    }
+    if (isAntiCensorshipEnabled_ || isPreferredProtocol_) {
+        // Need one more separator width if either badge is visible
+        width_ += separatorWidth;
     }
     height_ = badgeHeight;
 

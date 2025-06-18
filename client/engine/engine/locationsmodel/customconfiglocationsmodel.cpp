@@ -190,7 +190,7 @@ void CustomConfigLocationsModel::generateLocationsUpdated()
     QSharedPointer<types::Location> item(new types::Location());
 
     item->id = LocationID::createTopCustomConfigsLocationId();
-    item->name = QObject::tr("Custom Configs");
+    item->name = QObject::tr("Custom configs");
     item->countryCode = "noflag";
     item->isPremiumOnly = false;
     item->isNoP2P = false;

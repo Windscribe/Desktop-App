@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <spdlog/spdlog.h>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
@@ -185,14 +186,22 @@ std::string serializeResult(const Args&... args)
     return oss.str();
 }
 
-
 template<typename... Args>
 void deserializePars(const std::string &data, Args&... args)
 {
-    std::istringstream iss(data, std::ios::binary);
-    boost::archive::binary_iarchive archive(iss, boost::archive::no_header);
-    if constexpr (sizeof...(Args) > 0) {
-        (archive >> ... >> args);
+    if (data.empty()) {
+        spdlog::error("deserializePars error: data is empty");
+        return;
+    }
+
+    try {
+        std::istringstream iss(data, std::ios::binary);
+        boost::archive::binary_iarchive archive(iss, boost::archive::no_header);
+        if constexpr (sizeof...(Args) > 0) {
+            (archive >> ... >> args);
+        }
+    } catch(const std::exception & ex) {
+        spdlog::error("deserializePars exception: {}", ex.what());
     }
 }
 

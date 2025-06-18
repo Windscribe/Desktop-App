@@ -137,7 +137,21 @@ void LocationsTab::paintEvent(QPaintEvent *event)
     painter.setPen(Qt::white);
     painter.setOpacity(0.6);
 
-    QString text = tr("All locations (%1)").arg(count);
+    QString text;
+    if (count == 0) {
+        text = "";
+    } else if (curTab_ == LOCATION_TAB_ALL_LOCATIONS) {
+        text = tr("All locations (%1)").arg(count);
+    } else if (curTab_ == LOCATION_TAB_FAVORITE_LOCATIONS) {
+        text = tr("Favourites");
+    } else if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS) {
+        text = tr("Static IPs");
+    } else if (curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS) {
+        text = tr("Custom configs");
+    } else if (curTab_ == LOCATION_TAB_SEARCH_LOCATIONS) {
+        text = tr("Search");
+    }
+
     if (preferences_->appSkin() == APP_SKIN::APP_SKIN_VAN_GOGH) {
         painter.drawText(QRect(16*G_SCALE, 18*G_SCALE, geometry().width() - 32*G_SCALE, headerHeight()*G_SCALE), Qt::AlignLeft, text);
     } else {
@@ -417,6 +431,7 @@ void LocationsTab::onSearchFilterChanged(const QString &filter)
         widgetSearchLocations_->locationsView()->expandAll();
     }
     widgetSearchLocations_->locationsView()->scrollToTop();
+    update();
 }
 
 void LocationsTab::onLocationsKeyPressed(QKeyEvent *event)

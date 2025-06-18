@@ -34,5 +34,6 @@ private:
     void startAccept();
 
     bool sendAnswerCmd(socket_ptr sock, const std::string &answer);
+    boost::system::error_code safeBlockingWrite(socket_ptr &sock, const void *data, size_t size);
 };
 

@@ -88,10 +88,6 @@
         <translation>All</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Configured</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Static IPs</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>Search</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Custom configs</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>All locations (%1)</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favourites</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Static IPs</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Custom configs</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Search</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>Failed to export log.  Make sure you have the correct permissions.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>Slide puzzle piece into place</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>Password</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>Login</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Complete Puzzle to continue</translation>
     </message>
 </context>
 <context>
@@ -647,10 +681,6 @@ Recovering...</translation>
         <translation>Static IPs</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Configured</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>Show/Hide</translation>
     </message>
@@ -883,8 +913,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>Slide to complete the puzzle</translation>
+        <source>Custom configs</source>
+        <translation>Custom configs</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>Static IPs</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>Custom Configs</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>Your application version is no longer supported. Please update to continue using Windscribe.</translation>
     </message>
@@ -2476,6 +2502,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Always On+</source>
         <translation>Always On+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Custom configs</translation>
     </message>
 </context>
 <context>

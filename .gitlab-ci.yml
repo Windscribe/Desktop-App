@@ -44,6 +44,7 @@ variables:
   interruptible: true
 
 .template_mac_build: &template_mac_build
+  tags: [macos-arm64-qt6]
   before_script:
     - brew install pkg-config
     - export VCPKG_ROOT="${HOME}/vcpkg"
@@ -469,7 +470,6 @@ build:win:arm64:bootstrap:
 
 build:mac:installer:
   <<: *template_mac_build
-  tags: [macos11qt6]
   stage: Build
   variables:
     GIT_STRATEGY: clone
@@ -484,7 +484,6 @@ build:mac:installer:
 # We don't upload artifacts for merge requests
 build:mac:installer:mr:
   <<: *template_mac_build
-  tags: [macos-arm64-qt6]
   stage: Build
   variables:
     GIT_STRATEGY: clone
@@ -496,7 +495,6 @@ build:mac:installer:mr:
 
 build:mac:installer:tagged:
   <<: *template_mac_build
-  tags: [macos11qt6]
   stage: Build
   variables:
     GIT_STRATEGY: clone
@@ -922,7 +920,6 @@ test:wsnet:win:
 
 test:wsnet:mac:
   <<: *template_mac_build
-  tags: [macos11qt6]
   stage: Test
   variables:
     GIT_STRATEGY: clone
@@ -971,7 +968,6 @@ test:wsnet:rhel:
 
 test:version:mac:
   <<: *template_mac_build
-  tags: [macos11qt6]
   stage: Test
   variables:
     GIT_STRATEGY: clone
@@ -995,7 +991,7 @@ test:version:mac:
 
 build:wsnet:ios:
   stage: Build
-  tags: [macos11qt6]
+  tags: [macos-arm64-qt6]
   script:
     # Patched vcpkg needed for iOS simulator support.
     - git clone https://github.com/Windscribe/vcpkg.git ./libs/wsnet/tools/vcpkg

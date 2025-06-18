@@ -17,6 +17,7 @@ public:
 
 public slots:
     void setProgress(int progress);
+    void onInstallClicked();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -29,7 +30,6 @@ signals:
 
 private slots:
     void onEulaClicked();
-    void onInstallClicked();
 
 private:
     InstallButton *installButton_;

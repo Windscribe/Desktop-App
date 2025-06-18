@@ -88,10 +88,6 @@
         <translation>Все</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Пользовательские</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Статические IP-адреса</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>Поиск</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Пользовательские конфигурации</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>Все местоположения (%1)</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Избранное</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Статические IP-адреса</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Пользовательские конфигурации</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Искать</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>Не удалось экспортировать журнал.  Убедитесь, что у вас есть правильные разрешения.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>Вставьте кусочек пазла на место</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>Пароль</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>Логин</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Завершите головоломку, чтобы продолжить</translation>
     </message>
 </context>
 <context>
@@ -659,10 +693,6 @@ Recovering...</source>
         <translation>Статические IP-адреса</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Пользовательские</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>Показать/Скрыть</translation>
     </message>
@@ -883,8 +913,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Не удается запустить пользовательскую службу DNS - порт 53 уже используется.  Вы хотите изменить свой подключенный DNS на локальный сервер?</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>Проведите пальцем, чтобы собрать пазл</translation>
+        <source>Custom configs</source>
+        <translation>Пользовательские конфигурации</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>Статические IP-адреса</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>Пользовательские конфигурации</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>Версия приложения больше не поддерживается. Пожалуйста, обновите приложение для продолжения использования Windscribe.</translation>
     </message>
@@ -2476,6 +2502,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Always On+</source>
         <translation>Всегда вкл+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Пользовательские конфигурации</translation>
     </message>
 </context>
 <context>

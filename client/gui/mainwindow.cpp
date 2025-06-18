@@ -253,6 +253,7 @@ MainWindow::MainWindow() :
 
     // captcha window signals
     connect(mainWindowController_->getLoggingInWindow(), &LoginWindow::LoggingInWindowItem::captchaResolved, this, &MainWindow::onCaptchaResolved);
+    connect(mainWindowController_->getLoggingInWindow(), &LoginWindow::LoggingInWindowItem::backClicked, this, &MainWindow::onCaptchaBackClicked);
 
     // connect window signals
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::minimizeClick, this, &MainWindow::onMinimizeClick);
@@ -926,6 +927,7 @@ void MainWindow::onLoginClick(const QString &username, const QString &password, 
     mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
     mainWindowController_->getLoggingInWindow()->setAdditionalMessage("");
     mainWindowController_->getLoggingInWindow()->startAnimation();
+    mainWindowController_->getLoggingInWindow()->hideCaptcha();
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
 
     mainWindowController_->getConnectWindow()->setCustomConfigMode(false);
@@ -1005,6 +1007,11 @@ void MainWindow::onLoginFirewallTurnOffClick()
 {
     if (backend_->isFirewallEnabled())
         backend_->firewallOff();
+}
+
+void MainWindow::onCaptchaBackClicked()
+{
+    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGIN);
 }
 
 void MainWindow::onCaptchaResolved(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY)
@@ -1687,6 +1694,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
         } else if (backend_->isCanLoginWithAuthHash()) {
             if (!backend_->isSavedApiSettingsExists()) {
                 mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
+                mainWindowController_->getLoggingInWindow()->hideCaptcha();
                 mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
             }
             backend_->loginWithAuthHash();
@@ -1743,7 +1751,6 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
 void MainWindow::onBackendCaptchaRequired(const QString &background, const QString &slider, int top)
 {
     mainWindowController_->getLoggingInWindow()->showCaptcha(background, slider, top);
-    mainWindowController_->getLoggingInWindow()->setMessage(tr("Slide to complete the puzzle"));
 }
 
 void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
@@ -1820,6 +1827,7 @@ void MainWindow::onBackendLoginError(wsnet::LoginResult loginError, const QStrin
                 if (!isLoginOkAndConnectWindowVisible_) {
                     mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
                     mainWindowController_->getLoggingInWindow()->setAdditionalMessage("");
+                    mainWindowController_->getLoggingInWindow()->hideCaptcha();
                     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
                     backend_->loginWithLastLoginSettings();
                 }
@@ -1913,20 +1921,18 @@ void MainWindow::onBackendSessionStatusChanged(const api_responses::SessionStatu
                 mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_UPGRADE);
             }
 
-            mainWindowController_->getBottomInfoWindow()->setDataRemaining(0, 0);
+            setDataRemaining(0, 0);
             if (!blockConnect_.isBlocked()) {
                 blockConnect_.setBlockedExceedTraffic();
             }
         } else {
             if (sessionStatus.getTrafficMax() == -1) {
-                mainWindowController_->getLocationsWindow()->setDataRemaining(-1, -1);
-                mainWindowController_->getBottomInfoWindow()->setDataRemaining(-1, -1);
+                setDataRemaining(-1, -1);
             } else {
                 if (backend_->getPreferences()->isShowNotifications()) {
                     freeTrafficNotificationController_->updateTrafficInfo(sessionStatus.getTrafficUsed(), sessionStatus.getTrafficMax());
                 }
-                mainWindowController_->getLocationsWindow()->setDataRemaining(sessionStatus.getTrafficUsed(), sessionStatus.getTrafficMax());
-                mainWindowController_->getBottomInfoWindow()->setDataRemaining(sessionStatus.getTrafficUsed(), sessionStatus.getTrafficMax());
+                setDataRemaining(sessionStatus.getTrafficUsed(), sessionStatus.getTrafficMax());
             }
         }
     }
@@ -2176,7 +2182,7 @@ void MainWindow::onBackendLogoutFinished()
     mainWindowController_->getPreferencesWindow()->setLoggedIn(false);
     isLoginOkAndConnectWindowVisible_ = false;
     backend_->getPreferencesHelper()->setIsExternalConfigMode(false);
-    mainWindowController_->getBottomInfoWindow()->setDataRemaining(-1, -1);
+    setDataRemaining(-1, -1);
 
     if (logoutReason_ == LOGOUT_FROM_MENU) {
         mainWindowController_->getLoginWindow()->resetState();
@@ -3076,6 +3082,17 @@ void MainWindow::onAppShouldTerminate()
 
 void MainWindow::onIpcOpenLocations(IPC::CliCommands::LocationType type)
 {
+
+    if (downloadRunning_ ||
+        mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE ||
+        mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_LOGOUT ||
+        mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_EXIT ||
+        !isLoginOkAndConnectWindowVisible_)
+    {
+        // App is updating, or alert is being shown, or not logged in.  Ignore the command.
+        return;
+    }
+
     activateAndShow();
 
 #ifdef Q_OS_MACOS
@@ -3085,12 +3102,15 @@ void MainWindow::onIpcOpenLocations(IPC::CliCommands::LocationType type)
     activateAndShow();
 #endif
 
-    if (mainWindowController_->isPreferencesVisible())
-    {
+    if (mainWindowController_->isPreferencesVisible()) {
         collapsePreferences();
-    }
-    else if (mainWindowController_->currentWindow() != MainWindowController::WINDOW_ID_CONNECT)
-    {
+    } else if (mainWindowController_->isNewsFeedVisible()) {
+        mainWindowController_->collapseNewsFeed();
+    } else if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_UPDATE) {
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
+        mainWindowController_->getUpdateAppItem()->setMode(UpdateApp::UpdateAppItem::UPDATE_APP_ITEM_MODE_PROMPT);
+        mainWindowController_->getUpdateAppItem()->setProgress(0);
+    } else if (mainWindowController_->currentWindow() != MainWindowController::WINDOW_ID_CONNECT) {
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
     }
 
@@ -3375,7 +3395,7 @@ void MainWindow::createTrayMenuItems()
         }
         if (backend_->locationsModelManager()->customConfigsProxyModel()->rowCount() > 0) {
             QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->customConfigsProxyModel()), &QObject::deleteLater);
-            menu->setTitle(tr("Configured"));
+            menu->setTitle(tr("Custom configs"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
@@ -3404,7 +3424,7 @@ void MainWindow::createTrayMenuItems()
         }
         if (backend_->locationsModelManager()->customConfigsProxyModel()->rowCount() > 0) {
             QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->customConfigsProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
-            menu->setTitle(tr("Configured"));
+            menu->setTitle(tr("Custom configs"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
@@ -4298,4 +4318,10 @@ void MainWindow::onConnectWindowLocationsKeyPressed(QKeyEvent *event)
 void MainWindow::onLocationsUpgradeBannerClicked()
 {
     openUpgradeExternalWindow();
+}
+
+void MainWindow::setDataRemaining(qint64 bytesUsed, qint64 bytesMax)
+{
+    mainWindowController_->getLocationsWindow()->setDataRemaining(bytesUsed, bytesMax);
+    mainWindowController_->getBottomInfoWindow()->setDataRemaining(bytesUsed, bytesMax);
 }

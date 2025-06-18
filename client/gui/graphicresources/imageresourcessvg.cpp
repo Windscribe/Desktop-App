@@ -93,7 +93,12 @@ QSharedPointer<IndependentPixmap> ImageResourcesSvg::getFlag(const QString &flag
 QSharedPointer<IndependentPixmap> ImageResourcesSvg::getCircleFlag(const QString &flagName)
 {
     // Actually returns a 24x24 circle flag
-    return getIndependentPixmapScaled("flags/" + flagName, 48, 24, IMAGE_FLAG_CIRCLE);
+    QSharedPointer<IndependentPixmap> ret = getIndependentPixmapScaled("flags/" + flagName, 48*G_SCALE, 24*G_SCALE, IMAGE_FLAG_CIRCLE);
+    if (ret) {
+        return ret;
+    } else {
+        return getIndependentPixmapScaled("flags/noflag", 48*G_SCALE, 24*G_SCALE, IMAGE_FLAG_CIRCLE);
+    }
 }
 
 QSharedPointer<IndependentPixmap> ImageResourcesSvg::getScaledFlag(const QString &flagName, int width, int height,

@@ -45,9 +45,11 @@ private slots:
     void onHoverLeave();
 
 private:
-    static constexpr int COLLAPSED_HEIGHT = 48;
+    static constexpr int COLLAPSED_HEIGHT = 70;
     static constexpr int ROUNDED_RECT_RADIUS = 16;
     static constexpr int TEXT_MARGIN = 16;
+    static constexpr int TEXT_MARGIN_DATE = 42;
+    static constexpr int BODY_MARGIN = 40;
     static constexpr int READ_MARKER_WIDTH = 8;
     static constexpr int ICON_HEIGHT = 16;
     static constexpr int ICON_WIDTH = 16;

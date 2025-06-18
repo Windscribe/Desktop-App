@@ -133,7 +133,7 @@ MainWindow::MainWindow(bool isAdmin, InstallerOptions &options) : QWidget(nullpt
     }
 
     if (options_.updating) {
-        onInstallClicked();
+        initialWindow_->onInstallClicked();
     } else {
         initialWindow_->show();
     }

@@ -32,7 +32,7 @@ Helper *CrossPlatformObjectFactory::createHelper(QObject *parent)
 #elif defined Q_OS_LINUX
     backend = new HelperBackend_linux(parent);
 #endif
-    return new Helper(std::unique_ptr<IHelperBackend>(backend));
+    return new Helper(std::unique_ptr<IHelperBackend>(backend), log_utils::Logger::instance().getSpdLogger("basic")); // NOLINT
 }
 
 FirewallController *CrossPlatformObjectFactory::createFirewallController(QObject *parent, Helper *helper)

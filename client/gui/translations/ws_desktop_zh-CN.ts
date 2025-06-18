@@ -88,10 +88,6 @@
         <translation>全部</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>已配置</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>静态 IP</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>搜索</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>自定义配置</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>所有位置 （%1）</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>收藏夹</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>静态 IP</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>自定义配置</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>搜索</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>无法导出日志，请确保您有文件访问权限。</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>将拼图滑入到位</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>密码</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>登录</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>完成拼图以继续</translation>
     </message>
 </context>
 <context>
@@ -647,10 +681,6 @@ Recovering...</source>
         <translation>静态 IP</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>配置</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>显示/隐藏</translation>
     </message>
@@ -883,8 +913,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>无法启动自定义 DNS 服务，端口 53 已在使用中。是否要将已连接的 DNS 更改为本地服务器？</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>滑动以完成拼图</translation>
+        <source>Custom configs</source>
+        <translation>自定义配置</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>静态 IP</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>自定义配置</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>您的 Windscribe 版本不再受支持。请更新到最新版的 Windscribe。</translation>
     </message>
@@ -2476,6 +2502,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Always On+</source>
         <translation>始终开启+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>自定义配置</translation>
     </message>
 </context>
 <context>

@@ -88,10 +88,6 @@
         <translation>همه</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>پیکربندی</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>IP های استاتیک</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>جستجو</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>پیکربندی های سفارشی</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>همه مکان ها (٪1)</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>مورد علاقه</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP های استاتیک</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>پیکربندی های سفارشی</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>جستجو</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>صادر کردن ثبت شکست خورد.  اطمینان حاصل کنید که مجوزهای صحیح را دارید.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>قطعه پازل را در جای خود بکشید</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>رمز عبور</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>ورود</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>پازل کامل برای ادامه</translation>
     </message>
 </context>
 <context>
@@ -647,10 +681,6 @@ Recovering...</source>
         <translation>IP های استاتیک</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>پیکربندی</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>نمایش/مخفی کردن</translation>
     </message>
@@ -883,8 +913,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>راه اندازی سرویس DNS سفارشی امکان پذیر نیست - پورت 53 در حال حاضر در حال استفاده است.  آیا می خواهید DNS متصل خود را به سرور محلی تغییر دهید؟</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>برای تکمیل پازل اسلاید کنید</translation>
+        <source>Custom configs</source>
+        <translation>پیکربندی های سفارشی</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>IP های استاتیک</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>پیکربندیهای سفارشی</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>نسخه برنامه شما دیگر پشتیبانی نمی شود. لطفا برای ادامه استفاده از Windscribe به روز رسانی کنید.</translation>
     </message>
@@ -2476,6 +2502,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Always On+</source>
         <translation>همیشه روشن+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>پیکربندی های سفارشی</translation>
     </message>
 </context>
 <context>

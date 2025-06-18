@@ -50,6 +50,10 @@ int main(int argc, const char *argv[])
 
     spdlog::info("=== Started ===");
 
+#ifndef NDEBUG
+    spdlog::info("Debug build");
+#endif
+
     if (argc > 1 && strcmp(argv[1], "--reset-mac-addresses") == 0) {
         Utils::resetMacAddresses();
         return EXIT_SUCCESS;

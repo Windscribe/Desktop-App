@@ -88,10 +88,6 @@
         <translation>Všichni</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Nastavený</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Statické IP adresy</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>Hledání</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Vlastní konfigurace</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>Všechny lokality (%1)</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Oblíbené</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Statické IP adresy</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Vlastní konfigurace</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Hledání</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>Export protokolu se nezdařil.  Ujistěte se, že máte správná oprávnění.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>Posuňte dílek skládačky na místo</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>Heslo</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>Přihlášení do systému</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>kompletní puzzle pokračovat</translation>
     </message>
 </context>
 <context>
@@ -647,10 +681,6 @@ Uzdravování...</translation>
         <translation>Statické IP adresy</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Nastavený</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>Zobrazit/skrýt</translation>
     </message>
@@ -883,8 +913,8 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Nelze spustit vlastní službu DNS - port 53 je již používán.  Chcete změnit připojený DNS server na lokální server?</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>skluzavkou dokončit puzzle</translation>
+        <source>Custom configs</source>
+        <translation>Vlastní konfigurace</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
         <translation>Statické IP adresy</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>Vlastní konfigurace</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>Verze vaší aplikace již není podporována. Chcete-li pokračovat v používání aplikace Windscribe, aktualizujte ji.</translation>
     </message>
@@ -2476,6 +2502,10 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Always On+</source>
         <translation>Vždy zapnuto+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Vlastní konfigurace</translation>
     </message>
 </context>
 <context>

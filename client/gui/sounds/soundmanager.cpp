@@ -3,20 +3,13 @@
 #include <QAudioDevice>
 
 SoundManager::SoundManager(QObject *parent, Preferences *preferences)
-    : QObject(parent), preferences_(preferences)
+    : QObject(parent), preferences_(preferences), player_(nullptr)
 {
 #ifdef Q_OS_MACOS
     // the default of "ffmpeg" does not seem to play anything, use native backend
     setenv("QT_MEDIA_BACKEND", "darwin", 1);
 #endif
     connect(preferences_, &Preferences::soundSettingsChanged, this, &SoundManager::onSoundSettingsChanged);
-
-    player_ = new QMediaPlayer(this);
-    connect(player_, &QMediaPlayer::errorOccurred, this, &SoundManager::onPlayerError);
-    connect(player_, &QMediaPlayer::positionChanged, this, &SoundManager::onPlayerPositionChanged);
-    audioOutput_ = new QAudioOutput(this);
-    audioOutput_->setVolume(0.7);
-    player_->setAudioOutput(audioOutput_);
 }
 
 void SoundManager::onSoundSettingsChanged(const types::SoundSettings &soundSettings)
@@ -25,6 +18,22 @@ void SoundManager::onSoundSettingsChanged(const types::SoundSettings &soundSetti
 
 void SoundManager::playSound(const QUrl &url, QMediaPlayer::Loops loops)
 {
+    // Unfortunately, setting the device (even a default-constructed QAudioDevice) directly on an existing player does not seem to work;
+    // In that case, audioOutput_->device().description() shows the correct device, but play() does not work.
+    // So we do the ugly thing here and create a new player for every sound.
+    if (player_ != nullptr) {
+        disconnect(player_);
+        player_->stop();
+        player_->deleteLater();
+        player_ = nullptr;
+    }
+    player_ = new QMediaPlayer(this);
+    connect(player_, &QMediaPlayer::errorOccurred, this, &SoundManager::onPlayerError);
+    connect(player_, &QMediaPlayer::positionChanged, this, &SoundManager::onPlayerPositionChanged);
+    QAudioOutput *audioOutput = new QAudioOutput(this);
+    audioOutput->setVolume(0.7);
+    player_->setAudioOutput(audioOutput);
+    audioOutput->setDevice(QAudioDevice());
     player_->setSource(url);
     player_->setLoops(loops);
     player_->play();
@@ -33,7 +42,7 @@ void SoundManager::playSound(const QUrl &url, QMediaPlayer::Loops loops)
 void SoundManager::play(const CONNECT_STATE &connectState)
 {
     if (connectState == CONNECT_STATE_CONNECTED) {
-        if (preferences_->soundSettings().connectedSoundPath == ":/sounds/Fart_(Deluxe)_on.mp3" && player_->isPlaying()) {
+        if (preferences_->soundSettings().connectedSoundPath == ":/sounds/Fart_(Deluxe)_on.mp3" && player_ && player_->isPlaying()) {
             connectedEventQueued_ = true;
             return;
         }
@@ -58,13 +67,17 @@ void SoundManager::play(const CONNECT_STATE &connectState)
             playSound(url, QMediaPlayer::Infinite);
         }
     } else if (connectState == CONNECT_STATE_DISCONNECTING) {
-        player_->stop();
+        if (player_) {
+            player_->stop();
+        }
     }
 }
 
 void SoundManager::stop()
 {
-    player_->stop();
+    if (player_) {
+        player_->stop();
+    }
 }
 
 void SoundManager::onPlayerError(QMediaPlayer::Error error, const QString &errorString)
@@ -74,7 +87,7 @@ void SoundManager::onPlayerError(QMediaPlayer::Error error, const QString &error
 
 void SoundManager::onPlayerPositionChanged(qint64 position)
 {
-    if (player_->loops() != QMediaPlayer::Infinite || !connectedEventQueued_) {
+    if (!player_ || player_->loops() != QMediaPlayer::Infinite || !connectedEventQueued_) {
         return;
     }
 
@@ -88,5 +101,4 @@ void SoundManager::onPlayerPositionChanged(qint64 position)
     }
 
     position_ = position;
-
 }

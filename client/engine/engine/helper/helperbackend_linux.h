@@ -37,4 +37,7 @@ private:
 
     bool sendCmdToHelper(int cmdId, const std::string &data);
     bool readAnswer(std::string &answer);
+
+    boost::system::error_code safeRead(void *data, size_t size);
+    boost::system::error_code safeWrite(const void *data, size_t size);
 };

@@ -153,6 +153,7 @@
         <file>svg/flags/sg.svg</file>
         <file>svg/flags/si.svg</file>
         <file>svg/flags/sk.svg</file>
+        <file>svg/flags/sv.svg</file>
         <file>svg/flags/th.svg</file>
         <file>svg/flags/tn.svg</file>
         <file>svg/flags/tr.svg</file>
@@ -206,6 +207,7 @@
         <file>svg/login/ERROR_LOGIN_ICON.svg</file>
         <file>svg/login/FRWRD_ARROW_ICON.svg</file>
         <file>svg/login/SETTINGS_ICON.svg</file>
+        <file>svg/login/SLIDER_ARROW_ICON.svg</file>
         <file>svg/login/TWOFA_ICON.svg</file>
         <file>svg/network/ETHERNET_SECURED.svg</file>
         <file>svg/network/ETHERNET_SECURED_SHADOW.svg</file>

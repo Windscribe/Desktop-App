@@ -88,10 +88,6 @@
         <translation>모두</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>구성</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>고정 IP</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>검색</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>사용자 지정 구성</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>모든 위치(%1)</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>즐겨찾기</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>고정 IP</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>사용자 지정 구성</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>검색</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>로그를 내보내지 못했습니다.  올바른 권한이 있는지 확인합니다.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>퍼즐 조각을 제자리에 밀어 넣습니다.</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>암호</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>로그인</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>계속하려면 퍼즐을 완료하세요.</translation>
     </message>
 </context>
 <context>
@@ -647,10 +681,6 @@ Recovering...</source>
         <translation>고정 IP</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>구성</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>표시/숨기기</translation>
     </message>
@@ -883,8 +913,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>사용자 지정 DNS 서비스를 시작할 수 없음 - 포트 53이 이미 사용 중입니다.  연결된 DNS를 로컬 서버로 변경하시겠습니까?</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>슬라이드하여 퍼즐을 완성하세요.</translation>
+        <source>Custom configs</source>
+        <translation>사용자 지정 구성</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>고정 IP</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>커스텀 구성</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>애플리케이션 버전이 더 이상 지원되지 않습니다. Windscribe를 계속 사용하려면 업데이트하십시오.</translation>
     </message>
@@ -2476,6 +2502,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Always On+</source>
         <translation>항상 켜짐+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>사용자 지정 구성</translation>
     </message>
 </context>
 <context>

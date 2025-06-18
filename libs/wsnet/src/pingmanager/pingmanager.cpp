@@ -52,7 +52,7 @@ std::shared_ptr<WSNetCancelableCallback> PingManager::ping(const std::string &ip
     }
     // while tcp and icmp are in parallel in queue
     else {
-        queue_.push(curPingId_);
+        queue_.push(curPingId_); // NOLINT: false positive for memory leak
         processNextPingsInQueue();
     }
     curPingId_++;

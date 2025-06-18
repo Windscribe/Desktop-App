@@ -34,8 +34,10 @@ private slots:
     void onAppSkinChanged(APP_SKIN s);
 
 private:
-    static constexpr int WIDTH = 350;
-    static constexpr int ANIMATION_DURATION = 500;
+    static constexpr int kDefaultHeight = 197;
+    static constexpr int kFlagHeight = 175;
+    static constexpr int kWidth = 350;
+    static constexpr int kAnimationDuration = 500;
 
     QString connectingGradient_;
 

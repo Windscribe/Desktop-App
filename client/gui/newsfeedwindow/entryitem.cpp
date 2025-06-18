@@ -76,6 +76,7 @@ void EntryItem::setExpanded(bool expanded, bool read)
         iconOpacity_ = OPACITY_FULL;
         textOpacity_ = OPACITY_FULL;
         opacityAnimationProgress_ = OPACITY_FULL;
+        icon_->setOpacity(iconOpacity_);
         accented_ = true;
         if (read) {
             setRead(true);
@@ -105,7 +106,7 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
         painter->setBrush(QColor(85, 255, 138));
         painter->setOpacity(OPACITY_FULL);
         painter->drawEllipse(-(READ_MARKER_WIDTH/2)*G_SCALE,
-                             (READ_MARKER_WIDTH/2 + TEXT_MARGIN)*G_SCALE,
+                             (COLLAPSED_HEIGHT/2 - READ_MARKER_WIDTH/2)*G_SCALE,
                              READ_MARKER_WIDTH*G_SCALE,
                              READ_MARKER_WIDTH*G_SCALE);
     }
@@ -116,23 +117,18 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
     painter->setOpacity(textOpacity_);
     QFont font = FontManager::instance().getFont(12, QFont::Bold);
     painter->setFont(font);
-    if (expanded_) {
-        painter->drawText(boundingRect().adjusted(TEXT_MARGIN*G_SCALE,
-                                                  TEXT_MARGIN*G_SCALE,
-                                                  -(2*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE),
-                                                  0),
-                          item_.title.toUpper());
-    } else {
-        QFontMetrics titleMetrics(font);
-        QString elided = titleMetrics.elidedText(item_.title.toUpper(),
-                                                 Qt::ElideRight,
-                                                 boundingRect().width() - (3*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE));
-        painter->drawText(boundingRect().adjusted(TEXT_MARGIN*G_SCALE,
-                                                  TEXT_MARGIN*G_SCALE,
-                                                  -(2*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE),
-                                                  0),
-                          elided);
-    }
+
+    QFontMetrics titleMetrics(font);
+    QString elided = titleMetrics.elidedText(item_.title.toUpper(), Qt::ElideRight, boundingRect().width() - (3*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE));
+    painter->drawText(boundingRect().adjusted(TEXT_MARGIN*G_SCALE, TEXT_MARGIN*G_SCALE, -(2*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE), 0), elided);
+
+    // date
+    painter->setOpacity(OPACITY_FULL);
+    font = FontManager::instance().getFont(12, QFont::Normal);
+    painter->setPen(QColor(114, 121, 129));
+    painter->setFont(font);
+    QString date = QDateTime::fromSecsSinceEpoch(item_.date).toString(QLocale::system().dateFormat());
+    painter->drawText(boundingRect().adjusted(TEXT_MARGIN*G_SCALE, TEXT_MARGIN_DATE*G_SCALE, -(2*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE), TEXT_MARGIN*G_SCALE), date);
 
     // body
     if (expanded_) {
@@ -153,7 +149,7 @@ void EntryItem::updateScaling()
                                                                 0).toRect(),
                                         Qt::AlignLeft | Qt::TextWordWrap,
                                         item_.title.toUpper()).height();
-    expandedHeight_ = titleHeight_ + TEXT_MARGIN*G_SCALE + messageItem_->boundingRect().height();
+    expandedHeight_ = TEXT_MARGIN*G_SCALE + BODY_MARGIN*G_SCALE + messageItem_->boundingRect().height();
     icon_->setPos(boundingRect().width() - (TEXT_MARGIN + ICON_WIDTH)*G_SCALE, TEXT_MARGIN*G_SCALE);
     setHeight(COLLAPSED_HEIGHT*G_SCALE + expandAnimationProgress_ * (expandedHeight_ - COLLAPSED_HEIGHT*G_SCALE));
 
@@ -162,7 +158,7 @@ void EntryItem::updateScaling()
 
 void EntryItem::updatePositions()
 {
-    messageItem_->setPos(0, titleHeight_ + TEXT_MARGIN*G_SCALE);
+    messageItem_->setPos(0, titleHeight_ + BODY_MARGIN*G_SCALE);
 }
 
 void EntryItem::onExpandRotationAnimationValueChanged(const QVariant &value)

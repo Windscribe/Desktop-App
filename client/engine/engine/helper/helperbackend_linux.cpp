@@ -1,6 +1,6 @@
 #include "helperbackend_linux.h"
 #include <QMutexLocker>
-#include "utils/crashhandler.h"
+#include "utils/log/categories.h"
 
 #define SOCK_PATH "/var/run/windscribe/helper.sock"
 
@@ -66,27 +66,33 @@ void HelperBackend_linux::connectHandler(const boost::system::error_code &ec)
 bool HelperBackend_linux::sendCmdToHelper(int cmdId, const std::string &data)
 {
     int length = data.size();
-    boost::system::error_code ec;
+    auto logError = [](const boost::system::error_code &ec) {
+        qCWarning(LOG_BASIC) << "HelperBackend_linux::sendCmdToHelper, write error:" << QString::fromStdString(ec.message());
+    };
 
     // first 4 bytes - cmdId
-    boost::asio::write(*socket_, boost::asio::buffer(&cmdId, sizeof(cmdId)), boost::asio::transfer_exactly(sizeof(cmdId)), ec);
+    boost::system::error_code ec = safeWrite(&cmdId, sizeof(cmdId));
     if (ec) {
+        logError(ec);
         return false;
     }
     // second 4 bytes - pid
     const auto pid = getpid();
-    boost::asio::write(*socket_, boost::asio::buffer(&pid, sizeof(pid)), boost::asio::transfer_exactly(sizeof(pid)), ec);
+    ec = safeWrite(&pid, sizeof(pid));
     if (ec) {
+        logError(ec);
         return false;
     }
     // third 4 bytes - size of buffer
-    boost::asio::write(*socket_, boost::asio::buffer(&length, sizeof(length)), boost::asio::transfer_exactly(sizeof(length)), ec);
+    ec = safeWrite(&length, sizeof(length));
     if (ec) {
+        logError(ec);
         return false;
     }
     // body of message
-    boost::asio::write(*socket_, boost::asio::buffer(data.data(), length), boost::asio::transfer_exactly(length), ec);
+    ec = safeWrite(data.data(), length);
     if (ec) {
+        logError(ec);
         return false;
     }
     return true;
@@ -94,22 +100,59 @@ bool HelperBackend_linux::sendCmdToHelper(int cmdId, const std::string &data)
 
 bool HelperBackend_linux::readAnswer(std::string &answer)
 {
-    boost::system::error_code ec;
     int length;
-    boost::asio::read(*socket_, boost::asio::buffer(&length, sizeof(length)),
-                      boost::asio::transfer_exactly(sizeof(length)), ec);
+    auto logError = [](const boost::system::error_code &ec) {
+        qCWarning(LOG_BASIC) << "HelperBackend_linux::readAnswer, read error:" << QString::fromStdString(ec.message());
+    };
+
+    boost::system::error_code ec = safeRead(&length, sizeof(length));
     if (ec) {
+        logError(ec);
         return false;
     } else {
         std::vector<char> buff(length);
-        boost::asio::read(*socket_, boost::asio::buffer(&buff[0], length),
-                          boost::asio::transfer_exactly(length), ec);
+        ec = safeRead(&buff[0], length);
         if (ec) {
+            logError(ec);
             return false;
         }
         answer = std::string(buff.begin(), buff.end());
     }
     return true;
+}
+
+boost::system::error_code HelperBackend_linux::safeRead(void *data, size_t size)
+{
+    char *buf = static_cast<char *>(data);
+    boost::system::error_code ec;
+    size_t total_read = 0;
+    while (total_read < size) {
+        size_t sz = boost::asio::read(*socket_, boost::asio::buffer(buf + total_read, size - total_read), boost::asio::transfer_exactly(size - total_read), ec);
+        if (ec == boost::asio::error::interrupted) {    // EINTR signal, should be ignored on POSIX systems
+            continue;
+        } else if (ec) {
+            return ec;
+        }
+        total_read += sz;
+    }
+    return ec;
+}
+
+boost::system::error_code HelperBackend_linux::safeWrite(const void *data, size_t size)
+{
+    const char *buf = static_cast<const char *>(data);
+    boost::system::error_code ec;
+    size_t total_written = 0;
+    while (total_written < size) {
+        size_t sz = boost::asio::write(*socket_, boost::asio::buffer(buf + total_written, size - total_written), boost::asio::transfer_exactly(size - total_written), ec);
+        if (ec == boost::asio::error::interrupted) {    // EINTR signal, should be ignored on POSIX systems
+            continue;
+        } else if (ec) {
+            return ec;
+        }
+        total_written += sz;
+    }
+    return ec;
 }
 
 std::string HelperBackend_linux::sendCmd(int cmdId, const std::string &data)

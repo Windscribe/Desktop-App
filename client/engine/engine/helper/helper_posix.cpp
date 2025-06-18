@@ -11,7 +11,7 @@
 
 using namespace convert_utils;
 
-Helper_posix::Helper_posix(std::unique_ptr<IHelperBackend> backend) : HelperBase(std::move(backend))
+Helper_posix::Helper_posix(std::unique_ptr<IHelperBackend> backend, spdlog::logger *logger) : HelperBase(std::move(backend), logger)
 {
 }
 
@@ -27,6 +27,7 @@ void Helper_posix::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, 
 {
     auto result = sendCommand(HelperCommand::getUnblockingCmdStatus, cmdId);
     std::string log;
+    outFinished = false;
     deserializeAnswer(result, outFinished, log);
     outLog = QString::fromStdString(log);
 }
@@ -62,8 +63,7 @@ bool Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, b
     };
 
     ADAPTER_GATEWAY_INFO defaultAdapterInfo, vpnAdapterInfo;
-    CmdProtocolType cmdProtocol;
-
+    CmdProtocolType cmdProtocol = kCmdProtocolWireGuard;
     if (isConnected) {
         if (protocol.isStunnelOrWStunnelProtocol())
             cmdProtocol = kCmdProtocolStunnelOrWstunnel;
@@ -82,7 +82,7 @@ bool Helper_posix::sendConnectStatus(bool isConnected, bool isTerminateSocket, b
     fillAdapterInfo(defaultAdapter, defaultAdapterInfo);
     auto result = sendCommand(HelperCommand::sendConnectStatus, isConnected, cmdProtocol, defaultAdapterInfo, vpnAdapterInfo,
                 connectedIp.toStdString(), vpnAdapter.remoteIp().toStdString());
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -111,7 +111,7 @@ bool Helper_posix::executeOpenVPN(const QString &config, unsigned int port, cons
 #endif
     auto result = sendCommand(HelperCommand::executeOpenVPN, config.toStdString(), port, httpProxy.toStdString(), httpPort,
                               socksProxy.toStdString(), socksPort, isCustomConfig, dnsManager);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success, outCmdId);
     return success;
 }
@@ -119,7 +119,7 @@ bool Helper_posix::executeOpenVPN(const QString &config, unsigned int port, cons
 bool Helper_posix::executeTaskKill(CmdKillTarget target)
 {
     auto result = sendCommand(HelperCommand::executeTaskKill, target);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -127,7 +127,7 @@ bool Helper_posix::executeTaskKill(CmdKillTarget target)
 bool Helper_posix::startWireGuard()
 {
     auto result = sendCommand(HelperCommand::startWireGuard);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -135,7 +135,7 @@ bool Helper_posix::startWireGuard()
 bool Helper_posix::stopWireGuard()
 {
     auto result = sendCommand(HelperCommand::stopWireGuard);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -168,7 +168,7 @@ bool Helper_posix::configureWireGuard(const WireGuardConfig &config)
 #endif
     auto result = sendCommand(HelperCommand::configureWireGuard, clientPrivateKey, clientIpAddress, clientDnsAddressList,
                               peerPublicKey, peerPresharedKey, peerEndpoint, allowedIps, listenPort, dnsManager);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -182,9 +182,9 @@ bool Helper_posix::getWireGuardStatus(types::WireGuardStatus *status)
     }
     auto result = sendCommand(HelperCommand::getWireGuardStatus);
 
-    unsigned int errorCode;
-    WireGuardServiceState state;
-    unsigned long long bytesReceived, bytesTransmitted;
+    unsigned int errorCode = 0;
+    WireGuardServiceState state = kWgStateNone;
+    unsigned long long bytesReceived = 0, bytesTransmitted = 0;
     deserializeAnswer(result, errorCode, state, bytesReceived, bytesTransmitted);
 
     switch (state) {
@@ -217,7 +217,7 @@ bool Helper_posix::getWireGuardStatus(types::WireGuardStatus *status)
 bool Helper_posix::startCtrld(const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog)
 {
     auto result = sendCommand(HelperCommand::startCtrld, upstream1.toStdString(), upstream2.toStdString(), toStdVector(domains), isCreateLog);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -230,7 +230,7 @@ bool Helper_posix::stopCtrld()
 bool Helper_posix::checkFirewallState(const QString &tag)
 {
     auto result = sendCommand(HelperCommand::checkFirewallState, tag.toStdString());
-    bool isEnabled;
+    bool isEnabled = false;
     deserializeAnswer(result, isEnabled);
     return isEnabled;
 }
@@ -270,7 +270,7 @@ bool Helper_posix::setFirewallOnBoot(bool enabled, const QSet<QString> &ipTable,
 bool Helper_posix::startStunnel(const QString &hostname, unsigned int port, unsigned int localPort, bool extraPadding)
 {
     auto result = sendCommand(HelperCommand::startStunnel, hostname.toStdString(), port, localPort, extraPadding);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -278,7 +278,7 @@ bool Helper_posix::startStunnel(const QString &hostname, unsigned int port, unsi
 bool Helper_posix::startWstunnel(const QString &hostname, unsigned int port, unsigned int localPort)
 {
     auto result = sendCommand(HelperCommand::startWstunnel, hostname.toStdString(), port, localPort);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }
@@ -286,7 +286,7 @@ bool Helper_posix::startWstunnel(const QString &hostname, unsigned int port, uns
 bool Helper_posix::setMacAddress(const QString &interface, const QString &macAddress, const QString &network, bool isWifi)
 {
     auto result = sendCommand(HelperCommand::setMacAddress, interface.toStdString(), macAddress.toStdString(), network.toStdString(), isWifi);
-    bool success;
+    bool success = false;
     deserializeAnswer(result, success);
     return success;
 }

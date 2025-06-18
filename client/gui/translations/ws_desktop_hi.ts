@@ -88,10 +88,6 @@
         <translation>सब</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>कॉन्फ़िगर</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>स्थैतिक आईपी</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>ढूँढ</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>कस्टम कॉन्फ़िगरेशन</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>सभी स्थान (%1)</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>पसंदीदा</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>स्टेटिक आईपी</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>कस्टम कॉन्फ़िगरेशन</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>ढूँढ</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>लॉग निर्यात करने में विफल.  सुनिश्चित करें कि आपके पास सही अनुमतियाँ हैं.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>पहेली के टुकड़े को जगह में स्लाइड करें</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>पासवर्ड</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>लॉगिन</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>जारी रखने के लिए पूरी पहेली</translation>
     </message>
 </context>
 <context>
@@ -659,10 +693,6 @@ Recovering...</source>
         <translation>स्थैतिक आईपी</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>कॉन्फ़िगर</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>दिखाओ/छिपाओ</translation>
     </message>
@@ -883,8 +913,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>कस्टम DNS सेवा प्रारंभ करने में असमर्थ - पोर्ट 53 पहले से उपयोग में है।  क्या आप अपने कनेक्टेड DNS को स्थानीय सर्वर से बदलना चाहेंगे?</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>पहेली को पूरा करने के लिए स्लाइड करें</translation>
+        <source>Custom configs</source>
+        <translation>कस्टम कॉन्फ़िगरेशन</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>स्थैतिक आईपी</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>कस्टम कॉन्फ़िगरेशन</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>आपका अनुप्रयोग संस्करण अब समर्थित नहीं है. विंडस्क्राइब का उपयोग जारी रखने के लिए कृपया अद्यतन करें.</translation>
     </message>
@@ -2476,6 +2502,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Always On+</source>
         <translation>हमेशा चालू+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>कस्टम कॉन्फ़िगरेशन</translation>
     </message>
 </context>
 <context>

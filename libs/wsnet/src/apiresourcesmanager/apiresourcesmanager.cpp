@@ -576,7 +576,6 @@ void ApiResourcesManager::onInitialSessionAnswer(ServerApiRetCode serverApiRetCo
 {
     std::lock_guard locker(mutex_);
     requestsInProgress_.erase(RequestType::kSessionStatus);
-    handleLoginOrSessionAnswer(serverApiRetCode, jsonData);
 
     if (serverApiRetCode == ServerApiRetCode::kNetworkError) {
         // repeat the request

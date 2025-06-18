@@ -88,10 +88,6 @@
         <translation>Tất cả</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Cấu hình</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>IP tĩnh</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>Tìm kiếm</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Cấu hình tùy chỉnh</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>Tất cả các địa điểm (%1)</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Yêu thích</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP tĩnh</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Cấu hình tùy chỉnh</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Tìm kiếm</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>Không xuất được nhật ký.  Đảm bảo bạn có quyền chính xác.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>Trượt mảnh ghép vào vị trí</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>Mật khẩu</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>Đăng nhập</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Hoàn thành Câu đố để tiếp tục</translation>
     </message>
 </context>
 <context>
@@ -647,10 +681,6 @@ Phục hồi...</translation>
         <translation>IP tĩnh</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Cấu hình</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>Hiển thị / Ẩn</translation>
     </message>
@@ -883,8 +913,8 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Không thể bắt đầu dịch vụ DNS tùy chỉnh - cổng 53 đã được sử dụng.  Bạn có muốn thay đổi DNS được kết nối của mình thành máy chủ cục bộ không?</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>Trượt để hoàn thành câu đố</translation>
+        <source>Custom configs</source>
+        <translation>Cấu hình tùy chỉnh</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
         <translation>IP tĩnh</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>Cấu hình tùy chỉnh</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>Phiên bản ứng dụng của bạn không còn được hỗ trợ. Vui lòng cập nhật để tiếp tục sử dụng Windscribe.</translation>
     </message>
@@ -2476,6 +2502,10 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Always On+</source>
         <translation>Luôn bật+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Cấu hình tùy chỉnh</translation>
     </message>
 </context>
 <context>

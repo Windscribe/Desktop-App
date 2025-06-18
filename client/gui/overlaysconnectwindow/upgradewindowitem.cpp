@@ -59,7 +59,7 @@ void UpgradeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 
         QString borderInner = "background/MAIN_BORDER_INNER";
         QSharedPointer<IndependentPixmap> borderInnerPixmap = ImageResourcesSvg::instance().getIndependentPixmap(borderInner);
-        borderInnerPixmap->draw(0, 0, painter);
+        borderInnerPixmap->draw(0, 0, WINDOW_WIDTH*G_SCALE, (WINDOW_HEIGHT-1)*G_SCALE, painter);
     }
 
     int yOffset = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? -16*G_SCALE : 0;

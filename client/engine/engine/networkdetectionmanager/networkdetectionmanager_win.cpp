@@ -106,7 +106,7 @@ void NetworkDetectionManager_win::onNetworkChanged()
 
 bool NetworkDetectionManager_win::isOnlineImpl()
 {
-    return NetworkUtils_win::haveActiveInterface();
+    return NetworkUtils_win::haveActiveInterface() || NetworkUtils_win::haveInternetConnectivity();
 }
 
 void NetworkDetectionManager_win::getCurrentNetworkInterface(types::NetworkInterface &networkInterface, bool forceUpdate)

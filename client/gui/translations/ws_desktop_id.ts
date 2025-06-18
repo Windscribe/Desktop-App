@@ -88,10 +88,6 @@
         <translation>Semua</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Dikonfigurasi</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>IP statis</translation>
     </message>
@@ -102,6 +98,10 @@
     <message>
         <source>Search</source>
         <translation>Mencari</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Konfigurasi kustom</translation>
     </message>
 </context>
 <context>
@@ -275,6 +275,22 @@
         <source>All locations (%1)</source>
         <translation>Semua lokasi (%1)</translation>
     </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favorit</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP Statis</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Konfigurasi kustom</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Mencari</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
@@ -312,6 +328,13 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>Gagal mengekspor log.  Pastikan Anda memiliki izin yang benar.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::CaptchaItem</name>
+    <message>
+        <source>Slide puzzle piece into place</source>
+        <translation>Geser potongan puzzle ke tempatnya</translation>
     </message>
 </context>
 <context>
@@ -399,6 +422,17 @@
     <message>
         <source>Password</source>
         <translation>Kata sandi</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>Login</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Selesaikan Teka-teki untuk melanjutkan</translation>
     </message>
 </context>
 <context>
@@ -647,10 +681,6 @@ Memulihkan...</translation>
         <translation>IP statis</translation>
     </message>
     <message>
-        <source>Configured</source>
-        <translation>Dikonfigurasi</translation>
-    </message>
-    <message>
         <source>Show/Hide</source>
         <translation>Tampilkan/Sembunyikan</translation>
     </message>
@@ -883,8 +913,8 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Tidak dapat memulai layanan DNS kustom - port 53 sudah digunakan.  Apakah Anda ingin mengubah DNS Terhubung Anda ke server lokal?</translation>
     </message>
     <message>
-        <source>Slide to complete the puzzle</source>
-        <translation>Geser untuk menyelesaikan teka-teki</translation>
+        <source>Custom configs</source>
+        <translation>Konfigurasi kustom</translation>
     </message>
 </context>
 <context>
@@ -2394,10 +2424,6 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
         <translation>IP statis</translation>
     </message>
     <message>
-        <source>Custom Configs</source>
-        <translation>Konfigurasi Kustom</translation>
-    </message>
-    <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
         <translation>Versi aplikasi Anda tidak lagi didukung. Harap perbarui untuk terus menggunakan Windscribe.</translation>
     </message>
@@ -2476,6 +2502,10 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Always On+</source>
         <translation>Selalu Aktif+</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Konfigurasi kustom</translation>
     </message>
 </context>
 <context>

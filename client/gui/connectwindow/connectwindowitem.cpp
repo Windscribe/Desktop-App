@@ -160,14 +160,13 @@ QRegion ConnectWindowItem::getMask()
     QPolygon polygon;
 
     int windowWidth = WINDOW_WIDTH * G_SCALE;
-    int xOffset = (WINDOW_WIDTH - 235) * G_SCALE;
-    int xOffset2 = (WINDOW_WIDTH - 235 - 20) * G_SCALE;
+    int xOffset = (WINDOW_WIDTH - 250) * G_SCALE;
 
     polygon << QPoint(0, 0)
             << QPoint(windowWidth, 0)
             << QPoint(windowWidth, (WINDOW_HEIGHT - 16) * G_SCALE)
             << QPoint(xOffset,     (WINDOW_HEIGHT - 16) * G_SCALE)
-            << QPoint(xOffset2,    (WINDOW_HEIGHT     ) * G_SCALE)
+            << QPoint(xOffset,     (WINDOW_HEIGHT     ) * G_SCALE)
             << QPoint(0,           (WINDOW_HEIGHT     ) * G_SCALE);
     return QRegion(polygon);
 }
@@ -521,14 +520,16 @@ void ConnectWindowItem::updatePositions()
         logoButton_->setPos(54*G_SCALE, 10*G_SCALE);
 #if defined(Q_OS_MACOS)
         connectButton_->setPos(254*G_SCALE, 26*G_SCALE);
+        cityName1Text_->setPos(16*G_SCALE, 101*G_SCALE);
+        cityName2Text_->setPos(24*G_SCALE + cityName1Text_->boundingRect().width(), 101*G_SCALE);
 #else
         // Shift down slightly on Windows/Linux since the minimize/close buttons take up more space, and the
         // connect button is too close to them.
         connectButton_->setPos(254*G_SCALE, 30*G_SCALE);
+        cityName1Text_->setPos(16*G_SCALE, 105*G_SCALE);
+        cityName2Text_->setPos(24*G_SCALE + cityName1Text_->boundingRect().width(), 105*G_SCALE);
 #endif
         connectStateProtocolPort_->setPos(13*G_SCALE, 74*G_SCALE);
-        cityName1Text_->setPos(16*G_SCALE, 101*G_SCALE);
-        cityName2Text_->setPos(24*G_SCALE + cityName1Text_->boundingRect().width(), 101*G_SCALE);
         locationsButton_->setPos(97*G_SCALE, 183*G_SCALE);
         networkTrustButton_->setPos(16*G_SCALE, 147*G_SCALE);
         networkNameText_->setPos(48*G_SCALE, 142*G_SCALE);
@@ -556,7 +557,7 @@ void ConnectWindowItem::updatePositions()
         connectStateProtocolPort_->setPos(13*G_SCALE, 90*G_SCALE);
         cityName1Text_->setPos(16*G_SCALE, 118*G_SCALE);
         cityName2Text_->setPos(24*G_SCALE + cityName1Text_->boundingRect().width(), 118*G_SCALE);
-        locationsButton_->setPos(98*G_SCALE, 197*G_SCALE);
+        locationsButton_->setPos(98*G_SCALE, 198*G_SCALE);
         networkTrustButton_->setPos(16*G_SCALE, 162*G_SCALE);
         networkNameText_->setPos(48*G_SCALE, 158*G_SCALE);
         // If FreshScribe API available, IP should shift 32*G_SCALE to the left and dotMenuButton_ should be visible
@@ -597,18 +598,27 @@ void ConnectWindowItem::updateShortenedText()
         return;
     }
 
-    // Elide first name to at most 1/2 of the total width
-    shortenedFirstName = fm1.elidedText(fullFirstName_, Qt::ElideMiddle, availableWidth/2);
-
-    if (fm1.horizontalAdvance(shortenedFirstName) + fm2.horizontalAdvance(fullSecondName_) <= availableWidth) {
-        // If it fits now, we're done
-        cityName1Text_->setText(shortenedFirstName);
-        cityName2Text_->setText(fullSecondName_);
-    } else {
-        // Still doesn't fit, elide second name too
-        cityName1Text_->setText(shortenedFirstName);
+    // If both names are >50% of the available width, elide them both to 50%
+    if (fm1.horizontalAdvance(fullFirstName_) >= availableWidth/2 &&
+        fm2.horizontalAdvance(fullSecondName_) >= availableWidth/2)
+    {
+        shortenedFirstName = fm1.elidedText(fullFirstName_, Qt::ElideMiddle, availableWidth/2);
         shortenedSecondName = fm2.elidedText(fullSecondName_, Qt::ElideMiddle, availableWidth/2);
+        cityName1Text_->setText(shortenedFirstName);
         cityName2Text_->setText(shortenedSecondName);
+        updatePositions();
+        return;
+    } else {
+        // Elide the longer name
+        if (fm1.horizontalAdvance(fullFirstName_) >= fm2.horizontalAdvance(fullSecondName_)) {
+            shortenedFirstName = fm1.elidedText(fullFirstName_, Qt::ElideMiddle, availableWidth - fm2.horizontalAdvance(fullSecondName_));
+            cityName1Text_->setText(shortenedFirstName);
+            cityName2Text_->setText(fullSecondName_);
+        } else {
+            shortenedSecondName = fm2.elidedText(fullSecondName_, Qt::ElideMiddle, availableWidth - fm1.horizontalAdvance(fullFirstName_));
+            cityName1Text_->setText(fullFirstName_);
+            cityName2Text_->setText(shortenedSecondName);
+        }
     }
     updatePositions();
 }

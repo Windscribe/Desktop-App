@@ -15,10 +15,8 @@
 #include <unistd.h>
 #include <spdlog/spdlog.h>
 
-#include "execute_cmd.h"
 #include "firewallcontroller.h"
 #include "ipc/helper_security.h"
-#include "ovpn.h"
 #include "process_command.h"
 #include "utils.h"
 #include "utils/executable_signature/executable_signature.h"
@@ -110,7 +108,7 @@ void Server::receiveCmdHandle(socket_ptr sock, boost::shared_ptr<boost::asio::st
             }
         }
     } else {
-        spdlog::info("client app disconnected");
+        spdlog::info("client app disconnected, code {}", ec.message());
     }
 }
 
@@ -137,24 +135,46 @@ bool Server::sendAnswerCmd(socket_ptr sock, const std::string &answer)
 {
     int length = (int)answer.length();
     // send answer to client
-    boost::system::error_code er;
-    boost::asio::write(*sock, boost::asio::buffer(&length, sizeof(length)), boost::asio::transfer_exactly(sizeof(length)), er);
+    boost::system::error_code er = safeBlockingWrite(sock, &length, sizeof(length));
     if (er.value()) {
+        spdlog::warn("Server::sendAnswerCmd write error: {}", er.message());
         return false;
     } else {
-        boost::asio::write(*sock, boost::asio::buffer(answer.data(), answer.length()), boost::asio::transfer_exactly(answer.length()), er);
+        er = safeBlockingWrite(sock, answer.data(), answer.length());
         if (er.value()) {
+            spdlog::warn("Server::sendAnswerCmd write error: {}", er.message());
             return false;
         }
     }
     return true;
 }
 
+boost::system::error_code Server::safeBlockingWrite(socket_ptr &sock, const void *data, size_t size)
+{
+    const char *buf = static_cast<const char *>(data);
+    boost::system::error_code ec;
+    size_t total_written = 0;
+    while (total_written < size) {
+        size_t sz = boost::asio::write(*sock, boost::asio::buffer(buf + total_written, size - total_written), boost::asio::transfer_exactly(size - total_written), ec);
+        if (ec == boost::asio::error::interrupted) {    // EINTR signal, should be ignored on POSIX systems
+            continue;
+        } else if (ec) {
+            return ec;
+        }
+        total_written += sz;
+    }
+    return ec;
+}
+
 void Server::run()
 {
-    Utils::createWindscribeUserAndGroup();
 
+#ifdef NDEBUG   // release build
+    Utils::createWindscribeUserAndGroup();
     auto res = system("mkdir -p /var/run/windscribe && chown :windscribe /var/run/windscribe && chmod 775 /var/run/windscribe"); // res is necessary to avoid no-discard warning.
+#else           // debug build
+    auto res = system("mkdir -p /var/run/windscribe && chmod 777 /var/run/windscribe");
+#endif
     UNUSED(res);
 
     ::unlink(SOCK_PATH);
@@ -162,12 +182,21 @@ void Server::run()
     boost::asio::local::stream_protocol::endpoint ep(SOCK_PATH);
     acceptor_ = new boost::asio::local::stream_protocol::acceptor(service_, ep);
 
+
+#ifdef NDEBUG
     struct group *grp = getgrnam("windscribe");
     if (!grp || chmod(SOCK_PATH, 0770) || chown(SOCK_PATH, (uid_t)-1, grp->gr_gid)) {
         // Do not have a group, or chmod/chown failed.
         ::unlink(SOCK_PATH);
         return;
     }
+#else
+    if (chmod(SOCK_PATH, 0777)) {
+        // Do not have a group, or chmod/chown failed.
+        ::unlink(SOCK_PATH);
+        return;
+    }
+#endif
 
     // Cause the FirewallController to be constructed here, so that on-boot rules are processed, even if the Windscribe app/service does not start.
     FirewallController::instance();
