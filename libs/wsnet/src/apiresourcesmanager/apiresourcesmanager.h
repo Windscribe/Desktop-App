@@ -28,7 +28,7 @@ public:
 
 
     bool loginWithAuthHash() override;
-    void authTokenLogin() override;
+    void authTokenLogin(bool useAsciiCaptcha) override;
     void login(const std::string &username, const std::string &password, const std::string &code2fa, const std::string &secureToken,
                const std::string &captchaSolution = std::string(),
                const std::vector<float> &captchaTrailX = std::vector<float>(),
@@ -148,7 +148,7 @@ private:
 
     void onFetchTimer(boost::system::error_code const& err);
 
-    void onAuthTokenLoginAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
+    void onAuthTokenLoginAnswer(bool useAsciiCaptcha, wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
     void onInitialSessionAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData);
     void onLoginAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &jsonData,
                        const std::string &username, const std::string &password, const std::string &code2fa,

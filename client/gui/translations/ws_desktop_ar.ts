@@ -73,6 +73,10 @@
         <source>FIREWALL</source>
         <translation>جدار حمايه</translation>
     </message>
+    <message>
+        <source>Keeping the firewall on while disconnected may break internet connectivity</source>
+        <translation>قد يؤدي إبقاء جدار الحماية قيد التشغيل أثناء قطع الاتصال بالإنترنت</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>

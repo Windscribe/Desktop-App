@@ -206,6 +206,8 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
             return;
         }
         cmd.code2fa_ = code2fa_;
+        cmd.captchaSolution_ = captchaSolution_;
+        captchaSolution_.clear();
         connection_->sendCommand(cmd);
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGOUT) {
@@ -443,6 +445,14 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
         if (cmd->loginState_ == LOGIN_STATE_LOGIN_ERROR && cmd->loginError_ == wsnet::LoginResult::kMissingCode2fa) {
             code2fa_ = Utils::getInput("2FA code: ", false);
             sendCommand(cmd);
+#ifdef CLI_ONLY
+        } else if (cmd->isCaptchaRequired_) {
+            QString asciiArt = QByteArray::fromBase64(cmd->asciiArt_.toUtf8());
+            std::cout << QObject::tr("Complete Puzzle to continue").toStdString() << std::endl;
+            std::cout << asciiArt.toStdString() << std::endl;
+            captchaSolution_ = Utils::getInput("", false);
+            sendCommand(cmd);
+#endif
         } else if (cmd->loginState_ == LOGIN_STATE_LOGGED_IN || cmd->loginState_ == LOGIN_STATE_LOGIN_ERROR) {
             emit(finished(0, loginStateString(cmd->loginState_, cmd->loginError_, cmd->loginErrorMessage_, false)));
         } else {

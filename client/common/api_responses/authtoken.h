@@ -6,11 +6,14 @@
 namespace api_responses {
 
 struct CaptchaData {
+    bool isAsciiCaptcha;
+    // Ascii captcha data
+    QString asciiArt;
+    // Graphic captcha data
     QString background;
     QString slider;
     int top;
 };
-
 
 class AuthToken
 {

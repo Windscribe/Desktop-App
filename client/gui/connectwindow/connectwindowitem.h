@@ -128,6 +128,7 @@ private:
     bool isFirewallAlwaysOn_;
 
     void updatePositions();
+    void updateFirewallInfo();
     void updateShortenedText();
 };
 

@@ -278,5 +278,9 @@
         <source>Internet connectivity is not available.  Try again later.</source>
         <translation>인터넷 연결을 사용할 수 없습니다.  나중에 다시 시도하세요.</translation>
     </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>계속하려면 퍼즐을 완료하세요.</translation>
+    </message>
 </context>
 </TS>

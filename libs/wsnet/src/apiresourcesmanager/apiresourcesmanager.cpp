@@ -77,7 +77,7 @@ bool ApiResourcesManager::loginWithAuthHash()
     return true;
 }
 
-void ApiResourcesManager::authTokenLogin()
+void ApiResourcesManager::authTokenLogin(bool useAsciiCaptcha)
 {
     std::lock_guard locker(mutex_);
     if (requestsInProgress_.find(RequestType::kAuthTokenLogin) != requestsInProgress_.end()) {
@@ -85,7 +85,7 @@ void ApiResourcesManager::authTokenLogin()
         assert(false);
     }
     using namespace std::placeholders;
-    requestsInProgress_[RequestType::kAuthTokenLogin] = serverAPI_->authTokenLogin(std::bind(&ApiResourcesManager::onAuthTokenLoginAnswer, this, _1, _2));
+    requestsInProgress_[RequestType::kAuthTokenLogin] = serverAPI_->authTokenLogin(useAsciiCaptcha, std::bind(&ApiResourcesManager::onAuthTokenLoginAnswer, this, useAsciiCaptcha, _1, _2));
 }
 
 void ApiResourcesManager::login(const std::string &username, const std::string &password, const std::string &code2fa, const std::string &secureToken,
@@ -547,14 +547,14 @@ void ApiResourcesManager::onFetchTimer(const boost::system::error_code &err)
     fetchTimer_.async_wait(std::bind(&ApiResourcesManager::onFetchTimer, this, std::placeholders::_1));
 }
 
-void ApiResourcesManager::onAuthTokenLoginAnswer(ServerApiRetCode serverApiRetCode, const std::string &jsonData)
+void ApiResourcesManager::onAuthTokenLoginAnswer(bool useAsciiCaptcha, ServerApiRetCode serverApiRetCode, const std::string &jsonData)
 {
     std::lock_guard locker(mutex_);
     requestsInProgress_.erase(RequestType::kAuthTokenLogin);
     if (serverApiRetCode == ServerApiRetCode::kNetworkError) {
         // repeat the request
-        boost::asio::post(io_context_, [this] {
-            authTokenLogin();
+        boost::asio::post(io_context_, [this, useAsciiCaptcha] {
+            authTokenLogin(useAsciiCaptcha);
         });
     } else if (serverApiRetCode == ServerApiRetCode::kNoNetworkConnection) {
         callback_->call(ApiResourcesManagerNotification::kAuthTokenLoginFinished, LoginResult::kNoConnectivity, std::string());

@@ -443,16 +443,22 @@ BaseRequest* requests_factory::sso(const std::string& provider, const std::strin
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
     return request;
 }
-BaseRequest* requests_factory::authTokenLogin(RequestFinishedCallback callback)
+BaseRequest* requests_factory::authTokenLogin(bool useAsciiCaptcha, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
+    if (useAsciiCaptcha) {
+        extraParams["captcha_type"] = "ascii";
+    }
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "AuthToken/login", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
     return request;
 }
-BaseRequest* requests_factory::authTokenSignup(RequestFinishedCallback callback)
+BaseRequest* requests_factory::authTokenSignup(bool useAsciiCaptcha, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
+    if (useAsciiCaptcha) {
+        extraParams["captcha_type"] = "ascii";
+    }
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "AuthToken/signup", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
     return request;

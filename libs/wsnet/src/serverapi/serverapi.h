@@ -109,8 +109,8 @@ public:
                                                                WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> sso(const std::string &provider, const std::string &token,
                                                            WSNetRequestFinishedCallback callback) override;
-    std::shared_ptr<WSNetCancelableCallback> authTokenLogin(WSNetRequestFinishedCallback callback) override;
-    std::shared_ptr<WSNetCancelableCallback> authTokenSignup(WSNetRequestFinishedCallback callback) override;
+    std::shared_ptr<WSNetCancelableCallback> authTokenLogin(bool useAsciiCaptcha, WSNetRequestFinishedCallback callback) override;
+    std::shared_ptr<WSNetCancelableCallback> authTokenSignup(bool useAsciiCaptcha, WSNetRequestFinishedCallback callback) override;
 
 private:
     std::unique_ptr<ServerAPI_impl> impl_;

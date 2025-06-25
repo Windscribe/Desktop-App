@@ -2,7 +2,7 @@ Package: windscribe
 Version: 2.8-0
 Section: misc
 Architecture: amd64
-Depends: bash, iptables, libc6 (>= 2.35), libstdc++6, libglib2.0-0, libdbus-1-3, libsystemd0, zlib1g, libx11-6, libegl1, libgl1, libfreetype6, libglvnd0, libxkbcommon0, libfontconfig1, libxcb1, libx11-xcb1, libx11-6, libxkbcommon-x11-0, libxcb-icccm4, libxcb-image0, libxcb-keysyms1, libxcb-render-util0, sudo, passwd, net-tools, libopengl0, libxcb-cursor0, procps, polkitd | policykit-1 (<< 0.105-33), pkexec | policykit-1 (<< 0.105-33), iproute2, iputils-ping, psmisc
+Depends: bash, iptables, libc6 (>= 2.35), libstdc++6, libglib2.0-0, libdbus-1-3, libsystemd0, zlib1g, libx11-6, libegl1, libgl1, libfreetype6, libglvnd0, libxkbcommon0, libfontconfig1, libxcb1, libx11-xcb1, libx11-6, libxkbcommon-x11-0, libxcb-icccm4, libxcb-image0, libxcb-keysyms1, libxcb-render-util0, sudo, passwd, net-tools, libopengl0, libxcb-cursor0, procps, polkitd | policykit-1 (<< 0.105-33), pkexec | policykit-1 (<< 0.105-33), iproute2, iputils-ping, psmisc, libpulse0
 Conflicts: windscribe-cli
 Maintainer: Windscribe Limited <hello@windscribe.com>
 Description: Windscribe

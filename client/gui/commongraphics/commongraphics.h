@@ -20,7 +20,7 @@ const int PAGE_WIDTH = 270;
 // and affect it's scrollability, especially when dragging the scroller with the mouse
 const int LOCATION_ITEM_HEIGHT = 38;
 
-const int LOCATION_ITEM_MARGIN = 8;
+const int LOCATION_ITEM_MARGIN = 16;
 const int LOCATION_ITEM_MARGIN_TO_LINE = 24;
 const int LOCATION_ITEM_FLAG_WIDTH = 32;
 

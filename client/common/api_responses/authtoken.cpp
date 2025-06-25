@@ -41,9 +41,15 @@ AuthToken::AuthToken(const std::string &json)
     if (jsonData.contains("captcha")) {
         isCaptchaRequired_ = true;
         auto jsonCaptcha = jsonData["captcha"].toObject();
-        captchaData_.background = jsonCaptcha["background"].toString();
-        captchaData_.slider = jsonCaptcha["slider"].toString();
-        captchaData_.top = jsonCaptcha["top"].toInteger();
+        if (jsonCaptcha.contains("ascii_art")) {
+            captchaData_.isAsciiCaptcha = true;
+            captchaData_.asciiArt = jsonCaptcha["ascii_art"].toString();
+        } else {
+            captchaData_.isAsciiCaptcha = false;
+            captchaData_.background = jsonCaptcha["background"].toString();
+            captchaData_.slider = jsonCaptcha["slider"].toString();
+            captchaData_.top = jsonCaptcha["top"].toInteger();
+        }
 
     } else {
         isCaptchaRequired_ = false;

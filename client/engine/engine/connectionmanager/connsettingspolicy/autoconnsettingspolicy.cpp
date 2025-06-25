@@ -120,13 +120,8 @@ CurrentConnectionDescr AutoConnSettingsPolicy::getCurrentConnectionSettings() co
     ccd.protocol = attempts_[curAttempt_].protocol;
     ccd.port = portMap_.const_items()[attempts_[curAttempt_].portMapInd].ports[0];
 
-    QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-    if (IpValidation::isIp(remoteOverride) && ccd.protocol == types::Protocol::WIREGUARD) {
-        ccd.ip = remoteOverride;
-    } else {
-        int useIpInd = portMap_.getUseIpInd(ccd.protocol);
-        ccd.ip = locationInfo_->getIpForSelectedNode(useIpInd);
-    }
+    int useIpInd = portMap_.getUseIpInd(ccd.protocol);
+    ccd.ip = locationInfo_->getIpForSelectedNode(useIpInd);
     ccd.hostname = locationInfo_->getHostnameForSelectedNode();
     ccd.dnsHostName = locationInfo_->getDnsName();
     ccd.wgPeerPublicKey = locationInfo_->getWgPubKeyForSelectedNode();

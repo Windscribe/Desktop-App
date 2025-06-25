@@ -21,8 +21,8 @@ public:
     void tooltipLeaveEvent(int tooltipId) const override;
 
 private:
-    const int kCityItemMaxWidth = 210;
-    const int kCityCaptionMaxWidth = 110;
+    const int kCityItemMaxWidth = 202;
+    const int kCityCaptionMaxWidth = 102;
 
     QString pingIconNameString(int connectionSpeedIndex) const;
     QRect customConfigErrorRect(const QRect &itemRect) const;

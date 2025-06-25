@@ -19,7 +19,7 @@ LocationsButton::LocationsButton(ScalableGraphicsObject *parent) : ClickableGrap
     curTextColor_(Qt::white), isExpanded_(false),
     curOpacity_(0.7)
 {
-    arrowItem_ = new ImageItem(this, "ARROW_DOWN_CIRCLE");
+    arrowItem_ = new ImageItem(this, "ARROW_DOWN_LOCATIONS");
     //arrowItem_->setTransformationMode(Qt::SmoothTransformation);
     arrowItem_->setOpacity(0.5);
 
@@ -69,6 +69,12 @@ void LocationsButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     //painter->fillRect(boundingRect(), QBrush(QColor(0, 25, 255)));
     QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(background_);
     pixmap->draw(0, 0, painter);
+
+    // background for the arrow
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(QColor(255, 255, 255, 26));
+    painter->drawEllipse(212*G_SCALE, 16*G_SCALE, 24*G_SCALE, 24*G_SCALE);
+    painter->setPen(Qt::SolidLine);
 
     if (!isExpanded_) {
         painter->setOpacity(curOpacity_);

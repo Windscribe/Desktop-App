@@ -116,6 +116,7 @@ endif()
 
 if(ANDROID)
     target_compile_definitions(wsnet PUBLIC SCAPIX_CUSTOM_JNI_ONLOAD SCAPIX_CACHE_CLASS_LOADER SCAPIX_JAVA_AUTO_ATTACH_THREAD)
+    target_link_options(wsnet PUBLIC "-Wl,-z,max-page-size=16384")
 endif()
 
 if (IOS)

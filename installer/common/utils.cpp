@@ -31,7 +31,7 @@ QPixmap getRoundedRectPixmap(const QString &imgPath, int width, int height, int 
     // Draw a 1px white border around the image
     painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
     painter.setPen(Qt::NoPen);
-    painter.fillPath(stroker.createStroke(path), QColor(255, 255, 255, 76));
+    painter.fillPath(stroker.createStroke(path), QColor(255, 255, 255, 38));
     painter.setPen(Qt::SolidLine);
 
     return QPixmap::fromImage(image);

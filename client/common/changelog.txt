@@ -1,3 +1,14 @@
+2.16.6 (24/06/2025)
+All:
+   * Fixed various UI bugs. #1151 #1400 #1401
+   * Fixed 'remote' advanced parameter when using WireGuard and connecting to a different location. #1402
+   * Fixed flags which had rendering issues. #1386
+   * Fixed curl timeouts in wsnet. #1403
+Linux:
+   * Added ASCII CAPTCHA for CLI-only clients. #1389
+   * Fixed dependency for libpulse0. #1397
+
+
 2.16.5 (17/06/2025)
 All:
    * Added and updated flags. #1386

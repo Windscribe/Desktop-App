@@ -4,6 +4,7 @@
 #include "WSNetHttpRequest.h"
 #include "WSNetServerAPI.h"
 #include "utils/cancelablecallback.h"
+#include "settings.h"
 
 namespace wsnet {
 
@@ -52,7 +53,7 @@ public:
     ServerApiRetCode retCode() const { return retCode_; }
 
 protected:
-    int timeout_ = 5000;           // timeout 5 sec by default
+    int timeout_ = kApiTimeout;
     HttpMethod requestType_;
     SubdomainType subDomainType_;
     RequestPriority priority_;

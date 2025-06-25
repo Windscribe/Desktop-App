@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QPainter>
+#include <QPainterPath>
 #include <QtMath>
 
 #include "locations/locationsmodel_roles.h"
@@ -85,9 +86,23 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
                                    top_offs + (option.rect.height() - configPixmap->height()) / 2, painter);
             }
         }
-    } else { // generic city icon
-        QSharedPointer<IndependentPixmap> cityIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/CITY_ICON");
-        cityIcon->draw(leftRect, painter);
+    } else {
+        if (index.data(kIs10Gbps).toBool()) {
+            // 10gbps icon
+            QSharedPointer<IndependentPixmap> tenGbpsPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON_WHITE");
+            tenGbpsPixmap->draw(leftRect, painter);
+        } else { // generic city icon
+            QSharedPointer<IndependentPixmap> cityIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/CITY_ICON");
+            cityIcon->draw(leftRect, painter);
+        }
+
+        // Load
+        // draw a 1px 'border' around the icon to differentiate from the load circle
+        QPen penBorder(QColor(2, 13, 28));
+        penBorder.setWidth(G_SCALE);
+        painter->setPen(penBorder);
+        painter->drawArc(leftRect.adjusted(G_SCALE, G_SCALE, -G_SCALE, -G_SCALE), 0, 360 * 16);
+
         painter->setOpacity(OPACITY_FULL);
         QPen penLoad(QColor(53, 61, 73));
         penLoad.setWidth(2*G_SCALE);
@@ -132,22 +147,6 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
     // The rest are aligned to the right.  We start drawing from the right-most icon, and work our way left.
     int xOffset = left_offs + option.rect.width() - 16*G_SCALE;
 
-    // favorite icon
-    // You can't favorite a static ip or custom config location.
-    if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
-        QSharedPointer<IndependentPixmap> favIcon;
-        if (index.data(kIsFavorite).toBool() == true) {
-            painter->setOpacity(OPACITY_FULL);
-            favIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_SELECTED");
-        } else {
-            painter->setOpacity(OPACITY_HALF);
-            favIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_DESELECTED");
-        }
-        xOffset -= favIcon->width();
-        favIcon->draw(xOffset, top_offs + (option.rect.height() - favIcon->height()) / 2, painter);
-        xOffset -= LOCATION_ITEM_MARGIN*G_SCALE;
-    }
-
     // Disabled/custom config error/latency
 
     // only show disabled locations to pro users
@@ -168,17 +167,29 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         PingTime pingTime = index.data(kPingTime).toInt();
         QSharedPointer<IndependentPixmap> pingIcon = ImageResourcesSvg::instance().getIndependentPixmap(pingIconNameString(pingTime.toConnectionSpeed()));
         painter->setOpacity(OPACITY_FULL);
-        xOffset -= pingIcon->width();
-        pingIcon->draw(xOffset, top_offs + 4*G_SCALE, painter);
+        xOffset -= 16*G_SCALE;
+        pingIcon->draw(xOffset + (16*G_SCALE - pingIcon->width())/2, top_offs + 6*G_SCALE, painter);
 
-        // draw latency text
         QFont font = FontManager::instance().getFont(9, QFont::Light);
         int latency = index.data(kPingTime).toInt();
         QString latencyText = (latency <= 0 ? "--" : QString::number(latency));
+
+        // latency text box
+        QPainterPath path;
+        path.addRoundedRect(QRect(xOffset + (16*G_SCALE - CommonGraphics::textWidth(latencyText, font))/2 - 3*G_SCALE,
+                                  top_offs + 21*G_SCALE,
+                                  CommonGraphics::textWidth(latencyText, font) + 6*G_SCALE,
+                                  CommonGraphics::textHeight(font) + 2*G_SCALE),
+                            3*G_SCALE, 3*G_SCALE);
+        painter->setPen(Qt::NoPen);
+        painter->fillPath(path, QColor(255, 255, 255, 26));
+        painter->setPen(Qt::SolidLine);
+
+        // draw latency text
         painter->setBrush(Qt::white);
         painter->setPen(Qt::white);
         painter->setFont(font);
-        painter->drawText(QRect(xOffset + (pingIcon->width() - CommonGraphics::textWidth(latencyText, font))/2,
+        painter->drawText(QRect(xOffset + (16*G_SCALE - CommonGraphics::textWidth(latencyText, font))/2,
                                 top_offs + 22*G_SCALE,
                                 CommonGraphics::textWidth(latencyText, font),
                                 CommonGraphics::textHeight(font)),
@@ -186,12 +197,20 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         xOffset -= LOCATION_ITEM_MARGIN*G_SCALE;
     }
 
-    // 10gbps icon
-    if (index.data(kIs10Gbps).toBool()) {
-        painter->setOpacity(OPACITY_FULL);
-        QSharedPointer<IndependentPixmap> tenGbpsPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON");
-        xOffset -= tenGbpsPixmap->width();
-        tenGbpsPixmap->draw(xOffset, top_offs + (option.rect.height() - tenGbpsPixmap->height()) / 2, painter);
+    // favorite icon
+    // You can't favorite a static ip or custom config location.
+    if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
+        QSharedPointer<IndependentPixmap> favIcon;
+        if (index.data(kIsFavorite).toBool() == true) {
+            painter->setOpacity(OPACITY_FULL);
+            favIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_SELECTED");
+            favIcon->draw(xOffset - favIcon->width(), top_offs + (option.rect.height() - favIcon->height()) / 2, painter);
+        // Only show deselected icon if hovering
+        } else if (qFuzzyCompare(option.selectedOpacity(), 1.0)) {
+            painter->setOpacity(OPACITY_HALF);
+            favIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_DESELECTED");
+            favIcon->draw(xOffset - favIcon->width(), top_offs + (option.rect.height() - favIcon->height()) / 2, painter);
+        }
     }
 
     painter->restore();
@@ -200,44 +219,42 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
 IItemCacheData *CityItemDelegate::createCacheData(const QModelIndex &index) const
 {
     CityItemDelegateCache *cache = new CityItemDelegateCache();
-    bool is10Gbps = index.data(kIs10Gbps).toBool();
-    int maxWidth = is10Gbps ? (kCityItemMaxWidth - 32) : kCityItemMaxWidth;
+    int maxWidth = kCityItemMaxWidth;
     LocationID lid = qvariant_cast<LocationID>(index.data(kLocationId));
 
     QString cityCaption = CommonGraphics::maybeTruncatedText(index.data().toString(),
-                                                             FontManager::instance().getFont(16, QFont::Bold),
+                                                             FontManager::instance().getFont(16, QFont::Medium),
                                                              (lid.isCustomConfigsLocation() ? maxWidth : kCityCaptionMaxWidth)*G_SCALE);
-    cache->add(CityItemDelegateCache::kCityId, cityCaption, FontManager::instance().getFont(16, QFont::Bold), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->add(CityItemDelegateCache::kCityId, cityCaption, FontManager::instance().getFont(16, QFont::Medium), DpiScaleManager::instance().curDevicePixelRatio());
 
     if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
         QString nickCaption = CommonGraphics::maybeTruncatedText(index.data(kDisplayNickname).toString(),
-                                                                 FontManager::instance().getFont(16, QFont::Normal),
+                                                                 FontManager::instance().getFont(16, QFont::Light),
                                                                  (maxWidth - 8)*G_SCALE - cache->pixmap(CityItemDelegateCache::kCityId).width());
-        cache->add(CityItemDelegateCache::kNickId, nickCaption, FontManager::instance().getFont(16, QFont::Normal), DpiScaleManager::instance().curDevicePixelRatio());
+        cache->add(CityItemDelegateCache::kNickId, nickCaption, FontManager::instance().getFont(16, QFont::Light), DpiScaleManager::instance().curDevicePixelRatio());
     }
-    cache->add(CityItemDelegateCache::kStaticIpId, index.data(kStaticIp).toString(), FontManager::instance().getFont(13, QFont::Normal), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->add(CityItemDelegateCache::kStaticIpId, index.data(kStaticIp).toString(), FontManager::instance().getFont(13, QFont::Light), DpiScaleManager::instance().curDevicePixelRatio());
     return cache;
 }
 
 void CityItemDelegate::updateCacheData(const QModelIndex &index, IItemCacheData *cacheData) const
 {
     CityItemDelegateCache *cache = static_cast<CityItemDelegateCache *>(cacheData);
-    bool is10Gbps = index.data(kIs10Gbps).toBool();
-    int maxWidth = is10Gbps ? (kCityItemMaxWidth - 32) : kCityItemMaxWidth;
+    int maxWidth = kCityItemMaxWidth;
     LocationID lid = qvariant_cast<LocationID>(index.data(kLocationId));
 
     QString cityCaption = CommonGraphics::maybeTruncatedText(index.data().toString(),
-                                                              FontManager::instance().getFont(16, QFont::Bold),
+                                                              FontManager::instance().getFont(16, QFont::Medium),
                                                               (lid.isCustomConfigsLocation() ? maxWidth : kCityCaptionMaxWidth)*G_SCALE);
-    cache->updateIfTextChanged(CityItemDelegateCache::kCityId, cityCaption, FontManager::instance().getFont(16, QFont::Bold), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->updateIfTextChanged(CityItemDelegateCache::kCityId, cityCaption, FontManager::instance().getFont(16, QFont::Medium), DpiScaleManager::instance().curDevicePixelRatio());
 
     if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
         QString nickCaption = CommonGraphics::maybeTruncatedText(index.data(kDisplayNickname).toString(),
-                                                                 FontManager::instance().getFont(16, QFont::Normal),
+                                                                 FontManager::instance().getFont(16, QFont::Light),
                                                                  (maxWidth - 8)*G_SCALE - cache->pixmap(CityItemDelegateCache::kCityId).width());
-        cache->updateIfTextChanged(CityItemDelegateCache::kNickId, nickCaption, FontManager::instance().getFont(16, QFont::Normal), DpiScaleManager::instance().curDevicePixelRatio());
+        cache->updateIfTextChanged(CityItemDelegateCache::kNickId, nickCaption, FontManager::instance().getFont(16, QFont::Light), DpiScaleManager::instance().curDevicePixelRatio());
     }
-    cache->updateIfTextChanged(CityItemDelegateCache::kStaticIpId, index.data(kStaticIp).toString(), FontManager::instance().getFont(13, QFont::Normal), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->updateIfTextChanged(CityItemDelegateCache::kStaticIpId, index.data(kStaticIp).toString(), FontManager::instance().getFont(13, QFont::Light), DpiScaleManager::instance().curDevicePixelRatio());
 }
 
 bool CityItemDelegate::isForbiddenCursor(const QModelIndex &index) const
@@ -261,7 +278,7 @@ int CityItemDelegate::isInClickableArea(const ItemStyleOption &option, const QMo
     }
 
     QSharedPointer<IndependentPixmap> favIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_SELECTED");
-    QRect rc(option.rect.left() + option.rect.width() - favIcon->width() - 16*G_SCALE,
+    QRect rc(option.rect.left() + option.rect.width() - favIcon->width() - 48*G_SCALE,
              (option.rect.height() - favIcon->height())/2 + option.rect.top(),
              favIcon->width(), favIcon->height());
     rc.adjust(-2*G_SCALE, -2*G_SCALE, 2*G_SCALE, 2*G_SCALE);    //add a little more area for the convenience of clicking
@@ -282,13 +299,13 @@ int CityItemDelegate::isInTooltipArea(const ItemStyleOption &option, const QMode
         }
     }
 
-    int maxWidth = (index.data(kIs10Gbps).toBool() ? (kCityItemMaxWidth - 32) : kCityItemMaxWidth);
+    int maxWidth = kCityItemMaxWidth;
 
     if (captionRect(option.rect, cacheData).contains(point)) {
         QString originalCaption = index.data().toString();
         QString truncatedCaption = CommonGraphics::maybeTruncatedText(
             originalCaption,
-            FontManager::instance().getFont(16, QFont::Bold),
+            FontManager::instance().getFont(16, QFont::Medium),
             (lid.isCustomConfigsLocation() ? maxWidth : kCityCaptionMaxWidth)*G_SCALE);
         if (originalCaption != truncatedCaption)
             return (int)TooltipRect::kItemCaption;
@@ -300,7 +317,7 @@ int CityItemDelegate::isInTooltipArea(const ItemStyleOption &option, const QMode
             QString originalNickname = index.data(kDisplayNickname).toString();
             const CityItemDelegateCache *cache = static_cast<const CityItemDelegateCache *>(cacheData);
             QString truncatedNickname = CommonGraphics::maybeTruncatedText(originalNickname,
-                                                                           FontManager::instance().getFont(16, QFont::Normal),
+                                                                           FontManager::instance().getFont(16, QFont::Light),
                                                                            (maxWidth - 8)*G_SCALE - cache->pixmap(CityItemDelegateCache::kCityId).width());
             if (originalNickname != truncatedNickname)
                 return (int)TooltipRect::kItemNickname;
@@ -393,7 +410,7 @@ QRect CityItemDelegate::captionRect(const QRect &itemRect, const IItemCacheData 
 {
     const CityItemDelegateCache *cache = static_cast<const CityItemDelegateCache *>(cacheData);
     IndependentPixmap pixmapCaption = cache->pixmap(CityItemDelegateCache::kCityId);
-    return QRect(itemRect.left() + LOCATION_ITEM_MARGIN * G_SCALE * 4 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE,
+    return QRect(itemRect.left() + 2*LOCATION_ITEM_MARGIN*G_SCALE + LOCATION_ITEM_FLAG_WIDTH*G_SCALE,
                  itemRect.top() + (itemRect.height() - pixmapCaption.height()) / 2,
                  pixmapCaption.width(), pixmapCaption.height());
 }
@@ -404,7 +421,7 @@ QRect CityItemDelegate::nicknameRect(const QRect &itemRect, const IItemCacheData
     IndependentPixmap pixmapCaption = cache->pixmap(CityItemDelegateCache::kCityId);
     IndependentPixmap pixmapNick = cache->pixmap(CityItemDelegateCache::kNickId);
 
-    QRect rcCaption(itemRect.left() + LOCATION_ITEM_MARGIN * G_SCALE * 4 + LOCATION_ITEM_FLAG_WIDTH * G_SCALE,
+    QRect rcCaption(itemRect.left() + 2*LOCATION_ITEM_MARGIN*G_SCALE + LOCATION_ITEM_FLAG_WIDTH*G_SCALE,
                    itemRect.top() + (itemRect.height() - pixmapCaption.height()) / 2,
                    pixmapCaption.width(), pixmapCaption.height());
 

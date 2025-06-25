@@ -73,6 +73,10 @@
         <source>FIREWALL</source>
         <translation>ファイアウォール</translation>
     </message>
+    <message>
+        <source>Keeping the firewall on while disconnected may break internet connectivity</source>
+        <translation>切断中にファイアウォールをオンのままにすると、インターネット接続が切断される可能性があります</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>

@@ -39,6 +39,7 @@ private slots:
     void onBackendConnectStateChanged(const types::ConnectState &state);
     void onBackendInternetConnectivityChanged(bool connectivity);
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
+    void onBackendCaptchaRequired(bool isAsciiCaptcha, const QString &asciiArt, const QString &background, const QString &slider, int top);
     void onBackendLoginError(wsnet::LoginResult code, const QString &msg);
     void onBackendLogoutFinished();
     void onBackendProtocolPortChanged(const types::Protocol &protocol, uint port);
@@ -56,6 +57,10 @@ private:
 
     bool connectivity_;
     LOGIN_STATE loginState_;
+
+    bool isCaptchaRequired_ = false;
+    QString asciiArt_;
+
     UPDATE_VERSION_STATE updateState_;
     UPDATE_VERSION_ERROR updateError_;
     uint updateProgress_;

@@ -32,6 +32,7 @@ QString loginStateString(LOGIN_STATE state, wsnet::LoginResult loginError, const
         case LoginResult::kMissingCode2fa:
             return msg.arg(error.arg(QObject::tr("Need 2FA code")));
         case LoginResult::kAccountDisabled:
+        case LoginResult::kInvalidSecurityToken:
             return msg.arg(error.arg(loginErrorMessage));
         case LoginResult::kSslError:
             return msg.arg(error.arg(QObject::tr("SSL error")));

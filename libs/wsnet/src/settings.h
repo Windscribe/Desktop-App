@@ -6,6 +6,8 @@
 
 namespace wsnet {
 
+static constexpr int kApiTimeout = 10000;     // 10 secs
+
 class Settings
 {
 public:

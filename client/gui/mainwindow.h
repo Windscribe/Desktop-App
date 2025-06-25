@@ -181,7 +181,7 @@ private slots:
     // backend state signals
     void onBackendInitFinished(INIT_STATE initState);
 
-    void onBackendCaptchaRequired(const QString &background, const QString &slider, int top);
+    void onBackendCaptchaRequired(bool isAsciiCaptcha, const QString &asciiArt, const QString &background, const QString &slider, int top);
     void onBackendLoginFinished(bool isLoginFromSavedSettings);
     void onBackendTryingBackupEndpoint(int num, int cnt);
     void onBackendLoginError(wsnet::LoginResult loginError, const QString &errorMessage);

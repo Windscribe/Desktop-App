@@ -2375,7 +2375,8 @@ void Engine::onApiResourcesManagerAuthTokenLoginFinished(LoginResult loginResult
             } else {
                 if (authToken.isCaptchaRequired()) {
                     loginCredentials_->authToken = authToken.token();
-                    emit captchaRequired(authToken.captchaData().background, authToken.captchaData().slider, authToken.captchaData().top);
+                    emit captchaRequired(authToken.captchaData().isAsciiCaptcha, authToken.captchaData().asciiArt,
+                                         authToken.captchaData().background, authToken.captchaData().slider, authToken.captchaData().top);
                 } else {
                     // continue login with a secure token
                     WSNet::instance()->apiResourcersManager()->login(loginCredentials_->username.toStdString(), loginCredentials_->password.toStdString(), loginCredentials_->code2fa.toStdString(),
@@ -2675,19 +2676,13 @@ void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QStrin
     }
     else {
         // Let's save this data as we will need it later when calling the login API
-#ifndef CLI_ONLY
         loginCredentials_ = std::make_unique<LoginCredentials>();
         loginCredentials_->username = username;
         loginCredentials_->password = password;
         loginCredentials_->code2fa = code2fa;
-#endif
 
         if (isOnline) {
-#ifdef CLI_ONLY
-            WSNet::instance()->apiResourcersManager()->login(username.toStdString(), password.toStdString(), code2fa.toStdString(), std::string());
-#else
-            WSNet::instance()->apiResourcersManager()->authTokenLogin();
-#endif
+            callAuthTokenLogin();
         } else {
             // wait for network connectivity maximum 10 sec
             WS_ASSERT(loginWaitForNetworkConnectivity_ == nullptr);
@@ -2698,17 +2693,10 @@ void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QStrin
                 emit loginError(LoginResult::kNoConnectivity, QString());
             });
 
-#ifdef CLI_ONLY
-            connect(loginWaitForNetworkConnectivity_, &WaitForNetworkConnectivity::connectivityOnline, [this, username, password, code2fa]() {
-                SAFE_DELETE_LATER(loginWaitForNetworkConnectivity_);
-                WSNet::instance()->apiResourcersManager()->login(username.toStdString(), password.toStdString(), code2fa.toStdString(), std::string());
-            });
-#else
             connect(loginWaitForNetworkConnectivity_, &WaitForNetworkConnectivity::connectivityOnline, [this]() {
                 SAFE_DELETE_LATER(loginWaitForNetworkConnectivity_);
-                WSNet::instance()->apiResourcersManager()->authTokenLogin();
+                callAuthTokenLogin();
             });
-#endif
 
             loginWaitForNetworkConnectivity_->wait(kLoginWaitTimeForNoNetwork);
         }
@@ -2764,4 +2752,13 @@ void Engine::updateFirewallOnBoot()
         qCInfo(LOG_BASIC) << "Turning boot firewall off for non-always-on mode";
         firewallController_->setFirewallOnBoot(false);
     }
+}
+
+void Engine::callAuthTokenLogin()
+{
+#ifdef CLI_ONLY
+    WSNet::instance()->apiResourcersManager()->authTokenLogin(true);
+#else
+    WSNet::instance()->apiResourcersManager()->authTokenLogin(false);
+#endif
 }

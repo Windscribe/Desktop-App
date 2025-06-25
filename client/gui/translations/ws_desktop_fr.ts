@@ -73,6 +73,10 @@
         <source>FIREWALL</source>
         <translation>PARE-FEU</translation>
     </message>
+    <message>
+        <source>Keeping the firewall on while disconnected may break internet connectivity</source>
+        <translation>Garder le pare-feu allumé alors qu’on est déconnecté peut interrompre la connectivité Internet</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>

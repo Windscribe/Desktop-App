@@ -43,6 +43,7 @@ void handler_sigterm(int signum)
 int main(int argc, char *argv[])
 {
 #if defined (Q_OS_LINUX)
+#ifndef QT_DEBUG
     gid_t gid = LinuxUtils::getWindscribeGid();
     if (gid == -1) {
         qCCritical(LOG_BASIC) << "windscribe group does not exist";
@@ -53,6 +54,7 @@ int main(int argc, char *argv[])
         qCCritical(LOG_BASIC) << "Could not set windscribe group";
         return -1;
     }
+#endif
 #endif
 
 #if defined (Q_OS_LINUX)

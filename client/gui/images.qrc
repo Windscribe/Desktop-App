@@ -7,8 +7,8 @@
         <file>png/bg/bg4.png</file>
         <file>png/bg/bg5.png</file>
         <file>png/welcome.png</file>
+        <file>svg/ARROW_DOWN_LOCATIONS.svg</file>
         <file>svg/ARROW_DOWN_WHITE.svg</file>
-        <file>svg/ARROW_DOWN_CIRCLE.svg</file>
         <file>svg/BACK_ARROW.svg</file>
         <file>svg/BADGE_BLACK_ICON.svg</file>
         <file>svg/BIG_CONFIG_ICON.svg</file>
@@ -164,7 +164,98 @@
         <file>svg/flags/ve.svg</file>
         <file>svg/flags/vn.svg</file>
         <file>svg/flags/za.svg</file>
+        <file>svg/flags/ae_circle.svg</file>
+        <file>svg/flags/al_circle.svg</file>
+        <file>svg/flags/aq_circle.svg</file>
+        <file>svg/flags/ar_circle.svg</file>
+        <file>svg/flags/at_circle.svg</file>
+        <file>svg/flags/au_circle.svg</file>
+        <file>svg/flags/az_circle.svg</file>
+        <file>svg/flags/ba_circle.svg</file>
+        <file>svg/flags/be_circle.svg</file>
+        <file>svg/flags/bg_circle.svg</file>
+        <file>svg/flags/br_circle.svg</file>
+        <file>svg/flags/bs_circle.svg</file>
+        <file>svg/flags/by_circle.svg</file>
+        <file>svg/flags/ca_circle.svg</file>
+        <file>svg/flags/ch_circle.svg</file>
+        <file>svg/flags/cl_circle.svg</file>
+        <file>svg/flags/cn_circle.svg</file>
+        <file>svg/flags/co_circle.svg</file>
+        <file>svg/flags/cr_circle.svg</file>
+        <file>svg/flags/cy_circle.svg</file>
+        <file>svg/flags/cz_circle.svg</file>
+        <file>svg/flags/de_circle.svg</file>
+        <file>svg/flags/dk_circle.svg</file>
+        <file>svg/flags/dz_circle.svg</file>
+        <file>svg/flags/ec_circle.svg</file>
+        <file>svg/flags/ee_circle.svg</file>
+        <file>svg/flags/es_circle.svg</file>
+        <file>svg/flags/et_circle.svg</file>
+        <file>svg/flags/fi_circle.svg</file>
+        <file>svg/flags/fr_circle.svg</file>
+        <file>svg/flags/gb_circle.svg</file>
+        <file>svg/flags/ge_circle.svg</file>
+        <file>svg/flags/gh_circle.svg</file>
+        <file>svg/flags/gr_circle.svg</file>
+        <file>svg/flags/gt_circle.svg</file>
+        <file>svg/flags/hk_circle.svg</file>
+        <file>svg/flags/hr_circle.svg</file>
+        <file>svg/flags/hu_circle.svg</file>
+        <file>svg/flags/id_circle.svg</file>
+        <file>svg/flags/ie_circle.svg</file>
+        <file>svg/flags/il_circle.svg</file>
+        <file>svg/flags/in_circle.svg</file>
+        <file>svg/flags/is_circle.svg</file>
+        <file>svg/flags/it_circle.svg</file>
+        <file>svg/flags/jp_circle.svg</file>
+        <file>svg/flags/ke_circle.svg</file>
+        <file>svg/flags/kh_circle.svg</file>
+        <file>svg/flags/kr_circle.svg</file>
+        <file>svg/flags/kz_circle.svg</file>
+        <file>svg/flags/la_circle.svg</file>
+        <file>svg/flags/lt_circle.svg</file>
+        <file>svg/flags/lu_circle.svg</file>
+        <file>svg/flags/lv_circle.svg</file>
+        <file>svg/flags/ly_circle.svg</file>
+        <file>svg/flags/ma_circle.svg</file>
+        <file>svg/flags/mc_circle.svg</file>
+        <file>svg/flags/md_circle.svg</file>
+        <file>svg/flags/mk_circle.svg</file>
+        <file>svg/flags/mt_circle.svg</file>
+        <file>svg/flags/mx_circle.svg</file>
+        <file>svg/flags/my_circle.svg</file>
+        <file>svg/flags/ng_circle.svg</file>
+        <file>svg/flags/nl_circle.svg</file>
+        <file>svg/flags/no_circle.svg</file>
+        <file>svg/flags/nz_circle.svg</file>
+        <file>svg/flags/pa_circle.svg</file>
+        <file>svg/flags/pe_circle.svg</file>
+        <file>svg/flags/ph_circle.svg</file>
+        <file>svg/flags/pk_circle.svg</file>
+        <file>svg/flags/pl_circle.svg</file>
+        <file>svg/flags/pt_circle.svg</file>
+        <file>svg/flags/py_circle.svg</file>
+        <file>svg/flags/ro_circle.svg</file>
+        <file>svg/flags/rs_circle.svg</file>
+        <file>svg/flags/ru_circle.svg</file>
+        <file>svg/flags/se_circle.svg</file>
+        <file>svg/flags/sg_circle.svg</file>
+        <file>svg/flags/si_circle.svg</file>
+        <file>svg/flags/sk_circle.svg</file>
+        <file>svg/flags/sv_circle.svg</file>
+        <file>svg/flags/th_circle.svg</file>
+        <file>svg/flags/tn_circle.svg</file>
+        <file>svg/flags/tr_circle.svg</file>
+        <file>svg/flags/tw_circle.svg</file>
+        <file>svg/flags/ua_circle.svg</file>
+        <file>svg/flags/us_circle.svg</file>
+        <file>svg/flags/uy_circle.svg</file>
+        <file>svg/flags/ve_circle.svg</file>
+        <file>svg/flags/vn_circle.svg</file>
+        <file>svg/flags/za_circle.svg</file>
         <file>svg/locations/10_GBPS_ICON.svg</file>
+        <file>svg/locations/10_GBPS_ICON_WHITE.svg</file>
         <file>svg/locations/ALL_LOCATION_ICON_DESELECTED.svg</file>
         <file>svg/locations/ALL_LOCATION_ICON_SELECTED.svg</file>
         <file>svg/locations/ARROW_RIGHT.svg</file>

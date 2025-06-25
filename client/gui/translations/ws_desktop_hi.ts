@@ -73,6 +73,10 @@
         <source>FIREWALL</source>
         <translation>फ़ायरवॉल</translation>
     </message>
+    <message>
+        <source>Keeping the firewall on while disconnected may break internet connectivity</source>
+        <translation>डिस्कनेक्ट होने पर फ़ायरवॉल को चालू रखने से इंटरनेट कनेक्टिविटी टूट सकती है</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>

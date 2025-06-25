@@ -73,6 +73,10 @@
         <source>FIREWALL</source>
         <translation>TƯỜNG LỬA</translation>
     </message>
+    <message>
+        <source>Keeping the firewall on while disconnected may break internet connectivity</source>
+        <translation>Bật tường lửa khi ngắt kết nối có thể làm gián đoạn kết nối internet</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>

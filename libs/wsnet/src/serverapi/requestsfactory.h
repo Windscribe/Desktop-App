@@ -89,8 +89,8 @@ namespace requests_factory
     BaseRequest *verifyTvLoginCode(const std::string &authHash, const std::string &xpressCode, RequestFinishedCallback callback);
     BaseRequest *cancelAccount(const std::string &authHash, const std::string &password, RequestFinishedCallback callback);
     BaseRequest *sso(const std::string &provider, const std::string &token, RequestFinishedCallback callback);
-    BaseRequest *authTokenLogin(RequestFinishedCallback callback);
-    BaseRequest *authTokenSignup(RequestFinishedCallback callback);
+    BaseRequest *authTokenLogin(bool useAsciiCaptcha, RequestFinishedCallback callback);
+    BaseRequest *authTokenSignup(bool useAsciiCaptcha, RequestFinishedCallback callback);
 }
 
 } // namespace wsnet

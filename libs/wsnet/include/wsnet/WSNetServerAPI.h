@@ -141,8 +141,8 @@ public:
                                                                        WSNetRequestFinishedCallback callback) = 0;
     virtual std::shared_ptr<WSNetCancelableCallback> sso(const std::string &provider, const std::string &token,
                                                                    WSNetRequestFinishedCallback callback) = 0;
-    virtual std::shared_ptr<WSNetCancelableCallback> authTokenLogin(WSNetRequestFinishedCallback callback) = 0;
-    virtual std::shared_ptr<WSNetCancelableCallback> authTokenSignup(WSNetRequestFinishedCallback callback) = 0;
+    virtual std::shared_ptr<WSNetCancelableCallback> authTokenLogin(bool useAsciiCaptcha, WSNetRequestFinishedCallback callback) = 0;
+    virtual std::shared_ptr<WSNetCancelableCallback> authTokenSignup(bool useAsciiCaptcha, WSNetRequestFinishedCallback callback) = 0;
 };
 
 } // namespace wsnet

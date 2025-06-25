@@ -278,5 +278,9 @@
         <source>Internet connectivity is not available.  Try again later.</source>
         <translation>Internet 連接不可用。 請稍後重試。</translation>
     </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>完成拼圖以繼續</translation>
+    </message>
 </context>
 </TS>

@@ -229,12 +229,30 @@ void ConnectWindowItem::updateConnectState(const types::ConnectState &newConnect
         connectStateProtocolPort_->onConnectStateChanged(newConnectState, prevConnectState_);
 
         prevConnectState_ = newConnectState;
+        updateFirewallInfo();
     }
 }
 
 void ConnectWindowItem::updateFirewallState(bool isFirewallEnabled)
 {
     firewallButton_->setState(isFirewallEnabled);
+    updateFirewallInfo();
+
+}
+
+void ConnectWindowItem::updateFirewallInfo()
+{
+    if (prevConnectState_.connectState == CONNECT_STATE_DISCONNECTED && firewallButton_->isChecked()) {
+        firewallInfo_->setTintColor(QColor(254, 188, 46));
+        firewallInfo_->setUnhoverOpacity(OPACITY_FULL);
+        firewallInfo_->setHoverOpacity(OPACITY_FULL);
+        firewallInfo_->unhover();
+    } else {
+        firewallInfo_->setTintColor(Qt::white);
+        firewallInfo_->setUnhoverOpacity(OPACITY_UNHOVER_ICON_STANDALONE);
+        firewallInfo_->setHoverOpacity(OPACITY_FULL);
+        firewallInfo_->unhover();
+    }
 }
 
 void ConnectWindowItem::updateLocationsState(bool isExpanded)
@@ -396,6 +414,7 @@ void ConnectWindowItem::onFirewallButtonHoverLeave()
 
 void ConnectWindowItem::onFirewallButtonStateChanged(bool isFirewallEnabled)
 {
+    updateFirewallInfo();
     if (!isFirewallAlwaysOn_) {
         emit firewallClick();
     }
@@ -436,7 +455,11 @@ void ConnectWindowItem::onFirewallInfoHoverEnter()
     ti.tailtype = TOOLTIP_TAIL_BOTTOM;
     ti.tailPosPercent = 0.1;
     ti.title = tr("Firewall");
-    ti.desc = tr("Blocks all connectivity in the event of a sudden disconnect");
+    if (prevConnectState_.connectState == CONNECT_STATE_DISCONNECTED && firewallButton_->isChecked()) {
+        ti.desc = tr("Keeping the firewall on while disconnected may break internet connectivity");
+    } else {
+        ti.desc = tr("Blocks all connectivity in the event of a sudden disconnect");
+    }
     ti.width = width;
 
     TooltipController::instance().showTooltipDescriptive(ti);

@@ -278,5 +278,9 @@
         <source>Internet connectivity is not available.  Try again later.</source>
         <translation>Konektivitas internet tidak tersedia.  Coba lagi nanti.</translation>
     </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Selesaikan Teka-teki untuk melanjutkan</translation>
+    </message>
 </context>
 </TS>

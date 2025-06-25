@@ -68,7 +68,7 @@ public:
     virtual bool loginWithAuthHash() = 0;
 
     // authTokenLogin call, must be called before login API call. Required for two stage login + CAPTCHA
-    virtual void authTokenLogin() = 0;
+    virtual void authTokenLogin(bool useAsciiCaptcha) = 0;
 
     // login with username/password
     // optionally send captcha data

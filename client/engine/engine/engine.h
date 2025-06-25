@@ -136,7 +136,7 @@ signals:
     void initFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void bfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void cleanupFinished();
-    void captchaRequired(const QString &background, const QString &slider, int top);
+    void captchaRequired(bool isAsciiCaptcha, const QString &asciiArt, const QString &background, const QString &slider, int top);
     void loginFinished(bool isLoginFromSavedSettings, const api_responses::PortMap &portMap);
     void tryingBackupEndpoint(int num, int cnt);
     void loginError(wsnet::LoginResult retCode, const QString &errorMessage);
@@ -434,4 +434,5 @@ private:
     QString createConnectionId();
 
     void updateFirewallOnBoot();
+    void callAuthTokenLogin();
 };

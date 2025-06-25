@@ -66,7 +66,10 @@ void SoundsGroup::onLanguageChanged()
     titleItem_->setTitle(tr("Sound Notifications"));
 
     QList<QPair<QString, QVariant>> secondaryItemsDisconnected;
-    for (const auto &sound : enumerateSounds()) {
+    QStringList sounds = enumerateSounds();
+    // Disconnected list does not have a Fart (Deluxe) sound
+    sounds.removeAll("Fart (Deluxe)");
+    for (const auto &sound : sounds) {
         secondaryItemsDisconnected << qMakePair(displayName(sound), filename(sound, false));
     }
 

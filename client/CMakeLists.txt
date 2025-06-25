@@ -25,9 +25,6 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(UNIX AND (NOT APPLE))
-    find_package(pulse)
-endif()
 find_package(OpenSSL REQUIRED)
 find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(spdlog CONFIG REQUIRED)
@@ -117,9 +114,6 @@ elseif (APPLE)
     file(GLOB MAC_RESOURCES_FILES ${CMAKE_CURRENT_SOURCE_DIR}/engine/mac/resources/*.*)
     set_source_files_properties(${MAC_RESOURCES_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
     list(APPEND PROJECT_SOURCES ${MAC_RESOURCES_FILES})
-elseif (UNIX)
-    set (OS_SPECIFIC_LIBRARIES
-         pulse)
 endif()
 
 qt_add_executable(Windscribe

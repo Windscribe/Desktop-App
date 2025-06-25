@@ -73,6 +73,10 @@
         <source>FIREWALL</source>
         <translation>ZAPORA</translation>
     </message>
+    <message>
+        <source>Keeping the firewall on while disconnected may break internet connectivity</source>
+        <translation>Pozostawienie włączonej zapory po rozłączeniu może spowodować przerwanie połączenia z Internetem</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>

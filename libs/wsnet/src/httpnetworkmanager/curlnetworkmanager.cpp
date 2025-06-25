@@ -337,8 +337,9 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
 
     // timeout for the connect phase, this timeout only limits the connection phase, it has no impact once libcurl has connected
     // I noticed that this time curl distributes equally between all IP addresses of the domain,
-    // so we have to multiply this by the number of IP addresses
-    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CONNECTTIMEOUT_MS , timeoutMs * ips.size()) != CURLE_OK) return false;
+    // so we have to multiply 5000 ms by the number of IP addresses
+    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_CONNECTTIMEOUT_MS , 5000 * ips.size()) != CURLE_OK) return false;
+    if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_TIMEOUT_MS , timeoutMs) != CURLE_OK) return false;
 
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_XFERINFOFUNCTION, progressCallback) != CURLE_OK) return false;
     if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_XFERINFODATA, requestInfo) != CURLE_OK) return false;

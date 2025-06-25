@@ -10,32 +10,40 @@ SoundManager::SoundManager(QObject *parent, Preferences *preferences)
     setenv("QT_MEDIA_BACKEND", "darwin", 1);
 #endif
     connect(preferences_, &Preferences::soundSettingsChanged, this, &SoundManager::onSoundSettingsChanged);
+
+    workerThread_ = new QThread(this);
+    worker_ = new SoundPlayerWorker();
+    worker_->moveToThread(workerThread_);
+
+    connect(this, &SoundManager::preparePlayer, worker_, &SoundPlayerWorker::preparePlayer);
+    connect(worker_, &SoundPlayerWorker::playerReady, this, &SoundManager::onPlayerReady);
+
+    workerThread_->start();
+}
+
+SoundManager::~SoundManager()
+{
+    if (workerThread_) {
+        workerThread_->quit();
+        workerThread_->wait();
+        delete worker_;
+    }
 }
 
 void SoundManager::onSoundSettingsChanged(const types::SoundSettings &soundSettings)
 {
 }
 
-void SoundManager::playSound(const QUrl &url, QMediaPlayer::Loops loops)
+void SoundManager::onPlayerReady(QMediaPlayer *player)
 {
-    // Unfortunately, setting the device (even a default-constructed QAudioDevice) directly on an existing player does not seem to work;
-    // In that case, audioOutput_->device().description() shows the correct device, but play() does not work.
-    // So we do the ugly thing here and create a new player for every sound.
-    if (player_ != nullptr) {
-        disconnect(player_);
+    if (player_) {
         player_->stop();
         player_->deleteLater();
-        player_ = nullptr;
     }
-    player_ = new QMediaPlayer(this);
+    player_ = player;
+
     connect(player_, &QMediaPlayer::errorOccurred, this, &SoundManager::onPlayerError);
     connect(player_, &QMediaPlayer::positionChanged, this, &SoundManager::onPlayerPositionChanged);
-    QAudioOutput *audioOutput = new QAudioOutput(this);
-    audioOutput->setVolume(0.7);
-    player_->setAudioOutput(audioOutput);
-    audioOutput->setDevice(QAudioDevice());
-    player_->setSource(url);
-    player_->setLoops(loops);
     player_->play();
 }
 
@@ -47,29 +55,33 @@ void SoundManager::play(const CONNECT_STATE &connectState)
             return;
         }
         QUrl url;
-        if (preferences_->soundSettings().connectedSoundType == SOUND_NOTIFICATION_TYPE_BUNDLED) {
+        if (preferences_->soundSettings().connectedSoundType == SOUND_NOTIFICATION_TYPE_NONE) {
+            return;
+        } else if (preferences_->soundSettings().connectedSoundType == SOUND_NOTIFICATION_TYPE_BUNDLED) {
             url = QUrl("qrc" + preferences_->soundSettings().connectedSoundPath);
         } else {
             url = QUrl(preferences_->soundSettings().connectedSoundPath);
         }
-        playSound(url, QMediaPlayer::Once);
+        emit preparePlayer(url, QMediaPlayer::Once);
     } else if (connectState == CONNECT_STATE_DISCONNECTED) {
         QUrl url;
-        if (preferences_->soundSettings().disconnectedSoundType == SOUND_NOTIFICATION_TYPE_BUNDLED) {
+        if (preferences_->soundSettings().connectedSoundType == SOUND_NOTIFICATION_TYPE_NONE) {
+            return;
+        } else if (preferences_->soundSettings().disconnectedSoundType == SOUND_NOTIFICATION_TYPE_BUNDLED) {
             url = QUrl("qrc" + preferences_->soundSettings().disconnectedSoundPath);
         } else {
             url = QUrl(preferences_->soundSettings().disconnectedSoundPath);
         }
-        playSound(url, QMediaPlayer::Once);
+        emit preparePlayer(url, QMediaPlayer::Once);
     } else if (connectState == CONNECT_STATE_CONNECTING) {
-        if (preferences_->soundSettings().connectedSoundPath == ":/sounds/Fart_(Deluxe)_on.mp3") {
+        if (preferences_->soundSettings().connectedSoundPath == ":/sounds/Fart_(Deluxe)_on.mp3" &&
+            preferences_->soundSettings().connectedSoundType == SOUND_NOTIFICATION_TYPE_BUNDLED)
+        {
             QUrl url = QUrl("qrc" + preferences_->soundSettings().connectedSoundPath.replace("_on.mp3", "_loop.mp3"));
-            playSound(url, QMediaPlayer::Infinite);
+            emit preparePlayer(url, QMediaPlayer::Infinite);
         }
     } else if (connectState == CONNECT_STATE_DISCONNECTING) {
-        if (player_) {
-            player_->stop();
-        }
+        stop();
     }
 }
 
@@ -77,12 +89,15 @@ void SoundManager::stop()
 {
     if (player_) {
         player_->stop();
+        player_->deleteLater();
+        player_ = nullptr;
     }
 }
 
 void SoundManager::onPlayerError(QMediaPlayer::Error error, const QString &errorString)
 {
     qCDebug(LOG_BASIC) << "QMediaPlayer error: " << error << " " << errorString;
+    stop();
 }
 
 void SoundManager::onPlayerPositionChanged(qint64 position)
@@ -95,10 +110,26 @@ void SoundManager::onPlayerPositionChanged(qint64 position)
         // Indicates that we're looping.  Check if we've queued a connected event.
         connectedEventQueued_ = false;
         QUrl url = QUrl("qrc" + preferences_->soundSettings().connectedSoundPath);
-        player_->setSource(url);
-        player_->setLoops(QMediaPlayer::Once);
-        player_->play();
+        emit preparePlayer(url, QMediaPlayer::Once);
     }
-
     position_ = position;
+}
+
+// SoundPlayerWorker implementation
+SoundPlayerWorker::SoundPlayerWorker(QObject *parent)
+    : QObject(parent)
+{
+}
+
+void SoundPlayerWorker::preparePlayer(const QUrl &url, QMediaPlayer::Loops loops)
+{
+    QMediaPlayer *player = new QMediaPlayer();
+    QAudioOutput *audioOutput = new QAudioOutput();
+    audioOutput->setVolume(0.7);
+    player->setAudioOutput(audioOutput);
+    audioOutput->setDevice(QAudioDevice());
+    player->setSource(url);
+    player->setLoops(loops);
+
+    emit playerReady(player);
 }

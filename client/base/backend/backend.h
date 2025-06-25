@@ -189,7 +189,7 @@ signals:
 
     void gotoCustomOvpnConfigModeFinished();
 
-    void captchaRequired(const QString &background, const QString &slider, int top);
+    void captchaRequired(bool isAsciiCaptcha, const QString &asciiArt, const QString &background, const QString &slider, int top);
     void loginFinished(bool isLoginFromSavedSettings);
     void tryingBackupEndpoint(int num, int cnt);
     void loginError(wsnet::LoginResult loginError, const QString &errorMessage);

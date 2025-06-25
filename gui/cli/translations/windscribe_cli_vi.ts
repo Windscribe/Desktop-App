@@ -278,5 +278,9 @@
         <source>Internet connectivity is not available.  Try again later.</source>
         <translation>Kết nối Internet không khả dụng.  Thử lại sau.</translation>
     </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Hoàn thành Câu đố để tiếp tục</translation>
+    </message>
 </context>
 </TS>

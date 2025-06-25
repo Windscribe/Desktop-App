@@ -219,14 +219,14 @@ public:
     {
         QByteArray arr(buf, size);
         QDataStream ds(&arr, QIODevice::ReadOnly);
-        ds >> username_ >> password_ >> code2fa_;
+        ds >> username_ >> password_ >> code2fa_ >> captchaSolution_;
     }
 
     std::vector<char> getData() const override
     {
         QByteArray arr;
         QDataStream ds(&arr, QIODevice::WriteOnly);
-        ds << username_ << password_ << code2fa_;
+        ds << username_ << password_ << code2fa_ << captchaSolution_;
         return std::vector<char>(arr.begin(), arr.end());
     }
 
@@ -240,6 +240,7 @@ public:
     QString username_;
     QString password_;
     QString code2fa_;
+    QString captchaSolution_;
 };
 
 class Logout : public Command
@@ -303,7 +304,7 @@ public:
         QByteArray arr(buf, size);
         QDataStream ds(&arr, QIODevice::ReadOnly);
         ds >> language_ >> connectivity_ >> loginState_ >> loginError_ >> loginErrorMessage_
-           >> connectState_ >> connectId_ >> protocol_ >> port_ >> tunnelTestState_ >> location_
+            >> connectState_ >> isCaptchaRequired_ >> asciiArt_ >> connectId_ >> protocol_ >> port_ >> tunnelTestState_ >> location_
            >> isFirewallOn_ >> isFirewallAlwaysOn_
            >> updateState_ >> updateError_ >> updateProgress_ >> updatePath_ >> updateAvailable_
            >> trafficUsed_ >> trafficMax_;
@@ -314,7 +315,7 @@ public:
         QByteArray arr;
         QDataStream ds(&arr, QIODevice::WriteOnly);
         ds << language_ << connectivity_ << loginState_ << loginError_ << loginErrorMessage_
-           << connectState_ << connectId_ << protocol_ << port_ << tunnelTestState_ << location_
+           << connectState_ << isCaptchaRequired_ << asciiArt_ << connectId_ << protocol_ << port_ << tunnelTestState_ << location_
            << isFirewallOn_ << isFirewallAlwaysOn_
            << updateState_ << updateError_ << updateProgress_ << updatePath_ << updateAvailable_
            << trafficUsed_ << trafficMax_;
@@ -334,6 +335,8 @@ public:
     wsnet::LoginResult loginError_;
     QString loginErrorMessage_;
     types::ConnectState connectState_;
+    bool isCaptchaRequired_ = false;
+    QString asciiArt_;
     QString connectId_;
     types::Protocol protocol_;
     uint port_;

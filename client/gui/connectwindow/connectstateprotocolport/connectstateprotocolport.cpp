@@ -78,13 +78,13 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
 
     // types::Protocol and port string
     QString protocolString = protocol_.toLongString();
-    textShadowProtocol_.drawText(painter, QRect(badgePixmap_.width() + kSpacerWidth*G_SCALE, 1*G_SCALE, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, protocolString, font, textColor_ );
+    textShadowProtocol_.drawText(painter, QRect(badgePixmap_.width() + kSpacerWidth*G_SCALE, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, protocolString, font, textColor_ );
 
     // port
     const QString portString = QString::number(port_);
     const int portPosX = badgePixmap_.width() + kSpacerWidth*G_SCALE + textShadowProtocol_.width();
     font.setWeight(QFont::Light);
-    textShadowPort_.drawText(painter, QRect(portPosX, 1*G_SCALE, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, portString, font, textColor_ );
+    textShadowPort_.drawText(painter, QRect(portPosX, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, portString, font, textColor_ );
 
     painter->restore();
 }
@@ -291,7 +291,7 @@ void ConnectStateProtocolPort::recalcSize()
     }
     height_ = badgeHeight;
 
-    protocolArrow_->setPos(width_ - protocolArrowWidth + arrowShift_*G_SCALE, 4*G_SCALE);
+    protocolArrow_->setPos(width_ - protocolArrowWidth + arrowShift_*G_SCALE, 3*G_SCALE);
 
     preferredProtocolBadge_->setVisible(isPreferredProtocol_);
     if (isPreferredProtocol_) {

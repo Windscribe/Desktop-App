@@ -17,7 +17,7 @@ public:
     void ping(bool isFromDisconnectedVpnState) override;
 
 private:
-    enum { PING_TIMEOUT = 2000 };
+    enum { PING_TIMEOUT = 5000 };
     WSNetHttpNetworkManager *httpNetworkManager_;
     std::shared_ptr<WSNetCancelableCallback> request_;
     WSNetAdvancedParameters *advancedParameters_;

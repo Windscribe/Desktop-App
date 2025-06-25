@@ -12,6 +12,7 @@ LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(pare
     connect(backend_, &Backend::checkUpdateChanged, this, &LocalIPCServer::onBackendCheckUpdateChanged);
     connect(backend_, &Backend::connectStateChanged, this, &LocalIPCServer::onBackendConnectStateChanged);
     connect(backend_, &Backend::internetConnectivityChanged, this, &LocalIPCServer::onBackendInternetConnectivityChanged);
+    connect(backend_, &Backend::captchaRequired, this, &LocalIPCServer::onBackendCaptchaRequired);
     connect(backend_, &Backend::loginError, this, &LocalIPCServer::onBackendLoginError);
     connect(backend_, &Backend::loginFinished, this, &LocalIPCServer::onBackendLoginFinished);
     connect(backend_, &Backend::logoutFinished, this, &LocalIPCServer::onBackendLogoutFinished);
@@ -118,8 +119,12 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
             backend_->firewallOff();
         }
     } else if (command->getStringId() == IPC::CliCommands::Login::getCommandStringId()) {
-        if (backend_->currentLoginState() == LOGIN_STATE_LOGGED_OUT || backend_->currentLoginState() == LOGIN_STATE_LOGIN_ERROR) {
-            IPC::CliCommands::Login *cmd = static_cast<IPC::CliCommands::Login *>(command);
+        isCaptchaRequired_ = false;
+        asciiArt_.clear();
+        IPC::CliCommands::Login *cmd = static_cast<IPC::CliCommands::Login *>(command);
+        if (!cmd->captchaSolution_.isEmpty()) {
+            backend_->continueLoginWithCaptcha(cmd->captchaSolution_, std::vector<float>(), std::vector<float>());
+        } else if (backend_->currentLoginState() == LOGIN_STATE_LOGGED_OUT || backend_->currentLoginState() == LOGIN_STATE_LOGIN_ERROR) {
             emit attemptLogin(cmd->username_, cmd->password_, cmd->code2fa_);
         }
     } else if (command->getStringId() == IPC::CliCommands::Logout::getCommandStringId()) {
@@ -167,6 +172,12 @@ void LocalIPCServer::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
     loginState_ = LOGIN_STATE_LOGGED_IN;
 }
 
+void LocalIPCServer::onBackendCaptchaRequired(bool isAsciiCaptcha, const QString &asciiArt, const QString &background, const QString &slider, int top)
+{
+    isCaptchaRequired_ = true;
+    asciiArt_ = asciiArt;
+}
+
 void LocalIPCServer::onBackendLoginError(wsnet::LoginResult code, const QString &msg)
 {
     lastLoginError_ = code;
@@ -194,6 +205,8 @@ void LocalIPCServer::sendState()
     cmd.loginError_ = lastLoginError_;
     cmd.loginErrorMessage_ = lastLoginErrorMessage_;
     cmd.connectState_ = connectState_;
+    cmd.isCaptchaRequired_ = isCaptchaRequired_;
+    cmd.asciiArt_ = asciiArt_;
     cmd.connectId_ = connectId_;
     cmd.tunnelTestState_ = tunnelTestState_;
     cmd.protocol_ = protocol_;

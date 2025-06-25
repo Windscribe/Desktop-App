@@ -1748,7 +1748,7 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
     }
 }
 
-void MainWindow::onBackendCaptchaRequired(const QString &background, const QString &slider, int top)
+void MainWindow::onBackendCaptchaRequired(bool /*isAsciiCaptcha*/, const QString &/*asciiArt*/, const QString &background, const QString &slider, int top)
 {
     mainWindowController_->getLoggingInWindow()->showCaptcha(background, slider, top);
 }

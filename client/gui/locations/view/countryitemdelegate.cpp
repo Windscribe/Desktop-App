@@ -31,6 +31,8 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
 {
     painter->save();
 
+    bool isExpanded = (qFabs(1.0 - option.expandedProgress()) < 0.000001);
+
     // background
     painter->setRenderHint(QPainter::Antialiasing);
     painter->setOpacity(OPACITY_FULL);
@@ -46,13 +48,25 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
         flag->draw(flagRect, painter);
     }
 
-    double textOpacity = OPACITY_UNHOVER_TEXT + (OPACITY_FULL - OPACITY_UNHOVER_TEXT) * option.selectedOpacity();
+    double textOpacity;
+    if (isExpanded) {
+        textOpacity = OPACITY_FULL;
+    } else {
+        textOpacity = OPACITY_UNHOVER_TEXT + (OPACITY_FULL - OPACITY_UNHOVER_TEXT) * option.selectedOpacity();
+    }
 
     painter->setOpacity(OPACITY_FULL);
-    QPen penLoad(QColor(53, 61, 73));
-    penLoad.setWidth(2*G_SCALE);
+
+    // draw a 1px 'border' around the flag to differentiate from the load circle
+    QPen penBorder(QColor(2, 13, 28));
+    penBorder.setWidth(G_SCALE);
+    painter->setPen(penBorder);
+    painter->drawArc(flagRect.adjusted(G_SCALE, G_SCALE, -G_SCALE, -G_SCALE), 0, 360 * 16);
+
     // Draw a full circle with grey color: this is (255, 255, 255, 51) blended with (2, 13, 28).
     // Drawing (255, 255, 255, 51) is not visible since it draws on top of some transparent pixels.
+    QPen penLoad(QColor(53, 61, 73));
+    penLoad.setWidth(2*G_SCALE);
     penLoad.setColor(QColor(53, 61, 73));
     painter->setPen(penLoad);
     painter->drawArc(flagRect, 0, 360 * 16);
@@ -83,7 +97,7 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
 
     // text
     const CountryItemDelegateCache *cache = static_cast<const CountryItemDelegateCache *>(cacheData);
-    painter->setOpacity(textOpacity );
+    painter->setOpacity(textOpacity);
     QRect rc = option.rect;
     rc.adjust(56*G_SCALE, 0, 0, 0);
     IndependentPixmap pixmap = cache->pixmap(CountryItemDelegateCache::kCaptionId);
@@ -95,10 +109,10 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
             painter->setOpacity(OPACITY_FULL);
             int xOffset = 0;
             if (index.data(kIsShowP2P).toBool()) {
-                xOffset = -24*G_SCALE;
+                xOffset = -48*G_SCALE;
             }
             QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON");
-            QRect tenGbpsRect = QRect(option.rect.width() - 40*G_SCALE + xOffset - p->width(), (option.rect.height() - p->height()) / 2, p->width(), p->height());
+            QRect tenGbpsRect = QRect(option.rect.width() - 48*G_SCALE + xOffset - p->width(), (option.rect.height() - p->height()) / 2, p->width(), p->height());
             p->draw(left_offs + tenGbpsRect.x(), top_offs + tenGbpsRect.y(), painter);
         }
     }
@@ -107,7 +121,7 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     if (index.data(kIsShowP2P).toBool()) {
         painter->setOpacity(OPACITY_FULL);
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
-        QRect p2pr = QRect(option.rect.width() - 40*G_SCALE - p->width(),
+        QRect p2pr = QRect(option.rect.width() - 48*G_SCALE - p->width(),
                            (option.rect.height() - p->height()) / 2,
                            p->width(),
                            p->height());
@@ -120,10 +134,9 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
         QSharedPointer<IndependentPixmap> arrowPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/ARROW_RIGHT");
         arrowPixmap->draw(left_offs + option.rect.width() - 16*G_SCALE - arrowPixmap->width(), top_offs + (option.rect.height() - arrowPixmap->height()) / 2, painter);
     } else { // plus/cross
-        double plusIconOpacity_ = OPACITY_THIRD + (OPACITY_FULL - OPACITY_THIRD) * option.selectedOpacity();
-        painter->setOpacity(plusIconOpacity_);
+        painter->setOpacity(textOpacity);
         QSharedPointer<IndependentPixmap> togglePixmap;
-        if (qFabs(1.0 - option.expandedProgress()) < 0.000001) {
+        if (isExpanded) {
             togglePixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/COLLAPSE_ICON");
             togglePixmap->draw(left_offs + option.rect.width() - 16*G_SCALE - togglePixmap->width(),
                                top_offs + (option.rect.height() - togglePixmap->height()) / 2,
@@ -140,7 +153,9 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
                                togglePixmap->width(),
                                pixmapHeight,
                                painter,
-                               0, (togglePixmap->height() - pixmapHeight)/2, togglePixmap->width(), pixmapHeight);
+                               0, (togglePixmap->height() - pixmapHeight)/2*DpiScaleManager::instance().curDevicePixelRatio(),
+                               togglePixmap->width()*DpiScaleManager::instance().curDevicePixelRatio(),
+                               pixmapHeight*DpiScaleManager::instance().curDevicePixelRatio());
         }
     }
 
@@ -153,11 +168,11 @@ IItemCacheData *CountryItemDelegate::createCacheData(const QModelIndex &index) c
     bool isShowP2P = index.data(kIsShowP2P).toBool();
     int maxWidth = kCountryItemMaxWidth*G_SCALE;
     if (isShowP2P) {
-        maxWidth -= 32*G_SCALE;
+        maxWidth -= 48*G_SCALE;
     }
     bool isShow10Gbps = index.data(kIs10Gbps).toBool();
     if (isShow10Gbps) {
-        maxWidth -= 32*G_SCALE;
+        maxWidth -= 48*G_SCALE;
     }
 
     QString countryCaption = CommonGraphics::maybeTruncatedText(index.data().toString(),
@@ -173,11 +188,11 @@ void CountryItemDelegate::updateCacheData(const QModelIndex &index, IItemCacheDa
     bool isShowP2P = index.data(kIsShowP2P).toBool();
     int maxWidth = kCountryItemMaxWidth*G_SCALE;
     if (isShowP2P) {
-        maxWidth -= 32*G_SCALE;
+        maxWidth -= 48*G_SCALE;
     }
     bool isShow10Gbps = index.data(kIs10Gbps).toBool();
     if (isShow10Gbps) {
-        maxWidth -= 32*G_SCALE;
+        maxWidth -= 48*G_SCALE;
     }
     QString countryCaption = CommonGraphics::maybeTruncatedText(index.data().toString(),
                                                                 FontManager::instance().getFont(16, QFont::Medium),
@@ -215,7 +230,7 @@ int CountryItemDelegate::isInTooltipArea(const ItemStyleOption &option, const QM
     if (captionRect(option.rect, cacheData).contains(point)) {
         QString originalCaption = index.data().toString();
         bool isShowP2P = index.data(kIsShowP2P).toBool();
-        int maxWidth = isShowP2P ? (kCountryItemMaxWidth - 32)*G_SCALE : kCountryItemMaxWidth*G_SCALE;
+        int maxWidth = isShowP2P ? (kCountryItemMaxWidth - 48)*G_SCALE : kCountryItemMaxWidth*G_SCALE;
 
         QString truncatedCaption = CommonGraphics::maybeTruncatedText(originalCaption,
                                                                      FontManager::instance().getFont(16, QFont::Medium),
@@ -270,7 +285,7 @@ void CountryItemDelegate::tooltipLeaveEvent(int tooltipId) const
 QRect CountryItemDelegate::p2pRect(const QRect &itemRect) const
 {
     QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
-    return QRect(itemRect.width() - 40*G_SCALE - p->width(),
+    return QRect(itemRect.width() - 48*G_SCALE - p->width(),
                 (itemRect.height() - p->height()) / 2 + itemRect.top(),
                  p->width(),
                  p->height());
@@ -280,7 +295,7 @@ QRect CountryItemDelegate::captionRect(const QRect &itemRect, const IItemCacheDa
 {
     const CountryItemDelegateCache *cache = static_cast<const CountryItemDelegateCache *>(cacheData);
     IndependentPixmap pixmap = cache->pixmap(CountryItemDelegateCache::kCaptionId);
-    return QRect(itemRect.left() + 56*G_SCALE,
+    return QRect(itemRect.left() + 64*G_SCALE,
                 itemRect.top() + (itemRect.height() - pixmap.height()) / 2,
                 pixmap.width(),
                 pixmap.height());

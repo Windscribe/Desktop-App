@@ -73,6 +73,10 @@
         <source>FIREWALL</source>
         <translation>방화벽</translation>
     </message>
+    <message>
+        <source>Keeping the firewall on while disconnected may break internet connectivity</source>
+        <translation>연결이 끊긴 상태에서 방화벽을 켜 두면 인터넷 연결이 끊어질 수 있습니다.</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>

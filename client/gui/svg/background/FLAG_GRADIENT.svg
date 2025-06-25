@@ -1,5 +1,5 @@
 <svg width="350" height="197" viewBox="0 0 350 197" xmlns="http://www.w3.org/2000/svg">
-  <defs>
+<defs>
     <linearGradient x1="50%" y1="0%" x2="50%" y2="50%" id="a1">
       <stop stop-color="#020D1C" stop-opacity="100" offset="0%"/>
       <stop stop-color="#020D1C" stop-opacity="0" offset="100%"/>
@@ -8,7 +8,17 @@
       <stop stop-color="#020D1C" stop-opacity="0" offset="50%"/>
       <stop stop-color="#020D1C" stop-opacity="100" offset="100%"/>
     </linearGradient>
+    <linearGradient x1="0%" y1="50%" x2="50%" y2="50%" id="b1">
+      <stop stop-color="#020D1C" stop-opacity="100" offset="0%"/>
+      <stop stop-color="#020D1C" stop-opacity="0" offset="100%"/>
+    </linearGradient>
+    <linearGradient x1="0%" y1="50%" x2="100%" y2="50%" id="b2">
+      <stop stop-color="#020D1C" stop-opacity="0" offset="50%"/>
+      <stop stop-color="#020D1C" stop-opacity="100" offset="100%"/>
+    </linearGradient>
   </defs>
   <path fill="url(#a1)" fill-rule="evenodd" transform="translate(-566 -679)" d="M566 679h350v197H566z"/>
   <path fill="url(#a2)" fill-rule="evenodd" transform="translate(-566 -679)" d="M566 679h350v197H566z"/>
+  <path fill="url(#b1)" fill-rule="evenodd" transform="translate(-566 -679)" d="M566 679h350v197H566z"/>
+  <path fill="url(#b2)" fill-rule="evenodd" transform="translate(-566 -679)" d="M566 679h350v197H566z"/>
 </svg>

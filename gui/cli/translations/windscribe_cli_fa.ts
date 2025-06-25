@@ -278,5 +278,9 @@
         <source>Internet connectivity is not available.  Try again later.</source>
         <translation>اتصال به اینترنت در دسترس نیست.  بعدا دوباره امتحان کنید.</translation>
     </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>پازل کامل برای ادامه</translation>
+    </message>
 </context>
 </TS>

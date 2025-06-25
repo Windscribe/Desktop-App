@@ -278,5 +278,9 @@
         <source>Internet connectivity is not available.  Try again later.</source>
         <translation>インターネット接続はご利用いただけません。 後でもう一度やり直してください。</translation>
     </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>パズルを完成させて続行</translation>
+    </message>
 </context>
 </TS>

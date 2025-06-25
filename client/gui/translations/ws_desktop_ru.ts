@@ -73,6 +73,10 @@
         <source>FIREWALL</source>
         <translation>БРАНДМАУЭР</translation>
     </message>
+    <message>
+        <source>Keeping the firewall on while disconnected may break internet connectivity</source>
+        <translation>Если оставить брандмауэр включенным в отключенном состоянии, подключение к Интернету может нарушиться</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>

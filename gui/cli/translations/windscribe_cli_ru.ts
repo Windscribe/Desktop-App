@@ -278,5 +278,9 @@
         <source>Internet connectivity is not available.  Try again later.</source>
         <translation>Подключение к Интернету недоступно.  Повторите попытку позже.</translation>
     </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Завершите головоломку, чтобы продолжить</translation>
+    </message>
 </context>
 </TS>
