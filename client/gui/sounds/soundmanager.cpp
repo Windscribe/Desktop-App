@@ -8,6 +8,8 @@ SoundManager::SoundManager(QObject *parent, Preferences *preferences)
 #ifdef Q_OS_MACOS
     // the default of "ffmpeg" does not seem to play anything, use native backend
     setenv("QT_MEDIA_BACKEND", "darwin", 1);
+#elif defined(Q_OS_WIN)
+    _putenv_s("QT_DISABLE_AUDIO_PREPARE", "1");
 #endif
     connect(preferences_, &Preferences::soundSettingsChanged, this, &SoundManager::onSoundSettingsChanged);
 

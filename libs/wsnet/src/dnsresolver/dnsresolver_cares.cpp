@@ -14,6 +14,11 @@
     #include <sys/select.h>
 #endif
 
+#if defined(__APPLE__) && !defined(IS_MOBILE_PLATFORM)
+    #include "getdnsconfig_mac.h"
+#endif
+
+
 namespace wsnet {
 
 DnsResolver_cares::DnsResolver_cares() : curRequestId_(0)
@@ -138,24 +143,37 @@ void DnsResolver_cares::run()
         // We must to cancel current requests before installing new DNS-servers
         if (dnsServersInstalled.isEmpty()) {    // Use default system DNS-servers
 
+            DnsServers dnsServersDefaultConfiguration;
             // get the current system DNS-server through a temporary channel
             ares_channel tempChannel;
             struct ares_options options;
             memset(&options, 0, sizeof(options));
-            status = ares_init_options(&tempChannel, &options, 0);
-            assert(status == ARES_SUCCESS);
-
-            char *servers = ares_get_servers_csv(tempChannel);
-            DnsServers dnsServersInTempChannel(servers);
-            if (servers) {
-                ares_free_string(servers);
+            // ARES_FLAG_NO_DFLT_SVR flag => do not attempt to add a default local named server if there are no other servers available
+            status = ares_init_options(&tempChannel, &options, ARES_FLAG_NO_DFLT_SVR);
+            if (status != ARES_SUCCESS) {
+                // Sometimes we see a bug on MacOS where c-ares cannot get the DNS configuration and uses the 127.0.0.1 address instead
+                // To make c-ares return an error instead of using the 127.0.0.1 address, we use the flag ARES_FLAG_NO_DFLT_SVR in ares_init_options call above
+                // It seems the method that c-ares uses to detect DNS configuration is not 100% reliable.
+                // The implementation of the method is here: https://github.com/c-ares/c-ares/blob/main/src/lib/ares_sysconfig_mac.c
+                // So if the c-ares method fails, let's try another method using the System Configuration Framework.
+#if defined(__APPLE__) && !defined(IS_MOBILE_PLATFORM)
+                auto strDnsServers = getDnsConfig_mac();
+                logDnsServersFromSystemConfigurationFrameworkIfChanged(strDnsServers);
+                dnsServersDefaultConfiguration = DnsServers(strDnsServers.c_str());
+#endif
+            } else {
+                char *servers = ares_get_servers_csv(tempChannel);
+                dnsServersDefaultConfiguration = DnsServers(servers);
+                if (servers) {
+                    ares_free_string(servers);
+                }
             }
 
-            if (dnsServersInChannel != dnsServersInTempChannel) {
+            if (dnsServersInChannel != dnsServersDefaultConfiguration) {
                 ares_cancel(channel);
-                status = ares_set_servers_csv(channel, dnsServersInTempChannel.getAsCsv().c_str());
+                status = ares_set_servers_csv(channel, dnsServersDefaultConfiguration.getAsCsv().c_str());
                 assert(status == ARES_SUCCESS);
-                dnsServersInChannel = dnsServersInTempChannel;
+                dnsServersInChannel = dnsServersDefaultConfiguration;
 
                 g_logger->info("DNS servers in channel are changed: {}", dnsServersInChannel.getAsCsv());
             }
@@ -236,6 +254,16 @@ void DnsResolver_cares::caresCallback(void *arg, int status, int timeouts, hoste
         pars->qi.callback->call(pars->qi.userDataId, pars->qi.hostname, result);
     }
     delete pars;
+}
+
+void DnsResolver_cares::logDnsServersFromSystemConfigurationFrameworkIfChanged(const std::string &servers)
+{
+    // log only if changed to avoid spam
+    static std::string lastServers;
+    if (lastServers != servers) {
+        lastServers = servers;
+        g_logger->info("DNS servers from System Configuration Framework: {}", servers);
+    }
 }
 
 } // namespace wsnet

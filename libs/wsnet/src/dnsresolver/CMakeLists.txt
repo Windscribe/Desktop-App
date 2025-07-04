@@ -6,3 +6,10 @@ target_sources(wsnet PRIVATE
     dnsservers.cpp
     dnsservers.h
 )
+
+if (APPLE AND NOT IOS)
+    target_sources(wsnet PRIVATE
+        getdnsconfig_mac.cpp
+        getdnsconfig_mac.h
+    )
+endif()

@@ -1165,7 +1165,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::AppBackgroundGroup</name>
     <message>
         <source>App Background</source>
-        <translation>Предыстория приложения</translation>
+        <translation>Фон приложения</translation>
     </message>
     <message>
         <source>Aspect Ratio Mode</source>
@@ -1173,7 +1173,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>When Disconnected</source>
-        <translation>При отключении</translation>
+        <translation>Когда отключён</translation>
     </message>
     <message>
         <source>Flags</source>
@@ -1181,19 +1181,19 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Bundled</source>
-        <translation>Комплекте</translation>
+        <translation>Встр. изображение</translation>
     </message>
     <message>
         <source>None</source>
-        <translation>Никакой</translation>
+        <translation>Ничего</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>Обычай</translation>
+        <translation>Своё изображение</translation>
     </message>
     <message>
         <source>When Connected</source>
-        <translation>При подключении</translation>
+        <translation>Когда подключён</translation>
     </message>
     <message>
         <source>Select an image</source>
@@ -1201,15 +1201,15 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Square</source>
-        <translation>Площадь</translation>
+        <translation>Квадраты</translation>
     </message>
     <message>
         <source>Palm</source>
-        <translation>Ладонь</translation>
+        <translation>Пальмы</translation>
     </message>
     <message>
         <source>Drip</source>
-        <translation>Капать</translation>
+        <translation>Капли</translation>
     </message>
     <message>
         <source>Snow</source>
@@ -1378,15 +1378,15 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::DecoyTrafficGroup</name>
     <message>
         <source>Decoy Traffic</source>
-        <translation>Трафик приманок</translation>
+        <translation>Трафик-приманка</translation>
     </message>
     <message>
         <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
-        <translation>Это экспериментальная функция, которая пытается бороться с атаками корреляции трафика в состязательных сетях. Когда этот параметр включен, приложение будет генерировать случайную активность в туннеле, а также загружать и скачивать случайные данные через выбранные промежутки времени.</translation>
+        <translation>Это экспериментальная функция, которая пытается бороться с атаками корреляции трафика во враждебных сетях. Когда этот параметр включен, приложение будет генерировать случайную активность в туннеле, а также загружать и скачивать случайные данные через выбранные промежутки времени.</translation>
     </message>
     <message>
         <source>Fake Traffic Volume</source>
-        <translation>Фейковый объем трафика</translation>
+        <translation>Объем фейкового трафика</translation>
     </message>
     <message>
         <source>Low</source>
@@ -1394,7 +1394,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Medium</source>
-        <translation>Терпимая</translation>
+        <translation>Средний</translation>
     </message>
     <message>
         <source>High</source>
@@ -1679,7 +1679,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Rename Locations</source>
-        <translation>Переименование местоположений</translation>
+        <translation>Переименование локаций</translation>
     </message>
     <message>
         <source>Export</source>
@@ -2095,19 +2095,19 @@ Connect to a network first</source>
     </message>
     <message>
         <source>None</source>
-        <translation>Никакой</translation>
+        <translation>Ничего</translation>
     </message>
     <message>
         <source>When Disconnected</source>
-        <translation>При отключении</translation>
+        <translation>Когда отключён</translation>
     </message>
     <message>
         <source>Bundled</source>
-        <translation>Комплекте</translation>
+        <translation>Встр. звуки</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>Обычай</translation>
+        <translation>Свой звук</translation>
     </message>
     <message>
         <source>Select a sound</source>
@@ -2115,7 +2115,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>When Connected</source>
-        <translation>При подключении</translation>
+        <translation>Когда подключён</translation>
     </message>
 </context>
 <context>
@@ -2493,15 +2493,15 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Stretch</source>
-        <translation>Натягивать</translation>
+        <translation>Растянуть</translation>
     </message>
     <message>
         <source>Fill</source>
-        <translation>Заполнять</translation>
+        <translation>Заполнить</translation>
     </message>
     <message>
         <source>Tile</source>
-        <translation>Кафель</translation>
+        <translation>Замостить</translation>
     </message>
     <message>
         <source>Always On+</source>
@@ -2583,7 +2583,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Update</source>
-        <translation>Обновлять</translation>
+        <translation>Обновить</translation>
     </message>
 </context>
 <context>

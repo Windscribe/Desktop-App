@@ -170,34 +170,6 @@ public:
     }
 };
 
-// The custom formatter that allows to output unformatted messages for the logger with "raw" name
-class CustomFormatter : public spdlog::formatter {
-public:
-
-    explicit CustomFormatter(std::unique_ptr<spdlog::formatter> formatter)
-    {
-        formatter_ = std::move(formatter);
-    }
-
-    virtual ~CustomFormatter() = default;
-
-    void format(const spdlog::details::log_msg &msg, spdlog::memory_buf_t &dest) override
-    {
-        if (msg.logger_name == "raw") {
-            dest.append(msg.payload.data(), msg.payload.data() + msg.payload.size());
-        } else {
-            formatter_->format(msg, dest);
-        }
-    }
-
-    std::unique_ptr<formatter> clone() const override
-    {
-        return spdlog::details::make_unique<CustomFormatter>(formatter_->clone());
-    }
-
-private:
-    std::unique_ptr<spdlog::formatter> formatter_;
-};
 
 // quick check if the file is a new or old log format
 // check that the first 3 lines start and end with symbols { and }

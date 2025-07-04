@@ -72,6 +72,8 @@ private:
     std::set<std::uint64_t> activeRequests_;
     DnsServers dnsServers_;
     std::uint64_t curRequestId_;
+
+    void logDnsServersFromSystemConfigurationFrameworkIfChanged(const std::string &servers);
 };
 
 } // namespace wsnet

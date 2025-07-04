@@ -1,3 +1,18 @@
+2.16.7 (04/07/2025)
+All:
+   * Added flag for Iran. #1413
+   * Improved Russian translations. #1411
+   * Fixed Look & Feel preferences not translated. #1412
+   * Fixed 400 'header or cookie too large' for Cloudflare API endpoints. #1399
+   * Fixed incorrectly formatted client log entries. #1416
+Windows:
+   * Fixed playing a sound may capture the audio device, preventing Windows from sleeping. #1410
+MacOS:
+   * Fixed wsnet not detecting OS Default DNS server when using DHCP. #1376
+   * Fixed app firewall blocking Sidecar/Continuity features. #415
+   * Fixed docked window is sometimes in the wrong position. #1334
+
+
 2.16.6 (24/06/2025)
 All:
    * Fixed various UI bugs. #1151 #1400 #1401

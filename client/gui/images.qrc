@@ -115,6 +115,7 @@
         <file>svg/flags/ie.svg</file>
         <file>svg/flags/il.svg</file>
         <file>svg/flags/in.svg</file>
+        <file>svg/flags/ir.svg</file>
         <file>svg/flags/is.svg</file>
         <file>svg/flags/it.svg</file>
         <file>svg/flags/jp.svg</file>
@@ -206,6 +207,7 @@
         <file>svg/flags/ie_circle.svg</file>
         <file>svg/flags/il_circle.svg</file>
         <file>svg/flags/in_circle.svg</file>
+        <file>svg/flags/ir_circle.svg</file>
         <file>svg/flags/is_circle.svg</file>
         <file>svg/flags/it_circle.svg</file>
         <file>svg/flags/jp_circle.svg</file>

@@ -41,7 +41,7 @@ index 583f65c..3fabea7 100644
          RAND_bytes((unsigned char*)&hlen, sizeof(hlen));
 -        hlen = 2000 + (hlen % 10000);
 -        if (!WPACKET_put_bytes_u16(pkt, TLSEXT_TYPE_padding)
-+        hlen = 7000 + (hlen % 6000);
++        hlen = 7000 + (hlen % 3000);
 +        RAND_bytes((unsigned char*)&tmp, sizeof(tmp));
 +        RAND_bytes((unsigned char*)&tmp_bytes, sizeof(tmp_bytes));
 +        tmp = tmp % (sizeof(unassigned_exts) / sizeof(unassigned_exts[0]));

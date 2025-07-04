@@ -15,6 +15,45 @@
 
 namespace log_utils {
 
+
+// The custom formatter that allows:
+// to output unformatted messages for the logger with "raw" name
+// to output messages for the logger with "qt" name for message from Qt loggers
+// to output messages for all other loggers with standard json pattern
+
+class CustomFormatter : public spdlog::formatter {
+public:
+
+    explicit CustomFormatter(std::unique_ptr<spdlog::formatter> formatter)
+    {
+        formatter_ = std::move(formatter);
+        jsonFormatter_ = log_utils::createJsonFormatter();
+    }
+
+    virtual ~CustomFormatter() = default;
+
+    void format(const spdlog::details::log_msg &msg, spdlog::memory_buf_t &dest) override
+    {
+        if (msg.logger_name == "raw") {
+            dest.append(msg.payload.data(), msg.payload.data() + msg.payload.size());
+        } else if (msg.logger_name == "qt") {
+            formatter_->format(msg, dest);
+        } else {
+            jsonFormatter_->format(msg, dest);
+        }
+    }
+
+    std::unique_ptr<formatter> clone() const override
+    {
+        return spdlog::details::make_unique<CustomFormatter>(formatter_->clone());
+    }
+
+private:
+    std::unique_ptr<spdlog::formatter> formatter_;
+    std::unique_ptr<spdlog::formatter> jsonFormatter_;
+};
+
+
 bool Logger::install(const QString &logFilePath, bool consoleOutput)
 {
     QLoggingCategory::setFilterRules("qt.tlsbackend.ossl=false\nqt.network.ssl=false");
@@ -38,7 +77,7 @@ bool Logger::install(const QString &logFilePath, bool consoleOutput)
         // Create rotation logger with 2 file with unlimited size
         // rotate it on open, the first file is the current log, the 2nd is the previous log
         auto fileSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(path, SIZE_MAX, 1, true);
-        auto defaultLogger = std::make_shared<spdlog::logger>("default", fileSink);
+        auto defaultLogger = std::make_shared<spdlog::logger>("qt", fileSink);
         spdlog::set_default_logger(defaultLogger);
 
         // Create the logger without formatting for logging output from libraries such as wsnet, which format logs themselves
@@ -96,16 +135,17 @@ void Logger::myMessageHandler(QtMsgType type, const QMessageLogContext &context,
     //::OutputDebugString(qUtf16Printable(s));
 #endif
 
+    auto qtLogger = spdlog::get("qt");
     std::string escapedMsg = log_utils::escape_string(s.toStdString());
     static const std::string fmt = "\"mod\": \"{}\", \"msg\": \"{}\"";
     if (type == QtDebugMsg)
-        spdlog::debug(fmt, context.category, escapedMsg);
+        qtLogger->debug(fmt, context.category, escapedMsg);
     else if (type == QtWarningMsg)
-        spdlog::warn(fmt, context.category, escapedMsg);
+        qtLogger->warn(fmt, context.category, escapedMsg);
     else if (type == QtInfoMsg)
-        spdlog::info(fmt, context.category, escapedMsg);
+        qtLogger->info(fmt, context.category, escapedMsg);
     else
-        spdlog::error(fmt, context.category, escapedMsg);
+        qtLogger->error(fmt, context.category, escapedMsg);
 }
 
 void Logger::startConnectionMode(const std::string &id)
@@ -136,10 +176,8 @@ spdlog::logger *Logger::getSpdLogger(const std::string &category)
 {
     auto it = spd_loggers_.find(category);
     if (it == spd_loggers_.end()) {
-        auto formatter = log_utils::createJsonFormatter();
         auto sinks = spdlog::default_logger()->sinks();
         auto logger = std::make_shared<spdlog::logger>(category, sinks.begin(), sinks.end());
-        logger->set_formatter(std::move(formatter));
         spd_loggers_[category] = logger;
         return logger.get();
     } else {

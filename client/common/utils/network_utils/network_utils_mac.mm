@@ -248,7 +248,7 @@ QStringList NetworkUtils_mac::getP2P_AWDL_NetworkInterfaces()
     QStringList list = res.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
     QStringList ret;
     for (const auto &s : list)
-        if (s.startsWith("p2p") || s.startsWith("awdl"))
+        if (s.startsWith("p2p") || s.startsWith("awdl") || s.startsWith("llw"))
             ret << s;
     return ret;
 }

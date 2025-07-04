@@ -147,6 +147,19 @@ MainWindow::MainWindow() :
     qCDebug(LOG_BASIC) << "GUI pid: " << guiPid;
     backend_ = new Backend(this);
 
+    // On MacOS the tray icon geometry can be invalid  for the first few milliseconds (on my Mac about 160 ms)
+    // Give the icon a chance to initialize completely within a maximum of 2 seconds for  the docked mode
+#if defined(Q_OS_MACOS)
+    if (backend_->getPreferences()->isDockedToTray()) {
+        QElapsedTimer t;
+        t.start();
+        while (!isTrayIconRectValid() && t.elapsed() < 2000) {
+            qApp->processEvents();
+            QThread::msleep(10);
+        }
+    }
+#endif
+
 #if defined(Q_OS_MACOS)
     permissionMonitor_ = new PermissionMonitor_mac(this);
     connect(permissionMonitor_, &PermissionMonitor_mac::locationPermissionUpdated, this, &MainWindow::onLocationPermissionUpdated);
@@ -3916,6 +3929,24 @@ void MainWindow::updateTrayTooltip(QString tooltip)
 #else
     trayIcon_.setToolTip(tooltip);
 #endif
+}
+
+bool MainWindow::isTrayIconRectValid()
+{
+    if (!trayIcon_.isVisible())
+        return false;
+
+    const QRect rc = trayIcon_.geometry();
+    if (!rc.isValid())
+       return false;
+
+    // check for valid screen because on macOS trayIcon_.geometry() can be valid but contain invalid coordinates
+    QScreen *screen = QGuiApplication::screenAt(rc.center());
+    if (!screen) {
+        return false;
+    }
+
+    return true;
 }
 
 void MainWindow::onWireGuardAtKeyLimit()

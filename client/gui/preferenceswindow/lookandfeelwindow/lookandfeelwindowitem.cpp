@@ -57,6 +57,7 @@ LookAndFeelWindowItem::LookAndFeelWindowItem(ScalableGraphicsObject *parent, Pre
 
 
     // Populate combo boxes and other text
+    connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &LookAndFeelWindowItem::onLanguageChanged);
     onLanguageChanged();
 }
 
