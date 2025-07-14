@@ -279,8 +279,8 @@
         <translation>اتصال به اینترنت در دسترس نیست.  بعدا دوباره امتحان کنید.</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>پازل کامل برای ادامه</translation>
+        <source>Please type the numbers above to continue:</source>
+        <translation>لطفا برای ادامه اعداد بالا را تایپ کنید:</translation>
     </message>
 </context>
 </TS>

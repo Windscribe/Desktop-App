@@ -279,8 +279,8 @@
         <translation>インターネット接続はご利用いただけません。 後でもう一度やり直してください。</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>パズルを完成させて続行</translation>
+        <source>Please type the numbers above to continue:</source>
+        <translation>続行するには、上記の数字を入力してください。</translation>
     </message>
 </context>
 </TS>

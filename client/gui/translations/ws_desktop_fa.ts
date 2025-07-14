@@ -34,18 +34,6 @@
 <context>
     <name>ConnectWindow::ConnectWindowItem</name>
     <message>
-        <source>No Network Info</source>
-        <translation>بدون اطلاعات شبکه</translation>
-    </message>
-    <message>
-        <source>Unsecured</source>
-        <translation>نا امن</translation>
-    </message>
-    <message>
-        <source>Secured</source>
-        <translation>امن</translation>
-    </message>
-    <message>
         <source>Connection to Windscribe has been terminated. </source>
         <translation>اتصال به Windscribe قطع شده است. </translation>
     </message>
@@ -68,10 +56,6 @@
     <message>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
         <translation>مسدود کردن تمام اتصالات در صورت قطع ناگهانی</translation>
-    </message>
-    <message>
-        <source>FIREWALL</source>
-        <translation>فایروال</translation>
     </message>
     <message>
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>

@@ -22,7 +22,7 @@ InstallButton::InstallButton(QWidget *parent) : QPushButton(parent)
 
     text_ = new QLabel(this);
     text_->setFont(ThemeController::instance().defaultFont(15, QFont::Normal));
-    text_->setStyleSheet("QLabel { color: #020d1c; }");
+    text_->setStyleSheet("QLabel { color: #090E19; }");
     text_->setText(installText);
 
     if (LanguageController::instance().isRtlLanguage()) {
@@ -35,6 +35,6 @@ InstallButton::InstallButton(QWidget *parent) : QPushButton(parent)
     }
 
     setStyleSheet("QPushButton { background-color: #ffffff; border-radius: 19px; }"
-                  "QPushButton:hover { background-color: #55ff8a; }"
-                  "QPushButton:pressed { background-color: #55ff8a; }");
+                  "QPushButton:hover { background-color: #17E9AD; }"
+                  "QPushButton:pressed { background-color: #17E9AD; }");
 }

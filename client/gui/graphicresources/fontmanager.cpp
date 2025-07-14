@@ -66,7 +66,7 @@ QColor FontManager::getCharcoalColor()
 
 QColor FontManager::getMidnightColor()
 {
-    return QColor(0x02, 0x0d, 0x1c);
+    return QColor(0x09, 0x0e, 0x19);
 }
 
 QColor FontManager::getDarkBlueColor()
@@ -94,7 +94,7 @@ QString FontManager::getMidnightColorSS(bool withColorText)
     QString result = "";
     if (withColorText) result += "color: ";
 
-    result += "#020d1c";
+    result += "#090E19";
     return result;
 }
 
@@ -118,7 +118,7 @@ QString FontManager::getCharcoalColorSS(bool withColorText)
 
 QColor FontManager::getSeaGreenColor()
 {
-    return QColor(0x55, 0xff, 0x8a);
+    return QColor(0x17, 0xE9, 0xAD);
 }
 
 FontManager::FontManager()

@@ -34,18 +34,6 @@
 <context>
     <name>ConnectWindow::ConnectWindowItem</name>
     <message>
-        <source>No Network Info</source>
-        <translation>네트워크 정보 없음</translation>
-    </message>
-    <message>
-        <source>Unsecured</source>
-        <translation>무담보</translation>
-    </message>
-    <message>
-        <source>Secured</source>
-        <translation>보안</translation>
-    </message>
-    <message>
         <source>Connection to Windscribe has been terminated. </source>
         <translation>Windscribe에 대한 연결이 종료되었습니다. </translation>
     </message>
@@ -68,10 +56,6 @@
     <message>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
         <translation>갑작스런 연결 끊김 시 모든 연결을 차단합니다.</translation>
-    </message>
-    <message>
-        <source>FIREWALL</source>
-        <translation>방화벽</translation>
     </message>
     <message>
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>

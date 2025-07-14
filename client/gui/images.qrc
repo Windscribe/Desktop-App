@@ -34,6 +34,7 @@
         <file>svg/MAC_MINIMIZE_DEFAULT.svg</file>
         <file>svg/MAC_MINIMIZE_HOVER.svg</file>
         <file>svg/MENU_ICON.svg</file>
+        <file>svg/NETWORK_ARROW.svg</file>
         <file>svg/NOTIFICATION_ICON.svg</file>
         <file>svg/PASSWORD_HIDE.svg</file>
         <file>svg/PASSWORD_REVEAL.svg</file>
@@ -66,11 +67,8 @@
         <file>svg/background/MAIN_BORDER_TOP_INNER_EXTENSION.svg</file>
         <file>svg/background/MAIN_BORDER_TOP_INNER_VAN_GOGH.svg</file>
         <file>svg/connection-badge/NO_INT.svg</file>
-        <file>svg/connection-badge/NO_INT_SHADOW.svg</file>
         <file>svg/connection-badge/OFF.svg</file>
-        <file>svg/connection-badge/OFF_SHADOW.svg</file>
         <file>svg/connection-badge/ON.svg</file>
-        <file>svg/connection-badge/ON_SHADOW.svg</file>
         <file>svg/emergencyconnect/BIG_SPINNER.svg</file>
         <file>svg/emergencyconnect/EMERGENCY_CONNECT_ICON.svg</file>
         <file>svg/flags/ae.svg</file>
@@ -303,13 +301,9 @@
         <file>svg/login/SLIDER_ARROW_ICON.svg</file>
         <file>svg/login/TWOFA_ICON.svg</file>
         <file>svg/network/ETHERNET_SECURED.svg</file>
-        <file>svg/network/ETHERNET_SECURED_SHADOW.svg</file>
         <file>svg/network/ETHERNET_UNSECURED.svg</file>
-        <file>svg/network/ETHERNET_UNSECURED_SHADOW.svg</file>
         <file>svg/network/WIFI_SECURED.svg</file>
-        <file>svg/network/WIFI_SECURED_SHADOW.svg</file>
         <file>svg/network/WIFI_UNSECURED.svg</file>
-        <file>svg/network/WIFI_UNSECURED_SHADOW.svg</file>
         <file>svg/pingbar/OFF_FULL.svg</file>
         <file>svg/pingbar/OFF_HALF.svg</file>
         <file>svg/pingbar/OFF_LOW.svg</file>

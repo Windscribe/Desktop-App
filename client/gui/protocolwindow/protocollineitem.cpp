@@ -43,7 +43,7 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         painter->setPen(Qt::NoPen);
         if (status_.status == types::ProtocolStatus::Status::kConnected) {
             painter->setOpacity(0.08);
-            painter->fillPath(stroker.createStroke(path), QBrush(QColor(85, 255, 138)));
+            painter->fillPath(stroker.createStroke(path), QBrush(FontManager::instance().getSeaGreenColor()));
         } else if (status_.status == types::ProtocolStatus::Status::kFailed) {
             painter->setOpacity(0.08);
             painter->fillPath(stroker.createStroke(path), QBrush(QColor(255, 255, 255)));
@@ -75,7 +75,7 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     {
         if (status_.status == types::ProtocolStatus::Status::kConnected) {
             painter->setOpacity(1.0);
-            painter->setPen(QColor(85, 255, 138));
+            painter->setPen(FontManager::instance().getSeaGreenColor());
         } else if (status_.status == types::ProtocolStatus::Status::kFailed) {
             painter->setOpacity(0.5);
             painter->setPen(QColor(255, 255, 255));
@@ -104,7 +104,7 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         painter->setFont(font);
 
         if (status_.status == types::ProtocolStatus::Status::kConnected) {
-            painter->setPen(QColor(85, 255, 138));
+            painter->setPen(FontManager::instance().getSeaGreenColor());
         } else {
             painter->setPen(QColor(255, 255, 255));
         }
@@ -116,7 +116,7 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     // description
     {
         if (status_.status == types::ProtocolStatus::Status::kConnected) {
-            painter->setPen(QColor(85, 255, 138));
+            painter->setPen(FontManager::instance().getSeaGreenColor());
         } else if (status_.status == types::ProtocolStatus::Status::kFailed) {
             painter->setPen(QColor(255, 255, 255, 128));
         } else {
@@ -150,11 +150,11 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         path.setFillRule(Qt::WindingFill);
         painter->setOpacity(0.1);
         painter->setPen(Qt::NoPen);
-        painter->fillPath(path, QBrush(QColor(85, 255, 138)));
+        painter->fillPath(path, QBrush(FontManager::instance().getSeaGreenColor()));
         painter->setPen(Qt::SolidLine);
 
         // Text inside
-        painter->setPen(QColor(85, 255, 138));
+        painter->setPen(FontManager::instance().getSeaGreenColor());
         painter->setOpacity(1.0);
         QFont font = FontManager::instance().getFont(12, QFont::Bold);
         painter->setFont(font);
@@ -185,10 +185,10 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         path.setFillRule(Qt::WindingFill);
         painter->setOpacity(0.1);
         painter->setPen(Qt::NoPen);
-        painter->fillPath(path, QBrush(QColor(85, 255, 138)));
+        painter->fillPath(path, QBrush(FontManager::instance().getSeaGreenColor()));
         painter->setPen(Qt::SolidLine);
 
-        painter->setPen(QColor(85, 255, 138));
+        painter->setPen(FontManager::instance().getSeaGreenColor());
         painter->setOpacity(1.0);
         QFont font = FontManager::instance().getFont(12,  QFont::Normal);
         painter->setFont(font);

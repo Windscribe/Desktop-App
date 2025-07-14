@@ -7,6 +7,7 @@
 #include "commongraphics/iconbutton.h"
 #include "backend/preferences/preferences.h"
 #include "graphicresources/fontdescr.h"
+#include "graphicresources/independentpixmap.h"
 #include "utils/textshadow.h"
 #include "utils/imagewithshadow.h"
 #include "connectionbadgedots.h"
@@ -66,10 +67,8 @@ private:
     bool receivedTunnelTestResult_;
 
     //QString badgeIconFg_;
-    QScopedPointer<ImageWithShadow> badgeFgImage_;
 
-    TextShadow textShadowProtocol_;
-    TextShadow textShadowPort_;
+    QSharedPointer<IndependentPixmap> badgeFgImage_;
 
     QColor badgeBgColor_;
     BadgePixmap badgePixmap_;

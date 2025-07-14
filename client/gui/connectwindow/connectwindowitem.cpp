@@ -18,10 +18,6 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     : ScalableGraphicsObject (parent),
       preferences_(preferences),
       preferencesHelper_(preferencesHelper),
-      networkName_(""),
-      trustType_(NETWORK_TRUST_SECURED),
-      interfaceType_(NETWORK_INTERFACE_NONE),
-      networkActive_(false),
       connectionTime_(""),
       dataTransferred_(""),
       isFirewallAlwaysOn_(false)
@@ -77,20 +73,14 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
 
     locationsButton_ = new LocationsButton(this);
     locationsButton_->setCursor(Qt::PointingHandCursor);
+    locationsButton_->setIsExternalConfigMode(preferencesHelper->isExternalConfigMode());
     connect(locationsButton_, &LocationsButton::clicked, this, &ConnectWindowItem::locationsClick);
     connect(locationsButton_, &LocationsButton::locationTabClicked, this, &ConnectWindowItem::locationTabClicked);
     connect(locationsButton_, &LocationsButton::searchFilterChanged, this, &ConnectWindowItem::searchFilterChanged);
     connect(locationsButton_, &LocationsButton::locationsKeyPressed, this, &ConnectWindowItem::locationsKeyPressed);
 
-    networkTrustButton_ = new IconButton(28, 22, "network/WIFI_UNSECURED", "network/WIFI_UNSECURED_SHADOW", this, OPACITY_FULL);
-    networkTrustButton_->setOpacity(.2);
+    networkTrustButton_ = new NetworkTrustButton(this);
     connect(networkTrustButton_, &IconButton::clicked, this, &ConnectWindowItem::networkButtonClick);
-    connect(networkTrustButton_, &IconButton::hoverEnter, this, &ConnectWindowItem::onNetworkHoverEnter);
-    connect(networkTrustButton_, &IconButton::hoverLeave, this, &ConnectWindowItem::onNetworkHoverLeave);
-
-    networkNameText_ = new CommonGraphics::TextButton("", FontDescr(15, QFont::Normal), Qt::white, false, this, 0, false);
-    networkNameText_->setUnhoverOpacity(0.7);
-    networkNameText_->setCurrentOpacity(0.7);
 
     ipAddressItem_ = new IPAddressItem(this);
     connect(ipAddressItem_, &IPAddressItem::widthChanged, this, &ConnectWindowItem::onIpAddressWidthChanged);
@@ -98,7 +88,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     // dotMenuButton_ = new IconButton(24, 24, "DOT_MENU", "", this);
     // dotMenuButton_->setUnhoverOpacity(0.6);
 
-    firewallLabel_ = new CommonGraphics::TextButton(tr("FIREWALL"), FontDescr(12, QFont::Medium, 100, 2), Qt::white, false, this, 0, false);
+    firewallLabel_ = new CommonGraphics::TextButton(tr("Firewall"), FontDescr(12, QFont::DemiBold), Qt::white, false, this, 0, false);
     firewallLabel_->setUnhoverOpacity(0.6);
     firewallLabel_->setCurrentOpacity(0.6);
 
@@ -117,6 +107,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(logoButton_, &LogoNotificationsButton::clicked, this, &ConnectWindowItem::notificationsClick);
 
     connect(preferencesHelper, &PreferencesHelper::isDockedModeChanged, this, &ConnectWindowItem::onDockedModeChanged);
+    connect(preferencesHelper, &PreferencesHelper::isExternalConfigModeChanged, this, &ConnectWindowItem::onExternalConfigModeChanged);
     connect(preferences, &Preferences::appSkinChanged, this, &ConnectWindowItem::onAppSkinChanged);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectWindowItem::onLanguageChanged);
@@ -273,41 +264,7 @@ void ConnectWindowItem::updateNotificationsState(int totalMessages, int unread)
 
 void ConnectWindowItem::updateNetworkState(types::NetworkInterface network)
 {
-    NETWORK_TRUST_TYPE trusted = network.trustType;
-    NETWORK_INTERFACE_TYPE type = network.interfaceType;
-    bool networkActive = network.active;
-
-    if (trustType_ != trusted || interfaceType_ != type || networkActive_ != networkActive) {
-        QString icon = "";
-        if (type == NETWORK_INTERFACE_WIFI || type == NETWORK_INTERFACE_MOBILE_BROADBAND) {
-            icon += "network/WIFI_";
-        } else if (type == NETWORK_INTERFACE_ETH) {
-            icon += "network/ETHERNET_";
-        }
-
-        if (networkActive) {
-            networkTrustButton_->setOpacity(1);
-        } else {
-            networkTrustButton_->setOpacity(.2);
-        }
-
-        if (icon != "") {
-            if (trusted == NETWORK_TRUST_UNSECURED) {
-                icon += "UNSECURED";
-            } else {
-                icon += "SECURED";
-            }
-
-            networkTrustButton_->setIcon(icon, icon + "_SHADOW");
-        }
-    }
-
-    networkName_ = network.friendlyName;
-    networkNameText_->setText(networkName_);
-    trustType_ = trusted;
-    interfaceType_ = type;
-    networkActive_ = networkActive;
-
+    networkTrustButton_->setNetwork(network);
 }
 
 void ConnectWindowItem::setSplitTunnelingState(bool on)
@@ -325,41 +282,6 @@ void ConnectWindowItem::setProtocolPort(const types::Protocol &protocol, const u
 {
     connectStateProtocolPort_->setProtocolPort(protocol, port);
     preferencesHelper_->setCurrentProtocol(protocol);
-}
-
-void ConnectWindowItem::onNetworkHoverEnter()
-{
-    QString title = "";
-    if (networkName_ == "") {
-        title = tr("No Network Info");
-    } else {
-        title = networkName_ + ": ";
-
-        if (trustType_) {
-            title += tr("Unsecured");
-        } else {
-            title += tr("Secured");
-        }
-    }
-
-    QGraphicsView *view = scene()->views().first();
-    QPoint globalPt = view->mapToGlobal(view->mapFromScene(networkTrustButton_->scenePos()));
-
-    int posX = globalPt.x() + 12 * G_SCALE;
-    int posY = globalPt.y() - 5 * G_SCALE;
-
-    TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_NETWORK_INFO);
-    ti.x = posX;
-    ti.y = posY;
-    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-    ti.tailPosPercent = 0.5;
-    ti.title = title;
-    TooltipController::instance().showTooltipBasic(ti);
-}
-
-void ConnectWindowItem::onNetworkHoverLeave()
-{
-    TooltipController::instance().hideTooltip(TOOLTIP_ID_NETWORK_INFO);
 }
 
 void ConnectWindowItem::onConnectStateTextHoverEnter()
@@ -555,11 +477,10 @@ void ConnectWindowItem::updatePositions()
         connectStateProtocolPort_->setPos(13*G_SCALE, 74*G_SCALE);
         locationsButton_->setPos(97*G_SCALE, 183*G_SCALE);
         networkTrustButton_->setPos(16*G_SCALE, 147*G_SCALE);
-        networkNameText_->setPos(48*G_SCALE, 142*G_SCALE);
         // If FreshScribe API available, IP should shift 32*G_SCALE to the left and dotMenuButton_ should be visible
-        ipAddressItem_->setPos(boundingRect().width() - ipAddressItem_->boundingRect().width() - 16*G_SCALE, 146*G_SCALE);
-        // dotMenuButton_->setPos(boundingRect().width() - 40*G_SCALE, 144*G_SCALE);
-        firewallLabel_->setPos(14*G_SCALE, 177*G_SCALE);
+        ipAddressItem_->setPos(boundingRect().width() - ipAddressItem_->boundingRect().width() - 16*G_SCALE, 149*G_SCALE);
+        // dotMenuButton_->setPos(boundingRect().width() - 40*G_SCALE, 147*G_SCALE);
+        firewallLabel_->setPos(16*G_SCALE, 177*G_SCALE);
         firewallButton_->setPos(16*G_SCALE, 202*G_SCALE);
         firewallInfo_->setPos(69*G_SCALE, 205*G_SCALE);
     } else {
@@ -582,11 +503,10 @@ void ConnectWindowItem::updatePositions()
         cityName2Text_->setPos(24*G_SCALE + cityName1Text_->boundingRect().width(), 118*G_SCALE);
         locationsButton_->setPos(98*G_SCALE, 198*G_SCALE);
         networkTrustButton_->setPos(16*G_SCALE, 162*G_SCALE);
-        networkNameText_->setPos(48*G_SCALE, 158*G_SCALE);
         // If FreshScribe API available, IP should shift 32*G_SCALE to the left and dotMenuButton_ should be visible
-        ipAddressItem_->setPos(boundingRect().width() - ipAddressItem_->boundingRect().width() - 16*G_SCALE, 161*G_SCALE);
-        // dotMenuButton_->setPos(boundingRect().width() - 40*G_SCALE, 159*G_SCALE);
-        firewallLabel_->setPos(14*G_SCALE, 210*G_SCALE);
+        ipAddressItem_->setPos(boundingRect().width() - ipAddressItem_->boundingRect().width() - 16*G_SCALE, 164*G_SCALE);
+        // dotMenuButton_->setPos(boundingRect().width() - 40*G_SCALE, 162*G_SCALE);
+        firewallLabel_->setPos(16*G_SCALE, 210*G_SCALE);
         firewallButton_->setPos(16*G_SCALE, 235*G_SCALE);
         firewallInfo_->setPos(69*G_SCALE, 238*G_SCALE);
     }
@@ -594,12 +514,8 @@ void ConnectWindowItem::updatePositions()
 
 void ConnectWindowItem::updateShortenedText()
 {
-    // Network name
-    QFont networkFont = networkNameText_->getFont();
-    QFontMetrics fmNetwork(networkFont);
-    if (fmNetwork.horizontalAdvance(networkName_) > boundingRect().width()/2 - 48*G_SCALE) {
-        networkNameText_->setText(fmNetwork.elidedText(networkName_, Qt::ElideMiddle, boundingRect().width()/2 - 48*G_SCALE));
-    }
+    // Network name: max width is 350 - 16*3 padding (left, between network and IP, and right) - 120 for IP address.
+    networkTrustButton_->setWidth(198*G_SCALE);
 
     // City name
     QString shortenedFirstName;
@@ -671,7 +587,7 @@ void ConnectWindowItem::setIsPreferredProtocol(bool on)
 
 void ConnectWindowItem::onLanguageChanged()
 {
-    firewallLabel_->setText(tr("FIREWALL"));
+    firewallLabel_->setText(tr("Firewall"));
     updatePositions();
 }
 
@@ -698,6 +614,11 @@ void ConnectWindowItem::onLocationsCollapsed()
 bool ConnectWindowItem::handleKeyPressEvent(QKeyEvent *event)
 {
     return locationsButton_->handleKeyPressEvent(event);
+}
+
+void ConnectWindowItem::onExternalConfigModeChanged(bool isExternalConfigMode)
+{
+    locationsButton_->setIsExternalConfigMode(isExternalConfigMode);
 }
 
 } //namespace ConnectWindow

@@ -34,18 +34,6 @@
 <context>
     <name>ConnectWindow::ConnectWindowItem</name>
     <message>
-        <source>No Network Info</source>
-        <translation>Ağ Bilgisi Yok</translation>
-    </message>
-    <message>
-        <source>Unsecured</source>
-        <translation>Güvenli olmayan</translation>
-    </message>
-    <message>
-        <source>Secured</source>
-        <translation>Güvenli</translation>
-    </message>
-    <message>
         <source>Connection to Windscribe has been terminated. </source>
         <translation>Windscribe bağlantısı sonlandırıldı. </translation>
     </message>
@@ -68,10 +56,6 @@
     <message>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
         <translation>Ani bir bağlantı kesilmesi durumunda tüm bağlantıyı engeller</translation>
-    </message>
-    <message>
-        <source>FIREWALL</source>
-        <translation>GÜVENLİK DUVARI</translation>
     </message>
     <message>
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>

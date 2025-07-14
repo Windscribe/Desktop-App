@@ -30,6 +30,8 @@ public:
     void setTextColor(QColor color);
     void updateScaling() override;
 
+    void setIsExternalConfigMode(bool isExternalConfigMode);
+
     bool handleKeyPressEvent(QKeyEvent *event);
 
 signals:

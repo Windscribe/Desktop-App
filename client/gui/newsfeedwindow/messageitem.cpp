@@ -57,7 +57,7 @@ void MessageItem::updatePositions()
     QString browserSheet = QString("QTextBrowser { margin: 0; background-color: transparent; %1; }").arg(FontManager::instance().getFontStyleSheet(14, QFont::Normal));
     textBrowser_->setStyleSheet(browserSheet);
 
-    QString docSheet = "a.ncta { color: #55ff8a; text-decoration: underline; }"
+    QString docSheet = "a.ncta { color: #17e9ad; text-decoration: underline; }"
                        "p { color: #80ffffff; }";
 
     QTextDocument *doc = textBrowser_->document();

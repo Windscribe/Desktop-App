@@ -144,7 +144,7 @@ void WelcomeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     QPainterPath path;
     path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
     painter->setPen(Qt::NoPen);
-    painter->fillPath(path, QColor(2, 13, 28));
+    painter->fillPath(path, QColor(9, 15, 25));
     painter->setPen(Qt::SolidLine);
 
     painter->setCompositionMode(QPainter::CompositionMode_SourceIn);

@@ -103,7 +103,7 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
     // unread marker
     if (!read_) {
         painter->setPen(Qt::NoPen);
-        painter->setBrush(QColor(85, 255, 138));
+        painter->setBrush(FontManager::instance().getSeaGreenColor());
         painter->setOpacity(OPACITY_FULL);
         painter->drawEllipse(-(READ_MARKER_WIDTH/2)*G_SCALE,
                              (COLLAPSED_HEIGHT/2 - READ_MARKER_WIDTH/2)*G_SCALE,

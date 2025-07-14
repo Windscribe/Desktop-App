@@ -1,10 +1,11 @@
 #include "badgepixmap.h"
+#include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
 #include "utils/ws_assert.h"
 
 namespace ConnectWindow {
 
-BadgePixmap::BadgePixmap(const QSize &size, int radius) : shadowColor_(0x02, 0x0D, 0x1C, 128), size_(size), radius_(radius), badgeBgColor_(255, 255, 255, 39)
+BadgePixmap::BadgePixmap(const QSize &size, int radius) : size_(size), radius_(radius), badgeBgColor_(Qt::white)
 {
     updatePixmap();
 }
@@ -16,7 +17,7 @@ void BadgePixmap::draw(QPainter *painter, int x, int y)
         updatePixmap();
     }
     painter->save();
-    painter->setOpacity(badgeBgColor_.alphaF());
+    painter->setOpacity(OPACITY_FULL);
     painter->drawPixmap(x, y, pixmap_);
     painter->restore();
 }
@@ -54,19 +55,18 @@ int BadgePixmap::height() const
 
 void BadgePixmap::updatePixmap()
 {
-    pixmap_ = QPixmap(size_.width() + SHADOW_OFFSET, size_.height() + SHADOW_OFFSET);
+    pixmap_ = QPixmap(size_.width(), size_.height());
     pixmap_.fill(Qt::transparent);
     {
         QPainter painter(&pixmap_);
         painter.setRenderHint(QPainter::Antialiasing);
 
-        painter.setBrush(shadowColor_);
-        painter.setPen(Qt::NoPen);
-        painter.drawRoundedRect(QRect(SHADOW_OFFSET, SHADOW_OFFSET, size_.width(), size_.height()), radius_, radius_);
-
-        QColor colorWithoutAlpha(badgeBgColor_.red(), badgeBgColor_.green(), badgeBgColor_.blue());
-        painter.setBrush(colorWithoutAlpha);
-        painter.setPen(Qt::NoPen);
+        QColor brushColor = badgeBgColor_;
+        brushColor.setAlpha(52);
+        painter.setBrush(brushColor);
+        QColor penColor = badgeBgColor_;
+        penColor.setAlpha(26);
+        painter.setPen(penColor);
         painter.drawRoundedRect(QRect(0, 0, size_.width(), size_.height()), radius_, radius_);
     }
 }

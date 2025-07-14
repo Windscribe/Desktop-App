@@ -23,7 +23,7 @@ private slots:
     void onHoverLeave();
 
 private:
-    static constexpr int WIDTH = 140;
+    static constexpr int WIDTH = 168;
     static constexpr int HEIGHT = 36;
 
     QColor numberColor_;

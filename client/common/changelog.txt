@@ -1,3 +1,15 @@
+2.16.8 (10/07/2025)
+All:
+   * Improved various issues with the new UI (e.g. colors, external config mode, keyboard handling in locations) #1417 #1418 #1421
+Windows:
+   * Fixed misleading log message. #1419
+MacOS:
+   * Improved detection of valid tray icon coordinates for the docked mode. #1334
+   * Fixed wsnet sometimes not detecting OS Default DNS server when using DHCP on the app start. #1376
+Linux:
+   * Improved ASCII captcha text input hint for CLI. #1389
+
+
 2.16.7 (04/07/2025)
 All:
    * Added flag for Iran. #1413

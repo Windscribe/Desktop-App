@@ -29,7 +29,7 @@ QFont ThemeController::defaultFont(int sizePx, int weight) const
 
 QColor ThemeController::windowBackgroundColor() const
 {
-    return QColor(0x02, 0x0D, 0x1C);
+    return QColor(0x09, 0x0E, 0x19);
 }
 
 QColor ThemeController::defaultFontColor() const
@@ -49,7 +49,7 @@ QColor ThemeController::primaryButtonHoverColor() const
 
 QColor ThemeController::primaryButtonFontColor() const
 {
-    return QColor(0x02, 0x0D, 0x1C);
+    return QColor(0x09, 0x0E, 0x19);
 }
 
 QColor ThemeController::secondaryButtonColor() const

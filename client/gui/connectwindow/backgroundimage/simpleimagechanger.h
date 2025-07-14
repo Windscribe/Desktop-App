@@ -14,7 +14,7 @@ public:
     explicit SimpleImageChanger(QObject *parent, int animationDuration);
 
     QPixmap *currentPixmap();
-    void setImage(QSharedPointer<IndependentPixmap> image, bool bWithAnimation);
+    void setImage(QSharedPointer<IndependentPixmap> image, bool bWithAnimation, double opacity = 1.0);
 
 signals:
     void updated();
@@ -29,6 +29,7 @@ private:
     QVariantAnimation opacityAnimation_;
     qreal opacityCurImage_;
     qreal opacityPrevImage_;
+    double fullOpacity_;
 
     QSharedPointer<IndependentPixmap> curImage_;
     QSharedPointer<IndependentPixmap> prevImage_;

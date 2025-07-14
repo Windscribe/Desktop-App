@@ -57,7 +57,7 @@ void RobertItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
     if (checkBoxButton_->isChecked()) {
         painter->setOpacity(OPACITY_FULL);
-        painter->setPen(QColor(85, 255, 138));
+        painter->setPen(FontManager::instance().getSeaGreenColor());
     } else {
         text = tr("Allowing");
         painter->setOpacity(OPACITY_HALF);

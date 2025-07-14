@@ -279,8 +279,8 @@
         <translation>Připojení k internetu není k dispozici.  Zkuste to znovu později.</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>kompletní puzzle pokračovat</translation>
+        <source>Please type the numbers above to continue:</source>
+        <translation>Pro pokračování zadejte výše uvedená čísla:</translation>
     </message>
 </context>
 </TS>

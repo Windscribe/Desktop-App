@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <QCursor>
 #include "commongraphics/commongraphics.h"
+#include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "dpiscalemanager.h"
 
@@ -12,7 +13,7 @@ ToggleButton::ToggleButton(ScalableGraphicsObject *parent) : ClickableGraphicsOb
 {
     setAcceptHoverEvents(true);
 
-    color_ = QColor(85, 255, 138);
+    color_ = FontManager::instance().getSeaGreenColor();
 
     connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &ToggleButton::onOpacityChanged);
     opacityAnimation_.setStartValue(0.0);
@@ -39,7 +40,7 @@ void ToggleButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     }
 
     painter->setRenderHint(QPainter::Antialiasing);
-    // At 100%, this would be R85 G255 B138
+    // At 100%, this would be FontManager::instance().getSeaGreenColor()
     QColor bgColor = QColor(255 - (255 - color_.red())*animationProgress_,
                             255 - (255 - color_.green())*animationProgress_,
                             255 - (255 - color_.blue())*animationProgress_);

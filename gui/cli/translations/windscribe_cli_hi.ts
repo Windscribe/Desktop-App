@@ -279,8 +279,8 @@
         <translation>इंटरनेट कनेक्टिविटी उपलब्ध नहीं है.  बाद में पुनः प्रयास करें.</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>जारी रखने के लिए पूरी पहेली</translation>
+        <source>Please type the numbers above to continue:</source>
+        <translation>जारी रखने के लिए कृपया ऊपर दिए गए नंबर टाइप करें:</translation>
     </message>
 </context>
 </TS>

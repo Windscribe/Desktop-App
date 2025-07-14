@@ -15,7 +15,7 @@ public:
 
     void setOpacity(double opacity);
 
-    static constexpr int DIVIDER_HEIGHT = 2;
+    static constexpr int DIVIDER_HEIGHT = 1;
 
 private:
     double opacity_;

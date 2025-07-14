@@ -34,18 +34,6 @@
 <context>
     <name>ConnectWindow::ConnectWindowItem</name>
     <message>
-        <source>No Network Info</source>
-        <translation>कोई नेटवर्क जानकारी नहीं</translation>
-    </message>
-    <message>
-        <source>Unsecured</source>
-        <translation>असुरक्षित</translation>
-    </message>
-    <message>
-        <source>Secured</source>
-        <translation>सुरक्षित</translation>
-    </message>
-    <message>
         <source>Connection to Windscribe has been terminated. </source>
         <translation>विंडस्क्राइब से कनेक्शन समाप्त कर दिया गया है. </translation>
     </message>
@@ -68,10 +56,6 @@
     <message>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
         <translation>अचानक डिस्कनेक्ट होने की स्थिति में सभी कनेक्टिविटी ब्लॉक</translation>
-    </message>
-    <message>
-        <source>FIREWALL</source>
-        <translation>फ़ायरवॉल</translation>
     </message>
     <message>
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>

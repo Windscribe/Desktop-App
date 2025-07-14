@@ -34,18 +34,6 @@
 <context>
     <name>ConnectWindow::ConnectWindowItem</name>
     <message>
-        <source>No Network Info</source>
-        <translation>Keine Netzwerkinformationen</translation>
-    </message>
-    <message>
-        <source>Unsecured</source>
-        <translation>Ungesichert</translation>
-    </message>
-    <message>
-        <source>Secured</source>
-        <translation>Gesichert</translation>
-    </message>
-    <message>
         <source>Connection to Windscribe has been terminated. </source>
         <translation>Die Verbindung zu Windscribe wurde beendet. </translation>
     </message>
@@ -68,10 +56,6 @@
     <message>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
         <translation>Blockiert die gesamte Konnektivität im Falle einer plötzlichen Trennung</translation>
-    </message>
-    <message>
-        <source>FIREWALL</source>
-        <translation>FIREWALL</translation>
     </message>
     <message>
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>

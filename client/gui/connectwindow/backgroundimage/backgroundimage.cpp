@@ -176,7 +176,15 @@ void BackgroundImage::safeChangeToConnectedImage(bool bShowPrevChangeAnimation)
 
 void BackgroundImage::switchConnectGradient()
 {
-    connectingGradientChanger_.setImage(ImageResourcesSvg::instance().getIndependentPixmap(connectingGradient_), true);
+    double opacity = 1.0;
+
+    if (isConnected_ && curBackgroundSettings_.connectedBackgroundType == BACKGROUND_TYPE_CUSTOM ||
+        !isConnected_ && curBackgroundSettings_.disconnectedBackgroundType == BACKGROUND_TYPE_CUSTOM)
+    {
+        opacity = 0.8;
+    }
+
+    connectingGradientChanger_.setImage(ImageResourcesSvg::instance().getIndependentPixmap(connectingGradient_), true, opacity);
 }
 
 void BackgroundImage::updateImages()

@@ -174,4 +174,9 @@ bool LocationsButton::handleKeyPressEvent(QKeyEvent *event)
     return true;
 }
 
+void LocationsButton::setIsExternalConfigMode(bool isExternalConfigMode)
+{
+    locationsMenu_->setIsExternalConfigMode(isExternalConfigMode);
+}
+
 } //namespace ConnectWindow

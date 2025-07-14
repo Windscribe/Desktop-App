@@ -37,7 +37,7 @@ void UpgradeBanner::paintEvent(QPaintEvent *event)
     pen.setColor(QColor(255, 255, 255, 26));
     pen.setWidth(2);
     p.setPen(pen);
-    p.setBrush(QColor(2, 14, 28));
+    p.setBrush(QColor(9, 15, 25));
     p.drawRoundedRect(QRect(0, 0, width(), height()), 8, 8);
 
     // data left circle background

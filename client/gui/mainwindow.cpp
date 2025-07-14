@@ -129,6 +129,7 @@ MainWindow::MainWindow() :
                 qApp->processEvents();
         }
     }
+    QRect incorrectInitialTrayIconRect = trayIcon_.geometry();
 #endif
 
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
@@ -148,12 +149,13 @@ MainWindow::MainWindow() :
     backend_ = new Backend(this);
 
     // On MacOS the tray icon geometry can be invalid  for the first few milliseconds (on my Mac about 160 ms)
+    // Assuming that at first we always have incorrect coordinates at start, we wait until they change
     // Give the icon a chance to initialize completely within a maximum of 2 seconds for  the docked mode
 #if defined(Q_OS_MACOS)
     if (backend_->getPreferences()->isDockedToTray()) {
         QElapsedTimer t;
         t.start();
-        while (!isTrayIconRectValid() && t.elapsed() < 2000) {
+        while (trayIcon_.geometry() == incorrectInitialTrayIconRect && t.elapsed() < 2000) {
             qApp->processEvents();
             QThread::msleep(10);
         }
@@ -1037,6 +1039,7 @@ void MainWindow::onConnectWindowNetworkButtonClick()
 {
     mainWindowController_->expandPreferences();
     mainWindowController_->getPreferencesWindow()->setCurrentTab(TAB_CONNECTION, CONNECTION_SCREEN_NETWORK_OPTIONS);
+    mainWindowController_->getPreferencesWindow()->onNetworkOptionsNetworkClick(curNetwork_);
 }
 
 void MainWindow::onConnectWindowLocationsClick()
@@ -3929,24 +3932,6 @@ void MainWindow::updateTrayTooltip(QString tooltip)
 #else
     trayIcon_.setToolTip(tooltip);
 #endif
-}
-
-bool MainWindow::isTrayIconRectValid()
-{
-    if (!trayIcon_.isVisible())
-        return false;
-
-    const QRect rc = trayIcon_.geometry();
-    if (!rc.isValid())
-       return false;
-
-    // check for valid screen because on macOS trayIcon_.geometry() can be valid but contain invalid coordinates
-    QScreen *screen = QGuiApplication::screenAt(rc.center());
-    if (!screen) {
-        return false;
-    }
-
-    return true;
 }
 
 void MainWindow::onWireGuardAtKeyLimit()

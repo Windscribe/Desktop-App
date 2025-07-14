@@ -34,18 +34,6 @@
 <context>
     <name>ConnectWindow::ConnectWindowItem</name>
     <message>
-        <source>No Network Info</source>
-        <translation>Không có thông tin mạng</translation>
-    </message>
-    <message>
-        <source>Unsecured</source>
-        <translation>Unsecured</translation>
-    </message>
-    <message>
-        <source>Secured</source>
-        <translation>Bảo đảm</translation>
-    </message>
-    <message>
         <source>Connection to Windscribe has been terminated. </source>
         <translation>Kết nối với Windscribe đã bị ngắt. </translation>
     </message>
@@ -68,10 +56,6 @@
     <message>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
         <translation>Chặn tất cả kết nối trong trường hợp ngắt kết nối đột ngột</translation>
-    </message>
-    <message>
-        <source>FIREWALL</source>
-        <translation>TƯỜNG LỬA</translation>
     </message>
     <message>
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>

@@ -31,4 +31,6 @@ target_sources(gui PRIVATE
     locationsmenu.h
     logonotificationsbutton.cpp
     logonotificationsbutton.h
+    networktrustbutton.cpp
+    networktrustbutton.h
 )

@@ -69,15 +69,12 @@ void LogoNotificationsButton::setCountState(int countAll, int countUnread)
     numNotifications_ = QString::number(countAll);
 
     unread_ = countUnread;
-    if (unread_ > 0)
-    {
-        backgroundFillColor_ =  FontManager::instance().getSeaGreenColor();
-        backgroundOutlineColor_ = FontManager::instance().getSeaGreenColor();
+    if (unread_ > 0) {
+        backgroundFillColor_ = QColor(23, 233, 173, 52);
+        backgroundOutlineColor_ = QColor(23, 233, 173, 26);
         curBackgroundOpacity_ = 1;
-        numberColor_ = FontManager::instance().getMidnightColor();
-    }
-    else
-    {
+        numberColor_ = QColor(23, 233, 173);
+    } else {
         backgroundFillColor_ = Qt::transparent;
         backgroundOutlineColor_ = Qt::white;
         curBackgroundOpacity_ = OPACITY_ALL_READ;

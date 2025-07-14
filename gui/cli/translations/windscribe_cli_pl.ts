@@ -279,8 +279,8 @@
         <translation>Połączenie z Internetem nie jest dostępne.  Spróbuj ponownie później.</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>Ukończ łamigłówkę, aby kontynuować</translation>
+        <source>Please type the numbers above to continue:</source>
+        <translation>Wpisz powyższe liczby, aby kontynuować:</translation>
     </message>
 </context>
 </TS>

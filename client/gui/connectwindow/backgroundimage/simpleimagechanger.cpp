@@ -7,7 +7,7 @@
 namespace ConnectWindow {
 
 SimpleImageChanger::SimpleImageChanger(QObject *parent, int animationDuration) : QObject(parent),
-    animationDuration_(animationDuration), opacityCurImage_(0.8), opacityPrevImage_(0.0)
+    animationDuration_(animationDuration), opacityCurImage_(1.0), opacityPrevImage_(0.0)
 {
     connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &SimpleImageChanger::onOpacityChanged);
 }
@@ -20,7 +20,7 @@ QPixmap *SimpleImageChanger::currentPixmap()
         return nullptr;
 }
 
-void SimpleImageChanger::setImage(QSharedPointer<IndependentPixmap> image, bool bWithAnimation)
+void SimpleImageChanger::setImage(QSharedPointer<IndependentPixmap> image, bool bWithAnimation, double opacity)
 {
     WS_ASSERT(!image.isNull());
 
@@ -29,7 +29,7 @@ void SimpleImageChanger::setImage(QSharedPointer<IndependentPixmap> image, bool 
         curImage_ = image;
         prevImage_.reset();
         opacityPrevImage_ = 0.0;
-        opacityCurImage_ = 0.8;
+        opacityCurImage_ = opacity;
         updatePixmap();
     }
     else
@@ -43,7 +43,8 @@ void SimpleImageChanger::setImage(QSharedPointer<IndependentPixmap> image, bool 
         curImage_ = image;
 
         opacityPrevImage_ = opacityCurImage_;
-        opacityCurImage_ = 0.8 - opacityPrevImage_;
+        opacityCurImage_ = opacity - opacityPrevImage_;
+        fullOpacity_ = opacity;
 
         if (opacityAnimation_.state() == QVariantAnimation::Running)
         {
@@ -51,8 +52,8 @@ void SimpleImageChanger::setImage(QSharedPointer<IndependentPixmap> image, bool 
         }
 
         opacityAnimation_.setStartValue(opacityCurImage_);
-        opacityAnimation_.setEndValue(0.8);
-        opacityAnimation_.setDuration((0.8 - opacityCurImage_) * animationDuration_);
+        opacityAnimation_.setEndValue(fullOpacity_);
+        opacityAnimation_.setDuration((fullOpacity_ - opacityCurImage_) * animationDuration_);
         opacityAnimation_.start();
         updatePixmap();
     }
@@ -60,7 +61,7 @@ void SimpleImageChanger::setImage(QSharedPointer<IndependentPixmap> image, bool 
 
 void SimpleImageChanger::onOpacityChanged(const QVariant &value)
 {
-    opacityPrevImage_ = 0.8 - value.toDouble();
+    opacityPrevImage_ = fullOpacity_ - value.toDouble();
     opacityCurImage_ = value.toDouble();
     updatePixmap();
 }
@@ -87,7 +88,7 @@ void SimpleImageChanger::updatePixmap()
                 prevImage_->draw(0, 0, &p);
             }
 
-            p.setOpacity(opacityCurImage_ * 0.8);
+            p.setOpacity(opacityCurImage_);
             curImage_->draw(0, 0, &p);
         }
     }

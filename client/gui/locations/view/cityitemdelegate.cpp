@@ -98,7 +98,7 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
 
         // Load
         // draw a 1px 'border' around the icon to differentiate from the load circle
-        QPen penBorder(QColor(2, 13, 28));
+        QPen penBorder(QColor(9, 15, 25));
         penBorder.setWidth(G_SCALE);
         painter->setPen(penBorder);
         painter->drawArc(leftRect.adjusted(G_SCALE, G_SCALE, -G_SCALE, -G_SCALE), 0, 360 * 16);
@@ -106,7 +106,7 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         painter->setOpacity(OPACITY_FULL);
         QPen penLoad(QColor(53, 61, 73));
         penLoad.setWidth(2*G_SCALE);
-        // Draw a full circle with grey color: this is (255, 255, 255, 51) blended with (2, 13, 28).
+        // Draw a full circle with grey color: this is (255, 255, 255, 51) blended with (9, 15, 25).
         // Drawing (255, 255, 255, 51) is not visible since it draws on top of some transparent pixels.
         painter->setPen(penLoad);
         painter->drawArc(leftRect, 0, 360 * 16);

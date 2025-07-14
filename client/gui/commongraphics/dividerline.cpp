@@ -21,7 +21,7 @@ void DividerLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     Q_UNUSED(widget);
 
     painter->setOpacity(opacity_);
-    painter->fillRect(boundingRect().adjusted(startX_*G_SCALE, 0, 0, 0).toRect(), QColor(2, 13, 28));
+    painter->fillRect(boundingRect().adjusted(startX_*G_SCALE, 0, 0, 0).toRect(), QColor(9, 15, 25));
 }
 
 void DividerLine::updateScaling()

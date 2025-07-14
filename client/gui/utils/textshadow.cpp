@@ -3,7 +3,7 @@
 #include "dpiscalemanager.h"
 #include <math.h>
 
-TextShadow::TextShadow() : shadowColor_(0x02, 0x0D, 0x1C, 128), lastFlags_(0)
+TextShadow::TextShadow() : shadowColor_(0x09, 0x0E, 0x19, 128), lastFlags_(0)
 {
 }
 

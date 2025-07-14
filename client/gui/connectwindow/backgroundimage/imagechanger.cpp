@@ -120,7 +120,7 @@ void ImageChanger::updatePixmap()
 
     pixmap_ = new QPixmap(WIDTH*G_SCALE*DpiScaleManager::instance().curDevicePixelRatio(), 238*G_SCALE*DpiScaleManager::instance().curDevicePixelRatio());
     pixmap_->setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
-    pixmap_->fill(QColor(2, 13, 28));
+    pixmap_->fill(QColor(9, 15, 25));
 
     // prev and current gradient info
     enum GRADIENT { GRADIENT_NONE, GRADIENT_FLAG, GRADIENT_CUSTOM_BACKGROUND };

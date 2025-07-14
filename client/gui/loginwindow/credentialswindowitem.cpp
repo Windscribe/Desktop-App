@@ -240,7 +240,7 @@ void CredentialsWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     QPainterPath path;
     path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
     painter->setPen(Qt::NoPen);
-    painter->fillPath(path, QColor(2, 13, 28));
+    painter->fillPath(path, QColor(9, 15, 25));
     painter->setPen(Qt::SolidLine);
 
     QRectF rcBottomRect(0, HEADER_HEIGHT*G_SCALE, WINDOW_WIDTH*G_SCALE, (LOGIN_HEIGHT - HEADER_HEIGHT)*G_SCALE);

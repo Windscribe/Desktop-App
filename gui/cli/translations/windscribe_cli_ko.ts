@@ -279,8 +279,8 @@
         <translation>인터넷 연결을 사용할 수 없습니다.  나중에 다시 시도하세요.</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>계속하려면 퍼즐을 완료하세요.</translation>
+        <source>Please type the numbers above to continue:</source>
+        <translation>계속하려면 위의 숫자를 입력하십시오.</translation>
     </message>
 </context>
 </TS>

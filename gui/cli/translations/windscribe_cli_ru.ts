@@ -279,8 +279,8 @@
         <translation>Подключение к Интернету недоступно.  Повторите попытку позже.</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>Завершите головоломку, чтобы продолжить</translation>
+        <source>Please type the numbers above to continue:</source>
+        <translation>Пожалуйста, введите цифры выше, чтобы продолжить:</translation>
     </message>
 </context>
 </TS>

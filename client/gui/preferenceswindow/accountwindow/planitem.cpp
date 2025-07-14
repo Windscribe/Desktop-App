@@ -15,7 +15,7 @@ namespace PreferencesWindow {
 PlanItem::PlanItem(ScalableGraphicsObject *parent)
   : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), planBytes_(-1), isPremium_(false)
 {
-    textButton_ = new CommonGraphics::TextButton("", FontDescr(12, QFont::Normal), QColor(85, 255, 138), true, this);
+    textButton_ = new CommonGraphics::TextButton("", FontDescr(12, QFont::Normal), FontManager::instance().getSeaGreenColor(), true, this);
     connect(textButton_, &CommonGraphics::TextButton::clicked, this, &PlanItem::upgradeClicked);
     textButton_->setClickable(false);
     textButton_->setMarginHeight(0);

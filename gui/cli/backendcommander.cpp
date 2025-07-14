@@ -448,9 +448,8 @@ void BackendCommander::onStateUpdated(IPC::Command *command)
 #ifdef CLI_ONLY
         } else if (cmd->isCaptchaRequired_) {
             QString asciiArt = QByteArray::fromBase64(cmd->asciiArt_.toUtf8());
-            std::cout << QObject::tr("Complete Puzzle to continue").toStdString() << std::endl;
             std::cout << asciiArt.toStdString() << std::endl;
-            captchaSolution_ = Utils::getInput("", false);
+            captchaSolution_ = Utils::getInput(QObject::tr("Please type the numbers above to continue:"), false);
             sendCommand(cmd);
 #endif
         } else if (cmd->loginState_ == LOGIN_STATE_LOGGED_IN || cmd->loginState_ == LOGIN_STATE_LOGIN_ERROR) {

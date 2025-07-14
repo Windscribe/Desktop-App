@@ -144,13 +144,13 @@ struct GuiSettings
             return stream;
         }
         stream >> o.isLaunchOnStartup >> o.isAutoConnect >> o.isHideFromDock >> o.isShowNotifications >> o.orderLocation;
-        
+
         if (version < 6) {
             // latencyDisplay was removed in version 6, ignore it if it exists
             int latencyDisplay;
             stream >> latencyDisplay;
         }
-        
+
         stream >> o.shareSecureHotspot >> o.shareProxyGateway >> o.splitTunneling >> o.isDockedToTray >> o.isMinimizeAndCloseToTray >>
                   o.backgroundSettings >> o.isStartMinimized >> o.isShowLocationHealth >> o.isAutoSecureNetworks;
 

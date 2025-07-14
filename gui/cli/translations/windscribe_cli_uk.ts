@@ -279,8 +279,8 @@
         <translation>Підключення до Інтернету відсутнє.  Повторіть спробу пізніше.</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>Здійсніть пазл, щоб продовжити</translation>
+        <source>Please type the numbers above to continue:</source>
+        <translation>Будь ласка, введіть цифри вище, щоб продовжити:</translation>
     </message>
 </context>
 </TS>

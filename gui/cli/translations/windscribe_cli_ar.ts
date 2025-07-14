@@ -279,8 +279,8 @@
         <translation>الاتصال بالإنترنت غير متوفر.  حاول مرة أخرى لاحقا.</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>أكمل اللغز للمتابعة</translation>
+        <source>Please type the numbers above to continue:</source>
+        <translation>يرجى كتابة الأرقام أعلاه للمتابعة:</translation>
     </message>
 </context>
 </TS>

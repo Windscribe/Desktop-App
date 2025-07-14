@@ -8,7 +8,7 @@
 namespace ConnectWindow {
 
 LocationsMenu::LocationsMenu(ScalableGraphicsObject *parent)
-    : ScalableGraphicsObject(parent), curSearchPos_(140)
+    : ScalableGraphicsObject(parent), curSearchPos_(140), isExternalConfigMode_(false)
 {
     allLocations_ = new IconButton(32, 32, "locations/ALL_LOCATION_ICON_DESELECTED", "", this);
     connect(allLocations_, &IconButton::clicked, this, &LocationsMenu::onAllLocationsClicked);
@@ -73,14 +73,18 @@ void LocationsMenu::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
 
 void LocationsMenu::updatePositions()
 {
-    allLocations_->setPos(0*G_SCALE, 0);
-    favoriteLocations_->setPos(35*G_SCALE, 0);
-    staticIpsLocations_->setPos(70*G_SCALE, 0);
-    configuredLocations_->setPos(105*G_SCALE, 0);
-    searchLocations_->setPos(curSearchPos_*G_SCALE, 0);
+    if (!isExternalConfigMode_) {
+        allLocations_->setPos(0*G_SCALE, 0);
+        favoriteLocations_->setPos(35*G_SCALE, 0);
+        staticIpsLocations_->setPos(70*G_SCALE, 0);
+        configuredLocations_->setPos(105*G_SCALE, 0);
+        searchLocations_->setPos(curSearchPos_*G_SCALE, 0);
 
-    searchLineEdit_->setGeometry(32*G_SCALE, 4*G_SCALE, 108*G_SCALE, 24*G_SCALE);
-    searchCancel_->setPos(140*G_SCALE, 0);
+        searchLineEdit_->setGeometry(32*G_SCALE, 4*G_SCALE, 108*G_SCALE, 24*G_SCALE);
+        searchCancel_->setPos(140*G_SCALE, 0);
+    } else {
+        configuredLocations_->setPos(140*G_SCALE, 0);
+    }
 }
 
 void LocationsMenu::onAllLocationsClicked()
@@ -255,14 +259,17 @@ bool LocationsMenu::handleKeyPressEvent(QKeyEvent *event)
         return true;
     } else if (event->key() == Qt::Key_PageDown || event->key() == Qt::Key_PageUp || event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
         emit locationsKeyPressed(event);
+        return true;
     } else if (event->key() == Qt::Key_Left) {
         return handleLeftKey();
     } else if (event->key() == Qt::Key_Right || event->key() == Qt::Key_Tab) {
         return handleRightKey();
     } else if (event->key() == Qt::Key_Home) {
         searchLineEdit_->home(event->modifiers() & Qt::ShiftModifier);
+        return true;
     } else if (event->key() == Qt::Key_End) {
         searchLineEdit_->end(event->modifiers() & Qt::ShiftModifier);
+        return true;
     } else {
         if (curTab_ != LOCATION_TAB_SEARCH_LOCATIONS) {
             // If search tab is not open, and the user presses space, collapse locations.
@@ -321,6 +328,28 @@ void LocationsMenu::dismiss()
 {
     if (curTab_ == LOCATION_TAB_SEARCH_LOCATIONS) {
         onSearchCancelClicked();
+    }
+}
+
+void LocationsMenu::setIsExternalConfigMode(bool isExternalConfigMode)
+{
+    isExternalConfigMode_ = isExternalConfigMode;
+
+    if (isExternalConfigMode) {
+        allLocations_->hide();
+        staticIpsLocations_->hide();
+        favoriteLocations_->hide();
+        searchLocations_->hide();
+        searchLineEdit_->hide();
+        searchCancel_->hide();
+        onConfiguredLocationsClicked();
+        updatePositions();
+    } else {
+        allLocations_->show();
+        staticIpsLocations_->show();
+        favoriteLocations_->show();
+        searchLocations_->show();
+        updatePositions();
     }
 }
 

@@ -90,12 +90,12 @@ signals:
 public slots:
     virtual void onWindowExpanded() override;
     virtual void onWindowCollapsed() override;
+    void onNetworkOptionsNetworkClick(types::NetworkInterface network);
 
 private slots:
     void onCurrentTabChanged(PREFERENCES_TAB_TYPE tab);
 
     void onNetworkOptionsPageClick();
-    void onNetworkOptionsNetworkClick(types::NetworkInterface network);
     void onSplitTunnelingPageClick();
     void onProxySettingsPageClick();
     void onConnectedDnsDomainsClick(const QStringList &domains);

@@ -279,8 +279,8 @@
         <translation>İnternet bağlantısı mevcut değil.  Daha sonra yeniden deneyin.</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>Devam etmek için Bulmacayı tamamlayın</translation>
+        <source>Please type the numbers above to continue:</source>
+        <translation>Devam etmek için lütfen yukarıdaki numaraları yazın:</translation>
     </message>
 </context>
 </TS>

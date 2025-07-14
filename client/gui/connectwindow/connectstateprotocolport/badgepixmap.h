@@ -18,9 +18,6 @@ public:
     int height() const;
 
 private:
-    static constexpr int SHADOW_OFFSET = 2;
-
-    QColor shadowColor_;
     QSize size_;
     int radius_;
     QColor badgeBgColor_;

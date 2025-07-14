@@ -5,6 +5,7 @@
 #include <QPainter>
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
+#include "graphicresources/imageresourcessvg.h"
 
 const int PROTOCOL_OPACITY_ANIMATION_DURATION = 500;
 
@@ -25,7 +26,7 @@ ConnectStateProtocolPort::ConnectStateProtocolPort(ScalableGraphicsObject *paren
     protocol_ = types::Protocol::WIREGUARD;
     port_ = 443;
 
-    badgeFgImage_.reset(new ImageWithShadow("connection-badge/OFF", "connection-badge/OFF_SHADOW"));
+    badgeFgImage_ = ImageResourcesSvg::instance().getIndependentPixmap("connection-badge/OFF");
     setAcceptHoverEvents(true);
     protocolTestTunnelTimer_.setInterval(PROTOCOL_OPACITY_ANIMATION_DURATION);
     connect(&protocolTestTunnelTimer_, &QTimer::timeout, this, &ConnectStateProtocolPort::onProtocolTestTunnelTimerTick);
@@ -66,10 +67,9 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
     badgePixmap_.draw(painter, 0, 0);
 
     // connection badge dots made to show during connecting
-    if (badgeFgImage_)
-    {
+    if (badgeFgImage_) {
         int widthOffset = (badgePixmap_.width() - badgeFgImage_->width())/2;
-        badgeFgImage_->draw(painter, widthOffset, (badgePixmap_.height() - badgeFgImage_->height())/2);
+        badgeFgImage_->draw(widthOffset, (badgePixmap_.height() - badgeFgImage_->height())/2, painter);
     }
 
     QFont font = FontManager::instance().getFont(fontDescr_);
@@ -78,13 +78,16 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
 
     // types::Protocol and port string
     QString protocolString = protocol_.toLongString();
-    textShadowProtocol_.drawText(painter, QRect(badgePixmap_.width() + kSpacerWidth*G_SCALE, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, protocolString, font, textColor_ );
+    int protocolWidth = QFontMetrics(font).horizontalAdvance(protocolString);
+    painter->setFont(font);
+    painter->drawText(QRect(badgePixmap_.width() + kSpacerWidth*G_SCALE, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, protocolString);
 
     // port
     const QString portString = QString::number(port_);
-    const int portPosX = badgePixmap_.width() + kSpacerWidth*G_SCALE + textShadowProtocol_.width();
+    const int portPosX = badgePixmap_.width() + kSpacerWidth*G_SCALE + protocolWidth + 2*G_SCALE;
     font.setWeight(QFont::Light);
-    textShadowPort_.drawText(painter, QRect(portPosX, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, portString, font, textColor_ );
+    painter->setFont(font);
+    painter->drawText(QRect(portPosX, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, portString);
 
     painter->restore();
 }
@@ -95,8 +98,8 @@ void ConnectStateProtocolPort::updateStateDisplay(const types::ConnectState &con
     {
         if (connectState.connectState == CONNECT_STATE_CONNECTED)
         {
-            badgeBgColor_ = QColor(0x02, 0x0D, 0x1C, 255*0.25);
-            badgeFgImage_.reset(new ImageWithShadow("connection-badge/ON", "connection-badge/ON_SHADOW"));
+            badgeBgColor_ = FontManager::instance().getSeaGreenColor();
+            badgeFgImage_ = ImageResourcesSvg::instance().getIndependentPixmap("connection-badge/ON");
             textOpacity_ = 1.0;
             textColor_ = QColor(0x55, 0xFF, 0x8A);
             connectionBadgeDots_->hide();
@@ -104,7 +107,7 @@ void ConnectStateProtocolPort::updateStateDisplay(const types::ConnectState &con
         }
         else if (connectState.connectState == CONNECT_STATE_CONNECTING)
         {
-            badgeBgColor_ = QColor(0x02, 0x0D, 0x1C, 255*0.25);
+            badgeBgColor_ = QColor(255, 255, 255);
             badgeFgImage_.reset();
             textOpacity_ = 1.0;
             textColor_ = QColor(0xA0, 0xFE, 0xDA);
@@ -113,7 +116,7 @@ void ConnectStateProtocolPort::updateStateDisplay(const types::ConnectState &con
         }
         else if (connectState.connectState == CONNECT_STATE_DISCONNECTING)
         {
-            badgeBgColor_ = QColor(0x02, 0x0D, 0x1C, 255*0.25);
+            badgeBgColor_ = QColor(255, 255, 255);
             badgeFgImage_.reset();
             textOpacity_ = 1.0;
             textColor_ = QColor(0xA0, 0xFE, 0xDA);
@@ -122,8 +125,8 @@ void ConnectStateProtocolPort::updateStateDisplay(const types::ConnectState &con
         }
         else if (connectState.connectState == CONNECT_STATE_DISCONNECTED)
         {
-            badgeBgColor_ = QColor(255, 255, 255, 39);
-            badgeFgImage_.reset(new ImageWithShadow("connection-badge/OFF", "connection-badge/OFF_SHADOW"));
+            badgeBgColor_ = QColor(255, 255, 255);
+            badgeFgImage_ = ImageResourcesSvg::instance().getIndependentPixmap("connection-badge/OFF");
             textOpacity_ = 0.8;
             textColor_ = Qt::white;
             connectionBadgeDots_->hide();
@@ -133,8 +136,7 @@ void ConnectStateProtocolPort::updateStateDisplay(const types::ConnectState &con
     else
     {
         protocolTestTunnelTimer_.stop();
-
-        badgeFgImage_.reset(new ImageWithShadow("connection-badge/NO_INT", "connection-badge/NO_INT_SHADOW"));
+        badgeFgImage_ = ImageResourcesSvg::instance().getIndependentPixmap("connection-badge/NO_INT");
         connectionBadgeDots_->hide();
         connectionBadgeDots_->stop();
 
@@ -146,7 +148,7 @@ void ConnectStateProtocolPort::updateStateDisplay(const types::ConnectState &con
         }
         else
         {
-            badgeBgColor_ = QColor(0x02, 0x0D, 0x1C, 255*0.25);
+            badgeBgColor_ = QColor(0x09, 0x0E, 0x19, 255*0.25);
             textOpacity_ = 1.0;
             textColor_ = FontManager::instance().getBrightYellowColor();
         }
@@ -192,10 +194,6 @@ void ConnectStateProtocolPort::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
     badgePixmap_.setSize(QSize(36*G_SCALE, 20*G_SCALE), 10*G_SCALE);
-    if (badgeFgImage_)
-    {
-        badgeFgImage_->updatePixmap();
-    }
     recalcSize();
 }
 

@@ -84,6 +84,9 @@ bool regDeleteProperty(HKEY h, const wstring &subkeyName, const wstring &valueNa
     });
 
     LONG nError = RegOpenKeyEx(h, subkeyName.c_str(), 0, KEY_SET_VALUE, &hKey);
+    if (nError == ERROR_FILE_NOT_FOUND) {
+        return true;
+    }
 
     if (nError != ERROR_SUCCESS) {
         spdlog::error(L"Error opening registry key {}: {}", subkeyName, nError);

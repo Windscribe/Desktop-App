@@ -120,7 +120,7 @@ void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     Q_UNUSED(widget);
 
     // resize area background
-    painter->fillRect(boundingRect().adjusted(0, 32*G_SCALE, 0, -9*G_SCALE), QBrush(QColor(2, 13, 28)));
+    painter->fillRect(boundingRect().adjusted(0, 32*G_SCALE, 0, -9*G_SCALE), QBrush(QColor(9, 15, 25)));
 
     QRect rcCaption;
     // base background
@@ -128,7 +128,7 @@ void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
         QPainterPath path;
         path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
         painter->setPen(Qt::NoPen);
-        painter->fillPath(path, QColor(2, 13, 28));
+        painter->fillPath(path, QColor(9, 15, 25));
         painter->setPen(Qt::SolidLine);
 
         QSharedPointer<IndependentPixmap> pixmapHeader = ImageResourcesSvg::instance().getIndependentPixmap(backgroundHeader_);

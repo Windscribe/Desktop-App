@@ -50,7 +50,7 @@ void Background::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         painter->setPen(Qt::NoPen);
         QPainterPath path;
         path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
-        painter->fillPath(path, QColor(2, 13, 28));
+        painter->fillPath(path, QColor(9, 15, 25));
         painter->setPen(Qt::SolidLine);
     } else {
         QSharedPointer<IndependentPixmap> bg = ImageResourcesSvg::instance().getIndependentPixmap("background/MAIN_BG");
@@ -97,7 +97,7 @@ void Background::onConnectStateChanged(CONNECT_STATE newConnectState, CONNECT_ST
 {
     Q_UNUSED(prevConnectState);
 
-    if (newConnectState == CONNECT_STATE_CONNECTING || newConnectState == CONNECT_STATE_DISCONNECTING || newConnectState == CONNECT_STATE_CONNECTED) {
+    if (newConnectState == CONNECT_STATE_DISCONNECTING || newConnectState == CONNECT_STATE_CONNECTED) {
         if (!qFuzzyCompare(opacityConnecting_, 1.0)) {
             opacityConnectingAnimation_.setDirection(QPropertyAnimation::Forward);
             if (opacityConnectingAnimation_.state() != QPropertyAnimation::Running)
@@ -167,7 +167,7 @@ QPixmap Background::getShadowPixmap()
         painter.setPen(Qt::NoPen);
         QPainterPath path;
         path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
-        painter.fillPath(path, QColor(2, 13, 28));
+        painter.fillPath(path, QColor(9, 15, 25));
         painter.setPen(Qt::SolidLine);
     } else {
         QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap("background/MAIN_BG");

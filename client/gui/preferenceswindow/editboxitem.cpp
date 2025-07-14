@@ -213,7 +213,7 @@ void EditBoxItem::onTextChanged(const QString &text)
 {
     if (text.length() >= minLength_) {
         if (!btnConfirm_->isClickable()) {
-            btnConfirm_->setTintColor(QColor(85, 255, 138, 255));
+            btnConfirm_->setTintColor(FontManager::instance().getSeaGreenColor());
             btnConfirm_->setClickable(true);
         }
     } else {

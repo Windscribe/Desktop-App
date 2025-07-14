@@ -49,7 +49,7 @@ void UpgradeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
         painter->setPen(Qt::NoPen);
         QPainterPath path;
         path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
-        painter->fillPath(path, QColor(2, 13, 28));
+        painter->fillPath(path, QColor(9, 15, 25));
         painter->setPen(Qt::SolidLine);
     } else {
         QString background = "background/MAIN_BG";

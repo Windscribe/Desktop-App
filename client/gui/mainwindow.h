@@ -347,7 +347,6 @@ private:
     void updateAppIconType(AppIconType type);
     void updateTrayIconType(AppIconType type);
     void updateTrayTooltip(QString tooltip);
-    bool isTrayIconRectValid();
     AppIconType currentAppIconType_;
     QSystemTrayIcon trayIcon_;
     QRect savedTrayIconRect_;

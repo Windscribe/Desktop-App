@@ -45,12 +45,12 @@ void ToggleButton::paintEvent(QPaintEvent *event)
 
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setPen(Qt::NoPen);
-    // When "on", the color is 55ff8a, and when "off", the color is #ffffff
-    painter.setBrush(QColor(255 - 170*animValue_, 255, 255 - 117*animValue_));
+    // When "on", the color is #17E9AD, and when "off", the color is #ffffff
+    painter.setBrush(QColor(255 - 232*animValue_, 255 - 22*animValue_, 255 - 82*animValue_));
     painter.drawRoundedRect(0, 0, width(), height(), 2, 2);
 
     // The circle
-    painter.setBrush(QColor(2, 13, 28));
+    painter.setBrush(QColor(9, 15, 25));
     if (LanguageController::instance().isRtlLanguage()) {
         painter.drawEllipse(2 + 14*(1 - animValue_), 2, 12, 12);
     } else {

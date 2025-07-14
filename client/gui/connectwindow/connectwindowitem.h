@@ -12,6 +12,7 @@
 #include "ipaddressitem/ipaddressitem.h"
 #include "locationsbutton.h"
 #include "logonotificationsbutton.h"
+#include "networktrustbutton.h"
 
 namespace ConnectWindow {
 
@@ -51,8 +52,6 @@ public slots:
     void setInternetConnectivity(bool connectivity);
     void setProtocolPort(const types::Protocol &protocol, const uint port);
 
-    void onNetworkHoverEnter();
-    void onNetworkHoverLeave();
     void onConnectStateTextHoverEnter();
     void onConnectStateTextHoverLeave();
     void onFirewallButtonHoverLeave();
@@ -85,6 +84,7 @@ signals:
     void locationsKeyPressed(QKeyEvent *event);
 
 private slots:
+    void onExternalConfigModeChanged(bool isExternalConfigMode);
     void onAppSkinChanged(APP_SKIN s);
     void onLanguageChanged();
 
@@ -106,21 +106,16 @@ private:
     ToggleButton *firewallButton_;
     IconButton *firewallInfo_;
     IconButton *preferencesButton_;
-    IconButton *networkTrustButton_;
+    NetworkTrustButton *networkTrustButton_;
     IconButton *dotMenuButton_;
     IPAddressItem *ipAddressItem_;
     CommonGraphics::TextButton *firewallLabel_;
-    CommonGraphics::TextButton *networkNameText_;
     LogoNotificationsButton *logoButton_;
 
     types::ConnectState prevConnectState_;
-    NETWORK_TRUST_TYPE trustType_;
-    NETWORK_INTERFACE_TYPE interfaceType_;
-    bool networkActive_;
 
     QString fullFirstName_;
     QString fullSecondName_;
-    QString networkName_;
 
     QString connectionTime_;
     QString dataTransferred_;

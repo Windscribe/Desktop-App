@@ -12,7 +12,7 @@
 namespace PreferencesWindow {
 
 TitleItem::TitleItem(ScalableGraphicsObject *parent, const QString &title)
-  : BaseItem(parent, ACCOUNT_TITLE_HEIGHT*G_SCALE), title_(title), linkText_(""), linkColor_(QColor(85, 255, 138)), currentLinkColor_(QColor(85, 255, 138))
+  : BaseItem(parent, ACCOUNT_TITLE_HEIGHT*G_SCALE), title_(title), linkText_(""), linkColor_(FontManager::instance().getSeaGreenColor()), currentLinkColor_(FontManager::instance().getSeaGreenColor())
 {
     setAcceptHoverEvents(true);
     connect(&colorAnimation_, &QVariantAnimation::valueChanged, this, &TitleItem::onColorAnimationValueChanged);

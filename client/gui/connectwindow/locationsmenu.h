@@ -21,6 +21,8 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
     void updateScaling() override;
 
+    void setIsExternalConfigMode(bool isExternalConfigMode);
+
     bool handleKeyPressEvent(QKeyEvent *event);
     void dismiss();
 
@@ -65,6 +67,8 @@ private:
     QString filterText_;
     LOCATION_TAB curTab_;
     LOCATION_TAB prevTab_;
+
+    bool isExternalConfigMode_;
 
     void updatePositions();
     void updateSelectedTab(IconButton *button);

@@ -279,8 +279,8 @@
         <translation>A conectividade com a Internet não está disponível.  Tente novamente mais tarde.</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>Complete Puzzle para continuar</translation>
+        <source>Please type the numbers above to continue:</source>
+        <translation>Por favor, digite os números acima para continuar:</translation>
     </message>
 </context>
 </TS>

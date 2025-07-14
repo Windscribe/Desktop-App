@@ -35,14 +35,14 @@ ProtocolWindowItem::ProtocolWindowItem(QGraphicsObject *parent,
 void ProtocolWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     // resize area background
-    painter->fillRect(boundingRect().adjusted(0, 32*G_SCALE, 0, -9*G_SCALE), QBrush(QColor(2, 13, 28)));
+    painter->fillRect(boundingRect().adjusted(0, 32*G_SCALE, 0, -9*G_SCALE), QBrush(QColor(9, 15, 25)));
 
     // base background
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
         QPainterPath path;
         path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
         painter->setPen(Qt::NoPen);
-        painter->fillPath(path, QColor(2, 13, 28));
+        painter->fillPath(path, QColor(9, 15, 25));
         painter->setPen(Qt::SolidLine);
     } else {
         QSharedPointer<IndependentPixmap> pixmapBaseBackground = ImageResourcesSvg::instance().getIndependentPixmap(backgroundBase_);

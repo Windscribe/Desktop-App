@@ -279,8 +279,8 @@
         <translation>Internet 连接不可用。 请稍后重试。</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>完成拼图以继续</translation>
+        <source>Please type the numbers above to continue:</source>
+        <translation>请输入上面的数字以继续：</translation>
     </message>
 </context>
 </TS>

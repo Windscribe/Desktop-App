@@ -30,7 +30,7 @@ void FirewallTurnOffButton::paint(QPainter *painter, const QStyleOptionGraphicsI
     const auto rect = boundingRect();
 
     painter->setRenderHint(QPainter::Antialiasing);
-    painter->setBrush(QColor(85, 255, 138));
+    painter->setBrush(FontManager::instance().getSeaGreenColor());
     painter->drawRoundedRect(rect.adjusted(0, -kRoundness, 0, 0), kRoundness, kRoundness);
 
     QFont font = FontManager::instance().getFont(font_descr_);

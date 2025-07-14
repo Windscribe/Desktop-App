@@ -279,8 +279,8 @@
         <translation>Kết nối Internet không khả dụng.  Thử lại sau.</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>Hoàn thành Câu đố để tiếp tục</translation>
+        <source>Please type the numbers above to continue:</source>
+        <translation>Vui lòng nhập các số ở trên để tiếp tục:</translation>
     </message>
 </context>
 </TS>

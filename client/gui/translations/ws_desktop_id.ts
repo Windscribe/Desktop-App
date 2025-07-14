@@ -34,18 +34,6 @@
 <context>
     <name>ConnectWindow::ConnectWindowItem</name>
     <message>
-        <source>No Network Info</source>
-        <translation>Tidak Ada Info Jaringan</translation>
-    </message>
-    <message>
-        <source>Unsecured</source>
-        <translation>Tidak aman</translation>
-    </message>
-    <message>
-        <source>Secured</source>
-        <translation>Aman</translation>
-    </message>
-    <message>
         <source>Connection to Windscribe has been terminated. </source>
         <translation>Koneksi ke Windscribe telah dihentikan. </translation>
     </message>
@@ -68,10 +56,6 @@
     <message>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
         <translation>Memblokir semua konektivitas jika terjadi pemutusan tiba-tiba</translation>
-    </message>
-    <message>
-        <source>FIREWALL</source>
-        <translation>FIREWALL</translation>
     </message>
     <message>
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
