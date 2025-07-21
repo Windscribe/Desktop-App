@@ -1427,6 +1427,7 @@ void MainWindow::onExternalConfigWindowNextClick()
     backend_->getPreferencesHelper()->setIsExternalConfigMode(true);
     mainWindowController_->getConnectWindow()->setCustomConfigMode(true);
     backend_->gotoCustomOvpnConfigMode();
+    backend_->updateCurrentNetworkInterface();
 }
 
 void MainWindow::onTwoFactorAuthWindowButtonAddClick(const QString &code2fa)

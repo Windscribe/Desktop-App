@@ -19,7 +19,6 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
     void setNetwork(const types::NetworkInterface &network);
-    void setWidth(int width);
     void updateScaling() override;
 
 private slots:
@@ -28,6 +27,8 @@ private slots:
     void onHoverLeave();
 
 private:
+    static const int kMaxWidth = 198;
+
     types::NetworkInterface network_;
     ImageItem *trustIcon_;
     ImageItem *arrow_;

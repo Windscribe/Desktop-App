@@ -532,6 +532,12 @@ QVector<types::NetworkInterface> NetworkUtils_win::currentNetworkInterfaces(bool
             networkInterface.networkOrSsid = itRow.interfaceName;
         }
 
+        AdapterAddress aa = tableRowByIndex(getAdapterAddressesTable(), ia.index);
+        if (aa.valid) {
+            networkInterface.interfaceName = aa.friendlyName;
+            networkInterface.friendlyName  = networkInterface.interfaceName;
+        }
+
         IfTable2Row it2Row = tableRowByIndex(getIfTable2(), ia.index);
         if (!it2Row.valid) {
             // Should never happen
@@ -544,6 +550,10 @@ QVector<types::NetworkInterface> NetworkUtils_win::currentNetworkInterfaces(bool
 
         if (networkInterface.interfaceType == NETWORK_INTERFACE_ETH) {
             networkInterface.networkOrSsid = networkNameFromInterfaceGUID(it2Row.interfaceGuid);
+            if (networkInterface.networkOrSsid.isEmpty()) {
+                // Above function could not detect interface, probably virtual.  Set it to the friendly name instead.
+                networkInterface.networkOrSsid = networkInterface.friendlyName;
+            }
         }
 
         IpForwardRow ipfRow = tableRowByIndex(getIpForwardTable(), ia.index);
@@ -551,12 +561,6 @@ QVector<types::NetworkInterface> NetworkUtils_win::currentNetworkInterfaces(bool
             networkInterface.metric = -1;
         } else {
             networkInterface.metric = ipfRow.metric;
-        }
-
-        AdapterAddress aa = tableRowByIndex(getAdapterAddressesTable(), ia.index);
-        if (aa.valid) {
-            networkInterface.interfaceName = aa.friendlyName;
-            networkInterface.friendlyName  = networkInterface.interfaceName;
         }
 
         networkInterfaces << networkInterface;

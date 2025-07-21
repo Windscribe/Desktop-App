@@ -1,3 +1,22 @@
+2.16.11 (18/07/2025)
+MacOS:
+   * Fix installer icon does not display for some screen resolutions/scale factors. #1056
+
+
+2.16.10 (17/07/2025)
+Windows:
+   * Improved installer icon. #1056
+MacOS:
+   * Improved installer icon. #1056
+
+
+2.16.9 (15/07/2025)
+All:
+   * Fixed various issues with the network display on connect screen. #1417
+Windows:
+   * Fixed network may not show up in Network Options. #1417
+
+
 2.16.8 (10/07/2025)
 All:
    * Improved various issues with the new UI (e.g. colors, external config mode, keyboard handling in locations) #1417 #1418 #1421

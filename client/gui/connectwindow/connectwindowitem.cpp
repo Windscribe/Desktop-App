@@ -514,9 +514,6 @@ void ConnectWindowItem::updatePositions()
 
 void ConnectWindowItem::updateShortenedText()
 {
-    // Network name: max width is 350 - 16*3 padding (left, between network and IP, and right) - 120 for IP address.
-    networkTrustButton_->setWidth(198*G_SCALE);
-
     // City name
     QString shortenedFirstName;
     QString shortenedSecondName;

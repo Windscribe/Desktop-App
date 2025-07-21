@@ -91,24 +91,15 @@ void NetworkTrustButton::setNetwork(const types::NetworkInterface &network)
     updatePositions();
 }
 
-void NetworkTrustButton::setWidth(int width)
-{
-    // Use unscaled width
-    prepareGeometryChange();
-    width_ = width;
-
-    updateNetworkText();
-}
-
 void NetworkTrustButton::updateNetworkText()
 {
     // width minus left text offset and space for arrow on the right
-    int textWidth = width_ - 40*G_SCALE - arrow_->boundingRect().width();
+    int availableWidth = kMaxWidth*G_SCALE - 40*G_SCALE - arrow_->boundingRect().width();
 
     QFont networkFont = FontManager::instance().getFont(15, QFont::Normal);
     QFontMetrics fmNetwork(networkFont);
-    if (fmNetwork.horizontalAdvance(network_.friendlyName) > textWidth) {
-        networkText_ = fmNetwork.elidedText(network_.friendlyName, Qt::ElideMiddle, textWidth);
+    if (fmNetwork.horizontalAdvance(network_.friendlyName) > availableWidth) {
+        networkText_ = fmNetwork.elidedText(network_.friendlyName, Qt::ElideMiddle, availableWidth);
         isTextElided_ = true;
     } else {
         networkText_ = network_.friendlyName;
@@ -121,6 +112,7 @@ void NetworkTrustButton::updateNetworkText()
 void NetworkTrustButton::updateScaling()
 {
     ClickableGraphicsObject::updateScaling();
+    updateNetworkText();
     updatePositions();
 }
 
@@ -149,6 +141,10 @@ void NetworkTrustButton::updatePositions()
     int textWidth = fmNetwork.horizontalAdvance(networkText_);
 
     arrow_->setPos(36*G_SCALE + textWidth + arrowShift_*G_SCALE, (boundingRect().height() - arrow_->boundingRect().height())/2);
+
+    prepareGeometryChange();
+    width_ = 40*G_SCALE + arrow_->boundingRect().width() + textWidth;
+
     update();
 }
 

@@ -2,10 +2,10 @@
 
 #define WINDSCRIBE_MAJOR_VERSION 2
 #define WINDSCRIBE_MINOR_VERSION 16
-#define WINDSCRIBE_BUILD_VERSION 8
+#define WINDSCRIBE_BUILD_VERSION 11
 
 // only one of these should be enabled; neither -> stable
-#define WINDSCRIBE_IS_BETA
+//#define WINDSCRIBE_IS_BETA
 //#define WINDSCRIBE_IS_GUINEA_PIG
 
 #define STR_HELPER(x) #x
