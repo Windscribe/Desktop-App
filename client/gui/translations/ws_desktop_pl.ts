@@ -1825,6 +1825,10 @@ Najpierw połącz się z siecią</translation>
         <source>Plan Type</source>
         <translation>Rodzaj planu</translation>
     </message>
+    <message>
+        <source>Unlimited Data</source>
+        <translation>Nielimitowane dane</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::PreferencesTabControlItem</name>

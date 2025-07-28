@@ -1825,6 +1825,10 @@ Connect to a network first</source>
         <source>Plan Type</source>
         <translation>プランの種類</translation>
     </message>
+    <message>
+        <source>Unlimited Data</source>
+        <translation>無制限のデータ</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::PreferencesTabControlItem</name>

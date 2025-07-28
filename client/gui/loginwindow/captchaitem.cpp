@@ -18,6 +18,8 @@ const int kBottomSliderRunnerRadius = 16;
 
 CaptchaItem::CaptchaItem(QGraphicsObject *parent, const QString &background, const QString &slider, int top) : ScalableGraphicsObject(parent)
 {
+    captchaTrailX_.rset_capacity(kMaxTrailSize);
+    captchaTrailY_.rset_capacity(kMaxTrailSize);
     backgroundBase64_ = background;
     sliderBase64_ = slider;
     recreatePixmaps();
@@ -121,7 +123,9 @@ void CaptchaItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         mousePressedPos_.reset();
         // convert to captcha background coordinates
         double captchaSolution = sliderLeft_ * backgroundPixmap_.devicePixelRatio() / pixmapScale_;
-        emit captchaResolved(QString::number(static_cast<int>(captchaSolution)), captchaTrailX_, captchaTrailY_);
+        emit captchaResolved(QString::number(static_cast<int>(captchaSolution)),
+                             std::vector<float>(captchaTrailX_.begin(), captchaTrailX_.end()),
+                             std::vector<float>(captchaTrailY_.begin(), captchaTrailY_.end()));
     }
     ScalableGraphicsObject::mouseReleaseEvent(event);
 }
@@ -132,13 +136,11 @@ void CaptchaItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         sliderLeft_ = event->pos().x() - mousePressedPos_->x();
         sliderLeft_ = std::max(0, sliderLeft_);
         sliderLeft_ = std::min((double)(CAPTCHA_WIDTH - 2*kBottomSliderRunnerRadius) * G_SCALE, (double)sliderLeft_);
-        if (captchaTrailX_.size() < kMaxTrailSize) {
-            // push if at least one coordinate differs by more than 0.5 from the previous one
-            if (captchaTrailX_.empty() || (abs(captchaTrailX_[captchaTrailX_.size() - 1] - event->pos().x()) > 0.49) ||
-                (abs(captchaTrailY_[captchaTrailY_.size() - 1] - event->pos().y()) > 0.49)) {
-                captchaTrailX_.push_back(event->pos().x());
-                captchaTrailY_.push_back(event->pos().y());
-            }
+        // push if at least one coordinate differs by more than 0.5 from the previous one
+        if (captchaTrailX_.empty() || (abs(captchaTrailX_.back() - event->pos().x()) > 0.49) ||
+            (abs(captchaTrailY_.back() - event->pos().y()) > 0.49)) {
+            captchaTrailX_.push_back(event->pos().x());
+            captchaTrailY_.push_back(event->pos().y());
         }
         update();
     } else {

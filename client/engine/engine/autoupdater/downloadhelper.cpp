@@ -204,7 +204,7 @@ void DownloadHelper::getInner(const QString url, const QString targetFilenamePat
         }) ;
     };
 
-    auto httpRequest = WSNet::instance()->httpNetworkManager()->createGetRequest(url.toStdString(), (std::uint16_t)(60000 * 10));  // timeout 10 mins
+    auto httpRequest = WSNet::instance()->httpNetworkManager()->createGetRequest(url.toStdString(), 60000 * 10);  // timeout 10 mins
     httpRequest->setRemoveFromWhitelistIpsAfterFinish(true);
 
     fileAndProgess->request = WSNet::instance()->httpNetworkManager()->executeRequestEx(httpRequest, uniqueRequestId_, callbackFinished, callbackProgress, callbackReadyData);

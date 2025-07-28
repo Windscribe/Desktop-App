@@ -25,6 +25,8 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
   , isRibbonVisible_(false)
   , showAllTabs_(true)
   , curTab_(LOCATION_TAB_ALL_LOCATIONS)
+  , isUnlimitedData_(true) // Assume true until told otherwise, so we make sure not to show the banner unless user is confirmed to be non-premium
+
 {
     connect(preferences_, &Preferences::appSkinChanged, this, &LocationsTab::onAppSkinChanged);
 
@@ -351,7 +353,7 @@ void LocationsTab::updateRibbonVisibility()
         configFooterInfo_->hide();
         staticIPDeviceInfo_->hide();
 
-        if (!isPremium_) {
+        if (!isUnlimitedData_) {
             upgradeBanner_->show();
             upgradeBanner_->raise();
             isRibbonVisible_ = true;
@@ -442,14 +444,9 @@ void LocationsTab::onLocationsKeyPressed(QKeyEvent *event)
     }
 }
 
-void LocationsTab::setIsPremium(bool isPremium)
-{
-    isPremium_ = isPremium;
-    updateRibbonVisibility();
-}
-
 void LocationsTab::setDataRemaining(qint64 bytesUsed, qint64 bytesMax)
 {
+    isUnlimitedData_ = (bytesMax == -1);
     updateRibbonVisibility();
     upgradeBanner_->setDataRemaining(bytesUsed, bytesMax);
 }

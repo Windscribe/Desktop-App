@@ -1825,6 +1825,10 @@ Connect to a network first</source>
         <source>Plan Type</source>
         <translation>प्लान का प्रकार</translation>
     </message>
+    <message>
+        <source>Unlimited Data</source>
+        <translation>असीमित डेटा</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::PreferencesTabControlItem</name>

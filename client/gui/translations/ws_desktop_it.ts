@@ -1825,6 +1825,10 @@ Connettersi prima a una rete</translation>
         <source>Plan Type</source>
         <translation>Tipo di piano</translation>
     </message>
+    <message>
+        <source>Unlimited Data</source>
+        <translation>Dati illimitati</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::PreferencesTabControlItem</name>

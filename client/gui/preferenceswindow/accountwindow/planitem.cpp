@@ -49,12 +49,14 @@ void PlanItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
 void PlanItem::setPlan(qint64 plan)
 {
     planBytes_ = plan;
+    onLanguageChanged(); // String may change based on plan
     update();
 }
 
 void PlanItem::setIsPremium(bool isPremium)
 {
     isPremium_ = isPremium;
+    onLanguageChanged(); // String may change based on plan
     updatePositions();
 }
 
@@ -73,7 +75,11 @@ void PlanItem::updateScaling()
 void PlanItem::onLanguageChanged()
 {
     if (!isPremium_) {
-        textButton_->setText(tr("Free"));
+        if (planBytes_ == -1) {
+            textButton_->setText(tr("Unlimited Data")); // Build a Plan
+        } else {
+            textButton_->setText(tr("Free"));
+        }
     }
     updatePositions();
 }

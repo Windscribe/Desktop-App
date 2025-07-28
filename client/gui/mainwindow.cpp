@@ -1926,7 +1926,6 @@ void MainWindow::onBackendSessionStatusChanged(const api_responses::SessionStatu
     // free account
     if (!sessionStatus.isPremium()) {
         mainWindowController_->getConnectWindow()->setIsPremium(false);
-        mainWindowController_->getLocationsWindow()->setIsPremium(false);
         if (status == 2) {
             // write entry into registry expired_user = username
             multipleAccountDetection_->userBecomeExpired(sessionStatus.getUsername());
@@ -1956,7 +1955,7 @@ void MainWindow::onBackendSessionStatusChanged(const api_responses::SessionStatu
     // premium account
     else {
         mainWindowController_->getConnectWindow()->setIsPremium(true);
-        mainWindowController_->getLocationsWindow()->setIsPremium(true);
+        setDataRemaining(-1, -1);
         if (sessionStatus.getRebill() == 0) {
             QDate curDate = QDateTime::currentDateTimeUtc().date();
             QDate expireDate = QDate::fromString(sessionStatus.getPremiumExpireDate(), "yyyy-MM-dd");

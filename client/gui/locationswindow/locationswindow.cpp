@@ -228,11 +228,6 @@ void LocationsWindow::onLocationsKeyPressed(QKeyEvent *event)
     locationsTab_->onLocationsKeyPressed(event);
 }
 
-void LocationsWindow::setIsPremium(bool isPremium)
-{
-    locationsTab_->setIsPremium(isPremium);
-}
-
 void LocationsWindow::setDataRemaining(qint64 bytesUsed, qint64 bytesMax)
 {
     locationsTab_->setDataRemaining(bytesUsed, bytesMax);

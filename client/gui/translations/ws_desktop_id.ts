@@ -1825,6 +1825,10 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
         <source>Plan Type</source>
         <translation>Jenis Paket</translation>
     </message>
+    <message>
+        <source>Unlimited Data</source>
+        <translation>Data Tidak Terbatas</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::PreferencesTabControlItem</name>

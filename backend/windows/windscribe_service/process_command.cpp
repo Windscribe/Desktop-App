@@ -158,17 +158,17 @@ std::string executeOpenVPN(const std::string &pars)
         return serializeResult(false, (unsigned long)0);
     }
 
+    const std::wstring ovpnExe = Utils::getExePath() + L"\\windscribeopenvpn.exe";
+
 #if defined(USE_SIGNATURE_CHECK)
     ExecutableSignature sigCheck;
-    std::wstring servicePath = Utils::getExePath() + L"\\windscribeopenvpn.exe";
-    if (!sigCheck.verify(servicePath)) {
+    if (!sigCheck.verify(ovpnExe)) {
         spdlog::error("OpenVPN service signature incorrect: {}", sigCheck.lastError());
         return serializeResult(false, (unsigned long)0);
     }
 #endif
 
-    // make openvpn command
-    std::wstring strCmd = L"\"" + Utils::getExePath() + L"\\windscribeopenvpn.exe\"" + L" --config \"" + filename;
+    std::wstring strCmd = L"\"" + ovpnExe + L"\" --config \"" + filename + L"\"";
     auto res = ExecuteCmd::instance().executeUnblockingCmd(strCmd, L"", Utils::getDirPathFromFullPath(filename));
     return serializeResult(res.success, res.blockingCmdId);
 }

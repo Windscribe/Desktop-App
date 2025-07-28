@@ -35,7 +35,6 @@ public:
     int headerHeight() const;
     static constexpr int COVER_LAST_ITEM_LINE = 4;
 
-    void setIsPremium(bool isPremium);
     void setDataRemaining(qint64 bytesUsed, qint64 bytesMax);
 
 public slots:
@@ -85,8 +84,6 @@ private:
     ConfigFooterInfo *configFooterInfo_;
     UpgradeBanner *upgradeBanner_;
 
-    bool isPremium_;
-
     LOCATION_TAB curTab_;
     LOCATION_TAB lastTab_;
     LOCATION_TAB tabPress_;
@@ -105,6 +102,7 @@ private:
     int currentLocationListHeight_;
     bool isRibbonVisible_;
     bool showAllTabs_;
+    bool isUnlimitedData_;
 
     QColor tabBackgroundColor_;
 

@@ -3,6 +3,7 @@
 #include <QGraphicsObject>
 #include <QVariantAnimation>
 #include "commongraphics/scalablegraphicsobject.h"
+#include <boost/circular_buffer.hpp>
 
 namespace LoginWindow {
 
@@ -39,9 +40,10 @@ private:
 
     std::optional<QPointF> mousePressedPos_;
 
-    static const int kMaxTrailSize = 1000;
-    std::vector<float> captchaTrailX_;
-    std::vector<float> captchaTrailY_;
+    static const int kMaxTrailSize = 50;
+    boost::circular_buffer<float> captchaTrailX_;
+    boost::circular_buffer<float> captchaTrailY_;
+
 
     bool inCaptchaArea(const QPointF &pt) const;
     bool inSliderArea(const QPointF &pt) const;

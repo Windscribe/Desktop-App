@@ -1825,6 +1825,10 @@ Kết nối với mạng trước</translation>
         <source>Plan Type</source>
         <translation>Loại kế hoạch</translation>
     </message>
+    <message>
+        <source>Unlimited Data</source>
+        <translation>Dữ liệu không giới hạn</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::PreferencesTabControlItem</name>

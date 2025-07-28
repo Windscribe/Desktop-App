@@ -1825,6 +1825,10 @@ Connect to a network first</source>
         <source>Plan Type</source>
         <translation>Plan Türü</translation>
     </message>
+    <message>
+        <source>Unlimited Data</source>
+        <translation>Sınırsız Veri</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::PreferencesTabControlItem</name>

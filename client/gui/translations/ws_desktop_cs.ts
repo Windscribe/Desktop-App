@@ -1825,6 +1825,10 @@ Nejprve se připojte k síti</translation>
         <source>Plan Type</source>
         <translation>Typ plánu</translation>
     </message>
+    <message>
+        <source>Unlimited Data</source>
+        <translation>Neomezená data</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::PreferencesTabControlItem</name>

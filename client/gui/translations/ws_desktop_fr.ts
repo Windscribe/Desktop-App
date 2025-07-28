@@ -1825,6 +1825,10 @@ Se connecter d’abord à un réseau</translation>
         <source>Plan Type</source>
         <translation>Type de régime</translation>
     </message>
+    <message>
+        <source>Unlimited Data</source>
+        <translation>Données illimitées</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::PreferencesTabControlItem</name>

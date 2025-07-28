@@ -1825,6 +1825,10 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
         <source>Plan Type</source>
         <translation>Art des Plans</translation>
     </message>
+    <message>
+        <source>Unlimited Data</source>
+        <translation>Unbegrenzte Daten</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::PreferencesTabControlItem</name>

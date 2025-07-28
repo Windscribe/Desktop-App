@@ -1,6 +1,24 @@
+2.16.14 (24/07/2025)
+All:
+   * Fixed update downloads may fail prematurely. #1431
+   * Fixed maximum CAPTCHA trail size. #1434
+
+
+2.16.13 (23/07/2025)
+All:
+   * Fixed upgrade banner may show on a Pro account. #1430
+
+
+2.16.12 (22/07/2025)
+All:
+   * Fixed build-a-plan shows as Free account. #1425
+Windows:
+   * Fixed OpenVPN config file path missing terminating double-quote in helper. #1427
+
+
 2.16.11 (18/07/2025)
 MacOS:
-   * Fix installer icon does not display for some screen resolutions/scale factors. #1056
+   * Fixed installer icon does not display for some screen resolutions/scale factors. #1056
 
 
 2.16.10 (17/07/2025)

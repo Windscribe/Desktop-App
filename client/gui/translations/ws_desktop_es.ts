@@ -1825,6 +1825,10 @@ Conéctate primero a una red</translation>
         <source>Plan Type</source>
         <translation>Tipo de plan</translation>
     </message>
+    <message>
+        <source>Unlimited Data</source>
+        <translation>Datos ilimitados</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::PreferencesTabControlItem</name>

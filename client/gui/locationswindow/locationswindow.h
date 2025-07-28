@@ -24,7 +24,6 @@ public:
 
     void setTab(LOCATION_TAB tab);
 
-    void setIsPremium(bool isPremium);
     void setDataRemaining(qint64 bytesUsed, qint64 bytesMax);
 
 public slots:
