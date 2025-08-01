@@ -13,17 +13,6 @@ void urlquery_utils::addPlatformQueryItems(skyr::url_search_parameters &sp)
     sp.set("app_version", Settings::instance().appVersion());
 }
 
-void urlquery_utils::addAuthQueryItems(skyr::url_search_parameters &sp)
-{
-    time_t timestamp;
-    time(&timestamp);
-    std::string strTimestamp = std::to_string(timestamp);
-    std::string strHash = Settings::instance().serverSharedKey() + strTimestamp;
-    std::string md5Hash = crypto_utils::md5(strHash);
-    sp.set("time", strTimestamp);
-    sp.set("client_auth_hash", md5Hash);
-}
-
 std::unordered_map<std::string, std::string> urlquery_utils::buildCaptchaParams(const std::string& secureToken, const std::string& captchaSolution,
                                                                     const std::vector<float>& captchaTrailX, const std::vector<float>& captchaTrailY)
 {

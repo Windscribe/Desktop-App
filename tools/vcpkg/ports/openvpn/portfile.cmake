@@ -35,7 +35,11 @@ if(VCPKG_TARGET_IS_WINDOWS)
 else()
     set(ENV{CFLAGS} "$ENV{CFLAGS} -I${CURRENT_HOST_INSTALLED_DIR}/include")
     set(ENV{CPPFLAGS} "$ENV{CPPFLAGS} -I${CURRENT_HOST_INSTALLED_DIR}/include")
-    set(ENV{LDFLAGS} "$ENV{LDFLAGS} -L${CURRENT_HOST_INSTALLED_DIR}/lib")
+    if(VCPKG_TARGET_IS_OSX)
+        set(ENV{LDFLAGS} "$ENV{LDFLAGS} -headerpad_max_install_names -L${CURRENT_HOST_INSTALLED_DIR}/lib")
+    else()
+        set(ENV{LDFLAGS} "$ENV{LDFLAGS}")
+    endif()
 
     vcpkg_list(SET CONFIGURE_OPTIONS
         "--with-crypto-library=openssl"

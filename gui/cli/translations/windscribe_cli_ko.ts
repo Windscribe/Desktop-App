@@ -282,5 +282,17 @@
         <source>Please type the numbers above to continue:</source>
         <translation>계속하려면 위의 숫자를 입력하십시오.</translation>
     </message>
+    <message>
+        <source> (10 Gbps)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> (Disabled)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> (Pro)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 </TS>

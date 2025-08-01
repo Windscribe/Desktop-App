@@ -1,16 +1,11 @@
 #pragma once
 
-#include <QtMultimedia/QAudioOutput>
-#include <QtMultimedia/QMediaPlayer>
 #include <QObject>
-#include <QThread>
-#include <QQueue>
-#include <QMutex>
-#include <QWaitCondition>
+#include <QTimer>
 
 #include "backend/preferences/preferences.h"
 
-class SoundPlayerWorker;
+#include <miniaudio.h>
 
 class SoundManager : public QObject
 {
@@ -23,34 +18,23 @@ public:
     void stop();
 
 private slots:
-    void onSoundSettingsChanged(const types::SoundSettings &soundSettings);
-    void onPlayerError(QMediaPlayer::Error error, const QString &errorString);
-    void onPlayerPositionChanged(qint64 position);
-    void onPlayerReady(QMediaPlayer *player);
-
-signals:
-    void preparePlayer(const QUrl &url, QMediaPlayer::Loops loops);
+    void handleQueuedConnectedEvent();
 
 private:
+    static void endCallback(void* pUserData, ma_sound* pSound);
+    void initialize();
+    void cleanup();
+    void playSound(const QString &path, bool loop);
+    void cleanupCurrentSoundData();
+
     Preferences *preferences_;
-    QMediaPlayer *player_;
-
-    QThread *workerThread_;
-    SoundPlayerWorker *worker_;
-
+    ma_engine audioEngine_;
+    ma_sound sound_;
+    ma_decoder decoder_;
+    QByteArray audioBuffer_;
+    bool audioEngineInitialized_ = false;
+    bool soundInitialized_ = false;
+    bool decoderInitialized_ = false;
+    bool shouldLoop_ = false;
     bool connectedEventQueued_ = false;
-    qint64 position_ = 0;
-};
-
-class SoundPlayerWorker : public QObject
-{
-    Q_OBJECT
-public:
-    SoundPlayerWorker(QObject *parent = nullptr);
-
-public slots:
-    void preparePlayer(const QUrl &url, QMediaPlayer::Loops loops);
-
-signals:
-    void playerReady(QMediaPlayer *player);
 };

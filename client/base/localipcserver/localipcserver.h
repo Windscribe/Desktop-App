@@ -19,7 +19,7 @@ public:
     ~LocalIPCServer();
 
     void start();
-    void sendLocations(const QStringList &locations, IPC::CliCommands::LocationType type);
+    void sendLocations(const QList<IPC::CliCommands::IpcLocation> &locations, IPC::CliCommands::LocationType type);
     void setDisconnectedByKeyLimit();
 
 signals:
@@ -72,10 +72,11 @@ private:
     types::Protocol protocol_;
     uint port_;
     TUNNEL_TEST_STATE tunnelTestState_;
-    bool disconnectedByKeyLimit_;
+    bool disconnectedByKeyLimit_ = false;
     QString connectId_;
     bool tunnelTestSuccess_;
     QString deviceName_;
+    bool invalidLocation_ = false;
 
     void sendState();
     void sendCommand(const IPC::Command &command);

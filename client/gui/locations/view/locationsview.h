@@ -21,6 +21,7 @@ public:
 
     void setModel(QAbstractItemModel *model);
     void setShowLocationLoad(bool isShowLocationLoad);
+    void setShowCountryFlagForCity(bool isShowCountryFlagForCity);
     void updateScaling();
     bool isEmptyList() const { return widget_->isEmptyList(); }
 

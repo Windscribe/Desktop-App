@@ -26,6 +26,9 @@ public:
     std::string contentTypeHeader() const { return contentTypeHeader_; }
     void setContentTypeHeader(const std::string &data) { contentTypeHeader_ = data; }
 
+    void setBearerToken(const std::string &bearerToken) { bearerToken_ = bearerToken; }
+    std::string bearerToken() const { return bearerToken_; }
+
     void setIgnoreJsonParse() { isIgnoreJsonParse_ = true; }
 
     virtual std::string postData() const;
@@ -64,6 +67,7 @@ protected:
     bool isWriteToLog_ = true;
     ServerApiRetCode retCode_ = ServerApiRetCode::kSuccess;
     std::string contentTypeHeader_;
+    std::string bearerToken_ = "0";
     bool isIgnoreJsonParse_ = false;
     std::string json_;
 
@@ -71,4 +75,3 @@ protected:
 };
 
 } // namespace wsnet
-

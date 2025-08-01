@@ -32,21 +32,21 @@ bool MakeOVPNFile::generate(const QString &ovpnData, const QString &ip, types::P
 
     config_ = ExtraConfig::instance().modifyVerbParameter(ovpnData, strExtraConfig);
 
-    // set timeout 30 sec according to this: https://www.notion.so/windscribe/Data-Plane-VPN-Protocol-Failover-Refresh-48ed7aea1a244617b327c3a7d816a902
-    config_ += "\r\n--connect-timeout 30\r\n";
+    // Set timeout to 30s according to this: https://www.notion.so/windscribe/Data-Plane-VPN-Protocol-Failover-Refresh-48ed7aea1a244617b327c3a7d816a902
+    config_ += "\r\nconnect-timeout 30\r\n";
 
 #if defined (Q_OS_WIN)
     // NOTE: --dev tun option already included in ovpnData by the server API.
     // NOTE: the emergency connect OpenVPN server is old-old and generates data packets not supported by the DCO driver.
     // We use the --dev-node option to ensure OpenVPN will only use the dco/wintun adapter instance we create and not
     // possibly attempt to use an adapter created by other software (e.g. the vanilla OpenVPN client app).
-    config_ += QString("\r\n--dev-node %1\r\n").arg(kOpenVPNAdapterIdentifier);
+    config_ += QString("\r\ndev-node %1\r\n").arg(kOpenVPNAdapterIdentifier);
     if (!isEmergencyConnect && ExtraConfig::instance().useOpenVpnDCO()) {
-        config_ += "\r\n--windows-driver ovpn-dco\r\n";
+        config_ += "\r\nwindows-driver ovpn-dco\r\n";
         // DCO driver on Windows will not accept the AES-256-CBC cipher and will drop back to using wintun if it is provided in the ciphers list.
         config_.replace(":AES-256-CBC:", ":");
     } else {
-        config_ += "\r\n--windows-driver wintun\r\n";
+        config_ += "\r\nwindows-driver wintun\r\n";
     }
 #endif
 

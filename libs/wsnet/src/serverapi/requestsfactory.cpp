@@ -28,25 +28,28 @@ BaseRequest *requests_factory::session(const std::string &authHash, const std::s
                                        const std::string &gpDeviceId, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["apple_id"] = appleId;
     extraParams["gp_device_id"] = gpDeviceId;
-    return new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "Session", extraParams, callback);
+    auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "Session", extraParams, callback);
+    request->setBearerToken(authHash);
+    return request;
 }
 
 BaseRequest *requests_factory::claimVoucherCode(const std::string &authHash, const std::string &voucherCode, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["voucher_code"] = voucherCode;
-    return new BaseRequest(HttpMethod::kPut, SubdomainType::kApi, RequestPriority::kNormal, "Users", extraParams, callback);
+    auto request = new BaseRequest(HttpMethod::kPut, SubdomainType::kApi, RequestPriority::kNormal, "Users", extraParams, callback);
+    request->setBearerToken(authHash);
+    return request;
 }
 
 BaseRequest *requests_factory::deleteSession(const std::string &authHash, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
-    return new BaseRequest(HttpMethod::kDelete, SubdomainType::kApi, RequestPriority::kNormal, "Session", extraParams, callback);
+    auto request = new BaseRequest(HttpMethod::kDelete, SubdomainType::kApi, RequestPriority::kNormal, "Session", extraParams, callback);
+    request->setBearerToken(authHash);
+    return request;
 }
 
 BaseRequest *requests_factory::serverLocations(PersistentSettings &persistentSettings, const std::string &language, const std::string &revision, bool isPro, const std::vector<std::string> &alcList,
@@ -71,25 +74,25 @@ BaseRequest *requests_factory::myIP(RequestFinishedCallback callback)
 BaseRequest *requests_factory::serverCredentials(const std::string &authHash, bool isOpenVpnProtocol, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["type"] = isOpenVpnProtocol ? "openvpn" : "ikev2";
-    return new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "ServerCredentials", extraParams, callback);
+    auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "ServerCredentials", extraParams, callback);
+    request->setBearerToken(authHash);
+    return request;
 }
 
 BaseRequest *requests_factory::serverConfigs(const std::string &authHash, const std::string &ovpnVersion, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["ovpn_version"] = ovpnVersion;
     auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "ServerConfigs", extraParams, callback);
     request->setIgnoreJsonParse();
+    request->setBearerToken(authHash);
     return request;
 }
 
 BaseRequest *requests_factory::portMap(const std::string &authHash, std::uint32_t version, const std::vector<std::string> &forceProtocols, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["version"] = std::to_string(version);
     for (int i = 0; i < forceProtocols.size(); ++i) {
         std::string fp = "force_protocols[" + std::to_string(i) + "]";
@@ -97,6 +100,7 @@ BaseRequest *requests_factory::portMap(const std::string &authHash, std::uint32_
     }
     auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "PortMap", extraParams, callback);
     request->setContentTypeHeader("Content-type: application/x-www-form-urlencoded");
+    request->setBearerToken(authHash);
     return request;
 }
 
@@ -115,18 +119,20 @@ BaseRequest *requests_factory::recordInstall(bool isDesktop, const std::string &
 BaseRequest *requests_factory::confirmEmail(const std::string &authHash, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["resend_confirmation"] = "1";
-    return new BaseRequest(HttpMethod::kPut, SubdomainType::kApi, RequestPriority::kNormal, "Users", extraParams, callback);
+    auto request = new BaseRequest(HttpMethod::kPut, SubdomainType::kApi, RequestPriority::kNormal, "Users", extraParams, callback);
+    request->setBearerToken(authHash);
+    return request;
 }
 
 BaseRequest *requests_factory::addEmail(const std::string &authHash, const std::string &email, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["email"] = email;
     extraParams["email_forced"] = "1";
-    return new BaseRequest(HttpMethod::kPut, SubdomainType::kApi, RequestPriority::kNormal, "Users", extraParams, callback);
+    auto request = new BaseRequest(HttpMethod::kPut, SubdomainType::kApi, RequestPriority::kNormal, "Users", extraParams, callback);
+    request->setBearerToken(authHash);
+    return request;
 }
 
 BaseRequest *requests_factory::signup(const std::string &username, const std::string &password, const std::string &referringUsername, const std::string &email,
@@ -142,16 +148,18 @@ BaseRequest *requests_factory::signup(const std::string &username, const std::st
     extraParams["voucher_code"] = voucherCode;
     auto captchaParams = urlquery_utils::buildCaptchaParams(secureToken, captchaSolution, captchaTrailX, captchaTrailY);
     extraParams.insert(captchaParams.begin(), captchaParams.end());
-    return new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "Users", extraParams, callback);
+    auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "Users", extraParams, callback);
+    return request;
 }
 
 BaseRequest *requests_factory::webSession(const std::string &authHash, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["temp_session"] = "1";
     extraParams["session_type_id"] = "1";
-    return new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "WebSession", extraParams, callback);
+    auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "WebSession", extraParams, callback);
+    request->setBearerToken(authHash);
+    return request;
 }
 
 BaseRequest *requests_factory::checkUpdate(UpdateChannel updateChannel, const std::string &appVersion, const std::string &appBuild,
@@ -171,7 +179,8 @@ BaseRequest *requests_factory::checkUpdate(UpdateChannel updateChannel, const st
     extraParams["os_version"] = osVersion;
     extraParams["os_build"] = osBuild;
 
-    return new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "CheckUpdate", extraParams, callback);
+    auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "CheckUpdate", extraParams, callback);
+    return request;
 }
 
 BaseRequest *requests_factory::debugLog(const std::string &username, const std::string &strLog, RequestFinishedCallback callback)
@@ -187,24 +196,25 @@ BaseRequest *requests_factory::debugLog(const std::string &username, const std::
 BaseRequest *requests_factory::speedRating(const std::string &authHash, const std::string &hostname, const std::string &ip, std::int32_t rating, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["hostname"] = hostname;
     extraParams["ip"] = ip;
     extraParams["rating"] = std::to_string(rating);
 
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "SpeedRating", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    request->setBearerToken(authHash);
     return request;
 }
 
 BaseRequest *requests_factory::staticIps(const std::string &authHash, std::uint32_t version, const std::string &platform, const std::string &deviceId, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["version"] = std::to_string(version);
     extraParams["os"] = platform;
     extraParams["device_id"] = deviceId;
-    return new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "StaticIps", extraParams, callback);
+    auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "StaticIps", extraParams, callback);
+    request->setBearerToken(authHash);
+    return request;
 }
 
 BaseRequest *requests_factory::pingTest(std::uint32_t timeoutMs, RequestFinishedCallback callback)
@@ -219,54 +229,55 @@ BaseRequest *requests_factory::pingTest(std::uint32_t timeoutMs, RequestFinished
 BaseRequest *requests_factory::notifications(const std::string &authHash, const std::string &pcpid, const std::string &language, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["pcpid"] = pcpid;
     extraParams["lang"] = language;
-    return new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "Notifications", extraParams, callback);
+    auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "Notifications", extraParams, callback);
+    request->setBearerToken(authHash);
+    return request;
 }
 
 BaseRequest *requests_factory::getRobertFilters(const std::string &authHash, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
-    return new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "Robert/filters", extraParams, callback);
+    auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "Robert/filters", extraParams, callback);
+    request->setBearerToken(authHash);
+    return request;
 }
 
 BaseRequest *requests_factory::setRobertFilter(const std::string &authHash, const std::string &id, std::int32_t status, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     std::string json = "{\"filter\":\"" + id + "\", \"status\":" + std::to_string(status) + "}";
     auto request = new SetRobertFilterRequest(HttpMethod::kPut, SubdomainType::kApi, RequestPriority::kNormal, "Robert/filter", extraParams, json, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    request->setBearerToken(authHash);
     return request;
 }
 
 BaseRequest *requests_factory::syncRobert(const std::string &authHash, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "Robert/syncrobert", extraParams, callback);
+    request->setBearerToken(authHash);
     return request;
 }
 
 BaseRequest *requests_factory::wgConfigsInit(const std::string &authHash, const std::string &clientPublicKey, bool deleteOldestKey, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["wg_pubkey"] = clientPublicKey;
     if (deleteOldestKey)
         extraParams["force_init"] = "1";
 
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kHigh, "WgConfigs/init", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    request->setBearerToken(authHash);
     return request;
 }
 
 BaseRequest *requests_factory::wgConfigsConnect(const std::string &authHash, const std::string &clientPublicKey, const std::string &hostname, const std::string &deviceId, const std::string &wgTtl, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["wg_pubkey"] = clientPublicKey;
     extraParams["hostname"] = hostname;
     extraParams["device_id"] = deviceId;
@@ -274,24 +285,24 @@ BaseRequest *requests_factory::wgConfigsConnect(const std::string &authHash, con
 
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kHigh, "WgConfigs/connect", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    request->setBearerToken(authHash);
     return request;
 }
 
 BaseRequest *requests_factory::mobileBillingPlans(const std::string &authHash, const std::string &mobilePlanType, const std::string &promo, int version, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["mobile_plan_type"] = mobilePlanType;
     extraParams["promo_code"] = promo;
     extraParams["version"] = std::to_string(version);
     auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "MobileBillingPlans", extraParams, callback);
+    request->setBearerToken(authHash);
     return request;
 }
 
 BaseRequest *requests_factory::verifyPayment(const std::string &authHash, const std::string &purchaseToken, const std::string &gpPackageName, const std::string &gpProductId, const std::string &type, const std::string &amazonUserId, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["purchase_token"] = purchaseToken;
     extraParams["gp_package_name"] = gpPackageName;
     extraParams["gp_product_id"] = gpProductId;
@@ -300,17 +311,18 @@ BaseRequest *requests_factory::verifyPayment(const std::string &authHash, const 
 
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "AndroidIPN", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    request->setBearerToken(authHash);
     return request;
 }
 
 BaseRequest *requests_factory::postBillingCpid(const std::string &authHash, const std::string &payCpid, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["pay_cpid"] = payCpid;
 
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "BillingCpid", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    request->setBearerToken(authHash);
     return request;
 }
 
@@ -370,7 +382,6 @@ BaseRequest *requests_factory::signupUsingToken(const std::string &token, Reques
 BaseRequest *requests_factory::claimAccount(const std::string &authHash, const std::string &username, const std::string &password, const std::string &email, const std::string &voucherCode, const std::string &claimAccount, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["username"] = username;
     extraParams["password"] = password;
     extraParams["email"] = email;
@@ -378,60 +389,61 @@ BaseRequest *requests_factory::claimAccount(const std::string &authHash, const s
     extraParams["claim_account"] = claimAccount;
     auto request = new BaseRequest(HttpMethod::kPut, SubdomainType::kApi, RequestPriority::kNormal, "Users", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    request->setBearerToken(authHash);
     return request;
 }
 
 BaseRequest *requests_factory::sendPayment(const std::string &authHash, const std::string &appleID, const std::string &appleData, const std::string &appleSIG, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["apple_id"] = appleID;
     extraParams["apple_data"] = appleData;
     extraParams["apple_sig"] = appleSIG;
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "AppleIPN", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    request->setBearerToken(authHash);
     return request;
 }
 
 BaseRequest *requests_factory::recordShakeForDataScore(const std::string &authHash, const std::string &platform, const std::string &score, const std::string &signature, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["platform"] = platform;
     extraParams["score"] = score;
     extraParams["sig"] = signature;
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "ShakeData", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    request->setBearerToken(authHash);
     return request;
 }
 
 BaseRequest *requests_factory::shakeData(const std::string &authHash, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kApi, RequestPriority::kNormal, "ShakeData", extraParams, callback);
+    request->setBearerToken(authHash);
     return request;
 }
 
 BaseRequest *requests_factory::verifyTvLoginCode(const std::string &authHash, const std::string &xpressCode, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["xpress_code"] = xpressCode;
     auto request = new BaseRequest(HttpMethod::kPut, SubdomainType::kApi, RequestPriority::kNormal, "XpressLogin", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    request->setBearerToken(authHash);
     return request;
 }
 
 BaseRequest *requests_factory::cancelAccount(const std::string &authHash, const std::string &password, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;
-    extraParams["session_auth_hash"] = authHash;
     extraParams["password"] = password;
     extraParams["type"] = "account";
     extraParams["message"] = "iOS inapp deletetion";
     auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "Cancel", extraParams, callback);
     request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    request->setBearerToken(authHash);
     return request;
 }
 BaseRequest* requests_factory::sso(const std::string& provider, const std::string& token, RequestFinishedCallback callback)

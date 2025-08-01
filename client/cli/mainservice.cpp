@@ -146,7 +146,7 @@ void MainService::onLogin(const QString &username, const QString &password, cons
 
 void MainService::onShowLocations(IPC::CliCommands::LocationType type)
 {
-    QStringList locations;
+    QList<IPC::CliCommands::IpcLocation> locations;
 
     if (type == IPC::CliCommands::LocationType::kRegular) {
 
@@ -156,25 +156,41 @@ void MainService::onShowLocations(IPC::CliCommands::LocationType type)
             QString countryName = miCountry.data(gui_locations::kName).toString();
 
             if (lid.isBestLocation()) {
-                QString locationName = "%1 - %2";
-                locations << locationName.arg(countryName).arg(lid.city());
+                QString nickName = miCountry.data(gui_locations::kNick).toString();
+                IPC::CliCommands::IpcLocation location(countryName, "", nickName, 0);
+                if (miCountry.data(gui_locations::kIs10Gbps).toBool()) {
+                    location.flags |= (int)IPC::CliCommands::LocationFlags::k10Gbps;
+                }
+                locations << location;
                 continue;
             }
 
             for (int j = 0; j < miCountry.model()->rowCount(miCountry); j++) {
                 QModelIndex miCity = miCountry.model()->index(j, 0, miCountry);
-                QString locationName = "%1 - %2 - %3";
-                locations << locationName
-                    .arg(countryName)
-                    .arg(miCity.data(gui_locations::kName).toString())
-                    .arg(miCity.data(gui_locations::kNick).toString());
+                QString cityName = miCity.data(gui_locations::kName).toString();
+                QString nickName = miCity.data(gui_locations::kNick).toString();
+
+                IPC::CliCommands::IpcLocation location(countryName, cityName, nickName, 0);
+                if (miCity.data(gui_locations::kIsDisabled).toBool()) {
+                    location.flags |= (int)IPC::CliCommands::LocationFlags::kDisabled;
+                }
+                if (miCity.data(gui_locations::kIsShowAsPremium).toBool()) {
+                    location.flags |= (int)IPC::CliCommands::LocationFlags::kPremium;
+                }
+                if (miCity.data(gui_locations::kIs10Gbps).toBool()) {
+                    location.flags |= (int)IPC::CliCommands::LocationFlags::k10Gbps;
+                }
+
+                locations << location;
             }
         }
     } else if (type == IPC::CliCommands::LocationType::kStaticIp) {
         for (int i = 0; i < backend_->locationsModelManager()->staticIpsProxyModel()->rowCount(); i++) {
             QModelIndex miStatic = backend_->locationsModelManager()->staticIpsProxyModel()->index(i, 0);
-            QString locationName = "%1 - %2";
-            locations << locationName.arg(miStatic.data(gui_locations::kName).toString()).arg(miStatic.data(gui_locations::kNick).toString());
+            locations << IPC::CliCommands::IpcLocation(miStatic.data(gui_locations::kName).toString(),
+                                                       "",
+                                                       miStatic.data(gui_locations::kNick).toString(),
+                                                       0);
         }
     } else {
         assert(false);

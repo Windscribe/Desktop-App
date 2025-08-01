@@ -152,3 +152,35 @@ QString deviceNameString(const QString &deviceName)
 {
     return QObject::tr("(Device name: %1)").arg(deviceName);
 }
+
+QString locationsString(const QList<IPC::CliCommands::IpcLocation> &locations)
+{
+    QString msg;
+
+    for(const IPC::CliCommands::IpcLocation &location : locations) {
+        QString locationStr;
+
+        if (location.city.isEmpty()) { // Best Location
+            locationStr = QString("%1 - %2").arg(location.country, location.nickname);
+        } else if (location.country.isEmpty()) { // Static IP
+            locationStr = QString("%1 - %2").arg(location.city, location.nickname);
+        } else {
+            locationStr = QString("%1 - %2 - %3").arg(location.country, location.city, location.nickname);
+        }
+
+        if (location.flags & (int)IPC::CliCommands::LocationFlags::kDisabled) {
+            if (location.flags & (int)IPC::CliCommands::LocationFlags::kPremium) {
+                locationStr += QObject::tr(" (Pro)");
+            } else {
+                locationStr += QObject::tr(" (Disabled)");
+            }
+        }
+	if (location.flags & (int)IPC::CliCommands::LocationFlags::k10Gbps) {
+            locationStr += QObject::tr(" (10 Gbps)");
+        }
+
+        msg += locationStr + "\n";
+    }
+
+    return msg.trimmed();
+}

@@ -4,6 +4,7 @@
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "languagecontroller.h"
+#include "backend/persistentstate.h"
 
 namespace ConnectWindow {
 
@@ -49,8 +50,23 @@ LocationsMenu::LocationsMenu(ScalableGraphicsObject *parent)
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &LocationsMenu::onLanguageChanged);
     onLanguageChanged();
 
-    curTab_ = LOCATION_TAB_ALL_LOCATIONS;
-    onAllLocationsClicked();
+    // Do this when main thread returns to the event loop.  We can't do this now because these events trigger signals which are not connected by parent yet.
+    QTimer::singleShot(0, this, [this]() {
+        switch(PersistentState::instance().lastLocationTab()) {
+        case LOCATION_TAB_CONFIGURED_LOCATIONS:
+            onConfiguredLocationsClicked();
+            break;
+        case LOCATION_TAB_STATIC_IPS_LOCATIONS:
+            onStaticIpsLocationsClicked();
+            break;
+        case LOCATION_TAB_FAVORITE_LOCATIONS:
+            onFavoriteLocationsClicked();
+            break;
+        default:
+            onAllLocationsClicked();
+            break;
+        }
+    });
 }
 
 QRectF LocationsMenu::boundingRect() const
@@ -92,6 +108,7 @@ void LocationsMenu::onAllLocationsClicked()
     updateSelectedTab(allLocations_);
     prevTab_ = curTab_;
     curTab_ = LOCATION_TAB_ALL_LOCATIONS;
+    PersistentState::instance().setLastLocationTab(curTab_);
     emit locationTabClicked(LOCATION_TAB_ALL_LOCATIONS);
 }
 
@@ -100,6 +117,7 @@ void LocationsMenu::onConfiguredLocationsClicked()
     updateSelectedTab(configuredLocations_);
     prevTab_ = curTab_;
     curTab_ = LOCATION_TAB_CONFIGURED_LOCATIONS;
+    PersistentState::instance().setLastLocationTab(curTab_);
     emit locationTabClicked(LOCATION_TAB_CONFIGURED_LOCATIONS);
 }
 
@@ -108,6 +126,7 @@ void LocationsMenu::onStaticIpsLocationsClicked()
     updateSelectedTab(staticIpsLocations_);
     prevTab_ = curTab_;
     curTab_ = LOCATION_TAB_STATIC_IPS_LOCATIONS;
+    PersistentState::instance().setLastLocationTab(curTab_);
     emit locationTabClicked(LOCATION_TAB_STATIC_IPS_LOCATIONS);
 }
 
@@ -116,6 +135,7 @@ void LocationsMenu::onFavoriteLocationsClicked()
     updateSelectedTab(favoriteLocations_);
     prevTab_ = curTab_;
     curTab_ = LOCATION_TAB_FAVORITE_LOCATIONS;
+    PersistentState::instance().setLastLocationTab(curTab_);
     emit locationTabClicked(LOCATION_TAB_FAVORITE_LOCATIONS);
 }
 

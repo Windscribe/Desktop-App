@@ -49,7 +49,7 @@ void LocalIPCServer::start()
     }
 }
 
-void LocalIPCServer::sendLocations(const QStringList &list, IPC::CliCommands::LocationType type)
+void LocalIPCServer::sendLocations(const QList<IPC::CliCommands::IpcLocation> &list, IPC::CliCommands::LocationType type)
 {
     IPC::CliCommands::LocationsList cmd;
     cmd.locations_ = list;
@@ -105,6 +105,12 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
 
             if (lid.isValid()) {
                 emit connectToLocation(lid, protocol);
+            } else if (backend_->isDisconnected()) {
+                // Already disconnected, just set the connect error
+                connectState_.connectError = LOCATION_NOT_EXIST;
+            } else {
+                invalidLocation_ = true;
+                backend_->sendDisconnect();
             }
         }
     } else if (command->getStringId() == IPC::CliCommands::Disconnect::getCommandStringId()) {
@@ -238,10 +244,15 @@ void LocalIPCServer::onBackendConnectStateChanged(const types::ConnectState &sta
     connectState_ = state;
     tunnelTestState_ = TUNNEL_TEST_STATE_UNKNOWN;
 
-    if (connectState_.connectState == CONNECT_STATE_DISCONNECTED && disconnectedByKeyLimit_) {
-        // Normally this looks like a regular disconnect; override this with a special reason
-        connectState_.disconnectReason = DISCONNECTED_BY_KEY_LIMIT;
-        disconnectedByKeyLimit_ = false;
+    if (connectState_.connectState == CONNECT_STATE_DISCONNECTED) {
+        // Normally these look like a regular disconnect; override with a special reason
+        if (disconnectedByKeyLimit_) {
+            connectState_.disconnectReason = DISCONNECTED_BY_KEY_LIMIT;
+            disconnectedByKeyLimit_ = false;
+        } else if (invalidLocation_) {
+            connectState_.connectError = LOCATION_NOT_EXIST;
+            invalidLocation_ = false;
+        }
     }
 }
 

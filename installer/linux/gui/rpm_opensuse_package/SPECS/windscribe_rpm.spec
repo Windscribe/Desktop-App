@@ -41,7 +41,6 @@ Requires:	pkexec
 Requires:	iproute2
 Requires:	libcap-progs
 Requires:	psmisc
-Requires:	libpulse0
 
 %description
 Windscribe client.

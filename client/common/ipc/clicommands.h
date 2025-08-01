@@ -16,6 +16,37 @@ enum class LocationType {
     kStaticIp = 1,
 };
 
+enum class LocationFlags {
+    kNone = 0,
+    kDisabled = 1,
+    kPremium = 2,
+    k10Gbps = 4
+};
+
+struct IpcLocation {
+    QString country;
+    QString city;
+    QString nickname;
+    int flags;
+
+    IpcLocation() : flags(0) {}
+    IpcLocation(const QString &country_, const QString &city_, const QString &nickname_, int flags_ = 0)
+        : country(country_), city(city_), nickname(nickname_), flags(flags_) {}
+};
+
+// QDataStream operators for serialization
+inline QDataStream &operator<<(QDataStream &stream, const IpcLocation &location)
+{
+    stream << location.country << location.city << location.nickname << location.flags;
+    return stream;
+}
+
+inline QDataStream &operator>>(QDataStream &stream, IpcLocation &location)
+{
+    stream >> location.country >> location.city >> location.nickname >> location.flags;
+    return stream;
+}
+
 class Acknowledge : public Command
 {
 public:
@@ -155,7 +186,7 @@ public:
     }
     static std::string getCommandStringId() { return "CliCommands::LocationsList";  }
 
-    QStringList locations_;
+    QList<IpcLocation> locations_;
     QString deviceName_;
 };
 

@@ -29,9 +29,9 @@ private:
 
     explicit Ipv6Manager();
     ~Ipv6Manager();
-    std::vector<const std::string> getInterfaces();
-    void saveIpv6States(const std::vector<const std::string> &interfaces);
-    IPv6State getState(const std::string &interface);
+    std::vector<std::string> getInterfaces();
+    void saveIpv6States(std::vector<std::string> &interfaces);
+    IPv6State getState(std::string &interface);
 
     std::map<std::string, IPv6State> interfaceStates_;
 };

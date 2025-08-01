@@ -282,5 +282,17 @@
         <source>Please type the numbers above to continue:</source>
         <translation>जारी रखने के लिए कृपया ऊपर दिए गए नंबर टाइप करें:</translation>
     </message>
+    <message>
+        <source> (10 Gbps)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> (Disabled)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> (Pro)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 </TS>

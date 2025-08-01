@@ -18,6 +18,7 @@ ExpandableItemsWidget::ExpandableItemsWidget(QWidget *parent, QAbstractItemModel
   , isEmptyList_(true)
   , itemHeight_(0)
   , isShowLocationLoad_(false)
+  , isShowCountryFlagForCity_(false)
   , model_(nullptr)
   , expandableItemDelegate_(nullptr)
   , nonexpandableItemDelegate_(nullptr)
@@ -162,7 +163,7 @@ void ExpandableItemsWidget::updateSelectedItemByCursorPos()
 
     // update tooltips
     if (selectedInd_.isValid()) {
-        ItemStyleOption opt(this, selectedIndRect_, 1.0, 0, isShowLocationLoad_);
+        ItemStyleOption opt(this, selectedIndRect_, 1.0, 0, isShowLocationLoad_, isShowCountryFlagForCity_);
         int tooltipId = delegateForItem(selectedInd_)->isInTooltipArea(opt, selectedInd_, localCursorPos, itemsCacheData_[selectedInd_].get());
         if (tooltipId == (int)TooltipRect::kNone) {
             closeAndClearAllActiveTooltips(selectedInd_);
@@ -285,7 +286,7 @@ void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
 
         if (item.rc.intersects(event->rect())) {
             QRect fullItemRect(item.rc.left(), item.rc.top(), item.rc.width(), itemHeight_);
-            ItemStyleOption opt(this, fullItemRect, item.modelIndex == selectedInd_ ? 1.0 : 0.0, expandedProgress, isShowLocationLoad_);
+            ItemStyleOption opt(this, fullItemRect, item.modelIndex == selectedInd_ ? 1.0 : 0.0, expandedProgress, isShowLocationLoad_, isShowCountryFlagForCity_);
             delegate->paint(&painter, opt, item.modelIndex, itemsCacheData_[item.modelIndex].get());
         }
     }
@@ -306,7 +307,7 @@ void ExpandableItemsWidget::mousePressEvent(QMouseEvent *event)
         QRect rcItem;
         mousePressedItem_ = detectSelectedItem(event->pos(), &rcItem);
         if (mousePressedItem_.isValid()) {
-            ItemStyleOption opt(this, rcItem, 1.0, 0, isShowLocationLoad_);
+            ItemStyleOption opt(this, rcItem, 1.0, 0, isShowLocationLoad_, isShowCountryFlagForCity_);
             mousePressedClickableId_ = delegateForItem(mousePressedItem_)->isInClickableArea(opt, mousePressedItem_, event->pos());
 
             if (isExpandableItem(mousePressedItem_) && model_->rowCount(mousePressedItem_) > 0) {
@@ -338,7 +339,7 @@ void ExpandableItemsWidget::mouseReleaseEvent(QMouseEvent *event)
             else    // non expandable item
             {
                 // todo city click
-                ItemStyleOption opt(this, rcItem, 1.0, 0, isShowLocationLoad_);
+                ItemStyleOption opt(this, rcItem, 1.0, 0, isShowLocationLoad_, isShowCountryFlagForCity_);
                 int clickableId = delegateForItem(mousePressedItem_)->isInClickableArea(opt, mousePressedItem_, event->pos());
                 if (clickableId != -1 && clickableId == mousePressedClickableId_)
                 {
@@ -709,6 +710,11 @@ int ExpandableItemsWidget::count() const
     }
 
     return count;
+}
+
+void ExpandableItemsWidget::setShowCountryFlagForCity(bool show)
+{
+    isShowCountryFlagForCity_ = show;
 }
 
 } // namespace gui_locations

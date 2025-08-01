@@ -38,6 +38,10 @@ std::shared_ptr<WSNetHttpRequest> serverapi_utils::createHttpRequestWithFailover
     if (!failoverData.sniDomain().empty())
         httpRequest->setSniDomain(failoverData.sniDomain());
 
+    // Add Authorization header if bearer token is present
+    if (!request->bearerToken().empty()) {
+        httpRequest->addHttpHeader("Authorization: Bearer " + request->bearerToken());
+    }
     return httpRequest;
 }
 

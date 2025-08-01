@@ -357,7 +357,7 @@ std::string setIPv6EnabledInFirewall(const std::string &pars)
 {
     bool bEnable;
     deserializePars(pars, bEnable);
-     spdlog::debug("setIPv6EnabledInFirewall, {}", bEnable);
+    spdlog::debug("setIPv6EnabledInFirewall, {}", bEnable);
     if (bEnable) {
         Ipv6Firewall::instance().enableIPv6();
     } else {
@@ -703,9 +703,6 @@ std::string setNetworkCategory(const std::string &pars)
     std::wstring networkName;
     int category;
     deserializePars(pars, networkName, category);
-    bool success = NetworkCategoryManager::instance().setCategory(networkName, (NetworkCategory)category);
-    if (success) {
-        spdlog::error(L"Failed to set network category to private for adapter name {}", networkName);
-    }
+    NetworkCategoryManager::instance().setCategory(networkName, (NetworkCategory)category);
     return std::string();
 }

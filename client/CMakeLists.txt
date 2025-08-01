@@ -57,7 +57,7 @@ if(NOT DEFINE_CLI_ONLY_MACRO)
     # installed by default.
 
     set(OpenGL_GL_PREFERENCE LEGACY)
-    find_package(Qt6 REQUIRED COMPONENTS Widgets Network Test LinguistTools Multimedia)
+    find_package(Qt6 REQUIRED COMPONENTS Widgets Network Test LinguistTools)
 endif()
 
 set(PROJECT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

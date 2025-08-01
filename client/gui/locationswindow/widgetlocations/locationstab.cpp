@@ -67,6 +67,7 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
 
     // favorites
     gui_locations::LocationsView *viewFavoriteLocations_ = new gui_locations::LocationsView(this, locationsModelManager->favoriteCitiesProxyModel());
+    viewFavoriteLocations_->setShowCountryFlagForCity(true);
     connect(viewFavoriteLocations_, &gui_locations::LocationsView::selected, this, &LocationsTab::onLocationSelected);
     connect(viewFavoriteLocations_, &gui_locations::LocationsView::clickedOnPremiumStarCity, this, &LocationsTab::onClickedOnPremiumStarCity);
     EmptyListWidget *emptyListWidgetFavorites = new EmptyListWidget(this);

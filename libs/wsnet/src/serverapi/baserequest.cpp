@@ -28,8 +28,6 @@ std::string BaseRequest::url(const std::string &domain) const
         for (auto &it : extraParams_)
             if (!it.second.empty())
                 sp.set(it.first, it.second);
-
-        urlquery_utils::addAuthQueryItems(sp);
         urlquery_utils::addPlatformQueryItems(sp);
     }
     return url.c_str();
@@ -42,8 +40,6 @@ std::string BaseRequest::postData() const
         for (auto &it : extraParams_)
             if (!it.second.empty())
                 sp.set(it.first, it.second);
-
-        urlquery_utils::addAuthQueryItems(sp);
         urlquery_utils::addPlatformQueryItems(sp);
         return sp.to_string();
     }

@@ -1,6 +1,7 @@
 #include "extraconfig.h"
 
 #include <QFile>
+#include <QFileInfo>
 #include <QStandardPaths>
 
 #include "../utils/log/categories.h"
@@ -67,38 +68,23 @@ void ExtraConfig::writeConfig(const QString &cfg, bool bWithLog)
     }
 }
 
-QString ExtraConfig::getExtraConfig(bool bWithLog)
+QString ExtraConfig::getExtraConfig()
 {
     QMutexLocker locker(&mutex_);
-    QFile fileExtra(path_);
-    if (fileExtra.exists() && fileExtra.open(QIODevice::ReadOnly)) {
-        QByteArray extraArr = fileExtra.readAll();
-        fileExtra.close();
-        if (bWithLog) {
-            qCDebug(LOG_BASIC) << "Found extra config file";
-            qCDebug(LOG_BASIC) << "Extra options:" << extraArr;
-        }
-        return extraArr;
+    if (configLines_.isEmpty()) {
+        return "";
+    } else {
+        return configLines_.join("\n");
     }
-
-    return "";
 }
 
-QStringList ExtraConfig::extraConfigEntries()
-{
-    const QString config = getExtraConfig();
-    return config.split("\n");
-}
 
 std::optional<QString> ExtraConfig::getValue(const QString& key)
 {
-    const QStringList strs = extraConfigEntries();
-    for (const QString &line : strs) {
-        QString lineTrimmed = line.trimmed();
-        if (lineTrimmed.startsWith(key, Qt::CaseInsensitive)) {
-            QString value = line.mid(key.length());
-            return value.remove('=').trimmed();
-        }
+    QMutexLocker locker(&mutex_);
+    auto it = parsedValues_.find(key.toLower());
+    if (it != parsedValues_.end() && !it.value().isEmpty()) {
+        return it.value();
     }
 
     return std::nullopt;
@@ -107,8 +93,8 @@ std::optional<QString> ExtraConfig::getValue(const QString& key)
 QString ExtraConfig::getExtraConfigForOpenVpn()
 {
     QString result;
-    const QStringList strs = extraConfigEntries();
-    for (const QString &line: strs) {
+    QMutexLocker locker(&mutex_);
+    for (const QString &line: configLines_) {
         if (isLegalOpenVpnCommand(line))
             result += line + "\n";
     }
@@ -118,8 +104,8 @@ QString ExtraConfig::getExtraConfigForOpenVpn()
 QString ExtraConfig::getExtraConfigForIkev2()
 {
     QString result;
-    const QStringList strs = extraConfigEntries();
-    for (const QString &line : strs) {
+    QMutexLocker locker(&mutex_);
+    for (const QString &line : configLines_) {
         QString lineTrimmed = line.trimmed();
         if (lineTrimmed.startsWith("--ikev2", Qt::CaseInsensitive)) {
             result += line + "\n";
@@ -136,8 +122,8 @@ bool ExtraConfig::isUseIkev2Compression()
 
 QString ExtraConfig::getRemoteIpFromExtraConfig()
 {
-    const QStringList strs = extraConfigEntries();
-    for (const QString &line : strs) {
+    QMutexLocker locker(&mutex_);
+    for (const QString &line : configLines_) {
         if (line.contains("remote", Qt::CaseInsensitive)) {
             QStringList words = line.split(" ");
             if (words.size() == 2) {
@@ -174,22 +160,22 @@ QString ExtraConfig::modifyVerbParameter(const QString &ovpnData, QString &strEx
 
 int ExtraConfig::getMtuOffsetIkev2(bool &success)
 {
-    return getIntFromExtraConfigLines(WS_MTU_OFFSET_IKEV_STR, success);
+    return getInt(WS_MTU_OFFSET_IKEV_STR, success);
 }
 
 int ExtraConfig::getMtuOffsetOpenVpn(bool &success)
 {
-    return getIntFromExtraConfigLines(WS_MTU_OFFSET_OPENVPN_STR, success);
+    return getInt(WS_MTU_OFFSET_OPENVPN_STR, success);
 }
 
 int ExtraConfig::getMtuOffsetWireguard(bool &success)
 {
-    return getIntFromExtraConfigLines(WS_MTU_OFFSET_WG_STR, success);
+    return getInt(WS_MTU_OFFSET_WG_STR, success);
 }
 
 int ExtraConfig::getTunnelTestStartDelay(bool &success)
 {
-    int delay = getIntFromExtraConfigLines(WS_TT_START_DELAY_STR, success);
+    int delay = getInt(WS_TT_START_DELAY_STR, success);
     if (success && delay < 0) {
         delay = 0;
     }
@@ -199,7 +185,7 @@ int ExtraConfig::getTunnelTestStartDelay(bool &success)
 
 int ExtraConfig::getTunnelTestTimeout(bool &success)
 {
-    int timeout = getIntFromExtraConfigLines(WS_TT_TIMEOUT_STR, success);
+    int timeout = getInt(WS_TT_TIMEOUT_STR, success);
     if (success && timeout < 0) {
         timeout = 0;
     }
@@ -209,7 +195,7 @@ int ExtraConfig::getTunnelTestTimeout(bool &success)
 
 int ExtraConfig::getTunnelTestRetryDelay(bool &success)
 {
-    int delay = getIntFromExtraConfigLines(WS_TT_RETRY_DELAY_STR, success);
+    int delay = getInt(WS_TT_RETRY_DELAY_STR, success);
     if (success && delay < 0) {
         delay = 0;
     }
@@ -219,7 +205,7 @@ int ExtraConfig::getTunnelTestRetryDelay(bool &success)
 
 int ExtraConfig::getTunnelTestAttempts(bool &success)
 {
-    int attempts = getIntFromExtraConfigLines(WS_TT_ATTEMPTS_STR, success);
+    int attempts = getInt(WS_TT_ATTEMPTS_STR, success);
     if (success && attempts < 0) {
         attempts = 0;
     }
@@ -229,72 +215,72 @@ int ExtraConfig::getTunnelTestAttempts(bool &success)
 
 bool ExtraConfig::getIsTunnelTestNoError()
 {
-    return getFlagFromExtraConfigLines(WS_TT_NO_ERROR_STR);
+    return getFlag(WS_TT_NO_ERROR_STR);
 }
 
 bool ExtraConfig::getOverrideUpdateChannelToInternal()
 {
-    return getFlagFromExtraConfigLines(WS_UPDATE_CHANNEL_INTERNAL);
+    return getFlag(WS_UPDATE_CHANNEL_INTERNAL);
 }
 
 bool ExtraConfig::getIsStaging()
 {
-    return getFlagFromExtraConfigLines(WS_STAGING_STR);
+    return getFlag(WS_STAGING_STR);
 }
 
 bool ExtraConfig::getLogAPIResponse()
 {
-    return getFlagFromExtraConfigLines(WS_LOG_API_RESPONSE);
+    return getFlag(WS_LOG_API_RESPONSE);
 }
 
 bool ExtraConfig::getLogCtrld()
 {
-    return getFlagFromExtraConfigLines(WS_LOG_CTRLD);
+    return getFlag(WS_LOG_CTRLD);
 }
 
 bool ExtraConfig::getLogPings()
 {
-    return getFlagFromExtraConfigLines(WS_LOG_PINGS);
+    return getFlag(WS_LOG_PINGS);
 }
 
 bool ExtraConfig::getLogSplitTunnelExtension()
 {
-    return getFlagFromExtraConfigLines(WS_LOG_SPLITTUNNELEXTENSION);
+    return getFlag(WS_LOG_SPLITTUNNELEXTENSION);
 }
 
 bool ExtraConfig::getWireGuardVerboseLogging()
 {
-    return getFlagFromExtraConfigLines(WS_WG_VERBOSE_LOGGING);
+    return getFlag(WS_WG_VERBOSE_LOGGING);
 }
 
 bool ExtraConfig::getUsingScreenTransitionHotkeys()
 {
-    return getFlagFromExtraConfigLines(WS_SCREEN_TRANSITION_HOTKEYS);
+    return getFlag(WS_SCREEN_TRANSITION_HOTKEYS);
 }
 
 bool ExtraConfig::getUseICMPPings()
 {
-    return getFlagFromExtraConfigLines(WS_USE_ICMP_PINGS);
+    return getFlag(WS_USE_ICMP_PINGS);
 }
 
 bool ExtraConfig::getStealthExtraTLSPadding()
 {
-    return getFlagFromExtraConfigLines(WS_STEALTH_EXTRA_TLS_PADDING);
+    return getFlag(WS_STEALTH_EXTRA_TLS_PADDING);
 }
 
 bool ExtraConfig::getAPIExtraTLSPadding()
 {
-    return getFlagFromExtraConfigLines(WS_API_EXTRA_TLS_PADDING);
+    return getFlag(WS_API_EXTRA_TLS_PADDING);
 }
 
 bool ExtraConfig::getWireGuardUdpStuffing()
 {
-    return getFlagFromExtraConfigLines(WS_WG_UDP_STUFFING);
+    return getFlag(WS_WG_UDP_STUFFING);
 }
 
 bool ExtraConfig::getNoPings()
 {
-    return getFlagFromExtraConfigLines(WS_NO_PINGS);
+    return getFlag(WS_NO_PINGS);
 }
 
 std::optional<QString> ExtraConfig::serverlistCountryOverride()
@@ -327,7 +313,7 @@ bool ExtraConfig::haveServerListCountryOverride()
     return false;
 }
 
-int ExtraConfig::getIntFromExtraConfigLines(const QString &variableName, bool &success)
+int ExtraConfig::getInt(const QString &variableName, bool &success)
 {
     auto value = getValue(variableName);
     if (value.has_value()) {
@@ -338,10 +324,10 @@ int ExtraConfig::getIntFromExtraConfigLines(const QString &variableName, bool &s
     return 0;
 }
 
-bool ExtraConfig::getFlagFromExtraConfigLines(const QString &flagName)
+bool ExtraConfig::getFlag(const QString &flagName)
 {
-    auto value = getValue(flagName);
-    return value.has_value();
+    QMutexLocker locker(&mutex_);
+    return parsedValues_.contains(flagName.toLower());
 }
 
 bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const
@@ -372,7 +358,7 @@ bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const
 
 bool ExtraConfig::useOpenVpnDCO()
 {
-    bool useDCO = !getFlagFromExtraConfigLines(WS_USE_OPENVPN_WINTUN);
+    bool useDCO = !getFlag(WS_USE_OPENVPN_WINTUN);
 #if defined (Q_OS_WIN)
     if (useDCO) {
         if (WinUtils::getOSBuildNumber() < kMinWindowsBuildNumberForOpenVPNDCO) {
@@ -387,18 +373,30 @@ bool ExtraConfig::useOpenVpnDCO()
 
 bool ExtraConfig::usePublicNetworkCategory()
 {
-    return getFlagFromExtraConfigLines(WS_USE_PUBLIC_NETWORK_CATEGORY);
+    return getFlag(WS_USE_PUBLIC_NETWORK_CATEGORY);
 }
 
-ExtraConfig::ExtraConfig() : path_(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)
+ExtraConfig::ExtraConfig() : QObject(),
+                             path_(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)
                                    + "/windscribe_extra.conf"),
-                             regExp_("(?m)^(?i)(verb)(\\s+)(\\d+$)")
+                             regExp_("(?m)^(?i)(verb)(\\s+)(\\d+$)"),
+                             fileWatcher_(nullptr),
+                             fileExists_(false)
 {
-}
+    fileWatcher_ = new QFileSystemWatcher(this);
 
-void ExtraConfig::logExtraConfig()
-{
-    getExtraConfig(true);
+    // Always watch the directory
+    QString dirPath = QFileInfo(path_).absolutePath();
+    fileWatcher_->addPath(dirPath);
+
+    // Connect both signals
+    connect(fileWatcher_, &QFileSystemWatcher::fileChanged, this, &ExtraConfig::onFileChanged);
+    connect(fileWatcher_, &QFileSystemWatcher::directoryChanged, this, &ExtraConfig::onDirectoryChanged);
+
+    // Initialize file watching state
+    updateFileWatchingState();
+
+    parseConfigFile();
 }
 
 void ExtraConfig::fromJson(const QJsonObject &json)
@@ -411,12 +409,84 @@ void ExtraConfig::fromJson(const QJsonObject &json)
     }
 }
 
+void ExtraConfig::logExtraConfig()
+{
+    if (configLines_.isEmpty()) {
+        qCDebug(LOG_BASIC) << "No extra config found";
+    } else {
+        qCDebug(LOG_BASIC) << "Extra config: " << configLines_.join("\n");
+    }
+}
+
 QJsonObject ExtraConfig::toJson()
 {
     QJsonObject json;
-    const auto fileContents = getExtraConfig(false);
-    if (!fileContents.isEmpty()) {
+    QMutexLocker locker(&mutex_);
+    if (!configLines_.isEmpty()) {
+        QString fileContents = configLines_.join("\n");
         json[kJsonFileContentsProp] = QString(fileContents.toUtf8().toBase64());
     }
     return json;
+}
+
+void ExtraConfig::parseConfigFile()
+{
+    QMutexLocker locker(&mutex_);
+    QFile file(path_);
+    if (file.exists() && file.open(QIODevice::ReadOnly)) {
+        QByteArray data = file.readAll();
+        file.close();
+        configLines_ = QString::fromLocal8Bit(data).split("\n");
+    } else {
+        configLines_.clear();
+    }
+
+    parsedValues_.clear();
+    for (const QString &line : configLines_) {
+        QString lineTrimmed = line.trimmed();
+        if (lineTrimmed.isEmpty() || lineTrimmed.startsWith("#")) {
+            continue;
+        }
+
+        int equalPos = lineTrimmed.indexOf('=');
+        if (equalPos > 0) {
+            QString key = lineTrimmed.left(equalPos).trimmed();
+            QString value = lineTrimmed.mid(equalPos + 1).trimmed();
+            parsedValues_[key.toLower()] = value;
+        } else {
+            parsedValues_[lineTrimmed.toLower()] = QString();
+        }
+    }
+}
+
+void ExtraConfig::onFileChanged()
+{
+    qCDebug(LOG_BASIC) << "Extra config file changed, re-reading";
+    parseConfigFile();
+    logExtraConfig();
+}
+
+void ExtraConfig::onDirectoryChanged(const QString &path)
+{
+    updateFileWatchingState();
+}
+
+void ExtraConfig::updateFileWatchingState()
+{
+    bool fileExists = QFile::exists(path_);
+
+    if (fileExists != fileExists_) {
+        if (fileExists) {
+            if (!fileWatcher_->files().contains(path_)) {
+                fileWatcher_->addPath(path_);
+            }
+            onFileChanged();
+        } else {
+            if (fileWatcher_->files().contains(path_)) {
+                fileWatcher_->removePath(path_);
+            }
+            // don't need to call onFileChanged(); file deletion causes onFileChanged() to be called already.
+        }
+        fileExists_ = fileExists;
+    }
 }

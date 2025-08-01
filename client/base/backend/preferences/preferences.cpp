@@ -482,7 +482,7 @@ void Preferences::setShareProxyGateway(const types::ShareProxyGateway &sp)
 
 const QString Preferences::debugAdvancedParameters() const
 {
-    return ExtraConfig::instance().getExtraConfig(false);
+    return ExtraConfig::instance().getExtraConfig();
 }
 
 void Preferences::setDebugAdvancedParameters(const QString &p)

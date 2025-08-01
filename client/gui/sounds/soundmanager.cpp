@@ -1,86 +1,73 @@
+#define MINIAUDIO_IMPLEMENTATION
 #include "soundmanager.h"
 
-#include <QAudioDevice>
+#include "utils/log/categories.h"
+#include <QCoreApplication>
+#include <QDir>
+#include <QStandardPaths>
 
 SoundManager::SoundManager(QObject *parent, Preferences *preferences)
-    : QObject(parent), preferences_(preferences), player_(nullptr)
+    : QObject(parent), preferences_(preferences), audioEngineInitialized_(false), soundInitialized_(false), shouldLoop_(false), connectedEventQueued_(false)
 {
-#ifdef Q_OS_MACOS
-    // the default of "ffmpeg" does not seem to play anything, use native backend
-    setenv("QT_MEDIA_BACKEND", "darwin", 1);
-#elif defined(Q_OS_WIN)
-    _putenv_s("QT_DISABLE_AUDIO_PREPARE", "1");
-#endif
-    connect(preferences_, &Preferences::soundSettingsChanged, this, &SoundManager::onSoundSettingsChanged);
-
-    workerThread_ = new QThread(this);
-    worker_ = new SoundPlayerWorker();
-    worker_->moveToThread(workerThread_);
-
-    connect(this, &SoundManager::preparePlayer, worker_, &SoundPlayerWorker::preparePlayer);
-    connect(worker_, &SoundPlayerWorker::playerReady, this, &SoundManager::onPlayerReady);
-
-    workerThread_->start();
+    initialize();
 }
 
 SoundManager::~SoundManager()
 {
-    if (workerThread_) {
-        workerThread_->quit();
-        workerThread_->wait();
-        delete worker_;
+    cleanup();
+}
+
+void SoundManager::initialize()
+{
+    ma_result result = ma_engine_init(NULL, &audioEngine_);
+    if (result != MA_SUCCESS) {
+        qCDebug(LOG_BASIC) << "Failed to initialize miniaudio engine: " << result;
+        return;
+    }
+    audioEngineInitialized_ = true;
+}
+
+void SoundManager::cleanup()
+{
+    if (audioEngineInitialized_) {
+        cleanupCurrentSoundData();
+        ma_engine_uninit(&audioEngine_);
+        audioEngineInitialized_ = false;
     }
 }
 
-void SoundManager::onSoundSettingsChanged(const types::SoundSettings &soundSettings)
+void SoundManager::handleQueuedConnectedEvent()
 {
-}
-
-void SoundManager::onPlayerReady(QMediaPlayer *player)
-{
-    if (player_) {
-        player_->stop();
-        player_->deleteLater();
+    if (connectedEventQueued_) {
+        connectedEventQueued_ = false;
+        playSound(preferences_->soundSettings().connectedSoundPath, false);
     }
-    player_ = player;
-
-    connect(player_, &QMediaPlayer::errorOccurred, this, &SoundManager::onPlayerError);
-    connect(player_, &QMediaPlayer::positionChanged, this, &SoundManager::onPlayerPositionChanged);
-    player_->play();
 }
 
 void SoundManager::play(const CONNECT_STATE &connectState)
 {
     if (connectState == CONNECT_STATE_CONNECTED) {
-        if (preferences_->soundSettings().connectedSoundPath == ":/sounds/Fart_(Deluxe)_on.mp3" && player_ && player_->isPlaying()) {
+        if (preferences_->soundSettings().connectedSoundPath == ":/sounds/Fart_(Deluxe)_on.mp3" && soundInitialized_) {
+            qCDebug(LOG_BASIC) << "Connect event, stop loop";
             connectedEventQueued_ = true;
+            ma_sound_set_looping(&sound_, MA_FALSE);
             return;
         }
-        QUrl url;
         if (preferences_->soundSettings().connectedSoundType == SOUND_NOTIFICATION_TYPE_NONE) {
             return;
-        } else if (preferences_->soundSettings().connectedSoundType == SOUND_NOTIFICATION_TYPE_BUNDLED) {
-            url = QUrl("qrc" + preferences_->soundSettings().connectedSoundPath);
-        } else {
-            url = QUrl(preferences_->soundSettings().connectedSoundPath);
         }
-        emit preparePlayer(url, QMediaPlayer::Once);
+        playSound(preferences_->soundSettings().connectedSoundPath, false);
     } else if (connectState == CONNECT_STATE_DISCONNECTED) {
-        QUrl url;
-        if (preferences_->soundSettings().connectedSoundType == SOUND_NOTIFICATION_TYPE_NONE) {
+        if (preferences_->soundSettings().disconnectedSoundType == SOUND_NOTIFICATION_TYPE_NONE) {
             return;
-        } else if (preferences_->soundSettings().disconnectedSoundType == SOUND_NOTIFICATION_TYPE_BUNDLED) {
-            url = QUrl("qrc" + preferences_->soundSettings().disconnectedSoundPath);
-        } else {
-            url = QUrl(preferences_->soundSettings().disconnectedSoundPath);
         }
-        emit preparePlayer(url, QMediaPlayer::Once);
+        playSound(preferences_->soundSettings().disconnectedSoundPath, false);
     } else if (connectState == CONNECT_STATE_CONNECTING) {
         if (preferences_->soundSettings().connectedSoundPath == ":/sounds/Fart_(Deluxe)_on.mp3" &&
             preferences_->soundSettings().connectedSoundType == SOUND_NOTIFICATION_TYPE_BUNDLED)
         {
-            QUrl url = QUrl("qrc" + preferences_->soundSettings().connectedSoundPath.replace("_on.mp3", "_loop.mp3"));
-            emit preparePlayer(url, QMediaPlayer::Infinite);
+            QString path = preferences_->soundSettings().connectedSoundPath.replace("_on.mp3", "_loop.mp3");
+            playSound(path, true);
         }
     } else if (connectState == CONNECT_STATE_DISCONNECTING) {
         stop();
@@ -89,49 +76,96 @@ void SoundManager::play(const CONNECT_STATE &connectState)
 
 void SoundManager::stop()
 {
-    if (player_) {
-        player_->stop();
-        player_->deleteLater();
-        player_ = nullptr;
+    if (audioEngineInitialized_) {
+        ma_sound_stop(&sound_);
     }
 }
 
-void SoundManager::onPlayerError(QMediaPlayer::Error error, const QString &errorString)
+void SoundManager::playSound(const QString &path, bool loop)
 {
-    qCDebug(LOG_BASIC) << "QMediaPlayer error: " << error << " " << errorString;
-    stop();
+    qCDebug(LOG_BASIC) << "Playing sound" << path;
+    if (!audioEngineInitialized_) {
+        qCDebug(LOG_BASIC) << "Audio engine not initialized";
+        return;
+    }
+    cleanupCurrentSoundData();
+    ma_result result;
+    if (path.startsWith(":/sounds")) {     // load from resources
+        QFile file(path);
+        if (!file.open(QIODevice::ReadOnly)) {
+            qCDebug(LOG_BASIC) << "Failed to load the sound file" << path;
+            return;
+        }
+        audioBuffer_ = file.readAll();
+        file.close();
+
+        result = ma_decoder_init_memory(audioBuffer_.data(), audioBuffer_.size(), NULL, &decoder_);
+        if (result != MA_SUCCESS) {
+            qCDebug(LOG_BASIC) << "ma_decoder_init_memory failed for the sound file" << path << ":" << result;
+            return;
+        } else {
+            decoderInitialized_ = true;
+        }
+
+        result = ma_sound_init_from_data_source(&audioEngine_, &decoder_, MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC,
+                                       NULL, &sound_);
+        if (result != MA_SUCCESS) {
+            qCDebug(LOG_BASIC) << "ma_sound_init_from_data_source failed for the sound file" << path << ":" << result;
+            return;
+        }
+    } else {    // load from a file
+        result = ma_sound_init_from_file(&audioEngine_, path.toUtf8().constData(),
+                                               MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC,
+                                               NULL, NULL, &sound_);
+        if (result != MA_SUCCESS) {
+            qCDebug(LOG_BASIC) << "Failed to load sound file" << path << ":" << result;
+            return;
+        }
+    }
+
+    soundInitialized_ = true;
+    shouldLoop_ = loop;
+    ma_sound_set_volume(&sound_, 0.7f);
+    ma_sound_set_looping(&sound_, loop ? MA_TRUE : MA_FALSE);
+    ma_sound_set_end_callback(&sound_, endCallback, this);
+    qCDebug(LOG_BASIC) << "Starting playback";
+    result = ma_sound_start(&sound_);
+    if (result != MA_SUCCESS) {
+        qCDebug(LOG_BASIC) << "Failed to start sound playback:" << result;
+        ma_sound_uninit(&sound_);
+        soundInitialized_ = false;
+        return;
+    }
 }
 
-void SoundManager::onPlayerPositionChanged(qint64 position)
+void SoundManager::cleanupCurrentSoundData()
 {
-    if (!player_ || player_->loops() != QMediaPlayer::Infinite || !connectedEventQueued_) {
+    if (soundInitialized_) {
+        ma_sound_stop(&sound_);
+        ma_sound_uninit(&sound_);
+        soundInitialized_ = false;
+    }
+
+    if (decoderInitialized_) {
+        ma_decoder_uninit(&decoder_);
+        decoderInitialized_ = false;
+    }
+    audioBuffer_.clear();
+}
+
+void SoundManager::endCallback(void* pUserData, ma_sound* pSound)
+{
+    SoundManager* manager = static_cast<SoundManager*>(pUserData);
+    if (!manager) {
         return;
     }
 
-    if (position < position_) {
-        // Indicates that we're looping.  Check if we've queued a connected event.
-        connectedEventQueued_ = false;
-        QUrl url = QUrl("qrc" + preferences_->soundSettings().connectedSoundPath);
-        emit preparePlayer(url, QMediaPlayer::Once);
+    // safely release memory from the sound when it has ended
+    QTimer::singleShot(0, manager, [manager] () {
+        manager->cleanupCurrentSoundData();
+    });
+
+    if (manager->connectedEventQueued_) {
+        QTimer::singleShot(0, manager, &SoundManager::handleQueuedConnectedEvent);
     }
-    position_ = position;
-}
-
-// SoundPlayerWorker implementation
-SoundPlayerWorker::SoundPlayerWorker(QObject *parent)
-    : QObject(parent)
-{
-}
-
-void SoundPlayerWorker::preparePlayer(const QUrl &url, QMediaPlayer::Loops loops)
-{
-    QMediaPlayer *player = new QMediaPlayer();
-    QAudioOutput *audioOutput = new QAudioOutput();
-    audioOutput->setVolume(0.7);
-    player->setAudioOutput(audioOutput);
-    audioOutput->setDevice(QAudioDevice());
-    player->setSource(url);
-    player->setLoops(loops);
-
-    emit playerReady(player);
 }

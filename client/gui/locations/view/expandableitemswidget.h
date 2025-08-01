@@ -25,6 +25,7 @@ public:
     void setItemHeight(int height);
 
     void setShowLocationLoad(bool isShowLocationLoad);
+    void setShowCountryFlagForCity(bool isShowCountryFlagForCity);
 
     void selectFirstItemIfNoSelected();
 
@@ -70,6 +71,7 @@ private:
     int itemHeight_;
     bool isShowLatencyInMs_;
     bool isShowLocationLoad_;
+    bool isShowCountryFlagForCity_;
 
     QVector<QPersistentModelIndex> items_;
     QHash<QPersistentModelIndex, QSharedPointer<IItemCacheData>> itemsCacheData_;

@@ -151,19 +151,19 @@ void NetworkTrustButton::updatePositions()
 void NetworkTrustButton::onHoverEnter()
 {
     startAnAnimation(opacityAnimation_, animProgress_, 1.0, ANIMATION_SPEED_FAST);
-    
+
     // Show tooltip if text is elided
     if (isTextElided_) {
         QGraphicsView *view = scene()->views().first();
         QPoint globalPos = view->mapToGlobal(view->mapFromScene(scenePos()));
-        
+
         TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_ELIDED_TEXT);
         ti.x = globalPos.x() + boundingRect().width() / 2;
         ti.y = globalPos.y();
         ti.title = network_.friendlyName;
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.5;
-        
+
         TooltipController::instance().showTooltipBasic(ti);
     }
 }

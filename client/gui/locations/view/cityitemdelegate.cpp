@@ -87,7 +87,10 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
             }
         }
     } else {
-        if (index.data(kIs10Gbps).toBool()) {
+        if (option.isShowCountryFlagForCity()) {
+            QSharedPointer<IndependentPixmap> flag = ImageResourcesSvg::instance().getCircleFlag(index.data(kCountryCode).toString());
+            flag->draw(leftRect, painter);
+        } else if (index.data(kIs10Gbps).toBool()) {
             // 10gbps icon
             QSharedPointer<IndependentPixmap> tenGbpsPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON_WHITE");
             tenGbpsPixmap->draw(leftRect, painter);

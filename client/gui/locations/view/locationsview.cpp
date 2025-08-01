@@ -180,5 +180,10 @@ int LocationsView::count() const
     return widget_->count();
 }
 
+void LocationsView::setShowCountryFlagForCity(bool show)
+{
+    widget_->setShowCountryFlagForCity(show);
+}
+
 } // namespace gui_locations
 

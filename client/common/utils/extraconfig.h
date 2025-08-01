@@ -1,7 +1,9 @@
 #pragma once
 
+#include <QFileSystemWatcher>
 #include <QJsonObject>
 #include <QMutex>
+#include <QObject>
 #include <QRegularExpression>
 #include <QString>
 #include <QStringList>
@@ -12,8 +14,9 @@
 // all ikev2 params will be prefixed with --ikev2, so you don't use them when using OpenVPN, and vise versa
 // ikev2 options:
 // --ikev2-compression - enable ikev2 compression for Windows (RASEO_IpHeaderCompression and RASEO_SwCompression flags)
-class ExtraConfig
+class ExtraConfig : public QObject
 {
+    Q_OBJECT
 public:
     static ExtraConfig &instance()
     {
@@ -24,7 +27,7 @@ public:
     void logExtraConfig();
     void writeConfig(const QString &cfg, bool bWithLog = true);
 
-    QString getExtraConfig(bool bWithLog = false);
+    QString getExtraConfig();
     QString getExtraConfigForOpenVpn();
     QString getExtraConfigForIkev2();
     bool isUseIkev2Compression();
@@ -71,6 +74,10 @@ public:
     void fromJson(const QJsonObject &json);
     QJsonObject toJson();
 
+private slots:
+    void onFileChanged();
+    void onDirectoryChanged(const QString &path);
+
 private:
     ExtraConfig();
 
@@ -79,10 +86,19 @@ private:
     QRegularExpression regExp_;
     QString detectedIp_;
 
+    // File watching
+    QFileSystemWatcher* fileWatcher_;
+    bool fileExists_;
+    QStringList configLines_;
+    QHash<QString, QString> parsedValues_;
+
     static const inline QString kJsonFileContentsProp = "fileContents";
 
-    int getIntFromExtraConfigLines(const QString &variableName, bool &success);
-    bool getFlagFromExtraConfigLines(const QString &flagName);
+    void parseConfigFile();
+    void updateFileWatchingState();
+
+    int getInt(const QString &variableName, bool &success);
+    bool getFlag(const QString &flagName);
 
     bool isLegalOpenVpnCommand(const QString &command) const;
 

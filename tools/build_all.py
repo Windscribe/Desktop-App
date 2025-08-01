@@ -734,7 +734,7 @@ def build_all():
 
         # Get Qt directory.
         qt_root = iutl.GetDependencyBuildRoot("qt")
-        if not qt_root:
+        if (arghelper.build_app() or arghelper.build_installer()) and not qt_root:
             raise iutl.InstallError("Qt is not installed.")
 
     if CURRENT_OS == "win32":

@@ -172,7 +172,6 @@ deploy_files:
           - win11/ovpn-dco.cat -> openvpndco/win11/ovpn-dco.cat
           - win11/ovpn-dco.inf -> openvpndco/win11/ovpn-dco.inf
           - win11/ovpn-dco.sys -> openvpndco/win11/ovpn-dco.sys
-    bootstrap:
 
   win32_x86_64:
     installer:
@@ -218,7 +217,6 @@ deploy_files:
           - lib/libQt6Core.so.6 -> lib/libQt6Core.so.6
           - lib/libQt6DBus.so.6 -> lib/libQt6DBus.so.6
           - lib/libQt6Gui.so.6 -> lib/libQt6Gui.so.6
-          - lib/libQt6Multimedia.so.6 -> lib/libQt6Multimedia.so.6
           - lib/libQt6Network.so.6 -> lib/libQt6Network.so.6
           - lib/libQt6OpenGL.so.6 -> lib/libQt6OpenGL.so.6
           - lib/libQt6Svg.so.6 -> lib/libQt6Svg.so.6
@@ -232,16 +230,10 @@ deploy_files:
           - lib/libQt6QmlModels.so.6 -> lib/libQt6QmlModels.so.6
           - lib/libQt6QmlWorkerScript.so.6 -> lib/libQt6QmlWorkerScript.so.6
           - lib/libQt6Quick.so.6 -> lib/libQt6Quick.so.6
-          - lib/libavcodec.so.61 -> lib/libavcodec.so.61
-          - lib/libavformat.so.61 -> lib/libavformat.so.61
-          - lib/libavutil.so.59 -> lib/libavutil.so.59
-          - lib/libswresample.so.5 -> lib/libswresample.so.5
-          - lib/libswscale.so.8 -> lib/libswscale.so.8
           - plugins/imageformats/libqico.so -> plugins/imageformats/libqico.so
           - plugins/imageformats/libqjpeg.so -> plugins/imageformats/libqjpeg.so
           - plugins/imageformats/libqgif.so -> plugins/imageformats/libqgif.so
           - plugins/imageformats/libqsvg.so -> plugins/imageformats/libqsvg.so
-          - plugins/multimedia/libffmpegmediaplugin.so -> plugins/multimedia/libffmpegmediaplugin.so
           - plugins/networkinformation/libqnetworkmanager.so -> plugins/networkinformation/libqnetworkmanager.so
           - plugins/platforms/libqwayland-generic.so -> plugins/platforms/libqwayland-generic.so
           - plugins/platforms/libqwayland-egl.so -> plugins/platforms/libqwayland-egl.so

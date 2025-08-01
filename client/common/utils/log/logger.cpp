@@ -8,7 +8,12 @@
 #include <QString>
 
 #include <spdlog/sinks/rotating_file_sink.h>
+
+#ifdef Q_OS_WIN
+#include <spdlog/sinks/msvc_sink.h>
+#else
 #include <spdlog/sinks/stdout_sinks.h>
+#endif
 
 #include "spdlog_utils.h"
 #include "paths.h"
@@ -84,9 +89,14 @@ bool Logger::install(const QString &logFilePath, bool consoleOutput)
         auto rawLogger = std::make_shared<spdlog::logger>("raw", fileSink);
         spdlog::register_logger(rawLogger);
 
-#if defined QT_DEBUG
-        // Also output logs to stdout in debug mode
+        // Also output logs to debugger/stdout for QA/dev use.
+#if defined(Q_OS_WIN)
+        auto sinkDebug = std::make_shared<spdlog::sinks::msvc_sink_mt>(false);
+        spdlog::default_logger()->sinks().push_back(sinkDebug);
+        spdlog::get("raw")->sinks().push_back(sinkDebug);
+#elif not defined(CLI_ONLY)
         auto sinkDebug = std::make_shared<spdlog::sinks::stdout_sink_mt>();
+        sinkDebug->set_level(spdlog::level::trace); // Required to get any output in the terminal on Linux.
         spdlog::default_logger()->sinks().push_back(sinkDebug);
         spdlog::get("raw")->sinks().push_back(sinkDebug);
 #endif
@@ -129,11 +139,6 @@ void Logger::myMessageHandler(QtMsgType type, const QMessageLogContext &context,
             }
         }
     }
-
-#ifdef Q_OS_WIN
-    // Uncomment this line if you want to see app output in the debugger.
-    //::OutputDebugString(qUtf16Printable(s));
-#endif
 
     auto qtLogger = spdlog::get("qt");
     std::string escapedMsg = log_utils::escape_string(s.toStdString());

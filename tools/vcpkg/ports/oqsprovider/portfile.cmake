@@ -8,7 +8,7 @@ vcpkg_from_github(
 )
 
 vcpkg_replace_string("${SOURCE_PATH}/oqsprov/CMakeLists.txt" "\${OPENSSL_MODULES_PATH}" "\${CMAKE_INSTALL_PREFIX}/bin")
-if(VCPKG_TARGET_IS_WINDOWS)
+if(VCPKG_TARGET_IS_WINDOWS OR VCPKG_TARGET_IS_ANDROID OR VCPKG_TARGET_IS_IOS)
     vcpkg_cmake_configure(
         SOURCE_PATH "${SOURCE_PATH}"
         OPTIONS

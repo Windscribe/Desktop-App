@@ -28,7 +28,7 @@ NetworkCategoryManager& NetworkCategoryManager::instance()
     return instance;
 }
 
-bool NetworkCategoryManager::setCategory(const std::wstring& networkName, NetworkCategory category)
+void NetworkCategoryManager::setCategory(const std::wstring& networkName, NetworkCategory category)
 {
     // Cancel any current task that's still waiting
     cancel_ = true;
@@ -50,8 +50,6 @@ bool NetworkCategoryManager::setCategory(const std::wstring& networkName, Networ
         }
         spdlog::error("NetworkCategoryManager::setCategory - could not set category after {} attempts", kMaxAttempts);
     });
-
-    return true;
 }
 
 bool NetworkCategoryManager::setCategoryInternal(const std::wstring& networkName, NetworkCategory category)
@@ -98,7 +96,7 @@ bool NetworkCategoryManager::setCategoryInternal(const std::wstring& networkName
     ULONG fetched = 0;
 
     // Enumerate networks
-    spdlog::debug(L"NetworkCategoryManager::setCategoryInternal - Setting network category for network: {}", networkName);
+    spdlog::debug(L"NetworkCategoryManager::setCategoryInternal - Setting network category to {} for network: {}", static_cast<int>(category), networkName);
     bool found = false;
     while (pEnumNetworks->Next(1, &pNetwork, &fetched) == S_OK && fetched > 0) {
         if (!pNetwork) {

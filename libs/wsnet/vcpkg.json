@@ -18,7 +18,8 @@
     "cmakerc",
     "cpp-base64",
     "c-ares",
-
+    "liboqs",
+    "oqsprovider",
     "advobfuscator"
     ]
 }

@@ -5,6 +5,9 @@
 #include "utils/crypto_utils.h"
 #include "utils/requesterror.h"
 #include "settings.h"
+#if defined(IS_MOBILE_PLATFORM)
+#include "utils/oqs_provider_loader.h"
+#endif
 
 #include <openssl/opensslv.h>
 #include <openssl/ssl.h>
@@ -234,11 +237,18 @@ void CurlNetworkManager::run()
 
 CURLcode CurlNetworkManager::sslctx_function(CURL *curl, void *sslctx, void *parm)
 {
-    X509_STORE *store = SSL_CTX_get_cert_store((SSL_CTX *)sslctx);
+    SSL_CTX *ctx = (SSL_CTX *)sslctx;
+    
+    // Add certificates to the SSL context
+    X509_STORE *store = SSL_CTX_get_cert_store(ctx);
     CertManager *certManager = static_cast<CertManager *>(parm);
     for (int i = 0; i < certManager->count(); ++i)
         X509_STORE_add_cert(store, certManager->getCert(i));
 
+    // Configure SSL context for post-quantum cryptography
+#if defined(IS_MOBILE_PLATFORM)
+    OQSProviderLoader::configureSSLContext(ctx);
+#endif
     return CURLE_OK;
 }
 
@@ -389,13 +399,10 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
 
     curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_PRIVATE, new std::uint64_t(requestInfo->id));    // our user data, must be deleted in the RequestInfo destructor
 
-#if (!defined(IS_MOBILE_PLATFORM))
-    // Set OQS KEMs for desktop platforms only, and only when WS_DISABLE_OQS is not set.
     // This env variable is set during testing since curl has a hardcoded search path.
     if (getenv("WS_DISABLE_OQS") == nullptr) {
-        curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_EC_CURVES, "p521_mlkem1024:mlkem1024:mlkem768:p384_mlkem768:p521_kyber1024:kyber1024:kyber768:p384_kyber768:X448:X25519:secp521r1:secp384r1:secp256r1:ffdhe8192:ffdhe6144:ffdhe4096:ffdhe3072:ffdhe2048");
+        curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_EC_CURVES, "X25519MLKEM768:p521_mlkem1024:mlkem1024:mlkem768:p384_mlkem768:X448:X25519:secp521r1:secp384r1:secp256r1:ffdhe8192:ffdhe6144:ffdhe4096:ffdhe3072:ffdhe2048");
     }
-#endif
 
     // set post data
     std::string postData = request->postData();

@@ -29,6 +29,7 @@
         {
             "name": "winreg",
             "platform": "windows"
-        }
+        },
+        "miniaudio"
     ]
 }

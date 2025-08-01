@@ -95,8 +95,7 @@ variables:
 
 .download_dependency_qt_static:
   script:
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --create-dirs -o ${BUILD_LIBS_FOLDER}/qt-static.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/qt-static.zip"
+    - if ($SKIP_DOWNLOAD -ne "1") { curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o ${BUILD_LIBS_FOLDER}/qt-static.zip "${NEXUS_PATH_DEPS}/${OS_IDENTIFIER}/qt-static.zip" }
 
 .download_dependency_wintun:
   script:
@@ -120,6 +119,7 @@ variables:
 
 .download_dependencies_win:
   script:
+    - Set-Variable -name SKIP_DOWNLOAD -value "0"
     - !reference [.download_dependency_openvpn_dco, script]
     - !reference [.download_dependency_qt_static, script]
     - !reference [.download_dependency_wintun, script]
@@ -140,21 +140,7 @@ variables:
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file ${HOME}/vcpkg_cache.zip "${NEXUS_PATH_VCPKG_CACHE}/${OS_IDENTIFIER}/vcpkg_cache.zip"
 
-.run_tests_posix:
-  script:
-    - set +o pipefail
-    - build/client/wsnet_test | tee output.txt;
-    - if [ -z "$(cat output.txt | grep -E "[0-9]+ tests from [0-9]+ test suites ran.")" ]; then exit 1; fi
-    - for i in {1..3}; do
-          failed_tests=$(cat output.txt | grep "\[ *FAILED" | grep -v \( | grep -v ':' | cut -c 14- | paste -sd "," -);
-          if [ -z "$failed_tests" ]; then
-              break;
-          else
-              build/client/wsnet_test --gtest_filter=$failed_tests | tee output.txt;
-          fi;
-      done;
-
-build:win:x64:app:
+.template_win_build_app: &template_win_build_app
   <<: *template_win10_build
   stage: Build
   variables:
@@ -162,10 +148,21 @@ build:win:x64:app:
     VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
     VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
   script:
-    - Set-Variable -name OS_IDENTIFIER -value "windows"
+    # Backup OS identifier/build libs values.  Set flags to get the x86 Qt libs if on arm64.
+    - Set-Variable -name OS_IDENTIFIER_BAK -value "${OS_IDENTIFIER}"
+    - Set-Variable -name BUILD_LIBS_FOLDER_BAK -value "${BUILD_LIBS_FOLDER}"
+    - if ("${ARCH_FLAG}" -eq "--arm64") { Set-Variable -name OS_IDENTIFIER -value "windows"; Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs" }
+    - if ("${ARCH_FLAG}" -ne "--arm64") { Set-Variable -name SKIP_DOWNLOAD -value "1" }
+    - !reference [.download_dependency_qt_static, script]
+    - IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}
+    # Reset to original values
+    - Set-Variable -name OS_IDENTIFIER -value "${OS_IDENTIFIER_BAK}"
+    - Set-Variable -name BUILD_LIBS_FOLDER -value "${BUILD_LIBS_FOLDER_BAK}"
     - !reference [.download_dependencies_win, script]
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
-    - tools/build_all --build-app --ci-mode
+    - $env:VCPKG_ROOT = $env:VCPKG_ROOT_WINDOWS
+    - $env:VCPKG_DEFAULT_BINARY_CACHE = $env:VCPKG_DEFAULT_BINARY_CACHE_WINDOWS
+    - tools/build_all ${BUILD_FLAG} ${ARCH_FLAG} --ci-mode
     - $Diff = git diff client/gui/translations
     - if ( $Diff.Count -ne 0 ) { echo "You have changed desktop strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
     - $Diff = git diff installer/common/translations
@@ -174,11 +171,37 @@ build:win:x64:app:
     - if ( $Diff.Count -ne 0 ) { echo "You have changed uninstaller strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
   artifacts:
     paths:
-      - build/
       - temp/
     expire_in: 1 day
   rules:
-    - if: $BUILD_WIN == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
+    - if: $BUILD_CONDITION && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
+
+.template_win_build_bootstrap: &template_win_build_bootstrap
+  <<: *template_win10_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
+    VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
+  script:
+    - $env:VCPKG_ROOT = $env:VCPKG_ROOT_WINDOWS
+    - $env:VCPKG_DEFAULT_BINARY_CACHE = $env:VCPKG_DEFAULT_BINARY_CACHE_WINDOWS
+    - tools/build_all --build-bootstrap ${ARCH_FLAG} --ci-mode
+  artifacts:
+    paths:
+      - temp/
+    expire_in: 1 day
+  rules:
+    - if: $BUILD_CONDITION && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
+
+build:win:x64:app:
+  <<: *template_win_build_app
+  variables:
+    OS_IDENTIFIER: "windows"
+    BUILD_LIBS_FOLDER: "build-libs"
+    ARCH_FLAG: ""
+    BUILD_FLAG: "--build-app"
+    BUILD_CONDITION: "$BUILD_WIN == \"y\""
 
 build:win:x64:mr:
   <<: *template_win10_build
@@ -195,14 +218,13 @@ build:win:x64:mr:
   rules:
     - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
-sign:win:app:
+sign:win:x64:app:
   <<: *template_win10_sign
   stage: Build
   variables:
     GIT_STRATEGY: clone
   script:
-    - if ($BUILD_WIN -eq "y") { tools/build_all --sign-app --ci-mode }
-    - if ($BUILD_WIN_ARM64 -eq "y") { tools/build_all --sign-app --arm64 --ci-mode }
+    - tools/build_all --sign-app --ci-mode
   artifacts:
     paths:
       - build/
@@ -212,44 +234,48 @@ sign:win:app:
     - job: build:win:x64:app
       optional: true
       artifacts: true
-    - job: build:win:arm64:app
-      optional: true
-      artifacts: true
-  rules:
-    - if: ($BUILD_WIN == "y" || $BUILD_WIN_ARM64 == "y") && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
-
-build:win:x64:installer:
-  <<: *template_win10_build
-  stage: Build
-  variables:
-    GIT_STRATEGY: clone
-    VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
-    VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
-  script:
-    - Set-Variable -name OS_IDENTIFIER -value "windows"
-    - !reference [.download_dependency_qt_static, script]
-    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
-    - tools/build_all --build-installer --ci-mode
-  artifacts:
-    paths:
-      - build/
-      - temp/
-    expire_in: 1 day
-  needs:
-    - job: sign:win:app
-      optional: true
-      artifacts: true
   rules:
     - if: $BUILD_WIN == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
-sign:win:installer:
+sign:win:arm64:app:
   <<: *template_win10_sign
   stage: Build
   variables:
     GIT_STRATEGY: clone
   script:
-    - if ($BUILD_WIN -eq "y") { tools/build_all --sign-installer --ci-mode }
-    - if ($BUILD_WIN_ARM64 -eq "y") { tools/build_all --sign-installer --arm64 --ci-mode }
+    - tools/build_all --sign-app --arm64 --ci-mode
+  artifacts:
+    paths:
+      - build-arm64/
+      - temp/
+    expire_in: 1 day
+  needs:
+    - job: build:win:arm64:app
+      optional: true
+      artifacts: true
+  rules:
+    - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
+
+build:win:x64:installer:
+  <<: *template_win_build_app
+  variables:
+    OS_IDENTIFIER: "windows"
+    BUILD_LIBS_FOLDER: "build-libs"
+    ARCH_FLAG: ""
+    BUILD_FLAG: "--build-installer"
+    BUILD_CONDITION: "$BUILD_WIN == \"y\""
+  needs:
+    - job: sign:win:x64:app
+      optional: true
+      artifacts: true
+
+sign:win:x64:installer:
+  <<: *template_win10_sign
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - tools/build_all --sign-installer --ci-mode
   artifacts:
     paths:
       - build/
@@ -259,128 +285,130 @@ sign:win:installer:
     - job: build:win:x64:installer
       optional: true
       artifacts: true
+  rules:
+    - if: $BUILD_WIN == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
+
+sign:win:arm64:installer:
+  <<: *template_win10_sign
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - tools/build_all --sign-installer --arm64 --ci-mode
+  artifacts:
+    paths:
+      - build-arm64/
+      - temp/
+    expire_in: 1 day
+  needs:
     - job: build:win:arm64:installer
       optional: true
       artifacts: true
   rules:
-    - if: ($BUILD_WIN == "y" || $BUILD_WIN_ARM64 == "y") && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
+    - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 build:win:x64:bootstrap:
-  <<: *template_win10_build
-  stage: Build
+  <<: *template_win_build_bootstrap
   variables:
-    GIT_STRATEGY: clone
-    VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
-    VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
-  script:
-    - Set-Variable -name OS_IDENTIFIER -value "windows"
-    - !reference [.download_dependency_qt_static, script]
-    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
-    - tools/build_all --build-bootstrap --ci-mode
-  artifacts:
-    paths:
-      - build/
-      - temp/
-    expire_in: 1 day
+    OS_IDENTIFIER: "windows"
+    BUILD_LIBS_FOLDER: "build-libs"
+    ARCH_FLAG: ""
+    BUILD_CONDITION: "$BUILD_WIN == \"y\""
   needs:
-    - job: sign:win:installer
+    - job: sign:win:x64:installer
       optional: true
       artifacts: true
-  rules:
-    - if: $BUILD_WIN == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
-sign:win:bootstrap:
+sign:win:x64:bootstrap:
   <<: *template_win10_sign
   stage: Build
   variables:
     GIT_STRATEGY: clone
   script:
     - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
-    - if ($BUILD_WIN -eq "y") {
-      tools/build_all --sign-bootstrap --ci-mode;
-      Set-Variable -name OS_IDENTIFIER -value "windows";
-      curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_amd64.exe";
-      curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+    - tools/build_all --sign-bootstrap --ci-mode
+    - Set-Variable -name OS_IDENTIFIER -value "windows"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_amd64.exe"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/WindscribeSymbols_${VERSION}.zip "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/WindscribeSymbols_${VERSION}_amd64.zip"
-      }
-    - if ($BUILD_WIN_ARM64 -eq "y") {
-      tools/build_all --sign-bootstrap --arm64 --ci-mode;
-      Set-Variable -name OS_IDENTIFIER -value "windows-arm64";
-      curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_arm64.exe";
-      curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_${VERSION}.zip "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/WindscribeSymbols_${VERSION}_arm64.zip"
-      }
   needs:
     - job: build:win:x64:bootstrap
       optional: true
       artifacts: true
-    - job: build:win:arm64:bootstrap
-      optional: true
-      artifacts: true
   rules:
-    - if: ($BUILD_WIN == "y" || $BUILD_WIN_ARM64 == "y") && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
+    - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
 
-sign:win:bootstrap:tagged:
+sign:win:arm64:bootstrap:
   <<: *template_win10_sign
   stage: Build
   variables:
     GIT_STRATEGY: clone
   script:
-    - Set-Variable -name VERSION -value $(python3 tools/base/extract.py);
-    - Set-Variable -name TAG -value $($CI_COMMIT_TAG -replace '^v([0-9].*)','$1')
-    - if ($BUILD_WIN -eq "y") {
-      tools/build_all --sign-bootstrap --ci-mode;
-      Set-Variable -name OS_IDENTIFIER -value "windows";
-      curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_amd64.exe";
-      curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_${VERSION}.zip "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/WindscribeSymbols_${VERSION}_amd64.zip"
-      }
-    - if ($BUILD_WIN_ARM64 -eq "y") {
-      tools/build_all --sign-bootstrap --arm64 --ci-mode;
-      Set-Variable -name OS_IDENTIFIER -value "windows-arm64";
-      curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_arm64.exe";
-      curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_${VERSION}.zip "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/WindscribeSymbols_${VERSION}_arm64.zip"
-      }
+    - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
+    - tools/build_all --sign-bootstrap --arm64 --ci-mode
+    - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_arm64.exe"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/WindscribeSymbols_${VERSION}.zip "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/WindscribeSymbols_${VERSION}_arm64.zip"
   needs:
-    - job: build:win:x64:bootstrap
-      optional: true
-      artifacts: true
     - job: build:win:arm64:bootstrap
       optional: true
       artifacts: true
   rules:
-    - if: ($BUILD_WIN == "y" || $BUILD_WIN_ARM64 == "y") && $CI_COMMIT_TAG != null
+    - if: $BUILD_WIN_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
 
-build:win:arm64:app:
-  <<: *template_win10_build
+sign:win:x64:bootstrap:tagged:
+  <<: *template_win10_sign
   stage: Build
   variables:
     GIT_STRATEGY: clone
-    VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
-    VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
   script:
-    # Need the x64 Qt package so we can reference it as the QT_HOST_PATH in build_all.
+    - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
+    - Set-Variable -name TAG -value $($CI_COMMIT_TAG -replace '^v([0-9].*)','$1')
+    - tools/build_all --sign-bootstrap --ci-mode
     - Set-Variable -name OS_IDENTIFIER -value "windows"
-    - Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs"
-    - !reference [.download_dependency_qt_static, script]
-    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
-    - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
-    - Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs-arm64"
-    - !reference [.download_dependencies_win, script]
-    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
-    - tools/build_all --build-app --arm64 --ci-mode
-  artifacts:
-    paths:
-      - build-arm64/
-      - temp/
-    expire_in: 1 day
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_amd64.exe"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/WindscribeSymbols_${VERSION}.zip "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/WindscribeSymbols_${VERSION}_amd64.zip"
+  needs:
+    - job: build:win:x64:bootstrap
+      optional: true
+      artifacts: true
   rules:
-    - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
+    - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG != null
+
+sign:win:arm64:bootstrap:tagged:
+  <<: *template_win10_sign
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
+    - Set-Variable -name TAG -value $($CI_COMMIT_TAG -replace '^v([0-9].*)','$1')
+    - tools/build_all --sign-bootstrap --arm64 --ci-mode
+    - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_arm64.exe"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
+      --upload-file build-exe/WindscribeSymbols_${VERSION}.zip "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/WindscribeSymbols_${VERSION}_arm64.zip"
+  needs:
+    - job: build:win:arm64:bootstrap
+      optional: true
+      artifacts: true
+  rules:
+    - if: $BUILD_WIN_ARM64 == "y" && $CI_COMMIT_TAG != null
+
+build:win:arm64:app:
+  <<: *template_win_build_app
+  variables:
+    OS_IDENTIFIER: "windows-arm64"
+    BUILD_LIBS_FOLDER: "build-libs-arm64"
+    ARCH_FLAG: "--arm64"
+    BUILD_FLAG: "--build-app"
+    BUILD_CONDITION: "$BUILD_WIN_ARM64 == \"y\""
 
 build:win:arm64:mr:
   <<: *template_win10_build
@@ -404,58 +432,29 @@ build:win:arm64:mr:
     - if: $BUILD_WIN_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
 build:win:arm64:installer:
-  <<: *template_win10_build
-  stage: Build
+  <<: *template_win_build_app
   variables:
-    GIT_STRATEGY: clone
-    VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
-    VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
-  script:
-    - Set-Variable -name OS_IDENTIFIER -value "windows"
-    - Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs"
-    - !reference [.download_dependency_qt_static, script]
-    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
-    - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
-    - Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs-arm64"
-    - !reference [.download_dependency_qt_static, script]
-    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
-    - tools/build_all --build-installer --arm64 --ci-mode
-  artifacts:
-    paths:
-      - build-arm64/
-      - temp/
-    expire_in: 1 day
+    OS_IDENTIFIER: "windows-arm64"
+    BUILD_LIBS_FOLDER: "build-libs-arm64"
+    ARCH_FLAG: "--arm64"
+    BUILD_FLAG: "--build-installer"
+    BUILD_CONDITION: "$BUILD_WIN_ARM64 == \"y\""
   needs:
-    - job: sign:win:app
+    - job: sign:win:arm64:app
       optional: true
       artifacts: true
-  rules:
-    - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 build:win:arm64:bootstrap:
-  <<: *template_win10_build
-  stage: Build
+  <<: *template_win_build_bootstrap
   variables:
-    GIT_STRATEGY: clone
-    VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
-    VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
-  script:
-    - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
-    - Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs-arm64"
-    - !reference [.download_dependency_qt_static, script]
-    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
-    - tools/build_all --build-bootstrap --arm64 --ci-mode
-  artifacts:
-    paths:
-      - build-arm64/
-      - temp/
-    expire_in: 1 day
+    OS_IDENTIFIER: "windows-arm64"
+    BUILD_LIBS_FOLDER: "build-libs-arm64"
+    ARCH_FLAG: "--arm64"
+    BUILD_CONDITION: "$BUILD_WIN_ARM64 == \"y\""
   needs:
-    - job: sign:win:installer
+    - job: sign:win:arm64:installer
       optional: true
       artifacts: true
-  rules:
-    - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 
 .build_mac_installer_common:
@@ -891,9 +890,9 @@ test:translations:
   rules:
     - if: $BUILD_WIN == "y"
 
-test:wsnet:win:
+build:wsnet:win:
   <<: *template_win10_build
-  stage: Test
+  stage: Build
   variables:
     GIT_STRATEGY: clone
     VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
@@ -903,20 +902,65 @@ test:wsnet:win:
     - !reference [.download_dependencies_win, script]
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - tools/build_all --build-app --build-tests
-    - cd build/test
-    - ./wsnet_test.exe | Tee-Object -Variable TestOutput;
-      if (!($TestOutput -match  "[0-9]+ tests from [0-9]+ test suites ran.")) { exit 1; }
-      For ($i=1; $i -le 3; $i++) {
-          $FailedTests = ($TestOutput -match  "^\[  FAILED  \] .*[^:)]$");
-          if (!$FailedTests) {
-              break;
-          } else {
-              $TestString = $FailedTests.SubString(13) -join ':';
-              ./wsnet_test.exe --gtest_filter=$TestString | Tee-Object -Variable TestOutput;
-          }
-      }
   rules:
     - if: $BUILD_WIN == "y" && $NIGHTLY_TEST_BUILD == "y"
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - build
+
+test:wsnet:win:
+  <<: *template_win10_build
+  stage: Test
+  variables:
+    GIT_STRATEGY: clone
+    VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
+    VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
+  script:
+    - Set-Variable -name OS_IDENTIFIER -value "windows"
+    - Set-Variable ErrorActionPreference
+    - cd build/test
+    - pip3 install pproxy
+    - Start-Process -NoNewWindow -PassThru pproxy
+    - Try {
+        ./wsnet_test.exe --gtest_output=xml:report_win.xml
+      } Catch {
+      } Finally {
+          Get-Process "pproxy" | Stop-Process -Force
+      }
+  after_script:
+    # This command may fail because it was already killed above; that's fine.
+    - Get-Process "pproxy" | Stop-Process -Force
+  retry: 2
+  needs:
+    - job: build:wsnet:win
+      optional: true
+      artifacts: true
+  rules:
+    - if: $BUILD_WIN == "y" && $NIGHTLY_TEST_BUILD == "y"
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - build/test/report_win.xml
+    reports:
+      junit: build/test/report_win.xml
+
+build:wsnet:mac:
+  <<: *template_mac_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - OS_IDENTIFIER="macos"
+    - !reference [.build_mac_installer_common, script]
+    - tools/build_all --static-analysis --build-app --build-tests
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - build
+  rules:
+    - if: $BUILD_MAC == "y" && $NIGHTLY_TEST_BUILD == "y"
 
 test:wsnet:mac:
   <<: *template_mac_build
@@ -924,22 +968,57 @@ test:wsnet:mac:
   variables:
     GIT_STRATEGY: clone
   script:
+    - OS_IDENTIFIER="macos"
     - !reference [.build_mac_installer_common, script]
-    - tools/build_all --static-analysis --build-app --build-tests
-    - !reference [.run_tests_posix, script]
-
+    # reinitialize vcpkg for for arm64-osx, since the tests would be built against them rather than the osx version.
+    - ${VCPKG_ROOT}/vcpkg install --x-install-root=${VCPKG_ROOT}/installed --x-manifest-root=tools/vcpkg --overlay-triplets=tools/vcpkg/triplets
+    - pip3 install pproxy
+    - set +o pipefail
+    - if [ "$(ps aux | grep -c [p]proxy)" -ne 0 ]; then ps aux | grep [p]proxy | awk '{print $2}' | xargs kill -9; fi
+    - /Users/ws-user/Library/Python/3.9/bin/pproxy &
+    # fix RPATH for wsnet_test, in case it was built on a different machine
+    - install_name_tool -add_rpath build/client/wsnet build/client/wsnet_test || true
+    - build/client/wsnet_test --gtest_output=xml:report_${OS_IDENTIFIER}.xml || FAILED=1
+    - kill %1
+    - if [ $FAILED ]; then exit 1; fi
+  coverage: /^\s*lines:\s*\d+.\d+\%/
   after_script:
     - python3 -m gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o coverage.xml --root ${CI_PROJECT_DIR}
-  coverage: /^\s*lines:\s*\d+.\d+\%/
+  retry: 2
+  needs:
+    - job: build:wsnet:mac
+      optional: true
+      artifacts: true
   artifacts:
+    when: always
     name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}-mac
     expire_in: 1 day
     reports:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
+      junit: report_macos.xml
+    paths:
+      - report_macos.xml
   rules:
     - if: $BUILD_MAC == "y" && $NIGHTLY_TEST_BUILD == "y"
+
+build:wsnet:rhel:
+  <<: *template_rhel_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - OS_IDENTIFIER="linux"
+    - !reference [.build_linux_installer_common, script]
+    - python3 -m pip install clang-tidy
+    - tools/build_all --static-analysis --build-app --build-tests
+  artifacts:
+    expire_in: 1 day
+    paths:
+       - build
+  rules:
+    - if: $BUILD_LINUX == "y" && $NIGHTLY_TEST_BUILD == "y"
 
 test:wsnet:rhel:
   <<: *template_rhel_build
@@ -949,20 +1028,32 @@ test:wsnet:rhel:
   script:
     - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
-    - python3 -m pip install clang-tidy
-    - tools/build_all --static-analysis --build-app --build-tests
-    - !reference [.run_tests_posix, script]
-
+    - pip3 install pproxy
+    - set +o pipefail
+    - if [ "$(ps aux | grep -c [p]proxy)" -ne 0 ]; then ps aux | grep [p]proxy | awk '{print $2}' | xargs kill -9; fi
+    - pproxy &
+    - build/client/wsnet_test --gtest_output=xml:report_${OS_IDENTIFIER}.xml || FAILED=1
+    - kill %1
+    - if [ $FAILED ]; then exit 1; fi
+  coverage: /^\s*lines:\s*\d+.\d+\%/
   after_script:
     - python3 -m gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o coverage.xml --root ${CI_PROJECT_DIR}
-  coverage: /^\s*lines:\s*\d+.\d+\%/
+  retry: 2
+  needs:
+    - job: build:wsnet:rhel
+      optional: true
+      artifacts: true
   artifacts:
     name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}-linux
+    when: always
     expire_in: 1 day
     reports:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
+      junit: report_linux.xml
+    paths:
+       - report_linux.xml
   rules:
     - if: $BUILD_LINUX == "y" && $NIGHTLY_TEST_BUILD == "y"
 

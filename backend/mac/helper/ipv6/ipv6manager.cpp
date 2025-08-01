@@ -19,7 +19,7 @@ Ipv6Manager::~Ipv6Manager()
 
 bool Ipv6Manager::setEnabled(bool bEnabled)
 {
-    const std::vector<const std::string> interfaces = getInterfaces();
+    std::vector<std::string> interfaces = getInterfaces();
     if (interfaces.empty()) {
         spdlog::error("Could not get interfaces");
         return false;
@@ -28,7 +28,7 @@ bool Ipv6Manager::setEnabled(bool bEnabled)
     if (bEnabled) {
         spdlog::info("Restoring IPv6");
 
-        for (const std::string &interface : interfaces) {
+        for (std::string &interface : interfaces) {
             const IPv6State curState = getState(interface);
             const IPv6State savedState = interfaceStates_[interface];
 
@@ -45,7 +45,7 @@ bool Ipv6Manager::setEnabled(bool bEnabled)
         spdlog::info("Disabling IPv6");
 
         saveIpv6States(interfaces);
-        for (const std::string &interface : interfaces) {
+        for (std::string &interface : interfaces) {
             if (interfaceStates_[interface].state != "Off") {
                 Utils::executeCommand("networksetup", {"-setv6off", interface});
             }
@@ -55,10 +55,10 @@ bool Ipv6Manager::setEnabled(bool bEnabled)
     return true;
 }
 
-void Ipv6Manager::saveIpv6States(const std::vector<const std::string> &interfaces)
+void Ipv6Manager::saveIpv6States(std::vector<std::string> &interfaces)
 {
     interfaceStates_.clear();
-    for (const std::string &interface : interfaces) {
+    for (std::string &interface : interfaces) {
         IPv6State state = getState(interface);
         interfaceStates_[interface] = state;
         spdlog::debug("Save state for {}: {}, {}, {}, {}", interface.c_str(), state.state.c_str(), state.ipAddress.c_str(),
@@ -66,10 +66,10 @@ void Ipv6Manager::saveIpv6States(const std::vector<const std::string> &interface
     }
 }
 
-std::vector<const std::string> Ipv6Manager::getInterfaces()
+std::vector<std::string> Ipv6Manager::getInterfaces()
 {
     std::string out;
-    std::vector<const std::string> interfaces;
+    std::vector<std::string> interfaces;
 
     int status = Utils::executeCommand("networksetup", {"-listallnetworkservices"}, &out);
     if (status != 0) {
@@ -93,7 +93,7 @@ std::vector<const std::string> Ipv6Manager::getInterfaces()
     return interfaces;
 }
 
-Ipv6Manager::IPv6State Ipv6Manager::getState(const std::string &interface)
+Ipv6Manager::IPv6State Ipv6Manager::getState(std::string &interface)
 {
     std::string out;
     int status = Utils::executeCommand("networksetup", {"-getinfo", interface}, &out);

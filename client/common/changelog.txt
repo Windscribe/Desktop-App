@@ -1,3 +1,29 @@
+2.17.1 (29/07/2025)
+All:
+   * Added post-quantum server API integration. #1422
+   * Improved CI pipeline speed. #1405
+   * Improved nightly test CI scripts. #958
+   * Improved advanced parameter handling. #896
+   * Improved wsnet to use bearer token in all server API calls. #1423
+   * Improved icons on the favourites tab to be the country flag. #1436
+   * Improved dependencies for audio. #1435
+   * Fixed last opened locations tab is not remembered. #1429
+   * Fixed alert window cut off when showing an update error. #1432
+   * Updated ctrld to 1.4.5. #1438
+Windows:
+   * Fixed code compilation with Visual Studio 2022. #1406
+   * Fixed app no longer debug logging to the system debugger. #1407
+   * Fixed erroneous 'failed to set network category' error message from helper. #1415
+   * Updated signing certificate. #1044
+MacOS:
+   * Fixed code compilation with newer version of Xcode. #1396
+   * Fixed app no longer debug logging to stdout. #1407
+Linux:
+   * Improved locations list in CLI to show more information. #1426
+   * Fixed app no longer debug logging to stdout. #1407
+   * Fixed DNS leak in some configurations. #1424
+
+
 2.16.14 (24/07/2025)
 All:
    * Fixed update downloads may fail prematurely. #1431

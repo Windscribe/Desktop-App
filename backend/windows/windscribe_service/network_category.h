@@ -9,7 +9,7 @@
 class NetworkCategoryManager {
 public:
     static NetworkCategoryManager& instance();
-    bool setCategory(const std::wstring& networkName, NetworkCategory category);
+    void setCategory(const std::wstring& networkName, NetworkCategory category);
 
 private:
     static const int kMaxAttempts = 10;

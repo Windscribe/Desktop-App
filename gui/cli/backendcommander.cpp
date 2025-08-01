@@ -68,7 +68,7 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::Connec
         if (cmd->locations_.isEmpty()) {
             emit finished(1, tr("No locations."));
         } else {
-            emit finished(0, cmd->locations_.join("\n"));
+            emit finished(0, locationsString(cmd->locations_));
         }
     }
 }

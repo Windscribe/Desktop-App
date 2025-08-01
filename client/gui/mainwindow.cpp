@@ -2689,7 +2689,7 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERS
                 // a progress bar above the message window.
                 mainWindowController_->getUpdateAppItem()->setMode(UpdateApp::UpdateAppItem::UPDATE_APP_ITEM_MODE_PROMPT);
                 mainWindowController_->getUpdateAppItem()->setProgress(0);
-                mainWindowController_->getUpdateAppItem()->setVisible(false);
+                mainWindowController_->hideUpdateWidget();
 
                 // Reset the update window to its default state.
                 mainWindowController_->getUpdateWindow()->stopAnimation();
@@ -2697,7 +2697,7 @@ void MainWindow::onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERS
 
                 GeneralMessageController::instance().showMessage("ERROR_ICON", titleText, descText, GeneralMessageController::tr(GeneralMessageController::kOk), "", "",
                     [this](bool b) {
-                        mainWindowController_->getUpdateAppItem()->setVisible(true);
+                        mainWindowController_->showUpdateWidget();
                         // Need to hide the update window here before transitioning back to the connect screen.
                         mainWindowController_->getUpdateWindow()->hide();
                         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);

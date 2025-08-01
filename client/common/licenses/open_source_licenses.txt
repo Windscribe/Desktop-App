@@ -19,6 +19,7 @@ Windscribe uses the following open source software:
 - ADVobfuscator
 - 7-Zip (GNU LGPL)
 - randomColor-cpp (MIT)
+- miniaudio (MIT)
 
 
 ============================ LICENSES BELOW ==============================
