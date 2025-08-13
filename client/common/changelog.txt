@@ -1,3 +1,21 @@
+2.17.2 (13/08/2025)
+All:
+   * Added advanced parameters for overriding the API, assets, and checkip domains used in wsnet. #1440
+   * Improved UX in more places. #1443 #1446 #1447 #1448
+   * Improved Qt library dependency and other CI/build fixes. #949
+   * Fixed wsnet not triggering failover on some invalid payloads. #1449
+   * Fixed French translation of 'Release' update channel. #1439
+   * Fixed pings may be invalidated while connected. #1442
+   * Removed the API resolution settings from the GUI. #1440
+Windows:
+   * Fixed a crash in the audio dependencies on some builds. #1450
+   * Updated OpenVPN DCO driver to v1.3.3. #1451
+Linux:
+   * Fixed rendering issues on X11 (non-wayland) environments. #1437
+   * Fixed potential DNS leak when using ctrld. #1445
+   * Removed unused libraries from packaging. #1441
+
+
 2.17.1 (29/07/2025)
 All:
    * Added post-quantum server API integration. #1422

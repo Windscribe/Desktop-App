@@ -93,10 +93,10 @@ if (WIN32)
                                   PIO_APC_ROUTINE_DEFINED)
 endif (WIN32)
 
-if (UNIX)
+if (UNIX AND (NOT APPLE))
     find_package(Qt6 REQUIRED COMPONENTS DBus)
     target_link_libraries(gui PRIVATE Qt6::DBus)
-endif (UNIX)
+endif()
 
 target_include_directories(gui PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../engine

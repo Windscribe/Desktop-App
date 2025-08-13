@@ -1062,10 +1062,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Pokročilé parametry</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>Vyřešte adresu rozhraní API serveru automaticky nebo použijte adresu poskytnutou týmem podpory.</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>Ignorujte chyby ověření certifikátu SSL.</translation>
     </message>
@@ -1112,37 +1108,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Import</source>
         <translation>Dovoz</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>Rozlišení rozhraní API</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>Automatický</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Manuál</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresa</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>Zadejte IP adresu nebo název hostitele</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>Neplatná adresa</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>Zadali jste neplatnou adresu pro překlad rozhraní API.  Byla resetována na Auto.</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +1793,10 @@ Nejprve se připojte k síti</translation>
     <message>
         <source>Unlimited Data</source>
         <translation>Neomezená data</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Zvyk</translation>
     </message>
 </context>
 <context>

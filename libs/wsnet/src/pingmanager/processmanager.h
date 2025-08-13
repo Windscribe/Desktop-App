@@ -6,7 +6,10 @@
 #include <thread>
 #include <functional>
 #include <boost/asio.hpp>
-#include <boost/process.hpp>
+#include <boost/process/v1/child.hpp>
+#include <boost/process/v1/search_path.hpp>
+#include <boost/process/v1/io.hpp>
+#include <boost/process/v1/detail/on_exit.hpp>
 
 namespace wsnet {
 
@@ -27,8 +30,8 @@ private:
 
     struct ChildProcess
     {
-        boost::process::child process;
-        boost::process::ipstream data;
+        boost::process::v1::child process;
+        boost::process::v1::ipstream data;
         ProcessManagerCallback callback;
     };
 

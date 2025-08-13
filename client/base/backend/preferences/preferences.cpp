@@ -358,21 +358,6 @@ void Preferences::setConnectionSettings(const types::ConnectionSettings &cs)
     }
 }
 
-const types::ApiResolutionSettings &Preferences::apiResolution() const
-{
-    return engineSettings_.apiResolutionSettings();
-}
-
-void Preferences::setApiResolution(const types::ApiResolutionSettings &s)
-{
-    if (engineSettings_.apiResolutionSettings() != s)
-    {
-        engineSettings_.setApiResolutionSettings(s);
-        emitEngineSettingsChanged();
-        emit apiResolutionChanged(engineSettings_.apiResolutionSettings());
-    }
-}
-
 const types::PacketSize &Preferences::packetSize() const
 {
     return engineSettings_.packetSize();
@@ -795,7 +780,6 @@ void Preferences::setEngineSettings(const types::EngineSettings &es, bool fromJs
     setAllowLanTraffic(es.isAllowLanTraffic());
     setFirewallSettings(es.firewallSettings());
     setConnectionSettings(es.connectionSettings());
-    setApiResolution(es.apiResolutionSettings());
     setProxySettings(es.proxySettings());
     setPacketSize(es.packetSize());
     setMacAddrSpoofing(es.macAddrSpoofing());
@@ -968,7 +952,6 @@ void Preferences::loadIni()
     setAllowLanTraffic(es.isAllowLanTraffic());
     setFirewallSettings(es.firewallSettings());
     setConnectionSettings(es.connectionSettings());
-    setApiResolution(es.apiResolutionSettings());
     setProxySettings(es.proxySettings());
     setPacketSize(es.packetSize());
     setMacAddrSpoofing(es.macAddrSpoofing());
@@ -986,17 +969,6 @@ void Preferences::loadIni()
 void Preferences::validateAndUpdateIfNeeded()
 {
     bool is_update_needed = false;
-
-    // Reset API resolution to automatic if the ip address hasn't been specified.
-    if (!engineSettings_.apiResolutionSettings().getIsAutomatic() &&
-        engineSettings_.apiResolutionSettings().getManualAddress().isEmpty())
-    {
-        types::ApiResolutionSettings ds = engineSettings_.apiResolutionSettings();
-        ds.set(true, ds.getManualAddress());
-        engineSettings_.setApiResolutionSettings(ds);
-        emit apiResolutionChanged(engineSettings_.apiResolutionSettings());
-        is_update_needed = true;
-    }
 
     // Validate Connected Dns settings
     types::ConnectedDnsInfo cdi = engineSettings_.connectedDnsInfo();

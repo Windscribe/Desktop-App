@@ -1,5 +1,16 @@
 {
     "dependencies": [
+        "qtbase",
+        "qtsvg",
+        {
+            "name": "qttools",
+            "default-features": false,
+            "features": [ "linguist" ]
+        }, 
+        {
+            "name": "qtwayland",
+            "platform": "linux"
+        },
         "boost-asio",
         "boost-filesystem",
         "boost-logic",
@@ -24,12 +35,12 @@
         "cpp-base64",
         "c-ares",
         "advobfuscator",
+        "miniaudio",
         "7zip",
         "ctrld",
         {
             "name": "winreg",
             "platform": "windows"
-        },
-        "miniaudio"
+        }
     ]
 }

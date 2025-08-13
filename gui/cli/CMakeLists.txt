@@ -5,14 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "12" CACHE STRING "Minimum OS X deployment version")
 
-if (WIN32)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
-        set(VCPKG_TARGET_TRIPLET arm64-windows-static)
-    else()
-        set(VCPKG_TARGET_TRIPLET x64-windows-static)
-    endif()
-endif()
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 PROJECT(cli)
 

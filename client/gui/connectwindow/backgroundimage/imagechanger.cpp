@@ -146,7 +146,7 @@ void ImageChanger::updatePixmap()
 
     if (prevImage_.isValid()) {
         if (!prevImage_.isMovie) {
-            p.setOpacity(opacityPrevImage_  * 0.4);
+            p.setOpacity(opacityPrevImage_  * 0.3);
             prevImage_.pixmap->draw(0, 0, &p);
 
             if (curGradient != GRADIENT_FLAG) {
@@ -188,7 +188,7 @@ void ImageChanger::updatePixmap()
     if (curImage_.isValid()) {
         int yOffset = 0;
         if (!curImage_.isMovie) {
-            p.setOpacity(opacityCurImage_  * 0.4);
+            p.setOpacity(opacityCurImage_  * 0.3);
             yOffset = (238*G_SCALE - curImage_.pixmap->height())/2;
             curImage_.pixmap->draw(0, yOffset, &p);
 

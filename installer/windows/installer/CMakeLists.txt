@@ -4,12 +4,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
-    set(VCPKG_TARGET_TRIPLET arm64-windows-static)
-else()
-    set(VCPKG_TARGET_TRIPLET x64-windows-static)
-endif()
-
 project(installer)
 
 find_package(fmt CONFIG REQUIRED)

@@ -8,10 +8,6 @@ project(installer_mac)
 find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(spdlog CONFIG REQUIRED)
 
-find_library(COCOA_LUMBERJACK_LIBS
-             NAMES CocoaLumberjack
-             PATHS ${CMAKE_SOURCE_DIR}/Frameworks
-             NO_DEFAULT_PATH)
 find_package(Qt6 REQUIRED COMPONENTS
              Widgets
              Gui
@@ -21,7 +17,6 @@ find_package(Qt6 REQUIRED COMPONENTS
 qt_standard_project_setup(REQUIRES 6.5)
 
 set(SOURCES
-    Assets.xcassets
     ../../../client/engine/engine/helper/ihelperbackend.h
     ../../../client/engine/engine/helper/helperbackend_mac.cpp
     ../../../client/engine/engine/helper/installhelper_mac.mm
@@ -48,9 +43,9 @@ add_subdirectory(../../common ${CMAKE_CURRENT_BINARY_DIR}/common)
 
 set_target_properties(installer
                       PROPERTIES
+                      OUTPUT_NAME "WindscribeInstaller"
                       MACOSX_BUNDLE TRUE
                       MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/Info.plist
-                      RESOURCE "Assets.xcassets"
                       COMPILE_WARNING_AS_ERROR TRUE
 )
 
@@ -74,17 +69,8 @@ target_link_libraries(installer
                       "-framework AppKit"
                       "-framework Security"
                       "-framework ServiceManagement"
-                      "${COCOA_LUMBERJACK_LIBS}"
                       Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg
 )
-
-set_property(TARGET installer
-             PROPERTY XCODE_EMBED_FRAMEWORKS
-             "${CMAKE_SOURCE_DIR}/Frameworks/CocoaLumberjack.framework"
-)
-
-set_target_properties(installer PROPERTIES XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY ON)
-set_target_properties(installer PROPERTIES XCODE_EMBED_FRAMEWORKS_REMOVE_HEADERS_ON_COPY ON)
 
 add_custom_command(TARGET installer POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
                    ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:installer>/../Resources)
@@ -107,3 +93,8 @@ set(CMAKE_XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER "")
 set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.windscribe.installer.macos")
 set(CMAKE_XCODE_ATTRIBUTE_PRODUCT_BUNDLE_NAME "Install Windscribe")
 
+install(TARGETS installer
+   RUNTIME DESTINATION .
+   LIBRARY DESTINATION "installer.app/Contents/Frameworks"
+   BUNDLE DESTINATION .
+)

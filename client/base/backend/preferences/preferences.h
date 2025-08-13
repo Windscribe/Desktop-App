@@ -78,9 +78,6 @@ public:
     const types::ConnectionSettings &connectionSettings() const;
     void setConnectionSettings(const types::ConnectionSettings &cs);
 
-    const types::ApiResolutionSettings &apiResolution() const;
-    void setApiResolution(const types::ApiResolutionSettings &s);
-
     const types::PacketSize &packetSize() const;
     void setPacketSize(const types::PacketSize &ps);
 
@@ -189,7 +186,6 @@ signals:
     void proxySettingsChanged(const types::ProxySettings &ps);
     void firewallSettingsChanged(const types::FirewallSettings &fs);
     void connectionSettingsChanged(const types::ConnectionSettings &cm);
-    void apiResolutionChanged(const types::ApiResolutionSettings &s);
     void packetSizeChanged(const types::PacketSize &ps);
     void macAddrSpoofingChanged(const types::MacAddrSpoofing &mas);
     void isIgnoreSslErrorsChanged(bool b);

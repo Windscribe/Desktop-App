@@ -7,8 +7,8 @@
 #include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/linkitem.h"
+#include "preferenceswindow/preferencegroup.h"
 #include "tooltips/tooltiptypes.h"
-#include "apiresolutiongroup.h"
 
 
 enum ADVANCED_SCREEN { ADVANCED_SCREEN_HOME, ADVANCED_SCREEN_ADVANCED_PARAMETERS };
@@ -33,7 +33,6 @@ public:
 signals:
     void advParametersClick();
 private slots:
-    void onApiResolutionChanged(const types::ApiResolutionSettings &dns);
     void onIgnoreSslErrorsStateChanged(bool isChecked);
     void onKeepAliveStateChanged(bool isChecked);
     void onAppInternalDnsItemChanged(QVariant dns);
@@ -47,8 +46,6 @@ private slots:
 #ifdef Q_OS_LINUX
     void onDnsManagerPreferencesChanged(DNS_MANAGER_TYPE d);
 #endif
-    void onApiResolutionPreferencesChanged(const types::ApiResolutionSettings &dns);
-
     void onLanguageChanged();
 
 signals:
@@ -62,7 +59,6 @@ private:
     PreferenceGroup *advParametersGroup_;
     LinkItem *advParametersItem_;
 
-    ApiResolutionGroup *apiResolutionGroup_;
     PreferenceGroup *ignoreSslErrorsGroup_;
     ToggleItem *cbIgnoreSslErrors_;
     PreferenceGroup *keepAliveGroup_;

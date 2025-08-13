@@ -1062,10 +1062,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Gelişmiş Parametreler</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>Sunucu API adresini otomatik olarak çözümleyin veya Destek ekibi tarafından sağlanan bir adresi kullanın.</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>SSL sertifikası doğrulama hatalarını yoksayın.</translation>
     </message>
@@ -1112,37 +1108,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Import</source>
         <translation>Ithalat</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>API Çözümlemesi</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>Otomatik</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>El ile</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adres</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>IP veya Ana Bilgisayar Adını Girin</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>Geçersiz adres</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>API çözümlemesi için geçersiz bir adres girdiniz.  Otomatik olarak sıfırlandı.</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +1793,10 @@ Connect to a network first</source>
     <message>
         <source>Unlimited Data</source>
         <translation>Sınırsız Veri</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Töre</translation>
     </message>
 </context>
 <context>

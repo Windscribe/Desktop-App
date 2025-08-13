@@ -9,8 +9,10 @@ if (VCPKG_OSX_ARCHITECTURES_ORIGINAL MATCHES "arm64" AND VCPKG_OSX_ARCHITECTURES
         OUT_SOURCE_PATH SOURCE_PATH
         REPO boostorg/context
         REF boost-${VERSION}
-        SHA512 db4fc7ef2bfb6f1dae9018b39a8215a04a1df28d9af1b7a2a476f381e17e575458ae7f1a3dcdc35fe4cebb7a8baa3be49fa61d30f0af1cf31523d61e5906531f
+        SHA512 ce616623d95e0c394a68e962c52b11875a216af10597fcc3a2bf3fb7b13dcc47fa7f5ebf37c9bcf2fc8b2edacbf82d149b32f55cfda4c41bdca18fe3c3337b50
         HEAD_REF master
+        PATCHES
+            marmasm.patch
     )
 
     set(FEATURE_OPTIONS "")
@@ -25,8 +27,10 @@ if (VCPKG_OSX_ARCHITECTURES_ORIGINAL MATCHES "arm64" AND VCPKG_OSX_ARCHITECTURES
         OUT_SOURCE_PATH SOURCE_PATH
         REPO boostorg/context
         REF boost-${VERSION}
-        SHA512 db4fc7ef2bfb6f1dae9018b39a8215a04a1df28d9af1b7a2a476f381e17e575458ae7f1a3dcdc35fe4cebb7a8baa3be49fa61d30f0af1cf31523d61e5906531f
+        SHA512 ce616623d95e0c394a68e962c52b11875a216af10597fcc3a2bf3fb7b13dcc47fa7f5ebf37c9bcf2fc8b2edacbf82d149b32f55cfda4c41bdca18fe3c3337b50
         HEAD_REF master
+        PATCHES
+            marmasm.patch
     )
 
     set(FEATURE_OPTIONS "")
@@ -56,18 +60,19 @@ if (VCPKG_OSX_ARCHITECTURES_ORIGINAL MATCHES "arm64" AND VCPKG_OSX_ARCHITECTURES
     set(VCPKG_TARGET_ARCHITECTURE ${VCPKG_TARGET_ARCHITECTURE_ORIGINAL})
     set(VCPKG_OSX_ARCHITECTURES ${VCPKG_OSX_ARCHITECTURES_ORIGINAL})
 else()
-    vcpkg_from_github(
-        OUT_SOURCE_PATH SOURCE_PATH
-        REPO boostorg/context
-        REF boost-${VERSION}
-        SHA512 db4fc7ef2bfb6f1dae9018b39a8215a04a1df28d9af1b7a2a476f381e17e575458ae7f1a3dcdc35fe4cebb7a8baa3be49fa61d30f0af1cf31523d61e5906531f
-        HEAD_REF master
-        PATCHES marmasm.patch
-    )
+vcpkg_from_github(
+    OUT_SOURCE_PATH SOURCE_PATH
+    REPO boostorg/context
+    REF boost-${VERSION}
+    SHA512 ce616623d95e0c394a68e962c52b11875a216af10597fcc3a2bf3fb7b13dcc47fa7f5ebf37c9bcf2fc8b2edacbf82d149b32f55cfda4c41bdca18fe3c3337b50
+    HEAD_REF master
+    PATCHES
+        marmasm.patch
+)
 
-    set(FEATURE_OPTIONS "")
-    boost_configure_and_install(
-        SOURCE_PATH "${SOURCE_PATH}"
-        OPTIONS ${FEATURE_OPTIONS}
-    )
+set(FEATURE_OPTIONS "")
+boost_configure_and_install(
+    SOURCE_PATH "${SOURCE_PATH}"
+    OPTIONS ${FEATURE_OPTIONS}
+)
 endif()

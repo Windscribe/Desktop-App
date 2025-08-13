@@ -37,6 +37,10 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     painter->setRenderHint(QPainter::Antialiasing);
     painter->setOpacity(OPACITY_FULL);
     painter->fillRect(option.rect, FontManager::instance().getMidnightColor());
+    // hover background
+    if (qFuzzyCompare(option.selectedOpacity(), 1.0)) {
+        painter->fillRect(option.rect, QColor(255, 255, 255, 13));
+    }
 
     int left_offs = option.rect.left();
     int top_offs = option.rect.top();
@@ -74,6 +78,9 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     if (option.isShowLocationLoad()) {
         int locationLoad = index.data(kLoad).toInt();
         if (locationLoad > 0) {
+            if (locationLoad < 10) {
+                locationLoad = 10; // Minimum value is 10, otherwise the arc is too short
+            }
             Qt::GlobalColor penColor;
             if (locationLoad < 60) {
                 penColor = Qt::green;
@@ -85,7 +92,7 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
             // Draw arc with pen color
             penLoad.setColor(penColor);
             painter->setPen(penLoad);
-            painter->drawArc(flagRect, 180 * 16, -360 * locationLoad * 16 / 100);
+            painter->drawArc(flagRect, 90 * 16, -360 * locationLoad * 16 / 100);
         }
     }
 
@@ -106,12 +113,12 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     LocationID lid = qvariant_cast<LocationID>(index.data(kLocationId));
     if (lid.isBestLocation()) {
         if (index.data(kIs10Gbps).toBool()) {
-            painter->setOpacity(OPACITY_FULL);
+            painter->setOpacity(textOpacity);
             int xOffset = 0;
             if (index.data(kIsShowP2P).toBool()) {
                 xOffset = -48*G_SCALE;
             }
-            QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON");
+            QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON_BEST_LOCATION");
             QRect tenGbpsRect = QRect(option.rect.width() - 48*G_SCALE + xOffset - p->width(), (option.rect.height() - p->height()) / 2, p->width(), p->height());
             p->draw(left_offs + tenGbpsRect.x(), top_offs + tenGbpsRect.y(), painter);
         }

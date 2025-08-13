@@ -16,6 +16,7 @@ public:
 
     void setPlan(qint64 plan);
     void setIsPremium(bool isPremium);
+    void setAlcCount(qsizetype count);
     bool isPremium();
 
     void updateScaling() override;
@@ -30,6 +31,7 @@ private:
     CommonGraphics::TextButton *textButton_;
     QSharedPointer<IndependentPixmap> iconButton_;
     qint64 planBytes_;
+    qint64 alcCount_;
     bool isPremium_;
 
     void updatePositions();

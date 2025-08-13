@@ -28,6 +28,7 @@ void ApiLocationsModel::setLocations(const QVector<api_responses::Location> &loc
         return;
     }
 
+    QVector<api_responses::Location> prevLocations = locations_;
     locations_ = locations;
     staticIps_ = staticIps;
 
@@ -54,7 +55,7 @@ void ApiLocationsModel::setLocations(const QVector<api_responses::Location> &loc
     }
 
     pingManager_.updateIps(ips);
-    sendLocationsUpdated();
+    sendLocationsUpdated(prevLocations);
 }
 
 void ApiLocationsModel::clear()
@@ -279,7 +280,22 @@ void ApiLocationsModel::detectBestLocation(bool isAllNodesInDisconnectedState)
     }
 }
 
-BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
+PingTime ApiLocationsModel::getPrevPing(const QVector<api_responses::Location> &locations, int countryId, int cityId)
+{
+    for (const api_responses::Location &l : locations) {
+        if (l.getId() != countryId) {
+            continue;
+        }
+        for (int i = 0; i < l.groupsCount(); ++i) {
+            if (l.getGroup(i).getId() == cityId) {
+                return pingManager_.getPing(l.getGroup(i).getPingIp());
+            }
+        }
+    }
+    return PingTime::NO_PING_INFO;
+}
+
+BestAndAllLocations ApiLocationsModel::generateLocationsUpdated(const QVector<api_responses::Location> &prevLocations)
 {
     QSharedPointer <QVector<types::Location> > items(new QVector<types::Location>());
 
@@ -306,6 +322,11 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
             city.nick = group.getNick();
             city.isPro = group.isPro();
             city.pingTimeMs = pingManager_.getPing(group.getPingIp());
+            // If ping time does not exist, set it to previous ping, if it exists
+            if (city.pingTimeMs == PingTime::NO_PING_INFO) {
+                city.pingTimeMs = getPrevPing(prevLocations, item.idNum, city.idNum);
+                pingManager_.setPing(group.getPingIp(), city.pingTimeMs);
+            }
             city.isDisabled = group.isDisabled();
             city.is10Gbps = (group.getLinkSpeed() == 10000);
             city.health = group.getHealth();
@@ -382,9 +403,9 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated()
     return ball;
 }
 
-void ApiLocationsModel::sendLocationsUpdated()
+void ApiLocationsModel::sendLocationsUpdated(const QVector<api_responses::Location> &prevLocations)
 {
-    BestAndAllLocations ball = generateLocationsUpdated();
+    BestAndAllLocations ball = generateLocationsUpdated(prevLocations);
     emit locationsUpdated(ball.bestLocation, ball.staticIpDeviceName, ball.locations);
 }
 

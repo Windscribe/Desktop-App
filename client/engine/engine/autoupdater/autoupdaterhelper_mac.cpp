@@ -8,7 +8,8 @@
 #include "names.h"
 #include "utils/utils.h"
 #include "utils/executable_signature/executable_signature.h"
-#include <boost/process.hpp>
+#include <boost/process/v1/io.hpp>
+#include <boost/process/v1/child.hpp>
 
 AutoUpdaterHelper_mac::AutoUpdaterHelper_mac()
 {
@@ -135,7 +136,7 @@ const QString AutoUpdaterHelper_mac::mountDmg(const QString &dmgFilename)
     // mount
     // we use boost::process instead of QProcess here because we encountered
     // that QProcess has a bug when waiting for the process to finish on MacOS
-    using namespace boost::process;
+    using namespace boost::process::v1;
     ipstream pipe_stream;
     child c("/usr/bin/hdiutil", "attach", dmgFilename.toStdString(), std_out > pipe_stream);
 
@@ -185,7 +186,7 @@ bool AutoUpdaterHelper_mac::unmountVolume(const QString &volumePath)
     // unmount
     // we use boost::process instead of QProcess here because we encountered
     // that QProcess has a bug when waiting for the process to finish on MacOS
-    using namespace boost::process;
+    using namespace boost::process::v1;
     child c("/usr/bin/hdiutil", "detach", volumePath.toStdString());
     c.wait();
 

@@ -13,14 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 #set(CMAKE_VISIBILITY_INLINES_HIDDEN True)
 
-if (WIN32)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
-        set(VCPKG_TARGET_TRIPLET arm64-windows-static)
-    else()
-        set(VCPKG_TARGET_TRIPLET x64-windows-static)
-    endif()
-endif()
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 project(wsnet
     DESCRIPTION "The wsnet library for Windscribe client programs"

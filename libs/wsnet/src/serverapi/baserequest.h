@@ -13,6 +13,19 @@ enum class RequestPriority { kNormal, kHigh };
 
 using RequestFinishedCallback = std::shared_ptr<CancelableCallback<WSNetRequestFinishedCallback>>;
 
+
+struct ApiOverrideSettings
+{
+    std::string apiRoot;
+    std::string assetsRoot;
+    std::string checkIpRoot;
+
+    bool isOverriden() const
+    {
+        return !apiRoot.empty() || !assetsRoot.empty() || !checkIpRoot.empty();
+    }
+};
+
 class BaseRequest
 {
 public:
@@ -20,6 +33,9 @@ public:
                          std::map<std::string, std::string> extraParams,
                          RequestFinishedCallback callback);
     virtual ~BaseRequest() {};
+
+    void setApiOverrideSettings(const ApiOverrideSettings &apiOverrideSettings);
+    bool isApiDomainOverriden() const;
 
     virtual std::string url(const std::string &domain) const;
 
@@ -59,6 +75,7 @@ protected:
     int timeout_ = kApiTimeout;
     HttpMethod requestType_;
     SubdomainType subDomainType_;
+    std::string domainOverride_;
     RequestPriority priority_;
     bool isUseDnsCache_ = true;
     std::string name_;

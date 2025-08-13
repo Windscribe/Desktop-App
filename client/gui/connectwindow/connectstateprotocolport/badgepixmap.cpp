@@ -64,10 +64,14 @@ void BadgePixmap::updatePixmap()
         QColor brushColor = badgeBgColor_;
         brushColor.setAlpha(52);
         painter.setBrush(brushColor);
+        painter.setPen(Qt::NoPen);
+        painter.drawRoundedRect(QRect(0, 0, size_.width(), size_.height()), radius_, radius_);
+
         QColor penColor = badgeBgColor_;
         penColor.setAlpha(26);
         painter.setPen(penColor);
-        painter.drawRoundedRect(QRect(0, 0, size_.width(), size_.height()), radius_, radius_);
+        painter.setBrush(Qt::transparent);
+        painter.drawRoundedRect(QRect(1, 1, size_.width()-2, size_.height()-2), radius_, radius_);
     }
 }
 

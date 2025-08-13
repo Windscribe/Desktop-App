@@ -118,3 +118,16 @@ void AccountInfo::setIsPremium(bool isPremium)
         emit isPremiumChanged(isPremium_);
     }
 }
+
+qsizetype AccountInfo::alcCount() const
+{
+    return alcCount_;
+}
+
+void AccountInfo::setAlcCount(qsizetype count)
+{
+    if (alcCount_ != count) {
+        alcCount_ = count;
+        emit alcCountChanged(alcCount_);
+    }
+}

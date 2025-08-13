@@ -34,6 +34,7 @@ public:
 
     bool isAllNodesHaveCurIteration() const;
     PingTime getPing(const QString &ip) const;
+    void setPing(const QString &ip, PingTime pingTime);
 
 signals:
     void pingInfoChanged(const QString &ip, int timems);
@@ -94,7 +95,13 @@ private:
     bool isLogPings_;
     bool isUseIcmpPings_;
 
+    // IPs to update when in disconnected state
+    QVector<PingIpInfo> pendingIps_;
+
     void onPingFinished(const std::string &ip, bool isSuccess, std::int32_t timeMs, bool isFromDisconnectedVpnState);
+
+    // Process location updates when disconnected
+    void processLocationUpdate(const QVector<PingIpInfo> &ips);
 
     // Exponential Backoff algorithm, get next delay
     // We start re-ping failed nodes after 1 second. Then the delay increases according to the algorithm to a maximum of 1 minute.
@@ -102,4 +109,3 @@ private:
 
     void addLog(const QString &tag, const QString &str);
 };
-

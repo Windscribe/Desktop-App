@@ -27,7 +27,7 @@ public:
                             PersistentSettings &persistentSettings, WSNetAdvancedParameters *advancedParameters, ConnectState &connectState);
     virtual ~ServerAPI_impl();
 
-    void setApiResolutionsSettings(bool isAutomatic, std::string manualAddress);
+    void setApiResolutionsSettings(const std::string &apiRoot, const std::string &assetsRoot, const std::string &checkIpRoot);
     void setIgnoreSslErrors(bool bIgnore);
     void resetFailover();
     void setIsConnectedToVpnState(bool isConnected);
@@ -48,11 +48,7 @@ private:
 
     PersistentSettings &persistentSettings_;    // The ServerAPISettings class is protected by mutex, so it's thread-safe
 
-    struct ApiResolutionSettings
-    {
-        bool isAutomatic = true;
-        std::string manualAddress;
-    } apiResolutionSettings_;
+    ApiOverrideSettings apiOverrideSettings_;
 
     bool bIgnoreSslErrors_ = false;
     bool isConnectedToVpn_ = false;

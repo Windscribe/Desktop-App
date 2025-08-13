@@ -30,6 +30,7 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     connect(accountInfo, &AccountInfo::isPremiumChanged, this, &AccountWindowItem::onIsPremiumChanged);
     connect(accountInfo, &AccountInfo::trafficUsedChanged, this, &AccountWindowItem::onTrafficUsedChanged);
     connect(accountInfo, &AccountInfo::lastResetChanged, this, &AccountWindowItem::onLastResetChanged);
+    connect(accountInfo, &AccountInfo::alcCountChanged, this, &AccountWindowItem::onAlcCountChanged);
 
     infoTitle_ = new TitleItem(this);
     addItem(infoTitle_);
@@ -55,6 +56,7 @@ AccountWindowItem::AccountWindowItem(ScalableGraphicsObject *parent, AccountInfo
     planItem_ = new PlanItem(planGroup_);
     planItem_->setIsPremium(accountInfo->isPremium());
     planItem_->setPlan(plan_);
+    planItem_->setAlcCount(accountInfo->alcCount());
     planGroup_->addItem(planItem_);
 
     expireDateItem_ = new AccountDataItem(planGroup_, "", accountInfo->expireDate());
@@ -154,6 +156,11 @@ void AccountWindowItem::onPlanChanged(qint64 plan)
     planItem_->setPlan(plan);
     updatePlanGroupItemVisibility();
     setDataLeft();
+}
+
+void AccountWindowItem::onAlcCountChanged(qsizetype count)
+{
+    planItem_->setAlcCount(count);
 }
 
 void AccountWindowItem::onExpireDateChanged(const QString &date)

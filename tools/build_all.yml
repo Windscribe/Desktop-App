@@ -98,8 +98,7 @@ installer:
   macos:
     name:      Installer
     subdir:    installer/mac/installer
-    target:    installer.app
-    outdir:    installer
+    target:    WindscribeInstaller.app
     generator: Xcode
     deploy:   True
     xcflags:
@@ -213,47 +212,11 @@ deploy_files:
   linux:
     installer_gui:
       libs:
-        qt:
-          - lib/libQt6Core.so.6 -> lib/libQt6Core.so.6
-          - lib/libQt6DBus.so.6 -> lib/libQt6DBus.so.6
-          - lib/libQt6Gui.so.6 -> lib/libQt6Gui.so.6
-          - lib/libQt6Network.so.6 -> lib/libQt6Network.so.6
-          - lib/libQt6OpenGL.so.6 -> lib/libQt6OpenGL.so.6
-          - lib/libQt6Svg.so.6 -> lib/libQt6Svg.so.6
-          - lib/libQt6WaylandClient.so.6 -> lib/libQt6WaylandClient.so.6
-          - lib/libQt6WaylandEglClientHwIntegration.so.6 -> lib/libQt6WaylandEglClientHwIntegration.so.6
-          - lib/libQt6WlShellIntegration.so.6 -> lib/libQt6WlShellIntegration.so.6
-          - lib/libQt6Widgets.so.6 -> lib/libQt6Widgets.so.6
-          - lib/libQt6XcbQpa.so.6 -> lib/libQt6XcbQpa.so.6
-          - lib/libQt6Qml.so.6 -> lib/libQt6Qml.so.6
-          - lib/libQt6QmlMeta.so.6 -> lib/libQt6QmlMeta.so.6
-          - lib/libQt6QmlModels.so.6 -> lib/libQt6QmlModels.so.6
-          - lib/libQt6QmlWorkerScript.so.6 -> lib/libQt6QmlWorkerScript.so.6
-          - lib/libQt6Quick.so.6 -> lib/libQt6Quick.so.6
-          - plugins/imageformats/libqico.so -> plugins/imageformats/libqico.so
-          - plugins/imageformats/libqjpeg.so -> plugins/imageformats/libqjpeg.so
-          - plugins/imageformats/libqgif.so -> plugins/imageformats/libqgif.so
-          - plugins/imageformats/libqsvg.so -> plugins/imageformats/libqsvg.so
-          - plugins/networkinformation/libqnetworkmanager.so -> plugins/networkinformation/libqnetworkmanager.so
-          - plugins/platforms/libqwayland-generic.so -> plugins/platforms/libqwayland-generic.so
-          - plugins/platforms/libqwayland-egl.so -> plugins/platforms/libqwayland-egl.so
-          - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
-          - plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so -> plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so
-          - plugins/platforminputcontexts/libibusplatforminputcontextplugin.so -> plugins/platforminputcontexts/libibusplatforminputcontextplugin.so
-          - plugins/platforms/libqxcb.so -> plugins/platforms/libqxcb.so
-          - plugins/wayland-graphics-integration-client/libqt-plugin-wayland-egl.so -> plugins/wayland-graphics-integration-client/libqt-plugin-wayland-egl.so
-          - plugins/wayland-decoration-client/libbradient.so -> plugins/wayland-decoration-client/libbradient.so
-          - plugins/wayland-shell-integration/libxdg-shell.so -> plugins/wayland-shell-integration/libxdg-shell.so
-          - plugins/xcbglintegrations/libqxcb-egl-integration.so -> plugins/xcbglintegrations/libqxcb-egl-integration.so
-          - plugins/xcbglintegrations/libqxcb-glx-integration.so -> plugins/xcbglintegrations/libqxcb-glx-integration.so
         wireguard:
           - windscribewireguard -> windscribewireguard
         wstunnel:
           - windscribewstunnel -> windscribewstunnel
       fix_rpath:
-        - lib/libQt6Network.so.6 -> /opt/windscribe/lib
-        - lib/libQt6XcbQpa.so.6 -> /opt/windscribe/lib
-        - lib/libQt6DBus.so.6 -> /opt/windscribe/lib
         - lib/libssl.so.3 -> /opt/windscribe/lib
         - lib/libcrypto.so.3 -> /opt/windscribe/lib
         - lib/libwsnet.so -> /opt/windscribe/lib
@@ -264,18 +227,11 @@ deploy_files:
         - helper -> /opt/windscribe/lib
     installer_cli:
       libs:
-        qt:
-          - lib/libQt6Core.so.6 -> lib/libQt6Core.so.6
-          - lib/libQt6DBus.so.6 -> lib/libQt6DBus.so.6
-          - lib/libQt6Network.so.6 -> lib/libQt6Network.so.6
-          - plugins/networkinformation/libqnetworkmanager.so -> plugins/networkinformation/libqnetworkmanager.so
         wireguard:
           - windscribewireguard -> windscribewireguard
         wstunnel:
           - windscribewstunnel -> windscribewstunnel
       fix_rpath:
-        - lib/libQt6Network.so.6 -> /opt/windscribe/lib
-        - lib/libQt6DBus.so.6 -> /opt/windscribe/lib
         - lib/libssl.so.3 -> /opt/windscribe/lib
         - lib/libcrypto.so.3 -> /opt/windscribe/lib
         - lib/libwsnet.so -> /opt/windscribe/lib

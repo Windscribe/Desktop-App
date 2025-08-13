@@ -46,6 +46,9 @@ const QString WS_LOG_PINGS = WS_PREFIX + "log-pings";
 const QString WS_LOG_SPLITTUNNELEXTENSION = WS_PREFIX + "log-splittunnelextension";
 const QString WS_NO_PINGS = WS_PREFIX + "no-pings";
 
+const QString WS_API_ROOT_OVERRIDE = WS_PREFIX + "api-root-override";
+const QString WS_ASSETS_ROOT_OVERRIDE = WS_PREFIX + "assets-root-override";
+const QString WS_CHECKIP_ROOT_OVERRIDE = WS_PREFIX + "checkip-root-override";
 
 void ExtraConfig::writeConfig(const QString &cfg, bool bWithLog)
 {
@@ -330,6 +333,16 @@ bool ExtraConfig::getFlag(const QString &flagName)
     return parsedValues_.contains(flagName.toLower());
 }
 
+QString ExtraConfig::getString(const QString &variableName)
+{
+    auto value = getValue(variableName);
+    if (value.has_value()) {
+        return value.value();
+    }
+
+    return QString();
+}
+
 bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const
 {
     const QString trimmed_command = command.trimmed();
@@ -354,6 +367,21 @@ bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const
             return false;
     }
     return true;
+}
+
+QString ExtraConfig::apiRootOverride()
+{
+    return getString(WS_API_ROOT_OVERRIDE);
+}
+
+QString ExtraConfig::assetsRootOverride()
+{
+    return getString(WS_ASSETS_ROOT_OVERRIDE);
+}
+
+QString ExtraConfig::checkIPRootOverride()
+{
+    return getString(WS_CHECKIP_ROOT_OVERRIDE);
 }
 
 bool ExtraConfig::useOpenVpnDCO()

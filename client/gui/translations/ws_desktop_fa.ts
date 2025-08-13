@@ -1062,10 +1062,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>پارامترهای پیشرفته</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>ادرس API سرور را به طور خودکار حل کنید یا از ادرس ارائه شده توسط تیم پشتیبانی استفاده کنید.</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>خطاهای اعتبارسنجی گواهی SSL را نادیده بگیرید.</translation>
     </message>
@@ -1112,37 +1108,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Import</source>
         <translation>واردات</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>قطعنامه API</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>خودکار</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>دستی</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>آدرس</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>IP یا Hostname را وارد کنید</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>نشانی نامعتبر</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>شما یک ادرس نامعتبر برای وضوح API وارد کرده اید.  به Auto بازنشانی شده است.</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +1793,10 @@ Connect to a network first</source>
     <message>
         <source>Unlimited Data</source>
         <translation>داده های نامحدود</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>سفارشی</translation>
     </message>
 </context>
 <context>

@@ -71,6 +71,10 @@ public:
     bool useOpenVpnDCO();
     bool usePublicNetworkCategory();
 
+    QString apiRootOverride();
+    QString assetsRootOverride();
+    QString checkIPRootOverride();
+
     void fromJson(const QJsonObject &json);
     QJsonObject toJson();
 
@@ -99,6 +103,7 @@ private:
 
     int getInt(const QString &variableName, bool &success);
     bool getFlag(const QString &flagName);
+    QString getString(const QString &variableName);
 
     bool isLegalOpenVpnCommand(const QString &command) const;
 

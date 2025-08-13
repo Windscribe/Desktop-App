@@ -22,7 +22,11 @@ class WSNetServerAPI : public scapix_object<WSNetServerAPI>
 public:
     virtual ~WSNetServerAPI() {}
 
-    virtual void setApiResolutionsSettings(bool isAutomatic, std::string manualAddress) = 0;
+    // Set parameters allowing overriding domains (for example, api-php8.windscribe.com, assets-php8.windscribe.com, checkip-php8.windscribe.com)
+    // If the corresponding parameter is empty, the override is not used for the corresponding query type
+    // The default behavior - all values are empty
+    virtual void setApiResolutionsSettings(const std::string &apiRoot, const std::string &assetsRoot, const std::string &checkIpRoot) = 0;
+
     virtual void setIgnoreSslErrors(bool bIgnore) = 0;
 
     // resets the failover state to the initial state

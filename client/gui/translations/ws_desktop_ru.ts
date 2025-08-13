@@ -1062,10 +1062,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Дополнительные параметры</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>Выбор сервера API автоматически или использование адреса, предоставленного службой поддержки.</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>Игнорировать ошибки проверки SSL-сертификатов.</translation>
     </message>
@@ -1112,37 +1108,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Import</source>
         <translation>Импорт</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>Сервер API</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>Автоматически</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Вручную</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Адрес</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>Введите IP-адрес или имя хоста</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>Неверный адрес</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>Вы ввели неверный адрес для разрешения API.  Он был сброшен на Авто.</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +1793,10 @@ Connect to a network first</source>
     <message>
         <source>Unlimited Data</source>
         <translation>Неограниченный объем данных</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Пользовательский</translation>
     </message>
 </context>
 <context>

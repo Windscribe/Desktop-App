@@ -22,10 +22,10 @@ ServerAPI::~ServerAPI()
     connectState_.unsubscribeConnectedToVpnState(subscriberId_);
 }
 
-void ServerAPI::setApiResolutionsSettings(bool isAutomatic, std::string manualAddress)
+void ServerAPI::setApiResolutionsSettings(const std::string &apiRoot, const std::string &assetsRoot, const std::string &checkIpRoot)
 {
-    boost::asio::post(io_context_, [this, isAutomatic, manualAddress] {
-        impl_->setApiResolutionsSettings(isAutomatic, manualAddress);
+    boost::asio::post(io_context_, [this, apiRoot, assetsRoot, checkIpRoot] {
+        impl_->setApiResolutionsSettings(apiRoot, assetsRoot, checkIpRoot);
     });
 }
 

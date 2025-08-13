@@ -19,7 +19,8 @@
       "cmocka",
       {
           "name": "pkgconf",
-          "host": true
+          "host": true,
+          "platform": "!linux"
       },
       {
           "name": "oqsprovider",

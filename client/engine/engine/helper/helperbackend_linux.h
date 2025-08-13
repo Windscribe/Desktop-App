@@ -27,7 +27,7 @@ private:
 
     static constexpr int kMaxWaitHelper = 5000;
 
-    boost::asio::io_service io_service_;
+    boost::asio::io_context io_context_;
     boost::asio::local::stream_protocol::endpoint ep_;
     boost::scoped_ptr<boost::asio::local::stream_protocol::socket> socket_;
     QMutex mutexSocket_;

@@ -1062,10 +1062,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Thông số nâng cao</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>Tự động giải quyết địa chỉ API máy chủ hoặc sử dụng địa chỉ do nhóm Hỗ trợ cung cấp.</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>Bỏ qua lỗi xác thực chứng chỉ SSL.</translation>
     </message>
@@ -1112,37 +1108,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Import</source>
         <translation>Nhập khẩu</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>Phân giải API</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>Tự động</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Cẩm nang</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Địa chỉ</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>Nhập IP hoặc Tên máy chủ</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>Địa chỉ không hợp lệ</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>Bạn đã nhập địa chỉ không hợp lệ để phân giải API.  Nó đã được đặt lại thành Tự động.</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +1793,10 @@ Kết nối với mạng trước</translation>
     <message>
         <source>Unlimited Data</source>
         <translation>Dữ liệu không giới hạn</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Phong tục</translation>
     </message>
 </context>
 <context>

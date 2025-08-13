@@ -1062,10 +1062,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>المعلمات المتقدمة</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>حل عنوان واجهة برمجة تطبيقات الخادم تلقائيا، أو استخدم عنوانا يوفره فريق الدعم.</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>تجاهل أخطاء التحقق من صحة شهادة SSL.</translation>
     </message>
@@ -1112,37 +1108,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Import</source>
         <translation>استورد</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>دقة واجهة برمجة التطبيقات</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>تلقائي</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>يدوي</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>عنوان</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>أدخل IP أو اسم المضيف</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>العنوان غير صالح</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>لقد أدخلت عنوانا غير صالح لتحليل واجهة برمجة التطبيقات.  تمت إعادة تعيينه إلى تلقائي.</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +1793,10 @@ Connect to a network first</source>
     <message>
         <source>Unlimited Data</source>
         <translation>بيانات غير محدودة</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>تقليد</translation>
     </message>
 </context>
 <context>

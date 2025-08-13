@@ -1062,10 +1062,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Розширені параметри</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>Автоматично визначити API-адресу сервера або використати адресу, надану службою підтримки.</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>Ігнорувати помилки перевірки SSL-сертифіката.</translation>
     </message>
@@ -1112,37 +1108,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Import</source>
         <translation>Імпорт</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>Рішення API</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>Автоматично</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Вручну</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Адреса</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>Введіть IP-адресу або ім&apos;я хоста</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>Недійсна адреса</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>Ви ввели невірну адресу для вирішення API.  Її було скинуто на Авто.</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +1793,10 @@ Connect to a network first</source>
     <message>
         <source>Unlimited Data</source>
         <translation>Необмежений об&apos;єм даних</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Нестандартний</translation>
     </message>
 </context>
 <context>

@@ -36,16 +36,16 @@ ServerAPI_impl::~ServerAPI_impl()
     }
 }
 
-void ServerAPI_impl::setApiResolutionsSettings(bool isAutomatic, std::string manualAddress)
+void ServerAPI_impl::setApiResolutionsSettings(const std::string &apiRoot, const std::string &assetsRoot, const std::string &checkIpRoot)
 {
-    if (!isAutomatic && !manualAddress.empty()) {
-        if (!utils::isIpAddress(manualAddress)) {
-            g_logger->error("ServerAPI_impl::setApiResolutionsSettings, manualAddress = {} is not correct IP, reset to an automatic resolution", manualAddress);
-            return;
-        }
+    apiOverrideSettings_.apiRoot = apiRoot;
+    apiOverrideSettings_.assetsRoot = assetsRoot;
+    apiOverrideSettings_.checkIpRoot = checkIpRoot;
+    if (!apiOverrideSettings_.isOverriden()) {
+        g_logger->info("ServerAPI_impl::setApiResolutionsSettings, default behavior, no overridden domains");
+    } else {
+        g_logger->info("ServerAPI_impl::setApiResolutionsSettings, overridden domains are set, apiRoot = {}, assetsRoot = {}, checkIpRoot = {}", apiRoot, assetsRoot, checkIpRoot);
     }
-    apiResolutionSettings_ = ApiResolutionSettings {isAutomatic, manualAddress};
-    g_logger->info("ServerAPI_impl::setApiResolutionsSettings, isAutomatic = {}, manualAddress = {}", isAutomatic, manualAddress);
 }
 
 void ServerAPI_impl::setIgnoreSslErrors(bool bIgnore)
@@ -83,6 +83,7 @@ void ServerAPI_impl::executeRequest(std::unique_ptr<BaseRequest> request)
     if (request->isCanceled()) {
         return;
     }
+    request->setApiOverrideSettings(apiOverrideSettings_);
 
     // check if we are online
     if (!connectState_.isOnline()) {
@@ -92,9 +93,10 @@ void ServerAPI_impl::executeRequest(std::unique_ptr<BaseRequest> request)
         return;
     }
 
-    // if API resolution settings settled then use IP from the user settings
-    if (!apiResolutionSettings_.isAutomatic && !apiResolutionSettings_.manualAddress.empty()) {
-        executeRequestImpl(std::move(request), FailoverData(apiResolutionSettings_.manualAddress));
+    // if API resolution settings overrides the domain of the current request then we use that domain immediately
+    if (request->isApiDomainOverriden()) {
+        // In this case FailoverData will be empty, because the domain itself is already contained in the request
+        executeRequestImpl(std::move(request), FailoverData());
         executeWaitingInQueueRequests();
         return;
     }
@@ -253,17 +255,25 @@ void ServerAPI_impl::onHttpNetworkRequestFinished(std::uint64_t requestId, std::
         return;
     }
 
+    if (error->isNoNetworkError()) {
+        g_logger->info("API request {} failed with error = {}", it->second.request->name(), error->toString());
+        setErrorCodeAndEmitRequestFinished(it->second.request.get(), ServerApiRetCode::kNoNetworkConnection);
+        activeHttpRequests_.erase(it);
+        return;
+    }
+
     if (error->isSuccess()) {
         if (advancedParameters_->isLogApiResponce()) {
             g_logger->info("API request {} finished", it->second.request->name());
             g_logger->info("{}", data);
         }
-        bWasSuccesfullRequest_ = true;
         it->second.request->handle(data);
+    }
+
+    // handle() may cause the retcode to change to kIncorrectJson.  Only call callback here if this didn't happen.
+    if (it->second.request->retCode() != ServerApiRetCode::kIncorrectJson) {
+        bWasSuccesfullRequest_ = true;
         it->second.request->callCallback();
-    } else if (error->isNoNetworkError()) {
-        g_logger->info("API request {} failed with error = {}", it->second.request->name(), error->toString());
-        setErrorCodeAndEmitRequestFinished(it->second.request.get(), ServerApiRetCode::kNoNetworkConnection);
     } else {
         g_logger->info("API request {} failed with error = {}", it->second.request->name(), error->toString());
 

@@ -6,7 +6,8 @@
 #ifdef Q_OS_WIN
 #include "utils/winutils.h"
 #else
-#include "boost/process.hpp"
+#include "boost/process/v1/io.hpp"
+#include "boost/process/v1/child.hpp"
 #include <QRegularExpression>
 #endif
 
@@ -67,7 +68,7 @@ void OpenVpnVersionController::detectVersion()
     }
 #else
 
-    using namespace boost::process;
+    using namespace boost::process::v1;
     ipstream pipe_stream;
     child c(exe.toStdString(), "--version", std_out > pipe_stream);
 

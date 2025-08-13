@@ -1062,10 +1062,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>詳細パラメータ</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>サーバー API アドレスを自動的に解決するか、サポート チームから提供されたアドレスを使用します。</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>SSL 証明書の検証エラーを無視します。</translation>
     </message>
@@ -1112,37 +1108,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Import</source>
         <translation>インポート</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>API 解決</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>自動</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>手動</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>アドレス</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>IP またはホスト名を入力</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>無効なアドレス</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>API 解決に無効なアドレスが入力されました。 自動にリセットされました。</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +1793,10 @@ Connect to a network first</source>
     <message>
         <source>Unlimited Data</source>
         <translation>無制限のデータ</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>習慣</translation>
     </message>
 </context>
 <context>

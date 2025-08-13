@@ -11,7 +11,6 @@ class ApiResolutionSettings
 {
 public:
     explicit ApiResolutionSettings();
-    ApiResolutionSettings(const QJsonObject& json);
 
     void set(bool bAutomatic, const QString &manualAddress);
     bool getIsAutomatic() const;
@@ -29,10 +28,6 @@ public:
     {
         return !(*this == other);
     }
-
-    QJsonObject toJson() const;
-    void fromIni(const QSettings &settings);
-    void toIni(QSettings &settings) const;
 
     friend QDataStream& operator <<(QDataStream &stream, const ApiResolutionSettings &o);
     friend QDataStream& operator >>(QDataStream &stream, ApiResolutionSettings &o);

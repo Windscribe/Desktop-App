@@ -11,6 +11,7 @@ namespace wsnet {
 class FailoverData {
 
 public:
+    FailoverData() = default;
     explicit FailoverData(const std::string &domain) : domain_(domain) {}
     explicit FailoverData(const std::string &domain, const std::string &sniDomain) : domain_(domain), sniDomain_(sniDomain) {}
     explicit FailoverData(const std::string &domain, const std::string &echConfig, unsigned long ttl) :

@@ -1062,10 +1062,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Parameter Lanjutan</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>Tetapkan alamat API server secara otomatis, atau gunakan alamat API yang disediakan oleh tim Dukungan.</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>Abaikan kesalahan validasi sertifikat SSL.</translation>
     </message>
@@ -1112,37 +1108,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Import</source>
         <translation>Mengimpor</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>Resolusi API</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>Otomatis</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Manual</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Alamat</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>Masukkan IP atau Hostname</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>Alamat tidak valid</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>Anda telah memasukkan alamat yang tidak valid untuk resolusi API.  Ini telah diatur ulang ke Otomatis.</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +1793,10 @@ Menyambungkan ke jaringan terlebih dahulu</translation>
     <message>
         <source>Unlimited Data</source>
         <translation>Data Tidak Terbatas</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Adat</translation>
     </message>
 </context>
 <context>

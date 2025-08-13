@@ -13,7 +13,7 @@
 namespace PreferencesWindow {
 
 PlanItem::PlanItem(ScalableGraphicsObject *parent)
-  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), planBytes_(-1), isPremium_(false)
+  : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), planBytes_(-1), isPremium_(false), alcCount_(0)
 {
     textButton_ = new CommonGraphics::TextButton("", FontDescr(12, QFont::Normal), FontManager::instance().getSeaGreenColor(), true, this);
     connect(textButton_, &CommonGraphics::TextButton::clicked, this, &PlanItem::upgradeClicked);
@@ -60,6 +60,14 @@ void PlanItem::setIsPremium(bool isPremium)
     updatePositions();
 }
 
+void PlanItem::setAlcCount(qsizetype count)
+{
+    alcCount_ = count;
+    onLanguageChanged(); // String may change based on plan
+    update();
+
+}
+
 bool PlanItem::isPremium()
 {
     return isPremium_;
@@ -77,6 +85,8 @@ void PlanItem::onLanguageChanged()
     if (!isPremium_) {
         if (planBytes_ == -1) {
             textButton_->setText(tr("Unlimited Data")); // Build a Plan
+        } else if (alcCount_ > 0) {
+            textButton_->setText(tr("Custom")); // Build a Plan, non-unlimited
         } else {
             textButton_->setText(tr("Free"));
         }

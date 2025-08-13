@@ -9,20 +9,6 @@ ApiResolutionSettings::ApiResolutionSettings()
 {
 }
 
-ApiResolutionSettings::ApiResolutionSettings(const QJsonObject &json)
-{
-    if (json.contains(kJsonIsAutomaticProp) && json[kJsonIsAutomaticProp].isBool()) {
-        bAutomatic_ = json[kJsonIsAutomaticProp].toBool();
-    }
-
-    if (json.contains(kJsonManualAddressProp) && json[kJsonManualAddressProp].isString()) {
-        QString address = json[kJsonManualAddressProp].toString();
-        if (IpValidation::isIp(address)) {
-            manualAddress_ = address;
-        }
-    }
-}
-
 void ApiResolutionSettings::set(bool bAutomatic, const QString &manualAddress)
 {
     bAutomatic_ = bAutomatic;
@@ -47,31 +33,6 @@ QString ApiResolutionSettings::getManualAddress() const
 void ApiResolutionSettings::setManualAddress(const QString &manualAddress)
 {
     manualAddress_ = manualAddress;
-}
-
-QJsonObject ApiResolutionSettings::toJson() const
-{
-    QJsonObject json;
-    json[kJsonIsAutomaticProp] = bAutomatic_;
-    json[kJsonManualAddressProp] = manualAddress_;
-    return json;
-}
-
-void ApiResolutionSettings::fromIni(const QSettings &settings)
-{
-    QString prevMode = TOGGLE_MODE_toString(bAutomatic_ ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL);
-    TOGGLE_MODE mode = TOGGLE_MODE_fromString(settings.value(kIniIsAutomaticProp, prevMode).toString());
-    bAutomatic_ = (mode == TOGGLE_MODE_AUTO);
-    QString address = settings.value(kIniManualAddressProp, manualAddress_).toString();
-    if (IpValidation::isIp(address)) {
-        manualAddress_ = address;
-    }
-}
-
-void ApiResolutionSettings::toIni(QSettings &settings) const
-{
-    settings.setValue(kIniIsAutomaticProp, TOGGLE_MODE_toString(bAutomatic_ ? TOGGLE_MODE_AUTO : TOGGLE_MODE_MANUAL));
-    settings.setValue(kIniManualAddressProp, manualAddress_);
 }
 
 QDataStream& operator <<(QDataStream &stream, const ApiResolutionSettings &o)

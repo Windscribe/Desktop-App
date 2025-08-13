@@ -1,0 +1,45 @@
+{
+  "name": "qtbase",
+  "version": "6.8.3",
+  "port-version": 5,
+  "description": "Qt Base (Core, Gui, Widgets, Network, ...)",
+  "homepage": "https://www.qt.io/",
+  "license": null,
+  "supports": "!uwp",
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    },
+    {
+      "name": "qtbase",
+      "host": true,
+      "default-features": false
+    }
+  ],
+  "default-features": [
+    "gui",
+    "network",
+    "widgets",
+    "png"
+  ],
+
+  "features": {
+    "gui": {
+      "description": "Qt Gui"
+    },
+    "network": {
+      "description": "Qt Network"
+    },
+    "widgets": {
+      "description": "Qt Widgets"
+    },
+    "png": {
+      "description": "Enable PNG"
+    }
+  }
+}

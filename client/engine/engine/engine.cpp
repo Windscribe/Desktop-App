@@ -645,7 +645,7 @@ void Engine::initPart2()
         });
     });
     WSNet::instance()->serverAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
-    WSNet::instance()->serverAPI()->setApiResolutionsSettings(engineSettings_.apiResolutionSettings().getIsAutomatic(), engineSettings_.apiResolutionSettings().getManualAddress().toStdString());
+    updateApiResolutionSettingsInWsnet();
 
     myIpManager_ = new api_resources::MyIpManager(this, networkDetectionManager_, connectStateController_);
     connect(myIpManager_, &api_resources::MyIpManager::myIpChanged, this, &Engine::onMyIpManagerIpChanged);
@@ -1256,7 +1256,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
 
     keepAliveManager_->setEnabled(engineSettings_.isKeepAliveEnabled());
 
-    WSNet::instance()->serverAPI()->setApiResolutionsSettings(engineSettings_.apiResolutionSettings().getIsAutomatic(), engineSettings_.apiResolutionSettings().getManualAddress().toStdString());
+    updateApiResolutionSettingsInWsnet();
     updateProxySettings();
 }
 
@@ -2761,4 +2761,17 @@ void Engine::callAuthTokenLogin()
 #else
     WSNet::instance()->apiResourcersManager()->authTokenLogin(false);
 #endif
+}
+
+void Engine::updateApiResolutionSettingsInWsnet()
+{
+    auto apiRootOverride = ExtraConfig::instance().apiRootOverride();
+    auto assetsRootOverride = ExtraConfig::instance().assetsRootOverride();
+    auto checkIPRootOverride = ExtraConfig::instance().checkIPRootOverride();
+    if (!apiRootOverride.isEmpty() || !assetsRootOverride.isEmpty() || !checkIPRootOverride.isEmpty()) {
+        WSNet::instance()->serverAPI()->setApiResolutionsSettings(apiRootOverride.toStdString(), assetsRootOverride.toStdString(), checkIPRootOverride.toStdString());
+    } else {
+        // Default behavior, no overrides
+        WSNet::instance()->serverAPI()->setApiResolutionsSettings(std::string(), std::string(), std::string());
+    }
 }

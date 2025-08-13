@@ -31,7 +31,6 @@ struct EngineSettingsData : public QSharedData
     bool isAllowLanTraffic = false;
     types::FirewallSettings firewallSettings;
     types::ConnectionSettings connectionSettings;
-    types::ApiResolutionSettings apiResolutionSettings;
     types::ProxySettings proxySettings;
     types::PacketSize packetSize;
     types::MacAddrSpoofing macAddrSpoofing;
@@ -61,7 +60,6 @@ private:
     static const inline QString kIniLanguageProp = "Language";
     static const inline QString kIniUpdateChannelProp = "UpdateChannel";
 
-    static const inline QString kJsonApiResolutionSettingsProp = "apiResolutionSettings";
     static const inline QString kJsonConnectedDnsInfoProp = "connectedDnsInfo";
     static const inline QString kJsonConnectionSettingsProp = "connectionSettings";
     static const inline QString kJsonCustomOvpnConfigsPathProp = "customOvpnConfigsPath";
@@ -117,8 +115,6 @@ public:
     void setFirewallSettings(const types::FirewallSettings &fs);
     const types::ConnectionSettings &connectionSettings() const;
     void setConnectionSettings(const types::ConnectionSettings &cs);
-    const types::ApiResolutionSettings &apiResolutionSettings() const;
-    void setApiResolutionSettings(const types::ApiResolutionSettings &drs);
     const types::ProxySettings &proxySettings() const;
     void setProxySettings(const types::ProxySettings &ps);
     DNS_POLICY_TYPE dnsPolicy() const;

@@ -1062,10 +1062,6 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Erweiterte Parameter</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>Lösen Sie die Server-API-Adresse automatisch auf, oder verwenden Sie eine vom Support-Team bereitgestellte Adresse.</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>Ignorieren Sie SSL-Zertifikatsvalidierungsfehler.</translation>
     </message>
@@ -1112,37 +1108,6 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <message>
         <source>Import</source>
         <translation>Importieren</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>API-Auflösung</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>Automatisch</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Manuell</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresse</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>Geben Sie die IP-Adresse oder den Hostnamen ein</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>Ungültige Adresse</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>Sie haben eine ungültige Adresse für die API-Auflösung eingegeben.  Er wurde auf &quot;Auto&quot; zurückgesetzt.</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +1793,10 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
     <message>
         <source>Unlimited Data</source>
         <translation>Unbegrenzte Daten</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Gewohnheit</translation>
     </message>
 </context>
 <context>

@@ -2919,7 +2919,6 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
 
             if (bottomInfoWindow_->isVisible() && bottomInfoWindow_->boundingRect().height() > 0) {
                 int bottomInfoHeight = bottomInfoWindow_->boundingRect().height() + getCoordsOfBottomInfoWindow(false).y();
-
                 if (bottomInfoHeight > height) {
                     height = bottomInfoHeight;
                 }
@@ -2927,15 +2926,27 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
 
             for (auto w : windowSizeManager_->windows()) {
                 if (windowSizeManager_->state(w) == WindowSizeManager::kWindowAnimating) {
-                    height = w->boundingRect().height();
+                    if (QGuiApplication::platformName() == "xcb") {
+                        // For X11, as soon as a window starts animating, treat it as if the height were the full height.
+                        // Otherwise, some items ping-pong between positions and the animation looks wrong.
+                        height = windowSizeManager_->windowHeight(w)*G_SCALE;
+                    } else {
+                        height = w->boundingRect().height();
+                    }
                     break;
                 }
             }
         } else {
             width = connectWindow_->boundingRect().width();
             height = connectWindow_->boundingRect().height();
-            addHeightToGeometry = locationWindowHeightScaled_ + locationsYOffset();
-            if (addHeightToGeometry < 0 ) {
+            if (QGuiApplication::platformName() == "xcb") {
+                // For X11, as soon as a window starts animating, treat it as if the height were the full height.
+                // Otherwise, some items ping-pong between positions and the animation looks wrong.
+                addHeightToGeometry = locationsWindow_->tabAndFooterHeight() + locationsYOffset();
+            } else {
+                addHeightToGeometry = locationWindowHeightScaled_ + locationsYOffset();
+            }
+            if (addHeightToGeometry < 0) {
                 addHeightToGeometry = 0;
             }
         }
@@ -2950,8 +2961,14 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
             height = connectWindow_->boundingRect().height();
 
             if (locationListAnimationState_ != LOCATION_LIST_ANIMATION_COLLAPSED) { // Animating
-                addHeightToGeometry = locationWindowHeightScaled_ + locationsYOffset();
-                if (addHeightToGeometry < 0 ) {
+                if (QGuiApplication::platformName() == "xcb") {
+                    // For X11, as soon as a window starts animating, treat it as if the height were the full height.
+                    // Otherwise, some items ping-pong between positions and the animation looks wrong.
+                    addHeightToGeometry = locationsWindow_->tabAndFooterHeight() + locationsYOffset();
+                } else {
+                    addHeightToGeometry = locationWindowHeightScaled_ + locationsYOffset();
+                }
+                if (addHeightToGeometry < 0) {
                     addHeightToGeometry = 0;
                 }
             }
@@ -2970,7 +2987,13 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
         height = loginWindow_->boundingRect().height();
 
         if (windowSizeManager_->state(preferencesWindow_) == WindowSizeManager::kWindowAnimating) {
-            height = preferencesWindow_->boundingRect().height();
+            if (QGuiApplication::platformName() == "xcb") {
+                // For X11, as soon as a window starts animating, treat it as if the height were the full height.
+                // Otherwise, some items ping-pong between positions and the animation looks wrong.
+                height = windowSizeManager_->windowHeight(preferencesWindow_)*G_SCALE;
+            } else {
+                height = preferencesWindow_->boundingRect().height();
+            }
         }
     } else if (curWindow_ == WINDOW_ID_UNINITIALIZED) {
         // nothing
@@ -3079,7 +3102,10 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
 #endif
 
     // qDebug() << "Updating mainwindow geo: " << geo;
-    mainWindow_->setGeometry(geo);
+    if (QGuiApplication::platformName() != "xcb") {
+        // Don't do this for X11, because doing this causes weird flickers where the mainWindow is stretched to this geometry briefly
+        mainWindow_->setGeometry(geo);
+    }
     updateViewAndScene(width, height, shadowSize, updateShadow);
 }
 

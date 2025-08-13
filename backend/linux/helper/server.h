@@ -24,7 +24,7 @@ public:
     void run();
 
 private:
-    boost::asio::io_service service_;
+    boost::asio::io_context io_context_;
     boost::asio::local::stream_protocol::acceptor *acceptor_;
 
     bool readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, std::string &outCmdAnswer);

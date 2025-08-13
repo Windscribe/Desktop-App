@@ -33,6 +33,9 @@ public:
     QString lastReset() const;
     void setLastReset(const QString &lastReset);
 
+    qsizetype alcCount() const;
+    void setAlcCount(qsizetype count);
+
 signals:
     void usernameChanged(const QString &username);
     void emailChanged(const QString &email);
@@ -43,6 +46,7 @@ signals:
     void isPremiumChanged(bool isPremium);
     void trafficUsedChanged(qint64 used);
     void lastResetChanged(const QString &date);
+    void alcCountChanged(qint64 count);
 
 private:
     QString username_;
@@ -53,4 +57,5 @@ private:
     bool isPremium_;
     qint64 trafficUsed_;
     QString lastReset_;
+    qsizetype alcCount_;
 };

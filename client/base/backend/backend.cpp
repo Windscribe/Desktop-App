@@ -912,6 +912,7 @@ void Backend::updateAccountInfo()
     accountInfo_.setPlan(latestSessionStatus_.getTrafficMax());
     accountInfo_.setTrafficUsed(latestSessionStatus_.getTrafficUsed());
     accountInfo_.setIsPremium(latestSessionStatus_.isPremium());
+    accountInfo_.setAlcCount(latestSessionStatus_.getAlc().size());
 }
 
 QString Backend::getAutoLoginCredential(const QString &key)

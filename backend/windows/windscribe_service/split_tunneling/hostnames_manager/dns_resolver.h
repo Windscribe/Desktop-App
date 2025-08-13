@@ -43,7 +43,7 @@ private:
     static constexpr int kRetryTimeoutMs = 500;
 
     std::function<void(std::map<std::string, HostInfo>)> resolveDomainsCallback_;
-    boost::asio::io_service io_service_;
+    boost::asio::io_context io_context_;
     boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_;
     std::optional<boost::asio::deadline_timer> timer_;
     std::thread thread_;

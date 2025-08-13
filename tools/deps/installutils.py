@@ -54,8 +54,7 @@ def PrepareTempDirectory(depname, doclean=True):
     return temp_dir
 
 
-def GetDependencyBuildRoot(depname):
-    build_libs_dir = "build-libs-arm64" if "--arm64" in sys.argv else "build-libs"
+def GetDependencyBuildRoot(build_libs_dir, depname):
     buildroot_str = os.path.normpath(os.path.join(REPOSITORY_ROOT, f"{build_libs_dir}/{depname}"))
     if not os.path.exists(buildroot_str):
         buildroot_str = None

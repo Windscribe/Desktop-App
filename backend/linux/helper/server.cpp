@@ -30,7 +30,7 @@ Server::Server()
 
 Server::~Server()
 {
-    service_.stop();
+    io_context_.stop();
 
     if (acceptor_) {
         delete acceptor_;
@@ -46,7 +46,7 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
         return false;
     }
 
-    const char *bufPtr = boost::asio::buffer_cast<const char*>(buf->data());
+    const char *bufPtr = static_cast<const char*>(buf->data().data());
     size_t headerSize = 0;
     int cmdId;
     memcpy(&cmdId, bufPtr + headerSize, sizeof(cmdId));
@@ -127,7 +127,7 @@ void Server::acceptHandler(const boost::system::error_code & ec, socket_ptr sock
 
 void Server::startAccept()
 {
-    socket_ptr sock(new boost::asio::local::stream_protocol::socket(service_));
+    socket_ptr sock(new boost::asio::local::stream_protocol::socket(io_context_));
     acceptor_->async_accept(*sock, boost::bind(&Server::acceptHandler, this, boost::asio::placeholders::error, sock));
 }
 
@@ -180,7 +180,7 @@ void Server::run()
     ::unlink(SOCK_PATH);
 
     boost::asio::local::stream_protocol::endpoint ep(SOCK_PATH);
-    acceptor_ = new boost::asio::local::stream_protocol::acceptor(service_, ep);
+    acceptor_ = new boost::asio::local::stream_protocol::acceptor(io_context_, ep);
 
 
 #ifdef NDEBUG
@@ -203,5 +203,5 @@ void Server::run()
 
     startAccept();
 
-    service_.run();
+    io_context_.run();
 }

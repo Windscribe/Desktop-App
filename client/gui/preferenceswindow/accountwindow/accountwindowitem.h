@@ -34,6 +34,7 @@ private slots:
     void onIsPremiumChanged(bool isPremium);
     void onTrafficUsedChanged(qint64 used);
     void onLastResetChanged(const QString &date);
+    void onAlcCountChanged(qsizetype count);
 
     void onUpgradeClicked();
     void onManageAccountClicked();

@@ -1,6 +1,7 @@
 #include "networkextensionlog_mac.h"
 
-#include <boost/process.hpp>
+#include <boost/process/v1/child.hpp>
+#include <boost/process/v1/io.hpp>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonParseError>
@@ -14,7 +15,7 @@ NetworkExtensionLog_mac::NetworkExtensionLog_mac(QObject *parent) : QObject(pare
 
 QMap<time_t, QString> NetworkExtensionLog_mac::collectLogs(const QDateTime &start)
 {
-    using namespace boost::process;
+    using namespace boost::process::v1;
     QMap<time_t, QString> logs;
 
     ipstream pipe_stream;

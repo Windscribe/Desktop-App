@@ -1062,10 +1062,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Advanced Parameters</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>Resolve server API address automatically, or use one provided by the Support team.</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>Ignore SSL certificate validation errors.</translation>
     </message>
@@ -1112,37 +1108,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Import</source>
         <translation>Import</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>API Resolution</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>Auto</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Manual</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Address</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>Enter IP or Hostname</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>Invalid address</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>You have entered an invalid address for API resolution.  It has been reset to Auto.</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +1793,10 @@ Connect to a network first</translation>
     <message>
         <source>Unlimited Data</source>
         <translation>Unlimited Data</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Custom</translation>
     </message>
 </context>
 <context>

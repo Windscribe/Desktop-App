@@ -1062,10 +1062,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>उन्नत पैरामीटर</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>सर्वर API पते को स्वचालित रूप से हल करें, या समर्थन टीम द्वारा प्रदान किए गए एक का उपयोग करें।</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>SSL प्रमाणपत्र सत्यापन त्रुटियों पर ध्यान न दें।</translation>
     </message>
@@ -1112,37 +1108,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Import</source>
         <translation>आयात</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>एपीआई समाधान</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>स्वचालित</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>हस्तचालित</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>पता</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>IP या होस्टनाम दर्ज करें</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>अमान्य पता</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>आपने API रिज़ॉल्यूशन के लिए एक अमान्य पता दर्ज किया है।  इसे ऑटो पर रीसेट कर दिया गया है।</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +1793,10 @@ Connect to a network first</source>
     <message>
         <source>Unlimited Data</source>
         <translation>असीमित डेटा</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>परम्परा</translation>
     </message>
 </context>
 <context>

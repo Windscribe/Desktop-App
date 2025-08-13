@@ -11,8 +11,6 @@ target_sources(gui PRIVATE
     accountwindow/planitem.h
     advancedwindow/advancedwindowitem.cpp
     advancedwindow/advancedwindowitem.h
-    advancedwindow/apiresolutiongroup.cpp
-    advancedwindow/apiresolutiongroup.h
     comboboxitem.cpp
     comboboxitem.h
     connectionwindow/connecteddnsgroup.cpp

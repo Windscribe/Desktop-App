@@ -11,7 +11,7 @@ license=('GPL2')
 depends=('iptables' 'c-ares' 'freetype2' 'hicolor-icon-theme' 'systemd' 'glibc>=2.35' 'glib2' 'zlib' 'gcc-libs' 'dbus'
          'libglvnd' 'fontconfig' 'libx11' 'libxkbcommon' 'libxcb' 'xcb-util-wm' 'xcb-util-image' 'xcb-util-keysyms'
          'xcb-util-renderutil' 'sudo' 'shadow' 'xcb-util-cursor' 'networkmanager' 'procps-ng' 'polkit' 'iproute2'
-         'iputils' 'psmisc')
+         'iputils' 'psmisc' 'coreutils')
 conflicts=('windscribe-cli')
 provides=('windscribe')
 options=('!strip' '!emptydirs' '!debug')

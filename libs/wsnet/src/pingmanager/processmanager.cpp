@@ -22,10 +22,10 @@ bool ProcessManager::execute(const std::string &cmd, const std::vector<std::stri
         std::lock_guard locker(mutex_); // NOLINT
         auto childProcess = std::make_unique<ChildProcess>();
         childProcess->callback = callback;
-        childProcess->process = boost::process::child(boost::process::search_path(cmd), args,
-            boost::process::std_out >  childProcess->data,
+        childProcess->process = boost::process::v1::child(boost::process::v1::search_path(cmd), args,
+            boost::process::v1::std_out >  childProcess->data,
             io_context_,
-            boost::process::on_exit = [this, id = curId_](int exit, std::error_code ec) {
+            boost::process::v1::on_exit = [this, id = curId_](int exit, std::error_code ec) {
                 // on exit function handler
                 std::string data;
                 ProcessManagerCallback callback;

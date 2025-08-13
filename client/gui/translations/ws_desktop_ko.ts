@@ -1062,10 +1062,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>고급 매개 변수</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>서버 API 주소를 자동으로 확인하거나 지원 팀에서 제공하는 주소를 사용합니다.</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>SSL 인증서 유효성 검사 오류를 무시합니다.</translation>
     </message>
@@ -1112,37 +1108,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Import</source>
         <translation>수입</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>API 해결 방법</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>자동 번역</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>수동</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>주소</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>IP 또는 호스트 이름 입력</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>잘못된 주소</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>API 확인을 위해 잘못된 주소를 입력했습니다.  자동으로 재설정되었습니다.</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +1793,10 @@ Connect to a network first</source>
     <message>
         <source>Unlimited Data</source>
         <translation>무제한 데이터</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>관습</translation>
     </message>
 </context>
 <context>

@@ -54,11 +54,12 @@ private:
 
 private:
     void detectBestLocation(bool isAllNodesInDisconnectedState);
-    BestAndAllLocations generateLocationsUpdated();
-    void sendLocationsUpdated();
+    BestAndAllLocations generateLocationsUpdated(const QVector<api_responses::Location> &prevLocations);
+    void sendLocationsUpdated(const QVector<api_responses::Location> &prevLocations);
     void whitelistIps();
 
     bool isChanged(const QVector<api_responses::Location> &locations, const api_responses::StaticIps &staticIps);
+    PingTime getPrevPing(const QVector<api_responses::Location> &prevLocations, int countryId, int cityId);
 };
 
 } //namespace locationsmodel

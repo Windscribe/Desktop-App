@@ -5,7 +5,7 @@ using namespace wsnet;
 
 DnsResolver::DnsResolver(std::function<void (std::map<std::string, HostInfo>)> resolveDomainsCallback) :
     resolveDomainsCallback_(resolveDomainsCallback),
-    work_(boost::asio::make_work_guard(io_service_))
+    work_(boost::asio::make_work_guard(io_context_))
 {
     // will not log the output from the library, too much unnecessary information
      WSNet::setLogger([](const std::string &logStr) {
@@ -15,19 +15,19 @@ DnsResolver::DnsResolver(std::function<void (std::map<std::string, HostInfo>)> r
         spdlog::error("WSNet::initialize failed");
     }
 
-    thread_ = std::thread([this](){ io_service_.run(); });
+    thread_ = std::thread([this](){ io_context_.run(); });
 }
 
 DnsResolver::~DnsResolver()
 {
-    io_service_.stop();
+    io_context_.stop();
     thread_.join();
     WSNet::cleanup();
 }
 
 void DnsResolver::onDnsResolved(uint64_t requestId, const std::string &hostname, std::shared_ptr<wsnet::WSNetDnsRequestResult> result)
 {
-    boost::asio::post(io_service_,[this, requestId, hostname, result] {
+    boost::asio::post(io_context_,[this, requestId, hostname, result] {
         auto request = activeRequests_.find(requestId);
         if (request == activeRequests_.end())
             return;
@@ -49,7 +49,7 @@ void DnsResolver::onDnsResolved(uint64_t requestId, const std::string &hostname,
             }
             // repeat failed requests if the timeout allows, after 500 ms
             if (bWasFailedRequests && sinceHelper(startTime_).count() < kMaxTimeoutMs) {
-                timer_.emplace(boost::asio::deadline_timer(io_service_, boost::posix_time::millisec(kRetryTimeoutMs)));
+                timer_.emplace(boost::asio::deadline_timer(io_context_, boost::posix_time::millisec(kRetryTimeoutMs)));
                 timer_->async_wait(std::bind(&DnsResolver::onTimer, this, std::placeholders::_1));
             } else {
                 resolveDomainsCallback_(results_);
@@ -82,7 +82,7 @@ void DnsResolver::resolveDomains(const std::vector<std::string> &hostnames)
     timer_.reset();
     cancelAll();
 
-    boost::asio::post(io_service_, [this, hostnames] {
+    boost::asio::post(io_context_, [this, hostnames] {
         startTime_ = std::chrono::steady_clock::now();
         for (const auto &hostname : hostnames) {
             using namespace std::placeholders;
@@ -95,7 +95,7 @@ void DnsResolver::resolveDomains(const std::vector<std::string> &hostnames)
 
 void DnsResolver::cancelAll()
 {
-    boost::asio::post(io_service_, [this] {
+    boost::asio::post(io_context_, [this] {
         for (auto &request : activeRequests_)
             request.second->cancel();
         activeRequests_.clear();

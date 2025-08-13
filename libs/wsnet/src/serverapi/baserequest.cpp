@@ -20,6 +20,21 @@ BaseRequest::BaseRequest(HttpMethod requestType, SubdomainType subDomainType, Re
 {
 }
 
+void BaseRequest::setApiOverrideSettings(const ApiOverrideSettings &apiOverrideSettings)
+{
+    if (subDomainType_ == SubdomainType::kApi && !apiOverrideSettings.apiRoot.empty())
+        domainOverride_ = apiOverrideSettings.apiRoot;
+    else if (subDomainType_ == SubdomainType::kAssets && !apiOverrideSettings.assetsRoot.empty())
+        domainOverride_ = apiOverrideSettings.assetsRoot;
+    else if (subDomainType_ == SubdomainType::kTunnelTest && !apiOverrideSettings.checkIpRoot.empty())
+        domainOverride_ = apiOverrideSettings.checkIpRoot;
+}
+
+bool BaseRequest::isApiDomainOverriden() const
+{
+    return !domainOverride_.empty();
+}
+
 std::string BaseRequest::url(const std::string &domain) const
 {
     auto url = skyr::url("https://" + hostname(domain, subDomainType_) + "/" + name());
@@ -87,23 +102,30 @@ void BaseRequest::callCallback()
 
 std::string BaseRequest::hostname(const std::string &domain, SubdomainType subdomain) const
 {
-    // if this is IP, return without change
-    if (utils::isIpAddress(domain)) {
-        if (subdomain == SubdomainType::kAssets) {
-            return domain + "/" + Settings::instance().serverAssetsSubdomain();
-        } else if (subdomain == SubdomainType::kTunnelTest) {
-            return domain + "/" + Settings::instance().serverTunnelTestSubdomain();
+    // staging mode always takes priority over all other API settings
+    if (Settings::instance().isStaging() || domainOverride_.empty()) {
+        // If the domain is an IP address then we do different transformations
+        if (utils::isIpAddress(domain)) {
+            if (subdomain == SubdomainType::kAssets) {
+                return domain + "/" + Settings::instance().serverAssetsSubdomain();
+            } else if (subdomain == SubdomainType::kTunnelTest) {
+                return domain + "/" + Settings::instance().serverTunnelTestSubdomain();
+            } else {
+                return domain;
+            }
         } else {
-            return domain;
+            if (subdomain == SubdomainType::kApi)
+                return Settings::instance().serverApiSubdomain() + "." + domain;
+            else if (subdomain == SubdomainType::kAssets)
+                return Settings::instance().serverAssetsSubdomain() + "." + domain;
+            else if (subdomain == SubdomainType::kTunnelTest)
+                return Settings::instance().serverTunnelTestSubdomain() + "." + domain;
         }
     }
-
-    if (subdomain == SubdomainType::kApi)
-        return Settings::instance().serverApiSubdomain() + "." + domain;
-    else if (subdomain == SubdomainType::kAssets)
-        return Settings::instance().serverAssetsSubdomain() + "." + domain;
-    else if (subdomain == SubdomainType::kTunnelTest)
-        return Settings::instance().serverTunnelTestSubdomain() + "." + domain;
+    // if it is an overridden domain, return without transformations
+    if (!domainOverride_.empty()) {
+        return domainOverride_;
+    }
 
     assert(false);
     return "";

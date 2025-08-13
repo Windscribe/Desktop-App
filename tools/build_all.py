@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2025, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: builds Windscribe.
 import glob
@@ -34,8 +34,8 @@ BUILD_CFG_NAME = "build_all.yml"
 BUILD_OS_LIST = ["win32", "macos", "linux"]
 
 CURRENT_OS = ""
+CURRENT_VCPKG_TRIPLET = ""
 
-BUILD_MAC_DEPLOY = ""
 BUILD_INSTALLER_FILES = ""
 BUILD_SYMBOL_FILES = ""
 MAC_DEV_ID_KEY_NAME = ""
@@ -224,7 +224,7 @@ def sign_mac_entitlements(configdata, target, appname, fullpath):
             msg.Warn("No provisioning profile ({}) found for this project.".format(provision_profile))
 
 
-def build_component(component, qt_root, buildenv=None):
+def build_component(component, buildenv=None):
     msg.Info("Building {}...".format(component["name"]))
     with utl.PushDir() as current_wd:
         temp_wd = os.path.normpath(os.path.join(current_wd, component["subdir"]))
@@ -235,13 +235,14 @@ def build_component(component, qt_root, buildenv=None):
             # plist via the Other Linker Flags section of the Xcode project.
             update_team_id(os.path.join(pathhelper.ROOT_DIR, component["subdir"], "helper-info.plist"))
 
-        generate_cmd = ["cmake", f"-DCMAKE_PREFIX_PATH:PATH={qt_root}", os.path.join(pathhelper.ROOT_DIR, component["subdir"], "CMakeLists.txt")]
+        generate_cmd = ["cmake", os.path.join(pathhelper.ROOT_DIR, component["subdir"], "CMakeLists.txt")]
         generate_cmd.extend(["--no-warn-unused-cli", "-DCMAKE_BUILD_TYPE=" + ("Debug" if arghelper.build_debug() else "Release")])
         VCPKG_ROOT = os.getenv('VCPKG_ROOT')
         generate_cmd.extend([f"-DCMAKE_TOOLCHAIN_FILE={VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"])
 
         vcpkg_triplets_dir = os.path.join(pathhelper.TOOLS_DIR, "vcpkg", "triplets")
         generate_cmd.extend([f"-DVCPKG_OVERLAY_TRIPLETS=\'{vcpkg_triplets_dir}\'"])
+        generate_cmd.extend([f"-DVCPKG_TARGET_TRIPLET={CURRENT_VCPKG_TRIPLET}"])
 
         if arghelper.sign() or arghelper.sign_app() or arghelper.ci_mode():
             generate_cmd.extend(["-DDEFINE_USE_SIGNATURE_CHECK_MACRO=ON"])
@@ -270,10 +271,7 @@ def build_component(component, qt_root, buildenv=None):
             generate_cmd.append('-G Ninja')
             generate_cmd.append("-DCMAKE_GENERATOR:STRING=Ninja")
             if arghelper.target_arm64_arch():
-                generate_cmd.append("-DQT_HOST_PATH:PATH={}".format(os.path.join(pathhelper.ROOT_DIR, "build-libs", "qt")))
-                generate_cmd.append("-DCMAKE_SYSTEM_NAME:STRING=Windows")
                 generate_cmd.append("-DCMAKE_SYSTEM_PROCESSOR:STRING=arm64")
-                generate_cmd.append("-DCMAKE_SYSTEM_VERSION:STRING=10")
         if component["name"] == "Client":
             try:
                 build_id = re.search(r"\d+", proc.ExecuteAndGetOutput(["git", "branch", "--show-current"], env=buildenv, shell=False)).group()
@@ -326,37 +324,22 @@ def deploy_component(configdata, component_name, buildenv=None, target_name_over
         else:
             target_location = "Release"
 
-        appfullname = os.path.join(temp_wd, target_location, c_target)
         if CURRENT_OS == "macos" and "deploy" in component and component["deploy"]:
-            deploy_cmd = [BUILD_MAC_DEPLOY, appfullname]
-            if "plugins" in component and not component["plugins"]:
-                deploy_cmd.append("-no-plugins")
-            iutl.RunCommand(deploy_cmd, env=buildenv)
-            update_version_in_plist(os.path.join(temp_wd, appfullname, "Contents", "Info.plist"))
-            update_team_id(os.path.join(temp_wd, appfullname, "Contents", "Info.plist"))
+            install_cmd = ["cmake", "--install", ".", "--prefix", BUILD_INSTALLER_FILES]
+            iutl.RunCommand(install_cmd, env=buildenv, shell=(CURRENT_OS == "win32"))
+            appfullname = os.path.join(BUILD_INSTALLER_FILES, c_target)
+            update_version_in_plist(os.path.join(appfullname, "Contents", "Info.plist"))
+            update_team_id(os.path.join(appfullname, "Contents", "Info.plist"))
             msg.Info("Applying mac deploy fixes...")
             apply_mac_deploy_fixes(configdata, component_name, c_target, appfullname)
-
-        if CURRENT_OS == "macos" and ("deploy" in component and component["deploy"]) or ("entitlements" in component and component["entitlements"]):
             sign_mac_entitlements(configdata, component_name, c_target, appfullname)
 
-        # TODO: refactor, currently only relevant for Mac bundles
-        # Copy output file(s).
-        isMacBundle = False
-        if c_target:
-            targets = [c_target] if (type(c_target) is not list) else c_target
-            for i in targets:
-                srcfile = os.path.join(temp_wd, target_location, i)
-                dstfile = BUILD_INSTALLER_FILES
-                if "outdir" in component:
-                    dstfile = os.path.join(dstfile, component["outdir"])
-                dstfile = os.path.join(dstfile, target_name_override if target_name_override else i)
-                if i.endswith(".app"):
-                    utl.CopyMacBundle(srcfile, dstfile)
-                    isMacBundle = True
+        if CURRENT_OS == "macos" and ("entitlements" in component and component["entitlements"]):
+            appfullname = os.path.join(temp_wd, target_location, c_target)
+            sign_mac_entitlements(configdata, component_name, c_target, appfullname)
 
-        if not isMacBundle:
-            # Copy output file(s).
+        # Copy output file(s).
+        if CURRENT_OS != "macos":
             install_cmd = ["cmake", "--install", ".", "--prefix", BUILD_INSTALLER_FILES]
             iutl.RunCommand(install_cmd, env=buildenv, shell=(CURRENT_OS == "win32"))
 
@@ -373,10 +356,7 @@ def deploy_component(configdata, component_name, buildenv=None, target_name_over
                     utl.CopyFile(srcfile, dstfile)
 
 
-def build_components(configdata, targetlist, qt_root):
-    # Setup globals.
-    global BUILD_MAC_DEPLOY
-    BUILD_MAC_DEPLOY = os.path.join(qt_root, "bin", "macdeployqt")
+def build_components(configdata, targetlist):
     # Create an environment with compile-related vars.
     buildenv = os.environ.copy()
     if CURRENT_OS == "win32":
@@ -388,7 +368,7 @@ def build_components(configdata, targetlist, qt_root):
         if target not in configdata:
             raise iutl.InstallError("Undefined target: {} (please check \"{}\")".format(target, BUILD_CFG_NAME))
         if CURRENT_OS in configdata[target]:
-            build_component(configdata[target][CURRENT_OS], qt_root, buildenv)
+            build_component(configdata[target][CURRENT_OS], buildenv)
             deploy_component(configdata, target, buildenv)
 
 
@@ -483,7 +463,7 @@ def prep_installer_win32(configdata):
     pack_symbols()
 
 
-def build_installer_win32(configdata, qt_root):
+def build_installer_win32(configdata):
     # Place everything in a 7z archive.
     installer_info = configdata["installer"]["win32"]
     archive_filename = os.path.normpath(os.path.join(pathhelper.ROOT_DIR, installer_info["subdir"], "resources", "windscribe.7z"))
@@ -500,7 +480,7 @@ def build_installer_win32(configdata, qt_root):
     buildenv.update({"MAKEFLAGS": "S"})
     buildenv.update(iutl.GetVisualStudioEnvironment(arghelper.target_arm64_arch()))
     buildenv.update({"CL": "/MP"})
-    build_component(installer_info, qt_root, buildenv)
+    build_component(installer_info, buildenv)
     deploy_component(configdata, "installer", buildenv)
 
 
@@ -512,7 +492,7 @@ def sign_installer_win32(configdata):
     sign_executable_win32(configdata, os.path.normpath(os.path.join(BUILD_INSTALLER_FILES, configdata["installer"]["win32"]["target"])))
 
 
-def build_bootstrap_win32(configdata, qt_root):
+def build_bootstrap_win32(configdata):
     installer_name = "Windscribe_{}.exe".format(extractor.app_version(True))
     installer_info = configdata["installer"]["win32"]
     buildenv = os.environ.copy()
@@ -531,7 +511,7 @@ def build_bootstrap_win32(configdata, qt_root):
     iutl.RunCommand([ziptool, "a", archive_filename, os.path.join(BUILD_INSTALLER_BOOTSTRAP_FILES, "*"), "-y", "-bso0", "-bsp2"])
 
     # Build the bootstrapper
-    build_component(configdata["bootstrap"]["win32"], qt_root, buildenv)
+    build_component(configdata["bootstrap"]["win32"], buildenv)
     deploy_component(configdata, "bootstrap", buildenv)
 
     utl.RenameFile(os.path.normpath(os.path.join(BUILD_INSTALLER_FILES, configdata["bootstrap"]["win32"]["target"])),
@@ -546,7 +526,7 @@ def sign_bootstrap_win32(configdata):
     sign_executable_win32(configdata, os.path.join(BUILD_INSTALLER_FILES, "..", "Windscribe_{}.exe".format(extractor.app_version(True))))
 
 
-def build_installer_mac(configdata, qt_root, build_path):
+def build_installer_mac(configdata, build_path):
     if arghelper.notarize():
         msg.Print("Notarizing app...")
         iutl.RunCommand([pathhelper.notarize_script_filename_absolute(), MAC_DEV_TEAM_ID, BUILD_INSTALLER_FILES, "Windscribe"])
@@ -562,16 +542,14 @@ def build_installer_mac(configdata, qt_root, build_path):
     with utl.PushDir():
         os.chdir(build_path)
         buildenv = os.environ.copy()
-    build_component(installer_info, qt_root, buildenv)
+    build_component(installer_info, buildenv)
     deploy_component(configdata, "installer", target_name_override="WindscribeInstaller.app")
     if arghelper.notarize():
         msg.Print("Notarizing installer...")
-        iutl.RunCommand([pathhelper.notarize_script_filename_absolute(), MAC_DEV_TEAM_ID, os.path.join(BUILD_INSTALLER_FILES, "installer"), "WindscribeInstaller"])
+        iutl.RunCommand([pathhelper.notarize_script_filename_absolute(), MAC_DEV_TEAM_ID, BUILD_INSTALLER_FILES, "WindscribeInstaller"])
     # Drop DMG.
     msg.Print("Preparing dmg...")
     dmg_dir = BUILD_INSTALLER_FILES
-    if "outdir" in installer_info:
-        dmg_dir = os.path.join(dmg_dir, installer_info["outdir"])
     with utl.PushDir(dmg_dir):
         iutl.RunCommand(["python3", "-m", "dmgbuild", "-s",
                          pathhelper.ROOT_DIR + "/installer/mac/dmgbuild/dmgbuild_settings.py",
@@ -604,7 +582,11 @@ def copy_libs(configdata, platform, target, dst):
     msg.Info("Copying libs ({})...".format(platform))
     if "libs" in configdata["deploy_files"][platform][target]:
         for k, v in configdata["deploy_files"][platform][target]["libs"].items():
-            lib_root = iutl.GetDependencyBuildRoot(k)
+            if (arghelper.target_arm64_arch() and CURRENT_OS == "linux"):
+                build_libs_dir = "build-libs"
+            else:
+                build_libs_dir = "build-libs-arm64" if arghelper.target_arm64_arch() else "build-libs"
+            lib_root = iutl.GetDependencyBuildRoot(build_libs_dir, k)
             if not lib_root:
                 if k == "dga":
                     msg.Info("DGA library not found, skipping...")
@@ -614,7 +596,7 @@ def copy_libs(configdata, platform, target, dst):
                 copy_files(k, v, lib_root, dst)
 
 
-def build_installer_linux(configdata, qt_root):
+def build_installer_linux(configdata):
     # Creates the following:
     # * windscribe_2.x.y_amd64.deb
     # * windscribe_2.x.y_x86_64.rpm
@@ -702,17 +684,49 @@ def build_rpm(distro, build_config):
 
 
 def update_vcpkg_dependencies():
-    VCPKG_ROOT = os.getenv('VCPKG_ROOT')
-    cmd = [f"{VCPKG_ROOT}/vcpkg", "install", f"--x-install-root={VCPKG_ROOT}/installed", "--x-manifest-root=" + os.path.join(pathhelper.TOOLS_DIR, "vcpkg"), "--overlay-triplets=" + os.path.join(pathhelper.TOOLS_DIR, "vcpkg", "triplets")]
+    global CURRENT_VCPKG_TRIPLET
+
     if CURRENT_OS == "macos":
         if arghelper.ci_mode():
             # Build an universal binary only on CI
-            cmd.extend(["--triplet=universal-osx"])
-    elif CURRENT_OS == "win32":
-        if arghelper.target_arm64_arch():
-            cmd.extend(["--triplet=arm64-windows-static"])
+            CURRENT_VCPKG_TRIPLET = "universal-osx"
+        elif platform.machine() == "x86_64":
+            CURRENT_VCPKG_TRIPLET = "x64-osx"
         else:
-            cmd.extend(["--triplet=x64-windows-static"])
+            CURRENT_VCPKG_TRIPLET = "arm64-osx"
+
+    elif CURRENT_OS == "win32":
+        # We build only release dependencies on CI
+        if arghelper.ci_mode():
+            if arghelper.target_arm64_arch():
+                CURRENT_VCPKG_TRIPLET = "arm64-windows-static-release"
+            else:
+                CURRENT_VCPKG_TRIPLET = "x64-windows-static-release"
+        # On developers computers we compile both the Debug and Release versions with standard x64-windows-static triplet
+        else:
+            CURRENT_VCPKG_TRIPLET = "x64-windows-static"
+    elif CURRENT_OS == "linux":
+        if arghelper.target_arm64_arch():
+            CURRENT_VCPKG_TRIPLET = "arm64-linux"
+        else:
+            CURRENT_VCPKG_TRIPLET = "x64-linux"
+
+    VCPKG_ROOT = os.getenv('VCPKG_ROOT')
+    cmd = [f"{VCPKG_ROOT}/vcpkg", "install", f"--x-install-root={VCPKG_ROOT}/installed", "--x-manifest-root=" + os.path.join(pathhelper.TOOLS_DIR, "vcpkg"), "--overlay-triplets=" + os.path.join(pathhelper.TOOLS_DIR, "vcpkg", "triplets")]
+
+    cmd.extend([f"--triplet={CURRENT_VCPKG_TRIPLET}"])
+    if CURRENT_OS == "win32":
+        # We're building all(X64 and ARM64) Windows architectures on X64
+        if arghelper.ci_mode():
+            cmd.extend(["--host-triplet=x64-windows-static-release"])
+        else:
+            cmd.extend(["--host-triplet=x64-windows-static"])
+    elif CURRENT_OS == "linux":
+        cmd.extend([f"--host-triplet={CURRENT_VCPKG_TRIPLET}"])
+
+    cmd.extend(["--clean-buildtrees-after-build"])
+    cmd.extend(["--clean-packages-after-build"])
+
     iutl.RunCommand(cmd)
 
 
@@ -731,11 +745,6 @@ def build_all():
     if arghelper.build_app() or arghelper.build_installer() or arghelper.build_bootstrap():
         # Only update deps if building something
         update_vcpkg_dependencies()
-
-        # Get Qt directory.
-        qt_root = iutl.GetDependencyBuildRoot("qt")
-        if (arghelper.build_app() or arghelper.build_installer()) and not qt_root:
-            raise iutl.InstallError("Qt is not installed.")
 
     if CURRENT_OS == "win32":
         # Verify Visual Studio is good-to-go.
@@ -766,7 +775,7 @@ def build_all():
     # Build the components.
     with utl.PushDir(build_dir):
         if arghelper.build_app():
-            build_components(configdata, configdata["targets"], qt_root)
+            build_components(configdata, configdata["targets"])
             if (CURRENT_OS == "win32"):
                 prep_installer_win32(configdata)
                 if arghelper.build_tests():
@@ -776,11 +785,11 @@ def build_all():
                 sign_app_win32(configdata)
         if CURRENT_OS == "win32":
             if arghelper.build_installer():
-                build_installer_win32(configdata, qt_root)
+                build_installer_win32(configdata)
             if arghelper.sign_installer():
                 sign_installer_win32(configdata)
             if arghelper.build_bootstrap():
-                build_bootstrap_win32(configdata, qt_root)
+                build_bootstrap_win32(configdata)
                 if (not arghelper.sign_bootstrap()):
                     install_artifacts(configdata, artifact_dir, temp_dir)
             if arghelper.sign_bootstrap():
@@ -788,11 +797,11 @@ def build_all():
                 install_artifacts(configdata, artifact_dir, temp_dir)
         elif CURRENT_OS == "macos":
             if arghelper.build_installer():
-                build_installer_mac(configdata, qt_root, build_dir)
+                build_installer_mac(configdata, build_dir)
                 install_artifacts(configdata, artifact_dir, temp_dir)
         elif CURRENT_OS == "linux":
             if arghelper.build_installer():
-                build_installer_linux(configdata, qt_root)
+                build_installer_linux(configdata)
                 install_artifacts(configdata, artifact_dir, temp_dir)
 
 

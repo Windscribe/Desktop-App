@@ -578,10 +578,16 @@ void ApiResourcesManager::onInitialSessionAnswer(ServerApiRetCode serverApiRetCo
     requestsInProgress_.erase(RequestType::kSessionStatus);
 
     if (serverApiRetCode == ServerApiRetCode::kNetworkError) {
-        // repeat the request
-        boost::asio::post(io_context_, [this] {
-            loginWithAuthHash();
-        });
+        // repeat the request in 1 sec
+        auto timer = std::make_shared<boost::asio::steady_timer>(io_context_);
+        timer->expires_after(std::chrono::seconds(1));
+        timer->async_wait(
+            [this, timer](const boost::system::error_code& ec) {
+                if (!ec) {
+                    loginWithAuthHash();
+                }
+            }
+        );
     } else {
         handleLoginOrSessionAnswer(serverApiRetCode, jsonData);
     }
@@ -593,10 +599,16 @@ void ApiResourcesManager::onLoginAnswer(ServerApiRetCode serverApiRetCode, const
     std::lock_guard locker(mutex_);
     requestsInProgress_.erase(RequestType::kSessionStatus);
     if (serverApiRetCode == ServerApiRetCode::kNetworkError) {
-        // repeat the request
-        boost::asio::post(io_context_, [this, username, password, code2fa, secureToken, captchaSolution, captchaTrailX, captchaTrailY] {
-            login(username, password, code2fa, secureToken, captchaSolution, captchaTrailX, captchaTrailY);
-        });
+        // repeat the request in 1 sec
+        auto timer = std::make_shared<boost::asio::steady_timer>(io_context_);
+        timer->expires_after(std::chrono::seconds(1));
+        timer->async_wait(
+            [this, timer, username, password, code2fa, secureToken, captchaSolution, captchaTrailX, captchaTrailY](const boost::system::error_code& ec) {
+                if (!ec) {
+                    login(username, password, code2fa, secureToken, captchaSolution, captchaTrailX, captchaTrailY);
+                }
+            }
+        );
     } else {
         handleLoginOrSessionAnswer(serverApiRetCode, jsonData);
     }

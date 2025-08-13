@@ -25,11 +25,12 @@ void EngineSettings::saveToSettings()
 {
     QByteArray arr;
     {
+        types::ApiResolutionSettings apiResolutionSettingsNotUsed;  // Left only for compatibility of reading settings
         QDataStream ds(&arr, QIODevice::WriteOnly);
         ds << magic_;
         ds << versionForSerialization_;
         ds << d->language << d->updateChannel << d->isIgnoreSslErrors << d->isTerminateSockets << d->isAllowLanTraffic <<
-              d->firewallSettings << d->connectionSettings << d->apiResolutionSettings << d->proxySettings << d->packetSize <<
+              d->firewallSettings << d->connectionSettings << apiResolutionSettingsNotUsed << d->proxySettings << d->packetSize <<
               d->macAddrSpoofing << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
               d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols << d->networkLastKnownGoodProtocols <<
             d->isAntiCensorship << d->decoyTrafficSettings;
@@ -52,13 +53,13 @@ bool EngineSettings::loadFromSettings()
         QByteArray arr = simpleCrypt.decryptToByteArray(str);
 
         QDataStream ds(&arr, QIODevice::ReadOnly);
-
+        types::ApiResolutionSettings apiResolutionSettingsNotUsed;  // Left only for compatibility of reading settings
         quint32 magic, version;
         ds >> magic;
         if (magic == magic_) {
             ds >> version;
             ds >> d->language >> d->updateChannel >> d->isIgnoreSslErrors >> d->isTerminateSockets >> d->isAllowLanTraffic >>
-                    d->firewallSettings >> d->connectionSettings >> d->apiResolutionSettings >> d->proxySettings >> d->packetSize >>
+                    d->firewallSettings >> d->connectionSettings >> apiResolutionSettingsNotUsed >> d->proxySettings >> d->packetSize >>
                     d->macAddrSpoofing >> d->dnsPolicy >> d->tapAdapter >> d->customOvpnConfigsPath >> d->isKeepAliveEnabled >>
                     d->connectedDnsInfo >> d->dnsManager;
             if (version >= 2) {
@@ -186,16 +187,6 @@ const types::ConnectionSettings &EngineSettings::connectionSettings() const
 void EngineSettings::setConnectionSettings(const ConnectionSettings &cs)
 {
     d->connectionSettings = cs;
-}
-
-const types::ApiResolutionSettings &EngineSettings::apiResolutionSettings() const
-{
-    return d->apiResolutionSettings;
-}
-
-void EngineSettings::setApiResolutionSettings(const ApiResolutionSettings &drs)
-{
-    d->apiResolutionSettings = drs;
 }
 
 const types::ProxySettings &EngineSettings::proxySettings() const
@@ -342,7 +333,6 @@ bool EngineSettings::operator==(const EngineSettings &other) const
             other.d->isAllowLanTraffic == d->isAllowLanTraffic &&
             other.d->firewallSettings == d->firewallSettings &&
             other.d->connectionSettings == d->connectionSettings &&
-            other.d->apiResolutionSettings == d->apiResolutionSettings &&
             other.d->proxySettings == d->proxySettings &&
             other.d->packetSize == d->packetSize &&
             other.d->macAddrSpoofing == d->macAddrSpoofing &&
@@ -390,10 +380,6 @@ QDebug operator<<(QDebug dbg, const EngineSettings &es)
 
 void EngineSettingsData::fromJson(const QJsonObject &json)
 {
-    if (json.contains(kJsonApiResolutionSettingsProp) && json[kJsonApiResolutionSettingsProp].isObject()) {
-        apiResolutionSettings = types::ApiResolutionSettings(json[kJsonApiResolutionSettingsProp].toObject());
-    }
-
     if (json.contains(kJsonConnectedDnsInfoProp) && json[kJsonConnectedDnsInfoProp].isObject()) {
         connectedDnsInfo = types::ConnectedDnsInfo(json[kJsonConnectedDnsInfoProp].toObject());
     }
@@ -505,7 +491,6 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
 {
     QJsonObject json;
 
-    json[kJsonApiResolutionSettingsProp] = apiResolutionSettings.toJson();
     json[kJsonConnectedDnsInfoProp] = connectedDnsInfo.toJson();
     json[kJsonConnectionSettingsProp] = connectionSettings.toJson(isForDebugLog);
     json[kJsonDnsPolicyProp] = static_cast<int>(dnsPolicy);
@@ -586,7 +571,6 @@ void EngineSettingsData::fromIni(QSettings &settings)
     settings.endGroup();
 
     settings.beginGroup(QString("Advanced"));
-    apiResolutionSettings.fromIni(settings);
     isIgnoreSslErrors = settings.value(kIniIsIgnoreSslErrorsProp, isIgnoreSslErrors).toBool();
 #ifdef Q_OS_LINUX
     dnsManager = DNS_MANAGER_TYPE_fromString(settings.value(kIniDnsManagerProp, DNS_MANAGER_TYPE_toString(dnsManager)).toString());
@@ -619,7 +603,6 @@ void EngineSettingsData::toIni(QSettings &settings) const
     settings.endGroup();
 
     settings.beginGroup(QString("Advanced"));
-    apiResolutionSettings.toIni(settings);
     settings.setValue(kIniIsIgnoreSslErrorsProp, isIgnoreSslErrors);
     settings.setValue(kIniDnsPolicyProp, DNS_POLICY_TYPE_toString(dnsPolicy));
 #ifdef Q_OS_LINUX

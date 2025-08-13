@@ -5,14 +5,7 @@ set(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "12" CACHE STRING "Minimum OS X deployment version")
 
-if (WIN32)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
-        set(VCPKG_TARGET_TRIPLET arm64-windows-static)
-    else()
-        set(VCPKG_TARGET_TRIPLET x64-windows-static)
-    endif()
-endif()
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 project(Windscribe)
 
@@ -46,7 +39,7 @@ if(UNIX AND (NOT APPLE))
     # if build requested a headless client, set the necessary definitions
     if(DEFINE_CLI_ONLY_MACRO)
         add_definitions(-DCLI_ONLY)
-        find_package(Qt6 REQUIRED COMPONENTS Network Test LinguistTools)
+        find_package(Qt6 REQUIRED COMPONENTS Network LinguistTools Test)
     endif(DEFINE_CLI_ONLY_MACRO)
 endif()
 
@@ -57,7 +50,7 @@ if(NOT DEFINE_CLI_ONLY_MACRO)
     # installed by default.
 
     set(OpenGL_GL_PREFERENCE LEGACY)
-    find_package(Qt6 REQUIRED COMPONENTS Widgets Network Test LinguistTools)
+    find_package(Qt6 REQUIRED COMPONENTS Widgets Network LinguistTools Test)
 endif()
 
 set(PROJECT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
@@ -192,6 +185,11 @@ endif()
 
 target_link_libraries(Windscribe PRIVATE ${CLIENT_LIBS} engine common wsnet::wsnet spdlog::spdlog Qt6::Network ${OS_SPECIFIC_LIBRARIES})
 
+# Wayland support on Linux
+if (UNIX AND (NOT APPLE))
+    qt_import_plugins(Windscribe INCLUDE Qt6::QWaylandIntegrationPlugin)
+endif()
+
 target_include_directories(Windscribe PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/engine
     ${CMAKE_CURRENT_SOURCE_DIR}/common
@@ -221,11 +219,21 @@ endif()
 qt_finalize_executable(Windscribe)
 
 # ----- Install section -----
-install(TARGETS Windscribe
-    RUNTIME DESTINATION .
-    LIBRARY DESTINATION lib
-    BUNDLE DESTINATION .
-)
+if (APPLE)
+    install(TARGETS Windscribe wsnet
+        RUNTIME DESTINATION .
+        LIBRARY DESTINATION "Windscribe.app/Contents/Frameworks"
+        BUNDLE DESTINATION .
+    )
+    install(FILES ${_OPENSSL_LIBDIR}/libcrypto.3.dylib DESTINATION Windscribe.app/Contents/Frameworks)
+    install(FILES ${_OPENSSL_LIBDIR}/libssl.3.dylib DESTINATION Windscribe.app/Contents/Frameworks)
+else()
+    install(TARGETS Windscribe
+        RUNTIME DESTINATION .
+        LIBRARY DESTINATION "lib"
+        BUNDLE DESTINATION .
+    )
+endif()
 
 if (WIN32)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/windscribeopenvpn.exe DESTINATION .)

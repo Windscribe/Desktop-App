@@ -1062,10 +1062,6 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>Paramètres avancés</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>Résolvez automatiquement l’adresse de l’API du serveur ou utilisez celle fournie par l’équipe de support.</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>Ignorez les erreurs de validation de certificat SSL.</translation>
     </message>
@@ -1112,37 +1108,6 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     <message>
         <source>Import</source>
         <translation>Importation</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>Résolution de l’API</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>Automatique</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Manuelle</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresse</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>Entrez l’adresse IP ou le nom d’hôte</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>Adresse non valide</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>Vous avez entré une adresse non valide pour la résolution de l’API.  Il a été réinitialisé en Auto.</translation>
     </message>
 </context>
 <context>
@@ -1829,6 +1794,10 @@ Se connecter d’abord à un réseau</translation>
         <source>Unlimited Data</source>
         <translation>Données illimitées</translation>
     </message>
+    <message>
+        <source>Custom</source>
+        <translation>Coutume</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::PreferencesTabControlItem</name>
@@ -2345,7 +2314,7 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
     </message>
     <message>
         <source>Release</source>
-        <translation>Libérer</translation>
+        <translation>Stable</translation>
     </message>
     <message>
         <source>Beta</source>

@@ -18,7 +18,6 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
     setFlag(QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(PREFERENCES_MARGIN_Y);
 
-    connect(preferences, &Preferences::apiResolutionChanged, this, &AdvancedWindowItem::onApiResolutionPreferencesChanged);
     connect(preferences, &Preferences::dnsPolicyChanged, this, &AdvancedWindowItem::onDnsPolicyPreferencesChanged);
 #ifdef Q_OS_LINUX
     connect(preferences, &Preferences::dnsManagerChanged, this, &AdvancedWindowItem::onDnsManagerPreferencesChanged);
@@ -31,11 +30,6 @@ AdvancedWindowItem::AdvancedWindowItem(ScalableGraphicsObject *parent, Preferenc
     connect(advParametersItem_, &LinkItem::clicked, this, &AdvancedWindowItem::advParametersClick);
     advParametersGroup_->addItem(advParametersItem_);
     addItem(advParametersGroup_);
-
-    apiResolutionGroup_ = new ApiResolutionGroup(this);
-    apiResolutionGroup_->setApiResolution(preferences->apiResolution());
-    connect(apiResolutionGroup_, &ApiResolutionGroup::apiResolutionChanged, this, &AdvancedWindowItem::onApiResolutionChanged);
-    addItem(apiResolutionGroup_);
 
     ignoreSslErrorsGroup_ = new PreferenceGroup(this);
     cbIgnoreSslErrors_ = new ToggleItem(ignoreSslErrorsGroup_);
@@ -108,11 +102,6 @@ void AdvancedWindowItem::updateScaling()
     CommonGraphics::BasePage::updateScaling();
 }
 
-void AdvancedWindowItem::onApiResolutionChanged(const types::ApiResolutionSettings &ar)
-{
-    preferences_->setApiResolution(ar);
-}
-
 void AdvancedWindowItem::onIgnoreSslErrorsStateChanged(bool isChecked)
 {
     preferences_->setIgnoreSslErrors(isChecked);
@@ -157,16 +146,10 @@ void AdvancedWindowItem::onDnsManagerPreferencesChanged(DNS_MANAGER_TYPE d)
 }
 #endif
 
-void AdvancedWindowItem::onApiResolutionPreferencesChanged(const types::ApiResolutionSettings &ar)
-{
-    apiResolutionGroup_->setApiResolution(ar);
-}
-
 void AdvancedWindowItem::onLanguageChanged()
 {
     advParametersItem_->setDescription(tr("Make advanced tweaks to the way the app functions."));
     advParametersItem_->setTitle(tr("Advanced Parameters"));
-    apiResolutionGroup_->setDescription(tr("Resolve server API address automatically, or use one provided by the Support team."));
     cbIgnoreSslErrors_->setDescription(tr("Ignore SSL certificate validation errors."));
     cbIgnoreSslErrors_->setCaption(tr("Ignore SSL Errors"));
     cbKeepAlive_->setDescription(tr("Prevents connections from dying (by time-out) by periodically pinging the server."));

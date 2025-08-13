@@ -1062,10 +1062,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>高级参数</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>自动解析服务器 API 地址，或使用支持团队提供的地址。</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>忽略 SSL 证书验证错误。</translation>
     </message>
@@ -1112,37 +1108,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Import</source>
         <translation>导入</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>API 解析</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>自动</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>手动</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>地址</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>输入 IP 或主机名</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>地址无效</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>您输入的 API 解析地址无效。已重置为“自动”。</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +1793,10 @@ Connect to a network first</source>
     <message>
         <source>Unlimited Data</source>
         <translation>无限数据</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>习惯</translation>
     </message>
 </context>
 <context>

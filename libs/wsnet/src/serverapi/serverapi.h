@@ -19,7 +19,7 @@ public:
                        PersistentSettings &persistentSettings, WSNetAdvancedParameters *advancedParameters, ConnectState &connectState);
     virtual ~ServerAPI();
 
-    void setApiResolutionsSettings(bool isAutomatic, std::string manualAddress) override;
+    void setApiResolutionsSettings(const std::string &apiRoot, const std::string &assetsRoot, const std::string &checkIpRoot) override;
     void setIgnoreSslErrors(bool bIgnore) override;
     void resetFailover() override;
 

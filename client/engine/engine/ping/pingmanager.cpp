@@ -29,51 +29,16 @@ void PingManager::updateIps(const QVector<PingIpInfo> &ips)
 {
     addLog("PingManager::updateIps", "update ips:" + QString::number(ips.count()));
 
-    for (auto it = ips_.begin(); it != ips_.end(); ++it) {
-        it.value().existThisIp = false;
-    }
-
-    QSet<QString> ipsSet;
-    for (const PingIpInfo &ip_info : std::as_const(ips)) {
-        ipsSet.insert(ip_info.ip);
-        auto it = ips_.find(ip_info.ip);
-        if (it == ips_.end()) {
-            pingStorage_.initPingDataIfNotExists(ip_info.ip);
-            PingTime pingTime;
-            qint64 iterTime;
-            pingStorage_.getPingData(ip_info.ip, pingTime, iterTime);
-            ips_[ip_info.ip] = PingIpState(ip_info, iterTime, pingTime == PingTime::PING_FAILED);
-        }
-        else {
-            it.value().existThisIp = true;
-        }
-    }
-
-    // remove unused ips
-    auto it = ips_.begin();
-    while (it != ips_.end()) {
-        if (!it.value().existThisIp) {
-            addLog("PingManager::updateIps", "removed unused ip: " + it.key());
-            it = ips_.erase(it);
-        }
-        else {
-            ++it;
-        }
-    }
-
-    // update ips in the ping storage
-    pingStorage_.removeUnusedNodes(ipsSet);
-
-    // Check if pings are disabled via ws-no-pings flag
-    if (ExtraConfig::instance().getNoPings()) {
-        addLog("PingManager::updateIps", "Pings disabled by ws-no-pings flag - timer not started, clearing ping data");
-        pingTimer_.stop();
-        pingStorage_.clearAllPingData();
+    // If not disconnected, defer the location update
+    if (connectStateController_->currentState() != CONNECT_STATE_DISCONNECTED) {
+        pendingIps_ = ips;
+        addLog("PingManager::updateIps", "Deferring location update until disconnected");
         return;
     }
 
+    // Process the location update immediately (we're disconnected)
+    processLocationUpdate(ips);
     onPingTimer();
-    pingTimer_.start(PING_TIMER_INTERVAL);
 }
 
 void PingManager::clearIps()
@@ -91,12 +56,23 @@ PingTime PingManager::getPing(const QString &ip) const
     return pingStorage_.getPing(ip);
 }
 
+void PingManager::setPing(const QString &ip, PingTime pingTime)
+{
+    pingStorage_.setPing(ip, pingTime);
+}
+
 void PingManager::onPingTimer()
 {
     using namespace std::placeholders;
     // We don't attempt to issue a ping request when state is CONNECT_STATE_CONNECTING, as the firewall will block it.
     if (!networkDetectionManager_->isOnline() || connectStateController_->currentState() != CONNECT_STATE_DISCONNECTED)
         return;
+
+    // Process pending location updates first when disconnected
+    if (!pendingIps_.isEmpty()) {
+        processLocationUpdate(pendingIps_);
+        pendingIps_.clear();
+    }
 
     if (ips_.isEmpty())
         return;
@@ -217,6 +193,56 @@ int PingManager::exponentialBackoff_GetNextDelay(int curDelay, float factor, flo
     return res + Utils::generateDoubleRandom(0, res * jitter);
 }
 
+
+void PingManager::processLocationUpdate(const QVector<PingIpInfo> &ips)
+{
+    addLog("PingManager::processLocationUpdate", "Processing location update with " + QString::number(ips.count()) + " ips");
+
+    for (auto it = ips_.begin(); it != ips_.end(); ++it) {
+        it.value().existThisIp = false;
+    }
+
+    QSet<QString> ipsSet;
+    for (const PingIpInfo &ip_info : std::as_const(ips)) {
+        ipsSet.insert(ip_info.ip);
+        auto it = ips_.find(ip_info.ip);
+        if (it == ips_.end()) {
+            pingStorage_.initPingDataIfNotExists(ip_info.ip);
+            PingTime pingTime;
+            qint64 iterTime;
+            pingStorage_.getPingData(ip_info.ip, pingTime, iterTime);
+            ips_[ip_info.ip] = PingIpState(ip_info, iterTime, pingTime == PingTime::PING_FAILED);
+        }
+        else {
+            it.value().existThisIp = true;
+        }
+    }
+
+    // remove unused ips
+    auto it = ips_.begin();
+    while (it != ips_.end()) {
+        if (!it.value().existThisIp) {
+            addLog("PingManager::processLocationUpdate", "removed unused ip: " + it.key());
+            it = ips_.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+
+    // update ips in the ping storage
+    pingStorage_.removeUnusedNodes(ipsSet);
+
+    // Check if pings are disabled via ws-no-pings flag
+    if (ExtraConfig::instance().getNoPings()) {
+        addLog("PingManager::processLocationUpdate", "Pings disabled by ws-no-pings flag - timer not started, clearing ping data");
+        pingTimer_.stop();
+        pingStorage_.clearAllPingData();
+        return;
+    }
+
+    pingTimer_.start(PING_TIMER_INTERVAL);
+}
 
 void PingManager::addLog(const QString &tag, const QString &str)
 {

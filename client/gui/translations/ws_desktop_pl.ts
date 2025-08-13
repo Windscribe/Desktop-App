@@ -1062,10 +1062,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Parametry zaawansowane</translation>
     </message>
     <message>
-        <source>Resolve server API address automatically, or use one provided by the Support team.</source>
-        <translation>Automatycznie rozwiąż adres API serwera lub użyj adresu dostarczonego przez zespół pomocy technicznej.</translation>
-    </message>
-    <message>
         <source>Ignore SSL certificate validation errors.</source>
         <translation>Ignoruj błędy sprawdzania poprawności certyfikatu SSL.</translation>
     </message>
@@ -1112,37 +1108,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
     <message>
         <source>Import</source>
         <translation>Import</translation>
-    </message>
-</context>
-<context>
-    <name>PreferencesWindow::ApiResolutionGroup</name>
-    <message>
-        <source>API Resolution</source>
-        <translation>Rozdzielczość API</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation>Automatyczne</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Ręcznie</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adres</translation>
-    </message>
-    <message>
-        <source>Enter IP or Hostname</source>
-        <translation>Wprowadź adres IP lub nazwę hosta</translation>
-    </message>
-    <message>
-        <source>Invalid address</source>
-        <translation>Nieprawidłowy adres</translation>
-    </message>
-    <message>
-        <source>You have entered an invalid address for API resolution.  It has been reset to Auto.</source>
-        <translation>Wprowadzono nieprawidłowy adres do rozpoznawania przez interfejs API.  Został zresetowany do Auto.</translation>
     </message>
 </context>
 <context>
@@ -1828,6 +1793,10 @@ Najpierw połącz się z siecią</translation>
     <message>
         <source>Unlimited Data</source>
         <translation>Nielimitowane dane</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Zwyczaj</translation>
     </message>
 </context>
 <context>

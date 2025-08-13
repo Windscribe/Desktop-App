@@ -110,7 +110,7 @@ void ConnectStateProtocolPort::updateStateDisplay(const types::ConnectState &con
             badgeBgColor_ = QColor(255, 255, 255);
             badgeFgImage_.reset();
             textOpacity_ = 1.0;
-            textColor_ = QColor(0xA0, 0xFE, 0xDA);
+            textColor_ = Qt::white;
             connectionBadgeDots_->start();
             connectionBadgeDots_->show();
         }
@@ -119,7 +119,7 @@ void ConnectStateProtocolPort::updateStateDisplay(const types::ConnectState &con
             badgeBgColor_ = QColor(255, 255, 255);
             badgeFgImage_.reset();
             textOpacity_ = 1.0;
-            textColor_ = QColor(0xA0, 0xFE, 0xDA);
+            textColor_ = Qt::white;
             connectionBadgeDots_->start();
             connectionBadgeDots_->show();
         }

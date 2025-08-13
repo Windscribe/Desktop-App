@@ -13,7 +13,7 @@ HelperBackend_linux::HelperBackend_linux(QObject *parent) :
 
 HelperBackend_linux::~HelperBackend_linux()
 {
-    io_service_.stop();
+    io_context_.stop();
     wait();
 }
 
@@ -35,11 +35,11 @@ bool HelperBackend_linux::reinstallHelper()
 
 void HelperBackend_linux::run()
 {
-    io_service_.reset();
+    io_context_.restart();
     reconnectElapsedTimer_.start();
-    socket_.reset(new boost::asio::local::stream_protocol::socket(io_service_));
+    socket_.reset(new boost::asio::local::stream_protocol::socket(io_context_));
     socket_->async_connect(ep_, std::bind(&HelperBackend_linux::connectHandler, this, boost::asio::placeholders::error));
-    io_service_.run();
+    io_context_.run();
 }
 
 void HelperBackend_linux::connectHandler(const boost::system::error_code &ec)

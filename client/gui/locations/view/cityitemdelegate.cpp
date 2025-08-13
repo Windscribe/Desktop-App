@@ -46,6 +46,9 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
     painter->setRenderHint(QPainter::Antialiasing);
     painter->setOpacity(OPACITY_FULL);
     painter->fillRect(option.rect, FontManager::instance().getMidnightColor());
+    if (qFuzzyCompare(option.selectedOpacity(), 1.0)) {
+        painter->fillRect(option.rect, QColor(255, 255, 255, 13));
+    }
 
     LocationID lid = qvariant_cast<LocationID>(index.data(kLocationId));
     QRect leftRect = QRect(left_offs + 16*G_SCALE, top_offs + (option.rect.height() - 24*G_SCALE) / 2, 24*G_SCALE, 24*G_SCALE);
@@ -92,11 +95,13 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
             flag->draw(leftRect, painter);
         } else if (index.data(kIs10Gbps).toBool()) {
             // 10gbps icon
-            QSharedPointer<IndependentPixmap> tenGbpsPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON_WHITE");
-            tenGbpsPixmap->draw(leftRect, painter);
+            QSharedPointer<IndependentPixmap> tenGbpsPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON");
+            QRect iconRect = QRect(left_offs + 18*G_SCALE, top_offs + (option.rect.height() - 20*G_SCALE) / 2, 20*G_SCALE, 20*G_SCALE);
+            tenGbpsPixmap->draw(iconRect, painter);
         } else { // generic city icon
             QSharedPointer<IndependentPixmap> cityIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/CITY_ICON");
-            cityIcon->draw(leftRect, painter);
+            QRect iconRect = QRect(left_offs + 18*G_SCALE, top_offs + (option.rect.height() - 20*G_SCALE) / 2, 20*G_SCALE, 20*G_SCALE);
+            cityIcon->draw(iconRect, painter);
         }
 
         // Load
@@ -109,13 +114,17 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         painter->setOpacity(OPACITY_FULL);
         QPen penLoad(QColor(53, 61, 73));
         penLoad.setWidth(2*G_SCALE);
-        // Draw a full circle with grey color: this is (255, 255, 255, 51) blended with (9, 15, 25).
-        // Drawing (255, 255, 255, 51) is not visible since it draws on top of some transparent pixels.
-        painter->setPen(penLoad);
-        painter->drawArc(leftRect, 0, 360 * 16);
         if (option.isShowLocationLoad()) {
+            // Draw a full circle with grey color: this is (255, 255, 255, 51) blended with (9, 15, 25).
+            // Drawing (255, 255, 255, 51) is not visible since it draws on top of some transparent pixels.
+            painter->setPen(penLoad);
+            painter->drawArc(leftRect, 0, 360 * 16);
+
             int locationLoad = index.data(kLoad).toInt();
             if (locationLoad > 0) {
+                if (locationLoad < 10) {
+                    locationLoad = 10; // Minimum value is 10, otherwise the arc is too short
+                }
                 Qt::GlobalColor penColor;
                 if (locationLoad < 60) {
                     penColor = Qt::green;
@@ -127,7 +136,7 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
                 // Draw arc with pen color
                 penLoad.setColor(penColor);
                 painter->setPen(penLoad);
-                painter->drawArc(leftRect, 180 * 16, -360 * locationLoad * 16 / 100);
+                painter->drawArc(leftRect, 90 * 16, -360 * locationLoad * 16 / 100);
             }
         }
     }

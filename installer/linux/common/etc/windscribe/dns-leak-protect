@@ -36,6 +36,12 @@ dnsleak_protection_up()
         fi
     fi
 
+    # append network gateways to dns_array
+    hexgws=$(awk '$2 == "00000000" {print $3}' /proc/net/route)
+    for i in $hexgws; do
+        dns_array+=($(printf "%d." $(echo $i | sed 's/../0x& /g' | tr ' ' '\n' | tac) | sed 's/\.$/\n/'))
+    done
+
     local marker="-m comment --comment \"Windscribe client dns leak protection\""
 
     local rules=$'*filter\n'

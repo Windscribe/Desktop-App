@@ -26,7 +26,7 @@ void ConnectionBadgeDots::paint(QPainter *painter, const QStyleOptionGraphicsIte
     Q_UNUSED(widget);
 
     double initOpacity = painter->opacity();
-    QColor circleColor(160,254,218);
+    QColor circleColor(255, 255, 255);
     painter->setBrush(circleColor);
     painter->setRenderHint(QPainter::Antialiasing);
 

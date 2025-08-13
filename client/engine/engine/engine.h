@@ -435,4 +435,5 @@ private:
 
     void updateFirewallOnBoot();
     void callAuthTokenLogin();
+    void updateApiResolutionSettingsInWsnet();
 };

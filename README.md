@@ -39,15 +39,12 @@ The Windscribe VPN desktop application hides your physical location, blocks ads 
 - Windows 10/11 x86_64.  We do not currently support building on the WoA (arm64) platform.
 - Install [git](https://git-scm.com/downloads). When installing Git, you can stick with all the default options presented to you by the installer.
 - Clone the repository.
-- Install Visual Studio Community Edition 2019 (run `install_vs.bat` from `/tools/prepare_build_environment/windows`).
+- Install Visual Studio Community Edition 2022.
 - Install Python 3 via either the Microsoft Store or from [here](https://www.python.org/downloads/). Minimum tested version is 3.6.8.
 - Install CMake v3.28.x or newer from [here](https://cmake.org/download/). The project will build with older versions of CMake, but you may encounter some warnings.
 - Install Ninja v1.10.2 from [here](https://github.com/ninja-build/ninja/releases)
 - Install Windows 11 SDK (10.0.22000) from [here](https://go.microsoft.com/fwlink/?linkid=2173743).  Newer versions may work as well.
-- Install vcpkg from [here](https://vcpkg.io/en/getting-started.html)
-    - Create a `VCPKG_ROOT` environment variable referencing the full path to your vcpkg install folder.
-    - Go to the vcpkg directory and `git checkout 52fc0d8c1e2cbd12c9907284566f5c17e5ef0d12`.
-    - Do the bootstrap step after the above command.
+- Install vcpkg using the script `/tools/vcpkg/install_ci/vcpkg_install.bat`
 - Verify the following entries are in your System `PATH` environment variable. If they are not, add them to the System `PATH` environment variable and reboot.
     - `C:\Program Files\Git\cmd`
     - `C:\[folder containing ninja.exe]`
@@ -88,7 +85,6 @@ pip install "cython<3.0.0" && pip install --no-build-isolation pyyaml==6.0
 Go to subfolder `tools/deps` and run the following scripts in order. Append `--arm64` to the command to build a library for Windows arm64. Libraries will be placed in `build-libs[-arm64]`.
 
 ```
-install_qt
 install_openvpn_dco
 install_wintun
 install_wireguard
@@ -147,10 +143,7 @@ See `build_all --help` for other build options.
 ```
 
 - Install CMake v3.28.x or newer from [here](https://cmake.org/download/) and make sure that the cmake executable is in the path and available for execution. The project will build with older versions of CMake, but you may encounter some warnings.
-- Install vcpkg from [here](https://vcpkg.io/en/getting-started.html)
-    - Create a `VCPKG_ROOT` environment variable referencing the full path to your vcpkg install folder.
-    - Go to the vcpkg directory and `git checkout 52fc0d8c1e2cbd12c9907284566f5c17e5ef0d12`.
-    - Do the bootstrap step after the above command.
+- Install vcpkg using the script `/tools/vcpkg/install_ci/vcpkg_install.sh`
 - Clone the repository.
 - Install python deps:
 ```python
@@ -167,7 +160,6 @@ See `build_all --help` for other build options.
 Go to subfolder `tools/deps` and run the following scripts in order. Libraries will be placed in `build-libs`.
 
 ```
-install_qt
 install_wireguard
 install_wstunnel
 ```
@@ -200,7 +192,7 @@ The repository contains Dockerfile to simplify building process. Skip all the ot
 ```
 - Install vcpkg:
 ```bash
-  sudo docker run --rm -v .:/w ws-builder /bin/bash -c "git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg && git checkout 52fc0d8c1e2cbd12c9907284566f5c17e5ef0d12 && ./bootstrap-vcpkg.sh --disableMetrics"
+  sudo docker run --rm -v .:/w ws-builder /bin/bash -c "git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg && git checkout 576379156e82da642f8d1834220876759f13534d && ./bootstrap-vcpkg.sh --disableMetrics"
 ```
 - Build all the dependencies:
 ```bash
@@ -224,10 +216,7 @@ Build process tested on Ubuntu 22.04/24.04.
   # Make sure that the cmake executable is in the path and available for execution.
   sudo snap install cmake --classic
 ```
-- Install vcpkg from [here](https://vcpkg.io/en/getting-started.html)
-    - Create a `VCPKG_ROOT` environment variable referencing the full path to your vcpkg install folder.
-    - Go to the vcpkg directory and `git checkout 52fc0d8c1e2cbd12c9907284566f5c17e5ef0d12`.
-    - Do the bootstrap step after the above command.
+- Install vcpkg using the script `/tools/vcpkg/install_ci/vcpkg_install.sh`
 - Install golang (minimum version 1.23): follow instructions from `https://go.dev/doc/install`
 - Clone the repository.
 - Install Python (if necessary) and Python deps.  You may want to use a virtual environment for Python (e.g. with pyenv), but this is up to you (and possibly your distribution).  We recommend 3.11 or later.
@@ -237,10 +226,9 @@ Build process tested on Ubuntu 22.04/24.04.
 
 ### Build libraries
 
-Go to subfolder `tools/deps` and run the following scripts in order. Libraries will be placed in `build-libs`. When building Qt6, you may encounter an error relating to `check_for_ulimit`. If so, downgrade to CMake version 3.24.
+Go to subfolder `tools/deps` and run the following scripts in order. Libraries will be placed in `build-libs`.
 
 ```
-install_qt
 install_wireguard
 install_wstunnel
 ```
