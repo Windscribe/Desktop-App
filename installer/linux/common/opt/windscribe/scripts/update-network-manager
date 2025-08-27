@@ -14,7 +14,7 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
-CACHE_NAMESERVER_DIR="/etc/windscribe/windscribe_nameservers"
+CACHE_NAMESERVER_DIR="/var/tmp/windscribe/windscribe_nameservers"
 CACHE_NAMESERVER_FILE="$CACHE_NAMESERVER_DIR/$DEV.nameserver"
 PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"
 

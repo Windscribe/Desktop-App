@@ -33,11 +33,11 @@
 #include "mainwindowstate.h"
 #include "multipleaccountdetection/multipleaccountdetectionfactory.h"
 #include "showingdialogstate.h"
+#include "themecontroller.h"
 #include "utils/authcheckerfactory.h"
 #include "utils/extraconfig.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/iauthchecker.h"
-#include "utils/interfaceutils.h"
 #include "utils/log/categories.h"
 #include "utils/log/multiline_message_logger.h"
 #include "utils/network_utils/network_utils.h"
@@ -112,7 +112,7 @@ MainWindow::MainWindow() :
 
 #if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
     // We should do this part for Linux in the other place of the constructor in order to avoid incorrect icon color setup.
-    trayIconColorWhite_ = InterfaceUtils::isDarkMode();
+    trayIconColorWhite_ = ThemeController::instance().isOsDarkTheme();
     qCDebug(LOG_BASIC) << "OS in dark mode: " << trayIconColorWhite_;
 
     // Init and show tray icon.
@@ -396,9 +396,9 @@ MainWindow::MainWindow() :
     connect(app, &WindscribeApplication::shouldTerminate, this, &MainWindow::onAppShouldTerminate);
     connect(app, &WindscribeApplication::focusWindowChanged, this, &MainWindow::onFocusWindowChanged);
     connect(app, &WindscribeApplication::applicationCloseRequest, this, &MainWindow::onAppCloseRequest);
-#if defined(Q_OS_WIN)
-    connect(app, &WindscribeApplication::winIniChanged, this, &MainWindow::onAppWinIniChanged);
-#endif
+
+    connect(&ThemeController::instance(), &ThemeController::osThemeChanged, this, &MainWindow::onOsThemeChanged);
+    onOsThemeChanged(ThemeController::instance().isOsDarkTheme());
 
     mainWindowController_->getViewport()->installEventFilter(this);
     connect(mainWindowController_, &MainWindowController::shadowUpdated, this, qOverload<>(&MainWindow::update));
@@ -406,9 +406,7 @@ MainWindow::MainWindow() :
 
     GeneralMessageController::instance().setMainWindowController(mainWindowController_);
 
-# if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
     setupTrayIcon();
-#endif
 
     backend_->locationsModelManager()->setLocationOrder(backend_->getPreferences()->locationOrder());
     selectedLocation_.reset(new gui_locations::SelectedLocation(backend_->locationsModelManager()->locationsModel()));
@@ -665,14 +663,6 @@ bool MainWindow::event(QEvent *event)
             }
         }
     }
-
-#if defined(Q_OS_MACOS)
-    if (event->type() == QEvent::PaletteChange)
-    {
-        trayIconColorWhite_ = InterfaceUtils::isDarkMode();
-        qCDebug(LOG_BASIC) << "PaletteChanged, dark mode: " << trayIconColorWhite_;
-    }
-#endif
 
     if (event->type() == QEvent::WindowActivate) {
         MainWindowState::instance().setActive(true);
@@ -3186,19 +3176,6 @@ void MainWindow::onAppCloseRequest()
     }
 }
 
-#if defined(Q_OS_WIN)
-void MainWindow::onAppWinIniChanged()
-{
-    bool newDarkMode = InterfaceUtils::isDarkMode();
-    if (newDarkMode != trayIconColorWhite_)
-    {
-        trayIconColorWhite_ = newDarkMode;
-        qCDebug(LOG_BASIC) << "updating dark mode: " << trayIconColorWhite_;
-        updateTrayIconType(currentAppIconType_);
-    }
-}
-#endif
-
 void MainWindow::showShutdownWindow()
 {
     setEnabled(true);
@@ -4341,3 +4318,13 @@ void MainWindow::setDataRemaining(qint64 bytesUsed, qint64 bytesMax)
     mainWindowController_->getLocationsWindow()->setDataRemaining(bytesUsed, bytesMax);
     mainWindowController_->getBottomInfoWindow()->setDataRemaining(bytesUsed, bytesMax);
 }
+
+void MainWindow::onOsThemeChanged(bool isDarkTheme)
+{
+    qCDebug(LOG_BASIC) << "OS theme changed:" << (isDarkTheme ? "dark" : "light");
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+    trayIconColorWhite_ = isDarkTheme;
+    updateTrayIconType(currentAppIconType_);
+#endif
+}
+

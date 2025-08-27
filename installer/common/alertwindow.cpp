@@ -43,8 +43,19 @@ void AlertWindow::paintEvent(QPaintEvent *event)
     const ThemeController &themeCtrl = ThemeController::instance();
     QPainter painter(this);
 
-    QPixmap bgPixmap = getRoundedRectPixmap("", 350, 350, 8);
-    painter.drawPixmap(0, 0, bgPixmap);
+    int windowWidth = width();
+    int windowHeight = height();
+    
+    QPixmap topPixmap = getBorderedPixmap("", windowWidth, 8, 8, true, false);
+    painter.drawPixmap(0, 0, topPixmap);
+    
+    QPixmap bottomPixmap = getBorderedPixmap("", windowWidth, 8, 8, false, true);
+    painter.drawPixmap(0, windowHeight - 8, bottomPixmap);
+    
+    if (windowHeight > 16) {
+        QPixmap middlePixmap = getBorderedPixmap("", windowWidth, windowHeight - 16, 0, false, false);
+        painter.drawPixmap(0, 8, middlePixmap);
+    }
 }
 
 void AlertWindow::setIcon(const QString &path)

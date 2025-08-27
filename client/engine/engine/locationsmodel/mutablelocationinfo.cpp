@@ -110,7 +110,6 @@ void MutableLocationInfo::selectNodeByIp(const QString &addr)
 
 QString MutableLocationInfo::getIpForSelectedNode(int indIp) const
 {
-    WS_ASSERT(indIp >= 0 && indIp <= 3);
     WS_ASSERT(selectedNode_ >= 0 && selectedNode_ < nodes_.count());
     return nodes_[selectedNode_]->getIp(indIp);
 }

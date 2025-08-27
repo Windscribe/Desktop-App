@@ -2,4 +2,4 @@
 
 #include <QPixmap>
 
-QPixmap getRoundedRectPixmap(const QString &path, int width, int height, int radius);
+QPixmap getBorderedPixmap(const QString &path, int width, int height, int radius, bool roundTop = true, bool roundBottom = true);

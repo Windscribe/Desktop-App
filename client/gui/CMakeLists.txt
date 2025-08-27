@@ -60,6 +60,8 @@ set(PROJECT_SOURCES
     mainwindowstate.h
     showingdialogstate.cpp
     showingdialogstate.h
+    themecontroller.cpp
+    themecontroller.h
     windowsizemanager.cpp
     windowsizemanager.h
 

@@ -185,9 +185,8 @@ endif()
 
 target_link_libraries(Windscribe PRIVATE ${CLIENT_LIBS} engine common wsnet::wsnet spdlog::spdlog Qt6::Network ${OS_SPECIFIC_LIBRARIES})
 
-# Wayland support on Linux
 if (UNIX AND (NOT APPLE))
-    qt_import_plugins(Windscribe INCLUDE Qt6::QWaylandIntegrationPlugin)
+    qt_import_plugins(Windscribe INCLUDE Qt6::QWaylandIntegrationPlugin Qt6::QXcbIntegrationPlugin)
 endif()
 
 target_include_directories(Windscribe PRIVATE

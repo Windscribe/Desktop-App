@@ -140,6 +140,9 @@ int main(int argc, char *argv[])
 #endif
 
     qputenv("QT_EVENT_DISPATCHER_CORE_FOUNDATION", "1");
+#if defined(Q_OS_LINUX)
+    qputenv("QT_WAYLAND_DECORATION", "bradient");
+#endif
 
     #ifdef Q_OS_WIN
     // Fixes fuzzy text and graphics on Windows when a display is set to a fractional scaling value (e.g. 150%).

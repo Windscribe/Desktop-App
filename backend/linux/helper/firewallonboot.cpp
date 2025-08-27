@@ -8,6 +8,23 @@
 
 FirewallOnBootManager::FirewallOnBootManager(): comment_("Windscribe client rule")
 {
+    // Migrate old boot rules if necessary
+    if (Utils::isFileExists("/etc/windscribe/boot_rules.v4")) {
+        Utils::executeCommand("mv", {"/etc/windscribe/boot_rules.v4", "/var/tmp/windscribe/boot_rules.v4"});
+        Utils::executeCommand("rm", {"/etc/windscribe/rules.v4"});
+    }
+    if (Utils::isFileExists("/etc/windscribe/boot_rules.v6")) {
+        Utils::executeCommand("mv", {"/etc/windscribe/boot_rules.v6", "/var/tmp/windscribe/boot_rules.v6"});
+        Utils::executeCommand("rm", {"/etc/windscribe/rules.v6"});
+    }
+
+    // If firewall on boot is enabled, restore boot rules
+    if (Utils::isFileExists("/var/tmp/windscribe/boot_rules.v4")) {
+        Utils::executeCommand("iptables-restore", {"-n", "/var/tmp/windscribe/boot_rules.v4"});
+    }
+    if (Utils::isFileExists("/var/tmp/windscribe/boot_rules.v6")) {
+        Utils::executeCommand("ip6tables-restore", {"-n", "/var/tmp/windscribe/boot_rules.v6"});
+    }
 }
 
 FirewallOnBootManager::~FirewallOnBootManager()
@@ -78,7 +95,7 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     rules << "COMMIT\n";
 
     // write rules
-    int fd = open("/etc/windscribe/boot_rules.v4", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
+    int fd = open("/var/tmp/windscribe/boot_rules.v4", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
     if (fd < 0) {
         spdlog::error("Could not open boot firewall rules for writing");
         return false;
@@ -103,7 +120,7 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     rules << "COMMIT\n";
 
     // write rules
-    fd = open("/etc/windscribe/boot_rules.v6", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
+    fd = open("/var/tmp/windscribe/boot_rules.v6", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
     if (fd < 0) {
         spdlog::error("Could not open v6 boot firewall rules for writing");
         return false;
@@ -118,7 +135,7 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
 
 bool FirewallOnBootManager::disable()
 {
-    Utils::executeCommand("rm", {"-f", "/etc/windscribe/boot_rules.v4"});
-    Utils::executeCommand("rm", {"-f", "/etc/windscribe/boot_rules.v6"});
+    Utils::executeCommand("rm", {"-f", "/var/tmp/windscribe/boot_rules.v4"});
+    Utils::executeCommand("rm", {"-f", "/var/tmp/windscribe/boot_rules.v6"});
     return true;
 }

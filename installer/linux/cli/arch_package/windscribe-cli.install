@@ -37,7 +37,7 @@ post_install() {
         systemctl start systemd-resolved
         systemctl enable windscribe-helper
         systemctl start windscribe-helper
-        ln -s /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
+        ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
         setcap cap_setgid+ep /opt/windscribe/Windscribe
         echo linux_zst_x64_cli > ../etc/windscribe/platform
 }
@@ -50,6 +50,12 @@ pre_upgrade() {
 
 post_upgrade() {
         post_install
+        rm -rf /etc/windscribe/stunnel.conf
+        rm -rf /etc/windscribe/config.ovpn
+        mkdir -p /var/tmp/windscribe
+        if [ -d "/etc/windscribe/windscribe_servers" ]; then
+            mv -f /etc/windscribe/windscribe_servers /var/tmp/windscribe
+        fi
 }
 
 pre_remove() {

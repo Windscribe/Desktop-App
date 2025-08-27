@@ -44,7 +44,10 @@ public:
 
     QString getIp(int ind) const override
     {
-        WS_ASSERT(ind >= 0 && ind < 3);
+        if (ind < 0 || ind >= 3) {
+            WS_ASSERT(false);
+            return "";
+        }
         return ips_[ind];
     }
     QString getHostname() const override

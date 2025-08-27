@@ -11,8 +11,16 @@ namespace api_responses {
 
 PortMap::PortMap(const std::string &json) : d(new PortMapData)
 {
+    if (json.empty()) {
+        return;
+    }
+
     QJsonParseError errCode;
     auto doc = QJsonDocument::fromJson(QByteArray(json.c_str()), &errCode);
+    if (errCode.error != QJsonParseError::ParseError::NoError) {
+        return;
+    }
+
     auto jsonObject = doc.object();
     auto jsonData =  jsonObject["data"].toObject();
     auto jsonArray = jsonData["portmap"].toArray();
@@ -42,6 +50,10 @@ PortMap::PortMap(const std::string &json) : d(new PortMapData)
         d->items_ << portItem;
     }
     removeUnsupportedProtocols(types::Protocol::supportedProtocols());
+
+    if (d->items_.count() > 0) {
+        isValid_ = true;
+    }
 }
 
 int PortMap::getPortItemCount() const
@@ -130,6 +142,11 @@ void PortMap::removeUnsupportedProtocols(const QList<types::Protocol> &supported
     }), d->items_.end());
 }
 
+bool PortMap::isValid() const
+{
+    return isValid_;
+}
+
 QDataStream& operator <<(QDataStream& stream, const PortItem& p)
 {
     stream << p.versionForSerialization_;
@@ -153,7 +170,7 @@ QDataStream& operator >>(QDataStream& stream, PortItem& p)
 QDataStream& operator <<(QDataStream& stream, const PortMap& p)
 {
     stream << p.versionForSerialization_;
-    stream << p.d->items_;
+    stream << p.d->items_ << p.isValid_;
     return stream;
 }
 
@@ -167,6 +184,9 @@ QDataStream& operator >>(QDataStream& stream, PortMap& p)
         return stream;
     }
     stream >> p.d->items_;
+    if (version >= 2) {
+        stream >> p.isValid_;
+    }
     return stream;
 }
 

@@ -30,18 +30,12 @@ public:
     void clearNeedAskClose() { bNeedAskClose_ = false; }
 
     void onActivateFromAnotherInstance();
-#ifdef Q_OS_WIN
-    void onWinIniChanged();
-#endif
 
 signals:
     void clickOnDock();
     void activateFromAnotherInstance();
     void shouldTerminate();
     void applicationCloseRequest();
-#ifdef Q_OS_WIN
-    void winIniChanged();
-#endif
 
 public slots:
     void initiateAppShutdown();

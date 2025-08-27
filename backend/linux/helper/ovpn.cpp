@@ -15,7 +15,7 @@ bool writeOVPNFile(const std::string &dnsScript, unsigned int port, const std::s
     std::string line;
     int bytes;
 
-    int fd = open("/etc/windscribe/config.ovpn", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
+    int fd = open("/var/run/windscribe/config.ovpn", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
     if (fd < 0) {
         spdlog::error("Could not open config for writing");
         return false;

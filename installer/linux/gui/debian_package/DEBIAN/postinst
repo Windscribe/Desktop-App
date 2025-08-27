@@ -8,6 +8,14 @@ ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
 setcap cap_setgid+ep /opt/windscribe/Windscribe
 update-desktop-database
 
+# delete/migrate previous temporary files if any
+rm -rf /etc/windscribe/stunnel.conf
+rm -rf /etc/windscribe/config.ovpn
+mkdir -p /var/tmp/windscribe
+if [ -d "/etc/windscribe/windscribe_servers" ]; then
+    mv -f /etc/windscribe/windscribe_servers /var/tmp/windscribe
+fi
+
 if [ "`uname -m`" == "aarch64" ]; then
     echo linux_deb_arm64 > ../etc/windscribe/platform
 else

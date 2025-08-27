@@ -3096,16 +3096,13 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
     // This is a workaround for #930.  In some DEs on Linux, if the window is completely occluded by another,
     // the below setGeometry() does not actually resize the window.  Force the window to resize by setting a minimum size.
     // Only do this if updateShadow is true, since doing this on every animation frame may make it seem jittery.
-    if (updateShadow) {
+    if (updateShadow && QGuiApplication::platformName() != "xcb") {
         mainWindow_->setMinimumSize(geo.width(), geo.height());
     }
 #endif
 
     // qDebug() << "Updating mainwindow geo: " << geo;
-    if (QGuiApplication::platformName() != "xcb") {
-        // Don't do this for X11, because doing this causes weird flickers where the mainWindow is stretched to this geometry briefly
-        mainWindow_->setGeometry(geo);
-    }
+    mainWindow_->setGeometry(geo);
     updateViewAndScene(width, height, shadowSize, updateShadow);
 }
 

@@ -19,7 +19,7 @@ bool CGroups::enable(const ConnectStatus &connectStatus, bool isAllowLanTraffic,
 
     std::string out;
 
-    int ret = Utils::executeCommand("/etc/windscribe/cgroups-up",
+    int ret = Utils::executeCommand("/opt/windscribe/scripts/cgroups-up",
                                     { mark_.c_str(),
                                       connectStatus.defaultAdapter.gatewayIp,
                                       connectStatus.defaultAdapter.adapterName,
@@ -42,7 +42,7 @@ void CGroups::disable()
 {
     spdlog::debug("cgroups disable");
 
-    Utils::executeCommand("/etc/windscribe/cgroups-down");
+    Utils::executeCommand("/opt/windscribe/scripts/cgroups-down");
 }
 
 void CGroups::addApp(pid_t pid)

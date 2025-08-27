@@ -41,7 +41,7 @@ class PortMap
 public:
     PortMap() : d(new PortMapData) {}
     explicit PortMap(const std::string &json);
-    PortMap(const PortMap &other) : d (other.d) {}
+    PortMap(const PortMap &other) : d (other.d), isValid_(other.isValid()) {}
 
     int getPortItemCount() const;
     const PortItem *getPortItemByIndex(int ind) const;
@@ -54,6 +54,8 @@ public:
 
     void removeUnsupportedProtocols(const QList<types::Protocol> &supportedProtocols);
 
+    bool isValid() const;
+
     PortMap& operator=(const PortMap&) = default;
 
     friend QDataStream& operator <<(QDataStream& stream, const PortMap& p);
@@ -62,7 +64,9 @@ public:
 
 private:
     QSharedDataPointer<PortMapData> d;
-    static constexpr quint32 versionForSerialization_ = 1;
+    bool isValid_ = false;
+
+    static constexpr quint32 versionForSerialization_ = 2;
 };
 
 } //namespace api_responses

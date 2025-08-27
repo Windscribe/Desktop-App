@@ -333,7 +333,7 @@ void BackendCommander::onUpdateStateResponse(IPC::Command *command)
         std::cout << std::endl;
 
         // Update has been downloaded, run it now
-        QString updateCmd = (QString("/etc/windscribe/install-update ") + cmd->updatePath_);
+        QString updateCmd = (QString("/opt/windscribe/scripts/install-update ") + cmd->updatePath_);
         int ret = system(updateCmd.toStdString().c_str());
         std::error_code ec;
         std::filesystem::remove(cmd->updatePath_.toStdString(), ec);

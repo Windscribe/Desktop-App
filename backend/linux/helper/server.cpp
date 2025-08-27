@@ -15,7 +15,7 @@
 #include <unistd.h>
 #include <spdlog/spdlog.h>
 
-#include "firewallcontroller.h"
+#include "firewallonboot.h"
 #include "ipc/helper_security.h"
 #include "process_command.h"
 #include "utils.h"
@@ -171,10 +171,11 @@ void Server::run()
 
 #ifdef NDEBUG   // release build
     Utils::createWindscribeUserAndGroup();
-    auto res = system("mkdir -p /var/run/windscribe && chown :windscribe /var/run/windscribe && chmod 775 /var/run/windscribe"); // res is necessary to avoid no-discard warning.
+    auto res = system("mkdir -p /var/run/windscribe && chown :windscribe /var/run/windscribe && chmod 775 /var/run/windscribe && mkdir -p /var/tmp/windscribe"); // res is necessary to avoid no-discard warning.
 #else           // debug build
-    auto res = system("mkdir -p /var/run/windscribe && chmod 777 /var/run/windscribe");
+    auto res = system("mkdir -p /var/run/windscribe && chmod 777 /var/run/windscribe && mkdir -p /var/tmp/windscribe");
 #endif
+    spdlog::info("/var/run/windscribe and /var/tmp/windscribe created");
     UNUSED(res);
 
     ::unlink(SOCK_PATH);
@@ -198,8 +199,9 @@ void Server::run()
     }
 #endif
 
-    // Cause the FirewallController to be constructed here, so that on-boot rules are processed, even if the Windscribe app/service does not start.
-    FirewallController::instance();
+    // Cause the FireallOnBootManager to be constructed here, so that on-boot rules are processed,
+    // even if the Windscribe app/service does not start.
+    FirewallOnBootManager::instance();
 
     startAccept();
 

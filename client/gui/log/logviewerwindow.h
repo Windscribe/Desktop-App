@@ -25,6 +25,7 @@ private slots:
     void updateColorHighlighting(bool isColorHighlighting);
     void onExportClick();
     void onWordWrapToggled(bool wordWrap);
+    void onOsThemeChanged(bool isDarkTheme);
 
 protected:
     void updateScaling() override;
@@ -40,6 +41,7 @@ private:
     QCheckBox *cbColorHighlighting_;
     QPushButton *btnExportLog_;
     bool isColorHighlighting_;
+    bool isDarkTheme_;
 };
 
 }

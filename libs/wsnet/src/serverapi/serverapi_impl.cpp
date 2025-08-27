@@ -255,48 +255,48 @@ void ServerAPI_impl::onHttpNetworkRequestFinished(std::uint64_t requestId, std::
         return;
     }
 
-    if (error->isNoNetworkError()) {
-        g_logger->info("API request {} failed with error = {}", it->second.request->name(), error->toString());
-        setErrorCodeAndEmitRequestFinished(it->second.request.get(), ServerApiRetCode::kNoNetworkConnection);
-        activeHttpRequests_.erase(it);
-        return;
-    }
-
     if (error->isSuccess()) {
         if (advancedParameters_->isLogApiResponce()) {
             g_logger->info("API request {} finished", it->second.request->name());
             g_logger->info("{}", data);
         }
         it->second.request->handle(data);
+        // handle() may cause the retcode to change.  Only call callback here if it's still successful.
+        if (it->second.request->retCode() == ServerApiRetCode::kSuccess) {
+            bWasSuccesfullRequest_ = true;
+            it->second.request->callCallback();
+            activeHttpRequests_.erase(it);
+            return;
+        }
+    } else if (error->isNoNetworkError()) {
+        g_logger->info("API request {} failed with error = {}", it->second.request->name(), error->toString());
+        setErrorCodeAndEmitRequestFinished(it->second.request.get(), ServerApiRetCode::kNoNetworkConnection);
+        activeHttpRequests_.erase(it);
+        return;
     }
 
-    // handle() may cause the retcode to change to kIncorrectJson.  Only call callback here if this didn't happen.
-    if (it->second.request->retCode() != ServerApiRetCode::kIncorrectJson) {
-        bWasSuccesfullRequest_ = true;
-        it->second.request->callCallback();
-    } else {
-        g_logger->info("API request {} failed with error = {}", it->second.request->name(), error->toString());
+    // Either error->isSuccess() is false or the retcode was changed to kIncorrectJson by handle().
+    g_logger->info("API request {} failed with error = {}", it->second.request->name(), error->toString());
 
-        // we need to start going through the backup domains again
-        // except for the DNS resolve error
-        if (it->second.bFromDisconnectedVPNState_ && (!error->isDnsError() || it->second.request->retCode() == ServerApiRetCode::kIncorrectJson)) {
+    // we need to start going through the backup domains again
+    // except for the DNS resolve error
+    if (it->second.bFromDisconnectedVPNState_ && (!error->isDnsError() || it->second.request->retCode() == ServerApiRetCode::kIncorrectJson)) {
 
-            if (!it->second.bDiscard) {
-                resetFailoverImpl(false);
-                g_logger->info("ServerAPI_impl::onHttpNetworkRequestFinished, reset failover");
+        if (!it->second.bDiscard) {
+            resetFailoverImpl(false);
+            g_logger->info("ServerAPI_impl::onHttpNetworkRequestFinished, reset failover");
 
-                // mark all pending requests for discard
-                for (auto &req : activeHttpRequests_) {
-                    req.second.bDiscard = true;
-                }
+            // mark all pending requests for discard
+            for (auto &req : activeHttpRequests_) {
+                req.second.bDiscard = true;
             }
-
-            // Repeat the execution of the request via failover
-            executeRequest(std::move(it->second.request));
-
-        } else {
-            setErrorCodeAndEmitRequestFinished(it->second.request.get(), ServerApiRetCode::kNetworkError);
         }
+
+        // Repeat the execution of the request via failover
+        executeRequest(std::move(it->second.request));
+
+    } else {
+        setErrorCodeAndEmitRequestFinished(it->second.request.get(), ServerApiRetCode::kNetworkError);
     }
     activeHttpRequests_.erase(it);
 }

@@ -88,14 +88,20 @@ if [ $1 -eq 0 ]; then
     userdel -f windscribe || true
     groupdel -f windscribe || true
     rm -f /usr/bin/windscribe-cli
-    rm -rf /etc/windscribe/rules.*
-    rm -rf /etc/windscribe/*.ovpn
-    rm -rf /etc/windscribe/stunnel.conf
+    rm -rf /etc/windscribe
+    rm -rf /opt/windscribe
     rm -rf /var/log/windscribe
+else
+    rm -rf /etc/windscribe/stunnel.conf
+    rm -rf /etc/windscribe/config.ovpn
+    mkdir -p /var/tmp/windscribe
+    if [ -d "/etc/windscribe/windscribe_servers" ]; then
+        mv -f /etc/windscribe/windscribe_servers /var/tmp/windscribe
+    fi
 fi
 
 %files
-%config /etc/windscribe/*
+%config /etc/windscribe/autostart/windscribe.desktop
 /opt/windscribe/*
 /usr/polkit-1/actions/com.windscribe.authhelper.policy
 /usr/lib/systemd/system-preset/69-windscribe-helper.preset

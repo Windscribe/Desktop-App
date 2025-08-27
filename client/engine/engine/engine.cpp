@@ -2041,30 +2041,15 @@ void Engine::onNetworkOnlineStateChange(bool isOnline)
 void Engine::onNetworkChange(const types::NetworkInterface &networkInterface)
 {
     if (!networkInterface.networkOrSsid.isEmpty()) {
-
-        if (isLoggedIn_) {
-            api_responses::PortMap portMap(WSNet::instance()->apiResourcersManager()->portMap());
-            connectionManager_->updateConnectionSettings(
-                engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), portMap,
-                ProxyServerController::instance().getCurrentProxySettings());
-        } else {
-            connectionManager_->updateConnectionSettings(
-                engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid),
-                api_responses::PortMap(),
-                ProxyServerController::instance().getCurrentProxySettings());
+        api_responses::PortMap portMap(WSNet::instance()->apiResourcersManager()->portMap());
+        if (!portMap.isValid()) {
+            qCWarning(LOG_BASIC) << "Engine::onNetworkChange: Port map is invalid:" << WSNet::instance()->apiResourcersManager()->portMap();
         }
 
-        if (!WSNet::instance()->apiResourcersManager()->portMap().empty()) {
-            connectionManager_->updateConnectionSettings(
-                engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), api_responses::PortMap(WSNet::instance()->apiResourcersManager()->portMap()),
-                ProxyServerController::instance().getCurrentProxySettings());
-
-        } else {
-            connectionManager_->updateConnectionSettings(
-                engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid),
-                api_responses::PortMap(),
-                ProxyServerController::instance().getCurrentProxySettings());
-        }
+        connectionManager_->updateConnectionSettings(
+            engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid),
+            portMap,
+            ProxyServerController::instance().getCurrentProxySettings());
 
         if (helper_ && connectStateController_->currentState() == CONNECT_STATE_DISCONNECTED) {
             helper_->sendConnectStatus(false,
@@ -2294,6 +2279,10 @@ void Engine::onApiResourcesManagerReadyForLogin(bool isLoginFromSavedSettings)
     updateCurrentNetworkInterfaceImpl();
 
     api_responses::PortMap portMap(WSNet::instance()->apiResourcersManager()->portMap());
+    if (!portMap.isValid()) {
+        qCWarning(LOG_BASIC) << "Engine::onApiResourcesManagerReadyForLogin: Port map is invalid:" << WSNet::instance()->apiResourcersManager()->portMap();
+    }
+
     emit loginFinished(isLoginFromSavedSettings, portMap);
 }
 
@@ -2490,6 +2479,10 @@ void Engine::doConnect(bool bEmitAuthError)
         api_responses::ServerCredentials ovpnCredentials(WSNet::instance()->apiResourcersManager()->serverCredentialsOvpn());
         api_responses::ServerCredentials ikev2Credentials(WSNet::instance()->apiResourcersManager()->serverCredentialsIkev2());
         api_responses::PortMap portMap(WSNet::instance()->apiResourcersManager()->portMap());
+        if (!portMap.isValid()) {
+            qCWarning(LOG_BASIC) << "Engine::doConnect(): Port map is invalid:" << WSNet::instance()->apiResourcersManager()->portMap();
+        }
+
         QByteArray ovpnConfig = QByteArray::fromBase64(QByteArray(WSNet::instance()->apiResourcersManager()->serverConfigs().c_str()));
 
         if (!bli->locationId().isCustomConfigsLocation() && !bli->locationId().isStaticIpsLocation())

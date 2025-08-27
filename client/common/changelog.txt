@@ -1,3 +1,23 @@
+2.17.3 (22/08/2025)
+All:
+   * Improved native window colours in accordance with OS theme. #1213
+   * Fixed libcurl loading openssl.cnf from untrusted path. #1454
+   * Fixed potential crash when operating with empty port map. #1457
+   * Fixed some wsnet failover behaviour. #1449
+   * Updated ctrld to 1.4.6. #1464
+Windows:
+   * Fixed installer alert border. #1461
+MacOS:
+   * Fixed missing tray icon. #1452
+   * Fixed installer alert border. #1461
+Linux:
+   * Improved filesystem organization/packaging per FHS. #673
+   * Fixed missing xcb plugin. #949
+   * Fixed rendering issues on X11 (non-wayland) environments. #1437
+   * Fixed missing window decorators for advanced parameter/log viewer screens in Wayland. #1459
+   * Fixed missing dependency for openSUSE. #1460
+
+
 2.17.2 (13/08/2025)
 All:
    * Added advanced parameters for overriding the API, assets, and checkip domains used in wsnet. #1440

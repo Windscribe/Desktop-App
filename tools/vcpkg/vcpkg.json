@@ -3,6 +3,10 @@
         "qtbase",
         "qtsvg",
         {
+            "name": "qtimageformats",
+            "default-features": false
+        }, 
+        {
             "name": "qttools",
             "default-features": false,
             "features": [ "linguist" ]

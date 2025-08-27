@@ -44,10 +44,6 @@ bool WindowsNativeEventFilter::nativeEventFilter(const QByteArray &b, void *mess
         qCDebug(LOG_BASIC) << "Windows activate app message received";
         WindscribeApplication::instance()->onActivateFromAnotherInstance();
         return true;
-    } else if (msg->message == WM_WININICHANGE) {
-        // WM_WININICHANGE fires when OS light/dark mode is updated
-        WindscribeApplication::instance()->onWinIniChanged();
-        return true;
     }
 
     return false;

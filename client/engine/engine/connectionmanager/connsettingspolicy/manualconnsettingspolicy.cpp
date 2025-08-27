@@ -65,6 +65,12 @@ CurrentConnectionDescr ManualConnSettingsPolicy::getCurrentConnectionSettings() 
 
     int useIpInd = portMap_.getUseIpInd(connectionSettings_.protocol());
     ccd.ip = locationInfo_->getIpForSelectedNode(useIpInd);
+    if (ccd.ip.isEmpty()) {
+        qCWarning(LOG_CONNECTION) << "Could not get IP for selected node.  Port map: ";
+        for (auto item : portMap_.const_items()) {
+            qCWarning(LOG_CONNECTION) << "protocol:" << item.protocol.toLongString() << "heading:" << item.heading << "use:" << item.use << "ports:" << item.ports;
+        }
+    }
     ccd.hostname = locationInfo_->getHostnameForSelectedNode();
     ccd.dnsHostName = locationInfo_->getDnsName();
     ccd.wgPeerPublicKey = locationInfo_->getWgPubKeyForSelectedNode();

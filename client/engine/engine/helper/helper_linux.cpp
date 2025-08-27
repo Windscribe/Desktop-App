@@ -9,7 +9,7 @@ Helper_linux::Helper_linux(std::unique_ptr<IHelperBackend> backend, spdlog::logg
 bool Helper_linux::installUpdate(const QString &package) const
 {
     QProcess process;
-    process.setProgram("/etc/windscribe/install-update");
+    process.setProgram("/opt/windscribe/scripts/install-update");
     process.setArguments(QStringList() << package);
     int ret = process.startDetached();
     if (!ret) {

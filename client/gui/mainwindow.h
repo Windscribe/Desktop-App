@@ -260,9 +260,6 @@ private slots:
     void onAppActivateFromAnotherInstance();
     void onAppShouldTerminate();
     void onAppCloseRequest();
-#if defined(Q_OS_WIN)
-    void onAppWinIniChanged();
-#endif
 
     // LocalIPCServer signals
     void onIpcOpenLocations(IPC::CliCommands::LocationType type);
@@ -309,6 +306,7 @@ private slots:
     void onSelectedLocationRemoved();
 
     void onLocationPermissionUpdated();
+    void onOsThemeChanged(bool isDarkTheme);
 
 #if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     void onSigTerm();

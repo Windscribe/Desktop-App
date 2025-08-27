@@ -103,7 +103,7 @@ std::string executeOpenVPN(const std::string &pars)
         return serializeResult(false, cmdId);
     }
 
-    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribeopenvpn", "--config /etc/windscribe/config.ovpn");
+    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribeopenvpn", "--config /var/run/windscribe/config.ovpn");
     if (fullCmd.empty()) {
         // Something wrong with the command
         return serializeResult(false, cmdId);
@@ -116,7 +116,7 @@ std::string executeOpenVPN(const std::string &pars)
         return serializeResult(false, cmdId);
     } else {
 
-        cmdId = ExecuteCmd::instance().execute(fullCmd, "/etc/windscribe");
+        cmdId = ExecuteCmd::instance().execute(fullCmd, "/opt/windscribe");
         return serializeResult(true, cmdId);
     }
 }
@@ -463,7 +463,7 @@ std::string setDnsLeakProtectEnabled(const std::string &pars)
     spdlog::debug("Set DNS leak protect: {}", enabled ? "enabled" : "disabled");
     // We only handle the down case; the 'up' trigger for this script happens in the DNS manager script
     if (!enabled) {
-        Utils::executeCommand("/etc/windscribe/dns-leak-protect", {"down"});
+        Utils::executeCommand("/opt/windscribe/scripts/dns-leak-protect", {"down"});
     }
     return std::string();
 }

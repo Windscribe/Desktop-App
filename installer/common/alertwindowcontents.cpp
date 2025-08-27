@@ -75,27 +75,27 @@ void AlertWindowContents::updateDimensions()
 {
     qreal pmWidth = icon_->pixmap().width()/icon_->pixmap().devicePixelRatio();
     qreal pmHeight = icon_->pixmap().height()/icon_->pixmap().devicePixelRatio();
-    icon_->setGeometry((314 - pmWidth)/2, 48, pmWidth, pmHeight);
+    icon_->setGeometry((300 - pmWidth)/2, 48, pmWidth, pmHeight);
 
     QFont titleFont(ThemeController::instance().defaultFontName());
     titleFont.setWeight(QFont::DemiBold);
     titleFont.setPixelSize(titleSize_);
     QFontMetrics titleFm(titleFont);
     title_->setFont(titleFont);
-    title_->setGeometry(0, 76 + icon_->height(), 314, titleFm.boundingRect(0, 0, 314, height(), Qt::TextWordWrap, title_->text()).height());
+    title_->setGeometry(0, 76 + icon_->height(), 300, titleFm.boundingRect(0, 0, 300, height(), Qt::TextWordWrap, title_->text()).height());
 
     QFont descFont(ThemeController::instance().defaultFontName());
     descFont.setPixelSize(descSize_);
     QFontMetrics fmDesc(descFont);
-    desc_->setGeometry(0, 92 + icon_->height() + title_->height(), 314, fmDesc.boundingRect(0, 0, 314, height(), Qt::TextWordWrap, desc_->text()).height());
+    desc_->setGeometry(0, 92 + icon_->height() + title_->height(), 300, fmDesc.boundingRect(0, 0, 300, height(), Qt::TextWordWrap, desc_->text()).height());
 
     if (!primaryButton_->text().isEmpty()) {
         QFontMetrics fm(primaryButton_->font());
         int buttonWidth = fm.horizontalAdvance(primaryButton_->text()) + 32;
-        primaryButton_->setGeometry(157 - buttonWidth/2, 112 + icon_->height() + title_->height() + desc_->height(), buttonWidth, 35);
-        secondaryButton_->move((314 - secondaryButton_->width())/2, 128 + icon_->height() + title_->height() + desc_->height() + secondaryButton_->height() + 16);
+        primaryButton_->setGeometry(150 - buttonWidth/2, 112 + icon_->height() + title_->height() + desc_->height(), buttonWidth, 35);
+        secondaryButton_->move((300 - secondaryButton_->width())/2, 128 + icon_->height() + title_->height() + desc_->height() + secondaryButton_->height() + 16);
     } else if (!secondaryButton_->text().isEmpty()) {
-        secondaryButton_->move((314 - secondaryButton_->width())/2, 112 + icon_->height() + title_->height() + desc_->height() + 16);
+        secondaryButton_->move((300 - secondaryButton_->width())/2, 112 + icon_->height() + title_->height() + desc_->height() + 16);
     }
 
     int height =
@@ -116,7 +116,7 @@ void AlertWindowContents::updateDimensions()
     }
 
     setFixedHeight(height);
-    setFixedWidth(350);
+    setFixedWidth(300);
     onThemeChanged();
     emit sizeChanged();
 }

@@ -17,7 +17,7 @@ InitialWindow::InitialWindow(QWidget *parent) : QWidget(parent)
     setFocusPolicy(Qt::StrongFocus);
 
     QLabel *background = new QLabel(this);
-    background->setPixmap(getRoundedRectPixmap(":/resources/background.png", 350, 350, 8));
+    background->setPixmap(getBorderedPixmap(":/resources/background.png", 350, 350, 8));
     background->move(0, 0);
 
     QLabel *logo = new QLabel(this);

@@ -14,8 +14,9 @@
 
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
-#include "utils/log/mergelog.h"
 #include "randomcolor.h"
+#include "themecontroller.h"
+#include "utils/log/mergelog.h"
 
 namespace LogViewer {
 
@@ -70,6 +71,9 @@ LogViewerWindow::LogViewerWindow(QWidget *parent)
     updateScaling();
 
     QTimer::singleShot(250, this, [this]() { updateLog(); });
+
+    connect(&ThemeController::instance(), &ThemeController::osThemeChanged, this, &LogViewerWindow::onOsThemeChanged);
+    onOsThemeChanged(ThemeController::instance().isOsDarkTheme());
 }
 
 LogViewerWindow::~LogViewerWindow()
@@ -141,7 +145,7 @@ void LogViewerWindow::highlightBlocks()
         if (isColorHighlighting_) {
             RandomColor color;
             color.setSeed(hash);
-            int c = color.generate(RandomColor::RandomHue, RandomColor::Light);
+            int c = color.generate(RandomColor::RandomHue, isDarkTheme_ ? RandomColor::Dark : RandomColor::Light);
             auto brush = QBrush(QColor(c));
             blockFormat.setBackground(brush);
         } else {
@@ -154,6 +158,12 @@ void LogViewerWindow::highlightBlocks()
 void LogViewerWindow::onWordWrapToggled(bool wordWrap)
 {
     textEdit_->setWordWrapMode(wordWrap ? QTextOption::WrapAtWordBoundaryOrAnywhere : QTextOption::NoWrap);
+}
+
+void LogViewerWindow::onOsThemeChanged(bool isDarkTheme)
+{
+    isDarkTheme_ = isDarkTheme;
+    highlightBlocks();
 }
 
 } //namespace LogViewer

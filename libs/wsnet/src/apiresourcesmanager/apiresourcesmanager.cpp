@@ -769,6 +769,7 @@ bool ApiResourcesManager::isTimeoutForRequest(RequestType requestType, int timeo
 
 void ApiResourcesManager::clearValues()
 {
+    g_logger->info("ApiResourcesManager::clearValues");
     isFetchingServerCredentials_ = false;
     isLoginOkEmitted_ = false;
     sessionStatus_.reset();

@@ -134,11 +134,11 @@ std::string getDnsScript(CmdDnsManager mgr)
 {
     switch(mgr) {
     case kSystemdResolved:
-        return "/etc/windscribe/update-systemd-resolved";
+        return "/opt/windscribe/scripts/update-systemd-resolved";
     case kResolvConf:
-        return "/etc/windscribe/update-resolv-conf";
+        return "/opt/windscribe/scripts/update-resolv-conf";
     case kNetworkManager:
-        return "/etc/windscribe/update-network-manager";
+        return "/opt/windscribe/scripts/update-network-manager";
     default:
         return "";
     }

@@ -13,13 +13,6 @@
 
 FirewallController::FirewallController() : connected_(false), splitTunnelEnabled_(false), splitTunnelExclude_(true)
 {
-    // If firewall on boot is enabled, restore boot rules
-    if (Utils::isFileExists("/etc/windscribe/boot_rules.v4")) {
-        Utils::executeCommand("iptables-restore", {"-n", "/etc/windscribe/boot_rules.v4"});
-    }
-    if (Utils::isFileExists("/etc/windscribe/boot_rules.v6")) {
-        Utils::executeCommand("ip6tables-restore", {"-n", "/etc/windscribe/boot_rules.v6"});
-    }
 }
 
 FirewallController::~FirewallController()
@@ -31,9 +24,9 @@ bool FirewallController::enable(bool ipv6, const std::string &rules)
     int fd;
 
     if (ipv6) {
-        fd = open("/etc/windscribe/rules.v6", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
+        fd = open("/var/run/windscribe/rules.v6", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
     } else {
-        fd = open("/etc/windscribe/rules.v4", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
+        fd = open("/var/run/windscribe/rules.v4", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
     }
 
     if (fd < 0) {
@@ -49,9 +42,9 @@ bool FirewallController::enable(bool ipv6, const std::string &rules)
     }
 
     if (ipv6) {
-        Utils::executeCommand("ip6tables-restore", {"-n", "/etc/windscribe/rules.v6"});
+        Utils::executeCommand("ip6tables-restore", {"-n", "/var/run/windscribe/rules.v6"});
     } else {
-        Utils::executeCommand("iptables-restore", {"-n", "/etc/windscribe/rules.v4"});
+        Utils::executeCommand("iptables-restore", {"-n", "/var/run/windscribe/rules.v4"});
     }
 
     // reapply split tunneling rules if necessary
@@ -67,10 +60,10 @@ void FirewallController::getRules(bool ipv6, std::string *outRules)
     std::string filename;
 
     if (ipv6) {
-        filename = "/etc/windscribe/rules.v6";
+        filename = "/var/run/windscribe/rules.v6";
         Utils::executeCommand("ip6tables-save", {"-f", filename.c_str()});
     } else {
-        filename = "/etc/windscribe/rules.v4";
+        filename = "/var/run/windscribe/rules.v4";
         Utils::executeCommand("iptables-save", {"-f", filename.c_str()});
     }
 
@@ -87,8 +80,8 @@ bool FirewallController::enabled(const std::string &tag)
 
 void FirewallController::disable()
 {
-    Utils::executeCommand("rm", {"-f", "/etc/windscribe/rules.v4"});
-    Utils::executeCommand("rm", {"-f", "/etc/windscribe/rules.v6"});
+    Utils::executeCommand("rm", {"-f", "/var/run/windscribe/rules.v4"});
+    Utils::executeCommand("rm", {"-f", "/var/run/windscribe/rules.v6"});
 }
 
 void FirewallController::setSplitTunnelingEnabled(bool isConnected, bool isEnabled, bool isExclude, const std::string &defaultAdapter, const std::string &defaultAdapterIp)
