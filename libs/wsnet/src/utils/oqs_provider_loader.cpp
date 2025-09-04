@@ -20,12 +20,12 @@ static int load_oqs_provider_internal(OSSL_LIB_CTX *libctx)
     if (ret != 0) {
         return 0;
     }
-    
+
     ret = OSSL_PROVIDER_add_builtin(libctx, kOQSProviderName, oqs_provider_init);
     if (ret != 1) {
         return -1;
     }
-    
+
     OSSL_PROVIDER *provider = OSSL_PROVIDER_load(libctx, kOQSProviderName);
     if (provider == NULL) {
         return -1;
@@ -44,12 +44,12 @@ bool OQSProviderLoader::initializeOQSProvider()
     if (!default_provider) {
         return false;
     }
-    
+
     OSSL_LIB_CTX *global_ctx = OSSL_LIB_CTX_get0_global_default();
     if (load_oqs_provider_internal(global_ctx) == 0) {
         oqs_provider = OSSL_PROVIDER_load(nullptr, kOQSProviderName);
     }
-    
+
     return true;
 }
 
@@ -59,7 +59,7 @@ void OQSProviderLoader::cleanup()
         OSSL_PROVIDER_unload(oqs_provider);
         oqs_provider = nullptr;
     }
-    
+
     if (default_provider) {
         OSSL_PROVIDER_unload(default_provider);
         default_provider = nullptr;

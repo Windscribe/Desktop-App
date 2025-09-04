@@ -145,7 +145,13 @@ void LogViewerWindow::highlightBlocks()
         if (isColorHighlighting_) {
             RandomColor color;
             color.setSeed(hash);
-            int c = color.generate(RandomColor::RandomHue, isDarkTheme_ ? RandomColor::Dark : RandomColor::Light);
+
+            // Get the text color for contrast calculation
+            QColor textColor = textEdit_->palette().color(QPalette::Text);
+            int textColorRgb = (textColor.red() << 16) | (textColor.green() << 8) | textColor.blue();
+
+            int c = color.generateWithContrast(textColorRgb, RandomColor::RandomHue,
+                                               isDarkTheme_ ? RandomColor::Dark : RandomColor::Light);
             auto brush = QBrush(QColor(c));
             blockFormat.setBackground(brush);
         } else {
@@ -163,7 +169,8 @@ void LogViewerWindow::onWordWrapToggled(bool wordWrap)
 void LogViewerWindow::onOsThemeChanged(bool isDarkTheme)
 {
     isDarkTheme_ = isDarkTheme;
-    highlightBlocks();
+    // Delay to ensure palette has updated after theme change
+    QTimer::singleShot(100, this, [this]() { highlightBlocks(); });
 }
 
 } //namespace LogViewer

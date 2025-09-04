@@ -18,7 +18,7 @@ QPixmap getBorderedPixmap(const QString &imgPath, int width, int height, int rad
 
     QPainterPathStroker stroker(pen);
     QPainterPath path;
-    
+
     if (roundTop && roundBottom) {
         path.addRoundedRect(2, 2, width-4, height-4, radius, radius);
     } else if (roundTop && !roundBottom) {
@@ -28,7 +28,7 @@ QPixmap getBorderedPixmap(const QString &imgPath, int width, int height, int rad
     } else {
         path.addRect(2, -radius-2, width-4, height+2*radius+4);
     }
-    
+
     painter.fillPath(path, ThemeController::instance().windowBackgroundColor());
 
     if (!imgPath.isEmpty()) {

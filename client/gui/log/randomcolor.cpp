@@ -9,6 +9,8 @@
 
 #include "randomcolor.h"
 #include <cassert>
+#include <cmath>
+#include <algorithm>
 
 /**
  * The map is formed with the help of the following sources:
@@ -272,4 +274,114 @@ int RandomColor::HSBtoRGB( double h, double s, double v ) const
 
     // Scale r, g, b to [0; 255] and pack them into a number 0xRRGGBB
     return (int(r * 255) << 16) + (int(g * 255) << 8) + int(b * 255);
+}
+
+int RandomColor::generateWithContrast( int textColor, Color color, Luminosity luminosity )
+{
+    double textLuminance = calculateRelativeLuminance(textColor);
+    double targetLuminance;
+
+    if (luminosity == Dark) {
+        // Dark mode - need dark background: (textLum + 0.05) / (bgLum + 0.05) >= 4.5
+        targetLuminance = (textLuminance + 0.05) / 4.5 - 0.05;
+        targetLuminance = std::max(0.05, std::min(0.4, targetLuminance)); // Keep backgrounds reasonably dark
+    } else {
+        // Light mode - need bright background: (bgLum + 0.05) / (textLum + 0.05) >= 4.5
+        double minRequired = (textLuminance + 0.05) * 4.5 - 0.05;
+        targetLuminance = std::max(0.6, std::min(0.9, minRequired)); // Keep backgrounds reasonably bright but not blinding
+    }
+
+    // Generate base hue and saturation
+    const ColorInfo& info = (color == RandomHue) ? getColorInfo(randomWithin({0, 359})) : colorMap[color];
+    const int h = randomWithin(info.hRange);
+    const int s = pickSaturation(info, luminosity);
+
+    // Generate color with exact target luminance
+    return generateColorWithTargetLuminance(h, s, targetLuminance);
+}
+
+double RandomColor::calculateContrastRatio( int color1, int color2 )
+{
+    double lum1 = calculateRelativeLuminance(color1);
+    double lum2 = calculateRelativeLuminance(color2);
+
+    if (lum1 < lum2) {
+        std::swap(lum1, lum2);
+    }
+
+    return (lum1 + 0.05) / (lum2 + 0.05);
+}
+
+double RandomColor::calculateRelativeLuminance( int rgbColor )
+{
+    double r = ((rgbColor >> 16) & 0xFF) / 255.0;
+    double g = ((rgbColor >> 8) & 0xFF) / 255.0;
+    double b = (rgbColor & 0xFF) / 255.0;
+
+    r = sRGBtoLinear(r);
+    g = sRGBtoLinear(g);
+    b = sRGBtoLinear(b);
+
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+double RandomColor::sRGBtoLinear( double value )
+{
+    if (value <= 0.03928) {
+        return value / 12.92;
+    } else {
+        return pow((value + 0.055) / 1.055, 2.4);
+    }
+}
+
+double RandomColor::linearTosRGB( double value )
+{
+    if (value <= 0.0031308) {
+        return value * 12.92;
+    } else {
+        return 1.055 * pow(value, 1.0/2.4) - 0.055;
+    }
+}
+
+int RandomColor::generateColorWithTargetLuminance( int h, int s, double targetLuminance ) const
+{
+    // Convert HSV to RGB to get the hue and saturation ratios
+    double tempColor = HSBtoRGB(h, s, 50); // Use 50% brightness as baseline
+    int tempR = (int(tempColor) >> 16) & 0xFF;
+    int tempG = (int(tempColor) >> 8) & 0xFF;
+    int tempB = int(tempColor) & 0xFF;
+
+    // Calculate the relative contributions of R, G, B to luminance
+    // L = 0.2126*R + 0.7152*G + 0.0722*B (in linear space)
+    // We need to find a scaling factor that achieves target luminance
+
+    // Binary search for the right brightness multiplier
+    double minBrightness = 0.0;
+    double maxBrightness = 1.0;
+
+    for (int i = 0; i < 20; ++i) { // 20 iterations gives us good precision
+        double testBrightness = (minBrightness + maxBrightness) / 2.0;
+
+        // Scale the RGB values by brightness
+        int r = std::min(255, (int)(tempR * testBrightness * 2.0)); // *2 because we used 50% baseline
+        int g = std::min(255, (int)(tempG * testBrightness * 2.0));
+        int b = std::min(255, (int)(tempB * testBrightness * 2.0));
+
+        int testColor = (r << 16) | (g << 8) | b;
+        double actualLuminance = calculateRelativeLuminance(testColor);
+
+        if (actualLuminance < targetLuminance) {
+            minBrightness = testBrightness;
+        } else {
+            maxBrightness = testBrightness;
+        }
+    }
+
+    // Generate final color with calculated brightness
+    double finalBrightness = (minBrightness + maxBrightness) / 2.0;
+    int r = std::min(255, (int)(tempR * finalBrightness * 2.0));
+    int g = std::min(255, (int)(tempG * finalBrightness * 2.0));
+    int b = std::min(255, (int)(tempB * finalBrightness * 2.0));
+
+    return (r << 16) | (g << 8) | b;
 }

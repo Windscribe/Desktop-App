@@ -9,7 +9,7 @@
 SoundManager::SoundManager(QObject *parent, Preferences *preferences)
     : QObject(parent), preferences_(preferences), audioEngineInitialized_(false), soundInitialized_(false), shouldLoop_(false), connectedEventQueued_(false)
 {
-    initialize();
+    initialize(); // NOLINT
 }
 
 SoundManager::~SoundManager()

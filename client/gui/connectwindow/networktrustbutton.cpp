@@ -171,7 +171,7 @@ void NetworkTrustButton::onHoverEnter()
 void NetworkTrustButton::onHoverLeave()
 {
     startAnAnimation(opacityAnimation_, animProgress_, 0.7, ANIMATION_SPEED_FAST);
-    
+
     // Hide tooltip if it was shown
     if (isTextElided_) {
         TooltipController::instance().hideTooltip(TOOLTIP_ID_ELIDED_TEXT);

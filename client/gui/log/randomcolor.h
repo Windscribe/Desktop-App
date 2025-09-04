@@ -131,6 +131,18 @@ public:
      */
     void setSeed( int seed );
 
+    /**
+     * Generates a color that has sufficient contrast with the specified text color.
+     * Returns a random color with at least 4.5:1 contrast ratio, in RGB format (0xRRGGBB).
+     */
+    int generateWithContrast( int textColor, Color color = RandomHue, Luminosity luminosity = Normal );
+
+    /**
+     * Calculates the contrast ratio between two RGB colors.
+     * Returns a value >= 1.0, where higher values indicate better contrast.
+     */
+    static double calculateContrastRatio( int color1, int color2 );
+
 private:
     struct SBRange
     {
@@ -156,6 +168,11 @@ private:
     const ColorInfo& getColorInfo( int h ) const;
     int randomWithin( const Range& );
     int HSBtoRGB( double h, double s, double b ) const;
+
+    static double calculateRelativeLuminance( int rgbColor );
+    static double sRGBtoLinear( double value );
+    static double linearTosRGB( double value );
+    int generateColorWithTargetLuminance( int h, int s, double targetLuminance ) const;
 
     static const std::vector<ColorInfo> colorMap;
     std::default_random_engine randomEngine;

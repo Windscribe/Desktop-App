@@ -1,3 +1,10 @@
+2.17.4 (04/09/2025)
+All:
+   * Improved highlight colours used in log viewer. #1213
+   * Fixed resize bar may be cut off when update banner is shown. #1465
+   * Fixed broken link in preferences. #1467
+
+
 2.17.3 (22/08/2025)
 All:
    * Improved native window colours in accordance with OS theme. #1213

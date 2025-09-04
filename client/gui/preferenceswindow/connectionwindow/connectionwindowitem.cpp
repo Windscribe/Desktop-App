@@ -347,7 +347,7 @@ void ConnectionWindowItem::onLanguageChanged()
                                    QString("https://%1/features/firewall").arg(HardcodedSettings::instance().windscribeServerUrl()));
     connectionModeGroup_->setTitle(tr("Connection Mode"));
     connectionModeGroup_->setDescription(tr("Automatically choose the VPN protocol, or select one manually. NOTE: \"Preferred Protocol\" will override this setting."),
-                                         QString("https://%1/features/connection-mode").arg(HardcodedSettings::instance().windscribeServerUrl()));
+                                         QString("https://%1/features/flexible-connectivity").arg(HardcodedSettings::instance().windscribeServerUrl()));
     packetSizeGroup_->setDescription(tr("Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols."),
                                      QString("https://%1/features/packet-size").arg(HardcodedSettings::instance().windscribeServerUrl()));
     connectedDnsGroup_->setDescription(tr("Select the DNS server while connected to Windscribe."),

@@ -176,7 +176,10 @@ void ConfigFooterInfo::mouseReleaseEvent(QMouseEvent * /*event*/)
 
 void ConfigFooterInfo::onIconOpacityChanged(const QVariant &value, int index)
 {
-    WS_ASSERT(index >= 0 && index < NUM_ICONS);
+    if (index < 0 || index >= NUM_ICONS) {
+        WS_ASSERT(false);
+        return;
+    }
     iconButtons_[index].opacity = value.toDouble();
     update();
 }

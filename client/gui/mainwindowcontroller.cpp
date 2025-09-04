@@ -2904,7 +2904,7 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
     for (auto w : windowSizeManager_->windows()) {
         if (windowSizeManager_->isExclusivelyExpanded(w)) {
             width = w->boundingRect().width();
-            height = w->boundingRect().height();
+            height = w->boundingRect().height() + w->y();
             height += preferences_->appSkin() == APP_SKIN_VAN_GOGH ? (UPDATE_WIDGET_HEIGHT * updateWidgetAnimationProgress_)*G_SCALE : 0;
             return;
         }
@@ -2929,9 +2929,9 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
                     if (QGuiApplication::platformName() == "xcb") {
                         // For X11, as soon as a window starts animating, treat it as if the height were the full height.
                         // Otherwise, some items ping-pong between positions and the animation looks wrong.
-                        height = windowSizeManager_->windowHeight(w)*G_SCALE;
+                        height = windowSizeManager_->windowHeight(w)*G_SCALE + w->y();
                     } else {
-                        height = w->boundingRect().height();
+                        height = w->boundingRect().height() + w->y();
                     }
                     break;
                 }

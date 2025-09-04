@@ -238,7 +238,7 @@ void CurlNetworkManager::run()
 CURLcode CurlNetworkManager::sslctx_function(CURL *curl, void *sslctx, void *parm)
 {
     SSL_CTX *ctx = (SSL_CTX *)sslctx;
-    
+
     // Add certificates to the SSL context
     X509_STORE *store = SSL_CTX_get_cert_store(ctx);
     CertManager *certManager = static_cast<CertManager *>(parm);
