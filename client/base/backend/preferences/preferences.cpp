@@ -985,6 +985,7 @@ void Preferences::validateAndUpdateIfNeeded()
         if (!bCorrect)
         {
             cdi.type = CONNECTED_DNS_TYPE_AUTO;
+            cdi.isSplitDns = false;
             engineSettings_.setConnectedDnsInfo(cdi);
             emit connectedDnsInfoChanged(engineSettings_.connectedDnsInfo());
             is_update_needed = true;

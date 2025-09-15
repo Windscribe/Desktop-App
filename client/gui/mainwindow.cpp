@@ -1386,7 +1386,10 @@ void MainWindow::onPreferencesReportErrorToUser(const QString &title, const QStr
 
 void MainWindow::onPreferencesCollapsed()
 {
-    backend_->getPreferences()->validateAndUpdateIfNeeded();
+    // Suppress validation if we're showing an alert; we should return to preferences after
+    if (mainWindowController_->currentWindow() != MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
+        backend_->getPreferences()->validateAndUpdateIfNeeded();
+    }
 }
 
 #if defined(Q_OS_LINUX)

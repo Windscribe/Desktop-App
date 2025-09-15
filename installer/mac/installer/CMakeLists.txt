@@ -43,7 +43,7 @@ add_subdirectory(../../common ${CMAKE_CURRENT_BINARY_DIR}/common)
 
 set_target_properties(installer
                       PROPERTIES
-                      OUTPUT_NAME "WindscribeInstaller"
+                      OUTPUT_NAME "installer"
                       MACOSX_BUNDLE TRUE
                       MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/Info.plist
                       COMPILE_WARNING_AS_ERROR TRUE
@@ -98,3 +98,10 @@ install(TARGETS installer
    LIBRARY DESTINATION "installer.app/Contents/Frameworks"
    BUNDLE DESTINATION .
 )
+
+# Rename bundle after installation
+install(CODE "
+    execute_process(COMMAND ${CMAKE_COMMAND} -E rename
+        \${CMAKE_INSTALL_PREFIX}/installer.app
+        \${CMAKE_INSTALL_PREFIX}/WindscribeInstaller.app)
+")

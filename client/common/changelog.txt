@@ -1,3 +1,13 @@
+2.17.5 (15/09/2025)
+All:
+   * Fixed incorrect scroll position in preferences. #1465
+   * Fixed custom DNS preferences behaviour. #1470
+Windows:
+   * Fixed playing a sound may capture the audio device, preventing Windows from sleeping. #1410
+MacOS:
+   * Fixed regression in the in-app updater for macOS. #1471
+
+
 2.17.4 (04/09/2025)
 All:
    * Improved highlight colours used in log viewer. #1213

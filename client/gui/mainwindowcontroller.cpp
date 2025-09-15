@@ -3303,13 +3303,6 @@ void MainWindowController::onAppSkinChanged(APP_SKIN s)
                                                   preferencesWindow_->boundingRect().height() - childWindowShadowOffsetY(false)));
         invalidateShadow_mac();
         keepWindowInsideScreenCoordinates();
-
-        int scrollOffset = 2*UPDATE_WIDGET_HEIGHT;
-        if (s != APP_SKIN_VAN_GOGH && !updateAppItem_->isVisible()) {
-            scrollOffset = 0;
-        }
-        preferencesWindow_->setScrollOffset(scrollOffset);
-        windowSizeManager_->setScrollPos(preferencesWindow_, scrollOffset);
     }
 
     // update window heights

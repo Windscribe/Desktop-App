@@ -28,6 +28,7 @@ ConnectedDnsGroup::ConnectedDnsGroup(ScalableGraphicsObject *parent, const QStri
 
     splitDnsCheckBox_ = new ToggleItem(this);
     splitDnsCheckBox_->setState(false);
+    splitDnsCheckBox_->setEnabled(false);
     connect(splitDnsCheckBox_, &ToggleItem::stateChanged, this, &ConnectedDnsGroup::onSplitDnsStateChanged);
     addItem(splitDnsCheckBox_, true);
 
@@ -69,9 +70,10 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
         else
             comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_CUSTOM);
 
-        editBoxUpstream1_->setText(dns.upStream1);
-        editBoxUpstream2_->setText(dns.upStream2);
         splitDnsCheckBox_->setState(dns.isSplitDns);
+        editBoxUpstream1_->setText(dns.upStream1);
+        onUpstream1Changed(dns.upStream1);
+        editBoxUpstream2_->setText(dns.upStream2);
         domainsItem_->setLinkText(QString::number(dns.hostnames.count()));
 
         updateMode();
@@ -105,6 +107,12 @@ void ConnectedDnsGroup::onConnectedDnsModeChanged(QVariant v)
 
 void ConnectedDnsGroup::onUpstream1Changed(QString v)
 {
+    if (v.isEmpty()) {
+        splitDnsCheckBox_->setState(false);
+        onSplitDnsStateChanged(false);
+    }
+    splitDnsCheckBox_->setEnabled(!v.isEmpty());
+
     if (settings_.upStream1 != v) {
         checkDnsLeak(v);
         settings_.upStream1 = v;
@@ -129,7 +137,6 @@ void ConnectedDnsGroup::onSplitDnsStateChanged(bool checked)
         if (settings_.isSplitDns && !checked) {
             hideItems(indexOf(editBoxUpstream2_), indexOf(domainsItem_));
         } else  {        // show additional items
-            checkDnsLeak(settings_.upStream2);
             showItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_));
         }
 

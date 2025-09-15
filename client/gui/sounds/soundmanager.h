@@ -22,8 +22,6 @@ private slots:
 
 private:
     static void endCallback(void* pUserData, ma_sound* pSound);
-    void initialize();
-    void cleanup();
     void playSound(const QString &path, bool loop);
     void cleanupCurrentSoundData();
 

@@ -9,31 +9,11 @@
 SoundManager::SoundManager(QObject *parent, Preferences *preferences)
     : QObject(parent), preferences_(preferences), audioEngineInitialized_(false), soundInitialized_(false), shouldLoop_(false), connectedEventQueued_(false)
 {
-    initialize(); // NOLINT
 }
 
 SoundManager::~SoundManager()
 {
-    cleanup();
-}
-
-void SoundManager::initialize()
-{
-    ma_result result = ma_engine_init(NULL, &audioEngine_);
-    if (result != MA_SUCCESS) {
-        qCDebug(LOG_BASIC) << "Failed to initialize miniaudio engine: " << result;
-        return;
-    }
-    audioEngineInitialized_ = true;
-}
-
-void SoundManager::cleanup()
-{
-    if (audioEngineInitialized_) {
-        cleanupCurrentSoundData();
-        ma_engine_uninit(&audioEngine_);
-        audioEngineInitialized_ = false;
-    }
+    cleanupCurrentSoundData();
 }
 
 void SoundManager::handleQueuedConnectedEvent()
@@ -84,12 +64,16 @@ void SoundManager::stop()
 void SoundManager::playSound(const QString &path, bool loop)
 {
     qCDebug(LOG_BASIC) << "Playing sound" << path;
-    if (!audioEngineInitialized_) {
-        qCDebug(LOG_BASIC) << "Audio engine not initialized";
+
+    cleanupCurrentSoundData();
+
+    ma_result result = ma_engine_init(NULL, &audioEngine_);
+    if (result != MA_SUCCESS) {
+        qCDebug(LOG_BASIC) << "Failed to initialize miniaudio engine: " << result;
         return;
     }
-    cleanupCurrentSoundData();
-    ma_result result;
+    audioEngineInitialized_ = true;
+
     if (path.startsWith(":/sounds")) {     // load from resources
         QFile file(path);
         if (!file.open(QIODevice::ReadOnly)) {
@@ -140,6 +124,7 @@ void SoundManager::playSound(const QString &path, bool loop)
 
 void SoundManager::cleanupCurrentSoundData()
 {
+    qCDebug(LOG_BASIC) << "Cleaning up current sound data";
     if (soundInitialized_) {
         ma_sound_stop(&sound_);
         ma_sound_uninit(&sound_);
@@ -150,6 +135,12 @@ void SoundManager::cleanupCurrentSoundData()
         ma_decoder_uninit(&decoder_);
         decoderInitialized_ = false;
     }
+
+    if (audioEngineInitialized_) {
+        ma_engine_uninit(&audioEngine_);
+        audioEngineInitialized_ = false;
+    }
+
     audioBuffer_.clear();
 }
 
