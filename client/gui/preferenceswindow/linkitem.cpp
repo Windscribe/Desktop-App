@@ -264,15 +264,15 @@ void LinkItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
 void LinkItem::updatePositions()
 {
-    if (type_ == LinkType::TEXT_ONLY) {
-        setHeight(40*G_SCALE);
-        yOffset_ = -(PREFERENCE_GROUP_ITEM_HEIGHT - 40)/2;
-    } else {
-        setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
-        yOffset_ = 0;
-    }
-
     if (desc_.isEmpty()) {
+        if (type_ == LinkType::TEXT_ONLY) {
+            setHeight(40*G_SCALE);
+            yOffset_ = -(PREFERENCE_GROUP_ITEM_HEIGHT - 40)/2;
+        } else {
+            setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
+            yOffset_ = 0;
+        }
+
         infoIcon_->setVisible(false);
         return;
     }

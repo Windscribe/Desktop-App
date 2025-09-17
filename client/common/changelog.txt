@@ -1,3 +1,9 @@
+2.17.6 (17/09/2025)
+All:
+   * Fixed unexpected scroll when sending debug log. #1480
+   * Fixed wsnet build on Android. #1472
+
+
 2.17.5 (15/09/2025)
 All:
    * Fixed incorrect scroll position in preferences. #1465
