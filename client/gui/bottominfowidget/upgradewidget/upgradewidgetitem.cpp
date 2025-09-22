@@ -251,7 +251,7 @@ void UpgradeWidgetItem::updateTextPos()
 {
     QFont font = FontManager::instance().getFont(fontDescr_);
     int width = CommonGraphics::textWidth(tr("Get more data"), font) + 16*G_SCALE;
-    textButton_->setWidth(width);
+    textButton_->setWidth(width/G_SCALE);
     textButton_->setPos(width_*G_SCALE - textButton_->boundingRect().width(), 1*G_SCALE);
 }
 

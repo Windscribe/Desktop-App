@@ -1,3 +1,9 @@
+2.17.7 (22/09/2025)
+All:
+   * Fixed memory usage for flags. #1485
+   * Fixed upgrade button scaling. #1487
+
+
 2.17.6 (17/09/2025)
 All:
    * Fixed unexpected scroll when sending debug log. #1480
