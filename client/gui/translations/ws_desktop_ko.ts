@@ -13,11 +13,11 @@
     </message>
     <message>
         <source>Clear</source>
-        <translation>맑다</translation>
+        <translation>지우기</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation>그래</translation>
+        <translation>확인</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -28,7 +28,7 @@
     <name>CommonGraphics::EscapeButton</name>
     <message>
         <source>ESC</source>
-        <translation>배아쇠</translation>
+        <translation>ESC</translation>
     </message>
 </context>
 <context>
@@ -55,7 +55,7 @@
     </message>
     <message>
         <source>Blocks all connectivity in the event of a sudden disconnect</source>
-        <translation>갑작스런 연결 끊김 시 모든 연결을 차단합니다.</translation>
+        <translation>VPN 순단시 모든 연결을 차단합니다.</translation>
     </message>
     <message>
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
@@ -96,15 +96,15 @@
     <name>CustomMenuWidget</name>
     <message>
         <source>Undo</source>
-        <translation>취소</translation>
+        <translation>실행 취소</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation>다시</translation>
+        <translation>다시 실행</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation>삭감</translation>
+        <translation>잘라내기</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -116,7 +116,7 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation>삭제하다</translation>
+        <translation>지우기</translation>
     </message>
     <message>
         <source>Select All</source>
@@ -131,34 +131,34 @@
     </message>
     <message>
         <source>Emergency connection failure. Try again?</source>
-        <translation>긴급 연결 오류입니다. 다시 한 번 시도해 보세요?</translation>
+        <translation>비상 연결 중 오류가 발생했습니다. 다시 시도 할까요?</translation>
     </message>
     <message>
         <source>Can&apos;t access Windscribe.com or login into the app on your restrictive network? Connect to the emergency server that unblocks all of Windscribe.</source>
-        <translation>제한적인 네트워크에서 Windscribe.com 액세스하거나 앱에 로그인할 수 없습니까? 모든 Windscribe의 차단을 해제하는 긴급 서버에 연결합니다.</translation>
+        <translation>제한적인 네트워크에서 Windscribe.com 에 접속하거나 앱에 접근할 수 없을 때, 긴급 서버에 연결 해 WindScribe에 우회 접속 합니다.</translation>
     </message>
     <message>
         <source>Connecting...</source>
-        <translation>연결...</translation>
+        <translation>연결 중...</translation>
     </message>
     <message>
         <source>Disconnecting...</source>
-        <translation>분리...</translation>
+        <translation>연결 해제 중...</translation>
     </message>
     <message>
         <source>Connect</source>
-        <translation>연결하다</translation>
+        <translation>연결</translation>
     </message>
     <message>
         <source>Disconnect</source>
-        <translation>분리하다</translation>
+        <translation>연결 해제</translation>
     </message>
 </context>
 <context>
     <name>EmergencyConnectWindow::TextLinkItem</name>
     <message>
         <source>Access for %1 Only</source>
-        <translation>%1에 대한 액세스만</translation>
+        <translation>%1에 대한 접속만 허용됩니다</translation>
     </message>
 </context>
 <context>
@@ -173,7 +173,7 @@
     </message>
     <message>
         <source>Ok, got it!</source>
-        <translation>알았다!</translation>
+        <translation>확인</translation>
     </message>
 </context>
 <context>
@@ -187,7 +187,7 @@
     <name>GeneralMessageController</name>
     <message>
         <source>Ok</source>
-        <translation>그래</translation>
+        <translation>확인</translation>
     </message>
     <message>
         <source>Yes</source>
@@ -210,7 +210,7 @@
     </message>
     <message>
         <source>Learn More</source>
-        <translation>더 알아보세요</translation>
+        <translation>더 알아보기</translation>
     </message>
     <message>
         <source>Username</source>
@@ -229,11 +229,11 @@
     <name>GuiLocations::LocationsTab</name>
     <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
-        <translation>여기에 표시할 사용자 지정 구성이 포함된 디렉토리를 선택합니다</translation>
+        <translation>여기에 표시할 사용자 지정 구성이 포함된 디렉토리를 선택하세요</translation>
     </message>
     <message>
         <source>Choose</source>
-        <translation>고르다</translation>
+        <translation>선택</translation>
     </message>
     <message>
         <source>The selected directory contains no custom configs</source>
@@ -245,7 +245,7 @@
     </message>
     <message>
         <source>Nothing to see here...</source>
-        <translation>여기서 볼 것이 없습니다. . .</translation>
+        <translation>표시할 내용이 없습니다</translation>
     </message>
     <message>
         <source>You don&apos;t have any Static IPs</source>
@@ -257,7 +257,7 @@
     </message>
     <message>
         <source>Buy</source>
-        <translation>사다</translation>
+        <translation>구매</translation>
     </message>
     <message>
         <source>All locations (%1)</source>
@@ -284,7 +284,7 @@
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
         <source>Add</source>
-        <translation>더하다</translation>
+        <translation>추가</translation>
     </message>
 </context>
 <context>
@@ -315,14 +315,14 @@
     </message>
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
-        <translation>로그를 내보내지 못했습니다.  올바른 권한이 있는지 확인합니다.</translation>
+        <translation>로그를 내보내지 못했습니다. 권한이 있는지 확인하세요.</translation>
     </message>
 </context>
 <context>
     <name>LoginWindow::CaptchaItem</name>
     <message>
         <source>Slide puzzle piece into place</source>
-        <translation>퍼즐 조각을 제자리에 밀어 넣습니다.</translation>
+        <translation>퍼즐 조각을 제자리에 밀어 넣으세요.</translation>
     </message>
 </context>
 <context>
@@ -345,7 +345,7 @@
     </message>
     <message>
         <source>Invalid API response, check your network</source>
-        <translation>잘못된 API 응답, 네트워크 확인</translation>
+        <translation>잘못된 API 응답, 네트워크를 확인하세요</translation>
     </message>
     <message>
         <source>Invalid API Endpoint</source>
@@ -353,11 +353,11 @@
     </message>
     <message>
         <source>...hmm are you sure this is correct?</source>
-        <translation>... 흠, 이게 맞습니까?</translation>
+        <translation>... 흠, 맞는지 다시 한번 확인해보세요.</translation>
     </message>
     <message>
         <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>... 죄송합니다, 또 잘못된 것 같습니다</translation>
+        <translation>... 죄송합니다, 이것도 틀린 것 같습니다</translation>
     </message>
     <message>
         <source>...hmm, try resetting your password!</source>
@@ -365,11 +365,11 @@
     </message>
     <message>
         <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>속도 제한. 잠시 기다렸다가 다시 로그인을 시도하십시오.</translation>
+        <translation>너무 많이 시도했습니다. 잠시 후에 다시 시도 하세요.</translation>
     </message>
     <message>
         <source>Session is expired. Please login again</source>
-        <translation>세션이 만료되었습니다. 다시 로그인하십시오</translation>
+        <translation>세션이 만료되었습니다. 다시 로그인하세요</translation>
     </message>
     <message>
         <source>Your username should not be an email address. Please try again.</source>
@@ -393,7 +393,7 @@
     </message>
     <message>
         <source>Preferences</source>
-        <translation>선호</translation>
+        <translation>설정</translation>
     </message>
     <message>
         <source>2FA Code</source>
@@ -435,7 +435,7 @@
     </message>
     <message>
         <source>Preferences</source>
-        <translation>선호</translation>
+        <translation>설정</translation>
     </message>
     <message>
         <source>Turn Off Firewall</source>
@@ -462,11 +462,11 @@
     </message>
     <message>
         <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>MAC 주소를 회전하면 현재 네트워크에서 연결 끊김 이벤트가 발생합니다. 확실한가요?</translation>
+        <translation>MAC 주소를 바꾸면 현재 네트워크에서 순단이 발생합니다. 정말로 진행할까요?</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
-        <translation>연결되어 있는 동안 적절한 패킷 크기를 감지할 수 없습니다. 먼저 연결을 끊으십시오.</translation>
+        <translation>연결되어 있는 동안 적절한 패킷 크기를 감지할 수 없었습니다. 먼저 연결을 해제하세요.</translation>
     </message>
     <message>
         <source>No Internet</source>
@@ -474,7 +474,7 @@
     </message>
     <message>
         <source>Cannot detect appropriate packet size without internet. Check your connection.</source>
-        <translation>인터넷 없이 적절한 패킷 크기를 감지할 수 없습니다. 연결 상태를 확인합니다.</translation>
+        <translation>인터넷 없이 적절한 패킷 크기를 감지할 수 없습니다. 인터넷 연결 상태를 확인하세요.</translation>
     </message>
     <message>
         <source>Select Custom Config Folder</source>
@@ -482,7 +482,7 @@
     </message>
     <message>
         <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
-        <translation>이 디렉토리는 권한이 없는 사용자가 쓸 수 있으므로 선택할 수 없습니다. 이 디렉터리의 사용자 지정 구성은 잠재적인 보안 위험을 초래할 수 있습니다. 이 디렉토리를 선택하려면 admin 사용자로 인증하십시오.</translation>
+        <translation>이 디렉토리는 일반 사용자가 쓸 수 있으므로 선택할 수 없습니다. 이 디렉터리를 사용자 지정 구성으로 사용하는 것은 잠재적인 보안 위험을 초래할 수 있습니다. 이 디렉토리를 선택하려면 관리자로 인증하세요.</translation>
     </message>
     <message>
         <source>Can&apos;t select directory</source>
@@ -490,7 +490,7 @@
     </message>
     <message>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>응용 프로그램이 손상되었습니다.  Windscribe를 다시 설치하십시오.</translation>
+        <translation>응용 프로그램이 손상되었습니다.  Windscribe를 다시 설치하세요.</translation>
     </message>
     <message>
         <source>Validation Error</source>
@@ -498,7 +498,7 @@
     </message>
     <message>
         <source>The selected directory is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk.</source>
-        <translation>선택한 디렉토리는 권한이 없는 사용자가 쓸 수 있습니다. 이 디렉터리의 사용자 지정 구성은 잠재적인 보안 위험을 초래할 수 있습니다.</translation>
+        <translation>선택한 디렉토리는일반 사용자가 쓸 수 있으므로 선택할 수 없습니다. 이 디렉터리를 사용자 지정 구성으로 사용하는 것은 잠재적인 보안 위험을 초래할 수 있습니다.</translation>
     </message>
     <message>
         <source>Security Risk</source>
@@ -518,7 +518,7 @@
     </message>
     <message>
         <source>Could not start &apos;Base Filtering Engine&apos; service.  Please enable this service manually in Windows Services.</source>
-        <translation>&apos;Base Filtering Engine&apos; 서비스를 시작할 수 없습니다.  Windows 서비스에서 이 서비스를 수동으로 활성화하십시오.</translation>
+        <translation>&apos;Base Filtering Engine&apos; 서비스를 시작할 수 없습니다. Windows 서비스에서 이 서비스를 수동으로 활성화하세요.</translation>
     </message>
     <message>
         <source>Failed to Start</source>
@@ -526,7 +526,7 @@
     </message>
     <message>
         <source>Trying Backup Endpoints %1/%2</source>
-        <translation>백업 끝점 %1/%2 시도 중</translation>
+        <translation>백업 엔드포인트 %1/%2 시도 중</translation>
     </message>
     <message>
         <source>SSL Error</source>
@@ -534,11 +534,11 @@
     </message>
     <message>
         <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>네트워크에서 SSL 요청을 가로챌 수 있음을 감지했습니다. 이는 컴퓨터에 방화벽이 구성되어 있거나 네트워크 관리자가 Windscribe를 차단했기 때문일 수 있습니다. SSL 오류를 무시하시겠습니까?</translation>
+        <translation>네트워크에서 SSL 요청을 가로챌 수 있음을 감지했습니다. 이는 컴퓨터에 방화벽이 구성되어 있거나 네트워크 관리자가 Windscribe를 차단했기 때문일 수 있습니다. SSL 오류를 무시할까요?</translation>
     </message>
     <message>
         <source>Disconnected</source>
-        <translation>연결이 끊어진</translation>
+        <translation>연결 끊김</translation>
     </message>
     <message>
         <source>Connected to </source>
@@ -546,7 +546,7 @@
     </message>
     <message>
         <source>You are now connected to Windscribe (%1).</source>
-        <translation>이제 Windscribe(%1)에 연결되었습니다.</translation>
+        <translation>Windscribe(%1)에 연결되었습니다.</translation>
     </message>
     <message>
         <source>Connection to Windscribe has been terminated.
@@ -556,11 +556,11 @@
     </message>
     <message>
         <source>Network Settings Interference</source>
-        <translation>네트워크 설정 간섭</translation>
+        <translation>네트워크 설정 충돌</translation>
     </message>
     <message>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
-        <translation>네트워크 설정이 Windscribe를 방해할 수 있음을 감지했습니다.  문제 해결을 위해 디버그 로그를 보내주십시오.</translation>
+        <translation>네트워크 설정이 Windscribe과 충돌할 수 있음을 감지했습니다.  문제 해결을 위해 디버그 로그를 보내주십시오.</translation>
     </message>
     <message>
         <source>Send Debug Log</source>
@@ -572,11 +572,11 @@
     </message>
     <message>
         <source>Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions.</source>
-        <translation>Windscribe는 중단을 피하기 위해 향후 이 네트워크에 연결하기 위해 항상 이 프로토콜을 사용할 것입니다.</translation>
+        <translation>Windscribe는 이 네트워크에서의 충돌을 피하기 위해 향후 연결 시 이 프로토콜을 사용할 것입니다.</translation>
     </message>
     <message>
         <source>Set as Preferred</source>
-        <translation>기본 설정으로 설정</translation>
+        <translation>기본 설정으로 지정</translation>
     </message>
     <message>
         <source>Service Error</source>
@@ -612,7 +612,7 @@
     </message>
     <message>
         <source>This network hates us</source>
-        <translation>이 네트워크는 우리를 싫어합니다</translation>
+        <translation>이 네트워크는 저희를 싫어합니다</translation>
     </message>
     <message>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
@@ -642,7 +642,7 @@
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>백엔드 프로세스에 대한 연결이 끊어졌습니다.
-복구...</translation>
+복구 중...</translation>
     </message>
     <message>
         <source>Select an application</source>
@@ -650,11 +650,11 @@ Recovering...</source>
     </message>
     <message>
         <source>Connect</source>
-        <translation>연결하다</translation>
+        <translation>연결</translation>
     </message>
     <message>
         <source>Disconnect</source>
-        <translation>분리하다</translation>
+        <translation>연결 해제</translation>
     </message>
     <message>
         <source>Locations</source>
@@ -674,7 +674,7 @@ Recovering...</source>
     </message>
     <message>
         <source>Preferences</source>
-        <translation>선호</translation>
+        <translation>설정</translation>
     </message>
     <message>
         <source>Help</source>
@@ -682,7 +682,7 @@ Recovering...</source>
     </message>
     <message>
         <source>Exit</source>
-        <translation>출구</translation>
+        <translation>종료</translation>
     </message>
     <message>
         <source>Read-only file</source>
@@ -690,7 +690,7 @@ Recovering...</source>
     </message>
     <message>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
-        <translation>hosts 파일은 읽기 전용입니다. IKEv2 연결을 사용하려면 쓰기 가능해야 합니다. 자동으로 문제를 해결하시겠습니까?</translation>
+        <translation>hosts 파일은 읽기 전용입니다. IKEv2 연결을 사용하려면 hosts 파일이 쓰기 가능해야 합니다. 자동으로 이 문제흘 해결할까요?</translation>
     </message>
     <message>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
@@ -700,13 +700,13 @@ Recovering...</source>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
-        <translation>WireGuard 어댑터를 설정하지 못했습니다. 1분 정도 기다렸다가 다시 연결해 보세요. 어댑터 설정이 다시 실패하면 컴퓨터를 다시 시작해 보십시오.
+        <translation>WireGuard 어댑터를 설정하지 못했습니다. 1분 정도 기다렸다가 다시 연결해 보세요. 그래도 어댑터 설정 오류가 다시 발생한다면, 컴퓨터를 다시 시작해보세요.
 
-다시 시작한 후에도 문제가 지속되면 디버그 로그를 보내고 지원 티켓을 연 다음 다른 연결 모드로 전환하십시오.</translation>
+다시 시작한 후에도 문제가 지속되면 디버그 로그를 보내고 지원 티켓을 연 다음, 다른 연결 모드를 사용하세요.</translation>
     </message>
     <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
-        <translation>VPN 연결을 설정하는 동안 예기치 않은 오류가 발생했습니다(오류 %1).  이 오류가 지속되면 다른 프로토콜을 사용하거나 지원 담당자에게 문의하세요.</translation>
+        <translation>VPN에 연결하는 동안 예기치 않은 오류가 발생했습니다(오류 %1).  이 오류가 지속되면 다른 프로토콜을 사용하거나 지원 담당자에게 문의하세요.</translation>
     </message>
     <message>
         <source>Connection Error</source>
@@ -718,7 +718,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
-        <translation>WireGuard 공개 키의 한도에 도달했습니다. 가장 오래된 키를 삭제하시겠습니까?</translation>
+        <translation>WireGuard 공개 키의 한도에 도달했습니다. 가장 오래된 키를 삭제할까요?</translation>
     </message>
     <message>
         <source>Error Starting Service</source>
@@ -738,11 +738,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Unable to import preferences</source>
-        <translation>기본 설정을 가져올 수 없습니다.</translation>
+        <translation>설정 파일을 가져올 수 없습니다.</translation>
     </message>
     <message>
         <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
-        <translation>기본 설정은 앱 연결이 끊어진 경우에만 가져올 수 있습니다. 연결을 끊고 다시 시도하십시오.</translation>
+        <translation>설정 파일은 앱 연결이 끊어진 경우에만 가져올 수 있습니다. 연결을 끊고 다시 시도하십시오.</translation>
     </message>
     <message>
         <source>The selected file&apos;s format is incorrect.</source>
@@ -750,11 +750,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Export Preferences To</source>
-        <translation>기본 설정 내보내기 대상</translation>
+        <translation>설정 내보내기</translation>
     </message>
     <message>
         <source>Import Preferences From</source>
-        <translation>다음에서 기본 설정 가져오기</translation>
+        <translation>다음에서 설정 가져오기</translation>
     </message>
     <message>
         <source>Could not open file.</source>
@@ -762,15 +762,15 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Unable to export preferences</source>
-        <translation>기본 설정을 내보낼 수 없습니다.</translation>
+        <translation>설정을 내보낼 수 없습니다.</translation>
     </message>
     <message>
         <source>Could not open file for writing.  Check your permissions and try again.</source>
-        <translation>쓰기 위해 파일을 열 수 없습니다.  권한을 확인하고 다시 시도하세요.</translation>
+        <translation>파일을 쓸 수 없습니다.  권한을 확인하고 다시 시도하세요.</translation>
     </message>
     <message>
         <source>Enter Connection Credentials</source>
-        <translation>연결 자격 증명 입력</translation>
+        <translation>연결 자격증명을 입력하세요</translation>
     </message>
     <message>
         <source>Enter Private Key Password</source>
@@ -782,7 +782,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>IKEv2 connectivity is not available in MacOS Lockdown Mode. Please disable Lockdown Mode in System Settings or change your connection settings.</source>
-        <translation>IKEv2 연결은 MacOS 잠금 모드에서 사용할 수 없습니다. 시스템 설정에서 잠금 모드를 비활성화하거나 연결 설정을 변경하십시오.</translation>
+        <translation>IKEv2 연결은 MacOS 차단모드 (Lockdown Mode)에서 사용할 수 없습니다. 시스템 설정에서 차단모드를 비활성화하거나 연결 설정을 변경하십시오.</translation>
     </message>
     <message>
         <source>Rotating MAC Address</source>
@@ -798,11 +798,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Your network adapter may not support this feature. It has been disabled in preferences.</source>
-        <translation>네트워크 어댑터가 이 기능을 지원하지 않을 수 있습니다. 환경 설정에서 비활성화되었습니다.</translation>
+        <translation>네트워크 어댑터가 이 기능을 지원하지 않을 수 있습니다. 설정에서 비활성화되었습니다.</translation>
     </message>
     <message>
         <source>...hmm are you sure this is correct?</source>
-        <translation>... 흠, 이게 맞습니까?</translation>
+        <translation>... 흠, 맞는지 다시 한번 확인해보세요.</translation>
     </message>
     <message>
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
@@ -814,7 +814,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
-        <translation>Windscribe는 Wi-Fi SSID를 확인하기 위해 위치 서비스가 필요합니다. 활성화되지 않은 경우 네트워크별 설정이 모든 Wi-Fi 네트워크에 적용됩니다. 위치 서비스를 활성화하고 시스템 설정에서 Windscribe에 대한 권한을 부여하십시오.</translation>
+        <translation>Windscribe는 Wi-Fi SSID를 확인하기 위해 위치 서비스가 필요합니다. 활성화되지 않은 경우 네트워크별 설정이 모든 Wi-Fi 네트워크에 적용됩니다. 위치 서비스를 활성화하고 시스템 설정에서 Windscribe에 권한을 허용해주세요.</translation>
     </message>
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
@@ -850,7 +850,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Error Starting Split Tunneling</source>
-        <translation>분할 터널링 시작 오류</translation>
+        <translation>분할 터널링 시작 중 오류</translation>
     </message>
     <message>
         <source>Export Location Names To</source>
@@ -870,7 +870,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>시스템 설정에서 Windscribe 분할 터널 확장이 활성화되어 있지 않기 때문에 분할 터널링 기능이 비활성화되었습니다.  이 기능을 사용하려면 시스템 설정에서 확장 프로그램을 활성화하고 기능을 다시 켜십시오.</translation>
+        <translation>시스템 설정에서 Windscribe 분할 터널링 확장이 활성화되어 있지 않기 때문에 분할 터널링 기능이 비활성화되었습니다.  이 기능을 사용하려면 시스템 설정에서 확장 프로그램을 활성화하고 기능을 다시 켜십시오.</translation>
     </message>
     <message>
         <source>Debug Log Sent!</source>
@@ -878,11 +878,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Could not connect to the Windscribe service.  Windscribe will now exit.  Please contact support.</source>
-        <translation>Windscribe 서비스에 연결할 수 없습니다.  이제 Windscribe가 종료됩니다.  지원팀에 문의하시기 바랍니다.</translation>
+        <translation>Windscribe 서비스에 연결할 수 없어 Windscribe가 종료됩니다.  지원팀에 문의하시기 바랍니다.</translation>
     </message>
     <message>
         <source>Lost connection to the Windscribe service.  Windscribe will now exit.  Send us a debug log so we can improve this.</source>
-        <translation>Windscribe 서비스에 대한 연결이 끊어졌습니다.  이제 Windscribe가 종료됩니다.  이 문제를 개선할 수 있도록 디버그 로그를 보내주세요.</translation>
+        <translation>Windscribe 서비스에 대한 연결이 끊어져 Windscribe가 종료됩니다.  이 문제를 개선할 수 있도록 디버그 로그를 보내주세요.</translation>
     </message>
     <message>
         <source>Local DNS server is not available</source>
@@ -909,7 +909,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>MainWindowController</name>
     <message>
         <source>Quit Windscribe?</source>
-        <translation>윈드스크라이브를 그만두시겠습니까?</translation>
+        <translation>Windscribe를 종료하시겠습니까?</translation>
     </message>
     <message>
         <source>Log Out of Windscribe?</source>
@@ -917,7 +917,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Quit</source>
-        <translation>사임하다</translation>
+        <translation>종료</translation>
     </message>
     <message>
         <source>Log Out</source>
@@ -943,7 +943,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>&lt;p&gt;You will find announcements and general Windscribe related news here. Perhaps even delicious cake, everyone loves cake!&lt;/p&gt;</source>
-        <translation>&lt;p&gt;여기에서 공지 사항 및 일반 Windscribe 관련 뉴스를 찾을 수 있습니다. 어쩌면 맛있는 케이크, 모두가 케이크를 좋아합니다!&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;여기에서 공지 사항 및 일반 Windscribe 관련 뉴스를 찾을 수 있습니다. 어쩌면 맛있는 케이크도 있을지도 모르죠, 다들 케이크 좋아하잖아요!&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -954,34 +954,34 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 1 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
-        <translation>&apos;연결된 DNS&apos;가 유효한 업스트림 1(IP/DNS-over-HTTPS/TLS)로 구성되지 않았습니다. DNS가 ROBERT(기본값)로 되돌려졌습니다.</translation>
+        <translation>&apos;연결된 DNS&apos;가 유효한 업스트림 1(IP/DNS-over-HTTPS/TLS)로 구성되지 않았습니다. DNS를 ROBERT(기본값)로 되돌렸습니다.</translation>
     </message>
     <message>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 2 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
-        <translation>&apos;연결된 DNS&apos;가 유효한 업스트림 2(IP/DNS-over-HTTPS/TLS)로 구성되지 않았습니다. DNS가 ROBERT(기본값)로 되돌려졌습니다.</translation>
+        <translation>&apos;연결된 DNS&apos;가 유효한 업스트림 2(IP/DNS-over-HTTPS/TLS)로 구성되지 않았습니다. DNS를 ROBERT(기본값)로 되돌렸습니다.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::AboutWindowItem</name>
     <message>
         <source>About</source>
-        <translation>약</translation>
+        <translation>정보</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation>상태</translation>
+        <translation>서비스 상태</translation>
     </message>
     <message>
         <source>About Us</source>
-        <translation>우리에 관해서</translation>
+        <translation>WindScribe 알아보기</translation>
     </message>
     <message>
         <source>Privacy Policy</source>
-        <translation>개인 정보 보호 정책</translation>
+        <translation>개인정보 처리방침</translation>
     </message>
     <message>
         <source>Terms</source>
-        <translation>용어</translation>
+        <translation>이용약관</translation>
     </message>
     <message>
         <source>Blog</source>
@@ -989,7 +989,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Jobs</source>
-        <translation>작업</translation>
+        <translation>채용</translation>
     </message>
     <message>
         <source>Software Licenses</source>
@@ -1012,7 +1012,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Account</source>
-        <translation>계좌</translation>
+        <translation>계정</translation>
     </message>
     <message>
         <source>Username</source>
@@ -1032,7 +1032,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Expiry Date</source>
-        <translation>만기일</translation>
+        <translation>만료일</translation>
     </message>
     <message>
         <source>ACCOUNT INFO</source>
@@ -1055,11 +1055,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Make advanced tweaks to the way the app functions.</source>
-        <translation>앱이 작동하는 방식을 고급스럽게 조정합니다.</translation>
+        <translation>애플리케이션의 고급 설정을 할 수 있습니다.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
-        <translation>고급 매개 변수</translation>
+        <translation>매개 변수 설정</translation>
     </message>
     <message>
         <source>Ignore SSL certificate validation errors.</source>
@@ -1075,7 +1075,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Client-side Keepalive</source>
-        <translation>클라이언트 쪽 Keepalive</translation>
+        <translation>클라이언트 Keepalive</translation>
     </message>
     <message>
         <source>Windscribe uses this DNS server to resolve addresses outside the VPN.</source>
@@ -1099,15 +1099,15 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>App Preferences</source>
-        <translation>앱 기본 설정</translation>
+        <translation>설정</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation>수출</translation>
+        <translation>내보내기</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation>수입</translation>
+        <translation>가져오기</translation>
     </message>
 </context>
 <context>
@@ -1130,7 +1130,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Bundled</source>
-        <translation>번들</translation>
+        <translation>내장 리소스</translation>
     </message>
     <message>
         <source>None</source>
@@ -1138,7 +1138,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Custom</source>
-        <translation>관습</translation>
+        <translation>사용자 지정</translation>
     </message>
     <message>
         <source>When Connected</source>
@@ -1150,23 +1150,23 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Square</source>
-        <translation>정사각형</translation>
+        <translation>Square</translation>
     </message>
     <message>
         <source>Palm</source>
-        <translation>손바닥</translation>
+        <translation>Palm</translation>
     </message>
     <message>
         <source>Drip</source>
-        <translation>물방울</translation>
+        <translation>Drip</translation>
     </message>
     <message>
         <source>Snow</source>
-        <translation>눈</translation>
+        <translation>Snow</translation>
     </message>
     <message>
         <source>Ripple</source>
-        <translation>잔물결</translation>
+        <translation>Ripple</translation>
     </message>
 </context>
 <context>
@@ -1189,11 +1189,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Split DNS</source>
-        <translation>스플릿 DNS</translation>
+        <translation>다중 DNS 사용</translation>
     </message>
     <message>
         <source>Domains</source>
-        <translation>도메인</translation>
+        <translation>다중 DNS 도메인 지정</translation>
     </message>
     <message>
         <source>DNS leak detected</source>
@@ -1224,7 +1224,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Exclusive</source>
-        <translation>독점적인</translation>
+        <translation>제외</translation>
     </message>
     <message>
         <source>Inclusive</source>
@@ -1240,7 +1240,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Split Tunneling</source>
-        <translation>스플릿 터널링</translation>
+        <translation>분할 터널링</translation>
     </message>
     <message>
         <source>Proxy Settings</source>
@@ -1276,7 +1276,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>장치의 실제 주소(MAC 주소)를 스푸핑합니다.</translation>
+        <translation>장치의 물리주소(MAC 주소)를 스푸핑합니다.</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
@@ -1327,11 +1327,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::DecoyTrafficGroup</name>
     <message>
         <source>Decoy Traffic</source>
-        <translation>미끼 교통</translation>
+        <translation>가짜 트래픽</translation>
     </message>
     <message>
         <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
-        <translation>이는 적대적 네트워크에 대한 트래픽 상관 관계 공격에 맞서기 위한 실험적 기능입니다. 활성화되면 앱은 터널을 통해 무작위 활동을 생성하고 선택한 간격으로 무작위 데이터를 업로드 및 다운로드합니다.</translation>
+        <translation>이는 적대적 네트워크에서 트래픽의 상관관계를 기반으로 차단하는 경우에 맞서기 위한 실험적 기능입니다. 활성화되면 앱은 터널을 통해 무작위 활동을 생성하고 선택한 간격으로 무작위 데이터를 업로드 및 다운로드합니다.</translation>
     </message>
     <message>
         <source>Fake Traffic Volume</source>
@@ -1339,7 +1339,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Low</source>
-        <translation>낮다</translation>
+        <translation>적음</translation>
     </message>
     <message>
         <source>Medium</source>
@@ -1347,7 +1347,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>High</source>
-        <translation>높다</translation>
+        <translation>많이</translation>
     </message>
     <message>
         <source>Estimated Data Usage</source>
@@ -1362,11 +1362,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::DnsDomainsGroup</name>
     <message>
         <source>Domain already exists. Please enter a new domain.</source>
-        <translation>도메인이 이미 있습니다. 새 도메인을 입력하십시오.</translation>
+        <translation>도메인이 이미 존재합니다 새 도메인을 입력하십시오.</translation>
     </message>
     <message>
         <source>Incorrect domain name. Please enter a valid domain.</source>
-        <translation>도메인 이름이 잘못되었습니다. 유효한 도메인을 입력하십시오.</translation>
+        <translation>도메인 이름이 잘못되었습니다. 올바른 도메인을 입력하십시오.</translation>
     </message>
 </context>
 <context>
@@ -1388,7 +1388,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     <name>PreferencesWindow::EmailItem</name>
     <message>
         <source>Sent!</source>
-        <translation>전송!</translation>
+        <translation>전송 됨!</translation>
     </message>
     <message>
         <source>Resend</source>
@@ -1396,7 +1396,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Sending</source>
-        <translation>보내는</translation>
+        <translation>전송 중</translation>
     </message>
     <message>
         <source>Failed</source>
@@ -1450,7 +1450,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Start Minimized</source>
-        <translation>최소화 시작</translation>
+        <translation>최소화된 상태로 시작</translation>
     </message>
     <message>
         <source>Windscribe minimizes to system tray and no longer appears in the task bar.</source>
@@ -1458,15 +1458,15 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Windscribe minimizes to menubar and no longer appears in the dock.</source>
-        <translation>Windscribe가 메뉴 표시줄로 최소화되고 더 이상 도크에 나타나지 않습니다.</translation>
+        <translation>Windscribe가 메뉴 막대로 최소화되고 더 이상 Dock에 나타나지 않습니다.</translation>
     </message>
     <message>
         <source>Close to Tray</source>
-        <translation>트레이에 가까움</translation>
+        <translation>트레이 아이콘으로 숨기기</translation>
     </message>
     <message>
         <source>Don&apos;t show the Windscribe icon in dock.</source>
-        <translation>도크에 Windscribe 아이콘을 표시하지 않습니다.</translation>
+        <translation>Dock에 Windscribe 아이콘을 표시하지 않습니다.</translation>
     </message>
     <message>
         <source>Hide from Dock</source>
@@ -1474,15 +1474,15 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Pin Windscribe near the system tray or menu bar.</source>
-        <translation>Windscribe를 시스템 트레이 또는 메뉴 막대 근처에 고정합니다.</translation>
+        <translation>Windscribe를 시스템 트레이 또는 메뉴 막대에 고정합니다.</translation>
     </message>
     <message>
         <source>Docked</source>
-        <translation>도킹</translation>
+        <translation>윈도우 고정</translation>
     </message>
     <message>
         <source>Display system-level notifications when connection events occur.</source>
-        <translation>연결 이벤트가 발생할 때 시스템 수준 알림을 표시합니다.</translation>
+        <translation>연결 이벤트가 발생할 때 시스템 알림을 표시합니다.</translation>
     </message>
     <message>
         <source>Show Notifications</source>
@@ -1490,11 +1490,11 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Display a location&apos;s load. Shorter bars mean lesser load (usage).</source>
-        <translation>위치의 부하를 표시합니다. 막대가 짧을수록 부하(사용량)가 적습니다.</translation>
+        <translation>위치 마다의 부하를 표시합니다. 막대가 짧을수록 부하(사용량)가 적습니다.</translation>
     </message>
     <message>
         <source>Show Location Load</source>
-        <translation>위치 로드 표시</translation>
+        <translation>위치별 부하 표시</translation>
     </message>
     <message>
         <source>Arrange locations alphabetically, geographically, or by latency.</source>
@@ -1506,7 +1506,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Localize Windscribe to supported languages.</source>
-        <translation>Windscribe를 지원되는 언어로 지역화합니다.</translation>
+        <translation>Windscribe를 지원되는 언어로 지역화(번역)합니다.</translation>
     </message>
     <message>
         <source>Language</source>
@@ -1518,7 +1518,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Update Channel</source>
-        <translation>채널 업데이트</translation>
+        <translation>업데이트 채널</translation>
     </message>
     <message>
         <source>Version</source>
@@ -1593,18 +1593,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Contact Humans</source>
-        <translation>인간과의 접촉</translation>
+        <translation>기술 지원 요청</translation>
     </message>
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>Garry가 해결할 수 없는 문제가 있습니까? 인적 지원에 문의하세요.</translation>
+        <translation>Garry가 해결할 수 없는 문제가 있습니까? 기술 지원에 문의하세요.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::LookAndFeelWindowItem</name>
     <message>
         <source>Look &amp; Feel</source>
-        <translation>룩 앤 필(Look &amp; Feel)</translation>
+        <translation>디자인</translation>
     </message>
     <message>
         <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
@@ -1632,15 +1632,15 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Export</source>
-        <translation>수출</translation>
+        <translation>내보내기</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation>수입</translation>
+        <translation>가져오기</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation>재설정</translation>
+        <translation>초기화</translation>
     </message>
 </context>
 <context>
@@ -1679,7 +1679,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Auto-Rotate MAC</source>
-        <translation>MAC 자동 회전</translation>
+        <translation>MAC 자동 변경</translation>
     </message>
 </context>
 <context>
@@ -1713,7 +1713,7 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>Windscribe는 장치가 &quot;보안되지 않음&quot;이라는 태그가 지정된 네트워크에 연결되면 자동으로 연결 해제됩니다.</translation>
+        <translation>Windscribe는 장치가 &quot;비보안&quot;이라는 태그가 지정된 네트워크에 연결되면 자동으로 연결 해제됩니다.</translation>
     </message>
     <message>
         <source>Mark all newly encountered networks as Secured.</source>
@@ -1741,13 +1741,13 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
     <message>
         <source>Unsecured</source>
-        <translation>무담보</translation>
+        <translation>비보안</translation>
     </message>
     <message>
         <source>No Networks Detected.
 Connect to a network first</source>
         <translation>감지된 네트워크가 없습니다.
-먼저 네트워크에 연결</translation>
+먼저 네트워크에 연결하세요</translation>
     </message>
 </context>
 <context>
@@ -1796,7 +1796,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Custom</source>
-        <translation>관습</translation>
+        <translation>사용자 지정</translation>
     </message>
 </context>
 <context>
@@ -1807,7 +1807,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Account</source>
-        <translation>계좌</translation>
+        <translation>계정</translation>
     </message>
     <message>
         <source>Connection</source>
@@ -1827,7 +1827,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>About</source>
-        <translation>약</translation>
+        <translation>정보</translation>
     </message>
     <message>
         <source>Login</source>
@@ -1839,11 +1839,11 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Quit</source>
-        <translation>사임하다</translation>
+        <translation>나가기</translation>
     </message>
     <message>
         <source>Look &amp; Feel</source>
-        <translation>룩 앤 필(Look &amp; Feel)</translation>
+        <translation>디자인</translation>
     </message>
 </context>
 <context>
@@ -1862,7 +1862,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Port</source>
-        <translation>항구</translation>
+        <translation>포트</translation>
     </message>
 </context>
 <context>
@@ -1877,7 +1877,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Port</source>
-        <translation>항구</translation>
+        <translation>포트</translation>
     </message>
     <message>
         <source>Unable to start proxy server</source>
@@ -1900,7 +1900,7 @@ Connect to a network first</source>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
     <message>
         <source>IP</source>
-        <translation>IP (영문)</translation>
+        <translation>IP</translation>
     </message>
     <message>
         <source>Copied</source>
@@ -1911,7 +1911,7 @@ Connect to a network first</source>
     <name>PreferencesWindow::ProxySettingsGroup</name>
     <message>
         <source>Proxy</source>
-        <translation>대리</translation>
+        <translation>프록시</translation>
     </message>
     <message>
         <source>Address</source>
@@ -1919,7 +1919,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Port</source>
-        <translation>항구</translation>
+        <translation>포트</translation>
     </message>
     <message>
         <source>Username</source>
@@ -1939,11 +1939,11 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Proxy port is invalid. Please enter a valid port in the range 0-65535.</source>
-        <translation>프록시 포트가 잘못되었습니다. 0-65535 범위의 유효한 포트를 입력하십시오.</translation>
+        <translation>프록시 포트가 잘못되었습니다. 0-65535 사이에 올바른 포트를 입력하십시오.</translation>
     </message>
     <message>
         <source>Proxy address is invalid. Please enter a valid IP address.</source>
-        <translation>프록시 주소가 잘못되었습니다. 유효한 IP 주소를 입력하십시오.</translation>
+        <translation>프록시 주소가 잘못되었습니다. 올바른 IP 주소를 입력하십시오.</translation>
     </message>
 </context>
 <context>
@@ -1954,14 +1954,14 @@ Connect to a network first</source>
     </message>
     <message>
         <source>If your network has a LAN proxy, configure it here.</source>
-        <translation>네트워크에 LAN 프록시가 있는 경우 여기에서 구성합니다.</translation>
+        <translation>네트워크에 LAN 프록시가 있는 경우 여기에서 설정하세요.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::RobertItem</name>
     <message>
         <source>Blocking</source>
-        <translation>블로킹</translation>
+        <translation>차단</translation>
     </message>
     <message>
         <source>Allowing</source>
@@ -1976,15 +1976,15 @@ Connect to a network first</source>
     </message>
     <message>
         <source>R.O.B.E.R.T. is a customizable server-side domain and IP blocking tool. Select the block lists you wish to apply on all your devices by toggling the switch.</source>
-        <translation>R.O.B.E.R.T.는 사용자 정의 가능한 서버 측 도메인 및 IP 차단 도구입니다. 스위치를 전환하여 모든 장치에 적용할 차단 목록을 선택합니다.</translation>
+        <translation>R.O.B.E.R.T.는 사용자 정의 가능한 서버 측 도메인 및 IP 차단 도구입니다. 아래 스위치를 이용해 모든 장치에 적용할 차단 목록을 선택합니다.</translation>
     </message>
     <message>
         <source>Could not retrieve R.O.B.E.R.T. preferences from server. Try again later.</source>
-        <translation>서버에서 R.O.B.E.R.T. 환경 설정을 검색할 수 없습니다. 나중에 다시 시도하십시오.</translation>
+        <translation>서버에서 R.O.B.E.R.T. 설정을 가져올 수 없습니다. 나중에 다시 시도하십시오.</translation>
     </message>
     <message>
         <source>Login to view or change R.O.B.E.R.T preferences</source>
-        <translation>로그인하여 R.O.B.E.R.T 환경설정 보기 또는 변경</translation>
+        <translation>로그인하여 R.O.B.E.R.T 설정 보기 또는 변경하세요</translation>
     </message>
     <message>
         <source>Login</source>
@@ -2018,7 +2018,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
-        <translation>안전한 Windscribe 연결을 무선으로 공유하십시오.</translation>
+        <translation>안전한 Windscribe 연결을 무선으로 공유하세요.</translation>
     </message>
     <message>
         <source>Enter SSID</source>
@@ -2034,21 +2034,21 @@ Connect to a network first</source>
     </message>
     <message>
         <source>To turn on Secure Hotspot, please turn off split tunneling or use exclusive mode.</source>
-        <translation>보안 핫스팟을 켜려면 분할 터널링을 끄거나 전용 모드를 사용하십시오.</translation>
+        <translation>보안 핫스팟을 켜려면 분할 터널링을 끄거나 분할 터널링의 &quot;제외&quot; 모드를 사용하십시오.</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::SelectFileItem</name>
     <message>
         <source>[no selection]</source>
-        <translation>[선택 없음]</translation>
+        <translation>[선택된 파일 없음]</translation>
     </message>
 </context>
 <context>
     <name>PreferencesWindow::SoundsGroup</name>
     <message>
         <source>Sound Notifications</source>
-        <translation>소리 알림</translation>
+        <translation>알림음</translation>
     </message>
     <message>
         <source>None</source>
@@ -2056,15 +2056,15 @@ Connect to a network first</source>
     </message>
     <message>
         <source>When Disconnected</source>
-        <translation>연결이 끊긴 경우</translation>
+        <translation>연결이 끊겼을 때</translation>
     </message>
     <message>
         <source>Bundled</source>
-        <translation>번들</translation>
+        <translation>내장 리소스</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>관습</translation>
+        <translation>사용자 지정</translation>
     </message>
     <message>
         <source>Select a sound</source>
@@ -2083,15 +2083,15 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Incorrect IP address/mask combination. Please enter a valid hostname or IP address in plain or CIDR notation.</source>
-        <translation>IP 주소/마스크 조합이 잘못되었습니다. 유효한 호스트 이름 또는 IP 주소를 일반 또는 CIDR 표기법으로 입력하십시오.</translation>
+        <translation>IP 주소/마스크 조합이 잘못되었습니다. 올바른 호스트이름이나 IP 주소를 일반 또는 CIDR 표기법으로 입력하십시오.</translation>
     </message>
     <message>
         <source>This IP address or range is reserved by Windscribe and can not be changed.</source>
-        <translation>이 IP 주소 또는 범위는 Windscribe에 의해 예약되며 변경할 수 없습니다.</translation>
+        <translation>이 IP 주소 또는 범위는 Windscribe 가 사용중이기 때문에 변경할 수 없습니다.</translation>
     </message>
     <message>
         <source>There are too many hostnames in the list. Please remove some before adding more.</source>
-        <translation>목록에 호스트 이름이 너무 많습니다. 더 추가하기 전에 일부를 제거하십시오.</translation>
+        <translation>목록에 호스트 이름이 너무 많습니다. 더 추가하기 전에 일부를 제거하세요.</translation>
     </message>
 </context>
 <context>
@@ -2106,7 +2106,7 @@ Connect to a network first</source>
     </message>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
-        <translation>분할 터널링 규칙을 수정하려면 로그인하십시오.</translation>
+        <translation>분할 터널링 규칙을 수정하려면 로그인하세요.</translation>
     </message>
 </context>
 <context>
@@ -2154,7 +2154,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Split Tunneling</source>
-        <translation>스플릿 터널링</translation>
+        <translation>분할 터널링</translation>
     </message>
     <message>
         <source>Mode</source>
@@ -2162,7 +2162,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Exclusive</source>
-        <translation>독점적인</translation>
+        <translation>제외</translation>
     </message>
     <message>
         <source>Inclusive</source>
@@ -2189,7 +2189,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>PreferencesWindow::SplitTunnelingWindowItem</name>
     <message>
         <source>Split Tunneling</source>
-        <translation>스플릿 터널링</translation>
+        <translation>분할 터널링</translation>
     </message>
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
@@ -2215,7 +2215,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>ProtocolWindow::ProtocolPromptItem</name>
     <message>
         <source>Cutting-edge protocol.</source>
-        <translation>최첨단 프로토콜.</translation>
+        <translation>최신 프로토콜.</translation>
     </message>
     <message>
         <source>An IPsec based tunneling protocol.</source>
@@ -2227,15 +2227,15 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Use it if OpenVPN UDP fails.</source>
-        <translation>OpenVPN UDP가 실패할 경우 사용합니다.</translation>
+        <translation>OpenVPN UDP가 실패할 경우 사용하세요.</translation>
     </message>
     <message>
         <source>Disguises traffic as HTTPS with TLS.</source>
-        <translation>TLS를 사용하여 트래픽을 HTTPS로 위장합니다.</translation>
+        <translation>TLS를 사용하여 트래픽을 HTTPS인 것처럼 위장합니다.</translation>
     </message>
     <message>
         <source>Wraps traffic with web sockets.</source>
-        <translation>웹 소켓으로 트래픽을 래핑합니다.</translation>
+        <translation>웹 소켓으로 트래픽을 감쌉니다.</translation>
     </message>
     <message>
         <source>Change Protocol</source>
@@ -2251,7 +2251,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>The protocol you’ve chosen has failed to connect. Windscribe will attempt to reconnect using the first protocol below.</source>
-        <translation>선택한 프로토콜이 연결에 실패했습니다. Windscribe는 아래의 첫 번째 프로토콜을 사용하여 다시 연결을 시도합니다.</translation>
+        <translation>선택한 프로토콜이 연결에 실패했습니다. Windscribe는 선택한 프로토콜 다음의 프로토콜을 통해 다시 연결을 시도합니다.</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -2262,7 +2262,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>QObject</name>
     <message>
         <source>Custom</source>
-        <translation>관습</translation>
+        <translation>사용자 지정</translation>
     </message>
     <message>
         <source>OS Default</source>
@@ -2270,7 +2270,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>UNKNOWN</source>
-        <translation>알려지지 않은</translation>
+        <translation>알 수 없음</translation>
     </message>
     <message>
         <source>Geography</source>
@@ -2290,7 +2290,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Auto</source>
-        <translation>자동 번역</translation>
+        <translation>자동</translation>
     </message>
     <message>
         <source>Always On</source>
@@ -2314,7 +2314,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Release</source>
-        <translation>석방</translation>
+        <translation>정식 버전</translation>
     </message>
     <message>
         <source>Beta</source>
@@ -2322,7 +2322,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Guinea Pig</source>
-        <translation>기니피그</translation>
+        <translation>Guinea Pig</translation>
     </message>
     <message>
         <source>Internal</source>
@@ -2330,11 +2330,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Exclude</source>
-        <translation>몰아내다</translation>
+        <translation>제외</translation>
     </message>
     <message>
         <source>Include</source>
-        <translation>포함하다</translation>
+        <translation>포함</translation>
     </message>
     <message>
         <source>Alpha</source>
@@ -2350,7 +2350,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Invalid config format</source>
-        <translation>잘못된 구성 형식</translation>
+        <translation>잘못된 설정파일 형식</translation>
     </message>
     <message>
         <source>Missing &quot;Interface&quot; section</source>
@@ -2358,7 +2358,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Missing &quot;Peer&quot; section</source>
-        <translation>&quot;피어&quot; 섹션 누락</translation>
+        <translation>&quot;피어&quot; 섹션이 없습니다</translation>
     </message>
     <message>
         <source>Missing &quot;PrivateKey&quot; in the &quot;Interface&quot; section</source>
@@ -2386,19 +2386,19 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
-        <translation>애플리케이션 버전이 더 이상 지원되지 않습니다. Windscribe를 계속 사용하려면 업데이트하십시오.</translation>
+        <translation>이 애플리케이션 버전이 더 이상 지원되지 않습니다. Windscribe를 계속 사용하려면 업데이트하세요.</translation>
     </message>
     <message>
         <source>Please upgrade to a Pro account to continue using Windscribe.</source>
-        <translation>Windscribe를 계속 사용하려면 Pro 계정으로 업그레이드하십시오.</translation>
+        <translation>Windscribe를 계속 사용하려면 Pro 계정으로 업그레이드하세요.</translation>
     </message>
     <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
-        <translation>원래 계정 %1이(가) 만료되었습니다. 프리 티어 제한을 우회하기 위해 여러 계정을 만드는 것은 금지되어 있습니다. 원래 계정에 로그인하고 대역폭이 재설정 될 때까지 기다리십시오. Pro로 업그레이드할 수도 있습니다.</translation>
+        <translation>원래 계정 %1이(가) 만료되었습니다. 프리 티어 제한을 우회하기 위해 여러 계정을 만드는 것은 금지되어 있습니다. 원래 계정에 로그인하고 대역폭이 재설정 될 때까지 기다리십시오. Pro로 업그레이드하는 방법도 있습니다.</translation>
     </message>
     <message>
         <source>Your account is disabled for abuse.</source>
-        <translation>계정이 악용되지 않도록 사용 중지되었습니다.</translation>
+        <translation>이 계정은 악용으로 차단되었습니다.</translation>
     </message>
     <message>
         <source>Firewall Always On</source>
@@ -2442,7 +2442,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Duplicate</source>
-        <translation>복사하다</translation>
+        <translation>복제</translation>
     </message>
     <message>
         <source>Local DNS</source>
@@ -2450,11 +2450,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Stretch</source>
-        <translation>뻗다</translation>
+        <translation>확대</translation>
     </message>
     <message>
         <source>Fill</source>
-        <translation>채우다</translation>
+        <translation>채우기</translation>
     </message>
     <message>
         <source>Tile</source>
@@ -2477,14 +2477,14 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>File Sharing Frowned Upon</source>
-        <translation>파일 공유는 눈살을 찌푸리게 합니다.</translation>
+        <translation>이 위치에서는 파일 공유가 제한됩니다.</translation>
     </message>
 </context>
 <context>
     <name>ServerRatingsTooltip</name>
     <message>
         <source>Rate speed</source>
-        <translation>속도 속도</translation>
+        <translation>속도</translation>
     </message>
 </context>
 <context>
@@ -2506,7 +2506,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <name>TwoFactorAuthWindow::TwoFactorAuthOkButton</name>
     <message>
         <source>Add</source>
-        <translation>더하다</translation>
+        <translation>확인</translation>
     </message>
     <message>
         <source>Login</source>
@@ -2529,7 +2529,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Invalid 2FA code, please try again</source>
-        <translation>유효하지 않은 2FA 코드, 다시 시도하십시오.</translation>
+        <translation>2FA 코드가 올바르지 않습니다, 다시 입력하세요.</translation>
     </message>
 </context>
 <context>
@@ -2567,18 +2567,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Windscribe will download the update, then terminate active connections and restart automatically.</source>
-        <translation>Windscribe는 업데이트를 다운로드한 다음 활성 연결을 종료하고 자동으로 다시 시작합니다.</translation>
+        <translation>Windscribe가 업데이트를 다운로드 한 후 활성 연결을 종료하고 자동으로 다시 시작합니다.</translation>
     </message>
     <message>
         <source>Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.</source>
-        <translation>Windscribe는 업데이트를 다운로드하고 설치하며 몇 분 정도 걸릴 수 있습니다. 업데이트 후 컴퓨터가 다시 시작됩니다.</translation>
+        <translation>Windscribe가 업데이트를 다운로드하고 설치하는데까지 몇 분 정도 걸릴 수 있습니다. 업데이트 후 컴퓨터가 다시 시작됩니다.</translation>
     </message>
 </context>
 <context>
     <name>UpgradeBanner</name>
     <message>
         <source>Unlock full access to Windscribe</source>
-        <translation>Windscribe에 대한 전체 액세스 권한 잠금 해제</translation>
+        <translation>Windscribe의 모든 기능을 이용해 보세요</translation>
     </message>
     <message>
         <source>Go Pro for unlimited everything</source>
@@ -2597,7 +2597,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>0 days left</source>
-        <translation>0 일 남음</translation>
+        <translation>0일 남음</translation>
     </message>
     <message>
         <source>1 day left</source>
@@ -2609,7 +2609,7 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>3 days left</source>
-        <translation>3 일 남음</translation>
+        <translation>3일 남음</translation>
     </message>
     <message>
         <source>4 days left</source>
@@ -2617,11 +2617,11 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>5 days left</source>
-        <translation>5 일 남음</translation>
+        <translation>5일 남음</translation>
     </message>
     <message>
         <source>%1 days left</source>
-        <translation>%1 일 남음</translation>
+        <translation>%1일 남음</translation>
     </message>
     <message>
         <source>Login</source>
@@ -2640,15 +2640,15 @@ If the reinstall does not help, please contact Windscribe support for assistance
     </message>
     <message>
         <source>Don&apos;t leave your front door open. Upgrade or wait until next month to get your monthly data allowance back.</source>
-        <translation>현관문을 열어 두지 마십시오. 업그레이드하거나 다음 달까지 기다렸다가 월별 데이터 허용량을 돌려받으세요.</translation>
+        <translation>보안을 취약하게 두지 마세요. 지금 업그레이드하거나 월별 데이터가 리필되는 다음 달 까지 기다리세요.</translation>
     </message>
     <message>
         <source>Get more data</source>
-        <translation>더 많은 데이터 가져오기</translation>
+        <translation>더 많은 데이터 받기</translation>
     </message>
     <message>
         <source>I&apos;m broke</source>
-        <translation>나는 파산했다</translation>
+        <translation>돈 없어요 ㅜㅜ</translation>
     </message>
 </context>
 <context>

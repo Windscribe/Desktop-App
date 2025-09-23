@@ -24,7 +24,7 @@
     </message>
     <message>
         <source>Aborting: IPC communication error</source>
-        <translation>중단 중: IPC 통신 오류</translation>
+        <translation>중단 중: IPC 통신 오류가 발생했습니다</translation>
     </message>
     <message>
         <source>Not logged in</source>
@@ -40,15 +40,15 @@
     </message>
     <message>
         <source>Firewall set to always on and can&apos;t be turned off</source>
-        <translation>방화벽이 항상 켜짐으로 설정되어 있으며 끌 수 없습니다.</translation>
+        <translation>방화벽이 항상 켜짐으로 설정되어 있어 끌 수 없습니다.</translation>
     </message>
     <message>
         <source>Already logged in</source>
-        <translation>이미 로그인했습니다.</translation>
+        <translation>이미 로그인 되어있습니다.</translation>
     </message>
     <message>
         <source>Already logged out</source>
-        <translation>이미 로그아웃했습니다.</translation>
+        <translation>이미 로그아웃 되어있습니다.</translation>
     </message>
     <message>
         <source>No update available</source>
@@ -64,7 +64,7 @@
     </message>
     <message>
         <source>Logged out</source>
-        <translation>로그아웃됨</translation>
+        <translation>로그아웃 됨</translation>
     </message>
     <message>
         <source>Logging in</source>
@@ -72,7 +72,7 @@
     </message>
     <message>
         <source>Logged in</source>
-        <translation>로그인됨</translation>
+        <translation>로그인 됨</translation>
     </message>
     <message>
         <source>Error: %1</source>
@@ -136,7 +136,7 @@
     </message>
     <message>
         <source>Disconnected</source>
-        <translation>연결이 끊어진</translation>
+        <translation>연결 끊김</translation>
     </message>
     <message>
         <source>Error: Location does not exist or is disabled</source>
@@ -144,7 +144,7 @@
     </message>
     <message>
         <source>Error: You are out of data, or your account has been disabled. Upgrade to Pro to continue using Windscribe</source>
-        <translation>오류: 데이터가 부족하거나 계정이 비활성화되었습니다. Pro로 업그레이드하여 Windscribe 계속 사용</translation>
+        <translation>오류: 데이터가 부족하거나 계정이 비활성화되었습니다. Pro로 업그레이드하여 Windscribe를 계속 사용하세요</translation>
     </message>
     <message>
         <source>Error: Unable to start custom DNS service</source>
@@ -152,11 +152,11 @@
     </message>
     <message>
         <source>Error: WireGuard adapter setup failed</source>
-        <translation>오류: WireGuard 어댑터 설정 실패</translation>
+        <translation>오류: WireGuard 어댑터 설정에 실패했습니다.</translation>
     </message>
     <message>
         <source>Error: Could not retrieve WireGuard configuration</source>
-        <translation>오류: WireGuard 구성을 검색할 수 없습니다.</translation>
+        <translation>오류: WireGuard 구성을 가져올 수 없습니다.</translation>
     </message>
     <message>
         <source>Unknown state</source>
@@ -176,7 +176,7 @@
     </message>
     <message>
         <source>On</source>
-        <translation>에</translation>
+        <translation>켜기</translation>
     </message>
     <message>
         <source>Off</source>
@@ -196,19 +196,19 @@
     </message>
     <message>
         <source>available</source>
-        <translation>이용할 수 있는</translation>
+        <translation>사용 가능</translation>
     </message>
     <message>
         <source>unavailable</source>
-        <translation>사용할</translation>
+        <translation>사용 불가</translation>
     </message>
     <message>
         <source>Disconnected due to reaching WireGuard key limit.  Use &quot;windscribe-cli keylimit delete&quot; if you want to delete the oldest key instead, and try again.</source>
-        <translation>WireGuard 키 제한에 도달하여 연결이 끊어졌습니다.  대신 가장 오래된 키를 삭제하려면 &quot;windscribe-cli keylimit delete&quot;를 사용하고 다시 시도하십시오.</translation>
+        <translation>WireGuard 키 제한에 도달해 연결이 끊어졌습니다. &quot;windscribe-cli keylimit delete&quot;을 실행해 가장 오래된 키를 삭제하고 다시 시도하십시오.</translation>
     </message>
     <message>
         <source>Downloading: %1%</source>
-        <translation>다운로드: %1%</translation>
+        <translation>다운로드 중: %1%</translation>
     </message>
     <message>
         <source>Username too short</source>
@@ -220,11 +220,11 @@
     </message>
     <message>
         <source>Connection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
-        <translation>연결이 진행 중입니다.  &apos;windscribe-cli status&apos;를 사용하여 연결 상태를 확인합니다.</translation>
+        <translation>연결 중입니다.  &apos;windscribe-cli status&apos;를 실행해 현재 연결 상태를 확인합니다.</translation>
     </message>
     <message>
         <source>Disconnection is in progress.  Use &apos;windscribe-cli status&apos; to check for connection status.</source>
-        <translation>연결 끊김이 진행 중입니다.  &apos;windscribe-cli status&apos;를 사용하여 연결 상태를 확인합니다.</translation>
+        <translation>연결 해제 중입니다.  &apos;windscribe-cli status&apos;를 실행해 현재 연결 상태를 확인합니다.</translation>
     </message>
     <message>
         <source>Firewall is on.</source>
@@ -240,19 +240,19 @@
     </message>
     <message>
         <source>Preferences reloaded.</source>
-        <translation>환경 설정이 다시 로드되었습니다.</translation>
+        <translation>환경 설정을 다시 불러왔습니다.</translation>
     </message>
     <message>
         <source>Key limit behaviour is set.</source>
-        <translation>키 제한 동작이 설정됩니다.</translation>
+        <translation>키 제한 동작이 설정되었습니다.</translation>
     </message>
     <message>
         <source>Connection has been overridden by another command.</source>
-        <translation>연결이 다른 명령에 의해 재정의되었습니다.</translation>
+        <translation>연결 요청이 다른 명령으로 중단되었습니다.</translation>
     </message>
     <message>
         <source>Disconnection has been overridden by another command.</source>
-        <translation>연결 끊김이 다른 명령에 의해 재정의되었습니다.</translation>
+        <translation>연결 해제 요청가 다른 명령으로 중단되었습니다.</translation>
     </message>
     <message>
         <source>Already disconnected</source>
@@ -260,15 +260,15 @@
     </message>
     <message>
         <source>Logging out</source>
-        <translation>로그아웃</translation>
+        <translation>로그아웃 중</translation>
     </message>
     <message>
         <source>Need 2FA code</source>
-        <translation>2FA 코드 필요</translation>
+        <translation>2FA 코드가 필요합니다</translation>
     </message>
     <message>
         <source>Incorrect 2FA code</source>
-        <translation>잘못된 2FA 코드</translation>
+        <translation>2FA 코드가 잘못되었습니다</translation>
     </message>
     <message>
         <source>(Device name: %1)</source>
@@ -280,19 +280,19 @@
     </message>
     <message>
         <source>Please type the numbers above to continue:</source>
-        <translation>계속하려면 위의 숫자를 입력하십시오.</translation>
+        <translation>계속하려면 위의 숫자를 입력하세요.</translation>
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"></translation>
+        <translation> (10Gbps)</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Disabled)</translation>
     </message>
     <message>
         <source> (Pro)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Pro)</translation>
     </message>
 </context>
 </TS>
