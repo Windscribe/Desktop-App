@@ -252,7 +252,7 @@
     </message>
     <message>
         <source>Disconnection has been overridden by another command.</source>
-        <translation>연결 해제 요청가 다른 명령으로 중단되었습니다.</translation>
+        <translation>연결 해제 요청이 다른 명령으로 중단되었습니다.</translation>
     </message>
     <message>
         <source>Already disconnected</source>
