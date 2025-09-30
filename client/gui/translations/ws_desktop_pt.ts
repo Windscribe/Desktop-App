@@ -2593,7 +2593,7 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
     </message>
     <message>
         <source>%1 left</source>
-        <translation>%1 esquerda</translation>
+        <translation>%1 restantes</translation>
     </message>
     <message>
         <source>0 days left</source>

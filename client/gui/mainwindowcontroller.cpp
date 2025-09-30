@@ -1487,12 +1487,16 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
         {
             updateBottomInfoWindowVisibilityAndPos(/*forceCollapsed =*/ true);
             if (bottomInfoWindow_->isVisible()) {
-                bottomInfoWindow_->hide();
-                bottomInfoWindow_->setClickable(false);
-                shadowManager_->removeObject(ShadowManager::SHAPE_ID_BOTTOM_INFO);
+                std::function<void()> finish_function = [this]() {
+                    isAtomicAnimationActive_ = false;
+                    handleNextWindowChange();
+                    updateBottomInfoWindowVisibilityAndPos();
+                };
+                animateBottomInfoWindow(QAbstractAnimation::Backward, finish_function);
+            } else {
+                isAtomicAnimationActive_ = false;
+                handleNextWindowChange();
             }
-            isAtomicAnimationActive_ = false;
-            handleNextWindowChange();
             revealConnectOpacityAnimation->deleteLater();
             revealConnectOpacitySeq->deleteLater();
             revealInitSizeAnimation->deleteLater();
