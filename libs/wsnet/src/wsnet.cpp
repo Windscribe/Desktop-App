@@ -20,7 +20,7 @@
 #include "decoytraffic/decoytraffic.h"
 #include "advancedparameters.h"
 #include "connectstate.h"
-#include "../../../client/common/version/windscribe_version.h"
+#include "../../../src/client/common/version/windscribe_version.h"
 #if defined(IS_MOBILE_PLATFORM)
 #include "utils/oqs_provider_loader.h"
 #endif

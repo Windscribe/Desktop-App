@@ -11,7 +11,9 @@
 
 #ifdef _WIN32
     #include "eventcallbackmanager_win.h"
-#elif !defined IS_TVOS
+#elif defined IS_APPLE
+    #include "apple/pingmanager_apple.h"
+#else
     #include "processmanager.h"
 #endif
 
@@ -35,8 +37,10 @@ private:
 #ifdef _WIN32
     // Required for ICMP pings for Windows system
     EventCallbackManager_win eventCallbackManager_;
-#elif !defined IS_TVOS
-    // Required for ICMP pings for posix systems
+#elif defined IS_APPLE
+    PingManager_apple pingManagerApple_;
+#else
+    // Required for ICMP pings for unix systems
     std::unique_ptr<ProcessManager> processManager_;
 #endif
     ConnectState &connectState_;

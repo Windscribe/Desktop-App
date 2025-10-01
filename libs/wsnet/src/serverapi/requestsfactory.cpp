@@ -289,6 +289,17 @@ BaseRequest *requests_factory::wgConfigsConnect(const std::string &authHash, con
     return request;
 }
 
+BaseRequest *requests_factory::wgConfigsPskRekey(const std::string &authHash, const std::string &clientPublicKey, RequestFinishedCallback callback)
+{
+    std::map<std::string, std::string> extraParams;
+    extraParams["wg_pubkey"] = clientPublicKey;
+
+    auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kHigh, "WgConfigs/psk-rekey", extraParams, callback);
+    request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    request->setBearerToken(authHash);
+    return request;
+}
+
 BaseRequest *requests_factory::mobileBillingPlans(const std::string &authHash, const std::string &mobilePlanType, const std::string &promo, int version, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;

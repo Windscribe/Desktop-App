@@ -16,7 +16,7 @@ variables:
   NEXUS_PATH_VCPKG_CACHE: '$NEXUS_PATH_ROOT/vcpkg_cache/current'
   NEXUS_PATH_BRANCH_UPLOAD: '${NEXUS_PATH_ROOT}/branches/${CI_COMMIT_BRANCH}'
   NEXUS_PATH_TAGGED_UPLOAD: '${NEXUS_PATH_ROOT}/tagged-builds'
-  LINUX_SIGNING_PATH: 'client/common/keys/linux'
+  LINUX_SIGNING_PATH: 'src/client/common/keys/linux'
   LINUX_PUBLIC_KEY_PATH: '$LINUX_SIGNING_PATH/key.pub'
   ARCH_LINUX_BUILD_PATH: '/home/build/windscribe'
   RHEL_CMAKE_BUILD_PATH: '/home/build/windscribe'
@@ -60,7 +60,7 @@ variables:
   before_script:
     - python3 -m pip install --user -r tools/requirements.txt
     # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
-    - chmod -R o-w installer/linux
+    - chmod -R o-w src/installer/linux
     # vcpkg settings
     - export VCPKG_ROOT="${HOME}/vcpkg"
     - export VCPKG_FORCE_SYSTEM_BINARIES=1
@@ -76,7 +76,7 @@ variables:
   image: registry.gitlab.int.windscribe.com:5005/ws/client/desktop/client-desktop/fedora36
   before_script:
     # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
-    - chmod -R o-w installer/linux
+    - chmod -R o-w src/installer/linux
     # vcpkg settings
     - export VCPKG_ROOT="${HOME}/vcpkg"
     - export PATH=${RHEL_CMAKE_BUILD_PATH}/bin:$PATH
@@ -150,11 +150,11 @@ variables:
     - $env:VCPKG_ROOT = $env:VCPKG_ROOT_WINDOWS
     - $env:VCPKG_DEFAULT_BINARY_CACHE = $env:VCPKG_DEFAULT_BINARY_CACHE_WINDOWS
     - tools/build_all ${BUILD_FLAG} ${ARCH_FLAG} --ci-mode
-    - $Diff = git diff client/gui/translations
+    - $Diff = git diff src/client/gui/translations
     - if ( $Diff.Count -ne 0 ) { echo "You have changed desktop strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
-    - $Diff = git diff installer/common/translations
+    - $Diff = git diff src/installer/common/translations
     - if ( $Diff.Count -ne 0 ) { echo "You have changed installer strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
-    - $Diff = git diff installer/windows/uninstaller/translations
+    - $Diff = git diff src/installer/windows/uninstaller/translations
     - if ( $Diff.Count -ne 0 ) { echo "You have changed uninstaller strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
   artifacts:
     paths:
@@ -449,8 +449,8 @@ build:win:arm64:bootstrap:
     - !reference [.download_dependencies_posix, script]
     - if [ -d ./${BUILD_LIBS_FOLDER}/ ]; then for z in ./${BUILD_LIBS_FOLDER}/*.zip; do unzip -qod ./${BUILD_LIBS_FOLDER} $z; done; fi
     # Download the provisioning profiles from Nexus
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o backend/mac/provisioning_profile/embedded.provisionprofile "$NEXUS_PATH_ROOT/secrets/embedded.provisionprofile"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o backend/mac/provisioning_profile/splittunnelextension.provisionprofile "$NEXUS_PATH_ROOT/secrets/splittunnelextension.provisionprofile"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o data/provisioning_profile/embedded.provisionprofile "$NEXUS_PATH_ROOT/secrets/embedded.provisionprofile"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o data/provisioning_profile/splittunnelextension.provisionprofile "$NEXUS_PATH_ROOT/secrets/splittunnelextension.provisionprofile"
     - VERSION=$(python3 tools/base/extract.py)
 
 build:mac:installer:
@@ -733,7 +733,7 @@ build:archlinux:installer:
   script:
     - OS_IDENTIFIER="linux"
     - !reference [.build_archlinux_installer_prep_build_dir, script]
-    - cp installer/linux/gui/arch_package/* ${ARCH_LINUX_BUILD_PATH}
+    - cp src/installer/linux/gui/arch_package/* ${ARCH_LINUX_BUILD_PATH}
     - export APP_DOWNLOAD_URL="${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64.deb"
     - !reference [.build_archlinux_installer_makepkg, script]
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -753,7 +753,7 @@ build:archlinux_cli:installer:
   script:
     - OS_IDENTIFIER="linux"
     - !reference [.build_archlinux_installer_prep_build_dir, script]
-    - cp installer/linux/cli/arch_package/* ${ARCH_LINUX_BUILD_PATH}
+    - cp src/installer/linux/cli/arch_package/* ${ARCH_LINUX_BUILD_PATH}
     - export APP_DOWNLOAD_URL="${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_amd64.deb"
     - !reference [.build_archlinux_installer_makepkg, script]
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -772,7 +772,7 @@ build:archlinux:installer:tagged:
     GIT_STRATEGY: clone
   script:
     - !reference [.build_archlinux_installer_prep_build_dir, script]
-    - cp installer/linux/gui/arch_package/* ${ARCH_LINUX_BUILD_PATH}
+    - cp src/installer/linux/gui/arch_package/* ${ARCH_LINUX_BUILD_PATH}
     - export APP_DOWNLOAD_URL=${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb
     - !reference [.build_archlinux_installer_makepkg, script]
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
@@ -792,7 +792,7 @@ build:archlinux_cli:installer:tagged:
     GIT_STRATEGY: clone
   script:
     - !reference [.build_archlinux_installer_prep_build_dir, script]
-    - cp installer/linux/cli/arch_package/* ${ARCH_LINUX_BUILD_PATH}
+    - cp src/installer/linux/cli/arch_package/* ${ARCH_LINUX_BUILD_PATH}
     - export APP_DOWNLOAD_URL=${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe-cli_${VERSION}_amd64.deb
     - !reference [.build_archlinux_installer_makepkg, script]
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
@@ -868,9 +868,9 @@ test:translations:
   variables:
     GIT_STRATEGY: clone
   script:
-    - $Unfinished = Select-String -Path client\gui\translations\*,installer\common\translations\*,installer\windows\uninstaller\translations\* -Pattern 'type="unfinished"'
+    - $Unfinished = Select-String -Path src\client\gui\translations\*,src\installer\common\translations\*,src\installer\windows\uninstaller\translations\* -Pattern 'type="unfinished"'
     - if ( $Unfinished.Matches.Count -ne 0 ) { echo "You have untranslated strings in your ts files.  Run the translation script on the ts files and add them to the commit."; exit 1 }
-    - $Vanished = Select-String -Path client\gui\translations\*,installer\common\translations\*,installer\windows\uninstaller\translations\* -Pattern 'type="vanished"'
+    - $Vanished = Select-String -Path src\client\gui\translations\*,src\installer\common\translations\*,src\installer\windows\uninstaller\translations\* -Pattern 'type="vanished"'
     - if ( $Vanished.Matches.Count -ne 0 ) { echo "You have vanished strings in your ts files.  Run the translation script on the ts files with --remove-vanished and add them to the commit."; exit 1 }
   dependencies: []
   rules:
@@ -893,7 +893,7 @@ build:wsnet:win:
   artifacts:
     expire_in: 1 day
     paths:
-      - build
+      - build/test
 
 test:wsnet:win:
   <<: *template_win10_build
@@ -944,7 +944,9 @@ build:wsnet:mac:
   artifacts:
     expire_in: 1 day
     paths:
-      - build
+      - build/client/wsnet
+      - build/client/wsnet_test
+      - build/client/_cmrc
   rules:
     - if: $BUILD_MAC == "y" && $NIGHTLY_TEST_BUILD == "y"
 
@@ -1002,7 +1004,9 @@ build:wsnet:rhel:
   artifacts:
     expire_in: 1 day
     paths:
-       - build
+      - build/client/wsnet
+      - build/client/wsnet_test
+      - build/client/_cmrc
   rules:
     - if: $BUILD_LINUX == "y" && $NIGHTLY_TEST_BUILD == "y"
 
@@ -1051,14 +1055,14 @@ test:version:mac:
   script:
     - |
       git fetch
-      HELPER_CHANGES=$(git diff --name-only origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -- backend/mac/helper)
-      if [ ! -z "$HELPER_CHANGES" ] && [[ ! "$HELPER_CHANGES" == *"backend/mac/helper/helper-info.plist"* ]]; then
-        echo "Files in backend/mac/helper were changed, but backend/mac/helper/helper-info.plist was not updated"
+      HELPER_CHANGES=$(git diff --name-only origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -- src/helper/macos)
+      if [ ! -z "$HELPER_CHANGES" ] && [[ ! "$HELPER_CHANGES" == *"src/helper/macos/helper-info.plist"* ]]; then
+        echo "Files in src/helper/macos were changed, but src/helper/macos/helper-info.plist was not updated"
         exit 1
       fi
-      EXTENSION_CHANGES=$(git diff --name-only origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -- backend/mac/splittunnelextension)
-      if [ ! -z "$EXTENSION_CHANGES" ] && [[ ! "$EXTENSION_CHANGES" == *"backend/mac/splittunnelextension/Info.plist"* ]]; then
-        echo "Files in backend/mac/splittunnelextension were changed, but backend/mac/splittunnelextension/Info.plist was not updated"
+      EXTENSION_CHANGES=$(git diff --name-only origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -- src/splittunneling/macos)
+      if [ ! -z "$EXTENSION_CHANGES" ] && [[ ! "$EXTENSION_CHANGES" == *"src/splittunneling/macos/Info.plist"* ]]; then
+        echo "Files in src/splittunneling/macos were changed, but src/splittunneling/macos/Info.plist was not updated"
         exit 1
       fi
   dependencies: []
@@ -1088,7 +1092,9 @@ build:wsnet:ios:
       - ./libs/wsnet/tools/build/WSNet.xcframework.zip
     expire_in: 1 week
   rules:
-    - if: $BUILD_WSNET_IOS == "y"
+    - if: $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
+    - changes:
+      - libs/wsnet
 
 build:wsnet:android:
   <<: *template_rhel_build
@@ -1125,4 +1131,6 @@ build:wsnet:android:
       - ./libs/wsnet/tools/WSNet.aar.zip
     expire_in: 1 week
   rules:
-    - if: $BUILD_WSNET_ANDROID == "y"
+    - if: $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
+    - changes:
+      - libs/wsnet

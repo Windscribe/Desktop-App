@@ -5,43 +5,43 @@
 client:
   win32:
     name:     Client
-    subdir:   client
+    subdir:   src/client
     target:   Windscribe.exe
     symbols:  [Windscribe.pdb, wsnet/wsnet.pdb]
   macos:
     name:     Client
-    subdir:   client
+    subdir:   src/client
     target:   Windscribe.app
     deploy:   True
   linux:
     name:     Client
-    subdir:   client
+    subdir:   src/client
     target:   Windscribe
 
 cli:
   win32:
     name:     CLI
-    subdir:   gui/cli
+    subdir:   src/windscribe-cli
     target:   windscribe-cli.exe
     symbols:  windscribe-cli.pdb
   macos:
     name:     CLI
-    subdir:   gui/cli
+    subdir:   src/windscribe-cli
     target:   windscribe-cli
   linux:
     name:     CLI
-    subdir:   gui/cli
+    subdir:   src/windscribe-cli
     target:   windscribe-cli
 
 helper:
   win32:
     name:     Helper
-    subdir:   backend/windows/windscribe_service
+    subdir:   src/helper
     target:   WindscribeService.exe
     symbols:  WindscribeService.pdb
   macos:
     name:     Helper
-    subdir:   backend/mac/helper
+    subdir:   src/helper
     target:   com.windscribe.helper.macos
     outdir:   helper
     generator: Xcode
@@ -51,32 +51,32 @@ helper:
       - -quiet
   linux:
     name:     Helper
-    subdir:   backend/linux/helper
+    subdir:   src/helper
     target:   helper
 
 authhelper:
   linux:
     name:     "Auth Helper"
-    subdir:   gui/authhelper/linux
+    subdir:   src/utils/linux/authhelper
     target:   windscribe-authhelper
 
 installhelper:
   win32:
     name:     "Install Helper"
-    subdir:   backend/windows/windscribe_install_helper
+    subdir:   src/utils/windows/windscribe_install_helper
     target:   WindscribeInstallHelper.exe
     symbols:  WindscribeInstallHelper.pdb
 
 uninstaller:
   win32:
     name:     Uninstaller
-    subdir:   installer/windows/uninstaller
+    subdir:   src/installer/windows/uninstaller
     target:   uninstall.exe
 
 launcher:
   macos:
     name:      Launcher
-    subdir:    gui/launcher/mac
+    subdir:    src/utils/macos/launcher
     target:    WindscribeLauncher.app
     outdir:    launcher
     generator: Xcode
@@ -86,18 +86,18 @@ launcher:
 wireguardservice:
   win32:
     name:     WireguardService
-    subdir:   backend/windows/wireguard_service
+    subdir:   src/utils/windows/wireguard_service
     target:   WireguardService.exe
     symbols:  WireguardService.pdb
 
 installer:
   win32:
     name:     Installer
-    subdir:   installer/windows/installer
+    subdir:   src/installer/windows/installer
     target:   installer.exe
   macos:
     name:      Installer
-    subdir:    installer/mac/installer
+    subdir:    src/installer/mac/installer
     target:    WindscribeInstaller.app
     generator: Xcode
     deploy:   True
@@ -109,7 +109,7 @@ installer:
 bootstrap:
   win32:
     name:    InstallerBootstrap
-    subdir:  installer/windows/bootstrap
+    subdir:  src/installer/windows/bootstrap
     target:  windscribe_installer.exe
 
 wssecure:
@@ -121,7 +121,7 @@ wssecure:
 splittunnelextension:
   macos:
     name:     SplitTunnelExtension
-    subdir:   backend/mac/splittunnelextension
+    subdir:   src/splittunneling/macos
     target:   com.windscribe.client.splittunnelextension.systemextension
     generator: Xcode
     entitlements: True
@@ -143,8 +143,8 @@ targets:
     - client
 
 signing_cert_win:
-  path_signtool: installer/windows/signing/signtool.exe
-  path_cert: installer/windows/signing/code_signing.der
+  path_signtool: src/installer/windows/signing/signtool.exe
+  path_cert: src/installer/windows/signing/code_signing.der
   timestamp: http://timestamp.digicert.com
 
 deploy_files:
@@ -194,13 +194,13 @@ deploy_files:
     splittunnelextension:
       entitlements:
         entitlements_binary: Contents/MacOS/com.windscribe.client.splittunnelextension
-        entitlements_file: backend/mac/splittunnelextension/splittunnelextension.entitlements
-        provision_profile: backend/mac/provisioning_profile/splittunnelextension.provisionprofile
+        entitlements_file: src/splittunneling/macos/splittunnelextension.entitlements
+        provision_profile: data/provisioning_profile/splittunnelextension.provisionprofile
     client:
       entitlements:
         entitlements_binary: Contents/MacOS/Windscribe
-        entitlements_file: client/engine/mac/windscribe_engine.entitlements
-        provision_profile: backend/mac/provisioning_profile/embedded.provisionprofile
+        entitlements_file: src/client/engine/mac/windscribe_engine.entitlements
+        provision_profile: data/provisioning_profile/embedded.provisionprofile
       remove:
         # Remove unused Qt frameworks.
         - Contents/Frameworks/QtQml.framework

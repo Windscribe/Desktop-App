@@ -23,7 +23,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # tools/base
 TOOLS_DIR = os.path.dirname(BASE_DIR)
 ROOT_DIR = os.path.dirname(TOOLS_DIR)
-COMMON_DIR = os.path.join(ROOT_DIR, "client/common")
+COMMON_DIR = os.path.join(ROOT_DIR, "src/client/common")
 TEMP_DIR = os.path.join(ROOT_DIR, "temp")
 
 # some filenames
@@ -35,7 +35,7 @@ def notarize_script_filename_absolute():
 
 
 def mac_provision_profile_folder_name_absolute():
-    return os.path.join(ROOT_DIR, "backend", "mac", "provisioning_profile")
+    return os.path.join(ROOT_DIR, "data", "provisioning_profile")
 
 
 def linux_public_key_filename_absolute():

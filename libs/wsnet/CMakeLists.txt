@@ -74,8 +74,9 @@ if (DEFINED IS_BUILD_TESTS)
 endif()
 
 # Set platform specific dependencies
-if (IOS)
-    set (OS_SPECIFIC_LIBRARIES "-framework Foundation")
+if (APPLE)
+    set(OS_SPECIFIC_LIBRARIES "-framework Foundation" "-framework CFNetwork")
+    target_compile_options(wsnet PRIVATE "-fobjc-arc")
 endif()
 
 # Find oqsprovider static library - REQUIRED for mobile platforms only
@@ -117,9 +118,9 @@ target_include_directories(wsnet PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-# let the preprocessor know about Apple tvOS
-if(CMAKE_SYSTEM_NAME STREQUAL "tvOS")
-  target_compile_definitions(wsnet PUBLIC "IS_TVOS")
+# let the preprocessor know about Apple platform
+if(APPLE)
+  target_compile_definitions(wsnet PUBLIC "IS_APPLE")
 endif()
 
 # For Android and iOS using the scapix library for automatic binding to Java/Objective C languages

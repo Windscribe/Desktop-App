@@ -1,0 +1,2629 @@
+2.18.1 (30/09/2025)
+All:
+   * Added wgConfigsPskRekey endpoint to the wsnet library. #1476
+   * Added Refresh button for locations. #1336
+   * Improved nightly test success rate. #1473
+   * Improved Korean translations from GitHub user Alex4386. #1490
+   * Improved file organization of the project(refactoring). #888
+Windows:
+   * Fixed VPN interface network category is private. #1481
+   * Fixed OpenVPN daemon fails to start when using an HTTP proxy. #1462
+   * Removed advanced parameter for configuring the VPN adapter network category as public. #1481
+   * Removed deprecated use of wmic utility. #1482
+MacOS:
+   * Improved implementation of ICMP-pings in wsnet. Now it should work in iOS as well. #1453
+
+
+2.17.9 (29/09/2025)
+All:
+   * Fixed the issue where the plan status widget was sometimes not displayed. #1493
+
+
+2.17.8 (25/09/2025)
+All:
+   * Fixed a Portuguese translation. #1488
+
+
+2.17.7 (22/09/2025)
+All:
+   * Fixed memory usage for flags. #1485
+
+
+2.17.6 (17/09/2025)
+All:
+   * Fixed unexpected scroll when sending debug log. #1480
+   * Fixed wsnet build on Android. #1472
+   * Fixed upgrade button scaling. #1487
+
+
+2.17.5 (15/09/2025)
+All:
+   * Fixed incorrect scroll position in preferences. #1465
+   * Fixed custom DNS preferences behaviour. #1470
+Windows:
+   * Fixed playing a sound may capture the audio device, preventing Windows from sleeping. #1410
+MacOS:
+   * Fixed regression in the in-app updater for macOS. #1471
+
+
+2.17.4 (04/09/2025)
+All:
+   * Improved highlight colours used in log viewer. #1213
+   * Fixed resize bar may be cut off when update banner is shown. #1465
+   * Fixed broken link in preferences. #1467
+
+
+2.17.3 (22/08/2025)
+All:
+   * Improved native window colours in accordance with OS theme. #1213
+   * Fixed libcurl loading openssl.cnf from untrusted path. #1454
+   * Fixed potential crash when operating with empty port map. #1457
+   * Fixed some wsnet failover behaviour. #1449
+   * Updated ctrld to 1.4.6. #1464
+Windows:
+   * Fixed installer alert border. #1461
+MacOS:
+   * Fixed missing tray icon. #1452
+   * Fixed installer alert border. #1461
+Linux:
+   * Improved filesystem organization/packaging per FHS. #673
+   * Fixed missing xcb plugin. #949
+   * Fixed rendering issues on X11 (non-wayland) environments. #1437
+   * Fixed missing window decorators for advanced parameter/log viewer screens in Wayland. #1459
+   * Fixed missing dependency for openSUSE. #1460
+
+
+2.17.2 (13/08/2025)
+All:
+   * Added advanced parameters for overriding the API, assets, and checkip domains used in wsnet. #1440
+   * Improved UX in more places. #1443 #1446 #1447 #1448
+   * Improved Qt library dependency and other CI/build fixes. #949
+   * Fixed wsnet not triggering failover on some invalid payloads. #1449
+   * Fixed French translation of 'Release' update channel. #1439
+   * Fixed pings may be invalidated while connected. #1442
+   * Removed the API resolution settings from the GUI. #1440
+Windows:
+   * Fixed a crash in the audio dependencies on some builds. #1450
+   * Updated OpenVPN DCO driver to v1.3.3. #1451
+Linux:
+   * Fixed rendering issues on X11 (non-wayland) environments. #1437
+   * Fixed potential DNS leak when using ctrld. #1445
+   * Removed unused libraries from packaging. #1441
+
+
+2.17.1 (29/07/2025)
+All:
+   * Added post-quantum server API integration. #1422
+   * Improved CI pipeline speed. #1405
+   * Improved nightly test CI scripts. #958
+   * Improved advanced parameter handling. #896
+   * Improved wsnet to use bearer token in all server API calls. #1423
+   * Improved icons on the favourites tab to be the country flag. #1436
+   * Improved dependencies for audio. #1435
+   * Fixed last opened locations tab is not remembered. #1429
+   * Fixed alert window cut off when showing an update error. #1432
+   * Updated ctrld to 1.4.5. #1438
+Windows:
+   * Fixed code compilation with Visual Studio 2022. #1406
+   * Fixed app no longer debug logging to the system debugger. #1407
+   * Fixed erroneous 'failed to set network category' error message from helper. #1415
+   * Updated signing certificate. #1044
+MacOS:
+   * Fixed code compilation with newer version of Xcode. #1396
+   * Fixed app no longer debug logging to stdout. #1407
+Linux:
+   * Improved locations list in CLI to show more information. #1426
+   * Fixed app no longer debug logging to stdout. #1407
+   * Fixed DNS leak in some configurations. #1424
+
+
+2.16.14 (24/07/2025)
+All:
+   * Fixed update downloads may fail prematurely. #1431
+   * Fixed maximum CAPTCHA trail size. #1434
+
+
+2.16.13 (23/07/2025)
+All:
+   * Fixed upgrade banner may show on a Pro account. #1430
+
+
+2.16.12 (22/07/2025)
+All:
+   * Fixed build-a-plan shows as Free account. #1425
+Windows:
+   * Fixed OpenVPN config file path missing terminating double-quote in helper. #1427
+
+
+2.16.11 (18/07/2025)
+MacOS:
+   * Fixed installer icon does not display for some screen resolutions/scale factors. #1056
+
+
+2.16.10 (17/07/2025)
+Windows:
+   * Improved installer icon. #1056
+MacOS:
+   * Improved installer icon. #1056
+
+
+2.16.9 (15/07/2025)
+All:
+   * Fixed various issues with the network display on connect screen. #1417
+Windows:
+   * Fixed network may not show up in Network Options. #1417
+
+
+2.16.8 (10/07/2025)
+All:
+   * Improved various issues with the new UI (e.g. colors, external config mode, keyboard handling in locations) #1417 #1418 #1421
+Windows:
+   * Fixed misleading log message. #1419
+MacOS:
+   * Improved detection of valid tray icon coordinates for the docked mode. #1334
+   * Fixed wsnet sometimes not detecting OS Default DNS server when using DHCP on the app start. #1376
+Linux:
+   * Improved ASCII captcha text input hint for CLI. #1389
+
+
+2.16.7 (04/07/2025)
+All:
+   * Added flag for Iran. #1413
+   * Improved Russian translations. #1411
+   * Fixed Look & Feel preferences not translated. #1412
+   * Fixed 400 'header or cookie too large' for Cloudflare API endpoints. #1399
+   * Fixed incorrectly formatted client log entries. #1416
+Windows:
+   * Fixed playing a sound may capture the audio device, preventing Windows from sleeping. #1410
+MacOS:
+   * Fixed wsnet not detecting OS Default DNS server when using DHCP. #1376
+   * Fixed app firewall blocking Sidecar/Continuity features. #415
+   * Fixed docked window is sometimes in the wrong position. #1334
+
+
+2.16.6 (24/06/2025)
+All:
+   * Fixed various UI bugs. #1151 #1400 #1401
+   * Fixed 'remote' advanced parameter when using WireGuard and connecting to a different location. #1402
+   * Fixed flags which had rendering issues. #1386
+   * Fixed curl timeouts in wsnet. #1403
+Linux:
+   * Added ASCII CAPTCHA for CLI-only clients. #1389
+   * Fixed dependency for libpulse0. #1397
+
+
+2.16.5 (17/06/2025)
+All:
+   * Added and updated flags. #1386
+   * Fixed minor UI bugs. #1151 #1387 #1388 #1394 #1395
+   * Updated ctrld to 1.4.4. #1362
+   * Updated CAPTCHA screen design. #1351
+Windows:
+   * Fixed internet connectivity detection when using PPPoE. #1377
+MacOS:
+   * Updated CI to build macOS artifact on arm64 runners. #1392
+Linux:
+   * Fixed Linux app aborting due to exception, improved logging and error handling in helper IPC. #1368
+
+
+2.16.4 (09/06/2025)
+All:
+   * Fixed various regressions and oddities with new app UI design. #1151
+   * Fixed JSON import not working for some new preferences. #1383
+Windows:
+   * Fixed locations missing nicknames in tray menu, redux. #1357
+   * Fixed faint minimize button. #1382
+   * Fixed internet connectivity detection when using PPPoE. #1377
+Linux:
+   * Fixed faint minimize button. #1382
+   * Fixed IPv6 firewall rules not cleared after disconnect. #1385
+   * Removed captcha for CLI-only client. #1384
+
+
+2.16.3 (04/06/2025)
+All:
+   * Added bundled backgrounds and sound notifications. #1150
+   * Added Look & Feel tab in preferences. #1150
+   * Added new app UI design. #1151
+   * Added two stage login and CAPTCHA. #1351
+   * Improved inconsistent (English) spelling. #1371
+   * Improved preferences import/export to include advanced parameters. #1373
+   * Fixed Always On+ mode sometimes not applied instantly. #1369
+   * Fixed renamed best location nickname not updated if best location changes. #1372
+   * Fixed Best Location is chosen incorrectly. #1274
+   * Removed legacy protobuf settings. #1212
+MacOS:
+   * Fixed missing icons, nickname in Favourites. #1357
+Linux:
+   * Fixed Always On+ mode for CLI-only clients. #1369
+   * Fixed CLI-only client waits forever to connect without internet connectivity. #1370
+   * Fixed CLI-only client may not display a useful error. #1374
+
+
+2.16.2 (27/05/2025)
+All:
+   * Added warning when Firewall Always On+ mode is enabled. #1318
+   * Added an advanced parameter to suppress pings. #1196
+   * Improved Chinese translation from GitHub user YerongAI. #1358
+   * Improved build instructions. #1360
+   * Improved WireGuard support on adverse networks by forcing a handshake after interface configuration. #1190
+   * Fixed the Firewall Always On+ mode doesn't keep state on Mac/Linux reboot. #1318
+   * Fixed some blocking CLI commands may consume more CPU than intended. #1361
+   * Removed oqs algorithms on ios [wsnet]. #1359
+Windows:
+   * Fixed locations missing nicknames in tray menu. #1357
+   * Fixed existing local DNS ignored when using custom DNS. #1363
+MacOS:
+   * Fixed locations missing nicknames in tray menu. #1357
+   * Fixed reconnection after waking from sleep may fail if split tunneling. #1340
+   * Updated wireguard-go to 0.0.20250515. #1360
+Linux:
+   * Fixed split tunnel rule precedence after waking from sleep. #1320
+   * Updated wireguard-go to 0.0.20250515. #1360
+
+
+2.16.1 (13/05/2025)
+All:
+   * Added a new firewall mode Always On+. #1318
+   * Improved app logs to output GUI and engine settings in JSON format. #1345
+   * Fixed wsnet for mobile platforms, minor fixes. #1350
+   * Updated c-ares to 1.34.5, added additional logs to wsnet. #1321
+Windows:
+   * Added advanced parameter for configuring the VPN adapter network category as public. #1349
+
+
+2.15.9 (29/05/2025)
+MacOS:
+   * Fixed MacOS app consuming memory extremely quickly after opening the app when docked.  Reverted changes made for issue #1334. #1367
+
+
+2.15.8 (16/05/2025)
+MacOS:
+   * Fixed delayed app shutdown on MacOS. #1353
+
+
+2.15.7 (07/05/2025)
+All:
+   * Fixed CI-produced macOS artifacts generate a 'one or more files in the app bundle have been suspiciously modified' error from macOS. #1352
+
+
+2.15.6 (29/04/2025)
+All:
+   * Fixed translations for Arabic/Farsi in Decoy Traffic. #1346
+   * Updated ctrld to 1.4.3. #1347
+
+
+2.15.5 (25/04/2025)
+All:
+   * Fixed incorrect comparison when importing location renames. #1323
+   * Fixed custom config name is cut too short. #1321
+Windows:
+   * Fixed unhandled -os_restart argument from older version. #1341
+   * Fixed latency bars display 'full strength' when ping information is not available/failed for the location. #1338
+MacOS:
+   * Improved startup time when not docked. #1308
+   * Fixed double installation of the helper in the installer. #1343
+   * Removed partial workaround for ctrld panic. #1227
+Linux:
+   * Fixed erroneous 'missing log' warning in merged logs due to Linux not having an installer log. #1339
+
+
+2.15.4 (16/04/2025)
+All:
+   * Fixed Best Location is chosen incorrectly. #1274, #1333
+   * Updated ctrld to 1.4.2. #1327
+Windows:
+   * Fixed split tunneling regression. #1329
+   * Fixed installer buttons not being transparent. #1330
+   * Fixed regression of MTU value setting. #991
+MacOS:
+   * Fixed docked window is sometimes in the wrong position. #1334
+   * Fixed ctrld sometimes does not start when using custom DNS. #1227
+Linux:
+   * Fixed Linux Mac Spoofing regression. #1328
+
+
+2.15.3 (10/04/2025)
+All:
+   * Added support for local DNS as connected DNS. #1255
+   * Improved client log when unable to get WG config from server. #1321
+   * Improved anti-censorship mechanisms. #1316
+   * Improved IPC communication between the client and helper/service, refactoring without changing the functionality of the program. #991
+   * Improved consistency of install package naming. #1326
+   * Fixed postquantum KEMs should not be proposed for mobile platforms in wsnet. #1315
+   * Fixed searching for nicknames not working after location renaming feature. #1321
+   * Fixed Ecuador flag, redux. #1305
+MacOS:
+   * Fixed firewall blocking VPN connections on port 53. #1325
+   * Fixed potential crash at exit. #1319
+Linux:
+   * Fixed split tunneling sometimes not working after Qt update. #1320
+
+
+2.15.2 (01/04/2025)
+All:
+   * Added location renaming. #1259
+   * Improved confusing "No P2P" icon. #1304
+   * Improved flag assets. #1305 #1312
+   * Improved UX when unable to connect to the Windscribe helper/service. #1301
+   * Fixed the app freezing on exit. #1250
+   * Fixed cursor may not change when a location becomes disabled/enabled. #1262
+   * Fixed static IP link color may be incorrect. #1293
+   * Updated OpenVPN to 2.6.13. #1310
+   * Updated Qt to 6.8.3. #1215
+Windows:
+   * Improved installer language detection to use app language if available. #1296
+   * Fixed firewall may be briefly incorrectly disabled after in-app update. #1283
+   * Removed -no-drivers argument for installer. #1311
+MacOS:
+   * Improved installer language detection to use app language if available. #1296
+   * Fixed firewall may be briefly incorrectly disabled after in-app update. #1283
+   * Fixed tooltip sometimes shows behind main window. #368
+Linux:
+   * Fixed firewall behavior due to iptables 1.8.11 bug. #1308
+   * Fixed postquantum KEMs not being proposed. #1315
+
+
+2.15.1 (18/03/2025)
+All:
+   * Added Fedora arm64 build. #1244
+   * Improved behavior when the firewall is on and the app exits unexpectedly. #1283
+   * Improved UX and fixed text overlaps on the static IPs screen. #306 #1293
+   * Fixed static IP locations that are unavailable are not displayed. #1262
+   * Fixed window height is cut off if window transitions while being dragged. #1295
+   * Updated liboqs to 0.12.0 and oqs-provider to 0.7.0. #1104
+   * Updated ctrld to 1.4.1. #1284
+   * Removed code usage of Qt5 compatibility module. #1272
+MacOS:
+   * Improved UX when user connects with split tunneling enabled, but has not approved the extension. #1298
+
+
+2.14.12 (01/04/2025)
+Linux:
+   * Fixed always-on firewall not functional after reboot. #1317
+
+
+2.14.11 (31/03/2025)
+Linux:
+   * Fixed always-on firewall not functional after reboot. #1317
+
+
+2.14.10 (26/03/2025)
+All:
+   * Improved Decoy Traffic algorithm, UI fixes. #1307
+
+
+2.14.9 (17/03/2025)
+MacOS:
+   * Fixed split tunnel apps added via the search method may not be split tunneled. #1299
+
+
+2.14.8 (11/03/2025)
+All:
+   * Improved reliability of wsnet in unstable network environments, part2. #1264
+   * Improved Decoy Traffic algorithm, UI fixes. #1208
+   * Fixed location tab transitions to search tab even when modifier keys are pressed. #1294
+MacOS:
+   * Fixed unnecessary delay when disconnecting. #1288
+   * Fixed DNS not working on macOS 15.4 Beta 2. #1288
+   * Fixed toggling split tunneling mode while connected with WireGuard may cause loss of connection. #45
+Linux:
+   * Fixed CLI platform may be misdetected on Raspberry Pi. #1289
+   * Fixed missing dependency for the Fedora package. #1291
+
+
+2.14.7 (04/03/2025)
+All:
+   * Improved reliability of wsnet in unstable network environments. #1264
+   * Improved ping logging. #1274
+   * Fixed app is launched minimized instead of minimized to tray when Start Minimized and Close to Tray are enabled. #1280
+Windows:
+   * Improved detection and logging of failures in the client<->helper communication mechanism. #1265
+   * Fixed "start minimized" not working by reinstating workaround. #1280
+   * Fixed automatic-mode firewall remains on when Windows is restarted and the app is closed to the tray. #1279
+   * Fixed app remains running, but non-functioning, if user cancels OS shutdown. #1279
+MacOS:
+   * Fixed split tunnel extension sometimes not started. #45
+Linux:
+   * Fixed possible error when parsing the routing table. #1286
+
+
+2.14.6 (24/02/2025)
+All:
+   * Added extended cleanup logs in wsnet. #1250
+   * Improved initialization and preferences animations. #1260
+   * Improved the log frequency [wsnet]. #1269
+   * Fixed inconsistent behavior when starting app and 'close to tray' is enabled. #1280
+   * Fixed window size after dismissing alert at the login window. #1282
+Windows:
+   * Fixed Windows error message box may be displayed when reinstalling deleted/disabled Windscribe service. #1266
+MacOS:
+   * Fixed split tunnel extension versioning. #45
+   * Fixed DNS no longer allowed by firewall if toggled while connected. #1277
+Linux:
+   * Fixed split tunnel rule in exclusive mode. #1267
+   * Fixed window size is incorrect after expanding then collapsing preferences. #1271
+
+
+2.14.5 (12/02/2025)
+All:
+   * Fixed mangled ar/fa translations. #1268
+   * Fixed app does not retry login if first attempt failed due to lack of connectivity. #1254
+   * Fixed Allow LAN traffic precedence. #1267
+Windows:
+   * Improved uninstaller folder security. #1263
+   * Fixed VPN interface network category is public, for OpenVPN connections. #1235
+   * Fixed docked window is sometimes in the wrong position. #1234
+MacOS:
+   * Improved multi-desktop app window behavior. #1246
+   * Fixed potential crash in ProcessManager [wsnet]. #1261
+   * Fixed inclusive split tunneling, IPv6 interactions, and split tunneling extension versioning. #45
+
+
+2.14.4 (06/02/2025)
+All:
+   * Added Decoy Traffic feature. #1208
+   * Fixed app stuck during login after accepting prompt to ignore SSL errors. #1248
+   * Fixed incorrect post quantum KE algorithm. #1249
+   * Removed IPv6 split tunneling (for now) due to edge cases. #1247, #1257
+Windows:
+   * Fixed VPN interface network category is public. #1235
+   * Fixed install fails if uninstall registry information is missing. #1252
+   * Fixed incorrect characters displayed in installer bootstrap error message. #1252
+   * Removed some log spam. #1243
+   * Removed DLL injection mitigation. #1169
+MacOS:
+   * Improved app split tunneling to not require signature identifier. #45
+   * Fixed codesigning for macOS 11. #45
+   * Fixed sometimes IP does not change after connecting with inclusive split tunnel. #45
+   * Removed some log spam. #1243
+Linux:
+   * Added --cacheonly to the update script for Fedora RPMs. #1242
+   * Fixed some CLI commands may indicate that the operation was interrupted when it wasn't. #1162
+
+
+2.14.3 (22/01/2025)
+All:
+   * Fixed "reset date" being shown on account screen instead of "expiry date" for some plans. #1239
+   * Fixed 2FA code expires before working endpoint can be found [wsnet]. #1232
+   * Updated wstunnel dependency to v1.0.5.  Adds support for anti-censorship TLS stuffing. #1237
+Windows:
+   * Fixed "System notifications are disabled" alert shown unexpectedly. #1229
+   * Fixed spammy log message. #1238
+   * Fixed app updates fails when using pre-2.4 app. #1236
+   * Fixed installer alerts may be not fit in window. #1240
+MacOS:
+   * Added per-app split tunneling. #45
+   * Fixed incorrect network status detection. #1228, #1168
+   * Fixed missing firewall rule allowing the VPN DNS when using IKEv2. #1141
+   * Fixed installer alerts may be not fit in window. #1240
+
+
+2.14.2 (09/01/2025)
+All:
+   * Fixed disconnecting due to out of data turns off firewall. #1225
+   * Fixed incorrect check for LAN address for custom DNS. #1214
+Windows:
+   * Improved flow when user enables "Show notifications" but system notifications is disabled. #1229
+   * Fixed OpenVPN protocols not working on virgin Windows installs due to official tapctl.exe binaries depending on Microsoft C runtime DLL. #1169
+MacOS:
+   * Fixed syntax error in firewall. #1214
+Linux:
+   * Added showing device name when requesting list of static IP locations in CLI. #1130
+
+
+2.14.1 (19/12/2025)
+All:
+   * Improved custom connected DNS error UX. #1214
+Windows:
+   * Improved build process to produce statically linked executables to mitigate code-injection attacks. #1169
+   * Improved Windows-on-Arm installer to use arm64 7-zip extractor. #1222
+
+
+2.13.7 (21/01/2025)
+Windows:
+   * Fixed installer bootstrap cannot set folder permissions on non-English Windows. #1226
+
+
+2.13.6 (09/01/2025)
+All:
+   * Fixed autoconnect attempting to connect to invalid locations. #1221
+Windows:
+   * Fixed incorrect firewall rule blocking IPv6 during inclusive split tunnel. #1111
+   * Fixed missing interface in MAC spoofing dropdown. #1200
+   * Fixed potential local privilege escalation vulnerability in the installer bootstrap. #1226
+MacOS:
+   * Fixed incorrect connectivity detection on MacOS 15.x+ when rebooting the OS with the firewall set to always on. #1168
+   * Fixed incorrect static device name. #1233
+Linux:
+   * Fixed missing 'psmisc' dependency. #1124
+   * Fixed incorrect static device name. #1233
+
+
+2.13.5 (16/12/2024)
+All:
+   * Fixed scroll position not retained when leaving/reentering a window. #1218
+   * Fixed importing JSON may put the Secure Hotspot preference in an invalid state. #1217
+   * Fixed changelog link for many platforms in General Preferences. #1219
+
+
+2.13.4 (09/12/2024)
+All:
+   * Added changelog link in preferences. #1209
+   * Fixed Ecuador flag. #1210
+Windows:
+   * Added detection to the Windows installer that checks to see if the Windows service has been installed or failed. #680
+   * Improved network detection and minimized location service requests on W11 24H2. #1200
+   * Improved error reporting if installation to a custom folder fails. #1199
+Linux:
+   * Fixed invalid MAC spoofing loop when specifying an invalid address. #1202
+   * Fixed Linux logs for wsnet are double encapsulated. #1211
+
+
+2.13.3 (02/12/2024)
+All:
+   * Improved logs in the client. #1184
+   * Improved login/logout CLI flow. #1181
+   * Improved UX and performance when dragging windows to different screens. #1207
+   * Fixed missing null checks. #1172
+   * Fixed a potential program quit hang [wsnet]. #1198
+   * Fixed custom config path not checked when importing preferences. #1206
+Windows:
+   * Fixed window can't be dragged to a screen above the initial screen. #1203
+   * Fixed window is invisible when app is docked and device pixel ratio is not 1. #1204
+   * Removed ability to use Secure Hotspot together with inclusive split tunneling. #1174
+MacOS:
+   * Fixed symlink target for windscribe-cli. #1186
+   * Fixed additional 'Start Minimized' use cases. #1193
+Linux:
+   * Improved split tunneling apps list population, based on contributions from GitHub user intangir. #1205
+   * Fixed incorrect usage of nmcli in the CLI client. #1202
+   * Fixed incorrect log names for CLI client. #1202
+
+
+2.13.2 (20/11/2024)
+All:
+   * Added IPv6 support for split tunneling. #1111
+   * Added back translation keys for 'Release' and 'Beta' release channels. #1185
+   * Improved debug log content to facilitate automated debug log analysis. #1107
+   * Improved Japanese translations from GitHub user Ue05. #1185
+   * Improved Russian translations from GitHub user MedicalJewel105. #1185
+   * Improved CLI entry of credentials when logging in. #1181
+   * Fixed Static IP commands in CLI with GUI backend. #84
+MacOS:
+   * Fixed CLI symlink sometimes not created on macOS. #1186
+   * Fixed Start Minimized may not work when "Minimize windows into application icon" is on. #1193
+   * Fixed missing null checks. #1195
+
+
+2.13.1 (07/11/2024)
+All:
+   * Added Static IP support in CLI. #84
+   * Added toggle to enable proxy gateway only while VPN is connected, based on contributions from GitHub user intangir. #1106
+   * Added h3:// and sdns:// protocol support for ctrld. #1145
+   * Improved UX for some CLI commands. #1162
+   * Improved location ordering when searching. #1171
+   * Updated ctrld to 1.3.10. #1145
+Windows:
+   * Removed IPv6 toggle in preferences. #1167
+MacOS:
+   * Fixed static analyzer warnings. #1172
+   * Removed IPv6 enabling/disabling. #1167
+Linux:
+   * Fixed static analyzer warnings. #1172
+
+
+2.12.7 (19/11/2024)
+All:
+   * Fixed Paraguay flag. #1183
+
+
+2.12.6 (17/11/2024)
+All:
+   * Fixed Belgium flag replaced by accident. #1183
+Windows:
+   * Fixed installer ignoring username/password command-line arguments. #1188
+   * Fixed emergency connect fails to connect due to incompatibility with OpenVPN DCO driver. #1189
+
+
+2.12.5 (13/11/2024)
+All:
+   * Added flags for new and upcoming locations. #1183
+
+
+2.12.4 (05/11/2024)
+Windows:
+   * Fixed UDP protocol still failing to connect for some users when Circumvent Censorship is enabled. #1153
+   * Fixed "Secure Hotspot" feature not being disabled properly when using IKEv2. #1178
+Linux:
+   * Fixed possible delay when setting firewall rules. #1177
+   * Fixed update not working in Silverblue while connected. #1180
+
+
+2.12.3 (30/10/2024)
+All:
+   * Added link to website for "Circumvent Censorship". #1175
+   * Fixed imported JSON values may be incorrect. #1157
+   * Fixed proxy validation to only allow an IP address. Prior proxy configurations using a hostname will no longer function. #1166
+   * Fixed proxy gateway sometimes sends invalid headers. #1106
+   * Fixed memory leaks in wsnet. #1170
+   * Updated Russian translations in installer. #1016
+Windows:
+   * Improve Circumvent Censorship behavior when using OpenVPN DCO driver. #1153
+MacOS:
+   * Fixed potential app crash when App Internal DNS setting is 'OS Default'. #1165
+   * Fixed potential app crash when installing helper. #1170
+   * Fixed memory leaks in IPC and other macOS-specific code. #1170
+Linux:
+   * Fixed openSUSE CLI install script not starting the helper service. #1160
+   * Fixed auto-rotate MAC not working when disconnecting and reconnecting to the same network. #1113
+   * Fixed helper service may not be restarted after update. #1087
+   * Fixed deb package dependencies for Debian Trixie. #1173
+
+
+2.12.2 (14/10/2024)
+All:
+   * Improved Spanish translations. #1131
+   * Improved error message when update download fails. #1120
+   * Improved the failover algorithm in wsnet, don't stick to one domain. #1148
+   * Updated c-ares in wsnet to the latest version 1.33.1, increased timeouts for DNS requests. #1156
+Windows:
+   * Fixed docked app does not detect change in taskbar size and adjust position when displayed. #628
+   * Fixed app update may fail to stop and remove openvpn/wireguard daemons. #1155
+MacOS:
+   * Fixed installer may mangle the 'windscribe' user if it's a regular user. #1152
+   * Fixed always-on firewall may not be enabled after reboot. #1159
+Linux:
+   * Fixed MAC spoofing not working or not being reset in various scenarios. #1113
+   * Fixed openSUSE CLI install script error. #1160
+   * Removed changes for ingress packets when using split exclude or no split tunneling. #1127
+
+
+2.12.1 (24/09/2024)
+All:
+   * Added new parameters session_type_id, apple_id, gp_device_id to wsnet library. #1129
+   * Added additional curl logs for failed server API requests in wsnet. #1146
+   * Improved description for packet size, clarifying that it doesn't do anything for TCP-based protocols. #1115
+   * Fixed more JSON & GUI input validation. #1125
+   * Fixed debug log doesn't send after awhile. OpenSSL updated to the latest commit, version 3.4.0. #1135
+   * Fixed double blinking cursors on custom config credential prompt. #1116
+   * Fixed custom config auth data not deleted when custom config dir cleared. #1109
+   * Fixed latency endpoint duplicate requests. #1141
+   * Updated German translations provided by GitHub user Evonos. #1110
+   * Updated Spanish translations provided by GitHub user IceString3. #1131
+Windows:
+   * Improved behavior when trying to get SSID on W11 24H2 and location is off. #1114
+   * Improved OpenVPN-based protocol performance by using DCO driver by default. #956
+   * Updated OpenVPN DCO driver to v1.2.1. #956
+MacOS:
+   * Improved behavior when trying to get SSID on macOS 15. #1132
+   * Fixed installer window in wrong position during in-app update. #1121
+   * Fixed unexpected permission prompt during upgrade. #1133
+   * Fixed custom DNS may be bound to wrong interface due to firewall state cache. #1136
+Linux:
+   * Added support for in-app updates from many immutable distros. #1087
+   * Added MAC spoofing. #1113
+   * Improved split tunneling behavior by doing a self-test at service start. #1134
+   * Fixed helper may get stuck when disconnect on Raspberry Pi with split tunneling enabled. #1117
+   * Fixed ingress packets are dropped incorrectly when using split exclude or no split tunneling. #1127
+
+
+2.11.11 (12/09/2024)
+All:
+   * Fixed DNS cache not cleared in wsnet when connecting or disconnecting to the VPN. #1122
+
+
+2.11.10 (10/09/2024)
+All:
+   * Fixed unable to reach API after failover while connected. Fix in wsnet, treat address 0.0.0.0 a DNS-error. #1122
+Windows:
+   * Fixed ctrld not starting even after external DNS service stopped. #1123
+MacOS:
+   * Fixed macOS auto-update process fails to mount installer. #1118
+   * Fixed spammy log when getting SSID. #1126
+Linux:
+   * Fixed some ingress packets are dropped incorrectly when using inclusive split tunneling. #1124
+   * Fixed OpenVPN protocols not working on immutable distros. #1128
+
+
+2.11.9 (03/09/2024)
+All:
+   * Improved dialog verbiage when secure hotspot is enabled without Wi-Fi. #1005
+   * Fixed the error message when the remember checkbox wasn't ticked on the wrong credentials. #1081
+Windows:
+   * Fixed tunnel tests don't work for WireGuard with firewall enabled. #1094
+
+
+2.11.8 (26/08/2024)
+All:
+   * Added the new parameter language to wsnet library. #1098
+   * Improved an error message when a custom config fails to connect with incorrect credentials. #1081
+   * Fixed scenario where displayed location does not match actual location. #1103
+   * Fixed the timeout calculation in wsnet library. Added additional logs for tunnel tests. #1101, #1097
+Windows:
+   * Fixed factory reset not executed if app is not installed. #1105
+
+
+2.11.7 (19/08/2024)
+All:
+   * Improved more JSON validation cases. #1048
+   * Fixed the client logout after reboot. #1092
+   * Fixed wsnet does not compile from public repo. #1102
+Windows:
+   * Improved logic to retry service start if the WireGuard service reports network configuration errors during start. #682
+   * Improved UX when an error occurs while enabling secure hotspot. #1005
+   * Fixed unable to query SSID on Windows 11 24H2. #1086
+   * Fixed connection issues on cellular modem. #1096
+MacOS:
+   * Fixed potential app hang when retrieving OS DNS servers. #1089
+
+
+2.11.6 (09/08/2024)
+All:
+   * Fixed potential for uncaught exceptions thrown by the std::filesystem API to cause the app to crash. #1072
+   * Fixed incorrect description for Client-side Keepalive preference. #1084
+   * Fixed logged out when downgrading to earlier version. #1078
+   * Fixed JSON & ini validation for Split DNS domains. #1080
+   * Fixed JSON import not exporting/importing "Auto-Secure" setting. #1074
+   * Fixed sorting by latency when some locations have no ping info. #1083
+   * Fixed GUI allowing invalid proxy address/port. #238
+   * Fixed potential app crash if the app is connected and the system is restarted. #1088
+   * Fixed crash in wsnet on Android 14+ by downgrading libcares back to 1.26.0 #1090
+   * Updated Chinese (Simplified) translations provided by GitHub user YerongAI. #1064
+   * Updated French translations provided by GitHub user RaphxelS. #1064
+   * Updated Polish translations provided by GitHub user raspin0. #1064
+   * Updated Ukrainian translations provided by GitHub users mljoke and Artem-CD. #1064
+Windows:
+   * Improved UX when an error occurs while enabling secure hotspot. #1005
+   * Fixed windscribectrld.exe should always be tunneled via the VPN, the split tunneling drivers updated. #805, #586
+   * Fixed WireGuard connection fails or is slow to connect with DoH. #1082
+MacOS:
+   * Fixed displayed IP not changing for split inclusive tunnels. #1049
+   * Fixed potential application hang in system 'log' call when initiating an IKEv2 connection. #1061
+   * Fixed disabling/restoring IPv6 may do so on non-existent interface. #1091
+Linux:
+   * Improved input validation on CLI commands, and added messages on successful commands. #962
+   * Fixed IKEv2 protocol is included in Linux package. #1077
+   * Fixed CLI packaging for Arch CLI build and updates. #962
+
+
+2.11.5 (22/07/2024)
+All:
+   * Added new functionality WSNetApiResourcesManager to the wsnet library. #948
+   * Added Apple tvOS support to the wsnet library. #1067
+   * Improved JSON import validation. #1048
+   * Fixed Dockerfile to use Ubuntu 20.04 and install the right CMake/golang. #1068
+   * Fixed bootstrap DNS from 76.76.2.0 to 76.76.2.22 since ctrld v1.3.4. #1055
+   * Updated libcurl, libcares, openvpn, and liboqs to the latest versions. #1066
+   * Updated vcpkg commit. #1045
+MacOS:
+   * Fixed displayed IP not changing for split inclusive tunnels. #1049
+   * Fixed split tunnel include rules should not keep state. #1060
+   * Fixed helper checks for URLs for ctrld are too strict. #1058
+   * Fixed windscribe-cli not working on MacOS 11. #1063
+   * Fixed windscribe group may not be added in some cases. #1073
+Linux:
+   * Added handling for WireGuard key limit in CLI client. #962
+   * Added update functionality for CLI-only clients. #962
+   * Fixed helper checks for URLs for ctrld are too strict. #1058
+   * Fixed Linux default route may be misdetected. #1059
+   * Fixed CLI service did not start on boot. #962
+
+
+2.11.4 (05/07/2024)
+All:
+   * Added CLI mechanisms to connect with a specific protocol, and improve help. #962
+   * Fixed handling of 0.0.0.0 response from DNS server for split tunnel hostnames. #1049
+Windows:
+   * Fixed packet size not applying to WireGuard connections. #1021
+   * Fixed app fails to start on Windows Server 2022. #1053
+MacOS:
+   * Improved CI to make use of the arm64 runner. #1009
+   * Fixed installer may not exit after attempting to launch app. #1035
+   * Fixed SSID detection not working in MacOS 15. #1034
+   * Fixed window move is not smooth. #1037
+   * Fixed firewall-on-boot may not function until the app starts. #1032
+   * Fixed app not showing an error when ctrld fails to execute. #1017
+   * Fixed app is very sluggish with many split tunnel hostnames. #1049
+   * Fixed split tunneling may not function correctly on MacOS 15. #1049
+   * Fixed app crash when cancelling 'install helper' dialog. #1057
+Linux:
+   * Added "Packet Size" preference to match other platforms. #1018
+   * Added CLI-only support for preferences. #962
+   * Improved CI to make use of the arm64 runner. #1009
+   * Fixed CI builds of the CLI-only app being linked to GUI libs. #962
+   * Fixed firewall blocking DHCP traffic on shared connections. #1031
+   * Fixed firewall-on-boot may not function until the app starts. #1032
+   * Fixed app not showing an error when ctrld fails to execute. #1017
+   * Fixed app update not completing if apt-listbugs is installed. #1052
+   * Fixed helper not working after update until restart. #1050
+
+
+2.11.3 (11/06/2024)
+All:
+   * Add wg_ttl parameter to WgConnect call [wsnet]. #1002
+   * Improved CI test stability. #1027
+Windows:
+   * Fixed Program Files\Windscribe folder not cleaned up on uninstall if installed to custom folder. #1007
+MacOS:
+   * Improved IPC sockets/lockfiles by consolidation. #962
+   * Fixed firewall-on-boot may not function until the app starts. #1032
+Linux:
+   * Added partial implementation of GUI-less client. #962
+   * Improved CI build image and duration. #1009
+   * Improved IPC sockets/lockfiles by consolidation. #962
+   * Fixed Linux setgid change not working in OpenSUSE. #1000
+   * Fixed firewall blocking DHCP traffic. #1031
+   * Fixed firewall-on-boot may not function until the app starts. #1032
+
+
+2.11.2 (01/05/2024)
+All:
+   * Added new API endpoints for iOS [wsnet]. #972
+   * Fixed proxy gateway port not displaying 'Auto' when edit is cancelled. #50
+   * Fixed a wrong translation in Ukrainian. #993
+Windows:
+   * Fixed main window can be dragged beyond the top of the screen. #356
+MacOS:
+   * Updated wsnet library, included some required files from scapix to wsnet.framework for iOS build. #970
+   * Fixed app may be quarantined by MacOS. #963
+Linux:
+   * Improved code organization and build scripts to prepare for GUI-less client. #962
+   * Fixed missing dependency for xcb-util-cursor-devel in the OpenSUSE RPM package. #955
+   * Fixed app icons not showing in XFCE. #985
+
+
+2.11.1 (09/04/2024)
+All:
+   * Added support for quantum-safe TLS and OpenVPN. #947 #965
+   * Added port selection to proxy gateway. #50
+   * Improved debug log usefulness by adding routing table. #873
+   * Updated wsnet library, refactoring without changing functionality. #959, #961.
+Windows:
+   * Improved installer 7z extraction to use the 7zr utility and log the extraction process. #926
+   * Improved installer logging to consistently use wide strings. #968
+   * Fixed ICMP pings crash [wsnet]. #969
+MacOS:
+   * Improved installer archive generation and extraction to use built-in macOS utilities. #963
+   * Fixed emit keyword missing from SleepEvents_mac logic. #954
+Linux:
+   * Added support for OpenSUSE. #954
+
+
+2.10.16 (18/07/2024)
+Windows:
+   * Fixed helper fails to taskkill OpenVPN process. #1065 & #1071
+
+
+2.10.15 (28/06/2024)
+All:
+   * No changes.  Promoted 2.10.14 to the stable channel.
+
+
+2.10.14 (20/06/2024)
+All:
+   * Improved best location selection. #1040
+Windows:
+   * Fixed installer window position during update. #1041
+   * Fixed UDP traffic not being split tunneled correctly. #1039
+
+
+2.10.12 (11/06/2024)
+All:
+   * Improved OpenVPN and WireGuard anti-censorship. #1023
+   * Improved wsnet to use TLS padding when anti-censorship is enabled. #1024
+   * Fixed wsnet thread synchronization issue that could cause a crash. #1027
+
+
+2.10.11 (03/06/2024)
+All:
+   * Fixed wsnet bug sometimes causing the library to freeze. #1012
+   * Updated ctrld dependency to 1.3.7. #1022
+MacOS:
+   * Fixed MacOS 11 bug, unable to open app after installing. #1011
+   * Fixed Wireguard takes too long to connect and tunnel tests are randomly slow. #1013
+   * Fixed missing "verb 3" argument for OpenVPN after refactor. #997
+Linux:
+   * Fixed tray icon sometimes can't be clicked. #792
+   * Fixed missing "verb 3" argument for OpenVPN after refactor. #997
+   * Fixed resolvconf/NetworkManager DNS managers sometimes not taking effect. #1015
+
+
+2.10.10 (15/05/2024)
+All:
+   * Improved internal error handling. #987
+   * Fixed wsnet bugs, in particular the icmp ping bug. Also other library refactoring related improvements taken from 2.11. #999
+Windows:
+   * Added security warning in the installer when installing to a custom folder. #988
+   * Added debugging information for wsnet. #1001
+   * Fixed openvpn adapter IP assertion. #997
+   * Fixed privilege escalation vulnerability allowing an attacker to inject a DLL into the client app and task kill any process (Reported by Zeze Lin working with Trend Micro Zero Day Initiative). #984
+   * Fixed privilege escalation vulnerability allowing an attacker to inject a DLL into the client app and start an arbitrary process as admin (Reported by Zeze Lin working with Trend Micro Zero Day Initiative). #984
+MacOS:
+   * Fixed not adding the windscribe group in the helper. #1004
+Linux:
+   * Fixed GNOME/NetworkManager may show a scary message when disconnecting WireGuard. #996
+
+
+2.10.9 (29/04/2024)
+All:
+   * Improved limit of 50 split tunnel entries to only apply to hostnames. #437
+   * Improved IPC message passing to adhere to best practices. #977
+   * Fixed tooltip not displaying when mouse hovers over protocol line for a custom config. #976
+   * Fixed app crash if app exits during startup. #980
+Windows:
+   * Improved IPC handling and security between client app and helper. #978
+   * Fixed ICMP pings crash [wsnet]. #969
+   * Fixed default install path not set for new installs. #973
+   * Fixed app crash when IKEv2 RAS callback function is called by the OS after the connection object has been deleted. #975
+   * Fixed installer crash logged in Event Viewer when installer exits. #981
+   * Fixed windscribectrld.exe should always be tunneled via the VPN, the split tunneling driver improved. #805
+   * Fixed possible delay in executable signature logic when it checks CRLs over the network. #983
+MacOS:
+   * Improved helper upgrade flow. #982
+   * Fixed Mac pid checking vulnerability. #977
+Linux:
+   * Fixed misdetection of platform on Raspberry Pi. #979
+   * Fixed pid race in helper. #977
+   * Fixed typo in command to get local IP. #995
+
+
+2.10.8 (04/04/2024)
+Linux:
+   * Fixed split tunnel for IP assumes /32 subnet. #964
+   * Fixed split tunneling for distributions which mount cgroups v2 by default. #967
+
+
+2.10.7 (01/04/2024)
+All:
+   * Fixed anti-censorship flag (TLS stuffing) does not work for server API. #951
+Windows:
+   * Fixed install may silently be overridden to default folder instead of custom folder. #950
+Linux:
+   * Fixed makepkg bug mangling the ctrld binary by specifying !debug in the PKGBUILD. #953
+
+
+2.10.6 (22/03/2024)
+All:
+   * Added a limit of 50 split tunnel entries to ensure stability. #437
+   * Improved retry efficiency for requests that are blocked [wsnet]. #939
+   * Improved custom DNS to not use ctrld if custom DNS is set to an IPv4 address. #795
+   * Improved conditions for network connectivity detection. #98
+   * Improved installer robustness in error situations. #950
+   * Fixed callback may not be called on error [wsnet]. #729
+Windows:
+   * Improved firewall behavior when logging out but not restarting. #378
+   * Improved monitoring of WireGuard service startup status when PC boots after a system crash or hard reset. #682
+   * Updated Windows-on-Arm split tunnel driver WHQL signing certifcate. #934
+MacOS:
+   * Fixed crash when using custom configs. #943
+   * Fixed a scenario where IKEv2 would be attempted in Lockdown Mode. #469
+Linux:
+   * Added requirement for iputils or equivalent since wsnet may use the 'ping' utility directly. #945
+   * Fixed app window resize again, forcing a size update at the end of animations. #930
+
+
+2.10.5 (13/03/2024)
+All:
+   * Improved stability of DNS resolution for hostnames when using split tunneling. #805
+   * Improved UX of the protocol/port line when protocol selection is not available. #351
+   * Improved the look and translations on the Emergency Connect screen. #221 #298
+   * Improved handling of custom configs with "dev tap", overriding automatically to "dev tun". #60
+   * Improved location search by allowing search by country code. #196
+   * Improved updating random hashed domains in a timely manner. #937
+   * Fixed various compile warnings introduced in 2.10.x. #935
+   * Fixed DNS servers in the wsnet library not updating on the client connection/disconnection events. #805
+   * Fixed protocol selector should not be available in external config mode. #351
+   * Fixed wsnet versioning to be the same as the client application [wsnet]. #938
+Windows:
+   * Improved logic for enabling the BFE service. #936
+   * Improved error handling in UI for the secure hotspot feature, in case it fails. #921
+   * Fixed potential installer DoS vulnerability when installing the split tunnel driver. #629
+   * Fixed WireGuard service may fail to install when connection attempt initiated immediately after the PC boots. #682
+   * Fixed windscribectrld.exe should always be tunneled via the VPN. #805
+MacOS:
+   * Improved operation in Lockdown Mode by removing IKEv2 where applicable, or displaying a meaningful error. #469
+   * Fixed getting SSID from MacOS 14.4 since it no longer reports it via scutil. #940
+   * Removed MAC spoofing feature if using MacOS 14.4 or later. #923
+Linux:
+   * Fixed app window resize workaround may cause transitions to be jittery. #930
+   * Fixed duplicate copies of wsnet in RPM package. #942
+   * Removed "New Window" desktop action, which previously did nothing. #260
+
+
+2.10.4 (06/03/2024)
+All:
+   * Added the user-agent request header to all HTTP-requests [wsnet]. #927
+   * Added new API endpoints needed for mobile [wsnet]. #928
+   * Improved failover retry on WireGuard. #694
+   * Improved UI header transparency and color. #7
+   * Fixed selected location not reset after removing custom config folder. #351
+   * Fixed another display issue and crash in custom config credential prompt. #844
+   * Updated ctrld dependency to 1.3.5. #889
+Windows:
+   * Fixed MAC address does not auto-rotate when adapter is disabled then enabled. #831
+   * Fixed localhost range not encompassing entire 127/8 subnet. #931
+   * Fixed 'use ICMP pings' advanced parameter not being used. #910
+Linux:
+   * Fixed app window may not resize if occluded by another window. #930
+
+
+2.10.3 (29/02/2024)
+All:
+   * Added support for private key passwords in OpenVPN custom configs. #745
+   * Fixed display issue and crash in custom config credential prompt. #844
+   * Updated README.md to indicate usage of Xcode 14.2. #863
+Windows:
+   * Improved log messages when installer is unable to copy Qt libs. #854
+
+
+2.10.2 (21/02/2024)
+All:
+   * Improved secrets organization in the wsnet library. #900
+   * Improved custom config credential prompt. #844
+   * Improved IP display to "---.---.---.---" if unable to get local IP, instead of "N/A". #471
+   * Improved emergency connect to always connect with the more secure algorithms. #916
+   * Improved LZMA dependency management. #878
+   * Improved exponential back-off algorithm for pings to determine failed nodes. #911
+   * Fixed Free Data usage in app doesn't update. #694
+   * Fixed some bugs in the wsnet library regarding mutlithreading/deadlocks. #694
+   * Fixed failed assertion in log for EmailItem. #915
+   * Fixed advanced parameter ws-use-icmp-pings ignored by app. #910
+   * Fixed Secure Hotspot password not masked in UI. #920
+   * Fixed serverlist API country_override parameter doesn't enable Circumvent Censorship on first app launch. #914
+   * Fixed ignore country override when connected to a VPN. #914
+   * Updated README.md file (build instructions). #881
+Windows:
+   * Improved IKEv2/IPsec proposals to match other platforms. #902
+   * Fixed potential window scaling size issue. #905
+   * Fixed OpenVPN DCO network adapter number increments on every connection. #883
+Linux:
+   * Improved logging by adding distribution name and version. #922
+   * Removed net-tools dependency. #925
+
+
+2.10.1 (07/02/2024)
+All:
+   * Added wsnet library + switched to vcpkg dependency management system. #806, #833, #894
+   * Added taskbar notification when the app needs attention. #897
+   * Improved anti-censorship measures in WireGuard and OpenSSL. #890
+   * Improved Polish translations. #898
+   * Fixed Help screen to only show human support link for Pro accounts, and update descriptions. #861
+   * Fixed right clicking on login screen may show context menu away from the widget. #324
+   * Fixed custom config stays connected if folder is removed. #351
+   * Updated dependencies, c-ares to 1.25.0 and boost to 1.84.0. #892
+Windows:
+   * Updated code signing certificate. #832
+
+
+2.9.9 (16/02/2024)
+All:
+   * Fixed transition to 2FA screen when logging in. #917
+
+
+2.9.8 (14/02/2024)
+All:
+   * Fixed importing preferences closes the app window if docked. #893
+   * Fixed banned/disabled message not showing during login. #903
+MacOS:
+   * Fixed app may become unresponsive when using tray locations menu. #913
+Linux:
+   * Fixed DNS script can't find some executables. #908
+
+
+2.9.7 (08/02/2024)
+All:
+   * Fixed exporting preferences closes the app window if docked. #893
+
+
+2.9.6 (02/02/2024)
+All:
+   * Improved anti-censorship measures in WireGuard and OpenVPN. #890
+
+
+2.9.5 (30/01/2024)
+All:
+   * Fixed update screen may not be clickable after an alert is shown. #879
+   * Fixed reveal password icon may be slightly cut off at certain scaling. #227
+   * Fixed pressing Login from external config mode causes UI to not display. #231
+   * Fixed returning to login screen does not set focus to username field. #216 #231
+   * Fixed user is forcefully logged out on some server errors. #882
+Windows:
+   * Fixed tray menu items can be activated with right-click. #285
+Linux:
+   * Fixed compile dependency missing from README. #880
+   * Fixed app possibly getting stuck at startup or shortly after. #848
+
+
+2.9.4 (22/01/2024)
+All:
+   * Added password reveal/hide button for main login. #227
+   * Fixed imported split tunneling settings not reflecting in the GUI until after app restart. #843
+   * Fixed right-click also triggering Static IP link. #249
+   * Fixed various minor UX issues on login screen and preferences. #205 #216 #231 #263 #303
+   * Updated ctrld dependency to 1.3.3. #871
+Windows:
+   * Added experimental support for the OpenVPN DCO driver. #646
+   * Improved IKEv2 profiles by disabling unnecessary features. #33
+   * Fixed some helper exes did not contain version information. #836
+Linux:
+   * Fixed export preferences dialog not adding the correct suffix automatically. #843
+   * Fixed non-existent pkexec dependency for older versions of Ubuntu. #870
+   * Fixed DNS scripts incorrectly referencing full paths to binaries. #876
+
+
+2.9.3 (16/01/2024)
+All:
+   * Improved UX for the export/import preferences feature and filter irrelevant preferences when importing. #843
+   * Fixed hard-to-read 10 Gbps location icon. #707
+   * Fixed possible crash during app exit. #858
+   * Removed changes causing credential issues with OpenVPN custom config. #745 #862 #868
+Windows:
+   * Fixed app can be moved by dragging its shadow. #220
+macOS:
+   * Fixed WireGuard anti-censorship. #865
+   * Fixed in-app update to 2.9.2 by reverting change for deduplicating libraries in installer. #854
+   * Removed unnecessary threads running on helper service. #869
+Linux:
+   * Fixed app search in preferences not working if it is reopened. #864
+   * Fixed inclusive app not obeying Allow LAN Traffic setting. #784
+   * Fixed WireGuard anti-censorship. #865
+   * Removed app shadows causing various issues. #220 #229 #689
+   * Removed unnecessary threads running on helper service. #869
+
+
+2.9.2 (09/01/2024)
+All:
+   * Added feature to export/import preferences to/from JSON file. #166 & #843
+   * Added feature to support custom OpenVPN configs requiring a user name and password. #745
+   * Added 'status' command to the CLI. #839
+   * Added special logging category to the client log containing random hash code of the given connection. #23
+   * Fixed advanced parameter file location differs between Guinea Pig vs Beta/Release builds. #837
+   * Fixed misdetection of TCP error during OpenVPN connection. #845
+   * Fixed installer log reordering in merge log. #791
+   * Fixed escaping of the openvpn password. #853
+   * Removed misleading logs indicating errors when it's benign. #847
+   * Removed unnecessary parameters for server list request API call. #852
+   * Updated boost and c-ares dependencies. #849
+Windows:
+   * Added support for installing the app on Windows 10 builds older than our officially supported build (17763). #855
+   * Improved app start up time by starting the helper service during install. #851
+   * Fixed updating from a build earlier than 2.4.10 does not work. #846
+   * Fixed DLL injection vulnerability in the installer. #841
+   * Fixed duplicate DLLs bloating installer size. #854
+   * Fixed uninstallation page opens in browser when reinstalling and user is not logged in. #860
+   * Fixed doh registry disable in forced mode when EnableDohValue property originally does not exist. #782
+macOS:
+   * Fixed ARM installer error that is a regression after LZMA migration. #840
+   * Fixed path reference with wrong case which breaks with case-sensitive APFS. #842
+   * Fixed duplicate DLLs bloating installer size. #854
+Linux:
+   * Added per-app split tunneling support. #784
+   * Added missing dependency for libglvnd-opengl. #838
+   * Fixed service is not enabled on some distributions during install. #859
+   * Fixed log spam when restarting while connected. #856
+
+
+2.9.1 (12/12/2023)
+All:
+   * Added advanced parameter for specifying specific wireguard server. #819
+   * Improved labels and descriptions in preferences to match the mobile app. #827
+   * Fixed incorrect translation of 'Quit' in French translation. #835
+Windows:
+   * Added feature to disable system-wide DoH configuration on connect in Windows 11. #782
+   * Improved debug log feature to include the installer log. #791
+   * Improved installer to support keyboard shortcuts (ESC/Enter/etc.). #824
+   * Improved Secure Hotspot preference to automatically enable the Allow LAN Traffic preference. #829
+   * Fixed a local privilege escalation vulnerability in the installer. #828
+   * Fixed MAC address does not auto-rotate when changing networks and the MAC Spoofing Auto-Rotate MAC preference is enabled. #831
+   * Updated LZMA SDK to latest version. #810
+macOS:
+   * Improved debug log feature to include the installer log. #791
+   * Improved installer to support keyboard shortcuts (ESC/Enter/etc.). #824
+   * Updated LZMA SDK to latest version. #810
+Linux:
+   * Fixed location of the close and minimize buttons on the login and start screens. #222
+
+
+2.8.6 (14/12/2023)
+Windows:
+   * Fixed installer/uninstaller local privilege escalation vulnerability. #828
+
+
+2.8.5 (04/12/2023)
+All:
+   * Fixed some text in preferences not matching with mobile. #826
+   * Fixed auto-connect not triggering when reconnecting to the same network. #821
+Windows:
+   * Fixed installer sometimes exiting during updates. #772
+   * Fixed misspelling in installer error message. #776
+   * Fixed "logging in" screen background color not matching with other OSes.
+   * Fixed DNS queries for hostname split tunnels sometimes not resolving. #822
+macOS:
+   * Fixed ctrld binary was not marked executable. #823
+Linux:
+   * Fixed DNS queries for hostname split tunnels sometimes not resolving. #822
+
+
+2.8.4 (28/11/2023)
+All:
+   * Updated OpenVPN to 2.6.8. #759
+   * Fixed UI issue where search tab may overlay other tabs. #811
+   * Fixed UI screen transition issues when anti-abuse is triggered. #817
+Windows:
+   * Fixed custom OpenVPN configs fail to connect.  This was due to a bug in OpenVPN 2.6.7. #759
+macOS:
+   * Fixed firewall not blocking traffic while disconnected in split inclusive mode. #748
+Linux:
+   * Fixed firewall not blocking traffic while disconnected in split inclusive mode. #748
+   * Removed "Docked"/"Pinned" feature from preferences. #241
+
+
+2.8.3 (24/11/2023)
+All:
+   * Improved anti-censorship feature. Feature automatically enabled for first-run users in censored countries. #770
+   * Fixed UI connection state may stick at 'connecting' when disconnecting and connecting to a different location rapidly. #165
+   * Fixed bottom information bar on connect screen is not displayed after upgrade screen is dismissed. #361
+   * Fixed firewall does not disable on failed connection to non-existent location. #374
+   * Fixed opening locations drop down when prompted to save preferred protocol causes errant UI behavior or may crash the app. #703
+   * Fixed incorrect server list returned when serverpede advanced param is set to 'ignore' and user is geo-located to a censored country. #755
+   * Fixed UI issue where search tab may overlay other tabs. #811
+   * Fixed UI screen transition issues (UI may freeze) when account is expired or anti-abuse is triggered. #817
+Windows:
+   * Fixed 'OK' text in installer is not centered underneath the checkmark button for some languages. #726
+   * Fixed app icon in Windows task manager is blurry. #807
+macOS:
+   * Fixed 'OK' text in installer is not centered underneath the checkmark button for some languages. #726
+   * Fixed using the dock menu and clicking "Quit" causes the app to crash. #802
+   * Fixed wireguard binary contains debug symbols. #814
+Linux:
+   * Added StartupWMClass to windscribe.desktop file. #815
+   * Improved 'Docked' mode.  Renamed it to 'Pinned' and modified description accordingly. #241
+   * Improved iptables handling.  Windscribe-specific rules are now prepended, rather than appended. #475
+   * Fixed wireguard binary contains debug symbols. #814
+
+
+2.8.2 (16/11/2023)
+All:
+   * Added advanced parameter to control serverpede functionality. #755
+   * Improved the appearance of the sign out button. #674
+   * Improved error message when ctrld (custom DNS) fails to start. #785
+   * Improved build instructions in the README. #800
+   * Fixed reconnect not triggered when OpenVPN reports a tunnel connectivity failure. #37
+   * Fixed search icon on locations screen may overlap the All icon. #297
+   * Fixed UI issue when the hotspot feature is enabled and a SSL error occurs. #692
+   * Fixed app may not reconnect after Internet is restored when using OpenVPN. #794
+   * Fixed app gets stuck on the logging in screen after accepting the 'ignore SSL errors' prompt. #801
+   * Updated app dependencies to latest available version. #759
+Windows:
+   * Fixed installer fails to launch if Windows version is incompatible. #789
+macOS:
+   * Fixed split tunneling rules not reapplied if firewall state is toggled. #748
+   * Fixed symlink for windscribe-cli isn't created. #780
+   * Fixed in-app update fails when updating from 2.7. #797
+   * Fixed using the dock menu and clicking "Quit" causes the app to crash. #802
+   * Fixed split tunneling description suggests app supports per-app split tunneling. #804
+Linux:
+   * Fixed install-update script not waiting for app to exit before invoking package manager. #335
+   * Fixed split tunneling rules not reapplied if firewall state is toggled. #748
+   * Fixed missing xcb dependencies for some distros. #786
+   * Fixed a firewall bug that may prevent multicast from working. #790
+   * Fixed signature check failing for the DGA library. #798
+   * Fixed split tunneling description suggests app supports per-app split tunneling. #804
+
+
+2.8.1 (02/11/2023)
+All:
+   * Improved in-app upgrade message to indicate the update will be downloaded before terminating connections. #778
+   * Fixed debug log to more clearly indicate that a custom dns is being used. #777
+Windows:
+   * Improved wintun support by replacing custom wintun driver with OEM driver. #723
+   * Improved error description in 'admin required' error screen. #776
+   * Fixed connect state badge icon not displayed on the taskbar icon when the app is closed to tray then restored. #779
+   * Removed TAP adapter support.  OpenVPN-based connections will always use wintun. #723
+macOS:
+   * Improved firewall functionality while using split tunneling. #748
+   * Fixed IP does not change on GUI when using inclusive split tunnel. #348
+   * Fixed (potentially) Air Drop, Handoff, Airplay and other local Mac sharing features are partially functional or blocked with Allow LAN turned on. #415
+   * Fixed MAC spoofing to ensure we do not undo spoofs that did not originate from us. #749
+   * Fixed symlink for windscribe-cli isn't created. #780
+Linux:
+   * Added hostname/IP split tunneling support. #748
+   * Added preference for setting tray icon color. #761
+   * Improved uninstall scriptlets. #774
+
+
+2.8.0 (26/10/2023)
+All:
+   * Added machine-generated translations for Chinese (Traditional), Indonesian, Italian, Japanese, Korean, Persian/Farsi, Polish, Portuguese, Turkish, Ukrainian, and Vietnamese. #753
+   * Improved the connection mode description in preferences. #717
+   * Fixed double-right-clicking on the IP address makes it blurry on the main screen. #366
+   * Fixed top of password dots on login screen are clipped. #604
+   * Fixed UI 'weirdness' on the login screen when secure hotspot or proxy gateway feature is enabled and a SSL-error occurs. #692
+   * Fixed ESC text is misaligned with the close button in preferences. #705
+   * Fixed incorrect padding in 'out of data' screen. #750
+   * Fixed load indicator for bottom-most location is slightly clipped. #765
+   * Fixed clicking the blog link in the About menu doesn't do anything. #771
+   * Updated bundled ctrld utility to v1.3.1. #709
+Windows:
+   * Added language localization to the installer. #726
+   * Added language localization to the uninstaller. #754
+   * Improved app and installer main icon. #616
+   * Improved installer to unify it with the macOS installer. #725
+   * Fixed IKEv2 connection may not clean up correctly. #713
+   * Fixed initial IKEv2 connection may fail after virgin install. #727
+   * Fixed update fails when app is running and split tunneling is enabled. #772
+macOS:
+   * Added language localization to the installer. #726
+   * Added minimize and close-to-tray feature. #739
+   * Improved uninstall.  Helper and CLI symlink are removed on OS reboot if the app has been uninstalled. #16, #31, #87
+   * Improved app and installer main icon. #616
+   * Improved installer to unify it with the Windows installer. #725
+   * Fixed pressing Cmd+Q results in the exit prompt showing, but the app exiting immediately anyway. #736
+   * Fixed drop-down menus can be resized or moved. #767
+   * Fixed installer main window can be resized. #767
+   * Fixed misleading error message displayed during first time use of MAC Spoofing feature. #768
+   * Fixed special user account for helper is displayed. #775
+Linux:
+   * Improved in-app and manual upgrade experience. #335
+   * Fixed ARM64 Linux package missing OpenGL library dependency for Pi devices. 752
+   * Fixed update-systemd-resolved script may not undo changes when disconnecting. #766
+
+
+2.7.14 (17/10/2023)
+All:
+   * Fixed OpenVPN not using custom DNS. #762
+
+
+2.7.12 (25/09/2023)
+All:
+   * Promoted app to beta channel.
+macOS:
+   * Removed firewall patch for macOS 14 Sonoma Beta.  Apple has fixed their firewall bug in latest Sonoma release. #714
+
+
+2.7.11 (19/09/2023)
+All:
+   * Improved latency (ping) algorithm to reduce ping frequency, especially during app startup. #737
+   * Fixed LAN-hosted DNS server cannot be accessed when using a custom OpenVPN config. #721
+Windows:
+   * Fixed regression introduced in 2.7.10. Tunnel test fails if split tunneling enabled in
+     exclusive mode and no apps are specified to exclude. #741
+
+
+2.7.10 (07/09/2023)
+All:
+   * Added anti-censorship feature: use domain fronting via CDN for API requests. #688
+   * Added new in-house Stealth/Wstunnel application. #718
+   * Fixed app may open locations screen to a random tab. #656
+   * Fixed "All protocols failed" prompt doesn't show. #712
+Windows:
+   * Added additional logging to diagnose service startup failure. #704
+   * Fixed (reduced) tunnel test time when using OpenVPN-based protocols. #109
+   * Fixed no DNS connectivity with custom DoH/DoT resolver and inclusive split tunneling. #710
+   * Fixed helper security vulnerability when app installed to custom folder. #719
+macOS:
+   * Fixed DNS failures with firewall enabled on macOS 14 Sonoma. #714
+   * Fixed Stealth/Wstunnel sometimes can't connect. #718
+
+
+2.7.9 (08/08/2023)
+All:
+   * Added anti-censorship toggle in preferences. #695
+   * Added anti-censorship feature: WireGuard UDP stuffing. #696
+   * Added an icon on the main screen to indicate anti-censorship mode is enabled. #700
+Windows:
+   * Fixed DNS resolver issue. #643 & #697
+Linux:
+   * Fixed app fails to download update package on Ubuntu arm64. #690
+
+
+2.7.8 (17/07/2023)
+All:
+   * Fixed spinner animation on the ROBERT page continues after the website has already been opened. #480
+   * Removed timestamp from news feed items. #693
+Windows:
+   * Added split tunneling driver for Windows-on-Arm. #661
+   * Fixed Wifi hotpsot feature does not correctly detect "hosted network support". #32
+   * Fixed DNS resolver bugs. #643
+   * Fixed Unicode application names not supported for split tunneling apps. #683
+Linux:
+   * Fixed Linux firewall may not block some traffic if sharing internet connection. #685
+
+
+2.7.7 (29/06/2023)
+All:
+   * Added anti-censorship feature: OpenVPN TCP split-reset, UDP stuffing, Stunnel extra padding. #671
+   * Added anti-censorship feature: use extra TLS padding for fallback API requests. #678
+   * Added Czech language translation. #677
+   * Fixed Logout/Quit screen UI bugs. #457
+   * Fixed Manage ROBERT rules link click does nothing. #480
+   * Fixed Russian translation. #679
+Linux:
+   * Removed 'kill app' functionality from the uninstall script. #335
+
+
+2.7.6 (08/06/2023)
+All:
+   * Fixed UI overlap and alignment issues. #457 & #583
+   * Fixed loading spinner in Manage Account preference slows down. #480
+   * Fixed access to server IP to be only allowed for Windscribe & system apps. #654
+   * Fixed incorrect error message in the DNS domain screen when a domain name is not valid. #655
+   * Fixed WireGuard may not recover correctly in manual mode. #664
+   * Fixed OpenVPN UDP and TCP may not work with certain commented out Advanced Parameters. #670
+   * Fixed executable signature checking mechanism disabled in the helper and CLI. #676
+   * Removed incorrect primary IP check when enabling the Allow LAN Traffic preference. #663
+   * Removed full directory paths from log to obscure user's PII. #666
+Windows:
+   * Fixed DNS leaks when using openvpn + custom connected DNS (ctrld). #625
+   * Fixed possible helper (Windscribe service) hang during app startup. #643
+   * Fixed DNS resolver works with a noticeable delay after connecting. #668
+macOS:
+   * Fixed app may become non-responsive and eventually crash. #645
+   * Fixed app to appear on the active virtual desktop when user clicks either the menubar icon or dock icon. #647
+   * Fixed firewall disabled on computer startup when firewall mode set to Always On. #658
+Linux:
+   * Fixed incorrect app categorization. #660
+   * Fixed the dns-leak-protect script to only process IPv4 DNS. #662
+   * Fixed RPM package upgrade failures. #672
+
+
+2.7.5 (24/05/2023)
+All:
+   * Added a small loading spinner to some operations which may take a long time. #480
+   * Added custom connected DNS placeholder text. #592
+   * Added feature to remember last locations tab on exit and default to that tab on startup. #656
+   * Fixed missing ?int=ws in the URI when making queries if user supplies DoH resolver that's on *.controld.com. #393
+   * Fixed validation of the domains entered by the user. #393
+   * Fixed transition to the initialization window to hide the general message window shadow. #457
+   * Fixed some user interface transitions involving the "SSL error" alert. #583
+   * Fixed missing port number for the CURLOPT_RESOLVE parameter. #596
+   * Fixed redundant updateFirewallSettings calls being made during pings. #648 and #651
+   * Fixed split tunnel hostname and IP validation errors are unclear. #655
+   * Updated ctrld binary to v1.2.0.
+Windows:
+   * Fixed x86_64 installer to block install on an arm64 PC and notify user they should download the arm64 version of the app. #592
+macOS:
+   * Fixed firewall's enabled state not restored if it was enabled when the Windscribe firewall was turned on. #26
+   * Fixed menubar icon not showing app on the current virtual desktop. #48
+Linux:
+   * Added global DNS in the update-systemd-resolved script for a loopback DNS IP. #393
+   * Fixed route call failure if route binary not in $PATH. #190
+   * Fixed Arch install script to kill the app if it is running. #335
+   * Fixed RPM install script to ensure helper is running after upgrade. #335
+
+
+2.7.4 (12/05/2023)
+All:
+   * Fixed window shadow incorrectly sized on logout/exit screens. #457
+   * Fixed login screen height may be truncated. #482
+   * Fixed alert screen may overlap other screens (e.g. news feed, protocol change). #583
+   * Fixed notifications are missing after marking all as read, leaving the notifications screen, and returning to it. #633
+   * Fixed changing languages in app causes the news feed screen to become smaller. #637
+   * Fixed view/send log functionality to truncate the log if it is too large to view/send. #642
+   * Fixed firewall settings updated repeatedly when pinging locations. #651
+Windows:
+   * Added support for native aarch64 (arm64) Windows build. #592
+   * Fixed installer to force kill the app if it does not respond to the exit request. #302
+   * Fixed UI issue when invalid login credentials are supplied to the installer and app is in Alpha mode. #309
+   * Fixed height of location entries is too large for some display scale factors. #631
+   * Fixed log files cannot be read when Windows account name contains Unicode characters. #634
+   * Fixed Windscribe service may hang if there are many split tunnel exclusive rules. #643
+macOS:
+   * Fixed installer built on Apple Silicon crashes on launch. #638
+   * Fixed app update takes a long time if done while connected. #639
+   * Removed redundant signature verification method. #143
+Linux:
+   * Fixed uninstall script to terminate app during uninstall or manual update to new version. #335
+   * Fixed app to explicitly block only OS default DNS servers and allow all others. #585
+   * Fixed in-app upgrade on Ubuntu will fail if upgrade requires additional Linux packages to be installed. #640
+   * Fixed uninstall to remove all files created by the app. #650
+   * Fixed missing dependency requirements in install package for some desktop environments (e.g. XFCE). #653
+   * Updated wstunnel to v4.1 for x86_64 and arm64. #190
+
+
+2.7.3 (26/04/2023)
+All:
+   * Added translations for Arabic, French, German, Hindi, Russian, Simplified Chinese, and Spanish. #607
+   * Fixed busy spinner displayed when exiting is not centered. #457
+   * Fixed ROBERT screen loading icon not antialiased. #490
+   * Fixed protocol badge not immediately updated on network changes. #600
+   * Updated app to use server-supplied ping (latency) values. #596
+   * Updated app warnings and error messages. #620
+Windows:
+   * Fixed app to apply split exclude rules even while disconnected, if the firewall is up. #575
+   * Fixed WireGuard service fails to start if Windows account name contains Unicode characters. #626
+   * Fixed Windows network discovery blocked by firewall. #630
+macOS:
+   * Fixed app removes user's static IPv6 configuration and does not restore it. #64
+   * Fixed Air Drop, Handoff, Airplay and other local Mac sharing features are partially functional or blocked with Allow LAN turned on. #415
+   * Fixed helper holds installer executable hostage after installing app. #599
+   * Fixed always-on firewall bug causing app to hang on startup. #609
+Linux:
+   * Added support for native aarch64 (arm64) Ubuntu build. #190
+
+
+2.7.2 (12/04/2023)
+All:
+   * Added support for DNS-over-HTTPS (DoH) and split DNS to the 'Connected DNS' feature. #393 & #54
+   * Added custom alert screens, replacing the native OS message boxes. #583
+   * Added icon on connect screen indicating if connection is auto, manual, or network preferred protocol. #600
+   * Fixed some shadow & scaling issues, and a crash, in the new logout and quit screens. #457
+   * Fixed emergency connect feature not working. #621
+Windows:
+   * Fixed OpenVPN drivers are not installed at runtime after update to OpenVPN 2.6.1. #615
+   * Fixed sharing Windscribe connection with Windows Hotspot doesn't work with firewall enabled using app version 2.6. #622
+
+
+2.7.1 (31/03/2023)
+All:
+   * Added new logout and quit screens. #457
+   * Fixed app crash during startup. #8
+   * Fixed additional preference items are sometimes expanded when they shouldn't be issues. #605/#610
+Windows:
+   * Added -username and -password command-line arguments to the installer. #309
+   * Fixed uninstall executable fails when uninstalling. #611
+   * Update installer to use new icons. #142
+macOS:
+   * Update installer to use new icons. #142
+Linux:
+   * Fixed incorrect minimum glib requirements for install on Debian and Arch. #501
+   * Fixed custom configs not pinged on Linux. #613
+
+
+2.7.0 (22/03/2023)
+All:
+   * Added support for language translations. #8
+   * Fixed python scripts to conform to the pep8 style guide. #589
+   * Fixed 'out of data' screen isn't vertically centered. #597
+   * Fixed preference items are sometimes expanded when they shouldn't be. #605
+   * Updated build system to use cmake for all projects. #567
+   * Updated to OpenVPN 2.6.1. #601
+   * Removed unnecessary code from when the UI and engine were separate executables. #526
+   * Removed use of OpenSSL 1.1.1. #582
+Linux:
+   * Added the minimum requirements to Linux packaging specs. #501
+
+
+2.6.14 (23/03/2023)
+All:
+   * Fixed free accounts not pinging pro locations. #521
+   * Fixed upgrade widget not hidden when returning to login screen. #561
+   * Fixed 'out of data' screen isn't vertically centered. #597
+   * Fixed MAC address spoofing toggle state isn't saved. #606
+macOS:
+   * Fixed crash when reconnecting to different servers. #525
+Linux:
+   * Fixed iptables not flushed after disconnect on distros using iptables-legacy (Ubuntu 20.04/Fedora 29). #5
+
+
+2.6.12 (09/03/2023)
+All:
+   * Added use of Encrypted Client Hello (ECH) as a fail-over mechanism to circumvent SNI filtering. #568
+   * Fixed data counter appears in custom config mode. #373
+   * Fixed location latency checks (pings) displaying "-2" for many locations when connected. #521
+   * Fixed ON/OFF icon not centered on some display scale factors. #577
+   * Fixed "We've detected that your network settings may interfere with Windscribe" dialog displays multiple times. #581
+   * Removed use of the new domain generation algorithm.  Will be added in 2.7. #595
+Windows:
+   * Added new taskbar overlay icons displayed when connecting, connected, and if a connection error occurs. #590
+   * Fixed installer/uninstaller local privilege escalation vulnerabilities. #579
+   * Fixed docked app appears on left bottom of screen when displayed by tray icon menu click. #588
+macOS:
+   * Fixed odd menu entry in macOS dock right-click popup menu. #468
+   * Fixed attempting to update the app using the installer causes the app to freeze and the installer to hang at 100%. #584
+Linux:
+   * Fixed manual install does not detect an incompatible OS version. #587
+   * Fixed in-app check for update to not indicate an update is available if the OS kernel version is incompatible. #587
+
+
+2.6.11 (23/02/2023)
+All:
+   * Fixed alignment of some icon and text widgets on the main app screen. #577
+Windows:
+   * Fixed connecting/connected 'badge' icon on the app's taskbar icon disappears if app closed to tray then restored. #550
+   * Fixed firewall leak when using OpenVPN and firewall is on (firewall mode is always on or manual) after disconnecting. #570
+macOS:
+   * Fixed DGA library not compatible with ARM-based Macs. #465
+
+
+2.6.10 (15/02/2023)
+All:
+   * Fixed 'App Internal DNS' preference description to indicate 'OS Default' may cause DNS leaks. #195
+   * Fixed location latency checks (pings) to only be performed when the app is disconnected. #521
+   * Updated 'App Internal DNS' preference to default to Cloudflare. #195
+Windows:
+   * Added connecting/connected 'badge' icon to the app's taskbar icon. #550
+   * Fixed installer to allow install to root system folder (e.g. C:\Windscribe). #417
+macOS:
+   * Fixed domain generation algorithm library signature check. #465
+   * Fixed installer to allow helper downgrade. #545
+Linux:
+   * Fixed in-app upgrade to use apt/dnf rather than dpkg/rpm. #501
+   * Fixed rpm package creation to use rpmbuild rather than convert the Debian package with fpm. #544
+   * Fixed domain generation algorithm library signature check. #560
+   * Fixed app does not relaunch after in-app upgrade. #569
+
+
+2.6.9 (08/02/2023)
+All:
+   * Added all secrets to the domain generation algorithm library and removed them from the app code. #465
+   * Added OpenSSL 1.1.1t due to an OpenSSL security advisory. #566
+   * Fixed protocols window expansion bug. #398
+   * Fixed potential app crash when exiting due to an OS restart. #563
+macOS:
+   * Fixed auto-connect on system launch does not work. #535
+   * Fixed potential app crash when performing an in-app upgrade. #563
+   * Fixed issues connecting with TCP based protocols on macOS. #564
+
+
+2.6.8 (31/01/2023)
+All:
+   * Added support for the new domain generation algorithm library to the app. #325
+   * Added hover highlighting to the protocol change screen. #398
+   * Fixed out of place cancel button and overlapping entries in the change protocol screen. #398
+   * Fixed change protocol screen should not be available when using a custom config. #398
+   * Fixed WireGuard doesn't reconnect upon waking from sleep. #559
+   * Fixed manual-mode connections should not timeout. #559
+   * Fixed login screen overlay bugs. #561
+   * Fixed default notification message color, displayed when there are no notifications. #562
+Windows:
+   * Fixed unreasonably low ping values displayed for geographically distant locations. #521
+   * Fixed inclusive split tunneled app unable to listen on local interface when IKEv2 or OpenVPN protocols are used. #558
+Linux:
+   * Fixed login hang on Xubuntu when app firewall is enabled. #364
+
+
+2.6.7 (24/01/2023)
+All:
+   * Added a descriptive error message on the login screen when the user is disabled or rate-limited. #377
+   * Fixed crash may occur when switching protocol window modes. #398
+   * Fixed disconnecting a WireGuard connection while it is connecting may disconnect, then start connecting again once the WireGuard dynamic configuration has been acquired. #398
+   * Fixed a successful failover did not trigger the 'save preferred protocol' screen. #398
+   * Fixed server API request would never be processed by curl due to bug in curl libs 7.83/7.85. #541
+   * Fixed new notifications appear at the bottom of the News Feed screen. #548
+   * Fixed notification age label to display "Today" instead of "0 days ago" for new notifications. #548
+   * Fixed server API request pipeline to ensure requests are processed as quickly as possible. #549
+   * Fixed confirm email feature doesn't work. #551
+   * Fixed high CPU usage while idle. #552
+   * Fixed firewall to allow apps to reach the local interface address. #558
+   * Fixed firewall to always allow localhost (127.0.0.0/8 and ::1). #558
+Windows:
+   * Fixed installer to block, for security purposes, installation on a non-system drive. #417
+   * Fixed app icon on Windows taskbar does not indicate connection status (change color). #550
+Linux:
+   * Fixed helper not enabled on Arch after install/reboot. #556
+   * Fixed firewall rules: multicast and localhost rules were uni-directional instead of both ways. #558
+   * Fixed firewall rules: added missing Linux IPv6 localhost rule. #558
+
+
+2.6.6 (12/01/2023)
+All:
+   * Added user interface improvements to indicate the app is failing over to another protocol. #398
+   * Fixed potential app crash when verifying an IP's validity. #536
+Windows:
+   * Fixed inclusive split tunneled apps unable to access localhost. #464
+   * Fixed error in the ping-via-icmp logic, used to test latency with custom configs. #537
+macOS:
+   * Fixed failure to connect after reboot when Launch on Startup and Auto-Connect are enabled. #535
+   * Fixed Location/Favourites/Static Ip/Configured menus in top menu bar not working. #543
+Linux:
+   * Fixed connectivity check fails when changing networks on Wstunnel / Stealth protocols. #530
+
+
+2.6.5 (03/01/2023)
+Linux:
+   * Fixed app crash during exit on Ubuntu. #139
+   * Fixed firewall blocking the app from connecting if set to toggle on before connecting. #528
+   * Fixed firewall doesn't toggle off in automatic mode when disconnecting. #528
+
+
+2.6.4 (16/12/2022)
+macOS:
+   * Fixed preferences cache not cleared when doing a factory reset during install. #529
+Linux:
+   * Fixed firewall issues created during implementation of #5.
+
+
+2.6.3 (14/12/2022)
+All:
+   * Fixed app will use Preferred Protocol for a network even if it's disabled. #531
+Windows:
+   * Fixed DNS leaks. #527
+Linux:
+   * Fixed firewall not enabled when firewall switch toggled on. #528
+
+
+2.6.2 (12/12/2022)
+All:
+   * Fixed HTTP/SOCKS Proxy Gateway setting to warn user the Allow LAN Traffic option must be enabled. #323
+   * Fixed privilege escalation vulnerability in usage of OpenVPN up/down directives. #518
+Windows:
+   * Fixed incoming network connections on local LAN were not blocked by firewall. #385
+   * Fixed app exit when Windows network adapter information request fails. #520
+macOS:
+   * Added IP/hostname split tunneling support on macOS BigSur and newer. #508
+   * Fixed privilege escalation vulnerabilities in communication mechanism between the app and helper. #5
+Linux:
+   * Fixed privilege escalation vulnerabilities in communication mechanism between the app and helper. #5
+   * Fixed install folder to /opt/windscribe. #399
+
+
+2.6.1 (23/11/2022)
+All:
+   * Fixed notice on the login screen when user is disabled or rate-limited. #377
+   * Fixed app to save a successful failover between program launches. #478
+   * Fixed error message when user tries logging in with their email address. #504
+Windows:
+   * Fixed terminate sockets feature to exclude Microsoft services when calculating CPU utilization. #427
+   * Removed 'Windows Launcher' utility application. #137
+   * Removed WireGuard info-level diagnostic output from the log. #494
+macOS:
+   * Added IP/hostname split tunneling on Big Sur+. #508
+Linux:
+   * Fixed install folder to be /opt/windscribe. #399
+
+
+2.5.18 (07/12/2022)
+All:
+   * Fixed potential app crash when handling server API requests during failover. #525
+
+
+2.5.17 (01/12/2022)
+Windows:
+   * Fixed potential app crash caused by a DPI issue in the locations tray menu. #523
+
+
+2.5.16 (30/11/2022)
+macOS:
+   * Fixed potential app crash when network online state changes. #519
+
+
+2.5.15 (29/11/2022)
+All:
+   * Fixed potential app crash when reading saved WireGuard config data created by the v2.4 app. #523
+macOS:
+   * Fixed app crash when Mac sleeps on one network and wakes on a different network. #519
+
+
+2.5.14 (17/11/2022)
+Windows:
+   * Fixed split tunneling driver not being installed when upgrading from 2.4 to 2.5. #511
+
+
+2.5.12 (14/11/2022)
+All:
+   * Fixed failover not triggering on TLS/SSL connection error. #509
+   * Fixed locations menu appearing randomly. #510
+   * Fixed build-a-plan users cannot use their static IPs. #513
+
+
+2.5.11 (07/11/2022)
+All:
+   * Fixed incorrect failover to IKEv2 from WireGuard. #202
+   * Fixed app not failing over to the next protocol when server returned incorrect data. #502
+
+
+2.5.10 (04/11/2022)
+All:
+   * Fixed TLS/SSL interception causes logout and crash. #502
+   * Fixed custom configs do not have DNS connectivity if internal DNS (RFC1918) is used. #505
+   * Fixed Proxy Gateway IP display goes blank when the proxy is connected to. #506
+   * Fixed a crash caused by a bug in the failover logic. #507
+Windows:
+   * Improved failure detection when setting up the WireGuard adapter. #489
+
+
+2.5.9 (01/11/2022)
+All:
+   * Fixed bottom info widget hidden when something connects to proxy/hotspot #455
+   * Fixed signing into an expired account. #500
+   * Fixed the working connection setting isn't saved. #202
+   * Fixed settings not syncing immediately. #476.
+Windows:
+   * Reverted inclusive split tunneled apps unable to access localhost. #464
+Linux:
+   * Fixed wrong OpenGL/libkrb5 linking in Linux. #499
+   * Fixed WStunnel protocol entry shows up twice in Linux. #497
+
+2.5.8 (26/10/2022)
+All:
+   * Updated automatic connection mode to use WireGuard protocol by default. #202
+   * Fixed CLI app to return 0 on success, 1 on failure. #17
+   * Fixed disconnected notification showing incorrect bandwidth usage. #77
+   * Fixed some minor UI bugs. #92, #245, #272, #483, #486, #492, #493
+   * Fixed preferences screen does not retain user selected height upon app re-launch. #146
+   * Fixed preferred protocol doesn't reconnect when Wi-Fi hopping. #448
+   * Fixed RFC1918 traffic is routed over VPN tunnel. #451
+   * Fixed Manual Packet Size (MTU) and network proxy settings do not retain their values upon app re-launch. #462
+   * Fixed app does not remember last used location if system crashes or app is forcefully terminated. #476
+   * Fixed incorrect data remaining value in Accounts page for build-a-plan accounts with unlimited data. #484
+Windows:
+   * Fixed secure hotspot feature is available when network adapter doesn't support it. #455
+   * Fixed inclusive split tunneled apps unable to access localhost. #464
+   * Fixed ws_com_server.exe command prompt window does not close after choosing custom config directory. #470
+macOS:
+   * Fixed helper installation fails when previous helper explicitly disabled in launch control. #466
+   * Fixed reconnect issue if the computer sleeps on one network and wakes on another. #467
+Linux:
+   * Fixed connect/disconnect notifications do not display on Debian 11. #294
+
+
+2.5.7 (06/10/2022)
+All:
+   * Added loading indicator to R.O.B.E.R.T. screen in Preferences. #461
+   * Added divider line above login/logout button in Preferences. #458
+   * Fixed a number of user interface bugs involving the update flow. #460
+   * Fixed incorrect tooltip on login/logout button in Preferences. #459
+   * Fixed notification read state not remembered if the user restarts/logs out of their PC before exiting the application. #365
+   * Fixed RFC1918 traffic is routed over VPN tunnel. #451
+Windows:
+   * Fixed installer privilege escalation vulnerability. #417
+   * Fixed secure hotspot feature is available when network adapter doesn't support it. #455
+   * Fixed split tunnel driver install/uninstall can be very slow. #176
+   * Removed support for Windows 8.1.
+macOS:
+   * Fixed app crash after upgrade from 2.4 to 2.5.6 when using IKEv2. #454
+
+
+2.5.6 (19/09/2022)
+* Produce Arch Linux installer package in CI build. #168
+* Support Wayland compositor on Linux. #236
+* Fixed no connectivity after waking from sleep with WireGuard on macOS. #391
+* Fixed no connectivity after waking from suspend with WireGuard and OpenVPN on Fedora 36. #376, #414, #426
+* Fixed incorrect Linux DNS manager detection on Fedora 36. #447
+* Fixed preferred protocol doesn't reconnect when wifi hopping. #448
+* Moved Auto-Connect to above Firewall Mode in Connection Preferences. #449
+* Fixed ROBERT rules do not apply from in-app toggles. #450
+* Fixed connect to a location by city/nickname/region name/ISO country code via CLI fails. #452
+
+
+2.5.5 (12/09/2022)
+* Fixed app does not resize correctly when dragging app between displays. #402
+* Fixed start minimized does not work on Windows. #413
+* Fixed favorite locations lost after app update. #428
+* Improved scrolling in news feed and preferences. #429
+* Removed terminate sockets network preference from the Linux app. #442
+* Fixed custom connected background image doesn't display in Van Gogh mode. #443
+* Fixed news feed messages are the wrong width at some display scales. #444
+
+
+2.5.4 (09/09/2022)
+* Implemented preferred protocol support per network. #49
+* Implemented Van Gogh mode. #61
+* Fixed app giving incorrect latencies and best location. #74
+* Preferences UI cleanup. #122
+* Support the Wayland compositor on Linux. #236
+* Notifications screen re-work. #274
+* Eliminated unnecessary spam in the log. #380
+* Fixed hostname-level exclusive split tunneling does not work on Windows. #383
+* Fixed WireGuard connection stalls on Windows if Internet access is interrupted momentarily. #392
+* Version info entry in preferences is now clickable and will display this change log. #397
+* More display scaling fixes. #402
+* Fixed potential firewall leak on MacOS. #416
+* Substantial locations window code refactoring. #420
+* Fixed mouse wheel issues in the notifications and preferences windows. #421
+* Fixed macOS installer install button text is not centered and button is not fully round. #422
+* Fixed Windows installer bug preventing upgrades from v2.5.2. #425
+* Fixed preferences lost when upgrading from <= v2.5.2. #430
+* Fixed DNS manager feature text overlaps option text when using NetworkManager or systemd-resolved. #432
+* Log any code assert statements that are triggered in a release build. #438
+
+
+2.5.3 (24/08/2022)
+* Preferences UI cleanup. #122
+* Notifications screen re-work. #274
+* Fixed escape and enter keys not working in settings edit boxes. #401
+* Fixed display scaling issues. #402
+* Fixed missing macOS system tray icon. #405
+* Fixed incorrect app position during launch on multi-monitor setups. #411
+* Fixed potential firewall leak on macOS. #416
+
+
+2.5.2 (28/07/2022)
+* Slow startup on macOS after initial install, upgrade, or reboot. #53
+* Only run Apple macOS notarization process in CI for tagged builds. #82
+* Native Apple ARM processor support and port to Qt 6. Minimum macOS verion now 10.14. #123
+* Remove 'check for update failed' notification dialog on unsupported Linux distros (e.g. Arch Linux). #235
+* Fixed some tunnel test parameter bugs identified by Keshav and Matthew. #267
+* Keep WireGuard tunnel active if client app terminates unexpectedly. #333
+* Windows build ported to Qt 6 and 64-bit. Minimum Windows version now 8.1. 32-bit Windows no longer supported. #353
+* Port Linux build to Qt 6. Minimum Ubuntu version now 20.04. #358
+* Implement port forwarding when using the WireGuard protocol. #379
+* Add login and signout functionality to the CLI app. #389
+* Remove use of the old method of ServerLocations API. #395
+* Copyright dates updated in all macOS plists.
+* Additional debug logging added to macOS installer.
+
+
+2.5.1 (28/06/2022)
+* Create Mac helper text file log (instead of syslog), in the same format as other logs. #57
+* Merge log from Mac helper to program log. #73
+* Reinstall TUN/TAP drivers if removed. #125
+* Make sure OpenVPN/Wireguard connections fully terminated when app starts. #154
+* Update to latest Wireguard (0.0.20220316) for Mac & Linux. #164
+* Add minimize/close-to-tray in Linux. #174
+* Add command-line parameter to skip TUN/TAP driver installation. #184
+* Use wireguard kernel module if it's available. #187
+* Add command-line parameter to prevent automatic app launch in installer. #204
+* Add 'factory reset' option to Windows and macOS installers. #212
+* Continue install if TAP adapter install fails. #254
+* Fix WireGuard service rejects custom config file with no PSK. #266
+* Fix various routing/firewall issues #102 #243 #322 #329 #338
+* Add advanced parameter ws-tunnel-test-no-error and allow ws-tunnel-test-attempts to be 0. #267
+* Limit DLL search path for the installer on Windows to only the system path. #281
+* Trigger connect/disconnect when Network Whitelist/Auto Connect preferences are changed. #288
+* Auto-update on Mac doesn't work correctly. #307
+* Ensure option for Close TCP Connections is read correctly from engineSettings. #343
+* Sticky server list for blocked locations. #354
+* Fixed GUI hang on macOS when app is connected and an in-app upgrade from 2.3.16 to 2.5.1 is performed. #357
+
+
+2.4.11 (23/06/2022)
+* Fixed GUI hang on macOS when app is connected and an in-app upgrade from 2.3.16 to 2.4.10 is performed. #357
+
+
+2.4.10 (31/05/2022)
+* Same as 2.4.9, but produced by CI.
+
+
+2.4.9 (31/05/2022)
+* Same as 2.4.8, but release build.
+
+
+2.4.8 (18/05/2022)
+* Same as 2.4.7, but beta build.
+
+
+2.4.7 (11/05/2022)
+* Replaced ip -> /usr/sbin/ip in the update-systemd-resolved Linux script. #275
+* Log server errors when checking for available updates. #280
+* Added the ws-staging parameter to advanced parameters. #277
+* Fix update flow for users without gnome-terminal.  #282
+
+
+2.4.6 (03/05/2022)
+* App crashes on Emergency Connect. #255
+* Increased service start wait time to 20 seconds. #120
+* Refactor wireguard connection to avoid blocking engine thread. #120
+* Inclusive split tunnelling doesn't work properly with WireGuard fixed. #264
+* Windows issue from Discord. #265
+* Use resolvectl instead of systemd-resolve #268
+* Fetch session when app receives focus. #96
+* Firewall silently enabled by itself (should be fixed). #150
+* Sometimes slow reconnect of WireGuard protocol on Ubuntu. #276
+
+
+2.4.5 (15/04/2022)
+* Long favourites location names in the tray menu are cut off. #251
+* Static IPs display issue in tray menu. #208
+* Updated the version info in all Windows executables.
+* The app randomly "fails" upon connecting to locations while already connected. A lot of refactoring has been done regarding the receiving of the WireGuard-config before connecting (many potential bugs have been fixed). #239
+* Mac Application doesn't open. #181
+* Fix app crash when signaled to close by installer. #226
+* Uninstaller wipes the entire folder it is located in. #155
+    - modified the installer to only install into a non-blank directory.
+    - if the selected directory has files in it, append \Windscribe to it.
+    - the uninstaller should only run if it's in the install directory.
+* Checked the API interaction. #96
+    - added 'app_version' to all server API calls.
+    - refresh all server resources every 24 hours.
+    - fix incorrect handling of static IPs server error response.
+* App main window does not display on Windows 11. #247
+* Fixed OpenVPN works unstably on hardware with Windows 7. #136
+* Fixed firewall deactivated when account status changes to disabled. #248
+* Protocol selection not immediately saved to disk - fixed. #149
+* Replaced tray icons on Windows 7,8 and Mac. #206
+
+
+2.4.4 (25/03/2022)
+* Fixed crash on bad server locations list. #209
+* Various Wireguard NT fixes. #120
+* OpenVPN on Mac, infinite reconnection loop fixed. #186
+* Dynamic Wireguard Interface Allocation Support. #189
+* DPI fixes for the tray icon for Windows. #208
+* Privilege escalation vulnerability fixed. #214
+* Improved DNS manager automatic selection algorithm on Linux. #198
+
+
+2.4.3 (11/03/2022)
+* Added wireguard NT. #120
+* (Yellow) State bug on MacOS. #186
+* Fedora 35, default install, using systemd-resolve, connect failed. #198
+* Made an option on the Debug tab on Linux DNS manager: automatic/resolvconf/systemd-resolved/NetworkManager. #198
+* App crashed on Emergency Connect - fixed. #203
+* Proxy gateway not showing IP address of listener. #159
+
+
+2.4.2 (04/03/2022)
+* CLI added for Linux, updated for Win/Mac. #167
+* Firewall broken when ufw is enabled on Ubuntu 20. #157
+* Update 10Gbps badge and location load when best location changes. #145
+* Added Ghana flag image. #180
+* UDP fails to connect on Mac. #175
+* Rasdial error 13868 fixed. #104
+* update-systemd-resolved failure during disconnect on Ubuntu. #153
+* Proxy gateway not showing IP address of listener. #159
+* Can't connect if DNS is managed by NetworkManager. #158
+
+
+2.4.1 (18/01/2022)
+* Combined the engine and gui into the single process. #562
+* Migrated from DropDMG to opensource CLI utility. #591
+* Fixed MAC rare MAC spoofing failure on some MacOS. #569
+* Maintain same offset in docked mode. #622
+* Do not use pointer cursor on non clickable areas. #269
+* Desktop client Windows connection notification bug fixed. #467
+* Added ControlD to App Internal DNS list. #621
+* Show 10gbps badge next to 10gbps capable datacenters. #618
+* Show location loads. #617
+* Fixed custom plan displays as pro in preferences. #437
+
+
+2.03.15 (17/12/2021)
+* Reconnect loop on Mac Monterey fixed. #603
+* Fedora - slow connect time via WG on app launch. #619
+* Added DNS-leak protection regardless of the firewall state and utility systemd-resolved/resolvconf. #608
+
+2.03.14 (10/12/2021)
+* Added 'ws-' prefix to windscribe advanced parameters and added 'ws-' ignoring by openvpn. #616
+* Reconnect loop on Mac fixed. #603
+* Remove IKEv2 from Linux. #583
+* Keep the firewall state on update if autoconnect option is enabled. #615
+
+2.03.13 (08/12/2021)
+* Set udp as default protocol in engine on Linux. #583
+* Added application changes for auto-update platform detection fix. #553
+* Disabled wireguard for windows 7 32-bit. #565
+* Auto-connect feature fixed on Mac. #603
+* Preferences being reset on upgrade to build 12. #605
+* Updated the method for detecting systemd-resolved utility. #608
+* Added a dependency on the autoconnect state for the initial firewall state. #611
+* Added hash verification, removed installer signatures and public key on Linux, and added internal build channel override. #538
+* Fixed MAC spoofing failure. #537
+
+2.03.12 (22/11/2021)
+* Autoupdate download issue fixed. #531
+* Change proxy gateway "Connect To" text to "IP". #564
+* Log installer debug output to file. #560
+* Code signing on linux. #538
+* Log failure to create the IPC named pipe on Windows. #547
+* Prevent duplicate launches of the app in Linux. #559
+* Updated wstunnel binary to v4. #491
+* Launch on startup / auto-connect flags fixed. #558
+* Network whitelist feature added for Linux. #558
+* "Always On" firewall on reboot fixed. #558
+* Segfault on Linux (ZorinOS) fixed. #568
+* MAC Spoofing not functional on Big Sur fixed. #537
+* Require elevated privilege to accept insecure custom config dir. #465
+* Auto update authentication failure. #566
+* Removed log with user's ip. #575
+* Made dark mode default sensible based on older versions of windows not having window themes. #395
+* App kills itself after running for a while - fixes. #571
+* IKEv2 RasDial AuthNotify error 13801 on Windows 7. #576
+* GUI crash. #574
+* Fixed superuser validation on Mac and Linux. #542
+* Edit account details hide auth hash. #584
+* Windows 7 installation error fixed. #588
+* AuthHelper support DLLs signed. #598
+* Wireguard fix for Windows 7. #565
+* Removed all "Failed..." logs from Linux debian install script and typo fix..
+* Make udp default connection on Linux. #583
+
+
+2.03.11 (15/10/2021)
+* Updated system tray icons on Windows and Linux. #395
+* Fixed GUI lock. #522
+* Fixed incorrect external IP. #536
+* Hide all non-functional preferences in Linux build. #533
+* Make IP blurring more blurry in MacOS. #534
+* Improved tunnel test algorithm on Windows. #539
+* Added "View Licenses" button to Debug Preferences menu. #543
+* No API connectivity - Fedora / certificate store issue fixed. #527
+* Linux RPM package. #532
+* Fedora WG support. #529
+* Linux firewall failure. #526
+* Fixed named pipe security flaw on Windows. #546
+* Add silent install flag to installer (Windows). #481
+* Updated dependencies/libraries. #552
+    - OpenSSL: updated to 1.1.1L
+    - C-Ares: updated to 1.17.2
+    - Curl: updated to 7.79.1
+    - OpenVPN: updated to 2.5.4
+    - Stunnel: updated to 5.60
+* Linux auto updater functionality (debian and rpm packages). #531
+* Fixed "Cannot open file ':/svg/flags/.svg'" in log. #554
+* Mac install helper issue fixed. #551, #479
+* Temporarily disabled locations tray menu for Linux. #528
+
+
+2.03.10 (21/09/2021)
+* Improve task kill process for windscribeopenvpn. #517
+* Clean flag for Windows. #499
+* Fix stealth protocol not working for some users. #457
+* Delay tunnel test start for 3s when using OpenVPN+Wintun. #516
+* Prevent loss of engine log during engine recovery. #474
+
+2.03.09 (15/09/2021)
+* Linux firewall, wireguard, dns, resolvconf fixes. #511, #515, #519, #523
+* Fixed assert in engine server API.#514
+* The local DNS server while connected doesn't work. #512
+* MacOS hard crash fixed. #518
+
+2.03.06 (01/09/2021)
+* Always fetch ovpn server credentials and configs together. #482
+* Reinstallation of tap/wintun drivers (Windows). #504
+* Firewall implementation added (Linux). #511
+
+2.03.05 (24/08/2021)
+* Fixed resolution changes causes app crash. #445
+* Reconnect after hosts file repaired. #454
+* Fixed small openVPN connection delay on Windows. #505
+* Fixed macos privilege escalation vulnerabilities. #471
+* Fixed blank message box displayed when custom config cannot be opened. #508
+* Fixed click event on Upgrade button bleeds through to Preferences screen. #483
+* Fixed incorrect network statistics when disconnecting ikev2. #478
+
+2.03.04 (9/08/2021)
+* Connect Info scaling issue on Mac fixed. #472
+* Added CFBundleShortVersionString to Mac plist. #461
+* Fixed system icon issues on Big Sur. #463
+* Added "Start minimized" option. #477
+* Incorrect bandwidth used notification on MacOS fixed. #478
+* Custom config UI not re-rendered - fixed. #484
+* Custom configs don't get sorted by latency - fixed. #486
+* Click event on Upgrade button bleeds through to the Preferences screen - fixed. #483
+* Hosts file not writable - show correct error to user. #454
+* Accelerated the openvpn connection on Windows. #494
+* Injected verify-x509-name into OpenVPN config. #492
+* ChangeIcs.exe will not run on x64 (possible issues Vpn Sharing feature) - fixed. #500
+* Mac OS message boxes do not display spaces after periods - fixed. #501
+
+
+2.03.03 (21/05/2021)
+* The invalid custom DNS message return to the connect screen bug fixed.
+* Added shadows for some texts and controls.
+* Removed all gradient overlays for the custom backgrounds.
+
+2.03.02 (17/05/2021)
+* The custom DNS UI scaling issue is fixed.
+* The position and transparency of the custom background is fixed.
+
+2.03.01 (14/05/2021)
+* Prevent deactivate main windows when log viewer dialog is opened what led to crash. #439
+* Installer errors out with silly error if firewall is ON while disconnected - fixed. #441
+* A crash on OS X Sierra (10.12) fixed. #446
+* Custom DNS server support. #124
+* Ability to upload custom background images. #394
+* Added ability to blur IP with the mouse double click. #469
+
+2.02.10 (31/03/2021)
+* The detection of the authorization error for IKEv2 made more specific. #398
+* Reduced logs and ping_long_custom_configs.txt size. #434
+* The description on the emergency connection screen has been updated.
+
+
+2.02.9 (22/03/2021)
+* Removed some more log spam and log errors. #414
+* Large post data send bug fixed. #427
+* Log merge speed increased (for large files 5-10 times). #427
+* Cut out the part of the log if the count of lines exceeds 100k (keep 10% begin and 90% end of log). #427
+* Added Export Log button. #429
+* Do not close sockets for applications that do not use a VPN. #426
+* Set "TCP socket termination" option ON by default.
+* Linked option "TCP socket termination" with closing sockets in split tunneling. #426
+* Hotspot fix for openVPN, disable hotspot for WireGuard. #432
+
+
+2.02.8 (12/03/2021)
+* Updated remoteid for IKEv2 profiles on Mac. #420
+* Inclusive split routing issue on Mac - should be fixed. #398
+* Removed useless(spam) messages from log (GUI side). #414
+* Prevented keypress navigation to other locations from config-only mode.
+* Fixed auto-hide of docked app on showing external OS dialogs. #396
+* Fixed negative remaining bytes issue. #370
+* Open newsfeed to the first unread message, if any. #371
+
+
+2.02.5 (03/03/2021)
+* Windscribe beta installer fails on macOS standard accounts - fixed. #369
+* Detect legacy OS version, download legacy installer (Windows/Mac). #3 and #6
+* Remove the helper from version 1 when installing 2.0 (Mac). #5
+* Launch update installer at the same screen position as app (Windows/Mac). #7 and #8
+* Auto-update the application (Mac) - fixes.
+* Trackpad scrolling on Big Sur is wonky - fixes. #342
+* Removed account tab from preferences in external config mode. #365
+
+* Improvements to preferences and combobox menus. #118
+    -> Increased scroll bar widths.
+    -> Fixed trackpad sensitivities on Mac and Windows.
+    -> Fixed [Escape] key press navigations.
+* Fixed rare crash on Mac when using comboboxes and tooltips. #118
+* Improvements to location window. #118
+    -> Tab transitions: animations and logging
+    -> Added navigation to search tab when you start typing
+    -> Improved key-press navigation and cursor integration
+    -> Fixed footer size
+    -> Fixed view offset that happens at the bottom of the each list
+    -> Fixed error messages and connection prevention for bad vpn configs
+    -> Fixed drag-scrolling to bottom and top of list
+    -> Fixed scaling issues on 125% and 175%
+    -> Other minor bug fixes
+
+* Fixed latency display always as bars on some screens. #372
+* Fixed OVPN custom config issues with protocol names. #374
+* Fixed custom config error message. #375
+* Added SIGTERM signal processing for Mac. #379
+* Fixed incorrect timestamps in service log. #378
+* Finish all active connections on app start(Mac). #380
+* The program hangs on the welcome screen on Mac when installed in the folder with spaces - fixed. #383
+* Custom config does not change DNS server on MacOS - fixed. #384
+* Fixed WireGuard on wake connect issue. #385
+* Fixed Cmd+Q shortcut confirmation regression on Mac. #11
+
+2.02.4 (16/02/2021)
+* Autoupdate from older versions of the program (prior 2.02 build 1) fixed.
+
+2.02.3 (16/02/2021)
+* Updated text on external config mode window. #365
+* Removed sensitive info from logs. #366
+* App locks up when the file explorer is shown - fixed. #353
+* List of locations fixes. #118
+    - Search animations on text change
+    - touchpad scrolling slow to stop on Mac by tap
+    - Added searchbox clearing on tab change and locations drawer hiding
+    - Fixed location expanding animation bug (big lists and bottom items)
+    - Fixed size of locations tab-area in search tab
+    - Fixed ultra-sensitive touchpad on some Windows machines
+    - Fixed locations search for nicknames
+* Fixed locations ribbon UI regression. #341
+* PingTest grows debug log - fixed. #362
+* Added workaround for openvpn error "write_wintun(): head/tail value is over capacity". #368
+* Check correctness of IP/CIDR combination in GUI. #363
+* Updated "esc" button in the installer. #354
+
+2.02.2 (10/02/2021)
+* Improved domain name validation in GUI preferences. #333
+* Fixed GUI and DPI scaling issues for API resolution in GUI preferences. #326
+* Fixed network level split routing defaults to /32 bug. #337
+* Removed initialization timeout in GUI. #339
+* Fixed Mac UI bug with static ips and custom configs ribbon. #341
+* Recreate DNS-resolver when network state changes (app fails over to direct IP API when started with no Internet access). #122
+* Fixed Hyper-V host network bridge detection. #334
+* Fixed the auto-update algorithm on Windows (sometimes update fails with "removing unsigned installer" error). #321
+* Fixed OVPN pipe-related deadlock issue. #335
+* Refetch WG config after logout. #345
+* Improved service logging, log merging and improved readability in GUI internal viewer. #346
+* Added year to logs. #350
+* WindscribeLogViewer - standalone log viewer app made for internal debug purposes. #352
+* Fixed custom configs OVPN protocol detection. #355
+* Localhost blocked in inclusive Split Routing mode, issue fixed. #167
+* Added split tunneling for the inclusive mode for hostnames (Windows). #238
+* Inclusive split tunneling breaks BattleNet agent - fixed. #344
+* Fixed default cipher problem with OVPN custom configs. #356
+* Disabled TAP custom configs on Mac. #356
+* Gui crash on Mac when opening or closing laptop lid - fixed. #318
+* Fix reconnect on external IKEv2 failure, fix DNS server list size issue. #359
+* Locations list refactored, location search tab added. #118
+* Hide "Connection settings" in external config mode. #361
+* Fixed EXE selection for a WoW64 GUI process. #353
+* Updated split tunneling driver for support Win7. #180
+
+2.02.1 (12/01/2021)
+* Split tunneling driver updated for support Win7/Win8. #338, #180
+* Implemented show flags preference. #314
+* Fixed WireGuard custom config issues. #319
+* Added support for Unicode SSIDs. #323
+* Formated WireGuard output to be readable. #325
+* Updated edit account link. #327
+* Attempt to fix not displaying the static ip device name.
+* "Service error 29" removed from service. #330.
+* Prevent blank manual IP in API resolution. 326
+* Fixed Win32 service WireGuard issues and added crashdump support for the service. #324
+* By default use udp protocol for custom OVPN configs. #331
+* Fixed blinking cursor on BlockableQLineEdit not in focus. #322
+* Clicking on a premium location should open browser. #238
+* Fixed favourites not saved on shutdown. #336
+* Show static ip as sublocation name. #332
+* Refactored TAP-adapter detection for split tunneling (Windows). Split tunneling gets disabled with WG should be fixed. #320
+* Extended tray menu to show Static IPs, Custom Configs and favorites. #119
+
+
+2.01.3 (24/12/2020)
+* Fixed docked positioning with auto-hiding menubar on Mac. #311
+* Added connection badge animated dots. #46
+* Firewall frozen in incorrect state across sign out/in fixed. #35
+* UI hover login button bug fixed on welcome screen.
+* GUI crash on Mac when opening or closing laptop lid. #318
+* Attempt to fix IPC server listen error. #316
+
+
+2.01.2 (23/12/2020)
+* Damaged signature on Mac fixed. #315
+* Attempt to fix incorrect offline state and extended logs added. #308
+* Added IPC server listen error logging. #316
+
+2.01.1 (23/12/2020)
+* Possible IP leak when firewall state changes fixed. #306
+* Upgrading version leaks IP during install with Always On firewall - fixed. #305
+* Fixed OS default DNS problem after reboot on Mac. #301
+* Fixed Location tab background color. #24
+* Fixed fullscreen bug for app hidden from dock. #144
+* Added auto-popup to API specified notifications. #309
+* Start minimized after reboot if minimize to tray option is on. #307
+* Disable firewall in auto mode for certain custom configs. #141
+* Allow AirDrop when firewall is enabled. #312
+* Stunnel updated to latest version 5.57.
+* Protobuf updated to latest version 3.14.0.
+
+
+2.0.41 (16/12/2020)
+* Bottom artefact on welcome screen fixed.
+
+2.0.40 (16/12/2020)
+* Beta popup message removed from installer.
+* Removed debug log spam.
+* Fixed background issues on connect screen (#274).
+* Updated logged out background images.
+* Static IP icons swapped (#303).
+* Update screen text fixed.
+
+2.0.39 (15/12/2020)
+* Updated logged out launch screen to new style.
+* Updated installer and DMG background image.
+* Dynamic DPI change bug fixed (#286).
+* Wireguard DNS-leak fixed.
+* Show tooltip on FW toggle in Always On mode.
+* Changed the text in the update window.
+* Add tooltip on packet detection error (#292).
+* Prevent browser uninstall popup, when autoupdate from the app.
+* Fixed broken OpenVPN connection for certain configs (#298).
+* Docked mode off by default on Mac.
+* Fixed UI placement and tray icon click in docked mode.
+* Fixed Mac firewall parameters. #291
+* Made native-like tray locations dropdown.
+* Fixed WireGuard MTU issues.
+
+
+2.0.38 (04/12/2020)
+* Updated c-ares lib to the latest version.
+* Updated OpenVPN to the latest version 2.5.0.
+* Removed OpenVPN 2.4.8 and use wintun by default.
+* Updated wintun to the latest version 0.9.2.
+* Updated WireGuard to the latest version v0.0.20201118.
+* Fixed tunnel test fails for IKEv2 on Windows.
+* Mac keychain issue - fixed.
+* Fixed incorrect engine shutdown on Windows.
+* Added new flags, fixed no-flag GUI crash.
+* Added new menubar icons and dark mode detection.
+* UI text fixes (#255).
+* Fixed external config mode problems (#271).
+* All app icons updated.
+* Fixed login button behaviour(#285).
+* Replaced custom advanced parameters with native dialog.
+* Fixed cli inability to connect to locations.
+* Fixed GUI crash related to tray icon.
+* Fixed preferences expanding animation issue on login screen.
+* Increased the waiting time for connecting to the engine in gui to 20 seconds (should fix the possible bug on Mac boot).
+* MTU hashed domain failover fixed. (#245)
+* Prevent browser popup on uninstall during installation on Windows.
+* Fixed missing installer log. (#205)
+
+
+2.0.37 (25/11/2020)
+* Possible crashes in the gui are fixed.
+* Tunnel tests issues are fixed.
+* Password field invisible until activating it - fixed.
+* DNS for WireGuard is made so that it is not saved when the OS is rebooted.
+* UI fixes (#204 and #224).
+
+
+2.0.36 (20/11/2020)
+* Keychain crash on Mac - fixed.
+* Credentials refetch bug - fixed.
+* Crash minidump added on Windows.
+* Possible GUI crashes - fixed.
+* Prevent SplitTunneling from being enabled on BigSur.
+* Connection problem for WINDFLIX locations - fixed.
+* Removed minimize button in docked mode on Mac.
+* Added the protection of socket helper Mac from vulnerabilities.
+* Tray icon bring to front fixed.
+
+2.0.35 (09/10/2020)
+* OVPN custom configs permission issue - fixed.
+* WireGuard takes too long to connect with firewall enabled - fixed.
+* Sometimes program hangs in connecting/disconnecting states - fixes made, but still need to test.
+* "Failed set password to keychain" error on Mac after sleep mode - fixes made, but still need to test.
+
+2.0.34 (04/10/2020)
+* Security fixes for custom configs and advanced parameters.
+* Firewall leak on boot - fixed.
+* Engine closes ungracefully in release mode - fixed.
+* Wireguard split tunnelling support for inclusive mode for Mac.
+* Sometimes split tunneling does't work after app restart on Windows - fixed.
+* WireGuard takes too long to connect with firewall enabled - fixed.
+
+
+2.0.33 (29/09/2020)
+* Wireguard does not  auto-connect after OS reboot, with auto-connect enabled - fixed.
+* New install with no existing account, firewall should be automatic by default - fixed.
+* MacOS: App doesn't start after OS reboot with Preference to do so - fixed.
+* MacOS: Split tunneling hostnames fixed for exclusive mode.you connect
+* Win: WG split routing sometimes doesn't work after app restart - fixed.
+* App creates a new connection profile for WireGuard every time - fixed.
+* Incorrect latency - fixed.
+* MTU fixes.
+* New splittunneling hostname and ip items cutoff on Windows high scaling - fixed.
+* Custom configs UI footer changes.
+
+2.0.32 (23/09/2020)
+* Mac DMG the typo fix.
+* Don't collapse the location list when you disconnect.
+
+2.0.31 (23/09/2020)
+* Extra auth files in OVPN-config issue - fixed.
+* The protocol switch issue - fixed.
+* Favourites save/restore issue - fixed.
+* GUI improvement for empty CustomConfig/StaticIP.
+* Removed spam in the log when determining the best location.
+
+2.0.30 (21/09/2020)
+* Custom configs UI improvements (more details in #218).
+* Static background in the installer (temporarily to reduce the size of the installer).
+* Program window outside the screen (Mac) - fixed (#227)
+* Preloading SVG-images in the separate thread. Should slightly increase the speed of the UI animations. (#228)
+
+2.0.29 (16/09/2020)
+* WireGuard improvements/fixes (more details in #213).
+* Custom configs (multiple remotes support, wireguard custom configs support).
+* Changed best location picking logic based on lowest city latency (not a drop-down list).
+* MSS/MTU auto behaviour and ikev2 mtu value change - fixed.
+* App crashes on Mac when the log window closes - fixed.
+* Updated IKEv2 params to mimic the params supplied in the PowerShell.
+* Server name shortening bugs - fixed.
+* Decoupled currently connected Best Location from detected Best Location in server list (more details in #120).
+* "Add Config Location" button fixes (it's always on top and not overlap the list and scrollbar).
+* Locations tray menu fixes.
+* Extended protocol option menu, so now all protocol items are visible.
+* Added animated background of the installer.
+* Automatic updater.
+* Other internal improvements.
+
+
+2.0.28 (23/09/2020)
+* Fixed Wireguard bugs.
+* The selected connection location doesn't get updated until it actually fully connects - fixed.
+
+2.0.27 (22/09/2020)
+* Basic WireGuard implementation.
+* Migrated to new servers format.
+* Ping IP picking logic changed.
+* Best Location selection algorithm changed.
+* Various UI fixes.
+
+
+2.0.26 (19/08/2020)
+* Fixed installer crash on Big Sur.
+* Made app-kill more robust - stray openvpn process no longer will cause failure to kill (and hang).
+* UI freezes when minimized - fixed.
+* Can't favorite Best Location datacenter - fixed.
+* "You're out of data" GUI behaviour - fixed.
+* Added exit confirm dialog on Alt+F4(Win) and Ctrl+Q(Mac). Also, the app now can be closed without confirmation from Task Manager.
+* Added exit confirm dialog when click exit from Preferences screen.
+
+
+
+2.0.25 (16/08/2020)
+* Added tooltips for connection settings on first login screen.
+* Bad app icon (split tunneling) scaling in VM - fixed.
+* Background sometimes visible on Mac - fixed.
+* The app version is incorrect in program/log.
+* Helper version updated to 15.
+* Issue with disable split tunneling state when app close fixed.
+* wsappcontrol crash on Mac - fixed.
+* Out of data screen DPI-issue - fixed.
+
+2.0.24 (12/08/2020)
+* Fixed/checked vulnerabilities - Qt plugins path, CVE-2019-5443(curl/openssl).
+* Hardened the app against common vulnerabilities raised in audits of other VPNs.
+* Openvpn doesn't work for Mac - fixed.
+* Bug with hiding the window when it is deactivated - fixed.
+* [Windows] Blurry icon in taskbar - fixed.
+* Fixes for "RasEnumDevices failed with error: x.
+* Added whitelist loopback + multicast IP ranges in the firewall when "LAN bypass" is enabled.
+* Don't do MTU detection while connected.
+* Taskbar/tray issues in docked mode.
+* Mac fails to delete old app during install - fixed.
+* Added tooltip for no-firewall during split routing on Mac.
+* Certificates in wsappcontrol  are replaced.
+
+2.0.23 (06/08/2020)
+* Bug fix for tunnel connectivity test (Bypass DNS cache for ping requests).
+* Selected tab marker does not match the selected server list on Mac - fixed.
+* Tab button on preferences screen doesn't return from submenu - fixed.
+* Ping bar icon blinks when the program starts - fixed.
+* Wintun driver renamed to windtun420.
+* LAN IP detection randomly picks the loopback interface on a Mac - fixed.
+* Background sometimes visible on Mac (should be fixed, but not 100% sure, not able to reproduce).
+* Incorrect scaling in "Advanced parameters" tab - fixed.
+* The cursor does not change when the mouse wheel is scrolled on Mac - fixed.
+* Docked mode fixes (window positioning issues).
+* GUI crash - fixed.
+* Program hung at exit - fixed.
+* Location list in tray menu is redrawn incorrectly on Mac - fixed.
+* Removed streaming(windflix) tab from location list.
+* Mac installer fixes(hang, crash).
+
+
+2.0.22 (15/07/2020)
+* Added "docked" mode switch to preferences.
+* Fixed "Hide from dock" on Mac.
+* Added "Minimize and close to tray" on Windows.
+* Added system tray menu on Windows and Mac.
+* Fixed premium star display and disabled icon for free users.
+* Fixed connect ring wobble.
+* Removed user password plaintext from log.
+* Improved connectivity test algorithm.
+* URLs clickable in the "News Feed" window.
+* Increase width of clickable region of preferences tab control.
+* Advanced Parameters scroll bar not visible - fixed.
+* Fixed bottom info window not shown at startup.
+* First displayed notification is not marked as read - fixed.
+* Proxy settings fixes.
+* Fixed incorrect DPI scaling in Advanced Parameters window.
+* Updating connection bar on connect window - fixed.
+* Exclude LAN from "Force close all TCP sockets after connection".
+* Long combobox menus can go offscreen - fixed.
+* Free account ran out of data issue fixed.
+* Various tooltip problems fixed.
+* Hideable region of auto/manual widget hides during scaling change - fixed.
+* Locations items misalign during scaling - fixed.
+* Right-click context menu's don't scale with OS - fixed.
+* Network whitelist icon on app start changes the state with a delay - fixed.
+* Fixed Launcher "As Admin" issue.
+* Notification read flags don't get saved on reboot - fixed.
+* Added firewall button on login screen.
+* Added decimal accuracy to remaining data.
+* Split tunneling feature added for Mac.
+* Upgrade widget animation issue when collapsing locations list - fixed.
+* Added expanding animation for upgrade widget at the start of the program.
+* Password in proxy settings masked for security reasons.
+* Handling the app activate/deactivate events in GUI and send to engine (for prevent session status calls) - fixes.
+* The shadow on the background image of the installer has been removed.
+* CLI fixes, added symlink in /usr/local/bin so cli can be called from anywhere without full path.
+
+2.0.21 (08/05/2020)
+* Added binary signature verification
+* Updated connection state UI design
+* Updated order of logs sent to API
+* Mac installer UI fixes for dark mode
+* Added communication with browser
+* Improved communication between GUI/Engine/CLI
+* Fixed crash in CLI on closedown
+* Fixed crash on first run when no previously installed app
+* Made MSS detection not delay startup
+* Added feedback for MSS and log sending
+* Improved MAC spoofing warnings
+* Fixed custom config reseting between restarts
+* Hid Windows-only features on Mac
+* Fixed scaling of Split routing icons on Windows
+* Fixed connection button ring wobble
+* Fixed non-latin text
+* Fixed cli open locations drawing bug
+* Fixed split routing text disappearing
+* Improved install and build scripts for CI/CD
+
+2.0.20 (27/04/2020) - Since 2.0.19:
+* Mac feature parity with Windows (Doesn't include split routing, CLI):
+-> Network Whitelist
+-> MAC Spoofing
+-> Launch on startup
+-> Custom Installer
+* GUI fixes (Mac):
+-> Init, Login, LoggingIn, Locations and overlay screen sizing/positioning
+-> IP-address pixelation
+-> Shadow fixes
+-> Minimize/Close buttons
+* MSS/MTU detection (Mac & Win)
+* Added No flag, peru and panama flags (Mac & Win)
+

@@ -13,7 +13,12 @@
     "rapidjson",
     "boost-config",
     "boost-metaparse",
-    "boost-process",
+    "boost-asio",
+    "boost-filesystem",
+    {
+        "name": "boost-process",
+        "platform": "linux|android"
+    },
     "skyr-url",
     "cmakerc",
     "cpp-base64",

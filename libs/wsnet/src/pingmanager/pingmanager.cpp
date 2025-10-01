@@ -5,7 +5,9 @@
 
 #ifdef _WIN32
     #include "pingmethod_icmp_win.h"
-#elif !defined IS_TVOS
+#elif defined IS_APPLE
+    #include "pingmethod_icmp_apple.h"
+#else
     #include "pingmethod_icmp_posix.h"
 #endif
 
@@ -18,7 +20,7 @@ PingManager::PingManager(boost::asio::io_context &io_context, WSNetHttpNetworkMa
     connectState_(connectState)
 {
 
-#if !defined _WIN32 && !defined IS_TVOS
+#if !defined _WIN32 && !defined IS_APPLE
     processManager_ = std::make_unique<ProcessManager>(io_context);
 #endif
 }
@@ -29,7 +31,9 @@ PingManager::~PingManager()
     std::lock_guard locker(mutex_);
 #ifdef _WIN32
     eventCallbackManager_.stop();
-#elif !defined IS_TVOS
+#elif defined IS_APPLE
+    pingManagerApple_.stop();
+#else
     processManager_.reset();
 #endif
     map_.clear();
@@ -86,9 +90,8 @@ IPingMethod *PingManager::createPingMethod(std::uint64_t id, const std::string &
 
 #ifdef _WIN32
         return new PingMethodIcmp_win(eventCallbackManager_, id, ip, hostname, true, callback, std::bind(&PingManager::onPingMethodFinished, this, std::placeholders::_1));
-#elif defined IS_TVOS
-    g_logger->error("ICMP pings are not supported on Apple tvOS");
-    assert(false);
+#elif defined IS_APPLE
+        return new PingMethodIcmp_apple(pingManagerApple_, id, ip, hostname, true, callback, std::bind(&PingManager::onPingMethodFinished, this, std::placeholders::_1));
 #else
         return new PingMethodIcmp_posix(id, ip, hostname, true, callback, std::bind(&PingManager::onPingMethodFinished, this, std::placeholders::_1), processManager_.get());
 #endif

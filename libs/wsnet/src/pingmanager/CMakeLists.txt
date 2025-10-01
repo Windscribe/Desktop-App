@@ -13,9 +13,16 @@ if (WIN32)
         eventcallbackmanager_win.cpp
         eventcallbackmanager_win.h
     )
-# Apple tvOS does not support the fork functionality used by boost process
-# so for tvOS icmp pings disabled
-elseif(NOT CMAKE_SYSTEM_NAME STREQUAL "tvOS")
+elseif (APPLE)
+    target_sources(wsnet PRIVATE
+        pingmethod_icmp_apple.cpp
+        pingmethod_icmp_apple.h
+        apple/simple_ping.mm
+        apple/simple_ping.h
+        apple/pingmanager_apple.mm
+        apple/pingmanager_apple.h
+    )
+else()
     target_sources(wsnet PRIVATE
         pingmethod_icmp_posix.cpp
         pingmethod_icmp_posix.h

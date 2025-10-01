@@ -10,9 +10,9 @@ temp/
 *.pyc
 *.DS_Store
 *.aps
-installer/windows/tests_output.log
-installer/windows/temp-tests/*
-installer/mac/installer/installer/temp_Info.plist
+src/installer/windows/tests_output.log
+src/installer/windows/temp-tests/*
+src/installer/mac/installer/installer/temp_Info.plist
 test-exe/*
 drawings/*/*.png
 tools/.idea/
@@ -21,9 +21,8 @@ build/
 
 # secrets
 tools/notarize.yml
-client/common/utils/hardcodedsecrets.ini
-client/common/keys/linux/key.pem
-client/common/keys/linux/key.pub
-client/common/keys/linux/key_pub.txt
-installer/windows/signing/code_signing.pfx
-backend/mac/provisioning_profile/
+src/client/common/keys/linux/key.pem
+src/client/common/keys/linux/key.pub
+src/client/common/keys/linux/key_pub.txt
+src/installer/windows/signing/code_signing.pfx
+data/provisioning_profile/

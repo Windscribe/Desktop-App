@@ -251,6 +251,14 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::wgConfigsConnect(const std::
     return cancelableCallback;
 }
 
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::wgConfigsPskRekey(const std::string &authHash, const std::string &clientPublicKey, WSNetRequestFinishedCallback callback)
+{
+    auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
+    BaseRequest *request = requests_factory::wgConfigsPskRekey(authHash, clientPublicKey, cancelableCallback);
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    return cancelableCallback;
+}
+
 std::shared_ptr<WSNetCancelableCallback> ServerAPI::myIP(WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);

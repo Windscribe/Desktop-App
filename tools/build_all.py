@@ -233,7 +233,7 @@ def build_component(component, buildenv=None):
         if CURRENT_OS == "macos" and component["name"] == "Helper":
             # Update the team ID in the helper's plist.  xcodebuild won't do it for us as we are embedding the
             # plist via the Other Linker Flags section of the Xcode project.
-            update_team_id(os.path.join(pathhelper.ROOT_DIR, component["subdir"], "helper-info.plist"))
+            update_team_id(os.path.join(pathhelper.ROOT_DIR, component["subdir"], "macos", "helper-info.plist"))
 
         generate_cmd = ["cmake", os.path.join(pathhelper.ROOT_DIR, component["subdir"], "CMakeLists.txt")]
         generate_cmd.extend(["--no-warn-unused-cli", "-DCMAKE_BUILD_TYPE=" + ("Debug" if arghelper.build_debug() else "Release")])
@@ -270,8 +270,6 @@ def build_component(component, buildenv=None):
         elif CURRENT_OS == "win32":
             generate_cmd.append('-G Ninja')
             generate_cmd.append("-DCMAKE_GENERATOR:STRING=Ninja")
-            if arghelper.target_arm64_arch():
-                generate_cmd.append("-DCMAKE_SYSTEM_PROCESSOR:STRING=arm64")
         if component["name"] == "Client":
             try:
                 build_id = re.search(r"\d+", proc.ExecuteAndGetOutput(["git", "branch", "--show-current"], env=buildenv, shell=False)).group()
@@ -304,7 +302,7 @@ def build_component(component, buildenv=None):
         if CURRENT_OS == "macos":
             if component["name"] == "Helper":
                 # Undo what UpdateTeamID did above so version control doesn't see the change.
-                restore_helper_info_plist(os.path.join(pathhelper.ROOT_DIR, component["subdir"], "helper-info.plist"))
+                restore_helper_info_plist(os.path.join(pathhelper.ROOT_DIR, component["subdir"], "macos", "helper-info.plist"))
             elif component["name"] == "Installer":
                 utl.RemoveFile(temp_info_plist)
 
@@ -441,19 +439,19 @@ def prep_installer_win32(configdata):
     msg.Info("Copying libs ...")
 
     if "additional_files" in configdata["deploy_files"]["win32"]["installer"]:
-        additional_dir = os.path.join(pathhelper.ROOT_DIR, "installer", "windows", "additional_files")
+        additional_dir = os.path.join(pathhelper.ROOT_DIR, "src", "installer", "windows", "additional_files")
         copy_files("additional", configdata["deploy_files"]["win32"]["installer"]["additional_files"], additional_dir, BUILD_INSTALLER_FILES)
 
     copy_libs(configdata, "win32", "installer", BUILD_INSTALLER_FILES)
     if arghelper.target_arm64_arch():
         copy_libs(configdata, "win32_arm64", "installer", BUILD_INSTALLER_FILES)
         if "additional_files" in configdata["deploy_files"]["win32_arm64"]["installer"]:
-            additional_dir = os.path.join(pathhelper.ROOT_DIR, "installer", "windows", "additional_files")
+            additional_dir = os.path.join(pathhelper.ROOT_DIR, "src", "installer", "windows", "additional_files")
             copy_files("additional arm64", configdata["deploy_files"]["win32_arm64"]["installer"]["additional_files"], additional_dir, BUILD_INSTALLER_FILES)
     else:
         copy_libs(configdata, "win32_x86_64", "installer", BUILD_INSTALLER_FILES)
         if "additional_files" in configdata["deploy_files"]["win32_x86_64"]["installer"]:
-            additional_dir = os.path.join(pathhelper.ROOT_DIR, "installer", "windows", "additional_files")
+            additional_dir = os.path.join(pathhelper.ROOT_DIR, "src", "installer", "windows", "additional_files")
             copy_files("additional x86_64", configdata["deploy_files"]["win32_x86_64"]["installer"]["additional_files"], additional_dir, BUILD_INSTALLER_FILES)
 
     if "common_files" in configdata:
@@ -552,10 +550,10 @@ def build_installer_mac(configdata, build_path):
     dmg_dir = BUILD_INSTALLER_FILES
     with utl.PushDir(dmg_dir):
         iutl.RunCommand(["python3", "-m", "dmgbuild", "-s",
-                         pathhelper.ROOT_DIR + "/installer/mac/dmgbuild/dmgbuild_settings.py",
+                         pathhelper.ROOT_DIR + "/src/installer/mac/dmgbuild/dmgbuild_settings.py",
                          "WindscribeInstaller",
                          "WindscribeInstaller.dmg", "-D", "app=WindscribeInstaller.app", "-D",
-                         "background=" + pathhelper.ROOT_DIR + "/installer/mac/dmgbuild/installer_background.png"])
+                         "background=" + pathhelper.ROOT_DIR + "/src/installer/mac/dmgbuild/installer_background.png"])
         final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg"
                                                              .format(extractor.app_version(True))))
     utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
@@ -626,8 +624,8 @@ def build_installer_linux(configdata):
     if arghelper.build_deb():
         msg.Info("Creating .deb package...")
 
-        src_package_path = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "common")
-        deb_files_path = os.path.join(pathhelper.ROOT_DIR, "installer", "linux", build_config, "debian_package")
+        src_package_path = os.path.join(pathhelper.ROOT_DIR, "src", "installer", "linux", "common")
+        deb_files_path = os.path.join(pathhelper.ROOT_DIR, "src", "installer", "linux", build_config, "debian_package")
 
         if platform.machine() == "x86_64":
             if arghelper.build_cli_only():
@@ -662,13 +660,13 @@ def build_installer_linux(configdata):
 def build_rpm(distro, build_config):
     msg.Info("Creating {} .rpm package...".format(distro))
 
-    utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "installer", "linux", build_config, "rpm_{}_package".format(distro)), os.path.join(pathlib.Path.home(), "rpmbuild"))
-    utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "common"), os.path.join(pathlib.Path.home(), "rpmbuild", "SOURCES"))
+    utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "src", "installer", "linux", build_config, "rpm_{}_package".format(distro)), os.path.join(pathlib.Path.home(), "rpmbuild"))
+    utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "src", "installer", "linux", "common"), os.path.join(pathlib.Path.home(), "rpmbuild", "SOURCES"))
 
     if arghelper.build_cli_only():
-        utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "cli", "overlay"), os.path.join(pathlib.Path.home(), "rpmbuild", "SOURCES"))
+        utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "src", "installer", "linux", "cli", "overlay"), os.path.join(pathlib.Path.home(), "rpmbuild", "SOURCES"))
     else:
-        utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "installer", "linux", "gui", "overlay"), os.path.join(pathlib.Path.home(), "rpmbuild", "SOURCES"))
+        utl.CopyAllFiles(os.path.join(pathhelper.ROOT_DIR, "src", "installer", "linux", "gui", "overlay"), os.path.join(pathlib.Path.home(), "rpmbuild", "SOURCES"))
 
     utl.CopyAllFiles(BUILD_INSTALLER_FILES, os.path.join(pathlib.Path.home(), "rpmbuild", "SOURCES", "opt", "windscribe"))
 

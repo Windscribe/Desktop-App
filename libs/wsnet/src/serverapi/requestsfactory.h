@@ -53,6 +53,8 @@ namespace requests_factory
     BaseRequest *wgConfigsConnect(const std::string &authHash, const std::string &clientPublicKey,
                                                               const std::string &hostname, const std::string &deviceId, const std::string &wgTtl,
                                                               RequestFinishedCallback callback);
+    BaseRequest *wgConfigsPskRekey(const std::string &authHash, const std::string &clientPublicKey,
+                                                               RequestFinishedCallback callback);
 
     BaseRequest *myIP(RequestFinishedCallback callback);
 

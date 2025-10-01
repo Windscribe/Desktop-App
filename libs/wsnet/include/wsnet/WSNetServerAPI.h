@@ -95,6 +95,8 @@ public:
     virtual std::shared_ptr<WSNetCancelableCallback> wgConfigsConnect(const std::string &authHash, const std::string &clientPublicKey,
                                                                    const std::string &hostname, const std::string &deviceId, const std::string &wgTtl,
                                                                    WSNetRequestFinishedCallback callback) = 0;
+    virtual std::shared_ptr<WSNetCancelableCallback> wgConfigsPskRekey(const std::string &authHash, const std::string &clientPublicKey,
+                                                                       WSNetRequestFinishedCallback callback) = 0;
 
     virtual std::shared_ptr<WSNetCancelableCallback> myIP(WSNetRequestFinishedCallback callback) = 0;
 
