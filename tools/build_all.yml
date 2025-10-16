@@ -241,15 +241,5 @@ deploy_files:
         - windscribe-cli -> /opt/windscribe/lib
         - helper -> /opt/windscribe/lib
 
-codesign_files:
-  # TODO: shared libraries don't need to be signed?
-  linux:
-    - windscribewstunnel
-    - windscribeopenvpn
-    - windscribectrld
-    - windscribe-authhelper
-    - windscribewireguard
-    - Windscribe
-
 common_files:
   - licenses/open_source_licenses.txt -> open_source_licenses.txt

@@ -15,9 +15,10 @@ if [ -d "/etc/windscribe/windscribe_servers" ]; then
     mv -f /etc/windscribe/windscribe_servers /var/tmp/windscribe
 fi
 
+mkdir -p /etc/windscribe
 if [ "`uname -m`" == "aarch64" ]; then
-    echo linux_deb_arm64_cli > ../etc/windscribe/platform
+    echo linux_deb_arm64_cli > /etc/windscribe/platform
 else
-    echo linux_deb_x64_cli > ../etc/windscribe/platform
+    echo linux_deb_x64_cli > /etc/windscribe/platform
 fi
 

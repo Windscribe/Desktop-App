@@ -1,3 +1,17 @@
+2.18.2 (16/10/2025)
+All:
+   * Added optional port selection when connecting with windscribe-cli. #1500
+   * Updated ctrld to 1.4.7. #1495
+Windows:
+   * Added preference for specifying the tray icon color. #1494
+   * Fixed Internet connectivity detection in some cases. #1502
+MacOS:
+   * Fixed behaviour when menu bar icon is hidden via System Settings and app is docked. #1466
+   * Fixed OpenVPN protocols not connecting due to script permission. #1499
+Linux:
+   * Fixed high CPU usage in helper. #1498
+
+
 2.18.1 (30/09/2025)
 All:
    * Added wgConfigsPskRekey endpoint to the wsnet library. #1476
@@ -12,6 +26,11 @@ Windows:
    * Removed deprecated use of wmic utility. #1482
 MacOS:
    * Improved implementation of ICMP-pings in wsnet. Now it should work in iOS as well. #1453
+
+
+2.17.10 (14/10/2025)
+Linux:
+   * Fixed updaters not working due to missing platform identifier. #1501
 
 
 2.17.9 (29/09/2025)

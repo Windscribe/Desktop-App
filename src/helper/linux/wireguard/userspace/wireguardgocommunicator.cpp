@@ -1,5 +1,4 @@
 #include "wireguardgocommunicator.h"
-#include "utils/executable_signature/executable_signature.h"
 #include "../../../common/helper_commands.h"
 #include "../../execute_cmd.h"
 #include "../../utils.h"
@@ -149,13 +148,6 @@ bool WireGuardGoCommunicator::start(const std::string &deviceName)
     const std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribewireguard", "-f " + deviceName);
     if (fullCmd.empty()) {
         spdlog::error("Invalid WireGuard command");
-        return false;
-    }
-
-    const std::string fullPath = Utils::getExePath() + "/windscribewireguard";
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verify(fullPath)) {
-        spdlog::error("WireGuard executable signature incorrect: {}", sigCheck.lastError());
         return false;
     }
 

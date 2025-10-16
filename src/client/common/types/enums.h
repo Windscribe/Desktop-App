@@ -235,7 +235,8 @@ enum APP_SKIN
 enum TRAY_ICON_COLOR
 {
     TRAY_ICON_COLOR_WHITE = 0,
-    TRAY_ICON_COLOR_BLACK = 1
+    TRAY_ICON_COLOR_BLACK = 1,
+    TRAY_ICON_COLOR_OS_THEME = 2
 };
 
 enum LOCATION_TAB {
@@ -356,6 +357,7 @@ APP_SKIN APP_SKIN_fromInt(int t);
 QString APP_SKIN_toString(APP_SKIN s);
 QList<QPair<QString, QVariant>> APP_SKIN_toList();
 
+TRAY_ICON_COLOR TRAY_ICON_COLOR_default();
 TRAY_ICON_COLOR TRAY_ICON_COLOR_fromInt(int t);
 QString TRAY_ICON_COLOR_toString(TRAY_ICON_COLOR c);
 QList<QPair<QString, QVariant>> TRAY_ICON_COLOR_toList();

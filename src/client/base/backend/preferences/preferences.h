@@ -124,7 +124,7 @@ public:
     APP_SKIN appSkin() const;
     void setAppSkin(APP_SKIN s);
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     TRAY_ICON_COLOR trayIconColor() const;
     void setTrayIconColor(TRAY_ICON_COLOR c);
 #endif
@@ -205,7 +205,7 @@ signals:
     void dnsManagerChanged(DNS_MANAGER_TYPE d);
     void appSkinChanged(APP_SKIN s);
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     void trayIconColorChanged(TRAY_ICON_COLOR c);
 #elif defined(Q_OS_MACOS)
     void multiDesktopBehaviorChanged(MULTI_DESKTOP_BEHAVIOR m);

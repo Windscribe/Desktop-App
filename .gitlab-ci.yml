@@ -16,8 +16,6 @@ variables:
   NEXUS_PATH_VCPKG_CACHE: '$NEXUS_PATH_ROOT/vcpkg_cache/current'
   NEXUS_PATH_BRANCH_UPLOAD: '${NEXUS_PATH_ROOT}/branches/${CI_COMMIT_BRANCH}'
   NEXUS_PATH_TAGGED_UPLOAD: '${NEXUS_PATH_ROOT}/tagged-builds'
-  LINUX_SIGNING_PATH: 'src/client/common/keys/linux'
-  LINUX_PUBLIC_KEY_PATH: '$LINUX_SIGNING_PATH/key.pub'
   ARCH_LINUX_BUILD_PATH: '/home/build/windscribe'
   RHEL_CMAKE_BUILD_PATH: '/home/build/windscribe'
   BUILD_LIBS_FOLDER: 'build-libs'
@@ -160,8 +158,6 @@ variables:
     paths:
       - temp/
     expire_in: 1 day
-  rules:
-    - if: $BUILD_CONDITION && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 .template_win_build_bootstrap: &template_win_build_bootstrap
   <<: *template_win10_build
@@ -178,8 +174,6 @@ variables:
     paths:
       - temp/
     expire_in: 1 day
-  rules:
-    - if: $BUILD_CONDITION && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 build:win:x64:app:
   <<: *template_win_build_app
@@ -188,7 +182,8 @@ build:win:x64:app:
     BUILD_LIBS_FOLDER: "build-libs"
     ARCH_FLAG: ""
     BUILD_FLAG: "--build-app"
-    BUILD_CONDITION: "$BUILD_WIN == \"y\""
+  rules:
+    - if: $BUILD_WIN == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 build:win:x64:mr:
   <<: *template_win10_build
@@ -250,11 +245,12 @@ build:win:x64:installer:
     BUILD_LIBS_FOLDER: "build-libs"
     ARCH_FLAG: ""
     BUILD_FLAG: "--build-installer"
-    BUILD_CONDITION: "$BUILD_WIN == \"y\""
   needs:
     - job: sign:win:x64:app
       optional: true
       artifacts: true
+  rules:
+    - if: $BUILD_WIN == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 sign:win:x64:installer:
   <<: *template_win10_sign
@@ -300,11 +296,12 @@ build:win:x64:bootstrap:
     OS_IDENTIFIER: "windows"
     BUILD_LIBS_FOLDER: "build-libs"
     ARCH_FLAG: ""
-    BUILD_CONDITION: "$BUILD_WIN == \"y\""
   needs:
     - job: sign:win:x64:installer
       optional: true
       artifacts: true
+  rules:
+    - if: $BUILD_WIN == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 sign:win:x64:bootstrap:
   <<: *template_win10_sign
@@ -395,7 +392,8 @@ build:win:arm64:app:
     BUILD_LIBS_FOLDER: "build-libs-arm64"
     ARCH_FLAG: "--arm64"
     BUILD_FLAG: "--build-app"
-    BUILD_CONDITION: "$BUILD_WIN_ARM64 == \"y\""
+  rules:
+    - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 build:win:arm64:mr:
   <<: *template_win10_build
@@ -424,11 +422,12 @@ build:win:arm64:installer:
     BUILD_LIBS_FOLDER: "build-libs-arm64"
     ARCH_FLAG: "--arm64"
     BUILD_FLAG: "--build-installer"
-    BUILD_CONDITION: "$BUILD_WIN_ARM64 == \"y\""
   needs:
     - job: sign:win:arm64:app
       optional: true
       artifacts: true
+  rules:
+    - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 build:win:arm64:bootstrap:
   <<: *template_win_build_bootstrap
@@ -436,12 +435,12 @@ build:win:arm64:bootstrap:
     OS_IDENTIFIER: "windows-arm64"
     BUILD_LIBS_FOLDER: "build-libs-arm64"
     ARCH_FLAG: "--arm64"
-    BUILD_CONDITION: "$BUILD_WIN_ARM64 == \"y\""
   needs:
     - job: sign:win:arm64:installer
       optional: true
       artifacts: true
-
+  rules:
+    - if: $BUILD_WIN_ARM64 == "y" && ($CI_COMMIT_TAG != null || $CI_COMMIT_BRANCH != null) && $NIGHTLY_TEST_BUILD != "y"
 
 .build_mac_installer_common:
   script:
@@ -499,11 +498,6 @@ build:mac:installer:tagged:
     - !reference [.download_dependencies_posix, script]
     - if [ -d ./${BUILD_LIBS_FOLDER}/ ]; then for z in ./${BUILD_LIBS_FOLDER}/*.zip; do unzip -qod ./${BUILD_LIBS_FOLDER} $z; done; fi
     - if [ -f vcpkg_cache.zip ]; then rm -rf ${HOME}/vcpkg; unzip -qod ${HOME} vcpkg_cache.zip; fi
-    # write public key to file
-    - mkdir -p ${LINUX_SIGNING_PATH}
-    # create the public key from the private key
-    - echo -e ${LINUX_SIGNING_KEY} | openssl rsa -in /dev/stdin -pubout > $LINUX_PUBLIC_KEY_PATH
-    - export LINUX_SIGNING_KEY_FORMATTED="`echo -e ${LINUX_SIGNING_KEY}`"
     - VERSION=$(python3 tools/base/extract.py)
 
 build:aarch64_ubuntu:installer:
@@ -514,7 +508,7 @@ build:aarch64_ubuntu:installer:
   script:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign --arm64 --build-deb --build-rpm
+    - tools/build_all --ci-mode --arm64 --build-deb --build-rpm
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe_${VERSION}_arm64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_arm64.deb"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -531,7 +525,7 @@ build:aarch64_ubuntu_cli:installer:
   script:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign --arm64 --build-cli-only --build-deb --build-rpm
+    - tools/build_all --ci-mode --arm64 --build-cli-only --build-deb --build-rpm
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe-cli_${VERSION}_arm64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_arm64.deb"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -549,7 +543,7 @@ build:aarch64_ubuntu:installer:mr:
   script:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign --arm64 --build-deb --build-rpm
+    - tools/build_all --ci-mode --arm64 --build-deb --build-rpm
   rules:
     - if: $BUILD_LINUX_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -561,7 +555,7 @@ build:aarch64_ubuntu_cli:installer:mr:
   script:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign --arm64 --build-cli-only --build-deb --build-rpm
+    - tools/build_all --ci-mode --arm64 --build-cli-only --build-deb --build-rpm
   rules:
     - if: $BUILD_LINUX_ARM64 == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -573,7 +567,7 @@ build:aarch64_ubuntu:installer:tagged:
   script:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign --arm64 --build-deb --build-rpm
+    - tools/build_all --ci-mode --arm64 --build-deb --build-rpm
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -591,7 +585,7 @@ build:aarch64_ubuntu_cli:installer:tagged:
   script:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign --arm64 --build-cli-only --build-deb --build-rpm
+    - tools/build_all --ci-mode --arm64 --build-cli-only --build-deb --build-rpm
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -609,7 +603,7 @@ build:rhel:installer:
   script:
     - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign --build-deb --build-rpm --build-rpm-opensuse
+    - tools/build_all --ci-mode --build-deb --build-rpm --build-rpm-opensuse
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe_${VERSION}_x86_64_fedora.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64_fedora.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -628,7 +622,7 @@ build:rhel_cli:installer:
   script:
     - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign --build-deb --build-rpm --build-rpm-opensuse --build-cli-only
+    - tools/build_all --ci-mode --build-deb --build-rpm --build-rpm-opensuse --build-cli-only
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe-cli_${VERSION}_x86_64_fedora.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_amd64_fedora.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -648,7 +642,7 @@ build:rhel:installer:mr:
   script:
     - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign --build-deb --build-rpm --build-rpm-opensuse
+    - tools/build_all --ci-mode --build-deb --build-rpm --build-rpm-opensuse
   rules:
     - if: $BUILD_LINUX == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -660,7 +654,7 @@ build:rhel_cli:installer:mr:
   script:
     - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign --build-deb --build-rpm --build-rpm-opensuse --build-cli-only
+    - tools/build_all --ci-mode --build-deb --build-rpm --build-rpm-opensuse --build-cli-only
   rules:
     - if: $BUILD_LINUX == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -672,7 +666,7 @@ build:rhel:installer:tagged:
   script:
     - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign --build-deb --build-rpm --build-rpm-opensuse
+    - tools/build_all --ci-mode --build-deb --build-rpm --build-rpm-opensuse
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -692,7 +686,7 @@ build:rhel_cli:installer:tagged:
   script:
     - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --sign --build-deb --build-rpm --build-rpm-opensuse --build-cli-only
+    - tools/build_all --ci-mode --build-deb --build-rpm --build-rpm-opensuse --build-cli-only
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -944,9 +938,9 @@ build:wsnet:mac:
   artifacts:
     expire_in: 1 day
     paths:
-      - build/client/wsnet
-      - build/client/wsnet_test
-      - build/client/_cmrc
+      - build/src/client/wsnet
+      - build/src/client/wsnet_test
+      - build/src/client/_cmrc
   rules:
     - if: $BUILD_MAC == "y" && $NIGHTLY_TEST_BUILD == "y"
 
@@ -965,8 +959,8 @@ test:wsnet:mac:
     - if [ "$(ps aux | grep -c [p]proxy)" -ne 0 ]; then ps aux | grep [p]proxy | awk '{print $2}' | xargs kill -9; fi
     - /Users/ws-user/Library/Python/3.9/bin/pproxy &
     # fix RPATH for wsnet_test, in case it was built on a different machine
-    - install_name_tool -add_rpath build/client/wsnet build/client/wsnet_test || true
-    - build/client/wsnet_test --gtest_output=xml:report_${OS_IDENTIFIER}.xml || FAILED=1
+    - install_name_tool -add_rpath build/src/client/wsnet build/src/client/wsnet_test || true
+    - build/src/client/wsnet_test --gtest_output=xml:report_${OS_IDENTIFIER}.xml || FAILED=1
     - kill %1
     - if [ $FAILED ]; then exit 1; fi
   coverage: /^\s*lines:\s*\d+.\d+\%/
@@ -1004,9 +998,9 @@ build:wsnet:rhel:
   artifacts:
     expire_in: 1 day
     paths:
-      - build/client/wsnet
-      - build/client/wsnet_test
-      - build/client/_cmrc
+      - build/src/client/wsnet
+      - build/src/client/wsnet_test
+      - build/src/client/_cmrc
   rules:
     - if: $BUILD_LINUX == "y" && $NIGHTLY_TEST_BUILD == "y"
 
@@ -1022,7 +1016,7 @@ test:wsnet:rhel:
     - set +o pipefail
     - if [ "$(ps aux | grep -c [p]proxy)" -ne 0 ]; then ps aux | grep [p]proxy | awk '{print $2}' | xargs kill -9; fi
     - pproxy &
-    - build/client/wsnet_test --gtest_output=xml:report_${OS_IDENTIFIER}.xml || FAILED=1
+    - build/src/client/wsnet_test --gtest_output=xml:report_${OS_IDENTIFIER}.xml || FAILED=1
     - kill %1
     - if [ $FAILED ]; then exit 1; fi
   coverage: /^\s*lines:\s*\d+.\d+\%/
@@ -1069,7 +1063,6 @@ test:version:mac:
   rules:
     - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
-
 build:wsnet:ios:
   stage: Build
   tags: [macos-arm64-qt6]
@@ -1092,9 +1085,9 @@ build:wsnet:ios:
       - ./libs/wsnet/tools/build/WSNet.xcframework.zip
     expire_in: 1 week
   rules:
-    - if: $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
-    - changes:
-      - libs/wsnet
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - libs/wsnet/**/*
 
 build:wsnet:android:
   <<: *template_rhel_build
@@ -1131,6 +1124,6 @@ build:wsnet:android:
       - ./libs/wsnet/tools/WSNet.aar.zip
     expire_in: 1 week
   rules:
-    - if: $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null
-    - changes:
-      - libs/wsnet
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - libs/wsnet/**/*

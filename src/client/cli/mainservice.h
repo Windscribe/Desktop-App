@@ -37,8 +37,8 @@ private slots:
     void onPreferencesSplitTunnelingChanged(const types::SplitTunneling &st);
 
     // From CLI commands
-    void onConnectToLocation(const LocationID &id, const types::Protocol &protocol);
-    void onConnectToStaticIpLocation(const QString &location, const types::Protocol &protocol);
+    void onConnectToLocation(const LocationID &id, const types::Protocol &protocol, uint port);
+    void onConnectToStaticIpLocation(const QString &location, const types::Protocol &protocol, uint port);
     void onLogin(const QString &username, const QString &password, const QString &code2fa);
     void onShowLocations(IPC::CliCommands::LocationType type);
     void onSetKeyLimitBehavior(bool deleteKey);

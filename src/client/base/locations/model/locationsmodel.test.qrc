@@ -1,13 +1,13 @@
 <RCC>
     <qresource prefix="/">
-        <file>../../../../data/tests/locationsmodel/original.json</file>
-        <file>../../../../data/tests/locationsmodel/deleted_locations.json</file>
-        <file>../../../../data/tests/locationsmodel/deleted_cities.json</file>
-        <file>../../../../data/tests/locationsmodel/changed_locations_captions.json</file>
-        <file>../../../../data/tests/locationsmodel/changed_cities_captions.json</file>
-        <file>../../../../data/tests/locationsmodel/changed_locations_order.json</file>
-        <file>../../../../data/tests/locationsmodel/changed_cities_order.json</file>
-        <file>../../../../data/tests/locationsmodel/custom_config.json</file>
-        <file>../../../../data/tests/locationsmodel/custom_config2.json</file>
+        <file>../../../../../data/tests/locationsmodel/original.json</file>
+        <file>../../../../../data/tests/locationsmodel/deleted_locations.json</file>
+        <file>../../../../../data/tests/locationsmodel/deleted_cities.json</file>
+        <file>../../../../../data/tests/locationsmodel/changed_locations_captions.json</file>
+        <file>../../../../../data/tests/locationsmodel/changed_cities_captions.json</file>
+        <file>../../../../../data/tests/locationsmodel/changed_locations_order.json</file>
+        <file>../../../../../data/tests/locationsmodel/changed_cities_order.json</file>
+        <file>../../../../../data/tests/locationsmodel/custom_config.json</file>
+        <file>../../../../../data/tests/locationsmodel/custom_config2.json</file>
     </qresource>
 </RCC>

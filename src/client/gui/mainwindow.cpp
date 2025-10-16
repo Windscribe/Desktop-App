@@ -111,7 +111,7 @@ MainWindow::MainWindow() :
     }
 
 #if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
-    // We should do this part for Linux in the other place of the constructor in order to avoid incorrect icon color setup.
+    // Linux tray icon color setup is performed later in this constructor after preferences have been loaded.
     trayIconColorWhite_ = ThemeController::instance().isOsDarkTheme();
     qCDebug(LOG_BASIC) << "OS in dark mode: " << trayIconColorWhite_;
 
@@ -125,8 +125,13 @@ MainWindow::MainWindow() :
     if (screen) {
         const QRect desktopScreenRc = screen->geometry();
         if (desktopScreenRc.top() != desktopAvailableRc.top()) {
-            while (trayIcon_.geometry().isEmpty())
+            // Wait at most 2 seconds for the tray icon to be initialized.  This may timeout if e.g. the menu bar icon is disabled in System Settings.
+            QElapsedTimer t;
+            t.start();
+            while (trayIcon_.geometry().isEmpty() && t.elapsed() < 2000) {
                 qApp->processEvents();
+                QThread::msleep(10);
+            }
         }
     }
     QRect incorrectInitialTrayIconRect = trayIcon_.geometry();
@@ -387,7 +392,7 @@ MainWindow::MainWindow() :
 #if defined(Q_OS_MACOS)
     connect(backend_->getPreferences(), &Preferences::hideFromDockChanged, this, &MainWindow::onPreferencesHideFromDockChanged);
     connect(backend_->getPreferences(), &Preferences::multiDesktopBehaviorChanged, this, &MainWindow::onPreferencesMultiDesktopBehaviorChanged);
-#elif defined(Q_OS_LINUX)
+#elif defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     connect(backend_->getPreferences(), &Preferences::trayIconColorChanged, this, &MainWindow::onPreferencesTrayIconColorChanged);
 #endif
     connect(backend_->getPreferences(), &Preferences::networkLastKnownGoodProtocolPortChanged, this, &MainWindow::onPreferencesLastKnownGoodProtocolChanged);
@@ -423,12 +428,17 @@ MainWindow::MainWindow() :
 
     backend_->init();
 
-// Tray icon setup on Linux should be there.
-#if defined(Q_OS_LINUX)
-    trayIconColorWhite_ = (backend_->getPreferences()->trayIconColor() == TRAY_ICON_COLOR::TRAY_ICON_COLOR_WHITE);
-    qCDebug(LOG_BASIC) << "Tray icon color is " << (trayIconColorWhite_ ? "white" : "black");
-    trayIcon_.setIcon(*IconManager::instance().getDisconnectedTrayIcon(trayIconColorWhite_));
-    setupTrayIcon();
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
+    // Set tray icon color now that preferences have been loaded.
+    // If the tray icon color is the default (use OS theme), it has already been set at the top of this constructor.
+    // Note on Linux we do not give the user the option to pick 'use OS theme' as Qt guesses poorly at this on most DE's.
+    const auto trayIconColor = backend_->getPreferences()->trayIconColor();
+    if (trayIconColor != TRAY_ICON_COLOR::TRAY_ICON_COLOR_OS_THEME) {
+        trayIconColorWhite_ = (trayIconColor == TRAY_ICON_COLOR::TRAY_ICON_COLOR_WHITE);
+        qCDebug(LOG_BASIC) << "Tray icon color is " << (trayIconColorWhite_ ? "white" : "black");
+        trayIcon_.setIcon(*IconManager::instance().getDisconnectedTrayIcon(trayIconColorWhite_));
+        setupTrayIcon();
+    }
 #endif
 
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_INITIALIZATION);
@@ -1395,10 +1405,19 @@ void MainWindow::onPreferencesCollapsed()
     }
 }
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
 void MainWindow::onPreferencesTrayIconColorChanged(TRAY_ICON_COLOR c)
 {
+#if defined(Q_OS_WIN)
+    bool trayIconColorWhite;
+    if (c == TRAY_ICON_COLOR::TRAY_ICON_COLOR_OS_THEME) {
+        trayIconColorWhite = ThemeController::instance().isOsDarkTheme();
+    } else {
+        trayIconColorWhite = (c == TRAY_ICON_COLOR::TRAY_ICON_COLOR_WHITE);
+    }
+#elif defined(Q_OS_LINUX)
     const bool trayIconColorWhite = (c == TRAY_ICON_COLOR::TRAY_ICON_COLOR_WHITE);
+#endif
     if (trayIconColorWhite != trayIconColorWhite_) {
         trayIconColorWhite_ = trayIconColorWhite;
         updateTrayIconType(currentAppIconType_);
@@ -1535,7 +1554,7 @@ void MainWindow::onLocationSelected(const LocationID &lid)
     selectLocation(lid, types::Protocol());
 }
 
-void MainWindow::selectLocation(const LocationID &lid, const types::Protocol &protocol)
+void MainWindow::selectLocation(const LocationID &lid, const types::Protocol &protocol, uint port)
 {
     qCDebug(LOG_USER) << "Location selected:" << lid.getHashString();
 
@@ -1547,15 +1566,23 @@ void MainWindow::selectLocation(const LocationID &lid, const types::Protocol &pr
                                                                       selectedLocation_->locationdId().isCustomConfigsLocation());
         mainWindowController_->collapseLocations();
 
-        uint port = 0;
         if (protocol.isValid()) {
             // determine default port for protocol
             QVector<uint> ports = backend_->getPreferencesHelper()->getAvailablePortsForProtocol(protocol);
             if (ports.size() == 0) {
                 qCWarning(LOG_BASIC) << "Could not determine port for protocol" << protocol.toLongString();
-            } else {
+                port = 0;
+            } else if (port == 0) {
                 port = ports[0];
+            } else {
+                // Port specified by caller, check if it is available
+                if (!ports.contains(port)) {
+                    qCWarning(LOG_BASIC) << "Port" << port << "is not available for protocol, using default port" << protocol.toLongString();
+                    port = ports[0];
+                }
             }
+        } else {
+            port = 0;
         }
 
         if (port != 0) {
@@ -3153,12 +3180,12 @@ void MainWindow::onIpcOpenLocations(IPC::CliCommands::LocationType type)
     });
 }
 
-void MainWindow::onIpcConnect(const LocationID &id, const types::Protocol &protocol)
+void MainWindow::onIpcConnect(const LocationID &id, const types::Protocol &protocol, uint port)
 {
-    selectLocation(id, protocol);
+    selectLocation(id, protocol, port);
 }
 
-void MainWindow::onIpcConnectStaticIp(const QString &location, const types::Protocol &protocol)
+void MainWindow::onIpcConnectStaticIp(const QString &location, const types::Protocol &protocol, uint port)
 {
     QList<LocationID> list;
 
@@ -3175,7 +3202,7 @@ void MainWindow::onIpcConnectStaticIp(const QString &location, const types::Prot
 
     if (list.size() > 0) {
         // Randomly pick one of the candidates
-        onIpcConnect(list[QRandomGenerator::global()->bounded(list.size())], protocol);
+        onIpcConnect(list[QRandomGenerator::global()->bounded(list.size())], protocol, port);
     }
 }
 
@@ -4346,9 +4373,13 @@ void MainWindow::setDataRemaining(qint64 bytesUsed, qint64 bytesMax)
 void MainWindow::onOsThemeChanged(bool isDarkTheme)
 {
     qCDebug(LOG_BASIC) << "OS theme changed:" << (isDarkTheme ? "dark" : "light");
-#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+#if defined(Q_OS_WIN)
+    if (backend_->getPreferences()->trayIconColor() == TRAY_ICON_COLOR::TRAY_ICON_COLOR_OS_THEME) {
+        trayIconColorWhite_ = isDarkTheme;
+        updateTrayIconType(currentAppIconType_);
+    }
+#elif defined(Q_OS_MACOS)
     trayIconColorWhite_ = isDarkTheme;
     updateTrayIconType(currentAppIconType_);
 #endif
 }
-

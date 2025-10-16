@@ -90,7 +90,7 @@ void MainService::setInitialFirewallState()
     }
 }
 
-void MainService::onConnectToLocation(const LocationID &lid, const types::Protocol &protocol)
+void MainService::onConnectToLocation(const LocationID &lid, const types::Protocol &protocol, uint port)
 {
     if (!lid.isValid()) {
         qCInfo(LOG_USER) << "Invalid location";
@@ -100,15 +100,23 @@ void MainService::onConnectToLocation(const LocationID &lid, const types::Protoc
     qCDebug(LOG_USER) << "Location selected:" << lid.getHashString();
     PersistentState::instance().setLastLocation(lid);
 
-    uint port = 0;
     if (protocol.isValid()) {
         // determine default port for protocol
         QVector<uint> ports = backend_->getPreferencesHelper()->getAvailablePortsForProtocol(protocol);
         if (ports.size() == 0) {
             qCWarning(LOG_BASIC) << "Could not determine port for protocol" << protocol.toLongString();
-        } else {
+            port = 0;
+        } else if (port == 0) {
             port = ports[0];
+        } else {
+            // Port specified by caller, check if it is available
+            if (!ports.contains(port)) {
+                qCWarning(LOG_BASIC) << "Port" << port << "is not available for protocol, using default port" << protocol.toLongString();
+                port = ports[0];
+            }
         }
+    } else {
+        port = 0;
     }
 
     if (port != 0) {
@@ -118,7 +126,7 @@ void MainService::onConnectToLocation(const LocationID &lid, const types::Protoc
     }
 }
 
-void MainService::onConnectToStaticIpLocation(const QString &location, const types::Protocol &protocol)
+void MainService::onConnectToStaticIpLocation(const QString &location, const types::Protocol &protocol, uint port)
 {
     QList<LocationID> list;
 
@@ -135,7 +143,7 @@ void MainService::onConnectToStaticIpLocation(const QString &location, const typ
 
     if (list.size() > 0) {
         // Randomly pick one of the candidates
-        onConnectToLocation(list[QRandomGenerator::global()->bounded(list.size())], protocol);
+        onConnectToLocation(list[QRandomGenerator::global()->bounded(list.size())], protocol, port);
     }
 }
 

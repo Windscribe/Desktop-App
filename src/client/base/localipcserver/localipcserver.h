@@ -24,8 +24,8 @@ public:
 
 signals:
     void showLocations(IPC::CliCommands::LocationType type);
-    void connectToLocation(const LocationID &id, const types::Protocol &protocol);
-    void connectToStaticIpLocation(const QString &location, const types::Protocol &protocol);
+    void connectToLocation(const LocationID &id, const types::Protocol &protocol, uint port);
+    void connectToStaticIpLocation(const QString &location, const types::Protocol &protocol, uint port);
     void attemptLogin(const QString &username, const QString &password, const QString &code2fa);
     void setKeyLimitBehavior(bool deleteKey);
     void update();

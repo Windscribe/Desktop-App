@@ -9,10 +9,24 @@ CliArguments::CliArguments()
 
 static bool isProtocol(const QString &str)
 {
-    if (str == "wireguard" || str == "ikev2" || str == "udp" || str == "tcp" || str == "stealth" || str == "wstunnel") {
+    QString sub = str.split(':').first();
+
+    if (sub == "wireguard" || sub == "ikev2" || sub == "udp" || sub == "tcp" || sub == "stealth" || sub == "wstunnel") {
         return true;
     }
     return false;
+}
+
+static QString getProtocol(const QString &str)
+{
+    QString sub = str.split(':').first();
+    return sub;
+}
+
+static uint getPort(const QString &str)
+{
+    QString sub = str.split(':').last();
+    return sub.toUInt();
 }
 
 static QString getOptions(const QString &str)
@@ -54,7 +68,8 @@ void CliArguments::parseConnect(const QStringList &args)
     }
     arg = args[idx++].toLower();
     if (isProtocol(arg)) {
-        protocol_ = arg;
+        protocol_ = getProtocol(arg);
+        port_ = getPort(arg);
         cliCommand_ = CLI_COMMAND_CONNECT;
         return;
     }
@@ -77,7 +92,8 @@ void CliArguments::parseConnect(const QStringList &args)
     if (args.length() > idx) {
         arg = args[idx].toLower();
         if (isProtocol(arg)) {
-            protocol_ = arg;
+            protocol_ = getProtocol(arg);
+            port_ = getPort(arg);
         }
     }
 }
@@ -277,6 +293,11 @@ const QString &CliArguments::password() const
 const QString &CliArguments::protocol() const
 {
     return protocol_;
+}
+
+const uint &CliArguments::port() const
+{
+    return port_;
 }
 
 bool CliArguments::keepFirewallOn() const

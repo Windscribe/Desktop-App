@@ -32,7 +32,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
 #if defined Q_OS_MACOS
     connect(preferences, &Preferences::hideFromDockChanged, this, &GeneralWindowItem::onHideFromDockPreferecesChanged);
     connect(preferences, &Preferences::multiDesktopBehaviorChanged, this, &GeneralWindowItem::onMultiDesktopBehaviorPreferencesChanged);
-#elif defined Q_OS_LINUX
+#elif defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     connect(preferences, &Preferences::trayIconColorChanged, this, &GeneralWindowItem::onPreferencesTrayIconColorChanged);
 #endif
 
@@ -125,7 +125,7 @@ GeneralWindowItem::GeneralWindowItem(ScalableGraphicsObject *parent, Preferences
     languageGroup_->addItem(comboBoxLanguage_);
     addItem(languageGroup_);
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     trayIconColorGroup_ = new PreferenceGroup(this);
     trayIconColorItem_ = new ComboBoxItem(trayIconColorGroup_);
     // Change pixmap to the new one.
@@ -296,7 +296,7 @@ void GeneralWindowItem::onLanguageChanged()
     comboBoxLanguage_->setLabelCaption(tr("Language"));
     comboBoxLanguage_->setItems(preferencesHelper_->availableLanguages(), preferences_->language());
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     trayIconColorItem_->setDescription(tr("Choose between white and black tray icon."));
     trayIconColorItem_->setLabelCaption(tr("Tray Icon Colour"));
     trayIconColorItem_->setItems(TRAY_ICON_COLOR_toList(), preferences_->trayIconColor());
@@ -346,7 +346,7 @@ void GeneralWindowItem::onShowLocationLoadPreferencesChanged(bool b)
     checkBoxShowLocationLoad_->setState(b);
 }
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
 void GeneralWindowItem::onTrayIconColorChanged(QVariant value)
 {
     preferences_->setTrayIconColor((TRAY_ICON_COLOR)value.toInt());

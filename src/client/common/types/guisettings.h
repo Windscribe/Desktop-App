@@ -36,7 +36,7 @@ struct GuiSettings
     ShareProxyGateway shareProxyGateway;
     ShareSecureHotspot shareSecureHotspot;
     SplitTunneling splitTunneling;
-    TRAY_ICON_COLOR trayIconColor = TRAY_ICON_COLOR_WHITE;
+    TRAY_ICON_COLOR trayIconColor = TRAY_ICON_COLOR_default();
     MULTI_DESKTOP_BEHAVIOR multiDesktopBehavior = MULTI_DESKTOP_AUTO;
     SoundSettings soundSettings;
 
@@ -119,6 +119,7 @@ struct GuiSettings
         if (isForDebugLog) {
             json["appSkinDesc"] = APP_SKIN_toString(appSkin);
             json["orderLocationDesc"] = ORDER_LOCATION_TYPE_toString(orderLocation);
+            json["trayIconColourDesc"] = TRAY_ICON_COLOR_toString(trayIconColor);
         }
 
         return json;
@@ -170,6 +171,14 @@ struct GuiSettings
             stream >> o.soundSettings;
         }
 
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+        // Default the tray icon color to OS theme for settings stored prior to us adding the
+        // tray icon color preference.
+        if (version <= 6) {
+            o.trayIconColor = TRAY_ICON_COLOR_OS_THEME;
+        }
+#endif
+
         return stream;
     }
 
@@ -210,7 +219,7 @@ private:
     static const inline QString kJsonSoundSettingsProp = "soundSettings";
     static const inline QString kJsonVersionProp = "version";
 
-    static constexpr quint32 versionForSerialization_ = 6;  // should increment the version if the data format is changed
+    static constexpr quint32 versionForSerialization_ = 7;  // should increment the version if the data format is changed
 };
 
 inline GuiSettings::GuiSettings(const QJsonObject &json)
@@ -267,7 +276,7 @@ inline GuiSettings::GuiSettings(const QJsonObject &json)
         orderLocation = ORDER_LOCATION_TYPE_fromInt(json[kJsonOrderLocationProp].toInt());
     }
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     if (json.contains(kJsonTrayIconColourProp) && json[kJsonTrayIconColourProp].isDouble()) {
         trayIconColor = TRAY_ICON_COLOR_fromInt(json[kJsonTrayIconColourProp].toInt());
     } else if (json.contains(kJsonTrayIconColorProp) && json[kJsonTrayIconColorProp].isDouble()) {

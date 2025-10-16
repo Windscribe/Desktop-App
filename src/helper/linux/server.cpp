@@ -16,10 +16,8 @@
 #include <spdlog/spdlog.h>
 
 #include "firewallonboot.h"
-#include "ipc/helper_security.h"
 #include "process_command.h"
 #include "utils.h"
-#include "utils/executable_signature/executable_signature.h"
 
 #define SOCK_PATH "/var/run/windscribe/helper.sock"
 
@@ -60,19 +58,6 @@ bool Server::readAndHandleCommand(socket_ptr sock, boost::asio::streambuf *buf, 
 
     // not enough data for read command
     if (buf->size() < (headerSize + length)) {
-        return false;
-    }
-
-    struct ucred peerCred;
-    socklen_t lenPeerCred = sizeof(peerCred);
-    int retCode = getsockopt(sock->native_handle(), SOL_SOCKET, SO_PEERCRED, &peerCred, &lenPeerCred);
-
-    if ((retCode != 0) || (lenPeerCred != sizeof(peerCred))) {
-        spdlog::error("getsockopt(SO_PEERCRED) failed ({}).", errno);
-        return false;
-    }
-
-    if (!HelperSecurity::instance().verifySignature()) {
         return false;
     }
 

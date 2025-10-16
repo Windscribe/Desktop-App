@@ -311,8 +311,7 @@ static bool isRowUsableForWindscribe(const IfTable2Row &row)
         }
     }
 
-    return row.valid && row.interfaceType != IF_TYPE_PPP && !row.endPointInterface &&
-        (row.interfaceType == IF_TYPE_ETHERNET_CSMACD || row.connectorPresent);
+    return row.valid && row.interfaceType != IF_TYPE_PPP && !row.endPointInterface && row.connectorPresent;
 }
 
 static IfTable2Row lowestMetricNonWindscribeIfTableRow()

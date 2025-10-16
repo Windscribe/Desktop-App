@@ -590,13 +590,25 @@ QString APP_SKIN_toString(APP_SKIN s)
     }
 }
 
+TRAY_ICON_COLOR TRAY_ICON_COLOR_default()
+{
+#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
+    return TRAY_ICON_COLOR_OS_THEME;
+#else
+    return TRAY_ICON_COLOR_WHITE;
+#endif
+}
+
 TRAY_ICON_COLOR TRAY_ICON_COLOR_fromInt(int t)
 {
     if (t == 0) return TRAY_ICON_COLOR_WHITE;
     else if (t == 1) return TRAY_ICON_COLOR_BLACK;
+#if defined(Q_OS_WIN)
+    else if (t == 2) return TRAY_ICON_COLOR_OS_THEME;
+#endif
     else {
         WS_ASSERT(false);
-        return TRAY_ICON_COLOR_WHITE;
+        return TRAY_ICON_COLOR_default();
     }
 }
 
@@ -608,6 +620,11 @@ QString TRAY_ICON_COLOR_toString(TRAY_ICON_COLOR c)
     else if (c == TRAY_ICON_COLOR_BLACK) {
         return QObject::tr("Black");
     }
+#if defined(Q_OS_WIN)
+    else if (c == TRAY_ICON_COLOR_OS_THEME) {
+        return QObject::tr("OS Default");
+    }
+#endif
     else {
         WS_ASSERT(false);
         return QObject::tr("UNKNOWN");
@@ -617,6 +634,9 @@ QString TRAY_ICON_COLOR_toString(TRAY_ICON_COLOR c)
 QList<QPair<QString, QVariant>> TRAY_ICON_COLOR_toList()
 {
     QList<QPair<QString, QVariant>> l;
+#if defined(Q_OS_WIN)
+    l << qMakePair(TRAY_ICON_COLOR_toString(TRAY_ICON_COLOR_OS_THEME), TRAY_ICON_COLOR_OS_THEME);
+#endif
     l << qMakePair(TRAY_ICON_COLOR_toString(TRAY_ICON_COLOR_WHITE), TRAY_ICON_COLOR_WHITE);
     l << qMakePair(TRAY_ICON_COLOR_toString(TRAY_ICON_COLOR_BLACK), TRAY_ICON_COLOR_BLACK);
     return l;

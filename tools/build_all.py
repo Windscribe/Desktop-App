@@ -15,8 +15,6 @@ import time
 import zipfile
 import multiprocessing
 
-from pathlib import Path
-
 # To ensure modules in the 'base' folder can import other modules in base.
 import base.pathhelper as pathhelper
 sys.path.append(pathhelper.BASE_DIR)
@@ -83,15 +81,6 @@ def clean_all_temp_and_build_dirs():
         delete_all_files(pathhelper.ROOT_DIR, "build")
     delete_all_files(pathhelper.ROOT_DIR, "build-exe")
     delete_all_files(pathhelper.ROOT_DIR, "temp")
-
-
-def generate_include_file_from_pub_key(key_filename_absolute, pubkey):
-    with open(pubkey, "r") as infile:
-        with open(key_filename_absolute, "w") as outfile:
-            outfile.write("R\"(")
-            for line in infile:
-                outfile.write(line)
-            outfile.write(")\"")
 
 
 def update_version_in_plist(plistfilename):
@@ -560,22 +549,6 @@ def build_installer_mac(configdata, build_path):
     utl.RemoveFile(arc_path)
 
 
-def code_sign_linux(binary_name, binary_dir):
-    binary = os.path.join(binary_dir, binary_name)
-    binary_base_name = os.path.basename(binary)
-    # Skip DGA library signing, if it not exists (to avoid error)
-    if binary_base_name == "libdga.so" and not os.path.exists(binary):
-        pass
-    else:
-        signatures_dir = os.path.join(os.path.dirname(binary), "signatures")
-        if not os.path.exists(signatures_dir):
-            msg.Print("Creating signatures path: " + signatures_dir)
-            utl.CreateDirectory(signatures_dir, True)
-        signature_file = signatures_dir + "/" + Path(binary).stem + ".sig"
-        msg.Info("Signing " + binary + " -> " + signature_file)
-        subprocess.run(["openssl", "dgst", "-sign", "/dev/stdin", "-keyform", "PEM", "-sha256", "-out", signature_file, "-binary", binary], input=os.getenv("LINUX_SIGNING_KEY_FORMATTED").encode())
-
-
 def copy_libs(configdata, platform, target, dst):
     msg.Info("Copying libs ({})...".format(platform))
     if "libs" in configdata["deploy_files"][platform][target]:
@@ -611,11 +584,6 @@ def build_installer_linux(configdata):
         for k in configdata["deploy_files"]["linux"]["installer_" + build_config]["fix_rpath"]:
             dstfile = os.path.join(BUILD_INSTALLER_FILES, k)
             fix_rpath_linux(dstfile)
-
-    # sign supplementary binaries and move the signatures into InstallerFiles/signatures
-    if arghelper.sign() and "linux" in configdata["codesign_files"]:
-        for binary_name in configdata["codesign_files"]["linux"]:
-            code_sign_linux(binary_name, BUILD_INSTALLER_FILES)
 
     if "common_files" in configdata:
         copy_files("common", configdata["common_files"], pathhelper.COMMON_DIR, BUILD_INSTALLER_FILES)
@@ -777,7 +745,7 @@ def build_all():
             if (CURRENT_OS == "win32"):
                 prep_installer_win32(configdata)
                 if arghelper.build_tests():
-                    copy_files("Test", ["wsnet_test.exe"], os.path.join(build_dir, "client"), BUILD_TEST_FILES)
+                    copy_files("Test", ["wsnet_test.exe"], os.path.join(build_dir, "src", "client"), BUILD_TEST_FILES)
         if arghelper.sign_app():
             if (CURRENT_OS == "win32"):
                 sign_app_win32(configdata)
@@ -855,13 +823,6 @@ def prechecks():
         msg.Info("Using signing identity - " + MAC_DEV_ID_KEY_NAME)
 
     if arghelper.sign():
-        # on linux we need keypair to sign -- check that they exist in the correct location
-        if CURRENT_OS == utl.CURRENT_OS_LINUX:
-            pubkey = pathhelper.linux_public_key_filename_absolute()
-            if not os.path.exists(pubkey) or os.getenv("LINUX_SIGNING_KEY_FORMATTED") is None or os.getenv("LINUX_SIGNING_KEY_FORMATTED") == "":
-                raise IOError("Code signing (--sign) is enabled but key.pub and/or key.pem were not found.")
-            generate_include_file_from_pub_key(pathhelper.linux_include_key_filename_absolute(), pubkey)
-
         # early check for cert password on windows
         if CURRENT_OS == utl.CURRENT_OS_WIN:
             if (os.getenv('WINDOWS_SIGNING_TOKEN_PASSWORD') is None or os.getenv('WINDOWS_SIGNING_TOKEN_PASSWORD') == ""):

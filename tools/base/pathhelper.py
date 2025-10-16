@@ -15,7 +15,6 @@ import os
 #     temp
 #         installer
 #             InstallerFiles          (BUILD_INSTALLER_FILES)
-#                 signatures
 #             windscribe_<version>_amd64  (dest_package_path)
 
 
@@ -36,11 +35,3 @@ def notarize_script_filename_absolute():
 
 def mac_provision_profile_folder_name_absolute():
     return os.path.join(ROOT_DIR, "data", "provisioning_profile")
-
-
-def linux_public_key_filename_absolute():
-    return os.path.join(COMMON_DIR, "keys", "linux", "key.pub")
-
-
-def linux_include_key_filename_absolute():
-    return os.path.join(COMMON_DIR, "keys", "linux", "key_pub.txt")

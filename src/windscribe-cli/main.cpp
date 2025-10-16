@@ -88,17 +88,17 @@ int main(int argc, char *argv[])
         std::cout << std::endl;
 #endif
         std::cout << "Managing VPN and firewall" << std::endl;
-        std::cout << "    connect [options] [protocol]" << std::endl;
+        std::cout << "    connect [options] [protocol[:port]]" << std::endl;
         std::cout << "        " << "Connect to last connected location. If no last location, connect to best location." << std::endl;
-        std::cout << "    connect [options] best [protocol]" << std::endl;
+        std::cout << "    connect [options] best [protocol[:port]]" << std::endl;
         std::cout << "        " << "Connect to best location" << std::endl;
-        std::cout << "    connect [options] \"ISO CountryCode\" [protocol]" << std::endl;
-        std::cout << "    connect [options] \"RegionName\" [protocol]" << std::endl;
-        std::cout << "    connect [options] \"CityName\" [protocol]" << std::endl;
-        std::cout << "    connect [options] \"Nickname\" [protocol]" << std::endl;
+        std::cout << "    connect [options] \"ISO CountryCode\" [protocol[:port]]" << std::endl;
+        std::cout << "    connect [options] \"RegionName\" [protocol[:port]]" << std::endl;
+        std::cout << "    connect [options] \"CityName\" [protocol[:port]]" << std::endl;
+        std::cout << "    connect [options] \"Nickname\" [protocol[:port]]" << std::endl;
         std::cout << "        " << "Connect to a random datacenter in the specified country, region, or city, or by nickname." << std::endl;
-        std::cout << "    connect [options] static \"CityName\" [protocol]" << std::endl;
-        std::cout << "    connect [options] static \"IP\" [protocol]" << std::endl;
+        std::cout << "    connect [options] static \"CityName\" [protocol[:port]]" << std::endl;
+        std::cout << "    connect [options] static \"IP\" [protocol[:port]]" << std::endl;
         std::cout << "        " << "Connect to a static IP location by city or by IP." << std::endl;
 #ifdef CLI_ONLY
         std::cout << "    keylimit keep|delete" << std::endl;

@@ -85,14 +85,14 @@ public:
     {
         QByteArray arr(buf, size);
         QDataStream ds(&arr, QIODevice::ReadOnly);
-        ds >> locationType_ >> location_ >> protocol_;
+        ds >> locationType_ >> location_ >> protocol_ >> port_;
     }
 
     std::vector<char> getData() const override
     {
         QByteArray arr;
         QDataStream ds(&arr, QIODevice::WriteOnly);
-        ds << locationType_ << location_ << protocol_;
+        ds << locationType_ << location_ << protocol_ << port_;
         return std::vector<char>(arr.begin(), arr.end());
     }
 
@@ -105,6 +105,7 @@ public:
 
     QString location_;
     QString protocol_;
+    uint port_;
     LocationType locationType_;
 };
 

@@ -58,7 +58,7 @@ private slots:
     void onShowLocationLoadPreferencesChanged(bool b);
     void onShowLocationLoadClicked(bool b);
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     void onTrayIconColorChanged(QVariant value);
     void onPreferencesTrayIconColorChanged(QVariant value);
 #endif
@@ -104,7 +104,7 @@ private:
     ComboBoxItem *comboBoxLanguage_;
     PreferenceGroup *locationOrderGroup_;
     ComboBoxItem *comboBoxLocationOrder_;
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     PreferenceGroup *trayIconColorGroup_;
     ComboBoxItem *trayIconColorItem_;
 #endif

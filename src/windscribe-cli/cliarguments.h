@@ -34,6 +34,7 @@ public:
     const QString &username() const;
     const QString &password() const;
     const QString &protocol() const;
+    const uint &port() const;
     bool keepFirewallOn() const;
     bool keyLimitDelete() const;
     bool nonBlocking() const;
@@ -47,6 +48,7 @@ private:
     QString username_;
     QString password_;
     QString protocol_ = "";
+    uint port_ = 0;
     bool keepFirewallOn_ = false;
     bool keyLimitDelete_ = false;
     bool nonBlocking_ = false;

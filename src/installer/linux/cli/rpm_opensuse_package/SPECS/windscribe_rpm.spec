@@ -62,7 +62,8 @@ systemctl restart windscribe-helper || true
 %post
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
 setcap cap_setgid+ep /opt/windscribe/Windscribe
-echo linux_rpm_opensuse_x64_cli > ../etc/windscribe/platform
+mkdir -p /etc/windscribe
+echo linux_rpm_opensuse_x64_cli > /etc/windscribe/platform
 
 %preun
 if [ $1 -eq 0 ]; then

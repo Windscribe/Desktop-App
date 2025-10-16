@@ -87,10 +87,11 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
         IPC::CliCommands::LocationType type = cmd->locationType_;
         QString locationStr = cmd->location_;
         types::Protocol protocol = types::Protocol::fromString(cmd->protocol_);
+        uint port = cmd->port_;
         LocationID lid;
 
         if (type == IPC::CliCommands::LocationType::kStaticIp) {
-            emit connectToStaticIpLocation(locationStr, protocol);
+            emit connectToStaticIpLocation(locationStr, protocol, port);
         } else {
             if (locationStr.isEmpty()) {
                 lid = PersistentState::instance().lastLocation();
@@ -104,7 +105,7 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
             }
 
             if (lid.isValid()) {
-                emit connectToLocation(lid, protocol);
+                emit connectToLocation(lid, protocol, port);
             } else if (backend_->isDisconnected()) {
                 // Already disconnected, just set the connect error
                 connectState_.connectError = LOCATION_NOT_EXIST;

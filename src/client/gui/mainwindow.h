@@ -255,7 +255,7 @@ private slots:
 #if defined(Q_OS_MACOS)
     void onPreferencesHideFromDockChanged(bool hideFromDock);
     void hideShowDockIconImpl(bool bAllowActivateAndShow);
-#elif defined(Q_OS_LINUX)
+#elif defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     void onPreferencesTrayIconColorChanged(TRAY_ICON_COLOR c);
 #endif
     // WindscribeApplications signals
@@ -266,8 +266,8 @@ private slots:
 
     // LocalIPCServer signals
     void onIpcOpenLocations(IPC::CliCommands::LocationType type);
-    void onIpcConnect(const LocationID &id, const types::Protocol &protocol);
-    void onIpcConnectStaticIp(const QString &location, const types::Protocol &protocol);
+    void onIpcConnect(const LocationID &id, const types::Protocol &protocol, uint port);
+    void onIpcConnectStaticIp(const QString &location, const types::Protocol &protocol, uint port);
     void onIpcUpdate();
 
     void showShutdownWindow();
@@ -320,7 +320,7 @@ private:
     void gotoLogoutWindow();
     void gotoExitWindow();
     void collapsePreferences();
-    void selectLocation(const LocationID &lid, const types::Protocol &protocol);
+    void selectLocation(const LocationID &lid, const types::Protocol &protocol, uint port = 0);
 
     Backend *backend_;
     LocalIPCServer *localIpcServer_;

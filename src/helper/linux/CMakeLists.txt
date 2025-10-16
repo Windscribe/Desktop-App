@@ -22,12 +22,9 @@ find_package(spdlog CONFIG REQUIRED)
 add_subdirectory(../../../libs/wsnet wsnet)
 
 set(SOURCES
-    ../../client/common/utils/executable_signature/executable_signature.cpp
-    ../../client/common/utils/executable_signature/executablesignature_linux.cpp
     execute_cmd.cpp
     firewallcontroller.cpp
     firewallonboot.cpp
-    ipc/helper_security.cpp
     main.cpp
     ovpn.cpp
     process_command.cpp

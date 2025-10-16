@@ -12,7 +12,6 @@
 #include "ovpn.h"
 #include "split_tunneling/split_tunneling.h"
 #include "utils.h"
-#include "utils/executable_signature/executable_signature.h"
 #include "wireguard/wireguardcontroller.h"
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars)
@@ -109,16 +108,8 @@ std::string executeOpenVPN(const std::string &pars)
         return serializeResult(false, cmdId);
     }
 
-    const std::string fullPath = Utils::getExePath() + "/windscribeopenvpn";
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verify(fullPath)) {
-        spdlog::error("OpenVPN executable signature incorrect: {}", sigCheck.lastError());
-        return serializeResult(false, cmdId);
-    } else {
-
-        cmdId = ExecuteCmd::instance().execute(fullCmd, "/opt/windscribe");
-        return serializeResult(true, cmdId);
-    }
+    cmdId = ExecuteCmd::instance().execute(fullCmd, "/opt/windscribe");
+    return serializeResult(true, cmdId);
 }
 
 std::string executeTaskKill(const std::string &pars)
@@ -283,15 +274,8 @@ std::string startCtrld(const std::string &pars)
         return serializeResult(false);
     }
 
-    const std::string fullPath = Utils::getExePath() + "/windscribectrld";
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verify(fullPath)) {
-        spdlog::error("ctrld executable signature incorrect: {}", sigCheck.lastError());
-        return serializeResult(false);
-    } else {
-        bool executed = Utils::executeCommand(fullCmd) == 0;
-        return serializeResult(executed);
-    }
+    bool executed = Utils::executeCommand(fullCmd) == 0;
+    return serializeResult(executed);
 }
 
 std::string checkFirewallState(const std::string &pars)
@@ -369,15 +353,8 @@ std::string startStunnel(const std::string &pars)
         return serializeResult(false);
     }
 
-    const std::string fullPath = Utils::getExePath() + "/windscribewstunnel";
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verify(fullPath)) {
-        spdlog::error("stunnel executable signature incorrect: {}", sigCheck.lastError());
-        return serializeResult(false);
-    } else {
-        ExecuteCmd::instance().execute(fullCmd, std::string(), true);
-        return serializeResult(true);
-    }
+    ExecuteCmd::instance().execute(fullCmd, std::string(), true);
+    return serializeResult(true);
 }
 
 std::string startWstunnel(const std::string &pars)
@@ -403,15 +380,8 @@ std::string startWstunnel(const std::string &pars)
         return serializeResult(false);
     }
 
-    const std::string fullPath = Utils::getExePath() + "/windscribewstunnel";
-    ExecutableSignature sigCheck;
-    if (!sigCheck.verify(fullPath)) {
-        spdlog::error("wstunnel executable signature incorrect: {}", sigCheck.lastError());
-        return serializeResult(false);
-    } else {
-        ExecuteCmd::instance().execute(fullCmd, std::string(), true);
-        return serializeResult(true);
-    }
+    ExecuteCmd::instance().execute(fullCmd, std::string(), true);
+    return serializeResult(true);
 }
 
 std::string setMacAddress(const std::string &pars)

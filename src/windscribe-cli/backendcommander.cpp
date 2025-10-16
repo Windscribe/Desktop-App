@@ -128,6 +128,7 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
         }
         cmd.location_ = cliArgs_.location();
         cmd.protocol_ = cliArgs_.protocol();
+        cmd.port_ = cliArgs_.port();
         connection_->sendCommand(cmd);
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_DISCONNECT) {

@@ -567,7 +567,7 @@ void Preferences::setAppSkin(APP_SKIN appSkin)
     }
 }
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
 TRAY_ICON_COLOR Preferences::trayIconColor() const
 {
     return guiSettings_.trayIconColor;
@@ -832,7 +832,7 @@ void Preferences::setGuiSettings(const types::GuiSettings &gs)
     setStartMinimized(gs.isStartMinimized);
     setLocationOrder(gs.orderLocation);
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     setTrayIconColor(gs.trayIconColor);
 #endif
 
