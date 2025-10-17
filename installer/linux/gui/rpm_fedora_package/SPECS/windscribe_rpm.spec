@@ -69,10 +69,11 @@ systemctl restart windscribe-helper || true
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
 update-desktop-database
 setcap cap_setgid+ep /opt/windscribe/Windscribe
+mkdir -p /etc/windscribe
 if [ "`uname -m`" = "aarch64" ]; then
-    echo linux_rpm_arm64 > ../etc/windscribe/platform
+    echo linux_rpm_arm64 > /etc/windscribe/platform
 else
-    echo linux_rpm_x64 > ../etc/windscribe/platform
+    echo linux_rpm_x64 > /etc/windscribe/platform
 fi
 
 %preun

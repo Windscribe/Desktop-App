@@ -39,7 +39,8 @@ post_install() {
         systemctl start windscribe-helper
         ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
         setcap cap_setgid+ep /opt/windscribe/Windscribe
-        echo linux_zst_x64_cli > ../etc/windscribe/platform
+        mkdir -p /etc/windscribe
+        echo linux_zst_x64_cli > /etc/windscribe/platform
 }
 
 pre_upgrade() {

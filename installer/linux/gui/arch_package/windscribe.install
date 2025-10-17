@@ -39,7 +39,8 @@ post_install() {
         ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
         update-desktop-database
         setcap cap_setgid+ep /opt/windscribe/Windscribe
-        echo linux_zst_x64 > ../etc/windscribe/platform
+        mkdir -p /etc/windscribe
+        echo linux_zst_x64 > /etc/windscribe/platform
 }
 
 pre_upgrade() {
