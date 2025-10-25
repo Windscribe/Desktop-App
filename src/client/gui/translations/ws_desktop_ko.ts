@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>연결이 끊긴 상태에서 방화벽을 켜 두면 인터넷 연결이 끊어질 수 있습니다.</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>즐겨찾는 IP</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>IP 교체</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>고정 IP</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>즐겨찾기</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>검색</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>사용자 지정 구성</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>즐겨찾는 위치 및 IP</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>모든 위치(%1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>즐겨찾기</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>고정 IP</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>새로 고침 핑</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>즐겨찾는 위치 및 IP</translation>
     </message>
 </context>
 <context>
@@ -665,10 +673,6 @@ Recovering...</source>
         <translation>위치</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>즐겨찾기</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>고정 IP</translation>
     </message>
@@ -873,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>위치 이름을 가져올 수 없습니다.</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>시스템 설정에서 Windscribe 분할 터널링 확장이 활성화되어 있지 않기 때문에 분할 터널링 기능이 비활성화되었습니다.  이 기능을 사용하려면 시스템 설정에서 확장 프로그램을 활성화하고 기능을 다시 켜십시오.</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>디버그 로그가 전송되었습니다!</translation>
     </message>
@@ -907,6 +907,46 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>사용자 지정 구성</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>시스템 설정에서 Windscribe 네트워크 확장이 활성화되지 않았기 때문에 WireGuard 프로토콜이 비활성화되었습니다.  이 프로토콜을 사용하려면 시스템 설정에서 확장 프로그램을 활성화하고 다시 연결하십시오.</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>WireGuard 시작 중 오류 발생</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>시스템 설정에서 Windscribe 네트워크 확장이 활성화되지 않았기 때문에 분할 터널링 기능이 비활성화되었습니다.  이 기능을 사용하려면 시스템 설정에서 확장 프로그램을 활성화하고 기능을 다시 켜십시오.</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>IP를 고정할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>이 위치에 대해 선호하는 IP를 설정할 수 없습니다.  나중에 다시 시도하십시오.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>IP를 순환할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>나중에 다시 시도하거나 상태 페이지로 이동하여 자세한 내용을 확인하세요.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>위치 상태 확인</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>뒤로</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>즐겨찾는 위치 및 IP</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>연결된 DNS에 LAN 또는 로컬 IP 주소를 사용하면 DNS 유출이 발생합니다.  ROBERT 또는 공용 DNS 서버를 사용하는 것이 좋습니다.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>API 키</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>제어 D API에 연결하지 못했습니다.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>유효한 제어 D API 키를 제공하십시오.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>버전</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>흰색과 검은색 트레이 아이콘 중에서 선택합니다.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>트레이 아이콘 색상</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>멀티 데스크톱</translation>
     </message>
@@ -1645,6 +1689,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>초기화</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>흰색과 검은색 트레이 아이콘 중에서 선택합니다.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>트레이 아이콘 색상</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Custom configs</source>
         <translation>사용자 지정 구성</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>랜덤 IP</translation>
     </message>
 </context>
 <context>

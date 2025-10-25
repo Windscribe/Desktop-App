@@ -5,12 +5,12 @@
 namespace wsnet {
 
 RequestError::RequestError(int errorCode, RequestErrorType type) :
-    errorCode_(errorCode), type_(type)
+    errorCode_(errorCode), type_(type), httpResponseCode_(0)
 {
 }
 
 RequestError::RequestError(int errorCode, RequestErrorType type, long osErrorCode) :
-    errorCode_(errorCode), type_(type), osErrorCode_(osErrorCode)
+    errorCode_(errorCode), type_(type), httpResponseCode_(0), osErrorCode_(osErrorCode)
 {
 }
 
@@ -67,6 +67,16 @@ bool RequestError::isNoNetworkError() const
     }
 
     return false;
+}
+
+int RequestError::httpResponseCode() const
+{
+    return httpResponseCode_;
+}
+
+void RequestError::setHttpResponseCode(int httpResponseCode)
+{
+    httpResponseCode_ = httpResponseCode;
 }
 
 std::shared_ptr<WSNetRequestError> RequestError::createCaresSuccess()

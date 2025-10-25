@@ -94,7 +94,8 @@ MainWindow::MainWindow() :
     downloadRunning_(false),
     ignoreUpdateUntilNextRun_(false),
     userProtocolOverride_(false),
-    sendDebugLogOnDisconnect_(false)
+    sendDebugLogOnDisconnect_(false),
+    receivedInitialIpAfterConnect_(false)
 {
     g_mainWindow = this;
 
@@ -217,6 +218,8 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::engineCrash, this, &MainWindow::onBackendEngineCrash);
     connect(backend_, &Backend::wireGuardAtKeyLimit, this, &MainWindow::onWireGuardAtKeyLimit);
     connect(backend_, &Backend::robertFiltersChanged, this, &MainWindow::onBackendRobertFiltersChanged);
+    connect(backend_, &Backend::bridgeApiAvailabilityChanged, this, &MainWindow::onBackendBridgeApiAvailabilityChanged);
+    connect(backend_, &Backend::ipRotateFailed, this, &MainWindow::onBackendIpRotateFailed);
     connect(backend_, &Backend::setRobertFilterResult, this, &MainWindow::onBackendSetRobertFilterResult);
     connect(backend_, &Backend::protocolStatusChanged, this, &MainWindow::onBackendProtocolStatusChanged);
     connect(backend_, &Backend::splitTunnelingStartFailed, this, &MainWindow::onSplitTunnelingStartFailed);
@@ -245,6 +248,8 @@ MainWindow::MainWindow() :
     connect(localIpcServer_, &LocalIPCServer::connectToStaticIpLocation, this, &MainWindow::onIpcConnectStaticIp);
     connect(localIpcServer_, &LocalIPCServer::attemptLogin, this, &MainWindow::onLoginClick);
     connect(localIpcServer_, &LocalIPCServer::update, this, &MainWindow::onIpcUpdate);
+    connect(localIpcServer_, &LocalIPCServer::pinIp, this, &MainWindow::onPinIp);
+    connect(localIpcServer_, &LocalIPCServer::unpinIp, this, &MainWindow::onUnpinIp);
 
     mainWindowController_ = new MainWindowController(this, locationsWindow_, backend_->getPreferencesHelper(), backend_->getPreferences(), backend_->getAccountInfo());
 
@@ -289,6 +294,9 @@ MainWindow::MainWindow() :
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::notificationsClick, this, &MainWindow::onConnectWindowNotificationsClick);
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::splitTunnelingButtonClick, this, &MainWindow::onConnectWindowSplitTunnelingClick);
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::protocolsClick, this, &MainWindow::onConnectWindowProtocolsClick);
+    connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::rotateIpClick, this, &MainWindow::onConnectWindowRotateIpClick);
+    connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::pinIp, this, &MainWindow::onPinIp);
+    connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::unpinIp, this, &MainWindow::onUnpinIp);
 
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::locationTabClicked, this, &MainWindow::onConnectWindowLocationTabClicked);
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::searchFilterChanged, this, &MainWindow::onConnectWindowSearchFilterChanged);
@@ -325,6 +333,8 @@ MainWindow::MainWindow() :
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::getRobertFilters, this, &MainWindow::onPreferencesGetRobertFilters);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::setRobertFilter, this, &MainWindow::onPreferencesSetRobertFilter);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::splitTunnelingAppsAddButtonClick, this, &MainWindow::onSplitTunnelingAppsAddButtonClick);
+    connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::fetchControldDevices, backend_, &Backend::fetchControldDevices);
+    connect(backend_, &Backend::controldDevicesFetched, mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::onControldDevicesFetched);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::exportLocationNamesClick, this, &MainWindow::onPreferencesExportLocationNamesClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::importLocationNamesClick, this, &MainWindow::onPreferencesImportLocationNamesClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::resetLocationNamesClick, this, &MainWindow::onPreferencesResetLocationNamesClick);
@@ -1065,6 +1075,80 @@ void MainWindow::onConnectWindowPreferencesClick()
 void MainWindow::onConnectWindowProtocolsClick()
 {
     mainWindowController_->expandProtocols(ProtocolWindowMode::kChangeProtocol);
+}
+
+void MainWindow::onConnectWindowRotateIpClick()
+{
+    backend_->rotateIp();
+}
+
+void MainWindow::onPinIp()
+{
+    QString ip = mainWindowController_->getConnectWindow()->getIpAddress();
+
+    if (!selectedLocation_->isValid()) {
+        return;
+    }
+
+    LocationID locationId = selectedLocation_->locationdId();
+    if (!locationId.isValid()) {
+        return;
+    }
+
+    // If the selected location is "Best Location", convert to the actual API location
+    if (locationId.isBestLocation()) {
+        locationId = locationId.bestLocationToApiLocation();
+        if (!locationId.isValid()) {
+            return;
+        }
+    }
+
+    QModelIndex locationIndex = static_cast<gui_locations::LocationsModel*>(backend_->locationsModelManager()->locationsModel())->getIndexByLocationId(locationId);
+    if (!locationIndex.isValid()) {
+        return;
+    }
+
+    // Get the current connecting hostname from backend
+    QString hostname = backend_->getCurrentConnectingHostname();
+
+    // Add to favorites with hostname and IP via kPinnedIp role
+    QVariantList pinnedData;
+    pinnedData << hostname << ip;
+    backend_->locationsModelManager()->locationsModel()->setData(locationIndex, pinnedData, gui_locations::Roles::kPinnedIp);
+    qCDebug(LOG_BASIC) << "Pinning IP" << ip << "for hostname" << hostname;
+    mainWindowController_->getConnectWindow()->updateMyIp(mainWindowController_->getConnectWindow()->getIpAddress(), true);
+}
+
+void MainWindow::onUnpinIp(const QString &ip)
+{
+    // Search through favorites to find matching location by IP
+    LocationID locationId;
+    for (int i = 0; i < backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount(); i++) {
+        QModelIndex miFavorite = backend_->locationsModelManager()->favoriteCitiesProxyModel()->index(i, 0);
+        QVariantList pinnedData = miFavorite.data(gui_locations::kPinnedIp).toList();
+        if (pinnedData.size() == 2 && pinnedData[1].toString() == ip) {
+            locationId = qvariant_cast<LocationID>(miFavorite.data(gui_locations::kLocationId));
+            break;
+        }
+    }
+
+    if (!locationId.isValid()) {
+        return;
+    }
+
+    gui_locations::LocationsModel* locationsModel = static_cast<gui_locations::LocationsModel*>(backend_->locationsModelManager()->locationsModel());
+    QModelIndex locationIndex = locationsModel->getIndexByLocationId(locationId);
+
+    if (!locationIndex.isValid()) {
+        return;
+    }
+
+    QVariantList pinnedData;
+    pinnedData << QString() << QString();
+    // Remove pinned IP & favorite status
+    backend_->locationsModelManager()->locationsModel()->setData(locationIndex, pinnedData, gui_locations::Roles::kPinnedIp);
+    backend_->locationsModelManager()->locationsModel()->setData(locationIndex, false, gui_locations::Roles::kIsFavorite);
+    mainWindowController_->getConnectWindow()->updateMyIp(ip, false);
 }
 
 void MainWindow::onConnectWindowNotificationsClick()
@@ -2045,16 +2129,52 @@ void MainWindow::onBackendCheckUpdateChanged(const api_responses::CheckUpdate &c
 
 void MainWindow::onBackendMyIpChanged(QString ip, bool isFromDisconnectedState)
 {
-    mainWindowController_->getConnectWindow()->updateMyIp(ip);
-    if (isFromDisconnectedState)
-    {
+    bool isPinned = false;
+    if (selectedLocation_->isValid()) {
+        LocationID locationId = selectedLocation_->locationdId();
+
+        // If this is Best Location, convert to the actual API location
+        if (locationId.isBestLocation()) {
+            locationId = locationId.bestLocationToApiLocation();
+        }
+
+        if (locationId.isValid()) {
+            QModelIndex locationIndex = static_cast<gui_locations::LocationsModel*>(backend_->locationsModelManager()->locationsModel())->getIndexByLocationId(locationId);
+            if (locationIndex.isValid()) {
+                QVariantList pinnedData = backend_->locationsModelManager()->locationsModel()->data(locationIndex, gui_locations::kPinnedIp).toList();
+                QString pinnedIp;
+                if (pinnedData.size() == 2) {
+                    pinnedIp = pinnedData[1].toString();  // IP is the second element
+                }
+                isPinned = (pinnedIp == ip);
+
+                // Show alert only on the initial IP after connecting (not on subsequent rotations)
+                // if location has a pinned IP but the actual IP is different, indicating either the node is not available, or the pin IP action failed.
+                if (!isFromDisconnectedState && !receivedInitialIpAfterConnect_ && !pinnedIp.isEmpty() && !isPinned) {
+                    GeneralMessageController::instance().showMessage(
+                        "garry_tools",
+                        tr("Could not pin IP"),
+                        tr("We could not set your favourite IP for this location.  Try again later."),
+                        GeneralMessageController::tr(GeneralMessageController::kOk),
+                        "",
+                        ""
+                    );
+                }
+
+                // Mark that we've received the initial IP after connecting
+                if (!isFromDisconnectedState && !receivedInitialIpAfterConnect_) {
+                    receivedInitialIpAfterConnect_ = true;
+                }
+            }
+        }
+    }
+
+    mainWindowController_->getConnectWindow()->updateMyIp(ip, isPinned);
+    if (isFromDisconnectedState) {
         PersistentState::instance().setLastExternalIp(ip);
         updateTrayTooltip(tr("Disconnected") + "\n" + ip);
-    }
-    else
-    {
-        if (selectedLocation_->isValid())
-        {
+    } else {
+        if (selectedLocation_->isValid()) {
             updateTrayTooltip(tr("Connected to ") + selectedLocation_->firstName() + "-" + selectedLocation_->secondName() + "\n" + ip);
         }
     }
@@ -2120,6 +2240,11 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
     }
     else if (connectState.connectState == CONNECT_STATE_CONNECTING || connectState.connectState == CONNECT_STATE_DISCONNECTING)
     {
+        // Reset the flag when starting a new connection
+        if (connectState.connectState == CONNECT_STATE_CONNECTING) {
+            receivedInitialIpAfterConnect_ = false;
+        }
+
         mainWindowController_->getProtocolWindow()->resetProtocolStatus();
 
         updateAppIconType(AppIconType::CONNECTING);
@@ -2127,6 +2252,8 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
         mainWindowController_->clearServerRatingsTooltipState();
 
     } else if (connectState.connectState == CONNECT_STATE_DISCONNECTED) {
+        // Reset the flag when disconnected
+        receivedInitialIpAfterConnect_ = false;
         updateConnectWindowStateProtocolPortDisplay();
 
         if (connectState.disconnectReason == DISCONNECTED_WITH_ERROR) {
@@ -2437,7 +2564,7 @@ void MainWindow::onBackendTestTunnelResult(bool success)
     if (!ExtraConfig::instance().getIsTunnelTestNoError() && !success) {
         types::ConnectedDnsInfo cdi = backend_->getPreferences()->connectedDnsInfo();
 
-        if (cdi.type == CONNECTED_DNS_TYPE_CUSTOM && backend_->osDnsServersListContains(cdi.upStream1.toStdWString())) {
+        if ((cdi.type == CONNECTED_DNS_TYPE_CUSTOM || cdi.type == CONNECTED_DNS_TYPE_CONTROLD) && backend_->osDnsServersListContains(cdi.upStream1.toStdWString())) {
             GeneralMessageController::instance().showMessage(
                 "WARNING_YELLOW",
                 tr("Invalid DNS Settings"),
@@ -2671,6 +2798,26 @@ void MainWindow::onBackendSetRobertFilterResult(bool success)
 void MainWindow::onBackendSyncRobertResult(bool success)
 {
     qCInfo(LOG_BASIC) << "Sync ROBERT response:" << success;
+}
+
+void MainWindow::onBackendBridgeApiAvailabilityChanged(bool enableIpUtils)
+{
+    mainWindowController_->getConnectWindow()->setIpUtilsEnabled(enableIpUtils);
+}
+
+void MainWindow::onBackendIpRotateFailed()
+{
+    GeneralMessageController::instance().showMessage(
+        "garry_tools",
+        tr("Could not rotate IP"),
+        tr("Try again later or go to our Status page for more info."),
+        tr("Check Location Status"),
+        tr("Back"),
+        "",
+        [this](bool b) {
+            QDesktopServices::openUrl(QUrl(QString("https://%1/status").arg(HardcodedSettings::instance().windscribeServerUrl())));
+        }
+    );
 }
 
 void MainWindow::onBackendProtocolStatusChanged(const QVector<types::ProtocolStatus> &status)
@@ -3174,6 +3321,8 @@ void MainWindow::onIpcOpenLocations(IPC::CliCommands::LocationType type)
         mainWindowController_->expandLocations();
         if (type == IPC::CliCommands::LocationType::kStaticIp) {
             mainWindowController_->getLocationsWindow()->setTab(LOCATION_TAB_STATIC_IPS_LOCATIONS);
+        } else if (type == IPC::CliCommands::LocationType::kFavourite) {
+            mainWindowController_->getLocationsWindow()->setTab(LOCATION_TAB_FAVORITE_LOCATIONS);
         } else {
             mainWindowController_->getLocationsWindow()->setTab(LOCATION_TAB_ALL_LOCATIONS);
         }
@@ -3420,7 +3569,7 @@ void MainWindow::createTrayMenuItems()
         }
         if (backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount() > 0) {
             QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->favoriteCitiesProxyModel()), &QObject::deleteLater);
-            menu->setTitle(tr("Favourites"));
+            menu->setTitle(tr("Favourite Locations && IPs"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
@@ -3449,7 +3598,7 @@ void MainWindow::createTrayMenuItems()
         }
         if (backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount() > 0) {
             QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->favoriteCitiesProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
-            menu->setTitle(tr("Favourites"));
+            menu->setTitle(tr("Favourite Locations && IPs"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
@@ -3785,6 +3934,24 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
                  " a support ticket, then switch to a different connection mode.");
     } else if (connectState.connectError == WIREGUARD_COULD_NOT_RETRIEVE_CONFIG) {
         msg = tr("Windscribe could not retrieve server configuration. Please try another protocol.");
+    } else if (connectState.connectError == WIREGUARD_SYSTEMEXTENSION_INACTIVE) {
+        msg = tr("The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.");
+        GeneralMessageController::instance().showMessage("WARNING_YELLOW",
+                                                         tr("Error Starting WireGuard"),
+                                                         msg,
+                                                         GeneralMessageController::tr(GeneralMessageController::kOk),
+                                                         "",
+                                                         "",
+                                                         [&](bool) {
+                                                             this->updateAppIconType(AppIconType::DISCONNECTED);
+                                                             this->updateTrayIconType(AppIconType::DISCONNECTED);
+                                                         },
+                                                         [&](bool) {
+                                                             this->updateAppIconType(AppIconType::DISCONNECTED);
+                                                             this->updateTrayIconType(AppIconType::DISCONNECTED);
+                                                         }
+        );
+        return;
     } else {
         msg = tr("An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.").arg(connectState.connectError);
     }
@@ -4024,7 +4191,7 @@ void MainWindow::onSplitTunnelingStartFailed()
 #elif defined(Q_OS_MACOS)
     GeneralMessageController::instance().showMessage("WARNING_YELLOW",
                                            tr("Error Starting Split Tunneling"),
-                                           tr("The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again."),
+                                           tr("The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again."),
                                            GeneralMessageController::tr(GeneralMessageController::kOk));
 #endif
 }

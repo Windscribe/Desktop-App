@@ -69,6 +69,12 @@ std::string changeMtu(const std::string &pars)
     std::string adapterName;
     int mtu;
     deserializePars(pars, adapterName, mtu);
+
+    if (!Utils::isValidInterfaceName(adapterName)) {
+        spdlog::error("Invalid interface name: {}", adapterName);
+        return std::string();
+    }
+
     spdlog::info("Change MTU: {}", mtu);
     Utils::executeCommand("ip", {"link", "set", "dev", adapterName.c_str(), "mtu", std::to_string(mtu)});
     return std::string();
@@ -390,8 +396,13 @@ std::string setMacAddress(const std::string &pars)
     bool isWifi;
     deserializePars(pars, interface, macAddress, network, isWifi);
 
-    if (macAddress.size() < 12) {
-        spdlog::warn("Invalid MAC address");
+    if (!Utils::isValidInterfaceName(interface)) {
+        spdlog::error("Invalid interface name: {}", interface);
+        return serializeResult(false);
+    }
+
+    if (!Utils::isValidMacAddress(macAddress)) {
+        spdlog::error("Invalid MAC address: {}", macAddress);
         return serializeResult(false);
     }
 

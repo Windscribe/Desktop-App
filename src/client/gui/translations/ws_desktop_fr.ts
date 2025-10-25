@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Garder le pare-feu allumé alors qu’on est déconnecté peut interrompre la connectivité Internet</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>IP préférée</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Rotation de l’IP</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>Adresses IP statiques</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoris</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Rechercher</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Configurations personnalisées</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Lieux et adresses IP favoris</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>Tous les emplacements (&#xa0;%1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoris</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>IP statiques</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>Actualiser les pings</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Lieux et adresses IP favoris</translation>
     </message>
 </context>
 <context>
@@ -677,10 +685,6 @@ Récupération...</translation>
         <translation>Lieux</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoris</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Adresses IP statiques</translation>
     </message>
@@ -873,10 +877,6 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>Impossible d’importer les noms de lieux</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>La fonctionnalité de tunneling fractionné a été désactivée car l’extension de tunnel fractionné Windscribe n’est pas activée dans les paramètres système.  Pour utiliser cette fonctionnalité, veuillez activer l’extension dans les paramètres système et réactivez-la.</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>Journal de débogage envoyé !</translation>
     </message>
@@ -907,6 +907,46 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     <message>
         <source>Custom configs</source>
         <translation>Configurations personnalisées</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>Le protocole WireGuard a été désactivé car l’extension réseau Windscribe n’est pas activée dans les paramètres système.  Pour utiliser ce protocole, veuillez activer l’extension dans les paramètres système et vous reconnecter.</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>Erreur lors du démarrage de WireGuard</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>La fonctionnalité de tunneling fractionné a été désactivée car l’extension réseau Windscribe n’est pas activée dans les paramètres système.  Pour utiliser cette fonctionnalité, veuillez activer l’extension dans les paramètres système et réactivez-la.</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>Impossible d’épingler l’adresse IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Nous n’avons pas pu définir votre adresse IP préférée pour cet emplacement.  Réessayez plus tard.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Impossible de faire pivoter l’IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Réessayez plus tard ou rendez-vous sur notre page d’état pour plus d’informations.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Vérifier l’état de l’emplacement</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Précédent</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>Lieux et adresses IP favoris</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>L’utilisation d’un réseau local ou d’une adresse IP locale pour le DNS connecté entraînera une fuite DNS.  Nous vous recommandons vivement d’utiliser ROBERT ou un serveur DNS public.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>Clé API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Impossible d’atteindre l’API de contrôle D.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Veuillez fournir une clé API de contrôle D valide.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>Windscribe réduit à la barre de menus et n’apparaît plus dans le dock.</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Choisissez entre l’icône blanche et l’icône noire de la barre d’état.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Couleur de l’icône du bac</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Multi-bureau</translation>
     </message>
@@ -1645,6 +1689,14 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     <message>
         <source>Reset</source>
         <translation>Réinitialisation</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Choisissez entre l’icône blanche et l’icône noire de la barre d’état.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Couleur de l’icône du bac</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
     <message>
         <source>Custom configs</source>
         <translation>Configurations personnalisées</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>IP aléatoire</translation>
     </message>
 </context>
 <context>

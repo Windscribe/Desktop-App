@@ -172,7 +172,7 @@ void LocationsMenu::onLanguageChanged()
     allLocations_->setTooltip(tr("All"));
     configuredLocations_->setTooltip(tr("Custom configs"));
     staticIpsLocations_->setTooltip(tr("Static IPs"));
-    favoriteLocations_->setTooltip(tr("Favourites"));
+    favoriteLocations_->setTooltip(tr("Favourite Locations & IPs"));
     searchLocations_->setTooltip(tr("Search"));
 }
 

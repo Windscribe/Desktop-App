@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Menjaga firewall tetap menyala saat terputus dapat memutus konektivitas internet</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>IP favorit</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Putar IP</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>IP statis</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favorit</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Mencari</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Konfigurasi kustom</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Lokasi &amp; IP Favorit</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>Semua lokasi (%1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favorit</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>IP Statis</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>Ping Refresh</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Lokasi &amp; IP Favorit</translation>
     </message>
 </context>
 <context>
@@ -665,10 +673,6 @@ Memulihkan...</translation>
         <translation>Lokasi</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favorit</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>IP statis</translation>
     </message>
@@ -873,10 +877,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Tidak dapat mengimpor nama lokasi</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Fitur terowongan terpisah telah dinonaktifkan karena ekstensi terowongan terpisah Windscribe tidak diaktifkan di Pengaturan Sistem.  Untuk menggunakan fitur ini, aktifkan ekstensi di Pengaturan Sistem, dan aktifkan fitur tersebut lagi.</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>Debug Log Dikirim!</translation>
     </message>
@@ -907,6 +907,46 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Custom configs</source>
         <translation>Konfigurasi kustom</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>Protokol WireGuard telah dinonaktifkan karena ekstensi jaringan Windscribe tidak diaktifkan di Pengaturan Sistem.  Untuk menggunakan protokol ini, aktifkan ekstensi di Pengaturan Sistem dan sambungkan kembali.</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>Kesalahan memulai WireGuard</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Fitur kanalisasi terpisah telah dinonaktifkan karena ekstensi jaringan Windscribe tidak diaktifkan di Pengaturan Sistem.  Untuk menggunakan fitur ini, aktifkan ekstensi di Pengaturan Sistem, dan aktifkan kembali fitur tersebut.</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>Tidak dapat menyematkan IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Kami tidak dapat mengatur IP favorit Anda untuk lokasi ini.  Coba lagi nanti.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Tidak dapat memutar IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Coba lagi nanti atau buka halaman Status kami untuk info lebih lanjut.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Periksa Status Lokasi</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Belakang</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>Lokasi &amp;&amp;&amp; IP Favorit</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Menggunakan LAN atau alamat IP lokal untuk DNS yang terhubung akan mengakibatkan kebocoran DNS.  Kami sangat menyarankan untuk menggunakan ROBERT atau server DNS publik.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>Kunci API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Gagal mencapai Control D API.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Harap berikan Kunci API Control D yang valid.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Versi</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Pilih antara ikon baki putih dan hitam.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Warna Ikon Baki</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Multi-desktop</translation>
     </message>
@@ -1645,6 +1689,14 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Reset</source>
         <translation>Reset</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Pilih antara ikon baki putih dan hitam.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Warna Ikon Baki</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Custom configs</source>
         <translation>Konfigurasi kustom</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>IP Acak</translation>
     </message>
 </context>
 <context>

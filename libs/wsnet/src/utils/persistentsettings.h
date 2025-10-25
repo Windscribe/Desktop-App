@@ -46,6 +46,9 @@ public:
     void setNotifications(const std::string &notifications);
     std::string notifications() const;
 
+    void setSessionToken(const std::string &sessionToken);
+    std::string sessionToken() const;
+
     std::string getAsString() const;
 
 private:
@@ -64,6 +67,7 @@ private:
     std::string portMap_;
     std::string staticIps_;
     std::string notifications_;
+    std::string sessionToken_;
 
     mutable std::mutex mutex_;
 };

@@ -69,7 +69,7 @@ bool SplitTunnelExtensionManager::startExtension(const QString &primaryInterface
         for (NETransparentProxyManager *m in managers) {
             if ([m.protocolConfiguration isKindOfClass:[NETunnelProviderProtocol class]]) {
                 NETunnelProviderProtocol *protocol = (NETunnelProviderProtocol *)m.protocolConfiguration;
-                if ([protocol.providerBundleIdentifier isEqualToString:@"com.windscribe.client.splittunnelextension"]) {
+                if ([protocol.providerBundleIdentifier isEqualToString:@"com.windscribe.client.networkextension"]) {
                     manager = m;
                     break;
                 }
@@ -80,7 +80,7 @@ bool SplitTunnelExtensionManager::startExtension(const QString &primaryInterface
             manager = [[NETransparentProxyManager alloc] init];
 
             NETunnelProviderProtocol *protocol = [[NETunnelProviderProtocol alloc] init];
-            protocol.providerBundleIdentifier = @"com.windscribe.client.splittunnelextension";
+            protocol.providerBundleIdentifier = @"com.windscribe.client.networkextension";
             protocol.serverAddress = @"127.0.0.1"; // Dummy address
 
             manager.protocolConfiguration = protocol;
@@ -143,7 +143,7 @@ void SplitTunnelExtensionManager::stopExtension()
         for (NETransparentProxyManager *m in managers) {
             if ([m.protocolConfiguration isKindOfClass:[NETunnelProviderProtocol class]]) {
                 NETunnelProviderProtocol *protocol = (NETunnelProviderProtocol *)m.protocolConfiguration;
-                if ([protocol.providerBundleIdentifier isEqualToString:@"com.windscribe.client.splittunnelextension"]) {
+                if ([protocol.providerBundleIdentifier isEqualToString:@"com.windscribe.client.networkextension"]) {
                     manager = m;
                     break;
                 }

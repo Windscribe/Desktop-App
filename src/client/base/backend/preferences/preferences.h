@@ -7,6 +7,7 @@
 #include "types/connecteddnsinfo.h"
 #include "types/enginesettings.h"
 #include "types/guisettings.h"
+#include "types/locationid.h"
 
 // all preferences with the ability to receive signals when certain preferences are changed
 class Preferences : public QObject
@@ -93,7 +94,7 @@ public:
 #endif
 
     bool isAntiCensorship() const;
-    void setAntiCensorship(bool b);
+    void setAntiCensorship(bool bEnabled);
 
     const types::ShareSecureHotspot &shareSecureHotspot() const;
     void setShareSecureHotspot(const types::ShareSecureHotspot &ss);

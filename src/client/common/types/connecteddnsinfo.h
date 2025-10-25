@@ -17,6 +17,8 @@ struct ConnectedDnsInfo
     bool isSplitDns = false;
     QString upStream2;
     QStringList hostnames;
+    QString controldApiKey;
+    QList<QPair<QString, QString>> controldDevices;  // List of (name, doh_resolver) pairs
 
     ConnectedDnsInfo() = default;
     ConnectedDnsInfo(const QJsonObject &json);
@@ -46,8 +48,9 @@ struct ConnectedDnsInfo
     static const inline QString kJsonIsSplitDnsProp = "isSplitDns";
     static const inline QString kJsonUpStream2Prop = "upStream2";
     static const inline QString kJsonHostnamesProp = "hostnames";
+    static const inline QString kJsonControldApiKeyProp = "controldApiKey";
 
-    static constexpr quint32 versionForSerialization_ = 2;  // should increment the version if the data format is changed
+    static constexpr quint32 versionForSerialization_ = 3;  // should increment the version if the data format is changed
 };
 
 } // types namespace

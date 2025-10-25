@@ -16,6 +16,7 @@ bool City::operator==(const City &other) const
            other.isPro == isPro &&
            other.isDisabled == isDisabled &&
            other.staticIpCountryCode == staticIpCountryCode &&
+           other.staticIpShortName == staticIpShortName &&
            other.staticIpType == staticIpType &&
            other.staticIp == staticIp &&
            other.customConfigType == customConfigType &&
@@ -35,6 +36,7 @@ bool Location::operator==(const Location &other) const
     return other.id == id &&
            other.name == name &&
            other.countryCode == countryCode &&
+           other.shortName == shortName &&
            other.isPremiumOnly == isPremiumOnly &&
            other.isNoP2P == isNoP2P &&
            other.cities == cities;
@@ -75,6 +77,7 @@ Location Location::locationFromJsonObject(const QJsonObject &obj)
                              obj["id"].toObject()["city"].toString());
     location.name = obj["name"].toString();
     location.countryCode = obj["country_code"].toString();
+    location.shortName = obj["short_name"].toString();
     location.isPremiumOnly = obj["is_premium_only"].toBool();
     location.isNoP2P = !obj["is_p2p_supported"].toBool();
 
@@ -91,6 +94,7 @@ Location Location::locationFromJsonObject(const QJsonObject &obj)
         city.isPro = objCity["is_premium_only"].toBool();
         city.isDisabled = objCity["is_disabled"].toBool();
         city.staticIpCountryCode = objCity["static_ip_country_code"].toString();
+        city.staticIpShortName = objCity["static_ip_short_name"].toString();
         city.staticIpType = objCity["static_ip_type"].toString();
         city.staticIp = objCity["static_ip"].toString();
         city.customConfigType = (objCity["custom_config_type"].toString() == "CUSTOM_CONFIG_OPENVPN" ? CUSTOM_CONFIG_OPENVPN : CUSTOM_CONFIG_WIREGUARD);

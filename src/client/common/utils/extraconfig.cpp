@@ -33,7 +33,6 @@ const QString WS_SCREEN_TRANSITION_HOTKEYS = WS_PREFIX + "screen-transition-hotk
 const QString WS_USE_ICMP_PINGS = WS_PREFIX + "use-icmp-pings";
 
 const QString WS_STEALTH_EXTRA_TLS_PADDING = WS_PREFIX + "stealth-extra-tls-padding";
-const QString WS_API_EXTRA_TLS_PADDING = WS_PREFIX + "api-extra-tls-padding";
 const QString WS_WG_UDP_STUFFING = WS_PREFIX + "wireguard-udp-stuffing";
 
 const QString WS_SERVERLIST_COUNTRY_OVERRIDE = WS_PREFIX + "serverlist-country-override";
@@ -246,11 +245,6 @@ bool ExtraConfig::getUseICMPPings()
 bool ExtraConfig::getStealthExtraTLSPadding()
 {
     return getFlag(WS_STEALTH_EXTRA_TLS_PADDING);
-}
-
-bool ExtraConfig::getAPIExtraTLSPadding()
-{
-    return getFlag(WS_API_EXTRA_TLS_PADDING);
 }
 
 bool ExtraConfig::getWireGuardUdpStuffing()

@@ -3,6 +3,8 @@ target_sources(common PRIVATE
     authtoken.h
     checkupdate.cpp
     checkupdate.h
+    controlddevices.cpp
+    controlddevices.h
     debuglog.cpp
     debuglog.h
     group.cpp

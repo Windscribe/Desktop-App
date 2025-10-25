@@ -141,7 +141,11 @@ bool ImageResourcesSvg::loadIconFromResource(const QString &name)
 
 bool ImageResourcesSvg::loadFromResource(const QString &name)
 {
-    QSvgRenderer render(":/svg/" + name + ".svg");
+    QString filename = ":/svg/" + name + ".svg";
+    if (!QFile::exists(filename)) {
+        return false;
+    }
+    QSvgRenderer render(filename);
     if (!render.isValid()) {
         return false;
     }
@@ -158,7 +162,11 @@ bool ImageResourcesSvg::loadFromResource(const QString &name)
 bool ImageResourcesSvg::loadFromResourceWithCustomSize(const QString &name, int width, int height,
                                                        int flags)
 {
-    QSvgRenderer render(":/svg/" + name + ".svg");
+    QString filename = ":/svg/" + name + ".svg";
+    if (!QFile::exists(filename)) {
+        return false;
+    }
+    QSvgRenderer render(filename);
     if (!render.isValid()) {
         return false;
     }

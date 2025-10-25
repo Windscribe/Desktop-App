@@ -176,6 +176,9 @@ void CurlNetworkManager::run()
 
                 CURLcode result = curlMsg->data.result;
 
+                long httpResponseCode = 0;
+                curl_easy_getinfo(curlEasyHandle, CURLINFO_RESPONSE_CODE, &httpResponseCode);
+
                 std::uint64_t id;
                 long osErrno;
 
@@ -216,11 +219,14 @@ void CurlNetworkManager::run()
                     activeRequests_.erase(id);
                 }
 
+                std::shared_ptr<RequestError> requestError;
                 if (result != CURLE_OK) {
-                    finishedCallback_(id, std::make_shared<RequestError>(result, RequestErrorType::kCurl, osErrno));
+                    requestError = std::make_shared<RequestError>(result, RequestErrorType::kCurl, osErrno);
                 } else {
-                    finishedCallback_(id, std::make_shared<RequestError>(result, RequestErrorType::kCurl));
+                    requestError = std::make_shared<RequestError>(result, RequestErrorType::kCurl);
                 }
+                requestError->setHttpResponseCode((int)httpResponseCode);
+                finishedCallback_(id, requestError);
             }
         } while(curlMsg);
 
@@ -368,6 +374,11 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
         if (list == NULL) return false;
     }
 
+    if (!request->sessionToken().empty()) {
+        std::string sessionToken= "X-WS-CONNECTION-TOKEN: " + request->sessionToken();
+        list = curl_slist_append(list, sessionToken.c_str());
+    }
+
     // set the user-agent request header
     std::string userAgentHeader = "User-Agent: Windscribe/" + Settings::instance().appVersion() + " (" + Settings::instance().platformName() + ")";
     list = curl_slist_append(list, userAgentHeader.c_str());
@@ -440,7 +451,7 @@ bool CurlNetworkManager::setupResolveHosts(RequestInfo *requestInfo, const std::
 
 bool CurlNetworkManager::setupSslVerification(RequestInfo *requestInfo, const std::shared_ptr<WSNetHttpRequest> &request)
 {
-    if (request->isIgnoreSslErrors())  {
+    if (request->isIgnoreSslErrors()) {
         if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_VERIFYPEER, 0) != CURLE_OK) return false;
         if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_VERIFYHOST, 0) != CURLE_OK) return false;
     } else  {

@@ -40,6 +40,7 @@ enum TooltipId {
     TOOLTIP_ID_CONNECTION_MODE_LOGIN,
     TOOLTIP_ID_STATIC_IP_DEVICE_NAME,
     TOOLTIP_ID_ELIDED_TEXT,
+    TOOLTIP_ID_IP_UTILS_MENU,
 };
 
 enum TooltipType {
@@ -65,10 +66,12 @@ struct TooltipInfo {
     int width;
     TooltipType type;
     int delay;
+    bool animate;
+    int animationSpeed;
 
     TooltipInfo(TooltipType type, TooltipId id)
         : id(id), x(0), y(0), tailtype(TOOLTIP_TAIL_NONE), tailPosPercent(0), width(0), type(type),
-          delay(-1) {}
+          delay(-1), animate(false), animationSpeed(0) {}
 };
 
 inline bool operator==(const TooltipInfo& lhs, const TooltipInfo& rhs)

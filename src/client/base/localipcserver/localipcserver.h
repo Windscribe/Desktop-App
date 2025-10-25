@@ -29,6 +29,8 @@ signals:
     void attemptLogin(const QString &username, const QString &password, const QString &code2fa);
     void setKeyLimitBehavior(bool deleteKey);
     void update();
+    void pinIp();
+    void unpinIp(const QString &ip);
 
 private slots:
     void onServerCallbackAcceptFunction(IPC::Connection *connection);
@@ -47,6 +49,7 @@ private slots:
     void onBackendUpdateDownloaded(const QString &path);
     void onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error);
     void onBackendConnectionIdChanged(const QString &connId);
+    void onBackendBridgeApiAvailabilityChanged(bool isAvailable);
 
     void onLocationsModelManagerDeviceNameChanged(const QString &deviceName);
 
@@ -77,6 +80,7 @@ private:
     bool tunnelTestSuccess_;
     QString deviceName_;
     bool invalidLocation_ = false;
+    bool isBridgeApiAvailable_ = false;
 
     void sendState();
     void sendCommand(const IPC::Command &command);

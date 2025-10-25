@@ -363,6 +363,24 @@ bool LocationsModel::setData(const QModelIndex &index, const QVariant &value, in
             emit dataChanged(index, index, QList<int>() << kIsFavorite);
             return true;
         }
+    } else if (role == kPinnedIp) {
+        // can't pin IP if invalid or location is country
+        if (!index.isValid() || index.internalPointer() == (void *)root_) {
+            return false;
+        }
+        LocationItem *li = (LocationItem *)index.internalPointer();
+        LocationID lid = li->location().cities[index.row()].id;
+
+        // Value is a QVariantList [hostname, ip]
+        QVariantList list = value.toList();
+        if (list.size() == 2) {
+            QString hostname = list[0].toString();
+            QString ip = list[1].toString();
+            // Add to favorites with hostname and IP (empty strings will unpin)
+            favoriteLocationsStorage_.addToFavorites(lid, hostname, ip);
+        }
+        emit dataChanged(index, index, QList<int>() << kPinnedIp << kIsFavorite);
+        return true;
     } else if (role == Qt::DisplayRole) {
         if (!index.isValid()) {
             return false;
@@ -525,6 +543,10 @@ QVariant LocationsModel::dataForLocation(int row, int role) const
     {
         return locations_[row]->location().countryCode.toLower();
     }
+    else if (role == kShortName)
+    {
+        return locations_[row]->location().shortName;
+    }
     else if (role == kIsShowP2P)
     {
         return locations_[row]->location().isNoP2P;
@@ -605,6 +627,18 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
             return l->location().countryCode.toLower();
         }
     }
+    else if (role == kShortName)
+    {
+        LocationID lid = l->location().cities[row].id;
+        if (lid.isStaticIpsLocation())
+        {
+            return l->location().cities[row].staticIpShortName;
+        }
+        else
+        {
+            return l->location().shortName;
+        }
+    }
     else if (role == kIs10Gbps)
     {
         return l->location().cities[row].is10Gbps;
@@ -650,6 +684,14 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
     {
         LocationID lid = l->location().cities[row].id;
         return favoriteLocationsStorage_.isFavorite(lid);
+    }
+    else if (role == kPinnedIp)
+    {
+        LocationID lid = l->location().cities[row].id;
+        QVariantList result;
+        result << favoriteLocationsStorage_.getPinnedHostname(lid);
+        result << favoriteLocationsStorage_.getPinnedIp(lid);
+        return result;
     }
     else if (role == kStaticIpType)
     {

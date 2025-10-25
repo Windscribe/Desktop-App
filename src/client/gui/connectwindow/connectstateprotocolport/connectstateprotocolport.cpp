@@ -359,4 +359,9 @@ void ConnectStateProtocolPort::antiCensorshipChanged(bool enabled)
     recalcSize();
 }
 
+bool ConnectStateProtocolPort::receivedTunnelTestResult() const
+{
+    return receivedTunnelTestResult_;
+}
+
 } //namespace ConnectWindow

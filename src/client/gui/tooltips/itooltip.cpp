@@ -1,5 +1,6 @@
 #include "itooltip.h"
 #include <QPainterPath>
+#include <QPropertyAnimation>
 #include "dpiscalemanager.h"
 
 int ITooltip::getWidth() const
@@ -20,6 +21,16 @@ TooltipShowState ITooltip::getShowState()
 void ITooltip::setShowState(TooltipShowState showState)
 {
     showState_ = showState;
+}
+
+bool ITooltip::getAnimate() const
+{
+    return animate_;
+}
+
+int ITooltip::getAnimationSpeed() const
+{
+    return animationSpeed_;
 }
 
 int ITooltip::distanceFromOriginToTailTip() const
@@ -144,4 +155,32 @@ int ITooltip::bottomTooltipMaxX() const
 int ITooltip::bottomTooltipMinX() const
 {
     return TOOLTIP_OFFSET_ROUNDED_CORNER*G_SCALE + additionalTailWidth();
+}
+
+void ITooltip::startFadeInAnimation(int durationMs)
+{
+    setWindowOpacity(0.0);
+    show();
+
+    QPropertyAnimation *animation = new QPropertyAnimation(this, "windowOpacity");
+    animation->setDuration(durationMs);
+    animation->setStartValue(0.0);
+    animation->setEndValue(1.0);
+
+    connect(animation, &QPropertyAnimation::finished, animation, &QPropertyAnimation::deleteLater);
+
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void ITooltip::startFadeOutAnimation(int durationMs)
+{
+    QPropertyAnimation *animation = new QPropertyAnimation(this, "windowOpacity");
+    animation->setDuration(durationMs);
+    animation->setStartValue(windowOpacity());
+    animation->setEndValue(0.0);
+
+    connect(animation, &QPropertyAnimation::finished, this, &ITooltip::hide);
+    connect(animation, &QPropertyAnimation::finished, animation, &QPropertyAnimation::deleteLater);
+
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
 }

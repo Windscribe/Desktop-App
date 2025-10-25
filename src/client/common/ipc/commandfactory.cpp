@@ -44,6 +44,12 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
         return new IPC::CliCommands::ReloadConfig(buf, size);
     } else if (strId == IPC::CliCommands::SetKeyLimitBehavior::getCommandStringId()) {
         return new IPC::CliCommands::SetKeyLimitBehavior(buf, size);
+    } else if (strId == IPC::CliCommands::RotateIp::getCommandStringId()) {
+        return new IPC::CliCommands::RotateIp(buf, size);
+    } else if (strId == IPC::CliCommands::FavIp::getCommandStringId()) {
+        return new IPC::CliCommands::FavIp(buf, size);
+    } else if (strId == IPC::CliCommands::UnfavIp::getCommandStringId()) {
+        return new IPC::CliCommands::UnfavIp(buf, size);
     }
 
     WS_ASSERT(false);

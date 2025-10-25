@@ -316,6 +316,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated(const QVector<ap
         item.idNum = l.getId();
         item.name = l.getName();
         item.countryCode = l.getCountryCode();
+        item.shortName = l.getShortName();
         item.isPremiumOnly = l.isPremiumOnly();
         item.isNoP2P = l.getP2P() == 0;
 
@@ -396,6 +397,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated(const QVector<ap
             city.isPro = true;
             city.isDisabled = (sid.status != 1);
             city.staticIpCountryCode = sid.countryCode;
+            city.staticIpShortName = sid.shortName;
             city.staticIp = sid.staticIp;
             city.staticIpType = sid.type;
 

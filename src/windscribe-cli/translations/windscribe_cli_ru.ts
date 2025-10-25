@@ -15,6 +15,18 @@
         <source>No locations.</source>
         <translation>Никаких локаций.</translation>
     </message>
+    <message>
+        <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>Не удалось повернуть IP.  Убедитесь, что у вас есть Windscribe Pro или есть ли это местоположение в вашем тарифном плане, или повторите попытку позже.</translation>
+    </message>
+    <message>
+        <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>Не удалось добавить IP в избранное.  Убедитесь, что у вас есть Windscribe Pro или есть ли это местоположение в вашем тарифном плане, или повторите попытку позже.</translation>
+    </message>
+    <message>
+        <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
+        <translation>Не мог остаться нелюбимым IP.  Пожалуйста, убедитесь, что предоставленный IP-адрес действителен.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -284,15 +296,35 @@
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"></translation>
+        <translation> (10 Гбит/с)</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Отключено)</translation>
     </message>
     <message>
         <source> (Pro)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Плюс)</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Не подключен</translation>
+    </message>
+    <message>
+        <source>IP rotated.</source>
+        <translation>Ротация IP.</translation>
+    </message>
+    <message>
+        <source>IP favorited.</source>
+        <translation>IP в избранном.</translation>
+    </message>
+    <message>
+        <source>IP unfavorited.</source>
+        <translation>IP не в избранном.</translation>
+    </message>
+    <message>
+        <source>Invalid IP address</source>
+        <translation>Неверный IP-адрес</translation>
     </message>
 </context>
 </TS>

@@ -12,8 +12,9 @@
 #include "httpnetworkmanager/httpnetworkmanager.h"
 #include "settings.h"
 #include "failover/failovercontainer.h"
-#include "serverapi/serverapi.h"
-#include "serverapi/wsnet_utils_impl.h"
+#include "api/bridgeapi/bridgeapi.h"
+#include "api/serverapi/serverapi.h"
+#include "api/serverapi/wsnet_utils_impl.h"
 #include "apiresourcesmanager/apiresourcesmanager.h"
 #include "emergencyconnect/emergencyconnect.h"
 #include "pingmanager/pingmanager.h"
@@ -99,6 +100,7 @@ public:
 
         failoverContainer_ = std::make_unique<FailoverContainer>(httpNetworkManager_.get());
         advancedParameters_ = std::make_shared<AdvancedParameters>();
+        bridgeAPI_ = std::make_shared<BridgeAPI>(io_context_, httpNetworkManager_.get(), *persistentSettings_, advancedParameters_.get(), connectState_);
         serverAPI_ = std::make_shared<ServerAPI>(io_context_, httpNetworkManager_.get(), failoverContainer_.get(), *persistentSettings_, advancedParameters_.get(), connectState_);
         apiResourcesManager_ = std::make_shared<ApiResourcesManager>(io_context_, serverAPI_.get(), *persistentSettings_, connectState_);
         emergencyConnect_ = std::make_shared<EmergencyConnect>(io_context_, failoverContainer_.get(), dnsResolver_.get());
@@ -129,6 +131,7 @@ public:
 
     std::shared_ptr<WSNetDnsResolver> dnsResolver() override { return dnsResolver_; }
     std::shared_ptr<WSNetHttpNetworkManager> httpNetworkManager() override { return httpNetworkManager_; }
+    std::shared_ptr<WSNetBridgeAPI> bridgeAPI() override { return bridgeAPI_; }
     std::shared_ptr<WSNetServerAPI> serverAPI() override { return serverAPI_; }
     std::shared_ptr<WSNetApiResourcesManager> apiResourcersManager() override { return apiResourcesManager_; }
     std::shared_ptr<WSNetEmergencyConnect> emergencyConnect() override { return emergencyConnect_; };
@@ -148,6 +151,7 @@ private:
     std::shared_ptr<HttpNetworkManager> httpNetworkManager_;
     std::unique_ptr<FailoverContainer> failoverContainer_;
     std::shared_ptr<WSNetAdvancedParameters> advancedParameters_;
+    std::shared_ptr<BridgeAPI> bridgeAPI_;
     std::shared_ptr<ServerAPI> serverAPI_;
     std::shared_ptr<WSNetApiResourcesManager> apiResourcesManager_;
     std::shared_ptr<EmergencyConnect> emergencyConnect_;

@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>روشن نگه داشتن فایروال در هنگام قطع اتصال ممکن است اتصال به اینترنت را قطع کند</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>آی پی مورد علاقه</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>IP را بچرخانید</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>IP های استاتیک</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>مورد علاقه</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>جستجو</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>پیکربندی های سفارشی</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>مکان ها و IP های مورد علاقه</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>همه مکان ها (٪1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>مورد علاقه</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>IP های استاتیک</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>تازه کردن پینگ ها</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>مکان ها و IP های مورد علاقه</translation>
     </message>
 </context>
 <context>
@@ -665,10 +673,6 @@ Recovering...</source>
         <translation>مکان‌ها</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>مورد علاقه</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>IP های استاتیک</translation>
     </message>
@@ -873,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>وارد کردن نام مکان ها امکان پذیر نیست</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>ویژگی تقسیم تونل زنی غیرفعال شده است زیرا پسوند تونل تقسیم Windscribe در تنظیمات سیستم فعال نیست.  برای استفاده از این ویژگی، لطفا افزونه را در تنظیمات سیستم فعال کنید و دوباره این ویژگی را روشن کنید.</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>اشکال زدایی گزارش ارسال شد!</translation>
     </message>
@@ -907,6 +907,46 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>پیکربندی های سفارشی</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>پروتکل WireGuard غیرفعال شده است زیرا افزونه شبکه Windscribe در تنظیمات سیستم فعال نیست.  برای استفاده از این پروتکل، لطفا افزونه را در تنظیمات سیستم فعال کرده و دوباره وصل کنید.</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>خطا در راه اندازی WireGuard</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>ویژگی تقسیم تونل غیرفعال شده است زیرا افزونه شبکه Windscribe در تنظیمات سیستم فعال نیست.  برای استفاده از این ویژگی، لطفا افزونه را در تنظیمات سیستم فعال کنید و دوباره این ویژگی را روشن کنید.</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>IP پین نشد</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>ما نتوانستیم IP مورد علاقه شما را برای این مکان تنظیم کنیم.  بعدا دوباره امتحان کنید.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>IP نمی تواند بچرخد</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>بعدا دوباره امتحان کنید یا برای اطلاعات بیشتر به صفحه وضعیت ما بروید.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>بررسی وضعیت مکان</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>بازگشت</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>مکان ها و IP های مورد علاقه</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>استفاده از LAN یا آدرس IP محلی برای DNS متصل منجر به نشت DNS می شود.  ما اکیدا توصیه می کنیم از ROBERT یا یک سرور DNS عمومی استفاده کنید.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>کلید API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>نتوانست به Control D API برسد.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>لطفا یک کلید معتبر Control D API ارائه دهید.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>نسخهٔ</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>بین نماد سینی سفید و سیاه یکی را انتخاب کنید.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>رنگ شمایل سینی</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>چند دسکتاپ</translation>
     </message>
@@ -1645,6 +1689,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>تنظیم مجدد</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>بین نماد سینی سفید و سیاه یکی را انتخاب کنید.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>رنگ شمایل سینی</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Custom configs</source>
         <translation>پیکربندی های سفارشی</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>IP تصادفی</translation>
     </message>
 </context>
 <context>

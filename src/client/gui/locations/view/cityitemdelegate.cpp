@@ -105,21 +105,21 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         }
 
         // Load
+        painter->setOpacity(OPACITY_FULL);
         // draw a 1px 'border' around the icon to differentiate from the load circle
         QPen penBorder(QColor(9, 15, 25));
         penBorder.setWidth(G_SCALE);
         painter->setPen(penBorder);
         painter->drawArc(leftRect.adjusted(G_SCALE, G_SCALE, -G_SCALE, -G_SCALE), 0, 360 * 16);
 
-        painter->setOpacity(OPACITY_FULL);
+        // Draw a full circle with grey color: this is (255, 255, 255, 51) blended with (9, 15, 25).
+        // Drawing (255, 255, 255, 51) is not visible since it draws on top of some transparent pixels.
         QPen penLoad(QColor(53, 61, 73));
         penLoad.setWidth(2*G_SCALE);
+        penLoad.setColor(QColor(53, 61, 73));
+        painter->setPen(penLoad);
+        painter->drawArc(leftRect, 0, 360 * 16);
         if (option.isShowLocationLoad()) {
-            // Draw a full circle with grey color: this is (255, 255, 255, 51) blended with (9, 15, 25).
-            // Drawing (255, 255, 255, 51) is not visible since it draws on top of some transparent pixels.
-            painter->setPen(penLoad);
-            painter->drawArc(leftRect, 0, 360 * 16);
-
             int locationLoad = index.data(kLoad).toInt();
             if (locationLoad > 0) {
                 if (locationLoad < 10) {
@@ -145,15 +145,39 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
     painter->setOpacity(textOpacity);
     IndependentPixmap pixmapCaption = cache->pixmap(CityItemDelegateCache::kCityId);
     WS_ASSERT(!pixmapCaption.isNull());
-    QRect rcCaption(left_offs + 56*G_SCALE,  option.rect.top(), pixmapCaption.width(), option.rect.height());
-    pixmapCaption.draw(rcCaption.left(), rcCaption.top() + (rcCaption.height() -  pixmapCaption.height()) / 2, painter);
 
-    // city text for non-static and non-custom views only
-    if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
+    // In favorites tab, show city name higher and pinned IP below
+    if (option.isShowCountryFlagForCity()) {
+        QRect rcCaption(left_offs + 56*G_SCALE,  option.rect.top() + 2*G_SCALE, pixmapCaption.width(), pixmapCaption.height());
+        pixmapCaption.draw(rcCaption.left(), rcCaption.top(), painter);
+
         IndependentPixmap pixmapNick = cache->pixmap(CityItemDelegateCache::kNickId);
         WS_ASSERT(!pixmapNick.isNull());
-        QRect rc( rcCaption.left() + rcCaption.width() + 8*G_SCALE,  option.rect.top(), pixmapNick.width(), option.rect.height());
-        pixmapNick.draw(rc.left(), rc.top() + (rc.height() -  pixmapNick.height()) / 2, painter);
+        QRect rc(rcCaption.left() + rcCaption.width() + 8*G_SCALE, option.rect.top() + 2*G_SCALE, pixmapNick.width(), pixmapNick.height());
+        pixmapNick.draw(rc.left(), rc.top(), painter);
+
+        // Draw pinned IP or "Random IP" below city name
+        QVariantList pinnedData = index.data(kPinnedIp).toList();
+        QString pinnedIp = (pinnedData.size() == 2) ? pinnedData[1].toString() : QString();  // IP is the second element
+        QString ipText = pinnedIp.isEmpty() ? QObject::tr("Random IP") : pinnedIp;
+
+        QFont ipFont = FontManager::instance().getFont(12, QFont::Normal);
+        painter->setOpacity(0.6);
+        painter->setFont(ipFont);
+        painter->setPen(Qt::white);
+        painter->drawText(left_offs + 56*G_SCALE, option.rect.top() + 8*G_SCALE + pixmapCaption.height() + 2*G_SCALE,
+                         ipText);
+    } else {
+        QRect rcCaption(left_offs + 56*G_SCALE,  option.rect.top(), pixmapCaption.width(), option.rect.height());
+        pixmapCaption.draw(rcCaption.left(), rcCaption.top() + (rcCaption.height() -  pixmapCaption.height()) / 2, painter);
+
+        // city text for non-static and non-custom views only (not in favorites tab)
+        if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
+            IndependentPixmap pixmapNick = cache->pixmap(CityItemDelegateCache::kNickId);
+            WS_ASSERT(!pixmapNick.isNull());
+            QRect rc( rcCaption.left() + rcCaption.width() + 8*G_SCALE,  option.rect.top(), pixmapNick.width(), option.rect.height());
+            pixmapNick.draw(rc.left(), rc.top() + (rc.height() -  pixmapNick.height()) / 2, painter);
+        }
     }
 
     // The rest are aligned to the right.  We start drawing from the right-most icon, and work our way left.

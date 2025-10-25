@@ -23,6 +23,7 @@ public:
     QString firstName() const { return firstName_; }
     QString secondName() const { return secondName_; }
     QString countryCode() const { return countryCode_; }
+    QString shortName() const { return shortName_; }
     PingTime pingTime() const { return pingTime_; }
 
 signals:
@@ -43,6 +44,7 @@ private:
     QString firstName_;
     QString secondName_;
     QString countryCode_;
+    QString shortName_;
     PingTime pingTime_;
 
     void fillData();

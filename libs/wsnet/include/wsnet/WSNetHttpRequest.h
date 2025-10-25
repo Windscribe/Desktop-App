@@ -73,6 +73,10 @@ public:
     // true by default
     virtual void setIsEnableFreshConnect(bool bEnabled) = 0;
     virtual bool isEnableFreshConnect() const = 0;
+
+    // empty by default
+    virtual void setSessionToken(const std::string &token) = 0;
+    virtual std::string sessionToken() const = 0;
 };
 
 } // namespace wsnet

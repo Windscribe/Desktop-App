@@ -118,11 +118,11 @@ wssecure:
     subdir:  libs/wssecure
     target:  wssecure.dll
 
-splittunnelextension:
+networkextension:
   macos:
-    name:     SplitTunnelExtension
-    subdir:   src/splittunneling/macos
-    target:   com.windscribe.client.splittunnelextension.systemextension
+    name:     NetworkExtension
+    subdir:   src/system-components/macos/networkextension
+    target:   com.windscribe.client.networkextension.systemextension
     generator: Xcode
     entitlements: True
     xcflags:
@@ -139,7 +139,7 @@ targets:
     - authhelper
     - launcher
 #    - wssecure
-    - splittunnelextension
+    - networkextension
     - client
 
 signing_cert_win:
@@ -191,11 +191,11 @@ deploy_files:
         - splittunnel/arm64/windscribesplittunnel.sys -> splittunnel/windscribesplittunnel.sys
 
   macos:
-    splittunnelextension:
+    networkextension:
       entitlements:
-        entitlements_binary: Contents/MacOS/com.windscribe.client.splittunnelextension
-        entitlements_file: src/splittunneling/macos/splittunnelextension.entitlements
-        provision_profile: data/provisioning_profile/splittunnelextension.provisionprofile
+        entitlements_binary: Contents/MacOS/com.windscribe.client.networkextension
+        entitlements_file: src/system-components/macos/networkextension/networkextension.entitlements
+        provision_profile: data/provisioning_profile/networkextension.provisionprofile
     client:
       entitlements:
         entitlements_binary: Contents/MacOS/Windscribe

@@ -2,6 +2,7 @@
 
 #include <QPainter>
 #include "commongraphics/commongraphics.h"
+#include "graphicresources/imageresourcespng.h"
 #include "graphicresources/imageresourcessvg.h"
 
 ImageItem::ImageItem(ScalableGraphicsObject *parent, const QString &imagePath, const QString &shadowImagePath) : ScalableGraphicsObject(parent),
@@ -29,6 +30,14 @@ void ImageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         imageWithShadow_->draw(painter, 0, 0);
     } else {
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+        if (p.isNull()) {
+            // If SVG not found, try PNG
+            p = ImageResourcesPng::instance().getIndependentPixmap(imagePath_);
+        }
+        if (p.isNull()) {
+            // Still not found, do nothing
+            return;
+        }
         p->draw(0, 0, painter);
     }
 }
@@ -36,15 +45,21 @@ void ImageItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 void ImageItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
-    if (imageWithShadow_)
-    {
+    if (imageWithShadow_) {
         imageWithShadow_->updatePixmap();
         width_ = imageWithShadow_->width();
         height_ = imageWithShadow_->height();
-    }
-    else
-    {
+    } else {
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap(imagePath_);
+        if (p.isNull()) {
+            // If SVG not found, try PNG
+            p = ImageResourcesPng::instance().getIndependentPixmap(imagePath_);
+        }
+        if (p.isNull()) {
+            width_ = 0;
+            height_ = 0;
+            return;
+        }
         width_ = p->width();
         height_ = p->height();
     }

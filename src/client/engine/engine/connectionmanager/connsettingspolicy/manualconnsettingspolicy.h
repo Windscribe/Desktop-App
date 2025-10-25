@@ -11,7 +11,7 @@ class ManualConnSettingsPolicy : public BaseConnSettingsPolicy
     Q_OBJECT
 public:
     ManualConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const types::ConnectionSettings &connectionSettings,
-                             const api_responses::PortMap &portMap);
+                             const api_responses::PortMap &portMap, const QString &preferredNodeHostname);
 
 
     void reset() override;

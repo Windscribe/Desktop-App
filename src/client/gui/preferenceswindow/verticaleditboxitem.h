@@ -21,6 +21,7 @@ public:
     void setText(const QString &text);
     void setPrompt(const QString &prompt);
     void setValidator(QRegularExpressionValidator *validator);
+    void setError(const QString &error);
 
     void updateScaling() override;
     void setEditButtonClickable(bool clickable);
@@ -46,6 +47,8 @@ private:
     QString caption_;
     QString text_;
     QString editPlaceholderText_;
+    QString errorText_;
+    int errorHeight_ = 0;
 
     IconButton *btnEdit_;
     IconButton *btnConfirm_;

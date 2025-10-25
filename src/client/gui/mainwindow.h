@@ -99,9 +99,12 @@ private slots:
     void onConnectWindowNotificationsClick();
     void onConnectWindowSplitTunnelingClick();
     void onConnectWindowProtocolsClick();
+    void onConnectWindowRotateIpClick();
     void onConnectWindowLocationTabClicked(LOCATION_TAB tab);
     void onConnectWindowSearchFilterChanged(const QString &filter);
     void onConnectWindowLocationsKeyPressed(QKeyEvent *event);
+    void onPinIp(); // Also used by IPC
+    void onUnpinIp(const QString &ip); // Also used by IPC
 
     // news feed window signals
     void onEscapeNotificationsClick();
@@ -226,6 +229,8 @@ private slots:
     void onBackendProtocolStatusChanged(const QVector<types::ProtocolStatus> &status);
     void onLocalDnsServerNotAvailable();
     void onSplitTunnelingStartFailed();
+    void onBackendBridgeApiAvailabilityChanged(bool isAvailable);
+    void onBackendIpRotateFailed();
 
     void onBackendEngineCrash();
 
@@ -445,6 +450,7 @@ private:
     bool userProtocolOverride_;
 
     bool sendDebugLogOnDisconnect_;
+    bool receivedInitialIpAfterConnect_;
 
     QSocketNotifier *socketNotifier_;
     int fd_;

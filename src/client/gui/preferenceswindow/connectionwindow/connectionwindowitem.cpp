@@ -94,6 +94,7 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connectedDnsGroup_->setConnectedDnsInfo(preferences->connectedDnsInfo());
     connect(connectedDnsGroup_, &ConnectedDnsGroup::connectedDnsInfoChanged, this, &ConnectionWindowItem::onConnectedDnsPreferencesChangedByUser);
     connect(connectedDnsGroup_, &ConnectedDnsGroup::domainsClick, this, &ConnectionWindowItem::connectedDnsDomainsClick);
+    connect(connectedDnsGroup_, &ConnectedDnsGroup::fetchControldDevices, this, &ConnectionWindowItem::fetchControldDevices);
     addItem(connectedDnsGroup_);
     allowLanTrafficGroup_ = new PreferenceGroup(this);
     checkBoxAllowLanTraffic_ = new ToggleItem(allowLanTrafficGroup_, tr("Allow LAN Traffic"));
@@ -185,6 +186,11 @@ void ConnectionWindowItem::checkLocalDns()
     dnsChecker_.checkAvailability();
 }
 
+void ConnectionWindowItem::onControldDevicesFetched(CONTROLD_FETCH_RESULT result, const QList<QPair<QString, QString>> &devices)
+{
+    connectedDnsGroup_->onControldDevicesFetched(result, devices);
+}
+
 void ConnectionWindowItem::setCurrentNetwork(const types::NetworkInterface &networkInterface)
 {
     macSpoofingGroup_->setCurrentNetwork(networkInterface);
@@ -245,6 +251,8 @@ void ConnectionWindowItem::onTerminateSocketsPreferencesChangedByUser(bool isChe
 void ConnectionWindowItem::onAntiCensorshipPreferencesChangedByUser(bool isChecked)
 {
     preferences_->setAntiCensorship(isChecked);
+    QSettings settings;
+    settings.remove("isAntiCensorshipEnabledAutomatically");
 }
 
 void ConnectionWindowItem::onSplitTunnelingPreferencesChanged(const types::SplitTunneling &st)

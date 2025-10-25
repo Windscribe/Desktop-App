@@ -1411,6 +1411,8 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
               || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
               || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG);
 
+    connectWindow_->hideMenus();
+
     if (curWindow_ == WINDOW_ID_LOGGING_IN) {
         // qDebug() << "LoggingIn -> Connect";
         loggingInWindow_->stackBefore(connectWindow_);
@@ -2598,6 +2600,7 @@ void MainWindowController::collapseWindow(ResizableWindow *window, bool bSkipBot
     windowSizeManager_->setScrollPos(window, window->scrollPos());
     windowSizeManager_->setState(window, WindowSizeManager::kWindowAnimating);
     connectWindow_->show();
+    connectWindow_->hideMenus();
     connectWindow_->onLocationsCollapsed();
 
     // opacity change

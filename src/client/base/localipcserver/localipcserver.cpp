@@ -2,6 +2,7 @@
 
 #include "backend/persistentstate.h"
 #include "ipc/server.h"
+#include "utils/ipvalidation.h"
 #include "utils/log/categories.h"
 #include "utils/utils.h"
 #include "utils/ws_assert.h"
@@ -21,6 +22,7 @@ LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(pare
     connect(backend_, &Backend::updateDownloaded, this, &LocalIPCServer::onBackendUpdateDownloaded);
     connect(backend_, &Backend::updateVersionChanged, this, &LocalIPCServer::onBackendUpdateVersionChanged);
     connect(backend_, &Backend::connectionIdChanged, this, &LocalIPCServer::onBackendConnectionIdChanged);
+    connect(backend_, &Backend::bridgeApiAvailabilityChanged, this, &LocalIPCServer::onBackendBridgeApiAvailabilityChanged);
 
     connect(backend_->locationsModelManager(), &gui_locations::LocationsModelManager::deviceNameChanged, this, &LocalIPCServer::onLocationsModelManagerDeviceNameChanged);
 }
@@ -154,6 +156,34 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
     } else if (command->getStringId() == IPC::CliCommands::SetKeyLimitBehavior::getCommandStringId()) {
         IPC::CliCommands::SetKeyLimitBehavior *cmd = static_cast<IPC::CliCommands::SetKeyLimitBehavior *>(command);
         emit setKeyLimitBehavior(cmd->keyLimitDelete_);
+    } else if (command->getStringId() == IPC::CliCommands::RotateIp::getCommandStringId()) {
+        if (!isBridgeApiAvailable_) {
+            IPC::CliCommands::Acknowledge cmd;
+            cmd.code_ = 1;
+            cmd.message_ = "Bridge API not available";
+            sendCommand(cmd);
+            return;
+        }
+        backend_->rotateIp();
+    } else if (command->getStringId() == IPC::CliCommands::FavIp::getCommandStringId()) {
+        if (!isBridgeApiAvailable_) {
+            IPC::CliCommands::Acknowledge cmd;
+            cmd.code_ = 1;
+            cmd.message_ = "Bridge API not available";
+            sendCommand(cmd);
+            return;
+        }
+        emit pinIp();
+    } else if (command->getStringId() == IPC::CliCommands::UnfavIp::getCommandStringId()) {
+        IPC::CliCommands::UnfavIp *cmd = static_cast<IPC::CliCommands::UnfavIp *>(command);
+        if (!IpValidation::isIp(cmd->ip_)) {
+            IPC::CliCommands::Acknowledge ack;
+            ack.code_ = 2;
+            ack.message_ = "Invalid IP address";
+            sendCommand(ack);
+            return;
+        }
+        emit unpinIp(cmd->ip_);
     }
 
     IPC::CliCommands::Acknowledge cmd;
@@ -299,6 +329,11 @@ void LocalIPCServer::setDisconnectedByKeyLimit()
 void LocalIPCServer::onBackendConnectionIdChanged(const QString &connId)
 {
     connectId_ = connId;
+}
+
+void LocalIPCServer::onBackendBridgeApiAvailabilityChanged(bool isAvailable)
+{
+    isBridgeApiAvailable_ = isAvailable;
 }
 
 void LocalIPCServer::onLocationsModelManagerDeviceNameChanged(const QString &deviceName)

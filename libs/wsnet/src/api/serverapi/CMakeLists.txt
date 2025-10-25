@@ -1,0 +1,19 @@
+target_sources(wsnet PRIVATE
+    failedfailovers.h
+    requestexecuterviafailover.cpp
+    requestexecuterviafailover.h
+    serverapi.cpp
+    serverapi.h
+    serverapi_impl.cpp
+    serverapi_impl.h
+    serverapi_requestsfactory.cpp
+    serverapi_requestsfactory.h
+    serverapi_utils.cpp
+    serverapi_utils.h
+    setrobertfilter_request.cpp
+    setrobertfilter_request.h
+    serverlocations_request.cpp
+    serverlocations_request.h
+    wsnet_utils_impl.h
+    wsnet_utils_impl.cpp
+)

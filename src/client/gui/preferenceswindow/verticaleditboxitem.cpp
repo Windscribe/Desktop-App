@@ -73,6 +73,18 @@ void VerticalEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
                                         Qt::ElideRight,
                                         boundingRect().width() - (3*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE));
     }
+
+    // Draw error message if present
+    if (!errorText_.isEmpty()) {
+        QFont errorFont = FontManager::instance().getFont(10, QFont::Normal);
+        painter->setFont(errorFont);
+        painter->setPen(Qt::red);
+        painter->setOpacity(OPACITY_FULL);
+        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
+                                                  boundingRect().height() - PREFERENCES_MARGIN_Y*G_SCALE - errorHeight_,
+                                                  -PREFERENCES_MARGIN_X*G_SCALE,
+                                                  0), Qt::AlignLeft | Qt::TextWordWrap, errorText_);
+    }
 }
 
 void VerticalEditBoxItem::setCaption(const QString &caption)
@@ -97,6 +109,12 @@ void VerticalEditBoxItem::setPrompt(const QString &prompt)
 void VerticalEditBoxItem::setValidator(QRegularExpressionValidator *validator)
 {
     lineEdit_->setValidator(validator);
+}
+
+void VerticalEditBoxItem::setError(const QString &error)
+{
+    errorText_ = error;
+    updatePositions();
 }
 
 void VerticalEditBoxItem::setEditButtonClickable(bool clickable)
@@ -194,6 +212,19 @@ void VerticalEditBoxItem::updatePositions()
     {
         lineEdit_->setGeometry((PREFERENCES_MARGIN_X)*G_SCALE, top, boundingRect().width() - (2*ICON_WIDTH + 3*PREFERENCES_MARGIN_X)*G_SCALE, ICON_HEIGHT*G_SCALE);
     }
+
+    // Calculate error message height and adjust widget height
+    if (errorText_.isEmpty()) {
+        errorHeight_ = 0;
+        setHeight((PREFERENCE_GROUP_ITEM_HEIGHT + PREFERENCES_ITEM_Y + ICON_HEIGHT)*G_SCALE);
+    } else {
+        QFontMetrics fm(FontManager::instance().getFont(10, QFont::Normal));
+        errorHeight_ = fm.boundingRect(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, 0, -PREFERENCES_MARGIN_X*G_SCALE, 0).toRect(),
+                                       Qt::AlignLeft | Qt::TextWordWrap,
+                                       errorText_).height();
+        setHeight((PREFERENCE_GROUP_ITEM_HEIGHT + PREFERENCES_ITEM_Y + ICON_HEIGHT)*G_SCALE + errorHeight_ + DESCRIPTION_MARGIN*G_SCALE);
+    }
+    update();
 }
 
 } // namespace PreferencesWindow

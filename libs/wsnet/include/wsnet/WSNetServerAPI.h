@@ -10,12 +10,11 @@
 
 namespace wsnet {
 
-//TODO: enums replace to int? kIncorrectJson possible?
-enum class ServerApiRetCode { kSuccess = 0, kNetworkError, kNoNetworkConnection, kIncorrectJson, kFailoverFailed };
 enum class UpdateChannel { kRelease = 0, kBeta, kGuineaPig, kInternal };
-
+enum class ApiRetCode { kSuccess = 0, kNetworkError, kNoNetworkConnection, kIncorrectJson, kFailoverFailed, kNoToken };
+typedef ApiRetCode ServerApiRetCode; // for backward compatibility
+typedef std::function<void(ApiRetCode apiRetCode, const std::string &jsonData)> WSNetRequestFinishedCallback;
 typedef std::function<void(std::uint32_t num, std::uint32_t count)> WSNetTryingBackupEndpointCallback;
-typedef std::function<void(ServerApiRetCode serverApiRetCode, const std::string &jsonData)> WSNetRequestFinishedCallback;
 
 class WSNetServerAPI : public scapix_object<WSNetServerAPI>
 {

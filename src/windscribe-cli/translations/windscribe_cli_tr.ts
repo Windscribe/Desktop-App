@@ -15,6 +15,18 @@
         <source>No locations.</source>
         <translation>Konum yok.</translation>
     </message>
+    <message>
+        <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>IP döndürülemedi.  Lütfen Windscribe Pro&apos;ya sahip olup olmadığınızı veya planınızda bu konumun olup olmadığını kontrol edin veya daha sonra tekrar deneyin.</translation>
+    </message>
+    <message>
+        <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>IP&apos;yi favorilere ekleyemedim.  Lütfen Windscribe Pro&apos;ya sahip olup olmadığınızı veya planınızda bu konumun olup olmadığını kontrol edin veya daha sonra tekrar deneyin.</translation>
+    </message>
+    <message>
+        <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
+        <translation>IP&apos;yi favorilerden çıkaramazdım.  Lütfen sağlanan IP&apos;nin geçerli olup olmadığını kontrol edin.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -284,15 +296,35 @@
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"></translation>
+        <translation> (10 Gb/sn)</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Devre dışı)</translation>
     </message>
     <message>
         <source> (Pro)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Profesyonel)</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Bağlı değil</translation>
+    </message>
+    <message>
+        <source>IP rotated.</source>
+        <translation>IP döndürüldü.</translation>
+    </message>
+    <message>
+        <source>IP favorited.</source>
+        <translation>IP favori.</translation>
+    </message>
+    <message>
+        <source>IP unfavorited.</source>
+        <translation>IP favorilere eklenmedi.</translation>
+    </message>
+    <message>
+        <source>Invalid IP address</source>
+        <translation>Geçersiz IP adresi</translation>
     </message>
 </context>
 </TS>

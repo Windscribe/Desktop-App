@@ -50,6 +50,8 @@ PersistentSettings::PersistentSettings(const std::string &settings)
             staticIps_ = jsonObject["staticIps"].GetString();
         if (jsonObject.HasMember("notifications"))
             notifications_ = jsonObject["notifications"].GetString();
+        if (jsonObject.HasMember("sessionToken"))
+            sessionToken_ = jsonObject["sessionToken"].GetString();
 
         g_logger->info("ServerAPI settings settled sucessfully");
     }
@@ -187,6 +189,18 @@ std::string PersistentSettings::notifications() const
     return notifications_;
 }
 
+void PersistentSettings::setSessionToken(const std::string &sessionToken)
+{
+    std::lock_guard locker(mutex_);
+    sessionToken_ = sessionToken;
+}
+
+std::string PersistentSettings::sessionToken() const
+{
+    std::lock_guard locker(mutex_);
+    return sessionToken_;
+}
+
 std::string PersistentSettings::getAsString() const
 {
     std::lock_guard locker(mutex_);
@@ -218,6 +232,8 @@ std::string PersistentSettings::getAsString() const
         doc.AddMember("staticIps", StringRef(staticIps_.c_str()), doc.GetAllocator());
     if (!notifications_.empty())
         doc.AddMember("notifications", StringRef(notifications_.c_str()), doc.GetAllocator());
+    if (!sessionToken_.empty())
+        doc.AddMember("sessionToken", StringRef(sessionToken_.c_str()), doc.GetAllocator());
 
     StringBuffer sb;
     Writer<StringBuffer> writer(sb);

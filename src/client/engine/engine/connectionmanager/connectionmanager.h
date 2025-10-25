@@ -48,7 +48,8 @@ public:
                       QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                       const types::ConnectionSettings &connectionSettings,
                       const api_responses::PortMap &portMap, const types::ProxySettings &proxySettings,
-                      bool bEmitAuthError, const QString &customConfigPath, bool isAntiCensorship);
+                      bool bEmitAuthError, const QString &customConfigPath, bool isAntiCensorship,
+                      const QString &preferredNodeHostname = QString());
 
     void clickDisconnect(DISCONNECT_REASON reason = DISCONNECTED_BY_USER);
     void reconnect();
@@ -224,6 +225,7 @@ private:
     QSharedPointer<locationsmodel::BaseLocationInfo> bli_;
 
     types::Protocol lastKnownGoodProtocol_;
+    QString preferredNodeHostname_;
 
     DISCONNECT_REASON userDisconnectReason_ = DISCONNECTED_BY_USER;
 

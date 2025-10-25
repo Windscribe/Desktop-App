@@ -27,7 +27,7 @@ public:
 
 
     static void removeIkev2ConnectionFromOS();
-    static void closeWindscribeActiveConnection();
+    static void stopWindscribeActiveConnection();
 
 private slots:
     void handleNotificationImpl(int status);
@@ -50,8 +50,7 @@ private:
     QTimer statisticsTimer_;
     QString ipsecAdapterName_;
 
-    int prevConnectionStatus_;
-    bool isPrevConnectionStatusInitialized_;
+    inline static const QString kVpnDescription = QStringLiteral("Windscribe IKEv2 VPN");
 
     // True if startConnect() method was called and NEVPNManager emitted notification NEVPNStatusConnecting.
     // False otherwise.
@@ -64,4 +63,5 @@ private:
     bool isFailedAuthError(QMap<time_t, QString> &logs);
     bool isSocketError(QMap<time_t, QString> &logs);
     bool setCustomDns(const QString &overrideDnsIpAddress);
+    void removeVPNConfigurationFromSystemPreferences();
 };

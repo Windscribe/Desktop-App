@@ -425,11 +425,11 @@ bool Preferences::isAntiCensorship() const
     return engineSettings_.isAntiCensorship();
 }
 
-void Preferences::setAntiCensorship(bool b)
+void Preferences::setAntiCensorship(bool bEnabled)
 {
-    if (engineSettings_.isAntiCensorship() != b)
+    if (engineSettings_.isAntiCensorship() != bEnabled)
     {
-        engineSettings_.setIsAntiCensorship(b);
+        engineSettings_.setIsAntiCensorship(bEnabled);
         emitEngineSettingsChanged();
         emit isAntiCensorshipChanged(engineSettings_.isAntiCensorship());
     }
@@ -972,7 +972,7 @@ void Preferences::validateAndUpdateIfNeeded()
 
     // Validate Connected Dns settings
     types::ConnectedDnsInfo cdi = engineSettings_.connectedDnsInfo();
-    if (cdi.type == CONNECTED_DNS_TYPE_CUSTOM) {
+    if (cdi.type == CONNECTED_DNS_TYPE_CUSTOM || cdi.type == CONNECTED_DNS_TYPE_CONTROLD) {
         bool bCorrect = true;
         if (!IpValidation::isCtrldCorrectAddress(cdi.upStream1)) {
             bCorrect = false;

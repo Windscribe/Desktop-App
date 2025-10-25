@@ -15,6 +15,18 @@
         <source>No locations.</source>
         <translation>कोई स्थान नहीं।</translation>
     </message>
+    <message>
+        <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>IP को घुमाया नहीं जा सका।  कृपया जांचें कि आपके पास विंडसाइड प्रो है या आपकी योजना में यह स्थान है, या बाद में पुनः प्रयास करें।</translation>
+    </message>
+    <message>
+        <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>पसंदीदा आईपी नहीं कर सका।  कृपया जांचें कि आपके पास विंडसाइड प्रो है या आपकी योजना में यह स्थान है, या बाद में पुनः प्रयास करें।</translation>
+    </message>
+    <message>
+        <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
+        <translation>अप्रिय आईपी नहीं कर सका।  कृपया जांचें कि प्रदान किया गया आईपी मान्य है।</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -284,15 +296,35 @@
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"></translation>
+        <translation> (10 जीबीपीएस)</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation> (अक्षम)</translation>
     </message>
     <message>
         <source> (Pro)</source>
-        <translation type="unfinished"></translation>
+        <translation> (प्रो)</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>कनेक्ट नहीं हुआ</translation>
+    </message>
+    <message>
+        <source>IP rotated.</source>
+        <translation>आईपी घुमाया।</translation>
+    </message>
+    <message>
+        <source>IP favorited.</source>
+        <translation>आईपी पसंदीदा।</translation>
+    </message>
+    <message>
+        <source>IP unfavorited.</source>
+        <translation>आईपी पसंदीदा।</translation>
+    </message>
+    <message>
+        <source>Invalid IP address</source>
+        <translation>अमान्य आईपी पता</translation>
     </message>
 </context>
 </TS>

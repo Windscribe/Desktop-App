@@ -13,6 +13,7 @@
 #include "languagecontroller.h"
 #include "strings.h"
 #include "utils.h"
+#include "utils/ipvalidation.h"
 #include "utils/log/categories.h"
 #include "utils/utils.h"
 
@@ -44,8 +45,8 @@ void BackendCommander::initAndSend()
 void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::Connection * /*connection*/)
 {
     if (command->getStringId() == IPC::CliCommands::Acknowledge::getCommandStringId()) {
-        // There are currently no commands that return a real value we need to parse here
-        onAcknowledge();
+        IPC::CliCommands::Acknowledge *ackCmd = static_cast<IPC::CliCommands::Acknowledge *>(command);
+        onAcknowledge(ackCmd);
     } else if (command->getStringId() == IPC::CliCommands::State::getCommandStringId()) {
         if (cliArgs_.cliCommand() == CLI_COMMAND_STATUS) {
             // If we explicitly requested status, print it.
@@ -170,7 +171,7 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
         cmd.keyLimitDelete_ = cliArgs_.keyLimitDelete();
         connection_->sendCommand(cmd);
     }
-    else if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_STATIC) {
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_STATIC || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_FAV) {
         if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
             emit finished(1, QObject::tr("Not logged in"));
             return;
@@ -178,8 +179,10 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
         IPC::CliCommands::ShowLocations cmd;
         if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS) {
             cmd.locationType_ = IPC::CliCommands::LocationType::kRegular;
-        } else {
+        } else if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_STATIC) {
             cmd.locationType_ = IPC::CliCommands::LocationType::kStaticIp;
+        } else {
+            cmd.locationType_ = IPC::CliCommands::LocationType::kFavourite;
         }
 
         connection_->sendCommand(cmd);
@@ -256,6 +259,44 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_RELOAD_CONFIG) {
         IPC::CliCommands::ReloadConfig cmd;
+        connection_->sendCommand(cmd);
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_IP_ROTATE) {
+        if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
+            emit finished(1, QObject::tr("Not logged in"));
+            return;
+        }
+        if (state->connectState_.connectState != CONNECT_STATE_CONNECTED) {
+            emit finished(1, QObject::tr("Not connected"));
+            return;
+        }
+        IPC::CliCommands::RotateIp cmd;
+        connection_->sendCommand(cmd);
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_IP_FAV) {
+        if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
+            emit finished(1, QObject::tr("Not logged in"));
+            return;
+        }
+        if (state->connectState_.connectState != CONNECT_STATE_CONNECTED) {
+            emit finished(1, QObject::tr("Not connected"));
+            return;
+        }
+        IPC::CliCommands::FavIp cmd;
+        connection_->sendCommand(cmd);
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_IP_UNFAV) {
+        if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
+            emit finished(1, QObject::tr("Not logged in"));
+            return;
+        }
+        QString ipAddress = cliArgs_.ipAddress();
+        if (!IpValidation::isIp(ipAddress)) {
+            emit finished(1, QObject::tr("Invalid IP address"));
+            return;
+        }
+        IPC::CliCommands::UnfavIp cmd;
+        cmd.ip_ = ipAddress;
         connection_->sendCommand(cmd);
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_STATUS) {
@@ -349,10 +390,10 @@ void BackendCommander::onUpdateStateResponse(IPC::Command *command)
 #endif
 }
 
-void BackendCommander::onAcknowledge()
+void BackendCommander::onAcknowledge(IPC::CliCommands::Acknowledge *ackCmd)
 {
     //  This only occurs on CLI with GUI backend; it just changes the appropriate window/tab.  Do not wait for this operation.
-    if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_STATIC) {
+    if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_STATIC || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_FAV) {
         emit(finished(0, ""));
         return;
     }
@@ -383,6 +424,30 @@ void BackendCommander::onAcknowledge()
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_RELOAD_CONFIG) {
         emit(finished(0, QObject::tr("Preferences reloaded.")));
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_IP_ROTATE) {
+        if (ackCmd->code_ != 0) {
+            emit(finished(ackCmd->code_, tr("Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.")));
+        } else {
+            emit(finished(0, QObject::tr("IP rotated.")));
+        }
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_IP_FAV) {
+        if (ackCmd->code_ != 0) {
+            emit(finished(ackCmd->code_, tr("Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.")));
+        } else {
+            emit(finished(0, QObject::tr("IP favorited.")));
+        }
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_IP_UNFAV) {
+        if (ackCmd->code_ != 0) {
+            emit(finished(ackCmd->code_, tr("Could not unfavourite IP.  Please check that the provided IP is valid.")));
+        } else {
+            emit(finished(0, QObject::tr("IP unfavorited.")));
+        }
+    }
+    else {
+        emit(finished(0, ""));
     }
 }
 

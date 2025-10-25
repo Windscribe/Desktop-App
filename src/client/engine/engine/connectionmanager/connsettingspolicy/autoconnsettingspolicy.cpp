@@ -11,7 +11,7 @@ types::Protocol AutoConnSettingsPolicy::lastKnownGoodProtocol_;
 
 AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                                                const api_responses::PortMap &portMap, bool isProxyEnabled,
-                                               const types::Protocol protocol, bool isLockdownMode, bool skipWireguardProtocol)
+                                               const types::Protocol protocol, bool isLockdownMode, bool skipWireguardProtocol, const QString &preferredNodeHostname)
 {
     attempts_.clear();
     curAttempt_ = 0;
@@ -61,8 +61,13 @@ AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::Ba
     }
 
     QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-    if (IpValidation::isIp(remoteOverride) && attempts_.size() > 0 && attempts_[0].protocol == types::Protocol::WIREGUARD) {
+    if (IpValidation::isIp(remoteOverride) && attempts_.size() > 0 && attempts_[0].protocol == types::Protocol::WIREGUARD && !remoteOverride.isEmpty()) {
         locationInfo_->selectNodeByIp(remoteOverride);
+    } else if (!preferredNodeHostname.isEmpty()) {
+        qCInfo(LOG_CONNECTION) << "Selecting preferred node by hostname: " << preferredNodeHostname;
+        if (locationInfo_->selectNodeByHostname(preferredNodeHostname)) {
+            qCInfo(LOG_CONNECTION) << "Found matching node: " << locationInfo_->getLogString();
+        }
     }
 }
 
@@ -85,15 +90,15 @@ void AutoConnSettingsPolicy::putFailedConnection()
     }
 
     if (curAttempt_ < (attempts_.count() - 1)) {
+        curAttempt_++;
         if (attempts_[curAttempt_].changeNode) {
             QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-            if (IpValidation::isIp(remoteOverride) && attempts_[curAttempt_ + 1].protocol == types::Protocol::WIREGUARD) {
+            if (IpValidation::isIp(remoteOverride) && attempts_[curAttempt_].protocol == types::Protocol::WIREGUARD) {
                 locationInfo_->selectNodeByIp(remoteOverride);
             } else {
                 locationInfo_->selectNextNode();
             }
         }
-        curAttempt_++;
         // even indicies are a new protocol, so emit a change
         if (curAttempt_ % 2 == 0) {
             emit protocolStatusChanged(protocolStatus());

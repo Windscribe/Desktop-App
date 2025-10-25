@@ -61,6 +61,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     Q_UNUSED(password);
     Q_UNUSED(proxySettings);
     Q_UNUSED(isEnableIkev2Compression);
+    Q_UNUSED(isAutomaticConnectionMode);
     Q_UNUSED(isCustomConfig);
 
     WS_ASSERT(helper_ != nullptr);
@@ -73,7 +74,6 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     }
 
     connectedSignalEmited_ = false;
-    isAutomaticConnectionMode_ = isAutomaticConnectionMode;
     wireGuardConfig_ = *wireGuardConfig;
 
     // override the DNS if we are using custom
@@ -164,14 +164,6 @@ void WireGuardConnection::run()
             break;
         }
 
-        wsl::Win32Handle timerTimeoutForAutomatic;
-        if (isAutomaticConnectionMode_) {
-            timerTimeoutForAutomatic.setHandle(timer_win::createTimer(kTimeoutForAutomatic, true, automaticConnectionTimeoutProc, this));
-            if (!timerTimeoutForAutomatic.isValid()) {
-                break;
-            }
-        }
-
         wsl::Win32Handle timerGetWireguardLogUpdates(timer_win::createTimer(kTimeoutForLogUpdate, false, getWireguardLogUpdatesProc, this));
         if (!timerGetWireguardLogUpdates.isValid()) {
             break;
@@ -187,7 +179,6 @@ void WireGuardConnection::run()
         timer_win::cancelTimer(timerGetWireguardLogUpdates);
         timer_win::cancelTimer(timerGetWireguardStats);
         timer_win::cancelTimer(timerCheckServiceRunning);
-        timer_win::cancelTimer(timerTimeoutForAutomatic);
 
         // Get final receive/transmit byte counts.
         onGetWireguardStats();
@@ -278,14 +269,6 @@ void WireGuardConnection::onGetWireguardStats()
 
             emit statisticsUpdated(status.bytesReceived, status.bytesTransmitted, true);
         }
-    }
-}
-
-void WireGuardConnection::onAutomaticConnectionTimeout()
-{
-    if (!connectedSignalEmited_) {
-        emit error(CONNECT_ERROR::STATE_TIMEOUT_FOR_AUTOMATIC);
-        stop();
     }
 }
 
@@ -412,14 +395,6 @@ void CALLBACK WireGuardConnection::getWireguardStatsProc(LPVOID lpArgToCompletio
     Q_UNUSED(dwTimerHighValue)
     WireGuardConnection* wc = (WireGuardConnection*)lpArgToCompletionRoutine;
     wc->onGetWireguardStats();
-}
-
-void CALLBACK WireGuardConnection::automaticConnectionTimeoutProc(LPVOID lpArgToCompletionRoutine, DWORD dwTimerLowValue, DWORD dwTimerHighValue)
-{
-    Q_UNUSED(dwTimerLowValue)
-    Q_UNUSED(dwTimerHighValue)
-    WireGuardConnection* wc = (WireGuardConnection*)lpArgToCompletionRoutine;
-    wc->onAutomaticConnectionTimeout();
 }
 
 void WireGuardConnection::resetLogReader()

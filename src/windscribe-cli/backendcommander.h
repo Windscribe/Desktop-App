@@ -47,5 +47,5 @@ private:
 
     void onStateResponse(IPC::Command *command);
     void onUpdateStateResponse(IPC::Command *command);
-    void onAcknowledge();
+    void onAcknowledge(IPC::CliCommands::Acknowledge *ackCmd);
 };

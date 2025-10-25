@@ -54,6 +54,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(connectionWindowItem_, &ConnectionWindowItem::cycleMacAddressClick, this, &PreferencesWindowItem::cycleMacAddressClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::detectPacketSize, this, &PreferencesWindowItem::detectPacketSizeClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::connectedDnsDomainsClick, this, &PreferencesWindowItem::onConnectedDnsDomainsClick);
+    connect(connectionWindowItem_, &ConnectionWindowItem::fetchControldDevices, this, &PreferencesWindowItem::fetchControldDevices);
 
     advancedWindowItem_ = new AdvancedWindowItem(nullptr, preferences, preferencesHelper);
     connect(advancedWindowItem_, &AdvancedWindowItem::advParametersClick, this, &PreferencesWindowItem::onAdvParametersClick);
@@ -377,6 +378,11 @@ void PreferencesWindowItem::onNetworkOptionsNetworkClick(types::NetworkInterface
     networkOptionsWindowItem_->setScreen(NETWORK_OPTIONS_DETAILS);
     setShowSubpageMode(true);
     update();
+}
+
+void PreferencesWindowItem::onControldDevicesFetched(CONTROLD_FETCH_RESULT result, const QList<QPair<QString, QString>> &devices)
+{
+    connectionWindowItem_->onControldDevicesFetched(result, devices);
 }
 
 void PreferencesWindowItem::setPreferencesWindowToSplitTunnelingHome()

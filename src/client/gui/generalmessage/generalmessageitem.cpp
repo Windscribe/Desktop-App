@@ -320,18 +320,20 @@ void GeneralMessageItem::setTitleSize(int size)
 
 void GeneralMessageItem::updatePositions()
 {
+    int iconHeight = 0;
     if (icon_ != nullptr) {
         icon_->setPos(boundingRect().width()/2 - icon_->boundingRect().width()/2, 0);
+        iconHeight = icon_->boundingRect().height();
     }
 
     if (desc_.isEmpty()) {
         if (username_ != nullptr || password_ != nullptr) {
-            setFirstItemOffsetY((titleHeight_ + 98*G_SCALE)/G_SCALE);
+            setFirstItemOffsetY((titleHeight_ + 58*G_SCALE + iconHeight)/G_SCALE);
         } else {
-            setFirstItemOffsetY((titleHeight_ + 82*G_SCALE)/G_SCALE);
+            setFirstItemOffsetY((titleHeight_ + 42*G_SCALE + iconHeight)/G_SCALE);
         }
     } else {
-        setFirstItemOffsetY((titleHeight_ + descHeight_ + 124*G_SCALE)/G_SCALE);
+        setFirstItemOffsetY((titleHeight_ + descHeight_ + 64*G_SCALE + iconHeight)/G_SCALE);
     }
     update();
 }

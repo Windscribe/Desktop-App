@@ -4,6 +4,7 @@
 
 #include "engine/engine.h"
 #include "persistentstate.h"
+#include "locations/locationsmodel_roles.h"
 #include "utils/dns_utils/dnsutils.h"
 #include "utils/log/categories.h"
 #include "utils/network_utils/network_utils.h"
@@ -112,6 +113,10 @@ void Backend::init()
     connect(engine_, &Engine::autoEnableAntiCensorship, this, &Backend::onEngineAutoEnableAntiCensorship);
     connect(engine_, &Engine::connectionIdChanged, this, &Backend::connectionIdChanged);
     connect(engine_, &Engine::localDnsServerNotAvailable, this, &Backend::localDnsServerNotAvailable);
+    connect(engine_, &Engine::bridgeApiAvailabilityChanged, this, &Backend::onEngineBridgeApiAvailabilityChanged);
+    connect(engine_, &Engine::ipRotateFailed, this, &Backend::ipRotateFailed);
+    connect(engine_, &Engine::connectingHostnameChanged, this, &Backend::onEngineConnectingHostnameChanged);
+    connect(engine_, &Engine::controldDevicesFetched, this, &Backend::controldDevicesFetched);
     threadEngine_->start(QThread::LowPriority);
 }
 
@@ -183,7 +188,31 @@ void Backend::sendConnect(const LocationID &lid, const types::ConnectionSettings
         osDnsServers_ = DnsUtils::getOSDefaultDnsServers();
     }
     connectStateHelper_.connectClickFromUser();
-    engine_->connectClick(lid, connectionSettings);
+
+    // Check if this location has a pinned node/IP in favorites
+    // Only pin if user is premium and location is an API location
+    QPair<QString, QString> pinnedNode; // hostname, ip
+					//
+    LocationID apiLocationId = lid;
+
+    // If this is Best Location, convert to the actual API location
+    if (lid.isBestLocation()) {
+        apiLocationId = lid.bestLocationToApiLocation();
+    }
+
+    // Only check for pinned data if it's an API location
+    if (apiLocationId.isValid() && apiLocationId.type() == 1) { // API_LOCATION = 1
+        QModelIndex locationIndex = static_cast<gui_locations::LocationsModel*>(locationsModelManager_->locationsModel())->getIndexByLocationId(apiLocationId);
+        if (locationIndex.isValid()) {
+            QVariantList pinnedData = locationsModelManager_->locationsModel()->data(locationIndex, gui_locations::kPinnedIp).toList();
+            if (pinnedData.size() == 2) {
+                pinnedNode.first = pinnedData[0].toString();   // hostname
+                pinnedNode.second = pinnedData[1].toString();  // ip
+            }
+        }
+    }
+
+    engine_->connectClick(lid, connectionSettings, pinnedNode);
 }
 
 void Backend::sendDisconnect(DISCONNECT_REASON reason)
@@ -972,9 +1001,43 @@ bool Backend::haveAutoLoginCredentials(QString &username, QString &password)
 #endif
 }
 
-void Backend::onEngineAutoEnableAntiCensorship()
+void Backend::onEngineAutoEnableAntiCensorship(bool enable)
 {
-    preferences_.setAntiCensorship(true);
+    preferences_.setAntiCensorship(enable);
+}
+
+void Backend::onEngineConnectingHostnameChanged(const QString &hostname)
+{
+    currentConnectingHostname_ = hostname;
+}
+
+void Backend::onEngineBridgeApiAvailabilityChanged(bool isAvailable)
+{
+    bool enableIpUtils = false;
+
+    if (isAvailable) {
+        LocationID currentLoc = currentLocation();
+        if (currentLoc.isValid() && !currentLoc.isStaticIpsLocation() && !currentLoc.isCustomConfigsLocation()) {
+            const api_responses::SessionStatus& sessionStatus = getSessionStatus();
+
+            if (sessionStatus.isPremium()) {
+                enableIpUtils = true;
+            } else if (!sessionStatus.getAlc().isEmpty()) {
+                gui_locations::LocationsModel* locationsModel = static_cast<gui_locations::LocationsModel*>(locationsModelManager_->locationsModel());
+                QModelIndex index = locationsModel->getIndexByLocationId(currentLoc);
+                QModelIndex parent = locationsModel->parent(index);
+
+                if (parent.isValid()) {
+                    QString parentShortName = parent.data(gui_locations::kShortName).toString();
+                    if (sessionStatus.getAlc().contains(parentShortName)) {
+                        enableIpUtils = true;
+                    }
+                }
+            }
+        }
+    }
+
+    emit bridgeApiAvailabilityChanged(enableIpUtils);
 }
 
 void Backend::updateCurrentNetworkInterface()
@@ -991,3 +1054,19 @@ bool Backend::osDnsServersListContains(const std::wstring &dnsServer)
 {
     return std::find(osDnsServers_.begin(), osDnsServers_.end(), dnsServer) != osDnsServers_.end();
 }
+
+void Backend::rotateIp()
+{
+    engine_->rotateIp();
+}
+
+QString Backend::getCurrentConnectingHostname() const
+{
+    return currentConnectingHostname_;
+}
+
+void Backend::fetchControldDevices(const QString &apiKey)
+{
+    engine_->fetchControldDevices(apiKey);
+}
+

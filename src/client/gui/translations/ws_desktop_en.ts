@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Keeping the firewall on while disconnected may break internet connectivity</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>Favourite IP</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Rotate IP</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>Static IPs</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favourites</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Search</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Custom configs</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Favourite Locations &amp; IPs</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>All locations (%1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favourites</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Static IPs</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>Refresh Pings</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Favourite Locations &amp; IPs</translation>
     </message>
 </context>
 <context>
@@ -665,10 +673,6 @@ Recovering...</translation>
         <translation>Locations</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favourites</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Static IPs</translation>
     </message>
@@ -873,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Unable to import location names</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>Debug Log Sent!</translation>
     </message>
@@ -907,6 +907,46 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>Custom configs</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>Error Starting WireGuard</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>Could not pin IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>We could not set your favourite IP for this location.  Try again later.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Could not rotate IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Try again later or go to our Status page for more info.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Check Location Status</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Back</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>Favourite Locations &amp;&amp; IPs</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>API Key</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Failed to reach Control D API.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Please provide a valid Control D API Key.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Version</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Choose between white and black tray icon.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Tray Icon Colour</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Multi-desktop</translation>
     </message>
@@ -1645,6 +1689,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>Reset</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Choose between white and black tray icon.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Tray Icon Colour</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Custom configs</source>
         <translation>Custom configs</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>Random IP</translation>
     </message>
 </context>
 <context>

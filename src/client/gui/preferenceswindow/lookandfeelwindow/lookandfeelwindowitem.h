@@ -33,6 +33,11 @@ private slots:
     void onAppSkinPreferencesChanged(APP_SKIN s);
     void onAppSkinChanged(QVariant value);
 
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
+    void onTrayIconColorChanged(QVariant value);
+    void onPreferencesTrayIconColorChanged(QVariant value);
+#endif
+
     void onResetLocationNamesClicked();
 
 signals:
@@ -56,6 +61,10 @@ private:
     LinkItem *exportSettingsItem_;
     LinkItem *importSettingsItem_;
     LinkItem *resetLocationsItem_;
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
+    PreferenceGroup *trayIconColorGroup_;
+    ComboBoxItem *trayIconColorItem_;
+#endif
 };
 
 } // namespace PreferencesWindow

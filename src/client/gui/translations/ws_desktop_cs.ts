@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Ponechání zapnuté brány firewall při odpojení může přerušit připojení k internetu</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>Oblíbená IP adresa</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Otočit IP adresu</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>Statické IP adresy</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Oblíbené</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Hledání</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Vlastní konfigurace</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Oblíbené lokality a IP adresy</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>Všechny lokality (%1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Oblíbené</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Statické IP adresy</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>Obnovit pingy</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Oblíbené lokality a IP adresy</translation>
     </message>
 </context>
 <context>
@@ -665,10 +673,6 @@ Uzdravování...</translation>
         <translation>Místa</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Oblíbené</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Statické IP adresy</translation>
     </message>
@@ -873,10 +877,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Nelze importovat názvy míst</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Funkce rozděleného tunelového propojení byla zakázána, protože rozšíření rozděleného tunelu Windscribe není v nastavení systému povoleno.  Chcete-li tuto funkci používat, povolte rozšíření v Nastavení systému a znovu ji zapněte.</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>Protokol ladění odeslán!</translation>
     </message>
@@ -907,6 +907,46 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Custom configs</source>
         <translation>Vlastní konfigurace</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>Protokol WireGuard byl zakázán, protože síťové rozšíření Windscribe není v Nastavení systému povoleno.  Chcete-li použít tento protokol, povolte rozšíření v Nastavení systému a znovu se připojte.</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>Chyba při spouštění WireGuard</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Funkce rozděleného tunelového propojení byla zakázána, protože síťové rozšíření Windscribe není v Nastavení systému povoleno.  Chcete-li tuto funkci používat, povolte rozšíření v Nastavení systému a znovu ji zapněte.</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>Nelze připnout IP adresu</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Pro tuto lokalitu se nám nepodařilo nastavit vaši oblíbenou IP.  Zkuste to znovu později.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Nelze otočit IP adresu</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Zkuste to znovu později nebo přejděte na naši stránku Stav, kde najdete další informace.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Zkontrolujte stav místa</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Hřbet</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>Oblíbené lokality &amp;&amp; IP adresy</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Použití LAN nebo místní IP adresy pro připojené DNS bude mít za následek únik DNS.  Důrazně doporučujeme používat server ROBERT nebo veřejný server DNS.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>API klíč</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Nepodařilo se dosáhnout rozhraní API Control D.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Poskytněte prosím platný klíč API Control D.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Windscribe se minimalizuje na panel nabídek a již se nezobrazuje v doku.</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Vyberte si mezi bílou a černou ikonou na hlavním panelu.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Barva ikony na hlavním panelu</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Více ploch</translation>
     </message>
@@ -1645,6 +1689,14 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Reset</source>
         <translation>Resetovat</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Vyberte si mezi bílou a černou ikonou na hlavním panelu.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Barva ikony na hlavním panelu</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Custom configs</source>
         <translation>Vlastní konfigurace</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>Náhodná IP adresa</translation>
     </message>
 </context>
 <context>

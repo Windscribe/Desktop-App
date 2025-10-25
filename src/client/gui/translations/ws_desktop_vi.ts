@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Bật tường lửa khi ngắt kết nối có thể làm gián đoạn kết nối internet</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>IP yêu thích</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Xoay IP</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>IP tĩnh</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Yêu thích</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Tìm kiếm</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Cấu hình tùy chỉnh</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Vị trí và IP yêu thích</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>Tất cả các địa điểm (%1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Yêu thích</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>IP tĩnh</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>Làm mới ping</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Vị trí và IP yêu thích</translation>
     </message>
 </context>
 <context>
@@ -665,10 +673,6 @@ Phục hồi...</translation>
         <translation>Địa điểm</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Yêu thích</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>IP tĩnh</translation>
     </message>
@@ -873,10 +877,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Không thể nhập tên địa điểm</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Tính năng tạo đường hầm phân chia đã bị tắt vì phần mở rộng đường hầm phân chia Windscribe không được bật trong Cài đặt hệ thống.  Để sử dụng tính năng này, vui lòng bật tiện ích mở rộng trong Cài đặt hệ thống và bật lại tính năng này.</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>Nhật ký gỡ lỗi đã gửi!</translation>
     </message>
@@ -907,6 +907,46 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Custom configs</source>
         <translation>Cấu hình tùy chỉnh</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>Giao thức WireGuard đã bị vô hiệu hóa vì tiện ích mở rộng mạng Windscribe không được bật trong Cài đặt hệ thống.  Để sử dụng giao thức này, vui lòng bật tiện ích mở rộng trong Cài đặt hệ thống và kết nối lại.</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>Lỗi khởi động WireGuard</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Tính năng tạo đường hầm phân chia đã bị tắt vì tiện ích mở rộng mạng Windscribe không được bật trong Cài đặt hệ thống.  Để sử dụng tính năng này, vui lòng bật tiện ích mở rộng trong Cài đặt hệ thống và bật lại tính năng này.</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>Không thể ghim IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Chúng tôi không thể đặt IP yêu thích của bạn cho vị trí này.  Hãy thử lại sau.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Không thể xoay IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Hãy thử lại sau hoặc truy cập trang Trạng thái của chúng tôi để biết thêm thông tin.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Kiểm tra trạng thái vị trí</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Lưng</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>Vị trí &amp; IP yêu thích</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Sử dụng mạng LAN hoặc địa chỉ IP cục bộ cho DNS được kết nối sẽ dẫn đến rò rỉ DNS.  Chúng tôi thực sự khuyên bạn nên sử dụng ROBERT hoặc máy chủ DNS công cộng.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>Khóa API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Không tiếp cận được API Control D.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Vui lòng cung cấp Khóa API Control D hợp lệ.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Phiên bản</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Chọn giữa biểu tượng khay trắng và đen.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Màu biểu tượng khay</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Đa máy tính để bàn</translation>
     </message>
@@ -1645,6 +1689,14 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Reset</source>
         <translation>Reset</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Chọn giữa biểu tượng khay trắng và đen.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Màu biểu tượng khay</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Custom configs</source>
         <translation>Cấu hình tùy chỉnh</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>IP ngẫu nhiên</translation>
     </message>
 </context>
 <context>

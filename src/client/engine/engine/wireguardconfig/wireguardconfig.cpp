@@ -71,12 +71,16 @@ QString WireGuardConfig::generateConfigFile() const
     // wireguard-windows implements its own 'kill switch' if we pass it 0.0.0.0/0.
     // https://git.zx2c4.com/wireguard-windows/about/docs/netquirk.md
     // We're letting our helper implement that functionality.
+#ifdef Q_OS_WIN
     if (peer_.allowedIps.compare("0.0.0.0/0") == 0) {
         ts << "AllowedIPs = 0.0.0.0/1, 128.0.0.0/1\n";
     }
     else {
         ts << "AllowedIPs = " << peer_.allowedIps << '\n';
     }
+#else
+    ts << "AllowedIPs = " << peer_.allowedIps << '\n';
+#endif
     // PersistentKeepalive is needed to force handshake right after
     // the interface is configured. Otherwise, Wireguard waits for any incoming
     // packet to the network interface, which interfere with the blocking firewall.

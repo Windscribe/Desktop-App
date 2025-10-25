@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Если оставить брандмауэр включенным в отключенном состоянии, подключение к Интернету может нарушиться</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>Любимый IP</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Ротация IP</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>Статические IP-адреса</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Избранное</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Поиск</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Пользовательские конфигурации</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Избранные местоположения и IP-адреса</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>Все местоположения (%1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Избранное</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Статические IP-адреса</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>Обновление пингов</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Избранные местоположения и IP-адреса</translation>
     </message>
 </context>
 <context>
@@ -677,10 +685,6 @@ Recovering...</source>
         <translation>Локации</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Избранное</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Статические IP-адреса</translation>
     </message>
@@ -873,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Не удается импортировать названия мест</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Функция раздельного туннелирования была отключена, так как расширение разделенного туннеля Windscribe не включено в системных настройках.  Чтобы воспользоваться этой функцией, включите расширение в Системных настройках и включите ее снова.</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>Журнал отладки отправлен!</translation>
     </message>
@@ -907,6 +907,46 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>Пользовательские конфигурации</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>Протокол WireGuard был отключен, так как сетевое расширение Windscribe не включено в Системных настройках.  Чтобы использовать этот протокол, включите расширение в Системных настройках и повторно подключитесь.</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>Ошибка при запуске WireGuard</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Функция раздельного туннелирования была отключена, так как сетевое расширение Windscribe не включено в Системных настройках.  Чтобы воспользоваться этой функцией, включите расширение в Системных настройках и включите ее снова.</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>Не удалось закрепить IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Мы не смогли установить ваш любимый IP-адрес для этого местоположения.  Повторите попытку позже.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Не удалось повернуть IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Повторите попытку позже или перейдите на страницу статуса для получения дополнительной информации.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Проверка статуса местоположения</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Назад</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>Избранные местоположения и IP-адреса</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Использование локальной сети или локального IP-адреса для подключенного DNS приведет к утечке DNS.  Мы настоятельно рекомендуем использовать ROBERT или публичный DNS-сервер.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>Ключ API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Не удалось связаться с Control D API.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Пожалуйста, предоставьте действительный ключ API Control D.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Windscribe сворачивается в строку меню и больше не отображается в док-станции.</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Выберите между белым и черным значком в трее.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Цвет значка в трее</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Мультидесктоп</translation>
     </message>
@@ -1645,6 +1689,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>Сброс</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Выберите между белым и черным значком в трее.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Цвет значка в трее</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Custom configs</source>
         <translation>Пользовательские конфигурации</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>Случайный IP</translation>
     </message>
 </context>
 <context>

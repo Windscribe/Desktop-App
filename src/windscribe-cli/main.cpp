@@ -78,8 +78,10 @@ int main(int argc, char *argv[])
         std::cout << "Getting application state" << std::endl;
         std::cout << "    status" << std::endl;
         std::cout << "        " << "View basic login, connection, and account information" << std::endl;
-        std::cout << "    locations [static]" << std::endl;
-        std::cout << "        " << "View a list of available locations. If 'static' is present, show static IP locations instead" << std::endl;
+        std::cout << "    locations [fav|static]" << std::endl;
+        std::cout << "        " << "View a list of available locations." << std::endl;
+        std::cout << "        " << "If 'fav' is present, show favourited locations/IPs instead" << std::endl;
+        std::cout << "        " << "If 'static' is present, show static IP locations instead" << std::endl;
         std::cout << std::endl;
 #ifdef CLI_ONLY
         std::cout << "Managing preferences" << std::endl;
@@ -110,6 +112,19 @@ int main(int argc, char *argv[])
         std::cout << "        " << "Disconnect from current datacenter" << std::endl;
         std::cout << "    firewall on|off" << std::endl;
         std::cout << "        " << "Turn firewall on/off" << std::endl;
+        std::cout << "    ip rotate" << std::endl;
+        std::cout << "        " << "Rotate your IP address to a different one while connected to VPN." << std::endl;
+        std::cout << "        " << "You need to be Pro or have your location in your build-a-plan to use this command." << std::endl;
+        std::cout << std::endl;
+        std::cout << "IP utilities" << std::endl;
+        std::cout << "    You must be connected, and need to be Pro or have the current location in your plan to use these commands." << std::endl;
+        std::cout << std::endl;
+        std::cout << "    ip rotate" << std::endl;
+        std::cout << "        " << "Rotate your IP address to a different one while connected to VPN." << std::endl;
+        std::cout << "    ip fav" << std::endl;
+        std::cout << "        " << "Favourite your current IP address." << std::endl;
+        std::cout << "    ip unfav <ip>" << std::endl;
+        std::cout << "        " << "Unfavourite the provided IP address." << std::endl;
         std::cout << std::endl;
 #ifdef Q_OS_LINUX
         std::cout << "Protocols: " << "wireguard, udp, tcp, stealth, wstunnel" << std::endl;

@@ -77,6 +77,7 @@ bool EngineSettings::loadFromSettings()
             if (version >= 6) {
                 ds >> d->decoyTrafficSettings;
             }
+
             if (ds.status() == QDataStream::Ok) {
                 bLoaded = true;
             }
@@ -485,6 +486,7 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
             }
         }
     }
+
 }
 
 QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
@@ -530,6 +532,7 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
     json[kJsonProxySettingsProp] = proxySettings.toJson(isForDebugLog);
     json[kJsonTapAdapterProp] = static_cast<int>(tapAdapter);
     json[kJsonUpdateChannelProp] = static_cast<int>(updateChannel);
+
     if (isForDebugLog) {
         // For log readability by humans/AI.
         json["dnsManagerDesc"] = DNS_MANAGER_TYPE_toString(dnsManager);

@@ -46,9 +46,11 @@ signals:
     void cycleMacAddressClick();
     void detectPacketSize();
     void connectedDnsDomainsClick(const QStringList &domains);
+    void fetchControldDevices(const QString &apiKey);
 
 public slots:
     void checkLocalDns();
+    void onControldDevicesFetched(CONTROLD_FETCH_RESULT result, const QList<QPair<QString, QString>> &devices);
 
 private slots:
     // slots for preference changes

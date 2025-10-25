@@ -18,6 +18,7 @@ public:
           id_(other.id_),
           name_(other.name_),
           countryCode_(other.countryCode_),
+          shortName_(other.shortName_),
           premiumOnly_(other.premiumOnly_),
           p2p_(other.p2p_),
           dnsHostName_(other.dnsHostName_),
@@ -28,6 +29,7 @@ public:
     int id_;
     QString name_;
     QString countryCode_;
+    QString shortName_;
     int premiumOnly_;
     int p2p_;
     QString dnsHostName_;
@@ -50,6 +52,7 @@ public:
     int getId() const { WS_ASSERT(d->isValid_); return d->id_; }
     QString getName() const { WS_ASSERT(d->isValid_); return d->name_; }
     QString getCountryCode() const { WS_ASSERT(d->isValid_); return d->countryCode_; }
+    QString getShortName() const { WS_ASSERT(d->isValid_); return d->shortName_; }
     QString getDnsHostName() const { WS_ASSERT(d->isValid_); return d->dnsHostName_; }
     bool isPremiumOnly() const { WS_ASSERT(d->isValid_); return d->premiumOnly_; }
     int getP2P() const { WS_ASSERT(d->isValid_); return d->p2p_; }
@@ -68,7 +71,7 @@ public:
 
 private:
     QSharedDataPointer<LocationData> d;
-    static constexpr quint32 versionForSerialization_ = 1;
+    static constexpr quint32 versionForSerialization_ = 2;
 };
 
 

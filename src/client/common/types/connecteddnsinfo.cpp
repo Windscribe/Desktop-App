@@ -2,6 +2,7 @@
 #include <QObject>
 #include "utils/ws_assert.h"
 #include "utils/ipvalidation.h"
+#include "utils/utils.h"
 
 namespace types {
 
@@ -47,12 +48,16 @@ ConnectedDnsInfo::ConnectedDnsInfo(const QJsonObject &json)
             }
         }
     }
+
+    if (json.contains(kJsonControldApiKeyProp) && json[kJsonControldApiKeyProp].isString()) {
+        controldApiKey = Utils::fromBase64(json[kJsonControldApiKeyProp].toString());
+    }
 }
 
 QList<CONNECTED_DNS_TYPE> ConnectedDnsInfo::allAvailableTypes()
 {
     QList<CONNECTED_DNS_TYPE> t;
-    t << CONNECTED_DNS_TYPE_AUTO << CONNECTED_DNS_TYPE_FORCED << CONNECTED_DNS_TYPE_CUSTOM;
+    t << CONNECTED_DNS_TYPE_AUTO << CONNECTED_DNS_TYPE_FORCED << CONNECTED_DNS_TYPE_CONTROLD << CONNECTED_DNS_TYPE_CUSTOM;
     return t;
 }
 
@@ -76,6 +81,8 @@ QJsonObject ConnectedDnsInfo::toJson() const
     }
     json[kJsonHostnamesProp] = hostnamesArray;
 
+    json[kJsonControldApiKeyProp] = Utils::toBase64(controldApiKey);
+
     return json;
 }
 
@@ -88,6 +95,10 @@ void ConnectedDnsInfo::fromIni(const QSettings &settings)
             type = CONNECTED_DNS_TYPE_AUTO;
         }
 #endif
+    // If using CLI-only, this type is not supported, change it to custom instead.
+    if (type == CONNECTED_DNS_TYPE_CONTROLD) {
+        type = CONNECTED_DNS_TYPE_CUSTOM;
+    }
 
     QString str = settings.value(kIniUpStream1Prop).toString();
     if (IpValidation::isCtrldCorrectAddress(str)) {
@@ -113,7 +124,13 @@ void ConnectedDnsInfo::fromIni(const QSettings &settings)
 
 void ConnectedDnsInfo::toIni(QSettings &settings) const
 {
-    settings.setValue(kIniTypeProp, CONNECTED_DNS_TYPE_toString(type));
+    // CONNECTED_DNS_TYPE_CONTROLD is not supported for INIs, change it to custom.
+    CONNECTED_DNS_TYPE typeToWrite = type;
+    if (typeToWrite == CONNECTED_DNS_TYPE_CONTROLD) {
+        typeToWrite = CONNECTED_DNS_TYPE_CUSTOM;
+    }
+
+    settings.setValue(kIniTypeProp, CONNECTED_DNS_TYPE_toString(typeToWrite));
     settings.setValue(kIniUpStream1Prop, upStream1);
     settings.setValue(kIniIsSplitDnsProp, isSplitDns);
     settings.setValue(kIniUpStream2Prop, upStream2);
@@ -130,7 +147,9 @@ bool ConnectedDnsInfo::operator==(const ConnectedDnsInfo &other) const
            other.upStream1 == upStream1 &&
            other.isSplitDns == isSplitDns &&
            other.upStream2 == upStream2 &&
-           other.hostnames == hostnames;
+           other.hostnames == hostnames &&
+           other.controldApiKey == controldApiKey &&
+           other.controldDevices == controldDevices;
 }
 
 bool ConnectedDnsInfo::operator!=(const ConnectedDnsInfo &other) const
@@ -141,7 +160,7 @@ bool ConnectedDnsInfo::operator!=(const ConnectedDnsInfo &other) const
 QDataStream& operator <<(QDataStream &stream, const ConnectedDnsInfo &o)
 {
     stream << o.versionForSerialization_;
-    stream << o.type << o.upStream1 << o.isSplitDns << o.upStream2 << o.hostnames;
+    stream << o.type << o.upStream1 << o.isSplitDns << o.upStream2 << o.hostnames << o.controldApiKey << o.controldDevices;
     return stream;
 }
 
@@ -156,8 +175,10 @@ QDataStream& operator >>(QDataStream &stream, ConnectedDnsInfo &o)
 
     if (version == 1)
         stream >> o.type >> o.upStream1;
-    else
+    else if (version == 2)
         stream >> o.type >> o.upStream1 >> o.isSplitDns >> o.upStream2 >> o.hostnames;
+    else
+        stream >> o.type >> o.upStream1 >> o.isSplitDns >> o.upStream2 >> o.hostnames >> o.controldApiKey >> o.controldDevices;
     return stream;
 }
 

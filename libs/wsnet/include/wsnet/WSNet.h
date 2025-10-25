@@ -5,6 +5,7 @@
 #include "exported.h"
 #include "WSNetDnsResolver.h"
 #include "WSNetHttpNetworkManager.h"
+#include "WSNetBridgeAPI.h"
 #include "WSNetServerAPI.h"
 #include "WSNetEmergencyConnect.h"
 #include "WSNetPingManager.h"
@@ -46,6 +47,7 @@ public:
 
     virtual std::shared_ptr<WSNetDnsResolver> dnsResolver() = 0;
     virtual std::shared_ptr<WSNetHttpNetworkManager> httpNetworkManager() = 0;
+    virtual std::shared_ptr<WSNetBridgeAPI> bridgeAPI() = 0;
     virtual std::shared_ptr<WSNetServerAPI> serverAPI() = 0;
     virtual std::shared_ptr<WSNetApiResourcesManager> apiResourcersManager() = 0;
     virtual std::shared_ptr<WSNetEmergencyConnect> emergencyConnect() = 0;
@@ -56,3 +58,4 @@ public:
 };
 
 } // namespace wsnet
+

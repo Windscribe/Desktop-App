@@ -168,6 +168,11 @@ QString locationsString(const QList<IPC::CliCommands::IpcLocation> &locations)
             locationStr = QString("%1 - %2 - %3").arg(location.country, location.city, location.nickname);
         }
 
+        // Add pinned IP if present
+        if (!location.pinnedIp.isEmpty()) {
+            locationStr += QString(" [%1]").arg(location.pinnedIp);
+        }
+
         if (location.flags & (int)IPC::CliCommands::LocationFlags::kDisabled) {
             if (location.flags & (int)IPC::CliCommands::LocationFlags::kPremium) {
                 locationStr += QObject::tr(" (Pro)");

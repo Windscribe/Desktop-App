@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Якщо тримати брандмауер увімкненим у відключеному стані, це може порушити підключення до Інтернету</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>Улюблена IP-адреса</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Повернути IP</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>Статичні IP-адреси</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Обране</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Шукати</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Користувацькі конфігурації</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Улюблені місця та IP-адреси</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>Усі місцеположення (%1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Вибране</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Статичні IP-адреси</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>Оновити пінги</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Улюблені місця та IP-адреси</translation>
     </message>
 </context>
 <context>
@@ -665,10 +673,6 @@ Recovering...</source>
         <translation>Розташування</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Обране</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Статичні IP-адреси</translation>
     </message>
@@ -873,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Не вдається імпортувати назви місцеположень</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Функцію роздільного тунелювання було вимкнено, оскільки розширення розділеного тунелю Windscribe не увімкнено у Системних параметрах.  Щоб скористатися цією можливістю, будь ласка, увімкніть розширення у Системних параметрах і знову увімкніть цю функцію.</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>Журнал налагодження відправлено!</translation>
     </message>
@@ -907,6 +907,46 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>Користувацькі конфігурації</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>Протокол WireGuard було вимкнено, оскільки розширення мережі Windscribe не ввімкнено в Системних налаштуваннях.  Щоб скористатися цим протоколом, будь ласка, увімкніть розширення у Системних параметрах і знову підключіться до нього.</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>Помилка під час запуску WireGuard</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Функцію роздільного тунелювання було вимкнено, оскільки розширення мережі Windscribe не увімкнено у Системних параметрах.  Щоб скористатися цією можливістю, будь ласка, увімкніть розширення у Системних параметрах і знову увімкніть цю функцію.</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>Не вдалося закріпити IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Ми не змогли встановити вашу улюблену IP-адресу для цього місцезнаходження.  Повторіть спробу пізніше.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Не вдалося повернути IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Повторіть спробу пізніше або перейдіть на сторінку статусу, щоб дізнатися більше.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Перевірте статус місцезнаходження</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Задній</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>Улюблені місця та IP-адреси</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Використання локальної мережі або локальної IP-адреси для підключеного DNS призведе до витоку DNS.  Ми настійно рекомендуємо використовувати ROBERT або публічний DNS-сервер.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>Ключ API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Не вдалося дістатися до API контролю D.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Будь ласка, надайте дійсний ключ API Control D.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Версія</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Виберіть між білою та чорною іконкою лотка.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Колір піктограми лотка</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Мультинастільний комп&apos;ютер</translation>
     </message>
@@ -1645,6 +1689,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>Скинути</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Виберіть між білою та чорною іконкою лотка.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Колір піктограми лотка</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Custom configs</source>
         <translation>Користувацькі конфігурації</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>Випадковий IP</translation>
     </message>
 </context>
 <context>

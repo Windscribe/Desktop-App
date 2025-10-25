@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>डिस्कनेक्ट होने पर फ़ायरवॉल को चालू रखने से इंटरनेट कनेक्टिविटी टूट सकती है</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>पसंदीदा आईपी</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>आईपी घुमाएँ</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>स्थैतिक आईपी</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>पसंदीदा</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>ढूँढ</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>कस्टम कॉन्फ़िगरेशन</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>पसंदीदा स्थान और आईपी</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>सभी स्थान (%1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>पसंदीदा</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>स्टेटिक आईपी</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>रिफ्रेश पिंग</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>पसंदीदा स्थान और आईपी</translation>
     </message>
 </context>
 <context>
@@ -677,10 +685,6 @@ Recovering...</source>
         <translation>स्थान</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>पसंदीदा</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>स्थैतिक आईपी</translation>
     </message>
@@ -873,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>स्थान नाम आयात करने में असमर्थ</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>स्प्लिट टनलिंग सुविधा अक्षम कर दी गई है क्योंकि सिस्टम सेटिंग्स में Windscribe स्प्लिट टनल एक्सटेंशन सक्षम नहीं है।  इस सुविधा का उपयोग करने के लिए, कृपया सिस्टम सेटिंग्स में एक्सटेंशन सक्षम करें, और सुविधा को फिर से चालू करें।</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>डिबग लॉग भेजा गया!</translation>
     </message>
@@ -907,6 +907,46 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>कस्टम कॉन्फ़िगरेशन</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>वायरगार्ड प्रोटोकॉल अक्षम किया गया है क्योंकि सिस्टम सेटिंग्स में विंडसाइड नेटवर्क एक्सटेंशन सक्षम नहीं है।  इस प्रोटोकॉल का उपयोग करने के लिए, कृपया सिस्टम सेटिंग्स में एक्सटेंशन को सक्षम करें और फिर से कनेक्ट करें।</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>वायरगार्ड प्रारंभ करने में त्रुटि</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>स्प्लिट टनलिंग सुविधा अक्षम कर दी गई है क्योंकि सिस्टम सेटिंग्स में विंडसाइड नेटवर्क एक्सटेंशन सक्षम नहीं है।  इस सुविधा का उपयोग करने के लिए, कृपया सिस्टम सेटिंग्स में एक्सटेंशन को सक्षम करें, और सुविधा को फिर से चालू करें।</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>आईपी पिन नहीं किया जा सका</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>हम इस स्थान के लिए आपका पसंदीदा आईपी सेट नहीं कर सके।  बाद में पुन: प्रयास करें.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>IP को घुमाया नहीं जा सका</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>बाद में पुनः प्रयास करें या अधिक जानकारी के लिए हमारे स्थिति पृष्ठ पर जाएं।</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>स्थान की स्थिति जांचें</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>शर्त लगाना</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>पसंदीदा स्थान और आईपी</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>कनेक्टेड DNS के लिए LAN या स्थानीय IP पते का उपयोग करने से DNS लीक हो जाएगा।  हम दृढ़ता से रॉबर्ट या सार्वजनिक डीएनएस सर्वर का उपयोग करने की सलाह देते हैं।</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>एपीआई कुंजी</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>नियंत्रण D API तक पहुँचने में विफल।</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>कृपया एक वैध नियंत्रण डी एपीआई कुंजी प्रदान करें।</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>विंडसाइड मेनूबार को छोटा करता है और अब डॉक में दिखाई नहीं देता है।</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>सफेद और काले ट्रे आइकन के बीच चुनें।</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>ट्रे आइकन रंग</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>मल्टी-डेस्कटॉप</translation>
     </message>
@@ -1645,6 +1689,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>रीसेट</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>सफेद और काले ट्रे आइकन के बीच चुनें।</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>ट्रे आइकन रंग</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Custom configs</source>
         <translation>कस्टम कॉन्फ़िगरेशन</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>रैंडम आईपी</translation>
     </message>
 </context>
 <context>

@@ -15,6 +15,18 @@
         <source>No locations.</source>
         <translation>Không có địa điểm.</translation>
     </message>
+    <message>
+        <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>Không thể xoay IP.  Vui lòng kiểm tra xem bạn có Windscribe Pro hoặc có vị trí này trong gói của bạn hay không, hoặc thử lại sau.</translation>
+    </message>
+    <message>
+        <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>Không thể yêu thích IP.  Vui lòng kiểm tra xem bạn có Windscribe Pro hoặc có vị trí này trong gói của bạn hay không, hoặc thử lại sau.</translation>
+    </message>
+    <message>
+        <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
+        <translation>Không thể IP không yêu thích.  Vui lòng kiểm tra xem IP được cung cấp có hợp lệ không.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -284,15 +296,35 @@
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"></translation>
+        <translation> (10 Gb/giây)</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Đã tắt)</translation>
     </message>
     <message>
         <source> (Pro)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Chuyên nghiệp)</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Không kết nối</translation>
+    </message>
+    <message>
+        <source>IP rotated.</source>
+        <translation>IP được xoay.</translation>
+    </message>
+    <message>
+        <source>IP favorited.</source>
+        <translation>IP được yêu thích.</translation>
+    </message>
+    <message>
+        <source>IP unfavorited.</source>
+        <translation>IP không được ưa thích.</translation>
+    </message>
+    <message>
+        <source>Invalid IP address</source>
+        <translation>Địa chỉ IP không hợp lệ</translation>
     </message>
 </context>
 </TS>

@@ -122,6 +122,11 @@ public:
     void reconnect();
     bool osDnsServersListContains(const std::wstring &dnsServer);
 
+    void rotateIp();
+
+    QString getCurrentConnectingHostname() const;
+    void fetchControldDevices(const QString &apiKey);
+
 private slots:
     void onEngineSettingsChangedInPreferences();
 
@@ -182,7 +187,9 @@ private slots:
     void onEnginePacketSizeChanged(const types::EngineSettings &engineSettings);
     void onEnginePacketSizeDetectionStateChanged(bool on, bool isError);
     void onEngineHostsFileBecameWritable();
-    void onEngineAutoEnableAntiCensorship();
+    void onEngineAutoEnableAntiCensorship(bool enable);
+    void onEngineConnectingHostnameChanged(const QString &hostname);
+    void onEngineBridgeApiAvailabilityChanged(bool isAvailable);
 
 signals:
     // emited when connected to engine and received the engine settings, or error in initState variable
@@ -246,9 +253,14 @@ signals:
     void wireGuardKeyLimitUserResponse(bool deleteOldestKey);
     void protocolStatusChanged(const QVector<types::ProtocolStatus> &status);
 
+    void controldDevicesFetched(CONTROLD_FETCH_RESULT result, const QList<QPair<QString, QString>> &devices);
+
     void splitTunnelingStartFailed();
     void connectionIdChanged(const QString &connId);
     void localDnsServerNotAvailable();
+
+    void bridgeApiAvailabilityChanged(bool isAvailable);
+    void ipRotateFailed();
 
 private:
     bool isSavedApiSettingsExists_;
@@ -293,6 +305,8 @@ private:
     wsnet::LoginResult lastLoginError_;
 
     std::vector<std::wstring> osDnsServers_;
+
+    QString currentConnectingHostname_;
 
     void triggerAutoConnect(const types::NetworkInterface &interface);
 };

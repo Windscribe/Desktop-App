@@ -15,6 +15,18 @@
         <source>No locations.</source>
         <translation>Keine Standorte.</translation>
     </message>
+    <message>
+        <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>IP konnte nicht rotiert werden.  Bitte überprüfen Sie, ob Sie Windscribe Pro haben oder diesen Standort in Ihrem Plan haben, oder versuchen Sie es später erneut.</translation>
+    </message>
+    <message>
+        <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>IP konnte nicht favorisiert werden.  Bitte überprüfen Sie, ob Sie Windscribe Pro haben oder diesen Standort in Ihrem Plan haben, oder versuchen Sie es später erneut.</translation>
+    </message>
+    <message>
+        <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
+        <translation>IP konnte nicht aus der Favoritenliste gestrichen werden.  Bitte überprüfen Sie, ob die angegebene IP gültig ist.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -284,15 +296,35 @@
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"></translation>
+        <translation> (10 Gbit/s)</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Deaktiviert)</translation>
     </message>
     <message>
         <source> (Pro)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Pro)</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Nicht verbunden</translation>
+    </message>
+    <message>
+        <source>IP rotated.</source>
+        <translation>IP rotiert.</translation>
+    </message>
+    <message>
+        <source>IP favorited.</source>
+        <translation>IP favorisiert.</translation>
+    </message>
+    <message>
+        <source>IP unfavorited.</source>
+        <translation>IP nicht favorisiert.</translation>
+    </message>
+    <message>
+        <source>Invalid IP address</source>
+        <translation>Ungültige IP-Adresse</translation>
     </message>
 </context>
 </TS>

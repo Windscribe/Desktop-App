@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Manter o firewall ligado enquanto estiver desconectado pode quebrar a conectividade com a Internet</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>IP favorito</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Girar IP</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>IPs estáticos</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoritos</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Pesquisar</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Configurações personalizadas</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Locais favoritos &amp; IPs</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>Todos os locais (%1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoritos</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>IPs estáticos</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>Atualizar Pings</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Locais favoritos &amp; IPs</translation>
     </message>
 </context>
 <context>
@@ -665,10 +673,6 @@ A recuperar...</translation>
         <translation>Locais</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoritos</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>IPs estáticos</translation>
     </message>
@@ -873,10 +877,6 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Não é possível importar nomes de locais</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>O recurso de túnel dividido foi desativado porque a extensão de túnel dividido Windscribe não está habilitada nas Configurações do sistema.  Para usar esse recurso, habilite a extensão em Configurações do sistema e ative o recurso novamente.</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>Log de depuração enviado!</translation>
     </message>
@@ -907,6 +907,46 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     <message>
         <source>Custom configs</source>
         <translation>Configurações personalizadas</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>O protocolo WireGuard foi desativado porque a extensão de rede Windscribe não está ativada nas Configurações do sistema.  Para usar este protocolo, ative a extensão em Configurações do Sistema e reconecte-se.</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>Erro ao iniciar o WireGuard</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>O recurso de tunelamento dividido foi desativado porque a extensão de rede Windscribe não está habilitada nas Configurações do Sistema.  Para usar esse recurso, habilite a extensão em Configurações do sistema e ative o recurso novamente.</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>Não foi possível fixar IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Não foi possível definir o seu IP favorito para este local.  Tente novamente mais tarde.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Não foi possível girar o IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Tente novamente mais tarde ou aceda à nossa página de Estado para obter mais informações.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Verificar Estado da Localização</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Voltar</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>Locais favoritos &amp;&amp; IPs</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Usar uma LAN ou endereço IP local para DNS conectado resultará em um vazamento de DNS.  É altamente recomendável usar ROBERT ou um servidor DNS público.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>Chave da API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Falha ao acessar a API do Controle D.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Forneça uma chave de API Control D válida.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Versão</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Escolha entre o ícone da bandeja branca e preta.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Cor do ícone da bandeja</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Multi-área de trabalho</translation>
     </message>
@@ -1645,6 +1689,14 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     <message>
         <source>Reset</source>
         <translation>Repor</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Escolha entre o ícone da bandeja branca e preta.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Cor do ícone da bandeja</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
     <message>
         <source>Custom configs</source>
         <translation>Configurações personalizadas</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>IP aleatório</translation>
     </message>
 </context>
 <context>

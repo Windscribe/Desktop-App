@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Wenn die Firewall eingeschaltet bleibt, während die Verbindung nicht hergestellt ist, kann die Internetverbindung unterbrochen werden</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>Bevorzugte IP</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>IP drehen</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>Statische IP-Adressen</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoriten</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Suchen</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Benutzerdefinierte Konfigurationen</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Bevorzugte Standorte &amp; IPs</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>Alle Standorte (%1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoriten</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Statische IPs</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>Pings aktualisieren</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Bevorzugte Standorte &amp; IPs</translation>
     </message>
 </context>
 <context>
@@ -677,10 +685,6 @@ Genesend...</translation>
         <translation>Orte</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoriten</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Statische IP-Adressen</translation>
     </message>
@@ -873,10 +877,6 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Standortnamen können nicht importiert werden</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Die Split-Tunneling-Funktion wurde deaktiviert, da die Windscribe-Erweiterung für geteilte Tunnel in den Systemeinstellungen nicht aktiviert ist.  Um diese Funktion zu nutzen, aktivieren Sie bitte die Erweiterung in den Systemeinstellungen und schalten Sie die Funktion wieder ein.</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>Debug-Protokoll gesendet!</translation>
     </message>
@@ -907,6 +907,46 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <message>
         <source>Custom configs</source>
         <translation>Benutzerdefinierte Konfigurationen</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>Das WireGuard-Protokoll wurde deaktiviert, da die Netzwerkerweiterung Windscribe in den Systemeinstellungen nicht aktiviert ist.  Um dieses Protokoll zu verwenden, aktivieren Sie bitte die Erweiterung in den Systemeinstellungen und stellen Sie die Verbindung wieder her.</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>Fehler beim Starten von WireGuard</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Die Split-Tunneling-Funktion wurde deaktiviert, da die Netzwerkerweiterung Windscribe in den Systemeinstellungen nicht aktiviert ist.  Um diese Funktion zu nutzen, aktivieren Sie bitte die Erweiterung in den Systemeinstellungen und schalten Sie die Funktion wieder ein.</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>IP konnte nicht angeheftet werden</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Wir konnten Ihre bevorzugte IP für diesen Standort nicht festlegen.  Versuchen Sie es später erneut.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>IP konnte nicht gedreht werden</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Versuchen Sie es später erneut oder besuchen Sie unsere Statusseite, um weitere Informationen zu erhalten.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Überprüfen des Standortstatus</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Zurück</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>Bevorzugte Standorte &amp; IPs</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Die Verwendung eines LANs oder einer lokalen IP-Adresse für verbundene DNS führt zu einem DNS-Leck.  Wir empfehlen dringend die Verwendung von ROBERT oder einem öffentlichen DNS-Server.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>API-Schlüssel</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Fehler beim Erreichen der Control D-API.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Bitte geben Sie einen gültigen Control D API-Schlüssel an.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Windscribe wird auf die Menüleiste minimiert und nicht mehr im Dock angezeigt.</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Wählen Sie zwischen weißem und schwarzem Tray-Symbol.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Farbe des Tray-Symbols</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Multi-Desktop-Funktion</translation>
     </message>
@@ -1645,6 +1689,14 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <message>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Wählen Sie zwischen weißem und schwarzem Tray-Symbol.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Farbe des Tray-Symbols</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     <message>
         <source>Custom configs</source>
         <translation>Benutzerdefinierte Konfigurationen</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>Zufällige IP</translation>
     </message>
 </context>
 <context>

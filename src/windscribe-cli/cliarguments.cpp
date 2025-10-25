@@ -129,6 +129,30 @@ void CliArguments::parseFirewall(const QStringList &args)
     }
 }
 
+void CliArguments::parseIp(const QStringList &args)
+{
+    if (args.length() <= 2) {
+        cliCommand_ = CLI_COMMAND_HELP;
+        return;
+    }
+
+    QString arg2 = args[2].toLower();
+    if (arg2 == "rotate") {
+        cliCommand_ = CLI_COMMAND_IP_ROTATE;
+    } else if (arg2 == "fav") {
+        cliCommand_ = CLI_COMMAND_IP_FAV;
+    } else if (arg2 == "unfav") {
+        if (args.length() <= 3) {
+            cliCommand_ = CLI_COMMAND_HELP;
+            return;
+        }
+        ipAddress_ = args[3];
+        cliCommand_ = CLI_COMMAND_IP_UNFAV;
+    } else {
+        cliCommand_ = CLI_COMMAND_HELP;
+    }
+}
+
 void CliArguments::parseKeyLimit(const QStringList &args)
 {
     if (args.length() <= 2) {
@@ -155,7 +179,9 @@ void CliArguments::parseLocations(const QStringList &args)
     }
 
     QString arg2 = args[2].toLower();
-    if (arg2 == "static") {
+    if (arg2 == "fav") {
+        cliCommand_ = CLI_COMMAND_LOCATIONS_FAV;
+    } else if (arg2 == "static") {
         cliCommand_ = CLI_COMMAND_LOCATIONS_STATIC;
     }
 }
@@ -251,6 +277,8 @@ void CliArguments::processArguments()
     } else if (arg1 == "keylimit") {
         parseKeyLimit(args);
 #endif
+    } else if (arg1 == "ip") {
+        parseIp(args);
     } else if (arg1 == "locations") {
         parseLocations(args);
     } else if (arg1 == "login") {
@@ -298,6 +326,11 @@ const QString &CliArguments::protocol() const
 const uint &CliArguments::port() const
 {
     return port_;
+}
+
+const QString &CliArguments::ipAddress() const
+{
+    return ipAddress_;
 }
 
 bool CliArguments::keepFirewallOn() const

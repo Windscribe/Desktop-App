@@ -1,3 +1,22 @@
+2.18.3 (24/10/2025)
+All:
+   * Added IP rotation & favourite functionality. #1047
+   * Added 'Control D' option to Connected DNS. #1390
+   * Added WireGuard post-quantum encryption notice to the readme. #1509
+   * Improved detection when circumvent censorship should be enabled automatically. #1503
+   * Improved tooltip usability. #1515
+   * Fixed automatic connection mode does not try alternate datacenter server, if available, when first connection attempt fails. #1505
+Windows:
+   * Fixed "Tray Icon Colour" preference location by moving it to the Look & Feel tab. #1514
+MacOS:
+   * Added implementation of the WireGuard protocol as a network extension. #1290
+   * Improved VPN configuration management. Automatic removal of currently unconnected VPN configurations from macOS preferences UI. #1516
+   * Fixed erroneous assert in the debug log during GUI preferences output. #1494
+Linux:
+   * Fixed potential privilege escalation. #1510
+   * Fixed "Tray Icon Colour" preference location by moving it to the Look & Feel tab. #1514
+
+
 2.18.2 (16/10/2025)
 All:
    * Added optional port selection when connecting with windscribe-cli. #1500

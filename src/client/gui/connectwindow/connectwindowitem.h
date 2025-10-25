@@ -2,14 +2,17 @@
 
 #include <QGraphicsObject>
 #include <QTimer>
+#include <QVariantAnimation>
 
 #include "background.h"
 #include "commongraphics/iconbutton.h"
+#include "commongraphics/imageitem.h"
 #include "commongraphics/textbutton.h"
 #include "commongraphics/togglebutton.h"
 #include "connectbutton.h"
 #include "connectstateprotocolport/connectstateprotocolport.h"
 #include "ipaddressitem/ipaddressitem.h"
+#include "iputilsmenu.h"
 #include "locationsbutton.h"
 #include "logonotificationsbutton.h"
 #include "networktrustbutton.h"
@@ -30,6 +33,7 @@ public:
     QRegion getMask();
     QPixmap getShadowPixmap();
 
+    QString getIpAddress();
     void setConnectionTimeAndData(QString connectionTime, QString dataTransferred);
     void setFirewallAlwaysOn(bool isFirewallAlwaysOn);
     void setTestTunnelResult(bool success);
@@ -37,6 +41,8 @@ public:
     void setIsPreferredProtocol(bool on);
     void setIsPremium(bool isPremium);
     void setCustomConfigMode(bool isCustomConfig);
+    void setIpUtilsEnabled(bool enabled);
+    void hideMenus();
 
     bool handleKeyPressEvent(QKeyEvent *event);
 
@@ -45,7 +51,7 @@ public slots:
     void updateConnectState(const types::ConnectState & newConnectState);
     void updateFirewallState(bool isFirewallEnabled);
     void updateLocationsState(bool isExpanded);
-    void updateMyIp(const QString &ip);
+    void updateMyIp(const QString &ip, bool isPinned = false);
     void updateNotificationsState(int totalMessages, int unread);
     void updateNetworkState(types::NetworkInterface network);
     void setSplitTunnelingState(bool on);
@@ -66,6 +72,18 @@ public slots:
     void onProtocolsClick();
     void onIpAddressWidthChanged(int width);
     void onLocationsCollapsed();
+    void onDotMenuButtonClick();
+    void onIpUtilsMenuFavouriteClick();
+    void onIpUtilsMenuRotateClick();
+    void onIpUtilsMenuCloseClick();
+    void onIpUtilsMenuFavouriteHoverEnter();
+    void onIpUtilsMenuFavouriteHoverLeave();
+    void onIpUtilsMenuRotateHoverEnter();
+    void onIpUtilsMenuRotateHoverLeave();
+    void onIpUtilsMenuAnimationValueChanged(const QVariant &value);
+    void onIpUtilsMenuAnimationFinished();
+    void onFavouriteAnimationValueChanged(const QVariant &value);
+    void onFavouriteAnimationFinished();
 
 signals:
     void minimizeClick();
@@ -78,6 +96,9 @@ signals:
     void networkButtonClick();
     void splitTunnelingButtonClick();
     void protocolsClick();
+    void rotateIpClick();
+    void pinIp(const QString &ip);
+    void unpinIp(const QString &ip);
 
     void locationTabClicked(LOCATION_TAB tab);
     void searchFilterChanged(const QString &filter);
@@ -108,6 +129,10 @@ private:
     IconButton *preferencesButton_;
     NetworkTrustButton *networkTrustButton_;
     IconButton *dotMenuButton_;
+    IpUtilsMenu *ipUtilsMenu_;
+    QVariantAnimation *ipUtilsMenuAnimation_;
+    ImageItem *favouriteAnimationIcon_;
+    QVariantAnimation *favouriteAnimation_;
     IPAddressItem *ipAddressItem_;
     CommonGraphics::TextButton *firewallLabel_;
     LogoNotificationsButton *logoButton_;
@@ -121,10 +146,15 @@ private:
     QString dataTransferred_;
 
     bool isFirewallAlwaysOn_;
+    bool isPremium_;
+    bool isIpUtilsEnabled_;
+    bool isIpPinned_;
 
     void updatePositions();
     void updateFirewallInfo();
     void updateShortenedText();
+    void showIpUtilsMenu(bool animate);
+    void hideIpUtilsMenu(bool animate);
 };
 
 } //namespace ConnectWindow

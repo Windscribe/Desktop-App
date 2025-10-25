@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>斷開連接時保持防火牆開啟可能會中斷 Internet 連接</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>最喜歡的 IP</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>輪換 IP</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>靜態IP</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>我的最愛</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>搜索</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>自訂配置</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>最喜歡的地點和 IP</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>所有位置 （% 1）</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>我的最愛</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>靜態IP</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>刷新 Ping</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>最喜歡的地點和 IP</translation>
     </message>
 </context>
 <context>
@@ -665,10 +673,6 @@ Recovering...</source>
         <translation>地點</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>我的最愛</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>靜態IP</translation>
     </message>
@@ -873,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>無法匯入位置名稱</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>拆分隧道功能已被禁用，因為Windscribe拆分隧道擴展未在系統設置中啟用。 要使用此功能，請在 系統設置中啟用該擴展，然後再次開啟該功能。</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>調試日誌已發送！</translation>
     </message>
@@ -907,6 +907,46 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>自訂配置</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>WireGuard 協定已被停用，因為系統設定中未啟用 Windscribe 網路擴充功能。 要使用此協議，請在系統設置中啟用擴展並重新連接。</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>啟動 WireGuard 時出錯</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>分割通道功能已被停用，因為系統設定中未啟用 Windscribe 網路擴充功能。 要使用此功能，請在系統設置中啟用擴展，然後再次打開該功能。</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>無法釘選 IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>我們無法為此位置設置您最喜歡的 IP。 請稍後再試。</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>無法輪換IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>請稍後再試一次，或前往我們的狀態頁面以取得更多資訊。</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>檢查位置狀態</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>後面</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>最喜歡的地點和 IP</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>使用 LAN 或本地 IP 位址進行連接的 DNS 將導致 DNS 洩漏。 我們強烈建議使用 ROBERT 或公有 DNS 伺服器。</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>API 金鑰</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>無法連線到控制項 D API。</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>請提供有效的控制項 D API 金鑰。</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>版本</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>在白色和黑色托盤圖示之間進行選擇。</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>托盤圖示顏色</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>多桌面</translation>
     </message>
@@ -1645,6 +1689,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>重置</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>在白色和黑色托盤圖示之間進行選擇。</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>托盤圖示顏色</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Custom configs</source>
         <translation>自訂配置</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>隨機IP</translation>
     </message>
 </context>
 <context>

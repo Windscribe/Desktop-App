@@ -5,7 +5,7 @@
 The Windscribe VPN desktop application hides your physical location, blocks ads and trackers, and keeps you safe online.  Features available in the application are:
 
 - Offers 6 different protocols to choose from, along with over 20 different connection ports:
-  - WireGuard®
+  - WireGuard® - Now with [Post-Quantum Encryption](https://windscribe.com/blog/post-quantum-vpn/)
   - OpenVPN UDP/TCP
   - IKEv2
   - Stealth

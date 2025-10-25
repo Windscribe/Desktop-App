@@ -81,6 +81,7 @@ public:
     void setUseMinimumSize(bool useMinimumSize);
 
     void setDescription(const QString &description, const QString &url = "");
+    void setInProgress(bool inProgress);
 
 protected:
     void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
@@ -99,6 +100,8 @@ private slots:
     void onMenuSizeChanged(int width, int height);
     void onInfoIconClicked();
     void onCaptionPosUpdated(const QVariant &value);
+    void onSpinnerRotationChanged(const QVariant &value);
+    void onSpinnerRotationFinished();
 
 private:
     QString strCaption_;
@@ -127,6 +130,10 @@ private:
     int curCaptionY_ = -1;
     QVariantAnimation captionPosAnimation_;
     bool useMinimumSize_ = false;
+
+    bool inProgress_;
+    int spinnerRotation_;
+    QVariantAnimation spinnerAnimation_;
 
     void updatePositions();
 };

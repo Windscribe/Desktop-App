@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>قد يؤدي إبقاء جدار الحماية قيد التشغيل أثناء قطع الاتصال بالإنترنت</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>عنوان IP المفضل</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>تدوير IP</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>عناوين IP ثابتة</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>المفضلة</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>بحث</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>التكوينات المخصصة</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>المواقع المفضلة وعناوين IP</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>جميع المواقع (٪1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>المفضلة</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>عناوين IP الثابتة</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>تحديث بينغز</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>المواقع المفضلة وعناوين IP</translation>
     </message>
 </context>
 <context>
@@ -677,10 +685,6 @@ Recovering...</source>
         <translation>مواقع</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>المفضلة</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>عناوين IP ثابتة</translation>
     </message>
@@ -873,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>تعذر استيراد أسماء المواقع</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>تم تعطيل ميزة الانقسام النفقي لأن ملحق النفق المنفصل Windscribe غير ممكن في إعدادات النظام.  لاستخدام هذه الميزة، يرجى تمكين الامتداد في إعدادات النظام، وتشغيل الميزة مرة أخرى.</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>تم إرسال سجل التصحيح!</translation>
     </message>
@@ -907,6 +907,46 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>التكوينات المخصصة</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>تم تعطيل بروتوكول WireGuard لأن ملحق شبكة Windscribe غير ممكن في إعدادات النظام.  لاستخدام هذا البروتوكول ، يرجى تمكين الامتداد في إعدادات النظام وإعادة الاتصال.</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>خطأ في بدء تشغيل WireGuard</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>تم تعطيل ميزة التقسيم النفقي لأن ملحق شبكة Windscribe غير ممكن في إعدادات النظام.  لاستخدام هذه الميزة ، يرجى تمكين الامتداد في إعدادات النظام ، وتشغيل الميزة مرة أخرى.</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>تعذر تثبيت IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>لم نتمكن من تعيين عنوان IP المفضل لديك لهذا الموقع.  حاول مرة أخرى لاحقا.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>تعذر تدوير IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>حاول مرة أخرى لاحقا أو انتقل إلى صفحة الحالة للحصول على مزيد من المعلومات.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>التحقق من حالة الموقع</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>ظهر</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>المواقع وعناوين IP المفضلة</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>سيؤدي استخدام شبكة LAN أو عنوان IP محلي لنظام أسماء النطاقات المتصل إلى تسرب DNS.  نوصي بشدة باستخدام ROBERT أو خادم DNS عام.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>مفتاح API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>فشل الوصول إلى Control D API.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>يرجى تقديم مفتاح Control D API صالح.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>يتم تصغير Windscribe إلى شريط القوائم ولم يعد يظهر في قفص الاتهام.</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>اختر بين أيقونة الدرج الأبيض والأسود.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>لون أيقونة الدرج</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>سطح مكتب متعدد</translation>
     </message>
@@ -1645,6 +1689,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>اعاده تعيين</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>اختر بين أيقونة الدرج الأبيض والأسود.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>لون أيقونة الدرج</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Custom configs</source>
         <translation>التكوينات المخصصة</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>IP عشوائي</translation>
     </message>
 </context>
 <context>

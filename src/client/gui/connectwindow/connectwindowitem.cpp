@@ -20,7 +20,10 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
       preferencesHelper_(preferencesHelper),
       connectionTime_(""),
       dataTransferred_(""),
-      isFirewallAlwaysOn_(false)
+      isFirewallAlwaysOn_(false),
+      isPremium_(false),
+      isIpUtilsEnabled_(false),
+      isIpPinned_(false)
 {
     WS_ASSERT(preferencesHelper_);
     background_ = new Background(this, preferences);
@@ -85,8 +88,33 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     ipAddressItem_ = new IPAddressItem(this);
     connect(ipAddressItem_, &IPAddressItem::widthChanged, this, &ConnectWindowItem::onIpAddressWidthChanged);
 
-    // dotMenuButton_ = new IconButton(24, 24, "DOT_MENU", "", this);
-    // dotMenuButton_->setUnhoverOpacity(0.6);
+    ipUtilsMenuAnimation_ = new QVariantAnimation(this);
+    ipUtilsMenuAnimation_->setDuration(200);
+    connect(ipUtilsMenuAnimation_, &QVariantAnimation::valueChanged, this, &ConnectWindowItem::onIpUtilsMenuAnimationValueChanged);
+    connect(ipUtilsMenuAnimation_, &QVariantAnimation::finished, this, &ConnectWindowItem::onIpUtilsMenuAnimationFinished);
+
+    ipUtilsMenu_ = new IpUtilsMenu(this);
+    ipUtilsMenu_->setVisible(false);
+    connect(ipUtilsMenu_, &IpUtilsMenu::favouriteClick, this, &ConnectWindowItem::onIpUtilsMenuFavouriteClick);
+    connect(ipUtilsMenu_, &IpUtilsMenu::rotateClick, this, &ConnectWindowItem::onIpUtilsMenuRotateClick);
+    connect(ipUtilsMenu_, &IpUtilsMenu::closeClick, this, &ConnectWindowItem::onIpUtilsMenuCloseClick);
+    connect(ipUtilsMenu_, &IpUtilsMenu::favouriteHoverEnter, this, &ConnectWindowItem::onIpUtilsMenuFavouriteHoverEnter);
+    connect(ipUtilsMenu_, &IpUtilsMenu::favouriteHoverLeave, this, &ConnectWindowItem::onIpUtilsMenuFavouriteHoverLeave);
+    connect(ipUtilsMenu_, &IpUtilsMenu::rotateHoverEnter, this, &ConnectWindowItem::onIpUtilsMenuRotateHoverEnter);
+    connect(ipUtilsMenu_, &IpUtilsMenu::rotateHoverLeave, this, &ConnectWindowItem::onIpUtilsMenuRotateHoverLeave);
+
+    dotMenuButton_ = new IconButton(24, 24, "DOT_MENU", "", this);
+    dotMenuButton_->setUnhoverOpacity(0.6);
+    dotMenuButton_->setVisible(false);
+    setIpUtilsEnabled(false);
+    connect(dotMenuButton_, &IconButton::clicked, this, &ConnectWindowItem::onDotMenuButtonClick);
+
+    favouriteAnimationIcon_ = nullptr;
+
+    favouriteAnimation_ = new QVariantAnimation(this);
+    favouriteAnimation_->setDuration(600);
+    connect(favouriteAnimation_, &QVariantAnimation::valueChanged, this, &ConnectWindowItem::onFavouriteAnimationValueChanged);
+    connect(favouriteAnimation_, &QVariantAnimation::finished, this, &ConnectWindowItem::onFavouriteAnimationFinished);
 
     firewallLabel_ = new CommonGraphics::TextButton(tr("Firewall"), FontDescr(12, QFont::DemiBold), Qt::white, false, this, 0, false);
     firewallLabel_->setUnhoverOpacity(0.6);
@@ -251,9 +279,11 @@ void ConnectWindowItem::updateLocationsState(bool isExpanded)
     locationsButton_->onLocationsExpandStateChanged(isExpanded);
 }
 
-void ConnectWindowItem::updateMyIp(const QString &ip)
+void ConnectWindowItem::updateMyIp(const QString &ip, bool isPinned)
 {
     ipAddressItem_->setIpAddress(ip);
+    ipUtilsMenu_->setIpAddress(ip, isPinned);
+    isIpPinned_ = isPinned;
     updatePositions();
 }
 
@@ -383,6 +413,9 @@ void ConnectWindowItem::onFirewallInfoHoverEnter()
         ti.desc = tr("Blocks all connectivity in the event of a sudden disconnect");
     }
     ti.width = width;
+    ti.delay = 0;
+    ti.animate = true;
+    ti.animationSpeed = ANIMATION_SPEED_FAST;
 
     TooltipController::instance().showTooltipDescriptive(ti);
 }
@@ -477,9 +510,9 @@ void ConnectWindowItem::updatePositions()
         connectStateProtocolPort_->setPos(13*G_SCALE, 74*G_SCALE);
         locationsButton_->setPos(97*G_SCALE, 183*G_SCALE);
         networkTrustButton_->setPos(16*G_SCALE, 147*G_SCALE);
-        // If FreshScribe API available, IP should shift 32*G_SCALE to the left and dotMenuButton_ should be visible
-        ipAddressItem_->setPos(boundingRect().width() - ipAddressItem_->boundingRect().width() - 16*G_SCALE, 149*G_SCALE);
-        // dotMenuButton_->setPos(boundingRect().width() - 40*G_SCALE, 147*G_SCALE);
+        ipAddressItem_->setPos(boundingRect().width() - ipAddressItem_->boundingRect().width() - 48*G_SCALE, 149*G_SCALE);
+        dotMenuButton_->setPos(boundingRect().width() - 40*G_SCALE, 147*G_SCALE);
+        ipUtilsMenu_->setPos(boundingRect().width() - ipUtilsMenu_->boundingRect().width() - 16*G_SCALE, 145*G_SCALE);
         firewallLabel_->setPos(16*G_SCALE, 177*G_SCALE);
         firewallButton_->setPos(16*G_SCALE, 202*G_SCALE);
         firewallInfo_->setPos(69*G_SCALE, 205*G_SCALE);
@@ -503,9 +536,9 @@ void ConnectWindowItem::updatePositions()
         cityName2Text_->setPos(24*G_SCALE + cityName1Text_->boundingRect().width(), 118*G_SCALE);
         locationsButton_->setPos(98*G_SCALE, 198*G_SCALE);
         networkTrustButton_->setPos(16*G_SCALE, 162*G_SCALE);
-        // If FreshScribe API available, IP should shift 32*G_SCALE to the left and dotMenuButton_ should be visible
-        ipAddressItem_->setPos(boundingRect().width() - ipAddressItem_->boundingRect().width() - 16*G_SCALE, 164*G_SCALE);
-        // dotMenuButton_->setPos(boundingRect().width() - 40*G_SCALE, 162*G_SCALE);
+        ipAddressItem_->setPos(boundingRect().width() - ipAddressItem_->boundingRect().width() - 48*G_SCALE, 164*G_SCALE);
+        dotMenuButton_->setPos(boundingRect().width() - 40*G_SCALE, 162*G_SCALE);
+        ipUtilsMenu_->setPos(boundingRect().width() - ipUtilsMenu_->boundingRect().width() - 16*G_SCALE, 160*G_SCALE);
         firewallLabel_->setPos(16*G_SCALE, 210*G_SCALE);
         firewallButton_->setPos(16*G_SCALE, 235*G_SCALE);
         firewallInfo_->setPos(69*G_SCALE, 238*G_SCALE);
@@ -590,7 +623,24 @@ void ConnectWindowItem::onLanguageChanged()
 
 void ConnectWindowItem::setIsPremium(bool isPremium)
 {
+    isPremium_ = isPremium;
     logoButton_->setIsPremium(isPremium);
+    updatePositions();
+}
+
+void ConnectWindowItem::setIpUtilsEnabled(bool enabled)
+{
+    isIpUtilsEnabled_ = enabled;
+    dotMenuButton_->setEnabled(enabled);
+    if (enabled) {
+        dotMenuButton_->setUnhoverOpacity(0.6);
+        dotMenuButton_->setHoverOpacity(OPACITY_FULL);
+    } else {
+        dotMenuButton_->setUnhoverOpacity(OPACITY_QUARTER);
+        dotMenuButton_->setHoverOpacity(OPACITY_QUARTER);
+        hideIpUtilsMenu(true);
+    }
+    dotMenuButton_->unhover();
 }
 
 void ConnectWindowItem::onIpAddressWidthChanged(int width)
@@ -598,9 +648,165 @@ void ConnectWindowItem::onIpAddressWidthChanged(int width)
     updatePositions();
 }
 
+void ConnectWindowItem::onDotMenuButtonClick()
+{
+    dotMenuButton_->setVisible(false);
+    ipAddressItem_->setVisible(false);
+    showIpUtilsMenu(true);
+}
+
+void ConnectWindowItem::onIpUtilsMenuFavouriteClick()
+{
+    QString currentIp = ipAddressItem_->ipAddress();
+
+    if (favouriteAnimationIcon_ != nullptr) {
+        delete favouriteAnimationIcon_;
+    }
+    favouriteAnimationIcon_ = new ImageItem(this, isIpPinned_ ? "ip-utils/FAVOURITE" : "ip-utils/FAVOURITE_SELECTED");
+
+    favouriteAnimationIcon_->setPos(dotMenuButton_->pos());
+    favouriteAnimationIcon_->setOpacity(0.0);
+    favouriteAnimationIcon_->setVisible(true);
+
+    hideIpUtilsMenu(true);
+
+    favouriteAnimation_->stop();
+    favouriteAnimation_->setStartValue(0.0);
+    favouriteAnimation_->setEndValue(2.0);  // 0-1 for fade in, 1-2 for fade out + move
+    favouriteAnimation_->start();
+
+    if (isIpPinned_) {
+        emit unpinIp(currentIp);
+    } else {
+        emit pinIp(currentIp);
+    }
+}
+
+void ConnectWindowItem::onIpUtilsMenuRotateClick()
+{
+    hideIpUtilsMenu(true);
+    emit rotateIpClick();
+}
+
+void ConnectWindowItem::onIpUtilsMenuCloseClick()
+{
+    hideIpUtilsMenu(true);
+}
+
+void ConnectWindowItem::onIpUtilsMenuFavouriteHoverEnter()
+{
+    QGraphicsView *view = scene()->views().first();
+    QPoint globalPt = view->mapToGlobal(view->mapFromScene(ipUtilsMenu_->scenePos()));
+
+    int posX = globalPt.x() + 12 * G_SCALE;
+    int posY = globalPt.y() - 4 * G_SCALE;
+
+    TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_IP_UTILS_MENU);
+    ti.x = posX;
+    ti.y = posY;
+    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+    ti.tailPosPercent = 0.5;
+    ti.title = tr("Favourite IP");
+    TooltipController::instance().showTooltipBasic(ti);
+}
+
+void ConnectWindowItem::onIpUtilsMenuFavouriteHoverLeave()
+{
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_IP_UTILS_MENU);
+}
+
+void ConnectWindowItem::onIpUtilsMenuRotateHoverEnter()
+{
+    QGraphicsView *view = scene()->views().first();
+    QPoint globalPt = view->mapToGlobal(view->mapFromScene(ipUtilsMenu_->scenePos()));
+
+    int posX = globalPt.x() + 52 * G_SCALE;
+    int posY = globalPt.y() - 4 * G_SCALE;
+
+    TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_IP_UTILS_MENU);
+    ti.x = posX;
+    ti.y = posY;
+    ti.tailtype = TOOLTIP_TAIL_BOTTOM;
+    ti.tailPosPercent = 0.5;
+    ti.title = tr("Rotate IP");
+    TooltipController::instance().showTooltipBasic(ti);
+}
+
+void ConnectWindowItem::onIpUtilsMenuRotateHoverLeave()
+{
+    TooltipController::instance().hideTooltip(TOOLTIP_ID_IP_UTILS_MENU);
+}
+
+void ConnectWindowItem::onIpUtilsMenuAnimationValueChanged(const QVariant &value)
+{
+    if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
+        ipUtilsMenu_->setPos(value.toDouble(), 145*G_SCALE);
+    } else {
+        ipUtilsMenu_->setPos(value.toDouble(), 160*G_SCALE);
+    }
+}
+
+void ConnectWindowItem::onIpUtilsMenuAnimationFinished()
+{
+    // If hiding animation is finished, show dotMenuButton_ and ipAddressItem_
+    if (ipUtilsMenu_->pos().x() >= boundingRect().width()) {
+        ipUtilsMenu_->setVisible(false);
+        dotMenuButton_->setVisible(true);
+        ipAddressItem_->setVisible(true);
+    }
+}
+
+void ConnectWindowItem::showIpUtilsMenu(bool animate)
+{
+    double finalX = boundingRect().width() - ipUtilsMenu_->boundingRect().width() - 16*G_SCALE;
+
+    if (animate) {
+        double startX = finalX + ipUtilsMenu_->boundingRect().width() + 16*G_SCALE;
+        if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
+            ipUtilsMenu_->setPos(startX, 145*G_SCALE);
+        } else {
+            ipUtilsMenu_->setPos(startX, 160*G_SCALE);
+        }
+
+        ipUtilsMenuAnimation_->stop();
+        ipUtilsMenuAnimation_->setStartValue(startX);
+        ipUtilsMenuAnimation_->setEndValue(finalX);
+        ipUtilsMenuAnimation_->start();
+    } else {
+        if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
+            ipUtilsMenu_->setPos(finalX, 145*G_SCALE);
+        } else {
+            ipUtilsMenu_->setPos(finalX, 160*G_SCALE);
+        }
+    }
+    ipUtilsMenu_->setVisible(true);
+}
+
+void ConnectWindowItem::hideIpUtilsMenu(bool animate)
+{
+    if (animate) {
+        ipUtilsMenuAnimation_->stop();
+        ipUtilsMenuAnimation_->setStartValue(ipUtilsMenu_->pos().x());
+        ipUtilsMenuAnimation_->setEndValue(boundingRect().width());
+        ipUtilsMenuAnimation_->start();
+    } else {
+        ipUtilsMenu_->setVisible(false);
+        dotMenuButton_->setVisible(true);
+        ipAddressItem_->setVisible(true);
+        updatePositions();
+    }
+}
+
 void ConnectWindowItem::setCustomConfigMode(bool isCustomConfig)
 {
     // TBD: change locations tab etc
+}
+
+void ConnectWindowItem::hideMenus()
+{
+    if (ipUtilsMenu_->isVisible()) {
+        hideIpUtilsMenu(false);
+    }
 }
 
 void ConnectWindowItem::onLocationsCollapsed()
@@ -616,6 +822,36 @@ bool ConnectWindowItem::handleKeyPressEvent(QKeyEvent *event)
 void ConnectWindowItem::onExternalConfigModeChanged(bool isExternalConfigMode)
 {
     locationsButton_->setIsExternalConfigMode(isExternalConfigMode);
+}
+
+QString ConnectWindowItem::getIpAddress()
+{
+    if (!connectStateProtocolPort_->receivedTunnelTestResult()) {
+        return "";
+    }
+    return ipAddressItem_->ipAddress();
+}
+
+void ConnectWindowItem::onFavouriteAnimationValueChanged(const QVariant &value)
+{
+    double progress = value.toDouble();
+    QPointF startPos = dotMenuButton_->pos();
+
+    if (progress <= 1.0) {
+        // Phase 1: Fade in from 0 to 100% opacity (no movement)
+        favouriteAnimationIcon_->setOpacity(progress);
+        favouriteAnimationIcon_->setPos(startPos);
+    } else {
+        // Phase 2: Fade out from 100% to 0% opacity while moving down
+        double phase2Progress = progress - 1.0;  // 0.0 to 1.0
+        favouriteAnimationIcon_->setOpacity(1.0 - phase2Progress);
+        favouriteAnimationIcon_->setPos(startPos.x(), startPos.y() + (phase2Progress * 100 * G_SCALE));
+    }
+}
+
+void ConnectWindowItem::onFavouriteAnimationFinished()
+{
+    favouriteAnimationIcon_->setVisible(false);
 }
 
 } //namespace ConnectWindow

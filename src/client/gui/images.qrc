@@ -6,6 +6,7 @@
         <file>png/bg/bg3.png</file>
         <file>png/bg/bg4.png</file>
         <file>png/bg/bg5.png</file>
+        <file>png/garry_tools.png</file>
         <file>png/welcome.png</file>
         <file>svg/ARROW_DOWN_LOCATIONS.svg</file>
         <file>svg/ARROW_DOWN_WHITE.svg</file>
@@ -254,6 +255,10 @@
         <file>svg/flags/ve_circle.svg</file>
         <file>svg/flags/vn_circle.svg</file>
         <file>svg/flags/za_circle.svg</file>
+        <file>svg/ip-utils/CLOSE.svg</file>
+        <file>svg/ip-utils/FAVOURITE.svg</file>
+        <file>svg/ip-utils/FAVOURITE_SELECTED.svg</file>
+        <file>svg/ip-utils/ROTATE.svg</file>
         <file>svg/locations/10_GBPS_ICON.svg</file>
         <file>svg/locations/10_GBPS_ICON_BEST_LOCATION.svg</file>
         <file>svg/locations/ALL_LOCATION_ICON_DESELECTED.svg</file>

@@ -15,6 +15,8 @@ TooltipDescriptive::TooltipDescriptive(const TooltipInfo &info, QWidget *parent)
     tailType_ = info.tailtype;
     tailPosPercent_ = info.tailPosPercent;
     showState_ = TOOLTIP_SHOW_STATE_INIT;
+    animate_ = info.animate;
+    animationSpeed_ = info.animationSpeed;
 
     QString ss = QString("QLabel { background-color: rgba(39, 49, 61, 96%); color: white }");
     labelDescr_.setParent(this);
@@ -64,19 +66,15 @@ void TooltipDescriptive::paintEvent(QPaintEvent * /*event*/)
     path.addRoundedRect(backgroundRect, TOOLTIP_ROUNDED_RADIUS, TOOLTIP_ROUNDED_RADIUS);
 
     // tail
-    if (tailType_ != TOOLTIP_TAIL_NONE)
-    {
+    if (tailType_ != TOOLTIP_TAIL_NONE) {
         int tailLeftPtX = 0;
         int tailLeftPtY = 0;
         triangleLeftPointXY(tailLeftPtX, tailLeftPtY);
 
-        if (tailType_ == TOOLTIP_TAIL_BOTTOM)
-        {
+        if (tailType_ == TOOLTIP_TAIL_BOTTOM) {
             QPolygonF poly = trianglePolygonBottom(tailLeftPtX, tailLeftPtY);
             path.addPolygon(poly);
-        }
-        else if (tailType_ == TOOLTIP_TAIL_LEFT)
-        {
+        } else if (tailType_ == TOOLTIP_TAIL_LEFT) {
             QPolygonF poly = trianglePolygonLeft(tailLeftPtX, tailLeftPtY);
             path.addPolygon(poly);
         }
@@ -85,8 +83,7 @@ void TooltipDescriptive::paintEvent(QPaintEvent * /*event*/)
     painter.drawPath(path.simplified());
 
     // title
-    if (textTitle_ != "")
-    {
+    if (textTitle_ != "") {
         QFontMetrics fm(fontTitle_);
         painter.setPen(Qt::white);
         painter.setFont(fontTitle_);

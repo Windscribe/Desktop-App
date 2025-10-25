@@ -6,7 +6,7 @@
 #include "utils/ws_assert.h"
 
 ManualConnSettingsPolicy::ManualConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-    const types::ConnectionSettings &connectionSettings, const api_responses::PortMap &portMap) :
+    const types::ConnectionSettings &connectionSettings, const api_responses::PortMap &portMap, const QString &preferredNodeHostname) :
         locationInfo_(qSharedPointerDynamicCast<locationsmodel::MutableLocationInfo>(bli)),
         portMap_(portMap), connectionSettings_(connectionSettings), failedManualModeCounter_(0)
 {
@@ -14,8 +14,13 @@ ManualConnSettingsPolicy::ManualConnSettingsPolicy(QSharedPointer<locationsmodel
     WS_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
 
     QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-    if (IpValidation::isIp(remoteOverride) && connectionSettings_.protocol() == types::Protocol::WIREGUARD) {
+    if (IpValidation::isIp(remoteOverride) && connectionSettings_.protocol() == types::Protocol::WIREGUARD && !remoteOverride.isEmpty()) {
         locationInfo_->selectNodeByIp(remoteOverride);
+    } else if (!preferredNodeHostname.isEmpty()) {
+        qCInfo(LOG_CONNECTION) << "Selecting preferred node by hostname: " << preferredNodeHostname;
+        if (locationInfo_->selectNodeByHostname(preferredNodeHostname)) {
+            qCInfo(LOG_CONNECTION) << "Found matching node: " << locationInfo_->getLogString();
+        }
     }
 }
 

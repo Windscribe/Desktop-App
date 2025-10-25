@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>切断中にファイアウォールをオンのままにすると、インターネット接続が切断される可能性があります</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>お気に入りのIP</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>IP のローテーション</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>静的 IP アドレス</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>お気に入り</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>検索</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>カスタム構成</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>お気に入りの場所とIP</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>すべてのロケーション (%1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>お気に入り</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>静的IP</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>リフレッシュピン</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>お気に入りの場所とIP</translation>
     </message>
 </context>
 <context>
@@ -665,10 +673,6 @@ Recovering...</source>
         <translation>場所</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>お気に入り</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>静的 IP アドレス</translation>
     </message>
@@ -873,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>ロケーション名をインポートできません</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Windscribeスプリットトンネル拡張機能がシステム設定で有効になっていないため、スプリットトンネリング機能が無効になっています。 この機能を使用するには、システム設定で拡張機能を有効にし、再度機能をオンにしてください。</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>デバッグログ送信!</translation>
     </message>
@@ -907,6 +907,46 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>カスタム構成</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>Windscribe ネットワーク拡張機能がシステム設定で有効になっていないため、WireGuard プロトコルが無効になっています。 このプロトコルを使用するには、システム設定で拡張機能を有効にして、再接続してください。</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>WireGuardの起動中にエラーが発生しました</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>システム設定で Windscribe ネットワーク拡張機能が有効になっていないため、スプリット トンネリング機能が無効になっています。 この機能を使用するには、システム設定で拡張機能を有効にし、機能を再度オンにしてください。</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>IP をピン留めできませんでした</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>この場所にお気に入りのIPを設定できませんでした。 後でもう一度やり直してください。</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>IP をローテーションできませんでした</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>後でもう一度お試しいただくか、ステータス ページにアクセスして詳細を確認してください。</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>ロケーションステータスの確認</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>戻る</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>お気に入りの場所と IP</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>接続されたDNSにLANまたはローカルIPアドレスを使用すると、DNSリークが発生します。 ROBERTまたはパブリックDNSサーバーを使用することを強くお勧めします。</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>APIキー</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>コントロール D API に到達できませんでした。</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>有効なコントロール D API キーを入力してください。</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>バージョン</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>白と黒のトレイアイコンを選択します。</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>トレイアイコンの色</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>マルチデスクトップ</translation>
     </message>
@@ -1645,6 +1689,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>リセット</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>白と黒のトレイアイコンを選択します。</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>トレイアイコンの色</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Custom configs</source>
         <translation>カスタム構成</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>ランダムIP</translation>
     </message>
 </context>
 <context>

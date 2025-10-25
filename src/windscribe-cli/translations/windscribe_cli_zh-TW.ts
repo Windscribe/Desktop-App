@@ -15,6 +15,18 @@
         <source>No locations.</source>
         <translation>無位置。</translation>
     </message>
+    <message>
+        <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>無法輪換IP。 請檢查您是否擁有 Windscribe Pro 或您的計劃中是否有此位置，或稍後重試。</translation>
+    </message>
+    <message>
+        <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>無法收藏 IP。 請檢查您是否擁有 Windscribe Pro 或您的計劃中是否有此位置，或稍後重試。</translation>
+    </message>
+    <message>
+        <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
+        <translation>無法取消收藏 IP。 請檢查提供的 IP 是否有效。</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -284,15 +296,35 @@
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>（10 Gbps）</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation>（禁用）</translation>
     </message>
     <message>
         <source> (Pro)</source>
-        <translation type="unfinished"></translation>
+        <translation>（專業版）</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>未連線</translation>
+    </message>
+    <message>
+        <source>IP rotated.</source>
+        <translation>IP 輪換。</translation>
+    </message>
+    <message>
+        <source>IP favorited.</source>
+        <translation>IP 收藏。</translation>
+    </message>
+    <message>
+        <source>IP unfavorited.</source>
+        <translation>IP 不收藏。</translation>
+    </message>
+    <message>
+        <source>Invalid IP address</source>
+        <translation>IP地址無效</translation>
     </message>
 </context>
 </TS>

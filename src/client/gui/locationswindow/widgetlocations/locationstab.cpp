@@ -126,6 +126,9 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
     updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
 
     connect(locationsModelManager, &gui_locations::LocationsModelManager::deviceNameChanged, this, &LocationsTab::onDeviceNameChanged);
+    connect(locationsModelManager->locationsModel(), &gui_locations::LocationsModel::dataChanged, this, [this]() {
+        update();
+    });
     updateCustomConfigsEmptyListVisibility();
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &LocationsTab::onLanguageChanged);
@@ -173,7 +176,7 @@ void LocationsTab::paintEvent(QPaintEvent *event)
     } else if (curTab_ == LOCATION_TAB_ALL_LOCATIONS) {
         text = tr("All locations (%1)").arg(count);
     } else if (curTab_ == LOCATION_TAB_FAVORITE_LOCATIONS) {
-        text = tr("Favourites");
+        text = tr("Favourite Locations & IPs");
     } else if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS) {
         text = tr("Static IPs");
     } else if (curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS) {

@@ -7,6 +7,8 @@
 #import <NetworkExtension/NetworkExtension.h>
 #import <Foundation/Foundation.h>
 #include <QWaitCondition>
+#include <QFuture>
+#include <QPromise>
 
 #include "utils/ws_assert.h"
 #include "utils/log/categories.h"
@@ -87,8 +89,7 @@ namespace KeyChainUtils
 }
 
 IKEv2Connection_mac::IKEv2Connection_mac(QObject *parent, Helper *helper) : IConnection(parent), helper_(helper),
-    state_(STATE_DISCONNECTED), bConnected_(false), notificationId_(NULL), isStateConnectingAfterClick_(false), isDisconnectClicked_(false),
-    isPrevConnectionStatusInitialized_(false)
+    state_(STATE_DISCONNECTED), bConnected_(false), notificationId_(NULL), isStateConnectingAfterClick_(false), isDisconnectClicked_(false)
 {
     connect(&statisticsTimer_, &QTimer::timeout, this, &IKEv2Connection_mac::onStatisticsTimer);
 }
@@ -117,7 +118,6 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
 
     WS_ASSERT(state_ == STATE_DISCONNECTED);
 
-    isPrevConnectionStatusInitialized_ = false;
     state_ = STATE_START_CONNECT;
     startConnect_ = QDateTime::currentDateTime();
     overrideDnsIp_ = overrideDnsIp;
@@ -174,7 +174,7 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
             [manager setEnabled:YES];
             [manager setProtocolConfiguration:(protocol)];
             [manager setOnDemandEnabled:NO];
-            [manager setLocalizedDescription:@"Windscribe VPN"];
+            [manager setLocalizedDescription:kVpnDescription.toNSString()];
 
             NSString *strProtocol = [NSString stringWithFormat:@"{Protocol: %@", protocol];
             qCInfo(LOG_IKEV2) << QString::fromNSString(strProtocol);
@@ -255,6 +255,7 @@ void IKEv2Connection_mac::startDisconnect()
     if (state_ == STATE_DISCONNECTED)
     {
         statisticsTimer_.stop();
+        removeVPNConfigurationFromSystemPreferences();
         emit disconnected();
     }
     else if (state_ != STATE_START_DISCONNECTING && state_ != STATE_DISCONNECTING_AUTH_ERROR)
@@ -272,6 +273,7 @@ void IKEv2Connection_mac::startDisconnect()
             [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
             state_ = STATE_DISCONNECTED;
             statisticsTimer_.stop();
+            removeVPNConfigurationFromSystemPreferences();
             emit disconnected();
         }
         else
@@ -307,7 +309,7 @@ void IKEv2Connection_mac::removeIkev2ConnectionFromOS()
     KeyChainUtils::removeKeychainItem();
 }
 
-void IKEv2Connection_mac::closeWindscribeActiveConnection()
+void IKEv2Connection_mac::stopWindscribeActiveConnection()
 {
     static QWaitCondition waitCondition;
     static QMutex mutex;
@@ -325,7 +327,7 @@ void IKEv2Connection_mac::closeWindscribeActiveConnection()
                 NEVPNConnection * connection = [manager connection];
                 if (connection.status == NEVPNStatusConnected || connection.status == NEVPNStatusConnecting)
                 {
-                    if ([manager.localizedDescription isEqualToString:@"Windscribe VPN"] == YES)
+                    if ([manager.localizedDescription isEqualToString:kVpnDescription.toNSString()] == YES)
                     {
                         qCInfo(LOG_IKEV2) << "Previous IKEv2 connection is active. Stop it.";
                         [connection stopVPNTunnel];
@@ -352,6 +354,7 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
         [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
         state_ = STATE_DISCONNECTED;
         statisticsTimer_.stop();
+        removeVPNConfigurationFromSystemPreferences();
         emit disconnected();
     }
     else if (status == NEVPNStatusDisconnected)
@@ -374,6 +377,7 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
             [[NSNotificationCenter defaultCenter] removeObserver: (id)notificationId_ name: (NSString *)NEVPNStatusDidChangeNotification object: manager.connection];
             state_ = STATE_DISCONNECTED;
             statisticsTimer_.stop();
+            removeVPNConfigurationFromSystemPreferences();
             emit disconnected();
         }
     }
@@ -443,9 +447,6 @@ void IKEv2Connection_mac::handleNotificationImpl(int status)
             }
         }
     }
-
-    prevConnectionStatus_ = status;
-    isPrevConnectionStatusInitialized_ = true;
 }
 
 void IKEv2Connection_mac::onStatisticsTimer()
@@ -494,7 +495,6 @@ void IKEv2Connection_mac::onStatisticsTimer()
             emit statisticsUpdated(totalibytes, totalobytes, true);
         }
     }
-
 }
 
 bool IKEv2Connection_mac::setKeyChain(const QString &username, const QString &password)
@@ -541,6 +541,34 @@ bool IKEv2Connection_mac::isSocketError(QMap<time_t, QString> &logs)
         }
     }
     return false;
+}
+
+void IKEv2Connection_mac::removeVPNConfigurationFromSystemPreferences()
+{
+    auto promise = std::make_shared<QPromise<void>>();
+    auto future = promise->future();
+
+    NEVPNManager *manager = [NEVPNManager sharedManager];
+    [manager loadFromPreferencesWithCompletionHandler:^(NSError *err) {
+        if (!err) {
+            if ([manager.localizedDescription isEqualToString:kVpnDescription.toNSString()]) {
+                manager.enabled = NO;
+                [manager removeFromPreferencesWithCompletionHandler:^(NSError *removeError) {
+                    if (removeError) {
+                        qCWarning(LOG_IKEV2) << "Error removing VPN configuration:" << QString::fromNSString(removeError.localizedDescription);
+                    }
+                    promise->finish();
+                }];
+            } else {
+                promise->finish();
+            }
+        } else {
+            qCWarning(LOG_IKEV2) << "Error removing VPN configuration:" << QString::fromNSString(err.localizedDescription);
+            promise->finish();
+        }
+    }];
+
+    future.waitForFinished();
 }
 
 bool IKEv2Connection_mac::setCustomDns(const QString &overrideDnsIpAddress)

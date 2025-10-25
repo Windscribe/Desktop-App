@@ -1,4 +1,5 @@
 #include "utils/log/logger.h"
+
 #include <QStandardPaths>
 #include <QThread>
 #include <QCoreApplication>
@@ -6,28 +7,24 @@
 #include <QUdpSocket>
 #include <QRandomGenerator>
 
-#include "isleepevents.h"
-#include "openvpnconnection.h"
-#include "engine/crossplatformobjectfactory.h"
-#include "testvpntunnel.h"
-#include "engine/wireguardconfig/getwireguardconfig.h"
-
-#include "utils/ws_assert.h"
-#include "utils/utils.h"
-#include "types/enums.h"
-#include "types/connectionsettings.h"
-#include "engine/getdeviceid.h"
-
-#include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
-#include "utils/extraconfig.h"
-#include "utils/ipvalidation.h"
-#include "types/global_consts.h"
-
 #include "connsettingspolicy/autoconnsettingspolicy.h"
 #include "connsettingspolicy/manualconnsettingspolicy.h"
 #include "connsettingspolicy/customconfigconnsettingspolicy.h"
-
+#include "engine/crossplatformobjectfactory.h"
+#include "engine/getdeviceid.h"
 #include "engine/helper/helper.h"
+#include "engine/networkdetectionmanager/inetworkdetectionmanager.h"
+#include "engine/wireguardconfig/getwireguardconfig.h"
+#include "isleepevents.h"
+#include "openvpnconnection.h"
+#include "testvpntunnel.h"
+#include "types/enums.h"
+#include "types/global_consts.h"
+#include "types/connectionsettings.h"
+#include "utils/ws_assert.h"
+#include "utils/utils.h"
+#include "utils/extraconfig.h"
+#include "utils/ipvalidation.h"
 
 // Had to move this here to prevent a compile error with boost already including winsock.h
 #include "connectionmanager.h"
@@ -41,10 +38,10 @@
     #include "sleepevents_mac.h"
     #include "utils/macutils.h"
     #include "ikev2connection_mac.h"
-    #include "wireguardconnection_posix.h"
+    #include "wireguardconnection_mac.h"
 #elif defined Q_OS_LINUX
     #include "ikev2connection_linux.h"
-    #include "wireguardconnection_posix.h"
+    #include "wireguardconnection_linux.h"
 #endif
 
 ConnectionManager::ConnectionManager(QObject *parent, Helper *helper, INetworkDetectionManager *networkDetectionManager, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
@@ -151,7 +148,8 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig,
                                      QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                                      const types::ConnectionSettings &connectionSettings,
                                      const api_responses::PortMap &portMap, const types::ProxySettings &proxySettings,
-                                     bool bEmitAuthError, const QString &customConfigPath, bool isAntiCensorship)
+                                     bool bEmitAuthError, const QString &customConfigPath, bool isAntiCensorship,
+                                     const QString &preferredNodeHostname)
 {
     WS_ASSERT(state_ == STATE_DISCONNECTED);
 
@@ -163,6 +161,7 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig,
     customConfigPath_ = customConfigPath;
     isAntiCensorship_ = isAntiCensorship;
     bli_ = bli;
+    preferredNodeHostname_ = preferredNodeHostname;
 
     bWasSuccessfullyConnectionAttempt_ = false;
 
@@ -360,7 +359,7 @@ void ConnectionManager::onConnectionConnected(const AdapterGatewayInfo &connecti
     qCInfo(LOG_CONNECTION) << "VPN adapter and gateway:" << vpnAdapterInfo_.makeLogString();
 
     // override the DNS if we are using custom
-    if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM) {
+    if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM || connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CONTROLD) {
         QString customDnsIp = dnsServersFromConnectedDnsInfo();
         vpnAdapterInfo_.setDnsServers(QStringList() << customDnsIp);
         qCInfo(LOG_CONNECTION) << "Custom DNS detected, will override with: " << customDnsIp;
@@ -583,16 +582,17 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
             || (!connSettingsPolicy_->isAutomaticMode() && (err == CONNECT_ERROR::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_SET_KEYCHAIN_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_START_MAC
+                                                            || err == CONNECT_ERROR::WIREGUARD_FAILED_START_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_LOAD_PREFERENCES_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_SAVE_PREFERENCES_MAC))
-            || err == CONNECT_ERROR::EXE_SUBPROCESS_FAILED)
+            || err == CONNECT_ERROR::EXE_SUBPROCESS_FAILED
+            || err == CONNECT_ERROR::WIREGUARD_SYSTEMEXTENSION_INACTIVE)
     {
         // immediately stop trying to connect
         disconnect();
         emit errorDuringConnection(err);
     }
-    else if (err == CONNECT_ERROR::STATE_TIMEOUT_FOR_AUTOMATIC
-             || err == CONNECT_ERROR::UDP_CANT_ASSIGN
+    else if (err == CONNECT_ERROR::UDP_CANT_ASSIGN
              || err == CONNECT_ERROR::UDP_NO_BUFFER_SPACE
              || err == CONNECT_ERROR::UDP_NETWORK_DOWN
              || err == CONNECT_ERROR::WINTUN_OVER_CAPACITY
@@ -608,6 +608,7 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
              || (connSettingsPolicy_->isAutomaticMode() && (err == CONNECT_ERROR::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_SET_KEYCHAIN_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_START_MAC
+                                                            || err == CONNECT_ERROR::WIREGUARD_FAILED_START_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_LOAD_PREFERENCES_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_SAVE_PREFERENCES_MAC))
              || (err == CONNECT_ERROR::AUTH_ERROR && !bEmitAuthError_))
@@ -931,7 +932,7 @@ void ConnectionManager::doConnectPart2()
 #endif
 
     // start ctrld utility
-    if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM && !connectedDnsInfo_.isCustomIPv4Address()) {
+    if ((connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CUSTOM || connectedDnsInfo_.type == CONNECTED_DNS_TYPE_CONTROLD) && !connectedDnsInfo_.isCustomIPv4Address()) {
         bool bStarted = false;
         if (connectedDnsInfo_.isSplitDns)
             bStarted = ctrldManager_->runProcess(connectedDnsInfo_.upStream1, connectedDnsInfo_.upStream2, connectedDnsInfo_.hostnames);
@@ -1551,9 +1552,9 @@ void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSe
         connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(bli_));
     } else if (connectionSettings.isAutomatic()) {
 #ifdef Q_OS_MACOS
-        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_, MacUtils::isLockdownMode(), isFirewallAlwaysOnPlusEnabled_));
+        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_, MacUtils::isLockdownMode(), isFirewallAlwaysOnPlusEnabled_, preferredNodeHostname_));
 #else
-        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_, false, isFirewallAlwaysOnPlusEnabled_));
+        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_, false, isFirewallAlwaysOnPlusEnabled_, preferredNodeHostname_));
 #endif
     } else {
         // override WireGuard protocol to ikev2 if Firewal is Awlays On+ mode enabled
@@ -1570,7 +1571,7 @@ void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSe
                     overrideConnectionSettings = types::ConnectionSettings(it->protocol, it->ports[0], false);
             }
         }
-        connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli_, overrideConnectionSettings, portMap));
+        connSettingsPolicy_.reset(new ManualConnSettingsPolicy(bli_, overrideConnectionSettings, portMap, preferredNodeHostname_));
     }
     connSettingsPolicy_->start();
     connect(connSettingsPolicy_.data(), &BaseConnSettingsPolicy::hostnamesResolved, this, &ConnectionManager::onHostnamesResolved);
@@ -1636,6 +1637,7 @@ void ConnectionManager::setFirewallAlwaysOnPlusEnabled(bool isEnabled)
 {
     isFirewallAlwaysOnPlusEnabled_ = isEnabled;
 }
+
 
 void ConnectionManager::onConnectingTimeout()
 {

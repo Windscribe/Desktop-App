@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Bağlantı kesildiğinde güvenlik duvarını açık tutmak internet bağlantısını bozabilir</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>Favori IP</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>IP&apos;yi döndür</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +88,16 @@
         <translation>Statik IP&apos;ler</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoriler</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Aramak</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Özel yapılandırmalar</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Favori Konumlar &amp; IP&apos;ler</translation>
     </message>
 </context>
 <context>
@@ -264,10 +272,6 @@
         <translation>Tüm lokasyonlar (%1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoriler</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Statik IP&apos;ler</translation>
     </message>
@@ -282,6 +286,10 @@
     <message>
         <source>Refresh Pings</source>
         <translation>Ping&apos;leri Yenile</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Favori Konumlar &amp; IP&apos;ler</translation>
     </message>
 </context>
 <context>
@@ -665,10 +673,6 @@ Kurtarma...</translation>
         <translation>Konumlar</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoriler</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
         <translation>Statik IP&apos;ler</translation>
     </message>
@@ -873,10 +877,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Konum adları içe aktarılamıyor</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Windscribe bölünmüş tünel uzantısı Sistem Ayarları&apos;nda etkinleştirilmediği için bölünmüş tünel özelliği devre dışı bırakıldı.  Bu özelliği kullanmak için lütfen Sistem Ayarları&apos;nda uzantıyı etkinleştirin ve özelliği tekrar açın.</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>Hata Ayıklama Günlüğü Gönderildi!</translation>
     </message>
@@ -907,6 +907,46 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Custom configs</source>
         <translation>Özel yapılandırmalar</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>Windscribe ağ uzantısı Sistem Ayarlarında etkinleştirilmediğinden WireGuard protokolü devre dışı bırakıldı.  Bu protokolü kullanmak için lütfen Sistem Ayarları&apos;nda uzantıyı etkinleştirin ve yeniden bağlanın.</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>WireGuard Başlatılırken Hata Oluştu</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Windscribe ağ uzantısı Sistem Ayarlarında etkinleştirilmediği için bölünmüş tünelleme özelliği devre dışı bırakıldı.  Bu özelliği kullanmak için lütfen Sistem Ayarları&apos;nda uzantıyı etkinleştirin ve özelliği tekrar açın.</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>IP sabitlenemedi</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Bu konum için favori IP&apos;nizi ayarlayamadık.  Daha sonra tekrar deneyin.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>IP döndürülemedi</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Daha sonra tekrar deneyin veya daha fazla bilgi için Durum sayfamıza gidin.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Konum Durumunu Kontrol Edin</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Geri</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>Favori Konumlar &amp;&amp; IP&apos;ler</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1246,18 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Bağlı DNS için bir LAN veya yerel IP adresi kullanmak, DNS sızıntısına neden olur.  ROBERT veya genel bir DNS sunucusu kullanmanızı şiddetle tavsiye ederiz.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>API Anahtarı</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Control D API&apos;sine ulaşılamadı.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Lütfen geçerli bir Control D API Anahtarı sağlayın.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1581,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Sürüm</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Beyaz ve siyah tepsi simgesi arasında seçim yapın.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Tepsi Simgesi Rengi</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Çoklu masaüstü</translation>
     </message>
@@ -1645,6 +1689,14 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Reset</source>
         <translation>Sıfırlama</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Beyaz ve siyah tepsi simgesi arasında seçim yapın.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Tepsi Simgesi Rengi</translation>
     </message>
 </context>
 <context>
@@ -2471,6 +2523,10 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Custom configs</source>
         <translation>Özel yapılandırmalar</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>Rastgele IP</translation>
     </message>
 </context>
 <context>
