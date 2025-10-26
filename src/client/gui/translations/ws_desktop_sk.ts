@@ -61,6 +61,14 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Ponechanie brány firewall zapnutej počas odpojenia môže narušiť pripojenie k internetu</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>Obľúbená IP adresa</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Rotovať IP adresu</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -77,11 +85,7 @@
     </message>
     <message>
         <source>Static IPs</source>
-        <translation>Statické IP</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Obľúbené</translation>
+        <translation>Statické IP adresy</translation>
     </message>
     <message>
         <source>Search</source>
@@ -90,6 +94,10 @@
     <message>
         <source>Custom configs</source>
         <translation>Vlastné konfigurácie</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Obľúbené lokality a IP adresy</translation>
     </message>
 </context>
 <context>
@@ -249,7 +257,7 @@
     </message>
     <message>
         <source>You don&apos;t have any Static IPs</source>
-        <translation>Nemáte žiadne statické IP</translation>
+        <translation>Nemáte žiadne statické IP adresy</translation>
     </message>
     <message>
         <source>No locations</source>
@@ -264,12 +272,8 @@
         <translation>Všetky lokality (%1)</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Obľúbené</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
-        <translation>Statické IP</translation>
+        <translation>Statické IP adresy</translation>
     </message>
     <message>
         <source>Custom configs</source>
@@ -283,12 +287,16 @@
         <source>Refresh Pings</source>
         <translation>Obnoviť pingy</translation>
     </message>
+    <message>
+        <source>Favourite Locations &amp; IPs</source>
+        <translation>Obľúbené lokality a IP adresy</translation>
+    </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
         <source>Add Static IP</source>
-        <translation>Pridať statickú IP</translation>
+        <translation>Pridať statickú IP adresu</translation>
     </message>
 </context>
 <context>
@@ -669,12 +677,8 @@ Obnovuje sa…</translation>
         <translation>Lokality</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Obľúbené</translation>
-    </message>
-    <message>
         <source>Static IPs</source>
-        <translation>Statické IP</translation>
+        <translation>Statické IP adresy</translation>
     </message>
     <message>
         <source>Show/Hide</source>
@@ -877,10 +881,6 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <translation>Nie je možné importovať názvy lokalít</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Funkcia rozdeleného tunelovania bola vypnutá, pretože rozšírenie Windscribe split tunnel nie je povolené v nastaveniach systému.  Ak chcete túto funkciu používať, povoľte rozšírenie v nastaveniach systému a funkciu opäť zapnite.</translation>
-    </message>
-    <message>
         <source>Debug Log Sent!</source>
         <translation>Denník ladenia odoslaný!</translation>
     </message>
@@ -911,6 +911,46 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
     <message>
         <source>Custom configs</source>
         <translation>Vlastné konfigurácie</translation>
+    </message>
+    <message>
+        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
+        <translation>Protokol WireGuard bol zakázaný, pretože sieťové rozšírenie Windscribe nie je povolené v nastaveniach systému.  Ak chcete používať tento protokol, povoľte rozšírenie v nastaveniach systému a znovu sa pripojte.</translation>
+    </message>
+    <message>
+        <source>Error Starting WireGuard</source>
+        <translation>Chyba pri spustení WireGuardu</translation>
+    </message>
+    <message>
+        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Funkcia rozdeleného tunelovania bola vypnutá, pretože sieťové rozšírenie Windscribe nie je povolené v nastaveniach systému.  Ak chcete túto funkciu používať, povoľte rozšírenie v nastaveniach systému a funkciu opäť zapnite.</translation>
+    </message>
+    <message>
+        <source>Could not pin IP</source>
+        <translation>Nepodarilo sa pripnúť IP adresu</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Pre túto lokalitu sa nepodarilo nastaviť vašu obľúbenú IP adresu.  Skúste to neskôr.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Nepodarilo sa rotovať IP adresu</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Skúste to neskôr alebo prejdite na našu stavovú stránku, kde nájdete ďalšie informácie.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Kontrola stavu lokality</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Späť</translation>
+    </message>
+    <message>
+        <source>Favourite Locations &amp;&amp; IPs</source>
+        <translation>Obľúbené lokality a IP adresy</translation>
     </message>
 </context>
 <context>
@@ -1210,6 +1250,18 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Použitie LAN adresy alebo lokálnej IP adresy pre pripojený DNS bude mať za následok únik DNS.  Dôrazne odporúčame používať ROBERT alebo verejný DNS.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>Kľúč API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Pripojenie k API Control D zlyhalo.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Zadajte platný kľúč API Control D.</translation>
     </message>
 </context>
 <context>
@@ -1533,14 +1585,6 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <translation>Verzia</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Vyberte si medzi bielou a čiernou ikonou v systémovom paneli.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Farba ikony v systémovom paneli</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Viacero pracovných plôch</translation>
     </message>
@@ -1649,6 +1693,14 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
     <message>
         <source>Reset</source>
         <translation>Resetovať</translation>
+    </message>
+        <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Vyberte si medzi bielou a čiernou ikonou v systémovom paneli.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Farba ikony v systémovom paneli</translation>
     </message>
 </context>
 <context>
@@ -1762,7 +1814,7 @@ Najprv sa pripojte k sieti</translation>
     <name>PreferencesWindow::NewAddressItem</name>
     <message>
         <source>Enter IP or Hostname</source>
-        <translation>Zadajte IP alebo názov hostiteľa</translation>
+        <translation>Zadajte IP adresu alebo názov hostiteľa</translation>
     </message>
 </context>
 <context>
@@ -1908,7 +1960,7 @@ Najprv sa pripojte k sieti</translation>
     <name>PreferencesWindow::ProxyIpAddressItem</name>
     <message>
         <source>IP</source>
-        <translation>IP</translation>
+        <translation>IP adresa</translation>
     </message>
     <message>
         <source>Copied</source>
@@ -1984,7 +2036,7 @@ Najprv sa pripojte k sieti</translation>
     </message>
     <message>
         <source>R.O.B.E.R.T. is a customizable server-side domain and IP blocking tool. Select the block lists you wish to apply on all your devices by toggling the switch.</source>
-        <translation>R.O.B.E.R.T. je prispôsobiteľný nástroj na blokovanie domén a IP na strane servera. Prepínačom vyberte zoznamy blokovania, ktoré chcete použiť na všetky svoje zariadenia.</translation>
+        <translation>R.O.B.E.R.T. je prispôsobiteľný nástroj na blokovanie domén a IP adries na strane servera. Prepínačom vyberte zoznamy blokovania, ktoré chcete použiť na všetky svoje zariadenia.</translation>
     </message>
     <message>
         <source>Could not retrieve R.O.B.E.R.T. preferences from server. Try again later.</source>
@@ -2475,6 +2527,10 @@ Ak preinštalovanie nepomôže, obráťte sa na podporu Windscribe a požiadajte
     <message>
         <source>Custom configs</source>
         <translation>Vlastné konfigurácie</translation>
+    </message>
+    <message>
+        <source>Random IP</source>
+        <translation>Náhodná IP adresa</translation>
     </message>
 </context>
 <context>
