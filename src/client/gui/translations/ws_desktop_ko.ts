@@ -877,6 +877,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>위치 이름을 가져올 수 없습니다.</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>시스템 설정에서 Windscribe 분할 터널링 확장이 활성화되어 있지 않기 때문에 분할 터널링 기능이 비활성화되었습니다.  이 기능을 사용하려면 시스템 설정에서 확장 프로그램을 활성화하고 기능을 다시 켜십시오.</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>디버그 로그가 전송되었습니다!</translation>
     </message>
@@ -907,18 +911,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>사용자 지정 구성</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>시스템 설정에서 Windscribe 네트워크 확장이 활성화되지 않았기 때문에 WireGuard 프로토콜이 비활성화되었습니다.  이 프로토콜을 사용하려면 시스템 설정에서 확장 프로그램을 활성화하고 다시 연결하십시오.</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>WireGuard 시작 중 오류 발생</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>시스템 설정에서 Windscribe 네트워크 확장이 활성화되지 않았기 때문에 분할 터널링 기능이 비활성화되었습니다.  이 기능을 사용하려면 시스템 설정에서 확장 프로그램을 활성화하고 기능을 다시 켜십시오.</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

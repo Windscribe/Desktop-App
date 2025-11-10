@@ -410,10 +410,7 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
 
     curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_PRIVATE, new std::uint64_t(requestInfo->id));    // our user data, must be deleted in the RequestInfo destructor
 
-    // This env variable is set during testing since curl has a hardcoded search path.
-    if (getenv("WS_DISABLE_OQS") == nullptr) {
-        curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_EC_CURVES, "X25519MLKEM768:p521_mlkem1024:mlkem1024:mlkem768:p384_mlkem768:X448:X25519:secp521r1:secp384r1:secp256r1:ffdhe8192:ffdhe6144:ffdhe4096:ffdhe3072:ffdhe2048");
-    }
+    curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_EC_CURVES, "X25519MLKEM768:p521_mlkem1024:mlkem1024:mlkem768:p384_mlkem768:X448:X25519:secp521r1:secp384r1:secp256r1:ffdhe8192:ffdhe6144:ffdhe4096:ffdhe3072:ffdhe2048");
 
     // set post data
     std::string postData = request->postData();

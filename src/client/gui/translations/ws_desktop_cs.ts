@@ -877,6 +877,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Nelze importovat názvy míst</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Funkce rozděleného tunelového propojení byla zakázána, protože rozšíření rozděleného tunelu Windscribe není v nastavení systému povoleno.  Chcete-li tuto funkci používat, povolte rozšíření v Nastavení systému a znovu ji zapněte.</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>Protokol ladění odeslán!</translation>
     </message>
@@ -907,18 +911,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Custom configs</source>
         <translation>Vlastní konfigurace</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>Protokol WireGuard byl zakázán, protože síťové rozšíření Windscribe není v Nastavení systému povoleno.  Chcete-li použít tento protokol, povolte rozšíření v Nastavení systému a znovu se připojte.</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>Chyba při spouštění WireGuard</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Funkce rozděleného tunelového propojení byla zakázána, protože síťové rozšíření Windscribe není v Nastavení systému povoleno.  Chcete-li tuto funkci používat, povolte rozšíření v Nastavení systému a znovu ji zapněte.</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

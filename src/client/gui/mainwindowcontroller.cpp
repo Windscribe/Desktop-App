@@ -1100,6 +1100,7 @@ void MainWindowController::gotoLoginWindow()
         // qDebug() << "General -> Login";
         curWindow_ = WINDOW_ID_LOGIN;
 
+        initWindow_->stackBefore(loginWindow_);
         connectWindow_->stackBefore(loginWindow_);
         generalMessageWindow_->stackBefore(loginWindow_);
         updateWindow_->stackBefore(loginWindow_);
@@ -1575,10 +1576,21 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
         isAtomicAnimationActive_ = true;
         updateMaskForGraphicsView();
 
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_INIT_WINDOW, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_GENERAL_MESSAGE, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, true);
         connectWindow_->setVisible(true);
         connectWindow_->show();
+
+        if (initWindow_->isVisible()) {
+            QPropertyAnimation *anim = new QPropertyAnimation(this);
+            anim->setTargetObject(initWindow_);
+            anim->setPropertyName("opacity");
+            anim->setStartValue(initWindow_->opacity());
+            anim->setEndValue(0.0);
+            anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+            anim->start(QPropertyAnimation::DeleteWhenStopped);
+        }
 
         QPropertyAnimation *anim = new QPropertyAnimation(this);
         anim->setTargetObject(generalMessageWindow_);
@@ -1588,6 +1600,7 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
         anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
 
         connect(anim, &QPropertyAnimation::finished, [this, expandPrefs]() {
+            initWindow_->hide();
             generalMessageWindow_->hide();
             connectWindow_->setClickable(true);
             bottomInfoWindow_->setClickable(true);

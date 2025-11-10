@@ -55,15 +55,15 @@ elseif(APPLE)
         restorednsmanager_mac.mm
         sleepevents_mac.h
         sleepevents_mac.mm
-        wireguardconnection_mac.mm
-        wireguardconnection_mac.h
+        wireguardconnection_posix.cpp
+        wireguardconnection_posix.h
     )
 elseif(UNIX)
     target_sources(engine PRIVATE
         ikev2connection_linux.cpp
         ikev2connection_linux.h
-        wireguardconnection_linux.cpp
-        wireguardconnection_linux.h
+        wireguardconnection_posix.cpp
+        wireguardconnection_posix.h
     )
 endif()
 

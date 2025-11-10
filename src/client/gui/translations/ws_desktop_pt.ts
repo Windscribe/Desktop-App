@@ -877,6 +877,10 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Não é possível importar nomes de locais</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>O recurso de túnel dividido foi desativado porque a extensão de túnel dividido Windscribe não está habilitada nas Configurações do sistema.  Para usar esse recurso, habilite a extensão em Configurações do sistema e ative o recurso novamente.</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>Log de depuração enviado!</translation>
     </message>
@@ -907,18 +911,6 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     <message>
         <source>Custom configs</source>
         <translation>Configurações personalizadas</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>O protocolo WireGuard foi desativado porque a extensão de rede Windscribe não está ativada nas Configurações do sistema.  Para usar este protocolo, ative a extensão em Configurações do Sistema e reconecte-se.</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>Erro ao iniciar o WireGuard</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>O recurso de tunelamento dividido foi desativado porque a extensão de rede Windscribe não está habilitada nas Configurações do Sistema.  Para usar esse recurso, habilite a extensão em Configurações do sistema e ative o recurso novamente.</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

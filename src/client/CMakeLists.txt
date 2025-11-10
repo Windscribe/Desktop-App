@@ -142,7 +142,7 @@ elseif (APPLE)
 
     # split tunnel extension
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_CURRENT_SOURCE_DIR}/../../build/src/system-components/macos/networkextension/$<CONFIG>/com.windscribe.client.networkextension.systemextension $<TARGET_FILE_DIR:Windscribe>/../Library/SystemExtensions/com.windscribe.client.networkextension.systemextension)
+                       ${CMAKE_CURRENT_SOURCE_DIR}/../../build/src/splittunneling/macos/$<CONFIG>/com.windscribe.client.splittunnelextension.systemextension $<TARGET_FILE_DIR:Windscribe>/../Library/SystemExtensions/com.windscribe.client.splittunnelextension.systemextension)
 
     # apply install_name_tool commands for the windscribeopenvpn binary, fix for the openssl libs
     add_custom_command(TARGET Windscribe POST_BUILD
@@ -150,6 +150,9 @@ elseif (APPLE)
         COMMAND bash -c [[OLD=$(otool -L ${0} | grep ${1} | uniq | sed s/.dylib.*/.dylib/ | awk '{$1=$1;print}'); install_name_tool -change ${OLD} @executable_path/../Frameworks/${1}.3.dylib ${0}]] $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribeopenvpn libcrypto
         VERBATIM
     )
+
+    add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                       ${WINDSCRIBE_BUILD_LIBS_PATH}/wireguard/windscribewireguard $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribewireguard)
 
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                       ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools/ctrld/ctrld $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribectrld)

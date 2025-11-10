@@ -877,6 +877,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>تعذر استيراد أسماء المواقع</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>تم تعطيل ميزة الانقسام النفقي لأن ملحق النفق المنفصل Windscribe غير ممكن في إعدادات النظام.  لاستخدام هذه الميزة، يرجى تمكين الامتداد في إعدادات النظام، وتشغيل الميزة مرة أخرى.</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>تم إرسال سجل التصحيح!</translation>
     </message>
@@ -907,18 +911,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>التكوينات المخصصة</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>تم تعطيل بروتوكول WireGuard لأن ملحق شبكة Windscribe غير ممكن في إعدادات النظام.  لاستخدام هذا البروتوكول ، يرجى تمكين الامتداد في إعدادات النظام وإعادة الاتصال.</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>خطأ في بدء تشغيل WireGuard</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>تم تعطيل ميزة التقسيم النفقي لأن ملحق شبكة Windscribe غير ممكن في إعدادات النظام.  لاستخدام هذه الميزة ، يرجى تمكين الامتداد في إعدادات النظام ، وتشغيل الميزة مرة أخرى.</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

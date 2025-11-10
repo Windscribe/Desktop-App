@@ -877,6 +877,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Tidak dapat mengimpor nama lokasi</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Fitur terowongan terpisah telah dinonaktifkan karena ekstensi terowongan terpisah Windscribe tidak diaktifkan di Pengaturan Sistem.  Untuk menggunakan fitur ini, aktifkan ekstensi di Pengaturan Sistem, dan aktifkan fitur tersebut lagi.</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>Debug Log Dikirim!</translation>
     </message>
@@ -907,18 +911,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Custom configs</source>
         <translation>Konfigurasi kustom</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>Protokol WireGuard telah dinonaktifkan karena ekstensi jaringan Windscribe tidak diaktifkan di Pengaturan Sistem.  Untuk menggunakan protokol ini, aktifkan ekstensi di Pengaturan Sistem dan sambungkan kembali.</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>Kesalahan memulai WireGuard</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Fitur kanalisasi terpisah telah dinonaktifkan karena ekstensi jaringan Windscribe tidak diaktifkan di Pengaturan Sistem.  Untuk menggunakan fitur ini, aktifkan ekstensi di Pengaturan Sistem, dan aktifkan kembali fitur tersebut.</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

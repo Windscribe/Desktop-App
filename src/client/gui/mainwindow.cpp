@@ -3934,24 +3934,6 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
                  " a support ticket, then switch to a different connection mode.");
     } else if (connectState.connectError == WIREGUARD_COULD_NOT_RETRIEVE_CONFIG) {
         msg = tr("Windscribe could not retrieve server configuration. Please try another protocol.");
-    } else if (connectState.connectError == WIREGUARD_SYSTEMEXTENSION_INACTIVE) {
-        msg = tr("The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.");
-        GeneralMessageController::instance().showMessage("WARNING_YELLOW",
-                                                         tr("Error Starting WireGuard"),
-                                                         msg,
-                                                         GeneralMessageController::tr(GeneralMessageController::kOk),
-                                                         "",
-                                                         "",
-                                                         [&](bool) {
-                                                             this->updateAppIconType(AppIconType::DISCONNECTED);
-                                                             this->updateTrayIconType(AppIconType::DISCONNECTED);
-                                                         },
-                                                         [&](bool) {
-                                                             this->updateAppIconType(AppIconType::DISCONNECTED);
-                                                             this->updateTrayIconType(AppIconType::DISCONNECTED);
-                                                         }
-        );
-        return;
     } else {
         msg = tr("An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.").arg(connectState.connectError);
     }
@@ -3995,7 +3977,11 @@ void MainWindow::openUpgradeExternalWindow()
 void MainWindow::gotoLoginWindow()
 {
     mainWindowController_->getLoginWindow()->setFirewallTurnOffButtonVisibility(backend_->isFirewallEnabled());
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGIN);
+    if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
+        GeneralMessageController::instance().setSource(MainWindowController::WINDOW_ID_LOGIN);
+    } else {
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGIN);
+    }
 }
 
 void MainWindow::gotoLogoutWindow()
@@ -4191,7 +4177,7 @@ void MainWindow::onSplitTunnelingStartFailed()
 #elif defined(Q_OS_MACOS)
     GeneralMessageController::instance().showMessage("WARNING_YELLOW",
                                            tr("Error Starting Split Tunneling"),
-                                           tr("The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again."),
+                                           tr("The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again."),
                                            GeneralMessageController::tr(GeneralMessageController::kOk));
 #endif
 }

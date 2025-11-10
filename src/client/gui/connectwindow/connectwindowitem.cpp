@@ -659,25 +659,26 @@ void ConnectWindowItem::onIpUtilsMenuFavouriteClick()
 {
     QString currentIp = ipAddressItem_->ipAddress();
 
-    if (favouriteAnimationIcon_ != nullptr) {
-        delete favouriteAnimationIcon_;
-    }
-    favouriteAnimationIcon_ = new ImageItem(this, isIpPinned_ ? "ip-utils/FAVOURITE" : "ip-utils/FAVOURITE_SELECTED");
-
-    favouriteAnimationIcon_->setPos(dotMenuButton_->pos());
-    favouriteAnimationIcon_->setOpacity(0.0);
-    favouriteAnimationIcon_->setVisible(true);
-
-    hideIpUtilsMenu(true);
-
-    favouriteAnimation_->stop();
-    favouriteAnimation_->setStartValue(0.0);
-    favouriteAnimation_->setEndValue(2.0);  // 0-1 for fade in, 1-2 for fade out + move
-    favouriteAnimation_->start();
-
     if (isIpPinned_) {
+        hideIpUtilsMenu(true);
         emit unpinIp(currentIp);
     } else {
+        if (favouriteAnimationIcon_ != nullptr) {
+            delete favouriteAnimationIcon_;
+        }
+        favouriteAnimationIcon_ = new ImageItem(this, "ip-utils/FAVOURITE_SELECTED");
+
+        favouriteAnimationIcon_->setPos(dotMenuButton_->pos());
+        favouriteAnimationIcon_->setOpacity(0.0);
+        favouriteAnimationIcon_->setVisible(true);
+
+        hideIpUtilsMenu(true);
+
+        favouriteAnimation_->stop();
+        favouriteAnimation_->setStartValue(0.0);
+        favouriteAnimation_->setEndValue(2.0);  // 0-1 for fade in, 1-2 for fade out + move
+        favouriteAnimation_->start();
+
         emit pinIp(currentIp);
     }
 }
@@ -845,7 +846,7 @@ void ConnectWindowItem::onFavouriteAnimationValueChanged(const QVariant &value)
         // Phase 2: Fade out from 100% to 0% opacity while moving down
         double phase2Progress = progress - 1.0;  // 0.0 to 1.0
         favouriteAnimationIcon_->setOpacity(1.0 - phase2Progress);
-        favouriteAnimationIcon_->setPos(startPos.x(), startPos.y() + (phase2Progress * 100 * G_SCALE));
+        favouriteAnimationIcon_->setPos(startPos.x(), startPos.y() + (phase2Progress*50*G_SCALE));
     }
 }
 

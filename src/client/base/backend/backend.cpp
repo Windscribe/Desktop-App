@@ -26,7 +26,9 @@ Backend::Backend(QObject *parent) : QObject(parent),
     isCanLoginWithAuthHash_(false),
     isFirewallEnabled_(false),
     isExternalConfigMode_(false),
-    loginState_(LOGIN_STATE_LOGGED_OUT)
+    loginState_(LOGIN_STATE_LOGGED_OUT),
+    tunnelTestSuccessful_(false),
+    bridgeApiAvailable_(false)
 {
 
     preferences_.loadGuiSettings();
@@ -542,6 +544,11 @@ void Backend::onEngineMyIpUpdated(const QString &ip, bool isDisconnected)
 
 void Backend::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId)
 {
+    if (state == CONNECT_STATE_CONNECTING || state == CONNECT_STATE_DISCONNECTING) {
+        tunnelTestSuccessful_ = false;
+        bridgeApiAvailable_ = false;
+    }
+
     types::ConnectState connectState;
     connectState.connectState = state;
     connectState.disconnectReason = reason;
@@ -605,7 +612,12 @@ void Backend::onEngineEmergencyConnectError(CONNECT_ERROR err)
 
 void Backend::onEngineTestTunnelResult(bool bSuccess)
 {
+    tunnelTestSuccessful_ = bSuccess;
     emit testTunnelResult(bSuccess);
+
+    if (bSuccess && bridgeApiAvailable_) {
+        onEngineBridgeApiAvailabilityChanged(true);
+    }
 }
 
 void Backend::onEngineLostConnectionToHelper()
@@ -1013,9 +1025,10 @@ void Backend::onEngineConnectingHostnameChanged(const QString &hostname)
 
 void Backend::onEngineBridgeApiAvailabilityChanged(bool isAvailable)
 {
+    bridgeApiAvailable_ = isAvailable;
     bool enableIpUtils = false;
 
-    if (isAvailable) {
+    if (isAvailable && tunnelTestSuccessful_) {
         LocationID currentLoc = currentLocation();
         if (currentLoc.isValid() && !currentLoc.isStaticIpsLocation() && !currentLoc.isCustomConfigsLocation()) {
             const api_responses::SessionStatus& sessionStatus = getSessionStatus();

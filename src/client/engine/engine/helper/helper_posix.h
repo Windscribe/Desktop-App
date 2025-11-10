@@ -35,6 +35,11 @@ public:
 
     bool executeTaskKill(CmdKillTarget target);
 
+    bool startWireGuard();
+    bool stopWireGuard();
+    bool configureWireGuard(const WireGuardConfig &config);
+    bool getWireGuardStatus(types::WireGuardStatus *status);
+
     bool startCtrld(const QString &upstream1, const QString &upstream2, const QStringList &domains, bool isCreateLog);
     bool stopCtrld();
 

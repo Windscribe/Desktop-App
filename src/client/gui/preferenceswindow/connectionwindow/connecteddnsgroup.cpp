@@ -171,6 +171,7 @@ void ConnectedDnsGroup::onControldApiKeyChanged(QString v)
         settings_.controldDevices.clear();
         settings_.upStream1.clear();
         comboBoxControldDevice_->clear();
+        editBoxUpstream1_->setText("");
         editBoxControldApiKey_->setError("");
         onUpstream1Changed("");
         updateMode();
@@ -218,12 +219,11 @@ void ConnectedDnsGroup::onUpstream2Changed(QString v)
 void ConnectedDnsGroup::onSplitDnsStateChanged(bool checked)
 {
     if (settings_.isSplitDns != checked) {
-
         // hide additional items
         if (settings_.isSplitDns && !checked) {
             hideItems(indexOf(editBoxUpstream2_), indexOf(domainsItem_));
-        } else  {        // show additional items
-            showItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_));
+        } else  { // show additional items
+            showItems(indexOf(editBoxUpstream2_), indexOf(domainsItem_));
         }
 
         settings_.isSplitDns = checked;
@@ -260,6 +260,8 @@ void ConnectedDnsGroup::onControldDevicesFetched(CONTROLD_FETCH_RESULT result, c
         updateMode();
         onLanguageChanged();
         return;
+    } else if (result == CONTROLD_FETCH_SUCCESS) {
+        editBoxControldApiKey_->setError("");
     }
 
     settings_.controldDevices = devices;
@@ -296,7 +298,11 @@ void ConnectedDnsGroup::onControldDevicesFetched(CONTROLD_FETCH_RESULT result, c
 
         comboBoxControldDevice_->setItems(devicesList, selectedDevice);
         comboBoxControldDevice_->setEnabled(true);
+        editBoxUpstream1_->setText(selectedDevice.toString());
         onUpstream1Changed(selectedDevice.toString());
+    } else {
+        editBoxUpstream1_->setText("");
+        onUpstream1Changed("");
     }
 
     updateMode();

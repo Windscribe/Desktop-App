@@ -877,6 +877,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Не вдається імпортувати назви місцеположень</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Функцію роздільного тунелювання було вимкнено, оскільки розширення розділеного тунелю Windscribe не увімкнено у Системних параметрах.  Щоб скористатися цією можливістю, будь ласка, увімкніть розширення у Системних параметрах і знову увімкніть цю функцію.</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>Журнал налагодження відправлено!</translation>
     </message>
@@ -907,18 +911,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>Користувацькі конфігурації</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>Протокол WireGuard було вимкнено, оскільки розширення мережі Windscribe не ввімкнено в Системних налаштуваннях.  Щоб скористатися цим протоколом, будь ласка, увімкніть розширення у Системних параметрах і знову підключіться до нього.</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>Помилка під час запуску WireGuard</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Функцію роздільного тунелювання було вимкнено, оскільки розширення мережі Windscribe не увімкнено у Системних параметрах.  Щоб скористатися цією можливістю, будь ласка, увімкніть розширення у Системних параметрах і знову увімкніть цю функцію.</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

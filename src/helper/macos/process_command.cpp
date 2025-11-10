@@ -19,6 +19,7 @@
 #include "routes_manager/routes_manager.h"
 #include "utils.h"
 #include "utils/executable_signature/executable_signature.h"
+#include "wireguard/wireguardcontroller.h"
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars)
 {
@@ -166,6 +167,69 @@ std::string executeTaskKill(const std::string &pars)
         success = false;
     }
     return serializeResult(success);
+}
+
+std::string startWireGuard(const std::string &pars)
+{
+    bool success = WireGuardController::instance().start();
+    return serializeResult(success);
+}
+
+std::string stopWireGuard(const std::string &pars)
+{
+    bool success = WireGuardController::instance().stop();
+    return serializeResult(success);
+}
+
+std::string configureWireGuard(const std::string &pars)
+{
+    std::string clientPrivateKey, clientIpAddress, clientDnsAddressList, peerPublicKey,
+                peerPresharedKey, peerEndpoint, allowedIps;
+    uint16_t listenPort;
+    CmdDnsManager dnsManager;
+    deserializePars(pars, clientPrivateKey, clientIpAddress, clientDnsAddressList, peerPublicKey,
+                    peerPresharedKey, peerEndpoint, allowedIps, listenPort, dnsManager);
+
+    bool success = false;
+    if (WireGuardController::instance().isInitialized()) {
+        do {
+            std::vector<std::string> allowed_ips_vector = WireGuardController::instance().splitAndDeduplicateAllowedIps(allowedIps);
+            if (allowed_ips_vector.size() < 1) {
+                spdlog::error("WireGuard: invalid AllowedIps \"{}\"", allowedIps);
+                break;
+            }
+
+            if (!WireGuardController::instance().configureAdapter(clientIpAddress,
+                                                                  clientDnsAddressList,
+                                                                  MacUtils::resourcePath() + "/dns.sh",
+                                                                  allowed_ips_vector)) {
+                spdlog::error("WireGuard: configureAdapter() failed");
+                break;
+            }
+
+            if (!WireGuardController::instance().configureDefaultRouteMonitor(peerEndpoint)) {
+                spdlog::error("WireGuard: configureDefaultRouteMonitor() failed");
+                break;
+            }
+            if (!WireGuardController::instance().configure(clientPrivateKey,
+                                                           peerPublicKey, peerPresharedKey,
+                                                           peerEndpoint, allowed_ips_vector,
+                                                           listenPort)) {
+                spdlog::error("WireGuard: configureDaemon() failed");
+                break;
+            }
+            success = true;
+        } while (0);
+    }
+    return serializeResult(success);
+}
+
+std::string getWireGuardStatus(const std::string &pars)
+{
+    unsigned int errorCode = 0;
+    unsigned long long bytesReceived = 0, bytesTransmitted = 0;
+    WireGuardServiceState state = (WireGuardServiceState)WireGuardController::instance().getStatus(&errorCode, &bytesReceived, &bytesTransmitted);
+    return serializeResult(errorCode, state, bytesReceived, bytesTransmitted);
 }
 
 std::string startCtrld(const std::string &pars)

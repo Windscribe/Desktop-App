@@ -877,6 +877,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Standortnamen können nicht importiert werden</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Die Split-Tunneling-Funktion wurde deaktiviert, da die Windscribe-Erweiterung für geteilte Tunnel in den Systemeinstellungen nicht aktiviert ist.  Um diese Funktion zu nutzen, aktivieren Sie bitte die Erweiterung in den Systemeinstellungen und schalten Sie die Funktion wieder ein.</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>Debug-Protokoll gesendet!</translation>
     </message>
@@ -907,18 +911,6 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <message>
         <source>Custom configs</source>
         <translation>Benutzerdefinierte Konfigurationen</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>Das WireGuard-Protokoll wurde deaktiviert, da die Netzwerkerweiterung Windscribe in den Systemeinstellungen nicht aktiviert ist.  Um dieses Protokoll zu verwenden, aktivieren Sie bitte die Erweiterung in den Systemeinstellungen und stellen Sie die Verbindung wieder her.</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>Fehler beim Starten von WireGuard</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Die Split-Tunneling-Funktion wurde deaktiviert, da die Netzwerkerweiterung Windscribe in den Systemeinstellungen nicht aktiviert ist.  Um diese Funktion zu nutzen, aktivieren Sie bitte die Erweiterung in den Systemeinstellungen und schalten Sie die Funktion wieder ein.</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

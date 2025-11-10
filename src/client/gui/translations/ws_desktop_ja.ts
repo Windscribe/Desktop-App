@@ -877,6 +877,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>ロケーション名をインポートできません</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Windscribeスプリットトンネル拡張機能がシステム設定で有効になっていないため、スプリットトンネリング機能が無効になっています。 この機能を使用するには、システム設定で拡張機能を有効にし、再度機能をオンにしてください。</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>デバッグログ送信!</translation>
     </message>
@@ -907,18 +911,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>カスタム構成</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>Windscribe ネットワーク拡張機能がシステム設定で有効になっていないため、WireGuard プロトコルが無効になっています。 このプロトコルを使用するには、システム設定で拡張機能を有効にして、再接続してください。</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>WireGuardの起動中にエラーが発生しました</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>システム設定で Windscribe ネットワーク拡張機能が有効になっていないため、スプリット トンネリング機能が無効になっています。 この機能を使用するには、システム設定で拡張機能を有効にし、機能を再度オンにしてください。</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

@@ -7,7 +7,7 @@ namespace wsnet {
 BridgeTokenRequest::BridgeTokenRequest(const std::string &sessionToken, RequestFinishedCallback callback) :
     BridgeAPIRequest(HttpMethod::kPost, SubdomainType::kBridgeAPI, "v1/token", std::map<std::string, std::string>(), sessionToken, callback)
 {
-    setTimeout(1000);
+    setTimeout(5000);
 }
 
 void BridgeTokenRequest::handle(const std::string &arr)

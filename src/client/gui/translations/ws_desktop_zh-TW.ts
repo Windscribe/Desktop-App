@@ -877,6 +877,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>無法匯入位置名稱</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>拆分隧道功能已被禁用，因為Windscribe拆分隧道擴展未在系統設置中啟用。 要使用此功能，請在 系統設置中啟用該擴展，然後再次開啟該功能。</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>調試日誌已發送！</translation>
     </message>
@@ -907,18 +911,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>自訂配置</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>WireGuard 協定已被停用，因為系統設定中未啟用 Windscribe 網路擴充功能。 要使用此協議，請在系統設置中啟用擴展並重新連接。</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>啟動 WireGuard 時出錯</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>分割通道功能已被停用，因為系統設定中未啟用 Windscribe 網路擴充功能。 要使用此功能，請在系統設置中啟用擴展，然後再次打開該功能。</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

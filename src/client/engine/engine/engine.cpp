@@ -640,10 +640,16 @@ void Engine::initPart2()
         }
         mutexForOnHostIPsChanged_.lock();
         QMetaObject::invokeMethod(this, [this, ips] {
+            QMutexLocker locker(&mutexForOnHostIPsChanged_);
             QSet<QString> hostIps;
-            for (const auto &ip : ips)
+            for (const auto &ip : ips) {
                 hostIps.insert(QString::fromStdString(ip));
+            }
             onHostIPsChanged(hostIps);
+            // resume callback from wsnet
+            waitConditionForOnHostIPsChanged_.wakeAll();
+            qCDebug(LOG_BASIC) << "Return to WhitelistIpsCallback in wsnet";
+
         });
         waitConditionForOnHostIPsChanged_.wait(&mutexForOnHostIPsChanged_);
         mutexForOnHostIPsChanged_.unlock();
@@ -734,11 +740,6 @@ void Engine::initPart2()
 
     updateProxySettings();
     updateAdvancedParams();
-
-#ifdef Q_OS_MACOS
-    // Activate the extension if it's not already active
-    SystemExtensions_mac::instance()->setAppProxySystemExtensionActive(true);
-#endif
 }
 
 void Engine::onLostConnectionToHelper()
@@ -1306,8 +1307,7 @@ void Engine::onHostIPsChanged(const QSet<QString> &hostIps)
 {
     firewallExceptions_.setHostIPs(hostIps);
     updateFirewallSettings();
-    // resume callback from wsnet
-    waitConditionForOnHostIPsChanged_.wakeAll();
+    qCDebug(LOG_BASIC) << "Engine::onHostIPsChanged, ips count:" << hostIps.count();
 }
 
 void Engine::onMyIpManagerIpChanged(const QString &ip, bool isFromDisconnectedState)
@@ -2239,6 +2239,9 @@ void Engine::setSplitTunnelingSettingsImpl(bool isActive, bool isExclude, const 
     helper_->setSplitTunnelingSettings(isActive, isExclude, engineSettings_.isAllowLanTraffic(), files, ips, hosts);
 
 #ifdef Q_OS_MACOS
+    // Activate the extension if it's not already active
+    SystemExtensions_mac::instance()->setAppProxySystemExtensionActive(isActive);
+
     // Make sure settings are set before (re)starting the extension.
     SplitTunnelExtensionManager::instance().setSplitTunnelSettings(isActive, isExclude, files, ips, hosts);
 
@@ -2635,6 +2638,13 @@ void Engine::stopPacketDetectionImpl()
 
 void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, CONNECT_ERROR /*err*/, const LocationID &lid)
 {
+    // Cancel any pending delayed VPN state timer
+    if (delayedVpnStateTimer_) {
+        delayedVpnStateTimer_->stop();
+        delayedVpnStateTimer_->deleteLater();
+        delayedVpnStateTimer_ = nullptr;
+    }
+
     if (helper_) {
         if (state != CONNECT_STATE_CONNECTED) {
             helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
@@ -2643,7 +2653,28 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
     QString nodeAddress = (state == CONNECT_STATE_CONNECTED) ? lastConnectingHostname_ : QString();
     QString pinnedIp = (state == CONNECT_STATE_CONNECTED) ? pinnedNode_.second : QString();
     bridgeApiManager_->setConnectedState(state == CONNECT_STATE_CONNECTED, nodeAddress, pinnedIp);
+
+#ifdef Q_OS_WIN
+    types::Protocol protocol = (state == CONNECT_STATE_CONNECTED) ? connectionManager_->currentProtocol() : types::Protocol();
+
+    if (state == CONNECT_STATE_CONNECTED && protocol.isOpenVpnProtocol()) {
+        // Delay setting VPN connected state for OpenVPN protocols on Windows due to #576
+        delayedVpnStateTimer_ = new QTimer(this);
+        delayedVpnStateTimer_->setSingleShot(true);
+        connect(delayedVpnStateTimer_, &QTimer::timeout, this, [this]() {
+            if (!isCleanup_) {
+                WSNet::instance()->setIsConnectedToVpnState(true);
+            }
+            delayedVpnStateTimer_->deleteLater();
+            delayedVpnStateTimer_ = nullptr;
+        });
+        delayedVpnStateTimer_->start(4000);
+    } else {
+        WSNet::instance()->setIsConnectedToVpnState(state == CONNECT_STATE_CONNECTED);
+    }
+#else
     WSNet::instance()->setIsConnectedToVpnState(state == CONNECT_STATE_CONNECTED);
+#endif
 }
 
 void Engine::updateProxySettings()
@@ -2822,6 +2853,11 @@ void Engine::rotateIpImpl()
 void Engine::onIpRotateFinished(bool success)
 {
     if (success) {
+#ifdef Q_OS_WIN
+        if (engineSettings_.isTerminateSockets()) {
+            helper_->closeAllTcpConnections(engineSettings_.isAllowLanTraffic());
+        }
+#endif
         connectionManager_->startTunnelTests();
     } else {
         emit ipRotateFailed();
@@ -2831,6 +2867,11 @@ void Engine::onIpRotateFinished(bool success)
 void Engine::onIpPinFinished(const QString &ip)
 {
     if (!ip.isEmpty()) {
+#ifdef Q_OS_WIN
+        if (engineSettings_.isTerminateSockets()) {
+            helper_->closeAllTcpConnections(engineSettings_.isAllowLanTraffic());
+        }
+#endif
         emit testTunnelResult(true);
         emit myIpUpdated(ip, false);
     } else {
@@ -2842,7 +2883,7 @@ void Engine::onIpPinFinished(const QString &ip)
 
 void Engine::fetchControldDevices(const QString &apiKey)
 {
-    QMetaObject::invokeMethod(this, [this, apiKey] {
+    QMetaObject::invokeMethod(this, [this, apiKey] { // NOLINT: false positive for memory leak
         fetchControldDevicesImpl(apiKey);
     });
 }

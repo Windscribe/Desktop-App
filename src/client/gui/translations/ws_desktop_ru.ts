@@ -877,6 +877,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Не удается импортировать названия мест</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Функция раздельного туннелирования была отключена, так как расширение разделенного туннеля Windscribe не включено в системных настройках.  Чтобы воспользоваться этой функцией, включите расширение в Системных настройках и включите ее снова.</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>Журнал отладки отправлен!</translation>
     </message>
@@ -907,18 +911,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>Пользовательские конфигурации</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>Протокол WireGuard был отключен, так как сетевое расширение Windscribe не включено в Системных настройках.  Чтобы использовать этот протокол, включите расширение в Системных настройках и повторно подключитесь.</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>Ошибка при запуске WireGuard</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Функция раздельного туннелирования была отключена, так как сетевое расширение Windscribe не включено в Системных настройках.  Чтобы воспользоваться этой функцией, включите расширение в Системных настройках и включите ее снова.</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

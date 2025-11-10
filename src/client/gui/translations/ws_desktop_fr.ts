@@ -877,6 +877,10 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>Impossible d’importer les noms de lieux</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>La fonctionnalité de tunneling fractionné a été désactivée car l’extension de tunnel fractionné Windscribe n’est pas activée dans les paramètres système.  Pour utiliser cette fonctionnalité, veuillez activer l’extension dans les paramètres système et réactivez-la.</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>Journal de débogage envoyé !</translation>
     </message>
@@ -907,18 +911,6 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     <message>
         <source>Custom configs</source>
         <translation>Configurations personnalisées</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>Le protocole WireGuard a été désactivé car l’extension réseau Windscribe n’est pas activée dans les paramètres système.  Pour utiliser ce protocole, veuillez activer l’extension dans les paramètres système et vous reconnecter.</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>Erreur lors du démarrage de WireGuard</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>La fonctionnalité de tunneling fractionné a été désactivée car l’extension réseau Windscribe n’est pas activée dans les paramètres système.  Pour utiliser cette fonctionnalité, veuillez activer l’extension dans les paramètres système et réactivez-la.</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

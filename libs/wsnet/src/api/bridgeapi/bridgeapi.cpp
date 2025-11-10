@@ -22,6 +22,7 @@ BridgeAPI::BridgeAPI(boost::asio::io_context &io_context, WSNetHttpNetworkManage
 BridgeAPI::~BridgeAPI()
 {
     connectState_.unsubscribeConnectedToVpnState(subscriberId_);
+    impl_.reset();
 }
 
 void BridgeAPI::setConnectedState(bool isConnected)
@@ -50,6 +51,13 @@ void BridgeAPI::setApiAvailableCallback(WSNetApiAvailableCallback callback)
     });
 }
 
+void BridgeAPI::setCurrentHost(const std::string &host)
+{
+    boost::asio::post(io_context_, [this, host] {
+        impl_->setCurrentHost(host);
+    });
+}
+
 std::shared_ptr<WSNetCancelableCallback> BridgeAPI::pinIp(const std::string &ip, WSNetRequestFinishedCallback callback)
 {
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
@@ -57,7 +65,10 @@ std::shared_ptr<WSNetCancelableCallback> BridgeAPI::pinIp(const std::string &ip,
     BaseRequest *request = bridgeapi_requests_factory::pinIp("", ip, cancelableCallback);
     // This request does not return any data
     request->setIgnoreJsonParse();
-    static_cast<BridgeAPIRequest *>(request)->setSessionToken(impl_->sessionToken());
+    auto token = impl_->sessionToken();
+    if (token) {
+        static_cast<BridgeAPIRequest *>(request)->setSessionToken(token->first);
+    }
     boost::asio::post(io_context_, [this, request] { impl_->pinIp(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
@@ -69,7 +80,10 @@ std::shared_ptr<WSNetCancelableCallback> BridgeAPI::rotateIp(WSNetRequestFinishe
     BaseRequest *request = bridgeapi_requests_factory::rotateIp("", cancelableCallback);
     // This request does not return any data
     request->setIgnoreJsonParse();
-    static_cast<BridgeAPIRequest *>(request)->setSessionToken(impl_->sessionToken());
+    auto token = impl_->sessionToken();
+    if (token) {
+        static_cast<BridgeAPIRequest *>(request)->setSessionToken(token->first);
+    }
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }

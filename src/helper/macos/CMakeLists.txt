@@ -48,6 +48,14 @@ set(SOURCES
     server.h
     utils.cpp
     utils.h
+    wireguard/defaultroutemonitor.cpp
+    wireguard/defaultroutemonitor.h
+    wireguard/wireguardadapter.cpp
+    wireguard/wireguardadapter.h
+    wireguard/wireguardcommunicator.cpp
+    wireguard/wireguardcommunicator.h
+    wireguard/wireguardcontroller.cpp
+    wireguard/wireguardcontroller.h
 )
 
 # -Wno-shorten-64-to-32 to silence warnings in pstream.h

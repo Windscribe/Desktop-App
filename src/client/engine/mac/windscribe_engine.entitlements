@@ -17,7 +17,6 @@
     <key>com.apple.developer.networking.networkextension</key>
     <array>
         <string>app-proxy-provider-systemextension</string>
-        <string>packet-tunnel-provider-systemextension</string>
     </array>
 </dict>
 </plist>

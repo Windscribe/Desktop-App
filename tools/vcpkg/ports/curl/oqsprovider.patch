@@ -1,16 +1,8 @@
 diff --git a/lib/vtls/openssl.c b/lib/vtls/openssl.c
-index 98fa962ab..1a134ef70 100644
+index 98fa962ab..e541c0969 100644
 --- a/lib/vtls/openssl.c
 +++ b/lib/vtls/openssl.c
-@@ -31,6 +31,7 @@
- 
- #if defined(USE_QUICHE) || defined(USE_OPENSSL)
- 
-+#include <stdlib.h>
- #include <limits.h>
- 
- /* Wincrypt must be included before anything that could include OpenSSL. */
-@@ -82,6 +83,15 @@
+@@ -82,6 +82,15 @@
  #include <openssl/tls1.h>
  #include <openssl/evp.h>
  
@@ -26,7 +18,7 @@ index 98fa962ab..1a134ef70 100644
  #ifdef USE_ECH
  # ifndef OPENSSL_IS_BORINGSSL
  #  include <openssl/ech.h>
-@@ -3513,6 +3523,53 @@ CURLcode Curl_ssl_setup_x509_store(struct Curl_cfilter *cf,
+@@ -3513,6 +3522,47 @@ CURLcode Curl_ssl_setup_x509_store(struct Curl_cfilter *cf,
  }
  #endif /* HAVE_SSL_X509_STORE_SHARE */
  
@@ -35,12 +27,6 @@ index 98fa962ab..1a134ef70 100644
 +{
 +    OSSL_PROVIDER *provider;
 +    int ret = 1;
-+
-+#if defined(__linux__) || defined(__APPLE__)
-+    if (getenv("WS_DISABLE_OQS") != NULL) {
-+        return 0;
-+    }
-+#endif
 +
 +#if defined(__linux__)
 +    ret = OSSL_PROVIDER_set_default_search_path(libctx, "/opt/windscribe/lib");
@@ -80,7 +66,7 @@ index 98fa962ab..1a134ef70 100644
  CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
                              struct Curl_cfilter *cf,
                              struct Curl_easy *data,
-@@ -3596,6 +3653,11 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
+@@ -3596,6 +3646,11 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
      return CURLE_SSL_CONNECT_ERROR;
    }
  

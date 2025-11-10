@@ -11,11 +11,11 @@
 #ifdef Q_OS_MACOS
     #include "restorednsmanager_mac.h"
     #include "ikev2connection_mac.h"
-    #include "wireguardconnection_mac.h"
+    #include "wireguardconnection_posix.h"
 #endif
 
 #ifdef Q_OS_LINUX
-    #include "wireguardconnection_linux.h"
+    #include "wireguardconnection_posix.h"
 #endif
 
 void FinishActiveConnections::finishAllActiveConnections(Helper *helper)
@@ -70,8 +70,7 @@ void FinishActiveConnections::finishAllActiveConnections_posix(Helper *helper)
     finishOpenVpnActiveConnections_posix(helper);
     finishWireGuardActiveConnections_posix(helper);
 #if defined(Q_OS_MACOS)
-    IKEv2Connection_mac::stopWindscribeActiveConnection();
-    WireGuardConnection::stopWindscribeActiveConnection();
+    IKEv2Connection_mac::closeWindscribeActiveConnection();
 #endif
 }
 
@@ -87,9 +86,7 @@ void FinishActiveConnections::finishOpenVpnActiveConnections_posix(Helper *helpe
 
 void FinishActiveConnections::finishWireGuardActiveConnections_posix(Helper *helper)
 {
-#if defined(Q_OS_LINUX)
     helper->stopWireGuard();
-#endif
 }
 #endif
 

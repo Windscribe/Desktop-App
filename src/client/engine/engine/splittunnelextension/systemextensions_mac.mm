@@ -81,7 +81,7 @@ SystemExtensions_mac* SystemExtensions_mac::instance() {
 bool SystemExtensions_mac::setAppProxySystemExtensionActive(bool isActive) {
     if (isActive) {
         OSSystemExtensionRequest *request = [OSSystemExtensionRequest
-            activationRequestForExtension:@"com.windscribe.client.networkextension"
+            activationRequestForExtension:@"com.windscribe.client.splittunnelextension"
             queue:dispatch_get_main_queue()];
 
         if (!request) {

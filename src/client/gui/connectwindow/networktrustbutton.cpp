@@ -94,7 +94,7 @@ void NetworkTrustButton::setNetwork(const types::NetworkInterface &network)
 void NetworkTrustButton::updateNetworkText()
 {
     // width minus left text offset and space for arrow on the right
-    int availableWidth = kMaxWidth*G_SCALE - 40*G_SCALE - arrow_->boundingRect().width();
+    int availableWidth = kMaxWidth*G_SCALE - 72*G_SCALE - arrow_->boundingRect().width();
 
     QFont networkFont = FontManager::instance().getFont(15, QFont::Normal);
     QFontMetrics fmNetwork(networkFont);

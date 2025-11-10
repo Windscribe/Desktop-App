@@ -394,6 +394,8 @@ private:
     QString lastConnectingHostname_;
     types::Protocol lastConnectingProtocol_;
 
+    QTimer *delayedVpnStateTimer_ = nullptr;  // Timer for delayed VPN state notification on Windows OpenVPN
+
     bool isNeedReconnectAfterRequestAuth_;
 
     bool online_;

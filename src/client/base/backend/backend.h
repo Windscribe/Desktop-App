@@ -307,6 +307,8 @@ private:
     std::vector<std::wstring> osDnsServers_;
 
     QString currentConnectingHostname_;
+    bool tunnelTestSuccessful_;
+    bool bridgeApiAvailable_;
 
     void triggerAutoConnect(const types::NetworkInterface &interface);
 };

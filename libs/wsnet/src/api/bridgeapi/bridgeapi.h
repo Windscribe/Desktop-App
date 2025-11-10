@@ -21,6 +21,7 @@ public:
     void setIgnoreSslErrors(bool bIgnore) override;
     bool hasSessionToken() const override;
     void setApiAvailableCallback(WSNetApiAvailableCallback callback) override;
+    void setCurrentHost(const std::string &host) override;
 
     std::shared_ptr<WSNetCancelableCallback> pinIp(const std::string &ip, WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> rotateIp(WSNetRequestFinishedCallback callback) override;

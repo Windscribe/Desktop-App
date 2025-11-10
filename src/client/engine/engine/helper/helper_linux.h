@@ -12,9 +12,4 @@ public:
     bool installUpdate(const QString& package) const;
     void setDnsLeakProtectEnabled(bool bEnabled);
     void resetMacAddresses(const QString &ignoreNetwork = "");
-
-    bool startWireGuard();
-    bool stopWireGuard();
-    bool configureWireGuard(const WireGuardConfig &config);
-    bool getWireGuardStatus(types::WireGuardStatus *status);
 };

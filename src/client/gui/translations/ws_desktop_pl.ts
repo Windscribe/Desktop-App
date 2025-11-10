@@ -877,6 +877,10 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Nie można zaimportować nazw lokalizacji</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Funkcja dzielonego tunelowania została wyłączona, ponieważ rozszerzenie dzielonego tunelu Windscribe nie jest włączone w ustawieniach systemu.  Aby skorzystać z tej funkcji, włącz rozszerzenie w Ustawieniach systemowych i ponownie włącz tę funkcję.</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>Dziennik debugowania wysłany!</translation>
     </message>
@@ -907,18 +911,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
     <message>
         <source>Custom configs</source>
         <translation>Konfiguracje niestandardowe</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>Protokół WireGuard został wyłączony, ponieważ rozszerzenie sieciowe Windscribe nie jest włączone w ustawieniach systemu.  Aby korzystać z tego protokołu, włącz rozszerzenie w Ustawieniach systemowych i połącz się ponownie.</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>Błąd podczas uruchamiania programu WireGuard</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Funkcja dzielonego tunelowania została wyłączona, ponieważ rozszerzenie sieciowe Windscribe nie jest włączone w Ustawieniach systemu.  Aby skorzystać z tej funkcji, włącz rozszerzenie w Ustawieniach systemowych i ponownie włącz tę funkcję.</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

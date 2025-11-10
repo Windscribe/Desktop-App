@@ -6,6 +6,7 @@
 #include <map>
 #include <optional>
 #include <atomic>
+#include <chrono>
 #include "WSNetHttpNetworkManager.h"
 #include "WSNetAdvancedParameters.h"
 #include "../baserequest.h"
@@ -25,9 +26,10 @@ public:
     void setConnectedState(bool isConnected);
     void setIgnoreSslErrors(bool bIgnore);
 
-    const std::string &sessionToken() const;
+    const std::pair<std::string, std::int64_t> *sessionToken() const;
     bool hasSessionToken() const;
     void setApiAvailableCallback(WSNetApiAvailableCallback callback);
+    void setCurrentHost(const std::string &host);
 
     void executeRequest(std::unique_ptr<BaseRequest> request);
     void pinIp(std::unique_ptr<BaseRequest> request);
@@ -43,7 +45,9 @@ private:
 
     bool bIgnoreSslErrors_ = false;
     bool isConnected_ = false;
-    std::string sessionToken_;
+    bool isFetchingToken_ = false;
+    std::map<std::string, std::pair<std::string, std::int64_t>> sessionTokens_;
+    std::string currentHost_;
     std::unique_ptr<BaseRequest> queuedPinIpRequest_;
     WSNetApiAvailableCallback apiAvailableCallback_;
 
@@ -61,6 +65,7 @@ private:
     void onHttpNetworkRequestProgressCallback(std::uint64_t requestId, std::uint64_t bytesReceived, std::uint64_t bytesTotal);
 
     void clearSessionToken();
+    void setSessionTokenExpiry();
 };
 
 } // namespace wsnet

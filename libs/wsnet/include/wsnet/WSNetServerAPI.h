@@ -11,7 +11,7 @@
 namespace wsnet {
 
 enum class UpdateChannel { kRelease = 0, kBeta, kGuineaPig, kInternal };
-enum class ApiRetCode { kSuccess = 0, kNetworkError, kNoNetworkConnection, kIncorrectJson, kFailoverFailed, kNoToken };
+enum class ApiRetCode { kSuccess = 0, kNetworkError, kNoNetworkConnection, kIncorrectJson, kFailoverFailed, kNoToken, kBridgeApiError };
 typedef ApiRetCode ServerApiRetCode; // for backward compatibility
 typedef std::function<void(ApiRetCode apiRetCode, const std::string &jsonData)> WSNetRequestFinishedCallback;
 typedef std::function<void(std::uint32_t num, std::uint32_t count)> WSNetTryingBackupEndpointCallback;

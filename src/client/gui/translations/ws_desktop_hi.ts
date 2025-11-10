@@ -877,6 +877,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>स्थान नाम आयात करने में असमर्थ</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>स्प्लिट टनलिंग सुविधा अक्षम कर दी गई है क्योंकि सिस्टम सेटिंग्स में Windscribe स्प्लिट टनल एक्सटेंशन सक्षम नहीं है।  इस सुविधा का उपयोग करने के लिए, कृपया सिस्टम सेटिंग्स में एक्सटेंशन सक्षम करें, और सुविधा को फिर से चालू करें।</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>डिबग लॉग भेजा गया!</translation>
     </message>
@@ -907,18 +911,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>कस्टम कॉन्फ़िगरेशन</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>वायरगार्ड प्रोटोकॉल अक्षम किया गया है क्योंकि सिस्टम सेटिंग्स में विंडसाइड नेटवर्क एक्सटेंशन सक्षम नहीं है।  इस प्रोटोकॉल का उपयोग करने के लिए, कृपया सिस्टम सेटिंग्स में एक्सटेंशन को सक्षम करें और फिर से कनेक्ट करें।</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>वायरगार्ड प्रारंभ करने में त्रुटि</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>स्प्लिट टनलिंग सुविधा अक्षम कर दी गई है क्योंकि सिस्टम सेटिंग्स में विंडसाइड नेटवर्क एक्सटेंशन सक्षम नहीं है।  इस सुविधा का उपयोग करने के लिए, कृपया सिस्टम सेटिंग्स में एक्सटेंशन को सक्षम करें, और सुविधा को फिर से चालू करें।</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

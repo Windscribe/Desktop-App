@@ -38,10 +38,10 @@
     #include "sleepevents_mac.h"
     #include "utils/macutils.h"
     #include "ikev2connection_mac.h"
-    #include "wireguardconnection_mac.h"
+    #include "wireguardconnection_posix.h"
 #elif defined Q_OS_LINUX
     #include "ikev2connection_linux.h"
-    #include "wireguardconnection_linux.h"
+    #include "wireguardconnection_posix.h"
 #endif
 
 ConnectionManager::ConnectionManager(QObject *parent, Helper *helper, INetworkDetectionManager *networkDetectionManager, CustomOvpnAuthCredentialsStorage *customOvpnAuthCredentialsStorage) : QObject(parent),
@@ -582,11 +582,9 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
             || (!connSettingsPolicy_->isAutomaticMode() && (err == CONNECT_ERROR::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_SET_KEYCHAIN_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_START_MAC
-                                                            || err == CONNECT_ERROR::WIREGUARD_FAILED_START_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_LOAD_PREFERENCES_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_SAVE_PREFERENCES_MAC))
-            || err == CONNECT_ERROR::EXE_SUBPROCESS_FAILED
-            || err == CONNECT_ERROR::WIREGUARD_SYSTEMEXTENSION_INACTIVE)
+            || err == CONNECT_ERROR::EXE_SUBPROCESS_FAILED)
     {
         // immediately stop trying to connect
         disconnect();
@@ -608,7 +606,6 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
              || (connSettingsPolicy_->isAutomaticMode() && (err == CONNECT_ERROR::IKEV_NETWORK_EXTENSION_NOT_FOUND_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_SET_KEYCHAIN_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_START_MAC
-                                                            || err == CONNECT_ERROR::WIREGUARD_FAILED_START_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_LOAD_PREFERENCES_MAC
                                                             || err == CONNECT_ERROR::IKEV_FAILED_SAVE_PREFERENCES_MAC))
              || (err == CONNECT_ERROR::AUTH_ERROR && !bEmitAuthError_))

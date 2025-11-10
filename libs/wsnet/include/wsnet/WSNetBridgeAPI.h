@@ -20,6 +20,7 @@ public:
     virtual void setIgnoreSslErrors(bool bIgnore) = 0;
     virtual bool hasSessionToken() const = 0;
     virtual void setApiAvailableCallback(WSNetApiAvailableCallback callback) = 0;
+    virtual void setCurrentHost(const std::string &host) = 0;
 
     virtual std::shared_ptr<WSNetCancelableCallback> rotateIp(WSNetRequestFinishedCallback callback) = 0;
     virtual std::shared_ptr<WSNetCancelableCallback> pinIp(const std::string &ip, WSNetRequestFinishedCallback callback) = 0;

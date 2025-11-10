@@ -877,6 +877,10 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <translation>Impossibile importare i nomi delle posizioni</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>La funzione di split tunneling è stata disabilitata perché l&apos;estensione dello split tunnel di Windscribe non è abilitata in Impostazioni di sistema.  Per utilizzare questa funzione, abilita l&apos;estensione in Impostazioni di sistema e riattiva la funzione.</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>Log di debug inviato!</translation>
     </message>
@@ -907,18 +911,6 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     <message>
         <source>Custom configs</source>
         <translation>Configurazioni personalizzate</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>Il protocollo WireGuard è stato disabilitato perché l&apos;estensione di rete Windscribe non è abilitata in Impostazioni di sistema.  Per utilizzare questo protocollo, abilitare l&apos;estensione in Impostazioni di sistema e riconnettersi.</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>Errore durante l&apos;avvio di WireGuard</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>La funzione di split tunneling è stata disabilitata perché l&apos;estensione di rete Windscribe non è abilitata in Impostazioni di sistema.  Per utilizzare questa funzione, abilita l&apos;estensione in Impostazioni di sistema e riattiva la funzione.</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

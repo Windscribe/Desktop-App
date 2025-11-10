@@ -877,6 +877,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>وارد کردن نام مکان ها امکان پذیر نیست</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>ویژگی تقسیم تونل زنی غیرفعال شده است زیرا پسوند تونل تقسیم Windscribe در تنظیمات سیستم فعال نیست.  برای استفاده از این ویژگی، لطفا افزونه را در تنظیمات سیستم فعال کنید و دوباره این ویژگی را روشن کنید.</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>اشکال زدایی گزارش ارسال شد!</translation>
     </message>
@@ -907,18 +911,6 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Custom configs</source>
         <translation>پیکربندی های سفارشی</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>پروتکل WireGuard غیرفعال شده است زیرا افزونه شبکه Windscribe در تنظیمات سیستم فعال نیست.  برای استفاده از این پروتکل، لطفا افزونه را در تنظیمات سیستم فعال کرده و دوباره وصل کنید.</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>خطا در راه اندازی WireGuard</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>ویژگی تقسیم تونل غیرفعال شده است زیرا افزونه شبکه Windscribe در تنظیمات سیستم فعال نیست.  برای استفاده از این ویژگی، لطفا افزونه را در تنظیمات سیستم فعال کنید و دوباره این ویژگی را روشن کنید.</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

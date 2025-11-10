@@ -28,11 +28,11 @@ void BridgeApiManager::setConnectedState(bool isConnected, const QString &nodeAd
 
     isConnected_ = isConnected;
 
-    WSNet::instance()->bridgeAPI()->setConnectedState(isConnected);
-
     if (!isConnected_ || nodeAddress.isEmpty()) {
         return;
     }
+
+    WSNet::instance()->bridgeAPI()->setCurrentHost(nodeAddress.toStdString());
 
     if (!pinnedIp.isEmpty()) {
         pinIp(pinnedIp);

@@ -877,6 +877,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Không thể nhập tên địa điểm</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Tính năng tạo đường hầm phân chia đã bị tắt vì phần mở rộng đường hầm phân chia Windscribe không được bật trong Cài đặt hệ thống.  Để sử dụng tính năng này, vui lòng bật tiện ích mở rộng trong Cài đặt hệ thống và bật lại tính năng này.</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>Nhật ký gỡ lỗi đã gửi!</translation>
     </message>
@@ -907,18 +911,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Custom configs</source>
         <translation>Cấu hình tùy chỉnh</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>Giao thức WireGuard đã bị vô hiệu hóa vì tiện ích mở rộng mạng Windscribe không được bật trong Cài đặt hệ thống.  Để sử dụng giao thức này, vui lòng bật tiện ích mở rộng trong Cài đặt hệ thống và kết nối lại.</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>Lỗi khởi động WireGuard</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Tính năng tạo đường hầm phân chia đã bị tắt vì tiện ích mở rộng mạng Windscribe không được bật trong Cài đặt hệ thống.  Để sử dụng tính năng này, vui lòng bật tiện ích mở rộng trong Cài đặt hệ thống và bật lại tính năng này.</translation>
     </message>
     <message>
         <source>Could not pin IP</source>

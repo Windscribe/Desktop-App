@@ -114,14 +114,9 @@ variables:
     - !reference [.download_dependency_wireguard, script]
     - !reference [.download_dependency_wstunnel, script]
 
-.download_dependencies_linux:
+.download_dependencies_posix:
   script:
     - !reference [.download_dependency_wireguard, script]
-    - !reference [.download_dependency_wstunnel, script]
-    - !reference [.download_vcpkg_cache, script]
-
-.download_dependencies_mac:
-  script:
     - !reference [.download_dependency_wstunnel, script]
     - !reference [.download_vcpkg_cache, script]
 
@@ -450,11 +445,11 @@ build:win:arm64:bootstrap:
 .build_mac_installer_common:
   script:
     - OS_IDENTIFIER="macos"
-    - !reference [.download_dependencies_mac, script]
+    - !reference [.download_dependencies_posix, script]
     - if [ -d ./${BUILD_LIBS_FOLDER}/ ]; then for z in ./${BUILD_LIBS_FOLDER}/*.zip; do unzip -qod ./${BUILD_LIBS_FOLDER} $z; done; fi
     # Download the provisioning profiles from Nexus
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o data/provisioning_profile/embedded.provisionprofile "$NEXUS_PATH_ROOT/secrets/embedded.provisionprofile"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o data/provisioning_profile/networkextension.provisionprofile "$NEXUS_PATH_ROOT/secrets/networkextension.provisionprofile"
+    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o data/provisioning_profile/splittunnelextension.provisionprofile "$NEXUS_PATH_ROOT/secrets/splittunnelextension.provisionprofile"
     - VERSION=$(python3 tools/base/extract.py)
 
 build:mac:installer:
@@ -500,7 +495,7 @@ build:mac:installer:tagged:
 
 .build_linux_installer_common:
   script:
-    - !reference [.download_dependencies_linux, script]
+    - !reference [.download_dependencies_posix, script]
     - if [ -d ./${BUILD_LIBS_FOLDER}/ ]; then for z in ./${BUILD_LIBS_FOLDER}/*.zip; do unzip -qod ./${BUILD_LIBS_FOLDER} $z; done; fi
     - if [ -f vcpkg_cache.zip ]; then rm -rf ${HOME}/vcpkg; unzip -qod ${HOME} vcpkg_cache.zip; fi
     - VERSION=$(python3 tools/base/extract.py)
@@ -939,6 +934,8 @@ build:wsnet:mac:
   script:
     - OS_IDENTIFIER="macos"
     - !reference [.build_mac_installer_common, script]
+    # Update OQS provider path in curl patch to use vcpkg location for CI
+    - sed -i '' 's|/Applications/Windscribe.app/Contents/Frameworks|'${VCPKG_ROOT}'/installed/arm64-osx/bin|g' tools/vcpkg/ports/curl/oqsprovider.patch
     - tools/build_all --static-analysis --build-app --build-tests
   artifacts:
     expire_in: 1 day
@@ -999,6 +996,8 @@ build:wsnet:rhel:
     - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
     - python3 -m pip install clang-tidy
+    # Update OQS provider path in curl patch to use vcpkg location for CI
+    - sed -i 's|/opt/windscribe/lib|'${VCPKG_ROOT}'/installed/x64-linux/bin|g' tools/vcpkg/ports/curl/oqsprovider.patch
     - tools/build_all --static-analysis --build-app --build-tests
   artifacts:
     expire_in: 1 day
@@ -1059,9 +1058,9 @@ test:version:mac:
         echo "Files in src/helper/macos were changed, but src/helper/macos/helper-info.plist was not updated"
         exit 1
       fi
-      EXTENSION_CHANGES=$(git diff --name-only origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -- src/system-components/macos/networkextension)
-      if [ ! -z "$EXTENSION_CHANGES" ] && [[ ! "$EXTENSION_CHANGES" == *"src/system-components/macos/networkextension/Info.plist"* ]]; then
-        echo "Files in src/system-components/macos/networkextension were changed, src/system-components/macos/networkextension/Info.plist was not updated"
+      EXTENSION_CHANGES=$(git diff --name-only origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -- src/splittunneling/macos)
+      if [ ! -z "$EXTENSION_CHANGES" ] && [[ ! "$EXTENSION_CHANGES" == *"src/splittunneling/macos/Info.plist"* ]]; then
+        echo "Files in src/splittunneling/macos were changed, but src/splittunneling/macos/Info.plist was not updated"
         exit 1
       fi
   dependencies: []

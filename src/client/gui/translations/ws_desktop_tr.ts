@@ -877,6 +877,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Konum adları içe aktarılamıyor</translation>
     </message>
     <message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Windscribe bölünmüş tünel uzantısı Sistem Ayarları&apos;nda etkinleştirilmediği için bölünmüş tünel özelliği devre dışı bırakıldı.  Bu özelliği kullanmak için lütfen Sistem Ayarları&apos;nda uzantıyı etkinleştirin ve özelliği tekrar açın.</translation>
+    </message>
+    <message>
         <source>Debug Log Sent!</source>
         <translation>Hata Ayıklama Günlüğü Gönderildi!</translation>
     </message>
@@ -907,18 +911,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Custom configs</source>
         <translation>Özel yapılandırmalar</translation>
-    </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>Windscribe ağ uzantısı Sistem Ayarlarında etkinleştirilmediğinden WireGuard protokolü devre dışı bırakıldı.  Bu protokolü kullanmak için lütfen Sistem Ayarları&apos;nda uzantıyı etkinleştirin ve yeniden bağlanın.</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>WireGuard Başlatılırken Hata Oluştu</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Windscribe ağ uzantısı Sistem Ayarlarında etkinleştirilmediği için bölünmüş tünelleme özelliği devre dışı bırakıldı.  Bu özelliği kullanmak için lütfen Sistem Ayarları&apos;nda uzantıyı etkinleştirin ve özelliği tekrar açın.</translation>
     </message>
     <message>
         <source>Could not pin IP</source>
