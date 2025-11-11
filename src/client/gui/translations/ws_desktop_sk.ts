@@ -880,6 +880,10 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <source>Unable to import location names</source>
         <translation>Nie je možné importovať názvy lokalít</translation>
     </message>
+	<message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Funkcia rozdeleného tunelovania bola vypnutá, pretože rozšírenie Windscribe rozdelené tunelovanie nie je povolené v nastaveniach systému.  Ak chcete túto funkciu používať, povoľte rozšírenie v nastaveniach systému a funkciu opäť zapnite.</translation>
+    </message>
     <message>
         <source>Debug Log Sent!</source>
         <translation>Denník ladenia odoslaný!</translation>
@@ -912,19 +916,6 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <source>Custom configs</source>
         <translation>Vlastné konfigurácie</translation>
     </message>
-    <message>
-        <source>The WireGuard protocol has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this protocol, please enable the extension in System Settings and reconnect.</source>
-        <translation>Protokol WireGuard bol zakázaný, pretože sieťové rozšírenie Windscribe nie je povolené v nastaveniach systému.  Ak chcete používať tento protokol, povoľte rozšírenie v nastaveniach systému a znovu sa pripojte.</translation>
-    </message>
-    <message>
-        <source>Error Starting WireGuard</source>
-        <translation>Chyba pri spustení WireGuardu</translation>
-    </message>
-    <message>
-        <source>The split tunneling feature has been disabled because the Windscribe network extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Funkcia rozdeleného tunelovania bola vypnutá, pretože sieťové rozšírenie Windscribe nie je povolené v nastaveniach systému.  Ak chcete túto funkciu používať, povoľte rozšírenie v nastaveniach systému a funkciu opäť zapnite.</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>Nepodarilo sa pripnúť IP adresu</translation>
     </message>
