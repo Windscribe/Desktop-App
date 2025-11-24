@@ -69,6 +69,10 @@
         <source>Rotate IP</source>
         <translation>IP را بچرخانید</translation>
     </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>فایروال</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -96,8 +100,8 @@
         <translation>پیکربندی های سفارشی</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>مکان ها و IP های مورد علاقه</translation>
+        <source>Favourites</source>
+        <translation>مورد علاقه</translation>
     </message>
 </context>
 <context>
@@ -264,32 +268,28 @@
         <translation>بدون مکان</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>فروش</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>همه مکان ها</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>همه مکان ها (٪1)</translation>
+        <source>FAVOURITES</source>
+        <translation>مورد علاقه</translation>
     </message>
     <message>
-        <source>Static IPs</source>
+        <source>STATIC IPs</source>
         <translation>IP های استاتیک</translation>
     </message>
     <message>
-        <source>Custom configs</source>
+        <source>CUSTOM CONFIGs</source>
         <translation>پیکربندی های سفارشی</translation>
     </message>
     <message>
-        <source>Search</source>
+        <source>SEARCH</source>
         <translation>جستجو</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>تازه کردن پینگ ها</translation>
-    </message>
-    <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>مکان ها و IP های مورد علاقه</translation>
+        <source>Add</source>
+        <translation>اضافه کردن</translation>
     </message>
 </context>
 <context>
@@ -937,8 +937,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>بازگشت</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp;&amp; IPs</source>
-        <translation>مکان ها و IP های مورد علاقه</translation>
+        <source>Favourites</source>
+        <translation>مورد علاقه</translation>
     </message>
 </context>
 <context>

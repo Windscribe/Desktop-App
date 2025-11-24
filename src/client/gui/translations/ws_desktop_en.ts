@@ -69,6 +69,10 @@
         <source>Rotate IP</source>
         <translation>Rotate IP</translation>
     </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>FIREWALL</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -96,8 +100,8 @@
         <translation>Custom configs</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Favourite Locations &amp; IPs</translation>
+        <source>Favourites</source>
+        <translation>Favourites</translation>
     </message>
 </context>
 <context>
@@ -264,32 +268,28 @@
         <translation>No locations</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Buy</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>ALL LOCATIONS</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>All locations (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>FAVOURITES</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>Static IPs</translation>
+        <source>STATIC IPs</source>
+        <translation>STATIC IPs</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Custom configs</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>CUSTOM CONFIGs</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Search</translation>
+        <source>SEARCH</source>
+        <translation>SEARCH</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>Refresh Pings</translation>
-    </message>
-    <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Favourite Locations &amp; IPs</translation>
+        <source>Add</source>
+        <translation>Add</translation>
     </message>
 </context>
 <context>
@@ -937,8 +937,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Back</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp;&amp; IPs</source>
-        <translation>Favourite Locations &amp;&amp; IPs</translation>
+        <source>Favourites</source>
+        <translation>Favourites</translation>
     </message>
 </context>
 <context>

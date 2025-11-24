@@ -1,3 +1,21 @@
+2.18.8 (19/11/2025)
+All:
+   * Fixed UI bugs according to feedback. #1536
+
+
+2.18.7 (17/11/2025)
+All:
+   * Improved UI design. #1536
+   * Fixed IP rotate/pinning sometimes not available when they should be. #1047
+   * Fixed location item remains highlighted when mouse leaves locations area. #1536
+   * Removed Refresh button for locations. #1336
+
+
+2.18.6 (10/11/2025)
+All:
+   * Fixed IP rotate/pinning timeouts were too aggressive. #1047
+
+
 2.18.5 (06/11/2025)
 All:
    * Fixed error message not hidden after successful fetching of Control D devices. #1390

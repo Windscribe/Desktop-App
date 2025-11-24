@@ -22,6 +22,7 @@ StaticIPDeviceInfo::StaticIPDeviceInfo(QWidget *parent) : QWidget(parent), devic
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &StaticIPDeviceInfo::onLanguageChanged);
 
     addButton_ = new CommonWidgets::IconButtonWidget("preferences/EXTERNAL_LINK_ICON", tr("Add"), this);
+    addButton_->setFont(FontManager::instance().getFont(12, QFont::Normal));
     connect(addButton_, &CommonWidgets::IconButtonWidget::clicked, this, &StaticIPDeviceInfo::addStaticIpClicked);
 }
 
@@ -43,15 +44,20 @@ void StaticIPDeviceInfo::paintEvent(QPaintEvent *event)
     QPainter painter(this);
 
     // background
-    painter.fillRect(QRect(0, 0, sizeHint().width(), height()),
-        FontManager::instance().getCarbonBlackColor());
+    painter.setOpacity(0.05);
+    painter.fillRect(QRect(0, 0, sizeHint().width(), height()), Qt::white);
+    painter.setPen(QPen(Qt::white, 1*G_SCALE));
+    painter.setBrush(Qt::NoBrush);
+    painter.setOpacity(0.15);
+    painter.drawLine(2*G_SCALE, 0, sizeHint().width() - 1*G_SCALE, 0);
+    painter.setOpacity(1.0);
 
     const int kBottomLineHeight = BOTTOM_LINE_HEIGHT * G_SCALE;
     painter.fillRect(QRect(0, height() - kBottomLineHeight, sizeHint().width(), kBottomLineHeight),
         FontManager::instance().getMidnightColor());
 
     QString name = deviceName_;
-    QFont font = FontManager::instance().getFont(16, QFont::Bold);
+    QFont font = FontManager::instance().getFont(12, QFont::Normal);
 
     // Calculate remaining width after the add button, margins, and space between the button and text
     int remainingWidth = width() - WINDOW_MARGIN*2*G_SCALE - addButton_->width() - 16*G_SCALE;

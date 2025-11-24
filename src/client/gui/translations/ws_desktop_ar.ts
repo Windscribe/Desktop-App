@@ -69,6 +69,10 @@
         <source>Rotate IP</source>
         <translation>تدوير IP</translation>
     </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>جدار حمايه</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -96,8 +100,8 @@
         <translation>التكوينات المخصصة</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>المواقع المفضلة وعناوين IP</translation>
+        <source>Favourites</source>
+        <translation>المفضلة</translation>
     </message>
 </context>
 <context>
@@ -264,32 +268,28 @@
         <translation>لا توجد مواقع</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>ابتاع</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>جميع المواقع</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>جميع المواقع (٪1)</translation>
+        <source>FAVOURITES</source>
+        <translation>المفضلة</translation>
     </message>
     <message>
-        <source>Static IPs</source>
+        <source>STATIC IPs</source>
         <translation>عناوين IP الثابتة</translation>
     </message>
     <message>
-        <source>Custom configs</source>
+        <source>CUSTOM CONFIGs</source>
         <translation>التكوينات المخصصة</translation>
     </message>
     <message>
-        <source>Search</source>
+        <source>SEARCH</source>
         <translation>بحث</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>تحديث بينغز</translation>
-    </message>
-    <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>المواقع المفضلة وعناوين IP</translation>
+        <source>Add</source>
+        <translation>جمع</translation>
     </message>
 </context>
 <context>
@@ -937,8 +937,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>ظهر</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp;&amp; IPs</source>
-        <translation>المواقع وعناوين IP المفضلة</translation>
+        <source>Favourites</source>
+        <translation>المفضلة</translation>
     </message>
 </context>
 <context>

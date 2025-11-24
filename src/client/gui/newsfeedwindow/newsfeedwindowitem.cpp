@@ -5,6 +5,7 @@
 #include "graphicresources/fontmanager.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "commongraphics/commongraphics.h"
+#include "commongraphics/footerbackground.h"
 #include "utils/ws_assert.h"
 #include "dpiscalemanager.h"
 
@@ -60,15 +61,7 @@ void NewsFeedWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     painter->drawText(rcCaption, Qt::AlignLeft | Qt::AlignVCenter, tr("News Feed"));
 
     // bottom-most background
-    painter->setOpacity(OPACITY_FULL);
-    if (roundedFooter_) {
-        painter->setPen(footerColor_);
-        painter->setBrush(footerColor_);
-        painter->drawRoundedRect(getBottomResizeArea(), 9*G_SCALE, 9*G_SCALE);
-        painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -9*G_SCALE), QBrush(footerColor_));
-    } else {
-        painter->fillRect(getBottomResizeArea(), QBrush(footerColor_));
-    }
+    CommonGraphics::drawFooter(painter, getBottomResizeArea().toRect());
 }
 
 void NewsFeedWindowItem::setMessagesWithCurrentOverride(const QVector<api_responses::Notification> &arr,

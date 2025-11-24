@@ -6,17 +6,46 @@
 
 #include "backend/persistentstate.h"
 #include "commongraphics/commongraphics.h"
+#include "commongraphics/footerbackground.h"
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
+#include "graphicresources/independentpixmap.h"
 #include "languagecontroller.h"
 
 #include <QDebug>
 
+namespace {
+
+class BorderOverlay : public QWidget
+{
+public:
+    explicit BorderOverlay(QWidget *parent) : QWidget(parent)
+    {
+        setAttribute(Qt::WA_TransparentForMouseEvents);
+        setAttribute(Qt::WA_NoSystemBackground);
+    }
+
+protected:
+    void paintEvent(QPaintEvent *event) override
+    {
+        Q_UNUSED(event);
+        QPainter painter(this);
+        QSharedPointer<IndependentPixmap> pixmapBorderExtension = ImageResourcesSvg::instance().getIndependentPixmap("background/MAIN_BORDER_TOP_INNER_EXTENSION");
+        pixmapBorderExtension->draw(0, 0, width(), height(), &painter);
+    }
+};
+
+}
+
 LocationsWindow::LocationsWindow(QWidget *parent, Preferences *preferences, gui_locations::LocationsModelManager *locationsModelManager) : QWidget(parent)
   , locationsTabHeightUnscaled_(LOCATIONS_TAB_HEIGHT_INIT)
   , bDragPressed_(false)
+  , resizeIconOpacity_(0.5)
 {
     setMouseTracking(true);
+
+    connect(&resizeIconOpacityAnimation_, &QVariantAnimation::valueChanged, this, &LocationsWindow::onResizeIconOpacityChanged);
 
     locationsTab_ = new GuiLocations::LocationsTab(this, preferences, locationsModelManager);
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH * G_SCALE, qCeil(locationsTabHeightUnscaled_ * G_SCALE));
@@ -27,9 +56,12 @@ LocationsWindow::LocationsWindow(QWidget *parent, Preferences *preferences, gui_
     connect(locationsTab_, &GuiLocations::LocationsTab::clearCustomConfigClicked, this, &LocationsWindow::clearCustomConfigClicked);
     connect(locationsTab_, &GuiLocations::LocationsTab::addCustomConfigClicked, this, &LocationsWindow::addCustomConfigClicked);
     connect(locationsTab_, &GuiLocations::LocationsTab::upgradeBannerClicked, this, &LocationsWindow::upgradeBannerClicked);
-    connect(locationsTab_, &GuiLocations::LocationsTab::refreshClicked, this, &LocationsWindow::refreshClicked);
 
     connect(preferences, &Preferences::appSkinChanged, this, &LocationsWindow::onAppSkinChanged);
+
+    borderOverlay_ = new BorderOverlay(this);
+    borderOverlay_->setGeometry(0, 0, width(), height() - FOOTER_HEIGHT*G_SCALE);
+    borderOverlay_->raise();
 
     setCountVisibleItemSlots(PersistentState::instance().countVisibleLocations());
 }
@@ -45,6 +77,7 @@ void LocationsWindow::setCountVisibleItemSlots(int cnt)
     // Previously there were issues directly grabbing locationsTab height... keeping a cache somehow helped. Not sure if the original issue persists
     locationsTabHeightUnscaled_ = locationsTab_->unscaledHeightOfItemViewport() + locationsTab_->headerHeight();
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH*G_SCALE, qCeil(locationsTabHeightUnscaled_*G_SCALE));
+    borderOverlay_->setGeometry(0, 0, width(), height() - FOOTER_HEIGHT*G_SCALE);
     PersistentState::instance().setCountVisibleLocations(getCountVisibleItems());
     emit heightChanged();
 }
@@ -57,6 +90,7 @@ int LocationsWindow::getCountVisibleItems()
 void LocationsWindow::updateLocationsTabGeometry()
 {
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH*G_SCALE, qCeil(locationsTabHeightUnscaled_*G_SCALE));
+    borderOverlay_->setGeometry(0, 0, width(), height() - FOOTER_HEIGHT*G_SCALE);
 
     locationsTab_->updateLocationWidgetsGeometry(locationsTab_->unscaledHeightOfItemViewport());
     locationsTab_->update();
@@ -87,32 +121,21 @@ void LocationsWindow::paintEvent(QPaintEvent *event)
     // qDebug() << "LocationsWindow::paintEvent - geo: " << geometry();
 
     // footer background
-    QColor footerColor = FontManager::instance().getLocationsFooterColor();
-#ifdef Q_OS_MACOS
-        p.setPen(footerColor);
-        p.setBrush(footerColor);
-        // draw rounded corners on mac
-        p.drawRoundedRect(QRect(0, height() - FOOTER_HEIGHT * G_SCALE,
-                                width(), FOOTER_HEIGHT * G_SCALE), 8, 8);
-        // roundedRect leaves gap between bottom of list and footer at corners -- cover it
-        p.fillRect(QRect(0, height() - FOOTER_HEIGHT * G_SCALE,
-                         width(), (FOOTER_HEIGHT) * G_SCALE / 2), QBrush(footerColor));
-#else
-        // drawing FOOTER_HEIGHT_FULL here should make no difference since the child list will draw over anyway
-        p.fillRect(QRect(0, height() - FOOTER_HEIGHT * G_SCALE, width(), FOOTER_HEIGHT * G_SCALE), QBrush(footerColor));
-#endif
+    QRect footerRect(0, height() - FOOTER_HEIGHT * G_SCALE, width(), FOOTER_HEIGHT * G_SCALE);
+    CommonGraphics::drawFooter(&p, footerRect);
 
     // footer handle
-    QRect middle(width() / 2 - 12* G_SCALE,
-                 height() - (FOOTER_HEIGHT_FULL+2) * G_SCALE / 2,
-                 24 * G_SCALE, 3 * G_SCALE);
-    p.setOpacity(0.5);
-    p.fillRect(QRect(middle.left(), middle.top(), middle.width(), 2 * G_SCALE), QBrush(Qt::white));
+    QSharedPointer<IndependentPixmap> footerIcon = ImageResourcesSvg::instance().getIndependentPixmap("FOOTER");
+    p.setOpacity(resizeIconOpacity_);
+    footerIcon->draw(width() / 2 - footerIcon->width() / 2,
+                     height() - FOOTER_HEIGHT*G_SCALE / 2 - footerIcon->height() / 2,
+                     &p);
 }
 
 void LocationsWindow::resizeEvent(QResizeEvent *event)
 {
     locationsTab_->move(0, (event->size().height() - tabAndFooterHeight() * G_SCALE));
+    borderOverlay_->setGeometry(0, 0, width(), height() - FOOTER_HEIGHT*G_SCALE);
     QWidget::resizeEvent(event);
 }
 
@@ -156,10 +179,12 @@ void LocationsWindow::mouseMoveEvent(QMouseEvent *event)
         if (middle.contains(event->pos()))
         {
             setCursor(Qt::SizeVerCursor);
+            startAnAnimation(resizeIconOpacityAnimation_, resizeIconOpacity_, 1.0, ANIMATION_SPEED_FAST);
         }
         else
         {
             setCursor(Qt::ArrowCursor);
+            startAnAnimation(resizeIconOpacityAnimation_, resizeIconOpacity_, 0.5, ANIMATION_SPEED_FAST);
         }
     }
     QWidget::mouseMoveEvent(event);
@@ -239,20 +264,12 @@ void LocationsWindow::onAppSkinChanged(APP_SKIN s)
     Q_UNUSED(s);
     locationsTabHeightUnscaled_ = locationsTab_->unscaledHeightOfItemViewport() + locationsTab_->headerHeight();
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH*G_SCALE, qCeil(locationsTabHeightUnscaled_*G_SCALE));
+    borderOverlay_->setGeometry(0, 0, width(), height() - FOOTER_HEIGHT*G_SCALE);
     emit heightChanged();
 }
 
-void LocationsWindow::onConnectStateChanged(const types::ConnectState &connectState)
+void LocationsWindow::onResizeIconOpacityChanged(const QVariant &value)
 {
-    locationsTab_->onConnectStateChanged(connectState);
-}
-
-void LocationsWindow::onPingsStarted()
-{
-    locationsTab_->onPingsStarted();
-}
-
-void LocationsWindow::onPingsFinished()
-{
-    locationsTab_->onPingsFinished();
+    resizeIconOpacity_ = value.toDouble();
+    update();
 }

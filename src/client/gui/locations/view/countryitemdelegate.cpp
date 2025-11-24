@@ -31,7 +31,7 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
 {
     painter->save();
 
-    bool isExpanded = (qFabs(1.0 - option.expandedProgress()) < 0.000001);
+    bool isCollapsed = option.expandedProgress() < 0.000001;
 
     // background
     painter->setRenderHint(QPainter::Antialiasing);
@@ -53,29 +53,28 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     }
 
     double textOpacity;
-    if (isExpanded) {
+    if (!isCollapsed) {
         textOpacity = OPACITY_FULL;
     } else {
-        textOpacity = OPACITY_UNHOVER_TEXT + (OPACITY_FULL - OPACITY_UNHOVER_TEXT) * option.selectedOpacity();
+        textOpacity = 0.7 + (OPACITY_FULL - 0.7) * option.selectedOpacity();
     }
 
-    painter->setOpacity(OPACITY_FULL);
-
-    // draw a 1px 'border' around the flag to differentiate from the load circle
-    QPen penBorder(QColor(9, 15, 25));
-    penBorder.setWidth(G_SCALE);
-    painter->setPen(penBorder);
-    painter->drawArc(flagRect.adjusted(G_SCALE, G_SCALE, -G_SCALE, -G_SCALE), 0, 360 * 16);
-
-    // Draw a full circle with grey color: this is (255, 255, 255, 51) blended with (9, 15, 25).
-    // Drawing (255, 255, 255, 51) is not visible since it draws on top of some transparent pixels.
-    QPen penLoad(QColor(53, 61, 73));
-    penLoad.setWidth(2*G_SCALE);
-    penLoad.setColor(QColor(53, 61, 73));
-    painter->setPen(penLoad);
-    painter->drawArc(flagRect, 0, 360 * 16);
-
     if (option.isShowLocationLoad()) {
+        painter->setOpacity(OPACITY_FULL);
+
+        // draw a 1px 'border' around the flag to differentiate from the load circle
+        QPen penBorder(QColor(9, 15, 25));
+        penBorder.setWidth(G_SCALE);
+        painter->setPen(penBorder);
+        painter->drawArc(flagRect.adjusted(G_SCALE, G_SCALE, -G_SCALE, -G_SCALE), 0, 360 * 16);
+
+        // Draw a full circle with grey color: this is (255, 255, 255, 51) blended with (9, 15, 25).
+        // Drawing (255, 255, 255, 51) is not visible since it draws on top of some transparent pixels.
+        QPen penLoad(QColor(53, 61, 73));
+        penLoad.setWidth(2*G_SCALE);
+        penLoad.setColor(QColor(53, 61, 73));
+        painter->setPen(penLoad);
+        painter->drawArc(flagRect, 0, 360 * 16);
         int locationLoad = index.data(kLoad).toInt();
         if (locationLoad > 0) {
             if (locationLoad < 10) {
@@ -110,16 +109,18 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     IndependentPixmap pixmap = cache->pixmap(CountryItemDelegateCache::kCaptionId);
     pixmap.draw(rc.left(), rc.top() + (rc.height() - pixmap.height()) / 2, painter);
 
+    int xOffset = left_offs + option.rect.width() - 27*G_SCALE;
+
     LocationID lid = qvariant_cast<LocationID>(index.data(kLocationId));
     if (lid.isBestLocation()) {
         if (index.data(kIs10Gbps).toBool()) {
             painter->setOpacity(textOpacity);
-            int xOffset = 0;
+            int p2pOffset = 0;
             if (index.data(kIsShowP2P).toBool()) {
-                xOffset = -48*G_SCALE;
+                p2pOffset = -48*G_SCALE;
             }
             QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON_BEST_LOCATION");
-            QRect tenGbpsRect = QRect(option.rect.width() - 48*G_SCALE + xOffset - p->width(), (option.rect.height() - p->height()) / 2, p->width(), p->height());
+            QRect tenGbpsRect = QRect(xOffset - 32*G_SCALE + p2pOffset - p->width(), (option.rect.height() - p->height()) / 2, p->width(), p->height());
             p->draw(left_offs + tenGbpsRect.x(), top_offs + tenGbpsRect.y(), painter);
         }
     }
@@ -128,7 +129,7 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     if (index.data(kIsShowP2P).toBool()) {
         painter->setOpacity(OPACITY_FULL);
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
-        QRect p2pr = QRect(option.rect.width() - 48*G_SCALE - p->width(),
+        QRect p2pr = QRect(xOffset - 32*G_SCALE - p->width(),
                            (option.rect.height() - p->height()) / 2,
                            p->width(),
                            p->height());
@@ -138,30 +139,20 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     if (lid.isBestLocation()) {
         painter->setOpacity(textOpacity);
         QSharedPointer<IndependentPixmap> arrowPixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/ARROW_RIGHT");
-        arrowPixmap->draw(left_offs + option.rect.width() - 16*G_SCALE - arrowPixmap->width(), top_offs + (option.rect.height() - arrowPixmap->height()) / 2, painter);
+        arrowPixmap->draw(xOffset - arrowPixmap->width(), top_offs + (option.rect.height() - arrowPixmap->height()) / 2, painter);
     } else { // plus/cross
         painter->setOpacity(textOpacity);
         QSharedPointer<IndependentPixmap> togglePixmap;
-        if (isExpanded) {
+        if (!isCollapsed) {
             togglePixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/COLLAPSE_ICON");
-            togglePixmap->draw(left_offs + option.rect.width() - 16*G_SCALE - togglePixmap->width(),
+            togglePixmap->draw(xOffset - togglePixmap->width(),
                                top_offs + (option.rect.height() - togglePixmap->height()) / 2,
                                painter);
         } else {
             togglePixmap = ImageResourcesSvg::instance().getIndependentPixmap("locations/EXPAND_ICON");
-            int pixmapHeight = (1 - option.expandedProgress())*togglePixmap->height();
-            if (pixmapHeight < 2*G_SCALE) {
-                // Clamp a minimum height so the image doesn't 'flicker' as it goes to 0 height before the collapse icon is shown
-                pixmapHeight = 2*G_SCALE;
-            }
-            togglePixmap->draw(left_offs + option.rect.width() - 16*G_SCALE - togglePixmap->width(),
-                               top_offs + (option.rect.height() - pixmapHeight) / 2,
-                               togglePixmap->width(),
-                               pixmapHeight,
-                               painter,
-                               0, (togglePixmap->height() - pixmapHeight)/2*DpiScaleManager::instance().curDevicePixelRatio(),
-                               togglePixmap->width()*DpiScaleManager::instance().curDevicePixelRatio(),
-                               pixmapHeight*DpiScaleManager::instance().curDevicePixelRatio());
+            togglePixmap->draw(xOffset - togglePixmap->width(),
+                               top_offs + (option.rect.height() - togglePixmap->height()) / 2,
+                               painter);
         }
     }
 
@@ -184,7 +175,7 @@ IItemCacheData *CountryItemDelegate::createCacheData(const QModelIndex &index) c
     QString countryCaption = CommonGraphics::maybeTruncatedText(index.data().toString(),
                                                                 FontManager::instance().getFont(16, QFont::Medium),
                                                                 static_cast<int>(maxWidth));
-    cache->add(CountryItemDelegateCache::kCaptionId, countryCaption, FontManager::instance().getFont(16, QFont::Medium), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->add(CountryItemDelegateCache::kCaptionId, countryCaption, FontManager::instance().getFont(15, QFont::Normal), DpiScaleManager::instance().curDevicePixelRatio());
     return cache;
 }
 
@@ -203,7 +194,7 @@ void CountryItemDelegate::updateCacheData(const QModelIndex &index, IItemCacheDa
     QString countryCaption = CommonGraphics::maybeTruncatedText(index.data().toString(),
                                                                 FontManager::instance().getFont(16, QFont::Medium),
                                                                 static_cast<int>(maxWidth));
-    cache->updateIfTextChanged(CountryItemDelegateCache::kCaptionId, countryCaption, FontManager::instance().getFont(16, QFont::Medium), DpiScaleManager::instance().curDevicePixelRatio());
+    cache->updateIfTextChanged(CountryItemDelegateCache::kCaptionId, countryCaption, FontManager::instance().getFont(15, QFont::Normal), DpiScaleManager::instance().curDevicePixelRatio());
 }
 
 bool CountryItemDelegate::isForbiddenCursor(const QModelIndex &index) const
@@ -291,7 +282,7 @@ void CountryItemDelegate::tooltipLeaveEvent(int tooltipId) const
 QRect CountryItemDelegate::p2pRect(const QRect &itemRect) const
 {
     QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
-    return QRect(itemRect.width() - 48*G_SCALE - p->width(),
+    return QRect(itemRect.width() - 59*G_SCALE - p->width(),
                 (itemRect.height() - p->height()) / 2 + itemRect.top(),
                  p->width(),
                  p->height());
@@ -301,7 +292,7 @@ QRect CountryItemDelegate::captionRect(const QRect &itemRect, const IItemCacheDa
 {
     const CountryItemDelegateCache *cache = static_cast<const CountryItemDelegateCache *>(cacheData);
     IndependentPixmap pixmap = cache->pixmap(CountryItemDelegateCache::kCaptionId);
-    return QRect(itemRect.left() + 64*G_SCALE,
+    return QRect(itemRect.left() + 56*G_SCALE,
                 itemRect.top() + (itemRect.height() - pixmap.height()) / 2,
                 pixmap.width(),
                 pixmap.height());

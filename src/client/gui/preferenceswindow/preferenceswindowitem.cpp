@@ -11,6 +11,7 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "preferencestab/preferencestabcontrolitem.h"
 #include "graphicresources/fontmanager.h"
+#include "commongraphics/footerbackground.h"
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "dpiscalemanager.h"
@@ -160,14 +161,7 @@ void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->drawText(rcCaption, Qt::AlignLeft | Qt::AlignVCenter, fm.elidedText(scrollAreaItem_->item()->caption(), Qt::ElideRight, 140*G_SCALE));
 
     // bottom-most background
-    if (roundedFooter_) {
-        painter->setPen(footerColor_);
-        painter->setBrush(footerColor_);
-        painter->drawRoundedRect(getBottomResizeArea(), 9*G_SCALE, 9*G_SCALE);
-        painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -9*G_SCALE), QBrush(footerColor_));
-    } else {
-        painter->fillRect(getBottomResizeArea(), QBrush(footerColor_));
-    }
+    CommonGraphics::drawFooter(painter, getBottomResizeArea().toRect());
 }
 
 PREFERENCES_TAB_TYPE PreferencesWindowItem::currentTab()

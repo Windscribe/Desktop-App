@@ -13,7 +13,7 @@ namespace PreferencesWindow {
 VerticalEditBoxItem::VerticalEditBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &editPrompt)
   : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), caption_(caption), isEditMode_(false), maskingChar_('\0')
 {
-    btnEdit_ = new IconButton(16, 16, "preferences/EDIT_ICON", "", this);
+    btnEdit_ = new IconButton(16, 16, "EDIT_ICON", "", this);
     connect(btnEdit_, &IconButton::clicked, this, &VerticalEditBoxItem::onEditClick);
 
     btnConfirm_ = new IconButton(16, 16, "preferences/CONFIRM_ICON", "", this);

@@ -18,7 +18,7 @@ BridgeApiManager::~BridgeApiManager()
 {
 }
 
-void BridgeApiManager::setConnectedState(bool isConnected, const QString &nodeAddress, const QString &pinnedIp)
+void BridgeApiManager::setConnectedState(bool isConnected, const QString &nodeAddress, const types::Protocol &protocol, const QString &pinnedIp)
 {
     if (isConnected == isConnected_) {
         return;
@@ -32,7 +32,8 @@ void BridgeApiManager::setConnectedState(bool isConnected, const QString &nodeAd
         return;
     }
 
-    WSNet::instance()->bridgeAPI()->setCurrentHost(nodeAddress.toStdString());
+    // Do not use cache for non-Wireguard protocols
+    WSNet::instance()->bridgeAPI()->setCurrentHost(protocol.isWireGuardProtocol() ? nodeAddress.toStdString() : "");
 
     if (!pinnedIp.isEmpty()) {
         pinIp(pinnedIp);

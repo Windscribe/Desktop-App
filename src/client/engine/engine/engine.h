@@ -103,8 +103,6 @@ public:
     void emergencyDisconnectClick();
     bool isEmergencyDisconnected();
 
-    void refreshLocations();
-
     // vpn sharing functions
     bool isWifiSharingSupported();
     void startWifiSharing(const QString &ssid, const QString &password);
@@ -283,8 +281,6 @@ private slots:
 
     void emergencyConnectClickImpl();
     void emergencyDisconnectClickImpl();
-
-    void refreshLocationsImpl();
 
     void detectAppropriatePacketSizeImpl();
 

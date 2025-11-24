@@ -69,6 +69,10 @@
         <source>Rotate IP</source>
         <translation>IP drehen</translation>
     </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>FIREWALL</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -96,8 +100,8 @@
         <translation>Benutzerdefinierte Konfigurationen</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Bevorzugte Standorte &amp; IPs</translation>
+        <source>Favourites</source>
+        <translation>Favoriten</translation>
     </message>
 </context>
 <context>
@@ -264,32 +268,28 @@
         <translation>Keine Standorte</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Kaufen</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>ALLE STANDORTE</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>Alle Standorte (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>FAVORITEN</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>Statische IPs</translation>
+        <source>STATIC IPs</source>
+        <translation>STATISCHE IPs</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Benutzerdefinierte Konfigurationen</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>BENUTZERDEFINIERTE KONFIGURATIONEN</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Suchen</translation>
+        <source>SEARCH</source>
+        <translation>SUCHEN</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>Pings aktualisieren</translation>
-    </message>
-    <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Bevorzugte Standorte &amp; IPs</translation>
+        <source>Add</source>
+        <translation>Hinzufügen</translation>
     </message>
 </context>
 <context>
@@ -937,8 +937,8 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Zurück</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp;&amp; IPs</source>
-        <translation>Bevorzugte Standorte &amp; IPs</translation>
+        <source>Favourites</source>
+        <translation>Favoriten</translation>
     </message>
 </context>
 <context>

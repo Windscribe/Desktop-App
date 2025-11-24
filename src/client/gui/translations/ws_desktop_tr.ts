@@ -69,6 +69,10 @@
         <source>Rotate IP</source>
         <translation>IP&apos;yi döndür</translation>
     </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>GÜVENLİK DUVARI</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -96,8 +100,8 @@
         <translation>Özel yapılandırmalar</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Favori Konumlar &amp; IP&apos;ler</translation>
+        <source>Favourites</source>
+        <translation>Favoriler</translation>
     </message>
 </context>
 <context>
@@ -264,32 +268,28 @@
         <translation>Konum yok</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Almak</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>TÜM LOKASYONLAR</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>Tüm lokasyonlar (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>FAVORİLER</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>Statik IP&apos;ler</translation>
+        <source>STATIC IPs</source>
+        <translation>STATİK IP&apos;ler</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Özel yapılandırmalar</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>ÖZEL YAPILANDIRMALAR</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Aramak</translation>
+        <source>SEARCH</source>
+        <translation>ARAMAK</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>Ping&apos;leri Yenile</translation>
-    </message>
-    <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Favori Konumlar &amp; IP&apos;ler</translation>
+        <source>Add</source>
+        <translation>Eklemek</translation>
     </message>
 </context>
 <context>
@@ -937,8 +937,8 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Geri</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp;&amp; IPs</source>
-        <translation>Favori Konumlar &amp;&amp; IP&apos;ler</translation>
+        <source>Favourites</source>
+        <translation>Favoriler</translation>
     </message>
 </context>
 <context>

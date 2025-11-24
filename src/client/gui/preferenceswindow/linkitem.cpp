@@ -68,7 +68,7 @@ void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     // arrow or external link
     QSharedPointer<IndependentPixmap> p;
     if (inProgress_) {
-        painter->setOpacity(OPACITY_HALF);
+        painter->setOpacity(1.0);
         p = ImageResourcesSvg::instance().getIndependentPixmap("SPINNER");
         painter->save();
         painter->translate(static_cast<int>(boundingRect().width() - p->width()/2 - PREFERENCES_MARGIN_X*G_SCALE), PREFERENCES_ITEM_Y*G_SCALE + p->height()/2);

@@ -69,6 +69,10 @@
         <source>Rotate IP</source>
         <translation>Повернути IP</translation>
     </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>БРАНДМАУЕР</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -96,8 +100,8 @@
         <translation>Користувацькі конфігурації</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Улюблені місця та IP-адреси</translation>
+        <source>Favourites</source>
+        <translation>Вибране</translation>
     </message>
 </context>
 <context>
@@ -264,32 +268,28 @@
         <translation>Немає локацій</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Купити</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>ВСІ ЛОКАЦІЇ</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>Усі місцеположення (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>ВИБРАНЕ</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>Статичні IP-адреси</translation>
+        <source>STATIC IPs</source>
+        <translation>СТАТИЧНІ IP-адреси</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Користувацькі конфігурації</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>КОРИСТУВАЦЬКІ КОНФІГУРАЦІЇ</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Шукати</translation>
+        <source>SEARCH</source>
+        <translation>ШУКАТИ</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>Оновити пінги</translation>
-    </message>
-    <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Улюблені місця та IP-адреси</translation>
+        <source>Add</source>
+        <translation>Додати</translation>
     </message>
 </context>
 <context>
@@ -937,8 +937,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Задній</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp;&amp; IPs</source>
-        <translation>Улюблені місця та IP-адреси</translation>
+        <source>Favourites</source>
+        <translation>Вибране</translation>
     </message>
 </context>
 <context>

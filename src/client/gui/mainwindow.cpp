@@ -187,8 +187,6 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::checkUpdateChanged, this, &MainWindow::onBackendCheckUpdateChanged);
     connect(backend_, &Backend::myIpChanged, this, &MainWindow::onBackendMyIpChanged);
     connect(backend_, &Backend::connectStateChanged, this, &MainWindow::onBackendConnectStateChanged);
-    connect(backend_, &Backend::pingsStarted, this, &MainWindow::onBackendPingsStarted);
-    connect(backend_, &Backend::pingsFinished, this, &MainWindow::onBackendPingsFinished);
     connect(backend_, &Backend::emergencyConnectStateChanged, this, &MainWindow::onBackendEmergencyConnectStateChanged);
     connect(backend_, &Backend::firewallStateChanged, this, &MainWindow::onBackendFirewallStateChanged);
     connect(backend_, &Backend::confirmEmailResult, this, &MainWindow::onBackendConfirmEmailResult);
@@ -234,7 +232,6 @@ MainWindow::MainWindow() :
     connect(locationsWindow_, &LocationsWindow::clearCustomConfigClicked, this, &MainWindow::onLocationsClearCustomConfigClicked);
     connect(locationsWindow_, &LocationsWindow::addCustomConfigClicked, this, &MainWindow::onLocationsAddCustomConfigClicked);
     connect(locationsWindow_, &LocationsWindow::upgradeBannerClicked, this, &MainWindow::onLocationsUpgradeBannerClicked);
-    connect(locationsWindow_, &LocationsWindow::refreshClicked, this, &MainWindow::onLocationsRefreshClicked);
     locationsWindow_->setShowLocationLoad(backend_->getPreferences()->isShowLocationLoad());
     connect(backend_->getPreferences(), &Preferences::showLocationLoadChanged, locationsWindow_, &LocationsWindow::setShowLocationLoad);
 
@@ -2290,9 +2287,6 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
         }
     }
     soundManager_->play(connectState.connectState);
-
-    // Update LocationsTab refresh button visibility based on VPN state
-    locationsWindow_->onConnectStateChanged(connectState);
 }
 
 void MainWindow::onBackendEmergencyConnectStateChanged(const types::ConnectState &connectState)
@@ -2305,16 +2299,6 @@ void MainWindow::onBackendFirewallStateChanged(bool isEnabled)
 {
     mainWindowController_->getConnectWindow()->updateFirewallState(isEnabled);
     PersistentState::instance().setFirewallState(isEnabled);
-}
-
-void MainWindow::onBackendPingsStarted()
-{
-    locationsWindow_->onPingsStarted();
-}
-
-void MainWindow::onBackendPingsFinished()
-{
-    locationsWindow_->onPingsFinished();
 }
 
 void MainWindow::onNetworkChanged(types::NetworkInterface network)
@@ -3569,7 +3553,7 @@ void MainWindow::createTrayMenuItems()
         }
         if (backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount() > 0) {
             QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->favoriteCitiesProxyModel()), &QObject::deleteLater);
-            menu->setTitle(tr("Favourite Locations && IPs"));
+            menu->setTitle(tr("Favourites"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
@@ -3598,7 +3582,7 @@ void MainWindow::createTrayMenuItems()
         }
         if (backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount() > 0) {
             QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->favoriteCitiesProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
-            menu->setTitle(tr("Favourite Locations && IPs"));
+            menu->setTitle(tr("Favourites"));
             trayMenu_.addMenu(menu.get());
             connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
             locationsMenu_.append(menu);
@@ -4510,11 +4494,6 @@ void MainWindow::onConnectWindowLocationsKeyPressed(QKeyEvent *event)
 void MainWindow::onLocationsUpgradeBannerClicked()
 {
     openUpgradeExternalWindow();
-}
-
-void MainWindow::onLocationsRefreshClicked()
-{
-    backend_->refreshLocations();
 }
 
 void MainWindow::setDataRemaining(qint64 bytesUsed, qint64 bytesMax)

@@ -281,11 +281,6 @@ void Backend::emergencyDisconnectClick()
     engine_->emergencyDisconnectClick();
 }
 
-void Backend::refreshLocations()
-{
-    engine_->refreshLocations();
-}
-
 bool Backend::isEmergencyDisconnected()
 {
     return emergencyConnectStateHelper_.isDisconnected();
@@ -447,8 +442,6 @@ void Backend::onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLogin
         connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::bestLocationUpdated, this, &Backend::onEngineLocationsModelBestLocationUpdated);
         connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::customConfigsLocationsUpdated, this, &Backend::onEngineLocationsModelCustomConfigItemsUpdated);
         connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::locationPingTimeChanged, this, &Backend::onEngineLocationsModelPingChangedChanged);
-        connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::pingsStarted, this, &Backend::pingsStarted);
-        connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::pingsFinished, this, &Backend::pingsFinished);
 
         preferences_.setEngineSettings(engineSettings);
         // WiFi sharing supported state

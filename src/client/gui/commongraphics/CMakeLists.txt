@@ -15,6 +15,8 @@ target_sources(gui PRIVATE
     dividerline.h
     escapebutton.cpp
     escapebutton.h
+    footerbackground.cpp
+    footerbackground.h
     iconbutton.cpp
     iconbutton.h
     imageitem.cpp

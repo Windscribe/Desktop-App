@@ -380,14 +380,6 @@ void Engine::emergencyDisconnectClick()
     }
 }
 
-void Engine::refreshLocations()
-{
-    QMutexLocker locker(&mutex_);
-    if (bInitialized_) {
-        QMetaObject::invokeMethod(this, "refreshLocationsImpl");
-    }
-}
-
 bool Engine::isEmergencyDisconnected()
 {
     QMutexLocker locker(&mutex_);
@@ -1757,11 +1749,6 @@ void Engine::emergencyDisconnectClickImpl()
     emergencyController_->clickDisconnect();
 }
 
-void Engine::refreshLocationsImpl()
-{
-    locationsModel_->refreshPings();
-}
-
 void Engine::detectAppropriatePacketSizeImpl()
 {
     if (networkDetectionManager_->isOnline())
@@ -2652,10 +2639,10 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
     }
     QString nodeAddress = (state == CONNECT_STATE_CONNECTED) ? lastConnectingHostname_ : QString();
     QString pinnedIp = (state == CONNECT_STATE_CONNECTED) ? pinnedNode_.second : QString();
-    bridgeApiManager_->setConnectedState(state == CONNECT_STATE_CONNECTED, nodeAddress, pinnedIp);
+    types::Protocol protocol = (state == CONNECT_STATE_CONNECTED) ? connectionManager_->currentProtocol() : types::Protocol();
+    bridgeApiManager_->setConnectedState(state == CONNECT_STATE_CONNECTED, nodeAddress, protocol, pinnedIp);
 
 #ifdef Q_OS_WIN
-    types::Protocol protocol = (state == CONNECT_STATE_CONNECTED) ? connectionManager_->currentProtocol() : types::Protocol();
 
     if (state == CONNECT_STATE_CONNECTED && protocol.isOpenVpnProtocol()) {
         // Delay setting VPN connected state for OpenVPN protocols on Windows due to #576

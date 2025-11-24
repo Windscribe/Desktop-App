@@ -81,7 +81,6 @@ protected:
     CommonGraphics::ScrollArea *scrollAreaItem_;
     CommonGraphics::ResizeBar *bottomResizeItem_;
     CommonGraphics::EscapeButton *escapeButton_;
-    bool roundedFooter_;
     QColor footerColor_;
 
     virtual QRectF getBottomResizeArea();

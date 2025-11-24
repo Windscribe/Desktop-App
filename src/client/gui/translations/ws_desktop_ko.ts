@@ -69,6 +69,10 @@
         <source>Rotate IP</source>
         <translation>IP 교체</translation>
     </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>방화벽</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -96,8 +100,8 @@
         <translation>사용자 지정 구성</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>즐겨찾는 위치 및 IP</translation>
+        <source>Favourites</source>
+        <translation>즐겨찾기</translation>
     </message>
 </context>
 <context>
@@ -264,32 +268,28 @@
         <translation>위치 없음</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>구매</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>모든 위치</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>모든 위치(%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>즐겨찾기</translation>
     </message>
     <message>
-        <source>Static IPs</source>
+        <source>STATIC IPs</source>
         <translation>고정 IP</translation>
     </message>
     <message>
-        <source>Custom configs</source>
+        <source>CUSTOM CONFIGs</source>
         <translation>사용자 지정 구성</translation>
     </message>
     <message>
-        <source>Search</source>
+        <source>SEARCH</source>
         <translation>검색</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>새로 고침 핑</translation>
-    </message>
-    <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>즐겨찾는 위치 및 IP</translation>
+        <source>Add</source>
+        <translation>더하다</translation>
     </message>
 </context>
 <context>
@@ -937,8 +937,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>뒤로</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp;&amp; IPs</source>
-        <translation>즐겨찾는 위치 및 IP</translation>
+        <source>Favourites</source>
+        <translation>즐겨찾기</translation>
     </message>
 </context>
 <context>

@@ -69,6 +69,10 @@
         <source>Rotate IP</source>
         <translation>輪換 IP</translation>
     </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>防火牆</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -96,8 +100,8 @@
         <translation>自訂配置</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>最喜歡的地點和 IP</translation>
+        <source>Favourites</source>
+        <translation>收藏最愛</translation>
     </message>
 </context>
 <context>
@@ -264,32 +268,28 @@
         <translation>暫無位置</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>買</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>所有地點</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>所有位置 （% 1）</translation>
+        <source>FAVOURITES</source>
+        <translation>收藏最愛</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>靜態IP</translation>
+        <source>STATIC IPs</source>
+        <translation>靜態 IP</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>自訂配置</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>自訂設定</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>搜索</translation>
+        <source>SEARCH</source>
+        <translation>尋</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>刷新 Ping</translation>
-    </message>
-    <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>最喜歡的地點和 IP</translation>
+        <source>Add</source>
+        <translation>加</translation>
     </message>
 </context>
 <context>
@@ -937,8 +937,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>後面</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp;&amp; IPs</source>
-        <translation>最喜歡的地點和 IP</translation>
+        <source>Favourites</source>
+        <translation>收藏最愛</translation>
     </message>
 </context>
 <context>

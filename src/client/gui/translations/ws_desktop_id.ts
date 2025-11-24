@@ -69,6 +69,10 @@
         <source>Rotate IP</source>
         <translation>Putar IP</translation>
     </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>FIREWALL</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -96,8 +100,8 @@
         <translation>Konfigurasi kustom</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Lokasi &amp; IP Favorit</translation>
+        <source>Favourites</source>
+        <translation>Favorit</translation>
     </message>
 </context>
 <context>
@@ -264,32 +268,28 @@
         <translation>Tidak ada lokasi</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Membeli</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>SEMUA LOKASI</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>Semua lokasi (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>FAVORIT</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>IP Statis</translation>
+        <source>STATIC IPs</source>
+        <translation>IP STATIS</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Konfigurasi kustom</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>KONFIGURASI KUSTOM</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Mencari</translation>
+        <source>SEARCH</source>
+        <translation>MENCARI</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>Ping Refresh</translation>
-    </message>
-    <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Lokasi &amp; IP Favorit</translation>
+        <source>Add</source>
+        <translation>Tambah</translation>
     </message>
 </context>
 <context>
@@ -937,8 +937,8 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Belakang</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp;&amp; IPs</source>
-        <translation>Lokasi &amp;&amp;&amp; IP Favorit</translation>
+        <source>Favourites</source>
+        <translation>Favorit</translation>
     </message>
 </context>
 <context>

@@ -58,8 +58,6 @@ public:
     void emergencyDisconnectClick();
     bool isEmergencyDisconnected();
 
-    void refreshLocations();
-
     void startWifiSharing(const QString &ssid, const QString &password);
     void stopWifiSharing();
     void startProxySharing(PROXY_SHARING_TYPE proxySharingMode, uint port, bool whileConnected);
@@ -209,8 +207,6 @@ signals:
     void connectStateChanged(const types::ConnectState &connectState);
     void emergencyConnectStateChanged(const types::ConnectState &connectState);
     void firewallStateChanged(bool isEnabled);
-    void pingsStarted();
-    void pingsFinished();
     void notificationsChanged(const QVector<api_responses::Notification> &arr);
     void robertFiltersChanged(bool success, const QVector<api_responses::RobertFilter> &arr);
     void setRobertFilterResult(bool success);

@@ -46,17 +46,6 @@ void PingManager::clearIps()
     updateIps(QVector<PingIpInfo>());
 }
 
-void PingManager::refreshPings()
-{
-    // Reset iteration time to force re-ping on next timer
-    pingStorage_.setCurrentIterationData(0, "");
-    for (auto it = ips_.begin(); it != ips_.end(); ++it) {
-        it.value().resetState();
-    }
-    // Trigger immediate ping
-    onPingTimer();
-}
-
 bool PingManager::isAllNodesHaveCurIteration() const
 {
     return pingStorage_.isAllNodesHaveCurIteration();
@@ -105,7 +94,6 @@ void PingManager::onPingTimer()
             addLog("PingManager::onPingTimer", "Re-ping all nodes by network change");
     }
 
-    bool anyPingsStarted = false;
     for (auto it = ips_.begin(); it != ips_.end(); ++it) {
         PingIpState &pni = it.value();
 
@@ -118,35 +106,27 @@ void PingManager::onPingTimer()
             pingType = wsnet::PingType::kIcmp;
         }
 
-        if (pni.iterationTime != pingStorage_.currentIterationTime()) {
-            if (pni.latestPingFailed) {
-                if (pni.nextTimeForFailedPing == 0 || QDateTime::currentMSecsSinceEpoch() >= pni.nextTimeForFailedPing) {
-                    pni.nowPinging = true;
-                    anyPingsStarted = true;
-                    addLog("PingManager::onPingTimer", "start ping because latest ping failed: " + it.key());
-                    WSNet::instance()->pingManager()->ping(pni.ipInfo.ip.toStdString(), pni.ipInfo.hostname.toStdString(), pingType,
-                    [this](const std::string &ip, bool isSuccess, std::int32_t timeMs, bool isFromDisconnectedVpnState) {
-                        QMetaObject::invokeMethod(this, [this, ip, isSuccess, timeMs, isFromDisconnectedVpnState] { // NOLINT: false positive for memory leak
-                            onPingFinished(ip, isSuccess, timeMs, isFromDisconnectedVpnState);
-                        });
-                    });
-                }
-            } else {
-                addLog("PingManager::onPingTimer", QString::fromLatin1("ping new node: %1 (%2 - %3)").arg(pni.ipInfo.ip, pni.ipInfo.city, pni.ipInfo.nick));
+        if (pni.latestPingFailed) {
+            if (pni.nextTimeForFailedPing == 0 || QDateTime::currentMSecsSinceEpoch() >= pni.nextTimeForFailedPing) {
                 pni.nowPinging = true;
-                anyPingsStarted = true;
+                addLog("PingManager::onPingTimer", "start ping because latest ping failed: " + it.key());
                 WSNet::instance()->pingManager()->ping(pni.ipInfo.ip.toStdString(), pni.ipInfo.hostname.toStdString(), pingType,
-                                                    [this](const std::string &ip, bool isSuccess, std::int32_t timeMs, bool isFromDisconnectedVpnState) {
-                                                        QMetaObject::invokeMethod(this, [this, ip, isSuccess, timeMs, isFromDisconnectedVpnState] { // NOLINT: false positive for memory leak
-                                                            onPingFinished(ip, isSuccess, timeMs, isFromDisconnectedVpnState);
-                                                        });
-                                                    });
+                   [this](const std::string &ip, bool isSuccess, std::int32_t timeMs, bool isFromDisconnectedVpnState) {
+                       QMetaObject::invokeMethod(this, [this, ip, isSuccess, timeMs, isFromDisconnectedVpnState] { // NOLINT: false positive for memory leak
+                           onPingFinished(ip, isSuccess, timeMs, isFromDisconnectedVpnState);
+                    });
+                });
             }
+        } else if (pni.iterationTime != pingStorage_.currentIterationTime()) {
+            addLog("PingManager::onPingTimer", QString::fromLatin1("ping new node: %1 (%2 - %3)").arg(pni.ipInfo.ip, pni.ipInfo.city, pni.ipInfo.nick));
+            pni.nowPinging = true;
+            WSNet::instance()->pingManager()->ping(pni.ipInfo.ip.toStdString(), pni.ipInfo.hostname.toStdString(), pingType,
+                                                   [this](const std::string &ip, bool isSuccess, std::int32_t timeMs, bool isFromDisconnectedVpnState) {
+                                                       QMetaObject::invokeMethod(this, [this, ip, isSuccess, timeMs, isFromDisconnectedVpnState] { // NOLINT: false positive for memory leak
+                                                           onPingFinished(ip, isSuccess, timeMs, isFromDisconnectedVpnState);
+                                                       });
+                                                   });
         }
-    }
-
-    if (anyPingsStarted) {
-        emit pingsStarted();
     }
 }
 
@@ -204,7 +184,6 @@ void PingManager::onPingFinished(const std::string &ip, bool isSuccess, int32_t 
     }
     if (pingStorage_.isAllNodesHaveCurIteration()) {
         addLog("PingManager::onPingFinished", "All nodes have the same iteration time");
-        emit pingsFinished();
     }
 }
 

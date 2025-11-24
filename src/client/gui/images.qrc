@@ -20,9 +20,14 @@
         <file>svg/CHECKBOX_UNCHECKED.svg</file>
         <file>svg/CHECKMARK.svg</file>
         <file>svg/CHECKMARK_IN_CIRCLE.svg</file>
+        <file>svg/CLEAR_ICON.svg</file>
+        <file>svg/CLOSE_ICON.svg</file>
         <file>svg/DOT_MENU.svg</file>
+        <file>svg/EDIT_ICON.svg</file>
         <file>svg/ERROR_ICON.svg</file>
         <file>svg/ESC_BUTTON.svg</file>
+        <file>svg/FIREWALL_INFO_ICON.svg</file>
+        <file>svg/FOOTER.svg</file>
         <file>svg/INFO_ICON.svg</file>
         <file>svg/IP_LOCK_SECURE.svg</file>
         <file>svg/IP_LOCK_UNSECURE.svg</file>
@@ -264,19 +269,18 @@
         <file>svg/locations/ALL_LOCATION_ICON_DESELECTED.svg</file>
         <file>svg/locations/ALL_LOCATION_ICON_SELECTED.svg</file>
         <file>svg/locations/ARROW_RIGHT.svg</file>
-        <file>svg/locations/BROKEN_HEART_ICON.svg</file>
         <file>svg/locations/CITY_ICON.svg</file>
-        <file>svg/locations/CLEAR_ICON.svg</file>
         <file>svg/locations/COLLAPSE_ICON.svg</file>
         <file>svg/locations/CONFIG_ICON_DESELECTED.svg</file>
         <file>svg/locations/CONFIG_ICON_SELECTED.svg</file>
         <file>svg/locations/DATACENTER_ICON.svg</file>
-        <file>svg/locations/EDIT_ICON.svg</file>
+        <file>svg/locations/EMPTY_CONFIGS.svg</file>
+        <file>svg/locations/EMPTY_FAVOURITES.svg</file>
+        <file>svg/locations/EMPTY_STATIC_IPS.svg</file>
         <file>svg/locations/EXPAND_ICON.svg</file>
         <file>svg/locations/ERROR_ICON.svg</file>
         <file>svg/locations/FAV_ICON_DESELECTED.svg</file>
         <file>svg/locations/FAV_ICON_SELECTED.svg</file>
-        <file>svg/locations/FOLDER_ICON_BIG.svg</file>
         <file>svg/locations/LOCATION_PING_BARS0.svg</file>
         <file>svg/locations/LOCATION_PING_BARS1.svg</file>
         <file>svg/locations/LOCATION_PING_BARS2.svg</file>
@@ -289,7 +293,6 @@
         <file>svg/locations/SEARCH_CANCEL_ICON.svg</file>
         <file>svg/locations/SEARCH_ICON_DESELECTED.svg</file>
         <file>svg/locations/SEARCH_ICON_SELECTED.svg</file>
-        <file>svg/locations/STATIC_IP_ICON_BIG.svg</file>
         <file>svg/locations/STATIC_IP_ICON_DESELECTED.svg</file>
         <file>svg/locations/STATIC_IP_ICON_SELECTED.svg</file>
         <file>svg/locations/UNDER_CONSTRUCTION_ICON.svg</file>
@@ -331,7 +334,6 @@
         <file>svg/preferences/AUTOSECURE_NETWORKS.svg</file>
         <file>svg/preferences/CIRCUMVENT_CENSORSHIP.svg</file>
         <file>svg/preferences/CLEAR_ICON.svg</file>
-        <file>svg/preferences/CLOSE_ICON.svg</file>
         <file>svg/preferences/CNTXT_MENU_ICON.svg</file>
         <file>svg/preferences/CNTXT_MENU_SMALL_ICON.svg</file>
         <file>svg/preferences/COMMUNITY_SUPPORT.svg</file>
@@ -345,7 +347,6 @@
         <file>svg/preferences/DELETE_ICON.svg</file>
         <file>svg/preferences/DNS_MANAGER.svg</file>
         <file>svg/preferences/DOCKED.svg</file>
-        <file>svg/preferences/EDIT_ICON.svg</file>
         <file>svg/preferences/EDIT_SMALL_ICON.svg</file>
         <file>svg/preferences/ERROR.svg</file>
         <file>svg/preferences/EXTERNAL_LINK_ICON.svg</file>

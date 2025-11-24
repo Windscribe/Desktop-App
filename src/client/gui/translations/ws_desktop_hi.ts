@@ -69,6 +69,10 @@
         <source>Rotate IP</source>
         <translation>आईपी घुमाएँ</translation>
     </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>फ़ायरवॉल</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -96,8 +100,8 @@
         <translation>कस्टम कॉन्फ़िगरेशन</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>पसंदीदा स्थान और आईपी</translation>
+        <source>Favourites</source>
+        <translation>पसंदीदा</translation>
     </message>
 </context>
 <context>
@@ -264,32 +268,28 @@
         <translation>कोई स्थान नहीं</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>खरीद</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>सभी स्थान</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>सभी स्थान (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>पसंदीदा</translation>
     </message>
     <message>
-        <source>Static IPs</source>
+        <source>STATIC IPs</source>
         <translation>स्टेटिक आईपी</translation>
     </message>
     <message>
-        <source>Custom configs</source>
+        <source>CUSTOM CONFIGs</source>
         <translation>कस्टम कॉन्फ़िगरेशन</translation>
     </message>
     <message>
-        <source>Search</source>
+        <source>SEARCH</source>
         <translation>ढूँढ</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>रिफ्रेश पिंग</translation>
-    </message>
-    <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>पसंदीदा स्थान और आईपी</translation>
+        <source>Add</source>
+        <translation>आगे कहना</translation>
     </message>
 </context>
 <context>
@@ -937,8 +937,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>शर्त लगाना</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp;&amp; IPs</source>
-        <translation>पसंदीदा स्थान और आईपी</translation>
+        <source>Favourites</source>
+        <translation>पसंदीदा</translation>
     </message>
 </context>
 <context>

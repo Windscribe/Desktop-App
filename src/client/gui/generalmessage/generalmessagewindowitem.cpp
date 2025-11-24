@@ -45,14 +45,10 @@ GeneralMessageWindowItem::GeneralMessageWindowItem(ScalableGraphicsObject *paren
 void GeneralMessageWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     // bottom-most background: draw this first since the base background has a border
-    if (roundedFooter_) {
-        painter->setPen(QColor(9, 15, 25));
-        painter->setBrush(QColor(9, 15, 25));
-        painter->drawRoundedRect(getBottomResizeArea(), 9*G_SCALE, 9*G_SCALE);
-        painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -9*G_SCALE), QBrush(QColor(9, 15, 25)));
-    } else {
-        painter->fillRect(getBottomResizeArea(), QBrush(QColor(9, 15, 25)));
-    }
+    painter->setPen(QColor(9, 15, 25));
+    painter->setBrush(QColor(9, 15, 25));
+    painter->drawRoundedRect(getBottomResizeArea(), 9*G_SCALE, 9*G_SCALE);
+    painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -9*G_SCALE), QBrush(QColor(9, 15, 25)));
 
     // base background
     if (shape_ == GeneralMessageWindow::kConnectScreenAlphaShape) {

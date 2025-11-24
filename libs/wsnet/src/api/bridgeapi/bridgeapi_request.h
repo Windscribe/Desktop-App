@@ -23,7 +23,7 @@ public:
 protected:
     virtual std::string hostname(const std::string &domain, SubdomainType subdomain) const override;
 
-    const int kRequestTimeoutMs = 2000;
+    const int kRequestTimeoutMs = 5000;
 
     std::string sessionToken_;
 };

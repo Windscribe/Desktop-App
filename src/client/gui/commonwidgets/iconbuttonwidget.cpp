@@ -14,6 +14,7 @@ IconButtonWidget::IconButtonWidget(QString imagePath, QWidget *parent) : IconBut
 }
 
 IconButtonWidget::IconButtonWidget(const QString &imagePath, const QString &text, QWidget * parent) : QPushButton(parent)
+  , font_(FontManager::instance().getFont(16, QFont::Bold))
 {
     setImage(imagePath);
     setText(text);
@@ -44,6 +45,12 @@ void IconButtonWidget::setImage(const QString &imagePath)
     updateSize();
 }
 
+void IconButtonWidget::setFont(const QFont &font)
+{
+    font_ = font;
+    updateSize();
+}
+
 void IconButtonWidget::setUnhoverHoverOpacity(double unhoverOpacity, double hoverOpacity)
 {
     unhoverOpacity_ = unhoverOpacity;
@@ -65,7 +72,7 @@ void IconButtonWidget::paintEvent(QPaintEvent *event)
 
     if (!text_.isEmpty()) {
         painter.setPen(Qt::white);
-        painter.setFont(FontManager::instance().getFont(16, QFont::Bold));
+        painter.setFont(font_);
         painter.drawText(QRect(0, 0, width_, height_), Qt::AlignVCenter, text_);
     }
 
@@ -113,7 +120,7 @@ void IconButtonWidget::updateSize()
     }
 
     if (!text_.isEmpty()) {
-        QFontMetrics fm(FontManager::instance().getFont(16, QFont::Bold));
+        QFontMetrics fm(font_);
         int textWidth = fm.horizontalAdvance(text_);
         int textHeight = fm.height();
         width += textWidth + (width > 0 ? 8*G_SCALE : 0);

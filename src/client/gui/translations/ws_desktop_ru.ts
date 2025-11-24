@@ -69,6 +69,10 @@
         <source>Rotate IP</source>
         <translation>Ротация IP</translation>
     </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>БРАНДМАУЭР</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -96,8 +100,8 @@
         <translation>Пользовательские конфигурации</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Избранные местоположения и IP-адреса</translation>
+        <source>Favourites</source>
+        <translation>Избранное</translation>
     </message>
 </context>
 <context>
@@ -264,32 +268,28 @@
         <translation>Нет локаций</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Купить</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>ВСЕ ЛОКАЦИИ</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>Все местоположения (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>ИЗБРАННОЕ</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>Статические IP-адреса</translation>
+        <source>STATIC IPs</source>
+        <translation>СТАТИЧЕСКИЕ IP-адреса</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Пользовательские конфигурации</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>ПОЛЬЗОВАТЕЛЬСКИЕ КОНФИГУРАЦИИ</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Искать</translation>
+        <source>SEARCH</source>
+        <translation>ИСКАТЬ</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>Обновление пингов</translation>
-    </message>
-    <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Избранные местоположения и IP-адреса</translation>
+        <source>Add</source>
+        <translation>Добавлять</translation>
     </message>
 </context>
 <context>
@@ -937,8 +937,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Назад</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp;&amp; IPs</source>
-        <translation>Избранные местоположения и IP-адреса</translation>
+        <source>Favourites</source>
+        <translation>Избранное</translation>
     </message>
 </context>
 <context>

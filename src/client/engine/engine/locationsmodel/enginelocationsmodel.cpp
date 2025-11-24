@@ -13,8 +13,6 @@ LocationsModel::LocationsModel(QObject *parent, IConnectStateController *stateCo
     connect(apiLocationsModel_, &ApiLocationsModel::bestLocationUpdated, this, &LocationsModel::bestLocationUpdated);
     connect(apiLocationsModel_, &ApiLocationsModel::locationPingTimeChanged, this, &LocationsModel::locationPingTimeChanged);
     connect(apiLocationsModel_, &ApiLocationsModel::whitelistIpsChanged, this, &LocationsModel::whitelistLocationsIpsChanged);
-    connect(apiLocationsModel_, &ApiLocationsModel::pingsStarted, this, &LocationsModel::pingsStarted);
-    connect(apiLocationsModel_, &ApiLocationsModel::pingsFinished, this, &LocationsModel::pingsFinished);
 
     connect(customConfigLocationsModel_, &CustomConfigLocationsModel::locationsUpdated, this, &LocationsModel::customConfigsLocationsUpdated);
     connect(customConfigLocationsModel_, &CustomConfigLocationsModel::locationPingTimeChanged, this, &LocationsModel::locationPingTimeChanged);
@@ -41,11 +39,6 @@ void LocationsModel::clear()
 {
     apiLocationsModel_->clear();
     customConfigLocationsModel_->clear();
-}
-
-void LocationsModel::refreshPings()
-{
-    apiLocationsModel_->refreshPings();
 }
 
 QSharedPointer<BaseLocationInfo> LocationsModel::getMutableLocationInfoById(const LocationID &locationId)

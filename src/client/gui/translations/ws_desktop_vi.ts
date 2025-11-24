@@ -69,6 +69,10 @@
         <source>Rotate IP</source>
         <translation>Xoay IP</translation>
     </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>TƯỜNG LỬA</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -96,8 +100,8 @@
         <translation>Cấu hình tùy chỉnh</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Vị trí và IP yêu thích</translation>
+        <source>Favourites</source>
+        <translation>Yêu thích</translation>
     </message>
 </context>
 <context>
@@ -264,32 +268,28 @@
         <translation>Không có địa điểm</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Mua</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>TẤT CẢ CÁC ĐỊA ĐIỂM</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>Tất cả các địa điểm (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>YÊU THÍCH</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>IP tĩnh</translation>
+        <source>STATIC IPs</source>
+        <translation>IP TĨNH</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Cấu hình tùy chỉnh</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>CẤU HÌNH TÙY CHỈNH</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Tìm kiếm</translation>
+        <source>SEARCH</source>
+        <translation>TÌM KIẾM</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>Làm mới ping</translation>
-    </message>
-    <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Vị trí và IP yêu thích</translation>
+        <source>Add</source>
+        <translation>Thêm</translation>
     </message>
 </context>
 <context>
@@ -937,8 +937,8 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Lưng</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp;&amp; IPs</source>
-        <translation>Vị trí &amp; IP yêu thích</translation>
+        <source>Favourites</source>
+        <translation>Yêu thích</translation>
     </message>
 </context>
 <context>

@@ -69,6 +69,10 @@
         <source>Rotate IP</source>
         <translation>IP のローテーション</translation>
     </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>ファイアウォール</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -96,8 +100,8 @@
         <translation>カスタム構成</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>お気に入りの場所とIP</translation>
+        <source>Favourites</source>
+        <translation>お気に入り</translation>
     </message>
 </context>
 <context>
@@ -264,32 +268,28 @@
         <translation>場所はありません</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>購入する</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>すべての場所</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>すべてのロケーション (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>お気に入り</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>静的IP</translation>
+        <source>STATIC IPs</source>
+        <translation>静的 IP</translation>
     </message>
     <message>
-        <source>Custom configs</source>
+        <source>CUSTOM CONFIGs</source>
         <translation>カスタム構成</translation>
     </message>
     <message>
-        <source>Search</source>
+        <source>SEARCH</source>
         <translation>捜索</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>リフレッシュピン</translation>
-    </message>
-    <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>お気に入りの場所とIP</translation>
+        <source>Add</source>
+        <translation>足す</translation>
     </message>
 </context>
 <context>
@@ -937,8 +937,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>戻る</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp;&amp; IPs</source>
-        <translation>お気に入りの場所と IP</translation>
+        <source>Favourites</source>
+        <translation>お気に入り</translation>
     </message>
 </context>
 <context>

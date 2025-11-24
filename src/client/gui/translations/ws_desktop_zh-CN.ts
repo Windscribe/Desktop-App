@@ -69,6 +69,10 @@
         <source>Rotate IP</source>
         <translation>轮换 IP</translation>
     </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>防火墙</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -96,8 +100,8 @@
         <translation>自定义配置</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>最喜欢的位置和 IP</translation>
+        <source>Favourites</source>
+        <translation>收藏夹</translation>
     </message>
 </context>
 <context>
@@ -264,32 +268,28 @@
         <translation>暂无位置</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>购买</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>所有地点</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>所有位置 （%1）</translation>
+        <source>FAVOURITES</source>
+        <translation>收藏夹</translation>
     </message>
     <message>
-        <source>Static IPs</source>
+        <source>STATIC IPs</source>
         <translation>静态 IP</translation>
     </message>
     <message>
-        <source>Custom configs</source>
+        <source>CUSTOM CONFIGs</source>
         <translation>自定义配置</translation>
     </message>
     <message>
-        <source>Search</source>
+        <source>SEARCH</source>
         <translation>搜索</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>刷新 Ping</translation>
-    </message>
-    <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>最喜欢的位置和 IP</translation>
+        <source>Add</source>
+        <translation>加</translation>
     </message>
 </context>
 <context>
@@ -937,8 +937,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>返回</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp;&amp; IPs</source>
-        <translation>最喜欢的地点和 IP</translation>
+        <source>Favourites</source>
+        <translation>收藏夹</translation>
     </message>
 </context>
 <context>

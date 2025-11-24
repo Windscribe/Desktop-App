@@ -64,7 +64,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(cityName1Text_, &CommonGraphics::TextButton::hoverEnter, this, &ConnectWindowItem::onFirstNameHoverEnter);
     connect(cityName1Text_, &CommonGraphics::TextButton::hoverLeave, this, &ConnectWindowItem::onFirstOrSecondNameHoverLeave);
 
-    cityName2Text_ = new CommonGraphics::TextButton("", FontDescr(21, QFont::Light), Qt::white, true, this, 0, true);
+    cityName2Text_ = new CommonGraphics::TextButton("", FontDescr(21, QFont::Normal), Qt::white, true, this, 0, true);
     cityName2Text_->setUnhoverOpacity(OPACITY_FULL);
     cityName2Text_->setCurrentOpacity(OPACITY_FULL);
     cityName2Text_->setClickableHoverable(false, true);
@@ -116,7 +116,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(favouriteAnimation_, &QVariantAnimation::valueChanged, this, &ConnectWindowItem::onFavouriteAnimationValueChanged);
     connect(favouriteAnimation_, &QVariantAnimation::finished, this, &ConnectWindowItem::onFavouriteAnimationFinished);
 
-    firewallLabel_ = new CommonGraphics::TextButton(tr("Firewall"), FontDescr(12, QFont::DemiBold), Qt::white, false, this, 0, false);
+    firewallLabel_ = new CommonGraphics::TextButton(tr("FIREWALL"), FontDescr(12, QFont::DemiBold, 100, 1.44), Qt::white, false, this, 0, false);
     firewallLabel_->setUnhoverOpacity(0.6);
     firewallLabel_->setCurrentOpacity(0.6);
 
@@ -126,7 +126,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(firewallButton_, &ToggleButton::toggleIgnored, this, &ConnectWindowItem::onFirewallButtonToggleIgnored);
     connect(firewallButton_, &ToggleButton::stateChanged, this, &ConnectWindowItem::onFirewallButtonStateChanged);
 
-    firewallInfo_ = new IconButton(16, 16, "INFO_ICON", "", this, OPACITY_QUARTER, OPACITY_QUARTER);
+    firewallInfo_ = new IconButton(16, 16, "INFO_ICON", "", this, 0.3, 0.3);
     firewallInfo_->setClickableHoverable(false, true);
     connect(firewallInfo_, &IconButton::hoverEnter, this, &ConnectWindowItem::onFirewallInfoHoverEnter);
     connect(firewallInfo_, &IconButton::hoverLeave, this, &ConnectWindowItem::onFirewallInfoHoverLeave);
@@ -510,12 +510,12 @@ void ConnectWindowItem::updatePositions()
         connectStateProtocolPort_->setPos(13*G_SCALE, 74*G_SCALE);
         locationsButton_->setPos(97*G_SCALE, 183*G_SCALE);
         networkTrustButton_->setPos(16*G_SCALE, 147*G_SCALE);
-        ipAddressItem_->setPos(boundingRect().width() - ipAddressItem_->boundingRect().width() - 48*G_SCALE, 149*G_SCALE);
+        ipAddressItem_->setPos(boundingRect().width() - ipAddressItem_->boundingRect().width() - 40*G_SCALE, 147*G_SCALE + (networkTrustButton_->boundingRect().height() - ipAddressItem_->boundingRect().height()) / 2);
         dotMenuButton_->setPos(boundingRect().width() - 40*G_SCALE, 147*G_SCALE);
         ipUtilsMenu_->setPos(boundingRect().width() - ipUtilsMenu_->boundingRect().width() - 16*G_SCALE, 145*G_SCALE);
         firewallLabel_->setPos(16*G_SCALE, 177*G_SCALE);
         firewallButton_->setPos(16*G_SCALE, 202*G_SCALE);
-        firewallInfo_->setPos(69*G_SCALE, 205*G_SCALE);
+        firewallInfo_->setPos(65*G_SCALE, 205*G_SCALE);
     } else {
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
         int closePosY = WINDOW_WIDTH*G_SCALE - closeButton_->boundingRect().width() - WINDOW_MARGIN*G_SCALE;
@@ -536,12 +536,12 @@ void ConnectWindowItem::updatePositions()
         cityName2Text_->setPos(24*G_SCALE + cityName1Text_->boundingRect().width(), 118*G_SCALE);
         locationsButton_->setPos(98*G_SCALE, 198*G_SCALE);
         networkTrustButton_->setPos(16*G_SCALE, 162*G_SCALE);
-        ipAddressItem_->setPos(boundingRect().width() - ipAddressItem_->boundingRect().width() - 48*G_SCALE, 164*G_SCALE);
+        ipAddressItem_->setPos(boundingRect().width() - ipAddressItem_->boundingRect().width() - 40*G_SCALE, 162*G_SCALE + (networkTrustButton_->boundingRect().height() - ipAddressItem_->boundingRect().height()) / 2);
         dotMenuButton_->setPos(boundingRect().width() - 40*G_SCALE, 162*G_SCALE);
         ipUtilsMenu_->setPos(boundingRect().width() - ipUtilsMenu_->boundingRect().width() - 16*G_SCALE, 160*G_SCALE);
         firewallLabel_->setPos(16*G_SCALE, 210*G_SCALE);
         firewallButton_->setPos(16*G_SCALE, 235*G_SCALE);
-        firewallInfo_->setPos(69*G_SCALE, 238*G_SCALE);
+        firewallInfo_->setPos(65*G_SCALE, 238*G_SCALE);
     }
 }
 
@@ -617,7 +617,7 @@ void ConnectWindowItem::setIsPreferredProtocol(bool on)
 
 void ConnectWindowItem::onLanguageChanged()
 {
-    firewallLabel_->setText(tr("Firewall"));
+    firewallLabel_->setText(tr("FIREWALL"));
     updatePositions();
 }
 

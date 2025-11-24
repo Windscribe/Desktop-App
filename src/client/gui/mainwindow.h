@@ -178,7 +178,6 @@ private slots:
     void onLocationsClearCustomConfigClicked();
     void onLocationsAddCustomConfigClicked();
     void onLocationsUpgradeBannerClicked();
-    void onLocationsRefreshClicked();
 
     void onLanguageChanged();
 
@@ -194,8 +193,6 @@ private slots:
     void onBackendCheckUpdateChanged(const api_responses::CheckUpdate &checkUpdateInfo);
     void onBackendMyIpChanged(QString ip, bool isFromDisconnectedState);
     void onBackendConnectStateChanged(const types::ConnectState &connectState);
-    void onBackendPingsStarted();
-    void onBackendPingsFinished();
     void onBackendEmergencyConnectStateChanged(const types::ConnectState &connectState);
     void onBackendFirewallStateChanged(bool isEnabled);
     void onNetworkChanged(types::NetworkInterface network);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QWidget>
-#include "types/connectstate.h"
+#include <QVariantAnimation>
 #include "widgetlocations/locationstab.h"
 
 namespace gui_locations
@@ -33,9 +33,6 @@ public slots:
     void onSearchFilterChanged(const QString &filter);
     void onLocationsKeyPressed(QKeyEvent *event);
     void onAppSkinChanged(APP_SKIN s);
-    void onConnectStateChanged(const types::ConnectState &connectState);
-    void onPingsStarted();
-    void onPingsFinished();
 
 signals:
     void heightChanged();
@@ -45,7 +42,6 @@ signals:
     void clearCustomConfigClicked();
     void addCustomConfigClicked();
     void upgradeBannerClicked();
-    void refreshClicked();
 
 protected:
     void paintEvent(QPaintEvent *event)        override;
@@ -54,20 +50,26 @@ protected:
     void mousePressEvent(QMouseEvent *event)   override;
     void mouseReleaseEvent(QMouseEvent *event) override;
 
+private slots:
+    void onResizeIconOpacityChanged(const QVariant &value);
+
 private:
     const int LOCATIONS_TAB_HEIGHT_INIT = 398; // 7 * 50 + TAB_HEADER_HEIGHT
-    static constexpr int FOOTER_HEIGHT = 14; //
-    static constexpr int FOOTER_HEIGHT_FULL = 16;
+    static constexpr int FOOTER_HEIGHT = 16;
+    static constexpr int FOOTER_HEIGHT_FULL = FOOTER_HEIGHT + 2;
     static constexpr int MIN_VISIBLE_LOCATIONS = 4;
     static constexpr int MAX_VISIBLE_LOCATIONS = 12;
 
     GuiLocations::LocationsTab *locationsTab_;
+    QWidget *borderOverlay_;
 
     int locationsTabHeightUnscaled_;
     bool bDragPressed_;
     QPoint dragPressPt_;
     int dragInitialVisibleItemsCount_;
     int dragInitialBtnDragCenter_;
+    double resizeIconOpacity_;
+    QVariantAnimation resizeIconOpacityAnimation_;
 
     QRect getResizeHandleClickableRect();
     void updateFooterOverlayGeo();

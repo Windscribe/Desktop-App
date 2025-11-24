@@ -20,8 +20,6 @@ ApiLocationsModel::ApiLocationsModel(QObject *parent, IConnectStateController *s
         qCDebug(LOG_BEST_LOCATION) << "No saved best location in settings";
     }
     connect(&pingManager_, &PingManager::pingInfoChanged, this, &ApiLocationsModel::onPingInfoChanged);
-    connect(&pingManager_, &PingManager::pingsStarted, this, &ApiLocationsModel::pingsStarted);
-    connect(&pingManager_, &PingManager::pingsFinished, this, &ApiLocationsModel::pingsFinished);
 }
 
 void ApiLocationsModel::setLocations(const QVector<api_responses::Location> &locations, const api_responses::StaticIps &staticIps)
@@ -67,11 +65,6 @@ void ApiLocationsModel::clear()
     pingManager_.clearIps();
     QSharedPointer<QVector<types::Location> > empty(new QVector<types::Location>());
     emit locationsUpdated(LocationID(), QString(),  empty);
-}
-
-void ApiLocationsModel::refreshPings()
-{
-    pingManager_.refreshPings();
 }
 
 QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(const LocationID &locationId)

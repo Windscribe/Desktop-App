@@ -10,7 +10,7 @@
 #include "dpiscalemanager.h"
 #include "tooltips/tooltipcontroller.h"
 
-ConfigFooterInfo::IconButton::IconButton() : opacity(OPACITY_UNHOVER_ICON_TEXT), is_hover(false) {}
+ConfigFooterInfo::IconButton::IconButton() : opacity(0.7), is_hover(false) {}
 
 
 ConfigFooterInfo::ConfigFooterInfo(QWidget *parent) : QAbstractButton(parent)
@@ -47,7 +47,7 @@ void ConfigFooterInfo::setText(const QString &text)
 
 void ConfigFooterInfo::updateDisplayText()
 {
-    font_ = FontManager::instance().getFont(14,  QFont::Normal);
+    font_ = FontManager::instance().getFont(12, QFont::Normal);
     displayText_ = CommonGraphics::truncatedText(fullText_, font_,
         width() - (WINDOW_MARGIN * 4 + 40) * G_SCALE);
     displayTextRect_.setRect(WINDOW_MARGIN * G_SCALE, 0,
@@ -76,15 +76,21 @@ void ConfigFooterInfo::paintEvent(QPaintEvent * /*event*/)
     QPainter painter(this);
     qreal initOpacity = painter.opacity();
 
-    painter.fillRect(QRect(0,0,sizeHint().width(), sizeHint().height()),
-        FontManager::instance().getCarbonBlackColor());
+    // background
+    painter.setOpacity(0.05);
+    painter.fillRect(QRect(0, 0, sizeHint().width(), height()), Qt::white);
+    painter.setPen(QPen(Qt::white, 1*G_SCALE));
+    painter.setBrush(Qt::NoBrush);
+    painter.setOpacity(0.15);
+    painter.drawLine(2*G_SCALE, 0, sizeHint().width() - 1*G_SCALE, 0);
+    painter.setOpacity(1.0);
 
     const int kBottomLineHeight = BOTTOM_LINE_HEIGHT * G_SCALE;
     painter.fillRect(QRect(0, height() - kBottomLineHeight, sizeHint().width(), kBottomLineHeight),
                      FontManager::instance().getMidnightColor());
 
     if (!displayText_.isEmpty()) {
-        font_ = FontManager::instance().getFont(14,  QFont::Normal);
+        font_ = FontManager::instance().getFont(12, QFont::Normal);
         painter.setOpacity(initOpacity * 0.5);
         painter.setPen(Qt::white);
         painter.setFont(font_);
@@ -92,12 +98,12 @@ void ConfigFooterInfo::paintEvent(QPaintEvent * /*event*/)
     }
 
     QSharedPointer<IndependentPixmap> pixmap_clear =
-        ImageResourcesSvg::instance().getIndependentPixmap("locations/CLEAR_ICON");
+        ImageResourcesSvg::instance().getIndependentPixmap("CLOSE_ICON");
     painter.setOpacity(initOpacity * iconButtons_[ICON_CLEAR].opacity);
     pixmap_clear->draw(iconButtons_[ICON_CLEAR].rect, &painter);
 
     QSharedPointer<IndependentPixmap> pixmap_choose =
-        ImageResourcesSvg::instance().getIndependentPixmap("locations/EDIT_ICON");
+        ImageResourcesSvg::instance().getIndependentPixmap("EDIT_ICON");
     painter.setOpacity(initOpacity * iconButtons_[ICON_CHOOSE].opacity);
     pixmap_choose->draw(iconButtons_[ICON_CHOOSE].rect, &painter);
 }
@@ -120,10 +126,10 @@ void ConfigFooterInfo::mouseMoveEvent(QMouseEvent *event)
         iconButtons_[i].is_hover = is_hover;
         if (is_hover) {
             startAnAnimation<double>(iconButtons_[i].opacityAnimation, iconButtons_[i].opacity,
-                                     OPACITY_FULL, ANIMATION_SPEED_FAST);
+                                     1.0, ANIMATION_SPEED_FAST);
         } else {
             startAnAnimation<double>(iconButtons_[i].opacityAnimation, iconButtons_[i].opacity,
-                                     OPACITY_UNHOVER_ICON_TEXT, ANIMATION_SPEED_FAST);
+                                     0.7, ANIMATION_SPEED_FAST);
         }
     }
     setCursor(is_any_icon_button_hover ? Qt::PointingHandCursor : Qt::ArrowCursor);
@@ -169,7 +175,7 @@ void ConfigFooterInfo::mouseReleaseEvent(QMouseEvent * /*event*/)
         if (clickedIconButton) {
             clickedIconButton->is_hover = false;
             startAnAnimation<double>(clickedIconButton->opacityAnimation,
-                clickedIconButton->opacity, OPACITY_UNHOVER_ICON_TEXT, ANIMATION_SPEED_FAST);
+                clickedIconButton->opacity, 0.7, ANIMATION_SPEED_FAST);
         }
     }
 }

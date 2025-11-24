@@ -9,11 +9,12 @@ namespace gui_locations {
 class ItemStyleOption : public QStyleOption
 {
 public:
-    explicit ItemStyleOption(QObject *object, const QRect &rc, double selectedOpacity, double expandedProgress, bool isShowLocationLoad, bool isShowCountryFlagForCity) :
+    explicit ItemStyleOption(QObject *object, const QRect &rc, double selectedOpacity, double expandedProgress, bool isShowLocationLoad, bool isShowCountryFlagForCity, int hoverClickableId = -1) :
         selectedOpacity_(selectedOpacity),
         expandedProgress_(expandedProgress),
         isShowLocationLoad_(isShowLocationLoad),
-        isShowCountryFlagForCity_(isShowCountryFlagForCity)
+        isShowCountryFlagForCity_(isShowCountryFlagForCity),
+        hoverClickableId_(hoverClickableId)
     {
         styleObject = object;
         rect = rc;
@@ -41,11 +42,17 @@ public:
         return isShowCountryFlagForCity_;
     }
 
+    int hoverClickableId() const
+    {
+        return hoverClickableId_;
+    }
+
 private:
     double selectedOpacity_;
     double expandedProgress_;
     bool isShowLocationLoad_;
     bool isShowCountryFlagForCity_;
+    int hoverClickableId_;
 };
 
 class IItemCacheData

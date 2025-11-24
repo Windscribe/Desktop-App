@@ -31,8 +31,6 @@ public:
     void setLocations(const QVector<api_responses::Location> &locations, const api_responses::StaticIps &staticIps);
     void clear();
 
-    void refreshPings();
-
     QSharedPointer<BaseLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
 
 signals:
@@ -41,8 +39,6 @@ signals:
     void locationPingTimeChanged(const LocationID &id, PingTime timeMs);
     void bestLocationUpdated( const LocationID &bestLocation);
     void whitelistIpsChanged(const QStringList &ips);
-    void pingsStarted();
-    void pingsFinished();
 
     //void locationInfoChanged(const LocationID &LocationId, const QVector<ServerNode> &nodes, const QString &dnsHostName);
     //void customOvpnConfgsIpsChanged(const QStringList &ips);

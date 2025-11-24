@@ -15,31 +15,21 @@ public:
 
     QSize sizeHint() const override;
 
+    void setText(const QString &text);
     void setFont(const FontDescr &fontDescr);
-
-    void setUnhoverHoverOpacity(double unhoverOpacity, double hoverOpacity);
-    void animateOpacityChange(double targetOpacity);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
     void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
 
-private slots:
-    void onOpacityChanged(const QVariant &value);
-    void resetHoverState();
-
 private:
-    double unhoverOpacity_;
-    double hoverOpacity_;
-
-    double curOpacity_;
-    QVariantAnimation opacityAnimation_;
+    void updateWidth();
 
     FontDescr fontDescr_;
 
     int width_  = 92;
-    int height_ = 26;
+    int height_ = 34;
     int arcsize_ = 10;
 };
 
