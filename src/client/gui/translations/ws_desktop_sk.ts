@@ -69,6 +69,10 @@
         <source>Rotate IP</source>
         <translation>Rotovať IP adresu</translation>
     </message>
+	<message>
+        <source>FIREWALL</source>
+        <translation>FIREWALL</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -96,8 +100,8 @@
         <translation>Vlastné konfigurácie</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Obľúbené lokality a IP adresy</translation>
+        <source>Favourites</source>
+        <translation>Obľúbené</translation>
     </message>
 </context>
 <context>
@@ -264,32 +268,28 @@
         <translation>Žiadne lokality</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Kúpiť</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>VŠETKY LOKALITY</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>Všetky lokality (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>OBĽÚBENÉ</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>Statické IP adresy</translation>
+        <source>STATIC IPs</source>
+        <translation>STATICKÉ IP ADRESY</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Vlastná konfigurácie</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>VLASTNÉ KONFIGURÁCIE</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Hľadať</translation>
+        <source>SEARCH</source>
+        <translation>HĽADAŤ</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>Obnoviť pingy</translation>
-    </message>
-    <message>
-        <source>Favourite Locations &amp; IPs</source>
-        <translation>Obľúbené lokality a IP adresy</translation>
+        <source>Add</source>
+        <translation>Pridať</translation>
     </message>
 </context>
 <context>
@@ -940,8 +940,8 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <translation>Späť</translation>
     </message>
     <message>
-        <source>Favourite Locations &amp;&amp; IPs</source>
-        <translation>Obľúbené lokality a IP adresy</translation>
+        <source>Favourites</source>
+        <translation>Obľúbené</translation>
     </message>
 </context>
 <context>
