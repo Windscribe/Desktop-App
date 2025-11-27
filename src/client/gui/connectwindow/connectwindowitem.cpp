@@ -116,6 +116,13 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(favouriteAnimation_, &QVariantAnimation::valueChanged, this, &ConnectWindowItem::onFavouriteAnimationValueChanged);
     connect(favouriteAnimation_, &QVariantAnimation::finished, this, &ConnectWindowItem::onFavouriteAnimationFinished);
 
+    rotateButtonReenableTimer_ = new QTimer(this);
+    rotateButtonReenableTimer_->setSingleShot(true);
+    rotateButtonReenableTimer_->setInterval(2000);
+    connect(rotateButtonReenableTimer_, &QTimer::timeout, this, [this]() {
+        ipUtilsMenu_->setRotateButtonEnabled(true);
+    });
+
     firewallLabel_ = new CommonGraphics::TextButton(tr("FIREWALL"), FontDescr(12, QFont::DemiBold, 100, 1.44), Qt::white, false, this, 0, false);
     firewallLabel_->setUnhoverOpacity(0.6);
     firewallLabel_->setCurrentOpacity(0.6);
@@ -643,6 +650,12 @@ void ConnectWindowItem::setIpUtilsEnabled(bool enabled)
     dotMenuButton_->unhover();
 }
 
+void ConnectWindowItem::onIpRotateResult(bool success)
+{
+    Q_UNUSED(success);
+    rotateButtonReenableTimer_->start();
+}
+
 void ConnectWindowItem::onIpAddressWidthChanged(int width)
 {
     updatePositions();
@@ -685,6 +698,8 @@ void ConnectWindowItem::onIpUtilsMenuFavouriteClick()
 
 void ConnectWindowItem::onIpUtilsMenuRotateClick()
 {
+    rotateButtonReenableTimer_->stop();
+    ipUtilsMenu_->setRotateButtonEnabled(false);
     hideIpUtilsMenu(true);
     emit rotateIpClick();
 }

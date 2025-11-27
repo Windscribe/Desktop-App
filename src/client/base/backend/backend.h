@@ -148,7 +148,7 @@ private slots:
     void onEngineRobertFiltersUpdated(bool success, const QVector<api_responses::RobertFilter> &filters);
     void onEngineSetRobertFilterFinished(bool success);
     void onEngineSyncRobertFinished(bool success);
-    void onEngineProtocolStatusChanged(const QVector<types::ProtocolStatus> &status);
+    void onEngineProtocolStatusChanged(const QVector<types::ProtocolStatus> &status, bool isAutomaticMode);
 
     void onEngineEmergencyConnected();
     void onEngineEmergencyDisconnected();
@@ -215,6 +215,7 @@ signals:
     void sessionStatusChanged(const api_responses::SessionStatus &sessionStatus);
     void checkUpdateChanged(const api_responses::CheckUpdate &checkUpdateInfo);
     void splitTunnelingStateChanged(bool isActive);
+    void systemExtensionAvailabilityChanged(bool available);
 
     void confirmEmailResult(bool bSuccess);
     void debugLogResult(bool bSuccess);
@@ -247,7 +248,7 @@ signals:
 
     void wireGuardAtKeyLimit();
     void wireGuardKeyLimitUserResponse(bool deleteOldestKey);
-    void protocolStatusChanged(const QVector<types::ProtocolStatus> &status);
+    void protocolStatusChanged(const QVector<types::ProtocolStatus> &status, bool isAutomaticMode);
 
     void controldDevicesFetched(CONTROLD_FETCH_RESULT result, const QList<QPair<QString, QString>> &devices);
 
@@ -256,7 +257,7 @@ signals:
     void localDnsServerNotAvailable();
 
     void bridgeApiAvailabilityChanged(bool isAvailable);
-    void ipRotateFailed();
+    void ipRotateResult(bool success);
 
 private:
     bool isSavedApiSettingsExists_;

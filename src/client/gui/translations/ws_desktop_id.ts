@@ -661,38 +661,6 @@ Memulihkan...</translation>
         <translation>Pilih aplikasi</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Sambung</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Lepaskan</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Lokasi</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>IP statis</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Tampilkan/Sembunyikan</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Preferensi</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Tolong</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Keluar</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>File baca-saja</translation>
     </message>
@@ -909,10 +877,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Tidak dapat memulai layanan DNS kustom - port 53 sudah digunakan.  Apakah Anda ingin mengubah DNS Terhubung Anda ke server lokal?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Konfigurasi kustom</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>Tidak dapat menyematkan IP</translation>
     </message>
@@ -937,8 +901,16 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Belakang</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favorit</translation>
+        <source>Manual connection mode failed</source>
+        <translation>Mode koneksi manual gagal</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Kami tidak dapat menghubungkan Anda di jaringan ini. Mode koneksi otomatis direkomendasikan untuk hasil terbaik. Alihkan mode koneksi ke Otomatis?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Beralih ke Otomatis</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Sertakan atau kecualikan aplikasi dan nama host dari terowongan VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>Ekstensi sistem kanalisasi terpisah Windscribe harus diaktifkan agar fitur ini berfungsi. Silakan aktifkan di Pengaturan Sistem.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Secure Hotspot</source>
         <translation>Hotspot Aman</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Sambung</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Lepaskan</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Lokasi</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP Statis</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Konfigurasi kustom</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Tampilkan/Sembunyikan</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Preferensi</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Tolong</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Keluar dari Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favorit</translation>
     </message>
 </context>
 <context>

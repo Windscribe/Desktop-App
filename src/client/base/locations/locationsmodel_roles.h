@@ -16,7 +16,7 @@ enum Roles {
     kLoad,                               // location and city
     kName,                               // location and city
     kNick,                               // city only and best location
-    kPingTime,                           // location and city (for latency calc average ping)
+    kPingTime,                           // location and city (for location: lowest ping of all cities)
     kIsFavorite,                         // city only
     kPinnedIp,                           // city only
     kIsDisabled,                         // city and location, the location is disabled if it has no cities

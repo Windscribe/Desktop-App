@@ -6,6 +6,7 @@ set(WINDSCRIBE_TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_ar.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_cs.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_de.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_el.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_en.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_es.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_fa.ts
@@ -18,6 +19,7 @@ set(WINDSCRIBE_TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_pl.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_pt.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_ru.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_sk.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_tr.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_uk.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_vi.ts

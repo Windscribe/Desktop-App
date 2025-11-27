@@ -112,11 +112,12 @@ void Backend::init()
     connect(engine_, &Engine::setRobertFilterFinished, this, &Backend::onEngineSetRobertFilterFinished);
     connect(engine_, &Engine::syncRobertFinished, this, &Backend::onEngineSyncRobertFinished);
     connect(engine_, &Engine::splitTunnelingStartFailed, this, &Backend::splitTunnelingStartFailed);
+    connect(engine_, &Engine::systemExtensionAvailabilityChanged, this, &Backend::systemExtensionAvailabilityChanged);
     connect(engine_, &Engine::autoEnableAntiCensorship, this, &Backend::onEngineAutoEnableAntiCensorship);
     connect(engine_, &Engine::connectionIdChanged, this, &Backend::connectionIdChanged);
     connect(engine_, &Engine::localDnsServerNotAvailable, this, &Backend::localDnsServerNotAvailable);
     connect(engine_, &Engine::bridgeApiAvailabilityChanged, this, &Backend::onEngineBridgeApiAvailabilityChanged);
-    connect(engine_, &Engine::ipRotateFailed, this, &Backend::ipRotateFailed);
+    connect(engine_, &Engine::ipRotateResult, this, &Backend::ipRotateResult);
     connect(engine_, &Engine::connectingHostnameChanged, this, &Backend::onEngineConnectingHostnameChanged);
     connect(engine_, &Engine::controldDevicesFetched, this, &Backend::controldDevicesFetched);
     threadEngine_->start(QThread::LowPriority);
@@ -135,6 +136,7 @@ void Backend::enableBFE_win()
 
 void Backend::login(const QString &username, const QString &password, const QString &code2fa)
 {
+    WS_ASSERT(loginState_ != LOGIN_STATE_LOGGING_IN);
     loginState_ = LOGIN_STATE_LOGGING_IN;
     bLastLoginWithAuthHash_ = false;
     lastUsername_ = username;
@@ -160,6 +162,7 @@ bool Backend::isSavedApiSettingsExists() const
 
 void Backend::loginWithAuthHash()
 {
+    WS_ASSERT(loginState_ != LOGIN_STATE_LOGGING_IN);
     loginState_ = LOGIN_STATE_LOGGING_IN;
     bLastLoginWithAuthHash_ = true;
     engine_->loginWithAuthHash();
@@ -167,6 +170,7 @@ void Backend::loginWithAuthHash()
 
 void Backend::loginWithLastLoginSettings()
 {
+    WS_ASSERT(loginState_ != LOGIN_STATE_LOGGING_IN);
     loginState_ = LOGIN_STATE_LOGGING_IN;
     if (bLastLoginWithAuthHash_)
         loginWithAuthHash();
@@ -575,9 +579,9 @@ void Backend::onEngineSyncRobertFinished(bool success)
     emit syncRobertResult(success);
 }
 
-void Backend::onEngineProtocolStatusChanged(const QVector<types::ProtocolStatus> &status)
+void Backend::onEngineProtocolStatusChanged(const QVector<types::ProtocolStatus> &status, bool isAutomaticMode)
 {
-    emit protocolStatusChanged(status);
+    emit protocolStatusChanged(status, isAutomaticMode);
 }
 
 void Backend::onEngineEmergencyConnected()
@@ -889,10 +893,12 @@ void Backend::sendSplitTunneling(const types::SplitTunneling &st)
     QStringList ips;
     QStringList hosts;
     for (int i = 0; i < st.networkRoutes.size(); ++i) {
-        if (st.networkRoutes[i].type == SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP) {
-            ips << st.networkRoutes[i].name;
-        } else if (st.networkRoutes[i].type == SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME) {
-            hosts << st.networkRoutes[i].name;
+        if (st.networkRoutes[i].active) {
+            if (st.networkRoutes[i].type == SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP) {
+                ips << st.networkRoutes[i].name;
+            } else if (st.networkRoutes[i].type == SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME) {
+                hosts << st.networkRoutes[i].name;
+            }
         }
     }
 
@@ -1075,4 +1081,3 @@ void Backend::fetchControldDevices(const QString &apiKey)
 {
     engine_->fetchControldDevices(apiKey);
 }
-

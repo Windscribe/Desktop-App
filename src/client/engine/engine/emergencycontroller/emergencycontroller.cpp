@@ -295,7 +295,7 @@ void EmergencyController::doConnect()
 
     if (!username.isEmpty() && !password.isEmpty()) {
         static_cast<OpenVPNConnection *>(connector_)->setIsEmergencyConnect(true);
-        connector_->startConnect(makeOVPNFile_->config(), "", "", username, password, proxySettings_, nullptr, false, false, false, QString());
+        connector_->startConnect(makeOVPNFile_->config(), "", "", username, password, proxySettings_, nullptr, false, false, QString());
         lastIp_ = QString::fromStdString(endpoint->ip());
     } else {
         qCCritical(LOG_EMERGENCY_CONNECT) << "Emergency credentials are empty";

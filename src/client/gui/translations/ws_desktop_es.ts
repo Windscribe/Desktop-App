@@ -277,7 +277,7 @@
     </message>
     <message>
         <source>STATIC IPs</source>
-        <translation>IP ESTÁTICAS</translation>
+        <translation>IPs ESTÁTICAS</translation>
     </message>
     <message>
         <source>CUSTOM CONFIGs</source>
@@ -673,38 +673,6 @@ Recuperación...</translation>
         <translation>Selecciona una aplicación</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Conectar</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Desconectar</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Ubicaciones</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>IPs estáticas</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Mostrar/Ocultar</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Preferencias</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Ayuda</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Salir</translation>
-    </message>
-    <message>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>El archivo hosts es de sólo lectura. La conectividad IKEv2 requiere que sea de escritura. ¿Solucionar el problema automáticamente?</translation>
     </message>
@@ -909,10 +877,6 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <translation>No se puede iniciar el servicio DNS personalizado: el puerto 53 ya está en uso.  ¿Te gustaría cambiar tu DNS conectado al servidor local?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Configuraciones personalizadas</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>No se pudo anclar la IP</translation>
     </message>
@@ -937,8 +901,16 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <translation>Atrás</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoritos</translation>
+        <source>Manual connection mode failed</source>
+        <translation>Modo de conexión manual fallido</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>No pudimos conectarte en esta red. Se recomienda el modo de conexión automática para obtener los mejores resultados. ¿Cambiar el modo de conexión a Automático?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Cambiar a automático</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Incluye o excluye aplicaciones y nombres de dominio del túnel VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>La extensión del sistema de túnel dividido Windscribe debe estar habilitada para que esta función funcione. Por favor, actívala en Configuración del sistema.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     <message>
         <source>Secure Hotspot</source>
         <translation>Punto de acceso seguro</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Conectar</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Desconectar</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Ubicaciones</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IPs estáticas</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Configuraciones personalizadas</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Mostrar/Ocultar</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Preferencias</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Ayuda</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Deja Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoritos</translation>
     </message>
 </context>
 <context>

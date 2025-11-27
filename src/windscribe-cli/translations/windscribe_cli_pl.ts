@@ -27,6 +27,10 @@
         <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
         <translation>Nie można odłączyć adresu IP od ulubionych.  Sprawdź, czy podany adres IP jest prawidłowy.</translation>
     </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>Rotacja adresów IP jest już w toku.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

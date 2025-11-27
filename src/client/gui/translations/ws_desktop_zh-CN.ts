@@ -101,7 +101,7 @@
     </message>
     <message>
         <source>Favourites</source>
-        <translation>收藏夹</translation>
+        <translation>最爱</translation>
     </message>
 </context>
 <context>
@@ -273,11 +273,11 @@
     </message>
     <message>
         <source>FAVOURITES</source>
-        <translation>收藏夹</translation>
+        <translation>最爱</translation>
     </message>
     <message>
         <source>STATIC IPs</source>
-        <translation>静态 IP</translation>
+        <translation>静态IP</translation>
     </message>
     <message>
         <source>CUSTOM CONFIGs</source>
@@ -661,38 +661,6 @@ Recovering...</source>
         <translation>选择一个应用程序</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>连接</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>断开</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>地点</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>静态 IP</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>显示/隐藏</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>偏好</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>帮助</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>退出</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>只读文件</translation>
     </message>
@@ -909,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>无法启动自定义 DNS 服务，端口 53 已在使用中。是否要将已连接的 DNS 更改为本地服务器？</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>自定义配置</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>无法固定 IP</translation>
     </message>
@@ -937,8 +901,16 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>返回</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>收藏夹</translation>
+        <source>Manual connection mode failed</source>
+        <translation>手动连接模式失败</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>我们无法通过这个网络连接你。建议使用自动连接模式以获得最佳效果。把连接模式切换到自动？</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>切换到自动挡</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>在 VPN 隧道中包含或排除应用和主机名。</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>该功能必须启用 Windscribe 分体隧道系统扩展。请在系统设置中启用它。</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>安全热点</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>连接</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>断开</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>地点</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>静态 IP</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>自定义配置</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>显示/隐藏</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>偏好</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>帮助</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>退出风书记</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>最爱</translation>
     </message>
 </context>
 <context>

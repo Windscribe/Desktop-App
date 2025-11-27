@@ -57,6 +57,7 @@ public slots:
     void setSplitTunnelingState(bool on);
     void setInternetConnectivity(bool connectivity);
     void setProtocolPort(const types::Protocol &protocol, const uint port);
+    void onIpRotateResult(bool success);
 
     void onConnectStateTextHoverEnter();
     void onConnectStateTextHoverLeave();
@@ -136,6 +137,7 @@ private:
     IPAddressItem *ipAddressItem_;
     CommonGraphics::TextButton *firewallLabel_;
     LogoNotificationsButton *logoButton_;
+    QTimer *rotateButtonReenableTimer_;
 
     types::ConnectState prevConnectState_;
 

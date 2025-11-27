@@ -91,8 +91,8 @@ void VpnShareController::startProxySharing(PROXY_SHARING_TYPE proxyType, uint po
 void VpnShareController::stopProxySharing()
 {
     QMutexLocker locker(&mutex_);
-    SAFE_DELETE_LATER(httpProxyServer_);
-    SAFE_DELETE_LATER(socksProxyServer_);
+    SAFE_DELETE(httpProxyServer_);
+    SAFE_DELETE(socksProxyServer_);
 }
 
 bool VpnShareController::isProxySharingEnabled()

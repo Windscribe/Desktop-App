@@ -72,6 +72,10 @@ bool SplitTunnelingAppsGroup::addAppInternal(types::SplitTunnelingApp &app)
 
     AppIncludedItem *item = new AppIncludedItem(app, this);
     connect(item, &AppIncludedItem::deleteClicked, this, &SplitTunnelingAppsGroup::onDeleteClicked);
+    connect(item, &AppIncludedItem::activeChanged, this, [this, item](bool active) {
+        apps_[item].active = active;
+        emit appsUpdated(apps_.values());
+    });
     apps_[item] = app;
 
     addItem(item);

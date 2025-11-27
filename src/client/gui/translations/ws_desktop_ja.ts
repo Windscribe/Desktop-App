@@ -269,7 +269,7 @@
     </message>
     <message>
         <source>ALL LOCATIONS</source>
-        <translation>すべての場所</translation>
+        <translation>全ての場所</translation>
     </message>
     <message>
         <source>FAVOURITES</source>
@@ -277,11 +277,11 @@
     </message>
     <message>
         <source>STATIC IPs</source>
-        <translation>静的 IP</translation>
+        <translation>静的IP</translation>
     </message>
     <message>
         <source>CUSTOM CONFIGs</source>
-        <translation>カスタム構成</translation>
+        <translation>カスタム設定</translation>
     </message>
     <message>
         <source>SEARCH</source>
@@ -661,38 +661,6 @@ Recovering...</source>
         <translation>アプリケーションを選択</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>接続する</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>切断する</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>場所</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>静的 IP アドレス</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>表示/非表示</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>設定</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>ヘルプ</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>終了</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>読み取り専用ファイル</translation>
     </message>
@@ -909,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>カスタム DNS サービスを開始できません - ポート 53 は既に使用されています。 接続DNSをローカルサーバーに変更しますか?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>カスタム構成</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>IP をピン留めできませんでした</translation>
     </message>
@@ -937,8 +901,16 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>戻る</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>お気に入り</translation>
+        <source>Manual connection mode failed</source>
+        <translation>手動接続モードが失敗しました</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>このネットワークではつながれませんでした。最良の結果を得るためには自動接続モードを推奨します。接続モードを自動に切り替える?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>オートへの切り替え</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>VPN トンネルにアプリとホスト名を含めるか、VPN トンネルから除外します。</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>この機能が機能するには、Windscribeの分割トンネルシステム拡張を有効にする必要があります。システム設定で有効にしてください。</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>セキュアホットスポット</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>接続する</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>切断する</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>場所</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>静的IP</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>カスタム構成</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>表示/非表示</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>設定</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>ヘルプ</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>ウィンドスクライブをやめろ</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>お気に入り</translation>
     </message>
 </context>
 <context>

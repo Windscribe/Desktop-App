@@ -24,6 +24,10 @@ VerticalEditBoxItem::VerticalEditBoxItem(ScalableGraphicsObject *parent, const Q
     btnUndo_->hide();
     connect(btnUndo_, &IconButton::clicked, this, &VerticalEditBoxItem::onUndoClick);
 
+    btnRefresh_ = new IconButton(16, 16, "preferences/REFRESH_ICON", "", this);
+    btnRefresh_->hide();
+    connect(btnRefresh_, &IconButton::clicked, this, &VerticalEditBoxItem::refreshButtonClicked);
+
     editPlaceholderText_ = editPrompt;
 
     lineEdit_ = new CommonWidgets::CustomMenuLineEdit();
@@ -117,6 +121,16 @@ void VerticalEditBoxItem::setError(const QString &error)
     updatePositions();
 }
 
+void VerticalEditBoxItem::setEnabled(bool enabled)
+{
+    BaseItem::setEnabled(enabled);
+    if (enabled) {
+        btnEdit_->show();
+    } else {
+        btnEdit_->hide();
+    }
+}
+
 void VerticalEditBoxItem::setEditButtonClickable(bool clickable)
 {
     btnEdit_->setClickable(clickable);
@@ -134,6 +148,15 @@ void VerticalEditBoxItem::setMasked(bool masked)
         lineEdit_->setEchoMode(QLineEdit::Normal);
     }
     update();
+}
+
+void VerticalEditBoxItem::setRefreshButtonVisible(bool visible)
+{
+    if (visible) {
+        btnRefresh_->show();
+    } else {
+        btnRefresh_->hide();
+    }
 }
 
 bool VerticalEditBoxItem::lineEditHasFocus()
@@ -200,6 +223,7 @@ void VerticalEditBoxItem::updatePositions()
     btnEdit_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN_X)*G_SCALE, top);
     btnConfirm_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN_X)*G_SCALE, top);
     btnUndo_->setPos(boundingRect().width() - (2*ICON_WIDTH + 2*PREFERENCES_MARGIN_X)*G_SCALE, top);
+
     lineEdit_->setFont(FontManager::instance().getFont(12,  QFont::Normal));
 
     if (!proxyWidget_->isVisible()) // workaround Qt bug (setGeometry not working when proxyWidget_ is not visible)
@@ -223,6 +247,9 @@ void VerticalEditBoxItem::updatePositions()
                                        Qt::AlignLeft | Qt::TextWordWrap,
                                        errorText_).height();
         setHeight((PREFERENCE_GROUP_ITEM_HEIGHT + PREFERENCES_ITEM_Y + ICON_HEIGHT)*G_SCALE + errorHeight_ + DESCRIPTION_MARGIN*G_SCALE);
+
+        qreal errorTop = boundingRect().height() - PREFERENCES_MARGIN_Y*G_SCALE - errorHeight_;
+        btnRefresh_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN_X)*G_SCALE, errorTop);
     }
     update();
 }

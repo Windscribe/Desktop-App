@@ -192,10 +192,11 @@ signals:
     void hostsFileBecameWritable();
 
     void wireGuardAtKeyLimit();
-    void protocolStatusChanged(const QVector<types::ProtocolStatus> status);
+    void protocolStatusChanged(const QVector<types::ProtocolStatus> status, bool isAutomaticMode);
     void initCleanup(bool isUpdating);
 
     void splitTunnelingStartFailed();
+    void systemExtensionAvailabilityChanged(bool available);
 
     void autoEnableAntiCensorship(bool enable);
 
@@ -204,7 +205,7 @@ signals:
     void localDnsServerNotAvailable();
 
     void bridgeApiAvailabilityChanged(bool isAvailable);
-    void ipRotateFailed();
+    void ipRotateResult(bool success);
     void connectingHostnameChanged(const QString &hostname);
     void controldDevicesFetched(CONTROLD_FETCH_RESULT result, const QList<QPair<QString, QString>> &devices);
 

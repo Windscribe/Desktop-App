@@ -565,7 +565,7 @@ QVariant LocationsModel::dataForLocation(int row, int role) const
     }
     else if (role == kPingTime)
     {
-        return locations_[row]->averagePing();
+        return locations_[row]->lowestPing();
     }
     else if (role == kIsDisabled)
     {

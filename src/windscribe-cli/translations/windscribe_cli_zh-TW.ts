@@ -27,6 +27,10 @@
         <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
         <translation>無法取消收藏 IP。 請檢查提供的 IP 是否有效。</translation>
     </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>IP 輪換已經在進行中。</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

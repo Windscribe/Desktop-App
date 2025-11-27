@@ -1,8 +1,8 @@
 diff --git a/src/openvpn/init.c b/src/openvpn/init.c
-index 079c4f5e..bad5e0fc 100644
+index 1476737e..0906d5a3 100644
 --- a/src/openvpn/init.c
 +++ b/src/openvpn/init.c
-@@ -3448,6 +3448,8 @@ do_init_crypto_tls(struct context *c, const unsigned int flags)
+@@ -3433,6 +3433,8 @@ do_init_crypto_tls(struct context *c, const unsigned int flags)
      /* let the TLS engine know if keys have to be installed in DCO or not */
      to.dco_enabled = dco_enabled(options);
  
@@ -12,10 +12,10 @@ index 079c4f5e..bad5e0fc 100644
       * Initialize OpenVPN's master TLS-mode object.
       */
 diff --git a/src/openvpn/options.c b/src/openvpn/options.c
-index 7ca77a8e..6a1c382b 100644
+index 044aab35..1fc98b2c 100644
 --- a/src/openvpn/options.c
 +++ b/src/openvpn/options.c
-@@ -3407,7 +3407,7 @@ options_postprocess_mutate_invariant(struct options *options)
+@@ -3420,7 +3420,7 @@ options_postprocess_mutate_invariant(struct options *options)
          /* delay may only be necessary when we perform DHCP handshake */
          const bool dhcp = (options->tuntap_options.ip_win32_type == IPW32_SET_DHCP_MASQ)
                            || (options->tuntap_options.ip_win32_type == IPW32_SET_ADAPTIVE);
@@ -24,7 +24,7 @@ index 7ca77a8e..6a1c382b 100644
          {
              options->route_delay_defined = true;
              options->route_delay = 5; /* Vista sometimes has a race without this */
-@@ -7830,6 +7830,18 @@ add_option(struct options *options,
+@@ -7873,6 +7873,18 @@ add_option(struct options *options,
          VERIFY_PERMISSION(OPT_P_GENERAL);
          options->server_flags |= SF_TCP_NODELAY_HELPER;
      }
@@ -44,10 +44,10 @@ index 7ca77a8e..6a1c382b 100644
      {
          int ageing_time, check_interval;
 diff --git a/src/openvpn/socket.c b/src/openvpn/socket.c
-index 91a6d53d..0c2b1899 100644
+index ea06bb18..7e667a5f 100644
 --- a/src/openvpn/socket.c
 +++ b/src/openvpn/socket.c
-@@ -3409,7 +3409,51 @@ link_socket_write_tcp(struct link_socket *sock,
+@@ -3412,7 +3412,51 @@ link_socket_write_tcp(struct link_socket *sock,
      dmsg(D_STREAM_DEBUG, "STREAM: WRITE %d offset=%d", (int)len, buf->offset);
      ASSERT(len <= sock->stream_buf.maxlen);
      len = htonps(len);
@@ -100,7 +100,7 @@ index 91a6d53d..0c2b1899 100644
      return link_socket_write_win32(sock, buf, to);
  #else
 diff --git a/src/openvpn/socket.h b/src/openvpn/socket.h
-index bfc1253b..da66ca16 100644
+index 47083ad3..610743ec 100644
 --- a/src/openvpn/socket.h
 +++ b/src/openvpn/socket.h
 @@ -207,6 +207,8 @@ struct link_socket
@@ -112,7 +112,7 @@ index bfc1253b..da66ca16 100644
      unsigned int sockflags;
      int mark;
      const char *bind_dev;
-@@ -1173,6 +1175,66 @@ link_socket_write_udp(struct link_socket *sock,
+@@ -1173,7 +1175,67 @@ link_socket_write_udp(struct link_socket *sock,
                        struct buffer *buf,
                        struct link_socket_actual *to)
  {
@@ -156,7 +156,7 @@ index bfc1253b..da66ca16 100644
 +            rand_bytes(stuffing_data, sizeof(stuffing_data));
 +            struct buffer stuffing_buf = alloc_buf(STUFFING_LEN_MAX);
 +            buf_write(&stuffing_buf, stuffing_data, stuffing_len);
-+#ifdef _WIN32
+ #ifdef _WIN32
 +            for (int k=0; k<5; k++) {
 +                int ret = link_socket_write_win32(sock, &stuffing_buf, to);
 +                if (ret != -1) break;
@@ -171,22 +171,20 @@ index bfc1253b..da66ca16 100644
 +
 +    }
 +
- #ifdef _WIN32
--    return link_socket_write_win32(sock, buf, to);
++#ifdef _WIN32
 +    for (int k=0; k<30; k++) {
 +        int ret = link_socket_write_win32(sock, buf, to);
 +        if (ret != -1) return ret;
 +        Sleep(10);
 +    }
-+    return link_socket_write_win32(sock, buf, to);
+     return link_socket_write_win32(sock, buf, to);
  #else
      return link_socket_write_udp_posix(sock, buf, to);
- #endif
 diff --git a/src/openvpn/ssl.c b/src/openvpn/ssl.c
-index 12bc85f9..c33a801a 100644
+index 9814bb39..5fd4c10a 100644
 --- a/src/openvpn/ssl.c
 +++ b/src/openvpn/ssl.c
-@@ -2528,26 +2528,33 @@ static bool
+@@ -2580,26 +2580,33 @@ static bool
  session_move_pre_start(const struct tls_session *session,
                         struct key_state *ks, bool skip_initial_send)
  {
@@ -234,13 +232,13 @@ index 12bc85f9..c33a801a 100644
      }
 -    INCR_GENERATED;
  
-     ks->state = S_PRE_START;
+     ks->state = skip_initial_send ? S_PRE_START_SKIP : S_PRE_START;
  
 diff --git a/src/openvpn/ssl_common.h b/src/openvpn/ssl_common.h
-index 27b02947..f0378aa6 100644
+index 8b6ae3f2..8d78f4a3 100644
 --- a/src/openvpn/ssl_common.h
 +++ b/src/openvpn/ssl_common.h
-@@ -434,6 +434,8 @@ struct tls_options
+@@ -437,6 +437,8 @@ struct tls_options
      size_t ekm_size;
  
      bool dco_enabled; /**< Whether keys have to be installed in DCO or not */
@@ -249,6 +247,3 @@ index 27b02947..f0378aa6 100644
  };
  
  /** @addtogroup control_processor
--- 
-2.45.1
-

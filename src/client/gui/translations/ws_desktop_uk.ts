@@ -101,7 +101,7 @@
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Вибране</translation>
+        <translation>Улюблені</translation>
     </message>
 </context>
 <context>
@@ -273,15 +273,15 @@
     </message>
     <message>
         <source>FAVOURITES</source>
-        <translation>ВИБРАНЕ</translation>
+        <translation>УЛЮБЛЕНІ</translation>
     </message>
     <message>
         <source>STATIC IPs</source>
-        <translation>СТАТИЧНІ IP-адреси</translation>
+        <translation>STATIC IP</translation>
     </message>
     <message>
         <source>CUSTOM CONFIGs</source>
-        <translation>КОРИСТУВАЦЬКІ КОНФІГУРАЦІЇ</translation>
+        <translation>КАСТОМНІ КОНФІГУРАЦІЇ</translation>
     </message>
     <message>
         <source>SEARCH</source>
@@ -661,38 +661,6 @@ Recovering...</source>
         <translation>Оберіть програму</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Підключити</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Відключити</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Розташування</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Статичні IP-адреси</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Показати/Приховати</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Налаштування</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Допомога</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Вийти</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>Файл лише для читання</translation>
     </message>
@@ -909,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Не вдається запустити спеціальну службу DNS - порт 53 вже використовується.  Чи хотіли б ви змінити підключений DNS на локальний сервер?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Користувацькі конфігурації</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>Не вдалося закріпити IP</translation>
     </message>
@@ -937,8 +901,16 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Задній</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Вибране</translation>
+        <source>Manual connection mode failed</source>
+        <translation>Режим ручного підключення не справився</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Ми не змогли підключити тебе до цієї мережі. Рекомендується автоматичний режим підключення для найкращих результатів. Переключити режим підключення на Авто?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Перемикання на авто</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Включати або виключати програми та імена хостів з VPN-тунелю.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>Розширення системи розділеного тунелювання Windscribe має бути увімкнене для роботи цієї функції. Будь ласка, увімкніть його в системних налаштуваннях.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>Безпечна точка доступу</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Підключити</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Відключити</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Розташування</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Статичні IP-адреси</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Користувацькі конфігурації</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Показати/Приховати</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Налаштування</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Допомога</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Кинь Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Улюблені</translation>
     </message>
 </context>
 <context>

@@ -30,14 +30,13 @@ OpenVPNConnection::~OpenVPNConnection()
 }
 
 void OpenVPNConnection::startConnect(const QString &config, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password,
-                                     const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode,
-                                     bool isCustomConfig, const QString &overrideDnsIp)
+                                     const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isCustomConfig,
+                                     const QString &overrideDnsIp)
 {
     Q_UNUSED(ip);
     Q_UNUSED(dnsHostName);
     Q_UNUSED(wireGuardConfig);
     Q_UNUSED(isEnableIkev2Compression);
-    Q_UNUSED(isAutomaticConnectionMode);
     Q_UNUSED(overrideDnsIp);
     WS_ASSERT(getCurrentState() == STATUS_DISCONNECTED);
 

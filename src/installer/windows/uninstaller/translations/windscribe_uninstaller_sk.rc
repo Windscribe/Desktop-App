@@ -1,0 +1,10 @@
+LANGUAGE LANG_SLOVAK, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "Odinštalovať Windscribe"
+    IDS_DIRECTORY_MISMATCH "Odinštalovanie nemôže pokračovať. Inštalačný priečinok nezodpovedá priečinku na odinštalovanie."
+    IDS_CONFIRM_UNINSTALL "Naozaj chcete úplne odstrániť Windscribe a všetky jeho komponenty?"
+    IDS_UNINSTALL_SUCCESS "Windscribe bol úspešne odstránený z vášho počítača."
+    IDS_CLOSE_APP "Ak chcete pokračovať v odinštalovaní, ukončite aplikáciu Windscribe. Upozorňujeme, že po ukončení aplikácie nebude vaše pripojenie chránené."
+END

@@ -24,6 +24,7 @@ ConnectedDnsGroup::ConnectedDnsGroup(ScalableGraphicsObject *parent, const QStri
 
     editBoxControldApiKey_ = new VerticalEditBoxItem(this);
     connect(editBoxControldApiKey_, &VerticalEditBoxItem::textChanged, this, &ConnectedDnsGroup::onControldApiKeyChanged);
+    connect(editBoxControldApiKey_, &VerticalEditBoxItem::refreshButtonClicked, this, &ConnectedDnsGroup::onControldApiKeyRefreshClick);
     addItem(editBoxControldApiKey_);
 
     comboBoxControldDevice_ = new ComboBoxItem(this);
@@ -71,10 +72,6 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
         // update inner widgets
         if (dns.type == CONNECTED_DNS_TYPE_AUTO)
             comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_AUTO);
-#if defined(Q_OS_WIN)
-        else if (dns.type == CONNECTED_DNS_TYPE_FORCED)
-            comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_FORCED);
-#endif
         else if (dns.type == CONNECTED_DNS_TYPE_LOCAL)
             comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_LOCAL);
         else if (dns.type == CONNECTED_DNS_TYPE_CONTROLD)
@@ -112,8 +109,16 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
         }
 
         splitDnsCheckBox_->setState(dns.isSplitDns);
-        editBoxUpstream1_->setText(dns.upStream1);
-        onUpstream1Changed(dns.upStream1);
+
+        if (dns.type == CONNECTED_DNS_TYPE_LOCAL) {
+            editBoxUpstream1_->setText("127.0.0.1");
+            settings_.upStream1 = "127.0.0.1";
+            onUpstream1Changed("127.0.0.1");
+        } else {
+            editBoxUpstream1_->setText(dns.upStream1);
+            onUpstream1Changed(dns.upStream1);
+        }
+
         editBoxUpstream2_->setText(dns.upStream2);
         domainsItem_->setLinkText(QString::number(dns.hostnames.count()));
 
@@ -123,8 +128,13 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
 
 void ConnectedDnsGroup::updateMode()
 {
-    if (settings_.type == CONNECTED_DNS_TYPE_AUTO || settings_.type == CONNECTED_DNS_TYPE_FORCED || settings_.type == CONNECTED_DNS_TYPE_LOCAL) {
+    if (settings_.type == CONNECTED_DNS_TYPE_AUTO) {
         hideItems(indexOf(editBoxControldApiKey_), indexOf(domainsItem_));
+    } else if (settings_.type == CONNECTED_DNS_TYPE_LOCAL) {
+        hideItems(indexOf(editBoxControldApiKey_), indexOf(comboBoxControldDevice_));
+        showItems(indexOf(editBoxUpstream1_), indexOf(editBoxUpstream1_));
+        hideItems(indexOf(splitDnsCheckBox_), indexOf(domainsItem_));
+        editBoxUpstream1_->setEnabled(false);
     } else if (settings_.type == CONNECTED_DNS_TYPE_CONTROLD) {
         hideItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_));
         showItems(indexOf(editBoxControldApiKey_), indexOf(editBoxControldApiKey_));
@@ -141,6 +151,7 @@ void ConnectedDnsGroup::updateMode()
         }
     } else  {
         hideItems(indexOf(editBoxControldApiKey_), indexOf(comboBoxControldDevice_));
+        editBoxUpstream1_->setEnabled(true);
         if (settings_.isSplitDns) {
             showItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_));
         } else {
@@ -153,10 +164,23 @@ void ConnectedDnsGroup::onConnectedDnsModeChanged(QVariant v)
 {
     if (settings_.type != v.toInt())
     {
+        CONNECTED_DNS_TYPE oldType = settings_.type;
+        settings_.type = (CONNECTED_DNS_TYPE)v.toInt();
+
+        if (settings_.type == CONNECTED_DNS_TYPE_LOCAL) {
+            editBoxUpstream1_->setText("127.0.0.1");
+            settings_.upStream1 = "127.0.0.1";
+        } else if (oldType == CONNECTED_DNS_TYPE_LOCAL) {
+            editBoxUpstream1_->setText("");
+            settings_.upStream1 = "";
+            onUpstream1Changed("");
+            editBoxUpstream1_->setEnabled(true);
+        }
+
         if (v.toInt() == CONNECTED_DNS_TYPE_CUSTOM) {
             checkDnsLeak(settings_.upStream1, settings_.isSplitDns ? settings_.upStream2 : "");
         }
-        settings_.type = (CONNECTED_DNS_TYPE)v.toInt();
+
         updateMode();
         emit connectedDnsInfoChanged(settings_);
     }
@@ -167,20 +191,41 @@ void ConnectedDnsGroup::onControldApiKeyChanged(QString v)
     if (settings_.controldApiKey != v) {
         settings_.controldApiKey = v;
 
-        // Clear devices and upstream1 when API key changes
         settings_.controldDevices.clear();
         settings_.upStream1.clear();
         comboBoxControldDevice_->clear();
         editBoxUpstream1_->setText("");
         editBoxControldApiKey_->setError("");
+        editBoxControldApiKey_->setRefreshButtonVisible(false);
         onUpstream1Changed("");
-        updateMode();
 
         if (!v.isEmpty()) {
+            controldLastFetchResult_ = CONTROLD_FETCH_SUCCESS;
             fetchDevices(v);
         }
 
+        updateMode();
+
         emit connectedDnsInfoChanged(settings_);
+    }
+}
+
+void ConnectedDnsGroup::onControldApiKeyRefreshClick()
+{
+    editBoxControldApiKey_->setError("");
+    editBoxControldApiKey_->setRefreshButtonVisible(false);
+    controldLastFetchResult_ = CONTROLD_FETCH_SUCCESS;
+
+    settings_.controldDevices.clear();
+    settings_.upStream1.clear();
+    comboBoxControldDevice_->clear();
+    editBoxUpstream1_->setText("");
+    onUpstream1Changed("");
+
+    updateMode();
+
+    if (!settings_.controldApiKey.isEmpty()) {
+        fetchDevices(settings_.controldApiKey);
     }
 }
 
@@ -262,6 +307,7 @@ void ConnectedDnsGroup::onControldDevicesFetched(CONTROLD_FETCH_RESULT result, c
         return;
     } else if (result == CONTROLD_FETCH_SUCCESS) {
         editBoxControldApiKey_->setError("");
+        editBoxControldApiKey_->setRefreshButtonVisible(false);
     }
 
     settings_.controldDevices = devices;
@@ -343,13 +389,6 @@ void ConnectedDnsGroup::populateDnsTypes(bool isLocalDnsAvailable)
     QList<CONNECTED_DNS_TYPE> types = types::ConnectedDnsInfo::allAvailableTypes();
 
     for (const auto t : types) {
-#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
-        if (t == CONNECTED_DNS_TYPE_FORCED)
-            continue; // only available on Windows
-#else // Windows
-        if (t == CONNECTED_DNS_TYPE_FORCED && !WinUtils::isDohSupported())
-            continue;
-#endif
         if (t != CONNECTED_DNS_TYPE_LOCAL) {
             list << qMakePair(CONNECTED_DNS_TYPE_toString(t), t);
         }
@@ -386,8 +425,10 @@ void ConnectedDnsGroup::onLanguageChanged()
 
     if (controldLastFetchResult_ == CONTROLD_FETCH_NETWORK_ERROR) {
         editBoxControldApiKey_->setError(tr("Failed to reach Control D API."));
+        editBoxControldApiKey_->setRefreshButtonVisible(true);
     } else if (controldLastFetchResult_ == CONTROLD_FETCH_AUTH_ERROR) {
         editBoxControldApiKey_->setError(tr("Please provide a valid Control D API Key."));
+        editBoxControldApiKey_->setRefreshButtonVisible(false);
     }
 
     editBoxUpstream1_->setCaption(tr("Upstream 1"));

@@ -21,7 +21,7 @@ public:
     virtual void startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName,
                               const QString &username, const QString &password, const types::ProxySettings &proxySettings,
                               const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression,
-                              bool isAutomaticConnectionMode, bool isCustomConfig, const QString &overrideDnsIp) = 0;
+                              bool isCustomConfig, const QString &overrideDnsIp) = 0;
     virtual void startDisconnect() = 0;
     virtual bool isDisconnected() const = 0;
     virtual ConnectionType getConnectionType() const = 0;

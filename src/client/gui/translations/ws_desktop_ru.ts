@@ -101,7 +101,7 @@
     </message>
     <message>
         <source>Favourites</source>
-        <translation>Избранное</translation>
+        <translation>Любимые</translation>
     </message>
 </context>
 <context>
@@ -273,11 +273,11 @@
     </message>
     <message>
         <source>FAVOURITES</source>
-        <translation>ИЗБРАННОЕ</translation>
+        <translation>ИЗБРАННЫЕ</translation>
     </message>
     <message>
         <source>STATIC IPs</source>
-        <translation>СТАТИЧЕСКИЕ IP-адреса</translation>
+        <translation>STATIC IP</translation>
     </message>
     <message>
         <source>CUSTOM CONFIGs</source>
@@ -673,38 +673,6 @@ Recovering...</source>
         <translation>Выберите приложение</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Подключиться</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Отключиться</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Локации</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Статические IP-адреса</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Показать/Скрыть</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Настройки</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Справка</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Выход</translation>
-    </message>
-    <message>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>Файл hosts доступен только для чтения. Подключению IKEv2 требуется, чтобы файл был доступным для записи. Устранить проблему автоматически?</translation>
     </message>
@@ -909,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Не удается запустить пользовательскую службу DNS - порт 53 уже используется.  Вы хотите изменить свой подключенный DNS на локальный сервер?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Пользовательские конфигурации</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>Не удалось закрепить IP</translation>
     </message>
@@ -937,8 +901,16 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Назад</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Избранное</translation>
+        <source>Manual connection mode failed</source>
+        <translation>Режим ручного подключения не работал</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Мы не смогли подключить тебя к этой сети. Рекомендуется использовать режим автоматического подключения для наилучших результатов. Переключить режим подключения на Авто?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Переключение на автоматический режим</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Включение или исключение приложений и адресов/доменов из VPN-туннеля.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>Для работы этой функции необходимо включить расширение системы разделённого туннеля Windscribe. Пожалуйста, включите его в системных настройках.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>Безопасная точка доступа</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Подключиться</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Отключиться</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Локации</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Статические IP-адреса</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Пользовательские конфигурации</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Показать/Скрыть</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Настройки</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Справка</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Брось Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Любимые</translation>
     </message>
 </context>
 <context>

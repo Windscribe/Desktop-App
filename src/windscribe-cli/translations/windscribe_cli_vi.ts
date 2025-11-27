@@ -27,6 +27,10 @@
         <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
         <translation>Không thể IP không yêu thích.  Vui lòng kiểm tra xem IP được cung cấp có hợp lệ không.</translation>
     </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>Vòng quay IP đã được tiến hành.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

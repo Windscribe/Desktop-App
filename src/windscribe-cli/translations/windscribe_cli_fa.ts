@@ -27,6 +27,10 @@
         <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
         <translation>نمی توان IP را از بین برد.  لطفا بررسی کنید که IP ارائه شده معتبر باشد.</translation>
     </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>چرخش IP در حال حاضر در حال انجام است.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

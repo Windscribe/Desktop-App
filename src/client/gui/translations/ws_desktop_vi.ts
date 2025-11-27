@@ -661,38 +661,6 @@ Phục hồi...</translation>
         <translation>Chọn một ứng dụng</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Kết nối</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Ngắt kết nối</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Địa điểm</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>IP tĩnh</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Hiển thị / Ẩn</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Sở thích</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Trợ giúp</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Thoát</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>Tệp chỉ đọc</translation>
     </message>
@@ -909,10 +877,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Không thể bắt đầu dịch vụ DNS tùy chỉnh - cổng 53 đã được sử dụng.  Bạn có muốn thay đổi DNS được kết nối của mình thành máy chủ cục bộ không?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Cấu hình tùy chỉnh</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>Không thể ghim IP</translation>
     </message>
@@ -937,8 +901,16 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Lưng</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Yêu thích</translation>
+        <source>Manual connection mode failed</source>
+        <translation>Chế độ kết nối thủ công không thành công</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Chúng tôi không thể kết nối bạn trên mạng này. Chế độ kết nối tự động được khuyến nghị để có kết quả tốt nhất. Chuyển chế độ kết nối sang Tự động?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Chuyển sang Tự động</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Bao gồm hoặc loại trừ các ứng dụng và tên máy chủ khỏi đường hầm VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>Phải bật tiện ích mở rộng hệ thống tạo đường hầm phân chia Windscribe để tính năng này hoạt động. Vui lòng bật nó trong Cài đặt hệ thống.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Secure Hotspot</source>
         <translation>Điểm truy cập an toàn</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Kết nối</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Ngắt kết nối</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Địa điểm</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP tĩnh</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Cấu hình tùy chỉnh</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Hiển thị / Ẩn</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Sở thích</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Trợ giúp</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Thoát khỏi Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Yêu thích</translation>
     </message>
 </context>
 <context>

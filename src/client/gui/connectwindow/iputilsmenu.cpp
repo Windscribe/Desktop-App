@@ -1,6 +1,7 @@
 #include "iputilsmenu.h"
 
 #include <QPainter>
+#include <QTimer>
 
 #include "dpiscalemanager.h"
 
@@ -77,6 +78,17 @@ void IpUtilsMenu::updateFavouriteIcon()
     } else {
         favouriteButton_->setIcon("ip-utils/FAVOURITE");
     }
+}
+
+void IpUtilsMenu::setRotateButtonEnabled(bool enabled)
+{
+    rotateButton_->setClickable(enabled);
+    if (enabled) {
+        rotateButton_->setUnhoverOpacity(0.7);
+    } else {
+        rotateButton_->setUnhoverOpacity(0.3);
+    }
+    rotateButton_->unhover();
 }
 
 } // namespace ConnectWindow

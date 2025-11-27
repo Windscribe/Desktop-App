@@ -673,38 +673,6 @@ Genesend...</translation>
         <translation>Wählen Sie eine Anwendung aus</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Verbinden</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Trennen</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Orte</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Statische IP-Adressen</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Ein-/Ausblenden</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Einstellungen</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Hilfe</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Beenden</translation>
-    </message>
-    <message>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>Ihre hosts-Datei ist schreibgeschützt. IKEv2-Konnektivität erfordert, dass es beschreibbar ist. Beheben Sie das Problem automatisch?</translation>
     </message>
@@ -909,10 +877,6 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Der benutzerdefinierte DNS-Dienst kann nicht gestartet werden – Port 53 wird bereits verwendet.  Möchten Sie Ihr verbundenes DNS auf den lokalen Server umstellen?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Benutzerdefinierte Konfigurationen</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>IP konnte nicht angeheftet werden</translation>
     </message>
@@ -937,8 +901,16 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Zurück</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoriten</translation>
+        <source>Manual connection mode failed</source>
+        <translation>Manueller Verbindungsmodus fehlschlug</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Wir konnten Sie in diesem Netzwerk nicht verbinden. Automatischer Verbindungsmodus wird für beste Ergebnisse empfohlen. Schalten Sie den Verbindungsmodus auf Auto?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Wechsel zu Auto</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Fügen Sie Apps und Hostnamen in den VPN-Tunnel ein oder aus.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>Die Windscribe-Erweiterung des Split-Tunneling-Systems muss aktiviert sein, damit diese Funktion funktioniert. Bitte aktivieren Sie es in den Systemeinstellungen.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     <message>
         <source>Secure Hotspot</source>
         <translation>Sicherer Hotspot</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Verbinden</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Trennen</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Orte</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Statische IPs</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Benutzerdefinierte Konfigurationen</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Ein-/Ausblenden</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Einstellungen</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Hilfe</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Windscribe verlassen</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoriten</translation>
     </message>
 </context>
 <context>

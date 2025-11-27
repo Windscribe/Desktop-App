@@ -27,6 +27,10 @@
         <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
         <translation>Could not unfavourite IP.  Please check that the provided IP is valid.</translation>
     </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>IP rotate already in progress.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

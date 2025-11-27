@@ -15,6 +15,7 @@ LocationsView::LocationsView(QWidget *parent, QAbstractItemModel *model) : QScro
 {
     setFrameStyle(QFrame::NoFrame);
     setFocusPolicy(Qt::NoFocus);
+    viewport()->setFixedWidth(size().width());
 
     // scrollbar
     scrollBar_ = new CommonWidgets::ScrollBar(this);
@@ -128,6 +129,7 @@ void LocationsView::resizeEvent(QResizeEvent *event)
     QScrollArea::resizeEvent(event);
     widget_->setFixedWidth(size().width());
     scrollBar_->setFixedWidth(kScrollBarWidth * G_SCALE);
+    viewport()->setFixedWidth(size().width());
 }
 
 void LocationsView::ensureVisible(int top, int bottom)

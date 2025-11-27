@@ -27,6 +27,10 @@
         <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
         <translation>Impossible de retirer la propriété intellectuelle de vos favoris.  Veuillez vérifier que l’adresse IP fournie est valide.</translation>
     </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>Rotation IP déjà en cours.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

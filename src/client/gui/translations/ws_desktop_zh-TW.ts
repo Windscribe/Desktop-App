@@ -101,7 +101,7 @@
     </message>
     <message>
         <source>Favourites</source>
-        <translation>收藏最愛</translation>
+        <translation>熱門選手</translation>
     </message>
 </context>
 <context>
@@ -273,7 +273,7 @@
     </message>
     <message>
         <source>FAVOURITES</source>
-        <translation>收藏最愛</translation>
+        <translation>最愛</translation>
     </message>
     <message>
         <source>STATIC IPs</source>
@@ -661,38 +661,6 @@ Recovering...</source>
         <translation>選擇一個應用程式</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>連接</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>斷開</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>地點</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>靜態IP</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>顯示/隱藏</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>偏好</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>説明</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>退出</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>唯讀檔</translation>
     </message>
@@ -909,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>無法啟動自定義 DNS 服務 - 埠 53 已在使用中。 是否要將已連接的 DNS 更改為本地伺服器？</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>自訂配置</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>無法釘選 IP</translation>
     </message>
@@ -937,8 +901,16 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>後面</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>收藏最愛</translation>
+        <source>Manual connection mode failed</source>
+        <translation>手動連接模式失敗</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>我們無法在這個網路上幫你接通。建議使用自動連線模式以獲得最佳效果。把連線模式切換成自動？</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>轉為自動排車</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>在 VPN 隧道中包含或排除應用和主機名。</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>此功能必須啟用 Windscribe 分割隧道系統擴充功能。請在系統設定中啟用它。</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>安全熱點</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>連接</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>斷開</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>地點</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>靜態IP</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>自訂配置</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>顯示/隱藏</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>偏好</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>説明</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>退出風書記</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>熱門選手</translation>
     </message>
 </context>
 <context>

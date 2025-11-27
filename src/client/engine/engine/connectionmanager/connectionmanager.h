@@ -92,7 +92,6 @@ public:
         const api_responses::PortMap &portMap,
         const types::ProxySettings &proxySettings);
 
-    void setLastKnownGoodProtocol(const types::Protocol protocol);
     void setFirewallAlwaysOnPlusEnabled(bool isEnabled);
 
 signals:
@@ -104,11 +103,10 @@ signals:
     void statisticsUpdated(quint64 bytesIn, quint64 bytesOut, bool isTotalBytes);
     void interfaceUpdated(const QString &interfaceName);  // WireGuard-specific.
     void testTunnelResult(bool success, const QString &ipAddress);
-    void showFailedAutomaticConnectionMessage();
     void internetConnectivityChanged(bool connectivity);
     void protocolPortChanged(const types::Protocol &protocol, const uint port);
     void wireGuardAtKeyLimit();
-    void protocolStatusChanged(const QVector<types::ProtocolStatus> &status);
+    void protocolStatusChanged(const QVector<types::ProtocolStatus> &status, bool isAutomaticMode);
 
     void requestUsername(const QString &pathCustomOvpnConfig);
     void requestPassword(const QString &pathCustomOvpnConfig);
@@ -224,7 +222,6 @@ private:
 
     QSharedPointer<locationsmodel::BaseLocationInfo> bli_;
 
-    types::Protocol lastKnownGoodProtocol_;
     QString preferredNodeHostname_;
 
     DISCONNECT_REASON userDisconnectReason_ = DISCONNECTED_BY_USER;
@@ -245,7 +242,6 @@ private:
         const types::ProxySettings &proxySettings);
     void connectOrStartConnectTimer();
     void getWireGuardConfig(const QString &serverName, bool deleteOldestKey, const QString &deviceId);
-    bool connectedDnsTypeAuto() const;
     QString dnsServersFromConnectedDnsInfo() const;
 
     void disconnect();

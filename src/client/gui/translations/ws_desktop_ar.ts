@@ -101,7 +101,7 @@
     </message>
     <message>
         <source>Favourites</source>
-        <translation>المفضلة</translation>
+        <translation>المفضلون</translation>
     </message>
 </context>
 <context>
@@ -273,7 +273,7 @@
     </message>
     <message>
         <source>FAVOURITES</source>
-        <translation>المفضلة</translation>
+        <translation>المفضلون</translation>
     </message>
     <message>
         <source>STATIC IPs</source>
@@ -281,7 +281,7 @@
     </message>
     <message>
         <source>CUSTOM CONFIGs</source>
-        <translation>التكوينات المخصصة</translation>
+        <translation>الإعدادات المخصصة</translation>
     </message>
     <message>
         <source>SEARCH</source>
@@ -673,38 +673,6 @@ Recovering...</source>
         <translation>حدد تطبيقا</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>عشق</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>قطع الاتصال</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>مواقع</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>عناوين IP ثابتة</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>إظهار/إخفاء</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>التفضيلات</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>تعليمات</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>مخرج</translation>
-    </message>
-    <message>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>ملف المضيفين الخاص بك للقراءة فقط. يتطلب اتصال IKEv2 أن يكون قابلا للكتابة. حل المشكلة تلقائيا؟</translation>
     </message>
@@ -909,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>تعذر بدء تشغيل خدمة DNS المخصصة - المنفذ 53 قيد الاستخدام بالفعل.  هل ترغب في تغيير DNS المتصل إلى الخادم المحلي؟</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>التكوينات المخصصة</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>تعذر تثبيت IP</translation>
     </message>
@@ -937,8 +901,16 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>ظهر</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>المفضلة</translation>
+        <source>Manual connection mode failed</source>
+        <translation>فشل وضع الاتصال اليدوي</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>لم نتمكن من ربطك عبر هذه الشبكة. ينصح باستخدام وضع الاتصال التلقائي للحصول على أفضل النتائج. هل أغير وضع الاتصال إلى تلقائي؟</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>التحول إلى تلقائي</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>قم بتضمين أو استبعاد التطبيقات وأسماء المضيفين من نفق VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>يجب تفعيل امتداد نظام النفق المنقسم Windscribe لكي تعمل هذه الميزة. يرجى تفعيله في إعدادات النظام.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>نقطة اتصال آمنة</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>عشق</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>قطع الاتصال</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>مواقع</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>عناوين IP الثابتة</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>التكوينات المخصصة</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>إظهار/إخفاء</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>التفضيلات</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>تعليمات</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>اترك ويندسكرايب</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>المفضلون</translation>
     </message>
 </context>
 <context>

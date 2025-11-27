@@ -51,8 +51,8 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
                                        const QString &dnsHostName, const QString &username,
                                        const QString &password, const types::ProxySettings &proxySettings,
                                        const WireGuardConfig *wireGuardConfig,
-                                       bool isEnableIkev2Compression, bool isAutomaticConnectionMode,
-                                       bool isCustomConfig, const QString &overrideDnsIp)
+                                       bool isEnableIkev2Compression, bool isCustomConfig,
+                                       const QString &overrideDnsIp)
 {
     Q_UNUSED(configPathOrUrl);
     Q_UNUSED(ip);
@@ -61,7 +61,6 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     Q_UNUSED(password);
     Q_UNUSED(proxySettings);
     Q_UNUSED(isEnableIkev2Compression);
-    Q_UNUSED(isAutomaticConnectionMode);
     Q_UNUSED(isCustomConfig);
 
     WS_ASSERT(helper_ != nullptr);

@@ -43,7 +43,9 @@ def InstallDependency():
     webfilename = f"{DEP_URL}/{archivename}"
     localfilename = os.path.join(temp_dir, archivename)
     msg.HeadPrint(f"Downloading: \"{archivename}\"")
-    iutl.DownloadFile(webfilename, localfilename)
+    dep_checksum_var = dep_version_var.replace("VERSION_", "CHECKSUM_")
+    dep_checksum_str = os.environ.get(dep_checksum_var, None)
+    iutl.DownloadFile(webfilename, localfilename, dep_checksum_str)
     msg.HeadPrint(f"Extracting: \"{archivename}\"")
     iutl.ExtractFile(localfilename)
 

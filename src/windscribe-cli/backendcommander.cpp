@@ -426,7 +426,9 @@ void BackendCommander::onAcknowledge(IPC::CliCommands::Acknowledge *ackCmd)
         emit(finished(0, QObject::tr("Preferences reloaded.")));
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_IP_ROTATE) {
-        if (ackCmd->code_ != 0) {
+        if (ackCmd->code_ == 2) {
+            emit(finished(ackCmd->code_, tr("IP rotate already in progress.")));
+        } else if (ackCmd->code_ != 0) {
             emit(finished(ackCmd->code_, tr("Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.")));
         } else {
             emit(finished(0, QObject::tr("IP rotated.")));

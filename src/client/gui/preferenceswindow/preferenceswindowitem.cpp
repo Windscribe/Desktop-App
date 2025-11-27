@@ -522,7 +522,11 @@ void PreferencesWindowItem::onAppsWindowAppsUpdated(QList<types::SplitTunnelingA
 
 void PreferencesWindowItem::onAddressesUpdated(QList<types::SplitTunnelingNetworkRoute> routes)
 {
-    splitTunnelingWindowItem_->setNetworkRoutesCount(routes.count());
+    int activeRoutes = 0;
+    for (const auto &route : routes) {
+        if (route.active) activeRoutes++;
+    }
+    splitTunnelingWindowItem_->setNetworkRoutesCount(activeRoutes);
 }
 
 void PreferencesWindowItem::onStAppsEscape()
@@ -585,6 +589,11 @@ void PreferencesWindowItem::setRobertFiltersError()
 void PreferencesWindowItem::setSplitTunnelingActive(bool active)
 {
     splitTunnelingWindowItem_->setActive(active);
+}
+
+void PreferencesWindowItem::setSystemExtensionAvailability(bool available)
+{
+    splitTunnelingWindowItem_->setSystemExtensionAvailability(available);
 }
 
 void PreferencesWindowItem::setPreferencesImportCompleted()

@@ -1,0 +1,10 @@
+LANGUAGE LANG_GREEK, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "Απεγκατάσταση Windscribe"
+    IDS_DIRECTORY_MISMATCH "Η απεγκατάσταση δεν μπορεί να συνεχιστεί. Ο κατάλογος εγκατάστασης δεν ταιριάζει με τον κατάλογο αφαίρεσης."
+    IDS_CONFIRM_UNINSTALL "Είστε βέβαιοι ότι θέλετε να αφαιρέσετε πλήρως το Windscribe και όλα τα στοιχεία του;"
+    IDS_UNINSTALL_SUCCESS "Το Windscribe αφαιρέθηκε επιτυχώς από τον υπολογιστή σας."
+    IDS_CLOSE_APP "Παρακαλώ κλείστε την εφαρμογή Windscribe για να συνεχίσει η απεγκατάσταση. Σημειώστε ότι η σύνδεσή σας δεν θα προστατεύεται μόλις η εφαρμογή κλείσει."
+END

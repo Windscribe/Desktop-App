@@ -27,6 +27,10 @@
         <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
         <translation>अप्रिय आईपी नहीं कर सका।  कृपया जांचें कि प्रदान किया गया आईपी मान्य है।</translation>
     </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>आईपी रोटेट पहले से ही प्रगति पर है।</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

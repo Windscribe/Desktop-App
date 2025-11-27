@@ -27,6 +27,10 @@
         <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
         <translation>IPをお気に入りを解除できませんでした。 提供されたIPが有効であることを確認してください。</translation>
     </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>IP ローテーションはすでに進行中です。</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

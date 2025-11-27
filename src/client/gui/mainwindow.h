@@ -17,8 +17,7 @@
 #include "blockconnect.h"
 #include "freetrafficnotificationcontroller.h"
 #include "graphicresources/iconmanager.h"
-#include "systemtray/locationstraymenunative.h"
-#include "systemtray/locationstraymenu.h"
+#include "trayicon.h"
 #include "dialogs/advancedparametersdialog.h"
 #include "locations/model/selectedlocation.h"
 #include "api_responses/robertfilter.h"
@@ -30,9 +29,7 @@
 #include "permissions/permissionmonitor_mac.h"
 #endif
 
-#if defined(Q_OS_MACOS)
-#define USE_LOCATIONS_TRAY_MENU_NATIVE
-#endif
+enum class AppIconType { DISCONNECTED, DISCONNECTED_WITH_ERROR, CONNECTING, CONNECTED };
 
 class MainWindow : public QWidget
 {
@@ -46,8 +43,8 @@ public:
 
     bool doClose(QCloseEvent *event = NULL, bool isFromSigTerm_mac = false);
     bool isActiveState() const { return activeState_; }
-    QRect trayIconRect();
     void showAfterLaunch();
+    TrayIcon *trayIcon() const { return trayIcon_; }
 
     bool handleKeyPressEvent(QKeyEvent *event);
 #if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
@@ -132,7 +129,6 @@ private slots:
     void onPreferencesAdvancedParametersClicked();
     void onPreferencesCustomConfigsPathChanged(QString path);
     void onPreferencesAdvancedParametersChanged(const QString &advParams);
-    void onPreferencesLastKnownGoodProtocolChanged(const QString &network, const types::Protocol &protocol, uint port);
     void onPreferencesCustomConfigPathNeedsUpdate(const QString &path);
     void onPreferencesShowNotificationsChanged();
     void onPreferencesExportLocationNamesClick();
@@ -197,6 +193,7 @@ private slots:
     void onBackendFirewallStateChanged(bool isEnabled);
     void onNetworkChanged(types::NetworkInterface network);
     void onSplitTunnelingStateChanged(bool isActive);
+    void onSystemExtensionAvailabilityChanged(bool available);
     void onBackendLogoutFinished();
     void onBackendCleanupFinished();
     void onBackendGotoCustomOvpnConfigModeFinished();
@@ -223,11 +220,11 @@ private slots:
     void onBackendRobertFiltersChanged(bool success, const QVector<api_responses::RobertFilter> &filters);
     void onBackendSetRobertFilterResult(bool success);
     void onBackendSyncRobertResult(bool success);
-    void onBackendProtocolStatusChanged(const QVector<types::ProtocolStatus> &status);
+    void onBackendProtocolStatusChanged(const QVector<types::ProtocolStatus> &status, bool isAutomaticMode);
     void onLocalDnsServerNotAvailable();
     void onSplitTunnelingStartFailed();
     void onBackendBridgeApiAvailabilityChanged(bool isAvailable);
-    void onBackendIpRotateFailed();
+    void onBackendIpRotateResult(bool success);
 
     void onBackendEngineCrash();
 
@@ -257,8 +254,6 @@ private slots:
 #if defined(Q_OS_MACOS)
     void onPreferencesHideFromDockChanged(bool hideFromDock);
     void hideShowDockIconImpl(bool bAllowActivateAndShow);
-#elif defined(Q_OS_LINUX) || defined(Q_OS_WIN)
-    void onPreferencesTrayIconColorChanged(TRAY_ICON_COLOR c);
 #endif
     // WindscribeApplications signals
     void onDockIconClicked();
@@ -278,16 +273,10 @@ private slots:
     void onAutoConnectUpdated(bool on);
 
     void onTrayActivated(QSystemTrayIcon::ActivationReason reason);
-    void onTrayMenuConnect();
-    void onTrayMenuDisconnect();
-    void onTrayMenuPreferences();
-    void onTrayMenuShowHide();
-    void onTrayMenuHelpMe();
-    void onTrayMenuQuit();
-    void onTrayMenuAboutToShow();
-    void onTrayMenuAboutToHide();
-
-    void onLocationsTrayMenuLocationSelected(const LocationID &lid);
+    void onTrayPreferences();
+    void onTrayShowHide();
+    void onTrayHelpMe();
+    void onTrayQuit();
 
     void onFreeTrafficNotification(const QString &message);
     void onSplitTunnelingAppsAddButtonClick();
@@ -311,7 +300,6 @@ private slots:
     void onSelectedLocationRemoved();
 
     void onLocationPermissionUpdated();
-    void onOsThemeChanged(bool isDarkTheme);
 
 #if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     void onSigTerm();
@@ -334,25 +322,10 @@ private:
     LogViewer::LogViewerWindow *logViewerWindow_;
     AdvancedParametersDialog *advParametersWindow_;
 
-    QMenu trayMenu_;
+    TrayIcon *trayIcon_;
 
-#ifndef Q_OS_LINUX
-
-#if defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
-    QVector<QSharedPointer<LocationsTrayMenuNative> > locationsMenu_;
-#else
-    QVector<QSharedPointer<LocationsTrayMenu> > locationsMenu_;
-#endif
-
-#endif
-
-    enum class AppIconType { DISCONNECTED, DISCONNECTED_WITH_ERROR, CONNECTING, CONNECTED };
     void updateAppIconType(AppIconType type);
-    void updateTrayIconType(AppIconType type);
-    void updateTrayTooltip(QString tooltip);
     AppIconType currentAppIconType_;
-    QSystemTrayIcon trayIcon_;
-    QRect savedTrayIconRect_;
     bool bNotificationConnectedShowed_;
     QElapsedTimer connectionElapsedTimer_;
     quint64 bytesTransferred_;
@@ -377,7 +350,6 @@ private:
     void hideSupplementaryWidgets();
 
     void backToLoginWithErrorMessage(LoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage);
-    void setupTrayIcon();
     QString getConnectionTime();
     QString getConnectionTransferred();
     void setInitialFirewallState();
@@ -398,27 +370,15 @@ private:
 
     void activateAndShow();
     void deactivateAndHide();
-    void createTrayMenuItems();
 
     bool backendAppActiveState_;
     void setBackendAppActiveState(bool state);
-
-    bool trayIconColorWhite_;
 
 #if defined(Q_OS_MACOS)
     void hideShowDockIcon(bool hideFromDock);
     QTimer hideShowDockIconTimer_;
     bool currentDockIconVisibility_;
     bool desiredDockIconVisibility_;
-
-    typedef QRect TrayIconRelativeGeometry ;
-    QMap<QString, TrayIconRelativeGeometry> systemTrayIconRelativeGeoScreenHistory_;
-    QString lastScreenName_;
-
-    const QRect bestGuessForTrayIconRectFromLastScreen(const QPoint &pt);
-    const QRect trayIconRectForLastScreen();
-    const QRect trayIconRectForScreenContainingPt(const QPoint &pt);
-    const QRect generateTrayIconRectFromHistory(const QString &screenName);
 #endif
     QTimer deactivationTimer_;
 
@@ -437,11 +397,9 @@ private:
     void cleanupAdvParametersWindow();
     void cleanupLogViewerWindow();
 
-    QRect guessTrayIconLocationOnScreen(QScreen *screen);
     void showUserWarning(USER_WARNING_TYPE userWarningType);
     void openBrowserToMyAccountWithToken(const QString &tempSessionToken);
     void updateConnectWindowStateProtocolPortDisplay();
-    void showTrayMessage(const QString &message);
 
     types::Protocol getDefaultProtocolForNetwork(const QString &network);
     bool userProtocolOverride_;

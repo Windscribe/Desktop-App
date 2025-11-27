@@ -55,6 +55,7 @@ public:
     void setRobertFilters(const QVector<api_responses::RobertFilter> &filters);
     void setRobertFiltersError();
     void setSplitTunnelingActive(bool active);
+    void setSystemExtensionAvailability(bool available);
     void setWebSessionCompleted();
     void setPreferencesImportCompleted();
     void setLocationNamesImportCompleted();

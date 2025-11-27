@@ -21,7 +21,7 @@ public:
     ~IKEv2Connection_win() override;
 
     void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,  const QString &username, const QString &password, const types::ProxySettings &proxySettings,
-                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode, bool isCustomConfig, const QString &overrideDnsIp) override;
+                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isCustomConfig, const QString &overrideDnsIp) override;
     void startDisconnect() override;
     bool isDisconnected() const override;
 
@@ -57,7 +57,6 @@ private:
     QString initialUsername_;
     QString initialPassword_;
     bool initialEnableIkev2Compression_;
-    bool isAutomaticConnectionMode_;
 
     HRASCONN connHandle_;
     QTimer timerControlConnection_;
@@ -69,8 +68,7 @@ private:
     IKEv2ConnectionDisconnectLogic_win disconnectLogic_;
 
     int cntFailedConnectionAttempts_;
-    static constexpr int MAX_FAILED_CONNECTION_ATTEMPTS = 4;
-    static constexpr int MAX_FAILED_CONNECTION_ATTEMPTS_FOR_AUTOMATIC_MODE = 3;
+    static constexpr int MAX_FAILED_CONNECTION_ATTEMPTS = 3;
 
     void doConnect();
     void rasDialFuncCallback(HRASCONN hrasconn, UINT unMsg, RASCONNSTATE rascs, DWORD dwError, DWORD dwExtendedError);

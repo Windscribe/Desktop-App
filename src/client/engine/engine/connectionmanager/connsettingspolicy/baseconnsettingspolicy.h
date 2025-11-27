@@ -71,7 +71,7 @@ public:
     virtual bool hasProtocolChanged() = 0;
 
 signals:
-    void protocolStatusChanged(const QVector<types::ProtocolStatus> &status);
+    void protocolStatusChanged(const QVector<types::ProtocolStatus> &status, bool isAutomaticMode);
     void hostnamesResolved();
 
 protected:

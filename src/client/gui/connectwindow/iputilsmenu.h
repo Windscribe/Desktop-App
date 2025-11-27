@@ -16,6 +16,7 @@ public:
     void updateScaling() override;
 
     void setIpAddress(const QString &address, bool isPinned = false);
+    void setRotateButtonEnabled(bool enabled);
 
 signals:
     void favouriteClick();

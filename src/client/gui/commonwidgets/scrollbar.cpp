@@ -120,8 +120,9 @@ QString ScrollBar::customStyleSheet()
                     .arg(0)           // padding bottom
                     .arg(0);          // padding left
     // handle - draw in paintEvent to change opacity
-    css += QString( "QScrollBar::handle:vertical { background-color: transparent; color: transparent;"
-                    "border-color: rgba(255,255,255,0.3); border-width: %1px; border-style: solid; border-radius: %2px; min-height: %3px;}")
+    css += QString( "QScrollBar::handle:vertical { background-color: %1; color: transparent;"
+                    "border-color: rgba(255,255,255,0.3); border-width: %2px; border-style: solid; border-radius: %3px; min-height: %4px;}")
+                        .arg(FontManager::instance().getMidnightColor().name())  // handle border-width
                         .arg(qCeil(1))  // handle border-width
                         .arg(qCeil((geometry().width() - customPaddingWidth())/2)) // handle border-radius
                         .arg(qCeil(50*G_SCALE)); // min-height

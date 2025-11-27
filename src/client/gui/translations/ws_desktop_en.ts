@@ -661,38 +661,6 @@ Recovering...</translation>
         <translation>Select an application</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Connect</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Disconnect</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Locations</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Static IPs</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Show/Hide</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Preferences</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Help</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Exit</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>Read-only file</translation>
     </message>
@@ -909,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Custom configs</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>Could not pin IP</translation>
     </message>
@@ -937,8 +901,16 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Back</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favourites</translation>
+        <source>Manual connection mode failed</source>
+        <translation>Manual connection mode failed</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Switch to Auto</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Include or exclude apps and hostnames from the VPN tunnel.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>Secure Hotspot</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Disconnect</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Locations</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Static IPs</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Custom configs</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Show/Hide</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Preferences</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Help</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Quit Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favourites</translation>
     </message>
 </context>
 <context>

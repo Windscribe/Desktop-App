@@ -47,6 +47,7 @@ void BaseItem::hide(bool animate)
     // already hidden
     if (hideProgress_ == 0.0)
     {
+        hideAnimation_.stop();
         emit hidden();
         return;
     }

@@ -27,6 +27,10 @@
         <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
         <translation>Tidak bisa menghilangkan IP favorit.  Harap periksa apakah IP yang diberikan valid.</translation>
     </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>Putar IP sudah berlangsung.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

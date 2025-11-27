@@ -10,6 +10,7 @@ namespace PreferencesWindow {
 SplitTunnelingWindowItem::SplitTunnelingWindowItem(ScalableGraphicsObject *parent, Preferences *preferences) : CommonGraphics::BasePage(parent)
     , currentScreen_(SPLIT_TUNNEL_SCREEN_HOME)
     , preferences_(preferences)
+    , systemExtensionAvailable_(true)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
     setSpacerHeight(PREFERENCES_MARGIN_Y);
@@ -68,16 +69,40 @@ void SplitTunnelingWindowItem::setActive(bool active)
     splitTunnelingGroup_->setActive(active);
 }
 
+void SplitTunnelingWindowItem::setSystemExtensionAvailability(bool available)
+{
+    systemExtensionAvailable_ = available;
+    onLanguageChanged();
+}
+
 void SplitTunnelingWindowItem::onLanguageChanged()
 {
-    desc_->setDescription(tr("Include or exclude apps and hostnames from the VPN tunnel."));
+    if (systemExtensionAvailable_) {
+        desc_->setDescription(tr("Include or exclude apps and hostnames from the VPN tunnel."), false);
+    } else {
+        desc_->setDescription(tr("The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings."), true);
+    }
 }
 
 void SplitTunnelingWindowItem::onPreferencesChanged()
 {
     splitTunnelingGroup_->setSettings(preferences_->splitTunnelingSettings());
-    splitTunnelingGroup_->setAppsCount(preferences_->splitTunnelingApps().count());
-    splitTunnelingGroup_->setAddressesCount(preferences_->splitTunnelingNetworkRoutes().count());
+
+    int activeAppsCount = 0;
+    for (const auto &app : preferences_->splitTunnelingApps()) {
+        if (app.active) {
+            activeAppsCount++;
+        }
+    }
+    splitTunnelingGroup_->setAppsCount(activeAppsCount);
+
+    int activeRoutesCount = 0;
+    for (const auto &route : preferences_->splitTunnelingNetworkRoutes()) {
+        if (route.active) {
+            activeRoutesCount++;
+        }
+    }
+    splitTunnelingGroup_->setAddressesCount(activeRoutesCount);
 }
 
 } // namespace PreferencesWindow

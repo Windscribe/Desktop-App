@@ -9,8 +9,8 @@ class AutoConnSettingsPolicy : public BaseConnSettingsPolicy
 {
     Q_OBJECT
 public:
-    AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const api_responses::PortMap &portMap, bool isProxyEnabled,
-                           const types::Protocol protocol, bool isLockdownMode, bool skipWireguardProtocol, const QString &preferredNodeHostname);
+    AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const api_responses::PortMap &portMap,
+                           bool isProxyEnabled, bool skipWireguardProtocol, const QString &preferredNodeHostname);
 
     void reset() override;
     void debugLocationInfoToLog() const override;
@@ -36,9 +36,7 @@ private:
     QSharedPointer<locationsmodel::MutableLocationInfo> locationInfo_;
     api_responses::PortMap portMap_;
     bool bIsAllFailed_;
-
-    static types::Protocol lastKnownGoodProtocol_;
-    static uint lastKnownGoodPort_;
+    QString preferredNodeHostname_;
 
     QVector<types::ProtocolStatus> protocolStatus();
 };

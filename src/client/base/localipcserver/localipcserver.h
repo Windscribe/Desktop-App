@@ -1,6 +1,8 @@
 #pragma once
 
 #include <QVector>
+#include <QDateTime>
+#include <QTimer>
 #include "api_responses/checkupdate.h"
 #include "backend/backend.h"
 #include "ipc/clicommands.h"
@@ -50,6 +52,7 @@ private slots:
     void onBackendUpdateVersionChanged(uint progressPercent, UPDATE_VERSION_STATE state, UPDATE_VERSION_ERROR error);
     void onBackendConnectionIdChanged(const QString &connId);
     void onBackendBridgeApiAvailabilityChanged(bool isAvailable);
+    void onBackendIpRotateResult(bool success);
 
     void onLocationsModelManagerDeviceNameChanged(const QString &deviceName);
 
@@ -81,6 +84,8 @@ private:
     QString deviceName_;
     bool invalidLocation_ = false;
     bool isBridgeApiAvailable_ = false;
+    bool awaitingIpRotateResult_ = false;
+    QDateTime lastIpRotateResultTime_;
 
     void sendState();
     void sendCommand(const IPC::Command &command);

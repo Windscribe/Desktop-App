@@ -27,6 +27,10 @@
         <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
         <translation>No podía dejar de marcar IP como favorita.  Verifique que la IP proporcionada sea válida.</translation>
     </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>La rotación de IP ya está en curso.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

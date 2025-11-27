@@ -11,6 +11,7 @@
 #include "languagecontroller.h"
 #include "tooltips/tooltiptypes.h"
 #include "tooltips/tooltipcontroller.h"
+#include "utils/extraconfig.h"
 #include "utils/ws_assert.h"
 
 extern QWidget *g_mainWindow;

@@ -269,7 +269,7 @@
     </message>
     <message>
         <source>ALL LOCATIONS</source>
-        <translation>TOUS LES EMPLACEMENTS</translation>
+        <translation>TOUS EMPLACEMENTS</translation>
     </message>
     <message>
         <source>FAVOURITES</source>
@@ -281,7 +281,7 @@
     </message>
     <message>
         <source>CUSTOM CONFIGs</source>
-        <translation>CONFIGS PERSONNALISÉES</translation>
+        <translation>CONFIGURATIONS PERSONNALISÉES</translation>
     </message>
     <message>
         <source>SEARCH</source>
@@ -673,38 +673,6 @@ Récupération...</translation>
         <translation>Sélectionner une application</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Relier</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Déconnecter</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Lieux</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Adresses IP statiques</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Afficher/Masquer</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Préférences</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Aide</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Sortie</translation>
-    </message>
-    <message>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>Votre fichier hosts est en lecture seule. La connectivité IKEv2 nécessite qu’elle soit accessible en écriture. Résoudre le problème automatiquement ?</translation>
     </message>
@@ -909,10 +877,6 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>Impossible de démarrer le service DNS personnalisé - le port 53 est déjà utilisé.  Souhaitez-vous changer votre DNS connecté pour le serveur local ?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Configurations personnalisées</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>Impossible d’épingler l’adresse IP</translation>
     </message>
@@ -937,8 +901,16 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>Précédent</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoris</translation>
+        <source>Manual connection mode failed</source>
+        <translation>Mode de connexion manuelle échoué</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Nous ne pouvions pas vous connecter sur ce réseau. Mode de connexion automatique recommandé pour de meilleurs résultats. Changer le mode de connexion en mode automatique ?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Passer à l’auto</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Incluez ou excluez des applications et des noms d’hôte du tunnel VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>L’extension du système de tunnel fractionné Windscribe doit être activée pour que cette fonctionnalité fonctionne. Veuillez l’activer dans les paramètres système.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
     <message>
         <source>Secure Hotspot</source>
         <translation>Point d’accès sécurisé</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Relier</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Déconnecter</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Lieux</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP statiques</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Configurations personnalisées</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Afficher/Masquer</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Préférences</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Aide</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Quittez Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoris</translation>
     </message>
 </context>
 <context>

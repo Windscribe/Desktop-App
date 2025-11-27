@@ -269,19 +269,19 @@
     </message>
     <message>
         <source>ALL LOCATIONS</source>
-        <translation>TÜM LOKASYONLAR</translation>
+        <translation>TÜM KONUMLAR</translation>
     </message>
     <message>
         <source>FAVOURITES</source>
-        <translation>FAVORİLER</translation>
+        <translation>FAVORILER</translation>
     </message>
     <message>
         <source>STATIC IPs</source>
-        <translation>STATİK IP&apos;ler</translation>
+        <translation>STATIC IP&apos;ler</translation>
     </message>
     <message>
         <source>CUSTOM CONFIGs</source>
-        <translation>ÖZEL YAPILANDIRMALAR</translation>
+        <translation>ÖZEL YAPIRILIKLAR</translation>
     </message>
     <message>
         <source>SEARCH</source>
@@ -661,38 +661,6 @@ Kurtarma...</translation>
         <translation>Bir uygulama seçin</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Bağlamak</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Ayırmak</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Konumlar</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Statik IP&apos;ler</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Göster/Gizle</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Tercihler</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Yardım</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Çıkış</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>Salt okunur dosya</translation>
     </message>
@@ -909,10 +877,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Özel DNS hizmeti başlatılamıyor - 53 numaralı bağlantı noktası zaten kullanımda.  Bağlı DNS&apos;nizi yerel sunucuya değiştirmek ister misiniz?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Özel yapılandırmalar</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>IP sabitlenemedi</translation>
     </message>
@@ -937,8 +901,16 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Geri</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoriler</translation>
+        <source>Manual connection mode failed</source>
+        <translation>Manuel bağlantı modu başarısız oldu</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Seni bu ağa bağlayamadık. En iyi sonuçlar için otomatik bağlantı modu önerilir. Bağlantı modunu Otomatik olarak mı değiştireyim?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Otomatik Sisteme Geçiş</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Uygulamaları ve ana bilgisayar adlarını VPN tüneline dahil edin veya hariç tutun.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>Bu özelliğin çalışabilmesi için Windscribe bölünmüş tünel sistemi uzantısı etkinleştirilmelidir. Lütfen Sistem Ayarlarından etkinleştirin.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Secure Hotspot</source>
         <translation>Güvenli Bağlantı Noktası</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Bağlamak</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Ayırmak</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Konumlar</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Statik IP&apos;ler</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Özel yapılandırmalar</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Göster/Gizle</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Tercihler</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Yardım</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Windscribe&apos;dan Ayrıl</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoriler</translation>
     </message>
 </context>
 <context>

@@ -75,6 +75,8 @@ void MainService::onBackendInitFinished(INIT_STATE initState)
     } else if (backend_->isCanLoginWithAuthHash()) {
         backend_->loginWithAuthHash();
     }
+
+    onPreferencesShareProxyGatewayChanged(backend_->getPreferences()->shareProxyGateway());
 }
 
 void MainService::setInitialFirewallState()

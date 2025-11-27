@@ -734,4 +734,3 @@ void ExpandableItemsWidget::setShowCountryFlagForCity(bool show)
 }
 
 } // namespace gui_locations
-

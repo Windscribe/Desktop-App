@@ -19,6 +19,8 @@ QString LanguagesUtil::convertCodeToNative(const QString &code)
         return "Čeština";
     else if (code == "de") // German
         return "Deutsch";
+    else if (code == "el") // Greek
+        return "Ελληνικά";
     else if (code == "es") // Spanish
         return "Español";
     else if (code == "fa") // Farsi
@@ -41,6 +43,8 @@ QString LanguagesUtil::convertCodeToNative(const QString &code)
         return "Português";
     else if (code == "ru") // Russian
         return "Русский";
+    else if (code == "sk") // Slovak
+        return "Slovenčina";
     else if (code == "tr") // Turkish
         return "Türkçe";
     else if (code == "uk") // Ukranian
@@ -57,7 +61,7 @@ QString LanguagesUtil::convertCodeToNative(const QString &code)
 
 bool LanguagesUtil::isSupportedLanguage(const QString &lang)
 {
-    static QStringList sl = { "en", "ar", "be", "cs", "de", "es", "fa", "fr", "hi", "id", "it", "ja", "ko", "pl", "pt", "ru", "tr", "uk", "vi", "zh-CN", "zh-TW" };
+    static QStringList sl = { "en", "ar", "be", "cs", "de", "el", "es", "fa", "fr", "hi", "id", "it", "ja", "ko", "pl", "pt", "ru", "sk", "tr", "uk", "vi", "zh-CN", "zh-TW" };
     return sl.contains(lang);
 }
 

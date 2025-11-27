@@ -490,7 +490,6 @@ void ConnectionManager::onConnectionReconnecting()
             {
                 state_ = STATE_AUTO_DISCONNECT;
                 connector_->startDisconnect();
-                emit showFailedAutomaticConnectionMessage();
             }
             break;
 
@@ -540,7 +539,6 @@ void ConnectionManager::onConnectionReconnecting()
                 if (connector_) {
                     connector_->startDisconnect();
                 }
-                emit showFailedAutomaticConnectionMessage();
             }
             break;
         case STATE_SLEEP_MODE_NEED_RECONNECT:
@@ -655,7 +653,6 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
                     {
                         connector_->startDisconnect();
                     }
-                    emit showFailedAutomaticConnectionMessage();
                 }
             }
         }
@@ -892,7 +889,8 @@ void ConnectionManager::doConnect()
     connectTimer_.stop();
 
     connectingTimer_.setSingleShot(true);
-    if (connSettingsPolicy_->isAutomaticMode()) {
+    if (!connSettingsPolicy_->isCustomConfig()) {
+        // Both automatic and manual mode should timeout the same.
         CurrentConnectionDescr settings = connSettingsPolicy_->getCurrentConnectionSettings();
         if (settings.protocol == types::Protocol::WIREGUARD) {
             connectingTimer_.setInterval(kConnectingTimeoutWireGuard);
@@ -923,7 +921,7 @@ void ConnectionManager::doConnectPart2()
     emit protocolPortChanged(currentConnectionDescr_.protocol, currentConnectionDescr_.port);
 
 #if defined(Q_OS_WIN)
-    if (WinUtils::isDohSupported() && connectedDnsInfo_.type == CONNECTED_DNS_TYPE_FORCED) {
+    if (WinUtils::isDohSupported() && connectedDnsInfo_.type == CONNECTED_DNS_TYPE_AUTO) {
         helper_->disableDohSettings();
     }
 #endif
@@ -1098,7 +1096,7 @@ void ConnectionManager::doConnectPart3()
 
         // For WG protocol we need to add upStream1 adrress if it's custom ip. Otherwise on Windows WG may not connect.
         QStringList dnsIps;
-        if (connectedDnsTypeAuto()) {
+        if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_AUTO) {
             dnsIps << pConfig->clientDnsAddress();
         } else if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_LOCAL) {
             dnsIps << "127.0.0.1";
@@ -1129,9 +1127,8 @@ void ConnectionManager::doConnectPart3()
             recreateConnector(types::Protocol::OPENVPN_UDP);
 
         connector_->startConnect(makeOVPNFileFromCustom_->config(), "", "", usernameForCustomOvpn_,
-                                 passwordForCustomOvpn_, lastProxySettings_,
-                                 currentConnectionDescr_.wgCustomConfig.get(), false, false, true,
-                                 dnsServersFromConnectedDnsInfo());
+                                 passwordForCustomOvpn_, lastProxySettings_, currentConnectionDescr_.wgCustomConfig.get(),
+                                 false, true, dnsServersFromConnectedDnsInfo());
     }
     else
     {
@@ -1155,8 +1152,7 @@ void ConnectionManager::doConnectPart3()
                 // The connector needs to know which ovpn protocol we're using when creating the adapter on Windows.
                 ovpnConnector->setProtocol(currentConnectionDescr_.protocol);
                 ovpnConnector->startConnect(makeOVPNFile_->config(), "", "", username, password, lastProxySettings_, nullptr,
-                                            false, connSettingsPolicy_->isAutomaticMode(), false,
-                                            dnsServersFromConnectedDnsInfo());
+                                            false, false, dnsServersFromConnectedDnsInfo());
             } else {
                 WS_ASSERT(false);
             }
@@ -1177,8 +1173,7 @@ void ConnectionManager::doConnectPart3()
 
             recreateConnector(types::Protocol::IKEV2);
             connector_->startConnect(currentConnectionDescr_.hostname, currentConnectionDescr_.ip, currentConnectionDescr_.hostname, username, password, lastProxySettings_,
-                                     nullptr, ExtraConfig::instance().isUseIkev2Compression(), connSettingsPolicy_->isAutomaticMode(), false,
-                                     dnsServersFromConnectedDnsInfo());
+                                     nullptr, ExtraConfig::instance().isUseIkev2Compression(), false, dnsServersFromConnectedDnsInfo());
         }
         else if (currentConnectionDescr_.protocol.isWireGuardProtocol())
         {
@@ -1192,10 +1187,8 @@ void ConnectionManager::doConnectPart3()
             }
 
             recreateConnector(types::Protocol::WIREGUARD);
-            connector_->startConnect(QString(), currentConnectionDescr_.ip,
-                currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,
-                &wireGuardConfig_, false, connSettingsPolicy_->isAutomaticMode(), false,
-                                     dnsServersFromConnectedDnsInfo());
+            connector_->startConnect(QString(), currentConnectionDescr_.ip, currentConnectionDescr_.dnsHostName, QString(), QString(), lastProxySettings_,
+                                     &wireGuardConfig_, false, false, dnsServersFromConnectedDnsInfo());
         }
         else
         {
@@ -1206,9 +1199,10 @@ void ConnectionManager::doConnectPart3()
     lastIp_ = currentConnectionDescr_.ip;
 }
 
-// return true, if need finish reconnecting
 bool ConnectionManager::checkFails()
 {
+    // Return true if the connection policy object indicates there are no more attempts to try.
+    // TL;DR no more reconnect attempts should be made.
     connSettingsPolicy_->putFailedConnection();
     return connSettingsPolicy_->isFailed();
 }
@@ -1324,44 +1318,32 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
     int attempts = ExtraConfig::instance().getTunnelTestAttempts(hasAttempts);
     bool noError = ExtraConfig::instance().getIsTunnelTestNoError();
 
-    if ((hasAttempts && attempts == 0) || (noError && !bSuccess))
-    {
+    if ((hasAttempts && attempts == 0) || (noError && !bSuccess)) {
         emit testTunnelResult(bSuccess, "");
-    }
-    else if (!bSuccess)
-    {
-        if (connSettingsPolicy_->isAutomaticMode())
-        {
+    } else if (!bSuccess) {
+        if (connSettingsPolicy_->isCustomConfig()) {
+            emit testTunnelResult(false, "");
+        } else {
             bool bCheckFailsResult = checkFails();
-            if (!bCheckFailsResult || bWasSuccessfullyConnectionAttempt_)
-            {
-                if (bCheckFailsResult)
-                {
+            if (!bCheckFailsResult || bWasSuccessfullyConnectionAttempt_) {
+                if (bCheckFailsResult) {
                     connSettingsPolicy_->reset();
                 }
                 state_ = STATE_RECONNECTING;
                 emit reconnecting();
                 startReconnectionTimer();
                 connector_->startDisconnect();
-             }
-             else
-             {
+            } else {
                 state_= STATE_AUTO_DISCONNECT;
                 connector_->startDisconnect();
-                emit showFailedAutomaticConnectionMessage();
-             }
+            }
         }
-        else
-        {
-            emit testTunnelResult(false, "");
-        }
-    }
-    else
-    {
+    } else {
         emit testTunnelResult(true, ipAddress);
 
-        // if connection mode is automatic
-        bWasSuccessfullyConnectionAttempt_ = true;
+        if (connSettingsPolicy_->isAutomaticMode()) {
+            bWasSuccessfullyConnectionAttempt_ = true;
+        }
     }
 }
 
@@ -1499,8 +1481,8 @@ types::Protocol ConnectionManager::currentProtocol() const
 }
 
 void ConnectionManager::updateConnectionSettings(const types::ConnectionSettings &connectionSettings,
-        const api_responses::PortMap &portMap,
-        const types::ProxySettings &proxySettings)
+                                                 const api_responses::PortMap &portMap,
+                                                 const types::ProxySettings &proxySettings)
 {
     qCDebug(LOG_CONNECTION) << "ConnectionManager::updateConnectionSettings(), state_ =" << state_;
 
@@ -1537,8 +1519,8 @@ void ConnectionManager::updateConnectionSettings(const types::ConnectionSettings
 }
 
 void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSettings &connectionSettings,
-        const api_responses::PortMap &portMap,
-        const types::ProxySettings &proxySettings)
+                                                       const api_responses::PortMap &portMap,
+                                                       const types::ProxySettings &proxySettings)
 {
     if (!bli_) {
         // no active connection in progress
@@ -1548,11 +1530,7 @@ void ConnectionManager::updateConnectionSettingsPolicy(const types::ConnectionSe
     if (bli_->locationId().isCustomConfigsLocation()) {
         connSettingsPolicy_.reset(new CustomConfigConnSettingsPolicy(bli_));
     } else if (connectionSettings.isAutomatic()) {
-#ifdef Q_OS_MACOS
-        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_, MacUtils::isLockdownMode(), isFirewallAlwaysOnPlusEnabled_, preferredNodeHostname_));
-#else
-        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), lastKnownGoodProtocol_, false, isFirewallAlwaysOnPlusEnabled_, preferredNodeHostname_));
-#endif
+        connSettingsPolicy_.reset(new AutoConnSettingsPolicy(bli_, portMap, proxySettings.isProxyEnabled(), isFirewallAlwaysOnPlusEnabled_, preferredNodeHostname_));
     } else {
         // override WireGuard protocol to ikev2 if Firewal is Awlays On+ mode enabled
         types::ConnectionSettings overrideConnectionSettings = connectionSettings;
@@ -1594,14 +1572,9 @@ void ConnectionManager::getWireGuardConfig(const QString &serverName, bool delet
     getWireGuardConfig_->getWireGuardConfig(serverName, deleteOldestKey, deviceId);
 }
 
-bool ConnectionManager::connectedDnsTypeAuto() const
-{
-    return connectedDnsInfo_.type == CONNECTED_DNS_TYPE_AUTO || connectedDnsInfo_.type == CONNECTED_DNS_TYPE_FORCED;
-}
-
 QString ConnectionManager::dnsServersFromConnectedDnsInfo() const
 {
-    if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_AUTO || connectedDnsInfo_.type == CONNECTED_DNS_TYPE_FORCED)
+    if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_AUTO)
         return QString();
     else if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_LOCAL)
         return "127.0.0.1";
@@ -1626,15 +1599,10 @@ void ConnectionManager::onConnectTrigger()
     doConnect();
 }
 
-void ConnectionManager::setLastKnownGoodProtocol(const types::Protocol protocol) {
-    lastKnownGoodProtocol_ = protocol;
-}
-
 void ConnectionManager::setFirewallAlwaysOnPlusEnabled(bool isEnabled)
 {
     isFirewallAlwaysOnPlusEnabled_ = isEnabled;
 }
-
 
 void ConnectionManager::onConnectingTimeout()
 {

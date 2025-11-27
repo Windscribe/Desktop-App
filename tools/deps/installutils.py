@@ -9,6 +9,7 @@ import os
 import subprocess
 import sys
 import zipfile
+import hashlib
 
 import base.messages as msg
 import base.process as proc
@@ -25,6 +26,10 @@ class InstallError(Exception):
     def __init__(self, message, exitcode=1):
         super(InstallError, self).__init__(message)
         self.exitcode = exitcode
+
+
+class ChecksumError(InstallError):
+    pass
 
 
 def SetupEnvironment(configdata):
@@ -80,7 +85,21 @@ def GetMakeBuildCommand():
     return CACHED_MAKE_COMMAND
 
 
-def DownloadFile(webfilename, localfilename):
+def CheckChecksum(localfilename, expected_checksum):
+    f = open(localfilename, "rb")
+    h = hashlib.sha256()
+    filedata = f.read(64 * 1024)
+    while len(filedata) > 0:
+        h.update(filedata)
+        filedata = f.read(64 * 1024)
+    f.close()
+    actual_checksum = h.hexdigest().lower()
+    if actual_checksum != expected_checksum.lower():
+        raise ChecksumError("Checksum mismatch for {}. Expected: {}, Actual: {}".
+                            format(localfilename, expected_checksum, actual_checksum))
+
+
+def DownloadFile(webfilename, localfilename, checksum=None):
     msg.Verbose("Downloading: \"{}\" to \"{}\"".format(webfilename, localfilename))
     if os.path.exists(localfilename):
         utl.RemoveDirectory(localfilename)
@@ -92,6 +111,8 @@ def DownloadFile(webfilename, localfilename):
         proc.ExecuteWithRealtimeOutput(curl_cmd)
     except RuntimeError as e:
         raise InstallError(e)
+
+    CheckChecksum(localfilename, checksum)
 
 
 def ExtractFile(localfilename, outputpath=None, deleteonsuccess=True):

@@ -12,8 +12,6 @@ class ManualConnSettingsPolicy : public BaseConnSettingsPolicy
 public:
     ManualConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const types::ConnectionSettings &connectionSettings,
                              const api_responses::PortMap &portMap, const QString &preferredNodeHostname);
-
-
     void reset() override;
     void debugLocationInfoToLog() const override;
     void putFailedConnection() override;
@@ -29,4 +27,5 @@ private:
     api_responses::PortMap portMap_;
     types::ConnectionSettings connectionSettings_;
     int failedManualModeCounter_;
+    QString preferredNodeHostname_;
 };

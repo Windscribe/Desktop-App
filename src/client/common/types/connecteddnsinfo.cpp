@@ -10,12 +10,10 @@ ConnectedDnsInfo::ConnectedDnsInfo(const QJsonObject &json)
 {
     if (json.contains(kJsonTypeProp) && json[kJsonTypeProp].isDouble()) {
         type = CONNECTED_DNS_TYPE_fromInt(json[kJsonTypeProp].toInt());
-#ifndef Q_OS_WIN
-        // non-Windows platforms do not have 'Forced' DNS mode
+        // CONNECTED_DNS_TYPE_FORCED has been merged into CONNECTED_DNS_TYPE_AUTO
         if (type == CONNECTED_DNS_TYPE_FORCED) {
             type = CONNECTED_DNS_TYPE_AUTO;
         }
-#endif
     }
 
     if (json.contains(kJsonUpStream1Prop) && json[kJsonUpStream1Prop].isString()) {
@@ -57,7 +55,7 @@ ConnectedDnsInfo::ConnectedDnsInfo(const QJsonObject &json)
 QList<CONNECTED_DNS_TYPE> ConnectedDnsInfo::allAvailableTypes()
 {
     QList<CONNECTED_DNS_TYPE> t;
-    t << CONNECTED_DNS_TYPE_AUTO << CONNECTED_DNS_TYPE_FORCED << CONNECTED_DNS_TYPE_CONTROLD << CONNECTED_DNS_TYPE_CUSTOM;
+    t << CONNECTED_DNS_TYPE_AUTO << CONNECTED_DNS_TYPE_CONTROLD << CONNECTED_DNS_TYPE_CUSTOM;
     return t;
 }
 
@@ -89,12 +87,11 @@ QJsonObject ConnectedDnsInfo::toJson() const
 void ConnectedDnsInfo::fromIni(const QSettings &settings)
 {
     type = CONNECTED_DNS_TYPE_fromString(settings.value(kIniTypeProp, "Auto").toString());
-#ifndef Q_OS_WIN
-        // non-Windows platforms do not have 'Forced' DNS mode
-        if (type == CONNECTED_DNS_TYPE_FORCED) {
-            type = CONNECTED_DNS_TYPE_AUTO;
-        }
-#endif
+    // CONNECTED_DNS_TYPE_FORCED has been merged into CONNECTED_DNS_TYPE_AUTO
+    if (type == CONNECTED_DNS_TYPE_FORCED) {
+        type = CONNECTED_DNS_TYPE_AUTO;
+    }
+
     // If using CLI-only, this type is not supported, change it to custom instead.
     if (type == CONNECTED_DNS_TYPE_CONTROLD) {
         type = CONNECTED_DNS_TYPE_CUSTOM;
@@ -179,6 +176,11 @@ QDataStream& operator >>(QDataStream &stream, ConnectedDnsInfo &o)
         stream >> o.type >> o.upStream1 >> o.isSplitDns >> o.upStream2 >> o.hostnames;
     else
         stream >> o.type >> o.upStream1 >> o.isSplitDns >> o.upStream2 >> o.hostnames >> o.controldApiKey >> o.controldDevices;
+
+    // CONNECTED_DNS_TYPE_FORCED has been merged into CONNECTED_DNS_TYPE_AUTO
+    if (o.type == CONNECTED_DNS_TYPE_FORCED) {
+        o.type = CONNECTED_DNS_TYPE_AUTO;
+    }
     return stream;
 }
 

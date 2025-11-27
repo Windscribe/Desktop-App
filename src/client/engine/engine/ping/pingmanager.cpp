@@ -68,6 +68,10 @@ void PingManager::onPingTimer()
     if (!networkDetectionManager_->isOnline() || connectStateController_->currentState() != CONNECT_STATE_DISCONNECTED)
         return;
 
+    if (ExtraConfig::instance().getNoPings()) {
+        return;
+    }
+
     // Process pending location updates first when disconnected
     if (!pendingIps_.isEmpty()) {
         processLocationUpdate(pendingIps_);

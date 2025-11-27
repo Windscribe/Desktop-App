@@ -36,6 +36,7 @@ signals:
 private slots:
     void onConnectedDnsModeChanged(QVariant v);
     void onControldApiKeyChanged(QString v);
+    void onControldApiKeyRefreshClick();
     void onControldDeviceChanged(QVariant v);
     void onUpstream1Changed(QString v);
     void onUpstream2Changed(QString v);

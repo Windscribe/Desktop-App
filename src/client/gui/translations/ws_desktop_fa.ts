@@ -269,7 +269,7 @@
     </message>
     <message>
         <source>ALL LOCATIONS</source>
-        <translation>همه مکان ها</translation>
+        <translation>تمام مکان ها</translation>
     </message>
     <message>
         <source>FAVOURITES</source>
@@ -277,7 +277,7 @@
     </message>
     <message>
         <source>STATIC IPs</source>
-        <translation>IP های استاتیک</translation>
+        <translation>آی پی های ایستا</translation>
     </message>
     <message>
         <source>CUSTOM CONFIGs</source>
@@ -661,38 +661,6 @@ Recovering...</source>
         <translation>یک برنامه را انتخاب کنید</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>اتصال</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>قطع</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>مکان‌ها</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>IP های استاتیک</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>نمایش/مخفی کردن</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>تنظیمات</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>کمک</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>خروج</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>پرونده فقط خواندنی</translation>
     </message>
@@ -909,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>راه اندازی سرویس DNS سفارشی امکان پذیر نیست - پورت 53 در حال حاضر در حال استفاده است.  آیا می خواهید DNS متصل خود را به سرور محلی تغییر دهید؟</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>پیکربندی های سفارشی</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>IP پین نشد</translation>
     </message>
@@ -937,8 +901,16 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>بازگشت</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>مورد علاقه</translation>
+        <source>Manual connection mode failed</source>
+        <translation>حالت اتصال دستی شکست خورد</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>ما نتوانستیم شما را در این شبکه متصل کنیم. حالت اتصال خودکار برای بهترین نتیجه توصیه می شود. حالت اتصال را به حالت خودکار تغییر دهم؟</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>تغییر به خودکار</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>شامل یا حذف برنامه ها و نام میزبان از تونل VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>برای عملکرد این قابلیت، افزونه سیستم تونل زنی تقسیم شده Windscribe باید فعال باشد. لطفا آن را در تنظیمات سیستم فعال کنید.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>هات اسپات امن</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>اتصال</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>قطع</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>مکان‌ها</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP های استاتیک</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>پیکربندی های سفارشی</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>نمایش/مخفی کردن</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>تنظیمات</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>کمک</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>ویندسترایب را ترک کنید</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>مورد علاقه</translation>
     </message>
 </context>
 <context>

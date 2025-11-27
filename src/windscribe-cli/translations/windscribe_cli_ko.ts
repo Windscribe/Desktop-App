@@ -27,6 +27,10 @@
         <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
         <translation>IP를 즐겨찾기 해제할 수 없습니다.  제공된 IP가 유효한지 확인하십시오.</translation>
     </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>IP 교체가 이미 진행 중입니다.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

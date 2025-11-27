@@ -101,7 +101,7 @@
     </message>
     <message>
         <source>Favourites</source>
-        <translation>즐겨찾기</translation>
+        <translation>우승 후보</translation>
     </message>
 </context>
 <context>
@@ -269,19 +269,19 @@
     </message>
     <message>
         <source>ALL LOCATIONS</source>
-        <translation>모든 위치</translation>
+        <translation>모든 장소</translation>
     </message>
     <message>
         <source>FAVOURITES</source>
-        <translation>즐겨찾기</translation>
+        <translation>최애 선수들</translation>
     </message>
     <message>
         <source>STATIC IPs</source>
-        <translation>고정 IP</translation>
+        <translation>정적 IP</translation>
     </message>
     <message>
         <source>CUSTOM CONFIGs</source>
-        <translation>사용자 지정 구성</translation>
+        <translation>커스텀 설정</translation>
     </message>
     <message>
         <source>SEARCH</source>
@@ -661,38 +661,6 @@ Recovering...</source>
         <translation>응용 프로그램 선택</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>연결</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>연결 해제</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>위치</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>고정 IP</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>표시/숨기기</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>설정</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>도움말</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>종료</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>읽기 전용 파일</translation>
     </message>
@@ -909,10 +877,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>사용자 지정 DNS 서비스를 시작할 수 없음 - 포트 53이 이미 사용 중입니다.  연결된 DNS를 로컬 서버로 변경하시겠습니까?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>사용자 지정 구성</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>IP를 고정할 수 없습니다.</translation>
     </message>
@@ -937,8 +901,16 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>뒤로</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>즐겨찾기</translation>
+        <source>Manual connection mode failed</source>
+        <translation>수동 연결 모드 실패</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>이 네트워크에서는 연결되지 않았습니다. 최상의 결과를 위해 자동 연결 모드를 권장합니다. 연결 모드를 자동으로 전환할 수 있나요?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>오토로 전환하기</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>VPN 터널에서 앱과 호스트 이름을 포함하거나 제외합니다.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>이 기능이 작동하려면 Windscribe 분할 터널링 시스템 확장 기능이 활성화되어야 합니다. 시스템 설정에서 활성화해 주세요.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>보안 핫스팟</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>연결</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>연결 해제</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>위치</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>고정 IP</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>사용자 지정 구성</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>표시/숨기기</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>설정</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>도움말</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>윈드스크라이브 그만둬</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>우승 후보</translation>
     </message>
 </context>
 <context>

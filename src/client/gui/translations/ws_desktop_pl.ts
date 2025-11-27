@@ -273,15 +273,15 @@
     </message>
     <message>
         <source>FAVOURITES</source>
-        <translation>ULUBIONE</translation>
+        <translation>ULUBIEŃCY</translation>
     </message>
     <message>
         <source>STATIC IPs</source>
-        <translation>STATYCZNE ADRESY IP</translation>
+        <translation>STATYCZNE adresy IP</translation>
     </message>
     <message>
         <source>CUSTOM CONFIGs</source>
-        <translation>NIESTANDARDOWE KONFIGURACJE</translation>
+        <translation>KONFIGURACJE NIESTANDARDOWE</translation>
     </message>
     <message>
         <source>SEARCH</source>
@@ -661,38 +661,6 @@ Próba przywrócenia...</translation>
         <translation>Wybierz aplikację</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Połącz</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Rozłącz</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Lokalizacje</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Statyczne adresy IP</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Pokaż/Ukryj</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Preferencje</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Pomoc</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Wyjdź</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>Plik tylko do odczytu</translation>
     </message>
@@ -909,10 +877,6 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Nie można uruchomić niestandardowej usługi DNS — port 53 jest już używany.  Czy chcesz zmienić swój Connected DNS na serwer lokalny?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Konfiguracje niestandardowe</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>Nie można przypiąć adresu IP</translation>
     </message>
@@ -937,8 +901,16 @@ Jeśli problem nadal występuje po ponownym uruchomieniu, wyślij dziennik debug
         <translation>Wstecz</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Ulubione</translation>
+        <source>Manual connection mode failed</source>
+        <translation>Tryb ręcznego połączenia nie powiódł się</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Nie mogliśmy połączyć cię w tej sieci. Zalecany jest automatyczny tryb połączenia, aby uzyskać najlepsze rezultaty. Przełączać tryb połączenia na Auto?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Przejście na Auto</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Uwzględnij lub wyklucz aplikacje i nazwy hostów z tunelu sieci VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>Aby ta funkcja działała, rozszerzenie systemu split tunneling Windscribe musi być włączone. Proszę włączyć to w ustawieniach systemu.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ Jeśli ponowna instalacja nie pomoże, skontaktuj się z pomocą techniczną Win
     <message>
         <source>Secure Hotspot</source>
         <translation>Bezpieczny Hotspot</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Połącz</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Rozłącz</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Lokalizacje</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Statyczne adresy IP</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Konfiguracje niestandardowe</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Pokaż/Ukryj</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Preferencje</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Pomoc</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Rzuć Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Ulubione</translation>
     </message>
 </context>
 <context>

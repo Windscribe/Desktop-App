@@ -35,7 +35,9 @@ def DownloadAndCopy(dep_version_str, is_arm64):
     webfilename = f"{DEP_URL}/{dep_version_str}/{archivename}"
     localfilename = os.path.join(temp_dir, archivename)
     msg.HeadPrint(f"Downloading: \"{archivename}\"")
-    iutl.DownloadFile(webfilename, localfilename)
+    dep_checksum_var = "CHECKSUM_" + DEP_TITLE.upper().replace("-", "_") + "_" + ("ARM64" if is_arm64 else "AMD64")
+    dep_checksum_str = os.environ.get(dep_checksum_var)
+    iutl.DownloadFile(webfilename, localfilename, dep_checksum_str)
     msg.HeadPrint(f"Extracting: \"{archivename}\"")
     iutl.ExtractFile(localfilename)
     dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()

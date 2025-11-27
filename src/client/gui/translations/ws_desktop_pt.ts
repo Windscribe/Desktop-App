@@ -285,7 +285,7 @@
     </message>
     <message>
         <source>SEARCH</source>
-        <translation>PESQUISAR</translation>
+        <translation>PESQUISA</translation>
     </message>
     <message>
         <source>Add</source>
@@ -661,38 +661,6 @@ A recuperar...</translation>
         <translation>Selecione uma aplicação</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Ligar</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Desconectar</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Locais</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>IPs estáticos</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Mostrar/Ocultar</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Preferências</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Ajuda</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Sair</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>Arquivo somente leitura</translation>
     </message>
@@ -909,10 +877,6 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Não é possível iniciar o serviço DNS personalizado - a porta 53 já está em uso.  Gostaria de alterar o DNS conectado para o servidor local?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Configurações personalizadas</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>Não foi possível fixar IP</translation>
     </message>
@@ -937,8 +901,16 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Voltar</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoritos</translation>
+        <source>Manual connection mode failed</source>
+        <translation>Modo de ligação manual falhou</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Não conseguimos ligar-te nesta rede. Modo de ligação automática recomendado para melhores resultados. Mudar o modo de ligação para Auto?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Mudar para Auto</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Inclua ou exclua aplicativos e nomes de host do túnel VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>A extensão do sistema de túnel dividido Windscribe deve estar ativada para que esta funcionalidade funcione. Por favor, ative-o nas Definições do Sistema.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
     <message>
         <source>Secure Hotspot</source>
         <translation>Hotspot Seguro</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Ligar</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Desconectar</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Locais</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IPs estáticos</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Configurações personalizadas</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Mostrar/Ocultar</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Preferências</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Ajuda</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Deixa o Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoritos</translation>
     </message>
 </context>
 <context>

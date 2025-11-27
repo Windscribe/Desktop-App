@@ -269,11 +269,11 @@
     </message>
     <message>
         <source>ALL LOCATIONS</source>
-        <translation>TUTTE LE SEDI</translation>
+        <translation>TUTTE LE LOCALITÀ</translation>
     </message>
     <message>
         <source>FAVOURITES</source>
-        <translation>PREFERITI</translation>
+        <translation>FAVORITI</translation>
     </message>
     <message>
         <source>STATIC IPs</source>
@@ -661,38 +661,6 @@ Recupero...</translation>
         <translation>Seleziona un&apos;applicazione</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Connettersi</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Disconnettere</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Luoghi</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>IP statici</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Mostra/Nascondi</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Preferenze</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Guida</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Uscita</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>File di sola lettura</translation>
     </message>
@@ -909,10 +877,6 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <translation>Impossibile avviare il servizio DNS personalizzato - la porta 53 è già in uso.  Volete cambiare il vostro DNS connesso al server locale?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Configurazioni personalizzate</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>Impossibile bloccare l&apos;IP</translation>
     </message>
@@ -937,8 +901,16 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
         <translation>Indietro</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Preferiti</translation>
+        <source>Manual connection mode failed</source>
+        <translation>Modalità di connessione manuale fallita</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Non siamo riusciti a metterti in contatto su questa rete. Modalità di connessione automatica consigliata per ottenere i migliori risultati. Cambiare modalità di connessione su Auto?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Passa a Auto</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Includi o escludi app e nomi host dal tunnel VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>L&apos;estensione del sistema di tunneling diviso Windscribe deve essere abilitata affinché questa funzione funzioni. Per favore, attivalo nelle Impostazioni di sistema.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ Se la reinstallazione non risolve il problema, contattare il supporto Windscribe
     <message>
         <source>Secure Hotspot</source>
         <translation>Hotspot sicuro</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Connettersi</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Disconnettere</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Luoghi</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP statici</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Configurazioni personalizzate</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Mostra/Nascondi</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Preferenze</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Guida</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Lascia Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Preferiti</translation>
     </message>
 </context>
 <context>

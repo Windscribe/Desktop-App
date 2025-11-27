@@ -7,57 +7,50 @@
 #include "utils/log/categories.h"
 #include "utils/ws_assert.h"
 
-types::Protocol AutoConnSettingsPolicy::lastKnownGoodProtocol_;
+#ifdef Q_OS_MACOS
+#include "utils/macutils.h"
+#endif
 
-AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-                                               const api_responses::PortMap &portMap, bool isProxyEnabled,
-                                               const types::Protocol protocol, bool isLockdownMode, bool skipWireguardProtocol, const QString &preferredNodeHostname)
+AutoConnSettingsPolicy::AutoConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli, const api_responses::PortMap &portMap,
+                                               bool isProxyEnabled, bool skipWireguardProtocol, const QString &preferredNodeHostname)
 {
     attempts_.clear();
     curAttempt_ = 0;
     bIsAllFailed_ = false;
     portMap_ = portMap;
+    preferredNodeHostname_ = preferredNodeHostname;
     locationInfo_ = qSharedPointerDynamicCast<locationsmodel::MutableLocationInfo>(bli);
     WS_ASSERT(!locationInfo_.isNull());
     WS_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
 
-    if (protocol.isValid()) {
-        lastKnownGoodProtocol_ = protocol;
-    }
-
     for (int portMapInd = 0; portMapInd < portMap_.items().count(); ++portMapInd) {
-        // skip udp protocol, if proxy enabled
-        if (isProxyEnabled && portMap_.items()[portMapInd].protocol == types::Protocol::OPENVPN_UDP) {
+        const auto protocol = portMap_.items()[portMapInd].protocol;
+
+        if (isProxyEnabled && protocol == types::Protocol::OPENVPN_UDP) {
             continue;
         }
 
-        if (isLockdownMode && portMap_.items()[portMapInd].protocol == types::Protocol::IKEV2) {
+#ifdef Q_OS_MACOS
+        if (MacUtils::isLockdownMode() && protocol.isIkev2Protocol()) {
             continue;
         }
+#endif
 
-        if (skipWireguardProtocol && portMap_.items()[portMapInd].protocol.isWireGuardProtocol()) {
+        if (skipWireguardProtocol && protocol.isWireGuardProtocol()) {
             continue;
         }
 
         AttemptInfo attemptInfo;
-        attemptInfo.protocol = portMap_.items()[portMapInd].protocol;
+        attemptInfo.protocol = protocol;
         WS_ASSERT(portMap_.items()[portMapInd].ports.count() > 0);
         attemptInfo.portMapInd = portMapInd;
 
         // we attempt each protocol twice, so even indices are an initial attempt for a protocol and
         // odd numbers are a retry on a different node
-        if (attemptInfo.protocol == lastKnownGoodProtocol_) {
-            // prepend in reverse order
-            attemptInfo.changeNode = true;
-            attempts_.prepend(attemptInfo);
-            attemptInfo.changeNode = false;
-            attempts_.prepend(attemptInfo);
-        } else {
-            attemptInfo.changeNode = false;
-            attempts_ << attemptInfo;
-            attemptInfo.changeNode = true;
-            attempts_ << attemptInfo;
-        }
+        attemptInfo.changeNode = false;
+        attempts_ << attemptInfo;
+        attemptInfo.changeNode = true;
+        attempts_ << attemptInfo;
     }
 
     QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
@@ -95,17 +88,22 @@ void AutoConnSettingsPolicy::putFailedConnection()
             QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
             if (IpValidation::isIp(remoteOverride) && attempts_[curAttempt_].protocol == types::Protocol::WIREGUARD) {
                 locationInfo_->selectNodeByIp(remoteOverride);
+            } else if (!preferredNodeHostname_.isEmpty()) {
+                qCInfo(LOG_CONNECTION) << "Selecting preferred node by hostname on retry: " << preferredNodeHostname_;
+                if (!locationInfo_->selectNodeByHostname(preferredNodeHostname_)) {
+                    locationInfo_->selectNextNode();
+                }
             } else {
                 locationInfo_->selectNextNode();
             }
         }
         // even indicies are a new protocol, so emit a change
         if (curAttempt_ % 2 == 0) {
-            emit protocolStatusChanged(protocolStatus());
+            emit protocolStatusChanged(protocolStatus(), true);
         }
     } else {
         bIsAllFailed_ = true;
-        emit protocolStatusChanged(protocolStatus());
+        emit protocolStatusChanged(protocolStatus(), true);
     }
 }
 
@@ -129,7 +127,7 @@ CurrentConnectionDescr AutoConnSettingsPolicy::getCurrentConnectionSettings() co
     ccd.ip = locationInfo_->getIpForSelectedNode(useIpInd);
     if (ccd.ip.isEmpty()) {
         qCWarning(LOG_CONNECTION) << "Could not get IP for selected node.  Port map: ";
-        for (auto item : portMap_.const_items()) {
+        for (const auto &item : portMap_.const_items()) {
             qCWarning(LOG_CONNECTION) << "protocol:" << item.protocol.toLongString() << "heading:" << item.heading << "use:" << item.use << "ports:" << item.ports;
         }
     }
@@ -164,14 +162,14 @@ bool AutoConnSettingsPolicy::isCustomConfig()
     return false;
 }
 
-
 void AutoConnSettingsPolicy::resolveHostnames()
 {
     // nothing todo
     emit hostnamesResolved();
 }
 
-QVector<types::ProtocolStatus> AutoConnSettingsPolicy::protocolStatus() {
+QVector<types::ProtocolStatus> AutoConnSettingsPolicy::protocolStatus()
+{
     QVector<types::ProtocolStatus> status;
     QVector<types::ProtocolStatus> failedProtocols;
     QVector<types::ProtocolStatus> disconnectedProtocols;
@@ -208,4 +206,3 @@ bool AutoConnSettingsPolicy::hasProtocolChanged()
 {
     return (curAttempt_ % 2 == 0);
 }
-

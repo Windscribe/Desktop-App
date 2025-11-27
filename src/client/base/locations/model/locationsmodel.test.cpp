@@ -49,7 +49,7 @@ void TestLocationsModel::testBasic()
         QVERIFY(ind.data(gui_locations::kIsShowAsPremium).toBool() == false);
         QVERIFY(ind.data(gui_locations::kIs10Gbps).toBool() == false);
         QVERIFY(ind.data(gui_locations::kLoad).toInt() == 14);
-        QVERIFY(ind.data(gui_locations::kPingTime).toInt() == 224);
+        QVERIFY(ind.data(gui_locations::kPingTime).toInt() == 219);
     }
 
     {
@@ -160,7 +160,7 @@ void TestLocationsModel::testConnectionSpeed()
 
     {
         QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createTopApiLocationId(65));
-        QVERIFY(ind.data(gui_locations::kPingTime).toInt() == 181);
+        QVERIFY(ind.data(gui_locations::kPingTime).toInt() == 164);
     }
     {
         QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createApiLocationId(65, "Atlanta", "Piedmont"));
@@ -181,7 +181,7 @@ void TestLocationsModel::testConnectionSpeed()
 
     {
         QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createTopApiLocationId(65));
-        QVERIFY(ind.data(gui_locations::kPingTime).toInt() == 221);
+        QVERIFY(ind.data(gui_locations::kPingTime).toInt() == 164);
     }
     {
         QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createApiLocationId(65, "Dallas", "BBQ"));

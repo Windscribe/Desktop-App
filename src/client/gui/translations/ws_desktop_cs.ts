@@ -269,7 +269,7 @@
     </message>
     <message>
         <source>ALL LOCATIONS</source>
-        <translation>VŠECHNY LOKALITY</translation>
+        <translation>VŠECHNA MÍSTA</translation>
     </message>
     <message>
         <source>FAVOURITES</source>
@@ -661,38 +661,6 @@ Uzdravování...</translation>
         <translation>Vyberte aplikaci</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Spojit</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Odpojit</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Místa</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Statické IP adresy</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Zobrazit/skrýt</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Možnosti</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Pomoc</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Východ</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>Soubor jen pro čtení</translation>
     </message>
@@ -909,10 +877,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Nelze spustit vlastní službu DNS - port 53 je již používán.  Chcete změnit připojený DNS server na lokální server?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Vlastní konfigurace</translation>
-    </message>
-    <message>
         <source>Could not pin IP</source>
         <translation>Nelze připnout IP adresu</translation>
     </message>
@@ -937,8 +901,16 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Hřbet</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Oblíbené</translation>
+        <source>Manual connection mode failed</source>
+        <translation>Režim manuálního připojení selhal</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Nemohli jsme vás připojit na této síti. Pro nejlepší výsledky je doporučen automatický režim připojení. Přepnout režim připojení na Auto?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Přepnout na automat</translation>
     </message>
 </context>
 <context>
@@ -2243,6 +2215,10 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Zahrňte nebo vylučte aplikace a názvy hostitelů z tunelu VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>Pro fungování této funkce musí být povoleno rozšíření systému split tunnelingu Windscribe. Prosím, povolte to v Systémových nastaveních.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2552,6 +2528,49 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Secure Hotspot</source>
         <translation>Zabezpečený hotspot</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Spojit</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Odpojit</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Místa</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Statické IP adresy</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Vlastní konfigurace</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Zobrazit/skrýt</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Možnosti</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Pomoc</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Přestaň s Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Oblíbené</translation>
     </message>
 </context>
 <context>

@@ -2,6 +2,7 @@
 
 #include <QCoreApplication>
 #include <QCryptographicHash>
+#include <QPointer>
 #include <spdlog/spdlog.h>
 #include <wsnet/WSNet.h>
 #include "utils/ws_assert.h"
@@ -631,15 +632,19 @@ void Engine::initPart2()
             return;
         }
         mutexForOnHostIPsChanged_.lock();
-        QMetaObject::invokeMethod(this, [this, ips] {
-            QMutexLocker locker(&mutexForOnHostIPsChanged_);
+        QPointer<Engine> self(this);
+        QMetaObject::invokeMethod(this, [self, ips] {
+            if (!self) {
+                return;
+            }
+            QMutexLocker locker(&self->mutexForOnHostIPsChanged_);
             QSet<QString> hostIps;
             for (const auto &ip : ips) {
                 hostIps.insert(QString::fromStdString(ip));
             }
-            onHostIPsChanged(hostIps);
+            self->onHostIPsChanged(hostIps);
             // resume callback from wsnet
-            waitConditionForOnHostIPsChanged_.wakeAll();
+            self->waitConditionForOnHostIPsChanged_.wakeAll();
             qCDebug(LOG_BASIC) << "Return to WhitelistIpsCallback in wsnet";
 
         });
@@ -2531,7 +2536,6 @@ void Engine::doConnect(bool bEmitAuthError)
             connectionSettings = engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid);
         }
 
-        connectionManager_->setLastKnownGoodProtocol(engineSettings_.networkLastKnownGoodProtocol(networkInterface.networkOrSsid));
         connectionManager_->clickConnect(ovpnConfig, ovpnCredentials, ikev2Credentials, bli,
             connectionSettings, portMap, ProxyServerController::instance().getCurrentProxySettings(),
             bEmitAuthError, engineSettings_.customOvpnConfigsPath(), engineSettings_.isAntiCensorship(),
@@ -2793,6 +2797,9 @@ void Engine::onSystemExtensionStateChanged(SystemExtensions_mac::SystemExtension
     } else if (newState == SystemExtensions_mac::Inactive) {
         SplitTunnelExtensionManager::instance().stopExtension();
     }
+
+    bool available = (newState == SystemExtensions_mac::Active);
+    emit systemExtensionAvailabilityChanged(available);
 }
 #endif
 
@@ -2839,6 +2846,8 @@ void Engine::rotateIpImpl()
 
 void Engine::onIpRotateFinished(bool success)
 {
+    emit ipRotateResult(success);
+
     if (success) {
 #ifdef Q_OS_WIN
         if (engineSettings_.isTerminateSockets()) {
@@ -2846,8 +2855,6 @@ void Engine::onIpRotateFinished(bool success)
         }
 #endif
         connectionManager_->startTunnelTests();
-    } else {
-        emit ipRotateFailed();
     }
 }
 
