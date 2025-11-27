@@ -67,7 +67,7 @@
     </message>
     <message>
         <source>Rotate IP</source>
-        <translation>IP drehen</translation>
+        <translation>IP Wechseln</translation>
     </message>
     <message>
         <source>FIREWALL</source>
@@ -1146,7 +1146,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>Custom</source>
-        <translation>Gewohnheit</translation>
+        <translation>Benutzerdefiniert</translation>
     </message>
     <message>
         <source>When Connected</source>
@@ -1244,7 +1244,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>Exclusive</source>
-        <translation>Ausschließlich</translation>
+        <translation>Ausschließen</translation>
     </message>
     <message>
         <source>Inclusive</source>
@@ -1347,7 +1347,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <name>PreferencesWindow::DecoyTrafficGroup</name>
     <message>
         <source>Decoy Traffic</source>
-        <translation>Köder-Verkehr</translation>
+        <translation>Köder-Datenverkehr</translation>
     </message>
     <message>
         <source>This is an experimental feature that attempts to combat traffic correlation attacks on adversarial networks.When enabled, the app will generate random activity over the tunnel, and upload and download random data at chosen intervals.</source>
@@ -1462,7 +1462,7 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
     <message>
         <source>Launch on Startup</source>
-        <translation>Beim Start starten</translation>
+        <translation>Automatisch starten</translation>
     </message>
     <message>
         <source>Launch Windscribe in a minimized state.</source>
@@ -1816,7 +1816,7 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>Gewohnheit</translation>
+        <translation>Benutzerdefiniert</translation>
     </message>
 </context>
 <context>
@@ -2084,7 +2084,7 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>Gewohnheit</translation>
+        <translation>Benutzerdefiniert</translation>
     </message>
     <message>
         <source>Select a sound</source>
@@ -2338,7 +2338,7 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     </message>
     <message>
         <source>Release</source>
-        <translation>Loslassen</translation>
+        <translation>Release</translation>
     </message>
     <message>
         <source>Beta</source>
