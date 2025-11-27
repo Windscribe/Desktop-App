@@ -302,10 +302,6 @@
 <context>
     <name>LogViewer::LogViewerWindow</name>
     <message>
-        <source>Merge all logs by timestamp</source>
-        <translation>Zlúčiť všetky logy podľa časovej pečiatky</translation>
-    </message>
-    <message>
         <source>Word Wrap</source>
         <translation>Zalamovanie slov</translation>
     </message>
@@ -665,38 +661,6 @@ Obnovuje sa…</translation>
         <translation>Vyberte aplikáciu</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Pripojiť</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Odpojiť</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Lokality</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Statické IP adresy</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Zobraziť/Skryť</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Predvoľby</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Pomoc</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Ukončiť</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>Súbor len na čítanie</translation>
     </message>
@@ -913,9 +877,6 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <translation>Nie je možné spustiť vlastnú službu DNS – port 53 sa už používa.  Chcete zmeniť službu Connected DNS na lokálny server?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Vlastné konfigurácie</translation>
-    </message>
         <source>Could not pin IP</source>
         <translation>Nepodarilo sa pripnúť IP adresu</translation>
     </message>
@@ -940,8 +901,16 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <translation>Späť</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Obľúbené</translation>
+    <source>Manual connection mode failed</source>
+        <translation>Manuálny režim pripojenia zlyhal</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>V tejto sieti sme vás nemohli pripojiť. Na dosiahnutie najlepších výsledkov sa odporúča automatický režim pripojenia. Prepnúť režim pripojenia na automatický?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Prepnúť na automatický</translation>
     </message>
 </context>
 <context>
@@ -1685,7 +1654,7 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <source>Reset</source>
         <translation>Resetovať</translation>
     </message>
-        <message>
+    <message>
         <source>Choose between white and black tray icon.</source>
         <translation>Vyberte si medzi bielou a čiernou ikonou v systémovom paneli.</translation>
     </message>
@@ -2246,6 +2215,10 @@ Ak preinštalovanie nepomôže, obráťte sa na podporu Windscribe a požiadajte
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Zahrnúť alebo vylúčiť aplikácie a názvy hostiteľov z VPN tunela.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>Aby táto funkcia fungovala, musí byť povolené rozšírenie Windscribe rozdelené tunelovanie. Povoľte ho v nastaveniach systému.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2555,6 +2528,49 @@ Ak preinštalovanie nepomôže, obráťte sa na podporu Windscribe a požiadajte
     <message>
         <source>Secure Hotspot</source>
         <translation>Zabezpečený hotspot</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Pripojiť</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Odpojiť</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Lokality</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Statické IP adresy</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Vlastné konfigurácie</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Zobraziť/Skryť</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Predvoľby</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Pomoc</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Ukončiť Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Obľúbené</translation>
     </message>
 </context>
 <context>
