@@ -69,9 +69,9 @@
         <source>Rotate IP</source>
         <translation>Rotovať IP adresu</translation>
     </message>
-    <message>
+	<message>
         <source>FIREWALL</source>
-        <translation>BRÁNA FIREWALL</translation>
+        <translation>FIREWALL</translation>
     </message>
 </context>
 <context>
@@ -82,14 +82,10 @@
     </message>
 </context>
 <context>
-    <name>ConnectWindow::LocationsMenu</name>
+    <name>ConnectWindow::MiddleItem</name>
     <message>
         <source>All</source>
-        <translation>Všetko</translation>
-    </message>
-    <message>
-        <source>Custom configs</source>
-        <translation>Vlastné konfigurácie</translation>
+        <translation>Všetky</translation>
     </message>
     <message>
         <source>Static IPs</source>
@@ -98,6 +94,10 @@
     <message>
         <source>Search</source>
         <translation>Hľadať</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Vlastné konfigurácie</translation>
     </message>
     <message>
         <source>Favourites</source>
@@ -273,11 +273,11 @@
     </message>
     <message>
         <source>FAVOURITES</source>
-        <translation>OBĽÚBENCI</translation>
+        <translation>OBĽÚBENÉ</translation>
     </message>
     <message>
         <source>STATIC IPs</source>
-        <translation>STATICKÉ IP adresy</translation>
+        <translation>STATICKÉ IP ADRESY</translation>
     </message>
     <message>
         <source>CUSTOM CONFIGs</source>
@@ -289,14 +289,14 @@
     </message>
     <message>
         <source>Add</source>
-        <translation>Sčítať</translation>
+        <translation>Pridať</translation>
     </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
         <source>Add</source>
-        <translation>Sčítať</translation>
+        <translation>Pridať</translation>
     </message>
 </context>
 <context>
@@ -304,6 +304,10 @@
     <message>
         <source>Word Wrap</source>
         <translation>Zalamovanie slov</translation>
+    </message>
+    <message>
+        <source>Color highlighting</source>
+        <translation>Farebné zvýraznenie</translation>
     </message>
     <message>
         <source>Export to file...</source>
@@ -324,10 +328,6 @@
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
         <translation>Export logu zlyhal.  Uistite sa, že máte správne oprávnenia.</translation>
-    </message>
-    <message>
-        <source>Colour highlighting</source>
-        <translation>Farebné zvýraznenie</translation>
     </message>
 </context>
 <context>
@@ -844,6 +844,10 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <source>Unable to import location names</source>
         <translation>Nie je možné importovať názvy lokalít</translation>
     </message>
+	<message>
+        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
+        <translation>Funkcia rozdeleného tunelovania bola vypnutá, pretože rozšírenie Windscribe rozdelené tunelovanie nie je povolené v nastaveniach systému.  Ak chcete túto funkciu používať, povoľte rozšírenie v nastaveniach systému a funkciu opäť zapnite.</translation>
+    </message>
     <message>
         <source>Debug Log Sent!</source>
         <translation>Denník ladenia odoslaný!</translation>
@@ -897,20 +901,16 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <translation>Späť</translation>
     </message>
     <message>
-        <source>The split tunneling feature has been disabled because the Windscribe split tunnel extension is not enabled in System Settings.  To use this feature, please enable the extension in System Settings, and turn on the feature again.</source>
-        <translation>Funkcia rozdeleného tunelovania bola vypnutá, pretože rozšírenie Windscribe rozdelené tunelovanie nie je povolené v nastaveniach systému.  Ak chcete túto funkciu používať, povoľte rozšírenie v nastaveniach systému a funkciu opäť zapnite.</translation>
-    </message>
-    <message>
         <source>Manual connection mode failed</source>
         <translation>Manuálny režim pripojenia zlyhal</translation>
     </message>
     <message>
         <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
-        <translation>Nemohli sme vás spojiť cez túto sieť. Odporúča sa automatický režim pripojenia pre najlepšie výsledky. Prepínať režim pripojenia na Auto?</translation>
+        <translation>V tejto sieti sme vás nemohli pripojiť. Na dosiahnutie najlepších výsledkov sa odporúča automatický režim pripojenia. Prepnúť režim pripojenia na automatický?</translation>
     </message>
     <message>
         <source>Switch to Auto</source>
-        <translation>Prejsť na automat</translation>
+        <translation>Prepnúť na automatický</translation>
     </message>
 </context>
 <context>
@@ -2217,7 +2217,7 @@ Ak preinštalovanie nepomôže, obráťte sa na podporu Windscribe a požiadajte
     </message>
     <message>
         <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
-        <translation>Rozšírenie systému rozdeleného tunelovania Windscribe musí byť povolené, aby táto funkcia fungovala. Prosím, zapnite to v Systémových nastaveniach.</translation>
+        <translation>Aby táto funkcia fungovala, musí byť povolené rozšírenie Windscribe rozdelené tunelovanie. Povoľte ho v nastaveniach systému.</translation>
     </message>
 </context>
 <context>
@@ -2566,7 +2566,7 @@ Ak preinštalovanie nepomôže, obráťte sa na podporu Windscribe a požiadajte
     </message>
     <message>
         <source>Quit Windscribe</source>
-        <translation>Prestaň s Windscribe</translation>
+        <translation>Ukončiť Windscribe</translation>
     </message>
     <message>
         <source>Favourites</source>
