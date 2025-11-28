@@ -40,7 +40,7 @@ void NetworkTrustButton::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
     painter->setOpacity(animProgress_);
     painter->setPen(Qt::white);
-    painter->setFont(FontManager::instance().getFont(15, QFont::Normal));
+    painter->setFont(FontManager::instance().getFont(15, QFont::Medium));
     painter->drawText(boundingRect().adjusted(32*G_SCALE, 0, -20*G_SCALE, 0), Qt::AlignLeft | Qt::AlignVCenter, networkText_);
 }
 
@@ -94,9 +94,9 @@ void NetworkTrustButton::setNetwork(const types::NetworkInterface &network)
 void NetworkTrustButton::updateNetworkText()
 {
     // width minus left text offset and space for arrow on the right
-    int availableWidth = kMaxWidth*G_SCALE - 40*G_SCALE - arrow_->boundingRect().width();
+    int availableWidth = kMaxWidth*G_SCALE - 72*G_SCALE - arrow_->boundingRect().width();
 
-    QFont networkFont = FontManager::instance().getFont(15, QFont::Normal);
+    QFont networkFont = FontManager::instance().getFont(15, QFont::Medium);
     QFontMetrics fmNetwork(networkFont);
     if (fmNetwork.horizontalAdvance(network_.friendlyName) > availableWidth) {
         networkText_ = fmNetwork.elidedText(network_.friendlyName, Qt::ElideMiddle, availableWidth);
@@ -136,7 +136,7 @@ void NetworkTrustButton::updatePositions()
         trustIcon_->setPos(0, (boundingRect().height() - trustIcon_->boundingRect().height())/2);
     }
 
-    QFont networkFont = FontManager::instance().getFont(15, QFont::Normal);
+    QFont networkFont = FontManager::instance().getFont(15, QFont::Medium);
     QFontMetrics fmNetwork(networkFont);
     int textWidth = fmNetwork.horizontalAdvance(networkText_);
 

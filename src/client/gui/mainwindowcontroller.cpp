@@ -64,6 +64,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
 
     view_ = new QGraphicsView(mainWindow_);
     scene_ = new QGraphicsScene(mainWindow_);
+    scene_->setFocusOnTouch(false);
     view_->installEventFilter(this);
     view_->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
@@ -170,6 +171,10 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     onAppSkinChanged(preferences_->appSkin());
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &MainWindowController::onLanguageChanged);
+
+    connect(qApp->primaryScreen(), &QScreen::geometryChanged, this, [this]() {
+        updateMaximumHeight();
+    });
 }
 
 void MainWindowController::updateScaling()
@@ -1100,6 +1105,7 @@ void MainWindowController::gotoLoginWindow()
         // qDebug() << "General -> Login";
         curWindow_ = WINDOW_ID_LOGIN;
 
+        initWindow_->stackBefore(loginWindow_);
         connectWindow_->stackBefore(loginWindow_);
         generalMessageWindow_->stackBefore(loginWindow_);
         updateWindow_->stackBefore(loginWindow_);
@@ -1411,6 +1417,8 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
               || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
               || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG);
 
+    connectWindow_->hideMenus();
+
     if (curWindow_ == WINDOW_ID_LOGGING_IN) {
         // qDebug() << "LoggingIn -> Connect";
         loggingInWindow_->stackBefore(connectWindow_);
@@ -1573,10 +1581,21 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
         isAtomicAnimationActive_ = true;
         updateMaskForGraphicsView();
 
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_INIT_WINDOW, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_GENERAL_MESSAGE, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, true);
         connectWindow_->setVisible(true);
         connectWindow_->show();
+
+        if (initWindow_->isVisible()) {
+            QPropertyAnimation *anim = new QPropertyAnimation(this);
+            anim->setTargetObject(initWindow_);
+            anim->setPropertyName("opacity");
+            anim->setStartValue(initWindow_->opacity());
+            anim->setEndValue(0.0);
+            anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+            anim->start(QPropertyAnimation::DeleteWhenStopped);
+        }
 
         QPropertyAnimation *anim = new QPropertyAnimation(this);
         anim->setTargetObject(generalMessageWindow_);
@@ -1586,6 +1605,7 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
         anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
 
         connect(anim, &QPropertyAnimation::finished, [this, expandPrefs]() {
+            initWindow_->hide();
             generalMessageWindow_->hide();
             connectWindow_->setClickable(true);
             bottomInfoWindow_->setClickable(true);
@@ -2598,6 +2618,7 @@ void MainWindowController::collapseWindow(ResizableWindow *window, bool bSkipBot
     windowSizeManager_->setScrollPos(window, window->scrollPos());
     windowSizeManager_->setState(window, WindowSizeManager::kWindowAnimating);
     connectWindow_->show();
+    connectWindow_->hideMenus();
     connectWindow_->onLocationsCollapsed();
 
     // opacity change
@@ -2806,7 +2827,7 @@ MainWindowController::TaskbarLocation MainWindowController::primaryScreenTaskbar
 {
     TaskbarLocation taskbarLocation = TASKBAR_HIDDEN;
 
-    QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
+    QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIcon()->trayIconRect();
     QScreen *screen = WidgetUtils::slightlySaferScreenAt(rcIcon.center());
     if (!screen) {
         qCWarning(LOG_BASIC) << "Couldn't find screen at system icon location";
@@ -2837,7 +2858,7 @@ QRect MainWindowController::taskbarAwareDockedGeometry_win(int width, int shadow
     TaskbarLocation taskbarLocation = primaryScreenTaskbarLocation_win();
     // qDebug() << "TaskbarLocation: " << taskbarLocation;
 
-    QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
+    QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIcon()->trayIconRect();
 
     // Screen is sometimes not found because QSystemTrayIcon is invalid or not contained in screen
     // list during monitor change, screen resolution change, or opening/closing laptop lid.
@@ -3051,7 +3072,7 @@ void MainWindowController::updateMainAndViewGeometry(bool updateShadow)
     QRect geo = QRect(mainWindow_->pos().x(), mainWindow_->pos().y(), widthWithShadow, heightWithShadow);
 
     if (preferencesHelper_->isDockedToTray()) {
-        const QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIconRect();
+        const QRect rcIcon = static_cast<MainWindow*>(mainWindow_)->trayIcon()->trayIconRect();
         const QPoint iconCenter(qMax(0, rcIcon.center().x()), qMax(0, rcIcon.center().y()));
 
         // On Windows and Mac: screen is sometimes not found because QSystemTrayIcon is invalid or not
@@ -3189,11 +3210,11 @@ QPoint MainWindowController::getCoordsOfBottomInfoWindow(bool isBottomInfoWindow
 {
     const int yOffset = getUpdateWidgetOffset();
     const int LEFT_OFFS_WHEN_SHARING_FEATURES_VISIBLE = 0;
-    const int TOP_OFFS_WHEN_SHARING_FEATURES_VISIBLE = (BOTTOM_INFO_POS_Y_SHOWING - 6 + yOffset)*G_SCALE;
+    const int TOP_OFFS_WHEN_SHARING_FEATURES_VISIBLE = (BOTTOM_INFO_POS_Y_SHOWING - 12 + yOffset)*G_SCALE;
     const int LEFT_OFFS_WHEN_SHARING_FEATURES_HIDDEN = 100*G_SCALE;
     const int TOP_OFFS_WHEN_SHARING_FEATURES_HIDDEN = (BOTTOM_INFO_POS_Y_HIDING + yOffset)*G_SCALE;
     const int TOP_OFFS_WHEN_SHARING_FEATURES_HIDDEN_VAN_GOGH = (BOTTOM_INFO_POS_Y_VAN_GOGH + yOffset)*G_SCALE;
-    const int TOP_OFFS_WHEN_SHARING_FEATURES_VISIBLE_VAN_GOGH = (BOTTOM_INFO_POS_Y_VAN_GOGH - 6 + yOffset)*G_SCALE;
+    const int TOP_OFFS_WHEN_SHARING_FEATURES_VISIBLE_VAN_GOGH = (BOTTOM_INFO_POS_Y_VAN_GOGH - 12 + yOffset)*G_SCALE;
 
     WS_ASSERT(bottomInfoWindow_->isUpgradeWidgetVisible() || bottomInfoWindow_->isSharingFeatureVisible());
 

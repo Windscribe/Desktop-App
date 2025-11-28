@@ -23,13 +23,6 @@ Preferences::Preferences(QObject *parent) : QObject(parent)
 
 Preferences::~Preferences()
 {
-    // make sure timers are cleaned up; don't call clearLastKnownGoodProtocols() here,
-    // because it will trigger a emit engineSettingsChanged();
-    for (auto network : timers_.keys()) {
-        timers_[network]->stop();
-        SAFE_DELETE(timers_[network]);
-    }
-    timers_.clear();
 }
 
 bool Preferences::isLaunchOnStartup() const
@@ -425,11 +418,11 @@ bool Preferences::isAntiCensorship() const
     return engineSettings_.isAntiCensorship();
 }
 
-void Preferences::setAntiCensorship(bool b)
+void Preferences::setAntiCensorship(bool bEnabled)
 {
-    if (engineSettings_.isAntiCensorship() != b)
+    if (engineSettings_.isAntiCensorship() != bEnabled)
     {
-        engineSettings_.setIsAntiCensorship(b);
+        engineSettings_.setIsAntiCensorship(bEnabled);
         emitEngineSettingsChanged();
         emit isAntiCensorshipChanged(engineSettings_.isAntiCensorship());
     }
@@ -646,60 +639,6 @@ void Preferences::setCustomOvpnConfigsPath(const QString &path)
         engineSettings_.setCustomOvpnConfigsPath(path);
         emitEngineSettingsChanged();
         emit customConfigsPathChanged(path);
-    }
-}
-
-types::Protocol Preferences::networkLastKnownGoodProtocol(const QString &network) const
-{
-    return engineSettings_.networkLastKnownGoodProtocol(network);
-}
-
-uint Preferences::networkLastKnownGoodPort(const QString &network) const
-{
-    return engineSettings_.networkLastKnownGoodPort(network);
-}
-
-void Preferences::setNetworkLastKnownGoodProtocolPort(const QString &network, const types::Protocol &protocol, uint port)
-{
-    if (engineSettings_.networkLastKnownGoodProtocol(network) != protocol ||
-        engineSettings_.networkLastKnownGoodPort(network) != port)
-    {
-        // if a timer doesn't exist for this netowrk, create it, otherwise use the existing one
-        if (!timers_.contains(network)) {
-            QTimer *timer = new QTimer(this);
-            timer->setSingleShot(true);
-            connect(timer, &QTimer::timeout, this, [this, network] () {
-                clearLastKnownGoodProtocols(network);
-            });
-            timers_[network] = timer;
-        }
-        // start or restart timer to clear this in 12 hours
-        timers_[network]->start(12*60*60*1000);
-
-        engineSettings_.setNetworkLastKnownGoodProtocolPort(network, protocol, port);
-        emitEngineSettingsChanged();
-        emit networkLastKnownGoodProtocolPortChanged(network, protocol, port);
-    }
-}
-
-void Preferences::clearLastKnownGoodProtocols(const QString &network)
-{
-    engineSettings_.clearLastKnownGoodProtocols(network);
-    emitEngineSettingsChanged();
-
-    if (!network.isEmpty()) {
-        if (timers_.contains(network)) {
-            timers_[network]->stop();
-            SAFE_DELETE(timers_[network]);
-            timers_.remove(network);
-        }
-        emit networkLastKnownGoodProtocolPortChanged(network, types::Protocol(types::Protocol::TYPE::UNINITIALIZED), 0);
-    } else {
-        for (auto network : timers_.keys()) {
-            timers_[network]->stop();
-            SAFE_DELETE(timers_[network]);
-        }
-        timers_.clear();
     }
 }
 
@@ -972,7 +911,7 @@ void Preferences::validateAndUpdateIfNeeded()
 
     // Validate Connected Dns settings
     types::ConnectedDnsInfo cdi = engineSettings_.connectedDnsInfo();
-    if (cdi.type == CONNECTED_DNS_TYPE_CUSTOM) {
+    if (cdi.type == CONNECTED_DNS_TYPE_CUSTOM || cdi.type == CONNECTED_DNS_TYPE_CONTROLD) {
         bool bCorrect = true;
         if (!IpValidation::isCtrldCorrectAddress(cdi.upStream1)) {
             bCorrect = false;

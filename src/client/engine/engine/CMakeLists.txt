@@ -29,6 +29,7 @@ endif()
 
 
 add_subdirectory(apiresources)
+add_subdirectory(bridgeapi)
 add_subdirectory(autoupdater)
 add_subdirectory(connectionmanager)
 add_subdirectory(connectstatecontroller)

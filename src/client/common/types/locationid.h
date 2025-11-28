@@ -53,9 +53,9 @@ public:
 
     QString getHashString() const;
 
-    int type() { return type_; }
-    int id() { return id_; }
-    QString city() { return city_; }
+    int type() const { return type_; }
+    int id() const { return id_; }
+    QString city() const { return city_; }
 
     friend QDataStream& operator <<(QDataStream &stream, const LocationID &l)
     {

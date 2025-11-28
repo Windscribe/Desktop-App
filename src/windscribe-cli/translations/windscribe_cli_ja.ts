@@ -15,6 +15,22 @@
         <source>No locations.</source>
         <translation>場所はありません。</translation>
     </message>
+    <message>
+        <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>IP をローテーションできませんでした。 Windscribe Pro を使用しているか、この場所がプランに含まれていることを確認するか、後でもう一度試してください。</translation>
+    </message>
+    <message>
+        <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>IP をお気に入りに登録できませんでした。 Windscribe Pro を使用しているか、この場所がプランに含まれていることを確認するか、後でもう一度試してください。</translation>
+    </message>
+    <message>
+        <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
+        <translation>IPをお気に入りを解除できませんでした。 提供されたIPが有効であることを確認してください。</translation>
+    </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>IP ローテーションはすでに進行中です。</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -284,15 +300,35 @@
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>(10 Gbps)</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation>(無効)</translation>
     </message>
     <message>
         <source> (Pro)</source>
-        <translation type="unfinished"></translation>
+        <translation>(プロ)</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>接続されていません</translation>
+    </message>
+    <message>
+        <source>IP rotated.</source>
+        <translation>IP がローテーションされました。</translation>
+    </message>
+    <message>
+        <source>IP favorited.</source>
+        <translation>IP がお気に入りになりました。</translation>
+    </message>
+    <message>
+        <source>IP unfavorited.</source>
+        <translation>IP をお気に入りにしない。</translation>
+    </message>
+    <message>
+        <source>Invalid IP address</source>
+        <translation>無効な IP アドレス</translation>
     </message>
 </context>
 </TS>

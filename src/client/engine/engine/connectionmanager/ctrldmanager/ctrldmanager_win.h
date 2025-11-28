@@ -14,6 +14,8 @@ public:
     void killProcess();
     QString listenIp() const;
 
+    static void terminateWindscribeCtrldProcesses();
+
 private slots:
     void onProcessStarted();
     void onProcessFinished();

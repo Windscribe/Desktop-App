@@ -668,9 +668,13 @@ def update_vcpkg_dependencies():
                 CURRENT_VCPKG_TRIPLET = "arm64-windows-static-release"
             else:
                 CURRENT_VCPKG_TRIPLET = "x64-windows-static-release"
-        # On developers computers we compile both the Debug and Release versions with standard x64-windows-static triplet
         else:
-            CURRENT_VCPKG_TRIPLET = "x64-windows-static"
+            if arghelper.target_arm64_arch():
+                # For local builds of arm64 on an x64 host, we compile only Release versions of the dependencies.
+                CURRENT_VCPKG_TRIPLET = "arm64-windows-static-release"
+            else:
+                # For local builds on x64, we compile both the Debug and Release versions with standard x64-windows-static triplet.
+                CURRENT_VCPKG_TRIPLET = "x64-windows-static"
     elif CURRENT_OS == "linux":
         if arghelper.target_arm64_arch():
             CURRENT_VCPKG_TRIPLET = "arm64-linux"

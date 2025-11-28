@@ -7,7 +7,7 @@
 const int typeIdOpenVpnError = qRegisterMetaType<CONNECT_ERROR>("CONNECT_ERROR");
 const int typeIdProxyOption = qRegisterMetaType<PROXY_OPTION>("PROXY_OPTION");
 const int typeIdLoginMessage = qRegisterMetaType<LOGIN_MESSAGE>("LOGIN_MESSAGE");
-const int typeIdServerApiRetCode = qRegisterMetaType<SERVER_API_RET_CODE>("SERVER_API_RET_CODE");
+const int typeIdApiRetCode = qRegisterMetaType<API_RET_CODE>("API_RET_CODE");
 const int typeIdEngineInitRetCode = qRegisterMetaType<ENGINE_INIT_RET_CODE>("ENGINE_INIT_RET_CODE");
 const int typeIdConnectState = qRegisterMetaType<CONNECT_STATE>("CONNECT_STATE");
 const int typeIdDisconnectReason = qRegisterMetaType<DISCONNECT_REASON>("DISCONNECT_REASON");
@@ -454,6 +454,7 @@ CONNECTED_DNS_TYPE CONNECTED_DNS_TYPE_fromInt(int t)
     else if (t == 1) return CONNECTED_DNS_TYPE_CUSTOM;
     else if (t == 2) return CONNECTED_DNS_TYPE_FORCED;
     else if (t == 3) return CONNECTED_DNS_TYPE_LOCAL;
+    else if (t == 4) return CONNECTED_DNS_TYPE_CONTROLD;
     else {
         WS_ASSERT(false);
         return CONNECTED_DNS_TYPE_AUTO;
@@ -474,6 +475,9 @@ QString CONNECTED_DNS_TYPE_toString(CONNECTED_DNS_TYPE t)
     else if (t == CONNECTED_DNS_TYPE_LOCAL) {
         return QObject::tr("Local DNS");
     }
+    else if (t == CONNECTED_DNS_TYPE_CONTROLD) {
+        return "Control D";
+    }
     else {
         WS_ASSERT(false);
         return QObject::tr("UNKNOWN");
@@ -493,6 +497,9 @@ CONNECTED_DNS_TYPE CONNECTED_DNS_TYPE_fromString(const QString &s)
     }
     else if (s == "Local DNS") {
         return CONNECTED_DNS_TYPE_LOCAL;
+    }
+    else if (s == "Control D") {
+        return CONNECTED_DNS_TYPE_CONTROLD;
     }
     else {
         WS_ASSERT(false);
@@ -603,10 +610,14 @@ TRAY_ICON_COLOR TRAY_ICON_COLOR_fromInt(int t)
 {
     if (t == 0) return TRAY_ICON_COLOR_WHITE;
     else if (t == 1) return TRAY_ICON_COLOR_BLACK;
-#if defined(Q_OS_WIN)
-    else if (t == 2) return TRAY_ICON_COLOR_OS_THEME;
+    else if (t == 2) {
+#if defined(Q_OS_LINUX)
+        // Revert to the default on Linux, without asserting, if user is importing this setting from another OS.
+        return TRAY_ICON_COLOR_default();
+#else
+        return TRAY_ICON_COLOR_OS_THEME;
 #endif
-    else {
+    } else {
         WS_ASSERT(false);
         return TRAY_ICON_COLOR_default();
     }
@@ -620,7 +631,7 @@ QString TRAY_ICON_COLOR_toString(TRAY_ICON_COLOR c)
     else if (c == TRAY_ICON_COLOR_BLACK) {
         return QObject::tr("Black");
     }
-#if defined(Q_OS_WIN)
+#if !defined(Q_OS_LINUX)
     else if (c == TRAY_ICON_COLOR_OS_THEME) {
         return QObject::tr("OS Default");
     }

@@ -72,21 +72,21 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
         badgeFgImage_->draw(widthOffset, (badgePixmap_.height() - badgeFgImage_->height())/2, painter);
     }
 
-    QFont font = FontManager::instance().getFont(fontDescr_);
     painter->setOpacity(textOpacity_ * initOpacity);
     painter->setPen(textColor_);
 
     // types::Protocol and port string
     QString protocolString = protocol_.toLongString();
-    int protocolWidth = QFontMetrics(font).horizontalAdvance(protocolString);
-    painter->setFont(font);
+    QFont protocolFont = FontManager::instance().getFont(15, QFont::Medium);
+    int protocolWidth = QFontMetrics(protocolFont).horizontalAdvance(protocolString);
+    painter->setFont(protocolFont);
     painter->drawText(QRect(badgePixmap_.width() + kSpacerWidth*G_SCALE, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, protocolString);
 
     // port
     const QString portString = QString::number(port_);
     const int portPosX = badgePixmap_.width() + kSpacerWidth*G_SCALE + protocolWidth + 2*G_SCALE;
-    font.setWeight(QFont::Light);
-    painter->setFont(font);
+    QFont portFont = FontManager::instance().getFont(15, QFont::Normal);
+    painter->setFont(portFont);
     painter->drawText(QRect(portPosX, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, portString);
 
     painter->restore();
@@ -261,13 +261,12 @@ void ConnectStateProtocolPort::recalcSize()
 {
     prepareGeometryChange();
 
-    QFont font = FontManager::instance().getFont(fontDescr_);
-    QFontMetrics fm(font);
+    QFont protocolFont = FontManager::instance().getFont(15, QFont::Medium);
+    QFontMetrics fm(protocolFont);
 
     const QString protocolString = protocol_.toLongString();
     const int protocolWidth = fm.horizontalAdvance(protocolString);
-    QFont portFont = FontManager::instance().getFont(fontDescr_);
-    portFont.setWeight(QFont::Light);
+    QFont portFont = FontManager::instance().getFont(15, QFont::Normal);
     QFontMetrics portFm(portFont);
     const QString portString = QString::number(port_);
     const int portWidth = portFm.horizontalAdvance(portString);
@@ -276,7 +275,7 @@ void ConnectStateProtocolPort::recalcSize()
     const int badgeHeight = 20*G_SCALE;
     const int protocolArrowWidth = 16*G_SCALE;
 
-    width_ = protocolWidth + portWidth + badgeWidth + protocolArrowWidth + 2*separatorWidth;
+    width_ = protocolWidth + portWidth + badgeWidth + protocolArrowWidth + 2*separatorWidth - 4*G_SCALE;
     if (isPreferredProtocol_) {
         width_ += preferredProtocolBadge_->boundingRect().width() + separatorWidth;
     }
@@ -357,6 +356,11 @@ void ConnectStateProtocolPort::antiCensorshipChanged(bool enabled)
 {
     isAntiCensorshipEnabled_ = enabled;
     recalcSize();
+}
+
+bool ConnectStateProtocolPort::receivedTunnelTestResult() const
+{
+    return receivedTunnelTestResult_;
 }
 
 } //namespace ConnectWindow

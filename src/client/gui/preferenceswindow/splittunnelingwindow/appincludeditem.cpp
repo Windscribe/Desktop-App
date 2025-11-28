@@ -19,6 +19,10 @@ AppIncludedItem::AppIncludedItem(types::SplitTunnelingApp app, ScalableGraphicsO
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape);
 
+    toggleButton_ = new ToggleButton(this);
+    toggleButton_->setState(app_.active);
+    connect(toggleButton_, &ToggleButton::stateChanged, this, &AppIncludedItem::onToggleChanged);
+
     deleteButton_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/DELETE_ICON", "", this, OPACITY_UNHOVER_ICON_STANDALONE,OPACITY_FULL);
     deleteButton_->setUnhoverOpacity(OPACITY_UNHOVER_ICON_STANDALONE);
     deleteButton_->setHoverOpacity(OPACITY_FULL);
@@ -66,10 +70,10 @@ void AppIncludedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     QFontMetrics fm(font);
     QString elidedName = fm.elidedText(app_.name,
                                        Qt::TextElideMode::ElideRight,
-                                       boundingRect().width() - (3*PREFERENCES_MARGIN_X + APP_ICON_MARGIN_X + APP_ICON_WIDTH + ICON_WIDTH)*G_SCALE);
+                                       boundingRect().width() - (4*PREFERENCES_MARGIN_X + APP_ICON_MARGIN_X + APP_ICON_WIDTH + ICON_WIDTH)*G_SCALE - toggleButton_->boundingRect().width());
     painter->drawText(boundingRect().adjusted((PREFERENCES_MARGIN_X + APP_ICON_WIDTH + APP_ICON_MARGIN_X)*G_SCALE,
                                               PREFERENCES_ITEM_Y*G_SCALE,
-                                              -(2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE,
+                                              -(3*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE - toggleButton_->boundingRect().width(),
                                               -PREFERENCES_MARGIN_Y*G_SCALE),
                       elidedName);
 }
@@ -82,6 +86,17 @@ QString AppIncludedItem::getName()
 QString AppIncludedItem::getAppIcon()
 {
     return app_.icon;
+}
+
+bool AppIncludedItem::isActive()
+{
+    return app_.active;
+}
+
+void AppIncludedItem::onToggleChanged(bool checked)
+{
+    app_.active = checked;
+    emit activeChanged(checked);
 }
 
 void AppIncludedItem::setSelected(bool selected)
@@ -101,6 +116,8 @@ void AppIncludedItem::updateScaling()
 void AppIncludedItem::updatePositions()
 {
     deleteButton_->setPos(boundingRect().width() - ICON_WIDTH*G_SCALE - PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
+    toggleButton_->setPos(boundingRect().width() - ICON_WIDTH*G_SCALE - PREFERENCES_MARGIN_X*G_SCALE - toggleButton_->boundingRect().width() - PREFERENCES_MARGIN_X*G_SCALE,
+                          (boundingRect().height() - toggleButton_->boundingRect().height()) / 2);
 }
 
 void AppIncludedItem::setClickable(bool clickable)

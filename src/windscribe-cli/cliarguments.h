@@ -12,7 +12,11 @@ enum CliCommand {
     CLI_COMMAND_DISCONNECT,
     CLI_COMMAND_FIREWALL_ON,
     CLI_COMMAND_FIREWALL_OFF,
+    CLI_COMMAND_IP_ROTATE,
+    CLI_COMMAND_IP_FAV,
+    CLI_COMMAND_IP_UNFAV,
     CLI_COMMAND_LOCATIONS,
+    CLI_COMMAND_LOCATIONS_FAV,
     CLI_COMMAND_LOCATIONS_STATIC,
     CLI_COMMAND_LOGIN,
     CLI_COMMAND_LOGOUT,
@@ -35,6 +39,7 @@ public:
     const QString &password() const;
     const QString &protocol() const;
     const uint &port() const;
+    const QString &ipAddress() const;
     bool keepFirewallOn() const;
     bool keyLimitDelete() const;
     bool nonBlocking() const;
@@ -49,6 +54,7 @@ private:
     QString password_;
     QString protocol_ = "";
     uint port_ = 0;
+    QString ipAddress_ = "";
     bool keepFirewallOn_ = false;
     bool keyLimitDelete_ = false;
     bool nonBlocking_ = false;
@@ -56,6 +62,7 @@ private:
     void parseConnect(const QStringList &args);
     void parseDisconnect(const QStringList &args);
     void parseFirewall(const QStringList &args);
+    void parseIp(const QStringList &args);
     void parseLocations(const QStringList &args);
     void parseLogin(const QStringList &args);
     void parseLogout(const QStringList &args);

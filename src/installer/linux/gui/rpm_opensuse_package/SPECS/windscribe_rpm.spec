@@ -43,6 +43,7 @@ Requires:	libcap-progs
 Requires:	psmisc
 Requires:	coreutils
 Requires:	libgthread-2_0-0
+Requires:	desktop-file-utils
 
 %description
 Windscribe client.

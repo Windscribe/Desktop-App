@@ -15,6 +15,22 @@
         <source>No locations.</source>
         <translation>Tidak ada lokasi.</translation>
     </message>
+    <message>
+        <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>Tidak dapat memutar IP.  Periksa apakah Anda memiliki Windscribe Pro atau memiliki lokasi ini dalam paket Anda, atau coba lagi nanti.</translation>
+    </message>
+    <message>
+        <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>Tidak bisa memfavoritkan IP.  Periksa apakah Anda memiliki Windscribe Pro atau memiliki lokasi ini dalam paket Anda, atau coba lagi nanti.</translation>
+    </message>
+    <message>
+        <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
+        <translation>Tidak bisa menghilangkan IP favorit.  Harap periksa apakah IP yang diberikan valid.</translation>
+    </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>Putar IP sudah berlangsung.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -284,15 +300,35 @@
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"></translation>
+        <translation> (10 Gbps)</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Dinonaktifkan)</translation>
     </message>
     <message>
         <source> (Pro)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Pro)</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Tidak terhubung</translation>
+    </message>
+    <message>
+        <source>IP rotated.</source>
+        <translation>IP diputar.</translation>
+    </message>
+    <message>
+        <source>IP favorited.</source>
+        <translation>IP favorit.</translation>
+    </message>
+    <message>
+        <source>IP unfavorited.</source>
+        <translation>IP tidak difavoritkan.</translation>
+    </message>
+    <message>
+        <source>Invalid IP address</source>
+        <translation>Alamat IP tidak valid</translation>
     </message>
 </context>
 </TS>

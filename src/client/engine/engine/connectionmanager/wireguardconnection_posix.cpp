@@ -1,10 +1,11 @@
 #include "wireguardconnection_posix.h"
-#include "utils/ws_assert.h"
+
+#include "engine/wireguardconfig/wireguardconfig.h"
+#include "types/enums.h"
+#include "types/wireguardtypes.h"
 #include "utils/crashhandler.h"
 #include "utils/log/categories.h"
-#include "types/enums.h"
-#include "engine/wireguardconfig/wireguardconfig.h"
-#include "types/wireguardtypes.h"
+#include "utils/ws_assert.h"
 
 class WireGuardConnectionImpl
 {
@@ -125,8 +126,8 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
                                        const QString &dnsHostName, const QString &username,
                                        const QString &password, const types::ProxySettings &proxySettings,
                                        const WireGuardConfig *wireGuardConfig,
-                                       bool isEnableIkev2Compression, bool isAutomaticConnectionMode,
-                                       bool isCustomConfig, const QString &overrideDnsIp)
+                                       bool isEnableIkev2Compression, bool isCustomConfig,
+                                       const QString &overrideDnsIp)
 {
     Q_UNUSED(configPathOrUrl);
     Q_UNUSED(ip);
@@ -143,7 +144,6 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     wait();
     do_stop_thread_ = false;
 
-    isAutomaticConnectionMode_ = isAutomaticConnectionMode;
     pimpl_->setConfig(wireGuardConfig, overrideDnsIp);
 
     // note: route gateway not used for WireGuard in AdapterGatewayInfo
@@ -197,8 +197,6 @@ void WireGuardConnection::run()
     quint64 bytesTransmitted = 0;
     bool is_configured = false;
     bool is_connected = false;
-    QElapsedTimer elapsedTimer;
-    elapsedTimer.start();
 
     BIND_CRASH_HANDLER_FOR_THREAD();
 
@@ -210,10 +208,6 @@ void WireGuardConnection::run()
         const auto current_state = getCurrentState();
         unsigned int next_status_check_ms = 100u;
         if (current_state != ConnectionState::DISCONNECTED) {
-
-            if (current_state == ConnectionState::CONNECTED)
-                elapsedTimer.invalidate();
-
             if (!pimpl_->getStatus(&status)) {
                 qCCritical(LOG_WIREGUARD) << "Failed to get WireGuard status";
                 pimpl_->disconnect();
@@ -262,10 +256,6 @@ void WireGuardConnection::run()
                 break;
             }
             }
-        }
-
-        if (isAutomaticConnectionMode_ && elapsedTimer.isValid() && elapsedTimer.elapsed() >= kTimeoutForAutomatic) {
-            setError(STATE_TIMEOUT_FOR_AUTOMATIC);
         }
 
         QThread::msleep(next_status_check_ms);

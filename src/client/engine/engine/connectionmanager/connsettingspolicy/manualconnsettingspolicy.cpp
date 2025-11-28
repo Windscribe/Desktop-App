@@ -6,22 +6,27 @@
 #include "utils/ws_assert.h"
 
 ManualConnSettingsPolicy::ManualConnSettingsPolicy(QSharedPointer<locationsmodel::BaseLocationInfo> bli,
-    const types::ConnectionSettings &connectionSettings, const api_responses::PortMap &portMap) :
+    const types::ConnectionSettings &connectionSettings, const api_responses::PortMap &portMap, const QString &preferredNodeHostname) :
         locationInfo_(qSharedPointerDynamicCast<locationsmodel::MutableLocationInfo>(bli)),
-        portMap_(portMap), connectionSettings_(connectionSettings), failedManualModeCounter_(0)
+        portMap_(portMap), connectionSettings_(connectionSettings), failedManualModeCounter_(0), preferredNodeHostname_(preferredNodeHostname)
 {
     WS_ASSERT(!locationInfo_.isNull());
     WS_ASSERT(!locationInfo_->locationId().isCustomConfigsLocation());
 
     QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-    if (IpValidation::isIp(remoteOverride) && connectionSettings_.protocol() == types::Protocol::WIREGUARD) {
+    if (!remoteOverride.isEmpty() && IpValidation::isIp(remoteOverride) && connectionSettings_.protocol().isWireGuardProtocol()) {
         locationInfo_->selectNodeByIp(remoteOverride);
+    } else if (!preferredNodeHostname.isEmpty()) {
+        qCInfo(LOG_CONNECTION) << "Selecting preferred node by hostname: " << preferredNodeHostname;
+        if (locationInfo_->selectNodeByHostname(preferredNodeHostname)) {
+            qCInfo(LOG_CONNECTION) << "Found matching node: " << locationInfo_->getLogString();
+        }
     }
 }
 
 void ManualConnSettingsPolicy::reset()
 {
-    // nothing todo
+    failedManualModeCounter_ = 0;
 }
 
 void ManualConnSettingsPolicy::debugLocationInfoToLog() const
@@ -32,28 +37,36 @@ void ManualConnSettingsPolicy::debugLocationInfoToLog() const
 
 void ManualConnSettingsPolicy::putFailedConnection()
 {
-    if (!bStarted_)
-    {
+    if (!bStarted_) {
         return;
     }
 
-    if (failedManualModeCounter_ >= 2)
-    {
+    failedManualModeCounter_++;
+
+    if (failedManualModeCounter_ < 2) {
         QString remoteOverride = ExtraConfig::instance().getRemoteIpFromExtraConfig();
-        if (!IpValidation::isIp(remoteOverride) || connectionSettings_.protocol() != types::Protocol::WIREGUARD) {
-            // try switch to another node for manual mode
+        if (!remoteOverride.isEmpty() && IpValidation::isIp(remoteOverride) && connectionSettings_.protocol().isWireGuardProtocol()) {
+            locationInfo_->selectNodeByIp(remoteOverride);
+        } else if (!preferredNodeHostname_.isEmpty()) {
+            qCInfo(LOG_CONNECTION) << "Selecting preferred node by hostname on retry: " << preferredNodeHostname_;
+            if (!locationInfo_->selectNodeByHostname(preferredNodeHostname_)) {
+                locationInfo_->selectNextNode();
+            }
+        } else {
             locationInfo_->selectNextNode();
         }
-    }
-    else
-    {
-        failedManualModeCounter_++;
+    } else {
+        QVector<types::ProtocolStatus> status;
+        emit protocolStatusChanged(status, false);
     }
 }
 
 bool ManualConnSettingsPolicy::isFailed() const
 {
-    return false;
+    if (!bStarted_) {
+        return false;
+    }
+    return failedManualModeCounter_ >= 2;
 }
 
 CurrentConnectionDescr ManualConnSettingsPolicy::getCurrentConnectionSettings() const
@@ -67,7 +80,7 @@ CurrentConnectionDescr ManualConnSettingsPolicy::getCurrentConnectionSettings() 
     ccd.ip = locationInfo_->getIpForSelectedNode(useIpInd);
     if (ccd.ip.isEmpty()) {
         qCWarning(LOG_CONNECTION) << "Could not get IP for selected node.  Port map: ";
-        for (auto item : portMap_.const_items()) {
+        for (const auto &item : portMap_.const_items()) {
             qCWarning(LOG_CONNECTION) << "protocol:" << item.protocol.toLongString() << "heading:" << item.heading << "use:" << item.use << "ports:" << item.ports;
         }
     }
@@ -114,4 +127,3 @@ bool ManualConnSettingsPolicy::hasProtocolChanged()
 {
     return false;
 }
-

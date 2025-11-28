@@ -106,6 +106,7 @@ set(TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_ar.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_cs.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_de.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_el.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_en.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_es.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_fa.ts
@@ -118,6 +119,7 @@ set(TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_pl.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_pt.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_ru.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_sk.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_tr.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_uk.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_vi.ts

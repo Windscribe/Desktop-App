@@ -61,6 +61,18 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Bağlantı kesildiğinde güvenlik duvarını açık tutmak internet bağlantısını bozabilir</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>Favori IP</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>IP&apos;yi döndür</translation>
+    </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>GÜVENLİK DUVARI</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +92,16 @@
         <translation>Statik IP&apos;ler</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoriler</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Aramak</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Özel yapılandırmalar</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoriler</translation>
     </message>
 </context>
 <context>
@@ -256,32 +268,28 @@
         <translation>Konum yok</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Almak</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>TÜM KONUMLAR</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>Tüm lokasyonlar (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>FAVORILER</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoriler</translation>
+        <source>STATIC IPs</source>
+        <translation>STATIC IP&apos;ler</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>Statik IP&apos;ler</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>ÖZEL YAPIRILIKLAR</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Özel yapılandırmalar</translation>
+        <source>SEARCH</source>
+        <translation>ARAMAK</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Aramak</translation>
-    </message>
-    <message>
-        <source>Refresh Pings</source>
-        <translation>Ping&apos;leri Yenile</translation>
+        <source>Add</source>
+        <translation>Eklemek</translation>
     </message>
 </context>
 <context>
@@ -653,42 +661,6 @@ Kurtarma...</translation>
         <translation>Bir uygulama seçin</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Bağlamak</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Ayırmak</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Konumlar</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Favoriler</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Statik IP&apos;ler</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Göster/Gizle</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Tercihler</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Yardım</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Çıkış</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>Salt okunur dosya</translation>
     </message>
@@ -905,8 +877,40 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Özel DNS hizmeti başlatılamıyor - 53 numaralı bağlantı noktası zaten kullanımda.  Bağlı DNS&apos;nizi yerel sunucuya değiştirmek ister misiniz?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Özel yapılandırmalar</translation>
+        <source>Could not pin IP</source>
+        <translation>IP sabitlenemedi</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Bu konum için favori IP&apos;nizi ayarlayamadık.  Daha sonra tekrar deneyin.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>IP döndürülemedi</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Daha sonra tekrar deneyin veya daha fazla bilgi için Durum sayfamıza gidin.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Konum Durumunu Kontrol Edin</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Geri</translation>
+    </message>
+    <message>
+        <source>Manual connection mode failed</source>
+        <translation>Manuel bağlantı modu başarısız oldu</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Seni bu ağa bağlayamadık. En iyi sonuçlar için otomatik bağlantı modu önerilir. Bağlantı modunu Otomatik olarak mı değiştireyim?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Otomatik Sisteme Geçiş</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1210,18 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Bağlı DNS için bir LAN veya yerel IP adresi kullanmak, DNS sızıntısına neden olur.  ROBERT veya genel bir DNS sunucusu kullanmanızı şiddetle tavsiye ederiz.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>API Anahtarı</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Control D API&apos;sine ulaşılamadı.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Lütfen geçerli bir Control D API Anahtarı sağlayın.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1545,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Sürüm</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Beyaz ve siyah tepsi simgesi arasında seçim yapın.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Tepsi Simgesi Rengi</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Çoklu masaüstü</translation>
     </message>
@@ -1645,6 +1653,14 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Reset</source>
         <translation>Sıfırlama</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Beyaz ve siyah tepsi simgesi arasında seçim yapın.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Tepsi Simgesi Rengi</translation>
     </message>
 </context>
 <context>
@@ -2199,6 +2215,10 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Uygulamaları ve ana bilgisayar adlarını VPN tüneline dahil edin veya hariç tutun.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>Bu özelliğin çalışabilmesi için Windscribe bölünmüş tünel sistemi uzantısı etkinleştirilmelidir. Lütfen Sistem Ayarlarından etkinleştirin.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2472,6 +2492,10 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
         <source>Custom configs</source>
         <translation>Özel yapılandırmalar</translation>
     </message>
+    <message>
+        <source>Random IP</source>
+        <translation>Rastgele IP</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
@@ -2504,6 +2528,49 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Secure Hotspot</source>
         <translation>Güvenli Bağlantı Noktası</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Bağlamak</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Ayırmak</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Konumlar</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Statik IP&apos;ler</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Özel yapılandırmalar</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Göster/Gizle</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Tercihler</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Yardım</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Windscribe&apos;dan Ayrıl</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoriler</translation>
     </message>
 </context>
 <context>

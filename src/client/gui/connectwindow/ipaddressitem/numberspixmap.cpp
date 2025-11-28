@@ -57,7 +57,7 @@ void NumbersPixmap::rescale()
     SAFE_DELETE(dotPixmap_);
     SAFE_DELETE(naPixmap_);
 
-    font_ = FontManager::instance().getFont(15,  QFont::Normal);
+    font_ = FontManager::instance().getFont(15,  QFont::Medium);
 
     QFontMetrics fm(font_);
     itemHeight_ = fm.height();

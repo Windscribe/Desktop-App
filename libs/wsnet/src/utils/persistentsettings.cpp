@@ -2,6 +2,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
+#include <chrono>
 #include "utils/wsnet_logger.h"
 
 
@@ -50,6 +51,31 @@ PersistentSettings::PersistentSettings(const std::string &settings)
             staticIps_ = jsonObject["staticIps"].GetString();
         if (jsonObject.HasMember("notifications"))
             notifications_ = jsonObject["notifications"].GetString();
+        if (jsonObject.HasMember("sessionToken")) {
+            if (jsonObject["sessionToken"].IsObject()) {
+                auto now = std::chrono::system_clock::now();
+                auto nowTimestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+                for (auto& m : jsonObject["sessionToken"].GetObject()) {
+                    if (m.value.IsObject()) {
+                        auto tokenObj = m.value.GetObject();
+                        if (tokenObj.HasMember("token") && tokenObj["token"].IsString() &&
+                            tokenObj.HasMember("expiry") && tokenObj["expiry"].IsInt64()) {
+                            std::int64_t expiryTimestamp = tokenObj["expiry"].GetInt64();
+                            if (expiryTimestamp > nowTimestamp) {
+                                // Valid token
+                                sessionTokens_[m.name.GetString()] = {tokenObj["token"].GetString(), expiryTimestamp};
+                            } else if (expiryTimestamp == 0) {
+                                // No expiry time (reboot without disconnecting?) Set expiry time to 5 minutes from now
+                                sessionTokens_[m.name.GetString()] = {tokenObj["token"].GetString(), nowTimestamp + 300};
+                            } else {
+                                // Expired token
+                                sessionTokens_.erase(m.name.GetString());
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         g_logger->info("ServerAPI settings settled sucessfully");
     }
@@ -187,6 +213,18 @@ std::string PersistentSettings::notifications() const
     return notifications_;
 }
 
+void PersistentSettings::setSessionTokens(const std::map<std::string, std::pair<std::string, std::int64_t>> &sessionTokens)
+{
+    std::lock_guard locker(mutex_);
+    sessionTokens_ = sessionTokens;
+}
+
+std::map<std::string, std::pair<std::string, std::int64_t>> PersistentSettings::sessionTokens() const
+{
+    std::lock_guard locker(mutex_);
+    return sessionTokens_;
+}
+
 std::string PersistentSettings::getAsString() const
 {
     std::lock_guard locker(mutex_);
@@ -218,6 +256,17 @@ std::string PersistentSettings::getAsString() const
         doc.AddMember("staticIps", StringRef(staticIps_.c_str()), doc.GetAllocator());
     if (!notifications_.empty())
         doc.AddMember("notifications", StringRef(notifications_.c_str()), doc.GetAllocator());
+    if (!sessionTokens_.empty()) {
+        Value tokenObj(kObjectType);
+        for (const auto& [key, tokenPair] : sessionTokens_) {
+            Value hostKey(key.c_str(), doc.GetAllocator());
+            Value tokenData(kObjectType);
+            tokenData.AddMember("token", Value(tokenPair.first.c_str(), doc.GetAllocator()), doc.GetAllocator());
+            tokenData.AddMember("expiry", tokenPair.second, doc.GetAllocator());
+            tokenObj.AddMember(hostKey, tokenData, doc.GetAllocator());
+        }
+        doc.AddMember("sessionToken", tokenObj, doc.GetAllocator());
+    }
 
     StringBuffer sb;
     Writer<StringBuffer> writer(sb);

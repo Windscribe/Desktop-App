@@ -21,8 +21,6 @@ public:
     void setCustomConfigLocations(const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs);
     void clear();
 
-    void refreshPings();
-
     QSharedPointer<BaseLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
 
 signals:
@@ -30,8 +28,6 @@ signals:
     void customConfigsLocationsUpdated(QSharedPointer<types::Location > location);
     void bestLocationUpdated(const LocationID &bestLocation);
     void locationPingTimeChanged(const LocationID &id, PingTime timeMs);
-    void pingsStarted();
-    void pingsFinished();
 
     void whitelistLocationsIpsChanged(const QStringList &ips);
     void whitelistCustomConfigsIpsChanged(const QStringList &ips);

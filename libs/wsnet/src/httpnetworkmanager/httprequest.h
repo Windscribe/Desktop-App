@@ -68,6 +68,10 @@ public:
     void setIsEnableFreshConnect(bool bEnabled) override;
     bool isEnableFreshConnect() const override;
 
+    // empty by default
+    void setSessionToken(const std::string &token) override;
+    std::string sessionToken() const override;
+
 private:
     // internal implementation class (to hide include skyr/url.hpp from this header, there were compilation errors in Windows)
     struct Impl;

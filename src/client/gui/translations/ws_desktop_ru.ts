@@ -61,6 +61,18 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Если оставить брандмауэр включенным в отключенном состоянии, подключение к Интернету может нарушиться</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>Любимый IP</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Ротация IP</translation>
+    </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>БРАНДМАУЭР</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +92,16 @@
         <translation>Статические IP-адреса</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Избранное</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Поиск</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Пользовательские конфигурации</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Любимые</translation>
     </message>
 </context>
 <context>
@@ -256,32 +268,28 @@
         <translation>Нет локаций</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Купить</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>ВСЕ ЛОКАЦИИ</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>Все местоположения (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>ИЗБРАННЫЕ</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Избранное</translation>
+        <source>STATIC IPs</source>
+        <translation>STATIC IP</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>Статические IP-адреса</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>ПОЛЬЗОВАТЕЛЬСКИЕ КОНФИГУРАЦИИ</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Пользовательские конфигурации</translation>
+        <source>SEARCH</source>
+        <translation>ИСКАТЬ</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Искать</translation>
-    </message>
-    <message>
-        <source>Refresh Pings</source>
-        <translation>Обновление пингов</translation>
+        <source>Add</source>
+        <translation>Добавлять</translation>
     </message>
 </context>
 <context>
@@ -665,42 +673,6 @@ Recovering...</source>
         <translation>Выберите приложение</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Подключиться</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Отключиться</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Локации</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Избранное</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Статические IP-адреса</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Показать/Скрыть</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Настройки</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Справка</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Выход</translation>
-    </message>
-    <message>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>Файл hosts доступен только для чтения. Подключению IKEv2 требуется, чтобы файл был доступным для записи. Устранить проблему автоматически?</translation>
     </message>
@@ -905,8 +877,40 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Не удается запустить пользовательскую службу DNS - порт 53 уже используется.  Вы хотите изменить свой подключенный DNS на локальный сервер?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Пользовательские конфигурации</translation>
+        <source>Could not pin IP</source>
+        <translation>Не удалось закрепить IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Мы не смогли установить ваш любимый IP-адрес для этого местоположения.  Повторите попытку позже.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Не удалось повернуть IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Повторите попытку позже или перейдите на страницу статуса для получения дополнительной информации.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Проверка статуса местоположения</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Назад</translation>
+    </message>
+    <message>
+        <source>Manual connection mode failed</source>
+        <translation>Режим ручного подключения не работал</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Мы не смогли подключить тебя к этой сети. Рекомендуется использовать режим автоматического подключения для наилучших результатов. Переключить режим подключения на Авто?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Переключение на автоматический режим</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1210,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Использование локальной сети или локального IP-адреса для подключенного DNS приведет к утечке DNS.  Мы настоятельно рекомендуем использовать ROBERT или публичный DNS-сервер.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>Ключ API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Не удалось связаться с Control D API.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Пожалуйста, предоставьте действительный ключ API Control D.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1545,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Windscribe сворачивается в строку меню и больше не отображается в док-станции.</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Выберите между белым и черным значком в трее.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Цвет значка в трее</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Мультидесктоп</translation>
     </message>
@@ -1645,6 +1653,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>Сброс</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Выберите между белым и черным значком в трее.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Цвет значка в трее</translation>
     </message>
 </context>
 <context>
@@ -2199,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Включение или исключение приложений и адресов/доменов из VPN-туннеля.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>Для работы этой функции необходимо включить расширение системы разделённого туннеля Windscribe. Пожалуйста, включите его в системных настройках.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2472,6 +2492,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Custom configs</source>
         <translation>Пользовательские конфигурации</translation>
     </message>
+    <message>
+        <source>Random IP</source>
+        <translation>Случайный IP</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
@@ -2504,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>Безопасная точка доступа</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Подключиться</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Отключиться</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Локации</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Статические IP-адреса</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Пользовательские конфигурации</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Показать/Скрыть</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Настройки</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Справка</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Брось Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Любимые</translation>
     </message>
 </context>
 <context>

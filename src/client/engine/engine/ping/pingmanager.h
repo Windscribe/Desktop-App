@@ -32,16 +32,12 @@ public:
     void updateIps(const QVector<PingIpInfo> &ips);
     void clearIps();
 
-    void refreshPings();
-
     bool isAllNodesHaveCurIteration() const;
     PingTime getPing(const QString &ip) const;
     void setPing(const QString &ip, PingTime pingTime);
 
 signals:
     void pingInfoChanged(const QString &ip, int timems);
-    void pingsStarted();
-    void pingsFinished();
 
 private slots:
     void onPingTimer();

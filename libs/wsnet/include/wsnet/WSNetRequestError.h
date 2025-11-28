@@ -20,6 +20,8 @@ public:
     // Based on some curl and cares error codes we can assume that the error is caused by the lack of network connectivty
     // We need to separate these errors so that we don't have to switch failovers for these types of errors
     virtual bool isNoNetworkError() const = 0;
+
+    virtual int httpResponseCode() const = 0;
 };
 
 } // namespace wsnet

@@ -3,7 +3,7 @@
 
 namespace gui_locations {
 
-// Extends the class types::Location with additional functionality for calculating the average ping and the location load
+// Extends the class types::Location with additional functionality for calculating the lowest ping and the location load
 // Used by the LocationsModel
 class LocationItem
 {
@@ -14,7 +14,7 @@ public:
 
     const types::Location &location() const { return location_; }
     int load();
-    int averagePing();
+    int lowestPing();
     QString nickname() const { return nickname_; }
     bool is10gbps() const { return is10gbps_; }
 
@@ -33,7 +33,7 @@ public:
 private:
     types::Location location_;
     int load_;
-    int averagePing_;
+    int lowestPing_;
     bool bNeedRecalcInternalValue_;
 
     bool is10gbps_;  // is10gbps makes sense only for the best location
@@ -42,7 +42,7 @@ private:
 
     void recalcIfNeed();
     void recalcLoad();
-    void recalcAveragePing();
+    void recalcLowestPing();
 };
 
 

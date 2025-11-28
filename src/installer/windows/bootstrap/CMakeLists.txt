@@ -22,7 +22,7 @@ if(WINDSCRIBE_INSTALLER_NAME)
     add_definitions(-DWINDSCRIBE_INSTALLER_NAME=L\"${WINDSCRIBE_INSTALLER_NAME}\")
 endif(WINDSCRIBE_INSTALLER_NAME)
 
-if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+if(VCPKG_TARGET_TRIPLET MATCHES "arm64")
     # JDRM - I could find no built-in way to detect arm64 compilation in the MS resource compiler.
     add_definitions(-DWINDSCRIBE_ARM64_TARGET)
     set_source_files_properties(installer.rc OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/resources/arm64/7zr.exe)

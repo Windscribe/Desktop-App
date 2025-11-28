@@ -20,7 +20,7 @@ public:
 
     void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
                       const QString &username, const QString &password, const types::ProxySettings &proxySettings,
-                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode,
+                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression,
                       bool isCustomConfig, const QString &overrideDnsIp) override;
     void startDisconnect() override;
     bool isDisconnected() const override;
@@ -43,7 +43,6 @@ private slots:
 private:
     enum class ConnectionState { DISCONNECTED, CONNECTING, CONNECTED };
     static constexpr int PROCESS_KILL_TIMEOUT = 10000;
-    static constexpr int kTimeoutForAutomatic = 20000;  // 20 secs timeout for the automatic connection mode
 
     ConnectionState getCurrentState() const;
     void setCurrentState(ConnectionState state);
@@ -59,5 +58,4 @@ private:
     std::atomic<bool> do_stop_thread_;
     QTimer kill_process_timer_;
     AdapterGatewayInfo adapterGatewayInfo_;
-    bool isAutomaticConnectionMode_;
 };

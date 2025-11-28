@@ -146,3 +146,8 @@ void IPAddressItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
     Q_UNUSED(event);
     setCursor(Qt::ArrowCursor);
 }
+
+QString IPAddressItem::ipAddress()
+{
+    return ipAddress_;
+}

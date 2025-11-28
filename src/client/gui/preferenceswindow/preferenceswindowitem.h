@@ -55,6 +55,7 @@ public:
     void setRobertFilters(const QVector<api_responses::RobertFilter> &filters);
     void setRobertFiltersError();
     void setSplitTunnelingActive(bool active);
+    void setSystemExtensionAvailability(bool available);
     void setWebSessionCompleted();
     void setPreferencesImportCompleted();
     void setLocationNamesImportCompleted();
@@ -81,6 +82,7 @@ signals:
     void cycleMacAddressClick();
     void splitTunnelingAppsAddButtonClick();
     void detectPacketSizeClick();
+    void fetchControldDevices(const QString &apiKey);
 
     void advancedParametersClicked();
 
@@ -91,6 +93,7 @@ public slots:
     virtual void onWindowExpanded() override;
     virtual void onWindowCollapsed() override;
     void onNetworkOptionsNetworkClick(types::NetworkInterface network);
+    void onControldDevicesFetched(CONTROLD_FETCH_RESULT result, const QList<QPair<QString, QString>> &devices);
 
 private slots:
     void onCurrentTabChanged(PREFERENCES_TAB_TYPE tab);

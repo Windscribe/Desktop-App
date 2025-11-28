@@ -15,6 +15,22 @@
         <source>No locations.</source>
         <translation>Žádné lokace.</translation>
     </message>
+    <message>
+        <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>Nelze otočit IP.  Zkontrolujte, zda máte aplikaci Windscribe Pro nebo zda máte toto umístění ve svém plánu, nebo to zkuste znovu později.</translation>
+    </message>
+    <message>
+        <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>Nelze si oblíbit IP.  Zkontrolujte, zda máte aplikaci Windscribe Pro nebo zda máte toto umístění ve svém plánu, nebo to zkuste znovu později.</translation>
+    </message>
+    <message>
+        <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
+        <translation>Nemohl neoblíbený IP.  Zkontrolujte prosím, zda je poskytnutá IP adresa platná.</translation>
+    </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>IP rotace již probíhá.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -284,15 +300,35 @@
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"></translation>
+        <translation> (10 Gbps)</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Zakázáno)</translation>
     </message>
     <message>
         <source> (Pro)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Pro)</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Není připojeno</translation>
+    </message>
+    <message>
+        <source>IP rotated.</source>
+        <translation>IP otočená.</translation>
+    </message>
+    <message>
+        <source>IP favorited.</source>
+        <translation>IP adresa je oblíbená.</translation>
+    </message>
+    <message>
+        <source>IP unfavorited.</source>
+        <translation>IP neoblíbená.</translation>
+    </message>
+    <message>
+        <source>Invalid IP address</source>
+        <translation>Neplatná adresa IP</translation>
     </message>
 </context>
 </TS>

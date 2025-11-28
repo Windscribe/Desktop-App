@@ -38,7 +38,7 @@ void EmptyListWidget::setButton(const QString &buttonText)
     } else {
         WS_ASSERT(button_ == nullptr);
         button_ = new CommonWidgets::TextButtonWidget(buttonText, this);
-        button_->setFont(FontDescr(12, QFont::Normal));
+        button_->setFont(FontDescr(15, QFont::DemiBold));
         connect(button_, &CommonWidgets::TextButtonWidget::clicked, [this]() {
             emit clicked();
         });
@@ -61,22 +61,18 @@ void EmptyListWidget::paintEvent(QPaintEvent *event)
     QRect bkgd(0,0,geometry().width(), geometry().height());
     painter.fillRect(bkgd, FontManager::instance().getMidnightColor());
 
-    const int kVerticalOffset = (button_ == nullptr) ? 16 : 32;
-    if (!icon_.isEmpty()) {
-        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(icon_);
-        pixmap->draw(width() / 2 - 16 * G_SCALE, height() / 2 - (kVerticalOffset + 32) * G_SCALE, &painter);
-    }
+    const int kNoButtonOffset = (button_ == nullptr) ? 16*G_SCALE : 0;
 
     if (!text_.isEmpty()) {
         painter.save();
-        QFont font = FontManager::instance().getFont(12,  QFont::Normal);
+        QFont font = FontManager::instance().getFont(15,  QFont::Normal);
         painter.setFont(font);
         painter.setPen(Qt::white);
         painter.setOpacity(0.5);
         QRect rc, rcb;
         const int wide = textWidth_ ? (textWidth_ * G_SCALE) :
             CommonGraphics::textWidth(text_, font);
-        rc.setRect((width() - wide) / 2, height() / 2 - (kVerticalOffset - 16) * G_SCALE,
+        rc.setRect((width() - wide) / 2, height() / 2 - textHeight_ / 2 - 16*G_SCALE + kNoButtonOffset,
                    wide, height() );
         painter.drawText(rc, Qt::AlignHCenter | Qt::TextWordWrap, text_, &rcb);
         painter.restore();
@@ -84,6 +80,12 @@ void EmptyListWidget::paintEvent(QPaintEvent *event)
             textHeight_ = rcb.height();
             updateButtonPos();
         }
+    }
+
+    if (!icon_.isEmpty()) {
+        QSharedPointer<IndependentPixmap> pixmap = ImageResourcesSvg::instance().getIndependentPixmap(icon_);
+        const int iconY = height() / 2 - textHeight_ / 2 - 64*G_SCALE + kNoButtonOffset;
+        pixmap->draw(width() / 2 - 16*G_SCALE, iconY, &painter);
     }
 }
 
@@ -94,7 +96,7 @@ void EmptyListWidget::updateButtonPos()
 
     const auto sizeHint = button_->sizeHint();
     const int xpos = (width() - sizeHint.width()) / 2;
-    const int ypos = height() / 2 + textHeight_;
+    const int ypos = height() / 2 + textHeight_ / 2;
     button_->setGeometry(xpos, ypos, sizeHint.width(), sizeHint.height());
 }
 

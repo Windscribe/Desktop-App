@@ -11,6 +11,7 @@
 
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
+#include "graphicresources/imageresourcessvg.h"
 #include "preferencesconst.h"
 #include "tooltips/tooltipcontroller.h"
 #include "utils/ws_assert.h"
@@ -19,7 +20,7 @@ namespace PreferencesWindow {
 
 ComboBoxItem::ComboBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip)
   : CommonGraphics::BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), strCaption_(caption), strTooltip_(tooltip),
-    captionFont_(12, QFont::Bold), icon_(nullptr), isCaptionElided_(false)
+    captionFont_(12, QFont::Bold), icon_(nullptr), isCaptionElided_(false), inProgress_(false), spinnerRotation_(0)
 {
     connect(this, &ComboBoxItem::heightChanged, this, &ComboBoxItem::updatePositions);
 
@@ -41,6 +42,9 @@ ComboBoxItem::ComboBoxItem(ScalableGraphicsObject *parent, const QString &captio
 
     curCaptionY_ = PREFERENCES_ITEM_Y*G_SCALE;
     connect(&captionPosAnimation_, &QVariantAnimation::valueChanged, this, &ComboBoxItem::onCaptionPosUpdated);
+
+    connect(&spinnerAnimation_, &QVariantAnimation::valueChanged, this, &ComboBoxItem::onSpinnerRotationChanged);
+    connect(&spinnerAnimation_, &QVariantAnimation::finished, this, &ComboBoxItem::onSpinnerRotationFinished);
 
     setAcceptHoverEvents(true);
     updateScaling();
@@ -91,6 +95,19 @@ void ComboBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     );
 
     painter->drawText(boundingRect().adjusted(xOffset, curCaptionY_, -PREFERENCES_MARGIN_X*G_SCALE, 0), Qt::AlignLeft, elidedText);
+
+    // Draw spinner in place of button if in progress
+    if (inProgress_) {
+        painter->setOpacity(OPACITY_HALF);
+        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("SPINNER");
+        painter->save();
+        painter->translate(static_cast<int>(boundingRect().width() - PREFERENCES_MARGIN_X*G_SCALE - p->width()/2),
+                          static_cast<int>(boundingRect().height()/2));
+        painter->rotate(spinnerRotation_);
+        p->draw(-p->width()/2, -p->height()/2, painter);
+        painter->restore();
+        painter->setOpacity(OPACITY_FULL);
+    }
 
     // If there's a description draw it
     if (!desc_.isEmpty()) {
@@ -199,6 +216,7 @@ void ComboBoxItem::clear()
     items_.clear();
     menu_->clearItems();
     curItem_.clear();
+    button_->setText("");
     update();
 }
 
@@ -501,6 +519,31 @@ void ComboBoxItem::setUseMinimumSize(bool useMinimumSize)
 int ComboBoxItem::buttonWidth() const
 {
     return button_->boundingRect().width();
+}
+
+void ComboBoxItem::setInProgress(bool inProgress)
+{
+    inProgress_ = inProgress;
+    if (inProgress_) {
+        button_->setVisible(false);
+        spinnerRotation_ = 0;
+        startAnAnimation<int>(spinnerAnimation_, spinnerRotation_, 360, ANIMATION_SPEED_VERY_SLOW);
+    } else {
+        button_->setVisible(true);
+        spinnerAnimation_.stop();
+        update();
+    }
+}
+
+void ComboBoxItem::onSpinnerRotationChanged(const QVariant &value)
+{
+    spinnerRotation_ = value.toInt();
+    update();
+}
+
+void ComboBoxItem::onSpinnerRotationFinished()
+{
+    startAnAnimation<int>(spinnerAnimation_, 0, 360, ANIMATION_SPEED_VERY_SLOW);
 }
 
 } // namespace PreferencesWindow

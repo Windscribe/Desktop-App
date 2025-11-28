@@ -20,7 +20,7 @@ PacketSizeEditBoxItem::PacketSizeEditBoxItem(ScalableGraphicsObject *parent, con
     detectButtonBusy_(false), busySpinnerOpacity_(OPACITY_HIDDEN), busySpinnerRotation_(0), busySpinnerTimer_(this),
     detectButtonOpacity_(OPACITY_FULL)
 {
-    editButton_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/EDIT_ICON", "", this);
+    editButton_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "EDIT_ICON", "", this);
     connect(editButton_, &IconButton::clicked, this, &PacketSizeEditBoxItem::onEditClick);
 
     detectButton_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/AUTODETECT_ICON", "", this);
@@ -97,7 +97,7 @@ void PacketSizeEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsI
                                         boundingRect().width() - (5*PREFERENCES_MARGIN_X + 2*ICON_WIDTH)*G_SCALE - fm.horizontalAdvance(caption)));
 
         // spinner
-        painter->setOpacity(busySpinnerOpacity_ * OPACITY_HALF);
+        painter->setOpacity(busySpinnerOpacity_);
         painter->translate(spinnerPosX_ + ICON_WIDTH/2*G_SCALE, spinnerPosY_ + ICON_HEIGHT/2*G_SCALE);
         painter->rotate(busySpinnerRotation_);
         QSharedPointer<IndependentPixmap> spinnerP = ImageResourcesSvg::instance().getIndependentPixmap("SPINNER");

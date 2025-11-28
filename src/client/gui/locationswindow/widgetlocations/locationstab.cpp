@@ -11,6 +11,7 @@
 #include "languagecontroller.h"
 #include "tooltips/tooltiptypes.h"
 #include "tooltips/tooltipcontroller.h"
+#include "utils/extraconfig.h"
 #include "utils/ws_assert.h"
 
 extern QWidget *g_mainWindow;
@@ -26,7 +27,6 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
   , showAllTabs_(true)
   , curTab_(LOCATION_TAB_ALL_LOCATIONS)
   , isUnlimitedData_(true) // Assume true until told otherwise, so we make sure not to show the banner unless user is confirmed to be non-premium
-  , connectState_(CONNECT_STATE_DISCONNECTED)
 
 {
     connect(preferences_, &Preferences::appSkinChanged, this, &LocationsTab::onAppSkinChanged);
@@ -43,7 +43,7 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
     connect(viewConfiguredLocations, &gui_locations::LocationsView::selected, this, &LocationsTab::onLocationSelected);
     connect(viewConfiguredLocations, &gui_locations::LocationsView::clickedOnPremiumStarCity, this, &LocationsTab::onClickedOnPremiumStarCity);
     EmptyListWidget *emptyListWidgetConfigured = new EmptyListWidget(this);
-    emptyListWidgetConfigured->setIcon("locations/FOLDER_ICON_BIG");
+    emptyListWidgetConfigured->setIcon("locations/EMPTY_CONFIGS");
     connect(emptyListWidgetConfigured, &EmptyListWidget::clicked, [this]() {
         emit addCustomConfigClicked();
     });
@@ -55,7 +55,7 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
     connect(viewStaticIpsLocations_, &gui_locations::LocationsView::selected, this, &LocationsTab::onLocationSelected);
     connect(viewStaticIpsLocations_, &gui_locations::LocationsView::clickedOnPremiumStarCity, this, &LocationsTab::onClickedOnPremiumStarCity);
     EmptyListWidget *emptyListWidgetStaticIps = new EmptyListWidget(this);
-    emptyListWidgetStaticIps->setIcon("locations/STATIC_IP_ICON_BIG");
+    emptyListWidgetStaticIps->setIcon("locations/EMPTY_STATIC_IPS");
     emptyListWidgetStaticIps->hide();
     connect(emptyListWidgetStaticIps, &EmptyListWidget::clicked, [this]() {
         emit addStaticIpClicked();
@@ -72,7 +72,7 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
     connect(viewFavoriteLocations_, &gui_locations::LocationsView::selected, this, &LocationsTab::onLocationSelected);
     connect(viewFavoriteLocations_, &gui_locations::LocationsView::clickedOnPremiumStarCity, this, &LocationsTab::onClickedOnPremiumStarCity);
     EmptyListWidget *emptyListWidgetFavorites = new EmptyListWidget(this);
-    emptyListWidgetFavorites->setIcon("locations/BROKEN_HEART_ICON");
+    emptyListWidgetFavorites->setIcon("locations/EMPTY_FAVOURITES");
     widgetFavoriteLocations_ = new WidgetSwitcher(this, viewFavoriteLocations_, emptyListWidgetFavorites);
     widgetFavoriteLocations_->hide();
 
@@ -98,34 +98,12 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
     upgradeBanner_->hide();
     connect(upgradeBanner_, &UpgradeBanner::clicked, this, &LocationsTab::upgradeBannerClicked);
 
-    refreshButtonText_ = "";
-    refreshButtonColor_ = QColor(0x5D, 0x87, 0xD0);
-    refreshButtonAnimationProgress_ = 0.0;
-    pingsActive_ = false;
-    currentSpinnerRotation_ = 0.0;
-
-    refreshButtonColorAnimation_ = new QVariantAnimation(this);
-    refreshButtonColorAnimation_->setDuration(ANIMATION_SPEED_FAST);
-    connect(refreshButtonColorAnimation_, &QVariantAnimation::valueChanged, [this](const QVariant &value) {
-        refreshButtonAnimationProgress_ = value.toDouble();
-        update();
-    });
-
-    spinnerRotationAnimation_ = new QVariantAnimation(this);
-    spinnerRotationAnimation_->setStartValue(0.0);
-    spinnerRotationAnimation_->setEndValue(360.0);
-    spinnerRotationAnimation_->setDuration(1000); // 1 second per rotation
-    spinnerRotationAnimation_->setLoopCount(-1); // Infinite loop
-    connect(spinnerRotationAnimation_, &QVariantAnimation::valueChanged, [this](const QVariant &value) {
-        currentSpinnerRotation_ = value.toDouble();
-        update();
-    });
-
-    setMouseTracking(true);
-
     updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
 
     connect(locationsModelManager, &gui_locations::LocationsModelManager::deviceNameChanged, this, &LocationsTab::onDeviceNameChanged);
+    connect(locationsModelManager->locationsModel(), &gui_locations::LocationsModel::dataChanged, this, [this]() {
+        update();
+    });
     updateCustomConfigsEmptyListVisibility();
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &LocationsTab::onLanguageChanged);
@@ -154,7 +132,6 @@ void LocationsTab::paintEvent(QPaintEvent *event)
     Q_UNUSED(event);
 
     QPainter painter(this);
-    painter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
     QRect bkgd(0, 0, geometry().width(), geometry().height());
     painter.fillRect(bkgd, FontManager::instance().getMidnightColor());
@@ -162,66 +139,56 @@ void LocationsTab::paintEvent(QPaintEvent *event)
     WidgetSwitcher *currentWidget = getCurrentWidget();
     int count = currentWidget ? currentWidget->locationsView()->count() : 0;
 
-    QFont font = FontManager::instance().getFont(12, QFont::Normal);
+    QFont font = FontManager::instance().getFont(12, QFont::DemiBold);
+    font.setLetterSpacing(QFont::AbsoluteSpacing, 0.96);
     painter.setFont(font);
-    painter.setPen(Qt::white);
-    painter.setOpacity(0.6);
 
     QString text;
     if (count == 0) {
         text = "";
     } else if (curTab_ == LOCATION_TAB_ALL_LOCATIONS) {
-        text = tr("All locations (%1)").arg(count);
+        text = tr("ALL LOCATIONS");
     } else if (curTab_ == LOCATION_TAB_FAVORITE_LOCATIONS) {
-        text = tr("Favourites");
+        text = tr("FAVOURITES");
     } else if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS) {
-        text = tr("Static IPs");
+        text = tr("STATIC IPs");
     } else if (curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS) {
-        text = tr("Custom configs");
+        text = tr("CUSTOM CONFIGs");
     } else if (curTab_ == LOCATION_TAB_SEARCH_LOCATIONS) {
-        text = tr("Search");
+        text = tr("SEARCH");
     }
 
-    if (preferences_->appSkin() == APP_SKIN::APP_SKIN_VAN_GOGH) {
-        painter.drawText(QRect(16*G_SCALE, 18*G_SCALE, geometry().width() - 32*G_SCALE, headerHeight()*G_SCALE), Qt::AlignLeft, text);
-    } else {
-        painter.drawText(QRect(16*G_SCALE, 38*G_SCALE, geometry().width() - 32*G_SCALE, headerHeight()*G_SCALE), Qt::AlignLeft, text);
+    if (!text.isEmpty()) {
+        int baseY = preferences_->appSkin() == APP_SKIN::APP_SKIN_VAN_GOGH ? 18*G_SCALE : 38*G_SCALE;
+        int baseX = 16*G_SCALE;
+
+        painter.setPen(Qt::white);
+        painter.setOpacity(0.7);
+        painter.drawText(QRect(baseX, baseY, geometry().width() - 32*G_SCALE, headerHeight()*G_SCALE), Qt::AlignLeft, text);
+
+        QFontMetrics fm(font);
+        int textWidth = fm.horizontalAdvance(text);
+
+        int separatorX = baseX + textWidth + 8*G_SCALE;
+        QFontMetrics fontMetrics(font);
+        int textHeight = fontMetrics.height();
+        int separatorY = baseY + (textHeight - 16*G_SCALE) / 2;
+
+        painter.setOpacity(0.2);
+        painter.fillRect(QRect(separatorX, separatorY, 1*G_SCALE, 16*G_SCALE), QColor(217, 217, 217));
+
+        int countX = separatorX + 1*G_SCALE + 8*G_SCALE;
+        painter.setOpacity(0.7);
+        painter.setPen(Qt::white);
+        QFont countFont = FontManager::instance().getFont(12, QFont::Normal);
+        painter.setFont(countFont);
+        painter.drawText(QRect(countX, baseY, geometry().width() - countX, headerHeight()*G_SCALE), Qt::AlignLeft, QString::number(count));
     }
+}
 
-    // Draw refresh button text or spinner
-    if (!refreshButtonText_.isEmpty() && curTab_ != LOCATION_TAB_CONFIGURED_LOCATIONS && connectState_ == CONNECT_STATE_DISCONNECTED) {
-        painter.setOpacity(OPACITY_FULL);
-
-        if (pingsActive_) {
-            // Show rotating spinner instead of text when pings are active
-            QSharedPointer<IndependentPixmap> spinnerPixmap = ImageResourcesSvg::instance().getIndependentPixmap("SPINNER");
-            int spinnerSize = 16*G_SCALE;
-            int scaledWidth = geometry().width();
-            int spinnerX = scaledWidth - spinnerSize - 24*G_SCALE;
-            int spinnerY = refreshButtonRect_.top() + (refreshButtonRect_.height() - spinnerSize) / 2;
-
-            // Apply rotation animation
-            painter.save();
-            painter.translate(spinnerX + spinnerSize/2, spinnerY + spinnerSize/2);
-            painter.rotate(currentSpinnerRotation_);
-            spinnerPixmap->draw(-spinnerSize/2, -spinnerSize/2, spinnerSize, spinnerSize, &painter);
-            painter.restore();
-        } else {
-            // Show refresh text
-            QColor hoverColor = Qt::white;
-
-            if (refreshButtonAnimationProgress_ > 0.0) {
-                int r = refreshButtonColor_.red() + (hoverColor.red() - refreshButtonColor_.red()) * refreshButtonAnimationProgress_;
-                int g = refreshButtonColor_.green() + (hoverColor.green() - refreshButtonColor_.green()) * refreshButtonAnimationProgress_;
-                int b = refreshButtonColor_.blue() + (hoverColor.blue() - refreshButtonColor_.blue()) * refreshButtonAnimationProgress_;
-                painter.setPen(QColor(r, g, b));
-            } else {
-                painter.setPen(refreshButtonColor_);
-            }
-
-            painter.drawText(refreshButtonRect_, Qt::AlignRight | Qt::AlignVCenter, refreshButtonText_);
-        }
-    }
+void LocationsTab::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
 }
 
 void LocationsTab::onClickAllLocations()
@@ -279,16 +246,8 @@ void LocationsTab::onClickFavoriteLocations()
 
 void LocationsTab::onClickSearchLocations()
 {
-    curTab_ = LOCATION_TAB_SEARCH_LOCATIONS;
-    widgetConfiguredLocations_->hide();
-    widgetStaticIpsLocations_->hide();
-    widgetFavoriteLocations_->hide();
-    widgetAllLocations_->hide();
-    widgetSearchLocations_->locationsView()->collapseAll();
-    widgetSearchLocations_->locationsView()->scrollToTop();
-    widgetSearchLocations_->show();
-    widgetSearchLocations_->raise();
-    updateRibbonVisibility();
+    // Don't switch to search tab yet
+    // Tab will be switched when user actually types something (see onSearchFilterChanged)
 }
 
 void LocationsTab::onDeviceNameChanged(const QString &deviceName)
@@ -354,17 +313,6 @@ void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
     widgetConfiguredLocations_->setGeometry(0, topAreaHeight, scaledWidth, scaledHeight - ribbonHeight);
     widgetSearchLocations_->setGeometry(0, topAreaHeight, scaledWidth, scaledHeight);
 
-    QFont font = FontManager::instance().getFont(12, QFont::Normal);
-    QFontMetrics fm(font);
-    int textWidth = fm.horizontalAdvance(refreshButtonText_);
-    int textHeight = fm.height();
-
-    if (preferences_->appSkin() == APP_SKIN::APP_SKIN_VAN_GOGH) {
-        refreshButtonRect_ = QRect(scaledWidth - textWidth - 24*G_SCALE, 18*G_SCALE, textWidth, textHeight);
-    } else {
-        refreshButtonRect_ = QRect(scaledWidth - textWidth - 24*G_SCALE, 38*G_SCALE, textWidth, textHeight);
-    }
-
     // ribbon geometry
     staticIPDeviceInfo_->setGeometry(0, scaledHeight - ribbonOffset + alphaOffset, scaledWidth, ribbonHeight);
     configFooterInfo_->setGeometry(0, scaledHeight - ribbonOffset + alphaOffset, scaledWidth, ribbonHeight);
@@ -410,11 +358,11 @@ void LocationsTab::updateCustomConfigsEmptyListVisibility()
     WS_ASSERT(configFooterInfo_ != nullptr);
     if (configFooterInfo_->text().isEmpty()) {
         widgetConfiguredLocations_->emptyListWidget()->setText(
-            tr("Choose the directory that contains custom configs you wish to display here"), 160);
+            tr("Choose the directory that contains custom configs you wish to display here"), 200);
         widgetConfiguredLocations_->emptyListWidget()->setButton(tr("Choose"));
     } else {
         widgetConfiguredLocations_->emptyListWidget()->setText(
-            tr("The selected directory contains no custom configs"), 160);
+            tr("The selected directory contains no custom configs"), 200);
         widgetConfiguredLocations_->emptyListWidget()->setButton(QString());
     }
 }
@@ -477,18 +425,15 @@ void LocationsTab::onAppSkinChanged(APP_SKIN s)
 
 void LocationsTab::onLanguageChanged()
 {
-    widgetSearchLocations_->emptyListWidget()->setText(tr("No locations found"), 120);
-    widgetFavoriteLocations_->emptyListWidget()->setText(tr("Nothing to see here..."), 120);
-    widgetStaticIpsLocations_->emptyListWidget()->setText(tr("You don't have any Static IPs"), 120);
-    widgetAllLocations_->emptyListWidget()->setText(tr("No locations"), 120);
+    widgetSearchLocations_->emptyListWidget()->setText(tr("No locations found"), 200);
+    widgetFavoriteLocations_->emptyListWidget()->setText(tr("Nothing to see here..."), 200);
+    widgetStaticIpsLocations_->emptyListWidget()->setText(tr("You don't have any Static IPs"), 200);
+    widgetAllLocations_->emptyListWidget()->setText(tr("No locations"), 200);
     // Delete old button first
     widgetStaticIpsLocations_->emptyListWidget()->setButton("");
     widgetConfiguredLocations_->emptyListWidget()->setButton("");
     // Set new buttons
-    widgetStaticIpsLocations_->emptyListWidget()->setButton(tr("Buy"));
-
-    refreshButtonText_ = tr("Refresh Pings");
-
+    widgetStaticIpsLocations_->emptyListWidget()->setButton(tr("Add"));
     updateCustomConfigsEmptyListVisibility();
 }
 
@@ -507,6 +452,17 @@ void LocationsTab::onSearchFilterChanged(const QString &filter)
     if (filter.isEmpty()) {
         widgetSearchLocations_->locationsView()->collapseAll();
     } else {
+        // Switch to search tab when user starts typing
+        if (curTab_ != LOCATION_TAB_SEARCH_LOCATIONS) {
+            curTab_ = LOCATION_TAB_SEARCH_LOCATIONS;
+            widgetConfiguredLocations_->hide();
+            widgetStaticIpsLocations_->hide();
+            widgetFavoriteLocations_->hide();
+            widgetAllLocations_->hide();
+            widgetSearchLocations_->show();
+            widgetSearchLocations_->raise();
+            updateRibbonVisibility();
+        }
         widgetSearchLocations_->locationsView()->expandAll();
     }
     widgetSearchLocations_->locationsView()->scrollToTop();
@@ -526,69 +482,6 @@ void LocationsTab::setDataRemaining(qint64 bytesUsed, qint64 bytesMax)
     isUnlimitedData_ = (bytesMax == -1);
     updateRibbonVisibility();
     upgradeBanner_->setDataRemaining(bytesUsed, bytesMax);
-}
-
-void LocationsTab::onConnectStateChanged(const types::ConnectState &connectState)
-{
-    connectState_ = connectState.connectState;
-    update();
-}
-
-void LocationsTab::onPingsStarted()
-{
-    pingsActive_ = true;
-    spinnerRotationAnimation_->start();
-    update();
-}
-
-void LocationsTab::onPingsFinished()
-{
-    pingsActive_ = false;
-    spinnerRotationAnimation_->stop();
-    currentSpinnerRotation_ = 0.0;
-    update();
-}
-
-void LocationsTab::mousePressEvent(QMouseEvent *event)
-{
-    if (refreshButtonRect_.contains(event->pos()) && isRefreshButtonVisible()) {
-        setCursor(Qt::ArrowCursor);
-        emit refreshClicked();
-    }
-    QWidget::mousePressEvent(event);
-}
-
-void LocationsTab::mouseMoveEvent(QMouseEvent *event)
-{
-    bool isHovered = refreshButtonRect_.contains(event->pos()) && isRefreshButtonVisible();
-
-    if (isHovered) {
-        refreshButtonColorAnimation_->setStartValue(refreshButtonAnimationProgress_);
-        refreshButtonColorAnimation_->setEndValue(1.0);
-        refreshButtonColorAnimation_->start();
-        setCursor(Qt::PointingHandCursor);
-    } else {
-        refreshButtonColorAnimation_->setStartValue(refreshButtonAnimationProgress_);
-        refreshButtonColorAnimation_->setEndValue(0.0);
-        refreshButtonColorAnimation_->start();
-        setCursor(Qt::ArrowCursor);
-    }
-
-    QWidget::mouseMoveEvent(event);
-}
-
-void LocationsTab::leaveEvent(QEvent *event)
-{
-    refreshButtonColorAnimation_->setStartValue(refreshButtonAnimationProgress_);
-    refreshButtonColorAnimation_->setEndValue(0.0);
-    refreshButtonColorAnimation_->start();
-    setCursor(Qt::ArrowCursor);
-    QWidget::leaveEvent(event);
-}
-
-bool LocationsTab::isRefreshButtonVisible() const
-{
-    return connectState_ == CONNECT_STATE_DISCONNECTED && curTab_ != LOCATION_TAB_CONFIGURED_LOCATIONS && !pingsActive_;
 }
 
 } // namespace GuiLocations

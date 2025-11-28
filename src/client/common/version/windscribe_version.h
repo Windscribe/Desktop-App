@@ -1,7 +1,7 @@
 #pragma once
 
 #define WINDSCRIBE_MAJOR_VERSION 2
-#define WINDSCRIBE_MINOR_VERSION 18
+#define WINDSCRIBE_MINOR_VERSION 19
 #define WINDSCRIBE_BUILD_VERSION 2
 
 // only one of these should be enabled; neither -> stable

@@ -15,6 +15,22 @@
         <source>No locations.</source>
         <translation>Brak lokalizacji.</translation>
     </message>
+    <message>
+        <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>Nie można obrócić adresu IP.  Sprawdź, czy masz Windscribe Pro lub masz tę lokalizację w swoim planie, lub spróbuj ponownie później.</translation>
+    </message>
+    <message>
+        <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>Nie można dodać adresu IP do ulubionych.  Sprawdź, czy masz Windscribe Pro lub masz tę lokalizację w swoim planie, lub spróbuj ponownie później.</translation>
+    </message>
+    <message>
+        <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
+        <translation>Nie można odłączyć adresu IP od ulubionych.  Sprawdź, czy podany adres IP jest prawidłowy.</translation>
+    </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>Rotacja adresów IP jest już w toku.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -284,15 +300,35 @@
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"></translation>
+        <translation> (10 Gb/s)</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Wyłączone)</translation>
     </message>
     <message>
         <source> (Pro)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Za)</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Nie podłączono</translation>
+    </message>
+    <message>
+        <source>IP rotated.</source>
+        <translation>Adres IP został zmieniony.</translation>
+    </message>
+    <message>
+        <source>IP favorited.</source>
+        <translation>Adres IP dodany do ulubionych.</translation>
+    </message>
+    <message>
+        <source>IP unfavorited.</source>
+        <translation>Adres IP niedodany do ulubionych.</translation>
+    </message>
+    <message>
+        <source>Invalid IP address</source>
+        <translation>Nieprawidłowy adres IP</translation>
     </message>
 </context>
 </TS>

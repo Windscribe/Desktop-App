@@ -20,6 +20,7 @@ MainService::MainService() : QObject(), isExitingAfterUpdate_(false), keyLimitDe
     connect(backend_, &Backend::updateVersionChanged, this, &MainService::onBackendUpdateVersionChanged);
     connect(backend_, &Backend::wireGuardAtKeyLimit, this, &MainService::onBackendWireGuardAtKeyLimit);
     connect(backend_, &Backend::localDnsServerNotAvailable, this, &MainService::onBackendLocalDnsServerNotAvailable);
+    connect(backend_, &Backend::myIpChanged, this, &MainService::onBackendMyIpChanged);
     backend_->init();
 
     // signals from here to Backend
@@ -40,6 +41,8 @@ MainService::MainService() : QObject(), isExitingAfterUpdate_(false), keyLimitDe
     connect(localIpcServer_, &LocalIPCServer::connectToStaticIpLocation, this, &MainService::onConnectToStaticIpLocation);
     connect(localIpcServer_, &LocalIPCServer::attemptLogin, this, &MainService::onLogin);
     connect(localIpcServer_, &LocalIPCServer::setKeyLimitBehavior, this, &MainService::onSetKeyLimitBehavior);
+    connect(localIpcServer_, &LocalIPCServer::pinIp, this, &MainService::onPinIp);
+    connect(localIpcServer_, &LocalIPCServer::unpinIp, this, &MainService::onUnpinIp);
 }
 
 MainService::~MainService()
@@ -72,6 +75,8 @@ void MainService::onBackendInitFinished(INIT_STATE initState)
     } else if (backend_->isCanLoginWithAuthHash()) {
         backend_->loginWithAuthHash();
     }
+
+    onPreferencesShareProxyGatewayChanged(backend_->getPreferences()->shareProxyGateway());
 }
 
 void MainService::setInitialFirewallState()
@@ -198,7 +203,34 @@ void MainService::onShowLocations(IPC::CliCommands::LocationType type)
             locations << IPC::CliCommands::IpcLocation(miStatic.data(gui_locations::kName).toString(),
                                                        "",
                                                        miStatic.data(gui_locations::kNick).toString(),
+                                                       "",
                                                        0);
+        }
+    } else if (type == IPC::CliCommands::LocationType::kFavourite) {
+        for (int i = 0; i < backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount(); i++) {
+            QModelIndex miFavorite = backend_->locationsModelManager()->favoriteCitiesProxyModel()->index(i, 0);
+            QString cityName = miFavorite.data(gui_locations::kName).toString();
+            QString nickName = miFavorite.data(gui_locations::kNick).toString();
+
+            // Get pinned IP if available
+            QString pinnedIp;
+            QVariantList pinnedData = miFavorite.data(gui_locations::kPinnedIp).toList();
+            if (pinnedData.size() == 2) {
+                pinnedIp = pinnedData[1].toString();  // IP is the second element
+            }
+
+            int flags = 0;
+            if (miFavorite.data(gui_locations::kIsDisabled).toBool()) {
+                flags |= (int)IPC::CliCommands::LocationFlags::kDisabled;
+            }
+            if (miFavorite.data(gui_locations::kIsShowAsPremium).toBool()) {
+                flags |= (int)IPC::CliCommands::LocationFlags::kPremium;
+            }
+            if (miFavorite.data(gui_locations::kIs10Gbps).toBool()) {
+                flags |= (int)IPC::CliCommands::LocationFlags::k10Gbps;
+            }
+
+            locations << IPC::CliCommands::IpcLocation("", cityName, nickName, pinnedIp, flags);
         }
     } else {
         assert(false);
@@ -337,5 +369,78 @@ void MainService::onBackendLocalDnsServerNotAvailable()
     types::ConnectedDnsInfo connectedDnsInfo = backend_->getPreferences()->connectedDnsInfo();
     connectedDnsInfo.type = CONNECTED_DNS_TYPE::CONNECTED_DNS_TYPE_AUTO;
     backend_->getPreferences()->setConnectedDnsInfo(connectedDnsInfo);
+}
+
+void MainService::onBackendMyIpChanged(const QString &ip, bool isFromDisconnectedState)
+{
+    if (isFromDisconnectedState) {
+        connectedIp_ = "";
+    } else {
+        connectedIp_ = ip;
+    }
+}
+
+void MainService::onPinIp()
+{
+    if (connectedIp_.isEmpty()) {
+        return;
+    }
+
+    LocationID locationId = backend_->currentLocation();
+    if (!locationId.isValid()) {
+        return;
+    }
+
+    // If the selected location is "Best Location", convert to the actual API location
+    if (locationId.isBestLocation()) {
+        locationId = locationId.bestLocationToApiLocation();
+        if (!locationId.isValid()) {
+            return;
+        }
+    }
+
+    QModelIndex locationIndex = static_cast<gui_locations::LocationsModel*>(backend_->locationsModelManager()->locationsModel())->getIndexByLocationId(locationId);
+    if (!locationIndex.isValid()) {
+        return;
+    }
+
+    // Get the current connecting hostname from backend
+    QString hostname = backend_->getCurrentConnectingHostname();
+
+    // Add to favorites with hostname and IP via kPinnedIp role
+    QVariantList pinnedData;
+    pinnedData << hostname << connectedIp_;
+    backend_->locationsModelManager()->locationsModel()->setData(locationIndex, pinnedData, gui_locations::Roles::kPinnedIp);
+    qCDebug(LOG_BASIC) << "Pinning IP" << connectedIp_ << "for hostname" << hostname;
+}
+
+void MainService::onUnpinIp(const QString &ip)
+{
+    // Search through favorite cities to find the one with the matching pinned IP
+    for (int i = 0; i < backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount(); i++) {
+        QModelIndex miFavorite = backend_->locationsModelManager()->favoriteCitiesProxyModel()->index(i, 0);
+
+        // Get pinned IP from this favorite
+        QVariantList pinnedData = miFavorite.data(gui_locations::kPinnedIp).toList();
+        if (pinnedData.size() == 2 && pinnedData[1].toString() == ip) {
+            // Found the location with this IP, unpin it
+            LocationID locationId = qvariant_cast<LocationID>(miFavorite.data(gui_locations::kLocationId));
+
+            gui_locations::LocationsModel* locationsModel = static_cast<gui_locations::LocationsModel*>(backend_->locationsModelManager()->locationsModel());
+            QModelIndex locationIndex = locationsModel->getIndexByLocationId(locationId);
+
+            if (locationIndex.isValid()) {
+                // Clear pinned IP and remove from favorites
+                QVariantList emptyPinnedData;
+                emptyPinnedData << QString() << QString();
+                backend_->locationsModelManager()->locationsModel()->setData(locationIndex, emptyPinnedData, gui_locations::Roles::kPinnedIp);
+                backend_->locationsModelManager()->locationsModel()->setData(locationIndex, false, gui_locations::Roles::kIsFavorite);
+                qCDebug(LOG_BASIC) << "Unpinned IP" << ip << "from location";
+            }
+            return;
+        }
+    }
+
+    qCDebug(LOG_BASIC) << "IP" << ip << "not found in favorites";
 }
 

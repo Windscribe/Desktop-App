@@ -6,6 +6,7 @@
     #include <windows.h>
     #include "ikev2connection_win.h"
     #include "wireguardconnection_win.h"
+    #include "ctrldmanager/ctrldmanager_win.h"
 #endif
 
 #ifdef Q_OS_MACOS
@@ -33,6 +34,7 @@ void FinishActiveConnections::finishAllActiveConnections_win(Helper *helper)
     finishOpenVpnActiveConnections_win(helper);
     finishIkev2ActiveConnections_win(helper);
     finishWireGuardActiveConnections_win(helper);
+    CtrldManager_win::terminateWindscribeCtrldProcesses();
 }
 
 void FinishActiveConnections::finishOpenVpnActiveConnections_win(Helper *helper)
@@ -72,6 +74,7 @@ void FinishActiveConnections::finishAllActiveConnections_posix(Helper *helper)
 #if defined(Q_OS_MACOS)
     IKEv2Connection_mac::closeWindscribeActiveConnection();
 #endif
+    helper->executeTaskKill(kTargetCtrld);
 }
 
 void FinishActiveConnections::finishOpenVpnActiveConnections_posix(Helper *helper)

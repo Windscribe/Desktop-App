@@ -42,7 +42,6 @@ struct EngineSettingsData : public QSharedData
     DNS_MANAGER_TYPE dnsManager = DNS_MANAGER_AUTOMATIC;
     DecoyTrafficSettings decoyTrafficSettings;
     QMap<QString, types::ConnectionSettings> networkPreferredProtocols;
-    QMap<QString, std::pair<types::Protocol, uint>> networkLastKnownGoodProtocols;
     QString language;
 
     void fromJson(const QJsonObject &json);
@@ -74,7 +73,6 @@ private:
     static const inline QString kJsonIsTerminateSocketsProp = "isTerminateSockets";
     static const inline QString kJsonLanguageProp = "language";
     static const inline QString kJsonMacAddrSpoofingProp = "macAddrSpoofing";
-    static const inline QString kJsonNetworkLastKnownGoodProtocolsProp = "networkLastKnownGoodProtocols";
     static const inline QString kJsonNetworkPreferredProtocolsProp = "networkPreferredProtocols";
     static const inline QString kJsonPacketSizeProp = "packetSize";
     static const inline QString kJsonProtocolProp = "protocol";
@@ -131,10 +129,6 @@ public:
     void setConnectedDnsInfo(const types::ConnectedDnsInfo &info);
     const QMap<QString, types::ConnectionSettings> &networkPreferredProtocols() const;
     void setNetworkPreferredProtocols(const QMap<QString, types::ConnectionSettings> &settings);
-    const types::Protocol networkLastKnownGoodProtocol(const QString &network) const;
-    uint networkLastKnownGoodPort(const QString &network) const;
-    void setNetworkLastKnownGoodProtocolPort(const QString &network, const types::Protocol &protocol, uint port);
-    void clearLastKnownGoodProtocols(const QString &network);
 
     QString customOvpnConfigsPath() const;
     void setCustomOvpnConfigsPath(const QString &path);
@@ -161,7 +155,7 @@ private:
 
     // for serialization
     static constexpr quint32 magic_ = 0x7745C2AE;
-    static constexpr int versionForSerialization_ = 6;  // should increment the version if the data format is changed
+    static constexpr int versionForSerialization_ = 7;  // should increment the version if the data format is changed
 };
 
 } // types namespace

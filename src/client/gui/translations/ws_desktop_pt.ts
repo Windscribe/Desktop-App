@@ -61,6 +61,18 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Manter o firewall ligado enquanto estiver desconectado pode quebrar a conectividade com a Internet</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>IP favorito</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Girar IP</translation>
+    </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>FIREWALL</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +92,16 @@
         <translation>IPs estáticos</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoritos</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Pesquisar</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Configurações personalizadas</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoritos</translation>
     </message>
 </context>
 <context>
@@ -256,32 +268,28 @@
         <translation>Sem localizações</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Comprar</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>TODAS AS LOCALIZAÇÕES</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>Todos os locais (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>FAVORITOS</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoritos</translation>
+        <source>STATIC IPs</source>
+        <translation>IPs ESTÁTICOS</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>IPs estáticos</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>CONFIGURAÇÕES PERSONALIZADAS</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Configurações personalizadas</translation>
+        <source>SEARCH</source>
+        <translation>PESQUISA</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Pesquisar</translation>
-    </message>
-    <message>
-        <source>Refresh Pings</source>
-        <translation>Atualizar Pings</translation>
+        <source>Add</source>
+        <translation>Adicionar</translation>
     </message>
 </context>
 <context>
@@ -653,42 +661,6 @@ A recuperar...</translation>
         <translation>Selecione uma aplicação</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Ligar</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Desconectar</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Locais</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Favoritos</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>IPs estáticos</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Mostrar/Ocultar</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Preferências</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Ajuda</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Sair</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>Arquivo somente leitura</translation>
     </message>
@@ -905,8 +877,40 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Não é possível iniciar o serviço DNS personalizado - a porta 53 já está em uso.  Gostaria de alterar o DNS conectado para o servidor local?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Configurações personalizadas</translation>
+        <source>Could not pin IP</source>
+        <translation>Não foi possível fixar IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Não foi possível definir o seu IP favorito para este local.  Tente novamente mais tarde.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Não foi possível girar o IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Tente novamente mais tarde ou aceda à nossa página de Estado para obter mais informações.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Verificar Estado da Localização</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Voltar</translation>
+    </message>
+    <message>
+        <source>Manual connection mode failed</source>
+        <translation>Modo de ligação manual falhou</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Não conseguimos ligar-te nesta rede. Modo de ligação automática recomendado para melhores resultados. Mudar o modo de ligação para Auto?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Mudar para Auto</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1210,18 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Usar uma LAN ou endereço IP local para DNS conectado resultará em um vazamento de DNS.  É altamente recomendável usar ROBERT ou um servidor DNS público.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>Chave da API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Falha ao acessar a API do Controle D.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Forneça uma chave de API Control D válida.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1545,6 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Versão</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Escolha entre o ícone da bandeja branca e preta.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Cor do ícone da bandeja</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Multi-área de trabalho</translation>
     </message>
@@ -1645,6 +1653,14 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     <message>
         <source>Reset</source>
         <translation>Repor</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Escolha entre o ícone da bandeja branca e preta.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Cor do ícone da bandeja</translation>
     </message>
 </context>
 <context>
@@ -2199,6 +2215,10 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Inclua ou exclua aplicativos e nomes de host do túnel VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>A extensão do sistema de túnel dividido Windscribe deve estar ativada para que esta funcionalidade funcione. Por favor, ative-o nas Definições do Sistema.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2472,6 +2492,10 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
         <source>Custom configs</source>
         <translation>Configurações personalizadas</translation>
     </message>
+    <message>
+        <source>Random IP</source>
+        <translation>IP aleatório</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
@@ -2504,6 +2528,49 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
     <message>
         <source>Secure Hotspot</source>
         <translation>Hotspot Seguro</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Ligar</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Desconectar</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Locais</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IPs estáticos</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Configurações personalizadas</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Mostrar/Ocultar</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Preferências</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Ajuda</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Deixa o Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoritos</translation>
     </message>
 </context>
 <context>

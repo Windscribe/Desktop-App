@@ -44,6 +44,12 @@ namespace Utils
     bool isValidIpAddress(const std::string &address);
     bool isValidDomain(const std::string &address);
 
+    // check if a string is a valid network interface name
+    bool isValidInterfaceName(const std::string &interfaceName);
+
+    // check if a string is a valid MAC address
+    bool isValidMacAddress(const std::string &macAddress);
+
     // resets MAC address to original (hw) address, optionally ignoring one interface
     bool resetMacAddresses(const std::string &ignoreNetwork = "");
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <map>
 #include <mutex>
 
 namespace wsnet {
@@ -46,6 +47,9 @@ public:
     void setNotifications(const std::string &notifications);
     std::string notifications() const;
 
+    void setSessionTokens(const std::map<std::string, std::pair<std::string, std::int64_t>> &sessionTokens);
+    std::map<std::string, std::pair<std::string, std::int64_t>> sessionTokens() const;
+
     std::string getAsString() const;
 
 private:
@@ -64,6 +68,7 @@ private:
     std::string portMap_;
     std::string staticIps_;
     std::string notifications_;
+    std::map<std::string, std::pair<std::string, std::int64_t>> sessionTokens_;
 
     mutable std::mutex mutex_;
 };

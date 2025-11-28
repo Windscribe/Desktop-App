@@ -46,6 +46,21 @@
 }
 
 - (BOOL)handleNewFlow:(NEAppProxyFlow *)flow {
+    nw_interface_t flowInterface = flow.networkInterface;
+    if (!flowInterface) {
+        spdlog::info("Flow interface not found");
+        return NO;
+    }
+
+    const char *flowInterfaceName = nw_interface_get_name(flowInterface);
+    const char *primaryInterfaceName = nw_interface_get_name(settings_.primaryInterface);
+    const char *vpnInterfaceName = nw_interface_get_name(settings_.vpnInterface);
+
+    if (strcmp(flowInterfaceName, primaryInterfaceName) != 0 && strcmp(flowInterfaceName, vpnInterfaceName) != 0) {
+        spdlog::info("Flow interface ({}) not in primary ({}) or VPN interface ({})", flowInterfaceName, primaryInterfaceName, vpnInterfaceName);
+        return NO;
+    }
+
     if ([flow isKindOfClass:[NEAppProxyTCPFlow class]]) {
         return [tcpHandler_ setupTCPConnection:(NEAppProxyTCPFlow *)flow interface:settings_.primaryInterface];
     } else if ([flow isKindOfClass:[NEAppProxyUDPFlow class]]) {

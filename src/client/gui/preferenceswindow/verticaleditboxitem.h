@@ -21,15 +21,19 @@ public:
     void setText(const QString &text);
     void setPrompt(const QString &prompt);
     void setValidator(QRegularExpressionValidator *validator);
+    void setError(const QString &error);
 
     void updateScaling() override;
+    void setEnabled(bool enabled);
     void setEditButtonClickable(bool clickable);
     void setMasked(bool masked);
+    void setRefreshButtonVisible(bool visible);
 
     bool lineEditHasFocus();
 
 signals:
     void textChanged(const QString &text);
+    void refreshButtonClicked();
     void additionalButtonClicked();
     void additionalButtonHoverEnter();
     void additionalButtonHoverLeave();
@@ -46,10 +50,13 @@ private:
     QString caption_;
     QString text_;
     QString editPlaceholderText_;
+    QString errorText_;
+    int errorHeight_ = 0;
 
     IconButton *btnEdit_;
     IconButton *btnConfirm_;
     IconButton *btnUndo_;
+    IconButton *btnRefresh_;
     bool isEditMode_;
     QChar maskingChar_;
 

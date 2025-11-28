@@ -61,6 +61,18 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Bật tường lửa khi ngắt kết nối có thể làm gián đoạn kết nối internet</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>IP yêu thích</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Xoay IP</translation>
+    </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>TƯỜNG LỬA</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +92,16 @@
         <translation>IP tĩnh</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Yêu thích</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Tìm kiếm</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Cấu hình tùy chỉnh</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Yêu thích</translation>
     </message>
 </context>
 <context>
@@ -256,32 +268,28 @@
         <translation>Không có địa điểm</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Mua</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>TẤT CẢ CÁC ĐỊA ĐIỂM</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>Tất cả các địa điểm (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>YÊU THÍCH</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Yêu thích</translation>
+        <source>STATIC IPs</source>
+        <translation>IP TĨNH</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>IP tĩnh</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>CẤU HÌNH TÙY CHỈNH</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Cấu hình tùy chỉnh</translation>
+        <source>SEARCH</source>
+        <translation>TÌM KIẾM</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Tìm kiếm</translation>
-    </message>
-    <message>
-        <source>Refresh Pings</source>
-        <translation>Làm mới ping</translation>
+        <source>Add</source>
+        <translation>Thêm</translation>
     </message>
 </context>
 <context>
@@ -653,42 +661,6 @@ Phục hồi...</translation>
         <translation>Chọn một ứng dụng</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Kết nối</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Ngắt kết nối</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Địa điểm</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Yêu thích</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>IP tĩnh</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Hiển thị / Ẩn</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Sở thích</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Trợ giúp</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Thoát</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>Tệp chỉ đọc</translation>
     </message>
@@ -905,8 +877,40 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Không thể bắt đầu dịch vụ DNS tùy chỉnh - cổng 53 đã được sử dụng.  Bạn có muốn thay đổi DNS được kết nối của mình thành máy chủ cục bộ không?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Cấu hình tùy chỉnh</translation>
+        <source>Could not pin IP</source>
+        <translation>Không thể ghim IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Chúng tôi không thể đặt IP yêu thích của bạn cho vị trí này.  Hãy thử lại sau.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Không thể xoay IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Hãy thử lại sau hoặc truy cập trang Trạng thái của chúng tôi để biết thêm thông tin.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Kiểm tra trạng thái vị trí</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Lưng</translation>
+    </message>
+    <message>
+        <source>Manual connection mode failed</source>
+        <translation>Chế độ kết nối thủ công không thành công</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Chúng tôi không thể kết nối bạn trên mạng này. Chế độ kết nối tự động được khuyến nghị để có kết quả tốt nhất. Chuyển chế độ kết nối sang Tự động?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Chuyển sang Tự động</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1210,18 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Sử dụng mạng LAN hoặc địa chỉ IP cục bộ cho DNS được kết nối sẽ dẫn đến rò rỉ DNS.  Chúng tôi thực sự khuyên bạn nên sử dụng ROBERT hoặc máy chủ DNS công cộng.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>Khóa API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Không tiếp cận được API Control D.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Vui lòng cung cấp Khóa API Control D hợp lệ.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1545,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Phiên bản</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Chọn giữa biểu tượng khay trắng và đen.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Màu biểu tượng khay</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Đa máy tính để bàn</translation>
     </message>
@@ -1645,6 +1653,14 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Reset</source>
         <translation>Reset</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Chọn giữa biểu tượng khay trắng và đen.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Màu biểu tượng khay</translation>
     </message>
 </context>
 <context>
@@ -2199,6 +2215,10 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Bao gồm hoặc loại trừ các ứng dụng và tên máy chủ khỏi đường hầm VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>Phải bật tiện ích mở rộng hệ thống tạo đường hầm phân chia Windscribe để tính năng này hoạt động. Vui lòng bật nó trong Cài đặt hệ thống.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2472,6 +2492,10 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
         <source>Custom configs</source>
         <translation>Cấu hình tùy chỉnh</translation>
     </message>
+    <message>
+        <source>Random IP</source>
+        <translation>IP ngẫu nhiên</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
@@ -2504,6 +2528,49 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Secure Hotspot</source>
         <translation>Điểm truy cập an toàn</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Kết nối</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Ngắt kết nối</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Địa điểm</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP tĩnh</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Cấu hình tùy chỉnh</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Hiển thị / Ẩn</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Sở thích</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Trợ giúp</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Thoát khỏi Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Yêu thích</translation>
     </message>
 </context>
 <context>

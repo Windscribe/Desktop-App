@@ -1,5 +1,6 @@
 #include "expandableitemswidget.h"
 
+#include <QCursor>
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QMouseEvent>
@@ -276,6 +277,8 @@ void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     QVector<ItemRect> items = getItemRects();
+    QPoint localCursorPos = mapFromGlobal(QCursor::pos());
+
     for (const auto &item : std::as_const(items)) {
         IItemDelegate *delegate = delegateForItem(item.modelIndex);
         double expandedProgress;
@@ -286,7 +289,15 @@ void ExpandableItemsWidget::paintEvent(QPaintEvent *event)
 
         if (item.rc.intersects(event->rect())) {
             QRect fullItemRect(item.rc.left(), item.rc.top(), item.rc.width(), itemHeight_);
-            ItemStyleOption opt(this, fullItemRect, item.modelIndex == selectedInd_ ? 1.0 : 0.0, expandedProgress, isShowLocationLoad_, isShowCountryFlagForCity_);
+
+            // Determine which clickable area is being hovered
+            int hoverClickableId = -1;
+            if (item.modelIndex == selectedInd_) {
+                ItemStyleOption tempOpt(this, fullItemRect, 1.0, expandedProgress, isShowLocationLoad_, isShowCountryFlagForCity_);
+                hoverClickableId = delegate->isInClickableArea(tempOpt, item.modelIndex, localCursorPos);
+            }
+
+            ItemStyleOption opt(this, fullItemRect, item.modelIndex == selectedInd_ ? 1.0 : 0.0, expandedProgress, isShowLocationLoad_, isShowCountryFlagForCity_, hoverClickableId);
             delegate->paint(&painter, opt, item.modelIndex, itemsCacheData_[item.modelIndex].get());
         }
     }
@@ -364,8 +375,13 @@ void ExpandableItemsWidget::mouseReleaseEvent(QMouseEvent *event)
 
 void ExpandableItemsWidget::leaveEvent(QEvent *event)
 {
-    if (selectedInd_.isValid())
+    if (selectedInd_.isValid()) {
         closeAndClearAllActiveTooltips(selectedInd_);
+        // Clear hover state for selected item now that the mouse cursor has left the locations list.
+        selectedInd_ = QPersistentModelIndex();
+        update();
+    }
+
     QWidget::leaveEvent(event);
 }
 
@@ -718,4 +734,3 @@ void ExpandableItemsWidget::setShowCountryFlagForCity(bool show)
 }
 
 } // namespace gui_locations
-

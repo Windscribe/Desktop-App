@@ -4,6 +4,7 @@
 
 #include "engine/engine.h"
 #include "persistentstate.h"
+#include "locations/locationsmodel_roles.h"
 #include "utils/dns_utils/dnsutils.h"
 #include "utils/log/categories.h"
 #include "utils/network_utils/network_utils.h"
@@ -25,7 +26,9 @@ Backend::Backend(QObject *parent) : QObject(parent),
     isCanLoginWithAuthHash_(false),
     isFirewallEnabled_(false),
     isExternalConfigMode_(false),
-    loginState_(LOGIN_STATE_LOGGED_OUT)
+    loginState_(LOGIN_STATE_LOGGED_OUT),
+    tunnelTestSuccessful_(false),
+    bridgeApiAvailable_(false)
 {
 
     preferences_.loadGuiSettings();
@@ -109,9 +112,14 @@ void Backend::init()
     connect(engine_, &Engine::setRobertFilterFinished, this, &Backend::onEngineSetRobertFilterFinished);
     connect(engine_, &Engine::syncRobertFinished, this, &Backend::onEngineSyncRobertFinished);
     connect(engine_, &Engine::splitTunnelingStartFailed, this, &Backend::splitTunnelingStartFailed);
+    connect(engine_, &Engine::systemExtensionAvailabilityChanged, this, &Backend::systemExtensionAvailabilityChanged);
     connect(engine_, &Engine::autoEnableAntiCensorship, this, &Backend::onEngineAutoEnableAntiCensorship);
     connect(engine_, &Engine::connectionIdChanged, this, &Backend::connectionIdChanged);
     connect(engine_, &Engine::localDnsServerNotAvailable, this, &Backend::localDnsServerNotAvailable);
+    connect(engine_, &Engine::bridgeApiAvailabilityChanged, this, &Backend::onEngineBridgeApiAvailabilityChanged);
+    connect(engine_, &Engine::ipRotateResult, this, &Backend::ipRotateResult);
+    connect(engine_, &Engine::connectingHostnameChanged, this, &Backend::onEngineConnectingHostnameChanged);
+    connect(engine_, &Engine::controldDevicesFetched, this, &Backend::controldDevicesFetched);
     threadEngine_->start(QThread::LowPriority);
 }
 
@@ -128,6 +136,7 @@ void Backend::enableBFE_win()
 
 void Backend::login(const QString &username, const QString &password, const QString &code2fa)
 {
+    WS_ASSERT(loginState_ != LOGIN_STATE_LOGGING_IN);
     loginState_ = LOGIN_STATE_LOGGING_IN;
     bLastLoginWithAuthHash_ = false;
     lastUsername_ = username;
@@ -153,6 +162,7 @@ bool Backend::isSavedApiSettingsExists() const
 
 void Backend::loginWithAuthHash()
 {
+    WS_ASSERT(loginState_ != LOGIN_STATE_LOGGING_IN);
     loginState_ = LOGIN_STATE_LOGGING_IN;
     bLastLoginWithAuthHash_ = true;
     engine_->loginWithAuthHash();
@@ -160,6 +170,7 @@ void Backend::loginWithAuthHash()
 
 void Backend::loginWithLastLoginSettings()
 {
+    WS_ASSERT(loginState_ != LOGIN_STATE_LOGGING_IN);
     loginState_ = LOGIN_STATE_LOGGING_IN;
     if (bLastLoginWithAuthHash_)
         loginWithAuthHash();
@@ -183,7 +194,31 @@ void Backend::sendConnect(const LocationID &lid, const types::ConnectionSettings
         osDnsServers_ = DnsUtils::getOSDefaultDnsServers();
     }
     connectStateHelper_.connectClickFromUser();
-    engine_->connectClick(lid, connectionSettings);
+
+    // Check if this location has a pinned node/IP in favorites
+    // Only pin if user is premium and location is an API location
+    QPair<QString, QString> pinnedNode; // hostname, ip
+					//
+    LocationID apiLocationId = lid;
+
+    // If this is Best Location, convert to the actual API location
+    if (lid.isBestLocation()) {
+        apiLocationId = lid.bestLocationToApiLocation();
+    }
+
+    // Only check for pinned data if it's an API location
+    if (apiLocationId.isValid() && apiLocationId.type() == 1) { // API_LOCATION = 1
+        QModelIndex locationIndex = static_cast<gui_locations::LocationsModel*>(locationsModelManager_->locationsModel())->getIndexByLocationId(apiLocationId);
+        if (locationIndex.isValid()) {
+            QVariantList pinnedData = locationsModelManager_->locationsModel()->data(locationIndex, gui_locations::kPinnedIp).toList();
+            if (pinnedData.size() == 2) {
+                pinnedNode.first = pinnedData[0].toString();   // hostname
+                pinnedNode.second = pinnedData[1].toString();  // ip
+            }
+        }
+    }
+
+    engine_->connectClick(lid, connectionSettings, pinnedNode);
 }
 
 void Backend::sendDisconnect(DISCONNECT_REASON reason)
@@ -248,11 +283,6 @@ void Backend::emergencyDisconnectClick()
 {
     emergencyConnectStateHelper_.disconnectClickFromUser();
     engine_->emergencyDisconnectClick();
-}
-
-void Backend::refreshLocations()
-{
-    engine_->refreshLocations();
 }
 
 bool Backend::isEmergencyDisconnected()
@@ -416,8 +446,6 @@ void Backend::onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLogin
         connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::bestLocationUpdated, this, &Backend::onEngineLocationsModelBestLocationUpdated);
         connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::customConfigsLocationsUpdated, this, &Backend::onEngineLocationsModelCustomConfigItemsUpdated);
         connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::locationPingTimeChanged, this, &Backend::onEngineLocationsModelPingChangedChanged);
-        connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::pingsStarted, this, &Backend::pingsStarted);
-        connect(engine_->getLocationsModel(), &locationsmodel::LocationsModel::pingsFinished, this, &Backend::pingsFinished);
 
         preferences_.setEngineSettings(engineSettings);
         // WiFi sharing supported state
@@ -513,6 +541,11 @@ void Backend::onEngineMyIpUpdated(const QString &ip, bool isDisconnected)
 
 void Backend::onEngineConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON reason, CONNECT_ERROR err, const LocationID &locationId)
 {
+    if (state == CONNECT_STATE_CONNECTING || state == CONNECT_STATE_DISCONNECTING) {
+        tunnelTestSuccessful_ = false;
+        bridgeApiAvailable_ = false;
+    }
+
     types::ConnectState connectState;
     connectState.connectState = state;
     connectState.disconnectReason = reason;
@@ -546,9 +579,9 @@ void Backend::onEngineSyncRobertFinished(bool success)
     emit syncRobertResult(success);
 }
 
-void Backend::onEngineProtocolStatusChanged(const QVector<types::ProtocolStatus> &status)
+void Backend::onEngineProtocolStatusChanged(const QVector<types::ProtocolStatus> &status, bool isAutomaticMode)
 {
-    emit protocolStatusChanged(status);
+    emit protocolStatusChanged(status, isAutomaticMode);
 }
 
 void Backend::onEngineEmergencyConnected()
@@ -576,7 +609,12 @@ void Backend::onEngineEmergencyConnectError(CONNECT_ERROR err)
 
 void Backend::onEngineTestTunnelResult(bool bSuccess)
 {
+    tunnelTestSuccessful_ = bSuccess;
     emit testTunnelResult(bSuccess);
+
+    if (bSuccess && bridgeApiAvailable_) {
+        onEngineBridgeApiAvailabilityChanged(true);
+    }
 }
 
 void Backend::onEngineLostConnectionToHelper()
@@ -855,10 +893,12 @@ void Backend::sendSplitTunneling(const types::SplitTunneling &st)
     QStringList ips;
     QStringList hosts;
     for (int i = 0; i < st.networkRoutes.size(); ++i) {
-        if (st.networkRoutes[i].type == SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP) {
-            ips << st.networkRoutes[i].name;
-        } else if (st.networkRoutes[i].type == SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME) {
-            hosts << st.networkRoutes[i].name;
+        if (st.networkRoutes[i].active) {
+            if (st.networkRoutes[i].type == SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP) {
+                ips << st.networkRoutes[i].name;
+            } else if (st.networkRoutes[i].type == SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_HOSTNAME) {
+                hosts << st.networkRoutes[i].name;
+            }
         }
     }
 
@@ -972,9 +1012,44 @@ bool Backend::haveAutoLoginCredentials(QString &username, QString &password)
 #endif
 }
 
-void Backend::onEngineAutoEnableAntiCensorship()
+void Backend::onEngineAutoEnableAntiCensorship(bool enable)
 {
-    preferences_.setAntiCensorship(true);
+    preferences_.setAntiCensorship(enable);
+}
+
+void Backend::onEngineConnectingHostnameChanged(const QString &hostname)
+{
+    currentConnectingHostname_ = hostname;
+}
+
+void Backend::onEngineBridgeApiAvailabilityChanged(bool isAvailable)
+{
+    bridgeApiAvailable_ = isAvailable;
+    bool enableIpUtils = false;
+
+    if (isAvailable && tunnelTestSuccessful_) {
+        LocationID currentLoc = currentLocation();
+        if (currentLoc.isValid() && !currentLoc.isStaticIpsLocation() && !currentLoc.isCustomConfigsLocation()) {
+            const api_responses::SessionStatus& sessionStatus = getSessionStatus();
+
+            if (sessionStatus.isPremium()) {
+                enableIpUtils = true;
+            } else if (!sessionStatus.getAlc().isEmpty()) {
+                gui_locations::LocationsModel* locationsModel = static_cast<gui_locations::LocationsModel*>(locationsModelManager_->locationsModel());
+                QModelIndex index = locationsModel->getIndexByLocationId(currentLoc);
+                QModelIndex parent = locationsModel->parent(index);
+
+                if (parent.isValid()) {
+                    QString parentShortName = parent.data(gui_locations::kShortName).toString();
+                    if (sessionStatus.getAlc().contains(parentShortName)) {
+                        enableIpUtils = true;
+                    }
+                }
+            }
+        }
+    }
+
+    emit bridgeApiAvailabilityChanged(enableIpUtils);
 }
 
 void Backend::updateCurrentNetworkInterface()
@@ -990,4 +1065,19 @@ void Backend::reconnect()
 bool Backend::osDnsServersListContains(const std::wstring &dnsServer)
 {
     return std::find(osDnsServers_.begin(), osDnsServers_.end(), dnsServer) != osDnsServers_.end();
+}
+
+void Backend::rotateIp()
+{
+    engine_->rotateIp();
+}
+
+QString Backend::getCurrentConnectingHostname() const
+{
+    return currentConnectingHostname_;
+}
+
+void Backend::fetchControldDevices(const QString &apiKey)
+{
+    engine_->fetchControldDevices(apiKey);
 }

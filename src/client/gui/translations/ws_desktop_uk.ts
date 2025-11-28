@@ -61,6 +61,18 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Якщо тримати брандмауер увімкненим у відключеному стані, це може порушити підключення до Інтернету</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>Улюблена IP-адреса</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Повернути IP</translation>
+    </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>БРАНДМАУЕР</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +92,16 @@
         <translation>Статичні IP-адреси</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Обране</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Шукати</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Користувацькі конфігурації</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Улюблені</translation>
     </message>
 </context>
 <context>
@@ -256,32 +268,28 @@
         <translation>Немає локацій</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Купити</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>ВСІ ЛОКАЦІЇ</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>Усі місцеположення (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>УЛЮБЛЕНІ</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Вибране</translation>
+        <source>STATIC IPs</source>
+        <translation>STATIC IP</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>Статичні IP-адреси</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>КАСТОМНІ КОНФІГУРАЦІЇ</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Користувацькі конфігурації</translation>
+        <source>SEARCH</source>
+        <translation>ШУКАТИ</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Шукати</translation>
-    </message>
-    <message>
-        <source>Refresh Pings</source>
-        <translation>Оновити пінги</translation>
+        <source>Add</source>
+        <translation>Додати</translation>
     </message>
 </context>
 <context>
@@ -653,42 +661,6 @@ Recovering...</source>
         <translation>Оберіть програму</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Підключити</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Відключити</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Розташування</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Обране</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Статичні IP-адреси</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Показати/Приховати</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Налаштування</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Допомога</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Вийти</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>Файл лише для читання</translation>
     </message>
@@ -905,8 +877,40 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Не вдається запустити спеціальну службу DNS - порт 53 вже використовується.  Чи хотіли б ви змінити підключений DNS на локальний сервер?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Користувацькі конфігурації</translation>
+        <source>Could not pin IP</source>
+        <translation>Не вдалося закріпити IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Ми не змогли встановити вашу улюблену IP-адресу для цього місцезнаходження.  Повторіть спробу пізніше.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Не вдалося повернути IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Повторіть спробу пізніше або перейдіть на сторінку статусу, щоб дізнатися більше.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Перевірте статус місцезнаходження</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Задній</translation>
+    </message>
+    <message>
+        <source>Manual connection mode failed</source>
+        <translation>Режим ручного підключення не справився</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Ми не змогли підключити тебе до цієї мережі. Рекомендується автоматичний режим підключення для найкращих результатів. Переключити режим підключення на Авто?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Перемикання на авто</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1210,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Використання локальної мережі або локальної IP-адреси для підключеного DNS призведе до витоку DNS.  Ми настійно рекомендуємо використовувати ROBERT або публічний DNS-сервер.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>Ключ API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Не вдалося дістатися до API контролю D.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Будь ласка, надайте дійсний ключ API Control D.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1545,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Версія</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Виберіть між білою та чорною іконкою лотка.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Колір піктограми лотка</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Мультинастільний комп&apos;ютер</translation>
     </message>
@@ -1645,6 +1653,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>Скинути</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Виберіть між білою та чорною іконкою лотка.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Колір піктограми лотка</translation>
     </message>
 </context>
 <context>
@@ -2199,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Включати або виключати програми та імена хостів з VPN-тунелю.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>Розширення системи розділеного тунелювання Windscribe має бути увімкнене для роботи цієї функції. Будь ласка, увімкніть його в системних налаштуваннях.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2472,6 +2492,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Custom configs</source>
         <translation>Користувацькі конфігурації</translation>
     </message>
+    <message>
+        <source>Random IP</source>
+        <translation>Випадковий IP</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
@@ -2504,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>Безпечна точка доступу</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Підключити</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Відключити</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Розташування</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Статичні IP-адреси</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Користувацькі конфігурації</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Показати/Приховати</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Налаштування</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Допомога</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Кинь Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Улюблені</translation>
     </message>
 </context>
 <context>

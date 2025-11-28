@@ -61,6 +61,18 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>切断中にファイアウォールをオンのままにすると、インターネット接続が切断される可能性があります</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>お気に入りのIP</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>IP のローテーション</translation>
+    </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>ファイアウォール</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +92,16 @@
         <translation>静的 IP アドレス</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>お気に入り</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>検索</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>カスタム構成</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>お気に入り</translation>
     </message>
 </context>
 <context>
@@ -256,32 +268,28 @@
         <translation>場所はありません</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>購入する</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>全ての場所</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>すべてのロケーション (%1)</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
+        <source>FAVOURITES</source>
         <translation>お気に入り</translation>
     </message>
     <message>
-        <source>Static IPs</source>
+        <source>STATIC IPs</source>
         <translation>静的IP</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>カスタム構成</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>カスタム設定</translation>
     </message>
     <message>
-        <source>Search</source>
+        <source>SEARCH</source>
         <translation>捜索</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>リフレッシュピン</translation>
+        <source>Add</source>
+        <translation>足す</translation>
     </message>
 </context>
 <context>
@@ -653,42 +661,6 @@ Recovering...</source>
         <translation>アプリケーションを選択</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>接続する</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>切断する</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>場所</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>お気に入り</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>静的 IP アドレス</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>表示/非表示</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>設定</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>ヘルプ</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>終了</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>読み取り専用ファイル</translation>
     </message>
@@ -905,8 +877,40 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>カスタム DNS サービスを開始できません - ポート 53 は既に使用されています。 接続DNSをローカルサーバーに変更しますか?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>カスタム構成</translation>
+        <source>Could not pin IP</source>
+        <translation>IP をピン留めできませんでした</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>この場所にお気に入りのIPを設定できませんでした。 後でもう一度やり直してください。</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>IP をローテーションできませんでした</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>後でもう一度お試しいただくか、ステータス ページにアクセスして詳細を確認してください。</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>ロケーションステータスの確認</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>戻る</translation>
+    </message>
+    <message>
+        <source>Manual connection mode failed</source>
+        <translation>手動接続モードが失敗しました</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>このネットワークではつながれませんでした。最良の結果を得るためには自動接続モードを推奨します。接続モードを自動に切り替える?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>オートへの切り替え</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1210,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>接続されたDNSにLANまたはローカルIPアドレスを使用すると、DNSリークが発生します。 ROBERTまたはパブリックDNSサーバーを使用することを強くお勧めします。</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>APIキー</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>コントロール D API に到達できませんでした。</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>有効なコントロール D API キーを入力してください。</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1545,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>バージョン</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>白と黒のトレイアイコンを選択します。</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>トレイアイコンの色</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>マルチデスクトップ</translation>
     </message>
@@ -1645,6 +1653,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>リセット</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>白と黒のトレイアイコンを選択します。</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>トレイアイコンの色</translation>
     </message>
 </context>
 <context>
@@ -2199,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>VPN トンネルにアプリとホスト名を含めるか、VPN トンネルから除外します。</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>この機能が機能するには、Windscribeの分割トンネルシステム拡張を有効にする必要があります。システム設定で有効にしてください。</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2472,6 +2492,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Custom configs</source>
         <translation>カスタム構成</translation>
     </message>
+    <message>
+        <source>Random IP</source>
+        <translation>ランダムIP</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
@@ -2504,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>セキュアホットスポット</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>接続する</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>切断する</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>場所</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>静的IP</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>カスタム構成</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>表示/非表示</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>設定</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>ヘルプ</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>ウィンドスクライブをやめろ</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>お気に入り</translation>
     </message>
 </context>
 <context>

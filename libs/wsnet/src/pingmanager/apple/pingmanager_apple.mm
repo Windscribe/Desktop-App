@@ -92,8 +92,6 @@ PingManager_apple::PingManager_apple()
     thread_ = std::thread(std::bind(&PingManager_apple::run, this));
     std::unique_lock<std::mutex> lock(mutex_);
     runLoopReady_.wait(lock, [this] { return isRunLoopReady_; });
-    int g = 0;
-
 }
 
 PingManager_apple::~PingManager_apple()
@@ -135,7 +133,7 @@ void PingManager_apple::stop()
     }
     // Wake up the run loop to process the stop
     if (runLoop_) {
-        CFRunLoopStop(static_cast<CFRunLoopRef>(runLoop_));
+        CFRunLoopSourceSignal(static_cast<CFRunLoopSourceRef>(shutdownMsg_));
         CFRunLoopWakeUp(static_cast<CFRunLoopRef>(runLoop_));
     }
 
@@ -143,28 +141,36 @@ void PingManager_apple::stop()
     runLoop_ = nullptr;
 }
 
+void PingManager_apple::receiveShutdownMsgCallback(void* info)
+{
+    // Calling CFRunLoopStop ouside the RunLoop thread may cause crashes
+    // inside libpthread, so we need to stop the RunLoop here 
+    PingManager_apple *this_ = static_cast<PingManager_apple *>(info);
+    CFRunLoopStop(static_cast<CFRunLoopRef>(this_->runLoop_));
+}
+
 void PingManager_apple::run()
 {
-  @autoreleasepool {
-        runLoop_ = CFRunLoopGetCurrent();
+    runLoop_ = CFRunLoopGetCurrent();
 
-        // Add a source to wake up RunLoop when it stops
-        CFRunLoopSourceContext context = {0};
-        CFRunLoopSourceRef source = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &context);
-        CFRunLoopAddSource(static_cast<CFRunLoopRef>(runLoop_), source, kCFRunLoopDefaultMode);
+    // Add a source to wake up RunLoop when it stops
+    CFRunLoopSourceContext context;
+    memset(&context, 0, sizeof(CFRunLoopSourceContext));
+    context.info = this;
+    context.perform = receiveShutdownMsgCallback;
+    shutdownMsg_ = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &context);
+    CFRunLoopAddSource(static_cast<CFRunLoopRef>(runLoop_), static_cast<CFRunLoopSourceRef>(shutdownMsg_), kCFRunLoopDefaultMode);
 
-        {
-            std::lock_guard<std::mutex> lock(mutex_);
-            isRunLoopReady_ = true;
-        }
-        runLoopReady_.notify_one();
-
-
-        CFRunLoopRun();
-
-        CFRunLoopRemoveSource(static_cast<CFRunLoopRef>(runLoop_), source, kCFRunLoopDefaultMode);
-        CFRelease(source);
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        isRunLoopReady_ = true;
     }
+    runLoopReady_.notify_one();
+
+    CFRunLoopRun();
+
+    CFRunLoopRemoveSource(static_cast<CFRunLoopRef>(runLoop_), static_cast<CFRunLoopSourceRef>(shutdownMsg_), kCFRunLoopDefaultMode);
+    CFRelease(static_cast<CFRunLoopSourceRef>(shutdownMsg_));
 }
 
 void PingManager_apple::callback(int timeMs, std::uint64_t id)

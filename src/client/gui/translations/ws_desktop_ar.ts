@@ -61,6 +61,18 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>قد يؤدي إبقاء جدار الحماية قيد التشغيل أثناء قطع الاتصال بالإنترنت</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>عنوان IP المفضل</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>تدوير IP</translation>
+    </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>جدار حمايه</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +92,16 @@
         <translation>عناوين IP ثابتة</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>المفضلة</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>بحث</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>التكوينات المخصصة</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>المفضلون</translation>
     </message>
 </context>
 <context>
@@ -256,32 +268,28 @@
         <translation>لا توجد مواقع</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>ابتاع</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>جميع المواقع</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>جميع المواقع (٪1)</translation>
+        <source>FAVOURITES</source>
+        <translation>المفضلون</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>المفضلة</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
+        <source>STATIC IPs</source>
         <translation>عناوين IP الثابتة</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>التكوينات المخصصة</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>الإعدادات المخصصة</translation>
     </message>
     <message>
-        <source>Search</source>
+        <source>SEARCH</source>
         <translation>بحث</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>تحديث بينغز</translation>
+        <source>Add</source>
+        <translation>جمع</translation>
     </message>
 </context>
 <context>
@@ -665,42 +673,6 @@ Recovering...</source>
         <translation>حدد تطبيقا</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>عشق</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>قطع الاتصال</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>مواقع</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>المفضلة</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>عناوين IP ثابتة</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>إظهار/إخفاء</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>التفضيلات</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>تعليمات</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>مخرج</translation>
-    </message>
-    <message>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>ملف المضيفين الخاص بك للقراءة فقط. يتطلب اتصال IKEv2 أن يكون قابلا للكتابة. حل المشكلة تلقائيا؟</translation>
     </message>
@@ -905,8 +877,40 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>تعذر بدء تشغيل خدمة DNS المخصصة - المنفذ 53 قيد الاستخدام بالفعل.  هل ترغب في تغيير DNS المتصل إلى الخادم المحلي؟</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>التكوينات المخصصة</translation>
+        <source>Could not pin IP</source>
+        <translation>تعذر تثبيت IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>لم نتمكن من تعيين عنوان IP المفضل لديك لهذا الموقع.  حاول مرة أخرى لاحقا.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>تعذر تدوير IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>حاول مرة أخرى لاحقا أو انتقل إلى صفحة الحالة للحصول على مزيد من المعلومات.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>التحقق من حالة الموقع</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>ظهر</translation>
+    </message>
+    <message>
+        <source>Manual connection mode failed</source>
+        <translation>فشل وضع الاتصال اليدوي</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>لم نتمكن من ربطك عبر هذه الشبكة. ينصح باستخدام وضع الاتصال التلقائي للحصول على أفضل النتائج. هل أغير وضع الاتصال إلى تلقائي؟</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>التحول إلى تلقائي</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1210,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>سيؤدي استخدام شبكة LAN أو عنوان IP محلي لنظام أسماء النطاقات المتصل إلى تسرب DNS.  نوصي بشدة باستخدام ROBERT أو خادم DNS عام.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>مفتاح API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>فشل الوصول إلى Control D API.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>يرجى تقديم مفتاح Control D API صالح.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1545,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>يتم تصغير Windscribe إلى شريط القوائم ولم يعد يظهر في قفص الاتهام.</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>اختر بين أيقونة الدرج الأبيض والأسود.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>لون أيقونة الدرج</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>سطح مكتب متعدد</translation>
     </message>
@@ -1645,6 +1653,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>اعاده تعيين</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>اختر بين أيقونة الدرج الأبيض والأسود.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>لون أيقونة الدرج</translation>
     </message>
 </context>
 <context>
@@ -2199,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>قم بتضمين أو استبعاد التطبيقات وأسماء المضيفين من نفق VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>يجب تفعيل امتداد نظام النفق المنقسم Windscribe لكي تعمل هذه الميزة. يرجى تفعيله في إعدادات النظام.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2472,6 +2492,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Custom configs</source>
         <translation>التكوينات المخصصة</translation>
     </message>
+    <message>
+        <source>Random IP</source>
+        <translation>IP عشوائي</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
@@ -2504,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>نقطة اتصال آمنة</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>عشق</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>قطع الاتصال</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>مواقع</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>عناوين IP الثابتة</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>التكوينات المخصصة</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>إظهار/إخفاء</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>التفضيلات</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>تعليمات</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>اترك ويندسكرايب</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>المفضلون</translation>
     </message>
 </context>
 <context>

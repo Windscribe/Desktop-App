@@ -53,8 +53,8 @@ private:
     int height_;
     int width_;
 
-    static constexpr int kScrollBarWidth = 8;
-    static constexpr int SCROLL_DISTANCE_FROM_RIGHT = 2;
+    static constexpr int kScrollBarWidth = 11;
+    static constexpr int SCROLL_DISTANCE_FROM_RIGHT = 5;
     static constexpr int SCROLL_BAR_GAP = 1;
 
     double curScrollBarOpacity_;

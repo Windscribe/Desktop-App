@@ -61,6 +61,18 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Keeping the firewall on while disconnected may break internet connectivity</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>Favourite IP</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Rotate IP</translation>
+    </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>FIREWALL</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +92,16 @@
         <translation>Static IPs</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favourites</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Search</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Custom configs</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favourites</translation>
     </message>
 </context>
 <context>
@@ -256,32 +268,28 @@
         <translation>No locations</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Buy</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>ALL LOCATIONS</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>All locations (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>FAVOURITES</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favourites</translation>
+        <source>STATIC IPs</source>
+        <translation>STATIC IPs</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>Static IPs</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>CUSTOM CONFIGs</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Custom configs</translation>
+        <source>SEARCH</source>
+        <translation>SEARCH</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Search</translation>
-    </message>
-    <message>
-        <source>Refresh Pings</source>
-        <translation>Refresh Pings</translation>
+        <source>Add</source>
+        <translation>Add</translation>
     </message>
 </context>
 <context>
@@ -653,42 +661,6 @@ Recovering...</translation>
         <translation>Select an application</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Connect</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Disconnect</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Locations</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Favourites</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Static IPs</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Show/Hide</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Preferences</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Help</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Exit</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>Read-only file</translation>
     </message>
@@ -905,8 +877,40 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Custom configs</translation>
+        <source>Could not pin IP</source>
+        <translation>Could not pin IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>We could not set your favourite IP for this location.  Try again later.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Could not rotate IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Try again later or go to our Status page for more info.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Check Location Status</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Back</translation>
+    </message>
+    <message>
+        <source>Manual connection mode failed</source>
+        <translation>Manual connection mode failed</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Switch to Auto</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1210,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>API Key</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Failed to reach Control D API.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Please provide a valid Control D API Key.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1545,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Version</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Choose between white and black tray icon.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Tray Icon Colour</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Multi-desktop</translation>
     </message>
@@ -1645,6 +1653,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>Reset</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Choose between white and black tray icon.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Tray Icon Colour</translation>
     </message>
 </context>
 <context>
@@ -2199,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Include or exclude apps and hostnames from the VPN tunnel.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2472,6 +2492,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Custom configs</source>
         <translation>Custom configs</translation>
     </message>
+    <message>
+        <source>Random IP</source>
+        <translation>Random IP</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
@@ -2504,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>Secure Hotspot</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Connect</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Disconnect</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Locations</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>Static IPs</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Custom configs</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Show/Hide</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Preferences</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Help</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Quit Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favourites</translation>
     </message>
 </context>
 <context>

@@ -9,14 +9,16 @@ enum Roles {
     kLocationId = Qt::UserRole,          // location and city
     kIsTopLevelLocation,                 // true for a location and false for a city
     kCountryCode,                        // location and city
+    kShortName,                          // location and city
     kIsShowP2P,                          // location only
     kIsShowAsPremium,                    // location and city
     kIs10Gbps,                           // location and city
     kLoad,                               // location and city
     kName,                               // location and city
     kNick,                               // city only and best location
-    kPingTime,                           // location and city (for latency calc average ping)
+    kPingTime,                           // location and city (for location: lowest ping of all cities)
     kIsFavorite,                         // city only
+    kPinnedIp,                           // city only
     kIsDisabled,                         // city and location, the location is disabled if it has no cities
 
     kStaticIpType,                       // city only

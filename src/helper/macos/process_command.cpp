@@ -79,6 +79,11 @@ std::string changeMtu(const std::string &pars)
     int mtu;
     deserializePars(pars, adapterName, mtu);
 
+    if (!Utils::isValidInterfaceName(adapterName)) {
+        spdlog::error("Invalid interface name: {}", adapterName);
+        return std::string();
+    }
+
     spdlog::info("Change MTU: {}", mtu);
     Utils::executeCommand("ifconfig", {adapterName, "mtu", std::to_string(mtu)});
     return std::string();
@@ -412,6 +417,16 @@ std::string setMacAddress(const std::string &pars)
     bool isWifi;
     deserializePars(pars, interface, macAddress, network, isWifi);
 
+    if (!Utils::isValidInterfaceName(interface)) {
+        spdlog::error("Invalid interface name: {}", interface);
+        return serializeResult(false);
+    }
+
+    if (!Utils::isValidMacAddress(macAddress)) {
+        spdlog::error("Invalid MAC address: {}", macAddress);
+        return serializeResult(false);
+    }
+
     spdlog::info("Set mac address on {}: {}", interface, macAddress);
     Utils::executeCommand("/System/Library/PrivateFrameworks/Apple80211.framework/Resources/airport", {"-z"});
     bool success = (Utils::executeCommand("ifconfig", {interface, "ether", macAddress}) == 0);
@@ -466,6 +481,17 @@ std::string deleteRoute(const std::string &pars)
     std::string range, gateway;
     int mask;
     deserializePars(pars, range, mask, gateway);
+
+    if (!Utils::isValidIpAddress(range)) {
+        spdlog::error("Invalid IP address range: {}", range);
+        return std::string();
+    }
+
+    if (!Utils::isValidIpAddress(gateway)) {
+        spdlog::error("Invalid gateway IP address: {}", gateway);
+        return std::string();
+    }
+
     spdlog::info("Delete route: {}/{} gw {}", range, mask, gateway);
     std::stringstream str;
     str << range << "/" << mask;

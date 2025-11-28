@@ -78,27 +78,24 @@ void SharingFeaturesWindowItem::paint(QPainter *painter, const QStyleOptionGraph
 
     const int margin = 16*G_SCALE;
 
-    // header text
+    QFont font = FontManager::instance().getFont(12, QFont::Bold);
+    qreal oldLetterSpacing = font.letterSpacing();
+    font.setLetterSpacing(QFont::AbsoluteSpacing, 2);
+    painter->setFont(font);
+    painter->setPen(Qt::white);
+    painter->setOpacity(OPACITY_HALF);
+
     if (preferences_->appSkin() == APP_SKIN_VAN_GOGH)
     {
-        QFont font = FontManager::instance().getFont(12, QFont::Bold);
-        qreal oldLetterSpacing = font.letterSpacing();
-        font.setLetterSpacing(QFont::AbsoluteSpacing, 2);
-        painter->setFont(font);
-        painter->setPen(Qt::white);
-        painter->setOpacity(OPACITY_HALF);
-        painter->drawText(boundingRect().adjusted(24*G_SCALE, 22*G_SCALE, 0, 0), Qt::AlignLeft, headerText_.toUpper().toStdString().c_str());
-        font.setLetterSpacing(QFont::AbsoluteSpacing, oldLetterSpacing);
+        painter->drawText(boundingRect().adjusted(16*G_SCALE, 22*G_SCALE, 0, 0), Qt::AlignLeft, headerText_.toUpper().toStdString().c_str());
     }
     else
     {
-        QFont font = FontManager::instance().getFont(16, QFont::Bold);
-        painter->setOpacity(OPACITY_FULL);
-        painter->setFont(font);
-        painter->setPen(Qt::white);
-        int headerTextWidth = CommonGraphics::textWidth(headerText_.toStdString().c_str(), font);
-        painter->drawText(WIDTH*G_SCALE - headerTextWidth - margin, HEADER_HEIGHT/2*G_SCALE + 10*G_SCALE, headerText_.toStdString().c_str());
+        int headerTextWidth = CommonGraphics::textWidth(headerText_.toUpper().toStdString().c_str(), font);
+        painter->drawText(WIDTH*G_SCALE - headerTextWidth - margin, HEADER_HEIGHT/2*G_SCALE + 10*G_SCALE, headerText_.toUpper().toStdString().c_str());
     }
+
+    font.setLetterSpacing(QFont::AbsoluteSpacing, oldLetterSpacing);
 
     // horns:
     painter->setOpacity(curHornOpacity_ * initOpacity);

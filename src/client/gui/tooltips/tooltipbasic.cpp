@@ -14,6 +14,8 @@ TooltipBasic::TooltipBasic(const TooltipInfo &info, QWidget *parent) : ITooltip(
     tailType_ = info.tailtype;
     tailPosPercent_ = info.tailPosPercent;
     showState_ = TOOLTIP_SHOW_STATE_INIT;
+    animate_ = info.animate;
+    animationSpeed_ = info.animationSpeed;
 
     updateScaling();
 }

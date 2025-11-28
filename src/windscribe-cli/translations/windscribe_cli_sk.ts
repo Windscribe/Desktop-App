@@ -300,11 +300,11 @@
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"> (10 Gbps)</translation>
+        <translation> (10 Gb/s)</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"> (Zakázané)</translation>
+        <translation> (Zakázané)</translation>
     </message>
     <message>
         <source> (Pro)</source>

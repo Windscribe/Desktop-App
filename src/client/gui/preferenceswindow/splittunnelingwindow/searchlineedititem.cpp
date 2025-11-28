@@ -13,7 +13,7 @@ namespace PreferencesWindow {
 SearchLineEditItem::SearchLineEditItem(ScalableGraphicsObject *parent)
   : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), searchIconOpacity_(OPACITY_HALF), editing_(false)
 {
-    closeButton_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/CLOSE_ICON", "", this, OPACITY_HALF, OPACITY_FULL);
+    closeButton_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "CLOSE_ICON", "", this, OPACITY_HALF, OPACITY_FULL);
     connect(closeButton_, &IconButton::clicked, this, &SearchLineEditItem::onCancelClicked);
 
     clearTextButton_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/CLEAR_ICON", "", this, OPACITY_HALF, OPACITY_FULL);

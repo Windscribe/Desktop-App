@@ -70,7 +70,6 @@ MainWindow::MainWindow() :
     logViewerWindow_(nullptr),
     advParametersWindow_(nullptr),
     currentAppIconType_(AppIconType::DISCONNECTED),
-    trayIcon_(),
     bNotificationConnectedShowed_(false),
     bytesTransferred_(0),
     logoutReason_(LOGOUT_UNDEFINED),
@@ -83,7 +82,6 @@ MainWindow::MainWindow() :
     hideShowDockIconTimer_(this),
     currentDockIconVisibility_(true),
     desiredDockIconVisibility_(true),
-    lastScreenName_(""),
 #endif
     activeState_(true),
     lastWindowStateChange_(0),
@@ -94,48 +92,10 @@ MainWindow::MainWindow() :
     downloadRunning_(false),
     ignoreUpdateUntilNextRun_(false),
     userProtocolOverride_(false),
-    sendDebugLogOnDisconnect_(false)
+    sendDebugLogOnDisconnect_(false),
+    receivedInitialIpAfterConnect_(false)
 {
     g_mainWindow = this;
-
-    // Initialize "fallback" tray icon geometry.
-    const QScreen *screen = nullptr;
-    QRect desktopAvailableRc;
-    if (qApp->screens().size() == 0 || qApp->screens().at(0) == NULL) {
-        qCCritical(LOG_BASIC) << "No screen for fallback tray icon init"; // This shouldn't ever happen
-    } else {
-        screen = qApp->screens().at(0);
-        desktopAvailableRc = screen->availableGeometry();
-        savedTrayIconRect_.setTopLeft(QPoint(desktopAvailableRc.right() - WINDOW_WIDTH * G_SCALE, 0));
-        savedTrayIconRect_.setSize(QSize(22, 22));
-    }
-
-#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
-    // Linux tray icon color setup is performed later in this constructor after preferences have been loaded.
-    trayIconColorWhite_ = ThemeController::instance().isOsDarkTheme();
-    qCDebug(LOG_BASIC) << "OS in dark mode: " << trayIconColorWhite_;
-
-    // Init and show tray icon.
-    trayIcon_.setIcon(*IconManager::instance().getDisconnectedTrayIcon(trayIconColorWhite_));
-#endif
-
-    trayIcon_.show();
-
-#ifdef Q_OS_MACOS
-    if (screen) {
-        const QRect desktopScreenRc = screen->geometry();
-        if (desktopScreenRc.top() != desktopAvailableRc.top()) {
-            // Wait at most 2 seconds for the tray icon to be initialized.  This may timeout if e.g. the menu bar icon is disabled in System Settings.
-            QElapsedTimer t;
-            t.start();
-            while (trayIcon_.geometry().isEmpty() && t.elapsed() < 2000) {
-                qApp->processEvents();
-                QThread::msleep(10);
-            }
-        }
-    }
-    QRect incorrectInitialTrayIconRect = trayIcon_.geometry();
-#endif
 
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
 #if defined(Q_OS_WIN)
@@ -153,19 +113,6 @@ MainWindow::MainWindow() :
     qCDebug(LOG_BASIC) << "GUI pid: " << guiPid;
     backend_ = new Backend(this);
 
-    // On MacOS the tray icon geometry can be invalid  for the first few milliseconds (on my Mac about 160 ms)
-    // Assuming that at first we always have incorrect coordinates at start, we wait until they change
-    // Give the icon a chance to initialize completely within a maximum of 2 seconds for  the docked mode
-#if defined(Q_OS_MACOS)
-    if (backend_->getPreferences()->isDockedToTray()) {
-        QElapsedTimer t;
-        t.start();
-        while (trayIcon_.geometry() == incorrectInitialTrayIconRect && t.elapsed() < 2000) {
-            qApp->processEvents();
-            QThread::msleep(10);
-        }
-    }
-#endif
 
 #if defined(Q_OS_MACOS)
     permissionMonitor_ = new PermissionMonitor_mac(this);
@@ -186,14 +133,13 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::checkUpdateChanged, this, &MainWindow::onBackendCheckUpdateChanged);
     connect(backend_, &Backend::myIpChanged, this, &MainWindow::onBackendMyIpChanged);
     connect(backend_, &Backend::connectStateChanged, this, &MainWindow::onBackendConnectStateChanged);
-    connect(backend_, &Backend::pingsStarted, this, &MainWindow::onBackendPingsStarted);
-    connect(backend_, &Backend::pingsFinished, this, &MainWindow::onBackendPingsFinished);
     connect(backend_, &Backend::emergencyConnectStateChanged, this, &MainWindow::onBackendEmergencyConnectStateChanged);
     connect(backend_, &Backend::firewallStateChanged, this, &MainWindow::onBackendFirewallStateChanged);
     connect(backend_, &Backend::confirmEmailResult, this, &MainWindow::onBackendConfirmEmailResult);
     connect(backend_, &Backend::debugLogResult, this, &MainWindow::onBackendDebugLogResult);
     connect(backend_, &Backend::networkChanged, this, &MainWindow::onNetworkChanged);
     connect(backend_, &Backend::splitTunnelingStateChanged, this, &MainWindow::onSplitTunnelingStateChanged);
+    connect(backend_, &Backend::systemExtensionAvailabilityChanged, this, &MainWindow::onSystemExtensionAvailabilityChanged);
     connect(backend_, &Backend::statisticsUpdated, this, &MainWindow::onBackendStatisticsUpdated);
     connect(backend_, &Backend::requestCustomOvpnConfigCredentials, this, &MainWindow::onBackendRequestCustomOvpnConfigCredentials);
     connect(backend_, &Backend::requestCustomOvpnConfigPrivKeyPassword, this, &MainWindow::onBackendRequestCustomOvpnConfigPrivKeyPassword);
@@ -217,6 +163,8 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::engineCrash, this, &MainWindow::onBackendEngineCrash);
     connect(backend_, &Backend::wireGuardAtKeyLimit, this, &MainWindow::onWireGuardAtKeyLimit);
     connect(backend_, &Backend::robertFiltersChanged, this, &MainWindow::onBackendRobertFiltersChanged);
+    connect(backend_, &Backend::bridgeApiAvailabilityChanged, this, &MainWindow::onBackendBridgeApiAvailabilityChanged);
+    connect(backend_, &Backend::ipRotateResult, this, &MainWindow::onBackendIpRotateResult);
     connect(backend_, &Backend::setRobertFilterResult, this, &MainWindow::onBackendSetRobertFilterResult);
     connect(backend_, &Backend::protocolStatusChanged, this, &MainWindow::onBackendProtocolStatusChanged);
     connect(backend_, &Backend::splitTunnelingStartFailed, this, &MainWindow::onSplitTunnelingStartFailed);
@@ -231,7 +179,6 @@ MainWindow::MainWindow() :
     connect(locationsWindow_, &LocationsWindow::clearCustomConfigClicked, this, &MainWindow::onLocationsClearCustomConfigClicked);
     connect(locationsWindow_, &LocationsWindow::addCustomConfigClicked, this, &MainWindow::onLocationsAddCustomConfigClicked);
     connect(locationsWindow_, &LocationsWindow::upgradeBannerClicked, this, &MainWindow::onLocationsUpgradeBannerClicked);
-    connect(locationsWindow_, &LocationsWindow::refreshClicked, this, &MainWindow::onLocationsRefreshClicked);
     locationsWindow_->setShowLocationLoad(backend_->getPreferences()->isShowLocationLoad());
     connect(backend_->getPreferences(), &Preferences::showLocationLoadChanged, locationsWindow_, &LocationsWindow::setShowLocationLoad);
 
@@ -245,6 +192,8 @@ MainWindow::MainWindow() :
     connect(localIpcServer_, &LocalIPCServer::connectToStaticIpLocation, this, &MainWindow::onIpcConnectStaticIp);
     connect(localIpcServer_, &LocalIPCServer::attemptLogin, this, &MainWindow::onLoginClick);
     connect(localIpcServer_, &LocalIPCServer::update, this, &MainWindow::onIpcUpdate);
+    connect(localIpcServer_, &LocalIPCServer::pinIp, this, &MainWindow::onPinIp);
+    connect(localIpcServer_, &LocalIPCServer::unpinIp, this, &MainWindow::onUnpinIp);
 
     mainWindowController_ = new MainWindowController(this, locationsWindow_, backend_->getPreferencesHelper(), backend_->getPreferences(), backend_->getAccountInfo());
 
@@ -289,6 +238,9 @@ MainWindow::MainWindow() :
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::notificationsClick, this, &MainWindow::onConnectWindowNotificationsClick);
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::splitTunnelingButtonClick, this, &MainWindow::onConnectWindowSplitTunnelingClick);
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::protocolsClick, this, &MainWindow::onConnectWindowProtocolsClick);
+    connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::rotateIpClick, this, &MainWindow::onConnectWindowRotateIpClick);
+    connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::pinIp, this, &MainWindow::onPinIp);
+    connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::unpinIp, this, &MainWindow::onUnpinIp);
 
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::locationTabClicked, this, &MainWindow::onConnectWindowLocationTabClicked);
     connect(mainWindowController_->getConnectWindow(), &ConnectWindow::ConnectWindowItem::searchFilterChanged, this, &MainWindow::onConnectWindowSearchFilterChanged);
@@ -325,6 +277,8 @@ MainWindow::MainWindow() :
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::getRobertFilters, this, &MainWindow::onPreferencesGetRobertFilters);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::setRobertFilter, this, &MainWindow::onPreferencesSetRobertFilter);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::splitTunnelingAppsAddButtonClick, this, &MainWindow::onSplitTunnelingAppsAddButtonClick);
+    connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::fetchControldDevices, backend_, &Backend::fetchControldDevices);
+    connect(backend_, &Backend::controldDevicesFetched, mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::onControldDevicesFetched);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::exportLocationNamesClick, this, &MainWindow::onPreferencesExportLocationNamesClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::importLocationNamesClick, this, &MainWindow::onPreferencesImportLocationNamesClick);
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::resetLocationNamesClick, this, &MainWindow::onPreferencesResetLocationNamesClick);
@@ -392,10 +346,7 @@ MainWindow::MainWindow() :
 #if defined(Q_OS_MACOS)
     connect(backend_->getPreferences(), &Preferences::hideFromDockChanged, this, &MainWindow::onPreferencesHideFromDockChanged);
     connect(backend_->getPreferences(), &Preferences::multiDesktopBehaviorChanged, this, &MainWindow::onPreferencesMultiDesktopBehaviorChanged);
-#elif defined(Q_OS_LINUX) || defined(Q_OS_WIN)
-    connect(backend_->getPreferences(), &Preferences::trayIconColorChanged, this, &MainWindow::onPreferencesTrayIconColorChanged);
 #endif
-    connect(backend_->getPreferences(), &Preferences::networkLastKnownGoodProtocolPortChanged, this, &MainWindow::onPreferencesLastKnownGoodProtocolChanged);
 
     // WindscribeApplication signals
     WindscribeApplication * app = WindscribeApplication::instance();
@@ -405,16 +356,22 @@ MainWindow::MainWindow() :
     connect(app, &WindscribeApplication::focusWindowChanged, this, &MainWindow::onFocusWindowChanged);
     connect(app, &WindscribeApplication::applicationCloseRequest, this, &MainWindow::onAppCloseRequest);
 
-    connect(&ThemeController::instance(), &ThemeController::osThemeChanged, this, &MainWindow::onOsThemeChanged);
-    onOsThemeChanged(ThemeController::instance().isOsDarkTheme());
-
     mainWindowController_->getViewport()->installEventFilter(this);
     connect(mainWindowController_, &MainWindowController::shadowUpdated, this, qOverload<>(&MainWindow::update));
     connect(mainWindowController_, &MainWindowController::revealConnectWindowStateChanged, this, &MainWindow::onRevealConnectStateChanged);
 
     GeneralMessageController::instance().setMainWindowController(mainWindowController_);
 
-    setupTrayIcon();
+    trayIcon_ = new TrayIcon(this, backend_, backend_->getPreferences());
+    connect(trayIcon_, &TrayIcon::activated, this, &MainWindow::onTrayActivated);
+    connect(trayIcon_, &TrayIcon::connectClick, this, &MainWindow::onConnectWindowConnectClick);
+    connect(trayIcon_, &TrayIcon::disconnectClick, this, &MainWindow::onConnectWindowConnectClick);
+    connect(trayIcon_, &TrayIcon::preferencesClick, this, &MainWindow::onTrayPreferences);
+    connect(trayIcon_, &TrayIcon::showHideClick, this, &MainWindow::onTrayShowHide);
+    connect(trayIcon_, &TrayIcon::helpMeClick, this, &MainWindow::onTrayHelpMe);
+    connect(trayIcon_, &TrayIcon::quitClick, this, &MainWindow::onTrayQuit);
+    connect(trayIcon_, &TrayIcon::locationSelected, this, &MainWindow::onLocationSelected);
+    trayIcon_->updateTooltip(tr("Disconnected") + "\n" + PersistentState::instance().lastExternalIp());
 
     backend_->locationsModelManager()->setLocationOrder(backend_->getPreferences()->locationOrder());
     selectedLocation_.reset(new gui_locations::SelectedLocation(backend_->locationsModelManager()->locationsModel()));
@@ -428,18 +385,6 @@ MainWindow::MainWindow() :
 
     backend_->init();
 
-#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
-    // Set tray icon color now that preferences have been loaded.
-    // If the tray icon color is the default (use OS theme), it has already been set at the top of this constructor.
-    // Note on Linux we do not give the user the option to pick 'use OS theme' as Qt guesses poorly at this on most DE's.
-    const auto trayIconColor = backend_->getPreferences()->trayIconColor();
-    if (trayIconColor != TRAY_ICON_COLOR::TRAY_ICON_COLOR_OS_THEME) {
-        trayIconColorWhite_ = (trayIconColor == TRAY_ICON_COLOR::TRAY_ICON_COLOR_WHITE);
-        qCDebug(LOG_BASIC) << "Tray icon color is " << (trayIconColorWhite_ ? "white" : "black");
-        trayIcon_.setIcon(*IconManager::instance().getDisconnectedTrayIcon(trayIconColorWhite_));
-        setupTrayIcon();
-    }
-#endif
 
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_INITIALIZATION);
     mainWindowController_->getInitWindow()->startWaitingAnimation();
@@ -473,10 +418,14 @@ void MainWindow::showAfterLaunch()
         qCWarning(LOG_BASIC) << "Backend is nullptr!";
     }
 
-    // Report the tray geometry after we've given the app some startup time.
-    qCDebug(LOG_BASIC) << "Tray Icon geometry:" << trayIcon_.geometry();
-
 #ifdef Q_OS_MACOS
+    // On macOS, if the docked, and the tray icon is not yet initialized, wait for it to be initialized.
+    if (backend_ && backend_->getPreferences()->isDockedToTray() && !trayIcon_->isTrayIconPositionAvailable()) {
+        qCInfo(LOG_BASIC) << "TrayIcon::showAfterLaunch - tray icon position is not available, waiting for it to be initialized";
+        connect(trayIcon_, &TrayIcon::trayIconPositionAvailable, this, &MainWindow::showAfterLaunch, Qt::UniqueConnection);
+        return;
+    }
+
     // Do not showMinimized if hide from dock is enabled.  Otherwise, the app will fail to show
     // itself when the user selects 'Show' in the app's system tray menu.
     if (backend_) {
@@ -649,7 +598,7 @@ bool MainWindow::doClose(QCloseEvent *event, bool isFromSigTerm_mac)
 
 void MainWindow::minimizeToTray()
 {
-    trayIcon_.show();
+    trayIcon_->show();
     QTimer::singleShot(0, this, &MainWindow::hide);
     MainWindowState::instance().setActive(false);
 #if defined(Q_OS_MACOS)
@@ -937,6 +886,11 @@ void MainWindow::onAbortInitialization()
 
 void MainWindow::onLoginClick(const QString &username, const QString &password, const QString &code2fa)
 {
+    // Do nothing if we are already logging in
+    if (backend_->currentLoginState() == LOGIN_STATE_LOGGING_IN) {
+        return;
+    }
+
     if (username.contains("@")) {
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_USERNAME_IS_EMAIL, QString());
         return;
@@ -1067,6 +1021,80 @@ void MainWindow::onConnectWindowProtocolsClick()
     mainWindowController_->expandProtocols(ProtocolWindowMode::kChangeProtocol);
 }
 
+void MainWindow::onConnectWindowRotateIpClick()
+{
+    backend_->rotateIp();
+}
+
+void MainWindow::onPinIp()
+{
+    QString ip = mainWindowController_->getConnectWindow()->getIpAddress();
+
+    if (!selectedLocation_->isValid()) {
+        return;
+    }
+
+    LocationID locationId = selectedLocation_->locationdId();
+    if (!locationId.isValid()) {
+        return;
+    }
+
+    // If the selected location is "Best Location", convert to the actual API location
+    if (locationId.isBestLocation()) {
+        locationId = locationId.bestLocationToApiLocation();
+        if (!locationId.isValid()) {
+            return;
+        }
+    }
+
+    QModelIndex locationIndex = static_cast<gui_locations::LocationsModel*>(backend_->locationsModelManager()->locationsModel())->getIndexByLocationId(locationId);
+    if (!locationIndex.isValid()) {
+        return;
+    }
+
+    // Get the current connecting hostname from backend
+    QString hostname = backend_->getCurrentConnectingHostname();
+
+    // Add to favorites with hostname and IP via kPinnedIp role
+    QVariantList pinnedData;
+    pinnedData << hostname << ip;
+    backend_->locationsModelManager()->locationsModel()->setData(locationIndex, pinnedData, gui_locations::Roles::kPinnedIp);
+    qCDebug(LOG_BASIC) << "Pinning IP" << ip << "for hostname" << hostname;
+    mainWindowController_->getConnectWindow()->updateMyIp(mainWindowController_->getConnectWindow()->getIpAddress(), true);
+}
+
+void MainWindow::onUnpinIp(const QString &ip)
+{
+    // Search through favorites to find matching location by IP
+    LocationID locationId;
+    for (int i = 0; i < backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount(); i++) {
+        QModelIndex miFavorite = backend_->locationsModelManager()->favoriteCitiesProxyModel()->index(i, 0);
+        QVariantList pinnedData = miFavorite.data(gui_locations::kPinnedIp).toList();
+        if (pinnedData.size() == 2 && pinnedData[1].toString() == ip) {
+            locationId = qvariant_cast<LocationID>(miFavorite.data(gui_locations::kLocationId));
+            break;
+        }
+    }
+
+    if (!locationId.isValid()) {
+        return;
+    }
+
+    gui_locations::LocationsModel* locationsModel = static_cast<gui_locations::LocationsModel*>(backend_->locationsModelManager()->locationsModel());
+    QModelIndex locationIndex = locationsModel->getIndexByLocationId(locationId);
+
+    if (!locationIndex.isValid()) {
+        return;
+    }
+
+    QVariantList pinnedData;
+    pinnedData << QString() << QString();
+    // Remove pinned IP & favorite status
+    backend_->locationsModelManager()->locationsModel()->setData(locationIndex, pinnedData, gui_locations::Roles::kPinnedIp);
+    backend_->locationsModelManager()->locationsModel()->setData(locationIndex, false, gui_locations::Roles::kIsFavorite);
+    mainWindowController_->getConnectWindow()->updateMyIp(ip, false);
+}
+
 void MainWindow::onConnectWindowNotificationsClick()
 {
     mainWindowController_->getNewsFeedWindow()->setMessages(
@@ -1138,18 +1166,6 @@ void MainWindow::cleanupLogViewerWindow()
         logViewerWindow_->deleteLater();
         logViewerWindow_ = nullptr;
     }
-}
-
-QRect MainWindow::guessTrayIconLocationOnScreen(QScreen *screen)
-{
-    const QRect screenGeo = screen->geometry();
-    QRect newIconRect = QRect(static_cast<int>(screenGeo.right() - WINDOW_WIDTH *G_SCALE),
-                              screenGeo.top(),
-                              savedTrayIconRect_.width(),
-                              savedTrayIconRect_.height());
-
-    return newIconRect;
-
 }
 
 void MainWindow::onPreferencesViewLogClick()
@@ -1404,26 +1420,6 @@ void MainWindow::onPreferencesCollapsed()
         backend_->getPreferences()->validateAndUpdateIfNeeded();
     }
 }
-
-#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
-void MainWindow::onPreferencesTrayIconColorChanged(TRAY_ICON_COLOR c)
-{
-#if defined(Q_OS_WIN)
-    bool trayIconColorWhite;
-    if (c == TRAY_ICON_COLOR::TRAY_ICON_COLOR_OS_THEME) {
-        trayIconColorWhite = ThemeController::instance().isOsDarkTheme();
-    } else {
-        trayIconColorWhite = (c == TRAY_ICON_COLOR::TRAY_ICON_COLOR_WHITE);
-    }
-#elif defined(Q_OS_LINUX)
-    const bool trayIconColorWhite = (c == TRAY_ICON_COLOR::TRAY_ICON_COLOR_WHITE);
-#endif
-    if (trayIconColorWhite != trayIconColorWhite_) {
-        trayIconColorWhite_ = trayIconColorWhite;
-        updateTrayIconType(currentAppIconType_);
-    }
-}
-#endif
 
 void MainWindow::onEmergencyConnectClick()
 {
@@ -1743,9 +1739,6 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
             gotoLoginWindow();
         }
 
-        // Reset last known good protocol/port
-        backend_->getPreferences()->clearLastKnownGoodProtocols();
-
         updateConnectWindowStateProtocolPortDisplay();
 
         // Start the IPC server last to give the above commands time to finish before we
@@ -1797,6 +1790,7 @@ void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
 {
     mainWindowController_->getPreferencesWindow()->setLoggedIn(true);
     mainWindowController_->getTwoFactorAuthWindow()->clearCurrentCredentials();
+    trayIcon_->setLoggedIn(true);
 
     if (backend_->getPreferences()->firewallSettings().isAlwaysOnMode())
     {
@@ -2045,17 +2039,53 @@ void MainWindow::onBackendCheckUpdateChanged(const api_responses::CheckUpdate &c
 
 void MainWindow::onBackendMyIpChanged(QString ip, bool isFromDisconnectedState)
 {
-    mainWindowController_->getConnectWindow()->updateMyIp(ip);
-    if (isFromDisconnectedState)
-    {
-        PersistentState::instance().setLastExternalIp(ip);
-        updateTrayTooltip(tr("Disconnected") + "\n" + ip);
+    bool isPinned = false;
+    if (selectedLocation_->isValid()) {
+        LocationID locationId = selectedLocation_->locationdId();
+
+        // If this is Best Location, convert to the actual API location
+        if (locationId.isBestLocation()) {
+            locationId = locationId.bestLocationToApiLocation();
+        }
+
+        if (locationId.isValid()) {
+            QModelIndex locationIndex = static_cast<gui_locations::LocationsModel*>(backend_->locationsModelManager()->locationsModel())->getIndexByLocationId(locationId);
+            if (locationIndex.isValid()) {
+                QVariantList pinnedData = backend_->locationsModelManager()->locationsModel()->data(locationIndex, gui_locations::kPinnedIp).toList();
+                QString pinnedIp;
+                if (pinnedData.size() == 2) {
+                    pinnedIp = pinnedData[1].toString();  // IP is the second element
+                }
+                isPinned = (pinnedIp == ip);
+
+                // Show alert only on the initial IP after connecting (not on subsequent rotations)
+                // if location has a pinned IP but the actual IP is different, indicating either the node is not available, or the pin IP action failed.
+                if (!isFromDisconnectedState && !receivedInitialIpAfterConnect_ && !pinnedIp.isEmpty() && !isPinned) {
+                    GeneralMessageController::instance().showMessage(
+                        "garry_tools",
+                        tr("Could not pin IP"),
+                        tr("We could not set your favourite IP for this location.  Try again later."),
+                        GeneralMessageController::tr(GeneralMessageController::kOk),
+                        "",
+                        ""
+                    );
+                }
+
+                // Mark that we've received the initial IP after connecting
+                if (!isFromDisconnectedState && !receivedInitialIpAfterConnect_) {
+                    receivedInitialIpAfterConnect_ = true;
+                }
+            }
+        }
     }
-    else
-    {
-        if (selectedLocation_->isValid())
-        {
-            updateTrayTooltip(tr("Connected to ") + selectedLocation_->firstName() + "-" + selectedLocation_->secondName() + "\n" + ip);
+
+    mainWindowController_->getConnectWindow()->updateMyIp(ip, isPinned);
+    if (isFromDisconnectedState) {
+        PersistentState::instance().setLastExternalIp(ip);
+        trayIcon_->updateTooltip(tr("Disconnected") + "\n" + ip);
+    } else {
+        if (selectedLocation_->isValid()) {
+            trayIcon_->updateTooltip(tr("Connected to ") + selectedLocation_->firstName() + "-" + selectedLocation_->secondName() + "\n" + ip);
         }
     }
 }
@@ -2104,7 +2134,7 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
         // Ensure the icon has been updated, as QSystemTrayIcon::showMessage displays this icon
         // in the notification window on Windows.
         updateAppIconType(AppIconType::CONNECTED);
-        updateTrayIconType(AppIconType::CONNECTED);
+        trayIcon_->updateIconType(AppIconType::CONNECTED);
 
         if (backend_->getPreferences()->isShowNotifications())
         {
@@ -2112,7 +2142,7 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
             {
                 if (selectedLocation_->isValid())
                 {
-                    showTrayMessage(tr("You are now connected to Windscribe (%1).").arg(selectedLocation_->firstName() + "-" + selectedLocation_->secondName()));
+                    trayIcon_->showMessage("Windscribe", tr("You are now connected to Windscribe (%1).").arg(selectedLocation_->firstName() + "-" + selectedLocation_->secondName()));
                     bNotificationConnectedShowed_ = true;
                 }
             }
@@ -2120,13 +2150,20 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
     }
     else if (connectState.connectState == CONNECT_STATE_CONNECTING || connectState.connectState == CONNECT_STATE_DISCONNECTING)
     {
+        // Reset the flag when starting a new connection
+        if (connectState.connectState == CONNECT_STATE_CONNECTING) {
+            receivedInitialIpAfterConnect_ = false;
+        }
+
         mainWindowController_->getProtocolWindow()->resetProtocolStatus();
 
         updateAppIconType(AppIconType::CONNECTING);
-        updateTrayIconType(AppIconType::CONNECTING);
+        trayIcon_->updateIconType(AppIconType::CONNECTING);
         mainWindowController_->clearServerRatingsTooltipState();
 
     } else if (connectState.connectState == CONNECT_STATE_DISCONNECTED) {
+        // Reset the flag when disconnected
+        receivedInitialIpAfterConnect_ = false;
         updateConnectWindowStateProtocolPortDisplay();
 
         if (connectState.disconnectReason == DISCONNECTED_WITH_ERROR) {
@@ -2138,14 +2175,14 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
         // Ensure the icon has been updated, as QSystemTrayIcon::showMessage displays this icon
         // in the notification window on Windows.
         if (connectState.disconnectReason == DISCONNECTED_WITH_ERROR) {
-            updateTrayIconType(AppIconType::DISCONNECTED_WITH_ERROR);
+            trayIcon_->updateIconType(AppIconType::DISCONNECTED_WITH_ERROR);
         } else {
-            updateTrayIconType(AppIconType::DISCONNECTED);
+            trayIcon_->updateIconType(AppIconType::DISCONNECTED);
         }
 
         if (bNotificationConnectedShowed_) {
             if (backend_->getPreferences()->isShowNotifications()) {
-                showTrayMessage(tr("Connection to Windscribe has been terminated.\n%1 transferred in %2").arg(getConnectionTransferred(), getConnectionTime()));
+                trayIcon_->showMessage("Windscribe", tr("Connection to Windscribe has been terminated.\n%1 transferred in %2").arg(getConnectionTransferred(), getConnectionTime()));
             }
             bNotificationConnectedShowed_ = false;
         }
@@ -2163,9 +2200,6 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
         }
     }
     soundManager_->play(connectState.connectState);
-
-    // Update LocationsTab refresh button visibility based on VPN state
-    locationsWindow_->onConnectStateChanged(connectState);
 }
 
 void MainWindow::onBackendEmergencyConnectStateChanged(const types::ConnectState &connectState)
@@ -2178,16 +2212,6 @@ void MainWindow::onBackendFirewallStateChanged(bool isEnabled)
 {
     mainWindowController_->getConnectWindow()->updateFirewallState(isEnabled);
     PersistentState::instance().setFirewallState(isEnabled);
-}
-
-void MainWindow::onBackendPingsStarted()
-{
-    locationsWindow_->onPingsStarted();
-}
-
-void MainWindow::onBackendPingsFinished()
-{
-    locationsWindow_->onPingsFinished();
 }
 
 void MainWindow::onNetworkChanged(types::NetworkInterface network)
@@ -2223,6 +2247,11 @@ void MainWindow::onSplitTunnelingStateChanged(bool isActive)
     mainWindowController_->getConnectWindow()->setSplitTunnelingState(isActive);
 }
 
+void MainWindow::onSystemExtensionAvailabilityChanged(bool available)
+{
+    mainWindowController_->getPreferencesWindow()->setSystemExtensionAvailability(available);
+}
+
 void MainWindow::onBackendLogoutFinished()
 {
     selectedLocation_->clear();
@@ -2232,6 +2261,7 @@ void MainWindow::onBackendLogoutFinished()
 
     loginAttemptsController_.reset();
     mainWindowController_->getPreferencesWindow()->setLoggedIn(false);
+    trayIcon_->setLoggedIn(false);
     isLoginOkAndConnectWindowVisible_ = false;
     backend_->getPreferencesHelper()->setIsExternalConfigMode(false);
     setDataRemaining(-1, -1);
@@ -2437,7 +2467,7 @@ void MainWindow::onBackendTestTunnelResult(bool success)
     if (!ExtraConfig::instance().getIsTunnelTestNoError() && !success) {
         types::ConnectedDnsInfo cdi = backend_->getPreferences()->connectedDnsInfo();
 
-        if (cdi.type == CONNECTED_DNS_TYPE_CUSTOM && backend_->osDnsServersListContains(cdi.upStream1.toStdWString())) {
+        if ((cdi.type == CONNECTED_DNS_TYPE_CUSTOM || cdi.type == CONNECTED_DNS_TYPE_CONTROLD) && backend_->osDnsServersListContains(cdi.upStream1.toStdWString())) {
             GeneralMessageController::instance().showMessage(
                 "WARNING_YELLOW",
                 tr("Invalid DNS Settings"),
@@ -2470,34 +2500,30 @@ void MainWindow::onBackendTestTunnelResult(bool success)
             types::ProtocolStatus(ps.protocol, ps.port, types::ProtocolStatus::Status::kConnected));
 
         types::Protocol defaultProtocol = getDefaultProtocolForNetwork(curNetwork_.networkOrSsid);
+        bool isAutoMode = backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).isAutomatic();
+        bool isFailover = defaultProtocol != ps.protocol && isAutoMode;
 
-        if (backend_->getPreferences()->networkLastKnownGoodProtocol(curNetwork_.networkOrSsid) != ps.protocol ||
-            backend_->getPreferences()->networkLastKnownGoodPort(curNetwork_.networkOrSsid) != ps.port)
-        {
-            backend_->getPreferences()->setNetworkLastKnownGoodProtocolPort(curNetwork_.networkOrSsid, ps.protocol, ps.port);
-
-            // User manually selected a network or we failed over to a different protocol for the first time.
-            // Ask if they want to save
-            if (userProtocolOverride_ || defaultProtocol != ps.protocol) {
-                if (!backend_->getPreferences()->hasNetworkPreferredProtocol(curNetwork_.networkOrSsid) ||
-                    backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol() != ps.protocol ||
-                    backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port() != ps.port)
-                {
-                    QString title = QString(tr("Set “%1” as preferred protocol?")).arg(ps.protocol.toLongString());
-                    GeneralMessageController::instance().showMessage("WARNING_WHITE",
-                                                                     title,
-                                                                     tr("Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions."),
-                                                                     tr("Set as Preferred"),
-                                                                     GeneralMessageController::tr(GeneralMessageController::kCancel),
-                                                                     "",
-                                                                     [this, ps](bool b) {
-                                                                        if (curNetwork_.isValid()) {
-                                                                            backend_->getPreferences()->setNetworkPreferredProtocol(curNetwork_.networkOrSsid, types::ConnectionSettings(ps.protocol, ps.port, false));
-                                                                        }
-                                                                     });
-                }
-                userProtocolOverride_ = false;
+        // User manually selected a protocol or we failed over to a different protocol for the first time.
+        // Ask if they want to save
+        if (userProtocolOverride_ || isFailover) {
+            if (!backend_->getPreferences()->hasNetworkPreferredProtocol(curNetwork_.networkOrSsid) ||
+                backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol() != ps.protocol ||
+                backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port() != ps.port)
+            {
+                QString title = QString(tr("Set “%1” as preferred protocol?")).arg(ps.protocol.toLongString());
+                GeneralMessageController::instance().showMessage("WARNING_WHITE",
+                                                                    title,
+                                                                    tr("Windscribe will always use this protocol to connect on this network in the future to avoid any interruptions."),
+                                                                    tr("Set as Preferred"),
+                                                                    GeneralMessageController::tr(GeneralMessageController::kCancel),
+                                                                    "",
+                                                                    [this, ps](bool b) {
+                                                                    if (curNetwork_.isValid()) {
+                                                                        backend_->getPreferences()->setNetworkPreferredProtocol(curNetwork_.networkOrSsid, types::ConnectionSettings(ps.protocol, ps.port, false));
+                                                                    }
+                                                                    });
             }
+            userProtocolOverride_ = false;
         }
     }
 
@@ -2673,29 +2699,74 @@ void MainWindow::onBackendSyncRobertResult(bool success)
     qCInfo(LOG_BASIC) << "Sync ROBERT response:" << success;
 }
 
-void MainWindow::onBackendProtocolStatusChanged(const QVector<types::ProtocolStatus> &status)
+void MainWindow::onBackendBridgeApiAvailabilityChanged(bool enableIpUtils)
 {
-    mainWindowController_->getProtocolWindow()->setProtocolStatus(status);
-    if (mainWindowController_->getProtocolWindow()->hasMoreAttempts()) {
-        mainWindowController_->expandProtocols();
+    mainWindowController_->getConnectWindow()->setIpUtilsEnabled(enableIpUtils);
+}
+
+void MainWindow::onBackendIpRotateResult(bool success)
+{
+    mainWindowController_->getConnectWindow()->onIpRotateResult(success);
+
+    if (!success) {
+        GeneralMessageController::instance().showMessage(
+            "garry_tools",
+            tr("Could not rotate IP"),
+            tr("Try again later or go to our Status page for more info."),
+            tr("Check Location Status"),
+            tr("Back"),
+            "",
+            [this](bool b) {
+                QDesktopServices::openUrl(QUrl(QString("https://%1/status").arg(HardcodedSettings::instance().windscribeServerUrl())));
+            }
+        );
+    }
+}
+
+void MainWindow::onBackendProtocolStatusChanged(const QVector<types::ProtocolStatus> &status, bool isAutomaticMode)
+{
+    if (isAutomaticMode) {
+        mainWindowController_->getProtocolWindow()->setProtocolStatus(status);
+        if (mainWindowController_->getProtocolWindow()->hasMoreAttempts()) {
+            mainWindowController_->expandProtocols();
+        } else {
+            GeneralMessageController::instance().showMessage(
+                "WARNING_WHITE",
+                tr("This network hates us"),
+                tr("We couldn’t connect you on this network. Send us your debug log so we can figure out what happened."),
+                tr("Send Debug Log"),
+                GeneralMessageController::tr(GeneralMessageController::kCancel),
+                "",
+                [this](bool b) {
+                    backend_->sendDebugLog();
+                    GeneralMessageController::instance().showMessage(
+                        "CHECKMARK_IN_CIRCLE",
+                        tr("Debug Log Sent!"),
+                        tr("Your debug log has been received. Please contact support if you want assistance with this issue."),
+                        tr("Contact Support"),
+                        GeneralMessageController::tr(GeneralMessageController::kCancel),
+                        "",
+                        [](bool b) { QDesktopServices::openUrl(QUrl(QString("https://%1/support/ticket").arg(HardcodedSettings::instance().windscribeServerUrl()))); });
+                });
+        }
     } else {
         GeneralMessageController::instance().showMessage(
             "WARNING_WHITE",
-            tr("This network hates us"),
-            tr("We couldn’t connect you on this network. Send us your debug log so we can figure out what happened."),
-            tr("Send Debug Log"),
+            tr("Manual connection mode failed"),
+            tr("We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?"),
+            tr("Switch to Auto"),
             GeneralMessageController::tr(GeneralMessageController::kCancel),
             "",
             [this](bool b) {
-                backend_->sendDebugLog();
-                GeneralMessageController::instance().showMessage(
-                    "CHECKMARK_IN_CIRCLE",
-                    tr("Debug Log Sent!"),
-                    tr("Your debug log has been received. Please contact support if you want assistance with this issue."),
-                    tr("Contact Support"),
-                    GeneralMessageController::tr(GeneralMessageController::kCancel),
-                    "",
-                    [](bool b) { QDesktopServices::openUrl(QUrl(QString("https://%1/support/ticket").arg(HardcodedSettings::instance().windscribeServerUrl()))); });
+                auto cs = backend_->getPreferences()->connectionSettings();
+                cs.setIsAutomatic(true);
+                backend_->getPreferences()->setConnectionSettings(cs);
+                if (selectedLocation_->isValid()) {
+                    // Restart the whole connection process, versus attempting a reconnect, since we never connected
+                    // in the first place, and need the connection mode change to be recognized by the engine.
+                    // TL;DR do what the user would do; change the setting in preferences and click the connect button.
+                    backend_->sendConnect(selectedLocation_->locationdId());
+                }
             });
     }
 }
@@ -2881,19 +2952,12 @@ void MainWindow::onPreferencesLaunchOnStartupChanged(bool bEnabled)
 
 void MainWindow::updateConnectWindowStateProtocolPortDisplay()
 {
-    types::Protocol lastKnownGoodProtocol = backend_->getPreferences()->networkLastKnownGoodProtocol(curNetwork_.networkOrSsid);
-    uint lastKnownGoodPort = backend_->getPreferences()->networkLastKnownGoodPort(curNetwork_.networkOrSsid);
-
     if (!backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).isAutomatic()) {
         mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol(),
                                                                    backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port());
         mainWindowController_->getConnectWindow()->setIsPreferredProtocol(true);
     } else if (backend_->getPreferences()->connectionSettings().isAutomatic()) {
-        if (lastKnownGoodProtocol.isValid()) {
-            mainWindowController_->getConnectWindow()->setProtocolPort(lastKnownGoodProtocol, lastKnownGoodPort);
-        } else {
-            mainWindowController_->getConnectWindow()->setProtocolPort(types::Protocol::WIREGUARD, 443);
-        }
+        mainWindowController_->getConnectWindow()->setProtocolPort(types::Protocol::WIREGUARD, 443);
         mainWindowController_->getConnectWindow()->setIsPreferredProtocol(false);
     } else {
         mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->connectionSettings().protocol(),
@@ -2937,75 +3001,11 @@ void MainWindow::onPreferencesIsDockedToTrayChanged(bool isDocked)
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 
-void MainWindow::onPreferencesLastKnownGoodProtocolChanged(const QString &network, const types::Protocol &protocol, uint port)
-{
-    Q_UNUSED(protocol);
-    Q_UNUSED(port);
-
-    if (network == curNetwork_.networkOrSsid && backend_->isDisconnected()) {
-        updateConnectWindowStateProtocolPortDisplay();
-    }
-}
-
 #ifdef Q_OS_MACOS
 void MainWindow::hideShowDockIcon(bool hideFromDock)
 {
     desiredDockIconVisibility_ = !hideFromDock;
     hideShowDockIconTimer_.start(300);
-}
-
-const QRect MainWindow::bestGuessForTrayIconRectFromLastScreen(const QPoint &pt)
-{
-    QRect lastScreenTrayRect = trayIconRectForLastScreen();
-    if (lastScreenTrayRect.isValid()) {
-        return lastScreenTrayRect;
-    }
-    // qDebug() << "No valid history of last screen";
-    return trayIconRectForScreenContainingPt(pt);
-}
-
-const QRect MainWindow::trayIconRectForLastScreen()
-{
-    if (lastScreenName_ != "") {
-        QRect rect = generateTrayIconRectFromHistory(lastScreenName_);
-        if (rect.isValid()) {
-            return rect;
-        }
-    }
-    // qDebug() << "No valid last screen";
-    return QRect(0,0,0,0); // invalid
-}
-
-const QRect MainWindow::trayIconRectForScreenContainingPt(const QPoint &pt)
-{
-    QScreen *screen = WidgetUtils::slightlySaferScreenAt(pt);
-    if (!screen) {
-        return QRect(0,0,0,0);
-    }
-    return guessTrayIconLocationOnScreen(screen);
-}
-
-const QRect MainWindow::generateTrayIconRectFromHistory(const QString &screenName)
-{
-    if (systemTrayIconRelativeGeoScreenHistory_.contains(screenName)) {
-        // ensure is in current list
-        QScreen *screen = WidgetUtils::screenByName(screenName);
-
-        if (screen) {
-            // const QRect screenGeo = WidgetUtils::smartScreenGeometry(screen);
-            const QRect screenGeo = screen->geometry();
-
-            TrayIconRelativeGeometry &rect = systemTrayIconRelativeGeoScreenHistory_[lastScreenName_];
-            QRect newIconRect = QRect(screenGeo.x() + rect.x(),
-                                      screenGeo.y() + rect.y(),
-                                      rect.width(), rect.height());
-            return newIconRect;
-        }
-        //qDebug() << "   No screen by name: " << screenName;
-        return QRect(0,0,0,0);
-    }
-    //qDebug() << "   No history for screen: " << screenName;
-    return QRect(0,0,0,0);
 }
 
 void MainWindow::onPreferencesHideFromDockChanged(bool hideFromDock)
@@ -3174,6 +3174,8 @@ void MainWindow::onIpcOpenLocations(IPC::CliCommands::LocationType type)
         mainWindowController_->expandLocations();
         if (type == IPC::CliCommands::LocationType::kStaticIp) {
             mainWindowController_->getLocationsWindow()->setTab(LOCATION_TAB_STATIC_IPS_LOCATIONS);
+        } else if (type == IPC::CliCommands::LocationType::kFavourite) {
+            mainWindowController_->getLocationsWindow()->setTab(LOCATION_TAB_FAVORITE_LOCATIONS);
         } else {
             mainWindowController_->getLocationsWindow()->setTab(LOCATION_TAB_ALL_LOCATIONS);
         }
@@ -3241,103 +3243,52 @@ void MainWindow::onAutoConnectUpdated(bool on)
     backend_->handleNetworkChange(backend_->getCurrentNetworkInterface(), true);
 }
 
-QRect MainWindow::trayIconRect()
-{
-#if defined(Q_OS_MACOS)
-    if (trayIcon_.isVisible()) {
-        const QRect rc = trayIcon_.geometry();
-
-        // check for valid tray icon
-        if (!rc.isValid()) {
-            QRect lastGuess = bestGuessForTrayIconRectFromLastScreen(rc.topLeft());
-            if (lastGuess.isValid()) return lastGuess;
-            return savedTrayIconRect_;
-        }
-
-        // check for valid screen
-        QScreen *screen = QGuiApplication::screenAt(rc.center());
-        if (!screen) {
-            QRect bestGuess = trayIconRectForScreenContainingPt(rc.topLeft());
-            if (bestGuess.isValid()) {
-                return bestGuess;
-            }
-            return savedTrayIconRect_;
-        }
-
-        QRect screenGeo = screen->geometry();
-
-        // valid screen and tray icon -- update the cache
-        systemTrayIconRelativeGeoScreenHistory_[screen->name()] = QRect(abs(rc.x() - screenGeo.x()), abs(rc.y() - screenGeo.y()), rc.width(), rc.height());
-        lastScreenName_ = screen->name();
-        savedTrayIconRect_ = rc;
-        return savedTrayIconRect_;
-    }
-
-#else
-    if (trayIcon_.isVisible()) {
-        QRect trayIconRect = trayIcon_.geometry();
-        if (trayIconRect.isValid()) {
-            savedTrayIconRect_ = trayIconRect;
-        }
-    }
-#endif
-    return savedTrayIconRect_;
-}
 
 void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
 {
-    // qDebug() << "Tray Activated: " << reason;
-
     switch (reason) {
-        case QSystemTrayIcon::Trigger:
-        case QSystemTrayIcon::DoubleClick:
-        {
-            // qDebug() << "Tray triggered";
-            deactivationTimer_.stop();
 #if defined(Q_OS_WIN)
+        case QSystemTrayIcon::DoubleClick:
+            // Fix a nasty tray icon double-click bug in Qt.
+            WidgetUtils_win::fixSystemTrayIconDblClick();
+            break;
+        case QSystemTrayIcon::Trigger:
+            deactivationTimer_.stop();
             if (isMinimized() || !backend_->getPreferences()->isDockedToTray()) {
+                deactivateAndHide();
                 activateAndShow();
+                mainWindowController_->updateMainAndViewGeometry(true);
                 setBackendAppActiveState(true);
             } else {
                 deactivateAndHide();
                 setBackendAppActiveState(false);
             }
-            // Fix a nasty tray icon double-click bug in Qt.
-            if (reason == QSystemTrayIcon::DoubleClick)
-                WidgetUtils_win::fixSystemTrayIconDblClick();
+            break;
 #else
+        case QSystemTrayIcon::Trigger:
+        case QSystemTrayIcon::DoubleClick:
+            deactivationTimer_.stop();
             if (backend_->getPreferences()->isDockedToTray()) {
                 onDockIconClicked();
             } else if (!isVisible()) { // closed to tray
                 activateAndShow();
                 setBackendAppActiveState(true);
             }
-#endif
             break;
-        }
+#endif
         default:
             break;
     }
 }
 
-void MainWindow::onTrayMenuConnect()
-{
-    onConnectWindowConnectClick();
-}
-
-void MainWindow::onTrayMenuDisconnect()
-{
-    onConnectWindowConnectClick();
-}
-
-void MainWindow::onTrayMenuPreferences()
+void MainWindow::onTrayPreferences()
 {
     activateAndShow();
     setBackendAppActiveState(true);
     mainWindowController_->expandPreferences();
 }
 
-void MainWindow::onTrayMenuShowHide()
+void MainWindow::onTrayShowHide()
 {
     if (isMinimized() || !isVisible()) {
         activateAndShow();
@@ -3348,19 +3299,19 @@ void MainWindow::onTrayMenuShowHide()
     }
 }
 
-void MainWindow::onTrayMenuHelpMe()
+void MainWindow::onTrayHelpMe()
 {
     QDesktopServices::openUrl(QUrl( QString("https://%1/help").arg(HardcodedSettings::instance().windscribeServerUrl())));
 }
 
-void MainWindow::onTrayMenuQuit()
+void MainWindow::onTrayQuit()
 {
     doClose();
 }
 
 void MainWindow::onFreeTrafficNotification(const QString &message)
 {
-    showTrayMessage(message);
+    trayIcon_->showMessage("Windscribe", message);
 }
 
 void MainWindow::onSplitTunnelingAppsAddButtonClick()
@@ -3394,140 +3345,12 @@ void MainWindow::onMainWindowControllerSendServerRatingDown()
     backend_->speedRating(0, PersistentState::instance().lastExternalIp());
 }
 
-void MainWindow::createTrayMenuItems()
-{
-    if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_CONNECT) // logged in
-    {
-        if (backend_->currentConnectState() == CONNECT_STATE_DISCONNECTED)
-        {
-            trayMenu_.addAction(tr("Connect"), this, &MainWindow::onTrayMenuConnect);
-        }
-        else
-        {
-            trayMenu_.addAction(tr("Disconnect"), this, &MainWindow::onTrayMenuDisconnect);
-        }
-        trayMenu_.addSeparator();
-
-#ifndef Q_OS_LINUX
-
-#ifdef USE_LOCATIONS_TRAY_MENU_NATIVE
-        if (backend_->locationsModelManager()->sortedLocationsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->sortedLocationsProxyModel()), &QObject::deleteLater);
-            menu->setTitle(tr("Locations"));
-            trayMenu_.addMenu(menu.get());
-            connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
-            locationsMenu_.append(menu);
-        }
-        if (backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->favoriteCitiesProxyModel()), &QObject::deleteLater);
-            menu->setTitle(tr("Favourites"));
-            trayMenu_.addMenu(menu.get());
-            connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
-            locationsMenu_.append(menu);
-        }
-        if (backend_->locationsModelManager()->staticIpsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->staticIpsProxyModel()), &QObject::deleteLater);
-            menu->setTitle(tr("Static IPs"));
-            trayMenu_.addMenu(menu.get());
-            connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
-            locationsMenu_.append(menu);
-        }
-        if (backend_->locationsModelManager()->customConfigsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenuNative> menu(new LocationsTrayMenuNative(nullptr, backend_->locationsModelManager()->customConfigsProxyModel()), &QObject::deleteLater);
-            menu->setTitle(tr("Custom configs"));
-            trayMenu_.addMenu(menu.get());
-            connect(menu.get(), &LocationsTrayMenuNative::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
-            locationsMenu_.append(menu);
-        }
-#else
-        if (backend_->locationsModelManager()->sortedLocationsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->sortedLocationsProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
-            menu->setTitle(tr("Locations"));
-            trayMenu_.addMenu(menu.get());
-            connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
-            locationsMenu_.append(menu);
-        }
-        if (backend_->locationsModelManager()->favoriteCitiesProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->favoriteCitiesProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
-            menu->setTitle(tr("Favourites"));
-            trayMenu_.addMenu(menu.get());
-            connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
-            locationsMenu_.append(menu);
-        }
-        if (backend_->locationsModelManager()->staticIpsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->staticIpsProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
-            menu->setTitle(tr("Static IPs"));
-            trayMenu_.addMenu(menu.get());
-            connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
-            locationsMenu_.append(menu);
-        }
-        if (backend_->locationsModelManager()->customConfigsProxyModel()->rowCount() > 0) {
-            QSharedPointer<LocationsTrayMenu> menu(new LocationsTrayMenu(backend_->locationsModelManager()->customConfigsProxyModel(), trayMenu_.font(), trayIcon_.geometry()), &QObject::deleteLater);
-            menu->setTitle(tr("Custom configs"));
-            trayMenu_.addMenu(menu.get());
-            connect(menu.get(), &LocationsTrayMenu::locationSelected, this, &MainWindow::onLocationsTrayMenuLocationSelected);
-            locationsMenu_.append(menu);
-        }
-#endif
-        trayMenu_.addSeparator();
-#endif
-    }
-
-#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
-    trayMenu_.addAction(tr("Show/Hide"), this, &MainWindow::onTrayMenuShowHide);
-#endif
-
-    if (!mainWindowController_->isPreferencesVisible())
-    {
-        trayMenu_.addAction(tr("Preferences"), this, &MainWindow::onTrayMenuPreferences);
-    }
-
-    trayMenu_.addAction(tr("Help"), this, &MainWindow::onTrayMenuHelpMe);
-    trayMenu_.addAction(tr("Exit"), this, &MainWindow::onTrayMenuQuit);
-}
-
-void MainWindow::onTrayMenuAboutToShow()
-{
-    trayMenu_.clear();
-#ifndef Q_OS_LINUX
-    locationsMenu_.clear();
-#endif
-#ifdef Q_OS_MACOS
-    if (!backend_->getPreferences()->isDockedToTray()) {
-        createTrayMenuItems();
-    }
-#else
-    createTrayMenuItems();
-#endif
-}
-
-void MainWindow::onTrayMenuAboutToHide()
-{
-#ifdef Q_OS_WIN
-    locationsMenu_.clear();
-#endif
-}
-
-void MainWindow::onLocationsTrayMenuLocationSelected(const LocationID &lid)
-{
-    // close menu
-#ifdef Q_OS_WIN
-    trayMenu_.close();
-#elif !defined(USE_LOCATIONS_TRAY_MENU_NATIVE)
-    #ifndef Q_OS_LINUX
-        listWidgetAction_[type]->trigger(); // close doesn't work by default on mac
-    #endif
-#endif
-    onLocationSelected(lid);
-}
-
-
 void MainWindow::onScaleChanged()
 {
     ImageResourcesSvg::instance().clearHashAndStartPreloading();
     ImageResourcesPng::instance().clearHash();
     mainWindowController_->updateScaling();
-    updateTrayIconType(currentAppIconType_);
+    trayIcon_->updateIconType(currentAppIconType_);
 }
 
 void MainWindow::onDpiScaleManagerNewScreen(QScreen *screen)
@@ -3556,7 +3379,7 @@ void MainWindow::onFocusWindowChanged(QWindow *focusWindow)
     // On Mac, we apply the fix as well, so that MessageBox/Log Window/etc. won't hide the app
     // window in docked mode. Otherwise, closing the MessageBox/Log Window/etc. will lead to an
     // unwanted app termination.
-    const bool kIsTrayIconClicked = trayIconRect().contains(QCursor::pos());
+    const bool kIsTrayIconClicked = trayIcon_->trayIconRect().contains(QCursor::pos());
     if (!focusWindow && !kIsTrayIconClicked && !ShowingDialogState::instance().isCurrentlyShowingExternalDialog() && !logViewerWindow_) {
         if (backend_->getPreferences()->isDockedToTray()) {
             const int kDeactivationDelayMs = 100;
@@ -3623,26 +3446,6 @@ void MainWindow::backToLoginWithErrorMessage(LoginWindow::ERROR_MESSAGE_TYPE err
     logoutErrorMessage_ = errorMessage;
     selectedLocation_->clear();
     backend_->logout(false);
-}
-
-void MainWindow::setupTrayIcon()
-{
-    updateTrayTooltip(tr("Disconnected") + "\n" + PersistentState::instance().lastExternalIp());
-
-    // Create tray menu items here, because it seems like Qt on Linux does not even trigger aboutToShow()
-    // if the menu is empty, and since aboutToShow() is never called, we never populate the menu, ad nauseum.
-    // Calling createTrayMenuItems() once here makes everything work.
-    createTrayMenuItems();
-
-    trayIcon_.setContextMenu(&trayMenu_);
-    connect(&trayMenu_, &QMenu::aboutToShow, this, &MainWindow::onTrayMenuAboutToShow);
-    connect(&trayMenu_, &QMenu::aboutToHide, this, &MainWindow::onTrayMenuAboutToHide);
-
-    updateAppIconType(AppIconType::DISCONNECTED);
-    updateTrayIconType(AppIconType::DISCONNECTED);
-    trayIcon_.show();
-
-    connect(&trayIcon_, &QSystemTrayIcon::activated, this, &MainWindow::onTrayActivated);
 }
 
 QString MainWindow::getConnectionTime()
@@ -3797,11 +3600,11 @@ void MainWindow::handleDisconnectWithError(const types::ConnectState &connectSta
                                                      "",
                                                      [&](bool) {
                                                          this->updateAppIconType(AppIconType::DISCONNECTED);
-                                                         this->updateTrayIconType(AppIconType::DISCONNECTED);
+                                                         this->trayIcon_->updateIconType(AppIconType::DISCONNECTED);
                                                      },
                                                      [&](bool) {
                                                          this->updateAppIconType(AppIconType::DISCONNECTED);
-                                                         this->updateTrayIconType(AppIconType::DISCONNECTED);
+                                                         this->trayIcon_->updateIconType(AppIconType::DISCONNECTED);
                                                      }
     );
 }
@@ -3828,7 +3631,11 @@ void MainWindow::openUpgradeExternalWindow()
 void MainWindow::gotoLoginWindow()
 {
     mainWindowController_->getLoginWindow()->setFirewallTurnOffButtonVisibility(backend_->isFirewallEnabled());
-    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGIN);
+    if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
+        GeneralMessageController::instance().setSource(MainWindowController::WINDOW_ID_LOGIN);
+    } else {
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGIN);
+    }
 }
 
 void MainWindow::gotoLogoutWindow()
@@ -3912,51 +3719,6 @@ void MainWindow::updateAppIconType(AppIconType type)
     currentAppIconType_ = type;
 }
 
-void MainWindow::updateTrayIconType(AppIconType type)
-{
-    const QIcon *icon = nullptr;
-    switch (type) {
-    case AppIconType::DISCONNECTED:
-        icon = IconManager::instance().getDisconnectedTrayIcon(trayIconColorWhite_);
-        break;
-    case AppIconType::CONNECTING:
-        icon = IconManager::instance().getConnectingTrayIcon(trayIconColorWhite_);
-        break;
-    case AppIconType::CONNECTED:
-        icon = IconManager::instance().getConnectedTrayIcon(trayIconColorWhite_);
-        break;
-    case AppIconType::DISCONNECTED_WITH_ERROR:
-        icon = IconManager::instance().getErrorTrayIcon(trayIconColorWhite_);
-        break;
-    default:
-        break;
-    }
-
-    if (icon) {
-        // We must call setIcon so calls to QSystemTrayIcon::showMessage will use the
-        // correct icon.  Otherwise, the singleShot call below may cause showMessage
-        // to pick up the old icon.
-        trayIcon_.setIcon(*icon);
-#if defined(Q_OS_WIN)
-        const QPixmap pm = icon->pixmap(QSize(16, 16) * G_SCALE);
-        if (!pm.isNull()) {
-            QTimer::singleShot(1, [pm]() {
-                WidgetUtils_win::updateSystemTrayIcon(pm, QString());
-            });
-        }
-#endif
-    }
-}
-
-void MainWindow::updateTrayTooltip(QString tooltip)
-{
-#if defined(Q_OS_WIN)
-    WidgetUtils_win::updateSystemTrayIcon(QPixmap(), std::move(tooltip));
-#else
-    trayIcon_.setToolTip(tooltip);
-#endif
-}
-
 void MainWindow::onWireGuardAtKeyLimit()
 {
     GeneralMessageController::instance().showMessage(
@@ -4029,42 +3791,6 @@ void MainWindow::onSplitTunnelingStartFailed()
 #endif
 }
 
-void MainWindow::showTrayMessage(const QString &message)
-{
-    if (trayIcon_.isSystemTrayAvailable()) {
-        trayIcon_.showMessage("Windscribe", message);
-        return;
-    }
-
-#if defined(Q_OS_LINUX)
-    QDBusInterface dbus("org.freedesktop.Notifications", "/org/freedesktop/Notifications",
-                        "org.freedesktop.Notifications", QDBusConnection::sessionBus());
-
-    if (!dbus.isValid()) {
-        qCWarning(LOG_BASIC) << "MainWindow::showTrayMessage - could not connect to the notification manager using dbus."
-                           << (dbus.lastError().isValid() ? dbus.lastError().message() : "");
-        return;
-    }
-
-    // Leaving these here as documentation, and in case we need to use them in the future.
-    uint replacesId = 0;
-    QStringList actions;
-    QMap<QString, QVariant> hints;
-
-    // This will show the default 'information' icon.
-    const char *appIcon = "";
-
-    QDBusReply<uint> reply = dbus.call("Notify", "Windscribe VPN", replacesId, appIcon,
-                                       "Windscribe", message, actions, hints, 10000);
-    if (!reply.isValid()) {
-        qCWarning(LOG_BASIC) << "MainWindow::showTrayMessage - could not display the message."
-                           << (dbus.lastError().isValid() ? dbus.lastError().message() : "");
-    }
-#else
-    qCWarning(LOG_BASIC) << "QSystemTrayIcon reports the system tray is not available";
-#endif
-}
-
 types::Protocol MainWindow::getDefaultProtocolForNetwork(const QString &network)
 {
     // if there is a preferred protocol for this network, it is the default
@@ -4074,12 +3800,7 @@ types::Protocol MainWindow::getDefaultProtocolForNetwork(const QString &network)
     } else if (!backend_->getPreferences()->connectionSettings().isAutomatic()) {
         return backend_->getPreferences()->connectionSettings().protocol();
     } else {
-        // otherwise, it's automatic.  if there is a last known good protocol, that is the default
-        types::Protocol p = backend_->getPreferences()->networkLastKnownGoodProtocol(network);
-        if (p.isValid()) {
-            return p;
-        }
-        // if there's no valid last known good protocol, the default is wireguard
+        // otherwise, it's automatic. the default is wireguard
         return types::Protocol(types::Protocol::TYPE::WIREGUARD);
     }
 }
@@ -4359,27 +4080,8 @@ void MainWindow::onLocationsUpgradeBannerClicked()
     openUpgradeExternalWindow();
 }
 
-void MainWindow::onLocationsRefreshClicked()
-{
-    backend_->refreshLocations();
-}
-
 void MainWindow::setDataRemaining(qint64 bytesUsed, qint64 bytesMax)
 {
     mainWindowController_->getLocationsWindow()->setDataRemaining(bytesUsed, bytesMax);
     mainWindowController_->getBottomInfoWindow()->setDataRemaining(bytesUsed, bytesMax);
-}
-
-void MainWindow::onOsThemeChanged(bool isDarkTheme)
-{
-    qCDebug(LOG_BASIC) << "OS theme changed:" << (isDarkTheme ? "dark" : "light");
-#if defined(Q_OS_WIN)
-    if (backend_->getPreferences()->trayIconColor() == TRAY_ICON_COLOR::TRAY_ICON_COLOR_OS_THEME) {
-        trayIconColorWhite_ = isDarkTheme;
-        updateTrayIconType(currentAppIconType_);
-    }
-#elif defined(Q_OS_MACOS)
-    trayIconColorWhite_ = isDarkTheme;
-    updateTrayIconType(currentAppIconType_);
-#endif
 }

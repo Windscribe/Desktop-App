@@ -24,7 +24,7 @@ LocationsMenu::LocationsMenu(ScalableGraphicsObject *parent)
 
     searchLineEdit_ = new CommonWidgets::CustomMenuLineEdit();
     searchLineEdit_->setFont(FontManager::instance().getFont(14,  QFont::Normal));
-    searchLineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
+    searchLineEdit_->setStyleSheet("background: transparent; color: rgb(255, 255, 255)");
     searchLineEdit_->setFrame(false);
     searchLineEdit_->installEventFilter(this);
     connect(searchLineEdit_, &CommonWidgets::CustomMenuLineEdit::textChanged, this, &LocationsMenu::onSearchLineEditTextChanged);
@@ -294,8 +294,8 @@ bool LocationsMenu::handleKeyPressEvent(QKeyEvent *event)
         if (curTab_ != LOCATION_TAB_SEARCH_LOCATIONS) {
             // If search tab is not open, and the user presses space, collapse locations.
             // For any other printable character, open the search tab and append the text.
-            if (event->key() != Qt::Key_Space && QChar(event->key()).isPrint() &&
-                (!(event->modifiers() & (Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier))))
+            if (event->key() != Qt::Key_Space && event->key() != Qt::Key_Meta && QChar(event->key()).isPrint() &&
+                (!(event->modifiers() & (Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier | Qt::ShiftModifier))))
             {
                 onSearchLocationsClicked();
                 searchLineEdit_->setFocus();

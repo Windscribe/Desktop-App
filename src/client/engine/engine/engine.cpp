@@ -2,6 +2,7 @@
 
 #include <QCoreApplication>
 #include <QCryptographicHash>
+#include <QPointer>
 #include <spdlog/spdlog.h>
 #include <wsnet/WSNet.h>
 #include "utils/ws_assert.h"
@@ -27,6 +28,7 @@
 #include "api_responses/websession.h"
 #include "api_responses/debuglog.h"
 #include "api_responses/authtoken.h"
+#include "api_responses/controlddevices.h"
 #include "firewall/firewallexceptions.h"
 #include "getdeviceid.h"
 #include "openvpnversioncontroller.h"
@@ -125,9 +127,8 @@ Engine::Engine() : QObject(nullptr),
         WSNet::instance()->apiResourcersManager()->setAuthHash(settings.value("authHash").toString().toStdString());
     }
 
-    // Skip printing the engine settings if we loaded the defaults.
     if (!engineSettings_.loadFromSettings()) {
-        checkAutoEnableAntiCensorship_ = true;
+        qCInfo(LOG_BASIC) << "Use default engine settings since the previous ones were not loaded";
     }
 
     qCInfo(LOG_BASIC) << "Engine settings" << engineSettings_;
@@ -293,14 +294,16 @@ bool Engine::firewallOff()
     return true;
 }
 
-void Engine::connectClick(const LocationID &locationId, const types::ConnectionSettings &connectionSettings)
+void Engine::connectClick(const LocationID &locationId, const types::ConnectionSettings &connectionSettings, const QPair<QString, QString> &pinnedNode)
 {
     QMutexLocker locker(&mutex_);
     if (bInitialized_)
     {
         locationId_ = locationId;
         connectStateController_->setConnectingState(locationId_);
-        QMetaObject::invokeMethod(this, "connectClickImpl", Q_ARG(LocationID, locationId), Q_ARG(types::ConnectionSettings, connectionSettings));
+        // Use typedef to avoid comma issue in Q_ARG macro
+        typedef QPair<QString, QString> StringPair;
+        QMetaObject::invokeMethod(this, "connectClickImpl", Q_ARG(LocationID, locationId), Q_ARG(types::ConnectionSettings, connectionSettings), Q_ARG(StringPair, pinnedNode));
     }
 }
 
@@ -375,14 +378,6 @@ void Engine::emergencyDisconnectClick()
     {
         emergencyConnectStateController_->setDisconnectedState(DISCONNECTED_ITSELF, CONNECT_ERROR::NO_CONNECT_ERROR);
         emit emergencyDisconnected();
-    }
-}
-
-void Engine::refreshLocations()
-{
-    QMutexLocker locker(&mutex_);
-    if (bInitialized_) {
-        QMetaObject::invokeMethod(this, "refreshLocationsImpl");
     }
 }
 
@@ -637,11 +632,21 @@ void Engine::initPart2()
             return;
         }
         mutexForOnHostIPsChanged_.lock();
-        QMetaObject::invokeMethod(this, [this, ips] {
+        QPointer<Engine> self(this);
+        QMetaObject::invokeMethod(this, [self, ips] {
+            if (!self) {
+                return;
+            }
+            QMutexLocker locker(&self->mutexForOnHostIPsChanged_);
             QSet<QString> hostIps;
-            for (const auto &ip : ips)
+            for (const auto &ip : ips) {
                 hostIps.insert(QString::fromStdString(ip));
-            onHostIPsChanged(hostIps);
+            }
+            self->onHostIPsChanged(hostIps);
+            // resume callback from wsnet
+            self->waitConditionForOnHostIPsChanged_.wakeAll();
+            qCDebug(LOG_BASIC) << "Return to WhitelistIpsCallback in wsnet";
+
         });
         waitConditionForOnHostIPsChanged_.wait(&mutexForOnHostIPsChanged_);
         mutexForOnHostIPsChanged_.unlock();
@@ -653,6 +658,7 @@ void Engine::initPart2()
         });
     });
     WSNet::instance()->serverAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
+    WSNet::instance()->bridgeAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     updateApiResolutionSettingsInWsnet();
 
     myIpManager_ = new api_resources::MyIpManager(this, networkDetectionManager_, connectStateController_);
@@ -706,6 +712,11 @@ void Engine::initPart2()
     downloadHelper_ = new DownloadHelper(this, Utils::getPlatformName());
     connect(downloadHelper_, &DownloadHelper::finished, this, &Engine::onDownloadHelperFinished);
     connect(downloadHelper_, &DownloadHelper::progressChanged, this, &Engine::onDownloadHelperProgressChanged);
+
+    bridgeApiManager_ = new BridgeApiManager(this);
+    connect(bridgeApiManager_, &BridgeApiManager::ipPinFinished, this, &Engine::onIpPinFinished);
+    connect(bridgeApiManager_, &BridgeApiManager::ipRotateFinished, this, &Engine::onIpRotateFinished);
+    connect(bridgeApiManager_, &BridgeApiManager::apiAvailabilityChanged, this, &Engine::bridgeApiAvailabilityChanged);
 
 #ifdef Q_OS_MACOS
     autoUpdaterHelper_ = new AutoUpdaterHelper_mac();
@@ -922,10 +933,11 @@ void Engine::sendConfirmEmailImpl()
     }
 }
 
-void Engine::connectClickImpl(const LocationID &locationId, const types::ConnectionSettings &connectionSettings)
+void Engine::connectClickImpl(const LocationID &locationId, const types::ConnectionSettings &connectionSettings, const QPair<QString, QString> &pinnedNode)
 {
     locationId_ = locationId;
     connectionSettingsOverride_ = connectionSettings;
+    pinnedNode_ = pinnedNode;
 
     // if connected, then first disconnect
     if (!connectionManager_->isDisconnected())
@@ -1244,7 +1256,8 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     }
 
     WSNet::instance()->serverAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
-    WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(ExtraConfig::instance().getAPIExtraTLSPadding() || engineSettings_.isAntiCensorship());
+    WSNet::instance()->bridgeAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
+    WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(engineSettings_.isAntiCensorship());
 
     if (isCustomOvpnConfigsPathChanged) {
         customConfigs_->changeDir(engineSettings_.customOvpnConfigsPath());
@@ -1291,8 +1304,7 @@ void Engine::onHostIPsChanged(const QSet<QString> &hostIps)
 {
     firewallExceptions_.setHostIPs(hostIps);
     updateFirewallSettings();
-    // resume callback from wsnet
-    waitConditionForOnHostIPsChanged_.wakeAll();
+    qCDebug(LOG_BASIC) << "Engine::onHostIPsChanged, ips count:" << hostIps.count();
 }
 
 void Engine::onMyIpManagerIpChanged(const QString &ip, bool isFromDisconnectedState)
@@ -1347,7 +1359,8 @@ void Engine::onConnectionManagerConnected()
 
     // For Windows we should to set the custom dns for the adapter explicitly except WireGuard protocol
 #ifdef Q_OS_WIN
-    if (connectionManager_->connectedDnsInfo().type == CONNECTED_DNS_TYPE_CUSTOM && connectionManager_->currentProtocol() != types::Protocol::WIREGUARD)
+    if ((connectionManager_->connectedDnsInfo().type == CONNECTED_DNS_TYPE_CUSTOM || connectionManager_->connectedDnsInfo().type == CONNECTED_DNS_TYPE_CONTROLD)
+        && connectionManager_->currentProtocol() != types::Protocol::WIREGUARD)
     {
         WS_ASSERT(connectionManager_->getVpnAdapterInfo().dnsServers().count() == 1);
         if (!helper_->setCustomDnsWhileConnected( connectionManager_->getVpnAdapterInfo().ifIndex(),
@@ -1447,7 +1460,10 @@ void Engine::onConnectionManagerConnected()
 #endif
 
     connectStateController_->setConnectedState(locationId_);
-    connectionManager_->startTunnelTests(); // It is important that startTunnelTests() are after setConnectedState().
+    // If IP is pinned for this location, skip tunnel tests; it will be done once the IP is pinned in onConnectedStateChanged()
+    if (pinnedNode_.second.isEmpty()) {
+        connectionManager_->startTunnelTests(); // It is important that startTunnelTests() are after setConnectedState().
+    }
 
     if (tryLoginNextConnectOrDisconnect_) {
         tryLoginNextConnectOrDisconnect_ = false;
@@ -1497,7 +1513,7 @@ void Engine::onConnectionManagerDisconnected(DISCONNECT_REASON reason)
     }
     else if (senderSource == "reconnect")
     {
-        connectClickImpl(locationId_, connectionSettingsOverride_);
+        connectClickImpl(locationId_, connectionSettingsOverride_, pinnedNode_);
         return;
     }
     else
@@ -1634,6 +1650,7 @@ void Engine::onConnectionManagerInterfaceUpdated(const QString &interfaceName)
 void Engine::onConnectionManagerConnectingToHostname(const QString &hostname, const QString &ip, const QStringList &dnsServers)
 {
     lastConnectingHostname_ = hostname;
+    emit connectingHostnameChanged(hostname);
     connectStateController_->setConnectingState(locationId_);
 
     qCDebug(LOG_CONNECTION) << "Whitelist connecting ip:" << ip;
@@ -1661,8 +1678,7 @@ void Engine::onConnectionManagerProtocolPortChanged(const types::Protocol &proto
 void Engine::onConnectionManagerTestTunnelResult(bool success, const QString &ipAddress)
 {
     emit testTunnelResult(success); // stops protocol/port flashing
-    if (!ipAddress.isEmpty())
-    {
+    if (!ipAddress.isEmpty()) {
         emit myIpUpdated(ipAddress, false); // sends IP address to UI // test should only occur in connected state
     }
     if (engineSettings_.decoyTrafficSettings().isEnabled()) {
@@ -1738,11 +1754,6 @@ void Engine::emergencyDisconnectClickImpl()
     emergencyController_->clickDisconnect();
 }
 
-void Engine::refreshLocationsImpl()
-{
-    locationsModel_->refreshPings();
-}
-
 void Engine::detectAppropriatePacketSizeImpl()
 {
     if (networkDetectionManager_->isOnline())
@@ -1796,7 +1807,7 @@ void Engine::updateAdvancedParamsImpl()
     }
 
     // send some parameters to wsnet
-    WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(ExtraConfig::instance().getAPIExtraTLSPadding() || engineSettings_.isAntiCensorship());
+    WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(engineSettings_.isAntiCensorship());
     WSNet::instance()->advancedParameters()->setLogApiResponce(ExtraConfig::instance().getLogAPIResponse());
     std::optional<QString> countryOverride = ExtraConfig::instance().serverlistCountryOverride();
     WSNet::instance()->advancedParameters()->setCountryOverrideValue(countryOverride.has_value() ? countryOverride->toStdString() : "");
@@ -2083,6 +2094,11 @@ void Engine::stopPacketDetection()
     QMetaObject::invokeMethod(this, "stopPacketDetectionImpl");
 }
 
+void Engine::rotateIp()
+{
+    QMetaObject::invokeMethod(this, "rotateIpImpl");
+}
+
 void Engine::onMacAddressSpoofingChanged(const types::MacAddrSpoofing &macAddrSpoofing)
 {
     qCDebug(LOG_BASIC) << "Engine::onMacAddressSpoofingChanged";
@@ -2331,16 +2347,22 @@ void Engine::onApiResourcesManagerLocationsUpdated()
     api_responses::StaticIps staticIps(WSNet::instance()->apiResourcersManager()->staticIps());
     updateServerLocations(serverLocations, staticIps);
 
-    // Auto-enable anti-censorship for first-run users if the serverlist endpoint returned a country override.
-    if (checkAutoEnableAntiCensorship_) {
-        checkAutoEnableAntiCensorship_ = false;
-        if (!serverLocations.countryOverride().isEmpty() && !ExtraConfig::instance().haveServerListCountryOverride()) {
-            qCInfo(LOG_BASIC) << "Automatically enabled anti-censorship feature due to country override";
-            emit autoEnableAntiCensorship();
-        }
+    QSettings settings;
+
+    // Auto-enable anti-censorship if the serverlist endpoint returned a country override and setting not yet enabled
+    if (!engineSettings_.isAntiCensorship() && !serverLocations.countryOverride().isEmpty() && !ExtraConfig::instance().haveServerListCountryOverride()) {
+        qCInfo(LOG_BASIC) << "Automatically enabled anti-censorship feature due to country override";
+        settings.setValue("isAntiCensorshipEnabledAutomatically", true);
+        emit autoEnableAntiCensorship(true);
+    }
+    // Auto-disable anti-censorship if the serverlist endpoint is not returned a country override
+    else if (engineSettings_.isAntiCensorship() && serverLocations.countryOverride().isEmpty() && !ExtraConfig::instance().haveServerListCountryOverride() && settings.value("isAntiCensorshipEnabledAutomatically", false).toBool()) {
+        qCInfo(LOG_BASIC) << "Automatically disabled anti-censorship feature. It was set to enabled state automatically earlier due to country override.";
+        settings.remove("isAntiCensorshipEnabledAutomatically");
+        engineSettings_.saveToSettings();
+        emit autoEnableAntiCensorship(false);
     }
 }
-
 
 void Engine::onApiResourcesManagerServerCredentialsFetched()
 {
@@ -2514,10 +2536,10 @@ void Engine::doConnect(bool bEmitAuthError)
             connectionSettings = engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid);
         }
 
-        connectionManager_->setLastKnownGoodProtocol(engineSettings_.networkLastKnownGoodProtocol(networkInterface.networkOrSsid));
         connectionManager_->clickConnect(ovpnConfig, ovpnCredentials, ikev2Credentials, bli,
             connectionSettings, portMap, ProxyServerController::instance().getCurrentProxySettings(),
-            bEmitAuthError, engineSettings_.customOvpnConfigsPath(), engineSettings_.isAntiCensorship());
+            bEmitAuthError, engineSettings_.customOvpnConfigsPath(), engineSettings_.isAntiCensorship(),
+            pinnedNode_.first);
     }
     // for custom configs without login
     else
@@ -2525,7 +2547,8 @@ void Engine::doConnect(bool bEmitAuthError)
         qCInfo(LOG_CONNECTION) << "Connecting to" << locationName_;
         connectionManager_->clickConnect("", api_responses::ServerCredentials(), api_responses::ServerCredentials(), bli,
             engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), api_responses::PortMap(),
-            ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.customOvpnConfigsPath(), engineSettings_.isAntiCensorship());
+            ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.customOvpnConfigsPath(), engineSettings_.isAntiCensorship(),
+            pinnedNode_.first);
     }
 }
 
@@ -2604,14 +2627,45 @@ void Engine::stopPacketDetectionImpl()
     packetSizeController_->earlyStop();
 }
 
-void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, CONNECT_ERROR /*err*/, const LocationID & /*location*/)
+void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reason*/, CONNECT_ERROR /*err*/, const LocationID &lid)
 {
+    // Cancel any pending delayed VPN state timer
+    if (delayedVpnStateTimer_) {
+        delayedVpnStateTimer_->stop();
+        delayedVpnStateTimer_->deleteLater();
+        delayedVpnStateTimer_ = nullptr;
+    }
+
     if (helper_) {
         if (state != CONNECT_STATE_CONNECTED) {
             helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
         }
     }
+    QString nodeAddress = (state == CONNECT_STATE_CONNECTED) ? lastConnectingHostname_ : QString();
+    QString pinnedIp = (state == CONNECT_STATE_CONNECTED) ? pinnedNode_.second : QString();
+    types::Protocol protocol = (state == CONNECT_STATE_CONNECTED) ? connectionManager_->currentProtocol() : types::Protocol();
+    bridgeApiManager_->setConnectedState(state == CONNECT_STATE_CONNECTED, nodeAddress, protocol, pinnedIp);
+
+#ifdef Q_OS_WIN
+
+    if (state == CONNECT_STATE_CONNECTED && protocol.isOpenVpnProtocol()) {
+        // Delay setting VPN connected state for OpenVPN protocols on Windows due to #576
+        delayedVpnStateTimer_ = new QTimer(this);
+        delayedVpnStateTimer_->setSingleShot(true);
+        connect(delayedVpnStateTimer_, &QTimer::timeout, this, [this]() {
+            if (!isCleanup_) {
+                WSNet::instance()->setIsConnectedToVpnState(true);
+            }
+            delayedVpnStateTimer_->deleteLater();
+            delayedVpnStateTimer_ = nullptr;
+        });
+        delayedVpnStateTimer_->start(4000);
+    } else {
+        WSNet::instance()->setIsConnectedToVpnState(state == CONNECT_STATE_CONNECTED);
+    }
+#else
     WSNet::instance()->setIsConnectedToVpnState(state == CONNECT_STATE_CONNECTED);
+#endif
 }
 
 void Engine::updateProxySettings()
@@ -2743,6 +2797,9 @@ void Engine::onSystemExtensionStateChanged(SystemExtensions_mac::SystemExtension
     } else if (newState == SystemExtensions_mac::Inactive) {
         SplitTunnelExtensionManager::instance().stopExtension();
     }
+
+    bool available = (newState == SystemExtensions_mac::Active);
+    emit systemExtensionAvailabilityChanged(available);
 }
 #endif
 
@@ -2781,3 +2838,69 @@ void Engine::updateApiResolutionSettingsInWsnet()
         WSNet::instance()->serverAPI()->setApiResolutionsSettings(std::string(), std::string(), std::string());
     }
 }
+
+void Engine::rotateIpImpl()
+{
+    bridgeApiManager_->rotateIp();
+}
+
+void Engine::onIpRotateFinished(bool success)
+{
+    emit ipRotateResult(success);
+
+    if (success) {
+#ifdef Q_OS_WIN
+        if (engineSettings_.isTerminateSockets()) {
+            helper_->closeAllTcpConnections(engineSettings_.isAllowLanTraffic());
+        }
+#endif
+        connectionManager_->startTunnelTests();
+    }
+}
+
+void Engine::onIpPinFinished(const QString &ip)
+{
+    if (!ip.isEmpty()) {
+#ifdef Q_OS_WIN
+        if (engineSettings_.isTerminateSockets()) {
+            helper_->closeAllTcpConnections(engineSettings_.isAllowLanTraffic());
+        }
+#endif
+        emit testTunnelResult(true);
+        emit myIpUpdated(ip, false);
+    } else {
+        // If IP pinning failed, we should start tunnel tests now to determine our actual IP.
+        // GUI side will show a message accordingly if the actual IP does not match the pinned IP.
+        connectionManager_->startTunnelTests();
+    }
+}
+
+void Engine::fetchControldDevices(const QString &apiKey)
+{
+    QMetaObject::invokeMethod(this, [this, apiKey] { // NOLINT: false positive for memory leak
+        fetchControldDevicesImpl(apiKey);
+    });
+}
+
+void Engine::fetchControldDevicesImpl(const QString &apiKey)
+{
+    auto httpRequest = WSNet::instance()->httpNetworkManager()->createGetRequest("https://api.controld.com/devices", 10000);
+    httpRequest->addHttpHeader("accept: application/json");
+    httpRequest->addHttpHeader(("authorization: Bearer " + apiKey).toStdString());
+
+    auto callback = [this](std::uint64_t /*requestId*/, std::uint32_t /*elapsedMs*/,
+                          std::shared_ptr<wsnet::WSNetRequestError> error, const std::string &data) {
+        // Check for network errors first
+        if (!error->isSuccess() || error->isNoNetworkError()) {
+            emit controldDevicesFetched(CONTROLD_FETCH_NETWORK_ERROR, QList<QPair<QString, QString>>());
+            return;
+        }
+
+        // Parse response using API response class
+        api_responses::ControldDevices response(data, error->httpResponseCode());
+        emit controldDevicesFetched(response.result(), response.devices());
+    };
+
+    WSNet::instance()->httpNetworkManager()->executeRequest(httpRequest, 0, callback);
+}
+

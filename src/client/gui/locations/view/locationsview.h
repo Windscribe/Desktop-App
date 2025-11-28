@@ -48,7 +48,7 @@ private slots:
     void onExpandingAnimationStarted(int top, int height);
 
 private:
-    static constexpr int kScrollBarWidth = 8;
+    static constexpr int kScrollBarWidth = 11;
 
     ExpandableItemsWidget *widget_;
     CountryItemDelegate *countryItemDelegate_;

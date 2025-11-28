@@ -18,7 +18,7 @@ public:
 
     void startConnect(const QString &configPathOrUrl, const QString &ip, const QString &dnsHostName,
                       const QString &username, const QString &password, const types::ProxySettings &proxySettings,
-                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode,
+                      const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression,
                       bool isCustomConfig, const QString &overrideDnsIp) override;
     void startDisconnect() override;
     bool isDisconnected() const override;
@@ -37,19 +37,16 @@ private slots:
     void onCheckServiceRunning();
     void onGetWireguardLogUpdates();
     void onGetWireguardStats();
-    void onAutomaticConnectionTimeout();
 
 private:
     static constexpr int kTimeoutForGetStats     = 5000;  // 5s timeout for the requesting send/recv stats from helper
     static constexpr int kTimeoutForCheckService = 5000;  // 5s timeout for the checking if the WG service is running
     static constexpr int kTimeoutForLogUpdate    = 250;   // 250ms timeout for getting log updates from the ring logger
-    static constexpr int kTimeoutForAutomatic    = 20000; // 20s timeout for the automatic connection mode
 
     Helper* const helper_;
     WireGuardConfig wireGuardConfig_;
 
     bool connectedSignalEmited_ = false;
-    bool isAutomaticConnectionMode_ = false;
 
     QScopedPointer< wsl::WireguardRingLogger > wireguardLog_;
     wsl::Win32Handle stopThreadEvent_;
@@ -65,5 +62,4 @@ private:
     static void CALLBACK checkServiceRunningProc(LPVOID lpArgToCompletionRoutine, DWORD dwTimerLowValue, DWORD dwTimerHighValue);
     static void CALLBACK getWireguardLogUpdatesProc(LPVOID lpArgToCompletionRoutine, DWORD dwTimerLowValue, DWORD dwTimerHighValue);
     static void CALLBACK getWireguardStatsProc(LPVOID lpArgToCompletionRoutine, DWORD dwTimerLowValue, DWORD dwTimerHighValue);
-    static void CALLBACK automaticConnectionTimeoutProc(LPVOID lpArgToCompletionRoutine, DWORD dwTimerLowValue, DWORD dwTimerHighValue);
 };

@@ -16,6 +16,7 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
+    QString ipAddress();
     void setIpAddress(const QString &ip, bool bWithAnimation = true);
     void updateScaling() override;
 

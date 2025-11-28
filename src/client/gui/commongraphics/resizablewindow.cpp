@@ -24,7 +24,6 @@ ResizableWindow::ResizableWindow(QGraphicsObject *parent, Preferences *preferenc
     backgroundBorderExtension_ = "background/MAIN_BORDER_TOP_INNER_EXTENSION";
     backgroundBorderBottom_ = "background/MAIN_BORDER_BOTTOM_INNER";
     footerColor_ = FontManager::instance().getCharcoalColor();
-    roundedFooter_ = true;
 
     connect(preferences, &Preferences::appSkinChanged, this, &ResizableWindow::onAppSkinChanged);
 
@@ -160,7 +159,7 @@ void ResizableWindow::updatePositions()
         escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 12*G_SCALE);
         backArrowButton_->setPos(16*G_SCALE, 12*G_SCALE);
         scrollAreaItem_->setPos(0, 55*G_SCALE);
-        scrollAreaItem_->setHeight(curHeight_ - 62*G_SCALE + heightOffset);
+        scrollAreaItem_->setHeight(curHeight_ - 74*G_SCALE + heightOffset);
     } else {
         escapeButton_->setPos(WINDOW_WIDTH*G_SCALE - escapeButton_->boundingRect().width() - 16*G_SCALE, 16*G_SCALE);
         backArrowButton_->setPos(16*G_SCALE, 28*G_SCALE);

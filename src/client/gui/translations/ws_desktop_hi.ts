@@ -61,6 +61,18 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>डिस्कनेक्ट होने पर फ़ायरवॉल को चालू रखने से इंटरनेट कनेक्टिविटी टूट सकती है</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>पसंदीदा आईपी</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>आईपी घुमाएँ</translation>
+    </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>फ़ायरवॉल</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +92,16 @@
         <translation>स्थैतिक आईपी</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>पसंदीदा</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>ढूँढ</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>कस्टम कॉन्फ़िगरेशन</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>पसंदीदा</translation>
     </message>
 </context>
 <context>
@@ -256,32 +268,28 @@
         <translation>कोई स्थान नहीं</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>खरीद</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>सभी स्थान</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>सभी स्थान (%1)</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
+        <source>FAVOURITES</source>
         <translation>पसंदीदा</translation>
     </message>
     <message>
-        <source>Static IPs</source>
+        <source>STATIC IPs</source>
         <translation>स्टेटिक आईपी</translation>
     </message>
     <message>
-        <source>Custom configs</source>
+        <source>CUSTOM CONFIGs</source>
         <translation>कस्टम कॉन्फ़िगरेशन</translation>
     </message>
     <message>
-        <source>Search</source>
+        <source>SEARCH</source>
         <translation>ढूँढ</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>रिफ्रेश पिंग</translation>
+        <source>Add</source>
+        <translation>आगे कहना</translation>
     </message>
 </context>
 <context>
@@ -665,42 +673,6 @@ Recovering...</source>
         <translation>किसी अनुप्रयोग का चयन करें</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>जोड़ना</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>अलग करना</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>स्थान</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>पसंदीदा</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>स्थैतिक आईपी</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>दिखाओ/छिपाओ</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>प्राथमिकताएँ</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>मदद</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>निकासी</translation>
-    </message>
-    <message>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>आपकी होस्ट्स फ़ाइल केवल पढ़ने के लिए है. IKEv2 कनेक्टिविटी को लिखने योग्य होने की आवश्यकता है। समस्या को स्वचालित रूप से ठीक करें?</translation>
     </message>
@@ -905,8 +877,40 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>कस्टम DNS सेवा प्रारंभ करने में असमर्थ - पोर्ट 53 पहले से उपयोग में है।  क्या आप अपने कनेक्टेड DNS को स्थानीय सर्वर से बदलना चाहेंगे?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>कस्टम कॉन्फ़िगरेशन</translation>
+        <source>Could not pin IP</source>
+        <translation>आईपी पिन नहीं किया जा सका</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>हम इस स्थान के लिए आपका पसंदीदा आईपी सेट नहीं कर सके।  बाद में पुन: प्रयास करें.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>IP को घुमाया नहीं जा सका</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>बाद में पुनः प्रयास करें या अधिक जानकारी के लिए हमारे स्थिति पृष्ठ पर जाएं।</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>स्थान की स्थिति जांचें</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>शर्त लगाना</translation>
+    </message>
+    <message>
+        <source>Manual connection mode failed</source>
+        <translation>मैन्युअल कनेक्शन मोड विफल रहा</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>हम आपको इस नेटवर्क पर कनेक्ट नहीं कर सके। सर्वोत्तम परिणामों के लिए स्वचालित कनेक्शन मोड की सिफारिश की जाती है। कनेक्शन मोड को ऑटो में स्विच करें?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>ऑटो पर स्विच करें</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1210,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>कनेक्टेड DNS के लिए LAN या स्थानीय IP पते का उपयोग करने से DNS लीक हो जाएगा।  हम दृढ़ता से रॉबर्ट या सार्वजनिक डीएनएस सर्वर का उपयोग करने की सलाह देते हैं।</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>एपीआई कुंजी</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>नियंत्रण D API तक पहुँचने में विफल।</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>कृपया एक वैध नियंत्रण डी एपीआई कुंजी प्रदान करें।</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1545,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>विंडसाइड मेनूबार को छोटा करता है और अब डॉक में दिखाई नहीं देता है।</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>सफेद और काले ट्रे आइकन के बीच चुनें।</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>ट्रे आइकन रंग</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>मल्टी-डेस्कटॉप</translation>
     </message>
@@ -1645,6 +1653,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>रीसेट</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>सफेद और काले ट्रे आइकन के बीच चुनें।</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>ट्रे आइकन रंग</translation>
     </message>
 </context>
 <context>
@@ -2199,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>वीपीएन सुरंग से ऐप्स और होस्टनाम शामिल करें या बाहर करें.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>इस सुविधा के कार्य करने के लिए Windscribe स्प्लिट टनलिंग सिस्टम एक्सटेंशन सक्षम होना चाहिए। कृपया इसे सिस्टम सेटिंग्स में सक्षम करें।</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2472,6 +2492,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Custom configs</source>
         <translation>कस्टम कॉन्फ़िगरेशन</translation>
     </message>
+    <message>
+        <source>Random IP</source>
+        <translation>रैंडम आईपी</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
@@ -2504,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>सुरक्षित हॉटस्पॉट</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>जोड़ना</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>अलग करना</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>स्थान</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>स्टेटिक आईपी</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>कस्टम कॉन्फ़िगरेशन</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>दिखाओ/छिपाओ</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>प्राथमिकताएँ</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>मदद</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>विंडसाइड छोड़ें</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>पसंदीदा</translation>
     </message>
 </context>
 <context>

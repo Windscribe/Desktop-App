@@ -24,6 +24,7 @@ public:
     void setNetworkRoutesCount(int count);
     void setLoggedIn(bool loggedIn);
     void setActive(bool active);
+    void setSystemExtensionAvailability(bool available);
 
 signals:
     void appsPageClick();
@@ -40,6 +41,7 @@ private:
     PreferenceGroup *desc_;
     QString descText_;
     SplitTunnelingGroup *splitTunnelingGroup_;
+    bool systemExtensionAvailable_;
 };
 
 } // namespace PreferencesWindow

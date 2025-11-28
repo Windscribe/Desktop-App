@@ -25,12 +25,19 @@ public:
 
     void setDescription(const QString &desc, const QString &descUrl = "");
 
+public slots:
+    void onControldDevicesFetched(CONTROLD_FETCH_RESULT result, const QList<QPair<QString, QString>> &devices);
+
 signals:
     void connectedDnsInfoChanged(const types::ConnectedDnsInfo &dns);
     void domainsClick(const QStringList &domains);
+    void fetchControldDevices(const QString &apiKey);
 
 private slots:
     void onConnectedDnsModeChanged(QVariant v);
+    void onControldApiKeyChanged(QString v);
+    void onControldApiKeyRefreshClick();
+    void onControldDeviceChanged(QVariant v);
     void onUpstream1Changed(QString v);
     void onUpstream2Changed(QString v);
     void onSplitDnsStateChanged(bool checked);
@@ -44,8 +51,11 @@ private:
     void updateMode();
     void checkDnsLeak(const QString &v1, const QString &v2 = "");
     void populateDnsTypes(bool isLocalDnsAvailable);
+    void fetchDevices(const QString &apiKey);
 
     ComboBoxItem *comboBoxDns_;
+    VerticalEditBoxItem *editBoxControldApiKey_;
+    ComboBoxItem *comboBoxControldDevice_;
     VerticalEditBoxItem *editBoxUpstream1_;
     VerticalEditBoxItem *editBoxUpstream2_;
     ToggleItem *splitDnsCheckBox_;
@@ -53,6 +63,8 @@ private:
 
     types::ConnectedDnsInfo settings_;
     bool isLocalDnsAvailable_;
+    bool isControldRequestInProgress_;
+    CONTROLD_FETCH_RESULT controldLastFetchResult_;
 };
 
 }

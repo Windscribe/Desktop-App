@@ -11,6 +11,7 @@
 #include "graphicresources/imageresourcessvg.h"
 #include "preferencestab/preferencestabcontrolitem.h"
 #include "graphicresources/fontmanager.h"
+#include "commongraphics/footerbackground.h"
 #include "utils/ws_assert.h"
 #include "utils/utils.h"
 #include "dpiscalemanager.h"
@@ -54,6 +55,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connect(connectionWindowItem_, &ConnectionWindowItem::cycleMacAddressClick, this, &PreferencesWindowItem::cycleMacAddressClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::detectPacketSize, this, &PreferencesWindowItem::detectPacketSizeClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::connectedDnsDomainsClick, this, &PreferencesWindowItem::onConnectedDnsDomainsClick);
+    connect(connectionWindowItem_, &ConnectionWindowItem::fetchControldDevices, this, &PreferencesWindowItem::fetchControldDevices);
 
     advancedWindowItem_ = new AdvancedWindowItem(nullptr, preferences, preferencesHelper);
     connect(advancedWindowItem_, &AdvancedWindowItem::advParametersClick, this, &PreferencesWindowItem::onAdvParametersClick);
@@ -159,14 +161,7 @@ void PreferencesWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->drawText(rcCaption, Qt::AlignLeft | Qt::AlignVCenter, fm.elidedText(scrollAreaItem_->item()->caption(), Qt::ElideRight, 140*G_SCALE));
 
     // bottom-most background
-    if (roundedFooter_) {
-        painter->setPen(footerColor_);
-        painter->setBrush(footerColor_);
-        painter->drawRoundedRect(getBottomResizeArea(), 9*G_SCALE, 9*G_SCALE);
-        painter->fillRect(getBottomResizeArea().adjusted(0, -2*G_SCALE, 0, -9*G_SCALE), QBrush(footerColor_));
-    } else {
-        painter->fillRect(getBottomResizeArea(), QBrush(footerColor_));
-    }
+    CommonGraphics::drawFooter(painter, getBottomResizeArea().toRect());
 }
 
 PREFERENCES_TAB_TYPE PreferencesWindowItem::currentTab()
@@ -379,6 +374,11 @@ void PreferencesWindowItem::onNetworkOptionsNetworkClick(types::NetworkInterface
     update();
 }
 
+void PreferencesWindowItem::onControldDevicesFetched(CONTROLD_FETCH_RESULT result, const QList<QPair<QString, QString>> &devices)
+{
+    connectionWindowItem_->onControldDevicesFetched(result, devices);
+}
+
 void PreferencesWindowItem::setPreferencesWindowToSplitTunnelingHome()
 {
     scrollAreaItem_->setItem(splitTunnelingWindowItem_);
@@ -522,7 +522,11 @@ void PreferencesWindowItem::onAppsWindowAppsUpdated(QList<types::SplitTunnelingA
 
 void PreferencesWindowItem::onAddressesUpdated(QList<types::SplitTunnelingNetworkRoute> routes)
 {
-    splitTunnelingWindowItem_->setNetworkRoutesCount(routes.count());
+    int activeRoutes = 0;
+    for (const auto &route : routes) {
+        if (route.active) activeRoutes++;
+    }
+    splitTunnelingWindowItem_->setNetworkRoutesCount(activeRoutes);
 }
 
 void PreferencesWindowItem::onStAppsEscape()
@@ -585,6 +589,11 @@ void PreferencesWindowItem::setRobertFiltersError()
 void PreferencesWindowItem::setSplitTunnelingActive(bool active)
 {
     splitTunnelingWindowItem_->setActive(active);
+}
+
+void PreferencesWindowItem::setSystemExtensionAvailability(bool available)
+{
+    splitTunnelingWindowItem_->setSystemExtensionAvailability(available);
 }
 
 void PreferencesWindowItem::setPreferencesImportCompleted()

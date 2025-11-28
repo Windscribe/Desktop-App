@@ -15,6 +15,7 @@ LocationsView::LocationsView(QWidget *parent, QAbstractItemModel *model) : QScro
 {
     setFrameStyle(QFrame::NoFrame);
     setFocusPolicy(Qt::NoFocus);
+    viewport()->setFixedWidth(size().width());
 
     // scrollbar
     scrollBar_ = new CommonWidgets::ScrollBar(this);
@@ -32,12 +33,12 @@ LocationsView::LocationsView(QWidget *parent, QAbstractItemModel *model) : QScro
         }
     });
 
-
     scrollBar_->setSingleStep(qCeil(LOCATION_ITEM_HEIGHT * G_SCALE));
 
     // widget
     widget_ = new ExpandableItemsWidget(nullptr, model);
     setWidget(widget_);
+    widget_->setFixedWidth(size().width());
     countryItemDelegate_ = new CountryItemDelegate();
     cityItemDelegate_ = new CityItemDelegate();
     widget_->setItemDelegate(countryItemDelegate_, cityItemDelegate_);
@@ -126,8 +127,9 @@ void LocationsView::paintEvent(QPaintEvent */*event*/)
 void LocationsView::resizeEvent(QResizeEvent *event)
 {
     QScrollArea::resizeEvent(event);
-    widget_->setFixedWidth(size().width() - kScrollBarWidth * G_SCALE);
+    widget_->setFixedWidth(size().width());
     scrollBar_->setFixedWidth(kScrollBarWidth * G_SCALE);
+    viewport()->setFixedWidth(size().width());
 }
 
 void LocationsView::ensureVisible(int top, int bottom)

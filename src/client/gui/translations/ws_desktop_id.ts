@@ -61,6 +61,18 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Menjaga firewall tetap menyala saat terputus dapat memutus konektivitas internet</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>IP favorit</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Putar IP</translation>
+    </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>FIREWALL</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +92,16 @@
         <translation>IP statis</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favorit</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Mencari</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Konfigurasi kustom</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favorit</translation>
     </message>
 </context>
 <context>
@@ -256,32 +268,28 @@
         <translation>Tidak ada lokasi</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Membeli</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>SEMUA LOKASI</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>Semua lokasi (%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>FAVORIT</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favorit</translation>
+        <source>STATIC IPs</source>
+        <translation>IP STATIS</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>IP Statis</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>KONFIGURASI KUSTOM</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Konfigurasi kustom</translation>
+        <source>SEARCH</source>
+        <translation>MENCARI</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Mencari</translation>
-    </message>
-    <message>
-        <source>Refresh Pings</source>
-        <translation>Ping Refresh</translation>
+        <source>Add</source>
+        <translation>Tambah</translation>
     </message>
 </context>
 <context>
@@ -653,42 +661,6 @@ Memulihkan...</translation>
         <translation>Pilih aplikasi</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Sambung</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Lepaskan</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Lokasi</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Favorit</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>IP statis</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Tampilkan/Sembunyikan</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Preferensi</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Tolong</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Keluar</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>File baca-saja</translation>
     </message>
@@ -905,8 +877,40 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Tidak dapat memulai layanan DNS kustom - port 53 sudah digunakan.  Apakah Anda ingin mengubah DNS Terhubung Anda ke server lokal?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Konfigurasi kustom</translation>
+        <source>Could not pin IP</source>
+        <translation>Tidak dapat menyematkan IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Kami tidak dapat mengatur IP favorit Anda untuk lokasi ini.  Coba lagi nanti.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Tidak dapat memutar IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Coba lagi nanti atau buka halaman Status kami untuk info lebih lanjut.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Periksa Status Lokasi</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Belakang</translation>
+    </message>
+    <message>
+        <source>Manual connection mode failed</source>
+        <translation>Mode koneksi manual gagal</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Kami tidak dapat menghubungkan Anda di jaringan ini. Mode koneksi otomatis direkomendasikan untuk hasil terbaik. Alihkan mode koneksi ke Otomatis?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Beralih ke Otomatis</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1210,18 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>Menggunakan LAN atau alamat IP lokal untuk DNS yang terhubung akan mengakibatkan kebocoran DNS.  Kami sangat menyarankan untuk menggunakan ROBERT atau server DNS publik.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>Kunci API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Gagal mencapai Control D API.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Harap berikan Kunci API Control D yang valid.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1545,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Versi</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Pilih antara ikon baki putih dan hitam.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Warna Ikon Baki</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Multi-desktop</translation>
     </message>
@@ -1645,6 +1653,14 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Reset</source>
         <translation>Reset</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Pilih antara ikon baki putih dan hitam.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Warna Ikon Baki</translation>
     </message>
 </context>
 <context>
@@ -2199,6 +2215,10 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Sertakan atau kecualikan aplikasi dan nama host dari terowongan VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>Ekstensi sistem kanalisasi terpisah Windscribe harus diaktifkan agar fitur ini berfungsi. Silakan aktifkan di Pengaturan Sistem.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2472,6 +2492,10 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
         <source>Custom configs</source>
         <translation>Konfigurasi kustom</translation>
     </message>
+    <message>
+        <source>Random IP</source>
+        <translation>IP Acak</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
@@ -2504,6 +2528,49 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Secure Hotspot</source>
         <translation>Hotspot Aman</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Sambung</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Lepaskan</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Lokasi</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP Statis</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Konfigurasi kustom</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Tampilkan/Sembunyikan</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Preferensi</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Tolong</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Keluar dari Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favorit</translation>
     </message>
 </context>
 <context>

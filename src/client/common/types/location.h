@@ -18,6 +18,7 @@ struct City
 
     // specific for static IP location
     QString staticIpCountryCode;
+    QString staticIpShortName;
     QString staticIpType;
     QString staticIp;
 
@@ -39,6 +40,7 @@ struct Location
     int idNum;
     QString name;
     QString countryCode;
+    QString shortName;
     bool isPremiumOnly = false;
     bool isNoP2P = false;
     QVector<City> cities;

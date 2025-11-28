@@ -19,7 +19,13 @@ bool FavoriteCitiesProxyModel::filterAcceptsRow(int source_row, const QModelInde
     }
     else
     {
-        return sourceModel()->data(mi, kIsFavorite).toBool() && !sourceModel()->data(mi, kIsShowAsPremium).toBool();
+        // Show if marked as favorite OR has a pinned IP
+        bool isFavorite = sourceModel()->data(mi, kIsFavorite).toBool();
+        QVariantList pinnedData = sourceModel()->data(mi, kPinnedIp).toList();
+        bool hasPinnedIp = pinnedData.size() == 2 && (!pinnedData[0].toString().isEmpty() || !pinnedData[1].toString().isEmpty());
+        bool isShowAsPremium = sourceModel()->data(mi, kIsShowAsPremium).toBool();
+
+        return (isFavorite || hasPinnedIp) && !isShowAsPremium;
     }
 }
 

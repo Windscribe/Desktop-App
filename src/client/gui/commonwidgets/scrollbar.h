@@ -33,9 +33,6 @@ private:
     QVariantAnimation scrollAnimation_;
     int targetValue_;
 
-    QVariantAnimation opacityAnimation_;
-    double curOpacity_;
-
     QString customStyleSheet();
     int customPaddingWidth();
 };

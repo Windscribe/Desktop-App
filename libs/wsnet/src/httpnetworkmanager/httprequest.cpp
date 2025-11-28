@@ -21,6 +21,7 @@ struct HttpRequest::Impl
     bool isDebugLogCurlError = false;
     bool isEnableFreshConnect = true;
     skyr::url skyrUrl;
+    std::string sessionToken;
 };
 
 HttpRequest::HttpRequest(const std::string &url, std::uint32_t timeoutMs, HttpMethod httpMethod, bool isIgnoreSslErrors, const std::string &postData)
@@ -187,6 +188,16 @@ void HttpRequest::setIsEnableFreshConnect(bool bEnabled)
 bool HttpRequest::isEnableFreshConnect() const
 {
     return pImpl_->isEnableFreshConnect;
+}
+
+void HttpRequest::setSessionToken(const std::string &token)
+{
+    pImpl_->sessionToken = token;
+}
+
+std::string HttpRequest::sessionToken() const
+{
+    return pImpl_->sessionToken;
 }
 
 } // namespace wsnet

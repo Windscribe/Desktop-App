@@ -61,6 +61,18 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>روشن نگه داشتن فایروال در هنگام قطع اتصال ممکن است اتصال به اینترنت را قطع کند</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>آی پی مورد علاقه</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>IP را بچرخانید</translation>
+    </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>فایروال</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +92,16 @@
         <translation>IP های استاتیک</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>مورد علاقه</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>جستجو</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>پیکربندی های سفارشی</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>مورد علاقه</translation>
     </message>
 </context>
 <context>
@@ -256,32 +268,28 @@
         <translation>بدون مکان</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>فروش</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>تمام مکان ها</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>همه مکان ها (٪1)</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
+        <source>FAVOURITES</source>
         <translation>مورد علاقه</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>IP های استاتیک</translation>
+        <source>STATIC IPs</source>
+        <translation>آی پی های ایستا</translation>
     </message>
     <message>
-        <source>Custom configs</source>
+        <source>CUSTOM CONFIGs</source>
         <translation>پیکربندی های سفارشی</translation>
     </message>
     <message>
-        <source>Search</source>
+        <source>SEARCH</source>
         <translation>جستجو</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>تازه کردن پینگ ها</translation>
+        <source>Add</source>
+        <translation>اضافه کردن</translation>
     </message>
 </context>
 <context>
@@ -653,42 +661,6 @@ Recovering...</source>
         <translation>یک برنامه را انتخاب کنید</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>اتصال</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>قطع</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>مکان‌ها</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>مورد علاقه</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>IP های استاتیک</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>نمایش/مخفی کردن</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>تنظیمات</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>کمک</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>خروج</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>پرونده فقط خواندنی</translation>
     </message>
@@ -905,8 +877,40 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>راه اندازی سرویس DNS سفارشی امکان پذیر نیست - پورت 53 در حال حاضر در حال استفاده است.  آیا می خواهید DNS متصل خود را به سرور محلی تغییر دهید؟</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>پیکربندی های سفارشی</translation>
+        <source>Could not pin IP</source>
+        <translation>IP پین نشد</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>ما نتوانستیم IP مورد علاقه شما را برای این مکان تنظیم کنیم.  بعدا دوباره امتحان کنید.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>IP نمی تواند بچرخد</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>بعدا دوباره امتحان کنید یا برای اطلاعات بیشتر به صفحه وضعیت ما بروید.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>بررسی وضعیت مکان</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>بازگشت</translation>
+    </message>
+    <message>
+        <source>Manual connection mode failed</source>
+        <translation>حالت اتصال دستی شکست خورد</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>ما نتوانستیم شما را در این شبکه متصل کنیم. حالت اتصال خودکار برای بهترین نتیجه توصیه می شود. حالت اتصال را به حالت خودکار تغییر دهم؟</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>تغییر به خودکار</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1210,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>استفاده از LAN یا آدرس IP محلی برای DNS متصل منجر به نشت DNS می شود.  ما اکیدا توصیه می کنیم از ROBERT یا یک سرور DNS عمومی استفاده کنید.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>کلید API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>نتوانست به Control D API برسد.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>لطفا یک کلید معتبر Control D API ارائه دهید.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1545,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>نسخهٔ</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>بین نماد سینی سفید و سیاه یکی را انتخاب کنید.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>رنگ شمایل سینی</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>چند دسکتاپ</translation>
     </message>
@@ -1645,6 +1653,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>تنظیم مجدد</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>بین نماد سینی سفید و سیاه یکی را انتخاب کنید.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>رنگ شمایل سینی</translation>
     </message>
 </context>
 <context>
@@ -2199,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>شامل یا حذف برنامه ها و نام میزبان از تونل VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>برای عملکرد این قابلیت، افزونه سیستم تونل زنی تقسیم شده Windscribe باید فعال باشد. لطفا آن را در تنظیمات سیستم فعال کنید.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2472,6 +2492,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Custom configs</source>
         <translation>پیکربندی های سفارشی</translation>
     </message>
+    <message>
+        <source>Random IP</source>
+        <translation>IP تصادفی</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
@@ -2504,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>هات اسپات امن</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>اتصال</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>قطع</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>مکان‌ها</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP های استاتیک</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>پیکربندی های سفارشی</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>نمایش/مخفی کردن</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>تنظیمات</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>کمک</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>ویندسترایب را ترک کنید</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>مورد علاقه</translation>
     </message>
 </context>
 <context>

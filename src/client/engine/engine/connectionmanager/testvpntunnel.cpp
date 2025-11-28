@@ -23,7 +23,9 @@ void TestVPNTunnel::startTests(const types::Protocol &protocol)
 
     stopTests();
 
-    protocol_ = protocol;
+    if (protocol.isValid()) {
+        protocol_ = protocol;
+    }
 
     bool advParamExists;
     int delay = ExtraConfig::instance().getTunnelTestStartDelay(advParamExists);

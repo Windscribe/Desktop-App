@@ -15,6 +15,22 @@
         <source>No locations.</source>
         <translation>بدون مکان.</translation>
     </message>
+    <message>
+        <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>IP نمی تواند بچرخد.  لطفا بررسی کنید که Windscribe Pro دارید یا این مکان را در برنامه خود دارید، یا بعدا دوباره امتحان کنید.</translation>
+    </message>
+    <message>
+        <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>نمی توان IP را مورد علاقه قرار داد.  لطفا بررسی کنید که Windscribe Pro دارید یا این مکان را در برنامه خود دارید، یا بعدا دوباره امتحان کنید.</translation>
+    </message>
+    <message>
+        <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
+        <translation>نمی توان IP را از بین برد.  لطفا بررسی کنید که IP ارائه شده معتبر باشد.</translation>
+    </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>چرخش IP در حال حاضر در حال انجام است.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -284,15 +300,35 @@
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"></translation>
+        <translation> (10 گیگابیت بر ثانیه)</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation> (غیرفعال)</translation>
     </message>
     <message>
         <source> (Pro)</source>
-        <translation type="unfinished"></translation>
+        <translation> (طرفدار)</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>متصل نیست</translation>
+    </message>
+    <message>
+        <source>IP rotated.</source>
+        <translation>IP چرخانده شده است.</translation>
+    </message>
+    <message>
+        <source>IP favorited.</source>
+        <translation>IP مورد علاقه است.</translation>
+    </message>
+    <message>
+        <source>IP unfavorited.</source>
+        <translation>IP نامطلوب است.</translation>
+    </message>
+    <message>
+        <source>Invalid IP address</source>
+        <translation>آدرس IP نامعتبر</translation>
     </message>
 </context>
 </TS>

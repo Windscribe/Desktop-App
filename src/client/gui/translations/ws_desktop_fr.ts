@@ -61,6 +61,18 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>Garder le pare-feu allumé alors qu’on est déconnecté peut interrompre la connectivité Internet</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>IP préférée</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>Rotation de l’IP</translation>
+    </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>PARE-FEU</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +92,16 @@
         <translation>Adresses IP statiques</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoris</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>Rechercher</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>Configurations personnalisées</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoris</translation>
     </message>
 </context>
 <context>
@@ -256,32 +268,28 @@
         <translation>Pas d’emplacements</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>Acheter</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>TOUS EMPLACEMENTS</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>Tous les emplacements (&#xa0;%1)</translation>
+        <source>FAVOURITES</source>
+        <translation>FAVORIS</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>Favoris</translation>
+        <source>STATIC IPs</source>
+        <translation>IP STATIQUES</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>IP statiques</translation>
+        <source>CUSTOM CONFIGs</source>
+        <translation>CONFIGURATIONS PERSONNALISÉES</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Configurations personnalisées</translation>
+        <source>SEARCH</source>
+        <translation>RECHERCHER</translation>
     </message>
     <message>
-        <source>Search</source>
-        <translation>Rechercher</translation>
-    </message>
-    <message>
-        <source>Refresh Pings</source>
-        <translation>Actualiser les pings</translation>
+        <source>Add</source>
+        <translation>Ajouter</translation>
     </message>
 </context>
 <context>
@@ -665,42 +673,6 @@ Récupération...</translation>
         <translation>Sélectionner une application</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>Relier</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>Déconnecter</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>Lieux</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>Favoris</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>Adresses IP statiques</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>Afficher/Masquer</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Préférences</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Aide</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Sortie</translation>
-    </message>
-    <message>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
         <translation>Votre fichier hosts est en lecture seule. La connectivité IKEv2 nécessite qu’elle soit accessible en écriture. Résoudre le problème automatiquement ?</translation>
     </message>
@@ -905,8 +877,40 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>Impossible de démarrer le service DNS personnalisé - le port 53 est déjà utilisé.  Souhaitez-vous changer votre DNS connecté pour le serveur local ?</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>Configurations personnalisées</translation>
+        <source>Could not pin IP</source>
+        <translation>Impossible d’épingler l’adresse IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>Nous n’avons pas pu définir votre adresse IP préférée pour cet emplacement.  Réessayez plus tard.</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>Impossible de faire pivoter l’IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>Réessayez plus tard ou rendez-vous sur notre page d’état pour plus d’informations.</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>Vérifier l’état de l’emplacement</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>Précédent</translation>
+    </message>
+    <message>
+        <source>Manual connection mode failed</source>
+        <translation>Mode de connexion manuelle échoué</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>Nous ne pouvions pas vous connecter sur ce réseau. Mode de connexion automatique recommandé pour de meilleurs résultats. Changer le mode de connexion en mode automatique ?</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>Passer à l’auto</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1210,18 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>L’utilisation d’un réseau local ou d’une adresse IP locale pour le DNS connecté entraînera une fuite DNS.  Nous vous recommandons vivement d’utiliser ROBERT ou un serveur DNS public.</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>Clé API</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>Impossible d’atteindre l’API de contrôle D.</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>Veuillez fournir une clé API de contrôle D valide.</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1545,6 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <translation>Windscribe réduit à la barre de menus et n’apparaît plus dans le dock.</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>Choisissez entre l’icône blanche et l’icône noire de la barre d’état.</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>Couleur de l’icône du bac</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>Multi-bureau</translation>
     </message>
@@ -1645,6 +1653,14 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
     <message>
         <source>Reset</source>
         <translation>Réinitialisation</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>Choisissez entre l’icône blanche et l’icône noire de la barre d’état.</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>Couleur de l’icône du bac</translation>
     </message>
 </context>
 <context>
@@ -2199,6 +2215,10 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>Incluez ou excluez des applications et des noms d’hôte du tunnel VPN.</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>L’extension du système de tunnel fractionné Windscribe doit être activée pour que cette fonctionnalité fonctionne. Veuillez l’activer dans les paramètres système.</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2472,6 +2492,10 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
         <source>Custom configs</source>
         <translation>Configurations personnalisées</translation>
     </message>
+    <message>
+        <source>Random IP</source>
+        <translation>IP aléatoire</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
@@ -2504,6 +2528,49 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
     <message>
         <source>Secure Hotspot</source>
         <translation>Point d’accès sécurisé</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>Relier</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>Déconnecter</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>Lieux</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>IP statiques</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>Configurations personnalisées</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>Afficher/Masquer</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Préférences</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>Aide</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>Quittez Windscribe</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>Favoris</translation>
     </message>
 </context>
 <context>

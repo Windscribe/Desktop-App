@@ -17,6 +17,7 @@ set(WS_TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_ar.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_cs.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_de.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_el.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_en.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_es.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_fa.ts
@@ -29,6 +30,7 @@ set(WS_TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_pl.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_pt.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_ru.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_sk.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_tr.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_uk.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_vi.ts
@@ -62,6 +64,8 @@ set(PROJECT_SOURCES
     showingdialogstate.h
     themecontroller.cpp
     themecontroller.h
+    trayicon.cpp
+    trayicon.h
     windowsizemanager.cpp
     windowsizemanager.h
 

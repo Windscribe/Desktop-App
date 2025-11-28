@@ -85,8 +85,10 @@ def InstallDependency():
         download_url = DEP_URL_GNU
     archivename = archivetitle + (".zip" if utl.GetCurrentOS() == "win32" else ".tar.xz")
     localfilename = os.path.join(temp_dir, archivename)
+    dep_checksum_var = dep_version_var.replace("VERSION_", "CHECKSUM_")
+    dep_checksum_str = os.environ.get(dep_checksum_var, None)
     msg.HeadPrint("Downloading: \"{}\"".format(archivename))
-    iutl.DownloadFile("{}{}".format(download_url, archivename), localfilename)
+    iutl.DownloadFile("{}{}".format(download_url, archivename), localfilename, dep_checksum_str)
     msg.HeadPrint("Extracting: \"{}\"".format(archivename))
     iutl.ExtractFile(localfilename)
     # Copy modified files (Windows only).

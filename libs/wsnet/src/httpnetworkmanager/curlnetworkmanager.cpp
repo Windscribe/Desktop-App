@@ -176,6 +176,9 @@ void CurlNetworkManager::run()
 
                 CURLcode result = curlMsg->data.result;
 
+                long httpResponseCode = 0;
+                curl_easy_getinfo(curlEasyHandle, CURLINFO_RESPONSE_CODE, &httpResponseCode);
+
                 std::uint64_t id;
                 long osErrno;
 
@@ -216,11 +219,14 @@ void CurlNetworkManager::run()
                     activeRequests_.erase(id);
                 }
 
+                std::shared_ptr<RequestError> requestError;
                 if (result != CURLE_OK) {
-                    finishedCallback_(id, std::make_shared<RequestError>(result, RequestErrorType::kCurl, osErrno));
+                    requestError = std::make_shared<RequestError>(result, RequestErrorType::kCurl, osErrno);
                 } else {
-                    finishedCallback_(id, std::make_shared<RequestError>(result, RequestErrorType::kCurl));
+                    requestError = std::make_shared<RequestError>(result, RequestErrorType::kCurl);
                 }
+                requestError->setHttpResponseCode((int)httpResponseCode);
+                finishedCallback_(id, requestError);
             }
         } while(curlMsg);
 
@@ -368,6 +374,11 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
         if (list == NULL) return false;
     }
 
+    if (!request->sessionToken().empty()) {
+        std::string sessionToken= "X-WS-CONNECTION-TOKEN: " + request->sessionToken();
+        list = curl_slist_append(list, sessionToken.c_str());
+    }
+
     // set the user-agent request header
     std::string userAgentHeader = "User-Agent: Windscribe/" + Settings::instance().appVersion() + " (" + Settings::instance().platformName() + ")";
     list = curl_slist_append(list, userAgentHeader.c_str());
@@ -399,10 +410,7 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
 
     curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_PRIVATE, new std::uint64_t(requestInfo->id));    // our user data, must be deleted in the RequestInfo destructor
 
-    // This env variable is set during testing since curl has a hardcoded search path.
-    if (getenv("WS_DISABLE_OQS") == nullptr) {
-        curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_EC_CURVES, "X25519MLKEM768:p521_mlkem1024:mlkem1024:mlkem768:p384_mlkem768:X448:X25519:secp521r1:secp384r1:secp256r1:ffdhe8192:ffdhe6144:ffdhe4096:ffdhe3072:ffdhe2048");
-    }
+    curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_EC_CURVES, "X25519MLKEM768:p521_mlkem1024:mlkem1024:mlkem768:p384_mlkem768:X448:X25519:secp521r1:secp384r1:secp256r1:ffdhe8192:ffdhe6144:ffdhe4096:ffdhe3072:ffdhe2048");
 
     // set post data
     std::string postData = request->postData();
@@ -440,7 +448,7 @@ bool CurlNetworkManager::setupResolveHosts(RequestInfo *requestInfo, const std::
 
 bool CurlNetworkManager::setupSslVerification(RequestInfo *requestInfo, const std::shared_ptr<WSNetHttpRequest> &request)
 {
-    if (request->isIgnoreSslErrors())  {
+    if (request->isIgnoreSslErrors()) {
         if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_VERIFYPEER, 0) != CURLE_OK) return false;
         if (curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_VERIFYHOST, 0) != CURLE_OK) return false;
     } else  {

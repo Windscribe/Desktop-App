@@ -4,7 +4,7 @@
 
 namespace gui_locations {
 
-LocationItem::LocationItem(const types::Location &location) : location_(location), load_(0), averagePing_(0),
+LocationItem::LocationItem(const types::Location &location) : location_(location), load_(0), lowestPing_(0),
     bNeedRecalcInternalValue_(true), is10gbps_(false)
 {
 }
@@ -14,6 +14,7 @@ LocationItem::LocationItem(const LocationID &bestLocation, const types::Location
     WS_ASSERT(bestLocation.isBestLocation());
     location_.id = bestLocation;
     location_.countryCode = l.countryCode;
+    location_.shortName = l.shortName;
     location_.isNoP2P = l.isNoP2P;
     location_.isPremiumOnly = l.isPremiumOnly;
 
@@ -27,7 +28,7 @@ LocationItem::LocationItem(const LocationID &bestLocation, const types::Location
     {
         load_ = 0;
     }
-    averagePing_ = city.pingTimeMs.toInt();
+    lowestPing_ = city.pingTimeMs.toInt();
     nickname_ = city.nick;
 }
 
@@ -43,10 +44,10 @@ int LocationItem::load()
     return load_;
 }
 
-int LocationItem::averagePing()
+int LocationItem::lowestPing()
 {
     recalcIfNeed();
-    return averagePing_;
+    return lowestPing_;
 }
 
 void LocationItem::insertCityAtInd(int ind, const types::City &city)
@@ -84,7 +85,7 @@ void LocationItem::setPingTimeForCity(int cityInd, PingTime time)
 {
     if (location_.id.isBestLocation())
     {
-        averagePing_ = time.toInt();
+        lowestPing_ = time.toInt();
     }
     else
     {
@@ -96,7 +97,7 @@ void LocationItem::setPingTimeForCity(int cityInd, PingTime time)
 bool LocationItem::operator==(const LocationItem &other) const
 {
     return other.load_ == load_ &&
-           other.averagePing_ == averagePing_ &&
+           other.lowestPing_ == lowestPing_ &&
            other.location_ == location_ &&
            other.is10gbps_ == is10gbps_ &&
            other.nickname_ == nickname_;
@@ -112,7 +113,7 @@ void LocationItem::recalcIfNeed()
     if (bNeedRecalcInternalValue_)
     {
         recalcLoad();
-        recalcAveragePing();
+        recalcLowestPing();
         bNeedRecalcInternalValue_ = false;
     }
 }
@@ -146,31 +147,24 @@ void LocationItem::recalcLoad()
     }
 }
 
-void LocationItem::recalcAveragePing()
+void LocationItem::recalcLowestPing()
 {
-    // doesn't make calc for CustomConfig and the best location
     if (location_.id.isCustomConfigsLocation() || location_.id.isBestLocation()) {
         return;
     }
 
-    double sumPing = 0;
-    int cnt = 0;
+    int minPing = -1;
     for (int i = 0; i < location_.cities.size(); ++i) {
         int cityPing = location_.cities[i].pingTimeMs.toInt();
         if (cityPing == PingTime::NO_PING_INFO || cityPing == PingTime::PING_FAILED) {
-            // Skip cities without ping info
             continue;
-        } else {
-            sumPing += cityPing;
         }
-        cnt++;
+        if (minPing == -1 || cityPing < minPing) {
+            minPing = cityPing;
+        }
     }
 
-    if (cnt > 0) {
-        averagePing_ = sumPing / (double)cnt;
-    } else {
-        averagePing_ = -1;
-    }
+    lowestPing_ = minPing;
 }
 
 } //namespace gui_locations

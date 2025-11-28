@@ -54,6 +54,10 @@ void SplitTunnelingAddressesGroup::addAddressInternal(types::SplitTunnelingNetwo
 
     AddressItem *item = new AddressItem(address, this);
     connect(item, &AddressItem::deleteClicked, this, &SplitTunnelingAddressesGroup::onDeleteClicked);
+    connect(item, &AddressItem::activeChanged, this, [this, item](bool active) {
+        addresses_[item].active = active;
+        emit addressesUpdated(addresses_.values());
+    });
     addresses_[item] = address;
     addItem(item);
     hideItems(indexOf(item), -1, DISPLAY_FLAGS::FLAG_NO_ANIMATION);

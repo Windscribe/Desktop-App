@@ -295,8 +295,8 @@
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
-        <source>Add Static IP</source>
-        <translation>Pridať statickú IP adresu</translation>
+        <source>Add</source>
+        <translation>Pridať</translation>
     </message>
 </context>
 <context>
@@ -901,7 +901,7 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <translation>Späť</translation>
     </message>
     <message>
-    <source>Manual connection mode failed</source>
+        <source>Manual connection mode failed</source>
         <translation>Manuálny režim pripojenia zlyhal</translation>
     </message>
     <message>
@@ -1091,7 +1091,7 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
     </message>
     <message>
         <source>Warning: Using &quot;OS Default&quot; may sometimes cause DNS leaks during reconnects.</source>
-        <translation>Upozornenie: Použitie "OS Default" môže niekedy spôsobiť úniky DNS pri opätovnom pripájaní.</translation>
+        <translation>Upozornenie: Použitie &quot;OS Default&quot; môže niekedy spôsobiť úniky DNS pri opätovnom pripájaní.</translation>
     </message>
     <message>
         <source>App Internal DNS</source>

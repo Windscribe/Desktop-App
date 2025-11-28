@@ -11,7 +11,9 @@
 #include "networkdetectionmanager/waitfornetworkconnectivity.h"
 #include "firewall/firewallcontroller.h"
 #include "api_responses/notification.h"
+#include "bridgeapi/bridgeapimanager.h"
 #include "locationsmodel/enginelocationsmodel.h"
+#include "locationsmodel/mutablelocationinfo.h"
 #include "connectionmanager/connectionmanager.h"
 #include "connectstatecontroller/connectstatecontroller.h"
 #include "engine/vpnshare/vpnsharecontroller.h"
@@ -83,7 +85,7 @@ public:
     bool firewallOn();
     bool firewallOff();
 
-    void connectClick(const LocationID &locationId, const types::ConnectionSettings &connectionSettings);
+    void connectClick(const LocationID &locationId, const types::ConnectionSettings &connectionSettings, const QPair<QString, QString> &pinnedNode = QPair<QString, QString>());
     void disconnectClick(DISCONNECT_REASON reason);
 
     bool isBlockConnect() const;
@@ -100,8 +102,6 @@ public:
     void emergencyConnectClick();
     void emergencyDisconnectClick();
     bool isEmergencyDisconnected();
-
-    void refreshLocations();
 
     // vpn sharing functions
     bool isWifiSharingSupported();
@@ -128,6 +128,9 @@ public:
 
     void updateCurrentNetworkInterface();
     void reconnect();
+
+    void rotateIp();
+    void fetchControldDevices(const QString &apiKey);
 
 public slots:
     void init();
@@ -189,16 +192,22 @@ signals:
     void hostsFileBecameWritable();
 
     void wireGuardAtKeyLimit();
-    void protocolStatusChanged(const QVector<types::ProtocolStatus> status);
+    void protocolStatusChanged(const QVector<types::ProtocolStatus> status, bool isAutomaticMode);
     void initCleanup(bool isUpdating);
 
     void splitTunnelingStartFailed();
+    void systemExtensionAvailabilityChanged(bool available);
 
-    void autoEnableAntiCensorship();
+    void autoEnableAntiCensorship(bool enable);
 
     void connectionIdChanged(const QString &connId);
 
     void localDnsServerNotAvailable();
+
+    void bridgeApiAvailabilityChanged(bool isAvailable);
+    void ipRotateResult(bool success);
+    void connectingHostnameChanged(const QString &hostname);
+    void controldDevicesFetched(CONTROLD_FETCH_RESULT result, const QList<QPair<QString, QString>> &devices);
 
 private slots:
     void onLostConnectionToHelper();
@@ -208,7 +217,7 @@ private slots:
     void enableBFE_winImpl();
     void recordInstallImpl();
     void sendConfirmEmailImpl();
-    void connectClickImpl(const LocationID &locationId, const types::ConnectionSettings &connectionSettings);
+    void connectClickImpl(const LocationID &locationId, const types::ConnectionSettings &connectionSettings, const QPair<QString, QString> &pinnedNode);
     void disconnectClickImpl(DISCONNECT_REASON reason);
     void sendDebugLogImpl();
     void getWebSessionTokenImpl(WEB_SESSION_PURPOSE purpose);
@@ -274,8 +283,6 @@ private slots:
     void emergencyConnectClickImpl();
     void emergencyDisconnectClickImpl();
 
-    void refreshLocationsImpl();
-
     void detectAppropriatePacketSizeImpl();
 
     void updateWindowInfoImpl(qint32 windowCenterX, qint32 windowCenterY);
@@ -318,6 +325,11 @@ private slots:
     void onMacSpoofTimerTick();
     void onSystemExtensionStateChanged(SystemExtensions_mac::SystemExtensionState newState);
 #endif
+
+    void rotateIpImpl();
+    void onIpRotateFinished(bool success);
+    void onIpPinFinished(const QString &ip);
+    void fetchControldDevicesImpl(const QString &apiKey);
 
 private:
     void initPart2();
@@ -379,6 +391,8 @@ private:
     QString lastConnectingHostname_;
     types::Protocol lastConnectingProtocol_;
 
+    QTimer *delayedVpnStateTimer_ = nullptr;  // Timer for delayed VPN state notification on Windows OpenVPN
+
     bool isNeedReconnectAfterRequestAuth_;
 
     bool online_;
@@ -420,8 +434,7 @@ private:
     types::NetworkInterface prevNetworkInterface_;
 
     types::ConnectionSettings connectionSettingsOverride_;
-
-    bool checkAutoEnableAntiCensorship_ = false;
+    QPair<QString, QString> pinnedNode_;  // hostname, ip
 
     bool isLoggedIn_ = false;
     bool isFetchingServerCredentials_ = false;
@@ -440,4 +453,6 @@ private:
     void updateFirewallOnBoot();
     void callAuthTokenLogin();
     void updateApiResolutionSettingsInWsnet();
+
+    BridgeApiManager *bridgeApiManager_;
 };

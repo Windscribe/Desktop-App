@@ -15,6 +15,22 @@
         <source>No locations.</source>
         <translation>Sem localizações.</translation>
     </message>
+    <message>
+        <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>Não foi possível girar o IP.  Verifique se tem o Windscribe Pro ou se tem esta localização no seu plano, ou tente novamente mais tarde.</translation>
+    </message>
+    <message>
+        <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>Não poderia favorito IP.  Verifique se tem o Windscribe Pro ou se tem esta localização no seu plano, ou tente novamente mais tarde.</translation>
+    </message>
+    <message>
+        <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
+        <translation>Não poderia desfavorito IP.  Verifique se o IP fornecido é válido.</translation>
+    </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>IP rotativo já em curso.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -284,15 +300,35 @@
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"></translation>
+        <translation> (10 Gbps)</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Desativado)</translation>
     </message>
     <message>
         <source> (Pro)</source>
-        <translation type="unfinished"></translation>
+        <translation> (Pro)</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Não conectado</translation>
+    </message>
+    <message>
+        <source>IP rotated.</source>
+        <translation>IP rotativo.</translation>
+    </message>
+    <message>
+        <source>IP favorited.</source>
+        <translation>IP favorito.</translation>
+    </message>
+    <message>
+        <source>IP unfavorited.</source>
+        <translation>IP desfavorecido.</translation>
+    </message>
+    <message>
+        <source>Invalid IP address</source>
+        <translation>Endereço IP inválido</translation>
     </message>
 </context>
 </TS>

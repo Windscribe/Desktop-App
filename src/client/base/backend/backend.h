@@ -58,8 +58,6 @@ public:
     void emergencyDisconnectClick();
     bool isEmergencyDisconnected();
 
-    void refreshLocations();
-
     void startWifiSharing(const QString &ssid, const QString &password);
     void stopWifiSharing();
     void startProxySharing(PROXY_SHARING_TYPE proxySharingMode, uint port, bool whileConnected);
@@ -122,6 +120,11 @@ public:
     void reconnect();
     bool osDnsServersListContains(const std::wstring &dnsServer);
 
+    void rotateIp();
+
+    QString getCurrentConnectingHostname() const;
+    void fetchControldDevices(const QString &apiKey);
+
 private slots:
     void onEngineSettingsChangedInPreferences();
 
@@ -145,7 +148,7 @@ private slots:
     void onEngineRobertFiltersUpdated(bool success, const QVector<api_responses::RobertFilter> &filters);
     void onEngineSetRobertFilterFinished(bool success);
     void onEngineSyncRobertFinished(bool success);
-    void onEngineProtocolStatusChanged(const QVector<types::ProtocolStatus> &status);
+    void onEngineProtocolStatusChanged(const QVector<types::ProtocolStatus> &status, bool isAutomaticMode);
 
     void onEngineEmergencyConnected();
     void onEngineEmergencyDisconnected();
@@ -182,7 +185,9 @@ private slots:
     void onEnginePacketSizeChanged(const types::EngineSettings &engineSettings);
     void onEnginePacketSizeDetectionStateChanged(bool on, bool isError);
     void onEngineHostsFileBecameWritable();
-    void onEngineAutoEnableAntiCensorship();
+    void onEngineAutoEnableAntiCensorship(bool enable);
+    void onEngineConnectingHostnameChanged(const QString &hostname);
+    void onEngineBridgeApiAvailabilityChanged(bool isAvailable);
 
 signals:
     // emited when connected to engine and received the engine settings, or error in initState variable
@@ -202,8 +207,6 @@ signals:
     void connectStateChanged(const types::ConnectState &connectState);
     void emergencyConnectStateChanged(const types::ConnectState &connectState);
     void firewallStateChanged(bool isEnabled);
-    void pingsStarted();
-    void pingsFinished();
     void notificationsChanged(const QVector<api_responses::Notification> &arr);
     void robertFiltersChanged(bool success, const QVector<api_responses::RobertFilter> &arr);
     void setRobertFilterResult(bool success);
@@ -212,6 +215,7 @@ signals:
     void sessionStatusChanged(const api_responses::SessionStatus &sessionStatus);
     void checkUpdateChanged(const api_responses::CheckUpdate &checkUpdateInfo);
     void splitTunnelingStateChanged(bool isActive);
+    void systemExtensionAvailabilityChanged(bool available);
 
     void confirmEmailResult(bool bSuccess);
     void debugLogResult(bool bSuccess);
@@ -244,11 +248,16 @@ signals:
 
     void wireGuardAtKeyLimit();
     void wireGuardKeyLimitUserResponse(bool deleteOldestKey);
-    void protocolStatusChanged(const QVector<types::ProtocolStatus> &status);
+    void protocolStatusChanged(const QVector<types::ProtocolStatus> &status, bool isAutomaticMode);
+
+    void controldDevicesFetched(CONTROLD_FETCH_RESULT result, const QList<QPair<QString, QString>> &devices);
 
     void splitTunnelingStartFailed();
     void connectionIdChanged(const QString &connId);
     void localDnsServerNotAvailable();
+
+    void bridgeApiAvailabilityChanged(bool isAvailable);
+    void ipRotateResult(bool success);
 
 private:
     bool isSavedApiSettingsExists_;
@@ -293,6 +302,10 @@ private:
     wsnet::LoginResult lastLoginError_;
 
     std::vector<std::wstring> osDnsServers_;
+
+    QString currentConnectingHostname_;
+    bool tunnelTestSuccessful_;
+    bool bridgeApiAvailable_;
 
     void triggerAutoConnect(const types::NetworkInterface &interface);
 };

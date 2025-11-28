@@ -15,6 +15,22 @@
         <source>No locations.</source>
         <translation>لا توجد مواقع.</translation>
     </message>
+    <message>
+        <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>تعذر تدوير IP.  يرجى التحقق من أن لديك Windscribe Pro أو أن لديك هذا الموقع في خطتك ، أو حاول مرة أخرى لاحقا.</translation>
+    </message>
+    <message>
+        <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>لا يمكن تفضيل IP.  يرجى التحقق من أن لديك Windscribe Pro أو أن لديك هذا الموقع في خطتك ، أو حاول مرة أخرى لاحقا.</translation>
+    </message>
+    <message>
+        <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
+        <translation>لا يمكن إلغاء IP المفضل.  يرجى التحقق من أن عنوان IP المقدم صالح.</translation>
+    </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>تدوير IP قيد التقدم بالفعل.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -284,15 +300,35 @@
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"></translation>
+        <translation> (10 جيجابت في الثانية)</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation> (معاقل)</translation>
     </message>
     <message>
         <source> (Pro)</source>
-        <translation type="unfinished"></translation>
+        <translation> (مؤلي)</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>غير متصل</translation>
+    </message>
+    <message>
+        <source>IP rotated.</source>
+        <translation>تم تدوير IP.</translation>
+    </message>
+    <message>
+        <source>IP favorited.</source>
+        <translation>IP المفضل.</translation>
+    </message>
+    <message>
+        <source>IP unfavorited.</source>
+        <translation>IP غير مفضل.</translation>
+    </message>
+    <message>
+        <source>Invalid IP address</source>
+        <translation>عنوان IP غير صالح</translation>
     </message>
 </context>
 </TS>

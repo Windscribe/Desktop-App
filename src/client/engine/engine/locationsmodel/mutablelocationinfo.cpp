@@ -70,6 +70,20 @@ QString MutableLocationInfo::getLogString() const
     return "Location nodes: " + strNodes;
 }
 
+QStringList MutableLocationInfo::getHostnames() const
+{
+    QStringList hostnames;
+    for (int i = 0; i < nodes_.count(); ++i)
+    {
+        QString hostname = nodes_[i]->getHostname();
+        if (!hostname.isEmpty() && !hostnames.contains(hostname))
+        {
+            hostnames.append(hostname);
+        }
+    }
+    return hostnames;
+}
+
 int MutableLocationInfo::nodesCount() const
 {
     return nodes_.count();
@@ -106,6 +120,18 @@ void MutableLocationInfo::selectNodeByIp(const QString &addr)
         }
     }
     qCWarning(LOG_BASIC) << "Could not find node for IP: " << addr;
+}
+
+bool MutableLocationInfo::selectNodeByHostname(const QString &hostname)
+{
+    for (int i = 0; i < nodes_.count(); i++) {
+        if (nodes_[i]->getHostname() == hostname) {
+            qCDebug(LOG_BASIC) << "Selected node by hostname: " << i;
+            selectedNode_ = i;
+            return true;
+        }
+    }
+    return false;
 }
 
 QString MutableLocationInfo::getIpForSelectedNode(int indIp) const

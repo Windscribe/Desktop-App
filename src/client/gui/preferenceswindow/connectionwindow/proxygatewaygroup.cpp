@@ -112,8 +112,8 @@ void ProxyGatewayGroup::onWhileConnectedStateChanged(bool isChecked)
 
 void ProxyGatewayGroup::setProxyGatewayAddress(const QString &address)
 {
-    if (settings_.isEnabled && (address.isEmpty() || address.endsWith(":0"))) {
-        // Invalid address or port 0 indicates that the proxy is not running.  Reset to 0.
+    if (settings_.isEnabled && address.endsWith(":0")) {
+        // Port 0 indicates that the proxy is not running.  Reset to Auto.
         editBoxPort_->setText(tr("Auto"));
         settings_.port = 0;
         emit proxyGatewayPreferencesChanged(settings_);

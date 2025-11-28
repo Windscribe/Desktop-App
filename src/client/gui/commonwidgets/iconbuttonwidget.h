@@ -19,6 +19,7 @@ public:
     int height();
     void setText(const QString &text);
     void setImage(const QString &imagePath);
+    void setFont(const QFont &font);
 
     void setUnhoverHoverOpacity(double unhoverOpacity, double hoverOpacity);
     void animateOpacityChange(double targetOpacity);
@@ -41,6 +42,7 @@ private slots:
 private:
     QString imagePath_;
     QString text_;
+    QFont font_;
 
     double unhoverOpacity_ = OPACITY_UNHOVER_ICON_STANDALONE;
     double hoverOpacity_ = OPACITY_FULL;

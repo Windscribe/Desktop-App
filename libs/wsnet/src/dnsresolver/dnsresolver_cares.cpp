@@ -11,7 +11,10 @@
     #include <netinet/in.h>
     #include <arpa/inet.h>
     #include <netdb.h>
-    #include <sys/select.h>
+    #include <poll.h>
+#elif defined(_WIN32) || defined(_WIN64)
+    #include <winsock2.h>
+    #define poll WSAPoll
 #endif
 
 #if defined(__APPLE__) && !defined(IS_MOBILE_PLATFORM)
@@ -129,7 +132,15 @@ void DnsResolver_cares::run()
     std::queue<QueueItem> localQueue;
     while (!finish_) {
 
-        {   // mutex lock section
+        // Check if c-ares still has active sockets
+        // If so, do not block so that the next batch can be processed immediately
+        ares_socket_t temp_sockets[ARES_GETSOCK_MAXNUM];
+        int temp_bitmask = ares_getsock(channel, temp_sockets, ARES_GETSOCK_MAXNUM);
+        bool has_active_sockets = (temp_bitmask != 0);
+
+        // Wait only if there are no active requests and no active sockets
+        if (!has_active_sockets) {
+            // mutex lock section
             std::unique_lock<std::mutex> locker(mutex_);
             condition_.wait(locker, [this]{ return !activeRequests_.empty() || finish_; });
             localQueue = queue_;
@@ -178,17 +189,56 @@ void DnsResolver_cares::run()
         }
 
         // process
-        fd_set readers, writers;
-        FD_ZERO(&readers);
-        FD_ZERO(&writers);
-        int nfds = ares_fds(channel, &readers, &writers);
-        if (nfds != 0) {
+        ares_socket_t sockets[ARES_GETSOCK_MAXNUM];
+        int bitmask = ares_getsock(channel, sockets, ARES_GETSOCK_MAXNUM);
+        
+        struct pollfd pfds[ARES_GETSOCK_MAXNUM];
+        int nfds = 0;
+        
+        for (int i = 0; i < ARES_GETSOCK_MAXNUM; i++) {
+            if (ARES_GETSOCK_READABLE(bitmask, i) || ARES_GETSOCK_WRITABLE(bitmask, i)) {
+                pfds[nfds].fd = sockets[i];
+                pfds[nfds].events = 0;
+                pfds[nfds].revents = 0;
+                
+                if (ARES_GETSOCK_READABLE(bitmask, i)) {
+                    pfds[nfds].events |= POLLIN;
+                }
+                if (ARES_GETSOCK_WRITABLE(bitmask, i)) {
+                    pfds[nfds].events |= POLLOUT;
+                }
+                nfds++;
+            }
+        }
+        
+        if (nfds > 0) {
             // do not block for longer than kTimeoutMs interval
-            timeval tvp;
-            tvp.tv_sec = 0;
-            tvp.tv_usec = kTimeoutMs * 1000;
-            select(nfds, &readers, &writers, NULL, &tvp);
-            ares_process(channel, &readers, &writers);
+            int timeout_ms = kTimeoutMs;
+            poll(pfds, nfds, timeout_ms);
+            
+            // Convert poll events to ares_fd_events_t for ares_process_fds
+            ares_fd_events_t events[ARES_GETSOCK_MAXNUM];
+            int nevents = 0;
+            
+            for (int i = 0; i < nfds; i++) {
+                events[nevents].fd = pfds[i].fd;
+                events[nevents].events = 0;
+                
+                if (pfds[i].revents & POLLIN) {
+                    events[nevents].events |= ARES_FD_EVENT_READ;
+                }
+                if (pfds[i].revents & POLLOUT) {
+                    events[nevents].events |= ARES_FD_EVENT_WRITE;
+                }
+                
+                // Include the fd even if no events (for timeout processing)
+                nevents++;
+            }
+            
+            ares_process_fds(channel, events, nevents, ARES_PROCESS_FLAG_NONE);
+        } else {
+            // No file descriptors to process, but still need to handle timeouts
+            ares_process_fds(channel, NULL, 0, ARES_PROCESS_FLAG_NONE);
         }
     }
 

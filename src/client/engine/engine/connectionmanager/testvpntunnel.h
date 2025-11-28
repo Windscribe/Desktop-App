@@ -17,7 +17,7 @@ public:
     virtual ~TestVPNTunnel();
 
 public slots:
-    void startTests(const types::Protocol &protocol);
+    void startTests(const types::Protocol &protocol = types::Protocol());
     void stopTests();
 
 signals:

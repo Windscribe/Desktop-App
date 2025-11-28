@@ -13,7 +13,7 @@
 namespace PreferencesWindow {
 
 ConnectedDnsGroup::ConnectedDnsGroup(ScalableGraphicsObject *parent, const QString &desc, const QString &descUrl)
-  : PreferenceGroup(parent, desc, descUrl), isLocalDnsAvailable_(false)
+  : PreferenceGroup(parent, desc, descUrl), isLocalDnsAvailable_(false), isControldRequestInProgress_(false), controldLastFetchResult_(CONTROLD_FETCH_SUCCESS)
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape | QGraphicsItem::ItemIsFocusable);
 
@@ -21,6 +21,15 @@ ConnectedDnsGroup::ConnectedDnsGroup(ScalableGraphicsObject *parent, const QStri
     comboBoxDns_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/CONNECTED_DNS"));
     connect(comboBoxDns_, &ComboBoxItem::currentItemChanged, this, &ConnectedDnsGroup::onConnectedDnsModeChanged);
     addItem(comboBoxDns_);
+
+    editBoxControldApiKey_ = new VerticalEditBoxItem(this);
+    connect(editBoxControldApiKey_, &VerticalEditBoxItem::textChanged, this, &ConnectedDnsGroup::onControldApiKeyChanged);
+    connect(editBoxControldApiKey_, &VerticalEditBoxItem::refreshButtonClicked, this, &ConnectedDnsGroup::onControldApiKeyRefreshClick);
+    addItem(editBoxControldApiKey_);
+
+    comboBoxControldDevice_ = new ComboBoxItem(this);
+    connect(comboBoxControldDevice_, &ComboBoxItem::currentItemChanged, this, &ConnectedDnsGroup::onControldDeviceChanged);
+    addItem(comboBoxControldDevice_);
 
     editBoxUpstream1_ = new VerticalEditBoxItem(this);
     connect(editBoxUpstream1_, &VerticalEditBoxItem::textChanged, this, &ConnectedDnsGroup::onUpstream1Changed);
@@ -41,7 +50,7 @@ ConnectedDnsGroup::ConnectedDnsGroup(ScalableGraphicsObject *parent, const QStri
 
     addItem(domainsItem_);
 
-    hideItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
+    hideItems(indexOf(editBoxControldApiKey_), indexOf(domainsItem_), DISPLAY_FLAGS::FLAG_NO_ANIMATION);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectedDnsGroup::onLanguageChanged);
     onLanguageChanged();
@@ -56,23 +65,60 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
 {
     if (dns != settings_)
     {
+        bool apiKeyChanged = settings_.controldApiKey != dns.controldApiKey;
+
         settings_ = dns;
 
         // update inner widgets
         if (dns.type == CONNECTED_DNS_TYPE_AUTO)
             comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_AUTO);
-#if defined(Q_OS_WIN)
-        else if (dns.type == CONNECTED_DNS_TYPE_FORCED)
-            comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_FORCED);
-#endif
         else if (dns.type == CONNECTED_DNS_TYPE_LOCAL)
             comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_LOCAL);
+        else if (dns.type == CONNECTED_DNS_TYPE_CONTROLD)
+            comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_CONTROLD);
         else
             comboBoxDns_->setCurrentItem(CONNECTED_DNS_TYPE_CUSTOM);
 
+        // Check if API key changed
+        editBoxControldApiKey_->setText(dns.controldApiKey);
+
+        // If API key changed, clear devices and fetch new ones
+        if (apiKeyChanged && !dns.controldApiKey.isEmpty()) {
+            settings_.controldDevices.clear();
+            comboBoxControldDevice_->clear();
+            fetchDevices(dns.controldApiKey);
+        }
+        // If we have an API key but no devices, fetch them
+        else if (!dns.controldApiKey.isEmpty() && dns.controldDevices.isEmpty()) {
+            fetchDevices(dns.controldApiKey);
+        } else if (!dns.controldDevices.isEmpty()) {
+            // Populate Control D devices combo box
+            QList<QPair<QString, QVariant>> devicesList;
+            for (const auto& device : dns.controldDevices) {
+                devicesList << qMakePair(device.first, QVariant(device.second));
+            }
+            // Find the device that matches upstream1
+            QVariant selectedDevice = devicesList.first().second;
+            for (const auto& device : devicesList) {
+                if (device.second.toString() == dns.upStream1) {
+                    selectedDevice = device.second;
+                    break;
+                }
+            }
+            comboBoxControldDevice_->setItems(devicesList, selectedDevice);
+        }
+
         splitDnsCheckBox_->setState(dns.isSplitDns);
-        editBoxUpstream1_->setText(dns.upStream1);
-        onUpstream1Changed(dns.upStream1);
+
+        if (dns.type == CONNECTED_DNS_TYPE_LOCAL) {
+            editBoxUpstream1_->setText("127.0.0.1");
+            settings_.upStream1 = "127.0.0.1";
+            onUpstream1Changed("127.0.0.1");
+        } else {
+            editBoxUpstream1_->setText(dns.upStream1);
+            onUpstream1Changed(dns.upStream1);
+        }
+
         editBoxUpstream2_->setText(dns.upStream2);
         domainsItem_->setLinkText(QString::number(dns.hostnames.count()));
 
@@ -82,13 +128,35 @@ void ConnectedDnsGroup::setConnectedDnsInfo(const types::ConnectedDnsInfo &dns)
 
 void ConnectedDnsGroup::updateMode()
 {
-    if (settings_.type == CONNECTED_DNS_TYPE_AUTO || settings_.type == CONNECTED_DNS_TYPE_FORCED || settings_.type == CONNECTED_DNS_TYPE_LOCAL) {
+    if (settings_.type == CONNECTED_DNS_TYPE_AUTO) {
+        hideItems(indexOf(editBoxControldApiKey_), indexOf(domainsItem_));
+    } else if (settings_.type == CONNECTED_DNS_TYPE_LOCAL) {
+        hideItems(indexOf(editBoxControldApiKey_), indexOf(comboBoxControldDevice_));
+        showItems(indexOf(editBoxUpstream1_), indexOf(editBoxUpstream1_));
+        hideItems(indexOf(splitDnsCheckBox_), indexOf(domainsItem_));
+        editBoxUpstream1_->setEnabled(false);
+    } else if (settings_.type == CONNECTED_DNS_TYPE_CONTROLD) {
         hideItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_));
+        showItems(indexOf(editBoxControldApiKey_), indexOf(editBoxControldApiKey_));
+        if (settings_.controldApiKey.isEmpty() || controldLastFetchResult_ != CONTROLD_FETCH_SUCCESS) {
+            hideItems(indexOf(comboBoxControldDevice_), indexOf(domainsItem_));
+        } else {
+            showItems(indexOf(comboBoxControldDevice_), indexOf(comboBoxControldDevice_));
+            comboBoxControldDevice_->setEnabled(!settings_.controldDevices.isEmpty());
+            if (settings_.isSplitDns) {
+                showItems(indexOf(splitDnsCheckBox_), indexOf(domainsItem_));
+            } else {
+                showItems(indexOf(splitDnsCheckBox_), indexOf(splitDnsCheckBox_));
+            }
+        }
     } else  {
-        if (settings_.isSplitDns)
+        hideItems(indexOf(editBoxControldApiKey_), indexOf(comboBoxControldDevice_));
+        editBoxUpstream1_->setEnabled(true);
+        if (settings_.isSplitDns) {
             showItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_));
-        else
+        } else {
             showItems(indexOf(editBoxUpstream1_), indexOf(splitDnsCheckBox_));
+        }
     }
 }
 
@@ -96,12 +164,76 @@ void ConnectedDnsGroup::onConnectedDnsModeChanged(QVariant v)
 {
     if (settings_.type != v.toInt())
     {
+        CONNECTED_DNS_TYPE oldType = settings_.type;
+        settings_.type = (CONNECTED_DNS_TYPE)v.toInt();
+
+        if (settings_.type == CONNECTED_DNS_TYPE_LOCAL) {
+            editBoxUpstream1_->setText("127.0.0.1");
+            settings_.upStream1 = "127.0.0.1";
+        } else if (oldType == CONNECTED_DNS_TYPE_LOCAL) {
+            editBoxUpstream1_->setText("");
+            settings_.upStream1 = "";
+            onUpstream1Changed("");
+            editBoxUpstream1_->setEnabled(true);
+        }
+
         if (v.toInt() == CONNECTED_DNS_TYPE_CUSTOM) {
             checkDnsLeak(settings_.upStream1, settings_.isSplitDns ? settings_.upStream2 : "");
         }
-        settings_.type = (CONNECTED_DNS_TYPE)v.toInt();
+
         updateMode();
         emit connectedDnsInfoChanged(settings_);
+    }
+}
+
+void ConnectedDnsGroup::onControldApiKeyChanged(QString v)
+{
+    if (settings_.controldApiKey != v) {
+        settings_.controldApiKey = v;
+
+        settings_.controldDevices.clear();
+        settings_.upStream1.clear();
+        comboBoxControldDevice_->clear();
+        editBoxUpstream1_->setText("");
+        editBoxControldApiKey_->setError("");
+        editBoxControldApiKey_->setRefreshButtonVisible(false);
+        onUpstream1Changed("");
+
+        if (!v.isEmpty()) {
+            controldLastFetchResult_ = CONTROLD_FETCH_SUCCESS;
+            fetchDevices(v);
+        }
+
+        updateMode();
+
+        emit connectedDnsInfoChanged(settings_);
+    }
+}
+
+void ConnectedDnsGroup::onControldApiKeyRefreshClick()
+{
+    editBoxControldApiKey_->setError("");
+    editBoxControldApiKey_->setRefreshButtonVisible(false);
+    controldLastFetchResult_ = CONTROLD_FETCH_SUCCESS;
+
+    settings_.controldDevices.clear();
+    settings_.upStream1.clear();
+    comboBoxControldDevice_->clear();
+    editBoxUpstream1_->setText("");
+    onUpstream1Changed("");
+
+    updateMode();
+
+    if (!settings_.controldApiKey.isEmpty()) {
+        fetchDevices(settings_.controldApiKey);
+    }
+}
+
+void ConnectedDnsGroup::onControldDeviceChanged(QVariant v)
+{
+    QString resolver = v.toString();
+    if (settings_.upStream1 != resolver) {
+        onUpstream1Changed(resolver);
     }
 }
 
@@ -132,17 +264,95 @@ void ConnectedDnsGroup::onUpstream2Changed(QString v)
 void ConnectedDnsGroup::onSplitDnsStateChanged(bool checked)
 {
     if (settings_.isSplitDns != checked) {
-
         // hide additional items
         if (settings_.isSplitDns && !checked) {
             hideItems(indexOf(editBoxUpstream2_), indexOf(domainsItem_));
-        } else  {        // show additional items
-            showItems(indexOf(editBoxUpstream1_), indexOf(domainsItem_));
+        } else  { // show additional items
+            showItems(indexOf(editBoxUpstream2_), indexOf(domainsItem_));
         }
 
         settings_.isSplitDns = checked;
         emit connectedDnsInfoChanged(settings_);
     }
+}
+
+void ConnectedDnsGroup::fetchDevices(const QString &apiKey)
+{
+    if (isControldRequestInProgress_) {
+        return;
+    }
+
+    isControldRequestInProgress_ = true;
+    comboBoxControldDevice_->setInProgress(true);
+
+    emit fetchControldDevices(apiKey);
+}
+
+void ConnectedDnsGroup::onControldDevicesFetched(CONTROLD_FETCH_RESULT result, const QList<QPair<QString, QString>> &devices)
+{
+    isControldRequestInProgress_ = false;
+    editBoxControldApiKey_->setPrompt(tr("API Key"));
+    comboBoxControldDevice_->setInProgress(false);
+    controldLastFetchResult_ = result;
+
+    if (result == CONTROLD_FETCH_NETWORK_ERROR) {
+        qCDebug(LOG_BASIC) << "Control D devices fetched: network error";
+        updateMode();
+        onLanguageChanged();
+        return;
+    } else if (result == CONTROLD_FETCH_AUTH_ERROR) {
+        qCDebug(LOG_BASIC) << "Control D devices fetched: auth error";
+        updateMode();
+        onLanguageChanged();
+        return;
+    } else if (result == CONTROLD_FETCH_SUCCESS) {
+        editBoxControldApiKey_->setError("");
+        editBoxControldApiKey_->setRefreshButtonVisible(false);
+    }
+
+    settings_.controldDevices = devices;
+
+    QList<QPair<QString, QVariant>> devicesList;
+    for (const auto& device : settings_.controldDevices) {
+        devicesList << qMakePair(device.first, QVariant(device.second));
+    }
+    if (!devicesList.isEmpty()) {
+        QVariant selectedDevice;
+
+        if (settings_.upStream1.isEmpty()) {
+            // No upstream1 set, use first device
+            selectedDevice = devicesList.first().second;
+            settings_.upStream1 = selectedDevice.toString();
+        } else {
+            // upstream1 already exists, try to find matching device
+            bool found = false;
+            for (const auto& device : devicesList) {
+                if (device.second.toString() == settings_.upStream1) {
+                    selectedDevice = device.second;
+                    found = true;
+                    break;
+                }
+            }
+            // If not found in list, use first device
+            if (!found) {
+                selectedDevice = devicesList.first().second;
+                settings_.upStream1 = selectedDevice.toString();
+            } else {
+                selectedDevice = settings_.upStream1;
+            }
+        }
+
+        comboBoxControldDevice_->setItems(devicesList, selectedDevice);
+        comboBoxControldDevice_->setEnabled(true);
+        editBoxUpstream1_->setText(selectedDevice.toString());
+        onUpstream1Changed(selectedDevice.toString());
+    } else {
+        editBoxUpstream1_->setText("");
+        onUpstream1Changed("");
+    }
+
+    updateMode();
+    emit connectedDnsInfoChanged(settings_);
 }
 
 void ConnectedDnsGroup::checkDnsLeak(const QString &v1, const QString &v2)
@@ -170,6 +380,7 @@ void ConnectedDnsGroup::onDomainsClick()
 void ConnectedDnsGroup::hideOpenPopups()
 {
     comboBoxDns_->hideMenu();
+    comboBoxControldDevice_->hideMenu();
 }
 
 void ConnectedDnsGroup::populateDnsTypes(bool isLocalDnsAvailable)
@@ -178,13 +389,6 @@ void ConnectedDnsGroup::populateDnsTypes(bool isLocalDnsAvailable)
     QList<CONNECTED_DNS_TYPE> types = types::ConnectedDnsInfo::allAvailableTypes();
 
     for (const auto t : types) {
-#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
-        if (t == CONNECTED_DNS_TYPE_FORCED)
-            continue; // only available on Windows
-#else // Windows
-        if (t == CONNECTED_DNS_TYPE_FORCED && !WinUtils::isDohSupported())
-            continue;
-#endif
         if (t != CONNECTED_DNS_TYPE_LOCAL) {
             list << qMakePair(CONNECTED_DNS_TYPE_toString(t), t);
         }
@@ -214,6 +418,18 @@ void ConnectedDnsGroup::onLanguageChanged()
 {
     comboBoxDns_->setLabelCaption(tr("Connected DNS"));
     populateDnsTypes(isLocalDnsAvailable_);
+
+    editBoxControldApiKey_->setCaption(tr("API Key"));
+    editBoxControldApiKey_->setPrompt(tr("API Key"));
+    comboBoxControldDevice_->setLabelCaption(tr("Upstream 1"));
+
+    if (controldLastFetchResult_ == CONTROLD_FETCH_NETWORK_ERROR) {
+        editBoxControldApiKey_->setError(tr("Failed to reach Control D API."));
+        editBoxControldApiKey_->setRefreshButtonVisible(true);
+    } else if (controldLastFetchResult_ == CONTROLD_FETCH_AUTH_ERROR) {
+        editBoxControldApiKey_->setError(tr("Please provide a valid Control D API Key."));
+        editBoxControldApiKey_->setRefreshButtonVisible(false);
+    }
 
     editBoxUpstream1_->setCaption(tr("Upstream 1"));
     editBoxUpstream1_->setPrompt(tr("IP/DNS-over-HTTPS/TLS"));

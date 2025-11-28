@@ -1,3 +1,106 @@
+2.19.2 (20/11/2025)
+All:
+   * Improved manual connection mode to try alternate datacenter server, if available, when first connection attempt fails. #1512
+   * Fixed scrollbar was cutting off hover effect from location row. #1556
+   * Fixed window may extend beyond bottom of screen. #1551
+   * Fixed a potential crash when clicking the login button multiple times. #1545
+   * Updated OpenVPN to 2.6.16. #1555
+Windows:
+   * Improved Docked tray behaviour. #1553
+   * Fixed tray icon bugs caused by refactor. #1541
+MacOS:
+   * Improved UX when split tunneling is enabled but the extension has not been approved. #1560
+   * Fixed the login username input box losing focus when using the trackpad. #1557
+Linux:
+   * Fixed tray icon bugs caused by refactor. #1541
+   * Fixed share proxy sometimes not working, particularly on CLI after reboot. #1559
+   * Fixed some Qt log spam. #1558
+
+
+2.19.1 (13/11/2025)
+All:
+   * Added individual toggle switches for split tunneling entries. #1508
+   * Added Slovak translations from GitHub user kubalav. #1524
+   * Added Greek (machine) translations. #1524
+   * Added prompt to use protocol as preferred after successful protocol failover. #1530
+   * Added a failover verification autotest in wsnet for ensuring all failover mechanisms are functioning. #1455
+   * Improved Connected DNS UX. #1519 #1537
+   * Improved dependency downloads to verify checksum. #1532
+   * Improved sorting of countries by latency. #1533
+   * Improved protocol selection after failover. #1528
+   * Improved code organization of tray icon handling. #1541
+   * Fixed ws-no-pings advanced parameter is not respected. #1542
+   * Fixed protocol failover may cause IP pinning to fail. #1543
+   * Fixed rotating IP repeatedly and quickly may hit a rate limit. #1538
+   * Fixed crash in wsnet on Android due to a limit on the maximum socket descriptor. #1548
+   * Fixed leftover windscribectrld instance may cause DNS conflict. #1546
+   * Fixed GUI misalignment and font when proxy gateway/secure hotspot are enabled. #1547
+Windows:
+   * Updated 7zr utility to v25.01. #1534
+
+
+2.18.8 (19/11/2025)
+All:
+   * Fixed UI bugs according to feedback. #1536
+
+
+2.18.7 (17/11/2025)
+All:
+   * Improved UI design. #1536
+   * Fixed IP rotate/pinning sometimes not available when they should be. #1047
+   * Fixed location item remains highlighted when mouse leaves locations area. #1536
+   * Removed Refresh button for locations. #1336
+
+
+2.18.6 (10/11/2025)
+All:
+   * Fixed IP rotate/pinning timeouts were too aggressive. #1047
+
+
+2.18.5 (06/11/2025)
+All:
+   * Fixed error message not hidden after successful fetching of Control D devices. #1390
+   * Fixed IP rotate & favourite availability when reconnecting to different servers. #1047
+   * Fixed OpenSSL loading openssl.cnf from untrusted path security vulnerability. #1529
+   * Fixed wsnet doesn't process DNS queries after a bit. #1496
+Linux:
+   * Fixed missing Linux dependency for desktop-file-utils. #1535
+
+
+2.18.4 (03/11/2025)
+All:
+   * Fixed various bugs with IP rotate & favourite functionality. #1047
+   * Fixed unnecessary usage of environment variables for testing. #1517
+   * Fixed GUI showing the wrong field for Connected DNS in some cases. #1390
+   * Fixed GUI window not hidden correctly when transitioning. #1525
+MacOS:
+   * Fixed AirDrop not working when using split tunneling. #1513
+   * Fixed an application crash when quitting. #1504
+   * Fixed persistent OS prompt appearing on every IKEv2/WireGuard connection, reverted previous changes. #1516
+   * Fixed implementation of the WireGuard protocol. A rollback to the previous implementation. #1522
+Linux:
+   * Fixed WireGuard handshake may timeout unexpectedly. #1523
+
+
+2.18.3 (24/10/2025)
+All:
+   * Added IP rotation & favourite functionality. #1047
+   * Added 'Control D' option to Connected DNS. #1390
+   * Added WireGuard post-quantum encryption notice to the readme. #1509
+   * Improved detection when circumvent censorship should be enabled automatically. #1503
+   * Improved tooltip usability. #1515
+   * Fixed automatic connection mode does not try alternate datacenter server, if available, when first connection attempt fails. #1505
+Windows:
+   * Fixed "Tray Icon Colour" preference location by moving it to the Look & Feel tab. #1514
+MacOS:
+   * Added implementation of the WireGuard protocol as a network extension. #1290
+   * Improved VPN configuration management. Automatic removal of currently unconnected VPN configurations from macOS preferences UI. #1516
+   * Fixed erroneous assert in the debug log during GUI preferences output. #1494
+Linux:
+   * Fixed potential privilege escalation. #1510
+   * Fixed "Tray Icon Colour" preference location by moving it to the Look & Feel tab. #1514
+
+
 2.18.2 (16/10/2025)
 All:
    * Added optional port selection when connecting with windscribe-cli. #1500

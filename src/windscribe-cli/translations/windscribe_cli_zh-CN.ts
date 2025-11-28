@@ -15,6 +15,22 @@
         <source>No locations.</source>
         <translation>无位置。</translation>
     </message>
+    <message>
+        <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>无法轮换 IP。 请检查您是否有 Windscribe Pro 或您的计划中有此位置，或稍后重试。</translation>
+    </message>
+    <message>
+        <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
+        <translation>无法收藏 IP。 请检查您是否有 Windscribe Pro 或您的计划中有此位置，或稍后重试。</translation>
+    </message>
+    <message>
+        <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
+        <translation>无法取消收藏 IP。 请检查提供的 IP 是否有效。</translation>
+    </message>
+    <message>
+        <source>IP rotate already in progress.</source>
+        <translation>IP 轮换已经在进行中。</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -284,15 +300,35 @@
     </message>
     <message>
         <source> (10 Gbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>（10 Gbps）</translation>
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation type="unfinished"></translation>
+        <translation>（禁用）</translation>
     </message>
     <message>
         <source> (Pro)</source>
-        <translation type="unfinished"></translation>
+        <translation>（专业版）</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>未连接</translation>
+    </message>
+    <message>
+        <source>IP rotated.</source>
+        <translation>IP 轮换。</translation>
+    </message>
+    <message>
+        <source>IP favorited.</source>
+        <translation>IP 收藏。</translation>
+    </message>
+    <message>
+        <source>IP unfavorited.</source>
+        <translation>IP 不收藏。</translation>
+    </message>
+    <message>
+        <source>Invalid IP address</source>
+        <translation>IP 地址无效</translation>
     </message>
 </context>
 </TS>

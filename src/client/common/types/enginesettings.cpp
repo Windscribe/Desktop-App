@@ -32,7 +32,7 @@ void EngineSettings::saveToSettings()
         ds << d->language << d->updateChannel << d->isIgnoreSslErrors << d->isTerminateSockets << d->isAllowLanTraffic <<
               d->firewallSettings << d->connectionSettings << apiResolutionSettingsNotUsed << d->proxySettings << d->packetSize <<
               d->macAddrSpoofing << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
-              d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols << d->networkLastKnownGoodProtocols <<
+              d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols <<
             d->isAntiCensorship << d->decoyTrafficSettings;
     }
 
@@ -65,8 +65,9 @@ bool EngineSettings::loadFromSettings()
             if (version >= 2) {
                 ds >> d->networkPreferredProtocols;
             }
-            if (version >= 3) {
-                ds >> d->networkLastKnownGoodProtocols;
+            if (version >= 3 && version <= 6) {
+                QMap<QString, std::pair<types::Protocol, uint>> networkLastKnownGoodProtocols;
+                ds >> networkLastKnownGoodProtocols;
             }
             if (version >= 4) {
                 ds >> d->isAntiCensorship;
@@ -77,6 +78,7 @@ bool EngineSettings::loadFromSettings()
             if (version >= 6) {
                 ds >> d->decoyTrafficSettings;
             }
+
             if (ds.status() == QDataStream::Ok) {
                 bLoaded = true;
             }
@@ -299,30 +301,6 @@ void EngineSettings::setNetworkPreferredProtocols(const QMap<QString, types::Con
     d->networkPreferredProtocols = preferredProtocols;
 }
 
-const types::Protocol EngineSettings::networkLastKnownGoodProtocol(const QString &network) const
-{
-    return d->networkLastKnownGoodProtocols[network].first;
-}
-
-uint EngineSettings::networkLastKnownGoodPort(const QString &network) const
-{
-    return d->networkLastKnownGoodProtocols[network].second;
-}
-
-void EngineSettings::setNetworkLastKnownGoodProtocolPort(const QString &network, const types::Protocol &protocol, uint port)
-{
-    d->networkLastKnownGoodProtocols[network] = std::make_pair(protocol, port);
-}
-
-void EngineSettings::clearLastKnownGoodProtocols(const QString &network)
-{
-    if (network.isEmpty()) {
-        d->networkLastKnownGoodProtocols.clear();
-    } else {
-        d->networkLastKnownGoodProtocols.remove(network);
-    }
-}
-
 bool EngineSettings::operator==(const EngineSettings &other) const
 {
     return  other.d->language == d->language &&
@@ -343,8 +321,7 @@ bool EngineSettings::operator==(const EngineSettings &other) const
             other.d->connectedDnsInfo == d->connectedDnsInfo &&
             other.d->dnsManager == d->dnsManager &&
             other.d->decoyTrafficSettings == d->decoyTrafficSettings &&
-            other.d->networkPreferredProtocols == d->networkPreferredProtocols &&
-            other.d->networkLastKnownGoodProtocols == d->networkLastKnownGoodProtocols;
+            other.d->networkPreferredProtocols == d->networkPreferredProtocols;
 }
 
 bool EngineSettings::operator!=(const EngineSettings &other) const
@@ -462,29 +439,6 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
         networkPreferredProtocols = npp;
     }
 
-    if (json.contains(kJsonNetworkLastKnownGoodProtocolsProp) && json[kJsonNetworkLastKnownGoodProtocolsProp].isObject()) {
-        const QJsonObject protocolsObj = json[kJsonNetworkLastKnownGoodProtocolsProp].toObject();
-        for (const QString& networkBase64 : protocolsObj.keys()) {
-            const QString network = Utils::fromBase64(networkBase64);
-            if (protocolsObj[network].isObject()) {
-                types::Protocol protocol;
-                uint port;
-                const QJsonObject protocolObj = protocolsObj[network].toObject();
-                if (protocolObj.contains(kJsonProtocolProp)
-                    && protocolObj.contains(kJsonValueProp)
-                    && protocolObj[kJsonProtocolProp].isDouble()
-                    && protocolObj[kJsonValueProp].isDouble())
-                {
-                    protocol = Protocol(protocolObj[kJsonProtocolProp].toInt());
-                    port = protocolObj[kJsonValueProp].toInt();
-                    if (port < 0 || port >= 65536) {
-                        port = Protocol::defaultPortForProtocol(protocol);
-                    }
-                    networkLastKnownGoodProtocols[network] = std::make_pair(protocol, port);
-                }
-            }
-        }
-    }
 }
 
 QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
@@ -504,21 +458,6 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
     json[kJsonLanguageProp] = language;
     json[kJsonMacAddrSpoofingProp] = macAddrSpoofing.toJson(isForDebugLog);
 
-    QJsonObject networkLastKnownGoodProtocolsObj;
-    for (const auto& key : networkLastKnownGoodProtocols.keys()) {
-        auto value = networkLastKnownGoodProtocols[key];
-        QJsonObject innerObj;
-        innerObj[kJsonProtocolProp] = value.first.toInt();
-        innerObj[kJsonValueProp] = static_cast<int>(value.second);
-        if (isForDebugLog) {
-            innerObj["protocolDesc"] = value.first.toLongString();
-            networkLastKnownGoodProtocolsObj[key] = innerObj;
-        } else {
-            networkLastKnownGoodProtocolsObj[Utils::toBase64(key)] = innerObj;
-        }
-    }
-    json[kJsonNetworkLastKnownGoodProtocolsProp] = networkLastKnownGoodProtocolsObj;
-
     QJsonObject networkPreferredProtocolsObj;
     for (const auto& key : networkPreferredProtocols.keys()) {
         const auto jsonKey = isForDebugLog ? key : Utils::toBase64(key);
@@ -530,6 +469,7 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
     json[kJsonProxySettingsProp] = proxySettings.toJson(isForDebugLog);
     json[kJsonTapAdapterProp] = static_cast<int>(tapAdapter);
     json[kJsonUpdateChannelProp] = static_cast<int>(updateChannel);
+
     if (isForDebugLog) {
         // For log readability by humans/AI.
         json["dnsManagerDesc"] = DNS_MANAGER_TYPE_toString(dnsManager);

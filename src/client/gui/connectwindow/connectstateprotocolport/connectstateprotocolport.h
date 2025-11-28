@@ -33,6 +33,7 @@ public:
     void setInternetConnectivity(bool connectivity);
     void setProtocolPort(const types::Protocol &protocol, const uint port);
     void setTestTunnelResult(bool success);
+    bool receivedTunnelTestResult() const;
     types::ProtocolStatus getProtocolStatus();
     bool isProtocolButtonVisible() const;
     void setProtocolButtonVisible(bool visible);

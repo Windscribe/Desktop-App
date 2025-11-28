@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include <dirent.h>
+#include <net/if.h>
 #include <skyr/core/parse.hpp>
 #include <skyr/core/serialize.hpp>
 #include <skyr/url.hpp>
@@ -21,9 +22,15 @@ int executeCommand(const std::string &cmd, const std::vector<std::string> &args,
     std::string cmdLine = cmd;
 
     for (auto it = args.begin(); it != args.end(); ++it) {
-        cmdLine += " \"";
-        cmdLine += *it;
-        cmdLine += "\"";
+        cmdLine += " '";
+        for (char c : *it) {
+            if (c == '\'') {
+                cmdLine += "'\\''";
+            } else {
+                cmdLine += c;
+            }
+        }
+        cmdLine += "'";
     }
 
     if (pOutputStr) {
@@ -187,6 +194,59 @@ bool isValidDomain(const std::string &address)
     return true;
 }
 
+bool isValidInterfaceName(const std::string &interfaceName)
+{
+    if (interfaceName.empty() || interfaceName.length() >= IFNAMSIZ) {
+        return false;
+    }
+
+    for (char c : interfaceName) {
+        if (c == '\0' || c == ':' || c == '/' || std::isspace(c)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool isValidMacAddress(const std::string &macAddress)
+{
+    if (macAddress.empty()) {
+        return false;
+    }
+
+    size_t len = macAddress.length();
+
+    if (len == 12) {
+        for (char c : macAddress) {
+            if (!std::isxdigit(c)) {
+                return false;
+            }
+        }
+        return true;
+    } else if (len == 17) {
+        char separator = macAddress[2];
+        if (separator != ':' && separator != '-') {
+            return false;
+        }
+
+        for (size_t i = 0; i < len; i++) {
+            if (i % 3 == 2) {
+                if (macAddress[i] != separator) {
+                    return false;
+                }
+            } else {
+                if (!std::isxdigit(macAddress[i])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    return false;
+}
+
 std::string normalizeAddress(const std::string &address)
 {
     std::string addr = address;
@@ -256,6 +316,11 @@ static std::vector<std::string> getInterfaceNames()
 
 static std::string getHwMac(const std::string &ifname)
 {
+    if (!isValidInterfaceName(ifname)) {
+        spdlog::error("Invalid interface name in getHwMac: {}", ifname);
+        return "";
+    }
+
     std::string output;
     Utils::executeCommand("ethtool", {"-P", ifname}, &output);
 
@@ -275,6 +340,11 @@ static std::string getHwMac(const std::string &ifname)
 
 static std::string getCurrentMac(const std::string &ifname)
 {
+    if (!isValidInterfaceName(ifname)) {
+        spdlog::error("Invalid interface name in getCurrentMac: {}", ifname);
+        return "";
+    }
+
     std::string output;
     Utils::executeCommand("cat", {"/sys/class/net/" + ifname + "/address"}, &output);
     // Remove trailing whitespace

@@ -144,6 +144,9 @@ void TabButton::showTooltip()
     ti.title = text_;
     ti.tailtype =  TOOLTIP_TAIL_LEFT;
     ti.tailPosPercent = 0.5;
+    ti.delay = 0;
+    ti.animate = true;
+    ti.animationSpeed = ANIMATION_SPEED_FAST;
     TooltipController::instance().showTooltipBasic(ti);
 }
 

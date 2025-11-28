@@ -2,6 +2,7 @@
 
 #include "commongraphics/baseitem.h"
 #include "commongraphics/iconbutton.h"
+#include "commongraphics/togglebutton.h"
 #include "types/splittunneling.h"
 
 namespace PreferencesWindow {
@@ -15,6 +16,7 @@ public:
 
     QString getAddressText();
     types::SplitTunnelingNetworkRoute getNetworkRoute();
+    bool isActive();
 
     void setSelected(bool selected) override;
     void updateScaling() override;
@@ -23,14 +25,17 @@ public:
 
 signals:
     void deleteClicked();
+    void activeChanged(bool active);
 
 private slots:
     void onDeleteButtonHoverEnter();
+    void onToggleChanged(bool checked);
 
 private:
     types::SplitTunnelingNetworkRoute route_;
     QString text_;
     IconButton *deleteButton_;
+    ToggleButton *toggleButton_;
 
     void updatePositions();
 };

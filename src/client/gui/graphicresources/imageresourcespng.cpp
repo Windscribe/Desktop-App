@@ -44,6 +44,9 @@ QSharedPointer<IndependentPixmap> ImageResourcesPng::getIndependentPixmap(const 
 bool ImageResourcesPng::loadFromResource(const QString &name)
 {
     QString filename = ":/png/" + name + ".png";
+    if (!QFile::exists(filename)) {
+        return false;
+    }
     QPixmap pixmap(filename);
     hashIndependent_[name] = QSharedPointer<IndependentPixmap>(new IndependentPixmap(pixmap));
     return true;

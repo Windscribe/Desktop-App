@@ -196,8 +196,8 @@ QStringList FirewallController_mac::lanTrafficRules(bool bAllowLanTraffic) const
     rules << action + " in quick inet from 172.16.0.0/12 to any";
     rules << action + " out quick inet from any to 169.254.0.0/16";
     rules << action + " in quick inet from 169.254.0.0/16 to any";
-    rules << "block out quick inet from any to 10.255.255.0/24";
-    rules << "block in quick inet from 10.255.255.0/24 to any";
+    rules << "pass out quick inet from any to 10.255.255.0/24";
+    rules << "pass in quick inet from 10.255.255.0/24 to any";
     rules << action + " out quick inet from any to 10.0.0.0/8";
     rules << action + " in quick inet from 10.0.0.0/8 to any";
 

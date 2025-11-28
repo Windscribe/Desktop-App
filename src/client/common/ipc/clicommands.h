@@ -14,6 +14,7 @@ namespace CliCommands
 enum class LocationType {
     kRegular = 0,
     kStaticIp = 1,
+    kFavourite = 2,
 };
 
 enum class LocationFlags {
@@ -27,23 +28,24 @@ struct IpcLocation {
     QString country;
     QString city;
     QString nickname;
+    QString pinnedIp;
     int flags;
 
     IpcLocation() : flags(0) {}
-    IpcLocation(const QString &country_, const QString &city_, const QString &nickname_, int flags_ = 0)
-        : country(country_), city(city_), nickname(nickname_), flags(flags_) {}
+    IpcLocation(const QString &country_, const QString &city_, const QString &nickname_, const QString &pinnedIp_ = QString(), int flags_ = 0)
+        : country(country_), city(city_), nickname(nickname_), pinnedIp(pinnedIp_), flags(flags_) {}
 };
 
 // QDataStream operators for serialization
 inline QDataStream &operator<<(QDataStream &stream, const IpcLocation &location)
 {
-    stream << location.country << location.city << location.nickname << location.flags;
+    stream << location.country << location.city << location.nickname << location.pinnedIp << location.flags;
     return stream;
 }
 
 inline QDataStream &operator>>(QDataStream &stream, IpcLocation &location)
 {
-    stream >> location.country >> location.city >> location.nickname >> location.flags;
+    stream >> location.country >> location.city >> location.nickname >> location.pinnedIp >> location.flags;
     return stream;
 }
 
@@ -73,7 +75,7 @@ public:
     }
     static std::string getCommandStringId() { return "CliCommands::Acknowledge";  }
 
-    int code_;
+    int code_ = 0;
     QString message_;
 };
 
@@ -459,6 +461,82 @@ public:
 
     bool keyLimitDelete_;
 };
+
+class RotateIp : public Command
+{
+public:
+    RotateIp() {}
+    explicit RotateIp(char *buf, int size)
+    {
+        Q_UNUSED(buf)
+        Q_UNUSED(size)
+    }
+
+    std::vector<char> getData() const override
+    {
+        return std::vector<char>();
+    }
+
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "CliCommands::RotateIp debug string";
+    }
+    static std::string getCommandStringId() { return "CliCommands::RotateIp";  }
+};
+
+class FavIp : public Command
+{
+public:
+    FavIp() {}
+    explicit FavIp(char *buf, int size)
+    {
+        Q_UNUSED(buf)
+        Q_UNUSED(size)
+    }
+
+    std::vector<char> getData() const override
+    {
+        return std::vector<char>();
+    }
+
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "CliCommands::FavIp debug string";
+    }
+    static std::string getCommandStringId() { return "CliCommands::FavIp";  }
+};
+
+class UnfavIp : public Command
+{
+public:
+    UnfavIp() {}
+    explicit UnfavIp(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> ip_;
+    }
+
+    std::vector<char> getData() const override
+    {
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << ip_;
+        return std::vector<char>(arr.begin(), arr.end());
+    }
+
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "CliCommands::UnfavIp debug string";
+    }
+    static std::string getCommandStringId() { return "CliCommands::UnfavIp";  }
+
+    QString ip_;
+};
+
 
 } // namespace CliCommands
 } // namespace IPC

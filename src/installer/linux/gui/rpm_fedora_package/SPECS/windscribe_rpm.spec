@@ -47,6 +47,7 @@ Requires:	iputils
 Requires:	psmisc
 Requires:	libxkbcommon-x11
 Requires:	coreutils
+Requires:	desktop-file-utils
 
 %description
 Windscribe client.

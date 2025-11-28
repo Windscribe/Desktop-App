@@ -25,11 +25,14 @@ public:
     QString getVerifyX509name() const override;
     QString getLogString() const override;
 
+    QStringList getHostnames() const;
+
     int nodesCount() const;
     QString getIpForNode(int indNode, int indIp) const;
 
     void selectNextNode();
     void selectNodeByIp(const QString &addr);
+    bool selectNodeByHostname(const QString &hostname);
 
     QString getIpForSelectedNode(int indIp) const;
     QString getHostnameForSelectedNode() const;

@@ -19,10 +19,14 @@ IKEv2Connection_win *IKEv2Connection_win::this_ = NULL;
 bool IKEv2Connection_win::wanReinstalled_ = false;
 
 
-IKEv2Connection_win::IKEv2Connection_win(QObject *parent, Helper *helper) : IConnection(parent),
-    state_(STATE_DISCONNECTED), helper_(helper), initialEnableIkev2Compression_(false),
-    isAutomaticConnectionMode_(false), connHandle_(NULL),
-    disconnectLogic_(this), cntFailedConnectionAttempts_(0)
+IKEv2Connection_win::IKEv2Connection_win(QObject *parent, Helper *helper)
+    : IConnection(parent),
+      state_(STATE_DISCONNECTED),
+      helper_(helper),
+      initialEnableIkev2Compression_(false),
+      connHandle_(NULL),
+      disconnectLogic_(this),
+      cntFailedConnectionAttempts_(0)
 {
     WS_ASSERT(this_ == NULL);
     this_ = this;
@@ -38,7 +42,9 @@ IKEv2Connection_win::~IKEv2Connection_win()
     this_ = NULL;
 }
 
-void IKEv2Connection_win::startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName, const QString &username, const QString &password, const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isAutomaticConnectionMode, bool isCustomConfig, const QString &overrideDnsIp)
+void IKEv2Connection_win::startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName, const QString &username,
+                                       const QString &password, const types::ProxySettings &proxySettings, const WireGuardConfig *wireGuardConfig,
+                                       bool isEnableIkev2Compression, bool isCustomConfig, const QString &overrideDnsIp)
 {
     Q_UNUSED(dnsHostName);
     Q_UNUSED(proxySettings);
@@ -55,7 +61,6 @@ void IKEv2Connection_win::startConnect(const QString &configOrUrl, const QString
     initialUsername_ = username;
     initialPassword_ = password;
     initialEnableIkev2Compression_ = isEnableIkev2Compression;
-    isAutomaticConnectionMode_ = isAutomaticConnectionMode;
 
     cntFailedConnectionAttempts_ = 0;
 
@@ -206,8 +211,7 @@ void IKEv2Connection_win::handleErrorReinstallWan()
     QMutexLocker locker(&mutex_);
 
     // skip dispatch if we disconnecting
-    if (state_ == STATE_DISCONNECTING)
-    {
+    if (state_ == STATE_DISCONNECTING) {
         return;
     }
 
@@ -223,90 +227,30 @@ void IKEv2Connection_win::handleErrorReinstallWan()
     // no harm elsewhere.
     removeIkev2ConnectionFromOS();
 
-    if (isAutomaticConnectionMode_)
-    {
-        cntFailedConnectionAttempts_++;
-
-        if (cntFailedConnectionAttempts_ >= (MAX_FAILED_CONNECTION_ATTEMPTS_FOR_AUTOMATIC_MODE))
-        {
-            state_ = STATE_DISCONNECTED;
-            emit error(CONNECT_ERROR::IKEV_FAILED_TO_CONNECT);
-        }
-        else
-        {
-            if (WinUtils::isWindows10orGreater())
-            {
-                if (CheckAdapterEnable::isAdapterDisabled(helper_, "WAN Miniport (IKEv2)") || CheckAdapterEnable::isAdapterDisabled(helper_, "WAN Miniport (IP)"))
-                {
-                    qCInfo(LOG_IKEV2) << "WAN Miniport (IKEv2) or WAN Miniport (IP) disabled, try enable it";
-                    helper_->enableWanIkev2();
-                    // pause 3 secs, before connect
-                    QThread::msleep(3000);
-                    doConnect();
-                }
-                else
-                {
-                    if (!wanReinstalled_)
-                    {
-                        helper_->reinstallWanIkev2();
-                        wanReinstalled_ = true;
-                        qCInfo(LOG_IKEV2) << "Reinstalled Wan IKEv2";
-                        // pause 3 secs, before connect
-                        QThread::msleep(3000);
-                        doConnect();
-                    }
-                    else
-                    {
-                        state_ = STATE_DISCONNECTED;
-                        emit error(CONNECT_ERROR::IKEV_FAILED_TO_CONNECT);
-                    }
-                }
-            }
-            else
-            {
-                doConnect();
-            }
-        }
+    cntFailedConnectionAttempts_++;
+    if (cntFailedConnectionAttempts_ >= MAX_FAILED_CONNECTION_ATTEMPTS) {
+        state_ = STATE_DISCONNECTED;
+        emit error(CONNECT_ERROR::IKEV_FAILED_TO_CONNECT);
+        return;
     }
-    else
-    {
-        cntFailedConnectionAttempts_++;
 
-        if (cntFailedConnectionAttempts_ == (MAX_FAILED_CONNECTION_ATTEMPTS - 1))
-        {
-            if (WinUtils::isWindows10orGreater() && !wanReinstalled_)
-            {
-                helper_->reinstallWanIkev2();
-                wanReinstalled_ = true;
-                qCInfo(LOG_IKEV2) << "Reinstalled Wan IKEv2";
-                // pause 3 secs, before connect
-                QThread::msleep(3000);
-                doConnect();
-            }
-            else
-            {
-                state_ = STATE_DISCONNECTED;
-                emit error(CONNECT_ERROR::IKEV_FAILED_TO_CONNECT);
-            }
-        }
-        else if (cntFailedConnectionAttempts_ >= MAX_FAILED_CONNECTION_ATTEMPTS)
-        {
+    if (CheckAdapterEnable::isAdapterDisabled(helper_, "WAN Miniport (IKEv2)") || CheckAdapterEnable::isAdapterDisabled(helper_, "WAN Miniport (IP)")) {
+        qCInfo(LOG_IKEV2) << "WAN Miniport (IKEv2) or WAN Miniport (IP) disabled, try enable it";
+        helper_->enableWanIkev2();
+        // pause 3 secs, before connect
+        QThread::msleep(3000);
+        doConnect();
+    } else {
+        if (!wanReinstalled_) {
+            helper_->reinstallWanIkev2();
+            wanReinstalled_ = true;
+            qCInfo(LOG_IKEV2) << "Reinstalled Wan IKEv2";
+            // pause 3 secs, before connect
+            QThread::msleep(3000);
+            doConnect();
+        } else {
             state_ = STATE_DISCONNECTED;
             emit error(CONNECT_ERROR::IKEV_FAILED_TO_CONNECT);
-        }
-        else
-        {
-            if (WinUtils::isWindows10orGreater())
-            {
-                if (CheckAdapterEnable::isAdapterDisabled(helper_, "WAN Miniport (IKEv2)") || CheckAdapterEnable::isAdapterDisabled(helper_, "WAN Miniport (IP)"))
-                {
-                    qCInfo(LOG_IKEV2) << "WAN Miniport (IKEv2) or WAN Miniport (IP) disabled, try enable it";
-                    helper_->enableWanIkev2();
-                    // pause 3 secs, before connect
-                    QThread::msleep(3000);
-                }
-            }
-            doConnect();
         }
     }
 }

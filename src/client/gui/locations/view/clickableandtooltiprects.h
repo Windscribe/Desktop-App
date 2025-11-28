@@ -14,7 +14,8 @@ enum class TooltipRect {
 
 enum class ClickableRect {
     kNone = -1,
-    kFavorite
+    kFavorite,
+    kErrorIcon
 };
 
 } // namespace gui

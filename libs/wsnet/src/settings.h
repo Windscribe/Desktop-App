@@ -115,6 +115,8 @@ public:
 
     std::string serverSharedKey() const { return OBFUSCATED("952b4412f002315aa50751032fcaab03"); }
 
+    std::string bridgeApiAddress() const { return "10.255.255.1:19800"; };
+
 private:
     Settings() {};
     bool isUseStaging_ = false;

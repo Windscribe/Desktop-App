@@ -3,15 +3,21 @@
 #include <QPainter>
 #include <QCursor>
 #include <QGraphicsSceneMouseEvent>
+#include <QGraphicsSceneHoverEvent>
 #include "commongraphics/commongraphics.h"
 #include "dpiscalemanager.h"
+#include "graphicresources/imageresourcessvg.h"
 
 namespace CommonGraphics {
 
 ResizeBar::ResizeBar(ScalableGraphicsObject *parent) : ScalableGraphicsObject(parent),
-    bDragPressed_(false)
+    bDragPressed_(false),
+    iconOpacity_(0.5)
 {
     setCursor(Qt::SizeVerCursor);
+    setAcceptHoverEvents(true);
+
+    connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &ResizeBar::onOpacityChanged);
 }
 
 QRectF ResizeBar::boundingRect() const
@@ -19,16 +25,24 @@ QRectF ResizeBar::boundingRect() const
     return QRectF(0, 0, 30*G_SCALE, 9*G_SCALE);
 }
 
+QRectF ResizeBar::getIconRect() const
+{
+    QSharedPointer<IndependentPixmap> footerIcon = ImageResourcesSvg::instance().getIndependentPixmap("FOOTER");
+    qreal x = boundingRect().center().x() - footerIcon->width() / 2;
+    qreal y = boundingRect().center().y() - footerIcon->height() / 2;
+    return QRectF(x, y, footerIcon->width(), footerIcon->height());
+}
+
 void ResizeBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QRectF rc = boundingRect().adjusted(3*G_SCALE, 3*G_SCALE, -3*G_SCALE, -3*G_SCALE);
-
-    painter->fillRect(rc.adjusted(0, 0, 0, -2*G_SCALE), QBrush(QColor(53, 61, 74)));
-    painter->fillRect(rc.adjusted(0, 1*G_SCALE, 0, -1*G_SCALE), QBrush(QColor(93, 100, 110)));
-    painter->fillRect(rc.adjusted(0, 2*G_SCALE, 0, 0), QBrush(QColor(79, 87, 97)));
+    QSharedPointer<IndependentPixmap> footerIcon = ImageResourcesSvg::instance().getIndependentPixmap("FOOTER");
+    painter->setOpacity(iconOpacity_);
+    footerIcon->draw(boundingRect().center().x() - footerIcon->width() / 2,
+                     boundingRect().center().y() - footerIcon->height() / 2,
+                     painter);
 }
 
 void ResizeBar::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -57,6 +71,29 @@ void ResizeBar::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         emit resizeFinished();
     }
     bDragPressed_ = false;
+}
+
+void ResizeBar::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event);
+    startAnAnimation<double>(opacityAnimation_, iconOpacity_, 1.0, ANIMATION_SPEED_FAST);
+}
+
+void ResizeBar::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+void ResizeBar::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event);
+    startAnAnimation<double>(opacityAnimation_, iconOpacity_, 0.5, ANIMATION_SPEED_FAST);
+}
+
+void ResizeBar::onOpacityChanged(const QVariant &value)
+{
+    iconOpacity_ = value.toDouble();
+    update();
 }
 
 } // namespace CommonGraphics

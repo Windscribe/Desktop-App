@@ -61,6 +61,18 @@
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
         <translation>断开连接时保持防火墙开启可能会中断 Internet 连接</translation>
     </message>
+    <message>
+        <source>Favourite IP</source>
+        <translation>最喜欢的 IP</translation>
+    </message>
+    <message>
+        <source>Rotate IP</source>
+        <translation>轮换 IP</translation>
+    </message>
+    <message>
+        <source>FIREWALL</source>
+        <translation>防火墙</translation>
+    </message>
 </context>
 <context>
     <name>ConnectWindow::LocationsButton</name>
@@ -80,16 +92,16 @@
         <translation>静态 IP</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>收藏夹</translation>
-    </message>
-    <message>
         <source>Search</source>
         <translation>搜索</translation>
     </message>
     <message>
         <source>Custom configs</source>
         <translation>自定义配置</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>最爱</translation>
     </message>
 </context>
 <context>
@@ -256,32 +268,28 @@
         <translation>暂无位置</translation>
     </message>
     <message>
-        <source>Buy</source>
-        <translation>购买</translation>
+        <source>ALL LOCATIONS</source>
+        <translation>所有地点</translation>
     </message>
     <message>
-        <source>All locations (%1)</source>
-        <translation>所有位置 （%1）</translation>
+        <source>FAVOURITES</source>
+        <translation>最爱</translation>
     </message>
     <message>
-        <source>Favourites</source>
-        <translation>收藏夹</translation>
+        <source>STATIC IPs</source>
+        <translation>静态IP</translation>
     </message>
     <message>
-        <source>Static IPs</source>
-        <translation>静态 IP</translation>
-    </message>
-    <message>
-        <source>Custom configs</source>
+        <source>CUSTOM CONFIGs</source>
         <translation>自定义配置</translation>
     </message>
     <message>
-        <source>Search</source>
+        <source>SEARCH</source>
         <translation>搜索</translation>
     </message>
     <message>
-        <source>Refresh Pings</source>
-        <translation>刷新 Ping</translation>
+        <source>Add</source>
+        <translation>加</translation>
     </message>
 </context>
 <context>
@@ -653,42 +661,6 @@ Recovering...</source>
         <translation>选择一个应用程序</translation>
     </message>
     <message>
-        <source>Connect</source>
-        <translation>连接</translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation>断开</translation>
-    </message>
-    <message>
-        <source>Locations</source>
-        <translation>地点</translation>
-    </message>
-    <message>
-        <source>Favourites</source>
-        <translation>收藏夹</translation>
-    </message>
-    <message>
-        <source>Static IPs</source>
-        <translation>静态 IP</translation>
-    </message>
-    <message>
-        <source>Show/Hide</source>
-        <translation>显示/隐藏</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>偏好</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>帮助</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>退出</translation>
-    </message>
-    <message>
         <source>Read-only file</source>
         <translation>只读文件</translation>
     </message>
@@ -905,8 +877,40 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>无法启动自定义 DNS 服务，端口 53 已在使用中。是否要将已连接的 DNS 更改为本地服务器？</translation>
     </message>
     <message>
-        <source>Custom configs</source>
-        <translation>自定义配置</translation>
+        <source>Could not pin IP</source>
+        <translation>无法固定 IP</translation>
+    </message>
+    <message>
+        <source>We could not set your favourite IP for this location.  Try again later.</source>
+        <translation>我们无法为此位置设置您最喜欢的 IP。 稍后再试。</translation>
+    </message>
+    <message>
+        <source>Could not rotate IP</source>
+        <translation>无法轮换 IP</translation>
+    </message>
+    <message>
+        <source>Try again later or go to our Status page for more info.</source>
+        <translation>稍后重试或转到我们的状态页面了解更多信息。</translation>
+    </message>
+    <message>
+        <source>Check Location Status</source>
+        <translation>检查位置状态</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation>返回</translation>
+    </message>
+    <message>
+        <source>Manual connection mode failed</source>
+        <translation>手动连接模式失败</translation>
+    </message>
+    <message>
+        <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
+        <translation>我们无法通过这个网络连接你。建议使用自动连接模式以获得最佳效果。把连接模式切换到自动？</translation>
+    </message>
+    <message>
+        <source>Switch to Auto</source>
+        <translation>切换到自动挡</translation>
     </message>
 </context>
 <context>
@@ -1206,6 +1210,18 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Using a LAN or local IP address for connected DNS will result in a DNS leak.  We strongly recommend using ROBERT or a public DNS server.</source>
         <translation>使用本地 DNS 服务器可能导致 DNS 泄漏。我们强烈建议使用 ROBERT 或公有 DNS 服务器。</translation>
+    </message>
+    <message>
+        <source>API Key</source>
+        <translation>API 密钥</translation>
+    </message>
+    <message>
+        <source>Failed to reach Control D API.</source>
+        <translation>无法访问控制 D API。</translation>
+    </message>
+    <message>
+        <source>Please provide a valid Control D API Key.</source>
+        <translation>请提供有效的控制 D API 密钥。</translation>
     </message>
 </context>
 <context>
@@ -1529,14 +1545,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Windscribe 最小化到菜单栏，不再出现在 Dock 栏中。</translation>
     </message>
     <message>
-        <source>Choose between white and black tray icon.</source>
-        <translation>在白色和黑色托盘图标之间进行选择。</translation>
-    </message>
-    <message>
-        <source>Tray Icon Colour</source>
-        <translation>托盘图标颜色</translation>
-    </message>
-    <message>
         <source>Multi-desktop</source>
         <translation>多桌面</translation>
     </message>
@@ -1645,6 +1653,14 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Reset</source>
         <translation>重置</translation>
+    </message>
+    <message>
+        <source>Choose between white and black tray icon.</source>
+        <translation>在白色和黑色托盘图标之间进行选择。</translation>
+    </message>
+    <message>
+        <source>Tray Icon Colour</source>
+        <translation>托盘图标颜色</translation>
     </message>
 </context>
 <context>
@@ -2199,6 +2215,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
         <translation>在 VPN 隧道中包含或排除应用和主机名。</translation>
     </message>
+    <message>
+        <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
+        <translation>该功能必须启用 Windscribe 分体隧道系统扩展。请在系统设置中启用它。</translation>
+    </message>
 </context>
 <context>
     <name>ProtocolWindow::ProtocolLineItem</name>
@@ -2472,6 +2492,10 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Custom configs</source>
         <translation>自定义配置</translation>
     </message>
+    <message>
+        <source>Random IP</source>
+        <translation>随机 IP</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
@@ -2504,6 +2528,49 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Secure Hotspot</source>
         <translation>安全热点</translation>
+    </message>
+</context>
+<context>
+    <name>TrayIcon</name>
+    <message>
+        <source>Connect</source>
+        <translation>连接</translation>
+    </message>
+    <message>
+        <source>Disconnect</source>
+        <translation>断开</translation>
+    </message>
+    <message>
+        <source>Locations</source>
+        <translation>地点</translation>
+    </message>
+    <message>
+        <source>Static IPs</source>
+        <translation>静态 IP</translation>
+    </message>
+    <message>
+        <source>Custom configs</source>
+        <translation>自定义配置</translation>
+    </message>
+    <message>
+        <source>Show/Hide</source>
+        <translation>显示/隐藏</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>偏好</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation>帮助</translation>
+    </message>
+    <message>
+        <source>Quit Windscribe</source>
+        <translation>退出风书记</translation>
+    </message>
+    <message>
+        <source>Favourites</source>
+        <translation>最爱</translation>
     </message>
 </context>
 <context>

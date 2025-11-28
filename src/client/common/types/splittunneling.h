@@ -83,6 +83,7 @@ struct SplitTunnelingNetworkRoute
 {
     SPLIT_TUNNELING_NETWORK_ROUTE_TYPE type = SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP;
     QString name;
+    bool active = true;
 
     SplitTunnelingNetworkRoute() : type(SPLIT_TUNNELING_NETWORK_ROUTE_TYPE_IP) {}
 
@@ -98,12 +99,19 @@ struct SplitTunnelingNetworkRoute
                 name = str;
             }
         }
+
+        if (json.contains(kJsonActiveProp) && json[kJsonActiveProp].isBool()) {
+            active = json[kJsonActiveProp].toBool();
+        } else {
+            active = true;
+        }
     }
 
     bool operator==(const SplitTunnelingNetworkRoute &other) const
     {
         return other.type == type &&
-               other.name == name;
+               other.name == name &&
+               other.active == active;
     }
 
     bool operator!=(const SplitTunnelingNetworkRoute &other) const
@@ -116,13 +124,14 @@ struct SplitTunnelingNetworkRoute
         QJsonObject json;
         json[kJsonTypeProp] = static_cast<int>(type);
         json[kJsonNameProp] = name;
+        json[kJsonActiveProp] = active;
         return json;
     }
 
     friend QDataStream& operator <<(QDataStream &stream, const SplitTunnelingNetworkRoute &o)
     {
         stream << versionForSerialization_;
-        stream << o.type << o.name;
+        stream << o.type << o.name << o.active;
         return stream;
     }
 
@@ -135,14 +144,21 @@ struct SplitTunnelingNetworkRoute
             return stream;
         }
         stream >> o.type >> o.name;
+
+        if (version >= 2) {
+            stream >> o.active;
+        } else {
+            o.active = true;
+        }
         return stream;
     }
 
 private:
     static const inline QString kJsonTypeProp = "type";
     static const inline QString kJsonNameProp = "name";
+    static const inline QString kJsonActiveProp = "active";
 
-    static constexpr quint32 versionForSerialization_ = 1;  // should increment the version if the data format is changed
+    static constexpr quint32 versionForSerialization_ = 2;  // should increment the version if the data format is changed
 };
 
 struct SplitTunnelingApp
@@ -170,6 +186,8 @@ struct SplitTunnelingApp
 
         if (json.contains(kJsonActiveProp) && json[kJsonActiveProp].isBool()) {
             active = json[kJsonActiveProp].toBool();
+        } else {
+            active = true;
         }
 
         if (json.contains(kJsonIconProp) && json[kJsonIconProp].isString()) {
@@ -181,7 +199,7 @@ struct SplitTunnelingApp
         }
     }
 
-    bool active = false;
+    bool active = true;
     QString fullName;   // path + name
     QString name;
     QString icon;
@@ -371,7 +389,9 @@ struct SplitTunneling
 
         QStringList appsList;
         for (auto app : apps) {
-            appsList << app.fullName;
+            if (app.active) {
+                appsList << app.fullName;
+            }
         }
         if (appsList.isEmpty()) {
             s.setValue(kIniSplitTunnelingAppsProp, "");
@@ -381,7 +401,9 @@ struct SplitTunneling
 
         QStringList routesList;
         for (auto route : networkRoutes) {
-            routesList << route.name;
+            if (route.active) {
+                routesList << route.name;
+            }
         }
         if (routesList.isEmpty()) {
             s.setValue(kIniSplitTunnelingRoutesProp, "");

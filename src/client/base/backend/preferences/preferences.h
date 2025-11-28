@@ -7,6 +7,7 @@
 #include "types/connecteddnsinfo.h"
 #include "types/enginesettings.h"
 #include "types/guisettings.h"
+#include "types/locationid.h"
 
 // all preferences with the ability to receive signals when certain preferences are changed
 class Preferences : public QObject
@@ -93,7 +94,7 @@ public:
 #endif
 
     bool isAntiCensorship() const;
-    void setAntiCensorship(bool b);
+    void setAntiCensorship(bool bEnabled);
 
     const types::ShareSecureHotspot &shareSecureHotspot() const;
     void setShareSecureHotspot(const types::ShareSecureHotspot &ss);
@@ -159,11 +160,6 @@ public:
     bool isShowLocationLoad() const;
     void setShowLocationLoad(bool b);
 
-    types::Protocol networkLastKnownGoodProtocol(const QString &network) const;
-    uint networkLastKnownGoodPort(const QString &network) const;
-    void setNetworkLastKnownGoodProtocolPort(const QString &network, const types::Protocol &protocol, uint port);
-    void clearLastKnownGoodProtocols(const QString &network = "");
-
     QJsonObject toJson() const;
     void updateFromJson(const QJsonObject& ob);
 
@@ -216,7 +212,6 @@ signals:
     void networkPreferredProtocolsChanged(QMap<QString, types::ConnectionSettings> p);
     void splitTunnelingChanged(types::SplitTunneling st);
     void keepAliveChanged(bool b);
-    void networkLastKnownGoodProtocolPortChanged(const QString &network, const types::Protocol &protocol, uint port);
 
     // emit if any of the engine options have changed
     // don't emit in setEngineSettings()
@@ -229,7 +224,6 @@ private:
     types::GuiSettings guiSettings_;
 
     bool isSettingEngineSettings_;
-    QMap<QString, QTimer *> timers_;
 
     void emitEngineSettingsChanged();
 

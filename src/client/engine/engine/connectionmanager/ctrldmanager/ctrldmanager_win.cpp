@@ -4,6 +4,7 @@
 #include <QStandardPaths>
 #include "utils/log/logger.h"
 #include "utils/ws_assert.h"
+#include "utils/winutils.h"
 #include "../availableport.h"
 #include "utils/executable_signature/executable_signature.h"
 
@@ -137,5 +138,13 @@ QString CtrldManager_win::getAvailableIp()
         return listenIp_;
     }
     return "";
+}
+
+void CtrldManager_win::terminateWindscribeCtrldProcesses()
+{
+    QString taskkillPath = WinUtils::getSystemDir() + "\\taskkill.exe";
+    QProcess process;
+    process.start(taskkillPath, QStringList() << "/f" << "/t" << "/im" << "windscribectrld.exe");
+    process.waitForFinished(2000);
 }
 

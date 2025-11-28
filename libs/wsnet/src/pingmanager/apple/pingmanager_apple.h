@@ -23,6 +23,7 @@ private:
     std::thread thread_;
     std::mutex mutex_;
     void* runLoop_;  // CFRunLoopRef
+    void* shutdownMsg_;  // CFRunLoopSourceRef
     std::condition_variable runLoopReady_;
     bool isRunLoopReady_ = false;
 
@@ -36,6 +37,7 @@ private:
     std::map<std::uint64_t, ActivePing> activePings_;
     void run();
     void callback(int timeMs, std::uint64_t id);
+    static void receiveShutdownMsgCallback(void* info);
 };
 
 

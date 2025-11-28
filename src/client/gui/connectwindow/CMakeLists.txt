@@ -17,6 +17,8 @@ target_sources(gui PRIVATE
     connectstateprotocolport/connectstateprotocolport.h
     connectwindowitem.cpp
     connectwindowitem.h
+    iputilsmenu.cpp
+    iputilsmenu.h
     ipaddressitem/ipaddressitem.cpp
     ipaddressitem/ipaddressitem.h
     ipaddressitem/numberitem.cpp

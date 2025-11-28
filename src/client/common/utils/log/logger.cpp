@@ -129,7 +129,8 @@ void Logger::myMessageHandler(QtMsgType type, const QMessageLogContext &context,
     // Skip some of the non-value warnings of the Qt library.
     static QStringList pointlessStrings = {
         "parseIconEntryInfo(): Failed, OSType doesn't match:",
-        "OpenType support missing for"
+        "OpenType support missing for",
+        "This plugin does not support setting window opacity",
     };
 
     if (type == QtMsgType::QtInfoMsg || type == QtMsgType::QtWarningMsg) {

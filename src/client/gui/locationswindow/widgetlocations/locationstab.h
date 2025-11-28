@@ -9,11 +9,9 @@
 
 #include "backend/preferences/preferences.h"
 #include "commonwidgets/custommenulineedit.h"
-#include "commonwidgets/textbuttonwidget.h"
 #include "configfooterinfo.h"
 #include "locations/locationsmodel_manager.h"
 #include "staticipdeviceinfo.h"
-#include "types/connectstate.h"
 #include "upgradebanner.h"
 #include "widgetswitcher.h"
 
@@ -42,15 +40,10 @@ public:
 public slots:
     void setCustomConfigsPath(QString path);
     void setShowLocationLoad(bool showLocationLoad);
-    void onConnectStateChanged(const types::ConnectState &connectState);
-    void onPingsStarted();
-    void onPingsFinished();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void leaveEvent(QEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 signals:
     void selected(LocationID id);
@@ -59,7 +52,6 @@ signals:
     void clearCustomConfigClicked();
     void addCustomConfigClicked();
     void upgradeBannerClicked();
-    void refreshClicked();
 
 public slots:
     void onClickAllLocations();
@@ -88,15 +80,6 @@ private:
     WidgetSwitcher *widgetFavoriteLocations_;
     WidgetSwitcher *widgetSearchLocations_;
 
-    QString refreshButtonText_;
-    QRect refreshButtonRect_;
-    QVariantAnimation *refreshButtonColorAnimation_;
-    QColor refreshButtonColor_;
-    double refreshButtonAnimationProgress_;
-    bool pingsActive_;
-    QVariantAnimation *spinnerRotationAnimation_;
-    double currentSpinnerRotation_;
-
     // ribbons
     StaticIPDeviceInfo *staticIPDeviceInfo_;
     ConfigFooterInfo *configFooterInfo_;
@@ -116,7 +99,6 @@ private:
     static constexpr int FIRST_TAB_ICON_POS_X = 106;
     static constexpr int LAST_TAB_ICON_POS_X = 300;
 
-    CONNECT_STATE connectState_;
     int countOfVisibleItemSlots_;
     int currentLocationListHeight_;
     bool isRibbonVisible_;
@@ -129,7 +111,6 @@ private:
     void updateRibbonVisibility();
 
     WidgetSwitcher *getCurrentWidget() const;
-    bool isRefreshButtonVisible() const;
 };
 
 } // namespace GuiLocations

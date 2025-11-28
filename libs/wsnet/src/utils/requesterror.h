@@ -19,6 +19,8 @@ public:
     bool isCurlError() const override;
     std::string toString() const override;
     bool isNoNetworkError() const override;
+    int httpResponseCode() const override;
+    void setHttpResponseCode(int httpResponseCode);
 
     static std::shared_ptr<WSNetRequestError> createCaresSuccess();
     static std::shared_ptr<WSNetRequestError> createCaresTimeout();
@@ -26,6 +28,7 @@ public:
 private:
     int errorCode_;
     RequestErrorType type_;
+    int httpResponseCode_;
 
     // errno number from last connect failure
     // the number is OS and system specific

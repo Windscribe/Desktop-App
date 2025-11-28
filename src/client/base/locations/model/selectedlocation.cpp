@@ -33,6 +33,7 @@ void SelectedLocation::clear()
     firstName_.clear();
     secondName_.clear();
     countryCode_.clear();
+    shortName_.clear();
     pingTime_ = PingTime::NO_PING_INFO;
 }
 
@@ -80,6 +81,7 @@ void SelectedLocation::fillData()
     firstName_ = selIndex_.data().toString();
     secondName_ = selIndex_.data(Roles::kDisplayNickname).toString();
     countryCode_ = selIndex_.data(Roles::kCountryCode).toString();
+    shortName_ = selIndex_.data(Roles::kShortName).toString();
     pingTime_ = selIndex_.data(Roles::kPingTime).toInt();
 }
 
@@ -90,6 +92,8 @@ void SelectedLocation::setInvalid()
     prevId_ = LocationID();
     firstName_.clear();
     secondName_.clear();
+    countryCode_.clear();
+    shortName_.clear();
     pingTime_ = PingTime::NO_PING_INFO;
 }
 
