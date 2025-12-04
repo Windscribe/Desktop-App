@@ -92,6 +92,7 @@ MainWindow::MainWindow() :
     downloadRunning_(false),
     ignoreUpdateUntilNextRun_(false),
     userProtocolOverride_(false),
+    askedAboutPreferredProtocol_(false),
     sendDebugLogOnDisconnect_(false),
     receivedInitialIpAfterConnect_(false)
 {
@@ -1935,6 +1936,7 @@ void MainWindow::onBackendSessionStatusChanged(const api_responses::SessionStatu
     bool bEntryIsPresent = multipleAccountDetection_->entryIsPresent(entryUsername);
     if (bEntryIsPresent && (!sessionStatus.isPremium()) && sessionStatus.getAlc().size() == 0 && sessionStatus.getStatus() == 1 && entryUsername != sessionStatus.getUsername()) {
         status = 2;
+        qCInfo(LOG_BASIC) << "Multiple account detected - previous username:" << entryUsername << ", current username:" << sessionStatus.getUsername();
         blockConnect_.setBlockedMultiAccount(entryUsername);
     } else if (bEntryIsPresent && entryUsername == sessionStatus.getUsername() && sessionStatus.getStatus() == 1) {
         multipleAccountDetection_->removeEntry();
@@ -2193,6 +2195,7 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
 
         mainWindowController_->getProtocolWindow()->resetProtocolStatus();
         userProtocolOverride_ = false;
+        askedAboutPreferredProtocol_ = false;
 
         if (sendDebugLogOnDisconnect_) {
             sendDebugLogOnDisconnect_ = false;
@@ -2504,12 +2507,13 @@ void MainWindow::onBackendTestTunnelResult(bool success)
         bool isFailover = defaultProtocol != ps.protocol && isAutoMode;
 
         // User manually selected a protocol or we failed over to a different protocol for the first time.
-        // Ask if they want to save
-        if (userProtocolOverride_ || isFailover) {
+        // Ask if they want to save (but only ask once per connection)
+        if ((userProtocolOverride_ || isFailover) && !askedAboutPreferredProtocol_) {
             if (!backend_->getPreferences()->hasNetworkPreferredProtocol(curNetwork_.networkOrSsid) ||
                 backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol() != ps.protocol ||
                 backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port() != ps.port)
             {
+                askedAboutPreferredProtocol_ = true;
                 QString title = QString(tr("Set “%1” as preferred protocol?")).arg(ps.protocol.toLongString());
                 GeneralMessageController::instance().showMessage("WARNING_WHITE",
                                                                     title,

@@ -131,6 +131,7 @@ void Logger::myMessageHandler(QtMsgType type, const QMessageLogContext &context,
         "parseIconEntryInfo(): Failed, OSType doesn't match:",
         "OpenType support missing for",
         "This plugin does not support setting window opacity",
+        "Unable to open monitor interface to"
     };
 
     if (type == QtMsgType::QtInfoMsg || type == QtMsgType::QtWarningMsg) {

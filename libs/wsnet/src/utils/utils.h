@@ -110,4 +110,29 @@ T randomizeList(const T &list)
     return result;
 }
 
+// Removes whitespace on the left
+inline std::string ltrim(const std::string &s)
+{
+    auto it = std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    });
+    return std::string(it, s.end());
 }
+
+// Removes whitespace on the right
+inline std::string rtrim(const std::string &s)
+{
+    auto it = std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    });
+    return std::string(s.begin(), it.base());
+}
+
+// Removes whitespace from both sides
+inline std::string trim(const std::string &s)
+{
+    return ltrim(rtrim(s));
+}
+
+}
+

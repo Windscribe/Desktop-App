@@ -95,9 +95,12 @@ public:
             return "assets";
     }
 
-    std::string serverTunnelTestSubdomain() const
+    std::vector<std::string> tunnelTestEndpoints() const
     {
-        return "checkip";
+        std::vector<std::string> list;
+        list.push_back("checkip.windscribe.com");
+        list.push_back("checkip-fly.windscribe.com");
+        return list;
     }
 
     std::string serverUrl() const

@@ -228,7 +228,7 @@ void PreferenceGroup::updatePositions()
         }
     }
 
-    if (height_ != yPos + descHeight_) {
+    if (height_ != yPos + descHeight_ + descVMargin) {
         prepareGeometryChange();
         height_ = yPos + descHeight_ + descVMargin;
         if (size() == 0) {

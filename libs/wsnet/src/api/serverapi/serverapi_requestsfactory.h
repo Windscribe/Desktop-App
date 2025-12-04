@@ -40,8 +40,6 @@ namespace serverapi_requests_factory
                                                          std::int32_t rating, RequestFinishedCallback callback);
 
     BaseRequest *staticIps(const std::string &authHash, std::uint32_t version, const std::string &platform, const std::string &deviceId, RequestFinishedCallback callback);
-    BaseRequest *pingTest(std::uint32_t timeoutMs, RequestFinishedCallback callback);
-
     BaseRequest *notifications(const std::string &authHash, const std::string &pcpid, const std::string &language, RequestFinishedCallback callback);
 
     BaseRequest *getRobertFilters(const std::string &authHash, RequestFinishedCallback callback);

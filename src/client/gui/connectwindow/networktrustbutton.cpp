@@ -163,6 +163,9 @@ void NetworkTrustButton::onHoverEnter()
         ti.title = network_.friendlyName;
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.5;
+        if (scene() && !scene()->views().isEmpty()) {
+            ti.parent = scene()->views().first()->viewport();
+        }
 
         TooltipController::instance().showTooltipBasic(ti);
     }

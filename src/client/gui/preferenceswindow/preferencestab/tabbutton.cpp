@@ -147,6 +147,9 @@ void TabButton::showTooltip()
     ti.delay = 0;
     ti.animate = true;
     ti.animationSpeed = ANIMATION_SPEED_FAST;
+    if (scene() && !scene()->views().isEmpty()) {
+        ti.parent = scene()->views().first()->viewport();
+    }
     TooltipController::instance().showTooltipBasic(ti);
 }
 

@@ -11,7 +11,8 @@ ServerAPI::ServerAPI(boost::asio::io_context &io_context, WSNetHttpNetworkManage
     io_context_(io_context),
     persistentSettings_(persistentSettings),
     advancedParameters_(advancedParameters),
-    connectState_(connectState)
+    connectState_(connectState),
+    pingTest_(httpNetworkManager)
 {
     impl_ = std::make_unique<ServerAPI_impl>(httpNetworkManager, failoverContainer, persistentSettings_, advancedParameters, connectState);
     subscriberId_ = connectState_.subscribeConnectedToVpnState(std::bind(&ServerAPI::onVPNConnectStateChanged, this, std::placeholders::_1));
@@ -22,10 +23,10 @@ ServerAPI::~ServerAPI()
     connectState_.unsubscribeConnectedToVpnState(subscriberId_);
 }
 
-void ServerAPI::setApiResolutionsSettings(const std::string &apiRoot, const std::string &assetsRoot, const std::string &checkIpRoot)
+void ServerAPI::setApiResolutionsSettings(const std::string &apiRoot, const std::string &assetsRoot)
 {
-    boost::asio::post(io_context_, [this, apiRoot, assetsRoot, checkIpRoot] {
-        impl_->setApiResolutionsSettings(apiRoot, assetsRoot, checkIpRoot);
+    boost::asio::post(io_context_, [this, apiRoot, assetsRoot] {
+        impl_->setApiResolutionsSettings(apiRoot, assetsRoot);
     });
 }
 
@@ -197,9 +198,9 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::staticIps(const std::string 
 
 std::shared_ptr<WSNetCancelableCallback> ServerAPI::pingTest(std::uint32_t timeoutMs, WSNetRequestFinishedCallback callback)
 {
+    // PingTest does not use a failover mechanism and has backup endpoint attempts, so it is implemented in a separate class
     auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
-    BaseRequest *request = serverapi_requests_factory::pingTest(timeoutMs, cancelableCallback);
-    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    boost::asio::post(io_context_, [this, timeoutMs, cancelableCallback] { pingTest_.doPingTest(timeoutMs, cancelableCallback); });
     return cancelableCallback;
 }
 

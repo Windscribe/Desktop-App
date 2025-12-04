@@ -137,9 +137,9 @@ See `build_all --help` for other build options.
   pyenv install 3.11.6
   pyenv global 3.11.6
 ```
-- Install dmgbuild:
+- Install create-dmg:
 ```bash
-  python3 -m pip install dmgbuild
+  brew install create-dmg
 ```
 
 - Install CMake v3.28.x or newer from [here](https://cmake.org/download/) and make sure that the cmake executable is in the path and available for execution. The project will build with older versions of CMake, but you may encounter some warnings.

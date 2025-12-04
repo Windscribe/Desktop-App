@@ -40,7 +40,7 @@ void TooltipController::hideAllTooltips()
     }
 }
 
-void TooltipController::showTooltipInteractive(TooltipId id, int x, int y, int delay)
+void TooltipController::showTooltipInteractive(TooltipId id, int x, int y, int delay, QWidget *parent)
 {
     if (id == TooltipId::TOOLTIP_ID_SERVER_RATINGS) {
         serverRatingsHideTimer_.stop();
@@ -50,7 +50,11 @@ void TooltipController::showTooltipInteractive(TooltipId id, int x, int y, int d
             serverRatingsTooltip_ = nullptr;
         }
 
+#if defined(Q_OS_LINUX)
+        serverRatingsTooltip_ = new ServerRatingsTooltip(parent);
+#else
         serverRatingsTooltip_ = new ServerRatingsTooltip(nullptr);
+#endif
         serverRatingsTooltip_->setRatingState(serverRatingState_);
 
         // adjustment to have tail center on x,y //  server rating tooltip has bottom tail
@@ -90,7 +94,11 @@ void TooltipController::showTooltipBasic(TooltipInfo info)
         tooltips_.remove(id);
     }
 
+#if defined(Q_OS_LINUX)
+    tooltips_[id] = new TooltipBasic(info, info.parent);
+#else
     tooltips_[id] = new TooltipBasic(info, nullptr);
+#endif
 
     int x = info.x;
     int y = info.y;
@@ -129,7 +137,11 @@ void TooltipController::showTooltipDescriptive(TooltipInfo info)
         tooltips_.remove(id);
     }
 
+#if defined(Q_OS_LINUX)
+    tooltips_[id] = new TooltipDescriptive(info, info.parent);
+#else
     tooltips_[id] = new TooltipDescriptive(info, nullptr);
+#endif
 
     int x = info.x;
     int y = info.y;

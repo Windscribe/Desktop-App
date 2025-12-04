@@ -256,6 +256,7 @@ void MainService::onBackendSessionStatusChanged(const api_responses::SessionStat
     bool bEntryIsPresent = multipleAccountDetection_->entryIsPresent(entryUsername);
     if (bEntryIsPresent && (!sessionStatus.isPremium()) && sessionStatus.getAlc().size() == 0 && sessionStatus.getStatus() == 1 && entryUsername != sessionStatus.getUsername()) {
         status = 2;
+        qCInfo(LOG_BASIC) << "Multiple account detected - previous username:" << entryUsername << ", current username:" << sessionStatus.getUsername();
         blockConnect_.setBlockedMultiAccount(entryUsername);
     } else if (bEntryIsPresent && entryUsername == sessionStatus.getUsername() && sessionStatus.getStatus() == 1) {
         multipleAccountDetection_->removeEntry();

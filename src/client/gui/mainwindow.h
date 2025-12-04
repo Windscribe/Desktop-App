@@ -403,6 +403,7 @@ private:
 
     types::Protocol getDefaultProtocolForNetwork(const QString &network);
     bool userProtocolOverride_;
+    bool askedAboutPreferredProtocol_;
 
     bool sendDebugLogOnDisconnect_;
     bool receivedInitialIpAfterConnect_;

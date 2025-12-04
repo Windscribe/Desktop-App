@@ -46,7 +46,6 @@ const QString WS_NO_PINGS = WS_PREFIX + "no-pings";
 
 const QString WS_API_ROOT_OVERRIDE = WS_PREFIX + "api-root-override";
 const QString WS_ASSETS_ROOT_OVERRIDE = WS_PREFIX + "assets-root-override";
-const QString WS_CHECKIP_ROOT_OVERRIDE = WS_PREFIX + "checkip-root-override";
 
 void ExtraConfig::writeConfig(const QString &cfg, bool bWithLog)
 {
@@ -348,11 +347,6 @@ QString ExtraConfig::apiRootOverride()
 QString ExtraConfig::assetsRootOverride()
 {
     return getString(WS_ASSETS_ROOT_OVERRIDE);
-}
-
-QString ExtraConfig::checkIPRootOverride()
-{
-    return getString(WS_CHECKIP_ROOT_OVERRIDE);
 }
 
 bool ExtraConfig::useOpenVpnDCO()

@@ -217,15 +217,6 @@ BaseRequest *serverapi_requests_factory::staticIps(const std::string &authHash, 
     return request;
 }
 
-BaseRequest *serverapi_requests_factory::pingTest(std::uint32_t timeoutMs, RequestFinishedCallback callback)
-{
-    auto request = new BaseRequest(HttpMethod::kGet, SubdomainType::kTunnelTest, RequestPriority::kHigh, "PingTest", std::map<std::string, std::string>(), callback);
-    request->setIgnoreJsonParse();
-    request->setTimeout(timeoutMs);
-    request->setUseDnsCache(false);
-    return request;
-}
-
 BaseRequest *serverapi_requests_factory::notifications(const std::string &authHash, const std::string &pcpid, const std::string &language, RequestFinishedCallback callback)
 {
     std::map<std::string, std::string> extraParams;

@@ -1,3 +1,18 @@
+2.19.3 (27/11/2025)
+All:
+   * Added a backup endpoint for connectivity tests (PingTest call) in wsnet. #1552
+   * Improved German translations provided by GitHub user Evonos. #1567
+   * Improved logging for abusers. #1564
+   * Fixed preferred protocol prompt should not be shown on IP rotate. #1561
+   * Fixed a height calculation error for error descriptions. #1560
+Windows:
+   * Fixed some Qt log spam. #1569
+MacOS:
+   * Fixed installer background does not show on macOS 26.2 Beta. #1539
+Linux:
+   * Fixed tooltips not working at app launch until user clicks the main window. #1562
+
+
 2.19.2 (20/11/2025)
 All:
    * Improved manual connection mode to try alternate datacenter server, if available, when first connection attempt fails. #1512

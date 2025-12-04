@@ -16,7 +16,7 @@ public:
     }
 
     void hideAllTooltips();
-    void showTooltipInteractive(TooltipId id, int x, int y, int delay);
+    void showTooltipInteractive(TooltipId id, int x, int y, int delay, QWidget *parent = nullptr);
     void showTooltipBasic(TooltipInfo info);
     void showTooltipDescriptive(TooltipInfo info);
     void hideTooltip(TooltipId type);

@@ -127,6 +127,9 @@ void StaticText::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
         ti.title = caption_;
         ti.x = globalPt.x() + captionRect_.x() + captionRect_.width()/2;
         ti.y = globalPt.y();
+        if (scene() && !scene()->views().isEmpty()) {
+            ti.parent = scene()->views().first()->viewport();
+        }
         TooltipController::instance().showTooltipBasic(ti);
     } else if (isTextElided_ && textRect_.contains(event->pos())) {
         TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_ELIDED_TEXT);
@@ -135,6 +138,9 @@ void StaticText::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
         ti.title = text_;
         ti.x = globalPt.x() + textRect_.x() + textRect_.width()/2;
         ti.y = globalPt.y();
+        if (scene() && !scene()->views().isEmpty()) {
+            ti.parent = scene()->views().first()->viewport();
+        }
         TooltipController::instance().showTooltipBasic(ti);
     } else {
         TooltipController::instance().hideTooltip(TOOLTIP_ID_ELIDED_TEXT);

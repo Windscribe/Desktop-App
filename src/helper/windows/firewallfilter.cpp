@@ -211,7 +211,7 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
                 spdlog::error(L"Could not add reserved allow filter on VPN interface");
             }
 
-            // Explicitly allow local addresses on this interface
+            // We want to allow access to local VPN interface addresses regardless of which interface the packet will  go through, not just a VPN interface
             const std::vector<Ip4AddressAndMask> localAddrs = Ip4AddressAndMask::fromVector(ai.getAdapterAddresses(*it));
             if (!localAddrs.empty()) {
                 ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localAddrs);

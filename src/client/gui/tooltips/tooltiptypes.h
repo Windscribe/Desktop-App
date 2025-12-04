@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QString>
+#include <QWidget>
 
 const int TOOLTIP_TIMEOUT = 750;
 const int TOOLTIP_SHOW_DELAY = 750;
@@ -68,10 +69,11 @@ struct TooltipInfo {
     int delay;
     bool animate;
     int animationSpeed;
+    QWidget *parent;
 
     TooltipInfo(TooltipType type, TooltipId id)
         : id(id), x(0), y(0), tailtype(TOOLTIP_TAIL_NONE), tailPosPercent(0), width(0), type(type),
-          delay(-1), animate(false), animationSpeed(0) {}
+          delay(-1), animate(false), animationSpeed(0), parent(nullptr) {}
 };
 
 inline bool operator==(const TooltipInfo& lhs, const TooltipInfo& rhs)

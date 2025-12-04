@@ -2830,12 +2830,11 @@ void Engine::updateApiResolutionSettingsInWsnet()
 {
     auto apiRootOverride = ExtraConfig::instance().apiRootOverride();
     auto assetsRootOverride = ExtraConfig::instance().assetsRootOverride();
-    auto checkIPRootOverride = ExtraConfig::instance().checkIPRootOverride();
-    if (!apiRootOverride.isEmpty() || !assetsRootOverride.isEmpty() || !checkIPRootOverride.isEmpty()) {
-        WSNet::instance()->serverAPI()->setApiResolutionsSettings(apiRootOverride.toStdString(), assetsRootOverride.toStdString(), checkIPRootOverride.toStdString());
+    if (!apiRootOverride.isEmpty() || !assetsRootOverride.isEmpty()) {
+        WSNet::instance()->serverAPI()->setApiResolutionsSettings(apiRootOverride.toStdString(), assetsRootOverride.toStdString());
     } else {
         // Default behavior, no overrides
-        WSNet::instance()->serverAPI()->setApiResolutionsSettings(std::string(), std::string(), std::string());
+        WSNet::instance()->serverAPI()->setApiResolutionsSettings(std::string(), std::string());
     }
 }
 

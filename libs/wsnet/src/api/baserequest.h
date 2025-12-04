@@ -8,7 +8,7 @@
 
 namespace wsnet {
 
-enum class SubdomainType { kApi, kAssets, kTunnelTest, kBridgeAPI };
+enum class SubdomainType { kApi, kAssets, kBridgeAPI };
 enum class RequestPriority { kNormal, kHigh };
 
 using RequestFinishedCallback = std::shared_ptr<CancelableCallback<WSNetRequestFinishedCallback>>;
@@ -18,11 +18,10 @@ struct ApiOverrideSettings
 {
     std::string apiRoot;
     std::string assetsRoot;
-    std::string checkIpRoot;
 
     bool isOverriden() const
     {
-        return !apiRoot.empty() || !assetsRoot.empty() || !checkIpRoot.empty();
+        return !apiRoot.empty() || !assetsRoot.empty();
     }
 };
 

@@ -81,6 +81,9 @@ void ProxyIpAddressItem::onCopyClick()
     ti.tailtype = TOOLTIP_TAIL_BOTTOM;
     ti.tailPosPercent = 1;
     ti.delay = 0;
+    if (scene() && !scene()->views().isEmpty()) {
+        ti.parent = scene()->views().first()->viewport();
+    }
     TooltipController::instance().showTooltipBasic(ti);
 
     QTimer::singleShot(TOOLTIP_TIMEOUT, [](){

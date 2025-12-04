@@ -26,8 +26,6 @@ void BaseRequest::setApiOverrideSettings(const ApiOverrideSettings &apiOverrideS
         domainOverride_ = apiOverrideSettings.apiRoot;
     else if (subDomainType_ == SubdomainType::kAssets && !apiOverrideSettings.assetsRoot.empty())
         domainOverride_ = apiOverrideSettings.assetsRoot;
-    else if (subDomainType_ == SubdomainType::kTunnelTest && !apiOverrideSettings.checkIpRoot.empty())
-        domainOverride_ = apiOverrideSettings.checkIpRoot;
 }
 
 bool BaseRequest::isApiDomainOverriden() const
@@ -114,8 +112,6 @@ std::string BaseRequest::hostname(const std::string &domain, SubdomainType subdo
         if (utils::isIpAddress(domain)) {
             if (subdomain == SubdomainType::kAssets) {
                 return domain + "/" + Settings::instance().serverAssetsSubdomain();
-            } else if (subdomain == SubdomainType::kTunnelTest) {
-                return domain + "/" + Settings::instance().serverTunnelTestSubdomain();
             } else {
                 return domain;
             }
@@ -124,8 +120,6 @@ std::string BaseRequest::hostname(const std::string &domain, SubdomainType subdo
                 return Settings::instance().serverApiSubdomain() + "." + domain;
             else if (subdomain == SubdomainType::kAssets)
                 return Settings::instance().serverAssetsSubdomain() + "." + domain;
-            else if (subdomain == SubdomainType::kTunnelTest)
-                return Settings::instance().serverTunnelTestSubdomain() + "." + domain;
         }
     }
     // if it is an overridden domain, return without transformations

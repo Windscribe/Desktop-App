@@ -56,8 +56,9 @@ void DnsCache::onDnsResolved(std::uint64_t id, const std::string &hostname, std:
         isNeedLog = timeSinceLastLog >= 1000;
     }
     // useful log for tunnel test
-    if (isNeedLog && hostname.find(Settings::instance().serverTunnelTestSubdomain()) != std::string::npos) {
-        g_logger->info("DNS resolution for tunnel test, result: {}, timems: {}", result->error()->toString(), result->elapsedMs());
+    auto tunnelTestEndpoints = Settings::instance().tunnelTestEndpoints();
+    if (isNeedLog && std::find(tunnelTestEndpoints.begin(), tunnelTestEndpoints.end(), hostname) != tunnelTestEndpoints.end()) {
+        g_logger->info("DNS resolution for tunnel test ({}), result: {}, timems: {}", hostname, result->error()->toString(), result->elapsedMs());
         tunnelTestLastLogTime_ = std::chrono::steady_clock::now();
     }
 

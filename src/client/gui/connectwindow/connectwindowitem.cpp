@@ -344,6 +344,9 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
                 ti.title = "";
                 ti.desc = text;
                 ti.width = 275 * G_SCALE;
+                if (scene() && !scene()->views().isEmpty()) {
+                    ti.parent = scene()->views().first()->viewport();
+                }
                 TooltipController::instance().showTooltipDescriptive(ti);
             } else { // CONNECTED
                 QString text = tr("Connected for ") +
@@ -355,6 +358,9 @@ void ConnectWindowItem::onConnectStateTextHoverEnter()
                 ti.tailtype = TOOLTIP_TAIL_BOTTOM;
                 ti.tailPosPercent = 0.05;
                 ti.title = text;
+                if (scene() && !scene()->views().isEmpty()) {
+                    ti.parent = scene()->views().first()->viewport();
+                }
                 TooltipController::instance().showTooltipBasic(ti);
             }
         }
@@ -395,6 +401,9 @@ void ConnectWindowItem::onFirewallButtonToggleIgnored()
     ti.y = globalPt.y() - 4 * G_SCALE;
     ti.width = 200 * G_SCALE;
     ti.delay = 100;
+    if (scene() && !scene()->views().isEmpty()) {
+        ti.parent = scene()->views().first()->viewport();
+    }
     TooltipUtil::getFirewallAlwaysOnTooltipInfo(&ti.title, &ti.desc);
     TooltipController::instance().showTooltipDescriptive(ti);
 }
@@ -423,6 +432,9 @@ void ConnectWindowItem::onFirewallInfoHoverEnter()
     ti.delay = 0;
     ti.animate = true;
     ti.animationSpeed = ANIMATION_SPEED_FAST;
+    if (scene() && !scene()->views().isEmpty()) {
+        ti.parent = scene()->views().first()->viewport();
+    }
 
     TooltipController::instance().showTooltipDescriptive(ti);
 }
@@ -457,6 +469,9 @@ void ConnectWindowItem::onFirstNameHoverEnter()
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.1;
         ti.title = fullFirstName_;
+        if (scene() && !scene()->views().isEmpty()) {
+            ti.parent = scene()->views().first()->viewport();
+        }
         TooltipController::instance().showTooltipBasic(ti);
     }
 }
@@ -476,6 +491,9 @@ void ConnectWindowItem::onSecondNameHoverEnter()
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.1;
         ti.title = fullSecondName_;
+        if (scene() && !scene()->views().isEmpty()) {
+            ti.parent = scene()->views().first()->viewport();
+        }
         TooltipController::instance().showTooltipBasic(ti);
     }
 }
@@ -723,6 +741,9 @@ void ConnectWindowItem::onIpUtilsMenuFavouriteHoverEnter()
     ti.tailtype = TOOLTIP_TAIL_BOTTOM;
     ti.tailPosPercent = 0.5;
     ti.title = tr("Favourite IP");
+    if (scene() && !scene()->views().isEmpty()) {
+        ti.parent = scene()->views().first()->viewport();
+    }
     TooltipController::instance().showTooltipBasic(ti);
 }
 
@@ -745,6 +766,9 @@ void ConnectWindowItem::onIpUtilsMenuRotateHoverEnter()
     ti.tailtype = TOOLTIP_TAIL_BOTTOM;
     ti.tailPosPercent = 0.5;
     ti.title = tr("Rotate IP");
+    if (scene() && !scene()->views().isEmpty()) {
+        ti.parent = scene()->views().first()->viewport();
+    }
     TooltipController::instance().showTooltipBasic(ti);
 }
 

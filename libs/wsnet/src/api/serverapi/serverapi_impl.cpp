@@ -36,15 +36,14 @@ ServerAPI_impl::~ServerAPI_impl()
     }
 }
 
-void ServerAPI_impl::setApiResolutionsSettings(const std::string &apiRoot, const std::string &assetsRoot, const std::string &checkIpRoot)
+void ServerAPI_impl::setApiResolutionsSettings(const std::string &apiRoot, const std::string &assetsRoot)
 {
     apiOverrideSettings_.apiRoot = apiRoot;
     apiOverrideSettings_.assetsRoot = assetsRoot;
-    apiOverrideSettings_.checkIpRoot = checkIpRoot;
     if (!apiOverrideSettings_.isOverriden()) {
         g_logger->info("ServerAPI_impl::setApiResolutionsSettings, default behavior, no overridden domains");
     } else {
-        g_logger->info("ServerAPI_impl::setApiResolutionsSettings, overridden domains are set, apiRoot = {}, assetsRoot = {}, checkIpRoot = {}", apiRoot, assetsRoot, checkIpRoot);
+        g_logger->info("ServerAPI_impl::setApiResolutionsSettings, overridden domains are set, apiRoot = {}, assetsRoot = {}", apiRoot, assetsRoot);
     }
 }
 

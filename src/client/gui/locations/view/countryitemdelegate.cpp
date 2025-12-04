@@ -253,6 +253,7 @@ void CountryItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const
         ti.title = QWidget::tr("File Sharing Frowned Upon");
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.5;
+        ti.parent = widget;
         TooltipController::instance().showTooltipBasic(ti);
     } else if (tooltipId == (int)TooltipRect::kCountryCaption) {
         QRect rc = captionRect(option.rect, cacheData);
@@ -263,6 +264,7 @@ void CountryItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const
         ti.title = index.data().toString();
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.5;
+        ti.parent = widget;
         TooltipController::instance().showTooltipBasic(ti);
     } else {
         WS_ASSERT(false);

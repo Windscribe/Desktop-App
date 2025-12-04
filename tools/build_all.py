@@ -537,15 +537,20 @@ def build_installer_mac(configdata, build_path):
     # Drop DMG.
     msg.Print("Preparing dmg...")
     dmg_dir = BUILD_INSTALLER_FILES
+    final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg"
+                                                         .format(extractor.app_version(True))))
     with utl.PushDir(dmg_dir):
-        iutl.RunCommand(["python3", "-m", "dmgbuild", "-s",
-                         pathhelper.ROOT_DIR + "/src/installer/mac/dmgbuild/dmgbuild_settings.py",
-                         "WindscribeInstaller",
-                         "WindscribeInstaller.dmg", "-D", "app=WindscribeInstaller.app", "-D",
-                         "background=" + pathhelper.ROOT_DIR + "/src/installer/mac/dmgbuild/installer_background.png"])
-        final_installer_name = os.path.normpath(os.path.join(dmg_dir, "Windscribe_{}.dmg"
-                                                             .format(extractor.app_version(True))))
-    utl.RenameFile(os.path.join(dmg_dir, "WindscribeInstaller.dmg"), final_installer_name)
+        iutl.RunCommand(["create-dmg",
+                         "--volname", "WindscribeInstaller",
+                         "--volicon", pathhelper.ROOT_DIR + "/src/installer/mac/installer/resources/windscribe.icns",
+                         "--background", pathhelper.ROOT_DIR + "/src/installer/mac/dmg/installer_background.png",
+                         "--window-pos", "100", "425",
+                         "--window-size", "350", "350",
+                         "--icon-size", "64",
+                         "--icon", "WindscribeInstaller.app", "175", "192",
+                         "--hide-extension", "WindscribeInstaller.app",
+                         final_installer_name,
+                         "WindscribeInstaller.app"])
     utl.RemoveFile(arc_path)
 
 

@@ -108,6 +108,7 @@ void StaticIPDeviceInfo::mouseMoveEvent(QMouseEvent *event)
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.5;
         ti.title = deviceName_;
+        ti.parent = this;
         TooltipController::instance().showTooltipBasic(ti);
     } else {
         // Hide tooltip if mouse is not over the device name

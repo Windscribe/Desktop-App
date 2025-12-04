@@ -254,6 +254,9 @@ void WelcomeWindowItem::onAbstractButtonHoverEnter(QGraphicsObject *button, QStr
         ti.title = text;
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.5;
+        if (scene() && !scene()->views().isEmpty()) {
+            ti.parent = scene()->views().first()->viewport();
+        }
         TooltipController::instance().showTooltipBasic(ti);
     }
 }

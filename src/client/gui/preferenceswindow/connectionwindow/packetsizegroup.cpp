@@ -70,6 +70,9 @@ void PacketSizeGroup::onDetectHoverEnter()
     ti.tailtype = TOOLTIP_TAIL_BOTTOM;
     ti.tailPosPercent = 0.8;
     ti.title = tr("Auto-Detect & Generate MTU");
+    if (scene() && !scene()->views().isEmpty()) {
+        ti.parent = scene()->views().first()->viewport();
+    }
     TooltipController::instance().showTooltipBasic(ti);
 }
 
@@ -98,6 +101,9 @@ void PacketSizeGroup::showPacketSizeDetectionError(const QString &title, const Q
     ti.desc = message;
     ti.width = 150 * G_SCALE;
     ti.delay = 100;
+    if (scene() && !scene()->views().isEmpty()) {
+        ti.parent = scene()->views().first()->viewport();
+    }
 
     QTimer::singleShot(0, [this, ti]() {
         isShowingError_ = true;

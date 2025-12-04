@@ -402,6 +402,7 @@ void CityItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const QM
         ti.title = text;
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.8;
+        ti.parent = widget;
         TooltipController::instance().showTooltipBasic(ti);
     } else if (tooltipId == (int)TooltipRect::kItemCaption) {
         QRect rc = captionRect(option.rect, cacheData);
@@ -412,6 +413,7 @@ void CityItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const QM
         ti.title = index.data().toString();
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.5;
+        ti.parent = widget;
         TooltipController::instance().showTooltipBasic(ti);
     } else if (tooltipId == (int)TooltipRect::kItemNickname) {
         QRect rc = nicknameRect(option.rect, cacheData);
@@ -422,6 +424,7 @@ void CityItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const QM
         ti.title = index.data(kDisplayNickname).toString();
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.5;
+        ti.parent = widget;
         TooltipController::instance().showTooltipBasic(ti);
     } else
     {

@@ -451,6 +451,9 @@ void ComboBoxItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
         ti.tailtype = TOOLTIP_TAIL_BOTTOM;
         ti.tailPosPercent = 0.5;
         ti.title = strCaption_;
+        if (scene() && !scene()->views().isEmpty()) {
+            ti.parent = scene()->views().first()->viewport();
+        }
 
         TooltipController::instance().showTooltipBasic(ti);
     } else {

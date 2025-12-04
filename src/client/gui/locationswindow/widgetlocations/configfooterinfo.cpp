@@ -146,6 +146,7 @@ void ConfigFooterInfo::mouseMoveEvent(QMouseEvent *event)
             ti.title = fullText_;
             ti.tailtype = TOOLTIP_TAIL_BOTTOM;
             ti.tailPosPercent = 0.5;
+            ti.parent = this;
             TooltipController::instance().showTooltipBasic(ti);
         } else {
             TooltipController::instance().hideTooltip(TOOLTIP_ID_CONFIG_FOOTER);

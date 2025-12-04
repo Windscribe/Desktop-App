@@ -7,6 +7,7 @@
 #include "failover/ifailovercontainer.h"
 #include "utils/persistentsettings.h"
 #include "connectstate.h"
+#include "pingtest.h"
 
 namespace wsnet {
 
@@ -19,7 +20,7 @@ public:
                        PersistentSettings &persistentSettings, WSNetAdvancedParameters *advancedParameters, ConnectState &connectState);
     virtual ~ServerAPI();
 
-    void setApiResolutionsSettings(const std::string &apiRoot, const std::string &assetsRoot, const std::string &checkIpRoot) override;
+    void setApiResolutionsSettings(const std::string &apiRoot, const std::string &assetsRoot) override;
     void setIgnoreSslErrors(bool bIgnore) override;
     void resetFailover() override;
 
@@ -121,6 +122,7 @@ private:
     WSNetAdvancedParameters *advancedParameters_;
     ConnectState &connectState_;
     std::uint32_t subscriberId_;
+    PingTest pingTest_;
 
     void onVPNConnectStateChanged(bool isConnected);
 };

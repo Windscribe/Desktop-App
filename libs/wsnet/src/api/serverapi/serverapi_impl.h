@@ -27,7 +27,7 @@ public:
                             PersistentSettings &persistentSettings, WSNetAdvancedParameters *advancedParameters, ConnectState &connectState);
     virtual ~ServerAPI_impl();
 
-    void setApiResolutionsSettings(const std::string &apiRoot, const std::string &assetsRoot, const std::string &checkIpRoot);
+    void setApiResolutionsSettings(const std::string &apiRoot, const std::string &assetsRoot);
     void setIgnoreSslErrors(bool bIgnore);
     void resetFailover();
     void setIsConnectedToVpnState(bool isConnected);

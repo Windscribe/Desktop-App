@@ -69,7 +69,6 @@ public:
 
     QString apiRootOverride();
     QString assetsRootOverride();
-    QString checkIPRootOverride();
 
     void fromJson(const QJsonObject &json);
     QJsonObject toJson();

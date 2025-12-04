@@ -247,6 +247,9 @@ void LinkItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
         ti.x = globalPt.x() + titleRect_.x() + titleRect_.width()/2;
         ti.y = globalPt.y();
         ti.title = title_;
+        if (scene() && !scene()->views().isEmpty()) {
+            ti.parent = scene()->views().first()->viewport();
+        }
 
         TooltipController::instance().showTooltipBasic(ti);
     } else {
