@@ -114,6 +114,7 @@ std::string executeOpenVPN(const std::string &pars)
         return serializeResult(false, cmdId);
     }
 
+    setenv("OPENSSL_CONF", "/dev/null", 1);
     cmdId = ExecuteCmd::instance().execute(fullCmd, "/opt/windscribe");
     return serializeResult(true, cmdId);
 }

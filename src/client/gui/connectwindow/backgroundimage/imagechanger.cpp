@@ -204,23 +204,22 @@ void ImageChanger::updatePixmap()
             p.setOpacity(opacityCurImage_);
             QPixmap framePixmap = curImage_.movie->currentPixmap();
             framePixmap.setDevicePixelRatio(DpiScaleManager::instance().curDevicePixelRatio());
+            int frameWidth = framePixmap.width() / DpiScaleManager::instance().curDevicePixelRatio();
+            int frameHeight = framePixmap.height() / DpiScaleManager::instance().curDevicePixelRatio();
 
             if (aspectRatioMode_ == ASPECT_RATIO_MODE_TILE) {
                 // For tiling mode, we draw the image repeatedly to fill the entire area
-                int frameWidth = framePixmap.width() / DpiScaleManager::instance().curDevicePixelRatio();
-                int frameHeight = framePixmap.height() / DpiScaleManager::instance().curDevicePixelRatio();
-
                 if (frameWidth > 0 && frameHeight > 0) {
                     for (int x = 0; x < WIDTH * G_SCALE; x += frameWidth) {
                         for (int y = 0; y < 197 * G_SCALE; y += frameHeight) {
-                            p.drawPixmap(x, y, framePixmap, 0, 0, framePixmap.width(), (y + frameHeight > 197*G_SCALE) ? 197*G_SCALE - y : frameHeight);
+                            p.drawPixmap(x, y, framePixmap, 0, 0, framePixmap.width(), (y + frameHeight > 197*G_SCALE) ? (197*G_SCALE - y) * DpiScaleManager::instance().curDevicePixelRatio() : frameHeight * DpiScaleManager::instance().curDevicePixelRatio());
                         }
                     }
                 }
             } else {
                 // Start at y = 0 if image height is 197 (16:9)
-                yOffset = (197*G_SCALE - framePixmap.height())/2;
-                p.drawPixmap(0, yOffset, framePixmap, 0, 0, framePixmap.width(), 197*G_SCALE - yOffset);
+                yOffset = (197*G_SCALE - frameHeight)/2;
+                p.drawPixmap(0, yOffset, framePixmap, 0, 0, framePixmap.width(), (197*G_SCALE - yOffset) * DpiScaleManager::instance().curDevicePixelRatio());
             }
 
             if (prevGradient == GRADIENT_FLAG) {

@@ -126,6 +126,7 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     firewallLabel_ = new CommonGraphics::TextButton(tr("FIREWALL"), FontDescr(12, QFont::DemiBold, 100, 1.44), Qt::white, false, this, 0, false);
     firewallLabel_->setUnhoverOpacity(0.6);
     firewallLabel_->setCurrentOpacity(0.6);
+    firewallLabel_->setMaxWidth(80*G_SCALE);
 
     firewallButton_ = new ToggleButton(this);
     // firewallButton_->setColor(QColor(0, 106, 255));
@@ -222,6 +223,7 @@ void ConnectWindowItem::setTestTunnelResult(bool success)
 void ConnectWindowItem::updateScaling()
 {
     ScalableGraphicsObject::updateScaling();
+    firewallLabel_->setMaxWidth(80*G_SCALE);
     updateShortenedText();
     updatePositions();
 }

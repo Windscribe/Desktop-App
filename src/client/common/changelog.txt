@@ -1,3 +1,15 @@
+2.19.6 (15/12/2025)
+Linux:
+   * Fixed OpenVPN protocols not working on openSUSE Tumbleweed. #1589
+
+
+2.19.5 (11/12/2025)
+All:
+   * Fixed 'Firewall' label may be too long with some languages. #1524
+   * Fixed one-time override not showing preferred protocol prompt. #1561
+   * Fixed background scaling issues on high DPI displays. #1588
+
+
 2.19.4 (03/12/2025)
 All:
    * Added HTTP 200 response check for connectivity tests and logging for backup endpoint usage. #1552

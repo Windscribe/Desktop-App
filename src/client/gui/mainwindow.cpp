@@ -2508,7 +2508,7 @@ void MainWindow::onBackendTestTunnelResult(bool success)
 
         // User manually selected a protocol or we failed over to a different protocol for the first time.
         // Ask if they want to save (but only ask once per connection)
-        if ((userProtocolOverride_ || isFailover) && !askedAboutPreferredProtocol_) {
+        if (userProtocolOverride_ || (isFailover && !askedAboutPreferredProtocol_)) {
             if (!backend_->getPreferences()->hasNetworkPreferredProtocol(curNetwork_.networkOrSsid) ||
                 backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol() != ps.protocol ||
                 backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port() != ps.port)
