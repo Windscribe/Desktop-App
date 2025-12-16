@@ -549,6 +549,7 @@ def build_installer_mac(configdata, build_path):
                          "--icon-size", "64",
                          "--icon", "WindscribeInstaller.app", "175", "192",
                          "--hide-extension", "WindscribeInstaller.app",
+                         "--format", "ULMO",
                          final_installer_name,
                          "WindscribeInstaller.app"])
     utl.RemoveFile(arc_path)

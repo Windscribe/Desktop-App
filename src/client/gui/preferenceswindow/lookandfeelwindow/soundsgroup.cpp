@@ -91,8 +91,8 @@ void SoundsGroup::onLanguageChanged()
 
     connectedComboBox_->setLabelCaption(tr("When Connected"));
     QList<QPair<QString, QVariant>> connectedList;
-    connectedList << qMakePair(tr("Bundled"), SOUND_NOTIFICATION_TYPE_BUNDLED);
     connectedList << qMakePair(tr("None"), SOUND_NOTIFICATION_TYPE_NONE);
+    connectedList << qMakePair(tr("Bundled"), SOUND_NOTIFICATION_TYPE_BUNDLED);
     connectedList << qMakePair(tr("Custom"), SOUND_NOTIFICATION_TYPE_CUSTOM);
     connectedComboBox_->setItems(connectedList, settings_.connectedSoundType);
     connectedComboBox_->setCustomValue(SOUND_NOTIFICATION_TYPE_CUSTOM);

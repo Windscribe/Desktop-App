@@ -457,6 +457,7 @@ void ConnectionManager::onConnectionReconnecting()
 {
     qCDebug(LOG_CONNECTION) << "ConnectionManager::onConnectionReconnecting(), state_ =" << state_;
 
+    ctrldManager_->killProcess(); // If we are reconnecting, we need to kill the ctrld process if it exists, to avoid conflicts with the new connection
     testVPNTunnel_->stopTests();
 
     // bIgnoreConnectionErrorsForOpenVpn_ need to prevent handle multiple error messages from openvpn

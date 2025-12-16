@@ -122,6 +122,10 @@ up() {
   DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
   "$DNS_LEAK_SCRIPT" "up" ${dns_ips[@]}
 
+  # Prioritize IPv4 to avoid delays when IPv6 is blocked
+  GAI_SCRIPT=$SCRIPT_DIR/gai-ipv4-priority
+  "$GAI_SCRIPT" "up"
+
   # For the loopback DNS-address set the global DNS config
   for dnsIp in "${dns_ips[@]}"
   do
@@ -205,6 +209,10 @@ down() {
   SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
   DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
   "$DNS_LEAK_SCRIPT" "down"
+
+  # Restore original gai.conf
+  GAI_SCRIPT=$SCRIPT_DIR/gai-ipv4-priority
+  "$GAI_SCRIPT" "down"
 }
 
 process_dns() {

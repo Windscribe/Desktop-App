@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
+# Manages /etc/gai.conf to prioritize IPv4 when VPN blocks IPv6
+# Usage: gai-ipv4-priority up|down
+
+PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"
+
+GAI_CONF="/etc/gai.conf"
+WINDSCRIBE_RUN_DIR="/var/run/windscribe"
+GAI_BACKUP="$WINDSCRIBE_RUN_DIR/gai.conf.bak"
+GAI_MODIFIED_FLAG="$WINDSCRIBE_RUN_DIR/gai_modified"
+
+# Enable IPv4 priority by modifying gai.conf
+gai_ipv4_priority_up()
+{
+    # Create run directory if it doesn't exist
+    if [ ! -d "$WINDSCRIBE_RUN_DIR" ]; then
+        mkdir -p "$WINDSCRIBE_RUN_DIR"
+    fi
+
+    # Check if IPv4 priority is already configured
+    if [ -f "$GAI_CONF" ] && grep -q "^precedence ::ffff:0:0/96  100" "$GAI_CONF" 2>/dev/null; then
+        echo "IPv4 priority already configured in $GAI_CONF"
+        return 0
+    fi
+
+    # Backup original gai.conf if it exists and not already backed up
+    if [ -f "$GAI_CONF" ] && [ ! -f "$GAI_BACKUP" ]; then
+        cp "$GAI_CONF" "$GAI_BACKUP"
+    fi
+
+    # If gai.conf doesn't exist, create it
+    if [ ! -f "$GAI_CONF" ]; then
+        echo "# gai.conf - getaddrinfo configuration" > "$GAI_CONF"
+    fi
+
+    # Add IPv4 priority configuration
+    # This gives IPv4-mapped addresses higher precedence than native IPv6
+    echo "" >> "$GAI_CONF"
+    echo "# Added by Windscribe to prioritize IPv4 when IPv6 is blocked" >> "$GAI_CONF"
+    echo "precedence ::ffff:0:0/96  100" >> "$GAI_CONF"
+
+    # Mark that we modified the file
+    touch "$GAI_MODIFIED_FLAG"
+
+    echo "IPv4 priority configured in $GAI_CONF"
+}
+
+# Restore original gai.conf
+gai_ipv4_priority_down()
+{
+    # Check if we modified the file
+    if [ ! -f "$GAI_MODIFIED_FLAG" ]; then
+        echo "No gai.conf modifications to restore"
+        return 0
+    fi
+
+    # Restore backup if it exists
+    if [ -f "$GAI_BACKUP" ]; then
+        cp "$GAI_BACKUP" "$GAI_CONF"
+        rm -f "$GAI_BACKUP"
+        echo "Restored original $GAI_CONF"
+    else
+        # No backup exists, we created the file, so delete it
+        if [ -f "$GAI_CONF" ]; then
+            rm -f "$GAI_CONF"
+            echo "Removed $GAI_CONF created by Windscribe"
+        fi
+    fi
+
+    # Remove the flag
+    rm -f "$GAI_MODIFIED_FLAG"
+}
+
+main()
+{
+    local action="$1"
+
+    if [[ $action == "up" ]]; then
+        gai_ipv4_priority_up
+    elif [[ $action == "down" ]]; then
+        gai_ipv4_priority_down
+    else
+        echo "Usage: gai-ipv4-priority up|down"
+        return 1
+    fi
+}
+
+main "$@"

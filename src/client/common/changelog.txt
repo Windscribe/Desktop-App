@@ -1,3 +1,16 @@
+2.19.4 (03/12/2025)
+All:
+   * Added HTTP 200 response check for connectivity tests and logging for backup endpoint usage. #1552
+   * Improved additional Slovak translations from GitHub user kubalav. #1524
+   * Fixed ctrld may not be terminated after disconnecting. #1575
+   * Fixed initial unhover opacity for IP utilities menu. #1577
+   * Fixed dropdown item order for sound notifications. #1578
+MacOS:
+   * Fixed DMG format to be ULMO for better space efficiency. #1539
+Linux:
+   * Fixed IPv4/v6 DNS priority while connected. #1580
+
+
 2.19.3 (27/11/2025)
 All:
    * Added a backup endpoint for connectivity tests (PingTest call) in wsnet. #1552

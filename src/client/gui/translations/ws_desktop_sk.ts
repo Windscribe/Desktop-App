@@ -71,7 +71,7 @@
     </message>
     <message>
         <source>FIREWALL</source>
-        <translation>BRÁNA FIREWALL</translation>
+        <translation>FIREWALL</translation>
     </message>
 </context>
 <context>
@@ -85,7 +85,7 @@
     <name>ConnectWindow::LocationsMenu</name>
     <message>
         <source>All</source>
-        <translation>Všetko</translation>
+        <translation>Všetky</translation>
     </message>
     <message>
         <source>Custom configs</source>
@@ -273,11 +273,11 @@
     </message>
     <message>
         <source>FAVOURITES</source>
-        <translation>OBĽÚBENCI</translation>
+        <translation>OBĽÚBENÉ</translation>
     </message>
     <message>
         <source>STATIC IPs</source>
-        <translation>STATICKÉ IP adresy</translation>
+        <translation>STATICKÉ IP ADRESY</translation>
     </message>
     <message>
         <source>CUSTOM CONFIGs</source>
@@ -289,14 +289,14 @@
     </message>
     <message>
         <source>Add</source>
-        <translation>Sčítať</translation>
+        <translation>Pridať</translation>
     </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
         <source>Add</source>
-        <translation>Sčítať</translation>
+        <translation>Pridať</translation>
     </message>
 </context>
 <context>
@@ -906,11 +906,11 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
     </message>
     <message>
         <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
-        <translation>Nemohli sme vás spojiť cez túto sieť. Odporúča sa automatický režim pripojenia pre najlepšie výsledky. Prepínať režim pripojenia na Auto?</translation>
+        <translation>V tejto sieti sme vás nemohli pripojiť. Na dosiahnutie najlepších výsledkov sa odporúča automatický režim pripojenia. Prepnúť režim pripojenia na automatický?</translation>
     </message>
     <message>
         <source>Switch to Auto</source>
-        <translation>Prejsť na automat</translation>
+        <translation>Prepnúť na automatický</translation>
     </message>
 </context>
 <context>
@@ -2217,7 +2217,7 @@ Ak preinštalovanie nepomôže, obráťte sa na podporu Windscribe a požiadajte
     </message>
     <message>
         <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
-        <translation>Rozšírenie systému rozdeleného tunelovania Windscribe musí byť povolené, aby táto funkcia fungovala. Prosím, zapnite to v Systémových nastaveniach.</translation>
+        <translation>Aby táto funkcia fungovala, musí byť povolené rozšírenie Windscribe rozdelené tunelovanie. Povoľte ho v nastaveniach systému.</translation>
     </message>
 </context>
 <context>
@@ -2566,7 +2566,7 @@ Ak preinštalovanie nepomôže, obráťte sa na podporu Windscribe a požiadajte
     </message>
     <message>
         <source>Quit Windscribe</source>
-        <translation>Prestaň s Windscribe</translation>
+        <translation>Ukončiť Windscribe</translation>
     </message>
     <message>
         <source>Favourites</source>

@@ -2182,7 +2182,7 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
     </message>
     <message>
         <source>Exclusive</source>
-        <translation>Ausgenommen</translation>
+        <translation>Ausschließen</translation>
     </message>
     <message>
         <source>Inclusive</source>

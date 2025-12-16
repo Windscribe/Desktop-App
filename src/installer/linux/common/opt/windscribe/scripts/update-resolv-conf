@@ -74,6 +74,10 @@ case "$script_type" in
 
     "$DNS_LEAK_SCRIPT" "up" ${servers[@]}
 
+    # Prioritize IPv4 to avoid delays when IPv6 is blocked
+    GAI_SCRIPT=$SCRIPT_DIR/gai-ipv4-priority
+    "$GAI_SCRIPT" "up"
+
     ;;
   down)
     if [[ -z "${is_wireguard}" ]]; then
@@ -83,6 +87,10 @@ case "$script_type" in
     fi
 
     "$DNS_LEAK_SCRIPT" "down"
+
+    # Restore original gai.conf
+    GAI_SCRIPT=$SCRIPT_DIR/gai-ipv4-priority
+    "$GAI_SCRIPT" "down"
 
     ;;
 esac

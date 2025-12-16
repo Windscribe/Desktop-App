@@ -1,5 +1,6 @@
 #include "pingtest.h"
 #include <skyr/url.hpp>
+#include "utils/wsnet_logger.h"
 #include "utils/urlquery_utils.h"
 #include "utils/utils.h"
 
@@ -46,12 +47,14 @@ void PingTest::onHttpNetworkRequestFinished(std::uint64_t requestId, std::uint32
     bool bSuccess = false;
     if (error->isSuccess()) {
         auto trimmedData = utils::trim(data);
-        if (utils::isIpAddress(trimmedData)) {
+        // Extract HTTP response code from the error object. It must be 200 and returned data must be a valid IP address.
+        if (error->httpResponseCode() == 200 && utils::isIpAddress(trimmedData)) {
             it->second.callback->call(ApiRetCode::kSuccess, trimmedData);
             bSuccess = true;
         } else if (it->second.curEndpointInd < (endpoints_.size() - 1)) {
             // try next backup endpoint
             it->second.curEndpointInd++;
+            g_logger->info("Trying backup endpoint for PingTest: {}", endpoints_[it->second.curEndpointInd].domain()->c_str());
             auto httpRequest = httpNetworkManager_->createGetRequest(endpoints_[it->second.curEndpointInd].c_str(), it->second.timeoutMs, false);
             httpRequest->setUseDnsCache(false);
             httpRequest->setIsWhiteListIps(false);

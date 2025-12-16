@@ -14,6 +14,7 @@ IpUtilsMenu::IpUtilsMenu(ScalableGraphicsObject *parent)
     favouriteButton_->setUnhoverOpacity(0.7);
     favouriteButton_->setHoverOpacity(1.0);
     favouriteButton_->setClickableHoverable(true, true);
+    favouriteButton_->unhover();
     connect(favouriteButton_, &IconButton::clicked, this, &IpUtilsMenu::favouriteClick);
     connect(favouriteButton_, &IconButton::hoverEnter, this, &IpUtilsMenu::favouriteHoverEnter);
     connect(favouriteButton_, &IconButton::hoverLeave, this, &IpUtilsMenu::favouriteHoverLeave);
@@ -22,6 +23,7 @@ IpUtilsMenu::IpUtilsMenu(ScalableGraphicsObject *parent)
     rotateButton_->setUnhoverOpacity(0.7);
     rotateButton_->setHoverOpacity(1.0);
     rotateButton_->setClickableHoverable(true, true);
+    rotateButton_->unhover();
     connect(rotateButton_, &IconButton::clicked, this, &IpUtilsMenu::rotateClick);
     connect(rotateButton_, &IconButton::hoverEnter, this, &IpUtilsMenu::rotateHoverEnter);
     connect(rotateButton_, &IconButton::hoverLeave, this, &IpUtilsMenu::rotateHoverLeave);
@@ -29,6 +31,7 @@ IpUtilsMenu::IpUtilsMenu(ScalableGraphicsObject *parent)
     closeButton_ = new IconButton(24, 24, "ip-utils/CLOSE", "", this);
     closeButton_->setUnhoverOpacity(0.7);
     closeButton_->setHoverOpacity(1.0);
+    closeButton_->unhover();
     connect(closeButton_, &IconButton::clicked, this, &IpUtilsMenu::closeClick);
 
     updatePositions();

@@ -17,15 +17,15 @@
     </message>
     <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
-        <translation>Nepodarilo sa otočiť IP.  Skontrolujte, či máte Windscribe Pro alebo či máte toto umiestnenie vo svojom pláne, alebo to skúste znova neskôr.</translation>
+        <translation>Nepodarilo sa rotovať IP. Skontrolujte, či máte Windscribe Pro alebo či máte toto umiestnenie v pláne, alebo to skúste neskôr.</translation>
     </message>
     <message>
         <source>Could not favourite IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
-        <translation>Nepodarilo sa mi obľúbené IP.  Skontrolujte, či máte Windscribe Pro alebo či máte toto umiestnenie vo svojom pláne, alebo to skúste znova neskôr.</translation>
+        <translation>Nepodarilo sa pridať IP medzi obľúbené. Skontrolujte, či máte Windscribe Pro alebo či máte toto umiestnenie v pláne, alebo to skúste neskôr.</translation>
     </message>
     <message>
         <source>Could not unfavourite IP.  Please check that the provided IP is valid.</source>
-        <translation>Nepodarilo sa zrušiť obľúbenú IP.  Skontrolujte, či je poskytnutá IP adresa platná.</translation>
+        <translation>Nepodarilo sa odobrať IP z obľúbených.  Skontrolujte, či je zadaná IP adresa platná.</translation>
     </message>
     <message>
         <source>IP rotate already in progress.</source>
@@ -160,7 +160,7 @@
     </message>
     <message>
         <source>Error: You are out of data, or your account has been disabled. Upgrade to Pro to continue using Windscribe</source>
-        <translation>Error: Všetky dáta ste minuli alebo bol váš účet zakázaný. Ak chcete naďalej používať Windscribe, upgradujte na Pro</translation>
+        <translation>Chyba: Všetky dáta ste minuli alebo bol váš účet zakázaný. Ak chcete naďalej používať Windscribe, upgradujte na Pro</translation>
     </message>
     <message>
         <source>Error: Unable to start custom DNS service</source>
@@ -304,7 +304,7 @@
     </message>
     <message>
         <source> (Disabled)</source>
-        <translation> (Vypnuté)</translation>
+        <translation> (Zakázané)</translation>
     </message>
     <message>
         <source> (Pro)</source>
@@ -312,7 +312,7 @@
     </message>
     <message>
         <source>Not connected</source>
-        <translation>Nie je pripojené</translation>
+        <translation>Nepripojené</translation>
     </message>
     <message>
         <source>Invalid IP address</source>
@@ -320,15 +320,15 @@
     </message>
     <message>
         <source>IP rotated.</source>
-        <translation>IP otočené.</translation>
+        <translation>IP adresa bola zmenená.</translation>
     </message>
     <message>
         <source>IP favorited.</source>
-        <translation>IP obľúbené.</translation>
+        <translation>IP adresa pridaná do obľúbených.</translation>
     </message>
     <message>
         <source>IP unfavorited.</source>
-        <translation>IP neobľúbené.</translation>
+        <translation>IP adresa odobraná z obľúbených.</translation>
     </message>
 </context>
 </TS>
