@@ -1,3 +1,8 @@
+2.19.7 (05/01/2026)
+All:
+   * Stable channel release.
+
+
 2.19.6 (15/12/2025)
 Linux:
    * Fixed OpenVPN protocols not working on openSUSE Tumbleweed. #1589
