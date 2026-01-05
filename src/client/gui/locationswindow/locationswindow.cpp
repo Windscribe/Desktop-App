@@ -63,7 +63,7 @@ LocationsWindow::LocationsWindow(QWidget *parent, Preferences *preferences, gui_
     borderOverlay_->setGeometry(0, 0, width(), height() - FOOTER_HEIGHT*G_SCALE);
     borderOverlay_->raise();
 
-    setCountVisibleItemSlots(PersistentState::instance().countVisibleLocations());
+    setViewportHeight(PersistentState::instance().locationsViewportHeight());
 }
 
 int LocationsWindow::tabAndFooterHeight() const
@@ -71,14 +71,16 @@ int LocationsWindow::tabAndFooterHeight() const
     return (locationsTabHeightUnscaled_ + FOOTER_HEIGHT);
 }
 
-void LocationsWindow::setCountVisibleItemSlots(int cnt)
+void LocationsWindow::setViewportHeight(int unscaledHeight, bool dragging)
 {
-    locationsTab_->setCountVisibleItemSlots(cnt);
-    // Previously there were issues directly grabbing locationsTab height... keeping a cache somehow helped. Not sure if the original issue persists
-    locationsTabHeightUnscaled_ = locationsTab_->unscaledHeightOfItemViewport() + locationsTab_->headerHeight();
+    locationsTabHeightUnscaled_ = unscaledHeight + locationsTab_->headerHeight();
+    if (dragging) {
+        locationsTab_->updateCurrentWidgetGeometry(unscaledHeight);
+    } else {
+        locationsTab_->updateLocationWidgetsGeometry(unscaledHeight);
+    }
     locationsTab_->setGeometry(0, 0, WINDOW_WIDTH*G_SCALE, qCeil(locationsTabHeightUnscaled_*G_SCALE));
     borderOverlay_->setGeometry(0, 0, width(), height() - FOOTER_HEIGHT*G_SCALE);
-    PersistentState::instance().setCountVisibleLocations(getCountVisibleItems());
     emit heightChanged();
 }
 
@@ -144,34 +146,15 @@ void LocationsWindow::mouseMoveEvent(QMouseEvent *event)
     if (bDragPressed_)
     {
         int y_offs = event->globalPosition().toPoint().y() - dragPressPt_.y();
+        int unscaled_y_offs = y_offs / G_SCALE;
 
-        int cnt = y_offs / (50 * G_SCALE);
-        int curCntVisibleItems = dragInitialVisibleItemsCount_ + cnt;
-        // cursor below drag point
-        if (y_offs > 0)
-        {
-            if (curCntVisibleItems < getCountVisibleItems())
-            {
-                curCntVisibleItems++;
-            }
-        }
-        // cursor above drag point
-        else if (y_offs < 0)
-        {
-            if (curCntVisibleItems > getCountVisibleItems())
-            {
-                curCntVisibleItems--;
-            }
-        }
+        int minHeight = MIN_VISIBLE_LOCATIONS * LOCATION_ITEM_HEIGHT;
+        int maxHeight = MAX_VISIBLE_LOCATIONS * LOCATION_ITEM_HEIGHT;
+        int newHeight = dragInitialViewportHeight_ + unscaled_y_offs;
 
-        if (curCntVisibleItems >= MIN_VISIBLE_LOCATIONS && curCntVisibleItems <= MAX_VISIBLE_LOCATIONS)
-        {
-            if (curCntVisibleItems != getCountVisibleItems())
-            {
-                setCountVisibleItemSlots(curCntVisibleItems);
-            }
-        }
+        newHeight = qMax(minHeight, qMin(maxHeight, newHeight));
 
+        setViewportHeight(newHeight, true);
     }
     else
     {
@@ -198,6 +181,7 @@ void LocationsWindow::mousePressEvent(QMouseEvent *event)
         bDragPressed_ = true;
         dragPressPt_ = event->globalPosition().toPoint();
         dragInitialVisibleItemsCount_ = getCountVisibleItems();
+        dragInitialViewportHeight_ = locationsTab_->unscaledHeightOfItemViewport();
 
         QPoint centerBtnDrag = mapToGlobal(middle.center());
         dragInitialBtnDragCenter_ = centerBtnDrag.y();
@@ -211,6 +195,10 @@ void LocationsWindow::mouseReleaseEvent(QMouseEvent *event)
     if (bDragPressed_)
     {
         bDragPressed_ = false;
+        int height = locationsTab_->unscaledHeightOfItemViewport();
+        setViewportHeight(height, true); // Make sure to get final size
+        setViewportHeight(height, false);
+        PersistentState::instance().setLocationsViewportHeight(height);
     }
 }
 

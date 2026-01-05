@@ -1,6 +1,38 @@
-2.19.7 (05/01/2026)
+2.20.2 (19/12/2025)
 All:
-   * Stable channel release.
+   * Added a reset password endpoint to wsnet. #1603 
+   * Improved locations resizing behaviour. #1566
+   * Improved logging & detection for abusers. #1564
+   * Fixed text alignment in preferences. #825
+   * Fixed potential crash in logging. #1597
+   * Fixed scrollbar artifacts on curved border. #1598
+   * Fixed visual artifact when switching to ROBERT preferences. #1599
+   * Fixed some nightly tests. #1605
+   * Fixed context menu look on the custom config credentials prompt. #1602
+   * Updated OpenVPN to 2.6.17. #1601
+Windows:
+   * Fixed regression for openssl.cnf when cURL was updated. #1554
+
+
+2.20.1 (16/12/2025)
+All:
+   * Improved window resizing behaviour and performance. #1566
+   * Improved font sizing and contrast. #825
+   * Improved build system efficiency. #1584
+   * Fixed incorrectly calculated session token expiry. [wsnet] #1595
+   * Updated ctrld to 1.4.8. #1581
+   * Updated curl to the official 8.17.0 release. #1554
+   * Updated OpenSSL to 3.6.0, and deprecated use of oqsprovider for post-quantum algorithms. #1590
+Windows:
+   * Fixed WireGuard connection may not reconnect after PC wakes from sleep mode. #1576
+MacOS:
+   * Fixed freshly launched app may not clean up stale interface. #1586
+   * Fixed in-app data counter may be incorrect. #1592
+Linux:
+   * Improved install scripts not to disable firewalld. #1596
+   * Fixed script not retaining SELinux context. #1591
+   * Fixed freshly launched app may not clean up stale interface. #1586
+   * Fixed in-app data counter may be incorrect. #1592
 
 
 2.19.6 (15/12/2025)

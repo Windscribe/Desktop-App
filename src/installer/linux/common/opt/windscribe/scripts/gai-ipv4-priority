@@ -27,12 +27,13 @@ gai_ipv4_priority_up()
 
     # Backup original gai.conf if it exists and not already backed up
     if [ -f "$GAI_CONF" ] && [ ! -f "$GAI_BACKUP" ]; then
-        cp "$GAI_CONF" "$GAI_BACKUP"
+        cp -a "$GAI_CONF" "$GAI_BACKUP"
     fi
 
     # If gai.conf doesn't exist, create it
     if [ ! -f "$GAI_CONF" ]; then
         echo "# gai.conf - getaddrinfo configuration" > "$GAI_CONF"
+        command -v restorecon >/dev/null 2>&1 && restorecon -F "$GAI_CONF" 2>/dev/null || true
     fi
 
     # Add IPv4 priority configuration
@@ -58,7 +59,7 @@ gai_ipv4_priority_down()
 
     # Restore backup if it exists
     if [ -f "$GAI_BACKUP" ]; then
-        cp "$GAI_BACKUP" "$GAI_CONF"
+        cp -a "$GAI_BACKUP" "$GAI_CONF"
         rm -f "$GAI_BACKUP"
         echo "Restored original $GAI_CONF"
     else

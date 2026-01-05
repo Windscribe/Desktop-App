@@ -15,12 +15,12 @@ namespace PreferencesWindow {
 PlanItem::PlanItem(ScalableGraphicsObject *parent)
   : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), planBytes_(-1), isPremium_(false), alcCount_(0)
 {
-    textButton_ = new CommonGraphics::TextButton("", FontDescr(12, QFont::Normal), FontManager::instance().getSeaGreenColor(), true, this);
+    textButton_ = new CommonGraphics::TextButton("", FontDescr(14, QFont::Normal), FontManager::instance().getSeaGreenColor(), true, this);
     connect(textButton_, &CommonGraphics::TextButton::clicked, this, &PlanItem::upgradeClicked);
     textButton_->setClickable(false);
     textButton_->setMarginHeight(0);
     textButton_->setTextAlignment(Qt::AlignLeft);
-    textButton_->setCurrentOpacity(OPACITY_HALF);
+    textButton_->setCurrentOpacity(OPACITY_SIXTY);
     textButton_->setColor(Qt::white);
 
     iconButton_ = ImageResourcesSvg::instance().getIndependentPixmap("PRO");
@@ -35,11 +35,11 @@ void PlanItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     Q_UNUSED(widget);
 
     // Title
-    QFont font = FontManager::instance().getFont(12, QFont::DemiBold);
+    QFont font = FontManager::instance().getFont(14, QFont::DemiBold);
     painter->setFont(font);
     painter->setPen(Qt::white);
     painter->setOpacity(OPACITY_FULL);
-    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, -PREFERENCES_MARGIN_X*G_SCALE, -PREFERENCES_MARGIN_Y*G_SCALE), Qt::AlignLeft, tr("Plan Type"));
+    painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, 0, -PREFERENCES_MARGIN_X*G_SCALE, 0), Qt::AlignLeft | Qt::AlignVCenter, tr("Plan Type"));
 
     if (isPremium_) {
         iconButton_->draw(boundingRect().width() - iconButton_->width() - PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, iconButton_->width(), iconButton_->height(), painter);

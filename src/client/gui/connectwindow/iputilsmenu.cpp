@@ -11,7 +11,7 @@ IpUtilsMenu::IpUtilsMenu(ScalableGraphicsObject *parent)
     : ScalableGraphicsObject(parent), isIpPinned_(false)
 {
     favouriteButton_ = new IconButton(24, 24, "ip-utils/FAVOURITE", "", this);
-    favouriteButton_->setUnhoverOpacity(0.7);
+    favouriteButton_->setUnhoverOpacity(OPACITY_SEVENTY);
     favouriteButton_->setHoverOpacity(1.0);
     favouriteButton_->setClickableHoverable(true, true);
     favouriteButton_->unhover();
@@ -20,7 +20,7 @@ IpUtilsMenu::IpUtilsMenu(ScalableGraphicsObject *parent)
     connect(favouriteButton_, &IconButton::hoverLeave, this, &IpUtilsMenu::favouriteHoverLeave);
 
     rotateButton_ = new IconButton(20, 20, "ip-utils/ROTATE", "", this);
-    rotateButton_->setUnhoverOpacity(0.7);
+    rotateButton_->setUnhoverOpacity(OPACITY_SEVENTY);
     rotateButton_->setHoverOpacity(1.0);
     rotateButton_->setClickableHoverable(true, true);
     rotateButton_->unhover();
@@ -29,7 +29,7 @@ IpUtilsMenu::IpUtilsMenu(ScalableGraphicsObject *parent)
     connect(rotateButton_, &IconButton::hoverLeave, this, &IpUtilsMenu::rotateHoverLeave);
 
     closeButton_ = new IconButton(24, 24, "ip-utils/CLOSE", "", this);
-    closeButton_->setUnhoverOpacity(0.7);
+    closeButton_->setUnhoverOpacity(OPACITY_SEVENTY);
     closeButton_->setHoverOpacity(1.0);
     closeButton_->unhover();
     connect(closeButton_, &IconButton::clicked, this, &IpUtilsMenu::closeClick);
@@ -87,7 +87,7 @@ void IpUtilsMenu::setRotateButtonEnabled(bool enabled)
 {
     rotateButton_->setClickable(enabled);
     if (enabled) {
-        rotateButton_->setUnhoverOpacity(0.7);
+        rotateButton_->setUnhoverOpacity(OPACITY_SEVENTY);
     } else {
         rotateButton_->setUnhoverOpacity(0.3);
     }

@@ -15,7 +15,7 @@ MixedComboBoxItem::MixedComboBoxItem(ScalableGraphicsObject *parent)
     secondaryComboBox_ = new ComboBoxItem(this);
     secondaryComboBox_->setCaptionY(0);
     secondaryComboBox_->setUseMinimumSize(true);
-    secondaryComboBox_->setButtonFont(FontDescr(10, QFont::Normal));
+    secondaryComboBox_->setButtonFont(FontDescr(12, QFont::Normal));
     secondaryComboBox_->setButtonIcon("preferences/CNTXT_MENU_SMALL_ICON");
     connect(secondaryComboBox_, &ComboBoxItem::currentItemChanged, this, &MixedComboBoxItem::pathChanged);
 
@@ -40,6 +40,7 @@ void MixedComboBoxItem::updateScaling()
 {
     ComboBoxItem::updateScaling();
     updatePositions();
+    updateSecondaryItemVisibility(false);
 }
 
 void MixedComboBoxItem::setCurrentItem(QVariant value)
@@ -77,21 +78,21 @@ void MixedComboBoxItem::updateSecondaryItemVisibility(bool signal)
     if (currentValue == customValue_) {
         selectFileItem_->show();
         secondaryComboBox_->hide();
-        setCaptionY(8*G_SCALE);
+        setCaptionY(8*G_SCALE, signal);
         if (signal) {
             emit pathChanged(selectFileItem_->path());
         }
     } else if (currentValue == bundledValue_) {
         selectFileItem_->hide();
         secondaryComboBox_->show();
-        setCaptionY(8*G_SCALE);
+        setCaptionY(8*G_SCALE, signal);
         if (signal) {
             emit pathChanged(secondaryComboBox_->currentItem());
         }
     } else {
         selectFileItem_->hide();
         secondaryComboBox_->hide();
-        setCaptionY(-1);
+        setCaptionY(-1, signal);
     }
     updatePositions();
 }

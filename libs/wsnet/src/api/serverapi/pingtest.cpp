@@ -6,23 +6,30 @@
 
 namespace wsnet {
 
-PingTest::PingTest(WSNetHttpNetworkManager *httpNetworkManager) : httpNetworkManager_(httpNetworkManager)
+struct PingTest::EndpointsImpl {
+    std::vector<skyr::url> endpoints;
+};
+
+PingTest::~PingTest() = default;
+
+PingTest::PingTest(WSNetHttpNetworkManager *httpNetworkManager) : httpNetworkManager_(httpNetworkManager),
+    endpointsImpl_(std::make_unique<EndpointsImpl>())
 {
     auto tunnelTestEndpoints = Settings::instance().tunnelTestEndpoints();
     for (const std::string &it : tunnelTestEndpoints) {
-        auto url = skyr::url("https://" + it);
+        skyr::url url("https://" + it);
         auto &sp = url.search_parameters();
         urlquery_utils::addPlatformQueryItems(sp);
-        endpoints_.push_back(url);
+        endpointsImpl_->endpoints.push_back(url);
     }
 }
 
 void PingTest::doPingTest(std::uint32_t timeoutMs, RequestFinishedCallback callback)
 {
-    assert(!endpoints_.empty());
+    assert(!endpointsImpl_->endpoints.empty());
     assert(callback != nullptr);
     // Do the first ping test through the primary domain
-    auto httpRequest = httpNetworkManager_->createGetRequest(endpoints_[0].c_str(), timeoutMs, false);
+    auto httpRequest = httpNetworkManager_->createGetRequest(endpointsImpl_->endpoints[0].c_str(), timeoutMs, false);
     // We do not use DNS cache, as we need to verify the functionality of the connected VPN's DNS.
     httpRequest->setUseDnsCache(false);
     httpRequest->setIsWhiteListIps(false);
@@ -51,11 +58,11 @@ void PingTest::onHttpNetworkRequestFinished(std::uint64_t requestId, std::uint32
         if (error->httpResponseCode() == 200 && utils::isIpAddress(trimmedData)) {
             it->second.callback->call(ApiRetCode::kSuccess, trimmedData);
             bSuccess = true;
-        } else if (it->second.curEndpointInd < (endpoints_.size() - 1)) {
+        } else if (it->second.curEndpointInd < (endpointsImpl_->endpoints.size() - 1)) {
             // try next backup endpoint
             it->second.curEndpointInd++;
-            g_logger->info("Trying backup endpoint for PingTest: {}", endpoints_[it->second.curEndpointInd].domain()->c_str());
-            auto httpRequest = httpNetworkManager_->createGetRequest(endpoints_[it->second.curEndpointInd].c_str(), it->second.timeoutMs, false);
+            g_logger->info("Trying backup endpoint for PingTest: {}", endpointsImpl_->endpoints[it->second.curEndpointInd].domain()->c_str());
+            auto httpRequest = httpNetworkManager_->createGetRequest(endpointsImpl_->endpoints[it->second.curEndpointInd].c_str(), it->second.timeoutMs, false);
             httpRequest->setUseDnsCache(false);
             httpRequest->setIsWhiteListIps(false);
             using namespace std::placeholders;

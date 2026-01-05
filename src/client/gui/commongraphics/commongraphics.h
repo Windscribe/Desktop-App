@@ -35,7 +35,9 @@ const double OPACITY_DIVIDER_LINE_BRIGHT     = 0.15;
 const double OPACITY_QUARTER                 = 0.25;
 const double OPACITY_THIRD                   = 0.3;
 const double OPACITY_HALF                    = 0.5;
+const double OPACITY_SIXTY                   = 0.6;
 const double OPACITY_TWO_THIRDS              = 0.66;
+const double OPACITY_SEVENTY                 = 0.7;
 const double OPACITY_FULL                    = 1.0;
 
 const double OPACITY_UNHOVER_DIVIDER         = 0.1;

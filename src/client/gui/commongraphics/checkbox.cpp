@@ -20,7 +20,7 @@ Checkbox::Checkbox(ScalableGraphicsObject *parent, const QString &label) : Click
     connect(checkboxChecked_, &IconButton::hoverEnter, this, &Checkbox::onCheckboxHoverEnter);
     connect(checkboxChecked_, &IconButton::hoverLeave, this, &Checkbox::onCheckboxHoverLeave);
 
-    label_ = new CommonGraphics::TextButton(label, FontDescr(12, QFont::Normal), QColor(255, 255, 255), true, this);
+    label_ = new CommonGraphics::TextButton(label, FontDescr(14, QFont::Normal), QColor(255, 255, 255), true, this);
     label_->setMarginHeight(0);
     label_->setUnhoverOnClick(false);
     label_->setPos(24*G_SCALE, 0);

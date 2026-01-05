@@ -169,7 +169,7 @@ void DnsResolver::threadFunc(void *arg)
                 resolver->waitCondition_.wait(lockWait);
             }
         }
-        sleep(1);
+        sleep(1); // NOLINT: false positive, sleep is outside the critical section
     }
 }
 
@@ -187,7 +187,7 @@ bool DnsResolver::processChannel(ares_channel channel)
     }
     timeval tv;
     timeval *tvp = ares_timeout(channel, NULL, &tv);
-    res = select(nfds, &read_fds, &write_fds, NULL, tvp);
+    (void)select(nfds, &read_fds, &write_fds, NULL, tvp);
     ares_process(channel, &read_fds, &write_fds);
     return true;
 }

@@ -18,7 +18,7 @@ namespace PreferencesWindow {
 SelectFileItem::SelectFileItem(ScalableGraphicsObject *parent) : CommonGraphics::BaseItem(parent, kSelectImageHeight*G_SCALE)
 {
     button_ = new CommonGraphics::TextIconButton(4, "", "preferences/EDIT_SMALL_ICON", this, true);
-    button_->setFont(FontDescr(10, QFont::Normal));
+    button_->setFont(FontDescr(12, QFont::Normal));
     button_->setPos((PREFERENCES_MARGIN_X - 4)*G_SCALE, 0);
     connect(button_, &CommonGraphics::TextIconButton::clicked, this, &SelectFileItem::onClick);
 

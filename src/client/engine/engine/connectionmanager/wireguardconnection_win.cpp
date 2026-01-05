@@ -89,28 +89,15 @@ void WireGuardConnection::startDisconnect()
 {
     if (isRunning()) {
         stop();
-    }
-    else if (isDisconnected()) {
+    } else {
         emit disconnected();
     }
 }
 
 bool WireGuardConnection::isDisconnected() const
 {
-    DWORD dwStatus = SERVICE_STOPPED;
-    try {
-        wsl::ServiceControlManager scm;
-        scm.openSCM(SC_MANAGER_CONNECT);
-        if (scm.isServiceInstalled(kWireGuardServiceIdentifier.c_str())) {
-            scm.openService(kWireGuardServiceIdentifier.c_str(), SERVICE_QUERY_STATUS);
-            dwStatus = scm.queryServiceStatus();
-        }
-    }
-    catch (std::system_error& ex) {
-        qCWarning(LOG_CONNECTION) << "WireGuardConnection::isDisconnected -" << ex.what();
-    }
-
-    return (dwStatus == SERVICE_STOPPED || dwStatus == SERVICE_STOP_PENDING);
+    // We are in the disconnected state when the thread has completed its post-connection cleanup and exited.
+    return !isRunning();
 }
 
 void WireGuardConnection::run()
@@ -121,8 +108,7 @@ void WireGuardConnection::run()
 
     // Installing the wireguard service requires admin privilege.
     bool bSuccess = helper_->startWireGuard();
-    if (!bSuccess)
-    {
+    if (!bSuccess) {
         qCCritical(LOG_CONNECTION) << "Windscribe service could not install the WireGuard service";
         emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
         emit disconnected();
@@ -229,7 +215,20 @@ void WireGuardConnection::stop()
 
 void WireGuardConnection::onCheckServiceRunning()
 {
-    if (isDisconnected()) {
+    DWORD dwStatus = SERVICE_STOPPED;
+    try {
+        wsl::ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_CONNECT);
+        if (scm.isServiceInstalled(kWireGuardServiceIdentifier.c_str())) {
+            scm.openService(kWireGuardServiceIdentifier.c_str(), SERVICE_QUERY_STATUS);
+            dwStatus = scm.queryServiceStatus();
+        }
+    }
+    catch (std::system_error& ex) {
+        qCWarning(LOG_CONNECTION) << "WireGuardConnection::onCheckServiceRunning -" << ex.what();
+    }
+
+    if (dwStatus == SERVICE_STOPPED || dwStatus == SERVICE_STOP_PENDING) {
         qCWarning(LOG_CONNECTION) << "The WireGuard service has stopped unexpectedly";
         stop();
     }
@@ -284,7 +283,7 @@ void WireGuardConnection::onWireguardHandshakeFailure()
         if (helper_->getWireGuardStatus(&status) && (status.state == types::WireGuardState::ACTIVE) && (status.lastHandshake > 0)) {
             // The handshake should occur every ~2 minutes.  After 3 minutes, the server will discard our key
             // information and will silently reject anything we send to it until we make another wgconfig API call.
-            QDateTime lastHandshake = QDateTime::fromSecsSinceEpoch((status.lastHandshake / 10000000) - 11644473600LL, Qt::UTC);
+            QDateTime lastHandshake = QDateTime::fromSecsSinceEpoch((status.lastHandshake / 10000000) - 11644473600LL, QTimeZone(QTimeZone::UTC));
             qint64 secsTo = lastHandshake.secsTo(QDateTime::currentDateTimeUtc());
 
             if (secsTo >= 3*60) {

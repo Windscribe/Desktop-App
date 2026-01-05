@@ -44,22 +44,23 @@ void AppSearchItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     painter->setPen(Qt::white);
     painter->setOpacity(opacity_);
     QSharedPointer<IndependentPixmap> addIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/EXPAND_ICON");
-    addIcon->draw(boundingRect().width() - (PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, painter);
+    addIcon->draw(boundingRect().width() - (PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE, (PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE / 2, painter);
 
     // text
     painter->setPen(Qt::white);
     painter->setOpacity(opacity_);
 
-    QFont font = FontManager::instance().getFont(12,  QFont::Normal);
+    QFont font = FontManager::instance().getFont(14,  QFont::Normal);
     painter->setFont(font);
     QFontMetrics fm(font);
     QString elidedName = fm.elidedText(app_.name,
                                        Qt::TextElideMode::ElideRight,
                                        boundingRect().width() - (3*PREFERENCES_MARGIN_X + APP_ICON_MARGIN_X + APP_ICON_WIDTH + ICON_WIDTH)*G_SCALE);
     painter->drawText(boundingRect().adjusted((PREFERENCES_MARGIN_X + APP_ICON_WIDTH + APP_ICON_MARGIN_X)*G_SCALE,
-                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              0,
                                               -(2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE,
-                                              -PREFERENCES_MARGIN_Y*G_SCALE),
+                                              0),
+                      Qt::AlignLeft | Qt::AlignVCenter,
                       elidedName);
 }
 

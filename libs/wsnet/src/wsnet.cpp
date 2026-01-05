@@ -22,9 +22,6 @@
 #include "advancedparameters.h"
 #include "connectstate.h"
 #include "../../../src/client/common/version/windscribe_version.h"
-#if defined(IS_MOBILE_PLATFORM)
-#include "utils/oqs_provider_loader.h"
-#endif
 
 #if defined(__ANDROID__)
     #include <scapix/bridge/java/on_load.h>
@@ -59,14 +56,6 @@ public:
                         bool isUseStagingDomains, const std::string &language, const std::string &persistentSettings)
     {
         g_logger->info("wsnet version: {}.{}.{}", WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION, WINDSCRIBE_BUILD_VERSION);
-
-        // Initialize OQS provider for post-quantum cryptography
-#if defined(IS_MOBILE_PLATFORM)
-        if (!OQSProviderLoader::initializeOQSProvider()) {
-            g_logger->error("Failed to initialize OQS provider");
-            return false;
-        }
-#endif
 
         dnsResolver_ = std::make_shared<DnsResolver_cares>();
         if (!dnsResolver_->init()) {
@@ -205,9 +194,6 @@ void WSNet::cleanup()
     g_logger->info("wsnet cleanup started");
     std::lock_guard locker(g_mutex);
     g_wsNet.reset();
-#if defined(IS_MOBILE_PLATFORM)
-    OQSProviderLoader::cleanup();
-#endif
     g_logger->info("wsnet cleanup finished");
 }
 

@@ -26,10 +26,10 @@ public:
     explicit LocationsTab(QWidget *parent, Preferences *preferences, gui_locations::LocationsModelManager *locationsModelManager);
 
     int unscaledHeightOfItemViewport();
-    void setCountVisibleItemSlots(int cnt);
     int getCountVisibleItems();
 
-    void updateLocationWidgetsGeometry(int newHeight);
+    void updateLocationWidgetsGeometry(int newHeight, bool currentOnly = false);
+    void updateCurrentWidgetGeometry(int newHeight);
     void updateScaling();
 
     int headerHeight() const;

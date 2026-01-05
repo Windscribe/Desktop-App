@@ -1,44 +1,46 @@
 diff --git a/Configurations/windows-makefile.tmpl b/Configurations/windows-makefile.tmpl
-index 894834cfb7..a377f1b349 100644
+index 5946c89..f71f3bf 100644
 --- a/Configurations/windows-makefile.tmpl
 +++ b/Configurations/windows-makefile.tmpl
-@@ -565,6 +565,7 @@ install_dev: install_runtime_libs
+@@ -564,8 +564,9 @@
+ 				       "$(INSTALLTOP)\include\openssl"
  	@"$(PERL)" "$(SRCDIR)\util\mkdir-p.pl" "$(libdir)"
  	@"$(PERL)" "$(SRCDIR)\util\copy.pl" $(INSTALL_LIBS) "$(libdir)"
  	@if "$(SHLIBS)"=="" \
-+    @if "$(INSTALL_PDBS)"=="ON" \
++	 @if "$(INSTALL_PDBS)"=="ON" \
  	 "$(PERL)" "$(SRCDIR)\util\copy.pl" ossl_static.pdb "$(libdir)"
  	@"$(PERL)" "$(SRCDIR)\util\mkdir-p.pl" "$(CMAKECONFIGDIR)"
  	@"$(PERL)" "$(SRCDIR)\util\copy.pl" $(INSTALL_EXPORTERS_CMAKE) "$(CMAKECONFIGDIR)"
-@@ -580,6 +581,7 @@ install_engines: _install_modules_deps
+ 
+@@ -569,6 +570,7 @@ install_engines: _install_modules_deps
  	@if not "$(INSTALL_ENGINES)"=="" \
  	 "$(PERL)" "$(SRCDIR)\util\copy.pl" $(INSTALL_ENGINES) "$(ENGINESDIR)"
  	@if not "$(INSTALL_ENGINES)"=="" \
-+    @if "$(INSTALL_PDBS)"=="ON" \
++	 @if "$(INSTALL_PDBS)"=="ON" \
  	 "$(PERL)" "$(SRCDIR)\util\copy.pl" $(INSTALL_ENGINEPDBS) "$(ENGINESDIR)"
  
  uninstall_engines:
-@@ -591,6 +593,7 @@ install_modules: _install_modules_deps
+@@ -580,6 +582,7 @@ install_modules: _install_modules_deps
  	@if not "$(INSTALL_MODULES)"=="" \
  	 "$(PERL)" "$(SRCDIR)\util\copy.pl" $(INSTALL_MODULES) "$(MODULESDIR)"
  	@if not "$(INSTALL_MODULES)"=="" \
-+    @if "$(INSTALL_PDBS)"=="ON" \
++	 @if "$(INSTALL_PDBS)"=="ON" \
  	 "$(PERL)" "$(SRCDIR)\util\copy.pl" $(INSTALL_MODULEPDBS) "$(MODULESDIR)"
  
  uninstall_modules:
-@@ -604,6 +607,7 @@ install_runtime_libs: build_libs
+@@ -593,6 +596,7 @@ install_runtime_libs: build_libs
  	@if not "$(SHLIBS)"=="" \
  	 "$(PERL)" "$(SRCDIR)\util\copy.pl" $(INSTALL_SHLIBS) "$(INSTALLTOP)\bin"
  	@if not "$(SHLIBS)"=="" \
-+    @if "$(INSTALL_PDBS)"=="ON" \
++	 @if "$(INSTALL_PDBS)"=="ON" \
  	 "$(PERL)" "$(SRCDIR)\util\copy.pl" $(INSTALL_SHLIBPDBS) \
                                          "$(INSTALLTOP)\bin"
  
-@@ -619,6 +623,7 @@ install_programs: install_runtime_libs build_programs
+@@ -605,6 +609,7 @@ install_programs: install_runtime_libs build_programs
+ 	 "$(PERL)" "$(SRCDIR)\util\copy.pl" $(INSTALL_PROGRAMS) \
+                                         "$(INSTALLTOP)\bin"
+ 	@if not "$(INSTALL_PROGRAMS)"=="" \
++	 @if "$(INSTALL_PDBS)"=="ON" \
  	 "$(PERL)" "$(SRCDIR)\util\copy.pl" $(INSTALL_PROGRAMPDBS) \
                                          "$(INSTALLTOP)\bin"
  	@if not "$(INSTALL_PROGRAMS)"=="" \
-+    @if "$(INSTALL_PDBS)"=="ON" \
- 	 "$(PERL)" "$(SRCDIR)\util\copy.pl" $(BIN_SCRIPTS) \
-                                         "$(INSTALLTOP)\bin"
- 

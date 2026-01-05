@@ -25,6 +25,7 @@ public:
     void addItem(BaseItem *item, int index = -1);
     void removeItem(BaseItem *itemToRemove);
     virtual void clearItems();
+    void setItems(const QList<BaseItem *> &items, int startIdx, int endIdx);
 
     void setSpacerHeight(int height);
     void setIndent(int indent);

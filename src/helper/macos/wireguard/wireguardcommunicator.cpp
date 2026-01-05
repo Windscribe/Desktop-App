@@ -79,7 +79,7 @@ bool WireGuardCommunicator::Connection::getOutput(ResultMap *results_map) const
     char prev = 0, c = 0;
     for (;;) {
         c = static_cast<char>(fgetc(fileHandle_));
-        if ((c == '\n' && prev == '\n') || feof(fileHandle_)) {
+        if ((c == '\n' && prev == '\n') || feof(fileHandle_) || ferror(fileHandle_)) {
             break;
         }
         prev = c;
@@ -171,14 +171,21 @@ bool WireGuardCommunicator::start(const std::string &deviceName)
 bool WireGuardCommunicator::stop()
 {
     if (!deviceName_.empty()) {
-        Utils::executeCommand("rm", {"-f", ("/var/run/wireguard/" + deviceName_ + ".sock").c_str()});
+        forceStop(deviceName_);
         deviceName_.clear();
     }
 
     if (!executable_.empty()) {
-        Utils::executeCommand("pkill", {"-f", executable_.c_str()});
         executable_.clear();
     }
+    return true;
+}
+
+// static
+bool WireGuardCommunicator::forceStop(const std::string &deviceName)
+{
+    Utils::executeCommand("rm", {"-f", ("/var/run/wireguard/" + deviceName + ".sock").c_str()});
+    Utils::executeCommand("pkill", {"-f", "windscribewireguard"});
     return true;
 }
 

@@ -23,7 +23,7 @@ target_link_libraries(WindscribeLauncher
 set_target_properties(WindscribeLauncher
                       PROPERTIES
                       MACOSX_BUNDLE TRUE
-                      MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/info.plist
+                      MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/info.plist
                       RESOURCE "base.lproj/Main.storyboard;installer/Assets.xcassets"
                       XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME appicon
                       XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++17"
@@ -46,5 +46,18 @@ set_target_properties(WindscribeLauncher
 )
 target_include_directories(WindscribeLauncher PRIVATE
                            ../../../client/common
+)
+
+# Sign launcher immediately after building
+add_custom_command(TARGET WindscribeLauncher POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E echo "Signing WindscribeLauncher..."
+    COMMAND ${CODESIGN_EXECUTABLE}
+            --force
+            --options runtime
+            --timestamp
+            --entitlements "${CMAKE_CURRENT_SOURCE_DIR}/windscribelauncher.entitlements"
+            --sign "Developer ID Application"
+            $<TARGET_BUNDLE_DIR:WindscribeLauncher>
+    COMMAND ${CODESIGN_EXECUTABLE} -v $<TARGET_BUNDLE_DIR:WindscribeLauncher>
 )
 

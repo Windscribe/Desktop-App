@@ -22,14 +22,14 @@ void MacAddressItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont font = FontManager::instance().getFont(12,  QFont::Normal);
+    QFont font = FontManager::instance().getFont(14,  QFont::Normal);
     painter->setFont(font);
     painter->setPen(Qt::white);
     painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
-                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              0,
                                               -(2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE,
-                                              -PREFERENCES_MARGIN_Y*G_SCALE),
-                      Qt::AlignLeft,
+                                              0),
+                      Qt::AlignLeft | Qt::AlignVCenter,
                       tr(caption_.toStdString().c_str()));
 
     painter->setOpacity(OPACITY_HALF);
@@ -44,10 +44,10 @@ void MacAddressItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     }
 
     painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
-                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              0,
                                               -(2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE,
-                                              -PREFERENCES_MARGIN_Y*G_SCALE),
-                      Qt::AlignRight,
+                                              0),
+                      Qt::AlignRight | Qt::AlignVCenter,
                       t);
 }
 

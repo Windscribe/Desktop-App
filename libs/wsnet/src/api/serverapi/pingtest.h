@@ -1,6 +1,5 @@
 #pragma once
 
-#include <skyr/url.hpp>
 #include "WSNetHttpNetworkManager.h"
 #include "../baserequest.h"
 
@@ -13,15 +12,17 @@ class PingTest
 {
 public:
     explicit PingTest(WSNetHttpNetworkManager *httpNetworkManager);
-    virtual ~PingTest() {};
+    virtual ~PingTest();
 
     void doPingTest(std::uint32_t timeoutMs, RequestFinishedCallback callback);
-
 
 private:
     WSNetHttpNetworkManager *httpNetworkManager_;
     std::uint64_t curUniqueId_ = 0;
-    std::vector<skyr::url> endpoints_;
+
+    // Forward declare instead of including skyr/url.hpp which brings conflicts to Windows
+    struct EndpointsImpl;
+    std::unique_ptr<EndpointsImpl> endpointsImpl_;
 
     struct RequestInfo {
         RequestFinishedCallback callback;

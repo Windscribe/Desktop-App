@@ -10,7 +10,7 @@
 #include "dpiscalemanager.h"
 #include "tooltips/tooltipcontroller.h"
 
-ConfigFooterInfo::IconButton::IconButton() : opacity(0.7), is_hover(false) {}
+ConfigFooterInfo::IconButton::IconButton() : opacity(OPACITY_SEVENTY), is_hover(false) {}
 
 
 ConfigFooterInfo::ConfigFooterInfo(QWidget *parent) : QAbstractButton(parent)
@@ -129,7 +129,7 @@ void ConfigFooterInfo::mouseMoveEvent(QMouseEvent *event)
                                      1.0, ANIMATION_SPEED_FAST);
         } else {
             startAnAnimation<double>(iconButtons_[i].opacityAnimation, iconButtons_[i].opacity,
-                                     0.7, ANIMATION_SPEED_FAST);
+                                     OPACITY_SEVENTY, ANIMATION_SPEED_FAST);
         }
     }
     setCursor(is_any_icon_button_hover ? Qt::PointingHandCursor : Qt::ArrowCursor);
@@ -176,7 +176,7 @@ void ConfigFooterInfo::mouseReleaseEvent(QMouseEvent * /*event*/)
         if (clickedIconButton) {
             clickedIconButton->is_hover = false;
             startAnAnimation<double>(clickedIconButton->opacityAnimation,
-                clickedIconButton->opacity, 0.7, ANIMATION_SPEED_FAST);
+                clickedIconButton->opacity, OPACITY_SEVENTY, ANIMATION_SPEED_FAST);
         }
     }
 }

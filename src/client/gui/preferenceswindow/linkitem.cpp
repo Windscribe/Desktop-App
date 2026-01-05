@@ -20,12 +20,12 @@ LinkItem::LinkItem(ScalableGraphicsObject *parent, LinkType type, const QString 
   : BaseItem(parent, type == LinkType::TEXT_ONLY ? 40*G_SCALE : PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE),
     title_(title), url_(url), linkText_(""), type_(type), icon_(nullptr), linkIcon_(nullptr), inProgress_(false), spinnerRotation_(0), isTitleElided_(false), yOffset_(0)
 {
-    curArrowOpacity_= OPACITY_HALF;
+    curArrowOpacity_= OPACITY_SIXTY;
     if (type == LinkType::TEXT_ONLY) {
         curTextOpacity_ = OPACITY_FULL;
     } else {
         setClickable(true);
-        curTextOpacity_ = OPACITY_HALF;
+        curTextOpacity_ = OPACITY_SIXTY;
         connect(this, &BaseItem::clicked, this, &LinkItem::onOpenUrl);
         connect(this, &BaseItem::hoverEnter, this, &LinkItem::onHoverEnter);
         connect(this, &BaseItem::hoverLeave, this, &LinkItem::onHoverLeave);
@@ -35,7 +35,7 @@ LinkItem::LinkItem(ScalableGraphicsObject *parent, LinkType type, const QString 
         connect(&spinnerAnimation_, &QVariantAnimation::finished, this, &LinkItem::onSpinnerRotationFinished);
     }
 
-    infoIcon_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/INFO_ICON", "", this, OPACITY_HALF);
+    infoIcon_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/INFO_ICON", "", this, OPACITY_SIXTY);
     connect(infoIcon_, &IconButton::clicked, this, &LinkItem::onInfoIconClicked);
 
     setAcceptHoverEvents(true);
@@ -47,7 +47,7 @@ void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     Q_UNUSED(widget);
 
     // link text
-    QFont font = FontManager::instance().getFont(12, QFont::DemiBold);
+    QFont font = FontManager::instance().getFont(14, QFont::DemiBold);
     QFontMetrics fm(font);
     painter->setFont(font);
     painter->setPen(Qt::white);
@@ -63,7 +63,7 @@ void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     if (type_ == LinkType::EXTERNAL_LINK || type_ == LinkType::SUBPAGE_LINK) {
         linkTextPosX -= 19*G_SCALE;
     }
-    painter->drawText(boundingRect().adjusted(linkTextPosX, (PREFERENCES_ITEM_Y + yOffset_)*G_SCALE, -PREFERENCES_MARGIN_X*G_SCALE, -PREFERENCES_MARGIN_Y*G_SCALE), Qt::AlignLeft, linkText_);
+    painter->drawText(boundingRect().adjusted(linkTextPosX, yOffset_*G_SCALE, -PREFERENCES_MARGIN_X*G_SCALE, yOffset_*G_SCALE - (boundingRect().height() - PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE)), Qt::AlignLeft | Qt::AlignVCenter, linkText_);
 
     // arrow or external link
     QSharedPointer<IndependentPixmap> p;
@@ -90,7 +90,7 @@ void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     int xOffset = PREFERENCES_MARGIN_X*G_SCALE;
     if (icon_) {
         painter->setOpacity(OPACITY_FULL);
-        icon_->draw(PREFERENCES_MARGIN_X*G_SCALE, (PREFERENCES_ITEM_Y + yOffset_)*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
+        icon_->draw(PREFERENCES_MARGIN_X*G_SCALE, ((PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT) / 2 + yOffset_)*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
         xOffset = (PREFERENCES_MARGIN_X + 8 + ICON_WIDTH)*G_SCALE;
     } else {
         painter->setOpacity(curTextOpacity_);
@@ -113,18 +113,18 @@ void LinkItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
     );
 
     painter->drawText(boundingRect().adjusted(xOffset,
-                                              (PREFERENCES_ITEM_Y + yOffset_)*G_SCALE,
+                                              yOffset_*G_SCALE,
                                               -PREFERENCES_MARGIN_X*G_SCALE,
-                                              -PREFERENCES_MARGIN_Y*G_SCALE),
-                      Qt::AlignLeft,
+                                              yOffset_*G_SCALE - (boundingRect().height() - PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE)),
+                      Qt::AlignLeft | Qt::AlignVCenter,
                       title);
 
     // If there's a description draw it
     if (!desc_.isEmpty()) {
-        QFont font = FontManager::instance().getFont(10, QFont::Normal);
+        QFont font = FontManager::instance().getFont(12, QFont::Normal);
         painter->setFont(font);
         painter->setPen(Qt::white);
-        painter->setOpacity(OPACITY_HALF);
+        painter->setOpacity(OPACITY_SIXTY);
         painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
                                                   boundingRect().height() - PREFERENCES_MARGIN_Y*G_SCALE - descHeight_,
                                                   -descRightMargin_,
@@ -173,8 +173,8 @@ void LinkItem::onHoverEnter()
 
 void LinkItem::onHoverLeave()
 {
-    startAnAnimation<double>(textOpacityAnimation_, curTextOpacity_, OPACITY_HALF, ANIMATION_SPEED_FAST);
-    startAnAnimation<double>(arrowOpacityAnimation_, curArrowOpacity_, OPACITY_HALF, ANIMATION_SPEED_FAST);
+    startAnAnimation<double>(textOpacityAnimation_, curTextOpacity_, OPACITY_SIXTY, ANIMATION_SPEED_FAST);
+    startAnAnimation<double>(arrowOpacityAnimation_, curArrowOpacity_, OPACITY_SIXTY, ANIMATION_SPEED_FAST);
 }
 
 void LinkItem::onTextOpacityChanged(const QVariant &value)
@@ -285,7 +285,7 @@ void LinkItem::updatePositions()
         descRightMargin_ += PREFERENCES_MARGIN_X*G_SCALE + ICON_WIDTH*G_SCALE;
     }
 
-    QFontMetrics fm(FontManager::instance().getFont(10, QFont::Normal));
+    QFontMetrics fm(FontManager::instance().getFont(12, QFont::Normal));
     descHeight_ = fm.boundingRect(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, 0, -descRightMargin_, 0).toRect(),
                                   Qt::AlignLeft | Qt::TextWordWrap,
                                   desc_).height();

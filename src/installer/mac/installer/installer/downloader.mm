@@ -34,7 +34,10 @@
     NSURLSessionConfiguration *conf = [NSURLSessionConfiguration defaultSessionConfiguration];
     session_ = [NSURLSession sessionWithConfiguration:conf  delegate: self delegateQueue: nil];
 
-    [[session_ downloadTaskWithURL: [NSURL URLWithString:strUrl_]] resume];
+    NSURL *url = [NSURL URLWithString:strUrl_];
+    if (url) {
+        [[session_ downloadTaskWithURL:url] resume];
+    }
 }
 
 // cancel and do uninstall
@@ -102,8 +105,10 @@
         filePath += "windscribe_legacy_installer.dmg";
         filePath_ = [NSString stringWithUTF8String:filePath.c_str()];
 
-        NSData *data = [NSData dataWithContentsOfURL:location];
-        [data writeToFile:filePath_ atomically:YES];
+        if (filePath_) {
+            NSData *data = [NSData dataWithContentsOfURL:location];
+            [data writeToFile:filePath_ atomically:YES];
+        }
 
         self.progress = 100;
         self.currentState = wsl::STATE_FINISHED;

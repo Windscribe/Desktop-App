@@ -25,7 +25,7 @@ MacSpoofingGroup::MacSpoofingGroup(ScalableGraphicsObject *parent, const QString
     addItem(macAddressItem_);
 
     comboBoxInterface_ = new ComboBoxItem(this);
-    comboBoxInterface_ ->setCaptionFont(FontDescr(12, QFont::Normal));
+    comboBoxInterface_ ->setCaptionFont(FontDescr(14, QFont::Normal));
     connect(comboBoxInterface_, &ComboBoxItem::currentItemChanged, this, &MacSpoofingGroup::onInterfaceItemChanged);
     addItem(comboBoxInterface_);
 

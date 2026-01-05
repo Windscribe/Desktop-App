@@ -21,7 +21,7 @@ FirewallController::~FirewallController()
 
 bool FirewallController::enable(const std::string &rules, const std::string &table, const std::string &group)
 {
-    int fd = open("/etc/windscribe/pf.conf", O_CREAT | O_WRONLY | O_TRUNC);
+    int fd = open("/etc/windscribe/pf.conf", O_CREAT | O_WRONLY | O_TRUNC, 0644);
     if (fd < 0) {
         spdlog::error("Could not open firewall rules for writing");
         return false;

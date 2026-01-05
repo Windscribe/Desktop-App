@@ -24,6 +24,12 @@
 - (void)startProxyWithOptions:(NSDictionary<NSString *,id> * _Nullable)options completionHandler:(void (^ _Nonnull)(NSError * _Nullable))completionHandler {
     spdlog::info("Starting Windscribe split tunnel extension");
 
+    if (!options) {
+        NSError *error = [NSError errorWithDomain:@"com.windscribe.client.splittunnelextension" code:1 userInfo:@{NSLocalizedDescriptionKey: @"No options provided"}];
+        completionHandler(error);
+        return;
+    }
+
     NSError *error = nil;
     settings_ = [[Settings alloc] initWithOptions:options error:&error];
     if (!settings_) {
@@ -66,6 +72,7 @@
     } else if ([flow isKindOfClass:[NEAppProxyUDPFlow class]]) {
         return [udpHandler_ setupUDPConnection:(NEAppProxyUDPFlow *)flow interface:settings_.primaryInterface];
     }
+    return NO;
 }
 
 @end

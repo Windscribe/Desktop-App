@@ -16,8 +16,6 @@ find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(spdlog CONFIG REQUIRED)
 find_path(WINREG_INCLUDE_DIRS "winreg/WinReg.hpp")
 
-add_subdirectory(../../../libs/wsnet wsnet)
-
 set(SOURCES
     active_processes.cpp
     adapters_info.cpp
@@ -80,8 +78,6 @@ target_link_libraries(WindscribeService
                       wsnet::wsnet
                       Boost::serialization
                       spdlog::spdlog
-                      ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/oqs.lib
-                      ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/oqsprovider.lib
 )
 
 target_include_directories(WindscribeService PRIVATE

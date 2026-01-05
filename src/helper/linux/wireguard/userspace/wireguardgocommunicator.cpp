@@ -160,11 +160,16 @@ bool WireGuardGoCommunicator::start(const std::string &deviceName)
 bool WireGuardGoCommunicator::stop()
 {
     if (!deviceName_.empty()) {
-        Utils::executeCommand("rm", {"-f", ("/var/run/wireguard/" + deviceName_ + ".sock").c_str()});
+        forceStop(deviceName_);
     }
-    if (!executable_.empty()) {
-        Utils::executeCommand("pkill", {"-f", executable_.c_str()});
-    }
+    return true;
+}
+
+// static
+bool WireGuardGoCommunicator::forceStop(const std::string &deviceName)
+{
+    Utils::executeCommand("rm", {"-f", ("/var/run/wireguard/" + deviceName + ".sock").c_str()});
+    Utils::executeCommand("pkill", {"-f", "windscribewireguard"});
     return true;
 }
 

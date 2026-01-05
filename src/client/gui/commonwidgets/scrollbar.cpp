@@ -121,12 +121,12 @@ QString ScrollBar::customStyleSheet()
                     .arg(0);          // padding left
     // handle - draw in paintEvent to change opacity
     css += QString( "QScrollBar::handle:vertical { background-color: %1; color: transparent;"
-                    "border-color: rgba(255,255,255,0.3); border-width: %2px; border-style: solid; border-radius: %3px; min-height: %4px;}")
+                    "border-color: rgb(83, 87, 94); border-width: %2px; border-style: solid; border-radius: %3px; min-height: %4px;}")
                         .arg(FontManager::instance().getMidnightColor().name())  // handle border-width
                         .arg(qCeil(1))  // handle border-width
                         .arg(qCeil((geometry().width() - customPaddingWidth())/2)) // handle border-radius
                         .arg(qCeil(50*G_SCALE)); // min-height
-    css += QString( "QScrollBar::handle:vertical:hover { border-color: rgba(255,255,255,0.7); }");
+    css += QString( "QScrollBar::handle:vertical:hover { border-color: rgb(181, 183, 186); }");
     // top and bottom page buttons
     css += QString( "QScrollBar::add-line:vertical { border: none; background: none; }"
                     "QScrollBar::sub-line:vertical { border: none; background: none; }");

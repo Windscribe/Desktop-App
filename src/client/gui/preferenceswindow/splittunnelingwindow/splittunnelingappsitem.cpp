@@ -27,7 +27,7 @@ void SplitTunnelingAppsItem::paint(QPainter *painter, const QStyleOptionGraphics
     QString text(tr("Search/Add Apps"));
     QString elidedText = text;
 
-    QFont font = FontManager::instance().getFont(12,  QFont::Normal);
+    QFont font = FontManager::instance().getFont(14,  QFont::Normal);
     painter->setFont(font);
     painter->setOpacity(OPACITY_HALF);
     painter->setPen(Qt::white);
@@ -51,8 +51,8 @@ void SplitTunnelingAppsItem::updateScaling()
 
 void SplitTunnelingAppsItem::updatePositions()
 {
-    searchButton_->setPos(boundingRect().width() - 2*ICON_WIDTH*G_SCALE - 2*PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
-    addButton_->setPos(boundingRect().width() - ICON_WIDTH*G_SCALE - PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
+    searchButton_->setPos(boundingRect().width() - 2*ICON_WIDTH*G_SCALE - 2*PREFERENCES_MARGIN_X*G_SCALE, (PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE / 2);
+    addButton_->setPos(boundingRect().width() - ICON_WIDTH*G_SCALE - PREFERENCES_MARGIN_X*G_SCALE, (PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE / 2);
 }
 
 void SplitTunnelingAppsItem::setClickable(bool clickable)

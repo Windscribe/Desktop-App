@@ -18,7 +18,7 @@ DecoyTrafficGroup::DecoyTrafficGroup(ScalableGraphicsObject *parent, const QStri
 
 
     comboBox_ = new ComboBoxItem(this);
-    comboBox_->setCaptionFont(FontDescr(12, QFont::Normal));
+    comboBox_->setCaptionFont(FontDescr(14, QFont::Normal));
     connect(comboBox_, &ComboBoxItem::currentItemChanged, this, &DecoyTrafficGroup::onDecoyTrafficOptionChanged);
     addItem(comboBox_);
 

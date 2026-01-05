@@ -39,10 +39,12 @@ void ResizeBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     Q_UNUSED(widget);
 
     QSharedPointer<IndependentPixmap> footerIcon = ImageResourcesSvg::instance().getIndependentPixmap("FOOTER");
-    painter->setOpacity(iconOpacity_);
+    double initOpacity = painter->opacity();
+    painter->setOpacity(painter->opacity() * iconOpacity_);
     footerIcon->draw(boundingRect().center().x() - footerIcon->width() / 2,
                      boundingRect().center().y() - footerIcon->height() / 2,
                      painter);
+    painter->setOpacity(initOpacity);
 }
 
 void ResizeBar::mousePressEvent(QGraphicsSceneMouseEvent *event)

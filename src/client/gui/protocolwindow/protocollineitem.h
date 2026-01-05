@@ -35,8 +35,8 @@ private:
     static constexpr int kBorderWidth = 2;
     static constexpr int kTextIndent = 16;
     static constexpr int kBannerY = 4;
-    static constexpr int kFirstLineY = 14;
-    static constexpr int kSecondLineY = 36;
+    static constexpr int kFirstLineY = 13;
+    static constexpr int kSecondLineY = 35;
     static constexpr int kDividerTop = 18;
     static constexpr int kDividerBottom = 28;
 

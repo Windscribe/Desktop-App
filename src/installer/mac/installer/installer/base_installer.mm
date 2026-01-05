@@ -75,7 +75,10 @@
     NSError *error;
     NSURL *applicationSupport = [manager URLForDirectory:NSApplicationDirectory inDomain:NSLocalDomainMask appropriateForURL:nil create:false error:&error];
 
-    return applicationSupport.path;
+    if (applicationSupport.path) {
+        return applicationSupport.path;
+    }
+    return @"/Applications";
 }
 
 @end

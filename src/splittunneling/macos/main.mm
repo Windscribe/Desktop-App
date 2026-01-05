@@ -42,10 +42,13 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-        TransparentProxyProvider *provider = [[TransparentProxyProvider alloc] init];
+        @autoreleasepool {
+            TransparentProxyProvider *provider = [[TransparentProxyProvider alloc] init];
+            (void)provider; // Provider is registered with the system during init
 
-        // Start handling proxy requests
-        [NEProvider startSystemExtensionMode];
+            // Start handling proxy requests
+            [NEProvider startSystemExtensionMode];
+        }
 
         // Run the extension indefinitely
         [[NSRunLoop mainRunLoop] run];

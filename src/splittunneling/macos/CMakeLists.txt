@@ -47,7 +47,31 @@ target_link_libraries(com.windscribe.client.splittunnelextension PRIVATE
     c-ares::cares
 )
 
+# Configure entitlements with DEVELOPMENT_TEAM substitution
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/splittunnelextension.entitlements
+    ${CMAKE_CURRENT_BINARY_DIR}/splittunnelextension.entitlements.configured
+    @ONLY
+)
+
+# Copy provisioning profile first (if it exists)
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../../data/provisioning_profile/splittunnelextension.provisionprofile")
-    add_custom_command(TARGET com.windscribe.client.splittunnelextension POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_CURRENT_SOURCE_DIR}/../../../data/provisioning_profile/splittunnelextension.provisionprofile" $<TARGET_FILE_DIR:com.windscribe.client.splittunnelextension>/../embedded.provisionprofile)
+    add_custom_command(TARGET com.windscribe.client.splittunnelextension POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../../data/provisioning_profile/splittunnelextension.provisionprofile"
+            $<TARGET_FILE_DIR:com.windscribe.client.splittunnelextension>/../embedded.provisionprofile
+    )
 endif()
+
+# Sign split tunnel extension immediately after building
+add_custom_command(TARGET com.windscribe.client.splittunnelextension POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E echo "Signing split tunnel extension..."
+    COMMAND ${CODESIGN_EXECUTABLE}
+            --force
+            --options runtime
+            --timestamp
+            --entitlements "${CMAKE_CURRENT_BINARY_DIR}/splittunnelextension.entitlements.configured"
+            --sign "Developer ID Application"
+            $<TARGET_BUNDLE_DIR:com.windscribe.client.splittunnelextension>
+    COMMAND ${CODESIGN_EXECUTABLE} -v $<TARGET_BUNDLE_DIR:com.windscribe.client.splittunnelextension>
+)

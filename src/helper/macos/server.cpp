@@ -76,10 +76,12 @@ void Server::peer_event_handler(xpc_connection_t peer, xpc_object_t event)
         std::string answer = processCommand((HelperCommand)cmdId, data);
 
         xpc_object_t message = xpc_dictionary_create_reply(event);
-        xpc_dictionary_set_data(message, "data", answer.data(), answer.length());
-        xpc_connection_send_message(peer, message);
+        if (message) {
+            xpc_dictionary_set_data(message, "data", answer.data(), answer.length());
+            xpc_connection_send_message(peer, message);
+            xpc_release(message);
+        }
         xpc_release(event);
-        xpc_release(message);
     } else {
         spdlog::error("Client sent an unknown message");
     }

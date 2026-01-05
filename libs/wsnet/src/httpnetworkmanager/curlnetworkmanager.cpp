@@ -5,9 +5,6 @@
 #include "utils/crypto_utils.h"
 #include "utils/requesterror.h"
 #include "settings.h"
-#if defined(IS_MOBILE_PLATFORM)
-#include "utils/oqs_provider_loader.h"
-#endif
 
 #include <openssl/opensslv.h>
 #include <openssl/ssl.h>
@@ -251,10 +248,6 @@ CURLcode CurlNetworkManager::sslctx_function(CURL *curl, void *sslctx, void *par
     for (int i = 0; i < certManager->count(); ++i)
         X509_STORE_add_cert(store, certManager->getCert(i));
 
-    // Configure SSL context for post-quantum cryptography
-#if defined(IS_MOBILE_PLATFORM)
-    OQSProviderLoader::configureSSLContext(ctx);
-#endif
     return CURLE_OK;
 }
 
@@ -410,7 +403,7 @@ bool CurlNetworkManager::setupOptions(RequestInfo *requestInfo, const std::share
 
     curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_PRIVATE, new std::uint64_t(requestInfo->id));    // our user data, must be deleted in the RequestInfo destructor
 
-    curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_EC_CURVES, "X25519MLKEM768:p521_mlkem1024:mlkem1024:mlkem768:p384_mlkem768:X448:X25519:secp521r1:secp384r1:secp256r1:ffdhe8192:ffdhe6144:ffdhe4096:ffdhe3072:ffdhe2048");
+    curl_easy_setopt(requestInfo->curlEasyHandle, CURLOPT_SSL_EC_CURVES, "X25519MLKEM768:MLKEM1024:MLKEM768:SecP384r1MLKEM1024:SecP256r1MLKEM768:X448:X25519:secp521r1:secp384r1:secp256r1:ffdhe8192:ffdhe6144:ffdhe4096:ffdhe3072:ffdhe2048");
 
     // set post data
     std::string postData = request->postData();

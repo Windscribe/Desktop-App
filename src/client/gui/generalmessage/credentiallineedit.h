@@ -27,7 +27,7 @@ protected:
     void focusOutEvent(QFocusEvent *event) override;
 
 private:
-    QLineEdit *lineEdit_;
+    CommonWidgets::CustomMenuLineEdit *lineEdit_;
     QGraphicsProxyWidget *proxy_;
 
     QString text_;

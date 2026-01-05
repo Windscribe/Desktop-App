@@ -17,12 +17,14 @@ CredentialLineEdit::CredentialLineEdit(ScalableGraphicsObject *parent, const QSt
 
     setClickable(false);
 
-    lineEdit_ = new QLineEdit();
+    lineEdit_ = new CommonWidgets::CustomMenuLineEdit();
     lineEdit_->setGeometry(12*G_SCALE, 24*G_SCALE, (WINDOW_WIDTH - 96)*G_SCALE, 34*G_SCALE);
-    connect(lineEdit_, &QLineEdit::editingFinished, this, &CredentialLineEdit::editingFinished);
+    lineEdit_->setColorScheme(true);
+    connect(lineEdit_, &CommonWidgets::CustomMenuLineEdit::editingFinished, this, &CredentialLineEdit::editingFinished);
     updateStyleSheet();
     if (isPassword) {
         lineEdit_->setEchoMode(QLineEdit::Password);
+        lineEdit_->setShowRevealToggle(true);
     }
 
     proxy_ = new QGraphicsProxyWidget(this);
@@ -34,7 +36,7 @@ void CredentialLineEdit::paint(QPainter *painter, const QStyleOptionGraphicsItem
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont font(FontManager::instance().getFont(12,  QFont::Normal));
+    QFont font(FontManager::instance().getFont(14, QFont::Normal));
     painter->setPen(Qt::white);
     painter->drawText(QRect(12*G_SCALE, 0, (WINDOW_WIDTH-96)*G_SCALE, 16*G_SCALE), Qt::AlignTop | Qt::AlignLeft, text_);
 }

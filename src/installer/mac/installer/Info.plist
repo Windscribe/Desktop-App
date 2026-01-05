@@ -3,25 +3,25 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleDevelopmentRegion</key>
-    <string>$(DEVELOPMENT_LANGUAGE)</string>
+    <string>en</string>
     <key>CFBundleExecutable</key>
-    <string>$(EXECUTABLE_NAME)</string>
+    <string>${MACOSX_BUNDLE_EXECUTABLE_NAME}</string>
     <key>CFBundleIconFile</key>
     <string>windscribe.icns</string>
     <key>CFBundleIdentifier</key>
-    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <string>com.windscribe.installer.macos</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>$(PRODUCT_NAME)</string>
+    <string>WindscribeInstaller</string>
     <key>CFBundlePackageType</key>
-    <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+    <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
+    <string>${MACOSX_BUNDLE_SHORT_VERSION_STRING}</string>
     <key>CFBundleVersion</key>
-    <string>1</string>
+    <string>${MACOSX_BUNDLE_BUNDLE_VERSION}</string>
     <key>LSMinimumSystemVersion</key>
-    <string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+    <string>12.0</string>
     <key>NSHumanReadableCopyright</key>
     <string>Copyright © 2024 Windscribe Limited. All rights reserved.</string>
     <key>NSMainNibFile</key>
@@ -37,7 +37,7 @@
     <key>SMPrivilegedExecutables</key>
     <dict>
         <key>com.windscribe.helper.macos</key>
-        <string>anchor apple generic and identifier &quot;com.windscribe.helper.macos&quot; and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = $(DEVELOPMENT_TEAM))</string>
+        <string>anchor apple generic and identifier &quot;com.windscribe.helper.macos&quot; and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = @DEVELOPMENT_TEAM@)</string>
     </dict>
 </dict>
 </plist>

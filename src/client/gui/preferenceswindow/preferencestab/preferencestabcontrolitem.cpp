@@ -121,11 +121,13 @@ void PreferencesTabControlItem::paint(QPainter *painter, const QStyleOptionGraph
 
 void PreferencesTabControlItem::setHeight(int newHeight)
 {
-    prepareGeometryChange();
-    height_ = newHeight;
+    if (height_ != newHeight) {
+        prepareGeometryChange();
+        height_ = newHeight;
 
-    updateBottomAnchoredButtonPos();
-    updateTopAnchoredButtonsPos();
+        updateBottomAnchoredButtonPos();
+        updateTopAnchoredButtonsPos();
+    }
 }
 
 void PreferencesTabControlItem::onTabClicked(PREFERENCES_TAB_TYPE tab, TabButton *button)

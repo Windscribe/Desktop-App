@@ -19,8 +19,6 @@ find_package(OpenSSL REQUIRED)
 find_package(skyr-url CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 
-add_subdirectory(../../../libs/wsnet wsnet)
-
 set(SOURCES
     execute_cmd.cpp
     firewallcontroller.cpp

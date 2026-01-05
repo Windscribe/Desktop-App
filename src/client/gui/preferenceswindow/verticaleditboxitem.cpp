@@ -47,18 +47,18 @@ void VerticalEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     Q_UNUSED(option)
     Q_UNUSED(widget)
 
-    QFont font = FontManager::instance().getFont(12,  QFont::Normal);
+    QFont font = FontManager::instance().getFont(14,  QFont::Normal);
     QFontMetrics fm(font);
     painter->setFont(font);
     painter->setPen(Qt::white);
     painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
-                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              0,
                                               -PREFERENCES_MARGIN_X*G_SCALE,
-                                              -PREFERENCES_MARGIN_Y*G_SCALE),
-                      Qt::AlignLeft, caption_);
+                                              -(boundingRect().height() - PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE)),
+                      Qt::AlignLeft | Qt::AlignVCenter, caption_);
 
     if (!isEditMode_) {
-        painter->setOpacity(OPACITY_HALF);
+        painter->setOpacity(OPACITY_SIXTY);
         QString t;
         if (text_.isEmpty()) {
             t = "--";
@@ -69,10 +69,10 @@ void VerticalEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
         }
 
         painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
-                                                  (PREFERENCES_ITEM_Y + PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE,
+                                                  PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE,
                                                   -(2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE,
-                                                  -PREFERENCES_MARGIN_Y),
-                          Qt::AlignLeft,
+                                                  0),
+                          Qt::AlignLeft | Qt::AlignVCenter,
                           fm.elidedText(t,
                                         Qt::ElideRight,
                                         boundingRect().width() - (3*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE));
@@ -80,7 +80,7 @@ void VerticalEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
 
     // Draw error message if present
     if (!errorText_.isEmpty()) {
-        QFont errorFont = FontManager::instance().getFont(10, QFont::Normal);
+        QFont errorFont = FontManager::instance().getFont(12, QFont::Normal);
         painter->setFont(errorFont);
         painter->setPen(Qt::red);
         painter->setOpacity(OPACITY_FULL);
@@ -224,7 +224,7 @@ void VerticalEditBoxItem::updatePositions()
     btnConfirm_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN_X)*G_SCALE, top);
     btnUndo_->setPos(boundingRect().width() - (2*ICON_WIDTH + 2*PREFERENCES_MARGIN_X)*G_SCALE, top);
 
-    lineEdit_->setFont(FontManager::instance().getFont(12,  QFont::Normal));
+    lineEdit_->setFont(FontManager::instance().getFont(14,  QFont::Normal));
 
     if (!proxyWidget_->isVisible()) // workaround Qt bug (setGeometry not working when proxyWidget_ is not visible)
     {
@@ -242,7 +242,7 @@ void VerticalEditBoxItem::updatePositions()
         errorHeight_ = 0;
         setHeight((PREFERENCE_GROUP_ITEM_HEIGHT + PREFERENCES_ITEM_Y + ICON_HEIGHT)*G_SCALE);
     } else {
-        QFontMetrics fm(FontManager::instance().getFont(10, QFont::Normal));
+        QFontMetrics fm(FontManager::instance().getFont(12, QFont::Normal));
         errorHeight_ = fm.boundingRect(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, 0, -PREFERENCES_MARGIN_X*G_SCALE, 0).toRect(),
                                        Qt::AlignLeft | Qt::TextWordWrap,
                                        errorText_).height();

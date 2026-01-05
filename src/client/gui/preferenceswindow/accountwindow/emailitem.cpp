@@ -15,7 +15,7 @@ EmailItem::EmailItem(ScalableGraphicsObject *parent)
     emailSendState_(EMAIL_NOT_INITIALIZED)
 {
     sendButton_ = new CommonGraphics::TextButton(tr("Sent!"),
-                                                 FontDescr(10, QFont::Bold),
+                                                 FontDescr(12, QFont::Bold),
                                                  QColor(253, 239, 0),
                                                  true,
                                                  this);
@@ -27,7 +27,7 @@ EmailItem::EmailItem(ScalableGraphicsObject *parent)
     connect(sendButton_, &CommonGraphics::TextButton::clicked, this, &EmailItem::onSendEmailClick);
 
     emptyEmailButton_ = new CommonGraphics::TextButton(tr(ADD_TEXT),
-                                                       FontDescr(12, QFont::Bold),
+                                                       FontDescr(14, QFont::Bold),
                                                        Qt::white,
                                                        true,
                                                        this);
@@ -51,7 +51,7 @@ void EmailItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont font = FontManager::instance().getFont(12, QFont::DemiBold);
+    QFont font = FontManager::instance().getFont(14, QFont::DemiBold);
     QFontMetrics fm(font);
     int textWidth = fm.horizontalAdvance(tr(EMAIL_TEXT));
 
@@ -69,15 +69,15 @@ void EmailItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
             color = QColor(253, 239, 0);
             painter->setPen(color);
 
-            painter->setOpacity(OPACITY_HALF);
-            QFont font = FontManager::instance().getFont(12,  QFont::Normal);
+            painter->setOpacity(OPACITY_SIXTY);
+            QFont font = FontManager::instance().getFont(14,  QFont::Normal);
             painter->setFont(font);
             QFontMetrics fmEmail(font);
             QString elidedEmail = fmEmail.elidedText(email_, Qt::TextElideMode::ElideMiddle, boundingRect().width() - (2*PREFERENCES_MARGIN_X + 2*APP_ICON_MARGIN_X + ICON_WIDTH)*G_SCALE - textWidth);
-            painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, -PREFERENCES_MARGIN_X*G_SCALE, -PREFERENCES_MARGIN_Y*G_SCALE), Qt::AlignRight, elidedEmail);
+            painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, 0, -PREFERENCES_MARGIN_X*G_SCALE, -(boundingRect().height() - PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE)), Qt::AlignRight | Qt::AlignVCenter, elidedEmail);
         }
         painter->setOpacity(OPACITY_FULL);
-        pixmapInfoIcon->draw(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
+        pixmapInfoIcon->draw(PREFERENCES_MARGIN_X*G_SCALE, (PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE / 2, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
 
         if (emailSendState_ == EMAIL_ADDING) {
             QSharedPointer<IndependentPixmap> p;
@@ -90,8 +90,8 @@ void EmailItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
             painter->restore();
         }
 
-        painter->setFont(FontManager::instance().getFont(12, QFont::DemiBold));
-        painter->drawText(boundingRect().adjusted((PREFERENCES_MARGIN_X + ICON_WIDTH + DESCRIPTION_MARGIN)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, -PREFERENCES_MARGIN_X*G_SCALE, -PREFERENCES_MARGIN_Y*G_SCALE), Qt::AlignLeft, tr(EMAIL_TEXT));
+        painter->setFont(FontManager::instance().getFont(14, QFont::DemiBold));
+        painter->drawText(boundingRect().adjusted((PREFERENCES_MARGIN_X + ICON_WIDTH + DESCRIPTION_MARGIN)*G_SCALE, 0, -PREFERENCES_MARGIN_X*G_SCALE, -(boundingRect().height() - PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE)), Qt::AlignLeft | Qt::AlignVCenter, tr(EMAIL_TEXT));
 
         // subrect
         painter->setOpacity(OPACITY_WARNING_BACKGROUND);
@@ -106,11 +106,11 @@ void EmailItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         painter->setPen(Qt::SolidLine);
 
         // Text inside subrect
-        painter->setFont(FontManager::instance().getFont(10,  QFont::Normal));
+        painter->setFont(FontManager::instance().getFont(12,  QFont::Normal));
         QString text;
         if (email_.isEmpty()) {
             painter->setPen(Qt::white);
-            painter->setOpacity(OPACITY_HALF);
+            painter->setOpacity(OPACITY_SIXTY);
             text = tr(UPGRADE_TEXT);
             painter->drawText(rect.adjusted(DESCRIPTION_MARGIN*G_SCALE, DESCRIPTION_MARGIN*G_SCALE, -DESCRIPTION_MARGIN*G_SCALE, -DESCRIPTION_MARGIN*G_SCALE),
                               Qt::AlignLeft | Qt::TextWordWrap,
@@ -125,15 +125,15 @@ void EmailItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
         }
     } else {
         painter->setPen(Qt::white);
-        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, -PREFERENCES_MARGIN_X*G_SCALE, -PREFERENCES_MARGIN_Y*G_SCALE), Qt::AlignLeft, tr(EMAIL_TEXT));
+        painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, 0, -PREFERENCES_MARGIN_X*G_SCALE, -(boundingRect().height() - PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE)), Qt::AlignLeft | Qt::AlignVCenter, tr(EMAIL_TEXT));
 
         if (!email_.isEmpty()) {
-            painter->setOpacity(OPACITY_HALF);
-            QFont font = FontManager::instance().getFont(12,  QFont::Normal);
+            painter->setOpacity(OPACITY_SIXTY);
+            QFont font = FontManager::instance().getFont(14,  QFont::Normal);
             painter->setFont(font);
             QFontMetrics fmEmail(font);
             QString elidedEmail = fmEmail.elidedText(email_, Qt::TextElideMode::ElideMiddle, boundingRect().width() - (2*PREFERENCES_MARGIN_X + APP_ICON_MARGIN_X)*G_SCALE - textWidth);
-            painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, -PREFERENCES_MARGIN_X*G_SCALE, -PREFERENCES_MARGIN_Y*G_SCALE), Qt::AlignRight, elidedEmail);
+            painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, 0, -PREFERENCES_MARGIN_X*G_SCALE, -(boundingRect().height() - PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE)), Qt::AlignRight | Qt::AlignVCenter, elidedEmail);
         }
     }
 }
@@ -159,7 +159,7 @@ void EmailItem::updatePositions()
         }
         sendButton_->hide();
 
-        QFontMetrics fm(FontManager::instance().getFont(10,  QFont::Normal));
+        QFontMetrics fm(FontManager::instance().getFont(12,  QFont::Normal));
         msgHeight_ = fm.boundingRect(boundingRect().adjusted((PREFERENCES_MARGIN_X + DESCRIPTION_MARGIN)*G_SCALE,
                                                              0,
                                                              -(PREFERENCES_MARGIN_X + DESCRIPTION_MARGIN)*G_SCALE,
@@ -175,7 +175,7 @@ void EmailItem::updatePositions()
         emptyEmailButton_->setClickable(false);
         emptyEmailButton_->setVisible(false);
 
-        QFontMetrics fm(FontManager::instance().getFont(10,  QFont::Normal));
+        QFontMetrics fm(FontManager::instance().getFont(12,  QFont::Normal));
         msgHeight_ = fm.boundingRect(boundingRect().adjusted((PREFERENCES_MARGIN_X + DESCRIPTION_MARGIN)*G_SCALE,
                                                              0,
                                                              -(PREFERENCES_MARGIN_X + DESCRIPTION_MARGIN)*G_SCALE - sendButton_->boundingRect().width(),
@@ -185,7 +185,7 @@ void EmailItem::updatePositions()
 
         height_ = (WARNING_OFFSET_Y + 2*DESCRIPTION_MARGIN + PREFERENCES_MARGIN_Y)*G_SCALE + msgHeight_;
         sendButton_->setPos(boundingRect().width() - sendButton_->boundingRect().width() - (PREFERENCES_MARGIN_X + DESCRIPTION_MARGIN)*G_SCALE,
-                            (WARNING_OFFSET_Y + DESCRIPTION_MARGIN)*G_SCALE);
+                            (WARNING_OFFSET_Y + DESCRIPTION_MARGIN)*G_SCALE + (fm.height() - sendButton_->boundingRect().height()) / 2);
         sendButton_->show();
     } else {
         emptyEmailButton_->setClickable(false);

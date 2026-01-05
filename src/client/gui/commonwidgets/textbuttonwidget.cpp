@@ -8,7 +8,7 @@
 namespace CommonWidgets {
 
 TextButtonWidget::TextButtonWidget(QString text, QWidget * parent) : QPushButton(text, parent),
-    fontDescr_(12, QFont::Normal)
+    fontDescr_(14, QFont::Normal)
 {
     updateWidth();
 }

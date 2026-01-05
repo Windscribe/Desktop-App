@@ -20,13 +20,19 @@ bool KernelModuleCommunicator::start(const std::string &deviceName)
 
 bool KernelModuleCommunicator::stop()
 {
+    return forceStop(deviceName_);
+}
+
+// static
+bool KernelModuleCommunicator::forceStop(const std::string &deviceName)
+{
 #ifndef CLI_ONLY
     // Bring down utun420 via nmcli first, or NetworkManager/GNOME may throw up a scary looking "error".
     // This is a workaround for #996; this is not really our bug but it's a bad user experience otherwise.
-    Utils::executeCommand("nmcli", {"con", "down", deviceName_.c_str()});
+    Utils::executeCommand("nmcli", {"con", "down", deviceName.c_str()});
 #endif
 
-    wg_del_device(deviceName_.c_str());
+    wg_del_device(deviceName.c_str());
     return true;
 }
 

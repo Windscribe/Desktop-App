@@ -10,7 +10,7 @@
 namespace PreferencesWindow {
 
 RobertItem::RobertItem(ScalableGraphicsObject *parent, const api_responses::RobertFilter &filter)
-  : BaseItem(parent, ROBERT_ITEM_HEIGHT*G_SCALE), captionFont_(12, QFont::Bold), icon_(nullptr), filter_(filter)
+  : BaseItem(parent, ROBERT_ITEM_HEIGHT*G_SCALE), captionFont_(14, QFont::Bold), icon_(nullptr), filter_(filter)
 {
     checkBoxButton_ = new ToggleButton(this);
     connect(checkBoxButton_, &ToggleButton::stateChanged, this, &RobertItem::onStateChanged);
@@ -39,7 +39,7 @@ void RobertItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
     int xOffset = PREFERENCES_MARGIN_X*G_SCALE;
     if (icon_) {
-        xOffset = (2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE;
+        xOffset = (PREFERENCES_MARGIN_X + 8 + ICON_WIDTH)*G_SCALE;
         icon_->draw(PREFERENCES_MARGIN_X*G_SCALE, ROBERT_ICON_MARGIN_Y*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
     }
 
@@ -52,7 +52,7 @@ void RobertItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
                       strCaption_);
 
     // Bottom text (Allowing or Blocking)
-    painter->setFont(FontManager::instance().getFont(10,  QFont::Normal));
+    painter->setFont(FontManager::instance().getFont(14,  QFont::Normal));
     QString text = tr("Blocking");
 
     if (checkBoxButton_->isChecked()) {
@@ -60,13 +60,13 @@ void RobertItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         painter->setPen(FontManager::instance().getSeaGreenColor());
     } else {
         text = tr("Allowing");
-        painter->setOpacity(OPACITY_HALF);
+        painter->setOpacity(OPACITY_SIXTY);
         painter->setPen(Qt::white);
     }
     painter->drawText(boundingRect().adjusted(xOffset,
                                               ROBERT_TEXT_SECOND_MARGIN_Y*G_SCALE,
                                               -PREFERENCES_MARGIN_X*G_SCALE,
-                                              -(ROBERT_TEXT_FIRST_MARGIN_Y)*G_SCALE),
+                                              0),
                         Qt::AlignLeft,
                         text);
 }

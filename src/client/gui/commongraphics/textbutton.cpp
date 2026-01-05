@@ -11,7 +11,7 @@ namespace CommonGraphics {
 
 TextButton::TextButton(QString text, const FontDescr &fd, QColor color, bool bSetClickable, ScalableGraphicsObject *parent, int addWidth, bool bDrawWithShadow) : ClickableGraphicsObject(parent),
     text_(text), color_(color), fontDescr_(fd), width_(0), height_(0), addWidth_(addWidth), margin_(MARGIN_HEIGHT),
-    curTextOpacity_(OPACITY_UNHOVER_TEXT), unhoverOpacity_(OPACITY_UNHOVER_TEXT), isHovered_(false),
+    curTextOpacity_(OPACITY_SIXTY), unhoverOpacity_(OPACITY_SIXTY), isHovered_(false),
     textAlignment_(Qt::AlignLeft | Qt::AlignVCenter), textUnderline_(false), unhoverOnClick_(true)
 {
     if (bDrawWithShadow) {

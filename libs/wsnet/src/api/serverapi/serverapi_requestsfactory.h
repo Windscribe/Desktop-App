@@ -91,6 +91,7 @@ namespace serverapi_requests_factory
     BaseRequest *sso(const std::string &provider, const std::string &token, RequestFinishedCallback callback);
     BaseRequest *authTokenLogin(bool useAsciiCaptcha, RequestFinishedCallback callback);
     BaseRequest *authTokenSignup(bool useAsciiCaptcha, RequestFinishedCallback callback);
+    BaseRequest *passwordRecovery(const std::string &email, RequestFinishedCallback callback);
 }
 
 } // namespace wsnet

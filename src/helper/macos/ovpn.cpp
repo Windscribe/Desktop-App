@@ -58,7 +58,7 @@ bool writeOVPNFile(const std::string &dnsScript, unsigned int port, const std::s
     const std::string upScript = \
         "--script-security 2\n" \
         "up \"" + dnsScript + " -up\"\n";
-    bytes = static_cast<int>(write(fd, upScript.c_str(), upScript.length()));
+    (void)write(fd, upScript.c_str(), upScript.length());
 
     // add management and other options
     std::string opts = \

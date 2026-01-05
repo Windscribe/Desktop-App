@@ -8,10 +8,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Utils : NSObject
 
-+ (nw_interface_t)findInterfaceByName:(NSString *)interface;
++ (nw_interface_t _Nullable)findInterfaceByName:(NSString *)interface;
 
-+ (nw_endpoint_t)convertToNewEndpoint:(NWEndpoint *)endpoint;
-+ (NWEndpoint *)convertToOldEndpoint:(nw_endpoint_t)endpoint;
++ (nw_endpoint_t _Nullable)convertToNewEndpoint:(NWEndpoint *)endpoint;
++ (NWEndpoint * _Nullable)convertToOldEndpoint:(nw_endpoint_t)endpoint;
 
 + (void)applyNetworkSettings:(NETransparentProxyProvider * _Nonnull)provider
                              completionHandler:(void (^ _Nonnull)(NSError * _Nullable))completionHandler;

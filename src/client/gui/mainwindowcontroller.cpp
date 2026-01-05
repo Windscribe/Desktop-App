@@ -764,9 +764,6 @@ void MainWindowController::onLocationsWindowHeightChanged() // manual resizing
 void MainWindowController::onWindowResize(ResizableWindow *window)
 {
     windowSizeManager_->setWindowHeight(window, window->boundingRect().height()/G_SCALE);
-    if (window == preferencesWindow_) {
-        PersistentState::instance().setPreferencesWindowHeight(windowSizeManager_->windowHeight(window));
-    }
     updateMainAndViewGeometry(false);
 
     // only recalculate the shadow size at certain intervals since the changeRectangleSize is expensive
@@ -784,6 +781,9 @@ void MainWindowController::onWindowResize(ResizableWindow *window)
 
 void MainWindowController::onWindowResizeFinished(ResizableWindow *window)
 {
+    if (window == preferencesWindow_) {
+        PersistentState::instance().setPreferencesWindowHeight(windowSizeManager_->windowHeight(window));
+    }
     shadowManager_->changeRectangleSize(windowSizeManager_->shapeId(window),
                                         QRect(0,
                                               childWindowShadowOffsetY(true),
@@ -2964,13 +2964,7 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
         } else {
             width = connectWindow_->boundingRect().width();
             height = connectWindow_->boundingRect().height();
-            if (QGuiApplication::platformName() == "xcb") {
-                // For X11, as soon as a window starts animating, treat it as if the height were the full height.
-                // Otherwise, some items ping-pong between positions and the animation looks wrong.
-                addHeightToGeometry = locationsWindow_->tabAndFooterHeight() + locationsYOffset();
-            } else {
-                addHeightToGeometry = locationWindowHeightScaled_ + locationsYOffset();
-            }
+            addHeightToGeometry = locationWindowHeightScaled_ + locationsYOffset();
             if (addHeightToGeometry < 0) {
                 addHeightToGeometry = 0;
             }

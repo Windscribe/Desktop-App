@@ -17,7 +17,7 @@ public:
 
     int tabAndFooterHeight() const;
 
-    void setCountVisibleItemSlots(int cnt);
+    void setViewportHeight(int unscaledHeight, bool dragging = false);
     int getCountVisibleItems();
 
     void updateLocationsTabGeometry();
@@ -67,6 +67,7 @@ private:
     bool bDragPressed_;
     QPoint dragPressPt_;
     int dragInitialVisibleItemsCount_;
+    int dragInitialViewportHeight_;
     int dragInitialBtnDragCenter_;
     double resizeIconOpacity_;
     QVariantAnimation resizeIconOpacityAnimation_;

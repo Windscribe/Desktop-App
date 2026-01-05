@@ -65,16 +65,17 @@ void AppIncludedItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     // app name
     painter->setOpacity(OPACITY_FULL * initOpacity);
     painter->setPen(Qt::white);
-    QFont font = FontManager::instance().getFont(12,  QFont::Normal);
+    QFont font = FontManager::instance().getFont(14,  QFont::Normal);
     painter->setFont(font);
     QFontMetrics fm(font);
     QString elidedName = fm.elidedText(app_.name,
                                        Qt::TextElideMode::ElideRight,
                                        boundingRect().width() - (4*PREFERENCES_MARGIN_X + APP_ICON_MARGIN_X + APP_ICON_WIDTH + ICON_WIDTH)*G_SCALE - toggleButton_->boundingRect().width());
     painter->drawText(boundingRect().adjusted((PREFERENCES_MARGIN_X + APP_ICON_WIDTH + APP_ICON_MARGIN_X)*G_SCALE,
-                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              0,
                                               -(3*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE - toggleButton_->boundingRect().width(),
-                                              -PREFERENCES_MARGIN_Y*G_SCALE),
+                                              0),
+                      Qt::AlignLeft | Qt::AlignVCenter,
                       elidedName);
 }
 
@@ -115,7 +116,7 @@ void AppIncludedItem::updateScaling()
 
 void AppIncludedItem::updatePositions()
 {
-    deleteButton_->setPos(boundingRect().width() - ICON_WIDTH*G_SCALE - PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
+    deleteButton_->setPos(boundingRect().width() - ICON_WIDTH*G_SCALE - PREFERENCES_MARGIN_X*G_SCALE, (PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE / 2);
     toggleButton_->setPos(boundingRect().width() - ICON_WIDTH*G_SCALE - PREFERENCES_MARGIN_X*G_SCALE - toggleButton_->boundingRect().width() - PREFERENCES_MARGIN_X*G_SCALE,
                           (boundingRect().height() - toggleButton_->boundingRect().height()) / 2);
 }

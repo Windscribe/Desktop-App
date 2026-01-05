@@ -27,9 +27,6 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(RapidJSON CONFIG REQUIRED)
 find_package(skyr-url CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
-if(ANDROID OR IOS)
-    find_package(liboqs CONFIG REQUIRED)
-endif()
 find_package(CMakeRC)
 find_path(CPP_BASE64_INCLUDE_DIRS "cpp-base64/base64.cpp")
 
@@ -79,26 +76,7 @@ if (APPLE)
     target_compile_options(wsnet PRIVATE "-fobjc-arc")
 endif()
 
-# Find oqsprovider static library - REQUIRED for mobile platforms only
-if(ANDROID OR IOS)
-    find_library(OQS_PROVIDER_LIB 
-        NAMES liboqsprovider.a oqsprovider.a liboqsprovider oqsprovider
-        PATHS ${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/lib
-              ${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/debug/lib
-              ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib
-              ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/lib
-        NO_DEFAULT_PATH
-    )
-    if(NOT OQS_PROVIDER_LIB)
-        message(FATAL_ERROR "OQS provider static library not found! Searched in paths: ${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/lib, ${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/debug/lib, ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib, ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/lib")
-    endif()
-endif()
-
-if(ANDROID OR IOS)
-    target_link_libraries(wsnet PRIVATE c-ares::cares CURL::libcurl spdlog::spdlog rapidjson skyr::skyr-url OpenSSL::SSL wsnet::rc ${OQS_PROVIDER_LIB} OQS::oqs Boost::filesystem ${OS_SPECIFIC_LIBRARIES})
-else()
-    target_link_libraries(wsnet PRIVATE c-ares::cares CURL::libcurl spdlog::spdlog rapidjson skyr::skyr-url OpenSSL::SSL wsnet::rc Boost::filesystem ${OS_SPECIFIC_LIBRARIES})
-endif()
+target_link_libraries(wsnet PRIVATE c-ares::cares CURL::libcurl spdlog::spdlog rapidjson skyr::skyr-url OpenSSL::SSL wsnet::rc Boost::filesystem ${OS_SPECIFIC_LIBRARIES})
 target_include_directories(wsnet PRIVATE
     ${PROJECT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include/wsnet ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CPP_BASE64_INCLUDE_DIRS} ${ADVOBFUSCATOR_INCLUDE_DIRS}

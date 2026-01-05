@@ -23,12 +23,12 @@ void TitleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont font = FontManager::instance().getFont(10.5, QFont::DemiBold);
+    QFont font = FontManager::instance().getFont(12, QFont::DemiBold);
     qreal oldLetterSpacing = font.letterSpacing();
     font.setLetterSpacing(QFont::AbsoluteSpacing, 1.44);
     painter->setFont(font);
     painter->setPen(Qt::white);
-    painter->setOpacity(OPACITY_HALF);
+    painter->setOpacity(OPACITY_SEVENTY);
     painter->drawText(boundingRect().adjusted(0, 0, -PREFERENCES_MARGIN_X*G_SCALE, 0), Qt::AlignLeft, title_);
 
     if (!linkText_.isEmpty()) {

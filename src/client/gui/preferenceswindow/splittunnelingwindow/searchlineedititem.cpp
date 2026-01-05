@@ -22,7 +22,7 @@ SearchLineEditItem::SearchLineEditItem(ScalableGraphicsObject *parent)
     QString placeHolderText = tr("Search");
     lineEdit_ = new CommonWidgets::CustomMenuLineEdit();
     lineEdit_->setPlaceholderText(placeHolderText);
-    lineEdit_->setFont(FontManager::instance().getFont(12,  QFont::Normal));
+    lineEdit_->setFont(FontManager::instance().getFont(14,  QFont::Normal));
     lineEdit_->setStyleSheet("background: transparent; color: rgb(135, 138, 147)");
     lineEdit_->setFrame(false);
     connect(lineEdit_, &CommonWidgets::CustomMenuLineEdit::focusIn, this, &SearchLineEditItem::focusIn);
@@ -44,7 +44,7 @@ void SearchLineEditItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
     painter->setOpacity(searchIconOpacity_);
     QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/MAGNIFYING_GLASS");
-    p->draw(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, APP_ICON_WIDTH*G_SCALE, APP_ICON_HEIGHT*G_SCALE, painter);
+    p->draw(PREFERENCES_MARGIN_X*G_SCALE, (PREFERENCE_GROUP_ITEM_HEIGHT - APP_ICON_HEIGHT)*G_SCALE / 2, APP_ICON_WIDTH*G_SCALE, APP_ICON_HEIGHT*G_SCALE, painter);
 
     // vertical divider
     painter->setOpacity(OPACITY_DIVIDER_LINE);
@@ -153,10 +153,10 @@ void SearchLineEditItem::exitSearchMode()
 
 void SearchLineEditItem::updatePositions()
 {
-    closeButton_->setPos(boundingRect().width() - (PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
-    clearTextButton_->setPos(boundingRect().width() - (2*PREFERENCES_MARGIN_X + 2*ICON_WIDTH + 1)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
-    lineEdit_->setFont(FontManager::instance().getFont(12,  QFont::Normal));
-    lineEdit_->setGeometry((PREFERENCES_MARGIN_X + APP_ICON_MARGIN_X + APP_ICON_WIDTH)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, 128*G_SCALE, ICON_HEIGHT*G_SCALE);
+    closeButton_->setPos(boundingRect().width() - (PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE, (PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE / 2);
+    clearTextButton_->setPos(boundingRect().width() - (2*PREFERENCES_MARGIN_X + 2*ICON_WIDTH + 1)*G_SCALE, (PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE / 2);
+    lineEdit_->setFont(FontManager::instance().getFont(14,  QFont::Normal));
+    lineEdit_->setGeometry((PREFERENCES_MARGIN_X + APP_ICON_MARGIN_X + APP_ICON_WIDTH)*G_SCALE, (PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE / 2, 128*G_SCALE, ICON_HEIGHT*G_SCALE);
 }
 
 }

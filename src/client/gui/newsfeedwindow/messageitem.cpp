@@ -58,7 +58,7 @@ void MessageItem::updatePositions()
     textBrowser_->setStyleSheet(browserSheet);
 
     QString docSheet = "a.ncta { color: #17e9ad; text-decoration: underline; }"
-                       "p { color: #80ffffff; }";
+                       "p { color: #99ffffff; }";
 
     QTextDocument *doc = textBrowser_->document();
     doc->setDefaultStyleSheet(docSheet);

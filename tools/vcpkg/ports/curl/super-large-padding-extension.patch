@@ -1,60 +1,57 @@
 diff --git a/include/curl/curl.h b/include/curl/curl.h
-index 7b7f5a5..3491428 100644
+index 9e07527dc9..2210150ea6 100644
 --- a/include/curl/curl.h
 +++ b/include/curl/curl.h
-@@ -939,6 +939,9 @@ typedef enum {
-    a client certificate for authentication. (Schannel) */
- #define CURLSSLOPT_AUTO_CLIENT_CERT (1<<5)
+@@ -960,6 +960,9 @@ typedef enum {
+ /* If possible, send data using TLS 1.3 early data */
+ #define CURLSSLOPT_EARLYDATA (1L<<6)
  
-+#define CURLSSLOPT_TLSEXT_PADDING (1<<6)
-+#define CURLSSLOPT_TLSEXT_PADDING_SUPER (1<<7)
++#define CURLSSLOPT_TLSEXT_PADDING (1<<7)
++#define CURLSSLOPT_TLSEXT_PADDING_SUPER (1<<8)
 +
  /* The default connection attempt delay in milliseconds for happy eyeballs.
     CURLOPT_HAPPY_EYEBALLS_TIMEOUT_MS.3 and happy-eyeballs-timeout-ms.d document
     this value, keep them in sync. */
-
 diff --git a/lib/setopt.c b/lib/setopt.c
-index 67492ce..f93fe6b 100644
+index 3c3adb06a9..3b6f225697 100644
 --- a/lib/setopt.c
 +++ b/lib/setopt.c
-@@ -2403,6 +2403,8 @@ CURLcode Curl_vsetopt(struct Curl_easy *data, CURLoption option, va_list param)
-     data->set.ssl.revoke_best_effort = !!(arg & CURLSSLOPT_REVOKE_BEST_EFFORT);
-     data->set.ssl.native_ca_store = !!(arg & CURLSSLOPT_NATIVE_CA);
-     data->set.ssl.auto_client_cert = !!(arg & CURLSSLOPT_AUTO_CLIENT_CERT);
-+    data->set.ssl.tlsext_padding = !!(arg & CURLSSLOPT_TLSEXT_PADDING);
-+    data->set.ssl.tlsext_padding_super = !!(arg & CURLSSLOPT_TLSEXT_PADDING_SUPER);
-     /* If a setting is added here it should also be added in dohprobe()
-        which sets its own CURLOPT_SSL_OPTIONS based on these settings. */
-     break;
-
+@@ -435,6 +435,8 @@ static void set_ssl_options(struct ssl_config_data *ssl,
+   ssl->native_ca_store = !!(arg & CURLSSLOPT_NATIVE_CA);
+   ssl->auto_client_cert = !!(arg & CURLSSLOPT_AUTO_CLIENT_CERT);
+   ssl->earlydata = !!(arg & CURLSSLOPT_EARLYDATA);
++  ssl->tlsext_padding = !!(arg & CURLSSLOPT_TLSEXT_PADDING);
++  ssl->tlsext_padding_super = !!(arg & CURLSSLOPT_TLSEXT_PADDING_SUPER);
+ }
+ #endif
+ 
 diff --git a/lib/urldata.h b/lib/urldata.h
-index 25379b6..0a60d22 100644
+index f79ccca0ac..3b0c087c27 100644
 --- a/lib/urldata.h
 +++ b/lib/urldata.h
-@@ -321,6 +321,8 @@ struct ssl_config_data {
-   BIT(native_ca_store); /* use the native ca store of operating system */
-   BIT(auto_client_cert);   /* automatically locate and use a client
-                               certificate for authentication (Schannel) */
+@@ -283,6 +283,8 @@ struct ssl_config_data {
+   BIT(custom_cafile); /* application has set custom CA file */
+   BIT(custom_capath); /* application has set custom CA path */
+   BIT(custom_cablob); /* application has set custom CA blob */
 +  BIT(tlsext_padding);
 +  BIT(tlsext_padding_super);
  };
  
  struct ssl_general_config {
-
 diff --git a/lib/vtls/openssl.c b/lib/vtls/openssl.c
-index 98fa962..0f60ece 100644
+index 764d829325..69b1c68eac 100644
 --- a/lib/vtls/openssl.c
 +++ b/lib/vtls/openssl.c
-@@ -3678,6 +3678,14 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
-     ctx_options &= ~SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS;
- #endif
+@@ -4180,6 +4235,14 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
+   if(!ssl_config->enable_beast)
+     ctx_options &= ~(ctx_option_t)SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS;
  
 +  if(ssl_config->tlsext_padding)
-+    ctx_options |= SSL_OP_TLSEXT_PADDING;
++    ctx_options |= (ctx_option_t)SSL_OP_TLSEXT_PADDING;
 +
 +#ifdef SSL_OP_TLSEXT_PADDING_SUPER
 +  if(ssl_config->tlsext_padding_super)
-+    ctx_options |= SSL_OP_TLSEXT_PADDING_SUPER;
++    ctx_options |= (ctx_option_t)SSL_OP_TLSEXT_PADDING_SUPER;
 +#endif
 +
    switch(ssl_version_min) {

@@ -21,15 +21,15 @@ void VersionInfoItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     Q_UNUSED(widget);
     //painter->fillRect(boundingRect(), QBrush(QColor(25,255,100)));
 
-    QFont font = FontManager::instance().getFont(12, QFont::DemiBold);
+    QFont font = FontManager::instance().getFont(14, QFont::DemiBold);
     painter->setFont(font);
     painter->setPen(Qt::white);
     painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, 0, 0, 0), Qt::AlignVCenter, strCaption_);
 
-    QFont font2 = FontManager::instance().getFont(12,  QFont::Normal);
+    QFont font2 = FontManager::instance().getFont(14,  QFont::Normal);
     painter->setFont(font2);
     qreal initOpacity = painter->opacity();
-    painter->setOpacity(OPACITY_UNHOVER_TEXT * initOpacity);
+    painter->setOpacity(OPACITY_SIXTY * initOpacity);
     painter->drawText(boundingRect().adjusted(0, 0, -PREFERENCES_MARGIN_X*G_SCALE, 0), Qt::AlignVCenter | Qt::AlignRight, strValue_);
 }
 

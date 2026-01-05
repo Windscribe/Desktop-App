@@ -12,7 +12,6 @@ class ArgHelper:
     OPTION_DEBUG = "--debug"
     # signing
     OPTION_NOTARIZE = "--notarize"
-    OPTION_SIGN = "--sign"
     # partial builds
     OPTION_BUILD_APP = "--build-app"
     OPTION_SIGN_APP = "--sign-app"
@@ -40,8 +39,7 @@ class ArgHelper:
     options.append((OPTION_CLEAN_ONLY, "Cleans the temporary files created during building"))
     options.append((OPTION_DEBUG, "Build project as debug"))
     options.append(("\nSigning", ""))
-    options.append((OPTION_NOTARIZE, "Notarizes the app after building (Mac only, CI-only, requires --sign)"))
-    options.append((OPTION_SIGN, "Sign the build"))
+    options.append((OPTION_NOTARIZE, "Notarizes the app after building (Mac only, CI-only)"))
     options.append(("\nBuild specific components", ""))
     options.append((OPTION_BUILD_APP, "Build the app. On MacOS & Linux, also signs."))
     options.append((OPTION_SIGN_APP, "Sign the app (Windows only)"))
@@ -81,18 +79,8 @@ class ArgHelper:
         self.mode_sign_bootstrap = ArgHelper.OPTION_SIGN_BOOTSTRAP in program_arg_list
         self.mode_build_tests = ArgHelper.OPTION_BUILD_TESTS in program_arg_list
         self.mode_static_analysis = ArgHelper.OPTION_STATIC_ANALYSIS in program_arg_list
-        # if nothing specified, build everything
-        if (not self.mode_build_app and not self.mode_sign_app and not self.mode_build_installer and not self.mode_sign_installer and not self.mode_build_bootstrap and not self.mode_sign_bootstrap):
-            self.mode_build_app = True
-            self.mode_build_installer = True
-            self.mode_build_bootstrap = True
-            if (ArgHelper.OPTION_SIGN in program_arg_list):
-                self.mode_sign_app = True
-                self.mode_sign_installer = True
-                self.mode_sign_bootstrap = True
 
         # signing related
-        self.mode_sign = ArgHelper.OPTION_SIGN in program_arg_list
         self.mode_notarize = ArgHelper.OPTION_NOTARIZE in program_arg_list
 
         # CI related
@@ -145,9 +133,6 @@ class ArgHelper:
 
     def sign_bootstrap(self):
         return self.mode_sign_bootstrap
-
-    def sign(self):
-        return self.mode_sign
 
     def notarize(self):
         return self.mode_notarize

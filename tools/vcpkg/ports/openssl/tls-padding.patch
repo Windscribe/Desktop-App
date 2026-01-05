@@ -1,0 +1,84 @@
+diff --git a/include/openssl/ssl.h.in b/include/openssl/ssl.h.in
+index a8c9a04877..7ae75ace18 100644
+--- a/include/openssl/ssl.h.in
++++ b/include/openssl/ssl.h.in
+@@ -454,6 +454,8 @@ typedef int (*SSL_async_callback_fn)(SSL *s, void *arg);
+ # define SSL_OP_ECH_GREASE_RETRY_CONFIG                  SSL_OP_BIT(40)
+ #endif
+ 
++# define SSL_OP_TLSEXT_PADDING_SUPER                     SSL_OP_BIT(41)
++
+ /*
+  * Option "collections."
+  */
+diff --git a/ssl/statem/extensions_clnt.c b/ssl/statem/extensions_clnt.c
+index 152b0a03fc..41ded0877d 100644
+--- a/ssl/statem/extensions_clnt.c
++++ b/ssl/statem/extensions_clnt.c
+@@ -8,6 +8,7 @@
+  */
+ 
+ #include <openssl/ocsp.h>
++#include <openssl/rand.h>
+ #include "../ssl_local.h"
+ #include "internal/cryptlib.h"
+ #include "internal/ssl_unwrap.h"
+@@ -100,6 +101,48 @@ EXT_RETURN tls_construct_ctos_server_name(SSL_CONNECTION *s, WPACKET *pkt,
+ #endif
+     if (chosen == NULL)
+         return EXT_RETURN_NOT_SENT;
++
++    unsigned char *padbytes;
++    size_t hlen;
++    unsigned int tmp, tmp_bytes; unsigned short P_EXT;
++    typedef struct {
++        unsigned short begin;
++        unsigned short end;
++    } unassigned_exts_t;
++    unassigned_exts_t unassigned_exts[] = {
++        // https://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml
++        {2571, 6681},
++        {6683, 10793},
++        {10795, 14905},
++        {14907, 19017},
++        {19019, 23129},
++        {23131, 27241},
++        {27243, 31353},
++        {31355, 35465},
++        {35467, 39577},
++        {39579, 43689},
++        {43691, 47801},
++        {47803, 51913},
++        {51915, 56025},
++        {56027, 60137},
++        {60139, 64249}
++    };
++    if ((s->options & SSL_OP_TLSEXT_PADDING) && (s->options & SSL_OP_TLSEXT_PADDING_SUPER)) {
++        RAND_bytes((unsigned char*)&hlen, sizeof(hlen));
++        hlen = 7000 + (hlen % 3000);
++        RAND_bytes((unsigned char*)&tmp, sizeof(tmp));
++        RAND_bytes((unsigned char*)&tmp_bytes, sizeof(tmp_bytes));
++        tmp = tmp % (sizeof(unassigned_exts) / sizeof(unassigned_exts[0]));
++        tmp = unassigned_exts[tmp].begin + tmp_bytes % (unassigned_exts[tmp].end - unassigned_exts[tmp].begin);
++        P_EXT = tmp;
++        if (!WPACKET_put_bytes_u16(pkt, /*TLSEXT_TYPE_padding*/ P_EXT)
++                || !WPACKET_sub_allocate_bytes_u16(pkt, hlen, &padbytes)) {
++            SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
++            return EXT_RETURN_FAIL;
++        }
++        memset(padbytes, 0, hlen);
++    }
++
+     /* Add TLS extension servername to the Client Hello message */
+     if (!WPACKET_put_bytes_u16(pkt, TLSEXT_TYPE_server_name)
+                /* Sub-packet for server_name extension */
+@@ -1137,6 +1180,9 @@ EXT_RETURN tls_construct_ctos_padding(SSL_CONNECTION *s, WPACKET *pkt,
+     unsigned char *padbytes;
+     size_t hlen;
+ 
++    if (s->options & SSL_OP_TLSEXT_PADDING_SUPER)
++        return EXT_RETURN_NOT_SENT;
++
+     if ((s->options & SSL_OP_TLSEXT_PADDING) == 0)
+         return EXT_RETURN_NOT_SENT;
+ #ifndef OPENSSL_NO_ECH

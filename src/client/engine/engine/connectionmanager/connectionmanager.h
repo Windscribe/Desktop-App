@@ -53,7 +53,7 @@ public:
 
     void clickDisconnect(DISCONNECT_REASON reason = DISCONNECTED_BY_USER);
     void reconnect();
-    void blockingDisconnect();
+    void blockingDisconnect(bool isSleepEvent);
     bool isDisconnected();
 
     QString udpStuffingWithNtp(const QString &ip, const quint16 port);

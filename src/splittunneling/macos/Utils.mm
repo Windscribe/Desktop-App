@@ -6,7 +6,11 @@
 + (nw_endpoint_t)convertToNewEndpoint:(NWEndpoint *)endpoint {
     if ([endpoint isKindOfClass:[NWHostEndpoint class]]) {
         NWHostEndpoint *hostEndpoint = (NWHostEndpoint *)endpoint;
-        return nw_endpoint_create_host([hostEndpoint.hostname UTF8String], [[hostEndpoint port] UTF8String]);
+        const char *hostname = [hostEndpoint.hostname UTF8String];
+        const char *port = [[hostEndpoint port] UTF8String];
+        if (hostname && port) {
+            return nw_endpoint_create_host(hostname, port);
+        }
     }
     return NULL;
 }
@@ -16,7 +20,8 @@
     const char *hostname = nw_endpoint_get_hostname(endpoint);
     uint16_t port = nw_endpoint_get_port(endpoint);
     if (!hostname) return nil;
-    NSString *hostnameString = [NSString stringWithUTF8String:((hostname == NULL) ? "" : hostname)];
+    NSString *hostnameString = [NSString stringWithUTF8String:hostname];
+    if (!hostnameString) return nil;
     NSString *portString = [NSString stringWithFormat:@"%d", port];
 
     return [NWHostEndpoint endpointWithHostname:hostnameString port:portString];
@@ -78,7 +83,7 @@
     nw_path_monitor_start(monitor);
 
     // Wait up to 1 second for the interface to be found
-    dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC));
+    dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC)); // NOLINT: Semaphore is intentionally used here to synchronously wait for async network path monitor callback
     nw_path_monitor_cancel(monitor);
 
     return foundInterface;

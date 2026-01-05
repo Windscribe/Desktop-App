@@ -15,7 +15,7 @@ namespace NewsFeedWindow {
 
 EntryItem::EntryItem(ScalableGraphicsObject *parent, const api_responses::Notification &item, int width)
     : BaseItem(parent, COLLAPSED_HEIGHT*G_SCALE, "", false, width), item_(item), expanded_(false), accented_(false), expandAnimationProgress_(0),
-      opacityAnimationProgress_(0), textOpacity_(OPACITY_HALF), iconOpacity_(OPACITY_HALF), read_(false),
+      opacityAnimationProgress_(0), textOpacity_(OPACITY_SIXTY), iconOpacity_(OPACITY_SIXTY), read_(false),
       icon_(new ImageItem(this, "ARROW_DOWN_WHITE"))
 {
     opacityAnimation_.setStartValue(0.0);
@@ -115,7 +115,7 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
     painter->setPen(Qt::SolidLine);
     painter->setPen(Qt::white);
     painter->setOpacity(textOpacity_);
-    QFont font = FontManager::instance().getFont(12, QFont::Bold);
+    QFont font = FontManager::instance().getFont(14, QFont::Bold);
     painter->setFont(font);
 
     QFontMetrics titleMetrics(font);
@@ -124,7 +124,7 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
 
     // date
     painter->setOpacity(OPACITY_FULL);
-    font = FontManager::instance().getFont(12, QFont::Normal);
+    font = FontManager::instance().getFont(14, QFont::Normal);
     painter->setPen(QColor(114, 121, 129));
     painter->setFont(font);
     QString date = QDateTime::fromSecsSinceEpoch(item_.date).toString(QLocale::system().dateFormat());
@@ -142,7 +142,7 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
 void EntryItem::updateScaling()
 {
     BaseItem::updateScaling();
-    QFontMetrics metrics(FontManager::instance().getFont(12, QFont::Bold));
+    QFontMetrics metrics(FontManager::instance().getFont(14, QFont::Bold));
     titleHeight_ = metrics.boundingRect(boundingRect().adjusted(TEXT_MARGIN*G_SCALE,
                                                                 TEXT_MARGIN*G_SCALE,
                                                                 -(2*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE),
@@ -174,8 +174,8 @@ void EntryItem::onExpandRotationAnimationValueChanged(const QVariant &value)
 void EntryItem::onOpacityAnimationValueChanged(const QVariant &value)
 {
     opacityAnimationProgress_ = value.toDouble();
-    iconOpacity_ = OPACITY_QUARTER + (opacityAnimationProgress_ * (1-OPACITY_QUARTER));
-    textOpacity_ = OPACITY_HALF + (opacityAnimationProgress_ * (1-OPACITY_HALF));
+    iconOpacity_ = OPACITY_SIXTY + (opacityAnimationProgress_ * (1 - OPACITY_SIXTY));
+    textOpacity_ = OPACITY_SIXTY + (opacityAnimationProgress_ * (1 - OPACITY_SIXTY));
     icon_->setOpacity(iconOpacity_);
     update();
 }

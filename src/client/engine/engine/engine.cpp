@@ -103,7 +103,10 @@ Engine::Engine() : QObject(nullptr),
 {
     WSNet::setLogger([](const std::string &logStr) {
         // log wsnet outputs without formatting
-        spdlog::get("raw")->info(logStr);
+        auto logger = spdlog::get("raw");
+        if (logger) {
+            logger->info(logStr);
+        }
     }, false);
 
     QSettings settings;
@@ -819,7 +822,7 @@ void Engine::cleanupImpl(bool isUpdating)
 
     if (connectionManager_) {
         bool bWasIsConnected = !connectionManager_->isDisconnected();
-        connectionManager_->blockingDisconnect();
+        connectionManager_->blockingDisconnect(false);
         if (bWasIsConnected) {
 #ifdef Q_OS_WIN
             enableDohSettings();
@@ -2368,7 +2371,7 @@ void Engine::onApiResourcesManagerServerCredentialsFetched()
 {
     if (isFetchingServerCredentials_) {
         stopFetchingServerCredentials();
-        qCInfo(LOG_BASIC) << "Engine::onRefetchServerCredentialsFinished, successfully";
+        qCInfo(LOG_BASIC) << "Engine::onApiResourcesManagerServerCredentialsFetched successfully";
         doConnect(false);
         isFetchingServerCredentials_ = false;
     }

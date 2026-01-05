@@ -19,7 +19,7 @@ ProxyGatewayGroup::ProxyGatewayGroup(ScalableGraphicsObject *parent, const QStri
     addItem(checkBoxEnable_);
 
     comboBoxProxyType_ = new ComboBoxItem(this);
-    comboBoxProxyType_->setCaptionFont(FontDescr(12, QFont::Normal));
+    comboBoxProxyType_->setCaptionFont(FontDescr(14, QFont::Normal));
     connect(comboBoxProxyType_, &ComboBoxItem::currentItemChanged, this, &ProxyGatewayGroup::onProxyTypeItemChanged);
     addItem(comboBoxProxyType_);
 

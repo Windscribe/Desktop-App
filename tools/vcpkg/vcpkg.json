@@ -22,7 +22,6 @@
         "boost-thread",
         "boost-process",
         "openssl",
-        "oqsprovider",
         "openvpn",
         "gtest",
    	{	
@@ -31,7 +30,7 @@
         },
         {
             "name": "curl",
-            "features": [ "openssl" ]
+            "features": [ "openssl", "ech" ]
         },
         "rapidjson",
         "skyr-url",

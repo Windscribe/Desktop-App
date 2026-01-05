@@ -30,8 +30,7 @@ BaseItem *BasePage::item(int index)
 {
     BaseItem *result = nullptr;
 
-    if (index >= 0 && index < items_.length())
-    {
+    if (index >= 0 && index < items_.length()) {
         result = items_[index];
     }
 
@@ -58,12 +57,10 @@ void BasePage::addItem(BaseItem *item, int index)
 
 void BasePage::removeItem(BaseItem *itemToRemove)
 {
-    for (int index = 0; index < items_.length(); index++)
-    {
+    for (int index = 0; index < items_.length(); index++) {
         BaseItem *item = items_[index];
 
-        if (item == itemToRemove)
-        {
+        if (item == itemToRemove) {
             item->disconnect();
             items_.removeAt(index);
             item->deleteLater();
@@ -76,13 +73,33 @@ void BasePage::removeItem(BaseItem *itemToRemove)
 
 void BasePage::clearItems()
 {
-    for (auto item : items_)
-    {
+    for (auto item : items_) {
         item->disconnect();
         item->setVisible(false);
         item->deleteLater();
     }
     items_.clear();
+
+    recalcItemsPos();
+}
+
+void BasePage::setItems(const QList<BaseItem *> &items, int startIdx, int endIdx)
+{
+    for (int i = endIdx - 1; i >= startIdx; --i) {
+        BaseItem *item = items_[i];
+        item->disconnect();
+        item->setVisible(false);
+        item->deleteLater();
+        items_.removeAt(i);
+    }
+
+    int insertIdx = startIdx;
+    for (auto item : items) {
+        item->setParentItem(this);
+        connect(item, &BaseItem::heightChanged, this, &BasePage::recalcItemsPos);
+        connect(item, &BaseItem::visibleChanged, this, &BasePage::recalcItemsPos);
+        items_.insert(insertIdx++, item);
+    }
 
     recalcItemsPos();
 }

@@ -1,68 +1,72 @@
 string(REPLACE "." "_" curl_version "curl-${VERSION}")
 
 set(PATCH_LIST
-   0005_remove_imp_suffix.patch
-   0020-fix-pc-file.patch
-   0022-deduplicate-libs.patch
-   export-components.patch
    dependencies.patch
-   cmake-config.patch
+   pkgconfig-curl-config.patch
    super-large-padding-extension.patch
 )
 
-if(NOT VCPKG_TARGET_IS_ANDROID AND NOT VCPKG_TARGET_IS_IOS)
-    list(APPEND PATCH_LIST oqsprovider.patch)
-else()
-    message(STATUS "Skipping oqsprovider.patch for mobile platforms")
-endif()
-
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
-    REPO sftcd/curl
-    REF 2b52fe4115e930e94dae75329bd0c11c79880176
-    SHA512 347f333aae83cd9bb96791489742811aaf0041774a1f2edf2c694fb93be8800b1934ff55c02f432bbfa0ac865e4c1dcb7559b49d174cb20af29574c7e7337764
+    REPO curl/curl
+    REF ${curl_version}
+    SHA512 ec2fa6c47d52feed943421b00e98370971bcc73b82842a85426ea9e42d36eaab51258a8d00197fdaaf5ec39e19385280fe387765f27e3b3dc1086c46236dc0bf
+    HEAD_REF master
     PATCHES ${PATCH_LIST}
 )
 
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
     FEATURES
-        # Support HTTP2 TLS Download https://curl.haxx.se/ca/cacert.pem rename to curl-ca-bundle.crt, copy it to libcurl.dll location.
         http2       USE_NGHTTP2
+        http3       USE_NGTCP2
         wolfssl     CURL_USE_WOLFSSL
         openssl     CURL_USE_OPENSSL
+        openssl     CURL_CA_FALLBACK
         mbedtls     CURL_USE_MBEDTLS
         ssh         CURL_USE_LIBSSH2
         tool        BUILD_CURL_EXE
         c-ares      ENABLE_ARES
         sspi        CURL_WINDOWS_SSPI
         brotli      CURL_BROTLI
-        schannel    CURL_USE_SCHANNEL
-        sectransp   CURL_USE_SECTRANSP
         idn2        USE_LIBIDN2
         winidn      USE_WIN32_IDN
-        winldap     USE_WIN32_LDAP
-        websockets  ENABLE_WEBSOCKETS
         zstd        CURL_ZSTD
+        psl         CURL_USE_LIBPSL
+        gssapi      CURL_USE_GSSAPI
+        gsasl       CURL_USE_GSASL
+        gnutls      CURL_USE_GNUTLS
+        rtmp        USE_LIBRTMP
+        httpsrr     USE_HTTPSRR
+        ssls-export USE_SSLS_EXPORT
+        ech         USE_ECH
     INVERTED_FEATURES
+        ldap        CURL_DISABLE_LDAP
+        ldap        CURL_DISABLE_LDAPS
         non-http    HTTP_ONLY
-        winldap     CURL_DISABLE_LDAP # Only WinLDAP support ATM
+        websockets  CURL_DISABLE_WEBSOCKETS
 )
 
+if("ssl" IN_LIST FEATURES AND
+    NOT "http3" IN_LIST FEATURES AND
+    # (windows & !uwp) | mingw to match curl[ssl]'s "platform"
+    ((VCPKG_TARGET_IS_WINDOWS AND NOT VCPKG_TARGET_IS_UWP) OR VCPKG_TARGET_IS_MINGW))
+    list(APPEND FEATURE_OPTIONS -DCURL_USE_SCHANNEL=ON)
+endif()
+
+if("http3" IN_LIST FEATURES AND
+    ("wolfssl" IN_LIST FEATURES OR
+     "mbedtls" IN_LIST FEATURES OR
+     "gnutls" IN_LIST FEATURES))
+    message(FATAL_ERROR "http3 is incompatible with curl multi-ssl, preventing combination with wolfssl, mbedtls or \
+gnutls in vcpkg's curated registry. To use curl http3 on ngtcp2 on one of the other TLS backends, author an \
+overlay-port which exchanges curl[ssl]'s and curl[http3]'s openssl dependencies with the backend you want.")
+endif()
+
 set(OPTIONS "")
-if("idn2" IN_LIST FEATURES)
-    vcpkg_find_acquire_program(PKGCONFIG)
-    list(APPEND OPTIONS "-DPKG_CONFIG_EXECUTABLE=${PKGCONFIG}")
-endif()
 
-if("sectransp" IN_LIST FEATURES)
-    list(APPEND OPTIONS -DCURL_CA_PATH=none -DCURL_CA_BUNDLE=none)
-endif()
-
-# UWP targets
 if(VCPKG_TARGET_IS_UWP)
     list(APPEND OPTIONS
         -DCURL_DISABLE_TELNET=ON
-        -DENABLE_IPV6=OFF
         -DENABLE_UNIX_SOCKETS=OFF
     )
 endif()
@@ -71,28 +75,24 @@ if(VCPKG_TARGET_IS_WINDOWS)
     list(APPEND OPTIONS -DENABLE_UNICODE=ON)
 endif()
 
-#see https://github.com/curl/curl/issues/13826
-if(VCPKG_TARGET_IS_ANDROID)
-    list(APPEND OPTIONS -DHAVE_CLOCK_GETTIME_MONOTONIC=OFF)
-    list(APPEND OPTIONS -DHAVE_CLOCK_GETTIME_MONOTONIC_RAW=OFF)
-endif()
+vcpkg_find_acquire_program(PKGCONFIG)
 
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
-    OPTIONS
+    OPTIONS 
         "-DCMAKE_PROJECT_INCLUDE=${CMAKE_CURRENT_LIST_DIR}/cmake-project-include.cmake"
+        "-DPKG_CONFIG_EXECUTABLE=${PKGCONFIG}"
         ${FEATURE_OPTIONS}
         ${OPTIONS}
         -DBUILD_TESTING=OFF
-        -DENABLE_MANUAL=OFF
-        -DCURL_CA_FALLBACK=ON
-        -DCURL_USE_LIBPSL=OFF
-        -DCURL_DISABLE_OPENSSL_AUTO_LOAD_CONFIG=ON
+        -DENABLE_CURL_MANUAL=OFF
+        -DIMPORT_LIB_SUFFIX=   # empty
+        -DSHARE_LIB_OBJECT=OFF
+        -DCURL_USE_PKGCONFIG=ON
         -DCMAKE_DISABLE_FIND_PACKAGE_Perl=ON
-        -DUSE_ECH=ON
-        -DUSE_HTTPSRR=ON
-    OPTIONS_DEBUG
-        -DENABLE_DEBUG=ON
+        -DCURL_DISABLE_OPENSSL_AUTO_LOAD_CONFIG=ON
+    MAYBE_UNUSED_VARIABLES
+        PKG_CONFIG_EXECUTABLE
 )
 vcpkg_cmake_install()
 vcpkg_copy_pdbs()
@@ -115,14 +115,15 @@ endif()
 
 #Fix install path
 vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/bin/curl-config" "${CURRENT_PACKAGES_DIR}" "\${prefix}")
-vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/bin/curl-config" "${CURRENT_INSTALLED_DIR}" "\${prefix}")
-vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/bin/curl-config" "\nprefix=\${prefix}" [=[prefix=$(CDPATH= cd -- "$(dirname -- "$0")"/../../.. && pwd -P)]=])
+vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/bin/curl-config" "${CURRENT_INSTALLED_DIR}" "\${prefix}" IGNORE_UNCHANGED)
+vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/bin/curl-config" "\nprefix='\${prefix}'" [=[prefix=$(CDPATH= cd -- "$(dirname -- "$0")"/../../.. && pwd -P)]=])
 file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/tools/${PORT}/bin")
 file(RENAME "${CURRENT_PACKAGES_DIR}/bin/curl-config" "${CURRENT_PACKAGES_DIR}/tools/${PORT}/bin/curl-config")
 if(EXISTS "${CURRENT_PACKAGES_DIR}/debug/bin/curl-config")
     vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/debug/bin/curl-config" "${CURRENT_PACKAGES_DIR}" "\${prefix}")
-    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/debug/bin/curl-config" "${CURRENT_INSTALLED_DIR}" "\${prefix}")
-    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/debug/bin/curl-config" "\nprefix=\${prefix}/debug" [=[prefix=$(CDPATH= cd -- "$(dirname -- "$0")"/../../../.. && pwd -P)]=])
+    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/debug/bin/curl-config" "${CURRENT_INSTALLED_DIR}" "\${prefix}" IGNORE_UNCHANGED)
+    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/debug/bin/curl-config" "\nprefix='\${prefix}/debug'" [=[prefix=$(CDPATH= cd -- "$(dirname -- "$0")"/../../../.. && pwd -P)]=])
+    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/debug/bin/curl-config" "\nexec_prefix=\"\${prefix}\"" "\nexec_prefix=\"\${prefix}/debug\"")
     vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/debug/bin/curl-config" "-lcurl" "-l${namespec}-d")
     vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/debug/bin/curl-config" "curl." "curl-d.")
     file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/tools/${PORT}/debug/bin")
@@ -144,4 +145,15 @@ if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
 endif()
 
 file(INSTALL "${CURRENT_PORT_DIR}/vcpkg-cmake-wrapper.cmake" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}")
-vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/COPYING")
+file(INSTALL "${CURRENT_PORT_DIR}/usage" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}")
+
+file(READ "${SOURCE_PATH}/lib/curlx/inet_ntop.c" inet_ntop_c)
+string(REGEX REPLACE "#i.*" "" inet_ntop_c "${inet_ntop_c}")
+set(inet_ntop_copyright "${CURRENT_BUILDTREES_DIR}/inet_ntop.c and inet_pton.c Notice")
+file(WRITE "${inet_ntop_copyright}" "${inet_ntop_c}")
+
+vcpkg_install_copyright(
+    FILE_LIST
+        "${SOURCE_PATH}/COPYING"
+        "${inet_ntop_copyright}"
+)

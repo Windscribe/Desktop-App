@@ -17,14 +17,4 @@ done
 systemctl stop windscribe-helper > /dev/null 2>&1 || true
 systemctl disable windscribe-helper > /dev/null 2>&1 || true
 
-# Stop and disable firewalld service if it is active, otherwise it will conflict with iptables on OS reboot
-# Relevant for Fedora distributions
-systemctl is-active --quiet firewalld
-if [ $? -eq 0 ]
-then
-    echo "Firewalld service is running. It will be stopped and disabled to avoid conflicts with the Windscribe iptables firewall."
-    sudo systemctl stop firewalld
-    sudo systemctl disable firewalld
-fi
-
 echo "Finish pre-install script"

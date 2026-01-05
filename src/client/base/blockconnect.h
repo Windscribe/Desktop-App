@@ -12,7 +12,7 @@ public:
     QString message();
     void setNotBlocking();
     void setBlockedExceedTraffic();
-    void setBlockedMultiAccount(const QString &originalUsername);
+    void setBlockedMultiAccount(const QString &originalUsername, const QString &originalUserId);
     void setBlockedBannedUser();
     void setNeedUpgrade();
 

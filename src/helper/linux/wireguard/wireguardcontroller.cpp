@@ -38,8 +38,19 @@ bool WireGuardController::start()
 
 bool WireGuardController::stop()
 {
-    if (!is_initialized_)
-        return false;
+    if (!is_initialized_) {
+        // Controller not initialized, but we still need to clean up (e.g., utun420 device)
+        spdlog::info("WireGuardController::stop() called when not initialized - attempting cleanup");
+
+        // Use the same logic as start() to determine which communicator to use
+        bool isUsingKernelModule = !Utils::executeCommand("modprobe", {"wireguard"});
+        if (isUsingKernelModule) {
+            KernelModuleCommunicator::forceStop(kDeviceName);
+        } else {
+            WireGuardGoCommunicator::forceStop(kDeviceName);
+        }
+        return true;
+    }
 
     comm_->stop();
     comm_.reset();

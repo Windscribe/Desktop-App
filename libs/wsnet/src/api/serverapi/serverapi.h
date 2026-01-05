@@ -114,6 +114,7 @@ public:
                                                            WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> authTokenLogin(bool useAsciiCaptcha, WSNetRequestFinishedCallback callback) override;
     std::shared_ptr<WSNetCancelableCallback> authTokenSignup(bool useAsciiCaptcha, WSNetRequestFinishedCallback callback) override;
+    std::shared_ptr<WSNetCancelableCallback> passwordRecovery(const std::string &email, WSNetRequestFinishedCallback callback) override;
 
 private:
     std::unique_ptr<ServerAPI_impl> impl_;

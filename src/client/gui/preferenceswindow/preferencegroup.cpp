@@ -15,7 +15,7 @@ namespace PreferencesWindow {
 
 PreferenceGroup::PreferenceGroup(ScalableGraphicsObject *parent, const QString &desc, const QString &descUrl)
     : BaseItem(parent, 0), desc_(desc), errorDesc_(""), descUrl_(descUrl), descRightMargin_(PREFERENCES_MARGIN_X), descHeight_(0),
-      borderWidth_(2), icon_(new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/INFO_ICON", "", this, OPACITY_HALF)),
+      borderWidth_(2), icon_(new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/INFO_ICON", "", this, OPACITY_SIXTY)),
       error_(false), drawBackground_(true), descHidden_(false)
 {
     connect(icon_, &IconButton::clicked, this, &PreferenceGroup::onIconClicked);
@@ -79,7 +79,7 @@ void PreferenceGroup::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
                          ICON_WIDTH*G_SCALE,
                          ICON_HEIGHT*G_SCALE,
                          painter);
-        QFont font = FontManager::instance().getFont(10.5,  QFont::Normal);
+        QFont font = FontManager::instance().getFont(12,  QFont::Normal);
         painter->setFont(font);
         painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN_X+ICON_WIDTH)*G_SCALE,
                                                   boundingRect().height() - descVMargin - descHeight_,
@@ -88,8 +88,8 @@ void PreferenceGroup::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
                           errorDesc_);
     } else if (!desc_.isEmpty()) {
         painter->setPen(Qt::white);
-        painter->setOpacity(OPACITY_HALF);
-        QFont font = FontManager::instance().getFont(10.5,  QFont::Normal);
+        painter->setOpacity(OPACITY_SEVENTY);
+        QFont font = FontManager::instance().getFont(12,  QFont::Normal);
         painter->setFont(font);
         painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
                                                   boundingRect().height() - descVMargin - descHeight_,
@@ -214,13 +214,13 @@ void PreferenceGroup::updatePositions()
             descVMargin = (PREFERENCES_MARGIN_Y + borderWidth_)*G_SCALE;
         }
         if (error_) {
-            QFont font = FontManager::instance().getFont(10.5,  QFont::Normal);
+            QFont font = FontManager::instance().getFont(12,  QFont::Normal);
             QFontMetrics metrics(font);
             descHeight_ = metrics.boundingRect(boundingRect().adjusted((2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE, 0, -descRightMargin_, 0).toRect(),
                                                Qt::AlignLeft | Qt::TextWordWrap,
                                                errorDesc_).height();
         } else {
-            QFont font = FontManager::instance().getFont(10.5,  QFont::Normal);
+            QFont font = FontManager::instance().getFont(12,  QFont::Normal);
             QFontMetrics metrics(font);
             descHeight_ = metrics.boundingRect(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, 0, -descRightMargin_, 0).toRect(),
                                                Qt::AlignLeft | Qt::TextWordWrap,

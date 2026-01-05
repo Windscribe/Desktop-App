@@ -77,7 +77,7 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
             painter->setOpacity(1.0);
             painter->setPen(FontManager::instance().getSeaGreenColor());
         } else if (status_.status == types::ProtocolStatus::Status::kFailed) {
-            painter->setOpacity(0.5);
+            painter->setOpacity(OPACITY_SIXTY);
             painter->setPen(QColor(255, 255, 255));
         } else {
             painter->setOpacity(1.0);
@@ -109,7 +109,7 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
             painter->setPen(QColor(255, 255, 255));
         }
 
-        painter->setOpacity(0.5);
+        painter->setOpacity(OPACITY_SIXTY);
         painter->drawText(boundingRect().adjusted(protocolWidth + (kTextIndent + 17)*G_SCALE, kFirstLineY*G_SCALE, 0, 0), QString::number(status_.port));
     }
 
@@ -123,9 +123,9 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
             painter->setPen(QColor(255, 255, 255));
         }
 
-        QFont font = FontManager::instance().getFont(12,  QFont::Normal);
+        QFont font = FontManager::instance().getFont(14,  QFont::Normal);
         painter->setFont(font);
-        painter->setOpacity(0.5);
+        painter->setOpacity(OPACITY_SEVENTY);
 
         int availableWidth = boundingRect().width() - kTextIndent*G_SCALE - 40*G_SCALE;
         QFontMetrics fm(font);
@@ -156,7 +156,7 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         // Text inside
         painter->setPen(FontManager::instance().getSeaGreenColor());
         painter->setOpacity(1.0);
-        QFont font = FontManager::instance().getFont(12, QFont::Bold);
+        QFont font = FontManager::instance().getFont(14, QFont::Bold);
         painter->setFont(font);
         painter->drawText(boundingRect().adjusted(boundingRect().width() - 107*G_SCALE, 0, 0, -(boundingRect().height() - 24*G_SCALE)),
                           Qt::AlignCenter,
@@ -190,7 +190,7 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
         painter->setPen(FontManager::instance().getSeaGreenColor());
         painter->setOpacity(1.0);
-        QFont font = FontManager::instance().getFont(12,  QFont::Normal);
+        QFont font = FontManager::instance().getFont(14,  QFont::Normal);
         painter->setFont(font);
         painter->drawText(boundingRect().adjusted(boundingRect().width() - 107*G_SCALE, 0, 0, -(boundingRect().height() - 24*G_SCALE)),
                           Qt::AlignCenter,
@@ -204,14 +204,14 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         p->draw(boundingRect().width() - 16*G_SCALE - p->width(), 36*G_SCALE, painter);
     } else if (status_.status == types::ProtocolStatus::Status::kFailed) {
         painter->setOpacity(1.0);
-        QFont font = FontManager::instance().getFont(12,  QFont::Normal);
+        QFont font = FontManager::instance().getFont(14,  QFont::Normal);
         painter->setFont(font);
         painter->setPen(QColor(249, 76, 67));
         painter->drawText(boundingRect().adjusted(0, 0, -16*G_SCALE, 0),
                           Qt::AlignRight | Qt::AlignVCenter,
                           QString(tr("Failed")));
     } else {
-        painter->setOpacity(0.5 + 0.5*hoverValue_);
+        painter->setOpacity(OPACITY_SIXTY + 0.4*hoverValue_);
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("preferences/FRWRD_ARROW_WHITE_ICON");
         if (status_.status == types::ProtocolStatus::Status::kUpNext) {
             p->draw(boundingRect().width() - 16*G_SCALE - p->width(), 36*G_SCALE, painter);

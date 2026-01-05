@@ -12,7 +12,7 @@ class IconButton : public ClickableGraphicsObject
     Q_OBJECT
 public:
 
-    explicit IconButton(int width, int height, const QString &imagePath, const QString &shadowPath, ScalableGraphicsObject * parent = nullptr, double unhoverOpacity = OPACITY_UNHOVER_ICON_STANDALONE, double hoverOpacity = OPACITY_FULL);
+    explicit IconButton(int width, int height, const QString &imagePath, const QString &shadowPath, ScalableGraphicsObject * parent = nullptr, double unhoverOpacity = OPACITY_SIXTY, double hoverOpacity = OPACITY_FULL);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;

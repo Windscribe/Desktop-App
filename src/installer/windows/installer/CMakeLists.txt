@@ -42,7 +42,6 @@ set(SOURCES
     installer.rc
     main.cpp
     ossupport.manifest
-    resources/windscribe.7z
     version.rc
 )
 
@@ -50,7 +49,8 @@ qt_add_resources(rc ../../common/installer_win.qrc)
 qt_add_executable(installer WIN32 ${SOURCES} ${rc})
 add_subdirectory(../../common ${CMAKE_CURRENT_BINARY_DIR}/common)
 
-set_source_files_properties(installer.rc OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/resources/windscribe.7z)
+set_source_files_properties(installer.rc OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/resources/windscribe.7z)
+add_dependencies(installer prep-installer-windows)
 set_property(TARGET installer PROPERTY COMPILE_WARNING_AS_ERROR ON)
 set_property(TARGET installer PROPERTY VS_DPI_AWARE "PerMonitor")
 set_property(TARGET installer PROPERTY COMPILE_FLAGS "/Gy /Oi /sdl")

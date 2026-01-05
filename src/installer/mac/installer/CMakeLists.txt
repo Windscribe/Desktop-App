@@ -35,17 +35,31 @@ set(SOURCES
     main.mm
 )
 
-set_source_files_properties(main.mm OBJECT_DEPENDS ${CMAKE_SOURCE_DIR}/resources/windscribe.tar.lzma)
+set_source_files_properties(main.mm OBJECT_DEPENDS ${CMAKE_BINARY_DIR}/src/installer/mac/installer/installer.app/Contents/Resources/windscribe.tar.lzma)
 
 qt_add_resources(rc ../../common/installer_mac.qrc)
 qt_add_executable(installer MACOSX_BUNDLE ${SOURCES} ${rc})
 add_subdirectory(../../common ${CMAKE_CURRENT_BINARY_DIR}/common)
 
+add_dependencies(installer com.windscribe.helper.macos prep-installer-macos)
+
+# Configure Info.plist with DEVELOPMENT_TEAM substitution
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist
+    ${CMAKE_CURRENT_BINARY_DIR}/Info.plist.configured
+    @ONLY
+)
+
 set_target_properties(installer
                       PROPERTIES
                       OUTPUT_NAME "installer"
                       MACOSX_BUNDLE TRUE
-                      MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/Info.plist
+                      MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_BINARY_DIR}/Info.plist.configured
+                      MACOSX_BUNDLE_EXECUTABLE_NAME "installer"
+                      MACOSX_BUNDLE_BUNDLE_NAME "WindscribeInstaller"
+                      MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+                      MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
+                      MACOSX_BUNDLE_GUI_IDENTIFIER "com.windscribe.installer.macos"
                       COMPILE_WARNING_AS_ERROR TRUE
 )
 
@@ -62,6 +76,8 @@ target_link_directories(installer
                         ${CMAKE_SOURCE_DIR}/Frameworks
 )
 
+target_compile_options(installer PRIVATE "-fobjc-arc")
+
 target_link_libraries(installer
                       PRIVATE
                       Boost::serialization
@@ -72,10 +88,18 @@ target_link_libraries(installer
                       Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg
 )
 
-add_custom_command(TARGET installer POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:installer>/../Resources)
-add_custom_command(TARGET installer POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
-                   ${CMAKE_SOURCE_DIR}/../../../../build/src/helper/macos/$<CONFIG>/ $<TARGET_FILE_DIR:installer>/../Library/LaunchServices)
+# Copy installer's own resources (icon, etc.)
+add_custom_command(TARGET installer POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_CURRENT_SOURCE_DIR}/resources $<TARGET_FILE_DIR:installer>/../Resources)
+
+# Copy helper for installer to use during installation
+add_custom_command(TARGET installer POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E make_directory
+                   $<TARGET_FILE_DIR:installer>/../Library/LaunchServices)
+add_custom_command(TARGET installer POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                   $<TARGET_FILE:com.windscribe.helper.macos> $<TARGET_FILE_DIR:installer>/../Library/LaunchServices/)
 
 set_target_properties(installer PROPERTIES
                     XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon

@@ -50,7 +50,7 @@ ComboMenuWidget::ComboMenuWidget(QWidget *parent) : QWidget(parent)
 void ComboMenuWidget::addItem(QString text, const QVariant &item_data)
 {
     ComboMenuWidgetButton *button = new ComboMenuWidgetButton(item_data);
-    QFont font = FontManager::instance().getFont(12,  QFont::Normal);
+    QFont font = FontManager::instance().getFont(14, QFont::Normal);
     button->setFont(font);
     button->setCheckable(true);
 

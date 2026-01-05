@@ -478,4 +478,13 @@ BaseRequest *serverapi_requests_factory::authTokenSignup(bool useAsciiCaptcha, R
     return request;
 }
 
+BaseRequest *serverapi_requests_factory::passwordRecovery(const std::string &email, RequestFinishedCallback callback)
+{
+    std::map<std::string, std::string> extraParams;
+    extraParams["email"] = email;
+    auto request = new BaseRequest(HttpMethod::kPost, SubdomainType::kApi, RequestPriority::kNormal, "PasswordRecovery", extraParams, callback);
+    request->setContentTypeHeader("Content-type: text/html; charset=utf-8");
+    return request;
+}
+
 } // namespace wsnet

@@ -63,7 +63,8 @@
         } else if (state == nw_connection_state_ready) {
             spdlog::debug("[TCP] Connection established successfully");
             nw_path_t path = nw_connection_copy_current_path(connection);
-            NWEndpoint *localEndpoint = [Utils convertToOldEndpoint:nw_path_copy_effective_local_endpoint(path)];
+            nw_endpoint_t localNwEndpoint = path ? nw_path_copy_effective_local_endpoint(path) : NULL;
+            NWEndpoint *localEndpoint = localNwEndpoint ? [Utils convertToOldEndpoint:localNwEndpoint] : nil;
 
             [flow openWithLocalEndpoint:(NWHostEndpoint *)localEndpoint completionHandler:^(NSError * _Nullable error) {
                 if (error) {
@@ -152,7 +153,7 @@
 
             const void *buffer;
             size_t buffer_length;
-            dispatch_data_t contiguous = dispatch_data_create_map(content, &buffer, &buffer_length);
+            dispatch_data_t __unused contiguous = dispatch_data_create_map(content, &buffer, &buffer_length);
             NSData *data = [NSData dataWithBytes:buffer length:buffer_length];
 
             nw_endpoint_t endpoint = nw_connection_copy_endpoint(connection);

@@ -1,6 +1,7 @@
 #include "resizablewindow.h"
 
 #include <QCursor>
+#include <QDateTime>
 #include <QGraphicsSceneMouseEvent>
 #include <QCoreApplication>
 
@@ -9,7 +10,8 @@
 #include "dpiscalemanager.h"
 
 ResizableWindow::ResizableWindow(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper)
-    : ScalableGraphicsObject(parent), preferences_(preferences), curScale_(G_SCALE)
+    : ScalableGraphicsObject(parent), preferences_(preferences), curScale_(G_SCALE),
+      lastResizeUpdateTime_(0), pendingResizeY_(0), hasPendingResize_(false)
 {
     setFlags(QGraphicsObject::ItemIsFocusable);
     installEventFilter(this);
@@ -118,16 +120,32 @@ void ResizableWindow::onResizeChange(int y)
     int max = maximumHeight();
 
     if ((heightAtResizeStart_ + y) >= min*G_SCALE && (heightAtResizeStart_ + y) <= max*G_SCALE) {
-        prepareGeometryChange();
-        curHeight_ = heightAtResizeStart_ + y;
-        updatePositions();
+        qint64 currentTime = QDateTime::currentMSecsSinceEpoch();
 
-        emit sizeChanged(this);
+        pendingResizeY_ = y;
+        hasPendingResize_ = true;
+
+        if (currentTime - lastResizeUpdateTime_ >= kThrottleMs) {
+            prepareGeometryChange();
+            curHeight_ = heightAtResizeStart_ + pendingResizeY_;
+            updatePositions();
+            emit sizeChanged(this);
+
+            lastResizeUpdateTime_ = currentTime;
+            hasPendingResize_ = false;
+        }
     }
 }
 
 void ResizableWindow::onResizeFinished()
 {
+    if (hasPendingResize_) {
+        prepareGeometryChange();
+        curHeight_ = heightAtResizeStart_ + pendingResizeY_;
+        hasPendingResize_ = false;
+    }
+    updatePositions();
+    emit sizeChanged(this);
     emit resizeFinished(this);
 }
 

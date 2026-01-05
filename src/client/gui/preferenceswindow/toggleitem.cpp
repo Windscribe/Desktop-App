@@ -19,14 +19,14 @@ namespace PreferencesWindow {
 
 ToggleItem::ToggleItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip)
   : BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), strCaption_(caption), strTooltip_(tooltip),
-    captionFont_(12, QFont::Bold), icon_(nullptr), isCaptionElided_(false)
+    captionFont_(14, QFont::Bold), icon_(nullptr), isCaptionElided_(false)
 {
     checkBoxButton_ = new ToggleButton(this);
     connect(checkBoxButton_, &ToggleButton::stateChanged, this, &ToggleItem::stateChanged);
     connect(checkBoxButton_, &ToggleButton::hoverEnter, this, &ToggleItem::buttonHoverEnter);
     connect(checkBoxButton_, &ToggleButton::hoverLeave, this, &ToggleItem::buttonHoverLeave);
 
-    infoIcon_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/INFO_ICON", "", this, OPACITY_HALF);
+    infoIcon_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/INFO_ICON", "", this, OPACITY_SIXTY);
     connect(infoIcon_, &IconButton::clicked, this, &ToggleItem::onInfoIconClicked);
 
     setAcceptHoverEvents(true);
@@ -44,8 +44,8 @@ void ToggleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
     qreal xOffset = PREFERENCES_MARGIN_X*G_SCALE;
     if (icon_) {
-        xOffset = (2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE;
-        icon_->draw(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
+        xOffset = (PREFERENCES_MARGIN_X + 8 + ICON_WIDTH)*G_SCALE;
+        icon_->draw(PREFERENCES_MARGIN_X*G_SCALE, (PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE / 2, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
     }
 
     QFontMetrics fm(font);
@@ -69,18 +69,18 @@ void ToggleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     );
 
     painter->drawText(boundingRect().adjusted(xOffset,
-                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              0,
                                               -PREFERENCES_MARGIN_X*G_SCALE,
-                                              -PREFERENCES_MARGIN_Y*G_SCALE),
-                      Qt::AlignLeft,
+                                              -(boundingRect().height() - PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE)),
+                      Qt::AlignLeft | Qt::AlignVCenter,
                       elidedText);
 
     // If there's a description draw it
     if (!desc_.isEmpty()) {
-        QFont font = FontManager::instance().getFont(10, QFont::Normal);
+        QFont font = FontManager::instance().getFont(12, QFont::Normal);
         painter->setFont(font);
         painter->setPen(Qt::white);
-        painter->setOpacity(OPACITY_HALF);
+        painter->setOpacity(OPACITY_SEVENTY);
         painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
                                                   boundingRect().height() - PREFERENCES_MARGIN_Y*G_SCALE - descHeight_,
                                                   -descRightMargin_,
@@ -184,7 +184,7 @@ void ToggleItem::updatePositions()
         descRightMargin_ += PREFERENCES_MARGIN_X*G_SCALE + ICON_WIDTH*G_SCALE;
     }
 
-    QFontMetrics fm(FontManager::instance().getFont(10, QFont::Normal));
+    QFontMetrics fm(FontManager::instance().getFont(12, QFont::Normal));
     descHeight_ = fm.boundingRect(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, 0, -descRightMargin_, 0).toRect(),
                                   Qt::AlignLeft | Qt::TextWordWrap,
                                   desc_).height();

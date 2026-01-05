@@ -98,7 +98,7 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
     upgradeBanner_->hide();
     connect(upgradeBanner_, &UpgradeBanner::clicked, this, &LocationsTab::upgradeBannerClicked);
 
-    updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
+    updateLocationWidgetsGeometry(LOCATION_ITEM_HEIGHT * countOfVisibleItemSlots_);
 
     connect(locationsModelManager, &gui_locations::LocationsModelManager::deviceNameChanged, this, &LocationsTab::onDeviceNameChanged);
     connect(locationsModelManager->locationsModel(), &gui_locations::LocationsModel::dataChanged, this, [this]() {
@@ -110,16 +110,6 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
     onLanguageChanged();
 
     onClickAllLocations();
-}
-
-void LocationsTab::setCountVisibleItemSlots(int cnt)
-{
-    if (cnt != countOfVisibleItemSlots_)
-    {
-        countOfVisibleItemSlots_ = cnt;
-        updateRibbonVisibility();
-        updateLocationWidgetsGeometry(unscaledHeightOfItemViewport());
-    }
 }
 
 int LocationsTab::getCountVisibleItems()
@@ -163,7 +153,7 @@ void LocationsTab::paintEvent(QPaintEvent *event)
         int baseX = 16*G_SCALE;
 
         painter.setPen(Qt::white);
-        painter.setOpacity(0.7);
+        painter.setOpacity(OPACITY_SEVENTY);
         painter.drawText(QRect(baseX, baseY, geometry().width() - 32*G_SCALE, headerHeight()*G_SCALE), Qt::AlignLeft, text);
 
         QFontMetrics fm(font);
@@ -178,7 +168,7 @@ void LocationsTab::paintEvent(QPaintEvent *event)
         painter.fillRect(QRect(separatorX, separatorY, 1*G_SCALE, 16*G_SCALE), QColor(217, 217, 217));
 
         int countX = separatorX + 1*G_SCALE + 8*G_SCALE;
-        painter.setOpacity(0.7);
+        painter.setOpacity(OPACITY_SEVENTY);
         painter.setPen(Qt::white);
         QFont countFont = FontManager::instance().getFont(12, QFont::Normal);
         painter.setFont(countFont);
@@ -289,7 +279,12 @@ WidgetSwitcher *LocationsTab::getCurrentWidget() const
     }
 }
 
-void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
+void LocationsTab::updateCurrentWidgetGeometry(int newHeight)
+{
+    updateLocationWidgetsGeometry(newHeight, true);
+}
+
+void LocationsTab::updateLocationWidgetsGeometry(int newHeight, bool currentOnly)
 {
     currentLocationListHeight_ = newHeight;
 
@@ -307,18 +302,33 @@ void LocationsTab::updateLocationWidgetsGeometry(int newHeight)
     int ribbonOffset = qCeil(COVER_LAST_ITEM_LINE*G_SCALE);
     int alphaOffset = preferences_->appSkin() == APP_SKIN::APP_SKIN_ALPHA ? 16*G_SCALE : 0;
 
-    widgetAllLocations_->setGeometry(0, topAreaHeight, scaledWidth, scaledHeight - ribbonHeight);
-    widgetFavoriteLocations_->setGeometry(0, topAreaHeight, scaledWidth, scaledHeight);
-    widgetStaticIpsLocations_->setGeometry(0, topAreaHeight, scaledWidth, scaledHeight - ribbonHeight);
-    widgetConfiguredLocations_->setGeometry(0, topAreaHeight, scaledWidth, scaledHeight - ribbonHeight);
-    widgetSearchLocations_->setGeometry(0, topAreaHeight, scaledWidth, scaledHeight);
+    if (currentOnly) {
+        WidgetSwitcher *currentWidget = getCurrentWidget();
+        if (currentWidget) {
+            bool hasRibbon = (curTab_ != LOCATION_TAB_FAVORITE_LOCATIONS && curTab_ != LOCATION_TAB_SEARCH_LOCATIONS);
+            currentWidget->setGeometry(0, topAreaHeight, scaledWidth, scaledHeight - (hasRibbon ? ribbonHeight : 0));
+        }
 
-    // ribbon geometry
-    staticIPDeviceInfo_->setGeometry(0, scaledHeight - ribbonOffset + alphaOffset, scaledWidth, ribbonHeight);
-    configFooterInfo_->setGeometry(0, scaledHeight - ribbonOffset + alphaOffset, scaledWidth, ribbonHeight);
-    upgradeBanner_->setGeometry(8*G_SCALE, scaledHeight - 26*G_SCALE + alphaOffset, scaledWidth - 16*G_SCALE, 64*G_SCALE);
+        if (curTab_ == LOCATION_TAB_ALL_LOCATIONS) {
+            upgradeBanner_->setGeometry(8*G_SCALE, scaledHeight - 26*G_SCALE + alphaOffset, scaledWidth - 16*G_SCALE, 64*G_SCALE);
+        } else if (curTab_ == LOCATION_TAB_STATIC_IPS_LOCATIONS) {
+            staticIPDeviceInfo_->setGeometry(0, scaledHeight - ribbonOffset + alphaOffset, scaledWidth, ribbonHeight);
+        } else if (curTab_ == LOCATION_TAB_CONFIGURED_LOCATIONS) {
+            configFooterInfo_->setGeometry(0, scaledHeight - ribbonOffset + alphaOffset, scaledWidth, ribbonHeight);
+        }
+    } else {
+        widgetAllLocations_->setGeometry(0, topAreaHeight, scaledWidth, scaledHeight - ribbonHeight);
+        widgetFavoriteLocations_->setGeometry(0, topAreaHeight, scaledWidth, scaledHeight);
+        widgetStaticIpsLocations_->setGeometry(0, topAreaHeight, scaledWidth, scaledHeight - ribbonHeight);
+        widgetConfiguredLocations_->setGeometry(0, topAreaHeight, scaledWidth, scaledHeight - ribbonHeight);
+        widgetSearchLocations_->setGeometry(0, topAreaHeight, scaledWidth, scaledHeight);
 
-    updateScaling();
+        staticIPDeviceInfo_->setGeometry(0, scaledHeight - ribbonOffset + alphaOffset, scaledWidth, ribbonHeight);
+        configFooterInfo_->setGeometry(0, scaledHeight - ribbonOffset + alphaOffset, scaledWidth, ribbonHeight);
+        upgradeBanner_->setGeometry(8*G_SCALE, scaledHeight - 26*G_SCALE + alphaOffset, scaledWidth - 16*G_SCALE, 64*G_SCALE);
+
+        updateScaling();
+    }
 }
 
 void LocationsTab::updateScaling()
@@ -334,7 +344,7 @@ void LocationsTab::updateScaling()
 
 int LocationsTab::unscaledHeightOfItemViewport()
 {
-    return LOCATION_ITEM_HEIGHT * countOfVisibleItemSlots_;
+    return currentLocationListHeight_;
 }
 
 void LocationsTab::setShowLocationLoad(bool showLocationLoad)

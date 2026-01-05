@@ -188,18 +188,20 @@ void ScrollArea::onScrollBarActionTriggered(int action)
 
 void ScrollArea::setHeight(int height)
 {
-    int change = abs(height_ - height);
+    if (height_ != height) {
+        int change = abs(height_ - height);
 
-    prepareGeometryChange();
-    height_ = height;
+        prepareGeometryChange();
+        height_ = height;
 
-    updateScrollBarByHeight();
+        updateScrollBarByHeight();
 
-    // if top region occluded then bring item down with window
-    if (curItem_ != nullptr && curItem_->currentPosY() < 0)
-    {
-        int newY = curItem_->currentPosY() - change;
-        setItemPosY(newY);
+        // if top region occluded then bring item down with window
+        if (curItem_ != nullptr && curItem_->currentPosY() < 0)
+        {
+            int newY = curItem_->currentPosY() - change;
+            setItemPosY(newY);
+        }
     }
 }
 

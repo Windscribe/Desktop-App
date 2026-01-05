@@ -29,7 +29,7 @@ SplitTunnelingGroup::SplitTunnelingGroup(ScalableGraphicsObject *parent, const Q
     addItem(activeCheckBox_);
 
     modeComboBox_ = new ComboBoxItem(this);
-    modeComboBox_->setCaptionFont(FontDescr(12, QFont::Normal));
+    modeComboBox_->setCaptionFont(FontDescr(14, QFont::Normal));
     connect(modeComboBox_, &ComboBoxItem::currentItemChanged, this, &SplitTunnelingGroup::onCurrentModeChanged);
     addItem(modeComboBox_);
 

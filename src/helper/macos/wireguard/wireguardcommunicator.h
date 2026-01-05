@@ -17,6 +17,8 @@ public:
     unsigned long getStatus(unsigned int *errorCode, unsigned long long *bytesReceived,
                             unsigned long long *bytesTransmitted);
 
+    static bool forceStop(const std::string &deviceName);
+
 private:
     class Connection
     {

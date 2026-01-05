@@ -10,14 +10,15 @@ class MultipleAccountDetection_posix : public IMultipleAccountDetection
 public:
     MultipleAccountDetection_posix();
 
-    void userBecomeExpired(const QString &username) override;
-    bool entryIsPresent(QString &username) override;
+    void userBecomeExpired(const QString &username, const QString &userId) override;
+    bool entryIsPresent(QString &username, QString &userId) override;
     void removeEntry() override;
 
 private:
     struct TEntry
     {
         QString username_;
+        QString userId_;
         QDate date_;
     };
 

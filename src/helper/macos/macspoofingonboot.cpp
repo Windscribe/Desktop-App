@@ -45,7 +45,7 @@ bool MacSpoofingOnBootManager::enable(const std::string &interface, const std::s
     script << "/sbin/ifconfig " << interface << " up\n";
     script << "fi\n";
 
-    int fd = open("/etc/windscribe/boot_macspoofing.sh", O_CREAT | O_WRONLY | O_TRUNC);
+    int fd = open("/etc/windscribe/boot_macspoofing.sh", O_CREAT | O_WRONLY | O_TRUNC, 0744);
     if (fd < 0) {
         spdlog::error("Could not open boot script for writing");
         return false;
@@ -81,7 +81,7 @@ bool MacSpoofingOnBootManager::enable(const std::string &interface, const std::s
     plist << "</dict>\n";
     plist << "</plist>\n";
 
-    fd = open("/Library/LaunchDaemons/com.aaa.windscribe.macspoofing_on.plist", O_CREAT | O_WRONLY | O_TRUNC);
+    fd = open("/Library/LaunchDaemons/com.aaa.windscribe.macspoofing_on.plist", O_CREAT | O_WRONLY | O_TRUNC, 0644);
     if (fd < 0) {
         spdlog::error("Could not open boot plist for writing");
         return false;

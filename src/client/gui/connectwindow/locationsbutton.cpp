@@ -17,7 +17,7 @@ LocationsButton::LocationsButton(ScalableGraphicsObject *parent) : ClickableGrap
     arrowRotation_(0),
     background_("background/LOCATIONS_BG"),
     curTextColor_(Qt::white), isExpanded_(false),
-    curOpacity_(0.7)
+    curOpacity_(OPACITY_SEVENTY)
 {
     arrowItem_ = new ImageItem(this, "ARROW_DOWN_LOCATIONS");
     //arrowItem_->setTransformationMode(Qt::SmoothTransformation);
@@ -113,7 +113,7 @@ void LocationsButton::onLocationsExpandStateChanged(bool isExpanded)
         locationsMenu_->hide();
     }
     isExpanded_ = isExpanded;
-    curOpacity_ = isExpanded ? OPACITY_FULL : 0.7;
+    curOpacity_ = isExpanded ? OPACITY_FULL : OPACITY_SEVENTY;
 }
 
 void LocationsButton::setTextColor(QColor color)
@@ -146,7 +146,7 @@ void LocationsButton::onHoverEnter()
 void LocationsButton::onHoverLeave()
 {
     if (!isExpanded_) {
-        startAnAnimation<double>(opacityAnimation_, curOpacity_, 0.7, ANIMATION_SPEED_FAST);
+        startAnAnimation<double>(opacityAnimation_, curOpacity_, OPACITY_SIXTY, ANIMATION_SPEED_FAST);
     }
 }
 

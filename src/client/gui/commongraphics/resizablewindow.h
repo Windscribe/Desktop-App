@@ -60,6 +60,7 @@ protected:
     static constexpr int kBottomResizeOffsetY = 13;
     static constexpr int kDefaultXOffset = 16;
     static constexpr int kVanGoghOffset = 16;
+    static constexpr int kThrottleMs = 20;
 
     Preferences *preferences_;
 
@@ -70,6 +71,9 @@ protected:
     int heightAtResizeStart_;
     int xOffset_;
     int vanGoghOffset_;
+    qint64 lastResizeUpdateTime_;
+    int pendingResizeY_;
+    bool hasPendingResize_;
 
     QString backgroundBase_;
     QString backgroundHeader_;

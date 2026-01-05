@@ -13,7 +13,7 @@ struct GuiPersistentState
     bool isFirewallOn = false;
     qint32 windowOffsX = INT_MAX; // deprecated
     qint32 windowOffsY = INT_MAX; // deprecated
-    qint32 countVisibleLocations = 7;
+    qint32 locationsViewportHeight = 280; // 7 * 40
     bool isFirstLogin = true;
     bool isIgnoreCpuUsageWarnings = false;
     LocationID lastLocation;
@@ -38,7 +38,7 @@ struct GuiPersistentState
         return other.isFirewallOn == isFirewallOn &&
                other.windowOffsX == windowOffsX &&
                other.windowOffsY == windowOffsY &&
-               other.countVisibleLocations == countVisibleLocations &&
+               other.locationsViewportHeight == locationsViewportHeight &&
                other.isFirstLogin == isFirstLogin &&
                other.isIgnoreCpuUsageWarnings == isIgnoreCpuUsageWarnings &&
                other.lastLocation == lastLocation &&
@@ -59,10 +59,10 @@ struct GuiPersistentState
     friend QDataStream& operator <<(QDataStream& stream, const GuiPersistentState& o)
     {
         stream << versionForSerialization_;
-        stream << o.isFirewallOn << o.windowOffsX << o.windowOffsY << o.countVisibleLocations <<
+        stream << o.isFirewallOn << o.windowOffsX << o.windowOffsY <<
                   o.isFirstLogin << o.isIgnoreCpuUsageWarnings << o.lastLocation << o.lastExternalIp <<
                   o.networkWhiteList << o.appGeometry << o.preferencesWindowHeight << o.lastLocationTab <<
-                  o.isIgnoreLocationServicesDisabled << o.isIgnoreNotificationDisabled;
+                  o.isIgnoreLocationServicesDisabled << o.isIgnoreNotificationDisabled << o.locationsViewportHeight;
 
         return stream;
     }
@@ -77,9 +77,12 @@ struct GuiPersistentState
             return stream;
         }
 
-        stream >> o.isFirewallOn >> o.windowOffsX >> o.windowOffsY >> o.countVisibleLocations >>
-                  o.isFirstLogin >> o.isIgnoreCpuUsageWarnings >> o.lastLocation >> o.lastExternalIp >>
-                  o.networkWhiteList;
+        qint32 countVisibleLocations = 7;
+        stream >> o.isFirewallOn >> o.windowOffsX >> o.windowOffsY;
+        if (version < 7) {
+            stream >> countVisibleLocations;
+        }
+        stream >> o.isFirstLogin >> o.isIgnoreCpuUsageWarnings >> o.lastLocation >> o.lastExternalIp >> o.networkWhiteList;
 
         if (version >= 2) {
             stream >> o.appGeometry;
@@ -101,11 +104,17 @@ struct GuiPersistentState
             stream >> o.isIgnoreNotificationDisabled;
         }
 
+        if (version >= 7) {
+            stream >> o.locationsViewportHeight;
+        } else {
+            o.locationsViewportHeight = countVisibleLocations * 40;
+        }
+
         return stream;
     }
 
 private:
-    static constexpr int versionForSerialization_ = 6;  // should increment the version if the data format is changed
+    static constexpr int versionForSerialization_ = 7;  // should increment the version if the data format is changed
 };
 
 } // types namespace

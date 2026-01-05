@@ -20,14 +20,14 @@ namespace PreferencesWindow {
 
 ComboBoxItem::ComboBoxItem(ScalableGraphicsObject *parent, const QString &caption, const QString &tooltip)
   : CommonGraphics::BaseItem(parent, PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE), strCaption_(caption), strTooltip_(tooltip),
-    captionFont_(12, QFont::Bold), icon_(nullptr), isCaptionElided_(false), inProgress_(false), spinnerRotation_(0)
+    captionFont_(14, QFont::Bold), icon_(nullptr), isCaptionElided_(false), inProgress_(false), spinnerRotation_(0)
 {
     connect(this, &ComboBoxItem::heightChanged, this, &ComboBoxItem::updatePositions);
 
     button_ = new CommonGraphics::TextIconButton(4, caption, "preferences/CNTXT_MENU_ICON", this, false);
     button_->setClickable(true);
     connect(button_, &CommonGraphics::TextIconButton::clicked, this, &ComboBoxItem::onMenuOpened);
-    button_->setFont(FontDescr(12, QFont::Normal));
+    button_->setFont(FontDescr(14, QFont::Normal));
     connect(button_, &CommonGraphics::TextIconButton::widthChanged, this, &ComboBoxItem::updatePositions);
     connect(button_, &CommonGraphics::TextIconButton::hoverEnter, this, &ComboBoxItem::buttonHoverEnter);
     connect(button_, &CommonGraphics::TextIconButton::hoverLeave, this, &ComboBoxItem::buttonHoverLeave);
@@ -37,10 +37,11 @@ ComboBoxItem::ComboBoxItem(ScalableGraphicsObject *parent, const QString &captio
     connect(menu_, &CommonWidgets::ComboMenuWidget::hidden, this, &ComboBoxItem::onMenuHidden);
     connect(menu_, &CommonWidgets::ComboMenuWidget::sizeChanged, this, &ComboBoxItem::onMenuSizeChanged);
 
-    infoIcon_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/INFO_ICON", "", this, OPACITY_HALF);
+    infoIcon_ = new IconButton(ICON_WIDTH, ICON_HEIGHT, "preferences/INFO_ICON", "", this, OPACITY_SIXTY);
     connect(infoIcon_, &IconButton::clicked, this, &ComboBoxItem::onInfoIconClicked);
 
-    curCaptionY_ = PREFERENCES_ITEM_Y*G_SCALE;
+    recalculateCaptionY();
+
     connect(&captionPosAnimation_, &QVariantAnimation::valueChanged, this, &ComboBoxItem::onCaptionPosUpdated);
 
     connect(&spinnerAnimation_, &QVariantAnimation::valueChanged, this, &ComboBoxItem::onSpinnerRotationChanged);
@@ -69,8 +70,8 @@ void ComboBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     qreal xOffset = PREFERENCES_MARGIN_X*G_SCALE;
     if (icon_)
     {
-        xOffset = (2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE;
-        icon_->draw(PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
+        xOffset = (PREFERENCES_MARGIN_X + 8 + ICON_WIDTH)*G_SCALE;
+        icon_->draw(PREFERENCES_MARGIN_X*G_SCALE, (PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE / 2, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
     }
 
     QFontMetrics fm(font);
@@ -98,7 +99,7 @@ void ComboBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     // Draw spinner in place of button if in progress
     if (inProgress_) {
-        painter->setOpacity(OPACITY_HALF);
+        painter->setOpacity(OPACITY_SIXTY);
         QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("SPINNER");
         painter->save();
         painter->translate(static_cast<int>(boundingRect().width() - PREFERENCES_MARGIN_X*G_SCALE - p->width()/2),
@@ -111,10 +112,10 @@ void ComboBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     // If there's a description draw it
     if (!desc_.isEmpty()) {
-        QFont font = FontManager::instance().getFont(10, QFont::Normal);
+        QFont font = FontManager::instance().getFont(12, QFont::Normal);
         painter->setFont(font);
         painter->setPen(Qt::white);
-        painter->setOpacity(OPACITY_HALF);
+        painter->setOpacity(OPACITY_SIXTY);
         painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
                                                   boundingRect().height() - PREFERENCES_MARGIN_Y*G_SCALE - descHeight_,
                                                   -descRightMargin_,
@@ -209,6 +210,8 @@ QString ComboBoxItem::labelCaption() const
 void ComboBoxItem::setCaptionFont(const FontDescr &fontDescr)
 {
     captionFont_ = fontDescr;
+    recalculateCaptionY();
+    update();
 }
 
 void ComboBoxItem::clear()
@@ -272,6 +275,7 @@ void ComboBoxItem::updateScaling()
 {
     CommonGraphics::BaseItem::updateScaling();
     menu_->updateScaling();
+    recalculateCaptionY();
     updatePositions();
 }
 
@@ -302,7 +306,7 @@ void ComboBoxItem::updatePositions()
         // Ensure a minimum combobox width so we do not completely hide all of its text.
         // This widget's text (strCaption_) will then elide if need be when we render it in the paint() method.
         button_->setMaxWidth(qMax(boundingRect().width() - used, MIN_COMBOBOX_WIDTH*G_SCALE));
-        button_->setPos(boundingRect().width() - button_->boundingRect().width() - PREFERENCES_MARGIN_X*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
+        button_->setPos(boundingRect().width() - button_->boundingRect().width() - PREFERENCES_MARGIN_X*G_SCALE, (PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE - button_->boundingRect().height()) / 2);
     }
 
     // Descriptions
@@ -315,7 +319,7 @@ void ComboBoxItem::updatePositions()
         descRightMargin_ += PREFERENCES_MARGIN_X*G_SCALE + ICON_WIDTH*G_SCALE;
     }
 
-    QFontMetrics fm(FontManager::instance().getFont(10, QFont::Normal));
+    QFontMetrics fm(FontManager::instance().getFont(12, QFont::Normal));
     descHeight_ = fm.boundingRect(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE, 0, -descRightMargin_, 0).toRect(),
                                   Qt::AlignLeft | Qt::TextWordWrap,
                                   desc_).height();
@@ -481,14 +485,19 @@ void ComboBoxItem::onInfoIconClicked()
     QDesktopServices::openUrl(QUrl(descUrl_));
 }
 
-void ComboBoxItem::setCaptionY(int y)
+void ComboBoxItem::setCaptionY(int y, bool animate)
 {
     if (y == -1) {
-        captionY_ = PREFERENCES_ITEM_Y*G_SCALE;
+        recalculateCaptionY();
     } else {
         captionY_ = y;
     }
-    startAnAnimation(captionPosAnimation_, curCaptionY_, captionY_, ANIMATION_SPEED_VERY_FAST);
+    if (animate) {
+        startAnAnimation(captionPosAnimation_, curCaptionY_, captionY_, ANIMATION_SPEED_VERY_FAST);
+    } else {
+        curCaptionY_ = captionY_;
+        update();
+    }
 }
 
 void ComboBoxItem::onCaptionPosUpdated(const QVariant &value)
@@ -547,6 +556,14 @@ void ComboBoxItem::onSpinnerRotationChanged(const QVariant &value)
 void ComboBoxItem::onSpinnerRotationFinished()
 {
     startAnAnimation<int>(spinnerAnimation_, 0, 360, ANIMATION_SPEED_VERY_SLOW);
+}
+
+void ComboBoxItem::recalculateCaptionY()
+{
+    QFont font = FontManager::instance().getFont(captionFont_);
+    QFontMetrics fm(font);
+    curCaptionY_ = (PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE - fm.height()) / 2;
+    captionY_ = curCaptionY_;
 }
 
 } // namespace PreferencesWindow

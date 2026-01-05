@@ -43,8 +43,8 @@ private:
     static constexpr int ROBERT_ITEM_HEIGHT = 58;
     static constexpr int ROBERT_ICON_MARGIN_Y = 21;
     static constexpr int ROBERT_CHECKBOX_MARGIN_Y = 18;
-    static constexpr int ROBERT_TEXT_FIRST_MARGIN_Y = 14;
-    static constexpr int ROBERT_TEXT_SECOND_MARGIN_Y = 31;
+    static constexpr int ROBERT_TEXT_FIRST_MARGIN_Y = 13;
+    static constexpr int ROBERT_TEXT_SECOND_MARGIN_Y = 30;
     static constexpr int ROBERT_TEXT_GAP_Y = 2;
 
     QString strCaption_;

@@ -27,6 +27,8 @@ public:
         unsigned long long *bytesReceived,
         unsigned long long *bytesTransmitted);
 
+    static bool forceStop(const std::string &deviceName);
+
 private:
     bool setPeerAllowedIps(wg_peer *peer, const std::vector<std::string> &ips);
     bool setPeerEndpoint(wg_peer *peer, const std::string &endpoint);

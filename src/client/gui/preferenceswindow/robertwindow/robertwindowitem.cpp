@@ -21,7 +21,7 @@ RobertWindowItem::RobertWindowItem(ScalableGraphicsObject *parent, Preferences *
 
     // Loading items
     loadingIcon_ = new LoadingIconItem(this, ":/gif/windscribe_spinner.gif", kLoadingIconSize, kLoadingIconSize);
-    loadingIcon_->setOpacity(OPACITY_HALF);
+    loadingIcon_->setOpacity(OPACITY_SIXTY);
 
     // Item for case where we could not get status from server
     errorMessage_ = new QGraphicsTextItem(this);
@@ -38,7 +38,7 @@ RobertWindowItem::RobertWindowItem(ScalableGraphicsObject *parent, Preferences *
     loginPrompt_->document()->setDefaultTextOption(QTextOption(Qt::AlignHCenter));
 
     loginButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kOutline, 69, 24, 12);
-    loginButton_->setFont(FontDescr(12, QFont::Normal));
+    loginButton_->setFont(FontDescr(14, QFont::Normal));
     connect(loginButton_, &CommonGraphics::BubbleButton::clicked, this, &RobertWindowItem::accountLoginClick);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &RobertWindowItem::onLanguageChanged);
@@ -71,24 +71,35 @@ void RobertWindowItem::setFilters(const QVector<api_responses::RobertFilter> &fi
 {
     loading_ = false;
 
-    clearFilters();
+    if (items().isEmpty()) {
+        addItem(desc_);
+    }
+
+    groups_.clear();
+
+    QList<CommonGraphics::BaseItem *> newItems;
+
     for(auto filter : filters) {
         PreferenceGroup *group = new PreferenceGroup(this);
         RobertItem *item = new RobertItem(group, filter);
         connect(item, &RobertItem::filterChanged, this, &RobertWindowItem::setRobertFilter);
         group->addItem(item);
-        addItem(group);
+        newItems << group;
         groups_ << group;
     }
-    /* Add "Manage Rules" link */
-    PreferenceGroup *manageRulesGroup = new PreferenceGroup(this);
-    manageRulesItem_ = new LinkItem(manageRulesGroup, LinkItem::LinkType::EXTERNAL_LINK);
-    connect(manageRulesItem_, &LinkItem::clicked, this, &RobertWindowItem::onManageRobertRulesClick);
-    manageRulesGroup->addItem(manageRulesItem_);
-    addItem(manageRulesGroup);
-    groups_ << manageRulesGroup;
-    onLanguageChanged();
 
+    if (!manageRulesItem_) {
+        PreferenceGroup *manageRulesGroup = new PreferenceGroup(this);
+        manageRulesItem_ = new LinkItem(manageRulesGroup, LinkItem::LinkType::EXTERNAL_LINK);
+        connect(manageRulesItem_, &LinkItem::clicked, this, &RobertWindowItem::onManageRobertRulesClick);
+        manageRulesGroup->addItem(manageRulesItem_);
+        addItem(manageRulesGroup);
+        groups_ << manageRulesGroup;
+    }
+
+    setItems(newItems, 1, items().size() - 1);
+
+    onLanguageChanged();
     updateVisibility();
 }
 

@@ -15,11 +15,3 @@ target_sources(wsnet PRIVATE
     urlquery_utils.cpp
     urlquery_utils.h
 )
-
-# Only include OQS provider files for mobile platforms
-if(ANDROID OR IOS)
-    target_sources(wsnet PRIVATE
-        oqs_provider_loader.cpp
-        oqs_provider_loader.h
-    )
-endif()

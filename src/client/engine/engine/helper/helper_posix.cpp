@@ -208,7 +208,7 @@ bool Helper_posix::getWireGuardStatus(types::WireGuardStatus *status)
     case kWgStateActive:
         status->state = types::WireGuardState::ACTIVE;
         status->bytesReceived = bytesReceived;
-        status->bytesTransmitted = bytesReceived;
+        status->bytesTransmitted = bytesTransmitted;
         break;
     }
     return true;

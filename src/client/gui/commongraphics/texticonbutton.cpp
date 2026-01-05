@@ -13,7 +13,7 @@ namespace CommonGraphics {
 
 TextIconButton::TextIconButton(int spacerWidth, const QString text, const QString &imagePath, ScalableGraphicsObject *parent, bool bSetClickable)
   : ClickableGraphicsObject(parent), width_(0), maxWidth_(-1), height_(0), spacerWidth_(spacerWidth), iconPath_(imagePath), text_(text),
-    curTextOpacity_(OPACITY_HALF), curIconOpacity_(OPACITY_HALF), fontDescr_(16, QFont::Bold), yOffset_(0)
+    curTextOpacity_(OPACITY_SIXTY), curIconOpacity_(OPACITY_SIXTY), fontDescr_(16, QFont::Bold), yOffset_(0)
 {
     recalcHeight();
     recalcWidth();
@@ -76,8 +76,8 @@ void TextIconButton::animateHide()
 
 void TextIconButton::animateShow()
 {
-    startAnAnimation<double>(textOpacityAnimation_, curTextOpacity_, OPACITY_HALF, ANIMATION_SPEED_FAST);
-    startAnAnimation<double>(iconOpacityAnimation_, curIconOpacity_, OPACITY_HALF, ANIMATION_SPEED_FAST);
+    startAnAnimation<double>(textOpacityAnimation_, curTextOpacity_, OPACITY_SIXTY, ANIMATION_SPEED_FAST);
+    startAnAnimation<double>(iconOpacityAnimation_, curIconOpacity_, OPACITY_SIXTY, ANIMATION_SPEED_FAST);
 }
 
 const QString TextIconButton::text()
@@ -118,8 +118,8 @@ void TextIconButton::updateScaling()
 
 void TextIconButton::setOpacityByFactor(double opacityFactor)
 {
-    curTextOpacity_ = opacityFactor * OPACITY_HALF;
-    curIconOpacity_ = opacityFactor * OPACITY_HALF;
+    curTextOpacity_ = opacityFactor * OPACITY_SIXTY;
+    curIconOpacity_ = opacityFactor * OPACITY_SIXTY;
     update();
 }
 
@@ -135,8 +135,8 @@ void TextIconButton::hoverEnterEvent(QGraphicsSceneHoverEvent * /*event*/)
 
 void TextIconButton::hoverLeaveEvent(QGraphicsSceneHoverEvent * /*event*/)
 {
-    startAnAnimation<double>(textOpacityAnimation_, curTextOpacity_, OPACITY_HALF, ANIMATION_SPEED_FAST);
-    startAnAnimation<double>(iconOpacityAnimation_, curIconOpacity_, OPACITY_HALF, ANIMATION_SPEED_FAST);
+    startAnAnimation<double>(textOpacityAnimation_, curTextOpacity_, OPACITY_SIXTY, ANIMATION_SPEED_FAST);
+    startAnAnimation<double>(iconOpacityAnimation_, curIconOpacity_, OPACITY_SIXTY, ANIMATION_SPEED_FAST);
 
     emit hoverLeave();
 }
@@ -175,9 +175,11 @@ void TextIconButton::recalcWidth()
 
 void TextIconButton::recalcHeight()
 {
+    QSharedPointer<IndependentPixmap> iconPixmap = ImageResourcesSvg::instance().getIndependentPixmap(iconPath_);
+
     QFont font = FontManager::instance().getFont(fontDescr_);
 
-    const int newHeight = CommonGraphics::textHeight(font);
+    const int newHeight = std::max(CommonGraphics::textHeight(font), iconPixmap->height());
 
     if (newHeight != height_)
     {

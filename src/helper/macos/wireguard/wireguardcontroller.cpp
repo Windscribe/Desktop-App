@@ -27,8 +27,12 @@ bool WireGuardController::start()
 
 bool WireGuardController::stop()
 {
-    if (!is_initialized_)
-        return false;
+    if (!is_initialized_) {
+        // Controller not initialized, but we still need to clean up (e.g., utun420 device)
+        spdlog::info("WireGuardController::stop() called when not initialized - attempting cleanup");
+        WireGuardCommunicator::forceStop(kAdapterName);
+        return true;
+    }
 
     adapter_.reset();
     comm_->stop();

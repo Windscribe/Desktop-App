@@ -402,6 +402,15 @@ std::shared_ptr<WSNetCancelableCallback> ServerAPI::authTokenSignup(bool useAsci
     boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
     return cancelableCallback;
 }
+
+std::shared_ptr<WSNetCancelableCallback> ServerAPI::passwordRecovery(const std::string &email, WSNetRequestFinishedCallback callback)
+{
+    auto cancelableCallback = std::make_shared<CancelableCallback<WSNetRequestFinishedCallback>>(callback);
+    BaseRequest *request = serverapi_requests_factory::passwordRecovery(email, cancelableCallback);
+    boost::asio::post(io_context_, [this, request] { impl_->executeRequest(std::unique_ptr<BaseRequest>(request)); });
+    return cancelableCallback;
+}
+
 void ServerAPI::onVPNConnectStateChanged(bool isConnected)
 {
     boost::asio::post(io_context_, [this, isConnected] {

@@ -30,22 +30,22 @@ void ProxyIpAddressItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont font = FontManager::instance().getFont(12,  QFont::Normal);
+    QFont font = FontManager::instance().getFont(14,  QFont::Normal);
     painter->setFont(font);
     painter->setPen(Qt::white);
     painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
-                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              0,
                                               -(ICON_WIDTH + 2*PREFERENCES_MARGIN_X)*G_SCALE,
-                                              -PREFERENCES_MARGIN_Y*G_SCALE),
-                      Qt::AlignLeft,
+                                              0),
+                      Qt::AlignLeft | Qt::AlignVCenter,
                       tr("IP"));
 
     painter->setOpacity(OPACITY_HALF);
     painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
-                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              0,
                                               -(ICON_WIDTH + 2*PREFERENCES_MARGIN_X)*G_SCALE,
-                                              -PREFERENCES_MARGIN_Y*G_SCALE),
-                      Qt::AlignRight,
+                                              0),
+                      Qt::AlignRight | Qt::AlignVCenter,
                       strIP_);
 }
 

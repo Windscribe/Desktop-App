@@ -65,8 +65,8 @@ PersistentSettings::PersistentSettings(const std::string &settings)
                                 // Valid token
                                 sessionTokens_[m.name.GetString()] = {tokenObj["token"].GetString(), expiryTimestamp};
                             } else if (expiryTimestamp == 0) {
-                                // No expiry time (reboot without disconnecting?) Set expiry time to 5 minutes from now
-                                sessionTokens_[m.name.GetString()] = {tokenObj["token"].GetString(), nowTimestamp + 300};
+                                // No expiry time (reboot without disconnecting?) Set expiry time to 24h from now
+                                sessionTokens_[m.name.GetString()] = {tokenObj["token"].GetString(), nowTimestamp + 86400};
                             } else {
                                 // Expired token
                                 sessionTokens_.erase(m.name.GetString());

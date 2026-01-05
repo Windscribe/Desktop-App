@@ -18,8 +18,8 @@ public:
     void setFirewallState(bool bFirewallOn);
     bool isFirewallOn() const;
 
-    void setCountVisibleLocations(int cnt);
-    int countVisibleLocations() const;
+    void setLocationsViewportHeight(int height);
+    int locationsViewportHeight() const;
 
     void setFirstLogin(bool bFirstRun);
     bool isFirstLogin();

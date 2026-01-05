@@ -60,7 +60,7 @@ public:
     QString labelCaption() const;
     void setCaptionFont(const FontDescr &fontDescr);
 
-    void setCaptionY(int y);
+    void setCaptionY(int y, bool animate = true);
 
     void clear();
 
@@ -87,6 +87,9 @@ protected:
     void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
     void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
     int buttonWidth() const;
+
+private:
+    void recalculateCaptionY();
 
 signals:
     void currentItemChanged(QVariant value);

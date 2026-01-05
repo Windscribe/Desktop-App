@@ -39,6 +39,10 @@ variables:
     # Remove the default Powershell curl alias so referencing 'curl' will call Windows built-in curl.exe
     - Remove-Item alias:curl
     - Set-Alias -Name curl -Value curl.exe
+  artifacts:
+    paths:
+      - build/temp/
+    expire_in: 1 day
   interruptible: true
 
 .template_mac_build: &template_mac_build
@@ -156,7 +160,7 @@ variables:
     - if ( $Diff.Count -ne 0 ) { echo "You have changed uninstaller strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
   artifacts:
     paths:
-      - temp/
+      - build/temp/
     expire_in: 1 day
 
 .template_win_build_bootstrap: &template_win_build_bootstrap
@@ -172,7 +176,8 @@ variables:
     - tools/build_all --build-bootstrap ${ARCH_FLAG} --ci-mode
   artifacts:
     paths:
-      - temp/
+      - build/temp/
+      - build/src/installer/windows/bootstrap/
     expire_in: 1 day
 
 build:win:x64:app:
@@ -207,11 +212,6 @@ sign:win:x64:app:
     GIT_STRATEGY: clone
   script:
     - tools/build_all --sign-app --ci-mode
-  artifacts:
-    paths:
-      - build/
-      - temp/
-    expire_in: 1 day
   needs:
     - job: build:win:x64:app
       optional: true
@@ -226,11 +226,6 @@ sign:win:arm64:app:
     GIT_STRATEGY: clone
   script:
     - tools/build_all --sign-app --arm64 --ci-mode
-  artifacts:
-    paths:
-      - build-arm64/
-      - temp/
-    expire_in: 1 day
   needs:
     - job: build:win:arm64:app
       optional: true
@@ -245,6 +240,11 @@ build:win:x64:installer:
     BUILD_LIBS_FOLDER: "build-libs"
     ARCH_FLAG: ""
     BUILD_FLAG: "--build-installer"
+  artifacts:
+    paths:
+      - build/temp/
+      - build/src/installer/
+    expire_in: 1 day
   needs:
     - job: sign:win:x64:app
       optional: true
@@ -261,8 +261,8 @@ sign:win:x64:installer:
     - tools/build_all --sign-installer --ci-mode
   artifacts:
     paths:
-      - build/
-      - temp/
+      - build/temp/
+      - build/src/installer/
     expire_in: 1 day
   needs:
     - job: build:win:x64:installer
@@ -280,8 +280,8 @@ sign:win:arm64:installer:
     - tools/build_all --sign-installer --arm64 --ci-mode
   artifacts:
     paths:
-      - build-arm64/
-      - temp/
+      - build/temp/
+      - build/src/installer/
     expire_in: 1 day
   needs:
     - job: build:win:arm64:installer
@@ -313,9 +313,11 @@ sign:win:x64:bootstrap:
     - tools/build_all --sign-bootstrap --ci-mode
     - Set-Variable -name OS_IDENTIFIER -value "windows"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_amd64.exe"
+      --upload-file build-exe/Windscribe_${VERSION}_amd64.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_amd64.exe"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_${VERSION}.zip "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/WindscribeSymbols_${VERSION}_amd64.zip"
+      --upload-file build-exe/WindscribeSymbols_${VERSION}_amd64.zip "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/WindscribeSymbols_${VERSION}_amd64.zip"
+  artifacts:
+    paths: []
   needs:
     - job: build:win:x64:bootstrap
       optional: true
@@ -333,9 +335,11 @@ sign:win:arm64:bootstrap:
     - tools/build_all --sign-bootstrap --arm64 --ci-mode
     - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_arm64.exe"
+      --upload-file build-exe/Windscribe_${VERSION}_arm64.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_arm64.exe"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_${VERSION}.zip "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/WindscribeSymbols_${VERSION}_arm64.zip"
+      --upload-file build-exe/WindscribeSymbols_${VERSION}_arm64.zip "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/WindscribeSymbols_${VERSION}_arm64.zip"
+  artifacts:
+    paths: []
   needs:
     - job: build:win:arm64:bootstrap
       optional: true
@@ -354,9 +358,11 @@ sign:win:x64:bootstrap:tagged:
     - tools/build_all --sign-bootstrap --ci-mode
     - Set-Variable -name OS_IDENTIFIER -value "windows"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_amd64.exe"
+      --upload-file build-exe/Windscribe_${VERSION}_amd64.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_amd64.exe"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_${VERSION}.zip "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/WindscribeSymbols_${VERSION}_amd64.zip"
+      --upload-file build-exe/WindscribeSymbols_${VERSION}_amd64.zip "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/WindscribeSymbols_${VERSION}_amd64.zip"
+  artifacts:
+    paths: []
   needs:
     - job: build:win:x64:bootstrap
       optional: true
@@ -375,9 +381,11 @@ sign:win:arm64:bootstrap:tagged:
     - tools/build_all --sign-bootstrap --arm64 --ci-mode
     - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/Windscribe_${VERSION}.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_arm64.exe"
+      --upload-file build-exe/Windscribe_${VERSION}_arm64.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_arm64.exe"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_${VERSION}.zip "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/WindscribeSymbols_${VERSION}_arm64.zip"
+      --upload-file build-exe/WindscribeSymbols_${VERSION}_arm64.zip "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/WindscribeSymbols_${VERSION}_arm64.zip"
+  artifacts:
+    paths: []
   needs:
     - job: build:win:arm64:bootstrap
       optional: true
@@ -422,6 +430,11 @@ build:win:arm64:installer:
     BUILD_LIBS_FOLDER: "build-libs-arm64"
     ARCH_FLAG: "--arm64"
     BUILD_FLAG: "--build-installer"
+  artifacts:
+    paths:
+      - build/temp/
+      - build/src/installer/
+    expire_in: 1 day
   needs:
     - job: sign:win:arm64:app
       optional: true
@@ -459,7 +472,7 @@ build:mac:installer:
     GIT_STRATEGY: clone
   script:
     - !reference [.build_mac_installer_common, script]
-    - tools/build_all --ci-mode --sign
+    - tools/build_all --ci-mode
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/Windscribe_${VERSION}.dmg "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_universal.dmg"
   rules:
@@ -473,7 +486,7 @@ build:mac:installer:mr:
     GIT_STRATEGY: clone
   script:
     - !reference [.build_mac_installer_common, script]
-    - tools/build_all --ci-mode --sign
+    - tools/build_all --ci-mode
   rules:
     - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -485,7 +498,7 @@ build:mac:installer:tagged:
   script:
     - !reference [.build_mac_installer_common, script]
     # Only tagged builds are notarized
-    - tools/build_all --ci-mode --notarize --sign
+    - tools/build_all --ci-mode --notarize
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -605,9 +618,9 @@ build:rhel:installer:
     - !reference [.build_linux_installer_common, script]
     - tools/build_all --ci-mode --build-deb --build-rpm --build-rpm-opensuse
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_x86_64_fedora.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64_fedora.rpm"
+      --upload-file build-exe/windscribe_${VERSION}_amd64_fedora.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64_fedora.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_x86_64_opensuse.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64_opensuse.rpm"
+      --upload-file build-exe/windscribe_${VERSION}_amd64_opensuse.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64_opensuse.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64.deb"
     - !reference [.package_vcpkg_cache, script]
@@ -624,9 +637,9 @@ build:rhel_cli:installer:
     - !reference [.build_linux_installer_common, script]
     - tools/build_all --ci-mode --build-deb --build-rpm --build-rpm-opensuse --build-cli-only
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe-cli_${VERSION}_x86_64_fedora.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_amd64_fedora.rpm"
+      --upload-file build-exe/windscribe-cli_${VERSION}_amd64_fedora.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_amd64_fedora.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe-cli_${VERSION}_x86_64_opensuse.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_amd64_opensuse.rpm"
+      --upload-file build-exe/windscribe-cli_${VERSION}_amd64_opensuse.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_amd64_opensuse.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe-cli_${VERSION}_amd64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_amd64.deb"
     - !reference [.package_vcpkg_cache, script]
@@ -670,9 +683,9 @@ build:rhel:installer:tagged:
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_x86_64_fedora.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64_fedora.rpm"
+      --upload-file build-exe/windscribe_${VERSION}_amd64_fedora.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64_fedora.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe_${VERSION}_x86_64_opensuse.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64_opensuse.rpm"
+      --upload-file build-exe/windscribe_${VERSION}_amd64_opensuse.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64_opensuse.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe_${VERSION}_amd64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64.deb"
   rules:
@@ -690,9 +703,9 @@ build:rhel_cli:installer:tagged:
     - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe-cli_${VERSION}_x86_64_fedora.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64_fedora.rpm"
+      --upload-file build-exe/windscribe-cli_${VERSION}_amd64_fedora.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64_fedora.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/windscribe-cli_${VERSION}_x86_64_opensuse.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64_opensuse.rpm"
+      --upload-file build-exe/windscribe-cli_${VERSION}_amd64_opensuse.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64_opensuse.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe-cli_${VERSION}_amd64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64.deb"
   rules:
@@ -905,12 +918,13 @@ test:wsnet:win:
     - Try {
         ./wsnet_test.exe --gtest_output=xml:report_win.xml
       } Catch {
+          throw
       } Finally {
           Get-Process "pproxy" | Stop-Process -Force
       }
   after_script:
     # This command may fail because it was already killed above; that's fine.
-    - Get-Process "pproxy" | Stop-Process -Force
+    - Get-Process "pproxy" -ErrorAction SilentlyContinue | Stop-Process -Force
   retry: 2
   needs:
     - job: build:wsnet:win
@@ -934,15 +948,13 @@ build:wsnet:mac:
   script:
     - OS_IDENTIFIER="macos"
     - !reference [.build_mac_installer_common, script]
-    # Update OQS provider path in curl patch to use vcpkg location for CI
-    - sed -i '' 's|/Applications/Windscribe.app/Contents/Frameworks|'${VCPKG_ROOT}'/installed/arm64-osx/bin|g' tools/vcpkg/ports/curl/oqsprovider.patch
     - tools/build_all --static-analysis --build-app --build-tests
   artifacts:
     expire_in: 1 day
     paths:
-      - build/src/client/wsnet
-      - build/src/client/wsnet_test
-      - build/src/client/_cmrc
+      - build/test
+      - build/libs/wsnet
+      - build/_cmrc
   rules:
     - if: $BUILD_MAC == "y" && $NIGHTLY_TEST_BUILD == "y"
 
@@ -962,7 +974,7 @@ test:wsnet:mac:
     - /Users/ws-user/Library/Python/3.9/bin/pproxy &
     # fix RPATH for wsnet_test, in case it was built on a different machine
     - install_name_tool -add_rpath build/src/client/wsnet build/src/client/wsnet_test || true
-    - build/src/client/wsnet_test --gtest_output=xml:report_${OS_IDENTIFIER}.xml || FAILED=1
+    - build/test/wsnet_test --gtest_output=xml:report_${OS_IDENTIFIER}.xml || FAILED=1
     - kill %1
     - if [ $FAILED ]; then exit 1; fi
   coverage: /^\s*lines:\s*\d+.\d+\%/
@@ -996,15 +1008,13 @@ build:wsnet:rhel:
     - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
     - python3 -m pip install clang-tidy
-    # Update OQS provider path in curl patch to use vcpkg location for CI
-    - sed -i 's|/opt/windscribe/lib|'${VCPKG_ROOT}'/installed/x64-linux/bin|g' tools/vcpkg/ports/curl/oqsprovider.patch
     - tools/build_all --static-analysis --build-app --build-tests
   artifacts:
     expire_in: 1 day
     paths:
-      - build/src/client/wsnet
-      - build/src/client/wsnet_test
-      - build/src/client/_cmrc
+      - build/test
+      - build/libs/wsnet
+      - build/_cmrc
   rules:
     - if: $BUILD_LINUX == "y" && $NIGHTLY_TEST_BUILD == "y"
 
@@ -1020,7 +1030,7 @@ test:wsnet:rhel:
     - set +o pipefail
     - if [ "$(ps aux | grep -c [p]proxy)" -ne 0 ]; then ps aux | grep [p]proxy | awk '{print $2}' | xargs kill -9; fi
     - pproxy &
-    - build/src/client/wsnet_test --gtest_output=xml:report_${OS_IDENTIFIER}.xml || FAILED=1
+    - build/test/wsnet_test --gtest_output=xml:report_${OS_IDENTIFIER}.xml || FAILED=1
     - kill %1
     - if [ $FAILED ]; then exit 1; fi
   coverage: /^\s*lines:\s*\d+.\d+\%/

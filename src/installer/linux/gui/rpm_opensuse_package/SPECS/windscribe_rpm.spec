@@ -55,12 +55,10 @@ Windscribe client.
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}
-mv -f %{_sourcedir}/* %{buildroot}
+mv -f %{_builddir}/* %{buildroot}
 
 %posttrans
 systemctl daemon-reload || true
-systemctl disable firewalld || true
-systemctl stop firewalld || true
 systemctl preset windscribe-helper || true
 systemctl restart windscribe-helper || true
 
@@ -81,8 +79,6 @@ fi
 if [ $1 -eq 0 ]; then
     killall -q Windscribe || true
     systemctl stop windscribe-helper || true
-    systemctl enable firewalld || true
-    systemctl start firewalld || true
     userdel -f windscribe || true
     groupdel -f windscribe || true
     rm -f /usr/bin/windscribe-cli

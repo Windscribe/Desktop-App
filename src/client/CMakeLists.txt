@@ -22,6 +22,10 @@ find_package(OpenSSL REQUIRED)
 find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(spdlog CONFIG REQUIRED)
 
+if(NOT TARGET wsnet::wsnet)
+    add_subdirectory(../../libs/wsnet ${CMAKE_CURRENT_BINARY_DIR}/wsnet)
+endif()
+
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
 option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
 if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
@@ -72,8 +76,6 @@ if (WIN32)
          pdh.lib
          Crypt32.lib
          Version.lib
-         ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/oqs.lib
-         ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/oqsprovider.lib
          # $<$<NOT:$<CONFIG:Debug>>:../libs/wssecure/wssecure>
     )
 
@@ -126,23 +128,40 @@ elseif (APPLE)
     #postbuild copy commands for Mac
     set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
 
+    # Copy launcher bundle
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_CURRENT_SOURCE_DIR}/../../build/src/utils/macos/launcher/$<CONFIG>/ $<TARGET_FILE_DIR:Windscribe>/../Library/LoginItems)
-    add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_CURRENT_SOURCE_DIR}/../../build/src/helper/macos/$<CONFIG>/ $<TARGET_FILE_DIR:Windscribe>/../Library/LaunchServices)
+                       $<TARGET_BUNDLE_DIR:WindscribeLauncher> $<TARGET_FILE_DIR:Windscribe>/../Library/LoginItems)
 
-    # post-quantum libs
+    # Copy helper executable
+    add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory
+                       $<TARGET_FILE_DIR:Windscribe>/../Library/LaunchServices)
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                      ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/oqsprovider.dylib $<TARGET_FILE_DIR:Windscribe>/../Frameworks/oqsprovider.dylib)
+                       $<TARGET_FILE:com.windscribe.helper.macos> $<TARGET_FILE_DIR:Windscribe>/../Library/LaunchServices/)
+
+    # Copy openssl, wsnet, and post-quantum libs to Frameworks
+    add_custom_command(TARGET Windscribe POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Copying dependency libraries to Frameworks..."
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libcrypto.3.dylib
+                $<TARGET_FILE_DIR:Windscribe>/../Frameworks/libcrypto.3.dylib
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libssl.3.dylib
+                $<TARGET_FILE_DIR:Windscribe>/../Frameworks/libssl.3.dylib
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_FILE:wsnet::wsnet>
+                $<TARGET_FILE_DIR:Windscribe>/../Frameworks/
+        COMMAND ${CMAKE_COMMAND} -E echo "Fixing RPATH on wsnet..."
+        COMMAND install_name_tool -add_rpath "@loader_path" $<TARGET_FILE_DIR:Windscribe>/../Frameworks/libwsnet.dylib
+    )
 
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:Windscribe>/../Helpers)
 
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
                        ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools/openvpn/sbin/openvpn $<TARGET_FILE_DIR:Windscribe>/../Helpers/windscribeopenvpn)
 
-    # split tunnel extension
+    # Copy split tunnel extension
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_CURRENT_SOURCE_DIR}/../../build/src/splittunneling/macos/$<CONFIG>/com.windscribe.client.splittunnelextension.systemextension $<TARGET_FILE_DIR:Windscribe>/../Library/SystemExtensions/com.windscribe.client.splittunnelextension.systemextension)
+                       $<TARGET_BUNDLE_DIR:com.windscribe.client.splittunnelextension> $<TARGET_FILE_DIR:Windscribe>/../Library/SystemExtensions/com.windscribe.client.splittunnelextension.systemextension)
 
     # apply install_name_tool commands for the windscribeopenvpn binary, fix for the openssl libs
     add_custom_command(TARGET Windscribe POST_BUILD
@@ -196,15 +215,40 @@ target_include_directories(Windscribe PRIVATE
     ${PROJECT_INCLUDE_DIRS}
 )
 
+# Configure Info.plist with DEVELOPMENT_TEAM substitution
+if(APPLE)
+    configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/info.plist
+        ${CMAKE_CURRENT_BINARY_DIR}/info.plist.configured
+        @ONLY
+    )
+    set(WINDSCRIBE_INFO_PLIST ${CMAKE_CURRENT_BINARY_DIR}/info.plist.configured)
+
+    # Configure entitlements with DEVELOPMENT_TEAM substitution
+    configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/engine/mac/windscribe_engine.entitlements
+        ${CMAKE_CURRENT_BINARY_DIR}/windscribe_engine.entitlements.configured
+        @ONLY
+    )
+    set(WINDSCRIBE_ENTITLEMENTS ${CMAKE_CURRENT_BINARY_DIR}/windscribe_engine.entitlements.configured)
+else()
+    set(WINDSCRIBE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/info.plist)
+endif()
+
 set_target_properties(Windscribe PROPERTIES
-    MACOSX_BUNDLE TRUE
-    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/info.plist
     WIN32_EXECUTABLE TRUE
     COMPILE_WARNING_AS_ERROR TRUE
-    XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME YES
 )
 
-add_subdirectory(../../libs/wsnet wsnet)
+if(APPLE)
+    set_target_properties(Windscribe PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST ${WINDSCRIBE_INFO_PLIST}
+        XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME YES
+        BUILD_WITH_INSTALL_RPATH TRUE
+        INSTALL_RPATH "@executable_path/../Frameworks"
+    )
+endif()
 
 add_subdirectory(engine)
 add_subdirectory(common)
@@ -224,8 +268,8 @@ if (APPLE)
         LIBRARY DESTINATION "Windscribe.app/Contents/Frameworks"
         BUNDLE DESTINATION .
     )
-    install(FILES ${_OPENSSL_LIBDIR}/libcrypto.3.dylib DESTINATION Windscribe.app/Contents/Frameworks)
-    install(FILES ${_OPENSSL_LIBDIR}/libssl.3.dylib DESTINATION Windscribe.app/Contents/Frameworks)
+    install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libcrypto.3.dylib DESTINATION Windscribe.app/Contents/Frameworks)
+    install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libssl.3.dylib DESTINATION Windscribe.app/Contents/Frameworks)
 else()
     install(TARGETS Windscribe
         RUNTIME DESTINATION .
@@ -241,11 +285,8 @@ endif()
 
 if(UNIX AND (NOT APPLE))
     install(IMPORTED_RUNTIME_ARTIFACTS wsnet DESTINATION lib)
-    # for some reason the installation via the command IMPORTED_RUNTIME_ARTIFACTS does not work for openssl
-    # so for now we just copy the openssl libs
-    install(FILES ${_OPENSSL_LIBDIR}/libcrypto.so.3 DESTINATION lib)
-    install(FILES ${_OPENSSL_LIBDIR}/libssl.so.3 DESTINATION lib)
-    install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin/oqsprovider.so DESTINATION lib)
+    install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libcrypto.so.3 DESTINATION lib)
+    install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libssl.so.3 DESTINATION lib)
 
     # copy openvpn
     install(FILES ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/tools/openvpn/sbin/openvpn

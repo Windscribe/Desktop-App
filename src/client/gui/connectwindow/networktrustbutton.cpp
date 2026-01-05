@@ -12,7 +12,7 @@
 
 namespace ConnectWindow {
 
-NetworkTrustButton::NetworkTrustButton(ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent), trustIcon_(nullptr), animProgress_(0.7), width_(318), arrowShift_(0), isTextElided_(false)
+NetworkTrustButton::NetworkTrustButton(ScalableGraphicsObject *parent) : ClickableGraphicsObject(parent), trustIcon_(nullptr), animProgress_(OPACITY_SEVENTY), width_(318), arrowShift_(0), isTextElided_(false)
 {
     connect(&opacityAnimation_, &QVariantAnimation::valueChanged, this, &NetworkTrustButton::onOpacityValueChanged);
 
@@ -123,10 +123,10 @@ void NetworkTrustButton::onOpacityValueChanged(const QVariant &value)
         trustIcon_->setOpacity(animProgress_);
     }
     // The arrow is slightly less opaque than the icon/text, otherwise it appears different than the protocol arrow.
-    // When animProgress is 0.7(base), opacity should be 0.5.
-    arrow_->setOpacity((animProgress_ - 0.7) / 0.6 + 0.5);
-    // When animProgress_ is 0.7 (base), arrowShift_ is 0.  When it's 1.0 (full), arrowShift_ is 4
-    arrowShift_ = (animProgress_ - 0.7) * 4.0 / 0.3;
+    // When animProgress is OPACITY_SEVENTY (base), opacity should be 0.5.
+    arrow_->setOpacity((animProgress_ - OPACITY_SEVENTY) / 0.6 + 0.5);
+    // When animProgress_ is OPACITY_SEVENTY (base), arrowShift_ is 0.  When it's 1.0 (full), arrowShift_ is 4
+    arrowShift_ = (animProgress_ - OPACITY_SEVENTY) * 4.0 / 0.3;
     updatePositions();
 }
 
@@ -173,7 +173,7 @@ void NetworkTrustButton::onHoverEnter()
 
 void NetworkTrustButton::onHoverLeave()
 {
-    startAnAnimation(opacityAnimation_, animProgress_, 0.7, ANIMATION_SPEED_FAST);
+    startAnAnimation(opacityAnimation_, animProgress_, OPACITY_SEVENTY, ANIMATION_SPEED_FAST);
 
     // Hide tooltip if it was shown
     if (isTextElided_) {

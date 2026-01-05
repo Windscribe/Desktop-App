@@ -221,25 +221,33 @@ void ConnectionManager::reconnect()
     }
 }
 
-void ConnectionManager::blockingDisconnect()
+void ConnectionManager::blockingDisconnect(bool isSleepEvent)
 {
-    if (connector_)
-    {
-        if (!connector_->isDisconnected())
-        {
+#ifndef Q_OS_WIN
+    // Ignoring special sleep event handling on non-Windows for now until we have evidence it is required.
+    isSleepEvent = false;
+#endif
+    if (connector_) {
+        if (!connector_->isDisconnected()) {
             testVPNTunnel_->stopTests();
             connector_->blockSignals(true);
             QElapsedTimer elapsedTimer;
             elapsedTimer.start();
             connector_->startDisconnect();
-            while (!connector_->isDisconnected())
-            {
-                QThread::msleep(1);
-                qApp->processEvents();
+            while (!connector_->isDisconnected()) {
+                if (isSleepEvent) {
+                    // We do not want to processEvents during disconnect due to the PC going to sleep.  Windows may suspend us
+                    // while in this loop and resume us when the PC wakes.  If we process events, we will likely start trying
+                    // to restoreConnectionAfterWakeUp while we are in here disconnecting.
+                    QThread::msleep(50);
+                } else {
+                    QThread::msleep(1);
+                    qApp->processEvents();
+                }
 
-                if (elapsedTimer.elapsed() > 10000)
-                {
-                    qCWarning(LOG_CONNECTION) << "ConnectionManager::blockingDisconnect() delay more than 10 seconds";
+                // The OS may have suspended us while in this loop during a sleep event and thus the elapsed timer will not be accurate.
+                if (!isSleepEvent && elapsedTimer.elapsed() > 10000) {
+                    qCWarning(LOG_CONNECTION) << "ConnectionManager::blockingDisconnect() wait for disconnect timed out after 10 seconds";
                     connector_->startDisconnect();
                     break;
                 }
@@ -250,8 +258,7 @@ void ConnectionManager::blockingDisconnect()
             wstunnelManager_->killProcess();
             ctrldManager_->killProcess();
 
-            if (!connSettingsPolicy_.isNull())
-            {
+            if (!connSettingsPolicy_.isNull()) {
                 connSettingsPolicy_->reset();
             }
 
@@ -706,8 +713,8 @@ void ConnectionManager::onSleepMode()
         case STATE_RECONNECTING:
         case STATE_WAKEUP_RECONNECTING:
             emit reconnecting();
-            blockingDisconnect();
-            qCDebug(LOG_CONNECTION) << "ConnectionManager::onSleepMode(), connection blocking disconnected";
+            blockingDisconnect(true);
+            qCDebug(LOG_CONNECTION) << "ConnectionManager::onSleepMode(), blockingDisconnect completed";
             state_ = STATE_SLEEP_MODE_NEED_RECONNECT;
             if (bWakeSignalReceived_) {
                 // If we are already awake (got the wake event during waiting in the blocking
@@ -1095,7 +1102,7 @@ void ConnectionManager::doConnectPart3()
         WireGuardConfig* pConfig = (currentConnectionDescr_.connectionNodeType == CONNECTION_NODE_CUSTOM_CONFIG ? currentConnectionDescr_.wgCustomConfig.get() : &wireGuardConfig_);
         WS_ASSERT(pConfig != nullptr);
 
-        // For WG protocol we need to add upStream1 adrress if it's custom ip. Otherwise on Windows WG may not connect.
+        // For WG protocol we need to add upStream1 address if it's custom ip. Otherwise on Windows WG may not connect.
         QStringList dnsIps;
         if (connectedDnsInfo_.type == CONNECTED_DNS_TYPE_AUTO) {
             dnsIps << pConfig->clientDnsAddress();
@@ -1352,7 +1359,7 @@ void ConnectionManager::onTimerWaitNetworkConnectivity()
 {
     if (networkDetectionManager_->isOnline() && !AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo().isEmpty())
     {
-        qCInfo(LOG_CONNECTION) << "We online, make the connection";
+        qCInfo(LOG_CONNECTION) << "We're online, making the connection";
         timerWaitNetworkConnectivity_.stop();
         doConnect();
     }
@@ -1360,7 +1367,7 @@ void ConnectionManager::onTimerWaitNetworkConnectivity()
     {
         if (timerReconnection_.remainingTime() == 0)
         {
-            qCInfo(LOG_CONNECTION) << "Time for wait network connection exceed";
+            qCInfo(LOG_CONNECTION) << "Timed out waiting for network connectivity";
             timerWaitNetworkConnectivity_.stop();
             disconnect();
             emit disconnected(DISCONNECTED_BY_RECONNECTION_TIMEOUT_EXCEEDED);

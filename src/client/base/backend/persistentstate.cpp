@@ -71,15 +71,15 @@ bool PersistentState::isFirewallOn() const
     return state_.isFirewallOn;
 }
 
-void PersistentState::setCountVisibleLocations(int cnt)
+void PersistentState::setLocationsViewportHeight(int height)
 {
-    state_.countVisibleLocations = cnt;
+    state_.locationsViewportHeight = height;
     save();
 }
 
-int PersistentState::countVisibleLocations() const
+int PersistentState::locationsViewportHeight() const
 {
-    return state_.countVisibleLocations;
+    return state_.locationsViewportHeight;
 }
 
 void PersistentState::setFirstLogin(bool bFirstRun)

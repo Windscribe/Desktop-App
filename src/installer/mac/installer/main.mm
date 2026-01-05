@@ -180,7 +180,6 @@ int main(int argc, char *argv[]) {
     spdlog::info("=== Started ===");
 
     ops.updating = CheckCommandLineArgument(argc, argv, "-update") || CheckCommandLineArgument(argc, argv, "-q");
-    int expectedArgumentCount = ops.updating ? 2 : 1;
 
     int center_coord_index = 0, center_coord_count = 0;
     if (CheckCommandLineArgument(argc, argv, "-center", &center_coord_index, &center_coord_count)) {
@@ -188,7 +187,6 @@ int main(int argc, char *argv[]) {
             ops.centerX = atoi(argv[center_coord_index]);
         if (center_coord_count > 1)
             ops.centerY = atoi(argv[center_coord_index+1]);
-        expectedArgumentCount += 1 + center_coord_count;
     }
 
     logSystemInfo();

@@ -66,16 +66,16 @@ void PacketSizeEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     if (!isEditMode_)
     {
         // caption text
-        QFont font = FontManager::instance().getFont(12,  QFont::Normal);
+        QFont font = FontManager::instance().getFont(14,  QFont::Normal);
         QFontMetrics fm(font);
         QString caption = tr(caption_.toStdString().c_str());
         painter->setFont(font);
         painter->setPen(Qt::white);
         painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
-                                                  PREFERENCES_ITEM_Y*G_SCALE,
+                                                  0,
                                                   -(3*PREFERENCES_MARGIN_X + 2*ICON_WIDTH)*G_SCALE,
-                                                  -PREFERENCES_MARGIN_Y*G_SCALE),
-                          Qt::AlignLeft,
+                                                  0),
+                          Qt::AlignLeft | Qt::AlignVCenter,
                           caption);
 
         // user text box
@@ -88,10 +88,10 @@ void PacketSizeEditBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsI
         }
 
         painter->drawText(boundingRect().adjusted((2*PREFERENCES_MARGIN_X*G_SCALE) + fm.horizontalAdvance(caption),
-                                                  PREFERENCES_ITEM_Y*G_SCALE,
+                                                  0,
                                                   -(3*PREFERENCES_MARGIN_X + 2*ICON_WIDTH)*G_SCALE,
-                                                  -PREFERENCES_MARGIN_Y*G_SCALE),
-                          Qt::AlignRight,
+                                                  0),
+                          Qt::AlignRight | Qt::AlignVCenter,
                           fm.elidedText(t,
                                         Qt::ElideRight,
                                         boundingRect().width() - (5*PREFERENCES_MARGIN_X + 2*ICON_WIDTH)*G_SCALE - fm.horizontalAdvance(caption)));
@@ -280,7 +280,7 @@ void PacketSizeEditBoxItem::updatePositions()
     detectButton_->setPos(boundingRect().width() - 2*(ICON_WIDTH + PREFERENCES_MARGIN_X)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
     confirmButton_->setPos(boundingRect().width() - (ICON_WIDTH + PREFERENCES_MARGIN_X)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
     undoButton_->setPos(boundingRect().width() - 2*(ICON_WIDTH + PREFERENCES_MARGIN_X)*G_SCALE, PREFERENCES_ITEM_Y*G_SCALE);
-    lineEdit_->setFont(FontManager::instance().getFont(12, QFont::DemiBold));
+    lineEdit_->setFont(FontManager::instance().getFont(14, QFont::DemiBold));
 
     spinnerPosX_ = boundingRect().width() - (2*ICON_WIDTH + 2*PREFERENCES_MARGIN_X)*G_SCALE;
     spinnerPosY_ = PREFERENCES_ITEM_Y*G_SCALE;

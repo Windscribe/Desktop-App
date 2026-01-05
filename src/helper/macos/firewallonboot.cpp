@@ -78,7 +78,7 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     rules << "anchor windscribe_static_ports_traffic all\n";
 
     // write rules
-    int fd = open("/etc/windscribe/boot_pf.conf", O_CREAT | O_WRONLY | O_TRUNC);
+    int fd = open("/etc/windscribe/boot_pf.conf", O_CREAT | O_WRONLY | O_TRUNC, 0644);
     if (fd < 0) {
         spdlog::error("Could not open boot firewall rules for writing");
         return false;

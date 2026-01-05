@@ -13,8 +13,11 @@ std::vector<pid_t> ProcessesHelper::getPidsByProcessname(const char *name)
 
     std::vector<pid_t> ret;
     FILE *proc = popen(cmd.c_str(), "r");
+    if (!proc) {
+        return ret;
+    }
     char result[16];
-    bzero(result, sizeof(result));
+    memset(result, 0, sizeof(result));
     while (fgets(result, sizeof(result), proc) != nullptr)
     {
         pid_t pid = atoi(result);

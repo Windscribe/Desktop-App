@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleDevelopmentRegion</key>
-    <string>$(DEVELOPMENT_LANGUAGE)</string>
+    <string>en</string>
     <key>CFBundleExecutable</key>
-    <string>$(EXECUTABLE_NAME)</string>
+    <string>com.windscribe.client.splittunnelextension</string>
     <key>CFBundleIdentifier</key>
     <string>com.windscribe.client.splittunnelextension</string>
     <key>CFBundleInfoDictionaryVersion</key>
@@ -19,7 +19,7 @@
     <key>CFBundleVersion</key>
     <string>1.0.6</string>
     <key>LSMinimumSystemVersion</key>
-    <string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+    <string>12</string>
     <key>NetworkExtension</key>
     <dict>
         <key>NEProviderClasses</key>

@@ -39,7 +39,7 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
 
     const int left_offs = option.rect.left();
     const int top_offs = option.rect.top();
-    double textOpacity = 0.7 + (OPACITY_FULL - 0.7) * option.selectedOpacity();
+    double textOpacity = OPACITY_SEVENTY + (OPACITY_FULL - OPACITY_SEVENTY) * option.selectedOpacity();
 
     const CityItemDelegateCache *cache = static_cast<const CityItemDelegateCache *>(cacheData);
 
@@ -189,7 +189,7 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         bool isHoveringError = (option.hoverClickableId() == (int)ClickableRect::kErrorIcon);
         double errorOpacity = 0.4;
         if (qFuzzyCompare(option.selectedOpacity(), 1.0)) {
-            errorOpacity = isHoveringError ? 1.0 : 0.7;
+            errorOpacity = isHoveringError ? 1.0 : OPACITY_SEVENTY;
         }
         painter->setOpacity(errorOpacity);
         QSharedPointer<IndependentPixmap> errorIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/ERROR_ICON");
@@ -238,11 +238,11 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         bool isHoveringFavorite = (option.hoverClickableId() == (int)ClickableRect::kFavorite);
         if (qFuzzyCompare(option.selectedOpacity(), 1.0)) {
             if (index.data(kIsFavorite).toBool() == true) {
-                painter->setOpacity(isHoveringFavorite ? OPACITY_FULL : 0.7);
+                painter->setOpacity(isHoveringFavorite ? OPACITY_FULL : OPACITY_SEVENTY);
                 favIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_SELECTED");
                 favIcon->draw(xOffset - favIcon->width(), top_offs + (option.rect.height() - favIcon->height()) / 2, painter);
             } else {
-                painter->setOpacity(isHoveringFavorite ? OPACITY_FULL : 0.7);
+                painter->setOpacity(isHoveringFavorite ? OPACITY_FULL : OPACITY_SEVENTY);
                 favIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_DESELECTED");
                 favIcon->draw(xOffset - favIcon->width(), top_offs + (option.rect.height() - favIcon->height()) / 2, painter);
             }

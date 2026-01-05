@@ -59,7 +59,7 @@ Windscribe client.
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}
-mv -f %{_sourcedir}/* %{buildroot}
+mv -f %{_builddir}/* %{buildroot}
 
 %posttrans
 systemctl daemon-reload || true

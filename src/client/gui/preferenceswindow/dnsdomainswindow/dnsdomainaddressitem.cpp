@@ -30,16 +30,17 @@ void DnsDomainAddressItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
     painter->setOpacity(OPACITY_FULL * initOpacity);
     painter->setPen(Qt::white);
 
-    QFont font = FontManager::instance().getFont(12,  QFont::Normal);
+    QFont font = FontManager::instance().getFont(14,  QFont::Normal);
     painter->setFont(font);
     QFontMetrics fm(font);
     QString elidedName = fm.elidedText(address_,
                                        Qt::TextElideMode::ElideRight,
                                        boundingRect().width() - (3*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE);
     painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
-                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              0,
                                               -(2*PREFERENCES_MARGIN_X + ICON_WIDTH)*G_SCALE,
-                                              -PREFERENCES_MARGIN_Y*G_SCALE),
+                                              0),
+                      Qt::AlignLeft | Qt::AlignVCenter,
                       elidedName);
 }
 

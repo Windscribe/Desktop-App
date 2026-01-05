@@ -61,6 +61,13 @@ set(SOURCES
 # -Wno-shorten-64-to-32 to silence warnings in pstream.h
 set(CMAKE_CXX_FLAGS "-Wno-shorten-64-to-32")
 
+# Configure helper-info.plist with DEVELOPMENT_TEAM substitution
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/helper-info.plist
+    ${CMAKE_CURRENT_BINARY_DIR}/helper-info.plist.configured
+    @ONLY
+)
+
 add_executable(com.windscribe.helper.macos ${SOURCES})
 set_property(TARGET com.windscribe.helper.macos PROPERTY COMPILE_WARNING_AS_ERROR ON)
 
@@ -73,7 +80,7 @@ target_link_libraries(com.windscribe.helper.macos
                       "-framework Foundation"
                       "-framework Security"
                       "-framework SystemConfiguration"
-                      "-sectcreate __TEXT __info_plist ${CMAKE_CURRENT_SOURCE_DIR}/helper-info.plist"
+                      "-sectcreate __TEXT __info_plist ${CMAKE_CURRENT_BINARY_DIR}/helper-info.plist.configured"
                       "-sectcreate __TEXT __launchd_plist ${CMAKE_CURRENT_SOURCE_DIR}/helper-launchd.plist"
 )
 set_target_properties(com.windscribe.helper.macos PROPERTIES
@@ -91,6 +98,17 @@ set_target_properties(com.windscribe.helper.macos PROPERTIES
         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_NAME "com.windscribe.helper.macos"
 )
 
+# Sign helper immediately after building (required for SMJobBless)
+add_custom_command(TARGET com.windscribe.helper.macos POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E echo "Signing helper..."
+    COMMAND ${CODESIGN_EXECUTABLE}
+            --force
+            --options runtime
+            --timestamp
+            --sign "Developer ID Application"
+            $<TARGET_FILE:com.windscribe.helper.macos>
+    COMMAND ${CODESIGN_EXECUTABLE} -v $<TARGET_FILE:com.windscribe.helper.macos>
+)
 
 target_include_directories(com.windscribe.helper.macos PRIVATE
                            ../../client/common

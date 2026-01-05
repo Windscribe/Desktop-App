@@ -18,7 +18,8 @@
 {
     if (self = [super init]) {
         d_group_ = nil;
-        helper_.reset(new HelperInstaller(std::unique_ptr<IHelperBackend>(new HelperBackend_mac(nullptr, spdlog::default_logger_raw()))));
+        auto backend = std::make_unique<HelperBackend_mac>(nullptr, spdlog::default_logger_raw());
+        helper_.reset(new HelperInstaller(std::move(backend)));
     }
     return self;
 }

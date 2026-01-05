@@ -46,7 +46,7 @@ Windscribe CLI client.
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}
-mv -f %{_sourcedir}/* %{buildroot}
+mv -f %{_builddir}/* %{buildroot}
 
 %posttrans
 killall -q Windscribe || true

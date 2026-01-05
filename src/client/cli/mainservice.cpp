@@ -253,20 +253,29 @@ void MainService::onBackendSessionStatusChanged(const api_responses::SessionStat
 
     // multiple account abuse detection
     QString entryUsername;
-    bool bEntryIsPresent = multipleAccountDetection_->entryIsPresent(entryUsername);
-    if (bEntryIsPresent && (!sessionStatus.isPremium()) && sessionStatus.getAlc().size() == 0 && sessionStatus.getStatus() == 1 && entryUsername != sessionStatus.getUsername()) {
+    QString entryUserId;
+    bool bEntryIsPresent = multipleAccountDetection_->entryIsPresent(entryUsername, entryUserId);
+    bool isDifferentAccount = !entryUserId.isEmpty() ? entryUserId != sessionStatus.getUserId() : entryUsername != sessionStatus.getUsername();
+    if (bEntryIsPresent && (!sessionStatus.isPremium()) && sessionStatus.getAlc().size() == 0 && sessionStatus.getStatus() == 1 && isDifferentAccount) {
         status = 2;
-        qCInfo(LOG_BASIC) << "Multiple account detected - previous username:" << entryUsername << ", current username:" << sessionStatus.getUsername();
-        blockConnect_.setBlockedMultiAccount(entryUsername);
-    } else if (bEntryIsPresent && entryUsername == sessionStatus.getUsername() && sessionStatus.getStatus() == 1) {
-        multipleAccountDetection_->removeEntry();
+        if (entryUserId.isEmpty()) {
+            qCInfo(LOG_BASIC) << "Multiple account detected - previous username:" << entryUsername << "(userID unavailable from previous version), current username:" << sessionStatus.getUsername() << ", current userID:" << sessionStatus.getUserId();
+        } else {
+            qCInfo(LOG_BASIC) << "Multiple account detected - previous username:" << entryUsername << ", previous userID:" << entryUserId << ", current username:" << sessionStatus.getUsername() << ", current userID:" << sessionStatus.getUserId();
+        }
+        blockConnect_.setBlockedMultiAccount(entryUsername, entryUserId);
+    } else if (bEntryIsPresent && sessionStatus.getStatus() == 1) {
+        bool isSameAccount = !entryUserId.isEmpty() ? entryUserId == sessionStatus.getUserId() : entryUsername == sessionStatus.getUsername();
+        if (isSameAccount) {
+            multipleAccountDetection_->removeEntry();
+        }
     }
 
     // free account
     if (!sessionStatus.isPremium()) {
         if (status == 2) {
             // write entry into registry expired_user = username
-            multipleAccountDetection_->userBecomeExpired(sessionStatus.getUsername());
+            multipleAccountDetection_->userBecomeExpired(sessionStatus.getUsername(), sessionStatus.getUserId());
 
             if (backend_->currentConnectState() == CONNECT_STATE_CONNECTED || backend_->currentConnectState() == CONNECT_STATE_CONNECTING) {
                 backend_->sendDisconnect(DISCONNECTED_BY_DATA_LIMIT);

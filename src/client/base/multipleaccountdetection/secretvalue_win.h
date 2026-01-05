@@ -9,12 +9,20 @@
 class SecretValue_win
 {
 public:
+    struct TEntry
+    {
+        QString username_;
+        QString userId_;
+        QDate date_;
+    };
+
     SecretValue_win();
 
-    void setValue(const QString &value);
-    bool isExistValue(QString &value);
+    void setValue(const TEntry &entry);
+    bool isExistValue(TEntry &entry);
     void removeValue();
 
 private:
+    static constexpr qint32 versionForSerialization_ = 1;
     SimpleCrypt crypt_;
 };

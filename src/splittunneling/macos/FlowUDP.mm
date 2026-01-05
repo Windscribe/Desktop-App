@@ -19,6 +19,9 @@
 }
 
 - (void)removeConnection:(nw_connection_t)connection {
+    if (!connection) {
+        return;
+    }
     NSValue *key = [NSValue valueWithPointer:(__bridge void *)connection];
     NEAppProxyUDPFlow *flow = activeConnections_[key];
     if (![activeConnections_ objectForKey:key]) {
@@ -129,7 +132,7 @@
                 nw_connection_t conn = (nw_connection_t)key.pointerValue;
                 NEAppProxyUDPFlow *connFlow = activeConnections_[key];
 
-                if (connFlow == flow) {
+                if (conn && connFlow == flow) {
                     nw_endpoint_t connEndpoint = nw_connection_copy_endpoint(conn);
                     if ([Utils isSameEndpoint:connEndpoint endpoint:endpoint]) {
                         existingConnection = conn;
@@ -149,7 +152,7 @@
                 [self handleUDPInboundFlow:connection flow:flow interface:interface];
             }
 
-            spdlog::debug("[UDP] sending {} bytes to {} on {}", datagram.length, (nw_endpoint_get_hostname(endpoint) == NULL) ? "<null>" : nw_endpoint_get_hostname(endpoint), nw_interface_get_name(targetInterface));
+            spdlog::debug("[UDP] sending {} bytes to {} on {}", datagram.length, (nw_endpoint_get_hostname(endpoint) == NULL) ? "<null>" : nw_endpoint_get_hostname(endpoint), targetInterface ? nw_interface_get_name(targetInterface) : "<null>");
 
             nw_connection_send(
                 connection,
@@ -188,7 +191,7 @@
 
             const void *buffer;
             size_t buffer_length;
-            dispatch_data_t contiguous = dispatch_data_create_map(content, &buffer, &buffer_length);
+            dispatch_data_t __unused contiguous = dispatch_data_create_map(content, &buffer, &buffer_length);
             NSData *data = [NSData dataWithBytes:buffer length:buffer_length];
 
             // Get the remote endpoint from the connection for writing back
@@ -219,7 +222,6 @@
 - (void)cleanup {
     for (NSValue *key in [activeConnections_ allKeys]) {
         nw_connection_t connection = (nw_connection_t)key.pointerValue;
-        NEAppProxyUDPFlow *flow = activeConnections_[key];
         [self removeConnection:connection];
     }
     [activeConnections_ removeAllObjects];

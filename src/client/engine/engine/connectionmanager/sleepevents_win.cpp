@@ -4,13 +4,12 @@
 
 SleepEvents_win *SleepEvents_win::this_ = NULL;
 
-SleepEvents_win::SleepEvents_win(QObject *parent) : ISleepEvents(parent), hwnd_(0)
+SleepEvents_win::SleepEvents_win(QObject *parent) : ISleepEvents(parent)
 {
     WS_ASSERT(this_ == NULL);
     this_ = this;
-    hThread_ = CreateThread(NULL, 0, hiddenWindowThread, NULL, 0, NULL);
-    if (!hThread_)
-    {
+    hThread_.setHandle(CreateThread(NULL, 0, hiddenWindowThread, NULL, 0, NULL));
+    if (!hThread_.isValid()) {
         qCCritical(LOG_BASIC) << "SleepEvents_win::SleepEvents_win(), can't create thread";
     }
 }
@@ -19,8 +18,8 @@ SleepEvents_win::~SleepEvents_win()
 {
     PostMessage(hwnd_, WM_CLOSE, 0, 0);
     CloseWindow(hwnd_);
-    WaitForSingleObject(hThread_, INFINITE);
-    CloseHandle(hThread_);
+    hThread_.wait(INFINITE);
+    hThread_.closeHandle();
     this_ = NULL;
 }
 
@@ -34,53 +33,39 @@ DWORD SleepEvents_win::hiddenWindowThread(void *param)
     wx.lpfnWndProc = wndProc;        // function which will handle messages
     wx.hInstance = (HINSTANCE)::GetModuleHandle(NULL);
     wx.lpszClassName = className;
-    if ( RegisterClassEx(&wx) )
-    {
+    if (RegisterClassEx(&wx)) {
         this_->hwnd_ = CreateWindow( className, className, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, GetModuleHandle(NULL), NULL);
-        if (!this_->hwnd_)
-        {
+        if (!this_->hwnd_) {
             qCCritical(LOG_BASIC) << "SleepEvents_win::hiddenWindowThread(), can't create window";
             return 0;
         }
-    }
-    else
-    {
+    } else {
         qCCritical(LOG_BASIC) << "SleepEvents_win::hiddenWindowThread(), can't register window class";
         return 0;
     }
 
     BOOL bRet;
     MSG msg;
-    while( (bRet = GetMessage( &msg, this_->hwnd_, 0, 0 )) != 0)
-    {
-        if (bRet == -1)
-        {
-            return 0;
+    while( (bRet = GetMessage( &msg, this_->hwnd_, 0, 0 )) != 0) {
+        if (bRet == -1) {
+            break;
         }
-        else
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
     }
     return 0;
 }
 
 LRESULT SleepEvents_win::wndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    if (uMsg == WM_POWERBROADCAST)
-    {
-        if (wParam == PBT_APMRESUMEAUTOMATIC)
-        {
+    if (uMsg == WM_POWERBROADCAST) {
+        if (wParam == PBT_APMRESUMEAUTOMATIC) {
             emit this_->gotoWake();
-        }
-        else if (wParam == PBT_APMSUSPEND)
-        {
+        } else if (wParam == PBT_APMSUSPEND || (wParam == PBT_APMSTANDBY)) {
+            // Note that Windows only gives us ~2s after receipt of this message before it suspends the process.
             emit this_->gotoSleep();
         }
-    }
-    else if (uMsg == WM_DESTROY)
-    {
+    } else if (uMsg == WM_DESTROY) {
         PostQuitMessage(0);
         return 0;
     }

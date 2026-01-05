@@ -50,7 +50,7 @@ void ProtocolPromptItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
                       Qt::AlignHCenter | Qt::TextWordWrap, title_);
 
     // description
-    painter->setOpacity(OPACITY_HALF);
+    painter->setOpacity(OPACITY_SEVENTY);
     QFont descFont = FontManager::instance().getFont(14,  QFont::Normal);
     painter->setFont(descFont);
 

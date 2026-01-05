@@ -56,7 +56,7 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     if (!isCollapsed) {
         textOpacity = OPACITY_FULL;
     } else {
-        textOpacity = 0.7 + (OPACITY_FULL - 0.7) * option.selectedOpacity();
+        textOpacity = OPACITY_SEVENTY + (OPACITY_FULL - OPACITY_SEVENTY) * option.selectedOpacity();
     }
 
     if (option.isShowLocationLoad()) {

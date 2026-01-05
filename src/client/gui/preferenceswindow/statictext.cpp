@@ -30,7 +30,7 @@ void StaticText::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QFont font = FontManager::instance().getFont(12, QFont::Normal);
+    QFont font = FontManager::instance().getFont(14, QFont::Normal);
     QFontMetrics fm(font);
 
     QString text = text_;
@@ -82,18 +82,18 @@ void StaticText::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
     painter->setFont(font);
     painter->setPen(Qt::white);
     painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
-                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              0,
                                               -PREFERENCES_MARGIN_X*G_SCALE,
-                                              -PREFERENCES_MARGIN_Y*G_SCALE),
-                      Qt::AlignLeft,
+                                              0),
+                      Qt::AlignLeft | Qt::AlignVCenter,
                       caption);
 
-    painter->setOpacity(OPACITY_HALF);
+    painter->setOpacity(OPACITY_SIXTY);
     painter->drawText(boundingRect().adjusted(PREFERENCES_MARGIN_X*G_SCALE,
-                                              PREFERENCES_ITEM_Y*G_SCALE,
+                                              0,
                                               -PREFERENCES_MARGIN_X*G_SCALE,
-                                              -PREFERENCES_MARGIN_Y*G_SCALE),
-                      Qt::AlignRight,
+                                              0),
+                      Qt::AlignRight | Qt::AlignVCenter,
                       text);
 }
 
