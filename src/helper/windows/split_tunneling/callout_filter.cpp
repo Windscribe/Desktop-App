@@ -1,7 +1,10 @@
-#include "../all_headers.h"
+#include <Windows.h>
+#include <Fwpmu.h>
+#include <initguid.h>
+#include <ws2tcpip.h>
 #include <spdlog/spdlog.h>
+
 #include "callout_filter.h"
-#include "../adapters_info.h"
 #include "../ip_address/ip4_address_and_mask.h"
 #include "../utils.h"
 
@@ -382,7 +385,6 @@ bool CalloutFilter::deleteSublayer(HANDLE engineHandle)
     DWORD dwRet = FwpmSubLayerDeleteByKey0(engineHandle, &SUBLAYER_CALLOUT_GUID);
     return b1 && b2 && dwRet == NO_ERROR;
 }
-
 
 bool CalloutFilter::removeAllFilters(FwpmWrapper &fwmpWrapper)
 {

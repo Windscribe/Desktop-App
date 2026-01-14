@@ -52,5 +52,4 @@ private:
 
     std::string deviceName_;
     std::string executable_;
-    unsigned long daemonCmdId_;
 };

@@ -1,9 +1,13 @@
 #pragma once
 
-#include "../../ip_address/ip4_address_and_mask.h"
-#include "../../firewallfilter.h"
+#include <map>
+#include <string>
+#include <vector>
+
 #include "dns_resolver.h"
 #include "ip_routes.h"
+
+#include "../../ip_address/ip4_address_and_mask.h"
 
 class HostnamesManager
 {
@@ -33,4 +37,3 @@ private:
 
     void dnsResolverCallback(std::map<std::string, DnsResolver::HostInfo> hostInfos);
 };
-

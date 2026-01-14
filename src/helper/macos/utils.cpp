@@ -1,12 +1,14 @@
 #include "utils.h"
 
 #include <arpa/inet.h>
+#include <chrono>
 #include <net/if.h>
 #include <skyr/core/parse.hpp>
 #include <skyr/core/serialize.hpp>
 #include <skyr/url.hpp>
 #include <sstream>
 #include <sys/stat.h>
+#include <thread>
 #include <spdlog/spdlog.h>
 
 #include "3rdparty/pstream.h"
@@ -294,6 +296,32 @@ std::string normalizeAddress(const std::string &address)
     }
 
     return skyr::serialize(url.value());
+}
+
+bool isPortListening(unsigned int port, int maxRetries, int delayMs)
+{
+    auto startTime = std::chrono::steady_clock::now();
+
+    for (int attempt = 0; attempt < maxRetries; attempt++) {
+        std::string output;
+        int result = executeCommand("lsof", {"-nP", "-iTCP:" + std::to_string(port), "-sTCP:LISTEN"}, &output);
+
+        if (result == 0 && !output.empty()) {
+            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now() - startTime).count();
+            spdlog::info("Port {} is listening after {} attempts ({}ms)", port, attempt + 1, elapsed);
+            return true;
+        }
+
+        if (attempt < maxRetries - 1) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
+        }
+    }
+
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - startTime).count();
+    spdlog::warn("Port {} not listening after {} attempts ({}ms)", port, maxRetries, elapsed);
+    return false;
 }
 
 } // namespace Utils

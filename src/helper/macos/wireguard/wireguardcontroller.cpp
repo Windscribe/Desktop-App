@@ -9,7 +9,7 @@
 #include <spdlog/spdlog.h>
 
 WireGuardController::WireGuardController()
-    : daemonCmdId_(0), is_initialized_(false)
+    : is_initialized_(false)
 {
 }
 

@@ -1,3 +1,20 @@
+2.20.3 (08/01/2026)
+All:
+   * Improved helper command robustness, removed unneeded commands. #1608
+   * Fixed split tunnel toggles may be drawn at incorrect position. #1607
+   * Fixed detection for abusers. #1564
+Windows:
+   * Improved build speed. #1584
+   * Improved helper code organization and interaction with the Service Control Manager. #1607
+MacOS:
+   * Fixed launcher, helper, and installer build config issues. #1584
+   * Fixed split tunneling extension not working after build system refactor. #1609
+   * Fixed helper commands sometimes get stuck on macOS 26. #1608
+Linux:
+   * Fixed package dependencies for arm64 architectures. #1584
+   * Fixed tray icon sometimes can't be clicked. #1612
+
+
 2.20.2 (19/12/2025)
 All:
    * Added a reset password endpoint to wsnet. #1603 
@@ -33,6 +50,11 @@ Linux:
    * Fixed script not retaining SELinux context. #1591
    * Fixed freshly launched app may not clean up stale interface. #1586
    * Fixed in-app data counter may be incorrect. #1592
+
+
+2.19.7 (05/01/2026)
+All:
+   * Stable channel release.
 
 
 2.19.6 (15/12/2025)

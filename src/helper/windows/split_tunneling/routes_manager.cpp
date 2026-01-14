@@ -1,6 +1,5 @@
-#include "../all_headers.h"
 #include "routes_manager.h"
-#include "../ip_address/ip4_address_and_mask.h"
+#include "ip_forward_table.h"
 
 RoutesManager::RoutesManager()
 {

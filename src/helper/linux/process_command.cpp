@@ -29,24 +29,6 @@ std::string getHelperVersion(const std::string &pars)
     return serializeResult(std::string("Linux helper"));
 }
 
-std::string getUnblockingCmdStatus(const std::string &pars)
-{
-    unsigned long cmdId;
-    deserializePars(pars, cmdId);
-    bool bFinished;
-    std::string log;
-    ExecuteCmd::instance().getStatus(cmdId, bFinished, log);
-    return serializeResult(bFinished, log);
-}
-
-std::string clearUnblockingCmd(const std::string &pars)
-{
-    unsigned long cmdId;
-    deserializePars(pars, cmdId);
-    ExecuteCmd::instance().clearCmds();
-    return std::string();
-}
-
 std::string setSplitTunnelingSettings(const std::string &pars)
 {
     bool isActive, isExclude, isAllowLanTraffic;
@@ -88,11 +70,10 @@ std::string executeOpenVPN(const std::string &pars)
     CmdDnsManager dnsManager;
     deserializePars(pars, config, port, httpProxy, httpPort, socksProxy, socksPort, isCustomConfig, dnsManager);
 
-    unsigned long cmdId = 0;
     std::string script = Utils::getDnsScript(dnsManager);
     if (script.empty()) {
         spdlog::error("Could not find appropriate DNS manager script");
-        return serializeResult(false, cmdId);
+        return serializeResult(false);
     }
 
     // sanitize
@@ -105,18 +86,18 @@ std::string executeOpenVPN(const std::string &pars)
 
     if (!OVPN::writeOVPNFile(script, port, config, httpProxy, httpPort, socksProxy, socksPort, isCustomConfig)) {
         spdlog::error("Could not write OpenVPN config");
-        return serializeResult(false, cmdId);
+        return serializeResult(false);
     }
 
     std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribeopenvpn", "--config /var/run/windscribe/config.ovpn");
     if (fullCmd.empty()) {
         // Something wrong with the command
-        return serializeResult(false, cmdId);
+        return serializeResult(false);
     }
 
     setenv("OPENSSL_CONF", "/dev/null", 1);
-    cmdId = ExecuteCmd::instance().execute(fullCmd, "/opt/windscribe");
-    return serializeResult(true, cmdId);
+    ExecuteCmd::instance().execute(fullCmd, "/opt/windscribe");
+    return serializeResult(true);
 }
 
 std::string executeTaskKill(const std::string &pars)
@@ -360,7 +341,7 @@ std::string startStunnel(const std::string &pars)
         return serializeResult(false);
     }
 
-    ExecuteCmd::instance().execute(fullCmd, std::string(), true);
+    ExecuteCmd::instance().execute(fullCmd);
     return serializeResult(true);
 }
 
@@ -387,7 +368,7 @@ std::string startWstunnel(const std::string &pars)
         return serializeResult(false);
     }
 
-    ExecuteCmd::instance().execute(fullCmd, std::string(), true);
+    ExecuteCmd::instance().execute(fullCmd);
     return serializeResult(true);
 }
 

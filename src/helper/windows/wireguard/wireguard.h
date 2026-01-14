@@ -11,6 +11,7 @@
 
 #include <WinSock2.h>
 #include <WS2tcpip.h>
+#include <winioctl.h>
 
 #define WG_KEY_LEN 32
 

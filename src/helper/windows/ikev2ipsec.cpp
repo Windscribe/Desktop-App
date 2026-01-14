@@ -1,11 +1,11 @@
-#include "all_headers.h"
-#include <spdlog/spdlog.h>
 #include <shlobj.h>
 #include <wtsapi32.h>
+
+#include <spdlog/spdlog.h>
+
 #include "ikev2ipsec.h"
 #include "executecmd.h"
 
-#pragma comment(lib, "Wtsapi32.lib")
 
 namespace
 {
@@ -123,17 +123,14 @@ void IKEv2IPSec::disableMODP2048Support()
     HKEY hKey = NULL;
     LSTATUS result = ::RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"System\\CurrentControlSet\\Services\\Rasman\\Parameters",
                                     0, KEY_QUERY_VALUE | KEY_SET_VALUE, &hKey);
-    if (result == ERROR_SUCCESS)
-    {
+    if (result == ERROR_SUCCESS) {
         DWORD dwValueType = REG_DWORD;
         DWORD dwValue;
         DWORD dwValueSize = sizeof(dwValue);
         result = ::RegQueryValueEx(hKey, L"NegotiateDH2048_AES256", NULL, &dwValueType, (LPBYTE)&dwValue, &dwValueSize);
 
-        if (result == ERROR_SUCCESS)
-        {
-            if (dwValue != 0)
-            {
+        if (result == ERROR_SUCCESS) {
+            if (dwValue != 0) {
                 dwValue = 0;
                 result = ::RegSetValueEx(hKey, L"NegotiateDH2048_AES256", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(dwValue));
                 if (result != ERROR_SUCCESS) {

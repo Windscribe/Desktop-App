@@ -1,6 +1,12 @@
 #pragma once
 
-#include "ip_forward_table.h"
+#include <windows.h>
+#include <iphlpapi.h>
+
+#include <string>
+#include <vector>
+
+class IpForwardTable;
 
 // functions for add/delete routes and revert back all operations
 class Routes
@@ -16,5 +22,4 @@ public:
 private:
     std::vector<MIB_IPFORWARDROW> deletedRoutes_;
     std::vector<MIB_IPFORWARDROW> addedRoutes_;
-
 };

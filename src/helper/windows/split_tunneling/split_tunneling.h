@@ -1,11 +1,10 @@
 #pragma once
 
+#include "hostnames_manager/hostnames_manager.h"
 #include "callout_filter.h"
 #include "routes_manager.h"
 #include "split_tunnel_service_manager.h"
-#include "hostnames_manager/hostnames_manager.h"
 #include "../apps_ids.h"
-#include "../firewallfilter.h"
 
 class SplitTunneling
 {
@@ -46,4 +45,3 @@ private:
     SplitTunneling(FwpmWrapper& fwpmWrapper);
     void detectWindscribeExecutables();
 };
-

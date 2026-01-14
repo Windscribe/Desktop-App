@@ -23,8 +23,10 @@ set(SOURCES
     ../../../client/common/utils/servicecontrolmanager.cpp
 )
 
-add_compile_options("$<$<CONFIG:Release>:/Zi>")
-add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
+if(CI_MODE)
+    add_compile_options("$<$<CONFIG:Release>:/Zi>")
+    add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
+endif()
 
 add_executable(WireguardService ${SOURCES})
 

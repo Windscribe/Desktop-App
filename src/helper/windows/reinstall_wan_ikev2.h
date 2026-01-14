@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Windows.h>
+#include <SetupAPI.h>
+
 class ReinstallWanIkev2
 {
 public:
@@ -10,4 +13,3 @@ public:
 private:
     static bool setEnabledState(HDEVINFO *hDevInfo, SP_DEVINFO_DATA *deviceInfoData);
 };
-

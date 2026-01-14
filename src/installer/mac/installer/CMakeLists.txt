@@ -101,24 +101,6 @@ add_custom_command(TARGET installer POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
                    $<TARGET_FILE:com.windscribe.helper.macos> $<TARGET_FILE_DIR:installer>/../Library/LaunchServices/)
 
-set_target_properties(installer PROPERTIES
-                    XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME AppIcon
-                    XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++17"
-                    XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++"
-                    XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC "YES"
-                    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Developer ID Application"
-                    XCODE_ATTRIBUTE_CODE_SIGN_STYLE "Manual"
-                    XCODE_ATTRIBUTE_COMBINE_HIDPI_IMAGES YES
-                    XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "${DEVELOPMENT_TEAM}"
-                    XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME "YES"
-                    XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks"
-                    XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET "12.0"
-                    XCODE_ATTRIBUTE_PROVISIONING_PROFILE ""
-                    XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER ""
-                    XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.windscribe.installer.macos"
-                    XCODE_ATTRIBUTE_PRODUCT_BUNDLE_NAME "Install Windscribe"
-)
-
 install(TARGETS installer
    RUNTIME DESTINATION .
    LIBRARY DESTINATION "installer.app/Contents/Frameworks"

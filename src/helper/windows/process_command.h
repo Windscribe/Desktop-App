@@ -5,9 +5,6 @@
 #include <functional>
 #include "../common/helper_commands.h"
 
-std::string getUnblockingCmdStatus(const std::string &pars);
-std::string clearUnblockingCmd(const std::string &pars);
-std::string suspendUnblockingCmd(const std::string &pars);
 std::string setSplitTunnelingSettings(const std::string &pars);
 std::string sendConnectStatus(const std::string &pars);
 std::string changeMtu(const std::string &pars);
@@ -41,8 +38,8 @@ std::string enableDnsLeaksProtection(const std::string &pars);
 std::string disableDnsLeaksProtection(const std::string &pars);
 std::string reinstallWanIkev2(const std::string &pars);
 std::string enableWanIkev2(const std::string &pars);
-std::string setMacAddressRegistryValueSz(const std::string &pars);
-std::string removeMacAddressRegistryProperty(const std::string &pars);
+std::string setMacAddressSpoof(const std::string &pars);
+std::string removeMacAddressSpoof(const std::string &pars);
 std::string resetNetworkAdapter(const std::string &pars);
 std::string addIKEv2DefaultRoute(const std::string &pars);
 std::string removeWindscribeNetworkProfiles(const std::string &pars);
@@ -55,9 +52,6 @@ std::string enableDohSettings(const std::string &pars);
 std::string ssidFromInterfaceGUID(const std::string &pars);
 
 static const std::map<const HelperCommand, std::function<std::string(const std::string &)>> kCommands = {
-    { HelperCommand::getUnblockingCmdStatus, getUnblockingCmdStatus },
-    { HelperCommand::clearUnblockingCmd, clearUnblockingCmd },
-    { HelperCommand::suspendUnblockingCmd, suspendUnblockingCmd },
     { HelperCommand::setSplitTunnelingSettings, setSplitTunnelingSettings },
     { HelperCommand::sendConnectStatus, sendConnectStatus },
     { HelperCommand::changeMtu, changeMtu },
@@ -91,8 +85,8 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::disableDnsLeaksProtection, disableDnsLeaksProtection },
     { HelperCommand::reinstallWanIkev2, reinstallWanIkev2 },
     { HelperCommand::enableWanIkev2, enableWanIkev2 },
-    { HelperCommand::setMacAddressRegistryValueSz, setMacAddressRegistryValueSz },
-    { HelperCommand::removeMacAddressRegistryProperty, removeMacAddressRegistryProperty },
+    { HelperCommand::setMacAddressRegistryValueSz, setMacAddressSpoof },
+    { HelperCommand::removeMacAddressRegistryProperty, removeMacAddressSpoof },
     { HelperCommand::resetNetworkAdapter, resetNetworkAdapter },
     { HelperCommand::addIKEv2DefaultRoute, addIKEv2DefaultRoute },
     { HelperCommand::removeWindscribeNetworkProfiles, removeWindscribeNetworkProfiles },
@@ -106,4 +100,3 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
 };
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars);
-

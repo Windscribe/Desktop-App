@@ -1,4 +1,7 @@
-#include "all_headers.h"
+#include <Windows.h>
+#include <Fwpmu.h>
+
+#include <sstream>
 #include <spdlog/spdlog.h>
 
 #include "firewallfilter.h"

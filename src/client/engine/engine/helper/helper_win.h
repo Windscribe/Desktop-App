@@ -20,10 +20,6 @@ public:
 
     QString getHelperVersion();
 
-    void getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished);
-    void clearUnblockingCmd(unsigned long cmdId);
-    void suspendUnblockingCmd(unsigned long cmdId);
-
     void setSplitTunnelingSettings(bool isActive, bool isExclude, bool isKeepLocalSockets,
                                    const QStringList &files, const QStringList &ips,
                                    const QStringList &hosts);
@@ -32,7 +28,7 @@ public:
                            const QString &connectedIp, const types::Protocol &protocol);
     void changeMtu(const QString &adapter, int mtu);
     bool executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort,
-                                const QString &socksProxy, unsigned int socksPort, bool isCustomConfig, unsigned long &outCmdId);
+                                const QString &socksProxy, unsigned int socksPort, bool isCustomConfig);
 
     bool executeTaskKill(CmdKillTarget target);
 

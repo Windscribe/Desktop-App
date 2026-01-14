@@ -1,6 +1,4 @@
-#include "../all_headers.h"
 #include "ip_forward_table.h"
-
 
 IpForwardTable::IpForwardTable(): maxMetric_(0)
 {
@@ -35,7 +33,6 @@ IpForwardTable::IpForwardTable(): maxMetric_(0)
     }
 }
 
-
 DWORD IpForwardTable::count() const
 {
     if (pIpForwardTable)
@@ -44,6 +41,7 @@ DWORD IpForwardTable::count() const
     }
     return 0;
 }
+
 const MIB_IPFORWARDROW *IpForwardTable::getByIndex(DWORD ind) const
 {
     if (pIpForwardTable && ind >= 0 && ind < pIpForwardTable->dwNumEntries)

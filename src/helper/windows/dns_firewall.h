@@ -1,8 +1,10 @@
 #pragma once
 
-#include "fwpm_wrapper.h"
-
+#include <string>
 #include <unordered_set>
+#include <vector>
+
+#include "fwpm_wrapper.h"
 
 class DnsFirewall
 {
@@ -30,4 +32,3 @@ private:
     void addFilters(HANDLE engineHandle);
     std::vector<std::wstring> getDnsServers();
 };
-

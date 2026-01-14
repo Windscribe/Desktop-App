@@ -12,8 +12,7 @@ endif()
 
 # Copy app artifacts target - runs after build-app on Windows
 if(BUILD_APP)
-    add_custom_target(copy-app-artifacts ALL
-        DEPENDS build-app
+    set(COPY_ARTIFACTS_COMMANDS
         COMMAND ${CMAKE_COMMAND} -E make_directory "${BUILD_INSTALLER_FILES}"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${BUILD_SYMBOLS_DIR}"
         COMMAND ${CMAKE_COMMAND} -E echo "Copying Windows files to installer directory..."
@@ -109,14 +108,23 @@ if(BUILD_APP)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${CMAKE_CURRENT_SOURCE_DIR}/src/client/common/licenses/open_source_licenses.txt"
                 "${BUILD_INSTALLER_FILES}/open_source_licenses.txt"
+    )
 
-        # Collect symbol files (PDB)
-        COMMAND ${CMAKE_COMMAND} -E echo "Collecting symbol files..."
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/client/Windscribe.pdb" "${BUILD_SYMBOLS_DIR}/"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/windscribe-cli/windscribe-cli.pdb" "${BUILD_SYMBOLS_DIR}/"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/helper/windows/WindscribeService.pdb" "${BUILD_SYMBOLS_DIR}/"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/utils/windows/windscribe_install_helper/WindscribeInstallHelper.pdb" "${BUILD_SYMBOLS_DIR}/"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/utils/windows/wireguard_service/WireguardService.pdb" "${BUILD_SYMBOLS_DIR}/"
+    if(CI_MODE)
+        list(APPEND COPY_ARTIFACTS_COMMANDS
+            # Collect symbol files (PDB)
+            COMMAND ${CMAKE_COMMAND} -E echo "Collecting symbol files..."
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/client/Windscribe.pdb" "${BUILD_SYMBOLS_DIR}/"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/windscribe-cli/windscribe-cli.pdb" "${BUILD_SYMBOLS_DIR}/"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/helper/windows/WindscribeService.pdb" "${BUILD_SYMBOLS_DIR}/"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/utils/windows/windscribe_install_helper/WindscribeInstallHelper.pdb" "${BUILD_SYMBOLS_DIR}/"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/src/utils/windows/wireguard_service/WireguardService.pdb" "${BUILD_SYMBOLS_DIR}/"
+        )
+    endif()
+
+    add_custom_target(copy-app-artifacts ALL
+        DEPENDS build-app
+        ${COPY_ARTIFACTS_COMMANDS}
     )
 endif()
 
@@ -207,19 +215,26 @@ if(BUILD_BOOTSTRAP OR SIGN_BOOTSTRAP)
         add_dependencies(deploy bootstrap)
     endif()
 
-    add_custom_command(TARGET deploy POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E echo "Copying bootstrap and symbols to build-exe..."
+    set(DEPLOY_COMMANDS
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "${BUILD_EXE_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${BUILD_EXE_DIR}"
 
-        # Remove old file first to ensure fresh copy
-        COMMAND ${CMAKE_COMMAND} -E remove -f "${BUILD_EXE_DIR}/Windscribe_${PROJECT_VERSION}${WINDSCRIBE_BUILD_SUFFIX}${WINDSCRIBE_ARCH_SUFFIX}.exe"
+        COMMAND ${CMAKE_COMMAND} -E echo "Copying bootstrap and symbols to build-exe..."
 
         # Copy final bootstrap to build-exe
         COMMAND ${CMAKE_COMMAND} -E copy
                 "${CMAKE_BINARY_DIR}/src/installer/windows/bootstrap/windscribe_installer.exe"
                 "${BUILD_EXE_DIR}/Windscribe_${PROJECT_VERSION}${WINDSCRIBE_BUILD_SUFFIX}${WINDSCRIBE_ARCH_SUFFIX}.exe"
+    )
 
-        # Create symbols archive and copy to build-exe
-        COMMAND ${CMAKE_COMMAND} -E echo "Creating symbols archive..."
-        COMMAND ${7ZIP_EXECUTABLE} a "${BUILD_EXE_DIR}/WindscribeSymbols_${PROJECT_VERSION}${WINDSCRIBE_BUILD_SUFFIX}${WINDSCRIBE_ARCH_SUFFIX}.zip" "${BUILD_SYMBOLS_DIR}/*" -y -bso0 -bsp0
+    if(CI_MODE)
+        list(APPEND DEPLOY_COMMANDS
+            COMMAND ${CMAKE_COMMAND} -E echo "Creating symbols archive..."
+            COMMAND ${7ZIP_EXECUTABLE} a "${BUILD_EXE_DIR}/WindscribeSymbols_${PROJECT_VERSION}${WINDSCRIBE_BUILD_SUFFIX}${WINDSCRIBE_ARCH_SUFFIX}.zip" "${BUILD_SYMBOLS_DIR}/*" -y -bso0 -bsp0
+        )
+    endif()
+
+    add_custom_command(TARGET deploy POST_BUILD
+        ${DEPLOY_COMMANDS}
     )
 endif()

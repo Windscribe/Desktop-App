@@ -1,5 +1,9 @@
 #pragma once
 
+#include <Windows.h>
+
+#include <string>
+
 class PipeForProcess
 {
 public:
@@ -29,4 +33,3 @@ private:
     void stopThread();
 
 };
-

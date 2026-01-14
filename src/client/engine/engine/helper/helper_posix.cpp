@@ -23,26 +23,6 @@ QString Helper_posix::getHelperVersion()
     return QString::fromStdString(version);
 }
 
-void Helper_posix::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished)
-{
-    auto result = sendCommand(HelperCommand::getUnblockingCmdStatus, cmdId);
-    std::string log;
-    outFinished = false;
-    deserializeAnswer(result, outFinished, log);
-    outLog = QString::fromStdString(log);
-}
-
-void Helper_posix::clearUnblockingCmd(unsigned long cmdId)
-{
-    sendCommand(HelperCommand::clearUnblockingCmd, cmdId);
-}
-
-void Helper_posix::suspendUnblockingCmd(unsigned long cmdId)
-{
-    // On posix, this is the same as clearing a cmd.
-    clearUnblockingCmd(cmdId);
-}
-
 void Helper_posix::setSplitTunnelingSettings(bool isActive, bool isExclude, bool isAllowLanTraffic, const QStringList &files, const QStringList &ips, const QStringList &hosts)
 {
     sendCommand(HelperCommand::setSplitTunnelingSettings, isActive, isExclude, isAllowLanTraffic,
@@ -92,7 +72,7 @@ void Helper_posix::changeMtu(const QString &adapter, int mtu)
     sendCommand(HelperCommand::changeMtu, adapter.toStdString(), mtu);
 }
 
-bool Helper_posix::executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort, bool isCustomConfig, unsigned long &outCmdId)
+bool Helper_posix::executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort, bool isCustomConfig)
 {
     CmdDnsManager dnsManager;
 #if defined(Q_OS_LINUX)
@@ -112,7 +92,7 @@ bool Helper_posix::executeOpenVPN(const QString &config, unsigned int port, cons
     auto result = sendCommand(HelperCommand::executeOpenVPN, config.toStdString(), port, httpProxy.toStdString(), httpPort,
                               socksProxy.toStdString(), socksPort, isCustomConfig, dnsManager);
     bool success = false;
-    deserializeAnswer(result, success, outCmdId);
+    deserializeAnswer(result, success);
     return success;
 }
 

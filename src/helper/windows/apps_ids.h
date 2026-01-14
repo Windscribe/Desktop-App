@@ -1,6 +1,8 @@
 #pragma once
 
 #include <fwptypes.h>
+#include <string>
+#include <vector>
 
 class AppsIds
 {
@@ -26,4 +28,3 @@ private:
     void addFromListImpl(const std::vector<std::wstring> &apps);
     void addFromAppsImpl(const AppsIds &a);
 };
-

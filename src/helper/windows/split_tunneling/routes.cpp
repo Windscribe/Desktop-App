@@ -1,7 +1,12 @@
-#include "../all_headers.h"
-#include <spdlog/spdlog.h>
-#include "ip_forward_table.h"
+#include <WinSock2.h>
+#include <ws2ipdef.h>
+
+// Must be included after above includes.
 #include "routes.h"
+
+#include <spdlog/spdlog.h>
+
+#include "ip_forward_table.h"
 #include "../ip_address/ip4_address_and_mask.h"
 
 Routes::Routes()

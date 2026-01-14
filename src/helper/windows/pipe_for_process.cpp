@@ -1,4 +1,3 @@
-#include "all_headers.h"
 #include "pipe_for_process.h"
 #include "utils/crashhandler.h"
 

@@ -1,6 +1,8 @@
-#include "../../all_headers.h"
-#include <spdlog/spdlog.h>
 #include "hostnames_manager.h"
+
+#include <spdlog/spdlog.h>
+
+#include "../../firewallfilter.h"
 
 HostnamesManager::HostnamesManager(): isEnabled_(false), isExcludeMode_(true),
     dnsResolver_(std::bind(&HostnamesManager::dnsResolverCallback, this, std::placeholders::_1))
@@ -65,7 +67,7 @@ void HostnamesManager::dnsResolverCallback(std::map<std::string, DnsResolver::Ho
     for (auto it = hostInfos.begin(); it != hostInfos.end(); ++it) {
         if (!it->second.error) {
             std::vector<std::string> addresses = it->second.addresses;
-            for (const auto addr : it->second.addresses) {
+            for (const auto &addr : it->second.addresses) {
                 if (addr == "0.0.0.0") {
                     // ROBERT sometimes will give us an address of 0.0.0.0 for a 'blocked' resource.  This is not a valid address.
                     spdlog::debug("IpHostnamesManager::dnsResolverCallback(), Resolved : {}, IP: 0.0.0.0 (Ignored)", it->first);

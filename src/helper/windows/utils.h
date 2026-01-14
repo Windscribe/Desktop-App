@@ -2,18 +2,10 @@
 
 #include <windows.h>
 #include <ifdef.h>
+
+#include "apps_ids.h"
 #include "ip_address/ip4_address_and_mask.h"
 #include "ip_address/ip6_address_and_prefix.h"
-#include "apps_ids.h"
-
-#define SAFE_DELETE(x) if (x) { delete x; x = NULL; }
-#define SAFE_RELEASE(x) if (x) { (x)->Release(); x = NULL; }
-
-// Vista subnet mask
-#define VISTA_SUBNET_MASK   0xffffffff
-
-// Byte array IP address length
-#define BYTE_IPADDR_ARRLEN    4
 
 namespace Utils
 {
@@ -47,4 +39,5 @@ namespace Utils
     std::string ssidFromInterfaceGUID(const std::wstring &interfaceGUID);
 
     void debugOut(const char* format, ...);
-};
+    void disableFirewall();
+}

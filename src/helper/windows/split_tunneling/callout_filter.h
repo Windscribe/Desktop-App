@@ -32,4 +32,3 @@ private:
     bool prevIsExclude_;
     bool prevIsAllowLanTraffic_;
 };
-

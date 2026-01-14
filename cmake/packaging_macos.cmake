@@ -140,7 +140,8 @@ if(BUILD_INSTALLER)
 
     add_custom_command(TARGET build-dmg POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E echo "Creating DMG with create-dmg..."
-        COMMAND ${CMAKE_COMMAND} -E remove -f "${BUILD_EXE_DIR}/Windscribe_${PROJECT_VERSION}${WINDSCRIBE_BUILD_SUFFIX}.dmg"
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "${BUILD_EXE_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${BUILD_EXE_DIR}"
         COMMAND ${CREATE_DMG_EXECUTABLE}
                 --volname "WindscribeInstaller"
                 --volicon "${CMAKE_CURRENT_SOURCE_DIR}/src/installer/mac/installer/resources/windscribe.icns"

@@ -1,12 +1,10 @@
-#include "all_headers.h"
-
 #include "firewallonboot.h"
-#include <fstream>
-#include <filesystem>
-#include <spdlog/spdlog.h>
 
-#include "utils.h"
-#include "registry.h"
+#include <spdlog/spdlog.h>
+#include <winreg/WinReg.hpp>
+
+static const std::wstring kRegistryKey = L"SOFTWARE\\Windscribe\\Windscribe2";
+static const std::wstring kRegistryValue = L"FirewallOnBoot";
 
 FirewallOnBootManager::FirewallOnBootManager()
 {
@@ -26,36 +24,66 @@ bool FirewallOnBootManager::setEnabled(bool enabled)
 
 bool FirewallOnBootManager::isEnabled()
 {
-    DWORD value = 0;
-    DWORD size = sizeof(DWORD);
+    winreg::RegKey registry;
+    winreg::RegResult result = registry.TryOpen(HKEY_LOCAL_MACHINE, kRegistryKey);
+    if (!result) {
+        if (result.Code() != ERROR_FILE_NOT_FOUND) {
+            spdlog::error(L"FirewallOnBootManager::isEnabled failed opening key {}: error {}", kRegistryKey, result.Code());
+        }
+        return false;
+    }
 
-    bool result = Registry::regGetProperty(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Windscribe\\Windscribe2", L"FirewallOnBoot", (LPBYTE)&value, &size);
+    const auto value = registry.TryGetDwordValue(kRegistryValue);
+    if (!value) {
+        if (value.GetError().Code() != ERROR_FILE_NOT_FOUND) {
+            spdlog::error(L"FirewallOnBootManager::isEnabled failed checking value {}: error {}", kRegistryValue, value.GetError().Code());
+        }
+        return false;
+    }
 
-    return result && value == 1;
+    return (value.GetValue() == 1);
 }
 
 bool FirewallOnBootManager::enable()
 {
-    bool result = Registry::regWriteDwordProperty(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Windscribe\\Windscribe2", L"FirewallOnBoot", 1);
-
-    if (result) {
-        spdlog::info("Firewall on boot enabled");
-    } else {
-        spdlog::error("Failed to enable firewall on boot");
+    winreg::RegKey registry;
+    winreg::RegResult result = registry.TryCreate(HKEY_LOCAL_MACHINE, kRegistryKey);
+    if (!result) {
+        spdlog::error(L"FirewallOnBootManager::enable failed creating key {}: error {}", kRegistryKey, result.Code());
+        return false;
     }
 
-    return result;
+    result = registry.TrySetDwordValue(kRegistryValue, 1);
+    if (!result) {
+        spdlog::error(L"FirewallOnBootManager::enable failed writing value {}: error {}", kRegistryValue, result.Code());
+        return false;
+    }
+
+    spdlog::info("Firewall on boot enabled");
+    return true;
 }
 
 bool FirewallOnBootManager::disable()
 {
-    bool result = Registry::regDeleteProperty(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Windscribe\\Windscribe2", L"FirewallOnBoot");
-
-    if (result) {
-        spdlog::info("Firewall on boot disabled");
-    } else {
-        spdlog::error("Failed to disable firewall on boot");
+    winreg::RegKey registry;
+    winreg::RegResult result = registry.TryOpen(HKEY_LOCAL_MACHINE, kRegistryKey);
+    if (!result) {
+        if (result.Code() == ERROR_FILE_NOT_FOUND) {
+            return true;
+        }
+        spdlog::error(L"FirewallOnBootManager::disable failed opening key {}: error {}", kRegistryKey, result.Code());
+        return false;
     }
 
-    return result;
+    if (registry.TryContainsValue(kRegistryValue)) {
+        result = registry.TryDeleteValue(kRegistryValue);
+        if (!result) {
+            spdlog::error(L"FirewallOnBootManager::disable failed deleting value {}: error {}", kRegistryValue, result.Code());
+            return false;
+        }
+
+        spdlog::info("Firewall on boot disabled");
+    }
+
+    return true;
 }

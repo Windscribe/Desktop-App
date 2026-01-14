@@ -118,7 +118,7 @@ void AppIncludedItem::updatePositions()
 {
     deleteButton_->setPos(boundingRect().width() - ICON_WIDTH*G_SCALE - PREFERENCES_MARGIN_X*G_SCALE, (PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE / 2);
     toggleButton_->setPos(boundingRect().width() - ICON_WIDTH*G_SCALE - PREFERENCES_MARGIN_X*G_SCALE - toggleButton_->boundingRect().width() - PREFERENCES_MARGIN_X*G_SCALE,
-                          (boundingRect().height() - toggleButton_->boundingRect().height()) / 2);
+                          (PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE - toggleButton_->boundingRect().height()) / 2);
 }
 
 void AppIncludedItem::setClickable(bool clickable)

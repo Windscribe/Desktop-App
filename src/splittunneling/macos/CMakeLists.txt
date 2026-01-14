@@ -23,20 +23,13 @@ set_target_properties(com.windscribe.client.splittunnelextension PROPERTIES
     MACOSX_BUNDLE TRUE
     MACOSX_BUNDLE_GUI_IDENTIFIER "com.windscribe.client.splittunnelextension"
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist"
-    XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.windscribe.client.splittunnelextension"
-    XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME YES
-    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Developer ID Application"
-    XCODE_ATTRIBUTE_CODE_SIGN_STYLE "Manual"
-    XCODE_ATTRIBUTE_CLANG_ENABLE_MODULES YES
-    XCODE_ATTRIBUTE_ENABLE_BITCODE NO
-    XCODE_ATTRIBUTE_SKIP_INSTALL NO
-    XCODE_ATTRIBUTE_GCC_ENABLE_OBJC_ARC YES
-    XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
-    XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET "12.0"
-    XCODE_ATTRIBUTE_INSTALL_PATH "/Library/SystemExtensions"
 )
 
 # Link against required frameworks and libraries
+target_compile_options(com.windscribe.client.splittunnelextension PRIVATE
+    -fobjc-arc
+)
+
 target_link_libraries(com.windscribe.client.splittunnelextension PRIVATE
     "-framework NetworkExtension"
     "-framework Foundation"

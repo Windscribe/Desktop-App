@@ -1,4 +1,6 @@
-#include "all_headers.h"
+#include <windows.h>
+#include <Fwpmu.h>
+
 #include <spdlog/spdlog.h>
 
 #include "ipv6_firewall.h"

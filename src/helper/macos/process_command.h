@@ -5,8 +5,6 @@
 #include "../common/helper_commands.h"
 
 std::string getHelperVersion(const std::string &pars);
-std::string getUnblockingCmdStatus(const std::string &pars);
-std::string clearUnblockingCmd(const std::string &pars);
 std::string setSplitTunnelingSettings(const std::string &pars);
 std::string sendConnectStatus(const std::string &pars);
 std::string changeMtu(const std::string &pars);
@@ -39,8 +37,6 @@ std::string createCliSymlink(const std::string &pars);
 
 static const std::map<const HelperCommand, std::function<std::string(const std::string &)>> kCommands = {
     { HelperCommand::getHelperVersion, getHelperVersion },
-    { HelperCommand::getUnblockingCmdStatus, getUnblockingCmdStatus },
-    { HelperCommand::clearUnblockingCmd, clearUnblockingCmd },
     { HelperCommand::setSplitTunnelingSettings, setSplitTunnelingSettings },
     { HelperCommand::sendConnectStatus, sendConnectStatus },
     { HelperCommand::changeMtu, changeMtu },

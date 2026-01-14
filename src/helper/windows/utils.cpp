@@ -1,32 +1,51 @@
-#include "all_headers.h"
 #include "utils.h"
 
-#include <KnownFolders.h>
 #include <comdef.h>
+#include <Fwpmu.h>
+#include <ws2def.h>
 #include <Mstcpip.h>
 #include <netiodef.h>
+#include <Psapi.h>
 #include <shlobj.h>
-#include <versionhelpers.h>
 #include <WbemIdl.h>
 #include <wlanapi.h>
+
 #include <cwctype>
+#include <sstream>
+
 #include <spdlog/spdlog.h>
 
+#include "dns_firewall.h"
+#include "firewallfilter.h"
+#include "fwpm_wrapper.h"
+#include "ipv6_firewall.h"
+#include "split_tunneling/split_tunneling.h"
+
+#if defined(USE_SIGNATURE_CHECK)
 #include "utils/executable_signature/executable_signature.h"
 #include "utils/win32handle.h"
+#endif
 #include "utils/wsscopeguard.h"
-
-#pragma comment(lib, "wbemuuid.lib")
 
 namespace Utils
 {
 
 bool deleteSublayerAndAllFilters(HANDLE engineHandle, const GUID *subLayerGUID)
 {
-    FWPM_SUBLAYER0 *subLayer;
+    FWPM_SUBLAYER0 *subLayer = nullptr;
+    auto freeSublayer = wsl::wsScopeGuard([&] {
+        if (subLayer != nullptr) {
+            FwpmFreeMemory0((void**)&subLayer);
+        }
+    });
 
-    DWORD dwRet = FwpmSubLayerGetByKey0(engineHandle, subLayerGUID, &subLayer);
-    if (dwRet != ERROR_SUCCESS) {
+    DWORD result = FwpmSubLayerGetByKey0(engineHandle, subLayerGUID, &subLayer);
+    if (result == FWP_E_SUBLAYER_NOT_FOUND) {
+        return true;
+    }
+
+    if (result != ERROR_SUCCESS) {
+        spdlog::error("deleteSublayerAndAllFilters failed: {}", result);
         return false;
     }
 
@@ -35,8 +54,7 @@ bool deleteSublayerAndAllFilters(HANDLE engineHandle, const GUID *subLayerGUID)
     deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_CONNECT_V6);
     deleteAllFiltersForSublayer(engineHandle, subLayerGUID, FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
 
-    dwRet = FwpmSubLayerDeleteByKey0(engineHandle, subLayerGUID);
-    FwpmFreeMemory0((void **)&subLayer);
+    FwpmSubLayerDeleteByKey0(engineHandle, subLayerGUID);
 
     return true;
 }
@@ -659,6 +677,41 @@ void debugOut(const char* format, ...)
     va_end(arg_list);
 
     ::OutputDebugStringA(szMsg);
+}
+
+static BOOL isElevated()
+{
+    BOOL fRet = FALSE;
+    HANDLE hToken = NULL;
+    if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
+        TOKEN_ELEVATION Elevation;
+        DWORD cbSize = sizeof(TOKEN_ELEVATION);
+        if (GetTokenInformation(hToken, TokenElevation, &Elevation, sizeof(Elevation), &cbSize)) {
+            fRet = Elevation.TokenIsElevated;
+        }
+    }
+    if (hToken) {
+        CloseHandle(hToken);
+    }
+    return fRet;
+}
+
+void disableFirewall()
+{
+    if (isElevated()) {
+        FwpmWrapper fwpmWrapper;
+        if (fwpmWrapper.initialize()) {
+            Ipv6Firewall::instance(&fwpmWrapper).enableIPv6();
+            DnsFirewall::instance(&fwpmWrapper).disable();
+            FirewallFilter::instance(&fwpmWrapper).off();
+            SplitTunneling::removeAllFilters(fwpmWrapper);
+            printf("Windscribe firewall deleted.\n");
+        } else {
+            printf("Failed to initialize access to the Windows firewall manager.\n");
+        }
+    } else {
+        printf("Please run the program with administrator rights.\n");
+    }
 }
 
 }

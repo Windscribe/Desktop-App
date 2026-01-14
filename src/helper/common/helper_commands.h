@@ -11,9 +11,6 @@
 enum class HelperCommand {
     // Common
     getHelperVersion,
-    getUnblockingCmdStatus,
-    clearUnblockingCmd,
-    suspendUnblockingCmd,
     setSplitTunnelingSettings,
     sendConnectStatus,
     changeMtu,

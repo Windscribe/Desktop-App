@@ -1,8 +1,9 @@
-#include "../all_headers.h"
+#include "split_tunneling.h"
+
 #include <spdlog/spdlog.h>
 
-#include "split_tunneling.h"
 #include "../close_tcp_connections.h"
+#include "../firewallfilter.h"
 #include "../utils.h"
 
 SplitTunneling::SplitTunneling(FwpmWrapper& fwpmWrapper)

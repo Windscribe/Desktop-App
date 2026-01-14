@@ -1,12 +1,9 @@
-#include "all_headers.h"
 #include "wmi_utils.h"
 
 #include <comdef.h>
 #include <Wbemidl.h>
 #include <spdlog/spdlog.h>
 #include "utils/wsscopeguard.h"
-
-#pragma comment(lib, "wbemuuid.lib")
 
 namespace WmiUtils {
 

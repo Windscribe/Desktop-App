@@ -151,7 +151,7 @@ bool WireGuardGoCommunicator::start(const std::string &deviceName)
         return false;
     }
 
-    daemonCmdId_ = ExecuteCmd::instance().execute(fullCmd);
+    ExecuteCmd::instance().execute(fullCmd);
     deviceName_ = deviceName;
     executable_ = "windscribewireguard";
     return true;
@@ -231,15 +231,6 @@ bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey,
 unsigned long WireGuardGoCommunicator::getStatus(unsigned int *errorCode,
     unsigned long long *bytesReceived, unsigned long long *bytesTransmitted)
 {
-    bool is_daemon_dead = true;
-    std::string log;
-    ExecuteCmd::instance().getStatus(daemonCmdId_, is_daemon_dead, log);
-    if (is_daemon_dead) {
-        // Special error code means the daemon is dead.
-        *errorCode = 666u;
-        return kWgStateError;
-    }
-
     Connection connection(deviceName_);
     const auto connection_status = connection.getStatus();
     if (connection_status != Connection::Status::OK) {

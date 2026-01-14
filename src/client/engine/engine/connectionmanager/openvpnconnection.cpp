@@ -136,7 +136,7 @@ OpenVPNConnection::CONNECTION_STATUS OpenVPNConnection::getCurrentState() const
     return currentState_;
 }
 
-bool OpenVPNConnection::runOpenVPN(unsigned int port, unsigned long &outCmdId, bool isCustomConfig)
+bool OpenVPNConnection::runOpenVPN(unsigned int port, bool isCustomConfig)
 {
     QString httpProxy, socksProxy;
     unsigned int httpPort = 0, socksPort = 0;
@@ -157,7 +157,7 @@ bool OpenVPNConnection::runOpenVPN(unsigned int port, unsigned long &outCmdId, b
 
     qCInfo(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getOpenVpnVersion();
 
-    return helper_->executeOpenVPN(config_, port, httpProxy, httpPort, socksProxy, socksPort, isCustomConfig, outCmdId);
+    return helper_->executeOpenVPN(config_, port, httpProxy, httpPort, socksProxy, socksPort, isCustomConfig);
 }
 
 void OpenVPNConnection::run()
@@ -209,7 +209,7 @@ void OpenVPNConnection::funcRunOpenVPN()
     int retries = 0;
 
     // run openvpn process
-    while(!runOpenVPN(stateVariables_.openVpnPort, stateVariables_.lastCmdId, isCustomConfig_))
+    while(!runOpenVPN(stateVariables_.openVpnPort, isCustomConfig_))
     {
         qCDebug(LOG_CONNECTION) << "Can't run OpenVPN";
 
@@ -229,7 +229,7 @@ void OpenVPNConnection::funcRunOpenVPN()
         msleep(1000);
     }
 
-    qCInfo(LOG_CONNECTION) << "openvpn process runned: " << stateVariables_.openVpnPort;
+    qCInfo(LOG_CONNECTION) << "ran openvpn process: " << stateVariables_.openVpnPort;
 
     boost::asio::ip::tcp::endpoint endpoint;
     endpoint.port(stateVariables_.openVpnPort);
@@ -241,10 +241,8 @@ void OpenVPNConnection::funcRunOpenVPN()
 
 void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& err)
 {
-    if (err.value() == 0)
-    {
+    if (err.value() == 0) {
         qCInfo(LOG_CONNECTION) << "Program connected to openvpn socket";
-        helper_->suspendUnblockingCmd(stateVariables_.lastCmdId);
         setCurrentState(STATUS_CONNECTED_TO_SOCKET);
         stateVariables_.buffer.reset(new boost::asio::streambuf());
         boost::asio::async_read_until(*stateVariables_.socket, *stateVariables_.buffer, "\n",
@@ -265,41 +263,8 @@ void OpenVPNConnection::funcConnectToOpenVPN(const boost::system::error_code& er
         {
             qCCritical(LOG_CONNECTION) << "Can't connect to openvpn socket during"
                                     << (MAX_WAIT_OPENVPN_ON_START/1000) << "secs";
-            helper_->clearUnblockingCmd(stateVariables_.lastCmdId);
             setCurrentStateAndEmitError(STATUS_DISCONNECTED, CONNECT_ERROR::NO_OPENVPN_SOCKET);
             return;
-        }
-
-        // check if openvpn process already finished
-        QString logStr;
-        bool bFinished;
-        helper_->getUnblockingCmdStatus(stateVariables_.lastCmdId, logStr, bFinished);
-
-        if (bFinished)
-        {
-            qCInfo(LOG_CONNECTION) << "openvpn process finished before connected to openvpn socket";
-            qCInfo(LOG_CONNECTION) << "answer from openvpn process, answer =" << logStr;
-
-            if (bStopThread_)
-            {
-                setCurrentStateAndEmitDisconnected(STATUS_DISCONNECTED);
-                return;
-            }
-
-            //try second attempt to run openvpn after pause 2 sec
-            if (!stateVariables_.bWasSecondAttemptToStartOpenVpn)
-            {
-                qCInfo(LOG_CONNECTION) << "try second attempt to run openvpn after pause 2 sec";
-                msleep(2000);
-                stateVariables_.bWasSecondAttemptToStartOpenVpn = true;
-                boost::asio::post(io_context_, boost::bind( &OpenVPNConnection::funcRunOpenVPN, this ));
-                return;
-            }
-            else
-            {
-                setCurrentStateAndEmitError(STATUS_DISCONNECTED, CONNECT_ERROR::NO_OPENVPN_SOCKET);
-                return;
-            }
         }
 
         boost::asio::ip::tcp::endpoint endpoint;
@@ -412,7 +377,6 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             if (!stateVariables_.bSigTermSent)
             {
                 boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), write_error);
-                helper_->clearUnblockingCmd(stateVariables_.lastCmdId);
                 stateVariables_.bSigTermSent = true;
             }
         }
@@ -422,7 +386,6 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             if (!stateVariables_.bSigTermSent)
             {
                 boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), write_error);
-                helper_->clearUnblockingCmd(stateVariables_.lastCmdId);
                 stateVariables_.bSigTermSent = true;
             }
         }
@@ -436,7 +399,6 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 if (!stateVariables_.bSigTermSent)
                 {
                     boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), write_error);
-                    helper_->clearUnblockingCmd(stateVariables_.lastCmdId);
                     stateVariables_.bSigTermSent = true;
                 }
             }
@@ -603,7 +565,6 @@ void OpenVPNConnection::funcDisconnect()
         {
             boost::system::error_code write_error;
             boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), write_error);
-            helper_->clearUnblockingCmd(stateVariables_.lastCmdId);
             stateVariables_.bSigTermSent = true;
         }
         else
@@ -634,7 +595,6 @@ void OpenVPNConnection::checkErrorAndContinue(boost::system::error_code &write_e
     {
         boost::system::error_code new_write_error;
         boost::asio::write(*stateVariables_.socket, boost::asio::buffer("signal SIGTERM\n"), boost::asio::transfer_all(), new_write_error);
-        helper_->clearUnblockingCmd(stateVariables_.lastCmdId);
         stateVariables_.bSigTermSent = true;
     }
 }

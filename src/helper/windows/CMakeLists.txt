@@ -10,7 +10,12 @@ if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
     add_definitions(-DUSE_SIGNATURE_CHECK)
 endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
 
-add_definitions(-DUNICODE -D_UNICODE -DWINDSCRIBE_SERVICE -D_WIN32_WINNT=0x0601)
+option(DEFINE_RUN_AS_CONSOLE_APP_MACRO "Run the helper as a console app for debugging" OFF)
+if(DEFINE_RUN_AS_CONSOLE_APP_MACRO)
+    add_definitions(-DRUN_AS_CONSOLE_APP)
+endif(DEFINE_RUN_AS_CONSOLE_APP_MACRO)
+
+add_definitions(-DUNICODE -D_UNICODE -DWINDSCRIBE_SERVICE -D_WIN32_WINNT=0x0601 -DWIN32_LEAN_AND_MEAN)
 
 find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(spdlog CONFIG REQUIRED)
@@ -23,6 +28,7 @@ set(SOURCES
     changeics/icsmanager.cpp
     close_tcp_connections.cpp
     dns_firewall.cpp
+    dohdata.cpp
     executecmd.cpp
     firewallfilter.cpp
     firewallonboot.cpp
@@ -34,10 +40,11 @@ set(SOURCES
     ipv6_firewall.cpp
     ip_address/ip4_address_and_mask.cpp
     ip_address/ip6_address_and_prefix.cpp
+    macaddressspoof.cpp
+    main.cpp
     openvpncontroller.cpp
     pipe_for_process.cpp
     process_command.cpp
-    registry.cpp
     reinstall_wan_ikev2.cpp
     remove_windscribe_network_profiles.cpp
     simple_xor_crypt.cpp
@@ -52,10 +59,11 @@ set(SOURCES
     split_tunneling/split_tunneling.cpp
     split_tunneling/split_tunnel_service_manager.cpp
     utils.cpp
-    windscribe_service.cpp
+    win32service.cpp
+    windscribehelper.cpp
     wireguard/wireguardcontroller.cpp
     wmi_utils.cpp
-    windscribe_service.rc
+    version.rc
     ../../client/common/utils/crashdump.cpp
     ../../client/common/utils/crashhandler.cpp
     ../../client/common/utils/executable_signature/executable_signature.cpp
@@ -63,8 +71,10 @@ set(SOURCES
     ../../client/common/utils/servicecontrolmanager.cpp
 )
 
-add_compile_options("$<$<CONFIG:Release>:/Zi>")
-add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
+if(CI_MODE)
+    add_compile_options("$<$<CONFIG:Release>:/Zi>")
+    add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
+endif()
 
 add_executable(WindscribeService ${SOURCES})
 set_property(TARGET WindscribeService PROPERTY COMPILE_WARNING_AS_ERROR ON)
@@ -75,6 +85,12 @@ target_link_libraries(WindscribeService
                       rpcrt4
                       Fwpuclnt
                       Ws2_32
+                      Wtsapi32
+                      Setupapi
+                      wbemuuid
+                      ntdll
+                      Newdev
+                      Shlwapi
                       wsnet::wsnet
                       Boost::serialization
                       spdlog::spdlog

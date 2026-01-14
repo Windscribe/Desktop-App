@@ -1,5 +1,3 @@
-#include <string>
-#include <vector>
 #include "simple_xor_crypt.h"
 
 std::string SimpleXorCrypt::encrypt(std::string &data, const std::string &key)

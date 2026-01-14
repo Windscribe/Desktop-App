@@ -1,7 +1,8 @@
 #pragma once
 
-#include <mutex>
 #include <Windows.h>
+
+#include <mutex>
 
 // thread safe wrapper for Windows Filtering Platform handle
 

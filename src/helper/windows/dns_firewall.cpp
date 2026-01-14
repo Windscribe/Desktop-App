@@ -1,9 +1,12 @@
-#include "all_headers.h"
 #include <spdlog/spdlog.h>
 
+#include <WinSock2.h>
+#include <Fwpmu.h>
+#include <iphlpapi.h>
+
 #include "dns_firewall.h"
-#include "utils.h"
 #include "ip_address/ip4_address_and_mask.h"
+#include "utils.h"
 
 #define FIREWALL_SUBLAYER_DNS_NAMEW L"WindscribeDnsFirewallSublayer"
 #define UUID_LAYER_DNS L"7e4a5678-bc70-45e8-8674-21a8e610fd02"

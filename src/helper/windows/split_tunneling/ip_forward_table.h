@@ -1,5 +1,9 @@
 #pragma once
 
+#include <windows.h>
+#include <iphlpapi.h>
+#include <vector>
+
 // wrapper for API GetIpForwardTable and util functions
 class IpForwardTable
 {
@@ -15,4 +19,3 @@ private:
     MIB_IPFORWARDTABLE *pIpForwardTable;
     ULONG maxMetric_;
 };
-

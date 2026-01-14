@@ -2,6 +2,7 @@
 
 #include <string>
 
-namespace WmiUtils {
+namespace WmiUtils
+{
     std::wstring getNetworkAdapterConfigManagerErrorCode(const std::wstring& adapterName);
 }

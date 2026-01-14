@@ -80,9 +80,10 @@ if (WIN32)
     )
 
     list(APPEND PROJECT_SOURCES client.rc)
-    # Generate debug information (symbol files) for Windows (release build only)
-    add_compile_options("$<$<CONFIG:Release>:/Zi>")
-    add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
+    if(CI_MODE)
+        add_compile_options("$<$<CONFIG:Release>:/Zi>")
+        add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
+    endif()
 
 elseif (APPLE)
     set (OS_SPECIFIC_LIBRARIES
@@ -128,9 +129,13 @@ elseif (APPLE)
     #postbuild copy commands for Mac
     set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../build-libs)
 
+    # Ensure launcher is built before Windscribe
+    add_dependencies(Windscribe WindscribeLauncher)
+    add_dependencies(Windscribe com.windscribe.client.splittunnelextension)
+
     # Copy launcher bundle
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       $<TARGET_BUNDLE_DIR:WindscribeLauncher> $<TARGET_FILE_DIR:Windscribe>/../Library/LoginItems)
+                       $<TARGET_BUNDLE_DIR:WindscribeLauncher> $<TARGET_FILE_DIR:Windscribe>/../Library/LoginItems/WindscribeLauncher.app)
 
     # Copy helper executable
     add_custom_command(TARGET Windscribe POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory
@@ -244,7 +249,6 @@ if(APPLE)
     set_target_properties(Windscribe PROPERTIES
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_INFO_PLIST ${WINDSCRIBE_INFO_PLIST}
-        XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME YES
         BUILD_WITH_INSTALL_RPATH TRUE
         INSTALL_RPATH "@executable_path/../Frameworks"
     )

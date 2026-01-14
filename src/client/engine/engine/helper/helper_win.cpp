@@ -24,26 +24,6 @@ QString Helper_win::getHelperVersion()
     return version;
 }
 
-//TODO: check that works with openvpn
-void Helper_win::getUnblockingCmdStatus(unsigned long cmdId, QString &outLog, bool &outFinished)
-{
-    auto result = sendCommand(HelperCommand::getUnblockingCmdStatus, cmdId);
-    universal_string log;
-    outFinished = false;
-    deserializeAnswer(result, outFinished, log);
-    outLog = toQString(log);
-}
-
-void Helper_win::clearUnblockingCmd(unsigned long cmdId)
-{
-    sendCommand(HelperCommand::clearUnblockingCmd, cmdId);
-}
-
-void Helper_win::suspendUnblockingCmd(unsigned long cmdId)
-{
-    sendCommand(HelperCommand::suspendUnblockingCmd, cmdId);
-}
-
 void Helper_win::setSplitTunnelingSettings(bool isActive, bool isExclude, bool isAllowLanTraffic,
                                            const QStringList &files, const QStringList &ips,
                                            const QStringList &hosts)
@@ -115,12 +95,12 @@ bool Helper_win::executeTaskKill(CmdKillTarget target)
 }
 
 bool Helper_win::executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort,
-                            const QString &socksProxy, unsigned int socksPort, bool isCustomConfig, unsigned long &outCmdId)
+                            const QString &socksProxy, unsigned int socksPort, bool isCustomConfig)
 {
     auto result = sendCommand(HelperCommand::executeOpenVPN, config.toStdWString(), port, httpProxy.toStdWString(), httpPort,
                               socksProxy.toStdWString(), socksPort, isCustomConfig);
     bool success = false;
-    deserializeAnswer(result, success, outCmdId);
+    deserializeAnswer(result, success);
     return success;
 }
 

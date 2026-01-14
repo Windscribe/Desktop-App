@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 class FirewallOnBootManager
 {
 public:

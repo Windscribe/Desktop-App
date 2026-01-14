@@ -1,10 +1,12 @@
-#include "all_headers.h"
+#include <Windows.h>
+#include <winsock2.h>
+#include <ws2ipdef.h>
+
+#include <spdlog/spdlog.h>
+
 #include "ikev2route.h"
 #include "adapters_info.h"
 #include "ip_address/ip4_address_and_mask.h"
-#include <spdlog/spdlog.h>
-
-#pragma comment(lib, "Ntdll.lib")
 
 bool IKEv2Route::addRouteForIKEv2()
 {

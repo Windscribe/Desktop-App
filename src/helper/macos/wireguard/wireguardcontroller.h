@@ -28,7 +28,6 @@ public:
         const std::string &peerPresharedKey, const std::string &peerEndpoint,
         const std::vector<std::string> &allowedIps, uint16_t listenPort);
     bool isInitialized() const { return is_initialized_; }
-    unsigned long getDaemonCmdId() const { return daemonCmdId_; }
     unsigned long getStatus(unsigned int *errorCode, unsigned long long *bytesReceived,
                             unsigned long long *bytesTransmitted) const;
 
@@ -40,7 +39,6 @@ private:
     std::unique_ptr<WireGuardAdapter> adapter_;
     std::unique_ptr<DefaultRouteMonitor> drm_;
     std::shared_ptr<WireGuardCommunicator> comm_;
-    unsigned long daemonCmdId_;
     bool is_initialized_;
 
     WireGuardController();

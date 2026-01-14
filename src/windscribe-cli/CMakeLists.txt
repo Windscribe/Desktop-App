@@ -71,8 +71,10 @@ if(WIN32)
          ../client/common/utils/servicecontrolmanager.cpp
          ../client/common/utils/winutils.cpp
          cli.rc)
-    add_compile_options("$<$<CONFIG:Release>:/Zi>")
-    add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
+    if(CI_MODE)
+        add_compile_options("$<$<CONFIG:Release>:/Zi>")
+        add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
+    endif()
 elseif(APPLE)
     set(CMAKE_MACOSX_RPATH 1)
     set(CMAKE_BUILD_RPATH "@executable_path/../Frameworks")

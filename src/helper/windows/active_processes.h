@@ -28,7 +28,7 @@ private:
     bool isModuleExists(TCHAR *szProcessNameWithPrefix);
     bool isSkipThisProcess(TCHAR *szProcessName);
 
-    static VOID CALLBACK timerCallback(PVOID   lpParameter, BOOLEAN TimerOrWaitFired);
+    static VOID CALLBACK timerCallback(PVOID lpParameter, BOOLEAN TimerOrWaitFired);
 
     enum { CLEAR_SAVED_LIST_PERIOD_MS = 20000};
 

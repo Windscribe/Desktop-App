@@ -48,4 +48,6 @@ namespace Utils
 
     // check if a string is a valid MAC address
     bool isValidMacAddress(const std::string &macAddress);
+
+    bool isPortListening(unsigned int port, int maxRetries = 10, int delayMs = 100);
 };

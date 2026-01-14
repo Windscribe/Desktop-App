@@ -1,7 +1,9 @@
-#include "../all_headers.h"
-#include "ip6_address_and_prefix.h"
+#include <winsock2.h>
+#include <ws2ipdef.h>
 #include <Mstcpip.h>
 #include <codecvt>
+
+#include "ip6_address_and_prefix.h"
 
 Ip6AddressAndPrefix::Ip6AddressAndPrefix(PCWSTR address) : ipAddress_{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, prefixLength_(0)
 {

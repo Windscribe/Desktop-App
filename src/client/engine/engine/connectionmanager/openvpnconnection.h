@@ -75,7 +75,7 @@ private:
     void setCurrentStateAndEmitDisconnected(CONNECTION_STATUS state);
     void setCurrentStateAndEmitError(CONNECTION_STATUS state, CONNECT_ERROR err);
     CONNECTION_STATUS getCurrentState() const;
-    bool runOpenVPN(unsigned int port, unsigned long &outCmdId, bool isCustomConfig);
+    bool runOpenVPN(unsigned int port, bool isCustomConfig);
 
     struct StateVariables
     {
@@ -94,7 +94,6 @@ private:
         quint64 prevBytesRcved;
         quint64 prevBytesXmited;
 
-        unsigned long lastCmdId;
         unsigned int openVpnPort;
 
         QElapsedTimer elapsedTimer;
@@ -116,7 +115,6 @@ private:
             bFirstCalcStat = true;
             prevBytesRcved = 0;
             prevBytesXmited = 0;
-            lastCmdId = 0;
             openVpnPort = 0;
             bWasSocketConnected = false;
             bNeedSendSigTerm = false;

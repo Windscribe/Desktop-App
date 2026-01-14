@@ -1,7 +1,10 @@
-#include "../all_headers.h"
-#include "ip4_address_and_mask.h"
+#include <winsock2.h>
 #include <Mstcpip.h>
+
+#include <cassert>
 #include <codecvt>
+
+#include "ip4_address_and_mask.h"
 
 Ip4AddressAndMask::Ip4AddressAndMask(PCWSTR address) : ipAddress_(0), mask_(0)
 {
@@ -133,7 +136,7 @@ std::vector<Ip4AddressAndMask> Ip4AddressAndMask::fromVector(const std::vector<s
 {
     std::vector<Ip4AddressAndMask> ret;
 
-    for (std::string ip : ips) {
+    for (const auto &ip : ips) {
         ret.push_back(Ip4AddressAndMask(ip.c_str()));
     }
     return ret;

@@ -8,4 +8,3 @@ public:
     bool start() const;
     void stop() const;
 };
-

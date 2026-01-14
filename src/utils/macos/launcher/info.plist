@@ -16,6 +16,8 @@
     <string>APPL</string>
     <key>CFBundleVersion</key>
     <string>1.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
     <key>LSApplicationCategoryType</key>
     <string>public.app-category.utilities</string>
     <key>LSBackgroundOnly</key>
@@ -24,8 +26,6 @@
     <string>12</string>
     <key>NSHumanReadableCopyright</key>
     <string>Copyright © 2024 Windscribe Limited. All rights reserved.</string>
-    <key>NSMainStoryboardFile</key>
-    <string>Main</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
     <key>NSSupportsAutomaticTermination</key>

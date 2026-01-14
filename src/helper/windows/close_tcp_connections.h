@@ -1,6 +1,9 @@
 #pragma once
 
-#include "all_headers.h"
+#include <Windows.h>
+
+#include <string>
+#include <vector>
 
 class CloseTcpConnections
 {
@@ -12,4 +15,3 @@ private:
     static bool isAppSocket(DWORD dwPid, const std::wstring &app);
     static bool isLocalAddress(DWORD address);
 };
-

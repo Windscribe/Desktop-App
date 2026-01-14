@@ -71,6 +71,8 @@ configure_file(
 add_executable(com.windscribe.helper.macos ${SOURCES})
 set_property(TARGET com.windscribe.helper.macos PROPERTY COMPILE_WARNING_AS_ERROR ON)
 
+target_compile_options(com.windscribe.helper.macos PRIVATE "-fobjc-arc")
+
 target_link_libraries(com.windscribe.helper.macos
                       PRIVATE
                       Boost::serialization
@@ -82,20 +84,6 @@ target_link_libraries(com.windscribe.helper.macos
                       "-framework SystemConfiguration"
                       "-sectcreate __TEXT __info_plist ${CMAKE_CURRENT_BINARY_DIR}/helper-info.plist.configured"
                       "-sectcreate __TEXT __launchd_plist ${CMAKE_CURRENT_SOURCE_DIR}/helper-launchd.plist"
-)
-set_target_properties(com.windscribe.helper.macos PROPERTIES
-        XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++20"
-        XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++"
-        XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC "YES"
-        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Developer ID Application"
-        XCODE_ATTRIBUTE_CODE_SIGN_STYLE "Manual"
-        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "${DEVELOPMENT_TEAM}"
-        XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME "YES"
-        XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET "12"
-        XCODE_ATTRIBUTE_PROVISIONING_PROFILE ""
-        XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER ""
-        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.windscribe.helper.macos"
-        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_NAME "com.windscribe.helper.macos"
 )
 
 # Sign helper immediately after building (required for SMJobBless)

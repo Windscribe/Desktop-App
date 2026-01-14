@@ -2,11 +2,10 @@
 
 #include "apps_ids.h"
 #include "ip_address/ip4_address_and_mask.h"
-#include "ip_address/ip6_address_and_prefix.h"
 #include "fwpm_wrapper.h"
 
 #define UUID_LAYER L"367016b3-3af8-4966-8442-d8bb6435f4a0"
-#define FIREWALL_SUBLAYER_NAMEW          L"WindscribeFirewall"
+#define FIREWALL_SUBLAYER_NAMEW L"WindscribeFirewall"
 
 class FirewallFilter
 {
@@ -30,7 +29,6 @@ public:
     void setSplitTunnelingAppsIds(const AppsIds &appsIds);
     void setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressAndMask> &ips);
     void setWindscribeAppsIds(const AppsIds &appsIds);
-    void setParentAdapterIndex(NET_IFINDEX index);
 
 private:
     FwpmWrapper &fwpmWrapper_;

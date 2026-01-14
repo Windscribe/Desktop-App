@@ -9,11 +9,12 @@
 #include "changeics/icsmanager.h"
 #include "dohdata.h"
 #include "executecmd.h"
+#include "firewallfilter.h"
 #include "firewallonboot.h"
 #include "ikev2ipsec.h"
 #include "ikev2route.h"
+#include "macaddressspoof.h"
 #include "openvpncontroller.h"
-#include "registry.h"
 #include "reinstall_wan_ikev2.h"
 #include "remove_windscribe_network_profiles.h"
 #include "split_tunneling/split_tunneling.h"
@@ -44,30 +45,6 @@ std::string processCommand(HelperCommand cmdId, const std::string &pars)
     }
 
     return (command->second)(pars);
-}
-
-std::string getUnblockingCmdStatus(const std::string &pars)
-{
-    unsigned long cmdId;
-    deserializePars(pars, cmdId);
-    ExecuteCmdResult res = ExecuteCmd::instance().getUnblockingCmdStatus(cmdId);
-    return serializeResult(res.blockingCmdFinished, res.output);
-}
-
-std::string clearUnblockingCmd(const std::string &pars)
-{
-    unsigned long cmdId;
-    deserializePars(pars, cmdId);
-    ExecuteCmd::instance().clearUnblockingCmd(cmdId);
-    return std::string();
-}
-
-std::string suspendUnblockingCmd(const std::string &pars)
-{
-    unsigned long cmdId;
-    deserializePars(pars, cmdId);
-    ExecuteCmd::instance().suspendUnblockingCmd(cmdId);
-    return std::string();
 }
 
 std::string setSplitTunnelingSettings(const std::string &pars)
@@ -144,7 +121,7 @@ std::string executeOpenVPN(const std::string &pars)
     deserializePars(pars, config, port, httpProxy, httpPort, socksProxy, socksPort, isCustomConfig);
 
     const auto res = OpenVPNController::instance().runOpenvpn(config, port, httpProxy, httpPort, socksProxy, socksPort);
-    return serializeResult(res.success, res.blockingCmdId);
+    return serializeResult(res.success);
 }
 
 std::string executeTaskKill(const std::string &pars)
@@ -449,57 +426,19 @@ std::string enableWanIkev2(const std::string &pars)
     return std::string();
 }
 
-std::string setMacAddressRegistryValueSz(const std::string &pars)
+std::string setMacAddressSpoof(const std::string &pars)
 {
     std::wstring interfaceName, value;
     deserializePars(pars, interfaceName, value);
-
-    // Verify we've received a valid subkey for this Registry key.
-    if (!Registry::subkeyExists(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}", interfaceName)) {
-        spdlog::error(L"setMacAddressRegistryValueSz did not find key {}", interfaceName);
-        return std::string();
-    }
-
-    if (!Utils::isMacAddress(value)) {
-        spdlog::error(L"setMacAddressRegistryValueSz received an invalid MAC address {}", value);
-        return std::string();
-    }
-
-    std::wstring keyPath = L"SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}\\" + interfaceName;
-    std::wstring propertyName = L"NetworkAddress";
-    std::wstring propertyValue = value;
-
-    bool success = Registry::regWriteSzProperty(HKEY_LOCAL_MACHINE, keyPath.c_str(), propertyName, propertyValue);
-    if (success) {
-        Registry::regWriteDwordProperty(HKEY_LOCAL_MACHINE, keyPath, L"WindscribeMACSpoofed", 1);
-    }
-    spdlog::debug(L"setMacAddressRegistryValueSz, path={}, name={}, value={}", keyPath, propertyName, propertyValue);
+    MacAddressSpoof::set(interfaceName, value);
     return std::string();
 }
 
-std::string removeMacAddressRegistryProperty(const std::string &pars)
+std::string removeMacAddressSpoof(const std::string &pars)
 {
     std::wstring interfaceName;
     deserializePars(pars, interfaceName);
-
-    // Verify we've received a valid subkey for this Registry key.
-    if (!Registry::subkeyExists(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}", interfaceName)) {
-        spdlog::error(L"removeMacAddressRegistryProperty did not find key {}", interfaceName);
-        return std::string();
-    }
-
-    std::wstring propertyName = L"NetworkAddress";
-    std::wstring keyPath = L"SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}\\" + interfaceName;
-
-    wchar_t keyPathSz[128];
-    wcsncpy_s(keyPathSz, 128, keyPath.c_str(), _TRUNCATE);
-
-    bool success = Registry::regDeleteProperty(HKEY_LOCAL_MACHINE, keyPathSz, propertyName);
-    if (success) {
-        Registry::regDeleteProperty(HKEY_LOCAL_MACHINE, keyPathSz, L"WindscribeMACSpoofed");
-    }
-
-    spdlog::debug(L"removeMacAddressRegistryProperty, key={}, name={}", keyPathSz, propertyName);
+    MacAddressSpoof::remove(interfaceName);
     return std::string();
 }
 
@@ -575,73 +514,15 @@ std::string removeOpenVpnAdapter(const std::string &pars)
 
 std::string disableDohSettings(const std::string &pars)
 {
-    // In order to disable doh on Windows it is necessary to set to 0 value of the EnableAutoDoh property
-    // in the registry at the address SYSTEM\CurrentControlSet\Services\Dnscache\Parameters.
-    bool success = false;
-
-    const std::wstring dohKeyPath = L"SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters";
-    const std::wstring enableDohValue = L"EnableAutoDoh";
-    DWORD autoEnableDoh = 0;
-    DWORD size = sizeof(DWORD);
-
-    if (DohData::instance().lastTimeDohWasEnabled()) {
-
-        bool propExists = false;
-        if (!Registry::regGetProperty(HKEY_LOCAL_MACHINE, dohKeyPath, enableDohValue, reinterpret_cast<LPBYTE>(&autoEnableDoh), &size)) {
-            propExists = Registry::regAddDwordValueIfNotExists(HKEY_LOCAL_MACHINE, dohKeyPath, enableDohValue);
-            DohData::instance().setDohRegistryWasCreated(propExists);
-        }
-        else {
-            propExists = true;
-            DohData::instance().setDohRegistryWasCreated(false);
-        }
-
-        if (propExists && Registry::regWriteDwordProperty(HKEY_LOCAL_MACHINE, dohKeyPath, enableDohValue, 0)) {
-            success = true;
-            DohData::instance().setEnableAutoDoh(autoEnableDoh);
-            DohData::instance().setLastTimeDohWasEnabled(false);
-        }
-        else {
-            success = false;
-        }
-    }
-
-    spdlog::debug("disableDohSettings, success = {}", success);
+    spdlog::debug("disableDohSettings");
+    DohData::instance().disableDohSettings();
     return std::string();
 }
 
 std::string enableDohSettings(const std::string &pars)
 {
-    bool success = false;
-
-    const std::wstring dohKeyPath = L"SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters";
-    const std::wstring enableDohValue = L"EnableAutoDoh";
-
-    if (!DohData::instance().lastTimeDohWasEnabled()) {
-
-        if (DohData::instance().dohRegistryWasCreated()) {
-            success = Registry::regDeleteProperty(HKEY_LOCAL_MACHINE, dohKeyPath, enableDohValue);
-            if (success) {
-                DohData::instance().setDohRegistryWasCreated(false);
-                DohData::instance().setLastTimeDohWasEnabled(true);
-            }
-        }
-        else {
-            const auto autoEnableDoh = DohData::instance().enableAutoDoh();
-            if (Registry::regWriteDwordProperty(HKEY_LOCAL_MACHINE, dohKeyPath, enableDohValue, autoEnableDoh)) {
-                success = true;
-                DohData::instance().setLastTimeDohWasEnabled(true);
-            }
-            else {
-                success = false;
-            }
-        }
-    }
-    else {
-        success = true;
-    }
-
-    spdlog::debug("enableDohSettings, success = {}", success);
+    spdlog::debug("enableDohSettings");
+    DohData::instance().enableDohSettings();
     return std::string();
 }
 

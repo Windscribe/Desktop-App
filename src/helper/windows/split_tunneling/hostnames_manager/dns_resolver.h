@@ -57,4 +57,3 @@ private:
     void onDnsResolved(std::uint64_t requestId, const std::string &hostname, std::shared_ptr<wsnet::WSNetDnsRequestResult> result);
     void onTimer(const boost::system::error_code& error);
 };
-

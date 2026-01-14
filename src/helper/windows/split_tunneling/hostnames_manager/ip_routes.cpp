@@ -1,11 +1,14 @@
-#include "../../all_headers.h"
-#include <spdlog/spdlog.h>
+#include <WinSock2.h>
+#include <ws2ipdef.h>
+
 #include "ip_routes.h"
+
+#include <set>
+#include <spdlog/spdlog.h>
 
 IpRoutes::IpRoutes()
 {
 }
-
 
 void IpRoutes::setIps(const std::string gatewayIp, unsigned long ifIndex, const std::vector<Ip4AddressAndMask> &ips)
 {

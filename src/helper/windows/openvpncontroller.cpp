@@ -143,7 +143,7 @@ ExecuteCmdResult OpenVPNController::runOpenvpn(std::wstring &config, unsigned in
 #endif
 
     std::wstring strCmd = L"\"" + ovpnExe + L"\" --config \"" + filename + L"\"";
-    return ExecuteCmd::instance().executeUnblockingCmd(strCmd, L"", Utils::getDirPathFromFullPath(filename));
+    return ExecuteCmd::instance().executeNonblockingCmd(strCmd, Utils::getDirPathFromFullPath(filename));
 }
 
 bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, const std::wstring &httpProxy, unsigned int httpPort,

@@ -11,6 +11,11 @@ void MultipleAccountDetection_win::userBecomeExpired(const QString &username, co
     qCInfo(LOG_BASIC) << "MultipleAccountDetection::userBecomeExpired, username =" << username << "userId =" << userId;
 
     SecretValue_win::TEntry entry;
+    if (secretValue_.isExistValue(entry) && entry.username_ != username) {
+        // Don't update entry if username is different
+        return;
+    }
+
     entry.username_ = username;
     entry.userId_ = userId;
     entry.date_ = QDate::currentDate();

@@ -1,12 +1,8 @@
-#include "all_headers.h"
+#include "reinstall_wan_ikev2.h"
+
 #include <cfgmgr32.h>
 #include <newdev.h>
 #include <spdlog/spdlog.h>
-
-#include "reinstall_wan_ikev2.h"
-
-#pragma comment(lib, "Setupapi.lib")
-#pragma comment(lib, "Newdev.lib")
 
 bool ReinstallWanIkev2::enableDevice()
 {

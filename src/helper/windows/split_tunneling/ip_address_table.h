@@ -1,5 +1,11 @@
 #pragma once
 
+#include <windows.h>
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
+
+#include <vector>
+
 // wrapper for API GetIpAddrTable and util functions
 class IpAddressTable
 {

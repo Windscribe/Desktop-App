@@ -43,5 +43,9 @@
     <array>
         <string>app-proxy-provider-systemextension</string>
     </array>
+    <key>SMLoginItemRegisteredByApp</key>
+    <array>
+        <string>com.windscribe.launcher.macos</string>
+    </array>
 </dict>
 </plist>

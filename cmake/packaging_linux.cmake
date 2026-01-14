@@ -128,9 +128,11 @@ if(BUILD_DEB)
         COMMAND chmod +x "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}/DEBIAN/prerm"
     )
 
-    # Update version in control file
+    # Update version and architecture in control file
     add_custom_command(TARGET package-deb PRE_BUILD
         COMMAND sed -i "s/Version: .*/Version: ${PROJECT_VERSION}/"
+                "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}/DEBIAN/control"
+        COMMAND sed -i "s/Architecture: .*/Architecture: ${PACKAGE_ARCH}/"
                 "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}/DEBIAN/control"
     )
 
@@ -163,18 +165,6 @@ if(BUILD_DEB)
     else()
         message(FATAL_ERROR "dpkg-deb not found - cannot build DEB package")
     endif()
-endif()
-
-# Create deploy target that depends on all enabled package types
-add_custom_target(deploy ALL)
-if(BUILD_DEB)
-    add_dependencies(deploy package-deb)
-endif()
-if(BUILD_RPM)
-    add_dependencies(deploy package-rpm-fedora)
-endif()
-if(BUILD_RPM_OPENSUSE)
-    add_dependencies(deploy package-rpm-opensuse)
 endif()
 
 # RPM Architecture mapping
@@ -260,4 +250,25 @@ if(BUILD_RPM_OPENSUSE)
     if(BUILD_RPM)
         add_dependencies(package-rpm-opensuse package-rpm-fedora)
     endif()
+endif()
+
+add_custom_target(init-build-exe
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${BUILD_EXE_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${BUILD_EXE_DIR}"
+    COMMENT "Initializing build-exe directory..."
+)
+
+add_custom_target(deploy ALL)
+
+if(BUILD_DEB)
+    add_dependencies(package-deb init-build-exe)
+    add_dependencies(deploy package-deb)
+endif()
+if(BUILD_RPM)
+    add_dependencies(package-rpm-fedora init-build-exe)
+    add_dependencies(deploy package-rpm-fedora)
+endif()
+if(BUILD_RPM_OPENSUSE)
+    add_dependencies(package-rpm-opensuse init-build-exe)
+    add_dependencies(deploy package-rpm-opensuse)
 endif()

@@ -1,8 +1,10 @@
-#include "all_headers.h"
+#include <shlwapi.h>
+
+#include <sstream>
+#include <stdio.h>
+
 #include "hostsedit.h"
 #include "utils.h"
-
-#pragma comment(lib, "Shlwapi.lib")
 
 HostsEdit::HostsEdit() : szTitle_(L"added by Windscribe, do not modify.")
 {

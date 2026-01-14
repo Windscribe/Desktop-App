@@ -38,6 +38,11 @@ TrayIcon::TrayIcon(QObject *parent, Backend *backend, Preferences *preferences)
 
     updateTrayIconColor();
 
+    // Create tray menu items here, because it seems like Qt on Linux does not even trigger aboutToShow()
+    // if the menu is empty, and since aboutToShow() is never called, we never populate the menu, ad nauseum.
+    // Calling createTrayMenuItems() once here makes everything work.
+    createMenuItems();
+
 #ifdef Q_OS_MACOS
     if (!preferences_->isDockedToTray()) {
         trayIcon_.setContextMenu(&trayMenu_);

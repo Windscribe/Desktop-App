@@ -36,25 +36,6 @@ std::string getHelperVersion(const std::string &pars)
     return serializeResult(MacUtils::bundleVersionFromPlist());
 }
 
-std::string getUnblockingCmdStatus(const std::string &pars)
-{
-    unsigned long cmdId;
-    deserializePars(pars, cmdId);
-
-    bool bFinished;
-    std::string log;
-    ExecuteCmd::instance().getStatus(cmdId, bFinished, log);
-    return serializeResult(bFinished, log);
-}
-
-std::string clearUnblockingCmd(const std::string &pars)
-{
-    unsigned long cmdId;
-    deserializePars(pars, cmdId);
-    ExecuteCmd::instance().clearCmds();
-    return std::string();
-}
-
 std::string setSplitTunnelingSettings(const std::string &pars)
 {
     bool isActive, isExclude, isAllowLanTraffic;
@@ -97,7 +78,6 @@ std::string executeOpenVPN(const std::string &pars)
     CmdDnsManager dnsManager;
     deserializePars(pars, config, port, httpProxy, httpPort, socksProxy, socksPort, isCustomConfig, dnsManager);
 
-    unsigned long cmdId = 0;
     // sanitize
     if (Utils::hasWhitespaceInString(httpProxy) ||
         Utils::hasWhitespaceInString(socksProxy))
@@ -108,23 +88,23 @@ std::string executeOpenVPN(const std::string &pars)
 
     if (!OVPN::writeOVPNFile(MacUtils::resourcePath() + "dns.sh", port, config, httpProxy, httpPort, socksProxy, socksPort, isCustomConfig)) {
         spdlog::error("Could not write OpenVPN config");
-        return serializeResult(false, cmdId);
+        return serializeResult(false);
     }
 
     std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribeopenvpn", "--config /etc/windscribe/config.ovpn");
     if (fullCmd.empty()) {
         // Something wrong with the command
-        return serializeResult(false, cmdId);
+        return serializeResult(false);
     }
 
     const std::string fullPath = Utils::getExePath() + "/windscribeopenvpn";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(fullPath)) {
         spdlog::error("OpenVPN executable signature incorrect: {}", sigCheck.lastError());
-        return serializeResult(false, cmdId);
+        return serializeResult(false);
     } else {
-        cmdId = ExecuteCmd::instance().execute(fullCmd, "/etc/windscribe");
-        return serializeResult(true, cmdId);
+        ExecuteCmd::instance().execute(fullCmd, "/etc/windscribe");
+        return serializeResult(true);
     }
 }
 
@@ -285,8 +265,8 @@ std::string startCtrld(const std::string &pars)
         spdlog::error("ctrld executable signature incorrect: {}", sigCheck.lastError());
         return serializeResult(false);
     } else {
-        bool executed = Utils::executeCommand(fullCmd) == 0;
-        return serializeResult(executed);
+        ExecuteCmd::instance().execute(fullCmd);
+        return serializeResult(true);
     }
 }
 
@@ -371,10 +351,16 @@ std::string startStunnel(const std::string &pars)
     if (!sigCheck.verify(fullPath)) {
         spdlog::error("stunnel executable signature incorrect: {}", sigCheck.lastError());
         return serializeResult(false);
-    } else {
-        ExecuteCmd::instance().execute(fullCmd, std::string(), true);
-        return serializeResult(true);
     }
+
+    ExecuteCmd::instance().execute(fullCmd);
+
+    if (!Utils::isPortListening(localPort)) {
+        spdlog::error("stunnel failed to bind to port {}", localPort);
+        return serializeResult(false);
+    }
+
+    return serializeResult(true);
 }
 
 std::string startWstunnel(const std::string &pars)
@@ -405,10 +391,16 @@ std::string startWstunnel(const std::string &pars)
     if (!sigCheck.verify(fullPath)) {
         spdlog::error("wstunnel executable signature incorrect: {}", sigCheck.lastError());
         return serializeResult(false);
-    } else {
-        ExecuteCmd::instance().execute(fullCmd, std::string(), true);
-        return serializeResult(true);
     }
+
+    ExecuteCmd::instance().execute(fullCmd);
+
+    if (!Utils::isPortListening(localPort)) {
+        spdlog::error("wstunnel failed to bind to port {}", localPort);
+        return serializeResult(false);
+    }
+
+    return serializeResult(true);
 }
 
 std::string setMacAddress(const std::string &pars)
