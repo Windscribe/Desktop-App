@@ -396,6 +396,18 @@
         <translation>Núdzové pripojenie je zapnuté</translation>
     </message>
     <message>
+        <source>Emergency Connect</source>
+        <translation>Núdzové pripojenie</translation>
+    </message>
+    <message>
+        <source>External Config</source>
+        <translation>Externá konfigurácia</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Predvoľby</translation>
+    </message>
+    <message>
         <source>2FA Code</source>
         <translation>Kód 2FA</translation>
     </message>
@@ -411,30 +423,6 @@
         <source>Password</source>
         <translation>Heslo</translation>
     </message>
-    <message>
-        <source>Standard</source>
-        <translation>Štandard</translation>
-    </message>
-    <message>
-        <source>Hashed</source>
-        <translation>Hashed</translation>
-    </message>
-    <message>
-        <source>Hash</source>
-        <translation>Hash</translation>
-    </message>
-    <message>
-        <source>Account Hash or upload file</source>
-        <translation>Hash účtu alebo nahraný súbor</translation>
-    </message>
-    <message>
-        <source>Select file for hash</source>
-        <translation>Vyberte súbor pre hash</translation>
-    </message>
-    <message>
-        <source>All Files (*.*)</source>
-        <translation>Všetky súbory (*.*)</translation>
-    </message>
 </context>
 <context>
     <name>LoginWindow::LoggingInWindowItem</name>
@@ -449,18 +437,6 @@
 </context>
 <context>
     <name>LoginWindow::WelcomeWindowItem</name>
-    <message>
-        <source>Emergency Connect</source>
-        <translation>Núdzové pripojenie</translation>
-    </message>
-    <message>
-        <source>External Config</source>
-        <translation>Externá konfigurácia</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Predvoľby</translation>
-    </message>
     <message>
         <source>Turn Off Firewall</source>
         <translation>Vypnúť bránu firewall</translation>
@@ -1356,19 +1332,19 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
     </message>
     <message>
         <source>Clear Wi-Fi History</source>
-        <translation>Jasná história Wi-Fi</translation>
+        <translation>Vymazať históriu Wi-Fi</translation>
+    </message>
+    <message>
+        <source>Remove Wi-Fi SSID and MAC information from your operating system to prevent location history tracking. Warning: this will also delete all Wi-Fi passwords except for the currently connected network. On some systems, this may temporarily disable Wi-Fi.</source>
+        <translation>Odstrániť informácie o Wi-Fi SSID a MAC z operačného systému, aby sa zabránilo sledovaniu histórie polohy. Upozornenie: týmto sa odstránia aj všetky heslá Wi-Fi okrem hesla aktuálne pripojenej siete. V niektorých systémoch to môže dočasne vypnúť Wi-Fi.</translation>
     </message>
     <message>
         <source>Are you sure?</source>
-        <translation>Si si istý?</translation>
+        <translation>Ste si istý?</translation>
     </message>
     <message>
         <source>Are you sure you want to clear all your Wi-Fi history? This will also clear all Wi-Fi passwords except for the one you&apos;re currently connected to. This may also temporarily disable your Wi-Fi.</source>
-        <translation>Si si istý, že chceš vymazať všetku svoju Wi-Fi históriu? Tým sa tiež vymažú všetky Wi-Fi heslá okrem toho, na ktoré ste momentálne pripojení. To môže tiež dočasne deaktivovať vašu Wi-Fi.</translation>
-    </message>
-    <message>
-        <source>Remove Wi-Fi SSID and MAC information from your operating system to prevent location history tracking.</source>
-        <translation>Odstráňte Wi-Fi SSID a MAC údaje z operačného systému, aby ste zabránili sledovaniu histórie polohy.</translation>
+        <translation>Naozaj chcete vymazať celú históriu Wi-Fi? Tým sa tiež vymažú všetky heslá Wi-Fi okrem tej momentálne pripojenej. To môže tiež dočasne vypnúť Wi-Fi.</translation>
     </message>
 </context>
 <context>
@@ -1902,11 +1878,11 @@ Najprv sa pripojte k sieti</translation>
     </message>
     <message>
         <source>Discard</source>
-        <translation>Vyhodiť</translation>
+        <translation>Zahodiť</translation>
     </message>
     <message>
         <source>You have unsaved changes in edit fields. Do you want to save them?</source>
-        <translation>Máte neuložené zmeny v editačných poliach. Chceš ich zachrániť?</translation>
+        <translation>Máte neuložené zmeny v editačných poliach. Chcete ich uložiť?</translation>
     </message>
     <message>
         <source>Save</source>
@@ -1995,6 +1971,30 @@ Najprv sa pripojte k sieti</translation>
     <message>
         <source>Password</source>
         <translation>Heslo</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>Štandardné</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>Hašované</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>Haš</translation>
+    </message>
+    <message>
+        <source>Account Hash or upload file</source>
+        <translation>Haš účtu alebo nahrať súbor</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>Vyberte súbor pre haš</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>Všetky súbory (*.*)</translation>
     </message>
     <message>
         <source>Invalid proxy address</source>
@@ -2385,7 +2385,7 @@ Ak preinštalovanie nepomôže, obráťte sa na podporu Windscribe a požiadajte
     </message>
     <message>
         <source>Release</source>
-        <translation>Vydanie</translation>
+        <translation>Stabilná verzia</translation>
     </message>
     <message>
         <source>Beta</source>
@@ -2617,7 +2617,7 @@ Ak preinštalovanie nepomôže, obráťte sa na podporu Windscribe a požiadajte
     </message>
     <message>
         <source>Show app</source>
-        <translation>Aplikácia Show</translation>
+        <translation>Zobraziť aplikáciu</translation>
     </message>
 </context>
 <context>
