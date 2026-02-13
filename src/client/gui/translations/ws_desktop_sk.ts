@@ -438,18 +438,6 @@
 <context>
     <name>LoginWindow::WelcomeWindowItem</name>
     <message>
-        <source>Emergency Connect</source>
-        <translation>Núdzové pripojenie</translation>
-    </message>
-    <message>
-        <source>External Config</source>
-        <translation>Externá konfigurácia</translation>
-    </message>
-    <message>
-        <source>Preferences</source>
-        <translation>Predvoľby</translation>
-    </message>
-    <message>
         <source>Turn Off Firewall</source>
         <translation>Vypnúť bránu firewall</translation>
     </message>
@@ -1985,6 +1973,30 @@ Najprv sa pripojte k sieti</translation>
         <translation>Heslo</translation>
     </message>
     <message>
+        <source>Standard</source>
+        <translation>Štandardné</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>Hašované</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>Haš</translation>
+    </message>
+    <message>
+        <source>Account Hash or upload file</source>
+        <translation>Haš účtu alebo nahrať súbor</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>Vyberte súbor pre haš</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>Všetky súbory (*.*)</translation>
+    </message>
+    <message>
         <source>Invalid proxy address</source>
         <translation>Neplatná adresa proxy servera</translation>
     </message>
@@ -2373,7 +2385,7 @@ Ak preinštalovanie nepomôže, obráťte sa na podporu Windscribe a požiadajte
     </message>
     <message>
         <source>Release</source>
-        <translation>Vydanie</translation>
+        <translation>Stabilná verzia</translation>
     </message>
     <message>
         <source>Beta</source>
