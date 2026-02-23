@@ -145,13 +145,17 @@ void ProtocolLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
         painter->setFont(font);
         painter->setOpacity(OPACITY_SEVENTY);
 
-        int availableWidth = boundingRect().width() - kTextIndent*G_SCALE - 40*G_SCALE;
+        int rightMargin = 40*G_SCALE;
+        if (status_.status == types::ProtocolStatus::Status::kFailed) {
+            rightMargin += 24*G_SCALE;
+        }
+        int availableWidth = boundingRect().width() - kTextIndent*G_SCALE - rightMargin;
         QFontMetrics fm(font);
         QString elidedText = desc_;
         if (availableWidth < fm.horizontalAdvance(desc_)) {
             elidedText = fm.elidedText(desc_, Qt::ElideRight, availableWidth, 0);
         }
-        painter->drawText(boundingRect().adjusted(kTextIndent*G_SCALE, kSecondLineY*G_SCALE, -40*G_SCALE, 0), elidedText);
+        painter->drawText(boundingRect().adjusted(kTextIndent*G_SCALE, kSecondLineY*G_SCALE, -rightMargin, 0), elidedText);
     }
 
     // countdown banner

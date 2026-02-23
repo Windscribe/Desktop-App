@@ -150,8 +150,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     adapterGatewayInfo_.clear();
     adapterGatewayInfo_.setAdapterName(pimpl_->getAdapterName());
     QStringList address_and_cidr = wireGuardConfig->clientIpAddress().split('/');
-    if (address_and_cidr.size() > 1)
-    {
+    if (address_and_cidr.size() >= 1) {
         adapterGatewayInfo_.setAdapterIp(address_and_cidr[0]);
     }
     adapterGatewayInfo_.setDnsServers(QStringList() << wireGuardConfig->clientDnsAddress());

@@ -1,3 +1,13 @@
+2.20.7 (19/02/2026)
+All:
+   * Fixed description width on protocol screen. #825
+MacOS:
+   * Fixed app not displaying DNS conflict warning when a local DNS daemon is running and the custom DNS feature is enabled. #1660
+   * Fixed installer binary displaying incorrect version number and copyright date. #1662
+Linux:
+   * Fixed inclusive split tunneling route may not be added correctly. #1656
+
+
 2.20.6 (09/02/2026)
 All:
    * Added link to website, and shortened description, for "Clear Wi-Fi History" feature. #1585

@@ -265,10 +265,10 @@ std::string startCtrld(const std::string &pars)
     if (!sigCheck.verify(fullPath)) {
         spdlog::error("ctrld executable signature incorrect: {}", sigCheck.lastError());
         return serializeResult(false);
-    } else {
-        ExecuteCmd::instance().execute(fullCmd);
-        return serializeResult(true);
     }
+
+    bool executed = Utils::executeCommand(fullCmd) == 0;
+    return serializeResult(executed);
 }
 
 std::string checkFirewallState(const std::string &pars)
