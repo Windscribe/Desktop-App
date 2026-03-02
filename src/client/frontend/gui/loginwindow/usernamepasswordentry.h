@@ -15,7 +15,7 @@ class UsernamePasswordEntry : public ClickableGraphicsObject
     Q_OBJECT
 public:
 
-    explicit UsernamePasswordEntry(const QString &text, bool password, const QString &customIcon, ScalableGraphicsObject * parent = nullptr);
+    explicit UsernamePasswordEntry(const QString &text, bool password, ScalableGraphicsObject * parent = nullptr, bool showDescription = true);
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -37,9 +37,16 @@ public:
     void setFocus();
     void updateScaling() override;
 
+    // Icon configuration - supports 0, 1, or 2 icons
+    void setCustomIcon1(const QString &iconUrl);
+    void setCustomIcon2(const QString &iconUrl);
+
+    void setFont(const QFont &font);
+
 signals:
     void textChanged(const QString &text);
-    void iconClicked();
+    void icon1Clicked();
+    void icon2Clicked();
 
 private slots:
     void onTextChanged(const QString &text);
@@ -52,7 +59,10 @@ private:
     CommonWidgets::CustomMenuLineEdit *userEntryLine_;
     const QString userEntryLineAddSS_;
 
+    QFont font_;
+
     QString descriptionText_;
+    bool showDescription_;
 
     int height_;
     int width_;
@@ -61,6 +71,8 @@ private:
     double curLineEditOpacity_;
 
     static constexpr int DESCRIPTION_TEXT_HEIGHT = 16;
+    static constexpr int PLACEHOLDER_FONT_SIZE = 12;
+    static constexpr int DEFAULT_FONT_SIZE = 14;
 
     void updateFontSize();
 };

@@ -18,7 +18,7 @@ public:
 
     void release();
 
-    void on(const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig);
+    void on(const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic);
     void off();
     bool currentStatus();
 
@@ -42,7 +42,7 @@ private:
     bool currentStatusImpl(HANDLE engineHandle);
     void offImpl(HANDLE engineHandle);
 
-    void addFilters(HANDLE engineHandle, const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig);
+    void addFilters(HANDLE engineHandle, const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic);
     void addPermitFilterForWindscribeAndSystemServices(HANDLE engineHandle, const wchar_t *ip);
     void addPermitFilterForAppsIds(HANDLE engineHandle);
     void addPermitFilterForSplitRoutingWhitelistIps(HANDLE engineHandle);

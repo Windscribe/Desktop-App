@@ -62,17 +62,17 @@ WelcomeWindowItem::WelcomeWindowItem(QGraphicsObject *parent, PreferencesHelper 
     firewallTurnOffButton_ = new FirewallTurnOffButton("", this);
     connect(firewallTurnOffButton_, &FirewallTurnOffButton::clicked, this, &WelcomeWindowItem::onFirewallTurnOffClick);
 
-    getStartedButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kWelcome, 121, 38, 19);
-    getStartedButton_->setFont(FontDescr(15, QFont::Medium));
-    connect(getStartedButton_, &CommonGraphics::BubbleButton::clicked, this, &WelcomeWindowItem::onGetStartedButtonClick);
-    getStartedButton_->setClickable(true);
-    getStartedButton_->show();
+    signupButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kWelcome, 121, 38, 19);
+    signupButton_->setFont(FontDescr(15, QFont::Medium));
+    connect(signupButton_, &CommonGraphics::BubbleButton::clicked, this, &WelcomeWindowItem::onSignupButtonClick);
+    signupButton_->setClickable(true);
+    signupButton_->show();
 
-    gotoLoginButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kWelcomeSecondary, 121, 38, 19);
-    gotoLoginButton_->setFont(FontDescr(15, QFont::Medium));
-    connect(gotoLoginButton_, &CommonGraphics::BubbleButton::clicked, this, &WelcomeWindowItem::onGotoLoginButtonClick);
-    gotoLoginButton_->setClickable(true);
-    gotoLoginButton_->show();
+    loginButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kWelcomeSecondary, 121, 38, 19);
+    loginButton_->setFont(FontDescr(15, QFont::Medium));
+    connect(loginButton_, &CommonGraphics::BubbleButton::clicked, this, &WelcomeWindowItem::onLoginButtonClick);
+    loginButton_->setClickable(true);
+    loginButton_->show();
 
     // Lower Region:
     emergencyButton_ = new IconHoverEngageButton(EMERGENCY_ICON_DISABLED_PATH, EMERGENCY_ICON_ENABLED_PATH, this);
@@ -138,8 +138,10 @@ void WelcomeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
+    qreal initialOpacity = painter->opacity();
+
     painter->setRenderHint(QPainter::Antialiasing);
-    painter->setOpacity(OPACITY_FULL);
+    painter->setOpacity(OPACITY_FULL * initialOpacity);
 
     QPainterPath path;
     path.addRoundedRect(boundingRect().toRect(), 9*G_SCALE, 9*G_SCALE);
@@ -168,8 +170,8 @@ void WelcomeWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 
 void WelcomeWindowItem::setClickable(bool enabled)
 {
-    gotoLoginButton_->setClickable(enabled);
-    getStartedButton_->setClickable(enabled);
+    loginButton_->setClickable(enabled);
+    signupButton_->setClickable(enabled);
 
     settingsButton_->setClickable(enabled);
     configButton_->setClickable(enabled);
@@ -191,15 +193,15 @@ void WelcomeWindowItem::onMinimizeClick()
     emit minimizeClick();
 }
 
-void WelcomeWindowItem::onGotoLoginButtonClick()
+void WelcomeWindowItem::onLoginButtonClick()
 {
-    gotoLoginButton_->unhover();
-    emit haveAccountYesClick();
+    loginButton_->unhover();
+    emit loginClick();
 }
 
-void WelcomeWindowItem::onGetStartedButtonClick()
+void WelcomeWindowItem::onSignupButtonClick()
 {
-    QDesktopServices::openUrl(QUrl( QString("https://%1/signup?cpid=app_windows").arg(HardcodedSettings::instance().windscribeServerUrl())));
+    emit getStartedClick();
 }
 
 void WelcomeWindowItem::onSettingsButtonClick()
@@ -264,8 +266,8 @@ void WelcomeWindowItem::onAbstractButtonHoverEnter(QGraphicsObject *button, QStr
 void WelcomeWindowItem::onLanguageChanged()
 {
     firewallTurnOffButton_->setText(tr("Turn Off Firewall"));
-    gotoLoginButton_->setText(tr("Login"));
-    getStartedButton_->setText(tr("Get Started"));
+    loginButton_->setText(tr("Login"));
+    signupButton_->setText(tr("Get Started"));
     updatePositions();
 }
 
@@ -290,8 +292,8 @@ void WelcomeWindowItem::updatePositions()
     firewallTurnOffButton_->setPos((LOGIN_WIDTH - 16 - firewallTurnOffButton_->getWidth())*G_SCALE, 0);
 #endif
 
-    getStartedButton_->setPos((LOGIN_WIDTH*G_SCALE - getStartedButton_->boundingRect().width()) / 2, GET_STARTED_BUTTON_POS_Y*G_SCALE);
-    gotoLoginButton_->setPos((LOGIN_WIDTH*G_SCALE - gotoLoginButton_->boundingRect().width()) / 2, LOGIN_BUTTON_POS_Y*G_SCALE);
+    signupButton_->setPos((LOGIN_WIDTH*G_SCALE - signupButton_->boundingRect().width()) / 2, GET_STARTED_BUTTON_POS_Y*G_SCALE);
+    loginButton_->setPos((LOGIN_WIDTH*G_SCALE - loginButton_->boundingRect().width()) / 2, LOGIN_BUTTON_POS_Y*G_SCALE);
 
     int bottom_button_y = LOGIN_HEIGHT*G_SCALE - settingsButton_->boundingRect().width() - 24*G_SCALE;
     int window_center_x_offset = WINDOW_WIDTH/2*G_SCALE - settingsButton_->boundingRect().width()/2;
@@ -304,7 +306,7 @@ void WelcomeWindowItem::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
         if (hasFocus()) {
-            emit haveAccountYesClick();
+            emit loginClick();
         }
     }
 

@@ -9,7 +9,7 @@ namespace OVPN
 {
 
 bool writeOVPNFile(const std::string &dnsScript, unsigned int port, const std::string &config, const std::string &httpProxy,
-                   unsigned int httpPort, const std::string &socksProxy, unsigned int socksPort, bool isCustomConfig)
+                   unsigned int httpPort, const std::string &socksProxy, unsigned int socksPort)
 {
     std::istringstream stream(config);
     std::string line;
@@ -55,19 +55,17 @@ bool writeOVPNFile(const std::string &dnsScript, unsigned int port, const std::s
     }
 
     // add our own up/down scripts
-    if (!isCustomConfig) {
-        const std::string upScript = \
-            "--script-security 2\n" \
-            "up " + dnsScript + "\n" \
-            "down " + dnsScript + "\n" \
-            "down-pre\n" \
-            "dhcp-option DOMAIN-ROUTE .\n"; // prevent DNS leakage and without it doesn't work update-systemd-resolved script
-        bytes = write(fd, upScript.c_str(), upScript.length());
-        if (bytes <= 0) {
-            spdlog::error("Could not write openvpn config");
-            close(fd);
-            return false;
-        }
+    const std::string upScript = \
+         "--script-security 2\n" \
+         "up " + dnsScript + "\n" \
+         "down " + dnsScript + "\n" \
+         "down-pre\n" \
+         "dhcp-option DOMAIN-ROUTE .\n"; // prevent DNS leakage and without it doesn't work update-systemd-resolved script
+    bytes = write(fd, upScript.c_str(), upScript.length());
+    if (bytes <= 0) {
+        spdlog::error("Could not write openvpn config");
+        close(fd);
+        return false;
     }
 
     // add management and other options

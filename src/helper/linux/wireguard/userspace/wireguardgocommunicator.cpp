@@ -1,8 +1,5 @@
 #include "wireguardgocommunicator.h"
-#include "../../../common/helper_commands.h"
-#include "../../execute_cmd.h"
-#include "../../utils.h"
-#include <codecvt>
+
 #include <regex>
 #include <type_traits>
 #include <boost/algorithm/string/trim.hpp>
@@ -11,6 +8,12 @@
 #include <sys/time.h>
 #include <sys/un.h>
 #include <spdlog/spdlog.h>
+
+#include "../../execute_cmd.h"
+#include "../../utils.h"
+
+static const std::string kExecutableName = "windscribeamneziawg";
+static const std::string kControlSocketFolder = "/var/run/amneziawg/";
 
 namespace
 {
@@ -37,8 +40,7 @@ WireGuardGoCommunicator::Connection::Connection(const std::string &deviceName)
 {
     struct sockaddr_un addr;
     addr.sun_family = AF_UNIX;
-    snprintf(addr.sun_path, sizeof(addr.sun_path), "/var/run/wireguard/%s.sock",
-        deviceName.c_str());
+    snprintf(addr.sun_path, sizeof(addr.sun_path), "%s%s.sock", kControlSocketFolder.c_str(), deviceName.c_str());
     int attempt = 0;
     do {
         if (connect(&addr))
@@ -67,7 +69,7 @@ WireGuardGoCommunicator::Connection::~Connection()
         close(socketHandle_);
 }
 
-bool WireGuardGoCommunicator::Connection::getOutput(ResultMap *results_map) const
+bool WireGuardGoCommunicator::Connection::getOutput(ResultMap *results_map, bool verboseLogging) const
 {
     if (!fileHandle_)
         return false;
@@ -82,9 +84,14 @@ bool WireGuardGoCommunicator::Connection::getOutput(ResultMap *results_map) cons
         prev = c;
         output.push_back(c);
     }
+
     boost::trim(output);
     if (output.empty())
         return false;
+
+    if (verboseLogging)
+        spdlog::debug("AmneziaWG output: {}", output);
+
     if (results_map && !results_map->empty()) {
         std::regex output_rx("(^|\n)(\\w+)=(\\w+)(?=\n|$)");
         std::sregex_iterator it(output.begin(), output.end(), output_rx), end;
@@ -139,21 +146,26 @@ bool WireGuardGoCommunicator::Connection::connect(struct sockaddr_un *address)
     return true;
 }
 
-bool WireGuardGoCommunicator::start(const std::string &deviceName)
+bool WireGuardGoCommunicator::start(const std::string &deviceName, bool verboseLogging)
 {
     assert(!deviceName.empty());
 
-    Utils::executeCommand("rm", {"-f", ("/var/run/wireguard/" + deviceName + ".sock").c_str()});
+    Utils::executeCommand("rm", {"-f", (kControlSocketFolder + deviceName + ".sock").c_str()});
 
-    const std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribewireguard", "-f " + deviceName);
+    const std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), kExecutableName, "-f " + deviceName);
     if (fullCmd.empty()) {
         spdlog::error("Invalid WireGuard command");
         return false;
     }
 
+    if (verboseLogging) {
+        // Enable verbose logging in the AmneziaWG daemon.
+        setenv("LOG_LEVEL", "debug", 1);
+    }
+
     ExecuteCmd::instance().execute(fullCmd);
     deviceName_ = deviceName;
-    executable_ = "windscribewireguard";
+    verboseLogging_ = verboseLogging;
     return true;
 }
 
@@ -161,6 +173,7 @@ bool WireGuardGoCommunicator::stop()
 {
     if (!deviceName_.empty()) {
         forceStop(deviceName_);
+        deviceName_.clear();
     }
     return true;
 }
@@ -168,15 +181,15 @@ bool WireGuardGoCommunicator::stop()
 // static
 bool WireGuardGoCommunicator::forceStop(const std::string &deviceName)
 {
-    Utils::executeCommand("rm", {"-f", ("/var/run/wireguard/" + deviceName + ".sock").c_str()});
-    Utils::executeCommand("pkill", {"-f", "windscribewireguard"});
+    Utils::executeCommand("rm", {"-f", (kControlSocketFolder + deviceName + ".sock").c_str()});
+    Utils::executeCommand("pkill", {"-f", kExecutableName});
     return true;
 }
 
-bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey,
-    const std::string &peerPublicKey, const std::string &peerPresharedKey,
-    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps,
-    uint32_t fwmark, uint16_t listenPort)
+bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey, const std::string &peerPublicKey,
+                                        const std::string &peerPresharedKey, const std::string &peerEndpoint,
+                                        const std::vector<std::string> &allowedIps, uint32_t fwmark,
+                                        uint16_t listenPort, const AmneziawgConfig &amneziawgConfig)
 {
     Connection connection(deviceName_);
     if (connection.getStatus() != Connection::Status::OK) {
@@ -184,30 +197,75 @@ bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey,
         return false;
     }
 
-    // Setup listen port first, otherwise it would be silently ignored
-    if (listenPort) {
-        fprintf(connection, "set=1\nlisten_port=%hu\n\n", listenPort);
-        fflush(connection);
-        // Check results.
-        Connection::ResultMap results{ std::make_pair("errno", "") };
-        bool success = connection.getOutput(&results);
-        if (success && stringToValue<int>(results["errno"]) != 0)
-            spdlog::error("Wireguard listen_port is not successful");
+    // Send set command.
+    // Note: UAPI protocol requires device-level parameters (private_key, s1-s4, h1-h4, etc.)
+    // to be sent BEFORE peer-level parameters (public_key, endpoint, etc.).
+    // Once public_key is sent, the daemon switches to peer configuration mode.
+    fputs("set=1\n", connection);
+    fprintf(connection,
+            "fwmark=%u\n"
+            "private_key=%s\n",
+            fwmark, clientPrivateKey.c_str());
+
+    if (listenPort != 0) {
+        fprintf(connection, "listen_port=%hu\n", listenPort);
     }
 
-    // Send set command.
-    fputs("set=1\n", connection);
+    fprintf(connection, "replace_peers=true\n");
+
+    // Send AmneziaWG parameters if non-zero/non-empty
+    if (amneziawgConfig.isValid()) {
+        // Daemon will reject the j-params if they are <= 0 and fail to connect.
+        if (amneziawgConfig.jc > 0) {
+            fprintf(connection, "jc=%d\n", amneziawgConfig.jc);
+        }
+        if (amneziawgConfig.jmin > 0) {
+            fprintf(connection, "jmin=%d\n", amneziawgConfig.jmin);
+        }
+        if (amneziawgConfig.jmax > 0) {
+            fprintf(connection, "jmax=%d\n", amneziawgConfig.jmax);
+        }
+        if (amneziawgConfig.s1 != 0) {
+            fprintf(connection, "s1=%d\n", amneziawgConfig.s1);
+        }
+        if (amneziawgConfig.s2 != 0) {
+            fprintf(connection, "s2=%d\n", amneziawgConfig.s2);
+        }
+        if (amneziawgConfig.s3 != 0) {
+            fprintf(connection, "s3=%d\n", amneziawgConfig.s3);
+        }
+        if (amneziawgConfig.s4 != 0) {
+            fprintf(connection, "s4=%d\n", amneziawgConfig.s4);
+        }
+        if (!amneziawgConfig.h1.empty()) {
+            fprintf(connection, "h1=%s\n", amneziawgConfig.h1.c_str());
+        }
+        if (!amneziawgConfig.h2.empty()) {
+            fprintf(connection, "h2=%s\n", amneziawgConfig.h2.c_str());
+        }
+        if (!amneziawgConfig.h3.empty()) {
+            fprintf(connection, "h3=%s\n", amneziawgConfig.h3.c_str());
+        }
+        if (!amneziawgConfig.h4.empty()) {
+            fprintf(connection, "h4=%s\n", amneziawgConfig.h4.c_str());
+        }
+
+        // Send I1-I5 parameters (in order, only if they exist)
+        for (size_t i = 0; i < amneziawgConfig.iValues.size() && i < 5; ++i) {
+            if (!amneziawgConfig.iValues[i].empty()) {
+                fprintf(connection, "i%zu=%s\n", i + 1, amneziawgConfig.iValues[i].c_str());
+            }
+        }
+    }
+
     // persistent_keepalive_interval is needed to force handshake right after
     // the interface is configured. Otherwise, Wireguard waits for any incoming
     // packet to the network interface, which interfere with the blocking firewall.
     fprintf(connection,
-        "fwmark=%u\n"
-        "private_key=%s\n"
-        "replace_peers=true\n"
         "public_key=%s\n"
         "endpoint=%s\n"
         "persistent_keepalive_interval=600\n",
-        fwmark, clientPrivateKey.c_str(), peerPublicKey.c_str(), peerEndpoint.c_str());
+        peerPublicKey.c_str(), peerEndpoint.c_str());
     if (!peerPresharedKey.empty())
         fprintf(connection, "preshared_key=%s\n", peerPresharedKey.c_str());
     fprintf(connection, "%s", "replace_allowed_ips=true\n");
@@ -218,11 +276,10 @@ bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey,
 
     // Check results.
     Connection::ResultMap results{ std::make_pair("errno", "") };
-    bool success = connection.getOutput(&results);
-    for (auto it = results.begin(); it != results.end(); ++it)
-        {
-            spdlog::debug("{} = {}", it->first, it->second);
-        }
+    bool success = connection.getOutput(&results, verboseLogging_);
+    for (auto it = results.begin(); it != results.end(); ++it) {
+        spdlog::debug("{} = {}", it->first, it->second);
+    }
     if (success)
         success = stringToValue<int>(results["errno"]) == 0;
     return success;
@@ -253,9 +310,12 @@ unsigned long WireGuardGoCommunicator::getStatus(unsigned int *errorCode,
         std::make_pair("tx_bytes", ""),
         std::make_pair("last_handshake_time_sec", "")
     };
-    bool success = connection.getOutput(&results);
-    if (!success)
+    
+    // Ignore verbose logging for this method since we call it a lot.
+    bool success = connection.getOutput(&results, false);
+    if (!success) {
         return kWgStateStarting;
+    }
 
     // Check for errors.
     const auto errno_value = stringToValue<unsigned int>(results["errno"]);
@@ -275,19 +335,22 @@ unsigned long WireGuardGoCommunicator::getStatus(unsigned int *errorCode,
         int rc = gettimeofday(&tv, NULL);
         if (rc || tv.tv_sec - stringToValue<unsigned long long>(results["last_handshake_time_sec"]) > 180)
         {
-            spdlog::info("Time since last handshake time exceeded 3 minutes, disconnecting");
+            spdlog::warn("Time since last handshake time exceeded 3 minutes, disconnecting");
             return kWgStateError;
         }
 
-        if (bytesReceived)
+        if (bytesReceived) {
             *bytesReceived = stringToValue<unsigned long long>(results["rx_bytes"]);
-        if (bytesTransmitted)
+        }
+        if (bytesTransmitted) {
             *bytesTransmitted = stringToValue<unsigned long long>(results["tx_bytes"]);
+        }
         return kWgStateActive;
     }
 
     // If endpoint is set, we are connecting, otherwise simply listening.
-    if (!results["public_key"].empty())
+    if (!results["public_key"].empty()) {
         return kWgStateConnecting;
+    }
     return kWgStateListening;
 }

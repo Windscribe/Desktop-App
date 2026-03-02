@@ -338,54 +338,21 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>로그인</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>계속하려면 퍼즐을 완료하세요.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
     <message>
         <source>Turn Off Firewall</source>
-        <translation>방화벽 끄기</translation>
-    </message>
-    <message>
-        <source>No Internet Connectivity</source>
-        <translation>인터넷 연결 없음</translation>
-    </message>
-    <message>
-        <source>No API Connectivity</source>
-        <translation>API 연결 없음</translation>
-    </message>
-    <message>
-        <source>Proxy requires authentication</source>
-        <translation>프록시에 인증이 필요합니다.</translation>
-    </message>
-    <message>
-        <source>Invalid API response, check your network</source>
-        <translation>잘못된 API 응답, 네트워크를 확인하세요</translation>
-    </message>
-    <message>
-        <source>Invalid API Endpoint</source>
-        <translation>잘못된 API 엔드포인트</translation>
-    </message>
-    <message>
-        <source>...hmm are you sure this is correct?</source>
-        <translation>... 흠, 맞는지 다시 한번 확인해보세요.</translation>
-    </message>
-    <message>
-        <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>... 죄송합니다, 이것도 틀린 것 같습니다</translation>
-    </message>
-    <message>
-        <source>...hmm, try resetting your password!</source>
-        <translation>... 흠, 비밀번호를 재설정해 보세요!</translation>
-    </message>
-    <message>
-        <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>너무 많이 시도했습니다. 잠시 후에 다시 시도 하세요.</translation>
-    </message>
-    <message>
-        <source>Session is expired. Please login again</source>
-        <translation>세션이 만료되었습니다. 다시 로그인하세요</translation>
-    </message>
-    <message>
-        <source>Your username should not be an email address. Please try again.</source>
-        <translation>사용자 이름은 이메일 주소가 아니어야 합니다. 다시 시도하십시오.</translation>
+        <translation>방화벽 꺼기</translation>
     </message>
     <message>
         <source>Login</source>
@@ -393,7 +360,7 @@
     </message>
     <message>
         <source>Emergency Connect is ON</source>
-        <translation>비상 연결이 켜져 있습니다.</translation>
+        <translation>긴급 연결 켜짐</translation>
     </message>
     <message>
         <source>2FA Code</source>
@@ -401,15 +368,7 @@
     </message>
     <message>
         <source>Forgot password?</source>
-        <translation>비밀번호를 잊으셨나요?</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation>사용자 이름</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>암호</translation>
+        <translation>비밀번호를 잊었나요?</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -418,6 +377,22 @@
     <message>
         <source>Hashed</source>
         <translation>해시드</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>사용자 이름</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>사용자 이름 입력</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>비밀번호</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>비밀번호 입력</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -435,16 +410,154 @@
         <source>All Files (*.*)</source>
         <translation>모든 파일 (*.*)</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>로그인</translation>
+        <source>No Internet Connectivity</source>
+        <translation>인터넷 연결 없음</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>계속하려면 퍼즐을 완료하세요.</translation>
+        <source>No API Connectivity</source>
+        <translation>API 연결 없음</translation>
+    </message>
+    <message>
+        <source>Proxy requires authentication</source>
+        <translation>프록시는 인증이 필요합니다</translation>
+    </message>
+    <message>
+        <source>Invalid API response, check your network</source>
+        <translation>API 응답이 유효하지 않습니다. 네트워크 상태를 확인해 보세요</translation>
+    </message>
+    <message>
+        <source>Invalid API Endpoint</source>
+        <translation>유효하지 않은 API 엔드포인트</translation>
+    </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... 음, 이게 맞나요?</translation>
+    </message>
+    <message>
+        <source>...Sorry, seems like it&apos;s wrong again</source>
+        <translation>... 죄송합니다, 또 잘못된 것 같네요</translation>
+    </message>
+    <message>
+        <source>...hmm, try resetting your password!</source>
+        <translation>... 음, 비밀번호를 재설정해 보세요!</translation>
+    </message>
+    <message>
+        <source>Rate limited. Please wait before trying to login again.</source>
+        <translation>요금 제한. 다시 로그인 시도를 시도하기 전에 잠시 기다려 주세요.</translation>
+    </message>
+    <message>
+        <source>Session is expired. Please login again</source>
+        <translation>세션이 만료되었습니다. 다시 로그인해 주세요</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address. Please try again.</source>
+        <translation>사용자 이름은 이메일 주소가 되어서는 안 됩니다. 다시 시도해 주세요.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
+    <message>
+        <source>Sign Up</source>
+        <translation>가입하기</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>표준</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>해시드</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>사용자 이름</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>사용자 이름 입력</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>비밀번호</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>비밀번호 입력</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>대문자와 소문자가 최소 하나씩 포함된 8자 이상(예: &quot;헬로1234&quot;, &quot;솔얀카&quot;).</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>이메일 (선택 사항)</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>이메일을 입력하세요</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>비밀번호 복구, 업데이트 및 프로모션용으로만 사용됩니다. 스팸 금지.</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>바우처 코드?</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>바우처 코드 (선택 사항)</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>누군가에게 추천받았나요?</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>참조 사용자 이름 (선택 사항)</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>계속</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>해시</translation>
+    </message>
+    <message>
+        <source>Generate or browse file</source>
+        <translation>파일 생성 또는 탐색</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>개인 정보는 필요 없습니다. 계정 복구는 불가능합니다.
+계정 해시를 잃으면 영원히 사라지고 지원 지원팀은 복구를 도와줄 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>해시용 파일 선택</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>모든 파일 (*.*)</translation>
+    </message>
+    <message>
+        <source>Username must be at least 3 characters</source>
+        <translation>사용자 이름은 최소 3자 이상이어야 합니다</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address.</source>
+        <translation>사용자 이름은 이메일 주소가 되어서는 안 됩니다.</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>유효하지 않은 이메일</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>무효 해시</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Switch to Auto</source>
         <translation>오토로 전환하기</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>계정 생성 중...</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>네트워크 옵션</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>Windscribe는 장치가 &quot;비보안&quot;이라는 태그가 지정된 네트워크에 연결되면 자동으로 연결 해제됩니다.</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>새로 발견된 모든 네트워크를 보안으로 표시합니다.</translation>
     </message>
@@ -1803,6 +1916,10 @@ If the problem persists after a restart, please send a debug log and open a supp
 Connect to a network first</source>
         <translation>감지된 네트워크가 없습니다.
 먼저 네트워크에 연결하세요</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>새로운 네트워크는 자동으로 &quot;보안&quot;됩니다. 네트워크를 &quot;보안되지 않음&quot;으로 태그하면, 기기가 접속하면 Windscribe가 연결이 끊깁니다. 네트워크를 &quot;보안되지 않음&quot;으로 설정하는 것은 권장하지 않습니다.</translation>
     </message>
 </context>
 <context>

@@ -102,6 +102,13 @@ void TextButton::quickSetOpacity(double opacity)
     update();
 }
 
+void TextButton::quickShow()
+{
+    setClickable(true);
+    curTextOpacity_ = unhoverOpacity_;
+    update();
+}
+
 void TextButton::quickHide()
 {
     setClickable(false);

@@ -211,12 +211,28 @@ void Engine::loginWithUsernameAndPassword(const QString &username, const QString
     }, Qt::QueuedConnection);
 }
 
-void Engine::continueLoginWithCaptcha(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY)
+void Engine::continueWithCaptcha(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY)
 {
-    WS_ASSERT(loginCredentials_ != nullptr);
-    WSNet::instance()->apiResourcersManager()->login(loginCredentials_->username.toStdString(), loginCredentials_->password.toStdString(), loginCredentials_->code2fa.toStdString(),
-                                                     loginCredentials_->authToken.toStdString(), captchaSolution.toStdString(), captchaTrailX, captchaTrailY);
-    loginCredentials_.reset();  // no longer required
+    if (loginCredentials_) {
+        WSNet::instance()->apiResourcersManager()->login(loginCredentials_->username.toStdString(), loginCredentials_->password.toStdString(), loginCredentials_->code2fa.toStdString(),
+                                                         loginCredentials_->authToken.toStdString(), captchaSolution.toStdString(), captchaTrailX, captchaTrailY);
+        loginCredentials_.reset();  // no longer required
+    } else if (signupCredentials_) {
+        WSNet::instance()->apiResourcersManager()->signup(signupCredentials_->username.toStdString(), signupCredentials_->password.toStdString(),
+                                                          signupCredentials_->referringUsername.toStdString(), signupCredentials_->email.toStdString(),
+                                                          signupCredentials_->voucherCode.toStdString(), signupCredentials_->authToken.toStdString(),
+                                                          captchaSolution.toStdString(), captchaTrailX, captchaTrailY);
+        signupCredentials_.reset();  // no longer required
+    } else {
+        WS_ASSERT(false);
+    }
+}
+
+void Engine::signup(const QString &username, const QString &password, const QString &referringUsername, const QString &email, const QString &voucherCode)
+{
+    QMetaObject::invokeMethod(this, [this, username, password, referringUsername, email, voucherCode]() {
+        signupImpl(username, password, referringUsername, email, voucherCode);
+    }, Qt::QueuedConnection);
 }
 
 bool Engine::isApiSavedSettingsExists()
@@ -746,7 +762,7 @@ void Engine::initPart2()
     updateProxySettings();
     updateAdvancedParams();
 
-    QMetaObject::invokeMethod(this, "onApiResourcesManagerAmneziaWGUnblockParamsFetched");
+    QMetaObject::invokeMethod(this, &Engine::onApiResourcesManagerAmneziawgUnblockParamsFetched);
 }
 
 void Engine::onLostConnectionToHelper()
@@ -995,7 +1011,7 @@ void Engine::connectClickImpl(const LocationID &locationId, const types::Connect
                 firewallExceptions_.connectingIp(),
                 firewallExceptions_.getIPAddressesForFirewall(),
                 engineSettings_.isAllowLanTraffic(),
-                locationId_.isCustomConfigsLocation(), false);
+                false);
             emit firewallStateChanged(true);
         }
     }
@@ -1350,7 +1366,7 @@ void Engine::onConnectionManagerConnected()
                     connectionManager_->getLastConnectedIp(),
                     firewallExceptions_.getIPAddressesForFirewallForConnectedState(),
                     engineSettings_.isAllowLanTraffic(),
-                    locationId_.isCustomConfigsLocation(), true);
+                    true);
                 emit firewallStateChanged(true);
                 isFirewallAlreadyEnabled = true;
             }
@@ -1395,7 +1411,7 @@ void Engine::onConnectionManagerConnected()
             connectionManager_->getLastConnectedIp(),
             firewallExceptions_.getIPAddressesForFirewallForConnectedState(),
             engineSettings_.isAllowLanTraffic(),
-            locationId_.isCustomConfigsLocation(), true);
+            true);
     }
 
 
@@ -1692,6 +1708,7 @@ void Engine::onConnectionManagerTestTunnelResult(bool success, const QString &ip
         emit myIpUpdated(ipAddress, false); // sends IP address to UI // test should only occur in connected state
     }
     if (engineSettings_.decoyTrafficSettings().isEnabled()) {
+        WSNet::instance()->decoyTraffic()->setFakeTrafficVolume((int)engineSettings_.decoyTrafficSettings().volume());
         WSNet::instance()->decoyTraffic()->start();
     }
 }
@@ -2262,8 +2279,8 @@ void Engine::onApiResourceManagerCallback(ApiResourcesManagerNotification notifi
     // To keep the data in persistent settings when the OS reboots or kills the process
     saveWsnetSettings();
 
-    if (notification == ApiResourcesManagerNotification::kAuthTokenLoginFinished) {
-        onApiResourcesManagerAuthTokenLoginFinished(loginResult);
+    if (notification == ApiResourcesManagerNotification::kAuthTokenFinished) {
+        onApiResourcesManagerAuthTokenFinished(loginResult);
     } else if (notification == ApiResourcesManagerNotification::kLoginOk) {
         onApiResourcesManagerReadyForLogin(false);
     } else if (notification == ApiResourcesManagerNotification::kLoginFailed) {
@@ -2324,7 +2341,7 @@ void Engine::onApiResourcesManagerReadyForLogin(bool isLoginFromSavedSettings)
         qCWarning(LOG_BASIC) << "Engine::onApiResourcesManagerReadyForLogin: Port map is invalid:" << WSNet::instance()->apiResourcersManager()->portMap();
     }
 
-    emit loginFinished(isLoginFromSavedSettings, portMap);
+    emit loginFinished(portMap);
 }
 
 void Engine::onApiResourcesManagerLoginFailed(LoginResult loginResult, const QString &errorMessage)
@@ -2346,7 +2363,8 @@ void Engine::onApiResourcesManagerLoginFailed(LoginResult loginResult, const QSt
         tryLoginNextConnectOrDisconnect_ = true;
     } else if (loginResult == LoginResult::kBadUsername || loginResult == LoginResult::kBadCode2fa ||
              loginResult == LoginResult::kMissingCode2fa || loginResult == LoginResult::kAccountDisabled ||
-               loginResult == LoginResult::kSessionInvalid || loginResult == LoginResult::kRateLimited || loginResult == LoginResult::kInvalidSecurityToken) {
+               loginResult == LoginResult::kSessionInvalid || loginResult == LoginResult::kRateLimited ||
+               loginResult == LoginResult::kInvalidSecurityToken || loginResult == LoginResult::kSomeError) {
         emit loginError(loginResult, errorMessage);
     } else {
         WS_ASSERT(false);
@@ -2386,9 +2404,9 @@ void Engine::onApiResourcesManagerServerCredentialsFetched()
     }
 }
 
-void Engine::onApiResourcesManagerAuthTokenLoginFinished(LoginResult loginResult)
+void Engine::onApiResourcesManagerAuthTokenFinished(LoginResult loginResult)
 {
-    WS_ASSERT(loginCredentials_ != nullptr);
+    WS_ASSERT(loginCredentials_ != nullptr || signupCredentials_ != nullptr);
 
     if (loginResult == LoginResult::kNoConnectivity) {
         emit loginError(LoginResult::kNoConnectivity, QString());
@@ -2401,23 +2419,34 @@ void Engine::onApiResourcesManagerAuthTokenLoginFinished(LoginResult loginResult
     } else if (loginResult == LoginResult::kIncorrectJson) {
         emit loginError(LoginResult::kIncorrectJson, QString());
     } else {
-        api_responses::AuthToken authToken(WSNet::instance()->apiResourcersManager()->authTokenLoginResult());
+        api_responses::AuthToken authToken(WSNet::instance()->apiResourcersManager()->authTokenResult());
         if (!authToken.isValid()) {
-            qCInfo(LOG_BASIC) << "onApiResourcesManagerAuthTokenLoginFinished failed, ret:" << QString::fromStdString(WSNet::instance()->apiResourcersManager()->authTokenLoginResult());
+            qCInfo(LOG_BASIC) << "onApiResourcesManagerAuthTokenLoginFinished failed, ret:" << QString::fromStdString(WSNet::instance()->apiResourcersManager()->authTokenResult());
             emit loginError(LoginResult::kIncorrectJson, QString());
         } else {
             if (authToken.isRateLimitError()) {
                 emit loginError(LoginResult::kRateLimited, QString());
             } else {
                 if (authToken.isCaptchaRequired()) {
-                    loginCredentials_->authToken = authToken.token();
+                    if (loginCredentials_) {
+                        loginCredentials_->authToken = authToken.token();
+                    } else {
+                        signupCredentials_->authToken = authToken.token();
+                    }
                     emit captchaRequired(authToken.captchaData().isAsciiCaptcha, authToken.captchaData().asciiArt,
                                          authToken.captchaData().background, authToken.captchaData().slider, authToken.captchaData().top);
                 } else {
-                    // continue login with a secure token
-                    WSNet::instance()->apiResourcersManager()->login(loginCredentials_->username.toStdString(), loginCredentials_->password.toStdString(), loginCredentials_->code2fa.toStdString(),
+                    // continue login/signup with a secure token
+                    if (loginCredentials_) {
+                        WSNet::instance()->apiResourcersManager()->login(loginCredentials_->username.toStdString(), loginCredentials_->password.toStdString(), loginCredentials_->code2fa.toStdString(),
                                                                      authToken.token().toStdString());
-                    loginCredentials_.reset();
+                        loginCredentials_.reset();
+                    } else {
+                        WSNet::instance()->apiResourcersManager()->signup(signupCredentials_->username.toStdString(), signupCredentials_->password.toStdString(),
+                                                                          signupCredentials_->referringUsername.toStdString(), signupCredentials_->email.toStdString(),
+                                                                          signupCredentials_->voucherCode.toStdString(), signupCredentials_->authToken.toStdString());
+                        signupCredentials_.reset();
+                    }
                 }
             }
         }
@@ -2444,13 +2473,13 @@ void Engine::updateFirewallSettings(bool forceTurnOn)
                 engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS ? firewallExceptions_.getIPAddressesForFirewallForConnectedState()
                                                                                         : firewallExceptions_.getIPAddressesForFirewall(),
                 engineSettings_.isAllowLanTraffic(),
-                locationId_.isCustomConfigsLocation(), false);
+                false);
         } else {
             firewallController_->firewallOn(
                 connectionManager_->getLastConnectedIp(),
                 firewallExceptions_.getIPAddressesForFirewallForConnectedState(),
                 engineSettings_.isAllowLanTraffic(),
-                locationId_.isCustomConfigsLocation(), true);
+                true);
         }
     }
 }
@@ -2589,7 +2618,7 @@ void Engine::doDisconnectRestoreStuff()
             engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS ? firewallExceptions_.getIPAddressesForFirewallForConnectedState()
                                                                                     : firewallExceptions_.getIPAddressesForFirewall(),
             engineSettings_.isAllowLanTraffic(),
-            locationId_.isCustomConfigsLocation(), false);
+            false);
     }
 
 #ifdef Q_OS_WIN
@@ -2781,6 +2810,19 @@ void Engine::loginImpl(bool isUseAuthHash, const QString &username, const QStrin
     }
 }
 
+void Engine::signupImpl(const QString &username, const QString &password, const QString &referringUsername, const QString &email, const QString &voucherCode)
+{
+    // Let's save this data as we will need it later when calling the signup API
+    signupCredentials_ = std::make_unique<SignupCredentials>();
+    signupCredentials_->username = username;
+    signupCredentials_->password = password;
+    signupCredentials_->referringUsername = referringUsername;
+    signupCredentials_->email = email;
+    signupCredentials_->voucherCode = voucherCode;
+
+    callAuthTokenSignup(signupCredentials_->username);
+}
+
 void Engine::onWireGuardKeyLimitUserResponse(bool deleteOldestKey)
 {
     connectionManager_->onWireGuardKeyLimitUserResponse(deleteOldestKey);
@@ -2844,6 +2886,15 @@ void Engine::callAuthTokenLogin(const QString &username)
 #endif
 }
 
+void Engine::callAuthTokenSignup(const QString &username)
+{
+#ifdef CLI_ONLY
+    WSNet::instance()->apiResourcersManager()->authTokenSignup(username.toStdString(), true);
+#else
+    WSNet::instance()->apiResourcersManager()->authTokenSignup(username.toStdString(), false);
+#endif
+}
+
 void Engine::updateApiResolutionSettingsInWsnet()
 {
     auto apiRootOverride = ExtraConfig::instance().apiRootOverride();
@@ -2885,6 +2936,11 @@ void Engine::onIpPinFinished(const QString &ip)
 #endif
         emit testTunnelResult(true);
         emit myIpUpdated(ip, false);
+
+        if (engineSettings_.decoyTrafficSettings().isEnabled()) {
+            WSNet::instance()->decoyTraffic()->setFakeTrafficVolume((int)engineSettings_.decoyTrafficSettings().volume());
+            WSNet::instance()->decoyTraffic()->start();
+        }
     } else {
         // If IP pinning failed, we should start tunnel tests now to determine our actual IP.
         // GUI side will show a message accordingly if the actual IP does not match the pinned IP.

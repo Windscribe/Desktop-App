@@ -17,6 +17,10 @@ signals:
     void connectivityStateChanged(bool isOnline);
 
 private:
+    void startOfflineDebounce();
+    void cancelOfflineDebounce();
+
     nw_path_monitor_t monitor_;
+    dispatch_source_t debounceTimer_;
     bool curIsOnline_;
 };

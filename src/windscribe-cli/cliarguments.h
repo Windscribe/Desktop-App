@@ -25,6 +25,7 @@ enum CliCommand {
     CLI_COMMAND_SET_KEYLIMIT_BEHAVIOR,
     CLI_COMMAND_STATUS,
     CLI_COMMAND_UPDATE,
+    CLI_COMMAND_AMNEZIAWG,
 };
 
 class CliArguments

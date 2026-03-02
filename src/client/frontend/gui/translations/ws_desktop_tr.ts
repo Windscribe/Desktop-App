@@ -338,62 +338,29 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
-    <message>
-        <source>Turn Off Firewall</source>
-        <translation>Güvenlik Duvarını Kapat</translation>
-    </message>
-    <message>
-        <source>No Internet Connectivity</source>
-        <translation>İnternet Bağlantısı Yok</translation>
-    </message>
-    <message>
-        <source>No API Connectivity</source>
-        <translation>API Bağlantısı Yok</translation>
-    </message>
-    <message>
-        <source>Proxy requires authentication</source>
-        <translation>Proxy kimlik doğrulaması gerektirir</translation>
-    </message>
-    <message>
-        <source>Invalid API response, check your network</source>
-        <translation>Geçersiz API yanıtı, ağınızı kontrol edin</translation>
-    </message>
-    <message>
-        <source>Invalid API Endpoint</source>
-        <translation>Geçersiz API Uç Noktası</translation>
-    </message>
-    <message>
-        <source>...hmm are you sure this is correct?</source>
-        <translation>... hmm bunun doğru olduğundan emin misin?</translation>
-    </message>
-    <message>
-        <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>... Üzgünüm, yine yanlış gibi görünüyor</translation>
-    </message>
-    <message>
-        <source>...hmm, try resetting your password!</source>
-        <translation>... Hmm, şifrenizi sıfırlamayı deneyin!</translation>
-    </message>
-    <message>
-        <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>Oran sınırlı. Tekrar giriş yapmayı denemeden önce lütfen bekleyin.</translation>
-    </message>
-    <message>
-        <source>Session is expired. Please login again</source>
-        <translation>Oturumun süresi doldu. Lütfen tekrar giriş yapın</translation>
-    </message>
-    <message>
-        <source>Your username should not be an email address. Please try again.</source>
-        <translation>Kullanıcı adınız bir e-posta adresi olmamalıdır. Lütfen tekrar deneyin.</translation>
-    </message>
+    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
         <source>Login</source>
         <translation>Oturum açma</translation>
     </message>
     <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Devam etmek için Bulmacayı tamamlayın</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
+    <message>
+        <source>Turn Off Firewall</source>
+        <translation>Güvenlik Duvarını Kapat</translation>
+    </message>
+    <message>
+        <source>Login</source>
+        <translation>Giriş</translation>
+    </message>
+    <message>
         <source>Emergency Connect is ON</source>
-        <translation>Acil Durum Bağlantısı AÇIK</translation>
+        <translation>Emergency Connect AÇIK</translation>
     </message>
     <message>
         <source>2FA Code</source>
@@ -401,15 +368,7 @@
     </message>
     <message>
         <source>Forgot password?</source>
-        <translation>Şifrenizi mi unuttunuz?</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation>Kullanıcı adı</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>Parola</translation>
+        <translation>Şifreyi unuttun mu?</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -418,6 +377,22 @@
     <message>
         <source>Hashed</source>
         <translation>Hashed</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Kullanıcı adı</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Kullanıcı adı girin</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Şifre</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Şifreyi gir</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -435,16 +410,154 @@
         <source>All Files (*.*)</source>
         <translation>Tüm Dosyalar (*.*)</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>Oturum açma</translation>
+        <source>No Internet Connectivity</source>
+        <translation>İnternet bağlantısı yok</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>Devam etmek için Bulmacayı tamamlayın</translation>
+        <source>No API Connectivity</source>
+        <translation>API bağlantısı yok</translation>
+    </message>
+    <message>
+        <source>Proxy requires authentication</source>
+        <translation>Proxy doğrulama gerektirir</translation>
+    </message>
+    <message>
+        <source>Invalid API response, check your network</source>
+        <translation>Geçersiz API yanıtı, ağınızı kontrol edin</translation>
+    </message>
+    <message>
+        <source>Invalid API Endpoint</source>
+        <translation>Geçersiz API Uç Noktası</translation>
+    </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... Hmm, emin misin bu doğru?</translation>
+    </message>
+    <message>
+        <source>...Sorry, seems like it&apos;s wrong again</source>
+        <translation>... Üzgünüm, yine yanlış gibi görünüyor</translation>
+    </message>
+    <message>
+        <source>...hmm, try resetting your password!</source>
+        <translation>... Hmm, şifrenizi sıfırlamayı dene!</translation>
+    </message>
+    <message>
+        <source>Rate limited. Please wait before trying to login again.</source>
+        <translation>Oran sınırlı. Lütfen tekrar giriş yapmaya çalışmadan önce bekleyin.</translation>
+    </message>
+    <message>
+        <source>Session is expired. Please login again</source>
+        <translation>Oturum süresi doldu. Lütfen tekrar giriş yapın</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address. Please try again.</source>
+        <translation>Kullanıcı adınız e-posta adresi olmamalıdır. Lütfen tekrar dene.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
+    <message>
+        <source>Sign Up</source>
+        <translation>Kayıt Olun</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>Standart</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>Hashed</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Kullanıcı adı</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Kullanıcı adı girin</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Şifre</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Şifreyi gir</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>8 veya daha fazla karakter en az bir büyük ve küçük harf (örneğin, &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>E-posta (İsteğe Bağlı)</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>E-posta girin</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>Şifre kurtarma, güncellemeler ve sadece promosyon için. Spam yok.</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>Kupon Kodu?</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>Kupon kodu (isteğe bağlı)</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>Biri tarafından mı tavsiye edildi?</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>Referans kullanıcı adı (isteğe bağlı)</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>Devam et</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>Hash</translation>
+    </message>
+    <message>
+        <source>Generate or browse file</source>
+        <translation>Dosya oluşturun veya gezin</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>Kişisel bilgi gerekmiyor. Hesap kurtarma imkansızdır.
+Hesabınızı kaybederseniz, sonsuza dek kaybolur ve destek size onu kurtarmaya yardımcı olamaz.</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>Hash için dosyayı seç</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>Tüm Dosyalar (*.*)</translation>
+    </message>
+    <message>
+        <source>Username must be at least 3 characters</source>
+        <translation>Kullanıcı adı en az 3 karakter olmalı</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address.</source>
+        <translation>Kullanıcı adınız e-posta adresi olmamalıdır.</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>Geçersiz e-posta</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>Geçersiz hash</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
     <message>
         <source>Switch to Auto</source>
         <translation>Otomatik Sisteme Geçiş</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>Hesabınızı oluşturuyorum...</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <translation>Ağ Seçenekleri</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>Cihaz &quot;Güvenli Değil&quot; etiketli bir ağa bağlandığında Windscribe otomatik olarak bağlantıyı kesecektir.</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>Yeni karşılaşılan tüm ağları Güvenli olarak işaretleyin.</translation>
     </message>
@@ -1803,6 +1916,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
 Connect to a network first</source>
         <translation>Ağ Algılanmadı.
 Önce bir ağa bağlanın</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>Yeni ağlar otomatik olarak &quot;Güvenli&quot; hale getirilir. Bir ağı &quot;Güvensiz&quot; olarak etiketlerseniz, cihaz katıldığında Windscribe bağlantıyı kesecektir. Bir ağın &quot;Güvensiz&quot; olarak ayarlanması ÖNERİLmez.</translation>
     </message>
 </context>
 <context>

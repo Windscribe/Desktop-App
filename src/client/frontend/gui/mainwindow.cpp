@@ -214,17 +214,34 @@ MainWindow::MainWindow() :
     // init window signals
     connect(mainWindowController_->getInitWindow(), &LoginWindow::InitWindowItem::abortClicked, this, &MainWindow::onAbortInitialization);
 
+    // welcome window signals
+    connect(mainWindowController_->getWelcomeWindow(), &LoginWindow::WelcomeWindowItem::minimizeClick, this, &MainWindow::onMinimizeClick);
+    connect(mainWindowController_->getWelcomeWindow(), &LoginWindow::WelcomeWindowItem::closeClick, this, &MainWindow::onCloseClick);
+    connect(mainWindowController_->getWelcomeWindow(), &LoginWindow::WelcomeWindowItem::emergencyConnectClick, this, &MainWindow::onWelcomeEmergencyWindowClick);
+    connect(mainWindowController_->getWelcomeWindow(), &LoginWindow::WelcomeWindowItem::preferencesClick, this, &MainWindow::onWelcomePreferencesClick);
+    connect(mainWindowController_->getWelcomeWindow(), &LoginWindow::WelcomeWindowItem::externalConfigModeClick, this, &MainWindow::onWelcomeExternalConfigWindowClick);
+    connect(mainWindowController_->getWelcomeWindow(), &LoginWindow::WelcomeWindowItem::loginClick, this, &MainWindow::onWelcomeHaveAccountYesClick);
+    connect(mainWindowController_->getWelcomeWindow(), &LoginWindow::WelcomeWindowItem::getStartedClick, this, &MainWindow::onWelcomeCreateAccountClick);
+    connect(mainWindowController_->getWelcomeWindow(), &LoginWindow::WelcomeWindowItem::firewallTurnOffClick, this, &MainWindow::onLoginFirewallTurnOffClick);
+
     // login window signals
-    connect(mainWindowController_->getLoginWindow(), &LoginWindow::LoginWindowItem::loginClick, this, &MainWindow::onLoginClick);
     connect(mainWindowController_->getLoginWindow(), &LoginWindow::LoginWindowItem::minimizeClick, this, &MainWindow::onMinimizeClick);
     connect(mainWindowController_->getLoginWindow(), &LoginWindow::LoginWindowItem::closeClick, this, &MainWindow::onCloseClick);
-    connect(mainWindowController_->getLoginWindow(), &LoginWindow::LoginWindowItem::preferencesClick, this, &MainWindow::onLoginPreferencesClick);
-    connect(mainWindowController_->getLoginWindow(), &LoginWindow::LoginWindowItem::haveAccountYesClick, this, &MainWindow::onLoginHaveAccountYesClick);
-    connect(mainWindowController_->getLoginWindow(), &LoginWindow::LoginWindowItem::backToWelcomeClick, this, &MainWindow::onLoginBackToWelcomeClick);
-    connect(mainWindowController_->getLoginWindow(), &LoginWindow::LoginWindowItem::emergencyConnectClick, this, &MainWindow::onLoginEmergencyWindowClick);
-    connect(mainWindowController_->getLoginWindow(), &LoginWindow::LoginWindowItem::externalConfigModeClick, this, &MainWindow::onLoginExternalConfigWindowClick);
+    connect(mainWindowController_->getLoginWindow(), &LoginWindow::LoginWindowItem::backClick, this, [this] {
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_WELCOME);
+    });
     connect(mainWindowController_->getLoginWindow(), &LoginWindow::LoginWindowItem::twoFactorAuthClick, this, &MainWindow::onLoginTwoFactorAuthWindowClick);
     connect(mainWindowController_->getLoginWindow(), &LoginWindow::LoginWindowItem::firewallTurnOffClick, this, &MainWindow::onLoginFirewallTurnOffClick);
+    connect(mainWindowController_->getLoginWindow(), &LoginWindow::LoginWindowItem::loginClick, this, &MainWindow::onLoginClick);
+
+
+    // singup window signals
+    connect(mainWindowController_->getSignupWindow(), &LoginWindow::SignupWindowItem::minimizeClick, this, &MainWindow::onMinimizeClick);
+    connect(mainWindowController_->getSignupWindow(), &LoginWindow::SignupWindowItem::closeClick, this, &MainWindow::onCloseClick);
+    connect(mainWindowController_->getSignupWindow(), &LoginWindow::SignupWindowItem::backClick, this, [this] {
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_WELCOME);
+    });
+    connect(mainWindowController_->getSignupWindow(), &LoginWindow::SignupWindowItem::signupClick, this, &MainWindow::onSignupClick);
 
     // captcha window signals
     connect(mainWindowController_->getLoggingInWindow(), &LoginWindow::LoggingInWindowItem::captchaResolved, this, &MainWindow::onCaptchaResolved);
@@ -288,18 +305,22 @@ MainWindow::MainWindow() :
     connect(mainWindowController_->getPreferencesWindow(), &PreferencesWindow::PreferencesWindowItem::clearWifiHistoryClick, this, &MainWindow::onPreferencesClearWifiHistoryClick);
 
     // emergency window signals
-    connect(mainWindowController_->getEmergencyConnectWindow(), &EmergencyConnectWindow::EmergencyConnectWindowItem::escapeClick, this, &MainWindow::onEscapeClick);
+    connect(mainWindowController_->getEmergencyConnectWindow(), &EmergencyConnectWindow::EmergencyConnectWindowItem::escapeClick, this, &MainWindow::onEmergencyConnectEscapeClick);
     connect(mainWindowController_->getEmergencyConnectWindow(), &EmergencyConnectWindow::EmergencyConnectWindowItem::connectClick, this, &MainWindow::onEmergencyConnectClick);
     connect(mainWindowController_->getEmergencyConnectWindow(), &EmergencyConnectWindow::EmergencyConnectWindowItem::disconnectClick, this, &MainWindow::onEmergencyDisconnectClick);
 
     // external config window signals
     connect(mainWindowController_->getExternalConfigWindow(), &ExternalConfigWindow::ExternalConfigWindowItem::buttonClick, this, &MainWindow::onExternalConfigWindowNextClick);
-    connect(mainWindowController_->getExternalConfigWindow(), &ExternalConfigWindow::ExternalConfigWindowItem::escapeClick, this, &MainWindow::onEscapeClick);
+    connect(mainWindowController_->getExternalConfigWindow(), &ExternalConfigWindow::ExternalConfigWindowItem::escapeClick, this, [this] {
+        gotoWelcomeWindow();
+    });
 
     // 2FA window signals
     connect(mainWindowController_->getTwoFactorAuthWindow(), &TwoFactorAuthWindow::TwoFactorAuthWindowItem::addClick, this, &MainWindow::onTwoFactorAuthWindowButtonAddClick);
     connect(mainWindowController_->getTwoFactorAuthWindow(), &TwoFactorAuthWindow::TwoFactorAuthWindowItem::loginClick, this, &MainWindow::onLoginClick);
-    connect(mainWindowController_->getTwoFactorAuthWindow(), &TwoFactorAuthWindow::TwoFactorAuthWindowItem::escapeClick, this, &MainWindow::onEscapeClick);
+    connect(mainWindowController_->getTwoFactorAuthWindow(), &TwoFactorAuthWindow::TwoFactorAuthWindowItem::escapeClick, this, [this] {
+        gotoLoginWindow();
+    });
     connect(mainWindowController_->getTwoFactorAuthWindow(), &TwoFactorAuthWindow::TwoFactorAuthWindowItem::closeClick, this, &MainWindow::onCloseClick);
     connect(mainWindowController_->getTwoFactorAuthWindow(), &TwoFactorAuthWindow::TwoFactorAuthWindowItem::minimizeClick, this, &MainWindow::onMinimizeClick);
 
@@ -876,11 +897,6 @@ void MainWindow::onCloseClick()
     }
 }
 
-void MainWindow::onEscapeClick()
-{
-    gotoLoginWindow();
-}
-
 void MainWindow::onAbortInitialization()
 {
     isInitializationAborted_ = true;
@@ -907,31 +923,47 @@ void MainWindow::onLoginClick(const QString &username, const QString &password, 
 
     mainWindowController_->getConnectWindow()->setCustomConfigMode(false);
 
+    isLastCallWasSignup_ = false;
     backend_->login(username, password, code2fa);
 }
 
-void MainWindow::onLoginPreferencesClick()
+void MainWindow::onSignupClick(const QString &username, const QString &password, const QString &email, const QString &voucherCode, const QString &referringUsername)
+{
+    mainWindowController_->getLoggingInWindow()->setMessage(tr("Creating your account..."));
+    mainWindowController_->getLoggingInWindow()->setAdditionalMessage("");
+    mainWindowController_->getLoggingInWindow()->startAnimation();
+    mainWindowController_->getLoggingInWindow()->hideCaptcha();
+    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
+
+    mainWindowController_->getConnectWindow()->setCustomConfigMode(false);
+
+    isLastCallWasSignup_ = true;
+    backend_->signup(username, password, referringUsername, email, voucherCode);
+}
+
+void MainWindow::onWelcomePreferencesClick()
 {
     // the same actions as on connect screen
     onConnectWindowPreferencesClick();
 }
 
-void MainWindow::onLoginHaveAccountYesClick()
+void MainWindow::onWelcomeHaveAccountYesClick()
 {
     loginAttemptsController_.reset();
-    mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
+    gotoLoginWindow();
 }
 
-void MainWindow::onLoginBackToWelcomeClick()
+void MainWindow::onWelcomeCreateAccountClick()
 {
-    mainWindowController_->getLoginWindow()->resetState();
+    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_SIGNUP);
 }
 
-void MainWindow::onLoginEmergencyWindowClick()
+void MainWindow::onWelcomeEmergencyWindowClick()
 {
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EMERGENCY);
 }
-void MainWindow::onLoginExternalConfigWindowClick()
+
+void MainWindow::onWelcomeExternalConfigWindowClick()
 {
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_EXTERNAL_CONFIG);
 }
@@ -986,17 +1018,20 @@ void MainWindow::onLoginFirewallTurnOffClick()
 
 void MainWindow::onCaptchaBackClicked()
 {
-    logoutReason_ = LOGOUT_GO_TO_LOGIN;
-    backend_->logout(false);
     mainWindowController_->getLoggingInWindow()->hideCaptcha();
-    mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
-    gotoLoginWindow();
+    if (!isLastCallWasSignup_) {
+        logoutReason_ = LOGOUT_GO_TO_LOGIN;
+        backend_->logout(false);
+        gotoLoginWindow();
+    } else {
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_SIGNUP);
+    }
 }
 
 void MainWindow::onCaptchaResolved(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY)
 {
     mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
-    backend_->continueLoginWithCaptcha(captchaSolution, captchaTrailX, captchaTrailY);
+    backend_->continueWithCaptcha(captchaSolution, captchaTrailX, captchaTrailY);
 }
 
 void MainWindow::onConnectWindowNetworkButtonClick()
@@ -1155,13 +1190,16 @@ void MainWindow::onPreferencesLogoutClick()
 
 void MainWindow::onPreferencesLoginClick()
 {
+    collapsePreferences();
+
     if (backend_->getPreferencesHelper()->isExternalConfigMode()) {
         QApplication::setOverrideCursor(Qt::WaitCursor);
         logoutReason_ = LOGOUT_GO_TO_LOGIN;
         backend_->logout(false);
-    } else {
-        collapsePreferences();
-        mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
+    } else if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
+        // Collapsing the preferences window caused an alert, such as unsaved changes.
+        // Instead of transitioning directly to the login window, we modify the alert source.
+        GeneralMessageController::instance().setSource(MainWindowController::WINDOW_ID_LOGIN);
     }
 }
 
@@ -1331,7 +1369,7 @@ void MainWindow::onPreferencesQuitAppClick()
 void MainWindow::onPreferencesAccountLoginClick()
 {
     collapsePreferences();
-    mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
+    gotoLoginWindow();
 }
 
 void MainWindow::onPreferencesCycleMacAddressClick()
@@ -1732,10 +1770,11 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
                 mainWindowController_->getLoggingInWindow()->hideCaptcha();
                 mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
             }
+            isLastCallWasSignup_ = false;
             backend_->loginWithAuthHash();
         } else {
             mainWindowController_->getInitWindow()->startSlideAnimation();
-            gotoLoginWindow();
+            gotoWelcomeWindow();
         }
 
         updateConnectWindowStateProtocolPortDisplay();
@@ -1785,7 +1824,7 @@ void MainWindow::onBackendCaptchaRequired(bool /*isAsciiCaptcha*/, const QString
     mainWindowController_->getLoggingInWindow()->showCaptcha(background, slider, top);
 }
 
-void MainWindow::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
+void MainWindow::onBackendLoginFinished()
 {
     mainWindowController_->getPreferencesWindow()->setLoggedIn(true);
     mainWindowController_->getTwoFactorAuthWindow()->clearCurrentCredentials();
@@ -1856,19 +1895,29 @@ void MainWindow::onBackendLoginError(wsnet::LoginResult loginError, const QStrin
             GeneralMessageController::tr(GeneralMessageController::kNo),
             "",
             [this](bool b) {
-                backend_->getPreferences()->setIgnoreSslErrors(true);
-                if (!isLoginOkAndConnectWindowVisible_) {
-                    mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
-                    mainWindowController_->getLoggingInWindow()->setAdditionalMessage("");
-                    mainWindowController_->getLoggingInWindow()->hideCaptcha();
-                    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
-                    backend_->loginWithLastLoginSettings();
+                if (!isLastCallWasSignup_) {
+                    backend_->getPreferences()->setIgnoreSslErrors(true);
+                    if (!isLoginOkAndConnectWindowVisible_) {
+                        mainWindowController_->getLoggingInWindow()->setMessage(tr("Logging you in..."));
+                        mainWindowController_->getLoggingInWindow()->setAdditionalMessage("");
+                        mainWindowController_->getLoggingInWindow()->hideCaptcha();
+                        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_LOGGING_IN);
+                        backend_->loginWithLastLoginSettings();
+                    }
+                } else {
+                    mainWindowController_->getSignupWindow()->setErrorMessage(LoginWindow::ERR_MSG_NO_API_CONNECTIVITY);
+                    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_SIGNUP);
                 }
             },
             [this](bool b) {
-                if (!isLoginOkAndConnectWindowVisible_) {
-                    mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_NO_API_CONNECTIVITY);
-                    gotoLoginWindow();
+                if (!isLastCallWasSignup_) {
+                    if (!isLoginOkAndConnectWindowVisible_) {
+                        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_NO_API_CONNECTIVITY);
+                        gotoLoginWindow();
+                    }
+                } else {
+                    mainWindowController_->getSignupWindow()->setErrorMessage(LoginWindow::ERR_MSG_NO_API_CONNECTIVITY);
+                    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_SIGNUP);
                 }
             });
         return;
@@ -1894,7 +1943,6 @@ void MainWindow::onBackendLoginError(wsnet::LoginResult loginError, const QStrin
             mainWindowController_->getLoginWindow()->setErrorMessage(loginAttemptsController_.currentMessage(), QString());
             // It's possible we were passed invalid credentials by the CLI or installer auto-login.  Ensure we transition
             // the user to the username/password entry screen so they can see the error message and attempt a manual login.
-            mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
             gotoLoginWindow();
         }
     } else if (loginError == wsnet::LoginResult::kBadCode2fa || loginError == wsnet::LoginResult::kMissingCode2fa) {
@@ -1906,23 +1954,29 @@ void MainWindow::onBackendLoginError(wsnet::LoginResult loginError, const QStrin
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_TWO_FACTOR_AUTH);
         return;
     } else if (loginError == wsnet::LoginResult::kNoConnectivity) {
-        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_NO_INTERNET_CONNECTIVITY);
+        setLoginOrSignupWindowError(LoginWindow::ERR_MSG_NO_INTERNET_CONNECTIVITY);
     } else if (loginError == wsnet::LoginResult::kNoApiConnectivity) {
-        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_NO_API_CONNECTIVITY);
+        setLoginOrSignupWindowError(LoginWindow::ERR_MSG_NO_API_CONNECTIVITY);
     } else if (loginError == wsnet::LoginResult::kIncorrectJson) {
-        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_INVALID_API_RESPONSE);
+        setLoginOrSignupWindowError(LoginWindow::ERR_MSG_INVALID_API_RESPONSE);
     } else if (loginError == wsnet::LoginResult::kAccountDisabled) {
-        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_ACCOUNT_DISABLED, errorMessage);
+        setLoginOrSignupWindowError(LoginWindow::ERR_MSG_ACCOUNT_DISABLED, errorMessage);
     } else if (loginError == wsnet::LoginResult::kSessionInvalid) {
-        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_SESSION_EXPIRED);
+        setLoginOrSignupWindowError(LoginWindow::ERR_MSG_SESSION_EXPIRED);
     } else if (loginError == wsnet::LoginResult::kRateLimited) {
-        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_RATE_LIMITED);
+        setLoginOrSignupWindowError(LoginWindow::ERR_MSG_RATE_LIMITED);
     } else if (loginError == wsnet::LoginResult::kInvalidSecurityToken) {
-        mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_INVALID_SECURITY_TOKEN, errorMessage);
+        setLoginOrSignupWindowError(LoginWindow::ERR_MSG_INVALID_SECURITY_TOKEN, errorMessage);
+    } else if (loginError == wsnet::LoginResult::kSomeError) {
+        setLoginOrSignupWindowError(LoginWindow::ERR_MSG_SOME_ERROR, errorMessage);
     }
 
-    mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
-    gotoLoginWindow();
+    mainWindowController_->getWelcomeWindow()->setEmergencyConnectState(false);
+    if (!isLastCallWasSignup_) {
+        gotoLoginWindow();
+    } else {
+        mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_SIGNUP);
+    }
 }
 
 void MainWindow::onBackendSessionStatusChanged(const api_responses::SessionStatus &sessionStatus)
@@ -2215,7 +2269,7 @@ void MainWindow::onBackendConnectStateChanged(const types::ConnectState &connect
 void MainWindow::onBackendEmergencyConnectStateChanged(const types::ConnectState &connectState)
 {
     mainWindowController_->getEmergencyConnectWindow()->setState(connectState);
-    mainWindowController_->getLoginWindow()->setEmergencyConnectState(connectState.connectState == CONNECT_STATE_CONNECTED);
+    mainWindowController_->getWelcomeWindow()->setEmergencyConnectState(connectState.connectState == CONNECT_STATE_CONNECTED);
 }
 
 void MainWindow::onBackendFirewallStateChanged(bool isEnabled)
@@ -2276,17 +2330,19 @@ void MainWindow::onBackendLogoutFinished()
     backend_->getPreferencesHelper()->setIsExternalConfigMode(false);
     setDataRemaining(-1, -1);
 
+    bool isGotoLogin = false;
+
     if (logoutReason_ == LOGOUT_FROM_MENU) {
         mainWindowController_->getLoginWindow()->resetState();
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_EMPTY, QString());
     } else if (logoutReason_ == LOGOUT_SESSION_EXPIRED) {
-        mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
+        isGotoLogin = true;
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_SESSION_EXPIRED, QString());
     } else if (logoutReason_ == LOGOUT_WITH_MESSAGE) {
-        mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
+        isGotoLogin = true;
         mainWindowController_->getLoginWindow()->setErrorMessage(logoutMessageType_, logoutErrorMessage_);
     } else if (logoutReason_ == LOGOUT_GO_TO_LOGIN) {
-        mainWindowController_->getLoginWindow()->transitionToUsernameScreen();
+        isGotoLogin = true;
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_EMPTY, QString());
     } else {
         WS_ASSERT(false);
@@ -2294,8 +2350,15 @@ void MainWindow::onBackendLogoutFinished()
         mainWindowController_->getLoginWindow()->setErrorMessage(LoginWindow::ERR_MSG_EMPTY, QString());
     }
 
-    mainWindowController_->getLoginWindow()->setEmergencyConnectState(false);
-    gotoLoginWindow();
+    mainWindowController_->getWelcomeWindow()->setEmergencyConnectState(false);
+
+    if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
+        GeneralMessageController::instance().setSource(isGotoLogin ? MainWindowController::WINDOW_ID_LOGIN : MainWindowController::WINDOW_ID_WELCOME);
+    } else if (isGotoLogin) {
+        gotoLoginWindow();
+    } else {
+        gotoWelcomeWindow();
+    }
 
     mainWindowController_->hideUpdateWidget();
     setEnabled(true);
@@ -3630,7 +3693,7 @@ void MainWindow::openUpgradeExternalWindow()
 
 void MainWindow::gotoLoginWindow()
 {
-    mainWindowController_->getLoginWindow()->setFirewallTurnOffButtonVisibility(backend_->isFirewallEnabled());
+    setFirewallTurnOffButtonVisibility(backend_->isFirewallEnabled());
     if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
         GeneralMessageController::instance().setSource(MainWindowController::WINDOW_ID_LOGIN);
     } else {
@@ -3660,8 +3723,7 @@ void MainWindow::gotoExitWindow()
 
 void MainWindow::collapsePreferences()
 {
-    mainWindowController_->getLoginWindow()->setFirewallTurnOffButtonVisibility(
-        backend_->isFirewallEnabled());
+    setFirewallTurnOffButtonVisibility( backend_->isFirewallEnabled() );
     mainWindowController_->collapsePreferences();
 }
 
@@ -3889,6 +3951,12 @@ void MainWindow::onLocationPermissionUpdated()
 #endif
 }
 
+void MainWindow::gotoWelcomeWindow()
+{
+    setFirewallTurnOffButtonVisibility(backend_->isFirewallEnabled());
+    mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_WELCOME);
+}
+
 void MainWindow::checkNotificationEnabled()
 {
 #ifdef Q_OS_WIN
@@ -4045,6 +4113,11 @@ void MainWindow::onPreferencesClearWifiHistoryClick()
     backend_->clearWifiHistory();
 }
 
+void MainWindow::onEmergencyConnectEscapeClick()
+{
+    gotoWelcomeWindow();
+}
+
 void MainWindow::onLocalDnsServerNotAvailable()
 {
     types::ConnectedDnsInfo connectedDnsInfo = backend_->getPreferences()->connectedDnsInfo();
@@ -4089,6 +4162,21 @@ void MainWindow::setDataRemaining(qint64 bytesUsed, qint64 bytesMax)
 {
     mainWindowController_->getLocationsWindow()->setDataRemaining(bytesUsed, bytesMax);
     mainWindowController_->getBottomInfoWindow()->setDataRemaining(bytesUsed, bytesMax);
+}
+
+void MainWindow::setFirewallTurnOffButtonVisibility(bool visible)
+{
+    mainWindowController_->getWelcomeWindow()->setFirewallTurnOffButtonVisibility(visible);
+    mainWindowController_->getLoginWindow()->setFirewallTurnOffButtonVisibility(visible);
+}
+
+void MainWindow::setLoginOrSignupWindowError(LoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage)
+{
+    if (isLastCallWasSignup_) {
+        mainWindowController_->getSignupWindow()->setErrorMessage(errorMessageType, errorMessage);
+    } else {
+        mainWindowController_->getLoginWindow()->setErrorMessage(errorMessageType, errorMessage);
+    }
 }
 
 void MainWindow::onAmneziawgUnblockParamsUpdated(const QString &activePreset, QStringList presets)

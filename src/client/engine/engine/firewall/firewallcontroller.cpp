@@ -6,7 +6,7 @@ FirewallController::FirewallController(QObject *parent) : QObject(parent),
 {
 }
 
-void FirewallController::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, bool isVpnConnected)
+void FirewallController::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool isVpnConnected)
 {
     if (!bInitialized_) {
         bStateChanged_ = true;
@@ -16,13 +16,11 @@ void FirewallController::firewallOn(const QString &connectingIp, const QSet<QStr
                           latestConnectingIp_ != connectingIp ||
                           latestIps_ != ips ||
                           latestAllowLanTraffic_ != bAllowLanTraffic ||
-                          latestIsCustomConfig_ != bIsCustomConfig ||
                           latestIsVpnConnected_ != isVpnConnected);
     }
     latestConnectingIp_ = connectingIp;
     latestIps_ = ips;
     latestAllowLanTraffic_ = bAllowLanTraffic;
-    latestIsCustomConfig_ = bIsCustomConfig;
     latestIsVpnConnected_ = isVpnConnected;
     latestEnabledState_ = true;
 }

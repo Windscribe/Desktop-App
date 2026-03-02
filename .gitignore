@@ -18,6 +18,7 @@ drawings/*/*.png
 tools/.idea/
 build/
 .vscode/
+.claude/
 
 # secrets
 tools/notarize.yml

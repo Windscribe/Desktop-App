@@ -33,7 +33,8 @@ public:
     void cleanup(bool isUpdating);
     void enableBFE_win();
     void login(const QString &username, const QString &password, const QString &code2fa);
-    void continueLoginWithCaptcha(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY);
+    void continueWithCaptcha(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY);
+    void signup(const QString &username, const QString &password, const QString &referringUsername, const QString &email, const QString &voucherCode);
     bool isCanLoginWithAuthHash() const;
     bool isSavedApiSettingsExists() const;
     void loginWithAuthHash();
@@ -134,7 +135,7 @@ private slots:
     void onEngineInitFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void onEngineBfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void onEngineFirewallStateChanged(bool isEnabled);
-    void onEngineLoginFinished(bool isLoginFromSavedSettings, const api_responses::PortMap &portMap);
+    void onEngineLoginFinished(const api_responses::PortMap &portMap);
     void onEngineLoginError(wsnet::LoginResult retCode, const QString &errorMessage);
     void onEngineTryingBackupEndpoint(int num, int cnt);
     void onEngineSessionDeleted();
@@ -199,7 +200,7 @@ signals:
     void gotoCustomOvpnConfigModeFinished();
 
     void captchaRequired(bool isAsciiCaptcha, const QString &asciiArt, const QString &background, const QString &slider, int top);
-    void loginFinished(bool isLoginFromSavedSettings);
+    void loginFinished();
     void tryingBackupEndpoint(int num, int cnt);
     void loginError(wsnet::LoginResult loginError, const QString &errorMessage);
 

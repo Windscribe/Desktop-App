@@ -11,7 +11,7 @@
 namespace LoginWindow {
 
 LoginButton::LoginButton(ScalableGraphicsObject *parent) : ClickableGraphicsObject (parent),
-    imagePath_("login/DISABLED_LOGIN_ICON"), width_(32), height_(32)
+    imagePath_("login/DISABLED_LOGIN_ICON"), width_(32), height_(32), isEnabled_(false)
 {
 }
 
@@ -26,7 +26,7 @@ void LoginButton::setError(bool error)
     {
         imagePath_ = "login/ERROR_LOGIN_ICON";
     }
-    else if (clickable_)
+    else if (isEnabled_)
     {
         imagePath_ = "login/ENABLED_LOGIN_ICON";
     }
@@ -50,11 +50,9 @@ void LoginButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     pixmap->draw(0, 0, painter);
 }
 
-void LoginButton::setClickable(bool clickable)
+void LoginButton::setEnabled(bool bEnabled)
 {
-    ClickableGraphicsObject::setClickable(clickable);
-
-    if (clickable)
+    if (bEnabled)
     {
         imagePath_ = "login/ENABLED_LOGIN_ICON";
     }
@@ -62,6 +60,7 @@ void LoginButton::setClickable(bool clickable)
     {
         imagePath_ = "login/DISABLED_LOGIN_ICON";
     }
+    isEnabled_ = bEnabled;
 
     update();
 }

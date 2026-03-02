@@ -5,7 +5,29 @@
       "repository": "https://github.com/microsoft/vcpkg",
       "baseline": "e140b1fde236eb682b0d47f905e65008a191800f"
     },
-    "overlay-ports": [
-      "./ports"
+    "registries": [
+      {
+        "kind": "git",
+        "repository": "https://github.com/Windscribe/ws-vcpkg-registry",
+        "baseline": "795d736de9492327c3dc2d6b5618c6d811a5ad79",
+        "packages": [
+          "7zip",
+          "boost-context",
+          "boost-process",
+          "c-ares",
+          "ctrld",
+          "curl",
+          "lz4",
+          "lzo",
+          "miniaudio",
+          "openvpn",
+          "openssl",
+          "qtbase",
+          "scapix",
+          "scapix-bin",
+          "skyr-url",
+          "spdlog"
+        ]
+      }
     ]
 }

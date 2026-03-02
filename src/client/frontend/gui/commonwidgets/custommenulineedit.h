@@ -23,7 +23,8 @@ public:
     void setEchoMode(QLineEdit::EchoMode mode);
     void setShowRevealToggle(bool show);
 
-    void setCustomIcon(const QString &iconUrl);
+    void setCustomIcon1(const QString &iconUrl);
+    void setCustomIcon2(const QString &iconUrl);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -33,11 +34,14 @@ protected:
 
 signals:
     void itemClicked(QString caption, QVariant value);
-    void iconClicked();
+    void icon1Clicked();
+    void icon2Clicked();
 
 private slots:
     void onMenuTriggered(QAction *action);
     void onRevealClicked();
+    void onIcon1Clicked();
+    void onIcon2Clicked();
 
 private:
     void updateActionsState();
@@ -46,10 +50,13 @@ private:
 
     CustomMenuWidget *menu_;
     IconButtonWidget *icon_;
+    IconButtonWidget *icon1_;
+    IconButtonWidget *icon2_;
     QLineEdit::EchoMode echoMode_;
     bool showRevealToggle_;
     bool isRevealed_;
-    bool isCustomIcon_ = false;
+    bool isCustomIcon1_ = false;
+    bool isCustomIcon2_ = false;
 };
 
 }

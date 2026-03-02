@@ -12,7 +12,7 @@ public:
     explicit FirewallController_linux(QObject *parent, Helper *helper);
     ~FirewallController_linux() override;
 
-    void firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, bool isVpnConnected) override;
+    void firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool isVpnConnected) override;
     void firewallOff() override;
     bool firewallActualState() override;
 
@@ -30,7 +30,7 @@ private:
     QString pathToTempTable_;
     QString comment_;
 
-    bool firewallOnImpl(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const api_responses::StaticIpPortsVector &ports);
+    bool firewallOnImpl(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, const api_responses::StaticIpPortsVector &ports);
     QStringList getWindscribeRules(const QString &comment, bool modifyForDelete, bool isIPv6);
     void removeWindscribeRules(const QString &comment, bool isIPv6);
     QStringList getLocalAddresses(const QString iface) const;

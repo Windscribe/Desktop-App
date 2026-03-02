@@ -16,7 +16,7 @@ class FirewallController_mac : public FirewallController
 public:
     explicit FirewallController_mac(QObject *parent, Helper *helper);
 
-    void firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, bool isVpnConnected) override;
+    void firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool isVpnConnected) override;
     void firewallOff() override;
     bool firewallActualState() override;
 
@@ -37,7 +37,6 @@ private:
         QSet<QString> windscribeIps;
         QString interfaceToSkip;
         bool isAllowLanTraffic;
-        bool isCustomConfig;
         bool isStaticIpPortsEmpty;
     };
 
@@ -47,7 +46,6 @@ private:
     QSet<QString> windscribeIps_;
     QString interfaceToSkip_;
     bool isAllowLanTraffic_;
-    bool isCustomConfig_;
     QString connectingIp_;
     api_responses::StaticIpPortsVector staticIpPorts_;
 
@@ -55,10 +53,10 @@ private:
 
     void firewallOffImpl();
     QStringList lanTrafficRules(bool bAllowLanTraffic) const;
-    QStringList vpnTrafficRules(const QString &connectingIp, const QString &interfaceToSkip, bool bIsCustomConfig) const;
+    QStringList vpnTrafficRules(const QString &connectingIp, const QString &interfaceToSkip) const;
     void getFirewallStateFromPfctl(FirewallState &outState);
     bool checkInternalVsPfctlState(FirewallState *outFirewallState = nullptr);
-    QString generatePfConf(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const QString &interfaceToSkip);
+    QString generatePfConf(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, const QString &interfaceToSkip);
     QString generateTable(const QSet<QString> &ips);
     void updateVpnAnchor();
     QStringList getLocalAddresses(const QString iface) const;

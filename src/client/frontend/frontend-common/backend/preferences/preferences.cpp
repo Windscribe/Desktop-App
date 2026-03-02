@@ -915,6 +915,7 @@ void Preferences::loadIni()
     setDnsManager(es.dnsManager());
 #endif
     setDecoyTrafficSettings(es.decoyTrafficSettings());
+    setAmneziawgPreset(es.amneziawgPreset());
     isSettingEngineSettings_ = false;
 
     emitEngineSettingsChanged();

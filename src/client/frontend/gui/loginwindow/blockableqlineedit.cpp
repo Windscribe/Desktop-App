@@ -10,6 +10,12 @@ BlockableQLineEdit::BlockableQLineEdit(QWidget *parent) : QLineEdit (parent)
 void BlockableQLineEdit::setClickable(bool clickable)
 {
     clickable_ = clickable;
+
+    if (clickable) {
+        setCursor(Qt::IBeamCursor);
+    } else {
+        setCursor(Qt::ArrowCursor);
+    }
 }
 
 void BlockableQLineEdit::mouseMoveEvent(QMouseEvent *event)

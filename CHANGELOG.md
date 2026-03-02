@@ -1,10 +1,51 @@
+2.21.3 (24/02/2026)
+All:
+   * Added in-app user registration functionality. #1628
+   * Improved build infrastructure by moving vcpkg dependencies to a separate repository. #1670
+   * Fixed incorrect window elements if showing credentials prompt immediately after CPU usage warning. #1653
+   * Fixed decoy traffic volume silently reverts to 'Low' after app restart. #1661
+   * Fixed decoy traffic not started when using pinned IP. #1664
+   * Fixed input sanitation when using custom config. #1671
+   * Fixed combobox items are not left-aligned. #1672
+   * Fixed incorrect window ordering when returning to login screen. #1673
+MacOS:
+   * Fixed incorrect network connectivity drop when restarting split tunnel extension. #1646
+Linux:
+   * Added AmneziaWG advanced anti-censorship support to the CLI. #1668
+   * Fixed split tunnel applications not populated on some distros. #1666
+
+
+2.21.2 (19/02/2026)
+All:
+   * Added build system scripts for AmneziaWG. #1655
+   * Improved AmneziaWG logic to use a default configuration when the unblock params API cannot be reached. #1658
+   * Improved network options description and added help link. #1657
+   * Fixed potentially incorrect firewall rules when using custom configs. #1642
+MacOS:
+   * Fixed AmneziaWG params in a custom config are ignored. #1572
+Linux:
+   * Added AmneziaWG advanced anti-censorship support. #1651
+   * Fixed AmneziaWG params in a custom config are ignored. #1572
+   * Fixed DNS not being set on the system for OpenVPN custom configs. #1643
+
+
 2.21.1 (10/02/2026)
 Windows:
    * Added AmneziaWG advanced anti-censorship support. #1572
 MacOS:
    * Added AmneziaWG advanced anti-censorship support. #1572
 
-   
+
+2.20.7 (19/02/2026)
+All:
+   * Fixed description width on protocol screen. #825
+MacOS:
+   * Fixed app not displaying DNS conflict warning when a local DNS daemon is running and the custom DNS feature is enabled. #1660
+   * Fixed installer binary displaying incorrect version number and copyright date. #1662
+Linux:
+   * Fixed inclusive split tunneling route may not be added correctly. #1656
+
+
 2.20.6 (09/02/2026)
 All:
    * Added link to website for "Clear Wi-Fi History" feature. Shortened description. #1585

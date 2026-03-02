@@ -32,6 +32,8 @@ void BubbleButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     Q_UNUSED(option)
     Q_UNUSED(widget)
 
+    qreal initialOpacity = painter->opacity();
+
     if (style_ == kOutline) {
         // outline
         QColor outlineColor = QColor(255, 255, 255);
@@ -43,7 +45,7 @@ void BubbleButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     }
 
     // fill
-    painter->setOpacity(curTextOpacity_);
+    painter->setOpacity(curTextOpacity_ * initialOpacity);
     QRectF roundRect(0, 0, width_*G_SCALE, height_*G_SCALE);
 
     // update button background
@@ -66,7 +68,7 @@ void BubbleButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     }
 
     // text
-    painter->setOpacity(curTextOpacity_);
+    painter->setOpacity(curTextOpacity_ * initialOpacity);
     painter->setPen(QPen(curTextColor_, 1*G_SCALE));
     QFont font = FontManager::instance().getFont(fontDescr_);
     painter->setFont(font);

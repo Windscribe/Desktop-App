@@ -13,14 +13,15 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
-    void setClickable(bool clickable) override;
     void setError(bool error);
+    void setEnabled(bool bEnabled);
 
 private:
     QString imagePath_;
 
     int width_;
     int height_;
+    bool isEnabled_;
 };
 
 }

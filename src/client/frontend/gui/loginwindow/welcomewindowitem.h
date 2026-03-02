@@ -42,18 +42,16 @@ signals:
     void preferencesClick();
     void emergencyConnectClick();
     void externalConfigModeClick();
-    void twoFactorAuthClick(const QString &username, const QString &password);
-    void loginClick(const QString &username, const QString &password,
-                    const QString &code2fa);
-    void haveAccountYesClick();
+    void loginClick();
     void firewallTurnOffClick();
+    void getStartedClick();
 
 private slots:
     void onCloseClick();
     void onMinimizeClick();
 
-    void onGotoLoginButtonClick();
-    void onGetStartedButtonClick();
+    void onLoginButtonClick();
+    void onSignupButtonClick();
 
     void onSettingsButtonClick();
     void onEmergencyButtonClick();
@@ -84,8 +82,8 @@ private:
     IconButton *minimizeButton_;
     IconButton *closeButton_;
 
-    CommonGraphics::BubbleButton *getStartedButton_;
-    CommonGraphics::BubbleButton *gotoLoginButton_;
+    CommonGraphics::BubbleButton *signupButton_;
+    CommonGraphics::BubbleButton *loginButton_;
 
     IconButton *settingsButton_;
     IconButton *configButton_;

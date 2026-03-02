@@ -3,10 +3,10 @@ target_sources(gui PRIVATE
     blockableqlineedit.h
     captchaitem.cpp
     captchaitem.h
-    credentialswindowitem.cpp
-    credentialswindowitem.h
     firewallturnoffbutton.cpp
     firewallturnoffbutton.h
+    hashutil.cpp
+    hashutil.h
     iconhoverengagebutton.cpp
     iconhoverengagebutton.h
     initwindowitem.cpp
@@ -19,6 +19,8 @@ target_sources(gui PRIVATE
     loginwindowitem.h
     loginyesnobutton.cpp
     loginyesnobutton.h
+    signupwindowitem.cpp
+    signupwindowitem.h
     usernamepasswordentry.cpp
     usernamepasswordentry.h
     welcomewindowitem.cpp

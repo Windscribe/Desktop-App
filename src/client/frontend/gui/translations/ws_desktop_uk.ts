@@ -338,62 +338,29 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
-    <message>
-        <source>Turn Off Firewall</source>
-        <translation>Вимкнути брандмауер</translation>
-    </message>
-    <message>
-        <source>No Internet Connectivity</source>
-        <translation>Відсутнє підключення до Інтернету</translation>
-    </message>
-    <message>
-        <source>No API Connectivity</source>
-        <translation>Немає підключення до API</translation>
-    </message>
-    <message>
-        <source>Proxy requires authentication</source>
-        <translation>Проксі-сервер потребує автентифікації</translation>
-    </message>
-    <message>
-        <source>Invalid API response, check your network</source>
-        <translation>Недійсна відповідь API, перевірте свою мережу</translation>
-    </message>
-    <message>
-        <source>Invalid API Endpoint</source>
-        <translation>Недійсна кінцева точка API</translation>
-    </message>
-    <message>
-        <source>...hmm are you sure this is correct?</source>
-        <translation>... хм, ви впевнені, що це вірно?</translation>
-    </message>
-    <message>
-        <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>... Вибачте, схоже, що це знову не так</translation>
-    </message>
-    <message>
-        <source>...hmm, try resetting your password!</source>
-        <translation>... Хм, спробуйте скинути пароль!</translation>
-    </message>
-    <message>
-        <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>Доступ обмежений. Будь ласка, зачекайте, перш ніж спробувати увійти ще раз.</translation>
-    </message>
-    <message>
-        <source>Session is expired. Please login again</source>
-        <translation>Сеанс закінчився. Будь ласка, увійдіть ще раз</translation>
-    </message>
-    <message>
-        <source>Your username should not be an email address. Please try again.</source>
-        <translation>Ваше ім&apos;я користувача не повинно бути адресою електронної пошти. Будь ласка, спробуйте ще раз.</translation>
-    </message>
+    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
         <source>Login</source>
         <translation>Логін</translation>
     </message>
     <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Здійсніть пазл, щоб продовжити</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
+    <message>
+        <source>Turn Off Firewall</source>
+        <translation>Вимкніть міжмережевий екран</translation>
+    </message>
+    <message>
+        <source>Login</source>
+        <translation>Увійти</translation>
+    </message>
+    <message>
         <source>Emergency Connect is ON</source>
-        <translation>Аварійне підключення ввімкнено</translation>
+        <translation>Аварійний зв&apos;язок увімкнено</translation>
     </message>
     <message>
         <source>2FA Code</source>
@@ -404,20 +371,28 @@
         <translation>Забули пароль?</translation>
     </message>
     <message>
-        <source>Username</source>
-        <translation>Ім&apos;я користувача</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>Пароль</translation>
-    </message>
-    <message>
         <source>Standard</source>
         <translation>Стандарт</translation>
     </message>
     <message>
         <source>Hashed</source>
         <translation>Хешований</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Ім&apos;я користувача</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Введіть ім&apos;я користувача</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Пароль</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Введіть пароль</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -435,16 +410,154 @@
         <source>All Files (*.*)</source>
         <translation>Всі файли (*.*)</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>Логін</translation>
+        <source>No Internet Connectivity</source>
+        <translation>Немає підключення до Інтернету</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>Здійсніть пазл, щоб продовжити</translation>
+        <source>No API Connectivity</source>
+        <translation>Немає підключення до API</translation>
+    </message>
+    <message>
+        <source>Proxy requires authentication</source>
+        <translation>Проксі вимагає автентифікації</translation>
+    </message>
+    <message>
+        <source>Invalid API response, check your network</source>
+        <translation>Некоректна відповідь API — перевірте свою мережу</translation>
+    </message>
+    <message>
+        <source>Invalid API Endpoint</source>
+        <translation>Некоректна кінцева точка API</translation>
+    </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... Гм, ти впевнений, що це правильно?</translation>
+    </message>
+    <message>
+        <source>...Sorry, seems like it&apos;s wrong again</source>
+        <translation>... Вибачте, здається, це знову неправильно</translation>
+    </message>
+    <message>
+        <source>...hmm, try resetting your password!</source>
+        <translation>... Хмм, спробуй скинути пароль!</translation>
+    </message>
+    <message>
+        <source>Rate limited. Please wait before trying to login again.</source>
+        <translation>Ставка обмежена. Будь ласка, зачекайте, перш ніж знову намагатися увійти.</translation>
+    </message>
+    <message>
+        <source>Session is expired. Please login again</source>
+        <translation>Сесія закінчена. Будь ласка, увійдіть ще раз</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address. Please try again.</source>
+        <translation>Ваше ім&apos;я користувача не повинно бути електронною адресою. Будь ласка, спробуйте ще раз.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
+    <message>
+        <source>Sign Up</source>
+        <translation>Реєстрація</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>Стандарт</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>Хешований</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Ім&apos;я користувача</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Введіть ім&apos;я користувача</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Пароль</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Введіть пароль</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>8 або більше символів з принаймні однією великою та малою літерою (тобто &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>Електронна пошта (за бажанням)</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>Введіть електронну пошту</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>Тільки для відновлення пароля, оновлень і промо. Без спаму.</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>Код ваучера?</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>Код ваучера (за бажанням)</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>Хтось рекомендував?</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>Посилання на ім&apos;я користувача (необов&apos;язково)</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>Продовжуй</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>Хеш</translation>
+    </message>
+    <message>
+        <source>Generate or browse file</source>
+        <translation>Генерація або перегляд файлу</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>Особиста інформація не потрібна. Відновлення рахунку неможливе.
+Якщо ви втратите хеш акаунта, він зникне назавжди, і служба підтримки не допоможе вам його відновити.</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>Виберіть файл для хешу</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>Всі файли (*.*)</translation>
+    </message>
+    <message>
+        <source>Username must be at least 3 characters</source>
+        <translation>Ім&apos;я користувача має містити щонайменше 3 символи</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address.</source>
+        <translation>Ваше ім&apos;я користувача не повинно бути електронною адресою.</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>Недійсний електронний лист</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>Некоректний хеш</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Switch to Auto</source>
         <translation>Перемикання на авто</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>Створення акаунта...</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Параметри мережі</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>Windscribe автоматично відключиться, коли пристрій підключиться до мережі з позначкою «Незахищений».</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>Позначте всі нові мережі як захищені.</translation>
     </message>
@@ -1803,6 +1916,10 @@ If the problem persists after a restart, please send a debug log and open a supp
 Connect to a network first</source>
         <translation>Мереж не виявлено.
 Спочатку підключіться до мережі</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>Нові мережі автоматично отримують статус «Захищених». Якщо позначити мережу як «Незахищена», Windscribe відключиться, коли пристрій до неї приєднається. Встановлювати мережу як «Незахищену» НЕ рекомендується.</translation>
     </message>
 </context>
 <context>

@@ -20,7 +20,7 @@ void FirewallFilter::release()
 {
 }
 
-void FirewallFilter::on(const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig)
+void FirewallFilter::on(const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic)
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
 
@@ -41,7 +41,7 @@ void FirewallFilter::on(const wchar_t *connectingIp, const wchar_t *ip, bool bAl
 
     DWORD dwRet = FwpmSubLayerAdd0(hEngine, &subLayer, NULL );
     if (dwRet == ERROR_SUCCESS) {
-        addFilters(hEngine, connectingIp, ip, bAllowLocalTraffic, bIsCustomConfig);
+        addFilters(hEngine, connectingIp, ip, bAllowLocalTraffic);
     } else {
         spdlog::error("FirewallFilter::on(), FwpmSubLayerAdd0 failed");
     }
@@ -183,7 +183,7 @@ void FirewallFilter::setSplitTunnelingWhitelistIps(const std::vector<Ip4AddressA
     fwpmWrapper_.unlock();
 }
 
-void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic, bool bIsCustomConfig)
+void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp, const wchar_t *ip, bool bAllowLocalTraffic)
 {
     std::vector<std::wstring> ipAddresses = split(ip, L';');
 
@@ -206,30 +206,29 @@ void FirewallFilter::addFilters(HANDLE engineHandle, const wchar_t *connectingIp
         NET_LUID luid;
         ConvertInterfaceIndexToLuid(*it, &luid);
 
-        if (!bIsCustomConfig) {
-            // Explicitly allow 10.255.255.0/24
-            const std::vector<Ip4AddressAndMask> reserved = Ip4AddressAndMask::fromVector({L"10.255.255.0/24"});
-            ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &reserved);
-            if (!ret) {
-                spdlog::error(L"Could not add reserved allow filter on VPN interface");
-            }
+        // Explicitly allow 10.255.255.0/24
+        const std::vector<Ip4AddressAndMask> reserved = Ip4AddressAndMask::fromVector({L"10.255.255.0/24"});
+        ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &reserved);
+        if (!ret) {
+            spdlog::error(L"Could not add reserved allow filter on VPN interface");
+        }
 
-            // We want to allow access to local VPN interface addresses regardless of which interface the packet will  go through, not just a VPN interface
-            const std::vector<Ip4AddressAndMask> localAddrs = Ip4AddressAndMask::fromVector(ai.getAdapterAddresses(*it));
-            if (!localAddrs.empty()) {
-                ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localAddrs);
-                if (!ret) {
-                    spdlog::error("Could not add reserved allow filter on private address for VPN interface");
-                }
-            }
-            // Disallow all other private, link-local, loopback networks from going over tunnel
-            const std::vector<Ip4AddressAndMask> priv = Ip4AddressAndMask::fromVector(
-                {L"10.0.0.0/8", L"172.16.0.0/12", L"192.168.0.0/16", L"169.254.0.0/16", L"224.0.0.0/4"});
-            ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 6, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &priv);
+        // We want to allow access to local VPN interface addresses regardless of which interface the packet will go through, not just a VPN interface
+        const std::vector<Ip4AddressAndMask> localAddrs = Ip4AddressAndMask::fromVector(ai.getAdapterAddresses(*it));
+        if (!localAddrs.empty()) {
+            ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 8, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, nullptr, &localAddrs);
             if (!ret) {
-                spdlog::error("Could not add private network block filter on VPN interface");
+                spdlog::error("Could not add reserved allow filter on private address for VPN interface");
             }
         }
+        // Disallow all other private, link-local, loopback networks from going over tunnel
+        const std::vector<Ip4AddressAndMask> priv = Ip4AddressAndMask::fromVector(
+            {L"10.0.0.0/8", L"172.16.0.0/12", L"192.168.0.0/16", L"169.254.0.0/16", L"224.0.0.0/4"});
+        ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_BLOCK, 6, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid, &priv);
+        if (!ret) {
+            spdlog::error("Could not add private network block filter on VPN interface");
+        }
+
         // Allow other IPv4 traffic on this interface
         ret = Utils::addFilterV4(engineHandle, nullptr, FWP_ACTION_PERMIT, 1, subLayerGUID_, FIREWALL_SUBLAYER_NAMEW, &luid);
         if (!ret) {

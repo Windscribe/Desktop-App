@@ -1,9 +1,11 @@
 #include "networkoptionswindowitem.h"
 
 #include <QPainter>
+
 #include "languagecontroller.h"
 #include "graphicresources/imageresourcessvg.h"
 #include "preferenceswindow/preferencegroup.h"
+#include "utils/hardcodedsettings.h"
 
 namespace PreferencesWindow {
 
@@ -97,7 +99,7 @@ void NetworkOptionsWindowItem::addNetwork(types::NetworkInterface network)
 
 void NetworkOptionsWindowItem::addNetworks(QVector<types::NetworkInterface> list)
 {
-    for (types::NetworkInterface interface : list) {
+    for (const types::NetworkInterface &interface : list) {
         addNetwork(interface);
     }
 }
@@ -111,7 +113,7 @@ void NetworkOptionsWindowItem::onNetworkWhitelistChanged(QVector<types::NetworkI
 {
     otherNetworksGroup_->updateNetworks(list);
     if (currentNetworkItem_ && currentNetworkItem_ != placeholderItem_) {
-        for (types::NetworkInterface interface : list) {
+        for (const types::NetworkInterface &interface : std::as_const(list)) {
             if (interface.networkOrSsid == currentNetwork_.networkOrSsid && currentNetwork_.trustType != interface.trustType) {
                 currentNetworkItem_->setLinkText(trustTypeToString(interface.trustType));
                 currentNetwork_.trustType = interface.trustType;
@@ -124,7 +126,8 @@ void NetworkOptionsWindowItem::onNetworkWhitelistChanged(QVector<types::NetworkI
 
 void NetworkOptionsWindowItem::onLanguageChanged()
 {
-    desc_->setDescription(tr("Windscribe will auto-disconnect when the device connects to a network tagged \"Unsecured\"."));
+    desc_->setDescription(tr("New networks are automatically \"Secured\". If you tag a network as \"Unsecured\", Windscribe will disconnect when the device joins it. Setting a network as \"Unsecured\" is NOT recommended."),
+                          QString("https://%1/features/network-options").arg(HardcodedSettings::instance().windscribeServerUrl()));
     autosecureCheckbox_->setDescription(tr("Mark all newly encountered networks as Secured."));
     autosecureCheckbox_->setCaption(tr("Auto-Secure Networks"));
     placeholderItem_->setTitle(tr("No Network Detected"));

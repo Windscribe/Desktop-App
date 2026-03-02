@@ -279,6 +279,8 @@ void CliArguments::processArguments()
 #endif
     } else if (arg1 == "ip") {
         parseIp(args);
+    } else if (arg1 == "amneziawg") {
+        cliCommand_ = CLI_COMMAND_AMNEZIAWG;
     } else if (arg1 == "locations") {
         parseLocations(args);
     } else if (arg1 == "login") {

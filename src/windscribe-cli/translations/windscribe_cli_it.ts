@@ -31,6 +31,10 @@
         <source>IP rotate already in progress.</source>
         <translation>La rotazione IP è già in corso.</translation>
     </message>
+    <message>
+        <source>No AmneziaWG configurations available.</source>
+        <translation>Non sono disponibili configurazioni AmneziaWG.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

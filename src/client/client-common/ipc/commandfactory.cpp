@@ -50,6 +50,10 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
         return new IPC::CliCommands::FavIp(buf, size);
     } else if (strId == IPC::CliCommands::UnfavIp::getCommandStringId()) {
         return new IPC::CliCommands::UnfavIp(buf, size);
+    } else if (strId == IPC::CliCommands::ShowAmneziawg::getCommandStringId()) {
+        return new IPC::CliCommands::ShowAmneziawg(buf, size);
+    } else if (strId == IPC::CliCommands::AmneziawgPresetsList::getCommandStringId()) {
+        return new IPC::CliCommands::AmneziawgPresetsList(buf, size);
     }
 
     WS_ASSERT(false);

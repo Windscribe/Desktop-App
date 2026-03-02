@@ -147,9 +147,16 @@ void Backend::login(const QString &username, const QString &password, const QStr
     engine_->loginWithUsernameAndPassword(username, password, code2fa);
 }
 
-void Backend::continueLoginWithCaptcha(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY)
+void Backend::continueWithCaptcha(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY)
 {
-     engine_->continueLoginWithCaptcha(captchaSolution, captchaTrailX, captchaTrailY);
+     engine_->continueWithCaptcha(captchaSolution, captchaTrailX, captchaTrailY);
+}
+
+void Backend::signup(const QString &username, const QString &password, const QString &referringUsername, const QString &email, const QString &voucherCode)
+{
+    WS_ASSERT(loginState_ != LOGIN_STATE_LOGGING_IN);
+    loginState_ = LOGIN_STATE_LOGGING_IN;
+    engine_->signup(username, password, referringUsername, email, voucherCode);
 }
 
 bool Backend::isCanLoginWithAuthHash() const
@@ -480,14 +487,14 @@ void Backend::onEngineFirewallStateChanged(bool isEnabled)
     firewallStateHelper_.setFirewallStateFromEngine(isEnabled);
 }
 
-void Backend::onEngineLoginFinished(bool isLoginFromSavedSettings, const api_responses::PortMap &portMap)
+void Backend::onEngineLoginFinished(const api_responses::PortMap &portMap)
 {
     loginState_ = LOGIN_STATE_LOGGED_IN;
     preferencesHelper_.setPortMap(portMap);
 
     triggerAutoConnect(currentNetworkInterface_);
 
-    emit loginFinished(isLoginFromSavedSettings);
+    emit loginFinished();
 }
 
 void Backend::onEngineLoginError(wsnet::LoginResult retCode, const QString &errorMessage)

@@ -10,6 +10,7 @@
         <file>png/welcome.png</file>
         <file>svg/ARROW_DOWN_LOCATIONS.svg</file>
         <file>svg/ARROW_DOWN_WHITE.svg</file>
+        <file>svg/ARROW_UP.svg</file>
         <file>svg/BACK_ARROW.svg</file>
         <file>svg/BADGE_BLACK_ICON.svg</file>
         <file>svg/BIG_CONFIG_ICON.svg</file>
@@ -51,6 +52,7 @@
         <file>svg/RATE_SPEED_BAD_ON.svg</file>
         <file>svg/RATE_SPEED_GOOD_OFF.svg</file>
         <file>svg/RATE_SPEED_GOOD_ON.svg</file>
+        <file>svg/REFRESH_ICON.svg</file>
         <file>svg/RENEW_PRO_ICON.svg</file>
         <file>svg/SHUTDOWN_ICON.svg</file>
         <file>svg/SPINNER.svg</file>

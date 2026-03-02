@@ -338,54 +338,21 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>ログイン</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>パズルを完成させて続行</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
     <message>
         <source>Turn Off Firewall</source>
         <translation>ファイアウォールをオフにする</translation>
-    </message>
-    <message>
-        <source>No Internet Connectivity</source>
-        <translation>インターネット接続なし</translation>
-    </message>
-    <message>
-        <source>No API Connectivity</source>
-        <translation>API 接続なし</translation>
-    </message>
-    <message>
-        <source>Proxy requires authentication</source>
-        <translation>プロキシには認証が必要</translation>
-    </message>
-    <message>
-        <source>Invalid API response, check your network</source>
-        <translation>API 応答が無効です。ネットワークを確認してください</translation>
-    </message>
-    <message>
-        <source>Invalid API Endpoint</source>
-        <translation>無効な API エンドポイント</translation>
-    </message>
-    <message>
-        <source>...hmm are you sure this is correct?</source>
-        <translation>...うーん、これは正しいですか?</translation>
-    </message>
-    <message>
-        <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>...申し訳ありませんが、また間違っているようです</translation>
-    </message>
-    <message>
-        <source>...hmm, try resetting your password!</source>
-        <translation>...うーん、パスワードをリセットしてみてください!</translation>
-    </message>
-    <message>
-        <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>レート制限を超えました。しばらく待ってから、再度ログインしてください。</translation>
-    </message>
-    <message>
-        <source>Session is expired. Please login again</source>
-        <translation>セッションの有効期限が切れています。再度ログインしてください</translation>
-    </message>
-    <message>
-        <source>Your username should not be an email address. Please try again.</source>
-        <translation>ユーザー名にメールアドレスを含めてはいけません。もう一度やり直してください。</translation>
     </message>
     <message>
         <source>Login</source>
@@ -393,7 +360,7 @@
     </message>
     <message>
         <source>Emergency Connect is ON</source>
-        <translation>緊急接続がオンになっています</translation>
+        <translation>緊急連絡先がオンです</translation>
     </message>
     <message>
         <source>2FA Code</source>
@@ -401,15 +368,7 @@
     </message>
     <message>
         <source>Forgot password?</source>
-        <translation>パスワードをお忘れですか?</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation>ユーザー名</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>パスワード</translation>
+        <translation>パスワードを忘れましたか?</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -418,6 +377,22 @@
     <message>
         <source>Hashed</source>
         <translation>ハッシュド</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>ユーザー名</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>ユーザー名を入力してください</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>パスワード</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>パスワードを入力してください</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -435,16 +410,154 @@
         <source>All Files (*.*)</source>
         <translation>すべてのファイル(*.*)</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>ログイン</translation>
+        <source>No Internet Connectivity</source>
+        <translation>インターネット接続なし</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>パズルを完成させて続行</translation>
+        <source>No API Connectivity</source>
+        <translation>API接続なし</translation>
+    </message>
+    <message>
+        <source>Proxy requires authentication</source>
+        <translation>プロキシには認証が必要です</translation>
+    </message>
+    <message>
+        <source>Invalid API response, check your network</source>
+        <translation>無効なAPI応答です。ネットワークを確認してください</translation>
+    </message>
+    <message>
+        <source>Invalid API Endpoint</source>
+        <translation>無効なAPIエンドポイント</translation>
+    </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>...うーん、本当にこれで合っていますか?</translation>
+    </message>
+    <message>
+        <source>...Sorry, seems like it&apos;s wrong again</source>
+        <translation>...すみません、また間違っているようです</translation>
+    </message>
+    <message>
+        <source>...hmm, try resetting your password!</source>
+        <translation>...うーん、パスワードをリセットしてみてください!</translation>
+    </message>
+    <message>
+        <source>Rate limited. Please wait before trying to login again.</source>
+        <translation>料金制限。再度ログインを試みる前にお待ちください。</translation>
+    </message>
+    <message>
+        <source>Session is expired. Please login again</source>
+        <translation>セッションは終了しました。もう一度ログインしてください</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address. Please try again.</source>
+        <translation>ユーザー名はメールアドレスであってはいけません。もう一度お試しください。</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
+    <message>
+        <source>Sign Up</source>
+        <translation>登録</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>標準</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>ハッシュド</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>ユーザー名</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>ユーザー名を入力してください</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>パスワード</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>パスワードを入力してください</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>8文字以上、少なくとも1文字は大文字と小文字(例:「Hello1234」「Solyanka」)。</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>メール(任意)</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>メールの登場</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>パスワード回復、アップデート、プロモーションのみです。スパム禁止。</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>バウチャーコード?</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>バウチャーコード(任意)</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>誰かに紹介されたの?</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>参照ユーザー名(任意)</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>続けてください</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>ハッシュ</translation>
+    </message>
+    <message>
+        <source>Generate or browse file</source>
+        <translation>ファイルを生成または閲覧</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>個人情報は不要です。アカウントの回復は不可能です。
+アカウントのハッシュを失うと永久に消え、サポートは回復を手伝ってくれません。</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>ハッシュ用のファイルを選択します</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>すべてのファイル(*.*)</translation>
+    </message>
+    <message>
+        <source>Username must be at least 3 characters</source>
+        <translation>ユーザー名は最低3文字以上でなければなりません</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address.</source>
+        <translation>ユーザー名はメールアドレスであってはいけません。</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>無効なメール</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>無効ハッシュ</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Switch to Auto</source>
         <translation>オートへの切り替え</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>アカウント作成中...</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>ネットワーク オプション</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>Windscribeは、デバイスが「セキュリティで保護されていない」というタグが付いたネットワークに接続すると、自動的に切断されます。</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>新しく検出されたすべてのネットワークをセキュリティで保護されているとマークします。</translation>
     </message>
@@ -1803,6 +1916,10 @@ If the problem persists after a restart, please send a debug log and open a supp
 Connect to a network first</source>
         <translation>ネットワークが検出されませんでした。
 最初にネットワークに接続する</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>新しいネットワークは自動的に「セキュア」となります。ネットワークを「Unsecured」とタグ付けすると、デバイスが接続されるとWindscribeは切断されます。ネットワークを「安全なし」に設定するのは推奨されません。</translation>
     </message>
 </context>
 <context>

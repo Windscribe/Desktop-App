@@ -39,7 +39,6 @@
         "c-ares",
         "advobfuscator",
         "miniaudio",
-        "7zip",
         "ctrld",
         {
             "name": "winreg",

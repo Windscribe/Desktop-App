@@ -1,35 +1,50 @@
 #include "wireguardcontroller.h"
-#include "wireguardadapter.h"
-#include "userspace/wireguardgocommunicator.h"
-#include "kernelmodule/kernelmodulecommunicator.h"
-#include "defaultroutemonitor.h"
-#include "../../common/helper_commands.h"
-#include "../execute_cmd.h"
-#include "../utils.h"
+
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <spdlog/spdlog.h>
 
+#include "wireguardadapter.h"
+#include "userspace/wireguardgocommunicator.h"
+#include "kernelmodule/kernelmodulecommunicator.h"
+#include "defaultroutemonitor.h"
+#include "../utils.h"
+
 WireGuardController::WireGuardController()
-    : comm_(nullptr), is_initialized_(false)
 {
 }
 
-bool WireGuardController::start()
+bool WireGuardController::isUsingKernelModule() const
 {
+    // Will only use the amneziawg-go module for now.  AmneziaWG does provide a kernel module,
+    // but the user has to install it.
+    // https://github.com/amnezia-vpn/amneziawg-linux-kernel-module
+    // TODO: JDRM determine if we want to support using the AmneziaWG kernel module if it is installed.
+    // TODO: JDRM if we do, modify KernelModuleCommunicator to support communication with said module.
+
+    if (isAmneziaWG_) {
+        return false;
+    }
+
+    // Allow use of regular WireGuard kernel module for vanilla connections.
+    return !Utils::executeCommand("modprobe", {"wireguard"});
+}
+
+bool WireGuardController::start(bool isAmneziaWG, bool verboseLogging)
+{
+    isAmneziaWG_ = isAmneziaWG;
     adapter_.reset(new WireGuardAdapter(kDeviceName));
 
-    bool isUsingKernelModule = !Utils::executeCommand("modprobe", {"wireguard"});
-    if (isUsingKernelModule) {
+    if (isUsingKernelModule()) {
         spdlog::info("Using wireguard kernel module");
         comm_ = std::make_shared<KernelModuleCommunicator>();
     } else {
-        spdlog::info("Using wireguard-go");
+        spdlog::info("Using amneziawg-go");
         comm_ = std::make_shared<WireGuardGoCommunicator>();
     }
 
-    if (comm_->start(kDeviceName)) {
+    if (comm_->start(kDeviceName, verboseLogging)) {
         is_initialized_ = true;
         return true;
     }
@@ -43,8 +58,8 @@ bool WireGuardController::stop()
         spdlog::info("WireGuardController::stop() called when not initialized - attempting cleanup");
 
         // Use the same logic as start() to determine which communicator to use
-        bool isUsingKernelModule = !Utils::executeCommand("modprobe", {"wireguard"});
-        if (isUsingKernelModule) {
+        // TODO: JDRM isAmneziaWG_ won't be set here so method may make the wrong decision.
+        if (isUsingKernelModule()) {
             KernelModuleCommunicator::forceStop(kDeviceName);
         } else {
             WireGuardGoCommunicator::forceStop(kDeviceName);
@@ -63,14 +78,9 @@ bool WireGuardController::stop()
     return true;
 }
 
-bool WireGuardController::configure(
-    const std::string &clientPrivateKey,
-    const std::string &peerPublicKey,
-    const std::string &peerPresharedKey,
-    const std::string &peerEndpoint,
-    const std::vector<std::string> &allowedIps,
-    uint32_t fwmark,
-    uint16_t listenPort)
+bool WireGuardController::configure(const std::string &clientPrivateKey, const std::string &peerPublicKey, const std::string &peerPresharedKey,
+                                    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps, uint32_t fwmark, uint16_t listenPort,
+                                    const AmneziawgConfig &amneziawgConfig)
 {
     return is_initialized_
         && comm_->configure(clientPrivateKey,
@@ -79,7 +89,8 @@ bool WireGuardController::configure(
                             peerEndpoint,
                             allowedIps,
                             fwmark,
-                            listenPort);
+                            listenPort,
+                            amneziawgConfig);
 }
 
 unsigned long WireGuardController::getStatus(
@@ -93,10 +104,8 @@ unsigned long WireGuardController::getStatus(
 }
 
 
-bool WireGuardController::configureAdapter(const std::string &ipAddress,
-    const std::string &dnsAddressList,
-    const std::string &dnsScriptName,
-    const std::vector<std::string> &allowedIps, uint32_t fwmark)
+bool WireGuardController::configureAdapter(const std::string &ipAddress, const std::string &dnsAddressList, const std::string &dnsScriptName,
+                                           const std::vector<std::string> &allowedIps, uint32_t fwmark)
 {
     UNUSED(dnsScriptName);
     UNUSED(dnsAddressList);

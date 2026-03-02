@@ -338,54 +338,21 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>تسجيل الدخول</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>أكمل اللغز للمتابعة</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
     <message>
         <source>Turn Off Firewall</source>
-        <translation>إيقاف تشغيل جدار الحماية</translation>
-    </message>
-    <message>
-        <source>No Internet Connectivity</source>
-        <translation>لا يوجد اتصال بالإنترنت</translation>
-    </message>
-    <message>
-        <source>No API Connectivity</source>
-        <translation>لا يوجد اتصال API</translation>
-    </message>
-    <message>
-        <source>Proxy requires authentication</source>
-        <translation>يتطلب الوكيل المصادقة</translation>
-    </message>
-    <message>
-        <source>Invalid API response, check your network</source>
-        <translation>استجابة API غير صالحة ، تحقق من شبكتك</translation>
-    </message>
-    <message>
-        <source>Invalid API Endpoint</source>
-        <translation>نقطة نهاية API غير صالحة</translation>
-    </message>
-    <message>
-        <source>...hmm are you sure this is correct?</source>
-        <translation>... حسنا ، هل أنت متأكد من صحة ذلك؟</translation>
-    </message>
-    <message>
-        <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>... آسف ، يبدو أنه خطأ مرة أخرى</translation>
-    </message>
-    <message>
-        <source>...hmm, try resetting your password!</source>
-        <translation>... حسنا ، حاول إعادة تعيين كلمة المرور الخاصة بك!</translation>
-    </message>
-    <message>
-        <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>معدل محدود. يرجى الانتظار قبل محاولة تسجيل الدخول مرة أخرى.</translation>
-    </message>
-    <message>
-        <source>Session is expired. Please login again</source>
-        <translation>انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى</translation>
-    </message>
-    <message>
-        <source>Your username should not be an email address. Please try again.</source>
-        <translation>يجب ألا يكون اسم المستخدم الخاص بك عنوان بريد إلكتروني. يرجى المحاولة مرة أخرى.</translation>
+        <translation>إيقاف جدار الحماية</translation>
     </message>
     <message>
         <source>Login</source>
@@ -393,23 +360,15 @@
     </message>
     <message>
         <source>Emergency Connect is ON</source>
-        <translation>الاتصال في حالات الطوارئ قيد التشغيل</translation>
+        <translation>الاتصال الطارئ مفعل</translation>
     </message>
     <message>
         <source>2FA Code</source>
-        <translation>رمز 2FA</translation>
+        <translation>رمز التحقق بخطوتين</translation>
     </message>
     <message>
         <source>Forgot password?</source>
         <translation>نسيت كلمة المرور؟</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation>اسم المستخدم</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>شعار</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -418,6 +377,22 @@
     <message>
         <source>Hashed</source>
         <translation>هاشد</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>اسم المستخدم</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>أدخل اسم المستخدم</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>كلمة المرور</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>أدخل كلمة المرور</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -435,16 +410,154 @@
         <source>All Files (*.*)</source>
         <translation>جميع الملفات (*.*)</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>تسجيل الدخول</translation>
+        <source>No Internet Connectivity</source>
+        <translation>لا يوجد اتصال بالإنترنت</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>أكمل اللغز للمتابعة</translation>
+        <source>No API Connectivity</source>
+        <translation>لا يوجد اتصال API</translation>
+    </message>
+    <message>
+        <source>Proxy requires authentication</source>
+        <translation>الوكيل يتطلب مصادقة</translation>
+    </message>
+    <message>
+        <source>Invalid API response, check your network</source>
+        <translation>استجابة API غير صالحة، تحقق من شبكتك</translation>
+    </message>
+    <message>
+        <source>Invalid API Endpoint</source>
+        <translation>نقطة نهاية API غير صالحة</translation>
+    </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... همم، هل أنت متأكد أن هذا صحيح؟</translation>
+    </message>
+    <message>
+        <source>...Sorry, seems like it&apos;s wrong again</source>
+        <translation>... آسف، يبدو أن الأمر خاطئ مرة أخرى</translation>
+    </message>
+    <message>
+        <source>...hmm, try resetting your password!</source>
+        <translation>... همم، جرب إعادة تعيين كلمة المرور!</translation>
+    </message>
+    <message>
+        <source>Rate limited. Please wait before trying to login again.</source>
+        <translation>السعر محدود. يرجى الانتظار قبل محاولة تسجيل الدخول مرة أخرى.</translation>
+    </message>
+    <message>
+        <source>Session is expired. Please login again</source>
+        <translation>انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address. Please try again.</source>
+        <translation>يجب ألا يكون اسم المستخدم الخاص بك عنوان بريد إلكتروني. يرجى المحاولة مرة أخرى.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
+    <message>
+        <source>Sign Up</source>
+        <translation>سجل</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>المعيار</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>هاشد</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>اسم المستخدم</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>أدخل اسم المستخدم</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>كلمة المرور</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>أدخل كلمة المرور</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>8 أو أكثر من الحروف التي تحتوي على الأقل بحرف كبير وصغير (أي. &quot;مرحبا1234&quot;، &quot;سوليانكا&quot;).</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>البريد الإلكتروني (اختياري)</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>أدخل البريد الإلكتروني</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>لاستعادة كلمات المرور، التحديثات والترويج فقط. لا رسائل مزعجة.</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>رمز القسيمة؟</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>رمز القسيمة (اختياري)</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>هل أحيل من شخص ما؟</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>اسم مستخدم مرجعي (اختياري)</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>تابع</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>هاش</translation>
+    </message>
+    <message>
+        <source>Generate or browse file</source>
+        <translation>إنشاء أو تصفح ملف</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>لا حاجة لمعلومات شخصية. استعادة الحساب مستحيلة.
+إذا فقدت هاش حسابك، فإنه يختفي إلى الأبد ولا يمكن للدعم مساعدتك في استعادته.</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>اختر ملف التجزئة</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>جميع الملفات (*.*)</translation>
+    </message>
+    <message>
+        <source>Username must be at least 3 characters</source>
+        <translation>يجب أن يكون اسم المستخدم على الأقل 3 أحرف</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address.</source>
+        <translation>يجب ألا يكون اسم المستخدم الخاص بك عنوان بريد إلكتروني.</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>البريد الإلكتروني غير صالح</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>التجزئة غير الصالحة</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Switch to Auto</source>
         <translation>التحول إلى تلقائي</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>إنشاء حسابك...</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>خيارات الشبكة</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>سيقوم Windscribe بقطع الاتصال تلقائيا عندما يتصل الجهاز بشبكة تحمل علامة &quot;غير آمن&quot;.</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>ضع علامة على جميع الشبكات التي تمت مواجهتها حديثا على أنها آمنة.</translation>
     </message>
@@ -1803,6 +1916,10 @@ If the problem persists after a restart, please send a debug log and open a supp
 Connect to a network first</source>
         <translation>لم يتم اكتشاف أي شبكات.
 الاتصال بالشبكة أولا</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>الشبكات الجديدة تكون &quot;مؤمنة&quot; تلقائيا. إذا قمت بوضع علامة على شبكة ك &quot;غير مؤمنة&quot;، سينفصل ويندوسكرايب الاتصال عند انضمام الجهاز إليها. لا ينصح بتعيين الشبكة ك &quot;غير مؤمن&quot;.</translation>
     </message>
 </context>
 <context>

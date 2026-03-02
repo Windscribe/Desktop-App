@@ -71,6 +71,17 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::Connec
         } else {
             emit finished(0, locationsString(cmd->locations_));
         }
+    } else if (command->getStringId() == IPC::CliCommands::AmneziawgPresetsList::getCommandStringId()) {
+        IPC::CliCommands::AmneziawgPresetsList *cmd = static_cast<IPC::CliCommands::AmneziawgPresetsList *>(command);
+        if (cmd->presets_.isEmpty()) {
+            emit finished(1, tr("No AmneziaWG configurations available."));
+        } else {
+            QString msg;
+            for (const QString &preset : std::as_const(cmd->presets_)) {
+                msg += preset + "\n";
+            }
+            emit finished(0, msg.trimmed());
+        }
     }
 }
 
@@ -185,6 +196,10 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
             cmd.locationType_ = IPC::CliCommands::LocationType::kFavourite;
         }
 
+        connection_->sendCommand(cmd);
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_AMNEZIAWG) {
+        IPC::CliCommands::ShowAmneziawg cmd;
         connection_->sendCommand(cmd);
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_LOGIN) {

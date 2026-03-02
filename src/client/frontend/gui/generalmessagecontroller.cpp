@@ -145,6 +145,8 @@ void GeneralMessageController::showNext()
         } else {
             window->setShowBottomPanel(false);
         }
+    } else {
+        window->setShowBottomPanel(false);
     }
     controller_->changeWindow(MainWindowController::WINDOW_ID_GENERAL_MESSAGE);
 }
@@ -173,7 +175,6 @@ void GeneralMessageController::handleResult(Result res)
     }
 
     GeneralMessage *message = messages_.first();
-    messages_.removeFirst();
 
     GeneralMessageWindow::GeneralMessageWindowItem *window = controller_->getGeneralMessageWindow();
     bool remember = window->isRememberChecked();
@@ -192,6 +193,7 @@ void GeneralMessageController::handleResult(Result res)
     }
 
     window->clear();
+    messages_.removeFirst();
 
     if (curWin != controller_->currentWindowAfterAnimation()) {
         // The handler function made a window transition, respect it and go to this window instead

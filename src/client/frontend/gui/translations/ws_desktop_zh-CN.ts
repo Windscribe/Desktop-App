@@ -338,54 +338,21 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>登录</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>完成拼图以继续</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
     <message>
         <source>Turn Off Firewall</source>
         <translation>关闭防火墙</translation>
-    </message>
-    <message>
-        <source>No Internet Connectivity</source>
-        <translation>无 Internet 连接</translation>
-    </message>
-    <message>
-        <source>No API Connectivity</source>
-        <translation>无 API 连接</translation>
-    </message>
-    <message>
-        <source>Proxy requires authentication</source>
-        <translation>代理服务器需要身份验证</translation>
-    </message>
-    <message>
-        <source>Invalid API response, check your network</source>
-        <translation>无效的 API 响应，请检查您的网络</translation>
-    </message>
-    <message>
-        <source>Invalid API Endpoint</source>
-        <translation>无效的 API 端点</translation>
-    </message>
-    <message>
-        <source>...hmm are you sure this is correct?</source>
-        <translation>啊？这好像不对呢</translation>
-    </message>
-    <message>
-        <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>呜喵，好像又出错了</translation>
-    </message>
-    <message>
-        <source>...hmm, try resetting your password!</source>
-        <translation>不记得了？那就重置密码吧！</translation>
-    </message>
-    <message>
-        <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>尝试次数太多啦，等一会儿先吧~</translation>
-    </message>
-    <message>
-        <source>Session is expired. Please login again</source>
-        <translation>会话已过期。请重新登录</translation>
-    </message>
-    <message>
-        <source>Your username should not be an email address. Please try again.</source>
-        <translation>用户名不是电子邮件地址哦！再试一次吧。</translation>
     </message>
     <message>
         <source>Login</source>
@@ -393,23 +360,15 @@
     </message>
     <message>
         <source>Emergency Connect is ON</source>
-        <translation>紧急连接已启用</translation>
+        <translation>紧急连接已开启</translation>
     </message>
     <message>
         <source>2FA Code</source>
-        <translation>2FA 验证码</translation>
+        <translation>2FA 代码</translation>
     </message>
     <message>
         <source>Forgot password?</source>
-        <translation>忘记密码？</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation>用户名</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>密码</translation>
+        <translation>忘记密码了吗？</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -418,6 +377,22 @@
     <message>
         <source>Hashed</source>
         <translation>哈希处理</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>用户名</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>输入用户名</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>密码</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>输入密码</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -435,16 +410,154 @@
         <source>All Files (*.*)</source>
         <translation>所有文件（*.*）</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>登录</translation>
+        <source>No Internet Connectivity</source>
+        <translation>无互联网连接</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>完成拼图以继续</translation>
+        <source>No API Connectivity</source>
+        <translation>无API连接</translation>
+    </message>
+    <message>
+        <source>Proxy requires authentication</source>
+        <translation>代理需要身份验证</translation>
+    </message>
+    <message>
+        <source>Invalid API response, check your network</source>
+        <translation>API 响应无效，请检查你的网络</translation>
+    </message>
+    <message>
+        <source>Invalid API Endpoint</source>
+        <translation>无效API端点</translation>
+    </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>...嗯，你确定这是正确的吗？</translation>
+    </message>
+    <message>
+        <source>...Sorry, seems like it&apos;s wrong again</source>
+        <translation>...抱歉，看起来又错了</translation>
+    </message>
+    <message>
+        <source>...hmm, try resetting your password!</source>
+        <translation>...嗯，试着重置密码吧！</translation>
+    </message>
+    <message>
+        <source>Rate limited. Please wait before trying to login again.</source>
+        <translation>费率有限。请稍候后再尝试再次登录。</translation>
+    </message>
+    <message>
+        <source>Session is expired. Please login again</source>
+        <translation>会谈已过期。请重新登录</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address. Please try again.</source>
+        <translation>你的用户名不应该是电子邮件地址。请再试一次。</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
+    <message>
+        <source>Sign Up</source>
+        <translation>注册</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>标准</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>哈希处理</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>用户名</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>输入用户名</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>密码</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>输入密码</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>8个或以上字符，至少包含一个大写和一个小写字母（例如：“你好1234”、“索良卡”）。</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>电子邮件（可选）</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>这时，邮件</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>仅用于密码恢复、更新和促销。没有垃圾信息。</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>代金券代码？</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>代金券代码（可选）</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>有人推荐的吗？</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>引用用户名（可选）</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>继续</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>哈希</translation>
+    </message>
+    <message>
+        <source>Generate or browse file</source>
+        <translation>生成或浏览文件</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>不需要提供个人信息。账号无法恢复。
+如果你丢失账户哈希值，它就永远消失了，客服无法帮你恢复。</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>选择哈希文件</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>所有文件（*.*）</translation>
+    </message>
+    <message>
+        <source>Username must be at least 3 characters</source>
+        <translation>用户名必须至少3个字符</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address.</source>
+        <translation>你的用户名不应该是电子邮件地址。</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>无效邮件</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>无效哈希</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Switch to Auto</source>
         <translation>切换到自动挡</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>创建您的账户......</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>网络选项</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>当设备连接到标记为“不安全”的网络时，Windscribe 将自动断开连接。</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>将所有新连接的网络标记为“安全”。</translation>
     </message>
@@ -1803,6 +1916,10 @@ If the problem persists after a restart, please send a debug log and open a supp
 Connect to a network first</source>
         <translation>未检测到网络。
 请先连接到网络</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>新网络会自动“安全”。如果你把网络标记为“未加密”，设备加入时 Windscribe 会断开连接。不建议将网络设置为“无安全”。</translation>
     </message>
 </context>
 <context>

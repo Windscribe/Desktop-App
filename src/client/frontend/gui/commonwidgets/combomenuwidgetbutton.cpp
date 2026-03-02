@@ -11,6 +11,7 @@ ComboMenuWidgetButton::ComboMenuWidgetButton(const QVariant &d)
     styleSheet += "QPushButton { padding-top: 5px; padding-bottom: 5px }";
     styleSheet += "QPushButton { padding-left: 10px; padding-right: 10px; }";
     styleSheet += "QPushButton { color: black }";
+    styleSheet += "QPushButton { text-align: left }";
     setStyleSheet(styleSheet);
 
     data_ = d;

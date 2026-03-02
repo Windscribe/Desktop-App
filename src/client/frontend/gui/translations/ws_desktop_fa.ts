@@ -338,54 +338,21 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>ورود</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>پازل کامل برای ادامه</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
     <message>
         <source>Turn Off Firewall</source>
-        <translation>خاموش کردن دیوار اتش</translation>
-    </message>
-    <message>
-        <source>No Internet Connectivity</source>
-        <translation>بدون اتصال به اینترنت</translation>
-    </message>
-    <message>
-        <source>No API Connectivity</source>
-        <translation>بدون اتصال API</translation>
-    </message>
-    <message>
-        <source>Proxy requires authentication</source>
-        <translation>پروکسی نیاز به احراز هویت دارد</translation>
-    </message>
-    <message>
-        <source>Invalid API response, check your network</source>
-        <translation>پاسخ API نامعتبر، شبکه خود را بررسی کنید</translation>
-    </message>
-    <message>
-        <source>Invalid API Endpoint</source>
-        <translation>نقطه پایان API نامعتبر</translation>
-    </message>
-    <message>
-        <source>...hmm are you sure this is correct?</source>
-        <translation>... مطمئنی درسته؟</translation>
-    </message>
-    <message>
-        <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>... متاسفم، به نظر می رسد دوباره اشتباه است</translation>
-    </message>
-    <message>
-        <source>...hmm, try resetting your password!</source>
-        <translation>... Hmm، سعی کنید رمز عبور خود را دوباره تنظیم کنید!</translation>
-    </message>
-    <message>
-        <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>نرخ محدود است. لطفا قبل از تلاش برای ورود دوباره صبر کنید.</translation>
-    </message>
-    <message>
-        <source>Session is expired. Please login again</source>
-        <translation>جلسه منقضی شده است. لطفا دوباره وارد شوید</translation>
-    </message>
-    <message>
-        <source>Your username should not be an email address. Please try again.</source>
-        <translation>نام کاربری شما نباید یک ادرس ایمیل باشد. لطفا دوباره تلاش کنید.</translation>
+        <translation>فایروال را خاموش کنید</translation>
     </message>
     <message>
         <source>Login</source>
@@ -393,7 +360,7 @@
     </message>
     <message>
         <source>Emergency Connect is ON</source>
-        <translation>اتصال اضطراری روشن است</translation>
+        <translation>اتصال اضطراری فعال است</translation>
     </message>
     <message>
         <source>2FA Code</source>
@@ -401,15 +368,7 @@
     </message>
     <message>
         <source>Forgot password?</source>
-        <translation>رمز عبور را فراموش کرده اید؟</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation>نام کاربری</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>رمز عبور</translation>
+        <translation>رمز عبور رو فراموش کردی؟</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -418,6 +377,22 @@
     <message>
         <source>Hashed</source>
         <translation>هش شده</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>نام کاربری</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>نام کاربری را وارد کنید</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>رمز عبور</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>رمز عبور را وارد کنید</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -435,16 +410,154 @@
         <source>All Files (*.*)</source>
         <translation>تمام فایل ها (*.*)</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>ورود</translation>
+        <source>No Internet Connectivity</source>
+        <translation>بدون اتصال به اینترنت</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>پازل کامل برای ادامه</translation>
+        <source>No API Connectivity</source>
+        <translation>بدون اتصال API</translation>
+    </message>
+    <message>
+        <source>Proxy requires authentication</source>
+        <translation>پراکسی نیاز به احراز هویت دارد</translation>
+    </message>
+    <message>
+        <source>Invalid API response, check your network</source>
+        <translation>پاسخ API نامعتبر است، شبکه خود را بررسی کنید</translation>
+    </message>
+    <message>
+        <source>Invalid API Endpoint</source>
+        <translation>نقطه پایانی API نامعتبر</translation>
+    </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... هوم، مطمئنی این درست است؟</translation>
+    </message>
+    <message>
+        <source>...Sorry, seems like it&apos;s wrong again</source>
+        <translation>... ببخشید، به نظر می رسد دوباره اشتباه است</translation>
+    </message>
+    <message>
+        <source>...hmm, try resetting your password!</source>
+        <translation>... هوم، سعی کن رمز عبورت را ریست کنی!</translation>
+    </message>
+    <message>
+        <source>Rate limited. Please wait before trying to login again.</source>
+        <translation>نرخ محدود. لطفا قبل از تلاش دوباره برای ورود صبر کنید.</translation>
+    </message>
+    <message>
+        <source>Session is expired. Please login again</source>
+        <translation>جلسه منقضی شده است. لطفا دوباره وارد شوید</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address. Please try again.</source>
+        <translation>نام کاربری شما نباید یک آدرس ایمیل باشد. لطفا دوباره تلاش کنید.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
+    <message>
+        <source>Sign Up</source>
+        <translation>ثبت نام</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>استاندارد</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>هش شده</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>نام کاربری</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>نام کاربری را وارد کنید</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>رمز عبور</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>رمز عبور را وارد کنید</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>۸ یا بیشتر کاراکتر با حداقل یک حرف بزرگ و کوچک (مثلا «Hello1234»، «Solyanka»).</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>ایمیل (اختیاری)</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>وارد کردن ایمیل</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>برای بازیابی رمز عبور، فقط به روزرسانی ها و تبلیغات. هیچ اسپم ممنوع.</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>کد کوپن؟</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>کد کوپن (اختیاری)</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>معرفی شده توسط کسی؟</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>نام کاربری ارجاع دهنده (اختیاری)</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>ادامه بده</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>هش</translation>
+    </message>
+    <message>
+        <source>Generate or browse file</source>
+        <translation>تولید یا مرور فایل</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>اطلاعات شخصی لازم نیست. بازیابی حساب غیرممکن است.
+اگر هش حساب خود را از دست بدهید، برای همیشه از بین می رود و پشتیبانی نمی تواند به بازیابی آن کمک کند.</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>انتخاب فایل برای هش</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>تمام فایل ها (*.*)</translation>
+    </message>
+    <message>
+        <source>Username must be at least 3 characters</source>
+        <translation>نام کاربری باید حداقل ۳ کاراکتر باشد</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address.</source>
+        <translation>نام کاربری شما نباید یک آدرس ایمیل باشد.</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>ایمیل نامعتبر</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>هش نامعتبر</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Switch to Auto</source>
         <translation>تغییر به خودکار</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>ایجاد حساب کاربری شما...</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>گزینههای شبکه</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>Windscribe هنگامی که دستگاه به شبکه ای با برچسب &quot;Unsecured&quot; متصل می شود، به طور خودکار قطع می شود.</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>تمام شبکه های تازه مواجه شده را به عنوان امن علامت گذاری کنید.</translation>
     </message>
@@ -1803,6 +1916,10 @@ If the problem persists after a restart, please send a debug log and open a supp
 Connect to a network first</source>
         <translation>هیچ شبکه ای شناسایی نشد.
 ابتدا به یک شبکه متصل شوید</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>شبکه های جدید به طور خودکار «امن» می شوند. اگر شبکه را به عنوان «ناامن» برچسب بزنید، Windscribe هنگام اتصال دستگاه قطع می شود. تنظیم شبکه به عنوان «ناامن» توصیه نمی شود.</translation>
     </message>
 </context>
 <context>

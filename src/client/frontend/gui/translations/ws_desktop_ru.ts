@@ -338,78 +338,37 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
-    <message>
-        <source>Turn Off Firewall</source>
-        <translation>Выключить брандмауэр</translation>
-    </message>
-    <message>
-        <source>No Internet Connectivity</source>
-        <translation>Нет подключения к Интернету</translation>
-    </message>
-    <message>
-        <source>No API Connectivity</source>
-        <translation>Нет подключения к API</translation>
-    </message>
-    <message>
-        <source>Proxy requires authentication</source>
-        <translation>Прокси-сервер требует аутентификации</translation>
-    </message>
-    <message>
-        <source>Invalid API response, check your network</source>
-        <translation>Недопустимый ответ API, проверьте свою сеть</translation>
-    </message>
-    <message>
-        <source>Invalid API Endpoint</source>
-        <translation>Недопустимая конечная точка API</translation>
-    </message>
-    <message>
-        <source>...hmm are you sure this is correct?</source>
-        <translation>... хм, вы уверены, что данные корректны?</translation>
-    </message>
-    <message>
-        <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>... извините, кажется, снова что-то не так</translation>
-    </message>
-    <message>
-        <source>...hmm, try resetting your password!</source>
-        <translation>... хм, попробуйте сбросить пароль!</translation>
-    </message>
-    <message>
-        <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>Ограничение по поличеству запросов. Пожалуйста, подождите, прежде чем пытаться войти снова.</translation>
-    </message>
-    <message>
-        <source>Session is expired. Please login again</source>
-        <translation>Сеанс истёк. Пожалуйста, войдите еще раз</translation>
-    </message>
-    <message>
-        <source>Your username should not be an email address. Please try again.</source>
-        <translation>Ваше имя пользователя не должно быть адресом электронной почты. Повторите попытку.</translation>
-    </message>
+    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
         <source>Login</source>
         <translation>Логин</translation>
     </message>
     <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Завершите головоломку, чтобы продолжить</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
+    <message>
+        <source>Turn Off Firewall</source>
+        <translation>Отключить межсетевой экран</translation>
+    </message>
+    <message>
+        <source>Login</source>
+        <translation>Вход</translation>
+    </message>
+    <message>
         <source>Emergency Connect is ON</source>
-        <translation>Аварийное подключение установлено</translation>
+        <translation>Экстренное подключение включено</translation>
     </message>
     <message>
         <source>2FA Code</source>
-        <translation>2FA-код</translation>
+        <translation>Код 2FA</translation>
     </message>
     <message>
         <source>Forgot password?</source>
         <translation>Забыли пароль?</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation>Имя пользователя</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>Пароль</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -418,6 +377,22 @@
     <message>
         <source>Hashed</source>
         <translation>Хешировано</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Имя пользователя</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Введите имя пользователя</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Пароль</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Введите пароль</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -435,16 +410,154 @@
         <source>All Files (*.*)</source>
         <translation>Все файлы (*.*)</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>Логин</translation>
+        <source>No Internet Connectivity</source>
+        <translation>Нет подключения к интернету</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>Завершите головоломку, чтобы продолжить</translation>
+        <source>No API Connectivity</source>
+        <translation>Нет подключения к API</translation>
+    </message>
+    <message>
+        <source>Proxy requires authentication</source>
+        <translation>Прокси требует аутентификации</translation>
+    </message>
+    <message>
+        <source>Invalid API response, check your network</source>
+        <translation>Некорректный ответ API — проверьте свою сеть</translation>
+    </message>
+    <message>
+        <source>Invalid API Endpoint</source>
+        <translation>Некорректный API Endpoint</translation>
+    </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... Хмм, ты уверен, что это правильно?</translation>
+    </message>
+    <message>
+        <source>...Sorry, seems like it&apos;s wrong again</source>
+        <translation>... Извините, кажется, это снова неправильно</translation>
+    </message>
+    <message>
+        <source>...hmm, try resetting your password!</source>
+        <translation>... Хм, попробуй сбросить пароль!</translation>
+    </message>
+    <message>
+        <source>Rate limited. Please wait before trying to login again.</source>
+        <translation>Ставка ограничена. Пожалуйста, подождите, прежде чем снова пытаться войти.</translation>
+    </message>
+    <message>
+        <source>Session is expired. Please login again</source>
+        <translation>Сессия истекла. Пожалуйста, войдите снова</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address. Please try again.</source>
+        <translation>Ваше имя пользователя не должно быть адресом электронной почты. Пожалуйста, попробуйте ещё раз.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
+    <message>
+        <source>Sign Up</source>
+        <translation>Регистрация</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>Стандарт</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>Хешировано</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Имя пользователя</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Введите имя пользователя</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Пароль</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Введите пароль</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>8 и более символов с хотя бы одним заглавным и стричным (то есть «Hello1234», «Солянка»).</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>Электронная почта (по желанию)</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>Введите электронную почту</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>Для восстановления пароля — только обновления и промо. Без спама.</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>Код ваучера?</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>Код ваучера (по желанию)</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>Кто-то рекомендовал?</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>Ссылка на имя пользователя (опционально)</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>Продолжайте</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>Хэш</translation>
+    </message>
+    <message>
+        <source>Generate or browse file</source>
+        <translation>Генерировать или просматривать файлы</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>Личная информация не требуется. Восстановление аккаунта невозможно.
+Если вы потеряете хэш аккаунта, он исчезнет навсегда, и поддержка не сможет помочь вам его восстановить.</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>Выберите файл для хэша</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>Все файлы (*.*)</translation>
+    </message>
+    <message>
+        <source>Username must be at least 3 characters</source>
+        <translation>Имя пользователя должно быть не менее трёх символов</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address.</source>
+        <translation>Ваше имя пользователя не должно быть адресом электронной почты.</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>Недействительное письмо</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>Некорректный хэш</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Switch to Auto</source>
         <translation>Переключение на автоматический режим</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>Создание аккаунта...</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Параметры сети</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>Windscribe автоматически отключается, когда устройство подключается к сети с пометкой «Незащищенная».</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>Помечать все вновь обнаруженные сети как защищенные.</translation>
     </message>
@@ -1803,6 +1916,10 @@ If the problem persists after a restart, please send a debug log and open a supp
 Connect to a network first</source>
         <translation>Сети не обнаружены.
 Сначала подключитесь к сети</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>Новые сети автоматически становятся «защищёнными». Если вы пометите сеть как «Незащищённая», Windscribe отключится, когда устройство к ней присоединится. Устанавливать сеть как «незащищенную» НЕ рекомендуется.</translation>
     </message>
 </context>
 <context>

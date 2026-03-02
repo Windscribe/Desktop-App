@@ -14,7 +14,7 @@ endif()
 
 project(helper)
 
-find_package(Boost REQUIRED COMPONENTS serialization thread filesystem)
+find_package(Boost CONFIG REQUIRED COMPONENTS serialization thread filesystem)
 find_package(OpenSSL REQUIRED)
 find_package(skyr-url CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)

@@ -37,7 +37,7 @@ macro(linux_copy_files DEST_DIR TARGET_NAME)
     # Copy custom dependencies
     add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${WINDSCRIBE_BUILD_LIBS_PATH}/wireguard/windscribewireguard"
+                "${WINDSCRIBE_BUILD_LIBS_PATH}/wireguard/windscribeamneziawg"
                 "${DEST_DIR}/opt/windscribe/"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${WINDSCRIBE_BUILD_LIBS_PATH}/wstunnel/windscribewstunnel"

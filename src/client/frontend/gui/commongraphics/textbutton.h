@@ -23,6 +23,7 @@ public:
     double getOpacity() const;
     void quickSetOpacity(double opacity);
 
+    void quickShow();
     void quickHide();
     void animateShow(int animationSpeed);
     void animateHide(int animationSpeed);

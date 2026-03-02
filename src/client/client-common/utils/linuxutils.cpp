@@ -80,8 +80,17 @@ QMap<QString, QString> enumerateInstalledPrograms()
     QMap<QString, QString> programs;
 
     // On Linux, we are looking for desktop entries. These are located under the applications dir at ~/.local/share, and each dir in $XDG_DATA_DIRS
-    QStringList dirs = QString::fromLocal8Bit(qgetenv("XDG_DATA_DIRS")).split(":");
-    dirs.prepend(QDir::homePath() + "/.local/share");
+    QByteArray xdgDataDirs = qgetenv("XDG_DATA_DIRS");
+    if (xdgDataDirs.isEmpty()) {
+        xdgDataDirs = "/usr/local/share/:/usr/share/";
+    }
+    QStringList dirs = QString::fromLocal8Bit(xdgDataDirs).split(":");
+    QByteArray xdgDataHome = qgetenv("XDG_DATA_HOME");
+    if (xdgDataHome.isEmpty()) {
+        dirs.prepend(QDir::homePath() + "/.local/share");
+    } else {
+        dirs.prepend(QString::fromLocal8Bit(xdgDataHome));
+    }
 
     for (auto dir : dirs) {
         for (auto filename : QDir(dir + "/applications").entryList(QStringList("*.desktop"), QDir::Files)) {

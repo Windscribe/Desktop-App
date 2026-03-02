@@ -338,10 +338,77 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>Login</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Complete Puzzle to continue</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
     <message>
         <source>Turn Off Firewall</source>
         <translation>Turn Off Firewall</translation>
+    </message>
+    <message>
+        <source>Login</source>
+        <translation>Login</translation>
+    </message>
+    <message>
+        <source>Emergency Connect is ON</source>
+        <translation>Emergency Connect is ON</translation>
+    </message>
+    <message>
+        <source>2FA Code</source>
+        <translation>2FA Code</translation>
+    </message>
+    <message>
+        <source>Forgot password?</source>
+        <translation>Forgot password?</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>Standard</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>Hashed</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Username</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Enter username</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Password</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Enter password</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>Hash</translation>
+    </message>
+    <message>
+        <source>Account Hash or upload file</source>
+        <translation>Account Hash or upload file</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>Select file for hash</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>All Files (*.*)</translation>
     </message>
     <message>
         <source>No Internet Connectivity</source>
@@ -387,29 +454,12 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>Your username should not be an email address. Please try again.</translation>
     </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>Login</translation>
-    </message>
-    <message>
-        <source>Emergency Connect is ON</source>
-        <translation>Emergency Connect is ON</translation>
-    </message>
-    <message>
-        <source>2FA Code</source>
-        <translation>2FA Code</translation>
-    </message>
-    <message>
-        <source>Forgot password?</source>
-        <translation>Forgot password?</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation>Username</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>Password</translation>
+        <source>Sign Up</source>
+        <translation>Sign Up</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -420,12 +470,70 @@
         <translation>Hashed</translation>
     </message>
     <message>
+        <source>Username</source>
+        <translation>Username</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Enter username</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Password</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Enter password</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>Email (Optional)</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>Enter email</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>For password recovery, updates &amp; promo only. No spam.</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>Voucher Code?</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>Voucher code (optional)</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>Referred By Someone?</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>Referring username (optional)</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>Continue</translation>
+    </message>
+    <message>
         <source>Hash</source>
         <translation>Hash</translation>
     </message>
     <message>
-        <source>Account Hash or upload file</source>
-        <translation>Account Hash or upload file</translation>
+        <source>Generate or browse file</source>
+        <translation>Generate or browse file</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</translation>
     </message>
     <message>
         <source>Select file for hash</source>
@@ -435,16 +543,21 @@
         <source>All Files (*.*)</source>
         <translation>All Files (*.*)</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>Login</translation>
+        <source>Username must be at least 3 characters</source>
+        <translation>Username must be at least 3 characters</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>Complete Puzzle to continue</translation>
+        <source>Your username should not be an email address.</source>
+        <translation>Your username should not be an email address.</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>Invalid email</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>Invalid hash</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Switch to Auto</source>
         <translation>Switch to Auto</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>Creating your account...</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Network Options</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>Mark all newly encountered networks as Secured.</translation>
     </message>
@@ -1803,6 +1916,10 @@ If the problem persists after a restart, please send a debug log and open a supp
 Connect to a network first</source>
         <translation>No Networks Detected.
 Connect to a network first</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</translation>
     </message>
 </context>
 <context>

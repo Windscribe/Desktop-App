@@ -1,1 +1,0 @@
-Force static linking, this is the only difference from the original.

@@ -338,62 +338,29 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
-    <message>
-        <source>Turn Off Firewall</source>
-        <translation>Vypnout bránu firewall</translation>
-    </message>
-    <message>
-        <source>No Internet Connectivity</source>
-        <translation>Žádné připojení k internetu</translation>
-    </message>
-    <message>
-        <source>No API Connectivity</source>
-        <translation>Žádné připojení API</translation>
-    </message>
-    <message>
-        <source>Proxy requires authentication</source>
-        <translation>Proxy vyžaduje ověření</translation>
-    </message>
-    <message>
-        <source>Invalid API response, check your network</source>
-        <translation>Neplatná odpověď rozhraní API, zkontrolujte svou síť</translation>
-    </message>
-    <message>
-        <source>Invalid API Endpoint</source>
-        <translation>Neplatný koncový bod rozhraní API</translation>
-    </message>
-    <message>
-        <source>...hmm are you sure this is correct?</source>
-        <translation>... Hmm, jsi si jistý, že je to správně?</translation>
-    </message>
-    <message>
-        <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>... Omlouváme se, zdá se, že je to zase špatně</translation>
-    </message>
-    <message>
-        <source>...hmm, try resetting your password!</source>
-        <translation>... Hmm, zkuste resetovat heslo!</translation>
-    </message>
-    <message>
-        <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>Sazba omezena. Před dalším pokusem o přihlášení počkejte.</translation>
-    </message>
-    <message>
-        <source>Session is expired. Please login again</source>
-        <translation>Platnost relace vypršela. Přihlaste se prosím znovu</translation>
-    </message>
-    <message>
-        <source>Your username should not be an email address. Please try again.</source>
-        <translation>Vaše uživatelské jméno by nemělo být e-mailovou adresou. Zkuste to prosím znovu.</translation>
-    </message>
+    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
         <source>Login</source>
         <translation>Přihlášení do systému</translation>
     </message>
     <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>kompletní puzzle pokračovat</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
+    <message>
+        <source>Turn Off Firewall</source>
+        <translation>Vypnout firewall</translation>
+    </message>
+    <message>
+        <source>Login</source>
+        <translation>Přihlášení</translation>
+    </message>
+    <message>
         <source>Emergency Connect is ON</source>
-        <translation>Tísňové připojení je zapnuté</translation>
+        <translation>Nouzové spojení je ZAPNUTÉ</translation>
     </message>
     <message>
         <source>2FA Code</source>
@@ -404,20 +371,28 @@
         <translation>Zapomněli jste heslo?</translation>
     </message>
     <message>
-        <source>Username</source>
-        <translation>Uživatelské jméno</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>Heslo</translation>
-    </message>
-    <message>
         <source>Standard</source>
         <translation>Standard</translation>
     </message>
     <message>
         <source>Hashed</source>
         <translation>Hashed</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Uživatelské jméno</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Zadejte uživatelské jméno</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Heslo</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Zadejte heslo</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -435,16 +410,154 @@
         <source>All Files (*.*)</source>
         <translation>Všechny soubory (*.*)</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>Přihlášení do systému</translation>
+        <source>No Internet Connectivity</source>
+        <translation>Žádné připojení k internetu</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>kompletní puzzle pokračovat</translation>
+        <source>No API Connectivity</source>
+        <translation>Žádná konektivita s API</translation>
+    </message>
+    <message>
+        <source>Proxy requires authentication</source>
+        <translation>Proxy vyžaduje autentizaci</translation>
+    </message>
+    <message>
+        <source>Invalid API response, check your network</source>
+        <translation>Neplatná odpověď API, zkontrolujte svou síť</translation>
+    </message>
+    <message>
+        <source>Invalid API Endpoint</source>
+        <translation>Invalid API Endpoint</translation>
+    </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... Hmm, jsi si jistý, že je to správně?</translation>
+    </message>
+    <message>
+        <source>...Sorry, seems like it&apos;s wrong again</source>
+        <translation>... Promiň, zdá se, že je to zase špatně</translation>
+    </message>
+    <message>
+        <source>...hmm, try resetting your password!</source>
+        <translation>... Hmm, zkuste si resetovat heslo!</translation>
+    </message>
+    <message>
+        <source>Rate limited. Please wait before trying to login again.</source>
+        <translation>Omezené rychlosti. Prosím, počkejte s dalším pokusem o přihlášení.</translation>
+    </message>
+    <message>
+        <source>Session is expired. Please login again</source>
+        <translation>Zasedání je ukončeno. Prosím, přihlaste se znovu</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address. Please try again.</source>
+        <translation>Vaše uživatelské jméno by nemělo být e-mailová adresa. Zkuste to prosím znovu.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
+    <message>
+        <source>Sign Up</source>
+        <translation>Registrace</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>Standard</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>Hashed</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Uživatelské jméno</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Zadejte uživatelské jméno</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Heslo</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Zadejte heslo</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>8 nebo více znaků s alespoň jedním velkým a malým (např. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>E-mail (volitelný)</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>Zadejte e-mail</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>Pro obnovu hesla, pouze aktualizace a promo akce. Žádný spam.</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>Voucherový kód?</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>Voucherový kód (volitelné)</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>Doporučen někým?</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>Odkazující uživatelské jméno (volitelné)</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>Pokračovat</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>Hash</translation>
+    </message>
+    <message>
+        <source>Generate or browse file</source>
+        <translation>Vygenerovat nebo prohlížet soubor</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>Není potřeba žádné osobní údaje. Obnova účtu je nemožná.
+Pokud ztratíte hash účtu, je navždy pryč a podpora vám nemůže pomoci ho obnovit.</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>Vyberte soubor pro hash</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>Všechny soubory (*.*)</translation>
+    </message>
+    <message>
+        <source>Username must be at least 3 characters</source>
+        <translation>Uživatelské jméno musí mít alespoň 3 znaky</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address.</source>
+        <translation>Vaše uživatelské jméno by nemělo být e-mailová adresa.</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>Neplatný e-mail</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>Neplatný hash</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
     <message>
         <source>Switch to Auto</source>
         <translation>Přepnout na automat</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>Vytváření účtu...</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <translation>Možnosti sítě</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>Windscribe se automaticky odpojí, když se zařízení připojí k síti označené jako &quot;Nezabezpečené&quot;.</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>Označte všechny nově zjištěné sítě jako zabezpečené.</translation>
     </message>
@@ -1803,6 +1916,10 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
 Connect to a network first</source>
         <translation>Nebyly zjištěny žádné sítě.
 Nejprve se připojte k síti</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>Nové sítě jsou automaticky &quot;zabezpečené&quot;. Pokud označíte síť jako &quot;Nezabezpečená&quot;, Windscribe se odpojí, když se zařízení připojí. Nastavení sítě jako &quot;Nezabezpečené&quot; se NEDOPORUČUJE.</translation>
     </message>
 </context>
 <context>

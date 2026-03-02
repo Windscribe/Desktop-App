@@ -1,1 +1,0 @@
-Here are libs that can also be used by mobile programs.

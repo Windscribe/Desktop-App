@@ -95,10 +95,10 @@ bool Helper_win::executeTaskKill(CmdKillTarget target)
 }
 
 bool Helper_win::executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort,
-                            const QString &socksProxy, unsigned int socksPort, bool isCustomConfig)
+                            const QString &socksProxy, unsigned int socksPort)
 {
     auto result = sendCommand(HelperCommand::executeOpenVPN, config.toStdWString(), port, httpProxy.toStdWString(), httpPort,
-                              socksProxy.toStdWString(), socksPort, isCustomConfig);
+                              socksProxy.toStdWString(), socksPort);
     bool success = false;
     deserializeAnswer(result, success);
     return success;
@@ -149,9 +149,9 @@ bool Helper_win::getWireGuardStatus(types::WireGuardStatus *status)
     return true;
 }
 
-void Helper_win::firewallOn(const QString &connectingIp, const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig)
+void Helper_win::firewallOn(const QString &connectingIp, const QString &ip, bool bAllowLanTraffic)
 {
-    sendCommand(HelperCommand::firewallOn, connectingIp.toStdWString(), ip.toStdWString(), bAllowLanTraffic, bIsCustomConfig);
+    sendCommand(HelperCommand::firewallOn, connectingIp.toStdWString(), ip.toStdWString(), bAllowLanTraffic);
 }
 
 void Helper_win::firewallOff()

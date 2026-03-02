@@ -31,6 +31,10 @@
         <source>IP rotate already in progress.</source>
         <translation>Η περιστροφή IP βρίσκεται ήδη σε εξέλιξη.</translation>
     </message>
+    <message>
+        <source>No AmneziaWG configurations available.</source>
+        <translation>Δεν υπάρχουν διαθέσιμες διαμορφώσεις AmneziaWG.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

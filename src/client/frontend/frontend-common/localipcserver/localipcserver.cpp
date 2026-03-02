@@ -24,6 +24,7 @@ LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(pare
     connect(backend_, &Backend::connectionIdChanged, this, &LocalIPCServer::onBackendConnectionIdChanged);
     connect(backend_, &Backend::bridgeApiAvailabilityChanged, this, &LocalIPCServer::onBackendBridgeApiAvailabilityChanged);
     connect(backend_, &Backend::ipRotateResult, this, &LocalIPCServer::onBackendIpRotateResult);
+    connect(backend_, &Backend::amneziawgUnblockParamsUpdated, this, &LocalIPCServer::onBackendAmneziawgUnblockParamsUpdated);
 
     connect(backend_->locationsModelManager(), &gui_locations::LocationsModelManager::deviceNameChanged, this, &LocalIPCServer::onLocationsModelManagerDeviceNameChanged);
 }
@@ -133,7 +134,7 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
         asciiArt_.clear();
         IPC::CliCommands::Login *cmd = static_cast<IPC::CliCommands::Login *>(command);
         if (!cmd->captchaSolution_.isEmpty()) {
-            backend_->continueLoginWithCaptcha(cmd->captchaSolution_, std::vector<float>(), std::vector<float>());
+            backend_->continueWithCaptcha(cmd->captchaSolution_, std::vector<float>(), std::vector<float>());
         } else if (backend_->currentLoginState() == LOGIN_STATE_LOGGED_OUT || backend_->currentLoginState() == LOGIN_STATE_LOGIN_ERROR) {
             emit attemptLogin(cmd->username_, cmd->password_, cmd->code2fa_);
         }
@@ -203,6 +204,11 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
             return;
         }
         emit unpinIp(cmd->ip_);
+    } else if (command->getStringId() == IPC::CliCommands::ShowAmneziawg::getCommandStringId()) {
+        IPC::CliCommands::AmneziawgPresetsList response;
+        response.presets_ = amneziawgPresets_;
+        sendCommand(response);
+        return;
     }
 
     IPC::CliCommands::Acknowledge cmd;
@@ -223,7 +229,7 @@ void LocalIPCServer::onConnectionStateCallback(int state, IPC::Connection *conne
     }
 }
 
-void LocalIPCServer::onBackendLoginFinished(bool /*isLoginFromSavedSettings*/)
+void LocalIPCServer::onBackendLoginFinished()
 {
     loginState_ = LOGIN_STATE_LOGGED_IN;
 }
@@ -382,4 +388,9 @@ void LocalIPCServer::onBackendIpRotateResult(bool success)
         cmd.message_ = "Could not rotate IP.";
     }
     sendCommand(cmd);
+}
+
+void LocalIPCServer::onBackendAmneziawgUnblockParamsUpdated(const QString & /*activePreset*/, const QStringList &presets)
+{
+    amneziawgPresets_ = presets;
 }

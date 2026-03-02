@@ -338,62 +338,29 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
-    <message>
-        <source>Turn Off Firewall</source>
-        <translation>關閉防火牆</translation>
-    </message>
-    <message>
-        <source>No Internet Connectivity</source>
-        <translation>沒有互聯網連接</translation>
-    </message>
-    <message>
-        <source>No API Connectivity</source>
-        <translation>無 API 連接</translation>
-    </message>
-    <message>
-        <source>Proxy requires authentication</source>
-        <translation>代理需要身份驗證</translation>
-    </message>
-    <message>
-        <source>Invalid API response, check your network</source>
-        <translation>無效的 API 回應，請檢查您的網路</translation>
-    </message>
-    <message>
-        <source>Invalid API Endpoint</source>
-        <translation>無效的 API 端點</translation>
-    </message>
-    <message>
-        <source>...hmm are you sure this is correct?</source>
-        <translation>...嗯，你確定這是正確的嗎？</translation>
-    </message>
-    <message>
-        <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>...對不起，好像又錯了</translation>
-    </message>
-    <message>
-        <source>...hmm, try resetting your password!</source>
-        <translation>...嗯，嘗試重置密碼！</translation>
-    </message>
-    <message>
-        <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>價格有限。請稍候，然後再嘗試再次登錄。</translation>
-    </message>
-    <message>
-        <source>Session is expired. Please login again</source>
-        <translation>會話已過期。請重新登錄</translation>
-    </message>
-    <message>
-        <source>Your username should not be an email address. Please try again.</source>
-        <translation>您的使用者名不應是電子郵件位址。請重試。</translation>
-    </message>
+    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
         <source>Login</source>
         <translation>登錄</translation>
     </message>
     <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>完成拼圖以繼續</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
+    <message>
+        <source>Turn Off Firewall</source>
+        <translation>關閉防火牆</translation>
+    </message>
+    <message>
+        <source>Login</source>
+        <translation>登入</translation>
+    </message>
+    <message>
         <source>Emergency Connect is ON</source>
-        <translation>緊急連接已打開</translation>
+        <translation>緊急連線已開啟</translation>
     </message>
     <message>
         <source>2FA Code</source>
@@ -401,15 +368,7 @@
     </message>
     <message>
         <source>Forgot password?</source>
-        <translation>忘記密碼？</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation>使用者名</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>密碼</translation>
+        <translation>忘記密碼了嗎？</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -418,6 +377,22 @@
     <message>
         <source>Hashed</source>
         <translation>雜湊</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>用戶名</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>輸入用戶名稱</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>密碼</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>輸入密碼</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -435,16 +410,154 @@
         <source>All Files (*.*)</source>
         <translation>所有檔案（*.*）</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>登錄</translation>
+        <source>No Internet Connectivity</source>
+        <translation>沒有網路連線</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>完成拼圖以繼續</translation>
+        <source>No API Connectivity</source>
+        <translation>無 API 連線</translation>
+    </message>
+    <message>
+        <source>Proxy requires authentication</source>
+        <translation>代理需要驗證</translation>
+    </message>
+    <message>
+        <source>Invalid API response, check your network</source>
+        <translation>API 回應無效，請檢查你的網路</translation>
+    </message>
+    <message>
+        <source>Invalid API Endpoint</source>
+        <translation>API 端點無效</translation>
+    </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>...嗯，你確定這是正確的嗎？</translation>
+    </message>
+    <message>
+        <source>...Sorry, seems like it&apos;s wrong again</source>
+        <translation>...抱歉，好像又錯了</translation>
+    </message>
+    <message>
+        <source>...hmm, try resetting your password!</source>
+        <translation>...嗯，試著重設密碼吧！</translation>
+    </message>
+    <message>
+        <source>Rate limited. Please wait before trying to login again.</source>
+        <translation>費率有限。請稍等再嘗試再次登入。</translation>
+    </message>
+    <message>
+        <source>Session is expired. Please login again</source>
+        <translation>會議已過期。請重新登入</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address. Please try again.</source>
+        <translation>你的用戶名稱不應該是電子郵件地址。請再試一次。</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
+    <message>
+        <source>Sign Up</source>
+        <translation>註冊</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>標準</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>雜湊</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>用戶名</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>輸入用戶名稱</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>密碼</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>輸入密碼</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>8個或以上的字元，至少包含一個大寫和一個小寫（例如：「Hello1234」、「Solyanka」）。</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>電子郵件（可選）</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>輸入電子郵件</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>僅限於密碼恢復、更新和促銷。沒有垃圾訊息。</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>代金券代碼？</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>代金券代碼（可選）</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>有人推薦的嗎？</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>參考用戶名（可選）</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>繼續</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>雜湊</translation>
+    </message>
+    <message>
+        <source>Generate or browse file</source>
+        <translation>產生或瀏覽檔案</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>不需要提供個人資料。帳號無法恢復。
+如果你遺失帳號雜湊值，那就永遠消失了，客服無法幫你找回。</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>選擇雜湊檔</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>所有檔案（*.*）</translation>
+    </message>
+    <message>
+        <source>Username must be at least 3 characters</source>
+        <translation>使用者名稱必須至少 3 個字元</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address.</source>
+        <translation>你的用戶名稱不應該是電子郵件地址。</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>無效電子郵件</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>無效雜湊值</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Switch to Auto</source>
         <translation>轉為自動排車</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>建立你的帳號......</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>網路選項</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>當設備連接到標記為「不安全」的網路時，Windscribe將自動斷開連接。</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>將所有新遇到的網路標記為“安全”。</translation>
     </message>
@@ -1803,6 +1916,10 @@ If the problem persists after a restart, please send a debug log and open a supp
 Connect to a network first</source>
         <translation>未檢測到網路。
 首先連接到網路</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>新網路會自動「安全」。如果你把網路標記為「Unsecured」，當裝置加入時 Windscribe 就會斷線。不建議將網路設為「未加密」。</translation>
     </message>
 </context>
 <context>

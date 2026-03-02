@@ -48,6 +48,7 @@ public:
     bool haveAmneziawgParam() const { return client_.amneziawgParam.isValid(); }
     void setAmneziawgParam(const api_responses::AmneziawgUnblockParam &param) { client_.amneziawgParam = param; }
     AmneziawgConfig amneziawgParamToHelperConfig() const;
+    QString amneziawgParamTitle() const { return client_.amneziawgParam.title; }
 
 private:
     struct {

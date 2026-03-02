@@ -50,7 +50,7 @@ void WireGuardConnectionImpl::connect()
     if (!isStarted_) {
         int retry = 0;
 
-        while (!host_->helper_->startWireGuard())
+        while (!host_->helper_->startWireGuard(config_.haveAmneziawgParam()))
         {
             if (retry >= 2)
             {
@@ -138,7 +138,11 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     Q_UNUSED(isEnableIkev2Compression);
     Q_UNUSED(isCustomConfig);
 
-    qCDebug(LOG_CONNECTION) << "Connecting WireGuard:" << pimpl_->getAdapterName();
+    if (wireGuardConfig->haveAmneziawgParam()) {
+        qCDebug(LOG_CONNECTION) << "Starting Amnezia WireGuard daemon with config:" << wireGuardConfig->amneziawgParamTitle();
+    } else {
+        qCDebug(LOG_CONNECTION) << "Starting WireGuard daemon";
+    }
 
     do_stop_thread_ = true;
     wait();
@@ -150,8 +154,7 @@ void WireGuardConnection::startConnect(const QString &configPathOrUrl, const QSt
     adapterGatewayInfo_.clear();
     adapterGatewayInfo_.setAdapterName(pimpl_->getAdapterName());
     QStringList address_and_cidr = wireGuardConfig->clientIpAddress().split('/');
-    if (address_and_cidr.size() > 1)
-    {
+    if (address_and_cidr.size() >= 1) {
         adapterGatewayInfo_.setAdapterIp(address_and_cidr[0]);
     }
     adapterGatewayInfo_.setDnsServers(QStringList() << wireGuardConfig->clientDnsAddress());

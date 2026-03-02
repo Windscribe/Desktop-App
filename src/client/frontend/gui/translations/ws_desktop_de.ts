@@ -338,62 +338,29 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
-    <message>
-        <source>Turn Off Firewall</source>
-        <translation>Firewall deaktivieren</translation>
-    </message>
-    <message>
-        <source>No Internet Connectivity</source>
-        <translation>Keine Internetverbindung</translation>
-    </message>
-    <message>
-        <source>No API Connectivity</source>
-        <translation>Keine API-Konnektivität</translation>
-    </message>
-    <message>
-        <source>Proxy requires authentication</source>
-        <translation>Proxy erfordert Authentifizierung</translation>
-    </message>
-    <message>
-        <source>Invalid API response, check your network</source>
-        <translation>Ungültige API-Antwort, überprüfen Sie Ihr Netzwerk</translation>
-    </message>
-    <message>
-        <source>Invalid API Endpoint</source>
-        <translation>Ungültiger API-Endpunkt</translation>
-    </message>
-    <message>
-        <source>...hmm are you sure this is correct?</source>
-        <translation>... Hmm, bist du sicher, dass das richtig ist?</translation>
-    </message>
-    <message>
-        <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>... Tut mir leid, scheint wieder falsch zu sein</translation>
-    </message>
-    <message>
-        <source>...hmm, try resetting your password!</source>
-        <translation>... Hmm, versuchen Sie, Ihr Passwort zurückzusetzen!</translation>
-    </message>
-    <message>
-        <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>Ratenbegrenzung. Bitte warten Sie, bevor Sie erneut versuchen, sich anzumelden.</translation>
-    </message>
-    <message>
-        <source>Session is expired. Please login again</source>
-        <translation>Die Sitzung ist abgelaufen. Bitte loggen Sie sich erneut ein</translation>
-    </message>
-    <message>
-        <source>Your username should not be an email address. Please try again.</source>
-        <translation>Ihr Benutzername sollte keine E-Mail-Adresse sein. Bitte versuchen Sie es erneut.</translation>
-    </message>
+    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
         <source>Login</source>
         <translation>Einloggen</translation>
     </message>
     <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Rätsel vervollständigen, um fortzufahren</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
+    <message>
+        <source>Turn Off Firewall</source>
+        <translation>Firewall ausschalten</translation>
+    </message>
+    <message>
+        <source>Login</source>
+        <translation>Anmelden</translation>
+    </message>
+    <message>
         <source>Emergency Connect is ON</source>
-        <translation>Emergency Connect ist eingeschaltet</translation>
+        <translation>Emergency Connect ist AN</translation>
     </message>
     <message>
         <source>2FA Code</source>
@@ -404,20 +371,28 @@
         <translation>Passwort vergessen?</translation>
     </message>
     <message>
-        <source>Username</source>
-        <translation>Nutzername</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>Passwort</translation>
-    </message>
-    <message>
         <source>Standard</source>
         <translation>Standard</translation>
     </message>
     <message>
         <source>Hashed</source>
         <translation>Hashed</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Benutzername</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Benutzername eingeben</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Passwort</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Passwort eingeben</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -435,16 +410,154 @@
         <source>All Files (*.*)</source>
         <translation>Alle Dateien (*.*)</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>Einloggen</translation>
+        <source>No Internet Connectivity</source>
+        <translation>Keine Internetverbindung</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>Rätsel vervollständigen, um fortzufahren</translation>
+        <source>No API Connectivity</source>
+        <translation>Keine API-Konnektivität</translation>
+    </message>
+    <message>
+        <source>Proxy requires authentication</source>
+        <translation>Proxy erfordert eine Authentifizierung</translation>
+    </message>
+    <message>
+        <source>Invalid API response, check your network</source>
+        <translation>Ungültige API-Antwort, überprüfen Sie Ihr Netzwerk</translation>
+    </message>
+    <message>
+        <source>Invalid API Endpoint</source>
+        <translation>Invalid API Endpunkt</translation>
+    </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... Hmm, bist du sicher, dass das stimmt?</translation>
+    </message>
+    <message>
+        <source>...Sorry, seems like it&apos;s wrong again</source>
+        <translation>... Entschuldigung, es scheint wieder falsch zu sein</translation>
+    </message>
+    <message>
+        <source>...hmm, try resetting your password!</source>
+        <translation>... Hmm, versuch mal, dein Passwort zurückzusetzen!</translation>
+    </message>
+    <message>
+        <source>Rate limited. Please wait before trying to login again.</source>
+        <translation>Tarif begrenzt. Bitte warten Sie, bevor Sie erneut versuchen, sich einzuloggen.</translation>
+    </message>
+    <message>
+        <source>Session is expired. Please login again</source>
+        <translation>Die Sitzung ist abgelaufen. Bitte melden Sie sich erneut an</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address. Please try again.</source>
+        <translation>Dein Benutzername sollte keine E-Mail-Adresse sein. Bitte versuchen Sie es erneut.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
+    <message>
+        <source>Sign Up</source>
+        <translation>Melden Sie sich an</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>Standard</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>Hashed</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Benutzername</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Benutzername eingeben</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Passwort</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Passwort eingeben</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>8 oder mehr Zeichen mit mindestens einem Groß- und Kleinbuchstaben (z. B. &quot;Hallo1234&quot;, &quot;Solyanka&quot;).</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>E-Mail (optional)</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>E-Mail eingeben</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>Für Passwortwiederherstellung, nur Updates und Aktionen. Kein Spam.</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>Gutscheincode?</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>Gutscheincode (optional)</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>Von jemandem empfohlen?</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>Verweisender Benutzername (optional)</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>Weitermachen</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>Hash</translation>
+    </message>
+    <message>
+        <source>Generate or browse file</source>
+        <translation>Datei erstellen oder durchsuchen</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>Keine persönlichen Informationen erforderlich. Kontowiederherstellung ist unmöglich.
+Wenn du den Hash deines Kontos verlierst, ist er für immer weg und der Support kann dir nicht helfen, ihn wiederherzustellen.</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>Datei für Hash auswählen</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>Alle Dateien (*.*)</translation>
+    </message>
+    <message>
+        <source>Username must be at least 3 characters</source>
+        <translation>Der Benutzername muss mindestens 3 Zeichen umfassen</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address.</source>
+        <translation>Dein Benutzername sollte keine E-Mail-Adresse sein.</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>Ungültige E-Mail</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>Ungültiger Hash</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     <message>
         <source>Switch to Auto</source>
         <translation>Wechsel zu Auto</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>Erstelle deines Kontos...</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Netzwerk-Optionen</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>Windscribe trennt die Verbindung automatisch, wenn das Gerät eine Verbindung zu einem Netzwerk herstellt, das als &quot;Ungesichert&quot; gekennzeichnet ist.</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>Markieren Sie alle neu gefundenen Netzwerke als gesichert.</translation>
     </message>
@@ -1803,6 +1916,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
 Connect to a network first</source>
         <translation>Es wurden keine Netzwerke erkannt.
 Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>Neue Netzwerke werden automatisch &quot;gesichert&quot;. Wenn du ein Netzwerk als &quot;Ungesichert&quot; markierst, trennt sich Windscribe, wenn das Gerät beitritt. Ein Netzwerk als &quot;Ungesichert&quot; einzustellen, wird NICHT empfohlen.</translation>
     </message>
 </context>
 <context>

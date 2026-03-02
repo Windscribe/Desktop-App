@@ -27,11 +27,11 @@ public:
                            const QString &connectedIp, const types::Protocol &protocol);
     void changeMtu(const QString &adapter, int mtu);
     bool executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort,
-                        const QString &socksProxy, unsigned int socksPort, bool isCustomConfig);
+                        const QString &socksProxy, unsigned int socksPort);
 
     bool executeTaskKill(CmdKillTarget target);
 
-    bool startWireGuard();
+    bool startWireGuard(bool isAmneziaWG = false);
     bool stopWireGuard();
     bool configureWireGuard(const WireGuardConfig &config);
     bool getWireGuardStatus(types::WireGuardStatus *status);

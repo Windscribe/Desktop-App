@@ -75,7 +75,7 @@ private:
     void setCurrentStateAndEmitDisconnected(CONNECTION_STATUS state);
     void setCurrentStateAndEmitError(CONNECTION_STATUS state, CONNECT_ERROR err);
     CONNECTION_STATUS getCurrentState() const;
-    bool runOpenVPN(unsigned int port, bool isCustomConfig);
+    bool runOpenVPN(unsigned int port);
 
     struct StateVariables
     {
@@ -139,6 +139,8 @@ private:
     void continueWithUsernameImpl();
     void continueWithPasswordImpl();
     void continueWithPrivKeyPasswordImpl();
+
+    static QString sanitizeString(const QString &s);
 
     bool parsePushReply(const QString &reply, AdapterGatewayInfo &outConnectionAdapterInfo, bool &outRedirectDefaultGateway);
     bool parseDeviceOpenedReply(const QString &reply, QString &outDeviceName);

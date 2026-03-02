@@ -537,6 +537,58 @@ public:
     QString ip_;
 };
 
+class ShowAmneziawg : public Command
+{
+public:
+    ShowAmneziawg() {}
+    explicit ShowAmneziawg(char *buf, int size)
+    {
+        Q_UNUSED(buf)
+        Q_UNUSED(size)
+    }
+
+    std::vector<char> getData() const override
+    {
+        return std::vector<char>();
+    }
+
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "CliCommands::ShowAmneziawg debug string";
+    }
+    static std::string getCommandStringId() { return "CliCommands::ShowAmneziawg";  }
+};
+
+class AmneziawgPresetsList : public Command
+{
+public:
+    AmneziawgPresetsList() {}
+    explicit AmneziawgPresetsList(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> presets_;
+    }
+
+    std::vector<char> getData() const override
+    {
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << presets_;
+        return std::vector<char>(arr.begin(), arr.end());
+    }
+
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "CliCommands::AmneziawgPresetsList debug string";
+    }
+    static std::string getCommandStringId() { return "CliCommands::AmneziawgPresetsList";  }
+
+    QStringList presets_;
+};
+
 
 } // namespace CliCommands
 } // namespace IPC

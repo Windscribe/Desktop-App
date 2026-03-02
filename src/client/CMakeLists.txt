@@ -22,9 +22,7 @@ find_package(OpenSSL REQUIRED)
 find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(spdlog CONFIG REQUIRED)
 
-if(NOT TARGET wsnet::wsnet)
-    add_subdirectory(../../libs/wsnet ${CMAKE_CURRENT_BINARY_DIR}/wsnet)
-endif()
+include("${CMAKE_SOURCE_DIR}/cmake/fetch_wsnet.cmake")
 
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
 option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)

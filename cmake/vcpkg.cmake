@@ -22,23 +22,20 @@ if(NOT EXISTS "${CMAKE_TOOLCHAIN_FILE}")
     message(FATAL_ERROR "vcpkg toolchain file not found: ${CMAKE_TOOLCHAIN_FILE}")
 endif()
 
-# Set vcpkg overlay paths for custom triplets
-set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_CURRENT_SOURCE_DIR}/tools/vcpkg/triplets" CACHE PATH "vcpkg overlay triplets")
-
 # Determine vcpkg triplet based on platform and architecture
 if(NOT DEFINED VCPKG_TARGET_TRIPLET)
     if(WIN32)
         if(BUILD_ARM64)
-            set(VCPKG_TARGET_TRIPLET "arm64-windows-static-release")
+            set(VCPKG_TARGET_TRIPLET "ws-arm64-windows-static-release")
         elseif(CI_MODE)
-            set(VCPKG_TARGET_TRIPLET "x64-windows-static-release")
+            set(VCPKG_TARGET_TRIPLET "ws-x64-windows-static-release")
         else()
             set(VCPKG_TARGET_TRIPLET "x64-windows-static")
         endif()
     elseif(APPLE)
         if(CI_MODE)
             # Universal binary on CI
-            set(VCPKG_TARGET_TRIPLET "universal-osx")
+            set(VCPKG_TARGET_TRIPLET "ws-universal-osx")
         else()
             # Detect host architecture
             execute_process(
@@ -47,7 +44,7 @@ if(NOT DEFINED VCPKG_TARGET_TRIPLET)
                 OUTPUT_STRIP_TRAILING_WHITESPACE
             )
             if(MACOS_ARCH STREQUAL "arm64")
-                set(VCPKG_TARGET_TRIPLET "arm64-osx")
+                set(VCPKG_TARGET_TRIPLET "ws-arm64-osx")
             else()
                 set(VCPKG_TARGET_TRIPLET "x64-osx")
             endif()
@@ -60,9 +57,9 @@ if(NOT DEFINED VCPKG_TARGET_TRIPLET)
             OUTPUT_STRIP_TRAILING_WHITESPACE
         )
         if(LINUX_ARCH MATCHES "aarch64|arm64")
-            set(VCPKG_TARGET_TRIPLET "arm64-linux")
+            set(VCPKG_TARGET_TRIPLET "ws-arm64-linux")
         else()
-            set(VCPKG_TARGET_TRIPLET "x64-linux")
+            set(VCPKG_TARGET_TRIPLET "ws-x64-linux")
         endif()
     endif()
 
@@ -83,7 +80,6 @@ macro(install_vcpkg_dependencies)
         "${VCPKG_ROOT}/vcpkg" install
         "--x-install-root=${VCPKG_ROOT}/installed"
         "--x-manifest-root=${CMAKE_CURRENT_SOURCE_DIR}/tools/vcpkg"
-        "--overlay-triplets=${CMAKE_CURRENT_SOURCE_DIR}/tools/vcpkg/triplets"
         "--triplet=${VCPKG_TARGET_TRIPLET}"
         "--clean-buildtrees-after-build"
         "--clean-packages-after-build"
@@ -92,7 +88,7 @@ macro(install_vcpkg_dependencies)
     # Add host triplet for Windows and Linux
     if(WIN32)
         if(CI_MODE)
-            list(APPEND VCPKG_INSTALL_CMD "--host-triplet=x64-windows-static-release")
+            list(APPEND VCPKG_INSTALL_CMD "--host-triplet=ws-x64-windows-static-release")
         else()
             list(APPEND VCPKG_INSTALL_CMD "--host-triplet=x64-windows-static")
         endif()

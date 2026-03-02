@@ -10,13 +10,17 @@
 
 namespace LoginWindow {
 
-UsernamePasswordEntry::UsernamePasswordEntry(const QString &text, bool password, const QString &customIcon, ScalableGraphicsObject *parent)
+UsernamePasswordEntry::UsernamePasswordEntry(const QString &text, bool password, ScalableGraphicsObject *parent, bool showDescription)
     : ClickableGraphicsObject(parent),
       userEntryLineAddSS_("padding-left: 8px; background: #0cffffff; border-radius: 3px;"),
-      descriptionText_(text), height_(50),
-      width_(WINDOW_WIDTH), curDescriptionOpacity_(OPACITY_HIDDEN),
+      descriptionText_(text),
+      showDescription_(showDescription),
+      height_(showDescription ? 50 : 30),
+      width_(WINDOW_WIDTH),
+      curDescriptionOpacity_(OPACITY_HIDDEN),
       curLineEditOpacity_(OPACITY_HIDDEN)
 {
+    font_ = FontManager::instance().getFont(DEFAULT_FONT_SIZE, QFont::Normal);
     userEntryLine_ = new CommonWidgets::CustomMenuLineEdit();
 
     QString ss = userEntryLineAddSS_ + " color: white";
@@ -36,12 +40,9 @@ UsernamePasswordEntry::UsernamePasswordEntry(const QString &text, bool password,
         userEntryLine_->setShowRevealToggle(true);
     }
 
-    if (!customIcon.isEmpty()) {
-        userEntryLine_->setCustomIcon(customIcon);
-    }
-
     connect(userEntryLine_, &CommonWidgets::CustomMenuLineEdit::textChanged, this, &UsernamePasswordEntry::onTextChanged);
-    connect(userEntryLine_, &CommonWidgets::CustomMenuLineEdit::iconClicked, this, &UsernamePasswordEntry::iconClicked);
+    connect(userEntryLine_, &CommonWidgets::CustomMenuLineEdit::icon1Clicked, this, &UsernamePasswordEntry::icon1Clicked);
+    connect(userEntryLine_, &CommonWidgets::CustomMenuLineEdit::icon2Clicked, this, &UsernamePasswordEntry::icon2Clicked);
     setClickable(true);
     clearActiveState();
 
@@ -62,7 +63,7 @@ void UsernamePasswordEntry::paint(QPainter *painter, const QStyleOptionGraphicsI
 
     painter->setPen(Qt::white);
 
-    if (!descriptionText_.isEmpty()) {
+    if (showDescription_ && !descriptionText_.isEmpty()) {
         painter->save();
         painter->translate(0, DESCRIPTION_TEXT_HEIGHT / 2 * G_SCALE);
         painter->setFont(FontManager::instance().getFont(12, QFont::Bold));
@@ -129,7 +130,8 @@ void UsernamePasswordEntry::setWidth(int width)
 void UsernamePasswordEntry::updateScaling()
 {
     ClickableGraphicsObject::updateScaling();
-    userEntryProxy_->setPos(WINDOW_MARGIN*G_SCALE, 20*G_SCALE);
+    int yPos = showDescription_ ? 20 : 0;
+    userEntryProxy_->setPos(WINDOW_MARGIN*G_SCALE, yPos*G_SCALE);
     updateFontSize();
     userEntryLine_->setFixedHeight(height_*G_SCALE - userEntryProxy_->pos().y()); // keep text box within drawing region and above line
     userEntryLine_->setFixedWidth( width_ * G_SCALE - WINDOW_MARGIN*G_SCALE * 2);
@@ -166,9 +168,9 @@ void UsernamePasswordEntry::updateFontSize()
 {
     // When there is no text and there is a placeholder, we use a smaller font size
     if (userEntryLine_->text().isEmpty() && !userEntryLine_->placeholderText().isEmpty()) {
-        userEntryLine_->setFont(FontManager::instance().getFont(12,  QFont::Normal));
+        userEntryLine_->setFont(FontManager::instance().getFont(PLACEHOLDER_FONT_SIZE, QFont::Normal));
     } else {
-        userEntryLine_->setFont(FontManager::instance().getFont(14,  QFont::Normal));
+        userEntryLine_->setFont(font_);
     }
 }
 
@@ -192,6 +194,22 @@ void UsernamePasswordEntry::setText(const QString &text)
 void UsernamePasswordEntry::setPlaceholderText(const QString &placeholderText)
 {
     userEntryLine_->setPlaceholderText(placeholderText);
+}
+
+void UsernamePasswordEntry::setCustomIcon1(const QString &iconUrl)
+{
+    userEntryLine_->setCustomIcon1(iconUrl);
+}
+
+void UsernamePasswordEntry::setCustomIcon2(const QString &iconUrl)
+{
+    userEntryLine_->setCustomIcon2(iconUrl);
+}
+
+void UsernamePasswordEntry::setFont(const QFont &font)
+{
+    font_ = font;
+    updateFontSize();
 }
 
 }

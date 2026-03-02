@@ -136,7 +136,7 @@ OpenVPNConnection::CONNECTION_STATUS OpenVPNConnection::getCurrentState() const
     return currentState_;
 }
 
-bool OpenVPNConnection::runOpenVPN(unsigned int port, bool isCustomConfig)
+bool OpenVPNConnection::runOpenVPN(unsigned int port)
 {
     QString httpProxy, socksProxy;
     unsigned int httpPort = 0, socksPort = 0;
@@ -157,7 +157,7 @@ bool OpenVPNConnection::runOpenVPN(unsigned int port, bool isCustomConfig)
 
     qCInfo(LOG_CONNECTION) << "OpenVPN version:" << OpenVpnVersionController::instance().getOpenVpnVersion();
 
-    return helper_->executeOpenVPN(config_, port, httpProxy, httpPort, socksProxy, socksPort, isCustomConfig);
+    return helper_->executeOpenVPN(config_, port, httpProxy, httpPort, socksProxy, socksPort);
 }
 
 void OpenVPNConnection::run()
@@ -209,7 +209,7 @@ void OpenVPNConnection::funcRunOpenVPN()
     int retries = 0;
 
     // run openvpn process
-    while(!runOpenVPN(stateVariables_.openVpnPort, isCustomConfig_))
+    while(!runOpenVPN(stateVariables_.openVpnPort))
     {
         qCDebug(LOG_CONNECTION) << "Can't run OpenVPN";
 
@@ -319,7 +319,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             if (!username_.isEmpty())
             {
                 char message[1024];
-                snprintf(message, 1024, "username \"Auth\" %s\n", username_.toUtf8().data());
+                snprintf(message, 1024, "username \"Auth\" \"%s\"\n", sanitizeString(username_).toUtf8().data());
                 boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message,strlen(message)), boost::asio::transfer_all(), write_error);
             }
             else
@@ -332,7 +332,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             if (!privKeyPassword_.isEmpty())
             {
                 char message[1024];
-                snprintf(message, 1024, "password \"Private Key\" %s\n", privKeyPassword_.toUtf8().data());
+                snprintf(message, 1024, "password \"Private Key\" \"%s\"\n", sanitizeString(privKeyPassword_).toUtf8().data());
                 boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message,strlen(message)), boost::asio::transfer_all(), write_error);
             }
             else
@@ -343,13 +343,13 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
         else if (serverReply.contains("PASSWORD:Need 'HTTP Proxy' username/password", Qt::CaseInsensitive))
         {
             char message[1024];
-            snprintf(message, 1024, "username \"HTTP Proxy\" %s\n", proxySettings_.getUsername().toUtf8().data());
+            snprintf(message, 1024, "username \"HTTP Proxy\" \"%s\"\n", sanitizeString(proxySettings_.getUsername()).toUtf8().data());
             boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message,strlen(message)), boost::asio::transfer_all(), write_error);
         }
         else if (serverReply.contains("'HTTP Proxy' username entered, but not yet verified", Qt::CaseInsensitive))
         {
             char message[1024];
-            snprintf(message, 1024, "password \"HTTP Proxy\" %s\n", proxySettings_.getPassword().toUtf8().data());
+            snprintf(message, 1024, "password \"HTTP Proxy\" \"%s\"\n", sanitizeString(proxySettings_.getPassword()).toUtf8().data());
             boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message, strlen(message)), boost::asio::transfer_all(), write_error);
         }
         else if (serverReply.contains("'Auth' username entered, but not yet verified", Qt::CaseInsensitive))
@@ -359,11 +359,7 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
                 // See Command Parsing paragraph in management-notes.txt file of openvpn sources.
                 // There are escaping rules for the openvpn password command.
                 char message[1024];
-                QString escaped = password_;
-                escaped.replace("\\", "\\\\");
-                escaped.replace("\"", "\\\"");
-                escaped.replace("\t", "\\t");
-                snprintf(message, 1024, "password \"Auth\" \"%s\"\n", escaped.toUtf8().data());
+                snprintf(message, 1024, "password \"Auth\" \"%s\"\n", sanitizeString(password_).toUtf8().data());
                 boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message, strlen(message)), boost::asio::transfer_all(), write_error);
             }
             else
@@ -612,7 +608,7 @@ void OpenVPNConnection::continueWithUsernameImpl()
 {
     boost::system::error_code write_error;
     char message[1024];
-    snprintf(message, 1024, "username \"Auth\" %s\n", username_.toUtf8().data());
+    snprintf(message, 1024, "username \"Auth\" \"%s\"\n", sanitizeString(username_).toUtf8().data());
     boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message,strlen(message)), boost::asio::transfer_all(), write_error);
 
     checkErrorAndContinue(write_error, false);
@@ -622,7 +618,7 @@ void OpenVPNConnection::continueWithPasswordImpl()
 {
     boost::system::error_code write_error;
     char message[1024];
-    snprintf(message, 1024, "password \"Auth\" %s\n", password_.toUtf8().data());
+    snprintf(message, 1024, "password \"Auth\" \"%s\"\n", sanitizeString(password_).toUtf8().data());
     boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message, strlen(message)), boost::asio::transfer_all(), write_error);
 
     checkErrorAndContinue(write_error, false);
@@ -632,7 +628,7 @@ void OpenVPNConnection::continueWithPrivKeyPasswordImpl()
 {
     boost::system::error_code write_error;
     char message[1024];
-    snprintf(message, 1024, "password \"Private Key\" %s\n", privKeyPassword_.toUtf8().data());
+    snprintf(message, 1024, "password \"Private Key\" \"%s\"\n", sanitizeString(privKeyPassword_).toUtf8().data());
     boost::asio::write(*stateVariables_.socket, boost::asio::buffer(message, strlen(message)), boost::asio::transfer_all(), write_error);
 
     checkErrorAndContinue(write_error, false);
@@ -641,6 +637,21 @@ void OpenVPNConnection::continueWithPrivKeyPasswordImpl()
 void OpenVPNConnection::setPrivKeyPassword(const QString &password)
 {
     privKeyPassword_ = password;
+}
+
+// Sanitize a string for use in an OpenVPN management interface command.
+// Newlines and carriage returns are stripped (they would break the line-oriented protocol),
+// and backslashes, double-quotes, and tabs are escaped per the OpenVPN management-notes.txt
+// "Command Parsing" rules.  The result is safe to embed inside a quoted argument.
+QString OpenVPNConnection::sanitizeString(const QString &s)
+{
+    QString result = s;
+    result.remove('\r');
+    result.remove('\n');
+    result.replace("\\", "\\\\");
+    result.replace("\"", "\\\"");
+    result.replace("\t", "\\t");
+    return result;
 }
 
 bool OpenVPNConnection::parsePushReply(const QString &reply, AdapterGatewayInfo &outConnectionAdapterInfo, bool &outRedirectDefaultGateway)

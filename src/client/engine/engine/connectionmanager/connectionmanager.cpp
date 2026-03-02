@@ -1037,7 +1037,7 @@ void ConnectionManager::doConnectPart2()
         if (currentConnectionDescr_.protocol.isOpenVpnProtocol()) {
             bool bOvpnSuccess = makeOVPNFileFromCustom_->generate(customConfigPath_,
                 currentConnectionDescr_.ovpnData, currentConnectionDescr_.ip,
-                currentConnectionDescr_.remoteCmdLine);
+                currentConnectionDescr_.remoteCmdLine, dnsServersFromConnectedDnsInfo());
             if (!bOvpnSuccess)
             {
                 qCCritical(LOG_CONNECTION) << "Failed create ovpn config for custom ovpn file:"

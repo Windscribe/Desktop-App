@@ -169,7 +169,12 @@ struct AmneziawgConfig
     // I1, I2, I3, I4, I5 (in order).  Only I1 is mandatory, the others may not exist.
     std::vector<std::string> iValues;
 
-    bool isValid() const { return !title.empty() && !iValues.empty(); }
+    bool isValid() const
+    {
+        // We do not check the title, as a WG custom config with AmneziaWG params will not have one.
+        return (jc > 0) || (jmin > 0) || (jmax > 0) || (s1 > 0) || (s2 > 0) || (s3 > 0) || (s4 > 0) ||
+               (!h1.empty()) || (!h2.empty()) || (!h3.empty()) || (!h4.empty()) || (!iValues.empty());
+    }
 };
 
 namespace boost {

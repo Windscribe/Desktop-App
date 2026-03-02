@@ -42,7 +42,7 @@ private slots:
     void onBackendCheckUpdateChanged(const api_responses::CheckUpdate &checkUpdate);
     void onBackendConnectStateChanged(const types::ConnectState &state);
     void onBackendInternetConnectivityChanged(bool connectivity);
-    void onBackendLoginFinished(bool isLoginFromSavedSettings);
+    void onBackendLoginFinished();
     void onBackendCaptchaRequired(bool isAsciiCaptcha, const QString &asciiArt, const QString &background, const QString &slider, int top);
     void onBackendLoginError(wsnet::LoginResult code, const QString &msg);
     void onBackendLogoutFinished();
@@ -53,6 +53,7 @@ private slots:
     void onBackendConnectionIdChanged(const QString &connId);
     void onBackendBridgeApiAvailabilityChanged(bool isAvailable);
     void onBackendIpRotateResult(bool success);
+    void onBackendAmneziawgUnblockParamsUpdated(const QString &activePreset, const QStringList &presets);
 
     void onLocationsModelManagerDeviceNameChanged(const QString &deviceName);
 
@@ -86,6 +87,7 @@ private:
     bool isBridgeApiAvailable_ = false;
     bool awaitingIpRotateResult_ = false;
     QDateTime lastIpRotateResultTime_;
+    QStringList amneziawgPresets_;
 
     void sendState();
     void sendCommand(const IPC::Command &command);

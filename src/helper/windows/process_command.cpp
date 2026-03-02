@@ -118,8 +118,7 @@ std::string executeOpenVPN(const std::string &pars)
 {
     std::wstring config, httpProxy, socksProxy;
     unsigned int port, httpPort, socksPort;
-    bool isCustomConfig;
-    deserializePars(pars, config, port, httpProxy, httpPort, socksProxy, socksPort, isCustomConfig);
+    deserializePars(pars, config, port, httpProxy, httpPort, socksProxy, socksPort);
 
     const auto res = OpenVPNController::instance().runOpenvpn(config, port, httpProxy, httpPort, socksProxy, socksPort);
     return serializeResult(res.success);
@@ -179,15 +178,15 @@ std::string getWireGuardStatus(const std::string &pars)
 std::string firewallOn(const std::string &pars)
 {
     std::wstring connectingIp, ip;
-    bool bAllowLanTraffic, bIsCustomConfig;
-    deserializePars(pars, connectingIp, ip, bAllowLanTraffic, bIsCustomConfig);
+    bool bAllowLanTraffic;
+    deserializePars(pars, connectingIp, ip, bAllowLanTraffic);
 
     bool prevStatus = FirewallFilter::instance().currentStatus();
-    FirewallFilter::instance().on(connectingIp.c_str(), ip.c_str(), bAllowLanTraffic, bIsCustomConfig);
+    FirewallFilter::instance().on(connectingIp.c_str(), ip.c_str(), bAllowLanTraffic);
     if (!prevStatus) {
         SplitTunneling::instance().updateState();
     }
-    spdlog::debug("firewallOn, AllowLocalTraffic={}, IsCustomConfig={}", bAllowLanTraffic, bIsCustomConfig);
+    spdlog::debug("firewallOn, AllowLocalTraffic={}", bAllowLanTraffic);
     return std::string();
 }
 

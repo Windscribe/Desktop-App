@@ -12,7 +12,7 @@
 namespace CommonWidgets {
 
 CustomMenuLineEdit::CustomMenuLineEdit(QWidget *parent) : BlockableQLineEdit (parent),
-    icon_(nullptr), echoMode_(QLineEdit::Normal), showRevealToggle_(false), isRevealed_(false)
+    icon_(nullptr), icon1_(nullptr), icon2_(nullptr), echoMode_(QLineEdit::Normal), showRevealToggle_(false), isRevealed_(false)
 {
     setContextMenuPolicy(Qt::NoContextMenu);
 
@@ -162,16 +162,38 @@ void CustomMenuLineEdit::setShowRevealToggle(bool show)
     updateRevealPassword();
 }
 
-void CustomMenuLineEdit::setCustomIcon(const QString &iconUrl)
+void CustomMenuLineEdit::setCustomIcon1(const QString &iconUrl)
 {
-    WS_ASSERT(icon_ == nullptr);
-    if (icon_ == nullptr) {
-        isCustomIcon_ = true;
-        icon_ = new IconButtonWidget(iconUrl, this);
-        icon_->show();
-        connect(icon_, &IconButtonWidget::clicked, this, &CustomMenuLineEdit::iconClicked);
+    WS_ASSERT(icon1_ == nullptr);
+    if (icon1_ == nullptr) {
+        isCustomIcon1_ = true;
+        icon1_ = new IconButtonWidget(iconUrl, this);
+        icon1_->show();
+        connect(icon1_, &IconButtonWidget::clicked, this, &CustomMenuLineEdit::onIcon1Clicked);
     }
     updatePositions();
+}
+
+void CustomMenuLineEdit::setCustomIcon2(const QString &iconUrl)
+{
+    WS_ASSERT(icon2_ == nullptr);
+    if (icon2_ == nullptr) {
+        isCustomIcon2_ = true;
+        icon2_ = new IconButtonWidget(iconUrl, this);
+        icon2_->show();
+        connect(icon2_, &IconButtonWidget::clicked, this, &CustomMenuLineEdit::onIcon2Clicked);
+    }
+    updatePositions();
+}
+
+void CustomMenuLineEdit::onIcon1Clicked()
+{
+    emit icon1Clicked();
+}
+
+void CustomMenuLineEdit::onIcon2Clicked()
+{
+    emit icon2Clicked();
 }
 
 void CustomMenuLineEdit::updateRevealPassword()
@@ -201,16 +223,44 @@ void CustomMenuLineEdit::updateRevealPassword()
 
 void CustomMenuLineEdit::updatePositions()
 {
-    if ((echoMode_ != QLineEdit::Password || !showRevealToggle_) && (!isCustomIcon_)) {
-        setTextMargins(0, 0, 4*G_SCALE, 0);
-        if (icon_) {
-            icon_->hide();
-        }
-    } else {
-        const int iconSize = 24*G_SCALE;
-        icon_->setGeometry(width() - iconSize - 8*G_SCALE, height()/2 - iconSize/2, iconSize, iconSize);
-        setTextMargins(0, 0, iconSize + 12*G_SCALE, 0);
+    const int iconSize = 24*G_SCALE;
+    const int iconSpacing = 8*G_SCALE;
+    int rightMargin = 4*G_SCALE;
+    int xPos = width();
+
+    // Handle icon2 (rightmost)
+    if (isCustomIcon2_ && icon2_) {
+        xPos -= iconSize + iconSpacing;
+        icon2_->setGeometry(xPos, height()/2 - iconSize/2, iconSize, iconSize);
+        icon2_->show();
+        rightMargin = width() - xPos + 4*G_SCALE;
+    } else if (icon2_) {
+        icon2_->hide();
     }
+
+    // Handle icon1 (second from right, or rightmost if icon2 is not set)
+    if (isCustomIcon1_ && icon1_) {
+        xPos -= iconSize + iconSpacing;
+        icon1_->setGeometry(xPos, height()/2 - iconSize/2, iconSize, iconSize);
+        icon1_->show();
+        rightMargin = width() - xPos + 4*G_SCALE;
+    } else if (icon1_) {
+        icon1_->hide();
+    }
+
+    // Handle reveal password icon (uses the old icon_ variable for backward compatibility)
+    if ((echoMode_ == QLineEdit::Password && showRevealToggle_) && !isCustomIcon1_ && !isCustomIcon2_) {
+        xPos -= iconSize + iconSpacing;
+        if (icon_) {
+            icon_->setGeometry(xPos, height()/2 - iconSize/2, iconSize, iconSize);
+            icon_->show();
+            rightMargin = width() - xPos + 4*G_SCALE;
+        }
+    } else if (icon_ && (echoMode_ != QLineEdit::Password || !showRevealToggle_)) {
+        icon_->hide();
+    }
+
+    setTextMargins(0, 0, rightMargin, 0);
 }
 
 void CustomMenuLineEdit::onRevealClicked()

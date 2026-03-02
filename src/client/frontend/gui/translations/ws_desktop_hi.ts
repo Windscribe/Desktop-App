@@ -338,58 +338,25 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>लॉगिन</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>जारी रखने के लिए पूरी पहेली</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
     <message>
         <source>Turn Off Firewall</source>
         <translation>फ़ायरवॉल बंद करें</translation>
     </message>
     <message>
-        <source>No Internet Connectivity</source>
-        <translation>कोई इंटरनेट कनेक्टिविटी नहीं</translation>
-    </message>
-    <message>
-        <source>No API Connectivity</source>
-        <translation>कोई API कनेक्टिविटी नहीं</translation>
-    </message>
-    <message>
-        <source>Proxy requires authentication</source>
-        <translation>प्रॉक्सी प्रमाणीकरण की आवश्यकता है</translation>
-    </message>
-    <message>
-        <source>Invalid API response, check your network</source>
-        <translation>अमान्य API प्रतिक्रिया, अपने नेटवर्क की जाँच करें</translation>
-    </message>
-    <message>
-        <source>Invalid API Endpoint</source>
-        <translation>Invalid API Endpoint</translation>
-    </message>
-    <message>
-        <source>...hmm are you sure this is correct?</source>
-        <translation>... हम्म क्या आपको यकीन है कि यह सही है?</translation>
-    </message>
-    <message>
-        <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>... क्षमा करें, ऐसा लगता है कि यह फिर से गलत है</translation>
-    </message>
-    <message>
-        <source>...hmm, try resetting your password!</source>
-        <translation>... हम्म, अपना पासवर्ड रीसेट करने का प्रयास करें!</translation>
-    </message>
-    <message>
-        <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>दर सीमित. फिर से लॉगिन करने का प्रयास करने से पहले कृपया प्रतीक्षा करें.</translation>
-    </message>
-    <message>
-        <source>Session is expired. Please login again</source>
-        <translation>सत्र की समय सीमा समाप्त हो गई है. कृपया फिर से लॉगिन करें</translation>
-    </message>
-    <message>
-        <source>Your username should not be an email address. Please try again.</source>
-        <translation>आपका उपयोगकर्ता नाम ईमेल पता नहीं होना चाहिए. कृपया पुन: प्रयास करें.</translation>
-    </message>
-    <message>
         <source>Login</source>
-        <translation>लॉगिन</translation>
+        <translation>लॉगिन करें</translation>
     </message>
     <message>
         <source>Emergency Connect is ON</source>
@@ -397,19 +364,11 @@
     </message>
     <message>
         <source>2FA Code</source>
-        <translation>2एफए कोड</translation>
+        <translation>2FA कोड</translation>
     </message>
     <message>
         <source>Forgot password?</source>
         <translation>पासवर्ड भूल गए?</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation>उपयोगकर्ता नाम</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>पासवर्ड</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -418,6 +377,22 @@
     <message>
         <source>Hashed</source>
         <translation>हैश</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>उपयोगकर्ता नाम</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>उपयोगकर्ता नाम दर्ज करें</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>पासवर्ड</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>पासवर्ड दर्ज करें</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -435,16 +410,154 @@
         <source>All Files (*.*)</source>
         <translation>सभी फ़ाइलें (*.*)</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>लॉगिन</translation>
+        <source>No Internet Connectivity</source>
+        <translation>कोई इंटरनेट कनेक्टिविटी नहीं</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>जारी रखने के लिए पूरी पहेली</translation>
+        <source>No API Connectivity</source>
+        <translation>कोई एपीआई कनेक्टिविटी नहीं</translation>
+    </message>
+    <message>
+        <source>Proxy requires authentication</source>
+        <translation>प्रॉक्सी को प्रमाणीकरण की आवश्यकता है</translation>
+    </message>
+    <message>
+        <source>Invalid API response, check your network</source>
+        <translation>अमान्य एपीआई प्रतिक्रिया, अपने नेटवर्क की जांच करें</translation>
+    </message>
+    <message>
+        <source>Invalid API Endpoint</source>
+        <translation>अमान्य एपीआई समापन बिंदु</translation>
+    </message>
+    <message>
+        <source>...hmm are you sure this is correct?</source>
+        <translation>... हम्म क्या आप सुनिश्चित हैं कि यह सही है?</translation>
+    </message>
+    <message>
+        <source>...Sorry, seems like it&apos;s wrong again</source>
+        <translation>... क्षमा करें, ऐसा लगता है कि यह फिर से गलत है</translation>
+    </message>
+    <message>
+        <source>...hmm, try resetting your password!</source>
+        <translation>... हम्म, अपना पासवर्ड रीसेट करने का प्रयास करें!</translation>
+    </message>
+    <message>
+        <source>Rate limited. Please wait before trying to login again.</source>
+        <translation>दर सीमित। कृपया फिर से लॉगिन करने का प्रयास करने से पहले प्रतीक्षा करें।</translation>
+    </message>
+    <message>
+        <source>Session is expired. Please login again</source>
+        <translation>सत्र की समय सीमा समाप्त हो गई है. कृपया फिर से लॉगिन करें</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address. Please try again.</source>
+        <translation>आपका उपयोगकर्ता नाम ईमेल पता नहीं होना चाहिए। कृपया पुन: प्रयास करें.</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
+    <message>
+        <source>Sign Up</source>
+        <translation>नाम लिखो</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>स्‍टैंडर्ड</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>हैश</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>उपयोगकर्ता नाम</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>उपयोगकर्ता नाम दर्ज करें</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>पासवर्ड</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>पासवर्ड दर्ज करें</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>कम से कम एक अपरकेस और लोअरकेस के साथ 8 या अधिक वर्ण (यानी। &quot;हैलो1234&quot;, &quot;सोल्यंका&quot;)।</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>ईमेल (वैकल्पिक)</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>ईमेल दर्ज करें</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>केवल पासवर्ड रिकवरी, अपडेट और प्रोमो के लिए। कोई स्पैम नहीं।</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>वाउचर कोड?</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>वाउचर कोड (वैकल्पिक)</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>किसी के द्वारा संदर्भित?</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>उपयोगकर्ता नाम का संदर्भ देना (वैकल्पिक)</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>आगे बढ़ना</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>हैश</translation>
+    </message>
+    <message>
+        <source>Generate or browse file</source>
+        <translation>फ़ाइल जनरेट करें या ब्राउज़ करें</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>किसी व्यक्तिगत जानकारी की आवश्यकता नहीं है। खाता पुनर्प्राप्ति असंभव है।
+यदि आप अपना खाता हैश खो देते हैं, तो यह हमेशा के लिए चला गया है और समर्थन आपको इसे पुनर्प्राप्त करने में मदद नहीं कर सकता है।</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>हैश के लिए फ़ाइल का चयन करें</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>सभी फ़ाइलें (*.*)</translation>
+    </message>
+    <message>
+        <source>Username must be at least 3 characters</source>
+        <translation>उपयोगकर्ता नाम कम से कम 3 वर्णों का होना चाहिए</translation>
+    </message>
+    <message>
+        <source>Your username should not be an email address.</source>
+        <translation>आपका उपयोगकर्ता नाम ईमेल पता नहीं होना चाहिए।</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>अमान्य ईमेल</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>अमान्य हैश</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Switch to Auto</source>
         <translation>ऑटो पर स्विच करें</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>अपना खाता बनाना...</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>नेटवर्क विकल्प</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>जब डिवाइस &quot;असुरक्षित&quot; टैग किए गए नेटवर्क से कनेक्ट होता है तो विंडस्क्राइब ऑटो-डिस्कनेक्ट हो जाएगा।</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>सभी नए सामने आए नेटवर्क को सुरक्षित के रूप में चिह्नित करें।</translation>
     </message>
@@ -1803,6 +1916,10 @@ If the problem persists after a restart, please send a debug log and open a supp
 Connect to a network first</source>
         <translation>कोई नेटवर्क पता नहीं चला.
 पहले किसी नेटवर्क से कनेक्ट करें</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>नए नेटवर्क स्वचालित रूप से &quot;सुरक्षित&quot; हो जाते हैं। यदि आप किसी नेटवर्क को &quot;असुरक्षित&quot; के रूप में टैग करते हैं, तो डिवाइस के जुड़ने पर विंडसाइड डिस्कनेक्ट हो जाएगा। नेटवर्क को &quot;असुरक्षित&quot; के रूप में सेट करने की अनुशंसा नहीं की जाती है।</translation>
     </message>
 </context>
 <context>

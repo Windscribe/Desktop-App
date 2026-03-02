@@ -338,10 +338,77 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>Login</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Selesaikan Teka-teki untuk melanjutkan</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
     <message>
         <source>Turn Off Firewall</source>
         <translation>Matikan Firewall</translation>
+    </message>
+    <message>
+        <source>Login</source>
+        <translation>Masuk</translation>
+    </message>
+    <message>
+        <source>Emergency Connect is ON</source>
+        <translation>Koneksi Darurat AKTIF</translation>
+    </message>
+    <message>
+        <source>2FA Code</source>
+        <translation>Kode 2FA</translation>
+    </message>
+    <message>
+        <source>Forgot password?</source>
+        <translation>Lupa kata sandi?</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>Standar</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>Terharu</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Nama pengguna</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Masukkan nama pengguna</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Kata sandi</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Masukkan kata sandi</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>Hash</translation>
+    </message>
+    <message>
+        <source>Account Hash or upload file</source>
+        <translation>Hash Akun atau upload file</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>Pilih file untuk hash</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>Semua File (*.*)</translation>
     </message>
     <message>
         <source>No Internet Connectivity</source>
@@ -377,39 +444,22 @@
     </message>
     <message>
         <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>Harga terbatas. Harap tunggu sebelum mencoba login lagi.</translation>
+        <translation>Tarif terbatas. Harap tunggu sebelum mencoba masuk lagi.</translation>
     </message>
     <message>
         <source>Session is expired. Please login again</source>
-        <translation>Sesi berakhir. Silakan login kembali</translation>
+        <translation>Sesi kedaluwarsa. Silakan login lagi</translation>
     </message>
     <message>
         <source>Your username should not be an email address. Please try again.</source>
         <translation>Nama pengguna Anda tidak boleh berupa alamat email. Silakan coba lagi.</translation>
     </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>Login</translation>
-    </message>
-    <message>
-        <source>Emergency Connect is ON</source>
-        <translation>Sambungan Darurat AKTIF</translation>
-    </message>
-    <message>
-        <source>2FA Code</source>
-        <translation>Kode 2FA</translation>
-    </message>
-    <message>
-        <source>Forgot password?</source>
-        <translation>Lupa kata sandi?</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation>Nama pengguna</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>Kata sandi</translation>
+        <source>Sign Up</source>
+        <translation>Daftar</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -420,12 +470,70 @@
         <translation>Terharu</translation>
     </message>
     <message>
+        <source>Username</source>
+        <translation>Nama pengguna</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Masukkan nama pengguna</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Kata sandi</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Masukkan kata sandi</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>8 atau lebih karakter dengan setidaknya satu huruf besar dan huruf kecil (yaitu. &quot;Halo1234&quot;, &quot;Solyanka&quot;).</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>Email (Opsional)</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>Masukkan email</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>Untuk pemulihan kata sandi, pembaruan &amp; promo saja. Tidak ada spam.</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>Kode Voucher?</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>Kode voucher (opsional)</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>Dirujuk Oleh Seseorang?</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>Nama pengguna rujukan (opsional)</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>Lanjutkan</translation>
+    </message>
+    <message>
         <source>Hash</source>
         <translation>Hash</translation>
     </message>
     <message>
-        <source>Account Hash or upload file</source>
-        <translation>Hash Akun atau upload file</translation>
+        <source>Generate or browse file</source>
+        <translation>Membuat atau menelusuri file</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>Tidak diperlukan info pribadi. Pemulihan akun tidak mungkin.
+Jika Anda kehilangan hash akun, itu akan hilang selamanya dan dukungan tidak dapat membantu Anda memulihkannya.</translation>
     </message>
     <message>
         <source>Select file for hash</source>
@@ -435,16 +543,21 @@
         <source>All Files (*.*)</source>
         <translation>Semua File (*.*)</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>Login</translation>
+        <source>Username must be at least 3 characters</source>
+        <translation>Nama pengguna harus minimal 3 karakter</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>Selesaikan Teka-teki untuk melanjutkan</translation>
+        <source>Your username should not be an email address.</source>
+        <translation>Nama pengguna Anda tidak boleh berupa alamat email.</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>Email tidak valid</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>Hash tidak valid</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
     <message>
         <source>Switch to Auto</source>
         <translation>Beralih ke Otomatis</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>Membuat akun Anda...</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <translation>Opsi Jaringan</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>Windscribe akan memutuskan sambungan secara otomatis saat perangkat terhubung ke jaringan yang ditandai &quot;Tidak aman&quot;.</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>Tandai semua jaringan yang baru ditemui sebagai Diamankan.</translation>
     </message>
@@ -1803,6 +1916,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
 Connect to a network first</source>
         <translation>Tidak ada jaringan yang terdeteksi.
 Menyambungkan ke jaringan terlebih dahulu</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>Jaringan baru secara otomatis &quot;Aman&quot;. Jika Anda menandai jaringan sebagai &quot;Tidak Aman&quot;, Windscribe akan terputus saat perangkat bergabung. Mengatur jaringan sebagai &quot;Tidak Aman&quot; TIDAK disarankan.</translation>
     </message>
 </context>
 <context>

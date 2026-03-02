@@ -338,10 +338,77 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>Σύνδεση</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Ολοκληρώστε το παζλ για να συνεχίσετε</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
     <message>
         <source>Turn Off Firewall</source>
         <translation>Απενεργοποιήστε το τείχος προστασίας</translation>
+    </message>
+    <message>
+        <source>Login</source>
+        <translation>Σύνδεση</translation>
+    </message>
+    <message>
+        <source>Emergency Connect is ON</source>
+        <translation>Το Emergency Connect είναι ενεργοποιημένο</translation>
+    </message>
+    <message>
+        <source>2FA Code</source>
+        <translation>Κωδικός 2FA</translation>
+    </message>
+    <message>
+        <source>Forgot password?</source>
+        <translation>Ξεχάσατε τον κωδικό πρόσβασης;</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>Πρότυπο</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>Κατακερματισμένο</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Όνομα χρήστη</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Εισάγετε όνομα χρήστη</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Κωδικός πρόσβασης</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Εισάγετε τον κωδικό πρόσβασης</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>Χασίς</translation>
+    </message>
+    <message>
+        <source>Account Hash or upload file</source>
+        <translation>Κατακερματισμός λογαριασμού ή μεταφόρτωση αρχείου</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>Επιλογή αρχείου για κατακερματισμό</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>Όλα τα αρχεία (*.*)</translation>
     </message>
     <message>
         <source>No Internet Connectivity</source>
@@ -387,29 +454,12 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>Το όνομα χρήστη σας δεν πρέπει να είναι διεύθυνση email. Παρακαλώ προσπαθήστε ξανά.</translation>
     </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>Σύνδεση</translation>
-    </message>
-    <message>
-        <source>Emergency Connect is ON</source>
-        <translation>Το Emergency Connect είναι ενεργοποιημένο</translation>
-    </message>
-    <message>
-        <source>2FA Code</source>
-        <translation>Κωδικός 2FA</translation>
-    </message>
-    <message>
-        <source>Forgot password?</source>
-        <translation>Ξεχάσατε τον κωδικό πρόσβασης;</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation>Όνομα χρήστη</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>Κωδικός πρόσβασης</translation>
+        <source>Sign Up</source>
+        <translation>Εγγραφή</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -420,12 +470,70 @@
         <translation>Κατακερματισμένο</translation>
     </message>
     <message>
+        <source>Username</source>
+        <translation>Όνομα χρήστη</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Εισάγετε όνομα χρήστη</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Κωδικός πρόσβασης</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Εισάγετε τον κωδικό πρόσβασης</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>8 ή περισσότεροι χαρακτήρες με τουλάχιστον ένα κεφαλαίο και πεζό (δηλ. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>Email (προαιρετικό)</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>Εισάγετε email</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>Μόνο για ανάκτηση κωδικού πρόσβασης, ενημερώσεις και προώθηση. Χωρίς ανεπιθύμητο περιεχόμενο.</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>Κωδικός κουπονιού;</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>Κωδικός κουπονιού (προαιρετικό)</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>Παραπέμφθηκε από κάποιον;</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>Όνομα χρήστη παραπομπής (προαιρετικό)</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>Συνέχεια</translation>
+    </message>
+    <message>
         <source>Hash</source>
         <translation>Χασίς</translation>
     </message>
     <message>
-        <source>Account Hash or upload file</source>
-        <translation>Κατακερματισμός λογαριασμού ή μεταφόρτωση αρχείου</translation>
+        <source>Generate or browse file</source>
+        <translation>Δημιουργία ή περιήγηση αρχείου</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>Δεν απαιτούνται προσωπικά στοιχεία. Η ανάκτηση λογαριασμού είναι αδύνατη.
+Εάν χάσετε τον κατακερματισμό του λογαριασμού σας, θα εξαφανιστεί για πάντα και η υποστήριξη δεν μπορεί να σας βοηθήσει να τον ανακτήσετε.</translation>
     </message>
     <message>
         <source>Select file for hash</source>
@@ -435,16 +543,21 @@
         <source>All Files (*.*)</source>
         <translation>Όλα τα αρχεία (*.*)</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>Σύνδεση</translation>
+        <source>Username must be at least 3 characters</source>
+        <translation>Το όνομα χρήστη πρέπει να αποτελείται από τουλάχιστον 3 χαρακτήρες</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>Ολοκληρώστε το παζλ για να συνεχίσετε</translation>
+        <source>Your username should not be an email address.</source>
+        <translation>Το όνομα χρήστη σας δεν πρέπει να είναι διεύθυνση email.</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>Μη έγκυρο email</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>Μη έγκυρος κατακερματισμός</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ If the problem persists after a restart, please send a debug log and open a supp
     <message>
         <source>Switch to Auto</source>
         <translation>Μετάβαση σε Αυτόματη</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>Δημιουργία λογαριασμού...</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Επιλογές δικτύου</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>Το Windscrib θα αποσυνδεθεί αυτόματα όταν η συσκευή συνδεθεί σε ένα δίκτυο με την ετικέτα &quot;Unsecured&quot;.</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>Επισημάνετε όλα τα δίκτυα που συναντήσατε πρόσφατα ως Ασφαλή.</translation>
     </message>
@@ -1803,6 +1916,10 @@ If the problem persists after a restart, please send a debug log and open a supp
 Connect to a network first</source>
         <translation>Δεν εντοπίστηκαν δίκτυα.
 Συνδεθείτε πρώτα σε ένα δίκτυο</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>Τα νέα δίκτυα «Ασφαλίζονται» αυτόματα. Εάν επισημάνετε ένα δίκτυο ως &quot;Μη ασφαλές&quot;, το Windscribe θα αποσυνδεθεί όταν η συσκευή συνδεθεί σε αυτό. ΔΕΝ συνιστάται η ρύθμιση ενός δικτύου ως &quot;Μη ασφαλές&quot;.</translation>
     </message>
 </context>
 <context>

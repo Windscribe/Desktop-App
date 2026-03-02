@@ -68,7 +68,9 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     view_->installEventFilter(this);
     view_->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
 
+    welcomeWindow_ = new LoginWindow::WelcomeWindowItem(nullptr, preferencesHelper);
     loginWindow_ = new LoginWindow::LoginWindowItem(nullptr, preferencesHelper);
+    signupWindow_ = new LoginWindow::SignupWindowItem(nullptr, preferencesHelper);
     loggingInWindow_ = new LoginWindow::LoggingInWindowItem();
     initWindow_ = new LoginWindow::InitWindowItem();
     connectWindow_ = new ConnectWindow::ConnectWindowItem(nullptr, preferences, preferencesHelper);
@@ -107,7 +109,9 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     }
 
     QList<ScalableGraphicsObject *> windows = {
+        welcomeWindow_,
         loginWindow_,
+        signupWindow_,
         loggingInWindow_,
         initWindow_,
         bottomInfoWindow_,
@@ -130,6 +134,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
         w->setVisible(false);
     }
 
+    connect(signupWindow_, &LoginWindow::SignupWindowItem::heightChanged, this, &MainWindowController::onSignupWindowHeightChanged);
     connect(locationsWindow_, &LocationsWindow::heightChanged, this, &MainWindowController::onLocationsWindowHeightChanged);
     connect(bottomInfoWindow_, &SharingFeatures::BottomInfoItem::heightChanged, this, &MainWindowController::onBottomInfoHeightChanged);
     connect(bottomInfoWindow_, &QGraphicsObject::yChanged, this, &MainWindowController::onBottomInfoPosChanged);
@@ -150,7 +155,9 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
         shadowManager_->addPixmap(connectWindow_->getShadowPixmap(), 0, getUpdateWidgetOffset(), ShadowManager::SHAPE_ID_CONNECT_WINDOW, false);
     }
     shadowManager_->addRectangle(QRect(0, 0, 0, 0), ShadowManager::SHAPE_ID_LOCATIONS, false);
-    shadowManager_->addRectangle(loginWindow_->boundingRect().toRect(), ShadowManager::SHAPE_ID_LOGIN_WINDOW, false);
+    shadowManager_->addRectangle(welcomeWindow_->boundingRect().toRect(), ShadowManager::SHAPE_ID_WELCOME_WINDOW, false);
+    //loginWindow_ has the same shadow ShadowManager::SHAPE_ID_WELCOME_WINDOW
+    shadowManager_->addRectangle(signupWindow_->boundingRect().toRect(), ShadowManager::SHAPE_ID_SIGNUP_WINDOW, false);
     shadowManager_->addRectangle(initWindow_->boundingRect().toRect(), ShadowManager::SHAPE_ID_INIT_WINDOW, false);
     shadowManager_->addRectangle(QRect(0, 0, 0, 0), ShadowManager::SHAPE_ID_PREFERENCES, false);
     shadowManager_->addRectangle(QRect(0, 0, 0, 0), ShadowManager::SHAPE_ID_NEWS_FEED, false);
@@ -180,6 +187,8 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
 void MainWindowController::updateScaling()
 {
     initWindow_->updateScaling();
+    welcomeWindow_->updateScaling();
+    signupWindow_->updateScaling();
     loginWindow_->updateScaling();
     loggingInWindow_->updateScaling();
     emergencyConnectWindow_->updateScaling();
@@ -282,11 +291,17 @@ void MainWindowController::updateLocationsWindowAndTabGeometryStatic()
                                               exitWindow_->boundingRect().width(),
                                               exitWindow_->boundingRect().height() - childWindowShadowOffsetY(false)));
 
-    shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_LOGIN_WINDOW,
+    shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_WELCOME_WINDOW,
                                         QRect(0,
                                               0,
-                                              loginWindow_->boundingRect().width(),
-                                              loginWindow_->boundingRect().height()));
+                                              welcomeWindow_->boundingRect().width(),
+                                              welcomeWindow_->boundingRect().height()));
+
+    shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_SIGNUP_WINDOW,
+                                        QRect(0,
+                                              0,
+                                              signupWindow_->boundingRect().width(),
+                                              signupWindow_->boundingRect().height()));
 
     shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_INIT_WINDOW,
                                         QRect(0,
@@ -323,7 +338,9 @@ void MainWindowController::updateMaskForGraphicsView()
         clearMaskForGraphicsView();
     } else if (windowSizeManager_->allWindowsInState(WindowSizeManager::kWindowCollapsed)
             && curWindow_ != WINDOW_ID_INITIALIZATION
+            && curWindow_ != WINDOW_ID_WELCOME
             && curWindow_ != WINDOW_ID_LOGIN
+            && curWindow_ != WINDOW_ID_SIGNUP
             && curWindow_ != WINDOW_ID_LOGGING_IN
             && curWindow_ != WINDOW_ID_EMERGENCY
             && curWindow_ != WINDOW_ID_EXTERNAL_CONFIG
@@ -462,8 +479,12 @@ void MainWindowController::changeWindow(MainWindowController::WINDOW_ID windowId
 
     if (windowId == WINDOW_ID_INITIALIZATION) {
         gotoInitializationWindow();
+    } else if (windowId == WINDOW_ID_WELCOME) {
+        gotoWelcomeWindow();
     } else if (windowId == WINDOW_ID_LOGIN) {
         gotoLoginWindow();
+    } else if (windowId == WINDOW_ID_SIGNUP) {
+        gotoSignupWindow();
     } else if (windowId == WINDOW_ID_EMERGENCY) {
         gotoEmergencyWindow();
     } else if (windowId == WINDOW_ID_LOGGING_IN) {
@@ -580,8 +601,8 @@ bool MainWindowController::isLocationsExpanded() const
 
 void MainWindowController::expandPreferences()
 {
-    if (curWindow_ == WINDOW_ID_LOGIN) {
-        expandPreferencesFromLogin();
+    if (curWindow_ == WINDOW_ID_WELCOME) {
+        expandPreferencesFromWelcome();
     } else if (curWindow_ == WINDOW_ID_CONNECT) {
         expandWindow(preferencesWindow_);
     }
@@ -589,8 +610,8 @@ void MainWindowController::expandPreferences()
 
 void MainWindowController::collapsePreferences()
 {
-    if (curWindow_ == WINDOW_ID_LOGIN) {
-        collapsePreferencesFromLogin();
+    if (curWindow_ == WINDOW_ID_WELCOME) {
+        collapsePreferencesFromWelcome();
     } else if (curWindow_ == WINDOW_ID_CONNECT) {
         collapseWindow(preferencesWindow_, true);
     }
@@ -811,6 +832,17 @@ void MainWindowController::onBottomInfoPosChanged()
     keepWindowInsideScreenCoordinates();
 }
 
+void MainWindowController::onSignupWindowHeightChanged()
+{
+    shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_SIGNUP_WINDOW,
+                                        QRect(0,
+                                              0,
+                                              signupWindow_->boundingRect().width(),
+                                              signupWindow_->boundingRect().height()));
+    updateMainAndViewGeometry(false);
+    keepWindowInsideScreenCoordinates();
+}
+
 void MainWindowController::onTooltipControllerSendServerRatingUp()
 {
     emit sendServerRatingUp();
@@ -856,6 +888,8 @@ void MainWindowController::gotoInitializationWindow()
         clearMaskForGraphicsView();
     }
 
+    welcomeWindow_->setClickable(false);
+    welcomeWindow_->setVisible(false);
     loginWindow_->setClickable(false);
     loginWindow_->setVisible(false);
     loggingInWindow_->setVisible(false);
@@ -893,15 +927,251 @@ void MainWindowController::gotoInitializationWindow()
 
 }
 
+void MainWindowController::gotoWelcomeWindow()
+{
+    WS_ASSERT(curWindow_ == WINDOW_ID_INITIALIZATION
+                 || curWindow_ == WINDOW_ID_EMERGENCY
+                 || curWindow_ == WINDOW_ID_CONNECT
+                 || curWindow_ == WINDOW_ID_LOGIN
+                 || curWindow_ == WINDOW_ID_SIGNUP
+                 || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
+                 || curWindow_ == WINDOW_ID_UPDATE
+                 || curWindow_ == WINDOW_ID_UPGRADE
+                 || curWindow_ == WINDOW_ID_LOGOUT);
+
+    for (auto w : windowSizeManager_->windows()) {
+        if (windowSizeManager_->state(w) != WindowSizeManager::kWindowCollapsed) {
+            queueWindowChanges_.enqueue(WINDOW_ID_WELCOME);
+            collapseWindow(w, true);
+            return;
+        }
+    }
+
+    if (curWindow_ == WINDOW_ID_INITIALIZATION) {
+        initWindow_->stackBefore(welcomeWindow_);
+
+        welcomeWindow_->setOpacity(0.0);
+        welcomeWindow_->setVisible(true);
+
+        // welcome opacity
+        QPropertyAnimation *opacityAnim = new QPropertyAnimation(this);
+        opacityAnim->setTargetObject(welcomeWindow_);
+        opacityAnim->setPropertyName("opacity");
+        opacityAnim->setStartValue(0.0);
+        opacityAnim->setEndValue(1.0);
+        opacityAnim->setDuration(REVEAL_LOGIN_ANIMATION_DURATION);
+        connect(opacityAnim, &QPropertyAnimation::finished, [this]() {
+            shadowManager_->setVisible(ShadowManager::SHAPE_ID_INIT_WINDOW, false);
+            shadowManager_->setVisible(ShadowManager::SHAPE_ID_WELCOME_WINDOW, true);
+            initWindow_->setVisible(false);
+            initWindow_->resetState();
+            welcomeWindow_->setClickable(true);
+            welcomeWindow_->setFocus();
+        });
+
+        // Init size
+        QVariantAnimation *initHeightAnim = new QVariantAnimation(this);
+        initHeightAnim->setStartValue(initWindowInitHeight_);
+        initHeightAnim->setEndValue(LOGIN_HEIGHT);
+        initHeightAnim->setDuration(REVEAL_LOGIN_ANIMATION_DURATION);
+        connect(initHeightAnim, &QVariantAnimation::valueChanged, [this](const QVariant &value) {
+            initWindow_->setHeight(value.toInt());
+            shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_INIT_WINDOW,
+                                                QRect(0,0, initWindow_->boundingRect().width(),
+                                                      initWindow_->boundingRect().height()));
+            updateMainAndViewGeometry(true);
+        });
+
+        QSequentialAnimationGroup *revealLoginOpacitySeq = new QSequentialAnimationGroup(this);
+        revealLoginOpacitySeq->addPause(REVEAL_LOGIN_ANIMATION_DURATION/2 );
+        revealLoginOpacitySeq->addAnimation(opacityAnim);
+
+        // group
+        QParallelAnimationGroup *revealLoginAnimationGroup = new QParallelAnimationGroup(this);
+        revealLoginAnimationGroup->addAnimation(initHeightAnim);
+        revealLoginAnimationGroup->addAnimation(revealLoginOpacitySeq);
+        connect(revealLoginAnimationGroup, &QPropertyAnimation::finished,
+                [this,revealLoginOpacitySeq, opacityAnim, initHeightAnim]()
+        {
+            curWindow_ = WINDOW_ID_WELCOME;
+            isAtomicAnimationActive_ = false;
+            handleNextWindowChange();
+            revealLoginOpacitySeq->deleteLater();
+            opacityAnim->deleteLater();
+            initHeightAnim->deleteLater();
+            QTimer::singleShot(0, this, [&]() {
+                updateMainAndViewGeometry(true);
+            });
+        });
+
+        isAtomicAnimationActive_ = true;
+        revealLoginAnimationGroup->start(QPropertyAnimation::DeleteWhenStopped);
+    } else if (curWindow_ == WINDOW_ID_EMERGENCY) {
+        curWindow_ = WINDOW_ID_WELCOME;
+
+        emergencyConnectWindow_->stackBefore(welcomeWindow_);
+        emergencyConnectWindow_->setClickable(false);
+
+        welcomeWindow_->setOpacity(0.0);
+        welcomeWindow_->setVisible(true);
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(welcomeWindow_);
+        anim->setPropertyName("opacity");
+        anim->setStartValue(0.0);
+        anim->setEndValue(1.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        connect(anim, &QPropertyAnimation::finished, [this]() {
+            emergencyConnectWindow_->setVisible(false);
+            welcomeWindow_->setClickable(true);
+            welcomeWindow_->setFocus();
+            isAtomicAnimationActive_ = false;
+            handleNextWindowChange();
+        });
+
+        isAtomicAnimationActive_ = true;
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
+    } else if (curWindow_ == WINDOW_ID_EXTERNAL_CONFIG) {
+        curWindow_ = WINDOW_ID_WELCOME;
+
+        externalConfigWindow_->stackBefore(welcomeWindow_);
+
+        welcomeWindow_->setOpacity(0.0);
+        welcomeWindow_->setVisible(true);
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(welcomeWindow_);
+        anim->setPropertyName("opacity");
+        anim->setStartValue(0.0);
+        anim->setEndValue(1.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        connect(anim, &QPropertyAnimation::finished, [this]() {
+            externalConfigWindow_->setVisible(false);
+            welcomeWindow_->setClickable(true);
+            welcomeWindow_->setFocus();
+            isAtomicAnimationActive_ = false;
+            handleNextWindowChange();
+        });
+
+        isAtomicAnimationActive_ = true;
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
+    } else if (curWindow_ == WINDOW_ID_LOGIN) {
+        curWindow_ = WINDOW_ID_WELCOME;
+
+        loginWindow_->stackBefore(welcomeWindow_);
+        connectWindow_->hide();
+
+        welcomeWindow_->setOpacity(0.0);
+        welcomeWindow_->setVisible(true);
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(welcomeWindow_);
+        anim->setPropertyName("opacity");
+        anim->setStartValue(0.0);
+        anim->setEndValue(1.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        connect(anim, &QPropertyAnimation::finished, [this]() {
+            loginWindow_->resetState();
+            loginWindow_->setVisible(false);
+            loginWindow_->setClickable(false);
+            welcomeWindow_->setClickable(true);
+            welcomeWindow_->setFocus();
+            isAtomicAnimationActive_ = false;
+            handleNextWindowChange();
+        });
+
+        isAtomicAnimationActive_ = true;
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
+    } else if (curWindow_ == WINDOW_ID_SIGNUP) {
+        curWindow_ = WINDOW_ID_WELCOME;
+
+        signupWindow_->stackBefore(welcomeWindow_);
+
+        welcomeWindow_->setOpacity(0.0);
+        welcomeWindow_->setVisible(true);
+
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_SIGNUP_WINDOW, false);
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_WELCOME_WINDOW, true);
+        updateMainAndViewGeometry(true);
+
+        QPropertyAnimation *animOpacity = new QPropertyAnimation(this);
+        animOpacity->setTargetObject(welcomeWindow_);
+        animOpacity->setPropertyName("opacity");
+        animOpacity->setStartValue(0.0);
+        animOpacity->setEndValue(1.0);
+        animOpacity->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        connect(animOpacity, &QPropertyAnimation::finished, [this]() {
+            signupWindow_->resetState();
+            signupWindow_->setVisible(false);
+            signupWindow_->setClickable(false);
+            welcomeWindow_->setClickable(true);
+            welcomeWindow_->setFocus();
+            updateMainAndViewGeometry(true);
+            isAtomicAnimationActive_ = false;
+            handleNextWindowChange();
+        });
+
+        isAtomicAnimationActive_ = true;
+        animOpacity->start(QPropertyAnimation::DeleteWhenStopped);
+    } else if (curWindow_ == WINDOW_ID_CONNECT || curWindow_ == WINDOW_ID_UPDATE || curWindow_ == WINDOW_ID_UPGRADE || curWindow_ == WINDOW_ID_LOGOUT) {
+        // qDebug() << "Other -> Login";
+        if (curWindow_ == WINDOW_ID_LOGOUT) {
+            closeExitWindow(false);
+        }
+
+        hideUpdateWidget();
+        newsFeedWindow_->hide();
+        protocolWindow_->hide();
+        updateWindow_->hide();
+        upgradeAccountWindow_->hide();
+        curWindow_ = WINDOW_ID_WELCOME;
+
+        connectWindow_->stackBefore(loginWindow_);
+        connectWindow_->setClickable(false);
+
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, false);
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_LOCATIONS, false);
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_WELCOME_WINDOW, true);
+
+        welcomeWindow_->setOpacity(1.0);
+        welcomeWindow_->setVisible(true);
+        welcomeWindow_->setClickable(true);
+        welcomeWindow_->setFocus();
+
+        connectWindow_->hide();
+        TooltipController::instance().hideAllTooltips();
+
+        if (bottomInfoWindow_->isVisible()) {
+            bottomInfoWindow_->hide();
+            bottomInfoWindow_->setClickable(false);
+            shadowManager_->removeObject(ShadowManager::SHAPE_ID_BOTTOM_INFO);
+        }
+
+        if (isLocationsExpanded()) {
+            connectWindow_->updateLocationsState(false);
+            locationsWindow_->hide();
+            locationListAnimationState_ = LOCATION_LIST_ANIMATION_COLLAPSED;
+            clearMaskForGraphicsView();
+        }
+        hideUpdateWidget();
+        updateMainAndViewGeometry(false);
+        isAtomicAnimationActive_ = false;
+        handleNextWindowChange();
+    }
+}
+
 void MainWindowController::gotoLoginWindow()
 {
     // qDebug() << "gotoLoginWindow()";
     WS_ASSERT(curWindow_ == WINDOW_ID_UNINITIALIZED
               || curWindow_ == WINDOW_ID_INITIALIZATION
-              || curWindow_ == WINDOW_ID_EMERGENCY
+              || curWindow_ == WINDOW_ID_WELCOME
               || curWindow_ == WINDOW_ID_LOGGING_IN
               || curWindow_ == WINDOW_ID_CONNECT
-              || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
               || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
               || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH
               || curWindow_ == WINDOW_ID_UPDATE
@@ -932,11 +1202,11 @@ void MainWindowController::gotoLoginWindow()
         loginOpacityAnim->setDuration(REVEAL_LOGIN_ANIMATION_DURATION);
         connect(loginOpacityAnim, &QPropertyAnimation::finished, [this]() {
             shadowManager_->setVisible(ShadowManager::SHAPE_ID_INIT_WINDOW, false);
-            shadowManager_->setVisible(ShadowManager::SHAPE_ID_LOGIN_WINDOW, true);
+            shadowManager_->setVisible(ShadowManager::SHAPE_ID_WELCOME_WINDOW, true);
             initWindow_->setVisible(false);
             initWindow_->resetState();
             loginWindow_->setClickable(true);
-            loginWindow_->setFocus();
+            loginWindow_->setUsernameFocus();
         });
 
         // Init size
@@ -976,11 +1246,10 @@ void MainWindowController::gotoLoginWindow()
 
         isAtomicAnimationActive_ = true;
         revealLoginAnimationGroup->start(QPropertyAnimation::DeleteWhenStopped);
-    } else if (curWindow_ == WINDOW_ID_EMERGENCY) {
+    } else if (curWindow_ == WINDOW_ID_WELCOME) {
         curWindow_ = WINDOW_ID_LOGIN;
 
-        emergencyConnectWindow_->stackBefore(loginWindow_);
-        emergencyConnectWindow_->setClickable(false);
+        welcomeWindow_->stackBefore(loginWindow_);
 
         loginWindow_->setOpacity(0.0);
         loginWindow_->setVisible(true);
@@ -993,34 +1262,10 @@ void MainWindowController::gotoLoginWindow()
         anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
 
         connect(anim, &QPropertyAnimation::finished, [this]() {
-            emergencyConnectWindow_->setVisible(false);
+            welcomeWindow_->setVisible(false);
+            welcomeWindow_->setClickable(false);
             loginWindow_->setClickable(true);
-            loginWindow_->setFocus();
-            isAtomicAnimationActive_ = false;
-            handleNextWindowChange();
-        });
-
-        isAtomicAnimationActive_ = true;
-        anim->start(QPropertyAnimation::DeleteWhenStopped);
-    } else if (curWindow_ == WINDOW_ID_EXTERNAL_CONFIG) {
-        curWindow_ = WINDOW_ID_LOGIN;
-
-        externalConfigWindow_->stackBefore(loginWindow_);
-
-        loginWindow_->setOpacity(0.0);
-        loginWindow_->setVisible(true);
-
-        QPropertyAnimation *anim = new QPropertyAnimation(this);
-        anim->setTargetObject(loginWindow_);
-        anim->setPropertyName("opacity");
-        anim->setStartValue(0.0);
-        anim->setEndValue(1.0);
-        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
-
-        connect(anim, &QPropertyAnimation::finished, [this]() {
-            externalConfigWindow_->setVisible(false);
-            loginWindow_->setClickable(true);
-            loginWindow_->setFocus();
+            loginWindow_->setUsernameFocus();
             isAtomicAnimationActive_ = false;
             handleNextWindowChange();
         });
@@ -1046,7 +1291,7 @@ void MainWindowController::gotoLoginWindow()
             twoFactorAuthWindow_->resetState();
             twoFactorAuthWindow_->setVisible(false);
             loginWindow_->setClickable(true);
-            loginWindow_->setFocus();
+            loginWindow_->setUsernameFocus();
             isAtomicAnimationActive_ = false;
             handleNextWindowChange();
         });
@@ -1054,13 +1299,9 @@ void MainWindowController::gotoLoginWindow()
         isAtomicAnimationActive_ = true;
         anim->start(QPropertyAnimation::DeleteWhenStopped);
     } else if (curWindow_ == WINDOW_ID_LOGGING_IN) {
-        // qDebug() << "LoggingIn -> Login";
         curWindow_ = WINDOW_ID_LOGIN;
 
-        connectWindow_->stackBefore(loginWindow_);
         loggingInWindow_->stackBefore(loginWindow_);
-        updateWindow_->stackBefore(loginWindow_);
-        upgradeAccountWindow_->stackBefore(loginWindow_);
 
         loginWindow_->setOpacity(0.0);
         loginWindow_->setVisible(true);
@@ -1072,35 +1313,17 @@ void MainWindowController::gotoLoginWindow()
         anim->setEndValue(1.0);
         anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
 
-        // Init size
-        QVariantAnimation *initHeightAnim = new QVariantAnimation(this);
-        initHeightAnim->setStartValue(initWindowInitHeight_);
-        initHeightAnim->setEndValue(LOGIN_HEIGHT);
-        initHeightAnim->setDuration(REVEAL_LOGIN_ANIMATION_DURATION);
-        connect(initHeightAnim, &QVariantAnimation::valueChanged, [this](const QVariant &value) {
-            initWindow_->setHeight(value.toInt());
-            shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_INIT_WINDOW,
-                                                QRect(0,0, initWindow_->boundingRect().width(),
-                                                      initWindow_->boundingRect().height()));
-            updateMainAndViewGeometry(true);
-        });
-
-        QSequentialAnimationGroup *animGroup = new QSequentialAnimationGroup(this);
-        animGroup->addPause(REVEAL_LOGIN_ANIMATION_DURATION/2 );
-        animGroup->addAnimation(anim);
-        animGroup->addAnimation(initHeightAnim);
-
-        // group
-        connect(animGroup, &QPropertyAnimation::finished, [this, animGroup, anim, initHeightAnim]() {
+        connect(anim, &QPropertyAnimation::finished, [this]() {
             loggingInWindow_->setVisible(false);
             loggingInWindow_->stopAnimation();
             loginWindow_->setClickable(true);
+            loginWindow_->setUsernameFocus();
             isAtomicAnimationActive_ = false;
             handleNextWindowChange();
         });
 
         isAtomicAnimationActive_ = true;
-        animGroup->start(QPropertyAnimation::DeleteWhenStopped);
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
     } else if (curWindow_ == WINDOW_ID_GENERAL_MESSAGE) {
         // qDebug() << "General -> Login";
         curWindow_ = WINDOW_ID_LOGIN;
@@ -1133,7 +1356,7 @@ void MainWindowController::gotoLoginWindow()
         connect(anim, &QPropertyAnimation::finished, [this]() {
             generalMessageWindow_->setVisible(false);
             loginWindow_->setClickable(true);
-            loginWindow_->setFocus();
+            loginWindow_->setUsernameFocus();
             isAtomicAnimationActive_ = false;
             updateMainAndViewGeometry(true);
             handleNextWindowChange();
@@ -1159,12 +1382,12 @@ void MainWindowController::gotoLoginWindow()
 
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_LOCATIONS, false);
-        shadowManager_->setVisible(ShadowManager::SHAPE_ID_LOGIN_WINDOW, true);
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_WELCOME_WINDOW, true);
 
         loginWindow_->setOpacity(1.0);
         loginWindow_->setVisible(true);
         loginWindow_->setClickable(true);
-        loginWindow_->setFocus();
+        loginWindow_->setUsernameFocus();
 
         connectWindow_->hide();
         TooltipController::instance().hideAllTooltips();
@@ -1188,15 +1411,124 @@ void MainWindowController::gotoLoginWindow()
     }
 }
 
+void MainWindowController::gotoSignupWindow()
+{
+    WS_ASSERT(curWindow_ == WINDOW_ID_WELCOME
+              || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
+              || curWindow_ == WINDOW_ID_LOGGING_IN);
+
+    for (auto w : windowSizeManager_->windows()) {
+        if (windowSizeManager_->state(w) != WindowSizeManager::kWindowCollapsed) {
+            queueWindowChanges_.enqueue(WINDOW_ID_SIGNUP);
+            collapseWindow(w, true);
+            return;
+        }
+    }
+
+    if (curWindow_ == WINDOW_ID_WELCOME) {
+        curWindow_ = WINDOW_ID_SIGNUP;
+
+        welcomeWindow_->stackBefore(signupWindow_);
+
+        signupWindow_->setOpacity(0.0);
+        signupWindow_->setVisible(true);
+        updateMainAndViewGeometry(true);
+
+        QPropertyAnimation *animOpacity = new QPropertyAnimation(this);
+        animOpacity->setTargetObject(signupWindow_);
+        animOpacity->setPropertyName("opacity");
+        animOpacity->setStartValue(0.0);
+        animOpacity->setEndValue(1.0);
+        animOpacity->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+        connect(animOpacity, &QPropertyAnimation::finished, [this]() {
+            shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_SIGNUP_WINDOW,
+                                                QRect(0,0, signupWindow_->boundingRect().width(),
+                                                      signupWindow_->boundingRect().height()));
+            shadowManager_->setVisible(ShadowManager::SHAPE_ID_WELCOME_WINDOW, false);
+            shadowManager_->setVisible(ShadowManager::SHAPE_ID_SIGNUP_WINDOW, true);
+            welcomeWindow_->setVisible(false);
+            welcomeWindow_->setClickable(false);
+            signupWindow_->setClickable(true);
+            signupWindow_->setUsernameFocus();
+            updateMainAndViewGeometry(true);
+            isAtomicAnimationActive_ = false;
+            handleNextWindowChange();
+        });
+        isAtomicAnimationActive_ = true;
+        animOpacity->start(QPropertyAnimation::DeleteWhenStopped);
+
+    } else if (curWindow_ == WINDOW_ID_GENERAL_MESSAGE) {
+        curWindow_ = WINDOW_ID_SIGNUP;
+
+        generalMessageWindow_->stackBefore(signupWindow_);
+
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_GENERAL_MESSAGE, false);
+
+        signupWindow_->setOpacity(0.0);
+        signupWindow_->setVisible(true);
+        loggingInWindow_->setVisible(false);
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(signupWindow_);
+        anim->setPropertyName("opacity");
+        anim->setStartValue(0.0);
+        anim->setEndValue(1.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        connect(anim, &QPropertyAnimation::finished, [this]() {
+            shadowManager_->setVisible(ShadowManager::SHAPE_ID_SIGNUP_WINDOW, true);
+            generalMessageWindow_->setVisible(false);
+            signupWindow_->setClickable(true);
+            signupWindow_->setUsernameFocus();
+            isAtomicAnimationActive_ = false;
+            updateMainAndViewGeometry(true);
+            handleNextWindowChange();
+        });
+
+        isAtomicAnimationActive_ = true;
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
+    } else if (curWindow_ == WINDOW_ID_LOGGING_IN) {
+        curWindow_ = WINDOW_ID_SIGNUP;
+
+        loggingInWindow_->stackBefore(signupWindow_);
+
+        signupWindow_->setOpacity(0.0);
+        signupWindow_->setVisible(true);
+        updateMainAndViewGeometry(true);
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(signupWindow_);
+        anim->setPropertyName("opacity");
+        anim->setStartValue(0.0);
+        anim->setEndValue(1.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        connect(anim, &QPropertyAnimation::finished, [this]() {
+            shadowManager_->setVisible(ShadowManager::SHAPE_ID_WELCOME_WINDOW, false);
+            shadowManager_->setVisible(ShadowManager::SHAPE_ID_SIGNUP_WINDOW, true);
+            loggingInWindow_->setVisible(false);
+            loggingInWindow_->stopAnimation();
+            signupWindow_->setClickable(true);
+            signupWindow_->setUsernameFocus();
+            updateMainAndViewGeometry(true);
+            isAtomicAnimationActive_ = false;
+            handleNextWindowChange();
+        });
+
+        isAtomicAnimationActive_ = true;
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
+    }
+}
+
 void MainWindowController::gotoEmergencyWindow()
 {
-    WS_ASSERT(curWindow_ == WINDOW_ID_LOGIN);
+    WS_ASSERT(curWindow_ == WINDOW_ID_WELCOME);
 
     curWindow_ = WINDOW_ID_EMERGENCY;
 
-    loginWindow_->setClickable(false);
+    welcomeWindow_->setClickable(false);
     TooltipController::instance().hideAllTooltips();
-    loginWindow_->stackBefore(emergencyConnectWindow_);
+    welcomeWindow_->stackBefore(emergencyConnectWindow_);
 
     emergencyConnectWindow_->setOpacity(0.0);
     emergencyConnectWindow_->setVisible(true);
@@ -1210,7 +1542,7 @@ void MainWindowController::gotoEmergencyWindow()
     anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
 
     connect(anim, &QPropertyAnimation::finished, [this]() {
-        loginWindow_->setVisible(false);
+        welcomeWindow_->setVisible(false);
         isAtomicAnimationActive_ = false;
         handleNextWindowChange();
         emergencyConnectWindow_->setFocus();
@@ -1223,6 +1555,7 @@ void MainWindowController::gotoEmergencyWindow()
 void MainWindowController::gotoLoggingInWindow()
 {
     WS_ASSERT(curWindow_ == WINDOW_ID_LOGIN
+              || curWindow_ == WINDOW_ID_SIGNUP
               || curWindow_ == WINDOW_ID_INITIALIZATION
               || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
               || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
@@ -1246,6 +1579,34 @@ void MainWindowController::gotoLoggingInWindow()
         anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
         connect(anim, &QPropertyAnimation::finished, [this]() {
             loginWindow_->setVisible(false);
+            isAtomicAnimationActive_ = false;
+            handleNextWindowChange();
+        });
+
+        isAtomicAnimationActive_ = true;
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
+    } else if (curWindow_ == WINDOW_ID_SIGNUP) {
+        curWindow_ = WINDOW_ID_LOGGING_IN;
+        signupWindow_->setClickable(false);
+        TooltipController::instance().hideAllTooltips();
+        signupWindow_->stackBefore(loggingInWindow_);
+
+        loggingInWindow_->setOpacity(0.0);
+        loggingInWindow_->setVisible(true);
+        loggingInWindow_->startAnimation();
+
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_SIGNUP_WINDOW, false);
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_WELCOME_WINDOW, true);
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(loggingInWindow_);
+        anim->setPropertyName("opacity");
+        anim->setStartValue(0.0);
+        anim->setEndValue(1.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+        connect(anim, &QPropertyAnimation::finished, [this]() {
+            signupWindow_->setVisible(false);
+            updateMainAndViewGeometry(true);
             isAtomicAnimationActive_ = false;
             handleNextWindowChange();
         });
@@ -1424,7 +1785,8 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
         loggingInWindow_->stackBefore(connectWindow_);
 
         curWindow_ = WINDOW_ID_CONNECT;
-        shadowManager_->setVisible(ShadowManager::SHAPE_ID_LOGIN_WINDOW, false);
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_WELCOME_WINDOW, false);
+        ///shadowManager_->setVisible(ShadowManager::SHAPE_ID_LOGIN_WINDOW, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_INIT_WINDOW, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, true);
@@ -1635,7 +1997,7 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
         externalConfigWindow_->stackBefore(connectWindow_);
 
         curWindow_ = WINDOW_ID_CONNECT;
-        shadowManager_->setVisible(ShadowManager::SHAPE_ID_LOGIN_WINDOW, false);
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_WELCOME_WINDOW, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, true);
         connectWindow_->setClickable(true);
         connectWindow_->setVisible(true);
@@ -1655,7 +2017,7 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
         twoFactorAuthWindow_->stackBefore(connectWindow_);
 
         curWindow_ = WINDOW_ID_CONNECT;
-        shadowManager_->setVisible(ShadowManager::SHAPE_ID_LOGIN_WINDOW, false);
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_WELCOME_WINDOW, false);
         shadowManager_->setVisible(ShadowManager::SHAPE_ID_CONNECT_WINDOW, true);
         connectWindow_->setClickable(true);
         connectWindow_->setVisible(true);
@@ -1676,14 +2038,14 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
 
 void MainWindowController::gotoExternalConfigWindow()
 {
-    WS_ASSERT(curWindow_ == WINDOW_ID_LOGIN);
+    WS_ASSERT(curWindow_ == WINDOW_ID_WELCOME);
 
     isAtomicAnimationActive_ = true;
     curWindow_ = WINDOW_ID_EXTERNAL_CONFIG;
 
-    loginWindow_->setClickable(false);
+    welcomeWindow_->setClickable(false);
     TooltipController::instance().hideAllTooltips();
-    loginWindow_->stackBefore(externalConfigWindow_);
+    welcomeWindow_->stackBefore(externalConfigWindow_);
 
     externalConfigWindow_->setOpacity(0.0);
     externalConfigWindow_->setVisible(true);
@@ -1696,7 +2058,7 @@ void MainWindowController::gotoExternalConfigWindow()
     anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
 
     connect(anim, &QPropertyAnimation::finished, [this]() {
-        loginWindow_->setVisible(false);
+        welcomeWindow_->setVisible(false);
         isAtomicAnimationActive_ = false;
         handleNextWindowChange();
         externalConfigWindow_->setClickable(true);
@@ -1878,6 +2240,7 @@ void MainWindowController::gotoUpgradeWindow()
 void MainWindowController::gotoGeneralMessageWindow()
 {
     WS_ASSERT(curWindow_ == WINDOW_ID_INITIALIZATION ||
+              curWindow_ == WINDOW_ID_WELCOME ||
               curWindow_ == WINDOW_ID_LOGIN ||
               curWindow_ == WINDOW_ID_LOGGING_IN ||
               curWindow_ == WINDOW_ID_CONNECT ||
@@ -1894,7 +2257,7 @@ void MainWindowController::gotoGeneralMessageWindow()
     isAtomicAnimationActive_ = true;
     WINDOW_ID saveCurWindow = curWindow_;
 
-    if (curWindow_ == WINDOW_ID_INITIALIZATION || curWindow_ == WINDOW_ID_LOGGING_IN || curWindow_ == WINDOW_ID_LOGIN) {
+    if (curWindow_ == WINDOW_ID_INITIALIZATION || curWindow_ == WINDOW_ID_WELCOME || curWindow_ == WINDOW_ID_LOGGING_IN || curWindow_ == WINDOW_ID_LOGIN) {
         generalMessageWindow_->setBackgroundShape(GeneralMessageWindow::kLoginScreenShape);
     } else if (preferences_->appSkin() == APP_SKIN_VAN_GOGH) {
         generalMessageWindow_->setBackgroundShape(GeneralMessageWindow::kConnectScreenVanGoghShape);
@@ -1958,7 +2321,9 @@ void MainWindowController::gotoGeneralMessageWindow()
 void MainWindowController::gotoExitWindow(bool isLogout)
 {
     WS_ASSERT(curWindow_ == WINDOW_ID_CONNECT
+              || curWindow_ == WINDOW_ID_WELCOME
               || curWindow_ == WINDOW_ID_LOGIN
+              || curWindow_ == WINDOW_ID_SIGNUP
               || curWindow_ == WINDOW_ID_LOGGING_IN
               || curWindow_ == WINDOW_ID_EMERGENCY
               || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
@@ -1999,8 +2364,14 @@ void MainWindowController::gotoExitWindow(bool isLogout)
         win->setBackgroundShape(generalMessageWindow_->backgroundShape());
     } else {
         win->setBackgroundShape(GeneralMessageWindow::kLoginScreenShape);
-        if (curWindow_ == WINDOW_ID_LOGIN) {
+        if (curWindow_ == WINDOW_ID_WELCOME) {
+            welcomeWindow_->setClickable(false);
+        } if (curWindow_ == WINDOW_ID_LOGIN) {
             loginWindow_->setClickable(false);
+        } else if (curWindow_ == WINDOW_ID_SIGNUP) {
+            shadowManager_->setVisible(ShadowManager::SHAPE_ID_SIGNUP_WINDOW, false);
+            shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, true);
+            signupWindow_->setClickable(false);
         } else if (curWindow_ == WINDOW_ID_LOGGING_IN) {
             loggingInWindow_->setClickable(false);
         } else if (curWindow_ == WINDOW_ID_EMERGENCY) {
@@ -2012,11 +2383,20 @@ void MainWindowController::gotoExitWindow(bool isLogout)
         }
     }
 
-    shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_EXIT,
+    if (curWindow_ == WINDOW_ID_SIGNUP) {
+        shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_EXIT,
+                                            QRect(0,
+                                                  0,
+                                                  win->boundingRect().width(),
+                                                  win->boundingRect().height()));
+    } else {
+        shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_EXIT,
                                         QRect(0,
                                             childWindowShadowOffsetY(true),
                                             win->boundingRect().width(),
                                             win->boundingRect().height() - childWindowShadowOffsetY(false)));
+    }
+
     if (win->backgroundShape() == GeneralMessageWindow::Shape::kConnectScreenAlphaShape ||
         curWindow_ == WINDOW_ID_GENERAL_MESSAGE)
     {
@@ -2033,7 +2413,9 @@ void MainWindowController::gotoExitWindow(bool isLogout)
     functionOnAnimationFinished_ = [this, win, saveCurWindow]() {
         win->setOpacity(0.0);
         connectWindow_->stackBefore(win);
+        welcomeWindow_->stackBefore(win);
         loginWindow_->stackBefore(win);
+        signupWindow_->stackBefore(win);
         emergencyConnectWindow_->stackBefore(win);
         externalConfigWindow_->stackBefore(win);
         generalMessageWindow_->stackBefore(win);
@@ -2049,6 +2431,7 @@ void MainWindowController::gotoExitWindow(bool isLogout)
         connect(anim, &QPropertyAnimation::finished, [this, win]() {
             isAtomicAnimationActive_ = false;
             generalMessageWindow_->hide();
+            signupWindow_->setVisible(false);
             handleNextWindowChange();
             win->setFocus();
         });
@@ -2115,6 +2498,32 @@ void MainWindowController::closeExitWindow(bool fromPrefs)
         });
 
         anim->start(QPropertyAnimation::DeleteWhenStopped);
+    } else if (windowBeforeExit_ == WINDOW_ID_WELCOME) {
+        curWindow_ = WINDOW_ID_WELCOME;
+        isAtomicAnimationActive_ = true;
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(win);
+        anim->setPropertyName("opacity");
+        anim->setStartValue(win->opacity());
+        anim->setEndValue(0.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, false);
+
+        connect(anim, &QPropertyAnimation::finished, [this, win]() {
+            if (GeneralMessageController::instance().hasMessages()) {
+                gotoGeneralMessageWindow();
+            } else {
+                win->hide();
+                welcomeWindow_->setClickable(true);
+                welcomeWindow_->setFocus();
+                isAtomicAnimationActive_ = false;
+                handleNextWindowChange();
+            }
+        });
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
+
     } else if (windowBeforeExit_ == WINDOW_ID_LOGIN) {
         curWindow_ = WINDOW_ID_LOGIN;
         isAtomicAnimationActive_ = true;
@@ -2134,13 +2543,57 @@ void MainWindowController::closeExitWindow(bool fromPrefs)
             } else {
                 win->hide();
                 loginWindow_->setClickable(true);
-                loginWindow_->setFocus();
+                loginWindow_->setUsernameFocus();
                 isAtomicAnimationActive_ = false;
                 handleNextWindowChange();
             }
         });
-
         anim->start(QPropertyAnimation::DeleteWhenStopped);
+
+    } else if (windowBeforeExit_ == WINDOW_ID_SIGNUP) {
+        curWindow_ = WINDOW_ID_SIGNUP;
+        isAtomicAnimationActive_ = true;
+
+        signupWindow_->setOpacity(0.0);
+        signupWindow_->show();
+
+        shadowManager_->setOpacity(ShadowManager::SHAPE_ID_SIGNUP_WINDOW, 0.0, false);
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_SIGNUP_WINDOW, true);
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(win);
+        anim->setPropertyName("opacity");
+        anim->setStartValue(win->opacity());
+        anim->setEndValue(0.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        updateMainAndViewGeometry(false);
+
+        connect(anim, &QVariantAnimation::valueChanged, [this](const QVariant &value) {
+            double prefOpacity = value.toDouble();
+            shadowManager_->setOpacity(ShadowManager::SHAPE_ID_EXIT, prefOpacity, false);
+            shadowManager_->setOpacity(ShadowManager::SHAPE_ID_SIGNUP_WINDOW, 1.0 - prefOpacity, false);
+            signupWindow_->setOpacity(1.0 - prefOpacity);
+            updateMainAndViewGeometry(false);
+        });
+
+        connect(anim, &QPropertyAnimation::finished, [this, win]() {
+            shadowManager_->setVisible(ShadowManager::SHAPE_ID_EXIT, false);
+            shadowManager_->setOpacity(ShadowManager::SHAPE_ID_EXIT, 1.0, false);
+            if (GeneralMessageController::instance().hasMessages()) {
+                gotoGeneralMessageWindow();
+            } else {
+                win->hide();
+                signupWindow_->setOpacity(1.0);
+                signupWindow_->setClickable(true);
+                signupWindow_->setUsernameFocus();
+                isAtomicAnimationActive_ = false;
+                handleNextWindowChange();
+            }
+            updateMainAndViewGeometry(false);
+        });
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
+
     } else if (windowBeforeExit_ == WINDOW_ID_LOGGING_IN) {
         curWindow_ = WINDOW_ID_LOGGING_IN;
         isAtomicAnimationActive_ = true;
@@ -2295,10 +2748,9 @@ void MainWindowController::closeExitWindow(bool fromPrefs)
 
         anim->start(QPropertyAnimation::DeleteWhenStopped);
     }
-
 }
 
-void MainWindowController::expandPreferencesFromLogin()
+void MainWindowController::expandPreferencesFromWelcome()
 {
     if (windowSizeManager_->state(preferencesWindow_) != WindowSizeManager::kWindowCollapsed) {
         return;
@@ -2327,12 +2779,12 @@ void MainWindowController::expandPreferencesFromLogin()
         double prefOpacity = value.toDouble();
         preferencesWindow_->setOpacity(prefOpacity);
         shadowManager_->setOpacity(ShadowManager::SHAPE_ID_PREFERENCES, prefOpacity, true);
-        shadowManager_->setOpacity(ShadowManager::SHAPE_ID_LOGIN_WINDOW, 1.0 - prefOpacity, true);
-        loginWindow_->setOpacity(1.0 - prefOpacity);
+        shadowManager_->setOpacity(ShadowManager::SHAPE_ID_WELCOME_WINDOW, 1.0 - prefOpacity, true);
+        welcomeWindow_->setOpacity(1.0 - prefOpacity);
         shadowManager_->setOpacity(ShadowManager::SHAPE_ID_CONNECT_WINDOW, prefOpacity, false);
     });
 
-    int start = (int)loginWindow_->boundingRect().height();
+    int start = (int)welcomeWindow_->boundingRect().height();
     int target =  windowSizeManager_->windowHeight(preferencesWindow_)*G_SCALE;
     QVariantAnimation *animResize = new QVariantAnimation(this);
     animResize->setStartValue(start);
@@ -2350,13 +2802,13 @@ void MainWindowController::expandPreferencesFromLogin()
 
     // resize finished
     connect(animResize, &QVariantAnimation::finished, [this]() {
-        loginWindow_->hide();
-        shadowManager_->setVisible(ShadowManager::SHAPE_ID_LOGIN_WINDOW, false);
+        welcomeWindow_->hide();
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_WELCOME_WINDOW, false);
         preferencesWindow_->setScrollBarVisibility(true);
         preferencesWindow_->setFocus();
     });
 
-    loginWindow_->setClickable(false);
+    welcomeWindow_->setClickable(false);
 
     // group finished
     QParallelAnimationGroup *animGroup = new QParallelAnimationGroup(this);
@@ -2525,7 +2977,7 @@ void MainWindowController::expandWindow(ResizableWindow *window)
     }
 }
 
-void MainWindowController::collapsePreferencesFromLogin()
+void MainWindowController::collapsePreferencesFromWelcome()
 {
     if (windowSizeManager_->state(preferencesWindow_) != WindowSizeManager::kWindowExpanded) {
         return;
@@ -2542,14 +2994,14 @@ void MainWindowController::collapsePreferencesFromLogin()
 
     windowSizeManager_->setScrollPos(preferencesWindow_, preferencesWindow_->scrollPos());
     windowSizeManager_->setState(preferencesWindow_, WindowSizeManager::kWindowAnimating);
-    loginWindow_->show();
+    welcomeWindow_->show();
 
-    shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_LOGIN_WINDOW,
-                                        QRect(0,0, loginWindow_->boundingRect().width(),
-                                              loginWindow_->boundingRect().height()));
+    shadowManager_->changeRectangleSize(ShadowManager::SHAPE_ID_WELCOME_WINDOW,
+                                        QRect(0,0, welcomeWindow_->boundingRect().width(),
+                                              welcomeWindow_->boundingRect().height()));
 
-    shadowManager_->setVisible(ShadowManager::SHAPE_ID_LOGIN_WINDOW, true);
-    shadowManager_->setOpacity(ShadowManager::SHAPE_ID_LOGIN_WINDOW, 0.0, false);
+    shadowManager_->setVisible(ShadowManager::SHAPE_ID_WELCOME_WINDOW, true);
+    shadowManager_->setOpacity(ShadowManager::SHAPE_ID_WELCOME_WINDOW, 0.0, false);
 
     // Opacity
     QVariantAnimation *animOpacity = new QVariantAnimation(this);
@@ -2560,15 +3012,15 @@ void MainWindowController::collapsePreferencesFromLogin()
         double prefOpacity = value.toDouble();
         preferencesWindow_->setOpacity(prefOpacity);
         shadowManager_->setOpacity(ShadowManager::SHAPE_ID_PREFERENCES, prefOpacity, true);
-        shadowManager_->setOpacity(ShadowManager::SHAPE_ID_LOGIN_WINDOW, 1.0 - prefOpacity, false);
-        loginWindow_->setOpacity(1.0 - prefOpacity);
+        shadowManager_->setOpacity(ShadowManager::SHAPE_ID_WELCOME_WINDOW, 1.0 - prefOpacity, false);
+        welcomeWindow_->setOpacity(1.0 - prefOpacity);
         shadowManager_->setOpacity(ShadowManager::SHAPE_ID_CONNECT_WINDOW, prefOpacity, false);
     });
 
     // Resizing
     QVariantAnimation *animResize = new QVariantAnimation(this);
     animResize->setStartValue((int)preferencesWindow_->boundingRect().height());
-    animResize->setEndValue((int)loginWindow_->boundingRect().height());
+    animResize->setEndValue((int)welcomeWindow_->boundingRect().height());
     animResize->setDuration(EXPAND_PREFERENCES_RESIZE_DURATION);
     connect(animResize, &QVariantAnimation::valueChanged, [this](const QVariant &value) {
         preferencesWindow_->setHeight(value.toInt(), true);
@@ -2588,13 +3040,13 @@ void MainWindowController::collapsePreferencesFromLogin()
     // group finished
     QParallelAnimationGroup *animGroup = new QParallelAnimationGroup(this);
     connect(animGroup, &QVariantAnimation::finished, [this]() {
-        loginWindow_->setClickable(true);
-        loginWindow_->setFocus();
+        welcomeWindow_->setClickable(true);
+        welcomeWindow_->setFocus();
         windowSizeManager_->setState(preferencesWindow_, WindowSizeManager::kWindowCollapsed);
         preferencesWindow_->onWindowCollapsed();
         emit preferencesCollapsed();
         shadowManager_->setOpacity(ShadowManager::SHAPE_ID_CONNECT_WINDOW, 1.0, false);
-        shadowManager_->setVisible(ShadowManager::SHAPE_ID_LOGIN_WINDOW, true);
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_WELCOME_WINDOW, true);
         updateMainAndViewGeometry(false);
         invalidateShadow_mac();
         isAtomicAnimationActive_ = false;
@@ -3000,19 +3452,22 @@ void MainWindowController::getGraphicsRegionWidthAndHeight(int &width, int &heig
                     addHeightToGeometry = 0;
                 }
             }
-        } else { // login exit
-            width = loginWindow_->boundingRect().width();
-            height = loginWindow_->boundingRect().height();
+        } else { // welcome exit
+            width = welcomeWindow_->boundingRect().width();
+            height = welcomeWindow_->boundingRect().height();
         }
     } else if (curWindow_ == WINDOW_ID_INITIALIZATION) {
         width = initWindow_->boundingRect().width();
         height = initWindow_->boundingRect().height();
-    } else if (curWindow_ == WINDOW_ID_LOGIN || curWindow_ == WINDOW_ID_LOGGING_IN ||
+    } else if (curWindow_ == WINDOW_ID_SIGNUP) {
+        width = signupWindow_->boundingRect().width();
+        height = signupWindow_->boundingRect().height();
+    } else if (curWindow_ == WINDOW_ID_WELCOME || curWindow_ == WINDOW_ID_LOGIN || curWindow_ == WINDOW_ID_LOGGING_IN ||
                curWindow_ == WINDOW_ID_EMERGENCY || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG ||
                curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH)
     {
-        width = loginWindow_->boundingRect().width();
-        height = loginWindow_->boundingRect().height();
+        width = welcomeWindow_->boundingRect().width();
+        height = welcomeWindow_->boundingRect().height();
 
         if (windowSizeManager_->state(preferencesWindow_) == WindowSizeManager::kWindowAnimating) {
             if (QGuiApplication::platformName() == "xcb") {

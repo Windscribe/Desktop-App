@@ -212,9 +212,11 @@ if(BUILD_APP)
 
     # Main GUI application
     add_subdirectory(src/windscribe-cli)
-    add_subdirectory(libs/wsnet)
     add_subdirectory(src/helper)
     add_subdirectory(src/client)
+
+    # Load wsnet from the separate repository
+    include("${CMAKE_SOURCE_DIR}/cmake/fetch_wsnet.cmake")
 
     if(WIN32)
         add_custom_target(build-app ALL

@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <spdlog/spdlog.h>
 
-bool KernelModuleCommunicator::start(const std::string &deviceName)
+bool KernelModuleCommunicator::start(const std::string &deviceName, bool verboseLogging)
 {
     assert(!deviceName.empty());
     // NULL terminator included in size of IFNAMSIZ so device name must be smaller
@@ -137,9 +137,9 @@ bool KernelModuleCommunicator::setPeerEndpoint(wg_peer *peer, const std::string 
 }
 
 bool KernelModuleCommunicator::configure(const std::string &clientPrivateKey,
-    const std::string &peerPublicKey, const std::string &peerPresharedKey,
-    const std::string &peerEndpoint, const std::vector<std::string> &allowedIps,
-    uint32_t fwmark, uint16_t listenPort)
+                                         const std::string &peerPublicKey, const std::string &peerPresharedKey,
+                                         const std::string &peerEndpoint, const std::vector<std::string> &allowedIps,
+                                         uint32_t fwmark, uint16_t listenPort, const AmneziawgConfig &amneziawgConfig)
 {
     std::string buf;
     wg_peer new_peer;

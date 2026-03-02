@@ -1,6 +1,5 @@
 #include "process_command.h"
 
-#include <codecvt>
 #include <fcntl.h>
 #include <fstream>
 #include <sstream>
@@ -67,9 +66,8 @@ std::string executeOpenVPN(const std::string &pars)
 {
     std::string config, httpProxy, socksProxy;
     unsigned int port, httpPort, socksPort;
-    bool isCustomConfig;
     CmdDnsManager dnsManager;
-    deserializePars(pars, config, port, httpProxy, httpPort, socksProxy, socksPort, isCustomConfig, dnsManager);
+    deserializePars(pars, config, port, httpProxy, httpPort, socksProxy, socksPort, dnsManager);
 
     std::string script = Utils::getDnsScript(dnsManager);
     if (script.empty()) {
@@ -85,7 +83,7 @@ std::string executeOpenVPN(const std::string &pars)
         socksProxy = "";
     }
 
-    if (!OVPN::writeOVPNFile(script, port, config, httpProxy, httpPort, socksProxy, socksPort, isCustomConfig)) {
+    if (!OVPN::writeOVPNFile(script, port, config, httpProxy, httpPort, socksProxy, socksPort)) {
         spdlog::error("Could not write OpenVPN config");
         return serializeResult(false);
     }
@@ -115,7 +113,7 @@ std::string executeTaskKill(const std::string &pars)
     } else if (target == kTargetOpenVpn) {
         spdlog::info("Killing OpenVPN processes");
         const std::vector<std::string> exes = Utils::getOpenVpnExeNames();
-        for (auto exe : exes) {
+        for (const auto &exe : exes) {
             Utils::executeCommand("pkill", {"-f", exe.c_str()});
         }
         success = true;
@@ -144,7 +142,10 @@ std::string executeTaskKill(const std::string &pars)
 
 std::string startWireGuard(const std::string &pars)
 {
-    bool success = WireGuardController::instance().start();
+    bool isAmneziaWG = false;
+    bool verboseLogging = false;
+    deserializePars(pars, isAmneziaWG, verboseLogging);
+    bool success = WireGuardController::instance().start(isAmneziaWG, verboseLogging);
     return serializeResult(success);
 }
 
@@ -160,8 +161,9 @@ std::string configureWireGuard(const std::string &pars)
                 peerPresharedKey, peerEndpoint, allowedIps;
     uint16_t listenPort;
     CmdDnsManager dnsManager;
+    AmneziawgConfig amneziawgConfig;
     deserializePars(pars, clientPrivateKey, clientIpAddress, clientDnsAddressList, peerPublicKey,
-                    peerPresharedKey, peerEndpoint, allowedIps, listenPort, dnsManager);
+                    peerPresharedKey, peerEndpoint, allowedIps, listenPort, dnsManager, amneziawgConfig);
 
     bool success = false;
     if (WireGuardController::instance().isInitialized()) {
@@ -178,7 +180,7 @@ std::string configureWireGuard(const std::string &pars)
             if (!WireGuardController::instance().configure(clientPrivateKey,
                                                            peerPublicKey, peerPresharedKey,
                                                            peerEndpoint, allowed_ips_vector,
-                                                           fwmark, listenPort)) {
+                                                           fwmark, listenPort, amneziawgConfig)) {
                 spdlog::error("WireGuard: configure() failed");
                 break;
             }

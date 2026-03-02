@@ -61,8 +61,10 @@ public:
 
     void loginWithAuthHash();
     void loginWithUsernameAndPassword(const QString &username, const QString &password, const QString &code2fa);
-    void continueLoginWithCaptcha(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY);
+    void continueWithCaptcha(const QString &captchaSolution, const std::vector<float> &captchaTrailX, const std::vector<float> &captchaTrailY);
     bool isApiSavedSettingsExists();
+
+    void signup(const QString &username, const QString &password, const QString &referringUsername, const QString &email, const QString &voucherCode);
 
     void logout(bool keepFirewallOn);
 
@@ -144,7 +146,7 @@ signals:
     void bfeEnableFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);
     void cleanupFinished();
     void captchaRequired(bool isAsciiCaptcha, const QString &asciiArt, const QString &background, const QString &slider, int top);
-    void loginFinished(bool isLoginFromSavedSettings, const api_responses::PortMap &portMap);
+    void loginFinished(const api_responses::PortMap &portMap);
     void tryingBackupEndpoint(int num, int cnt);
     void loginError(wsnet::LoginResult retCode, const QString &errorMessage);
     void sessionDeleted();
@@ -259,7 +261,7 @@ private slots:
     void onApiResourcesManagerLoginFailed(wsnet::LoginResult loginResult, const QString &errorMessage);
     void onApiResourcesManagerLocationsUpdated();
     void onApiResourcesManagerServerCredentialsFetched();
-    void onApiResourcesManagerAuthTokenLoginFinished(wsnet::LoginResult loginResult);
+    void onApiResourcesManagerAuthTokenFinished(wsnet::LoginResult loginResult);
     void onApiResourcesManagerAmneziawgUnblockParamsFetched();
 
     void onApiResourceManagerCallback(wsnet::ApiResourcesManagerNotification notification, wsnet::LoginResult loginResult, const std::string &errorMessage);
@@ -416,8 +418,19 @@ private:
     };
     std::unique_ptr<LoginCredentials> loginCredentials_;
 
+    struct SignupCredentials {
+        QString username;
+        QString password;
+        QString referringUsername;
+        QString email;
+        QString voucherCode;
+        QString authToken;
+    };
+    std::unique_ptr<SignupCredentials> signupCredentials_;
+
     void doCheckUpdate();
     void loginImpl(bool isUseAuthHash, const QString &username, const QString &password, const QString &code2fa);
+    void signupImpl(const QString &username, const QString &password, const QString &referringUsername, const QString &email, const QString &voucherCode);
     void updateServerLocations(const api_responses::ServerList &serverLocations, const api_responses::StaticIps &staticIps);
     void updateFirewallSettings(bool forceTurnOn = false);
 
@@ -459,6 +472,7 @@ private:
 
     void updateFirewallOnBoot();
     void callAuthTokenLogin(const QString &username);
+    void callAuthTokenSignup(const QString &username);
     void updateApiResolutionSettingsInWsnet();
 
     BridgeApiManager *bridgeApiManager_;

@@ -338,10 +338,77 @@
     </message>
 </context>
 <context>
-    <name>LoginWindow::CredentialsWindowItem</name>
+    <name>LoginWindow::LoggingInWindowItem</name>
+    <message>
+        <source>Login</source>
+        <translation>Đăng nhập</translation>
+    </message>
+    <message>
+        <source>Complete Puzzle to continue</source>
+        <translation>Hoàn thành Câu đố để tiếp tục</translation>
+    </message>
+</context>
+<context>
+    <name>LoginWindow::LoginWindowItem</name>
     <message>
         <source>Turn Off Firewall</source>
         <translation>Tắt tường lửa</translation>
+    </message>
+    <message>
+        <source>Login</source>
+        <translation>Đăng nhập</translation>
+    </message>
+    <message>
+        <source>Emergency Connect is ON</source>
+        <translation>Kết nối khẩn cấp đang BẬT</translation>
+    </message>
+    <message>
+        <source>2FA Code</source>
+        <translation>Mã 2FA</translation>
+    </message>
+    <message>
+        <source>Forgot password?</source>
+        <translation>Quên mật khẩu?</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation>Tiêu chuẩn</translation>
+    </message>
+    <message>
+        <source>Hashed</source>
+        <translation>Băm</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>Tên đăng nhập</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Nhập tên người dùng</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Mật khẩu</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Nhập mật khẩu</translation>
+    </message>
+    <message>
+        <source>Hash</source>
+        <translation>Hàm băm</translation>
+    </message>
+    <message>
+        <source>Account Hash or upload file</source>
+        <translation>Băm tài khoản hoặc tải lên tệp</translation>
+    </message>
+    <message>
+        <source>Select file for hash</source>
+        <translation>Chọn tệp cho hàm băm</translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation>Tất cả các tệp (*.*)</translation>
     </message>
     <message>
         <source>No Internet Connectivity</source>
@@ -365,7 +432,7 @@
     </message>
     <message>
         <source>...hmm are you sure this is correct?</source>
-        <translation>... Hmm, bạn có chắc điều này là chính xác?</translation>
+        <translation>... Hmm bạn có chắc điều này là chính xác không?</translation>
     </message>
     <message>
         <source>...Sorry, seems like it&apos;s wrong again</source>
@@ -387,29 +454,12 @@
         <source>Your username should not be an email address. Please try again.</source>
         <translation>Tên người dùng của bạn không được là địa chỉ email. Vui lòng thử lại.</translation>
     </message>
+</context>
+<context>
+    <name>LoginWindow::SignupWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>Đăng nhập</translation>
-    </message>
-    <message>
-        <source>Emergency Connect is ON</source>
-        <translation>Kết nối khẩn cấp đang BẬT</translation>
-    </message>
-    <message>
-        <source>2FA Code</source>
-        <translation>Mã 2FA</translation>
-    </message>
-    <message>
-        <source>Forgot password?</source>
-        <translation>Quên mật khẩu?</translation>
-    </message>
-    <message>
-        <source>Username</source>
-        <translation>Tên đăng nhập</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>Mật khẩu</translation>
+        <source>Sign Up</source>
+        <translation>Đăng ký</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -420,12 +470,70 @@
         <translation>Băm</translation>
     </message>
     <message>
+        <source>Username</source>
+        <translation>Tên đăng nhập</translation>
+    </message>
+    <message>
+        <source>Enter username</source>
+        <translation>Nhập tên người dùng</translation>
+    </message>
+    <message>
+        <source>Password</source>
+        <translation>Mật khẩu</translation>
+    </message>
+    <message>
+        <source>Enter password</source>
+        <translation>Nhập mật khẩu</translation>
+    </message>
+    <message>
+        <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
+        <translation>8 ký tự trở lên với ít nhất một chữ hoa và chữ thường (tức là. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</translation>
+    </message>
+    <message>
+        <source>Email (Optional)</source>
+        <translation>Email (Tùy chọn)</translation>
+    </message>
+    <message>
+        <source>Enter email</source>
+        <translation>Nhập email</translation>
+    </message>
+    <message>
+        <source>For password recovery, updates &amp; promo only. No spam.</source>
+        <translation>Chỉ để khôi phục mật khẩu, cập nhật và khuyến mãi. Không có thư rác.</translation>
+    </message>
+    <message>
+        <source>Voucher Code?</source>
+        <translation>Mã phiếu thưởng?</translation>
+    </message>
+    <message>
+        <source>Voucher code (optional)</source>
+        <translation>Mã voucher (tùy chọn)</translation>
+    </message>
+    <message>
+        <source>Referred By Someone?</source>
+        <translation>Được ai đó giới thiệu?</translation>
+    </message>
+    <message>
+        <source>Referring username (optional)</source>
+        <translation>Tên người dùng giới thiệu (tùy chọn)</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation>Tiếp tục</translation>
+    </message>
+    <message>
         <source>Hash</source>
         <translation>Hàm băm</translation>
     </message>
     <message>
-        <source>Account Hash or upload file</source>
-        <translation>Băm tài khoản hoặc tải lên tệp</translation>
+        <source>Generate or browse file</source>
+        <translation>Tạo hoặc duyệt tệp</translation>
+    </message>
+    <message>
+        <source>No personal info required. Account recovery is impossible.
+If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
+        <translation>Không yêu cầu thông tin cá nhân. Khôi phục tài khoản là không thể.
+Nếu bạn mất hàm băm tài khoản của mình, nó sẽ biến mất vĩnh viễn và bộ phận hỗ trợ không thể giúp bạn khôi phục nó.</translation>
     </message>
     <message>
         <source>Select file for hash</source>
@@ -435,16 +543,21 @@
         <source>All Files (*.*)</source>
         <translation>Tất cả các tệp (*.*)</translation>
     </message>
-</context>
-<context>
-    <name>LoginWindow::LoggingInWindowItem</name>
     <message>
-        <source>Login</source>
-        <translation>Đăng nhập</translation>
+        <source>Username must be at least 3 characters</source>
+        <translation>Tên người dùng phải có ít nhất 3 ký tự</translation>
     </message>
     <message>
-        <source>Complete Puzzle to continue</source>
-        <translation>Hoàn thành Câu đố để tiếp tục</translation>
+        <source>Your username should not be an email address.</source>
+        <translation>Tên người dùng của bạn không được là địa chỉ email.</translation>
+    </message>
+    <message>
+        <source>Invalid email</source>
+        <translation>Email không hợp lệ</translation>
+    </message>
+    <message>
+        <source>Invalid hash</source>
+        <translation>Hàm băm không hợp lệ</translation>
     </message>
 </context>
 <context>
@@ -923,6 +1036,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     <message>
         <source>Switch to Auto</source>
         <translation>Chuyển sang Tự động</translation>
+    </message>
+    <message>
+        <source>Creating your account...</source>
+        <translation>Tạo tài khoản của bạn...</translation>
     </message>
 </context>
 <context>
@@ -1767,10 +1884,6 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Tùy chọn mạng</translation>
     </message>
     <message>
-        <source>Windscribe will auto-disconnect when the device connects to a network tagged &quot;Unsecured&quot;.</source>
-        <translation>Windscribe sẽ tự động ngắt kết nối khi thiết bị kết nối với mạng được gắn thẻ &quot;Không bảo mật&quot;.</translation>
-    </message>
-    <message>
         <source>Mark all newly encountered networks as Secured.</source>
         <translation>Đánh dấu tất cả các mạng mới gặp là Bảo mật.</translation>
     </message>
@@ -1803,6 +1916,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
 Connect to a network first</source>
         <translation>Không có mạng nào được phát hiện.
 Kết nối với mạng trước</translation>
+    </message>
+    <message>
+        <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
+        <translation>Các mạng mới được tự động &quot;Bảo mật&quot;. Nếu bạn tag một mạng là &quot;Không bảo mật&quot;, Windscribe sẽ ngắt kết nối khi thiết bị tham gia mạng đó. KHÔNG nên đặt mạng là &quot;Không an toàn&quot;.</translation>
     </message>
 </context>
 <context>

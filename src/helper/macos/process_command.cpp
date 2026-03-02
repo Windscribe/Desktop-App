@@ -74,9 +74,8 @@ std::string executeOpenVPN(const std::string &pars)
 {
     std::string config, httpProxy, socksProxy;
     unsigned int port, httpPort, socksPort;
-    bool isCustomConfig;
     CmdDnsManager dnsManager;
-    deserializePars(pars, config, port, httpProxy, httpPort, socksProxy, socksPort, isCustomConfig, dnsManager);
+    deserializePars(pars, config, port, httpProxy, httpPort, socksProxy, socksPort, dnsManager);
 
     // sanitize
     if (Utils::hasWhitespaceInString(httpProxy) ||
@@ -86,7 +85,7 @@ std::string executeOpenVPN(const std::string &pars)
         socksProxy = "";
     }
 
-    if (!OVPN::writeOVPNFile(MacUtils::resourcePath() + "dns.sh", port, config, httpProxy, httpPort, socksProxy, socksPort, isCustomConfig)) {
+    if (!OVPN::writeOVPNFile(MacUtils::resourcePath() + "dns.sh", port, config, httpProxy, httpPort, socksProxy, socksPort)) {
         spdlog::error("Could not write OpenVPN config");
         return serializeResult(false);
     }
@@ -267,10 +266,10 @@ std::string startCtrld(const std::string &pars)
     if (!sigCheck.verify(fullPath)) {
         spdlog::error("ctrld executable signature incorrect: {}", sigCheck.lastError());
         return serializeResult(false);
-    } else {
-        ExecuteCmd::instance().execute(fullCmd);
-        return serializeResult(true);
     }
+
+    bool executed = Utils::executeCommand(fullCmd) == 0;
+    return serializeResult(executed);
 }
 
 std::string checkFirewallState(const std::string &pars)

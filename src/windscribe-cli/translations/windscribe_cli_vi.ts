@@ -31,6 +31,10 @@
         <source>IP rotate already in progress.</source>
         <translation>Vòng quay IP đã được tiến hành.</translation>
     </message>
+    <message>
+        <source>No AmneziaWG configurations available.</source>
+        <translation>Không có cấu hình AmneziaWG có sẵn.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

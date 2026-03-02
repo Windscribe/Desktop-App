@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.23)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(installer_mac)
+project(installer_mac VERSION ${WINDSCRIBE_VERSION_MAJOR}.${WINDSCRIBE_VERSION_MINOR}.${WINDSCRIBE_VERSION_BUILD})
 
 find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(spdlog CONFIG REQUIRED)

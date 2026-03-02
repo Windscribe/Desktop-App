@@ -17,6 +17,8 @@ find_package(Qt6 COMPONENTS Core Network LinguistTools)
 find_package(OpenSSL REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 
+include("${CMAKE_SOURCE_DIR}/cmake/fetch_wsnet.cmake")
+
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
 option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
 if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
@@ -153,7 +155,7 @@ target_link_libraries(windscribe-cli
 
 target_include_directories(windscribe-cli PRIVATE
                            ../client/client-common
-                           ../../libs/wsnet/include
+                           $<TARGET_PROPERTY:wsnet::wsnet,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
 install(TARGETS windscribe-cli

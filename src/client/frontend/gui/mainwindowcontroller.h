@@ -15,7 +15,9 @@
 #include "generalmessage/generalmessagewindowitem.h"
 #include "locationswindow/locationswindow.h"
 #include "loginwindow/logginginwindowitem.h"
+#include "loginwindow/welcomewindowitem.h"
 #include "loginwindow/loginwindowitem.h"
+#include "loginwindow/signupwindowitem.h"
 #include "loginwindow/initwindowitem.h"
 #include "newsfeedwindow/newsfeedwindowitem.h"
 #include "overlaysconnectwindow/updateappitem.h"
@@ -37,7 +39,9 @@ public:
         // use this consts in changeWindow(...)
         WINDOW_ID_UNINITIALIZED,
         WINDOW_ID_INITIALIZATION,
+        WINDOW_ID_WELCOME,
         WINDOW_ID_LOGIN,
+        WINDOW_ID_SIGNUP,
         WINDOW_ID_LOGGING_IN,
         WINDOW_ID_CONNECT,
         WINDOW_ID_CONNECT_PREFERENCES,
@@ -96,7 +100,9 @@ public:
 
     void hideAllToolTips();
 
+    LoginWindow::WelcomeWindowItem *getWelcomeWindow() { return welcomeWindow_; }
     LoginWindow::LoginWindowItem *getLoginWindow() { return loginWindow_; }
+    LoginWindow::SignupWindowItem *getSignupWindow() { return signupWindow_; }
     LoginWindow::LoggingInWindowItem *getLoggingInWindow() { return loggingInWindow_; }
     ConnectWindow::ConnectWindowItem *getConnectWindow() { return connectWindow_; }
     PreferencesWindow::PreferencesWindowItem *getPreferencesWindow() { return preferencesWindow_; }
@@ -151,6 +157,8 @@ private slots:
     void onBottomInfoHeightChanged();
     void onBottomInfoPosChanged();
 
+    void onSignupWindowHeightChanged();
+
     void onTooltipControllerSendServerRatingUp();
     void onTooltipControllerSendServerRatingDown();
 
@@ -172,7 +180,9 @@ private:
     QGraphicsView *view_;
     QGraphicsScene* scene_;
 
+    LoginWindow::WelcomeWindowItem *welcomeWindow_;
     LoginWindow::LoginWindowItem *loginWindow_;
+    LoginWindow::SignupWindowItem *signupWindow_;
     LoginWindow::LoggingInWindowItem *loggingInWindow_;
     LoginWindow::InitWindowItem *initWindow_;
     ConnectWindow::ConnectWindowItem *connectWindow_;
@@ -233,7 +243,9 @@ private:
     double updateWidgetAnimationProgress_;
 
     void gotoInitializationWindow();
+    void gotoWelcomeWindow();
     void gotoLoginWindow();
+    void gotoSignupWindow();
     void gotoEmergencyWindow();
     void gotoLoggingInWindow();
     void gotoConnectWindow(bool expandPrefs);
@@ -246,8 +258,8 @@ private:
     void gotoExitWindow(bool isLogout);
     void closeExitWindow(bool fromPrefs);
 
-    void expandPreferencesFromLogin();
-    void collapsePreferencesFromLogin();
+    void expandPreferencesFromWelcome();
+    void collapsePreferencesFromWelcome();
 
     void collapseAllExpandedOnBottom();
 

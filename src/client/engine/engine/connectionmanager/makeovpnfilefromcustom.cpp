@@ -15,7 +15,7 @@ MakeOVPNFileFromCustom::~MakeOVPNFileFromCustom()
 }
 
 // write all of ovpnData to file and add remoteCommand with replaced ip
-bool MakeOVPNFileFromCustom::generate(const QString &customConfigPath, const QString &ovpnData, const QString &ip, const QString &remoteCommand)
+bool MakeOVPNFileFromCustom::generate(const QString &customConfigPath, const QString &ovpnData, const QString &ip, const QString &remoteCommand, const QString &customDns)
 {
     config_ = "";
 
@@ -37,6 +37,11 @@ bool MakeOVPNFileFromCustom::generate(const QString &customConfigPath, const QSt
     config_ += QString("\r\n--dev-node %1\r\n").arg(kOpenVPNAdapterIdentifier);
     config_ += "\r\n--windows-driver wintun\r\n";
 #endif
+
+    if (!customDns.isEmpty()) {
+        config_ += "\r\npull-filter ignore \"dhcp-option DNS\"\r\n";
+        config_ += QString("dhcp-option DNS %1\r\n").arg(customDns);
+    }
 
     return true;
 }

@@ -68,20 +68,25 @@ private slots:
 
     void onMinimizeClick();
     void onCloseClick();
-    void onEscapeClick();
 
     // init window signals
     void onAbortInitialization();
 
+    // welcome window signals
+    void onWelcomeEmergencyWindowClick();
+    void onWelcomePreferencesClick();
+    void onWelcomeExternalConfigWindowClick();
+    void onWelcomeHaveAccountYesClick();
+    void onWelcomeCreateAccountClick();
+
     // login window signals
     void onLoginClick(const QString &username, const QString &password, const QString &code2fa);
-    void onLoginPreferencesClick();
-    void onLoginHaveAccountYesClick();
-    void onLoginBackToWelcomeClick();
-    void onLoginEmergencyWindowClick();
-    void onLoginExternalConfigWindowClick();
     void onLoginTwoFactorAuthWindowClick(const QString &username, const QString &password);
     void onLoginFirewallTurnOffClick();
+
+    // signup window signals
+    void onSignupClick(const QString &username, const QString &password, const QString &email,
+                       const QString &voucherCode,  const QString &referringUsername);
 
     // captcha window signals
     void onCaptchaBackClicked();
@@ -137,6 +142,7 @@ private slots:
     void onPreferencesClearWifiHistoryClick();
 
     // emergency window signals
+    void onEmergencyConnectEscapeClick();
     void onEmergencyConnectClick();
     void onEmergencyDisconnectClick();
 
@@ -182,7 +188,7 @@ private slots:
     void onBackendInitFinished(INIT_STATE initState);
 
     void onBackendCaptchaRequired(bool isAsciiCaptcha, const QString &asciiArt, const QString &background, const QString &slider, int top);
-    void onBackendLoginFinished(bool isLoginFromSavedSettings);
+    void onBackendLoginFinished();
     void onBackendTryingBackupEndpoint(int num, int cnt);
     void onBackendLoginError(wsnet::LoginResult loginError, const QString &errorMessage);
 
@@ -305,6 +311,7 @@ private slots:
 #endif
 
 private:
+    void gotoWelcomeWindow();
     void gotoLoginWindow();
     void gotoLogoutWindow();
     void gotoExitWindow();
@@ -409,6 +416,8 @@ private:
     QSocketNotifier *socketNotifier_;
     int fd_;
 
+    bool isLastCallWasSignup_ = false;
+
     void normalizeConnectionSettings(types::ConnectionSettings &cs);
 
 #ifdef Q_OS_MACOS
@@ -423,4 +432,6 @@ private:
     SoundManager *soundManager_;
 
     void setDataRemaining(qint64 bytesUsed, qint64 bytesMax);
+    void setFirewallTurnOffButtonVisibility(bool visible);
+    void setLoginOrSignupWindowError(LoginWindow::ERROR_MESSAGE_TYPE errorMessageType, const QString &errorMessage = QString());
 };

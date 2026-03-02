@@ -10,9 +10,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 project(helper)
 
-if(NOT TARGET wsnet::wsnet)
-    add_subdirectory(../../libs/wsnet ${CMAKE_CURRENT_BINARY_DIR}/wsnet)
-endif()
+include("${CMAKE_SOURCE_DIR}/cmake/fetch_wsnet.cmake")
 
 if (WIN32)
    add_subdirectory(windows)

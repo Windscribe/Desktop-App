@@ -73,7 +73,7 @@ void Helper_posix::changeMtu(const QString &adapter, int mtu)
     sendCommand(HelperCommand::changeMtu, adapter.toStdString(), mtu);
 }
 
-bool Helper_posix::executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort, bool isCustomConfig)
+bool Helper_posix::executeOpenVPN(const QString &config, unsigned int port, const QString &httpProxy, unsigned int httpPort, const QString &socksProxy, unsigned int socksPort)
 {
     CmdDnsManager dnsManager;
 #if defined(Q_OS_LINUX)
@@ -91,7 +91,7 @@ bool Helper_posix::executeOpenVPN(const QString &config, unsigned int port, cons
     }
 #endif
     auto result = sendCommand(HelperCommand::executeOpenVPN, config.toStdString(), port, httpProxy.toStdString(), httpPort,
-                              socksProxy.toStdString(), socksPort, isCustomConfig, dnsManager);
+                              socksProxy.toStdString(), socksPort, dnsManager);
     bool success = false;
     deserializeAnswer(result, success);
     return success;
@@ -105,9 +105,14 @@ bool Helper_posix::executeTaskKill(CmdKillTarget target)
     return success;
 }
 
-bool Helper_posix::startWireGuard()
+bool Helper_posix::startWireGuard(bool isAmneziaWG)
 {
+    // At this point in time, the macOS helper treats vanilla WG and AmneziaWG connections the same.
+#if defined(Q_OS_LINUX)
+    auto result = sendCommand(HelperCommand::startWireGuard, isAmneziaWG, ExtraConfig::instance().getWireGuardVerboseLogging());
+#else
     auto result = sendCommand(HelperCommand::startWireGuard, ExtraConfig::instance().getWireGuardVerboseLogging());
+#endif
     bool success = false;
     deserializeAnswer(result, success);
     return success;

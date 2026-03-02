@@ -55,7 +55,7 @@ TwoFactorAuthWindowItem::TwoFactorAuthWindowItem(QGraphicsObject *parent,
     curCodeEntryOpacity_ = OPACITY_HIDDEN;
     connect(&codeEntryOpacityAnimation_, &QVariantAnimation::valueChanged, this, &TwoFactorAuthWindowItem::onCodeEntryOpacityChanged);
 
-    codeEntry_ = new LoginWindow::UsernamePasswordEntry(QString(), false, "", this);
+    codeEntry_ = new LoginWindow::UsernamePasswordEntry(QString(), false, this);
     connect(codeEntry_, &LoginWindow::UsernamePasswordEntry::textChanged, this, &TwoFactorAuthWindowItem::onCodeTextChanged);
     codeEntry_->setClickable(true);
 

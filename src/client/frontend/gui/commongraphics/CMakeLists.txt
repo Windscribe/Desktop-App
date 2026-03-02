@@ -33,6 +33,10 @@ target_sources(gui PRIVATE
     textbutton.h
     texticonbutton.cpp
     texticonbutton.h
+    textitem.cpp
+    textitem.h
+    textwrapiconbutton.cpp
+    textwrapiconbutton.h
     togglebutton.cpp
     togglebutton.h
     verticaldividerline.cpp

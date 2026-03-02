@@ -31,6 +31,10 @@
         <source>IP rotate already in progress.</source>
         <translation>IP 교체가 이미 진행 중입니다.</translation>
     </message>
+    <message>
+        <source>No AmneziaWG configurations available.</source>
+        <translation>AmneziaWG 구성은 제공되지 않습니다.</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>

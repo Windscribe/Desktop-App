@@ -104,7 +104,11 @@ void WireGuardConnection::run()
 {
     BIND_CRASH_HANDLER_FOR_THREAD();
 
-    qCDebug(LOG_CONNECTION) << "Starting WireGuardService";
+    if (wireGuardConfig_.haveAmneziawgParam()) {
+        qCDebug(LOG_CONNECTION) << "Starting Amnezia WireGuardService with config:" << wireGuardConfig_.amneziawgParamTitle();
+    } else {
+        qCDebug(LOG_CONNECTION) << "Starting WireGuardService";
+    }
 
     // This merely installs the wireguard service.  We start it with a call to startService below.
     bool bSuccess = helper_->startWireGuard(wireGuardConfig_.haveAmneziawgParam());
