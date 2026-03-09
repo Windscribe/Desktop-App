@@ -28,11 +28,13 @@ void BridgeApiManager::setConnectedState(bool isConnected, const QString &nodeAd
 
     isConnected_ = isConnected;
 
-    if (!isConnected_ || nodeAddress.isEmpty()) {
+    if (!isConnected_) {
         return;
     }
 
-    // Do not use cache for non-Wireguard protocols
+    // Always call setCurrentHost when connecting, even with an empty nodeAddress (e.g. custom configs),
+    // to clear any stale host in wsnet and prevent token fetches for the wrong server.
+    // Do not use cache for non-Wireguard protocols.
     WSNet::instance()->bridgeAPI()->setCurrentHost(protocol.isWireGuardProtocol() ? nodeAddress.toStdString() : "");
 
     if (!pinnedIp.isEmpty()) {

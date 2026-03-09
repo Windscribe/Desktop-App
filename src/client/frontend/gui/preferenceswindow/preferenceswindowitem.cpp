@@ -21,7 +21,7 @@
 namespace PreferencesWindow {
 
 
-PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper, AccountInfo *accountInfo)
+PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper, AccountInfo *accountInfo, SoundManager *soundManager)
     : ResizableWindow(parent, preferences, preferencesHelper), isShowSubPage_(false), loggedIn_(false)
 {
     setFlags(QGraphicsObject::ItemIsFocusable);
@@ -38,7 +38,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
 
     generalWindowItem_ = new GeneralWindowItem(nullptr, preferences, preferencesHelper);
 
-    lookAndFeelWindowItem_ = new LookAndFeelWindowItem(nullptr, preferences, preferencesHelper);
+    lookAndFeelWindowItem_ = new LookAndFeelWindowItem(nullptr, preferences, preferencesHelper, soundManager);
     connect(lookAndFeelWindowItem_, &LookAndFeelWindowItem::exportLocationNamesClick, this, &PreferencesWindowItem::exportLocationNamesClick);
     connect(lookAndFeelWindowItem_, &LookAndFeelWindowItem::importLocationNamesClick, this, &PreferencesWindowItem::importLocationNamesClick);
     connect(lookAndFeelWindowItem_, &LookAndFeelWindowItem::resetLocationNamesClick, this, &PreferencesWindowItem::resetLocationNamesClick);

@@ -44,7 +44,11 @@ The Windscribe VPN desktop application hides your physical location, blocks ads 
 - Install CMake v3.28.x or newer from [here](https://cmake.org/download/). The project will build with older versions of CMake, but you may encounter some warnings.
 - Install Ninja v1.10.2 from [here](https://github.com/ninja-build/ninja/releases)
 - Install Windows 11 SDK (10.0.22000) from [here](https://go.microsoft.com/fwlink/?linkid=2173743).  Newer versions may work as well.
-- Install vcpkg using the script `/tools/vcpkg/install_ci/vcpkg_install.bat`
+- Clone the [ws-vcpkg-registry](https://github.com/Windscribe/ws-vcpkg-registry) and run its installation script to set up vcpkg. Then set the `VCPKG_ROOT` environment variable to the path you chose:
+```
+git clone https://github.com/Windscribe/ws-vcpkg-registry.git
+ws-vcpkg-registry\install-vcpkg\vcpkg_install.bat C:\path\to\vcpkg
+```
 - Verify the following entries are in your System `PATH` environment variable. If they are not, add them to the System `PATH` environment variable and reboot.
     - `C:\Program Files\Git\cmd`
     - `C:\[folder containing ninja.exe]`
@@ -143,7 +147,11 @@ See `build_all --help` for other build options.
 ```
 
 - Install CMake v3.28.x or newer from [here](https://cmake.org/download/) and make sure that the cmake executable is in the path and available for execution. The project will build with older versions of CMake, but you may encounter some warnings.
-- Install vcpkg using the script `/tools/vcpkg/install_ci/vcpkg_install.sh`
+- Clone the [ws-vcpkg-registry](https://github.com/Windscribe/ws-vcpkg-registry) and run its installation script to set up vcpkg. Then set the `VCPKG_ROOT` environment variable to the path you chose:
+```bash
+git clone https://github.com/Windscribe/ws-vcpkg-registry.git
+./ws-vcpkg-registry/install-vcpkg/vcpkg_install.sh /path/to/vcpkg
+```
 - Clone the repository.
 - Install python deps:
 ```python
@@ -190,9 +198,9 @@ The repository contains Dockerfile to simplify building process. Skip all the ot
 ```bash
   sudo docker build -t ws-builder .
 ```
-- Install vcpkg:
+- Install vcpkg via [ws-vcpkg-registry](https://github.com/Windscribe/ws-vcpkg-registry):
 ```bash
-  sudo docker run --rm -v .:/w ws-builder /bin/bash -c "git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg && git checkout 576379156e82da642f8d1834220876759f13534d && ./bootstrap-vcpkg.sh --disableMetrics"
+  sudo docker run --rm -v .:/w ws-builder /bin/bash -c "git clone https://github.com/Windscribe/ws-vcpkg-registry.git /tmp/ws-vcpkg-registry && /tmp/ws-vcpkg-registry/install-vcpkg/vcpkg_install.sh /w/vcpkg"
 ```
 - Build all the dependencies:
 ```bash
@@ -216,7 +224,11 @@ Build process tested on Ubuntu 22.04/24.04.
   # Make sure that the cmake executable is in the path and available for execution.
   sudo snap install cmake --classic
 ```
-- Install vcpkg using the script `/tools/vcpkg/install_ci/vcpkg_install.sh`
+- Clone the [ws-vcpkg-registry](https://github.com/Windscribe/ws-vcpkg-registry) and run its installation script to set up vcpkg. Then set the `VCPKG_ROOT` environment variable to the path you chose:
+```bash
+git clone https://github.com/Windscribe/ws-vcpkg-registry.git
+./ws-vcpkg-registry/install-vcpkg/vcpkg_install.sh /path/to/vcpkg
+```
 - Install golang (minimum version 1.23): follow instructions from `https://go.dev/doc/install`
 - Clone the repository.
 - Install Python (if necessary) and Python deps.  You may want to use a virtual environment for Python (e.g. with pyenv), but this is up to you (and possibly your distribution).  We recommend 3.11 or later.

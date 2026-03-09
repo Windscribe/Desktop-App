@@ -24,6 +24,7 @@ public:
 
     void setDialogText(const QString &title, const QString &filter);
     void setMaxWidth(int maxWidth);
+    int buttonWidth() const;
 
 signals:
     void pathChanged(const QString &path);

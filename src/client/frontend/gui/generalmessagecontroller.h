@@ -76,4 +76,5 @@ private:
     void showNext();
     void handleResult(Result res);
     MainWindowController::WINDOW_ID getSource();
+    GeneralMessage::Flags adjustedFlags(GeneralMessage::Flags flags, MainWindowController::WINDOW_ID source) const;
 };

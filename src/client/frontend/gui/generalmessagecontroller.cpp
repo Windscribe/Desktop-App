@@ -20,7 +20,12 @@ MainWindowController::WINDOW_ID GeneralMessageController::getSource()
 {
     MainWindowController::WINDOW_ID source = controller_->currentWindowAfterAnimation();
     if (source == MainWindowController::WINDOW_ID_LOGOUT || source == MainWindowController::WINDOW_ID_EXIT) {
-        source = controller_->windowBeforeExit();
+        if (source == controller_->currentWindow()) {
+            source = controller_->windowBeforeExit();
+        } else {
+            // We're about to transition to the logout/exit window, but we're not there yet.  Use the current window as the source.
+            source = controller_->currentWindow();
+        }
     }
     if (source == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
         // Look backwards in the message queue until we find something that has a different source
@@ -38,6 +43,16 @@ MainWindowController::WINDOW_ID GeneralMessageController::getSource()
     return source;
 }
 
+GeneralMessage::Flags GeneralMessageController::adjustedFlags(GeneralMessage::Flags flags, MainWindowController::WINDOW_ID source) const
+{
+    // If original message was from preferences, but we have changed the source (e.g. because of another alert),
+    // remove the flag so it does not try to open preferences from the new source
+    if (source != controller_->currentWindowAfterAnimation()) {
+        return static_cast<GeneralMessage::Flags>(static_cast<int>(flags) & ~static_cast<int>(GeneralMessage::kFromPreferences));
+    }
+    return flags;
+}
+
 void GeneralMessageController::showMessage(const QString &icon, const QString &title, const QString &desc, const QString &acceptText,
                                            const QString &rejectText, const QString &tertiaryText, std::function<void(bool)> acceptFunc,
                                            std::function<void(bool)> rejectFunc, std::function<void(bool)> tertiaryFunc,
@@ -48,7 +63,8 @@ void GeneralMessageController::showMessage(const QString &icon, const QString &t
         return;
     }
 
-    showMessage(new GeneralMessage(icon, title, desc, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, getSource(), flags, learnMoreUrl));
+    MainWindowController::WINDOW_ID source = getSource();
+    showMessage(new GeneralMessage(icon, title, desc, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, source, adjustedFlags(flags, source), learnMoreUrl));
 }
 
 void GeneralMessageController::showMessageWithRedAccept(const QString &icon, const QString &title, const QString &desc, const QString &acceptText, const QString &rejectText, const QString &tertiaryText, std::function<void (bool)> acceptFunc, std::function<void (bool)> rejectFunc, std::function<void (bool)> tertiaryFunc, GeneralMessage::Flags flags, const QString &learnMoreUrl)
@@ -57,7 +73,8 @@ void GeneralMessageController::showMessageWithRedAccept(const QString &icon, con
         // not initialized
         return;
     }
-    auto msg = new GeneralMessage(icon, title, desc, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, getSource(), flags, learnMoreUrl);
+    MainWindowController::WINDOW_ID source = getSource();
+    auto msg = new GeneralMessage(icon, title, desc, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, source, adjustedFlags(flags, source), learnMoreUrl);
     msg->isRedAcceptButton = true;
     showMessage(msg);
 }
@@ -73,7 +90,8 @@ void GeneralMessageController::showCredentialPrompt(const QString &icon, const Q
         return;
     }
 
-    showMessage(new GeneralMessage(icon, title, desc, username, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, getSource(), flags));
+    MainWindowController::WINDOW_ID source = getSource();
+    showMessage(new GeneralMessage(icon, title, desc, username, acceptText, rejectText, tertiaryText, acceptFunc, rejectFunc, tertiaryFunc, source, adjustedFlags(flags, source)));
 }
 
 void GeneralMessageController::showMessage(GeneralMessage *message)
@@ -231,4 +249,8 @@ bool GeneralMessageController::isShowingPriorityMessage() const
 void GeneralMessageController::setSource(MainWindowController::WINDOW_ID source)
 {
     messages_.last()->source = source;
+    // If original message was from preferences, but we are changing the source, remove the flag so it does not try to open preferences from the new source
+    if (messages_.last()->flags & GeneralMessage::kFromPreferences) {
+        messages_.last()->flags = static_cast<GeneralMessage::Flags>(static_cast<int>(messages_.last()->flags) & ~static_cast<int>(GeneralMessage::kFromPreferences));
+    }
 }

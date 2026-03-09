@@ -396,6 +396,8 @@
         <file>svg/preferences/SHOW_NOTIFICATIONS.svg</file>
         <file>svg/preferences/SOCIAL_NETWORKS.svg</file>
         <file>svg/preferences/SOUND_NOTIFICATIONS.svg</file>
+        <file>svg/preferences/SOUND_PREVIEW_ICON.svg</file>
+        <file>svg/preferences/SOUND_STOP_ICON.svg</file>
         <file>svg/preferences/SPLIT_TUNNELING.svg</file>
         <file>svg/preferences/SUCCESS_ICON.svg</file>
         <file>svg/preferences/START_MINIMIZED.svg</file>

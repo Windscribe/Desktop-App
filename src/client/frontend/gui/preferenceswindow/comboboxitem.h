@@ -82,11 +82,13 @@ public:
 
     void setDescription(const QString &description, const QString &url = "");
     void setInProgress(bool inProgress);
+    int buttonWidth() const;
+
+    void setCaptionXOffset(int offset);
 
 protected:
     void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
     void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
-    int buttonWidth() const;
 
 private:
     void recalculateCaptionY();
@@ -122,6 +124,7 @@ private:
     QSharedPointer<IndependentPixmap> icon_;
     bool isCaptionElided_ = false;
     QRectF captionRect_;
+    int captionXOffset_ = 0;
 
     QString desc_;
     QString descUrl_;

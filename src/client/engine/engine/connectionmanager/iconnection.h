@@ -24,6 +24,7 @@ public:
                               bool isCustomConfig, const QString &overrideDnsIp) = 0;
     virtual void startDisconnect() = 0;
     virtual bool isDisconnected() const = 0;
+    virtual void waitForDisconnect() {}
     virtual ConnectionType getConnectionType() const = 0;
     virtual bool isAllowFirewallAfterCustomConfigConnection() const { return true; }
 

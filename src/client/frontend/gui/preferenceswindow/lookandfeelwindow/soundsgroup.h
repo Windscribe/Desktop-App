@@ -4,6 +4,7 @@
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/linkitem.h"
 #include "preferenceswindow/preferencegroup.h"
+#include "sounds/soundmanager.h"
 #include "types/soundsettings.h"
 
 namespace PreferencesWindow {
@@ -13,6 +14,7 @@ class SoundsGroup: public PreferenceGroup
     Q_OBJECT
 public:
     explicit SoundsGroup(ScalableGraphicsObject *parent,
+                         SoundManager *soundManager,
                          const QString &desc = "",
                          const QString &descUrl = "");
     void setSoundSettings(const types::SoundSettings &settings);
@@ -38,6 +40,7 @@ private:
     MixedComboBoxItem *disconnectedComboBox_;
     MixedComboBoxItem *connectedComboBox_;
 
+    SoundManager *soundManager_;
     types::SoundSettings settings_;
 
     QStringList soundNames_;

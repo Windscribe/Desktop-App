@@ -21,7 +21,7 @@ IconHoverEngageButton::IconHoverEngageButton(const QString &imagePathDisabled, c
 
     active_ = false;
 
-    curOpacity_ = OPACITY_UNHOVER_ICON_STANDALONE; // 40% opacity for standalone icons
+    curOpacity_ = OPACITY_SIXTY;
 
     connect(&imageOpacityAnimation_, &QVariantAnimation::valueChanged, this, &IconHoverEngageButton::onImageHoverOpacityChanged);
     connect(this, &ClickableGraphicsObject::hoverEnter, this, &IconHoverEngageButton::onHoverEnter);
@@ -55,7 +55,7 @@ void IconHoverEngageButton::setActive(bool active)
     if (!active)
     {
         imagePath_ = imagePathDisabled_;
-        targetOpacity = OPACITY_UNHOVER_ICON_STANDALONE;
+        targetOpacity = OPACITY_SIXTY;
     }
 
     // the only way to change active is by clicking the button, so you must be hovering -> FULL
@@ -88,7 +88,7 @@ void IconHoverEngageButton::onImageHoverOpacityChanged(const QVariant &value)
 
 double IconHoverEngageButton::unhoverOpacity()
 {
-    double opacity = OPACITY_UNHOVER_ICON_STANDALONE;
+    double opacity = OPACITY_SIXTY;
     if (active_)
     {
         opacity = OPACITY_FULL;

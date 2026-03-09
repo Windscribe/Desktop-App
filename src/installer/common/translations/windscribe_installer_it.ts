@@ -62,7 +62,7 @@
     </message>
     <message>
         <source>Quit</source>
-        <translation>Dimettersi</translation>
+        <translation>Esci</translation>
     </message>
     <message>
         <source>Cancel</source>

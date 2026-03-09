@@ -114,12 +114,6 @@ MainWindow::MainWindow() :
     qCDebug(LOG_BASIC) << "GUI pid: " << guiPid;
     backend_ = new Backend(this);
 
-
-#if defined(Q_OS_MACOS)
-    permissionMonitor_ = new PermissionMonitor_mac(this);
-    connect(permissionMonitor_, &PermissionMonitor_mac::locationPermissionUpdated, this, &MainWindow::onLocationPermissionUpdated);
-#endif
-
 #ifdef Q_OS_MACOS
     WidgetUtils_mac::allowMinimizeForFramelessWindow(this);
 #endif
@@ -198,7 +192,9 @@ MainWindow::MainWindow() :
     connect(localIpcServer_, &LocalIPCServer::pinIp, this, &MainWindow::onPinIp);
     connect(localIpcServer_, &LocalIPCServer::unpinIp, this, &MainWindow::onUnpinIp);
 
-    mainWindowController_ = new MainWindowController(this, locationsWindow_, backend_->getPreferencesHelper(), backend_->getPreferences(), backend_->getAccountInfo());
+    soundManager_ = new SoundManager(this, backend_->getPreferences());
+
+    mainWindowController_ = new MainWindowController(this, locationsWindow_, backend_->getPreferencesHelper(), backend_->getPreferences(), backend_->getAccountInfo(), soundManager_);
 
     mainWindowController_->getConnectWindow()->updateMyIp(PersistentState::instance().lastExternalIp());
     mainWindowController_->getConnectWindow()->updateNotificationsState(notificationsController_.totalMessages(), notificationsController_.unreadMessages());
@@ -405,10 +401,7 @@ MainWindow::MainWindow() :
     connect(&DpiScaleManager::instance(), &DpiScaleManager::scaleChanged, this, &MainWindow::onScaleChanged);
     connect(&DpiScaleManager::instance(), &DpiScaleManager::newScreen, this, &MainWindow::onDpiScaleManagerNewScreen);
 
-    soundManager_ = new SoundManager(this, backend_->getPreferences());
-
     backend_->init();
-
 
     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_INITIALIZATION);
     mainWindowController_->getInitWindow()->startWaitingAnimation();
@@ -1196,7 +1189,7 @@ void MainWindow::onPreferencesLoginClick()
         QApplication::setOverrideCursor(Qt::WaitCursor);
         logoutReason_ = LOGOUT_GO_TO_LOGIN;
         backend_->logout(false);
-    } else if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
+    } else if (mainWindowController_->currentWindowAfterAnimation() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
         // Collapsing the preferences window caused an alert, such as unsaved changes.
         // Instead of transitioning directly to the login window, we modify the alert source.
         GeneralMessageController::instance().setSource(MainWindowController::WINDOW_ID_LOGIN);
@@ -1736,6 +1729,11 @@ void MainWindow::onBackendInitFinished(INIT_STATE initState)
         backend_->sendSplitTunneling(p->splitTunneling());
 
 #ifdef Q_OS_MACOS
+        // This object must be created after the backend (engine) is fully initialized to ensure the onLocationPermissionUpdated
+        // slot does not call into the Engine before it is initialized.
+        permissionMonitor_ = new PermissionMonitor_mac(this);
+        connect(permissionMonitor_, &PermissionMonitor_mac::locationPermissionUpdated, this, &MainWindow::onLocationPermissionUpdated);
+
         // on MacOS 14.4 and later, MAC spoofing no longer works.  If it was enabled, disable the feature.
         if (MacUtils::isOsVersionAtLeast(14, 4) && p->macAddrSpoofing().isEnabled) {
             types::MacAddrSpoofing mas = p->macAddrSpoofing();

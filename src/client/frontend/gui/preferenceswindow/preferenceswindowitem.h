@@ -23,6 +23,7 @@
 #include "preferencestab/preferencestabcontrolitem.h"
 #include "proxysettingswindow/proxysettingswindowitem.h"
 #include "robertwindow/robertwindowitem.h"
+#include "sounds/soundmanager.h"
 #include "splittunnelingwindow/splittunnelingwindowitem.h"
 #include "splittunnelingwindow/splittunnelingaddresseswindowitem.h"
 #include "splittunnelingwindow/splittunnelingappswindowitem.h"
@@ -33,7 +34,7 @@ class PreferencesWindowItem : public ResizableWindow
 {
     Q_OBJECT
 public:
-    explicit PreferencesWindowItem(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper, AccountInfo *accountInfo);
+    explicit PreferencesWindowItem(QGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper, AccountInfo *accountInfo, SoundManager *soundManager);
     ~PreferencesWindowItem();
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 

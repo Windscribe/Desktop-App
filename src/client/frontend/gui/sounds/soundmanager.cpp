@@ -20,8 +20,13 @@ void SoundManager::handleQueuedConnectedEvent()
 {
     if (connectedEventQueued_) {
         connectedEventQueued_ = false;
-        playSound(preferences_->soundSettings().connectedSoundPath, false);
+        playSound(preferences_->soundSettings().connectedSoundPath, false, false);
     }
+}
+
+void SoundManager::playPreview(const QString &path)
+{
+    playSound(path, false, true);
 }
 
 void SoundManager::play(const CONNECT_STATE &connectState)
@@ -36,18 +41,18 @@ void SoundManager::play(const CONNECT_STATE &connectState)
         if (preferences_->soundSettings().connectedSoundType == SOUND_NOTIFICATION_TYPE_NONE) {
             return;
         }
-        playSound(preferences_->soundSettings().connectedSoundPath, false);
+        playSound(preferences_->soundSettings().connectedSoundPath, false, false);
     } else if (connectState == CONNECT_STATE_DISCONNECTED) {
         if (preferences_->soundSettings().disconnectedSoundType == SOUND_NOTIFICATION_TYPE_NONE) {
             return;
         }
-        playSound(preferences_->soundSettings().disconnectedSoundPath, false);
+        playSound(preferences_->soundSettings().disconnectedSoundPath, false, false);
     } else if (connectState == CONNECT_STATE_CONNECTING) {
         if (preferences_->soundSettings().connectedSoundPath == ":/sounds/Fart_(Deluxe)_on.mp3" &&
             preferences_->soundSettings().connectedSoundType == SOUND_NOTIFICATION_TYPE_BUNDLED)
         {
             QString path = preferences_->soundSettings().connectedSoundPath.replace("_on.mp3", "_loop.mp3");
-            playSound(path, true);
+            playSound(path, true, false);
         }
     } else if (connectState == CONNECT_STATE_DISCONNECTING) {
         stop();
@@ -61,11 +66,12 @@ void SoundManager::stop()
     }
 }
 
-void SoundManager::playSound(const QString &path, bool loop)
+void SoundManager::playSound(const QString &path, bool loop, bool isPreview)
 {
     qCDebug(LOG_BASIC) << "Playing sound" << path;
 
     cleanupCurrentSoundData();
+    isPreview_ = isPreview;
 
     ma_result result = ma_engine_init(NULL, &audioEngine_);
     if (result != MA_SUCCESS) {
@@ -125,6 +131,8 @@ void SoundManager::playSound(const QString &path, bool loop)
 void SoundManager::cleanupCurrentSoundData()
 {
     qCDebug(LOG_BASIC) << "Cleaning up current sound data";
+    bool wasPreview = isPreview_;
+
     if (soundInitialized_) {
         ma_sound_stop(&sound_);
         ma_sound_uninit(&sound_);
@@ -142,16 +150,21 @@ void SoundManager::cleanupCurrentSoundData()
     }
 
     audioBuffer_.clear();
+    isPreview_ = false;
+
+    if (wasPreview) {
+        emit previewFinished();
+    }
 }
 
 void SoundManager::endCallback(void* pUserData, ma_sound* pSound)
 {
+    Q_UNUSED(pSound);
     SoundManager* manager = static_cast<SoundManager*>(pUserData);
     if (!manager) {
         return;
     }
 
-    // safely release memory from the sound when it has ended
     QTimer::singleShot(0, manager, [manager] () {
         manager->cleanupCurrentSoundData();
     });

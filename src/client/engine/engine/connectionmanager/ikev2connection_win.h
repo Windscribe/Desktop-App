@@ -5,6 +5,7 @@
 #include <raserror.h>
 
 #include <QMap>
+#include <QMutex>
 #include <QString>
 #include <QTimer>
 
@@ -24,6 +25,7 @@ public:
                       const WireGuardConfig *wireGuardConfig, bool isEnableIkev2Compression, bool isCustomConfig, const QString &overrideDnsIp) override;
     void startDisconnect() override;
     bool isDisconnected() const override;
+    void waitForDisconnect() override;
 
     //QString getConnectedTapTunAdapterName() override;
     ConnectionType getConnectionType() const override { return ConnectionType::IKEV2; }

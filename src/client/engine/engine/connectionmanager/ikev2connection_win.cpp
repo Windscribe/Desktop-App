@@ -257,12 +257,29 @@ void IKEv2Connection_win::handleErrorReinstallWan()
 
 void IKEv2Connection_win::onHandleDisconnectLogic()
 {
+    QMutexLocker locker(&mutex_);
+    if (state_ != STATE_DISCONNECTING) {
+        return;
+    }
     connHandle_ = NULL;
     helper_->disableDnsLeaksProtection();
     helper_->removeHosts();
     timerControlConnection_.stop();
     state_ = STATE_DISCONNECTED;
     emit disconnected();
+}
+
+void IKEv2Connection_win::waitForDisconnect()
+{
+    disconnectLogic_.wait();
+    QMutexLocker locker(&mutex_);
+    if (state_ == STATE_DISCONNECTING) {
+        connHandle_ = NULL;
+        helper_->disableDnsLeaksProtection();
+        helper_->removeHosts();
+        timerControlConnection_.stop();
+        state_ = STATE_DISCONNECTED;
+    }
 }
 
 void IKEv2Connection_win::doConnect()

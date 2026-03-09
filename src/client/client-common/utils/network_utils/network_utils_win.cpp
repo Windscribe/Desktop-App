@@ -8,6 +8,7 @@
 #include <atlbase.h>
 #include <iphlpapi.h>
 #include <netlistmgr.h>
+#include <ocidl.h>
 
 #include "../log/categories.h"
 #include "../networktypes.h"
@@ -302,13 +303,76 @@ static QString networkNameFromInterfaceGUID(QString adapterGUID)
     return result;
 }
 
+static bool isNetworkUnidentified(const QString &adapterGUID)
+{
+    INetworkListManager *pNetListManager = NULL;
+    HRESULT hr = CoCreateInstance(CLSID_NetworkListManager, NULL,
+                                  CLSCTX_ALL, IID_INetworkListManager,
+                                  (LPVOID *)&pNetListManager);
+    if (FAILED(hr)) {
+        return false;
+    }
+
+    bool result = false;
+
+    CComPtr<IEnumNetworkConnections> pEnumNetworkConnections;
+    hr = pNetListManager->GetNetworkConnections(&pEnumNetworkConnections);
+    if (SUCCEEDED(hr)) {
+        DWORD dwReturn = 0;
+        while (true) {
+            CComPtr<INetworkConnection> pNetConnection;
+            hr = pEnumNetworkConnections->Next(1, &pNetConnection, &dwReturn);
+            if (SUCCEEDED(hr) && dwReturn > 0) {
+                GUID adapterID;
+                if (pNetConnection->GetAdapterId(&adapterID) == S_OK) {
+                    if (adapterGUID == guidToQString(adapterID)) {
+                        CComPtr<INetwork> pNetwork;
+                        if (pNetConnection->GetNetwork(&pNetwork) == S_OK) {
+                            CComPtr<IPropertyBag> pPropBag;
+                            if (SUCCEEDED(pNetwork->QueryInterface(IID_IPropertyBag, (void**)&pPropBag))) {
+                                VARIANT var;
+                                VariantInit(&var);
+                                if (SUCCEEDED(pPropBag->Read(NA_NetworkClass, &var, nullptr))) {
+                                    VARIANT varConverted;
+                                    VariantInit(&varConverted);
+                                    if (SUCCEEDED(VariantChangeType(&varConverted, &var, 0, VT_I4))) {
+                                        NLM_NETWORK_CLASS networkClass = static_cast<NLM_NETWORK_CLASS>(varConverted.lVal);
+                                        result = (networkClass == NLM_NETWORK_IDENTIFYING || networkClass == NLM_NETWORK_UNIDENTIFIED);
+                                    }
+                                    VariantClear(&varConverted);
+                                }
+                                VariantClear(&var);
+                            }
+                        }
+                        break;
+                    }
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
+    pEnumNetworkConnections.Release();
+    pNetListManager->Release();
+
+    return result;
+}
+
 static bool isRowUsableForWindscribe(const IfTable2Row &row)
 {
-    if (row.interfaceType == IF_TYPE_ETHERNET_CSMACD) {
-        QString networkOrSsid = networkNameFromInterfaceGUID(row.interfaceGuid);
-        if (networkOrSsid == "Identifying..." || networkOrSsid == "Unidentified network") {
+    switch (row.interfaceType) {
+    case IF_TYPE_ETHERNET_CSMACD:
+    case IF_TYPE_IEEE80211:
+    case IF_TYPE_IEEE80216_WMAN:
+    case IF_TYPE_WWANPP:
+    case IF_TYPE_WWANPP2:
+        if (isNetworkUnidentified(row.interfaceGuid)) {
             return false;
         }
+        break;
+    default:
+        break;
     }
 
     return row.valid && row.interfaceType != IF_TYPE_PPP && !row.endPointInterface && row.connectorPresent;

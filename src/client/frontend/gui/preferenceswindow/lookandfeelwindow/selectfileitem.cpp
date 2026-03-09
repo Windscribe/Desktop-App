@@ -92,6 +92,11 @@ void SelectFileItem::updatePositions()
     update();
 }
 
+int SelectFileItem::buttonWidth() const
+{
+    return button_->getWidth();
+}
+
 void SelectFileItem::setDialogText(const QString &title, const QString &filter)
 {
     dialogTitle_ = title;

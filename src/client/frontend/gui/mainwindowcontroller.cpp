@@ -37,7 +37,7 @@
 #endif
 
 MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *locationsWindow, PreferencesHelper *preferencesHelper,
-                                           Preferences *preferences, AccountInfo *accountInfo) : QObject(parent),
+                                           Preferences *preferences, AccountInfo *accountInfo, SoundManager *soundManager) : QObject(parent),
     curWindow_(WINDOW_ID_UNINITIALIZED),
     mainWindow_(parent),
     preferences_(preferences),
@@ -77,7 +77,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     emergencyConnectWindow_ = new EmergencyConnectWindow::EmergencyConnectWindowItem(nullptr, preferencesHelper);
     externalConfigWindow_ = new ExternalConfigWindow::ExternalConfigWindowItem(nullptr, preferencesHelper);
     twoFactorAuthWindow_ = new TwoFactorAuthWindow::TwoFactorAuthWindowItem(nullptr, preferencesHelper);
-    preferencesWindow_ = new PreferencesWindow::PreferencesWindowItem(nullptr, preferences, preferencesHelper, accountInfo);
+    preferencesWindow_ = new PreferencesWindow::PreferencesWindowItem(nullptr, preferences, preferencesHelper, accountInfo, soundManager);
     updateWindow_ = new UpdateWindowItem(preferences);
     upgradeAccountWindow_ = new UpgradeWindow::UpgradeWindowItem(preferences);
     bottomInfoWindow_ = new SharingFeatures::BottomInfoItem(preferences);
@@ -937,7 +937,8 @@ void MainWindowController::gotoWelcomeWindow()
                  || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
                  || curWindow_ == WINDOW_ID_UPDATE
                  || curWindow_ == WINDOW_ID_UPGRADE
-                 || curWindow_ == WINDOW_ID_LOGOUT);
+                 || curWindow_ == WINDOW_ID_LOGOUT
+                 || curWindow_ == WINDOW_ID_GENERAL_MESSAGE);
 
     for (auto w : windowSizeManager_->windows()) {
         if (windowSizeManager_->state(w) != WindowSizeManager::kWindowCollapsed) {
@@ -1161,6 +1162,44 @@ void MainWindowController::gotoWelcomeWindow()
         updateMainAndViewGeometry(false);
         isAtomicAnimationActive_ = false;
         handleNextWindowChange();
+    } else if (curWindow_ == WINDOW_ID_GENERAL_MESSAGE) {
+        curWindow_ = WINDOW_ID_WELCOME;
+
+        initWindow_->stackBefore(welcomeWindow_);
+        connectWindow_->stackBefore(welcomeWindow_);
+        generalMessageWindow_->stackBefore(welcomeWindow_);
+        updateWindow_->stackBefore(welcomeWindow_);
+        upgradeAccountWindow_->stackBefore(welcomeWindow_);
+
+        shadowManager_->setVisible(ShadowManager::SHAPE_ID_GENERAL_MESSAGE, false);
+
+        welcomeWindow_->setOpacity(0.0);
+        welcomeWindow_->setVisible(true);
+
+        if (bottomInfoWindow_->isVisible()) {
+            bottomInfoWindow_->hide();
+            bottomInfoWindow_->setClickable(false);
+            shadowManager_->removeObject(ShadowManager::SHAPE_ID_BOTTOM_INFO);
+        }
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(welcomeWindow_);
+        anim->setPropertyName("opacity");
+        anim->setStartValue(0.0);
+        anim->setEndValue(1.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+
+        connect(anim, &QPropertyAnimation::finished, [this]() {
+            generalMessageWindow_->setVisible(false);
+            welcomeWindow_->setClickable(true);
+            welcomeWindow_->setFocus();
+            isAtomicAnimationActive_ = false;
+            updateMainAndViewGeometry(true);
+            handleNextWindowChange();
+        });
+
+        isAtomicAnimationActive_ = true;
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
     }
 }
 
@@ -1331,6 +1370,7 @@ void MainWindowController::gotoLoginWindow()
         initWindow_->stackBefore(loginWindow_);
         connectWindow_->stackBefore(loginWindow_);
         generalMessageWindow_->stackBefore(loginWindow_);
+        welcomeWindow_->stackBefore(loginWindow_);
         updateWindow_->stackBefore(loginWindow_);
         upgradeAccountWindow_->stackBefore(loginWindow_);
 
@@ -2295,6 +2335,7 @@ void MainWindowController::gotoGeneralMessageWindow()
         initWindow_->stackBefore(generalMessageWindow_);
         loggingInWindow_->stackBefore(generalMessageWindow_);
         upgradeAccountWindow_->stackBefore(generalMessageWindow_);
+        welcomeWindow_->stackBefore(generalMessageWindow_);
         generalMessageWindow_->show();
         generalMessageWindow_->setFocus();
 
@@ -2983,9 +3024,9 @@ void MainWindowController::collapsePreferencesFromWelcome()
         return;
     }
 
-    preferencesWindow_->onWindowAboutToCollapse();
-
     isAtomicAnimationActive_ = true;
+
+    preferencesWindow_->onWindowAboutToCollapse();
 
     hideUpdateWidget();
 

@@ -8,8 +8,8 @@
 
 namespace PreferencesWindow {
 
-SoundsGroup::SoundsGroup(ScalableGraphicsObject *parent, const QString &desc, const QString &descUrl)
-  : PreferenceGroup(parent, desc, descUrl)
+SoundsGroup::SoundsGroup(ScalableGraphicsObject *parent, SoundManager *soundManager, const QString &desc, const QString &descUrl)
+  : PreferenceGroup(parent, desc, descUrl), soundManager_(soundManager)
 {
     setFlags(flags() | QGraphicsItem::ItemIsFocusable);
 
@@ -17,14 +17,16 @@ SoundsGroup::SoundsGroup(ScalableGraphicsObject *parent, const QString &desc, co
     titleItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/SOUND_NOTIFICATIONS"));
     addItem(titleItem_);
 
-    disconnectedComboBox_ = new MixedComboBoxItem(this);
+    disconnectedComboBox_ = new MixedComboBoxItem(this, soundManager_);
     connect(disconnectedComboBox_, &MixedComboBoxItem::currentItemChanged, this, &SoundsGroup::onDisconnectedComboBoxChanged);
     connect(disconnectedComboBox_, &MixedComboBoxItem::pathChanged, this, &SoundsGroup::onDisconnectedPathChanged);
+    disconnectedComboBox_->setEnablePreview(true);
     addItem(disconnectedComboBox_);
 
-    connectedComboBox_ = new MixedComboBoxItem(this);
+    connectedComboBox_ = new MixedComboBoxItem(this, soundManager_);
     connect(connectedComboBox_, &MixedComboBoxItem::currentItemChanged, this, &SoundsGroup::onConnectedComboBoxChanged);
     connect(connectedComboBox_, &MixedComboBoxItem::pathChanged, this, &SoundsGroup::onConnectedPathChanged);
+    connectedComboBox_->setEnablePreview(true);
     addItem(connectedComboBox_);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &SoundsGroup::onLanguageChanged);

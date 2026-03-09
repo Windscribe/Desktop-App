@@ -9,7 +9,7 @@
 
 namespace PreferencesWindow {
 
-LookAndFeelWindowItem::LookAndFeelWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper) : CommonGraphics::BasePage(parent),
+LookAndFeelWindowItem::LookAndFeelWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper, SoundManager *soundManager) : CommonGraphics::BasePage(parent),
     preferences_(preferences), preferencesHelper_(preferencesHelper)
 {
     setFlag(QGraphicsItem::ItemIsFocusable);
@@ -27,7 +27,7 @@ LookAndFeelWindowItem::LookAndFeelWindowItem(ScalableGraphicsObject *parent, Pre
     connect(appBackgroundGroup_, &AppBackgroundGroup::backgroundSettingsChanged, this, &LookAndFeelWindowItem::onBackgroundSettingsChanged);
     addItem(appBackgroundGroup_);
 
-    soundsGroup_ = new SoundsGroup(this);
+    soundsGroup_ = new SoundsGroup(this, soundManager);
     soundsGroup_->setSoundSettings(preferences->soundSettings());
     connect(soundsGroup_, &SoundsGroup::soundSettingsChanged, this, &LookAndFeelWindowItem::onSoundSettingsChanged);
     addItem(soundsGroup_);

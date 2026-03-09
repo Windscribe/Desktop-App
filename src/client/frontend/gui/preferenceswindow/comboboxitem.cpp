@@ -73,6 +73,7 @@ void ComboBoxItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
         xOffset = (PREFERENCES_MARGIN_X + 8 + ICON_WIDTH)*G_SCALE;
         icon_->draw(PREFERENCES_MARGIN_X*G_SCALE, (PREFERENCE_GROUP_ITEM_HEIGHT - ICON_HEIGHT)*G_SCALE / 2, ICON_WIDTH*G_SCALE, ICON_HEIGHT*G_SCALE, painter);
     }
+    xOffset += captionXOffset_*G_SCALE;
 
     QFontMetrics fm(font);
     int availableWidth = boundingRect().width() - xOffset - button_->boundingRect().width() - PREFERENCES_MARGIN_X*G_SCALE;
@@ -291,6 +292,7 @@ void ComboBoxItem::updatePositions()
     else {
         used = 2*PREFERENCES_MARGIN_X*G_SCALE + captionWidth;
     }
+    used += captionXOffset_*G_SCALE;
 
     if (desc_.isEmpty()) {
         setHeight(PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE);
@@ -564,6 +566,13 @@ void ComboBoxItem::recalculateCaptionY()
     QFontMetrics fm(font);
     curCaptionY_ = (PREFERENCE_GROUP_ITEM_HEIGHT*G_SCALE - fm.height()) / 2;
     captionY_ = curCaptionY_;
+}
+
+void ComboBoxItem::setCaptionXOffset(int offset)
+{
+    captionXOffset_ = offset;
+    updatePositions();
+    update();
 }
 
 } // namespace PreferencesWindow

@@ -1054,7 +1054,7 @@ Se il problema persiste dopo un riavvio, inviare un registro di debug e aprire u
     </message>
     <message>
         <source>Quit</source>
-        <translation>Dimettersi</translation>
+        <translation>Esci</translation>
     </message>
     <message>
         <source>Log Out</source>
@@ -2011,7 +2011,7 @@ Connettersi prima a una rete</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>Dimettersi</translation>
+        <translation>Esci</translation>
     </message>
     <message>
         <source>Look &amp; Feel</source>

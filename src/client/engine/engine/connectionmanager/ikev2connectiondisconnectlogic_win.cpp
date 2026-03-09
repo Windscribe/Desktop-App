@@ -2,40 +2,23 @@
 #include "utils/crashhandler.h"
 #include "utils/log/categories.h"
 
+#include <QElapsedTimer>
 #include <QProcess>
 
 IKEv2ConnectionDisconnectLogic_win::IKEv2ConnectionDisconnectLogic_win(QObject *parent) : QThread(parent),
-    cntRasHangUp_(0), connHandle_(NULL)
+    connHandle_(NULL)
 {
-    connect(&timer_, &QTimer::timeout, this, &IKEv2ConnectionDisconnectLogic_win::onTimer);
 }
 
 void IKEv2ConnectionDisconnectLogic_win::startDisconnect(HRASCONN connHandle)
 {
-    start(QThread::LowPriority);
-
-    cntRasHangUp_ = 1;
     connHandle_ = connHandle;
-
-    DWORD dwErr = RasHangUp(connHandle_);
-
-    qCInfo(LOG_IKEV2) << "IKEv2ConnectionDisconnectLogic_win::startDisconnect(), RasHangUp return code:" << dwErr;
-    if (dwErr == ERROR_INVALID_HANDLE)
-    {
-        connHandle_ = NULL;
-        waitForControlThreadFinish();
-        emit disconnected();
-    }
-    else
-    {
-        elapsedTimer_.start();
-        timer_.start(10);
-    }
+    start(QThread::LowPriority);
 }
 
 bool IKEv2ConnectionDisconnectLogic_win::isDisconnected()
 {
-    return connHandle_ == NULL;
+    return !isRunning();
 }
 
 void IKEv2ConnectionDisconnectLogic_win::blockingDisconnect(HRASCONN connHandle)
@@ -86,57 +69,62 @@ void IKEv2ConnectionDisconnectLogic_win::blockingDisconnect(HRASCONN connHandle)
 void IKEv2ConnectionDisconnectLogic_win::run()
 {
     BIND_CRASH_HANDLER_FOR_THREAD();
-    mutex_.lock();
-    if (!waitCondition_.wait(&mutex_, 2000))
-    {
-        qCInfo(LOG_IKEV2) << "Try console command: rasdial /DISCONNECT";
-        QProcess process;
-        process.start("rasdial", QStringList() << "/DISCONNECT");
-        process.waitForFinished();
-    }
-    mutex_.unlock();
-}
 
-void IKEv2ConnectionDisconnectLogic_win::onTimer()
-{
-    RASCONNSTATUS status;
-    memset(&status, 0, sizeof(status));
-    status.dwSize = sizeof(status);
-    DWORD err = RasGetConnectStatus(connHandle_, &status);
-    if (err == ERROR_INVALID_HANDLE)
+    DWORD dwErr = RasHangUp(connHandle_);
+    qCInfo(LOG_IKEV2) << "IKEv2ConnectionDisconnectLogic_win::startDisconnect(), RasHangUp return code:" << dwErr;
+
+    if (dwErr != ERROR_INVALID_HANDLE)
     {
-        waitForControlThreadFinish();
-        qCInfo(LOG_IKEV2) << "IKEv2ConnectionDisconnectLogic_win::onTimer(), RasGetConnectStatus return code:" << err << ", we disconnected";
-        timer_.stop();
-        connHandle_ = NULL;
-        emit disconnected();
-    }
-    else
-    {
-        // if 3 sec elapsed
-        if (elapsedTimer_.elapsed() > 3000)
+        QElapsedTimer elapsedTimer;
+        QElapsedTimer totalTimer;
+        elapsedTimer.start();
+        totalTimer.start();
+        int cntRasHangUp = 1;
+        bool rasdialDisconnectCalled = false;
+
+        while (totalTimer.elapsed() < 15000)
         {
-            qCInfo(LOG_IKEV2) << "IKEv2ConnectionDisconnectLogic_win::onTimer(), 3 sec elapsed:" << err;
+            RASCONNSTATUS status;
+            memset(&status, 0, sizeof(status));
+            status.dwSize = sizeof(status);
+            DWORD err = RasGetConnectStatus(connHandle_, &status);
 
-            if (cntRasHangUp_ < 3)
+            if (err == ERROR_INVALID_HANDLE)
             {
-                err = RasHangUp(connHandle_);
-                elapsedTimer_.start();
-                qCInfo(LOG_IKEV2) << "IKEv2ConnectionDisconnectLogic_win::onTimer(), call RasHangUp again:" << err;
-                cntRasHangUp_++;
+                qCInfo(LOG_IKEV2) << "IKEv2ConnectionDisconnectLogic_win::run(), RasGetConnectStatus return code:" << err << ", we disconnected";
+                break;
             }
-            else
+
+            if (elapsedTimer.elapsed() > 3000)
             {
-                qCInfo(LOG_IKEV2) << "IKEv2ConnectionDisconnectLogic_win::onTimer(), 3 calls RasHangUp failed";
+                if (cntRasHangUp < 3)
+                {
+                    err = RasHangUp(connHandle_);
+                    elapsedTimer.restart();
+                    qCInfo(LOG_IKEV2) << "IKEv2ConnectionDisconnectLogic_win::run(), call RasHangUp again:" << err;
+                    cntRasHangUp++;
+                }
+                else if (!rasdialDisconnectCalled)
+                {
+                    qCInfo(LOG_IKEV2) << "IKEv2ConnectionDisconnectLogic_win::run(), 3 calls RasHangUp failed";
+                    qCInfo(LOG_IKEV2) << "Try console command: rasdial /DISCONNECT";
+                    QProcess process;
+                    process.start("rasdial", QStringList() << "/DISCONNECT");
+                    process.waitForFinished();
+                    rasdialDisconnectCalled = true;
+                    elapsedTimer.restart();
+                }
             }
+
+            Sleep(10);
+        }
+
+        if (totalTimer.elapsed() >= 15000)
+        {
+            qCInfo(LOG_IKEV2) << "IKEv2ConnectionDisconnectLogic_win::run(), timed out waiting for disconnect, forcing disconnect";
         }
     }
-}
 
-void IKEv2ConnectionDisconnectLogic_win::waitForControlThreadFinish()
-{
-    mutex_.lock();
-    waitCondition_.wakeAll();
-    mutex_.unlock();
-    wait();
+    connHandle_ = NULL;
+    emit disconnected();
 }

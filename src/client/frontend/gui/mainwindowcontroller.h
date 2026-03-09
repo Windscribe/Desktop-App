@@ -60,7 +60,7 @@ public:
     };
 
     explicit MainWindowController(QWidget *parent, LocationsWindow *locationsWindow, PreferencesHelper *preferencesHelper,
-                                  Preferences *preferences, AccountInfo *accountInfo);
+                                  Preferences *preferences, AccountInfo *accountInfo, SoundManager *soundManager);
 
     void updateScaling();
     void updateMaskForGraphicsView();

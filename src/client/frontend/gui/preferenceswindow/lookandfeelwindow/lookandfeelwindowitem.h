@@ -6,6 +6,7 @@
 #include "backend/preferences/preferences.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/preferencegroup.h"
+#include "sounds/soundmanager.h"
 #include "soundsgroup.h"
 
 namespace PreferencesWindow {
@@ -14,7 +15,7 @@ class LookAndFeelWindowItem : public CommonGraphics::BasePage
 {
     Q_OBJECT
 public:
-    explicit LookAndFeelWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper);
+    explicit LookAndFeelWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper, SoundManager *soundManager);
 
     QString caption() const override;
     void updateScaling() override;

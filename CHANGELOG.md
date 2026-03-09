@@ -1,3 +1,17 @@
+2.21.4 (02/03/2026)
+All:
+   * Added sound preview for sound notifications. #1582
+   * Fixed emergency connect icon opacity. #1674
+   * Fixed an Italian translation. #1675
+   * Fixed more incorrect window ordering issues. #1673 
+   * Fixed IP utilities sometimes not available after changing from custom config to regular location. #1677
+Windows:
+   * Improved adapter network identfication state detection on Windows. #1680
+   * Fixed IKEv2 may get stuck after waking from sleep. #1676
+macOS:
+   * Fixed app may crash during launch. #1679
+
+
 2.21.3 (24/02/2026)
 All:
    * Added in-app user registration functionality. #1628

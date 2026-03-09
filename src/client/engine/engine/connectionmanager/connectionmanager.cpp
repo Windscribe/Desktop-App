@@ -212,6 +212,7 @@ void ConnectionManager::blockingDisconnect(bool isSleepEvent)
                     // while in this loop and resume us when the PC wakes.  If we process events, we will likely start trying
                     // to restoreConnectionAfterWakeUp while we are in here disconnecting.
                     QThread::msleep(50);
+                    connector_->waitForDisconnect();
                 } else {
                     QThread::msleep(1);
                     qApp->processEvents();

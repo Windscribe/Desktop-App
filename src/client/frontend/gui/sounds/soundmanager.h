@@ -16,13 +16,18 @@ public:
 
     void play(const CONNECT_STATE &connectState);
     void stop();
+    void playPreview(const QString &path);
+    bool isPlayingPreview() const { return isPreview_; }
+
+signals:
+    void previewFinished();
 
 private slots:
     void handleQueuedConnectedEvent();
 
 private:
     static void endCallback(void* pUserData, ma_sound* pSound);
-    void playSound(const QString &path, bool loop);
+    void playSound(const QString &path, bool loop, bool isPreview);
     void cleanupCurrentSoundData();
 
     Preferences *preferences_;
@@ -35,4 +40,5 @@ private:
     bool decoderInitialized_ = false;
     bool shouldLoop_ = false;
     bool connectedEventQueued_ = false;
+    bool isPreview_ = false;
 };

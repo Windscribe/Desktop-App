@@ -4,10 +4,6 @@
 #include <windows.h>
 #include <ras.h>
 #include <raserror.h>
-#include <QTimer>
-#include <QElapsedTimer>
-#include <QWaitCondition>
-#include <QMutex>
 
 class IKEv2ConnectionDisconnectLogic_win : public QThread
 {
@@ -26,16 +22,6 @@ signals:
 protected:
     virtual void run();
 
-private slots:
-    void onTimer();
-
 private:
-    int cntRasHangUp_;
     HRASCONN connHandle_;
-    QTimer timer_;
-    QElapsedTimer elapsedTimer_;
-    QWaitCondition waitCondition_;
-    QMutex mutex_;
-
-    void waitForControlThreadFinish();
 };
