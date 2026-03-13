@@ -43,6 +43,9 @@ public:
 
     void saveFavoriteLocations();
 
+    QJsonArray favoriteLocationsToJson() const;
+    void setFavoriteLocationsFromJson(const QJsonArray &arr);
+
     QJsonObject renamedLocations() const;
     void setRenamedLocations(const QJsonObject &obj);
     void resetRenamedLocations();

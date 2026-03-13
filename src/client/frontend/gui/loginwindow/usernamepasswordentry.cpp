@@ -130,7 +130,7 @@ void UsernamePasswordEntry::setWidth(int width)
 void UsernamePasswordEntry::updateScaling()
 {
     ClickableGraphicsObject::updateScaling();
-    int yPos = showDescription_ ? 20 : 0;
+    int yPos = showDescription_ ? 20  : 0;
     userEntryProxy_->setPos(WINDOW_MARGIN*G_SCALE, yPos*G_SCALE);
     updateFontSize();
     userEntryLine_->setFixedHeight(height_*G_SCALE - userEntryProxy_->pos().y()); // keep text box within drawing region and above line

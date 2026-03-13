@@ -93,7 +93,6 @@ target_link_libraries(WindscribeService
                       Newdev
                       Shlwapi
                       wevtapi
-                      wlanapi
                       wsnet::wsnet
                       Boost::serialization
                       spdlog::spdlog

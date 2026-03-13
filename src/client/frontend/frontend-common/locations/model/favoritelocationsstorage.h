@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QJsonArray>
 #include <QObject>
 #include <QSet>
 #include <QHash>
@@ -20,6 +21,9 @@ public:
 
     void readFromSettings();
     void writeToSettings();
+
+    QJsonArray toJson() const;
+    void fromJson(const QJsonArray &arr);
 
 private:
     struct FavoriteData {

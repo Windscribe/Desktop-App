@@ -66,6 +66,9 @@ public:
     // the client of the class must explicitly save locations if required
     void saveFavoriteLocations();
 
+    QJsonArray favoriteLocationsToJson() const;
+    void setFavoriteLocationsFromJson(const QJsonArray &arr);
+
     QJsonObject renamedLocations() const;
     void setRenamedLocations(const QJsonObject &obj);
     void resetRenamedLocations();

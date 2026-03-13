@@ -88,6 +88,10 @@ void MixedComboBoxItem::updatePositions()
 
 void MixedComboBoxItem::updateSecondaryItemVisibility(bool signal)
 {
+    if (!hasItems()) {
+        return;
+    }
+
     QVariant currentValue = currentItem();
 
     if (currentValue == customValue_) {
@@ -152,16 +156,16 @@ void MixedComboBoxItem::updatePreviewButtonVisibility()
 
     previewButton_->show();
 
-    QVariant currentValue = currentItem();
-    bool isActive;
-
-    if (currentValue == bundledValue_) {
-        isActive = true;
-    } else if (currentValue == customValue_) {
-        const QString path = selectFileItem_->path();
-        isActive = !path.isEmpty() && QFile::exists(path);
-    } else {
-        isActive = false;
+    QVariant currentValue;
+    bool isActive = false;
+    if (hasItems()) {
+        currentValue = currentItem();
+        if (currentValue == bundledValue_) {
+            isActive = true;
+        } else if (currentValue == customValue_) {
+            const QString path = selectFileItem_->path();
+            isActive = !path.isEmpty() && QFile::exists(path);
+        }
     }
 
     if (!isActive && isPlaying_) {

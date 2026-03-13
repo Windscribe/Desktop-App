@@ -10,7 +10,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 project(helper)
 
-include("${CMAKE_SOURCE_DIR}/cmake/fetch_wsnet.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/../../cmake/fetch_wsnet.cmake")
 
 if (WIN32)
    add_subdirectory(windows)
@@ -19,5 +19,3 @@ elseif(APPLE)
 elseif(UNIX)
    add_subdirectory(linux)
 endif()
-
-

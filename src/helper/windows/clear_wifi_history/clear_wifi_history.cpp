@@ -1,11 +1,14 @@
 #include "clear_wifi_history.h"
-#include <spdlog/spdlog.h>
+
 #include <windows.h>
 #include <winevt.h>
 #include <wlanapi.h>
+
+#include <spdlog/spdlog.h>
 #include <winreg/WinReg.hpp>
-#include <vector>
-#include <set>
+
+#include "utils/systemlibloader.h"
+#include "utils/wsscopeguard.h"
 
 bool ClearWiFiHistory::clear()
 {
@@ -49,61 +52,79 @@ bool ClearWiFiHistory::clear()
 std::set<std::wstring> ClearWiFiHistory::getCurrentConnectedProfiles()
 {
     std::set<std::wstring> connectedProfiles;
-    HANDLE hClient = NULL;
-    DWORD dwClientVersion = 2;
-    DWORD dwCurVersion = 0;
-    DWORD dwResult = 0;
-
-    // Initialize WLAN handle
-    dwResult = WlanOpenHandle(dwClientVersion, NULL, &dwCurVersion, &hClient);
-    if (dwResult != ERROR_SUCCESS) {
-        spdlog::warn("WlanOpenHandle failed with error: {}", dwResult);
+    if (!wsl::SystemLibLoader::isAvailable("wlanapi.dll")) {
         return connectedProfiles;
     }
 
-    // Enumerate WLAN interfaces
-    PWLAN_INTERFACE_INFO_LIST pIfList = NULL;
-    dwResult = WlanEnumInterfaces(hClient, NULL, &pIfList);
-    if (dwResult != ERROR_SUCCESS) {
-        spdlog::warn("WlanEnumInterfaces failed with error: {}", dwResult);
-        WlanCloseHandle(hClient, NULL);
-        return connectedProfiles;
-    }
+    try {
+        // Load the DLL dynamically as Windows server OSes may not have the Wireless LAN Service installed. The DLL will only
+        // exist on the system if said service is installed, and we don't want to block Windscribe install on the server OS
+        // by statically linking to the DLL.
+        wsl::SystemLibLoader wlanLib("wlanapi.dll");
+        const auto wlanOpenHandle = wlanLib.getFunction<DWORD WINAPI(DWORD, PVOID, PDWORD, PHANDLE)>("WlanOpenHandle");
+        const auto wlanCloseHandle = wlanLib.getFunction<DWORD WINAPI(HANDLE, PVOID)>("WlanCloseHandle");
+        const auto wlanEnumInterfaces = wlanLib.getFunction<DWORD WINAPI(HANDLE, PVOID, PWLAN_INTERFACE_INFO_LIST*)>("WlanEnumInterfaces");
+        const auto wlanQueryInterface = wlanLib.getFunction<DWORD WINAPI(HANDLE, const GUID*, WLAN_INTF_OPCODE, PVOID, PDWORD, PVOID*, PWLAN_OPCODE_VALUE_TYPE)>("WlanQueryInterface");
+        const auto wlanFreeMemory = wlanLib.getFunction<VOID WINAPI(PVOID)>("WlanFreeMemory");
 
-    if (pIfList != NULL) {
-        // Iterate through all interfaces
-        for (DWORD i = 0; i < pIfList->dwNumberOfItems; i++) {
-            PWLAN_INTERFACE_INFO pIfInfo = &pIfList->InterfaceInfo[i];
+        HANDLE hClient = NULL;
+        DWORD dwClientVersion = 2;
+        DWORD dwCurVersion = 0;
 
-            // Check if interface is connected
-            if (pIfInfo->isState == wlan_interface_state_connected) {
-                PWLAN_CONNECTION_ATTRIBUTES pConnectInfo = NULL;
-                DWORD connectInfoSize = sizeof(WLAN_CONNECTION_ATTRIBUTES);
+        // Initialize WLAN handle
+        DWORD dwResult = wlanOpenHandle(dwClientVersion, NULL, &dwCurVersion, &hClient);
+        if (dwResult != ERROR_SUCCESS) {
+            spdlog::warn("WlanOpenHandle failed with error: {}", dwResult);
+            return connectedProfiles;
+        }
 
-                // Get connection attributes
-                dwResult = WlanQueryInterface(
-                    hClient,
-                    &pIfInfo->InterfaceGuid,
-                    wlan_intf_opcode_current_connection,
-                    NULL,
-                    &connectInfoSize,
-                    (PVOID*)&pConnectInfo,
-                    NULL
-                );
+        auto exitGuard = wsl::wsScopeGuard([&] {
+            wlanCloseHandle(hClient, NULL);
+        });
 
-                if (dwResult == ERROR_SUCCESS) {
-                    // Get profile name (this is what we need to preserve)
-                    std::wstring profileName(pConnectInfo->strProfileName);
-                    connectedProfiles.insert(profileName);
+        // Enumerate WLAN interfaces
+        PWLAN_INTERFACE_INFO_LIST pIfList = NULL;
+        dwResult = wlanEnumInterfaces(hClient, NULL, &pIfList);
+        if (dwResult != ERROR_SUCCESS) {
+            spdlog::warn("WlanEnumInterfaces failed with error: {}", dwResult);
+            return connectedProfiles;
+        }
 
-                    WlanFreeMemory(pConnectInfo);
+        if (pIfList != NULL) {
+            // Iterate through all interfaces
+            for (DWORD i = 0; i < pIfList->dwNumberOfItems; i++) {
+                PWLAN_INTERFACE_INFO pIfInfo = &pIfList->InterfaceInfo[i];
+
+                // Check if interface is connected
+                if (pIfInfo->isState == wlan_interface_state_connected) {
+                    PWLAN_CONNECTION_ATTRIBUTES pConnectInfo = NULL;
+                    DWORD connectInfoSize = sizeof(WLAN_CONNECTION_ATTRIBUTES);
+
+                    // Get connection attributes
+                    dwResult = wlanQueryInterface(
+                        hClient,
+                        &pIfInfo->InterfaceGuid,
+                        wlan_intf_opcode_current_connection,
+                        NULL,
+                        &connectInfoSize,
+                        (PVOID*)&pConnectInfo,
+                        NULL
+                    );
+
+                    if (dwResult == ERROR_SUCCESS) {
+                        // Get profile name (this is what we need to preserve)
+                        std::wstring profileName(pConnectInfo->strProfileName);
+                        connectedProfiles.insert(profileName);
+
+                        wlanFreeMemory(pConnectInfo);
+                    }
                 }
             }
+            wlanFreeMemory(pIfList);
         }
-        WlanFreeMemory(pIfList);
+    } catch (const std::exception& e) {
+        spdlog::warn("getCurrentConnectedProfiles failed: {}", e.what());
     }
-
-    WlanCloseHandle(hClient, NULL);
 
     return connectedProfiles;
 }
@@ -186,85 +207,105 @@ bool ClearWiFiHistory::clearNlaCache()
 
 bool ClearWiFiHistory::clearWlanProfileFiles(const std::set<std::wstring>& connectedProfiles)
 {
-    HANDLE hClient = NULL;
-    DWORD dwMaxClient = 2;
-    DWORD dwClientVersion = 0;
-    DWORD dwResult = 0;
-
-    // Initialize WLAN handle
-    dwResult = WlanOpenHandle(dwMaxClient, NULL, &dwClientVersion, &hClient);
-    if (dwResult != ERROR_SUCCESS) {
-        spdlog::warn("WlanOpenHandle failed with error: {}", dwResult);
-        return false;
+    if (!wsl::SystemLibLoader::isAvailable("wlanapi.dll")) {
+    	// Returning true since the OS has no Wi-Fi support without this DLL.
+        return true;
     }
 
     bool overallSuccess = true;
-    int totalDeleted = 0;
-    int totalPreserved = 0;
 
-    // Enumerate WLAN interfaces
-    PWLAN_INTERFACE_INFO_LIST pIfList = NULL;
-    dwResult = WlanEnumInterfaces(hClient, NULL, &pIfList);
-    if (dwResult != ERROR_SUCCESS) {
-        spdlog::warn("WlanEnumInterfaces failed with error: {}", dwResult);
-        WlanCloseHandle(hClient, NULL);
-        return false;
-    }
+    try {
+        wsl::SystemLibLoader wlanLib("wlanapi.dll");
+        const auto wlanOpenHandle = wlanLib.getFunction<DWORD WINAPI(DWORD, PVOID, PDWORD, PHANDLE)>("WlanOpenHandle");
+        const auto wlanCloseHandle = wlanLib.getFunction<DWORD WINAPI(HANDLE, PVOID)>("WlanCloseHandle");
+        const auto wlanEnumInterfaces = wlanLib.getFunction<DWORD WINAPI(HANDLE, PVOID, PWLAN_INTERFACE_INFO_LIST*)>("WlanEnumInterfaces");
+        const auto wlanGetProfileList = wlanLib.getFunction<DWORD WINAPI(HANDLE, const GUID*, PVOID, PWLAN_PROFILE_INFO_LIST*)>("WlanGetProfileList");
+        const auto wlanDeleteProfile = wlanLib.getFunction<DWORD WINAPI(HANDLE, const GUID*, LPCWSTR, PVOID)>("WlanDeleteProfile");
+        const auto wlanFreeMemory = wlanLib.getFunction<VOID WINAPI(PVOID)>("WlanFreeMemory");
 
-    if (pIfList != NULL) {
-        // Iterate through all interfaces
-        for (DWORD i = 0; i < pIfList->dwNumberOfItems; i++) {
-            PWLAN_INTERFACE_INFO pIfInfo = &pIfList->InterfaceInfo[i];
+        HANDLE hClient = NULL;
+        DWORD dwMaxClient = 2;
+        DWORD dwClientVersion = 0;
 
-            // Get list of profiles for this interface
-            PWLAN_PROFILE_INFO_LIST pProfileList = NULL;
-            dwResult = WlanGetProfileList(hClient, &pIfInfo->InterfaceGuid, NULL, &pProfileList);
+        // Initialize WLAN handle
+        DWORD dwResult = wlanOpenHandle(dwMaxClient, NULL, &dwClientVersion, &hClient);
+        if (dwResult != ERROR_SUCCESS) {
+            spdlog::warn("WlanOpenHandle failed with error: {}", dwResult);
+            return false;
+        }
 
-            if (dwResult != ERROR_SUCCESS) {
-                spdlog::warn("WlanGetProfileList failed for interface {} with error: {}", i, dwResult);
-                overallSuccess = false;
-                continue;
-            }
-            if (pProfileList == nullptr) {
-                spdlog::error("pProfileList = nullptr in ClearWiFiHistory::clearWlanProfileFiles");
-                overallSuccess = false;
-                continue;
-            }
+        auto exitGuard = wsl::wsScopeGuard([&] {
+            wlanCloseHandle(hClient, NULL);
+        });
 
-            // Iterate through profiles
-            for (DWORD j = 0; j < pProfileList->dwNumberOfItems; j++) {
-                PWLAN_PROFILE_INFO pProfile = &pProfileList->ProfileInfo[j];
-                std::wstring profileName(pProfile->strProfileName);
+        int totalDeleted = 0;
+        int totalPreserved = 0;
 
-                // Check if this profile is currently connected
-                if (connectedProfiles.find(profileName) != connectedProfiles.end()) {
-                    spdlog::debug(L"Preserving connected WiFi profile: {}", profileName);
-                    totalPreserved++;
+        // Enumerate WLAN interfaces
+        PWLAN_INTERFACE_INFO_LIST pIfList = NULL;
+        dwResult = wlanEnumInterfaces(hClient, NULL, &pIfList);
+        if (dwResult != ERROR_SUCCESS) {
+            spdlog::warn("WlanEnumInterfaces failed with error: {}", dwResult);
+            return false;
+        }
+
+        if (pIfList != NULL) {
+            // Iterate through all interfaces
+            for (DWORD i = 0; i < pIfList->dwNumberOfItems; i++) {
+                PWLAN_INTERFACE_INFO pIfInfo = &pIfList->InterfaceInfo[i];
+
+                // Get list of profiles for this interface
+                PWLAN_PROFILE_INFO_LIST pProfileList = NULL;
+                dwResult = wlanGetProfileList(hClient, &pIfInfo->InterfaceGuid, NULL, &pProfileList);
+
+                if (dwResult != ERROR_SUCCESS) {
+                    spdlog::warn("WlanGetProfileList failed for interface {} with error: {}", i, dwResult);
+                    overallSuccess = false;
+                    continue;
+                }
+                if (pProfileList == nullptr) {
+                    spdlog::error("pProfileList = nullptr in ClearWiFiHistory::clearWlanProfileFiles");
+                    overallSuccess = false;
                     continue;
                 }
 
-                // Delete the profile
-                dwResult = WlanDeleteProfile(hClient, &pIfInfo->InterfaceGuid, profileName.c_str(), NULL);
+                // Iterate through profiles
+                for (DWORD j = 0; j < pProfileList->dwNumberOfItems; j++) {
+                    PWLAN_PROFILE_INFO pProfile = &pProfileList->ProfileInfo[j];
+                    std::wstring profileName(pProfile->strProfileName);
 
-                if (dwResult == ERROR_SUCCESS) {
-                    spdlog::debug(L"Deleted WiFi profile: {}", profileName);
-                    totalDeleted++;
-                } else {
-                    spdlog::warn(L"Failed to delete WiFi profile '{}': error {}", profileName, dwResult);
-                    overallSuccess = false;
+                    // Check if this profile is currently connected
+                    if (connectedProfiles.find(profileName) != connectedProfiles.end()) {
+                        spdlog::debug(L"Preserving connected WiFi profile: {}", profileName);
+                        totalPreserved++;
+                        continue;
+                    }
+
+                    // Delete the profile
+                    dwResult = wlanDeleteProfile(hClient, &pIfInfo->InterfaceGuid, profileName.c_str(), NULL);
+
+                    if (dwResult == ERROR_SUCCESS) {
+                        spdlog::debug(L"Deleted WiFi profile: {}", profileName);
+                        totalDeleted++;
+                    } else {
+                        spdlog::warn(L"Failed to delete WiFi profile '{}': error {}", profileName, dwResult);
+                        overallSuccess = false;
+                    }
+                }
+
+                if (pProfileList != NULL) {
+                    wlanFreeMemory(pProfileList);
                 }
             }
 
-            if (pProfileList != NULL) {
-                WlanFreeMemory(pProfileList);
-            }
+            wlanFreeMemory(pIfList);
         }
 
-        WlanFreeMemory(pIfList);
+        spdlog::debug("WiFi profile cleanup: {} profiles deleted, {} preserved", totalDeleted, totalPreserved);
+    } catch (const std::exception& e) {
+        spdlog::warn("clearWlanProfileFiles failed: {}", e.what());
+        return false;
     }
-    WlanCloseHandle(hClient, NULL);
-
-    spdlog::debug("WiFi profile cleanup: {} profiles deleted, {} preserved", totalDeleted, totalPreserved);
 
     return overallSuccess;
 }

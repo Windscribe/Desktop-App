@@ -1,3 +1,17 @@
+2.21.5 (09/03/2026)
+All:
+   * Added favourite locations to preferences import/export. #1691
+   * Improved additional Slovak translations from GitHub user kubalav. #1684
+   * Improved Spanish translations. #1685
+   * Fixed DPI scaling issues in login/signup UI. #1628
+   * Fixed a failed assertion at app start. #1582
+   * Fixed incorrect window ordering when returning to login screen. #1673
+   * Fixed incorrect Update button size. #1659
+   * Fixed login not working with windscribe-cli. #1693
+Windows:
+   * Improved app (helper) to support running on Windows Server 2019/2022 without requiring the Wireless LAN Service to be installed. #1681
+
+
 2.21.4 (02/03/2026)
 All:
    * Added sound preview for sound notifications. #1582
@@ -6,7 +20,7 @@ All:
    * Fixed more incorrect window ordering issues. #1673 
    * Fixed IP utilities sometimes not available after changing from custom config to regular location. #1677
 Windows:
-   * Improved adapter network identfication state detection on Windows. #1680
+   * Improved adapter network identification state detection on Windows. #1680
    * Fixed IKEv2 may get stuck after waking from sleep. #1676
 macOS:
    * Fixed app may crash during launch. #1679

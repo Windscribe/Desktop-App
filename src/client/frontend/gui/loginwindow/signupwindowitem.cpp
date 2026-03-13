@@ -134,7 +134,7 @@ SignupWindowItem::SignupWindowItem(QGraphicsObject *parent, PreferencesHelper *p
 
     continueButton_ = new CommonGraphics::BubbleButton(this, CommonGraphics::BubbleButton::kWelcome, 121, 38, 19);
     continueButton_->setFont(FontDescr(15, QFont::Medium));
-    continueButton_->setWidth((WINDOW_WIDTH- 36)*G_SCALE);
+    continueButton_->setWidth(WINDOW_WIDTH - 36);
     connect(continueButton_, &CommonGraphics::BubbleButton::clicked, this, &SignupWindowItem::onContinueClick);
     continueButton_->setClickable(true);
     continueButton_->show();
@@ -195,7 +195,21 @@ void SignupWindowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
 void SignupWindowItem::updateScaling()
 {
+    // These items store pixel-valued widths that must be recomputed for the new scale
+    // before ScalableGraphicsObject::updateScaling() propagates to children and
+    // triggers their recalcBoundingRect() / recalcWidth() calls.
+    const int hintMaxWidth = (WINDOW_WIDTH - 36) * G_SCALE;
+    passwordHint_->setMaxWidth(hintMaxWidth);
+    hashHint_->setMaxWidth(hintMaxWidth);
+    emailHint_->setMaxWidth(hintMaxWidth);
+    errorHint_->setMaxWidth(hintMaxWidth);
+
+    const int btnMaxWidth = (WINDOW_WIDTH - 30) * G_SCALE;
+    btnVoucherCode_->setMaxWidth(btnMaxWidth);
+    btnReferred_->setMaxWidth(btnMaxWidth);
+
     ScalableGraphicsObject::updateScaling();
+    updatePositions();
 }
 
 void SignupWindowItem::setClickable(bool enabled)

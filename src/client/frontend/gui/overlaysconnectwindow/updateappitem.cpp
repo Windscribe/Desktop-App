@@ -214,9 +214,7 @@ void UpdateAppItem::onUpdateClick()
 void UpdateAppItem::onLanguageChanged()
 {
     updateButton_->setText(tr("Update"));
-    int width = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? WIDTH_VAN_GOGH*G_SCALE : WIDTH*G_SCALE;
-    int updatePosX = width - updateButton_->boundingRect().width();
-    updateButton_->setPos(updatePosX, 1*G_SCALE);
+    updatePositions();
     update();
 }
 
@@ -242,7 +240,7 @@ void UpdateAppItem::updatePositions()
 {
     int width = preferences_->appSkin() == APP_SKIN_VAN_GOGH ? WIDTH_VAN_GOGH : WIDTH;
 
-    QFontMetrics fm(FontManager::instance().getFont(12, QFont::Normal));
+    QFontMetrics fm(FontManager::instance().getFont(12, QFont::Medium));
     updateButton_->setWidth(fm.horizontalAdvance(tr("Update")) + 16*G_SCALE);
 
     int updatePosX = width*G_SCALE - updateButton_->boundingRect().width();

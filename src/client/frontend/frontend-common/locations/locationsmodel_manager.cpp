@@ -202,6 +202,16 @@ void LocationsModelManager::saveFavoriteLocations()
     locationsModel_->saveFavoriteLocations();
 }
 
+QJsonArray LocationsModelManager::favoriteLocationsToJson() const
+{
+    return locationsModel_->favoriteLocationsToJson();
+}
+
+void LocationsModelManager::setFavoriteLocationsFromJson(const QJsonArray &arr)
+{
+    locationsModel_->setFavoriteLocationsFromJson(arr);
+}
+
 void LocationsModelManager::onChangeConnectionSpeedTimer()
 {
     for (QHash<LocationID, PingTime>::const_iterator it = connectionSpeeds_.constBegin(); it != connectionSpeeds_.constEnd(); ++it)

@@ -3,6 +3,8 @@
 #include <QDataStream>
 #include <QDataStream>
 #include <QIODevice>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QSettings>
 
 #include "utils/simplecrypt.h"
@@ -129,6 +131,42 @@ void FavoriteLocationsStorage::writeToSettings()
     settings.setValue("favoriteLocations", simpleCrypt.encryptToString(arr));
 
     isFavoriteLocationsSetModified_ = false;
+}
+
+QJsonArray FavoriteLocationsStorage::toJson() const
+{
+    QJsonArray arr;
+    for (auto it = favoriteLocations_.constBegin(); it != favoriteLocations_.constEnd(); ++it) {
+        QJsonObject entry;
+        entry["type"] = it.key().type();
+        entry["id"] = it.key().id();
+        entry["city"] = it.key().city();
+        if (!it.value().pinnedHostname.isEmpty())
+            entry["pinnedHostname"] = it.value().pinnedHostname;
+        if (!it.value().pinnedIp.isEmpty())
+            entry["pinnedIp"] = it.value().pinnedIp;
+        arr.append(entry);
+    }
+    return arr;
+}
+
+void FavoriteLocationsStorage::fromJson(const QJsonArray &arr)
+{
+    favoriteLocations_.clear();
+    for (const QJsonValue &val : arr) {
+        if (!val.isObject())
+            continue;
+        QJsonObject entry = val.toObject();
+        if (!entry.contains("type") || !entry.contains("id") || !entry.contains("city"))
+            continue;
+        LocationID loc(entry["type"].toInt(), entry["id"].toInt(), entry["city"].toString());
+        FavoriteData data;
+        data.pinnedHostname = entry["pinnedHostname"].toString();
+        data.pinnedIp = entry["pinnedIp"].toString();
+        favoriteLocations_.insert(loc, data);
+    }
+    isFavoriteLocationsSetModified_ = true;
+    writeToSettings();
 }
 
 } //namespace gui_locations

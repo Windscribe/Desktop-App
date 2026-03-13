@@ -1254,8 +1254,14 @@ void MainWindow::onPreferencesExportSettingsClick()
         return;
     }
 
-    QJsonDocument doc(backend_->getPreferences()->toJson());
+    QJsonObject json = backend_->getPreferences()->toJson();
+
+    // Add favourite locations
+    json["favouriteLocations"] = backend_->locationsModelManager()->favoriteLocationsToJson();
+
+    QJsonDocument doc(json);
     file.write(doc.toJson());
+
     qCDebug(LOG_BASIC) << "Exported preferences to the file.";
 }
 
@@ -1296,7 +1302,13 @@ void MainWindow::onPreferencesImportSettingsClick()
         return;
     }
 
-    backend_->getPreferences()->updateFromJson(jsonDoc.object());
+    const QJsonObject jsonObj = jsonDoc.object();
+    backend_->getPreferences()->updateFromJson(jsonObj);
+
+    // Read favourites
+    if (jsonObj.contains("favouriteLocations") && jsonObj["favouriteLocations"].isArray()) {
+        backend_->locationsModelManager()->setFavoriteLocationsFromJson(jsonObj["favouriteLocations"].toArray());
+    }
 
     // Preferences itself does not have any information on the current portmap.  Check that connection setting ports are valid, otherwise use default port
     types::ConnectionSettings cs = backend_->getPreferences()->connectionSettings();

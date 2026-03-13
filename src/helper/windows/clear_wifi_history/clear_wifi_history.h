@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 #include <set>
 
@@ -40,4 +41,3 @@ private:
     // Returns: true if operation succeeded, false otherwise
     static bool clearRegistry(const std::wstring &subKey);
 };
-

@@ -1191,6 +1191,7 @@ void MainWindowController::gotoWelcomeWindow()
 
         connect(anim, &QPropertyAnimation::finished, [this]() {
             generalMessageWindow_->setVisible(false);
+            connectWindow_->hide();
             welcomeWindow_->setClickable(true);
             welcomeWindow_->setFocus();
             isAtomicAnimationActive_ = false;
@@ -1395,6 +1396,8 @@ void MainWindowController::gotoLoginWindow()
 
         connect(anim, &QPropertyAnimation::finished, [this]() {
             generalMessageWindow_->setVisible(false);
+            welcomeWindow_->setVisible(false);
+            connectWindow_->hide();
             loginWindow_->setClickable(true);
             loginWindow_->setUsernameFocus();
             isAtomicAnimationActive_ = false;
@@ -1595,13 +1598,39 @@ void MainWindowController::gotoEmergencyWindow()
 void MainWindowController::gotoLoggingInWindow()
 {
     WS_ASSERT(curWindow_ == WINDOW_ID_LOGIN
+              || curWindow_ == WINDOW_ID_WELCOME
               || curWindow_ == WINDOW_ID_SIGNUP
               || curWindow_ == WINDOW_ID_INITIALIZATION
               || curWindow_ == WINDOW_ID_GENERAL_MESSAGE
               || curWindow_ == WINDOW_ID_EXTERNAL_CONFIG
               || curWindow_ == WINDOW_ID_TWO_FACTOR_AUTH);
 
-    if (curWindow_ == WINDOW_ID_LOGIN) {
+    if (curWindow_ == WINDOW_ID_WELCOME) {
+        curWindow_ = WINDOW_ID_LOGGING_IN;
+        welcomeWindow_->setClickable(false);
+        TooltipController::instance().hideAllTooltips();
+        welcomeWindow_->stackBefore(loggingInWindow_);
+
+        loggingInWindow_->setOpacity(0.0);
+        loggingInWindow_->setVisible(true);
+        loggingInWindow_->startAnimation();
+
+        QPropertyAnimation *anim = new QPropertyAnimation(this);
+        anim->setTargetObject(loggingInWindow_);
+        anim->setPropertyName("opacity");
+        anim->setStartValue(0.0);
+        anim->setEndValue(1.0);
+        anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
+        connect(anim, &QPropertyAnimation::finished, [this]() {
+            welcomeWindow_->setVisible(false);
+            isAtomicAnimationActive_ = false;
+            handleNextWindowChange();
+            updateMainAndViewGeometry(true);
+        });
+
+        isAtomicAnimationActive_ = true;
+        anim->start(QPropertyAnimation::DeleteWhenStopped);
+    } else if (curWindow_ == WINDOW_ID_LOGIN) {
         curWindow_ = WINDOW_ID_LOGGING_IN;
         loginWindow_->setClickable(false);
         TooltipController::instance().hideAllTooltips();

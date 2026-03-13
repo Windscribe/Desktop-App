@@ -64,6 +64,7 @@ void CustomMenuLineEdit::updateScaling()
     menu_->clearItems();
     menu_->clear();
     menu_->initContextMenu();
+    updatePositions();
 }
 
 void CustomMenuLineEdit::appendText(const QString &str)
@@ -230,6 +231,7 @@ void CustomMenuLineEdit::updatePositions()
 
     // Handle icon2 (rightmost)
     if (isCustomIcon2_ && icon2_) {
+        icon2_->updateSize();
         xPos -= iconSize + iconSpacing;
         icon2_->setGeometry(xPos, height()/2 - iconSize/2, iconSize, iconSize);
         icon2_->show();
@@ -240,6 +242,7 @@ void CustomMenuLineEdit::updatePositions()
 
     // Handle icon1 (second from right, or rightmost if icon2 is not set)
     if (isCustomIcon1_ && icon1_) {
+        icon1_->updateSize();
         xPos -= iconSize + iconSpacing;
         icon1_->setGeometry(xPos, height()/2 - iconSize/2, iconSize, iconSize);
         icon1_->show();
@@ -252,6 +255,7 @@ void CustomMenuLineEdit::updatePositions()
     if ((echoMode_ == QLineEdit::Password && showRevealToggle_) && !isCustomIcon1_ && !isCustomIcon2_) {
         xPos -= iconSize + iconSpacing;
         if (icon_) {
+            icon_->updateSize();
             icon_->setGeometry(xPos, height()/2 - iconSize/2, iconSize, iconSize);
             icon_->show();
             rightMargin = width() - xPos + 4*G_SCALE;

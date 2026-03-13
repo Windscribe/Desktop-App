@@ -507,6 +507,18 @@ void LocationsModel::saveFavoriteLocations()
     favoriteLocationsStorage_.writeToSettings();
 }
 
+QJsonArray LocationsModel::favoriteLocationsToJson() const
+{
+    return favoriteLocationsStorage_.toJson();
+}
+
+void LocationsModel::setFavoriteLocationsFromJson(const QJsonArray &arr)
+{
+    beginResetModel();
+    favoriteLocationsStorage_.fromJson(arr);
+    endResetModel();
+}
+
 QVariant LocationsModel::dataForLocation(int row, int role) const
 {
     if (role == Qt::DisplayRole)

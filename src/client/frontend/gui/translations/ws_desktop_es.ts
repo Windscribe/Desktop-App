@@ -5,7 +5,7 @@
     <name>AdvancedParametersDialog</name>
     <message>
         <source>Write your parameters here</source>
-        <translation>Escribe tus parámetros aquí</translation>
+        <translation>Escriba sus parámetros aquí</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>Ok</source>
-        <translation>Ok</translation>
+        <translation>Aceptar</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -59,7 +59,7 @@
     </message>
     <message>
         <source>Keeping the firewall on while disconnected may break internet connectivity</source>
-        <translation>Mantener el firewall encendido mientras está desconectado puede interrumpir la conectividad a Internet</translation>
+        <translation>Mantener el cortafuegos activado mientras está desconectado puede interrumpir la conectividad a Internet</translation>
     </message>
     <message>
         <source>Favourite IP</source>
@@ -147,7 +147,7 @@
     </message>
     <message>
         <source>Can&apos;t access Windscribe.com or login into the app on your restrictive network? Connect to the emergency server that unblocks all of Windscribe.</source>
-        <translation>¿No puedes acceder a Windscribe.com o iniciar sesión en la aplicación en tu red restrictiva? Conéctate al servidor de emergencia que desbloquea todo Windscribe.</translation>
+        <translation>¿No puede acceder a Windscribe.com o iniciar sesión en la aplicación en su red restrictiva? Conéctese al servidor de emergencia que desbloquea todo Windscribe.</translation>
     </message>
     <message>
         <source>Connecting...</source>
@@ -181,7 +181,7 @@
     </message>
     <message>
         <source>Use the Windscribe app without an account to connect to any OpenVPN or WireGuard server.</source>
-        <translation>Utiliza la aplicación Windscribe sin una cuenta para conectarte a cualquier servidor OpenVPN o WireGuard.</translation>
+        <translation>Utilice la aplicación Windscribe sin una cuenta para conectarte a cualquier servidor OpenVPN o WireGuard.</translation>
     </message>
     <message>
         <source>Ok, got it!</source>
@@ -192,14 +192,14 @@
     <name>FreeTrafficNotificationController</name>
     <message>
         <source>You reached %1% of your free bandwidth allowance</source>
-        <translation>Has consumido el %1% de tu asignación de ancho de banda gratuito</translation>
+        <translation>Ha consumido el %1% de su asignación de ancho de banda gratuito</translation>
     </message>
 </context>
 <context>
     <name>GeneralMessageController</name>
     <message>
         <source>Ok</source>
-        <translation>Ok</translation>
+        <translation>Aceptar</translation>
     </message>
     <message>
         <source>Yes</source>
@@ -222,7 +222,7 @@
     </message>
     <message>
         <source>Learn More</source>
-        <translation>Aprende más</translation>
+        <translation>Más información</translation>
     </message>
     <message>
         <source>Username</source>
@@ -241,7 +241,7 @@
     <name>GuiLocations::LocationsTab</name>
     <message>
         <source>Choose the directory that contains custom configs you wish to display here</source>
-        <translation>Elige el directorio que contiene las configuraciones personalizadas que deseas mostrar aquí</translation>
+        <translation>Elija el directorio que contiene las configuraciones personalizadas que desee mostrar aquí</translation>
     </message>
     <message>
         <source>Choose</source>
@@ -257,11 +257,11 @@
     </message>
     <message>
         <source>Nothing to see here...</source>
-        <translation>Nada que ver aquí. . .</translation>
+        <translation>Nada que ver aquí...</translation>
     </message>
     <message>
         <source>You don&apos;t have any Static IPs</source>
-        <translation>No tienes ninguna IP estática</translation>
+        <translation>No tiene ninguna IP estática</translation>
     </message>
     <message>
         <source>No locations</source>
@@ -289,14 +289,14 @@
     </message>
     <message>
         <source>Add</source>
-        <translation>Agregar</translation>
+        <translation>Añadir</translation>
     </message>
 </context>
 <context>
     <name>GuiLocations::StaticIPDeviceInfo</name>
     <message>
         <source>Add</source>
-        <translation>Agregar</translation>
+        <translation>Añadir</translation>
     </message>
 </context>
 <context>
@@ -327,14 +327,14 @@
     </message>
     <message>
         <source>Failed to export log.  Make sure you have the correct permissions.</source>
-        <translation>Error al exportar el registro.  Asegúrate de tener los permisos correctos.</translation>
+        <translation>Error al exportar el registro.  Asegúrese de tener los permisos correctos.</translation>
     </message>
 </context>
 <context>
     <name>LoginWindow::CaptchaItem</name>
     <message>
         <source>Slide puzzle piece into place</source>
-        <translation>Desliza la pieza del rompecabezas en su lugar</translation>
+        <translation>Deslice la pieza del rompecabezas en su lugar</translation>
     </message>
 </context>
 <context>
@@ -345,14 +345,14 @@
     </message>
     <message>
         <source>Complete Puzzle to continue</source>
-        <translation>Completa el rompecabezas para continuar</translation>
+        <translation>Complete el rompecabezas para continuar</translation>
     </message>
 </context>
 <context>
     <name>LoginWindow::LoginWindowItem</name>
     <message>
         <source>Turn Off Firewall</source>
-        <translation>Apagar el cortafuegos</translation>
+        <translation>Desactivar el cortafuegos</translation>
     </message>
     <message>
         <source>Login</source>
@@ -360,7 +360,7 @@
     </message>
     <message>
         <source>Emergency Connect is ON</source>
-        <translation>El Enlace de Emergencia está ACTIVADO</translation>
+        <translation>La conexión de emergencia está ACTIVADA</translation>
     </message>
     <message>
         <source>2FA Code</source>
@@ -368,7 +368,7 @@
     </message>
     <message>
         <source>Forgot password?</source>
-        <translation>¿Olvidaste la contraseña?</translation>
+        <translation>¿Olvidó la contraseña?</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -384,7 +384,7 @@
     </message>
     <message>
         <source>Enter username</source>
-        <translation>Introduce el nombre de usuario</translation>
+        <translation>Introduzca el nombre de usuario</translation>
     </message>
     <message>
         <source>Password</source>
@@ -392,7 +392,7 @@
     </message>
     <message>
         <source>Enter password</source>
-        <translation>Introduce la contraseña</translation>
+        <translation>Introduzca la contraseña</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -400,7 +400,7 @@
     </message>
     <message>
         <source>Account Hash or upload file</source>
-        <translation>Hash de cuenta o archivo de subida</translation>
+        <translation>Hash de cuenta o cargar archivo</translation>
     </message>
     <message>
         <source>Select file for hash</source>
@@ -424,7 +424,7 @@
     </message>
     <message>
         <source>Invalid API response, check your network</source>
-        <translation>Respuesta de API inválida, revisa tu red</translation>
+        <translation>Respuesta de API inválida, revisa su red</translation>
     </message>
     <message>
         <source>Invalid API Endpoint</source>
@@ -432,34 +432,34 @@
     </message>
     <message>
         <source>...hmm are you sure this is correct?</source>
-        <translation>... ¿Hmm, ¿estás seguro de que esto es correcto?</translation>
+        <translation>... hmm, ¿está seguro de que esto es correcto?</translation>
     </message>
     <message>
         <source>...Sorry, seems like it&apos;s wrong again</source>
-        <translation>... Perdona, parece que otra vez está mal</translation>
+        <translation>... Perdone, parece que otra vez está mal</translation>
     </message>
     <message>
         <source>...hmm, try resetting your password!</source>
-        <translation>... Hmm, ¡prueba a restablecer tu contraseña!</translation>
+        <translation>... Hmm, ¡pruebe a restablecer su contraseña!</translation>
     </message>
     <message>
         <source>Rate limited. Please wait before trying to login again.</source>
-        <translation>Tarifa limitada. Por favor, espera antes de intentar iniciar sesión de nuevo.</translation>
+        <translation>Demasiados intentos. Por favor, espere antes de intentar iniciar sesión de nuevo.</translation>
     </message>
     <message>
         <source>Session is expired. Please login again</source>
-        <translation>La sesión ha expirado. Por favor, vuelve a iniciar sesión</translation>
+        <translation>La sesión ha expirado. Por favor, vuelva a iniciar sesión</translation>
     </message>
     <message>
         <source>Your username should not be an email address. Please try again.</source>
-        <translation>Tu nombre de usuario no debería ser una dirección de correo electrónico. Por favor, inténtalo de nuevo.</translation>
+        <translation>Su nombre de usuario no debería ser una dirección de correo electrónico. Por favor, inténtelo de nuevo.</translation>
     </message>
 </context>
 <context>
     <name>LoginWindow::SignupWindowItem</name>
     <message>
         <source>Sign Up</source>
-        <translation>Regístrate</translation>
+        <translation>Regístrese</translation>
     </message>
     <message>
         <source>Standard</source>
@@ -475,7 +475,7 @@
     </message>
     <message>
         <source>Enter username</source>
-        <translation>Introduce el nombre de usuario</translation>
+        <translation>Introduzca el nombre de usuario</translation>
     </message>
     <message>
         <source>Password</source>
@@ -483,7 +483,7 @@
     </message>
     <message>
         <source>Enter password</source>
-        <translation>Introduce la contraseña</translation>
+        <translation>Introduzca la contraseña</translation>
     </message>
     <message>
         <source>8 or more characters with at least one uppercase and lowercase(ie. &quot;Hello1234&quot;, &quot;Solyanka&quot;).</source>
@@ -495,7 +495,7 @@
     </message>
     <message>
         <source>Enter email</source>
-        <translation>Introduce el correo electrónico</translation>
+        <translation>Introduzca el correo electrónico</translation>
     </message>
     <message>
         <source>For password recovery, updates &amp; promo only. No spam.</source>
@@ -519,7 +519,7 @@
     </message>
     <message>
         <source>Continue</source>
-        <translation>Continúa</translation>
+        <translation>Continúe</translation>
     </message>
     <message>
         <source>Hash</source>
@@ -527,13 +527,13 @@
     </message>
     <message>
         <source>Generate or browse file</source>
-        <translation>Generar o navegar archivo</translation>
+        <translation>Generar o examinar archivo</translation>
     </message>
     <message>
         <source>No personal info required. Account recovery is impossible.
 If you lose your account hash, it&apos;s gone forever and support cannot help you recover it.</source>
         <translation>No se requiere información personal. La recuperación de cuentas es imposible.
-Si pierdes el hash de tu cuenta, desaparece para siempre y el soporte no puede ayudarte a recuperarlo.</translation>
+Si pierde el hash de su cuenta, desaparece para siempre y el soporte no puede ayudarle a recuperarlo.</translation>
     </message>
     <message>
         <source>Select file for hash</source>
@@ -549,7 +549,7 @@ Si pierdes el hash de tu cuenta, desaparece para siempre y el soporte no puede a
     </message>
     <message>
         <source>Your username should not be an email address.</source>
-        <translation>Tu nombre de usuario no debería ser una dirección de correo electrónico.</translation>
+        <translation>Su nombre de usuario no debería ser una dirección de correo electrónico.</translation>
     </message>
     <message>
         <source>Invalid email</source>
@@ -599,11 +599,11 @@ Si pierdes el hash de tu cuenta, desaparece para siempre y el soporte no puede a
     </message>
     <message>
         <source>Rotating your MAC address will result in a disconnect event from the current network. Are you sure?</source>
-        <translation>La rotación de tu dirección MAC resultará en una desconexión de la red actual. ¿Estás seguro?</translation>
+        <translation>La rotación de su dirección MAC resultará en una desconexión de la red actual. ¿Está seguro?</translation>
     </message>
     <message>
         <source>Cannot detect appropriate packet size while connected. Please disconnect first.</source>
-        <translation>No se puede detectar el tamaño de paquete adecuado mientras está conectado. Desconéctate primero.</translation>
+        <translation>No se puede detectar el tamaño de paquete adecuado mientras está conectado. Desconéctese primero.</translation>
     </message>
     <message>
         <source>No Internet</source>
@@ -611,11 +611,11 @@ Si pierdes el hash de tu cuenta, desaparece para siempre y el soporte no puede a
     </message>
     <message>
         <source>Cannot detect appropriate packet size without internet. Check your connection.</source>
-        <translation>No se puede detectar el tamaño de paquete adecuado sin Internet. Comprueba tu conexión.</translation>
+        <translation>No se puede detectar el tamaño de paquete adecuado sin Internet. Compruebe su conexión.</translation>
     </message>
     <message>
         <source>Select Custom Config Folder</source>
-        <translation>Selecciona la carpeta de configuración personalizada</translation>
+        <translation>Seleccione la carpeta de configuración personalizada</translation>
     </message>
     <message>
         <source>Cannot select this directory because it is writeable for non-privileged users. Custom configs in this directory may pose a potential security risk. Please authenticate with an admin user to select this directory.</source>
@@ -623,7 +623,7 @@ Si pierdes el hash de tu cuenta, desaparece para siempre y el soporte no puede a
     </message>
     <message>
         <source>The application is corrupted.  Please reinstall Windscribe.</source>
-        <translation>La aplicación está dañada.  Por favor, vuelve a instalar Windscribe.</translation>
+        <translation>La aplicación está dañada.  Por favor, vuelva a instalar Windscribe.</translation>
     </message>
     <message>
         <source>Could not start &apos;Base Filtering Engine&apos; service.  Please enable this service manually in Windows Services.</source>
@@ -631,7 +631,7 @@ Si pierdes el hash de tu cuenta, desaparece para siempre y el soporte no puede a
     </message>
     <message>
         <source>We detected that SSL requests may be intercepted on your network. This could be due to a firewall configured on your computer, or Windscribe being blocked by your network administrator. Ignore SSL errors?</source>
-        <translation>Hemos detectado que las solicitudes SSL pueden ser interceptadas en tu red. Esto podría deberse a un cortafuegos configurado en tu computadora o a que Windscribe está bloqueado por tu administrador de red. ¿Ignorar errores SSL?</translation>
+        <translation>Hemos detectado que las solicitudes SSL pueden ser interceptadas en su red. Esto podría deberse a un cortafuegos configurado en su ordenador o a que Windscribe está bloqueado por su administrador de red. ¿Ignorar errores SSL?</translation>
     </message>
     <message>
         <source>We&apos;ve detected that your network settings may interfere with Windscribe.  Please send us a debug log to troubleshoot.</source>
@@ -639,11 +639,11 @@ Si pierdes el hash de tu cuenta, desaparece para siempre y el soporte no puede a
     </message>
     <message>
         <source>Could not spoof MAC address.  Please try a different network interface or contact support.</source>
-        <translation>No se pudo suplantar la dirección MAC.  Pruebe con una interfaz de red diferente o ponte en contacto con el servicio de asistencia técnica.</translation>
+        <translation>No se pudo suplantar la dirección MAC.  Pruebe con una interfaz de red diferente o póngase en contacto con el servicio de asistencia técnica.</translation>
     </message>
     <message>
         <source>Could not download update.  Please try again or use a different network.</source>
-        <translation>No se pudo descargar la actualización.  Por favor, inténtalo de nuevo o utiliza una red diferente.</translation>
+        <translation>No se pudo descargar la actualización.  Por favor, inténtelo de nuevo o utilice una red diferente.</translation>
     </message>
     <message>
         <source>Could not run updater (Error %1).  Please contact support</source>
@@ -655,11 +655,11 @@ Si pierdes el hash de tu cuenta, desaparece para siempre y el soporte no puede a
     </message>
     <message>
         <source>The custom configuration could not be loaded.  Please check that it’s correct or contact support.</source>
-        <translation>No se pudo cargar la configuración personalizada.  Comprueba que es correcta o ponte en contacto con el servicio de asistencia.</translation>
+        <translation>No se pudo cargar la configuración personalizada.  Compruebe que es correcta o póngase en contacto con el servicio de asistencia.</translation>
     </message>
     <message>
         <source>An unexpected error occurred establishing the VPN connection (Error %1).  If this error persists, try using a different protocol or contact support.</source>
-        <translation>Se ha producido un error inesperado al establecer la conexión VPN (error %1).  Si el error persiste, intenta usar un protocolo diferente o ponte en contacto con el soporte técnico.</translation>
+        <translation>Se ha producido un error inesperado al establecer la conexión VPN (error %1).  Si el error persiste, intente usar un protocolo diferente o póngase en contacto con el soporte técnico.</translation>
     </message>
     <message>
         <source>Can&apos;t select directory</source>
@@ -711,7 +711,7 @@ Si pierdes el hash de tu cuenta, desaparece para siempre y el soporte no puede a
     </message>
     <message>
         <source>You are now connected to Windscribe (%1).</source>
-        <translation>Ahora estás conectado a Windscribe (%1).</translation>
+        <translation>Ahora está conectado a Windscribe (%1).</translation>
     </message>
     <message>
         <source>Connection to Windscribe has been terminated.
@@ -753,7 +753,7 @@ Si pierdes el hash de tu cuenta, desaparece para siempre y el soporte no puede a
     </message>
     <message>
         <source>Your network adapter does not support MAC spoofing. Try a different adapter.</source>
-        <translation>El adaptador de red no admite la suplantación de MAC. Prueba con otro adaptador.</translation>
+        <translation>El adaptador de red no admite la suplantación de MAC. Pruebe con otro adaptador.</translation>
     </message>
     <message>
         <source>Detection Error</source>
@@ -761,7 +761,7 @@ Si pierdes el hash de tu cuenta, desaparece para siempre y el soporte no puede a
     </message>
     <message>
         <source>Cannot detect appropriate packet size due to an error. Please try again.</source>
-        <translation>No se puede detectar el tamaño de paquete adecuado debido a un error. Por favor, inténtalo de nuevo.</translation>
+        <translation>No se puede detectar el tamaño de paquete adecuado debido a un error. Por favor, inténtelo de nuevo.</translation>
     </message>
     <message>
         <source>This network hates us</source>
@@ -769,7 +769,7 @@ Si pierdes el hash de tu cuenta, desaparece para siempre y el soporte no puede a
     </message>
     <message>
         <source>We couldn’t connect you on this network. Send us your debug log so we can figure out what happened.</source>
-        <translation>No pudimos conectarte en esta red. Envíanos tu registro de depuración para que podamos averiguar qué sucedió.</translation>
+        <translation>No pudimos conectarle en esta red. Envíenos su registro de depuración para que podamos averiguar qué sucedió.</translation>
     </message>
     <message>
         <source>Send Debug Log</source>
@@ -777,11 +777,11 @@ Si pierdes el hash de tu cuenta, desaparece para siempre y el soporte no puede a
     </message>
     <message>
         <source>Your debug log has been received. Please contact support if you want assistance with this issue.</source>
-        <translation>Hemos recibido tu registro de depuración. Ponte en contacto con el soporte técnico si necesitas ayuda con este problema.</translation>
+        <translation>Hemos recibido su registro de depuración. Póngase en contacto con el soporte técnico si necesita ayuda con este problema.</translation>
     </message>
     <message>
         <source>Contact Support</source>
-        <translation>Contacta con el soporte técnico</translation>
+        <translation>Contacte con el soporte técnico</translation>
     </message>
     <message>
         <source>Auto-Update Failed</source>
@@ -791,11 +791,11 @@ Si pierdes el hash de tu cuenta, desaparece para siempre y el soporte no puede a
         <source>Lost connection to the backend process.
 Recovering...</source>
         <translation>Se perdió la conexión con el proceso de backend.
-Recuperación...</translation>
+Recuperando...</translation>
     </message>
     <message>
         <source>Select an application</source>
-        <translation>Selecciona una aplicación</translation>
+        <translation>Seleccione una aplicación</translation>
     </message>
     <message>
         <source>Your hosts file is read-only. IKEv2 connectivity requires for it to be writable. Fix the issue automatically?</source>
@@ -805,9 +805,9 @@ Recuperación...</translation>
         <source>WireGuard adapter setup failed. Please wait one minute and try the connection again. If adapter setup fails again, please try restarting your computer.
 
 If the problem persists after a restart, please send a debug log and open a support ticket, then switch to a different connection mode.</source>
-        <translation>Error en la configuración del adaptador WireGuard. Espera un minuto y vuelva a intentar la conexión. Si la configuración del adaptador falla de nuevo, intenta reiniciar el equipo.
+        <translation>Error en la configuración del adaptador WireGuard. Espere un minuto y vuelva a intentar la conexión. Si la configuración del adaptador falla de nuevo, intente reiniciar el equipo.
 
-Si el problema persiste después de un reinicio, envía un registro de depuración y abre un ticket de soporte, luego cambia a un modo de conexión diferente.</translation>
+Si el problema persiste después de un reinicio, envíe un registro de depuración y abra un ticket de soporte, luego cambie a un modo de conexión diferente.</translation>
     </message>
     <message>
         <source>Connection Error</source>
@@ -819,7 +819,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>You have reached your limit of WireGuard public keys. Do you want to delete your oldest key?</source>
-        <translation>Has alcanzado tu límite de claves públicas de WireGuard. ¿Deseas eliminar tu clave más antigua?</translation>
+        <translation>Ha alcanzado su límite de claves públicas de WireGuard. ¿Desea eliminar su clave más antigua?</translation>
     </message>
     <message>
         <source>Error Starting Service</source>
@@ -843,7 +843,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Preferences can only be imported when the app is disconnected. Please disconnect and try again.</source>
-        <translation>Las preferencias solo se pueden importar cuando la aplicación está desconectada. Desconéctate e inténtalo de nuevo.</translation>
+        <translation>Las preferencias solo se pueden importar cuando la aplicación está desconectada. Desconéctese e inténtelo de nuevo.</translation>
     </message>
     <message>
         <source>The selected file&apos;s format is incorrect.</source>
@@ -851,11 +851,11 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Export Preferences To</source>
-        <translation>Preferencias de exportación a</translation>
+        <translation>Exportar preferencias</translation>
     </message>
     <message>
         <source>Import Preferences From</source>
-        <translation>Preferencias de importación desde</translation>
+        <translation>Importar preferencias</translation>
     </message>
     <message>
         <source>Could not open file.</source>
@@ -887,7 +887,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Rotating MAC Address</source>
-        <translation>Dirección MAC giratoria</translation>
+        <translation>Rotando la dirección MAC</translation>
     </message>
     <message>
         <source>Wi-Fi is off</source>
@@ -903,7 +903,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>...hmm are you sure this is correct?</source>
-        <translation>... Hmm, ¿estás seguro de que esto es correcto?</translation>
+        <translation>... hmm, ¿está seguro de que esto es correcto?</translation>
     </message>
     <message>
         <source>Windscribe has detected that Wi-Fi is currently turned off. To use Secure Hotspot, Wi-Fi must be turned on.</source>
@@ -915,11 +915,11 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services and grant the permission to Windscribe in your System Settings.</source>
-        <translation>Windscribe requiere servicios de localización para determinar tu SSID de Wi-Fi. Si no está habilitado, la configuración por red se aplicará a todas las redes Wi-Fi. Habilita los servicios de ubicación y concede el permiso a Windscribe en la configuración del sistema.</translation>
+        <translation>Windscribe requiere servicios de localización para determinar su SSID de Wi-Fi. Si no está habilitado, la configuración por red se aplicará a todas las redes Wi-Fi. Habilite los servicios de ubicación y conceda el permiso a Windscribe en la configuración del sistema.</translation>
     </message>
     <message>
         <source>Windscribe requires Location Services to determine your Wi-Fi SSID. If it is not enabled, per-network settings will apply to all Wi-Fi networks. Please enable Location Services in your System Settings.</source>
-        <translation>Windscribe requiere servicios de localización para determinar tu SSID de Wi-Fi. Si no está habilitado, la configuración por red se aplicará a todas las redes Wi-Fi. Habilite los servicios de ubicación en la configuración de su sistema.</translation>
+        <translation>Windscribe requiere servicios de localización para determinar su SSID de Wi-Fi. Si no está habilitado, la configuración por red se aplicará a todas las redes Wi-Fi. Habilite los servicios de ubicación en la configuración de su sistema.</translation>
     </message>
     <message>
         <source>  If you are on a restrictive network, please connect the VPN before trying the download again.</source>
@@ -931,11 +931,11 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>A custom config directory is being imported.  Windscribe will prompt for your admin password to check for correct permissions.</source>
-        <translation>Se está importando un directorio de configuración personalizado.  Windscribe te pedirá tu contraseña de administrador para comprobar si los permisos son correctos.</translation>
+        <translation>Se está importando un directorio de configuración personalizado.  Windscribe le pedirá su contraseña de administrador para comprobar si los permisos son correctos.</translation>
     </message>
     <message>
         <source>Your &quot;Connected DNS&quot; server is set to an OS default DNS server, which would result in a DNS leak.  It has been changed to Auto.</source>
-        <translation>Su servidor &quot;DNS conectado&quot; está configurado en un servidor DNS predeterminado del sistema operativo, lo que resultaría en una fuga de DNS.  Se ha cambiado a Auto.</translation>
+        <translation>Su servidor &quot;DNS conectado&quot; está configurado en un servidor DNS predeterminado del sistema operativo, lo que resultaría en una fuga de DNS.  Se ha cambiado a Automático.</translation>
     </message>
     <message>
         <source>Invalid DNS Settings</source>
@@ -951,7 +951,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Error Starting Split Tunneling</source>
-        <translation>Error al iniciar la tunelización dividida</translation>
+        <translation>Error al iniciar el túnel dividido</translation>
     </message>
     <message>
         <source>Export Location Names To</source>
@@ -999,7 +999,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Unable to start custom DNS service - port 53 is already in use.  Would you like to change your Connected DNS to the local server?</source>
-        <translation>No se puede iniciar el servicio DNS personalizado: el puerto 53 ya está en uso.  ¿Te gustaría cambiar tu DNS conectado al servidor local?</translation>
+        <translation>No se puede iniciar el servicio DNS personalizado: el puerto 53 ya está en uso.  ¿Le gustaría cambiar su DNS conectado al servidor local?</translation>
     </message>
     <message>
         <source>Could not pin IP</source>
@@ -1007,7 +1007,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>We could not set your favourite IP for this location.  Try again later.</source>
-        <translation>No pudimos establecer su IP favorita para esta ubicación.  Inténtalo de nuevo más tarde.</translation>
+        <translation>No pudimos establecer su IP favorita para esta ubicación.  Inténtelo de nuevo más tarde.</translation>
     </message>
     <message>
         <source>Could not rotate IP</source>
@@ -1015,7 +1015,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Try again later or go to our Status page for more info.</source>
-        <translation>Inténtalo de nuevo más tarde o ve a nuestra página de estado para obtener más información.</translation>
+        <translation>Inténtelo de nuevo más tarde o visite nuestra página de estado para obtener más información.</translation>
     </message>
     <message>
         <source>Check Location Status</source>
@@ -1031,15 +1031,15 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>We couldn’t connect you on this network. Automatic connection mode recommended for best results. Switch connection mode to Auto?</source>
-        <translation>No pudimos conectarte en esta red. Se recomienda el modo de conexión automática para obtener los mejores resultados. ¿Cambiar el modo de conexión a Automático?</translation>
+        <translation>No pudimos conectarle en esta red. Se recomienda el modo de conexión automática para obtener los mejores resultados. ¿Cambiar el modo de conexión a Automático?</translation>
     </message>
     <message>
         <source>Switch to Auto</source>
-        <translation>Cambiar a automático</translation>
+        <translation>Cambiar a Automático</translation>
     </message>
     <message>
         <source>Creating your account...</source>
-        <translation>Crear tu cuenta...</translation>
+        <translation>Creando su cuenta...</translation>
     </message>
 </context>
 <context>
@@ -1141,7 +1141,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     <name>PreferencesWindow::AccountWindowItem</name>
     <message>
         <source>Login to view your account info</source>
-        <translation>Inicia sesión para ver la información de tu cuenta</translation>
+        <translation>Inicie sesión para ver la información de su cuenta</translation>
     </message>
     <message>
         <source>Login</source>
@@ -1192,7 +1192,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Make advanced tweaks to the way the app functions.</source>
-        <translation>Realiza ajustes avanzados en el funcionamiento de la aplicación.</translation>
+        <translation>Realice ajustes avanzados en el funcionamiento de la aplicación.</translation>
     </message>
     <message>
         <source>Advanced Parameters</source>
@@ -1200,7 +1200,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Ignore SSL certificate validation errors.</source>
-        <translation>Ignora los errores de validación de certificados SSL.</translation>
+        <translation>Ignore los errores de validación de certificados SSL.</translation>
     </message>
     <message>
         <source>Ignore SSL Errors</source>
@@ -1278,7 +1278,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Bundled</source>
-        <translation>Liado</translation>
+        <translation>Incluido</translation>
     </message>
     <message>
         <source>None</source>
@@ -1286,7 +1286,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Custom</source>
-        <translation>Costumbre</translation>
+        <translation>Personalizado</translation>
     </message>
     <message>
         <source>When Connected</source>
@@ -1302,11 +1302,11 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Palm</source>
-        <translation>Palma</translation>
+        <translation>Palmera</translation>
     </message>
     <message>
         <source>Drip</source>
-        <translation>Gotear</translation>
+        <translation>Goteo</translation>
     </message>
     <message>
         <source>Snow</source>
@@ -1321,7 +1321,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     <name>PreferencesWindow::ConnectedDnsGroup</name>
     <message>
         <source>Connected DNS</source>
-        <translation>DNS al conectarse</translation>
+        <translation>DNS conectado</translation>
     </message>
     <message>
         <source>Upstream 1</source>
@@ -1361,7 +1361,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Please provide a valid Control D API Key.</source>
-        <translation>Proporcione una clave API de control D válida.</translation>
+        <translation>Proporcione una clave API de Control D válida.</translation>
     </message>
 </context>
 <context>
@@ -1404,7 +1404,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Connects to last used location when the app launches or joins a network.</source>
-        <translation>Conectarse a la última ubicación utilizada cuando la aplicación se inicia o se une a una red.</translation>
+        <translation>Se conecta a la última ubicación utilizada cuando la aplicación se inicia o se une a una red.</translation>
     </message>
     <message>
         <source>Auto-Connect</source>
@@ -1420,23 +1420,23 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Select the DNS server while connected to Windscribe.</source>
-        <translation>Selecciona el servidor DNS mientras estás conectado a Windscribe.</translation>
+        <translation>Seleccione el servidor DNS mientras está conectado a Windscribe.</translation>
     </message>
     <message>
         <source>Allow access to local services and printers while connected to Windscribe.</source>
-        <translation>Permite el acceso a servicios e impresoras locales mientras estás conectado a Windscribe.</translation>
+        <translation>Permita el acceso a servicios e impresoras locales mientras está conectado a Windscribe.</translation>
     </message>
     <message>
         <source>Spoof your device&apos;s physical address (MAC address).</source>
-        <translation>Suplantar la dirección física de tu dispositivo (dirección MAC).</translation>
+        <translation>Suplante la dirección física de su dispositivo (dirección MAC).</translation>
     </message>
     <message>
         <source>Close all active TCP sockets when the VPN tunnel is established.</source>
-        <translation>Cierra todos los sockets TCP activos cuando se establezca el túnel VPN.</translation>
+        <translation>Cierre todos los sockets TCP activos cuando se establezca el túnel VPN.</translation>
     </message>
     <message>
         <source>Configure your TV, gaming console, or other devices that support proxy servers.</source>
-        <translation>Configura tu televisor, consola de juegos u otros dispositivos que admitan servidores proxy.</translation>
+        <translation>Configure su televisor, consola de juegos u otros dispositivos que admitan servidores proxy.</translation>
     </message>
     <message>
         <source>Settings Conflict</source>
@@ -1456,7 +1456,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Disabling Allow LAN Traffic will cause your secure hotspot to stop working.  Do you want to disable the hotspot?</source>
-        <translation>Deshabilitar Permitir tráfico LAN hará que su punto de acceso seguro deje de funcionar.  ¿Quieres desactivar el punto de acceso?</translation>
+        <translation>Deshabilitar Permitir tráfico LAN hará que su punto de acceso seguro deje de funcionar.  ¿Desea desactivar el punto de acceso?</translation>
     </message>
     <message>
         <source>MAC spoofing is not supported on your version of MacOS.</source>
@@ -1464,35 +1464,35 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Automatically determine the MTU for your connection, or manually override.  This has no effect on TCP-based protocols.</source>
-        <translation>Determina automáticamente la MTU para tu conexión o cámbiala manualmente.  Esto no tiene ningún efecto en los protocolos basados en TCP.</translation>
+        <translation>Determinar automáticamente la MTU para su conexión o cámbiela manualmente.  Esto no tiene ningún efecto en los protocolos basados en TCP.</translation>
     </message>
     <message>
         <source>Caution</source>
-        <translation>Cautela</translation>
+        <translation>Precaución</translation>
     </message>
     <message>
         <source>In this firewall mode, the Windscribe API will not be available while disconnected, this could have unintended consequences. Use at own risk.</source>
-        <translation>En este modo de firewall, la API de Windscribe no estará disponible mientras esté desconectada, lo que podría tener consecuencias no deseadas. Úselo bajo su propio riesgo.</translation>
+        <translation>En este modo de cortafuegos, la API de Windscribe no estará disponible mientras esté desconectada, lo que podría tener consecuencias no deseadas. Úselo bajo su propio riesgo.</translation>
     </message>
     <message>
         <source>Clear Wi-Fi History</source>
-        <translation>Historia Clara del Wi-Fi</translation>
+        <translation>Borrar historial de Wi-Fi</translation>
     </message>
     <message>
         <source>Are you sure?</source>
-        <translation>¿Estás seguro?</translation>
+        <translation>¿Está seguro?</translation>
     </message>
     <message>
         <source>Are you sure you want to clear all your Wi-Fi history? This will also clear all Wi-Fi passwords except for the one you&apos;re currently connected to. This may also temporarily disable your Wi-Fi.</source>
-        <translation>¿Estás seguro de que quieres borrar todo tu historial de Wi-Fi? Esto también borrará todas las contraseñas del Wi-Fi excepto la que tienes conectado. Esto también puede desactivar temporalmente tu Wi-Fi.</translation>
+        <translation>¿Está seguro de que quiere borrar todo su historial de Wi-Fi? Esto también borrará todas las contraseñas del Wi-Fi, excepto la de la red a la que está conectado actualmente. Esto también puede desactivar temporalmente su Wi-Fi.</translation>
     </message>
     <message>
         <source>Remove Wi-Fi SSID and MAC information from your operating system to prevent location history tracking.</source>
-        <translation>Elimina la información del SSID Wi-Fi y MAC de tu sistema operativo para evitar el rastreo del historial de ubicación.</translation>
+        <translation>Elimine la información del SSID Wi-Fi y MAC de su sistema operativo para evitar el rastreo del historial de ubicación.</translation>
     </message>
     <message>
         <source>Connect to the VPN with WireGuard even in a hostile environment.</source>
-        <translation>Conéctate a la VPN con WireGuard incluso en un entorno hostil.</translation>
+        <translation>Conéctese a la VPN con WireGuard incluso en un entorno hostil.</translation>
     </message>
 </context>
 <context>
@@ -1534,11 +1534,11 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     <name>PreferencesWindow::DnsDomainsGroup</name>
     <message>
         <source>Domain already exists. Please enter a new domain.</source>
-        <translation>El dominio ya existe. Introduce un nuevo dominio.</translation>
+        <translation>El dominio ya existe. Introduzca un nuevo dominio.</translation>
     </message>
     <message>
         <source>Incorrect domain name. Please enter a valid domain.</source>
-        <translation>Nombre de dominio incorrecto. Introduce un dominio válido.</translation>
+        <translation>Nombre de dominio incorrecto. Introduzca un dominio válido.</translation>
     </message>
 </context>
 <context>
@@ -1549,11 +1549,11 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Enter the IP and/or wildcards you wish to use for DNS split feature.</source>
-        <translation>Ingresa la IP y / o comodines que desea usar para la función de DNS dividido.</translation>
+        <translation>Ingrese la IP y / o comodines que desee usar para la función de DNS dividido.</translation>
     </message>
     <message>
         <source>Please log in to modify domains.</source>
-        <translation>Inicia sesión para modificar dominios.</translation>
+        <translation>Inicie sesión para modificar dominios.</translation>
     </message>
 </context>
 <context>
@@ -1576,11 +1576,11 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Get 10GB/Month of data and gain the ability to reset your password.</source>
-        <translation>Consigue 10 GB / mes de datos y obtén la posibilidad de restablecer tu contraseña.</translation>
+        <translation>Obtenga 10 GB / mes de datos y la posibilidad de restablecer su contraseña.</translation>
     </message>
     <message>
         <source>Please confirm your email</source>
-        <translation>Por favor, confirma tu correo electrónico</translation>
+        <translation>Por favor, confirme su correo electrónico</translation>
     </message>
     <message>
         <source>Email</source>
@@ -1588,7 +1588,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Add Email</source>
-        <translation>Agregar correo electrónico</translation>
+        <translation>Añadir correo electrónico</translation>
     </message>
 </context>
 <context>
@@ -1610,7 +1610,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Run Windscribe when your device starts.</source>
-        <translation>Ejecuta Windscribe cuando se inicie el dispositivo.</translation>
+        <translation>Ejecute Windscribe cuando se inicie el dispositivo.</translation>
     </message>
     <message>
         <source>Launch on Startup</source>
@@ -1618,7 +1618,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Launch Windscribe in a minimized state.</source>
-        <translation>Inicia Windscribe en un estado minimizado.</translation>
+        <translation>Inicie Windscribe en un estado minimizado.</translation>
     </message>
     <message>
         <source>Start Minimized</source>
@@ -1674,7 +1674,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Localize Windscribe to supported languages.</source>
-        <translation>Localiza Windscribe a los idiomas admitidos.</translation>
+        <translation>Localice Windscribe a los idiomas admitidos.</translation>
     </message>
     <message>
         <source>Language</source>
@@ -1682,7 +1682,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Choose to receive stable, beta, or experimental builds.</source>
-        <translation>Elige recibir compilaciones estables, beta o experimentales.</translation>
+        <translation>Elija recibir compilaciones estables, beta o experimentales.</translation>
     </message>
     <message>
         <source>Update Channel</source>
@@ -1713,7 +1713,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>All you need to know about Windscribe.</source>
-        <translation>Todo lo que necesitas saber sobre Windscribe.</translation>
+        <translation>Todo lo que necesita saber sobre Windscribe.</translation>
     </message>
     <message>
         <source>Knowledge Base</source>
@@ -1721,7 +1721,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Talk to Garry</source>
-        <translation>Habla con Garry</translation>
+        <translation>Hable con Garry</translation>
     </message>
     <message>
         <source>Best places to help and get help from other users.</source>
@@ -1753,7 +1753,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Need help? Garry can help you with most issues, go talk to him.</source>
-        <translation>¿Necesitas ayuda? Garry puede ayudarte con la mayoría de los problemas, ve a hablar con él.</translation>
+        <translation>¿Necesita ayuda? Garry puede ayudarle con la mayoría de los problemas, vaya a hablar con él.</translation>
     </message>
     <message>
         <source>Contact Humans</source>
@@ -1761,7 +1761,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Have a problem that Garry can&apos;t resolve? Contact human support.</source>
-        <translation>¿Tienes un problema que Garry no puede resolver? Póngase en contacto con el servicio de asistencia humana.</translation>
+        <translation>¿Tiene un problema que Garry no puede resolver? Póngase en contacto con el servicio de asistencia humana.</translation>
     </message>
 </context>
 <context>
@@ -1772,7 +1772,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Choose between the classic GUI or the &quot;earless&quot; alternative GUI.</source>
-        <translation>Elige entre la interfaz clásica o la interfaz alternativa &quot;sin orejas&quot;.</translation>
+        <translation>Elija entre la interfaz clásica o la interfaz alternativa &quot;sin pestañas&quot;.</translation>
     </message>
     <message>
         <source>App Skin</source>
@@ -1780,7 +1780,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Customize the background of the main app screen.</source>
-        <translation>Personaliza el fondo de la pantalla principal de la aplicación.</translation>
+        <translation>Personalice el fondo de la pantalla principal de la aplicación.</translation>
     </message>
     <message>
         <source>Choose sounds to play when connection events occur.</source>
@@ -1788,7 +1788,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Change location names to your liking.</source>
-        <translation>Cambia los nombres de las ubicaciones a tu gusto.</translation>
+        <translation>Cambie los nombres de las ubicaciones a su gusto.</translation>
     </message>
     <message>
         <source>Rename Locations</source>
@@ -1819,7 +1819,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     <name>PreferencesWindow::MacSpoofingGroup</name>
     <message>
         <source>You can only spoof an existing adapter.</source>
-        <translation>Sólo puedes suplantar un adaptador existente.</translation>
+        <translation>Solo puede suplantar un adaptador existente.</translation>
     </message>
     <message>
         <source>Cannot spoof on &apos;No Interface&apos;</source>
@@ -1870,7 +1870,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Choose whether to connect using the recommended tunneling protocol, or to specify a protocol of your choice.</source>
-        <translation>Elige si deseas conectarte mediante el protocolo de túnel recomendado o especificar un protocolo de tu elección.</translation>
+        <translation>Elija si desea conectarse mediante el protocolo de túnel recomendado o especificar un protocolo de su elección.</translation>
     </message>
     <message>
         <source>Forget Network</source>
@@ -1885,7 +1885,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
     </message>
     <message>
         <source>Mark all newly encountered networks as Secured.</source>
-        <translation>Marca todas las redes recién encontradas como protegidas.</translation>
+        <translation>Marque todas las redes recién encontradas como protegidas.</translation>
     </message>
     <message>
         <source>Auto-Secure Networks</source>
@@ -1915,7 +1915,7 @@ Si el problema persiste después de un reinicio, envía un registro de depuraci�
         <source>No Networks Detected.
 Connect to a network first</source>
         <translation>No se han detectado redes.
-Conéctate primero a una red</translation>
+Conéctese primero a una red</translation>
     </message>
     <message>
         <source>New networks are automatically &quot;Secured&quot;. If you tag a network as &quot;Unsecured&quot;, Windscribe will disconnect when the device joins it. Setting a network as &quot;Unsecured&quot; is NOT recommended.</source>
@@ -1926,7 +1926,7 @@ Conéctate primero a una red</translation>
     <name>PreferencesWindow::NewAddressItem</name>
     <message>
         <source>Enter IP or Hostname</source>
-        <translation>Introduce IP o nombre de host</translation>
+        <translation>Introduzca IP o nombre de host</translation>
     </message>
 </context>
 <context>
@@ -1968,7 +1968,7 @@ Conéctate primero a una red</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>Costumbre</translation>
+        <translation>Personalizado</translation>
     </message>
 </context>
 <context>
@@ -2030,11 +2030,11 @@ Conéctate primero a una red</translation>
     </message>
     <message>
         <source>You have unsaved changes in edit fields. Do you want to save them?</source>
-        <translation>Tienes los cambios sin guardar en los campos de edición. ¿Quieres salvarlos?</translation>
+        <translation>Tiene los cambios sin guardar en los campos de edición. ¿Quiere guardarlos?</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation>Salvar</translation>
+        <translation>Guardar</translation>
     </message>
 </context>
 <context>
@@ -2167,15 +2167,15 @@ Conéctate primero a una red</translation>
     </message>
     <message>
         <source>R.O.B.E.R.T. is a customizable server-side domain and IP blocking tool. Select the block lists you wish to apply on all your devices by toggling the switch.</source>
-        <translation>R.O.B.E.R.T. es una herramienta personalizable en el servidor para bloquear dominios e IPs. Selecciona las listas de bloqueos que quieres que se apliquen en todos tus dispositivos pulsando el interruptor.</translation>
+        <translation>R.O.B.E.R.T. es una herramienta personalizable en el servidor para bloquear dominios e IPs. Seleccione las listas de bloqueos que desee aplicar en todos sus dispositivos pulsando el interruptor.</translation>
     </message>
     <message>
         <source>Could not retrieve R.O.B.E.R.T. preferences from server. Try again later.</source>
-        <translation>No se han podido recuperar las preferencias de R.O.B.E.R.T. del servidor. Inténtalo de nuevo más tarde.</translation>
+        <translation>No se han podido recuperar las preferencias de R.O.B.E.R.T. del servidor. Inténtelo de nuevo más tarde.</translation>
     </message>
     <message>
         <source>Login to view or change R.O.B.E.R.T preferences</source>
-        <translation>Inicia sesión para ver o cambiar las preferencias de R.O.B.E.R.T</translation>
+        <translation>Inicie sesión para ver o cambiar las preferencias de R.O.B.E.R.T.</translation>
     </message>
     <message>
         <source>Login</source>
@@ -2205,11 +2205,11 @@ Conéctate primero a una red</translation>
     </message>
     <message>
         <source>Share your secure Windscribe connection wirelessly.</source>
-        <translation>Comparte tu conexión segura de Windscribe de forma inalámbrica.</translation>
+        <translation>Comparta su conexión segura de Windscribe de forma inalámbrica.</translation>
     </message>
     <message>
         <source>Enter SSID</source>
-        <translation>Introduce SSID</translation>
+        <translation>Introduzca el SSID</translation>
     </message>
     <message>
         <source>Password</source>
@@ -2251,15 +2251,15 @@ Conéctate primero a una red</translation>
     </message>
     <message>
         <source>Bundled</source>
-        <translation>Liado</translation>
+        <translation>Incluido</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation>Costumbre</translation>
+        <translation>Personalizado</translation>
     </message>
     <message>
         <source>Select a sound</source>
-        <translation>Selecciona un sonido</translation>
+        <translation>Seleccione un sonido</translation>
     </message>
     <message>
         <source>When Connected</source>
@@ -2270,11 +2270,11 @@ Conéctate primero a una red</translation>
     <name>PreferencesWindow::SplitTunnelingAddressesGroup</name>
     <message>
         <source>IP or hostname already exists. Please enter a new IP or hostname.</source>
-        <translation>IP o nombre de host ya existe. Introduce una nueva IP o nombre de dominio.</translation>
+        <translation>IP o nombre de host ya existe. Introduzca una nueva IP o nombre de host.</translation>
     </message>
     <message>
         <source>Incorrect IP address/mask combination. Please enter a valid hostname or IP address in plain or CIDR notation.</source>
-        <translation>Combinación incorrecta de dirección IP / máscara. Introduce un nombre de dominio o una dirección IP válida en notación simple o CIDR.</translation>
+        <translation>Combinación incorrecta de dirección IP / máscara. Introduzca un nombre de host o una dirección IP válida en notación simple o CIDR.</translation>
     </message>
     <message>
         <source>This IP address or range is reserved by Windscribe and can not be changed.</source>
@@ -2293,11 +2293,11 @@ Conéctate primero a una red</translation>
     </message>
     <message>
         <source>Enter the IP and/or hostnames you wish to include in or exclude from the VPN tunnel below.</source>
-        <translation>Ingresa la IP y/o los nombres de dominio que deseas incluir o excluir del túnel VPN a continuación.</translation>
+        <translation>Ingrese la IP y/o los nombres de host que desee incluir o excluir del túnel VPN a continuación.</translation>
     </message>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
-        <translation>Inicia sesión para modificar las reglas de túnel dividido.</translation>
+        <translation>Inicie sesión para modificar las reglas de túnel dividido.</translation>
     </message>
 </context>
 <context>
@@ -2322,11 +2322,11 @@ Conéctate primero a una red</translation>
     </message>
     <message>
         <source>Add the apps you wish to include in or exclude from the VPN tunnel below.</source>
-        <translation>Agrega las aplicaciones que deseas incluir o excluir del túnel VPN a continuación.</translation>
+        <translation>Agregue las aplicaciones que desee incluir o excluir del túnel VPN a continuación.</translation>
     </message>
     <message>
         <source>Please log in to modify split tunneling rules.</source>
-        <translation>Inicia sesión para modificar las reglas de túnel dividido.</translation>
+        <translation>Inicie sesión para modificar las reglas de túnel dividido.</translation>
     </message>
 </context>
 <context>
@@ -2339,7 +2339,7 @@ Conéctate primero a una red</translation>
         <source>The split tunneling driver is not installed.  To enable this feature, try reinstalling the Windscribe application.
 
 If the reinstall does not help, please contact Windscribe support for assistance.</source>
-        <translation>El controlador de túnel dividido no está instalado.  Para habilitar esta función, intenta reinstalar la aplicación Windscribe.
+        <translation>El controlador de túnel dividido no está instalado.  Para habilitar esta función, intente reinstalar la aplicación Windscribe.
 
 Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe para obtener ayuda.</translation>
     </message>
@@ -2365,7 +2365,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>IPs &amp; Hostnames</source>
-        <translation>IPs y nombres de dominio</translation>
+        <translation>IPs y nombres de host</translation>
     </message>
     <message>
         <source>When enabled, selected apps, IPs, and hostnames will not go through Windscribe when connected.</source>
@@ -2384,7 +2384,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Include or exclude apps and hostnames from the VPN tunnel.</source>
-        <translation>Incluye o excluye aplicaciones y nombres de dominio del túnel VPN.</translation>
+        <translation>Incluye o excluye aplicaciones y nombres de host del túnel VPN.</translation>
     </message>
     <message>
         <source>The Windscribe split tunneling system extension must be enabled for this feature to function. Please enable it in System Settings.</source>
@@ -2438,7 +2438,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Quickly re-connect using a different protocol.</source>
-        <translation>Vuelve a conectarte rápidamente utilizando un protocolo diferente.</translation>
+        <translation>Vuelva a conectarse rápidamente utilizando un protocolo diferente.</translation>
     </message>
     <message>
         <source>Connection Failure!</source>
@@ -2529,7 +2529,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Include</source>
-        <translation>Incluír</translation>
+        <translation>Incluir</translation>
     </message>
     <message>
         <source>Alpha</source>
@@ -2581,19 +2581,19 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
-        <translation>La versión de la aplicación ya no está soportada. Actualiza para seguir usando Windscribe.</translation>
+        <translation>La versión de la aplicación ya no está soportada. Actualice para seguir usando Windscribe.</translation>
     </message>
     <message>
         <source>Please upgrade to a Pro account to continue using Windscribe.</source>
-        <translation>Actualiza a una cuenta Pro para continuar usando Windscribe.</translation>
+        <translation>Actualice a una cuenta Pro para continuar usando Windscribe.</translation>
     </message>
     <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
-        <translation>Tu cuenta original %1 ha expirado. Está prohibido crear varias cuentas para evadir las limitaciones de la versión gratuita. Inicia sesión en la cuenta original y espera hasta que se restablezca el ancho de banda. También puede actualizar a Pro.</translation>
+        <translation>Su cuenta original %1 ha expirado. Está prohibido crear varias cuentas para evadir las limitaciones de la versión gratuita. Inicie sesión en la cuenta original y espere hasta que se restablezca el ancho de banda. También puede actualizar a Pro.</translation>
     </message>
     <message>
         <source>Your account is disabled for abuse.</source>
-        <translation>Tu cuenta está inhabilitada por abuso.</translation>
+        <translation>Su cuenta está inhabilitada por abuso.</translation>
     </message>
     <message>
         <source>Firewall Always On</source>
@@ -2605,15 +2605,15 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Windscribe is already running on your computer, but appears to not be responding.</source>
-        <translation>Windscribe ya se está ejecutando en tu equipo, pero parece que no responde.</translation>
+        <translation>Windscribe ya se está ejecutando en su equipo, pero parece que no responde.</translation>
     </message>
     <message>
         <source>You may need to kill the non-responding Windscribe app or reboot your computer to fix the issue.</source>
-        <translation>Es posible que debas terminar la aplicación Windscribe que no responde o reiniciar tu ordenador para solucionar el problema.</translation>
+        <translation>Es posible que debas terminar la aplicación Windscribe que no responde o reiniciar su ordenador para solucionar el problema.</translation>
     </message>
     <message>
         <source>One or more files in the Windscribe application bundle have been suspiciously modified. Please re-install Windscribe.</source>
-        <translation>Uno o más archivos del paquete de la aplicación de Windscribe se han modificado sospechosamente. Por favor, vuelve a instalar Windscribe.</translation>
+        <translation>Uno o más archivos del paquete de la aplicación de Windscribe se han modificado sospechosamente. Por favor, vuelva a instalar Windscribe.</translation>
     </message>
     <message>
         <source>White</source>
@@ -2645,15 +2645,15 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Stretch</source>
-        <translation>Elasticidad</translation>
+        <translation>Extendido</translation>
     </message>
     <message>
         <source>Fill</source>
-        <translation>Llenar</translation>
+        <translation>Rellenar</translation>
     </message>
     <message>
         <source>Tile</source>
-        <translation>Teja</translation>
+        <translation>Mosaico</translation>
     </message>
     <message>
         <source>Always On+</source>
@@ -2733,7 +2733,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Quit Windscribe</source>
-        <translation>Deja Windscribe</translation>
+        <translation>Salir de Windscribe</translation>
     </message>
     <message>
         <source>Favourites</source>
@@ -2741,7 +2741,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Show app</source>
-        <translation>Aplicación de mostrar</translation>
+        <translation>Mostrar aplicación</translation>
     </message>
 </context>
 <context>
@@ -2763,7 +2763,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Use your app to get an authentication code, and enter it below</source>
-        <translation>Usa tu aplicación para obtener un código de autenticación e introdúcelo a continuación</translation>
+        <translation>Use su aplicación para obtener un código de autenticación e introdúzcalo a continuación</translation>
     </message>
     <message>
         <source>Please provide a 2FA code</source>
@@ -2771,7 +2771,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Invalid 2FA code, please try again</source>
-        <translation>Código 2FA no válido, inténtalo de nuevo</translation>
+        <translation>Código 2FA no válido, inténtelo de nuevo</translation>
     </message>
 </context>
 <context>
@@ -2793,7 +2793,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Your update is in progress, hang in there...</source>
-        <translation>Tu actualización está en progreso, espera...</translation>
+        <translation>Su actualización está en progreso, espere...</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -2813,18 +2813,18 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Windscribe will download and install the update, which may take several minutes. Your computer will restart after the update.</source>
-        <translation>Windscribe descargará e instalará la actualización, lo que puede tardar varios minutos. Su computadora se reiniciará después de la actualización.</translation>
+        <translation>Windscribe descargará e instalará la actualización, lo que puede tardar varios minutos. Su ordenador se reiniciará después de la actualización.</translation>
     </message>
 </context>
 <context>
     <name>UpgradeBanner</name>
     <message>
         <source>Unlock full access to Windscribe</source>
-        <translation>Desbloquea el acceso completo a Windscribe</translation>
+        <translation>Desbloquee el acceso completo a Windscribe</translation>
     </message>
     <message>
         <source>Go Pro for unlimited everything</source>
-        <translation>Conviértete en Pro para todo ilimitado</translation>
+        <translation>Conviértase en Pro para disfrutar de todo sin límites</translation>
     </message>
 </context>
 <context>
@@ -2835,7 +2835,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>%1 left</source>
-        <translation>%1 izquierda</translation>
+        <translation>%1 restante</translation>
     </message>
     <message>
         <source>0 days left</source>
@@ -2878,11 +2878,11 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     <name>UpgradeWindow::UpgradeWindowItem</name>
     <message>
         <source>You&apos;re out of data!</source>
-        <translation>¡Te has quedado sin datos!</translation>
+        <translation>¡Se ha quedado sin datos!</translation>
     </message>
     <message>
         <source>Don&apos;t leave your front door open. Upgrade or wait until next month to get your monthly data allowance back.</source>
-        <translation>No dejes la puerta de tu casa abierta. Actualiza o espera hasta el próximo mes para recuperar tu asignación mensual de datos.</translation>
+        <translation>No deje la puerta de su casa abierta. Actualice o espere hasta el próximo mes para recuperar su asignación mensual de datos.</translation>
     </message>
     <message>
         <source>Get more data</source>
@@ -2890,7 +2890,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>I&apos;m broke</source>
-        <translation>Estoy en bancarrota</translation>
+        <translation>Estoy sin blanca</translation>
     </message>
 </context>
 <context>
