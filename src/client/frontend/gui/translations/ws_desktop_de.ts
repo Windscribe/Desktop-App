@@ -1041,6 +1041,10 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <source>Creating your account...</source>
         <translation>Erstelle deines Kontos...</translation>
     </message>
+    <message>
+        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
+        <translation>MAC-Adresse kann nicht rotiert werden, während ich mit VPN verbunden bin. Bitte trennen Sie sich zuerst.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

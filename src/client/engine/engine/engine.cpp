@@ -1343,7 +1343,7 @@ void Engine::onConnectionManagerConnected()
     QString adapterName = connectionManager_->getVpnAdapterInfo().adapterName();
 
 #ifdef Q_OS_WIN
-    // wireguard-nt driver monitors metrics itself.
+    // wireguard-nt and AmneziaWG services monitor adapter metrics.
     if (!connectionManager_->currentProtocol().isWireGuardProtocol()) {
         AdapterMetricsController_win::updateMetrics(adapterName, helper_);
     }
@@ -2689,8 +2689,10 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
 
 #ifdef Q_OS_WIN
 
-    if (state == CONNECT_STATE_CONNECTED && protocol.isOpenVpnProtocol()) {
-        // Delay setting VPN connected state for OpenVPN protocols on Windows due to #576
+    if (state == CONNECT_STATE_CONNECTED && (protocol.isOpenVpnProtocol() || (protocol.isWireGuardProtocol() && engineSettings_.isAntiCensorship()))) {
+        // - Delay setting VPN connected state for OpenVPN protocols on Windows due to #576
+        // - Delay when using AmneziaWG as their usage of the wintun driver suffers from the same adapter setup delay as OpenVPN, in particular the
+        //   DNS is not set correctly on the adapter after the tunnel is reported as live.
         delayedVpnStateTimer_ = new QTimer(this);
         delayedVpnStateTimer_->setSingleShot(true);
         connect(delayedVpnStateTimer_, &QTimer::timeout, this, [this]() {

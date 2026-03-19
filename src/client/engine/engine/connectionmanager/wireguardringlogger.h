@@ -23,7 +23,7 @@ public:
     bool adapterSetupFailed() const { return adapterSetupFailed_; }
     bool configureNetSettingsFailed() const { return configureNetSettingsFailed_; }
     bool handshakeFailed() const { return handshakeFailed_; }
-    bool isTunnelRunning() const { return tunnelRunning_; }
+    bool isKeypairCreated() const { return keypairCreated_; }
 
 private:
     const bool isAmneziaWG_ = false;
@@ -32,7 +32,7 @@ private:
     uchar* logData_ = nullptr;
     int ringLogIndex_ = -1;
     quint64 startTime_ = 0; // nanoseconds
-    bool tunnelRunning_ = false;
+    bool keypairCreated_ = false;
     bool handshakeFailed_ = false;
     bool adapterSetupFailed_ = false;
     bool configureNetSettingsFailed_ = false;

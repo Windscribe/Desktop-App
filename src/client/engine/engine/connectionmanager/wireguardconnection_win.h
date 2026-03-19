@@ -50,6 +50,8 @@ private:
     wsl::Win32Handle stopThreadEvent_;
 
 private:
+    bool isAmneziaWG() const;
+    quint64 lastHandshake() const;
     void onTunnelConnected();
     void onWireguardHandshakeFailure();
     void resetLogReader();

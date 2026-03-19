@@ -1041,6 +1041,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Creating your account...</source>
         <translation>创建您的账户......</translation>
     </message>
+    <message>
+        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
+        <translation>连接VPN时无法更换MAC地址。请先断开连接。</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

@@ -1041,6 +1041,10 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <source>Creating your account...</source>
         <translation>Criar a sua conta...</translation>
     </message>
+    <message>
+        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
+        <translation>Não é possível rodar o endereço MAC enquanto está ligado à VPN. Por favor, desliga primeiro.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

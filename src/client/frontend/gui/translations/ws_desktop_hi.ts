@@ -1041,6 +1041,10 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Creating your account...</source>
         <translation>अपना खाता बनाना...</translation>
     </message>
+    <message>
+        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
+        <translation>वीपीएन से कनेक्ट होने के दौरान मैक पते को घुमा नहीं सकता। कृपया पहले डिस्कनेक्ट करें।</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

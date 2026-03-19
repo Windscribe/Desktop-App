@@ -1193,6 +1193,8 @@ void MainWindow::onPreferencesLoginClick()
         // Collapsing the preferences window caused an alert, such as unsaved changes.
         // Instead of transitioning directly to the login window, we modify the alert source.
         GeneralMessageController::instance().setSource(MainWindowController::WINDOW_ID_LOGIN);
+    } else {
+        gotoLoginWindow();
     }
 }
 
@@ -1379,8 +1381,22 @@ void MainWindow::onPreferencesAccountLoginClick()
 
 void MainWindow::onPreferencesCycleMacAddressClick()
 {
-    if (internetConnected_) {
-        QString title = tr("Rotating MAC Address");
+    QString title = tr("Rotating MAC Address");
+    if (!backend_->isDisconnected()) {
+        QString desc = tr("Cannot rotate MAC address while connected to VPN. Please disconnect first.");
+        GeneralMessageController::instance().showMessage(
+            "WARNING_YELLOW",
+            title,
+            desc,
+            GeneralMessageController::tr(GeneralMessageController::kOk),
+            "",
+            "",
+            std::function<void(bool)>(nullptr),
+            std::function<void(bool)>(nullptr),
+            std::function<void(bool)>(nullptr),
+            GeneralMessage::kFromPreferences);
+    }
+    else if (internetConnected_) {
         QString desc = tr("Rotating your MAC address will result in a disconnect event from the current network. Are you sure?");
         GeneralMessageController::instance().showMessage(
             "WARNING_WHITE",

@@ -1041,6 +1041,10 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <source>Creating your account...</source>
         <translation>Vytváram si účet...</translation>
     </message>
+    <message>
+        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
+        <translation>Nemôžem otáčať MAC adresu, keď som pripojený na VPN. Prosím, najprv sa odpoj.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

@@ -1041,6 +1041,10 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>Creating your account...</source>
         <translation>Tạo tài khoản của bạn...</translation>
     </message>
+    <message>
+        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
+        <translation>Không thể xoay địa chỉ MAC khi kết nối với VPN. Vui lòng ngắt kết nối trước.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

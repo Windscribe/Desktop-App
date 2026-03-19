@@ -1041,6 +1041,10 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>Creating your account...</source>
         <translation>Créer votre compte...</translation>
     </message>
+    <message>
+        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
+        <translation>Impossible de faire tourner l’adresse MAC en étant connecté au VPN. Veuillez d’abord déconnecter.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

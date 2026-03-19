@@ -1,3 +1,13 @@
+2.21.6 (12/03/2026)
+All:
+   * Improved more Spanish translations. #1685
+   * Fixed clicking "Login" from Preferences while logged out goes to Welcome screen instead. #1673
+   * Fixed rotating the MAC address causing the tunnel test phase to get stuck. #1686
+Windows:
+   * Fixed IP pinning and rotation features may be disabled when using Circumvent Censorship. #1654
+   * Fixed WireGuard may fail to reconnect on PC wake when using Circumvent Censorship. #1688
+
+
 2.21.5 (09/03/2026)
 All:
    * Added favourite locations to preferences import/export. #1691

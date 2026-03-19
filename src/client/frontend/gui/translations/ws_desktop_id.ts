@@ -1041,6 +1041,10 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>Creating your account...</source>
         <translation>Membuat akun Anda...</translation>
     </message>
+    <message>
+        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
+        <translation>Tidak dapat memutar alamat MAC saat terhubung ke VPN. Silakan putuskan sambungan terlebih dahulu.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

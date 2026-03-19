@@ -133,7 +133,7 @@ void WireguardRingLogger::process(int index)
     if (msgLen > 0) {
         QByteArray message(msgData, msgLen);
 
-        if (tunnelRunning_) {
+        if (keypairCreated_) {
             if (message.contains("Handshake for peer") && message.contains("did not complete after")) {
                 handshakeFailed_ = true;
             }
@@ -158,10 +158,11 @@ void WireguardRingLogger::process(int index)
         }
         else {
             if (!isAmneziaWG_ && message.contains("Keypair 1 created for peer 1")) {
-                tunnelRunning_ = true;
+                keypairCreated_ = true;
             }
             else if (isAmneziaWG_ && message.contains("Received handshake response")) {
-                tunnelRunning_ = true;
+            	// AmneziaWG does not report keypair creation.  It occurs immediately after the handshake response is received.
+                keypairCreated_ = true;
             }
             else if (message.contains("Failed to setup adapter")) {
                 adapterSetupFailed_ = true;

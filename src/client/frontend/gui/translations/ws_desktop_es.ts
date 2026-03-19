@@ -303,7 +303,7 @@
     <name>LogViewer::LogViewerWindow</name>
     <message>
         <source>Word Wrap</source>
-        <translation>Ajuste de línea</translation>
+        <translation>Ajuste de texto</translation>
     </message>
     <message>
         <source>Colour highlighting</source>
@@ -1041,6 +1041,10 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
         <source>Creating your account...</source>
         <translation>Creando su cuenta...</translation>
     </message>
+    <message>
+        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
+        <translation>No se puede rotar la dirección MAC mientras está conectado a la VPN. Por favor, desconecta primero.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>
@@ -1091,11 +1095,11 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
     </message>
     <message>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 1 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
-        <translation>&apos;DNS conectado&apos; no se configuró con un Upstream 1 válido (IP/DNS-over-HTTPS/TLS). El DNS se revirtió a ROBERT (predeterminado).</translation>
+        <translation>&apos;DNS conectado&apos; no se configuró con un DNS primario válido (IP/DNS-over-HTTPS/TLS). El DNS se revirtió a ROBERT (predeterminado).</translation>
     </message>
     <message>
         <source>&apos;Connected DNS&apos; was not configured with a valid Upstream 2 (IP/DNS-over-HTTPS/TLS). DNS was reverted to ROBERT (default).</source>
-        <translation>&apos;DNS conectado&apos; no se configuró con un Upstream 2 válido (IP/DNS-over-HTTPS/TLS). El DNS se revirtió a ROBERT (predeterminado).</translation>
+        <translation>&apos;DNS conectado&apos; no se configuró con un DNS secundario válido (IP/DNS-over-HTTPS/TLS). El DNS se revirtió a ROBERT (predeterminado).</translation>
     </message>
 </context>
 <context>
@@ -1244,7 +1248,7 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
     </message>
     <message>
         <source>Import</source>
-        <translation>Importación</translation>
+        <translation>Importar</translation>
     </message>
 </context>
 <context>
@@ -1266,11 +1270,11 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
     </message>
     <message>
         <source>Aspect Ratio Mode</source>
-        <translation>Modo de relación de aspecto</translation>
+        <translation>Relación de aspecto</translation>
     </message>
     <message>
         <source>When Disconnected</source>
-        <translation>Cuando está desconectado</translation>
+        <translation>Desconectado</translation>
     </message>
     <message>
         <source>Flags</source>
@@ -1290,7 +1294,7 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
     </message>
     <message>
         <source>When Connected</source>
-        <translation>Cuando está conectado</translation>
+        <translation>Conectado</translation>
     </message>
     <message>
         <source>Select an image</source>
@@ -1324,16 +1328,12 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
         <translation>DNS conectado</translation>
     </message>
     <message>
-        <source>Upstream 1</source>
-        <translation>Upstream 1</translation>
-    </message>
-    <message>
         <source>IP/DNS-over-HTTPS/TLS</source>
         <translation>IP/DNS-over-HTTPS/TLS</translation>
     </message>
     <message>
         <source>Upstream 2</source>
-        <translation>Upstream 2</translation>
+        <translation>DNS secundario</translation>
     </message>
     <message>
         <source>Split DNS</source>
@@ -1362,6 +1362,10 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
     <message>
         <source>Please provide a valid Control D API Key.</source>
         <translation>Proporcione una clave API de Control D válida.</translation>
+    </message>
+    <message>
+        <source>Upstream 1</source>
+        <translation>DNS primario</translation>
     </message>
 </context>
 <context>
@@ -1788,11 +1792,11 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
     </message>
     <message>
         <source>Change location names to your liking.</source>
-        <translation>Cambie los nombres de las ubicaciones a su gusto.</translation>
+        <translation>Renombre las ubicaciones a su gusto.</translation>
     </message>
     <message>
         <source>Rename Locations</source>
-        <translation>Cambiar el nombre de las ubicaciones</translation>
+        <translation>Renombrar ubicaciones</translation>
     </message>
     <message>
         <source>Export</source>
@@ -1800,11 +1804,11 @@ Si el problema persiste después de un reinicio, envíe un registro de depuraci�
     </message>
     <message>
         <source>Import</source>
-        <translation>Importación</translation>
+        <translation>Importar</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation>Restablecimiento</translation>
+        <translation>Restablecer</translation>
     </message>
     <message>
         <source>Choose between white and black tray icon.</source>
@@ -2247,7 +2251,7 @@ Conéctese primero a una red</translation>
     </message>
     <message>
         <source>When Disconnected</source>
-        <translation>Cuando está desconectado</translation>
+        <translation>Desconectado</translation>
     </message>
     <message>
         <source>Bundled</source>
@@ -2263,7 +2267,7 @@ Conéctese primero a una red</translation>
     </message>
     <message>
         <source>When Connected</source>
-        <translation>Cuando está conectado</translation>
+        <translation>Conectado</translation>
     </message>
 </context>
 <context>
@@ -2422,7 +2426,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Use it if OpenVPN UDP fails.</source>
-        <translation>Úsalo si falla OpenVPN UDP.</translation>
+        <translation>Úselo si falla OpenVPN UDP.</translation>
     </message>
     <message>
         <source>Disguises traffic as HTTPS with TLS.</source>
@@ -2473,7 +2477,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Alphabet</source>
-        <translation>Alfabeto</translation>
+        <translation>Alfabético</translation>
     </message>
     <message>
         <source>Latency</source>
@@ -2509,7 +2513,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Release</source>
-        <translation>Lanzamiento</translation>
+        <translation>Estable</translation>
     </message>
     <message>
         <source>Beta</source>
@@ -2609,7 +2613,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>You may need to kill the non-responding Windscribe app or reboot your computer to fix the issue.</source>
-        <translation>Es posible que debas terminar la aplicación Windscribe que no responde o reiniciar su ordenador para solucionar el problema.</translation>
+        <translation>Es posible que deba terminar la aplicación Windscribe que no responde o reiniciar su ordenador para solucionar el problema.</translation>
     </message>
     <message>
         <source>One or more files in the Windscribe application bundle have been suspiciously modified. Please re-install Windscribe.</source>
@@ -2637,7 +2641,7 @@ Si la reinstalación no ayuda, póngase en contacto con el soporte de Windscribe
     </message>
     <message>
         <source>Duplicate</source>
-        <translation>Duplicado</translation>
+        <translation>Duplicar</translation>
     </message>
     <message>
         <source>Local DNS</source>

@@ -1041,6 +1041,10 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>Creating your account...</source>
         <translation>Hesabınızı oluşturuyorum...</translation>
     </message>
+    <message>
+        <source>Cannot rotate MAC address while connected to VPN. Please disconnect first.</source>
+        <translation>VPN&apos;ye bağlıyken MAC adresi döndüremiyor. Lütfen önce bağlantıyı kesin.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindowController</name>

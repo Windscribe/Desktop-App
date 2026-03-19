@@ -104,14 +104,14 @@ void WireGuardConnection::run()
 {
     BIND_CRASH_HANDLER_FOR_THREAD();
 
-    if (wireGuardConfig_.haveAmneziawgParam()) {
+    if (isAmneziaWG()) {
         qCDebug(LOG_CONNECTION) << "Starting Amnezia WireGuardService with config:" << wireGuardConfig_.amneziawgParamTitle();
     } else {
         qCDebug(LOG_CONNECTION) << "Starting WireGuardService";
     }
 
     // This merely installs the wireguard service.  We start it with a call to startService below.
-    bool bSuccess = helper_->startWireGuard(wireGuardConfig_.haveAmneziawgParam());
+    bool bSuccess = helper_->startWireGuard(isAmneziaWG());
     if (!bSuccess) {
         qCCritical(LOG_CONNECTION) << "Windscribe service could not install the WireGuard service";
         emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
@@ -194,7 +194,7 @@ void WireGuardConnection::run()
         helper_->disableDnsLeaksProtection();
     }
 
-    if (wireGuardConfig_.haveAmneziawgParam()) {
+    if (isAmneziaWG()) {
         // This prevents the wintun adapter/network number from increasing on each connection.
         helper_->removeWindscribeNetworkProfiles();
     }
@@ -248,13 +248,21 @@ void WireGuardConnection::onGetWireguardLogUpdates()
     if (!wireguardLog_.isNull()) {
         wireguardLog_->getNewLogEntries();
 
-        if (!connectedSignalEmited_ && wireguardLog_->isTunnelRunning()) {
-            onTunnelConnected();
+        if (!connectedSignalEmited_ && wireguardLog_->isKeypairCreated()) {
+            if (isAmneziaWG()) {
+                // The AmneziaWG tunnel may not be live after key-pair creation, unlike the wireguard-nt tunnel.
+                // Check for a valid handshake to confirm both sides of the tunnel are good-to-go.
+                if (lastHandshake() > 0) {
+                    onTunnelConnected();
+                }
+            } else {
+                onTunnelConnected();
+            }
         }
 
         // We must rely on the WireGuard service log to detect handshake failures.  The service itself does
         // not provide a mechanism for detecting such a failure.
-        if (wireguardLog_->isTunnelRunning() && wireguardLog_->handshakeFailed()) {
+        if (wireguardLog_->isKeypairCreated() && wireguardLog_->handshakeFailed()) {
             onWireguardHandshakeFailure();
         }
     }
@@ -288,12 +296,12 @@ void WireGuardConnection::onWireguardHandshakeFailure()
     }
 
     if (*haveInternet) {
-        types::WireGuardStatus status;
-        if (helper_->getWireGuardStatus(&status) && (status.state == types::WireGuardState::ACTIVE) && (status.lastHandshake > 0)) {
+        const auto handshake = lastHandshake();
+        if (handshake > 0) {
             // The handshake should occur every ~2 minutes.  After 3 minutes, the server will discard our key
             // information and will silently reject anything we send to it until we make another wgconfig API call.
-            QDateTime lastHandshake = QDateTime::fromSecsSinceEpoch((status.lastHandshake / 10000000) - 11644473600LL, QTimeZone(QTimeZone::UTC));
-            qint64 secsTo = lastHandshake.secsTo(QDateTime::currentDateTimeUtc());
+            QDateTime dtHandshake = QDateTime::fromSecsSinceEpoch((handshake / 10000000) - 11644473600LL, QTimeZone(QTimeZone::UTC));
+            qint64 secsTo = dtHandshake.secsTo(QDateTime::currentDateTimeUtc());
 
             if (secsTo >= 3*60) {
                 qCWarning(LOG_CONNECTION) << secsTo << "seconds have passed since the last WireGuard handshake, disconnecting the tunnel.";
@@ -426,5 +434,20 @@ void WireGuardConnection::resetLogReader()
     ::CoTaskMemFree(programFilesPath);
 
     logFile += "\\Windscribe\\config\\log.bin";
-    wireguardLog_.reset(new wsl::WireguardRingLogger(logFile, wireGuardConfig_.haveAmneziawgParam()));
+    wireguardLog_.reset(new wsl::WireguardRingLogger(logFile, isAmneziaWG()));
+}
+
+quint64 WireGuardConnection::lastHandshake() const
+{
+    types::WireGuardStatus status;
+    if (helper_->getWireGuardStatus(&status) && (status.state == types::WireGuardState::ACTIVE)) {
+        return status.lastHandshake;
+    }
+
+    return 0;
+}
+
+bool WireGuardConnection::isAmneziaWG() const
+{
+    return wireGuardConfig_.haveAmneziawgParam();
 }
