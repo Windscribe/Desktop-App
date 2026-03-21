@@ -49,6 +49,7 @@ END
 #pragma code_page(65001)
 
 #include "translations/windscribe_uninstaller_ar.rc"
+#include "translations/windscribe_uninstaller_be.rc"
 #include "translations/windscribe_uninstaller_cs.rc"
 #include "translations/windscribe_uninstaller_de.rc"
 #include "translations/windscribe_uninstaller_el.rc"
