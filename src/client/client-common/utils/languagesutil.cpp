@@ -14,7 +14,7 @@ QString LanguagesUtil::convertCodeToNative(const QString &code)
     else if (code == "ar") // Arabic
         return "العربية";
     else if (code == "be") // Belarusian
-        return "беларуская";
+        return "Беларуская";
     else if (code == "cs") // Czech
         return "Čeština";
     else if (code == "de") // German
