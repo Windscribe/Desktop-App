@@ -86,6 +86,7 @@ enum class HelperCommand {
 
     // Linux
     setDnsLeakProtectEnabled,
+    setGaiIpv4PriorityEnabled,
     resetMacAddresses
 };
 

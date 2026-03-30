@@ -7,43 +7,20 @@
 PATH="$PATH:/usr/local/sbin:/usr/sbin:/sbin"
 
 GAI_CONF="/etc/gai.conf"
-WINDSCRIBE_RUN_DIR="/var/run/windscribe"
-GAI_BACKUP="$WINDSCRIBE_RUN_DIR/gai.conf.bak"
-GAI_MODIFIED_FLAG="$WINDSCRIBE_RUN_DIR/gai_modified"
+WINDSCRIBE_MARKER="# Added by Windscribe to prioritize IPv4 when IPv6 is blocked"
 
 # Enable IPv4 priority by modifying gai.conf
 gai_ipv4_priority_up()
 {
-    # Create run directory if it doesn't exist
-    if [ ! -d "$WINDSCRIBE_RUN_DIR" ]; then
-        mkdir -p "$WINDSCRIBE_RUN_DIR"
-    fi
-
     # Check if IPv4 priority is already configured
     if [ -f "$GAI_CONF" ] && grep -q "^precedence ::ffff:0:0/96  100" "$GAI_CONF" 2>/dev/null; then
         echo "IPv4 priority already configured in $GAI_CONF"
         return 0
     fi
 
-    # Backup original gai.conf if it exists and not already backed up
-    if [ -f "$GAI_CONF" ] && [ ! -f "$GAI_BACKUP" ]; then
-        cp -a "$GAI_CONF" "$GAI_BACKUP"
-    fi
-
-    # If gai.conf doesn't exist, create it
-    if [ ! -f "$GAI_CONF" ]; then
-        echo "# gai.conf - getaddrinfo configuration" > "$GAI_CONF"
-        command -v restorecon >/dev/null 2>&1 && restorecon -F "$GAI_CONF" 2>/dev/null || true
-    fi
-
     # Add IPv4 priority configuration
     # This gives IPv4-mapped addresses higher precedence than native IPv6
-    echo "" >> "$GAI_CONF"
-    echo "# Added by Windscribe to prioritize IPv4 when IPv6 is blocked" >> "$GAI_CONF"
-    echo "precedence ::ffff:0:0/96  100" >> "$GAI_CONF"
-
-    # Mark that we modified the file
-    touch "$GAI_MODIFIED_FLAG"
+    echo "precedence ::ffff:0:0/96  100  $WINDSCRIBE_MARKER" >> "$GAI_CONF"
 
     echo "IPv4 priority configured in $GAI_CONF"
 }
@@ -51,27 +28,34 @@ gai_ipv4_priority_up()
 # Restore original gai.conf
 gai_ipv4_priority_down()
 {
-    # Check if we modified the file
-    if [ ! -f "$GAI_MODIFIED_FLAG" ]; then
+    if [ ! -f "$GAI_CONF" ]; then
         echo "No gai.conf modifications to restore"
         return 0
     fi
 
-    # Restore backup if it exists
-    if [ -f "$GAI_BACKUP" ]; then
-        cp -a "$GAI_BACKUP" "$GAI_CONF"
-        rm -f "$GAI_BACKUP"
-        echo "Restored original $GAI_CONF"
-    else
-        # No backup exists, we created the file, so delete it
-        if [ -f "$GAI_CONF" ]; then
-            rm -f "$GAI_CONF"
-            echo "Removed $GAI_CONF created by Windscribe"
-        fi
+    local modified=false
+
+    # Remove legacy format: marker on its own line followed by the precedence line
+    if grep -qF "$WINDSCRIBE_MARKER" "$GAI_CONF" 2>/dev/null; then
+        sed -i "\|^${WINDSCRIBE_MARKER}$|{N;/\nprecedence ::ffff:0:0\/96  100$/d;}" "$GAI_CONF"
+        modified=true
     fi
 
-    # Remove the flag
-    rm -f "$GAI_MODIFIED_FLAG"
+    # Remove any lines containing our marker (current format: precedence + marker on same line)
+    if grep -qF "$WINDSCRIBE_MARKER" "$GAI_CONF" 2>/dev/null; then
+        sed -i "\|${WINDSCRIBE_MARKER}|d" "$GAI_CONF"
+        modified=true
+    fi
+
+    if [ "$modified" = true ]; then
+        # If the file is now empty (only whitespace), remove it
+        if ! grep -q '[^[:space:]]' "$GAI_CONF" 2>/dev/null; then
+            rm -f "$GAI_CONF"
+        fi
+        echo "Removed Windscribe IPv4 priority entries from $GAI_CONF"
+    else
+        echo "No gai.conf modifications to restore"
+    fi
 }
 
 main()

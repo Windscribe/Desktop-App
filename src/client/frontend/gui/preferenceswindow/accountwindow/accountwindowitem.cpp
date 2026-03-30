@@ -8,6 +8,7 @@
 #include "dpiscalemanager.h"
 #include "graphicresources/fontmanager.h"
 #include "languagecontroller.h"
+#include "loginwindow/hashutil.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/utils.h"
 
@@ -117,6 +118,11 @@ void AccountWindowItem::setLoggedIn(bool loggedIn)
     loginButton_->setVisible(!loggedIn);
 
     if (loggedIn) {
+        if (LoginWindow::HashUtil::isValidTruncatedSHA256(accountInfo_->username())) {
+            infoGroup_->hideItems(infoGroup_->indexOf(emailItem_));
+        } else {
+            infoGroup_->showItems(infoGroup_->indexOf(emailItem_));
+        }
         updatePlanGroupItemVisibility();
         setDataLeft();
     }

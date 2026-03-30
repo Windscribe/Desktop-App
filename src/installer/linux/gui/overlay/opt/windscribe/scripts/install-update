@@ -4,6 +4,26 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
+is_windscribe_running() {
+    local pid
+    pid=$(pgrep -x Windscribe) || return 1
+    local state
+    state=$(ps -o stat= -p "$pid" 2>/dev/null)
+    if [ -z "$state" ] || [ "${state:0:1}" = "Z" ]; then
+        return 1
+    fi
+    return 0
+}
+
+killall -q Windscribe
+for i in $(seq 1 100); do
+    is_windscribe_running || break
+    sleep 0.1
+done
+if is_windscribe_running; then
+    killall -q -9 Windscribe
+fi
+
 platform=`cat /etc/windscribe/platform`
 if [ -z $platform ]; then
     # should not be here
@@ -11,21 +31,21 @@ if [ -z $platform ]; then
 fi
 
 if [ $platform == "linux_deb_x64" -o $platform == "linux_deb_arm64" ]; then
-    pkexec sh -c "killall -q -w Windscribe && APT_LISTBUGS_FRONTEND=none apt install -y --reinstall \"$1\""
+    pkexec sh -c "APT_LISTBUGS_FRONTEND=none apt install -y --reinstall \"$1\""
 elif [ $platform == "linux_rpm_x64" -o $platform == "linux_rpm_arm64" ]; then
     if command -v rpm-ostree; then
-        killall -q -w Windscribe && rpm-ostree upgrade --cache-only --reboot --uninstall windscribe --install "$1"
+        rpm-ostree upgrade --cache-only --reboot --uninstall windscribe --install "$1"
     else
-        pkexec sh -c "killall -q -w Windscribe && dnf upgrade --cacheonly -y \"$1\""
+        pkexec sh -c "dnf upgrade --cacheonly -y \"$1\""
     fi
 elif [ $platform = "linux_rpm_opensuse_x64" ]; then
     if [ -f /usr/sbin/transactional-update ]; then
-        pkexec sh -c "killall -q -w Windscribe && transactional-update -n pkg install --allow-unsigned-rpm \"$1\"; reboot"
+        pkexec sh -c "transactional-update -n pkg install --allow-unsigned-rpm \"$1\"; reboot"
     else
-        pkexec sh -c "killall -q -w Windscribe && zypper --non-interactive install --force --allow-unsigned-rpm \"$1\""
+        pkexec sh -c "zypper --non-interactive install --force --allow-unsigned-rpm \"$1\""
     fi
 elif [ $platform == "linux_zst_x64" ]; then
-    pkexec sh -c "killall -q -w Windscribe && pacman -U --noconfirm \"$1\""
+    pkexec sh -c "pacman -U --noconfirm \"$1\""
 fi
 
 nohup /opt/windscribe/Windscribe &>/dev/null & disown;

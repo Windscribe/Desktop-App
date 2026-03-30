@@ -434,6 +434,18 @@ std::string setDnsLeakProtectEnabled(const std::string &pars)
     return std::string();
 }
 
+std::string setGaiIpv4PriorityEnabled(const std::string &pars)
+{
+    bool enabled;
+    deserializePars(pars, enabled);
+    spdlog::debug("Set gai IPv4 priority: {}", enabled ? "enabled" : "disabled");
+    // We only handle the down case; the 'up' trigger for this script happens in the DNS manager script
+    if (!enabled) {
+        Utils::executeCommand("/opt/windscribe/scripts/gai-ipv4-priority", {"down"});
+    }
+    return std::string();
+}
+
 std::string resetMacAddresses(const std::string &pars)
 {
     std::string ignoreNetwork;

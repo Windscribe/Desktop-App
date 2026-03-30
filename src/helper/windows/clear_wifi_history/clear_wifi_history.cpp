@@ -52,10 +52,7 @@ bool ClearWiFiHistory::clear()
 std::set<std::wstring> ClearWiFiHistory::getCurrentConnectedProfiles()
 {
     std::set<std::wstring> connectedProfiles;
-    if (!wsl::SystemLibLoader::isAvailable("wlanapi.dll")) {
-        return connectedProfiles;
-    }
-
+    
     try {
         // Load the DLL dynamically as Windows server OSes may not have the Wireless LAN Service installed. The DLL will only
         // exist on the system if said service is installed, and we don't want to block Windscribe install on the server OS
@@ -207,11 +204,6 @@ bool ClearWiFiHistory::clearNlaCache()
 
 bool ClearWiFiHistory::clearWlanProfileFiles(const std::set<std::wstring>& connectedProfiles)
 {
-    if (!wsl::SystemLibLoader::isAvailable("wlanapi.dll")) {
-    	// Returning true since the OS has no Wi-Fi support without this DLL.
-        return true;
-    }
-
     bool overallSuccess = true;
 
     try {

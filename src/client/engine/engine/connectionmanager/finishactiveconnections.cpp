@@ -97,6 +97,7 @@ void FinishActiveConnections::finishWireGuardActiveConnections_posix(Helper *hel
 void FinishActiveConnections::removeDnsLeaksprotection_linux(Helper *helper)
 {
     helper->setDnsLeakProtectEnabled(false);
+    helper->setGaiIpv4PriorityEnabled(false);
 }
 #endif
 

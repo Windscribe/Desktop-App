@@ -11,5 +11,6 @@ public:
 
     bool installUpdate(const QString& package) const;
     void setDnsLeakProtectEnabled(bool bEnabled);
+    void setGaiIpv4PriorityEnabled(bool bEnabled);
     void resetMacAddresses(const QString &ignoreNetwork = "");
 };

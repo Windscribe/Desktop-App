@@ -45,7 +45,10 @@ public:
             throw std::invalid_argument("Null parameter passed to SystemLibLoader");
         }
 
-        handle_ = ::LoadLibraryExA(libName, NULL, LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_REQUIRE_SIGNED_TARGET);
+        // NOTE: previously used the LOAD_LIBRARY_REQUIRE_SIGNED_TARGET flag here, but apparently some Windows
+        // system DLLs do not support having their digital signature verified by the system loader.  Using this
+        // flag will cause LoadLibraryEx to fail with ERROR_INVALID_IMAGE_HASH for those DLLs (e.g. wlanapi.dll).
+        handle_ = ::LoadLibraryExA(libName, NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
 
         if (!handle_) {
             throw std::system_error(::GetLastError(), std::system_category(), std::string("SystemLibLoader failed to load DLL ") + libName);
@@ -65,7 +68,7 @@ public:
             return false;
         }
 
-        HMODULE handle = ::LoadLibraryExA(libName, NULL, LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_REQUIRE_SIGNED_TARGET);
+        HMODULE handle = ::LoadLibraryExA(libName, NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
         if (handle) {
             ::FreeLibrary(handle);
             return true;

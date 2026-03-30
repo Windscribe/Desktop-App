@@ -1,3 +1,14 @@
+2.21.7 (23/03/2026)
+All:
+   * Fixed e-mail field should not show for hashed accounts. #1704
+Windows:
+   * Fixed 'Clear Wi-Fi History' feature not clearing WLAN profiles. #1681
+Linux:
+   * Fixed /etc/gai.conf changes not undone after disconnection. #1705
+   * Fixed ip6tables rule ordering. #1706
+   * Fixed updater may get stuck if gnome-session-service doesn't reap the old process. #1697
+
+
 2.21.6 (12/03/2026)
 All:
    * Improved more Spanish translations. #1685

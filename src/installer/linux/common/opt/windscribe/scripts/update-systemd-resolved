@@ -485,14 +485,16 @@ main() {
       elif [[ "${script_type}" == "down" ]]; then
 
         # The device (adapter) was not found, but execute down_loopback function if need
-    if [ -f "$WINDSCRIBE_SYSTEMD_CONFIG_FILE" ]; then
-          down_loopback
-    fi
+        if [ -f "$WINDSCRIBE_SYSTEMD_CONFIG_FILE" ]; then
+            down_loopback
+        fi
 
-        # The device (adapter) was not found, but execute down script for DNS-leaks rules anyway
+        # The device (adapter) was not found, but execute down script for DNS-leaks rules & gai.conf anyway
         SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
         DNS_LEAK_SCRIPT=$SCRIPT_DIR/dns-leak-protect
         "$DNS_LEAK_SCRIPT" "down"
+        GAI_SCRIPT=$SCRIPT_DIR/gai-ipv4-priority
+        "$GAI_SCRIPT" "down"
         return 0
       fi
     fi

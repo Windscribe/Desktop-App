@@ -111,8 +111,8 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     rules << "*filter\n";
     rules << ":windscribe_input - [0:0]\n";
     rules << ":windscribe_output - [0:0]\n";
-    rules << "-A INPUT -j windscribe_input -m comment --comment \"" + comment_ + "\"\n";
-    rules << "-A OUTPUT -j windscribe_output -m comment --comment \"" + comment_ + "\"\n";
+    rules << "-I INPUT -j windscribe_input -m comment --comment \"" + comment_ + "\"\n";
+    rules << "-I OUTPUT -j windscribe_output -m comment --comment \"" + comment_ + "\"\n";
     rules << "-A windscribe_input -s ::1/128 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
     rules << "-A windscribe_output -d ::1/128 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
     rules << "-A windscribe_input -j DROP -m comment --comment \"" + comment_ + "\"\n";
