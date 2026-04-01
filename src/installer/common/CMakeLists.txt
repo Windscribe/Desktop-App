@@ -4,6 +4,7 @@ set(CMAKE_AUTORCC ON)
 
 set(WINDSCRIBE_TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_ar.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_be.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_cs.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_de.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_installer_el.ts

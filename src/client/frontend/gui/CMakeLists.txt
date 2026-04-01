@@ -15,6 +15,7 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets Network Svg LinguistTools)
 
 set(WS_TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_ar.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_be.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_cs.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_de.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/ws_desktop_el.ts

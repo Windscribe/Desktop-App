@@ -1,0 +1,10 @@
+LANGUAGE LANG_BELARUSIAN, SUBLANG_NEUTRAL
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_TITLE "Выдаленьне Windscribe"
+    IDS_DIRECTORY_MISMATCH "Выдаленьне немагчыма працягнуць. Каталёґ усталёўкі не супадае з каталёґам выдаленьня."
+    IDS_CONFIRM_UNINSTALL "Вы ўпэўненыя, што хочаце цалкам выдаліць Windscribe і ўсе кампанэнты?"
+    IDS_UNINSTALL_SUCCESS "Windscribe быў пасьпяхова выдалены з вашага кампутара."
+    IDS_CLOSE_APP "Выйдзіце з праґрамы Windscribe, каб працягнуць выдаленьне. Зьвярніце ўвагу: пасьля выхаду з праґрамы вашае злучэньне не будзе абаронена."
+END

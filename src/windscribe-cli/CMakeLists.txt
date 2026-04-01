@@ -108,6 +108,7 @@ add_executable(windscribe-cli ${SOURCES})
 
 set(TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_ar.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_be.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_cs.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_de.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_el.ts
