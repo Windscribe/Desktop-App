@@ -40,7 +40,8 @@ bool writeOVPNFile(const std::string &dnsScript, unsigned int port, const std::s
             line.rfind("auth-user-pass-verify", 2) != std::string::npos ||
             line.rfind("management", 2) != std::string::npos ||
             line.rfind("http-proxy", 2) != std::string::npos ||
-            line.rfind("socks-proxy", 2) != std::string::npos)
+            line.rfind("socks-proxy", 2) != std::string::npos ||
+            line.rfind("plugin", 2) != std::string::npos)
         {
             continue;
         }

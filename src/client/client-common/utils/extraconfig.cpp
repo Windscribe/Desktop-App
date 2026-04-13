@@ -323,7 +323,7 @@ bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const
     const char *kUnsafeCommands[] = {
         "up", "down", "ipchange", "route-up", "route-pre-down", "auth-user-pass-verify",
         "client-connect", "client-disconnect", "learn-address", "tls-verify", "log", "log-append",
-        "tmp-dir"
+        "tmp-dir", "plugin"
     };
     const size_t kNumUnsafeCommands = sizeof(kUnsafeCommands) / sizeof(kUnsafeCommands[0]);
     for (size_t i = 0; i < kNumUnsafeCommands; ++i) {
