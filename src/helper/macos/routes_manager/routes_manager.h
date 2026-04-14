@@ -27,8 +27,10 @@ private:
     BoundRoute boundRoute_;
     Routes dnsServersRoutes_;
     Routes vpnRoutes_;
+    Routes lanMulticastRoutes_;
 
     RoutesManager();
     void addDnsRoutes(const ConnectStatus &connectStatus);
+    void addLanMulticastRoutes(const ConnectStatus &connectStatus);
     void clearAllRoutes();
 };

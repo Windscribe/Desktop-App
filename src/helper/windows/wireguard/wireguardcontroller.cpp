@@ -1,4 +1,5 @@
 // Have to include wireguard.h first or we'll get include conflicts in the Windows headers.
+#include "ws_branding.h"
 #include "wireguard.h"
 #include "wireguardcontroller.h"
 
@@ -76,7 +77,7 @@ bool WireGuardController::installService(bool isAmneziaWG)
 #endif
 
         svcCtrl.installService(kWireGuardServiceIdentifier.c_str(), serviceCmdLine.c_str(),
-            L"Windscribe Wireguard Tunnel", L"Manages the Windscribe WireGuard tunnel connection",
+            WS_PRODUCT_NAME_W L" Wireguard Tunnel", L"Manages the " WS_PRODUCT_NAME_W L" WireGuard tunnel connection",
             SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, L"Nsi\0TcpIp\0", true);
 
         svcCtrl.setServiceSIDType(SERVICE_SID_TYPE_UNRESTRICTED);
@@ -340,7 +341,7 @@ std::wstring WireGuardController::configFile() const
 void WireGuardController::getAmneziaWGStatus(ULONG64& lastHandshake, ULONG64& txBytes, ULONG64& rxBytes) const
 {
     // Connect to the AmneziaWG UAPI named pipe
-    // The adapter name is "WindscribeWireguard" as defined in ServiceMain.cpp
+    // The adapter name is WS_APP_IDENTIFIER "Wireguard" as defined in ServiceMain.cpp
     std::wstring pipeName = L"\\\\.\\pipe\\ProtectedPrefix\\Administrators\\AmneziaWG\\" + kWireGuardAdapterIdentifier;
 
     wsl::Win32Handle hPipe(::CreateFileW(pipeName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL));

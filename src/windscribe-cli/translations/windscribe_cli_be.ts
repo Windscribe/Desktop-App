@@ -16,6 +16,10 @@
         <translation>Няма месцазнаходжаньняў.</translation>
     </message>
     <message>
+        <source>No ports available for the specified protocol.</source>
+        <translation>Портаў для паказанага пратаколу няма.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>Не ўдалося зьмяніць IP-адрас.  Праверце, ці маеце Windscribe Pro, альбо ці ўваходзіць гэтае месцазнаходжаньне ў вашы тарыфны плян, альбо паўтарыце спробу пазьней.</translation>
     </message>

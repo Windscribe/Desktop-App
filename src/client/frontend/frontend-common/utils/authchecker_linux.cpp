@@ -12,15 +12,15 @@ AuthChecker_linux::AuthChecker_linux(QObject *parent) : IAuthChecker(parent)
 AuthCheckerError AuthChecker_linux::authenticate()
 {
 #ifdef QT_DEBUG
-    QString authHelperPath = "/usr/bin/windscribe-authhelper";
+    QString authHelperPath = "/usr/bin/" WS_PRODUCT_NAME_LOWER "-authhelper";
 #else
     QString appDir = QCoreApplication::applicationDirPath();
-    QString authHelperPath = appDir + "/windscribe-authhelper";
+    QString authHelperPath = appDir + "/" WS_PRODUCT_NAME_LOWER "-authhelper";
 #endif
 
     // TODO: uncomment this verify check once the following are complete:
-    // * installer installs windscribe-authhelper and policy file
-    // * build_all script builds and signs windscribe-authhelper
+    // * installer installs authhelper and policy file
+    // * build_all script builds and signs authhelper
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(authHelperPath.toStdString()))
     {

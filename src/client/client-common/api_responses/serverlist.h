@@ -1,24 +1,22 @@
 #pragma once
 
+#include <memory>
 #include <QString>
 #include "location.h"
+
+namespace wsnet { class WSNetServerLocations; }
 
 namespace api_responses {
 
 class ServerList
 {
 public:
-    ServerList(const std::string &json);
+    explicit ServerList(std::shared_ptr<wsnet::WSNetServerLocations> serverLocations);
 
     QVector<Location> locations() const { return locations_; }
-    QStringList forceDisconnectNodes() const { return forceDisconnectNodes_; }
-    QString countryOverride() const { return countryOverride_; }
 
 private:
     QVector<Location> locations_;
-    QStringList forceDisconnectNodes_;
-    QString countryOverride_;
-
 };
 
 } //namespace api_responses

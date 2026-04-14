@@ -186,6 +186,22 @@ void CliArguments::parseLocations(const QStringList &args)
     }
 }
 
+void CliArguments::parsePorts(const QStringList &args)
+{
+    if (args.length() <= 2) {
+        cliCommand_ = CLI_COMMAND_HELP;
+        return;
+    }
+
+    QString arg2 = args[2].toLower();
+    if (isProtocol(arg2)) {
+        protocol_ = getProtocol(arg2);
+        cliCommand_ = CLI_COMMAND_PORTS;
+    } else {
+        cliCommand_ = CLI_COMMAND_HELP;
+    }
+}
+
 void CliArguments::parseLogin(const QStringList &args)
 {
     cliCommand_ = CLI_COMMAND_LOGIN;
@@ -283,6 +299,8 @@ void CliArguments::processArguments()
         cliCommand_ = CLI_COMMAND_AMNEZIAWG;
     } else if (arg1 == "locations") {
         parseLocations(args);
+    } else if (arg1 == "ports") {
+        parsePorts(args);
     } else if (arg1 == "login") {
         parseLogin(args);
     } else if (arg1 == "logout") {

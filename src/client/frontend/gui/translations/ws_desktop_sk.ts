@@ -1252,14 +1252,26 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::AntiCensorshipGroup</name>
+    <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Circumvent Censorship</source>
-        <translation>Obchádzanie cenzúry</translation>
+        <source>Anti-censorship</source>
+        <translation>Anticenzúra</translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation>Konfigurácia</translation>
+        <source>These degrade performance, enable only if Windscribe doesn&apos;t connect normally.</source>
+        <translation>Tieto znižujú výkon, zapínajú sa len vtedy, ak sa Windscribe nepripája normálne.</translation>
+    </message>
+    <message>
+        <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
+        <translation>Zmeny na úrovni protokolov WireGuard, OpenVPN a Stealth.</translation>
+    </message>
+    <message>
+        <source>Increases latency, but improves chances of being able to connect.</source>
+        <translation>Zvyšuje to latenciu, ale zvyšuje šancu na spojenie.</translation>
+    </message>
+    <message>
+        <source>Server Routing</source>
+        <translation>Smerovanie servera</translation>
     </message>
 </context>
 <context>
@@ -1495,8 +1507,8 @@ Ak problém pretrváva aj po reštarte, pošlite nám denník ladenia, otvorte �
         <translation>Odstrániť informácie o Wi-Fi SSID a MAC z operačného systému, aby sa zabránilo sledovaniu histórie polohy.</translation>
     </message>
     <message>
-        <source>Connect to the VPN with WireGuard even in a hostile environment.</source>
-        <translation>Pripojte sa na VPN cez WireGuard aj v nepriateľskom prostredí.</translation>
+        <source>Anti-censorship Settings</source>
+        <translation>Nastavenia proti cenzúre</translation>
     </message>
 </context>
 <context>
@@ -2061,6 +2073,17 @@ Najprv sa pripojte k sieti</translation>
     </message>
 </context>
 <context>
+    <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Protocol Tweaks</source>
+        <translation>Úpravy protokolu</translation>
+    </message>
+    <message>
+        <source>Amnezia Config</source>
+        <translation>Amnezia Config</translation>
+    </message>
+</context>
+<context>
     <name>PreferencesWindow::ProxyGatewayGroup</name>
     <message>
         <source>Proxy Gateway</source>
@@ -2584,14 +2607,6 @@ Ak preinštalovanie nepomôže, obráťte sa na podporu Windscribe a požiadajte
         <translation>Statické IP adresy</translation>
     </message>
     <message>
-        <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
-        <translation>Vaša verzia aplikácie už nie je podporovaná. Ak chcete pokračovať v používaní Windscribe, aktualizujte ju.</translation>
-    </message>
-    <message>
-        <source>Please upgrade to a Pro account to continue using Windscribe.</source>
-        <translation>Ak chcete pokračovať v používaní Windscribu, prejdite na účet Pro.</translation>
-    </message>
-    <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
         <translation>Platnosť vášho pôvodného účtu %1 vypršala. Vytváranie viacerých účtov s cieľom obísť obmedzenia bezplatnej úrovne je zakázané. Prihláste sa do pôvodného účtu a počkajte, kým sa šírka pásma obnoví. Môžete tiež prejsť na verziu Pro.</translation>
     </message>
@@ -2671,16 +2686,28 @@ Ak preinštalovanie nepomôže, obráťte sa na podporu Windscribe a požiadajte
         <source>Random IP</source>
         <translation>Náhodná IP adresa</translation>
     </message>
+    <message>
+        <source>Your application version is no longer supported. Please update to continue using %1.</source>
+        <translation>Vaša aplikačná verzia už nie je podporovaná. Prosím, aktualizujte, aby ste naďalej používali %1.</translation>
+    </message>
+    <message>
+        <source>Please upgrade to a Pro account to continue using %1.</source>
+        <translation>Prosím, upgradujte na Pro účet, aby ste mohli naďalej používať %1.</translation>
+    </message>
+    <message>
+        <source>Regular</source>
+        <translation>Pravidelný</translation>
+    </message>
+    <message>
+        <source>Alternate</source>
+        <translation>Alternatívne</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
     <message>
         <source>Unknown Config Error</source>
         <translation>Neznáma chyba konfigurácie</translation>
-    </message>
-    <message>
-        <source>File Sharing Frowned Upon</source>
-        <translation>Zdieľanie súborov sa neodporúča</translation>
     </message>
 </context>
 <context>

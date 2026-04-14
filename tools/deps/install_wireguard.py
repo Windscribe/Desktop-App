@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2026, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs WireGuard executables.
 import os
@@ -26,13 +26,13 @@ DEP_TITLE = "WireGuard"
 DEP_URL_WIN = "https://git.zx2c4.com/wireguard-windows/snapshot/"
 DEP_URL_GNU = "https://git.zx2c4.com/wireguard-go/snapshot/"
 DEP_OS_LIST = ["win32", "macos", "linux"]
-DEP_FILE_MASK = ["windscribewireguard*", "*.dll"]
 
 
-def BuildDependencyMSVC(outpath):
+def BuildDependencyMSVC(outpath, outpath_arm64, configured_rc):
     buildenv = os.environ.copy()
-    dep_buildroot_arm64 = os.path.join("build-libs-arm64", DEP_TITLE.lower())
-    outpath_arm64 = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_arm64))
+    if configured_rc:
+        src_rc = os.path.join(os.getcwd(), "embeddable-dll-service", "version_info.rc")
+        utl.CopyFile(configured_rc, src_rc)
     with utl.PushDir(os.path.join(os.getcwd(), "embeddable-dll-service")):
         currend_wd = os.getcwd()
         iutl.RunCommand(["build.bat"], env=buildenv, shell=True)
@@ -50,18 +50,20 @@ def BuildDependencyMacOS(build_arch):
     iutl.RunCommand(["make"], env=buildenv)
 
 
-def BuildDependencyLinux(outpath):
+def BuildDependencyLinux(outpath, product_name):
     currend_wd = os.getcwd()
     buildenv = os.environ.copy()
     buildenv.update({"BINDIR": "wireguard", "DESTDIR": os.path.dirname(currend_wd) + os.sep})
-    # Build and install.
     iutl.RunCommand(["make"], env=buildenv)
     iutl.RunCommand(["make", "install", "-s"], env=buildenv)
-    utl.CopyFile("{}/wireguard-go".format(currend_wd), "{}/windscribewireguard".format(outpath))
-    iutl.RunCommand(["strip", "--strip-all", "{}/windscribewireguard".format(outpath)], env=buildenv)
+    exe_name = "{}wireguard".format(product_name)
+    utl.CopyFile("{}/wireguard-go".format(currend_wd), "{}/{}".format(outpath, exe_name))
+    iutl.RunCommand(["strip", "--strip-all", "{}/{}".format(outpath, exe_name)], env=buildenv)
 
 
 def InstallDependency():
+    product_name = iutl.ParseProductArg()
+    dep_file_mask = ["{}wireguard*".format(product_name), "*.dll"]
     # Load environment.
     c_ismac = utl.GetCurrentOS() == "macos"
     msg.HeadPrint("Loading: \"{}\"".format(CONFIG_NAME))
@@ -100,10 +102,16 @@ def InstallDependency():
             iutl.RunCommand(["mv", archivetitle, archivetitle + "-arm64"])
             iutl.RunCommand(["cp", "-r", archivetitle + "-arm64", archivetitle + "-amd64"])
     # Build the dependency.
-    dep_buildroot_str = os.path.join("build-libs", dep_name)
+    dep_buildroot_str = os.path.join(iutl.GetBuildLibsRoot(product_name), dep_name)
     outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
     # Clean the output folder to ensure no conflicts when we're updating to a newer wireguard version.
     utl.RemoveDirectory(outpath)
+    exe_name = "{}wireguard".format(product_name)
+    configured_rc = None
+    if utl.GetCurrentOS() == "win32":
+        template_in = os.path.join(TOOLS_DIR, "deps", "custom_wireguard", "embeddable-dll-service", "version_info.rc.in")
+        configured_rc = os.path.join(temp_dir, "version_info.rc")
+        iutl.ConfigureDependencyTemplate(product_name, template_in, configured_rc)
     if c_ismac:
         msg.Info("Building: {} for architecture arm64".format(archivetitle))
         wireguard_src_dir_arm = os.path.join(temp_dir, archivetitle + "-arm64")
@@ -115,15 +123,17 @@ def InstallDependency():
             BuildDependencyMacOS("amd64")
         utl.CreateDirectory(outpath)
         with utl.PushDir(temp_dir):
-            iutl.RunCommand(["lipo", "-create", archivetitle + "-arm64/wireguard-go", archivetitle + "-amd64/wireguard-go", "-output", outpath + "/windscribewireguard"])
-            iutl.RunCommand(["strip", "-ur", outpath + "/windscribewireguard"])
+            iutl.RunCommand(["lipo", "-create", archivetitle + "-arm64/wireguard-go", archivetitle + "-amd64/wireguard-go", "-output", outpath + "/" + exe_name])
+            iutl.RunCommand(["strip", "-ur", outpath + "/" + exe_name])
     else:
         with utl.PushDir(os.path.join(temp_dir, archivetitle)):
             msg.HeadPrint("Building: \"{}\"".format(archivetitle))
             if utl.GetCurrentOS() == "win32":
-                BuildDependencyMSVC(outpath)
+                dep_buildroot_arm64 = os.path.join(iutl.GetBuildLibsRoot(product_name, is_arm64=True), dep_name)
+                outpath_arm64 = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_arm64))
+                BuildDependencyMSVC(outpath, outpath_arm64, configured_rc)
             else:
-                BuildDependencyLinux(outpath)
+                BuildDependencyLinux(outpath, product_name)
     # Copy the dependency to output directory and to a zip file, if needed.
     aflist = [outpath]
     if "-zip" in sys.argv:
@@ -131,7 +141,7 @@ def InstallDependency():
         dep_artifact_str = os.environ.get(dep_artifact_var, "{}.zip".format(dep_name))
         installzipname = os.path.join(os.path.dirname(outpath), dep_artifact_str)
         msg.Print("Installing artifacts...")
-        aflist = iutl.InstallArtifacts(outpath, DEP_FILE_MASK, None, installzipname)
+        aflist = iutl.InstallArtifacts(outpath, dep_file_mask, None, installzipname)
     for af in aflist:
         msg.HeadPrint("Ready: \"{}\"".format(af))
     # Cleanup.

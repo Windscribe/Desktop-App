@@ -146,9 +146,10 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
 
         if (option.isShowCountryFlagForCity()) {
             IndependentPixmap pixmapNick = cache->pixmap(CityItemDelegateCache::kNickId);
-            WS_ASSERT(!pixmapNick.isNull());
-            QRect rc(rcCaption.left() + rcCaption.width() + 8*G_SCALE, option.rect.top() + 2*G_SCALE, pixmapNick.width(), pixmapNick.height());
-            pixmapNick.draw(rc.left(), rc.top(), painter);
+            if (!pixmapNick.isNull()) {
+                QRect rc(rcCaption.left() + rcCaption.width() + 8*G_SCALE, option.rect.top() + 2*G_SCALE, pixmapNick.width(), pixmapNick.height());
+                pixmapNick.draw(rc.left(), rc.top(), painter);
+            }
             painter->setOpacity(0.6);
 
             IndependentPixmap pixmapPinnedIp = cache->pixmap(CityItemDelegateCache::kPinnedIpId);
@@ -166,9 +167,10 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         // city text for non-static and non-custom views only (not in favorites tab)
         if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
             IndependentPixmap pixmapNick = cache->pixmap(CityItemDelegateCache::kNickId);
-            WS_ASSERT(!pixmapNick.isNull());
-            QRect rc( rcCaption.left() + rcCaption.width() + 8*G_SCALE,  option.rect.top(), pixmapNick.width(), option.rect.height());
-            pixmapNick.draw(rc.left(), rc.top() + (rc.height() -  pixmapNick.height()) / 2, painter);
+            if (!pixmapNick.isNull()) {
+                QRect rc( rcCaption.left() + rcCaption.width() + 8*G_SCALE,  option.rect.top(), pixmapNick.width(), option.rect.height());
+                pixmapNick.draw(rc.left(), rc.top() + (rc.height() -  pixmapNick.height()) / 2, painter);
+            }
         }
     }
 
@@ -231,21 +233,24 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
         xOffset -= LOCATION_ITEM_MARGIN*G_SCALE;
     }
 
-    // favorite icon
+    // no p2p icon + favorite icon
     // You can't favorite a static ip or custom config location.
     if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
-        QSharedPointer<IndependentPixmap> favIcon;
-        bool isHoveringFavorite = (option.hoverClickableId() == (int)ClickableRect::kFavorite);
         if (qFuzzyCompare(option.selectedOpacity(), 1.0)) {
+            QSharedPointer<IndependentPixmap> favIcon;
+            bool isHoveringFavorite = (option.hoverClickableId() == (int)ClickableRect::kFavorite);
             if (index.data(kIsFavorite).toBool() == true) {
                 painter->setOpacity(isHoveringFavorite ? OPACITY_FULL : OPACITY_SEVENTY);
                 favIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_SELECTED");
-                favIcon->draw(xOffset - favIcon->width(), top_offs + (option.rect.height() - favIcon->height()) / 2, painter);
             } else {
                 painter->setOpacity(isHoveringFavorite ? OPACITY_FULL : OPACITY_SEVENTY);
                 favIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/FAV_ICON_DESELECTED");
-                favIcon->draw(xOffset - favIcon->width(), top_offs + (option.rect.height() - favIcon->height()) / 2, painter);
             }
+            favIcon->draw(xOffset - favIcon->width(), top_offs + (option.rect.height() - favIcon->height()) / 2, painter);
+        } else if (index.data(kIsShowP2P).toBool()) {
+            painter->setOpacity(OPACITY_FULL);
+            QSharedPointer<IndependentPixmap> p2pIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
+            p2pIcon->draw(xOffset - p2pIcon->width(), top_offs + (option.rect.height() - p2pIcon->height()) / 2, painter);
         }
     }
 
@@ -479,8 +484,11 @@ QRect CityItemDelegate::captionRect(const QRect &itemRect, const IItemCacheData 
 QRect CityItemDelegate::nicknameRect(const QRect &itemRect, const IItemCacheData *cacheData) const
 {
     const CityItemDelegateCache *cache = static_cast<const CityItemDelegateCache *>(cacheData);
-    IndependentPixmap pixmapCaption = cache->pixmap(CityItemDelegateCache::kCityId);
     IndependentPixmap pixmapNick = cache->pixmap(CityItemDelegateCache::kNickId);
+    if (pixmapNick.isNull())
+        return QRect();
+
+    IndependentPixmap pixmapCaption = cache->pixmap(CityItemDelegateCache::kCityId);
 
     QRect rcCaption(itemRect.left() + 2*LOCATION_ITEM_MARGIN*G_SCALE + LOCATION_ITEM_FLAG_WIDTH*G_SCALE,
                    itemRect.top() + (itemRect.height() - pixmapCaption.height()) / 2,

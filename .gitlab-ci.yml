@@ -18,9 +18,22 @@ variables:
   NEXUS_PATH_TAGGED_UPLOAD: '${NEXUS_PATH_ROOT}/tagged-builds'
   ARCH_LINUX_BUILD_PATH: '/home/build/windscribe'
   RHEL_CMAKE_BUILD_PATH: '/home/build/windscribe'
-  BUILD_LIBS_FOLDER: 'build-libs'
+  BUILD_LIBS_FOLDER: 'build-libs/windscribe'
+  BUILD_LIBS_FOLDER_X64: 'build-libs/windscribe'
+  BUILD_LIBS_FOLDER_ARM64: 'build-libs-arm64/windscribe'
   VCPKG_ROOT_WINDOWS: 'c:\vcpkg'
   VCPKG_DEFAULT_BINARY_CACHE_WINDOWS: 'c:\vcpkg_cache'
+
+.check_translations:
+  script:
+    - $Diff = git diff src/client/frontend/gui/translations
+    - if ( $Diff.Count -ne 0 ) { echo "You have changed desktop strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
+    - $Diff = git diff src/installer/gui/installer-gui-common/translations
+    - if ( $Diff.Count -ne 0 ) { echo "You have changed installer strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
+    - $Diff = git diff src/installer/gui/windows/uninstaller/translations
+    - if ( $Diff.Count -ne 0 ) { echo "You have changed uninstaller strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
+    - $Diff = git diff src/windscribe-cli/translations
+    - if ( $Diff.Count -ne 0 ) { echo "You have changed CLI strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
 
 .template_win10_build: &template_win10_build
   tags: [win10qty6]
@@ -53,6 +66,10 @@ variables:
 .template_mac_build: &template_mac_build
   tags: [macos-arm64-qt6]
   before_script:
+    - export DEVELOPER_DIR=/Applications/Xcode15.4.app/Contents/Developer
+    - export PYENV_ROOT="${HOME}/.pyenv"
+    - export PATH="${PYENV_ROOT}/bin:${PYENV_ROOT}/shims:${PATH}"
+    - eval "$(pyenv init --path)"
     - brew install pkg-config
     - export VCPKG_ROOT="${HOME}/vcpkg"
     - export VCPKG_INSTALL_OPTIONS="--clean-after-build"
@@ -60,7 +77,6 @@ variables:
     - git clone https://github.com/Windscribe/ws-vcpkg-registry.git
     - ./ws-vcpkg-registry/install-vcpkg/vcpkg_install.sh "${VCPKG_ROOT}" --configure-git
     - python3 -m pip install -r tools/requirements.txt
-    - python3 -m pip install dmgbuild
     - python3 -m pip install gcovr
   interruptible: true
 
@@ -70,7 +86,7 @@ variables:
   before_script:
     - python3 -m pip install --user -r tools/requirements.txt
     # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
-    - chmod -R o-w src/installer/linux
+    - chmod -R o-w src/installer/gui/linux src/installer/cli/linux
     # vcpkg settings
     - export VCPKG_ROOT="${HOME}/vcpkg"
     - export VCPKG_FORCE_SYSTEM_BINARIES=1
@@ -88,7 +104,7 @@ variables:
   image: registry.gitlab.int.windscribe.com:5005/ws/client/desktop/client-desktop/fedora36
   before_script:
     # hack to fix 777 file permissions, which breaks the dpkg-deb command in the build_all script.
-    - chmod -R o-w src/installer/linux
+    - chmod -R o-w src/installer/gui/linux src/installer/cli/linux
     # vcpkg settings
     - export VCPKG_ROOT="${HOME}/vcpkg"
     - export PATH=${RHEL_CMAKE_BUILD_PATH}/bin:$PATH
@@ -145,7 +161,7 @@ variables:
     # Backup OS identifier/build libs values.  Set flags to get the x86 Qt libs if on arm64.
     - Set-Variable -name OS_IDENTIFIER_BAK -value "${OS_IDENTIFIER}"
     - Set-Variable -name BUILD_LIBS_FOLDER_BAK -value "${BUILD_LIBS_FOLDER}"
-    - if ("${ARCH_FLAG}" -eq "--arm64") { Set-Variable -name OS_IDENTIFIER -value "windows"; Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs" }
+    - if ("${ARCH_FLAG}" -eq "--arm64") { Set-Variable -name OS_IDENTIFIER -value "windows"; Set-Variable -name BUILD_LIBS_FOLDER -value "${BUILD_LIBS_FOLDER_X64}" }
     - if ("${ARCH_FLAG}" -ne "--arm64") { Set-Variable -name SKIP_DOWNLOAD -value "1" }
     - IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}
     # Reset to original values
@@ -155,13 +171,9 @@ variables:
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - $env:VCPKG_ROOT = $env:VCPKG_ROOT_WINDOWS
     - $env:VCPKG_DEFAULT_BINARY_CACHE = $env:VCPKG_DEFAULT_BINARY_CACHE_WINDOWS
-    - tools/build_all ${BUILD_FLAG} ${ARCH_FLAG} --ci-mode
-    - $Diff = git diff src/client/frontend/gui/translations
-    - if ( $Diff.Count -ne 0 ) { echo "You have changed desktop strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
-    - $Diff = git diff src/installer/common/translations
-    - if ( $Diff.Count -ne 0 ) { echo "You have changed installer strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
-    - $Diff = git diff src/installer/windows/uninstaller/translations
-    - if ( $Diff.Count -ne 0 ) { echo "You have changed uninstaller strings which are not in ts files.  Update your ts files by building locally, run the translation script on them, and add them to the commit."; exit 1 }
+    - $buildSymbolsFlag = if ($CI_COMMIT_TAG) { "--build-symbols" } else { "" }
+    - tools/build_all ${BUILD_FLAG} ${ARCH_FLAG} --ci-mode $buildSymbolsFlag
+    - !reference [.check_translations, script]
   artifacts:
     paths:
       - build/temp/
@@ -181,14 +193,13 @@ variables:
   artifacts:
     paths:
       - build/temp/
-      - build/src/installer/windows/bootstrap/
+      - build/src/installer/gui/windows/bootstrap/
     expire_in: 1 day
 
 build:win:x64:app:
   <<: *template_win_build_app
   variables:
     OS_IDENTIFIER: "windows"
-    BUILD_LIBS_FOLDER: "build-libs"
     ARCH_FLAG: ""
     BUILD_FLAG: "--build-app"
   rules:
@@ -206,6 +217,7 @@ build:win:x64:mr:
     - !reference [.download_dependencies_win, script]
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - tools/build_all --ci-mode
+    - !reference [.check_translations, script]
   rules:
     - if: $BUILD_WIN == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -241,7 +253,6 @@ build:win:x64:installer:
   <<: *template_win_build_app
   variables:
     OS_IDENTIFIER: "windows"
-    BUILD_LIBS_FOLDER: "build-libs"
     ARCH_FLAG: ""
     BUILD_FLAG: "--build-installer"
   artifacts:
@@ -298,7 +309,6 @@ build:win:x64:bootstrap:
   <<: *template_win_build_bootstrap
   variables:
     OS_IDENTIFIER: "windows"
-    BUILD_LIBS_FOLDER: "build-libs"
     ARCH_FLAG: ""
   needs:
     - job: sign:win:x64:installer
@@ -313,13 +323,11 @@ sign:win:x64:bootstrap:
   variables:
     GIT_STRATEGY: clone
   script:
-    - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
+    - Set-Variable -name VERSION -value $(cmake -P cmake/print_version.cmake 2>&1)
     - tools/build_all --sign-bootstrap --ci-mode
     - Set-Variable -name OS_IDENTIFIER -value "windows"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/Windscribe_${VERSION}_amd64.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_amd64.exe"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_${VERSION}_amd64.zip "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/WindscribeSymbols_${VERSION}_amd64.zip"
   artifacts:
     paths: []
   needs:
@@ -335,13 +343,11 @@ sign:win:arm64:bootstrap:
   variables:
     GIT_STRATEGY: clone
   script:
-    - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
+    - Set-Variable -name VERSION -value $(cmake -P cmake/print_version.cmake 2>&1)
     - tools/build_all --sign-bootstrap --arm64 --ci-mode
     - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/Windscribe_${VERSION}_arm64.exe "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_arm64.exe"
-    - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
-      --upload-file build-exe/WindscribeSymbols_${VERSION}_arm64.zip "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/WindscribeSymbols_${VERSION}_arm64.zip"
   artifacts:
     paths: []
   needs:
@@ -357,9 +363,9 @@ sign:win:x64:bootstrap:tagged:
   variables:
     GIT_STRATEGY: clone
   script:
-    - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
+    - Set-Variable -name VERSION -value $(cmake -P cmake/print_version.cmake 2>&1)
     - Set-Variable -name TAG -value $($CI_COMMIT_TAG -replace '^v([0-9].*)','$1')
-    - tools/build_all --sign-bootstrap --ci-mode
+    - tools/build_all --sign-bootstrap --ci-mode --build-symbols
     - Set-Variable -name OS_IDENTIFIER -value "windows"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/Windscribe_${VERSION}_amd64.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_amd64.exe"
@@ -380,9 +386,9 @@ sign:win:arm64:bootstrap:tagged:
   variables:
     GIT_STRATEGY: clone
   script:
-    - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
+    - Set-Variable -name VERSION -value $(cmake -P cmake/print_version.cmake 2>&1)
     - Set-Variable -name TAG -value $($CI_COMMIT_TAG -replace '^v([0-9].*)','$1')
-    - tools/build_all --sign-bootstrap --arm64 --ci-mode
+    - tools/build_all --sign-bootstrap --arm64 --ci-mode --build-symbols
     - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/Windscribe_${VERSION}_arm64.exe "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_arm64.exe"
@@ -401,7 +407,7 @@ build:win:arm64:app:
   <<: *template_win_build_app
   variables:
     OS_IDENTIFIER: "windows-arm64"
-    BUILD_LIBS_FOLDER: "build-libs-arm64"
+    BUILD_LIBS_FOLDER: "$BUILD_LIBS_FOLDER_ARM64"
     ARCH_FLAG: "--arm64"
     BUILD_FLAG: "--build-app"
   rules:
@@ -417,13 +423,14 @@ build:win:arm64:mr:
   script:
     # Need the x64 Qt package so we can reference it as the QT_HOST_PATH in build_all.
     - Set-Variable -name OS_IDENTIFIER -value "windows"
-    - Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs"
+    - Set-Variable -name BUILD_LIBS_FOLDER -value "${BUILD_LIBS_FOLDER_X64}"
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - Set-Variable -name OS_IDENTIFIER -value "windows-arm64"
-    - Set-Variable -name BUILD_LIBS_FOLDER -value "build-libs-arm64"
+    - Set-Variable -name BUILD_LIBS_FOLDER -value "${BUILD_LIBS_FOLDER_ARM64}"
     - !reference [.download_dependencies_win, script]
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
     - tools/build_all --arm64 --ci-mode
+    - !reference [.check_translations, script]
   rules:
     - if: $BUILD_WIN_ARM64 == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -431,7 +438,7 @@ build:win:arm64:installer:
   <<: *template_win_build_app
   variables:
     OS_IDENTIFIER: "windows-arm64"
-    BUILD_LIBS_FOLDER: "build-libs-arm64"
+    BUILD_LIBS_FOLDER: "$BUILD_LIBS_FOLDER_ARM64"
     ARCH_FLAG: "--arm64"
     BUILD_FLAG: "--build-installer"
   artifacts:
@@ -450,7 +457,7 @@ build:win:arm64:bootstrap:
   <<: *template_win_build_bootstrap
   variables:
     OS_IDENTIFIER: "windows-arm64"
-    BUILD_LIBS_FOLDER: "build-libs-arm64"
+    BUILD_LIBS_FOLDER: "$BUILD_LIBS_FOLDER_ARM64"
     ARCH_FLAG: "--arm64"
   needs:
     - job: sign:win:arm64:installer
@@ -467,7 +474,7 @@ build:win:arm64:bootstrap:
     # Download the provisioning profiles from Nexus
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o data/provisioning_profile/embedded.provisionprofile "$NEXUS_PATH_ROOT/secrets/embedded.provisionprofile"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem --create-dirs -o data/provisioning_profile/splittunnelextension.provisionprofile "$NEXUS_PATH_ROOT/secrets/splittunnelextension.provisionprofile"
-    - VERSION=$(python3 tools/base/extract.py)
+    - VERSION=$(cmake -P cmake/print_version.cmake 2>&1)
 
 build:mac:installer:
   <<: *template_mac_build
@@ -479,6 +486,10 @@ build:mac:installer:
     - tools/build_all --ci-mode
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/Windscribe_${VERSION}.dmg "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/Windscribe_${VERSION}_universal.dmg"
+  artifacts:
+    paths:
+      - build/src/helper/macos/com.windscribe.helper.macos
+    expire_in: 1 day
   rules:
     - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -491,6 +502,10 @@ build:mac:installer:mr:
   script:
     - !reference [.build_mac_installer_common, script]
     - tools/build_all --ci-mode
+  artifacts:
+    paths:
+      - build/src/helper/macos/com.windscribe.helper.macos
+    expire_in: 1 day
   rules:
     - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -503,7 +518,7 @@ build:mac:installer:tagged:
     - !reference [.build_mac_installer_common, script]
     # Only tagged builds are notarized
     - tools/build_all --ci-mode --notarize
-    - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
+    - VERSION_NO_SUFFIX=$(cmake -DNO_SUFFIX=1 -P cmake/print_version.cmake 2>&1)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/Windscribe_${VERSION}.dmg "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_universal.dmg"
@@ -514,7 +529,7 @@ build:mac:installer:tagged:
   script:
     - !reference [.download_dependencies_posix, script]
     - if [ -d ./${BUILD_LIBS_FOLDER}/ ]; then for z in ./${BUILD_LIBS_FOLDER}/*.zip; do unzip -qod ./${BUILD_LIBS_FOLDER} $z; done; fi
-    - VERSION=$(python3 tools/base/extract.py)
+    - VERSION=$(cmake -P cmake/print_version.cmake 2>&1)
 
 build:aarch64_ubuntu:installer:
   <<: *template_aarch64_ubuntu_build
@@ -540,7 +555,7 @@ build:aarch64_ubuntu_cli:installer:
   script:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --arm64 --build-cli-only --build-deb --build-rpm
+    - tools/build_all --ci-mode --arm64 --integration=cli --build-deb --build-rpm
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe-cli_${VERSION}_arm64.deb "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_arm64.deb"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -569,7 +584,7 @@ build:aarch64_ubuntu_cli:installer:mr:
   script:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --arm64 --build-cli-only --build-deb --build-rpm
+    - tools/build_all --ci-mode --arm64 --integration=cli --build-deb --build-rpm
   rules:
     - if: $BUILD_LINUX_ARM64 == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -582,7 +597,7 @@ build:aarch64_ubuntu:installer:tagged:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
     - tools/build_all --ci-mode --arm64 --build-deb --build-rpm
-    - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
+    - VERSION_NO_SUFFIX=$(cmake -DNO_SUFFIX=1 -P cmake/print_version.cmake 2>&1)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe_${VERSION}_arm64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_arm64.deb"
@@ -599,8 +614,8 @@ build:aarch64_ubuntu_cli:installer:tagged:
   script:
     - OS_IDENTIFIER="linux-arm64"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --arm64 --build-cli-only --build-deb --build-rpm
-    - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
+    - tools/build_all --ci-mode --arm64 --integration=cli --build-deb --build-rpm
+    - VERSION_NO_SUFFIX=$(cmake -DNO_SUFFIX=1 -P cmake/print_version.cmake 2>&1)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe-cli_${VERSION}_arm64.deb "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_arm64.deb"
@@ -635,7 +650,7 @@ build:rhel_cli:installer:
   script:
     - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --build-deb --build-rpm --build-rpm-opensuse --build-cli-only
+    - tools/build_all --ci-mode --build-deb --build-rpm --build-rpm-opensuse --integration=cli
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe-cli_${VERSION}_amd64_fedora.rpm "${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_amd64_fedora.rpm"
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -666,7 +681,7 @@ build:rhel_cli:installer:mr:
   script:
     - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --build-deb --build-rpm --build-rpm-opensuse --build-cli-only
+    - tools/build_all --ci-mode --build-deb --build-rpm --build-rpm-opensuse --integration=cli
   rules:
     - if: $BUILD_LINUX == "y" && $BUILD_LINUX_CLI == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -679,7 +694,7 @@ build:rhel:installer:tagged:
     - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
     - tools/build_all --ci-mode --build-deb --build-rpm --build-rpm-opensuse
-    - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
+    - VERSION_NO_SUFFIX=$(cmake -DNO_SUFFIX=1 -P cmake/print_version.cmake 2>&1)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe_${VERSION}_amd64_fedora.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64_fedora.rpm"
@@ -698,8 +713,8 @@ build:rhel_cli:installer:tagged:
   script:
     - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
-    - tools/build_all --ci-mode --build-deb --build-rpm --build-rpm-opensuse --build-cli-only
-    - VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
+    - tools/build_all --ci-mode --build-deb --build-rpm --build-rpm-opensuse --integration=cli
+    - VERSION_NO_SUFFIX=$(cmake -DNO_SUFFIX=1 -P cmake/print_version.cmake 2>&1)
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
       --upload-file build-exe/windscribe-cli_${VERSION}_amd64_fedora.rpm "${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64_fedora.rpm"
@@ -721,8 +736,8 @@ build:rhel_cli:installer:tagged:
     - chmod g+ws ${ARCH_LINUX_BUILD_PATH}
     - setfacl -m u::rwx,g::rwx ${ARCH_LINUX_BUILD_PATH}
     - setfacl -d --set u::rwx,g::rwx,o::- ${ARCH_LINUX_BUILD_PATH}
-    - export VERSION=$(python3 tools/base/extract.py)
-    - export VERSION_NO_SUFFIX=$(python3 tools/base/extract.py --no-suffix)
+    - export VERSION=$(cmake -P cmake/print_version.cmake 2>&1)
+    - export VERSION_NO_SUFFIX=$(cmake -DNO_SUFFIX=1 -P cmake/print_version.cmake 2>&1)
 
 .build_archlinux_installer_makepkg:
   script:
@@ -739,7 +754,7 @@ build:archlinux:installer:
   script:
     - OS_IDENTIFIER="linux"
     - !reference [.build_archlinux_installer_prep_build_dir, script]
-    - cp src/installer/linux/gui/arch_package/* ${ARCH_LINUX_BUILD_PATH}
+    - cp src/installer/gui/linux/arch_package/* ${ARCH_LINUX_BUILD_PATH}
     - export APP_DOWNLOAD_URL="${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe_${VERSION}_amd64.deb"
     - !reference [.build_archlinux_installer_makepkg, script]
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -759,7 +774,7 @@ build:archlinux_cli:installer:
   script:
     - OS_IDENTIFIER="linux"
     - !reference [.build_archlinux_installer_prep_build_dir, script]
-    - cp src/installer/linux/cli/arch_package/* ${ARCH_LINUX_BUILD_PATH}
+    - cp src/installer/cli/linux/arch_package/* ${ARCH_LINUX_BUILD_PATH}
     - export APP_DOWNLOAD_URL="${NEXUS_PATH_BRANCH_UPLOAD}/${OS_IDENTIFIER}/windscribe-cli_${VERSION}_amd64.deb"
     - !reference [.build_archlinux_installer_makepkg, script]
     - curl --silent --show-error --fail -u "${NEXUS_USERNAME}:${NEXUS_PASSWORD}" --cacert tools/cacert.pem
@@ -778,7 +793,7 @@ build:archlinux:installer:tagged:
     GIT_STRATEGY: clone
   script:
     - !reference [.build_archlinux_installer_prep_build_dir, script]
-    - cp src/installer/linux/gui/arch_package/* ${ARCH_LINUX_BUILD_PATH}
+    - cp src/installer/gui/linux/arch_package/* ${ARCH_LINUX_BUILD_PATH}
     - export APP_DOWNLOAD_URL=${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe_${VERSION}_amd64.deb
     - !reference [.build_archlinux_installer_makepkg, script]
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
@@ -798,7 +813,7 @@ build:archlinux_cli:installer:tagged:
     GIT_STRATEGY: clone
   script:
     - !reference [.build_archlinux_installer_prep_build_dir, script]
-    - cp src/installer/linux/cli/arch_package/* ${ARCH_LINUX_BUILD_PATH}
+    - cp src/installer/cli/linux/arch_package/* ${ARCH_LINUX_BUILD_PATH}
     - export APP_DOWNLOAD_URL=${NEXUS_PATH_TAGGED_UPLOAD}/$VERSION_NO_SUFFIX/windscribe-cli_${VERSION}_amd64.deb
     - !reference [.build_archlinux_installer_makepkg, script]
     - if [[ $CI_COMMIT_TAG =~ ^v[0-9] ]]; then TAG=${CI_COMMIT_TAG:1}; else TAG=${CI_COMMIT_TAG}; fi
@@ -815,7 +830,7 @@ build:artifact:links:
   tags: [win10qty6]
   stage: Artifact Links
   script:
-    - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
+    - Set-Variable -name VERSION -value $(cmake -P cmake/print_version.cmake 2>&1)
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/windows/Windscribe_${VERSION}_amd64.exe
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/windows-arm64/Windscribe_${VERSION}_arm64.exe
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/macos/Windscribe_${VERSION}_universal.dmg
@@ -829,7 +844,7 @@ build:artifact:links:
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe-cli_${VERSION}_amd64_opensuse.rpm
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe_${VERSION}_amd64.pkg.tar.zst
     - echo ${NEXUS_PATH_BRANCH_UPLOAD}/linux/windscribe-cli_${VERSION}_amd64.pkg.tar.zst
-  dependencies: []
+  needs: []
   rules:
     - if: $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH != null && $NIGHTLY_TEST_BUILD != "y"
 
@@ -837,7 +852,7 @@ build:artifact:links:tagged:
   tags: [win10qty6]
   stage: Artifact Links
   script:
-    - Set-Variable -name VERSION -value $(python3 tools/base/extract.py)
+    - Set-Variable -name VERSION -value $(cmake -P cmake/print_version.cmake 2>&1)
     - Set-Variable -name TAG -value $($CI_COMMIT_TAG -replace '^v([0-9].*)','$1')
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_amd64.exe
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/Windscribe_${VERSION}_arm64.exe
@@ -852,9 +867,62 @@ build:artifact:links:tagged:
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64_opensuse.rpm
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe_${VERSION}_amd64.pkg.tar.zst
     - echo ${NEXUS_PATH_TAGGED_UPLOAD}/${TAG}/windscribe-cli_${VERSION}_amd64.pkg.tar.zst
-  dependencies: []
+  needs: []
   rules:
     - if: $CI_COMMIT_TAG != null && $NIGHTLY_TEST_BUILD != "y"
+
+test:signature_check:win:
+  <<: *template_win10_build
+  stage: Test
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - Write-Host "Verifying USE_SIGNATURE_CHECK is enabled in helper binary..."
+    - if (-not (Test-Path "build\temp\InstallerFiles\WindscribeService.exe")) {
+        Write-Error "Helper binary not found - build artifacts may be missing!"; exit 1 }
+    - if (-not (findstr /M /C:"verifyAppProcessPath" build\temp\InstallerFiles\WindscribeService.exe)) {
+        Write-Error "FATAL - USE_SIGNATURE_CHECK is not compiled into the helper binary!"; exit 1 }
+    - Write-Host "Signature check verification passed."
+  needs:
+    - job: build:win:x64:app
+      optional: true
+      artifacts: true
+    - job: build:nightly:win
+      optional: true
+      artifacts: true
+  rules:
+    - if: $BUILD_WIN == "y" && ($CI_COMMIT_BRANCH != null || $NIGHTLY_TEST_BUILD == "y")
+
+test:signature_check:mac:
+  <<: *template_mac_build
+  stage: Test
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - echo "Verifying USE_SIGNATURE_CHECK is enabled in helper binary..."
+    - |
+      HELPER="build/src/helper/macos/com.windscribe.helper.macos"
+      if [ ! -f "$HELPER" ]; then
+        echo "Helper binary not found - build artifacts may be missing!"
+        exit 1
+      fi
+      if ! nm -u "$HELPER" | grep -q "SecCodeCreateWithXPCMessage"; then
+        echo "FATAL - USE_SIGNATURE_CHECK is not compiled into the helper binary!"
+        exit 1
+      fi
+      echo "Signature check verification passed."
+  needs:
+    - job: build:mac:installer
+      optional: true
+      artifacts: true
+    - job: build:mac:installer:mr
+      optional: true
+      artifacts: true
+    - job: build:nightly:mac
+      optional: true
+      artifacts: true
+  rules:
+    - if: $BUILD_MAC == "y" && ($CI_COMMIT_BRANCH != null || $NIGHTLY_TEST_BUILD == "y")
 
 lint:flake8:
   <<: *template_win10_build
@@ -864,7 +932,7 @@ lint:flake8:
   script:
     - python3 -m pip install flake8
     - flake8 --ignore=E402,E501 tools
-  dependencies: []
+  needs: []
   rules:
     - if: $BUILD_WIN == "y"
 
@@ -874,11 +942,11 @@ test:translations:
   variables:
     GIT_STRATEGY: clone
   script:
-    - $Unfinished = Select-String -Path src\client\frontend\gui\translations\*,src\installer\common\translations\*,src\installer\windows\uninstaller\translations\* -Pattern 'type="unfinished"'
+    - $Unfinished = Select-String -Path src\client\frontend\gui\translations\*,src\installer\gui\installer-gui-common\translations\*,src\installer\gui\windows\uninstaller\translations\*,src\windscribe-cli\translations\* -Pattern 'type="unfinished"'
     - if ( $Unfinished.Matches.Count -ne 0 ) { echo "You have untranslated strings in your ts files.  Run the translation script on the ts files and add them to the commit."; exit 1 }
-    - $Vanished = Select-String -Path src\client\frontend\gui\translations\*,src\installer\common\translations\*,src\installer\windows\uninstaller\translations\* -Pattern 'type="vanished"'
+    - $Vanished = Select-String -Path src\client\frontend\gui\translations\*,src\installer\gui\installer-gui-common\translations\*,src\installer\gui\windows\uninstaller\translations\*,src\windscribe-cli\translations\* -Pattern 'type="vanished"'
     - if ( $Vanished.Matches.Count -ne 0 ) { echo "You have vanished strings in your ts files.  Run the translation script on the ts files with --remove-vanished and add them to the commit."; exit 1 }
-  dependencies: []
+  needs: []
   rules:
     - if: $BUILD_WIN == "y"
 
@@ -900,6 +968,55 @@ test:version:mac:
         echo "Files in src/splittunneling/macos were changed, but src/splittunneling/macos/Info.plist was not updated"
         exit 1
       fi
-  dependencies: []
+  needs: []
   rules:
     - if: $BUILD_MAC == "y" && $CI_COMMIT_TAG == null && $CI_COMMIT_BRANCH == null && $NIGHTLY_TEST_BUILD != "y"
+
+build:nightly:win:
+  <<: *template_win10_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+    VCPKG_ROOT: '%VCPKG_ROOT_WINDOWS%'
+    VCPKG_DEFAULT_BINARY_CACHE: '%VCPKG_DEFAULT_BINARY_CACHE_WINDOWS%'
+  script:
+    - Set-Variable -name OS_IDENTIFIER -value "windows"
+    - !reference [.download_dependencies_win, script]
+    - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
+    - tools/build_all --ci-mode
+  artifacts:
+    paths:
+      - build/temp/
+    expire_in: 1 day
+  rules:
+    - if: $BUILD_WIN == "y" && $NIGHTLY_TEST_BUILD == "y"
+
+build:nightly:mac:
+  <<: *template_mac_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - OS_IDENTIFIER="macos"
+    - !reference [.build_mac_installer_common, script]
+    - tools/build_all --ci-mode
+  artifacts:
+    paths:
+      - build/src/helper/macos/com.windscribe.helper.macos
+    expire_in: 1 day
+  rules:
+    - if: $BUILD_MAC == "y" && $NIGHTLY_TEST_BUILD == "y"
+
+build:nightly:rhel:
+  <<: *template_rhel_build
+  stage: Build
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - OS_IDENTIFIER="linux"
+    - !reference [.build_linux_installer_common, script]
+    - python3 -m pip install "clang-tidy<21"
+    - tools/build_all --ci-mode --static-analysis
+  rules:
+    - if: $BUILD_LINUX == "y" && $NIGHTLY_TEST_BUILD == "y"
+

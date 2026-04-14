@@ -5,21 +5,21 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>en</string>
     <key>CFBundleExecutable</key>
-    <string>com.windscribe.client.splittunnelextension</string>
+    <string>@WS_MAC_SPLIT_TUNNEL_BUNDLE_ID@</string>
     <key>CFBundleIdentifier</key>
-    <string>com.windscribe.client.splittunnelextension</string>
+    <string>@WS_MAC_SPLIT_TUNNEL_BUNDLE_ID@</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>Windscribe Split Tunnel Extension</string>
+    <string>@WS_PRODUCT_NAME@ Split Tunnel Extension</string>
     <key>CFBundlePackageType</key>
     <string>SYSX</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0.9</string>
+    <string>1.0.10</string>
     <key>CFBundleVersion</key>
-    <string>1.0.9</string>
+    <string>1.0.10</string>
     <key>LSMinimumSystemVersion</key>
-    <string>12</string>
+    <string>13</string>
     <key>NetworkExtension</key>
     <dict>
         <key>NEProviderClasses</key>

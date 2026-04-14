@@ -359,7 +359,7 @@ static bool isNetworkUnidentified(const QString &adapterGUID)
     return result;
 }
 
-static bool isRowUsableForWindscribe(const IfTable2Row &row)
+static bool isRowUsableForAppVpn(const IfTable2Row &row)
 {
     switch (row.interfaceType) {
     case IF_TYPE_ETHERNET_CSMACD:
@@ -378,7 +378,7 @@ static bool isRowUsableForWindscribe(const IfTable2Row &row)
     return row.valid && row.interfaceType != IF_TYPE_PPP && !row.endPointInterface && row.connectorPresent;
 }
 
-static IfTable2Row lowestMetricNonWindscribeIfTableRow()
+static IfTable2Row lowestMetricNonVpnIfTableRow()
 {
     IfTable2Row lowestMetricIfRow;
 
@@ -393,7 +393,7 @@ static IfTable2Row lowestMetricNonWindscribeIfTableRow()
             if (ipAdapter.index == row.index) {
                 IfTable2Row ifRow = tableRowByIndex(ifTable2, row.index);
                 // We call this function to determine the current interface, so also make sure that the row is media-connected.
-                if (isRowUsableForWindscribe(ifRow) && ifRow.mediaConnected && !ifRow.isWindscribeAdapter()) {
+                if (isRowUsableForAppVpn(ifRow) && ifRow.mediaConnected && !ifRow.isAppVpnAdapter()) {
                     const auto row_metric = static_cast<int>(row.metric);
                     if (row_metric < lowestMetric) {
                         lowestMetric = row_metric;
@@ -447,7 +447,7 @@ static QList<AdapterAddress> getAdapterAddressesTable()
 
 bool NetworkUtils_win::isInterfaceSpoofed(int interfaceIndex)
 {
-    return interfaceSubkeyHasProperty(interfaceIndex, "WindscribeMACSpoofed");
+    return interfaceSubkeyHasProperty(interfaceIndex, WS_APP_IDENTIFIER "MACSpoofed");
 }
 
 bool NetworkUtils_win::pingWithMtu(const QString &url, int mtu)
@@ -491,7 +491,7 @@ QString NetworkUtils_win::currentNetworkInterfaceGuid()
     // (which is not useful to determine if the interface has changed), or it forces an update
     // (which we want to avoid until we know something actually changed).
 
-    IfTable2Row row = lowestMetricNonWindscribeIfTableRow();
+    IfTable2Row row = lowestMetricNonVpnIfTableRow();
     if (!row.valid) {
         return "";
     }
@@ -508,7 +508,7 @@ bool NetworkUtils_win::haveActiveInterface()
     QList<IfTable2Row> ifTable2 = getIfTable2();
     for (const IpAdapter &ia : ipAdapters) {
         IfTable2Row row = tableRowByIndex(ifTable2, ia.index);
-        if (isRowUsableForWindscribe(row) && row.mediaConnected) {
+        if (isRowUsableForAppVpn(row) && row.mediaConnected) {
             return true;
         }
     }
@@ -519,7 +519,7 @@ types::NetworkInterface NetworkUtils_win::currentNetworkInterface()
 {
     types::NetworkInterface curNetworkInterface = types::NetworkInterface::noNetworkInterface();
 
-    IfTable2Row row = lowestMetricNonWindscribeIfTableRow();
+    IfTable2Row row = lowestMetricNonVpnIfTableRow();
     if (!row.valid) {
         return curNetworkInterface;
     }
@@ -607,7 +607,7 @@ QVector<types::NetworkInterface> NetworkUtils_win::currentNetworkInterfaces(bool
             assert(false);
             continue;
         }
-        if (!isRowUsableForWindscribe(it2Row)) {
+        if (!isRowUsableForAppVpn(it2Row)) {
             continue;
         }
 

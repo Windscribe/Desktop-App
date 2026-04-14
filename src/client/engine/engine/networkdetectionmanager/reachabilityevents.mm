@@ -49,7 +49,7 @@ ReachAbilityEvents::ReachAbilityEvents(QObject *parent) : QObject(parent)
     g_ReachabilityEvents = this;
 
     SCDynamicStoreContext context = {0, NULL, NULL, NULL, NULL};
-    SCDynamicStoreRef dynStore = SCDynamicStoreCreate(kCFAllocatorDefault, CFSTR("WindscribeNetworkMonitor"), callbackChange, &context);
+    SCDynamicStoreRef dynStore = SCDynamicStoreCreate(kCFAllocatorDefault, CFSTR("" WS_APP_IDENTIFIER "NetworkMonitor"), callbackChange, &context);
     if (dynStore == NULL) {
         qCCritical(LOG_BASIC) << "ReachAbilityEvents - SCDynamicStoreCreate failed";
         return;

@@ -147,7 +147,6 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig,
     if (connector_) {
         currentProtocol_ = types::Protocol::UNINITIALIZED;
         SAFE_DELETE(connector_);
-        connector_ = NULL;
     }
 
     updateConnectionSettingsPolicy(connectionSettings, portMap, proxySettings);
@@ -373,6 +372,11 @@ void ConnectionManager::onConnectionDisconnected()
 
     testVPNTunnel_->stopTests();
     doMacRestoreProcedures();
+
+    // Delete the connector to ensure we do not receive any additional events from it, even events
+    // already queued to our event queue.  We cannot use connector_->disconnect() here since we connect
+    // to the signals with Qt::QueuedConnection and thus any already queued events will still be delivered.
+    SAFE_DELETE_LATER(connector_);
     stunnelManager_->killProcess();
     wstunnelManager_->killProcess();
     ctrldManager_->killProcess();
@@ -465,19 +469,23 @@ void ConnectionManager::onConnectionReconnecting()
                 state_ = STATE_RECONNECTING;
                 emit reconnecting();
                 startReconnectionTimer();
-                connector_->startDisconnect();
+                if (connector_) {
+                    connector_->startDisconnect();
+                }
             }
             else
             {
                 state_ = STATE_AUTO_DISCONNECT;
-                connector_->startDisconnect();
+                if (connector_) {
+                    connector_->startDisconnect();
+                }
             }
             break;
 
         case STATE_CONNECTED:
             WS_ASSERT(!timerReconnection_.isActive());
 
-            if (!connector_->isDisconnected())
+            if (connector_ && !connector_->isDisconnected())
             {
                 if (state_ != STATE_RECONNECTING)
                 {
@@ -602,7 +610,9 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
                 // for AUTH_ERROR signal disconnected will be emitted automatically
                 if (err != CONNECT_ERROR::AUTH_ERROR)
                 {
-                    connector_->startDisconnect();
+                    if (connector_) {
+                        connector_->startDisconnect();
+                    }
                 }
             }
             else
@@ -624,7 +634,9 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
                     // for AUTH_ERROR signal disconnected will be emitted automatically
                     if (err != CONNECT_ERROR::AUTH_ERROR)
                     {
-                        connector_->startDisconnect();
+                        if (connector_) {
+                            connector_->startDisconnect();
+                        }
                     }
                 }
                 else
@@ -632,7 +644,9 @@ void ConnectionManager::onConnectionError(CONNECT_ERROR err)
                     state_ = STATE_AUTO_DISCONNECT;
                     if (err != CONNECT_ERROR::AUTH_ERROR)
                     {
-                        connector_->startDisconnect();
+                        if (connector_) {
+                            connector_->startDisconnect();
+                        }
                     }
                 }
             }
@@ -847,7 +861,7 @@ void ConnectionManager::doConnect()
     // There is no custom config for IKEv2, so if we get here it is manual mode.
     // We can get here either by:
     // - User selecting IKEv2 in manual mode and then enabling Lockdown Mode, or
-    // - User selecting IKEv2 in manual mode in a previous version of Windscribe, then updating.
+    // - User selecting IKEv2 in manual mode in a previous version of the app, then updating.
     if (!connSettingsPolicy_->isCustomConfig() && connSettingsPolicy_->getCurrentConnectionSettings().protocol == types::Protocol::IKEV2 && MacUtils::isLockdownMode()) {
         emit errorDuringConnection(CONNECT_ERROR::LOCKDOWN_MODE_IKEV2);
         return;
@@ -1223,53 +1237,39 @@ void ConnectionManager::waitForNetworkConnectivity()
 
 void ConnectionManager::recreateConnector(types::Protocol protocol)
 {
-    if (currentProtocol_ == types::Protocol::UNINITIALIZED)
-    {
+    if (currentProtocol_ == types::Protocol::UNINITIALIZED) {
         WS_ASSERT(connector_ == NULL);
     }
 
-    if (currentProtocol_ != protocol)
-    {
-        SAFE_DELETE_LATER(connector_);
+    SAFE_DELETE_LATER(connector_);
 
-        if (protocol.isOpenVpnProtocol())
-        {
-            connector_ = new OpenVPNConnection(this, helper_);
-        }
-        else if (protocol.isIkev2Protocol())
-        {
+    if (protocol.isWireGuardProtocol()) {
+        connector_ = new WireGuardConnection(this, helper_);
+    } else if (protocol.isOpenVpnProtocol()) {
+        connector_ = new OpenVPNConnection(this, helper_);
+        connect(static_cast<OpenVPNConnection *>(connector_), &OpenVPNConnection::requestPrivKeyPassword, this, &ConnectionManager::onConnectionRequestPrivKeyPassword, Qt::QueuedConnection);
+    } else if (protocol.isIkev2Protocol()) {
 #ifdef Q_OS_WIN
-            connector_ = new IKEv2Connection_win(this, helper_);
+        connector_ = new IKEv2Connection_win(this, helper_);
 #elif defined Q_OS_MACOS
-            connector_ = new IKEv2Connection_mac(this, helper_);
+        connector_ = new IKEv2Connection_mac(this, helper_);
 #elif defined Q_OS_LINUX
-            connector_ = new IKEv2Connection_linux(this, helper_);
+        connector_ = new IKEv2Connection_linux(this, helper_);
 #endif
-        }
-        else if (protocol.isWireGuardProtocol())
-        {
-            connector_ = new WireGuardConnection(this, helper_);
-        }
-        else
-        {
-            WS_ASSERT(false);
-        }
-
-        connect(connector_, &IConnection::connected, this, &ConnectionManager::onConnectionConnected, Qt::QueuedConnection);
-        connect(connector_, &IConnection::disconnected, this, &ConnectionManager::onConnectionDisconnected, Qt::QueuedConnection);
-        connect(connector_, &IConnection::reconnecting, this, &ConnectionManager::onConnectionReconnecting, Qt::QueuedConnection);
-        connect(connector_, &IConnection::error, this, &ConnectionManager::onConnectionError, Qt::QueuedConnection);
-        connect(connector_, &IConnection::statisticsUpdated, this, &ConnectionManager::onConnectionStatisticsUpdated, Qt::QueuedConnection);
-        connect(connector_, &IConnection::interfaceUpdated, this, &ConnectionManager::onConnectionInterfaceUpdated, Qt::QueuedConnection);
-
-        connect(connector_, &IConnection::requestUsername, this, &ConnectionManager::onConnectionRequestUsername, Qt::QueuedConnection);
-        connect(connector_, &IConnection::requestPassword, this, &ConnectionManager::onConnectionRequestPassword, Qt::QueuedConnection);
-        if (protocol.isOpenVpnProtocol()) {
-            connect(static_cast<OpenVPNConnection *>(connector_), &OpenVPNConnection::requestPrivKeyPassword, this, &ConnectionManager::onConnectionRequestPrivKeyPassword, Qt::QueuedConnection);
-        }
-
-        currentProtocol_ = protocol;
+    } else {
+        WS_ASSERT(false);
     }
+
+    connect(connector_, &IConnection::connected, this, &ConnectionManager::onConnectionConnected, Qt::QueuedConnection);
+    connect(connector_, &IConnection::disconnected, this, &ConnectionManager::onConnectionDisconnected, Qt::QueuedConnection);
+    connect(connector_, &IConnection::reconnecting, this, &ConnectionManager::onConnectionReconnecting, Qt::QueuedConnection);
+    connect(connector_, &IConnection::error, this, &ConnectionManager::onConnectionError, Qt::QueuedConnection);
+    connect(connector_, &IConnection::statisticsUpdated, this, &ConnectionManager::onConnectionStatisticsUpdated, Qt::QueuedConnection);
+    connect(connector_, &IConnection::interfaceUpdated, this, &ConnectionManager::onConnectionInterfaceUpdated, Qt::QueuedConnection);
+    connect(connector_, &IConnection::requestUsername, this, &ConnectionManager::onConnectionRequestUsername, Qt::QueuedConnection);
+    connect(connector_, &IConnection::requestPassword, this, &ConnectionManager::onConnectionRequestPassword, Qt::QueuedConnection);
+
+    currentProtocol_ = protocol;
 }
 
 void ConnectionManager::restoreConnectionAfterWakeUp()
@@ -1314,10 +1314,14 @@ void ConnectionManager::onTunnelTestsFinished(bool bSuccess, const QString &ipAd
                 state_ = STATE_RECONNECTING;
                 emit reconnecting();
                 startReconnectionTimer();
-                connector_->startDisconnect();
+                if (connector_) {
+                    connector_->startDisconnect();
+                }
             } else {
                 state_= STATE_AUTO_DISCONNECT;
-                connector_->startDisconnect();
+                if (connector_) {
+                    connector_->startDisconnect();
+                }
             }
         }
     } else {

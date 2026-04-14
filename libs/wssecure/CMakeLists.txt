@@ -12,11 +12,17 @@ endif()
 
 project(wssecure LANGUAGES CXX)
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/version.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/version.rc
+    @ONLY
+)
+
 add_library(wssecure SHARED
   dllmain.cpp
   wssecure.h
   wssecure.cpp
-  version.rc
+  ${CMAKE_CURRENT_BINARY_DIR}/version.rc
 )
 
 target_compile_definitions(wssecure PRIVATE WSSECURE_LIBRARY)

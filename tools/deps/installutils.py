@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2026, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 import glob
 import multiprocessing
@@ -16,8 +16,9 @@ import base.process as proc
 import base.utils as utl
 
 REPOSITORY_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-TOOLS_BIN_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bin")
-TOOLS_VARS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "vars")
+TOOLS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TOOLS_BIN_DIR = os.path.join(TOOLS_DIR, "bin")
+TOOLS_VARS_DIR = os.path.join(TOOLS_DIR, "vars")
 TEMP_DIR = os.path.join(REPOSITORY_ROOT, "temp")
 CACHED_MAKE_COMMAND = None
 
@@ -263,3 +264,26 @@ def InstallArtifacts(directory, filemasks, installpath, zipfilename):
     if zipfilename:
         zf.close()
     return aflist
+
+
+def ParseProductArg():
+    for arg in sys.argv:
+        if arg.startswith("--product="):
+            return arg.split("=", 1)[1]
+    return "windscribe"
+
+
+def ConfigureDependencyTemplate(product, input_file, output_file):
+    cmake_script = os.path.join(REPOSITORY_ROOT, "cmake", "configure_dependency.cmake")
+    RunCommand([
+        "cmake",
+        "-DPRODUCT=" + product,
+        "-DINPUT_FILE=" + input_file,
+        "-DOUTPUT_FILE=" + output_file,
+        "-P", cmake_script
+    ])
+
+
+def GetBuildLibsRoot(product, is_arm64=False):
+    base = "build-libs-arm64" if is_arm64 else "build-libs"
+    return os.path.join(base, product)

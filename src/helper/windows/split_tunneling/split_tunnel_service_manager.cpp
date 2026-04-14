@@ -1,12 +1,13 @@
+#include "ws_branding.h"
 #include "split_tunnel_service_manager.h"
 
 #include <system_error>
 #include <spdlog/spdlog.h>
 
-#include "../../../client/client-common/utils/servicecontrolmanager.h"
+#include "../../client/client-common/utils/servicecontrolmanager.h"
 
 
-static const wchar_t* kServiceName = L"WindscribeSplitTunnel";
+static const wchar_t* kServiceName = WS_APP_IDENTIFIER_W L"SplitTunnel";
 
 SplitTunnelServiceManager::SplitTunnelServiceManager()
 {

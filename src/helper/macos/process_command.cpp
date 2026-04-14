@@ -90,19 +90,19 @@ std::string executeOpenVPN(const std::string &pars)
         return serializeResult(false);
     }
 
-    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribeopenvpn", "--config /etc/windscribe/config.ovpn");
+    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "openvpn", "--config " WS_POSIX_CONFIG_DIR "/config.ovpn");
     if (fullCmd.empty()) {
         // Something wrong with the command
         return serializeResult(false);
     }
 
-    const std::string fullPath = Utils::getExePath() + "/windscribeopenvpn";
+    const std::string fullPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "openvpn";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(fullPath)) {
         spdlog::error("OpenVPN executable signature incorrect: {}", sigCheck.lastError());
         return serializeResult(false);
     } else {
-        ExecuteCmd::instance().execute(fullCmd, "/etc/windscribe");
+        ExecuteCmd::instance().execute(fullCmd, WS_POSIX_CONFIG_DIR);
         return serializeResult(true);
     }
 }
@@ -113,10 +113,12 @@ std::string executeTaskKill(const std::string &pars)
     deserializePars(pars, target);
 
     bool success = false;
-    if (target == kTargetWindscribe) {
-        spdlog::info("Killing Windscribe processes");
-        Utils::executeCommand("pkill", {"Windscribe"});
-        Utils::executeCommand("pkill", {"WindscribeEngine"}); // For older 1.x clients
+    if (target == kTargetApp) {
+        spdlog::info("Killing " WS_PRODUCT_NAME " processes");
+        Utils::executeCommand("pkill", {WS_APP_EXECUTABLE_NAME});
+#ifdef WS_IS_WINDSCRIBE
+        Utils::executeCommand("pkill", {WS_APP_IDENTIFIER "Engine"}); // For older 1.x clients
+#endif
         success = true;
     } else if (target == kTargetOpenVpn) {
         spdlog::info("Killing OpenVPN processes");
@@ -127,19 +129,19 @@ std::string executeTaskKill(const std::string &pars)
         success = true;
     } else if (target == kTargetStunnel) {
         spdlog::info("Killing Stunnel processes");
-        Utils::executeCommand("pkill", {"-f", "windscribewstunnel"});
+        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "wstunnel"});
         success = true;
     } else if (target == kTargetWStunnel) {
         spdlog::info("Killing WStunnel processes");
-        Utils::executeCommand("pkill", {"-f", "windscribewstunnel"});
+        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "wstunnel"});
         success = true;
     } else if (target == kTargetWireGuard) {
         spdlog::info("Killing WireGuard processes");
-        Utils::executeCommand("pkill", {"-f", "windscribewireguard"});
+        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "wireguard"});
         success = true;
     } else if (target == kTargetCtrld) {
         spdlog::info("Killing ctrld processes");
-        Utils::executeCommand("pkill", {"-f", "windscribectrld"});
+        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "ctrld"});
         success = true;
     } else {
         spdlog::error("Did not kill processes for type {}", (int)target);
@@ -251,17 +253,17 @@ std::string startCtrld(const std::string &pars)
         }
     }
     if (isCreateLog) {
-        arguments << " --log /Library/Logs/com.windscribe.helper.macos/ctrld.log";
+        arguments << " --log /Library/Logs/" WS_MAC_HELPER_BUNDLE_ID "/ctrld.log";
         arguments << " -vv";
     }
 
-    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribectrld", arguments.str());
+    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "ctrld", arguments.str());
     if (fullCmd.empty()) {
         // Something wrong with the command
         return serializeResult(false);
     }
 
-    const std::string fullPath = Utils::getExePath() + "/windscribectrld";
+    const std::string fullPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "ctrld";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(fullPath)) {
         spdlog::error("ctrld executable signature incorrect: {}", sigCheck.lastError());
@@ -342,13 +344,13 @@ std::string startStunnel(const std::string &pars)
     }
     arguments << " --tunnelType 2";
     //arguments << " --dev"; // enables verbose logging when necessary
-    std::string fullCmd = Utils::getFullCommandAsUser("windscribe", Utils::getExePath(), "windscribewstunnel", arguments.str());
+    std::string fullCmd = Utils::getFullCommandAsUser(WS_PRODUCT_NAME_LOWER, Utils::getExePath(), WS_PRODUCT_NAME_LOWER "wstunnel", arguments.str());
     if (fullCmd.empty()) {
         // Something wrong with the command
         return serializeResult(false);
     }
 
-    const std::string fullPath = Utils::getExePath() + "/windscribewstunnel";
+    const std::string fullPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "wstunnel";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(fullPath)) {
         spdlog::error("stunnel executable signature incorrect: {}", sigCheck.lastError());
@@ -382,13 +384,13 @@ std::string startWstunnel(const std::string &pars)
     arguments << " --remoteAddress wss://" << hostname << ":" << port << "/tcp/127.0.0.1/1194";
     arguments << " --logFilePath \"\"";
     //arguments << " --dev"; // enables verbose logging when necessary
-    std::string fullCmd = Utils::getFullCommandAsUser("windscribe", Utils::getExePath(), "windscribewstunnel", arguments.str());
+    std::string fullCmd = Utils::getFullCommandAsUser(WS_PRODUCT_NAME_LOWER, Utils::getExePath(), WS_PRODUCT_NAME_LOWER "wstunnel", arguments.str());
     if (fullCmd.empty()) {
         // Something wrong with the command
         return serializeResult(false);
     }
 
-    const std::string fullPath = Utils::getExePath() + "/windscribewstunnel";
+    const std::string fullPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "wstunnel";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(fullPath)) {
         spdlog::error("wstunnel executable signature incorrect: {}", sigCheck.lastError());
@@ -502,7 +504,7 @@ std::string removeOldInstall(const std::string &pars)
     // because versions < 2.6 allowed custom dir installs.  This check at least disallows user to try to
     // delete paths that they can't write to.
     std::stringstream path;
-    path << installPath << "/Contents/MacOS/Windscribe";
+    path << installPath << "/Contents/MacOS/" WS_APP_EXECUTABLE_NAME;
 
     if (access(path.str().c_str(), F_OK) == 0) {
         spdlog::info("Remove old install: {}", installPath);
@@ -568,8 +570,8 @@ std::string createCliSymlink(const std::string &pars)
     }
 
     spdlog::debug("Creating CLI symlink");
-    std::string filepath = Utils::getExePath() + "/../MacOS/windscribe-cli";
-    std::string sympath = "/usr/local/bin/windscribe-cli";
+    std::string filepath = Utils::getExePath() + "/../MacOS/" WS_CLI_EXECUTABLE_NAME;
+    std::string sympath = "/usr/local/bin/" WS_CLI_EXECUTABLE_NAME;
     std::filesystem::remove(sympath, err);
     if (err) {
         spdlog::error("Failed to remove existing CLI symlink: {}", err.message());

@@ -69,8 +69,13 @@ const QString getLastInstallPlatform()
 
 bool isAppAlreadyRunning()
 {
-    // Look for process containing "Windscribe" -- exclude grep and Engine
-    QString cmd = "ps axco command | grep Windscribe | grep -v grep | grep -v WindscribeEngine | grep -v windscribe-cli";
+    // Look for process containing the product name -- exclude grep and Engine
+    QString cmd = "ps axco command | grep " WS_APP_EXECUTABLE_NAME " | grep -v grep";
+#ifdef WS_IS_WINDSCRIBE
+    cmd += " | grep -v " WS_APP_IDENTIFIER "Engine"; // Exclude older 1.x engine process
+#endif
+    if (strlen(WS_CLI_EXECUTABLE_NAME) > 0)
+        cmd += " | grep -v " WS_CLI_EXECUTABLE_NAME;
     QString response = Utils::execCmd(cmd);
     return response.trimmed() != "";
 }
@@ -247,9 +252,9 @@ QString getDistroName()
     return distro;
 }
 
-gid_t getWindscribeGid()
+gid_t getAppGid()
 {
-    struct group *grp = getgrnam("windscribe");
+    struct group *grp = getgrnam(WS_PRODUCT_NAME_LOWER);
     if (grp == nullptr) {
         return -1;
     }

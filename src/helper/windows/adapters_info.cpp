@@ -1,3 +1,4 @@
+#include "ws_branding.h"
 #include "adapters_info.h"
 
 #include <ws2tcpip.h>
@@ -28,14 +29,14 @@ AdaptersInfo::AdaptersInfo()
 }
 
 
-bool AdaptersInfo::isWindscribeAdapter(NET_IFINDEX index) const
+bool AdaptersInfo::isAppVpnAdapter(NET_IFINDEX index) const
 {
     PIP_ADAPTER_ADDRESSES ai = pAdapterInfo_;
     while (ai)
     {
         if (ai->IfIndex == index)
         {
-            return isWindscribeAdapter(ai);
+            return isAppVpnAdapter(ai);
         }
         ai = ai->Next;
     }
@@ -43,7 +44,7 @@ bool AdaptersInfo::isWindscribeAdapter(NET_IFINDEX index) const
     return false;
 }
 
-bool AdaptersInfo::getWindscribeIkev2AdapterInfo(NET_IFINDEX &outIfIndex, std::wstring &outIp)
+bool AdaptersInfo::getIkev2AdapterInfo(NET_IFINDEX &outIfIndex, std::wstring &outIp)
 {
     outIfIndex = NET_IFINDEX_UNSPECIFIED;
     outIp.clear();
@@ -51,7 +52,7 @@ bool AdaptersInfo::getWindscribeIkev2AdapterInfo(NET_IFINDEX &outIfIndex, std::w
     PIP_ADAPTER_ADDRESSES ai = pAdapterInfo_;
     while (ai)
     {
-        if (wcsstr(ai->Description, L"Windscribe IKEv2") != 0)
+        if (wcsstr(ai->Description, WS_WIN_IKEV2_CONNECTION_NAME_W) != 0)
         {
             PIP_ADAPTER_UNICAST_ADDRESS pUnicast = ai->FirstUnicastAddress;
             while (pUnicast)
@@ -77,7 +78,7 @@ bool AdaptersInfo::getWindscribeIkev2AdapterInfo(NET_IFINDEX &outIfIndex, std::w
             }
 
             if (outIp.empty()) {
-                spdlog::error("AdaptersInfo::getWindscribeIkev2AdapterInfo - failed to determine IPv4 address");
+                spdlog::error("AdaptersInfo::getIkev2AdapterInfo - failed to determine IPv4 address");
             }
             else {
                 outIfIndex = ai->IfIndex;
@@ -98,7 +99,7 @@ std::vector<NET_IFINDEX> AdaptersInfo::getTAPAdapters()
     PIP_ADAPTER_ADDRESSES ai = pAdapterInfo_;
     while (ai)
     {
-        if (isWindscribeAdapter(ai)) {
+        if (isAppVpnAdapter(ai)) {
             list.push_back(ai->IfIndex);
         }
         ai = ai->Next;
@@ -131,8 +132,8 @@ std::vector<std::string> AdaptersInfo::getAdapterAddresses(NET_IFINDEX idx)
     return list;
 }
 
-bool AdaptersInfo::isWindscribeAdapter(PIP_ADAPTER_ADDRESSES ai) const
+bool AdaptersInfo::isAppVpnAdapter(PIP_ADAPTER_ADDRESSES ai) const
 {
     // Warning: we control the FriendlyName of the wireguard-nt adapter, but not the Description.
-    return (wcsstr(ai->Description, L"Windscribe") != 0) || (wcsstr(ai->FriendlyName, L"Windscribe") != 0);
+    return (wcsstr(ai->Description, WS_PRODUCT_NAME_W) != 0) || (wcsstr(ai->FriendlyName, WS_PRODUCT_NAME_W) != 0);
 }

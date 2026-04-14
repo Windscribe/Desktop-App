@@ -113,7 +113,7 @@ void WireGuardConnection::run()
     // This merely installs the wireguard service.  We start it with a call to startService below.
     bool bSuccess = helper_->startWireGuard(isAmneziaWG());
     if (!bSuccess) {
-        qCCritical(LOG_CONNECTION) << "Windscribe service could not install the WireGuard service";
+        qCCritical(LOG_CONNECTION) << WS_PRODUCT_NAME " service could not install the WireGuard service";
         emit error(CONNECT_ERROR::WIREGUARD_CONNECTION_ERROR);
         emit disconnected();
         return;
@@ -183,7 +183,7 @@ void WireGuardConnection::run()
     }
 
     if (!helper_->stopWireGuard()) {
-        qCCritical(LOG_CONNECTION) << "WireGuardConnection::run - windscribe service failed to stop the WireGuard service instance";
+        qCCritical(LOG_CONNECTION) << "WireGuardConnection::run - service failed to stop the WireGuard service instance";
     }
 
     stopWireGuard.dismiss();
@@ -196,7 +196,7 @@ void WireGuardConnection::run()
 
     if (isAmneziaWG()) {
         // This prevents the wintun adapter/network number from increasing on each connection.
-        helper_->removeWindscribeNetworkProfiles();
+        helper_->removeAppNetworkProfiles();
     }
 
     // Delay emiting signals until we have cleaned up all our resources.
@@ -275,15 +275,14 @@ void WireGuardConnection::onGetWireguardStats()
     // wireguard service.
 
     types::WireGuardStatus status;
-    if (helper_->getWireGuardStatus(&status)) {
-        if (status.state == types::WireGuardState::ACTIVE)
-        {
-            if (!connectedSignalEmited_ && status.lastHandshake > 0) {
-                onTunnelConnected();
-            }
-
-            emit statisticsUpdated(status.bytesReceived, status.bytesTransmitted, true);
+    if (helper_->getWireGuardStatus(&status) && (status.state == types::WireGuardState::ACTIVE)) {
+        // Check for the rare condition where we did not see the isKeypairCreated() in onGetWireguardLogUpdates
+        // but the kernel driver reports the tunnel as active and receiving handshakes.
+        if (!connectedSignalEmited_ && status.lastHandshake > 0) {
+            onTunnelConnected();
         }
+
+        emit statisticsUpdated(status.bytesReceived, status.bytesTransmitted, true);
     }
 }
 
@@ -433,7 +432,7 @@ void WireGuardConnection::resetLogReader()
 
     ::CoTaskMemFree(programFilesPath);
 
-    logFile += "\\Windscribe\\config\\log.bin";
+    logFile += "\\" WS_WIN_CONFIG_SUBDIR "\\config\\log.bin";
     wireguardLog_.reset(new wsl::WireguardRingLogger(logFile, isAmneziaWG()));
 }
 

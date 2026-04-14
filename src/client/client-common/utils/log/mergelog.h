@@ -6,8 +6,7 @@
 
 namespace log_utils {
 
-// merge logs files log_gui.txt, windscribeservice.log, and WireguardServiceLog.txt (Windows only) to one,
-// cutting out the middle of the log if the count of lines exceeds MAX_COUNT_OF_LINES
+// merge client, helper, and installer logs to one, cutting out the middle of the log if the count of lines exceeds MAX_COUNT_OF_LINES
 class MergeLog
 {
 public:

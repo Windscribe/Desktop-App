@@ -16,6 +16,10 @@
         <translation>Žiadne lokality.</translation>
     </message>
     <message>
+        <source>No ports available for the specified protocol.</source>
+        <translation>Pre špecifikovaný protokol nie sú k dispozícii žiadne porty.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>Nepodarilo sa rotovať IP. Skontrolujte, či máte Windscribe Pro alebo či máte toto umiestnenie v pláne, alebo to skúste neskôr.</translation>
     </message>

@@ -9,7 +9,7 @@
 
 #include <optional>
 
-// for work with windscribe_extra.conf file (additional parameters), thread-safe access
+// for work with advanced parameters file, thread-safe access
 // all ikev2 params will be prefixed with --ikev2, so you don't use them when using OpenVPN, and vise versa
 // ikev2 options:
 // --ikev2-compression - enable ikev2 compression for Windows (RASEO_IpHeaderCompression and RASEO_SwCompression flags)

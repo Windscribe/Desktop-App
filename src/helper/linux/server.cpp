@@ -19,7 +19,7 @@
 #include "process_command.h"
 #include "utils.h"
 
-#define SOCK_PATH "/var/run/windscribe/helper.sock"
+#define SOCK_PATH WS_POSIX_RUN_DIR "/helper.sock"
 
 Server::Server()
 {
@@ -155,12 +155,12 @@ void Server::run()
 {
 
 #ifdef NDEBUG   // release build
-    Utils::createWindscribeUserAndGroup();
-    auto res = system("mkdir -p /var/run/windscribe && chown :windscribe /var/run/windscribe && chmod 775 /var/run/windscribe && mkdir -p /var/tmp/windscribe"); // res is necessary to avoid no-discard warning.
+    Utils::createAppUserAndGroup();
+    auto res = system("mkdir -p " WS_POSIX_RUN_DIR " && chown :" WS_PRODUCT_NAME_LOWER " " WS_POSIX_RUN_DIR " && chmod 775 " WS_POSIX_RUN_DIR " && mkdir -p " WS_LINUX_TMP_DIR); // res is necessary to avoid no-discard warning.
 #else           // debug build
-    auto res = system("mkdir -p /var/run/windscribe && chmod 777 /var/run/windscribe && mkdir -p /var/tmp/windscribe");
+    auto res = system("mkdir -p " WS_POSIX_RUN_DIR " && chmod 777 " WS_POSIX_RUN_DIR " && mkdir -p " WS_LINUX_TMP_DIR);
 #endif
-    spdlog::info("/var/run/windscribe and /var/tmp/windscribe created");
+    spdlog::info(WS_POSIX_RUN_DIR " and " WS_LINUX_TMP_DIR " created");
     UNUSED(res);
 
     ::unlink(SOCK_PATH);
@@ -170,7 +170,7 @@ void Server::run()
 
 
 #ifdef NDEBUG
-    struct group *grp = getgrnam("windscribe");
+    struct group *grp = getgrnam(WS_PRODUCT_NAME_LOWER);
     if (!grp || chmod(SOCK_PATH, 0770) || chown(SOCK_PATH, (uid_t)-1, grp->gr_gid)) {
         // Do not have a group, or chmod/chown failed.
         ::unlink(SOCK_PATH);
@@ -185,7 +185,7 @@ void Server::run()
 #endif
 
     // Cause the FireallOnBootManager to be constructed here, so that on-boot rules are processed,
-    // even if the Windscribe app/service does not start.
+    // even if the app/service does not start.
     FirewallOnBootManager::instance();
 
     startAccept();

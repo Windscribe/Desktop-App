@@ -1,3 +1,4 @@
+#include "ws_branding.h"
 #include <Windows.h>
 #include <Fwpmu.h>
 #include <initguid.h>
@@ -9,7 +10,7 @@
 #include "../utils.h"
 
 DEFINE_GUID(
-    WINDSCRIBE_BIND_CALLOUT_GUID,
+    BIND_CALLOUT_GUID,
     0x5DF29179,
     0x344E,
     0x4F9C,
@@ -17,7 +18,7 @@ DEFINE_GUID(
 );
 
 DEFINE_GUID(
-    WINDSCRIBE_TCP_CALLOUT_GUID,
+    TCP_CALLOUT_GUID,
     0xB53C4ADE,
     0x7A35,
     0x4A63,
@@ -42,7 +43,7 @@ DEFINE_GUID(
 
 
 #pragma pack(push,1)
-typedef struct WINDSCRIBE_CALLOUT_DATA_
+typedef struct CALLOUT_DATA_
 {
     UINT32 localIp;
     UINT32 vpnIp;
@@ -55,7 +56,7 @@ typedef struct WINDSCRIBE_CALLOUT_DATA_
     UINT16 cntExcludeAddresses;
     UINT32 excludeAddresses[1];
 
-} WINDSCRIBE_CALLOUT_DATA;
+} CALLOUT_DATA;
 #pragma pack(pop)
 
 
@@ -157,8 +158,8 @@ bool CalloutFilter::addProviderContext(HANDLE engineHandle, const GUID &guid, UI
     // fill callout data struct
     // here is some C style code needed to fill the structure and pass it to the driver
     std::vector<unsigned char> data;
-    data.resize(sizeof(WINDSCRIBE_CALLOUT_DATA) - sizeof(WINDSCRIBE_CALLOUT_DATA().excludeAddresses) + lanRanges.size() * 2 * sizeof(UINT32));
-    WINDSCRIBE_CALLOUT_DATA *proxyData = reinterpret_cast<WINDSCRIBE_CALLOUT_DATA *>(data.data());
+    data.resize(sizeof(CALLOUT_DATA) - sizeof(CALLOUT_DATA().excludeAddresses) + lanRanges.size() * 2 * sizeof(UINT32));
+    CALLOUT_DATA *proxyData = reinterpret_cast<CALLOUT_DATA *>(data.data());
 
     proxyData->localIp = localIp;
     proxyData->vpnIp = vpnIp;
@@ -175,7 +176,7 @@ bool CalloutFilter::addProviderContext(HANDLE engineHandle, const GUID &guid, UI
     FWPM_PROVIDER_CONTEXT1 providerContext = { 0 };
     UINT64 providerContextId;
 
-    providerContext.displayData.name = (wchar_t*)L"Windscribe provider context for callout driver";
+    providerContext.displayData.name = (wchar_t*)WS_PRODUCT_NAME_W " provider context for callout driver";
     providerContext.providerContextKey = guid;
     providerContext.type = FWPM_GENERAL_CONTEXT;
 
@@ -198,8 +199,8 @@ bool CalloutFilter::addCallouts(HANDLE engineHandle)
     {
         FWPM_CALLOUT0 callout = { 0 };
         UINT32 calloutId;
-        callout.calloutKey = WINDSCRIBE_BIND_CALLOUT_GUID;
-        callout.displayData.name = (wchar_t*)L"Windscribe split tunnel non-TCP callout";
+        callout.calloutKey = BIND_CALLOUT_GUID;
+        callout.displayData.name = (wchar_t*)WS_PRODUCT_NAME_W " split tunnel non-TCP callout";
         callout.applicableLayer = FWPM_LAYER_ALE_BIND_REDIRECT_V4;
         callout.flags |= FWPM_CALLOUT_FLAG_USES_PROVIDER_CONTEXT;
         DWORD ret = FwpmCalloutAdd(engineHandle, &callout, NULL, &calloutId);
@@ -213,8 +214,8 @@ bool CalloutFilter::addCallouts(HANDLE engineHandle)
     {
         FWPM_CALLOUT0 callout = { 0 };
         UINT32 calloutId;
-        callout.calloutKey = WINDSCRIBE_TCP_CALLOUT_GUID;
-        callout.displayData.name = (wchar_t*)L"Windscribe split tunnel TCP callout";
+        callout.calloutKey = TCP_CALLOUT_GUID;
+        callout.displayData.name = (wchar_t*)WS_PRODUCT_NAME_W " split tunnel TCP callout";
         callout.applicableLayer = FWPM_LAYER_ALE_CONNECT_REDIRECT_V4;
         callout.flags |= FWPM_CALLOUT_FLAG_USES_PROVIDER_CONTEXT;
         DWORD ret = FwpmCalloutAdd(engineHandle, &callout, NULL, &calloutId);
@@ -230,7 +231,7 @@ bool CalloutFilter::addSubLayer(HANDLE engineHandle)
 {
     FWPM_SUBLAYER subLayer = { 0 };
     subLayer.subLayerKey = SUBLAYER_CALLOUT_GUID;
-    subLayer.displayData.name = (wchar_t*)L"Windscribe sublayer for callout driver";
+    subLayer.displayData.name = (wchar_t*)WS_PRODUCT_NAME_W " sublayer for callout driver";
     subLayer.weight = 0x200;
 
     DWORD dwFwAPiRetCode = FwpmSubLayerAdd(engineHandle, &subLayer, NULL);
@@ -274,7 +275,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, const A
         FWPM_FILTER filter = { 0 };
         filter.subLayerKey = SUBLAYER_CALLOUT_GUID;
         filter.layerKey = FWPM_LAYER_ALE_CONNECT_REDIRECT_V4;
-        filter.displayData.name = (wchar_t *)L"Windscribe TCP filter for callout driver";
+        filter.displayData.name = (wchar_t *)WS_PRODUCT_NAME_W " TCP filter for callout driver";
         filter.weight.type = FWP_UINT8;
         filter.weight.uint8 = 0x00;
         filter.providerContextKey = CALLOUT_PROVIDER_CONTEXT_IP_GUID;
@@ -282,7 +283,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, const A
         filter.numFilterConditions = static_cast<UINT32>(conditions.size());
         filter.filterCondition = &conditions[0];
         filter.action.type = FWP_ACTION_CALLOUT_UNKNOWN;
-        filter.action.calloutKey = WINDSCRIBE_TCP_CALLOUT_GUID;
+        filter.action.calloutKey = TCP_CALLOUT_GUID;
 
         UINT64 filterId;
         DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
@@ -319,7 +320,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, const A
         FWPM_FILTER filter = { 0 };
         filter.subLayerKey = SUBLAYER_CALLOUT_GUID;
         filter.layerKey = FWPM_LAYER_ALE_BIND_REDIRECT_V4;
-        filter.displayData.name = (wchar_t *)L"Windscribe bind filter for callout driver";
+        filter.displayData.name = (wchar_t *)WS_PRODUCT_NAME_W " bind filter for callout driver";
         filter.weight.type = FWP_UINT8;
         filter.weight.uint8 = 0x00;
         filter.providerContextKey = CALLOUT_PROVIDER_CONTEXT_IP_GUID;
@@ -327,7 +328,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, const A
         filter.numFilterConditions = static_cast<UINT32>(conditions.size());
         filter.filterCondition = &conditions[0];
         filter.action.type = FWP_ACTION_CALLOUT_UNKNOWN;
-        filter.action.calloutKey = WINDSCRIBE_BIND_CALLOUT_GUID;
+        filter.action.calloutKey = BIND_CALLOUT_GUID;
 
         UINT64 filterId;
         DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
@@ -356,7 +357,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, const A
         FWPM_FILTER filter = { 0 };
         filter.subLayerKey = SUBLAYER_CALLOUT_GUID;
         filter.layerKey = FWPM_LAYER_ALE_CONNECT_REDIRECT_V4;
-        filter.displayData.name = (wchar_t *)L"Windscribe ctrld filter for callout driver";
+        filter.displayData.name = (wchar_t *)WS_PRODUCT_NAME_W " ctrld filter for callout driver";
         filter.weight.type = FWP_UINT8;
         filter.weight.uint8 = 0x00;
         filter.providerContextKey = CALLOUT_PROVIDER_CONTEXT_IP_GUID;
@@ -364,7 +365,7 @@ bool CalloutFilter::addFilters(HANDLE engineHandle, bool withTcpFilters, const A
         filter.numFilterConditions = static_cast<UINT32>(conditions.size());
         filter.filterCondition = &conditions[0];
         filter.action.type = FWP_ACTION_CALLOUT_UNKNOWN;
-        filter.action.calloutKey = WINDSCRIBE_TCP_CALLOUT_GUID;
+        filter.action.calloutKey = TCP_CALLOUT_GUID;
 
         UINT64 filterId;
         DWORD ret = FwpmFilterAdd(engineHandle, &filter, NULL, &filterId);
@@ -393,8 +394,8 @@ bool CalloutFilter::removeAllFilters(FwpmWrapper &fwmpWrapper)
 
     DWORD ret = deleteSublayer(hEngine);
 
-    ret = FwpmCalloutDeleteByKey(hEngine, &WINDSCRIBE_BIND_CALLOUT_GUID);
-    ret = FwpmCalloutDeleteByKey(hEngine, &WINDSCRIBE_TCP_CALLOUT_GUID);
+    ret = FwpmCalloutDeleteByKey(hEngine, &BIND_CALLOUT_GUID);
+    ret = FwpmCalloutDeleteByKey(hEngine, &TCP_CALLOUT_GUID);
     ret = FwpmProviderContextDeleteByKey(hEngine, &CALLOUT_PROVIDER_CONTEXT_IP_GUID);
 
     fwmpWrapper.endTransaction();

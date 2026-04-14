@@ -68,6 +68,10 @@ void SoundManager::stop()
 
 void SoundManager::playSound(const QString &path, bool loop, bool isPreview)
 {
+    if (path.isEmpty()) {
+        return;
+    }
+
     qCDebug(LOG_BASIC) << "Playing sound" << path;
 
     cleanupCurrentSoundData();

@@ -1252,14 +1252,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::AntiCensorshipGroup</name>
+    <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Circumvent Censorship</source>
-        <translation>Παράκαμψη της λογοκρισίας</translation>
+        <source>Anti-censorship</source>
+        <translation>Κατά της λογοκρισίας</translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation>Διαμόρφωση</translation>
+        <source>These degrade performance, enable only if Windscribe doesn&apos;t connect normally.</source>
+        <translation>Αυτά υποβαθμίζουν την απόδοση, ενεργοποιούνται μόνο εάν το Windscribe δεν συνδέεται κανονικά.</translation>
+    </message>
+    <message>
+        <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
+        <translation>Αλλαγές σε επίπεδο πρωτοκόλλου που έγιναν στα πρωτόκολλα WireGuard, OpenVPN και Stealth.</translation>
+    </message>
+    <message>
+        <source>Increases latency, but improves chances of being able to connect.</source>
+        <translation>Αυξάνει τον λανθάνοντα χρόνο, αλλά βελτιώνει τις πιθανότητες σύνδεσης.</translation>
+    </message>
+    <message>
+        <source>Server Routing</source>
+        <translation>Δρομολόγηση διακομιστή</translation>
     </message>
 </context>
 <context>
@@ -1495,8 +1507,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Καταργήστε τις πληροφορίες SSID και MAC Wi-Fi από το λειτουργικό σας σύστημα για να αποτρέψετε την παρακολούθηση του ιστορικού τοποθεσίας.</translation>
     </message>
     <message>
-        <source>Connect to the VPN with WireGuard even in a hostile environment.</source>
-        <translation>Συνδεθείτε στο VPN με το WireGuard ακόμα και σε εχθρικό περιβάλλον.</translation>
+        <source>Anti-censorship Settings</source>
+        <translation>Ρυθμίσεις κατά της λογοκρισίας</translation>
     </message>
 </context>
 <context>
@@ -2061,6 +2073,17 @@ Connect to a network first</source>
     </message>
 </context>
 <context>
+    <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Protocol Tweaks</source>
+        <translation>Τροποποιήσεις πρωτοκόλλου</translation>
+    </message>
+    <message>
+        <source>Amnezia Config</source>
+        <translation>Amnezia Config</translation>
+    </message>
+</context>
+<context>
     <name>PreferencesWindow::ProxyGatewayGroup</name>
     <message>
         <source>Auto</source>
@@ -2460,14 +2483,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
 <context>
     <name>QObject</name>
     <message>
-        <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
-        <translation>Η έκδοση της εφαρμογής σας δεν υποστηρίζεται πλέον. Ενημερώστε για να συνεχίσετε να χρησιμοποιείτε το Windscribe.</translation>
-    </message>
-    <message>
-        <source>Please upgrade to a Pro account to continue using Windscribe.</source>
-        <translation>Κάντε αναβάθμιση σε λογαριασμό Pro για να συνεχίσετε να χρησιμοποιείτε το Windscribe.</translation>
-    </message>
-    <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
         <translation>Ο αρχικός λογαριασμός σας %1 έχει λήξει. Απαγορεύεται η δημιουργία πολλαπλών λογαριασμών για την παράκαμψη των περιορισμών δωρεάν βαθμίδας. Συνδεθείτε στον αρχικό λογαριασμό και περιμένετε μέχρι να γίνει επαναφορά του εύρους ζώνης. Μπορείτε επίσης να κάνετε αναβάθμιση σε Pro.</translation>
     </message>
@@ -2671,16 +2686,28 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>One or more files in the Windscribe application bundle have been suspiciously modified. Please re-install Windscribe.</source>
         <translation>Ένα ή περισσότερα αρχεία στο πακέτο εφαρμογών Windscribe έχουν τροποποιηθεί ύποπτα. Εγκαταστήστε ξανά το Windscrib.</translation>
     </message>
+    <message>
+        <source>Your application version is no longer supported. Please update to continue using %1.</source>
+        <translation>Η έκδοση της εφαρμογής σας δεν υποστηρίζεται πλέον. Ενημερώστε για να συνεχίσετε να χρησιμοποιείτε το %1.</translation>
+    </message>
+    <message>
+        <source>Please upgrade to a Pro account to continue using %1.</source>
+        <translation>Κάντε αναβάθμιση σε λογαριασμό Pro για να συνεχίσετε να χρησιμοποιείτε το %1.</translation>
+    </message>
+    <message>
+        <source>Regular</source>
+        <translation>Τακτικός</translation>
+    </message>
+    <message>
+        <source>Alternate</source>
+        <translation>Αναπληρωματικό</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
     <message>
         <source>Unknown Config Error</source>
         <translation>Άγνωστο σφάλμα διαμόρφωσης</translation>
-    </message>
-    <message>
-        <source>File Sharing Frowned Upon</source>
-        <translation>Η κοινή χρήση αρχείων αποδοκιμάστηκε</translation>
     </message>
 </context>
 <context>

@@ -30,8 +30,8 @@ private:
     HostnamesManager hostnamesManager_;
     SplitTunnelServiceManager splitTunnelServiceManager_;
 
-    AppsIds windscribeMainExecutableId_;
-    AppsIds windscribeOtherExecutablesId_;
+    AppsIds vpnMainExecutableId_;
+    AppsIds vpnOtherExecutablesId_;
     AppsIds ctrldExecutableId_;
 
     ConnectStatus connectStatus_;
@@ -43,5 +43,5 @@ private:
     bool prevIsExclude_ = false;
 
     SplitTunneling(FwpmWrapper& fwpmWrapper);
-    void detectWindscribeExecutables();
+    void detectVpnExecutables();
 };

@@ -44,6 +44,7 @@ struct EngineSettingsData : public QSharedData
     QMap<QString, types::ConnectionSettings> networkPreferredProtocols;
     QString language;
     QString amneziawgPreset;
+    SERVER_ROUTING_METHOD_TYPE serverRoutingMethod = SERVER_ROUTING_METHOD_AUTO;
 
     void fromJson(const QJsonObject &json);
     QJsonObject toJson(bool isForDebugLog) const;
@@ -53,6 +54,7 @@ struct EngineSettingsData : public QSharedData
 private:
     static const inline QString kIniAmneziawgPresetProp = "AmneziawgPreset";
     static const inline QString kIniDnsManagerProp = "DNSManager";
+    static const inline QString kIniServerRoutingMethodProp = "ServerRoutingMethod";
     static const inline QString kIniDnsPolicyProp = "DNSPolicy";
     static const inline QString kIniIsAllowLanTrafficProp = "AllowLANTraffic";
     static const inline QString kIniIsAntiCensorshipProp = "CircumventCensorship";
@@ -62,6 +64,7 @@ private:
     static const inline QString kIniUpdateChannelProp = "UpdateChannel";
 
     static const inline QString kJsonAmneziawgPresetProp = "amneziawgPreset";
+    static const inline QString kJsonServerRoutingMethodProp = "serverRoutingMethod";
     static const inline QString kJsonConnectedDnsInfoProp = "connectedDnsInfo";
     static const inline QString kJsonConnectionSettingsProp = "connectionSettings";
     static const inline QString kJsonCustomOvpnConfigsPathProp = "customOvpnConfigsPath";
@@ -143,6 +146,9 @@ public:
     DecoyTrafficSettings decoyTrafficSettings() const;
     void setDecoyTrafficSettings(const DecoyTrafficSettings &decoyTrafficSettings);
 
+    SERVER_ROUTING_METHOD_TYPE serverRoutingMethod() const;
+    void setServerRoutingMethod(SERVER_ROUTING_METHOD_TYPE method);
+
     bool operator==(const EngineSettings &other) const;
     bool operator!=(const EngineSettings &other) const;
     QJsonObject toJson(bool isForDebugLog) const;
@@ -160,7 +166,7 @@ private:
 
     // for serialization
     static constexpr quint32 magic_ = 0x7745C2AE;
-    static constexpr int versionForSerialization_ = 8;  // should increment the version if the data format is changed
+    static constexpr int versionForSerialization_ = 9;  // should increment the version if the data format is changed
 };
 
 } // types namespace

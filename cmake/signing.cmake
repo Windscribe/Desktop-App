@@ -12,8 +12,8 @@ set(BUILD_INSTALLER_FILES "${BUILD_TEMP_DIR}/InstallerFiles")
 # ------------------------------------------------------------------------------
 
 if(WIN32)
-    set(SIGNTOOL "${CMAKE_CURRENT_SOURCE_DIR}/src/installer/windows/signing/signtool.exe")
-    set(SIGNING_CERT "${CMAKE_CURRENT_SOURCE_DIR}/src/installer/windows/signing/code_signing.der")
+    set(SIGNTOOL "${CMAKE_CURRENT_SOURCE_DIR}/tools/signing/signtool.exe")
+    set(SIGNING_CERT "${CMAKE_CURRENT_SOURCE_DIR}/tools/signing/code_signing.der")
     set(SIGNING_TIMESTAMP "http://timestamp.digicert.com")
     set(WINDOWS_CERT_SUBJECT_NAME "Windscribe Limited")
 
@@ -47,25 +47,25 @@ if(WIN32)
 
     if(SIGN_INSTALLER)
         add_custom_target(sign-installer ALL)
-        if(TARGET installer)
-            add_dependencies(sign-installer installer)
+        if(TARGET ${WS_WIN_INSTALLER_TARGET})
+            add_dependencies(sign-installer ${WS_WIN_INSTALLER_TARGET})
         endif()
 
         add_custom_command(TARGET sign-installer
-            COMMAND ${CMAKE_COMMAND} -E echo "Signing installer.exe..."
-            COMMAND ${SIGNTOOL} sign ${WINDOWS_SIGN_PARAMS} ${CMAKE_BINARY_DIR}/src/installer/windows/installer/installer.exe
+            COMMAND ${CMAKE_COMMAND} -E echo "Signing installer..."
+            COMMAND ${SIGNTOOL} sign ${WINDOWS_SIGN_PARAMS} ${CMAKE_BINARY_DIR}/src/installer/${INSTALLER_TYPE}/windows/installer/${WS_WIN_INSTALLER_TARGET}.exe
         )
     endif()
 
     if(SIGN_BOOTSTRAP)
         add_custom_target(sign-bootstrap ALL)
-        if(TARGET bootstrap)
-            add_dependencies(sign-bootstrap bootstrap)
+        if(TARGET ${WS_WIN_BOOTSTRAP_TARGET})
+            add_dependencies(sign-bootstrap ${WS_WIN_BOOTSTRAP_TARGET})
         endif()
 
         add_custom_command(TARGET sign-bootstrap
-            COMMAND ${SIGNTOOL} sign ${WINDOWS_SIGN_PARAMS} ${CMAKE_BINARY_DIR}/src/installer/windows/bootstrap/windscribe_installer.exe
-            COMMENT "Signing windscribe_installer.exe..."
+            COMMAND ${SIGNTOOL} sign ${WINDOWS_SIGN_PARAMS} ${CMAKE_BINARY_DIR}/src/installer/${INSTALLER_TYPE}/windows/bootstrap/${WS_PRODUCT_NAME_LOWER}_installer.exe
+            COMMENT "Signing bootstrap..."
         )
     endif()
 endif()

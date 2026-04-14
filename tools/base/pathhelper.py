@@ -1,22 +1,9 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2026, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 import os
-
-# Hierarchy tree (linux):
-# client-desktop                      (ROOT_DIR)
-#     build-exe                       (artifact_dir)
-#     common                          (COMMON_DIR)
-#     installer
-#         linux                       (LINUX_INSTALLER_ROOT)
-#             debian_package          (src_package_path)
-#     temp
-#         installer
-#             InstallerFiles          (BUILD_INSTALLER_FILES)
-#             windscribe_<version>_amd64  (dest_package_path)
-
 
 # directory structure paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # tools/base

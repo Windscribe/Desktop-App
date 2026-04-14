@@ -32,7 +32,7 @@ bool RunBlockingCommands(const std::vector<std::string> &cmdlist)
 WireGuardAdapter::WireGuardAdapter(const std::string &name)
     : name_(name), is_dns_server_set_(false), has_default_route_(false), fwmark_(0)
 {
-    comment_ = "\"Windscribe daemon rule for " + name_ + "\"";
+    comment_ = WS_PRODUCT_NAME " daemon rule for " + name_ + "\"";
 }
 
 WireGuardAdapter::~WireGuardAdapter()

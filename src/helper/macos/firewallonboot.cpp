@@ -30,15 +30,15 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
     rules << "set skip on { lo0 }\n";
     rules << "scrub in all fragment reassemble\n";
     rules << "block all\n";
-    rules << "table <windscribe_ips> persist {";
+    rules << "table <" WS_PRODUCT_NAME_LOWER "_ips> persist {";
     rules << ipTable_.c_str();
     rules << "}\n";
-    rules << "pass out quick inet from any to <windscribe_ips>\n";
-    rules << "anchor windscribe_vpn_traffic all\n";
+    rules << "pass out quick inet from any to <" WS_PRODUCT_NAME_LOWER "_ips>\n";
+    rules << "anchor " WS_PRODUCT_NAME_LOWER "_vpn_traffic all\n";
     rules << "pass out quick inet proto udp from any to any port = 67\n";
     rules << "pass in quick inet proto udp from any to any port = 68\n";
     if (allowLanTraffic) {
-        rules << "anchor windscribe_lan_traffic all {\n";
+        rules << "anchor " WS_PRODUCT_NAME_LOWER "_lan_traffic all {\n";
 
         // Always allow localhost
         rules << "pass out quick inet from any to 127.0.0.0/8\n";
@@ -75,10 +75,10 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
 
         rules << "}\n";
     }
-    rules << "anchor windscribe_static_ports_traffic all\n";
+    rules << "anchor " WS_PRODUCT_NAME_LOWER "_static_ports_traffic all\n";
 
     // write rules
-    int fd = open("/etc/windscribe/boot_pf.conf", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    int fd = open(WS_POSIX_CONFIG_DIR "/boot_pf.conf", O_CREAT | O_WRONLY | O_TRUNC, 0644);
     if (fd < 0) {
         spdlog::error("Could not open boot firewall rules for writing");
         return false;
@@ -95,6 +95,6 @@ bool FirewallOnBootManager::enable(bool allowLanTraffic) {
 bool FirewallOnBootManager::disable()
 {
     Utils::executeCommand("launchctl", {"enable", "system/com.apple.pfctl"});
-    Utils::executeCommand("rm", {"-f", "/etc/windscribe/boot_pf.conf"});
+    Utils::executeCommand("rm", {"-f", WS_POSIX_CONFIG_DIR "/boot_pf.conf"});
     return true;
 }

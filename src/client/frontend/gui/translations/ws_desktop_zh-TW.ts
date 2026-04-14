@@ -1252,14 +1252,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::AntiCensorshipGroup</name>
+    <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Circumvent Censorship</source>
-        <translation>規避審查</translation>
+        <source>Anti-censorship</source>
+        <translation>反審查</translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation>配置</translation>
+        <source>These degrade performance, enable only if Windscribe doesn&apos;t connect normally.</source>
+        <translation>這些會影響效能，只有在 Windscribe 無法正常連線時才會啟用。</translation>
+    </message>
+    <message>
+        <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
+        <translation>對 WireGuard、OpenVPN 和 Stealth 協議所做的協定層級變更。</translation>
+    </message>
+    <message>
+        <source>Increases latency, but improves chances of being able to connect.</source>
+        <translation>雖然會增加延遲，但能提高連線機率。</translation>
+    </message>
+    <message>
+        <source>Server Routing</source>
+        <translation>伺服器路由</translation>
     </message>
 </context>
 <context>
@@ -1495,8 +1507,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>請從作業系統中移除 Wi-Fi SSID 和 MAC 資訊，以防止位置歷史追蹤。</translation>
     </message>
     <message>
-        <source>Connect to the VPN with WireGuard even in a hostile environment.</source>
-        <translation>即使在敵對環境中，也要用 WireGuard 連接 VPN。</translation>
+        <source>Anti-censorship Settings</source>
+        <translation>反審查設定</translation>
     </message>
 </context>
 <context>
@@ -2061,6 +2073,17 @@ Connect to a network first</source>
     </message>
 </context>
 <context>
+    <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Protocol Tweaks</source>
+        <translation>協定調整</translation>
+    </message>
+    <message>
+        <source>Amnezia Config</source>
+        <translation>Amnezia Config</translation>
+    </message>
+</context>
+<context>
     <name>PreferencesWindow::ProxyGatewayGroup</name>
     <message>
         <source>Proxy Gateway</source>
@@ -2584,14 +2607,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>靜態IP</translation>
     </message>
     <message>
-        <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
-        <translation>您的應用程式版本不再受支援。請更新以繼續使用Windscribe。</translation>
-    </message>
-    <message>
-        <source>Please upgrade to a Pro account to continue using Windscribe.</source>
-        <translation>請升級到專業帳戶以繼續使用Windscribe。</translation>
-    </message>
-    <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
         <translation>原始帳戶 %1 已過期。禁止創建多個帳戶以繞過免費套餐限制。請登錄原始帳戶並等待頻寬重置。您也可以升級到專業版。</translation>
     </message>
@@ -2671,16 +2686,28 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Random IP</source>
         <translation>隨機IP</translation>
     </message>
+    <message>
+        <source>Your application version is no longer supported. Please update to continue using %1.</source>
+        <translation>你的應用程式版本已不再支援。請更新以繼續使用 %1。</translation>
+    </message>
+    <message>
+        <source>Please upgrade to a Pro account to continue using %1.</source>
+        <translation>請升級到 Pro 帳號以繼續使用 1%。</translation>
+    </message>
+    <message>
+        <source>Regular</source>
+        <translation>常規</translation>
+    </message>
+    <message>
+        <source>Alternate</source>
+        <translation>替代</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
     <message>
         <source>Unknown Config Error</source>
         <translation>未知配置錯誤</translation>
-    </message>
-    <message>
-        <source>File Sharing Frowned Upon</source>
-        <translation>文件共用皺眉</translation>
     </message>
 </context>
 <context>

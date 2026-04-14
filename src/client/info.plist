@@ -3,49 +3,49 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleDisplayName</key>
-    <string>Windscribe</string>
+    <string>@WS_PRODUCT_NAME@</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
     <key>CFBundleIconFile</key>
-    <string>windscribe.icns</string>
+    <string>@WS_MAC_ICON_FILE@</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleExecutable</key>
-    <string>Windscribe</string>
+    <string>@WS_OUTPUT_PREFIX@</string>
     <key>CFBundleIdentifier</key>
-    <string>com.windscribe.client</string>
+    <string>@WS_MAC_GUI_BUNDLE_ID@</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleVersion</key>
-    <string>@WINDSCRIBE_VERSION_MAJOR@.@WINDSCRIBE_VERSION_MINOR@.@WINDSCRIBE_VERSION_BUILD@</string>
+    <string>@WS_VERSION_MAJOR@.@WS_VERSION_MINOR@.@WS_VERSION_BUILD@</string>
     <key>CFBundleName</key>
-    <string>Windscribe</string>
+    <string>@WS_PRODUCT_NAME@</string>
     <key>CFBundleShortVersionString</key>
-    <string>@WINDSCRIBE_VERSION_MAJOR@.@WINDSCRIBE_VERSION_MINOR@.@WINDSCRIBE_VERSION_BUILD@</string>
+    <string>@WS_VERSION_MAJOR@.@WS_VERSION_MINOR@.@WS_VERSION_BUILD@</string>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright © 2024 Windscribe Limited. All rights reserved.</string>
+    <string>@WS_COPYRIGHT@</string>
     <key>LSMinimumSystemVersion</key>
-        <string>12</string>
+        <string>13</string>
     <key>SMPrivilegedExecutables</key>
     <dict>
-        <key>com.windscribe.helper.macos</key>
-        <string>anchor apple generic and identifier &quot;com.windscribe.helper.macos&quot; and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = @DEVELOPMENT_TEAM@)</string>
+        <key>@WS_MAC_HELPER_BUNDLE_ID@</key>
+        <string>anchor apple generic and identifier &quot;@WS_MAC_HELPER_BUNDLE_ID@&quot; and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = @DEVELOPMENT_TEAM@)</string>
     </dict>
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Windscribe requires Location permission to access your Wi-Fi SSID.</string>
+    <string>@WS_PRODUCT_NAME@ requires Location permission to access your Wi-Fi SSID.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>Windscribe requires Location permission to access your Wi-Fi SSID.</string>
+    <string>@WS_PRODUCT_NAME@ requires Location permission to access your Wi-Fi SSID.</string>
     <key>NSLocationAlwaysUsageDescription</key>
-    <string>Windscribe requires Location permission to access your Wi-Fi SSID.</string>
+    <string>@WS_PRODUCT_NAME@ requires Location permission to access your Wi-Fi SSID.</string>
     <key>NSLocationUsageDescription</key>
-    <string>Windscribe requires Location permission to access your Wi-Fi SSID.</string>
+    <string>@WS_PRODUCT_NAME@ requires Location permission to access your Wi-Fi SSID.</string>
     <key>com.apple.developer.networking.networkextension</key>
     <array>
         <string>app-proxy-provider-systemextension</string>
     </array>
     <key>SMLoginItemRegisteredByApp</key>
     <array>
-        <string>com.windscribe.launcher.macos</string>
+        <string>@WS_MAC_LAUNCHER_BUNDLE_ID@</string>
     </array>
 </dict>
 </plist>

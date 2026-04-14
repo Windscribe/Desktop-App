@@ -13,8 +13,6 @@ target_sources(gui PRIVATE
     advancedwindow/advancedwindowitem.h
     comboboxitem.cpp
     comboboxitem.h
-    connectionwindow/anticensorshipgroup.cpp
-    connectionwindow/anticensorshipgroup.h
     connectionwindow/connecteddnsgroup.cpp
     connectionwindow/connecteddnsgroup.h
     connectionwindow/connectionwindowitem.cpp
@@ -69,6 +67,10 @@ target_sources(gui PRIVATE
     networkoptionswindow/networkoptionsnetworkwindowitem.h
     networkoptionswindow/networkoptionswindowitem.cpp
     networkoptionswindow/networkoptionswindowitem.h
+    anticensorshipwindow/protocoltweaksgroup.cpp
+    anticensorshipwindow/protocoltweaksgroup.h
+    anticensorshipwindow/anticensorshipwindowitem.cpp
+    anticensorshipwindow/anticensorshipwindowitem.h
     preferencegroup.cpp
     preferencegroup.h
     preferencesconst.h

@@ -9,7 +9,7 @@
 #include "wifidirectmanager.h"
 #include "icsmanager.h"
 
-GUID getGuidForPrimaryAdapter(bool &bSuccess, bool bForWindscribeAdapter, const QString &vpnAdapterName);
+GUID getGuidForPrimaryAdapter(bool &bSuccess, bool bForVpnAdapter, const QString &vpnAdapterName);
 
 WifiSharing::WifiSharing(QObject *parent, Helper *helper) : QObject(parent),
     isSharingStarted_(false), sharingState_(STATE_DISCONNECTED)
@@ -120,7 +120,7 @@ void WifiSharing::updateICS(const QString &vpnAdapterName)
 //    }
 }
 
-GUID getGuidForPrimaryAdapter(bool &bSuccess, bool bForWindscribeAdapter, const QString &vpnAdapterName)
+GUID getGuidForPrimaryAdapter(bool &bSuccess, bool bForVpnAdapter, const QString &vpnAdapterName)
 {
     DWORD dwBestIfIndex;
     if (GetBestInterface(INADDR_ANY, &dwBestIfIndex) != NO_ERROR)
@@ -155,16 +155,16 @@ GUID getGuidForPrimaryAdapter(bool &bSuccess, bool bForWindscribeAdapter, const 
         return GUID();
     }
 
-    // first check Windscribe VPN tap adapter if it active, then return it
+    // first check VPN tap adapter if it active, then return it
     PIP_ADAPTER_ADDRESSES pCurrAddresses = (PIP_ADAPTER_ADDRESSES)arr.data();
-    if (bForWindscribeAdapter)
+    if (bForVpnAdapter)
     {
         while (pCurrAddresses)
         {
             if (wcsstr(pCurrAddresses->Description, vpnAdapterName.toStdWString().c_str()) != 0)
             //if (pCurrAddresses->OperStatus == IfOperStatusUp)
             {
-                    qCInfo(LOG_WIFI_SHARED) << "Detected Windscribe VPN tap adapter" << QString::fromStdString(pCurrAddresses->AdapterName) << QString::fromStdWString(pCurrAddresses->FriendlyName);
+                    qCInfo(LOG_WIFI_SHARED) << "Detected " WS_PRODUCT_NAME " VPN tap adapter" << QString::fromStdString(pCurrAddresses->AdapterName) << QString::fromStdWString(pCurrAddresses->FriendlyName);
                     bSuccess = true;
                     GUID guid = WinUtils::stringToGuid(pCurrAddresses->AdapterName);
                     return guid;
@@ -174,7 +174,7 @@ GUID getGuidForPrimaryAdapter(bool &bSuccess, bool bForWindscribeAdapter, const 
         }
     }
 
-    // if Windscribe VPN not active, select primary best network adapter
+    // if VPN not active, select primary best network adapter
     pCurrAddresses = (PIP_ADAPTER_ADDRESSES)arr.data();
     while (pCurrAddresses)
     {

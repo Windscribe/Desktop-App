@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMenu>
+#include <QTimer>
 #include <QWidget>
 #include <QListView>
 #include "locationstraymenuitemdelegate.h"
@@ -21,6 +22,7 @@ signals:
 private slots:
     void onListViewClicked(const QModelIndex &index);
     void onSubmenuActionTriggered(QAction *action);
+    void onSubmenuTimerTimeout();
     void updateTableViewSelection();
     void onScrollUpClick();
     void onScrollDownClick();
@@ -34,6 +36,7 @@ private:
     QListView *listView_;
     LocationsTrayMenuWidgetSubmenu *currentSubmenu_;
     QPersistentModelIndex currentIndexForSubmenu_;
+    QTimer *submenuTimer_;
     LocationsTrayMenuButton *upButton_;
     LocationsTrayMenuButton *downButton_;
     int visibleItemsCount_;

@@ -409,6 +409,7 @@ void LoginWindowItem::onLanguageChanged()
     hashEntry_->setDescription(tr("Hash"));
     hashEntry_->setPlaceholderText(tr("Account Hash or upload file"));
     setErrorMessage(curError_, curErrorMsg_);
+    updatePositions();
 }
 
 void LoginWindowItem::onDockedModeChanged(bool bIsDockedToTray)

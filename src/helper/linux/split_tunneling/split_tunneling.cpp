@@ -37,7 +37,7 @@ void SplitTunneling::setSplitTunnelingParams(bool isActive, bool isExclude, cons
     isAllowLanTraffic_ = isAllowLanTraffic;
 
     if (isActive && !isExclude) {
-        apps_.push_back( "/opt/windscribe/Windscribe");
+        apps_.push_back(WS_LINUX_INSTALL_DIR "/" WS_APP_EXECUTABLE_NAME);
     }
 
     hostnamesManager_.setSettings(ips, hosts);

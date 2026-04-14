@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2026, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs wintun DLL and header file.
 import os
@@ -28,6 +28,7 @@ DEP_OS_LIST = ["win32"]
 
 
 def InstallDependency():
+    product_name = iutl.ParseProductArg()
     msg.HeadPrint(f"Loading: \"{CONFIG_NAME}\"")
     configdata = utl.LoadConfig(os.path.join(TOOLS_DIR, CONFIG_NAME))
     if not configdata:
@@ -49,14 +50,13 @@ def InstallDependency():
     msg.HeadPrint(f"Extracting: \"{archivename}\"")
     iutl.ExtractFile(localfilename)
 
-    dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-    dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs", dep_name))
+    dep_buildroot_str = os.path.join(iutl.GetBuildLibsRoot(product_name), dep_name)
     outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
     utl.CopyFile(f"{temp_dir}/{dep_name}/bin/amd64/wintun.dll", f"{outpath}/bin/wintun.dll")
     utl.CopyFile(f"{temp_dir}/{dep_name}/include/wintun.h", f"{outpath}/include/wintun.h")
     msg.Print(f"{DEP_TITLE} v{dep_version_str} installed in {outpath}")
 
-    dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs-arm64", dep_name))
+    dep_buildroot_str = os.path.join(iutl.GetBuildLibsRoot(product_name, is_arm64=True), dep_name)
     outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
     utl.CopyFile(f"{temp_dir}/{dep_name}/bin/arm64/wintun.dll", f"{outpath}/bin/wintun.dll")
     utl.CopyFile(f"{temp_dir}/{dep_name}/include/wintun.h", f"{outpath}/include/wintun.h")

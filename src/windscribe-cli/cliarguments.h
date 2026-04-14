@@ -26,6 +26,7 @@ enum CliCommand {
     CLI_COMMAND_STATUS,
     CLI_COMMAND_UPDATE,
     CLI_COMMAND_AMNEZIAWG,
+    CLI_COMMAND_PORTS,
 };
 
 class CliArguments
@@ -66,6 +67,7 @@ private:
     void parseIp(const QStringList &args);
     void parseLocations(const QStringList &args);
     void parseLogin(const QStringList &args);
+    void parsePorts(const QStringList &args);
     void parseLogout(const QStringList &args);
     void parsePreferences(const QStringList &args);
     void parseLogs(const QStringList &args);

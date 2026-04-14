@@ -4,107 +4,64 @@
 
 # Common macro to copy Linux binaries and dependencies
 macro(linux_copy_files DEST_DIR TARGET_NAME)
-    # Copy binaries
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E echo "Copying binaries to package..."
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "$<TARGET_FILE:Windscribe>"
-                "${DEST_DIR}/opt/windscribe/"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "$<TARGET_FILE:windscribe-cli>"
-                "${DEST_DIR}/opt/windscribe/"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "$<TARGET_FILE:helper>"
-                "${DEST_DIR}/opt/windscribe/"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "$<TARGET_FILE:windscribe-authhelper>"
-                "${DEST_DIR}/opt/windscribe/"
-    )
+    # Copy app target binaries
+    foreach(_target ${WS_LINUX_APP_TARGETS})
+        add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "$<TARGET_FILE:${_target}>" "${DEST_DIR}${WS_LINUX_INSTALL_DIR}/"
+        )
+    endforeach()
 
     # Copy shared libraries
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "$<TARGET_FILE:wsnet>"
-                "${DEST_DIR}/opt/windscribe/lib/"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/lib/libssl.so.3"
-                "${DEST_DIR}/opt/windscribe/lib/"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/lib/libcrypto.so.3"
-                "${DEST_DIR}/opt/windscribe/lib/"
-    )
+    foreach(_entry ${WS_SHARED_LIBS})
+        string(REPLACE "|" ";" _pair "${_entry}")
+        list(GET _pair 0 _src)
+        list(GET _pair 1 _dest)
+        add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_src}" "${DEST_DIR}${WS_LINUX_INSTALL_DIR}/lib/${_dest}"
+        )
+    endforeach()
 
-    # Copy custom dependencies
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${WINDSCRIBE_BUILD_LIBS_PATH}/wireguard/windscribeamneziawg"
-                "${DEST_DIR}/opt/windscribe/"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${WINDSCRIBE_BUILD_LIBS_PATH}/wstunnel/windscribewstunnel"
-                "${DEST_DIR}/opt/windscribe/"
-    )
-
-    # Copy OpenVPN and ctrld binaries from vcpkg
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/tools/openvpn/sbin/openvpn"
-                "${DEST_DIR}/opt/windscribe/windscribeopenvpn"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/tools/ctrld/ctrld"
-                "${DEST_DIR}/opt/windscribe/windscribectrld"
-    )
+    # Copy bundled helper binaries
+    foreach(_entry ${WS_BUNDLED_HELPERS})
+        string(REPLACE "|" ";" _pair "${_entry}")
+        list(GET _pair 0 _src)
+        list(GET _pair 1 _dest)
+        add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_src}" "${DEST_DIR}${WS_LINUX_INSTALL_DIR}/${_dest}"
+        )
+    endforeach()
 
     # Copy open source licenses
     add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${CMAKE_CURRENT_SOURCE_DIR}/src/client/client-common/licenses/open_source_licenses.txt"
-                "${DEST_DIR}/opt/windscribe/"
+                "${DEST_DIR}${WS_LINUX_INSTALL_DIR}/"
     )
 
     # Fix RPATH for binaries and libraries
     find_program(PATCHELF_EXECUTABLE patchelf)
     if(PATCHELF_EXECUTABLE)
-        add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E echo "Fixing RPATH for binaries..."
-            COMMAND ${PATCHELF_EXECUTABLE} --set-rpath "/opt/windscribe/lib"
-                    "${DEST_DIR}/opt/windscribe/Windscribe"
-            COMMAND ${PATCHELF_EXECUTABLE} --set-rpath "/opt/windscribe/lib"
-                    "${DEST_DIR}/opt/windscribe/windscribe-cli"
-            COMMAND ${PATCHELF_EXECUTABLE} --set-rpath "/opt/windscribe/lib"
-                    "${DEST_DIR}/opt/windscribe/helper"
-            COMMAND ${PATCHELF_EXECUTABLE} --set-rpath "/opt/windscribe/lib"
-                    "${DEST_DIR}/opt/windscribe/windscribe-authhelper"
-            COMMAND ${PATCHELF_EXECUTABLE} --set-rpath "/opt/windscribe/lib"
-                    "${DEST_DIR}/opt/windscribe/windscribeopenvpn"
-            COMMAND ${CMAKE_COMMAND} -E echo "Fixing RPATH for shared libs..."
-            COMMAND ${PATCHELF_EXECUTABLE} --set-rpath "/opt/windscribe/lib"
-                    "${DEST_DIR}/opt/windscribe/lib/libssl.so.3"
-            COMMAND ${PATCHELF_EXECUTABLE} --set-rpath "/opt/windscribe/lib"
-                    "${DEST_DIR}/opt/windscribe/lib/libcrypto.so.3"
-            COMMAND ${PATCHELF_EXECUTABLE} --set-rpath "/opt/windscribe/lib"
-                    "${DEST_DIR}/opt/windscribe/lib/libwsnet.so"
-        )
+        foreach(_bin ${WS_LINUX_RPATH_BINARIES})
+            add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+                COMMAND ${PATCHELF_EXECUTABLE} --set-rpath "${WS_LINUX_INSTALL_DIR}/lib"
+                        "${DEST_DIR}${WS_LINUX_INSTALL_DIR}/${_bin}"
+            )
+        endforeach()
     endif()
 endmacro()
 
-set(PACKAGE_ARCH "amd64")
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
-    set(PACKAGE_ARCH "arm64")
+set(INSTALLER_LINUX_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/installer/${INSTALLER_TYPE}/linux")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/installer/${INSTALLER_TYPE}/linux/common")
+    set(INSTALLER_LINUX_COMMON_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/installer/${INSTALLER_TYPE}/linux/common")
+else()
+    set(INSTALLER_LINUX_COMMON_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/installer/${WS_PRODUCT_NAME_LOWER}/linux")
 endif()
-
-set(PACKAGE_TYPE "gui")
-set(PACKAGE_NAME "windscribe")
-if(BUILD_CLI_ONLY)
-    set(PACKAGE_TYPE "cli")
-    set(PACKAGE_NAME "windscribe-cli")
-endif()
-
-set(INSTALLER_LINUX_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/installer/linux")
 
 # DEB Packaging
 if(BUILD_DEB)
     set(DEB_PACKAGE_DIR "${CMAKE_BINARY_DIR}/debian_package")
-    set(DEB_PACKAGE_NAME "${PACKAGE_NAME}_${PROJECT_VERSION}${WINDSCRIBE_BUILD_SUFFIX}_${PACKAGE_ARCH}")
+    ws_resolve_output_name("${WS_LINUX_OUTPUT_NAME}" DEB_PACKAGE_NAME)
 
     add_custom_target(package-deb
         DEPENDS build-app
@@ -114,14 +71,14 @@ if(BUILD_DEB)
     add_custom_command(TARGET package-deb PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E remove_directory "${DEB_PACKAGE_DIR}"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}"
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}/opt/windscribe"
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}/opt/windscribe/lib"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}${WS_LINUX_INSTALL_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}${WS_LINUX_INSTALL_DIR}/lib"
     )
 
     # Copy DEBIAN control files and scripts
     add_custom_command(TARGET package-deb PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-                "${INSTALLER_LINUX_DIR}/${PACKAGE_TYPE}/debian_package/DEBIAN"
+                "${INSTALLER_LINUX_DIR}/debian_package/DEBIAN"
                 "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}/DEBIAN"
         COMMAND chmod +x "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}/DEBIAN/preinst"
         COMMAND chmod +x "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}/DEBIAN/postinst"
@@ -139,14 +96,14 @@ if(BUILD_DEB)
     # Copy common files (systemd services, scripts, polkit policy, etc.)
     add_custom_command(TARGET package-deb PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-                "${INSTALLER_LINUX_DIR}/common"
+                "${INSTALLER_LINUX_COMMON_DIR}"
                 "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}"
     )
 
     # Copy overlay files (package-specific systemd units, scripts)
     add_custom_command(TARGET package-deb PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-                "${INSTALLER_LINUX_DIR}/${PACKAGE_TYPE}/overlay"
+                "${INSTALLER_LINUX_DIR}/overlay"
                 "${DEB_PACKAGE_DIR}/${DEB_PACKAGE_NAME}"
     )
 
@@ -195,26 +152,26 @@ macro(build_rpm_package TARGET_NAME RPM_TYPE_DIR DISTRO_SUFFIX DISTRO_NAME)
         COMMAND ${CMAKE_COMMAND} -E make_directory "${RPM_BUILD_ROOT}/BUILDROOT"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${RPM_BUILD_ROOT}/RPMS"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${RPM_BUILD_ROOT}/SOURCES"
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${RPM_BUILD_ROOT}/BUILD/opt/windscribe"
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${RPM_BUILD_ROOT}/BUILD/opt/windscribe/lib"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${RPM_BUILD_ROOT}/BUILD${WS_LINUX_INSTALL_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${RPM_BUILD_ROOT}/BUILD${WS_LINUX_INSTALL_DIR}/lib"
     )
 
     # Copy spec file and update version
     add_custom_command(TARGET ${TARGET_NAME} PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${INSTALLER_LINUX_DIR}/${PACKAGE_TYPE}/${RPM_TYPE_DIR}/SPECS/windscribe_rpm.spec"
+                "${INSTALLER_LINUX_DIR}/${RPM_TYPE_DIR}/SPECS/rpm.spec"
                 "${RPM_BUILD_ROOT}/SPECS/"
         COMMAND sed -i "s/Version:.*/Version: ${PROJECT_VERSION}/"
-                "${RPM_BUILD_ROOT}/SPECS/windscribe_rpm.spec"
+                "${RPM_BUILD_ROOT}/SPECS/rpm.spec"
     )
 
     # Copy files to BUILD directory
     add_custom_command(TARGET ${TARGET_NAME} PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-                "${INSTALLER_LINUX_DIR}/common"
+                "${INSTALLER_LINUX_COMMON_DIR}"
                 "${RPM_BUILD_ROOT}/BUILD"
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-                "${INSTALLER_LINUX_DIR}/${PACKAGE_TYPE}/overlay"
+                "${INSTALLER_LINUX_DIR}/overlay"
                 "${RPM_BUILD_ROOT}/BUILD"
     )
 
@@ -224,11 +181,13 @@ macro(build_rpm_package TARGET_NAME RPM_TYPE_DIR DISTRO_SUFFIX DISTRO_NAME)
     # Build RPM package
     find_program(RPMBUILD_EXECUTABLE rpmbuild)
     if(RPMBUILD_EXECUTABLE)
-        set(RPM_SOURCE_NAME "${PACKAGE_NAME}-${PROJECT_VERSION}-0.${RPM_BUILD_ARCH}.rpm")
-        set(RPM_FINAL_NAME "${PACKAGE_NAME}_${PROJECT_VERSION}${WINDSCRIBE_BUILD_SUFFIX}_${RPM_FILENAME_ARCH}${DISTRO_SUFFIX}.rpm")
+        set(RPM_SOURCE_NAME "${WS_LINUX_PACKAGE_NAME}-${PROJECT_VERSION}-0.${RPM_BUILD_ARCH}.rpm")
+        set(PACKAGE_ARCH "${RPM_FILENAME_ARCH}${DISTRO_SUFFIX}")
+        ws_resolve_output_name("${WS_LINUX_OUTPUT_NAME}" _rpm_resolved_name)
+        set(RPM_FINAL_NAME "${_rpm_resolved_name}.rpm")
         add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E echo "Building ${DISTRO_NAME} RPM package..."
-            COMMAND ${RPMBUILD_EXECUTABLE} -bb "${RPM_BUILD_ROOT}/SPECS/windscribe_rpm.spec"
+            COMMAND ${RPMBUILD_EXECUTABLE} -bb "${RPM_BUILD_ROOT}/SPECS/rpm.spec"
             COMMAND ${CMAKE_COMMAND} -E copy
                     "${RPM_BUILD_ROOT}/RPMS/${RPM_BUILD_ARCH}/${RPM_SOURCE_NAME}"
                     "${BUILD_EXE_DIR}/${RPM_FINAL_NAME}"

@@ -559,10 +559,6 @@ QVariant LocationsModel::dataForLocation(int row, int role) const
     {
         return locations_[row]->location().shortName;
     }
-    else if (role == kIsShowP2P)
-    {
-        return locations_[row]->location().isNoP2P;
-    }
     else if (role == kIsShowAsPremium)
     {
         return locations_[row]->location().isPremiumOnly && isFreeSessionStatus_;
@@ -690,7 +686,7 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
         if (lid.isStaticIpsLocation())
             return false;
         else
-            return l->location().cities[row].isPro && isFreeSessionStatus_;
+            return l->location().cities[row].isPremiumOnly && isFreeSessionStatus_;
     }
     else if (role == kIsFavorite)
     {
@@ -739,6 +735,18 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
     else if (role == kCustomConfigErrorMessage)
     {
         return l->location().cities[row].customConfigErrorMessage;
+    }
+    else if (role == kCustomConfigProtocol)
+    {
+        return l->location().cities[row].customConfigProtocol.toInt();
+    }
+    else if (role == kCustomConfigPort)
+    {
+        return l->location().cities[row].customConfigPort;
+    }
+    else if (role == kIsShowP2P)
+    {
+        return l->location().cities[row].isNoP2P;
     }
     else if (role == kDisplayNickname) {
         LocationID lid = l->location().cities[row].id;

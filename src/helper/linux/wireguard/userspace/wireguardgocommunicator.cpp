@@ -12,7 +12,7 @@
 #include "../../execute_cmd.h"
 #include "../../utils.h"
 
-static const std::string kExecutableName = "windscribeamneziawg";
+static const std::string kExecutableName = WS_PRODUCT_NAME_LOWER "amneziawg";
 static const std::string kControlSocketFolder = "/var/run/amneziawg/";
 
 namespace
@@ -264,7 +264,7 @@ bool WireGuardGoCommunicator::configure(const std::string &clientPrivateKey, con
     fprintf(connection,
         "public_key=%s\n"
         "endpoint=%s\n"
-        "persistent_keepalive_interval=600\n",
+        "persistent_keepalive_interval=25\n",
         peerPublicKey.c_str(), peerEndpoint.c_str());
     if (!peerPresharedKey.empty())
         fprintf(connection, "preshared_key=%s\n", peerPresharedKey.c_str());

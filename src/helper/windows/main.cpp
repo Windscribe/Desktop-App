@@ -1,3 +1,4 @@
+#include "ws_branding.h"
 #include <filesystem>
 
 #include <spdlog/spdlog.h>
@@ -6,12 +7,12 @@
 #include "utils.h"
 #include "utils/crashhandler.h"
 #include "utils/log/spdlog_utils.h"
-#include "windscribehelper.h"
+#include "helper.h"
 
 static bool configureSpdlog()
 {
     // Initialize logger
-    std::wstring logPath = Utils::getExePath() + L"\\windscribe_service.log";
+    std::wstring logPath = Utils::getExePath() + L"\\" WS_PRODUCT_NAME_LOWER_W L"_service.log";
     auto formatter = log_utils::createJsonFormatter();
     spdlog::set_formatter(std::move(formatter));
 
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
     Debug::CrashHandler::instance().bindToProcess();
 #endif
 
-    wsl::WindscribeHelper helper;
+    wsl::Helper helper;
     helper.startService();
 
     return 0;

@@ -1,3 +1,4 @@
+#include "ws_branding.h"
 #include "openvpncontroller.h"
 
 #include <fstream>
@@ -12,6 +13,10 @@
 #if defined(USE_SIGNATURE_CHECK)
 #include "utils/executable_signature/executable_signature.h"
 #endif
+
+#include <codecvt>
+
+#include "../common/ovpn_directive_whitelist.h"
 
 
 OpenVPNController::OpenVPNController()
@@ -62,7 +67,7 @@ bool OpenVPNController::createWintunAdapter()
     }
 
     GUID wintunGuid = { 0xd8cf7bd4, 0x8b64, 0x4e57, { 0xb7, 0x07, 0x4c, 0x8b, 0xac, 0xbe, 0xc2, 0xc3 } };
-    adapterHandle_ = createAdapter(kOpenVPNAdapterIdentifier, L"Windscribe Wintun", &wintunGuid);
+    adapterHandle_ = createAdapter(kOpenVPNAdapterIdentifier, WS_PRODUCT_NAME_W L" Wintun", &wintunGuid);
     if (!adapterHandle_) {
         spdlog::error("Failed to create the wintun adapter ({})", ::GetLastError());
         ::FreeLibrary(wintunDLL_);
@@ -132,7 +137,7 @@ ExecuteCmdResult OpenVPNController::runOpenvpn(std::wstring &config, unsigned in
         return ExecuteCmdResult();
     }
 
-    const std::wstring ovpnExe = Utils::getExePath() + L"\\windscribeopenvpn.exe";
+    const std::wstring ovpnExe = Utils::getExePath() + L"\\" WS_PRODUCT_NAME_LOWER_W L"openvpn.exe";
 
 #if defined(USE_SIGNATURE_CHECK)
     ExecutableSignature sigCheck;
@@ -158,7 +163,6 @@ bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, c
         boost::replace_all(config, L":AES-256-CBC:", L":");
     }
 
-    std::wistringstream stream(config);
     std::wstring filePath = Utils::getConfigPath();
     if (filePath.empty()) {
         spdlog::error("Could not get config path");
@@ -174,32 +178,14 @@ bool OpenVPNController::writeOVPNFile(std::wstring &config, unsigned int port, c
         return false;
     }
 
-    std::wstring line;
-    while (getline(stream, line)) {
-        // trim whitespace
-        line.erase(0, line.find_first_not_of(L" \n\r\t"));
-        line.erase(line.find_last_not_of(L" \n\r\t") + 1);
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    const std::string narrowConfig = converter.to_bytes(config);
+    std::string filtered = OvpnDirectiveWhitelist::filterConfig(narrowConfig,
+        [](const std::string &line) { spdlog::warn("Blocked non-whitelisted OpenVPN directive: {}", line); });
 
-        // filter anything that runs an external script
-        // check for up to offset of 2 in case the command starts with '--'
-        if (line.rfind(L"up", 2) != std::string::npos ||
-            line.rfind(L"tls-verify", 2) != std::string::npos ||
-            line.rfind(L"ipchange", 2) != std::string::npos ||
-            line.rfind(L"client-connect", 2) != std::string::npos ||
-            line.rfind(L"route-up", 2) != std::string::npos ||
-            line.rfind(L"route-pre-down", 2) != std::string::npos ||
-            line.rfind(L"client-disconnect", 2) != std::string::npos ||
-            line.rfind(L"down", 2) != std::string::npos ||
-            line.rfind(L"learn-address", 2) != std::string::npos ||
-            line.rfind(L"auth-user-pass-verify", 2) != std::string::npos ||
-            line.rfind(L"management", 2) != std::string::npos ||
-            line.rfind(L"http-proxy", 2) != std::string::npos ||
-            line.rfind(L"socks-proxy", 2) != std::string::npos)
-        {
-            continue;
-        }
-        file << line.c_str() << L"\r\n";
-    }
+    // Write filtered config (filterConfig outputs \n; Windows needs \r\n but
+    // OpenVPN handles both, and the helper-appended options below use \r\n)
+    file << filtered.c_str();
 
     // add management and other options
     file << L"management 127.0.0.1 " + std::to_wstring(port) + L"\r\n";

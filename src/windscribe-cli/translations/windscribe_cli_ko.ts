@@ -16,6 +16,10 @@
         <translation>위치가 없습니다.</translation>
     </message>
     <message>
+        <source>No ports available for the specified protocol.</source>
+        <translation>지정된 프로토콜에 대한 포트 사용 불가.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>IP를 회전할 수 없습니다.  Windscribe Pro가 있는지 또는 요금제에 이 위치가 있는지 확인하거나 나중에 다시 시도하십시오.</translation>
     </message>

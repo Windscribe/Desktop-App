@@ -31,7 +31,7 @@ public:
     ConnectionType getConnectionType() const override { return ConnectionType::IKEV2; }
 
     static void removeIkev2ConnectionFromOS();
-    static QVector<HRASCONN> getActiveWindscribeConnections();
+    static QVector<HRASCONN> getActiveAppConnections();
 
     void continueWithUsernameAndPassword(const QString &username, const QString &password) override;
     void continueWithPassword(const QString &password) override;
@@ -51,16 +51,16 @@ private:
         STATE_REINSTALL_WAN
     };
 
-    int state_;
-    Helper *helper_;
+    int state_ = STATE_DISCONNECTED;
+    Helper *helper_ = NULL;
 
     QString initialUrl_;
     QString initialIp_;
     QString initialUsername_;
     QString initialPassword_;
-    bool initialEnableIkev2Compression_;
+    bool initialEnableIkev2Compression_ = false;
 
-    HRASCONN connHandle_;
+    HRASCONN connHandle_ = NULL;
     QTimer timerControlConnection_;
     static constexpr int CONTROL_TIMER_PERIOD = 1000;
     QMap<RASCONNSTATE, QString> mapConnStates_;
@@ -69,7 +69,7 @@ private:
 
     IKEv2ConnectionDisconnectLogic_win disconnectLogic_;
 
-    int cntFailedConnectionAttempts_;
+    int cntFailedConnectionAttempts_ = 0;
     static constexpr int MAX_FAILED_CONNECTION_ATTEMPTS = 3;
 
     void doConnect();
@@ -81,7 +81,6 @@ private:
     void initMapConnStates();
     QString rasConnStateToString(RASCONNSTATE state);
 
-    static IKEv2Connection_win *this_;
     static bool wanReinstalled_;
-    static void CALLBACK staticRasDialFunc(HRASCONN hrasconn, UINT unMsg, RASCONNSTATE rascs, DWORD dwError, DWORD dwExtendedError);
+    static DWORD CALLBACK RasDial2CallbackFunc(ULONG_PTR dwCallbackId, DWORD unused, HRASCONN hrasconn, UINT unMsg, RASCONNSTATE rascs, DWORD dwError, DWORD dwExtendedError);
 };

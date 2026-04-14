@@ -14,7 +14,7 @@ bool IKEv2Route::addRouteForIKEv2()
     IF_INDEX ifIndex;
     std::wstring ip;
 
-    if (ai.getWindscribeIkev2AdapterInfo(ifIndex, ip))
+    if (ai.getIkev2AdapterInfo(ifIndex, ip))
     {
         MIB_IPINTERFACE_ROW interfaceRow = { 0 };
         interfaceRow.Family = AF_INET;
@@ -43,7 +43,7 @@ bool IKEv2Route::addRouteForIKEv2()
     }
     else
     {
-        spdlog::error("IKEv2Route::addRouteForIKEv2(), ai.getWindscribeIkev2AdapterInfo() failed");
+        spdlog::error("IKEv2Route::addRouteForIKEv2(), ai.getIkev2AdapterInfo() failed");
     }
     return false;
 }

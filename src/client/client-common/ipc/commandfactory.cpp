@@ -54,6 +54,10 @@ Command *CommandFactory::makeCommand(const std::string strId, char *buf, int siz
         return new IPC::CliCommands::ShowAmneziawg(buf, size);
     } else if (strId == IPC::CliCommands::AmneziawgPresetsList::getCommandStringId()) {
         return new IPC::CliCommands::AmneziawgPresetsList(buf, size);
+    } else if (strId == IPC::CliCommands::ShowPorts::getCommandStringId()) {
+        return new IPC::CliCommands::ShowPorts(buf, size);
+    } else if (strId == IPC::CliCommands::PortsList::getCommandStringId()) {
+        return new IPC::CliCommands::PortsList(buf, size);
     }
 
     WS_ASSERT(false);

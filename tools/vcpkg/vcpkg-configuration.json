@@ -9,7 +9,7 @@
       {
         "kind": "git",
         "repository": "https://github.com/Windscribe/ws-vcpkg-registry",
-        "baseline": "795d736de9492327c3dc2d6b5618c6d811a5ad79",
+        "baseline": "1146b5a4b6bb626a9ce094adad1c064bf4a56386",
         "packages": [
           "7zip",
           "boost-context",
@@ -23,6 +23,10 @@
           "openvpn",
           "openssl",
           "qtbase",
+          "qtimageformats",
+          "qtsvg",
+          "qttools",
+          "qtwayland",
           "scapix",
           "scapix-bin",
           "skyr-url",

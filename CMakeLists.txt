@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2025, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2026, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 
 cmake_minimum_required(VERSION 3.23)
@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.23)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)  # option() honors normal variables
 
 # Set macOS deployment target and architecture before project()
-set(CMAKE_OSX_DEPLOYMENT_TARGET "12" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "13" CACHE STRING "Minimum OS X deployment version")
 
 # Detect and set macOS architecture to match host unless in CI mode (which builds universal)
 if(APPLE AND NOT CI_MODE AND NOT DEFINED CMAKE_OSX_ARCHITECTURES)
@@ -30,35 +30,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # MSVC runtime library (static linkage)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-# Read version from header file
-file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/src/client/client-common/version/windscribe_version.h"
-     VERSION_MAJOR_LINE REGEX "^#define WINDSCRIBE_MAJOR_VERSION")
-file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/src/client/client-common/version/windscribe_version.h"
-     VERSION_MINOR_LINE REGEX "^#define WINDSCRIBE_MINOR_VERSION")
-file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/src/client/client-common/version/windscribe_version.h"
-     VERSION_BUILD_LINE REGEX "^#define WINDSCRIBE_BUILD_VERSION")
-
-string(REGEX REPLACE "^#define WINDSCRIBE_MAJOR_VERSION ([0-9]+).*" "\\1"
-       WINDSCRIBE_VERSION_MAJOR "${VERSION_MAJOR_LINE}")
-string(REGEX REPLACE "^#define WINDSCRIBE_MINOR_VERSION ([0-9]+).*" "\\1"
-       WINDSCRIBE_VERSION_MINOR "${VERSION_MINOR_LINE}")
-string(REGEX REPLACE "^#define WINDSCRIBE_BUILD_VERSION ([0-9]+).*" "\\1"
-       WINDSCRIBE_VERSION_BUILD "${VERSION_BUILD_LINE}")
-
-# Detect build type (guinea pig, beta, or stable)
-file(READ "${CMAKE_CURRENT_SOURCE_DIR}/src/client/client-common/version/windscribe_version.h" VERSION_FILE_CONTENTS)
-if(VERSION_FILE_CONTENTS MATCHES "^[^/]*#define WINDSCRIBE_IS_GUINEA_PIG" OR
-   VERSION_FILE_CONTENTS MATCHES "\n[^/]*#define WINDSCRIBE_IS_GUINEA_PIG")
-    set(WINDSCRIBE_BUILD_TYPE "guinea_pig")
-    set(WINDSCRIBE_BUILD_SUFFIX "_guinea_pig")
-elseif(VERSION_FILE_CONTENTS MATCHES "^[^/]*#define WINDSCRIBE_IS_BETA" OR
-       VERSION_FILE_CONTENTS MATCHES "\n[^/]*#define WINDSCRIBE_IS_BETA")
-    set(WINDSCRIBE_BUILD_TYPE "beta")
-    set(WINDSCRIBE_BUILD_SUFFIX "_beta")
-else()
-    set(WINDSCRIBE_BUILD_TYPE "stable")
-    set(WINDSCRIBE_BUILD_SUFFIX "")
-endif()
 
 # ------------------------------------------------------------------------------
 # Build Options (defaults match build_all.py behavior)
@@ -66,16 +37,22 @@ endif()
 
 option(BUILD_APP "Build the main GUI application" ON)
 option(BUILD_INSTALLER "Build the installer" ON)
-option(BUILD_CLI_ONLY "Build CLI-only version (Linux)" OFF)
 option(BUILD_TESTS "Build test executables" OFF)
+set(INTEGRATION_TYPE "gui" CACHE STRING "Integration type to build (e.g. gui, cli)")
 option(SIGN_APP "Enable app code signing" OFF)
 option(SIGN_INSTALLER "Enable installer code signing" OFF)
 option(SIGN_BOOTSTRAP "Enable bootstrap code signing" OFF)
 option(ENABLE_NOTARIZE "Enable macOS notarization" OFF)
 option(CI_MODE "CI-specific behavior" OFF)
+if(CI_MODE)
+    set(DEFINE_USE_SIGNATURE_CHECK_MACRO ON CACHE BOOL "Add define USE_SIGNATURE_CHECK to project" FORCE)
+endif()
+option(BUILD_SYMBOLS "Collect PDB symbol files" OFF)
 option(STATIC_ANALYSIS "Run clang-tidy static analysis" OFF)
+option(UPDATE_TRANSLATIONS "Run lupdate to regenerate .ts translation files" OFF)
 
-# Platform-specific build options
+# Platform-specific build options (these use WIN32/APPLE which are set before project()
+# when using a platform-native generator, e.g. Visual Studio on Windows)
 if(WIN32)
     option(BUILD_BOOTSTRAP "Build the bootstrap (Windows only)" ON)
     option(BUILD_ARM64 "Build for ARM64 architecture" OFF)
@@ -101,14 +78,13 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
 endif()
 
-include(cmake/architectures.cmake)
-
 # Static Analysis Configuration
 if(STATIC_ANALYSIS)
     set(CMAKE_CXX_CLANG_TIDY
         "clang-tidy"
-        "--checks=-clang-analyzer-optin.cplusplus.VirtualCall,-clang-diagnostic-deprecated-declarations,-clang-analyzer-osx.cocoa.RetainCount"
-        "--allow-no-checks"
+        "--checks=clang-analyzer-*,-clang-analyzer-optin.cplusplus.VirtualCall,-clang-diagnostic-deprecated-declarations,-clang-analyzer-osx.cocoa.RetainCount"
+        "--header-filter=.*/(src|libs)/.*"
+        "--exclude-header-filter=.*vcpkg/.*"
         "--warnings-as-errors=*"
     )
 endif()
@@ -122,11 +98,79 @@ if(BUILD_APP OR BUILD_INSTALLER OR BUILD_BOOTSTRAP)
     include(cmake/vcpkg.cmake)
 endif()
 
-project(Windscribe
-    VERSION ${WINDSCRIBE_VERSION_MAJOR}.${WINDSCRIBE_VERSION_MINOR}.${WINDSCRIBE_VERSION_BUILD}
-    DESCRIPTION "Windscribe VPN Client"
-    LANGUAGES CXX C
+project(WS LANGUAGES CXX C)
+
+include(cmake/architectures.cmake)
+
+# Load integration configuration (after architectures.cmake so that
+# WINDSCRIBE_BUILD_LIBS_PATH and PACKAGE_ARCH are available)
+set(WS_INTEGRATION_CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/cmake/integrations/${INTEGRATION_TYPE}.cmake")
+if(NOT EXISTS "${WS_INTEGRATION_CONFIG}")
+    message(FATAL_ERROR "Integration config not found: ${WS_INTEGRATION_CONFIG}")
+endif()
+include("${WS_INTEGRATION_CONFIG}")
+
+set(PROJECT_VERSION "${WS_VERSION_MAJOR}.${WS_VERSION_MINOR}.${WS_VERSION_BUILD}" CACHE STRING "" FORCE)
+
+include(cmake/utilities.cmake)
+
+# Derive build suffix from build type (empty for stable releases)
+if(WS_BUILD_TYPE STREQUAL "stable")
+    set(WS_BUILD_SUFFIX "")
+else()
+    set(WS_BUILD_SUFFIX "${WS_BUILD_TYPE}")
+endif()
+
+# Expose branding to C++ code
+add_compile_definitions(
+    WS_APP_EXECUTABLE_NAME="${WS_APP_EXECUTABLE_NAME}"
+    WS_CLI_EXECUTABLE_NAME="${WS_CLI_EXECUTABLE_NAME}"
+    WS_APP_IDENTIFIER="${WS_APP_IDENTIFIER}"
+    WS_COPYRIGHT="${WS_COPYRIGHT}"
+    WS_EXTRA_CONFIG_NAME="${WS_EXTRA_CONFIG_NAME}"
+    WS_LINUX_INSTALL_DIR="${WS_LINUX_INSTALL_DIR}"
+    WS_LINUX_LOG_DIR="${WS_LINUX_LOG_DIR}"
+    WS_LINUX_TMP_DIR="${WS_LINUX_TMP_DIR}"
+    WS_MAC_APP_DIR="${WS_MAC_APP_DIR}"
+    WS_MAC_GID="${WS_MAC_GID}"
+    WS_MAC_GUI_BUNDLE_ID="${WS_MAC_GUI_BUNDLE_ID}"
+    WS_MAC_HELPER_BUNDLE_ID="${WS_MAC_HELPER_BUNDLE_ID}"
+    WS_MAC_HELPER_BUNDLE_ID_PATH="Contents/Library/LaunchServices/${WS_MAC_HELPER_BUNDLE_ID}"
+    WS_MAC_IKEV2_KEYCHAIN_SERVICE="${WS_MAC_IKEV2_KEYCHAIN_SERVICE}"
+    WS_MAC_INSTALLER_BUNDLE_ID="${WS_MAC_INSTALLER_BUNDLE_ID}"
+    WS_MAC_INSTALLER_BUNDLE_NAME="${WS_MAC_INSTALLER_BUNDLE_NAME}"
+    WS_MAC_INSTALLER_INNER_BINARY="Contents/MacOS/${WS_MAC_INSTALLER_TARGET}"
+    WS_MAC_LAUNCHER_BUNDLE_ID="${WS_MAC_LAUNCHER_BUNDLE_ID}"
+    WS_MAC_SPLIT_TUNNEL_BUNDLE_ID="${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID}"
+    WS_MAC_UID="${WS_MAC_UID}"
+    WS_MAC_VPN_DESCRIPTION="${WS_MAC_VPN_DESCRIPTION}"
+    WS_POSIX_CONFIG_DIR="${WS_POSIX_CONFIG_DIR}"
+    WS_POSIX_RUN_DIR="${WS_POSIX_RUN_DIR}"
+    WS_PRODUCT_NAME="${WS_PRODUCT_NAME}"
+    WS_PRODUCT_NAME_LOWER="${WS_PRODUCT_NAME_LOWER}"
+    WS_PRODUCT_NAME_UPPER="${WS_PRODUCT_NAME_UPPER}"
+    WS_SETTINGS_APP="${WS_SETTINGS_APP}"
+    WS_SETTINGS_ORG="${WS_SETTINGS_ORG}"
+    WS_VERSION="${WS_VERSION_MAJOR}.${WS_VERSION_MINOR}.${WS_VERSION_BUILD}"
+    WS_VERSION_BUILD=${WS_VERSION_BUILD}
+    WS_VERSION_MAJOR=${WS_VERSION_MAJOR}
+    WS_VERSION_MAJOR_MINOR="${WS_VERSION_MAJOR}.${WS_VERSION_MINOR}"
+    WS_VERSION_MINOR=${WS_VERSION_MINOR}
+    WS_WIN_CONFIG_SUBDIR="${WS_WIN_CONFIG_SUBDIR}"
+    WS_WIN_IKEV2_CONNECTION_NAME="${WS_WIN_IKEV2_CONNECTION_NAME}"
 )
+if(DEFINED WS_COMPILE_DEFINITIONS)
+    add_compile_definitions(${WS_COMPILE_DEFINITIONS})
+endif()
+if(WS_BUILD_TYPE STREQUAL "guinea_pig")
+    add_compile_definitions(WINDSCRIBE_IS_GUINEA_PIG)
+elseif(WS_BUILD_TYPE STREQUAL "beta")
+    add_compile_definitions(WINDSCRIBE_IS_BETA)
+endif()
+
+if(NOT CMAKE_SYSTEM_NAME IN_LIST WS_SUPPORTED_PLATFORMS)
+    message(FATAL_ERROR "Integration '${INTEGRATION_TYPE}' does not support ${CMAKE_SYSTEM_NAME}. Supported: ${WS_SUPPORTED_PLATFORMS}")
+endif()
 
 # ------------------------------------------------------------------------------
 # Build Configuration Summary
@@ -137,7 +181,7 @@ message(STATUS "==================================================")
 message(STATUS "Windscribe Build Configuration Summary")
 message(STATUS "==================================================")
 message(STATUS "Version:              ${PROJECT_VERSION}")
-message(STATUS "Build Variant:        ${WINDSCRIBE_BUILD_TYPE}")
+message(STATUS "Build Variant:        ${WS_BUILD_TYPE}")
 message(STATUS "Build Type:           ${CMAKE_BUILD_TYPE}")
 message(STATUS "Platform:             ${CMAKE_SYSTEM_NAME}")
 if(APPLE)
@@ -148,13 +192,14 @@ endif()
 message(STATUS "CI Mode:              ${CI_MODE}")
 message(STATUS "")
 message(STATUS "Build Options:")
+message(STATUS "  Integration:        ${INTEGRATION_TYPE}")
 if(UNIX AND NOT APPLE)
-message(STATUS "  CLI Only:           ${BUILD_CLI_ONLY}")
 message(STATUS "  Build DEB:          ${BUILD_DEB}")
 message(STATUS "  Build RPM:          Fedora ${BUILD_RPM} OpenSUSE ${BUILD_RPM_OPENSUSE}")
 endif()
 message(STATUS "  Build Tests:        ${BUILD_TESTS}")
 message(STATUS "  Static Analysis:    ${STATIC_ANALYSIS}")
+message(STATUS "  Translations:       ${UPDATE_TRANSLATIONS}")
 if(APPLE)
 message(STATUS "  Notarization:       ${ENABLE_NOTARIZE}")
 endif()
@@ -180,6 +225,10 @@ if(NOT EXISTS "${WINDSCRIBE_BUILD_LIBS_PATH}")
 endif()
 
 # ------------------------------------------------------------------------------
+ws_resolve_bundled_helpers()
+ws_resolve_shared_libs()
+
+# ------------------------------------------------------------------------------
 # Code Signing Configuration
 # ------------------------------------------------------------------------------
 
@@ -194,24 +243,11 @@ if(BUILD_APP)
         set(IS_BUILD_TESTS ON)
     endif()
 
-    # Utility programs
-    if(WIN32)
-        add_subdirectory(src/utils/windows/windscribe_install_helper)
-        add_subdirectory(src/utils/windows/wireguard_service)
-        add_subdirectory(src/installer/windows/uninstaller)
-    elseif(APPLE)
-        add_subdirectory(src/utils/macos/launcher)
-        add_subdirectory(src/splittunneling/macos)
-    elseif(UNIX)
-        add_subdirectory(src/utils/linux/authhelper)
-    endif()
+    # Additional components from integration config
+    foreach(_subdir ${WS_ADDITIONAL_SUBDIRS})
+        add_subdirectory(${_subdir})
+    endforeach()
 
-    if(BUILD_CLI_ONLY)
-        set(DEFINE_CLI_ONLY_MACRO ON CACHE BOOL "Build GUI-less client" FORCE)
-    endif()
-
-    # Main GUI application
-    add_subdirectory(src/windscribe-cli)
     add_subdirectory(src/helper)
     add_subdirectory(src/client)
 
@@ -219,38 +255,28 @@ if(BUILD_APP)
     include("${CMAKE_SOURCE_DIR}/cmake/fetch_wsnet.cmake")
 
     if(WIN32)
-        add_custom_target(build-app ALL
-            DEPENDS Windscribe windscribe-cli WindscribeService WindscribeInstallHelper WireguardService uninstall
-        )
+        add_custom_target(build-app ALL DEPENDS ${WS_WIN_APP_TARGETS})
     elseif(APPLE)
-        add_custom_target(build-app ALL
-            DEPENDS Windscribe windscribe-cli com.windscribe.helper.macos WindscribeLauncher com.windscribe.client.splittunnelextension
-        )
+        add_custom_target(build-app ALL DEPENDS ${WS_MAC_APP_TARGETS})
     elseif(UNIX)
-        add_custom_target(build-app ALL
-            DEPENDS Windscribe windscribe-cli helper windscribe-authhelper
-        )
+        add_custom_target(build-app ALL DEPENDS ${WS_LINUX_APP_TARGETS})
     endif()
 endif()
 
 # Installers
 if(BUILD_INSTALLER)
     if(WIN32)
-        add_subdirectory(src/installer/windows/installer)
+        add_subdirectory(src/installer/${INSTALLER_TYPE}/windows/installer)
     elseif(APPLE)
-        add_subdirectory(src/installer/mac/installer)
+        add_subdirectory(src/installer/${INSTALLER_TYPE}/macos/installer)
     endif()
 endif()
 
 if(BUILD_BOOTSTRAP)
     if(WIN32)
-        if(BUILD_ARM64)
-            set(WINDSCRIBE_ARCH_SUFFIX "_arm64")
-        else()
-            set(WINDSCRIBE_ARCH_SUFFIX "_amd64")
-        endif()
-        set(WINDSCRIBE_INSTALLER_NAME "Windscribe_${PROJECT_VERSION}${WINDSCRIBE_BUILD_SUFFIX}${WINDSCRIBE_ARCH_SUFFIX}.exe" CACHE STRING "Name of internal installer exe")
-        add_subdirectory(src/installer/windows/bootstrap)
+        ws_resolve_output_name("${WS_WIN_OUTPUT_NAME}" _resolved_installer_name)
+        set(WINDSCRIBE_INSTALLER_NAME "${_resolved_installer_name}.exe" CACHE STRING "Name of internal installer exe")
+        add_subdirectory(src/installer/${INSTALLER_TYPE}/windows/bootstrap)
     endif()
 endif()
 

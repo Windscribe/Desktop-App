@@ -16,6 +16,10 @@
         <translation>Локацій немає.</translation>
     </message>
     <message>
+        <source>No ports available for the specified protocol.</source>
+        <translation>Портів для зазначеного протоколу немає.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>Не вдалося повернути ІП.  Будь ласка, переконайтеся, що у вас є Windscribe Pro або є це місце у вашому плані, або спробуйте пізніше.</translation>
     </message>

@@ -1,4 +1,5 @@
 #include "winutils.h"
+#include "ws_branding.h"
 
 #include <QSettings>
 
@@ -646,11 +647,11 @@ FindAppWindowHandleProc(HWND hwnd, LPARAM lParam)
     std::filesystem::path path(std::wstring(imageName, pathLen));
     std::wstring exeName(path.filename());
 
-    if (_wcsicmp(exeName.c_str(), L"windscribe.exe") == 0) {
+    if (_wcsicmp(exeName.c_str(), WS_APP_EXECUTABLE_NAME_W L".exe") == 0) {
         TCHAR buffer[128];
         int resultLen = ::GetWindowText(hwnd, buffer, sizeof(buffer) / sizeof(buffer[0]));
 
-        if (resultLen > 0 && (_wcsicmp(buffer, L"windscribe") == 0)) {
+        if (resultLen > 0 && (_wcsicmp(buffer, WS_PRODUCT_NAME_LOWER_W) == 0)) {
             EnumWindowInfo* pWindowInfo = (EnumWindowInfo*)lParam;
             pWindowInfo->appMainWindow = hwnd;
             return FALSE;

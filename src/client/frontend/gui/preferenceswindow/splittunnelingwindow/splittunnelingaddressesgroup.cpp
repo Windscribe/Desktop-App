@@ -123,7 +123,7 @@ SplitTunnelingAddressesGroup::ValidationCode SplitTunnelingAddressesGroup::valid
         return ValidationCode::ERROR_INVALID;
     }
 
-    if (IpValidation::isWindscribeReservedIp(address)) {
+    if (IpValidation::isReservedIp(address)) {
         return ValidationCode::ERROR_RESERVED;
     }
 

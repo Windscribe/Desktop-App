@@ -1252,14 +1252,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::AntiCensorshipGroup</name>
+    <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Circumvent Censorship</source>
-        <translation>सेंसरशिप को दरकिनार करें</translation>
+        <source>Anti-censorship</source>
+        <translation>सेंसरशिप विरोधी</translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation>कॉन्फ़िगरेशन</translation>
+        <source>These degrade performance, enable only if Windscribe doesn&apos;t connect normally.</source>
+        <translation>ये प्रदर्शन को कम करते हैं, केवल तभी सक्षम होते हैं जब विंडसाइड सामान्य रूप से कनेक्ट नहीं होता है।</translation>
+    </message>
+    <message>
+        <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
+        <translation>WireGuard, OpenVPN और Stealth प्रोटोकॉल में प्रोटोकॉल-स्तरीय परिवर्तन किए गए।</translation>
+    </message>
+    <message>
+        <source>Increases latency, but improves chances of being able to connect.</source>
+        <translation>विलंबता बढ़ाता है, लेकिन कनेक्ट करने में सक्षम होने की संभावना में सुधार करता है।</translation>
+    </message>
+    <message>
+        <source>Server Routing</source>
+        <translation>सर्वर रूटिंग</translation>
     </message>
 </context>
 <context>
@@ -1495,8 +1507,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>स्थान इतिहास ट्रैकिंग को रोकने के लिए अपने ऑपरेटिंग सिस्टम से वाई-फाई एसएसआईडी और मैक जानकारी निकालें।</translation>
     </message>
     <message>
-        <source>Connect to the VPN with WireGuard even in a hostile environment.</source>
-        <translation>शत्रुतापूर्ण वातावरण में भी वायरगार्ड के साथ वीपीएन से कनेक्ट करें।</translation>
+        <source>Anti-censorship Settings</source>
+        <translation>सेंसरशिप विरोधी सेटिंग्स</translation>
     </message>
 </context>
 <context>
@@ -2061,6 +2073,17 @@ Connect to a network first</source>
     </message>
 </context>
 <context>
+    <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Protocol Tweaks</source>
+        <translation>प्रोटोकॉल ट्वीक्स</translation>
+    </message>
+    <message>
+        <source>Amnezia Config</source>
+        <translation>एमनेज़िया कॉन्फ़िग</translation>
+    </message>
+</context>
+<context>
     <name>PreferencesWindow::ProxyGatewayGroup</name>
     <message>
         <source>Proxy Gateway</source>
@@ -2584,14 +2607,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>स्थैतिक आईपी</translation>
     </message>
     <message>
-        <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
-        <translation>आपका अनुप्रयोग संस्करण अब समर्थित नहीं है. विंडस्क्राइब का उपयोग जारी रखने के लिए कृपया अद्यतन करें.</translation>
-    </message>
-    <message>
-        <source>Please upgrade to a Pro account to continue using Windscribe.</source>
-        <translation>विंडस्क्राइब का उपयोग जारी रखने के लिए कृपया प्रो खाते में नवीनीकरण करें.</translation>
-    </message>
-    <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
         <translation>आपके मूल खाते %1 की समय सीमा समाप्त हो गई है. मुक्त स्तरीय सीमाओं को बायपास करने के लिए कई खाते बनाना निषिद्ध है। कृपया मूल खाते में लॉगिन करें और बैंडविड्थ रीसेट होने तक प्रतीक्षा करें। आप प्रो में अपग्रेड भी कर सकते हैं।</translation>
     </message>
@@ -2671,16 +2686,28 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Random IP</source>
         <translation>रैंडम आईपी</translation>
     </message>
+    <message>
+        <source>Your application version is no longer supported. Please update to continue using %1.</source>
+        <translation>आपका अनुप्रयोग संस्करण अब समर्थित नहीं है. कृपया %1 का उपयोग जारी रखने के लिए अद्यतन करें.</translation>
+    </message>
+    <message>
+        <source>Please upgrade to a Pro account to continue using %1.</source>
+        <translation>%1 का उपयोग जारी रखने के लिए कृपया किसी प्रो खाते में नवीनीकरण करें.</translation>
+    </message>
+    <message>
+        <source>Regular</source>
+        <translation>नियमित सैनिक</translation>
+    </message>
+    <message>
+        <source>Alternate</source>
+        <translation>वैकल्पिक</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
     <message>
         <source>Unknown Config Error</source>
         <translation>अज्ञात कॉन्फ़िगरेशन त्रुटि</translation>
-    </message>
-    <message>
-        <source>File Sharing Frowned Upon</source>
-        <translation>फाइल शेयरिंग पर बवाल</translation>
     </message>
 </context>
 <context>

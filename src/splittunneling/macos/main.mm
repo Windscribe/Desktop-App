@@ -10,7 +10,7 @@
 int main(int argc, char *argv[]) {
     @autoreleasepool {
         // Initialize logger
-        std::string path = "/Library/Logs/com.windscribe.splittunnelextension";
+        std::string path = "/Library/Logs/" WS_MAC_SPLIT_TUNNEL_BUNDLE_ID;
         std::string logPath = path + "/splittunnelextension.log";
 
         try {
@@ -28,17 +28,17 @@ int main(int argc, char *argv[]) {
         }
 
         // Create and start the provider
-        spdlog::info("Starting Windscribe Split Tunnel Provider");
+        spdlog::info("Starting " WS_PRODUCT_NAME " Split Tunnel Provider");
 
-        // Get windscribe group info and set gid
-        struct group *grp = getgrnam("windscribe");
+        // Get app group info and set gid
+        struct group *grp = getgrnam(WS_PRODUCT_NAME_LOWER);
         if (grp == NULL) {
-            spdlog::error("Failed to get windscribe group info");
+            spdlog::error("Failed to get app group info");
             return 1;
         }
 
         if (setgid(grp->gr_gid) != 0) {
-            spdlog::error("Failed to set gid to windscribe group");
+            spdlog::error("Failed to set gid to app group");
             return 1;
         }
 

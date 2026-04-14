@@ -3,12 +3,12 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.windscribe.helper.macos</string>
+    <string>@WS_MAC_HELPER_BUNDLE_ID@</string>
     <key>KeepAlive</key>
     <true/>
     <key>MachServices</key>
     <dict>
-       <key>com.windscribe.helper.macos</key>
+       <key>@WS_MAC_HELPER_BUNDLE_ID@</key>
        <true/>
      </dict>
 </dict>

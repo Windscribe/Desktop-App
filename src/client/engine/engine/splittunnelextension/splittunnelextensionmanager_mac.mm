@@ -13,7 +13,7 @@ static NSDictionary *getExtensionOptions(const QString &primaryInterface, const 
         [appPathsArray addObject:appPath.toNSString()];
     }
     if (!isExclude) {
-        // For inclusive tunnels, always add the Windscribe client itself to the tunnel as with other platforms.
+        // For inclusive tunnels, always add the client itself to the tunnel as with other platforms.
         [appPathsArray addObject:[[NSBundle mainBundle] bundlePath]];
     }
     [options setObject:appPathsArray forKey:@"appPaths"];
@@ -69,7 +69,7 @@ bool SplitTunnelExtensionManager::startExtension(const QString &primaryInterface
         for (NETransparentProxyManager *m in managers) {
             if ([m.protocolConfiguration isKindOfClass:[NETunnelProviderProtocol class]]) {
                 NETunnelProviderProtocol *protocol = (NETunnelProviderProtocol *)m.protocolConfiguration;
-                if ([protocol.providerBundleIdentifier isEqualToString:@"com.windscribe.client.splittunnelextension"]) {
+                if ([protocol.providerBundleIdentifier isEqualToString:@"" WS_MAC_SPLIT_TUNNEL_BUNDLE_ID]) {
                     manager = m;
                     break;
                 }
@@ -80,11 +80,11 @@ bool SplitTunnelExtensionManager::startExtension(const QString &primaryInterface
             manager = [[NETransparentProxyManager alloc] init];
 
             NETunnelProviderProtocol *protocol = [[NETunnelProviderProtocol alloc] init];
-            protocol.providerBundleIdentifier = @"com.windscribe.client.splittunnelextension";
+            protocol.providerBundleIdentifier = @"" WS_MAC_SPLIT_TUNNEL_BUNDLE_ID;
             protocol.serverAddress = @"127.0.0.1"; // Dummy address
 
             manager.protocolConfiguration = protocol;
-            manager.localizedDescription = @"Windscribe Split Tunnel Extension";
+            manager.localizedDescription = @WS_PRODUCT_NAME " Split Tunnel Extension";
             manager.onDemandEnabled = NO;
             manager.enabled = YES;
         }
@@ -143,7 +143,7 @@ void SplitTunnelExtensionManager::stopExtension()
         for (NETransparentProxyManager *m in managers) {
             if ([m.protocolConfiguration isKindOfClass:[NETunnelProviderProtocol class]]) {
                 NETunnelProviderProtocol *protocol = (NETunnelProviderProtocol *)m.protocolConfiguration;
-                if ([protocol.providerBundleIdentifier isEqualToString:@"com.windscribe.client.splittunnelextension"]) {
+                if ([protocol.providerBundleIdentifier isEqualToString:@"" WS_MAC_SPLIT_TUNNEL_BUNDLE_ID]) {
                     manager = m;
                     break;
                 }

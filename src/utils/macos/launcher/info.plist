@@ -3,15 +3,15 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleExecutable</key>
-    <string>WindscribeLauncher</string>
+    <string>@WS_MAC_LAUNCHER_TARGET@</string>
     <key>CFBundleIconFile</key>
     <string></string>
     <key>CFBundleIdentifier</key>
-    <string>com.windscribe.launcher.macos</string>
+    <string>@WS_MAC_LAUNCHER_BUNDLE_ID@</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>WindscribeLauncher</string>
+    <string>@WS_MAC_LAUNCHER_TARGET@</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleVersion</key>
@@ -23,9 +23,9 @@
     <key>LSBackgroundOnly</key>
     <true/>
     <key>LSMinimumSystemVersion</key>
-    <string>12</string>
+    <string>13</string>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright © 2024 Windscribe Limited. All rights reserved.</string>
+    <string>@WS_COPYRIGHT@</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
     <key>NSSupportsAutomaticTermination</key>

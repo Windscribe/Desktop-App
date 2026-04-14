@@ -28,6 +28,8 @@ target_sources(client-common PRIVATE
     network_utils/dnschecker.h
     network_utils/network_utils.cpp
     network_utils/network_utils.h
+    openvpnversioncontroller.cpp
+    openvpnversioncontroller.h
     simplecrypt.cpp
     simplecrypt.h
     utils.cpp

@@ -34,6 +34,7 @@ enum class HelperCommand {
     startIcs,
     changeIcs,
     stopIcs,
+    queryBFEStatus,
     enableBFE,
     resetAndStartRAS,
     setIPv6EnabledInFirewall,
@@ -51,7 +52,7 @@ enum class HelperCommand {
     removeMacAddressRegistryProperty,
     resetNetworkAdapter,
     addIKEv2DefaultRoute,
-    removeWindscribeNetworkProfiles,
+    removeAppNetworkProfiles,
     setIKEv2IPSecParameters,
     makeHostsFileWritable,
     createOpenVpnAdapter,
@@ -92,7 +93,7 @@ enum class HelperCommand {
 
 
 enum CmdKillTarget {
-    kTargetWindscribe,
+    kTargetApp,
     kTargetOpenVpn,
     kTargetStunnel,
     kTargetWStunnel,

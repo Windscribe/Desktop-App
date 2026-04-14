@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ihelperbackend.h"
+#include <QElapsedTimer>
 #include <QMutex>
 #include "utils/boost_includes.h"
 

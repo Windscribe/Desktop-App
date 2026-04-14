@@ -1,31 +1,33 @@
+#include "ws_branding.h"
 #include "process_command.h"
 
-#include <sstream>
-#include <spdlog/spdlog.h>
 #include <codecvt>
 #include <locale>
+#include <spdlog/spdlog.h>
+#include <sstream>
 
-#include "close_tcp_connections.h"
+#include "active_processes.h"
 #include "changeics/icsmanager.h"
+#include "clear_wifi_history/clear_wifi_history.h"
+#include "close_tcp_connections.h"
+#include "dns_firewall.h"
 #include "dohdata.h"
 #include "executecmd.h"
 #include "firewallfilter.h"
 #include "firewallonboot.h"
+#include "hostsedit.h"
 #include "ikev2ipsec.h"
 #include "ikev2route.h"
+#include "ipv6_firewall.h"
 #include "macaddressspoof.h"
 #include "openvpncontroller.h"
 #include "reinstall_wan_ikev2.h"
-#include "remove_windscribe_network_profiles.h"
+#include "remove_app_network_profiles.h"
 #include "split_tunneling/split_tunneling.h"
-#include "wireguard/wireguardcontroller.h"
-#include "ipv6_firewall.h"
-#include "hostsedit.h"
-#include "active_processes.h"
-#include "dns_firewall.h"
 #include "utils.h"
+#include "utils/servicecontrolmanager.h"
+#include "wireguard/wireguardcontroller.h"
 #include "wmi_utils.h"
-#include "clear_wifi_history/clear_wifi_history.h"
 
 struct SPLIT_TUNNELING_PARS
 {
@@ -132,7 +134,7 @@ std::string executeTaskKill(const std::string &pars)
     ExecuteCmdResult res;
     if (target == kTargetOpenVpn) {
         std::wstringstream killCmd;
-        killCmd << Utils::getSystemDir() << L"\\taskkill.exe /f /t /im windscribeopenvpn.exe";
+        killCmd << Utils::getSystemDir() << L"\\taskkill.exe /f /t /im " WS_PRODUCT_NAME_LOWER_W L"openvpn.exe";
         spdlog::debug(L"executeTaskKill, cmd={}", killCmd.str());
         res = ExecuteCmd::instance().executeBlockingCmd(killCmd.str());
     }
@@ -179,10 +181,11 @@ std::string firewallOn(const std::string &pars)
 {
     std::wstring connectingIp, ip;
     bool bAllowLanTraffic;
-    deserializePars(pars, connectingIp, ip, bAllowLanTraffic);
+    bool bIsCustomConfig;
+    deserializePars(pars, connectingIp, ip, bAllowLanTraffic, bIsCustomConfig);
 
     bool prevStatus = FirewallFilter::instance().currentStatus();
-    FirewallFilter::instance().on(connectingIp.c_str(), ip.c_str(), bAllowLanTraffic);
+    FirewallFilter::instance().on(connectingIp.c_str(), ip.c_str(), bAllowLanTraffic, bIsCustomConfig);
     if (!prevStatus) {
         SplitTunneling::instance().updateState();
     }
@@ -284,10 +287,37 @@ std::string enableBFE(const std::string &pars)
 {
     spdlog::debug("enableBFE");
 
-    std::wstring exe = Utils::getSystemDir() + L"\\sc.exe";
-    ExecuteCmd::instance().executeBlockingCmd(exe + L" config BFE start= auto");
-    auto res = ExecuteCmd::instance().executeBlockingCmd(exe + L" start BFE");
-    return serializeResult(res.output);
+    bool success = false;
+    try {
+        wsl::ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_CONNECT);
+        scm.openService(L"BFE", SERVICE_QUERY_STATUS | SERVICE_START);
+        scm.startService(6000);
+        success = true;
+    }
+    catch (std::system_error& ex) {
+        spdlog::error("enableBFE - {}", ex.what());
+    }
+
+    return serializeResult(success);
+}
+
+std::string queryBFEStatus(const std::string &pars)
+{
+    spdlog::debug("queryBFEStatus");
+
+    DWORD status = 0;
+    try {
+        wsl::ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_CONNECT);
+        scm.openService(L"BFE", SERVICE_QUERY_STATUS);
+        status = scm.queryServiceStatus();
+    }
+    catch (std::system_error& ex) {
+        spdlog::error("queryBFEStatus - {}", ex.what());
+    }
+
+    return serializeResult(status);
 }
 
 std::string resetAndStartRAS(const std::string &pars)
@@ -377,13 +407,13 @@ std::string whitelistPorts(const std::string &pars)
     std::wstring ports;
     deserializePars(pars, ports);
 
-    std::wstring strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall add rule name=\"WindscribeStaticIpTcp\" protocol=TCP dir=in localport=\"";
+    std::wstring strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall add rule name=\"" WS_APP_IDENTIFIER_W L"StaticIpTcp\" protocol=TCP dir=in localport=\"";
     strCmd += ports;
     strCmd += L"\" action=allow";
     spdlog::debug(L"whitelistPorts, cmd={}", strCmd);
     auto res1 = ExecuteCmd::instance().executeBlockingCmd(strCmd);
 
-    strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall add rule name=\"WindscribeStaticIpUdp\" protocol=UDP dir=in localport=\"";
+    strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall add rule name=\"" WS_APP_IDENTIFIER_W L"StaticIpUdp\" protocol=UDP dir=in localport=\"";
     strCmd += ports;
     strCmd += L"\" action=allow";
     spdlog::debug(L"whitelistPorts, cmd={}", strCmd);
@@ -393,11 +423,11 @@ std::string whitelistPorts(const std::string &pars)
 
 std::string deleteWhitelistPorts(const std::string &pars)
 {
-    std::wstring strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall delete rule name=\"WindscribeStaticIpTcp\" dir=in";
+    std::wstring strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall delete rule name=\"" WS_APP_IDENTIFIER_W L"StaticIpTcp\" dir=in";
     spdlog::debug(L"deleteWhitelistPorts, cmd={}", strCmd);
     auto res1 = ExecuteCmd::instance().executeBlockingCmd(strCmd);
 
-    strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall delete rule name=\"WindscribeStaticIpUdp\" dir=in";
+    strCmd = Utils::getSystemDir() + L"\\netsh.exe advfirewall firewall delete rule name=\"" WS_APP_IDENTIFIER_W L"StaticIpUdp\" dir=in";
     spdlog::debug(L"deleteWhitelistPorts, cmd={}", strCmd);
     auto res2 =  ExecuteCmd::instance().executeBlockingCmd(strCmd);
     return serializeResult(res1.success && res2.success);
@@ -474,10 +504,10 @@ std::string addIKEv2DefaultRoute(const std::string &pars)
     return std::string();
 }
 
-std::string removeWindscribeNetworkProfiles(const std::string &pars)
+std::string removeAppNetworkProfiles(const std::string &pars)
 {
-    spdlog::debug("removeWindscribeNetworkProfiles");
-    RemoveWindscribeNetworkProfiles::remove();
+    spdlog::debug("removeAppNetworkProfiles");
+    RemoveAppNetworkProfiles::remove();
     return std::string();
 }
 

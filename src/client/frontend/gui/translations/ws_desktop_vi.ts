@@ -1252,14 +1252,26 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::AntiCensorshipGroup</name>
+    <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Circumvent Censorship</source>
-        <translation>Vượt qua kiểm duyệt</translation>
+        <source>Anti-censorship</source>
+        <translation>Chống kiểm duyệt</translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation>Cấu hình</translation>
+        <source>These degrade performance, enable only if Windscribe doesn&apos;t connect normally.</source>
+        <translation>Những điều này làm giảm hiệu suất, chỉ bật nếu Windscribe không kết nối bình thường.</translation>
+    </message>
+    <message>
+        <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
+        <translation>Các thay đổi cấp giao thức được thực hiện đối với các giao thức WireGuard, OpenVPN và Stealth.</translation>
+    </message>
+    <message>
+        <source>Increases latency, but improves chances of being able to connect.</source>
+        <translation>Tăng độ trễ, nhưng cải thiện cơ hội có thể kết nối.</translation>
+    </message>
+    <message>
+        <source>Server Routing</source>
+        <translation>Định tuyến máy chủ</translation>
     </message>
 </context>
 <context>
@@ -1495,8 +1507,8 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <translation>Xóa thông tin Wi-Fi SSID và MAC khỏi hệ điều hành của bạn để ngăn theo dõi lịch sử vị trí.</translation>
     </message>
     <message>
-        <source>Connect to the VPN with WireGuard even in a hostile environment.</source>
-        <translation>Kết nối với VPN với WireGuard ngay cả trong môi trường thù địch.</translation>
+        <source>Anti-censorship Settings</source>
+        <translation>Cài đặt chống kiểm duyệt</translation>
     </message>
 </context>
 <context>
@@ -2061,6 +2073,17 @@ Kết nối với mạng trước</translation>
     </message>
 </context>
 <context>
+    <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Protocol Tweaks</source>
+        <translation>Tinh chỉnh giao thức</translation>
+    </message>
+    <message>
+        <source>Amnezia Config</source>
+        <translation>Cấu hình Amnezia</translation>
+    </message>
+</context>
+<context>
     <name>PreferencesWindow::ProxyGatewayGroup</name>
     <message>
         <source>Proxy Gateway</source>
@@ -2584,14 +2607,6 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
         <translation>IP tĩnh</translation>
     </message>
     <message>
-        <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
-        <translation>Phiên bản ứng dụng của bạn không còn được hỗ trợ. Vui lòng cập nhật để tiếp tục sử dụng Windscribe.</translation>
-    </message>
-    <message>
-        <source>Please upgrade to a Pro account to continue using Windscribe.</source>
-        <translation>Vui lòng nâng cấp lên tài khoản Pro để tiếp tục sử dụng Windscribe.</translation>
-    </message>
-    <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
         <translation>Tài khoản %1 ban đầu của bạn đã hết hạn. Việc tạo nhiều tài khoản để vượt qua giới hạn bậc miễn phí đều bị cấm. Vui lòng đăng nhập vào tài khoản ban đầu và đợi cho đến khi băng thông được đặt lại. Bạn cũng có thể nâng cấp lên Pro.</translation>
     </message>
@@ -2671,16 +2686,28 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
         <source>Random IP</source>
         <translation>IP ngẫu nhiên</translation>
     </message>
+    <message>
+        <source>Your application version is no longer supported. Please update to continue using %1.</source>
+        <translation>Phiên bản ứng dụng của bạn không còn được hỗ trợ. Vui lòng cập nhật để tiếp tục sử dụng %1.</translation>
+    </message>
+    <message>
+        <source>Please upgrade to a Pro account to continue using %1.</source>
+        <translation>Vui lòng nâng cấp lên tài khoản Pro để tiếp tục sử dụng %1.</translation>
+    </message>
+    <message>
+        <source>Regular</source>
+        <translation>Thường xuyên</translation>
+    </message>
+    <message>
+        <source>Alternate</source>
+        <translation>Thay thế</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
     <message>
         <source>Unknown Config Error</source>
         <translation>Lỗi cấu hình không xác định</translation>
-    </message>
-    <message>
-        <source>File Sharing Frowned Upon</source>
-        <translation>Chia sẻ tệp cau mày</translation>
     </message>
 </context>
 <context>

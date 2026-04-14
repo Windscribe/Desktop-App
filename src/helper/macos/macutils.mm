@@ -11,7 +11,7 @@ namespace MacUtils
 bool setDnsOfDynamicStoreEntry(std::string dnsIp, std::string dynEntry)
 {
     // get current dns entry
-    SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("WindscribeDnsSetter"), NULL, NULL);
+    SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("" WS_APP_IDENTIFIER "DnsSetter"), NULL, NULL);
     if (dynRef == NULL) {
         spdlog::error("setDnsOfDynamicStoreEntry - SCDynamicStoreCreate failed");
         return false;
@@ -70,7 +70,7 @@ bool setDnsOfDynamicStoreEntry(std::string dnsIp, std::string dynEntry)
 
 std::string resourcePath()
 {
-    return "/Applications/Windscribe.app/Contents/Resources/";
+    return WS_MAC_APP_DIR "/Contents/Resources/";
 }
 
 std::string bundleVersionFromPlist()

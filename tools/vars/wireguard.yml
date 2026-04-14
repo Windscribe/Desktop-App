@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2026, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 variables:
   VERSION_WIREGUARD_WIN: '0.5.3'
   VERSION_WIREGUARD_GNU: '0.0.20250515'
   ARTIFACT_WIREGUARD: 'wireguard.zip'
   CHECKSUM_WIREGUARD_WIN: 'de20bbefaa945753ba079d328307b5c6dc17368084685013aac2736275208ab6'
-  CHECKSUM_WIREGUARD_GNU: 'c2861e387555fe8b93a123dc34a2e150971b831dda26dbac65a8db006654c859'
+  CHECKSUM_WIREGUARD_GNU: '5ee2043f56e24cb7256d8e53588eacad97e3f90256d5f85f74035106f1e7c1e7'

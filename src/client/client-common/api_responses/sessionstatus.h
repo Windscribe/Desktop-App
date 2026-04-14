@@ -39,6 +39,7 @@ public:
     QString authHash_;
     QString revisionHash_;
     QSet<QString> staticIpsUpdateDevices_;
+    QString amneziawgConfigId_;     // if empty do not use
 };
 
 // implicitly shared class SessionStatus
@@ -70,6 +71,7 @@ public:
     qint32 getStatus() const;
     qint64 getTrafficUsed() const;
     qint64 getTrafficMax() const;
+    QString getAmneziaConfigId() const;
 
     bool isInitialized() const;
     void clear();

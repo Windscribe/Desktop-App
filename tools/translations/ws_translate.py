@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2023-2025 Windscribe Limited
+# Copyright (C) 2023-2026 Windscribe Limited
 
 # Requirements:
 # - Translate toolkit: pip install translate-toolkit[XML]

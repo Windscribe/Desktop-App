@@ -45,6 +45,7 @@ MainWindowController::MainWindowController(QWidget *parent, LocationsWindow *loc
     locationsWindow_(locationsWindow),
     locationListAnimationState_(LOCATION_LIST_ANIMATION_COLLAPSED),
     isAtomicAnimationActive_(false),
+    pendingExpandWindow_(nullptr),
     expandLocationsListAnimation_(NULL),
     collapseBottomInfoWindowAnimation_(NULL),
     expandLocationsAnimationGroup_(NULL),
@@ -1698,12 +1699,14 @@ void MainWindowController::gotoLoggingInWindow()
         anim->setDuration(SCREEN_SWITCH_OPACITY_ANIMATION_DURATION);
         connect(anim, &QPropertyAnimation::finished, [this]() {
             initWindow_->setVisible(false);
+            updateMainAndViewGeometry(true);
             isAtomicAnimationActive_ = false;
             handleNextWindowChange();
         });
 
         isAtomicAnimationActive_ = true;
         anim->start(QPropertyAnimation::DeleteWhenStopped);
+
     } else if (curWindow_ == WINDOW_ID_EXTERNAL_CONFIG) {
         curWindow_ = WINDOW_ID_LOGGING_IN;
         externalConfigWindow_->setClickable(false);
@@ -2043,6 +2046,7 @@ void MainWindowController::gotoConnectWindow(bool expandPrefs)
 
             if (expandPrefs) {
                 bottomInfoWindow_->setVisible(false);
+                isAtomicAnimationActive_ = false;
                 expandWindow(preferencesWindow_);
             } else {
                 updateBottomInfoWindowVisibilityAndPos();
@@ -2550,6 +2554,7 @@ void MainWindowController::closeExitWindow(bool fromPrefs)
                 gotoGeneralMessageWindow();
             } else if (fromPrefs) {
                 bottomInfoWindow_->setVisible(false);
+                isAtomicAnimationActive_ = false;
                 expandWindow(preferencesWindow_);
             } else {
                 if (bottomInfoWindow_->isVisible()) {
@@ -2909,6 +2914,11 @@ void MainWindowController::expandPreferencesFromWelcome()
 void MainWindowController::expandWindow(ResizableWindow *window)
 {
     if (windowSizeManager_->state(window) != WindowSizeManager::kWindowCollapsed) {
+        return;
+    }
+
+    if (isAtomicAnimationActive_) {
+        pendingExpandWindow_ = window;
         return;
     }
 
@@ -3689,7 +3699,15 @@ void MainWindowController::handleNextWindowChange()
     // Between window changes, force a main window geo update with updateShadow set to true, so that the workaround for #930 can take effect.
     updateMainAndViewGeometry(true);
 #endif
-    if (!queueWindowChanges_.isEmpty()) {
+    if (pendingExpandWindow_ != nullptr) {
+        ResizableWindow *window = pendingExpandWindow_;
+        pendingExpandWindow_ = nullptr;
+        if (curWindow_ == WINDOW_ID_CONNECT) {
+            expandWindow(window);
+        } else if (!queueWindowChanges_.isEmpty()) {
+            changeWindow(queueWindowChanges_.dequeue());
+        }
+    } else if (!queueWindowChanges_.isEmpty()) {
         changeWindow(queueWindowChanges_.dequeue());
     } else {
         invalidateShadow_mac();

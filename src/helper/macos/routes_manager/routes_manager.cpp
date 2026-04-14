@@ -29,6 +29,7 @@ void RoutesManager::updateState(const ConnectStatus &connectStatus, bool isSplit
     if  (prevIsConnected == false && connectStatus.isConnected == true) {
         if (isSplitTunnelActive) {
             boundRoute_.create(connectStatus.defaultAdapter.gatewayIp, connectStatus.defaultAdapter.adapterName);
+            addLanMulticastRoutes(connectStatus);
         }
         addDnsRoutes(connectStatus);
     } else if (prevIsConnected == true && connectStatus.isConnected == false) {
@@ -49,6 +50,9 @@ void RoutesManager::updateState(const ConnectStatus &connectStatus, bool isSplit
                 vpnRoutes_.addWithInterface("128.0.0.0/1", connectStatus.vpnAdapter.adapterName);
             }
             boundRoute_.create(connectStatus.defaultAdapter.gatewayIp, connectStatus.defaultAdapter.adapterName);
+            if (isSplitTunnelActive) {
+                addLanMulticastRoutes(connectStatus);
+            }
         }
         addDnsRoutes(connectStatus);
     }
@@ -65,9 +69,15 @@ void RoutesManager::addDnsRoutes(const ConnectStatus &connectStatus)
     dnsServersRoutes_.addWithInterface("10.255.255.0/24", connectStatus.vpnAdapter.adapterName);
 }
 
+void RoutesManager::addLanMulticastRoutes(const ConnectStatus &connectStatus)
+{
+    lanMulticastRoutes_.addWithInterface("224.0.0.0/4", connectStatus.defaultAdapter.adapterName);
+}
+
 void RoutesManager::clearAllRoutes()
 {
     dnsServersRoutes_.clear();
     vpnRoutes_.clear();
+    lanMulticastRoutes_.clear();
     boundRoute_.remove();
 }

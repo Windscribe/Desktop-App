@@ -88,14 +88,14 @@ std::string executeOpenVPN(const std::string &pars)
         return serializeResult(false);
     }
 
-    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribeopenvpn", "--config /var/run/windscribe/config.ovpn");
+    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "openvpn", "--config " WS_POSIX_RUN_DIR "/config.ovpn");
     if (fullCmd.empty()) {
         // Something wrong with the command
         return serializeResult(false);
     }
 
     setenv("OPENSSL_CONF", "/dev/null", 1);
-    ExecuteCmd::instance().execute(fullCmd, "/opt/windscribe");
+    ExecuteCmd::instance().execute(fullCmd, WS_LINUX_INSTALL_DIR);
     return serializeResult(true);
 }
 
@@ -105,10 +105,12 @@ std::string executeTaskKill(const std::string &pars)
     deserializePars(pars, target);
     bool success = false;
 
-    if (target == kTargetWindscribe) {
-        spdlog::info("Killing Windscribe processes");
-        Utils::executeCommand("pkill", {"Windscribe"});
-        Utils::executeCommand("pkill", {"WindscribeEngine"}); // For older 1.x clients
+    if (target == kTargetApp) {
+        spdlog::info("Killing " WS_PRODUCT_NAME " processes");
+        Utils::executeCommand("pkill", {WS_APP_EXECUTABLE_NAME});
+#ifdef WS_IS_WINDSCRIBE
+        Utils::executeCommand("pkill", {WS_APP_IDENTIFIER "Engine"}); // For older 1.x clients
+#endif
         success = true;
     } else if (target == kTargetOpenVpn) {
         spdlog::info("Killing OpenVPN processes");
@@ -119,19 +121,19 @@ std::string executeTaskKill(const std::string &pars)
         success = true;
     } else if (target == kTargetStunnel) {
         spdlog::info("Killing Stunnel processes");
-        Utils::executeCommand("pkill", {"-f", "windscribewstunnel"});
+        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "wstunnel"});
         success = true;
     } else if (target == kTargetWStunnel) {
         spdlog::info("Killing WStunnel processes");
-        Utils::executeCommand("pkill", {"-f", "windscribewstunnel"});
+        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "wstunnel"});
         success = true;
     } else if (target == kTargetWireGuard) {
         spdlog::info("Killing WireGuard processes");
-        Utils::executeCommand("pkill", {"-f", "windscribewireguard"});
+        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "wireguard"});
         success = true;
     } else if (target == kTargetCtrld) {
         spdlog::info("Killing ctrld processes");
-        Utils::executeCommand("pkill", {"-f", "windscribectrld"});
+        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "ctrld"});
         success = true;
     } else {
         spdlog::error("Did not kill processes for type {}", (int)target);
@@ -255,11 +257,11 @@ std::string startCtrld(const std::string &pars)
         }
     }
     if (isCreateLog) {
-        arguments << " --log /var/log/windscribe/ctrld.log";
+        arguments << " --log " WS_LINUX_LOG_DIR "/ctrld.log";
         arguments << " -vv";
     }
 
-    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), "windscribectrld", arguments.str());
+    std::string fullCmd = Utils::getFullCommand(Utils::getExePath(), WS_PRODUCT_NAME_LOWER "ctrld", arguments.str());
     if (fullCmd.empty()) {
         // Something wrong with the command
         return serializeResult(false);
@@ -338,7 +340,7 @@ std::string startStunnel(const std::string &pars)
     }
     arguments << " --tunnelType 2";
     //arguments << " --dev"; // enables verbose logging when necessary
-    std::string fullCmd = Utils::getFullCommandAsUser("windscribe", Utils::getExePath(), "windscribewstunnel", arguments.str());
+    std::string fullCmd = Utils::getFullCommandAsUser(WS_PRODUCT_NAME_LOWER, Utils::getExePath(), WS_PRODUCT_NAME_LOWER "wstunnel", arguments.str());
     if (fullCmd.empty()) {
         // Something wrong with the command
         return serializeResult(false);
@@ -365,7 +367,7 @@ std::string startWstunnel(const std::string &pars)
     arguments << " --remoteAddress wss://" << hostname << ":" << port << "/tcp/127.0.0.1/1194";
     arguments << " --logFilePath \"\"";
     //arguments << " --dev"; // enables verbose logging when necessary
-    std::string fullCmd = Utils::getFullCommandAsUser("windscribe", Utils::getExePath(), "windscribewstunnel", arguments.str());
+    std::string fullCmd = Utils::getFullCommandAsUser(WS_PRODUCT_NAME_LOWER, Utils::getExePath(), WS_PRODUCT_NAME_LOWER "wstunnel", arguments.str());
     if (fullCmd.empty()) {
         // Something wrong with the command
         return serializeResult(false);
@@ -429,7 +431,7 @@ std::string setDnsLeakProtectEnabled(const std::string &pars)
     spdlog::debug("Set DNS leak protect: {}", enabled ? "enabled" : "disabled");
     // We only handle the down case; the 'up' trigger for this script happens in the DNS manager script
     if (!enabled) {
-        Utils::executeCommand("/opt/windscribe/scripts/dns-leak-protect", {"down"});
+        Utils::executeCommand(WS_LINUX_INSTALL_DIR "/scripts/dns-leak-protect", {"down"});
     }
     return std::string();
 }
@@ -441,7 +443,7 @@ std::string setGaiIpv4PriorityEnabled(const std::string &pars)
     spdlog::debug("Set gai IPv4 priority: {}", enabled ? "enabled" : "disabled");
     // We only handle the down case; the 'up' trigger for this script happens in the DNS manager script
     if (!enabled) {
-        Utils::executeCommand("/opt/windscribe/scripts/gai-ipv4-priority", {"down"});
+        Utils::executeCommand(WS_LINUX_INSTALL_DIR "/scripts/gai-ipv4-priority", {"down"});
     }
     return std::string();
 }

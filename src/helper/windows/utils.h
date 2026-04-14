@@ -21,7 +21,7 @@ namespace Utils
     bool isValidFileName(std::wstring &filename);
     bool isFileExists(const wchar_t *path);
     bool hasWhitespaceInString(const std::wstring &str);
-    bool verifyWindscribeProcessPath(HANDLE hPipe);
+    bool verifyAppProcessPath(HANDLE hPipe);
     bool iequals(const std::wstring &a, const std::wstring &b);
     bool isMacAddress(const std::wstring &value);
 

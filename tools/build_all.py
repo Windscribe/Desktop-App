@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System - CMake Wrapper
-# Copyright (c) 2020-2025, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2026, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: Thin wrapper around CMake for building Windscribe
 import multiprocessing
@@ -32,12 +32,17 @@ def get_cmake_configure_args():
     # Build type
     args.append(f"-DCMAKE_BUILD_TYPE={'Debug' if arghelper.build_debug() else 'Release'}")
 
+    # Integration type
+    args.append(f"-DINTEGRATION_TYPE={arghelper.integration()}")
+
     # Build options
     args.append(f"-DBUILD_APP={'ON' if arghelper.build_app() else 'OFF'}")
     args.append(f"-DBUILD_INSTALLER={'ON' if arghelper.build_installer() else 'OFF'}")
     args.append(f"-DBUILD_TESTS={'ON' if arghelper.build_tests() else 'OFF'}")
     args.append(f"-DSTATIC_ANALYSIS={'ON' if arghelper.static_analysis() else 'OFF'}")
     args.append(f"-DCI_MODE={'ON' if arghelper.ci_mode() else 'OFF'}")
+    args.append(f"-DBUILD_SYMBOLS={'ON' if arghelper.build_symbols() else 'OFF'}")
+    args.append(f"-DUPDATE_TRANSLATIONS={'ON' if arghelper.update_translations() else 'OFF'}")
 
     # Signing options
     args.append(f"-DSIGN_APP={'ON' if arghelper.sign_app() else 'OFF'}")
@@ -50,7 +55,6 @@ def get_cmake_configure_args():
         args.append(f"-DBUILD_BOOTSTRAP={'ON' if arghelper.build_bootstrap() else 'OFF'}")
         args.append(f"-DBUILD_ARM64={'ON' if arghelper.target_arm64_arch() else 'OFF'}")
     elif CURRENT_OS == "linux":
-        args.append(f"-DBUILD_CLI_ONLY={'ON' if arghelper.build_cli_only() else 'OFF'}")
         args.append(f"-DBUILD_DEB={'ON' if arghelper.build_deb() else 'OFF'}")
         args.append(f"-DBUILD_RPM={'ON' if arghelper.build_rpm('fedora') else 'OFF'}")
         args.append(f"-DBUILD_RPM_OPENSUSE={'ON' if arghelper.build_rpm('opensuse') else 'OFF'}")

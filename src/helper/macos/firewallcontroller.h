@@ -23,5 +23,5 @@ private:
     void updateDns();
 
     bool enabled_;
-    std::string windscribeDns_;
+    std::string vpnDns_;
 };

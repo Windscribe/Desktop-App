@@ -245,8 +245,6 @@ private slots:
     void firewallOffImpl();
     void speedRatingImpl(int rating, const QString &localExternalIp);
     void setSettingsImpl(const types::EngineSettings &engineSettings);
-    void checkForceDisconnectNode(const QStringList &forceDisconnectNodes);
-
     void startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType, uint port, bool whileConnected);
     void stopProxySharingImpl();
 
@@ -461,6 +459,7 @@ private:
     bool tryLoginNextConnectOrDisconnect_ = false;
 
     QString lastUsernameForCustomConfig_;
+    QString amneziaConfigIdFromSessionStatus_;
 
     static constexpr int kLoginWaitTimeForNoNetwork = 10000;    // 10 sec
     WaitForNetworkConnectivity *loginWaitForNetworkConnectivity_;
@@ -474,6 +473,7 @@ private:
     void callAuthTokenLogin(const QString &username);
     void callAuthTokenSignup(const QString &username);
     void updateApiResolutionSettingsInWsnet();
+    void applyServerRoutingMethod();
 
     BridgeApiManager *bridgeApiManager_;
 };

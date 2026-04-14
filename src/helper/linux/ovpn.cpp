@@ -1,9 +1,10 @@
 #include "ovpn.h"
 #include <fcntl.h>
-#include <sstream>
 #include <string>
 #include <unistd.h>
 #include <spdlog/spdlog.h>
+
+#include "../common/ovpn_directive_whitelist.h"
 
 namespace OVPN
 {
@@ -11,48 +12,20 @@ namespace OVPN
 bool writeOVPNFile(const std::string &dnsScript, unsigned int port, const std::string &config, const std::string &httpProxy,
                    unsigned int httpPort, const std::string &socksProxy, unsigned int socksPort)
 {
-    std::istringstream stream(config);
-    std::string line;
-    int bytes;
-
-    int fd = open("/var/run/windscribe/config.ovpn", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
+    int fd = open(WS_POSIX_RUN_DIR "/config.ovpn", O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU | S_IRGRP | S_IROTH);
     if (fd < 0) {
         spdlog::error("Could not open config for writing");
         return false;
     }
 
-    while(getline(stream, line)) {
-        // trim whitespace
-        line.erase(0, line.find_first_not_of(" \n\r\t"));
-        line.erase(line.find_last_not_of(" \n\r\t") + 1);
+    std::string filtered = OvpnDirectiveWhitelist::filterConfig(config,
+        [](const std::string &line) { spdlog::warn("Blocked non-whitelisted OpenVPN directive: {}", line); });
 
-        // filter anything that runs an external script, or we need to override
-        // check for up to offset of 2 in case the command starts with '--'
-        if (line.rfind("up", 2) != std::string::npos ||
-            line.rfind("tls-verify", 2) != std::string::npos ||
-            line.rfind("ipchange", 2) != std::string::npos ||
-            line.rfind("client-connect", 2) != std::string::npos ||
-            line.rfind("route-up", 2) != std::string::npos ||
-            line.rfind("route-pre-down", 2) != std::string::npos ||
-            line.rfind("client-disconnect", 2) != std::string::npos ||
-            line.rfind("down", 2) != std::string::npos ||
-            line.rfind("learn-address", 2) != std::string::npos ||
-            line.rfind("auth-user-pass-verify", 2) != std::string::npos ||
-            line.rfind("management", 2) != std::string::npos ||
-            line.rfind("http-proxy", 2) != std::string::npos ||
-            line.rfind("socks-proxy", 2) != std::string::npos ||
-            line.rfind("plugin", 2) != std::string::npos)
-        {
-            continue;
-        }
-
-        bytes = write(fd, (line + "\n").c_str(), line.length() + 1);
-        if (bytes <= 0) {
-            spdlog::error("Could not write openvpn config");
-            close(fd);
-            return false;
-        }
-
+    int bytes = write(fd, filtered.c_str(), filtered.length());
+    if (bytes <= 0) {
+        spdlog::error("Could not write openvpn config");
+        close(fd);
+        return false;
     }
 
     // add our own up/down scripts

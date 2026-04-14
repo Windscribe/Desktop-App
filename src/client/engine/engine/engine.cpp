@@ -17,7 +17,6 @@
 #include "utils/ipvalidation.h"
 #include "utils/hardcodedsettings.h"
 #include "utils/executable_signature/executable_signature.h"
-#include "utils/languagesutil.h"
 #include "connectionmanager/connectionmanager.h"
 #include "connectionmanager/finishactiveconnections.h"
 #include "wireguardconfig/getwireguardconfig.h"
@@ -32,7 +31,7 @@
 #include "api_responses/controlddevices.h"
 #include "firewall/firewallexceptions.h"
 #include "getdeviceid.h"
-#include "openvpnversioncontroller.h"
+#include "utils/openvpnversioncontroller.h"
 #include "apiresources/apiutils.h"
 
 #ifdef Q_OS_WIN
@@ -103,6 +102,11 @@ Engine::Engine() : QObject(nullptr),
     loginWaitForNetworkConnectivity_(nullptr)
 {
 
+    if (!engineSettings_.loadFromSettings()) {
+        qCInfo(LOG_BASIC) << "Use default engine settings since the previous ones were not loaded";
+    }
+    qCInfo(LOG_BASIC) << "Engine settings" << engineSettings_;
+
     auto wsnetLoggerCallback = [](const std::string &logStr) {
         // log wsnet outputs without formatting
         auto logger = spdlog::get("raw");
@@ -120,7 +124,7 @@ Engine::Engine() : QObject(nullptr),
                                            GetDeviceId::instance().getDeviceId().toStdString(),
                                            OpenVpnVersionController::instance().getOpenVpnVersion().toStdString(),
                                            "3", // must supply session_type_id where 3 = DESKTOP
-                                           AppVersion::instance().isStaging(), LanguagesUtil::systemLanguage().toStdString(), wsnetSettings,
+                                           AppVersion::instance().isStaging(), engineSettings_.language().toStdString(), wsnetSettings,
                                            wsnetLoggerCallback, false, "2.0.0");
     WS_ASSERT(bWsnetSuccess);
 
@@ -134,12 +138,6 @@ Engine::Engine() : QObject(nullptr),
     if (settings.contains("authHash")) {
         WSNet::instance()->apiResourcersManager()->setAuthHash(settings.value("authHash").toString().toStdString());
     }
-
-    if (!engineSettings_.loadFromSettings()) {
-        qCInfo(LOG_BASIC) << "Use default engine settings since the previous ones were not loaded";
-    }
-
-    qCInfo(LOG_BASIC) << "Engine settings" << engineSettings_;
 
     connectStateController_ = new ConnectStateController(nullptr);
     connect(connectStateController_, &ConnectStateController::stateChanged, this, &Engine::onConnectStateChanged);
@@ -685,6 +683,8 @@ void Engine::initPart2()
     WSNet::instance()->bridgeAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     updateApiResolutionSettingsInWsnet();
 
+    applyServerRoutingMethod();
+
     myIpManager_ = new api_resources::MyIpManager(this, networkDetectionManager_, connectStateController_);
     connect(myIpManager_, &api_resources::MyIpManager::myIpChanged, this, &Engine::onMyIpManagerIpChanged);
 
@@ -779,9 +779,14 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
         qCInfo(LOG_BASIC) << "Helper version" << helper_->getHelperVersion();
         bInitialized_ = true;
 
-        initPart2();
-
+        // Must run before initPart2() to avoid a deadlock: initPart2() queues the
+        // autoEnableAntiCensorship signal to the GUI thread, which may call back into
+        // setSettings() and block on mutex_.  finishAllActiveConnections() blocks waiting
+        // for IKEv2 completion handlers that run on the main/GUI queue, so if the GUI
+        // thread is already blocked on mutex_, neither thread can make progress.
         FinishActiveConnections::finishAllActiveConnections(helper_);
+
+        initPart2();
 
         // turn off split tunneling (for case the state remains from the last launch)
         helper_->sendConnectStatus(false, engineSettings_.isTerminateSockets(), engineSettings_.isAllowLanTraffic(), AdapterGatewayInfo::detectAndCreateDefaultAdapterInfo(), AdapterGatewayInfo(), QString(), types::Protocol());
@@ -790,7 +795,7 @@ void Engine::onInitializeHelper(INIT_HELPER_RET ret)
 
     #ifdef Q_OS_WIN
         // check BFE service status
-        if (!BFE_Service_win::instance().isBFEEnabled())
+        if (!BFEService::isRunning(helper_))
         {
             emit initFinished(ENGINE_INIT_BFE_SERVICE_FAILED, isAuthHashExists, engineSettings_);
         }
@@ -865,7 +870,7 @@ void Engine::cleanupImpl(bool isUpdating)
     }
 
 #ifdef Q_OS_WIN
-    helper_->removeWindscribeNetworkProfiles();
+    helper_->removeAppNetworkProfiles();
 #endif
 
     if (vpnShareController_) {
@@ -932,12 +937,12 @@ void Engine::cleanupImpl(bool isUpdating)
 void Engine::enableBFE_winImpl()
 {
 #ifdef Q_OS_WIN
-
-    bool bSuccess = BFE_Service_win::instance().checkAndEnableBFE(helper_);
-    if (bSuccess)
+    bool success = BFEService::start(helper_);
+    if (success) {
         emit bfeEnableFinished(ENGINE_INIT_SUCCESS, !WSNet::instance()->apiResourcersManager()->authHash().empty(), engineSettings_);
-    else
+    } else {
         emit bfeEnableFinished(ENGINE_INIT_BFE_SERVICE_FAILED, !WSNet::instance()->apiResourcersManager()->authHash().empty(), engineSettings_);
+    }
 #endif
 }
 
@@ -1011,6 +1016,7 @@ void Engine::connectClickImpl(const LocationID &locationId, const types::Connect
                 firewallExceptions_.connectingIp(),
                 firewallExceptions_.getIPAddressesForFirewall(),
                 engineSettings_.isAllowLanTraffic(),
+                locationId_.isCustomConfigsLocation(),
                 false);
             emit firewallStateChanged(true);
         }
@@ -1150,7 +1156,7 @@ void Engine::continueWithPrivKeyPasswordImpl(const QString &password, bool bSave
 
 void Engine::gotoCustomOvpnConfigModeImpl()
 {
-    api_responses::ServerList serverLocations(WSNet::instance()->apiResourcersManager()->locations());
+    api_responses::ServerList serverLocations(WSNet::instance()->apiResourcersManager()->serverLocations());
     api_responses::StaticIps staticIps(WSNet::instance()->apiResourcersManager()->staticIps());
     updateServerLocations(serverLocations, staticIps);
     myIpManager_->getIP(1);
@@ -1234,6 +1240,8 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
     bool isDnsWhileConnectedChanged = engineSettings_.connectedDnsInfo() != engineSettings.connectedDnsInfo();
     bool isDecoyTrafficSettingsChanged = engineSettings_.decoyTrafficSettings() != engineSettings.decoyTrafficSettings();
     bool isFirewallSettingsChanged = engineSettings_.firewallSettings() != engineSettings.firewallSettings();
+    bool isServerRoutingMethodChanged = engineSettings_.serverRoutingMethod() != engineSettings.serverRoutingMethod();
+    bool isLanguageChanged = engineSettings_.language() != engineSettings.language();
 
     engineSettings_ = engineSettings;
     engineSettings_.saveToSettings();
@@ -1281,9 +1289,17 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
         packetSizeController_->setPacketSize(engineSettings_.packetSize());
     }
 
+    if (isLanguageChanged) {
+        WSNet::instance()->setLanguage(engineSettings_.language().toStdString());
+    }
+
     WSNet::instance()->serverAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     WSNet::instance()->bridgeAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(engineSettings_.isAntiCensorship());
+
+    if (isServerRoutingMethodChanged) {
+        applyServerRoutingMethod();
+    }
 
     if (isCustomOvpnConfigsPathChanged) {
         customConfigs_->changeDir(engineSettings_.customOvpnConfigsPath());
@@ -1366,6 +1382,7 @@ void Engine::onConnectionManagerConnected()
                     connectionManager_->getLastConnectedIp(),
                     firewallExceptions_.getIPAddressesForFirewallForConnectedState(),
                     engineSettings_.isAllowLanTraffic(),
+                    locationId_.isCustomConfigsLocation(),
                     true);
                 emit firewallStateChanged(true);
                 isFirewallAlreadyEnabled = true;
@@ -1411,6 +1428,7 @@ void Engine::onConnectionManagerConnected()
             connectionManager_->getLastConnectedIp(),
             firewallExceptions_.getIPAddressesForFirewallForConnectedState(),
             engineSettings_.isAllowLanTraffic(),
+            locationId_.isCustomConfigsLocation(),
             true);
     }
 
@@ -1438,8 +1456,8 @@ void Engine::onConnectionManagerConnected()
             if (!advParamWireguardMtuOffset) wgoffset = MTU_OFFSET_WG;
             mtu = packetSize_.mtu - wgoffset;
             if (mtu > 0) {
-                qCDebug(LOG_PACKET_SIZE) << "Applying MTU on WindscribeWireguard: " << mtu;
-                // For WireGuard, this function needs the subinterface name, e.g. always "WindscribeWireguard"
+                qCDebug(LOG_PACKET_SIZE) << "Applying MTU on " WS_PRODUCT_NAME "Wireguard: " << mtu;
+                // For WireGuard, this function needs the subinterface name, e.g. always WS_APP_IDENTIFIER "Wireguard"
 #ifdef Q_OS_WIN
                 helper_->changeMtu(QString::fromStdWString(kWireGuardAdapterIdentifier), mtu);
 #else
@@ -1630,13 +1648,13 @@ void Engine::onConnectionManagerError(CONNECT_ERROR err)
 #ifdef Q_OS_WIN
     else if (err == CONNECT_ERROR::NO_INSTALLED_TUN_TAP)
     {
-        qCWarning(LOG_BASIC) << "OpenVPN failed to detect the Windscribe wintun adapter";
+        qCWarning(LOG_BASIC) << "OpenVPN failed to detect the wintun adapter";
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::WINTUN_FATAL_ERROR);
         return;
     }
     else if (err == CONNECT_ERROR::WINTUN_FATAL_ERROR)
     {
-        qCWarning(LOG_BASIC) << "OpenVPN reported the Windscribe wintun adapter as already in use";
+        qCWarning(LOG_BASIC) << "OpenVPN reported the wintun adapter as already in use";
         connectStateController_->setDisconnectedState(DISCONNECTED_WITH_ERROR, CONNECT_ERROR::WINTUN_FATAL_ERROR);
         return;
     }
@@ -1723,7 +1741,7 @@ void Engine::onMacSpoofTimerTick()
 {
     QDateTime now = QDateTime::currentDateTime();
 
-    // On MacOS the WindscribeNetworkListener may not trigger when the network comes back up,
+    // On MacOS the network listener may not trigger when the network comes back up,
     // so force a connectivity check for 15 seconds after the spoof
     // Not elegant, but lower risk as additional changes to the networkdetection module may affect network whitelisting
     if (macSpoofTimerStart_.secsTo(now) > 15) {
@@ -2058,7 +2076,7 @@ void Engine::syncRobert()
 void Engine::onCustomConfigsChanged()
 {
     qCDebug(LOG_BASIC) << "Custom configs changed";
-    api_responses::ServerList serverLocations(WSNet::instance()->apiResourcersManager()->locations());
+    api_responses::ServerList serverLocations(WSNet::instance()->apiResourcersManager()->serverLocations());
     api_responses::StaticIps staticIps(WSNet::instance()->apiResourcersManager()->staticIps());
     updateServerLocations(serverLocations, staticIps);
 }
@@ -2178,43 +2196,6 @@ void Engine::onMacAddressControllerMacSpoofApplied()
 #endif
 
 
-void Engine::checkForceDisconnectNode(const QStringList & /*forceDisconnectNodes*/)
-{
-    if (!connectionManager_->isDisconnected())
-    {
-        // check for force_disconnect nodes if we connected
-        /* bool bNeedDisconnect = false;
-        for (const QString &sn : forceDisconnectNodes)
-        {
-            if (lastConnectingHostname_ == sn)
-            {
-                qCDebug(LOG_BASIC) << "Force disconnect for connected node:" << lastConnectingHostname_;
-                bNeedDisconnect = true;
-                break;
-            }
-        }
-
-        if (bNeedDisconnect)
-        {
-            //reconnect
-            connectStateController_->setConnectingState();
-            connectClickImpl(newLocationId);
-        }*/
-        /*else
-        {
-            // check if current connected nodes changed
-            ServerModelLocationInfo sml = serversModel_->getLocationInfoById(newLocationId);
-            QVector<ServerNode> curServerNodes = connectionManager_->getCurrentServerNodes();
-
-            if (!ServerNode::isEqualIpsServerNodes(sml.nodes, curServerNodes))
-            {
-                //reconnect
-                connectStateController_->setConnectingState();
-                connectClickImpl(newLocationId, connectionSettings, isAutoEnableFirewall);
-            }
-        }*/
-    }
-}
 
 void Engine::startProxySharingImpl(PROXY_SHARING_TYPE proxySharingType, uint port, bool whileConnected)
 {
@@ -2322,6 +2303,7 @@ void Engine::onApiResourcesManagerReadyForLogin(bool isLoginFromSavedSettings)
 
     updateSessionStatus(WSNet::instance()->apiResourcersManager()->sessionStatus());
     onApiResourcesManagerLocationsUpdated();
+    onApiResourcesManagerAmneziawgUnblockParamsFetched();
 
     api_responses::Notifications notifications(WSNet::instance()->apiResourcersManager()->notifications());
     emit notificationsUpdated(notifications.notifications());
@@ -2373,25 +2355,9 @@ void Engine::onApiResourcesManagerLoginFailed(LoginResult loginResult, const QSt
 
 void Engine::onApiResourcesManagerLocationsUpdated()
 {
-    api_responses::ServerList serverLocations(WSNet::instance()->apiResourcersManager()->locations());
+    api_responses::ServerList serverLocations(WSNet::instance()->apiResourcersManager()->serverLocations());
     api_responses::StaticIps staticIps(WSNet::instance()->apiResourcersManager()->staticIps());
     updateServerLocations(serverLocations, staticIps);
-
-    QSettings settings;
-
-    // Auto-enable anti-censorship if the serverlist endpoint returned a country override and setting not yet enabled
-    if (!engineSettings_.isAntiCensorship() && !serverLocations.countryOverride().isEmpty() && !ExtraConfig::instance().haveServerListCountryOverride()) {
-        qCInfo(LOG_BASIC) << "Automatically enabled anti-censorship feature due to country override";
-        settings.setValue("isAntiCensorshipEnabledAutomatically", true);
-        emit autoEnableAntiCensorship(true);
-    }
-    // Auto-disable anti-censorship if the serverlist endpoint is not returned a country override
-    else if (engineSettings_.isAntiCensorship() && serverLocations.countryOverride().isEmpty() && !ExtraConfig::instance().haveServerListCountryOverride() && settings.value("isAntiCensorshipEnabledAutomatically", false).toBool()) {
-        qCInfo(LOG_BASIC) << "Automatically disabled anti-censorship feature. It was set to enabled state automatically earlier due to country override.";
-        settings.remove("isAntiCensorshipEnabledAutomatically");
-        engineSettings_.saveToSettings();
-        emit autoEnableAntiCensorship(false);
-    }
 }
 
 void Engine::onApiResourcesManagerServerCredentialsFetched()
@@ -2460,7 +2426,6 @@ void Engine::updateServerLocations(const api_responses::ServerList &serverLocati
     ApiUtils::mergeWindflixLocations(locations);
     locationsModel_->setApiLocations(locations, staticIps);
     locationsModel_->setCustomConfigLocations(customConfigs_->getConfigs());
-    checkForceDisconnectNode(serverLocations.forceDisconnectNodes());
 }
 
 void Engine::updateFirewallSettings(bool forceTurnOn)
@@ -2473,12 +2438,14 @@ void Engine::updateFirewallSettings(bool forceTurnOn)
                 engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS ? firewallExceptions_.getIPAddressesForFirewallForConnectedState()
                                                                                         : firewallExceptions_.getIPAddressesForFirewall(),
                 engineSettings_.isAllowLanTraffic(),
+                locationId_.isCustomConfigsLocation(),
                 false);
         } else {
             firewallController_->firewallOn(
                 connectionManager_->getLastConnectedIp(),
                 firewallExceptions_.getIPAddressesForFirewallForConnectedState(),
                 engineSettings_.isAllowLanTraffic(),
+                locationId_.isCustomConfigsLocation(),
                 true);
         }
     }
@@ -2618,6 +2585,7 @@ void Engine::doDisconnectRestoreStuff()
             engineSettings_.firewallSettings().mode == FIREWALL_MODE_ALWAYS_ON_PLUS ? firewallExceptions_.getIPAddressesForFirewallForConnectedState()
                                                                                     : firewallExceptions_.getIPAddressesForFirewall(),
             engineSettings_.isAllowLanTraffic(),
+            locationId_.isCustomConfigsLocation(),
             false);
     }
 
@@ -2644,6 +2612,7 @@ void Engine::stopFetchingServerCredentials()
 void Engine::updateSessionStatus(const std::string &json)
 {
     api_responses::SessionStatus ss(WSNet::instance()->apiResourcersManager()->sessionStatus());
+    amneziaConfigIdFromSessionStatus_ = ss.getAmneziaConfigId();
     QSettings settings;
     settings.setValue("userId", ss.getUserId());    // need for uninstaller program for open post uninstall webpage
     emit sessionStatusUpdated(ss);
@@ -2897,6 +2866,17 @@ void Engine::callAuthTokenSignup(const QString &username)
 #endif
 }
 
+void Engine::applyServerRoutingMethod()
+{
+    int backup = -1;
+    if (engineSettings_.serverRoutingMethod() == SERVER_ROUTING_METHOD_REGULAR)
+        backup = 0;
+    else if (engineSettings_.serverRoutingMethod() == SERVER_ROUTING_METHOD_ALTERNATIVE)
+        backup = 1;
+    WSNet::instance()->apiResourcersManager()->setBackup(backup);
+    WSNet::instance()->apiResourcersManager()->fetchSession();
+}
+
 void Engine::updateApiResolutionSettingsInWsnet()
 {
     auto apiRootOverride = ExtraConfig::instance().apiRootOverride();
@@ -2992,6 +2972,21 @@ void Engine::onApiResourcesManagerAmneziawgUnblockParamsFetched()
     // If we have unblock params, either stored from a previous fetch, or from a new fetch, send the updated list to the UI.
     api_responses::AmneziawgUnblockParams unblockParams(WSNet::instance()->apiResourcersManager()->amneziawgUnblockParams());
     if (unblockParams.isValid()) {
-        emit amneziawgUnblockParamsUpdated(engineSettings_.amneziawgPreset(), unblockParams.presets());
+        // If the AmneziaWG preset has not been manually configured by the user, we configure it based on data from the SessionStatus API.
+        QString preferredPreset;
+        QSettings settings;
+        if (!settings.value("AmneziaIsUserConfigured", false).toBool()) {
+            QString presetTitle = unblockParams.getTitleById(amneziaConfigIdFromSessionStatus_);
+            if (presetTitle.isEmpty()) {
+                emit autoEnableAntiCensorship(false);
+            } else {
+                preferredPreset = presetTitle;
+                emit autoEnableAntiCensorship(true);
+            }
+        } else {
+            preferredPreset = engineSettings_.amneziawgPreset();
+        }
+
+        emit amneziawgUnblockParamsUpdated(preferredPreset, unblockParams.presets());
     }
 }

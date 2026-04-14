@@ -2,7 +2,7 @@
 #include <QMutexLocker>
 #include "utils/log/categories.h"
 
-#define SOCK_PATH "/var/run/windscribe/helper.sock"
+#define SOCK_PATH WS_POSIX_RUN_DIR "/helper.sock"
 
 HelperBackend_linux::HelperBackend_linux(QObject *parent) :
     IHelperBackend(parent),

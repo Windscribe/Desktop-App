@@ -5,7 +5,7 @@
 #include "utils/utils.h"
 #include "types/enums.h"
 #include "availableport.h"
-#include "engine/openvpnversioncontroller.h"
+#include "utils/openvpnversioncontroller.h"
 #include "utils/ipvalidation.h"
 
 #ifdef Q_OS_WIN
@@ -181,7 +181,7 @@ void OpenVPNConnection::run()
     helper_->disableDnsLeaksProtection();
     helper_->removeOpenVpnAdapter();
     // This prevents the adapter/network number from increasing on each connection.
-    helper_->removeWindscribeNetworkProfiles();
+    helper_->removeAppNetworkProfiles();
 #endif
 }
 
@@ -430,22 +430,22 @@ void OpenVPNConnection::handleRead(const boost::system::error_code &err, size_t 
             if (serverReply.contains("CONNECTED,SUCCESS", Qt::CaseInsensitive))
             {
 #ifdef Q_OS_WIN
-                AdapterGatewayInfo windscribeAdapter = AdapterUtils_win::getConnectedAdapterInfo(QString::fromWCharArray(kOpenVPNAdapterIdentifier));
-                if (!windscribeAdapter.isEmpty())
+                AdapterGatewayInfo vpnAdapter = AdapterUtils_win::getConnectedAdapterInfo(QString::fromWCharArray(kOpenVPNAdapterIdentifier));
+                if (!vpnAdapter.isEmpty())
                 {
-                    if (connectionAdapterInfo_.adapterIp() != windscribeAdapter.adapterIp())
+                    if (connectionAdapterInfo_.adapterIp() != vpnAdapter.adapterIp())
                     {
-                        qCCritical(LOG_CONNECTION) << "Error: Adapter IP detected from openvpn log not equal to the adapter IP from AdapterUtils_win::getWindscribeConnectedAdapterInfo()";
+                        qCCritical(LOG_CONNECTION) << "Error: Adapter IP detected from openvpn log not equal to the adapter IP from AdapterUtils_win::getConnectedAdapterInfo()";
                         WS_ASSERT(false);
                     }
-                    connectionAdapterInfo_.setAdapterName(windscribeAdapter.adapterName());
-                    connectionAdapterInfo_.setAdapterIp(windscribeAdapter.adapterIp());
-                    connectionAdapterInfo_.setDnsServers(windscribeAdapter.dnsServers());
-                    connectionAdapterInfo_.setIfIndex(windscribeAdapter.ifIndex());
+                    connectionAdapterInfo_.setAdapterName(vpnAdapter.adapterName());
+                    connectionAdapterInfo_.setAdapterIp(vpnAdapter.adapterIp());
+                    connectionAdapterInfo_.setDnsServers(vpnAdapter.dnsServers());
+                    connectionAdapterInfo_.setIfIndex(vpnAdapter.ifIndex());
                 }
                 else
                 {
-                    qCCritical(LOG_CONNECTION) << "Can't detect connected Windscribe adapter";
+                    qCCritical(LOG_CONNECTION) << "Can't detect connected VPN adapter";
                 }
 #endif
 

@@ -2,7 +2,6 @@
 #include <AppKit/AppKit.h>
 #include <ServiceManagement/ServiceManagement.h>
 #include "utils/log/categories.h"
-#include "names.h"
 
 
 bool LaunchOnStartup_mac::isLaunchOnStartupEnabled()
@@ -13,7 +12,7 @@ bool LaunchOnStartup_mac::isLaunchOnStartupEnabled()
     bool isRunning = false;
     for (NSRunningApplication *a in apps)
     {
-        if ([a.bundleIdentifier isEqualToString:@LAUNCHER_BUNDLE_ID])
+        if ([a.bundleIdentifier isEqualToString:@WS_MAC_LAUNCHER_BUNDLE_ID])
         {
             isRunning = true;
             break;
@@ -25,7 +24,7 @@ bool LaunchOnStartup_mac::isLaunchOnStartupEnabled()
 
 void LaunchOnStartup_mac::setLaunchOnStartup(bool enable)
 {
-    bool success = SMLoginItemSetEnabled((__bridge CFStringRef)@LAUNCHER_BUNDLE_ID, enable);
+    bool success = SMLoginItemSetEnabled((__bridge CFStringRef)@WS_MAC_LAUNCHER_BUNDLE_ID, enable);
 
     if (success)
     {

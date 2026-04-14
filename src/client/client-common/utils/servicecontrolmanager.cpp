@@ -4,6 +4,7 @@
 #include <sddl.h>
 #include <shellapi.h>
 
+#include <chrono>
 #include <codecvt>
 #include <sstream>
 
@@ -16,47 +17,26 @@ static std::string wstring_to_string(const std::wstring &wideStr)
     return converter.to_bytes(wideStr);
 }
 
-//---------------------------------------------------------------------------
-// ServiceControlManager class implementation
-
-/******************************************************************************
-* METHOD:  ServiceControlManager constructor
-*
-* PURPOSE: Constructs an instance of the ServiceControlManager class and initializes the
-*          member data.  The user must then call OpenSCM() to open a connection
-*          to a specific Service Control Manager before calling any other
-*          methods.
-*******************************************************************************/
+/*
+Constructs an instance of the ServiceControlManager class and initializes the member data.
+openSCM must be called to open a connection to a specific Service Control Manager before
+calling any other methods.
+*/
 ServiceControlManager::ServiceControlManager()
 {
 }
 
-/******************************************************************************
-* METHOD:  ServiceControlManager destructor
-*
-* PURPOSE: Destructs an instance of the ServiceControlManager class.
-*
-* INPUT:   None.
-*******************************************************************************/
 ServiceControlManager::~ServiceControlManager()
 {
     closeSCM();
 }
 
-/******************************************************************************
-* METHOD:  openSCM
-*
-* PURPOSE: Opens a connection to the specified SCM.
-*
-* INPUT:   desiredAccess: desired access rights, as defined by the OpenSCManager
-*             Win32 API.
-*
-*          serverName: Points to a null-terminated string that names the
-*             target computer. If the pointer is NULL or points to an empty
-*             string, the method connects to the SCM on the local computer.
-*
-* THROWS:  A system_error object.
-*******************************************************************************/
+/*
+Opens a connection to the specified SCM with the desired access rights, as defined by the
+OpenSCManager Win32 API. serverName points to a null-terminated string  naming the target
+computer. If the pointer is NULL or points to an empty string, the method connects to the
+SCM on the local computer.
+*/
 void ServiceControlManager::openSCM(DWORD desiredAccess, LPCTSTR serverName)
 {
     closeSCM();
@@ -90,16 +70,6 @@ void ServiceControlManager::openSCM(DWORD desiredAccess, LPCTSTR serverName)
     throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
 }
 
-/******************************************************************************
-* METHOD:  closeSCM()
-*
-* PURPOSE: Closes the open SCM and service handles.
-*
-* THROWS:  This method does not throw an exception.  The method may be called
-*          for 'clean-up' after another ServiceControlManager method raises an exception.
-*          Thus we don't want this method raising an exception thereby 'cancelling'
-*          the first exception.
-*******************************************************************************/
 void ServiceControlManager::closeSCM() noexcept
 {
     closeService();
@@ -112,21 +82,13 @@ void ServiceControlManager::closeSCM() noexcept
     serverName_.clear();
 }
 
-/******************************************************************************
-* METHOD:  openService
-*
-* PURPOSE: Opens a handle to an existing service.
-*          OpenSCM must be called before calling this method.
-*
-* INPUT:   serviceName: Points to a null-terminated string that names the
-*             service to open. The maximum string length is 256 characters. The
-*             SCM database preserves the case of the characters, but service
-*             name comparisons are always case insensitive. A slash (/),
-*             backslash (\), comma, and space are invalid service name
-*             characters.
-*
-* THROWS:  A system_error object.
-*******************************************************************************/
+/*
+Opens a handle to an existing service. openSCM must be called before calling this method.
+serviceName points to a null-terminated string naming the service to open. The maximum
+string length is 256 characters. The SCM database preserves the case of the characters,
+but service name comparisons are always case insensitive. A slash (/), backslash (\),
+comma, and space are invalid service name characters.
+*/
 void ServiceControlManager::openService(LPCTSTR serviceName, DWORD desiredAccess)
 {
     std::error_code ec;
@@ -185,18 +147,6 @@ bool ServiceControlManager::openService(LPCTSTR serviceName, DWORD desiredAccess
     return true;
 }
 
-/******************************************************************************
-* METHOD:  closeService
-*
-* PURPOSE: Closes an open service handle.
-*
-* INPUT:   None.
-*
-* THROWS:  This method does not throw an exception.  The method may be called
-*          for 'clean-up' after another ServiceControlManager method raises an exception.
-*          Thus we don't want this method raising an exception thereby 'cancelling'
-*          the first exception.
-*******************************************************************************/
 void ServiceControlManager::closeService() noexcept
 {
     if (service_ != NULL) {
@@ -206,24 +156,10 @@ void ServiceControlManager::closeService() noexcept
     }
 }
 
-/******************************************************************************
-* METHOD:  queryServiceStatus
-*
-* PURPOSE: Determines the status (started, stopped, pending, etc.) of the
-*          service.  OpenService must be called before calling this method.
-*
-* OUTPUT:  dwStatus: receives one of the following status codes:
-*
-*          SERVICE_STOPPED
-*          SERVICE_START_PENDING
-*          SERVICE_STOP_PENDING
-*          SERVICE_RUNNING
-*          SERVICE_CONTINUE_PENDING
-*          SERVICE_PAUSE_PENDING
-*          SERVICE_PAUSED
-*
-* THROWS:  A system_error object.
-*******************************************************************************/
+/*
+Determines the status (started, stopped, pending, etc.) of the service.  openService must be
+called before calling this method.
+*/
 DWORD ServiceControlManager::queryServiceStatus() const
 {
     std::error_code ec;
@@ -265,29 +201,13 @@ DWORD ServiceControlManager::queryServiceStatus(std::error_code& ec) const noexc
     return 0;
 }
 
-/******************************************************************************
-* METHOD:  queryServiceConfig
-*
-* PURPOSE: Retrieves the configuration parameters of the service.
-*          OpenService must be called before calling this method.
-*
-* OUTPUT:  exePath: receives the full path to the service's executable.
-*
-*          accountName: receives the account name in the form of
-*             DomainName\Username, which the service process will be logged
-*             on as when it runs.
-*
-*          startType: receives one of the following status codes:
-*
-*             SERVICE_AUTO_START    - NT starts service automatically
-*             SERVICE_DEMAND_START  - user must start the service
-*             SERVICE_DISABLED      - service cannot be started
-*
-*          serviceShareProcess: true if the service shares a process with
-*             other services.
-*
-* THROWS:  A system_error object.
-*******************************************************************************/
+/*
+Retrieves the configuration parameters of the service. openService must be called before calling this method.
+exePath: receives the full path to the service's executable.
+accountName: receives the account name in the form of DomainName\Username, which the service process will be logged on as when it runs.
+startType: receives a start code of SERVICE_AUTO_START, SERVICE_DEMAND_START, or SERVICE_DISABLED.
+serviceShareProcess: true if the service shares a process with other services.
+*/
 void ServiceControlManager::queryServiceConfig(std::wstring &exePath, std::wstring &accountName,
                                                DWORD& startType, bool& serviceShareProcess) const
 {
@@ -342,20 +262,14 @@ void ServiceControlManager::queryServiceConfig(std::wstring &exePath, std::wstri
     accountName         = lpConfig->lpServiceStartName;
 }
 
-/******************************************************************************
-* METHOD:  startService
-*
-* PURPOSE: Instructs the SCM to start the service.  OpenService must be called
-*          before calling this method.
-*
-* INPUT:   None.
-*
-* THROWS:  A system_error object.
-*******************************************************************************/
-void ServiceControlManager::startService()
+/*
+Instructs the SCM to start the service and waits at most timeoutMs for the service to start.
+openService must be called before calling this method.
+*/
+void ServiceControlManager::startService(int timeoutMs)
 {
     std::error_code ec;
-    if (startService(ec)) {
+    if (startService(ec, timeoutMs)) {
         return;
     }
 
@@ -422,7 +336,7 @@ void ServiceControlManager::startService()
     throw std::system_error(ec, wstring_to_string(errorMsg.str()));
 }
 
-bool ServiceControlManager::startService(std::error_code& ec) noexcept
+bool ServiceControlManager::startService(std::error_code& ec, int timeoutMs) noexcept
 {
     ec.clear();
 
@@ -434,7 +348,8 @@ bool ServiceControlManager::startService(std::error_code& ec) noexcept
     DWORD lastError;
     if (::StartService(service_, 0, NULL)) {
         // Wait for start service command to complete.
-        for (int i = 0; !blockStartStopRequests_ && i < 200; i++) {
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
+        while (!blockStartStopRequests_) {
             DWORD status = queryServiceStatus(ec);
             if (ec) {
                 return false;
@@ -449,7 +364,11 @@ bool ServiceControlManager::startService(std::error_code& ec) noexcept
                 return false;
             }
 
-            ::Sleep(100);
+            if (std::chrono::steady_clock::now() >= deadline) {
+                break;
+            }
+
+            ::Sleep(50);
         }
 
         lastError = (blockStartStopRequests_ ? ERROR_CANCELLED : ERROR_SERVICE_START_HANG);
@@ -467,20 +386,14 @@ bool ServiceControlManager::startService(std::error_code& ec) noexcept
     return false;
 }
 
-/******************************************************************************
-* METHOD:  stopService
-*
-* PURPOSE: Instructs the SCM to stop the service.  OpenService must be called
-*          before calling this method.
-*
-* INPUT:   None.
-*
-* THROWS:  A system_error object.
-*******************************************************************************/
-void ServiceControlManager::stopService()
+/*
+Instructs the SCM to stop the service and waits at most timeoutMs for the service to stop.
+openService must be called before calling this method.
+*/
+void ServiceControlManager::stopService(int timeoutMs)
 {
     std::error_code ec;
-    if (stopService(ec)) {
+    if (stopService(ec, timeoutMs)) {
         return;
     }
 
@@ -519,7 +432,7 @@ void ServiceControlManager::stopService()
     throw std::system_error(ec, wstring_to_string(errorMsg.str()));
 }
 
-bool ServiceControlManager::stopService(std::error_code& ec) noexcept
+bool ServiceControlManager::stopService(std::error_code& ec, int timeoutMs) noexcept
 {
     ec.clear();
 
@@ -534,12 +447,15 @@ bool ServiceControlManager::stopService(std::error_code& ec) noexcept
         // Wait for stop service command to complete.
         DWORD currentState = status.dwCurrentState;
 
-        // Wait at most 20 seconds for the service to stop.
-        for (int i = 0; (!blockStartStopRequests_ && (currentState != SERVICE_STOPPED) && (i < 200)); i++) {
-            ::Sleep(100);
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
+        while (!blockStartStopRequests_ && currentState != SERVICE_STOPPED) {
+            ::Sleep(50);
             currentState = queryServiceStatus(ec);
             if (ec) {
                 return false;
+            }
+            if (std::chrono::steady_clock::now() >= deadline) {
+                break;
             }
         }
 
@@ -561,52 +477,24 @@ bool ServiceControlManager::stopService(std::error_code& ec) noexcept
     return false;
 }
 
-/******************************************************************************
-* METHOD:  stopService
-*
-* PURPOSE: Opens the SCM and instructs it to stop the service if it is installed.
-*
-* INPUT:   serviceName: Points to a null-terminated string that names the
-*             service to open. The maximum string length is 256 characters. The
-*             SCM database preserves the case of the characters, but service
-*             name comparisons are always case insensitive. A slash (/),
-*             backslash (\), comma, and space are invalid service name
-*             characters.
-*
-* THROWS:  A system_error object.
-*******************************************************************************/
-void ServiceControlManager::stopService(LPCTSTR serviceName)
+/*
+Opens the SCM and instructs it to stop the service if it is installed.
+*/
+void ServiceControlManager::stopService(LPCTSTR serviceName, int timeoutMs)
 {
     openSCM(SC_MANAGER_CONNECT);
     if (isServiceInstalled(serviceName)) {
         openService(serviceName, SERVICE_QUERY_STATUS | SERVICE_STOP);
-        stopService();
+        stopService(timeoutMs);
     }
 }
 
-/******************************************************************************
-* METHOD:  deleteService
-*
-* PURPOSE: Initiates deletion of the service from the SCM database.
-*
-* NOTES:   - OpenSCM must be called before calling this method.
-*          - The service must exist.
-*          - This method does not wait for the service to be deleted.  If the
-*            system/SCM are busy, it may take some time for the service to be
-*            actually deleted from the SCM database.
-*
-* INPUT:   serviceName: Points to a null-terminated string that names the
-*             service to delete. The maximum string length is 256 characters.
-*             The SCM database preserves the character's case, but service
-*             name comparisons are always case insensitive. A slash (/),
-*             backslash (\), comma, and space are invalid service name
-*             characters.
-*
-*          stopRunningService: attempt to stop the service, if it's running,
-*             before asking the SCM to delete it.
-*
-* THROWS:  A system_error object.
-*******************************************************************************/
+/*
+Initiates deletion of the service from the SCM database. The specified service must exist and openSCM
+must be called before calling this method. This method does not wait for the service to be deleted.
+If the system/SCM are busy, it may take some time for the service to be actually deleted from the SCM
+database.
+*/
 void ServiceControlManager::deleteService(LPCTSTR serviceName, bool stopRunningService)
 {
     openService(serviceName);
@@ -652,25 +540,11 @@ void ServiceControlManager::deleteService(LPCTSTR serviceName, bool stopRunningS
     throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
 }
 
-/******************************************************************************
-* METHOD:  deleteService
-*
-* PURPOSE: Stops the service if it is running and initiates deletion of the
-*          service from the SCM database.  Waits at most 20s for the SCM to
-*          report the service as deleted.
-*
-* NOTES:   OpenSCM must be called before calling this method.
-*
-* INPUT:   serviceName: Points to a null-terminated string that names the
-*             service to delete. The maximum string length is 256 characters.
-*             The SCM database preserves the character's case, but service
-*             name comparisons are always case insensitive. A slash (/),
-*             backslash (\), comma, and space are invalid service name
-*             characters.
-*
-*          ec: contains the WIN32 error code if a failure occurs.
-*******************************************************************************/
-bool ServiceControlManager::deleteService(LPCTSTR serviceName, std::error_code& ec) noexcept
+/*
+Stops the service if it is running and initiates deletion of the service from the SCM database.  Waits at most
+timeoutMs for the SCM to report the service as deleted. openSCM must be called before calling this method.
+*/
+bool ServiceControlManager::deleteService(LPCTSTR serviceName, std::error_code& ec, int timeoutMs) noexcept
 {
     ec.clear();
 
@@ -716,8 +590,9 @@ bool ServiceControlManager::deleteService(LPCTSTR serviceName, std::error_code& 
         return false;
     }
 
-    // Wait at most 20 seconds for the service to be deleted.
-    for (int i = 0; i < 200; i++) {
+    // Wait for the service to be deleted.
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeoutMs);
+    do {
         result = openService(serviceName, SERVICE_QUERY_STATUS, ec);
         if (!result) {
             if (ec.value() == ERROR_SERVICE_DOES_NOT_EXIST) {
@@ -729,28 +604,12 @@ bool ServiceControlManager::deleteService(LPCTSTR serviceName, std::error_code& 
         }
 
         closeService();
-        ::Sleep(100);
-    }
+        ::Sleep(50);
+    } while (std::chrono::steady_clock::now() < deadline);
 
     return false;
 }
 
-
-/******************************************************************************
-* METHOD:  isServiceInstalled
-*
-* PURPOSE: Queries the SCM database to see if the service is installed.
-*          OpenSCM must be called before calling this method.
-*
-* INPUT:   serviceName: Points to a null-terminated string that names the
-*             service to query. The maximum string length is 256 characters.
-*             The SCM database preserves the character's case, but service
-*             name comparisons are always case insensitive. A slash (/),
-*             backslash (\), comma, and space are invalid service name
-*             characters.
-*
-* THROWS:  A system_error object.
-*******************************************************************************/
 bool ServiceControlManager::isServiceInstalled(LPCTSTR serviceName) const
 {
     if (serviceName == NULL) {
@@ -768,54 +627,31 @@ bool ServiceControlManager::isServiceInstalled(LPCTSTR serviceName) const
     return installed;
 }
 
-/******************************************************************************
-* METHOD:  installService
-*
-* PURPOSE: Installs a service.
-*          OpenSCM must be called before calling this method.
-*
-* INPUT:   serviceName: Points to a null-terminated string that names the
-*             service to install. The maximum string length is 256 characters.
-*             The SCM database preserves the character's case, but service
-*             name comparisons are always case insensitive. A slash (/),
-*             backslash (\), comma, and space are invalid service name
-*             characters.
-*
-*          binaryPathName: Points to a null-terminated string that contains
-*             the fully qualified path to the service binary file.
-*
-*          displayName: Points to a null-terminated string that is to be
-*             used by user interface programs to identify the service. This
-*             string has a maximum length of 256 characters. The name is
-*             case-preserved in the SCM. display name comparisons are always
-*             case-insensitive.
-*
-*          description: Points to a null-terminated string that specifies
-*             the description of the service.
-*
-*          serviceType: specify one of the following service types:
-*
-*             SERVICE_WIN32_OWN_PROCESS
-*             SERVICE_WIN32_SHARE_PROCESS
-*
-*          startType: specify one of the following start types:
-*
-*             SERVICE_AUTO_START   - started automatically by the SCM during
-*                                    system startup.
-*
-*             SERVICE_DEMAND_START - started by the SCM when a process calls
-*                                    the StartService function.
-*
-*          dependencies: Points to a double null-terminated array of
-*             null-separated names of services that the system must start
-*             before this service. Specify NULL or an empty string if the
-*             service has no dependencies.
-*
-*          allowInteractiveUserStartStop: if true logged in non-admin users can
-*             start and stop the service.
-*
-* THROWS:  A system_error object.
-*******************************************************************************/
+/*
+Installs a service. oOpenSCM must be called before calling this method.
+
+serviceName: points to a null-terminated string that names the service to install. The maximum string
+    length is 256 characters. The SCM database preserves the character's case, but service name comparisons
+    are always case insensitive. A slash (/), backslash (\), comma, and space are invalid service name
+    characters.
+
+binaryPathName: points to a null-terminated string that contains the fully qualified path to the service binary file.
+
+displayName: points to a null-terminated string that is to be  used by user interface programs to identify the
+    service. This string has a maximum length of 256 characters. The name is case-preserved in the SCM. Display
+    name comparisons are always case-insensitive.
+
+description: points to a null-terminated string that specifies the description of the service.
+
+serviceType: specify a service type of SERVICE_WIN32_OWN_PROCESS or SERVICE_WIN32_SHARE_PROCESS.
+
+startType: specify a start type of SERVICE_AUTO_START or SERVICE_DEMAND_START.
+
+dependencies: points to a double null-terminated array of null-separated names of services that the system must start
+    before this service. Specify NULL or an empty string if the service has no dependencies.
+
+allowInteractiveUserStartStop: if true, logged in non-admin users can start and stop the service.
+*/
 void ServiceControlManager::installService(LPCTSTR serviceName,  LPCTSTR binaryPathName,
                                            LPCTSTR displayName,  LPCTSTR description,
                                            DWORD   serviceType,  DWORD   startType,
@@ -881,17 +717,10 @@ void ServiceControlManager::installService(LPCTSTR serviceName,  LPCTSTR binaryP
     throw std::system_error(lastError, std::system_category(), wstring_to_string(errorMsg.str()));
 }
 
-/******************************************************************************
-* METHOD:  sendControlCode
-*
-* PURPOSE: Sends a control code to the service.  The service will ignore the
-*          code if it does not recognize it.
-*          OpenService must be called before calling this method.
-*
-* INPUT:   code: the control code to send.
-*
-* THROWS:  A system_error object.
-*******************************************************************************/
+/*
+Sends a control code to the service.  The service will ignore the code if it does not recognize it.
+openService must be called before calling this method.
+*/
 void ServiceControlManager::sendControlCode(DWORD code) const
 {
     DWORD lastError;
@@ -1020,13 +849,9 @@ void ServiceControlManager::grantUserStartStopPermission() const
     }
 }
 
-/******************************************************************************
-* METHOD:  exePath
-*
-* PURPOSE: Retrieves the full path to the service's executable.
-*
-* THROWS:  A system_error object.
-*******************************************************************************/
+/*
+Retrieves the full path to the service's executable.
+*/
 std::wstring ServiceControlManager::exePath() const
 {
     DWORD numBytesNeeded = 0;
@@ -1093,6 +918,39 @@ std::wstring ServiceControlManager::exePath() const
     ::LocalFree(argList);
 
     return exePath;
+}
+
+std::wstring ServiceControlManager::serviceStatusToString(DWORD status)
+{
+    std::wstring desc;
+    switch (status) {
+    case SERVICE_STOPPED:
+        desc = L"stopped";
+        break;
+    case SERVICE_START_PENDING:
+        desc = L"start pending";
+        break;
+    case SERVICE_STOP_PENDING:
+        desc = L"stop pending";
+        break;
+    case SERVICE_RUNNING:
+        desc = L"running";
+        break;
+    case SERVICE_CONTINUE_PENDING:
+        desc = L"continue pending";
+        break;
+    case SERVICE_PAUSE_PENDING:
+        desc = L"pause pending";
+        break;
+    case SERVICE_PAUSED:
+        desc = L"paused";
+        break;
+    default:
+        desc = L"unknown";
+        break;
+    }
+
+    return desc;
 }
 
 } // end namespace wsl

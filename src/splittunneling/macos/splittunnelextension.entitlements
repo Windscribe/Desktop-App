@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>com.apple.application-identifier</key>
-    <string>@DEVELOPMENT_TEAM@.com.windscribe.client.splittunnelextension</string>
+    <string>@DEVELOPMENT_TEAM@.@WS_MAC_SPLIT_TUNNEL_BUNDLE_ID@</string>
     <key>com.apple.developer.networking.networkextension</key>
     <array>
         <string>app-proxy-provider-systemextension</string>

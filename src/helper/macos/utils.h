@@ -23,8 +23,7 @@ namespace Utils
     // get list of openvpn exe names from package
     std::vector<std::string> getOpenVpnExeNames();
 
-    // create the system group and user 'windscribe'
-    void createWindscribeUserAndGroup();
+    void createAppUserAndGroup();
 
     // check if the app has been uninstalled
     bool isAppUninstalled();

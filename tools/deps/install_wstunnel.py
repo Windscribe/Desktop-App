@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe VPN Build System
-# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2026, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs Wstunnel executables.
 import os
@@ -25,33 +25,41 @@ import installutils as iutl
 DEP_TITLE = "wstunnel"
 DEP_URL = "https://github.com/Windscribe/wstunnel.git"
 DEP_OS_LIST = ["win32", "macos", "linux"]
-DEP_FILE_MASK = ["windscribewstunnel.exe", "windscribewstunnel"]
 
 
-def BuildDependencyMSVC(llvm_mingw_root):
+def BuildDependencyWindows(product_name):
     buildenv = os.environ.copy()
-    windres_app = os.path.join(llvm_mingw_root, "bin", "aarch64-w64-mingw32-windres.exe" if is_arm64_build else "x86_64-w64-mingw32-windres.exe")
-    iutl.RunCommand([windres_app, "-i", os.path.join(TOOLS_DIR, "deps", "custom_wstunnel", "wstunnel.rc"), "-O", "coff", "-o", "rsrc.syso"], env=buildenv)
-    buildenv.update({"GOARCH": "arm64" if is_arm64_build else "amd64", "GOOS": "windows"})
-    iutl.RunCommand(["go", "build", "-o", os.path.join("build", "windscribewstunnel.exe"), "-a", "-gcflags=all=-l -B", "-ldflags=-w -s"], env=buildenv)
+    outpath_amd64 = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), iutl.GetBuildLibsRoot(product_name), DEP_TITLE))
+    outpath_arm64 = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), iutl.GetBuildLibsRoot(product_name, is_arm64=True), DEP_TITLE))
+    iutl.RunCommand(["build.cmd"], env=buildenv, shell=True)
+    exe_name = "{}wstunnel.exe".format(product_name)
+    utl.CreateDirectory(outpath_amd64)
+    utl.CreateDirectory(outpath_arm64)
+    utl.CopyFile("{}/build/amd64/wstunnel.exe".format(os.getcwd()), "{}/{}".format(outpath_amd64, exe_name))
+    utl.CopyFile("{}/build/arm64/wstunnel.exe".format(os.getcwd()), "{}/{}".format(outpath_arm64, exe_name))
+    msg.Print("{} installed in {} and {}".format(DEP_TITLE, outpath_amd64, outpath_arm64))
 
 
-def BuildDependencyMacOS():
+def BuildDependencyMacOS(product_name):
+    exe_base = "{}wstunnel".format(product_name)
     buildenv = os.environ.copy()
     buildenv.update({"GOARCH": "arm64", "GOOS": "darwin"})
-    iutl.RunCommand(["go", "build", "-o", os.path.join("build", "windscribewstunnel-arm64"), "-a", "-gcflags=all=-l -B", "-ldflags=-w -s"], env=buildenv)
+    iutl.RunCommand(["go", "build", "-o", os.path.join("build", exe_base + "-arm64"), "-a", "-gcflags=all=-l -B", "-ldflags=-w -s"], env=buildenv)
     buildenv = os.environ.copy()
     buildenv.update({"GOARCH": "amd64", "GOOS": "darwin"})
-    iutl.RunCommand(["go", "build", "-o", os.path.join("build", "windscribewstunnel-amd64"), "-a", "-gcflags=all=-l -B", "-ldflags=-w -s"], env=buildenv)
+    iutl.RunCommand(["go", "build", "-o", os.path.join("build", exe_base + "-amd64"), "-a", "-gcflags=all=-l -B", "-ldflags=-w -s"], env=buildenv)
 
 
-def BuildDependencyLinux():
+def BuildDependencyLinux(product_name):
+    exe_name = "{}wstunnel".format(product_name)
     buildenv = os.environ.copy()
     buildenv.update({"GOARCH": "arm64" if platform.machine() in ("arm64", "aarch64") else "amd64", "GOOS": "linux"})
-    iutl.RunCommand(["go", "build", "-o", os.path.join("build", "windscribewstunnel"), "-a", "-gcflags=all=-l -B", "-ldflags=-w -s"], env=buildenv)
+    iutl.RunCommand(["go", "build", "-o", os.path.join("build", exe_name), "-a", "-gcflags=all=-l -B", "-ldflags=-w -s"], env=buildenv)
 
 
 def InstallDependency():
+    product_name = iutl.ParseProductArg()
+    dep_file_mask = ["{}wstunnel.exe".format(product_name), "{}wstunnel".format(product_name)]
     # Load environment.
     msg.HeadPrint("Loading: \"{}\"".format(CONFIG_NAME))
     configdata = utl.LoadConfig(os.path.join(TOOLS_DIR, CONFIG_NAME))
@@ -63,52 +71,47 @@ def InstallDependency():
     dep_version_str = os.environ.get(dep_version_var, None)
     if not dep_version_str:
         raise iutl.InstallError("{} not defined.".format(dep_version_var))
-    if utl.GetCurrentOS() == "win32":
-        llvm_mingw_root = os.environ.get("LLVM_MINGW_ROOT", None)
-        if not llvm_mingw_root:
-            raise iutl.InstallError("LLVM_MINGW_ROOT not defined.")
     # Prepare output.
     temp_dir = iutl.PrepareTempDirectory(dep_name)
-    with utl.PushDir(os.path.join(temp_dir)):
+    with utl.PushDir(temp_dir):
         iutl.RunCommand(["git", "clone", DEP_URL, "."])
         iutl.RunCommand(["git", "checkout", "tags/{}".format(dep_version_str)])
-    dep_buildroot_str = os.path.join("build-libs-arm64" if is_arm64_build else "build-libs", dep_name)
-    outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
-    # Clean the output folder to ensure no conflicts when we're updating to a newer stunnel version.
-    utl.RemoveDirectory(outpath)
     # Build the dependency.
     msg.Info("Building: {}".format(DEP_TITLE))
-    if utl.GetCurrentOS() == "macos":
-        with utl.PushDir(os.path.join(temp_dir)):
-            BuildDependencyMacOS()
+    exe_base = "{}wstunnel".format(product_name)
+    if utl.GetCurrentOS() == "win32":
+        iutl.CopyCustomFiles(dep_name, temp_dir)
+        template_in = os.path.join(TOOLS_DIR, "deps", "custom_wstunnel", "wstunnel.rc.in")
+        configured_rc = os.path.join(temp_dir, "wstunnel.rc")
+        iutl.ConfigureDependencyTemplate(product_name, template_in, configured_rc)
+        with utl.PushDir(temp_dir):
+            BuildDependencyWindows(product_name)
+    elif utl.GetCurrentOS() == "macos":
+        dep_buildroot_str = os.path.join(iutl.GetBuildLibsRoot(product_name), dep_name)
+        outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
+        utl.RemoveDirectory(outpath)
+        with utl.PushDir(temp_dir):
+            BuildDependencyMacOS(product_name)
         utl.CreateDirectory(outpath)
         with utl.PushDir(temp_dir):
             iutl.RunCommand([
                 "lipo",
                 "-create",
-                os.path.join("build", "windscribewstunnel-amd64"),
-                os.path.join("build", "windscribewstunnel-arm64"),
+                os.path.join("build", exe_base + "-amd64"),
+                os.path.join("build", exe_base + "-arm64"),
                 "-output",
-                os.path.join("build", "windscribewstunnel")])
-    elif utl.GetCurrentOS() == "win32":
-        with utl.PushDir(temp_dir):
-            BuildDependencyMSVC(llvm_mingw_root)
+                os.path.join("build", exe_base)])
+        iutl.InstallArtifacts(os.path.join(temp_dir, "build"), dep_file_mask, outpath, None)
     else:
+        dep_buildroot_str = os.path.join(iutl.GetBuildLibsRoot(product_name), dep_name)
+        outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
+        utl.RemoveDirectory(outpath)
         with utl.PushDir(temp_dir):
-            BuildDependencyLinux()
-
-    # Copy the dependency to output directory and to a zip file, if needed.
-    installzipname = None
-    if "-zip" in sys.argv:
-        dep_artifact_var = "ARTIFACT_" + DEP_TITLE.upper()
-        dep_artifact_str = os.environ.get(dep_artifact_var, "{}.zip".format(dep_name))
-        installzipname = os.path.join(os.path.dirname(outpath), dep_artifact_str)
-    msg.Print("Installing artifacts...")
-    iutl.InstallArtifacts(os.path.join(temp_dir, "build"), DEP_FILE_MASK, outpath, installzipname)
+            BuildDependencyLinux(product_name)
+        iutl.InstallArtifacts(os.path.join(temp_dir, "build"), dep_file_mask, outpath, None)
     # Cleanup.
     msg.Print("Cleaning temporary directory...")
     utl.RemoveDirectory(temp_dir)
-    msg.Print(f"{DEP_TITLE} v{dep_version_str} installed in {outpath}")
 
 
 if __name__ == "__main__":

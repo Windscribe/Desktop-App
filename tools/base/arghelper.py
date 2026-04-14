@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2026, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # purpose: to help with program arguments
+
+import os
+
+ROOT_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+
 
 class ArgHelper:
     # general
@@ -24,11 +29,14 @@ class ArgHelper:
     OPTION_CLEAN = "--clean"
     # CI-specific options
     OPTION_CI_MODE = "--ci-mode"
+    OPTION_BUILD_SYMBOLS = "--build-symbols"
+    OPTION_UPDATE_TRANSLATIONS = "--update-translations"
     # linux packaging
     OPTION_BUILD_RPM = "--build-rpm"
     OPTION_BUILD_RPM_OPENSUSE = "--build-rpm-opensuse"
     OPTION_BUILD_DEB = "--build-deb"
-    OPTION_BUILD_CLI_ONLY = "--build-cli-only"
+    # integration selection
+    OPTION_INTEGRATION = "--integration"
     # target architecture
     OPTION_TARGET_X86_64 = "--x86_64"  # this is the default
     OPTION_TARGET_ARM64 = "--arm64"
@@ -37,7 +45,7 @@ class ArgHelper:
     options.append(("\nGeneral", ""))
     options.append((OPTION_HELP, "Prints this help menu"))
     options.append((OPTION_CLEAN_ONLY, "Cleans the temporary files created during building"))
-    options.append((OPTION_DEBUG, "Build project as debug"))
+    options.append((OPTION_DEBUG, "Build project as debug (note: uses x64-windows-static vcpkg triplet on Windows to produce release and debug deps)"))
     options.append(("\nSigning", ""))
     options.append((OPTION_NOTARIZE, "Notarizes the app after building (Mac only, CI-only)"))
     options.append(("\nBuild specific components", ""))
@@ -52,11 +60,14 @@ class ArgHelper:
     options.append((OPTION_CLEAN, "Fully clean previous build files before building"))
     options.append(("\nCI-specific options", ""))
     options.append((OPTION_CI_MODE, "Used to indicate app is building on CI"))
+    options.append((OPTION_BUILD_SYMBOLS, "Collect PDB symbol files (Windows only)"))
+    options.append((OPTION_UPDATE_TRANSLATIONS, "Run lupdate to regenerate .ts translation files"))
     options.append(("\nLinux packaging", ""))
     options.append((OPTION_BUILD_RPM, "Build .rpm package for Red Hat and derivative distros"))
     options.append((OPTION_BUILD_RPM_OPENSUSE, "Build .rpm package for OpenSUSE and derivative distros"))
     options.append((OPTION_BUILD_DEB, "Build .deb package for Debian and derivative distros (default)"))
-    options.append((OPTION_BUILD_CLI_ONLY, "Build package without GUI (Linux only)"))
+    options.append(("\nIntegration selection", ""))
+    options.append(("--integration=<type>", "Integration to build (default: gui). Must match a file in cmake/integrations/"))
     options.append(("\nTarget Architecture", ""))
     options.append((OPTION_TARGET_X86_64, "Build for the Intel/AMD 64-bit x86 CPU architecture (default) (Windows only)"))
     options.append((OPTION_TARGET_ARM64, "Build for the ARM 64-bit CPU architecture (Windows only)"))
@@ -85,6 +96,8 @@ class ArgHelper:
 
         # CI related
         self.mode_ci = ArgHelper.OPTION_CI_MODE in program_arg_list
+        self.mode_build_symbols = ArgHelper.OPTION_BUILD_SYMBOLS in program_arg_list
+        self.mode_update_translations = ArgHelper.OPTION_UPDATE_TRANSLATIONS in program_arg_list
 
         # linux packaging
         no_packaging_selected = ArgHelper.OPTION_BUILD_RPM not in program_arg_list and \
@@ -94,7 +107,12 @@ class ArgHelper:
         self.mode_build_deb = no_packaging_selected or ArgHelper.OPTION_BUILD_DEB in program_arg_list
         self.mode_build_rpm = ArgHelper.OPTION_BUILD_RPM in program_arg_list
         self.mode_build_rpm_opensuse = ArgHelper.OPTION_BUILD_RPM_OPENSUSE in program_arg_list
-        self.mode_build_cli_only = ArgHelper.OPTION_BUILD_CLI_ONLY in program_arg_list
+
+        # integration type (--integration=gui|cli|...)
+        self.integration_value = "gui"
+        for arg in program_arg_list:
+            if arg.startswith("--integration="):
+                self.integration_value = arg.split("=", 1)[1]
 
         # target architecture
         no_arch_selected = ArgHelper.OPTION_TARGET_X86_64 not in program_arg_list and ArgHelper.OPTION_TARGET_ARM64 not in program_arg_list
@@ -103,6 +121,12 @@ class ArgHelper:
 
     def ci_mode(self):
         return self.mode_ci
+
+    def build_symbols(self):
+        return self.mode_build_symbols
+
+    def update_translations(self):
+        return self.mode_update_translations or self.mode_ci
 
     def clean_only(self):
         return self.mode_clean_only
@@ -151,8 +175,8 @@ class ArgHelper:
     def build_deb(self):
         return self.mode_build_deb
 
-    def build_cli_only(self):
-        return self.mode_build_cli_only
+    def integration(self):
+        return self.integration_value
 
     def build_debug(self):
         return self.mode_debug
@@ -175,4 +199,7 @@ class ArgHelper:
                 args.remove(ArgHelper.OPTION_CLEAN_ONLY)
             if len(args) > 0:
                 return "Cannot use clean-only with any other argument"
+        integration_file = os.path.join(ROOT_DIR, "cmake", "integrations", self.integration_value + ".cmake")
+        if not os.path.isfile(integration_file):
+            return f"Integration not found: {integration_file}"
         return ""

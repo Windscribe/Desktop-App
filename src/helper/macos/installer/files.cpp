@@ -24,7 +24,7 @@ int Files::executeStep()
     std::string installPath = converter.to_bytes(installPath_);
 #pragma clang diagnostic pop
 
-    // The installer should have removed any existing Windscribe app instance by this point,
+    // The installer should have removed any existing app instance by this point,
     // but we'll doublecheck just to be sure.
     std::error_code ec;
     if (std::filesystem::exists(installPath, ec)) {

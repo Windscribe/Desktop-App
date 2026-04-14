@@ -91,10 +91,11 @@ AmneziawgUnblockParams::AmneziawgUnblockParams(const std::string &json)
         QJsonObject obj = value.toObject();
 
         // Parse required fields
-        if (!obj.contains("title")) {
+        if (!obj.contains("id") || !obj.contains("title")) {
             continue;
         }
 
+        param.id = obj["id"].toString();
         param.title = obj["title"].toString();
 
         if (obj.contains("countries")) {
@@ -138,6 +139,19 @@ QStringList AmneziawgUnblockParams::presets() const
         presets.append(param.title);
     }
     return presets;
+}
+
+QString AmneziawgUnblockParams::getTitleById(const QString &id)
+{
+    if (id.isEmpty()) {
+        return QString();
+    }
+
+    for (const auto &param : std::as_const(params_)) {
+        if (param.id == id)
+            return param.title;
+    }
+    return QString();
 }
 
 AmneziawgUnblockParam AmneziawgUnblockParams::getUnblockParamForPreset(const QString &preset)

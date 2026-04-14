@@ -41,14 +41,14 @@ bool MultipleAccountDetection_posix::entryIsPresent(QString &username, QString &
 
 void MultipleAccountDetection_posix::removeEntry()
 {
-    QSettings settings("Windscribe", "location");
+    QSettings settings(WS_SETTINGS_ORG, "location");
     settings.remove(entryName_);
     qCInfo(LOG_BASIC) << "Abuse detection: Entry for abuse detection removed";
 }
 
 bool MultipleAccountDetection_posix::readEntry(MultipleAccountDetection_posix::TEntry &entry)
 {
-    QSettings settings("Windscribe", "location");
+    QSettings settings(WS_SETTINGS_ORG, "location");
     if (settings.contains(entryName_)) {
         QByteArray buf = crypt_.decryptToByteArray(settings.value(entryName_).toByteArray());
         if (buf.isEmpty()) {
@@ -80,6 +80,6 @@ void MultipleAccountDetection_posix::writeEntry(const MultipleAccountDetection_p
         stream << entry.userId_;
     }
 
-    QSettings settings("Windscribe", "location");
+    QSettings settings(WS_SETTINGS_ORG, "location");
     settings.setValue(entryName_, crypt_.encryptToByteArray(buf));
 }

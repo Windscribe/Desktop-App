@@ -1,3 +1,4 @@
+#include "ws_branding.h"
 #include <Windows.h>
 #include <Psapi.h>
 #include <tlhelp32.h>
@@ -58,7 +59,7 @@ int wmain(int argc, wchar_t *argv[])
         return 0;
     }
 
-    spdlog::info("Windscribe WireGuard service starting");
+    spdlog::info(WS_PRODUCT_NAME " WireGuard service starting");
 
     if (argc < 2 || argc > 3) {
         spdlog::error("Invalid command-line argument count: {}", argc);
@@ -111,7 +112,7 @@ int wmain(int argc, wchar_t *argv[])
         configStream.close();
 
         // Need to use the same adapter name as regular WireGuard as we look for this name in the client app.
-        startResult = tunnelProc(configContents.c_str(), L"WindscribeWireguard");
+        startResult = tunnelProc(configContents.c_str(), WS_APP_IDENTIFIER_W L"Wireguard");
     } else {
         WireGuardTunnelService* tunnelProc = (WireGuardTunnelService*)::GetProcAddress(hTunnelDLL, "WireGuardTunnelService");
         if (tunnelProc == NULL) {
@@ -128,7 +129,7 @@ int wmain(int argc, wchar_t *argv[])
         spdlog::info("{} tunnel started", useAmneziaWG ? "AmneziaWG" : "WireGuard");
     }
 
-    spdlog::info("Windscribe WireGuard service stopped");
+    spdlog::info(WS_PRODUCT_NAME " WireGuard service stopped");
 
     ::FreeLibrary(hTunnelDLL);
 

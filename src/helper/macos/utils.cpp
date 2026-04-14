@@ -99,7 +99,7 @@ std::string getFullCommand(const std::string &exePath, const std::string &execut
     }
 
 #if defined(USE_SIGNATURE_CHECK)
-    if (std::string(canonicalPath).rfind("/Applications/Windscribe.app", 0) != 0) {
+    if (std::string(canonicalPath).rfind(WS_MAC_APP_DIR, 0) != 0) {
         // Don't execute arbitrary commands, only executables that are in our application directory
         spdlog::warn("Executable not in correct path, ignoring.");
         free(canonicalPath);
@@ -132,7 +132,7 @@ std::vector<std::string> getOpenVpnExeNames()
     std::string item;
     int rc = 0;
 
-    rc = Utils::executeCommand("ls", {"/Applications/Windscribe.app/Contents/Helpers"}, &list);
+    rc = Utils::executeCommand("ls", {WS_MAC_APP_DIR "/Contents/Helpers"}, &list);
     if (rc != 0) {
         return ret;
     }
@@ -146,53 +146,53 @@ std::vector<std::string> getOpenVpnExeNames()
     return ret;
 }
 
-void createWindscribeUserAndGroup()
+void createAppUserAndGroup()
 {
     // Always attempt to recreate group/user, even if they exist.
 
     // Create group
-    Utils::executeCommand("dscl", {".", "-create", "/Groups/windscribe"});
+    Utils::executeCommand("dscl", {".", "-create", "/Groups/" WS_PRODUCT_NAME_LOWER});
     // Below attributes are required for group to be considered valid
-    Utils::executeCommand("dscl", {".", "-create", "/Groups/windscribe", "gid", "518"}); // Arbitrary number
-    Utils::executeCommand("dscl", {".", "-create", "/Groups/windscribe", "passwd", "*"});
-    Utils::executeCommand("dscl", {".", "-create", "/Groups/windscribe", "GroupMembership", "windscribe"});
-    Utils::executeCommand("dscl", {".", "-create", "/Groups/windscribe", "RealName", "Windscribe Apps Group"});
+    Utils::executeCommand("dscl", {".", "-create", "/Groups/" WS_PRODUCT_NAME_LOWER, "gid", WS_MAC_GID});
+    Utils::executeCommand("dscl", {".", "-create", "/Groups/" WS_PRODUCT_NAME_LOWER, "passwd", "*"});
+    Utils::executeCommand("dscl", {".", "-create", "/Groups/" WS_PRODUCT_NAME_LOWER, "GroupMembership", WS_PRODUCT_NAME_LOWER});
+    Utils::executeCommand("dscl", {".", "-create", "/Groups/" WS_PRODUCT_NAME_LOWER, "RealName", WS_PRODUCT_NAME " Apps Group"});
 
     // Create user
-    Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "IsHidden", "1"});
+    Utils::executeCommand("dscl", {".", "-create", "/Users/" WS_PRODUCT_NAME_LOWER, "IsHidden", "1"});
     // Below attributes are required for user to be considered valid
-    Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "gid", "518"}); // From above
+    Utils::executeCommand("dscl", {".", "-create", "/Users/" WS_PRODUCT_NAME_LOWER, "gid", WS_MAC_GID});
     // For some reason macOS may prompt on this if the user already exists with an uid, so only do this if the user's uid is not set
 
     std::string uidStr;
-    Utils::executeCommand("id", {"-u", "windscribe"}, &uidStr);
-    if (uidStr != "1639\n") {
-        spdlog::info("Creating windscribe user with uid 1639 (existing uid {})", uidStr);
-        Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "uid", "1639"}); // Arbitrary number
+    Utils::executeCommand("id", {"-u", WS_PRODUCT_NAME_LOWER}, &uidStr);
+    if (uidStr != WS_MAC_UID "\n") {
+        spdlog::info("Creating " WS_PRODUCT_NAME_LOWER " user with uid " WS_MAC_UID " (existing uid {})", uidStr);
+        Utils::executeCommand("dscl", {".", "-create", "/Users/" WS_PRODUCT_NAME_LOWER, "uid", WS_MAC_UID});
     }
-    Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "passwd", "*"});
-    Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "RealName", "Windscribe Apps User"});
-    Utils::executeCommand("dscl", {".", "-create", "/Users/windscribe", "UserShell", "/bin/false"});
+    Utils::executeCommand("dscl", {".", "-create", "/Users/" WS_PRODUCT_NAME_LOWER, "passwd", "*"});
+    Utils::executeCommand("dscl", {".", "-create", "/Users/" WS_PRODUCT_NAME_LOWER, "RealName", WS_PRODUCT_NAME " Apps User"});
+    Utils::executeCommand("dscl", {".", "-create", "/Users/" WS_PRODUCT_NAME_LOWER, "UserShell", "/bin/false"});
 }
 
 bool isAppUninstalled()
 {
     // App is uninstalled if the application path is no longer valid AND the installer app is not running
-    return Utils::executeCommand("ls", {"/Applications/Windscribe.app"}) && Utils::executeCommand("pgrep", {"-f", "WindscribeInstaller.app"});
+    return Utils::executeCommand("ls", {WS_MAC_APP_DIR}) && Utils::executeCommand("pgrep", {"-f", WS_MAC_INSTALLER_BUNDLE_NAME});
 }
 
 void deleteSelf()
 {
     FirewallOnBootManager::instance().setEnabled(false);
 
-    Utils::executeCommand("launchctl", {"remove", "/Library/LaunchDaemons/com.windscribe.helper.macos.plist"});
-    Utils::executeCommand("rm", {"/Library/LaunchDaemons/com.windscribe.helper.macos.plist"});
-    Utils::executeCommand("rm", {"/Library/PrivilegedHelperTools/com.windscribe.helper.macos"});
-    Utils::executeCommand("rm", {"/usr/local/bin/windscribe-cli"});
+    Utils::executeCommand("launchctl", {"remove", "/Library/LaunchDaemons/" WS_MAC_HELPER_BUNDLE_ID ".plist"});
+    Utils::executeCommand("rm", {"/Library/LaunchDaemons/" WS_MAC_HELPER_BUNDLE_ID ".plist"});
+    Utils::executeCommand("rm", {"/Library/PrivilegedHelperTools/" WS_MAC_HELPER_BUNDLE_ID});
+    Utils::executeCommand("rm", {"/usr/local/bin/" WS_CLI_EXECUTABLE_NAME});
     // Note that the following command generally fails with a permission error and does not actually remove the user.
     // It seems on MacOS you need a Secure Token account to delete a user, and even though the privileged helper is running as root, it doesn't have a Secure Token.
-    Utils::executeCommand("dscl", {".", "-delete", "/Users/windscribe"});
-    Utils::executeCommand("dscl", {".", "-delete", "/Groups/windscribe"});
+    Utils::executeCommand("dscl", {".", "-delete", "/Users/" WS_PRODUCT_NAME_LOWER});
+    Utils::executeCommand("dscl", {".", "-delete", "/Groups/" WS_PRODUCT_NAME_LOWER});
 }
 
 bool hasWhitespaceInString(const std::string &str)
@@ -202,7 +202,7 @@ bool hasWhitespaceInString(const std::string &str)
 
 std::string getExePath()
 {
-    return "/Applications/Windscribe.app/Contents/Helpers";
+    return WS_MAC_APP_DIR "/Contents/Helpers";
 }
 
 bool isValidIpAddress(const std::string &address)

@@ -31,10 +31,13 @@ REPO_URL_GNU = "https://github.com/amnezia-vpn/amneziawg-go.git"
 REPO_TAG_GNU = '0.2.16'
 
 
-def BuildDependencyWindows():
+def BuildDependencyWindows(product_name, configured_go):
     buildenv = os.environ.copy()
-    outpath_amd64 = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), "build-libs", "wireguard"))
-    outpath_arm64 = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), "build-libs-arm64", "wireguard"))
+    outpath_amd64 = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), iutl.GetBuildLibsRoot(product_name), "wireguard"))
+    outpath_arm64 = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), iutl.GetBuildLibsRoot(product_name, is_arm64=True), "wireguard"))
+    if configured_go:
+        dest_go = os.path.join(os.getcwd(), "conf", "path_windows.go")
+        utl.CopyFile(configured_go, dest_go)
     iutl.RunCommand(["build.cmd"], env=buildenv, shell=True)
     currend_wd = os.getcwd()
     utl.CopyFile(f"{currend_wd}/x64/tunnel.dll", f"{outpath_amd64}/amneziawgtunnel.dll")
@@ -42,10 +45,11 @@ def BuildDependencyWindows():
     msg.Print(f"{REPO_TITLE_WIN} v{REPO_TAG_WIN} installed in {outpath_amd64} and {outpath_arm64}")
 
 
-def BuildDependencyMacOS():
-    outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), "build-libs", "wireguard"))
-    arm64_target = "{}/windscribeamneziawg-arm64".format(outpath)
-    amd64_target = "{}/windscribeamneziawg-amd64".format(outpath)
+def BuildDependencyMacOS(product_name):
+    outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), iutl.GetBuildLibsRoot(product_name), "wireguard"))
+    exe_base = "{}amneziawg".format(product_name)
+    arm64_target = "{}/{}-arm64".format(outpath, exe_base)
+    amd64_target = "{}/{}-amd64".format(outpath, exe_base)
     buildenv = os.environ.copy()
     buildenv.update({"GOARCH": "arm64", "GOOS": "darwin"})
     iutl.RunCommand(["make"], env=buildenv)
@@ -61,35 +65,40 @@ def BuildDependencyMacOS():
         amd64_target,
         arm64_target,
         "-output",
-        "{}/windscribeamneziawg".format(outpath)])
+        "{}/{}".format(outpath, exe_base)])
     utl.RemoveFile(arm64_target)
     utl.RemoveFile(amd64_target)
 
 
-def BuildDependencyLinux():
-    outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), "build-libs", "wireguard"))
+def BuildDependencyLinux(product_name):
+    outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), iutl.GetBuildLibsRoot(product_name), "wireguard"))
+    exe_name = "{}amneziawg".format(product_name)
     buildenv = os.environ.copy()
     buildenv.update({"GOARCH": "arm64" if platform.machine() in ("arm64", "aarch64") else "amd64", "GOOS": "linux"})
     iutl.RunCommand(["make"], env=buildenv)
-    utl.CopyFile("{}/amneziawg-go".format(os.getcwd()), "{}/windscribeamneziawg".format(outpath))
-    iutl.RunCommand(["strip", "--strip-all", "{}/windscribeamneziawg".format(outpath)], env=buildenv)
+    utl.CopyFile("{}/amneziawg-go".format(os.getcwd()), "{}/{}".format(outpath, exe_name))
+    iutl.RunCommand(["strip", "--strip-all", "{}/{}".format(outpath, exe_name)], env=buildenv)
 
 
 def InstallDependency():
+    product_name = iutl.ParseProductArg()
     isWindowsBuild = current_os == "win32"
     dep_name = DEP_TITLE.lower()
     temp_dir = iutl.PrepareTempDirectory(dep_name)
+    configured_go = None
     with utl.PushDir(temp_dir):
         iutl.RunCommand(["git", "clone", (REPO_URL_WIN if isWindowsBuild else REPO_URL_GNU), "."])
         iutl.RunCommand(["git", "checkout", "tags/v{}".format(REPO_TAG_WIN if isWindowsBuild else REPO_TAG_GNU)])
         if isWindowsBuild:
-            # Overwrite repo with our implementation files.
+            template_in = os.path.join(TOOLS_DIR, "deps", "custom_amneziawg-windows", "conf", "path_windows.go.in")
+            configured_go = os.path.join(os.path.dirname(temp_dir), "path_windows.go")
+            iutl.ConfigureDependencyTemplate(product_name, template_in, configured_go)
             iutl.CopyCustomFiles(REPO_TITLE_WIN, temp_dir)
-            BuildDependencyWindows()
+            BuildDependencyWindows(product_name, configured_go)
         elif current_os == "macos":
-            BuildDependencyMacOS()
+            BuildDependencyMacOS(product_name)
         else:
-            BuildDependencyLinux()
+            BuildDependencyLinux(product_name)
     msg.Print("Cleaning temporary directory...")
     utl.RemoveDirectory(temp_dir)
 

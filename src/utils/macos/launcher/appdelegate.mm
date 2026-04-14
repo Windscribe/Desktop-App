@@ -1,5 +1,4 @@
 #import "appdelegate.h"
-#include "names.h"
 
 @interface AppDelegate ()
 
@@ -15,7 +14,7 @@
     // determine if already running
     bool isRunning = false;
     for (NSRunningApplication *a in apps) {
-        NSString *str = [NSString stringWithFormat:@"%s", GUI_BUNDLE_ID];
+        NSString *str = [NSString stringWithFormat:@"%s", WS_MAC_GUI_BUNDLE_ID];
         if ([a.bundleIdentifier isEqualToString:str]) {
             isRunning = true;
             break;

@@ -13,8 +13,8 @@ class AdaptersInfo
 public:
     AdaptersInfo();
 
-    bool isWindscribeAdapter(NET_IFINDEX index) const;
-    bool getWindscribeIkev2AdapterInfo(NET_IFINDEX &outIfIndex, std::wstring &outIp);
+    bool isAppVpnAdapter(NET_IFINDEX index) const;
+    bool getIkev2AdapterInfo(NET_IFINDEX &outIfIndex, std::wstring &outIp);
     std::vector<NET_IFINDEX> getTAPAdapters();
     std::vector<std::string> getAdapterAddresses(NET_IFINDEX idx);
 
@@ -23,5 +23,5 @@ private:
     PIP_ADAPTER_ADDRESSES pAdapterInfo_ = NULL;
 
 private:
-    bool isWindscribeAdapter(PIP_ADAPTER_ADDRESSES ai) const;
+    bool isAppVpnAdapter(PIP_ADAPTER_ADDRESSES ai) const;
 };

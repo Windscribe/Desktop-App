@@ -16,7 +16,7 @@ class FirewallController_mac : public FirewallController
 public:
     explicit FirewallController_mac(QObject *parent, Helper *helper);
 
-    void firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool isVpnConnected) override;
+    void firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, bool isVpnConnected) override;
     void firewallOff() override;
     bool firewallActualState() override;
 
@@ -33,8 +33,8 @@ private:
     struct FirewallState
     {
         bool isEnabled;
-        bool isBasicWindscribeRulesCorrect;
-        QSet<QString> windscribeIps;
+        bool isBasicAppRulesCorrect;
+        QSet<QString> allowedIps;
         QString interfaceToSkip;
         bool isAllowLanTraffic;
         bool isStaticIpPortsEmpty;
@@ -42,21 +42,22 @@ private:
 
     QStringList awdl_p2p_interfaces_;
 
-    bool isWindscribeFirewallEnabled_;
-    QSet<QString> windscribeIps_;
+    bool isAppFirewallEnabled_;
+    QSet<QString> allowedIps_;
     QString interfaceToSkip_;
     bool isAllowLanTraffic_;
+    bool isCustomConfig_;
     QString connectingIp_;
     api_responses::StaticIpPortsVector staticIpPorts_;
 
     QTemporaryFile tempFile_;
 
     void firewallOffImpl();
-    QStringList lanTrafficRules(bool bAllowLanTraffic) const;
-    QStringList vpnTrafficRules(const QString &connectingIp, const QString &interfaceToSkip) const;
+    QStringList lanTrafficRules(bool bAllowLanTraffic, bool bIsCustomConfig) const;
+    QStringList vpnTrafficRules(const QString &connectingIp, const QString &interfaceToSkip, bool bIsCustomConfig) const;
     void getFirewallStateFromPfctl(FirewallState &outState);
     bool checkInternalVsPfctlState(FirewallState *outFirewallState = nullptr);
-    QString generatePfConf(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, const QString &interfaceToSkip);
+    QString generatePfConf(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const QString &interfaceToSkip);
     QString generateTable(const QSet<QString> &ips);
     void updateVpnAnchor();
     QStringList getLocalAddresses(const QString iface) const;

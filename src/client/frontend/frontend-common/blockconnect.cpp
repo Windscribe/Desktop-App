@@ -19,13 +19,13 @@ bool BlockConnect::isBlockedExceedTraffic() const
 QString BlockConnect::message()
 {
     if (bNeedUpgrade_) {
-        return QObject::tr("Your application version is no longer supported. Please update to continue using Windscribe.");
+        return QObject::tr("Your application version is no longer supported. Please update to continue using %1.").arg(WS_PRODUCT_NAME);
     }
 
     if (blockConnect_ == CONNECT_NOT_BLOCKED) {
         return "";
     } else if (blockConnect_ == CONNECT_BLOCKED_EXCEED_TRAFFIC) {
-        return QObject::tr("Please upgrade to a Pro account to continue using Windscribe.");
+        return QObject::tr("Please upgrade to a Pro account to continue using %1.").arg(WS_PRODUCT_NAME);
     } else if (blockConnect_ == CONNECT_BLOCKED_MULTI_ACCOUNT) {
         return QObject::tr("Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.").arg(originalUsername_);
     } else if (blockConnect_ == CONNECT_BLOCKED_BANNED_USER) {

@@ -164,7 +164,7 @@ bool KernelModuleCommunicator::configure(const std::string &clientPrivateKey,
         memcpy(&new_peer.preshared_key, buf.c_str(), sizeof(wg_key));
     }
     new_peer.flags = (enum wg_peer_flags)(WGPEER_HAS_PERSISTENT_KEEPALIVE_INTERVAL | new_peer.flags); // NOLINT: ignore C-style flag casting
-    new_peer.persistent_keepalive_interval = 600;
+    new_peer.persistent_keepalive_interval = 25;
 
     if (!setPeerEndpoint(&new_peer, peerEndpoint))
         return false;

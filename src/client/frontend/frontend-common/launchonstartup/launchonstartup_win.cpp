@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <windows.h>
+#include "ws_branding.h"
 
 void LaunchOnStartup_win::setLaunchOnStartup(bool enable)
 {
@@ -11,20 +12,20 @@ void LaunchOnStartup_win::setLaunchOnStartup(bool enable)
         {
             QSettings settingsRun("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
             QString exePath = "\"" + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + "\" --autostart";
-            settingsRun.setValue("Windscribe", exePath);
+            settingsRun.setValue(WS_PRODUCT_NAME, exePath);
         }
         clearDisableAutoStartFlag();
     }
     else
     {
         QSettings settingsRun("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
-        settingsRun.remove("Windscribe");
+        settingsRun.remove(WS_PRODUCT_NAME);
     }
 }
 
 void LaunchOnStartup_win::clearDisableAutoStartFlag()
 {
-    const wchar_t wsGuiIcon[] = L"Windscribe";
+    const wchar_t wsGuiIcon[] = WS_APP_IDENTIFIER_W;
 
     HKEY hKey;
     LPCTSTR sk = TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run");

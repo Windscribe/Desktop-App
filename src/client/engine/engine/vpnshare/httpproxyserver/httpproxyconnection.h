@@ -41,7 +41,7 @@ private:
     qintptr socketDescriptor_;
     QString hostname_;
 
-    const char *reply_established_ = "HTTP/1.0 200 Connection established\r\nProxy-agent: Windscribe\r\n\r\n";
+    const char *reply_established_ = "HTTP/1.0 200 Connection established\r\nProxy-agent: " WS_PRODUCT_NAME "\r\n\r\n";
 
     enum { READ_CLIENT_REQUEST, CONNECTING_TO_EXTERNAL_SERVER, RELAY_BETWEEN_CLIENT_SERVER, READ_HEADERS_FROM_WEBSERVER, STATE_WRITE_HTTP_ERROR } state_;
     HttpProxyRequestParser requestParser_;

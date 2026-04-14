@@ -7,6 +7,9 @@
 #include <QScreen>
 #include <QSortFilterProxyModel>
 #include <QTimer>
+#ifdef Q_OS_WIN
+#include <qt_windows.h>
+#endif
 #include <QVBoxLayout>
 #include "commongraphics/commongraphics.h"
 #include "locations/locationsmodel_roles.h"
@@ -68,6 +71,18 @@ LocationsTrayMenuWidget::LocationsTrayMenuWidget(QWidget *parent, QAbstractItemM
         scale_ = 1.0;
     }
 
+    // Submenu hover delay — matches the native Windows cascading menu delay.
+    int submenuDelayMs = 400;
+#ifdef Q_OS_WIN
+    DWORD delay = 0;
+    if (SystemParametersInfo(SPI_GETMENUSHOWDELAY, 0, &delay, 0))
+        submenuDelayMs = static_cast<int>(delay);
+#endif
+    submenuTimer_ = new QTimer(this);
+    submenuTimer_->setSingleShot(true);
+    submenuTimer_->setInterval(submenuDelayMs);
+    connect(submenuTimer_, &QTimer::timeout,
+            this, &LocationsTrayMenuWidget::onSubmenuTimerTimeout);
 
     listView_ = new QListView();
     listView_->setMouseTracking(true);
@@ -133,7 +148,7 @@ bool LocationsTrayMenuWidget::eventFilter(QObject *watched, QEvent *event)
 void LocationsTrayMenuWidget::handleMouseMove()
 {
     updateTableViewSelection();
-    updateSubmenuForSelection();
+    submenuTimer_->start();
 }
 
 void LocationsTrayMenuWidget::handleMouseWheel()
@@ -142,6 +157,7 @@ void LocationsTrayMenuWidget::handleMouseWheel()
         currentSubmenu_->close();
         currentSubmenu_ = nullptr;
     }
+    submenuTimer_->stop();
     QTimer::singleShot(1, this, SLOT(updateTableViewSelection()));
     updateBackground_mac();
 }
@@ -172,6 +188,11 @@ void LocationsTrayMenuWidget::updateTableViewSelection()
     }
     updateButtonsState();
     updateBackground_mac();
+}
+
+void LocationsTrayMenuWidget::onSubmenuTimerTimeout()
+{
+    updateSubmenuForSelection();
 }
 
 void LocationsTrayMenuWidget::onScrollUpClick()
@@ -270,7 +291,22 @@ void LocationsTrayMenuWidget::updateSubmenuForSelection()
                 connect(submenu, &LocationsTrayMenuWidgetSubmenu::triggered,  this, &LocationsTrayMenuWidget::onSubmenuActionTriggered);
                 currentSubmenu_ = submenu;
                 const auto rc = listView_->visualRect(curIndex);
-                QPoint popupPosition = listView_->viewport()->mapToGlobal(rc.topRight());
+
+                // Check if submenu fits to the right; if not, place it to the left.
+                QPoint popupPosition;
+                const QPoint globalTopRight = listView_->viewport()->mapToGlobal(rc.topRight());
+                if (screen_) {
+                    const QRect screenGeo = screen_->availableGeometry();
+                    const int submenuWidth = submenu->sizeHint().width();
+                    if (globalTopRight.x() + submenuWidth > screenGeo.right()) {
+                        const QPoint globalTopLeft = listView_->viewport()->mapToGlobal(rc.topLeft());
+                        popupPosition = QPoint(globalTopLeft.x() - submenuWidth, globalTopRight.y());
+                    } else {
+                        popupPosition = globalTopRight;
+                    }
+                } else {
+                    popupPosition = globalTopRight;
+                }
                 currentSubmenu_->popup(popupPosition);
                 currentIndexForSubmenu_ = curIndex;
             }

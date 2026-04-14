@@ -1,3 +1,4 @@
+#include "ws_branding.h"
 #include <windows.h>
 #include <Fwpmu.h>
 
@@ -7,7 +8,7 @@
 #include "utils.h"
 #include "adapters_info.h"
 
-#define FIREWALL_SUBLAYER_IPV6_NAMEW L"WindscribeIPV6FirewallSublayer"
+#define FIREWALL_SUBLAYER_IPV6_NAMEW WS_APP_IDENTIFIER_W L"IPV6FirewallSublayer"
 #define UUID_LAYER_IPV6 L"8b03e426-56a7-4669-a985-706406675e68"
 
 Ipv6Firewall::Ipv6Firewall(FwpmWrapper &fwpmWrapper): fwpmWrapper_(fwpmWrapper)

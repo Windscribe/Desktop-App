@@ -33,9 +33,9 @@ void Connection::connect()
     QObject::connect(localSocket_, &QLocalSocket::readyRead, this, &Connection::onReadyRead);
     QObject::connect(localSocket_, &QLocalSocket::errorOccurred, this, &Connection::onSocketError);
 #if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
-    localSocket_->connectToServer("/var/run/windscribe/localipc.sock");
+    localSocket_->connectToServer(WS_POSIX_RUN_DIR "/localipc.sock");
 #else
-    localSocket_->connectToServer("Windscribe8rM7bza5OR");
+    localSocket_->connectToServer(WS_APP_IDENTIFIER "8rM7bza5OR");
 #endif
 }
 

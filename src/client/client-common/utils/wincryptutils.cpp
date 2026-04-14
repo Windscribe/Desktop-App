@@ -1,4 +1,5 @@
 #include "wincryptutils.h"
+#include "ws_branding.h"
 
 #include <windows.h>
 #include <dpapi.h>
@@ -26,7 +27,7 @@ string WinCryptUtils::encrypt(const wstring &str, EncodeMode mode)
     dataIn.cbData = str.size() * sizeof(str.at(0));
     dataIn.pbData = (BYTE*)str.c_str();
 
-    BOOL result = ::CryptProtectData(&dataIn, L"Windscribe Desktop Client", NULL,
+    BOOL result = ::CryptProtectData(&dataIn, WS_PRODUCT_NAME_W L" Desktop Client", NULL,
                                      NULL, NULL, 0, &dataOut);
     if (result == FALSE) {
         throw system_error(::GetLastError(), generic_category(), "WinCryptUtils::encrypt CryptProtectData failed");

@@ -71,6 +71,17 @@ void BackendCommander::onConnectionNewCommand(IPC::Command *command, IPC::Connec
         } else {
             emit finished(0, locationsString(cmd->locations_));
         }
+    } else if (command->getStringId() == IPC::CliCommands::PortsList::getCommandStringId()) {
+        IPC::CliCommands::PortsList *cmd = static_cast<IPC::CliCommands::PortsList *>(command);
+        if (cmd->ports_.isEmpty()) {
+            emit finished(1, tr("No ports available for the specified protocol."));
+        } else {
+            QStringList portStrings;
+            for (uint port : std::as_const(cmd->ports_)) {
+                portStrings << QString::number(port);
+            }
+            emit finished(0, portStrings.join(", "));
+        }
     } else if (command->getStringId() == IPC::CliCommands::AmneziawgPresetsList::getCommandStringId()) {
         IPC::CliCommands::AmneziawgPresetsList *cmd = static_cast<IPC::CliCommands::AmneziawgPresetsList *>(command);
         if (cmd->presets_.isEmpty()) {
@@ -196,6 +207,15 @@ void BackendCommander::sendCommand(IPC::CliCommands::State *state)
             cmd.locationType_ = IPC::CliCommands::LocationType::kFavourite;
         }
 
+        connection_->sendCommand(cmd);
+    }
+    else if (cliArgs_.cliCommand() == CLI_COMMAND_PORTS) {
+        if (state->loginState_ != LOGIN_STATE_LOGGED_IN) {
+            emit finished(1, QObject::tr("Not logged in"));
+            return;
+        }
+        IPC::CliCommands::ShowPorts cmd;
+        cmd.protocol_ = cliArgs_.protocol();
         connection_->sendCommand(cmd);
     }
     else if (cliArgs_.cliCommand() == CLI_COMMAND_AMNEZIAWG) {
@@ -408,7 +428,8 @@ void BackendCommander::onUpdateStateResponse(IPC::Command *command)
 void BackendCommander::onAcknowledge(IPC::CliCommands::Acknowledge *ackCmd)
 {
     //  This only occurs on CLI with GUI backend; it just changes the appropriate window/tab.  Do not wait for this operation.
-    if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_STATIC || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_FAV) {
+    if (cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_STATIC || cliArgs_.cliCommand() == CLI_COMMAND_LOCATIONS_FAV
+        || cliArgs_.cliCommand() == CLI_COMMAND_PORTS) {
         emit(finished(0, ""));
         return;
     }

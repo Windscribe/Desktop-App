@@ -24,6 +24,7 @@ std::string isIcsSupported(const std::string &pars);
 std::string startIcs(const std::string &pars);
 std::string changeIcs(const std::string &pars);
 std::string stopIcs(const std::string &pars);
+std::string queryBFEStatus(const std::string &pars);
 std::string enableBFE(const std::string &pars);
 std::string resetAndStartRAS(const std::string &pars);
 std::string setIPv6EnabledInFirewall(const std::string &pars);
@@ -43,7 +44,7 @@ std::string setMacAddressSpoof(const std::string &pars);
 std::string removeMacAddressSpoof(const std::string &pars);
 std::string resetNetworkAdapter(const std::string &pars);
 std::string addIKEv2DefaultRoute(const std::string &pars);
-std::string removeWindscribeNetworkProfiles(const std::string &pars);
+std::string removeAppNetworkProfiles(const std::string &pars);
 std::string setIKEv2IPSecParameters(const std::string &pars);
 std::string makeHostsFileWritable(const std::string &pars);
 std::string createOpenVpnAdapter(const std::string &pars);
@@ -72,6 +73,7 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::startIcs, startIcs },
     { HelperCommand::changeIcs, changeIcs },
     { HelperCommand::stopIcs, stopIcs },
+    { HelperCommand::queryBFEStatus, queryBFEStatus },
     { HelperCommand::enableBFE, enableBFE },
     { HelperCommand::resetAndStartRAS, resetAndStartRAS },
     { HelperCommand::setIPv6EnabledInFirewall, setIPv6EnabledInFirewall },
@@ -91,7 +93,7 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::removeMacAddressRegistryProperty, removeMacAddressSpoof },
     { HelperCommand::resetNetworkAdapter, resetNetworkAdapter },
     { HelperCommand::addIKEv2DefaultRoute, addIKEv2DefaultRoute },
-    { HelperCommand::removeWindscribeNetworkProfiles, removeWindscribeNetworkProfiles },
+    { HelperCommand::removeAppNetworkProfiles, removeAppNetworkProfiles },
     { HelperCommand::setIKEv2IPSecParameters, setIKEv2IPSecParameters },
     { HelperCommand::makeHostsFileWritable, makeHostsFileWritable },
     { HelperCommand::createOpenVpnAdapter, createOpenVpnAdapter },

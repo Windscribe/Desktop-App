@@ -19,7 +19,7 @@ public:
     void release();
 
     // if bInitCall = true, then clear previuos saved data
-    // else use previous saved PID data for optimize speed (reduce CPU usage by windscribe service)
+    // else use previous saved PID data for optimize speed (reduce CPU usage by the service)
     std::vector<std::wstring> getList();
 
 private:

@@ -1,8 +1,10 @@
+#include "ws_branding.h"
 #include "ikev2connection_win.h"
 #include "ikev2connection_win.h"
 
 #include <windns.h>
 #include <QCoreApplication>
+#include <QElapsedTimer>
 
 #include "adapterutils_win.h"
 #include "engine/taputils/checkadapterenable.h"
@@ -12,34 +14,30 @@
 #include "utils/ws_assert.h"
 
 
-#define IKEV2_CONNECTION_NAME  L"Windscribe IKEv2"
+#define IKEV2_CONNECTION_NAME WS_WIN_IKEV2_CONNECTION_NAME_W
 
-IKEv2Connection_win *IKEv2Connection_win::this_ = NULL;
 // static global variable, because we reinstall WAN only once during the lifetime of the process
 bool IKEv2Connection_win::wanReinstalled_ = false;
 
-
 IKEv2Connection_win::IKEv2Connection_win(QObject *parent, Helper *helper)
     : IConnection(parent),
-      state_(STATE_DISCONNECTED),
       helper_(helper),
-      initialEnableIkev2Compression_(false),
-      connHandle_(NULL),
-      disconnectLogic_(this),
-      cntFailedConnectionAttempts_(0)
+      disconnectLogic_(this)
 {
-    WS_ASSERT(this_ == NULL);
-    this_ = this;
     initMapConnStates();
     timerControlConnection_.setInterval(CONTROL_TIMER_PERIOD);
     connect(&timerControlConnection_, &QTimer::timeout, this, &IKEv2Connection_win::onTimerControlConnection);
     connect(&disconnectLogic_, &IKEv2ConnectionDisconnectLogic_win::disconnected, this, &IKEv2Connection_win::onHandleDisconnectLogic);
-    WS_ASSERT(state_ == STATE_DISCONNECTED);
 }
 
 IKEv2Connection_win::~IKEv2Connection_win()
 {
-    this_ = NULL;
+    // Ensure RAS is fully disconnected before destroying the class instance.  Otherwise it is possible for RasDial2CallbackFunc
+    // to be called after the class instance is destroyed and it will thus have an invalid class instance pointer.
+    if (!isDisconnected()) {
+        startDisconnect();
+        waitForDisconnect();
+    }
 }
 
 void IKEv2Connection_win::startConnect(const QString &configOrUrl, const QString &ip, const QString &dnsHostName, const QString &username,
@@ -105,7 +103,7 @@ void IKEv2Connection_win::removeIkev2ConnectionFromOS()
     }
 }
 
-QVector<HRASCONN> IKEv2Connection_win::getActiveWindscribeConnections()
+QVector<HRASCONN> IKEv2Connection_win::getActiveAppConnections()
 {
     QVector<HRASCONN> v;
 
@@ -284,6 +282,32 @@ void IKEv2Connection_win::waitForDisconnect()
 
 void IKEv2Connection_win::doConnect()
 {
+    // Clean up any stale connections left over from a previous crash or abnormal termination.
+    // If a stale "Windscribe IKEv2" RAS connection exists, RasSetEntryProperties can crash
+    // with an access violation inside the RAS API due to orphaned internal state.
+    QVector<HRASCONN> staleConns = getActiveAppConnections();
+    for (HRASCONN h : std::as_const(staleConns)) {
+        qCInfo(LOG_IKEV2) << "Hanging up stale IKEv2 connection";
+        DWORD dwRet = RasHangUp(h);
+        if (dwRet != ERROR_INVALID_HANDLE) {
+            QElapsedTimer timer;
+            timer.start();
+            while (timer.elapsed() < 3000) {
+                QThread::msleep(10);
+                RASCONNSTATUS status;
+                memset(&status, 0, sizeof(status));
+                status.dwSize = sizeof(status);
+                if (RasGetConnectStatus(h, &status) == ERROR_INVALID_HANDLE) {
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!staleConns.isEmpty()) {
+        removeIkev2ConnectionFromOS();
+    }
+
     bool ikev2DeviceInitialized = false;
     RASDEVINFO devInfo;
     if (!getIKEv2Device(&devInfo))
@@ -318,8 +342,7 @@ void IKEv2Connection_win::doConnect()
 
     RASENTRY rasEntry;
     memset(&rasEntry, 0, sizeof(rasEntry));
-    rasEntry.dwSize = offsetof(RASENTRY, ipv6addr);
-    //rasEntry.dwSize = sizeof(RASENTRY);
+    rasEntry.dwSize = sizeof(RASENTRY);
 
     wcscpy_s(rasEntry.szLocalPhoneNumber, initialUrl_.toStdWString().c_str());
     wcscpy_s(rasEntry.szDeviceName, devInfo.szDeviceName);
@@ -368,6 +391,7 @@ void IKEv2Connection_win::doConnect()
     RASDIALPARAMS dialparams;
     memset(&dialparams, 0, sizeof(dialparams));
     dialparams.dwSize = sizeof(dialparams);
+    dialparams.dwCallbackId = (ULONG_PTR)this;
 
     wcscpy_s(dialparams.szEntryName, IKEV2_CONNECTION_NAME);
     wcscpy_s(dialparams.szUserName, initialUsername_.toStdWString().c_str());
@@ -396,7 +420,7 @@ void IKEv2Connection_win::doConnect()
     // Connecting
     state_ = STATE_CONNECTING;
 
-    dwErr = RasDial(NULL, NULL, &dialparams, 1, (void *)staticRasDialFunc, &connHandle_);
+    dwErr = RasDial(NULL, NULL, &dialparams, 2, (LPVOID)RasDial2CallbackFunc, &connHandle_);
     if (dwErr != ERROR_SUCCESS)
     {
         qCCritical(LOG_IKEV2) << "RasDial failed with error:" << dwErr;
@@ -594,12 +618,14 @@ QString IKEv2Connection_win::rasConnStateToString(tagRASCONNSTATE state)
     }
 }
 
-void IKEv2Connection_win::staticRasDialFunc(HRASCONN hRasConn, UINT unMsg, RASCONNSTATE rascs, DWORD dwError, DWORD dwExtendedError)
+DWORD CALLBACK IKEv2Connection_win::RasDial2CallbackFunc(ULONG_PTR dwCallbackId, DWORD unused, HRASCONN hrasconn, UINT unMsg, RASCONNSTATE rascs, DWORD dwError, DWORD dwExtendedError)
 {
-    if (this_ == NULL) {
-        qCWarning(LOG_IKEV2) << "RasDialFunc callback called after connection object has been deleted";
-        return;
+    IKEv2Connection_win *pThis = (IKEv2Connection_win*)dwCallbackId;
+    if (pThis == NULL) {
+        qCWarning(LOG_IKEV2) << "Skipping RasDialFunc2 callback due to null instance pointer";
+        return FALSE;
     }
 
-    this_->rasDialFuncCallback(hRasConn, unMsg, rascs, dwError, dwExtendedError);
+    pThis->rasDialFuncCallback(hrasconn, unMsg, rascs, dwError, dwExtendedError);
+    return TRUE;
 }

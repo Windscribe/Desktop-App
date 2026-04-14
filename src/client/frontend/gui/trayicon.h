@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QElapsedTimer>
 #include <QGuiApplication>
 #include <QMap>
 #include <QMenu>

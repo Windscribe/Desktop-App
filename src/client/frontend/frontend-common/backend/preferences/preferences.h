@@ -99,6 +99,9 @@ public:
     bool isAntiCensorship() const;
     void setAntiCensorship(bool bEnabled);
 
+    SERVER_ROUTING_METHOD_TYPE serverRoutingMethod() const;
+    void setServerRoutingMethod(SERVER_ROUTING_METHOD_TYPE method);
+
     const types::ShareSecureHotspot &shareSecureHotspot() const;
     void setShareSecureHotspot(const types::ShareSecureHotspot &ss);
 
@@ -166,8 +169,10 @@ public:
     QJsonObject toJson() const;
     void updateFromJson(const QJsonObject& ob);
 
+#ifdef CLI_ONLY
     void loadIni();
     void saveIni() const;
+#endif
 
 signals:
     void isLaunchOnStartupChanged(bool b);
@@ -195,6 +200,7 @@ signals:
     void minimizeAndCloseToTrayChanged(bool b);
     void isTerminateSocketsChanged(bool b);
     void isAntiCensorshipChanged(bool b);
+    void serverRoutingMethodChanged(SERVER_ROUTING_METHOD_TYPE method);
     void hideFromDockChanged(bool b);
     void shareSecureHotspotChanged(const types::ShareSecureHotspot &ss);
     void shareProxyGatewayChanged(const types::ShareProxyGateway &sp);

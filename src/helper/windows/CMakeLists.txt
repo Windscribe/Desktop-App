@@ -1,9 +1,3 @@
-if(VCPKG_TARGET_TRIPLET MATCHES "arm64")
-    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../build-libs-arm64)
-else()
-    set(WINDSCRIBE_BUILD_LIBS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../../build-libs)
-endif()
-
 # build_all.py sets this option when invoked with the '--sign' flag. Disabled by default
 option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to project" OFF)
 if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
@@ -34,6 +28,7 @@ set(SOURCES
     firewallfilter.cpp
     firewallonboot.cpp
     fwpm_wrapper.cpp
+    helper.cpp
     hostsedit.cpp
     ikev2ipsec.cpp
     ikev2route.cpp
@@ -47,7 +42,7 @@ set(SOURCES
     pipe_for_process.cpp
     process_command.cpp
     reinstall_wan_ikev2.cpp
-    remove_windscribe_network_profiles.cpp
+    remove_app_network_profiles.cpp
     simple_xor_crypt.cpp
     split_tunneling/callout_filter.cpp
     split_tunneling/hostnames_manager/dns_resolver.cpp
@@ -61,10 +56,9 @@ set(SOURCES
     split_tunneling/split_tunnel_service_manager.cpp
     utils.cpp
     win32service.cpp
-    windscribehelper.cpp
     wireguard/wireguardcontroller.cpp
     wmi_utils.cpp
-    version.rc
+    ${CMAKE_CURRENT_BINARY_DIR}/version.rc
     ../../client/client-common/utils/crashdump.cpp
     ../../client/client-common/utils/crashhandler.cpp
     ../../client/client-common/utils/executable_signature/executable_signature.cpp
@@ -77,10 +71,12 @@ if(CI_MODE)
     add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>" "$<$<CONFIG:Release>:/OPT:ICF>")
 endif()
 
-add_executable(WindscribeService ${SOURCES})
-set_property(TARGET WindscribeService PROPERTY COMPILE_WARNING_AS_ERROR ON)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc @ONLY)
 
-target_link_libraries(WindscribeService
+add_executable(${WS_APP_IDENTIFIER}Service ${SOURCES})
+set_property(TARGET ${WS_APP_IDENTIFIER}Service PROPERTY COMPILE_WARNING_AS_ERROR ON)
+
+target_link_libraries(${WS_APP_IDENTIFIER}Service
                       PRIVATE
                       Iphlpapi
                       rpcrt4
@@ -98,12 +94,12 @@ target_link_libraries(WindscribeService
                       spdlog::spdlog
 )
 
-target_include_directories(WindscribeService PRIVATE
+target_include_directories(${WS_APP_IDENTIFIER}Service PRIVATE
                            ${WINDSCRIBE_BUILD_LIBS_PATH}/wintun/include
                            ../../client/client-common
                            ${WINREG_INCLUDE_DIRS}
 )
 
-install(TARGETS WindscribeService
+install(TARGETS ${WS_APP_IDENTIFIER}Service
     RUNTIME DESTINATION .
 )

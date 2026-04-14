@@ -1,3 +1,4 @@
+#include "ws_branding.h"
 #include "split_tunneling.h"
 
 #include <spdlog/spdlog.h>
@@ -10,12 +11,12 @@ SplitTunneling::SplitTunneling(FwpmWrapper& fwpmWrapper)
     : calloutFilter_(fwpmWrapper), hostnamesManager_()
 {
     connectStatus_.isConnected = false;
-    detectWindscribeExecutables();
+    detectVpnExecutables();
 
     AppsIds appsIds;
-    appsIds.addFrom(windscribeMainExecutableId_);
-    appsIds.addFrom(windscribeOtherExecutablesId_);
-    FirewallFilter::instance().setWindscribeAppsIds(appsIds);
+    appsIds.addFrom(vpnMainExecutableId_);
+    appsIds.addFrom(vpnOtherExecutablesId_);
+    FirewallFilter::instance().setVpnAppsIds(appsIds);
 }
 
 void SplitTunneling::release()
@@ -56,7 +57,7 @@ void SplitTunneling::removeAllFilters(FwpmWrapper& fwpmWrapper)
     CalloutFilter::removeAllFilters(fwpmWrapper);
 }
 
-void SplitTunneling::detectWindscribeExecutables()
+void SplitTunneling::detectVpnExecutables()
 {
     std::wstring exePath = Utils::getExePath();
     std::wstring fileFilter = exePath + L"\\*.exe";
@@ -68,28 +69,28 @@ void SplitTunneling::detectWindscribeExecutables()
         return;
     }
 
-    std::vector<std::wstring> windscribeMainExecutable;
-    std::vector<std::wstring> windscribeOtherExecutables;
+    std::vector<std::wstring> vpnMainExecutable;
+    std::vector<std::wstring> vpnOtherExecutables;
     std::vector<std::wstring> ctrldExecutable;
     do {
         if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
             std::wstring fileName = ffd.cFileName;
             std::wstring fullPath = exePath + L"\\" + ffd.cFileName;
 
-            if (fileName == L"Windscribe.exe") {
-                windscribeMainExecutable.push_back(fullPath);
-            } else if (fileName == L"windscribectrld.exe") {
+            if (fileName == WS_PRODUCT_NAME_W L".exe") {
+                vpnMainExecutable.push_back(fullPath);
+            } else if (fileName == WS_PRODUCT_NAME_LOWER_W L"ctrld.exe") {
                 ctrldExecutable.push_back(fullPath);
-            } else if (fileName != L"WindscribeService.exe") {     // skip WindscribeService.exe
-                windscribeOtherExecutables.push_back(fullPath);
+            } else if (fileName != WS_APP_IDENTIFIER_W L"Service.exe") {     // skip the service executable
+                vpnOtherExecutables.push_back(fullPath);
             }
         }
     } while (FindNextFile(hFind, &ffd) != 0);
 
     FindClose(hFind);
 
-    windscribeMainExecutableId_.setFromList(windscribeMainExecutable);
-    windscribeOtherExecutablesId_.setFromList(windscribeOtherExecutables);
+    vpnMainExecutableId_.setFromList(vpnMainExecutable);
+    vpnOtherExecutablesId_.setFromList(vpnOtherExecutables);
     ctrldExecutableId_.setFromList(ctrldExecutable);
 }
 
@@ -127,17 +128,17 @@ bool SplitTunneling::updateState()
         if (isExclude_) {
             hostnamesManager_.enable(connectStatus_.defaultAdapter.gatewayIp, connectStatus_.defaultAdapter.ifIndex);
         } else {
-            appsIds.addFrom(windscribeOtherExecutablesId_);
+            appsIds.addFrom(vpnOtherExecutablesId_);
             hostnamesManager_.enable(connectStatus_.vpnAdapter.gatewayIp, connectStatus_.vpnAdapter.ifIndex);
         }
 
-        // For ctrld utility and Windscribe.exe we need special rules for inclusive mode
-        AppsIds windscribeExecutablesForInclusive;
+        // For ctrld utility and the main app executable we need special rules for inclusive mode
+        AppsIds vpnExecutablesForInclusive;
         if (!isExclude_) {
-            windscribeExecutablesForInclusive.addFrom(windscribeMainExecutableId_);
-            windscribeExecutablesForInclusive.addFrom(ctrldExecutableId_);
+            vpnExecutablesForInclusive.addFrom(vpnMainExecutableId_);
+            vpnExecutablesForInclusive.addFrom(ctrldExecutableId_);
         }
-        calloutFilter_.enable(localIp, vpnIp, appsIds, windscribeExecutablesForInclusive, isExclude_, isAllowLanTraffic_);
+        calloutFilter_.enable(localIp, vpnIp, appsIds, vpnExecutablesForInclusive, isExclude_, isAllowLanTraffic_);
 
     } else {
         calloutFilter_.disable();

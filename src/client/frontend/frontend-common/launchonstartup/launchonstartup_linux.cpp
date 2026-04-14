@@ -7,25 +7,26 @@
 void LaunchOnStartup_linux::setLaunchOnStartup(bool enable)
 {
 #ifdef CLI_ONLY
-    int err = system("systemctl --user enable windscribe");
+    int err = system("systemctl --user enable " WS_PRODUCT_NAME_LOWER);
     if (err != 0) {
         qCWarning(LOG_BASIC) << "Could not enable user service for launch on startup";
     }
 #else
     if (enable) {
-        if (QFile::exists("/etc/windscribe/autostart/windscribe.desktop"))
+        QString desktopFile = QString(WS_POSIX_CONFIG_DIR "/autostart/" WS_PRODUCT_NAME_LOWER ".desktop");
+        if (QFile::exists(desktopFile))
         {
             QString destDir = QDir::homePath() + "/.config/autostart";
             QDir dir(destDir);
             dir.mkpath(destDir);
-            QString destFile = destDir + "/windscribe.desktop";
+            QString destFile = destDir + "/" WS_PRODUCT_NAME_LOWER ".desktop";
             QFile::remove(destFile);
-            QFile::link("/etc/windscribe/autostart/windscribe.desktop", destFile);
+            QFile::link(desktopFile, destFile);
         } else {
-            qCWarning(LOG_BASIC) << "LaunchOnStartup_linux: File /etc/windscribe/autostart/windscribe.desktop doesn't exist";
+            qCWarning(LOG_BASIC) << "LaunchOnStartup_linux: File" << desktopFile << "doesn't exist";
         }
     } else {
-        QString destFile = QDir::homePath() + "/.config/autostart/windscribe.desktop";
+        QString destFile = QDir::homePath() + "/.config/autostart/" WS_PRODUCT_NAME_LOWER ".desktop";
         QFile::remove(destFile);
     }
 #endif

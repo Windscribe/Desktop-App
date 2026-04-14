@@ -1,9 +1,8 @@
 #include <windows.h>
-#include "../../client/client-common/version/windscribe_version.h"
 
 VS_VERSION_INFO VERSIONINFO
-    FILEVERSION WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION, WINDSCRIBE_BUILD_VERSION, 0
-    PRODUCTVERSION WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION, WINDSCRIBE_BUILD_VERSION, 0
+    FILEVERSION WS_VERSION_MAJOR, WS_VERSION_MINOR, WS_VERSION_BUILD, 0
+    PRODUCTVERSION WS_VERSION_MAJOR, WS_VERSION_MINOR, WS_VERSION_BUILD, 0
     FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
     FILEFLAGS VS_FF_DEBUG
@@ -20,11 +19,11 @@ VS_VERSION_INFO VERSIONINFO
             BEGIN
                 VALUE "CompanyName", "Windscribe Limited\0"
                 VALUE "FileDescription", "Windscribe CLI\0"
-                VALUE "FileVersion", WINDSCRIBE_VERSION_STR
-                VALUE "LegalCopyright", WINDSCRIBE_COPYRIGHT_STR
+                VALUE "FileVersion", WS_VERSION
+                VALUE "LegalCopyright", WS_COPYRIGHT
                 VALUE "OriginalFilename", "windscribe-cli.exe\0"
                 VALUE "ProductName", "Windscribe\0"
-                VALUE "ProductVersion", WINDSCRIBE_VERSION_STR
+                VALUE "ProductVersion", WS_VERSION
             END
         END
         BLOCK "VarFileInfo"

@@ -16,6 +16,10 @@
         <translation>Konum yok.</translation>
     </message>
     <message>
+        <source>No ports available for the specified protocol.</source>
+        <translation>Belirtilen protokol için port bulunmamaktadır.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>IP döndürülemedi.  Lütfen Windscribe Pro&apos;ya sahip olup olmadığınızı veya planınızda bu konumun olup olmadığını kontrol edin veya daha sonra tekrar deneyin.</translation>
     </message>

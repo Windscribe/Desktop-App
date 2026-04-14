@@ -1,3 +1,4 @@
+#include "ws_branding.h"
 #include "macaddressspoof.h"
 
 #include <spdlog/spdlog.h>
@@ -66,9 +67,9 @@ void set(const std::wstring &interfaceName, const std::wstring &value)
         spdlog::debug(L"MacAddressSpoof::set 'NetworkAddress' to {} for key {}", value, subKey);
     }
 
-    result = registry.TrySetDwordValue(L"WindscribeMACSpoofed", 1);
+    result = registry.TrySetDwordValue(WS_APP_IDENTIFIER_W L"MACSpoofed", 1);
     if (!result) {
-        spdlog::error(L"MacAddressSpoof::set failed writing 'WindscribeMACSpoofed' to key {}: error {}", subKey, result.Code());
+        spdlog::error(L"MacAddressSpoof::set failed writing '" WS_APP_IDENTIFIER_W L"MACSpoofed' to key {}: error {}", subKey, result.Code());
     }
 }
 
@@ -97,10 +98,10 @@ void remove(const std::wstring &interfaceName)
         spdlog::debug(L"MacAddressSpoof::remove 'NetworkAddress' from key {}", subKey);
     }
 
-    result = registry.TryDeleteValue(L"WindscribeMACSpoofed");
+    result = registry.TryDeleteValue(WS_APP_IDENTIFIER_W L"MACSpoofed");
     if (!result) {
         if (result.Code() != ERROR_FILE_NOT_FOUND) {
-            spdlog::error(L"MacAddressSpoof::remove failed deleting 'WindscribeMACSpoofed' from key {}: error {}", subKey, result.Code());
+            spdlog::error(L"MacAddressSpoof::remove failed deleting '" WS_APP_IDENTIFIER_W L"MACSpoofed' from key {}: error {}", subKey, result.Code());
         }
     }
 }

@@ -23,15 +23,6 @@ class ExecutableSignaturePrivate;
       and is named 'code_signing.pfx'.  Also ensure the WINDOWS_CERT_SUBJECT_NAME
       in executable_signature_defs.h matches this certificate.
 
-  - Linux:
-    - You can use tools/create_new_linux_keypair.sh to create a key pair used to sign
-      the binaries and verify their signature.  The key pair will be created in the
-      common/keys/linux folder.
-    - The signature file used to validate an executable should be installed in a
-      'signatures' subfolder relative to the executable.
-      For example: to validate /opt/windscribe/windscribeapp, the signature file
-      must be in /opt/windscribe/signatures/windscribeapp.sig
-
 - ExecutableSignaturePrivate implemented for each platform in:
   - ExecutableSignature_win
   - ExecutableSignature_mac

@@ -16,6 +16,10 @@
         <translation>Không có địa điểm.</translation>
     </message>
     <message>
+        <source>No ports available for the specified protocol.</source>
+        <translation>Không có cổng nào có sẵn cho giao thức được chỉ định.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>Không thể xoay IP.  Vui lòng kiểm tra xem bạn có Windscribe Pro hoặc có vị trí này trong gói của bạn hay không, hoặc thử lại sau.</translation>
     </message>

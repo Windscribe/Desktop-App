@@ -14,12 +14,12 @@
 #include "proxygatewaygroup.h"
 #include "securehotspotgroup.h"
 #include "decoytrafficgroup.h"
-#include "anticensorshipgroup.h"
 #include "utils/network_utils/dnschecker.h"
 
 enum CONNECTION_SCREEN_TYPE { CONNECTION_SCREEN_HOME,
                               CONNECTION_SCREEN_NETWORK_OPTIONS,
                               CONNECTION_SCREEN_SPLIT_TUNNELING,
+                              CONNECTION_SCREEN_ANTI_CENSORSHIP,
                               CONNECTION_SCREEN_PROXY_SETTINGS,
                               CONNECTION_SCREEN_DNS_DOMAINS };
 
@@ -40,11 +40,11 @@ public:
     void setPacketSizeDetectionState(bool on);
     void showPacketSizeDetectionError(const QString &title, const QString &message);
     void setClearWifiHistoryResult(bool success);
-    void setAmneziawgUnblockParams(const QString &activePreset, QStringList presets);
 
 signals:
     void networkOptionsPageClick();
     void splitTunnelingPageClick();
+    void antiCensorshipPageClick();
     void proxySettingsPageClick();
     void cycleMacAddressClick();
     void detectPacketSize();
@@ -74,9 +74,7 @@ private slots:
     void onPreferencesHelperCurrentProtocolChanged(const types::Protocol &protocol);
     void onIsExternalConfigModeChanged(bool bIsExternalConfigMode);
     void onTerminateSocketsPreferencesChanged(bool b);
-    void onAntiCensorshipPreferencesChanged(bool b);
     void onIsAutoConnectPreferencesChanged(bool b);
-    void onAmneziawgPresetChanged(const QString &preset);
 
     // slots for changes made by user
     void onFirewallPreferencesChangedByUser(const types::FirewallSettings &fm);
@@ -89,9 +87,7 @@ private slots:
     void onSecureHotspotPreferencesChangedByUser(const types::ShareSecureHotspot &ss);
     void onProxyGatewayPreferencesChangedByUser(const types::ShareProxyGateway &sp);
     void onTerminateSocketsPreferencesChangedByUser(bool isChecked);
-    void onAntiCensorshipPreferencesChangedByUser(bool isChecked);
     void onIsAutoConnectPreferencesChangedByUser(bool b);
-    void onAmneziawgPresetChangedByUser(QString preset);
 
     void onUpdateIsSecureHotspotSupported();
     void onClearWifiHistoryClick();
@@ -106,6 +102,7 @@ private:
     NetworkUtils::DnsChecker dnsChecker_;
     PreferenceGroup *subpagesGroup_;
     LinkItem *networkOptionsItem_;
+    LinkItem *antiCensorshipItem_;
     LinkItem *splitTunnelingItem_;
     LinkItem *proxySettingsItem_;
     FirewallGroup *firewallGroup_;
@@ -119,7 +116,6 @@ private:
     ConnectedDnsGroup *connectedDnsGroup_;
     PreferenceGroup *terminateSocketsGroup_;
     ToggleItem *terminateSocketsItem_;
-    AntiCensorshipGroup *antiCensorshipGroup_;
     SecureHotspotGroup *secureHotspotGroup_;
     ProxyGatewayGroup *proxyGatewayGroup_;
     DecoyTrafficGroup *decoyTrafficGroup_;

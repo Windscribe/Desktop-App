@@ -16,6 +16,10 @@
         <translation>لا توجد مواقع.</translation>
     </message>
     <message>
+        <source>No ports available for the specified protocol.</source>
+        <translation>لا توجد منافذ متاحة للبروتوكول المحدد.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>تعذر تدوير IP.  يرجى التحقق من أن لديك Windscribe Pro أو أن لديك هذا الموقع في خطتك ، أو حاول مرة أخرى لاحقا.</translation>
     </message>

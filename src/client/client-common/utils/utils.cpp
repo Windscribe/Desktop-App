@@ -278,7 +278,7 @@ QString Utils::getPlatformNameSafe()
 {
     QString platform = getPlatformName();
 #ifdef Q_OS_LINUX
-    // Default to debian so most of our API calls don't fail if we cannot find the /etc/windscribe/platform
+    // Default to debian so most of our API calls don't fail if we cannot find the platform file
     // file (someone would have to manually delete)
     if (platform.isEmpty())
 #ifdef __aarch64__
@@ -338,9 +338,13 @@ QString Utils::fromBase64(const QString& str)
 
 bool Utils::isCLIRunning(int minCount)
 {
+    if (strlen(WS_CLI_EXECUTABLE_NAME) == 0) {
+        return false;
+    }
+
 #ifdef Q_OS_WIN
-    return WinUtils::enumerateProcesses("windscribe-cli.exe").size() > minCount;
+    return WinUtils::enumerateProcesses(WS_CLI_EXECUTABLE_NAME ".exe").size() > minCount;
 #else
-    return Utils::execCmd("ps axco command | grep windscribe-cli | grep -v grep | wc -l").trimmed().toInt() > minCount;
+    return Utils::execCmd("ps axco command | grep " WS_CLI_EXECUTABLE_NAME " | grep -v grep | wc -l").trimmed().toInt() > minCount;
 #endif
 }

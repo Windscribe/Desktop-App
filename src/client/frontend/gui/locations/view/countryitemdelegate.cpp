@@ -115,25 +115,10 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
     if (lid.isBestLocation()) {
         if (index.data(kIs10Gbps).toBool()) {
             painter->setOpacity(textOpacity);
-            int p2pOffset = 0;
-            if (index.data(kIsShowP2P).toBool()) {
-                p2pOffset = -48*G_SCALE;
-            }
             QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/10_GBPS_ICON_BEST_LOCATION");
-            QRect tenGbpsRect = QRect(xOffset - 32*G_SCALE + p2pOffset - p->width(), (option.rect.height() - p->height()) / 2, p->width(), p->height());
+            QRect tenGbpsRect = QRect(xOffset - 32*G_SCALE - p->width(), (option.rect.height() - p->height()) / 2, p->width(), p->height());
             p->draw(left_offs + tenGbpsRect.x(), top_offs + tenGbpsRect.y(), painter);
         }
-    }
-
-    // p2p icon
-    if (index.data(kIsShowP2P).toBool()) {
-        painter->setOpacity(OPACITY_FULL);
-        QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
-        QRect p2pr = QRect(xOffset - 32*G_SCALE - p->width(),
-                           (option.rect.height() - p->height()) / 2,
-                           p->width(),
-                           p->height());
-        p->draw(left_offs + p2pr.x(), top_offs + p2pr.y(), painter);
     }
 
     if (lid.isBestLocation()) {
@@ -162,11 +147,7 @@ void CountryItemDelegate::paint(QPainter *painter, const ItemStyleOption &option
 IItemCacheData *CountryItemDelegate::createCacheData(const QModelIndex &index) const
 {
     CountryItemDelegateCache *cache = new CountryItemDelegateCache();
-    bool isShowP2P = index.data(kIsShowP2P).toBool();
     int maxWidth = kCountryItemMaxWidth*G_SCALE;
-    if (isShowP2P) {
-        maxWidth -= 48*G_SCALE;
-    }
     bool isShow10Gbps = index.data(kIs10Gbps).toBool();
     if (isShow10Gbps) {
         maxWidth -= 48*G_SCALE;
@@ -182,11 +163,7 @@ IItemCacheData *CountryItemDelegate::createCacheData(const QModelIndex &index) c
 void CountryItemDelegate::updateCacheData(const QModelIndex &index, IItemCacheData *cacheData) const
 {
     CountryItemDelegateCache *cache = static_cast<CountryItemDelegateCache *>(cacheData);
-    bool isShowP2P = index.data(kIsShowP2P).toBool();
     int maxWidth = kCountryItemMaxWidth*G_SCALE;
-    if (isShowP2P) {
-        maxWidth -= 48*G_SCALE;
-    }
     bool isShow10Gbps = index.data(kIs10Gbps).toBool();
     if (isShow10Gbps) {
         maxWidth -= 48*G_SCALE;
@@ -216,18 +193,10 @@ int CountryItemDelegate::isInClickableArea(const ItemStyleOption &option, const 
 
 int CountryItemDelegate::isInTooltipArea(const ItemStyleOption &option, const QModelIndex &index, const QPoint &point, const IItemCacheData *cacheData) const
 {
-    // p2p icon
-    if (index.data(kIsShowP2P).toBool()) {
-        if (p2pRect(option.rect).contains(point)) {
-            return (int)TooltipRect::kP2P;
-        }
-    }
-
     // Check if country caption is elided and mouse is over it
     if (captionRect(option.rect, cacheData).contains(point)) {
         QString originalCaption = index.data().toString();
-        bool isShowP2P = index.data(kIsShowP2P).toBool();
-        int maxWidth = isShowP2P ? (kCountryItemMaxWidth - 48)*G_SCALE : kCountryItemMaxWidth*G_SCALE;
+        int maxWidth = kCountryItemMaxWidth*G_SCALE;
 
         QString truncatedCaption = CommonGraphics::maybeTruncatedText(originalCaption,
                                                                      FontManager::instance().getFont(16, QFont::Medium),
@@ -244,18 +213,7 @@ void CountryItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const
     WS_ASSERT(dynamic_cast<QWidget *>(option.styleObject) != nullptr);
     QWidget *widget = static_cast<QWidget *>(option.styleObject);
 
-    if (tooltipId == (int)TooltipRect::kP2P) {
-        QRect rc = p2pRect(option.rect);
-        QPoint pt = widget->mapToGlobal(QPoint(rc.center().x(), rc.top() - 3*G_SCALE));
-        TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_LOCATIONS_P2P);
-        ti.x = pt.x();
-        ti.y = pt.y();
-        ti.title = QWidget::tr("File Sharing Frowned Upon");
-        ti.tailtype = TOOLTIP_TAIL_BOTTOM;
-        ti.tailPosPercent = 0.5;
-        ti.parent = widget;
-        TooltipController::instance().showTooltipBasic(ti);
-    } else if (tooltipId == (int)TooltipRect::kCountryCaption) {
+    if (tooltipId == (int)TooltipRect::kCountryCaption) {
         QRect rc = captionRect(option.rect, cacheData);
         QPoint pt = widget->mapToGlobal(QPoint(rc.x() + rc.width()/2, rc.top() - 3*G_SCALE));
         TooltipInfo ti(TOOLTIP_TYPE_BASIC, TOOLTIP_ID_ELIDED_TEXT);
@@ -273,21 +231,10 @@ void CountryItemDelegate::tooltipEnterEvent(const ItemStyleOption &option, const
 
 void CountryItemDelegate::tooltipLeaveEvent(int tooltipId) const
 {
-    if (tooltipId == (int)TooltipRect::kP2P)
-        TooltipController::instance().hideTooltip(TOOLTIP_ID_LOCATIONS_P2P);
-    else if (tooltipId == (int)TooltipRect::kCountryCaption)
+    if (tooltipId == (int)TooltipRect::kCountryCaption)
         TooltipController::instance().hideTooltip(TOOLTIP_ID_ELIDED_TEXT);
     else
         WS_ASSERT(false);
-}
-
-QRect CountryItemDelegate::p2pRect(const QRect &itemRect) const
-{
-    QSharedPointer<IndependentPixmap> p = ImageResourcesSvg::instance().getIndependentPixmap("locations/NO_P2P_ICON");
-    return QRect(itemRect.width() - 59*G_SCALE - p->width(),
-                (itemRect.height() - p->height()) / 2 + itemRect.top(),
-                 p->width(),
-                 p->height());
 }
 
 QRect CountryItemDelegate::captionRect(const QRect &itemRect, const IItemCacheData *cacheData) const

@@ -9,6 +9,8 @@ if (WIN32)
     target_sources(frontend-common PRIVATE
         authchecker_win.cpp
         authchecker_win.h
+        installedantiviruses_win.cpp
+        installedantiviruses_win.h
     )
 elseif(APPLE)
     target_sources(frontend-common PRIVATE

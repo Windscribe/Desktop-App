@@ -214,7 +214,7 @@ void OvpnCustomConfig::process()
 #endif
 
         // The "BF-CBC" cipher was the default prior to OpenVPN 2.5.
-        // To support old configs that used to work in older Windscribe distributions, add a default
+        // To support old configs that used to work in older applications, add a default
         // cipher command when there is no such command in the config.
         if (!bHasValidCipher) {
             ovpnData_ += "cipher BF-CBC\n";

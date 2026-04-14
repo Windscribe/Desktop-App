@@ -273,7 +273,6 @@ QVector<types::Location> Widget::generateRandomLocations()
             types::Location location;
             location.id = LocationID::createTopApiLocationId(i);
             location.countryCode = "CA";
-            location.isNoP2P = false;
             location.isPremiumOnly = false;
             location.name = "Location" + QString::number(i);
 

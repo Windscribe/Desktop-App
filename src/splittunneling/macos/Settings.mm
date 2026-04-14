@@ -21,7 +21,7 @@
     if (self) {
         if (!options) {
             if (error) {
-                *error = [NSError errorWithDomain:@"com.windscribe.client.splittunnelextension"
+                *error = [NSError errorWithDomain:@WS_MAC_SPLIT_TUNNEL_BUNDLE_ID
                                            code:1
                                        userInfo:@{NSLocalizedDescriptionKey: @"No options provided"}];
             }
@@ -45,7 +45,7 @@
         spdlog::debug("Primary interface: {}", [options[@"primaryInterface"] UTF8String]);
         if (!primaryInterface_) {
             if (error) {
-                *error = [NSError errorWithDomain:@"com.windscribe.client.splittunnelextension"
+                *error = [NSError errorWithDomain:@WS_MAC_SPLIT_TUNNEL_BUNDLE_ID
                                            code:3
                                        userInfo:@{NSLocalizedDescriptionKey: @"Could not find primary interface"}];
             }
@@ -56,7 +56,7 @@
         spdlog::debug("VPN interface: {}", [options[@"vpnInterface"] UTF8String]);
         if (!vpnInterface_) {
             if (error) {
-                *error = [NSError errorWithDomain:@"com.windscribe.client.splittunnelextension"
+                *error = [NSError errorWithDomain:@WS_MAC_SPLIT_TUNNEL_BUNDLE_ID
                                            code:4
                                        userInfo:@{NSLocalizedDescriptionKey: @"Could not find VPN interface"}];
             }

@@ -37,7 +37,7 @@ public:
     bool configureWireGuard(const WireGuardConfig &config);
     bool getWireGuardStatus(types::WireGuardStatus *status);
 
-    void firewallOn(const QString &connectingIp, const QString &ip, bool bAllowLanTraffic);
+    void firewallOn(const QString &connectingIp, const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig);
     void firewallOff();
     bool firewallActualState();
 
@@ -51,7 +51,8 @@ public:
     bool changeIcs(const QString &adapterName);
     bool stopIcs();
 
-    QString enableBFE();
+    unsigned long queryBFEStatus();
+    bool enableBFE();
     QString resetAndStartRAS();
 
     void setIPv6EnabledInFirewall(bool b);
@@ -79,7 +80,7 @@ public:
     void resetNetworkAdapter(const QString &subkeyInterfaceName, bool bringAdapterBackUp);
 
     void addIKEv2DefaultRoute();
-    void removeWindscribeNetworkProfiles();
+    void removeAppNetworkProfiles();
     void setIKEv2IPSecParameters();
     bool makeHostsFileWritable();
 

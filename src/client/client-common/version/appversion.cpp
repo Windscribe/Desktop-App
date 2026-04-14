@@ -1,5 +1,4 @@
 #include "appversion.h"
-#include "windscribe_version.h"
 
 #include <QStringList>
 
@@ -10,17 +9,17 @@ QString AppVersion::version() const
 
 QString AppVersion::major() const
 {
-    return QString::number(WINDSCRIBE_MAJOR_VERSION);
+    return QString::number(WS_VERSION_MAJOR);
 }
 
 QString AppVersion::minor() const
 {
-    return QString::number(WINDSCRIBE_MINOR_VERSION);
+    return QString::number(WS_VERSION_MINOR);
 }
 
 QString AppVersion::build() const
 {
-    return QString::number(WINDSCRIBE_BUILD_VERSION);
+    return QString::number(WS_VERSION_BUILD);
 }
 
 QString AppVersion::fullVersionString() const
@@ -71,7 +70,7 @@ QString AppVersion::semanticVersionString() const
 }
 
 AppVersion::AppVersion() :
-    version_(QString::asprintf("%d.%d", WINDSCRIBE_MAJOR_VERSION, WINDSCRIBE_MINOR_VERSION)),
+    version_(QString::asprintf("%d.%d", WS_VERSION_MAJOR, WS_VERSION_MINOR)),
     isStaging_(false),
 #ifdef WINDSCRIBE_IS_BETA
     buildChannel_(UPDATE_CHANNEL_BETA)

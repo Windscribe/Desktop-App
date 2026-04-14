@@ -428,6 +428,21 @@ void Preferences::setAntiCensorship(bool bEnabled)
     }
 }
 
+SERVER_ROUTING_METHOD_TYPE Preferences::serverRoutingMethod() const
+{
+    return engineSettings_.serverRoutingMethod();
+}
+
+void Preferences::setServerRoutingMethod(SERVER_ROUTING_METHOD_TYPE method)
+{
+    if (engineSettings_.serverRoutingMethod() != method)
+    {
+        engineSettings_.setServerRoutingMethod(method);
+        emitEngineSettingsChanged();
+        emit serverRoutingMethodChanged(method);
+    }
+}
+
 QString Preferences::amneziawgPreset() const
 {
     return engineSettings_.amneziawgPreset();
@@ -731,6 +746,7 @@ void Preferences::setEngineSettings(const types::EngineSettings &es, bool fromJs
     setTerminateSockets(es.isTerminateSockets());
 #endif
     setAntiCensorship(es.isAntiCensorship());
+    setAmneziawgPreset(es.amneziawgPreset());
     setAllowLanTraffic(es.isAllowLanTraffic());
     setFirewallSettings(es.firewallSettings());
     setConnectionSettings(es.connectionSettings());
@@ -758,6 +774,7 @@ void Preferences::setEngineSettings(const types::EngineSettings &es, bool fromJs
     setDnsManager(es.dnsManager());
 #endif
     setNetworkPreferredProtocols(es.networkPreferredProtocols());
+    setServerRoutingMethod(es.serverRoutingMethod());
     isSettingEngineSettings_ = false;
 }
 
@@ -863,7 +880,7 @@ void Preferences::loadGuiSettings()
     }
 
 #ifdef CLI_ONLY
-    QSettings ini("Windscribe", "windscribe_cli");
+    QSettings ini(WS_SETTINGS_ORG, WS_SETTINGS_CLI);
     guiSettings_.fromIni(ini);
     PersistentState::instance().fromIni(ini);
 #endif
@@ -871,9 +888,10 @@ void Preferences::loadGuiSettings()
     qCInfo(LOG_BASIC) << "GUI settings" << guiSettings_;
 }
 
+#ifdef CLI_ONLY
 void Preferences::loadIni()
 {
-    QSettings settings("Windscribe", "windscribe_cli");
+    QSettings settings(WS_SETTINGS_ORG, WS_SETTINGS_CLI);
 
     // PersistentState can be updated directly as there are no signals to worry about
     PersistentState::instance().fromIni(settings);
@@ -916,10 +934,12 @@ void Preferences::loadIni()
 #endif
     setDecoyTrafficSettings(es.decoyTrafficSettings());
     setAmneziawgPreset(es.amneziawgPreset());
+    setServerRoutingMethod(es.serverRoutingMethod());
     isSettingEngineSettings_ = false;
 
     emitEngineSettingsChanged();
 }
+#endif
 
 void Preferences::validateAndUpdateIfNeeded()
 {
@@ -966,9 +986,10 @@ void Preferences::setShowLocationLoad(bool b)
     }
 }
 
+#ifdef CLI_ONLY
 void Preferences::saveIni() const
 {
-    QSettings settings("Windscribe", "windscribe_cli");
+    QSettings settings(WS_SETTINGS_ORG, WS_SETTINGS_CLI);
 
     guiSettings_.toIni(settings);
     engineSettings_.toIni(settings);
@@ -976,3 +997,4 @@ void Preferences::saveIni() const
 
     settings.sync();
 }
+#endif

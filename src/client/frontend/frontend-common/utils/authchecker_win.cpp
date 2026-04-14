@@ -20,7 +20,7 @@ AuthCheckerError AuthChecker_win::authenticate()
     1. Start app as low privilege user.
     2. Select a configuration directory that you control.
     3. Add a script that is executed by OpenVPN into a custom config and connect.
-    4. Script runs as admin user since the helper runs windscribeopenvpn.exe as admin.
+    4. Script runs as admin user since the helper runs OpenVPN as admin.
 
     We have logic in the helper to remove potentially harmful scripts... but just in case that is ever
     removed, we have opted to keep the below logic alive.

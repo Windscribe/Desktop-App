@@ -7,6 +7,7 @@ namespace api_responses {
 
 struct AmneziawgUnblockParam
 {
+    QString id;
     QString title;
     QStringList countries;
     int jc = 0;
@@ -37,6 +38,7 @@ public:
 
     bool isValid() const { return !params_.isEmpty(); }
     QStringList presets() const;
+    QString getTitleById(const QString &id);
 
     AmneziawgUnblockParam getUnblockParamForPreset(const QString &preset);
 

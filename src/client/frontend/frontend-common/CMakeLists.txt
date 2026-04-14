@@ -11,11 +11,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if (DEFINE_CLI_ONLY_MACRO)
-    find_package(Qt6 REQUIRED COMPONENTS Network)
-else()
-    find_package(Qt6 REQUIRED COMPONENTS Network Widgets)
-endif()
+find_package(Qt6 REQUIRED COMPONENTS ${WS_QT_COMPONENTS})
 
 set(PROJECT_SOURCES
     blockconnect.cpp
@@ -24,10 +20,7 @@ set(PROJECT_SOURCES
 
 add_library(frontend-common STATIC ${PROJECT_SOURCES})
 
-target_link_libraries(frontend-common PRIVATE Qt6::Core Qt6::Network wsnet::wsnet spdlog::spdlog Boost::serialization)
-if (NOT DEFINE_CLI_ONLY_MACRO)
-    target_link_libraries(frontend-common PRIVATE Qt6::Widgets)
-endif()
+target_link_libraries(frontend-common PRIVATE Qt6::Core Qt6::Network ${WS_CLIENT_EXTRA_LIBS} wsnet::wsnet spdlog::spdlog Boost::serialization)
 
 if (WIN32)
     target_compile_definitions(frontend-common PRIVATE CMAKE_LIBRARY_LIBRARY

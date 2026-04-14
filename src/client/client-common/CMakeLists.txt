@@ -14,15 +14,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 REQUIRED COMPONENTS Network)
 
 set(PROJECT_SOURCES
-    names.h
     version/appversion.cpp
     version/appversion.h
-    version/windscribe_version.h
 )
 
 add_library(client-common STATIC ${PROJECT_SOURCES})
 
-target_link_libraries(client-common PRIVATE Qt6::Core Qt6::Network OpenSSL::Crypto wsnet::wsnet spdlog::spdlog)
+target_link_libraries(client-common PRIVATE Qt6::Core Qt6::Network OpenSSL::Crypto spdlog::spdlog wsnet::wsnet)
 target_compile_definitions(client-common PRIVATE CMAKE_LIBRARY_LIBRARY
                                   WINVER=0x0601
                                   _WIN32_WINNT=0x0601

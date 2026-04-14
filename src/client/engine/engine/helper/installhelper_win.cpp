@@ -14,7 +14,7 @@ namespace InstallHelper_win
 
 static void outputLogFileToLoggerAndRemove(const QString &logPath)
 {
-    QString logFile = logPath + "/logwindscribeinstallhelper.txt";
+    QString logFile = logPath + "/log" WS_PRODUCT_NAME_LOWER "installhelper.txt";
     QFile file(logFile);
 
     if (file.exists() && file.open(QIODevice::ReadOnly)) {
@@ -31,21 +31,21 @@ bool executeInstallHelperCmd()
 {
     QString installDir = QCoreApplication::applicationDirPath();
 
-    QString installHelperExe = installDir + "/WindscribeInstallHelper.exe";
+    QString installHelperExe = installDir + "/InstallHelper.exe";
     if (!QFile::exists(installHelperExe)) {
-        qCCritical(LOG_BASIC) << "WindscribeInstallHelper.exe not found in the app directory";
+        qCCritical(LOG_BASIC) << "InstallHelper.exe not found in the app directory";
         return false;
     }
 
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(installHelperExe.toStdWString())) {
-        qCCritical(LOG_BASIC) << "WindscribeInstallHelper.exe incorrect signature:" << QString::fromStdString(sigCheck.lastError());
+        qCCritical(LOG_BASIC) << "InstallHelper.exe incorrect signature:" << QString::fromStdString(sigCheck.lastError());
         return false;
     }
 
-    QString helperExe = installDir + "/WindscribeService.exe";
+    QString helperExe = installDir + "/" WS_APP_IDENTIFIER "Service.exe";
     if (!QFile::exists(helperExe)) {
-        qCCritical(LOG_BASIC) << "Windscribe service not found in path:" << helperExe;
+        qCCritical(LOG_BASIC) << WS_PRODUCT_NAME " service not found in path:" << helperExe;
         return false;
     }
 

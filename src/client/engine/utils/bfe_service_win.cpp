@@ -1,52 +1,42 @@
 #include "bfe_service_win.h"
 
-#include <QCoreApplication>
-#include <QElapsedTimer>
-
 #include "utils/log/categories.h"
-#include "utils/winutils.h"
+#include "utils/servicecontrolmanager.h"
 
-bool BFE_Service_win::isBFEEnabled()
+namespace BFEService
 {
-    return WinUtils::isServiceRunning("BFE");
-}
 
-void BFE_Service_win::enableBFE(Helper *helper)
+bool isRunning(Helper *helper)
 {
-    QString strLog = helper->enableBFE();
-    qCInfo(LOG_BASIC) << "Enable BFE; Answer:" << strLog;
-}
-
-bool BFE_Service_win::checkAndEnableBFE(Helper *helper)
-{
-    if (isBFEEnabled()) {
-        qCInfo(LOG_BASIC) << "Base filtering platform service is running";
-        return true;
+    DWORD status = 0; // Status undetermined
+    try {
+        wsl::ServiceControlManager scm;
+        scm.openSCM(SC_MANAGER_CONNECT);
+        scm.openService(L"BFE", SERVICE_QUERY_STATUS);
+        status = scm.queryServiceStatus();
+    }
+    catch (std::system_error& ex) {
+        qCWarning(LOG_BASIC) << "BFEService::isRunning -" << ex.what();
     }
 
-    qCInfo(LOG_BASIC) << "Base filtering platform service is not running";
-
-    int attempts = 2;
-    while (attempts > 0) {
-        enableBFE(helper);
-        QElapsedTimer elapsedTimer;
-        elapsedTimer.start();
-
-        while (elapsedTimer.elapsed() < 3000) {
-            QCoreApplication::processEvents();
-            Sleep(1);
-
-            if (isBFEEnabled()) {
-                qCInfo(LOG_BASIC) << "Base filtering platform service is now running";
-                return true;
-            }
-        }
-        attempts--;
+    // We were unable to query the status of the service, likely due to third-party security
+    // software blocking/restricting our access to the SCM.  See if the elevated helper process
+    // can do it.
+    if (status == 0) {
+        status = helper->queryBFEStatus();
     }
 
-    return false;
+    if (status != SERVICE_RUNNING) {
+        qCWarning(LOG_BASIC) << "BFEService::isRunning - BFE service is" << wsl::ServiceControlManager::serviceStatusToString(status);
+        return false;
+    }
+
+    return true;
 }
 
-BFE_Service_win::BFE_Service_win()
+bool start(Helper *helper)
 {
+    return helper->enableBFE();
+}
+
 }

@@ -16,6 +16,10 @@
         <translation>Tidak ada lokasi.</translation>
     </message>
     <message>
+        <source>No ports available for the specified protocol.</source>
+        <translation>Tidak ada port yang tersedia untuk protokol yang ditentukan.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>Tidak dapat memutar IP.  Periksa apakah Anda memiliki Windscribe Pro atau memiliki lokasi ini dalam paket Anda, atau coba lagi nanti.</translation>
     </message>

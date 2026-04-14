@@ -15,7 +15,6 @@ LocationItem::LocationItem(const LocationID &bestLocation, const types::Location
     location_.id = bestLocation;
     location_.countryCode = l.countryCode;
     location_.shortName = l.shortName;
-    location_.isNoP2P = l.isNoP2P;
     location_.isPremiumOnly = l.isPremiumOnly;
 
     types::City city = l.cities[cityInd];

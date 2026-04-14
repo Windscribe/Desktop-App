@@ -1,9 +1,10 @@
+#include "ws_branding.h"
 #include "firewallonboot.h"
 
 #include <spdlog/spdlog.h>
 #include <winreg/WinReg.hpp>
 
-static const std::wstring kRegistryKey = L"SOFTWARE\\Windscribe\\Windscribe2";
+static const std::wstring kRegistryKey = L"SOFTWARE\\" WS_SETTINGS_ORG_W L"\\" WS_SETTINGS_APP_W;
 static const std::wstring kRegistryValue = L"FirewallOnBoot";
 
 FirewallOnBootManager::FirewallOnBootManager()

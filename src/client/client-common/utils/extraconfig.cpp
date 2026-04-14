@@ -11,7 +11,7 @@
 #include "utils/winutils.h"
 #endif
 
-// non-filtered windscribe-specific advanced settings will cause error when connecting with openvpn
+// non-filtered non-OpenVPN advanced settings will cause error when connecting with openvpn
 // configs prefixed with "ws-" will be ignored by openvpn profile
 const QString WS_PREFIX = "ws-";
 const QString WS_MTU_OFFSET_IKEV_STR     = WS_PREFIX + "mtu-offset-ikev2";
@@ -319,17 +319,6 @@ bool ExtraConfig::isLegalOpenVpnCommand(const QString &command) const
         return false;
     }
 
-    // Filter out potentially malicious commands.
-    const char *kUnsafeCommands[] = {
-        "up", "down", "ipchange", "route-up", "route-pre-down", "auth-user-pass-verify",
-        "client-connect", "client-disconnect", "learn-address", "tls-verify", "log", "log-append",
-        "tmp-dir", "plugin"
-    };
-    const size_t kNumUnsafeCommands = sizeof(kUnsafeCommands) / sizeof(kUnsafeCommands[0]);
-    for (size_t i = 0; i < kNumUnsafeCommands; ++i) {
-        if (trimmed_command.startsWith(QString("%1 ").arg(kUnsafeCommands[i]), Qt::CaseInsensitive))
-            return false;
-    }
     return true;
 }
 
@@ -360,7 +349,7 @@ bool ExtraConfig::useOpenVpnDCO()
 
 ExtraConfig::ExtraConfig() : QObject(),
                              path_(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)
-                                   + "/windscribe_extra.conf"),
+                                   + "/" WS_EXTRA_CONFIG_NAME),
                              fileWatcher_(nullptr),
                              fileExists_(false)
 {

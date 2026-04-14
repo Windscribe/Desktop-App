@@ -1252,14 +1252,26 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::AntiCensorshipGroup</name>
+    <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Circumvent Censorship</source>
-        <translation>Contornar a censura</translation>
+        <source>Anti-censorship</source>
+        <translation>Anti-censura</translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation>Configuração</translation>
+        <source>These degrade performance, enable only if Windscribe doesn&apos;t connect normally.</source>
+        <translation>Estes degradam o desempenho, só são ativados se o Windscribe não se ligar normalmente.</translation>
+    </message>
+    <message>
+        <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
+        <translation>Alterações ao nível do protocolo feitas nos protocolos WireGuard, OpenVPN e Stealth.</translation>
+    </message>
+    <message>
+        <source>Increases latency, but improves chances of being able to connect.</source>
+        <translation>Aumenta a latência, mas melhora as hipóteses de conseguir ligar.</translation>
+    </message>
+    <message>
+        <source>Server Routing</source>
+        <translation>Roteamento de Servidores</translation>
     </message>
 </context>
 <context>
@@ -1495,8 +1507,8 @@ Se o problema persistir após uma reinicialização, envie um log de depuração
         <translation>Remova o SSID Wi-Fi e as informações MAC do seu sistema operativo para evitar o rastreio do histórico de localização.</translation>
     </message>
     <message>
-        <source>Connect to the VPN with WireGuard even in a hostile environment.</source>
-        <translation>Liga-te à VPN com o WireGuard mesmo num ambiente hostil.</translation>
+        <source>Anti-censorship Settings</source>
+        <translation>Definições Anti-censura</translation>
     </message>
 </context>
 <context>
@@ -2061,6 +2073,17 @@ Conecte-se a uma rede primeiro</translation>
     </message>
 </context>
 <context>
+    <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Protocol Tweaks</source>
+        <translation>Ajustes de protocolo</translation>
+    </message>
+    <message>
+        <source>Amnezia Config</source>
+        <translation>Amnezia Config</translation>
+    </message>
+</context>
+<context>
     <name>PreferencesWindow::ProxyGatewayGroup</name>
     <message>
         <source>Proxy Gateway</source>
@@ -2584,14 +2607,6 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
         <translation>IPs estáticos</translation>
     </message>
     <message>
-        <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
-        <translation>Sua versão do aplicativo não é mais suportada. Por favor, atualize para continuar a usar o Windscribe.</translation>
-    </message>
-    <message>
-        <source>Please upgrade to a Pro account to continue using Windscribe.</source>
-        <translation>Atualize para uma conta Pro para continuar a usar o Windscribe.</translation>
-    </message>
-    <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
         <translation>A sua conta original %1 expirou. A criação de várias contas para contornar as limitações do nível gratuito é proibida. Faça login na conta original e aguarde até que a largura de banda seja redefinida. Você também pode atualizar para o Pro.</translation>
     </message>
@@ -2671,16 +2686,28 @@ Se a reinstalação não ajudar, entre em contato com o suporte do Windscribe pa
         <source>Random IP</source>
         <translation>IP aleatório</translation>
     </message>
+    <message>
+        <source>Your application version is no longer supported. Please update to continue using %1.</source>
+        <translation>A sua versão da aplicação já não é suportada. Por favor, atualize para continuar a usar o %1.</translation>
+    </message>
+    <message>
+        <source>Please upgrade to a Pro account to continue using %1.</source>
+        <translation>Por favor, atualize para uma conta Pro para continuar a usar o %1.</translation>
+    </message>
+    <message>
+        <source>Regular</source>
+        <translation>Regular</translation>
+    </message>
+    <message>
+        <source>Alternate</source>
+        <translation>Alternativa</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
     <message>
         <source>Unknown Config Error</source>
         <translation>Erro de configuração desconhecido</translation>
-    </message>
-    <message>
-        <source>File Sharing Frowned Upon</source>
-        <translation>Compartilhamento de arquivos mal visto</translation>
     </message>
 </context>
 <context>

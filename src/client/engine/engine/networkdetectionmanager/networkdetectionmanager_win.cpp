@@ -97,7 +97,7 @@ void NetworkDetectionManager_win::onNetworkChanged()
     curNetworkInterface_ = NetworkUtils_win::currentNetworkInterface();
 
     // If still online, but current interface is "no interface", don't emit the signal
-    // In theory this should never happen, since we exclude Windscribe interfaces when getting the current interface,
+    // In theory this should never happen, since we exclude app VPN interfaces when getting the current interface,
     // but this code has historically been here and doesn't seem to cause any problems.
     if ((curNetworkInterface_.interfaceIndex == -1 && !bLastIsOnline_) || curNetworkInterface_.interfaceIndex != -1) {
         emit networkChanged(curNetworkInterface_);

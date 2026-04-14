@@ -65,7 +65,7 @@
 + (nw_interface_t)findInterfaceByName:(NSString *)interface {
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     nw_path_monitor_t monitor = nw_path_monitor_create();
-    dispatch_queue_t queue = dispatch_queue_create("com.windscribe.interfacefinder", DISPATCH_QUEUE_SERIAL);
+    dispatch_queue_t queue = dispatch_queue_create(WS_PRODUCT_NAME_LOWER ".interfacefinder", DISPATCH_QUEUE_SERIAL);
     nw_path_monitor_set_queue(monitor, queue);
 
     __block nw_interface_t foundInterface = nil;
@@ -112,7 +112,7 @@
                            nw_error_get_error_domain(nwError),
                            nw_error_get_error_code(nwError)];
 
-    return [NSError errorWithDomain:@"com.windscribe.splittunnelextension"
+    return [NSError errorWithDomain:@WS_MAC_SPLIT_TUNNEL_BUNDLE_ID
                              code:nw_error_get_error_code(nwError)
                          userInfo:@{NSLocalizedDescriptionKey: description}];
 }

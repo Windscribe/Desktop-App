@@ -102,7 +102,7 @@ bool IpValidation::isValidUrlForCtrld(const QString &str)
     return httpsRegex.match(str).hasMatch() || sdnsRegex.match(str).hasMatch();
 }
 
-bool IpValidation::isWindscribeReservedIp(const QString &str)
+bool IpValidation::isReservedIp(const QString &str)
 {
     return str.startsWith("10.255.255.");
 }

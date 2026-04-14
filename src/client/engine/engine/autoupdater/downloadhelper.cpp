@@ -4,7 +4,6 @@
 #include <QFile>
 #include <QStandardPaths>
 
-#include "names.h"
 #include "utils/log/categories.h"
 #include "utils/ws_assert.h"
 
@@ -224,7 +223,7 @@ void DownloadHelper::removeAutoUpdateInstallerFiles()
 #ifdef Q_OS_MACOS
     // remove temp installer.app on mac:
     // | installer.app was unpacked from above .dmg
-    const QString & installerApp = downloadDirectory_ + "/" + INSTALLER_FILENAME_MAC_APP;
+    const QString & installerApp = downloadDirectory_ + "/" + WS_MAC_INSTALLER_BUNDLE_NAME;
     if (QFile::exists(installerApp)) {
         qCDebug(LOG_DOWNLOADER) << "Removing auto-update temporary installer app";
         Utils::removeDirectory(installerApp);

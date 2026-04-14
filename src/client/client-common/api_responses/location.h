@@ -5,12 +5,14 @@
 #include <QSharedPointer>
 #include "group.h"
 
+namespace wsnet { struct ServerLocation; }
+
 namespace api_responses {
 
 class LocationData : public QSharedData
 {
 public:
-    LocationData() : id_(0), premiumOnly_(0), p2p_(0),
+    LocationData() : id_(0), premiumOnly_(0),
         isValid_(false) {}
 
     LocationData(const LocationData &other)
@@ -20,7 +22,6 @@ public:
           countryCode_(other.countryCode_),
           shortName_(other.shortName_),
           premiumOnly_(other.premiumOnly_),
-          p2p_(other.p2p_),
           dnsHostName_(other.dnsHostName_),
           groups_(other.groups_),
           isValid_(other.isValid_) {}
@@ -30,8 +31,7 @@ public:
     QString name_;
     QString countryCode_;
     QString shortName_;
-    int premiumOnly_;
-    int p2p_;
+    bool premiumOnly_;
     QString dnsHostName_;
 
     QVector<Group> groups_;
@@ -47,7 +47,7 @@ public:
     explicit Location() : d(new LocationData) {}
     Location(const Location &other) : d (other.d) {}
 
-    bool initFromJson(const QJsonObject &obj, QStringList &forceDisconnectNodes);
+    void initFromWsnet(const wsnet::ServerLocation &src);
 
     int getId() const { WS_ASSERT(d->isValid_); return d->id_; }
     QString getName() const { WS_ASSERT(d->isValid_); return d->name_; }
@@ -55,7 +55,6 @@ public:
     QString getShortName() const { WS_ASSERT(d->isValid_); return d->shortName_; }
     QString getDnsHostName() const { WS_ASSERT(d->isValid_); return d->dnsHostName_; }
     bool isPremiumOnly() const { WS_ASSERT(d->isValid_); return d->premiumOnly_; }
-    int getP2P() const { WS_ASSERT(d->isValid_); return d->p2p_; }
 
     int groupsCount() const { WS_ASSERT(d->isValid_); return d->groups_.count(); }
     Group getGroup(int ind) const { WS_ASSERT(d->isValid_); return d->groups_.at(ind); }
@@ -66,12 +65,8 @@ public:
     bool operator == (const Location &other) const;
     bool operator != (const Location &other) const;
 
-    friend QDataStream& operator <<(QDataStream& stream, const Location& l);
-    friend QDataStream& operator >>(QDataStream& stream, Location& l);
-
 private:
     QSharedDataPointer<LocationData> d;
-    static constexpr quint32 versionForSerialization_ = 2;
 };
 
 

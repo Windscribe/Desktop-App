@@ -16,6 +16,10 @@
         <translation>无位置。</translation>
     </message>
     <message>
+        <source>No ports available for the specified protocol.</source>
+        <translation>指定协议没有可用的端口。</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>无法轮换 IP。 请检查您是否有 Windscribe Pro 或您的计划中有此位置，或稍后重试。</translation>
     </message>

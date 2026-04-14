@@ -20,6 +20,7 @@
 #include "lookandfeelwindow/lookandfeelwindowitem.h"
 #include "networkoptionswindow/networkoptionswindowitem.h"
 #include "networkoptionswindow/networkoptionsnetworkwindowitem.h"
+#include "anticensorshipwindow/anticensorshipwindowitem.h"
 #include "preferencestab/preferencestabcontrolitem.h"
 #include "proxysettingswindow/proxysettingswindowitem.h"
 #include "robertwindow/robertwindowitem.h"
@@ -106,6 +107,7 @@ private slots:
 
     void onNetworkOptionsPageClick();
     void onSplitTunnelingPageClick();
+    void onAntiCensorshipSettingsPageClick();
     void onProxySettingsPageClick();
     void onConnectedDnsDomainsClick(const QStringList &domains);
 
@@ -155,6 +157,7 @@ private:
     SplitTunnelingWindowItem *splitTunnelingWindowItem_;
     SplitTunnelingAppsWindowItem *splitTunnelingAppsWindowItem_;
     SplitTunnelingAddressesWindowItem *splitTunnelingAddressesWindowItem_;
+    AntiCensorshipWindowItem *antiCensorshipWindowItem_;
     DnsDomainsWindowItem *dnsDomainsWindowItem_;
 
     bool isShowSubPage_;

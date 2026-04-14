@@ -9,8 +9,8 @@ set(SOURCES
     main.cpp
 )
 
-add_executable(windscribe-authhelper ${SOURCES})
+add_executable(${WS_PRODUCT_NAME_LOWER}-authhelper ${SOURCES})
 
-install(TARGETS windscribe-authhelper
+install(TARGETS ${WS_PRODUCT_NAME_LOWER}-authhelper
     RUNTIME DESTINATION .
 )

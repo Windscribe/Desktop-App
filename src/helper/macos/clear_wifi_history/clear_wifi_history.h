@@ -17,7 +17,7 @@
 // 5. Wireless Diagnostics Logs - WiFi connection history logs
 // 6. Network Location Cache - Location-based network data
 
-// All used external tools are fully supported on macOS 12+ target of this project.
+// All used external tools are fully supported on macOS 13+ target of this project.
 
 class ClearWiFiHistory
 {

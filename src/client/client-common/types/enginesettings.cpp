@@ -33,7 +33,7 @@ void EngineSettings::saveToSettings()
               d->firewallSettings << d->connectionSettings << apiResolutionSettingsNotUsed << d->proxySettings << d->packetSize <<
               d->macAddrSpoofing << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
               d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols <<
-            d->isAntiCensorship << d->decoyTrafficSettings << d->amneziawgPreset;
+            d->isAntiCensorship << d->decoyTrafficSettings << d->amneziawgPreset << d->serverRoutingMethod;
     }
 
     QSettings settings;
@@ -81,6 +81,9 @@ bool EngineSettings::loadFromSettings()
             if (version >= 8) {
                 ds >> d->amneziawgPreset;
             }
+            if (version >= 9) {
+                ds >> d->serverRoutingMethod;
+            }
 
             if (ds.status() == QDataStream::Ok) {
                 bLoaded = true;
@@ -105,7 +108,7 @@ bool EngineSettings::loadFromSettings()
     }
 
 #ifdef CLI_ONLY
-    QSettings ini("Windscribe", "windscribe_cli");
+    QSettings ini(WS_SETTINGS_ORG, WS_SETTINGS_CLI);
     fromIni(ini);
 #endif
 
@@ -294,6 +297,16 @@ void EngineSettings::setDecoyTrafficSettings(const DecoyTrafficSettings &decoyTr
     d->decoyTrafficSettings = decoyTrafficSettings;
 }
 
+SERVER_ROUTING_METHOD_TYPE EngineSettings::serverRoutingMethod() const
+{
+    return d->serverRoutingMethod;
+}
+
+void EngineSettings::setServerRoutingMethod(SERVER_ROUTING_METHOD_TYPE method)
+{
+    d->serverRoutingMethod = method;
+}
+
 void EngineSettings::setMacAddrSpoofing(const MacAddrSpoofing &macAddrSpoofing)
 {
     d->macAddrSpoofing = macAddrSpoofing;
@@ -335,7 +348,8 @@ bool EngineSettings::operator==(const EngineSettings &other) const
             other.d->dnsManager == d->dnsManager &&
             other.d->decoyTrafficSettings == d->decoyTrafficSettings &&
             other.d->networkPreferredProtocols == d->networkPreferredProtocols &&
-            other.d->amneziawgPreset == d->amneziawgPreset;
+            other.d->amneziawgPreset == d->amneziawgPreset &&
+            other.d->serverRoutingMethod == d->serverRoutingMethod;
 }
 
 bool EngineSettings::operator!=(const EngineSettings &other) const
@@ -430,6 +444,10 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
         amneziawgPreset = json[kJsonAmneziawgPresetProp].toString();
     }
 
+    if (json.contains(kJsonServerRoutingMethodProp) && json[kJsonServerRoutingMethodProp].isDouble()) {
+        serverRoutingMethod = SERVER_ROUTING_METHOD_TYPE_fromInt(json[kJsonServerRoutingMethodProp].toInt());
+    }
+
     if (json.contains(kJsonMacAddrSpoofingProp) && json[kJsonMacAddrSpoofingProp].isObject()) {
         macAddrSpoofing = types::MacAddrSpoofing(json[kJsonMacAddrSpoofingProp].toObject());
     }
@@ -475,6 +493,7 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
     json[kJsonIsTerminateSocketsProp] = isTerminateSockets;
     json[kJsonLanguageProp] = language;
     json[kJsonAmneziawgPresetProp] = amneziawgPreset;
+    json[kJsonServerRoutingMethodProp] = static_cast<int>(serverRoutingMethod);
     json[kJsonMacAddrSpoofingProp] = macAddrSpoofing.toJson(isForDebugLog);
 
     QJsonObject networkPreferredProtocolsObj;
@@ -493,6 +512,7 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
         // For log readability by humans/AI.
         json["dnsManagerDesc"] = DNS_MANAGER_TYPE_toString(dnsManager);
         json["dnsPolicyDesc"] = DNS_POLICY_TYPE_toString(dnsPolicy);
+        json["serverRoutingMethodDesc"] = SERVER_ROUTING_METHOD_TYPE_toString(serverRoutingMethod);
         json["updateChannelDesc"] = UPDATE_CHANNEL_toString(updateChannel);
     } else {
         json[kJsonCustomOvpnConfigsPathProp] = Utils::toBase64(customOvpnConfigsPath);
@@ -528,6 +548,7 @@ void EngineSettingsData::fromIni(QSettings &settings)
     decoyTrafficSettings.fromIni(settings);
     isAntiCensorship = settings.value(kIniIsAntiCensorshipProp, isAntiCensorship).toBool();
     amneziawgPreset = settings.value(kIniAmneziawgPresetProp, amneziawgPreset).toString();
+    serverRoutingMethod = SERVER_ROUTING_METHOD_TYPE_fromInt(settings.value(kIniServerRoutingMethodProp, static_cast<int>(serverRoutingMethod)).toInt());
     settings.endGroup();
 
     settings.beginGroup(QString("Advanced"));
@@ -561,6 +582,7 @@ void EngineSettingsData::toIni(QSettings &settings) const
     decoyTrafficSettings.toIni(settings);
     settings.setValue(kIniIsAntiCensorshipProp, isAntiCensorship);
     settings.setValue(kIniAmneziawgPresetProp, amneziawgPreset);
+    settings.setValue(kIniServerRoutingMethodProp, static_cast<int>(serverRoutingMethod));
     settings.endGroup();
 
     settings.beginGroup(QString("Advanced"));

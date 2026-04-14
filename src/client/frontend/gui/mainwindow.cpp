@@ -1880,6 +1880,7 @@ void MainWindow::onBackendLoginFinished()
         mainWindowController_->getConnectWindow()->updateLocationInfo(selectedLocation_->firstName(), selectedLocation_->secondName(),
                                                                       selectedLocation_->countryCode(), selectedLocation_->pingTime(),
                                                                       selectedLocation_->locationdId().isCustomConfigsLocation());
+        updateConnectWindowStateProtocolPortDisplay();
         // If the general message window is being shown before we finished login, we have had a critical error.  Do not override the window until it is dismissed.
         if (mainWindowController_->currentWindow() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
             GeneralMessageController::instance().setSource(MainWindowController::WINDOW_ID_CONNECT);
@@ -2424,6 +2425,7 @@ void MainWindow::onBackendGotoCustomOvpnConfigModeFinished()
                                                                           !selectedLocation_->isValid() || selectedLocation_->locationdId().isCustomConfigsLocation());
         }
 
+        updateConnectWindowStateProtocolPortDisplay();
         mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_CONNECT);
         isLoginOkAndConnectWindowVisible_ = true;
     }
@@ -3057,7 +3059,11 @@ void MainWindow::onPreferencesLaunchOnStartupChanged(bool bEnabled)
 
 void MainWindow::updateConnectWindowStateProtocolPortDisplay()
 {
-    if (!backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).isAutomatic()) {
+    if (selectedLocation_->isValid() && selectedLocation_->locationdId().isCustomConfigsLocation()) {
+        mainWindowController_->getConnectWindow()->setProtocolPort(selectedLocation_->customConfigProtocol(),
+                                                                   selectedLocation_->customConfigPort());
+        mainWindowController_->getConnectWindow()->setIsPreferredProtocol(false);
+    } else if (!backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).isAutomatic()) {
         mainWindowController_->getConnectWindow()->setProtocolPort(backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).protocol(),
                                                                    backend_->getPreferences()->networkPreferredProtocol(curNetwork_.networkOrSsid).port());
         mainWindowController_->getConnectWindow()->setIsPreferredProtocol(true);

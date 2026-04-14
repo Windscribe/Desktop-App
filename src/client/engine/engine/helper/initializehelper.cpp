@@ -19,7 +19,7 @@ void InitializeHelper::onTimerControlHelper()
     QTimer *timer = (QTimer *)sender();
     if (helperBackend_->currentState() == IHelperBackend::State::kConnected)
     {
-        qCDebug(LOG_BASIC) << "Windscribe helper connected ok";
+        qCDebug(LOG_BASIC) << WS_PRODUCT_NAME " helper connected ok";
         timer->stop();
         timer->deleteLater();
         emit finished(INIT_HELPER_SUCCESS);
@@ -28,7 +28,7 @@ void InitializeHelper::onTimerControlHelper()
     {
         timer->stop();
         timer->deleteLater();
-        qCWarning(LOG_BASIC) << "Windscribe helper connect failed";
+        qCWarning(LOG_BASIC) << WS_PRODUCT_NAME " helper connect failed";
         if (helperInitAttempts_ >= 1)
         {
             emit finished(INIT_HELPER_FAILED);
@@ -65,7 +65,7 @@ void InitializeHelper::handleHelperInit()
 {
     if (helperBackend_->currentState() == IHelperBackend::State::kConnected)
     {
-        qCDebug(LOG_BASIC) << "Windscribe helper connected ok";
+        qCDebug(LOG_BASIC) << WS_PRODUCT_NAME " helper connected ok";
         emit finished(INIT_HELPER_SUCCESS);
     }
     else

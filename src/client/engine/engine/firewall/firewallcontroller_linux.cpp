@@ -8,7 +8,7 @@
 #include <QRegularExpression>
 
 FirewallController_linux::FirewallController_linux(QObject *parent, Helper *helper) :
-    FirewallController(parent), helper_(helper), forceUpdateInterfaceToSkip_(false), comment_("Windscribe client rule")
+    FirewallController(parent), helper_(helper), forceUpdateInterfaceToSkip_(false), comment_(WS_PRODUCT_NAME " client rule")
 {
 }
 
@@ -16,16 +16,16 @@ FirewallController_linux::~FirewallController_linux()
 {
 }
 
-void FirewallController_linux::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool isVpnConnected)
+void FirewallController_linux::firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, bool isVpnConnected)
 {
     QMutexLocker locker(&mutex_);
-    FirewallController::firewallOn(connectingIp, ips, bAllowLanTraffic, isVpnConnected);
+    FirewallController::firewallOn(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, isVpnConnected);
     if (isStateChanged()) {
         qCInfo(LOG_FIREWALL_CONTROLLER) << "firewall enabled with ips count:" << ips.count() + 1;
-        firewallOnImpl(connectingIp, ips, bAllowLanTraffic, latestStaticIpPorts_);
+        firewallOnImpl(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, latestStaticIpPorts_);
     } else if (forceUpdateInterfaceToSkip_) {
         qCInfo(LOG_FIREWALL_CONTROLLER) << "firewall changed due to interface-to-skip update";
-        firewallOnImpl(connectingIp, ips, bAllowLanTraffic, latestStaticIpPorts_);
+        firewallOnImpl(connectingIp, ips, bAllowLanTraffic, bIsCustomConfig, latestStaticIpPorts_);
     }
 }
 
@@ -38,10 +38,10 @@ void FirewallController_linux::firewallOff()
         QString cmd;
 
         // remove IPv4 rules
-        removeWindscribeRules(comment_, false);
+        removeAppRules(comment_, false);
 
         // remove IPv6 rules
-        removeWindscribeRules(comment_, true);
+        removeAppRules(comment_, true);
 
         bool ret = helper_->clearFirewallRules(false);
         if (!ret) {
@@ -83,7 +83,7 @@ void FirewallController_linux::setFirewallOnBoot(bool bEnable, const QSet<QStrin
     helper_->setFirewallOnBoot(bEnable, ipTable, isAllowLanTraffic);
 }
 
-bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, const api_responses::StaticIpPortsVector &ports)
+bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, const api_responses::StaticIpPortsVector &ports)
 {
     // TODO: this is need for Linux?
     Q_UNUSED(ports);
@@ -97,108 +97,111 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
     {
         QStringList rules;
         rules << "*filter\n";
-        rules << ":windscribe_input - [0:0]\n";
-        rules << ":windscribe_output - [0:0]\n";
-        rules << ":windscribe_block - [0:0]\n";
+        rules << ":" WS_PRODUCT_NAME_LOWER "_input - [0:0]\n";
+        rules << ":" WS_PRODUCT_NAME_LOWER "_output - [0:0]\n";
+        rules << ":" WS_PRODUCT_NAME_LOWER "_block - [0:0]\n";
 
         if (!bExists) {
-            rules << "-I INPUT -j windscribe_input -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-I OUTPUT -j windscribe_output -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-I INPUT -j " WS_PRODUCT_NAME_LOWER "_input -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-I OUTPUT -j " WS_PRODUCT_NAME_LOWER "_output -m comment --comment \"" + comment_ + "\"\n";
         }
 
         if (!hasBlockRule()) {
-            rules << "-A INPUT -j windscribe_block -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A OUTPUT -j windscribe_block -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A INPUT -j " WS_PRODUCT_NAME_LOWER "_block -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A OUTPUT -j " WS_PRODUCT_NAME_LOWER "_block -m comment --comment \"" + comment_ + "\"\n";
         }
 
-        rules << "-A windscribe_input -i lo -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
-        rules << "-A windscribe_output -o lo -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_input -i lo -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_output -o lo -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
-        rules << "-A windscribe_input -p udp --sport 67:68 --dport 67:68 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
-        rules << "-A windscribe_output -p udp --sport 67:68 --dport 67:68 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_input -p udp --sport 67:68 --dport 67:68 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_output -p udp --sport 67:68 --dport 67:68 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
         if (!interfaceToSkip_.isEmpty()) {
-            // Allow local addresses
-            QStringList localAddrs = getLocalAddresses(interfaceToSkip_);
-            for (QString addr : localAddrs) {
-                rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s " + addr + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
-                rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d " + addr + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            if (!bIsCustomConfig) {
+                // Allow local addresses
+                QStringList localAddrs = getLocalAddresses(interfaceToSkip_);
+                for (QString addr : localAddrs) {
+                    rules << "-A " WS_PRODUCT_NAME_LOWER "_input -i " + interfaceToSkip_ + " -s " + addr + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+                    rules << "-A " WS_PRODUCT_NAME_LOWER "_output -o " + interfaceToSkip_ + " -d " + addr + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+                }
+
+                // Disallow LAN addresses (except 10.255.255.0/24), link-local addresses, loopback,
+                // and local multicast addresses from going into the tunnel
+                rules << "-A " WS_PRODUCT_NAME_LOWER "_input -i " + interfaceToSkip_ + " -s 192.168.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A " WS_PRODUCT_NAME_LOWER "_output -o " + interfaceToSkip_ + " -d 192.168.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A " WS_PRODUCT_NAME_LOWER "_input -i " + interfaceToSkip_ + " -s 172.16.0.0/12 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A " WS_PRODUCT_NAME_LOWER "_output -o " + interfaceToSkip_ + " -d 172.16.0.0/12 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A " WS_PRODUCT_NAME_LOWER "_input -i " + interfaceToSkip_ + " -s 169.254.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A " WS_PRODUCT_NAME_LOWER "_output -o " + interfaceToSkip_ + " -d 169.254.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A " WS_PRODUCT_NAME_LOWER "_input -i " + interfaceToSkip_ + " -s 10.255.255.0/24 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A " WS_PRODUCT_NAME_LOWER "_output -o " + interfaceToSkip_ + " -d 10.255.255.0/24 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A " WS_PRODUCT_NAME_LOWER "_input -i " + interfaceToSkip_ + " -s 10.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A " WS_PRODUCT_NAME_LOWER "_output -o " + interfaceToSkip_ + " -d 10.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A " WS_PRODUCT_NAME_LOWER "_input -i " + interfaceToSkip_ + " -s 224.0.0.0/4 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A " WS_PRODUCT_NAME_LOWER "_output -o " + interfaceToSkip_ + " -d 224.0.0.0/4 -j DROP -m comment --comment \"" + comment_ + "\"\n";
             }
 
-            // Disallow LAN addresses (except 10.255.255.0/24), link-local addresses, loopback,
-            // and local multicast addresses from going into the tunnel
-            rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 192.168.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 192.168.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 172.16.0.0/12 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 172.16.0.0/12 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 169.254.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 169.254.0.0/16 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 10.255.255.0/24 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 10.255.255.0/24 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 10.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 10.0.0.0/8 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A windscribe_input -i " + interfaceToSkip_ + " -s 224.0.0.0/4 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A windscribe_output -o " + interfaceToSkip_ + " -d 224.0.0.0/4 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-
-            rules << "-A windscribe_input -i " + interfaceToSkip_ + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A windscribe_output -o " + interfaceToSkip_ + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_input -i " + interfaceToSkip_ + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_output -o " + interfaceToSkip_ + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
             // accept filter for the hotspot adapter in the connected state
             if (!hotspotAdapter.isEmpty()) {
-                rules << "-A windscribe_input -i " + hotspotAdapter + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
-                rules << "-A windscribe_output -o " + hotspotAdapter + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A " WS_PRODUCT_NAME_LOWER "_input -i " + hotspotAdapter + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+                rules << "-A " WS_PRODUCT_NAME_LOWER "_output -o " + hotspotAdapter + " -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
             }
         }
 
         if (!connectingIp.isEmpty()) {
-            rules << "-A windscribe_input -s " + connectingIp + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s " + connectingIp + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
             // Allow packets from gid 0
-            rules << "-A windscribe_output -d " + connectingIp + "/32 -j ACCEPT -m owner --gid-owner 0 -m comment --comment \"" + comment_ + "\"\n";
-            // Allow packets from windscribe group
-            rules << "-A windscribe_output -d " + connectingIp + "/32 -j ACCEPT -m owner --gid-owner windscribe -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d " + connectingIp + "/32 -j ACCEPT -m owner --gid-owner 0 -m comment --comment \"" + comment_ + "\"\n";
+            // Allow packets from app group
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d " + connectingIp + "/32 -j ACCEPT -m owner --gid-owner " WS_PRODUCT_NAME_LOWER " -m comment --comment \"" + comment_ + "\"\n";
             // Allow packets from kernel (no uid), for wireguard control traffic
-            rules << "-A windscribe_output -d " + connectingIp + "/32 -j ACCEPT -m owner ! --uid-owner 0-4294967294 -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d " + connectingIp + "/32 -j ACCEPT -m owner ! --uid-owner 0-4294967294 -m comment --comment \"" + comment_ + "\"\n";
             // Allow marked packets.  These packets are marked by the wireguard adapter code.
             // This is necessary because wg packets have uid/gid of the app that created the packet, not wg itself.
-            rules << "-A windscribe_output -d " + connectingIp + "/32 -j ACCEPT -m mark --mark 51820 -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d " + connectingIp + "/32 -j ACCEPT -m mark --mark 51820 -m comment --comment \"" + comment_ + "\"\n";
         }
 
         for (const auto &i : ips) {
-            rules << "-A windscribe_input -s " + i + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A windscribe_output -d " + i + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s " + i + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d " + i + "/32 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
         }
 
         // drop filter for the hotspot adapter in the disconnected state
         if (!hotspotAdapter.isEmpty()) {
-            rules << "-A windscribe_input -i " + hotspotAdapter + " -j DROP -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-A windscribe_output -o " + hotspotAdapter + " -j DROP -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_input -i " + hotspotAdapter + " -j DROP -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-A " WS_PRODUCT_NAME_LOWER "_output -o " + hotspotAdapter + " -j DROP -m comment --comment \"" + comment_ + "\"\n";
         }
 
         // Loopback addresses to the local host
-        rules << "-A windscribe_input -s 127.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
-        rules << "-A windscribe_output -d 127.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s 127.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d 127.0.0.0/8 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
         // Local Network
-        QString action = bAllowLanTraffic ? "ACCEPT" : "DROP";
-        rules << "-A windscribe_input -s 192.168.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
-        rules << "-A windscribe_output -d 192.168.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        // Custom configs need private ranges allowed so third-party VPN DNS/gateway/routes work
+        QString action = (bAllowLanTraffic || bIsCustomConfig) ? "ACCEPT" : "DROP";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s 192.168.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d 192.168.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
 
-        rules << "-A windscribe_input -s 172.16.0.0/12 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
-        rules << "-A windscribe_output -d 172.16.0.0/12 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s 172.16.0.0/12 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d 172.16.0.0/12 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
 
-        rules << "-A windscribe_input -s 169.254.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
-        rules << "-A windscribe_output -d 169.254.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s 169.254.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d 169.254.0.0/16 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
 
-        rules << "-A windscribe_input -s 10.255.255.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-        rules << "-A windscribe_output -d 10.255.255.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
-        rules << "-A windscribe_input -s 10.0.0.0/8 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
-        rules << "-A windscribe_output -d 10.0.0.0/8 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s 10.255.255.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d 10.255.255.0/24 -j DROP -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s 10.0.0.0/8 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d 10.0.0.0/8 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
 
         // Multicast addresses
-        rules << "-A windscribe_input -s 224.0.0.0/4 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
-        rules << "-A windscribe_output -d 224.0.0.0/4 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s 224.0.0.0/4 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d 224.0.0.0/4 -j " + action + " -m comment --comment \"" + comment_ + "\"\n";
 
-        rules << "-A windscribe_block -j DROP -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_block -j DROP -m comment --comment \"" + comment_ + "\"\n";
         rules << "COMMIT\n";
 
         bool ret = helper_->setFirewallRules(kIpv4, "", "", rules.join("\n"));
@@ -212,20 +215,29 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
         QStringList rules;
 
         rules << "*filter\n";
-        rules << ":windscribe_input - [0:0]\n";
-        rules << ":windscribe_output - [0:0]\n";
+        rules << ":" WS_PRODUCT_NAME_LOWER "_input - [0:0]\n";
+        rules << ":" WS_PRODUCT_NAME_LOWER "_output - [0:0]\n";
 
         if (!bExists) {
-            rules << "-I INPUT -j windscribe_input -m comment --comment \"" + comment_ + "\"\n";
-            rules << "-I OUTPUT -j windscribe_output -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-I INPUT -j " WS_PRODUCT_NAME_LOWER "_input -m comment --comment \"" + comment_ + "\"\n";
+            rules << "-I OUTPUT -j " WS_PRODUCT_NAME_LOWER "_output -m comment --comment \"" + comment_ + "\"\n";
         }
 
         // Loopback addresses to the local host
-        rules << "-A windscribe_input -s ::1 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
-        rules << "-A windscribe_output -d ::1 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s ::1 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d ::1 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
 
-        rules << "-A windscribe_input -j DROP -m comment --comment \"" + comment_ + "\"\n";
-        rules << "-A windscribe_output -j DROP -m comment --comment \"" + comment_ + "\"\n";
+        // Always allow IPv6 link-local (required for neighbor discovery, etc.)
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s fe80::/10 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d fe80::/10 -j ACCEPT -m comment --comment \"" + comment_ + "\"\n";
+
+        // IPv6 multicast (controlled by Allow LAN traffic setting)
+        QString actionV6 = (bAllowLanTraffic || bIsCustomConfig) ? "ACCEPT" : "DROP";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_input -s ff00::/8 -j " + actionV6 + " -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_output -d ff00::/8 -j " + actionV6 + " -m comment --comment \"" + comment_ + "\"\n";
+
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_input -j DROP -m comment --comment \"" + comment_ + "\"\n";
+        rules << "-A " WS_PRODUCT_NAME_LOWER "_output -j DROP -m comment --comment \"" + comment_ + "\"\n";
         rules << "COMMIT\n";
 
         bool ret = helper_->setFirewallRules(kIpv6, "", "", rules.join("\n"));
@@ -238,7 +250,7 @@ bool FirewallController_linux::firewallOnImpl(const QString &connectingIp, const
 }
 
 // Extract rules from iptables with comment.If modifyForDelete == true, then replace commands for delete.
-QStringList FirewallController_linux::getWindscribeRules(const QString &comment, bool modifyForDelete, bool isIPv6)
+QStringList FirewallController_linux::getAppRules(const QString &comment, bool modifyForDelete, bool isIPv6)
 {
     QString rules;
     QStringList outRules;
@@ -272,11 +284,11 @@ QStringList FirewallController_linux::getWindscribeRules(const QString &comment,
     return outRules;
 }
 
-void FirewallController_linux::removeWindscribeRules(const QString &comment, bool isIPv6)
+void FirewallController_linux::removeAppRules(const QString &comment, bool isIPv6)
 {
-    QStringList rules = getWindscribeRules(comment, true, isIPv6);
+    QStringList rules = getAppRules(comment, true, isIPv6);
 
-    // delete Windscribe rules, if found
+    // delete app rules, if found
     if (rules.isEmpty()) {
         return;
     }
@@ -288,10 +300,10 @@ void FirewallController_linux::removeWindscribeRules(const QString &comment, boo
         }
 
         if (rules[ind].contains("COMMIT") && curTable.contains("*filter")) {
-            rules.insert(ind, "-X windscribe_input");
-            rules.insert(ind + 1, "-X windscribe_output");
+            rules.insert(ind, "-X " WS_PRODUCT_NAME_LOWER "_input");
+            rules.insert(ind + 1, "-X " WS_PRODUCT_NAME_LOWER "_output");
             if (!isIPv6) {
-                rules.insert(ind + 2, "-X windscribe_block");
+                rules.insert(ind + 2, "-X " WS_PRODUCT_NAME_LOWER "_block");
             }
             break;
         }
@@ -299,7 +311,7 @@ void FirewallController_linux::removeWindscribeRules(const QString &comment, boo
 
     bool ret = helper_->setFirewallRules(isIPv6 ? kIpv6 : kIpv4, "", "", rules.join("\n") + "\n");
     if (!ret) {
-        qCWarning(LOG_FIREWALL_CONTROLLER) << "Could not remove windscribe rules:" << ret;
+        qCWarning(LOG_FIREWALL_CONTROLLER) << "Could not remove " WS_PRODUCT_NAME_LOWER " rules:" << ret;
     }
 }
 
@@ -379,7 +391,7 @@ bool FirewallController_linux::hasBlockRule()
     QTextStream in(&rules);
     while (!in.atEnd()) {
         std::string line = in.readLine().toStdString();
-        if (line.find("-j windscribe_block") != std::string::npos) {
+        if (line.find("-j " WS_PRODUCT_NAME_LOWER "_block") != std::string::npos) {
             return true;
         }
     }

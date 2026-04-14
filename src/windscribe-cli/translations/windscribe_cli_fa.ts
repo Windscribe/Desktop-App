@@ -16,6 +16,10 @@
         <translation>بدون مکان.</translation>
     </message>
     <message>
+        <source>No ports available for the specified protocol.</source>
+        <translation>هیچ پورتی برای پروتکل مشخص شده در دسترس نیست.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>IP نمی تواند بچرخد.  لطفا بررسی کنید که Windscribe Pro دارید یا این مکان را در برنامه خود دارید، یا بعدا دوباره امتحان کنید.</translation>
     </message>

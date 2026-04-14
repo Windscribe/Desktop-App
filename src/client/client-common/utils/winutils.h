@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include "ws_branding.h"
 
 #include <QMap>
 #include <QString>
@@ -8,7 +9,7 @@
 
 namespace WinUtils
 {
-    const std::wstring wmActivateGui = L"WindscribeAppActivate";
+    const std::wstring wmActivateGui = WS_APP_IDENTIFIER_W L"AppActivate";
 
     bool reboot();
     bool isWindows10orGreater();

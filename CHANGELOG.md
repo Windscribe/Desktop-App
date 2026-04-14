@@ -1,3 +1,64 @@
+2.22.4 (10/04/2026)
+All:
+   * Improved WireGuard PersistentKeepalive to use a value of 25 on all platforms. #1741
+   * Fixed server sub-menus for the locations list in the OS tray menu should have a delay before being displayed. #1737
+   * Fixed protocol indicates "WireGuard" while disconnected and selected location is an OpenVPN custom config. #1740
+   * Fixed WireGuard key limit dialog overlaps notification banners on app launch. #1742
+Windows:
+   * Fixed IKEv2 connection process may fail.  Regression introduced in 2.22.2. #1739
+   * Fixed third-party custom config may no longer passes tunnel test. 1743
+macOS:
+   * Fixed factory reset does not fully reset preferences. #1744
+Linux:
+   * Fixed third-party custom config may no longer passes tunnel test. 1743
+
+
+2.22.3 (08/04/2026)
+All:
+   * Added a 'ports' command to the CLI. #1731
+   * Improved filtering of potentially malicious directives in OpenVPN custom configs, which could lead to a privilege escalation. #1729
+   * Fixed standard/hashed login text overlaps when language set to Belarusian. #1736
+   * Updated c-ares back to 1.34.5 due to DNS resoluton issues with 1.34.6. #1733
+macOS:
+   * Fixed network connectivity lost after disconnecting due to regression caused by #1720 in the 2.22.2 release. #1735
+
+
+2.22.2 (02/04/2026)
+All:
+   * Added Belarusian (Taraškievica) localization. Community contribution by dubovy-achvelak. #1723
+   * Improved "No P2P" icon to display per-city (datacenter) instead of per-country in the locations list. #1594
+   * Fixed wsnet receiving system language rather than user's preferred language. #1716
+   * Fixed news feed title is clipped and entry height miscalculated when entry is expanded. #1721
+   * Fixed location list hover states broken after clicking main window. #1600
+   * Fixed executable signature verification mechanism disabled by #1678. #1728
+   * Updated to Qt 6.11.0. #1692
+   * Updated to c-ares 1.34.6, cURL 8.18.0, and OpenSSL 3.6.1. #1710
+Windows:
+   * Fixed WireGuard service may start then terminate immediately in a loop after wake from sleep. #1720
+   * Updated OpenVPN DCO driver to 2.8.2. #1717
+macOS:
+   * Fixed call continuity doesn't work with firewall enabled. #1724
+
+
+2.22.1 (26/03/2026)
+All:
+   * Added support for the new server list v2 API. #1594
+   * Improved build system for future flexibility. #1678
+   * Fixed nightly tests. #1696
+   * Fixed incorrect code organization. #1711
+   * Fixed Manage Account and other browser links opening production website in staging mode. #1713
+   * Updated ctrld to 1.5.0. #1689
+Windows:
+   * Improved BFE service status detection on Windows when SCM access is restricted from unelevated processes. #1699
+   * Fixed possible app crash when initiating an IKEv2 connection. #1100
+   * Fixed potential deadlock at app start. #1712
+macOS:
+   * Improved installer dmg generation by switching back to dmgbuild. #1715
+   * Fixed OpenVPN TCP fails to connect when LAN proxy feature is enabled. #1695
+   * Fixed multicast traffic not working on split tunneled apps. #1709
+   * Fixed potential deadlock at app start. #1712
+
+
 2.21.7 (23/03/2026)
 All:
    * Fixed e-mail field should not show for hashed accounts. #1704
@@ -16,7 +77,6 @@ All:
    * Fixed rotating the MAC address causing the tunnel test phase to get stuck. #1686
 Windows:
    * Fixed IP pinning and rotation features may be disabled when using Circumvent Censorship. #1654
-   * Fixed WireGuard may fail to reconnect on PC wake when using Circumvent Censorship. #1688
 
 
 2.21.5 (09/03/2026)

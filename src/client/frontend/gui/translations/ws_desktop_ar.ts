@@ -1252,14 +1252,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::AntiCensorshipGroup</name>
+    <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Circumvent Censorship</source>
-        <translation>تجاوز الرقابة</translation>
+        <source>Anti-censorship</source>
+        <translation>مناهضة الرقابة</translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation>التكوين</translation>
+        <source>These degrade performance, enable only if Windscribe doesn&apos;t connect normally.</source>
+        <translation>هذه النقاط تخفض الأداء، وتفعل فقط إذا لم يتصل ويندوسكرايب بشكل طبيعي.</translation>
+    </message>
+    <message>
+        <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
+        <translation>تم إجراء تغييرات على مستوى البروتوكول على بروتوكولات WireGuard وOpenVPN وStealth.</translation>
+    </message>
+    <message>
+        <source>Increases latency, but improves chances of being able to connect.</source>
+        <translation>يزيد من زمن التأخير، لكنه يحسن فرص القدرة على الاتصال.</translation>
+    </message>
+    <message>
+        <source>Server Routing</source>
+        <translation>توجيه الخوادم</translation>
     </message>
 </context>
 <context>
@@ -1495,8 +1507,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>قم بإزالة معلومات SSID وMAC من نظام التشغيل الخاص بك لمنع تتبع تاريخ الموقع.</translation>
     </message>
     <message>
-        <source>Connect to the VPN with WireGuard even in a hostile environment.</source>
-        <translation>اتصل بالVPN عبر WireGuard حتى في بيئة معادية.</translation>
+        <source>Anti-censorship Settings</source>
+        <translation>إعدادات مكافحة الرقابة</translation>
     </message>
 </context>
 <context>
@@ -2061,6 +2073,17 @@ Connect to a network first</source>
     </message>
 </context>
 <context>
+    <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Protocol Tweaks</source>
+        <translation>تعديلات البروتوكول</translation>
+    </message>
+    <message>
+        <source>Amnezia Config</source>
+        <translation>إعدادات Amnezia</translation>
+    </message>
+</context>
+<context>
     <name>PreferencesWindow::ProxyGatewayGroup</name>
     <message>
         <source>Proxy Gateway</source>
@@ -2584,14 +2607,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>عناوين IP ثابتة</translation>
     </message>
     <message>
-        <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
-        <translation>لم يعد إصدار التطبيق الخاص بك مدعوما. يرجى التحديث لمواصلة استخدام Windscribe.</translation>
-    </message>
-    <message>
-        <source>Please upgrade to a Pro account to continue using Windscribe.</source>
-        <translation>يرجى الترقية إلى حساب Pro لمواصلة استخدام Windscribe.</translation>
-    </message>
-    <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
         <translation>انتهت صلاحية حسابك الأصلي %1. يحظر إنشاء حسابات متعددة لتجاوز قيود الطبقة المجانية. يرجى تسجيل الدخول إلى الحساب الأصلي والانتظار حتى يتم إعادة تعيين النطاق الترددي. يمكنك أيضا الترقية إلى Pro.</translation>
     </message>
@@ -2671,16 +2686,28 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Random IP</source>
         <translation>IP عشوائي</translation>
     </message>
+    <message>
+        <source>Your application version is no longer supported. Please update to continue using %1.</source>
+        <translation>لم يعد إصدار التطبيق الخاص بك مدعوما. يرجى التحديث للاستمرار في استخدام ٪1.</translation>
+    </message>
+    <message>
+        <source>Please upgrade to a Pro account to continue using %1.</source>
+        <translation>يرجى الترقية إلى حساب Pro للاستمرار في استخدام ٪1.</translation>
+    </message>
+    <message>
+        <source>Regular</source>
+        <translation>منتظم</translation>
+    </message>
+    <message>
+        <source>Alternate</source>
+        <translation>بديل</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
     <message>
         <source>Unknown Config Error</source>
         <translation>خطأ تكوين غير معروف</translation>
-    </message>
-    <message>
-        <source>File Sharing Frowned Upon</source>
-        <translation>مشاركة الملفات مستهجنة</translation>
     </message>
 </context>
 <context>

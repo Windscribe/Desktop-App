@@ -8,6 +8,10 @@
         <translation>Δεν υπάρχουν τοποθεσίες.</translation>
     </message>
     <message>
+        <source>No ports available for the specified protocol.</source>
+        <translation>Δεν υπάρχουν διαθέσιμες θύρες για το καθορισμένο πρωτόκολλο.</translation>
+    </message>
+    <message>
         <source>Data usage: %1 / %2</source>
         <translation>Χρήση δεδομένων: %1 / %2</translation>
     </message>

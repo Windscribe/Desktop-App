@@ -1252,14 +1252,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::AntiCensorshipGroup</name>
+    <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Circumvent Censorship</source>
-        <translation>검열 우회</translation>
+        <source>Anti-censorship</source>
+        <translation>반검열</translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation>구성</translation>
+        <source>These degrade performance, enable only if Windscribe doesn&apos;t connect normally.</source>
+        <translation>이 기능은 성능 저하를 줄이고, Windscribe가 정상적으로 연결되지 않을 때만 활성화됩니다.</translation>
+    </message>
+    <message>
+        <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
+        <translation>WireGuard, OpenVPN, Stealth 프로토콜에 대한 프로토콜 수준의 변경.</translation>
+    </message>
+    <message>
+        <source>Increases latency, but improves chances of being able to connect.</source>
+        <translation>지연 시간은 늘어나지만 연결 가능성은 높아집니다.</translation>
+    </message>
+    <message>
+        <source>Server Routing</source>
+        <translation>서버 라우팅</translation>
     </message>
 </context>
 <context>
@@ -1495,8 +1507,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>위치 추적을 막기 위해 운영체제에서 Wi-Fi SSID와 MAC 정보를 제거하세요.</translation>
     </message>
     <message>
-        <source>Connect to the VPN with WireGuard even in a hostile environment.</source>
-        <translation>적대적인 환경에서도 WireGuard로 VPN에 연결하세요.</translation>
+        <source>Anti-censorship Settings</source>
+        <translation>검열 방지 설정</translation>
     </message>
 </context>
 <context>
@@ -2061,6 +2073,17 @@ Connect to a network first</source>
     </message>
 </context>
 <context>
+    <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Protocol Tweaks</source>
+        <translation>프로토콜 조정</translation>
+    </message>
+    <message>
+        <source>Amnezia Config</source>
+        <translation>Amnezia Config</translation>
+    </message>
+</context>
+<context>
     <name>PreferencesWindow::ProxyGatewayGroup</name>
     <message>
         <source>Proxy Gateway</source>
@@ -2584,14 +2607,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>고정 IP</translation>
     </message>
     <message>
-        <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
-        <translation>이 애플리케이션 버전이 더 이상 지원되지 않습니다. Windscribe를 계속 사용하려면 업데이트하세요.</translation>
-    </message>
-    <message>
-        <source>Please upgrade to a Pro account to continue using Windscribe.</source>
-        <translation>Windscribe를 계속 사용하려면 Pro 계정으로 업그레이드하세요.</translation>
-    </message>
-    <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
         <translation>원래 계정 %1이(가) 만료되었습니다. 프리 티어 제한을 우회하기 위해 여러 계정을 만드는 것은 금지되어 있습니다. 원래 계정에 로그인하고 대역폭이 재설정 될 때까지 기다리십시오. Pro로 업그레이드하는 방법도 있습니다.</translation>
     </message>
@@ -2671,16 +2686,28 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Random IP</source>
         <translation>랜덤 IP</translation>
     </message>
+    <message>
+        <source>Your application version is no longer supported. Please update to continue using %1.</source>
+        <translation>귀하의 애플리케이션 버전은 더 이상 지원되지 않습니다. %1 사용을 계속하려면 업데이트해 주세요.</translation>
+    </message>
+    <message>
+        <source>Please upgrade to a Pro account to continue using %1.</source>
+        <translation>1%를 계속 사용하시려면 Pro 계정으로 업그레이드해 주세요.</translation>
+    </message>
+    <message>
+        <source>Regular</source>
+        <translation>정규</translation>
+    </message>
+    <message>
+        <source>Alternate</source>
+        <translation>대체</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
     <message>
         <source>Unknown Config Error</source>
         <translation>알 수 없는 구성 오류</translation>
-    </message>
-    <message>
-        <source>File Sharing Frowned Upon</source>
-        <translation>이 위치에서는 파일 공유가 제한됩니다.</translation>
     </message>
 </context>
 <context>

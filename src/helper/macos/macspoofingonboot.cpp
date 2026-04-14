@@ -28,13 +28,13 @@ bool MacSpoofingOnBootManager::enable(const std::string &interface, const std::s
     std::stringstream script;
 
     script << "#!/bin/bash\n";
-    script << "FILE=\"/Applications/Windscribe.app/Contents/MacOS/Windscribe\"\n";
+    script << "FILE=\"" WS_MAC_APP_DIR "/Contents/MacOS/" WS_APP_IDENTIFIER "\"\n";
     script << "if [ ! -f \"$FILE\" ]\n";
     script << "then\n";
     script << "echo \"File $FILE does not exists\"\n";
-    script << "launchctl stop com.aaa.windscribe.macspoofing_on\n";
-    script << "launchctl unload /Library/LaunchDaemons/com.aaa.windscribe.macspoofing_on.plist\n";
-    script << "launchctl remove com.aaa.windscribe.macspoofing_on\n";
+    script << "launchctl stop com.aaa." WS_PRODUCT_NAME_LOWER ".macspoofing_on\n";
+    script << "launchctl unload /Library/LaunchDaemons/com.aaa." WS_PRODUCT_NAME_LOWER ".macspoofing_on.plist\n";
+    script << "launchctl remove com.aaa." WS_PRODUCT_NAME_LOWER ".macspoofing_on\n";
     script << "srm \"$0\"\n";
     script << "else\n";
     script << "echo \"File $FILE exists\"\n";
@@ -45,7 +45,7 @@ bool MacSpoofingOnBootManager::enable(const std::string &interface, const std::s
     script << "/sbin/ifconfig " << interface << " up\n";
     script << "fi\n";
 
-    int fd = open("/etc/windscribe/boot_macspoofing.sh", O_CREAT | O_WRONLY | O_TRUNC, 0744);
+    int fd = open(WS_POSIX_CONFIG_DIR "/boot_macspoofing.sh", O_CREAT | O_WRONLY | O_TRUNC, 0744);
     if (fd < 0) {
         spdlog::error("Could not open boot script for writing");
         return false;
@@ -53,7 +53,7 @@ bool MacSpoofingOnBootManager::enable(const std::string &interface, const std::s
 
     write(fd, script.str().c_str(), script.str().length());
     close(fd);
-    Utils::executeCommand("chmod", {"+x", "/etc/windscribe/boot_macspoofing.sh"});
+    Utils::executeCommand("chmod", {"+x", WS_POSIX_CONFIG_DIR "/boot_macspoofing.sh"});
 
     // write plist
     std::stringstream plist;
@@ -63,40 +63,40 @@ bool MacSpoofingOnBootManager::enable(const std::string &interface, const std::s
     plist << "<plist version=\"1.0\">\n";
     plist << "<dict>\n";
     plist << "<key>Label</key>\n";
-    plist << "<string>com.aaa.windscribe.macspoofing_on</string>\n";
+    plist << "<string>com.aaa." WS_PRODUCT_NAME_LOWER ".macspoofing_on</string>\n";
 
     plist << "<key>ProgramArguments</key>\n";
     plist << "<array>\n";
     plist << "<string>/bin/bash</string>\n";
-    plist << "<string>/etc/windscribe/boot_macspoofing.sh</string>\n";
+    plist << "<string>" WS_POSIX_CONFIG_DIR "/boot_macspoofing.sh</string>\n";
     plist << "</array>\n";
 
     plist << "<key>StandardErrorPath</key>\n";
-    plist << "<string>/var/log/windscribe_macspoofing.log</string>\n";
+    plist << "<string>/var/log/" WS_PRODUCT_NAME_LOWER "_macspoofing.log</string>\n";
     plist << "<key>StandardOutPath</key>\n";
-    plist << "<string>/var/log/windscribe_macspoofing.log</string>\n";
+    plist << "<string>/var/log/" WS_PRODUCT_NAME_LOWER "_macspoofing.log</string>\n";
 
     plist << "<key>RunAtLoad</key>\n";
     plist << "<true/>\n";
     plist << "</dict>\n";
     plist << "</plist>\n";
 
-    fd = open("/Library/LaunchDaemons/com.aaa.windscribe.macspoofing_on.plist", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    fd = open("/Library/LaunchDaemons/com.aaa." WS_PRODUCT_NAME_LOWER ".macspoofing_on.plist", O_CREAT | O_WRONLY | O_TRUNC, 0644);
     if (fd < 0) {
         spdlog::error("Could not open boot plist for writing");
         return false;
     }
     write(fd, plist.str().c_str(), plist.str().length());
     close(fd);
-    Utils::executeCommand("launchctl", {"load", "-w", "/Library/LaunchDaemons/com.aaa.windscribe.macspoofing_on.plist"});
+    Utils::executeCommand("launchctl", {"load", "-w", "/Library/LaunchDaemons/com.aaa." WS_PRODUCT_NAME_LOWER ".macspoofing_on.plist"});
 
     return true;
 }
 
 bool MacSpoofingOnBootManager::disable()
 {
-    Utils::executeCommand("launchctl", {"unload", "/Library/LaunchDaemons/com.aaa.windscribe.macspoofing_on.plist"});
-    Utils::executeCommand("rm", {"-f", "/Library/LaunchDaemons/com.aaa.windscribe.macspoofing_on.plist"});
-    Utils::executeCommand("rm", {"-f", "/etc/windscribe/boot_macspoofing.sh"});
+    Utils::executeCommand("launchctl", {"unload", "/Library/LaunchDaemons/com.aaa." WS_PRODUCT_NAME_LOWER ".macspoofing_on.plist"});
+    Utils::executeCommand("rm", {"-f", "/Library/LaunchDaemons/com.aaa." WS_PRODUCT_NAME_LOWER ".macspoofing_on.plist"});
+    Utils::executeCommand("rm", {"-f", WS_POSIX_CONFIG_DIR "/boot_macspoofing.sh"});
     return true;
 }

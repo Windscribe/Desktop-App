@@ -177,7 +177,7 @@ void WireguardRingLogger::process(int index)
             return;
         }
 
-        QDateTime dt = QDateTime::fromMSecsSinceEpoch(timestamp / 1000000, QTimeZone(Qt::UTC));
+        QDateTime dt = QDateTime::fromMSecsSinceEpoch(timestamp / 1000000, QTimeZone::UTC);
         qCDebug(LOG_WIREGUARD) << dt.toString("ddMMyy hh:mm:ss:zzz") << message;
     }
 }

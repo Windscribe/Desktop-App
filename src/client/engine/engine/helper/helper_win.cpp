@@ -17,7 +17,7 @@ Helper_win::Helper_win(std::unique_ptr<IHelperBackend> backend, spdlog::logger *
 
 QString Helper_win::getHelperVersion()
 {
-    QString version = WinUtils::getVersionInfoItem(QCoreApplication::applicationDirPath() + "/WindscribeService.exe", "ProductVersion");
+    QString version = WinUtils::getVersionInfoItem(QCoreApplication::applicationDirPath() + "/" WS_APP_IDENTIFIER "Service.exe", "ProductVersion");
     if (version.isEmpty()) {
         version = "Failed to extract ProductVersion from executable";
     }
@@ -149,9 +149,9 @@ bool Helper_win::getWireGuardStatus(types::WireGuardStatus *status)
     return true;
 }
 
-void Helper_win::firewallOn(const QString &connectingIp, const QString &ip, bool bAllowLanTraffic)
+void Helper_win::firewallOn(const QString &connectingIp, const QString &ip, bool bAllowLanTraffic, bool bIsCustomConfig)
 {
-    sendCommand(HelperCommand::firewallOn, connectingIp.toStdWString(), ip.toStdWString(), bAllowLanTraffic);
+    sendCommand(HelperCommand::firewallOn, connectingIp.toStdWString(), ip.toStdWString(), bAllowLanTraffic, bIsCustomConfig);
 }
 
 void Helper_win::firewallOff()
@@ -223,12 +223,20 @@ bool Helper_win::stopIcs()
     return success;
 }
 
-QString Helper_win::enableBFE()
+unsigned long Helper_win::queryBFEStatus()
+{
+    auto result = sendCommand(HelperCommand::queryBFEStatus);
+    unsigned long status = 0;
+    deserializeAnswer(result, status);
+    return status;
+}
+
+bool Helper_win::enableBFE()
 {
     auto result = sendCommand(HelperCommand::enableBFE);
-    std::wstring log;
-    deserializeAnswer(result, log);
-    return QString::fromStdWString(log);
+    bool success = false;
+    deserializeAnswer(result, success);
+    return success;
 }
 
 QString Helper_win::resetAndStartRAS()
@@ -342,9 +350,9 @@ void Helper_win::addIKEv2DefaultRoute()
     sendCommand(HelperCommand::addIKEv2DefaultRoute);
 }
 
-void Helper_win::removeWindscribeNetworkProfiles()
+void Helper_win::removeAppNetworkProfiles()
 {
-    sendCommand(HelperCommand::removeWindscribeNetworkProfiles);
+    sendCommand(HelperCommand::removeAppNetworkProfiles);
 }
 
 void Helper_win::setIKEv2IPSecParameters()

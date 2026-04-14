@@ -16,6 +16,10 @@
         <translation>कोई स्थान नहीं।</translation>
     </message>
     <message>
+        <source>No ports available for the specified protocol.</source>
+        <translation>निर्दिष्ट प्रोटोकॉल के लिए कोई पोर्ट उपलब्ध नहीं है.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>IP को घुमाया नहीं जा सका।  कृपया जांचें कि आपके पास विंडसाइड प्रो है या आपकी योजना में यह स्थान है, या बाद में पुनः प्रयास करें।</translation>
     </message>

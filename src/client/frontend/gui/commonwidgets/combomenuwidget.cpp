@@ -432,7 +432,12 @@ int ComboMenuWidget::allButtonsHeight()
 
 double ComboMenuWidget::scrollBarHeightFraction()
 {
-    return static_cast<double>(restrictedHeight())/(allButtonsHeight());
+    int sum = allButtonsHeight();
+    if (sum == 0) {
+        return 0;
+    } else {
+        return static_cast<double>(restrictedHeight())/(sum);
+    }
 }
 
 int ComboMenuWidget::restrictedHeight()

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.23)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET "12" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "13" CACHE STRING "Minimum OS X deployment version")
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
@@ -24,14 +24,6 @@ option(DEFINE_USE_SIGNATURE_CHECK_MACRO "Add define USE_SIGNATURE_CHECK to proje
 if(DEFINE_USE_SIGNATURE_CHECK_MACRO)
     add_definitions(-DUSE_SIGNATURE_CHECK)
 endif(DEFINE_USE_SIGNATURE_CHECK_MACRO)
-
-if(UNIX AND (NOT APPLE))
-    # if build requested a headless client, set the necessary definitions
-    option(DEFINE_CLI_ONLY_MACRO "Build GUI-less client" OFF)
-    if(DEFINE_CLI_ONLY_MACRO)
-        add_definitions(-DCLI_ONLY)
-    endif(DEFINE_CLI_ONLY_MACRO)
-endif()
 
 set(SOURCES
     backendcommander.cpp
@@ -104,7 +96,7 @@ else()
          ../client/client-common/utils/linuxutils.cpp)
 endif()
 
-add_executable(windscribe-cli ${SOURCES})
+add_executable(${WS_CLI_TARGET} ${SOURCES})
 
 set(TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_ar.ts
@@ -131,9 +123,11 @@ set(TS_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_zh-CN.ts
     ${CMAKE_CURRENT_SOURCE_DIR}/translations/windscribe_cli_zh-TW.ts
 )
-qt6_create_translation(QM_FILES ${CMAKE_CURRENT_SOURCE_DIR} ${TS_FILES} OPTIONS -extensions cpp,h -locations none)
+if (UPDATE_TRANSLATIONS AND NOT DEFINE_QT_CREATOR_DEV_BUILD_MACRO)
+    qt6_create_translation(QM_FILES ${CMAKE_CURRENT_SOURCE_DIR} ${TS_FILES} OPTIONS -extensions cpp,h -locations none)
+endif()
 
-qt_add_resources(windscribe-cli qm_files
+qt_add_resources(${WS_CLI_TARGET} qm_files
     PREFIX
         "/translations"
     BASE
@@ -143,10 +137,10 @@ qt_add_resources(windscribe-cli qm_files
 )
 
 if(APPLE)
-    set_property(TARGET windscribe-cli APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
+    set_property(TARGET ${WS_CLI_TARGET} APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
 endif()
 
-target_link_libraries(windscribe-cli
+target_link_libraries(${WS_CLI_TARGET}
                       PRIVATE
                       ${OS_SPECIFIC_LIBS}
                       spdlog::spdlog
@@ -154,11 +148,11 @@ target_link_libraries(windscribe-cli
                       Qt6::Network
 )
 
-target_include_directories(windscribe-cli PRIVATE
+target_include_directories(${WS_CLI_TARGET} PRIVATE
                            ../client/client-common
                            $<TARGET_PROPERTY:wsnet::wsnet,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
-install(TARGETS windscribe-cli
+install(TARGETS ${WS_CLI_TARGET}
     RUNTIME DESTINATION .
 )

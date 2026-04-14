@@ -21,7 +21,7 @@ StunnelManager::StunnelManager(QObject *parent, Helper *helper)
     connect(process_, &QProcess::errorOccurred, this, &StunnelManager::onProcessErrorOccurred);
     process_->setProcessChannelMode(QProcess::MergedChannels);
 
-    stunnelExePath_ = QCoreApplication::applicationDirPath() + "/windscribewstunnel.exe";
+    stunnelExePath_ = QCoreApplication::applicationDirPath() + "/" WS_PRODUCT_NAME_LOWER "wstunnel.exe";
 #endif
 }
 

@@ -218,7 +218,7 @@ QString ProtocolPromptItem::getProtocolDescription(const types::Protocol &protoc
         return tr("Wraps traffic with web sockets.");
     } else {
         WS_ASSERT(false);
-        return tr("");
+        return QString();
     }
 }
 

@@ -171,7 +171,7 @@ std::string HttpProxyRequest::processClientHeaders()
             if (boost::iequals(it->name,"via"))
             {
                 int len = snprintf(buf, 4096, "Via: %s, %hu.%hu %s (%s/%s)\r\n",
-                        it->value.c_str(), http_version_major, http_version_minor, "Windscribe proxy", AppVersion::instance().version().toStdString().c_str(),
+                        it->value.c_str(), http_version_major, http_version_minor, WS_PRODUCT_NAME " proxy", AppVersion::instance().version().toStdString().c_str(),
                         AppVersion::instance().build().toStdString().c_str());
                 WS_ASSERT((unsigned int)len < sizeof(buf));
                 ret += buf;
@@ -187,7 +187,7 @@ std::string HttpProxyRequest::processClientHeaders()
     if (!isExistViaHeader)
     {
         int len = snprintf(buf, 4096, "Via: %hu.%hu %s (%s/%s)\r\n",
-                http_version_major, http_version_minor, "Windscribe proxy", AppVersion::instance().version().toStdString().c_str(),
+                http_version_major, http_version_minor, WS_PRODUCT_NAME " proxy", AppVersion::instance().version().toStdString().c_str(),
                 AppVersion::instance().build().toStdString().c_str());
         WS_ASSERT((unsigned int)len < sizeof(buf));
         ret += buf;

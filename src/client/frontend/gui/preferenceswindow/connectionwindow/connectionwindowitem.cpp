@@ -43,8 +43,6 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(preferencesHelper, &PreferencesHelper::currentProtocolChanged, this, &ConnectionWindowItem::onPreferencesHelperCurrentProtocolChanged);
     connect(preferences, &Preferences::isTerminateSocketsChanged, this, &ConnectionWindowItem::onTerminateSocketsPreferencesChanged);
     connect(preferences, &Preferences::isAutoConnectChanged, this, &ConnectionWindowItem::onIsAutoConnectPreferencesChanged);
-    connect(preferences, &Preferences::isAntiCensorshipChanged, this, &ConnectionWindowItem::onAntiCensorshipPreferencesChanged);
-    connect(preferences, &Preferences::amneziawgPresetChanged, this, &ConnectionWindowItem::onAmneziawgPresetChanged);
 
     subpagesGroup_ = new PreferenceGroup(this);
 
@@ -56,6 +54,10 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     connect(splitTunnelingItem_, &LinkItem::clicked, this, &ConnectionWindowItem::splitTunnelingPageClick);
     onSplitTunnelingPreferencesChanged(preferences->splitTunneling());
     subpagesGroup_->addItem(splitTunnelingItem_);
+
+    antiCensorshipItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK);
+    connect(antiCensorshipItem_, &LinkItem::clicked, this, &ConnectionWindowItem::antiCensorshipPageClick);
+    subpagesGroup_->addItem(antiCensorshipItem_);
 
     proxySettingsItem_ = new LinkItem(subpagesGroup_, LinkItem::LinkType::SUBPAGE_LINK);
     connect(proxySettingsItem_, &LinkItem::clicked, this, &ConnectionWindowItem::proxySettingsPageClick);
@@ -152,12 +154,6 @@ ConnectionWindowItem::ConnectionWindowItem(ScalableGraphicsObject *parent, Prefe
     clearWifiHistoryGroup_->addItem(clearWifiHistoryItem_);
     addItem(clearWifiHistoryGroup_);
 
-    antiCensorshipGroup_ = new AntiCensorshipGroup(this);
-    connect(antiCensorshipGroup_, &AntiCensorshipGroup::antiCensorshipStateChanged, this, &ConnectionWindowItem::onAntiCensorshipPreferencesChangedByUser);
-    connect(antiCensorshipGroup_, &AntiCensorshipGroup::amneziawgPresetChanged, this, &ConnectionWindowItem::onAmneziawgPresetChangedByUser);
-    antiCensorshipGroup_->setAntiCensorshipEnabled(preferences->isAntiCensorship());
-    addItem(antiCensorshipGroup_);
-
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &ConnectionWindowItem::onLanguageChanged);
     onLanguageChanged();
 
@@ -224,11 +220,6 @@ void ConnectionWindowItem::setClearWifiHistoryResult(bool success)
     clearWifiState_ = ClearWifiState::kFinished;
 }
 
-void ConnectionWindowItem::setAmneziawgUnblockParams(const QString &activePreset, QStringList presets)
-{
-    antiCensorshipGroup_->setAmneziawgUnblockParams(activePreset, presets);
-}
-
 void ConnectionWindowItem::onFirewallPreferencesChangedByUser(const types::FirewallSettings &fm)
 {
     // Show a warning for "Firewall Always On+" mode
@@ -268,18 +259,6 @@ void ConnectionWindowItem::onTerminateSocketsPreferencesChangedByUser(bool isChe
 #if defined(Q_OS_WIN)
     preferences_->setTerminateSockets(isChecked);
 #endif
-}
-
-void ConnectionWindowItem::onAntiCensorshipPreferencesChangedByUser(bool isChecked)
-{
-    preferences_->setAntiCensorship(isChecked);
-    QSettings settings;
-    settings.remove("isAntiCensorshipEnabledAutomatically");
-}
-
-void ConnectionWindowItem::onAmneziawgPresetChangedByUser(QString preset)
-{
-    preferences_->setAmneziawgPreset(preset);
 }
 
 void ConnectionWindowItem::onSplitTunnelingPreferencesChanged(const types::SplitTunneling &st)
@@ -332,16 +311,6 @@ void ConnectionWindowItem::onTerminateSocketsPreferencesChanged(bool b)
 #endif
 }
 
-void ConnectionWindowItem::onAntiCensorshipPreferencesChanged(bool b)
-{
-    antiCensorshipGroup_->setAntiCensorshipEnabled(b);
-}
-
-void ConnectionWindowItem::onAmneziawgPresetChanged(const QString &preset)
-{
-    antiCensorshipGroup_->setAmneziawgPreset(preset);
-}
-
 void ConnectionWindowItem::onAllowLanTrafficButtonHoverLeave()
 {
     TooltipController::instance().hideTooltip(TOOLTIP_ID_INVALID_LAN_ADDRESS);
@@ -379,6 +348,7 @@ void ConnectionWindowItem::onLanguageChanged()
     networkOptionsItem_->setTitle(tr("Network Options"));
     splitTunnelingItem_->setTitle(tr("Split Tunneling"));
     onSplitTunnelingPreferencesChanged(preferences_->splitTunneling());
+    antiCensorshipItem_->setTitle(tr("Anti-censorship Settings"));
     proxySettingsItem_->setTitle(tr("Proxy Settings"));
 
     checkBoxAutoConnect_->setDescription(tr("Connects to last used location when the app launches or joins a network."));
@@ -415,9 +385,6 @@ void ConnectionWindowItem::onLanguageChanged()
 
     proxyGatewayGroup_->setDescription(tr("Configure your TV, gaming console, or other devices that support proxy servers."),
                                        QString("https://%1/features/proxy-gateway").arg(HardcodedSettings::instance().windscribeServerUrl()));
-    antiCensorshipGroup_->setDescription(tr("Connect to the VPN with WireGuard even in a hostile environment."),
-                                         QString("https://%1/features/circumvent-censorship").arg(HardcodedSettings::instance().windscribeServerUrl()));
-
     clearWifiHistoryItem_->setTitle(tr("Clear Wi-Fi History"));
     clearWifiHistoryGroup_->setDescription(tr("Remove Wi-Fi SSID and MAC information from your operating system to prevent location history tracking."),
                                             QString("https://%1/features/clear-wifi-history").arg(HardcodedSettings::instance().windscribeServerUrl()));

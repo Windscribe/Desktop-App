@@ -42,11 +42,8 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
 
     if (networkInterface != lastNetworkInterface_)
     {
-        bool significantChange = false;
-
         if (networkInterface.interfaceName != lastNetworkInterface_.interfaceName)
         {
-            significantChange = true;
             if (networkInterface.interfaceIndex == -1)
             {
                 qCInfo(LOG_BASIC) << "Primary Adapter down: " << lastNetworkInterface_.interfaceName;
@@ -65,7 +62,6 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
         }
         else if (networkInterface.networkOrSsid != lastNetworkInterface_.networkOrSsid)
         {
-            significantChange = true;
             qCInfo(LOG_BASIC) << "Primary Network Changed: "
                                << networkInterface.interfaceName
                                << " : " << networkInterface.networkOrSsid;
@@ -79,14 +75,12 @@ void NetworkDetectionManager_mac::onNetworkStateChanged()
         }
         else
         {
-            qCInfo(LOG_BASIC) << "Minor interface change on" << networkInterface.interfaceName
-                               << "(e.g. same-SSID AP roam), skipping reconnect";
+            qCInfo(LOG_BASIC) << "Unidentified interface change";
+            // Can happen when changing interfaces
         }
 
         lastNetworkInterface_ = networkInterface;
-        if (significantChange) {
-            emit networkChanged(networkInterface);
-        }
+        emit networkChanged(networkInterface);
     }
     else if (wifiAdapterUp != lastWifiAdapterUp_)
     {

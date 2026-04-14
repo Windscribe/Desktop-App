@@ -6,7 +6,7 @@
 class FirewallController
 {
 public:
-    inline static const std::string kTag = "Windscribe client rule";
+    inline static const std::string kTag = WS_PRODUCT_NAME " client rule";
 
     static FirewallController & instance()
     {

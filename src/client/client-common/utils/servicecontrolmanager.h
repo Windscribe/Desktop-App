@@ -8,9 +8,6 @@
 namespace wsl
 {
 
-//---------------------------------------------------------------------------
-// ServiceControlManager class definition
-
 class ServiceControlManager
 {
 public:
@@ -18,7 +15,7 @@ public:
     ~ServiceControlManager();
 
     void deleteService(LPCTSTR serviceName, bool stopRunningService = true);
-    bool deleteService(LPCTSTR serviceName, std::error_code& ec) noexcept;
+    bool deleteService(LPCTSTR serviceName, std::error_code& ec, int timeoutMs = 20000) noexcept;
 
     void installService(LPCTSTR serviceName, LPCTSTR binaryPathName,
                         LPCTSTR displayName, LPCTSTR description,
@@ -43,11 +40,11 @@ public:
     void sendControlCode(DWORD code) const;
     void setServiceDescription(LPCTSTR description) const;
     void setServiceSIDType(DWORD serviceSidType) const;
-    void startService();
-    bool startService(std::error_code& ec) noexcept;
-    void stopService();
-    void stopService(LPCTSTR serviceName);
-    bool stopService(std::error_code& ec) noexcept;
+    void startService(int timeoutMs = 20000);
+    bool startService(std::error_code& ec, int timeoutMs = 20000) noexcept;
+    void stopService(int timeoutMs = 20000);
+    void stopService(LPCTSTR serviceName, int timeoutMs = 20000);
+    bool stopService(std::error_code& ec, int timeoutMs = 20000) noexcept;
 
     // Prevents the initiation of, and aborts any currently running, start/stop requests.
     void blockStartStopRequests();
@@ -56,6 +53,8 @@ public:
     LPCTSTR getServerName() const;
 
     std::wstring exePath() const;
+
+    static std::wstring serviceStatusToString(DWORD status);
 
 private:
     std::wstring serverName_;
@@ -68,9 +67,6 @@ private:
     void grantUserStartStopPermission() const;
     std::wstring serverNameForDebug() const;
 };
-
-//---------------------------------------------------------------------------
-// ServiceControlManager inline methods
 
 inline bool
 ServiceControlManager::isSCMOpen() const
@@ -95,7 +91,5 @@ ServiceControlManager::unblockStartStopRequests()
 {
     blockStartStopRequests_ = false;
 }
-
-//---------------------------------------------------------------------------
 
 } // end namespace wsl

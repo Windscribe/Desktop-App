@@ -590,5 +590,64 @@ public:
 };
 
 
+class ShowPorts : public Command
+{
+public:
+    ShowPorts() {}
+    explicit ShowPorts(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> protocol_;
+    }
+
+    std::vector<char> getData() const override
+    {
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << protocol_;
+        return std::vector<char>(arr.begin(), arr.end());
+    }
+
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "CliCommands::ShowPorts debug string";
+    }
+    static std::string getCommandStringId() { return "CliCommands::ShowPorts";  }
+
+    QString protocol_;
+};
+
+class PortsList : public Command
+{
+public:
+    PortsList() {}
+    explicit PortsList(char *buf, int size)
+    {
+        QByteArray arr(buf, size);
+        QDataStream ds(&arr, QIODevice::ReadOnly);
+        ds >> ports_;
+    }
+
+    std::vector<char> getData() const override
+    {
+        QByteArray arr;
+        QDataStream ds(&arr, QIODevice::WriteOnly);
+        ds << ports_;
+        return std::vector<char>(arr.begin(), arr.end());
+    }
+
+    std::string getStringId() const override { return getCommandStringId(); }
+    std::string getDebugString() const override
+    {
+        return "CliCommands::PortsList debug string";
+    }
+    static std::string getCommandStringId() { return "CliCommands::PortsList";  }
+
+    QVector<uint> ports_;
+};
+
+
 } // namespace CliCommands
 } // namespace IPC

@@ -134,6 +134,14 @@ SessionStatus::SessionStatus(const std::string &json) : d(new SessionStatusData)
         d->static_ips_ = 0;
     }
 
+    d->amneziawgConfigId_.clear();
+    if (jsonData.contains("server_inventory") && jsonData["server_inventory"].isObject()) {
+        auto jsonServerInventoryObj = jsonData["server_inventory"].toObject();
+        if (jsonServerInventoryObj.contains("amneziawg_config_id")) {
+            d->amneziawgConfigId_ = jsonServerInventoryObj["amneziawg_config_id"].toString();
+        }
+    }
+
     d->isInitialized_ = true;
 }
 
@@ -297,6 +305,12 @@ qint64 SessionStatus::getTrafficMax() const
 {
     WS_ASSERT(d->isInitialized_);
     return d->traffic_max_;
+}
+
+QString SessionStatus::getAmneziaConfigId() const
+{
+    WS_ASSERT(d->isInitialized_);
+    return d->amneziawgConfigId_;
 }
 
 QDataStream& operator <<(QDataStream& stream, const SessionStatus& ss)

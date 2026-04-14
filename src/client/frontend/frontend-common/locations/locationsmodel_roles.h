@@ -10,7 +10,7 @@ enum Roles {
     kIsTopLevelLocation,                 // true for a location and false for a city
     kCountryCode,                        // location and city
     kShortName,                          // location and city
-    kIsShowP2P,                          // location only
+    kIsShowP2P,                          // city only
     kIsShowAsPremium,                    // location and city
     kIs10Gbps,                           // location and city
     kLoad,                               // location and city
@@ -27,6 +27,8 @@ enum Roles {
     kIsCustomConfigCorrect,              // city only
     kCustomConfigType,                   // city only
     kCustomConfigErrorMessage,           // city only
+    kCustomConfigProtocol,               // city only
+    kCustomConfigPort,                   // city only
 
     kDisplayNickname,                    // city only and best location
 };

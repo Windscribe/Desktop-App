@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ------------------------------------------------------------------------------
 # Windscribe Build System
-# Copyright (c) 2020-2024, Windscribe Limited. All rights reserved.
+# Copyright (c) 2020-2026, Windscribe Limited. All rights reserved.
 # ------------------------------------------------------------------------------
 # Purpose: installs wintun DLL and header file.
 import os
@@ -27,7 +27,7 @@ DEP_URL = "https://github.com/OpenVPN/ovpn-dco-win/releases/download"
 DEP_OS_LIST = ["win32"]
 
 
-def DownloadAndCopy(dep_version_str, is_arm64):
+def DownloadAndCopy(product_name, dep_version_str, is_arm64):
     dep_name = DEP_TITLE.lower()
     temp_dir = iutl.PrepareTempDirectory(dep_name)
     archivename = f"{dep_name}-{dep_version_str}-"
@@ -40,8 +40,7 @@ def DownloadAndCopy(dep_version_str, is_arm64):
     iutl.DownloadFile(webfilename, localfilename, dep_checksum_str)
     msg.HeadPrint(f"Extracting: \"{archivename}\"")
     iutl.ExtractFile(localfilename)
-    dep_buildroot_var = "BUILDROOT_" + DEP_TITLE.upper()
-    dep_buildroot_str = os.environ.get(dep_buildroot_var, os.path.join("build-libs-arm64" if is_arm64 else "build-libs", dep_name))
+    dep_buildroot_str = os.path.join(iutl.GetBuildLibsRoot(product_name, is_arm64), dep_name)
     outpath = os.path.normpath(os.path.join(os.path.dirname(TOOLS_DIR), dep_buildroot_str))
     utl.CopyAllFiles(f"{temp_dir}", f"{outpath}")
     msg.Print(f"{DEP_TITLE} v{dep_version_str} installed in {outpath}")
@@ -52,6 +51,7 @@ def DownloadAndCopy(dep_version_str, is_arm64):
 
 
 def InstallDependency():
+    product_name = iutl.ParseProductArg()
     if "--arm64" in sys.argv:
         msg.Warn("--arm64 flag not required.  This script installs both amd64 and arm64 binaries on Windows.")
     msg.HeadPrint(f"Loading: \"{CONFIG_NAME}\"")
@@ -64,8 +64,8 @@ def InstallDependency():
     if not dep_version_str:
         raise iutl.InstallError(f"{dep_version_var} not defined.")
 
-    DownloadAndCopy(dep_version_str, False)
-    DownloadAndCopy(dep_version_str, True)
+    DownloadAndCopy(product_name, dep_version_str, False)
+    DownloadAndCopy(product_name, dep_version_str, True)
 
 
 if __name__ == "__main__":

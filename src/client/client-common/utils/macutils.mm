@@ -11,7 +11,6 @@
 #include "executable_signature/executable_signature.h"
 #include "log/categories.h"
 #include "macutils.h"
-#include "names.h"
 #include "utils.h"
 
 namespace {
@@ -98,8 +97,13 @@ void MacUtils::setArrowCursor()
 
 bool MacUtils::isAppAlreadyRunning()
 {
-    // Look for process containing "Windscribe" -- exclude grep and Engine
-    QString cmd = "ps axco command | grep Windscribe | grep -v grep | grep -v WindscribeEngine | grep -v windscribe-cli";
+    // Look for process containing the product name -- exclude grep and Engine
+    QString cmd = "ps axco command | grep " WS_APP_EXECUTABLE_NAME " | grep -v grep";
+#ifdef WS_IS_WINDSCRIBE
+    cmd += " | grep -v " WS_APP_IDENTIFIER "Engine"; // Exclude older 1.x engine process
+#endif
+    if (strlen(WS_CLI_EXECUTABLE_NAME) > 0)
+        cmd += " | grep -v " WS_CLI_EXECUTABLE_NAME;
     QString response = Utils::execCmd(cmd);
     return response.trimmed() != "";
 }
@@ -142,7 +146,7 @@ NSRunningApplication *guiApplicationByBundleName()
     {
         NSRunningApplication *app = [apps objectAtIndex: i];
         QString appBundleId = QString::fromNSString([app bundleIdentifier]);
-        if (appBundleId == QString(GUI_BUNDLE_ID))
+        if (appBundleId == QString(WS_MAC_GUI_BUNDLE_ID))
         {
             if ([app processIdentifier] != [currentApp processIdentifier])
             {
@@ -181,18 +185,18 @@ void MacUtils::getNSWindowCenter(void *nsView, int &outX, int &outY)
 
 bool MacUtils::dynamicStoreEntryHasKey(const QString &entry, const QString &key)
 {
-    SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("WindscribeKeyChecker"), NULL, NULL);
+    SCDynamicStoreRef dynRef = SCDynamicStoreCreate(kCFAllocatorSystemDefault, CFSTR("" WS_APP_IDENTIFIER "KeyChecker"), NULL, NULL);
     if (dynRef == NULL) {
         qCCritical(LOG_BASIC) << "dynamicStoreEntryHasKey - SCDynamicStoreCreate failed";
         return false;
     }
 
-    CFStringRef setByWindscribeValue = NULL;
+    CFStringRef setByAppValue = NULL;
     CFStringRef entryCFString = entry.toCFString();
     CFStringRef keyCFString = key.toCFString();
     CFDictionaryRef dnskey = (CFDictionaryRef) SCDynamicStoreCopyValue(dynRef, entryCFString);
     if (dnskey != NULL) {
-        setByWindscribeValue = (CFStringRef) CFDictionaryGetValue(dnskey, keyCFString);
+        setByAppValue = (CFStringRef) CFDictionaryGetValue(dnskey, keyCFString);
         CFRelease(dnskey);
     } else {
         qCCritical(LOG_BASIC) << "dynamicStoreEntryHasKey - SCDynamicStoreCopyValue failed";
@@ -200,7 +204,7 @@ bool MacUtils::dynamicStoreEntryHasKey(const QString &entry, const QString &key)
     CFRelease(dynRef);
     CFRelease(entryCFString);
     CFRelease(keyCFString);
-    return setByWindscribeValue != NULL;
+    return setByAppValue != NULL;
 }
 
 bool MacUtils::verifyAppBundleIntegrity()
@@ -253,7 +257,7 @@ bool MacUtils::isParentProcessGui()
     if ((status != 0) && (strlen(pathBuffer) != 0))
     {
         QString parentPath = QString::fromStdString(pathBuffer);
-        QString guiPath = QCoreApplication::applicationDirPath() + "/../../../../MacOS/Windscribe";
+        QString guiPath = QCoreApplication::applicationDirPath() + "/../../../../MacOS/" WS_APP_EXECUTABLE_NAME;
         guiPath = QDir::cleanPath(guiPath);
 
         if (parentPath.compare(guiPath, Qt::CaseInsensitive) == 0)

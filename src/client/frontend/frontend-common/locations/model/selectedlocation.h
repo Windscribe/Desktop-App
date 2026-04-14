@@ -3,6 +3,7 @@
 #include <QAbstractItemModel>
 #include "types/locationid.h"
 #include "types/pingtime.h"
+#include "types/protocol.h"
 
 namespace gui_locations {
 
@@ -25,6 +26,8 @@ public:
     QString countryCode() const { return countryCode_; }
     QString shortName() const { return shortName_; }
     PingTime pingTime() const { return pingTime_; }
+    types::Protocol customConfigProtocol() const { return customConfigProtocol_; }
+    uint customConfigPort() const { return customConfigPort_; }
 
 signals:
     void changed();
@@ -46,6 +49,8 @@ private:
     QString countryCode_;
     QString shortName_;
     PingTime pingTime_;
+    types::Protocol customConfigProtocol_;
+    uint customConfigPort_ = 0;
 
     void fillData();
     void setInvalid();

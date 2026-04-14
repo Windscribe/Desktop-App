@@ -40,12 +40,14 @@ QVector<api_responses::Notification> NotificationsController::messages() const
         // generate message for empty list
         QVector<api_responses::Notification> arr;
 
+#ifdef WS_IS_WINDSCRIBE
         api_responses::Notification notification;
         notification.id = 0;
         notification.title = tr("WELCOME TO WINDSCRIBE");
         notification.message = tr("<p>You will find announcements and general Windscribe related news here. "
                                   "Perhaps even delicious cake, everyone loves cake!</p>");
         arr << notification;
+#endif
         return arr;
     }
 }

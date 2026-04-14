@@ -16,6 +16,10 @@
         <translation>Pas de lieux.</translation>
     </message>
     <message>
+        <source>No ports available for the specified protocol.</source>
+        <translation>Aucun port disponible pour le protocole spécifié.</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>Impossible de faire pivoter l’IP.  Veuillez vérifier que vous avez Windscribe Pro ou que vous avez cet emplacement dans votre plan, ou réessayez plus tard.</translation>
     </message>

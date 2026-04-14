@@ -4,6 +4,8 @@
 #include <QString>
 #include <QStringList>
 
+#include "version/appversion.h"
+
 class HardcodedSettings
 {
 public:
@@ -15,7 +17,11 @@ public:
     }
 
     QString windscribeHost() const { return "windscribe.com"; }
-    QString windscribeServerUrl() const { return "www." + windscribeHost(); }
+    QString windscribeServerUrl() const {
+        if (AppVersion::instance().isStaging())
+            return "www-staging." + windscribeHost();
+        return "www." + windscribeHost();
+    }
 
     const QStringList openDns() const;
     const QStringList googleDns() const;

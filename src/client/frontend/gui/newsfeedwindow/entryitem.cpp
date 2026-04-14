@@ -118,9 +118,14 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
     QFont font = FontManager::instance().getFont(14, QFont::Bold);
     painter->setFont(font);
 
-    QFontMetrics titleMetrics(font);
-    QString elided = titleMetrics.elidedText(item_.title.toUpper(), Qt::ElideRight, boundingRect().width() - (3*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE));
-    painter->drawText(boundingRect().adjusted(TEXT_MARGIN*G_SCALE, TEXT_MARGIN*G_SCALE, -(2*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE), 0), elided);
+    QRectF titleRect = boundingRect().adjusted(TEXT_MARGIN*G_SCALE, TEXT_MARGIN*G_SCALE, -(2*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE), 0);
+    if (expanded_) {
+        painter->drawText(titleRect, Qt::AlignLeft | Qt::TextWordWrap, item_.title.toUpper());
+    } else {
+        QFontMetrics titleMetrics(font);
+        QString elided = titleMetrics.elidedText(item_.title.toUpper(), Qt::ElideRight, titleRect.width());
+        painter->drawText(titleRect, elided);
+    }
 
     // date
     painter->setOpacity(OPACITY_FULL);
@@ -128,7 +133,8 @@ void EntryItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*opti
     painter->setPen(QColor(114, 121, 129));
     painter->setFont(font);
     QString date = QDateTime::fromSecsSinceEpoch(item_.date).toString(QLocale::system().dateFormat());
-    painter->drawText(boundingRect().adjusted(TEXT_MARGIN*G_SCALE, TEXT_MARGIN_DATE*G_SCALE, -(2*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE), TEXT_MARGIN*G_SCALE), date);
+    int dateY = expanded_ ? TEXT_MARGIN*G_SCALE + titleHeight_ : TEXT_MARGIN_DATE*G_SCALE;
+    painter->drawText(boundingRect().adjusted(TEXT_MARGIN*G_SCALE, dateY, -(2*TEXT_MARGIN*G_SCALE + ICON_WIDTH*G_SCALE), TEXT_MARGIN*G_SCALE), date);
 
     // body
     if (expanded_) {
@@ -149,7 +155,7 @@ void EntryItem::updateScaling()
                                                                 0).toRect(),
                                         Qt::AlignLeft | Qt::TextWordWrap,
                                         item_.title.toUpper()).height();
-    expandedHeight_ = TEXT_MARGIN*G_SCALE + BODY_MARGIN*G_SCALE + messageItem_->boundingRect().height();
+    expandedHeight_ = titleHeight_ + BODY_MARGIN*G_SCALE + messageItem_->boundingRect().height();
     icon_->setPos(boundingRect().width() - (TEXT_MARGIN + ICON_WIDTH)*G_SCALE, TEXT_MARGIN*G_SCALE);
     setHeight(COLLAPSED_HEIGHT*G_SCALE + expandAnimationProgress_ * (expandedHeight_ - COLLAPSED_HEIGHT*G_SCALE));
 

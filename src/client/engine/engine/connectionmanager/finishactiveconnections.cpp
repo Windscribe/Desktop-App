@@ -1,5 +1,4 @@
 #include "finishactiveconnections.h"
-#include "../openvpnversioncontroller.h"
 #include "utils/log/logger.h"
 
 #ifdef Q_OS_WIN
@@ -34,7 +33,7 @@ void FinishActiveConnections::finishAllActiveConnections_win(Helper *helper)
     finishOpenVpnActiveConnections_win(helper);
     finishIkev2ActiveConnections_win(helper);
     finishWireGuardActiveConnections_win(helper);
-    CtrldManager_win::terminateWindscribeCtrldProcesses();
+    CtrldManager_win::terminateAppCtrldProcesses();
 }
 
 void FinishActiveConnections::finishOpenVpnActiveConnections_win(Helper *helper)
@@ -44,7 +43,7 @@ void FinishActiveConnections::finishOpenVpnActiveConnections_win(Helper *helper)
 
 void FinishActiveConnections::finishIkev2ActiveConnections_win(Helper *helper)
 {
-    const QVector<HRASCONN> v = IKEv2Connection_win::getActiveWindscribeConnections();
+    const QVector<HRASCONN> v = IKEv2Connection_win::getActiveAppConnections();
 
     if (!v.isEmpty())
     {
@@ -72,7 +71,7 @@ void FinishActiveConnections::finishAllActiveConnections_posix(Helper *helper)
     finishOpenVpnActiveConnections_posix(helper);
     finishWireGuardActiveConnections_posix(helper);
 #if defined(Q_OS_MACOS)
-    IKEv2Connection_mac::closeWindscribeActiveConnection();
+    IKEv2Connection_mac::closeAppActiveConnection();
 #endif
     helper->executeTaskKill(kTargetCtrld);
 }

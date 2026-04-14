@@ -5,7 +5,7 @@
 
 namespace LinuxUtils
 {
-    const QString LAST_INSTALL_PLATFORM_FILE = "/etc/windscribe/platform";
+    const QString LAST_INSTALL_PLATFORM_FILE = WS_POSIX_CONFIG_DIR "/platform";
     const QString DEB_PLATFORM_NAME_X64 = QString("linux_deb_x64");
     const QString DEB_PLATFORM_NAME_X64_CLI = QString("linux_deb_x64_cli");
     const QString DEB_PLATFORM_NAME_ARM64 = QString("linux_deb_arm64");
@@ -23,7 +23,7 @@ namespace LinuxUtils
     QString getLinuxKernelVersion();
     QString getDistroName();
     const QString getLastInstallPlatform();
-    gid_t getWindscribeGid();
+    gid_t getAppGid();
     bool isImmutableDistro();
 
     // CLI

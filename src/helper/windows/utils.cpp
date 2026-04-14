@@ -1,3 +1,4 @@
+#include "ws_branding.h"
 #include "utils.h"
 
 #include <comdef.h>
@@ -166,7 +167,7 @@ bool iequals(const std::wstring &a, const std::wstring &b)
     return _wcsnicmp(a.c_str(), b.c_str(), a.size()) == 0;
 }
 
-bool verifyWindscribeProcessPath(HANDLE hPipe)
+bool verifyAppProcessPath(HANDLE hPipe)
 {
 #if defined(USE_SIGNATURE_CHECK)
     // NOTE: a test project is archived with issue 546 for testing this method.
@@ -174,37 +175,37 @@ bool verifyWindscribeProcessPath(HANDLE hPipe)
     DWORD pidClient = 0;
     BOOL result = ::GetNamedPipeClientProcessId(hPipe, &pidClient);
     if (result == FALSE) {
-        spdlog::error("verifyWindscribeProcessPath GetNamedPipeClientProcessId failed {}", ::GetLastError());
+        spdlog::error("verifyAppProcessPath GetNamedPipeClientProcessId failed {}", ::GetLastError());
         return false;
     }
 
     wsl::Win32Handle processHandle(::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pidClient));
     if (!processHandle.isValid()) {
-        spdlog::error("verifyWindscribeProcessPath OpenProcess failed {}", ::GetLastError());
+        spdlog::error("verifyAppProcessPath OpenProcess failed {}", ::GetLastError());
         return false;
     }
 
     wchar_t path[MAX_PATH];
     if (::GetModuleFileNameEx(processHandle.getHandle(), NULL, path, MAX_PATH) == 0) {
-        spdlog::error("verifyWindscribeProcessPath GetModuleFileNameEx failed {}", ::GetLastError());
+        spdlog::error("verifyAppProcessPath GetModuleFileNameEx failed {}", ::GetLastError());
         return false;
     }
 
-    std::wstring windscribeExePath = getExePath() + std::wstring(L"\\Windscribe.exe");
+    std::wstring appExePath = getExePath() + std::wstring(L"\\" WS_PRODUCT_NAME_W L".exe");
 
-    if (!iequals(windscribeExePath, path)) {
-        spdlog::error(L"verifyWindscribeProcessPath invalid process path: {}", path);
+    if (!iequals(appExePath, path)) {
+        spdlog::error(L"verifyAppProcessPath invalid process path: {}", path);
         return false;
     }
 
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(path)) {
-        spdlog::error("verifyWindscribeProcessPath signature verify failed. Err = {}", sigCheck.lastError());
+        spdlog::error("verifyAppProcessPath signature verify failed. Err = {}", sigCheck.lastError());
         return false;
     }
 
     DWORD dwElapsed = ::GetTickCount() - dwStart;
-    spdlog::debug(L"verifyWindscribeProcessPath signature verified for {} in {} ms", path, dwElapsed);
+    spdlog::debug(L"verifyAppProcessPath signature verified for {} in {} ms", path, dwElapsed);
 
     return true;
 #else
@@ -536,7 +537,7 @@ std::wstring getConfigPath()
     std::wstringstream filePath;
     filePath << programFilesPath;
     CoTaskMemFree(programFilesPath);
-    filePath << L"\\Windscribe\\config";
+    filePath << L"\\" WS_WIN_CONFIG_SUBDIR_W L"\\config";
     int ret = SHCreateDirectoryEx(NULL, filePath.str().c_str(), NULL);
     if (ret != ERROR_SUCCESS && ret != ERROR_ALREADY_EXISTS) {
         spdlog::error("Failed to create config dir");
@@ -705,7 +706,7 @@ void disableFirewall()
             DnsFirewall::instance(&fwpmWrapper).disable();
             FirewallFilter::instance(&fwpmWrapper).off();
             SplitTunneling::removeAllFilters(fwpmWrapper);
-            printf("Windscribe firewall deleted.\n");
+            printf(WS_PRODUCT_NAME " firewall deleted.\n");
         } else {
             printf("Failed to initialize access to the Windows firewall manager.\n");
         }

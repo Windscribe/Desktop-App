@@ -40,7 +40,7 @@ set(WS_TS_FILES
 
 # Using the -extensions flag to skip processing the .ui files in the test projects.  Otherwise, the
 # strings in said ui files will be added to the .ts output files.
-if (NOT DEFINE_QT_CREATOR_DEV_BUILD_MACRO)
+if (UPDATE_TRANSLATIONS AND NOT DEFINE_QT_CREATOR_DEV_BUILD_MACRO)
     qt6_create_translation(WS_QM_FILES ${CMAKE_CURRENT_SOURCE_DIR}/../.. ${WS_TS_FILES} OPTIONS -extensions cpp,h -locations none)
 endif()
 
@@ -82,6 +82,9 @@ if (APPLE)
 endif (APPLE)
 
 add_library(gui STATIC ${PROJECT_SOURCES})
+
+target_sources(${WS_APP_TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
+target_include_directories(${WS_APP_TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 qt_add_resources(gui "translations"
     PREFIX

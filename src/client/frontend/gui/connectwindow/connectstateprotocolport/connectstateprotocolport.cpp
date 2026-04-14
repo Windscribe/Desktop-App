@@ -80,14 +80,15 @@ void ConnectStateProtocolPort::paint(QPainter *painter, const QStyleOptionGraphi
     QFont protocolFont = FontManager::instance().getFont(15, QFont::Medium);
     int protocolWidth = QFontMetrics(protocolFont).horizontalAdvance(protocolString);
     painter->setFont(protocolFont);
-    painter->drawText(QRect(badgePixmap_.width() + kSpacerWidth*G_SCALE, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, protocolString);
+    painter->drawText(QRect(badgePixmap_.width() + kSpacerWidth*G_SCALE, 0, protocolWidth, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, protocolString);
 
     // port
     const QString portString = QString::number(port_);
     const int portPosX = badgePixmap_.width() + kSpacerWidth*G_SCALE + protocolWidth + 2*G_SCALE;
     QFont portFont = FontManager::instance().getFont(15, QFont::Normal);
+    const int portWidth = QFontMetrics(portFont).horizontalAdvance(portString);
     painter->setFont(portFont);
-    painter->drawText(QRect(portPosX, 0, INT_MAX, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, portString);
+    painter->drawText(QRect(portPosX, 0, portWidth, badgePixmap_.height()), Qt::AlignLeft | Qt::AlignVCenter, portString);
 
     painter->restore();
 }

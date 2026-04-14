@@ -1,3 +1,4 @@
+#include "ws_branding.h"
 #include "helperbackend_win.h"
 #include <QCoreApplication>
 #include <QMutexLocker>
@@ -6,7 +7,7 @@
 #include "installhelper_win.h"
 
 
-#define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\WindscribeService")
+#define SERVICE_PIPE_NAME  (L"\\\\.\\pipe\\" WS_APP_IDENTIFIER_W L"Service")
 
 //  the program to connect to the helper socket without starting the service (uncomment for debug purpose)
 //  #define DEBUG_DONT_USE_SERVICE
@@ -27,10 +28,10 @@ void HelperBackend_win::startInstallHelper(bool /*bForceDeleteOld*/)
     QMutexLocker locker(&mutex_);
     initVariables();
 
-    QString serviceExePath = QCoreApplication::applicationDirPath() + "/WindscribeService.exe";
+    QString serviceExePath = QCoreApplication::applicationDirPath() + "/" WS_APP_IDENTIFIER "Service.exe";
     ExecutableSignature sigCheck;
     if (!sigCheck.verify(serviceExePath.toStdWString())) {
-        qCCritical(LOG_BASIC) << "WindscribeService signature incorrect: " << QString::fromStdString(sigCheck.lastError());
+        qCCritical(LOG_BASIC) << WS_APP_IDENTIFIER "Service signature incorrect: " << QString::fromStdString(sigCheck.lastError());
         curState_ = State::kUserCanceled;
         return;
     }
@@ -56,7 +57,7 @@ void HelperBackend_win::run()
 #ifndef DEBUG_DONT_USE_SERVICE
     try {
         scm_.openSCM(SC_MANAGER_CONNECT);
-        scm_.openService(L"WindscribeService", SERVICE_QUERY_STATUS | SERVICE_START);
+        scm_.openService(WS_APP_IDENTIFIER_W L"Service", SERVICE_QUERY_STATUS | SERVICE_START);
         auto status = scm_.queryServiceStatus();
         if (status != SERVICE_RUNNING) {
             scm_.startService();

@@ -12,7 +12,7 @@ public:
         return he;
     }
 
-    bool removeWindscribeHosts();
+    bool removeAppHosts();
     bool addHosts(std::wstring szHosts);
     bool removeHosts();
 

@@ -3,6 +3,8 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "engine/customconfigs/ovpncustomconfig.h"
+#include "engine/customconfigs/wireguardcustomconfig.h"
 #include "utils/ws_assert.h"
 #include "utils/ipvalidation.h"
 #include "customconfiglocationinfo.h"
@@ -193,7 +195,6 @@ void CustomConfigLocationsModel::generateLocationsUpdated()
     item->name = QObject::tr("Custom configs");
     item->countryCode = "noflag";
     item->isPremiumOnly = false;
-    item->isNoP2P = false;
 
     if (!pingInfos_.isEmpty())
     {
@@ -204,10 +205,22 @@ void CustomConfigLocationsModel::generateLocationsUpdated()
             city.city = config.customConfig->name();
             city.nick = config.customConfig->nick();
             city.pingTimeMs = config.getPing();
-            city.isPro = false;
+            city.isPremiumOnly = false;
             city.isDisabled = false;
 
             city.customConfigType = config.customConfig->type();
+            if (config.customConfig->type() == CUSTOM_CONFIG_OPENVPN) {
+                const auto *ovpn = static_cast<const customconfigs::OvpnCustomConfig *>(config.customConfig.get());
+                city.customConfigProtocol = (ovpn->globalProtocol() == "tcp") ? types::Protocol::OPENVPN_TCP : types::Protocol::OPENVPN_UDP;
+                city.customConfigPort = ovpn->globalPort();
+                if (city.customConfigPort == 0 && !ovpn->remotes().isEmpty()) {
+                    city.customConfigPort = ovpn->remotes().first().port;
+                }
+            } else {
+                const auto *wg = static_cast<const customconfigs::WireguardCustomConfig *>(config.customConfig.get());
+                city.customConfigProtocol = types::Protocol::WIREGUARD;
+                city.customConfigPort = wg->getEndpointPort();
+            }
             city.customConfigIsCorrect = config.customConfig->isCorrect();
             city.customConfigErrorMessage = config.customConfig->getErrorForIncorrect();
             item->cities << city;

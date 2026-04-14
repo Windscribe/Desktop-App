@@ -16,7 +16,7 @@ public:
     virtual ~FirewallController() {}
 
     // this function also uses for change firewall ips, then it is already enabled
-    virtual void firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool isVpnConnected);
+    virtual void firewallOn(const QString &connectingIp, const QSet<QString> &ips, bool bAllowLanTraffic, bool bIsCustomConfig, bool isVpnConnected);
     virtual void firewallOff();
     virtual bool firewallActualState() = 0;
 
@@ -33,6 +33,7 @@ protected:
     QString latestConnectingIp_;
     QSet<QString> latestIps_;
     bool latestAllowLanTraffic_;
+    bool latestIsCustomConfig_;
     bool latestEnabledState_;
     bool latestIsVpnConnected_;
     api_responses::StaticIpPortsVector latestStaticIpPorts_;

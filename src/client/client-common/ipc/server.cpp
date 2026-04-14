@@ -21,11 +21,11 @@ bool Server::start()
 #if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     // remove socket file, if already exists (for Mac/Linux)
     QString connectingPathName = QDir::tempPath();
-    QFile::remove("/var/run/windscribe/localipc.sock");
+    QFile::remove(WS_POSIX_RUN_DIR "/localipc.sock");
 
-    bool b = server_.listen("/var/run/windscribe/localipc.sock");
+    bool b = server_.listen(WS_POSIX_RUN_DIR "/localipc.sock");
 #else
-    bool b = server_.listen("Windscribe8rM7bza5OR");
+    bool b = server_.listen(WS_APP_IDENTIFIER "8rM7bza5OR");
 #endif
 
     if (!b)

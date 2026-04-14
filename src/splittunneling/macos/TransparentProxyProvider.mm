@@ -12,7 +12,7 @@
 @implementation TransparentProxyProvider
 
 - (instancetype)init {
-    spdlog::info("Initializing Windscribe split tunnel extension");
+    spdlog::info("Initializing " WS_PRODUCT_NAME " split tunnel extension");
     self = [super init];
     if (self) {
         tcpHandler_ = [[FlowTCP alloc] init];
@@ -22,10 +22,10 @@
 }
 
 - (void)startProxyWithOptions:(NSDictionary<NSString *,id> * _Nullable)options completionHandler:(void (^ _Nonnull)(NSError * _Nullable))completionHandler {
-    spdlog::info("Starting Windscribe split tunnel extension");
+    spdlog::info("Starting " WS_PRODUCT_NAME " split tunnel extension");
 
     if (!options) {
-        NSError *error = [NSError errorWithDomain:@"com.windscribe.client.splittunnelextension" code:1 userInfo:@{NSLocalizedDescriptionKey: @"No options provided"}];
+        NSError *error = [NSError errorWithDomain:@WS_MAC_SPLIT_TUNNEL_BUNDLE_ID code:1 userInfo:@{NSLocalizedDescriptionKey: @"No options provided"}];
         completionHandler(error);
         return;
     }
@@ -44,7 +44,7 @@
 }
 
 - (void)stopProxyWithReason:(NEProviderStopReason)reason completionHandler:(void (^)(void))completionHandler {
-    spdlog::info("Stopping Windscribe split tunnel extension");
+    spdlog::info("Stopping " WS_PRODUCT_NAME " split tunnel extension");
     [settings_ cleanup];
     [tcpHandler_ cleanup];
     [udpHandler_ cleanup];

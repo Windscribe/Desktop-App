@@ -62,7 +62,7 @@ void CustomConfigsDirWatcher::checkFiles(bool bWithEmitSignal, bool bFileChanged
     for (const QString &filename : fileList)
     {
         // skip our temp file
-        if (filename == "windscribe_temp_config.ovpn")
+        if (filename == WS_PRODUCT_NAME_LOWER "_temp_config.ovpn")
         {
             continue;
         }

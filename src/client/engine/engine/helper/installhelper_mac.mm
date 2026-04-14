@@ -1,8 +1,5 @@
 #include "installhelper_mac.h"
 
-#include "version/windscribe_version.h"
-#include "names.h"
-
 #import <Foundation/Foundation.h>
 #import <ServiceManagement/ServiceManagement.h>
 #import <Security/Authorization.h>
@@ -23,7 +20,7 @@ namespace {
 bool InstallHelper_mac::installHelper(bool bForceDeleteOld, bool &isUserCanceled, spdlog::logger *logger)
 {
     isUserCanceled = false;
-    NSString *helperLabel = @HELPER_BUNDLE_ID;
+    NSString *helperLabel = @WS_MAC_HELPER_BUNDLE_ID;
     BOOL result = NO;
 
     NSDictionary *installedHelperJobData  = CFBridgingRelease(SMJobCopyDictionary(kSMDomainSystemLaunchd, (__bridge CFStringRef)helperLabel));
@@ -41,7 +38,7 @@ bool InstallHelper_mac::installHelper(bool bForceDeleteOld, bool &isUserCanceled
         NSBundle*       appBundle       = [NSBundle mainBundle];
         NSURL*          appBundleURL    = [appBundle bundleURL];
 
-        NSURL*          currentHelperToolURL    = [appBundleURL URLByAppendingPathComponent:@HELPER_BUNDLE_ID_PATH_FROM_ENGINE];
+        NSURL*          currentHelperToolURL    = [appBundleURL URLByAppendingPathComponent:@WS_MAC_HELPER_BUNDLE_ID_PATH];
         NSDictionary*   currentInfoPlist        = CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((CFURLRef)currentHelperToolURL));
         NSString*       currentBundleVersion    = [currentInfoPlist objectForKey:@"CFBundleVersion"];
         NSInteger       currentVersion          = [currentBundleVersion integerValue];
@@ -100,9 +97,9 @@ bool InstallHelper_mac::installHelper(bool bForceDeleteOld, bool &isUserCanceled
 bool InstallHelper_mac::uninstallHelper(spdlog::logger *logger)
 {
     logger->info("Uninstalling helper");
-    NSString *scriptContents = @"do shell script \"launchctl remove /Library/LaunchDaemons/com.windscribe.helper.macos.plist;"
-                                                  "rm /Library/LaunchDaemons/com.windscribe.helper.macos.plist;"
-                                                  "rm /Library/PrivilegedHelperTools/com.windscribe.helper.macos\" with administrator privileges";
+    NSString *scriptContents = @"do shell script \"launchctl remove /Library/LaunchDaemons/" WS_MAC_HELPER_BUNDLE_ID ".plist;"
+                                                  "rm /Library/LaunchDaemons/" WS_MAC_HELPER_BUNDLE_ID ".plist;"
+                                                  "rm /Library/PrivilegedHelperTools/" WS_MAC_HELPER_BUNDLE_ID "\" with administrator privileges";
     NSAppleScript *script = [[NSAppleScript alloc] initWithSource:scriptContents];
     NSAppleEventDescriptor *desc;
     desc = [script executeAndReturnError:nil];
@@ -117,7 +114,7 @@ bool InstallHelper_mac::uninstallHelper(spdlog::logger *logger)
 
 bool InstallHelper_mac::isAppMajorMinorVersionSame()
 {
-    CFURLRef url = CFURLCreateWithString(NULL, CFSTR("/Applications/Windscribe.app"), NULL);
+    CFURLRef url = CFURLCreateWithString(NULL, CFSTR(WS_MAC_APP_DIR), NULL);
     if (url == NULL) {
         return false;
     }
@@ -131,7 +128,7 @@ bool InstallHelper_mac::isAppMajorMinorVersionSame()
     CFStringRef version = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(bundle, kCFBundleVersionKey);
     CFRelease(bundle);
 
-    if (version && CFStringHasPrefix(version, CFSTR(WINDSCRIBE_MAJOR_MINOR_VERSION_STR))) {
+    if (version && CFStringHasPrefix(version, CFSTR(WS_VERSION_MAJOR_MINOR))) {
         return true;
     }
 

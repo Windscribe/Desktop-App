@@ -748,3 +748,34 @@ QList<QPair<QString, QVariant>> ASPECT_RATIO_MODE_toList()
     l << qMakePair(ASPECT_RATIO_MODE_toString(ASPECT_RATIO_MODE_TILE), ASPECT_RATIO_MODE_TILE);
     return l;
 }
+
+QList<QPair<QString, QVariant> > SERVER_ROUTING_METHOD_TYPE_toList()
+{
+    QList<QPair<QString, QVariant>> l;
+    l << qMakePair(SERVER_ROUTING_METHOD_TYPE_toString(SERVER_ROUTING_METHOD_AUTO), SERVER_ROUTING_METHOD_AUTO);
+    l << qMakePair(SERVER_ROUTING_METHOD_TYPE_toString(SERVER_ROUTING_METHOD_REGULAR), SERVER_ROUTING_METHOD_REGULAR);
+    l << qMakePair(SERVER_ROUTING_METHOD_TYPE_toString(SERVER_ROUTING_METHOD_ALTERNATIVE), SERVER_ROUTING_METHOD_ALTERNATIVE);
+    return l;
+}
+
+QString SERVER_ROUTING_METHOD_TYPE_toString(SERVER_ROUTING_METHOD_TYPE p)
+{
+    if (p == SERVER_ROUTING_METHOD_AUTO) return QObject::tr("Auto");
+    else if (p == SERVER_ROUTING_METHOD_REGULAR) return QObject::tr("Regular");
+    else if (p == SERVER_ROUTING_METHOD_ALTERNATIVE) return QObject::tr("Alternate");
+    else {
+        WS_ASSERT(false);
+        return QObject::tr("UNKNOWN");
+    }
+}
+
+SERVER_ROUTING_METHOD_TYPE SERVER_ROUTING_METHOD_TYPE_fromInt(int t)
+{
+    if (t == 0) return SERVER_ROUTING_METHOD_AUTO;
+    else if (t == 1) return SERVER_ROUTING_METHOD_REGULAR;
+    else if (t == 2) return SERVER_ROUTING_METHOD_ALTERNATIVE;
+    else {
+        WS_ASSERT(false);
+        return SERVER_ROUTING_METHOD_AUTO;
+    }
+}

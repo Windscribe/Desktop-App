@@ -1252,14 +1252,26 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::AntiCensorshipGroup</name>
+    <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Circumvent Censorship</source>
-        <translation>Umgehung der Zensur</translation>
+        <source>Anti-censorship</source>
+        <translation>Anti-Zensur</translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation>Konfiguration</translation>
+        <source>These degrade performance, enable only if Windscribe doesn&apos;t connect normally.</source>
+        <translation>Diese verschlechtern die Leistung, aktivieren Sie nur, wenn Windscribe nicht normal verbunden ist.</translation>
+    </message>
+    <message>
+        <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
+        <translation>Änderungen auf Protokollebene wurden an WireGuard, OpenVPN und Stealth-Protokollen vorgenommen.</translation>
+    </message>
+    <message>
+        <source>Increases latency, but improves chances of being able to connect.</source>
+        <translation>Erhöht die Latenz, verbessert aber die Chancen, sich verbinden zu können.</translation>
+    </message>
+    <message>
+        <source>Server Routing</source>
+        <translation>Server-Routing</translation>
     </message>
 </context>
 <context>
@@ -1495,8 +1507,8 @@ Wenn das Problem nach einem Neustart weiterhin besteht, senden Sie bitte ein Deb
         <translation>Entfernen Sie die WLAN-SSID und MAC-Informationen aus Ihrem Betriebssystem, um die Erfassung des Standortverlaufs zu verhindern.</translation>
     </message>
     <message>
-        <source>Connect to the VPN with WireGuard even in a hostile environment.</source>
-        <translation>Verbinde dich mit dem VPN mit WireGuard, selbst in einer feindlichen Umgebung.</translation>
+        <source>Anti-censorship Settings</source>
+        <translation>Anti-Zensur-Settings</translation>
     </message>
 </context>
 <context>
@@ -2061,6 +2073,17 @@ Zuerst eine Verbindung mit einem Netzwerk herstellen</translation>
     </message>
 </context>
 <context>
+    <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Protocol Tweaks</source>
+        <translation>Protokollanpassungen</translation>
+    </message>
+    <message>
+        <source>Amnezia Config</source>
+        <translation>Amnezia Config</translation>
+    </message>
+</context>
+<context>
     <name>PreferencesWindow::ProxyGatewayGroup</name>
     <message>
         <source>Proxy Gateway</source>
@@ -2584,14 +2607,6 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
         <translation>Statische IP-Adressen</translation>
     </message>
     <message>
-        <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
-        <translation>Ihre Anwendungsversion wird nicht mehr unterstützt. Bitte aktualisieren Sie, um Windscribe weiterhin verwenden zu können.</translation>
-    </message>
-    <message>
-        <source>Please upgrade to a Pro account to continue using Windscribe.</source>
-        <translation>Bitte führen Sie ein Upgrade auf ein Pro-Konto durch, um Windscribe weiterhin nutzen zu können.</translation>
-    </message>
-    <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
         <translation>Ihr ursprüngliches Konto %1 ist abgelaufen. Es ist verboten, mehrere Konten zu erstellen, um die Beschränkungen des kostenlosen Kontingents zu umgehen. Bitte loggen Sie sich in das ursprüngliche Konto ein und warten Sie, bis die Bandbreite zurückgesetzt wird. Sie können auch ein Upgrade auf Pro durchführen.</translation>
     </message>
@@ -2671,16 +2686,28 @@ Wenn die Neuinstallation nicht hilft, wenden Sie sich bitte an den Windscribe-Su
         <source>Random IP</source>
         <translation>Zufällige IP</translation>
     </message>
+    <message>
+        <source>Your application version is no longer supported. Please update to continue using %1.</source>
+        <translation>Deine Anwendungsversion wird nicht mehr unterstützt. Bitte aktualisieren Sie, um weiterhin %1 zu verwenden.</translation>
+    </message>
+    <message>
+        <source>Please upgrade to a Pro account to continue using %1.</source>
+        <translation>Bitte steige auf ein Pro-Konto um, um weiterhin %1 zu nutzen.</translation>
+    </message>
+    <message>
+        <source>Regular</source>
+        <translation>Regulär</translation>
+    </message>
+    <message>
+        <source>Alternate</source>
+        <translation>Ersatz</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
     <message>
         <source>Unknown Config Error</source>
         <translation>Unbekannter Konfigurationsfehler</translation>
-    </message>
-    <message>
-        <source>File Sharing Frowned Upon</source>
-        <translation>Datenaustausch verpönt</translation>
     </message>
 </context>
 <context>

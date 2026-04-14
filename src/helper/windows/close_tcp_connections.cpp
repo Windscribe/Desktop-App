@@ -1,3 +1,4 @@
+#include "ws_branding.h"
 #include "close_tcp_connections.h"
 
 #include <algorithm>
@@ -47,8 +48,8 @@ void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets, bool isE
                 continue;
             }
 
-            // Do not close Windscribe sockets.
-            if (isWindscribeProcessName(entry->dwOwningPid)) {
+            // Do not close our own sockets.
+            if (isAppProcessName(entry->dwOwningPid)) {
                 continue;
             }
 
@@ -89,14 +90,14 @@ void CloseTcpConnections::closeAllTcpConnections(bool keepLocalSockets, bool isE
 }
 
 // static
-bool CloseTcpConnections::isWindscribeProcessName(DWORD dwPid)
+bool CloseTcpConnections::isAppProcessName(DWORD dwPid)
 {
-    return isAppSocket(dwPid, L"windscribe");
+    return isAppSocket(dwPid, WS_PRODUCT_NAME_LOWER_W);
 }
 
 bool CloseTcpConnections::isCtrldProcessName(DWORD dwPid)
 {
-    return isAppSocket(dwPid, L"windscribectrld");
+    return isAppSocket(dwPid, WS_PRODUCT_NAME_LOWER_W L"ctrld");
 }
 
 //static
@@ -114,7 +115,7 @@ bool CloseTcpConnections::isAppSocket(DWORD dwPid, const std::wstring &app)
         TCHAR filename[MAX_PATH];
         if (GetModuleFileNameEx(processHandle, NULL, filename, MAX_PATH) != 0) {
             _wcslwr(filename);
-            if (wcsstr(filename, lowerApp.c_str()/* L"windscribe")*/) != 0) {
+            if (wcsstr(filename, lowerApp.c_str()/* WS_PRODUCT_NAME_LOWER_W)*/) != 0) {
                 bRet = true;
             }
         }

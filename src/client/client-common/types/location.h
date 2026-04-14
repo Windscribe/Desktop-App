@@ -3,6 +3,7 @@
 #include "enums.h"
 #include "locationid.h"
 #include "pingtime.h"
+#include "protocol.h"
 
 namespace types {
 
@@ -13,7 +14,7 @@ struct City
     QString city;
     QString nick;
     PingTime pingTimeMs;
-    bool isPro = false;
+    bool isPremiumOnly = false;
     bool isDisabled = false;
 
     // specific for static IP location
@@ -24,10 +25,13 @@ struct City
 
     // specific for custom config location
     CUSTOM_CONFIG_TYPE customConfigType = CUSTOM_CONFIG_OPENVPN;
+    Protocol customConfigProtocol;
+    uint customConfigPort = 0;
     bool customConfigIsCorrect = false;
     QString customConfigErrorMessage;
 
     bool is10Gbps = false;
+    bool isNoP2P = false;
     int health = 0;     // correct values [0..100]
 
     bool operator==(const City &other) const;
@@ -42,7 +46,6 @@ struct Location
     QString countryCode;
     QString shortName;
     bool isPremiumOnly = false;
-    bool isNoP2P = false;
     QVector<City> cities;
 
     bool operator==(const Location &other) const;

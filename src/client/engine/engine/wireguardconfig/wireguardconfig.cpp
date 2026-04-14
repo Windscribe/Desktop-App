@@ -124,7 +124,7 @@ QString WireGuardConfig::generateConfigFile() const
     // PersistentKeepalive is needed to force handshake right after
     // the interface is configured. Otherwise, Wireguard waits for any incoming
     // packet to the network interface, which interfere with the blocking firewall.
-    ts << "PersistentKeepalive = 900\n";
+    ts << "PersistentKeepalive = 25\n";
     ts.flush();
 
     return config;

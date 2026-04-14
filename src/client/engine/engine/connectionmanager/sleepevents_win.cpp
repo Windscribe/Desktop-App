@@ -1,6 +1,7 @@
 #include "sleepevents_win.h"
-#include "utils/ws_assert.h"
 #include "utils/log/categories.h"
+#include "utils/ws_assert.h"
+#include "ws_branding.h"
 
 SleepEvents_win *SleepEvents_win::this_ = NULL;
 
@@ -26,7 +27,7 @@ SleepEvents_win::~SleepEvents_win()
 DWORD SleepEvents_win::hiddenWindowThread(void *param)
 {
     Q_UNUSED(param);
-    static const wchar_t* className = L"WINDSCRIBE_HIDDEN_WINDOW";
+    static const wchar_t* className = WS_PRODUCT_NAME_UPPER_W L"_HIDDEN_WINDOW";
     this_->hwnd_ = NULL;
     WNDCLASSEX wx = {};
     wx.cbSize = sizeof(WNDCLASSEX);

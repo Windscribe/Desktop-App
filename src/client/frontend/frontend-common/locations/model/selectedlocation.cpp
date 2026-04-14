@@ -35,6 +35,8 @@ void SelectedLocation::clear()
     countryCode_.clear();
     shortName_.clear();
     pingTime_ = PingTime::NO_PING_INFO;
+    customConfigProtocol_ = types::Protocol();
+    customConfigPort_ = 0;
 }
 
 void SelectedLocation::checkForRemove()
@@ -83,6 +85,8 @@ void SelectedLocation::fillData()
     countryCode_ = selIndex_.data(Roles::kCountryCode).toString();
     shortName_ = selIndex_.data(Roles::kShortName).toString();
     pingTime_ = selIndex_.data(Roles::kPingTime).toInt();
+    customConfigProtocol_ = types::Protocol(selIndex_.data(Roles::kCustomConfigProtocol).toInt());
+    customConfigPort_ = selIndex_.data(Roles::kCustomConfigPort).toUInt();
 }
 
 void SelectedLocation::setInvalid()
@@ -95,6 +99,8 @@ void SelectedLocation::setInvalid()
     countryCode_.clear();
     shortName_.clear();
     pingTime_ = PingTime::NO_PING_INFO;
+    customConfigProtocol_ = types::Protocol();
+    customConfigPort_ = 0;
 }
 
 } //namespace gui_locations

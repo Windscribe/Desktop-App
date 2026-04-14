@@ -370,7 +370,6 @@ bool TestLocationsModel::isCountryEqual(const QModelIndex &miCountry, const type
     if (miCountry.data(gui_locations::kName).toString() !=  l.name) return false;
     if (qvariant_cast<LocationID>(miCountry.data(gui_locations::kLocationId)) != l.id) return false;
     if (miCountry.data(gui_locations::kCountryCode).toString() !=  l.countryCode.toLower()) return false;
-    if (miCountry.data(gui_locations::kIsShowP2P).toBool() !=  l.isNoP2P) return false;
 
     int citiesCount = miCountry.model()->rowCount(miCountry);
     if (citiesCount != l.cities.size()) return false;

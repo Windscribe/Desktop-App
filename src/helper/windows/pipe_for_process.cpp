@@ -1,5 +1,6 @@
 #include "pipe_for_process.h"
 #include "utils/crashhandler.h"
+#include "ws_branding.h"
 
 unsigned long PipeForProcess::pipeSerialNumber_ = 0;
 
@@ -73,7 +74,7 @@ BOOL APIENTRY PipeForProcess::myCreatePipeEx(OUT LPHANDLE lpReadPipe, OUT LPHAND
         nSize = 4096;
     }
 
-    wsprintf(pipeNameBuffer, L"\\\\.\\Pipe\\WindscribeServiceInternalPipe.%08x.%lu",
+    wsprintf(pipeNameBuffer, L"\\\\.\\Pipe\\" WS_APP_IDENTIFIER_W L"ServiceInternalPipe.%08x.%lu",
              GetCurrentProcessId(), pipeSerialNumber_++);
 
     readPipeHandle = CreateNamedPipe(pipeNameBuffer,

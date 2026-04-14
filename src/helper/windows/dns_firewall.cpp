@@ -1,3 +1,4 @@
+#include "ws_branding.h"
 #include <spdlog/spdlog.h>
 
 #include <WinSock2.h>
@@ -8,7 +9,7 @@
 #include "ip_address/ip4_address_and_mask.h"
 #include "utils.h"
 
-#define FIREWALL_SUBLAYER_DNS_NAMEW L"WindscribeDnsFirewallSublayer"
+#define FIREWALL_SUBLAYER_DNS_NAMEW WS_APP_IDENTIFIER_W L"DnsFirewallSublayer"
 #define UUID_LAYER_DNS L"7e4a5678-bc70-45e8-8674-21a8e610fd02"
 
 
@@ -137,8 +138,8 @@ std::vector<std::wstring> DnsFirewall::getDnsServers()
     while (pCurrAddresses)
     {
         // Warning: we control the FriendlyName of the wireguard-nt adapter, but not the Description.
-        if ((wcsstr(pCurrAddresses->Description, L"Windscribe") == 0) &&
-            (wcsstr(pCurrAddresses->FriendlyName, L"Windscribe") == 0))
+        if ((wcsstr(pCurrAddresses->Description, WS_PRODUCT_NAME_W) == 0) &&
+            (wcsstr(pCurrAddresses->FriendlyName, WS_PRODUCT_NAME_W) == 0))
         {
             PIP_ADAPTER_DNS_SERVER_ADDRESS dnsServerAddress = pCurrAddresses->FirstDnsServerAddress;
             while (dnsServerAddress)

@@ -14,7 +14,7 @@ This application provides secure, private internet access by routing your traffi
 
 **Supported Platforms**:
 - Windows 10/11 (amd64, arm64), Windows Server 2022
-- macOS 12+ (amd64, arm64)
+- macOS 13+ (amd64, arm64)
 - Ubuntu 22.04+, Fedora 36+, openSUSE Leap 15.6, Arch, immutable distros (amd64, arm64)
 
 ### Key Features
@@ -170,7 +170,7 @@ Most components have separate implementations:
 - **vcpkg** - C++ package manager
 - **Ninja** - Build backend (Windows)
 - **Visual Studio 2022** - Windows compiler
-- **Xcode 14.2** - macOS compiler
+- **Xcode 15+** - macOS compiler
 - **GCC** - Linux compiler
 
 ### VPN Protocols & Implementations

@@ -208,7 +208,7 @@ DWORD WlanUtils_win::getSsidFromHelper(const QString &interfaceGUID, QString &ou
     if (result == ERROR_ACCESS_DENIED) {
         if (warnWLanAPIBlocked) {
             warnWLanAPIBlocked = false;
-            qCWarning(LOG_BASIC) << "*** the WlanQueryInterface API is blocked on this computer. Windscribe will be unable to determine your Wi-Fi SSID until you enable Location services for Windows.";
+            qCWarning(LOG_BASIC) << "*** the WlanQueryInterface API is blocked on this computer. The application will be unable to determine your Wi-Fi SSID until you enable Location services for Windows.";
         }
         return result;
     }

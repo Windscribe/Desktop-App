@@ -9,7 +9,7 @@
 
 namespace
 {
-static const TCHAR kWindscribeConnectionName[] = TEXT("Windscribe IKEv2");
+static const TCHAR kConnectionName[] = TEXT(WS_WIN_IKEV2_CONNECTION_NAME);
 
 // RAII helper for security impersonation as an active logged on user.
 // This is essential because phone books are specific to the user.
@@ -73,15 +73,15 @@ bool IKEv2IPSec::setIKEv2IPSecParametersInPhoneBook()
         CloseHandle(pbk_handle);
         // Write custom IPSec parameters to the phonebook.
         if (!WritePrivateProfileString(
-            kWindscribeConnectionName, L"NumCustomPolicy", L"1", pbk_path) ||
+            kConnectionName, L"NumCustomPolicy", L"1", pbk_path) ||
             // Note that this value is approximately, but not exactly, a ROUTER_CUSTOM_IKEv2_POLICY0 structure,
             // with each DWORD written out one byte at a time.  This value was actually derived from setting
             // the policy with the PowerShell command and then inspecting the rasphone.pbk file.
             !WritePrivateProfileString(
-                kWindscribeConnectionName, L"CustomIPSecPolicies",
+                kConnectionName, L"CustomIPSecPolicies",
                 L"030000000600000005000000080000000500000005000000", pbk_path) ||
             // This string disables NetBIOS over TCP/IP.
-            !WritePrivateProfileString( kWindscribeConnectionName, L"IpNBTFlags", L"0", pbk_path)) {
+            !WritePrivateProfileString( kConnectionName, L"IpNBTFlags", L"0", pbk_path)) {
             // This is a valid phonebook, but we cannot write it. Don't try other locations, they
             // won't make any sense; better to try other IPSec setup functions, like PowerShell.
             spdlog::warn(L"Phonebook is not accessible: {}", pbk_path);
@@ -99,7 +99,7 @@ bool IKEv2IPSec::setIKEv2IPSecParametersPowerShell()
         " -ConnectionName '%ls'"
         " -AuthenticationTransformConstants GCMAES256 -CipherTransformConstants GCMAES256"
         " -EncryptionMethod GCMAES256 -IntegrityCheckMethod SHA384"
-        " -DHGroup ECP384 -PfsGroup ECP384 -Force\"", kWindscribeConnectionName);
+        " -DHGroup ECP384 -PfsGroup ECP384 -Force\"", kConnectionName);
 
     CurrentUserImpersonationHelper impersonation_helper;
     if (!impersonation_helper.isImpersonated())

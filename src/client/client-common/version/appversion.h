@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QString>
-#include "windscribe_version.h"
 #include "types/enums.h"
 
 class AppVersion

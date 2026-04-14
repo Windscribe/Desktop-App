@@ -139,9 +139,15 @@ QSet<QString> FirewallExceptions::getIPAddressesForFirewallForConnectedState() c
 {
     UniqueIpList ipList;
     ipList.add("127.0.0.1");
+
+    if (!proxyIP_.isEmpty()) {
+        ipList.add(proxyIP_);
+    }
+
     if (!remoteIP_.isEmpty()) {
         ipList.add(remoteIP_);
     }
+
     return ipList.get();
 }
 

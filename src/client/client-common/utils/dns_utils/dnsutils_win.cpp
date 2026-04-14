@@ -1,5 +1,6 @@
 #include <QtGlobal>
 #include "dnsutils.h"
+#include "ws_branding.h"
 
 #ifdef Q_OS_WIN
     #include <winsock2.h>
@@ -46,8 +47,8 @@ std::vector<std::wstring> getOSDefaultDnsServers()
     while (pCurrAddresses)
     {
         // Warning: we control the FriendlyName of the wireguard-nt adapter, but not the Description.
-        if ((wcsstr(pCurrAddresses->Description, L"Windscribe") == 0) && // ignore Windscribe TAP and Windscribe Ikev2 adapters
-            (wcsstr(pCurrAddresses->FriendlyName, L"Windscribe") == 0)) // ignore Windscribe wireguard-nt tunnel
+        if ((wcsstr(pCurrAddresses->Description, WS_PRODUCT_NAME_W) == 0) &&
+            (wcsstr(pCurrAddresses->FriendlyName, WS_PRODUCT_NAME_W) == 0))
         {
             PIP_ADAPTER_DNS_SERVER_ADDRESS dnsServerAddress = pCurrAddresses->FirstDnsServerAddress;
             while (dnsServerAddress)

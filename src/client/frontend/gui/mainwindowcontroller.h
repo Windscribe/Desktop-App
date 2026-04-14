@@ -230,6 +230,7 @@ private:
 
     bool isAtomicAnimationActive_;      // animation which cannot be interrupted is active
     QQueue<WINDOW_ID> queueWindowChanges_;
+    ResizableWindow *pendingExpandWindow_;  // deferred expandWindow() call
 
     // TODO: check for leaks
     QPropertyAnimation *expandLocationsListAnimation_;

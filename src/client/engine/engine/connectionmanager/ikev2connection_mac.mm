@@ -21,9 +21,9 @@
 
 namespace KeyChainUtils
 {
-    const char szServiceName[] = "aaa.windscribe.com.password.ikev2";
-    const char szLabel[] = "aaa.windscribe.com.password.ikev2";
-    const char szDescr[] = "Windscribe IKEv2 password";
+    const char szServiceName[] = WS_MAC_IKEV2_KEYCHAIN_SERVICE;
+    const char szLabel[] = WS_MAC_IKEV2_KEYCHAIN_SERVICE;
+    const char szDescr[] = WS_PRODUCT_NAME " IKEv2 password";
 
     static const char * trustedAppPaths[] = {
         "/usr/libexec/neagent"
@@ -175,7 +175,7 @@ void IKEv2Connection_mac::startConnect(const QString &configOrUrl, const QString
             [manager setEnabled:YES];
             [manager setProtocolConfiguration:(protocol)];
             [manager setOnDemandEnabled:NO];
-            [manager setLocalizedDescription:@"Windscribe VPN"];
+            [manager setLocalizedDescription:@WS_MAC_VPN_DESCRIPTION];
 
             NSString *strProtocol = [NSString stringWithFormat:@"{Protocol: %@", protocol];
             qCInfo(LOG_IKEV2) << QString::fromNSString(strProtocol);
@@ -308,7 +308,7 @@ void IKEv2Connection_mac::removeIkev2ConnectionFromOS()
     KeyChainUtils::removeKeychainItem();
 }
 
-void IKEv2Connection_mac::closeWindscribeActiveConnection()
+void IKEv2Connection_mac::closeAppActiveConnection()
 {
     static QWaitCondition waitCondition;
     static QMutex mutex;
@@ -326,7 +326,7 @@ void IKEv2Connection_mac::closeWindscribeActiveConnection()
                 NEVPNConnection * connection = [manager connection];
                 if (connection.status == NEVPNStatusConnected || connection.status == NEVPNStatusConnecting)
                 {
-                    if ([manager.localizedDescription isEqualToString:@"Windscribe VPN"] == YES)
+                    if ([manager.localizedDescription isEqualToString:@WS_MAC_VPN_DESCRIPTION] == YES)
                     {
                         qCInfo(LOG_IKEV2) << "Previous IKEv2 connection is active. Stop it.";
                         [connection stopVPNTunnel];

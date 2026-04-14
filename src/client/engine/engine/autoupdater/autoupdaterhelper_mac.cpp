@@ -5,7 +5,6 @@
 #include <QCoreApplication>
 #include <QRegularExpression>
 #include "utils/log/categories.h"
-#include "names.h"
 #include "utils/utils.h"
 #include "utils/executable_signature/executable_signature.h"
 #include <boost/process/v1/io.hpp>
@@ -29,7 +28,7 @@ const QString AutoUpdaterHelper_mac::copyInternalInstallerToTempFromDmg(const QS
     }
 
     // verify dmg contains installer
-    const QString volumeInstallerFilename = volumeMountPoint + "/" + INSTALLER_FILENAME_MAC_APP;
+    const QString volumeInstallerFilename = volumeMountPoint + "/" + WS_MAC_INSTALLER_BUNDLE_NAME;
     if (!QFileInfo::exists(volumeInstallerFilename))
     {
         qCCritical(LOG_AUTO_UPDATER) << "Volume installer does not exist: " + volumeInstallerFilename;
@@ -42,7 +41,7 @@ const QString AutoUpdaterHelper_mac::copyInternalInstallerToTempFromDmg(const QS
     // remove pre-existing temp installer
     QFileInfo dmgFileInfo(dmgFilename);
     const QString tempDirName = dmgFileInfo.canonicalPath();
-    QString tempInstallerFilename = tempDirName + "/" + INSTALLER_FILENAME_MAC_APP;
+    QString tempInstallerFilename = tempDirName + "/" + WS_MAC_INSTALLER_BUNDLE_NAME;
     if (QFileInfo::exists(tempInstallerFilename))
     {
         qCDebug(LOG_AUTO_UPDATER) << "Temp installer already exists -- removing: " << tempInstallerFilename;
@@ -104,7 +103,7 @@ bool AutoUpdaterHelper_mac::verifyAndRun(const QString &tempInstallerFilename,
         args.append(additionalArgs.split(" "));
 
     QProcess process;
-    process.setProgram(tempInstallerFilename + "/" + INSTALLER_INNER_BINARY_MAC);
+    process.setProgram(tempInstallerFilename + "/" + WS_MAC_INSTALLER_INNER_BINARY);
     process.setArguments(args);
     process.setWorkingDirectory(appFolder);
     process.setStandardOutputFile(QProcess::nullDevice());

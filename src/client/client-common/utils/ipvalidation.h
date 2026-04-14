@@ -16,7 +16,7 @@ public:
     static bool isValidIpForCidr(const QString &str);
     static bool isLocalIp(const QString &str);
     static bool isValidUrlForCtrld(const QString &str);
-    static bool isWindscribeReservedIp(const QString &str);
+    static bool isReservedIp(const QString &str);
     static QString getRemoteIdFromDomain(const QString &str);
 
 #if defined(QT_DEBUG)

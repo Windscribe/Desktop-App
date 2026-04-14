@@ -53,6 +53,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     connectionWindowItem_ = new ConnectionWindowItem(nullptr, preferences, preferencesHelper);
     connect(connectionWindowItem_, &ConnectionWindowItem::networkOptionsPageClick, this, &PreferencesWindowItem::onNetworkOptionsPageClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::splitTunnelingPageClick, this, &PreferencesWindowItem::onSplitTunnelingPageClick);
+    connect(connectionWindowItem_, &ConnectionWindowItem::antiCensorshipPageClick, this, &PreferencesWindowItem::onAntiCensorshipSettingsPageClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::proxySettingsPageClick, this, &PreferencesWindowItem::onProxySettingsPageClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::cycleMacAddressClick, this, &PreferencesWindowItem::cycleMacAddressClick);
     connect(connectionWindowItem_, &ConnectionWindowItem::detectPacketSize, this, &PreferencesWindowItem::detectPacketSizeClick);
@@ -82,6 +83,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     splitTunnelingWindowItem_ = new SplitTunnelingWindowItem(nullptr, preferences);
     splitTunnelingAppsWindowItem_ = new SplitTunnelingAppsWindowItem(nullptr, preferences);
     splitTunnelingAddressesWindowItem_ = new SplitTunnelingAddressesWindowItem(nullptr, preferences);
+    antiCensorshipWindowItem_ = new AntiCensorshipWindowItem(nullptr, preferences);
     dnsDomainsWindowItem_ = new DnsDomainsWindowItem(nullptr, preferences);
 
     connect(splitTunnelingWindowItem_, &SplitTunnelingWindowItem::appsPageClick, this, &PreferencesWindowItem::onSplitTunnelingAppsClick);
@@ -107,6 +109,7 @@ PreferencesWindowItem::~PreferencesWindowItem()
     delete splitTunnelingWindowItem_;
     delete splitTunnelingAppsWindowItem_;
     delete splitTunnelingAddressesWindowItem_;
+    delete antiCensorshipWindowItem_;
     delete dnsDomainsWindowItem_;
 
     delete generalWindowItem_;
@@ -346,6 +349,8 @@ void PreferencesWindowItem::moveOnePageBack()
             changeTab(tabControlItem_->currentTab());
         } else if (screen == CONNECTION_SCREEN_DNS_DOMAINS) {
             changeTab(tabControlItem_->currentTab());
+        } else if (screen == CONNECTION_SCREEN_ANTI_CENSORSHIP) {
+            changeTab(tabControlItem_->currentTab());
         }
     } else { // non-connection screen
         changeTab(tabControlItem_->currentTab());
@@ -514,6 +519,16 @@ void PreferencesWindowItem::onSplitTunnelingPageClick()
     setPreferencesWindowToSplitTunnelingHome();
 }
 
+void PreferencesWindowItem::onAntiCensorshipSettingsPageClick()
+{
+    scrollAreaItem_->setItem(antiCensorshipWindowItem_);
+    antiCensorshipWindowItem_->updateScaling();
+    connectionWindowItem_->setScreen(CONNECTION_SCREEN_ANTI_CENSORSHIP);
+    setShowSubpageMode(true);
+    setFocus();
+    update();
+}
+
 void PreferencesWindowItem::onProxySettingsPageClick()
 {
     scrollAreaItem_->setItem(proxySettingsWindowItem_);
@@ -668,6 +683,7 @@ void PreferencesWindowItem::onNetworkEscape()
     onNetworkOptionsPageClick();
 }
 
+
 void PreferencesWindowItem::onCurrentNetworkUpdated(types::NetworkInterface network)
 {
     emit currentNetworkUpdated(network);
@@ -750,7 +766,7 @@ void PreferencesWindowItem::onWindowCollapsed()
 
 void PreferencesWindowItem::setAmneziawgUnblockParams(const QString &activePreset, QStringList presets)
 {
-    connectionWindowItem_->setAmneziawgUnblockParams(activePreset, presets);
+    antiCensorshipWindowItem_->setAmneziawgUnblockParams(activePreset, presets);
 }
 
 } // namespace PreferencesWindow

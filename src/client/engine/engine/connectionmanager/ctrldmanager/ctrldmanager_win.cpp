@@ -18,7 +18,7 @@ CtrldManager_win::CtrldManager_win(QObject *parent, bool isCreateLog) : ICtrldMa
     connect(process_, &QProcess::errorOccurred, this,&CtrldManager_win::onProcessErrorOccurred);
     process_->setProcessChannelMode(QProcess::MergedChannels);
 
-    ctrldExePath_ = QCoreApplication::applicationDirPath() + "/windscribectrld.exe";
+    ctrldExePath_ = QCoreApplication::applicationDirPath() + "/" WS_PRODUCT_NAME_LOWER "ctrld.exe";
     logPath_ = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + "/ctrld.log";
     listenIp_ = "127.0.0.1";    // default listen ip for ctrld utility
 }
@@ -140,11 +140,11 @@ QString CtrldManager_win::getAvailableIp()
     return "";
 }
 
-void CtrldManager_win::terminateWindscribeCtrldProcesses()
+void CtrldManager_win::terminateAppCtrldProcesses()
 {
     QString taskkillPath = WinUtils::getSystemDir() + "\\taskkill.exe";
     QProcess process;
-    process.start(taskkillPath, QStringList() << "/f" << "/t" << "/im" << "windscribectrld.exe");
+    process.start(taskkillPath, QStringList() << "/f" << "/t" << "/im" << WS_PRODUCT_NAME_LOWER "ctrld.exe");
     process.waitForFinished(2000);
 }
 

@@ -90,7 +90,7 @@ std::string getFullCommand(const std::string &exePath, const std::string &execut
 
 // check only for release build
 #ifdef NDEBUG
-    if (std::string(canonicalPath).rfind("/opt/windscribe", 0) != 0 && std::string(canonicalPath).rfind("/usr/lib/opt/windscribe", 0) != 0) {
+    if (std::string(canonicalPath).rfind(WS_LINUX_INSTALL_DIR, 0) != 0 && std::string(canonicalPath).rfind("/usr/lib" WS_LINUX_INSTALL_DIR, 0) != 0) {
         // Don't execute arbitrary commands, only executables that are in our application directory
         spdlog::warn("Executable not in correct path, ignoring.");
         free(canonicalPath);
@@ -123,7 +123,7 @@ std::vector<std::string> getOpenVpnExeNames()
     std::string item;
     int rc = 0;
 
-    rc = Utils::executeCommand("ls", {"/opt/windscribe"}, &list);
+    rc = Utils::executeCommand("ls", {WS_LINUX_INSTALL_DIR}, &list);
     if (rc != 0) {
         return ret;
     }
@@ -141,27 +141,27 @@ std::string getDnsScript(CmdDnsManager mgr)
 {
     switch(mgr) {
     case kSystemdResolved:
-        return "/opt/windscribe/scripts/update-systemd-resolved";
+        return WS_LINUX_INSTALL_DIR "/scripts/update-systemd-resolved";
     case kResolvConf:
-        return "/opt/windscribe/scripts/update-resolv-conf";
+        return WS_LINUX_INSTALL_DIR "/scripts/update-resolv-conf";
     case kNetworkManager:
-        return "/opt/windscribe/scripts/update-network-manager";
+        return WS_LINUX_INSTALL_DIR "/scripts/update-network-manager";
     default:
         return "";
     }
 }
 
-void createWindscribeUserAndGroup()
+void createAppUserAndGroup()
 {
-    bool exists = !Utils::executeCommand("id windscribe");
+    bool exists = !Utils::executeCommand("id " WS_PRODUCT_NAME_LOWER);
     if (exists) {
         return;
     }
 
     // Create group
-    Utils::executeCommand("groupadd", {"windscribe"});
+    Utils::executeCommand("groupadd", {WS_PRODUCT_NAME_LOWER});
     // Create user
-    Utils::executeCommand("useradd", {"-r", "-g", "windscribe", "-s", "/bin/false", "windscribe"});
+    Utils::executeCommand("useradd", {"-r", "-g", WS_PRODUCT_NAME_LOWER, "-s", "/bin/false", WS_PRODUCT_NAME_LOWER});
 }
 
 bool hasWhitespaceInString(const std::string &str)
@@ -171,7 +171,7 @@ bool hasWhitespaceInString(const std::string &str)
 
 std::string getExePath()
 {
-    return "/opt/windscribe";
+    return WS_LINUX_INSTALL_DIR;
 }
 
 bool isValidIpAddress(const std::string &address)

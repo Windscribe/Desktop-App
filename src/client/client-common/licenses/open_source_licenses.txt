@@ -1,4 +1,4 @@
-Windscribe uses the following open source software:
+This application uses the following open source software:
 - Boost C++ Libraries (BSLv1)
 - cURL library (Curl License)
 - Markus F.X.J. Oberhumer's LZO (GPLv2)

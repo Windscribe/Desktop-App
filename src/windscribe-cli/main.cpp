@@ -46,8 +46,8 @@ int main(int argc, char *argv[])
     QCoreApplication::setLibraryPaths(QStringList());
 #endif
 
-    QCoreApplication::setApplicationName("Windscribe2");
-    QCoreApplication::setOrganizationName("Windscribe");
+    QCoreApplication::setApplicationName(WS_SETTINGS_APP);
+    QCoreApplication::setOrganizationName(WS_SETTINGS_ORG);
 
     log_utils::Logger::instance().install(log_utils::paths::cliLogLocation(), false);
 
@@ -63,9 +63,15 @@ int main(int argc, char *argv[])
 
     if (cliArgs.cliCommand() == CLI_COMMAND_NONE || cliArgs.cliCommand() == CLI_COMMAND_HELP) {
         qCDebug(LOG_CLI) << "Printing help menu";
-        std::cout << "windscribe-cli v" << WINDSCRIBE_VERSION_STR << std::endl;
+        std::cout << "windscribe-cli v" << WS_VERSION << std::endl;
         std::cout << std::endl;
         std::cout << "windscribe-cli <command>:" << std::endl;
+        std::cout << std::endl;
+#ifdef Q_OS_LINUX
+        std::cout << "Protocols: " << "wireguard, udp, tcp, stealth, wstunnel" << std::endl;
+#else
+        std::cout << "Protocols: " << "wireguard, ikev2, udp, tcp, stealth, wstunnel" << std::endl;
+#endif
         std::cout << std::endl;
         std::cout << "Authenticating with Windscribe" << std::endl;
         std::cout << "    login [username [password]]" << std::endl;
@@ -82,6 +88,8 @@ int main(int argc, char *argv[])
         std::cout << "        " << "View a list of available locations." << std::endl;
         std::cout << "        " << "If 'fav' is present, show favourited locations/IPs instead" << std::endl;
         std::cout << "        " << "If 'static' is present, show static IP locations instead" << std::endl;
+        std::cout << "    ports protocol" << std::endl;
+        std::cout << "        " << "View available ports for the specified protocol" << std::endl;
 #ifdef CLI_ONLY
         std::cout << "    amneziawg" << std::endl;
         std::cout << "        " << "View a list of available AmneziaWG circumvent censorship configurations" << std::endl;
@@ -127,11 +135,6 @@ int main(int argc, char *argv[])
         std::cout << "    ip unfav <ip>" << std::endl;
         std::cout << "        " << "Unfavourite the provided IP address." << std::endl;
         std::cout << std::endl;
-#ifdef Q_OS_LINUX
-        std::cout << "Protocols: " << "wireguard, udp, tcp, stealth, wstunnel" << std::endl;
-#else
-        std::cout << "Protocols: " << "wireguard, ikev2, udp, tcp, stealth, wstunnel" << std::endl;
-#endif
         std::cout << "Options: " << std::endl;
         std::cout << "    -n: non-blocking mode. Command returns immediately instead of waiting to complete." << std::endl;
         std::cout << std::endl;

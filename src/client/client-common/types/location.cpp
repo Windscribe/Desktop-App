@@ -13,16 +13,19 @@ bool City::operator==(const City &other) const
            other.city == city &&
            other.nick == nick &&
            other.pingTimeMs == pingTimeMs &&
-           other.isPro == isPro &&
+           other.isPremiumOnly == isPremiumOnly &&
            other.isDisabled == isDisabled &&
            other.staticIpCountryCode == staticIpCountryCode &&
            other.staticIpShortName == staticIpShortName &&
            other.staticIpType == staticIpType &&
            other.staticIp == staticIp &&
            other.customConfigType == customConfigType &&
+           other.customConfigProtocol == customConfigProtocol &&
+           other.customConfigPort == customConfigPort &&
            other.customConfigIsCorrect == customConfigIsCorrect &&
            other.customConfigErrorMessage == customConfigErrorMessage &&
            other.is10Gbps == is10Gbps &&
+           other.isNoP2P == isNoP2P &&
            other.health == health;
 }
 
@@ -38,7 +41,6 @@ bool Location::operator==(const Location &other) const
            other.countryCode == countryCode &&
            other.shortName == shortName &&
            other.isPremiumOnly == isPremiumOnly &&
-           other.isNoP2P == isNoP2P &&
            other.cities == cities;
 }
 
@@ -79,7 +81,7 @@ Location Location::locationFromJsonObject(const QJsonObject &obj)
     location.countryCode = obj["country_code"].toString();
     location.shortName = obj["short_name"].toString();
     location.isPremiumOnly = obj["is_premium_only"].toBool();
-    location.isNoP2P = !obj["is_p2p_supported"].toBool();
+    bool locationLevelNoP2P = !obj["is_p2p_supported"].toBool();
 
     for (const auto &c : obj["cities"].toArray())
     {
@@ -91,7 +93,7 @@ Location Location::locationFromJsonObject(const QJsonObject &obj)
         city.city = objCity["name"].toString();
         city.nick = objCity["nick"].toString();
         city.pingTimeMs = objCity["ping_time"].toInt();
-        city.isPro = objCity["is_premium_only"].toBool();
+        city.isPremiumOnly = objCity["is_premium_only"].toBool();
         city.isDisabled = objCity["is_disabled"].toBool();
         city.staticIpCountryCode = objCity["static_ip_country_code"].toString();
         city.staticIpShortName = objCity["static_ip_short_name"].toString();
@@ -102,8 +104,13 @@ Location Location::locationFromJsonObject(const QJsonObject &obj)
         city.customConfigErrorMessage = objCity["custom_config_error_message"].toString();
         city.is10Gbps = (objCity["link_speed"].toInt() == 10000);
         city.health = objCity["health"].toInt();
+        if (objCity.contains("is_p2p_supported"))
+            city.isNoP2P = !objCity["is_p2p_supported"].toBool();
+        else
+            city.isNoP2P = locationLevelNoP2P;
         location.cities << city;
     }
+
     return location;
 }
 

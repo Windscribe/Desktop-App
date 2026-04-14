@@ -16,6 +16,10 @@
         <translation>場所はありません。</translation>
     </message>
     <message>
+        <source>No ports available for the specified protocol.</source>
+        <translation>指定されたプロトコル用のポートはありません。</translation>
+    </message>
+    <message>
         <source>Could not rotate IP.  Please check that you have Windscribe Pro or have this location in your plan, or try again later.</source>
         <translation>IP をローテーションできませんでした。 Windscribe Pro を使用しているか、この場所がプランに含まれていることを確認するか、後でもう一度試してください。</translation>
     </message>

@@ -251,6 +251,6 @@ QRect WidgetUtils_win::availableGeometry(const QWidget &appMainWindow, const QSc
 
     return QRect(minfo.rcWork.left,
                  minfo.rcWork.top,
-                 (minfo.rcWork.right - minfo.rcWork.left)/DpiScaleManager::instance().curDevicePixelRatio(),
-                 (minfo.rcWork.bottom - minfo.rcWork.top)/DpiScaleManager::instance().curDevicePixelRatio());
+                 (minfo.rcWork.right - minfo.rcWork.left)/screen.devicePixelRatio(),
+                 (minfo.rcWork.bottom - minfo.rcWork.top)/screen.devicePixelRatio());
 }

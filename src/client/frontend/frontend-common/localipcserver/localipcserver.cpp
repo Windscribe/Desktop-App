@@ -154,7 +154,9 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
 #endif
         }
     } else if (command->getStringId() == IPC::CliCommands::ReloadConfig::getCommandStringId()) {
+#ifdef CLI_ONLY
         backend_->getPreferences()->loadIni();
+#endif
     } else if (command->getStringId() == IPC::CliCommands::SetKeyLimitBehavior::getCommandStringId()) {
         IPC::CliCommands::SetKeyLimitBehavior *cmd = static_cast<IPC::CliCommands::SetKeyLimitBehavior *>(command);
         emit setKeyLimitBehavior(cmd->keyLimitDelete_);
@@ -204,6 +206,13 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
             return;
         }
         emit unpinIp(cmd->ip_);
+    } else if (command->getStringId() == IPC::CliCommands::ShowPorts::getCommandStringId()) {
+        IPC::CliCommands::ShowPorts *cmd = static_cast<IPC::CliCommands::ShowPorts *>(command);
+        types::Protocol protocol = types::Protocol::fromString(cmd->protocol_);
+        IPC::CliCommands::PortsList response;
+        response.ports_ = backend_->getPreferencesHelper()->getAvailablePortsForProtocol(protocol);
+        sendCommand(response);
+        return;
     } else if (command->getStringId() == IPC::CliCommands::ShowAmneziawg::getCommandStringId()) {
         IPC::CliCommands::AmneziawgPresetsList response;
         response.presets_ = amneziawgPresets_;

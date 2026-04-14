@@ -11,14 +11,14 @@ Server server;
 void handler_sigterm(int signum)
 {
     UNUSED(signum);
-    spdlog::info("Windscribe helper terminated");
+    spdlog::info(WS_PRODUCT_NAME " helper terminated");
     exit(0);
 }
 
 int main(int argc, const char *argv[])
 {
     // Initialize logger
-    std::string path = "/var/log/windscribe";
+    std::string path = WS_LINUX_LOG_DIR;
     //mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     std::string logPath = path + "/helper.log";
 
@@ -68,6 +68,6 @@ int main(int argc, const char *argv[])
 
     server.run();
 
-    spdlog::info("Windscribe helper finished");
+    spdlog::info(WS_PRODUCT_NAME " helper finished");
     return EXIT_SUCCESS;
 }

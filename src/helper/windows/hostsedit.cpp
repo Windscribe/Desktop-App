@@ -1,3 +1,4 @@
+#include "ws_branding.h"
 #include <shlwapi.h>
 
 #include <sstream>
@@ -6,7 +7,7 @@
 #include "hostsedit.h"
 #include "utils.h"
 
-HostsEdit::HostsEdit() : szTitle_(L"added by Windscribe, do not modify.")
+HostsEdit::HostsEdit() : szTitle_(L"added by " WS_PRODUCT_NAME_W L", do not modify.")
 {
     szSystemDir_ = Utils::getSystemDir();
 }
@@ -15,9 +16,9 @@ HostsEdit::~HostsEdit()
 {
 }
 
-bool HostsEdit::removeWindscribeHosts()
+bool HostsEdit::removeAppHosts()
 {
-    // remove hosts with strings "windscribe" from hosts file
+    // remove hosts with strings WS_PRODUCT_NAME_LOWER from hosts file
     FILE *fileTmp = _wfopen(getTempHostsPath().c_str(), L"w");
     bool bSuccess = false;
     if (fileTmp)
@@ -30,7 +31,7 @@ bool HostsEdit::removeWindscribeHosts()
             while (!feof(file))
             {
                 fgetws(buf, 10000, file);
-                if (StrStrI(buf, L"windscribe") == NULL)
+                if (StrStrI(buf, WS_PRODUCT_NAME_LOWER_W) == NULL)
                 {
                     strs.push_back(buf);
                 }

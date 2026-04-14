@@ -81,10 +81,10 @@ struct IfTable2Row
         index(index), interfaceGuid(guid), description(description), alias(alias), op_status(op_status), connectorPresent(connectorPresent),
         endPointInterface(endPointInterface), valid(true), interfaceType(interfaceType), mediaConnected(mediaConnected) {}
 
-    bool isWindscribeAdapter() const
+    bool isAppVpnAdapter() const
     {
         // Warning: we control the alias of the wireguard-nt adapter, but not the description.
-        return description.contains("windscribe", Qt::CaseInsensitive) || alias.contains("windscribe", Qt::CaseInsensitive);
+        return description.contains(WS_PRODUCT_NAME, Qt::CaseInsensitive) || alias.contains(WS_PRODUCT_NAME, Qt::CaseInsensitive);
     }
 
     void print()

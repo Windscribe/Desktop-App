@@ -42,19 +42,21 @@ void paths::deleteOldUnusedLogs()
     QFile::remove(appDataPath + "/ping_log_custom_configs.txt");
     QFile::remove(appDataPath + "/log_singleappinstanceguard.txt");
 
+#ifdef WS_IS_WINDSCRIBE
     // remove Windscribe folder which is no longer used since version 2.xx
-    // now we use only Windcribe2 folder
+    // now we use only Windscribe2 folder
     QDir dir(appDataPath);
     if (dir.cdUp()) {
         if (dir.cd("Windscribe"))
             dir.removeRecursively();
     }
+#endif
 }
 
 QString paths::serviceLogLocation(bool previous)
 {
 #if defined(Q_OS_WIN)
-    return serviceLogFolder() + addPreviousSuffix("/windscribe_service.log", previous);
+    return serviceLogFolder() + addPreviousSuffix("/" WS_PRODUCT_NAME_LOWER "_service.log", previous);
 #else
     return serviceLogFolder() + addPreviousSuffix("/helper.log", previous);
 #endif
@@ -88,9 +90,9 @@ QString paths::clientLogFolder()
 QString paths::serviceLogFolder()
 {
 #if defined(Q_OS_LINUX)
-    return "/var/log/windscribe";
+    return WS_LINUX_LOG_DIR;
 #elif defined(Q_OS_MACOS)
-    return "/Library/Logs/com.windscribe.helper.macos";
+    return "/Library/Logs/" WS_MAC_HELPER_BUNDLE_ID;
 #else
     return qApp->applicationDirPath();
 #endif

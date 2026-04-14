@@ -294,7 +294,7 @@ bool LocationsMenu::handleKeyPressEvent(QKeyEvent *event)
         if (curTab_ != LOCATION_TAB_SEARCH_LOCATIONS) {
             // If search tab is not open, and the user presses space, collapse locations.
             // For any other printable character, open the search tab and append the text.
-            if (event->key() != Qt::Key_Space && event->key() != Qt::Key_Meta && QChar(event->key()).isPrint() &&
+            if (event->key() != Qt::Key_Space && !event->text().isEmpty() && event->text().at(0).isPrint() &&
                 (!(event->modifiers() & (Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier | Qt::ShiftModifier))))
             {
                 onSearchLocationsClicked();

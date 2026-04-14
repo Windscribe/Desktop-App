@@ -25,7 +25,7 @@ The Windscribe VPN desktop application hides your physical location, blocks ads 
 - Windows 10/11 amd64 (minimum build 17763)
 - Windows 11 arm64
 - Windows Server 2022 amd64
-- macOS 12+ (amd64, arm64)
+- macOS 13+ (amd64, arm64)
 - Ubuntu 22.04+ (amd64, arm64)
 - Fedora 36+ (amd64, arm64)
 - openSUSE Leap 15.6 amd64
@@ -113,13 +113,12 @@ See `build_all --help` for other build options.
 
 ### Prerequisites
 
-- macOS Big Sur or newer, but preferably at least Monterey.
-- Install Xcode 14.2 (If on MacOS 11 Big Sur, you may use Xcode 13.2.1, but this is deprecated and not maintained going forward)
-    - Xcode 15 is not currently supported. You may install a copy of Xcode 14.2 and use `sudo xcode-select --switch /path/to/your/xcode` to have both Xcode 13/14 and 15 simultaneously.
+- macOS Ventura (13) or newer.
+- Install Xcode 15 or newer.
     - You must agree to the Xcode license (`sudo xcodebuild -license`)
     - You may need to run `xcodebuild -runFirstLaunch` or the Xcode GUI once if CMake complains that it can't find the compiler when building using the Xcode generator.
     - Note: these downloads will require you to first login to your Apple account.
-      - https://developer.apple.com/services-account/download?path=/Developer_Tools/Xcode_14.2/Xcode_14.2.xip
+      - https://xcodereleases.com
 - Install brew (brew.sh)
 ```bash
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -141,11 +140,6 @@ See `build_all --help` for other build options.
   pyenv install 3.11.6
   pyenv global 3.11.6
 ```
-- Install create-dmg:
-```bash
-  brew install create-dmg
-```
-
 - Install CMake v3.28.x or newer from [here](https://cmake.org/download/) and make sure that the cmake executable is in the path and available for execution. The project will build with older versions of CMake, but you may encounter some warnings.
 - Clone the [ws-vcpkg-registry](https://github.com/Windscribe/ws-vcpkg-registry) and run its installation script to set up vcpkg. Then set the `VCPKG_ROOT` environment variable to the path you chose:
 ```bash

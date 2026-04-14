@@ -117,7 +117,7 @@ QSharedPointer<BaseLocationInfo> ApiLocationsModel::getMutableLocationInfoById(c
                         const api_responses::Node &apiInfoNode = group.getNode(n);
                         QStringList ips;
                         ips << apiInfoNode.getIp(0) << apiInfoNode.getIp(1) << apiInfoNode.getIp(2);
-                        nodes << QSharedPointer<const ApiLocationNode>(new ApiLocationNode(ips, apiInfoNode.getHostname(), apiInfoNode.getWeight(), group.getWgPubKey()));
+                        nodes << QSharedPointer<const ApiLocationNode>(new ApiLocationNode(ips, apiInfoNode.getHost(), apiInfoNode.getWeight(), group.getWgPubKey()));
                     }
 
                     // once API server list is updated so that the old WINDFLIX locations' dns_hostname matches that of the containing region this code can be removed
@@ -311,7 +311,6 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated(const QVector<ap
         item.countryCode = l.getCountryCode();
         item.shortName = l.getShortName();
         item.isPremiumOnly = l.isPremiumOnly();
-        item.isNoP2P = l.getP2P() == 0;
 
         for (int i = 0; i < l.groupsCount(); ++i)
         {
@@ -321,7 +320,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated(const QVector<ap
             city.idNum = group.getId();
             city.city = group.getCity();
             city.nick = group.getNick();
-            city.isPro = group.isPro();
+            city.isPremiumOnly = group.isPremiumOnly();
             city.pingTimeMs = pingManager_.getPing(group.getPingIp());
             // If ping time does not exist, set it to previous ping, if it exists
             if (city.pingTimeMs == PingTime::NO_PING_INFO) {
@@ -330,7 +329,8 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated(const QVector<ap
             }
             city.isDisabled = group.isDisabled();
             city.is10Gbps = (group.getLinkSpeed() == 10000);
-            city.health = group.getHealth();
+            city.isNoP2P = (group.getP2P() == 0);
+            city.health = group.getNetLoad();
             item.cities << city;
 
             if (!isBestLocationValid && bestLocation_.isValid() && bestLocation_.getId() == city.id && !city.isDisabled)
@@ -377,7 +377,6 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated(const QVector<ap
         item.name = QObject::tr("Static IPs");
         item.countryCode = "STATIC_IPS";
         item.isPremiumOnly = false;
-        item.isNoP2P = false;
         ball.staticIpDeviceName = staticIps_.getDeviceName();
 
         for (int i = 0; i < staticIps_.getIpsCount(); ++i)
@@ -387,7 +386,7 @@ BestAndAllLocations ApiLocationsModel::generateLocationsUpdated(const QVector<ap
             city.id = LocationID::createStaticIpsLocationId(sid.cityName, sid.staticIp);
             city.city = sid.cityName;
             city.pingTimeMs = pingManager_.getPing(sid.getPingIp());
-            city.isPro = true;
+            city.isPremiumOnly = true;
             city.isDisabled = (sid.status != 1);
             city.staticIpCountryCode = sid.countryCode;
             city.staticIpShortName = sid.shortName;

@@ -10,14 +10,14 @@ Server server;
 
 void handler_sigterm(int signum)
 {
-    spdlog::error("Windscribe helper terminated");
+    spdlog::error(WS_PRODUCT_NAME " helper terminated");
     exit(0);
 }
 
 int main(int argc, const char *argv[])
 {
     // Initialize logger
-    std::string path = "/Library/Logs/com.windscribe.helper.macos";
+    std::string path = "/Library/Logs/" WS_MAC_HELPER_BUNDLE_ID;
     std::string logPath = path + "/helper.log";
 
     // remove old unused log file from prev versions of the helper
@@ -58,6 +58,6 @@ int main(int argc, const char *argv[])
 
     server.run();
 
-    spdlog::info("Windscribe helper finished");
+    spdlog::info(WS_PRODUCT_NAME " helper finished");
     return EXIT_SUCCESS;
 }

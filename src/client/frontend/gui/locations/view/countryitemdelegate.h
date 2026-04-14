@@ -22,7 +22,6 @@ public:
 private:
     const int kCountryItemMaxWidth = 218;
 
-    QRect p2pRect(const QRect &itemRect) const;
     QRect captionRect(const QRect &itemRect, const IItemCacheData *cacheData) const;
 
 };

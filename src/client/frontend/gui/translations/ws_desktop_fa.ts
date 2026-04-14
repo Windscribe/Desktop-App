@@ -1252,14 +1252,26 @@ If the problem persists after a restart, please send a debug log and open a supp
     </message>
 </context>
 <context>
-    <name>PreferencesWindow::AntiCensorshipGroup</name>
+    <name>PreferencesWindow::AntiCensorshipWindowItem</name>
     <message>
-        <source>Circumvent Censorship</source>
-        <translation>دور زدن سانسور</translation>
+        <source>Anti-censorship</source>
+        <translation>ضد سانسور</translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation>پیکربندی</translation>
+        <source>These degrade performance, enable only if Windscribe doesn&apos;t connect normally.</source>
+        <translation>این ها عملکرد را کاهش می دهند و فقط زمانی فعال می شوند که Windscribe به طور معمول وصل نشود.</translation>
+    </message>
+    <message>
+        <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
+        <translation>تغییرات سطح پروتکل در پروتکل های WireGuard، OpenVPN و Stealth اعمال شده است.</translation>
+    </message>
+    <message>
+        <source>Increases latency, but improves chances of being able to connect.</source>
+        <translation>تأخیر را افزایش می دهد، اما شانس اتصال را افزایش می دهد.</translation>
+    </message>
+    <message>
+        <source>Server Routing</source>
+        <translation>مسیریابی سرور</translation>
     </message>
 </context>
 <context>
@@ -1495,8 +1507,8 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>اطلاعات SSID و MAC وای فای را از سیستم عامل خود حذف کنید تا از ردیابی تاریخچه موقعیت جلوگیری شود.</translation>
     </message>
     <message>
-        <source>Connect to the VPN with WireGuard even in a hostile environment.</source>
-        <translation>حتی در محیط خصمانه با WireGuard به VPN وصل شوید.</translation>
+        <source>Anti-censorship Settings</source>
+        <translation>تنظیمات ضد سانسور</translation>
     </message>
 </context>
 <context>
@@ -2061,6 +2073,17 @@ Connect to a network first</source>
     </message>
 </context>
 <context>
+    <name>PreferencesWindow::ProtocolTweaksGroup</name>
+    <message>
+        <source>Protocol Tweaks</source>
+        <translation>اصلاحات پروتکل</translation>
+    </message>
+    <message>
+        <source>Amnezia Config</source>
+        <translation>پیکربندی Amnezia</translation>
+    </message>
+</context>
+<context>
     <name>PreferencesWindow::ProxyGatewayGroup</name>
     <message>
         <source>Proxy Gateway</source>
@@ -2584,14 +2607,6 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>IP های استاتیک</translation>
     </message>
     <message>
-        <source>Your application version is no longer supported. Please update to continue using Windscribe.</source>
-        <translation>نسخه برنامه شما دیگر پشتیبانی نمی شود. لطفا برای ادامه استفاده از Windscribe به روز رسانی کنید.</translation>
-    </message>
-    <message>
-        <source>Please upgrade to a Pro account to continue using Windscribe.</source>
-        <translation>لطفا برای ادامه استفاده از Windscribe به یک حساب حرفه ای ارتقا دهید.</translation>
-    </message>
-    <message>
         <source>Your original account %1 has expired. Creating multiple accounts to bypass free tier limitations is prohibited. Please login into the original account and wait until the bandwidth is reset. You can also upgrade to Pro.</source>
         <translation>حساب اصلی شما%1 منقضی شده است. ایجاد چندین حساب برای دور زدن محدودیت های ردیف ازاد ممنوع است. لطفا به حساب اصلی وارد شوید و صبر کنید تا پهنای باند بازنشانی شود. شما همچنین می توانید به Pro ارتقا دهید.</translation>
     </message>
@@ -2671,16 +2686,28 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <source>Random IP</source>
         <translation>IP تصادفی</translation>
     </message>
+    <message>
+        <source>Your application version is no longer supported. Please update to continue using %1.</source>
+        <translation>نسخه برنامه شما دیگر پشتیبانی نمی شود. لطفا برای ادامه استفاده از ٪1 به روزرسانی کنید.</translation>
+    </message>
+    <message>
+        <source>Please upgrade to a Pro account to continue using %1.</source>
+        <translation>لطفا برای ادامه استفاده از ٪1 به حساب Pro ارتقا دهید.</translation>
+    </message>
+    <message>
+        <source>Regular</source>
+        <translation>منظم</translation>
+    </message>
+    <message>
+        <source>Alternate</source>
+        <translation>جایگزین</translation>
+    </message>
 </context>
 <context>
     <name>QWidget</name>
     <message>
         <source>Unknown Config Error</source>
         <translation>خطای پیکربندی ناشناخته</translation>
-    </message>
-    <message>
-        <source>File Sharing Frowned Upon</source>
-        <translation>دانلود فایل های با نام Frowned Upon</translation>
     </message>
 </context>
 <context>

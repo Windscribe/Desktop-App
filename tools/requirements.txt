@@ -1,4 +1,6 @@
 colorama
+dmgbuild>=1.6.7; sys_platform == 'darwin'
 pyyaml
 requests
 translate-toolkit[XML]
+unicode-segmentation-rs<0.2.2
