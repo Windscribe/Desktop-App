@@ -1,3 +1,18 @@
+2.22.5 (15/04/2026)
+All:
+   * Fixed dropdown menus in Preferences scrolling to the wrong position. #1692
+   * Fixed El Salvador flag icon. #1692
+   * Fixed app does not consistently connect to the specific server that has the user's pinned IP. #1734
+   * Fixed purchased ALC locations cannot be selected. #1753
+macOS:
+   * Fixed unnecessary VPN reconnection when switching between WiFi access points on the same network. #1708
+   * Fixed a crash when deleting a session. #1751
+   * Fixed a crash that could occur while reinstalling the app. #1752
+   * Fixed a crash when interacting with credential fields. #1748
+Linux:
+   * Fixed unnecessary VPN reconnection when switching between WiFi access points on the same network. #1708
+
+
 2.22.4 (10/04/2026)
 All:
    * Improved WireGuard PersistentKeepalive to use a value of 25 on all platforms. #1741

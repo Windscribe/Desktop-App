@@ -21,7 +21,7 @@ public:
     void updateDeviceName(const QString &staticIpDeviceName);
     void changeConnectionSpeed(LocationID id, PingTime speed);
     void setLocationOrder(ORDER_LOCATION_TYPE orderLocationType);
-    void setFreeSessionStatus(bool isFreeSessionStatus);
+    void setFreeSessionStatus(bool isFreeSessionStatus, const QStringList &alcLocations);
 
     QAbstractItemModel *locationsModel() { return locationsModel_; }
     QAbstractItemModel *sortedLocationsProxyModel() { return sortedLocationsProxyModel_; }

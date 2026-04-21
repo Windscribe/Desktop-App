@@ -517,7 +517,7 @@ void Backend::onEngineSessionDeleted()
 void Backend::onEngineUpdateSessionStatus(const api_responses::SessionStatus &sessionStatus)
 {
     latestSessionStatus_ = sessionStatus;
-    locationsModelManager_->setFreeSessionStatus(!latestSessionStatus_.isPremium());
+    locationsModelManager_->setFreeSessionStatus(!latestSessionStatus_.isPremium(), latestSessionStatus_.getAlc());
     updateAccountInfo();
     emit sessionStatusChanged(latestSessionStatus_);
 }

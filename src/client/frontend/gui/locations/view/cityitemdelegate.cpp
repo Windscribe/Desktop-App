@@ -179,9 +179,14 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
 
     // Disabled/custom config error/latency
 
+    bool showAsPremium = index.data(kIsShowAsPremium).toBool();
     // only show disabled locations to pro users
-    bool disabled = index.data(kIsShowAsPremium).toBool() ? false : index.data(kIsDisabled).toBool();
-    if (disabled) {
+    bool disabled = showAsPremium ? false : index.data(kIsDisabled).toBool();
+    if (showAsPremium) {
+        // no ping data available for premium locations when user is free
+        xOffset -= 16*G_SCALE;
+        xOffset -= LOCATION_ITEM_MARGIN*G_SCALE;
+    } else if (disabled) {
         QSharedPointer<IndependentPixmap> consIcon = ImageResourcesSvg::instance().getIndependentPixmap("locations/UNDER_CONSTRUCTION_ICON");
         painter->setOpacity(textOpacity);
         xOffset -= consIcon->width();
@@ -235,7 +240,7 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
 
     // no p2p icon + favorite icon
     // You can't favorite a static ip or custom config location.
-    if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
+    if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation() && !showAsPremium) {
         if (qFuzzyCompare(option.selectedOpacity(), 1.0)) {
             QSharedPointer<IndependentPixmap> favIcon;
             bool isHoveringFavorite = (option.hoverClickableId() == (int)ClickableRect::kFavorite);

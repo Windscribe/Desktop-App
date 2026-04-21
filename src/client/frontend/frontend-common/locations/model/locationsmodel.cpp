@@ -227,11 +227,13 @@ void LocationsModel::changeConnectionSpeed(LocationID id, PingTime speed)
     }
 }
 
-void LocationsModel::setFreeSessionStatus(bool isFreeSessionStatus)
+void LocationsModel::setFreeSessionStatus(bool isFreeSessionStatus, const QStringList &alcLocations)
 {
-    if (isFreeSessionStatus != isFreeSessionStatus_)
+    QSet<QString> alcSet(alcLocations.begin(), alcLocations.end());
+    if (isFreeSessionStatus != isFreeSessionStatus_ || alcSet != alcLocations_)
     {
         isFreeSessionStatus_ = isFreeSessionStatus;
+        alcLocations_ = alcSet;
         emit dataChanged(index(0, 0), index(locations_.size() - 1, 0));
         for (int i = 0; i < locations_.size(); ++i)
         {
@@ -561,7 +563,7 @@ QVariant LocationsModel::dataForLocation(int row, int role) const
     }
     else if (role == kIsShowAsPremium)
     {
-        return locations_[row]->location().isPremiumOnly && isFreeSessionStatus_;
+        return locations_[row]->location().isPremiumOnly && isFreeSessionStatus_ && !alcLocations_.contains(locations_[row]->location().shortName);
     }
     else if (role == kIs10Gbps)
     {
@@ -686,7 +688,7 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
         if (lid.isStaticIpsLocation())
             return false;
         else
-            return l->location().cities[row].isPremiumOnly && isFreeSessionStatus_;
+            return l->location().cities[row].isPremiumOnly && isFreeSessionStatus_ && !alcLocations_.contains(l->location().shortName);
     }
     else if (role == kIsFavorite)
     {

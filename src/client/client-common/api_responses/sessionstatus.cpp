@@ -108,7 +108,6 @@ SessionStatus::SessionStatus(const std::string &json) : d(new SessionStatusData)
             d->alc_ << v.toString();
         }
     }
-
     d->staticIpsUpdateDevices_.clear();
     if (jsonData.contains("sip"))
     {

@@ -1088,7 +1088,12 @@ void MainWindow::onPinIp()
     }
 
     // Get the current connecting hostname from backend
+    // Store only the subdomain portion so pinned IPs still work when the server TLD changes.
     QString hostname = backend_->getCurrentConnectingHostname();
+    int dotIndex = hostname.indexOf('.');
+    if (dotIndex != -1) {
+        hostname = hostname.left(dotIndex);
+    }
 
     // Add to favorites with hostname and IP via kPinnedIp role
     QVariantList pinnedData;
@@ -1186,7 +1191,7 @@ void MainWindow::onPreferencesLoginClick()
     collapsePreferences();
 
     if (backend_->getPreferencesHelper()->isExternalConfigMode()) {
-        QApplication::setOverrideCursor(Qt::WaitCursor);
+        setCursor(Qt::WaitCursor);
         logoutReason_ = LOGOUT_GO_TO_LOGIN;
         backend_->logout(false);
     } else if (mainWindowController_->currentWindowAfterAnimation() == MainWindowController::WINDOW_ID_GENERAL_MESSAGE) {
@@ -1580,7 +1585,7 @@ void MainWindow::onUpgradeAccountCancel()
 
 void MainWindow::onLogoutWindowAccept()
 {
-    QApplication::setOverrideCursor(Qt::WaitCursor);
+    setCursor(Qt::WaitCursor);
     setEnabled(false);
     logoutReason_ = LOGOUT_FROM_MENU;
     isExitingFromPreferences_ = false;
@@ -2389,7 +2394,7 @@ void MainWindow::onBackendLogoutFinished()
 
     mainWindowController_->hideUpdateWidget();
     setEnabled(true);
-    QApplication::restoreOverrideCursor();
+    unsetCursor();
 }
 
 void MainWindow::onBackendCleanupFinished()
@@ -2556,7 +2561,7 @@ void MainWindow::onBackendSessionDeleted()
 {
     qCInfo(LOG_BASIC) << "Handle deleted session";
 
-    QApplication::setOverrideCursor(Qt::WaitCursor);
+    setCursor(Qt::WaitCursor);
     setEnabled(false);
     logoutReason_ = LOGOUT_SESSION_EXPIRED;
     selectedLocation_->clear();

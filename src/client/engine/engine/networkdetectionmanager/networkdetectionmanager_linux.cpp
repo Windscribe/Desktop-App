@@ -72,8 +72,18 @@ void NetworkDetectionManager_linux::updateNetworkInfo(bool bWithEmitSignal)
 
     types::NetworkInterface newNetworkInterface = NetworkUtils_linux::networkInterfaceByName(ifname);
     if (newNetworkInterface != networkInterface_) {
+        bool significantChange = false;
+
+        if (newNetworkInterface.interfaceName != networkInterface_.interfaceName) {
+            significantChange = true;
+        } else if (newNetworkInterface.networkOrSsid != networkInterface_.networkOrSsid) {
+            significantChange = true;
+        } else {
+            qCInfo(LOG_BASIC) << "Minor interface change (e.g. same-SSID AP roam), skipping reconnect";
+        }
+
         networkInterface_ = newNetworkInterface;
-        if (bWithEmitSignal) {
+        if (bWithEmitSignal && significantChange) {
             emit networkChanged(networkInterface_);
         }
     }

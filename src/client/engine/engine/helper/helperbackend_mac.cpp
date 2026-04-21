@@ -1,18 +1,20 @@
 #include "helperbackend_mac.h"
+#include <QMetaObject>
 #include <QMutexLocker>
 #include "installhelper_mac.h"
 
 HelperBackend_mac::HelperBackend_mac(QObject *parent, spdlog::logger *logger) :
-    IHelperBackend(parent), connection_(nullptr), logger_(logger)
+    IHelperBackend(parent), logger_(logger)
 {
-
 }
 
 HelperBackend_mac::~HelperBackend_mac()
 {
     curState_ = State::kInit;
     if (connection_) {
+        xpc_connection_set_event_handler(connection_, ^(xpc_object_t) {});
         xpc_connection_cancel(connection_);
+        dispatch_sync(queue_, ^{});
     }
 }
 
@@ -21,7 +23,8 @@ void HelperBackend_mac::startInstallHelper(bool bForceDeleteOld)
     bool isUserCanceled;
     if (InstallHelper_mac::installHelper(bForceDeleteOld, isUserCanceled, logger_)) {
         // start XPC connection
-        connection_ = xpc_connection_create_mach_service(WS_MAC_HELPER_BUNDLE_ID, NULL, 0);
+        queue_ = dispatch_queue_create("com.windscribe.helper.xpc", DISPATCH_QUEUE_SERIAL);
+        connection_ = xpc_connection_create_mach_service(WS_MAC_HELPER_BUNDLE_ID, queue_, 0);
         if (!connection_)
             return;
 

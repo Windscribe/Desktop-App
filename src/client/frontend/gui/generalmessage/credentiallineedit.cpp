@@ -70,7 +70,7 @@ void CredentialLineEdit::clear()
 
 void CredentialLineEdit::focusInEvent(QFocusEvent *event)
 {
-    QTimer::singleShot(0, [this]() {
+    QTimer::singleShot(0, this, [this]() {
         lineEdit_->setFocus();
     });
 }

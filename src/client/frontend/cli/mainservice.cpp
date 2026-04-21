@@ -415,7 +415,12 @@ void MainService::onPinIp()
     }
 
     // Get the current connecting hostname from backend
+    // Store only the subdomain portion so pinned IPs still work when the server TLD changes.
     QString hostname = backend_->getCurrentConnectingHostname();
+    int dotIndex = hostname.indexOf('.');
+    if (dotIndex != -1) {
+        hostname = hostname.left(dotIndex);
+    }
 
     // Add to favorites with hostname and IP via kPinnedIp role
     QVariantList pinnedData;

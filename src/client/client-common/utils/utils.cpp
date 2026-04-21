@@ -133,18 +133,12 @@ int Utils::generateIntegerRandom(const int &min, const int &max)
 
 bool Utils::isSubdomainsEqual(const QString &hostname1, const QString &hostname2)
 {
+    // Compare only the subdomain portion so pinned IP matching still works when the server TLD changes.
     int i1 = hostname1.indexOf('.');
     int i2 = hostname2.indexOf('.');
-    if (i1 != -1 && i2 != -1)
-    {
-        QString sub1 = hostname1.mid(0, i1);
-        QString sub2 = hostname2.mid(0, i2);
-        return sub1 == sub2;
-    }
-    else
-    {
-        return false;
-    }
+    QString sub1 = (i1 != -1) ? hostname1.left(i1) : hostname1;
+    QString sub2 = (i2 != -1) ? hostname2.left(i2) : hostname2;
+    return !sub1.isEmpty() && sub1 == sub2;
 }
 
 std::wstring Utils::getDirPathFromFullPath(const std::wstring &fullPath)

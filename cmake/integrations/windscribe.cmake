@@ -5,7 +5,7 @@
 
 set(WS_VERSION_MAJOR 2)
 set(WS_VERSION_MINOR 22)
-set(WS_VERSION_BUILD 4)
+set(WS_VERSION_BUILD 5)
 set(WS_BUILD_TYPE "guinea_pig")
 
 # WS_APP_IDENTIFIER: Internal identifier, no spaces. Used for service names,

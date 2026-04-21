@@ -79,9 +79,9 @@ void LocationsModelManager::setLocationOrder(ORDER_LOCATION_TYPE orderLocationTy
     filterLocationsProxyModel_->setLocationOrder(orderLocationType);
 }
 
-void LocationsModelManager::setFreeSessionStatus(bool isFreeSessionStatus)
+void LocationsModelManager::setFreeSessionStatus(bool isFreeSessionStatus, const QStringList &alcLocations)
 {
-    locationsModel_->setFreeSessionStatus(isFreeSessionStatus);
+    locationsModel_->setFreeSessionStatus(isFreeSessionStatus, alcLocations);
 }
 
 QModelIndex LocationsModelManager::getIndexByLocationId(const LocationID &id) const

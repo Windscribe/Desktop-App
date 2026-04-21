@@ -355,14 +355,17 @@ void ComboBoxItem::onMenuOpened()
     int item = menu_->indexOfItemByName(itemName);
     int numItems = menu_->itemCount();
 
+    int navigateToIndex = 0;
+    bool hasScrollBar = false;
+
     if (numItems <= menu_->visibleItems()) //  all showing
     {
         // center on selected item
         heightCentering -= item * menu_->itemHeight();
-        menu_->navigateItemToTop(0);
     }
     else // scrollbar on
     {
+        hasScrollBar = true;
         int offBy = 0;
         if (item == numItems - 1) // last item
         {
@@ -387,8 +390,7 @@ void ComboBoxItem::onMenuOpened()
             offBy = 2;
         }
 
-        menu_->navigateItemToTop(item - offBy);
-        menu_->activateItem(item);
+        navigateToIndex = item - offBy;
     }
 
     // Ensure popup visibility when close to the bottom of the current screen.
@@ -400,6 +402,14 @@ void ComboBoxItem::onMenuOpened()
 
     menu_->move(point.x() - offsetX, heightCentering);
     menu_->show();
+
+    // Navigate and activate after show() so that Qt's first-show layout pass
+    // does not clobber the scroll position (Qt 6.11 regression).
+    menu_->navigateItemToTop(navigateToIndex);
+    if (hasScrollBar) {
+        menu_->activateItem(item);
+    }
+
     menu_->setFocus();
 }
 

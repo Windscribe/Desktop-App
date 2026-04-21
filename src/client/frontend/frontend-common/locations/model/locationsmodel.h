@@ -49,7 +49,7 @@ public:
     void updateBestLocation(const LocationID &bestLocation);
     void updateCustomConfigLocation(const types::Location &location);
     void changeConnectionSpeed(LocationID id, PingTime speed);
-    void setFreeSessionStatus(bool isFreeSessionStatus);
+    void setFreeSessionStatus(bool isFreeSessionStatus, const QStringList &alcLocations);
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -85,6 +85,7 @@ private:
 
     int *root_;   // Fake root node. The typename does not matter, only the pointer to identify the root node matters.
     bool isFreeSessionStatus_;
+    QSet<QString> alcLocations_;
     FavoriteLocationsStorage favoriteLocationsStorage_;
     RenamedLocationsStorage renamedLocationsStorage_;
     const char *BEST_LOCATION_NAME = QT_TR_NOOP("Best Location");

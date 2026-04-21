@@ -1,7 +1,9 @@
 #pragma once
 
 #include "ihelperbackend.h"
+#include <atomic>
 #include <QMutex>
+#include <dispatch/dispatch.h>
 #include <xpc/xpc.h>
 #include <spdlog/spdlog.h>
 
@@ -21,8 +23,9 @@ public:
     std::string sendCmd(int cmdId, const std::string &data) override;
 
 private:
-    State curState_ = State::kInit;
+    std::atomic<State> curState_ = State::kInit;
     mutable QMutex mutex_;
-    xpc_connection_t connection_;
+    dispatch_queue_t queue_ = nullptr;
+    xpc_connection_t connection_ = nullptr;
     spdlog::logger *logger_;
 };

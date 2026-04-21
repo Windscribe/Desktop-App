@@ -110,6 +110,15 @@ void FavoriteLocationsStorage::readFromSettings()
         }
     }
 
+    // Migrate any stored FQDNs to subdomain-only so pinned IPs still work when the server TLD changes.
+    for (auto it = favoriteLocations_.begin(); it != favoriteLocations_.end(); ++it) {
+        int dotIndex = it.value().pinnedHostname.indexOf('.');
+        if (dotIndex != -1) {
+            it.value().pinnedHostname = it.value().pinnedHostname.left(dotIndex);
+            isFavoriteLocationsSetModified_ = true;
+        }
+    }
+
     // If we have migrated to a new version, rewrite the data back to storage
     writeToSettings();
 }
@@ -161,7 +170,13 @@ void FavoriteLocationsStorage::fromJson(const QJsonArray &arr)
             continue;
         LocationID loc(entry["type"].toInt(), entry["id"].toInt(), entry["city"].toString());
         FavoriteData data;
-        data.pinnedHostname = entry["pinnedHostname"].toString();
+        // Store only the subdomain portion so pinned IPs still work when the server TLD changes.
+        QString hostname = entry["pinnedHostname"].toString();
+        int dotIndex = hostname.indexOf('.');
+        if (dotIndex != -1) {
+            hostname = hostname.left(dotIndex);
+        }
+        data.pinnedHostname = hostname;
         data.pinnedIp = entry["pinnedIp"].toString();
         favoriteLocations_.insert(loc, data);
     }

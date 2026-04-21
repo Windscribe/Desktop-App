@@ -312,7 +312,7 @@ void TestLocationsModel::testFreeSessionStatusChange()
 {
     QModelIndex ind = locationsModel_->getIndexByLocationId(LocationID::createApiLocationId(63, "Vancouver", "Granville"));
     QVERIFY(ind.data(gui_locations::kIsShowAsPremium).toBool() == false);
-    locationsModel_->setFreeSessionStatus(true);
+    locationsModel_->setFreeSessionStatus(true, QStringList());
     QVERIFY(ind.data(gui_locations::kIsShowAsPremium).toBool() == true);
 }
 

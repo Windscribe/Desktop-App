@@ -124,8 +124,9 @@ void MutableLocationInfo::selectNodeByIp(const QString &addr)
 
 bool MutableLocationInfo::selectNodeByHostname(const QString &hostname)
 {
+    // Match by subdomain only so pinned IPs still work when the server TLD changes.
     for (int i = 0; i < nodes_.count(); i++) {
-        if (nodes_[i]->getHostname() == hostname) {
+        if (Utils::isSubdomainsEqual(nodes_[i]->getHostname(), hostname)) {
             qCDebug(LOG_BASIC) << "Selected node by hostname: " << i;
             selectedNode_ = i;
             return true;
