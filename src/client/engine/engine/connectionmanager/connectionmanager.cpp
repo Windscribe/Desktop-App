@@ -288,18 +288,23 @@ void ConnectionManager::removeIkev2ConnectionFromOS()
 
 void ConnectionManager::continueWithUsernameAndPassword(const QString &username, const QString &password, bool bNeedReconnect)
 {
-    WS_ASSERT(connector_ != NULL);
     usernameForCustomOvpn_ = username;
     passwordForCustomOvpn_ = password;
 
+    // On the auth-failed retry path the previous connector has already been
+    // torn down by onConnectionDisconnected (SAFE_DELETE_LATER), so connector_
+    // is null. doConnect() will create a fresh one that picks up the new
+    // credentials via usernameForCustomOvpn_/passwordForCustomOvpn_.
+    if (bNeedReconnect) {
+        bWasSuccessfullyConnectionAttempt_ = false;
+        state_= STATE_CONNECTING_FROM_USER_CLICK;
+        doConnect();
+        return;
+    }
+
+    WS_ASSERT(connector_ != NULL);
     if (connector_) {
-        if (bNeedReconnect) {
-            bWasSuccessfullyConnectionAttempt_ = false;
-            state_= STATE_CONNECTING_FROM_USER_CLICK;
-            doConnect();
-        } else {
-            connector_->continueWithUsernameAndPassword(username, password);
-        }
+        connector_->continueWithUsernameAndPassword(username, password);
     }
 }
 
@@ -313,19 +318,19 @@ void ConnectionManager::continueWithPassword(const QString &password, bool /*bNe
 
 void ConnectionManager::continueWithPrivKeyPassword(const QString &password, bool bNeedReconnect)
 {
+    // On the priv-key retry path connector_ is null (already deleted in
+    // onConnectionDisconnected). doConnect() will create a fresh connector;
+    // OpenVPN will re-prompt for the priv-key password on that new connection.
+    if (bNeedReconnect) {
+        bWasSuccessfullyConnectionAttempt_ = false;
+        state_= STATE_CONNECTING_FROM_USER_CLICK;
+        doConnect();
+        return;
+    }
+
     WS_ASSERT(connector_ != NULL && connector_->getConnectionType() == ConnectionType::OPENVPN);
-
     if (connector_ && connector_->getConnectionType() == ConnectionType::OPENVPN) {
-
-        if (bNeedReconnect) {
-            static_cast<OpenVPNConnection *>(connector_)->setPrivKeyPassword(password);
-
-            bWasSuccessfullyConnectionAttempt_ = false;
-            state_= STATE_CONNECTING_FROM_USER_CLICK;
-            doConnect();
-        } else {
-            static_cast<OpenVPNConnection *>(connector_)->continueWithPrivKeyPassword(password);
-        }
+        static_cast<OpenVPNConnection *>(connector_)->continueWithPrivKeyPassword(password);
     }
 }
 

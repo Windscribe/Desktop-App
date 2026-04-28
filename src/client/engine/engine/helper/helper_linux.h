@@ -9,7 +9,6 @@ public:
     // Take ownership of the backend
     explicit Helper_linux(std::unique_ptr<IHelperBackend> backend, spdlog::logger *logger);
 
-    bool installUpdate(const QString& package) const;
     void setDnsLeakProtectEnabled(bool bEnabled);
     void setGaiIpv4PriorityEnabled(bool bEnabled);
     void resetMacAddresses(const QString &ignoreNetwork = "");

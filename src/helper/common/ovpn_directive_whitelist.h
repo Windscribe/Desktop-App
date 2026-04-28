@@ -128,6 +128,10 @@ inline const std::unordered_set<std::string>& allowedDirectives()
 
         // Client options
         "push-peer-info",
+
+        // Anti-censorship (Windscribe custom, patched OpenVPN)
+        "udp-stuffing",
+        "tcp-split-reset",
     };
     return directives;
 }

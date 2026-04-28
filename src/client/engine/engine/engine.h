@@ -39,6 +39,8 @@
 #elif defined(Q_OS_MACOS)
     #include "autoupdater/autoupdaterhelper_mac.h"
     #include "splittunnelextension/systemextensions_mac.h"
+#elif defined(Q_OS_LINUX)
+    #include <QProcess>
 #endif
 
 // all the functionality of the connections, firewall, helper, etc
@@ -299,6 +301,9 @@ private slots:
     void onDownloadHelperProgressChanged(uint progressPercent);
     void onDownloadHelperFinished(const DownloadHelper::DownloadState &state);
     void updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY);
+#ifdef Q_OS_LINUX
+    void onInstallUpdateFinished(int exitCode, QProcess::ExitStatus exitStatus);
+#endif
 
     void onEmergencyControllerConnected();
     void onEmergencyControllerDisconnected(DISCONNECT_REASON reason);
@@ -446,6 +451,9 @@ private:
     QString installerPath_;
     QString installerHash_;
     qint64 guiWindowHandle_;
+#ifdef Q_OS_LINUX
+    QProcess *installUpdateProcess_ = nullptr;
+#endif
 
     bool overrideUpdateChannelWithInternal_;
     bool bPrevNetworkInterfaceInitialized_;

@@ -52,10 +52,7 @@ void ExtraConfig::writeConfig(const QString &cfg, bool bWithLog)
     QFile file(path_);
     if (cfg.isEmpty()) {
         file.remove();
-        return;
-    }
-
-    if (file.open(QIODevice::WriteOnly)) {
+    } else if (file.open(QIODevice::WriteOnly)) {
         file.resize(0);
         file.write(cfg.toLocal8Bit());
         file.close();
@@ -65,6 +62,7 @@ void ExtraConfig::writeConfig(const QString &cfg, bool bWithLog)
             qCDebug(LOG_BASIC) << "Extra options:" << cfg.toLocal8Bit();
         }
     }
+    parseConfigFile();
 }
 
 QString ExtraConfig::getExtraConfig()

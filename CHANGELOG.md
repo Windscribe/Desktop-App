@@ -1,3 +1,17 @@
+2.22.6 (22/04/2026)
+All:
+   * Improved HTTP ping to use IP address rather than hostname. #1764
+   * Fixed anti-censorship directives missing from OpenVPN whitelist. #1757
+   * Fixed P2P indicators not shown for premium locations. #1758
+   * Fixed cannot connect to purchased individual locations because the UI shows them as premium-only. #1759
+   * Fixed cannot connect with custom configs requiring credentials. #1760
+   * Fixed Bridge API session tokens not being cleared during logout and persistent settings cleanup. wsnet #18
+   * Fixed potential use-after-free crash when API handles outlive global WSNet teardown. wsnet #19
+Linux:
+   * Fixed advanced parameters not parsed after being written. #1765
+   * Fixed potential privilege escalation during app update process. #1763
+   
+   
 2.22.5 (15/04/2026)
 All:
    * Fixed dropdown menus in Preferences scrolling to the wrong position. #1692

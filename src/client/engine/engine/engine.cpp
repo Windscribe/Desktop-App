@@ -1915,7 +1915,7 @@ void Engine::onDownloadHelperFinished(const DownloadHelper::DownloadState &state
         return;
     }
 
-    if (!verifyContentsSha256(installerPath_, installerHash_)) // installerPath_
+    if (!verifyContentsSha256(installerPath_, installerHash_))
     {
         qCWarning(LOG_AUTO_UPDATER) << "Incorrect hash, removing installer";
         if (QFile::exists(installerPath_)) QFile::remove(installerPath_);
@@ -1974,18 +1974,57 @@ void Engine::updateRunInstaller(qint32 windowCenterX, qint32 windowCenterY)
     Q_UNUSED(windowCenterX);
     Q_UNUSED(windowCenterY);
 
-    bool result = helper_->installUpdate(installerPath_);
-    if (!result) {
+    if (installUpdateProcess_) {
+        qCWarning(LOG_AUTO_UPDATER) << "Install already in progress, ignoring";
+        return;
+    }
+    installUpdateProcess_ = new QProcess(this);
+    connect(installUpdateProcess_, &QProcess::finished, this, &Engine::onInstallUpdateFinished);
+    installUpdateProcess_->setProgram(WS_LINUX_INSTALL_DIR "/scripts/install-update");
+    installUpdateProcess_->setArguments(QStringList() << installerPath_ << installerHash_);
+    installUpdateProcess_->start();
+    if (!installUpdateProcess_->waitForStarted()) {
+        qCCritical(LOG_AUTO_UPDATER) << "Install failed to start";
+        installUpdateProcess_->deleteLater();
+        installUpdateProcess_ = nullptr;
         emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_START_INSTALLER_FAIL);
         return;
     }
 #endif
 
-    qCInfo(LOG_AUTO_UPDATER) << "Installer valid and executed";
     installerPath_.clear();
+    installerHash_.clear();
 
+#ifndef Q_OS_LINUX
+    qCInfo(LOG_AUTO_UPDATER) << "Installer valid and executed";
     emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_NO_ERROR);
+#endif
 }
+
+#ifdef Q_OS_LINUX
+void Engine::onInstallUpdateFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    qCInfo(LOG_AUTO_UPDATER) << "Installer exited with code" << exitCode
+                             << "status" << exitStatus;
+    if (installUpdateProcess_) {
+        installUpdateProcess_->deleteLater();
+        installUpdateProcess_ = nullptr;
+    }
+    if (exitStatus == QProcess::CrashExit) {
+        qCWarning(LOG_AUTO_UPDATER) << "Installer crashed";
+        emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, UPDATE_VERSION_ERROR_OTHER_FAIL);
+        return;
+    }
+    UPDATE_VERSION_ERROR err;
+    switch (exitCode) {
+        case 0: err = UPDATE_VERSION_ERROR_NO_ERROR; break;
+        case 2: err = UPDATE_VERSION_ERROR_COMPARE_HASH_FAIL; break;
+        case 3: err = UPDATE_VERSION_ERROR_START_INSTALLER_FAIL; break;
+        default: err = UPDATE_VERSION_ERROR_OTHER_FAIL; break;
+    }
+    emit updateVersionChanged(0, UPDATE_VERSION_STATE_DONE, err);
+}
+#endif
 
 void Engine::onEmergencyControllerConnected()
 {

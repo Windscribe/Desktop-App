@@ -1,22 +1,7 @@
 #include "helper_linux.h"
-#include <QProcess>
-#include "utils/log/categories.h"
 
 Helper_linux::Helper_linux(std::unique_ptr<IHelperBackend> backend, spdlog::logger *logger) : Helper_posix(std::move(backend), logger)
 {
-}
-
-bool Helper_linux::installUpdate(const QString &package) const
-{
-    QProcess process;
-    process.setProgram(WS_LINUX_INSTALL_DIR "/scripts/install-update");
-    process.setArguments(QStringList() << package);
-    int ret = process.startDetached();
-    if (!ret) {
-        qCCritical(LOG_AUTO_UPDATER) << "Install failed to start" << ret;
-        return false;
-    }
-    return true;
 }
 
 void Helper_linux::setDnsLeakProtectEnabled(bool bEnabled)

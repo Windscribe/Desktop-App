@@ -240,8 +240,8 @@ void CityItemDelegate::paint(QPainter *painter, const ItemStyleOption &option, c
 
     // no p2p icon + favorite icon
     // You can't favorite a static ip or custom config location.
-    if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation() && !showAsPremium) {
-        if (qFuzzyCompare(option.selectedOpacity(), 1.0)) {
+    if (!lid.isStaticIpsLocation() && !lid.isCustomConfigsLocation()) {
+        if (!showAsPremium && qFuzzyCompare(option.selectedOpacity(), 1.0)) {
             QSharedPointer<IndependentPixmap> favIcon;
             bool isHoveringFavorite = (option.hoverClickableId() == (int)ClickableRect::kFavorite);
             if (index.data(kIsFavorite).toBool() == true) {
