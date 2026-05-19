@@ -25,6 +25,7 @@ public:
 
     void getWireGuardConfig(const QString &serverName, bool deleteOldestKey);
     static void removeWireGuardSettings();
+    static void forceReinitOnNextCall();
 
 signals:
     void getWireGuardConfigAnswer(WireGuardConfigRetCode retCode, const WireGuardConfig &config);
@@ -39,6 +40,7 @@ private:
     bool deleteOldestKey_;
     bool isRetryInitRequest_;
     static bool isInitConfigWasCallAtleastOnce_;
+    static bool forceReinitOnNextCall_;
     std::shared_ptr<wsnet::WSNetCancelableCallback> request_;
     SimpleCrypt simpleCrypt_;
 

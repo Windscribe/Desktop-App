@@ -3,9 +3,58 @@
 #include "utils/log/clean_sensitive_info.h"
 
 #include <QFileInfo>
+#include <QHostAddress>
+#include <QRegularExpression>
 #include <QSettings>
 
 namespace customconfigs {
+
+// Maximum file size for a WireGuard .conf (no legitimate config approaches this).
+static constexpr qint64 kMaxConfigFileSize = 64 * 1024;
+
+// WireGuard keys are 32 bytes, base64-encoded = 44 characters (including trailing '=').
+static const QRegularExpression kBase64KeyRegex(QStringLiteral("^[A-Za-z0-9+/]{43}=$"));
+
+// H1-H4 are uint32 values represented as decimal strings.
+static const QRegularExpression kUint32Regex(QStringLiteral("^[0-9]{1,10}$"));
+
+// I1-I5 are hex-encoded init packet data. MTU limits mean the binary payload
+// should not exceed ~1500 bytes, but we allow up to 4096 characters for safety.
+static constexpr int kMaxIValueLength = 4096;
+
+static bool isValidWgKey(const QString &key)
+{
+    return kBase64KeyRegex.match(key).hasMatch();
+}
+
+static bool isValidIpCidr(const QString &str)
+{
+    QStringList parts = str.split('/');
+    if (parts.isEmpty() || parts.size() > 2)
+        return false;
+
+    QHostAddress addr;
+    if (!addr.setAddress(parts[0]))
+        return false;
+
+    if (parts.size() == 2) {
+        bool ok = false;
+        int cidr = parts[1].toInt(&ok);
+        if (!ok || cidr < 0)
+            return false;
+        int maxCidr = (addr.protocol() == QAbstractSocket::IPv4Protocol) ? 32 : 128;
+        if (cidr > maxCidr)
+            return false;
+    }
+
+    return true;
+}
+
+static bool isValidIpAddress(const QString &str)
+{
+    QHostAddress addr;
+    return addr.setAddress(str);
+}
 
 CUSTOM_CONFIG_TYPE WireguardCustomConfig::type() const
 {
@@ -67,6 +116,13 @@ ICustomConfig *WireguardCustomConfig::makeFromFile(const QString &filepath)
     QFileInfo fi(filepath);
     config->name_ = fi.completeBaseName();
     config->filename_ = fi.fileName();
+
+    // Reject oversized files before parsing (DoS prevention)
+    if (fi.size() > kMaxConfigFileSize) {
+        config->errMessage_ = QObject::tr("Config file too large");
+        return config;
+    }
+
     config->loadFromFile(filepath);  // here the config can change to incorrect
     config->validate();
     return config;
@@ -166,17 +222,88 @@ void WireguardCustomConfig::validate()
     if (!errMessage_.isEmpty())
         return;
 
-    // Some fields are required.
-    if (privateKey_.isEmpty())
+    // --- Required field presence checks ---
+    if (privateKey_.isEmpty()) {
         errMessage_ = QObject::tr("Missing \"PrivateKey\" in the \"Interface\" section");
-    else if (ipAddress_.isEmpty())
+        return;
+    }
+    if (ipAddress_.isEmpty()) {
         errMessage_ = QObject::tr("Missing \"Address\" in the \"Interface\" section");
-    else if (dnsAddress_.isEmpty())
+        return;
+    }
+    if (dnsAddress_.isEmpty()) {
         errMessage_ = QObject::tr("Missing \"DNS\" in the \"Interface\" section");
-    else if (publicKey_.isEmpty())
+        return;
+    }
+    if (publicKey_.isEmpty()) {
         errMessage_ = QObject::tr("Missing \"PublicKey\" in the \"Peer\" section");
-    else if (endpointHostname_.isEmpty())
+        return;
+    }
+    if (endpointHostname_.isEmpty()) {
         errMessage_ = QObject::tr("Missing \"Endpoint\" in the \"Peer\" section");
+        return;
+    }
+
+    // --- Key format validation (32 bytes = 44 chars base64) ---
+    if (!isValidWgKey(privateKey_)) {
+        errMessage_ = QObject::tr("Invalid \"PrivateKey\" format");
+        return;
+    }
+    if (!isValidWgKey(publicKey_)) {
+        errMessage_ = QObject::tr("Invalid \"PublicKey\" format");
+        return;
+    }
+    if (!presharedKey_.isEmpty() && !isValidWgKey(presharedKey_)) {
+        errMessage_ = QObject::tr("Invalid \"PresharedKey\" format");
+        return;
+    }
+
+    // --- IP/CIDR validation (Address, AllowedIPs) ---
+    for (const QString &addr : ipAddress_.split(',', Qt::SkipEmptyParts)) {
+        if (!isValidIpCidr(addr.trimmed())) {
+            errMessage_ = QObject::tr("Invalid \"Address\" value: %1").arg(addr.trimmed());
+            return;
+        }
+    }
+    for (const QString &ip : allowedIps_.split(',', Qt::SkipEmptyParts)) {
+        if (!isValidIpCidr(ip.trimmed())) {
+            errMessage_ = QObject::tr("Invalid \"AllowedIPs\" value: %1").arg(ip.trimmed());
+            return;
+        }
+    }
+
+    // --- DNS validation ---
+    for (const QString &dns : dnsAddress_.split(',', Qt::SkipEmptyParts)) {
+        if (!isValidIpAddress(dns.trimmed())) {
+            errMessage_ = QObject::tr("Invalid \"DNS\" value: %1").arg(dns.trimmed());
+            return;
+        }
+    }
+
+    // --- Endpoint validation ---
+    if (endpointPortNumber_ == 0 || endpointPortNumber_ > 65535) {
+        errMessage_ = QObject::tr("Invalid endpoint port");
+        return;
+    }
+
+    // --- AmneziaWG parameter validation ---
+    if (obfuscationParams_.isValid()) {
+        // H1-H4: must be numeric uint32 strings when present
+        for (const QString &h : {obfuscationParams_.h1, obfuscationParams_.h2,
+                                  obfuscationParams_.h3, obfuscationParams_.h4}) {
+            if (!h.isEmpty() && !kUint32Regex.match(h).hasMatch()) {
+                errMessage_ = QObject::tr("Invalid AmneziaWG header parameter");
+                return;
+            }
+        }
+        // I1-I5: length limit (hex-encoded init packet data, bounded by MTU)
+        for (const QString &iVal : obfuscationParams_.iValues) {
+            if (iVal.length() > kMaxIValueLength) {
+                errMessage_ = QObject::tr("AmneziaWG init parameter too large");
+                return;
+            }
+        }
+    }
 }
 
 } //namespace customconfigs

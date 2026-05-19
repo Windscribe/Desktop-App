@@ -30,6 +30,7 @@ private slots:
     void onBackendWireGuardAtKeyLimit();
     void onBackendLocalDnsServerNotAvailable();
     void onBackendMyIpChanged(const QString &ip, bool isFromDisconnectedState);
+    void onBackendSessionDeleted();
 
     void onPreferencesAllowLanTrafficChanged(bool allowLanTraffic);
     void onPreferencesFirewallSettingsChanged(const types::FirewallSettings &fm);

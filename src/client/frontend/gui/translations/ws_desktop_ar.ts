@@ -1273,6 +1273,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Server Routing</source>
         <translation>توجيه الخوادم</translation>
     </message>
+    <message>
+        <source>Large TLS</source>
+        <translation>TLS كبير</translation>
+    </message>
+    <message>
+        <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
+        <translation>تكبير حزم TLS بشكل مصطنع، تساعد في تجاوز الرقابة في بعض الحالات. يضيف إضافة TLS إضافية لجميع طلبات API.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -2567,6 +2575,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>فان جوخ</translation>
     </message>
     <message>
+        <source>Enabled</source>
+        <translation>مفعل</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>معاق</translation>
+    </message>
+    <message>
+        <source>Config file too large</source>
+        <translation>ملف الإعدادات كبير جدا</translation>
+    </message>
+    <message>
         <source>Failed to open file</source>
         <translation>فشل فتح الملف</translation>
     </message>
@@ -2601,6 +2621,42 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</source>
         <translation>&quot;نقطة النهاية&quot; مفقودة في قسم &quot;النظير&quot;</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PrivateKey&quot; format</source>
+        <translation>صيغة &quot;PrivateKey&quot; غير صالحة</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PublicKey&quot; format</source>
+        <translation>صيغة &quot;PublicKey&quot; غير صالحة</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PresharedKey&quot; format</source>
+        <translation>صيغة &quot;PresharedKey&quot; غير صالحة</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;Address&quot; value: %1</source>
+        <translation>قيمة &quot;عنوان&quot; غير صالحة: ٪1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
+        <translation>قيمة &quot;عناوين IP المسموح بها&quot; غير صالحة: ٪1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;DNS&quot; value: %1</source>
+        <translation>قيمة &quot;DNS&quot; غير صالحة: ٪1</translation>
+    </message>
+    <message>
+        <source>Invalid endpoint port</source>
+        <translation>منفذ نقطة نهاية غير صالح</translation>
+    </message>
+    <message>
+        <source>Invalid AmneziaWG header parameter</source>
+        <translation>معامل رأس AmneziaWG غير صالح</translation>
+    </message>
+    <message>
+        <source>AmneziaWG init parameter too large</source>
+        <translation>AmneziaWG init parameter large too</translation>
     </message>
     <message>
         <source>Static IPs</source>

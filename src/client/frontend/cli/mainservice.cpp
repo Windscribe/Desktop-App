@@ -21,6 +21,7 @@ MainService::MainService() : QObject(), isExitingAfterUpdate_(false), keyLimitDe
     connect(backend_, &Backend::wireGuardAtKeyLimit, this, &MainService::onBackendWireGuardAtKeyLimit);
     connect(backend_, &Backend::localDnsServerNotAvailable, this, &MainService::onBackendLocalDnsServerNotAvailable);
     connect(backend_, &Backend::myIpChanged, this, &MainService::onBackendMyIpChanged);
+    connect(backend_, &Backend::sessionDeleted, this, &MainService::onBackendSessionDeleted);
     backend_->init();
 
     // signals from here to Backend
@@ -379,6 +380,12 @@ void MainService::onBackendLocalDnsServerNotAvailable()
     types::ConnectedDnsInfo connectedDnsInfo = backend_->getPreferences()->connectedDnsInfo();
     connectedDnsInfo.type = CONNECTED_DNS_TYPE::CONNECTED_DNS_TYPE_AUTO;
     backend_->getPreferences()->setConnectedDnsInfo(connectedDnsInfo);
+}
+
+void MainService::onBackendSessionDeleted()
+{
+    qCInfo(LOG_BASIC) << "Handle deleted session";
+    backend_->logout(true);
 }
 
 void MainService::onBackendMyIpChanged(const QString &ip, bool isFromDisconnectedState)

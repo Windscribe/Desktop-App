@@ -24,7 +24,6 @@ LocalIPCServer::LocalIPCServer(Backend *backend, QObject *parent) : QObject(pare
     connect(backend_, &Backend::connectionIdChanged, this, &LocalIPCServer::onBackendConnectionIdChanged);
     connect(backend_, &Backend::bridgeApiAvailabilityChanged, this, &LocalIPCServer::onBackendBridgeApiAvailabilityChanged);
     connect(backend_, &Backend::ipRotateResult, this, &LocalIPCServer::onBackendIpRotateResult);
-    connect(backend_, &Backend::amneziawgUnblockParamsUpdated, this, &LocalIPCServer::onBackendAmneziawgUnblockParamsUpdated);
 
     connect(backend_->locationsModelManager(), &gui_locations::LocationsModelManager::deviceNameChanged, this, &LocalIPCServer::onLocationsModelManagerDeviceNameChanged);
 }
@@ -215,7 +214,7 @@ void LocalIPCServer::onConnectionCommandCallback(IPC::Command *command, IPC::Con
         return;
     } else if (command->getStringId() == IPC::CliCommands::ShowAmneziawg::getCommandStringId()) {
         IPC::CliCommands::AmneziawgPresetsList response;
-        response.presets_ = amneziawgPresets_;
+        response.presets_ = backend_->getPreferencesHelper()->amneziawgPresets();
         sendCommand(response);
         return;
     }
@@ -397,9 +396,4 @@ void LocalIPCServer::onBackendIpRotateResult(bool success)
         cmd.message_ = "Could not rotate IP.";
     }
     sendCommand(cmd);
-}
-
-void LocalIPCServer::onBackendAmneziawgUnblockParamsUpdated(const QString & /*activePreset*/, const QStringList &presets)
-{
-    amneziawgPresets_ = presets;
 }

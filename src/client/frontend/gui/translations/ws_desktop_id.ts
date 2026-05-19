@@ -1273,6 +1273,14 @@ Jika masalah berlanjut setelah restart, silakan kirim log debug dan buka tiket d
         <source>Server Routing</source>
         <translation>Perutean Server</translation>
     </message>
+    <message>
+        <source>Large TLS</source>
+        <translation>TLS besar</translation>
+    </message>
+    <message>
+        <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
+        <translation>Memperbesar paket TLS secara artifisial, membantu menghindari sensor dalam beberapa kasus. Menambahkan padding TLS ekstra ke semua permintaan API.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -2567,6 +2575,18 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
         <translation>Van Gogh</translation>
     </message>
     <message>
+        <source>Enabled</source>
+        <translation>Diaktifkan</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Dinonaktifkan</translation>
+    </message>
+    <message>
+        <source>Config file too large</source>
+        <translation>File konfigurasi terlalu besar</translation>
+    </message>
+    <message>
         <source>Failed to open file</source>
         <translation>Gagal membuka file</translation>
     </message>
@@ -2601,6 +2621,42 @@ Jika penginstalan ulang tidak membantu, hubungi dukungan Windscribe untuk mendap
     <message>
         <source>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</source>
         <translation>&quot;Titik akhir&quot; tidak ada di bagian &quot;Sejawat&quot;</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PrivateKey&quot; format</source>
+        <translation>Format &quot;PrivateKey&quot; tidak valid</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PublicKey&quot; format</source>
+        <translation>Format &quot;PublicKey&quot; tidak valid</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PresharedKey&quot; format</source>
+        <translation>Format &quot;PresharedKey&quot; tidak valid</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;Address&quot; value: %1</source>
+        <translation>Nilai &quot;Alamat&quot; tidak valid: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
+        <translation>Nilai &quot;AllowedIPs&quot; tidak valid: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;DNS&quot; value: %1</source>
+        <translation>Nilai &quot;DNS&quot; tidak valid: %1</translation>
+    </message>
+    <message>
+        <source>Invalid endpoint port</source>
+        <translation>Port titik akhir tidak valid</translation>
+    </message>
+    <message>
+        <source>Invalid AmneziaWG header parameter</source>
+        <translation>Parameter header AmneziaWG tidak valid</translation>
+    </message>
+    <message>
+        <source>AmneziaWG init parameter too large</source>
+        <translation>Parameter init AmneziaWG terlalu besar</translation>
     </message>
     <message>
         <source>Static IPs</source>

@@ -165,7 +165,6 @@ MainWindow::MainWindow() :
     connect(backend_, &Backend::protocolStatusChanged, this, &MainWindow::onBackendProtocolStatusChanged);
     connect(backend_, &Backend::splitTunnelingStartFailed, this, &MainWindow::onSplitTunnelingStartFailed);
     connect(backend_, &Backend::localDnsServerNotAvailable, this, &MainWindow::onLocalDnsServerNotAvailable);
-    connect(backend_, &Backend::amneziawgUnblockParamsUpdated, this, &MainWindow::onAmneziawgUnblockParamsUpdated);
     notificationsController_.connect(backend_, &Backend::notificationsChanged, &notificationsController_, &NotificationsController::updateNotifications);
     connect(this, &MainWindow::wireGuardKeyLimitUserResponse, backend_, &Backend::wireGuardKeyLimitUserResponse);
 
@@ -4214,9 +4213,4 @@ void MainWindow::setLoginOrSignupWindowError(LoginWindow::ERROR_MESSAGE_TYPE err
     } else {
         mainWindowController_->getLoginWindow()->setErrorMessage(errorMessageType, errorMessage);
     }
-}
-
-void MainWindow::onAmneziawgUnblockParamsUpdated(const QString &activePreset, QStringList presets)
-{
-    mainWindowController_->getPreferencesWindow()->setAmneziawgUnblockParams(activePreset, presets);
 }

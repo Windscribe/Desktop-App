@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <optional>
 
 #include <QObject>
 #include <QWaitCondition>
@@ -204,8 +205,6 @@ signals:
     void splitTunnelingStartFailed();
     void systemExtensionAvailabilityChanged(bool available);
 
-    void autoEnableAntiCensorship(bool enable);
-
     void connectionIdChanged(const QString &connId);
 
     void localDnsServerNotAvailable();
@@ -217,7 +216,8 @@ signals:
 
     void clearWifiHistoryFinished(bool success);
 
-    void amneziawgUnblockParamsUpdated(const QString& activePreset, QStringList presets);
+    void amneziawgPresetsUpdated(const QStringList &presets);
+    void apiSuggestedAmneziawgPresetChanged(const QString &preset);
 
 private slots:
     void onLostConnectionToHelper();
@@ -263,6 +263,7 @@ private slots:
     void onApiResourcesManagerServerCredentialsFetched();
     void onApiResourcesManagerAuthTokenFinished(wsnet::LoginResult loginResult);
     void onApiResourcesManagerAmneziawgUnblockParamsFetched();
+    void onApiResourcesManagerAmneziawgConfigIdUpdated();
 
     void onApiResourceManagerCallback(wsnet::ApiResourcesManagerNotification notification, wsnet::LoginResult loginResult, const std::string &errorMessage);
 
@@ -467,7 +468,10 @@ private:
     bool tryLoginNextConnectOrDisconnect_ = false;
 
     QString lastUsernameForCustomConfig_;
-    QString amneziaConfigIdFromSessionStatus_;
+    std::optional<bool> wasPremium_;
+
+    api_responses::AmneziawgUnblockParams amneziawgParams_;
+    QString apiSuggestedAmneziawgPreset_;
 
     static constexpr int kLoginWaitTimeForNoNetwork = 10000;    // 10 sec
     WaitForNetworkConnectivity *loginWaitForNetworkConnectivity_;
@@ -482,6 +486,11 @@ private:
     void callAuthTokenSignup(const QString &username);
     void updateApiResolutionSettingsInWsnet();
     void applyServerRoutingMethod();
+
+    // Returns the AmneziaWG preset to apply for the next/current connection attempt,
+    // resolved from protocolTweaksMethod() and the API suggestion. An empty string
+    // means AmneziaWG should NOT be applied (i.e., regular WireGuard).
+    QString effectiveAmneziawgPreset() const;
 
     BridgeApiManager *bridgeApiManager_;
 };

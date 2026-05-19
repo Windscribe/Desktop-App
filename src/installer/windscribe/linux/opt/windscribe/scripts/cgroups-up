@@ -52,13 +52,13 @@ if [ ! -f "$net_cls_root/windscribe/net_cls.classid" ]; then
     fi
 
     # Create separate routing table for packets with our mark
-    ip rule add fwmark $mark priority 16384 table windscribe
-    ip route add default via $def_gateway dev $def_interface table windscribe
-    ip route add 10.255.255.0/24 dev $vpn_interface table windscribe
+    ip rule add fwmark "$mark" priority 16384 table windscribe
+    ip route add default via "$def_gateway" dev "$def_interface" table windscribe
+    ip route add 10.255.255.0/24 dev "$vpn_interface" table windscribe
 
     # Create separate routing table for packets that should always go into tunnel
-    ip route add default via $vpn_gateway dev $vpn_interface table windscribe_include
-    ip route add $remote_ip dev $def_interface table windscribe_include
+    ip route add default via "$vpn_gateway" dev "$vpn_interface" table windscribe_include
+    ip route add "$remote_ip" dev "$def_interface" table windscribe_include
 
     # Create net_cls id
     mkdir "$net_cls_root/windscribe"

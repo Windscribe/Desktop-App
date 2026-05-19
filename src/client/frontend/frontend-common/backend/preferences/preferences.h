@@ -96,11 +96,14 @@ public:
     void setTerminateSockets(bool b);
 #endif
 
-    bool isAntiCensorship() const;
-    void setAntiCensorship(bool bEnabled);
+    bool isAPIAntiCensorship() const;
+    void setAPIAntiCensorship(bool bEnabled);
 
     SERVER_ROUTING_METHOD_TYPE serverRoutingMethod() const;
     void setServerRoutingMethod(SERVER_ROUTING_METHOD_TYPE method);
+
+    PROTOCOL_TWEAKS_METHOD_TYPE protocolTweaksMethod() const;
+    void setProtocolTweaksMethod(PROTOCOL_TWEAKS_METHOD_TYPE method);
 
     const types::ShareSecureHotspot &shareSecureHotspot() const;
     void setShareSecureHotspot(const types::ShareSecureHotspot &ss);
@@ -199,8 +202,9 @@ signals:
     void isAutoSecureNetworksChanged(bool b);
     void minimizeAndCloseToTrayChanged(bool b);
     void isTerminateSocketsChanged(bool b);
-    void isAntiCensorshipChanged(bool b);
+    void isAPIAntiCensorshipChanged(bool b);
     void serverRoutingMethodChanged(SERVER_ROUTING_METHOD_TYPE method);
+    void protocolTweaksMethodChanged(PROTOCOL_TWEAKS_METHOD_TYPE method);
     void hideFromDockChanged(bool b);
     void shareSecureHotspotChanged(const types::ShareSecureHotspot &ss);
     void shareProxyGatewayChanged(const types::ShareProxyGateway &sp);

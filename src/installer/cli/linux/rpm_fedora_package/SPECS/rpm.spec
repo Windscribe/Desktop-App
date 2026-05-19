@@ -66,7 +66,9 @@ fi
 
 %preun
 if [ $1 -eq 0 ]; then
-    /opt/windscribe/helper --reset-mac-addresses
+    if [ -x /opt/windscribe/helper ]; then
+        /opt/windscribe/helper --reset-mac-addresses || true
+    fi
     systemctl disable windscribe-helper || true
 fi
 

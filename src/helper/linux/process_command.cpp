@@ -13,6 +13,8 @@
 #include "split_tunneling/split_tunneling.h"
 #include "utils.h"
 #include "wireguard/wireguardcontroller.h"
+#include "../common/ip_validation.h"
+#include "../common/shellquote.h"
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars)
 {
@@ -34,6 +36,14 @@ std::string setSplitTunnelingSettings(const std::string &pars)
     bool isActive, isExclude, isAllowLanTraffic;
     std::vector<std::string> files, ips, hosts;
     deserializePars(pars, isActive, isExclude, isAllowLanTraffic, files, ips, hosts);
+
+    for (const auto &ip : ips) {
+        if (!IpValidation::isValidIpCidr(ip)) {
+            spdlog::error("setSplitTunnelingSettings: invalid IP \"{}\", rejecting", ip);
+            return std::string();
+        }
+    }
+
     SplitTunneling::instance().setSplitTunnelingParams(isActive, isExclude, files, ips, hosts, isAllowLanTraffic);
     return std::string();
 }
@@ -42,6 +52,30 @@ std::string sendConnectStatus(const std::string &pars)
 {
     ConnectStatus cs;
     deserializePars(pars, cs.isConnected, cs.protocol, cs.defaultAdapter, cs.vpnAdapter, cs.connectedIp, cs.remoteIp);
+
+    auto checkIp = [](const std::string &ip, const char *label) {
+        if (!ip.empty() && !IpValidation::isValidIpAddress(ip)) {
+            spdlog::error("sendConnectStatus: invalid {} \"{}\", rejecting", label, ip);
+            return false;
+        }
+        return true;
+    };
+    auto checkIface = [](const std::string &name, const char *label) {
+        if (!name.empty() && !Utils::isValidInterfaceName(name)) {
+            spdlog::error("sendConnectStatus: invalid {} \"{}\", rejecting", label, name);
+            return false;
+        }
+        return true;
+    };
+    if (!checkIp(cs.remoteIp, "remoteIp") ||
+        !checkIp(cs.defaultAdapter.gatewayIp, "defaultAdapter.gatewayIp") ||
+        !checkIp(cs.vpnAdapter.gatewayIp, "vpnAdapter.gatewayIp") ||
+        !checkIp(cs.vpnAdapter.adapterIp, "vpnAdapter.adapterIp") ||
+        !checkIface(cs.defaultAdapter.adapterName, "defaultAdapter.adapterName") ||
+        !checkIface(cs.vpnAdapter.adapterName, "vpnAdapter.adapterName")) {
+        return serializeResult(false);
+    }
+
     bool success = !SplitTunneling::instance().setConnectParams(cs);
     return serializeResult(success);
 }
@@ -176,6 +210,11 @@ std::string configureWireGuard(const std::string &pars)
                 break;
             }
 
+            if (!IpValidation::validateWireGuardConfig(clientIpAddress, clientDnsAddressList, allowed_ips_vector, peerEndpoint)) {
+                spdlog::error("WireGuard: IP validation failed, rejecting config");
+                break;
+            }
+
             uint32_t fwmark = WireGuardController::instance().getFwmark();
             spdlog::info("Fwmark = {}", fwmark);
 
@@ -243,9 +282,9 @@ std::string startCtrld(const std::string &pars)
     arguments << "run";
     arguments << " --daemon";
     arguments << " --listen=127.0.0.1:53";
-    arguments << " --primary_upstream=" + upstream1;
+    arguments << " --primary_upstream=" + ShellQuote::quote(upstream1);
     if (!upstream2.empty()) {
-        arguments << " --secondary_upstream=" + upstream2;
+        arguments << " --secondary_upstream=" + ShellQuote::quote(upstream2);
         if (!domains.empty()) {
             std::stringstream domainsStream;
             std::copy(domains.begin(), domains.end(), std::ostream_iterator<std::string>(domainsStream, ","));
@@ -253,7 +292,7 @@ std::string startCtrld(const std::string &pars)
             std::string domainsStr = domainsStream.str();
             domainsStr.erase(domainsStr.length() - 1); // remove last comma
 
-            arguments << " --domains=" + domainsStr;
+            arguments << " --domains=" + ShellQuote::quote(domainsStr);
         }
     }
     if (isCreateLog) {

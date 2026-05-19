@@ -36,6 +36,16 @@ public:
     void setCurrentProtocol(const types::Protocol &protocol);
     types::Protocol currentProtocol() const;
 
+    void setAmneziawgPresets(const QStringList &presets);
+    QStringList amneziawgPresets() const;
+
+    // Latest AmneziaWG preset suggested by the API. Empty when the API has not
+    // suggested any preset. Consumers (currently the connect-window badge) combine
+    // this with Preferences::protocolTweaksMethod() to decide whether to show the
+    // anti-censorship indicator.
+    void setApiSuggestedAmneziawgPreset(const QString &preset);
+    QString apiSuggestedAmneziawgPreset() const;
+
 signals:
     void portMapChanged();
     void wifiSharingSupportedChanged(bool bSupported);
@@ -44,6 +54,8 @@ signals:
     void isDockedModeChanged(bool bIsDockedToTray);
     void isExternalConfigModeChanged(bool bIsExternalConfigMode);
     void currentProtocolChanged(const types::Protocol &protocol);
+    void amneziawgPresetsChanged(const QStringList &presets);
+    void apiSuggestedAmneziawgPresetChanged(const QString &preset);
 
 private:
     QStringList availableLanguageCodes_;
@@ -57,4 +69,6 @@ private:
     bool isExternalConfigMode_;
 
     types::Protocol currentProtocol_;
+    QStringList amneziawgPresets_;
+    QString apiSuggestedAmneziawgPreset_;
 };

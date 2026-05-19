@@ -9,23 +9,25 @@
 
 namespace PreferencesWindow {
 
-AntiCensorshipWindowItem::AntiCensorshipWindowItem(ScalableGraphicsObject *parent, Preferences *preferences)
-  : CommonGraphics::BasePage(parent), preferences_(preferences)
+AntiCensorshipWindowItem::AntiCensorshipWindowItem(ScalableGraphicsObject *parent, Preferences *preferences, PreferencesHelper *preferencesHelper)
+    : CommonGraphics::BasePage(parent), preferences_(preferences), preferencesHelper_(preferencesHelper)
 {
     setSpacerHeight(PREFERENCES_MARGIN_Y);
 
-    connect(preferences, &Preferences::isAntiCensorshipChanged, this, &AntiCensorshipWindowItem::onAntiCensorshipPreferencesChanged);
+    connect(preferences, &Preferences::protocolTweaksMethodChanged, this, &AntiCensorshipWindowItem::onProtocolTweaksMethodPreferencesChanged);
     connect(preferences, &Preferences::amneziawgPresetChanged, this, &AntiCensorshipWindowItem::onAmneziawgPresetChanged);
     connect(preferences, &Preferences::serverRoutingMethodChanged, this, &AntiCensorshipWindowItem::onServerRoutingMethodPreferencesChanged);
-
+    connect(preferences, &Preferences::isAPIAntiCensorshipChanged, this, &AntiCensorshipWindowItem::onIsAPIAntiCensorshipPreferencesChanged);
+    connect(preferencesHelper, &PreferencesHelper::amneziawgPresetsChanged, this, &AntiCensorshipWindowItem::onAmneziawgPresetsChanged);
 
     desc_ = new PreferenceGroup(this);
     addItem(desc_);
 
     protocolTweaksGroup_ = new ProtocolTweaksGroup(this);
-    connect(protocolTweaksGroup_, &ProtocolTweaksGroup::antiCensorshipStateChanged, this, &AntiCensorshipWindowItem::onAntiCensorshipPreferencesChangedByUser);
+    connect(protocolTweaksGroup_, &ProtocolTweaksGroup::protocolTweaksMethodChanged, this, &AntiCensorshipWindowItem::onProtocolTweaksMethodChangedByUser);
     connect(protocolTweaksGroup_, &ProtocolTweaksGroup::amneziawgPresetChanged, this, &AntiCensorshipWindowItem::onAmneziawgPresetChangedByUser);
-    protocolTweaksGroup_->setAntiCensorshipEnabled(preferences->isAntiCensorship());
+    protocolTweaksGroup_->setProtocolTweaksMethod(preferences->protocolTweaksMethod());
+    applyAmneziawgPresets(preferencesHelper->amneziawgPresets());
     addItem(protocolTweaksGroup_);
 
     serverRoutingGroup_ = new PreferenceGroup(this);
@@ -33,6 +35,13 @@ AntiCensorshipWindowItem::AntiCensorshipWindowItem(ScalableGraphicsObject *paren
     connect(comboBoxServerRouting_, &ComboBoxItem::currentItemChanged, this, &AntiCensorshipWindowItem::onServerRoutingMethodChangedByUser);
     serverRoutingGroup_->addItem(comboBoxServerRouting_);
     addItem(serverRoutingGroup_);
+
+    largeTlsGroup_ = new PreferenceGroup(this);
+    toggleLargeTls_ = new ToggleItem(largeTlsGroup_);
+    toggleLargeTls_->setState(preferences->isAPIAntiCensorship());
+    connect(toggleLargeTls_, &ToggleItem::stateChanged, this, &AntiCensorshipWindowItem::onLargeTlsToggleChangedByUser);
+    largeTlsGroup_->addItem(toggleLargeTls_);
+    addItem(largeTlsGroup_);
 
     connect(&LanguageController::instance(), &LanguageController::languageChanged, this, &AntiCensorshipWindowItem::onLanguageChanged);
     onLanguageChanged();
@@ -48,11 +57,6 @@ void AntiCensorshipWindowItem::updateScaling()
     CommonGraphics::BasePage::updateScaling();
 }
 
-void AntiCensorshipWindowItem::setAmneziawgUnblockParams(const QString &activePreset, QStringList presets)
-{
-    protocolTweaksGroup_->setAmneziawgUnblockParams(activePreset, presets);
-}
-
 void AntiCensorshipWindowItem::onLanguageChanged()
 {
     desc_->setDescription(tr("These degrade performance, enable only if Windscribe doesn't connect normally."),
@@ -63,11 +67,14 @@ void AntiCensorshipWindowItem::onLanguageChanged()
     serverRoutingGroup_->setDescription(tr("Increases latency, but improves chances of being able to connect."));
     comboBoxServerRouting_->setLabelCaption(tr("Server Routing"));
     comboBoxServerRouting_->setItems(SERVER_ROUTING_METHOD_TYPE_toList(), preferences_->serverRoutingMethod());
+
+    toggleLargeTls_->setCaption(tr("Large TLS"));
+    largeTlsGroup_->setDescription(tr("Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests."));
 }
 
-void AntiCensorshipWindowItem::onAntiCensorshipPreferencesChanged(bool b)
+void AntiCensorshipWindowItem::onProtocolTweaksMethodPreferencesChanged(PROTOCOL_TWEAKS_METHOD_TYPE method)
 {
-    protocolTweaksGroup_->setAntiCensorshipEnabled(b);
+    protocolTweaksGroup_->setProtocolTweaksMethod(method);
 }
 
 void AntiCensorshipWindowItem::onAmneziawgPresetChanged(const QString &preset)
@@ -75,9 +82,30 @@ void AntiCensorshipWindowItem::onAmneziawgPresetChanged(const QString &preset)
     protocolTweaksGroup_->setAmneziawgPreset(preset);
 }
 
-void AntiCensorshipWindowItem::onAntiCensorshipPreferencesChangedByUser(bool isChecked)
+void AntiCensorshipWindowItem::onAmneziawgPresetsChanged(const QStringList &presets)
 {
-    preferences_->setAntiCensorship(isChecked);
+    applyAmneziawgPresets(presets);
+}
+
+void AntiCensorshipWindowItem::applyAmneziawgPresets(const QStringList &presets)
+{
+    protocolTweaksGroup_->setAmneziawgPresets(presets);
+
+    const QString saved = preferences_->amneziawgPreset();
+    if (!presets.isEmpty() && !presets.contains(saved)) {
+        // Saved preset is no longer offered by the API. Fall back to the first one
+        // and persist the change so the engine and UI stay in sync (otherwise the
+        // combobox would silently show the first item while preferences still hold
+        // the stale value).
+        preferences_->setAmneziawgPreset(presets.first());
+    } else {
+        protocolTweaksGroup_->setAmneziawgPreset(saved);
+    }
+}
+
+void AntiCensorshipWindowItem::onProtocolTweaksMethodChangedByUser(PROTOCOL_TWEAKS_METHOD_TYPE method)
+{
+    preferences_->setProtocolTweaksMethod(method);
 }
 
 void AntiCensorshipWindowItem::onAmneziawgPresetChangedByUser(const QString &preset)
@@ -93,6 +121,18 @@ void AntiCensorshipWindowItem::onServerRoutingMethodPreferencesChanged(SERVER_RO
 void AntiCensorshipWindowItem::onServerRoutingMethodChangedByUser(QVariant method)
 {
     preferences_->setServerRoutingMethod(static_cast<SERVER_ROUTING_METHOD_TYPE>(method.toInt()));
+}
+
+void AntiCensorshipWindowItem::onIsAPIAntiCensorshipPreferencesChanged(bool b)
+{
+    if (toggleLargeTls_->isChecked() != b) {
+        toggleLargeTls_->setState(b);
+    }
+}
+
+void AntiCensorshipWindowItem::onLargeTlsToggleChangedByUser(bool isChecked)
+{
+    preferences_->setAPIAntiCensorship(isChecked);
 }
 
 } // namespace PreferencesWindow

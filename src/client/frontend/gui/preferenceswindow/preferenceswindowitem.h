@@ -63,8 +63,6 @@ public:
     void setPreferencesImportCompleted();
     void setLocationNamesImportCompleted();
 
-    void setAmneziawgUnblockParams(const QString &activePreset, QStringList presets);
-
 signals:
     void logoutClick();
     void loginClick();

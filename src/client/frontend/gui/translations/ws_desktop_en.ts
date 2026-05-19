@@ -1273,6 +1273,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Server Routing</source>
         <translation>Server Routing</translation>
     </message>
+    <message>
+        <source>Large TLS</source>
+        <translation>Large TLS</translation>
+    </message>
+    <message>
+        <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
+        <translation>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -2567,6 +2575,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>Van Gogh</translation>
     </message>
     <message>
+        <source>Enabled</source>
+        <translation>Enabled</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Disabled</translation>
+    </message>
+    <message>
+        <source>Config file too large</source>
+        <translation>Config file too large</translation>
+    </message>
+    <message>
         <source>Failed to open file</source>
         <translation>Failed to open file</translation>
     </message>
@@ -2601,6 +2621,42 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</source>
         <translation>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PrivateKey&quot; format</source>
+        <translation>Invalid &quot;PrivateKey&quot; format</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PublicKey&quot; format</source>
+        <translation>Invalid &quot;PublicKey&quot; format</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PresharedKey&quot; format</source>
+        <translation>Invalid &quot;PresharedKey&quot; format</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;Address&quot; value: %1</source>
+        <translation>Invalid &quot;Address&quot; value: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
+        <translation>Invalid &quot;AllowedIPs&quot; value: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;DNS&quot; value: %1</source>
+        <translation>Invalid &quot;DNS&quot; value: %1</translation>
+    </message>
+    <message>
+        <source>Invalid endpoint port</source>
+        <translation>Invalid endpoint port</translation>
+    </message>
+    <message>
+        <source>Invalid AmneziaWG header parameter</source>
+        <translation>Invalid AmneziaWG header parameter</translation>
+    </message>
+    <message>
+        <source>AmneziaWG init parameter too large</source>
+        <translation>AmneziaWG init parameter too large</translation>
     </message>
     <message>
         <source>Static IPs</source>

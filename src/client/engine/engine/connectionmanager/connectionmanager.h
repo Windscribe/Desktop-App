@@ -48,8 +48,9 @@ public:
                       QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                       const types::ConnectionSettings &connectionSettings,
                       const api_responses::PortMap &portMap, const types::ProxySettings &proxySettings,
-                      bool bEmitAuthError, const QString &customConfigPath, bool isAntiCensorship,
-                      const QString &amneziawgPreset, const QString &preferredNodeHostname = QString());
+                      bool bEmitAuthError, const QString &customConfigPath,
+                      const api_responses::AmneziawgUnblockParams &amneziawgParams, const QString &amneziawgPreset,
+                      const QString &preferredNodeHostname = QString());
 
     void clickDisconnect(DISCONNECT_REASON reason = DISCONNECTED_BY_USER);
     void reconnect();
@@ -169,7 +170,8 @@ private:
     api_responses::ServerCredentials lastServerCredentialsOpenVpn_;
     api_responses::ServerCredentials lastServerCredentialsIkev2_;
     types::ProxySettings lastProxySettings_;
-    bool isAntiCensorship_ = false;
+    bool isProtocolTweaksEnabled_ = false;
+    api_responses::AmneziawgUnblockParams amneziawgParams_;
     QString amneziawgPreset_;
     bool bEmitAuthError_;
 

@@ -27,7 +27,7 @@ struct EngineSettingsData : public QSharedData
     UPDATE_CHANNEL updateChannel = UPDATE_CHANNEL_RELEASE;
     bool isIgnoreSslErrors = false;
     bool isTerminateSockets = true;
-    bool isAntiCensorship = false;
+    bool isAPIAntiCensorship = false;      // This option enables the ExtraTLSPadding flag in the wsnet library. It only affects the API access method.
     bool isAllowLanTraffic = false;
     types::FirewallSettings firewallSettings;
     types::ConnectionSettings connectionSettings;
@@ -45,6 +45,7 @@ struct EngineSettingsData : public QSharedData
     QString language;
     QString amneziawgPreset;
     SERVER_ROUTING_METHOD_TYPE serverRoutingMethod = SERVER_ROUTING_METHOD_AUTO;
+    PROTOCOL_TWEAKS_METHOD_TYPE protocolTweaksMethod = PROTOCOL_TWEAKS_METHOD_AUTO;
 
     void fromJson(const QJsonObject &json);
     QJsonObject toJson(bool isForDebugLog) const;
@@ -55,6 +56,7 @@ private:
     static const inline QString kIniAmneziawgPresetProp = "AmneziawgPreset";
     static const inline QString kIniDnsManagerProp = "DNSManager";
     static const inline QString kIniServerRoutingMethodProp = "ServerRoutingMethod";
+    static const inline QString kIniProtocolTweaksMethodProp = "ProtocolTweaksMethod";
     static const inline QString kIniDnsPolicyProp = "DNSPolicy";
     static const inline QString kIniIsAllowLanTrafficProp = "AllowLANTraffic";
     static const inline QString kIniIsAntiCensorshipProp = "CircumventCensorship";
@@ -65,6 +67,7 @@ private:
 
     static const inline QString kJsonAmneziawgPresetProp = "amneziawgPreset";
     static const inline QString kJsonServerRoutingMethodProp = "serverRoutingMethod";
+    static const inline QString kJsonProtocolTweaksMethodProp = "protocolTweaksMethod";
     static const inline QString kJsonConnectedDnsInfoProp = "connectedDnsInfo";
     static const inline QString kJsonConnectionSettingsProp = "connectionSettings";
     static const inline QString kJsonCustomOvpnConfigsPathProp = "customOvpnConfigsPath";
@@ -110,8 +113,8 @@ public:
     void setIsIgnoreSslErrors(bool ignore);
     bool isTerminateSockets() const;
     void setIsTerminateSockets(bool close);
-    bool isAntiCensorship() const;
-    void setIsAntiCensorship(bool enable);
+    bool isAPIAntiCensorship() const;
+    void setIsAPIAntiCensorship(bool enable);
     bool isAllowLanTraffic() const;
     void setIsAllowLanTraffic(bool isAllowLanTraffic);
 
@@ -149,6 +152,9 @@ public:
     SERVER_ROUTING_METHOD_TYPE serverRoutingMethod() const;
     void setServerRoutingMethod(SERVER_ROUTING_METHOD_TYPE method);
 
+    PROTOCOL_TWEAKS_METHOD_TYPE protocolTweaksMethod() const;
+    void setProtocolTweaksMethod(PROTOCOL_TWEAKS_METHOD_TYPE method);
+
     bool operator==(const EngineSettings &other) const;
     bool operator!=(const EngineSettings &other) const;
     QJsonObject toJson(bool isForDebugLog) const;
@@ -166,7 +172,7 @@ private:
 
     // for serialization
     static constexpr quint32 magic_ = 0x7745C2AE;
-    static constexpr int versionForSerialization_ = 9;  // should increment the version if the data format is changed
+    static constexpr int versionForSerialization_ = 10;  // should increment the version if the data format is changed
 };
 
 } // types namespace

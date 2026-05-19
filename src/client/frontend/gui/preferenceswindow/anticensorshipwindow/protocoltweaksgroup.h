@@ -1,8 +1,8 @@
 #pragma once
 
-#include "preferenceswindow/toggleitem.h"
 #include "preferenceswindow/comboboxitem.h"
 #include "preferenceswindow/preferencegroup.h"
+#include "types/enums.h"
 
 namespace PreferencesWindow {
 
@@ -14,31 +14,29 @@ public:
                                   const QString &desc = "",
                                   const QString &descUrl = "");
 
-    void setAntiCensorshipEnabled(bool enabled);
+    void setProtocolTweaksMethod(PROTOCOL_TWEAKS_METHOD_TYPE method);
     void setAmneziawgPreset(const QString &preset);
-    void setAmneziawgUnblockParams(const QString &activePreset, QStringList presets);
-    void setEnabled(bool enabled);
+    void setAmneziawgPresets(const QStringList &presets);
 
     void setDescription(const QString &desc, const QString &descUrl = "");
 
 signals:
-    void antiCensorshipStateChanged(bool enabled);
+    void protocolTweaksMethodChanged(PROTOCOL_TWEAKS_METHOD_TYPE method);
     void amneziawgPresetChanged(QString preset);
 
 private slots:
-    void onCheckBoxStateChanged(bool isChecked);
+    void onComboBoxModeChanged(const QVariant &value);
     void onAmneziawgPresetChanged(const QVariant &value);
     void onLanguageChanged();
 
 private:
     void updateMode();
+    void setAmneziaIsUserConfigured();
 
-    ToggleItem *checkBoxEnable_;
+    ComboBoxItem *comboBoxMode_;
     ComboBoxItem *amneziawgPreset_;
 
-    bool isEnabled_ = false;
-
-    void setAmneziaIsUserConfigured();
+    PROTOCOL_TWEAKS_METHOD_TYPE method_ = PROTOCOL_TWEAKS_METHOD_AUTO;
 };
 
 } // namespace PreferencesWindow

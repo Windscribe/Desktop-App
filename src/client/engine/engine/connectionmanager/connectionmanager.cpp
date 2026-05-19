@@ -26,7 +26,6 @@
 #include "utils/utils.h"
 #include "utils/extraconfig.h"
 #include "utils/ipvalidation.h"
-#include <wsnet/WSNet.h>
 
 // Had to move this here to prevent a compile error with boost already including winsock.h
 #include "connectionmanager.h"
@@ -119,8 +118,9 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig,
                                      QSharedPointer<locationsmodel::BaseLocationInfo> bli,
                                      const types::ConnectionSettings &connectionSettings,
                                      const api_responses::PortMap &portMap, const types::ProxySettings &proxySettings,
-                                     bool bEmitAuthError, const QString &customConfigPath, bool isAntiCensorship,
-                                     const QString &amneziawgPreset, const QString &preferredNodeHostname)
+                                     bool bEmitAuthError, const QString &customConfigPath,
+                                     const api_responses::AmneziawgUnblockParams &amneziawgParams, const QString &amneziawgPreset,
+                                     const QString &preferredNodeHostname)
 {
     WS_ASSERT(state_ == STATE_DISCONNECTED);
 
@@ -130,7 +130,8 @@ void ConnectionManager::clickConnect(const QString &ovpnConfig,
     lastProxySettings_ = proxySettings;
     bEmitAuthError_ = bEmitAuthError;
     customConfigPath_ = customConfigPath;
-    isAntiCensorship_ = isAntiCensorship;
+    isProtocolTweaksEnabled_ = !amneziawgPreset.isEmpty();
+    amneziawgParams_ = amneziawgParams;
     amneziawgPreset_ = amneziawgPreset;
     bli_ = bli;
     preferredNodeHostname_ = preferredNodeHostname;
@@ -918,6 +919,9 @@ void ConnectionManager::doConnectPart2()
     }
 
     qCInfo(LOG_CONNECTION) << "Connecting to IP:" << currentConnectionDescr_.ip << " protocol:" << currentConnectionDescr_.protocol.toLongString() << " port:" << currentConnectionDescr_.port;
+    if (isProtocolTweaksEnabled_) {
+        qCInfo(LOG_CONNECTION) << "Using protocol tweaks, preset:" << amneziawgPreset_;
+    }
     emit protocolPortChanged(currentConnectionDescr_.protocol, currentConnectionDescr_.port);
 
 #if defined(Q_OS_WIN)
@@ -999,7 +1003,7 @@ void ConnectionManager::doConnectPart2()
                 lastOvpnConfig_, currentConnectionDescr_.ip, currentConnectionDescr_.protocol,
                 currentConnectionDescr_.port, localPort, mss, defaultAdapterInfo_.gateway(),
                 currentConnectionDescr_.verifyX509name,
-                dnsServersFromConnectedDnsInfo(), isAntiCensorship_, false);
+                dnsServersFromConnectedDnsInfo(), isProtocolTweaksEnabled_, false);
             if (!bOvpnSuccess) {
                 qCCritical(LOG_CONNECTION) << "Failed create ovpn config";
                 WS_ASSERT(false);
@@ -1008,7 +1012,7 @@ void ConnectionManager::doConnectPart2()
 
             if (currentConnectionDescr_.protocol == types::Protocol::STUNNEL) {
                 if (!stunnelManager_->runProcess(currentConnectionDescr_.ip, currentConnectionDescr_.port,
-                                                 ExtraConfig::instance().getStealthExtraTLSPadding() || isAntiCensorship_)) {
+                                                 ExtraConfig::instance().getStealthExtraTLSPadding() || isProtocolTweaksEnabled_)) {
                     disconnect();
                     emit errorDuringConnection(CONNECT_ERROR::EXE_SUBPROCESS_FAILED);
                     return;
@@ -1180,9 +1184,8 @@ void ConnectionManager::doConnectPart3()
             wireGuardConfig_.setPeerPublicKey(currentConnectionDescr_.wgPeerPublicKey);
             wireGuardConfig_.setPeerEndpoint(endpointAndPort);
 
-            if (isAntiCensorship_) {
-                api_responses::AmneziawgUnblockParams unblockParams(wsnet::WSNet::instance()->apiResourcersManager()->amneziawgUnblockParams());
-                wireGuardConfig_.setAmneziawgParam(unblockParams.getUnblockParamForPreset(amneziawgPreset_));
+            if (isProtocolTweaksEnabled_) {
+                wireGuardConfig_.setAmneziawgParam(amneziawgParams_.getUnblockParamForPreset(amneziawgPreset_));
             } else {
                 wireGuardConfig_.setAmneziawgParam(api_responses::AmneziawgUnblockParam());
             }

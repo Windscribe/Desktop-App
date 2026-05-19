@@ -20,14 +20,14 @@ pre_install() {
 }
 
 post_install() {
-        systemctl enable NetworkManager.service
-        systemctl start NetworkManager.service
-        systemctl enable systemd-resolved
-        systemctl start systemd-resolved
+        systemctl enable NetworkManager.service || true
+        systemctl start NetworkManager.service || true
+        systemctl enable systemd-resolved || true
+        systemctl start systemd-resolved || true
         systemctl enable windscribe-helper
         systemctl start windscribe-helper
         ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
-        update-desktop-database
+        update-desktop-database || true
         setcap cap_setgid+ep /opt/windscribe/Windscribe
         mkdir -p /etc/windscribe
         echo linux_zst_x64 > /etc/windscribe/platform
@@ -53,7 +53,9 @@ pre_remove() {
         killall -q Windscribe || true
         systemctl stop windscribe-helper || true
         systemctl disable windscribe-helper || true
-        /opt/windscribe/helper --reset-mac-addresses
+        if [ -x /opt/windscribe/helper ]; then
+            /opt/windscribe/helper --reset-mac-addresses || true
+        fi
         userdel -f windscribe || true
         groupdel -f windscribe || true
         rm -rf /etc/windscribe

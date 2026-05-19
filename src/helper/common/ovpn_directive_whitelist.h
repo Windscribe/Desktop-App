@@ -75,6 +75,13 @@ inline const std::unordered_set<std::string>& allowedDirectives()
         "hand-window",
 
         // Authentication
+        // auth-user-pass is allowed only in its bare form (see bareOnlyDirectives()
+        // below). The file-path form (auth-user-pass <file>) is stripped to prevent
+        // attacker-controlled configs from reading arbitrary files. The bare form
+        // is required so OpenVPN queries the management interface for credentials;
+        // without it, management-query-passwords has nothing to drive.
+        // Inline block form (<auth-user-pass>...</auth-user-pass>) is allowed via
+        // allowedInlineBlockTags().
         "auth-user-pass",
         "auth-retry",
         "auth-token",
@@ -156,6 +163,18 @@ inline const std::unordered_set<std::string>& ignoredDirectives()
     return directives;
 }
 
+// Directives that are allowed only in their bare form (no arguments).
+// Lines like "<directive> <anything>" are stripped even when the directive is
+// in allowedDirectives(). Inline comments (# or ;) after the directive are not
+// treated as arguments.
+inline const std::unordered_set<std::string>& bareOnlyDirectives()
+{
+    static const std::unordered_set<std::string> directives = {
+        "auth-user-pass",
+    };
+    return directives;
+}
+
 // Extract the directive name from a config line.
 // Strips optional leading "--" prefix and returns the first whitespace-delimited token,
 // lowercased for case-insensitive matching.
@@ -186,6 +205,31 @@ inline std::string extractDirectiveName(const std::string &line)
                    [](unsigned char c) { return std::tolower(c); });
 
     return name;
+}
+
+// Returns true if the line has any non-comment, non-whitespace token after the
+// directive name. Inline comments (# or ;) are not treated as arguments.
+inline bool hasNonCommentArgument(const std::string &line)
+{
+    size_t pos = 0;
+    while (pos < line.size() && (line[pos] == ' ' || line[pos] == '\t')) {
+        ++pos;
+    }
+    if (pos + 1 < line.size() && line[pos] == '-' && line[pos + 1] == '-') {
+        pos += 2;
+    }
+    while (pos < line.size() && line[pos] != ' ' && line[pos] != '\t' &&
+           line[pos] != '\n' && line[pos] != '\r') {
+        ++pos;
+    }
+    while (pos < line.size() && (line[pos] == ' ' || line[pos] == '\t')) {
+        ++pos;
+    }
+    if (pos >= line.size() || line[pos] == '#' || line[pos] == ';' ||
+        line[pos] == '\n' || line[pos] == '\r') {
+        return false;
+    }
+    return true;
 }
 
 // Known inline block tag names whose content (certificate data, key material,
@@ -330,7 +374,13 @@ inline bool isAllowed(const std::string &line, bool &insideInlineBlock, bool all
         return true;
     }
 
-    return allowedDirectives().count(name) > 0;
+    if (allowedDirectives().count(name) == 0) {
+        return false;
+    }
+    if (bareOnlyDirectives().count(name) > 0 && hasNonCommentArgument(line)) {
+        return false;
+    }
+    return true;
 }
 
 // Filter an entire OpenVPN config string, returning only allowed lines.

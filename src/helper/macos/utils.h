@@ -48,5 +48,9 @@ namespace Utils
     // check if a string is a valid MAC address
     bool isValidMacAddress(const std::string &macAddress);
 
+    // check if a string is a canonical SCDynamicStore DNS entry of the form
+    // (State|Setup):/Network/Service/<id>/DNS, where <id> is alphanumeric/._-
+    bool isValidDnsDynamicStoreEntry(const std::string &entry);
+
     bool isPortListening(unsigned int port, int maxRetries = 10, int delayMs = 100);
 };

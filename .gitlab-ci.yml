@@ -958,9 +958,9 @@ test:version:mac:
   script:
     - |
       git fetch
-      HELPER_CHANGES=$(git diff --name-only origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -- src/helper/macos)
+      HELPER_CHANGES=$(git diff --name-only origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -- src/helper/macos src/helper/common)
       if [ ! -z "$HELPER_CHANGES" ] && [[ ! "$HELPER_CHANGES" == *"src/helper/macos/helper-info.plist"* ]]; then
-        echo "Files in src/helper/macos were changed, but src/helper/macos/helper-info.plist was not updated"
+        echo "Files in src/helper/macos or src/helper/common were changed, but src/helper/macos/helper-info.plist was not updated"
         exit 1
       fi
       EXTENSION_CHANGES=$(git diff --name-only origin/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -- src/splittunneling/macos)
@@ -983,7 +983,8 @@ build:nightly:win:
     - Set-Variable -name OS_IDENTIFIER -value "windows"
     - !reference [.download_dependencies_win, script]
     - 'IF(Test-Path .\$BUILD_LIBS_FOLDER\) {Get-ChildItem .\$BUILD_LIBS_FOLDER\*.zip | Foreach {.\tools\bin\7z.exe x $_.FullName -o"$BUILD_LIBS_FOLDER\"}}'
-    - tools/build_all --ci-mode
+    - tools/build_all --ci-mode --build-tests
+    - .\build\locationsmodel.test.exe
   artifacts:
     paths:
       - build/temp/
@@ -999,7 +1000,8 @@ build:nightly:mac:
   script:
     - OS_IDENTIFIER="macos"
     - !reference [.build_mac_installer_common, script]
-    - tools/build_all --ci-mode
+    - tools/build_all --ci-mode --build-tests
+    - QT_QPA_PLATFORM=offscreen ./build/locationsmodel.test
   artifacts:
     paths:
       - build/src/helper/macos/com.windscribe.helper.macos
@@ -1016,7 +1018,8 @@ build:nightly:rhel:
     - OS_IDENTIFIER="linux"
     - !reference [.build_linux_installer_common, script]
     - python3 -m pip install "clang-tidy<21"
-    - tools/build_all --ci-mode --static-analysis
+    - tools/build_all --ci-mode --static-analysis --build-tests
+    - QT_QPA_PLATFORM=offscreen ./build/locationsmodel.test
   rules:
     - if: $BUILD_LINUX == "y" && $NIGHTLY_TEST_BUILD == "y"
 

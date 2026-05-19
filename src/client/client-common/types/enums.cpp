@@ -779,3 +779,34 @@ SERVER_ROUTING_METHOD_TYPE SERVER_ROUTING_METHOD_TYPE_fromInt(int t)
         return SERVER_ROUTING_METHOD_AUTO;
     }
 }
+
+QList<QPair<QString, QVariant> > PROTOCOL_TWEAKS_METHOD_TYPE_toList()
+{
+    QList<QPair<QString, QVariant>> l;
+    l << qMakePair(PROTOCOL_TWEAKS_METHOD_TYPE_toString(PROTOCOL_TWEAKS_METHOD_AUTO), PROTOCOL_TWEAKS_METHOD_AUTO);
+    l << qMakePair(PROTOCOL_TWEAKS_METHOD_TYPE_toString(PROTOCOL_TWEAKS_METHOD_ENABLED), PROTOCOL_TWEAKS_METHOD_ENABLED);
+    l << qMakePair(PROTOCOL_TWEAKS_METHOD_TYPE_toString(PROTOCOL_TWEAKS_METHOD_DISABLED), PROTOCOL_TWEAKS_METHOD_DISABLED);
+    return l;
+}
+
+QString PROTOCOL_TWEAKS_METHOD_TYPE_toString(PROTOCOL_TWEAKS_METHOD_TYPE p)
+{
+    if (p == PROTOCOL_TWEAKS_METHOD_AUTO) return QObject::tr("Auto");
+    else if (p == PROTOCOL_TWEAKS_METHOD_ENABLED) return QObject::tr("Enabled");
+    else if (p == PROTOCOL_TWEAKS_METHOD_DISABLED) return QObject::tr("Disabled");
+    else {
+        WS_ASSERT(false);
+        return QObject::tr("UNKNOWN");
+    }
+}
+
+PROTOCOL_TWEAKS_METHOD_TYPE PROTOCOL_TWEAKS_METHOD_TYPE_fromInt(int t)
+{
+    if (t == 0) return PROTOCOL_TWEAKS_METHOD_AUTO;
+    else if (t == 1) return PROTOCOL_TWEAKS_METHOD_ENABLED;
+    else if (t == 2) return PROTOCOL_TWEAKS_METHOD_DISABLED;
+    else {
+        WS_ASSERT(false);
+        return PROTOCOL_TWEAKS_METHOD_AUTO;
+    }
+}

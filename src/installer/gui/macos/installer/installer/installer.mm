@@ -188,11 +188,30 @@
 
     // remove previously existing application
     if ([self isFolderAlreadyExist] || isUseUpdatePath_) {
-        NSString *bundleVersion = [self runProcess:@"/usr/bin/mdls" args:@[@"-name", @"kMDItemVersion", [self getOldInstallPath]]];
+        NSString *oldPath = [self getOldInstallPath];
+        NSString *standardPath = @WS_MAC_APP_DIR;
+        NSString *bundleVersion = [self runProcess:@"/usr/bin/mdls" args:@[@"-name", @"kMDItemVersion", oldPath]];
         spdlog::info("Windscribe exists in desired folder, {}", toStdString(bundleVersion));
-        spdlog::info("Attempting to remove: {}", toStdString([self getOldInstallPath]));
+        spdlog::info("Attempting to remove: {}", toStdString(oldPath));
 
-        bool success = helper_->removeOldInstall([[self getOldInstallPath] UTF8String]);
+        bool success;
+        if ([oldPath isEqualToString:standardPath]) {
+            // Standard install at /Applications — needs root because the bundle may
+            // contain root-owned files placed by the helper at install time.
+            success = helper_->removeOldInstall([oldPath UTF8String]);
+        } else {
+            // Legacy install in a non-/Applications location. The user installed it
+            // there, so we remove it as the running user. We do NOT fall back to the
+            // helper for arbitrary paths — that would re-open the LPE we're closing.
+            NSError *err = nil;
+            success = [[NSFileManager defaultManager] removeItemAtPath:oldPath error:&err];
+            if (!success) {
+                spdlog::error("Could not remove legacy install at {}: {}",
+                              toStdString(oldPath),
+                              err ? toStdString([err localizedDescription]) : "unknown error");
+            }
+        }
+
         if (!success) {
             spdlog::error("Previous version of the program cannot be deleted. Please contact support.");
             self.lastError = wsl::ERROR_DELETE;

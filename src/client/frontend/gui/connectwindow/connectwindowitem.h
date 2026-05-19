@@ -109,6 +109,7 @@ private slots:
     void onExternalConfigModeChanged(bool isExternalConfigMode);
     void onAppSkinChanged(APP_SKIN s);
     void onLanguageChanged();
+    void updateAntiCensorshipBadge();
 
 private:
     Preferences *preferences_;

@@ -1262,6 +1262,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <translation>Павялічвае затрымку, але паляпшае шанцы на падлучэньне.</translation>
     </message>
     <message>
+        <source>Large TLS</source>
+        <translation>Вялікі TLS</translation>
+    </message>
+    <message>
+        <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
+        <translation>Штучнае павелічэнне TLS-пакетаў у некаторых выпадках дапамагае абыйсці цэнзуру. Дадае дадатковае TLS-запаўненне да ўсіх запытаў API.</translation>
+    </message>
+    <message>
         <source>Protocol-level changes made to WireGuard, OpenVPN, and Stealth protocols.</source>
         <translation>Зьмены на ўзроўні пратаколу ў пратаколах WireGuard, OpenVPN і Stealth.</translation>
     </message>
@@ -2567,6 +2575,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>Ван Гог</translation>
     </message>
     <message>
+        <source>Enabled</source>
+        <translation>Уключана</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Адключаны</translation>
+    </message>
+    <message>
+        <source>Config file too large</source>
+        <translation>Канфігурацыйны файл занадта вялікі</translation>
+    </message>
+    <message>
         <source>Failed to open file</source>
         <translation>Не ўдалося адчыніць файл</translation>
     </message>
@@ -2601,6 +2621,42 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</source>
         <translation>Адсутнічае &quot;Endpoint&quot; у разьдзеле &quot;Peer&quot;</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PrivateKey&quot; format</source>
+        <translation>Няправільны фармат &quot;PrivateKey&quot;</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PublicKey&quot; format</source>
+        <translation>Няправільны фармат &quot;PublicKey&quot;</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PresharedKey&quot; format</source>
+        <translation>Няправільны фармат «PresharedKey»</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;Address&quot; value: %1</source>
+        <translation>Няправільнае значэнне «Адрас»: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
+        <translation>Няправільнае значэнне &quot;Дазволеных IP&quot;: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;DNS&quot; value: %1</source>
+        <translation>Няправільнае значэнне &quot;DNS&quot;: %1</translation>
+    </message>
+    <message>
+        <source>Invalid endpoint port</source>
+        <translation>Няправільны порт канчатковай кропкі</translation>
+    </message>
+    <message>
+        <source>Invalid AmneziaWG header parameter</source>
+        <translation>Няправільны параметр загалоўка AmneziaWG</translation>
+    </message>
+    <message>
+        <source>AmneziaWG init parameter too large</source>
+        <translation>Параметр init AmneziaWG занадта вялікі</translation>
     </message>
     <message>
         <source>Static IPs</source>

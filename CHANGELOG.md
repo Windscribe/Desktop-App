@@ -1,3 +1,41 @@
+2.22.9 (06/05/2026)
+macOS:
+   * Fixed possible local privilege escalation and TOCTOU exploits in the helper and installer. #1796
+Linux:
+   * Fixed possible local privilege escalation and TOCTOU exploits in the helper. #1796
+
+
+2.22.8 (05/05/2026)
+All:
+   * Fixed OpenVPN protocols no longer connect regression introduced in 2.22.7. #1780
+macOS:
+   * Fixed possible local privilege escalation in the helper due to insufficient parameter validation before executing shell commands. We thank Johan Wahyudi for responsibly disclosing this issue. #1792
+Linux:
+   * Fixed possible local privilege escalation in the helper due to insufficient parameter validation before executing shell commands. We thank Johan Wahyudi for responsibly disclosing this issue. #1792
+
+
+2.22.7 (01/05/2026)
+All:
+   * Improved field validation for custom WireGuard config import. #1787
+   * Fixed WireGuard reconnect fails after plan downgrade until app restart. #1725
+   * Fixed Protocol Tweaks toggle not enabling during fresh install on a Russian network. #1768
+   * Fixed location nickname may be corrupted when best location changes. #1772
+   * Fixed incorrect knowledge base URL in Help window. #1777
+   * Fixed change protocol screen maximizes vertically after moving it. #1788
+   * Fixed OpenVPN custom config handling to strip auth-user-pass file path references. #1780
+   * Fixed IPC frame bounds checking to reject malformed or oversized messages. #1784
+macOS:
+   * Fixed security vulnerability in ctrld command argument processing. #1785
+Linux:
+   * Improved non-critical scriptlet commands to be optional to prevent failures when reinstalling or upgrading. #1776
+   * Fixed CLI does not log the user out when all active sessions are deleted from the account. #1770
+   * Fixed DNS manager may misdetect as resolvconf on Ubuntu when it should be NetworkManager. #1778
+   * Fixed Dockerfile build tool downloads not hash verified. #1781
+   * Fixed WireGuard custom config IP/CIDR validation to prevent command injection via crafted .conf files. #1782
+   * Fixed security vulnerability in ctrld command argument processing. #1785
+   * Fixed command injection in CLI update handler. #1786
+
+
 2.22.6 (22/04/2026)
 All:
    * Improved HTTP ping to use IP address rather than hostname. #1764

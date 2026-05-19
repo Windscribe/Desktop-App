@@ -13,10 +13,10 @@ ProtocolTweaksGroup::ProtocolTweaksGroup(ScalableGraphicsObject *parent, const Q
 {
     setFlags(flags() | QGraphicsItem::ItemClipsChildrenToShape);
 
-    checkBoxEnable_ = new ToggleItem(this);
-    checkBoxEnable_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/CIRCUMVENT_CENSORSHIP"));
-    connect(checkBoxEnable_, &ToggleItem::stateChanged, this, &ProtocolTweaksGroup::onCheckBoxStateChanged);
-    addItem(checkBoxEnable_);
+    comboBoxMode_ = new ComboBoxItem(this);
+    comboBoxMode_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/CIRCUMVENT_CENSORSHIP"));
+    connect(comboBoxMode_, &ComboBoxItem::currentItemChanged, this, &ProtocolTweaksGroup::onComboBoxModeChanged);
+    addItem(comboBoxMode_);
 
     amneziawgPreset_ = new ComboBoxItem(this);
     amneziawgPreset_->setCaptionFont(FontDescr(14, QFont::Normal));
@@ -29,11 +29,11 @@ ProtocolTweaksGroup::ProtocolTweaksGroup(ScalableGraphicsObject *parent, const Q
     onLanguageChanged();
 }
 
-void ProtocolTweaksGroup::setAntiCensorshipEnabled(bool enabled)
+void ProtocolTweaksGroup::setProtocolTweaksMethod(PROTOCOL_TWEAKS_METHOD_TYPE method)
 {
-    if (enabled != isEnabled_) {
-        isEnabled_ = enabled;
-        checkBoxEnable_->setState(enabled);
+    if (method != method_) {
+        method_ = method;
+        comboBoxMode_->setCurrentItem(static_cast<int>(method));
         updateMode();
     }
 }
@@ -45,74 +45,52 @@ void ProtocolTweaksGroup::setAmneziawgPreset(const QString &preset)
     }
 }
 
-void ProtocolTweaksGroup::setAmneziawgUnblockParams(const QString &activePreset, QStringList presets)
+void ProtocolTweaksGroup::setAmneziawgPresets(const QStringList &presets)
 {
     amneziawgPreset_->clear();
 
-    if (presets.isEmpty()) {
-        // TODO: JDRM do we need some way to warn the user that we have no presets, indicating we are unable to retrieve them from the API?.
-        return;
-    }
-
+    // TODO: JDRM do we need some way to warn the user that we have no presets, indicating we are unable to retrieve them from the API?.
     for (const auto &preset : presets) {
         amneziawgPreset_->addItem(preset, preset);
     }
 
-    if (activePreset.isEmpty() || !presets.contains(activePreset)) {
-        amneziawgPreset_->setCurrentItem(0);
-    } else {
-        amneziawgPreset_->setCurrentItem(activePreset);
-    }
+    // Refresh visibility: an empty combobox must stay hidden even in Enabled mode
+    // (otherwise opening it would assert on an uninitialized current item).
+    updateMode();
 }
 
-void ProtocolTweaksGroup::onCheckBoxStateChanged(bool isChecked)
+void ProtocolTweaksGroup::onComboBoxModeChanged(const QVariant &value)
 {
-    isEnabled_ = isChecked;
+    method_ = PROTOCOL_TWEAKS_METHOD_TYPE_fromInt(value.toInt());
     updateMode();
-    setAmneziaIsUserConfigured();
-    emit antiCensorshipStateChanged(isEnabled_);
+    emit protocolTweaksMethodChanged(method_);
 }
 
 void ProtocolTweaksGroup::onAmneziawgPresetChanged(const QVariant &value)
 {
-    setAmneziaIsUserConfigured();
     emit amneziawgPresetChanged(value.toString());
 }
 
 void ProtocolTweaksGroup::updateMode()
 {
-    if (isEnabled_) {
+    if (method_ == PROTOCOL_TWEAKS_METHOD_ENABLED && amneziawgPreset_->hasItems()) {
         showItems(indexOf(amneziawgPreset_), size() - 1);
-    }
-    else {
+    } else {
         hideItems(indexOf(amneziawgPreset_), size() - 1);
     }
 }
 
-void ProtocolTweaksGroup::setAmneziaIsUserConfigured()
-{
-    QSettings settings;
-    settings.setValue("AmneziaIsUserConfigured", true);
-}
-
 void ProtocolTweaksGroup::onLanguageChanged()
 {
-    checkBoxEnable_->setCaption(tr("Protocol Tweaks"));
+    comboBoxMode_->setLabelCaption(tr("Protocol Tweaks"));
+    comboBoxMode_->setItems(PROTOCOL_TWEAKS_METHOD_TYPE_toList(), method_);
     amneziawgPreset_->setLabelCaption(tr("Amnezia Config"));
     updateMode();
 }
 
-void ProtocolTweaksGroup::setEnabled(bool enabled)
-{
-    checkBoxEnable_->setEnabled(enabled);
-    if (!enabled) {
-        checkBoxEnable_->setState(false);
-    }
-}
-
 void ProtocolTweaksGroup::setDescription(const QString &desc, const QString &descUrl)
 {
-    checkBoxEnable_->setDescription(desc, descUrl);
+    comboBoxMode_->setDescription(desc, descUrl);
 }
 
 } // namespace PreferencesWindow

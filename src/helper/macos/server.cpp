@@ -74,6 +74,7 @@ void Server::peer_event_handler(xpc_connection_t peer, xpc_object_t event)
         }
 
         std::string answer = processCommand((HelperCommand)cmdId, data);
+        HelperSecurity::clearCurrentCallerSecCode();
 
         xpc_object_t message = xpc_dictionary_create_reply(event);
         if (message) {

@@ -5,8 +5,8 @@
 
 set(WS_VERSION_MAJOR 2)
 set(WS_VERSION_MINOR 22)
-set(WS_VERSION_BUILD 6)
-set(WS_BUILD_TYPE "beta")
+set(WS_VERSION_BUILD 9)
+set(WS_BUILD_TYPE "stable")
 
 # WS_APP_IDENTIFIER: Internal identifier, no spaces. Used for service names,
 #   adapter names, pipe names, and other system identifiers.

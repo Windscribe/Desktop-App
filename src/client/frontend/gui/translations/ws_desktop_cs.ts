@@ -1273,6 +1273,14 @@ Pokud problém přetrvává i po restartování, odešlete protokol ladění, ot
         <source>Server Routing</source>
         <translation>Směrování serveru</translation>
     </message>
+    <message>
+        <source>Large TLS</source>
+        <translation>Velký TLS</translation>
+    </message>
+    <message>
+        <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
+        <translation>Umělé zvětšení TLS paketů pomáhá v některých případech obejít cenzuru. Přidává další TLS vyplnění všem API požadavkům.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -2567,6 +2575,18 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
         <translation>Van Gogh</translation>
     </message>
     <message>
+        <source>Enabled</source>
+        <translation>Povoleno</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Neaktivní</translation>
+    </message>
+    <message>
+        <source>Config file too large</source>
+        <translation>Konfigurační soubor je příliš velký</translation>
+    </message>
+    <message>
         <source>Failed to open file</source>
         <translation>Nepodařilo se otevřít soubor</translation>
     </message>
@@ -2601,6 +2621,42 @@ Pokud přeinstalace nepomůže, obraťte se na podporu Windscribe a požádejte 
     <message>
         <source>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</source>
         <translation>Chybějící &quot;koncový bod&quot; v části &quot;Peer&quot;</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PrivateKey&quot; format</source>
+        <translation>Neplatný formát &quot;PrivateKey&quot;</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PublicKey&quot; format</source>
+        <translation>Neplatný formát &quot;PublicKey&quot;</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PresharedKey&quot; format</source>
+        <translation>Neplatný formát &quot;PresharedKey&quot;</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;Address&quot; value: %1</source>
+        <translation>Neplatná hodnota &quot;Adresa&quot;: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
+        <translation>Neplatná hodnota &quot;AllowedIPS&quot;: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;DNS&quot; value: %1</source>
+        <translation>Neplatná hodnota &quot;DNS&quot;: %1</translation>
+    </message>
+    <message>
+        <source>Invalid endpoint port</source>
+        <translation>Invalid endpoint port</translation>
+    </message>
+    <message>
+        <source>Invalid AmneziaWG header parameter</source>
+        <translation>Invalid AmneziaWG header parameter</translation>
+    </message>
+    <message>
+        <source>AmneziaWG init parameter too large</source>
+        <translation>AmneziaWG parametr initu příliš velký</translation>
     </message>
     <message>
         <source>Static IPs</source>

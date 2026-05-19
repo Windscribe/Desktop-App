@@ -20,7 +20,7 @@ HelpWindowItem::HelpWindowItem(ScalableGraphicsObject *parent, Preferences *pref
     knowledgeBaseItem_ = new LinkItem(knowledgeBaseGroup_,
                                       LinkItem::LinkType::EXTERNAL_LINK,
                                       "",
-                                      QString("https://%1/support/knowledgebase").arg(HardcodedSettings::instance().windscribeServerUrl()));
+                                      QString("https://%1/knowledge-base").arg(HardcodedSettings::instance().windscribeServerUrl()));
     knowledgeBaseItem_->setIcon(ImageResourcesSvg::instance().getIndependentPixmap("preferences/KNOWLEDGE_BASE"));
     knowledgeBaseGroup_->addItem(knowledgeBaseItem_);
     addItem(knowledgeBaseGroup_);

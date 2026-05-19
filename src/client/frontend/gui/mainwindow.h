@@ -304,8 +304,6 @@ private slots:
 
     void onLocationPermissionUpdated();
 
-    void onAmneziawgUnblockParamsUpdated(const QString& activePreset, QStringList presets);
-
 #if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     void onSigTerm();
 #endif

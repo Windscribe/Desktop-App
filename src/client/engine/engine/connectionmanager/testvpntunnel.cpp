@@ -118,7 +118,9 @@ void TestVPNTunnel::stopTests()
 
 void TestVPNTunnel::onPingTestAnswer(wsnet::ServerApiRetCode serverApiRetCode, const std::string &ipAddress)
 {
-    WS_ASSERT(curRequest_ != nullptr);
+    if (curRequest_ == nullptr) {
+        return;
+    }
     curRequest_.reset();
 
     if (bRunning_) {

@@ -1,6 +1,7 @@
 #include "connection.h"
 #include "commandfactory.h"
 #include <QTimer>
+#include "utils/log/categories.h"
 #include "utils/ws_assert.h"
 
 namespace IPC
@@ -157,6 +158,10 @@ void Connection::onSocketError(QLocalSocket::LocalSocketError socketError)
     }
 }
 
+// Maximum allowed size for individual IPC frame fields.
+// 10 MB is generous for any legitimate protobuf message or command ID.
+static constexpr int kMaxIpcFieldSize = 10 * 1024 * 1024;
+
 bool Connection::canReadCommand()
 {
     if (readBuf_.size() > (int)(sizeof(int) * 2))
@@ -165,6 +170,13 @@ bool Connection::canReadCommand()
         int sizeOfId;
         memcpy(&sizeOfCmd, readBuf_.data(), sizeof(int));
         memcpy(&sizeOfId, readBuf_.data() + sizeof(int), sizeof(int));
+
+        // Reject negative or oversized lengths
+        if (sizeOfCmd < 0 || sizeOfId <= 0 || sizeOfCmd > kMaxIpcFieldSize || sizeOfId > kMaxIpcFieldSize) {
+            qCWarning(LOG_IPC) << "IPC frame with invalid lengths: cmd=" << sizeOfCmd << "id=" << sizeOfId;
+            readBuf_.clear();
+            return false;
+        }
 
         if (readBuf_.size() >= (int)(sizeof(int) * 2 + sizeOfCmd + sizeOfId))
         {

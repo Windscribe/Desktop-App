@@ -411,20 +411,21 @@ void Preferences::setTerminateSockets(bool b)
         emit isTerminateSocketsChanged(engineSettings_.isTerminateSockets());
     }
 }
+
 #endif
 
-bool Preferences::isAntiCensorship() const
+bool Preferences::isAPIAntiCensorship() const
 {
-    return engineSettings_.isAntiCensorship();
+    return engineSettings_.isAPIAntiCensorship();
 }
 
-void Preferences::setAntiCensorship(bool bEnabled)
+void Preferences::setAPIAntiCensorship(bool bEnabled)
 {
-    if (engineSettings_.isAntiCensorship() != bEnabled)
+    if (engineSettings_.isAPIAntiCensorship() != bEnabled)
     {
-        engineSettings_.setIsAntiCensorship(bEnabled);
+        engineSettings_.setIsAPIAntiCensorship(bEnabled);
         emitEngineSettingsChanged();
-        emit isAntiCensorshipChanged(engineSettings_.isAntiCensorship());
+        emit isAPIAntiCensorshipChanged(engineSettings_.isAPIAntiCensorship());
     }
 }
 
@@ -440,6 +441,21 @@ void Preferences::setServerRoutingMethod(SERVER_ROUTING_METHOD_TYPE method)
         engineSettings_.setServerRoutingMethod(method);
         emitEngineSettingsChanged();
         emit serverRoutingMethodChanged(method);
+    }
+}
+
+PROTOCOL_TWEAKS_METHOD_TYPE Preferences::protocolTweaksMethod() const
+{
+    return engineSettings_.protocolTweaksMethod();
+}
+
+void Preferences::setProtocolTweaksMethod(PROTOCOL_TWEAKS_METHOD_TYPE method)
+{
+    if (engineSettings_.protocolTweaksMethod() != method)
+    {
+        engineSettings_.setProtocolTweaksMethod(method);
+        emitEngineSettingsChanged();
+        emit protocolTweaksMethodChanged(method);
     }
 }
 
@@ -745,7 +761,7 @@ void Preferences::setEngineSettings(const types::EngineSettings &es, bool fromJs
 #if defined(Q_OS_WIN)
     setTerminateSockets(es.isTerminateSockets());
 #endif
-    setAntiCensorship(es.isAntiCensorship());
+    setAPIAntiCensorship(es.isAPIAntiCensorship());
     setAmneziawgPreset(es.amneziawgPreset());
     setAllowLanTraffic(es.isAllowLanTraffic());
     setFirewallSettings(es.firewallSettings());
@@ -775,6 +791,7 @@ void Preferences::setEngineSettings(const types::EngineSettings &es, bool fromJs
 #endif
     setNetworkPreferredProtocols(es.networkPreferredProtocols());
     setServerRoutingMethod(es.serverRoutingMethod());
+    setProtocolTweaksMethod(es.protocolTweaksMethod());
     isSettingEngineSettings_ = false;
 }
 
@@ -920,7 +937,7 @@ void Preferences::loadIni()
     setLanguage(es.language());
     setUpdateChannel(es.updateChannel());
     setIgnoreSslErrors(es.isIgnoreSslErrors());
-    setAntiCensorship(es.isAntiCensorship());
+    setAPIAntiCensorship(es.isAPIAntiCensorship());
     setAllowLanTraffic(es.isAllowLanTraffic());
     setFirewallSettings(es.firewallSettings());
     setConnectionSettings(es.connectionSettings());
@@ -935,6 +952,7 @@ void Preferences::loadIni()
     setDecoyTrafficSettings(es.decoyTrafficSettings());
     setAmneziawgPreset(es.amneziawgPreset());
     setServerRoutingMethod(es.serverRoutingMethod());
+    setProtocolTweaksMethod(es.protocolTweaksMethod());
     isSettingEngineSettings_ = false;
 
     emitEngineSettingsChanged();

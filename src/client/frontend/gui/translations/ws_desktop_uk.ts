@@ -1273,6 +1273,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Server Routing</source>
         <translation>Маршрутизація серверів</translation>
     </message>
+    <message>
+        <source>Large TLS</source>
+        <translation>Великий TLS</translation>
+    </message>
+    <message>
+        <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
+        <translation>Штучне збільшення TLS-пакетів допомагає обійти цензуру в деяких випадках. Додає додаткову TLS-підкладку до всіх запитів API.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -2567,6 +2575,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>Ван Гог</translation>
     </message>
     <message>
+        <source>Enabled</source>
+        <translation>Увімкнено</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Відключений</translation>
+    </message>
+    <message>
+        <source>Config file too large</source>
+        <translation>Конфігураційний файл занадто великий</translation>
+    </message>
+    <message>
         <source>Failed to open file</source>
         <translation>Не вдалося відкрити файл</translation>
     </message>
@@ -2601,6 +2621,42 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</source>
         <translation>Відсутня &quot;Кінцева точка&quot; в розділі &quot;Peer&quot;</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PrivateKey&quot; format</source>
+        <translation>Недійсний формат «PrivateKey»</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PublicKey&quot; format</source>
+        <translation>Недійсний формат «PublicKey»</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PresharedKey&quot; format</source>
+        <translation>Неправильний формат &quot;PresharedKey&quot;</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;Address&quot; value: %1</source>
+        <translation>Недійсне значення &quot;Адреса&quot;: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
+        <translation>Недійсне значення &quot;Дозволених IP&quot;: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;DNS&quot; value: %1</source>
+        <translation>Недійсне значення &quot;DNS&quot;: %1</translation>
+    </message>
+    <message>
+        <source>Invalid endpoint port</source>
+        <translation>Недійсний порт кінцевої точки</translation>
+    </message>
+    <message>
+        <source>Invalid AmneziaWG header parameter</source>
+        <translation>Некоректний параметр заголовка AmneziaWG</translation>
+    </message>
+    <message>
+        <source>AmneziaWG init parameter too large</source>
+        <translation>AmneziaWG init занадто великий параметр</translation>
     </message>
     <message>
         <source>Static IPs</source>

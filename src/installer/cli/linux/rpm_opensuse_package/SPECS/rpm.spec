@@ -52,7 +52,7 @@ mkdir -p %{buildroot}
 mv -f %{_builddir}/* %{buildroot}
 
 %posttrans
-killall -q Windscribe
+killall -q Windscribe || true
 systemctl daemon-reload || true
 systemctl preset windscribe-helper || true
 systemctl restart windscribe-helper || true
@@ -65,7 +65,9 @@ echo linux_rpm_opensuse_x64_cli > /etc/windscribe/platform
 
 %preun
 if [ $1 -eq 0 ]; then
-    /opt/windscribe/helper --reset-mac-addresses
+    if [ -x /opt/windscribe/helper ]; then
+        /opt/windscribe/helper --reset-mac-addresses || true
+    fi
     systemctl disable windscribe-helper || true
 fi
 

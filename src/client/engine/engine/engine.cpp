@@ -139,6 +139,8 @@ Engine::Engine() : QObject(nullptr),
         WSNet::instance()->apiResourcersManager()->setAuthHash(settings.value("authHash").toString().toStdString());
     }
 
+    WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(engineSettings_.isAPIAntiCensorship());
+
     connectStateController_ = new ConnectStateController(nullptr);
     connect(connectStateController_, &ConnectStateController::stateChanged, this, &Engine::onConnectStateChanged);
     emergencyConnectStateController_ = new ConnectStateController(nullptr);
@@ -1295,7 +1297,7 @@ void Engine::setSettingsImpl(const types::EngineSettings &engineSettings)
 
     WSNet::instance()->serverAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
     WSNet::instance()->bridgeAPI()->setIgnoreSslErrors(engineSettings_.isIgnoreSslErrors());
-    WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(engineSettings_.isAntiCensorship());
+    WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(engineSettings_.isAPIAntiCensorship());
 
     if (isServerRoutingMethodChanged) {
         applyServerRoutingMethod();
@@ -1791,7 +1793,8 @@ void Engine::onConnectionManagerRequestPrivKeyPassword(const QString &pathCustom
 
 void Engine::emergencyConnectClickImpl()
 {
-    emergencyController_->clickConnect(ProxyServerController::instance().getCurrentProxySettings(), engineSettings_.isAntiCensorship());
+    // Consider the isAPIAntiCensorship(ExtraTLSPadding) option for openvpn connections
+    emergencyController_->clickConnect(ProxyServerController::instance().getCurrentProxySettings(), engineSettings_.isAPIAntiCensorship());
 }
 
 void Engine::emergencyDisconnectClickImpl()
@@ -1852,7 +1855,6 @@ void Engine::updateAdvancedParamsImpl()
     }
 
     // send some parameters to wsnet
-    WSNet::instance()->advancedParameters()->setAPIExtraTLSPadding(engineSettings_.isAntiCensorship());
     WSNet::instance()->advancedParameters()->setLogApiResponce(ExtraConfig::instance().getLogAPIResponse());
     std::optional<QString> countryOverride = ExtraConfig::instance().serverlistCountryOverride();
     WSNet::instance()->advancedParameters()->setCountryOverrideValue(countryOverride.has_value() ? countryOverride->toStdString() : "");
@@ -2325,6 +2327,8 @@ void Engine::onApiResourceManagerCallback(ApiResourcesManagerNotification notifi
         onApiResourcesManagerServerCredentialsFetched();
     } else if (notification == ApiResourcesManagerNotification::kAmneziawgUnblockParamsFinished) {
         onApiResourcesManagerAmneziawgUnblockParamsFetched();
+    } else if (notification == ApiResourcesManagerNotification::kAmneziawgConfigIdUpdated) {
+        onApiResourcesManagerAmneziawgConfigIdUpdated();
     } else {
         WS_ASSERT(false);
     }
@@ -2585,8 +2589,8 @@ void Engine::doConnect(bool bEmitAuthError)
 
         connectionManager_->clickConnect(ovpnConfig, ovpnCredentials, ikev2Credentials, bli,
             connectionSettings, portMap, ProxyServerController::instance().getCurrentProxySettings(),
-            bEmitAuthError, engineSettings_.customOvpnConfigsPath(), engineSettings_.isAntiCensorship(),
-            engineSettings_.amneziawgPreset(), pinnedNode_.first);
+                                         bEmitAuthError, engineSettings_.customOvpnConfigsPath(),
+                                         amneziawgParams_, effectiveAmneziawgPreset(), pinnedNode_.first);
     }
     // for custom configs without login
     else
@@ -2595,7 +2599,7 @@ void Engine::doConnect(bool bEmitAuthError)
         connectionManager_->clickConnect("", api_responses::ServerCredentials(), api_responses::ServerCredentials(), bli,
             engineSettings_.connectionSettingsForNetworkInterface(networkInterface.networkOrSsid), api_responses::PortMap(),
             ProxyServerController::instance().getCurrentProxySettings(), bEmitAuthError, engineSettings_.customOvpnConfigsPath(),
-            engineSettings_.isAntiCensorship(), engineSettings_.amneziawgPreset(), pinnedNode_.first);
+                                          amneziawgParams_, effectiveAmneziawgPreset(), pinnedNode_.first);
     }
 }
 
@@ -2651,7 +2655,17 @@ void Engine::stopFetchingServerCredentials()
 void Engine::updateSessionStatus(const std::string &json)
 {
     api_responses::SessionStatus ss(WSNet::instance()->apiResourcersManager()->sessionStatus());
-    amneziaConfigIdFromSessionStatus_ = ss.getAmneziaConfigId();
+
+    // When premium expires mid-session the server silently invalidates our WireGuard key, so force
+    // the next getWireGuardConfig() call to re-register the existing keypair. The app-restart-after-
+    // downgrade case is already handled by GetWireGuardConfig::isInitConfigWasCallAtleastOnce_, which
+    // resets on every launch and forces a re-registration on the first WG connection attempt.
+    if (wasPremium_.has_value() && *wasPremium_ && !ss.isPremium()) {
+        qCInfo(LOG_BASIC) << "Premium status lost, forcing WireGuard key re-registration on next config request";
+        GetWireGuardConfig::forceReinitOnNextCall();
+    }
+    wasPremium_ = ss.isPremium();
+
     QSettings settings;
     settings.setValue("userId", ss.getUserId());    // need for uninstaller program for open post uninstall webpage
     emit sessionStatusUpdated(ss);
@@ -2697,7 +2711,7 @@ void Engine::onConnectStateChanged(CONNECT_STATE state, DISCONNECT_REASON /*reas
 
 #ifdef Q_OS_WIN
 
-    if (state == CONNECT_STATE_CONNECTED && (protocol.isOpenVpnProtocol() || (protocol.isWireGuardProtocol() && engineSettings_.isAntiCensorship()))) {
+    if (state == CONNECT_STATE_CONNECTED && (protocol.isOpenVpnProtocol() || (protocol.isWireGuardProtocol() && !effectiveAmneziawgPreset().isEmpty()))) {
         // - Delay setting VPN connected state for OpenVPN protocols on Windows due to #576
         // - Delay when using AmneziaWG as their usage of the wintun driver suffers from the same adapter setup delay as OpenVPN, in particular the
         //   DNS is not set correctly on the adapter after the tunnel is reported as live.
@@ -2916,6 +2930,17 @@ void Engine::applyServerRoutingMethod()
     WSNet::instance()->apiResourcersManager()->fetchSession();
 }
 
+QString Engine::effectiveAmneziawgPreset() const
+{
+    if (engineSettings_.protocolTweaksMethod() == PROTOCOL_TWEAKS_METHOD_TYPE::PROTOCOL_TWEAKS_METHOD_AUTO && !apiSuggestedAmneziawgPreset_.isEmpty()) {
+        return apiSuggestedAmneziawgPreset_;
+    } else if (engineSettings_.protocolTweaksMethod() == PROTOCOL_TWEAKS_METHOD_TYPE::PROTOCOL_TWEAKS_METHOD_ENABLED) {
+        return engineSettings_.amneziawgPreset();
+    } else {
+        return QString();
+    }
+}
+
 void Engine::updateApiResolutionSettingsInWsnet()
 {
     auto apiRootOverride = ExtraConfig::instance().apiRootOverride();
@@ -3009,23 +3034,21 @@ void Engine::fetchControldDevicesImpl(const QString &apiKey)
 void Engine::onApiResourcesManagerAmneziawgUnblockParamsFetched()
 {
     // If we have unblock params, either stored from a previous fetch, or from a new fetch, send the updated list to the UI.
-    api_responses::AmneziawgUnblockParams unblockParams(WSNet::instance()->apiResourcersManager()->amneziawgUnblockParams());
-    if (unblockParams.isValid()) {
-        // If the AmneziaWG preset has not been manually configured by the user, we configure it based on data from the SessionStatus API.
-        QString preferredPreset;
-        QSettings settings;
-        if (!settings.value("AmneziaIsUserConfigured", false).toBool()) {
-            QString presetTitle = unblockParams.getTitleById(amneziaConfigIdFromSessionStatus_);
-            if (presetTitle.isEmpty()) {
-                emit autoEnableAntiCensorship(false);
-            } else {
-                preferredPreset = presetTitle;
-                emit autoEnableAntiCensorship(true);
-            }
-        } else {
-            preferredPreset = engineSettings_.amneziawgPreset();
-        }
+    amneziawgParams_ = api_responses::AmneziawgUnblockParams(WSNet::instance()->apiResourcersManager()->amneziawgUnblockParams());
+    if (amneziawgParams_.isValid()) {
+        emit amneziawgPresetsUpdated(amneziawgParams_.presets());
+        // Re-resolve: config ID may have arrived before params were available
+        onApiResourcesManagerAmneziawgConfigIdUpdated();
+    }
+}
 
-        emit amneziawgUnblockParamsUpdated(preferredPreset, unblockParams.presets());
+void Engine::onApiResourcesManagerAmneziawgConfigIdUpdated()
+{
+    if (amneziawgParams_.isValid()) {
+        const QString newPreset = amneziawgParams_.getTitleById(QString::fromStdString(WSNet::instance()->apiResourcersManager()->amneziawgConfigId()));
+        if (newPreset != apiSuggestedAmneziawgPreset_) {
+            apiSuggestedAmneziawgPreset_ = newPreset;
+            emit apiSuggestedAmneziawgPresetChanged(apiSuggestedAmneziawgPreset_);
+        }
     }
 }

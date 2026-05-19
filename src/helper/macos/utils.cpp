@@ -278,6 +278,42 @@ bool isValidMacAddress(const std::string &macAddress)
     return false;
 }
 
+bool isValidDnsDynamicStoreEntry(const std::string &entry)
+{
+    static const std::string kStatePrefix = "State:/Network/Service/";
+    static const std::string kSetupPrefix = "Setup:/Network/Service/";
+    static const std::string kSuffix = "/DNS";
+
+    std::string id;
+    if (entry.rfind(kStatePrefix, 0) == 0) {
+        id = entry.substr(kStatePrefix.size());
+    } else if (entry.rfind(kSetupPrefix, 0) == 0) {
+        id = entry.substr(kSetupPrefix.size());
+    } else {
+        return false;
+    }
+
+    if (id.size() <= kSuffix.size() ||
+        id.compare(id.size() - kSuffix.size(), kSuffix.size(), kSuffix) != 0) {
+        return false;
+    }
+    id.erase(id.size() - kSuffix.size());
+
+    if (id.empty()) {
+        return false;
+    }
+
+    for (char c : id) {
+        bool ok = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+                  (c >= '0' && c <= '9') || c == '.' || c == '_' || c == '-';
+        if (!ok) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 std::string normalizeAddress(const std::string &address)
 {
     std::string addr = address;

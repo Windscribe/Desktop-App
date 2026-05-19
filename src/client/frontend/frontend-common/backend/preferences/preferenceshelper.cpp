@@ -128,3 +128,29 @@ types::Protocol PreferencesHelper::currentProtocol() const
 {
     return currentProtocol_;
 }
+
+void PreferencesHelper::setAmneziawgPresets(const QStringList &presets)
+{
+    if (amneziawgPresets_ != presets) {
+        amneziawgPresets_ = presets;
+        emit amneziawgPresetsChanged(amneziawgPresets_);
+    }
+}
+
+QStringList PreferencesHelper::amneziawgPresets() const
+{
+    return amneziawgPresets_;
+}
+
+void PreferencesHelper::setApiSuggestedAmneziawgPreset(const QString &preset)
+{
+    if (apiSuggestedAmneziawgPreset_ != preset) {
+        apiSuggestedAmneziawgPreset_ = preset;
+        emit apiSuggestedAmneziawgPresetChanged(apiSuggestedAmneziawgPreset_);
+    }
+}
+
+QString PreferencesHelper::apiSuggestedAmneziawgPreset() const
+{
+    return apiSuggestedAmneziawgPreset_;
+}

@@ -1273,6 +1273,14 @@ Yeniden başlatmanın ardından sorun devam ederse lütfen bir hata ayıklama g�
         <source>Server Routing</source>
         <translation>Sunucu Yönlendirme</translation>
     </message>
+    <message>
+        <source>Large TLS</source>
+        <translation>Büyük TLS</translation>
+    </message>
+    <message>
+        <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
+        <translation>TLS paketlerini yapay olarak büyütmek, bazı durumlarda sansürü aşmaya yardımcı olur. Tüm API isteklerine ekstra TLS dolgusu ekliyor.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -2567,6 +2575,18 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
         <translation>Van Gogh</translation>
     </message>
     <message>
+        <source>Enabled</source>
+        <translation>Etkinleştirildi</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Engelli</translation>
+    </message>
+    <message>
+        <source>Config file too large</source>
+        <translation>Yapılandırma dosyası çok büyük</translation>
+    </message>
+    <message>
         <source>Failed to open file</source>
         <translation>Dosya açılamadı</translation>
     </message>
@@ -2601,6 +2621,42 @@ Yeniden yükleme yardımcı olmazsa, lütfen yardım için Windscribe desteği i
     <message>
         <source>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</source>
         <translation>&quot;Eş&quot; bölümünde &quot;Uç Nokta&quot; eksik</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PrivateKey&quot; format</source>
+        <translation>Geçersiz &quot;PrivateKey&quot; formatı</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PublicKey&quot; format</source>
+        <translation>Geçersiz &quot;PublicKey&quot; formatı</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PresharedKey&quot; format</source>
+        <translation>Geçersiz &quot;PresharedKey&quot; formatı</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;Address&quot; value: %1</source>
+        <translation>Geçersiz &quot;Adres&quot; değeri: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
+        <translation>Geçersiz &quot;AllowedIPs&quot; değeri: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;DNS&quot; value: %1</source>
+        <translation>Geçersiz &quot;DNS&quot; değeri: %1</translation>
+    </message>
+    <message>
+        <source>Invalid endpoint port</source>
+        <translation>Geçersiz uç nokta portu</translation>
+    </message>
+    <message>
+        <source>Invalid AmneziaWG header parameter</source>
+        <translation>Invalid AmneziaWG header parameter</translation>
+    </message>
+    <message>
+        <source>AmneziaWG init parameter too large</source>
+        <translation>AmneziaWG init parametresi çok büyük</translation>
     </message>
     <message>
         <source>Static IPs</source>

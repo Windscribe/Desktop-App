@@ -1273,6 +1273,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Server Routing</source>
         <translation>伺服器路由</translation>
     </message>
+    <message>
+        <source>Large TLS</source>
+        <translation>大型 TLS</translation>
+    </message>
+    <message>
+        <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
+        <translation>人為放大 TLS 封包，在某些情況下有助於繞過審查。為所有 API 請求新增額外的 TLS 填充。</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -2567,6 +2575,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>梵</translation>
     </message>
     <message>
+        <source>Enabled</source>
+        <translation>啟用</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>失能</translation>
+    </message>
+    <message>
+        <source>Config file too large</source>
+        <translation>設定檔太大</translation>
+    </message>
+    <message>
         <source>Failed to open file</source>
         <translation>無法打開檔</translation>
     </message>
@@ -2601,6 +2621,42 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</source>
         <translation>“對等方”部分中缺少“端點”</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PrivateKey&quot; format</source>
+        <translation>「PrivateKey」格式無效</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PublicKey&quot; format</source>
+        <translation>無效的「PublicKey」格式</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PresharedKey&quot; format</source>
+        <translation>「PresharedKey」格式無效</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;Address&quot; value: %1</source>
+        <translation>無效的「地址」值：%1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
+        <translation>「AllowedIPs」值無效：%1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;DNS&quot; value: %1</source>
+        <translation>無效的「DNS」值：%1</translation>
+    </message>
+    <message>
+        <source>Invalid endpoint port</source>
+        <translation>無效端點埠</translation>
+    </message>
+    <message>
+        <source>Invalid AmneziaWG header parameter</source>
+        <translation>Invalid AmneziaWG 標頭參數</translation>
+    </message>
+    <message>
+        <source>AmneziaWG init parameter too large</source>
+        <translation>AmneziaWG 初始化參數太大</translation>
     </message>
     <message>
         <source>Static IPs</source>

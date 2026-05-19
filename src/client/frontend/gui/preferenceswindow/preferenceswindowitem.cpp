@@ -83,7 +83,7 @@ PreferencesWindowItem::PreferencesWindowItem(QGraphicsObject *parent, Preference
     splitTunnelingWindowItem_ = new SplitTunnelingWindowItem(nullptr, preferences);
     splitTunnelingAppsWindowItem_ = new SplitTunnelingAppsWindowItem(nullptr, preferences);
     splitTunnelingAddressesWindowItem_ = new SplitTunnelingAddressesWindowItem(nullptr, preferences);
-    antiCensorshipWindowItem_ = new AntiCensorshipWindowItem(nullptr, preferences);
+    antiCensorshipWindowItem_ = new AntiCensorshipWindowItem(nullptr, preferences, preferencesHelper);
     dnsDomainsWindowItem_ = new DnsDomainsWindowItem(nullptr, preferences);
 
     connect(splitTunnelingWindowItem_, &SplitTunnelingWindowItem::appsPageClick, this, &PreferencesWindowItem::onSplitTunnelingAppsClick);
@@ -762,11 +762,6 @@ void PreferencesWindowItem::onWindowAboutToCollapse()
 void PreferencesWindowItem::onWindowCollapsed()
 {
     robertWindowItem_->setLoading(false);
-}
-
-void PreferencesWindowItem::setAmneziawgUnblockParams(const QString &activePreset, QStringList presets)
-{
-    antiCensorshipWindowItem_->setAmneziawgUnblockParams(activePreset, presets);
 }
 
 } // namespace PreferencesWindow

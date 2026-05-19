@@ -94,7 +94,7 @@ private:
     QVariant dataForCity(LocationItem *l, int row, int role) const;
     void clearLocations();
     void handleChangedLocation(int ind, const types::Location &newLocation);
-    LocationItem *findAndCreateBestLocationItem(const LocationID &bestLocation, int *idNum, int *cityIdNum);
+    LocationItem *findAndCreateBestLocationItem(const LocationID &bestLocation);
 
 };
 

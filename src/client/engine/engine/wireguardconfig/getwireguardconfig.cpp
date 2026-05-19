@@ -16,6 +16,8 @@ const QString GetWireGuardConfig::KEY_WIREGUARD_CONFIG = "wireguardConfig";
 // This static variable serves this purpose
 bool GetWireGuardConfig::isInitConfigWasCallAtleastOnce_ = false;
 
+bool GetWireGuardConfig::forceReinitOnNextCall_ = false;
+
 using namespace wsnet;
 
 GetWireGuardConfig::GetWireGuardConfig(QObject *parent) : QObject(parent),
@@ -38,7 +40,9 @@ void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool dele
 
     wireGuardConfig_.reset();
     WireGuardConfig storedConfig = readWireGuardConfigFromSettings();
-    if (isInitConfigWasCallAtleastOnce_ && storedConfig.haveKeyPair() &&
+    const bool forceReinit = forceReinitOnNextCall_;
+    forceReinitOnNextCall_ = false;
+    if (!forceReinit && isInitConfigWasCallAtleastOnce_ && storedConfig.haveKeyPair() &&
         storedConfig.haveServerGeneratedPeerParams() && !storedConfig.clientIpAddress().isEmpty()) {
         wireGuardConfig_ = storedConfig;
         emit getWireGuardConfigAnswer(WireGuardConfigRetCode::kSuccess, wireGuardConfig_);
@@ -48,6 +52,11 @@ void GetWireGuardConfig::getWireGuardConfig(const QString &serverName, bool dele
     } else {
         submitWireGuardInitRequest(true);
     }
+}
+
+void GetWireGuardConfig::forceReinitOnNextCall()
+{
+    forceReinitOnNextCall_ = true;
 }
 
 void GetWireGuardConfig::onWgConfigsInitAnswer(wsnet::ApiRetCode serverApiRetCode, const std::string &jsonData)

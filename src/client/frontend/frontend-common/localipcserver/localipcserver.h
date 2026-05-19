@@ -53,7 +53,6 @@ private slots:
     void onBackendConnectionIdChanged(const QString &connId);
     void onBackendBridgeApiAvailabilityChanged(bool isAvailable);
     void onBackendIpRotateResult(bool success);
-    void onBackendAmneziawgUnblockParamsUpdated(const QString &activePreset, const QStringList &presets);
 
     void onLocationsModelManagerDeviceNameChanged(const QString &deviceName);
 
@@ -87,7 +86,6 @@ private:
     bool isBridgeApiAvailable_ = false;
     bool awaitingIpRotateResult_ = false;
     QDateTime lastIpRotateResultTime_;
-    QStringList amneziawgPresets_;
 
     void sendState();
     void sendCommand(const IPC::Command &command);

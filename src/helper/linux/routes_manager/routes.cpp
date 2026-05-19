@@ -10,9 +10,9 @@ void Routes::add(const std::string &ip, const std::string &gateway, const std::s
     rd.mask = mask;
     routes_.push_back(rd);
 
-    std::string cmd = "ip route add " + ip + "/" + mask + " via " + gateway;
-    spdlog::info("execute: {}", cmd);
-    Utils::executeCommand(cmd);
+    const std::string dest = ip + "/" + mask;
+    spdlog::info("execute: ip route add {} via {}", dest, gateway);
+    Utils::executeCommand("ip", {"route", "add", dest, "via", gateway});
 }
 
 void Routes::addWithInterface(const std::string &ip, const std::string &interface, const std::string &mask)
@@ -23,9 +23,9 @@ void Routes::addWithInterface(const std::string &ip, const std::string &interfac
     rd.mask = mask;
     routes_.push_back(rd);
 
-    std::string cmd = "ip route add " + ip + "/" + mask + " dev " + interface;
-    spdlog::info("execute: {}", cmd);
-    Utils::executeCommand(cmd);
+    const std::string dest = ip + "/" + mask;
+    spdlog::info("execute: ip route add {} dev {}", dest, interface);
+    Utils::executeCommand("ip", {"route", "add", dest, "dev", interface});
 }
 
 
@@ -33,17 +33,16 @@ void Routes::clear()
 {
     for(auto const& rd: routes_)
     {
+        const std::string dest = rd.ip + "/" + rd.mask;
         if (rd.interface.empty())
         {
-            std::string cmd = "ip route delete " + rd.ip + "/" + rd.mask + " via " + rd.gateway;
-            spdlog::info("execute: {}", cmd);
-            Utils::executeCommand(cmd);
+            spdlog::info("execute: ip route delete {} via {}", dest, rd.gateway);
+            Utils::executeCommand("ip", {"route", "delete", dest, "via", rd.gateway});
         }
         else
         {
-            std::string cmd = "ip route delete " + rd.ip + "/" + rd.mask + " dev " + rd.interface;
-            spdlog::info("execute: {}", cmd);
-            Utils::executeCommand(cmd);
+            spdlog::info("execute: ip route delete {} dev {}", dest, rd.interface);
+            Utils::executeCommand("ip", {"route", "delete", dest, "dev", rd.interface});
         }
     }
     routes_.clear();

@@ -1273,6 +1273,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Server Routing</source>
         <translation>서버 라우팅</translation>
     </message>
+    <message>
+        <source>Large TLS</source>
+        <translation>대형 TLS</translation>
+    </message>
+    <message>
+        <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
+        <translation>TLS 패킷을 인위적으로 확대하면 경우에 따라 검열을 우회할 수 있습니다. 모든 API 요청에 추가 TLS 패딩을 추가합니다.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -2567,6 +2575,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>반 고흐</translation>
     </message>
     <message>
+        <source>Enabled</source>
+        <translation>활성화됨</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>장애</translation>
+    </message>
+    <message>
+        <source>Config file too large</source>
+        <translation>설정 파일이 너무 커요</translation>
+    </message>
+    <message>
         <source>Failed to open file</source>
         <translation>파일을 열지 못했습니다.</translation>
     </message>
@@ -2601,6 +2621,42 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</source>
         <translation>&quot;Peer&quot; 섹션에 &quot;Endpoint&quot;가 없습니다.</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PrivateKey&quot; format</source>
+        <translation>잘못된 &quot;PrivateKey&quot; 형식</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PublicKey&quot; format</source>
+        <translation>유효하지 않은 &quot;PublicKey&quot; 형식</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PresharedKey&quot; format</source>
+        <translation>유효하지 않은 &quot;PresharedKey&quot; 형식</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;Address&quot; value: %1</source>
+        <translation>잘못된 &quot;주소&quot; 값: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
+        <translation>유효하지 않은 &quot;허용 IPs&quot; 값: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;DNS&quot; value: %1</source>
+        <translation>유효하지 않은 &quot;DNS&quot; 값: %1</translation>
+    </message>
+    <message>
+        <source>Invalid endpoint port</source>
+        <translation>잘못된 엔드포인트 포트</translation>
+    </message>
+    <message>
+        <source>Invalid AmneziaWG header parameter</source>
+        <translation>Invalid AmneziaWG 헤더 parameter</translation>
+    </message>
+    <message>
+        <source>AmneziaWG init parameter too large</source>
+        <translation>AmneziaWG init 매개변수가 너무 커요</translation>
     </message>
     <message>
         <source>Static IPs</source>

@@ -33,7 +33,7 @@ void EngineSettings::saveToSettings()
               d->firewallSettings << d->connectionSettings << apiResolutionSettingsNotUsed << d->proxySettings << d->packetSize <<
               d->macAddrSpoofing << d->dnsPolicy << d->tapAdapter << d->customOvpnConfigsPath << d->isKeepAliveEnabled <<
               d->connectedDnsInfo << d->dnsManager << d->networkPreferredProtocols <<
-            d->isAntiCensorship << d->decoyTrafficSettings << d->amneziawgPreset << d->serverRoutingMethod;
+              d->isAPIAntiCensorship << d->decoyTrafficSettings << d->amneziawgPreset << d->serverRoutingMethod << d->protocolTweaksMethod;
     }
 
     QSettings settings;
@@ -70,7 +70,7 @@ bool EngineSettings::loadFromSettings()
                 ds >> networkLastKnownGoodProtocols;
             }
             if (version >= 4) {
-                ds >> d->isAntiCensorship;
+                ds >> d->isAPIAntiCensorship;
             }
             if (version >= 5) {
                 d->tapAdapter = WINTUN_ADAPTER;
@@ -83,6 +83,9 @@ bool EngineSettings::loadFromSettings()
             }
             if (version >= 9) {
                 ds >> d->serverRoutingMethod;
+            }
+            if (version >= 10) {
+                ds >> d->protocolTweaksMethod;
             }
 
             if (ds.status() == QDataStream::Ok) {
@@ -97,9 +100,8 @@ bool EngineSettings::loadFromSettings()
 
         // Automatically enable anti-censorship feature for first-run users.
         if (LanguagesUtil::isCensorshipCountry()) {
-            qCInfo(LOG_BASIC) << "Automatically enabled anti-censorship feature due to locale";
-            // TODO: **JDRM** refactor this logic at some point so we don't have two sources of truth for the anti-censorship state.
-            setIsAntiCensorship(true);
+            qCInfo(LOG_BASIC) << "Automatically enabled anti-censorship feature (ExtraTLSPadding) due to locale";
+            setIsAPIAntiCensorship(true);
         }
     }
 
@@ -155,14 +157,14 @@ void EngineSettings::setIsTerminateSockets(bool close)
     d->isTerminateSockets = close;
 }
 
-bool EngineSettings::isAntiCensorship() const
+bool EngineSettings::isAPIAntiCensorship() const
 {
-    return d->isAntiCensorship;
+    return d->isAPIAntiCensorship;
 }
 
-void EngineSettings::setIsAntiCensorship(bool enable)
+void EngineSettings::setIsAPIAntiCensorship(bool enable)
 {
-    d->isAntiCensorship = enable;
+    d->isAPIAntiCensorship = enable;
 }
 
 bool EngineSettings::isAllowLanTraffic() const
@@ -307,6 +309,16 @@ void EngineSettings::setServerRoutingMethod(SERVER_ROUTING_METHOD_TYPE method)
     d->serverRoutingMethod = method;
 }
 
+PROTOCOL_TWEAKS_METHOD_TYPE EngineSettings::protocolTweaksMethod() const
+{
+    return d->protocolTweaksMethod;
+}
+
+void EngineSettings::setProtocolTweaksMethod(PROTOCOL_TWEAKS_METHOD_TYPE method)
+{
+    d->protocolTweaksMethod = method;
+}
+
 void EngineSettings::setMacAddrSpoofing(const MacAddrSpoofing &macAddrSpoofing)
 {
     d->macAddrSpoofing = macAddrSpoofing;
@@ -333,7 +345,7 @@ bool EngineSettings::operator==(const EngineSettings &other) const
             other.d->updateChannel == d->updateChannel &&
             other.d->isIgnoreSslErrors == d->isIgnoreSslErrors &&
             other.d->isTerminateSockets == d->isTerminateSockets &&
-            other.d->isAntiCensorship == d->isAntiCensorship &&
+            other.d->isAPIAntiCensorship == d->isAPIAntiCensorship &&
             other.d->isAllowLanTraffic == d->isAllowLanTraffic &&
             other.d->firewallSettings == d->firewallSettings &&
             other.d->connectionSettings == d->connectionSettings &&
@@ -349,7 +361,8 @@ bool EngineSettings::operator==(const EngineSettings &other) const
             other.d->decoyTrafficSettings == d->decoyTrafficSettings &&
             other.d->networkPreferredProtocols == d->networkPreferredProtocols &&
             other.d->amneziawgPreset == d->amneziawgPreset &&
-            other.d->serverRoutingMethod == d->serverRoutingMethod;
+            other.d->serverRoutingMethod == d->serverRoutingMethod &&
+            other.d->protocolTweaksMethod == d->protocolTweaksMethod;
 }
 
 bool EngineSettings::operator!=(const EngineSettings &other) const
@@ -420,7 +433,7 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
     }
 
     if (json.contains(kJsonIsAntiCensorshipProp) && json[kJsonIsAntiCensorshipProp].isBool()) {
-        isAntiCensorship = json[kJsonIsAntiCensorshipProp].toBool();
+        isAPIAntiCensorship = json[kJsonIsAntiCensorshipProp].toBool();
     }
 
     if (json.contains(kJsonIsKeepAliveEnabledProp) && json[kJsonIsKeepAliveEnabledProp].isBool()) {
@@ -446,6 +459,10 @@ void EngineSettingsData::fromJson(const QJsonObject &json)
 
     if (json.contains(kJsonServerRoutingMethodProp) && json[kJsonServerRoutingMethodProp].isDouble()) {
         serverRoutingMethod = SERVER_ROUTING_METHOD_TYPE_fromInt(json[kJsonServerRoutingMethodProp].toInt());
+    }
+
+    if (json.contains(kJsonProtocolTweaksMethodProp) && json[kJsonProtocolTweaksMethodProp].isDouble()) {
+        protocolTweaksMethod = PROTOCOL_TWEAKS_METHOD_TYPE_fromInt(json[kJsonProtocolTweaksMethodProp].toInt());
     }
 
     if (json.contains(kJsonMacAddrSpoofingProp) && json[kJsonMacAddrSpoofingProp].isObject()) {
@@ -487,13 +504,14 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
     json[kJsonDecoyTrafficSettingsProp] = decoyTrafficSettings.toJson();
     json[kJsonFirewallSettingsProp] = firewallSettings.toJson(isForDebugLog);
     json[kJsonIsAllowLanTrafficProp] = isAllowLanTraffic;
-    json[kJsonIsAntiCensorshipProp] = isAntiCensorship;
+    json[kJsonIsAntiCensorshipProp] = isAPIAntiCensorship;
     json[kJsonIsIgnoreSslErrorsProp] = isIgnoreSslErrors;
     json[kJsonIsKeepAliveEnabledProp] = isKeepAliveEnabled;
     json[kJsonIsTerminateSocketsProp] = isTerminateSockets;
     json[kJsonLanguageProp] = language;
     json[kJsonAmneziawgPresetProp] = amneziawgPreset;
     json[kJsonServerRoutingMethodProp] = static_cast<int>(serverRoutingMethod);
+    json[kJsonProtocolTweaksMethodProp] = static_cast<int>(protocolTweaksMethod);
     json[kJsonMacAddrSpoofingProp] = macAddrSpoofing.toJson(isForDebugLog);
 
     QJsonObject networkPreferredProtocolsObj;
@@ -513,6 +531,7 @@ QJsonObject EngineSettingsData::toJson(bool isForDebugLog) const
         json["dnsManagerDesc"] = DNS_MANAGER_TYPE_toString(dnsManager);
         json["dnsPolicyDesc"] = DNS_POLICY_TYPE_toString(dnsPolicy);
         json["serverRoutingMethodDesc"] = SERVER_ROUTING_METHOD_TYPE_toString(serverRoutingMethod);
+        json["protocolTweaksMethodDesc"] = PROTOCOL_TWEAKS_METHOD_TYPE_toString(protocolTweaksMethod);
         json["updateChannelDesc"] = UPDATE_CHANNEL_toString(updateChannel);
     } else {
         json[kJsonCustomOvpnConfigsPathProp] = Utils::toBase64(customOvpnConfigsPath);
@@ -546,9 +565,10 @@ void EngineSettingsData::fromIni(QSettings &settings)
     connectedDnsInfo.fromIni(settings);
     isAllowLanTraffic = settings.value(kIniIsAllowLanTrafficProp, isAllowLanTraffic).toBool();
     decoyTrafficSettings.fromIni(settings);
-    isAntiCensorship = settings.value(kIniIsAntiCensorshipProp, isAntiCensorship).toBool();
+    isAPIAntiCensorship = settings.value(kIniIsAntiCensorshipProp, isAPIAntiCensorship).toBool();
     amneziawgPreset = settings.value(kIniAmneziawgPresetProp, amneziawgPreset).toString();
     serverRoutingMethod = SERVER_ROUTING_METHOD_TYPE_fromInt(settings.value(kIniServerRoutingMethodProp, static_cast<int>(serverRoutingMethod)).toInt());
+    protocolTweaksMethod = PROTOCOL_TWEAKS_METHOD_TYPE_fromInt(settings.value(kIniProtocolTweaksMethodProp, static_cast<int>(protocolTweaksMethod)).toInt());
     settings.endGroup();
 
     settings.beginGroup(QString("Advanced"));
@@ -580,9 +600,10 @@ void EngineSettingsData::toIni(QSettings &settings) const
     connectedDnsInfo.toIni(settings);
     settings.setValue(kIniIsAllowLanTrafficProp, isAllowLanTraffic);
     decoyTrafficSettings.toIni(settings);
-    settings.setValue(kIniIsAntiCensorshipProp, isAntiCensorship);
+    settings.setValue(kIniIsAntiCensorshipProp, isAPIAntiCensorship);
     settings.setValue(kIniAmneziawgPresetProp, amneziawgPreset);
     settings.setValue(kIniServerRoutingMethodProp, static_cast<int>(serverRoutingMethod));
+    settings.setValue(kIniProtocolTweaksMethodProp, static_cast<int>(protocolTweaksMethod));
     settings.endGroup();
 
     settings.beginGroup(QString("Advanced"));

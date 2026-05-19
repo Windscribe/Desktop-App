@@ -68,7 +68,7 @@ systemctl restart windscribe-helper || true
 
 %post
 ln -sf /opt/windscribe/windscribe-cli /usr/bin/windscribe-cli
-update-desktop-database
+update-desktop-database || true
 setcap cap_setgid+ep /opt/windscribe/Windscribe
 mkdir -p /etc/windscribe
 if [ "`uname -m`" = "aarch64" ]; then
@@ -79,7 +79,9 @@ fi
 
 %preun
 if [ $1 -eq 0 ]; then
-    /opt/windscribe/helper --reset-mac-addresses
+    if [ -x /opt/windscribe/helper ]; then
+        /opt/windscribe/helper --reset-mac-addresses || true
+    fi
     systemctl disable windscribe-helper || true
 fi
 

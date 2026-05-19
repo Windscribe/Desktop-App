@@ -36,24 +36,27 @@ QString RenamedLocationsStorage::nickname(int locationId, int cityId) const
 
 void RenamedLocationsStorage::prune(const QVector<LocationItem *> &locations)
 {
-    // Build a lookup table of location id and city id pairs from current locations
-    QSet<QPair<int, int>> pairs;
-    for (auto location : locations) {
-        pairs.insert(QPair<int, int>(location->location().idNum, kInvalidCityId));
-        for (auto city : location->location().cities) {
-            pairs.insert(QPair<int, int>(location->location().idNum, city.idNum));
+    // Country-level entries (cityId == kInvalidCityId) are valid for names_ but not for
+    // nicknames_ — product has no UI for country nicknames.
+    QSet<QPair<int, int>> allowedNames;
+    QSet<QPair<int, int>> allowedNicknames;
+    for (const auto location : locations) {
+        allowedNames.insert(QPair<int, int>(location->location().idNum, kInvalidCityId));
+        for (const auto &city : location->location().cities) {
+            QPair<int, int> p(location->location().idNum, city.idNum);
+            allowedNames.insert(p);
+            allowedNicknames.insert(p);
         }
     }
 
-    // Remove all pairs that are not in the lookup table
-    for (auto pair : names_.keys()) {
-        if (!pairs.contains(pair)) {
+    for (const auto &pair : names_.keys()) {
+        if (!allowedNames.contains(pair)) {
             qCDebug(LOG_LOCATION_LIST) << "Removing renamed city" << pair.first << pair.second << names_[pair];
             names_.remove(pair);
         }
     }
-    for (auto pair : nicknames_.keys()) {
-        if (!pairs.contains(pair)) {
+    for (const auto &pair : nicknames_.keys()) {
+        if (!allowedNicknames.contains(pair)) {
             qCDebug(LOG_LOCATION_LIST) << "Removing renamed city nickname" << pair.first << pair.second << nicknames_[pair];
             nicknames_.remove(pair);
         }
@@ -94,6 +97,20 @@ void RenamedLocationsStorage::readFromSettings()
                 qCDebug(LOG_BASIC) << "Failed to read renamed locations from settings";
                 names_.clear();
                 nicknames_.clear();
+            } else {
+                // Drop country-level nickname entries. Product has no UI for country nicknames;
+                // any such entries are poison from the pre-fix bug where setData wrote to
+                // (garbage, kInvalidCityId) keyed on an uninitialized best-location idNum.
+                bool migrated = false;
+                for (const auto &pair : nicknames_.keys()) {
+                    if (pair.second == kInvalidCityId) {
+                        nicknames_.remove(pair);
+                        migrated = true;
+                    }
+                }
+                if (migrated) {
+                    writeToSettings();
+                }
             }
         }
     }

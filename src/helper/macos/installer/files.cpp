@@ -1,28 +1,27 @@
 #include "files.h"
 
-#include <codecvt>
 #include <filesystem>
-#include <locale>
 #include <spdlog/spdlog.h>
 
 #include "../utils.h"
 
-Files::Files(const std::wstring &archivePath, const std::wstring &installPath) : archivePath_(archivePath), installPath_(installPath)
+Files::Files(const std::string &archiveTempPath) : archiveTempPath_(archiveTempPath)
 {
 }
 
 Files::~Files()
 {
+    // Always remove the staged root-owned temp on destruction so it doesn't
+    // persist past a single install step (success or failure).
+    if (!archiveTempPath_.empty()) {
+        std::error_code ec;
+        std::filesystem::remove(archiveTempPath_, ec);
+    }
 }
 
 int Files::executeStep()
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    std::string archivePath = converter.to_bytes(archivePath_);
-    std::string installPath = converter.to_bytes(installPath_);
-#pragma clang diagnostic pop
+    const std::string installPath = WS_MAC_APP_DIR;
 
     // The installer should have removed any existing app instance by this point,
     // but we'll doublecheck just to be sure.
@@ -36,13 +35,13 @@ int Files::executeStep()
         }
     }
 
-    auto status = Utils::executeCommand("mkdir", {installPath.c_str()}, &lastError_);
-    if (status != 0) {
-        spdlog::error("Files: failed to create the app bundle folder: {}", lastError_);
+    std::error_code mkEc;
+    if (!std::filesystem::create_directory(installPath, mkEc) || mkEc) {
+        spdlog::error("Files: failed to create the app bundle folder: {}", mkEc.message());
         return -1;
     }
 
-    status = Utils::executeCommand("tar", {"-xovf", archivePath.c_str(), "-C", installPath.c_str()}, &lastError_);
+    auto status = Utils::executeCommand("tar", {"-xovf", archiveTempPath_.c_str(), "-C", installPath.c_str()}, &lastError_);
     if (status != 0) {
         spdlog::error("Files: failed to untar the app archive: {}", lastError_);
         return -1;

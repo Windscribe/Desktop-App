@@ -1,16 +1,20 @@
 #include "process_command.h"
 
+#include <copyfile.h>
 #include <fcntl.h>
 #include <filesystem>
 #include <grp.h>
 #include <pwd.h>
 #include <stdint.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <spdlog/spdlog.h>
 
 #include "execute_cmd.h"
 #include "files_manager.h"
 #include "firewallcontroller.h"
 #include "firewallonboot.h"
+#include "ipc/helper_security.h"
 #include "ipv6/ipv6manager.h"
 #include "macspoofingonboot.h"
 #include "macutils.h"
@@ -18,7 +22,10 @@
 #include "routes_manager/routes_manager.h"
 #include "utils.h"
 #include "utils/executable_signature/executable_signature.h"
+#include "utils/wsscopeguard.h"
 #include "wireguard/wireguardcontroller.h"
+#include "../common/ip_validation.h"
+#include "../common/shellquote.h"
 #include "clear_wifi_history/clear_wifi_history.h"
 
 std::string processCommand(HelperCommand cmdId, const std::string &pars)
@@ -49,7 +56,39 @@ std::string sendConnectStatus(const std::string &pars)
 {
     ConnectStatus cs;
     deserializePars(pars, cs.isConnected, cs.protocol, cs.defaultAdapter, cs.vpnAdapter, cs.connectedIp, cs.remoteIp);
-    FirewallController::instance().setVpnDns(cs.isConnected ? cs.vpnAdapter.dnsServers.front() : "");
+
+    auto checkIp = [](const std::string &ip, const char *label) {
+        if (!ip.empty() && !IpValidation::isValidIpAddress(ip)) {
+            spdlog::error("sendConnectStatus: invalid {} \"{}\", rejecting", label, ip);
+            return false;
+        }
+        return true;
+    };
+    auto checkIface = [](const std::string &name, const char *label) {
+        if (!name.empty() && !Utils::isValidInterfaceName(name)) {
+            spdlog::error("sendConnectStatus: invalid {} \"{}\", rejecting", label, name);
+            return false;
+        }
+        return true;
+    };
+    if (!checkIp(cs.remoteIp, "remoteIp") ||
+        !checkIp(cs.defaultAdapter.gatewayIp, "defaultAdapter.gatewayIp") ||
+        !checkIp(cs.vpnAdapter.gatewayIp, "vpnAdapter.gatewayIp") ||
+        !checkIface(cs.vpnAdapter.adapterName, "vpnAdapter.adapterName") ||
+        !checkIface(cs.defaultAdapter.adapterName, "defaultAdapter.adapterName")) {
+        return serializeResult(false);
+    }
+    for (const auto &dns : cs.vpnAdapter.dnsServers) {
+        if (!IpValidation::isValidIpAddress(dns)) {
+            spdlog::error("sendConnectStatus: invalid vpnAdapter.dnsServers entry \"{}\", rejecting", dns);
+            return serializeResult(false);
+        }
+    }
+
+    const std::string vpnDns = (cs.isConnected && !cs.vpnAdapter.dnsServers.empty())
+        ? cs.vpnAdapter.dnsServers.front()
+        : "";
+    FirewallController::instance().setVpnDns(vpnDns);
     RoutesManager::instance().setConnectStatus(cs);
     return serializeResult(true);
 }
@@ -183,6 +222,11 @@ std::string configureWireGuard(const std::string &pars)
                 break;
             }
 
+            if (!IpValidation::validateWireGuardConfig(clientIpAddress, clientDnsAddressList, allowed_ips_vector, peerEndpoint)) {
+                spdlog::error("WireGuard: IP validation failed, rejecting config");
+                break;
+            }
+
             if (!WireGuardController::instance().configureAdapter(clientIpAddress,
                                                                   clientDnsAddressList,
                                                                   MacUtils::resourcePath() + "/dns.sh",
@@ -239,9 +283,9 @@ std::string startCtrld(const std::string &pars)
     arguments << "run";
     arguments << " --daemon";
     arguments << " --listen=127.0.0.1:53";
-    arguments << " --primary_upstream=" + upstream1;
+    arguments << " --primary_upstream=" + ShellQuote::quote(upstream1);
     if (!upstream2.empty()) {
-        arguments << " --secondary_upstream=" + upstream2;
+        arguments << " --secondary_upstream=" + ShellQuote::quote(upstream2);
         if (!domains.empty()) {
             std::stringstream domainsStream;
             std::copy(domains.begin(), domains.end(), std::ostream_iterator<std::string>(domainsStream, ","));
@@ -249,7 +293,7 @@ std::string startCtrld(const std::string &pars)
             std::string domainsStr = domainsStream.str();
             domainsStr.erase(domainsStr.length() - 1); // remove last comma
 
-            arguments << " --domains=" + domainsStr;
+            arguments << " --domains=" + ShellQuote::quote(domainsStr);
         }
     }
     if (isCreateLog) {
@@ -451,6 +495,17 @@ std::string enableMacSpoofingOnBoot(const std::string &pars)
     std::string interface, macAddress;
     deserializePars(pars, enabled, interface, macAddress);
 
+    if (enabled) {
+        if (!Utils::isValidInterfaceName(interface)) {
+            spdlog::error("enableMacSpoofingOnBoot: invalid interface \"{}\", rejecting", interface);
+            return std::string();
+        }
+        if (!Utils::isValidMacAddress(macAddress)) {
+            spdlog::error("enableMacSpoofingOnBoot: invalid MAC address \"{}\", rejecting", macAddress);
+            return std::string();
+        }
+    }
+
     spdlog::info("Set mac spoofing on boot: {}", enabled ? "true" : "false");
     MacSpoofingOnBootManager::instance().setEnabled(enabled, interface, macAddress);
     return std::string();
@@ -460,6 +515,16 @@ std::string setDnsOfDynamicStoreEntry(const std::string &pars)
 {
     std::string ipAddress, networkService;
     deserializePars(pars, ipAddress, networkService);
+
+    if (!IpValidation::isValidIpAddress(ipAddress)) {
+        spdlog::error("setDnsOfDynamicStoreEntry: invalid DNS IP \"{}\", rejecting", ipAddress);
+        return serializeResult(false);
+    }
+    if (!Utils::isValidDnsDynamicStoreEntry(networkService)) {
+        spdlog::error("setDnsOfDynamicStoreEntry: invalid network service entry \"{}\", rejecting", networkService);
+        return serializeResult(false);
+    }
+
     return serializeResult(MacUtils::setDnsOfDynamicStoreEntry(ipAddress, networkService));
 }
 
@@ -500,27 +565,123 @@ std::string removeOldInstall(const std::string &pars)
     std::string installPath;
     deserializePars(pars, installPath);
 
-    // sanity check that path at least contains our binary.  We can't assume this path is in /Applications
-    // because versions < 2.6 allowed custom dir installs.  This check at least disallows user to try to
-    // delete paths that they can't write to.
-    std::stringstream path;
-    path << installPath << "/Contents/MacOS/" WS_APP_EXECUTABLE_NAME;
+    // The install location is fixed; we never accept an attacker-controlled path here.
+    // The IPC parameter is retained for wire compat but ignored. Legacy non-/Applications
+    // installs are removed by the installer running as the user, not by the helper.
+    if (!installPath.empty() && installPath != WS_MAC_APP_DIR) {
+        spdlog::warn("removeOldInstall: ignoring caller-supplied path \"{}\", using \"{}\"",
+                     installPath, WS_MAC_APP_DIR);
+    }
 
-    if (access(path.str().c_str(), F_OK) == 0) {
-        spdlog::info("Remove old install: {}", installPath);
-        Utils::executeCommand("rm", {"-rf", installPath});
+    const char *binaryPath = WS_MAC_APP_DIR "/Contents/MacOS/" WS_APP_EXECUTABLE_NAME;
+    if (access(binaryPath, F_OK) == 0) {
+        spdlog::info("Remove old install: " WS_MAC_APP_DIR);
+        Utils::executeCommand("rm", {"-rf", WS_MAC_APP_DIR});
         return serializeResult(true);
     } else {
-        spdlog::error("Old install at {} not removed", installPath);
+        spdlog::error("Old install at " WS_MAC_APP_DIR " not removed");
         return serializeResult(false);
     }
 }
 
+static bool stageArchiveFromCallerBundle(std::string &outTempPath)
+{
+    // Resolve the calling installer's bundle from the validated SecCodeRef.
+    // The IPC layer (HelperSecurity::isValidXpcConnection) has already enforced
+    // that the caller is our installer/GUI bundle signed with our Developer ID.
+    SecCodeRef secCode = HelperSecurity::currentCallerSecCode();
+    if (!secCode) {
+        spdlog::error("setInstallerPaths: no validated caller SecCode available");
+        return false;
+    }
+
+    CFURLRef bundleURL = NULL;
+    OSStatus s = SecCodeCopyPath(secCode, kSecCSDefaultFlags, &bundleURL);
+    if (s != errSecSuccess || !bundleURL) {
+        spdlog::error("setInstallerPaths: SecCodeCopyPath failed: {}", (int)s);
+        return false;
+    }
+    auto bundleGuard = wsl::wsScopeGuard([bundleURL]{ CFRelease(bundleURL); });
+
+    char bundlePath[PATH_MAX] = {0};
+    if (!CFURLGetFileSystemRepresentation(bundleURL, true, (UInt8 *)bundlePath, sizeof(bundlePath))) {
+        spdlog::error("setInstallerPaths: CFURLGetFileSystemRepresentation failed");
+        return false;
+    }
+
+    const std::string archivePath =
+        std::string(bundlePath) + "/Contents/Resources/" WS_PRODUCT_NAME_LOWER ".tar.lzma";
+
+    int srcFd = open(archivePath.c_str(), O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
+    if (srcFd < 0) {
+        spdlog::error("setInstallerPaths: open archive at \"{}\" failed: {}", archivePath, strerror(errno));
+        return false;
+    }
+    auto srcGuard = wsl::wsScopeGuard([srcFd]{ close(srcFd); });
+
+    struct stat st;
+    if (fstat(srcFd, &st) != 0 || !S_ISREG(st.st_mode)) {
+        spdlog::error("setInstallerPaths: archive at \"{}\" is not a regular file", archivePath);
+        return false;
+    }
+
+    // Stage the archive into a root-owned temp file in a root-only directory.
+    // mkstemps prevents pre-creation/guess attacks on the destination.
+    const char *kStageDir = "/private/var/root/.windscribe-installer";
+    std::error_code ec;
+    std::filesystem::create_directories(kStageDir, ec);
+    if (ec) {
+        spdlog::error("setInstallerPaths: create_directories(\"{}\") failed: {}", kStageDir, ec.message());
+        return false;
+    }
+    chmod(kStageDir, S_IRWXU);
+
+    char tmpl[] = "/private/var/root/.windscribe-installer/wsinstaller-XXXXXX.tar.lzma";
+    int dstFd = mkstemps(tmpl, /* suffix length of ".tar.lzma" */ 9);
+    if (dstFd < 0) {
+        spdlog::error("setInstallerPaths: mkstemps failed: {}", strerror(errno));
+        return false;
+    }
+    fchmod(dstFd, S_IRUSR | S_IWUSR);
+
+    int rc = fcopyfile(srcFd, dstFd, NULL, COPYFILE_DATA);
+    fsync(dstFd);
+    close(dstFd);
+
+    if (rc != 0) {
+        spdlog::error("setInstallerPaths: fcopyfile failed: {}", strerror(errno));
+        unlink(tmpl);
+        return false;
+    }
+
+    // Re-validate the caller's signature now that the copy is complete. If the
+    // bundle on disk was tampered with at any point during the copy (e.g. an
+    // attacker on a writable mount swapping the archive), CodeResources hashing
+    // makes that show up here and we discard the staged copy.
+    if (!HelperSecurity::recheckCurrentCaller()) {
+        spdlog::error("setInstallerPaths: caller signature became invalid after staging; rejecting");
+        unlink(tmpl);
+        return false;
+    }
+
+    outTempPath = tmpl;
+    return true;
+}
+
 std::string setInstallerPaths(const std::string &pars)
 {
-    std::wstring archivePath, installPath;
-    deserializePars(pars, archivePath, installPath);
-    FilesManager::instance().setFiles(new Files(archivePath, installPath));
+    // Wire-format compat: deserialize and ignore. Both the install destination
+    // and the archive source are derived from the helper-trusted state (a
+    // hardcoded /Applications path and the verified caller bundle), never from
+    // these caller-supplied strings.
+    std::wstring archivePathFromIpc, installPathFromIpc;
+    deserializePars(pars, archivePathFromIpc, installPathFromIpc);
+
+    std::string stagedPath;
+    if (!stageArchiveFromCallerBundle(stagedPath)) {
+        return serializeResult(false);
+    }
+    FilesManager::instance().setFiles(new Files(stagedPath));
     return serializeResult(true);
 }
 

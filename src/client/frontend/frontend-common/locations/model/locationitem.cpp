@@ -13,11 +13,13 @@ LocationItem::LocationItem(const LocationID &bestLocation, const types::Location
 {
     WS_ASSERT(bestLocation.isBestLocation());
     location_.id = bestLocation;
+    location_.idNum = l.idNum;
     location_.countryCode = l.countryCode;
     location_.shortName = l.shortName;
     location_.isPremiumOnly = l.isPremiumOnly;
 
     types::City city = l.cities[cityInd];
+    bestCityIdNum_ = city.idNum;
     is10gbps_ = city.is10Gbps;
     if (city.health >= 0 && city.health <= 100)
     {

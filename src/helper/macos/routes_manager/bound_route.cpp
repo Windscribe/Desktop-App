@@ -19,9 +19,8 @@ void BoundRoute::create(const std::string &ipAddress, const std::string &interfa
     ipAddress_ = ipAddress;
     interfaceName_ = interfaceName;
 
-    std::string cmd = "route add -net 0.0.0.0 " + ipAddress_ + " -ifscope " + interfaceName_;
-    spdlog::info("execute: {}", cmd);
-    Utils::executeCommand(cmd);
+    spdlog::info("execute: route add -net 0.0.0.0 {} -ifscope {}", ipAddress_, interfaceName_);
+    Utils::executeCommand("route", {"add", "-net", "0.0.0.0", ipAddress_, "-ifscope", interfaceName_});
     isBoundRouteAdded_ = true;
 }
 
@@ -29,9 +28,8 @@ void BoundRoute::remove()
 {
     if (isBoundRouteAdded_)
     {
-        std::string cmd = "route delete -net 0.0.0.0 " + ipAddress_ + " -ifscope " + interfaceName_;
-        spdlog::info("execute: {}", cmd);
-        Utils::executeCommand(cmd);
+        spdlog::info("execute: route delete -net 0.0.0.0 {} -ifscope {}", ipAddress_, interfaceName_);
+        Utils::executeCommand("route", {"delete", "-net", "0.0.0.0", ipAddress_, "-ifscope", interfaceName_});
         isBoundRouteAdded_ = false;
     }
 }

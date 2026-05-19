@@ -1273,6 +1273,14 @@ Nếu sự cố vẫn tiếp diễn sau khi khởi động lại, vui lòng gử
         <source>Server Routing</source>
         <translation>Định tuyến máy chủ</translation>
     </message>
+    <message>
+        <source>Large TLS</source>
+        <translation>TLS lớn</translation>
+    </message>
+    <message>
+        <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
+        <translation>Phóng to các gói TLS một cách giả tạo, giúp vượt qua kiểm duyệt trong một số trường hợp. Thêm khoảng đệm TLS bổ sung cho tất cả các yêu cầu API.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -2567,6 +2575,18 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
         <translation>Van Gogh</translation>
     </message>
     <message>
+        <source>Enabled</source>
+        <translation>Đã bật</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Vô hiệu hóa</translation>
+    </message>
+    <message>
+        <source>Config file too large</source>
+        <translation>Tệp cấu hình quá lớn</translation>
+    </message>
+    <message>
         <source>Failed to open file</source>
         <translation>Không thể mở tệp</translation>
     </message>
@@ -2601,6 +2621,42 @@ Nếu việc cài đặt lại không hiệu quả, vui lòng liên hệ với b
     <message>
         <source>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</source>
         <translation>Thiếu &quot;Điểm cuối&quot; trong phần &quot;Đồng cấp&quot;</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PrivateKey&quot; format</source>
+        <translation>Định dạng &quot;PrivateKey&quot; không hợp lệ</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PublicKey&quot; format</source>
+        <translation>Định dạng &quot;PublicKey&quot; không hợp lệ</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PresharedKey&quot; format</source>
+        <translation>Định dạng &quot;PresharedKey&quot; không hợp lệ</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;Address&quot; value: %1</source>
+        <translation>Giá trị &quot;Địa chỉ&quot; không hợp lệ: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
+        <translation>Giá trị &quot;AllowedIPs&quot; không hợp lệ: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;DNS&quot; value: %1</source>
+        <translation>Giá trị &quot;DNS&quot; không hợp lệ: %1</translation>
+    </message>
+    <message>
+        <source>Invalid endpoint port</source>
+        <translation>Cổng điểm cuối không hợp lệ</translation>
+    </message>
+    <message>
+        <source>Invalid AmneziaWG header parameter</source>
+        <translation>Tham số tiêu đề AmneziaWG không hợp lệ</translation>
+    </message>
+    <message>
+        <source>AmneziaWG init parameter too large</source>
+        <translation>AmneziaWG init tham số quá lớn</translation>
     </message>
     <message>
         <source>Static IPs</source>

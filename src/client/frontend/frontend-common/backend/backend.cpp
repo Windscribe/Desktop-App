@@ -113,7 +113,6 @@ void Backend::init()
     connect(engine_, &Engine::syncRobertFinished, this, &Backend::onEngineSyncRobertFinished);
     connect(engine_, &Engine::splitTunnelingStartFailed, this, &Backend::splitTunnelingStartFailed);
     connect(engine_, &Engine::systemExtensionAvailabilityChanged, this, &Backend::systemExtensionAvailabilityChanged);
-    connect(engine_, &Engine::autoEnableAntiCensorship, this, &Backend::onEngineAutoEnableAntiCensorship);
     connect(engine_, &Engine::connectionIdChanged, this, &Backend::connectionIdChanged);
     connect(engine_, &Engine::localDnsServerNotAvailable, this, &Backend::localDnsServerNotAvailable);
     connect(engine_, &Engine::bridgeApiAvailabilityChanged, this, &Backend::onEngineBridgeApiAvailabilityChanged);
@@ -121,7 +120,8 @@ void Backend::init()
     connect(engine_, &Engine::connectingHostnameChanged, this, &Backend::onEngineConnectingHostnameChanged);
     connect(engine_, &Engine::controldDevicesFetched, this, &Backend::controldDevicesFetched);
     connect(engine_, &Engine::clearWifiHistoryFinished, this, &Backend::clearWifiHistoryFinished);
-    connect(engine_, &Engine::amneziawgUnblockParamsUpdated, this, &Backend::amneziawgUnblockParamsUpdated);
+    connect(engine_, &Engine::amneziawgPresetsUpdated, this, &Backend::onEngineAmneziawgPresetsUpdated);
+    connect(engine_, &Engine::apiSuggestedAmneziawgPresetChanged, this, &Backend::onEngineApiSuggestedAmneziawgPresetChanged);
     threadEngine_->start(QThread::LowPriority);
 }
 
@@ -1020,11 +1020,6 @@ bool Backend::haveAutoLoginCredentials(QString &username, QString &password)
 #endif
 }
 
-void Backend::onEngineAutoEnableAntiCensorship(bool enable)
-{
-    preferences_.setAntiCensorship(enable);
-}
-
 void Backend::onEngineConnectingHostnameChanged(const QString &hostname)
 {
     currentConnectingHostname_ = hostname;
@@ -1058,6 +1053,16 @@ void Backend::onEngineBridgeApiAvailabilityChanged(bool isAvailable)
     }
 
     emit bridgeApiAvailabilityChanged(enableIpUtils);
+}
+
+void Backend::onEngineAmneziawgPresetsUpdated(const QStringList &presets)
+{
+    preferencesHelper_.setAmneziawgPresets(presets);
+}
+
+void Backend::onEngineApiSuggestedAmneziawgPresetChanged(const QString &preset)
+{
+    preferencesHelper_.setApiSuggestedAmneziawgPreset(preset);
 }
 
 void Backend::updateCurrentNetworkInterface()

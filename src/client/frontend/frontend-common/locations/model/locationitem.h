@@ -16,6 +16,7 @@ public:
     int load();
     int lowestPing();
     QString nickname() const { return nickname_; }
+    int bestCityIdNum() const { return bestCityIdNum_; }
     bool is10gbps() const { return is10gbps_; }
 
     void insertCityAtInd(int ind, const types::City &city);
@@ -38,6 +39,7 @@ private:
 
     bool is10gbps_;  // is10gbps makes sense only for the best location
     QString nickname_;  // makes sense only for best location
+    int bestCityIdNum_ = -1;  // makes sense only for best location
 
 
     void recalcIfNeed();

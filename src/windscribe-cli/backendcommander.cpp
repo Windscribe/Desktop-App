@@ -8,6 +8,8 @@
 #include <unistd.h>
 #endif
 
+#include <QProcess>
+
 #include "ipc/clicommands.h"
 #include "ipc/connection.h"
 #include "languagecontroller.h"
@@ -410,8 +412,7 @@ void BackendCommander::onUpdateStateResponse(IPC::Command *command)
         std::cout << std::endl;
 
         // Update has been downloaded, run it now
-        QString updateCmd = (QString("/opt/windscribe/scripts/install-update ") + cmd->updatePath_);
-        int ret = system(updateCmd.toStdString().c_str());
+        int ret = QProcess::execute("/opt/windscribe/scripts/install-update", {cmd->updatePath_});
         std::error_code ec;
         std::filesystem::remove(cmd->updatePath_.toStdString(), ec);
 

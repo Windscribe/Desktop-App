@@ -188,9 +188,11 @@ private slots:
     void onEnginePacketSizeChanged(const types::EngineSettings &engineSettings);
     void onEnginePacketSizeDetectionStateChanged(bool on, bool isError);
     void onEngineHostsFileBecameWritable();
-    void onEngineAutoEnableAntiCensorship(bool enable);
     void onEngineConnectingHostnameChanged(const QString &hostname);
     void onEngineBridgeApiAvailabilityChanged(bool isAvailable);
+
+    void onEngineAmneziawgPresetsUpdated(const QStringList &presets);
+    void onEngineApiSuggestedAmneziawgPresetChanged(const QString &preset);
 
 signals:
     // emited when connected to engine and received the engine settings, or error in initState variable
@@ -263,8 +265,6 @@ signals:
     void ipRotateResult(bool success);
 
     void clearWifiHistoryFinished(bool success);
-
-    void amneziawgUnblockParamsUpdated(const QString& activePreset, QStringList presets);
 
 private:
     bool isSavedApiSettingsExists_;

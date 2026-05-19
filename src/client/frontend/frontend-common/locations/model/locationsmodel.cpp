@@ -110,9 +110,7 @@ void LocationsModel::updateBestLocation(const LocationID &bestLocation)
     if (locations_.isEmpty()) {
         return;
     }
-    int idNum = -1;
-    int cityIdNum = -1;
-    LocationItem *liBestLocation = findAndCreateBestLocationItem(bestLocation, &idNum, &cityIdNum);
+    LocationItem *liBestLocation = findAndCreateBestLocationItem(bestLocation);
     LocationID firstLocationId = locations_[0]->location().id;
     if (firstLocationId.isBestLocation()) {
         if (liBestLocation) {
@@ -123,10 +121,7 @@ void LocationsModel::updateBestLocation(const LocationID &bestLocation)
                 locations_[0] = liBestLocation;
                 mapLocations_[liBestLocation->location().id] = liBestLocation;
 
-                // Update the display nickname for new best location
                 QModelIndex idx = index(0, 0);
-                setData(idx, renamedLocationsStorage_.nickname(idNum, cityIdNum), Roles::kDisplayNickname);
-                renamedLocationsStorage_.writeToSettings();
                 emit dataChanged(idx, idx);
             } else {
                 delete liBestLocation;
@@ -146,10 +141,6 @@ void LocationsModel::updateBestLocation(const LocationID &bestLocation)
             locations_.insert(0, liBestLocation);
             mapLocations_[liBestLocation->location().id] = liBestLocation;
             endInsertRows();
-
-            // Update the display nickname for new best location
-            setData(index(0, 0), renamedLocationsStorage_.nickname(idNum, cityIdNum), Roles::kDisplayNickname);
-            renamedLocationsStorage_.writeToSettings();
         }
     }
     onLanguageChanged();
@@ -388,6 +379,11 @@ bool LocationsModel::setData(const QModelIndex &index, const QVariant &value, in
             return false;
         }
         if (index.internalPointer() == (void *)root_) {
+            // Best row shares its idNum with the underlying country; writing here would
+            // collide with the country's rename entry.
+            if (locations_[index.row()]->location().id.isBestLocation()) {
+                return false;
+            }
             renamedLocationsStorage_.setName(locations_[index.row()]->location().idNum, RenamedLocationsStorage::kInvalidCityId, value.toString());
         } else {
             LocationItem *li = (LocationItem *)index.internalPointer();
@@ -396,17 +392,21 @@ bool LocationsModel::setData(const QModelIndex &index, const QVariant &value, in
         emit dataChanged(index, index, QList<int>() << Qt::DisplayRole);
         return true;
     } else if (role == kDisplayNickname) {
-        if (!index.isValid()) {
+        if (!index.isValid() || index.internalPointer() == (void *)root_) {
             return false;
         }
-        if (index.internalPointer() == (void *)root_) {
-            // Best location only
-            renamedLocationsStorage_.setNickname(locations_[index.row()]->location().idNum, RenamedLocationsStorage::kInvalidCityId, value.toString());
-        } else {
-            LocationItem *li = (LocationItem *)index.internalPointer();
-            renamedLocationsStorage_.setNickname(li->location().idNum, li->location().cities[index.row()].idNum, value.toString());
-        }
+        LocationItem *li = (LocationItem *)index.internalPointer();
+        int parentIdNum = li->location().idNum;
+        int cityIdNum = li->location().cities[index.row()].idNum;
+        renamedLocationsStorage_.setNickname(parentIdNum, cityIdNum, value.toString());
         emit dataChanged(index, index, QList<int>() << kDisplayNickname);
+        // If the renamed city is the current best-location's city, refresh the best row too
+        if (!locations_.isEmpty() && locations_[0]->location().id.isBestLocation()
+            && locations_[0]->location().idNum == parentIdNum
+            && locations_[0]->bestCityIdNum() == cityIdNum) {
+            QModelIndex bestIdx = this->index(0, 0);
+            emit dataChanged(bestIdx, bestIdx, QList<int>() << kDisplayNickname);
+        }
         return true;
     }
 
@@ -588,9 +588,12 @@ QVariant LocationsModel::dataForLocation(int row, int role) const
     }
     else if (role == kDisplayNickname)
     {
-        QString nickname = renamedLocationsStorage_.nickname(locations_[row]->location().idNum, RenamedLocationsStorage::kInvalidCityId);
-        if (nickname.isEmpty()) {
-            nickname = locations_[row]->nickname();
+        QString nickname;
+        if (locations_[row]->location().id.isBestLocation()) {
+            nickname = renamedLocationsStorage_.nickname(locations_[row]->location().idNum, locations_[row]->bestCityIdNum());
+            if (nickname.isEmpty()) {
+                nickname = locations_[row]->nickname();
+            }
         }
         return nickname;
     }
@@ -840,7 +843,7 @@ void LocationsModel::handleChangedLocation(int ind, const types::Location &newLo
     emit dataChanged(rootIndex, rootIndex);
 }
 
-LocationItem *LocationsModel::findAndCreateBestLocationItem(const LocationID &bestLocation, int *idNum, int *cityIdNum)
+LocationItem *LocationsModel::findAndCreateBestLocationItem(const LocationID &bestLocation)
 {
     if (!bestLocation.isValid()) {
         return nullptr;
@@ -857,12 +860,6 @@ LocationItem *LocationsModel::findAndCreateBestLocationItem(const LocationID &be
             {
                 LocationItem *liBestLocation = new LocationItem(bestLocation, li->location(), c);
                 liBestLocation->setName(tr(BEST_LOCATION_NAME));
-                if (idNum) {
-                    *idNum = li->location().idNum;
-                }
-                if (cityIdNum) {
-                    *cityIdNum = li->location().cities[c].idNum;
-                }
                 return liBestLocation;
             }
         }
@@ -980,17 +977,6 @@ void LocationsModel::setRenamedLocations(const QJsonObject &obj)
                 qCDebug(LOG_LOCATION_LIST) << "Setting renamed city nickname" << cityId << data(cityIndex, Roles::kDisplayNickname).toString() << "->" << cityObj["nickname"].toString();
                 setData(cityIndex, cityObj["nickname"].toString(), Roles::kDisplayNickname);
                 emit dataChanged(cityIndex, cityIndex, QList<int>() << Roles::kDisplayNickname);
-
-                QModelIndex bestLocationIndex = getBestLocationIndex();
-                if (bestLocationIndex.isValid()) {
-                    LocationID best = qvariant_cast<LocationID>(data(bestLocationIndex, Roles::kLocationId));
-                    LocationID city = qvariant_cast<LocationID>(data(cityIndex, Roles::kLocationId));
-                    if (best.bestLocationToApiLocation() == city) {
-                        qCDebug(LOG_LOCATION_LIST) << "Setting renamed best location nickname" << cityId << data(bestLocationIndex, Roles::kNick).toString() << "->" << cityObj["nickname"].toString();
-                        setData(bestLocationIndex, cityObj["nickname"].toString(), Roles::kDisplayNickname);
-                        emit dataChanged(bestLocationIndex, bestLocationIndex);
-                    }
-                }
             }
         }
     }
@@ -1025,16 +1011,6 @@ void LocationsModel::resetRenamedLocations()
 
             }
         }
-    }
-
-    // Reset best location nickname, if necessary
-    LocationID bestLocation = qvariant_cast<LocationID>(data(index(0, 0), Roles::kLocationId));
-    if (bestLocation.isValid() &&
-        bestLocation.isBestLocation() &&
-        locations_[0]->location().name != data(index(0, 0), Roles::kDisplayNickname).toString())
-    {
-        setData(index(0, 0), QString(), Roles::kDisplayNickname);
-        emit dataChanged(index(0, 0), index(0, 0));
     }
 
     renamedLocationsStorage_.reset();

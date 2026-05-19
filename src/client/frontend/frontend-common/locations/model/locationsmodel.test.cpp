@@ -3,20 +3,38 @@
 #include "types/locationid.h"
 #include "locations/locationsmodel_roles.h"
 
+void TestLocationsModel::initTestCase()
+{
+    // QSettings uses organizationName + applicationName to locate its backing store.
+    // Without them, Qt's NativeFormat stores to inconsistent paths across platforms
+    // (notably on Windows, where writes to an empty-org registry path don't round-trip
+    // reliably between QSettings instances in the same process). Pin both so the
+    // migration test's write → read cycle behaves identically on all platforms.
+    QCoreApplication::setOrganizationName("WindscribeTest");
+    QCoreApplication::setApplicationName("locationsmodel.test");
+}
+
+void TestLocationsModel::cleanupTestCase()
+{
+    // Wipe everything this test binary wrote to QSettings so repeated runs (and
+    // developers running the test locally) don't accumulate registry/plist/ini
+    // entries under the WindscribeTest/locationsmodel.test scope.
+    QSettings settings;
+    settings.clear();
+}
+
 void TestLocationsModel::init()
 {
     {
         QFile file(":data/tests/locationsmodel/original.json");
-        file.open(QIODevice::ReadOnly);
-        QVERIFY(file.isOpen());
+        QVERIFY(file.open(QIODevice::ReadOnly));
         QByteArray arr = file.readAll();
         testOriginal_ = types::Location::loadLocationsFromJson(arr);
         QVERIFY(!testOriginal_.isEmpty());
     }
     {
         QFile file(":data/tests/locationsmodel/custom_config.json");
-        file.open(QIODevice::ReadOnly);
-        QVERIFY(file.isOpen());
+        QVERIFY(file.open(QIODevice::ReadOnly));
         QByteArray arr = file.readAll();
         customConfigLocation_ = types::Location::loadLocationFromJson(arr);
     }
@@ -90,7 +108,6 @@ void TestLocationsModel::testBestLocation()
         locationsModel_->updateBestLocation(bestLocation_);
         QVERIFY(isModelsCorrect(bestLocation_, testOriginal_, customConfigLocation_) == true);
 
-        QCOMPARE(spyChanged.count(), 0);
         QCOMPARE(spyRemoved.count(), 0);
         QCOMPARE(spyInserted.count(), 1);
         QList<QVariant> arguments = spyInserted.takeFirst();
@@ -203,8 +220,7 @@ void TestLocationsModel::testConnectionSpeed()
 void TestLocationsModel::testAddDeleteCountry()
 {
     QFile file(":data/tests/locationsmodel/deleted_locations.json");
-    file.open(QIODevice::ReadOnly);
-    QVERIFY(file.isOpen());
+    QVERIFY(file.open(QIODevice::ReadOnly));
     QByteArray arr = file.readAll();
     QVector<types::Location> changed = types::Location::loadLocationsFromJson(arr);
 
@@ -218,8 +234,7 @@ void TestLocationsModel::testAddDeleteCountry()
 void TestLocationsModel::testAddDeleteCity()
 {
     QFile file(":data/tests/locationsmodel/deleted_cities.json");
-    file.open(QIODevice::ReadOnly);
-    QVERIFY(file.isOpen());
+    QVERIFY(file.open(QIODevice::ReadOnly));
     QByteArray arr = file.readAll();
     QVector<types::Location> changed = types::Location::loadLocationsFromJson(arr);
 
@@ -234,8 +249,7 @@ void TestLocationsModel::testChangedOrder()
 {
     {
         QFile file(":data/tests/locationsmodel/changed_locations_order.json");
-        file.open(QIODevice::ReadOnly);
-        QVERIFY(file.isOpen());
+        QVERIFY(file.open(QIODevice::ReadOnly));
         QByteArray arr = file.readAll();
         QVector<types::Location> changed = types::Location::loadLocationsFromJson(arr);
 
@@ -253,8 +267,7 @@ void TestLocationsModel::testChangedOrder()
     }
     {
         QFile file(":data/tests/locationsmodel/changed_cities_order.json");
-        file.open(QIODevice::ReadOnly);
-        QVERIFY(file.isOpen());
+        QVERIFY(file.open(QIODevice::ReadOnly));
         QByteArray arr = file.readAll();
         QVector<types::Location> changed = types::Location::loadLocationsFromJson(arr);
 
@@ -276,8 +289,7 @@ void TestLocationsModel::testChangedCaptions()
 {
     {
         QFile file(":data/tests/locationsmodel/changed_locations_captions.json");
-        file.open(QIODevice::ReadOnly);
-        QVERIFY(file.isOpen());
+        QVERIFY(file.open(QIODevice::ReadOnly));
         QByteArray arr = file.readAll();
         QVector<types::Location> changed = types::Location::loadLocationsFromJson(arr);
 
@@ -295,8 +307,7 @@ void TestLocationsModel::testChangedCaptions()
     }
     {
         QFile file(":data/tests/locationsmodel/changed_cities_captions.json");
-        file.open(QIODevice::ReadOnly);
-        QVERIFY(file.isOpen());
+        QVERIFY(file.open(QIODevice::ReadOnly));
         QByteArray arr = file.readAll();
         QVector<types::Location> changed = types::Location::loadLocationsFromJson(arr);
 
@@ -314,6 +325,82 @@ void TestLocationsModel::testFreeSessionStatusChange()
     QVERIFY(ind.data(gui_locations::kIsShowAsPremium).toBool() == false);
     locationsModel_->setFreeSessionStatus(true, QStringList());
     QVERIFY(ind.data(gui_locations::kIsShowAsPremium).toBool() == true);
+}
+
+// Regression test: top-level rows (countries and the best-location row) must never
+// surface a non-empty kDisplayNickname. Pre-fix, setData(kDisplayNickname) on any
+// top-level index wrote to RenamedLocationsStorage keyed on that row's idNum with
+// a kInvalidCityId city key. Symmetrically, dataForLocation(kDisplayNickname)
+// resolved the same key for any top-level row. Two consequences:
+//   1. Writing a nickname on a country row made that country render
+//      "<Country> - <nick>" in the system tray.
+//   2. The best-location LocationItem left location_.idNum uninitialized, so
+//      updateBestLocation's internal setData wrote to a poisoned (UB, -1) key;
+//      collisions with real country idNums produced the same visible artifact.
+// The fix refuses top-level nickname writes and only resolves nicknames for the
+// best-location row. The test exercises path (1) directly — it's deterministic
+// because the write and read both dereference the same LocationItem's idNum.
+void TestLocationsModel::testDisplayNicknameDoesNotLeakToTopLevelRows()
+{
+    // Start from clean persisted storage — the LocationsModel ctor reads QSettings.
+    locationsModel_->resetRenamedLocations();
+
+    bestLocation_ = LocationID::createApiLocationId(63, "Vancouver", "Vansterdam").apiLocationToBestLocation();
+    locationsModel_->updateBestLocation(bestLocation_);
+
+    QModelIndex countryIdx = locationsModel_->getIndexByLocationId(LocationID::createTopApiLocationId(63));
+    QVERIFY(countryIdx.isValid());
+    QVERIFY(countryIdx.data(gui_locations::kDisplayNickname).toString().isEmpty());
+
+    // Core of the old bug: setData(kDisplayNickname) on a top-level row wrote to
+    // RenamedLocationsStorage at (row.idNum, kInvalidCityId), and dataForLocation()
+    // resolved the same key for non-best top-level rows. Both sides dereference the
+    // same LocationItem's idNum, so even if idNum was uninitialized in the old build,
+    // the value is stable per-object — the read observes what the write stored.
+    locationsModel_->setData(countryIdx, QStringLiteral("POISON"), gui_locations::kDisplayNickname);
+    QCOMPARE(countryIdx.data(gui_locations::kDisplayNickname).toString(), QString());
+
+    QModelIndex bestIdx = locationsModel_->getBestLocationIndex();
+    QVERIFY(bestIdx.isValid());
+    locationsModel_->setData(bestIdx, QStringLiteral("BEST_POISON"), gui_locations::kDisplayNickname);
+    QCOMPARE(countryIdx.data(gui_locations::kDisplayNickname).toString(), QString());
+}
+
+// Regression test: persisted storage from a pre-fix install carries country-level
+// nickname entries (cityId == kInvalidCityId) that the old buggy setData wrote via
+// an uninitialized best-location idNum. On load, the storage now drops those entries
+// and persists the cleaned state so users heal on first launch of the fixed build.
+void TestLocationsModel::testRenamedLocationsStoragePoisonMigration()
+{
+    // Ensure a clean QSettings slot — prior runs or init() may have left residue.
+    {
+        QSettings settings;
+        settings.remove("renamedLocations");
+    }
+
+    constexpr int kPoisonedLocationId = 99;
+    constexpr int kLegitLocationId = 10;
+    constexpr int kLegitCityId = 326;
+
+    {
+        gui_locations::RenamedLocationsStorage seeder;
+        seeder.setNickname(kLegitLocationId, kLegitCityId, QStringLiteral("LEGIT"));
+        seeder.setNickname(kPoisonedLocationId, gui_locations::RenamedLocationsStorage::kInvalidCityId, QStringLiteral("POISON"));
+        seeder.writeToSettings();
+    }
+
+    gui_locations::RenamedLocationsStorage migrated;
+    migrated.readFromSettings();
+
+    QCOMPARE(migrated.nickname(kLegitLocationId, kLegitCityId), QStringLiteral("LEGIT"));
+    QCOMPARE(migrated.nickname(kPoisonedLocationId, gui_locations::RenamedLocationsStorage::kInvalidCityId), QString());
+
+    // Migration must persist — a subsequent fresh read sees the cleaned state
+    // without having to apply the drop again.
+    gui_locations::RenamedLocationsStorage verify;
+    verify.readFromSettings();
+    QCOMPARE(verify.nickname(kLegitLocationId, kLegitCityId), QStringLiteral("LEGIT"));
+    QCOMPARE(verify.nickname(kPoisonedLocationId, gui_locations::RenamedLocationsStorage::kInvalidCityId), QString());
 }
 
 bool TestLocationsModel::isModelsCorrect(const LocationID &bestLocation, const QVector<types::Location> &locations, const types::Location &customConfigLocation)

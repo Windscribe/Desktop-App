@@ -1,7 +1,8 @@
 #include "dnsscripts_linux.h"
 #include "utils/log/categories.h"
-#include <QProcess>
 #include <QFile>
+#include <QProcess>
+#include <QStandardPaths>
 
 DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::dnsManager() {
     if (dnsManager_ == DNS_MANAGER_AUTOMATIC) {
@@ -33,14 +34,12 @@ DnsScripts_linux::SCRIPT_TYPE DnsScripts_linux::detectScript()
     QString resolvConfFileSymlink;
     QString resolvConfFileHeader;
 
-    // check if the resolvconf utility is installed and its symlink.
+    // check if the resolvconf utility is installed and resolve its real target
     {
-        QProcess process;
-        process.start("resolvconf");
-        process.waitForFinished();
-        isResolvConfInstalled = (process.error() == QProcess::UnknownError);
+        const QString resolvconfPath = QStandardPaths::findExecutable("resolvconf");
+        isResolvConfInstalled = !resolvconfPath.isEmpty();
         if (isResolvConfInstalled) {
-            resolvConfSymlink = getSymlink("/usr/bin/resolvconf");
+            resolvConfSymlink = getSymlink(resolvconfPath);
         }
     }
 

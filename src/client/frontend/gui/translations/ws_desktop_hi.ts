@@ -1273,6 +1273,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Server Routing</source>
         <translation>सर्वर रूटिंग</translation>
     </message>
+    <message>
+        <source>Large TLS</source>
+        <translation>बड़ा टीएलएस</translation>
+    </message>
+    <message>
+        <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
+        <translation>टीएलएस पैकेटों को कृत्रिम रूप से बड़ा करें, कुछ मामलों में सेंसरशिप को दरकिनार करने में मदद करता है। सभी एपीआई अनुरोधों में अतिरिक्त टीएलएस पैडिंग जोड़ता है।</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -2567,6 +2575,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>वान गाग</translation>
     </message>
     <message>
+        <source>Enabled</source>
+        <translation>सक्षम</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>अक्षम</translation>
+    </message>
+    <message>
+        <source>Config file too large</source>
+        <translation>कॉन्फ़िगरेशन फ़ाइल बहुत बड़ी है</translation>
+    </message>
+    <message>
         <source>Failed to open file</source>
         <translation>फ़ाइल खोलने में विफल</translation>
     </message>
@@ -2601,6 +2621,42 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</source>
         <translation>&quot;पीयर&quot; अनुभाग में &quot;समापन बिंदु&quot; अनुपलब्ध है</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PrivateKey&quot; format</source>
+        <translation>अमान्य &quot;PrivateKey&quot; स्वरूप</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PublicKey&quot; format</source>
+        <translation>अमान्य &quot;PublicKey&quot; स्वरूप</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PresharedKey&quot; format</source>
+        <translation>अमान्य &quot;PresharedKey&quot; स्वरूप</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;Address&quot; value: %1</source>
+        <translation>अमान्य &quot;पता&quot; मान: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
+        <translation>अमान्य &quot;अनुमत IPS&quot; मान: %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;DNS&quot; value: %1</source>
+        <translation>अमान्य &quot;DNS&quot; मान: %1</translation>
+    </message>
+    <message>
+        <source>Invalid endpoint port</source>
+        <translation>अमान्य समापन बिंदु पोर्ट</translation>
+    </message>
+    <message>
+        <source>Invalid AmneziaWG header parameter</source>
+        <translation>अमान्य AmneziaWG हेडर पैरामीटर</translation>
+    </message>
+    <message>
+        <source>AmneziaWG init parameter too large</source>
+        <translation>AmneziaWG init पैरामीटर बहुत बड़ा</translation>
     </message>
     <message>
         <source>Static IPs</source>

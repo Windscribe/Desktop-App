@@ -55,7 +55,9 @@ ConnectWindowItem::ConnectWindowItem(QGraphicsObject *parent, Preferences *prefe
     connect(connectStateProtocolPort_, &ClickableGraphicsObject::hoverEnter, this, &ConnectWindowItem::onConnectStateTextHoverEnter);
     connect(connectStateProtocolPort_, &ClickableGraphicsObject::hoverLeave, this, &ConnectWindowItem::onConnectStateTextHoverLeave);
     connect(connectStateProtocolPort_, &ClickableGraphicsObject::clicked, this, &ConnectWindowItem::onProtocolsClick);
-    connect(preferences_, &Preferences::isAntiCensorshipChanged, connectStateProtocolPort_, &ConnectStateProtocolPort::antiCensorshipChanged);
+    connect(preferences, &Preferences::protocolTweaksMethodChanged, this, &ConnectWindowItem::updateAntiCensorshipBadge);
+    connect(preferencesHelper, &PreferencesHelper::apiSuggestedAmneziawgPresetChanged, this, &ConnectWindowItem::updateAntiCensorshipBadge);
+    updateAntiCensorshipBadge();
 
     cityName1Text_ = new CommonGraphics::TextButton("", FontDescr(21, QFont::DemiBold), Qt::white, true, this, 0, true);
     cityName1Text_->setUnhoverOpacity(OPACITY_FULL);
@@ -649,6 +651,28 @@ void ConnectWindowItem::onLanguageChanged()
 {
     firewallLabel_->setText(tr("FIREWALL"));
     updatePositions();
+}
+
+void ConnectWindowItem::updateAntiCensorshipBadge()
+{
+    // Anti-censorship badge rules:
+    //   - Protocol Tweaks = Enabled  -> always shown
+    //   - Protocol Tweaks = Auto     -> shown when the API has suggested an AmneziaWG preset
+    //   - Protocol Tweaks = Disabled -> hidden
+    bool enabled = false;
+    switch (preferences_->protocolTweaksMethod()) {
+    case PROTOCOL_TWEAKS_METHOD_ENABLED:
+        enabled = true;
+        break;
+    case PROTOCOL_TWEAKS_METHOD_AUTO:
+        enabled = !preferencesHelper_->apiSuggestedAmneziawgPreset().isEmpty();
+        break;
+    case PROTOCOL_TWEAKS_METHOD_DISABLED:
+    default:
+        enabled = false;
+        break;
+    }
+    connectStateProtocolPort_->antiCensorshipChanged(enabled);
 }
 
 void ConnectWindowItem::setIsPremium(bool isPremium)

@@ -1273,6 +1273,14 @@ If the problem persists after a restart, please send a debug log and open a supp
         <source>Server Routing</source>
         <translation>مسیریابی سرور</translation>
     </message>
+    <message>
+        <source>Large TLS</source>
+        <translation>TLS بزرگ</translation>
+    </message>
+    <message>
+        <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
+        <translation>بزرگ نمایی مصنوعی بسته های TLS در برخی موارد به دور زدن سانسور کمک می کند. افزودن پدینگ TLS اضافی به همه درخواست های API.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -2567,6 +2575,18 @@ If the reinstall does not help, please contact Windscribe support for assistance
         <translation>ون گوگ</translation>
     </message>
     <message>
+        <source>Enabled</source>
+        <translation>فعال</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>معلول</translation>
+    </message>
+    <message>
+        <source>Config file too large</source>
+        <translation>فایل پیکربندی خیلی بزرگ است</translation>
+    </message>
+    <message>
         <source>Failed to open file</source>
         <translation>باز کردن پرونده شکست خورد</translation>
     </message>
@@ -2601,6 +2621,42 @@ If the reinstall does not help, please contact Windscribe support for assistance
     <message>
         <source>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</source>
         <translation>گم شدن &quot;Endpoint&quot; در بخش &quot;Peer&quot;</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PrivateKey&quot; format</source>
+        <translation>فرمت نامعتبر «PrivateKey»</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PublicKey&quot; format</source>
+        <translation>فرمت نامعتبر «PublicKey»</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PresharedKey&quot; format</source>
+        <translation>فرمت نامعتبر «PresharedKey»</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;Address&quot; value: %1</source>
+        <translation>مقدار «آدرس» نامعتبر: ٪1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
+        <translation>مقدار نامعتبر «مالکیت های مجاز» (AllowedIPs): ٪1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;DNS&quot; value: %1</source>
+        <translation>مقدار «DNS» نامعتبر: ٪1</translation>
+    </message>
+    <message>
+        <source>Invalid endpoint port</source>
+        <translation>پورت نقطه پایانی نامعتبر</translation>
+    </message>
+    <message>
+        <source>Invalid AmneziaWG header parameter</source>
+        <translation>پارامتر هدر AmneziaWG نامعتبر</translation>
+    </message>
+    <message>
+        <source>AmneziaWG init parameter too large</source>
+        <translation>AmneziaWG init پارامتر خیلی بزرگ است</translation>
     </message>
     <message>
         <source>Static IPs</source>

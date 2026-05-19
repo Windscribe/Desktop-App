@@ -13,6 +13,8 @@ class TestLocationsModel : public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
+    void cleanupTestCase();
     void init();
     void cleanup();
 
@@ -25,6 +27,8 @@ private slots:
     void testChangedOrder();
     void testChangedCaptions();
     void testFreeSessionStatusChange();
+    void testDisplayNicknameDoesNotLeakToTopLevelRows();
+    void testRenamedLocationsStoragePoisonMigration();
 
 private:
     QVector<types::Location> testOriginal_;

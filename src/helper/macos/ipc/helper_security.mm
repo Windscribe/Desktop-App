@@ -7,31 +7,80 @@
 #define REQUIREMENT_STRING "anchor apple generic and (identifier \"" WS_MAC_GUI_BUNDLE_ID "\" or identifier \"" WS_MAC_INSTALLER_BUNDLE_ID "\")" \
                            "and certificate leaf[subject.CN] = \"" MACOS_CERT_DEVELOPER_ID "\""
 
+namespace HelperSecurity {
+static thread_local SecCodeRef tls_currentSecCode_ = NULL;
+}
+
 bool HelperSecurity::isValidXpcConnection(xpc_object_t event)
 {
-#if defined(USE_SIGNATURE_CHECK)
-    SecCodeRef secCode;
+    // Always clear any stale ref from a previous call on this thread.
+    clearCurrentCallerSecCode();
+
+    // Extract the caller's SecCode regardless of whether we enforce signature
+    // verification on this build. Command handlers (e.g. setInstallerPaths)
+    // rely on it to resolve the calling bundle's path. Dev builds without
+    // USE_SIGNATURE_CHECK get this side benefit without enforcement.
+    SecCodeRef secCode = NULL;
     OSStatus osStatus = SecCodeCreateWithXPCMessage(event, kSecCSDefaultFlags, &secCode);
-    if (osStatus != errSecSuccess) {
+    if (osStatus == errSecSuccess && secCode) {
+        tls_currentSecCode_ = secCode;
+    }
+
+#if defined(USE_SIGNATURE_CHECK)
+    if (!tls_currentSecCode_) {
         spdlog::error("SecCodeCreateWithXPCMessage failed with: {}", (int)osStatus);
         return false;
     }
 
-    CFStringRef requirementString = CFSTR(REQUIREMENT_STRING);
     SecRequirementRef secRequirement;
-    osStatus = SecRequirementCreateWithString(requirementString, kSecCSDefaultFlags, &secRequirement);
+    osStatus = SecRequirementCreateWithString(CFSTR(REQUIREMENT_STRING), kSecCSDefaultFlags, &secRequirement);
     if (osStatus != errSecSuccess) {
         spdlog::error("SecRequirementCreateWithString failed with: {}", (int)osStatus);
-        CFRelease(secCode);
+        clearCurrentCallerSecCode();
         return false;
     }
-    bool isValid =  SecCodeCheckValidity(secCode, kSecCSDefaultFlags,  secRequirement) == errSecSuccess;
+    bool isValid = SecCodeCheckValidity(tls_currentSecCode_, kSecCSDefaultFlags, secRequirement) == errSecSuccess;
     CFRelease(secRequirement);
-    CFRelease(secCode);
 
+    if (!isValid) {
+        clearCurrentCallerSecCode();
+    }
     return isValid;
+#else
+    (void)event;
+    return true;
 #endif
-  (void)event;
-  return true;
+}
+
+SecCodeRef HelperSecurity::currentCallerSecCode()
+{
+    return tls_currentSecCode_;
+}
+
+void HelperSecurity::clearCurrentCallerSecCode()
+{
+    if (tls_currentSecCode_) {
+        CFRelease(tls_currentSecCode_);
+        tls_currentSecCode_ = NULL;
+    }
+}
+
+bool HelperSecurity::recheckCurrentCaller()
+{
+#if defined(USE_SIGNATURE_CHECK)
+    if (!tls_currentSecCode_) {
+        return false;
+    }
+    SecRequirementRef req;
+    OSStatus s = SecRequirementCreateWithString(CFSTR(REQUIREMENT_STRING), kSecCSDefaultFlags, &req);
+    if (s != errSecSuccess) {
+        return false;
+    }
+    bool ok = SecCodeCheckValidity(tls_currentSecCode_, kSecCSDefaultFlags, req) == errSecSuccess;
+    CFRelease(req);
+    return ok;
+#else
+    return true;
+#endif
 }
 

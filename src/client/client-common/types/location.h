@@ -10,7 +10,7 @@ namespace types {
 struct City
 {
     LocationID id;
-    int idNum;
+    int idNum = -1;
     QString city;
     QString nick;
     PingTime pingTimeMs;
@@ -41,7 +41,7 @@ struct City
 struct Location
 {
     LocationID id;
-    int idNum;
+    int idNum = -1;
     QString name;
     QString countryCode;
     QString shortName;

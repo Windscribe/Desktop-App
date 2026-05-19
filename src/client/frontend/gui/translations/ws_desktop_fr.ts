@@ -1273,6 +1273,14 @@ Si le problème persiste après un redémarrage, envoyez un journal de débogage
         <source>Server Routing</source>
         <translation>Routage des serveurs</translation>
     </message>
+    <message>
+        <source>Large TLS</source>
+        <translation>TLS grand</translation>
+    </message>
+    <message>
+        <source>Artificially enlarge TLS packets, helps to circumvent censorship in some cases. Adds extra TLS padding to all API requests.</source>
+        <translation>Agrandir artificiellement les paquets TLS aide à contourner la censure dans certains cas. Ajoute un remplissage TLS supplémentaire à toutes les requêtes API.</translation>
+    </message>
 </context>
 <context>
     <name>PreferencesWindow::AppBackgroundGroup</name>
@@ -2567,6 +2575,18 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
         <translation>Van Gogh</translation>
     </message>
     <message>
+        <source>Enabled</source>
+        <translation>Activé</translation>
+    </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Handicapé</translation>
+    </message>
+    <message>
+        <source>Config file too large</source>
+        <translation>Fichier de configuration trop volumineux</translation>
+    </message>
+    <message>
         <source>Failed to open file</source>
         <translation>Impossible d’ouvrir le fichier</translation>
     </message>
@@ -2601,6 +2621,42 @@ Si la réinstallation ne résout pas le problème, veuillez contacter le support
     <message>
         <source>Missing &quot;Endpoint&quot; in the &quot;Peer&quot; section</source>
         <translation>Il manque « Point de terminaison » dans la section « Pair »</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PrivateKey&quot; format</source>
+        <translation>Format « PrivateKey » invalide</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PublicKey&quot; format</source>
+        <translation>Format « PublicKey » invalide</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;PresharedKey&quot; format</source>
+        <translation>Format « PresharedKey » invalide</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;Address&quot; value: %1</source>
+        <translation>Valeur « Adresse » invalide : %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;AllowedIPs&quot; value: %1</source>
+        <translation>Valeur « AllowedIPs » invalide : %1</translation>
+    </message>
+    <message>
+        <source>Invalid &quot;DNS&quot; value: %1</source>
+        <translation>Valeur « DNS » invalide : %1</translation>
+    </message>
+    <message>
+        <source>Invalid endpoint port</source>
+        <translation>Port de terminaison invalide</translation>
+    </message>
+    <message>
+        <source>Invalid AmneziaWG header parameter</source>
+        <translation>Invalid AmneziaWG header parameter</translation>
+    </message>
+    <message>
+        <source>AmneziaWG init parameter too large</source>
+        <translation>Paramètre d’init AmneziaWG trop grand</translation>
     </message>
     <message>
         <source>Static IPs</source>
